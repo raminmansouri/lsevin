@@ -1,0 +1,204 @@
+Refine only the following admin pages in the current LSevin design and do not modify any other pages, modules, flows, components, or layouts outside of these pages.
+
+Important:
+- Do not redesign the whole admin system
+- Do not touch the main dashboard page
+- Do not change mobile app screens
+- Do not change provider panels
+- Do not change navigation structure
+- Do not change pages that are already correct
+- Only improve the listed pages below
+- Each listed page must have its own unique layout, content hierarchy, data structure, and operational purpose
+- These pages must no longer look like duplicated copies of the dashboard
+
+Pages to refine only:
+- Live Activity
+- Users
+- Bookings
+- Payments
+- Campaigns
+- Rewards
+- Support
+- Reports
+- Localization
+- Settings
+- Audit Logs
+
+Goal:
+Each page should become a real enterprise admin page with its own data model, layout logic, and use case, while still staying visually consistent with the existing LSevin admin design system.
+
+Brand colors:
+#083f30
+#eacb7f
+
+Style:
+Minimal enterprise SaaS
+Premium
+Clean
+Operational
+Structured
+High information clarity
+
+Keep:
+- existing design language
+- existing admin sidebar
+- existing topbar
+- existing color system
+- existing spacing system
+- existing component style
+
+Refine each page as follows:
+
+1. Live Activity
+Make this a real operational monitoring page.
+Include:
+- real-time activity feed
+- recent bookings
+- recent user signups
+- provider actions
+- payment events
+- support escalations
+- filters by event type, country, date, status
+- timeline/feed layout
+This page should feel dynamic and monitoring-focused, not like a dashboard copy.
+
+2. Users
+Make this a real user management page.
+Include:
+- user table
+- search
+- filters
+- status
+- country
+- role
+- verification state
+- registration date
+- user detail drawer or profile preview
+- account actions
+This page should feel like user administration, not analytics overview.
+
+3. Bookings
+Make this a real booking operations page.
+Include:
+- bookings table
+- booking ID
+- user
+- provider
+- service type
+- date
+- payment status
+- booking status
+- filters
+- bulk actions
+- booking detail panel
+This page should feel transactional and operational.
+
+4. Payments
+Make this a real financial operations page.
+Include:
+- payments table
+- transaction ID
+- user/provider
+- amount
+- currency
+- method
+- payout/refund status
+- settlement states
+- filters
+- finance summary row
+This page should feel finance-focused, not like general analytics.
+
+5. Campaigns
+Make this a campaign management page.
+Include:
+- campaign cards or table
+- banner/video placements
+- status
+- target country
+- target category
+- budget
+- performance
+- schedule
+- create/edit campaign CTA
+This page should feel like marketing operations.
+
+6. Rewards
+Make this a loyalty and rewards control page.
+Include:
+- points rules
+- reward campaigns
+- loyalty tiers
+- coupon controls
+- referrals
+- reward issuance logs
+- activation/deactivation controls
+This page should feel like a loyalty engine management page.
+
+7. Support
+Make this a support and ticket operations page.
+Include:
+- ticket queue
+- ticket priority
+- ticket status
+- assigned agent
+- user/provider type
+- category
+- response time
+- chat/ticket detail panel
+This page should feel like a support desk.
+
+8. Reports
+Make this a reporting center.
+Include:
+- report categories
+- export options
+- saved reports
+- scheduled reports
+- date range controls
+- country/category filters
+- downloadable report cards
+This page should feel like a reporting workspace.
+
+9. Localization
+Make this a localization management page.
+Include:
+- languages list
+- translation status
+- missing keys
+- content sync status
+- country/language mapping
+- localized content modules
+This page should feel like language and localization operations.
+
+10. Settings
+Make this a true system settings page.
+Include:
+- grouped settings sections
+- platform settings
+- payment settings
+- notification settings
+- security settings
+- provider policy settings
+- booking rules
+- save/update actions
+This page should feel like configuration management.
+
+11. Audit Logs
+Make this a real compliance and activity audit page.
+Include:
+- log table
+- actor
+- action
+- module
+- timestamp
+- IP/device if appropriate
+- severity
+- filters
+- detailed log view
+This page should feel compliance-focused and traceable.
+
+Important design rule:
+Do not duplicate the dashboard layout for these pages.
+Each page must have a purpose-specific structure while remaining visually consistent with the current admin system.
+
+Only update these listed pages and leave everything else unchanged.

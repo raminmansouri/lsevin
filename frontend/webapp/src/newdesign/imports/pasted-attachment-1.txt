@@ -1,0 +1,199 @@
+Complete only the internal management panels for the provider types in the current LSevin design.
+
+Important scope rules:
+- Only work on the provider internal management panels after onboarding
+- Do not modify the Provider Portal main page
+- Do not modify the provider-type selection cards
+- Do not modify the onboarding entry pages that are already created
+- Do not modify the main admin dashboard
+- Do not modify mobile app screens
+- Do not modify user-facing flows
+- Do not modify unrelated modules
+- Leave all existing correct pages unchanged
+
+Goal:
+Create complete, production-ready internal management panels for each provider type, using the existing LSevin design system and architecture already present in this file.
+
+These provider panels must feel like real commercial operational software, not generic dashboard copies and not reused versions of the same page.
+
+Brand colors:
+#083f30
+#eacb7f
+
+Style:
+Minimal enterprise SaaS
+Premium
+Clean
+Structured
+Professional
+High clarity
+Operational
+Commercial-grade
+
+Keep:
+- existing design language
+- existing admin shell if already correct
+- existing color system
+- existing spacing system
+- existing component system
+- existing provider flows and architecture
+
+Create or complete the internal management panels for these provider types:
+
+1. Clinic / Hospital Panel
+This panel must include:
+- dashboard overview
+- bookings management
+- doctors management
+- departments / specialties
+- treatments catalog
+- pricing management
+- availability calendar
+- media gallery
+- reviews and ratings
+- promotions / featured placement
+- analytics
+- billing / subscription
+- support
+
+Design focus:
+institutional, structured, trust-heavy, multi-department operational system
+
+2. Doctor / Specialist Panel
+This panel must include:
+- dashboard overview
+- professional profile
+- specialties
+- consultation schedule
+- online consultation setup
+- bookings management
+- services list
+- patient requests
+- earnings / payouts
+- reviews
+- settings
+- support
+
+Design focus:
+professional, profile-centric, consultation and booking oriented
+
+3. Beauty Salon / Spa Panel
+This panel must include:
+- dashboard overview
+- branch profile
+- staff management
+- service menu
+- appointment slots
+- pricing
+- offers / packages
+- before/after workflow
+- gallery
+- reviews
+- loyalty participation
+- analytics
+- billing
+- support
+
+Design focus:
+premium service business, elegant, appointment and staff oriented
+
+4. Gym / Fitness Center Panel
+This panel must include:
+- dashboard overview
+- gym profile
+- trainers management
+- class schedule
+- memberships / plans
+- services
+- live crowd status
+- offers
+- bookings
+- analytics
+- billing
+- support
+
+Design focus:
+performance-oriented, active service management, schedule-heavy
+
+5. Hotel / Accommodation Panel
+This panel must include:
+- dashboard overview
+- property profile
+- room inventory
+- room categories
+- amenities
+- seasonal pricing
+- availability calendar
+- bookings management
+- gallery
+- reviews
+- analytics
+- billing
+- support
+
+Design focus:
+hospitality-oriented, reservation and inventory management
+
+6. Tourism Provider Panel
+This panel must include:
+- dashboard overview
+- packages management
+- destinations / cities served
+- transfer services
+- availability schedule
+- pricing
+- media
+- bookings
+- analytics
+- billing
+- support
+
+Design focus:
+travel operations, itinerary and scheduling oriented
+
+7. Pharmacy Panel
+This panel must include:
+- dashboard overview
+- prescription inbox
+- medicine request handling
+- pricing reply
+- order status
+- delivery tracking
+- operating hours
+- service settings
+- analytics
+- billing
+- support
+
+Design focus:
+medical-retail operations, request processing, clean transactional workflow
+
+8. Education Provider Panel
+This panel must include:
+- dashboard overview
+- institution profile
+- course catalog
+- instructors
+- registrations
+- class schedule
+- certificates
+- student management
+- analytics
+- billing
+- support
+
+Design focus:
+structured learning operations, registrations and course management
+
+Important design rules:
+- Each provider panel must have a unique operational structure
+- Do not duplicate the same dashboard layout for every provider type
+- Keep visual consistency across the system, but adapt layout, tables, cards, filters, and modules to the needs of each provider type
+- Use real management patterns: tables, calendars, filters, drawers, detail panels, charts, upload areas, status badges
+- Each panel should feel complete and usable by a real business operator
+- Use proper auto layout, alignment, spacing, and polished component hierarchy
+- Make all pages product-grade and ready for development handoff
+
+Important final rule:
+Only complete the provider internal management panels.
+Leave the Provider Portal, onboarding pages, admin pages, mobile app, and all unrelated screens unchanged.
