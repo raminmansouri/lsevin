@@ -1,0 +1,157 @@
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+
+class __EFMigrationsHistory {
+   product_version: varchar(32)
+   migration_id: varchar(150)
+}
+class access_tokens {
+   user_id: uuid
+   token: varchar(2000)
+   created_at: timestamp with time zone
+   expired_at: timestamp with time zone
+   created_by_ip: varchar(50)
+   id: uuid
+}
+class asp_net_role_claims {
+   role_id: uuid
+   claim_type: text
+   claim_value: text
+   id: integer
+}
+class asp_net_roles {
+   name: varchar(256)
+   normalized_name: varchar(256)
+   concurrency_stamp: text
+   id: uuid
+}
+class asp_net_user_claims {
+   user_id: uuid
+   claim_type: text
+   claim_value: text
+   id: integer
+}
+class asp_net_user_logins {
+   provider_display_name: text
+   user_id: uuid
+   login_provider: text
+   provider_key: text
+}
+class asp_net_user_roles {
+   user_id: uuid
+   role_id: uuid
+}
+class asp_net_user_tokens {
+   value: text
+   user_id: uuid
+   login_provider: text
+   name: text
+}
+class asp_net_users {
+   first_name: varchar(100)
+   last_name: varchar(50)
+   phone_number_country_code: varchar(3)
+   last_logged_in_at: timestamp with time zone
+   user_state: text
+   created_at: timestamp with time zone
+   user_name: varchar(50)
+   normalized_user_name: varchar(50)
+   email: varchar(250)
+   normalized_email: varchar(250)
+   email_confirmed: boolean
+   password_hash: text
+   security_stamp: text
+   concurrency_stamp: text
+   phone_number: varchar(20)
+   phone_number_confirmed: boolean
+   two_factor_enabled: boolean
+   lockout_end: timestamp with time zone
+   lockout_enabled: boolean
+   access_failed_count: integer
+   id: uuid
+}
+class email_verification_codes {
+   email: varchar(250)
+   code: char(6)
+   sent_at: timestamp with time zone
+   used_at: timestamp with time zone
+   id: uuid
+}
+class inbox_message_consumers {
+   message_id: uuid
+   name: varchar(500)
+}
+class inbox_messages {
+   type: varchar(250)
+   content: jsonb
+   occurred_on_utc: timestamp with time zone
+   processed_on_utc: timestamp with time zone
+   error: text
+   id: uuid
+}
+class internal_command_message_consumers {
+   message_id: uuid
+   name: varchar(500)
+}
+class internal_command_messages {
+   type: varchar(250)
+   content: jsonb
+   occurred_on_utc: timestamp with time zone
+   processed_on_utc: timestamp with time zone
+   error: text
+   id: uuid
+}
+class outbox_message_consumers {
+   message_id: uuid
+   name: varchar(500)
+}
+class outbox_messages {
+   type: varchar(250)
+   content: jsonb
+   occurred_on_utc: timestamp with time zone
+   processed_on_utc: timestamp with time zone
+   error: text
+   id: uuid
+}
+class password_reset_codes {
+   email: varchar(250)
+   code: varchar(6)
+   sent_at: timestamp with time zone
+   used_at: timestamp with time zone
+   id: uuid
+}
+class phone_login_codes {
+   user_id: uuid
+   code: char(6)
+   sent_at: timestamp with time zone
+   used_at: timestamp with time zone
+   expires_at: timestamp with time zone
+   attempt_count: integer
+   is_invalidated: boolean
+   phone_number_country_code: varchar(3)
+   phone_number: varchar(15)
+   id: uuid
+}
+class refresh_tokens {
+   user_id: uuid
+   token: varchar(100)
+   created_at: timestamp with time zone
+   expired_at: timestamp with time zone
+   created_by_ip: text
+   revoked_at: timestamp with time zone
+   id: uuid
+}
+
+access_tokens                       -[#595959,plain]-^  asp_net_users                      : "user_id:id"
+asp_net_role_claims                 -[#595959,plain]-^  asp_net_roles                      : "role_id:id"
+asp_net_user_claims                 -[#595959,plain]-^  asp_net_users                      : "user_id:id"
+asp_net_user_logins                 -[#595959,plain]-^  asp_net_users                      : "user_id:id"
+asp_net_user_roles                  -[#595959,plain]-^  asp_net_roles                      : "role_id:id"
+asp_net_user_roles                  -[#595959,plain]-^  asp_net_users                      : "user_id:id"
+asp_net_user_tokens                 -[#595959,plain]-^  asp_net_users                      : "user_id:id"
+phone_login_codes                   -[#595959,plain]-^  asp_net_users                      : "user_id:id"
+refresh_tokens                      -[#595959,plain]-^  asp_net_users                      : "user_id:id"
+@enduml

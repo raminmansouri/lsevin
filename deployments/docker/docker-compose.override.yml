@@ -1,0 +1,81 @@
+services:
+  lsevin-webapp:
+    container_name: lsevin-webapp
+    restart: on-failure
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_URL=http://lsevin-webapp
+      - NEXT_PUBLIC_API_URL=http://lsevin-api/api/v1
+      - NEXT_PUBLIC_SOCKET_URL=http://lsevin-api/hubs
+      - NEXT_PUBLIC_FILES_URL=http://lsevin-api/files
+      - AUTH_SECRET=Dj9bfnBVE0RXNAP6u8EZvXY8r3QsLYv9dYzMmzCwKHM=
+      - AUTH_URL=http://lsevin-webapp
+      - AUTH_TRUST_HOST=true
+      - WEBHOOK_KEY=U2FsdGVkX19d4y75XdwaEBcuX8YPIb7mpGlDHmnFFwB46CIEFm9kCo7CyllvDyvY1ZzvOq40QvY6Fc8MrNDldA==%
+      # - NODE_TLS_REJECT_UNAUTHORIZED=0
+    ports:
+      - "3000:3000"
+    networks:
+      - lsevin-network
+    depends_on:
+      - lsevin-api
+      - lsevin-apigateway
+
+  lsevin-api:
+    container_name: lsevin-api
+    restart: on-failure
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+;http://+
+      - ASPNETCORE_HTTPS_PORT=8080
+      - ASPNETCORE_HTTP_PORT=8081
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=password
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - Services__lsevin__http=https+http://lsevin-api
+      - ConnectionStrings__database=Host=postgres;Port=5432;Database=lsevin;Username=postgres;Password=postgres;Include Error Detail=true;
+      - ConnectionStrings__cache=redis:6379
+      - ConnectionStrings__eventstore=esdb://eventstore:2113?tls=false
+      - SerilogOptions__SeqUrl=http://seq:5341
+      - CorsOptions__AllowedUrls__0=http://lsevin-webapp
+      - ObservabilityOptions__JaegerOptions__OTLPGrpcExporterEndpoint=http://jaeger:4317
+      - ObservabilityOptions__JaegerOptions__HttpExporterEndpoint=http://jaeger:14268/api/traces
+      - ObservabilityOptions__UseAspireOTLPExporter=false
+      - WebApplicationClientOptions__ApiKey=U2FsdGVkX19d4y75XdwaEBcuX8YPIb7mpGlDHmnFFwB46CIEFm9kCo7CyllvDyvY1ZzvOq40QvY6Fc8MrNDldA==%
+      - WebApplicationClientOptions__BaseAddress=http://lsevin-webapp
+    ports:
+      - "8081:80"
+      - "8080:443"
+    networks:
+      - lsevin-network
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ~/.aspnet/https:/https:ro
+      - ~/uploads:/app/UploadFiles
+
+  lsevin-apigateway:
+    container_name: lsevin-apigateway
+    restart: on-failure
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+;http://+
+      - ASPNETCORE_HTTPS_PORT=8082
+      - ASPNETCORE_HTTP_PORT=8083
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=password
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - Services__lsevin__http=https+://lsevin-api
+      - SerilogOptions__SeqUrl=http://seq:5341
+      - ObservabilityOptions__JaegerOptions__OTLPGrpcExporterEndpoint=http://jaeger:4317
+      - ObservabilityOptions__JaegerOptions__HttpExporterEndpoint=http://jaeger:14268/api/traces
+      - ObservabilityOptions__UseAspireOTLPExporter=false
+      - ReverseProxy__Clusters__lsevin-cluster__Destinations__destination1__Address=https+http://lsevin-api
+    ports:
+      - "8083:80"
+      - "8082:443"
+    networks:
+      - lsevin-network
+    depends_on:
+      - lsevin-api
+    volumes:
+      - ~/.aspnet/https:/https:ro

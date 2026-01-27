@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="**\*.sql" CopyToOutputDirectory="PreserveNewest" />
+    <None Remove="bin\**" />
+    <None Remove="obj\**" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(TestProject)' == 'true'">
+    <IsPackable>False</IsPackable>
+    <IsPublishable>False</IsPublishable>
+  </PropertyGroup>
+  <ItemGroup Condition="$(MSBuildProjectFullPath.Contains('Tests'))">
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="FluentResults.Extensions.FluentAssertions" />
+    <PackageReference Include="NSubstitute" />
+    <PackageReference Include="NSubstitute.Analyzers.CSharp" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="NetArchTest.Rules" />
+    <PackageReference Include="Bogus" />
+    <PackageReference Include="AutoBogus" />
+    <PackageReference Include="xunit.runner.visualstudio">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+  </ItemGroup>
+  <ItemGroup Condition="$(MSBuildProjectFullPath.Contains('Tests'))">
+    <Using Include="Xunit" />
+    <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute" />
+  </ItemGroup>
+</Project>

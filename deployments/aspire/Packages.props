@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <AspNetCoreVersion>9.0.9</AspNetCoreVersion>
+    <AspireVersion>9.5.0</AspireVersion>
+    <AspireCommunityToolkitVersion>9.8.0</AspireCommunityToolkitVersion>
+  </PropertyGroup>
+</Project>

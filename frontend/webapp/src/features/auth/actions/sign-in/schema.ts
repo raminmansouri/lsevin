@@ -1,0 +1,8 @@
+import { z } from "zod/v4";
+
+export const SignInSchema = z.object({
+  userNameOrEmail: z.string().min(1),
+  password: z.string().min(6),
+  remember: z.boolean().optional(),
+  redirectTo: z.string().optional(),
+});

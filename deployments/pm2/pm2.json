@@ -1,0 +1,39 @@
+{
+    "apps": [
+        {
+            "name": "lsevin-api",
+            "script": "dotnet",
+            "args": "LSevin.Api.dll",
+            "cwd": "./src/API/LSevin.Api/bin/Release/net9.0/publish",
+            "watch": false,
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Production"
+            }
+        },
+        {
+            "name": "lsevin-apigateway",
+            "script": "dotnet",
+            "args": "LSevin.ApiGateway.Yarp.dll",
+            "cwd": "./src/API/LSevin.ApiGateway.Yarp/bin/Release/net9.0/publish",
+            "watch": false,
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Production"
+            }
+        },
+        {
+            "name": "lsevin-webapp",
+            "script": "node",
+            "args": "server.js",
+            "cwd": "./frontend/webapp/.next/standalone",
+            "watch": false,
+            "env": {
+                "NODE_ENV": "production",
+                "PORT": "3000",
+                "NEXT_PUBLIC_API_URL": "https://lsevin-apigateway",
+                "NEXT_PUBLIC_SOCKET_URL": "https://lsevin-apigateway/hubs",
+                "AUTH_URL": "http://localhost:3000",
+                "AUTH_TRUST_HOST": "true"
+            }
+        }
+    ]
+}

@@ -1,0 +1,1636 @@
+{
+  "Manifest": {
+    "name": "L Sevin"
+  },
+  "LocaleLayout": {
+    "title": "L Sevin",
+    "description": "Automatisierte Gesundheitsplattform, die die Terminplanung von Hotelaufenthalten bis zu medizinischen Terminen optimiert"
+  },
+  "Error": {
+    "title": "Etwas ist schiefgelaufen",
+    "description": "Bitte wenden Sie sich an den Systemadministrator."
+  },
+  "NotFoundPage": {
+    "title": "Seite nicht gefunden",
+    "description": "Bitte nutzen Sie die Startseite der Website."
+  },
+  "Admin": {
+    "dashboard": "Dashboard",
+    "consultings": "Beratungen",
+    "serviceProvidersRequest": "Anfragen von Dienstanbietern",
+    "categories": "Kategorien",
+    "serviceDefinitions": "Dienstleistungsdefinitionen",
+    "providerTypes": "Anbietertypen",
+    "staff": "Mitarbeiter",
+    "serviceProviders": "Dienstanbieter"
+  },
+  "HomePage": {
+    "title": "L Sevin - Automatisiertes Gesundheitswesen",
+    "description": "Optimiert die Terminplanung von Hotelaufenthalten bis zu medizinischen Terminen",
+    "keywords": "Automatisierung Gesundheitswesen,Gesundheitsautomatisierung,Medizintourismus,medizinische Buchung",
+    "heroTitle": "Erleben Sie mit uns die besten medizinischen Leistungen",
+    "heroDescription": "Auf dem Weg zur Gesundheit bieten wir Ihnen erstklassige medizinische Leistungen - mit einem Team aus Top-Spezialisten, modernster Ausstattung und einer sicheren, entspannten Umgebung, die sich hochwertiger Behandlung und herausragender Betreuung verschreibt.",
+    "heroSubtext": "Lassen Sie uns Ihre Gesundheit gemeinsam auf das nächste Level heben...",
+    "registerRequest": "Anfrage senden",
+    "consultationRequest": "Beratung anfordern",
+    "category": "Kategorie",
+    "serviceProviders": {
+      "title": "Dienstanbieter",
+      "noProviders": "Derzeit sind keine Dienstanbieter verfügbar",
+      "priceStartsFrom": "Ab",
+      "view": "Ansehen",
+      "viewAll": "Alle anzeigen",
+      "grade": {
+        "label": "Note"
+      }
+    },
+    "ByType": {
+      "title": "Dienstanbieter durchsuchen",
+      "description": "Finden Sie die besten Dienstanbieter für Ihre Bedürfnisse",
+      "noResults": "Keine Dienstanbieter gefunden",
+      "loading": "Wird geladen...",
+      "error": "Fehler beim Laden der Dienstanbieter. Bitte versuchen Sie es erneut.",
+      "filters": {
+        "title": "Filter",
+        "search": "Suche",
+        "searchPlaceholder": "Anbieter suchen...",
+        "location": "Standort",
+        "attributes": "Attribute",
+        "country": "Land",
+        "city": "Stadt",
+        "clearAll": "Alle löschen",
+        "selectCountry": "Wählen Sie ein Land",
+        "selectCity": "Wählen Sie eine Stadt",
+        "allCountries": "Alle Länder",
+        "allCities": "Alle Städte",
+        "selectCountryFirst": "Wählen Sie zuerst ein Land",
+        "loadingCities": "Städte werden geladen...",
+        "noFilters": "Keine Filter verfügbar",
+        "activeFilters": "Aktive Filter",
+        "any": "Beliebig",
+        "yes": "Ja",
+        "no": "Nein",
+        "booleanTrue": "Ja",
+        "booleanFalse": "Nein"
+      }
+    },
+    "locationSwitcher": {
+      "countries": "Länder",
+      "cities": "Städte",
+      "allCountries": "Alle Länder",
+      "allCities": "Alle Städte",
+      "loading": "Wird geladen..."
+    }
+  },
+  "ServiceProviderPage": {
+    "title": "Dienstanbieter",
+    "description": "Details zum Dienstanbieter",
+    "keywords": "Dienstanbieter,Details Dienstanbieter,Anbieterseite",
+    "contactProvider": "Anbieter kontaktieren",
+    "aboutProvider": "Über diesen Anbieter",
+    "availableServices": "Verfügbare Leistungen",
+    "policies": "Richtlinien",
+    "viewGallery": "Galerie ansehen",
+    "images": "Bilder",
+    "imagesCount": "{count} Bilder",
+    "noDescription": "Keine Beschreibung verfügbar",
+    "address": "Adresse",
+    "location": "Standort",
+    "ourStaff": "Unser Team",
+    "noServices": "Keine Leistungen verfügbar",
+    "noPolicies": "Keine Richtlinien verfügbar",
+    "noImages": "Keine Bilder verfügbar",
+    "close": "Schließen",
+    "attributes": "Attribute",
+    "requests": {
+      "title": "Anfragen an Dienstanbieter",
+      "description": "Verwalten Sie alle Anfragen von Kunden an Dienstanbieter.",
+      "provider": "Anbieter",
+      "customer": "Kunde",
+      "email": "E-Mail",
+      "message": "Nachricht",
+      "form": {
+        "message": {
+          "label": "Nachricht",
+          "placeholder": "Schreiben Sie Ihre Nachricht..."
+        }
+      },
+      "status": {
+        "title": "Status",
+        "Pending": "Ausstehend",
+        "Approved": "Genehmigt",
+        "Rejected": "Abgelehnt"
+      },
+      "date": "Datum",
+      "actions": "Aktionen",
+      "approve": "Genehmigen",
+      "reject": "Ablehnen",
+      "viewAddRequest": "Anfrage anzeigen / hinzufügen",
+      "myRequests": "Meine Anfragen",
+      "formTitle": "Anbieter kontaktieren",
+      "formMessage": "Nachricht",
+      "submit": "Senden",
+      "openRequests": "Offene Anfragen"
+    },
+    "Comments": {
+      "title": "Kommentare & Bewertungen",
+      "allComments": "Alle Kommentare",
+      "yourComment": "Ihr Kommentar",
+      "noComments": "Noch keine Kommentare. Seien Sie der Erste!",
+      "loading": "Kommentare werden geladen...",
+      "loadError": "Fehler beim Laden der Kommentare",
+      "rating": "Bewertung",
+      "comment": "Ihr Kommentar",
+      "commentPlaceholder": "Teilen Sie Ihre Erfahrung...",
+      "submit": "Kommentar absenden",
+      "submitting": "Wird gesendet...",
+      "addSuccess": "Kommentar hinzugefügt",
+      "addSuccessMessage": "Ihr Kommentar wurde erfolgreich veröffentlicht.",
+      "addFailed": "Kommentar konnte nicht hinzugefügt werden",
+      "deleteConfirmTitle": "Kommentar löschen",
+      "deleteConfirm": "Möchten Sie diesen Kommentar wirklich löschen?",
+      "deleteSuccess": "Kommentar gelöscht",
+      "deleteSuccessMessage": "Ihr Kommentar wurde erfolgreich gelöscht.",
+      "deleteFailed": "Kommentar konnte nicht gelöscht werden",
+      "form": {
+        "commentText": {
+          "label": "Kommentartext"
+        }
+      }
+    }
+  },
+  "LocaleSwitcher": {
+    "label": "Sprache ändern",
+    "fa": "Persisch",
+    "en": "Englisch",
+    "tr": "Türkisch",
+    "ar": "Arabisch",
+    "es": "Spanisch",
+    "ku": "Kurdisch",
+    "de": "Deutsch",
+    "fr": "Französisch"
+  },
+  "Logo": {
+    "medical": "Medizin",
+    "tourism": "Tourismus",
+    "beauty": "Beauty"
+  },
+  "UserInfo": {
+    "profile": "Profil",
+    "settings": "Einstellungen",
+    "signOut": "Abmelden",
+    "adminPanel": "Admin-Bereich"
+  },
+  "FormErrors": {
+    "required": "{field} ist erforderlich",
+    "tooShort": "{field} muss mindestens {length} Zeichen haben",
+    "invalid": "{field} ist ungültig",
+    "invalidEmail": "Ungültige E-Mail-Adresse",
+    "invalidPhoneNumber": "Bitte geben Sie eine gültige Telefonnummer ein",
+    "passwordTooShort": "Das Passwort muss mindestens {length} Zeichen haben",
+    "passwordsDoNotMatch": "Passwörter stimmen nicht überein",
+    "invalidCode": "Der Bestätigungscode muss 6 Ziffern haben",
+    "invalidFile": "Bitte laden Sie eine gültige Datei hoch",
+    "invalidFileType": "Dieser Dateityp wird nicht unterstützt",
+    "fileTooLarge": "Die Datei überschreitet die maximale Größe (max. 5MB)",
+    "notMatch": "Passwörter stimmen nicht überein",
+    "invalidPhone": "Bitte geben Sie eine gültige Telefonnummer ein"
+  },
+  "User": {
+    "Information": {
+      "incompleteProfileTitle": "Profil unvollständig",
+      "completeProfileWarning": "Bitte vervollständigen Sie Ihre Angaben",
+      "goToProfile": "Zum Profil"
+    },
+    "Profile": {
+      "page": {
+        "title": "Profilinformationen",
+        "description": "Um Ihre Profilinformationen zu aktualisieren, geben Sie bitte die folgenden Daten sorgfältig ein."
+      },
+      "personalInfo": {
+        "title": "Persönliche Informationen",
+        "base": "Basisinformationen",
+        "documents": "Dokumente"
+      },
+      "tabs": {
+        "basic": "Basisinformationen",
+        "additional": "Zusätzliche Informationen",
+        "documents": "Dokumente"
+      },
+      "form": {
+        "firstName": {
+          "label": "Vorname"
+        },
+        "lastName": {
+          "label": "Nachname"
+        },
+        "email": {
+          "label": "E-Mail"
+        },
+        "phoneNumber": {
+          "label": "Telefonnummer"
+        },
+        "birthDate": {
+          "label": "Geburtsdatum"
+        },
+        "gender": {
+          "label": "Geschlecht"
+        },
+        "country": "Land",
+        "city": "Stadt",
+        "street": "Straße",
+        "detail": "Zusätzliche Details",
+        "zipCode": "Postleitzahl",
+        "documentType": {
+          "label": "Dokumenttyp"
+        },
+        "documentFile": {
+          "label": "Dokumentdatei"
+        },
+        "existingDocuments": "Ihre hochgeladenen Dokumente",
+        "viewDocument": "Dokument ansehen",
+        "address": {
+          "countryCode": "Ländercode",
+          "cityCode": "Stadtkürzel",
+          "street": "Straße",
+          "detail": "Zusätzliche Details",
+          "zipCode": "Postleitzahl"
+        }
+      },
+      "placeholders": {
+        "birthDate": "Geburtsdatum auswählen",
+        "documentType": "Dokumenttyp auswählen",
+        "documentFile": "Klicken zum Hochladen oder hierher ziehen"
+      },
+      "messages": {
+        "updateSuccess": "Profil erfolgreich aktualisiert",
+        "documentUploadSuccess": "Dokument erfolgreich hochgeladen",
+        "deleteDocumentConfirmationTitle": "Dokument löschen",
+        "deleteDocumentConfirmationMessage": "Sind Sie sicher, dass Sie dieses Dokument löschen möchten?",
+        "deleteDocumentSuccess": "Dokument erfolgreich gelöscht",
+        "deleteDocumentError": "Löschen des Dokuments fehlgeschlagen"
+      },
+      "validation": {
+        "countryRequired": "Bitte wählen Sie ein Land aus",
+        "cityRequired": "Bitte wählen Sie eine Stadt aus"
+      },
+      "errors": {
+        "updateFailed": "Aktualisierung des Profils fehlgeschlagen",
+        "documentUploadFailed": "Upload des Dokuments fehlgeschlagen",
+        "documentDeleteFailed": "Löschen des Dokuments fehlgeschlagen",
+        "invalidFileType": "Ungültiger Dateityp",
+        "fileTooLarge": "Datei ist zu groß",
+        "supportedFormats": "Unterstützte Formate: .zip, .pdf, Bildformate (max. 5MB)"
+      },
+      "buttons": {
+        "save": "Änderungen speichern",
+        "upload": "Dokument hochladen",
+        "delete": "Dokument löschen"
+      }
+    }
+  },
+  "Common": {
+    "Gender": {
+      "title": "Geschlecht",
+      "male": "Männlich",
+      "female": "Weiblich",
+      "other": "Divers"
+    },
+    "DocumentType": {
+      "title": "Dokumenttyp",
+      "Passport": "Reisepass",
+      "Visa": "Visum",
+      "DriverLicense": "Führerschein",
+      "BankStatement": "Kontoauszug",
+      "IdCard": "Personalausweis",
+      "Medical": "Medizinische Unterlagen",
+      "Beauty": "Schönheitsbehandlung",
+      "Tourism": "Tourismusdokument",
+      "Other": "Sonstiges"
+    },
+    "FileUpload": {
+      "errors": {
+        "fileError": "Dateifehler, bitte prüfen Sie die Anforderungen",
+        "fileTooLarge": "Datei ist zu groß. Maximalgröße ist {size}MB"
+      }
+    },
+    "Address": {
+      "title": "Adresse",
+      "country": "Land",
+      "city": "Stadt",
+      "street": "Straße",
+      "detail": "Zusätzliche Details",
+      "zipCode": "Postleitzahl"
+    },
+    "Location": {
+      "title": "Standort",
+      "country": "Land",
+      "city": "Stadt",
+      "selectCountry": "Land auswählen",
+      "selectCity": "Stadt auswählen",
+      "noCountrySelected": "Kein Land ausgewählt",
+      "noCitiesAvailable": "Keine Städte verfügbar",
+      "loading": "Wird geladen..."
+    },
+    "DatePicker": {
+      "placeholder": "Datum auswählen",
+      "range": "Datumsbereich",
+      "multiple": "Mehrere Daten",
+      "single": "Einzelnes Datum"
+    },
+    "DataTable": {
+      "search": "Suchen...",
+      "reset": "Zurücksetzen",
+      "noResults": "Keine Ergebnisse.",
+      "rowsSelected": "{count} von {total} Zeile(n) ausgewählt.",
+      "page": "Seite {current} von {total}",
+      "clearFilters": "Filter löschen",
+      "sortAscending": "Aufsteigend sortieren",
+      "sortDescending": "Absteigend sortieren",
+      "hideColumn": "Spalte ausblenden"
+    },
+    "Input": {
+      "search": "Suchen..."
+    },
+    "Fetcher": {
+      "noData": "Keine Daten gefunden",
+      "error": "Ein Fehler ist aufgetreten: {detail}"
+    },
+    "Confirm": {
+      "title": "Achtung",
+      "cancel": "Abbrechen",
+      "confirm": "Bestätigen"
+    }
+  },
+  "Auth": {
+    "SignUp": {
+      "page": {
+        "title": "Registrieren",
+        "description": "Bitte geben Sie zur Registrierung die folgenden Informationen sorgfältig ein.",
+        "alreadyHaveAccount": "Sie haben bereits ein Konto?",
+        "login": "Anmelden"
+      },
+      "form": {
+        "firstName": {
+          "label": "Vorname"
+        },
+        "lastName": {
+          "label": "Nachname"
+        },
+        "email": {
+          "label": "E-Mail"
+        },
+        "phoneNumber": {
+          "label": "Telefonnummer"
+        },
+        "password": {
+          "label": "Passwort"
+        },
+        "signUp": "Code senden"
+      },
+      "placeholders": {
+        "firstName": "Max",
+        "lastName": "Mustermann",
+        "email": "beispiel@gmail.com",
+        "password": "*******"
+      },
+      "errors": {
+        "invalidPhone": "Ungültige Telefonnummer"
+      },
+      "messages": {
+        "signUpSuccess": "Registrierung erfolgreich",
+        "signUpError": "Fehler beim Senden des Codes. Bitte erneut versuchen."
+      }
+    },
+    "SignIn": {
+      "page": {
+        "title": "Anmelden",
+        "description": "Bitte geben Sie Ihre Registrierungsdaten ein.",
+        "noAccount": "Noch kein Konto?",
+        "signUp": "Registrieren",
+        "forgotPassword": "Passwort vergessen?"
+      },
+      "form": {
+        "userNameOrEmail": {
+          "label": "E-Mail oder Telefonnummer"
+        },
+        "password": {
+          "label": "Passwort"
+        },
+        "remember": "Angemeldet bleiben",
+        "login": "Anmelden"
+      },
+      "errors": {
+        "invalidCredentials": "Ungültige Zugangsdaten",
+        "authError": "Authentifizierungsfehler"
+      },
+      "messages": {
+        "loginSuccess": "Anmeldung erfolgreich",
+        "loginError": "Fehler bei der Anmeldung. Bitte erneut versuchen."
+      }
+    },
+    "ForgotPassword": {
+      "page": {
+        "title": "Passwort vergessen",
+        "description": "Um Ihr Passwort wiederherzustellen, geben Sie bitte Ihre Telefonnummer ein.",
+        "rememberPassword": "Passwort doch noch parat?",
+        "login": "Anmelden"
+      },
+      "form": {
+        "phoneNumber": "Telefonnummer",
+        "submit": "Wiederherstellungslink senden",
+        "userNameOrEmail": {
+          "label": "E-Mail oder Telefonnummer"
+        }
+      },
+      "messages": {
+        "success": "Wiederherstellungslink gesendet.",
+        "error": "Fehler beim Senden des Links. Bitte erneut versuchen."
+      }
+    },
+    "Otp": {
+      "page": {
+        "title": "Bestätigungscode",
+        "description": "Geben Sie den an {mobile} gesendeten Bestätigungscode ein.",
+        "wrongNumber": "Falsche Nummer?",
+        "changeNumber": "Nummer ändern"
+      },
+      "form": {
+        "verify": "Bestätigen",
+        "resendCode": "Code erneut senden",
+        "resendCodeTimer": "Code erneut senden ({time})",
+        "code": {
+          "label": "Bestätigungscode"
+        },
+        "phoneNumber": {
+          "label": "Telefonnummer"
+        }
+      },
+      "messages": {
+        "success": "Code erfolgreich bestätigt.",
+        "error": "Fehler bei der Bestätigung. Bitte erneut versuchen.",
+        "resendSuccess": "Bestätigungscode erfolgreich gesendet.",
+        "resendError": "Fehler beim Senden des Codes. Bitte erneut versuchen."
+      }
+    },
+    "VerifyEmail": {
+      "form": {
+        "email": "E-Mail",
+        "code": "Bestätigungscode"
+      },
+      "messages": {
+        "success": "E-Mail erfolgreich bestätigt.",
+        "error": "Fehler bei der Bestätigung der E-Mail. Bitte erneut versuchen."
+      }
+    },
+    "OnBoarding": {
+      "step1": {
+        "title": "Ihre Gesundheit hat Priorität",
+        "description": "Ein einzigartiges Erlebnis fortschrittlicher medizinischer Leistungen mit kompletter Ausstattung und einer einfachen, angenehmen Reise - maßgeschneidert für Ihre Bedürfnisse und mit Blick auf wichtige Reisedetails.",
+        "primaryButton": "Weiter",
+        "secondaryButton": "Überspringen"
+      },
+      "step2": {
+        "title": "Unterkunft, Behandlung, Entspannung",
+        "description": "Von spezialisierten, modernen medizinischen Leistungen bis zur Unterkunft in den besten Hotels - wir bieten Ihnen ein einzigartiges Erlebnis und eine komfortable, sorgenfreie Reise, die Ihre Bedürfnisse erfüllt.",
+        "primaryButton": "Anmelden/Registrieren",
+        "secondaryButton": "Überspringen"
+      },
+      "step3": {
+        "title": "Ihre Gesundheitsreise beginnt hier",
+        "description": "Starten Sie noch heute Ihre personalisierte Gesundheitsreise mit uns. Unser Expertenteam ist bereit, Ihnen die beste Betreuung und Erfahrung zu bieten.",
+        "primaryButton": "Loslegen",
+        "secondaryButton": "Anmelden"
+      }
+    }
+  },
+  "Dashboard": {
+    "page": {
+      "title": "Dashboard-Übersicht",
+      "description": "Admin-Dashboard mit Systemstatistiken und aktueller Aktivitätsübersicht"
+    },
+    "stats": {
+      "totalConsultings": {
+        "title": "Gesamtberatungen",
+        "description": "Aktive Beratungsanfragen"
+      },
+      "pendingServiceProviderRequests": {
+        "title": "Ausstehende Anfragen",
+        "description": "Warten auf Genehmigung"
+      },
+      "totalServiceProviders": {
+        "title": "Dienstanbieter",
+        "description": "Registrierte Anbieter"
+      },
+      "totalStaff": {
+        "title": "Mitarbeiter",
+        "description": "Aktive Teammitglieder"
+      }
+    },
+    "recentConsultings": {
+      "title": "Neueste Beratungen",
+      "viewAll": "Alle anzeigen",
+      "empty": "Keine aktuellen Beratungsanfragen",
+      "table": {
+        "customer": "Kunde",
+        "category": "Kategorie",
+        "description": "Beschreibung",
+        "date": "Datum"
+      }
+    },
+    "recentRequests": {
+      "title": "Neueste Anbieteranfragen",
+      "viewAll": "Alle anzeigen",
+      "empty": "Keine aktuellen Anbieteranfragen",
+      "table": {
+        "customer": "Kunde",
+        "serviceProvider": "Dienstanbieter",
+        "message": "Nachricht",
+        "status": {
+          "title": "Status",
+          "Pending": "Ausstehend",
+          "Approved": "Genehmigt",
+          "Rejected": "Abgelehnt"
+        },
+        "date": "Datum"
+      }
+    },
+    "quickActions": {
+      "title": "Schnellaktionen",
+      "totalConsultings": {
+        "title": "Beratungen",
+        "description": "Beratungsanfragen verwalten"
+      },
+      "totalServiceProviders": {
+        "title": "Dienstanbieter",
+        "description": "Dienstanbieter verwalten"
+      },
+      "totalCategories": {
+        "title": "Kategorien",
+        "description": "Leistungskategorien verwalten"
+      },
+      "totalStaff": {
+        "title": "Mitarbeiter",
+        "description": "Teammitglieder verwalten"
+      },
+      "totalProviderTypes": {
+        "title": "Anbietertypen",
+        "description": "Anbietertypen verwalten"
+      },
+      "totalServiceDefinitions": {
+        "title": "Dienstleistungsdefinitionen",
+        "description": "Leistungsdefinitionen verwalten"
+      }
+    }
+  },
+  "Consulting": {
+    "page": {
+      "title": "Beratung anfordern",
+      "description": "Fordern Sie eine Beratung für Ihre medizinischen oder Beauty-Anliegen an.",
+      "adminTitle": "Beratungsanfragen",
+      "adminDescription": "Verwalten Sie alle Beratungsanfragen von Kunden."
+    },
+    "table": {
+      "customer": "Kunde",
+      "email": "E-Mail",
+      "description": "Beschreibung",
+      "category": "Kategorie"
+    },
+    "form": {
+      "formTitle": "Beratungsanfrage",
+      "formDescription": "Bitte geben Sie die Details Ihrer Beratungsanfrage an.",
+      "categoryId": {
+        "label": "Kategorie"
+      },
+      "categoryName": {
+        "label": "Kategoriename"
+      },
+      "description": {
+        "label": "Beschreibung"
+      },
+      "documentIds": {
+        "label": "Zugehörige Dokumente"
+      }
+    },
+    "placeholders": {
+      "category": "Kategorie auswählen",
+      "searchCategory": "Kategorien durchsuchen...",
+      "description": "Bitte beschreiben Sie Ihre Bedürfnisse und Anforderungen ausführlich..."
+    },
+    "descriptions": {
+      "description": "Nennen Sie so viele Details wie möglich zu Ihren Bedürfnissen sowie relevante medizinische Vorgeschichte oder Anliegen.",
+      "documents": "Wählen Sie Dokumente, die für Ihre Beratungsanfrage relevant sind."
+    },
+    "messages": {
+      "createSuccess": "Beratungsanfrage erfolgreich übermittelt",
+      "noDocuments": "Sie haben noch keine Dokumente hochgeladen. Bitte laden Sie zuerst relevante Dokumente hoch.",
+      "noCategories": "Keine Kategorien gefunden."
+    },
+    "errors": {
+      "createFailed": "Senden der Beratungsanfrage fehlgeschlagen"
+    },
+    "buttons": {
+      "submit": "Anfrage senden",
+      "uploadDocuments": "Dokumente hochladen"
+    }
+  },
+  "Category": {
+    "name": "Kategorie",
+    "page": {
+      "title": "Kategorien",
+      "description": "Kategorien und ihre Hierarchie verwalten"
+    },
+    "add": {
+      "page": {
+        "title": "Kategorie hinzufügen",
+        "description": "Neue Kategorie erstellen"
+      },
+      "title": "Neue Kategorie hinzufügen",
+      "childTitle": "Unterkategorie hinzufügen"
+    },
+    "update": {
+      "page": {
+        "title": "Kategorie aktualisieren",
+        "description": "Kategoriedaten bearbeiten"
+      },
+      "title": "Kategorie aktualisieren"
+    },
+    "form": {
+      "name": {
+        "label": "Name",
+        "translations": "Der Kategoriename wird in mindestens einer Sprache benötigt"
+      },
+      "namePlaceholder": "Kategorienamen eingeben",
+      "description": {
+        "label": "Beschreibung",
+        "translations": "Die Kategoriebeschreibung wird in mindestens einer Sprache benötigt"
+      },
+      "descriptionPlaceholder": "Kategoriebeschreibung eingeben",
+      "parentId": "Übergeordnete Kategorie",
+      "parentIdPlaceholder": "Übergeordnete Kategorie auswählen",
+      "displayOrder": "Anzeigereihenfolge",
+      "displayOrderPlaceholder": "Reihenfolge eingeben",
+      "isActive": "Aktiv",
+      "create": "Kategorie erstellen",
+      "update": "Kategorie aktualisieren",
+      "creating": "Wird erstellt...",
+      "updating": "Wird aktualisiert...",
+      "cancel": "Abbrechen"
+    },
+    "table": {
+      "name": "Name",
+      "description": "Beschreibung",
+      "parent": "Übergeordnet",
+      "displayOrder": "Reihenfolge",
+      "status": "Status",
+      "actions": "Aktionen"
+    },
+    "actions": {
+      "addCategory": "Kategorie hinzufügen",
+      "addChildCategory": "Unterkategorie hinzufügen",
+      "editCategory": "Kategorie bearbeiten",
+      "deleteCategory": "Kategorie löschen",
+      "deleteCategoryDescription": "Möchten Sie diese Kategorie wirklich löschen?",
+      "toggleActivation": "Aktivierung umschalten"
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "messages": {
+      "success": "Kategorie erfolgreich bearbeitet",
+      "error": "Kategorienvorgang fehlgeschlagen",
+      "deleteConfirmation": "Möchten Sie \"{name}\" wirklich löschen?",
+      "deleteSuccess": "Kategorie erfolgreich gelöscht",
+      "deleteError": "Löschen der Kategorie fehlgeschlagen",
+      "deleteErrorLog": "Fehler beim Löschen der Kategorie:"
+    }
+  },
+  "ServiceDefinition": {
+    "name": "Dienstleistungsdefinition",
+    "page": {
+      "title": "Dienstleistungsdefinitionen",
+      "description": "Dienstleistungsdefinitionen und ihre Konfigurationen verwalten"
+    },
+    "add": {
+      "page": {
+        "title": "Dienstleistungsdefinition hinzufügen",
+        "description": "Neue Dienstleistungsdefinition erstellen"
+      },
+      "title": "Neue Dienstleistungsdefinition hinzufügen"
+    },
+    "update": {
+      "page": {
+        "title": "Dienstleistungsdefinition aktualisieren",
+        "description": "Informationen zur Dienstleistungsdefinition bearbeiten"
+      },
+      "title": "Dienstleistungsdefinition aktualisieren"
+    },
+    "form": {
+      "name": {
+        "label": "Name"
+      },
+      "description": {
+        "label": "Beschreibung"
+      },
+      "categoryId": {
+        "label": "Kategorie",
+        "placeholder": "Kategorie auswählen"
+      },
+      "durationMinutes": {
+        "label": "Dauer (Minuten)",
+        "placeholder": "Dauer in Minuten eingeben"
+      },
+      "currency": {
+        "label": "Währung",
+        "placeholder": "Währung eingeben"
+      },
+      "value": {
+        "label": "Preis",
+        "placeholder": "Preis eingeben"
+      },
+      "pricingModel": {
+        "label": "Preismodell",
+        "placeholder": "Preismodell auswählen"
+      },
+      "isActive": {
+        "label": "Aktiv"
+      },
+      "attributeDefinitions": "Attributdefinitionen",
+      "requirements": "Anforderungen",
+      "create": "Dienstleistungsdefinition erstellen",
+      "update": "Dienstleistungsdefinition aktualisieren",
+      "creating": "Wird erstellt...",
+      "updating": "Wird aktualisiert...",
+      "cancel": "Abbrechen"
+    },
+    "table": {
+      "name": "Name",
+      "category": "Kategorie",
+      "description": "Beschreibung",
+      "duration": "Dauer",
+      "price": "Preis",
+      "status": "Status",
+      "actions": "Aktionen"
+    },
+    "actions": {
+      "addServiceDefinition": "Dienstleistungsdefinition hinzufügen",
+      "editServiceDefinition": "Dienstleistungsdefinition bearbeiten",
+      "deleteServiceDefinition": "Dienstleistungsdefinition löschen",
+      "deleteServiceDefinitionDescription": "Möchten Sie diese Dienstleistungsdefinition wirklich löschen?",
+      "toggleActivation": "Aktivierung umschalten",
+      "viewDetails": "Details anzeigen",
+      "removeAttribute": "Attribut entfernen",
+      "removeAttributeDescription": "Möchten Sie diese Attributdefinition wirklich entfernen?",
+      "removeRequirement": "Anforderung entfernen",
+      "removeRequirementDescription": "Möchten Sie diese Anforderung wirklich entfernen?",
+      "retry": "Erneut versuchen",
+      "cancel": "Abbrechen",
+      "save": "Speichern",
+      "saving": "Wird gespeichert..."
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "messages": {
+      "success": "Vorgang zur Dienstleistungsdefinition erfolgreich abgeschlossen",
+      "error": "Vorgang zur Dienstleistungsdefinition fehlgeschlagen",
+      "updated": "Dienstleistungsdefinition erfolgreich aktualisiert",
+      "attributeAddSuccess": "Attributdefinition erfolgreich hinzugefügt",
+      "attributeRemoveSuccess": "Attributdefinition erfolgreich entfernt",
+      "requirementAddSuccess": "Anforderung erfolgreich hinzugefügt",
+      "requirementRemoveSuccess": "Anforderung erfolgreich entfernt",
+      "attributeUpdateSuccess": "Attributdefinition erfolgreich aktualisiert",
+      "requirementUpdateSuccess": "Anforderung erfolgreich aktualisiert",
+      "fetchError": "Abrufen der Details zur Dienstleistungsdefinition fehlgeschlagen"
+    },
+    "pricingModels": {
+      "Fixed": "Festpreis",
+      "Variable": "Variabler Preis",
+      "Hourly": "Stundensatz",
+      "Package": "Paketpreis"
+    },
+    "attributes": {
+      "title": "Attributdefinitionen",
+      "description": "Attributdefinitionen für Leistungen und deren Optionen verwalten",
+      "addAttribute": "Attribut hinzufügen",
+      "addNew": "Neues Attribut hinzufügen",
+      "noAttributes": "Keine Attribute definiert",
+      "form": {
+        "name": {
+          "label": "Attributname",
+          "placeholder": "Attributname eingeben"
+        },
+        "description": {
+          "label": "Beschreibung",
+          "placeholder": "Attributbeschreibung eingeben"
+        },
+        "attributeType": "Attributtyp",
+        "attributeTypePlaceholder": "Attributtyp auswählen",
+        "isRequired": "Erforderlich",
+        "affectsPricing": "Beeinflusst Preis",
+        "displayOrder": "Anzeigereihenfolge",
+        "options": "Optionen",
+        "addOption": "Option hinzufügen",
+        "noOptions": "Klicken Sie auf 'Option hinzufügen', um Auswahloptionen zu erstellen",
+        "add": "Attribut hinzufügen",
+        "adding": "Wird hinzugefügt...",
+        "displayName": {
+          "label": "Anzeigename",
+          "placeholder": "Anzeigenamen eingeben"
+        },
+        "value": "Wert",
+        "extraPrice": "Aufpreis",
+        "type": "Typ",
+        "required": "Erforderlich",
+        "affectsPricingLabel": "Beeinflusst Preis",
+        "yes": "Ja",
+        "no": "Nein"
+      }
+    },
+    "requirements": {
+      "title": "Anforderungen",
+      "description": "Leistungsanforderungen und Bedingungen verwalten",
+      "addRequirement": "Anforderung hinzufügen",
+      "addNew": "Neue Anforderung hinzufügen",
+      "noRequirements": "Keine Anforderungen definiert",
+      "mandatory": "Verpflichtend",
+      "optional": "Optional",
+      "form": {
+        "description": {
+          "label": "Beschreibung der Anforderung",
+          "placeholder": "Beschreibung der Anforderung eingeben"
+        },
+        "isMandatory": "Verpflichtende Anforderung",
+        "isMandatoryDescription": "Ob diese Anforderung für die Leistung verpflichtend ist",
+        "add": "Anforderung hinzufügen",
+        "adding": "Wird hinzugefügt...",
+        "update": "Anforderung aktualisieren",
+        "updating": "Wird aktualisiert...",
+        "cancel": "Abbrechen"
+      }
+    },
+    "details": {
+      "title": "Details zur Dienstleistungsdefinition",
+      "description": "Detailansicht von {name} mit Attribut- und Anforderungsverwaltung",
+      "basicInfo": "Basisinformationen",
+      "pricingInfo": "Preisdetails"
+    },
+    "tabs": {
+      "overview": "Übersicht",
+      "attributes": "Attribute",
+      "requirements": "Anforderungen"
+    },
+    "search": {
+      "placeholder": "Dienstleistungsdefinitionen durchsuchen...",
+      "noResults": "Keine Dienstleistungsdefinition gefunden."
+    },
+    "units": {
+      "minutes": "min",
+      "minutesShort": "min"
+    }
+  },
+  "Staff": {
+    "name": "Mitarbeiter",
+    "page": {
+      "title": "Mitarbeiter",
+      "description": "Mitarbeiter und ihre Verfügbarkeiten verwalten"
+    },
+    "add": {
+      "page": {
+        "title": "Mitarbeiter hinzufügen",
+        "description": "Neuen Mitarbeiter anlegen"
+      },
+      "title": "Neuen Mitarbeiter hinzufügen"
+    },
+    "update": {
+      "page": {
+        "title": "Mitarbeiter aktualisieren",
+        "description": "Mitarbeiterdaten bearbeiten"
+      },
+      "title": "Mitarbeiter aktualisieren"
+    },
+    "form": {
+      "name": {
+        "label": "Vollständiger Name",
+        "placeholder": "Vollständigen Namen eingeben"
+      },
+      "biography": {
+        "label": "Biografie",
+        "placeholder": "Biografie des Mitarbeiters eingeben"
+      },
+      "title": {
+        "label": "Titel",
+        "placeholder": "Titel/Funktion des Mitarbeiters eingeben"
+      },
+      "profileImageUrl": "Profilbild-URL",
+      "profileImageUrlPlaceholder": "Profilbild-URL eingeben",
+      "isActive": "Aktiv",
+      "availabilities": "Verfügbarkeitsplan",
+      "serviceAssignments": "Leistungszuweisungen",
+      "create": "Mitarbeiter anlegen",
+      "update": "Mitarbeiter aktualisieren",
+      "creating": "Wird erstellt...",
+      "updating": "Wird aktualisiert...",
+      "cancel": "Abbrechen"
+    },
+    "table": {
+      "name": "Name",
+      "title": "Titel",
+      "status": "Status",
+      "services": "Leistungen",
+      "biography": "Biografie",
+      "actions": "Aktionen"
+    },
+    "actions": {
+      "addStaff": "Mitarbeiter hinzufügen",
+      "editStaff": "Mitarbeiter bearbeiten",
+      "deleteStaff": "Mitarbeiter löschen",
+      "deleteStaffDescription": "Möchten Sie diesen Mitarbeiter wirklich löschen?",
+      "viewDetails": "Details anzeigen",
+      "toggleActivation": "Aktivierung umschalten",
+      "retry": "Erneut versuchen",
+      "cancel": "Abbrechen",
+      "save": "Speichern",
+      "saving": "Wird gespeichert..."
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "messages": {
+      "success": "Mitarbeitervorgang erfolgreich abgeschlossen",
+      "error": "Mitarbeitervorgang fehlgeschlagen",
+      "fetchError": "Laden der Mitarbeiterdetails fehlgeschlagen",
+      "availabilityAddSuccess": "Verfügbarkeit erfolgreich hinzugefügt",
+      "availabilityAddError": "Hinzufügen der Verfügbarkeit fehlgeschlagen",
+      "availabilityUpdateSuccess": "Verfügbarkeit erfolgreich aktualisiert",
+      "availabilityUpdateError": "Aktualisierung der Verfügbarkeit fehlgeschlagen",
+      "availabilityRemoveSuccess": "Verfügbarkeit erfolgreich entfernt",
+      "availabilityRemoveError": "Entfernen der Verfügbarkeit fehlgeschlagen",
+      "serviceAddSuccess": "Leistung erfolgreich zugewiesen",
+      "serviceAddError": "Zuweisung der Leistung fehlgeschlagen",
+      "serviceUpdateSuccess": "Leistung erfolgreich aktualisiert",
+      "serviceUpdateError": "Aktualisierung der Leistung fehlgeschlagen",
+      "serviceRemoveSuccess": "Leistung erfolgreich entfernt",
+      "serviceRemoveError": "Entfernen der Leistung fehlgeschlagen",
+      "serviceSelectionRequired": "Bitte wählen Sie eine zuzuweisende Leistung aus"
+    },
+    "details": {
+      "title": "Mitarbeiterdetails",
+      "description": "Details für {name} anzeigen",
+      "basicInfo": "Basisinformationen",
+      "statsInfo": "Statistiken",
+      "totalAvailabilities": "Verfügbarkeiten gesamt",
+      "totalServices": "Leistungen gesamt",
+      "activeServices": "Aktive Leistungen"
+    },
+    "tabs": {
+      "overview": "Übersicht",
+      "availabilities": "Verfügbarkeiten",
+      "services": "Leistungen"
+    },
+    "availability": {
+      "title": "Verfügbarkeit des Mitarbeiters",
+      "description": "Verfügbarkeitsplan des Mitarbeiters verwalten",
+      "noAvailabilities": "Keine Verfügbarkeitspläne konfiguriert",
+      "recurring": "Wiederkehrend",
+      "specific": "Konkretes Datum",
+      "specificDate": "Konkretes Datum",
+      "add": {
+        "title": "Neue Verfügbarkeit hinzufügen",
+        "description": "Neue Verfügbarkeit für diesen Mitarbeiter konfigurieren"
+      },
+      "form": {
+        "dayOfWeek": "Wochentag",
+        "startTime": "Startzeit",
+        "endTime": "Endzeit",
+        "isRecurring": "Wöchentlich wiederkehrend",
+        "specificDate": "Konkretes Datum",
+        "status": "Status",
+        "selectStartTime": "Startzeit auswählen",
+        "selectEndTime": "Endzeit auswählen"
+      },
+      "timePicker": {
+        "selectTime": "Zeit auswählen",
+        "hour": "Stunde",
+        "minute": "Min",
+        "selected": "Ausgewählt"
+      },
+      "validation": {
+        "startTimeAfterEnd": "Die Startzeit muss vor der Endzeit liegen",
+        "endTimeBeforeStart": "Die Endzeit muss nach der Startzeit liegen",
+        "endTimeMustBeAfterStartTime": "Die Endzeit muss nach der Startzeit liegen",
+        "timeAutoAdjusted": "Die Endzeit wurde automatisch angepasst"
+      },
+      "days": {
+        "Sunday": "Sonntag",
+        "Monday": "Montag",
+        "Tuesday": "Dienstag",
+        "Wednesday": "Mittwoch",
+        "Thursday": "Donnerstag",
+        "Friday": "Freitag",
+        "Saturday": "Samstag"
+      },
+      "status": {
+        "available": "Verfügbar",
+        "busy": "Belegt",
+        "onLeave": "Abwesend",
+        "inactive": "Inaktiv"
+      },
+      "actions": {
+        "add": "Verfügbarkeit hinzufügen"
+      },
+      "removeDialog": {
+        "title": "Verfügbarkeit entfernen",
+        "description": "Möchten Sie diese Verfügbarkeit wirklich entfernen? Dies kann nicht rückgängig gemacht werden."
+      },
+      "badges": {
+        "available": "Verfügbar",
+        "busy": "Belegt",
+        "onLeave": "Abwesend",
+        "inactive": "Inaktiv"
+      }
+    },
+    "services": {
+      "title": "Zugewiesene Leistungen",
+      "description": "Leistungen verwalten, die dieser Mitarbeiter erbringen kann",
+      "noServices": "Diesem Mitarbeiter sind keine Leistungen zugewiesen",
+      "allServicesAssigned": "Alle verfügbaren Leistungen sind diesem Mitarbeiter bereits zugewiesen",
+      "add": {
+        "title": "Neue Leistung zuweisen",
+        "description": "Diesem Mitarbeiter eine Dienstleistungsdefinition zuweisen"
+      },
+      "form": {
+        "serviceDefinition": "Leistung",
+        "selectService": "Leistung auswählen",
+        "notes": "Notizen",
+        "notesPlaceholder": "Besondere Hinweise zur Leistungszuweisung"
+      },
+      "actions": {
+        "add": "Leistung zuweisen"
+      },
+      "removeDialog": {
+        "title": "Leistungszuweisung entfernen",
+        "description": "Möchten Sie diese Zuweisung wirklich entfernen? Dies kann nicht rückgängig gemacht werden."
+      }
+    },
+    "units": {
+      "minutes": "min",
+      "minutesShort": "min"
+    }
+  },
+  "ServiceProvider": {
+    "name": "Dienstanbieter",
+    "contactProvider": "Anbieter kontaktieren",
+    "aboutProvider": "Über diesen Anbieter",
+    "availableServices": "Verfügbare Leistungen",
+    "viewGallery": "Galerie ansehen",
+    "images": "Bilder",
+    "imagesCount": "{count} Bilder",
+    "noDescription": "Keine Beschreibung verfügbar",
+    "noServices": "Keine Leistungen verfügbar",
+    "noPolicies": "Keine Richtlinien verfügbar",
+    "noImages": "Keine Bilder verfügbar",
+    "page": {
+      "title": "Dienstanbieter",
+      "description": "Dienstanbieter und ihre vollständigen Profile verwalten"
+    },
+    "add": {
+      "page": {
+        "title": "Dienstanbieter hinzufügen",
+        "description": "Neuen Dienstanbieter erstellen"
+      },
+      "title": "Neuen Dienstanbieter hinzufügen"
+    },
+    "update": {
+      "page": {
+        "title": "Dienstanbieter aktualisieren",
+        "description": "Anbieterinformationen bearbeiten"
+      },
+      "title": "Dienstanbieter aktualisieren"
+    },
+    "details": {
+      "page": {
+        "title": "Details zum Dienstanbieter",
+        "description": "Umfassende Verwaltungsansicht für Dienstanbieter"
+      },
+      "title": "Details zum Dienstanbieter",
+      "basicInfo": "Basisinformationen",
+      "statsInfo": "Statistiken",
+      "totalStaff": "Mitarbeiter gesamt",
+      "totalServices": "Leistungen gesamt",
+      "totalPolicies": "Richtlinien gesamt",
+      "totalGalleryItems": "Galerieelemente gesamt",
+      "totalAttributes": "Attribute gesamt",
+      "tabs": {
+        "info": "Informationen",
+        "staff": "Mitarbeiter",
+        "services": "Leistungen",
+        "policies": "Richtlinien",
+        "gallery": "Galerie",
+        "attributes": "Attribute"
+      }
+    },
+    "form": {
+      "name": {
+        "label": "Name des Anbieters",
+        "placeholder": "Anbieternamen eingeben"
+      },
+      "description": {
+        "label": "Beschreibung",
+        "placeholder": "Anbieterbeschreibung eingeben"
+      },
+      "providerTypeId": {
+        "label": "Anbietertyp",
+        "placeholder": "Anbietertyp auswählen"
+      },
+      "grade": {
+        "label": "Note (optional)",
+        "placeholder": "Note auswählen",
+        "none": "Keine Note"
+      },
+      "country": {
+        "label": "Land",
+        "placeholder": "Land auswählen"
+      },
+      "city": {
+        "label": "Stadt",
+        "placeholder": "Stadt auswählen"
+      },
+      "coordinates": {
+        "label": "Koordinaten",
+        "description": "Koordinaten eingeben"
+      },
+      "location": {
+        "label": "Standort",
+        "description": "Standort eingeben"
+      },
+      "email": {
+        "label": "E-Mail",
+        "placeholder": "E-Mail des Anbieters eingeben"
+      },
+      "phoneNumber": {
+        "label": "Telefonnummer",
+        "placeholder": "Telefonnummer eingeben"
+      },
+      "sections": {
+        "basicInfo": "Basisinformationen",
+        "addressInfo": "Adressinformationen",
+        "contactInfo": "Kontaktinformationen"
+      },
+      "street": {
+        "label": "Straße",
+        "placeholder": "Straße und Hausnummer"
+      },
+      "detail": {
+        "label": "Adressdetails",
+        "placeholder": "Zusätzliche Adressdetails"
+      },
+      "zipCode": {
+        "label": "Postleitzahl",
+        "placeholder": "Postleitzahl eingeben"
+      },
+      "selectCountryFirst": "Bitte wählen Sie zuerst ein Land",
+      "noCitiesAvailable": "Keine Städte für das ausgewählte Land verfügbar",
+      "actions": {
+        "save": "Änderungen speichern",
+        "saving": "Wird gespeichert...",
+        "cancel": "Abbrechen"
+      },
+      "website": "Webseite",
+      "websitePlaceholder": "Website-URL eingeben",
+      "address": "Adressinformationen",
+      "isActive": "Aktiv",
+      "staffAssignments": "Mitarbeiterzuweisungen",
+      "serviceOfferings": "Leistungsangebot",
+      "create": "Dienstanbieter erstellen",
+      "update": "Dienstanbieter aktualisieren",
+      "creating": "Wird erstellt...",
+      "updating": "Wird aktualisiert...",
+      "cancel": "Abbrechen"
+    },
+    "table": {
+      "headers": {
+        "name": "Name",
+        "description": "Beschreibung",
+        "providerType": "Anbietertyp",
+        "contactEmail": "E-Mail",
+        "contactPhone": "Telefon",
+        "address": "Adresse",
+        "serviceCount": "Leistungen",
+        "staffCount": "Mitarbeiter",
+        "status": "Status",
+        "createDate": "Erstellt",
+        "actions": "Aktionen"
+      },
+      "filters": {
+        "searchPlaceholder": "Dienstanbieter durchsuchen...",
+        "providerType": "Anbietertyp",
+        "status": "Status",
+        "active": "Aktiv",
+        "inactive": "Inaktiv",
+        "reset": "Filter zurücksetzen"
+      },
+      "actions": {
+        "title": "Aktionen",
+        "edit": "Bearbeiten",
+        "delete": "Löschen",
+        "add": "Dienstanbieter hinzufügen"
+      }
+    },
+    "actions": {
+      "addServiceProvider": "Dienstanbieter hinzufügen",
+      "editServiceProvider": "Dienstanbieter bearbeiten",
+      "deleteServiceProvider": "Dienstanbieter löschen",
+      "deleteServiceProviderDescription": "Möchten Sie diesen Dienstanbieter wirklich löschen?",
+      "viewDetails": "Details anzeigen",
+      "toggleActivation": "Aktivierung umschalten",
+      "add": "Hinzufügen",
+      "cancel": "Abbrechen"
+    },
+    "status": {
+      "label": "Status",
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "staff": {
+      "title": "Mitarbeiterverwaltung",
+      "description": "Mitarbeiterzuweisungen für diesen Dienstanbieter verwalten",
+      "noStaff": "Diesem Anbieter sind keine Mitarbeiter zugewiesen",
+      "add": {
+        "title": "Mitarbeiter zuweisen",
+        "description": "Diesem Dienstanbieter einen Mitarbeiter zuweisen"
+      },
+      "form": {
+        "staffMember": "Mitarbeiter",
+        "selectStaff": "Mitarbeiter auswählen",
+        "notes": "Notizen",
+        "notesPlaceholder": "Besondere Hinweise zu dieser Zuweisung (optional)"
+      },
+      "actions": {
+        "add": "Mitarbeiter zuweisen",
+        "save": "Änderungen speichern",
+        "cancel": "Abbrechen"
+      },
+      "messages": {
+        "addSuccess": "Mitarbeiter erfolgreich zugewiesen",
+        "addError": "Zuweisung des Mitarbeiters fehlgeschlagen",
+        "updateSuccess": "Mitarbeiterzuweisung erfolgreich aktualisiert",
+        "updateError": "Aktualisierung der Zuweisung fehlgeschlagen",
+        "removeSuccess": "Mitarbeiterzuweisung erfolgreich entfernt",
+        "removeError": "Entfernen der Zuweisung fehlgeschlagen",
+        "staffSelectionRequired": "Bitte wählen Sie einen Mitarbeiter aus"
+      },
+      "removeDialog": {
+        "title": "Mitarbeiterzuweisung entfernen",
+        "description": "Möchten Sie diese Zuweisung wirklich entfernen? Dies kann nicht rückgängig gemacht werden."
+      }
+    },
+    "gallery": {
+      "title": "Galerieverwaltung",
+      "description": "Bilder und Medien für diesen Dienstanbieter verwalten",
+      "noItems": "Noch keine Galerieelemente hinzugefügt",
+      "add": {
+        "title": "Galerieelement hochladen",
+        "description": "Neues Bild oder Medium hochladen"
+      },
+      "form": {
+        "title": "Titel",
+        "titlePlaceholder": "Bildtitel eingeben",
+        "description": "Beschreibung",
+        "descriptionPlaceholder": "Bildbeschreibung eingeben (optional)",
+        "file": "Datei auswählen",
+        "filePlaceholder": "Klicken zum Hochladen oder hierher ziehen",
+        "fileHint": "PNG, JPG, WEBP oder GIF (max. 10MB)",
+        "displayOrder": "Anzeigereihenfolge"
+      },
+      "actions": {
+        "add": "Element hochladen",
+        "save": "Änderungen speichern",
+        "cancel": "Abbrechen",
+        "remove": "Element entfernen",
+        "edit": "Element bearbeiten"
+      },
+      "messages": {
+        "addSuccess": "Galerieelement erfolgreich hochgeladen",
+        "addError": "Hochladen des Galerieelements fehlgeschlagen",
+        "updateSuccess": "Galerieelement erfolgreich aktualisiert",
+        "updateError": "Aktualisierung des Galerieelements fehlgeschlagen",
+        "removeSuccess": "Galerieelement erfolgreich entfernt",
+        "removeError": "Entfernen des Galerieelements fehlgeschlagen",
+        "titleRequired": "Bitte geben Sie einen Titel ein",
+        "descriptionRequired": "Bitte geben Sie eine Beschreibung ein"
+      },
+      "errors": {
+        "fileRequired": "Bitte wählen Sie eine Datei aus",
+        "invalidFileType": "Ungültiger Dateityp. Es werden nur Bilder unterstützt",
+        "fileTooLarge": "Datei ist zu groß. Maximale Größe 10MB",
+        "addFailed": "Hochladen des Galerieelements fehlgeschlagen",
+        "removeFailed": "Entfernen des Galerieelements fehlgeschlagen"
+      },
+      "removeDialog": {
+        "title": "Galerieelement entfernen",
+        "description": "Möchten Sie dieses Galerieelement wirklich entfernen? Dies kann nicht rückgängig gemacht werden."
+      }
+    },
+    "services": {
+      "title": "Leistungen",
+      "description": "Leistungen verwalten, die dieser Anbieter anbietet",
+      "noServices": "Keine Leistungen verfügbar",
+      "add": {
+        "title": "Leistung hinzufügen",
+        "description": "Neue Leistung für diesen Anbieter hinzufügen"
+      },
+      "form": {
+        "serviceDefinition": "Dienstleistungsdefinition",
+        "selectService": "Leistung auswählen",
+        "serviceName": "Leistungsname",
+        "serviceDescription": "Leistungsbeschreibung",
+        "price": "Preis",
+        "currency": "Währung",
+        "selectCurrency": "Währung auswählen",
+        "duration": "Dauer",
+        "notes": "Notizen",
+        "notesPlaceholder": "Zusätzliche Hinweise zu dieser Leistung"
+      },
+      "actions": {
+        "add": "Leistung hinzufügen",
+        "save": "Änderungen speichern",
+        "cancel": "Abbrechen"
+      },
+      "messages": {
+        "addSuccess": "Leistung erfolgreich hinzugefügt",
+        "addError": "Hinzufügen der Leistung fehlgeschlagen",
+        "updateSuccess": "Leistung erfolgreich aktualisiert",
+        "updateError": "Aktualisierung der Leistung fehlgeschlagen",
+        "removeSuccess": "Leistung erfolgreich entfernt",
+        "removeError": "Entfernen der Leistung fehlgeschlagen",
+        "serviceSelectionRequired": "Bitte wählen Sie eine Dienstleistungsdefinition",
+        "priceRequired": "Bitte geben Sie einen Preis ein",
+        "currencyRequired": "Bitte wählen Sie eine Währung",
+        "durationRequired": "Bitte geben Sie eine Dauer ein"
+      },
+      "removeDialog": {
+        "title": "Leistung entfernen",
+        "description": "Möchten Sie diese Leistung wirklich entfernen? Dies kann nicht rückgängig gemacht werden."
+      },
+      "units": {
+        "minutesShort": "min"
+      }
+    },
+    "policies": {
+      "title": "Richtlinienverwaltung",
+      "description": "Richtlinien für diesen Dienstanbieter verwalten",
+      "noPolicies": "Für diesen Anbieter sind keine Richtlinien konfiguriert",
+      "add": {
+        "title": "Richtlinie hinzufügen",
+        "description": "Neue Richtlinie für diesen Dienstanbieter definieren"
+      },
+      "form": {
+        "type": "Richtlinientyp",
+        "typePlaceholder": "Richtlinientyp eingeben (z. B. Storno-, Erstattungsrichtlinie)",
+        "description": "Richtlinienbeschreibung",
+        "descriptionPlaceholder": "Detaillierte Richtlinienbeschreibung eingeben..."
+      },
+      "actions": {
+        "add": "Richtlinie hinzufügen",
+        "save": "Änderungen speichern",
+        "cancel": "Abbrechen"
+      },
+      "messages": {
+        "addSuccess": "Richtlinie erfolgreich hinzugefügt",
+        "addError": "Hinzufügen der Richtlinie fehlgeschlagen",
+        "updateSuccess": "Richtlinie erfolgreich aktualisiert",
+        "updateError": "Aktualisierung der Richtlinie fehlgeschlagen",
+        "removeSuccess": "Richtlinie erfolgreich entfernt",
+        "removeError": "Entfernen der Richtlinie fehlgeschlagen",
+        "typeRequired": "Bitte geben Sie einen Richtlinientyp ein",
+        "descriptionRequired": "Bitte geben Sie eine Richtlinienbeschreibung ein",
+        "duplicateType": "Eine Richtlinie dieses Typs existiert bereits"
+      },
+      "removeDialog": {
+        "title": "Richtlinie entfernen",
+        "description": "Möchten Sie diese Richtlinie wirklich entfernen? Dies kann nicht rückgängig gemacht werden."
+      }
+    },
+    "attributes": {
+      "title": "Attributverwaltung",
+      "description": "Benutzerdefinierte Attribute basierend auf Anbietertyp-Definitionen verwalten",
+      "noAttributes": "Für diesen Anbieter sind keine Attribute konfiguriert",
+      "availableDefinitions": "Verfügbare Definitionen",
+      "noAvailableDefinitions": "Alle verfügbaren Attribute für diesen Anbietertyp sind bereits konfiguriert",
+      "add": {
+        "title": "Attribut hinzufügen",
+        "description": "Neuen Attributwert für diesen Dienstanbieter konfigurieren"
+      },
+      "form": {
+        "attributeDefinition": "Attributdefinition",
+        "selectAttribute": "Attribut zur Konfiguration auswählen",
+        "selectedAttribute": "Details zum ausgewählten Attribut",
+        "name": "Name",
+        "type": "Typ",
+        "required": "Erforderlich",
+        "value": "Attributwert",
+        "selectValue": "Wert auswählen",
+        "valuePlaceholder": "Wert für dieses Attribut eingeben...",
+        "yes": "Ja",
+        "no": "Nein"
+      },
+      "actions": {
+        "add": "Attribut hinzufügen",
+        "save": "Änderungen speichern",
+        "cancel": "Abbrechen",
+        "retry": "Erneut versuchen"
+      },
+      "messages": {
+        "addSuccess": "Attribut erfolgreich hinzugefügt",
+        "addError": "Hinzufügen des Attributs fehlgeschlagen",
+        "updateSuccess": "Attribut erfolgreich aktualisiert",
+        "updateError": "Aktualisierung des Attributs fehlgeschlagen",
+        "removeSuccess": "Attribut erfolgreich entfernt",
+        "removeError": "Entfernen des Attributs fehlgeschlagen",
+        "attributeRequired": "Bitte wählen Sie eine Attributdefinition aus",
+        "valueRequired": "Bitte geben Sie einen Wert für das Attribut ein",
+        "fetchError": "Laden der Attributdefinitionen fehlgeschlagen"
+      },
+      "removeDialog": {
+        "title": "Attribut entfernen",
+        "description": "Möchten Sie dieses Attribut wirklich entfernen? Dies kann nicht rückgängig gemacht werden."
+      }
+    },
+    "search": {
+      "placeholder": "Mitarbeiter durchsuchen...",
+      "noResults": "Kein Mitarbeiter gefunden."
+    },
+    "messages": {
+      "success": "Vorgang für Dienstanbieter erfolgreich abgeschlossen",
+      "error": "Vorgang für Dienstanbieter fehlgeschlagen",
+      "deleteSuccess": "Dienstanbieter erfolgreich gelöscht",
+      "deleteError": "Löschen des Dienstanbieters fehlgeschlagen",
+      "statusChanged": "Status des Dienstanbieters erfolgreich geändert",
+      "statusChangeError": "Änderung des Status fehlgeschlagen"
+    },
+    "errors": {
+      "invalidPhone": "Bitte geben Sie eine gültige Telefonnummer ein",
+      "createFailed": "Erstellen des Dienstanbieters fehlgeschlagen",
+      "updateFailed": "Aktualisieren des Dienstanbieters fehlgeschlagen",
+      "gradeRequired": "Note ist erforderlich",
+      "gradeInvalid": "Note muss zwischen A und E liegen",
+      "gradeNotUnique": "Für diesen Anbietertyp an diesem Standort existiert bereits ein Dienstanbieter mit dieser Note"
+    },
+    "delete": {
+      "dialog": {
+        "title": "Dienstanbieter löschen",
+        "description": "Möchten Sie diesen Dienstanbieter wirklich löschen? Dies kann nicht rückgängig gemacht werden.",
+        "cancel": "Abbrechen",
+        "confirm": "Löschen"
+      }
+    }
+  },
+  "ProviderType": {
+    "name": "Anbietertyp",
+    "page": {
+      "title": "Anbietertypen",
+      "description": "Anbietertypen und ihre Attributdefinitionen verwalten"
+    },
+    "add": {
+      "page": {
+        "title": "Anbietertyp hinzufügen",
+        "description": "Neuen Anbietertyp erstellen"
+      },
+      "title": "Neuen Anbietertyp hinzufügen"
+    },
+    "update": {
+      "page": {
+        "title": "Anbietertyp aktualisieren",
+        "description": "Informationen zum Anbietertyp bearbeiten"
+      },
+      "title": "Anbietertyp aktualisieren"
+    },
+    "form": {
+      "name": {
+        "label": "Name"
+      },
+      "description": {
+        "label": "Beschreibung"
+      },
+      "isActive": "Aktiv",
+      "attributes": "Attributdefinitionen",
+      "attributesPlaceholder": "Attribute ({count} definiert)",
+      "create": "Anbietertyp erstellen",
+      "update": "Anbietertyp aktualisieren",
+      "creating": "Wird erstellt...",
+      "updating": "Wird aktualisiert...",
+      "cancel": "Abbrechen",
+      "selectProviderType": "Anbietertyp auswählen",
+      "iconUrl": {
+        "label": "Icon",
+        "placeholder": "Icon auswählen"
+      }
+    },
+    "table": {
+      "name": "Name",
+      "description": "Beschreibung",
+      "icon": "Icon",
+      "attributes": "Attribute",
+      "status": "Status",
+      "actions": "Aktionen"
+    },
+    "actions": {
+      "addProviderType": "Anbietertyp hinzufügen",
+      "editProviderType": "Anbietertyp bearbeiten",
+      "deleteProviderType": "Anbietertyp löschen",
+      "deleteProviderTypeDescription": "Möchten Sie diesen Anbietertyp wirklich löschen?",
+      "activate": "Aktivieren",
+      "deactivate": "Deaktivieren",
+      "toggleActivation": "Aktivierung umschalten",
+      "viewDetails": "Details anzeigen",
+      "removeAttribute": "Attribut entfernen",
+      "removeAttributeDescription": "Möchten Sie diese Attributdefinition wirklich entfernen?",
+      "retry": "Erneut versuchen",
+      "cancel": "Abbrechen",
+      "save": "Speichern",
+      "saving": "Wird gespeichert..."
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "messages": {
+      "success": "Vorgang für Anbietertyp erfolgreich abgeschlossen",
+      "error": "Vorgang für Anbietertyp fehlgeschlagen",
+      "updated": "Anbietertyp erfolgreich aktualisiert",
+      "attributeAddSuccess": "Attributdefinition erfolgreich hinzugefügt",
+      "attributeRemoveSuccess": "Attributdefinition erfolgreich entfernt",
+      "attributeUpdateSuccess": "Attributdefinition erfolgreich aktualisiert"
+    },
+    "attributes": {
+      "title": "Attributdefinitionen",
+      "description": "Attributdefinitionen des Anbietertyps und deren Optionen verwalten",
+      "addAttribute": "Attribut hinzufügen",
+      "addNew": "Neues Attribut hinzufügen",
+      "noAttributes": "Keine Attribute definiert",
+      "form": {
+        "name": {
+          "label": "Attributname"
+        },
+        "description": {
+          "label": "Beschreibung"
+        },
+        "attributeType": "Attributtyp",
+        "attributeTypePlaceholder": "Attributtyp auswählen",
+        "isRequired": "Erforderlich",
+        "validationRules": "Validierungsregeln",
+        "validationRulesPlaceholder": "Validierungsregeln eingeben (optional)",
+        "options": "Optionen",
+        "addOption": "Option hinzufügen",
+        "noOptions": "Klicken Sie auf 'Option hinzufügen', um Auswahloptionen zu erstellen",
+        "add": "Attribut hinzufügen",
+        "adding": "Wird hinzugefügt...",
+        "displayName": {
+          "label": "Anzeigename"
+        },
+        "value": {
+          "label": "Wert"
+        },
+        "type": "Typ",
+        "required": "Erforderlich",
+        "rules": "Regeln",
+        "optionsCount": "Optionen",
+        "yes": "Ja",
+        "no": "Nein"
+      }
+    },
+    "details": {
+      "title": "Details zum Anbietertyp",
+      "description": "Detailansicht von {name} mit Attributverwaltung",
+      "basicInfo": "Basisinformationen",
+      "statistics": "Statistiken",
+      "created": "Erstellt",
+      "modified": "Geändert",
+      "attributeDefinitionsCount": "Attributdefinitionen"
+    },
+    "tabs": {
+      "overview": "Übersicht",
+      "attributes": "Attribute"
+    },
+    "search": {
+      "placeholder": "Anbietertypen durchsuchen...",
+      "noResults": "Kein Anbietertyp gefunden."
+    }
+  },
+  "shared": {
+    "selectOption": "Option auswählen",
+    "searchPlaceholder": "Suchen...",
+    "noResults": "Keine Ergebnisse gefunden"
+  },
+  "LocalizedInput": {
+    "placeholder": "{field} auf {language} eingeben"
+  },
+  "List": {
+    "loading": "Wird geladen...",
+    "loadMore": "Mehr laden"
+  }
+}

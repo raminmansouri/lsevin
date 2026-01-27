@@ -1,0 +1,149 @@
+# https://github.com/dotnet/tye/tree/main/docs
+# https://github.com/dotnet/tye/blob/main/docs/reference/schema.md
+name: lsevin
+containerEngine: docker
+registry: pouryanf
+
+services:
+  - name: lsevin-api
+    project: ../../src/API/LSevin.Api/LSevin.Api.csproj
+    tags:
+      - backend
+    bindings:
+      - protocol: http
+        name: http
+        port: 5001
+      - protocol: https
+        name: https
+        port: 7001
+    env:
+      - name: ASPNETCORE_ENVIRONMENT
+        value: Development
+      - name: ConnectionStrings__database
+        value: Host=postgres;Port=5432;Database=lsevin;Username=postgres;Password=postgres;Include Error Detail=true;
+      - name: ConnectionStrings__cache
+        value: redis:6379
+      - name: ConnectionStrings__eventstore
+        value: esdb://eventstore:2113?tls=false
+      - name: SerilogOptions__SeqUrl
+        value: http://seq:5341
+      - name: CorsOptions__AllowedUrls
+        value: http://localhost:3000
+      - name: ObservabilityOptions__JaegerOptions__OTLPGrpcExporterEndpoint
+        value: http://jaeger:4317
+      - name: ObservabilityOptions__JaegerOptions__HttpExporterEndpoint
+        value: http://jaeger:14268/api/traces
+      - name: ObservabilityOptions__UseAspireOTLPExporter
+        value: "false"
+
+  - name: lsevin-gateway
+    project: ../../src/API/LSevin.ApiGateway.Yarp/LSevin.ApiGateway.Yarp.csproj
+    tags:
+      - gateway
+    bindings:
+      - protocol: http
+        name: http
+        port: 5000
+      - protocol: https
+        name: https
+        port: 7000
+    env:
+      - name: ASPNETCORE_ENVIRONMENT
+        value: Development
+      - name: Services__lsevin__http
+        value: http://lsevin-api
+      - name: SerilogOptions__SeqUrl
+        value: http://seq:5341
+      - name: ObservabilityOptions__JaegerOptions__OTLPGrpcExporterEndpoint
+        value: http://jaeger:4317
+      - name: ObservabilityOptions__JaegerOptions__HttpExporterEndpoint
+        value: http://jaeger:14268/api/traces
+      - name: ObservabilityOptions__UseAspireOTLPExporter
+        value: "false"
+      - name: ReverseProxy__Clusters__lsevin-cluster__Destinations__destination1__Address
+        value: http://lsevin-api
+
+  - name: redis
+    image: redis:latest
+    bindings:
+      - port: 6379
+        containerPort: 6379
+
+  - name: postgres
+    image: postgres:latest
+    env:
+      - name: POSTGRES_PASSWORD
+        value: postgres
+      - name: POSTGRES_USER
+        value: postgres
+      - name: POSTGRES_DB
+        value: lsevin
+    bindings:
+      - port: 5432
+        containerPort: 5432
+
+  - name: eventstore
+    image: eventstore/eventstore:latest
+    env:
+      - name: EVENTSTORE_CLUSTER_SIZE
+        value: "1"
+      - name: EVENTSTORE_RUN_PROJECTIONS
+        value: "All"
+      - name: EVENTSTORE_START_STANDARD_PROJECTIONS
+        value: "true"
+      - name: EVENTSTORE_EXT_TCP_PORT
+        value: "1113"
+      - name: EVENTSTORE_HTTP_PORT
+        value: "2113"
+      - name: EVENTSTORE_INSECURE
+        value: "true"
+      - name: EVENTSTORE_ENABLE_EXTERNAL_TCP
+        value: "true"
+      - name: EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP
+        value: "true"
+    bindings:
+      - port: 1113
+        containerPort: 1113
+      - port: 2113
+        containerPort: 2113
+
+  - name: jaeger
+    image: jaegertracing/all-in-one:latest
+    bindings:
+      - port: 4317
+        containerPort: 4317
+        protocol: http
+        name: grpc
+      - port: 4318
+        containerPort: 4318
+        protocol: http
+        name: http
+      - port: 16686
+        containerPort: 16686
+        protocol: http
+        name: ui
+      - port: 14268
+        containerPort: 14268
+        protocol: http
+        name: collector
+
+  - name: lsevin-webapp
+    executable: pnpm
+    workingDirectory: ../../frontend/webapp
+    args: start
+    env:
+      - name: NODE_ENV
+        value: "production"
+      - name: PORT
+        value: "3000"
+      - name: NEXT_PUBLIC_API_URL
+        value: "https://localhost:7000"
+      - name: NEXT_PUBLIC_SOCKET_URL
+        value: "https://localhost:7000/hubs"
+      - name: AUTH_URL
+        value: "http://localhost:3000"
+      - name: AUTH_TRUST_HOST
+        value: "true"
+    bindings:
+      - port: 3000
+        protocol: http

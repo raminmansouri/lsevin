@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <AspNetCoreVersion>9.0.9</AspNetCoreVersion>
+    <TestContainersVersion>4.7.0</TestContainersVersion>
+    <!-- Force consistent versions -->
+    <MicrosoftCodeAnalysisCSharpVersion>4.12.0</MicrosoftCodeAnalysisCSharpVersion>
+  </PropertyGroup>
+</Project>

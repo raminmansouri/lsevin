@@ -1,0 +1,21 @@
+<Project>
+  <Import Project=".\Packages.props" />
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <EnablePackageVersionOverride>true</EnablePackageVersionOverride>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting.Redis" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting.NodeJs " Version="$(AspireVersion)" />
+    <PackageVersion Include="CommunityToolkit.Aspire.Hosting.EventStore" Version="$(AspireCommunityToolkitVersion)" />
+    <PackageVersion
+      Include="CommunityToolkit.Aspire.Hosting.NodeJS.Extensions"
+      Version="$(AspireCommunityToolkitVersion)"
+    />
+    <!-- force consistent versions -->
+    <PackageVersion Include="System.Text.Json" Version="$(AspNetCoreVersion)" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>1.3</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Not_Confirmed_Error_Message" xml:space="preserve">
+    <value>{0} غير مؤكد</value>
+  </data>
+  <data name="User_Locked_Error_Message" xml:space="preserve">
+    <value>المستخدم مقفل حاليًا</value>
+  </data>
+  <data name="Requires_Two_Factor_Error_Message" xml:space="preserve">
+    <value>يتطلب المصادقة الثنائية</value>
+  </data>
+  <data name="Invalid_Credentials_Error_Message" xml:space="preserve">
+    <value>كلمة المرور غير صحيحة</value>
+  </data>
+  <data name="Token" xml:space="preserve">
+    <value>رمز</value>
+  </data>
+  <data name="Email_Already_Confirmed_Error_Message" xml:space="preserve">
+    <value>البريد الإلكتروني مؤكد بالفعل</value>
+  </data>
+  <data name="Email_Verification_Invalid_Error_Message" xml:space="preserve">
+    <value>إما البريد الإلكتروني أو الرمز غير صحيح</value>
+  </data>
+  <data name="Verification_Code_Expired_Error_Message" xml:space="preserve">
+    <value>انتهت صلاحية رمز التحقق</value>
+  </data>
+  <data name="User_State_Cannot_Be_Changed" xml:space="preserve">
+    <value>لا يمكن تغيير حالة المستخدم</value>
+  </data>
+  <data name="Cannot_Update_State_Of_Admin" xml:space="preserve">
+    <value>لا يمكنك تحديث حالة المسؤول</value>
+  </data>
+  <data name="Password_Match_Error_Message" xml:space="preserve">
+    <value>كلمة المرور وتأكيد كلمة المرور غير متطابقين</value>
+  </data>
+</root>

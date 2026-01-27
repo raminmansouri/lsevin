@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="XunitContext" />
+    <PackageReference Include="Respawn" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
+    <PackageReference Include="Testcontainers.Redis" />
+    <PackageReference Include="Testcontainers.RabbitMq" />
+    <PackageReference Include="EasyNetQ.Management.Client" />
+    <PackageReference Include="Grpc.Core.Testing" />
+    <PackageReference Include="Serilog.Sinks.XUnit" />
+    <PackageReference Include="WebMotions.Fake.Authentication.JwtBearer" />
+    <PackageReference Include="WireMock.Net" />
+    <PackageReference Include="FluentAssertions.Web" />
+  </ItemGroup>
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\API\LSevin.Api\LSevin.Api.csproj" />
+  </ItemGroup>
+</Project>
