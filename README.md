@@ -703,5 +703,3 @@ pm2 start deployments/pm2/pm2.yaml --env production
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
-
-Made with ❤️ by [Pourya Nofallah](https://github.com/pouryanoufallah96)
