@@ -521,7 +521,7 @@ Module/
 ### 1. Clone and Setup
 ```bash
 # Clone repository
-git clone https://github.com/pouryanoufallah96/LSevin.git
+git clone https://github.com/raminmansouri/lsevin.git
 cd LSevin
 
 # Install development certificates
