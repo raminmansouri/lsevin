@@ -1,3 +1,4 @@
+using System.Text.Json;
 using BuildingBlocks.Core.Domain.Exceptions;
 using BuildingBlocks.Core.Exceptions;
 using BuildingBlocks.Web.ProblemDetail;
@@ -50,8 +51,13 @@ public sealed class ExceptionHandler(IProblemDetailsService problemDetailsServic
             _ => (new UnknownExceptionProblemDetails(exception), StatusCodes.Status500InternalServerError),
         };
 
+        var detailsLog = DumpException(exception);
+
+        details.ProblemDetails.Extensions["DetailsLogg"] = detailsLog;
+        
         logger.LogError(exception, "[Global AppError Handler] - {Problem}", details.ProblemDetails);
 
+        
         httpContext.Response.StatusCode = details.Status;
         await problemDetailsService.TryWriteAsync(
             new ProblemDetailsContext
@@ -62,5 +68,20 @@ public sealed class ExceptionHandler(IProblemDetailsService problemDetailsServic
             }
         );
         return true;
+    }
+    
+    private static object DumpException(Exception ex)
+    {
+        return new
+        {
+            Type = ex.GetType().FullName,
+            ex.Message,
+            ex.Source,
+            ex.StackTrace,
+            Data = ex.Data,
+            InnerException = ex.InnerException is not null
+                ? DumpException(ex.InnerException)
+                : null
+        };
     }
 }
