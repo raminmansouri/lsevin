@@ -1,0 +1,137 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BuildingBlocks.Persistence.EfCore.Postgres</name>
+    </assembly>
+    <members>
+        <member name="T:BuildingBlocks.Persistence.EfCore.Postgres.Configurations.InboxMessageConfiguration">
+            <summary>
+            Configuration for inbox messages.
+            </summary>
+        </member>
+        <member name="M:BuildingBlocks.Persistence.EfCore.Postgres.Configurations.InboxMessageConfiguration.Configure(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder{BuildingBlocks.Core.Persistence.MessagePersistence.Inbox.InboxMessage})">
+            <inheritdoc/>
+        </member>
+        <member name="T:BuildingBlocks.Persistence.EfCore.Postgres.Configurations.InternalCommandMessageConfiguration">
+            <summary>
+            Configuration for internal command messages.
+            </summary>
+        </member>
+        <member name="M:BuildingBlocks.Persistence.EfCore.Postgres.Configurations.InternalCommandMessageConfiguration.Configure(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder{BuildingBlocks.Core.Persistence.MessagePersistence.InternalCommand.InternalCommandMessage})">
+            <inheritdoc/>
+        </member>
+        <member name="T:BuildingBlocks.Persistence.EfCore.Postgres.Configurations.OutboxMessageConfiguration">
+            <summary>
+            Configuration for outbox messages.
+            </summary>
+        </member>
+        <member name="M:BuildingBlocks.Persistence.EfCore.Postgres.Configurations.OutboxMessageConfiguration.Configure(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder{BuildingBlocks.Core.Persistence.MessagePersistence.Outbox.OutboxMessage})">
+            <inheritdoc/>
+        </member>
+        <member name="T:BuildingBlocks.Persistence.EfCore.Postgres.Configurations.StoredMessageConfiguration">
+            <summary>
+            Extension methods for configuring stored message entities.
+            </summary>
+        </member>
+        <member name="M:BuildingBlocks.Persistence.EfCore.Postgres.Configurations.StoredMessageConfiguration.ConfigureStoredMessage``1(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder{``0},System.String,System.String)">
+            <summary>
+            Configures common properties for stored message entities.
+            </summary>
+        </member>
+        <member name="T:BuildingBlocks.Persistence.EfCore.Postgres.DbConnectionFactory">
+            <summary>
+            Factory for creating and managing SQL connections.
+            </summary>
+            <remarks>
+            Initializes a new instance of the <see cref="T:BuildingBlocks.Persistence.EfCore.Postgres.DbConnectionFactory"/> class.
+            </remarks>
+            <param name="connectionString">The connection string.</param>
+        </member>
+        <member name="M:BuildingBlocks.Persistence.EfCore.Postgres.DbConnectionFactory.#ctor(System.String)">
+            <summary>
+            Factory for creating and managing SQL connections.
+            </summary>
+            <remarks>
+            Initializes a new instance of the <see cref="T:BuildingBlocks.Persistence.EfCore.Postgres.DbConnectionFactory"/> class.
+            </remarks>
+            <param name="connectionString">The connection string.</param>
+        </member>
+        <member name="M:BuildingBlocks.Persistence.EfCore.Postgres.DbConnectionFactory.GetOrCreateConnection">
+            <inheritdoc />
+        </member>
+        <member name="M:BuildingBlocks.Persistence.EfCore.Postgres.DbConnectionFactory.GetOrCreateConnectionAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:BuildingBlocks.Persistence.EfCore.Postgres.DbConnectionFactory.Dispose(System.Boolean)">
+            <summary>
+            Disposes the resources used by the <see cref="T:BuildingBlocks.Persistence.EfCore.Postgres.DbConnectionFactory"/> class.
+            </summary>
+            <param name="disposing">A value indicating whether the object is being disposed.</param>
+        </member>
+        <member name="M:BuildingBlocks.Persistence.EfCore.Postgres.DbConnectionFactory.DisposeAsync(System.Boolean)">
+            <summary>
+            Disposes the resources used by the <see cref="T:BuildingBlocks.Persistence.EfCore.Postgres.DbConnectionFactory"/> class.
+            </summary>
+            <param name="disposing">A value indicating whether the object is being disposed.</param>
+        </member>
+        <member name="M:BuildingBlocks.Persistence.EfCore.Postgres.DbConnectionFactory.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:BuildingBlocks.Persistence.EfCore.Postgres.DbConnectionFactory.DisposeAsync">
+            <inheritdoc />
+        </member>
+        <member name="T:BuildingBlocks.Persistence.EfCore.Postgres.DbContextDesignFactoryBase`1">
+            <summary>
+            Initializes a new instance of the <see cref="T:BuildingBlocks.Persistence.EfCore.Postgres.DbContextDesignFactoryBase`1"/> class.
+            </summary>
+            <param name="schema">The schema.</param>
+            <param name="connectionStringSection">The connection string section name.</param>
+            <param name="assembly">The assembly.</param>
+            <param name="env">The environment name.</param>
+        </member>
+        <member name="M:BuildingBlocks.Persistence.EfCore.Postgres.DbContextDesignFactoryBase`1.#ctor(System.String,System.String,System.Reflection.Assembly,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:BuildingBlocks.Persistence.EfCore.Postgres.DbContextDesignFactoryBase`1"/> class.
+            </summary>
+            <param name="schema">The schema.</param>
+            <param name="connectionStringSection">The connection string section name.</param>
+            <param name="assembly">The assembly.</param>
+            <param name="env">The environment name.</param>
+        </member>
+        <member name="M:BuildingBlocks.Persistence.EfCore.Postgres.DbContextDesignFactoryBase`1.CreateDbContext(System.String[])">
+            <inheritdoc/>
+        </member>
+        <member name="T:BuildingBlocks.Persistence.EfCore.Postgres.EfCorePostgresExtensions">
+            <summary>
+            Provides extension methods for the EF Core Postgres persistence layer.
+            </summary>
+        </member>
+        <member name="M:BuildingBlocks.Persistence.EfCore.Postgres.EfCorePostgresExtensions.AddPostgresDbContext``1(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.String,System.Reflection.Assembly)">
+            <summary>
+            Adds the Postgres database context to the specified services collection.
+            </summary>
+            <typeparam name="TDbContext">The type of the database context.</typeparam>
+            <param name="services">The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> to add the services to.</param>
+            <param name="schemaName">The schema name.</param>
+            <param name="connectionString">The connection string to use for the database.</param>
+            <param name="assemblyMarker">The assembly that marks the project.</param>
+            <returns>The same service collection so that multiple calls can be chained.</returns>
+        </member>
+        <member name="M:BuildingBlocks.Persistence.EfCore.Postgres.EfCorePostgresExtensions.ConfigureNpgSqlOptions(Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure.NpgsqlDbContextOptionsBuilder,System.Reflection.Assembly,System.String)">
+            <summary>
+            Configures SQL Server options for a DbContext.
+            </summary>
+            <param name="sqlOptions">The SQL Server DbContext options builder.</param>
+            <param name="migrationAssembly">The migration assembly.</param>
+            <param name="schemaName">The schema name.</param>
+        </member>
+        <member name="M:BuildingBlocks.Persistence.EfCore.Postgres.EfCorePostgresExtensions.AddConnectionFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String)">
+            <summary>
+            Adds the connection factory to the specified services collection.
+            </summary>
+            <param name="services">The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> to add the services to.</param>
+            <param name="connectionString">The connection string to use for the database.</param>
+            <returns>The same service collection so that multiple calls can be chained.</returns>
+        </member>
+    </members>
+</doc>

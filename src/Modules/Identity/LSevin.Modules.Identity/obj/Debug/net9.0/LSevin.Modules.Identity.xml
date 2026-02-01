@@ -1,0 +1,170 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LSevin.Modules.Identity</name>
+    </assembly>
+    <members>
+        <member name="T:LSevin.Modules.Identity.Constants.DomainConstValues">
+            <summary>
+            Static class containing domain constants.
+            </summary>
+        </member>
+        <member name="T:LSevin.Modules.Identity.Identity.Features.Login.LoginCommand">
+            <summary>
+            Represents the login command.
+            </summary>
+            <param name="UserNameOrEmail">The username or email.</param>
+            <param name="Password">The password.</param>
+            <param name="Remember">Indicates if the user should be remembered.</param>
+        </member>
+        <member name="M:LSevin.Modules.Identity.Identity.Features.Login.LoginCommand.#ctor(System.String,System.String,System.Boolean)">
+            <summary>
+            Represents the login command.
+            </summary>
+            <param name="UserNameOrEmail">The username or email.</param>
+            <param name="Password">The password.</param>
+            <param name="Remember">Indicates if the user should be remembered.</param>
+        </member>
+        <member name="P:LSevin.Modules.Identity.Identity.Features.Login.LoginCommand.UserNameOrEmail">
+            <summary>The username or email.</summary>
+        </member>
+        <member name="P:LSevin.Modules.Identity.Identity.Features.Login.LoginCommand.Password">
+            <summary>The password.</summary>
+        </member>
+        <member name="P:LSevin.Modules.Identity.Identity.Features.Login.LoginCommand.Remember">
+            <summary>Indicates if the user should be remembered.</summary>
+        </member>
+        <member name="T:LSevin.Modules.Identity.Identity.Services.OtpCodeGeneratorService">
+            <summary>
+            Implementation of OTP code generation using cryptographically secure random numbers.
+            </summary>
+        </member>
+        <member name="T:LSevin.Modules.Identity.Infrastructure.Data.Migrations.Initial">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Identity.Infrastructure.Data.Migrations.Initial.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Identity.Infrastructure.Data.Migrations.Initial.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Identity.Infrastructure.Data.Migrations.Initial.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Identity.Infrastructure.Data.Migrations.AddOtpCode">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Identity.Infrastructure.Data.Migrations.AddOtpCode.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Identity.Infrastructure.Data.Migrations.AddOtpCode.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Identity.Infrastructure.Data.Migrations.AddOtpCode.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Identity.Infrastructure.Extensions.UserManagerExtensions">
+            <summary>
+            Extension methods for <see cref="T:Microsoft.AspNetCore.Identity.UserManager`1"/>.
+            </summary>
+        </member>
+        <member name="M:LSevin.Modules.Identity.Infrastructure.Extensions.UserManagerExtensions.FindAllUserWithRoleAsync(Microsoft.AspNetCore.Identity.UserManager{LSevin.Modules.Identity.Identity.Entities.ApplicationUser},System.Threading.CancellationToken)">
+            <summary>
+            Finds all users with roles.
+            </summary>
+            <param name="userManager">The user manager.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>A list of users with roles.</returns>
+        </member>
+        <member name="M:LSevin.Modules.Identity.Infrastructure.Extensions.UserManagerExtensions.FindAllUsersByPageAsync``1(Microsoft.AspNetCore.Identity.UserManager{LSevin.Modules.Identity.Identity.Entities.ApplicationUser},BuildingBlocks.Core.Messaging.Queries.Paging.IPageRequest,AutoMapper.IMapper,Sieve.Services.ISieveProcessor,System.Threading.CancellationToken)">
+            <summary>
+            Finds all users with roles by page.
+            </summary>
+            <param name="userManager">The user manager.</param>
+            <param name="request">The page request.</param>
+            <param name="mapper">The mapper.</param>
+            <param name="sieveProcessor">The sieve processor.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <typeparam name="TResult">The type of the result.</typeparam>
+            <returns>A list of users with roles.</returns>
+        </member>
+        <member name="M:LSevin.Modules.Identity.Infrastructure.Extensions.UserManagerExtensions.FindUserWithRoleByIdAsync(Microsoft.AspNetCore.Identity.UserManager{LSevin.Modules.Identity.Identity.Entities.ApplicationUser},System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            Finds user with role by id.
+            </summary>
+            <param name="userManager">The user manager.</param>
+            <param name="userId">The user identifier.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>The user with role.</returns>
+        </member>
+        <member name="M:LSevin.Modules.Identity.Infrastructure.Extensions.UserManagerExtensions.FindUserWithRoleByUserNameAsync(Microsoft.AspNetCore.Identity.UserManager{LSevin.Modules.Identity.Identity.Entities.ApplicationUser},System.String,System.Threading.CancellationToken)">
+            <summary>
+            Finds user with role by username.
+            </summary>
+            <param name="userManager">The user manager.</param>
+            <param name="userName">The username.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>The user with role.</returns>
+        </member>
+        <member name="M:LSevin.Modules.Identity.Infrastructure.Extensions.UserManagerExtensions.FindUserWithRoleByEmailAsync(Microsoft.AspNetCore.Identity.UserManager{LSevin.Modules.Identity.Identity.Entities.ApplicationUser},System.String,System.Threading.CancellationToken)">
+            <summary>
+            Finds user with role by email.
+            </summary>
+            <param name="userManager">The user manager.</param>
+            <param name="email">The email.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>The user with role.</returns>
+        </member>
+        <member name="M:LSevin.Modules.Identity.Infrastructure.Extensions.UserManagerExtensions.FindUserWithRoleByPhoneNumberAsync(Microsoft.AspNetCore.Identity.UserManager{LSevin.Modules.Identity.Identity.Entities.ApplicationUser},System.String,System.Threading.CancellationToken)">
+            <summary>
+            Finds user with role by phone number.
+            </summary>
+            <param name="userManager">The user manager.</param>
+            <param name="phoneNumber">The phone number.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>The user with role.</returns>
+        </member>
+        <member name="P:LSevin.Modules.Identity.Infrastructure.HttpClients.MeliPayamak.Dtos.SendSmsResponseClientDto.Value">
+            <summary>
+            Gets the message ID (recId) as string.
+            If successful, contains a long number (>15 digits).
+            If failed, contains an error code (negative number or specific error codes).
+            </summary>
+        </member>
+        <member name="P:LSevin.Modules.Identity.Infrastructure.HttpClients.MeliPayamak.Dtos.SendSmsResponseClientDto.StatusCode">
+            <summary>
+            Gets status code.
+            0 = Success,
+            1 = Success (Ok),
+            -1 = Access denied,
+            -2 = Number limit exceeded,
+            -3 = Line not defined,
+            -4 = Invalid bodyId,
+            -5 = Text doesn't match template variables,
+            0 = Invalid username/password,
+            2 = Insufficient credit,
+            6 = System updating,
+            7 = Text contains filtered word,
+            35 = Number in blacklist (REST only).
+            </summary>
+        </member>
+        <member name="M:LSevin.Modules.Identity.Infrastructure.HttpClients.MeliPayamak.MeliPayamakApiClient.MaskPhoneNumber(System.String)">
+            <summary>
+            Masks phone number for logging (shows only last 4 digits).
+            Example: "09123456789" -> "0912***6789".
+            </summary>
+        </member>
+        <member name="M:LSevin.Modules.Identity.Infrastructure.Middlewares.RevokeAccessTokenMiddleware.GetTokenFromHeader(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Get the token from the authorization header.
+            </summary>
+            <param name="context">The HTTP context.</param>
+            <returns>The token.</returns>
+        </member>
+        <member name="T:LSevin.Modules.Identity.Infrastructure.Middlewares.MiddlewareExtensions">
+            <summary>
+            Extension methods for <see cref="T:Microsoft.AspNetCore.Builder.IApplicationBuilder"/>.
+            </summary>
+        </member>
+    </members>
+</doc>

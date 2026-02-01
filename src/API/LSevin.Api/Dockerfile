@@ -8,6 +8,8 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+COPY [".editorconfig", "."]
+COPY ["nuget.config", "."]
 COPY ["global.json", "."]
 COPY ["src/Packages.props", "."]
 COPY ["src/Directory.Packages.props", "."]
@@ -27,11 +29,11 @@ COPY ["src/Modules/Common/LSevin.Modules.Common/LSevin.Modules.Common.csproj", "
 RUN dotnet restore "src/API/LSevin.Api/LSevin.Api.csproj"
 COPY . .
 WORKDIR "/src/src/API/LSevin.Api"
-RUN dotnet build "./LSevin.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build -p:RunAnalyzers=false -p:RunCodeAnalysis=false -p:EnforceCodeStyleInBuild=false -p:TreatWarningsAsErrors=false -p:NoWarn=1591 -p:GenerateDocumentationFile=false
+RUN dotnet build "./LSevin.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./LSevin.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false -p:RunAnalyzers=false -p:RunCodeAnalysis=false -p:EnforceCodeStyleInBuild=false -p:TreatWarningsAsErrors=false -p:NoWarn=1591 -p:GenerateDocumentationFile=false
+RUN dotnet publish "./LSevin.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app

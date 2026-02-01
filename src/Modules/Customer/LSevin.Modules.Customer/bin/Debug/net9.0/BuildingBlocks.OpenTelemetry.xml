@@ -1,0 +1,141 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BuildingBlocks.OpenTelemetry</name>
+    </assembly>
+    <members>
+        <member name="T:BuildingBlocks.OpenTelemetry.ObservabilityOptionsConfigurator">
+            <summary>
+            Represents the observability options configurator.
+            </summary>
+        </member>
+        <member name="P:BuildingBlocks.OpenTelemetry.ObservabilityOptionsConfigurator.ConfigureTracerProvider">
+            <summary>
+            Gets the configure tracer provider.
+            </summary>
+        </member>
+        <member name="P:BuildingBlocks.OpenTelemetry.ObservabilityOptionsConfigurator.ConfigureMeterProvider">
+            <summary>
+            Gets the configure meter provider.
+            </summary>
+        </member>
+        <member name="M:BuildingBlocks.OpenTelemetry.ObservabilityOptionsConfigurator.ConfigureTracing(System.Action{OpenTelemetry.Trace.TracerProviderBuilder})">
+            <summary>
+            Gets the configure tracer provider.
+            </summary>
+        </member>
+        <member name="M:BuildingBlocks.OpenTelemetry.ObservabilityOptionsConfigurator.ConfigureMetrics(System.Action{OpenTelemetry.Metrics.MeterProviderBuilder})">
+            <summary>
+            Gets the configure meter provider.
+            </summary>
+        </member>
+        <member name="T:BuildingBlocks.OpenTelemetry.OpenTelemetryExtensions">
+            <summary>
+            Extension methods for configuring and adding pre-configured presentation-related services.
+            </summary>
+        </member>
+        <member name="M:BuildingBlocks.OpenTelemetry.OpenTelemetryExtensions.AddCustomObservability(Microsoft.AspNetCore.Builder.WebApplicationBuilder,System.Action{BuildingBlocks.OpenTelemetry.ObservabilityOptionsConfigurator})">
+            <summary>
+            Adds pre-configured presentation-related services to the DI container.
+            </summary>
+            <param name="builder">The WebApplicationBuilder instance to configure.</param>
+            <param name="configureOptions">An optional delegate to configure the ObservabilityOptions.</param>
+            <returns>The configured WebApplicationBuilder instance.</returns>
+        </member>
+        <member name="M:BuildingBlocks.OpenTelemetry.OpenTelemetryExtensions.AddLoggingExporters(OpenTelemetry.Logs.OpenTelemetryLoggerOptions,BuildingBlocks.Core.Observability.Options.ObservabilityOptions)">
+            <summary>
+            Adds the logging exporters to the service collection.
+            </summary>
+            <param name="openTelemetryLoggerOptions">The OpenTelemetryLoggerOptions instance to configure.</param>
+            <param name="observabilityOptions">The ObservabilityOptions instance to configure.</param>
+        </member>
+        <member name="M:BuildingBlocks.OpenTelemetry.OpenTelemetryExtensions.AddCoreDiagnostics(Microsoft.AspNetCore.Builder.WebApplicationBuilder)">
+            <summary>
+            Adds the core diagnostics.
+            </summary>
+            <param name="builder">The builder.</param>
+            <returns>The configured builder.</returns>
+        </member>
+        <member name="M:BuildingBlocks.OpenTelemetry.OpenTelemetryExtensions.UseObservability(Microsoft.AspNetCore.Builder.WebApplication)">
+            <summary>
+            Adds pre-configured presentation-related services to the DI container.
+            </summary>
+            <param name="app">The WebApplication instance to configure.</param>
+            <returns>The configured WebApplication instance.</returns>
+        </member>
+        <member name="T:BuildingBlocks.OpenTelemetry.PropagationContextJsonConverter">
+            <summary>
+            Represents a JSON converter for <see cref="T:OpenTelemetry.Context.Propagation.PropagationContext"/>.
+            </summary>
+        </member>
+        <member name="M:BuildingBlocks.OpenTelemetry.PropagationContextJsonConverter.Read(System.Text.Json.Utf8JsonReader@,System.Type,System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc />
+        </member>
+        <member name="M:BuildingBlocks.OpenTelemetry.PropagationContextJsonConverter.Write(System.Text.Json.Utf8JsonWriter,OpenTelemetry.Context.Propagation.PropagationContext,System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc />
+        </member>
+        <member name="M:BuildingBlocks.OpenTelemetry.PropagationContextJsonConverter.ExtractTraceContextFromHeaders(System.Collections.Generic.Dictionary{System.String,System.String},System.String)">
+            <summary>
+            Extracts trace context from headers.
+            </summary>
+            <param name="headers">The headers.</param>
+            <param name="key">The key.</param>
+            <returns>The trace context.</returns>
+        </member>
+        <member name="T:BuildingBlocks.OpenTelemetry.TelemetryPropagator">
+            <summary>
+            Represents the telemetry propagator.
+            </summary>
+        </member>
+        <member name="M:BuildingBlocks.OpenTelemetry.TelemetryPropagator.UseDefaultCompositeTextMapPropagator">
+            <summary>
+            Uses the default composite text map propagator with trace context and baggage propagators.
+            </summary>
+        </member>
+        <member name="M:BuildingBlocks.OpenTelemetry.TelemetryPropagator.Inject``1(OpenTelemetry.Context.Propagation.PropagationContext,``0,System.Action{``0,System.String,System.String})">
+            <summary>
+            Injects propagation context into a carrier using the specified setter.
+            </summary>
+            <typeparam name="T">The type of the carrier.</typeparam>
+            <param name="context">The propagation context to inject.</param>
+            <param name="carrier">The carrier to inject into.</param>
+            <param name="setter">The action to set values on the carrier.</param>
+        </member>
+        <member name="M:BuildingBlocks.OpenTelemetry.TelemetryPropagator.Extract``1(``0,System.Func{``0,System.String,System.Collections.Generic.IEnumerable{System.String}})">
+            <summary>
+            Extracts propagation context from a carrier using the specified getter.
+            </summary>
+            <typeparam name="T">The type of the carrier.</typeparam>
+            <param name="carrier">The carrier to extract from.</param>
+            <param name="getter">The function to get values from the carrier.</param>
+            <returns>The extracted propagation context.</returns>
+        </member>
+        <member name="M:BuildingBlocks.OpenTelemetry.TelemetryPropagator.Extract``1(OpenTelemetry.Context.Propagation.PropagationContext,``0,System.Func{``0,System.String,System.Collections.Generic.IEnumerable{System.String}})">
+            <summary>
+            Extracts propagation context from a carrier using the specified context and getter.
+            </summary>
+            <typeparam name="T">The type of the carrier.</typeparam>
+            <param name="context">The initial propagation context.</param>
+            <param name="carrier">The carrier to extract from.</param>
+            <param name="getter">The function to get values from the carrier.</param>
+            <returns>The extracted propagation context.</returns>
+        </member>
+        <member name="M:BuildingBlocks.OpenTelemetry.TelemetryPropagator.Propagate``1(System.Diagnostics.Activity,``0,System.Action{``0,System.String,System.String})">
+            <summary>
+            Propagates the activity context and baggage into a carrier.
+            </summary>
+            <typeparam name="T">The type of the carrier.</typeparam>
+            <param name="activity">The activity containing the context to propagate.</param>
+            <param name="carrier">The carrier to propagate into.</param>
+            <param name="setter">The action to set values on the carrier.</param>
+            <returns>The propagation context if successful; otherwise, null.</returns>
+        </member>
+        <member name="M:BuildingBlocks.OpenTelemetry.TelemetryPropagator.GetPropagationContext(System.Diagnostics.Activity)">
+            <summary>
+            Gets the propagation context from the specified or current activity.
+            </summary>
+            <param name="activity">The activity to get context from. If null, uses the current activity.</param>
+            <returns>The propagation context if an activity context exists; otherwise, null.</returns>
+        </member>
+    </members>
+</doc>

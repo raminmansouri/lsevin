@@ -1,0 +1,4411 @@
+{
+  "format": 1,
+  "restore": {
+    "E:\\workplace\\lsevin\\tests\\shared\\LSevin.ArchitectureTests\\LSevin.ArchitectureTests.csproj": {}
+  },
+  "projects": {
+    "E:\\workplace\\lsevin\\src\\API\\LSevin.Api\\LSevin.Api.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\workplace\\lsevin\\src\\API\\LSevin.Api\\LSevin.Api.csproj",
+        "projectName": "LSevin.Api",
+        "projectPath": "E:\\workplace\\lsevin\\src\\API\\LSevin.Api\\LSevin.Api.csproj",
+        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
+        "outputPath": "E:\\workplace\\lsevin\\src\\API\\LSevin.Api\\obj\\",
+        "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\BuildingBlocks.Caching.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\BuildingBlocks.Caching.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\BuildingBlocks.Security.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\BuildingBlocks.Security.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\Modules\\Category\\LSevin.Modules.Category\\LSevin.Modules.Category.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\Modules\\Category\\LSevin.Modules.Category\\LSevin.Modules.Category.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\Modules\\Customer\\LSevin.Modules.Customer\\LSevin.Modules.Customer.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\Modules\\Customer\\LSevin.Modules.Customer\\LSevin.Modules.Customer.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\Modules\\Identity\\LSevin.Modules.Identity\\LSevin.Modules.Identity.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\Modules\\Identity\\LSevin.Modules.Identity\\LSevin.Modules.Identity.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "allWarningsAsErrors": true,
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "AsyncAwaitBestPractices": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AsyncFixer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.6.0, )",
+              "versionCentrallyManaged": true
+            },
+            "ErrorProne.NET.CoreAnalyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.8.2-beta.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Meziantou.Analyzer": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.222, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.9, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": {
+              "target": "Package",
+              "version": "[1.22.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.VisualStudio.Threading.Analyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[17.14.15, )",
+              "versionCentrallyManaged": true
+            },
+            "Nerdbank.GitVersioning": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.8.118, )",
+              "versionCentrallyManaged": true
+            },
+            "NetFabric.Hyperlinq.Analyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.3.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.CodeAnalysis.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Formatting.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "SerilogAnalyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.15.0, )",
+              "versionCentrallyManaged": true
+            },
+            "StyleCop.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.2.0-beta.556, )",
+              "versionCentrallyManaged": true
+            }
+          },
+          "centralPackageVersions": {
+            "Ardalis.GuardClauses": "5.0.0",
+            "Ardalis.Specification": "9.3.1",
+            "Ardalis.Specification.EntityFrameworkCore": "9.3.1",
+            "Asp.Versioning.Http": "8.1.0",
+            "Asp.Versioning.Mvc": "8.1.0",
+            "Asp.Versioning.Mvc.ApiExplorer": "8.1.0",
+            "AspNetCore.HealthChecks.EventStore.gRPC": "9.0.0",
+            "AspNetCore.HealthChecks.Network": "9.0.0",
+            "AspNetCore.HealthChecks.NpgSql": "9.0.0",
+            "AspNetCore.HealthChecks.Redis": "9.0.0",
+            "AspNetCore.HealthChecks.System": "9.0.0",
+            "AspNetCore.HealthChecks.UI": "9.0.0",
+            "AspNetCore.HealthChecks.UI.Client": "9.0.0",
+            "AspNetCore.HealthChecks.UI.InMemory.Storage": "9.0.0",
+            "AspNetCore.HealthChecks.Uris": "9.0.0",
+            "AsyncAwaitBestPractices": "9.0.0",
+            "AsyncFixer": "1.6.0",
+            "AutoMapper": "15.0.1",
+            "Azure.Identity": "1.13.1",
+            "Dapper": "2.1.66",
+            "Duende.BFF.Yarp": "3.0.0",
+            "Duende.IdentityServer": "7.3.2",
+            "Duende.IdentityServer.AspNetIdentity": "7.3.2",
+            "Duende.IdentityServer.EntityFramework": "7.3.2",
+            "Duende.IdentityServer.Storage": "7.3.2",
+            "EFCore.NamingConventions": "9.0.0",
+            "ErrorProne.NET.CoreAnalyzers": "0.8.2-beta.1",
+            "EventStore.Client.Extensions.OpenTelemetry": "23.3.9",
+            "EventStore.Client.Grpc.Streams": "23.3.9",
+            "FluentValidation": "12.0.0",
+            "FluentValidation.DependencyInjectionExtensions": "12.0.0",
+            "HtmlSanitizer": "9.0.886",
+            "Humanizer": "2.14.1",
+            "Humanizer.Core": "2.14.1",
+            "IdentityModel": "7.0.0",
+            "libphonenumber-csharp": "9.0.15",
+            "MailKit": "4.9.0",
+            "MediatR": "13.0.0",
+            "MessagePack": "3.1.4",
+            "Meziantou.Analyzer": "2.0.222",
+            "Microsoft.AspNetCore.Authentication.JwtBearer": "9.0.9",
+            "Microsoft.AspNetCore.HeaderPropagation": "9.0.9",
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "9.0.9",
+            "Microsoft.AspNetCore.OpenApi": "9.0.9",
+            "Microsoft.Data.SqlClient": "5.2.2",
+            "Microsoft.EntityFrameworkCore": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Design": "9.0.9",
+            "Microsoft.EntityFrameworkCore.InMemory": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Relational": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Tools": "9.0.9",
+            "Microsoft.Extensions.Caching.Hybrid": "9.9.0",
+            "Microsoft.Extensions.Caching.StackExchangeRedis": "9.0.9",
+            "Microsoft.Extensions.Configuration": "9.0.9",
+            "Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore": "9.0.9",
+            "Microsoft.Extensions.Http.Polly": "9.0.9",
+            "Microsoft.Extensions.Http.Resilience": "9.9.0",
+            "Microsoft.Extensions.ServiceDiscovery": "9.5.0",
+            "Microsoft.Extensions.ServiceDiscovery.Yarp": "9.5.0",
+            "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": "1.22.1",
+            "Microsoft.VisualStudio.Threading.Analyzers": "17.14.15",
+            "Nerdbank.GitVersioning": "3.8.118",
+            "NetFabric.Hyperlinq.Analyzer": "2.3.0",
+            "Nito.AsyncEx": "5.1.2",
+            "Nito.AsyncEx.Context": "5.1.2",
+            "Nito.AsyncEx.Tasks": "5.1.2",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.4",
+            "Npgsql.OpenTelemetry": "9.0.3",
+            "OpenTelemetry": "1.13.0",
+            "OpenTelemetry.Api": "1.13.0",
+            "OpenTelemetry.Exporter.Console": "1.13.0",
+            "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.13.0",
+            "OpenTelemetry.Exporter.Prometheus.AspNetCore": "1.13.0-beta.1",
+            "OpenTelemetry.Extensions.Hosting": "1.13.0",
+            "OpenTelemetry.Instrumentation.AspNetCore": "1.12.0",
+            "OpenTelemetry.Instrumentation.EntityFrameworkCore": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.EventCounters": "1.5.1-alpha.1",
+            "OpenTelemetry.Instrumentation.GrpcNetClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Http": "1.12.0",
+            "OpenTelemetry.Instrumentation.Process": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Quartz": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Runtime": "1.12.0",
+            "OpenTelemetry.Instrumentation.SqlClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.StackExchangeRedis": "1.12.0-beta.1",
+            "Polly": "8.6.4",
+            "Quartz": "3.15.0",
+            "Quartz.Extensions.Hosting": "3.15.0",
+            "Roslynator.Analyzers": "4.14.0",
+            "Roslynator.CodeAnalysis.Analyzers": "4.14.0",
+            "Roslynator.Formatting.Analyzers": "4.14.0",
+            "Scalar.AspNetCore": "2.8.10",
+            "Scrutor": "6.1.0",
+            "Serilog.AspNetCore": "9.0.0",
+            "Serilog.Enrichers.CorrelationId": "3.0.1",
+            "Serilog.Enrichers.Environment": "3.0.1",
+            "Serilog.Enrichers.Process": "3.0.0",
+            "Serilog.Enrichers.Span": "3.1.0",
+            "Serilog.Enrichers.Thread": "4.0.0",
+            "Serilog.Exceptions": "8.4.0",
+            "Serilog.Exceptions.EntityFrameworkCore": "8.4.0",
+            "Serilog.Sinks.Async": "2.1.0",
+            "Serilog.Sinks.Console": "6.0.0",
+            "Serilog.Sinks.Seq": "9.0.0",
+            "SerilogAnalyzer": "0.15.0",
+            "SharpAbp.Abp.OpenTelemetry.Exporter.Prometheus.AspNetCore": "4.1.0",
+            "Sieve": "2.5.5",
+            "StyleCop.Analyzers": "1.2.0-beta.556",
+            "System.Data.SqlClient": "4.9.0",
+            "System.Formats.Asn1": "9.0.9",
+            "System.Linq.Async": "6.0.3",
+            "System.Linq.Async.Queryable": "6.0.3",
+            "System.Text.Encodings.Web": "9.0.9",
+            "System.Text.Json": "9.0.9",
+            "Ulid": "1.4.1",
+            "Yarp.ReverseProxy": "2.3.0"
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\BuildingBlocks.Caching.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\BuildingBlocks.Caching.csproj",
+        "projectName": "BuildingBlocks.Caching",
+        "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\BuildingBlocks.Caching.csproj",
+        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
+        "outputPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\obj\\",
+        "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "allWarningsAsErrors": true,
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "AsyncAwaitBestPractices": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AsyncFixer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.6.0, )",
+              "versionCentrallyManaged": true
+            },
+            "ErrorProne.NET.CoreAnalyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.8.2-beta.1, )",
+              "versionCentrallyManaged": true
+            },
+            "MessagePack": {
+              "target": "Package",
+              "version": "[3.1.4, )",
+              "versionCentrallyManaged": true
+            },
+            "Meziantou.Analyzer": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.222, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Caching.Hybrid": {
+              "target": "Package",
+              "version": "[9.9.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Caching.StackExchangeRedis": {
+              "target": "Package",
+              "version": "[9.0.9, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.VisualStudio.Threading.Analyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[17.14.15, )",
+              "versionCentrallyManaged": true
+            },
+            "Nerdbank.GitVersioning": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.8.118, )",
+              "versionCentrallyManaged": true
+            },
+            "NetFabric.Hyperlinq.Analyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.3.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.CodeAnalysis.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Formatting.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "SerilogAnalyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.15.0, )",
+              "versionCentrallyManaged": true
+            },
+            "StyleCop.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.2.0-beta.556, )",
+              "versionCentrallyManaged": true
+            }
+          },
+          "centralPackageVersions": {
+            "Ardalis.GuardClauses": "5.0.0",
+            "Ardalis.Specification": "9.3.1",
+            "Ardalis.Specification.EntityFrameworkCore": "9.3.1",
+            "Asp.Versioning.Http": "8.1.0",
+            "Asp.Versioning.Mvc": "8.1.0",
+            "Asp.Versioning.Mvc.ApiExplorer": "8.1.0",
+            "AspNetCore.HealthChecks.EventStore.gRPC": "9.0.0",
+            "AspNetCore.HealthChecks.Network": "9.0.0",
+            "AspNetCore.HealthChecks.NpgSql": "9.0.0",
+            "AspNetCore.HealthChecks.Redis": "9.0.0",
+            "AspNetCore.HealthChecks.System": "9.0.0",
+            "AspNetCore.HealthChecks.UI": "9.0.0",
+            "AspNetCore.HealthChecks.UI.Client": "9.0.0",
+            "AspNetCore.HealthChecks.UI.InMemory.Storage": "9.0.0",
+            "AspNetCore.HealthChecks.Uris": "9.0.0",
+            "AsyncAwaitBestPractices": "9.0.0",
+            "AsyncFixer": "1.6.0",
+            "AutoMapper": "15.0.1",
+            "Azure.Identity": "1.13.1",
+            "Dapper": "2.1.66",
+            "Duende.BFF.Yarp": "3.0.0",
+            "Duende.IdentityServer": "7.3.2",
+            "Duende.IdentityServer.AspNetIdentity": "7.3.2",
+            "Duende.IdentityServer.EntityFramework": "7.3.2",
+            "Duende.IdentityServer.Storage": "7.3.2",
+            "EFCore.NamingConventions": "9.0.0",
+            "ErrorProne.NET.CoreAnalyzers": "0.8.2-beta.1",
+            "EventStore.Client.Extensions.OpenTelemetry": "23.3.9",
+            "EventStore.Client.Grpc.Streams": "23.3.9",
+            "FluentValidation": "12.0.0",
+            "FluentValidation.DependencyInjectionExtensions": "12.0.0",
+            "HtmlSanitizer": "9.0.886",
+            "Humanizer": "2.14.1",
+            "Humanizer.Core": "2.14.1",
+            "IdentityModel": "7.0.0",
+            "libphonenumber-csharp": "9.0.15",
+            "MailKit": "4.9.0",
+            "MediatR": "13.0.0",
+            "MessagePack": "3.1.4",
+            "Meziantou.Analyzer": "2.0.222",
+            "Microsoft.AspNetCore.Authentication.JwtBearer": "9.0.9",
+            "Microsoft.AspNetCore.HeaderPropagation": "9.0.9",
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "9.0.9",
+            "Microsoft.AspNetCore.OpenApi": "9.0.9",
+            "Microsoft.Data.SqlClient": "5.2.2",
+            "Microsoft.EntityFrameworkCore": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Design": "9.0.9",
+            "Microsoft.EntityFrameworkCore.InMemory": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Relational": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Tools": "9.0.9",
+            "Microsoft.Extensions.Caching.Hybrid": "9.9.0",
+            "Microsoft.Extensions.Caching.StackExchangeRedis": "9.0.9",
+            "Microsoft.Extensions.Configuration": "9.0.9",
+            "Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore": "9.0.9",
+            "Microsoft.Extensions.Http.Polly": "9.0.9",
+            "Microsoft.Extensions.Http.Resilience": "9.9.0",
+            "Microsoft.Extensions.ServiceDiscovery": "9.5.0",
+            "Microsoft.Extensions.ServiceDiscovery.Yarp": "9.5.0",
+            "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": "1.22.1",
+            "Microsoft.VisualStudio.Threading.Analyzers": "17.14.15",
+            "Nerdbank.GitVersioning": "3.8.118",
+            "NetFabric.Hyperlinq.Analyzer": "2.3.0",
+            "Nito.AsyncEx": "5.1.2",
+            "Nito.AsyncEx.Context": "5.1.2",
+            "Nito.AsyncEx.Tasks": "5.1.2",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.4",
+            "Npgsql.OpenTelemetry": "9.0.3",
+            "OpenTelemetry": "1.13.0",
+            "OpenTelemetry.Api": "1.13.0",
+            "OpenTelemetry.Exporter.Console": "1.13.0",
+            "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.13.0",
+            "OpenTelemetry.Exporter.Prometheus.AspNetCore": "1.13.0-beta.1",
+            "OpenTelemetry.Extensions.Hosting": "1.13.0",
+            "OpenTelemetry.Instrumentation.AspNetCore": "1.12.0",
+            "OpenTelemetry.Instrumentation.EntityFrameworkCore": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.EventCounters": "1.5.1-alpha.1",
+            "OpenTelemetry.Instrumentation.GrpcNetClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Http": "1.12.0",
+            "OpenTelemetry.Instrumentation.Process": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Quartz": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Runtime": "1.12.0",
+            "OpenTelemetry.Instrumentation.SqlClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.StackExchangeRedis": "1.12.0-beta.1",
+            "Polly": "8.6.4",
+            "Quartz": "3.15.0",
+            "Quartz.Extensions.Hosting": "3.15.0",
+            "Roslynator.Analyzers": "4.14.0",
+            "Roslynator.CodeAnalysis.Analyzers": "4.14.0",
+            "Roslynator.Formatting.Analyzers": "4.14.0",
+            "Scalar.AspNetCore": "2.8.10",
+            "Scrutor": "6.1.0",
+            "Serilog.AspNetCore": "9.0.0",
+            "Serilog.Enrichers.CorrelationId": "3.0.1",
+            "Serilog.Enrichers.Environment": "3.0.1",
+            "Serilog.Enrichers.Process": "3.0.0",
+            "Serilog.Enrichers.Span": "3.1.0",
+            "Serilog.Enrichers.Thread": "4.0.0",
+            "Serilog.Exceptions": "8.4.0",
+            "Serilog.Exceptions.EntityFrameworkCore": "8.4.0",
+            "Serilog.Sinks.Async": "2.1.0",
+            "Serilog.Sinks.Console": "6.0.0",
+            "Serilog.Sinks.Seq": "9.0.0",
+            "SerilogAnalyzer": "0.15.0",
+            "SharpAbp.Abp.OpenTelemetry.Exporter.Prometheus.AspNetCore": "4.1.0",
+            "Sieve": "2.5.5",
+            "StyleCop.Analyzers": "1.2.0-beta.556",
+            "System.Data.SqlClient": "4.9.0",
+            "System.Formats.Asn1": "9.0.9",
+            "System.Linq.Async": "6.0.3",
+            "System.Linq.Async.Queryable": "6.0.3",
+            "System.Text.Encodings.Web": "9.0.9",
+            "System.Text.Json": "9.0.9",
+            "Ulid": "1.4.1",
+            "Yarp.ReverseProxy": "2.3.0"
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj",
+        "projectName": "BuildingBlocks.Core",
+        "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj",
+        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
+        "outputPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\obj\\",
+        "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "allWarningsAsErrors": true,
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "Ardalis.GuardClauses": {
+              "target": "Package",
+              "version": "[5.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Ardalis.Specification": {
+              "target": "Package",
+              "version": "[9.3.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Ardalis.Specification.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.3.1, )",
+              "versionCentrallyManaged": true
+            },
+            "AsyncAwaitBestPractices": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AsyncFixer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.6.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AutoMapper": {
+              "target": "Package",
+              "version": "[15.0.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.1.66, )",
+              "versionCentrallyManaged": true
+            },
+            "EFCore.NamingConventions": {
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "ErrorProne.NET.CoreAnalyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.8.2-beta.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Humanizer": {
+              "target": "Package",
+              "version": "[2.14.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Humanizer.Core": {
+              "target": "Package",
+              "version": "[2.14.1, )",
+              "versionCentrallyManaged": true
+            },
+            "MediatR": {
+              "target": "Package",
+              "version": "[13.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Meziantou.Analyzer": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.222, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.9, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.EntityFrameworkCore.InMemory": {
+              "target": "Package",
+              "version": "[9.0.9, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.EntityFrameworkCore.Relational": {
+              "target": "Package",
+              "version": "[9.0.9, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Configuration": {
+              "target": "Package",
+              "version": "[9.0.9, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Http.Polly": {
+              "target": "Package",
+              "version": "[9.0.9, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Http.Resilience": {
+              "target": "Package",
+              "version": "[9.9.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.VisualStudio.Threading.Analyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[17.14.15, )",
+              "versionCentrallyManaged": true
+            },
+            "Nerdbank.GitVersioning": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.8.118, )",
+              "versionCentrallyManaged": true
+            },
+            "NetFabric.Hyperlinq.Analyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.3.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Nito.AsyncEx": {
+              "target": "Package",
+              "version": "[5.1.2, )",
+              "versionCentrallyManaged": true
+            },
+            "Nito.AsyncEx.Context": {
+              "target": "Package",
+              "version": "[5.1.2, )",
+              "versionCentrallyManaged": true
+            },
+            "Nito.AsyncEx.Tasks": {
+              "target": "Package",
+              "version": "[5.1.2, )",
+              "versionCentrallyManaged": true
+            },
+            "Polly": {
+              "target": "Package",
+              "version": "[8.6.4, )",
+              "versionCentrallyManaged": true
+            },
+            "Quartz": {
+              "target": "Package",
+              "version": "[3.15.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Quartz.Extensions.Hosting": {
+              "target": "Package",
+              "version": "[3.15.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.CodeAnalysis.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Formatting.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Scrutor": {
+              "target": "Package",
+              "version": "[6.1.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Serilog.AspNetCore": {
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Serilog.Enrichers.CorrelationId": {
+              "target": "Package",
+              "version": "[3.0.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Serilog.Enrichers.Environment": {
+              "target": "Package",
+              "version": "[3.0.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Serilog.Enrichers.Process": {
+              "target": "Package",
+              "version": "[3.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Serilog.Enrichers.Span": {
+              "target": "Package",
+              "version": "[3.1.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Serilog.Enrichers.Thread": {
+              "target": "Package",
+              "version": "[4.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Serilog.Exceptions": {
+              "target": "Package",
+              "version": "[8.4.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Serilog.Exceptions.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.4.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Serilog.Sinks.Async": {
+              "target": "Package",
+              "version": "[2.1.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Serilog.Sinks.Console": {
+              "target": "Package",
+              "version": "[6.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Serilog.Sinks.Seq": {
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "SerilogAnalyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.15.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Sieve": {
+              "target": "Package",
+              "version": "[2.5.5, )",
+              "versionCentrallyManaged": true
+            },
+            "StyleCop.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.2.0-beta.556, )",
+              "versionCentrallyManaged": true
+            },
+            "System.Linq.Async": {
+              "target": "Package",
+              "version": "[6.0.3, )",
+              "versionCentrallyManaged": true
+            },
+            "System.Linq.Async.Queryable": {
+              "target": "Package",
+              "version": "[6.0.3, )",
+              "versionCentrallyManaged": true
+            },
+            "Ulid": {
+              "target": "Package",
+              "version": "[1.4.1, )",
+              "versionCentrallyManaged": true
+            },
+            "libphonenumber-csharp": {
+              "target": "Package",
+              "version": "[9.0.15, )",
+              "versionCentrallyManaged": true
+            }
+          },
+          "centralPackageVersions": {
+            "Ardalis.GuardClauses": "5.0.0",
+            "Ardalis.Specification": "9.3.1",
+            "Ardalis.Specification.EntityFrameworkCore": "9.3.1",
+            "Asp.Versioning.Http": "8.1.0",
+            "Asp.Versioning.Mvc": "8.1.0",
+            "Asp.Versioning.Mvc.ApiExplorer": "8.1.0",
+            "AspNetCore.HealthChecks.EventStore.gRPC": "9.0.0",
+            "AspNetCore.HealthChecks.Network": "9.0.0",
+            "AspNetCore.HealthChecks.NpgSql": "9.0.0",
+            "AspNetCore.HealthChecks.Redis": "9.0.0",
+            "AspNetCore.HealthChecks.System": "9.0.0",
+            "AspNetCore.HealthChecks.UI": "9.0.0",
+            "AspNetCore.HealthChecks.UI.Client": "9.0.0",
+            "AspNetCore.HealthChecks.UI.InMemory.Storage": "9.0.0",
+            "AspNetCore.HealthChecks.Uris": "9.0.0",
+            "AsyncAwaitBestPractices": "9.0.0",
+            "AsyncFixer": "1.6.0",
+            "AutoMapper": "15.0.1",
+            "Azure.Identity": "1.13.1",
+            "Dapper": "2.1.66",
+            "Duende.BFF.Yarp": "3.0.0",
+            "Duende.IdentityServer": "7.3.2",
+            "Duende.IdentityServer.AspNetIdentity": "7.3.2",
+            "Duende.IdentityServer.EntityFramework": "7.3.2",
+            "Duende.IdentityServer.Storage": "7.3.2",
+            "EFCore.NamingConventions": "9.0.0",
+            "ErrorProne.NET.CoreAnalyzers": "0.8.2-beta.1",
+            "EventStore.Client.Extensions.OpenTelemetry": "23.3.9",
+            "EventStore.Client.Grpc.Streams": "23.3.9",
+            "FluentValidation": "12.0.0",
+            "FluentValidation.DependencyInjectionExtensions": "12.0.0",
+            "HtmlSanitizer": "9.0.886",
+            "Humanizer": "2.14.1",
+            "Humanizer.Core": "2.14.1",
+            "IdentityModel": "7.0.0",
+            "libphonenumber-csharp": "9.0.15",
+            "MailKit": "4.9.0",
+            "MediatR": "13.0.0",
+            "MessagePack": "3.1.4",
+            "Meziantou.Analyzer": "2.0.222",
+            "Microsoft.AspNetCore.Authentication.JwtBearer": "9.0.9",
+            "Microsoft.AspNetCore.HeaderPropagation": "9.0.9",
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "9.0.9",
+            "Microsoft.AspNetCore.OpenApi": "9.0.9",
+            "Microsoft.Data.SqlClient": "5.2.2",
+            "Microsoft.EntityFrameworkCore": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Design": "9.0.9",
+            "Microsoft.EntityFrameworkCore.InMemory": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Relational": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Tools": "9.0.9",
+            "Microsoft.Extensions.Caching.Hybrid": "9.9.0",
+            "Microsoft.Extensions.Caching.StackExchangeRedis": "9.0.9",
+            "Microsoft.Extensions.Configuration": "9.0.9",
+            "Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore": "9.0.9",
+            "Microsoft.Extensions.Http.Polly": "9.0.9",
+            "Microsoft.Extensions.Http.Resilience": "9.9.0",
+            "Microsoft.Extensions.ServiceDiscovery": "9.5.0",
+            "Microsoft.Extensions.ServiceDiscovery.Yarp": "9.5.0",
+            "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": "1.22.1",
+            "Microsoft.VisualStudio.Threading.Analyzers": "17.14.15",
+            "Nerdbank.GitVersioning": "3.8.118",
+            "NetFabric.Hyperlinq.Analyzer": "2.3.0",
+            "Nito.AsyncEx": "5.1.2",
+            "Nito.AsyncEx.Context": "5.1.2",
+            "Nito.AsyncEx.Tasks": "5.1.2",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.4",
+            "Npgsql.OpenTelemetry": "9.0.3",
+            "OpenTelemetry": "1.13.0",
+            "OpenTelemetry.Api": "1.13.0",
+            "OpenTelemetry.Exporter.Console": "1.13.0",
+            "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.13.0",
+            "OpenTelemetry.Exporter.Prometheus.AspNetCore": "1.13.0-beta.1",
+            "OpenTelemetry.Extensions.Hosting": "1.13.0",
+            "OpenTelemetry.Instrumentation.AspNetCore": "1.12.0",
+            "OpenTelemetry.Instrumentation.EntityFrameworkCore": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.EventCounters": "1.5.1-alpha.1",
+            "OpenTelemetry.Instrumentation.GrpcNetClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Http": "1.12.0",
+            "OpenTelemetry.Instrumentation.Process": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Quartz": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Runtime": "1.12.0",
+            "OpenTelemetry.Instrumentation.SqlClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.StackExchangeRedis": "1.12.0-beta.1",
+            "Polly": "8.6.4",
+            "Quartz": "3.15.0",
+            "Quartz.Extensions.Hosting": "3.15.0",
+            "Roslynator.Analyzers": "4.14.0",
+            "Roslynator.CodeAnalysis.Analyzers": "4.14.0",
+            "Roslynator.Formatting.Analyzers": "4.14.0",
+            "Scalar.AspNetCore": "2.8.10",
+            "Scrutor": "6.1.0",
+            "Serilog.AspNetCore": "9.0.0",
+            "Serilog.Enrichers.CorrelationId": "3.0.1",
+            "Serilog.Enrichers.Environment": "3.0.1",
+            "Serilog.Enrichers.Process": "3.0.0",
+            "Serilog.Enrichers.Span": "3.1.0",
+            "Serilog.Enrichers.Thread": "4.0.0",
+            "Serilog.Exceptions": "8.4.0",
+            "Serilog.Exceptions.EntityFrameworkCore": "8.4.0",
+            "Serilog.Sinks.Async": "2.1.0",
+            "Serilog.Sinks.Console": "6.0.0",
+            "Serilog.Sinks.Seq": "9.0.0",
+            "SerilogAnalyzer": "0.15.0",
+            "SharpAbp.Abp.OpenTelemetry.Exporter.Prometheus.AspNetCore": "4.1.0",
+            "Sieve": "2.5.5",
+            "StyleCop.Analyzers": "1.2.0-beta.556",
+            "System.Data.SqlClient": "4.9.0",
+            "System.Formats.Asn1": "9.0.9",
+            "System.Linq.Async": "6.0.3",
+            "System.Linq.Async.Queryable": "6.0.3",
+            "System.Text.Encodings.Web": "9.0.9",
+            "System.Text.Json": "9.0.9",
+            "Ulid": "1.4.1",
+            "Yarp.ReverseProxy": "2.3.0"
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj",
+        "projectName": "BuildingBlocks.OpenTelemetry",
+        "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj",
+        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
+        "outputPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\obj\\",
+        "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "allWarningsAsErrors": true,
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "AsyncAwaitBestPractices": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AsyncFixer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.6.0, )",
+              "versionCentrallyManaged": true
+            },
+            "ErrorProne.NET.CoreAnalyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.8.2-beta.1, )",
+              "versionCentrallyManaged": true
+            },
+            "EventStore.Client.Extensions.OpenTelemetry": {
+              "target": "Package",
+              "version": "[23.3.9, )",
+              "versionCentrallyManaged": true
+            },
+            "Meziantou.Analyzer": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.222, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.VisualStudio.Threading.Analyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[17.14.15, )",
+              "versionCentrallyManaged": true
+            },
+            "Nerdbank.GitVersioning": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.8.118, )",
+              "versionCentrallyManaged": true
+            },
+            "NetFabric.Hyperlinq.Analyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.3.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Npgsql.OpenTelemetry": {
+              "target": "Package",
+              "version": "[9.0.3, )",
+              "versionCentrallyManaged": true
+            },
+            "OpenTelemetry": {
+              "target": "Package",
+              "version": "[1.13.0, )",
+              "versionCentrallyManaged": true
+            },
+            "OpenTelemetry.Api": {
+              "target": "Package",
+              "version": "[1.13.0, )",
+              "versionCentrallyManaged": true
+            },
+            "OpenTelemetry.Exporter.Console": {
+              "target": "Package",
+              "version": "[1.13.0, )",
+              "versionCentrallyManaged": true
+            },
+            "OpenTelemetry.Exporter.OpenTelemetryProtocol": {
+              "target": "Package",
+              "version": "[1.13.0, )",
+              "versionCentrallyManaged": true
+            },
+            "OpenTelemetry.Extensions.Hosting": {
+              "target": "Package",
+              "version": "[1.13.0, )",
+              "versionCentrallyManaged": true
+            },
+            "OpenTelemetry.Instrumentation.AspNetCore": {
+              "target": "Package",
+              "version": "[1.12.0, )",
+              "versionCentrallyManaged": true
+            },
+            "OpenTelemetry.Instrumentation.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[1.12.0-beta.1, )",
+              "versionCentrallyManaged": true
+            },
+            "OpenTelemetry.Instrumentation.EventCounters": {
+              "target": "Package",
+              "version": "[1.5.1-alpha.1, )",
+              "versionCentrallyManaged": true
+            },
+            "OpenTelemetry.Instrumentation.GrpcNetClient": {
+              "target": "Package",
+              "version": "[1.12.0-beta.1, )",
+              "versionCentrallyManaged": true
+            },
+            "OpenTelemetry.Instrumentation.Http": {
+              "target": "Package",
+              "version": "[1.12.0, )",
+              "versionCentrallyManaged": true
+            },
+            "OpenTelemetry.Instrumentation.Process": {
+              "target": "Package",
+              "version": "[1.12.0-beta.1, )",
+              "versionCentrallyManaged": true
+            },
+            "OpenTelemetry.Instrumentation.Quartz": {
+              "target": "Package",
+              "version": "[1.12.0-beta.1, )",
+              "versionCentrallyManaged": true
+            },
+            "OpenTelemetry.Instrumentation.Runtime": {
+              "target": "Package",
+              "version": "[1.12.0, )",
+              "versionCentrallyManaged": true
+            },
+            "OpenTelemetry.Instrumentation.SqlClient": {
+              "target": "Package",
+              "version": "[1.12.0-beta.1, )",
+              "versionCentrallyManaged": true
+            },
+            "OpenTelemetry.Instrumentation.StackExchangeRedis": {
+              "target": "Package",
+              "version": "[1.12.0-beta.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.CodeAnalysis.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Formatting.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "SerilogAnalyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.15.0, )",
+              "versionCentrallyManaged": true
+            },
+            "StyleCop.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.2.0-beta.556, )",
+              "versionCentrallyManaged": true
+            }
+          },
+          "centralPackageVersions": {
+            "Ardalis.GuardClauses": "5.0.0",
+            "Ardalis.Specification": "9.3.1",
+            "Ardalis.Specification.EntityFrameworkCore": "9.3.1",
+            "Asp.Versioning.Http": "8.1.0",
+            "Asp.Versioning.Mvc": "8.1.0",
+            "Asp.Versioning.Mvc.ApiExplorer": "8.1.0",
+            "AspNetCore.HealthChecks.EventStore.gRPC": "9.0.0",
+            "AspNetCore.HealthChecks.Network": "9.0.0",
+            "AspNetCore.HealthChecks.NpgSql": "9.0.0",
+            "AspNetCore.HealthChecks.Redis": "9.0.0",
+            "AspNetCore.HealthChecks.System": "9.0.0",
+            "AspNetCore.HealthChecks.UI": "9.0.0",
+            "AspNetCore.HealthChecks.UI.Client": "9.0.0",
+            "AspNetCore.HealthChecks.UI.InMemory.Storage": "9.0.0",
+            "AspNetCore.HealthChecks.Uris": "9.0.0",
+            "AsyncAwaitBestPractices": "9.0.0",
+            "AsyncFixer": "1.6.0",
+            "AutoMapper": "15.0.1",
+            "Azure.Identity": "1.13.1",
+            "Dapper": "2.1.66",
+            "Duende.BFF.Yarp": "3.0.0",
+            "Duende.IdentityServer": "7.3.2",
+            "Duende.IdentityServer.AspNetIdentity": "7.3.2",
+            "Duende.IdentityServer.EntityFramework": "7.3.2",
+            "Duende.IdentityServer.Storage": "7.3.2",
+            "EFCore.NamingConventions": "9.0.0",
+            "ErrorProne.NET.CoreAnalyzers": "0.8.2-beta.1",
+            "EventStore.Client.Extensions.OpenTelemetry": "23.3.9",
+            "EventStore.Client.Grpc.Streams": "23.3.9",
+            "FluentValidation": "12.0.0",
+            "FluentValidation.DependencyInjectionExtensions": "12.0.0",
+            "HtmlSanitizer": "9.0.886",
+            "Humanizer": "2.14.1",
+            "Humanizer.Core": "2.14.1",
+            "IdentityModel": "7.0.0",
+            "libphonenumber-csharp": "9.0.15",
+            "MailKit": "4.9.0",
+            "MediatR": "13.0.0",
+            "MessagePack": "3.1.4",
+            "Meziantou.Analyzer": "2.0.222",
+            "Microsoft.AspNetCore.Authentication.JwtBearer": "9.0.9",
+            "Microsoft.AspNetCore.HeaderPropagation": "9.0.9",
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "9.0.9",
+            "Microsoft.AspNetCore.OpenApi": "9.0.9",
+            "Microsoft.Data.SqlClient": "5.2.2",
+            "Microsoft.EntityFrameworkCore": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Design": "9.0.9",
+            "Microsoft.EntityFrameworkCore.InMemory": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Relational": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Tools": "9.0.9",
+            "Microsoft.Extensions.Caching.Hybrid": "9.9.0",
+            "Microsoft.Extensions.Caching.StackExchangeRedis": "9.0.9",
+            "Microsoft.Extensions.Configuration": "9.0.9",
+            "Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore": "9.0.9",
+            "Microsoft.Extensions.Http.Polly": "9.0.9",
+            "Microsoft.Extensions.Http.Resilience": "9.9.0",
+            "Microsoft.Extensions.ServiceDiscovery": "9.5.0",
+            "Microsoft.Extensions.ServiceDiscovery.Yarp": "9.5.0",
+            "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": "1.22.1",
+            "Microsoft.VisualStudio.Threading.Analyzers": "17.14.15",
+            "Nerdbank.GitVersioning": "3.8.118",
+            "NetFabric.Hyperlinq.Analyzer": "2.3.0",
+            "Nito.AsyncEx": "5.1.2",
+            "Nito.AsyncEx.Context": "5.1.2",
+            "Nito.AsyncEx.Tasks": "5.1.2",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.4",
+            "Npgsql.OpenTelemetry": "9.0.3",
+            "OpenTelemetry": "1.13.0",
+            "OpenTelemetry.Api": "1.13.0",
+            "OpenTelemetry.Exporter.Console": "1.13.0",
+            "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.13.0",
+            "OpenTelemetry.Exporter.Prometheus.AspNetCore": "1.13.0-beta.1",
+            "OpenTelemetry.Extensions.Hosting": "1.13.0",
+            "OpenTelemetry.Instrumentation.AspNetCore": "1.12.0",
+            "OpenTelemetry.Instrumentation.EntityFrameworkCore": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.EventCounters": "1.5.1-alpha.1",
+            "OpenTelemetry.Instrumentation.GrpcNetClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Http": "1.12.0",
+            "OpenTelemetry.Instrumentation.Process": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Quartz": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Runtime": "1.12.0",
+            "OpenTelemetry.Instrumentation.SqlClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.StackExchangeRedis": "1.12.0-beta.1",
+            "Polly": "8.6.4",
+            "Quartz": "3.15.0",
+            "Quartz.Extensions.Hosting": "3.15.0",
+            "Roslynator.Analyzers": "4.14.0",
+            "Roslynator.CodeAnalysis.Analyzers": "4.14.0",
+            "Roslynator.Formatting.Analyzers": "4.14.0",
+            "Scalar.AspNetCore": "2.8.10",
+            "Scrutor": "6.1.0",
+            "Serilog.AspNetCore": "9.0.0",
+            "Serilog.Enrichers.CorrelationId": "3.0.1",
+            "Serilog.Enrichers.Environment": "3.0.1",
+            "Serilog.Enrichers.Process": "3.0.0",
+            "Serilog.Enrichers.Span": "3.1.0",
+            "Serilog.Enrichers.Thread": "4.0.0",
+            "Serilog.Exceptions": "8.4.0",
+            "Serilog.Exceptions.EntityFrameworkCore": "8.4.0",
+            "Serilog.Sinks.Async": "2.1.0",
+            "Serilog.Sinks.Console": "6.0.0",
+            "Serilog.Sinks.Seq": "9.0.0",
+            "SerilogAnalyzer": "0.15.0",
+            "SharpAbp.Abp.OpenTelemetry.Exporter.Prometheus.AspNetCore": "4.1.0",
+            "Sieve": "2.5.5",
+            "StyleCop.Analyzers": "1.2.0-beta.556",
+            "System.Data.SqlClient": "4.9.0",
+            "System.Formats.Asn1": "9.0.9",
+            "System.Linq.Async": "6.0.3",
+            "System.Linq.Async.Queryable": "6.0.3",
+            "System.Text.Encodings.Web": "9.0.9",
+            "System.Text.Json": "9.0.9",
+            "Ulid": "1.4.1",
+            "Yarp.ReverseProxy": "2.3.0"
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj",
+        "projectName": "BuildingBlocks.Persistence.EfCore.Postgres",
+        "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj",
+        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
+        "outputPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\obj\\",
+        "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "allWarningsAsErrors": true,
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "AsyncAwaitBestPractices": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AsyncFixer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.6.0, )",
+              "versionCentrallyManaged": true
+            },
+            "ErrorProne.NET.CoreAnalyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.8.2-beta.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Meziantou.Analyzer": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.222, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.VisualStudio.Threading.Analyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[17.14.15, )",
+              "versionCentrallyManaged": true
+            },
+            "Nerdbank.GitVersioning": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.8.118, )",
+              "versionCentrallyManaged": true
+            },
+            "NetFabric.Hyperlinq.Analyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.3.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[9.0.4, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.CodeAnalysis.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Formatting.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "SerilogAnalyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.15.0, )",
+              "versionCentrallyManaged": true
+            },
+            "StyleCop.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.2.0-beta.556, )",
+              "versionCentrallyManaged": true
+            }
+          },
+          "centralPackageVersions": {
+            "Ardalis.GuardClauses": "5.0.0",
+            "Ardalis.Specification": "9.3.1",
+            "Ardalis.Specification.EntityFrameworkCore": "9.3.1",
+            "Asp.Versioning.Http": "8.1.0",
+            "Asp.Versioning.Mvc": "8.1.0",
+            "Asp.Versioning.Mvc.ApiExplorer": "8.1.0",
+            "AspNetCore.HealthChecks.EventStore.gRPC": "9.0.0",
+            "AspNetCore.HealthChecks.Network": "9.0.0",
+            "AspNetCore.HealthChecks.NpgSql": "9.0.0",
+            "AspNetCore.HealthChecks.Redis": "9.0.0",
+            "AspNetCore.HealthChecks.System": "9.0.0",
+            "AspNetCore.HealthChecks.UI": "9.0.0",
+            "AspNetCore.HealthChecks.UI.Client": "9.0.0",
+            "AspNetCore.HealthChecks.UI.InMemory.Storage": "9.0.0",
+            "AspNetCore.HealthChecks.Uris": "9.0.0",
+            "AsyncAwaitBestPractices": "9.0.0",
+            "AsyncFixer": "1.6.0",
+            "AutoMapper": "15.0.1",
+            "Azure.Identity": "1.13.1",
+            "Dapper": "2.1.66",
+            "Duende.BFF.Yarp": "3.0.0",
+            "Duende.IdentityServer": "7.3.2",
+            "Duende.IdentityServer.AspNetIdentity": "7.3.2",
+            "Duende.IdentityServer.EntityFramework": "7.3.2",
+            "Duende.IdentityServer.Storage": "7.3.2",
+            "EFCore.NamingConventions": "9.0.0",
+            "ErrorProne.NET.CoreAnalyzers": "0.8.2-beta.1",
+            "EventStore.Client.Extensions.OpenTelemetry": "23.3.9",
+            "EventStore.Client.Grpc.Streams": "23.3.9",
+            "FluentValidation": "12.0.0",
+            "FluentValidation.DependencyInjectionExtensions": "12.0.0",
+            "HtmlSanitizer": "9.0.886",
+            "Humanizer": "2.14.1",
+            "Humanizer.Core": "2.14.1",
+            "IdentityModel": "7.0.0",
+            "libphonenumber-csharp": "9.0.15",
+            "MailKit": "4.9.0",
+            "MediatR": "13.0.0",
+            "MessagePack": "3.1.4",
+            "Meziantou.Analyzer": "2.0.222",
+            "Microsoft.AspNetCore.Authentication.JwtBearer": "9.0.9",
+            "Microsoft.AspNetCore.HeaderPropagation": "9.0.9",
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "9.0.9",
+            "Microsoft.AspNetCore.OpenApi": "9.0.9",
+            "Microsoft.Data.SqlClient": "5.2.2",
+            "Microsoft.EntityFrameworkCore": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Design": "9.0.9",
+            "Microsoft.EntityFrameworkCore.InMemory": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Relational": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Tools": "9.0.9",
+            "Microsoft.Extensions.Caching.Hybrid": "9.9.0",
+            "Microsoft.Extensions.Caching.StackExchangeRedis": "9.0.9",
+            "Microsoft.Extensions.Configuration": "9.0.9",
+            "Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore": "9.0.9",
+            "Microsoft.Extensions.Http.Polly": "9.0.9",
+            "Microsoft.Extensions.Http.Resilience": "9.9.0",
+            "Microsoft.Extensions.ServiceDiscovery": "9.5.0",
+            "Microsoft.Extensions.ServiceDiscovery.Yarp": "9.5.0",
+            "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": "1.22.1",
+            "Microsoft.VisualStudio.Threading.Analyzers": "17.14.15",
+            "Nerdbank.GitVersioning": "3.8.118",
+            "NetFabric.Hyperlinq.Analyzer": "2.3.0",
+            "Nito.AsyncEx": "5.1.2",
+            "Nito.AsyncEx.Context": "5.1.2",
+            "Nito.AsyncEx.Tasks": "5.1.2",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.4",
+            "Npgsql.OpenTelemetry": "9.0.3",
+            "OpenTelemetry": "1.13.0",
+            "OpenTelemetry.Api": "1.13.0",
+            "OpenTelemetry.Exporter.Console": "1.13.0",
+            "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.13.0",
+            "OpenTelemetry.Exporter.Prometheus.AspNetCore": "1.13.0-beta.1",
+            "OpenTelemetry.Extensions.Hosting": "1.13.0",
+            "OpenTelemetry.Instrumentation.AspNetCore": "1.12.0",
+            "OpenTelemetry.Instrumentation.EntityFrameworkCore": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.EventCounters": "1.5.1-alpha.1",
+            "OpenTelemetry.Instrumentation.GrpcNetClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Http": "1.12.0",
+            "OpenTelemetry.Instrumentation.Process": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Quartz": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Runtime": "1.12.0",
+            "OpenTelemetry.Instrumentation.SqlClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.StackExchangeRedis": "1.12.0-beta.1",
+            "Polly": "8.6.4",
+            "Quartz": "3.15.0",
+            "Quartz.Extensions.Hosting": "3.15.0",
+            "Roslynator.Analyzers": "4.14.0",
+            "Roslynator.CodeAnalysis.Analyzers": "4.14.0",
+            "Roslynator.Formatting.Analyzers": "4.14.0",
+            "Scalar.AspNetCore": "2.8.10",
+            "Scrutor": "6.1.0",
+            "Serilog.AspNetCore": "9.0.0",
+            "Serilog.Enrichers.CorrelationId": "3.0.1",
+            "Serilog.Enrichers.Environment": "3.0.1",
+            "Serilog.Enrichers.Process": "3.0.0",
+            "Serilog.Enrichers.Span": "3.1.0",
+            "Serilog.Enrichers.Thread": "4.0.0",
+            "Serilog.Exceptions": "8.4.0",
+            "Serilog.Exceptions.EntityFrameworkCore": "8.4.0",
+            "Serilog.Sinks.Async": "2.1.0",
+            "Serilog.Sinks.Console": "6.0.0",
+            "Serilog.Sinks.Seq": "9.0.0",
+            "SerilogAnalyzer": "0.15.0",
+            "SharpAbp.Abp.OpenTelemetry.Exporter.Prometheus.AspNetCore": "4.1.0",
+            "Sieve": "2.5.5",
+            "StyleCop.Analyzers": "1.2.0-beta.556",
+            "System.Data.SqlClient": "4.9.0",
+            "System.Formats.Asn1": "9.0.9",
+            "System.Linq.Async": "6.0.3",
+            "System.Linq.Async.Queryable": "6.0.3",
+            "System.Text.Encodings.Web": "9.0.9",
+            "System.Text.Json": "9.0.9",
+            "Ulid": "1.4.1",
+            "Yarp.ReverseProxy": "2.3.0"
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EventStoreDB\\BuildingBlocks.Persistence.EventStoreDB.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EventStoreDB\\BuildingBlocks.Persistence.EventStoreDB.csproj",
+        "projectName": "BuildingBlocks.Persistence.EventStoreDB",
+        "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EventStoreDB\\BuildingBlocks.Persistence.EventStoreDB.csproj",
+        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
+        "outputPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EventStoreDB\\obj\\",
+        "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "allWarningsAsErrors": true,
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "AsyncAwaitBestPractices": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AsyncFixer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.6.0, )",
+              "versionCentrallyManaged": true
+            },
+            "ErrorProne.NET.CoreAnalyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.8.2-beta.1, )",
+              "versionCentrallyManaged": true
+            },
+            "EventStore.Client.Grpc.Streams": {
+              "target": "Package",
+              "version": "[23.3.9, )",
+              "versionCentrallyManaged": true
+            },
+            "Meziantou.Analyzer": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.222, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.VisualStudio.Threading.Analyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[17.14.15, )",
+              "versionCentrallyManaged": true
+            },
+            "Nerdbank.GitVersioning": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.8.118, )",
+              "versionCentrallyManaged": true
+            },
+            "NetFabric.Hyperlinq.Analyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.3.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.CodeAnalysis.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Formatting.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "SerilogAnalyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.15.0, )",
+              "versionCentrallyManaged": true
+            },
+            "StyleCop.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.2.0-beta.556, )",
+              "versionCentrallyManaged": true
+            }
+          },
+          "centralPackageVersions": {
+            "Ardalis.GuardClauses": "5.0.0",
+            "Ardalis.Specification": "9.3.1",
+            "Ardalis.Specification.EntityFrameworkCore": "9.3.1",
+            "Asp.Versioning.Http": "8.1.0",
+            "Asp.Versioning.Mvc": "8.1.0",
+            "Asp.Versioning.Mvc.ApiExplorer": "8.1.0",
+            "AspNetCore.HealthChecks.EventStore.gRPC": "9.0.0",
+            "AspNetCore.HealthChecks.Network": "9.0.0",
+            "AspNetCore.HealthChecks.NpgSql": "9.0.0",
+            "AspNetCore.HealthChecks.Redis": "9.0.0",
+            "AspNetCore.HealthChecks.System": "9.0.0",
+            "AspNetCore.HealthChecks.UI": "9.0.0",
+            "AspNetCore.HealthChecks.UI.Client": "9.0.0",
+            "AspNetCore.HealthChecks.UI.InMemory.Storage": "9.0.0",
+            "AspNetCore.HealthChecks.Uris": "9.0.0",
+            "AsyncAwaitBestPractices": "9.0.0",
+            "AsyncFixer": "1.6.0",
+            "AutoMapper": "15.0.1",
+            "Azure.Identity": "1.13.1",
+            "Dapper": "2.1.66",
+            "Duende.BFF.Yarp": "3.0.0",
+            "Duende.IdentityServer": "7.3.2",
+            "Duende.IdentityServer.AspNetIdentity": "7.3.2",
+            "Duende.IdentityServer.EntityFramework": "7.3.2",
+            "Duende.IdentityServer.Storage": "7.3.2",
+            "EFCore.NamingConventions": "9.0.0",
+            "ErrorProne.NET.CoreAnalyzers": "0.8.2-beta.1",
+            "EventStore.Client.Extensions.OpenTelemetry": "23.3.9",
+            "EventStore.Client.Grpc.Streams": "23.3.9",
+            "FluentValidation": "12.0.0",
+            "FluentValidation.DependencyInjectionExtensions": "12.0.0",
+            "HtmlSanitizer": "9.0.886",
+            "Humanizer": "2.14.1",
+            "Humanizer.Core": "2.14.1",
+            "IdentityModel": "7.0.0",
+            "libphonenumber-csharp": "9.0.15",
+            "MailKit": "4.9.0",
+            "MediatR": "13.0.0",
+            "MessagePack": "3.1.4",
+            "Meziantou.Analyzer": "2.0.222",
+            "Microsoft.AspNetCore.Authentication.JwtBearer": "9.0.9",
+            "Microsoft.AspNetCore.HeaderPropagation": "9.0.9",
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "9.0.9",
+            "Microsoft.AspNetCore.OpenApi": "9.0.9",
+            "Microsoft.Data.SqlClient": "5.2.2",
+            "Microsoft.EntityFrameworkCore": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Design": "9.0.9",
+            "Microsoft.EntityFrameworkCore.InMemory": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Relational": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Tools": "9.0.9",
+            "Microsoft.Extensions.Caching.Hybrid": "9.9.0",
+            "Microsoft.Extensions.Caching.StackExchangeRedis": "9.0.9",
+            "Microsoft.Extensions.Configuration": "9.0.9",
+            "Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore": "9.0.9",
+            "Microsoft.Extensions.Http.Polly": "9.0.9",
+            "Microsoft.Extensions.Http.Resilience": "9.9.0",
+            "Microsoft.Extensions.ServiceDiscovery": "9.5.0",
+            "Microsoft.Extensions.ServiceDiscovery.Yarp": "9.5.0",
+            "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": "1.22.1",
+            "Microsoft.VisualStudio.Threading.Analyzers": "17.14.15",
+            "Nerdbank.GitVersioning": "3.8.118",
+            "NetFabric.Hyperlinq.Analyzer": "2.3.0",
+            "Nito.AsyncEx": "5.1.2",
+            "Nito.AsyncEx.Context": "5.1.2",
+            "Nito.AsyncEx.Tasks": "5.1.2",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.4",
+            "Npgsql.OpenTelemetry": "9.0.3",
+            "OpenTelemetry": "1.13.0",
+            "OpenTelemetry.Api": "1.13.0",
+            "OpenTelemetry.Exporter.Console": "1.13.0",
+            "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.13.0",
+            "OpenTelemetry.Exporter.Prometheus.AspNetCore": "1.13.0-beta.1",
+            "OpenTelemetry.Extensions.Hosting": "1.13.0",
+            "OpenTelemetry.Instrumentation.AspNetCore": "1.12.0",
+            "OpenTelemetry.Instrumentation.EntityFrameworkCore": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.EventCounters": "1.5.1-alpha.1",
+            "OpenTelemetry.Instrumentation.GrpcNetClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Http": "1.12.0",
+            "OpenTelemetry.Instrumentation.Process": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Quartz": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Runtime": "1.12.0",
+            "OpenTelemetry.Instrumentation.SqlClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.StackExchangeRedis": "1.12.0-beta.1",
+            "Polly": "8.6.4",
+            "Quartz": "3.15.0",
+            "Quartz.Extensions.Hosting": "3.15.0",
+            "Roslynator.Analyzers": "4.14.0",
+            "Roslynator.CodeAnalysis.Analyzers": "4.14.0",
+            "Roslynator.Formatting.Analyzers": "4.14.0",
+            "Scalar.AspNetCore": "2.8.10",
+            "Scrutor": "6.1.0",
+            "Serilog.AspNetCore": "9.0.0",
+            "Serilog.Enrichers.CorrelationId": "3.0.1",
+            "Serilog.Enrichers.Environment": "3.0.1",
+            "Serilog.Enrichers.Process": "3.0.0",
+            "Serilog.Enrichers.Span": "3.1.0",
+            "Serilog.Enrichers.Thread": "4.0.0",
+            "Serilog.Exceptions": "8.4.0",
+            "Serilog.Exceptions.EntityFrameworkCore": "8.4.0",
+            "Serilog.Sinks.Async": "2.1.0",
+            "Serilog.Sinks.Console": "6.0.0",
+            "Serilog.Sinks.Seq": "9.0.0",
+            "SerilogAnalyzer": "0.15.0",
+            "SharpAbp.Abp.OpenTelemetry.Exporter.Prometheus.AspNetCore": "4.1.0",
+            "Sieve": "2.5.5",
+            "StyleCop.Analyzers": "1.2.0-beta.556",
+            "System.Data.SqlClient": "4.9.0",
+            "System.Formats.Asn1": "9.0.9",
+            "System.Linq.Async": "6.0.3",
+            "System.Linq.Async.Queryable": "6.0.3",
+            "System.Text.Encodings.Web": "9.0.9",
+            "System.Text.Json": "9.0.9",
+            "Ulid": "1.4.1",
+            "Yarp.ReverseProxy": "2.3.0"
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\BuildingBlocks.Security.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\BuildingBlocks.Security.csproj",
+        "projectName": "BuildingBlocks.Security",
+        "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\BuildingBlocks.Security.csproj",
+        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
+        "outputPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\obj\\",
+        "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "allWarningsAsErrors": true,
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "AsyncAwaitBestPractices": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AsyncFixer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.6.0, )",
+              "versionCentrallyManaged": true
+            },
+            "ErrorProne.NET.CoreAnalyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.8.2-beta.1, )",
+              "versionCentrallyManaged": true
+            },
+            "HtmlSanitizer": {
+              "target": "Package",
+              "version": "[9.0.886, )",
+              "versionCentrallyManaged": true
+            },
+            "IdentityModel": {
+              "target": "Package",
+              "version": "[7.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Meziantou.Analyzer": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.222, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[9.0.9, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.VisualStudio.Threading.Analyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[17.14.15, )",
+              "versionCentrallyManaged": true
+            },
+            "Nerdbank.GitVersioning": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.8.118, )",
+              "versionCentrallyManaged": true
+            },
+            "NetFabric.Hyperlinq.Analyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.3.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.CodeAnalysis.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Formatting.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "SerilogAnalyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.15.0, )",
+              "versionCentrallyManaged": true
+            },
+            "StyleCop.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.2.0-beta.556, )",
+              "versionCentrallyManaged": true
+            }
+          },
+          "centralPackageVersions": {
+            "Ardalis.GuardClauses": "5.0.0",
+            "Ardalis.Specification": "9.3.1",
+            "Ardalis.Specification.EntityFrameworkCore": "9.3.1",
+            "Asp.Versioning.Http": "8.1.0",
+            "Asp.Versioning.Mvc": "8.1.0",
+            "Asp.Versioning.Mvc.ApiExplorer": "8.1.0",
+            "AspNetCore.HealthChecks.EventStore.gRPC": "9.0.0",
+            "AspNetCore.HealthChecks.Network": "9.0.0",
+            "AspNetCore.HealthChecks.NpgSql": "9.0.0",
+            "AspNetCore.HealthChecks.Redis": "9.0.0",
+            "AspNetCore.HealthChecks.System": "9.0.0",
+            "AspNetCore.HealthChecks.UI": "9.0.0",
+            "AspNetCore.HealthChecks.UI.Client": "9.0.0",
+            "AspNetCore.HealthChecks.UI.InMemory.Storage": "9.0.0",
+            "AspNetCore.HealthChecks.Uris": "9.0.0",
+            "AsyncAwaitBestPractices": "9.0.0",
+            "AsyncFixer": "1.6.0",
+            "AutoMapper": "15.0.1",
+            "Azure.Identity": "1.13.1",
+            "Dapper": "2.1.66",
+            "Duende.BFF.Yarp": "3.0.0",
+            "Duende.IdentityServer": "7.3.2",
+            "Duende.IdentityServer.AspNetIdentity": "7.3.2",
+            "Duende.IdentityServer.EntityFramework": "7.3.2",
+            "Duende.IdentityServer.Storage": "7.3.2",
+            "EFCore.NamingConventions": "9.0.0",
+            "ErrorProne.NET.CoreAnalyzers": "0.8.2-beta.1",
+            "EventStore.Client.Extensions.OpenTelemetry": "23.3.9",
+            "EventStore.Client.Grpc.Streams": "23.3.9",
+            "FluentValidation": "12.0.0",
+            "FluentValidation.DependencyInjectionExtensions": "12.0.0",
+            "HtmlSanitizer": "9.0.886",
+            "Humanizer": "2.14.1",
+            "Humanizer.Core": "2.14.1",
+            "IdentityModel": "7.0.0",
+            "libphonenumber-csharp": "9.0.15",
+            "MailKit": "4.9.0",
+            "MediatR": "13.0.0",
+            "MessagePack": "3.1.4",
+            "Meziantou.Analyzer": "2.0.222",
+            "Microsoft.AspNetCore.Authentication.JwtBearer": "9.0.9",
+            "Microsoft.AspNetCore.HeaderPropagation": "9.0.9",
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "9.0.9",
+            "Microsoft.AspNetCore.OpenApi": "9.0.9",
+            "Microsoft.Data.SqlClient": "5.2.2",
+            "Microsoft.EntityFrameworkCore": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Design": "9.0.9",
+            "Microsoft.EntityFrameworkCore.InMemory": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Relational": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Tools": "9.0.9",
+            "Microsoft.Extensions.Caching.Hybrid": "9.9.0",
+            "Microsoft.Extensions.Caching.StackExchangeRedis": "9.0.9",
+            "Microsoft.Extensions.Configuration": "9.0.9",
+            "Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore": "9.0.9",
+            "Microsoft.Extensions.Http.Polly": "9.0.9",
+            "Microsoft.Extensions.Http.Resilience": "9.9.0",
+            "Microsoft.Extensions.ServiceDiscovery": "9.5.0",
+            "Microsoft.Extensions.ServiceDiscovery.Yarp": "9.5.0",
+            "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": "1.22.1",
+            "Microsoft.VisualStudio.Threading.Analyzers": "17.14.15",
+            "Nerdbank.GitVersioning": "3.8.118",
+            "NetFabric.Hyperlinq.Analyzer": "2.3.0",
+            "Nito.AsyncEx": "5.1.2",
+            "Nito.AsyncEx.Context": "5.1.2",
+            "Nito.AsyncEx.Tasks": "5.1.2",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.4",
+            "Npgsql.OpenTelemetry": "9.0.3",
+            "OpenTelemetry": "1.13.0",
+            "OpenTelemetry.Api": "1.13.0",
+            "OpenTelemetry.Exporter.Console": "1.13.0",
+            "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.13.0",
+            "OpenTelemetry.Exporter.Prometheus.AspNetCore": "1.13.0-beta.1",
+            "OpenTelemetry.Extensions.Hosting": "1.13.0",
+            "OpenTelemetry.Instrumentation.AspNetCore": "1.12.0",
+            "OpenTelemetry.Instrumentation.EntityFrameworkCore": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.EventCounters": "1.5.1-alpha.1",
+            "OpenTelemetry.Instrumentation.GrpcNetClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Http": "1.12.0",
+            "OpenTelemetry.Instrumentation.Process": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Quartz": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Runtime": "1.12.0",
+            "OpenTelemetry.Instrumentation.SqlClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.StackExchangeRedis": "1.12.0-beta.1",
+            "Polly": "8.6.4",
+            "Quartz": "3.15.0",
+            "Quartz.Extensions.Hosting": "3.15.0",
+            "Roslynator.Analyzers": "4.14.0",
+            "Roslynator.CodeAnalysis.Analyzers": "4.14.0",
+            "Roslynator.Formatting.Analyzers": "4.14.0",
+            "Scalar.AspNetCore": "2.8.10",
+            "Scrutor": "6.1.0",
+            "Serilog.AspNetCore": "9.0.0",
+            "Serilog.Enrichers.CorrelationId": "3.0.1",
+            "Serilog.Enrichers.Environment": "3.0.1",
+            "Serilog.Enrichers.Process": "3.0.0",
+            "Serilog.Enrichers.Span": "3.1.0",
+            "Serilog.Enrichers.Thread": "4.0.0",
+            "Serilog.Exceptions": "8.4.0",
+            "Serilog.Exceptions.EntityFrameworkCore": "8.4.0",
+            "Serilog.Sinks.Async": "2.1.0",
+            "Serilog.Sinks.Console": "6.0.0",
+            "Serilog.Sinks.Seq": "9.0.0",
+            "SerilogAnalyzer": "0.15.0",
+            "SharpAbp.Abp.OpenTelemetry.Exporter.Prometheus.AspNetCore": "4.1.0",
+            "Sieve": "2.5.5",
+            "StyleCop.Analyzers": "1.2.0-beta.556",
+            "System.Data.SqlClient": "4.9.0",
+            "System.Formats.Asn1": "9.0.9",
+            "System.Linq.Async": "6.0.3",
+            "System.Linq.Async.Queryable": "6.0.3",
+            "System.Text.Encodings.Web": "9.0.9",
+            "System.Text.Json": "9.0.9",
+            "Ulid": "1.4.1",
+            "Yarp.ReverseProxy": "2.3.0"
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Validation\\BuildingBlocks.Validation.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Validation\\BuildingBlocks.Validation.csproj",
+        "projectName": "BuildingBlocks.Validation",
+        "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Validation\\BuildingBlocks.Validation.csproj",
+        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
+        "outputPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Validation\\obj\\",
+        "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "allWarningsAsErrors": true,
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "AsyncAwaitBestPractices": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AsyncFixer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.6.0, )",
+              "versionCentrallyManaged": true
+            },
+            "ErrorProne.NET.CoreAnalyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.8.2-beta.1, )",
+              "versionCentrallyManaged": true
+            },
+            "FluentValidation": {
+              "target": "Package",
+              "version": "[12.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "FluentValidation.DependencyInjectionExtensions": {
+              "target": "Package",
+              "version": "[12.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Meziantou.Analyzer": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.222, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.VisualStudio.Threading.Analyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[17.14.15, )",
+              "versionCentrallyManaged": true
+            },
+            "Nerdbank.GitVersioning": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.8.118, )",
+              "versionCentrallyManaged": true
+            },
+            "NetFabric.Hyperlinq.Analyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.3.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.CodeAnalysis.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Formatting.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "SerilogAnalyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.15.0, )",
+              "versionCentrallyManaged": true
+            },
+            "StyleCop.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.2.0-beta.556, )",
+              "versionCentrallyManaged": true
+            }
+          },
+          "centralPackageVersions": {
+            "Ardalis.GuardClauses": "5.0.0",
+            "Ardalis.Specification": "9.3.1",
+            "Ardalis.Specification.EntityFrameworkCore": "9.3.1",
+            "Asp.Versioning.Http": "8.1.0",
+            "Asp.Versioning.Mvc": "8.1.0",
+            "Asp.Versioning.Mvc.ApiExplorer": "8.1.0",
+            "AspNetCore.HealthChecks.EventStore.gRPC": "9.0.0",
+            "AspNetCore.HealthChecks.Network": "9.0.0",
+            "AspNetCore.HealthChecks.NpgSql": "9.0.0",
+            "AspNetCore.HealthChecks.Redis": "9.0.0",
+            "AspNetCore.HealthChecks.System": "9.0.0",
+            "AspNetCore.HealthChecks.UI": "9.0.0",
+            "AspNetCore.HealthChecks.UI.Client": "9.0.0",
+            "AspNetCore.HealthChecks.UI.InMemory.Storage": "9.0.0",
+            "AspNetCore.HealthChecks.Uris": "9.0.0",
+            "AsyncAwaitBestPractices": "9.0.0",
+            "AsyncFixer": "1.6.0",
+            "AutoMapper": "15.0.1",
+            "Azure.Identity": "1.13.1",
+            "Dapper": "2.1.66",
+            "Duende.BFF.Yarp": "3.0.0",
+            "Duende.IdentityServer": "7.3.2",
+            "Duende.IdentityServer.AspNetIdentity": "7.3.2",
+            "Duende.IdentityServer.EntityFramework": "7.3.2",
+            "Duende.IdentityServer.Storage": "7.3.2",
+            "EFCore.NamingConventions": "9.0.0",
+            "ErrorProne.NET.CoreAnalyzers": "0.8.2-beta.1",
+            "EventStore.Client.Extensions.OpenTelemetry": "23.3.9",
+            "EventStore.Client.Grpc.Streams": "23.3.9",
+            "FluentValidation": "12.0.0",
+            "FluentValidation.DependencyInjectionExtensions": "12.0.0",
+            "HtmlSanitizer": "9.0.886",
+            "Humanizer": "2.14.1",
+            "Humanizer.Core": "2.14.1",
+            "IdentityModel": "7.0.0",
+            "libphonenumber-csharp": "9.0.15",
+            "MailKit": "4.9.0",
+            "MediatR": "13.0.0",
+            "MessagePack": "3.1.4",
+            "Meziantou.Analyzer": "2.0.222",
+            "Microsoft.AspNetCore.Authentication.JwtBearer": "9.0.9",
+            "Microsoft.AspNetCore.HeaderPropagation": "9.0.9",
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "9.0.9",
+            "Microsoft.AspNetCore.OpenApi": "9.0.9",
+            "Microsoft.Data.SqlClient": "5.2.2",
+            "Microsoft.EntityFrameworkCore": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Design": "9.0.9",
+            "Microsoft.EntityFrameworkCore.InMemory": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Relational": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Tools": "9.0.9",
+            "Microsoft.Extensions.Caching.Hybrid": "9.9.0",
+            "Microsoft.Extensions.Caching.StackExchangeRedis": "9.0.9",
+            "Microsoft.Extensions.Configuration": "9.0.9",
+            "Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore": "9.0.9",
+            "Microsoft.Extensions.Http.Polly": "9.0.9",
+            "Microsoft.Extensions.Http.Resilience": "9.9.0",
+            "Microsoft.Extensions.ServiceDiscovery": "9.5.0",
+            "Microsoft.Extensions.ServiceDiscovery.Yarp": "9.5.0",
+            "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": "1.22.1",
+            "Microsoft.VisualStudio.Threading.Analyzers": "17.14.15",
+            "Nerdbank.GitVersioning": "3.8.118",
+            "NetFabric.Hyperlinq.Analyzer": "2.3.0",
+            "Nito.AsyncEx": "5.1.2",
+            "Nito.AsyncEx.Context": "5.1.2",
+            "Nito.AsyncEx.Tasks": "5.1.2",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.4",
+            "Npgsql.OpenTelemetry": "9.0.3",
+            "OpenTelemetry": "1.13.0",
+            "OpenTelemetry.Api": "1.13.0",
+            "OpenTelemetry.Exporter.Console": "1.13.0",
+            "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.13.0",
+            "OpenTelemetry.Exporter.Prometheus.AspNetCore": "1.13.0-beta.1",
+            "OpenTelemetry.Extensions.Hosting": "1.13.0",
+            "OpenTelemetry.Instrumentation.AspNetCore": "1.12.0",
+            "OpenTelemetry.Instrumentation.EntityFrameworkCore": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.EventCounters": "1.5.1-alpha.1",
+            "OpenTelemetry.Instrumentation.GrpcNetClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Http": "1.12.0",
+            "OpenTelemetry.Instrumentation.Process": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Quartz": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Runtime": "1.12.0",
+            "OpenTelemetry.Instrumentation.SqlClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.StackExchangeRedis": "1.12.0-beta.1",
+            "Polly": "8.6.4",
+            "Quartz": "3.15.0",
+            "Quartz.Extensions.Hosting": "3.15.0",
+            "Roslynator.Analyzers": "4.14.0",
+            "Roslynator.CodeAnalysis.Analyzers": "4.14.0",
+            "Roslynator.Formatting.Analyzers": "4.14.0",
+            "Scalar.AspNetCore": "2.8.10",
+            "Scrutor": "6.1.0",
+            "Serilog.AspNetCore": "9.0.0",
+            "Serilog.Enrichers.CorrelationId": "3.0.1",
+            "Serilog.Enrichers.Environment": "3.0.1",
+            "Serilog.Enrichers.Process": "3.0.0",
+            "Serilog.Enrichers.Span": "3.1.0",
+            "Serilog.Enrichers.Thread": "4.0.0",
+            "Serilog.Exceptions": "8.4.0",
+            "Serilog.Exceptions.EntityFrameworkCore": "8.4.0",
+            "Serilog.Sinks.Async": "2.1.0",
+            "Serilog.Sinks.Console": "6.0.0",
+            "Serilog.Sinks.Seq": "9.0.0",
+            "SerilogAnalyzer": "0.15.0",
+            "SharpAbp.Abp.OpenTelemetry.Exporter.Prometheus.AspNetCore": "4.1.0",
+            "Sieve": "2.5.5",
+            "StyleCop.Analyzers": "1.2.0-beta.556",
+            "System.Data.SqlClient": "4.9.0",
+            "System.Formats.Asn1": "9.0.9",
+            "System.Linq.Async": "6.0.3",
+            "System.Linq.Async.Queryable": "6.0.3",
+            "System.Text.Encodings.Web": "9.0.9",
+            "System.Text.Json": "9.0.9",
+            "Ulid": "1.4.1",
+            "Yarp.ReverseProxy": "2.3.0"
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj",
+        "projectName": "BuildingBlocks.Web",
+        "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj",
+        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
+        "outputPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\obj\\",
+        "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\BuildingBlocks.Caching.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\BuildingBlocks.Caching.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EventStoreDB\\BuildingBlocks.Persistence.EventStoreDB.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EventStoreDB\\BuildingBlocks.Persistence.EventStoreDB.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\BuildingBlocks.Security.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\BuildingBlocks.Security.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Validation\\BuildingBlocks.Validation.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Validation\\BuildingBlocks.Validation.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "allWarningsAsErrors": true,
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "Asp.Versioning.Http": {
+              "target": "Package",
+              "version": "[8.1.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Asp.Versioning.Mvc": {
+              "target": "Package",
+              "version": "[8.1.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Asp.Versioning.Mvc.ApiExplorer": {
+              "target": "Package",
+              "version": "[8.1.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AspNetCore.HealthChecks.EventStore.gRPC": {
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AspNetCore.HealthChecks.Network": {
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AspNetCore.HealthChecks.NpgSql": {
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AspNetCore.HealthChecks.Redis": {
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AspNetCore.HealthChecks.System": {
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AspNetCore.HealthChecks.UI": {
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AspNetCore.HealthChecks.UI.Client": {
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AspNetCore.HealthChecks.UI.InMemory.Storage": {
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AspNetCore.HealthChecks.Uris": {
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AsyncAwaitBestPractices": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AsyncFixer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.6.0, )",
+              "versionCentrallyManaged": true
+            },
+            "ErrorProne.NET.CoreAnalyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.8.2-beta.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Meziantou.Analyzer": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.222, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[9.0.9, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.AspNetCore.HeaderPropagation": {
+              "target": "Package",
+              "version": "[9.0.9, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.AspNetCore.OpenApi": {
+              "target": "Package",
+              "version": "[9.0.9, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.9, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.9, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.9, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Http.Resilience": {
+              "target": "Package",
+              "version": "[9.9.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.ServiceDiscovery": {
+              "target": "Package",
+              "version": "[9.5.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.VisualStudio.Threading.Analyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[17.14.15, )",
+              "versionCentrallyManaged": true
+            },
+            "Nerdbank.GitVersioning": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.8.118, )",
+              "versionCentrallyManaged": true
+            },
+            "NetFabric.Hyperlinq.Analyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.3.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.CodeAnalysis.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Formatting.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Scalar.AspNetCore": {
+              "target": "Package",
+              "version": "[2.8.10, )",
+              "versionCentrallyManaged": true
+            },
+            "SerilogAnalyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.15.0, )",
+              "versionCentrallyManaged": true
+            },
+            "StyleCop.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.2.0-beta.556, )",
+              "versionCentrallyManaged": true
+            }
+          },
+          "centralPackageVersions": {
+            "Ardalis.GuardClauses": "5.0.0",
+            "Ardalis.Specification": "9.3.1",
+            "Ardalis.Specification.EntityFrameworkCore": "9.3.1",
+            "Asp.Versioning.Http": "8.1.0",
+            "Asp.Versioning.Mvc": "8.1.0",
+            "Asp.Versioning.Mvc.ApiExplorer": "8.1.0",
+            "AspNetCore.HealthChecks.EventStore.gRPC": "9.0.0",
+            "AspNetCore.HealthChecks.Network": "9.0.0",
+            "AspNetCore.HealthChecks.NpgSql": "9.0.0",
+            "AspNetCore.HealthChecks.Redis": "9.0.0",
+            "AspNetCore.HealthChecks.System": "9.0.0",
+            "AspNetCore.HealthChecks.UI": "9.0.0",
+            "AspNetCore.HealthChecks.UI.Client": "9.0.0",
+            "AspNetCore.HealthChecks.UI.InMemory.Storage": "9.0.0",
+            "AspNetCore.HealthChecks.Uris": "9.0.0",
+            "AsyncAwaitBestPractices": "9.0.0",
+            "AsyncFixer": "1.6.0",
+            "AutoMapper": "15.0.1",
+            "Azure.Identity": "1.13.1",
+            "Dapper": "2.1.66",
+            "Duende.BFF.Yarp": "3.0.0",
+            "Duende.IdentityServer": "7.3.2",
+            "Duende.IdentityServer.AspNetIdentity": "7.3.2",
+            "Duende.IdentityServer.EntityFramework": "7.3.2",
+            "Duende.IdentityServer.Storage": "7.3.2",
+            "EFCore.NamingConventions": "9.0.0",
+            "ErrorProne.NET.CoreAnalyzers": "0.8.2-beta.1",
+            "EventStore.Client.Extensions.OpenTelemetry": "23.3.9",
+            "EventStore.Client.Grpc.Streams": "23.3.9",
+            "FluentValidation": "12.0.0",
+            "FluentValidation.DependencyInjectionExtensions": "12.0.0",
+            "HtmlSanitizer": "9.0.886",
+            "Humanizer": "2.14.1",
+            "Humanizer.Core": "2.14.1",
+            "IdentityModel": "7.0.0",
+            "libphonenumber-csharp": "9.0.15",
+            "MailKit": "4.9.0",
+            "MediatR": "13.0.0",
+            "MessagePack": "3.1.4",
+            "Meziantou.Analyzer": "2.0.222",
+            "Microsoft.AspNetCore.Authentication.JwtBearer": "9.0.9",
+            "Microsoft.AspNetCore.HeaderPropagation": "9.0.9",
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "9.0.9",
+            "Microsoft.AspNetCore.OpenApi": "9.0.9",
+            "Microsoft.Data.SqlClient": "5.2.2",
+            "Microsoft.EntityFrameworkCore": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Design": "9.0.9",
+            "Microsoft.EntityFrameworkCore.InMemory": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Relational": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Tools": "9.0.9",
+            "Microsoft.Extensions.Caching.Hybrid": "9.9.0",
+            "Microsoft.Extensions.Caching.StackExchangeRedis": "9.0.9",
+            "Microsoft.Extensions.Configuration": "9.0.9",
+            "Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore": "9.0.9",
+            "Microsoft.Extensions.Http.Polly": "9.0.9",
+            "Microsoft.Extensions.Http.Resilience": "9.9.0",
+            "Microsoft.Extensions.ServiceDiscovery": "9.5.0",
+            "Microsoft.Extensions.ServiceDiscovery.Yarp": "9.5.0",
+            "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": "1.22.1",
+            "Microsoft.VisualStudio.Threading.Analyzers": "17.14.15",
+            "Nerdbank.GitVersioning": "3.8.118",
+            "NetFabric.Hyperlinq.Analyzer": "2.3.0",
+            "Nito.AsyncEx": "5.1.2",
+            "Nito.AsyncEx.Context": "5.1.2",
+            "Nito.AsyncEx.Tasks": "5.1.2",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.4",
+            "Npgsql.OpenTelemetry": "9.0.3",
+            "OpenTelemetry": "1.13.0",
+            "OpenTelemetry.Api": "1.13.0",
+            "OpenTelemetry.Exporter.Console": "1.13.0",
+            "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.13.0",
+            "OpenTelemetry.Exporter.Prometheus.AspNetCore": "1.13.0-beta.1",
+            "OpenTelemetry.Extensions.Hosting": "1.13.0",
+            "OpenTelemetry.Instrumentation.AspNetCore": "1.12.0",
+            "OpenTelemetry.Instrumentation.EntityFrameworkCore": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.EventCounters": "1.5.1-alpha.1",
+            "OpenTelemetry.Instrumentation.GrpcNetClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Http": "1.12.0",
+            "OpenTelemetry.Instrumentation.Process": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Quartz": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Runtime": "1.12.0",
+            "OpenTelemetry.Instrumentation.SqlClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.StackExchangeRedis": "1.12.0-beta.1",
+            "Polly": "8.6.4",
+            "Quartz": "3.15.0",
+            "Quartz.Extensions.Hosting": "3.15.0",
+            "Roslynator.Analyzers": "4.14.0",
+            "Roslynator.CodeAnalysis.Analyzers": "4.14.0",
+            "Roslynator.Formatting.Analyzers": "4.14.0",
+            "Scalar.AspNetCore": "2.8.10",
+            "Scrutor": "6.1.0",
+            "Serilog.AspNetCore": "9.0.0",
+            "Serilog.Enrichers.CorrelationId": "3.0.1",
+            "Serilog.Enrichers.Environment": "3.0.1",
+            "Serilog.Enrichers.Process": "3.0.0",
+            "Serilog.Enrichers.Span": "3.1.0",
+            "Serilog.Enrichers.Thread": "4.0.0",
+            "Serilog.Exceptions": "8.4.0",
+            "Serilog.Exceptions.EntityFrameworkCore": "8.4.0",
+            "Serilog.Sinks.Async": "2.1.0",
+            "Serilog.Sinks.Console": "6.0.0",
+            "Serilog.Sinks.Seq": "9.0.0",
+            "SerilogAnalyzer": "0.15.0",
+            "SharpAbp.Abp.OpenTelemetry.Exporter.Prometheus.AspNetCore": "4.1.0",
+            "Sieve": "2.5.5",
+            "StyleCop.Analyzers": "1.2.0-beta.556",
+            "System.Data.SqlClient": "4.9.0",
+            "System.Formats.Asn1": "9.0.9",
+            "System.Linq.Async": "6.0.3",
+            "System.Linq.Async.Queryable": "6.0.3",
+            "System.Text.Encodings.Web": "9.0.9",
+            "System.Text.Json": "9.0.9",
+            "Ulid": "1.4.1",
+            "Yarp.ReverseProxy": "2.3.0"
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\workplace\\lsevin\\src\\Modules\\Category\\LSevin.Modules.Category\\LSevin.Modules.Category.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\workplace\\lsevin\\src\\Modules\\Category\\LSevin.Modules.Category\\LSevin.Modules.Category.csproj",
+        "projectName": "LSevin.Modules.Category",
+        "projectPath": "E:\\workplace\\lsevin\\src\\Modules\\Category\\LSevin.Modules.Category\\LSevin.Modules.Category.csproj",
+        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
+        "outputPath": "E:\\workplace\\lsevin\\src\\Modules\\Category\\LSevin.Modules.Category\\obj\\",
+        "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "allWarningsAsErrors": true,
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "AsyncAwaitBestPractices": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AsyncFixer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.6.0, )",
+              "versionCentrallyManaged": true
+            },
+            "ErrorProne.NET.CoreAnalyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.8.2-beta.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Meziantou.Analyzer": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.222, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.VisualStudio.Threading.Analyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[17.14.15, )",
+              "versionCentrallyManaged": true
+            },
+            "Nerdbank.GitVersioning": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.8.118, )",
+              "versionCentrallyManaged": true
+            },
+            "NetFabric.Hyperlinq.Analyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.3.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.CodeAnalysis.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Formatting.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "SerilogAnalyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.15.0, )",
+              "versionCentrallyManaged": true
+            },
+            "StyleCop.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.2.0-beta.556, )",
+              "versionCentrallyManaged": true
+            }
+          },
+          "centralPackageVersions": {
+            "Ardalis.GuardClauses": "5.0.0",
+            "Ardalis.Specification": "9.3.1",
+            "Ardalis.Specification.EntityFrameworkCore": "9.3.1",
+            "Asp.Versioning.Http": "8.1.0",
+            "Asp.Versioning.Mvc": "8.1.0",
+            "Asp.Versioning.Mvc.ApiExplorer": "8.1.0",
+            "AspNetCore.HealthChecks.EventStore.gRPC": "9.0.0",
+            "AspNetCore.HealthChecks.Network": "9.0.0",
+            "AspNetCore.HealthChecks.NpgSql": "9.0.0",
+            "AspNetCore.HealthChecks.Redis": "9.0.0",
+            "AspNetCore.HealthChecks.System": "9.0.0",
+            "AspNetCore.HealthChecks.UI": "9.0.0",
+            "AspNetCore.HealthChecks.UI.Client": "9.0.0",
+            "AspNetCore.HealthChecks.UI.InMemory.Storage": "9.0.0",
+            "AspNetCore.HealthChecks.Uris": "9.0.0",
+            "AsyncAwaitBestPractices": "9.0.0",
+            "AsyncFixer": "1.6.0",
+            "AutoMapper": "15.0.1",
+            "Azure.Identity": "1.13.1",
+            "Dapper": "2.1.66",
+            "Duende.BFF.Yarp": "3.0.0",
+            "Duende.IdentityServer": "7.3.2",
+            "Duende.IdentityServer.AspNetIdentity": "7.3.2",
+            "Duende.IdentityServer.EntityFramework": "7.3.2",
+            "Duende.IdentityServer.Storage": "7.3.2",
+            "EFCore.NamingConventions": "9.0.0",
+            "ErrorProne.NET.CoreAnalyzers": "0.8.2-beta.1",
+            "EventStore.Client.Extensions.OpenTelemetry": "23.3.9",
+            "EventStore.Client.Grpc.Streams": "23.3.9",
+            "FluentValidation": "12.0.0",
+            "FluentValidation.DependencyInjectionExtensions": "12.0.0",
+            "HtmlSanitizer": "9.0.886",
+            "Humanizer": "2.14.1",
+            "Humanizer.Core": "2.14.1",
+            "IdentityModel": "7.0.0",
+            "libphonenumber-csharp": "9.0.15",
+            "MailKit": "4.9.0",
+            "MediatR": "13.0.0",
+            "MessagePack": "3.1.4",
+            "Meziantou.Analyzer": "2.0.222",
+            "Microsoft.AspNetCore.Authentication.JwtBearer": "9.0.9",
+            "Microsoft.AspNetCore.HeaderPropagation": "9.0.9",
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "9.0.9",
+            "Microsoft.AspNetCore.OpenApi": "9.0.9",
+            "Microsoft.Data.SqlClient": "5.2.2",
+            "Microsoft.EntityFrameworkCore": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Design": "9.0.9",
+            "Microsoft.EntityFrameworkCore.InMemory": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Relational": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Tools": "9.0.9",
+            "Microsoft.Extensions.Caching.Hybrid": "9.9.0",
+            "Microsoft.Extensions.Caching.StackExchangeRedis": "9.0.9",
+            "Microsoft.Extensions.Configuration": "9.0.9",
+            "Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore": "9.0.9",
+            "Microsoft.Extensions.Http.Polly": "9.0.9",
+            "Microsoft.Extensions.Http.Resilience": "9.9.0",
+            "Microsoft.Extensions.ServiceDiscovery": "9.5.0",
+            "Microsoft.Extensions.ServiceDiscovery.Yarp": "9.5.0",
+            "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": "1.22.1",
+            "Microsoft.VisualStudio.Threading.Analyzers": "17.14.15",
+            "Nerdbank.GitVersioning": "3.8.118",
+            "NetFabric.Hyperlinq.Analyzer": "2.3.0",
+            "Nito.AsyncEx": "5.1.2",
+            "Nito.AsyncEx.Context": "5.1.2",
+            "Nito.AsyncEx.Tasks": "5.1.2",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.4",
+            "Npgsql.OpenTelemetry": "9.0.3",
+            "OpenTelemetry": "1.13.0",
+            "OpenTelemetry.Api": "1.13.0",
+            "OpenTelemetry.Exporter.Console": "1.13.0",
+            "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.13.0",
+            "OpenTelemetry.Exporter.Prometheus.AspNetCore": "1.13.0-beta.1",
+            "OpenTelemetry.Extensions.Hosting": "1.13.0",
+            "OpenTelemetry.Instrumentation.AspNetCore": "1.12.0",
+            "OpenTelemetry.Instrumentation.EntityFrameworkCore": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.EventCounters": "1.5.1-alpha.1",
+            "OpenTelemetry.Instrumentation.GrpcNetClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Http": "1.12.0",
+            "OpenTelemetry.Instrumentation.Process": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Quartz": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Runtime": "1.12.0",
+            "OpenTelemetry.Instrumentation.SqlClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.StackExchangeRedis": "1.12.0-beta.1",
+            "Polly": "8.6.4",
+            "Quartz": "3.15.0",
+            "Quartz.Extensions.Hosting": "3.15.0",
+            "Roslynator.Analyzers": "4.14.0",
+            "Roslynator.CodeAnalysis.Analyzers": "4.14.0",
+            "Roslynator.Formatting.Analyzers": "4.14.0",
+            "Scalar.AspNetCore": "2.8.10",
+            "Scrutor": "6.1.0",
+            "Serilog.AspNetCore": "9.0.0",
+            "Serilog.Enrichers.CorrelationId": "3.0.1",
+            "Serilog.Enrichers.Environment": "3.0.1",
+            "Serilog.Enrichers.Process": "3.0.0",
+            "Serilog.Enrichers.Span": "3.1.0",
+            "Serilog.Enrichers.Thread": "4.0.0",
+            "Serilog.Exceptions": "8.4.0",
+            "Serilog.Exceptions.EntityFrameworkCore": "8.4.0",
+            "Serilog.Sinks.Async": "2.1.0",
+            "Serilog.Sinks.Console": "6.0.0",
+            "Serilog.Sinks.Seq": "9.0.0",
+            "SerilogAnalyzer": "0.15.0",
+            "SharpAbp.Abp.OpenTelemetry.Exporter.Prometheus.AspNetCore": "4.1.0",
+            "Sieve": "2.5.5",
+            "StyleCop.Analyzers": "1.2.0-beta.556",
+            "System.Data.SqlClient": "4.9.0",
+            "System.Formats.Asn1": "9.0.9",
+            "System.Linq.Async": "6.0.3",
+            "System.Linq.Async.Queryable": "6.0.3",
+            "System.Text.Encodings.Web": "9.0.9",
+            "System.Text.Json": "9.0.9",
+            "Ulid": "1.4.1",
+            "Yarp.ReverseProxy": "2.3.0"
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj",
+        "projectName": "LSevin.Modules.Common",
+        "projectPath": "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj",
+        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
+        "outputPath": "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\obj\\",
+        "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "allWarningsAsErrors": true,
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "AsyncAwaitBestPractices": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AsyncFixer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.6.0, )",
+              "versionCentrallyManaged": true
+            },
+            "ErrorProne.NET.CoreAnalyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.8.2-beta.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Meziantou.Analyzer": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.222, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.VisualStudio.Threading.Analyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[17.14.15, )",
+              "versionCentrallyManaged": true
+            },
+            "Nerdbank.GitVersioning": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.8.118, )",
+              "versionCentrallyManaged": true
+            },
+            "NetFabric.Hyperlinq.Analyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.3.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.CodeAnalysis.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Formatting.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "SerilogAnalyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.15.0, )",
+              "versionCentrallyManaged": true
+            },
+            "StyleCop.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.2.0-beta.556, )",
+              "versionCentrallyManaged": true
+            }
+          },
+          "centralPackageVersions": {
+            "Ardalis.GuardClauses": "5.0.0",
+            "Ardalis.Specification": "9.3.1",
+            "Ardalis.Specification.EntityFrameworkCore": "9.3.1",
+            "Asp.Versioning.Http": "8.1.0",
+            "Asp.Versioning.Mvc": "8.1.0",
+            "Asp.Versioning.Mvc.ApiExplorer": "8.1.0",
+            "AspNetCore.HealthChecks.EventStore.gRPC": "9.0.0",
+            "AspNetCore.HealthChecks.Network": "9.0.0",
+            "AspNetCore.HealthChecks.NpgSql": "9.0.0",
+            "AspNetCore.HealthChecks.Redis": "9.0.0",
+            "AspNetCore.HealthChecks.System": "9.0.0",
+            "AspNetCore.HealthChecks.UI": "9.0.0",
+            "AspNetCore.HealthChecks.UI.Client": "9.0.0",
+            "AspNetCore.HealthChecks.UI.InMemory.Storage": "9.0.0",
+            "AspNetCore.HealthChecks.Uris": "9.0.0",
+            "AsyncAwaitBestPractices": "9.0.0",
+            "AsyncFixer": "1.6.0",
+            "AutoMapper": "15.0.1",
+            "Azure.Identity": "1.13.1",
+            "Dapper": "2.1.66",
+            "Duende.BFF.Yarp": "3.0.0",
+            "Duende.IdentityServer": "7.3.2",
+            "Duende.IdentityServer.AspNetIdentity": "7.3.2",
+            "Duende.IdentityServer.EntityFramework": "7.3.2",
+            "Duende.IdentityServer.Storage": "7.3.2",
+            "EFCore.NamingConventions": "9.0.0",
+            "ErrorProne.NET.CoreAnalyzers": "0.8.2-beta.1",
+            "EventStore.Client.Extensions.OpenTelemetry": "23.3.9",
+            "EventStore.Client.Grpc.Streams": "23.3.9",
+            "FluentValidation": "12.0.0",
+            "FluentValidation.DependencyInjectionExtensions": "12.0.0",
+            "HtmlSanitizer": "9.0.886",
+            "Humanizer": "2.14.1",
+            "Humanizer.Core": "2.14.1",
+            "IdentityModel": "7.0.0",
+            "libphonenumber-csharp": "9.0.15",
+            "MailKit": "4.9.0",
+            "MediatR": "13.0.0",
+            "MessagePack": "3.1.4",
+            "Meziantou.Analyzer": "2.0.222",
+            "Microsoft.AspNetCore.Authentication.JwtBearer": "9.0.9",
+            "Microsoft.AspNetCore.HeaderPropagation": "9.0.9",
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "9.0.9",
+            "Microsoft.AspNetCore.OpenApi": "9.0.9",
+            "Microsoft.Data.SqlClient": "5.2.2",
+            "Microsoft.EntityFrameworkCore": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Design": "9.0.9",
+            "Microsoft.EntityFrameworkCore.InMemory": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Relational": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Tools": "9.0.9",
+            "Microsoft.Extensions.Caching.Hybrid": "9.9.0",
+            "Microsoft.Extensions.Caching.StackExchangeRedis": "9.0.9",
+            "Microsoft.Extensions.Configuration": "9.0.9",
+            "Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore": "9.0.9",
+            "Microsoft.Extensions.Http.Polly": "9.0.9",
+            "Microsoft.Extensions.Http.Resilience": "9.9.0",
+            "Microsoft.Extensions.ServiceDiscovery": "9.5.0",
+            "Microsoft.Extensions.ServiceDiscovery.Yarp": "9.5.0",
+            "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": "1.22.1",
+            "Microsoft.VisualStudio.Threading.Analyzers": "17.14.15",
+            "Nerdbank.GitVersioning": "3.8.118",
+            "NetFabric.Hyperlinq.Analyzer": "2.3.0",
+            "Nito.AsyncEx": "5.1.2",
+            "Nito.AsyncEx.Context": "5.1.2",
+            "Nito.AsyncEx.Tasks": "5.1.2",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.4",
+            "Npgsql.OpenTelemetry": "9.0.3",
+            "OpenTelemetry": "1.13.0",
+            "OpenTelemetry.Api": "1.13.0",
+            "OpenTelemetry.Exporter.Console": "1.13.0",
+            "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.13.0",
+            "OpenTelemetry.Exporter.Prometheus.AspNetCore": "1.13.0-beta.1",
+            "OpenTelemetry.Extensions.Hosting": "1.13.0",
+            "OpenTelemetry.Instrumentation.AspNetCore": "1.12.0",
+            "OpenTelemetry.Instrumentation.EntityFrameworkCore": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.EventCounters": "1.5.1-alpha.1",
+            "OpenTelemetry.Instrumentation.GrpcNetClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Http": "1.12.0",
+            "OpenTelemetry.Instrumentation.Process": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Quartz": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Runtime": "1.12.0",
+            "OpenTelemetry.Instrumentation.SqlClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.StackExchangeRedis": "1.12.0-beta.1",
+            "Polly": "8.6.4",
+            "Quartz": "3.15.0",
+            "Quartz.Extensions.Hosting": "3.15.0",
+            "Roslynator.Analyzers": "4.14.0",
+            "Roslynator.CodeAnalysis.Analyzers": "4.14.0",
+            "Roslynator.Formatting.Analyzers": "4.14.0",
+            "Scalar.AspNetCore": "2.8.10",
+            "Scrutor": "6.1.0",
+            "Serilog.AspNetCore": "9.0.0",
+            "Serilog.Enrichers.CorrelationId": "3.0.1",
+            "Serilog.Enrichers.Environment": "3.0.1",
+            "Serilog.Enrichers.Process": "3.0.0",
+            "Serilog.Enrichers.Span": "3.1.0",
+            "Serilog.Enrichers.Thread": "4.0.0",
+            "Serilog.Exceptions": "8.4.0",
+            "Serilog.Exceptions.EntityFrameworkCore": "8.4.0",
+            "Serilog.Sinks.Async": "2.1.0",
+            "Serilog.Sinks.Console": "6.0.0",
+            "Serilog.Sinks.Seq": "9.0.0",
+            "SerilogAnalyzer": "0.15.0",
+            "SharpAbp.Abp.OpenTelemetry.Exporter.Prometheus.AspNetCore": "4.1.0",
+            "Sieve": "2.5.5",
+            "StyleCop.Analyzers": "1.2.0-beta.556",
+            "System.Data.SqlClient": "4.9.0",
+            "System.Formats.Asn1": "9.0.9",
+            "System.Linq.Async": "6.0.3",
+            "System.Linq.Async.Queryable": "6.0.3",
+            "System.Text.Encodings.Web": "9.0.9",
+            "System.Text.Json": "9.0.9",
+            "Ulid": "1.4.1",
+            "Yarp.ReverseProxy": "2.3.0"
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\workplace\\lsevin\\src\\Modules\\Customer\\LSevin.Modules.Customer\\LSevin.Modules.Customer.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\workplace\\lsevin\\src\\Modules\\Customer\\LSevin.Modules.Customer\\LSevin.Modules.Customer.csproj",
+        "projectName": "LSevin.Modules.Customer",
+        "projectPath": "E:\\workplace\\lsevin\\src\\Modules\\Customer\\LSevin.Modules.Customer\\LSevin.Modules.Customer.csproj",
+        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
+        "outputPath": "E:\\workplace\\lsevin\\src\\Modules\\Customer\\LSevin.Modules.Customer\\obj\\",
+        "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "allWarningsAsErrors": true,
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "AsyncAwaitBestPractices": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AsyncFixer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.6.0, )",
+              "versionCentrallyManaged": true
+            },
+            "ErrorProne.NET.CoreAnalyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.8.2-beta.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Meziantou.Analyzer": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.222, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.VisualStudio.Threading.Analyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[17.14.15, )",
+              "versionCentrallyManaged": true
+            },
+            "Nerdbank.GitVersioning": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.8.118, )",
+              "versionCentrallyManaged": true
+            },
+            "NetFabric.Hyperlinq.Analyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.3.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.CodeAnalysis.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Formatting.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "SerilogAnalyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.15.0, )",
+              "versionCentrallyManaged": true
+            },
+            "StyleCop.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.2.0-beta.556, )",
+              "versionCentrallyManaged": true
+            }
+          },
+          "centralPackageVersions": {
+            "Ardalis.GuardClauses": "5.0.0",
+            "Ardalis.Specification": "9.3.1",
+            "Ardalis.Specification.EntityFrameworkCore": "9.3.1",
+            "Asp.Versioning.Http": "8.1.0",
+            "Asp.Versioning.Mvc": "8.1.0",
+            "Asp.Versioning.Mvc.ApiExplorer": "8.1.0",
+            "AspNetCore.HealthChecks.EventStore.gRPC": "9.0.0",
+            "AspNetCore.HealthChecks.Network": "9.0.0",
+            "AspNetCore.HealthChecks.NpgSql": "9.0.0",
+            "AspNetCore.HealthChecks.Redis": "9.0.0",
+            "AspNetCore.HealthChecks.System": "9.0.0",
+            "AspNetCore.HealthChecks.UI": "9.0.0",
+            "AspNetCore.HealthChecks.UI.Client": "9.0.0",
+            "AspNetCore.HealthChecks.UI.InMemory.Storage": "9.0.0",
+            "AspNetCore.HealthChecks.Uris": "9.0.0",
+            "AsyncAwaitBestPractices": "9.0.0",
+            "AsyncFixer": "1.6.0",
+            "AutoMapper": "15.0.1",
+            "Azure.Identity": "1.13.1",
+            "Dapper": "2.1.66",
+            "Duende.BFF.Yarp": "3.0.0",
+            "Duende.IdentityServer": "7.3.2",
+            "Duende.IdentityServer.AspNetIdentity": "7.3.2",
+            "Duende.IdentityServer.EntityFramework": "7.3.2",
+            "Duende.IdentityServer.Storage": "7.3.2",
+            "EFCore.NamingConventions": "9.0.0",
+            "ErrorProne.NET.CoreAnalyzers": "0.8.2-beta.1",
+            "EventStore.Client.Extensions.OpenTelemetry": "23.3.9",
+            "EventStore.Client.Grpc.Streams": "23.3.9",
+            "FluentValidation": "12.0.0",
+            "FluentValidation.DependencyInjectionExtensions": "12.0.0",
+            "HtmlSanitizer": "9.0.886",
+            "Humanizer": "2.14.1",
+            "Humanizer.Core": "2.14.1",
+            "IdentityModel": "7.0.0",
+            "libphonenumber-csharp": "9.0.15",
+            "MailKit": "4.9.0",
+            "MediatR": "13.0.0",
+            "MessagePack": "3.1.4",
+            "Meziantou.Analyzer": "2.0.222",
+            "Microsoft.AspNetCore.Authentication.JwtBearer": "9.0.9",
+            "Microsoft.AspNetCore.HeaderPropagation": "9.0.9",
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "9.0.9",
+            "Microsoft.AspNetCore.OpenApi": "9.0.9",
+            "Microsoft.Data.SqlClient": "5.2.2",
+            "Microsoft.EntityFrameworkCore": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Design": "9.0.9",
+            "Microsoft.EntityFrameworkCore.InMemory": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Relational": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Tools": "9.0.9",
+            "Microsoft.Extensions.Caching.Hybrid": "9.9.0",
+            "Microsoft.Extensions.Caching.StackExchangeRedis": "9.0.9",
+            "Microsoft.Extensions.Configuration": "9.0.9",
+            "Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore": "9.0.9",
+            "Microsoft.Extensions.Http.Polly": "9.0.9",
+            "Microsoft.Extensions.Http.Resilience": "9.9.0",
+            "Microsoft.Extensions.ServiceDiscovery": "9.5.0",
+            "Microsoft.Extensions.ServiceDiscovery.Yarp": "9.5.0",
+            "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": "1.22.1",
+            "Microsoft.VisualStudio.Threading.Analyzers": "17.14.15",
+            "Nerdbank.GitVersioning": "3.8.118",
+            "NetFabric.Hyperlinq.Analyzer": "2.3.0",
+            "Nito.AsyncEx": "5.1.2",
+            "Nito.AsyncEx.Context": "5.1.2",
+            "Nito.AsyncEx.Tasks": "5.1.2",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.4",
+            "Npgsql.OpenTelemetry": "9.0.3",
+            "OpenTelemetry": "1.13.0",
+            "OpenTelemetry.Api": "1.13.0",
+            "OpenTelemetry.Exporter.Console": "1.13.0",
+            "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.13.0",
+            "OpenTelemetry.Exporter.Prometheus.AspNetCore": "1.13.0-beta.1",
+            "OpenTelemetry.Extensions.Hosting": "1.13.0",
+            "OpenTelemetry.Instrumentation.AspNetCore": "1.12.0",
+            "OpenTelemetry.Instrumentation.EntityFrameworkCore": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.EventCounters": "1.5.1-alpha.1",
+            "OpenTelemetry.Instrumentation.GrpcNetClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Http": "1.12.0",
+            "OpenTelemetry.Instrumentation.Process": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Quartz": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Runtime": "1.12.0",
+            "OpenTelemetry.Instrumentation.SqlClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.StackExchangeRedis": "1.12.0-beta.1",
+            "Polly": "8.6.4",
+            "Quartz": "3.15.0",
+            "Quartz.Extensions.Hosting": "3.15.0",
+            "Roslynator.Analyzers": "4.14.0",
+            "Roslynator.CodeAnalysis.Analyzers": "4.14.0",
+            "Roslynator.Formatting.Analyzers": "4.14.0",
+            "Scalar.AspNetCore": "2.8.10",
+            "Scrutor": "6.1.0",
+            "Serilog.AspNetCore": "9.0.0",
+            "Serilog.Enrichers.CorrelationId": "3.0.1",
+            "Serilog.Enrichers.Environment": "3.0.1",
+            "Serilog.Enrichers.Process": "3.0.0",
+            "Serilog.Enrichers.Span": "3.1.0",
+            "Serilog.Enrichers.Thread": "4.0.0",
+            "Serilog.Exceptions": "8.4.0",
+            "Serilog.Exceptions.EntityFrameworkCore": "8.4.0",
+            "Serilog.Sinks.Async": "2.1.0",
+            "Serilog.Sinks.Console": "6.0.0",
+            "Serilog.Sinks.Seq": "9.0.0",
+            "SerilogAnalyzer": "0.15.0",
+            "SharpAbp.Abp.OpenTelemetry.Exporter.Prometheus.AspNetCore": "4.1.0",
+            "Sieve": "2.5.5",
+            "StyleCop.Analyzers": "1.2.0-beta.556",
+            "System.Data.SqlClient": "4.9.0",
+            "System.Formats.Asn1": "9.0.9",
+            "System.Linq.Async": "6.0.3",
+            "System.Linq.Async.Queryable": "6.0.3",
+            "System.Text.Encodings.Web": "9.0.9",
+            "System.Text.Json": "9.0.9",
+            "Ulid": "1.4.1",
+            "Yarp.ReverseProxy": "2.3.0"
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\workplace\\lsevin\\src\\Modules\\Identity\\LSevin.Modules.Identity\\LSevin.Modules.Identity.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\workplace\\lsevin\\src\\Modules\\Identity\\LSevin.Modules.Identity\\LSevin.Modules.Identity.csproj",
+        "projectName": "LSevin.Modules.Identity",
+        "projectPath": "E:\\workplace\\lsevin\\src\\Modules\\Identity\\LSevin.Modules.Identity\\LSevin.Modules.Identity.csproj",
+        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
+        "outputPath": "E:\\workplace\\lsevin\\src\\Modules\\Identity\\LSevin.Modules.Identity\\obj\\",
+        "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj"
+              },
+              "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "allWarningsAsErrors": true,
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "AsyncAwaitBestPractices": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "AsyncFixer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.6.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Duende.IdentityServer": {
+              "target": "Package",
+              "version": "[7.3.2, )",
+              "versionCentrallyManaged": true
+            },
+            "Duende.IdentityServer.AspNetIdentity": {
+              "target": "Package",
+              "version": "[7.3.2, )",
+              "versionCentrallyManaged": true
+            },
+            "Duende.IdentityServer.EntityFramework": {
+              "target": "Package",
+              "version": "[7.3.2, )",
+              "versionCentrallyManaged": true
+            },
+            "Duende.IdentityServer.Storage": {
+              "target": "Package",
+              "version": "[7.3.2, )",
+              "versionCentrallyManaged": true
+            },
+            "ErrorProne.NET.CoreAnalyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.8.2-beta.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Meziantou.Analyzer": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.222, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.9, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.VisualStudio.Threading.Analyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[17.14.15, )",
+              "versionCentrallyManaged": true
+            },
+            "Nerdbank.GitVersioning": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.8.118, )",
+              "versionCentrallyManaged": true
+            },
+            "NetFabric.Hyperlinq.Analyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.3.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.CodeAnalysis.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Roslynator.Formatting.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.14.0, )",
+              "versionCentrallyManaged": true
+            },
+            "SerilogAnalyzer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.15.0, )",
+              "versionCentrallyManaged": true
+            },
+            "StyleCop.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.2.0-beta.556, )",
+              "versionCentrallyManaged": true
+            }
+          },
+          "centralPackageVersions": {
+            "Ardalis.GuardClauses": "5.0.0",
+            "Ardalis.Specification": "9.3.1",
+            "Ardalis.Specification.EntityFrameworkCore": "9.3.1",
+            "Asp.Versioning.Http": "8.1.0",
+            "Asp.Versioning.Mvc": "8.1.0",
+            "Asp.Versioning.Mvc.ApiExplorer": "8.1.0",
+            "AspNetCore.HealthChecks.EventStore.gRPC": "9.0.0",
+            "AspNetCore.HealthChecks.Network": "9.0.0",
+            "AspNetCore.HealthChecks.NpgSql": "9.0.0",
+            "AspNetCore.HealthChecks.Redis": "9.0.0",
+            "AspNetCore.HealthChecks.System": "9.0.0",
+            "AspNetCore.HealthChecks.UI": "9.0.0",
+            "AspNetCore.HealthChecks.UI.Client": "9.0.0",
+            "AspNetCore.HealthChecks.UI.InMemory.Storage": "9.0.0",
+            "AspNetCore.HealthChecks.Uris": "9.0.0",
+            "AsyncAwaitBestPractices": "9.0.0",
+            "AsyncFixer": "1.6.0",
+            "AutoMapper": "15.0.1",
+            "Azure.Identity": "1.13.1",
+            "Dapper": "2.1.66",
+            "Duende.BFF.Yarp": "3.0.0",
+            "Duende.IdentityServer": "7.3.2",
+            "Duende.IdentityServer.AspNetIdentity": "7.3.2",
+            "Duende.IdentityServer.EntityFramework": "7.3.2",
+            "Duende.IdentityServer.Storage": "7.3.2",
+            "EFCore.NamingConventions": "9.0.0",
+            "ErrorProne.NET.CoreAnalyzers": "0.8.2-beta.1",
+            "EventStore.Client.Extensions.OpenTelemetry": "23.3.9",
+            "EventStore.Client.Grpc.Streams": "23.3.9",
+            "FluentValidation": "12.0.0",
+            "FluentValidation.DependencyInjectionExtensions": "12.0.0",
+            "HtmlSanitizer": "9.0.886",
+            "Humanizer": "2.14.1",
+            "Humanizer.Core": "2.14.1",
+            "IdentityModel": "7.0.0",
+            "libphonenumber-csharp": "9.0.15",
+            "MailKit": "4.9.0",
+            "MediatR": "13.0.0",
+            "MessagePack": "3.1.4",
+            "Meziantou.Analyzer": "2.0.222",
+            "Microsoft.AspNetCore.Authentication.JwtBearer": "9.0.9",
+            "Microsoft.AspNetCore.HeaderPropagation": "9.0.9",
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "9.0.9",
+            "Microsoft.AspNetCore.OpenApi": "9.0.9",
+            "Microsoft.Data.SqlClient": "5.2.2",
+            "Microsoft.EntityFrameworkCore": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Design": "9.0.9",
+            "Microsoft.EntityFrameworkCore.InMemory": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Relational": "9.0.9",
+            "Microsoft.EntityFrameworkCore.Tools": "9.0.9",
+            "Microsoft.Extensions.Caching.Hybrid": "9.9.0",
+            "Microsoft.Extensions.Caching.StackExchangeRedis": "9.0.9",
+            "Microsoft.Extensions.Configuration": "9.0.9",
+            "Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore": "9.0.9",
+            "Microsoft.Extensions.Http.Polly": "9.0.9",
+            "Microsoft.Extensions.Http.Resilience": "9.9.0",
+            "Microsoft.Extensions.ServiceDiscovery": "9.5.0",
+            "Microsoft.Extensions.ServiceDiscovery.Yarp": "9.5.0",
+            "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": "1.22.1",
+            "Microsoft.VisualStudio.Threading.Analyzers": "17.14.15",
+            "Nerdbank.GitVersioning": "3.8.118",
+            "NetFabric.Hyperlinq.Analyzer": "2.3.0",
+            "Nito.AsyncEx": "5.1.2",
+            "Nito.AsyncEx.Context": "5.1.2",
+            "Nito.AsyncEx.Tasks": "5.1.2",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.4",
+            "Npgsql.OpenTelemetry": "9.0.3",
+            "OpenTelemetry": "1.13.0",
+            "OpenTelemetry.Api": "1.13.0",
+            "OpenTelemetry.Exporter.Console": "1.13.0",
+            "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.13.0",
+            "OpenTelemetry.Exporter.Prometheus.AspNetCore": "1.13.0-beta.1",
+            "OpenTelemetry.Extensions.Hosting": "1.13.0",
+            "OpenTelemetry.Instrumentation.AspNetCore": "1.12.0",
+            "OpenTelemetry.Instrumentation.EntityFrameworkCore": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.EventCounters": "1.5.1-alpha.1",
+            "OpenTelemetry.Instrumentation.GrpcNetClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Http": "1.12.0",
+            "OpenTelemetry.Instrumentation.Process": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Quartz": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.Runtime": "1.12.0",
+            "OpenTelemetry.Instrumentation.SqlClient": "1.12.0-beta.1",
+            "OpenTelemetry.Instrumentation.StackExchangeRedis": "1.12.0-beta.1",
+            "Polly": "8.6.4",
+            "Quartz": "3.15.0",
+            "Quartz.Extensions.Hosting": "3.15.0",
+            "Roslynator.Analyzers": "4.14.0",
+            "Roslynator.CodeAnalysis.Analyzers": "4.14.0",
+            "Roslynator.Formatting.Analyzers": "4.14.0",
+            "Scalar.AspNetCore": "2.8.10",
+            "Scrutor": "6.1.0",
+            "Serilog.AspNetCore": "9.0.0",
+            "Serilog.Enrichers.CorrelationId": "3.0.1",
+            "Serilog.Enrichers.Environment": "3.0.1",
+            "Serilog.Enrichers.Process": "3.0.0",
+            "Serilog.Enrichers.Span": "3.1.0",
+            "Serilog.Enrichers.Thread": "4.0.0",
+            "Serilog.Exceptions": "8.4.0",
+            "Serilog.Exceptions.EntityFrameworkCore": "8.4.0",
+            "Serilog.Sinks.Async": "2.1.0",
+            "Serilog.Sinks.Console": "6.0.0",
+            "Serilog.Sinks.Seq": "9.0.0",
+            "SerilogAnalyzer": "0.15.0",
+            "SharpAbp.Abp.OpenTelemetry.Exporter.Prometheus.AspNetCore": "4.1.0",
+            "Sieve": "2.5.5",
+            "StyleCop.Analyzers": "1.2.0-beta.556",
+            "System.Data.SqlClient": "4.9.0",
+            "System.Formats.Asn1": "9.0.9",
+            "System.Linq.Async": "6.0.3",
+            "System.Linq.Async.Queryable": "6.0.3",
+            "System.Text.Encodings.Web": "9.0.9",
+            "System.Text.Json": "9.0.9",
+            "Ulid": "1.4.1",
+            "Yarp.ReverseProxy": "2.3.0"
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\workplace\\lsevin\\tests\\shared\\LSevin.ArchitectureTests\\LSevin.ArchitectureTests.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\workplace\\lsevin\\tests\\shared\\LSevin.ArchitectureTests\\LSevin.ArchitectureTests.csproj",
+        "projectName": "LSevin.ArchitectureTests",
+        "projectPath": "E:\\workplace\\lsevin\\tests\\shared\\LSevin.ArchitectureTests\\LSevin.ArchitectureTests.csproj",
+        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
+        "outputPath": "E:\\workplace\\lsevin\\tests\\shared\\LSevin.ArchitectureTests\\obj\\",
+        "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "E:\\workplace\\lsevin\\tests\\shared\\LSevin.Tests.Shared\\LSevin.Tests.Shared.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\tests\\shared\\LSevin.Tests.Shared\\LSevin.Tests.Shared.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "noWarn": [
+            "NU5105"
+          ],
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "AutoBogus": {
+              "target": "Package",
+              "version": "[2.13.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Bogus": {
+              "target": "Package",
+              "version": "[35.6.4, )",
+              "versionCentrallyManaged": true
+            },
+            "FluentAssertions": {
+              "target": "Package",
+              "version": "[7.0.0, 7.0.0]",
+              "versionCentrallyManaged": true
+            },
+            "FluentResults.Extensions.FluentAssertions": {
+              "target": "Package",
+              "version": "[2.1.2, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.NET.Test.Sdk": {
+              "target": "Package",
+              "version": "[18.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "NSubstitute": {
+              "target": "Package",
+              "version": "[5.3.0, )",
+              "versionCentrallyManaged": true
+            },
+            "NSubstitute.Analyzers.CSharp": {
+              "target": "Package",
+              "version": "[1.0.17, )",
+              "versionCentrallyManaged": true
+            },
+            "NetArchTest.Rules": {
+              "target": "Package",
+              "version": "[1.3.2, )",
+              "versionCentrallyManaged": true
+            },
+            "coverlet.collector": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[6.0.4, )",
+              "versionCentrallyManaged": true
+            },
+            "xunit": {
+              "target": "Package",
+              "version": "[2.9.3, )",
+              "versionCentrallyManaged": true
+            },
+            "xunit.runner.visualstudio": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.1.5, )",
+              "versionCentrallyManaged": true
+            }
+          },
+          "centralPackageVersions": {
+            "AutoBogus": "2.13.1",
+            "Azure.Identity": "1.13.1",
+            "Bogus": "35.6.4",
+            "coverlet.collector": "6.0.4",
+            "EasyNetQ.Management.Client": "3.0.0",
+            "FluentAssertions": "[7.0.0]",
+            "FluentAssertions.Web": "1.9.5",
+            "FluentResults.Extensions.FluentAssertions": "2.1.2",
+            "Grpc.Core.Testing": "2.46.6",
+            "Microsoft.AspNetCore.Mvc.Testing": "9.0.9",
+            "Microsoft.CodeAnalysis.CSharp": "4.12.0",
+            "Microsoft.CodeAnalysis.CSharp.Workspaces": "4.12.0",
+            "Microsoft.CodeAnalysis.Workspaces.Common": "4.12.0",
+            "Microsoft.Data.SqlClient": "5.2.2",
+            "Microsoft.NET.Test.Sdk": "18.0.0",
+            "Microsoft.Testing.Platform": "1.4.3",
+            "NetArchTest.Rules": "1.3.2",
+            "NSubstitute": "5.3.0",
+            "NSubstitute.Analyzers.CSharp": "1.0.17",
+            "Respawn": "6.2.1",
+            "Serilog.Sinks.XUnit": "3.0.19",
+            "System.Formats.Asn1": "9.0.9",
+            "System.Text.Encodings.Web": "9.0.9",
+            "System.Text.Json": "9.0.9",
+            "Testcontainers.PostgreSql": "4.7.0",
+            "Testcontainers.RabbitMq": "4.7.0",
+            "Testcontainers.Redis": "4.7.0",
+            "WebMotions.Fake.Authentication.JwtBearer": "9.0.0",
+            "WireMock.Net": "1.13.0",
+            "xunit": "2.9.3",
+            "xunit.runner.visualstudio": "3.1.5",
+            "XunitContext": "3.3.2"
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\workplace\\lsevin\\tests\\shared\\LSevin.Tests.Shared\\LSevin.Tests.Shared.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\workplace\\lsevin\\tests\\shared\\LSevin.Tests.Shared\\LSevin.Tests.Shared.csproj",
+        "projectName": "LSevin.Tests.Shared",
+        "projectPath": "E:\\workplace\\lsevin\\tests\\shared\\LSevin.Tests.Shared\\LSevin.Tests.Shared.csproj",
+        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
+        "outputPath": "E:\\workplace\\lsevin\\tests\\shared\\LSevin.Tests.Shared\\obj\\",
+        "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "CentralPackageTransitivePinningEnabled": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "E:\\workplace\\lsevin\\src\\API\\LSevin.Api\\LSevin.Api.csproj": {
+                "projectPath": "E:\\workplace\\lsevin\\src\\API\\LSevin.Api\\LSevin.Api.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "noWarn": [
+            "NU5105"
+          ],
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "AutoBogus": {
+              "target": "Package",
+              "version": "[2.13.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Bogus": {
+              "target": "Package",
+              "version": "[35.6.4, )",
+              "versionCentrallyManaged": true
+            },
+            "EasyNetQ.Management.Client": {
+              "target": "Package",
+              "version": "[3.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "FluentAssertions": {
+              "target": "Package",
+              "version": "[7.0.0, 7.0.0]",
+              "versionCentrallyManaged": true
+            },
+            "FluentAssertions.Web": {
+              "target": "Package",
+              "version": "[1.9.5, )",
+              "versionCentrallyManaged": true
+            },
+            "FluentResults.Extensions.FluentAssertions": {
+              "target": "Package",
+              "version": "[2.1.2, )",
+              "versionCentrallyManaged": true
+            },
+            "Grpc.Core.Testing": {
+              "target": "Package",
+              "version": "[2.46.6, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.AspNetCore.Mvc.Testing": {
+              "target": "Package",
+              "version": "[9.0.9, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.NET.Test.Sdk": {
+              "target": "Package",
+              "version": "[18.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "NSubstitute": {
+              "target": "Package",
+              "version": "[5.3.0, )",
+              "versionCentrallyManaged": true
+            },
+            "NSubstitute.Analyzers.CSharp": {
+              "target": "Package",
+              "version": "[1.0.17, )",
+              "versionCentrallyManaged": true
+            },
+            "NetArchTest.Rules": {
+              "target": "Package",
+              "version": "[1.3.2, )",
+              "versionCentrallyManaged": true
+            },
+            "Respawn": {
+              "target": "Package",
+              "version": "[6.2.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Serilog.Sinks.XUnit": {
+              "target": "Package",
+              "version": "[3.0.19, )",
+              "versionCentrallyManaged": true
+            },
+            "Testcontainers.PostgreSql": {
+              "target": "Package",
+              "version": "[4.7.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Testcontainers.RabbitMq": {
+              "target": "Package",
+              "version": "[4.7.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Testcontainers.Redis": {
+              "target": "Package",
+              "version": "[4.7.0, )",
+              "versionCentrallyManaged": true
+            },
+            "WebMotions.Fake.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "WireMock.Net": {
+              "target": "Package",
+              "version": "[1.13.0, )",
+              "versionCentrallyManaged": true
+            },
+            "XunitContext": {
+              "target": "Package",
+              "version": "[3.3.2, )",
+              "versionCentrallyManaged": true
+            },
+            "coverlet.collector": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[6.0.4, )",
+              "versionCentrallyManaged": true
+            },
+            "xunit": {
+              "target": "Package",
+              "version": "[2.9.3, )",
+              "versionCentrallyManaged": true
+            },
+            "xunit.runner.visualstudio": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.1.5, )",
+              "versionCentrallyManaged": true
+            }
+          },
+          "centralPackageVersions": {
+            "AutoBogus": "2.13.1",
+            "Azure.Identity": "1.13.1",
+            "Bogus": "35.6.4",
+            "coverlet.collector": "6.0.4",
+            "EasyNetQ.Management.Client": "3.0.0",
+            "FluentAssertions": "[7.0.0]",
+            "FluentAssertions.Web": "1.9.5",
+            "FluentResults.Extensions.FluentAssertions": "2.1.2",
+            "Grpc.Core.Testing": "2.46.6",
+            "Microsoft.AspNetCore.Mvc.Testing": "9.0.9",
+            "Microsoft.CodeAnalysis.CSharp": "4.12.0",
+            "Microsoft.CodeAnalysis.CSharp.Workspaces": "4.12.0",
+            "Microsoft.CodeAnalysis.Workspaces.Common": "4.12.0",
+            "Microsoft.Data.SqlClient": "5.2.2",
+            "Microsoft.NET.Test.Sdk": "18.0.0",
+            "Microsoft.Testing.Platform": "1.4.3",
+            "NetArchTest.Rules": "1.3.2",
+            "NSubstitute": "5.3.0",
+            "NSubstitute.Analyzers.CSharp": "1.0.17",
+            "Respawn": "6.2.1",
+            "Serilog.Sinks.XUnit": "3.0.19",
+            "System.Formats.Asn1": "9.0.9",
+            "System.Text.Encodings.Web": "9.0.9",
+            "System.Text.Json": "9.0.9",
+            "Testcontainers.PostgreSql": "4.7.0",
+            "Testcontainers.RabbitMq": "4.7.0",
+            "Testcontainers.Redis": "4.7.0",
+            "WebMotions.Fake.Authentication.JwtBearer": "9.0.0",
+            "WireMock.Net": "1.13.0",
+            "xunit": "2.9.3",
+            "xunit.runner.visualstudio": "3.1.5",
+            "XunitContext": "3.3.2"
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

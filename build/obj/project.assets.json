@@ -5840,27 +5840,34 @@
     ]
   },
   "packageFolders": {
-    "/Users/pourya/.nuget/packages/": {}
+    "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/pourya/projects/personal/l_sevin/build/_build.csproj",
+      "projectUniqueName": "E:\\workplace\\lsevin\\build\\_build.csproj",
       "projectName": "_build",
-      "projectPath": "/Users/pourya/projects/personal/l_sevin/build/_build.csproj",
-      "packagesPath": "/Users/pourya/.nuget/packages/",
-      "outputPath": "/Users/pourya/projects/personal/l_sevin/build/obj/",
+      "projectPath": "E:\\workplace\\lsevin\\build\\_build.csproj",
+      "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
+      "outputPath": "E:\\workplace\\lsevin\\build\\obj\\",
       "projectStyle": "PackageReference",
       "centralPackageVersionsManagementEnabled": true,
       "CentralPackageTransitivePinningEnabled": true,
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "/Users/pourya/projects/personal/l_sevin/NuGet.Config",
-        "/Users/pourya/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -5920,8 +5927,16 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/Users/pourya/.dotnet/sdk/9.0.307/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1900",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json."
+    }
+  ]
 }

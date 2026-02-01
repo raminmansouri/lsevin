@@ -1,0 +1,626 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BuildingBlocks.Security</name>
+    </assembly>
+    <members>
+        <member name="T:BuildingBlocks.Security.Common.SecurityConstants">
+            <summary>
+            Represents constants for security.
+            </summary>
+        </member>
+        <member name="F:BuildingBlocks.Security.Common.SecurityConstants.Authorization">
+            <summary>
+            Represents the "Authorization" header.
+            </summary>
+        </member>
+        <member name="F:BuildingBlocks.Security.Common.SecurityConstants.ContentSecurityPolicy">
+            <summary>
+            Represents the "Content-Security-Policy" header.
+            </summary>
+        </member>
+        <member name="F:BuildingBlocks.Security.Common.SecurityConstants.ContentSecurityPolicyValue">
+            <summary>
+            Represents the value for the "Content-Security-Policy" header.
+            </summary>
+        </member>
+        <member name="F:BuildingBlocks.Security.Common.SecurityConstants.XXssProtection">
+            <summary>
+            Represents the "X-XSS-Protection" header.
+            </summary>
+        </member>
+        <member name="F:BuildingBlocks.Security.Common.SecurityConstants.XXssProtectionValue">
+            <summary>
+            Represents the value for the "X-XSS-Protection" header.
+            </summary>
+        </member>
+        <member name="T:BuildingBlocks.Security.Common.SecurityConstants.Password">
+            <summary>
+            Defines constants for password.
+            </summary>
+        </member>
+        <member name="F:BuildingBlocks.Security.Common.SecurityConstants.Password.SaltSize">
+            <summary>
+            Specifies the size of salt.
+            </summary>
+        </member>
+        <member name="F:BuildingBlocks.Security.Common.SecurityConstants.Password.HashSize">
+            <summary>
+            Specifies the size of password hash.
+            </summary>
+        </member>
+        <member name="F:BuildingBlocks.Security.Common.SecurityConstants.Password.Iterations">
+            <summary>
+            Specifies the number of iterations.
+            </summary>
+        </member>
+        <member name="T:BuildingBlocks.Security.Common.SecurityConstants.Role">
+            <summary>
+            Represents the Role constants.
+            </summary>
+        </member>
+        <member name="F:BuildingBlocks.Security.Common.SecurityConstants.Role.User">
+            <summary>
+            The user role.
+            </summary>
+        </member>
+        <member name="F:BuildingBlocks.Security.Common.SecurityConstants.Role.Admin">
+            <summary>
+            The admin role.
+            </summary>
+        </member>
+        <member name="T:BuildingBlocks.Security.Jwt.Extensions.AuthExtensions">
+            <summary>
+            Represents the settings for JWT (JSON Web Token) authentication.
+            </summary>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Extensions.AuthExtensions.AddBaseAuthenticationService(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String)">
+            <summary>
+            Apply the base authentication service.
+            </summary>
+            <param name="services">The service collection.</param>
+            <param name="authProviderKey">The authentication provider key.</param>
+            <returns>The modified service collection.</returns>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Extensions.AuthExtensions.AddBaseAuthorizationService(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Collections.Generic.IReadOnlyCollection{BuildingBlocks.Security.Jwt.Models.ClaimPolicy},System.Collections.Generic.IReadOnlyCollection{BuildingBlocks.Security.Jwt.Models.RolePolicy},System.String)">
+            <summary>
+            Apply the base authorization service.
+            </summary>
+            <param name="services">The service collection.</param>
+            <param name="claimPolicies">The claim policies.</param>
+            <param name="rolePolicies">The role policies.</param>
+            <param name="scheme">The scheme.</param>
+            <returns>The modified service collection.</returns>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Extensions.AuthExtensions.AddJwtService(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Apply the JWT service.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns>The modified service collection.</returns>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Extensions.AuthExtensions.AddUserAccessor(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Apply the user accessor service.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns>The modified service collection.</returns>
+        </member>
+        <member name="T:BuildingBlocks.Security.Jwt.Extensions.ClaimsPrincipalExtensions">
+            <summary>
+            Represents extension methods for <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Extensions.ClaimsPrincipalExtensions.GetUserIdentity(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the user identity from the claims principal.
+            </summary>
+            <param name="principal">The claims principal.</param>
+            <returns>The user identity.</returns>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Extensions.ClaimsPrincipalExtensions.IsAuthenticated(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the user identity from the claims principal.
+            </summary>
+            <param name="principal">The claims principal.</param>
+            <returns>The user identity.</returns>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Extensions.ClaimsPrincipalExtensions.GetUserEmail(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the user email from the claims principal.
+            </summary>
+            <param name="principal">The claims principal.</param>
+            <returns>The user email.</returns>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Extensions.ClaimsPrincipalExtensions.GetUserFullName(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the user full name from the claims principal.
+            </summary>
+            <param name="principal">The claims principal.</param>
+            <returns>The user full name.</returns>
+        </member>
+        <member name="T:BuildingBlocks.Security.Jwt.Models.ClaimPolicy">
+            <summary>
+            Represents the claim policy.
+            </summary>
+            <remarks>
+            Initializes a new instance of the <see cref="T:BuildingBlocks.Security.Jwt.Models.ClaimPolicy"/> class.
+            </remarks>
+            <param name="name">The name of the claim policy.</param>
+            <param name="claims">The claims.</param>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Models.ClaimPolicy.#ctor(System.String,System.Collections.Generic.IReadOnlyList{System.Security.Claims.Claim})">
+            <summary>
+            Represents the claim policy.
+            </summary>
+            <remarks>
+            Initializes a new instance of the <see cref="T:BuildingBlocks.Security.Jwt.Models.ClaimPolicy"/> class.
+            </remarks>
+            <param name="name">The name of the claim policy.</param>
+            <param name="claims">The claims.</param>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Models.ClaimPolicy.Name">
+            <summary>
+            Gets the name of the claim policy.
+            </summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Models.ClaimPolicy.Claims">
+            <summary>
+            Gets the claims.
+            </summary>
+        </member>
+        <member name="T:BuildingBlocks.Security.Jwt.Models.CustomClaimTypes">
+            <summary>
+            Represents the custom claims.
+            </summary>
+        </member>
+        <member name="F:BuildingBlocks.Security.Jwt.Models.CustomClaimTypes.Permission">
+            <summary>
+            The permission claim.
+            </summary>
+        </member>
+        <member name="F:BuildingBlocks.Security.Jwt.Models.CustomClaimTypes.IpAddress">
+            <summary>
+            The IP address claim.
+            </summary>
+        </member>
+        <member name="F:BuildingBlocks.Security.Jwt.Models.CustomClaimTypes.RefreshToken">
+            <summary>
+            The refresh token claim.
+            </summary>
+        </member>
+        <member name="T:BuildingBlocks.Security.Jwt.Models.GenerateRefreshTokenPayload">
+            <summary>
+            Represents the payload of an authentication process, typically to be embedded in an authentication refresh token.
+            </summary>
+            <param name="ExpiredToken"> Gets the expired token. </param>
+            <param name="RefreshToken"> Gets the refresh token. </param>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Models.GenerateRefreshTokenPayload.#ctor(System.String,System.String)">
+            <summary>
+            Represents the payload of an authentication process, typically to be embedded in an authentication refresh token.
+            </summary>
+            <param name="ExpiredToken"> Gets the expired token. </param>
+            <param name="RefreshToken"> Gets the refresh token. </param>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Models.GenerateRefreshTokenPayload.ExpiredToken">
+            <summary> Gets the expired token. </summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Models.GenerateRefreshTokenPayload.RefreshToken">
+            <summary> Gets the refresh token. </summary>
+        </member>
+        <member name="T:BuildingBlocks.Security.Jwt.Models.GenerateTokenPayload">
+            <summary>
+            Represents the payload of an authentication process, typically to be embedded in an authentication token.
+            </summary>
+            <param name="UserId"> Gets the User ID for the payload. </param>
+            <param name="Email"> Gets the User Email for the payload. </param>
+            <param name="FullName"> Gets the User FullName for the payload. </param>
+            <param name="RoleClaims"> Gets the Role for the payload.
+            This can be used for role-based access control (RBAC). </param>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Models.GenerateTokenPayload.#ctor(System.Guid,System.String,System.String,System.Collections.Generic.IReadOnlyList{System.String})">
+            <summary>
+            Represents the payload of an authentication process, typically to be embedded in an authentication token.
+            </summary>
+            <param name="UserId"> Gets the User ID for the payload. </param>
+            <param name="Email"> Gets the User Email for the payload. </param>
+            <param name="FullName"> Gets the User FullName for the payload. </param>
+            <param name="RoleClaims"> Gets the Role for the payload.
+            This can be used for role-based access control (RBAC). </param>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Models.GenerateTokenPayload.UserId">
+            <summary> Gets the User ID for the payload. </summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Models.GenerateTokenPayload.Email">
+            <summary> Gets the User Email for the payload. </summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Models.GenerateTokenPayload.FullName">
+            <summary> Gets the User FullName for the payload. </summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Models.GenerateTokenPayload.RoleClaims">
+            <summary> Gets the Role for the payload.
+            This can be used for role-based access control (RBAC). </summary>
+        </member>
+        <member name="T:BuildingBlocks.Security.Jwt.Models.GenerateTokenResult">
+            <summary>
+            GenerateTokenResult model represents a JSON Web Token.
+            </summary>
+            <param name="AccessToken">The JWT access token as a string.</param>
+            <param name="ExpireAt">The number of seconds until the JWT token expires.</param>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Models.GenerateTokenResult.#ctor(System.String,System.DateTime)">
+            <summary>
+            GenerateTokenResult model represents a JSON Web Token.
+            </summary>
+            <param name="AccessToken">The JWT access token as a string.</param>
+            <param name="ExpireAt">The number of seconds until the JWT token expires.</param>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Models.GenerateTokenResult.AccessToken">
+            <summary>The JWT access token as a string.</summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Models.GenerateTokenResult.ExpireAt">
+            <summary>The number of seconds until the JWT token expires.</summary>
+        </member>
+        <member name="T:BuildingBlocks.Security.Jwt.Models.RevokeTokenPayload">
+            <summary>
+            Represents the payload of an authentication process, typically to be embedded in an authentication token.
+            </summary>
+            <param name="UserId"> Gets the User ID for the payload. </param>
+            <param name="RefreshToken"> Gets the refresh token. </param>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Models.RevokeTokenPayload.#ctor(System.Guid,System.String)">
+            <summary>
+            Represents the payload of an authentication process, typically to be embedded in an authentication token.
+            </summary>
+            <param name="UserId"> Gets the User ID for the payload. </param>
+            <param name="RefreshToken"> Gets the refresh token. </param>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Models.RevokeTokenPayload.UserId">
+            <summary> Gets the User ID for the payload. </summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Models.RevokeTokenPayload.RefreshToken">
+            <summary> Gets the refresh token. </summary>
+        </member>
+        <member name="T:BuildingBlocks.Security.Jwt.Models.RolePolicy">
+            <summary>
+            Represents the role policy.
+            </summary>
+            <remarks>
+            Initializes a new instance of the <see cref="T:BuildingBlocks.Security.Jwt.Models.RolePolicy"/> class.
+            </remarks>
+            <param name="name">The name of the role policy.</param>
+            <param name="roles">The roles.</param>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Models.RolePolicy.#ctor(System.String,System.Collections.Generic.IReadOnlyList{System.String})">
+            <summary>
+            Represents the role policy.
+            </summary>
+            <remarks>
+            Initializes a new instance of the <see cref="T:BuildingBlocks.Security.Jwt.Models.RolePolicy"/> class.
+            </remarks>
+            <param name="name">The name of the role policy.</param>
+            <param name="roles">The roles.</param>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Models.RolePolicy.Name">
+            <summary>
+            Gets the name of the role policy.
+            </summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Models.RolePolicy.Roles">
+            <summary>
+            Gets the roles.
+            </summary>
+        </member>
+        <member name="T:BuildingBlocks.Security.Jwt.Models.VerifyRefreshTokenResult">
+            <summary>
+            VerifyRefreshTokenResult model represents a result of verifying a refresh token.
+            </summary>
+            <param name="UserId">The user ID for whom the JWT is created.</param>
+            <param name="Email">The user's email.</param>
+            <param name="FullName">The user's full name.</param>
+            <param name="RoleClaims">The user's roles (optional).</param>
+            <param name="Audiences">The audiences for the JWT (optional).</param>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Models.VerifyRefreshTokenResult.#ctor(System.Guid,System.String,System.String,System.Collections.Generic.IReadOnlyList{System.String},System.Collections.Generic.IReadOnlyList{System.String})">
+            <summary>
+            VerifyRefreshTokenResult model represents a result of verifying a refresh token.
+            </summary>
+            <param name="UserId">The user ID for whom the JWT is created.</param>
+            <param name="Email">The user's email.</param>
+            <param name="FullName">The user's full name.</param>
+            <param name="RoleClaims">The user's roles (optional).</param>
+            <param name="Audiences">The audiences for the JWT (optional).</param>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Models.VerifyRefreshTokenResult.UserId">
+            <summary>The user ID for whom the JWT is created.</summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Models.VerifyRefreshTokenResult.Email">
+            <summary>The user's email.</summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Models.VerifyRefreshTokenResult.FullName">
+            <summary>The user's full name.</summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Models.VerifyRefreshTokenResult.RoleClaims">
+            <summary>The user's roles (optional).</summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Models.VerifyRefreshTokenResult.Audiences">
+            <summary>The audiences for the JWT (optional).</summary>
+        </member>
+        <member name="T:BuildingBlocks.Security.Jwt.Options.ConfigureJwtBearerOptions">
+            <summary>
+            This class is responsible for configuring JWT settings using an IConfiguration instance.
+            </summary>
+            <remarks>
+            Initializes a new instance of the <see cref="T:BuildingBlocks.Security.Jwt.Options.ConfigureJwtBearerOptions"/> class.
+            </remarks>
+            <param name="configuration">The IConfiguration instance containing JWT configuration settings.</param>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Options.ConfigureJwtBearerOptions.#ctor(Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            This class is responsible for configuring JWT settings using an IConfiguration instance.
+            </summary>
+            <remarks>
+            Initializes a new instance of the <see cref="T:BuildingBlocks.Security.Jwt.Options.ConfigureJwtBearerOptions"/> class.
+            </remarks>
+            <param name="configuration">The IConfiguration instance containing JWT configuration settings.</param>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Options.ConfigureJwtBearerOptions.Configure(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions)">
+            <inheritdoc />
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Options.ConfigureJwtBearerOptions.Configure(System.String,Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions)">
+            <inheritdoc />
+        </member>
+        <member name="T:BuildingBlocks.Security.Jwt.Options.JwtOptions">
+            <summary>
+            Represents the settings for JWT (JSON Web Token) authentication.
+            </summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Options.JwtOptions.Algorithm">
+            <summary>
+            Gets or sets the algorithm used for JWT token generation and validation.
+            </summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Options.JwtOptions.Issuer">
+            <summary>
+            Gets the issuer of the JWT.
+            </summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Options.JwtOptions.SecretKey">
+            <summary>
+            Gets the secret key used for JWT token generation and validation.
+            </summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Options.JwtOptions.Audience">
+            <summary>
+            Gets the audience of the JWT.
+            </summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Options.JwtOptions.TokenLifeTimeSecond">
+            <summary>
+            Gets the number of minutes until the JWT token expires.
+            </summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Options.JwtOptions.CheckRevokedAccessTokens">
+            <summary>
+            Gets or sets a value indicating whether to check revoked access tokens.
+            </summary>
+        </member>
+        <member name="T:BuildingBlocks.Security.Jwt.Services.IJwtService">
+            <summary>
+            JWT Service interface for handling JSON Web Tokens.
+            </summary>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Services.IJwtService.GenerateJwtToken(System.String,System.String,System.String,System.Nullable{System.Boolean},System.String,System.String,System.Collections.Generic.IReadOnlyList{System.Security.Claims.Claim},System.Collections.Generic.IReadOnlyList{System.String},System.Collections.Generic.IReadOnlyList{System.String})">
+            <summary>
+            Generates a JSON Web Token (JWT) for the specified user ID and role.
+            </summary>
+            <param name="userName">The username for whom the JWT is created.</param>
+            <param name="email">The user's email.</param>
+            <param name="userId">The user ID for whom the JWT is created.</param>
+            <param name="isVerified">The user's verified status.</param>
+            <param name="fullName">The user's full name.</param>
+            <param name="refreshToken">The refresh token.</param>
+            <param name="usersClaims">The user's claims.</param>
+            <param name="rolesClaims">The user's roles.</param>
+            <param name="permissionsClaims">The user's permissions.</param>
+            <returns>A result containing the generated JWT.</returns>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Services.IJwtService.GetPrincipalFromToken(System.String)">
+            <summary>
+            Gets the principal from the token.
+            </summary>
+            <param name="token">The token to get the principal from.</param>
+            <returns>The principal from the token.</returns>
+        </member>
+        <member name="T:BuildingBlocks.Security.Jwt.Services.IUserAccessor">
+            <summary>
+            Provides an interface for managing user identity.
+            </summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Services.IUserAccessor.GetUserIdentity">
+            <summary>
+            Gets retrieves the user identity from the current context.
+            </summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Services.IUserAccessor.IsAuthenticated">
+            <summary>
+            Gets a value indicating whether retrieves the user authentication status from the current context.
+            </summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Services.IUserAccessor.GetUserEmail">
+            <summary>
+            Gets retrieves the user email from the current context.
+            </summary>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Services.IUserAccessor.GetUserFullName">
+            <summary>
+            Gets retrieves the user full name from the current context.
+            </summary>
+        </member>
+        <member name="T:BuildingBlocks.Security.Jwt.Services.JwtService">
+            <summary>
+            JWT Service for handling JSON Web Tokens.
+            </summary>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Services.JwtService.#ctor(Microsoft.Extensions.Options.IOptions{BuildingBlocks.Security.Jwt.Options.JwtOptions})">
+            <summary>
+            JWT Service for handling JSON Web Tokens.
+            </summary>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Services.JwtService.GenerateJwtToken(System.String,System.String,System.String,System.Nullable{System.Boolean},System.String,System.String,System.Collections.Generic.IReadOnlyList{System.Security.Claims.Claim},System.Collections.Generic.IReadOnlyList{System.String},System.Collections.Generic.IReadOnlyList{System.String})">
+            <inheritdoc />
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Services.JwtService.GetPrincipalFromToken(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:BuildingBlocks.Security.Jwt.Services.JwtHelper">
+            <summary>
+            Represents the JWT helper.
+            </summary>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Services.JwtHelper.ConvertClaimsToDictionary(System.Collections.Generic.IList{System.Security.Claims.Claim})">
+            <summary>
+            Converts the claims to dictionary.
+            </summary>
+            <param name="claims">The claims.</param>
+            <returns>The dictionary.</returns>
+        </member>
+        <member name="T:BuildingBlocks.Security.Jwt.Services.UserAccessor">
+            <summary>
+            Service class for managing user identity.
+            </summary>
+            <remarks>
+            Initializes a new instance of the <see cref="T:BuildingBlocks.Security.Jwt.Services.UserAccessor"/> class.
+            </remarks>
+            <param name="context">The IHttpContextAccessor.</param>
+        </member>
+        <member name="M:BuildingBlocks.Security.Jwt.Services.UserAccessor.#ctor(Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            Service class for managing user identity.
+            </summary>
+            <remarks>
+            Initializes a new instance of the <see cref="T:BuildingBlocks.Security.Jwt.Services.UserAccessor"/> class.
+            </remarks>
+            <param name="context">The IHttpContextAccessor.</param>
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Services.UserAccessor.GetUserIdentity">
+            <inheritdoc />
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Services.UserAccessor.IsAuthenticated">
+            <inheritdoc />
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Services.UserAccessor.GetUserEmail">
+            <inheritdoc />
+        </member>
+        <member name="P:BuildingBlocks.Security.Jwt.Services.UserAccessor.GetUserFullName">
+            <inheritdoc />
+        </member>
+        <member name="T:BuildingBlocks.Security.Password.Extensions.PasswordExtensions">
+            <summary>
+            Represents the settings for password manager.
+            </summary>
+        </member>
+        <member name="M:BuildingBlocks.Security.Password.Extensions.PasswordExtensions.AddPasswordManager(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Add the password manager service.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns>The modified service collection.</returns>
+        </member>
+        <member name="T:BuildingBlocks.Security.Password.Services.IPasswordManager">
+            <summary>
+            Defines a contract for a password manager.
+            </summary>
+        </member>
+        <member name="M:BuildingBlocks.Security.Password.Services.IPasswordManager.HashPassword(System.String)">
+            <summary>
+            Hashes the specified password.
+            </summary>
+            <param name="password">The password to hash.</param>
+            <returns>The hashed password.</returns>
+        </member>
+        <member name="M:BuildingBlocks.Security.Password.Services.IPasswordManager.VerifyPassword(System.String,System.String)">
+            <summary>
+            Verifies the specified password.
+            </summary>
+            <param name="password">The password to verify.</param>
+            <param name="hashedPassword">The hashed password.</param>
+            <returns>A value indicating whether the password is valid.</returns>
+        </member>
+        <member name="T:BuildingBlocks.Security.Password.Services.PasswordManager">
+            <summary>
+            Represents a password manager.
+            </summary>
+        </member>
+        <member name="F:BuildingBlocks.Security.Password.Services.PasswordManager._algorithm">
+            <summary>
+            The hashing algorithm.
+            </summary>
+        </member>
+        <member name="M:BuildingBlocks.Security.Password.Services.PasswordManager.HashPassword(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:BuildingBlocks.Security.Password.Services.PasswordManager.VerifyPassword(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:BuildingBlocks.Security.Utilities.HttpClientAuthorizationDelegatingHandler">
+            <summary>
+            Delegating handler for adding authorization headers to HttpClient requests.
+            </summary>
+            <remarks>
+            Initializes a new instance of the <see cref="T:BuildingBlocks.Security.Utilities.HttpClientAuthorizationDelegatingHandler"/> class.
+            </remarks>
+            <param name="httpContextAccessor">The IHttpContextAccessor for accessing the current HttpContext.</param>
+        </member>
+        <member name="M:BuildingBlocks.Security.Utilities.HttpClientAuthorizationDelegatingHandler.#ctor(Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            Delegating handler for adding authorization headers to HttpClient requests.
+            </summary>
+            <remarks>
+            Initializes a new instance of the <see cref="T:BuildingBlocks.Security.Utilities.HttpClientAuthorizationDelegatingHandler"/> class.
+            </remarks>
+            <param name="httpContextAccessor">The IHttpContextAccessor for accessing the current HttpContext.</param>
+        </member>
+        <member name="M:BuildingBlocks.Security.Utilities.HttpClientAuthorizationDelegatingHandler.SendAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:BuildingBlocks.Security.Xss.Extensions.XssSecurity">
+            <summary>
+            Provides a method for sanitizing HTML to prevent cross-site scripting (XSS) attacks.
+            </summary>
+        </member>
+        <member name="M:BuildingBlocks.Security.Xss.Extensions.XssSecurity.SanitizeText(System.String)">
+            <summary>
+            Sanitizes the input text to remove any potentially harmful HTML content.
+            </summary>
+            <param name="text">The HTML text to sanitize.</param>
+            <returns>The sanitized HTML text.</returns>
+        </member>
+        <member name="T:BuildingBlocks.Security.Xss.Middlewares.XssMiddleware">
+            <summary>
+            Middleware for handling Cross-Site Scripting (XSS) protection headers.
+            </summary>
+            <remarks>
+            Initializes a new instance of the <see cref="T:BuildingBlocks.Security.Xss.Middlewares.XssMiddleware"/> class.
+            </remarks>
+            <param name="next">The next delegate/middleware in the pipeline.</param>
+        </member>
+        <member name="M:BuildingBlocks.Security.Xss.Middlewares.XssMiddleware.#ctor(Microsoft.AspNetCore.Http.RequestDelegate)">
+            <summary>
+            Middleware for handling Cross-Site Scripting (XSS) protection headers.
+            </summary>
+            <remarks>
+            Initializes a new instance of the <see cref="T:BuildingBlocks.Security.Xss.Middlewares.XssMiddleware"/> class.
+            </remarks>
+            <param name="next">The next delegate/middleware in the pipeline.</param>
+        </member>
+        <member name="M:BuildingBlocks.Security.Xss.Middlewares.XssMiddleware.Invoke(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Invokes the middleware.
+            </summary>
+            <param name="httpContext">The HTTP context.</param>
+            <returns>The task object representing the asynchronous operation.</returns>
+        </member>
+    </members>
+</doc>

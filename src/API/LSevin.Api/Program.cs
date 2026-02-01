@@ -18,14 +18,12 @@ using BuildingBlocks.Web.Modules.Extensions;
 using BuildingBlocks.Web.OpenApi;
 using BuildingBlocks.Web.ProblemDetail.Extensions;
 using BuildingBlocks.Web.RateLimit;
-using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
 using CategoryModule = LSevin.Modules.Category.CategoryReference;
 using CustomerModule = LSevin.Modules.Customer.CustomerReference;
 using Environments = BuildingBlocks.Core.Web.Environments;
 using IdentityModule = LSevin.Modules.Identity.IdentityReference;
-using Microsoft.AspNetCore.HttpOverrides;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -69,11 +67,6 @@ try
     configuration.AddModulesSettingsFile(env.ContentRootPath);
 
     builder.Services.AddHttpContextAccessor();
-    builder.Services.Configure<HostOptions>(options =>
-    {
-        options.ServicesStartConcurrently = false;
-        options.ServicesStopConcurrently = false;
-    });
 
     builder.AddCustomObservability();
 
@@ -113,14 +106,6 @@ try
         .AddCustomRateLimit(configuration);
 
     var app = builder.Build();
-
-    var forwardedHeadersOptions = new ForwardedHeadersOptions
-    {
-        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-    };
-    forwardedHeadersOptions.KnownNetworks.Clear();
-    forwardedHeadersOptions.KnownProxies.Clear();
-    app.UseForwardedHeaders(forwardedHeadersOptions);
 
     if (isDev && isTest)
     {
@@ -193,4 +178,3 @@ finally
 {
     await Log.CloseAndFlushAsync();
 }
-

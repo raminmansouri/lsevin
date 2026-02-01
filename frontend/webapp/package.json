@@ -96,7 +96,6 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.3.1",
-    "@eslint/js": "9.38.0",
     "@ianvs/prettier-plugin-sort-imports": "4.7.0",
     "@tailwindcss/postcss": "4.1.14",
     "@tanstack/react-query-devtools": "5.90.2",

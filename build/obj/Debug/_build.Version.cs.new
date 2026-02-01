@@ -10,9 +10,9 @@
 
 #pragma warning disable CA2243
 
-[assembly: global::System.Reflection.AssemblyVersionAttribute("0.2.0.0")]
-[assembly: global::System.Reflection.AssemblyFileVersionAttribute("0.2.0.72")]
-[assembly: global::System.Reflection.AssemblyInformationalVersionAttribute("0.2.0.72+5ca4ea0")]
+[assembly: global::System.Reflection.AssemblyVersionAttribute("0.0.0.0")]
+[assembly: global::System.Reflection.AssemblyFileVersionAttribute("0.0.0.15434")]
+[assembly: global::System.Reflection.AssemblyInformationalVersionAttribute("0.0.0+3c4a53330e")]
 #if NETSTANDARD || NETFRAMEWORK || NETCOREAPP
 [global::System.CodeDom.Compiler.GeneratedCode("Nerdbank.GitVersioning.Tasks","3.8.118.27059")]
 #endif
@@ -21,14 +21,14 @@
 #endif
 internal static partial class ThisAssembly {
     internal const string AssemblyConfiguration = "Debug";
-    internal const string AssemblyFileVersion = "0.2.0.72";
-    internal const string AssemblyInformationalVersion = "0.2.0.72+5ca4ea0";
+    internal const string AssemblyFileVersion = "0.0.0.15434";
+    internal const string AssemblyInformationalVersion = "0.0.0+3c4a53330e";
     internal const string AssemblyName = "_build";
     internal const string AssemblyTitle = "_build";
-    internal const string AssemblyVersion = "0.2.0.0";
-    internal static readonly global::System.DateTime GitCommitAuthorDate = new global::System.DateTime(638987013460000000L, global::System.DateTimeKind.Utc);
-    internal static readonly global::System.DateTime GitCommitDate = new global::System.DateTime(638987013460000000L, global::System.DateTimeKind.Utc);
-    internal const string GitCommitId = "5ca4ea07e15b86e57f7c4387fe2483415a33186d";
+    internal const string AssemblyVersion = "0.0.0.0";
+    internal static readonly global::System.DateTime GitCommitAuthorDate = new global::System.DateTime(639054044560000000L, global::System.DateTimeKind.Utc);
+    internal static readonly global::System.DateTime GitCommitDate = new global::System.DateTime(639054044560000000L, global::System.DateTimeKind.Utc);
+    internal const string GitCommitId = "3c4a53330e9411978e9a5a8fac1bc88d6ed923c6";
     internal const bool IsPrerelease = false;
     internal const bool IsPublicRelease = false;
     internal const string RootNamespace = "";

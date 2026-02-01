@@ -1,0 +1,298 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LSevin.Modules.Category</name>
+    </assembly>
+    <members>
+        <member name="T:LSevin.Modules.Category.Category.Features.GetCategoryById.GetCategoryByIdResponse">
+            <summary>
+            Response DTO for category detail queries - returns all translations for management interfaces.
+            </summary>
+        </member>
+        <member name="M:LSevin.Modules.Category.Category.Features.GetCategoryById.GetCategoryByIdResponse.#ctor(System.Guid,BuildingBlocks.Core.Dtos.Localization.LocalizedContentResponseDto,BuildingBlocks.Core.Dtos.Localization.LocalizedContentResponseDto,System.Nullable{System.Guid},System.String,System.Int32,System.Boolean,System.String,System.DateTime,System.Nullable{System.DateTime})">
+            <summary>
+            Response DTO for category detail queries - returns all translations for management interfaces.
+            </summary>
+        </member>
+        <member name="T:LSevin.Modules.Category.Infrastructure.Data.Migrations.Initial">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.Initial.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.Initial.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.Initial.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddProviderAndStaff">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddProviderAndStaff.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddProviderAndStaff.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddProviderAndStaff.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Category.Infrastructure.Data.Migrations.FixPropertyNames">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.FixPropertyNames.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.FixPropertyNames.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.FixPropertyNames.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddLocation">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddLocation.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddLocation.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddLocation.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Category.Infrastructure.Data.Migrations.MakeAddressOptional">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.MakeAddressOptional.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.MakeAddressOptional.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.MakeAddressOptional.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddServiceProviderRequest">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddServiceProviderRequest.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddServiceProviderRequest.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddServiceProviderRequest.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Category.Infrastructure.Data.Migrations.RenameServiceProviderRequestStatus">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.RenameServiceProviderRequestStatus.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.RenameServiceProviderRequestStatus.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.RenameServiceProviderRequestStatus.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddCategoryAndServicesLocale">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddCategoryAndServicesLocale.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddCategoryAndServicesLocale.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddCategoryAndServicesLocale.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Category.Infrastructure.Data.Migrations.LocalizeServiceAttributeDefinition">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.LocalizeServiceAttributeDefinition.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.LocalizeServiceAttributeDefinition.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.LocalizeServiceAttributeDefinition.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddLocalizationForProviderType">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddLocalizationForProviderType.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddLocalizationForProviderType.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddLocalizationForProviderType.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Category.Infrastructure.Data.Migrations.LocalizedStaff">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.LocalizedStaff.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.LocalizedStaff.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.LocalizedStaff.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddServiceProviderLocales">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddServiceProviderLocales.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddServiceProviderLocales.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddServiceProviderLocales.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Category.Infrastructure.Data.Migrations.LocalizedLocation">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.LocalizedLocation.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.LocalizedLocation.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.LocalizedLocation.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Category.Infrastructure.Data.Migrations.LocalizeAddress">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.LocalizeAddress.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.LocalizeAddress.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.LocalizeAddress.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddProviderGrade">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddProviderGrade.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddProviderGrade.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddProviderGrade.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddCoordinatesToAddress">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddCoordinatesToAddress.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddCoordinatesToAddress.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddCoordinatesToAddress.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddDurationToProviderService">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddDurationToProviderService.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddDurationToProviderService.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.AddDurationToProviderService.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Category.Infrastructure.Data.Migrations.ServiceProviderComment">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.ServiceProviderComment.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.ServiceProviderComment.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.ServiceProviderComment.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Category.Infrastructure.Data.Migrations.OrderToLocation">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.OrderToLocation.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.OrderToLocation.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.OrderToLocation.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Category.Infrastructure.Data.Migrations.ProviderTypeIcon">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.ProviderTypeIcon.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.ProviderTypeIcon.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.Infrastructure.Data.Migrations.ProviderTypeIcon.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LSevin.Modules.Category.ProviderType.Features.GetProviderTypeById.GetProviderTypeByIdResponse">
+            <summary>
+            Response DTO for provider type detail queries - returns all translations for management interfaces.
+            </summary>
+        </member>
+        <member name="M:LSevin.Modules.Category.ProviderType.Features.GetProviderTypeById.GetProviderTypeByIdResponse.#ctor(System.Guid,BuildingBlocks.Core.Dtos.Localization.LocalizedContentResponseDto,BuildingBlocks.Core.Dtos.Localization.LocalizedContentResponseDto,System.Boolean,System.String,System.DateTime,System.Nullable{System.DateTime},System.Collections.Generic.IReadOnlyCollection{LSevin.Modules.Category.ProviderType.Features.GetProviderTypeById.ProviderAttributeDefinitionResponseDto})">
+            <summary>
+            Response DTO for provider type detail queries - returns all translations for management interfaces.
+            </summary>
+        </member>
+        <member name="T:LSevin.Modules.Category.ServiceDefinition.Features.GetServiceDefinitionDetails.GetServiceDefinitionDetailsResponse">
+            <summary>
+            Response DTO for service definition detail queries - returns all translations for management interfaces.
+            </summary>
+        </member>
+        <member name="M:LSevin.Modules.Category.ServiceDefinition.Features.GetServiceDefinitionDetails.GetServiceDefinitionDetailsResponse.#ctor(System.Guid,BuildingBlocks.Core.Dtos.Localization.LocalizedContentResponseDto,BuildingBlocks.Core.Dtos.Localization.LocalizedContentResponseDto,System.Guid,System.String,System.Int32,System.String,System.Decimal,System.String,System.Boolean,System.Collections.Generic.IReadOnlyCollection{LSevin.Modules.Category.ServiceDefinition.Features.GetServiceDefinitionDetails.ServiceAttributeDefinitionDto},System.Collections.Generic.IReadOnlyCollection{LSevin.Modules.Category.ServiceDefinition.Features.GetServiceDefinitionDetails.ServiceRequirementDto})">
+            <summary>
+            Response DTO for service definition detail queries - returns all translations for management interfaces.
+            </summary>
+        </member>
+        <member name="T:LSevin.Modules.Category.ServiceDefinition.Features.GetServiceDefinitions.GetServiceDefinitionsResponse">
+            <summary>
+            Response DTO for service definition list queries - returns localized strings for current user locale.
+            </summary>
+        </member>
+        <member name="M:LSevin.Modules.Category.ServiceDefinition.Features.GetServiceDefinitions.GetServiceDefinitionsResponse.#ctor(System.Guid,System.String,System.String,System.Guid,System.String,System.Int32,System.Decimal,System.String,System.String,System.Boolean,System.Int32,System.Int32)">
+            <summary>
+            Response DTO for service definition list queries - returns localized strings for current user locale.
+            </summary>
+        </member>
+        <member name="M:LSevin.Modules.Category.ServiceProvider.Services.ServiceProviderUniquenessCheckerService.IsGradeUnique(LSevin.Modules.Category.ServiceProvider.Enumerations.ServiceProviderGrade,LSevin.Modules.Category.ProviderType.ValueObjects.ProviderTypeId,System.String,System.String,LSevin.Modules.Category.ServiceProvider.ValueObjects.ServiceProviderId)">
+            <inheritdoc />
+        </member>
+        <member name="M:LSevin.Modules.Category.SharedKernel.Enumerations.AttributeType.GetNameFromId(System.Int32)">
+            <summary>
+            Gets the name of the attribute type from its ID.
+            </summary>
+            <param name="attributeTypeId">The ID of the attribute type.</param>
+            <returns>The name of the attribute type, or "Unknown" if the ID is not recognized.</returns>
+        </member>
+    </members>
+</doc>

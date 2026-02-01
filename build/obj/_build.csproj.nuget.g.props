@@ -4,16 +4,17 @@
     <RestoreSuccess Condition=" '$(RestoreSuccess)' == '' ">True</RestoreSuccess>
     <RestoreTool Condition=" '$(RestoreTool)' == '' ">NuGet</RestoreTool>
     <ProjectAssetsFile Condition=" '$(ProjectAssetsFile)' == '' ">$(MSBuildThisFileDirectory)project.assets.json</ProjectAssetsFile>
-    <NuGetPackageRoot Condition=" '$(NuGetPackageRoot)' == '' ">/Users/pourya/.nuget/packages/</NuGetPackageRoot>
-    <NuGetPackageFolders Condition=" '$(NuGetPackageFolders)' == '' ">/Users/pourya/.nuget/packages/</NuGetPackageFolders>
+    <NuGetPackageRoot Condition=" '$(NuGetPackageRoot)' == '' ">$(UserProfile)\.nuget\packages\</NuGetPackageRoot>
+    <NuGetPackageFolders Condition=" '$(NuGetPackageFolders)' == '' ">C:\Users\Mohammad-Jafariyan\.nuget\packages\;C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages</NuGetPackageFolders>
     <NuGetProjectStyle Condition=" '$(NuGetProjectStyle)' == '' ">PackageReference</NuGetProjectStyle>
-    <NuGetToolVersion Condition=" '$(NuGetToolVersion)' == '' ">7.0.0</NuGetToolVersion>
+    <NuGetToolVersion Condition=" '$(NuGetToolVersion)' == '' ">6.13.2</NuGetToolVersion>
   </PropertyGroup>
   <ItemGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
-    <SourceRoot Include="/Users/pourya/.nuget/packages/" />
+    <SourceRoot Include="C:\Users\Mohammad-Jafariyan\.nuget\packages\" />
+    <SourceRoot Include="C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages\" />
   </ItemGroup>
   <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
-    <Import Project="$(NuGetPackageRoot)nuke.common/9.0.4/build/Nuke.Common.props" Condition="Exists('$(NuGetPackageRoot)nuke.common/9.0.4/build/Nuke.Common.props')" />
-    <Import Project="$(NuGetPackageRoot)nerdbank.gitversioning/3.8.118/build/Nerdbank.GitVersioning.props" Condition="Exists('$(NuGetPackageRoot)nerdbank.gitversioning/3.8.118/build/Nerdbank.GitVersioning.props')" />
+    <Import Project="$(NuGetPackageRoot)nuke.common\9.0.4\build\Nuke.Common.props" Condition="Exists('$(NuGetPackageRoot)nuke.common\9.0.4\build\Nuke.Common.props')" />
+    <Import Project="$(NuGetPackageRoot)nerdbank.gitversioning\3.8.118\build\Nerdbank.GitVersioning.props" Condition="Exists('$(NuGetPackageRoot)nerdbank.gitversioning\3.8.118\build\Nerdbank.GitVersioning.props')" />
   </ImportGroup>
 </Project>

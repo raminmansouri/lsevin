@@ -37,21 +37,16 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy all source files
 COPY . .
 
-# Build-time environment variables for client bundle
-ARG NEXT_PUBLIC_URL=http://lsevin-webapp
-ARG NEXT_PUBLIC_API_URL=http://lsevin-api/api/v1
-ARG NEXT_PUBLIC_FILES_URL=http://lsevin-api/files
-ARG NEXT_PUBLIC_SOCKET_URL=http://lsevin-api/hubs
-ARG NEXT_PUBLIC_MAPBOX_TOKEN=
-ARG WEBHOOK_KEY=
-
+# Set build-time environment variables (adjust these as necessary)
 ENV NODE_ENV=production \
-    NEXT_PUBLIC_URL=${NEXT_PUBLIC_URL} \
-    NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \
-    NEXT_PUBLIC_FILES_URL=${NEXT_PUBLIC_FILES_URL} \
-    NEXT_PUBLIC_SOCKET_URL=${NEXT_PUBLIC_SOCKET_URL} \
-    NEXT_PUBLIC_MAPBOX_TOKEN=${NEXT_PUBLIC_MAPBOX_TOKEN} \
-    WEBHOOK_KEY=${WEBHOOK_KEY}
+    NEXT_PUBLIC_URL=http://lsevin-webapp \
+    NEXT_PUBLIC_API_URL=http://lsevin-api/api/v1 \
+    NEXT_PUBLIC_FILES_URL=http://5.61.29.142:8081/files \
+    NEXT_PUBLIC_SOCKET_URL=http://lsevin-api/hubs \
+    AUTH_URL=http://lsevin-webapp \
+    AUTH_SECRET=Dj9bfnBVE0RXNAP6u8EZvXY8r3QsLYv9dYzMmzCwKHM= \
+    AUTH_TRUST_HOST=true \
+    WEBHOOK_KEY=U2FsdGVkX19d4y75XdwaEBcuX8YPIb7mpGlDHmnFFwB46CIEFm9kCo7CyllvDyvY1ZzvOq40QvY6Fc8MrNDldA==%
 
 # Build the Next.js application
 RUN pnpm build
