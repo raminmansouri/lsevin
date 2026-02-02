@@ -15,5 +15,5 @@ public class LSevin_Api : global::Aspire.Hosting.IProjectMetadata
     /// <summary>
     /// The path to the LSevin_Api project.
     /// </summary>
-    public string ProjectPath => """E:\workplace\lsevin\src\API\LSevin.Api\LSevin.Api.csproj""";
+    public string ProjectPath => """F:\workplace\lsevin\src\API\LSevin.Api\LSevin.Api.csproj""";
 }

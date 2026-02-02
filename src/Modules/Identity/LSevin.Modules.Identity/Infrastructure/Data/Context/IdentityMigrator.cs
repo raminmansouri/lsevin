@@ -7,6 +7,7 @@ internal sealed class IdentityMigrator(IdentityContext context) : IDbMigrator
 {
     public Task MigrateAsync(CancellationToken cancellationToken = default)
     {
-        return context.Database.MigrateAsync(cancellationToken);
+         context.Database.Migrate();
+         return Task.FromResult(true);
     }
 }

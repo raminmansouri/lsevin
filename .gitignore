@@ -5,6 +5,8 @@
 **/.vs/
 **/.idea/
 
+**/.next/
+
 # .NET build outputs
 **/bin/
 **/obj/
@@ -16,3 +18,7 @@
 **/bin
 **/obj
 **/.git
+
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md

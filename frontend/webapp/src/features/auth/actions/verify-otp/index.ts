@@ -18,12 +18,14 @@ const handler = async (input: InputType): Promise<ReturnType> => {
       code: input.code,
       phoneNumber: input.phoneNumber,
       isOtpVerification: "true",
+      redirect:false
     });
     // If signIn succeeds, handle redirect manually using Next.js redirect()
     // This is the correct way to handle redirects after authentication
     const redirectPath = input.redirectTo || "/";
     redirect(redirectPath);
   } catch (exception) {
+    console.error("sign in error::",exception)
     // Handle redirect exception (thrown by Next.js redirect on successful auth)
     if (
       exception instanceof Error &&

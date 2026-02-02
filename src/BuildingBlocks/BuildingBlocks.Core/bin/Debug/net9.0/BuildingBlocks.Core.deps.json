@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v9.0": {
-      "BuildingBlocks.Core/0.0.0-g3c4a53330e": {
+      "BuildingBlocks.Core/0.0.0-gf47574e1c0": {
         "dependencies": {
           "Ardalis.GuardClauses": "5.0.0",
           "Ardalis.Specification": "9.3.1",
@@ -1695,7 +1695,7 @@
     }
   },
   "libraries": {
-    "BuildingBlocks.Core/0.0.0-g3c4a53330e": {
+    "BuildingBlocks.Core/0.0.0-gf47574e1c0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

@@ -11,21 +11,21 @@ using System;
 using System.Reflection;
 
 [assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("9a808aef-dd38-4611-993a-01b5067a190a")]
-[assembly: System.Reflection.AssemblyMetadata("dcpclipath", ("C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\aspire.hosting.orchestration.win-x64\\" +
-    "9.5.0\\tools\\dcp.exe"))]
-[assembly: System.Reflection.AssemblyMetadata("dcpextensionpaths", ("C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\aspire.hosting.orchestration.win-x64\\" +
-    "9.5.0\\tools\\ext\\"))]
-[assembly: System.Reflection.AssemblyMetadata("dcpbinpath", ("C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\aspire.hosting.orchestration.win-x64\\" +
-    "9.5.0\\tools\\ext\\bin\\"))]
-[assembly: System.Reflection.AssemblyMetadata("apphostprojectpath", "E:\\workplace\\lsevin\\deployments\\aspire\\LSevin.AppHost")]
+[assembly: System.Reflection.AssemblyMetadata("dcpclipath", ("C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\aspire.hosting.orchestration.w" +
+    "in-x64\\9.5.0\\tools\\dcp.exe"))]
+[assembly: System.Reflection.AssemblyMetadata("dcpextensionpaths", ("C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\aspire.hosting.orchestration.w" +
+    "in-x64\\9.5.0\\tools\\ext\\"))]
+[assembly: System.Reflection.AssemblyMetadata("dcpbinpath", ("C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\aspire.hosting.orchestration.w" +
+    "in-x64\\9.5.0\\tools\\ext\\bin\\"))]
+[assembly: System.Reflection.AssemblyMetadata("apphostprojectpath", "F:\\workplace\\lsevin\\deployments\\aspire\\LSevin.AppHost")]
 [assembly: System.Reflection.AssemblyMetadata("apphostprojectname", "LSevin.AppHost.csproj")]
-[assembly: System.Reflection.AssemblyMetadata("aspiredashboardpath", ("C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\aspire.dashboard.sdk.win-x64\\9.5.0\\to" +
-    "ols\\Aspire.Dashboard.exe"))]
-[assembly: System.Reflection.AssemblyMetadataAttribute("apphostprojectbaseintermediateoutputpath", "E:\\workplace\\lsevin\\deployments\\aspire\\LSevin.AppHost\\obj\\")]
+[assembly: System.Reflection.AssemblyMetadata("aspiredashboardpath", ("C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\aspire.dashboard.sdk.win-x64\\9" +
+    ".5.0\\tools\\Aspire.Dashboard.exe"))]
+[assembly: System.Reflection.AssemblyMetadataAttribute("apphostprojectbaseintermediateoutputpath", "F:\\workplace\\lsevin\\deployments\\aspire\\LSevin.AppHost\\obj\\")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("LSevin.AppHost")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3c4a53330e9411978e9a5a8fac1bc88d6ed923c6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f47574e1c025bc62148d79a9afdb3cc8ddb1f4b4")]
 [assembly: System.Reflection.AssemblyProductAttribute("LSevin.AppHost")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LSevin.AppHost")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

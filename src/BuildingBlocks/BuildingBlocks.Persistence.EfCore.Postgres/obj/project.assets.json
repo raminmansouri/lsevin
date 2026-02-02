@@ -6102,26 +6102,21 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj",
+      "projectUniqueName": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj",
       "projectName": "BuildingBlocks.Persistence.EfCore.Postgres",
-      "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj",
-      "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
-      "outputPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\obj\\",
+      "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj",
+      "packagesPath": "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\",
+      "outputPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\obj\\",
       "projectStyle": "PackageReference",
       "centralPackageVersionsManagementEnabled": true,
       "CentralPackageTransitivePinningEnabled": true,
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -6129,15 +6124,14 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
-              "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+            "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+              "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
             }
           }
         }

@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v9.0": {
-      "BuildingBlocks.Caching/0.0.0-g3c4a53330e": {
+      "BuildingBlocks.Caching/0.0.0-gf47574e1c0": {
         "dependencies": {
           "AsyncAwaitBestPractices": "9.0.0",
           "AsyncFixer": "1.6.0",
@@ -1764,7 +1764,7 @@
         "runtime": {
           "BuildingBlocks.Core.dll": {
             "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.15434"
+            "fileVersion": "0.0.0.62581"
           }
         },
         "resources": {
@@ -1791,7 +1791,7 @@
     }
   },
   "libraries": {
-    "BuildingBlocks.Caching/0.0.0-g3c4a53330e": {
+    "BuildingBlocks.Caching/0.0.0-gf47574e1c0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

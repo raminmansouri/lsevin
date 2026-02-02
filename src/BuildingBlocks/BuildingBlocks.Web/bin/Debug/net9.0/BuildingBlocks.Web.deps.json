@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v9.0": {
-      "BuildingBlocks.Web/0.0.0-g3c4a53330e": {
+      "BuildingBlocks.Web/0.0.0-gf47574e1c0": {
         "dependencies": {
           "Asp.Versioning.Http": "8.1.0",
           "Asp.Versioning.Mvc": "8.1.0",
@@ -2959,7 +2959,7 @@
         "runtime": {
           "BuildingBlocks.Caching.dll": {
             "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.15434"
+            "fileVersion": "0.0.0.62581"
           }
         }
       },
@@ -3007,7 +3007,7 @@
         "runtime": {
           "BuildingBlocks.Core.dll": {
             "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.15434"
+            "fileVersion": "0.0.0.62581"
           }
         },
         "resources": {
@@ -3055,7 +3055,7 @@
         "runtime": {
           "BuildingBlocks.OpenTelemetry.dll": {
             "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.15434"
+            "fileVersion": "0.0.0.62581"
           }
         }
       },
@@ -3067,7 +3067,7 @@
         "runtime": {
           "BuildingBlocks.Persistence.EfCore.Postgres.dll": {
             "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.15434"
+            "fileVersion": "0.0.0.62581"
           }
         }
       },
@@ -3079,7 +3079,7 @@
         "runtime": {
           "BuildingBlocks.Persistence.EventStoreDB.dll": {
             "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.15434"
+            "fileVersion": "0.0.0.62581"
           }
         }
       },
@@ -3093,7 +3093,7 @@
         "runtime": {
           "BuildingBlocks.Security.dll": {
             "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.15434"
+            "fileVersion": "0.0.0.62581"
           }
         }
       },
@@ -3106,14 +3106,14 @@
         "runtime": {
           "BuildingBlocks.Validation.dll": {
             "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.15434"
+            "fileVersion": "0.0.0.62581"
           }
         }
       }
     }
   },
   "libraries": {
-    "BuildingBlocks.Web/0.0.0-g3c4a53330e": {
+    "BuildingBlocks.Web/0.0.0-gf47574e1c0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

@@ -12,8 +12,8 @@ using System.Reflection;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("LSevin.Modules.Identity")]
 [assembly: System.Reflection.AssemblyCopyrightAttribute(" ")]
-[assembly: System.Reflection.AssemblyFileVersionAttribute("0.0.0.15434")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.0.0+3c4a53330e")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("0.0.0.62581")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.0.0+f47574e1c0")]
 [assembly: System.Reflection.AssemblyProductAttribute("LSevin.Modules.Identity")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LSevin.Modules.Identity")]
 [assembly: System.Reflection.AssemblyVersionAttribute("0.0.0.0")]

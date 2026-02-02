@@ -15,5 +15,5 @@ public class LSevin_ApiGateway_Yarp : global::Aspire.Hosting.IProjectMetadata
     /// <summary>
     /// The path to the LSevin_ApiGateway_Yarp project.
     /// </summary>
-    public string ProjectPath => """E:\workplace\lsevin\src\API\LSevin.ApiGateway.Yarp\LSevin.ApiGateway.Yarp.csproj""";
+    public string ProjectPath => """F:\workplace\lsevin\src\API\LSevin.ApiGateway.Yarp\LSevin.ApiGateway.Yarp.csproj""";
 }

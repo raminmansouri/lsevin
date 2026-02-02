@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v9.0": {
-      "LSevin.Modules.Identity/0.0.0-g3c4a53330e": {
+      "LSevin.Modules.Identity/0.0.0-gf47574e1c0": {
         "dependencies": {
           "AsyncAwaitBestPractices": "9.0.0",
           "AsyncFixer": "1.6.0",
@@ -3098,7 +3098,7 @@
         "runtime": {
           "BuildingBlocks.Caching.dll": {
             "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.15434"
+            "fileVersion": "0.0.0.62581"
           }
         }
       },
@@ -3146,7 +3146,7 @@
         "runtime": {
           "BuildingBlocks.Core.dll": {
             "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.15434"
+            "fileVersion": "0.0.0.62581"
           }
         },
         "resources": {
@@ -3194,7 +3194,7 @@
         "runtime": {
           "BuildingBlocks.OpenTelemetry.dll": {
             "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.15434"
+            "fileVersion": "0.0.0.62581"
           }
         }
       },
@@ -3206,7 +3206,7 @@
         "runtime": {
           "BuildingBlocks.Persistence.EfCore.Postgres.dll": {
             "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.15434"
+            "fileVersion": "0.0.0.62581"
           }
         }
       },
@@ -3218,7 +3218,7 @@
         "runtime": {
           "BuildingBlocks.Persistence.EventStoreDB.dll": {
             "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.15434"
+            "fileVersion": "0.0.0.62581"
           }
         }
       },
@@ -3232,7 +3232,7 @@
         "runtime": {
           "BuildingBlocks.Security.dll": {
             "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.15434"
+            "fileVersion": "0.0.0.62581"
           }
         }
       },
@@ -3245,7 +3245,7 @@
         "runtime": {
           "BuildingBlocks.Validation.dll": {
             "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.15434"
+            "fileVersion": "0.0.0.62581"
           }
         }
       },
@@ -3281,7 +3281,7 @@
         "runtime": {
           "BuildingBlocks.Web.dll": {
             "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.15434"
+            "fileVersion": "0.0.0.62581"
           }
         }
       },
@@ -3294,14 +3294,14 @@
         "runtime": {
           "LSevin.Modules.Common.dll": {
             "assemblyVersion": "0.0.0.0",
-            "fileVersion": "0.0.0.15434"
+            "fileVersion": "0.0.0.62581"
           }
         }
       }
     }
   },
   "libraries": {
-    "LSevin.Modules.Identity/0.0.0-g3c4a53330e": {
+    "LSevin.Modules.Identity/0.0.0-gf47574e1c0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

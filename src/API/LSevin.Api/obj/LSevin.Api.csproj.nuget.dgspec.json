@@ -1,26 +1,22 @@
 {
   "format": 1,
   "restore": {
-    "E:\\workplace\\lsevin\\src\\API\\LSevin.Api\\LSevin.Api.csproj": {}
+    "F:\\workplace\\lsevin\\src\\API\\LSevin.Api\\LSevin.Api.csproj": {}
   },
   "projects": {
-    "E:\\workplace\\lsevin\\src\\API\\LSevin.Api\\LSevin.Api.csproj": {
+    "F:\\workplace\\lsevin\\src\\API\\LSevin.Api\\LSevin.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\workplace\\lsevin\\src\\API\\LSevin.Api\\LSevin.Api.csproj",
+        "projectUniqueName": "F:\\workplace\\lsevin\\src\\API\\LSevin.Api\\LSevin.Api.csproj",
         "projectName": "LSevin.Api",
-        "projectPath": "E:\\workplace\\lsevin\\src\\API\\LSevin.Api\\LSevin.Api.csproj",
-        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
-        "outputPath": "E:\\workplace\\lsevin\\src\\API\\LSevin.Api\\obj\\",
+        "projectPath": "F:\\workplace\\lsevin\\src\\API\\LSevin.Api\\LSevin.Api.csproj",
+        "packagesPath": "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\",
+        "outputPath": "F:\\workplace\\lsevin\\src\\API\\LSevin.Api\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "CentralPackageTransitivePinningEnabled": true,
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -28,36 +24,35 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\BuildingBlocks.Caching.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\BuildingBlocks.Caching.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\BuildingBlocks.Caching.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\BuildingBlocks.Caching.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\BuildingBlocks.Security.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\BuildingBlocks.Security.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\BuildingBlocks.Security.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\BuildingBlocks.Security.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\Modules\\Category\\LSevin.Modules.Category\\LSevin.Modules.Category.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\Modules\\Category\\LSevin.Modules.Category\\LSevin.Modules.Category.csproj"
+              "F:\\workplace\\lsevin\\src\\Modules\\Category\\LSevin.Modules.Category\\LSevin.Modules.Category.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\Modules\\Category\\LSevin.Modules.Category\\LSevin.Modules.Category.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\Modules\\Customer\\LSevin.Modules.Customer\\LSevin.Modules.Customer.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\Modules\\Customer\\LSevin.Modules.Customer\\LSevin.Modules.Customer.csproj"
+              "F:\\workplace\\lsevin\\src\\Modules\\Customer\\LSevin.Modules.Customer\\LSevin.Modules.Customer.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\Modules\\Customer\\LSevin.Modules.Customer\\LSevin.Modules.Customer.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\Modules\\Identity\\LSevin.Modules.Identity\\LSevin.Modules.Identity.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\Modules\\Identity\\LSevin.Modules.Identity\\LSevin.Modules.Identity.csproj"
+              "F:\\workplace\\lsevin\\src\\Modules\\Identity\\LSevin.Modules.Identity\\LSevin.Modules.Identity.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\Modules\\Identity\\LSevin.Modules.Identity\\LSevin.Modules.Identity.csproj"
               }
             }
           }
@@ -305,23 +300,19 @@
         }
       }
     },
-    "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\BuildingBlocks.Caching.csproj": {
+    "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\BuildingBlocks.Caching.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\BuildingBlocks.Caching.csproj",
+        "projectUniqueName": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\BuildingBlocks.Caching.csproj",
         "projectName": "BuildingBlocks.Caching",
-        "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\BuildingBlocks.Caching.csproj",
-        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
-        "outputPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\obj\\",
+        "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\BuildingBlocks.Caching.csproj",
+        "packagesPath": "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\",
+        "outputPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "CentralPackageTransitivePinningEnabled": true,
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -329,15 +320,14 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
               }
             }
           }
@@ -585,23 +575,19 @@
         }
       }
     },
-    "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+    "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj",
+        "projectUniqueName": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj",
         "projectName": "BuildingBlocks.Core",
-        "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj",
-        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
-        "outputPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\obj\\",
+        "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj",
+        "packagesPath": "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\",
+        "outputPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "CentralPackageTransitivePinningEnabled": true,
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -609,7 +595,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -1039,23 +1024,19 @@
         }
       }
     },
-    "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj": {
+    "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj",
+        "projectUniqueName": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj",
         "projectName": "BuildingBlocks.OpenTelemetry",
-        "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj",
-        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
-        "outputPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\obj\\",
+        "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj",
+        "packagesPath": "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\",
+        "outputPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "CentralPackageTransitivePinningEnabled": true,
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -1063,15 +1044,14 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
               }
             }
           }
@@ -1389,23 +1369,19 @@
         }
       }
     },
-    "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj": {
+    "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj",
+        "projectUniqueName": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj",
         "projectName": "BuildingBlocks.Persistence.EfCore.Postgres",
-        "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj",
-        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
-        "outputPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\obj\\",
+        "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj",
+        "packagesPath": "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\",
+        "outputPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "CentralPackageTransitivePinningEnabled": true,
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -1413,15 +1389,14 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
               }
             }
           }
@@ -1659,23 +1634,19 @@
         }
       }
     },
-    "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EventStoreDB\\BuildingBlocks.Persistence.EventStoreDB.csproj": {
+    "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EventStoreDB\\BuildingBlocks.Persistence.EventStoreDB.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EventStoreDB\\BuildingBlocks.Persistence.EventStoreDB.csproj",
+        "projectUniqueName": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EventStoreDB\\BuildingBlocks.Persistence.EventStoreDB.csproj",
         "projectName": "BuildingBlocks.Persistence.EventStoreDB",
-        "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EventStoreDB\\BuildingBlocks.Persistence.EventStoreDB.csproj",
-        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
-        "outputPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EventStoreDB\\obj\\",
+        "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EventStoreDB\\BuildingBlocks.Persistence.EventStoreDB.csproj",
+        "packagesPath": "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\",
+        "outputPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EventStoreDB\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "CentralPackageTransitivePinningEnabled": true,
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -1683,15 +1654,14 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
               }
             }
           }
@@ -1929,23 +1899,19 @@
         }
       }
     },
-    "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\BuildingBlocks.Security.csproj": {
+    "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\BuildingBlocks.Security.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\BuildingBlocks.Security.csproj",
+        "projectUniqueName": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\BuildingBlocks.Security.csproj",
         "projectName": "BuildingBlocks.Security",
-        "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\BuildingBlocks.Security.csproj",
-        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
-        "outputPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\obj\\",
+        "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\BuildingBlocks.Security.csproj",
+        "packagesPath": "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\",
+        "outputPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "CentralPackageTransitivePinningEnabled": true,
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -1953,15 +1919,14 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
               }
             }
           }
@@ -2209,23 +2174,19 @@
         }
       }
     },
-    "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Validation\\BuildingBlocks.Validation.csproj": {
+    "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Validation\\BuildingBlocks.Validation.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Validation\\BuildingBlocks.Validation.csproj",
+        "projectUniqueName": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Validation\\BuildingBlocks.Validation.csproj",
         "projectName": "BuildingBlocks.Validation",
-        "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Validation\\BuildingBlocks.Validation.csproj",
-        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
-        "outputPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Validation\\obj\\",
+        "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Validation\\BuildingBlocks.Validation.csproj",
+        "packagesPath": "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\",
+        "outputPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Validation\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "CentralPackageTransitivePinningEnabled": true,
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -2233,15 +2194,14 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
               }
             }
           }
@@ -2484,23 +2444,19 @@
         }
       }
     },
-    "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
+    "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj",
+        "projectUniqueName": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj",
         "projectName": "BuildingBlocks.Web",
-        "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj",
-        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
-        "outputPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\obj\\",
+        "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj",
+        "packagesPath": "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\",
+        "outputPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "CentralPackageTransitivePinningEnabled": true,
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -2508,33 +2464,32 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\BuildingBlocks.Caching.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\BuildingBlocks.Caching.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\BuildingBlocks.Caching.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Caching\\BuildingBlocks.Caching.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EventStoreDB\\BuildingBlocks.Persistence.EventStoreDB.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EventStoreDB\\BuildingBlocks.Persistence.EventStoreDB.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EventStoreDB\\BuildingBlocks.Persistence.EventStoreDB.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EventStoreDB\\BuildingBlocks.Persistence.EventStoreDB.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\BuildingBlocks.Security.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\BuildingBlocks.Security.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\BuildingBlocks.Security.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Security\\BuildingBlocks.Security.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Validation\\BuildingBlocks.Validation.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Validation\\BuildingBlocks.Validation.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Validation\\BuildingBlocks.Validation.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Validation\\BuildingBlocks.Validation.csproj"
               }
             }
           }
@@ -2876,23 +2831,19 @@
         }
       }
     },
-    "E:\\workplace\\lsevin\\src\\Modules\\Category\\LSevin.Modules.Category\\LSevin.Modules.Category.csproj": {
+    "F:\\workplace\\lsevin\\src\\Modules\\Category\\LSevin.Modules.Category\\LSevin.Modules.Category.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\workplace\\lsevin\\src\\Modules\\Category\\LSevin.Modules.Category\\LSevin.Modules.Category.csproj",
+        "projectUniqueName": "F:\\workplace\\lsevin\\src\\Modules\\Category\\LSevin.Modules.Category\\LSevin.Modules.Category.csproj",
         "projectName": "LSevin.Modules.Category",
-        "projectPath": "E:\\workplace\\lsevin\\src\\Modules\\Category\\LSevin.Modules.Category\\LSevin.Modules.Category.csproj",
-        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
-        "outputPath": "E:\\workplace\\lsevin\\src\\Modules\\Category\\LSevin.Modules.Category\\obj\\",
+        "projectPath": "F:\\workplace\\lsevin\\src\\Modules\\Category\\LSevin.Modules.Category\\LSevin.Modules.Category.csproj",
+        "packagesPath": "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\",
+        "outputPath": "F:\\workplace\\lsevin\\src\\Modules\\Category\\LSevin.Modules.Category\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "CentralPackageTransitivePinningEnabled": true,
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -2900,24 +2851,23 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj"
+              "F:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj"
               }
             }
           }
@@ -3150,23 +3100,19 @@
         }
       }
     },
-    "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj": {
+    "F:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj",
+        "projectUniqueName": "F:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj",
         "projectName": "LSevin.Modules.Common",
-        "projectPath": "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj",
-        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
-        "outputPath": "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\obj\\",
+        "projectPath": "F:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj",
+        "packagesPath": "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\",
+        "outputPath": "F:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "CentralPackageTransitivePinningEnabled": true,
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -3174,21 +3120,20 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj"
               }
             }
           }
@@ -3421,23 +3366,19 @@
         }
       }
     },
-    "E:\\workplace\\lsevin\\src\\Modules\\Customer\\LSevin.Modules.Customer\\LSevin.Modules.Customer.csproj": {
+    "F:\\workplace\\lsevin\\src\\Modules\\Customer\\LSevin.Modules.Customer\\LSevin.Modules.Customer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\workplace\\lsevin\\src\\Modules\\Customer\\LSevin.Modules.Customer\\LSevin.Modules.Customer.csproj",
+        "projectUniqueName": "F:\\workplace\\lsevin\\src\\Modules\\Customer\\LSevin.Modules.Customer\\LSevin.Modules.Customer.csproj",
         "projectName": "LSevin.Modules.Customer",
-        "projectPath": "E:\\workplace\\lsevin\\src\\Modules\\Customer\\LSevin.Modules.Customer\\LSevin.Modules.Customer.csproj",
-        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
-        "outputPath": "E:\\workplace\\lsevin\\src\\Modules\\Customer\\LSevin.Modules.Customer\\obj\\",
+        "projectPath": "F:\\workplace\\lsevin\\src\\Modules\\Customer\\LSevin.Modules.Customer\\LSevin.Modules.Customer.csproj",
+        "packagesPath": "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\",
+        "outputPath": "F:\\workplace\\lsevin\\src\\Modules\\Customer\\LSevin.Modules.Customer\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "CentralPackageTransitivePinningEnabled": true,
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -3445,24 +3386,23 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj"
+              "F:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj"
               }
             }
           }
@@ -3695,23 +3635,19 @@
         }
       }
     },
-    "E:\\workplace\\lsevin\\src\\Modules\\Identity\\LSevin.Modules.Identity\\LSevin.Modules.Identity.csproj": {
+    "F:\\workplace\\lsevin\\src\\Modules\\Identity\\LSevin.Modules.Identity\\LSevin.Modules.Identity.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\workplace\\lsevin\\src\\Modules\\Identity\\LSevin.Modules.Identity\\LSevin.Modules.Identity.csproj",
+        "projectUniqueName": "F:\\workplace\\lsevin\\src\\Modules\\Identity\\LSevin.Modules.Identity\\LSevin.Modules.Identity.csproj",
         "projectName": "LSevin.Modules.Identity",
-        "projectPath": "E:\\workplace\\lsevin\\src\\Modules\\Identity\\LSevin.Modules.Identity\\LSevin.Modules.Identity.csproj",
-        "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
-        "outputPath": "E:\\workplace\\lsevin\\src\\Modules\\Identity\\LSevin.Modules.Identity\\obj\\",
+        "projectPath": "F:\\workplace\\lsevin\\src\\Modules\\Identity\\LSevin.Modules.Identity\\LSevin.Modules.Identity.csproj",
+        "packagesPath": "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\",
+        "outputPath": "F:\\workplace\\lsevin\\src\\Modules\\Identity\\LSevin.Modules.Identity\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "CentralPackageTransitivePinningEnabled": true,
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -3719,24 +3655,23 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj"
+              "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj"
               },
-              "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj": {
-                "projectPath": "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj"
+              "F:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj": {
+                "projectPath": "F:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj"
               }
             }
           }

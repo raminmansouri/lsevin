@@ -17,5 +17,5 @@ public class LSevin_AppHost
     /// <summary>
     /// The path to the Aspire Host project.
     /// </summary>
-    public static string ProjectPath => """E:\workplace\lsevin\deployments\aspire\LSevin.AppHost""";
+    public static string ProjectPath => """F:\workplace\lsevin\deployments\aspire\LSevin.AppHost""";
 }

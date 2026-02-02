@@ -11454,26 +11454,21 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\workplace\\lsevin\\src\\API\\LSevin.ApiGateway.Yarp\\LSevin.ApiGateway.Yarp.csproj",
+      "projectUniqueName": "F:\\workplace\\lsevin\\src\\API\\LSevin.ApiGateway.Yarp\\LSevin.ApiGateway.Yarp.csproj",
       "projectName": "LSevin.ApiGateway.Yarp",
-      "projectPath": "E:\\workplace\\lsevin\\src\\API\\LSevin.ApiGateway.Yarp\\LSevin.ApiGateway.Yarp.csproj",
-      "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
-      "outputPath": "E:\\workplace\\lsevin\\src\\API\\LSevin.ApiGateway.Yarp\\obj\\",
+      "projectPath": "F:\\workplace\\lsevin\\src\\API\\LSevin.ApiGateway.Yarp\\LSevin.ApiGateway.Yarp.csproj",
+      "packagesPath": "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\",
+      "outputPath": "F:\\workplace\\lsevin\\src\\API\\LSevin.ApiGateway.Yarp\\obj\\",
       "projectStyle": "PackageReference",
       "centralPackageVersionsManagementEnabled": true,
       "CentralPackageTransitivePinningEnabled": true,
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -11481,24 +11476,22 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj": {
-              "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj"
+            "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj": {
+              "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.OpenTelemetry\\BuildingBlocks.OpenTelemetry.csproj"
             },
-            "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
-              "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj"
+            "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
+              "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj"
             }
           }
         }
       },
       "warningProperties": {
-        "allWarningsAsErrors": true,
         "warnAsError": [
           "NU1605"
         ]
@@ -11744,13 +11737,6 @@
       }
     }
   },
-  "logs": [
-    {
-      "code": "NU1900",
-      "level": "Error",
-      "message": "Warning As Error: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json."
-    }
-  ],
   "centralTransitiveDependencyGroups": {
     "net9.0": {
       "Ardalis.GuardClauses": {

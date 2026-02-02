@@ -11101,26 +11101,21 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj",
+      "projectUniqueName": "F:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj",
       "projectName": "LSevin.Modules.Common",
-      "projectPath": "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj",
-      "packagesPath": "C:\\Users\\Mohammad-Jafariyan\\.nuget\\packages\\",
-      "outputPath": "E:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\obj\\",
+      "projectPath": "F:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\LSevin.Modules.Common.csproj",
+      "packagesPath": "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\.nuget\\packages\\",
+      "outputPath": "F:\\workplace\\lsevin\\src\\Modules\\Common\\LSevin.Modules.Common\\obj\\",
       "projectStyle": "PackageReference",
       "centralPackageVersionsManagementEnabled": true,
       "CentralPackageTransitivePinningEnabled": true,
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\Mohammad-Jafariyan\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Users\\Datagraph.DESKTOP-IG45SV0\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -11128,21 +11123,20 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
-              "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
+            "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj": {
+              "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Core\\BuildingBlocks.Core.csproj"
             },
-            "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj": {
-              "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj"
+            "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj": {
+              "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Persistence.EfCore.Postgres\\BuildingBlocks.Persistence.EfCore.Postgres.csproj"
             },
-            "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
-              "projectPath": "E:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj"
+            "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj": {
+              "projectPath": "F:\\workplace\\lsevin\\src\\BuildingBlocks\\BuildingBlocks.Web\\BuildingBlocks.Web.csproj"
             }
           }
         }

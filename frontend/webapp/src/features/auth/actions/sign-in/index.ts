@@ -43,7 +43,7 @@ const handler = async (
           status: response.status,
           
         },
-        payload: response.body,
+        payload: input,
       };
     }
 

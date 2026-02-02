@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LSevin.Modules.Identity.ArchitectureTests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3c4a53330e9411978e9a5a8fac1bc88d6ed923c6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f47574e1c025bc62148d79a9afdb3cc8ddb1f4b4")]
 [assembly: System.Reflection.AssemblyProductAttribute("LSevin.Modules.Identity.ArchitectureTests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LSevin.Modules.Identity.ArchitectureTests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -5,13 +5,12 @@
     <RestoreTool Condition=" '$(RestoreTool)' == '' ">NuGet</RestoreTool>
     <ProjectAssetsFile Condition=" '$(ProjectAssetsFile)' == '' ">$(MSBuildThisFileDirectory)project.assets.json</ProjectAssetsFile>
     <NuGetPackageRoot Condition=" '$(NuGetPackageRoot)' == '' ">$(UserProfile)\.nuget\packages\</NuGetPackageRoot>
-    <NuGetPackageFolders Condition=" '$(NuGetPackageFolders)' == '' ">C:\Users\Mohammad-Jafariyan\.nuget\packages\;C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages</NuGetPackageFolders>
+    <NuGetPackageFolders Condition=" '$(NuGetPackageFolders)' == '' ">C:\Users\Datagraph.DESKTOP-IG45SV0\.nuget\packages\</NuGetPackageFolders>
     <NuGetProjectStyle Condition=" '$(NuGetProjectStyle)' == '' ">PackageReference</NuGetProjectStyle>
-    <NuGetToolVersion Condition=" '$(NuGetToolVersion)' == '' ">6.14.0</NuGetToolVersion>
+    <NuGetToolVersion Condition=" '$(NuGetToolVersion)' == '' ">6.13.2</NuGetToolVersion>
   </PropertyGroup>
   <ItemGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
-    <SourceRoot Include="C:\Users\Mohammad-Jafariyan\.nuget\packages\" />
-    <SourceRoot Include="C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages\" />
+    <SourceRoot Include="C:\Users\Datagraph.DESKTOP-IG45SV0\.nuget\packages\" />
   </ItemGroup>
   <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <Import Project="$(NuGetPackageRoot)microsoft.entityframeworkcore\9.0.9\buildTransitive\net8.0\Microsoft.EntityFrameworkCore.props" Condition="Exists('$(NuGetPackageRoot)microsoft.entityframeworkcore\9.0.9\buildTransitive\net8.0\Microsoft.EntityFrameworkCore.props')" />
@@ -21,15 +20,15 @@
     <Import Project="$(NuGetPackageRoot)meziantou.analyzer\2.0.222\buildTransitive\Meziantou.Analyzer.props" Condition="Exists('$(NuGetPackageRoot)meziantou.analyzer\2.0.222\buildTransitive\Meziantou.Analyzer.props')" />
   </ImportGroup>
   <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
-    <PkgStyleCop_Analyzers_Unstable Condition=" '$(PkgStyleCop_Analyzers_Unstable)' == '' ">C:\Users\Mohammad-Jafariyan\.nuget\packages\stylecop.analyzers.unstable\1.2.0.556</PkgStyleCop_Analyzers_Unstable>
-    <PkgSerilogAnalyzer Condition=" '$(PkgSerilogAnalyzer)' == '' ">C:\Users\Mohammad-Jafariyan\.nuget\packages\seriloganalyzer\0.15.0</PkgSerilogAnalyzer>
-    <PkgRoslynator_Formatting_Analyzers Condition=" '$(PkgRoslynator_Formatting_Analyzers)' == '' ">C:\Users\Mohammad-Jafariyan\.nuget\packages\roslynator.formatting.analyzers\4.14.0</PkgRoslynator_Formatting_Analyzers>
-    <PkgRoslynator_CodeAnalysis_Analyzers Condition=" '$(PkgRoslynator_CodeAnalysis_Analyzers)' == '' ">C:\Users\Mohammad-Jafariyan\.nuget\packages\roslynator.codeanalysis.analyzers\4.14.0</PkgRoslynator_CodeAnalysis_Analyzers>
-    <PkgRoslynator_Analyzers Condition=" '$(PkgRoslynator_Analyzers)' == '' ">C:\Users\Mohammad-Jafariyan\.nuget\packages\roslynator.analyzers\4.14.0</PkgRoslynator_Analyzers>
-    <PkgNetFabric_Hyperlinq_Analyzer Condition=" '$(PkgNetFabric_Hyperlinq_Analyzer)' == '' ">C:\Users\Mohammad-Jafariyan\.nuget\packages\netfabric.hyperlinq.analyzer\2.3.0</PkgNetFabric_Hyperlinq_Analyzer>
-    <PkgMicrosoft_VisualStudio_Threading_Analyzers Condition=" '$(PkgMicrosoft_VisualStudio_Threading_Analyzers)' == '' ">C:\Users\Mohammad-Jafariyan\.nuget\packages\microsoft.visualstudio.threading.analyzers\17.14.15</PkgMicrosoft_VisualStudio_Threading_Analyzers>
-    <PkgMicrosoft_CodeAnalysis_Analyzers Condition=" '$(PkgMicrosoft_CodeAnalysis_Analyzers)' == '' ">C:\Users\Mohammad-Jafariyan\.nuget\packages\microsoft.codeanalysis.analyzers\3.3.4</PkgMicrosoft_CodeAnalysis_Analyzers>
-    <PkgErrorProne_NET_CoreAnalyzers Condition=" '$(PkgErrorProne_NET_CoreAnalyzers)' == '' ">C:\Users\Mohammad-Jafariyan\.nuget\packages\errorprone.net.coreanalyzers\0.8.2-beta.1</PkgErrorProne_NET_CoreAnalyzers>
-    <PkgAsyncFixer Condition=" '$(PkgAsyncFixer)' == '' ">C:\Users\Mohammad-Jafariyan\.nuget\packages\asyncfixer\1.6.0</PkgAsyncFixer>
+    <PkgStyleCop_Analyzers_Unstable Condition=" '$(PkgStyleCop_Analyzers_Unstable)' == '' ">C:\Users\Datagraph.DESKTOP-IG45SV0\.nuget\packages\stylecop.analyzers.unstable\1.2.0.556</PkgStyleCop_Analyzers_Unstable>
+    <PkgSerilogAnalyzer Condition=" '$(PkgSerilogAnalyzer)' == '' ">C:\Users\Datagraph.DESKTOP-IG45SV0\.nuget\packages\seriloganalyzer\0.15.0</PkgSerilogAnalyzer>
+    <PkgRoslynator_Formatting_Analyzers Condition=" '$(PkgRoslynator_Formatting_Analyzers)' == '' ">C:\Users\Datagraph.DESKTOP-IG45SV0\.nuget\packages\roslynator.formatting.analyzers\4.14.0</PkgRoslynator_Formatting_Analyzers>
+    <PkgRoslynator_CodeAnalysis_Analyzers Condition=" '$(PkgRoslynator_CodeAnalysis_Analyzers)' == '' ">C:\Users\Datagraph.DESKTOP-IG45SV0\.nuget\packages\roslynator.codeanalysis.analyzers\4.14.0</PkgRoslynator_CodeAnalysis_Analyzers>
+    <PkgRoslynator_Analyzers Condition=" '$(PkgRoslynator_Analyzers)' == '' ">C:\Users\Datagraph.DESKTOP-IG45SV0\.nuget\packages\roslynator.analyzers\4.14.0</PkgRoslynator_Analyzers>
+    <PkgNetFabric_Hyperlinq_Analyzer Condition=" '$(PkgNetFabric_Hyperlinq_Analyzer)' == '' ">C:\Users\Datagraph.DESKTOP-IG45SV0\.nuget\packages\netfabric.hyperlinq.analyzer\2.3.0</PkgNetFabric_Hyperlinq_Analyzer>
+    <PkgMicrosoft_VisualStudio_Threading_Analyzers Condition=" '$(PkgMicrosoft_VisualStudio_Threading_Analyzers)' == '' ">C:\Users\Datagraph.DESKTOP-IG45SV0\.nuget\packages\microsoft.visualstudio.threading.analyzers\17.14.15</PkgMicrosoft_VisualStudio_Threading_Analyzers>
+    <PkgMicrosoft_CodeAnalysis_Analyzers Condition=" '$(PkgMicrosoft_CodeAnalysis_Analyzers)' == '' ">C:\Users\Datagraph.DESKTOP-IG45SV0\.nuget\packages\microsoft.codeanalysis.analyzers\3.3.4</PkgMicrosoft_CodeAnalysis_Analyzers>
+    <PkgErrorProne_NET_CoreAnalyzers Condition=" '$(PkgErrorProne_NET_CoreAnalyzers)' == '' ">C:\Users\Datagraph.DESKTOP-IG45SV0\.nuget\packages\errorprone.net.coreanalyzers\0.8.2-beta.1</PkgErrorProne_NET_CoreAnalyzers>
+    <PkgAsyncFixer Condition=" '$(PkgAsyncFixer)' == '' ">C:\Users\Datagraph.DESKTOP-IG45SV0\.nuget\packages\asyncfixer\1.6.0</PkgAsyncFixer>
   </PropertyGroup>
 </Project>
