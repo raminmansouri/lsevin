@@ -3,11 +3,11 @@ services:
     build:
       context: ../../
       dockerfile: src/API/LSevin.Api/Dockerfile
+    restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
-      Services__lsevin-api__http: http://lsevin-api:8080
       ConnectionStrings__database: Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Include Error Detail=true;
       ConnectionStrings__cache: redis:6379
       ConnectionStrings__eventstore: esdb://eventstore:2113?tls=false
@@ -37,6 +37,4 @@ volumes:
 
 networks:
   lsevin-network:
-    name: lsevin-network
-    driver: bridge
-
+    external: true

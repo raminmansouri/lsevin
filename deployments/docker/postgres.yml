@@ -68,5 +68,4 @@ volumes:
 
 networks:
   lsevin-network:
-    name: lsevin-network
-    driver: bridge
+    external: true
