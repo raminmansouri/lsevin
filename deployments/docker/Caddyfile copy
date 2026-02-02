@@ -11,12 +11,3 @@ api.lsevin.com {
   encode zstd gzip
   reverse_proxy lsevin-apigateway:8080
 }
-
-localhost {
-  encode zstd gzip
-
-  @api path /api/*
-  reverse_proxy @api lsevin-apigateway:8080
-
-  reverse_proxy lsevin-webapp:3000
-}

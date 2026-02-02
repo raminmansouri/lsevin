@@ -41,8 +41,9 @@ const handler = async (
         error: {
           title: t("errors.invalidCredentials"),
           status: response.status,
+          
         },
-        payload: input,
+        payload: response.body,
       };
     }
 

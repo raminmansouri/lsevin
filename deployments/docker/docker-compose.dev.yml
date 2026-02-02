@@ -1,165 +1,21 @@
 services:
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    networks:
-      - lsevin-network
-    depends_on:
-      - lsevin-webapp
-      - lsevin-apigateway
-
-  lsevin-webapp:
-    build:
-      context: ../../frontend/webapp
-      dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-        NEXT_PUBLIC_FILES_URL: ${NEXT_PUBLIC_FILES_URL}
-        NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL}
-        NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN}
-        WEBHOOK_KEY: ${WEBHOOK_KEY}
-    environment:
-      NODE_ENV: production
-      AUTH_URL: ${AUTH_URL}
-      AUTH_SECRET: ${AUTH_SECRET}
-      AUTH_TRUST_HOST: "true"
-      WEBHOOK_KEY: ${WEBHOOK_KEY}
-      NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-      NEXT_PUBLIC_FILES_URL: ${NEXT_PUBLIC_FILES_URL}
-      NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL}
-      NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN}
-    expose:
-      - "3000"
-    networks:
-      - lsevin-network
-    depends_on:
-      - lsevin-apigateway
-
-  lsevin-apigateway:
-    build:
-      context: ../../
-      dockerfile: src/API/LSevin.ApiGateway.Yarp/Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
-      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
-      Services__lsevin-api__http: http://lsevin-api:8080
-    expose:
-      - "8080"
-    networks:
-      - lsevin-network
-    depends_on:
-      - lsevin-api
-
-  lsevin-api:
-    build:
-      context: ../../
-      dockerfile: src/API/LSevin.Api/Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
-      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
-      Services__lsevin-api__http: http://lsevin-api:8080
-      ConnectionStrings__database: Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Include Error Detail=true;
-      ConnectionStrings__cache: redis:6379
-      ConnectionStrings__eventstore: esdb://eventstore:2113?tls=false
-      CorsOptions__AllowedUrls__0: ${CORS_ORIGIN_1}
-      JwtOptions__Issuer: ${JWT_ISSUER}
-      JwtOptions__Audience: ${JWT_AUDIENCE}
-      JwtOptions__SecretKey: ${JWT_SECRET}
-      WebApplicationClientOptions__ApiKey: ${WEBAPP_API_KEY}
-      WebApplicationClientOptions__BaseAddress: http://lsevin-webapp:3000/api/
-      ObservabilityOptions__UseAspireOTLPExporter: "false"
-      ObservabilityOptions__UseJaegerExporter: "false"
-      SerilogOptions__SeqUrl: ${SEQ_URL}
-    expose:
-      - "8080"
-    volumes:
-      - uploads:/app/UploadFiles
-    networks:
-      - lsevin-network
-    depends_on:
-      - postgres
-      - redis
-      - eventstore
-
   postgres:
     image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - lsevin-network
     ports:
-      - 5432:5432
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: dev
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
 
   redis:
     image: redis:7-alpine
-    restart: unless-stopped
-    volumes:
-      - redis_data:/data
-    networks:
-      - lsevin-network
+    ports:
+      - "6379:6379"
 
   eventstore:
     image: eventstore/eventstore:latest
-    restart: unless-stopped
+    ports:
+      - "2113:2113"
     environment:
-      EVENTSTORE_CLUSTER_SIZE: "1"
-      EVENTSTORE_RUN_PROJECTIONS: "All"
-      EVENTSTORE_START_STANDARD_PROJECTIONS: "True"
-      EVENTSTORE_HTTP_PORT: "2113"
       EVENTSTORE_INSECURE: "True"
-      EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP: "True"
-    volumes:
-      - eventstore_data:/var/lib/eventstore
-    networks:
-      - lsevin-network
-
-  jaeger:
-    image: jaegertracing/all-in-one:latest
-    restart: unless-stopped
-    profiles:
-      - observability
-    ports:
-      - "16686:16686"
-    networks:
-      - lsevin-network
-
-  seq:
-    image: datalust/seq:latest
-    restart: unless-stopped
-    environment:
-      ACCEPT_EULA: "Y"
-    profiles:
-      - observability
-    ports:
-      - "5341:5341"
-    networks:
-      - lsevin-network
-
-volumes:
-  postgres_data:
-  redis_data:
-  eventstore_data:
-  uploads:
-  caddy_data:
-  caddy_config:
-
-networks:
-  lsevin-network:
-    name: lsevin-network
-    driver: bridge

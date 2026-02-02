@@ -1,3 +1,17 @@
 {
-  "CurrentProjectSetting": null
+  "CurrentProjectSetting": null,
+   "files.exclude": {
+    "**/node_modules": true,
+    "**/bin": true,
+    "**/obj": true,
+    "**/.vs": true,
+    "**/.idea": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bin": true,
+    "**/obj": true,
+    "**/.vs": true,
+    "**/.idea": true
+  }
 }

@@ -11,8 +11,8 @@
 #pragma warning disable CA2243
 
 [assembly: global::System.Reflection.AssemblyVersionAttribute("0.0.0.0")]
-[assembly: global::System.Reflection.AssemblyFileVersionAttribute("0.0.0.15434")]
-[assembly: global::System.Reflection.AssemblyInformationalVersionAttribute("0.0.0+3c4a53330e")]
+[assembly: global::System.Reflection.AssemblyFileVersionAttribute("0.0.0.33641")]
+[assembly: global::System.Reflection.AssemblyInformationalVersionAttribute("0.0.0+83695ea0ca")]
 #if NETSTANDARD || NETFRAMEWORK || NETCOREAPP
 [global::System.CodeDom.Compiler.GeneratedCode("Nerdbank.GitVersioning.Tasks","3.8.118.27059")]
 #endif
@@ -21,14 +21,14 @@
 #endif
 internal static partial class ThisAssembly {
     internal const string AssemblyConfiguration = "Debug";
-    internal const string AssemblyFileVersion = "0.0.0.15434";
-    internal const string AssemblyInformationalVersion = "0.0.0+3c4a53330e";
+    internal const string AssemblyFileVersion = "0.0.0.33641";
+    internal const string AssemblyInformationalVersion = "0.0.0+83695ea0ca";
     internal const string AssemblyName = "LSevin.Modules.Identity";
     internal const string AssemblyTitle = "LSevin.Modules.Identity";
     internal const string AssemblyVersion = "0.0.0.0";
-    internal static readonly global::System.DateTime GitCommitAuthorDate = new global::System.DateTime(639054044560000000L, global::System.DateTimeKind.Utc);
-    internal static readonly global::System.DateTime GitCommitDate = new global::System.DateTime(639054044560000000L, global::System.DateTimeKind.Utc);
-    internal const string GitCommitId = "3c4a53330e9411978e9a5a8fac1bc88d6ed923c6";
+    internal static readonly global::System.DateTime GitCommitAuthorDate = new global::System.DateTime(639055215530000000L, global::System.DateTimeKind.Utc);
+    internal static readonly global::System.DateTime GitCommitDate = new global::System.DateTime(639055215530000000L, global::System.DateTimeKind.Utc);
+    internal const string GitCommitId = "83695ea0cac7f22cf75b654de687cc5e9b7acf4f";
     internal const bool IsPrerelease = false;
     internal const bool IsPublicRelease = false;
     internal const string RootNamespace = "LSevin.Modules.Identity";

@@ -1,0 +1,18 @@
+# Node
+**/node_modules/
+
+# IDEs
+**/.vs/
+**/.idea/
+
+# .NET build outputs
+**/bin/
+**/obj/
+
+
+**/node_modules
+**/.vs
+**/.idea
+**/bin
+**/obj
+**/.git
