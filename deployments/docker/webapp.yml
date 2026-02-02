@@ -22,6 +22,7 @@ services:
       NEXT_PUBLIC_FILES_URL: ${NEXT_PUBLIC_FILES_URL}
       NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL}
       NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN}
+    restart: unless-stopped
     expose:
       - "3000"
     networks:

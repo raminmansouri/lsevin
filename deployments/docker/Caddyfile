@@ -2,14 +2,14 @@
   email raminmansouripouya@gmail.com
 }
 
-
 appmain.lsevin.com {
+  encode zstd gzip
 
-  @api {
+  @backend {
     path /api/* /files/* /hubs/*
   }
 
-  reverse_proxy @api lsevin-apigateway:8080
+  reverse_proxy @backend lsevin-api:8080
 
   reverse_proxy lsevin-webapp:3000
 }
