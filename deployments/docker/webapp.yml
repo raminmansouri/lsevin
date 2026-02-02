@@ -1,0 +1,33 @@
+services:
+
+  lsevin-webapp:
+    build:
+      context: ../../frontend/webapp
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        NEXT_PUBLIC_FILES_URL: ${NEXT_PUBLIC_FILES_URL}
+        NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL}
+        NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN}
+        WEBHOOK_KEY: ${WEBHOOK_KEY}
+    environment:
+      NODE_ENV: production
+      AUTH_URL: ${AUTH_URL}
+      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_TRUST_HOST: "true"
+      WEBHOOK_KEY: ${WEBHOOK_KEY}
+      NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_FILES_URL: ${NEXT_PUBLIC_FILES_URL}
+      NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL}
+      NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN}
+    expose:
+      - "3000"
+    networks:
+      - lsevin-network
+
+networks:
+  lsevin-network:
+    name: lsevin-network
+    driver: bridge

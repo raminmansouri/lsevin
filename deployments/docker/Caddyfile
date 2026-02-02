@@ -4,19 +4,21 @@
 
 appmain.lsevin.com {
   encode zstd gzip
+
+  # API (YARP)
+  reverse_proxy /api/* lsevin-apigateway:8080
+
+  # Files
+  reverse_proxy /files/* lsevin-apigateway:8080
+
+  # SignalR / WebSockets
+  reverse_proxy /hubs/* lsevin-apigateway:8080
+
+  # Next.js frontend
   reverse_proxy lsevin-webapp:3000
 }
 
 api.lsevin.com {
   encode zstd gzip
   reverse_proxy lsevin-apigateway:8080
-}
-
-localhost {
-  encode zstd gzip
-
-  @api path /api/*
-  reverse_proxy @api lsevin-apigateway:8080
-
-  reverse_proxy lsevin-webapp:3000
 }

@@ -1,0 +1,42 @@
+services:
+  lsevin-api:
+    build:
+      context: ../../
+      dockerfile: src/API/LSevin.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      Services__lsevin-api__http: http://lsevin-api:8080
+      ConnectionStrings__database: Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Include Error Detail=true;
+      ConnectionStrings__cache: redis:6379
+      ConnectionStrings__eventstore: esdb://eventstore:2113?tls=false
+      CorsOptions__AllowedUrls__0: ${CORS_ORIGIN_1}
+      JwtOptions__Issuer: ${JWT_ISSUER}
+      JwtOptions__Audience: ${JWT_AUDIENCE}
+      JwtOptions__SecretKey: ${JWT_SECRET}
+      WebApplicationClientOptions__ApiKey: ${WEBAPP_API_KEY}
+      WebApplicationClientOptions__BaseAddress: http://lsevin-webapp:3000/api/
+      ObservabilityOptions__UseAspireOTLPExporter: "false"
+      ObservabilityOptions__UseJaegerExporter: "false"
+      SerilogOptions__SeqUrl: ${SEQ_URL}
+    expose:
+      - "8080"
+    volumes:
+      - uploads:/app/UploadFiles
+    networks:
+      - lsevin-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  eventstore_data:
+  uploads:
+  caddy_data:
+  caddy_config:
+
+networks:
+  lsevin-network:
+    name: lsevin-network
+    driver: bridge
+
