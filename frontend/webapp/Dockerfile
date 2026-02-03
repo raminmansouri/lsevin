@@ -39,6 +39,7 @@ ARG WEBHOOK_KEY
 
 # Convert ARGs to ENVs so Next.js can inline them at build time
 ENV NODE_ENV=production \
+    SKIP_ENV_VALIDATION=true \
     NEXT_PUBLIC_URL=${NEXT_PUBLIC_URL} \
     NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \
     NEXT_PUBLIC_FILES_URL=${NEXT_PUBLIC_FILES_URL} \
