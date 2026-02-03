@@ -5,12 +5,19 @@
 appmain.lsevin.com {
   encode zstd gzip
 
+  # Auth routes must go to Next.js — match these first
+  @auth {
+    path /api/auth/*
+  }
+  reverse_proxy @auth lsevin-webapp:3000
+
+  # Everything else under /api, /files, /hubs goes to the C# API
   @backend {
     path /api/* /files/* /hubs/*
   }
-
   reverse_proxy @backend lsevin-api:8080
 
+  # All other routes go to Next.js
   reverse_proxy lsevin-webapp:3000
 }
 
