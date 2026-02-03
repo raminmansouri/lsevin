@@ -2,7 +2,7 @@ import { jwtDecode } from "jwt-decode";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
-import { env } from "@/config/env/client";
+import { env } from "@/config/env/server";
 import { IDENTITY_MODULE_BASE_PATH } from "@/features/shared/types/constants";
 
 import { authConfig } from "./auth.config";
@@ -20,7 +20,7 @@ const verifyOtp = async (
   }
 
   return fetch(
-    `${env.NEXT_PUBLIC_API_URL}/${IDENTITY_MODULE_BASE_PATH}/identity/otp/verify`,
+    `${env.INTERNAL_API_URL}/${IDENTITY_MODULE_BASE_PATH}/identity/otp/verify`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
