@@ -1,13 +1,14 @@
-{
-  email raminmansouripouya@gmail.com
-}
-
 appmain.lsevin.com {
 
   @next_internal {
     path /_next/* /images/*
   }
-  reverse_proxy @next_internal lsevin-webapp:3000
+
+  reverse_proxy @next_internal lsevin-webapp:3000 {
+    flush_interval -1
+    header_up Host {host}
+    header_up X-Forwarded-Proto {scheme}
+  }
 
   @auth {
     path /api/auth/*
@@ -20,8 +21,4 @@ appmain.lsevin.com {
   reverse_proxy @backend lsevin-apigateway:8080
 
   reverse_proxy lsevin-webapp:3000
-}
-
-api.lsevin.com {
-  reverse_proxy lsevin-apigateway:8080
 }
