@@ -1,32 +1,13 @@
+{
+  email raminmansouripouya@gmail.com
+}
+
 appmain.lsevin.com {
-	encode zstd gzip
+  encode zstd gzip
+  reverse_proxy lsevin-webapp:3000
+}
 
-	# Next.js API routes (BFF) - ALL /api goes to Next
-	@next_api path /api/*
-	handle @next_api {
-		reverse_proxy lsevin-webapp:3000 {
-			flush_interval -1
-			header_up Host {host}
-			header_up X-Forwarded-Proto {scheme}
-			header_up X-Forwarded-Host {host}
-			header_up X-Forwarded-For {remote_host}
-		}
-	}
-
-	# Backend-only direct routes (if you really need them public)
-	@backend path /files/* /hubs/*
-	handle @backend {
-		reverse_proxy lsevin-apigateway:8080
-	}
-
-	# Everything else -> Next pages/assets
-	handle {
-		reverse_proxy lsevin-webapp:3000 {
-			flush_interval -1
-			header_up Host {host}
-			header_up X-Forwarded-Proto {scheme}
-			header_up X-Forwarded-Host {host}
-			header_up X-Forwarded-For {remote_host}
-		}
-	}
+api.lsevin.com {
+  encode zstd gzip
+  reverse_proxy lsevin-apigateway:8080
 }
