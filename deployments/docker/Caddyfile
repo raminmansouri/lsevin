@@ -1,24 +1,30 @@
 appmain.lsevin.com {
 
-  @next_internal {
-    path /_next/* /images/*
-  }
+	# Optional but recommended
+	encode zstd gzip
 
-  reverse_proxy @next_internal lsevin-webapp:3000 {
-    flush_interval -1
-    header_up Host {host}
-    header_up X-Forwarded-Proto {scheme}
-  }
+	# 1) NextAuth (must stay on the Next.js app)
+	@auth path /api/auth/*
+	handle @auth {
+		reverse_proxy lsevin-webapp:3000
+	}
 
-  @auth {
-    path /api/auth/*
-  }
-  reverse_proxy @auth lsevin-webapp:3000
+	# 2) Backend/API gateway routes
+	@backend path /api/* /files/* /hubs/*
+	handle @backend {
+		reverse_proxy lsevin-apigateway:8080
+	}
 
-  @backend {
-    path /api/* /files/* /hubs/*
-  }
-  reverse_proxy @backend lsevin-apigateway:8080
+	# 3) Everything else -> Next.js app (pages, assets, _next, images, etc.)
+	handle {
+		reverse_proxy lsevin-webapp:3000 {
+			flush_interval -1
 
-  reverse_proxy lsevin-webapp:3000
+			# These are safe and commonly useful behind proxies/CDNs
+			header_up Host {host}
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Forwarded-Host {host}
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
 }
