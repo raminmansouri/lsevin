@@ -1,26 +1,37 @@
 appmain.lsevin.com {
-
-	# Optional but recommended
 	encode zstd gzip
 
-	# 1) NextAuth (must stay on the Next.js app)
+	@next_image path /_next/image*
+	handle @next_image {
+		# Remove headers that can break browser behavior
+		header -Content-Disposition
+		header -Content-Security-Policy
+
+		# Optional: ensure browser can render inline
+		header Content-Disposition "inline"
+
+		reverse_proxy lsevin-webapp:3000 {
+			flush_interval -1
+			header_up Host {host}
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Forwarded-Host {host}
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
+
 	@auth path /api/auth/*
 	handle @auth {
 		reverse_proxy lsevin-webapp:3000
 	}
 
-	# 2) Backend/API gateway routes
 	@backend path /api/* /files/* /hubs/*
 	handle @backend {
 		reverse_proxy lsevin-apigateway:8080
 	}
 
-	# 3) Everything else -> Next.js app (pages, assets, _next, images, etc.)
 	handle {
 		reverse_proxy lsevin-webapp:3000 {
 			flush_interval -1
-
-			# These are safe and commonly useful behind proxies/CDNs
 			header_up Host {host}
 			header_up X-Forwarded-Proto {scheme}
 			header_up X-Forwarded-Host {host}
