@@ -11,6 +11,17 @@
 **/bin/
 **/obj/
 
+**/bin/*
+**/obj/*
+
+build/*
+
+
+
+**/bin/**
+**/obj/**
+
+
 
 **/node_modules
 **/.vs

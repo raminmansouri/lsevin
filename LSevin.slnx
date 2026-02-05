@@ -37,38 +37,7 @@
     <File Path=".devcontainer\scripts\setup-fonts.sh" />
     <File Path=".devcontainer\scripts\update.sh" />
   </Folder>
-  <Folder Name="/Solution Items/.github/">
-    <File Path=".github\release-drafter.yml" />
-  </Folder>
-  <Folder Name="/Solution Items/.github/actions/" />
-  <Folder Name="/Solution Items/.github/actions/build">
-    <File Path=".github\actions\build\action.yml" />
-  </Folder>
-  <Folder Name="/Solution Items/.github/actions/build-test">
-    <File Path=".github\actions\build-test\action.yml" />
-  </Folder>
-  <Folder Name="/Solution Items/.github/actions/docker-build-push">
-    <File Path=".github\actions\docker-build-push\action.yml" />
-  </Folder>
-  <Folder Name="/Solution Items/.github/actions/test">
-    <File Path=".github\actions\test\action.yml" />
-  </Folder>
-  <Folder Name="/Solution Items/.github/actions/webapp-build/">
-    <File Path=".github\actions\test\action.yml" />
-  </Folder>
-  <Folder Name="/Solution Items/.github/workflows/">
-    <File Path=".github\workflows\continuous.yml" />
-    <File Path=".github\workflows\labeler.yml" />
-    <File Path=".github\workflows\release-drafter.yml" />
-  </Folder>
-  <Folder Name="/Solution Items/.husky/">
-    <File Path=".husky\commit-msg" />
-    <File Path=".husky\pre-commit" />
-  </Folder>
-  <Folder Name="/Solution Items/.nuke">
-    <File Path=".nuke\build.schema.json" />
-    <File Path=".nuke\parameters.json" />
-  </Folder>
+
   <Folder Name="/Solution Items/.vscode/">
     <File Path=".vscode\settings.json" />
   </Folder>
