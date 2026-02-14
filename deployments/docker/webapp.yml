@@ -24,6 +24,8 @@ services:
       NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL}
       NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN}
     restart: unless-stopped
+    volumes:
+      - /var/lsevin/uploads:/app/UploadFiles
     expose:
       - "3000"
     networks:
