@@ -23,7 +23,6 @@ services:
     expose:
       - "8080"
     volumes:
-      - uploads:/app/UploadFiles
       - /var/lsevin/uploads:/app/UploadFiles
     networks:
       - lsevin-network
