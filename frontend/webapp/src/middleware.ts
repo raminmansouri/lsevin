@@ -15,7 +15,10 @@ import { UserRole } from "./types/common";
 
 type Locale = (typeof routing.locales)[number];
 
-const intlMiddleware = createIntlMiddleware(routing);
+const intlMiddleware = createIntlMiddleware({
+    ...routing,
+  localeDetection: true
+});
 
 export default async function middleware(request: NextRequest) {
   const intlResponse = await intlMiddleware(request);
