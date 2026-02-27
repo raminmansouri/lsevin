@@ -65,26 +65,16 @@ const nextConfig: NextConfig = {
   async rewrites() {
   const localePattern = "en|fa|tr|ar|es|ku|de|fr";
 
-  return [
-    // booking root
-    {
-      source: "/booking",
-      destination: "http://localhost:4002/booking/",
-    },
-    {
-      source: "/booking/:path*",
-      destination: "http://localhost:4002/booking/:path*",
-    },
+  // use service name in docker, localhost in local dev
+  const bookingOrigin =
+    process.env.BOOKING_ORIGIN ?? "http://localhost:4002";
 
-    // locale-prefixed booking
-    {
-      source: `/:locale(${localePattern})/booking`,
-      destination: "http://localhost:4002/booking/",
-    },
-    {
-      source: `/:locale(${localePattern})/booking/:path*`,
-      destination: "http://localhost:4002/booking/:path*",
-    },
+  return [
+    { source: "/booking", destination: `${bookingOrigin}/booking/` },
+    { source: "/booking/:path*", destination: `${bookingOrigin}/booking/:path*` },
+
+    { source: `/:locale(${localePattern})/booking`, destination: `${bookingOrigin}/booking/` },
+    { source: `/:locale(${localePattern})/booking/:path*`, destination: `${bookingOrigin}/booking/:path*` },
   ];
 },
 };
