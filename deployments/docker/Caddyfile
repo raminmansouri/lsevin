@@ -4,7 +4,15 @@
 
 appmain.lsevin.com {
   encode zstd gzip
-  reverse_proxy lsevin-webapp:3000
+
+  @booking path /booking* /booking/* /booking/*/*
+  handle @booking {
+    reverse_proxy lsevin-booking-webapp:4173
+  }
+
+  handle {
+    reverse_proxy lsevin-webapp:3000
+  }
 }
 
 api.lsevin.com {
