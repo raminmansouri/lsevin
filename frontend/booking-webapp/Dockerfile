@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1.4
 
 ############################
-# Stage 1: Build
+# Stage 1: Dependencies
 ############################
-FROM node:20-alpine AS builder
+FROM node:20-alpine AS deps
 
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
@@ -11,11 +11,20 @@ WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile --ignore-scripts
 
+############################
+# Stage 2: Build Application
+############################
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# If you rely on envs inside Vite bundle, they must be VITE_*
+# If booking needs envs in the bundle, prefer VITE_* (Vite only inlines those)
 ARG VITE_PUBLIC_URL
 ARG VITE_PUBLIC_API_URL
 ENV NODE_ENV=production \
@@ -25,24 +34,28 @@ ENV NODE_ENV=production \
 RUN pnpm build
 
 ############################
-# Stage 2: Run (nginx)
+# Stage 3: Runner (Production)
 ############################
-FROM nginx:alpine AS runner
+FROM node:20-alpine AS runner
 
-COPY --from=builder /app/dist /usr/share/nginx/html
+WORKDIR /app
+ENV NODE_ENV=production \
+    PORT=4002 \
+    HOSTNAME=0.0.0.0
 
-# SPA fallback for React Router under /booking
-RUN printf '%s\n' \
-'server {' \
-'  listen 4002;' \
-'  server_name _;' \
-'  root /usr/share/nginx/html;' \
-'  index index.html;' \
-'' \
-'  location /booking/ {' \
-'    try_files $uri $uri/ /booking/index.html;' \
-'  }' \
-'}' > /etc/nginx/conf.d/default.conf
+# non-root user (optional, matches your style)
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 booking
+
+# copy only built output
+COPY --from=builder /app/dist ./dist
+
+# install a tiny static server (npm avoids pnpm global-bin issues)
+RUN npm i -g serve@14
+
+RUN chown -R booking:nodejs /app
+USER booking
 
 EXPOSE 4002
-CMD ["nginx", "-g", "daemon off;"]
+
+# SPA mode so refresh works (React Router)
+CMD ["serve", "-s", "dist", "-l", "4002"]
