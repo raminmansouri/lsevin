@@ -64,17 +64,42 @@ const nextConfig: NextConfig = {
 
   async rewrites() {
   const localePattern = "en|fa|tr|ar|es|ku|de|fr";
-
-  // use service name in docker, localhost in local dev
-  const bookingOrigin =
-    process.env.BOOKING_ORIGIN ?? "http://localhost:4002";
+  const bookingOrigin = process.env.BOOKING_ORIGIN || "http://lsevin-booking-webapp:4002";
 
   return [
-    { source: "/booking", destination: `${bookingOrigin}/booking/` },
-    { source: "/booking/:path*", destination: `${bookingOrigin}/booking/:path*` },
+    // 1) Locale-prefixed booking assets must map to /booking/assets/*
+    {
+      source: `/:locale(${localePattern})/booking/assets/:path*`,
+      destination: `${bookingOrigin}/booking/assets/:path*`,
+    },
 
-    { source: `/:locale(${localePattern})/booking`, destination: `${bookingOrigin}/booking/` },
-    { source: `/:locale(${localePattern})/booking/:path*`, destination: `${bookingOrigin}/booking/:path*` },
+    // 2) Locale-prefixed booking general routes
+    {
+      source: `/:locale(${localePattern})/booking/:path*`,
+      destination: `${bookingOrigin}/booking/:path*`,
+    },
+
+    // 3) Non-locale booking assets
+    {
+      source: `/booking/assets/:path*`,
+      destination: `${bookingOrigin}/booking/assets/:path*`,
+    },
+
+    // 4) Non-locale booking general routes
+    {
+      source: "/booking/:path*",
+      destination: `${bookingOrigin}/booking/:path*`,
+    },
+
+    // 5) Roots (optional but nice)
+    {
+      source: "/booking",
+      destination: `${bookingOrigin}/booking/`,
+    },
+    {
+      source: `/:locale(${localePattern})/booking`,
+      destination: `${bookingOrigin}/booking/`,
+    },
   ];
 },
 };
