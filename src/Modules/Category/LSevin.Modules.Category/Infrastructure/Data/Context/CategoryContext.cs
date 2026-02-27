@@ -3,6 +3,7 @@ using BuildingBlocks.Core.Persistence;
 using BuildingBlocks.Core.Persistence.Context;
 using BuildingBlocks.Core.Persistence.MessagePersistence.Idempotency;
 using BuildingBlocks.Persistence.EfCore.Postgres.Configurations;
+using LSevin.Modules.Category.Category.Entities;
 using LSevin.Modules.Category.Location.Entities;
 using LSevin.Modules.Category.Location.Enumerations;
 using LSevin.Modules.Category.ProviderType.Entities;
@@ -46,6 +47,7 @@ internal sealed class CategoryContext(DbContextOptions<CategoryContext> options)
 
     // Shared enumerations
     public DbSet<AttributeType> AttributeTypes { get; set; } = null!;
+    public DbSet<Currency.Entities.Currency> Currencies { get; set; } = null!;
 
     // Staff aggregate
     public DbSet<Staff.Entities.Staff> Staffs { get; set; } = null!;

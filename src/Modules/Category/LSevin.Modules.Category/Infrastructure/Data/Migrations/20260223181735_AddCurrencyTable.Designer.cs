@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using LSevin.Modules.Category.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LSevin.Modules.Category.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(CategoryContext))]
-    partial class CategoryContextModelSnapshot : ModelSnapshot
+    [Migration("20260223181735_AddCurrencyTable")]
+    partial class AddCurrencyTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -295,44 +298,6 @@ namespace LSevin.Modules.Category.Infrastructure.Data.Migrations
                         .HasDatabaseName("ix_categories_parent_id");
 
                     b.ToTable("categories", "category");
-                });
-
-            modelBuilder.Entity("LSevin.Modules.Category.Category.Entities.Currency", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("CreateDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("create_date")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<DateTime?>("LastModifiedDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_modified_date")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("numeric")
-                        .HasColumnName("price");
-
-                    b.Property<string>("Symbol")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("symbol");
-
-                    b.HasKey("Id")
-                        .HasName("pk_currencies");
-
-                    b.ToTable("currencies", "category");
                 });
 
             modelBuilder.Entity("LSevin.Modules.Category.Location.Entities.Location", b =>
@@ -642,6 +607,49 @@ namespace LSevin.Modules.Category.Infrastructure.Data.Migrations
                         .HasDatabaseName("ix_service_definitions_category_id");
 
                     b.ToTable("service_definitions", "category");
+                });
+
+            modelBuilder.Entity("LSevin.Modules.Category.ServiceProvider.Entities.Currency", b =>
+                {
+                    b.Property<string>("Symbol")
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)")
+                        .HasColumnName("symbol");
+
+                    b.Property<DateTime>("CreateDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_date")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<Guid?>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_modified_date")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(25)
+                        .HasColumnType("character varying(25)")
+                        .HasColumnName("name");
+
+                    b.Property<decimal>("Rate")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("rate");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(25)
+                        .HasColumnType("character varying(25)")
+                        .HasColumnName("title");
+
+                    b.HasKey("Symbol")
+                        .HasName("pk_currencies");
+
+                    b.ToTable("currencies", "common");
                 });
 
             modelBuilder.Entity("LSevin.Modules.Category.ServiceProvider.Entities.ProviderAttribute", b =>

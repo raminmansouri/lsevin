@@ -66,6 +66,8 @@ try
 
     configuration.AddModulesSettingsFile(env.ContentRootPath);
 
+    builder.Services.AddMemoryCache();
+
     builder.Services.AddHttpContextAccessor();
 
     builder.AddCustomObservability();
@@ -78,6 +80,7 @@ try
     }
 
     var modulesAssemblies = new[] { IdentityModule.Assembly, CustomerModule.Assembly, CategoryModule.Assembly };
+
 
     /*----------------- Module Services Setup ------------------*/
     builder.AddModulesServices(env, useCompositionRootForModules: true, modulesAssemblies);

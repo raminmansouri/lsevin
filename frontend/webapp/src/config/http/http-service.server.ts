@@ -14,6 +14,7 @@ import {
   localeToHeader,
 } from "../locales";
 import { errorHandler } from "./http-error-strategies";
+import { logRequest } from "./logger";
 
 type KeyValue = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -110,6 +111,15 @@ const customFetch = async <TResult extends ApiDataValue>(
   try {
     const finalUrl = new URL(`${env.NEXT_PUBLIC_API_URL}/${url}`);
     const fetchOptions = await prepareRequest(finalUrl, options);
+
+    // 🔥 LOG IT (copy/paste runnable)
+    logRequest(finalUrl.toString(), fetchOptions, fetchOptions.body as any, {
+      enabled: true,
+      format: "both", // "curl" | "node-fetch" | "both"
+      // If you want to see the real token, remove "authorization" from redactHeaders
+      // redactHeaders: ["cookie", "set-cookie"], 
+    });
+
     const response = await fetch(finalUrl, fetchOptions);
     return await handleFetchApiResponse<TResult>(response);
   } catch (error: unknown) {
@@ -259,3 +269,6 @@ export const withBaseHeaders = async <T>(
 
   return apiCallFn(lang, user?.accessToken, user?.id);
 };
+
+
+

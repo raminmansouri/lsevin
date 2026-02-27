@@ -8,6 +8,7 @@ import { logout } from "@/features/auth/actions/logout";
 import { ApiError } from "@/types/error";
 
 import { errorHandler, networkErrorStrategy } from "./http-error-strategies";
+import { logAxiosError, logAxiosRequest } from "./logAxios";
 
 const httpService = axios.create({
   baseURL: "/api",
@@ -16,29 +17,45 @@ const httpService = axios.create({
   },
 });
 
-httpService.interceptors.response.use(
-  (response) => {
-    return response;
+httpService.interceptors.request.use(
+  (config) => {
+    logAxiosRequest(config, {
+      enabled: true,
+      format: "curl", // "curl" | "node-fetch" | "both"
+      // If you want to replay with real tokens, remove "authorization" from redactHeaders
+      // redactHeaders: ["cookie", "set-cookie"],
+    });
+    return config;
   },
+  (error) => {
+    logAxiosError(error);
+    return Promise.reject(error);
+  }
+);
+
+httpService.interceptors.response.use(
+  (response) => response,
   async (error) => {
+    logAxiosError(error, { format: "curl" });
+
     if (error?.response) {
-      const statusCode = error?.response?.status;
+      const statusCode = error.response.status;
 
       if (statusCode >= 400) {
         if (statusCode === 401) {
           await logout();
         } else {
-          const errorData: ApiError = error.response?.data;
+          const errorData: ApiError = error.response.data;
           const handler = errorHandler[statusCode];
-
-          if (handler) {
-            handler(errorData);
-          }
+          if (handler) handler(errorData);
         }
       }
     } else {
       networkErrorStrategy();
     }
+
+    // ⚠️ don’t swallow errors, let callers handle them too
+    return Promise.reject(error);
   }
 );
 

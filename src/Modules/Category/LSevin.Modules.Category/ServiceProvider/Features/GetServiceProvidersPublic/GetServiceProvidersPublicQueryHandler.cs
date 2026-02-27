@@ -5,11 +5,13 @@ using BuildingBlocks.Core.Persistence.Connection;
 using BuildingBlocks.Core.ResultPattern;
 using BuildingBlocks.Web.Services;
 using Dapper;
+using LSevin.Modules.Category.Currency.Services;
 
 namespace LSevin.Modules.Category.ServiceProvider.Features.GetServiceProvidersPublic;
 
 internal sealed class GetServiceProvidersPublicQueryHandler(
     IDbConnectionFactory dbConnectionFactory,
+    ICurrencyService currencyService,
     ILocaleAccessor localeAccessor
 ) : IQueryHandler<GetServiceProvidersPublicQuery, IReadOnlyCollection<GetServiceProvidersPublicResponse>>
 {
@@ -65,8 +67,8 @@ internal sealed class GetServiceProvidersPublicQueryHandler(
                     {
                         Id = sp.Id,
                         Name = sp.Name,
-                        MinimumServicePrice = sp.MinimumServicePrice,
-                        Currency = sp.Currency,
+                        MinimumServicePrice = currencyService.ConvertPrice(sp.MinimumServicePrice ?? 0,sp.Currency),
+                        Currency = currencyService.ConvertCurrencySymbol(sp.Currency),
                         ThumbnailUrl = sp.ThumbnailUrl,
                         Grade = sp.Grade,
                         Attributes = attributesByProvider.GetValueOrDefault(sp.Id, []),

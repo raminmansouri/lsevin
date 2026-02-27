@@ -54,8 +54,8 @@ public sealed class ServiceProviderServiceDto
     public string DisplayName { get; init; } = null!;
     public string? Description { get; init; }
     public bool IsActive { get; init; }
-    public string Currency { get; init; } = null!;
-    public decimal Value { get; init; }
+    public string Currency { get; set; } = null!;
+    public decimal Value { get; set; }
 }
 
 public sealed class ServiceProviderStaffDto
