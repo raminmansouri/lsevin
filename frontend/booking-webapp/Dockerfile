@@ -5,16 +5,15 @@
 ############################
 FROM node:20-alpine AS deps
 
-# required by some native dependencies
 RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
-# ensure pnpm is available
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --frozen-lockfile
+
+RUN pnpm install --no-frozen-lockfile --ignore-scripts
 
 ############################
 # Stage 2: Build Application
@@ -25,12 +24,30 @@ WORKDIR /app
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# reuse installed modules from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 
 COPY . .
 
-# build the Vite app
+# Declare ARGs to receive values from docker compose build.args
+ARG NEXT_PUBLIC_URL
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_FILES_URL
+ARG NEXT_PUBLIC_SOCKET_URL
+ARG NEXT_PUBLIC_MAPBOX_TOKEN
+ARG AUTH_SECRET
+ARG WEBHOOK_KEY
+
+# Convert ARGs to ENVs so Next.js can inline them at build time
+ENV NODE_ENV=production \
+    SKIP_ENV_VALIDATION=true \
+    NEXT_PUBLIC_URL=${NEXT_PUBLIC_URL} \
+    NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \
+    NEXT_PUBLIC_FILES_URL=${NEXT_PUBLIC_FILES_URL} \
+    NEXT_PUBLIC_SOCKET_URL=${NEXT_PUBLIC_SOCKET_URL} \
+    NEXT_PUBLIC_MAPBOX_TOKEN=${NEXT_PUBLIC_MAPBOX_TOKEN} \
+    AUTH_SECRET=${AUTH_SECRET} \
+    WEBHOOK_KEY=${WEBHOOK_KEY}
+
 RUN pnpm build
 
 ############################
@@ -40,16 +57,21 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# set production environment
 ENV NODE_ENV=production \
-    PORT=3000
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000 \
+    HOSTNAME=0.0.0.0
 
-# simple static server for the generated output
-RUN corepack enable && corepack prepare pnpm@latest --activate \
-    && pnpm add -g serve
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
 
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app ./
 
-EXPOSE 4002
+RUN chown -R nextjs:nodejs /app
 
-CMD ["serve", "-s", "dist", "-l", "4002"]
+USER nextjs
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]
