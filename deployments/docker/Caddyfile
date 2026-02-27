@@ -5,11 +5,22 @@
 appmain.lsevin.com {
   encode zstd gzip
 
-  @booking path /booking* /booking/* /booking/*/*
+  # ---- Booking (no locale) ----
+  @booking path /booking* /booking/*
   handle @booking {
-    reverse_proxy lsevin-booking-webapp:4173
+    reverse_proxy lsevin-booking-webapp:4002
   }
 
+  # ---- Booking (locale-prefixed) ----
+  # /en/booking/... , /fa/booking/... etc
+  @booking_locale path_regexp bookingLocale ^/(en|fa|tr|ar|es|ku|de|fr)/booking(/.*)?$
+  handle @booking_locale {
+    # strip /en (or /fa etc) before proxying to booking container
+    uri strip_prefix /{re.bookingLocale.1}
+    reverse_proxy lsevin-booking-webapp:4002
+  }
+
+  # ---- Everything else -> Next ----
   handle {
     reverse_proxy lsevin-webapp:3000
   }

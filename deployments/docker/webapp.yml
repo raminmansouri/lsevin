@@ -5,6 +5,7 @@ services:
       context: ../../frontend/webapp
       dockerfile: Dockerfile
       args:
+        BOOKING_ORIGIN: ${BOOKING_ORIGIN}
         NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
         NEXT_PUBLIC_FILES_URL: ${NEXT_PUBLIC_FILES_URL}
@@ -41,7 +42,7 @@ services:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     restart: unless-stopped
     expose:
-      - "4173"
+      - "4002:4002"
     networks:
       - lsevin-network
 
