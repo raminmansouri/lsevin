@@ -64,34 +64,35 @@ const nextConfig: NextConfig = {
 
   async rewrites() {
   const localePattern = "en|fa|tr|ar|es|ku|de|fr";
-  const bookingOrigin = process.env.BOOKING_ORIGIN || "http://lsevin-booking-webapp:4002";
+
+  // Only use Next rewrites locally (or whenever you explicitly set BOOKING_ORIGIN)
+  // In production behind Caddy, leave BOOKING_ORIGIN empty and rewrites will be disabled.
+  const bookingOrigin = process.env.BOOKING_ORIGIN;
+
+  if (!bookingOrigin) return [];
 
   return [
-    // 1) Locale-prefixed booking assets must map to /booking/assets/*
+    // locale assets
     {
       source: `/:locale(${localePattern})/booking/assets/:path*`,
       destination: `${bookingOrigin}/booking/assets/:path*`,
     },
-
-    // 2) Locale-prefixed booking general routes
+    // locale routes
     {
       source: `/:locale(${localePattern})/booking/:path*`,
       destination: `${bookingOrigin}/booking/:path*`,
     },
-
-    // 3) Non-locale booking assets
+    // non-locale assets
     {
       source: `/booking/assets/:path*`,
       destination: `${bookingOrigin}/booking/assets/:path*`,
     },
-
-    // 4) Non-locale booking general routes
+    // non-locale routes
     {
       source: "/booking/:path*",
       destination: `${bookingOrigin}/booking/:path*`,
     },
-
-    // 5) Roots (optional but nice)
+    // roots
     {
       source: "/booking",
       destination: `${bookingOrigin}/booking/`,

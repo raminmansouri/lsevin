@@ -42,7 +42,7 @@ services:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     restart: unless-stopped
     expose:
-      - "4002:4002"
+      - "4002"
     networks:
       - lsevin-network
 

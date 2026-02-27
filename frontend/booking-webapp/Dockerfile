@@ -1,61 +1,25 @@
-# syntax=docker/dockerfile:1.4
-
-############################
-# Stage 1: Dependencies
-############################
-FROM node:20-alpine AS deps
-
+FROM node:20-alpine AS builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-
 RUN corepack enable && corepack prepare pnpm@latest --activate
-
 COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --no-frozen-lockfile --ignore-scripts
-
-############################
-# Stage 2: Build Application
-############################
-FROM node:20-alpine AS builder
-
-WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
-COPY --from=deps /app/node_modules ./node_modules
+RUN pnpm install --frozen-lockfile
 COPY . .
-
-# If booking needs envs in the bundle, prefer VITE_* (Vite only inlines those)
-ARG VITE_PUBLIC_URL
-ARG VITE_PUBLIC_API_URL
-ENV NODE_ENV=production \
-    VITE_PUBLIC_URL=${VITE_PUBLIC_URL} \
-    VITE_PUBLIC_API_URL=${VITE_PUBLIC_API_URL}
-
 RUN pnpm build
 
-############################
-# Stage 3: Runner (Production)
-############################
-FROM node:20-alpine AS runner
+FROM nginx:alpine AS runner
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-WORKDIR /app
-ENV NODE_ENV=production \
-    PORT=4002 \
-    HOSTNAME=0.0.0.0
-
-# non-root user (optional, matches your style)
-RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 booking
-
-# copy only built output
-COPY --from=builder /app/dist ./dist
-
-# install a tiny static server (npm avoids pnpm global-bin issues)
-RUN npm i -g serve@14
-
-RUN chown -R booking:nodejs /app
-USER booking
+RUN printf '%s\n' \
+'server {' \
+'  listen 4002;' \
+'  server_name _;' \
+'  location = /booking { return 301 /booking/; }' \
+'  location /booking/ {' \
+'    alias /usr/share/nginx/html/;' \
+'    try_files $uri $uri/ /index.html;' \
+'  }' \
+'}' > /etc/nginx/conf.d/default.conf
 
 EXPOSE 4002
-
-# SPA mode so refresh works (React Router)
-CMD ["serve", "-s", "dist", "-l", "4002"]
+CMD ["nginx", "-g", "daemon off;"]
