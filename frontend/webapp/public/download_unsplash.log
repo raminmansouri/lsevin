@@ -1,0 +1,649 @@
+03:48:14  INFO      ============================================================
+03:48:14  INFO      Unsplash image downloader starting
+03:48:14  INFO      Scan root : E:\workplace\lsevin\src
+03:48:14  INFO      Save to   : E:\workplace\lsevin\unsplash_images
+03:48:14  INFO      ============================================================
+03:48:14  INFO      Walking directory: E:\workplace\lsevin\src
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src  (1 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\main.tsx
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app  (2 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\App.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\routes.tsx
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\admin  (14 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\admin\AdminBookings.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\admin\AdminDashboard.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\admin\AdminLogin.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\admin\AdminRewards.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\admin\AdminSettings.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\admin\AuditLogs.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\admin\Campaigns.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\admin\LiveActivity.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\admin\Localization.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\admin\Payments.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\admin\ProviderApprovalQueue.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\admin\Reports.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\admin\Support.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\admin\Users.tsx
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\components  (7 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\CountryCodeSelector.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\FileUploadField.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\FlowConnector.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\FlowNode.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ProjectInfo.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\RecommendationsSection.tsx
+03:48:14  INFO        Found 5 URL(s) in E:\workplace\lsevin\src\app\components\RecommendationsSection.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=600&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=600&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=600&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1512678080530-7760d81faba6?w=600&h=400&fit=crop
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ReviewForm.tsx
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\components\figma  (1 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\figma\ImageWithFallback.tsx
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\components\ui  (48 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\accordion.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\alert-dialog.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\alert.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\aspect-ratio.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\avatar.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\badge.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\breadcrumb.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\button.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\calendar.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\card.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\carousel.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\chart.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\checkbox.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\collapsible.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\command.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\context-menu.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\dialog.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\drawer.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\dropdown-menu.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\form.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\hover-card.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\input-otp.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\input.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\label.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\menubar.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\navigation-menu.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\pagination.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\popover.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\progress.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\radio-group.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\resizable.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\scroll-area.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\select.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\separator.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\sheet.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\sidebar.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\skeleton.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\slider.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\sonner.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\switch.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\table.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\tabs.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\textarea.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\toggle-group.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\toggle.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\tooltip.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\use-mobile.ts
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\components\ui\utils.ts
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\contexts  (1 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\contexts\LocalizationContext.tsx
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\data  (2 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\data\architectureData.ts
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\data\screenInventoryData.ts
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\design-system  (4 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\design-system\components.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\design-system\dashboard-components.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\design-system\mobile-components.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\design-system\tokens.ts
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\hooks  (2 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\hooks\useResponsive.ts
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\hooks\useRTL.ts
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\i18n  (1 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\i18n\config.ts
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\i18n\locales  (7 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\i18n\locales\ar.ts
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\i18n\locales\de.ts
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\i18n\locales\en.ts
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\i18n\locales\fa.ts
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\i18n\locales\fr.ts
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\i18n\locales\ru.ts
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\i18n\locales\tr.ts
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\mobile  (1 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\MobileRoot.tsx
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\mobile\booking  (7 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\booking\BeautyBookingFlow.tsx
+03:48:14  INFO        Found 6 URL(s) in E:\workplace\lsevin\src\app\mobile\booking\BeautyBookingFlow.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?w=400&h=400&fit=crop
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\booking\BookingFlow.tsx
+03:48:14  INFO        Found 3 URL(s) in E:\workplace\lsevin\src\app\mobile\booking\BookingFlow.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1622296089863-eb7fc530daa8?w=600&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&h=400&fit=crop
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\booking\BookingFlowRefined.tsx
+03:48:14  INFO        Found 4 URL(s) in E:\workplace\lsevin\src\app\mobile\booking\BookingFlowRefined.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=400&h=300&fit=crop
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\booking\GymBookingFlow.tsx
+03:48:14  INFO        Found 7 URL(s) in E:\workplace\lsevin\src\app\mobile\booking\GymBookingFlow.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1567013547920-b5a8d8eb4119?w=400&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1548690312-e3b507d8c110?w=400&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&h=400&fit=crop
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\booking\HotelBookingFlow.tsx
+03:48:14  INFO        Found 3 URL(s) in E:\workplace\lsevin\src\app\mobile\booking\HotelBookingFlow.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1590490360182-c33d57733427?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&h=300&fit=crop
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\booking\PaymentSuccess.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\booking\TourismBookingFlow.tsx
+03:48:14  INFO        Found 3 URL(s) in E:\workplace\lsevin\src\app\mobile\booking\TourismBookingFlow.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1533094602577-198d3beab8ea?w=400&h=300&fit=crop
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\mobile\bookings  (2 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\bookings\BookingDetail.tsx
+03:48:14  INFO        Found 2 URL(s) in E:\workplace\lsevin\src\app\mobile\bookings\BookingDetail.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=200&h=200&fit=crop
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\bookings\Bookings.tsx
+03:48:14  INFO        Found 5 URL(s) in E:\workplace\lsevin\src\app\mobile\bookings\Bookings.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1585435557343-3b092031a831?w=400&h=300&fit=crop
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\mobile\care  (1 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\care\SupportChat.tsx
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\mobile\components  (1 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\components\RecommendationSection.tsx
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\mobile\discovery  (4 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\discovery\CategoryBrowser.tsx
+03:48:14  INFO        Found 20 URL(s) in E:\workplace\lsevin\src\app\mobile\discovery\CategoryBrowser.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1622296089863-eb7fc530daa8?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1512678080530-7760d81faba6?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1576602976047-174e57a47881?w=400&h=300&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=400&h=300&fit=crop
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\discovery\MapDiscovery.tsx
+03:48:14  INFO        Found 5 URL(s) in E:\workplace\lsevin\src\app\mobile\discovery\MapDiscovery.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=200&h=200&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=200&h=200&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1512678080530-7760d81faba6?w=200&h=200&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=200&h=200&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1200&h=800&fit=crop
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\discovery\Search.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\discovery\SearchResults.tsx
+03:48:14  INFO        Found 5 URL(s) in E:\workplace\lsevin\src\app\mobile\discovery\SearchResults.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=600&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=600&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&h=400&fit=crop
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\mobile\entry  (9 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\entry\CompleteProfile.tsx
+03:48:14  INFO        Found 1 URL(s) in E:\workplace\lsevin\src\app\mobile\entry\CompleteProfile.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\entry\LanguageSelection.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\entry\LocationPermission.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\entry\Login.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\entry\NotificationPermission.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\entry\Onboarding.tsx
+03:48:14  INFO        Found 4 URL(s) in E:\workplace\lsevin\src\app\mobile\entry\Onboarding.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=600&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&h=600&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=800&h=600&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1607083206968-13611e3d76db?w=800&h=600&fit=crop
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\entry\OTPVerification.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\entry\Register.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\entry\Splash.tsx
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\mobile\explore  (1 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\explore\Explore.tsx
+03:48:14  INFO        Found 15 URL(s) in E:\workplace\lsevin\src\app\mobile\explore\Explore.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=600&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=600&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=400&h=300&fit=crop
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\mobile\home  (1 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\home\Home.tsx
+03:48:14  INFO        Found 25 URL(s) in E:\workplace\lsevin\src\app\mobile\home\Home.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=800&h=600&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=800&h=600&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800&h=600&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1585435557343-3b092031a831?w=600&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=200&h=200&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=200&h=200&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1560066984-138dadb4c035?w=100&h=100&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=100&h=100&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=100&h=100&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=1200&h=600&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1200&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1200&h=600&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=1200&h=400&fit=crop
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\mobile\medical  (4 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\medical\ClinicDetail.tsx
+03:48:14  INFO        Found 15 URL(s) in E:\workplace\lsevin\src\app\mobile\medical\ClinicDetail.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&h=800&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=1200&h=800&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=1200&h=800&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1512678080530-7760d81faba6?w=1200&h=800&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1629909615957-be38eea5915d?w=400&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=400&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=400&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=400&h=400&fit=crop
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\medical\ClinicListing.tsx
+03:48:14  INFO        Found 6 URL(s) in E:\workplace\lsevin\src\app\mobile\medical\ClinicListing.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\medical\DoctorProfile.tsx
+03:48:14  INFO        Found 7 URL(s) in E:\workplace\lsevin\src\app\mobile\medical\DoctorProfile.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=800&h=800&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1629909615957-be38eea5915d?w=400&h=300&fit=crop
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\medical\TreatmentDetail.tsx
+03:48:14  INFO        Found 10 URL(s) in E:\workplace\lsevin\src\app\mobile\medical\TreatmentDetail.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1622296089863-eb7fc530daa8?w=1200&h=800&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1629909615957-be38eea5915d?w=1200&h=800&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=1200&h=800&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=400&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=400&h=400&fit=crop
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\mobile\offers  (1 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\offers\Offers.tsx
+03:48:14  INFO        Found 6 URL(s) in E:\workplace\lsevin\src\app\mobile\offers\Offers.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=600&h=400&fit=crop
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\mobile\profile  (13 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\profile\Coupon.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\profile\EditProfile.tsx
+03:48:14  INFO        Found 1 URL(s) in E:\workplace\lsevin\src\app\mobile\profile\EditProfile.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\profile\Favorites.tsx
+03:48:14  INFO        Found 4 URL(s) in E:\workplace\lsevin\src\app\mobile\profile\Favorites.tsx
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=400
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400
+03:48:14  DEBUG         + https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\profile\MedicalProfile.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\profile\Notifications.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\profile\PrivacySecurity.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\profile\Profile.tsx
+03:48:14  INFO        Found 1 URL(s) in E:\workplace\lsevin\src\app\mobile\profile\Profile.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\profile\Rewards.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\profile\Settings.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\profile\ShareFriends.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\profile\TransactionDetail.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\profile\Transactions.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\mobile\profile\Wallet.tsx
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\pages  (3 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\pages\Architecture.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\pages\Root.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\pages\ScreenInventory.tsx
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\providers  (2 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\ProviderLogin.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\ProviderSectionPlaceholder.tsx
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\providers\clinic  (2 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\clinic\ClinicDashboard.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\clinic\ClinicSection.tsx
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\providers\clinic\pages  (12 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\clinic\pages\ClinicAnalytics.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\clinic\pages\ClinicAvailability.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\clinic\pages\ClinicBilling.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\clinic\pages\ClinicBookings.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\clinic\pages\ClinicDoctors.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\clinic\pages\ClinicMedia.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\clinic\pages\ClinicPricing.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\clinic\pages\ClinicPromotions.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\clinic\pages\ClinicReviews.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\clinic\pages\ClinicSettings.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\clinic\pages\ClinicSupport.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\clinic\pages\ClinicTreatments.tsx
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\providers\doctor  (2 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\doctor\DoctorDashboard.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\doctor\DoctorSection.tsx
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\providers\doctor\pages  (8 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\doctor\pages\DoctorBookings.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\doctor\pages\DoctorConsultations.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\doctor\pages\DoctorEarnings.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\doctor\pages\DoctorProfile.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\doctor\pages\DoctorReviews.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\doctor\pages\DoctorSchedule.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\doctor\pages\DoctorServices.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\doctor\pages\DoctorSettings.tsx
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\providers\education  (2 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\education\EducationDashboard.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\education\EducationSection.tsx
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\providers\education\pages  (10 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\education\pages\EducationAnalytics.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\education\pages\EducationBilling.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\education\pages\EducationCertificates.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\education\pages\EducationCourses.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\education\pages\EducationInstructors.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\education\pages\EducationRegistrations.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\education\pages\EducationSchedule.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\education\pages\EducationSettings.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\education\pages\EducationStudents.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\education\pages\EducationSupport.tsx
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\providers\gym  (2 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\gym\GymDashboard.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\gym\GymSection.tsx
+03:48:14  DEBUG     Entering folder: E:\workplace\lsevin\src\app\providers\gym\pages  (11 files)
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\gym\pages\GymAnalytics.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\gym\pages\GymBilling.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\gym\pages\GymBookings.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\gym\pages\GymLiveStatus.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\gym\pages\GymMemberships.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\gym\pages\GymOffers.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\gym\pages\GymSchedule.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\gym\pages\GymServices.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\gym\pages\GymSettings.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\gym\pages\GymSupport.tsx
+03:48:14  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\gym\pages\GymTrainers.tsx
+03:48:15  INFO        Found 3 URL(s) in E:\workplace\lsevin\src\app\providers\gym\pages\GymTrainers.tsx
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1594381898411-846e7d193883?w=400&h=400&fit=crop
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1567013127542-490d757e51fc?w=400&h=400&fit=crop
+03:48:15  DEBUG     Entering folder: E:\workplace\lsevin\src\app\providers\hotel  (2 files)
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\hotel\HotelDashboard.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\hotel\HotelSection.tsx
+03:48:15  DEBUG     Entering folder: E:\workplace\lsevin\src\app\providers\hotel\pages  (12 files)
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\hotel\pages\HotelAmenities.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\hotel\pages\HotelAnalytics.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\hotel\pages\HotelAvailability.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\hotel\pages\HotelBilling.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\hotel\pages\HotelBookings.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\hotel\pages\HotelCategories.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\hotel\pages\HotelGallery.tsx
+03:48:15  INFO        Found 6 URL(s) in E:\workplace\lsevin\src\app\providers\hotel\pages\HotelGallery.tsx
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=400&h=300&fit=crop
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400&h=300&fit=crop
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1540541338287-41700207dee6?w=400&h=300&fit=crop
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\hotel\pages\HotelPricing.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\hotel\pages\HotelReviews.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\hotel\pages\HotelRooms.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\hotel\pages\HotelSettings.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\hotel\pages\HotelSupport.tsx
+03:48:15  DEBUG     Entering folder: E:\workplace\lsevin\src\app\providers\onboarding  (8 files)
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\onboarding\ClinicOnboarding.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\onboarding\DoctorOnboarding.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\onboarding\EducationOnboarding.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\onboarding\GymOnboarding.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\onboarding\HotelOnboarding.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\onboarding\PharmacyOnboarding.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\onboarding\SalonOnboarding.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\onboarding\TourismOnboarding.tsx
+03:48:15  DEBUG     Entering folder: E:\workplace\lsevin\src\app\providers\pharmacy  (2 files)
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\pharmacy\PharmacyDashboard.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\pharmacy\PharmacySection.tsx
+03:48:15  DEBUG     Entering folder: E:\workplace\lsevin\src\app\providers\pharmacy\pages  (11 files)
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\pharmacy\pages\PharmacyAnalytics.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\pharmacy\pages\PharmacyBilling.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\pharmacy\pages\PharmacyDelivery.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\pharmacy\pages\PharmacyHours.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\pharmacy\pages\PharmacyInventory.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\pharmacy\pages\PharmacyOrders.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\pharmacy\pages\PharmacyPrescriptions.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\pharmacy\pages\PharmacyPricing.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\pharmacy\pages\PharmacyRequests.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\pharmacy\pages\PharmacySettings.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\pharmacy\pages\PharmacySupport.tsx
+03:48:15  DEBUG     Entering folder: E:\workplace\lsevin\src\app\providers\salon  (2 files)
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\salon\BeautySalonDashboard.tsx
+03:48:15  INFO        Found 4 URL(s) in E:\workplace\lsevin\src\app\providers\salon\BeautySalonDashboard.tsx
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\salon\SalonSection.tsx
+03:48:15  DEBUG     Entering folder: E:\workplace\lsevin\src\app\providers\salon\pages  (11 files)
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\salon\pages\SalonAnalytics.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\salon\pages\SalonBookings.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\salon\pages\SalonGallery.tsx
+03:48:15  INFO        Found 6 URL(s) in E:\workplace\lsevin\src\app\providers\salon\pages\SalonGallery.tsx
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400&h=400&fit=crop
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1522337094846-8a818192de1f?w=400&h=400&fit=crop
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400&h=400&fit=crop
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1610992015732-2449b76344bc?w=400&h=400&fit=crop
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=400&fit=crop
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=400&h=400&fit=crop
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\salon\pages\SalonOffers.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\salon\pages\SalonPricing.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\salon\pages\SalonReviews.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\salon\pages\SalonServices.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\salon\pages\SalonSettings.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\salon\pages\SalonStaff.tsx
+03:48:15  INFO        Found 4 URL(s) in E:\workplace\lsevin\src\app\providers\salon\pages\SalonStaff.tsx
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\salon\pages\SalonSupport.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\salon\pages\SalonTimeslots.tsx
+03:48:15  DEBUG     Entering folder: E:\workplace\lsevin\src\app\providers\tourism  (2 files)
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\tourism\TourismDashboard.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\tourism\TourismSection.tsx
+03:48:15  DEBUG     Entering folder: E:\workplace\lsevin\src\app\providers\tourism\pages  (11 files)
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\tourism\pages\TourismAnalytics.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\tourism\pages\TourismBilling.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\tourism\pages\TourismBookings.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\tourism\pages\TourismDestinations.tsx
+03:48:15  INFO        Found 4 URL(s) in E:\workplace\lsevin\src\app\providers\tourism\pages\TourismDestinations.tsx
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&h=300&fit=crop
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?w=400&h=300&fit=crop
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\tourism\pages\TourismMedia.tsx
+03:48:15  INFO        Found 6 URL(s) in E:\workplace\lsevin\src\app\providers\tourism\pages\TourismMedia.tsx
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1583430862812-86b89a08aa10?w=400&h=300&fit=crop
+03:48:15  DEBUG         + https://images.unsplash.com/photo-1464219789935-c2d9d9aba644?w=400&h=300&fit=crop
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\tourism\pages\TourismPackages.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\tourism\pages\TourismPricing.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\tourism\pages\TourismSchedule.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\tourism\pages\TourismSettings.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\tourism\pages\TourismSupport.tsx
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\app\providers\tourism\pages\TourismTransfers.tsx
+03:48:15  DEBUG     Entering folder: E:\workplace\lsevin\src\imports  (15 files)
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\imports\doctor-dashboard-modules.md
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\imports\gym-dashboard-modules.md
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\imports\hotel-dashboard-modules.md
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\imports\lsevin-design-system-and-ui.md
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\imports\lsevin-enterprise-saas-dashboa.md
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\imports\lsevin-ux-architecture-invento.md
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\imports\medical-booking-flow.md
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\imports\pasted-attachment-1.txt
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\imports\pasted-attachment-2.txt
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\imports\pasted-attachment-3.txt
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\imports\pasted-attachment.txt
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\imports\pharmacy-provider-dashboard.md
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\imports\provider-onboarding-refine.md
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\imports\salon-dashboard-modules.md
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\imports\tourism-provider-dashboard.md
+03:48:15  DEBUG     Entering folder: E:\workplace\lsevin\src\imports\pasted_text  (3 files)
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\imports\pasted_text\booking-flows-refinement.md
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\imports\pasted_text\mobile-screens.md
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\imports\pasted_text\responsive-admin-provider-pane.md
+03:48:15  DEBUG     Entering folder: E:\workplace\lsevin\src\styles  (5 files)
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\styles\fonts.css
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\styles\index.css
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\styles\rtl.css
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\styles\tailwind.css
+03:48:15  DEBUG       Scanning: E:\workplace\lsevin\src\styles\theme.css
+03:48:15  INFO      Scan complete — 273 file(s) scanned, 0 skipped, 123 unique URL(s) found.
+03:48:15  INFO      Step 1 complete — 123 unique URL(s) collected.
+
+03:48:15  INFO      Download folder ready: E:\workplace\lsevin\unsplash_images
+03:48:15  INFO      [1/123] Downloading: https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=600&h=400&fit=crop
+03:48:15  INFO      [2/123] Downloading: https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=600&h=400&fit=crop
+03:48:16  INFO      [3/123] Downloading: https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=600&h=400&fit=crop
+03:48:17  INFO      [4/123] Downloading: https://images.unsplash.com/photo-1512678080530-7760d81faba6?w=600&h=400&fit=crop
+03:48:17  INFO      [5/123] Downloading: https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400&h=300&fit=crop
+03:48:18  INFO      [6/123] Downloading: https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&h=300&fit=crop
+03:48:18  INFO      [7/123] Downloading: https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400&h=300&fit=crop
+03:48:19  INFO      [8/123] Downloading: https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop
+03:48:19  INFO      [9/123] Downloading: https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop
+03:48:20  INFO      [10/123] Downloading: https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?w=400&h=400&fit=crop
+03:48:21  INFO      [11/123] Downloading: https://images.unsplash.com/photo-1622296089863-eb7fc530daa8?w=600&h=400&fit=crop
+03:48:21  INFO      [12/123] Downloading: https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop
+03:48:22  INFO      [13/123] Downloading: https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&h=400&fit=crop
+03:48:22  INFO      [14/123] Downloading: https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=400&h=300&fit=crop
+03:48:23  INFO      [15/123] Downloading: https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=300&fit=crop
+03:48:23  INFO      [16/123] Downloading: https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop
+03:48:24  INFO      [17/123] Downloading: https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&h=300&fit=crop
+03:48:25  INFO      [18/123] Downloading: https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=300&fit=crop
+03:48:26  INFO      [19/123] Downloading: https://images.unsplash.com/photo-1567013547920-b5a8d8eb4119?w=400&h=400&fit=crop
+03:48:27  ERROR              FAILED https://images.unsplash.com/photo-1567013547920-b5a8d8eb4119?w=400&h=400&fit=crop: HTTP Error 404: Not Found
+03:48:27  INFO      [20/123] Downloading: https://images.unsplash.com/photo-1548690312-e3b507d8c110?w=400&h=400&fit=crop
+03:48:27  INFO      [21/123] Downloading: https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&h=400&fit=crop
+03:48:28  INFO      [22/123] Downloading: https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&h=300&fit=crop
+03:48:28  INFO      [23/123] Downloading: https://images.unsplash.com/photo-1590490360182-c33d57733427?w=400&h=300&fit=crop
+03:48:29  INFO      [24/123] Downloading: https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&h=300&fit=crop
+03:48:29  INFO      [25/123] Downloading: https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400&h=300&fit=crop
+03:48:30  INFO      [26/123] Downloading: https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=400&h=300&fit=crop
+03:48:30  INFO      [27/123] Downloading: https://images.unsplash.com/photo-1533094602577-198d3beab8ea?w=400&h=300&fit=crop
+03:48:31  INFO      [28/123] Downloading: https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=200&h=200&fit=crop
+03:48:32  INFO      [29/123] Downloading: https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&h=300&fit=crop
+03:48:33  INFO      [30/123] Downloading: https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=400&h=300&fit=crop
+03:48:33  INFO      [31/123] Downloading: https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=400&h=300&fit=crop
+03:48:34  INFO      [32/123] Downloading: https://images.unsplash.com/photo-1585435557343-3b092031a831?w=400&h=300&fit=crop
+03:48:34  INFO      [33/123] Downloading: https://images.unsplash.com/photo-1622296089863-eb7fc530daa8?w=400&h=300&fit=crop
+03:48:35  INFO      [34/123] Downloading: https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=400&h=300&fit=crop
+03:48:36  INFO      [35/123] Downloading: https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=400&h=300&fit=crop
+03:48:37  INFO      [36/123] Downloading: https://images.unsplash.com/photo-1512678080530-7760d81faba6?w=400&h=300&fit=crop
+03:48:37  INFO      [37/123] Downloading: https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&h=300&fit=crop
+03:48:38  INFO      [38/123] Downloading: https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop
+03:48:38  INFO      [39/123] Downloading: https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400&h=300&fit=crop
+03:48:39  INFO      [40/123] Downloading: https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=400&h=300&fit=crop
+03:48:39  INFO      [41/123] Downloading: https://images.unsplash.com/photo-1576602976047-174e57a47881?w=400&h=300&fit=crop
+03:48:40  INFO      [42/123] Downloading: https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=400&h=300&fit=crop
+03:48:40  INFO      [43/123] Downloading: https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=200&h=200&fit=crop
+03:48:41  INFO      [44/123] Downloading: https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=200&h=200&fit=crop
+03:48:42  INFO      [45/123] Downloading: https://images.unsplash.com/photo-1512678080530-7760d81faba6?w=200&h=200&fit=crop
+03:48:42  INFO      [46/123] Downloading: https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=200&h=200&fit=crop
+03:48:43  INFO      [47/123] Downloading: https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1200&h=800&fit=crop
+03:48:44  INFO      [48/123] Downloading: https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&h=400&fit=crop
+03:48:44  INFO      [49/123] Downloading: https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=600&h=400&fit=crop
+03:48:45  INFO      [50/123] Downloading: https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=600&h=400&fit=crop
+03:48:45  INFO      [51/123] Downloading: https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&h=400&fit=crop
+03:48:46  INFO      [52/123] Downloading: https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400
+03:48:47  INFO      [53/123] Downloading: https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=600&fit=crop
+03:48:47  INFO      [54/123] Downloading: https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&h=600&fit=crop
+03:48:48  INFO      [55/123] Downloading: https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=800&h=600&fit=crop
+03:48:49  INFO      [56/123] Downloading: https://images.unsplash.com/photo-1607083206968-13611e3d76db?w=800&h=600&fit=crop
+03:48:50  INFO      [57/123] Downloading: https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=600&h=400&fit=crop
+03:48:50  INFO      [58/123] Downloading: https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=600&h=400&fit=crop
+03:48:51  INFO      [59/123] Downloading: https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&h=400&fit=crop
+03:48:52  INFO      [60/123] Downloading: https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=400&h=300&fit=crop
+03:48:53  INFO      [61/123] Downloading: https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=800&h=600&fit=crop
+03:48:53  INFO      [62/123] Downloading: https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=800&h=600&fit=crop
+03:48:54  INFO      [63/123] Downloading: https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800&h=600&fit=crop
+03:48:55  INFO      [64/123] Downloading: https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=600&h=400&fit=crop
+03:48:56  INFO      [65/123] Downloading: https://images.unsplash.com/photo-1585435557343-3b092031a831?w=600&h=400&fit=crop
+03:48:56  INFO      [66/123] Downloading: https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=200&h=200&fit=crop
+03:48:57  INFO      [67/123] Downloading: https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=200&h=200&fit=crop
+03:48:58  INFO      [68/123] Downloading: https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop
+03:48:58  INFO      [69/123] Downloading: https://images.unsplash.com/photo-1560066984-138dadb4c035?w=100&h=100&fit=crop
+03:48:59  INFO      [70/123] Downloading: https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=100&h=100&fit=crop
+03:49:00  INFO      [71/123] Downloading: https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=100&h=100&fit=crop
+03:49:00  INFO      [72/123] Downloading: https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=1200&h=600&fit=crop
+03:49:01  INFO      [73/123] Downloading: https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1200&h=400&fit=crop
+03:49:02  INFO      [74/123] Downloading: https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1200&h=600&fit=crop
+03:49:03  INFO      [75/123] Downloading: https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=1200&h=400&fit=crop
+03:49:03  INFO      [76/123] Downloading: https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&h=800&fit=crop
+03:49:04  INFO      [77/123] Downloading: https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=1200&h=800&fit=crop
+03:49:05  INFO      [78/123] Downloading: https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=1200&h=800&fit=crop
+03:49:05  INFO      [79/123] Downloading: https://images.unsplash.com/photo-1512678080530-7760d81faba6?w=1200&h=800&fit=crop
+03:49:06  INFO      [80/123] Downloading: https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&h=400&fit=crop
+03:49:07  INFO      [81/123] Downloading: https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400&h=400&fit=crop
+03:49:07  INFO      [82/123] Downloading: https://images.unsplash.com/photo-1629909615957-be38eea5915d?w=400&h=400&fit=crop
+03:49:09  ERROR              FAILED https://images.unsplash.com/photo-1629909615957-be38eea5915d?w=400&h=400&fit=crop: HTTP Error 404: Not Found
+03:49:09  INFO      [83/123] Downloading: https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=400&h=400&fit=crop
+03:49:09  INFO      [84/123] Downloading: https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=400&h=400&fit=crop
+03:49:10  INFO      [85/123] Downloading: https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=400&h=400&fit=crop
+03:49:11  INFO      [86/123] Downloading: https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=800&h=800&fit=crop
+03:49:11  INFO      [87/123] Downloading: https://images.unsplash.com/photo-1629909615957-be38eea5915d?w=400&h=300&fit=crop
+03:49:12  ERROR              FAILED https://images.unsplash.com/photo-1629909615957-be38eea5915d?w=400&h=300&fit=crop: HTTP Error 404: Not Found
+03:49:12  INFO      [88/123] Downloading: https://images.unsplash.com/photo-1622296089863-eb7fc530daa8?w=1200&h=800&fit=crop
+03:49:12  INFO      [89/123] Downloading: https://images.unsplash.com/photo-1629909615957-be38eea5915d?w=1200&h=800&fit=crop
+03:49:13  ERROR              FAILED https://images.unsplash.com/photo-1629909615957-be38eea5915d?w=1200&h=800&fit=crop: HTTP Error 404: Not Found
+03:49:13  INFO      [90/123] Downloading: https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=1200&h=800&fit=crop
+03:49:13  INFO      [91/123] Downloading: https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=400&h=400&fit=crop
+03:49:14  INFO      [92/123] Downloading: https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=400&h=400&fit=crop
+03:49:14  INFO      [93/123] Downloading: https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=400&fit=crop
+03:49:15  INFO      [94/123] Downloading: https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=600&h=400&fit=crop
+03:49:16  INFO      [95/123] Downloading: https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop
+03:49:16  INFO      [96/123] Downloading: https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop
+03:49:17  INFO      [97/123] Downloading: https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=400
+03:49:18  INFO      [98/123] Downloading: https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400
+03:49:18  INFO      [99/123] Downloading: https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400
+03:49:19  INFO      [100/123] Downloading: https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400
+03:49:20  INFO      [101/123] Downloading: https://images.unsplash.com/photo-1594381898411-846e7d193883?w=400&h=400&fit=crop
+03:49:20  INFO      [102/123] Downloading: https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop
+03:49:21  INFO      [103/123] Downloading: https://images.unsplash.com/photo-1567013127542-490d757e51fc?w=400&h=400&fit=crop
+03:49:22  INFO      [104/123] Downloading: https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=400&h=300&fit=crop
+03:49:22  INFO      [105/123] Downloading: https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400&h=300&fit=crop
+03:49:23  INFO      [106/123] Downloading: https://images.unsplash.com/photo-1540541338287-41700207dee6?w=400&h=300&fit=crop
+03:49:24  INFO      [107/123] Downloading: https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop
+03:49:24  INFO      [108/123] Downloading: https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop
+03:49:25  INFO      [109/123] Downloading: https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop
+03:49:25  INFO      [110/123] Downloading: https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400&h=400&fit=crop
+03:49:26  INFO      [111/123] Downloading: https://images.unsplash.com/photo-1522337094846-8a818192de1f?w=400&h=400&fit=crop
+03:49:26  INFO      [112/123] Downloading: https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400&h=400&fit=crop
+03:49:27  INFO      [113/123] Downloading: https://images.unsplash.com/photo-1610992015732-2449b76344bc?w=400&h=400&fit=crop
+03:49:28  INFO      [114/123] Downloading: https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=400&fit=crop
+03:49:29  INFO      [115/123] Downloading: https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=400&h=400&fit=crop
+03:49:30  INFO      [116/123] Downloading: https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop
+03:49:30  INFO      [117/123] Downloading: https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop
+03:49:31  INFO      [118/123] Downloading: https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop
+03:49:31  INFO      [119/123] Downloading: https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&h=300&fit=crop
+03:49:32  INFO      [120/123] Downloading: https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop
+03:49:33  INFO      [121/123] Downloading: https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?w=400&h=300&fit=crop
+03:49:33  INFO      [122/123] Downloading: https://images.unsplash.com/photo-1583430862812-86b89a08aa10?w=400&h=300&fit=crop
+03:49:35  ERROR              FAILED https://images.unsplash.com/photo-1583430862812-86b89a08aa10?w=400&h=300&fit=crop: HTTP Error 404: Not Found
+03:49:35  INFO      [123/123] Downloading: https://images.unsplash.com/photo-1464219789935-c2d9d9aba644?w=400&h=300&fit=crop
+03:49:35  INFO      Downloads complete: 118 succeeded, 5 kept original.
+03:49:35  INFO      Step 2 complete.
+
+03:49:35  INFO      Updated (4 replacement(s)): E:\workplace\lsevin\src\app\components\RecommendationsSection.tsx
+03:49:35  INFO      Updated (6 replacement(s)): E:\workplace\lsevin\src\app\mobile\booking\BeautyBookingFlow.tsx
+03:49:35  INFO      Updated (3 replacement(s)): E:\workplace\lsevin\src\app\mobile\booking\BookingFlow.tsx
+03:49:35  INFO      Updated (4 replacement(s)): E:\workplace\lsevin\src\app\mobile\booking\BookingFlowRefined.tsx
+03:49:35  INFO      Updated (7 replacement(s)): E:\workplace\lsevin\src\app\mobile\booking\GymBookingFlow.tsx
+03:49:35  INFO      Updated (3 replacement(s)): E:\workplace\lsevin\src\app\mobile\booking\HotelBookingFlow.tsx
+03:49:35  INFO      Updated (3 replacement(s)): E:\workplace\lsevin\src\app\mobile\booking\TourismBookingFlow.tsx
+03:49:35  INFO      Updated (2 replacement(s)): E:\workplace\lsevin\src\app\mobile\bookings\BookingDetail.tsx
+03:49:35  INFO      Updated (5 replacement(s)): E:\workplace\lsevin\src\app\mobile\bookings\Bookings.tsx
+03:49:35  INFO      Updated (20 replacement(s)): E:\workplace\lsevin\src\app\mobile\discovery\CategoryBrowser.tsx
+03:49:35  INFO      Updated (5 replacement(s)): E:\workplace\lsevin\src\app\mobile\discovery\MapDiscovery.tsx
+03:49:35  INFO      Updated (5 replacement(s)): E:\workplace\lsevin\src\app\mobile\discovery\SearchResults.tsx
+03:49:35  INFO      Updated (1 replacement(s)): E:\workplace\lsevin\src\app\mobile\entry\CompleteProfile.tsx
+03:49:36  INFO      Updated (4 replacement(s)): E:\workplace\lsevin\src\app\mobile\entry\Onboarding.tsx
+03:49:36  INFO      Updated (14 replacement(s)): E:\workplace\lsevin\src\app\mobile\explore\Explore.tsx
+03:49:36  INFO      Updated (25 replacement(s)): E:\workplace\lsevin\src\app\mobile\home\Home.tsx
+03:49:36  INFO      Updated (15 replacement(s)): E:\workplace\lsevin\src\app\mobile\medical\ClinicDetail.tsx
+03:49:36  INFO      Updated (6 replacement(s)): E:\workplace\lsevin\src\app\mobile\medical\ClinicListing.tsx
+03:49:36  INFO      Updated (4 replacement(s)): E:\workplace\lsevin\src\app\mobile\medical\DoctorProfile.tsx
+03:49:36  INFO      Updated (10 replacement(s)): E:\workplace\lsevin\src\app\mobile\medical\TreatmentDetail.tsx
+03:49:36  INFO      Updated (6 replacement(s)): E:\workplace\lsevin\src\app\mobile\offers\Offers.tsx
+03:49:36  INFO      Updated (1 replacement(s)): E:\workplace\lsevin\src\app\mobile\profile\EditProfile.tsx
+03:49:36  INFO      Updated (4 replacement(s)): E:\workplace\lsevin\src\app\mobile\profile\Favorites.tsx
+03:49:36  INFO      Updated (1 replacement(s)): E:\workplace\lsevin\src\app\mobile\profile\Profile.tsx
+03:49:36  INFO      Updated (3 replacement(s)): E:\workplace\lsevin\src\app\providers\gym\pages\GymTrainers.tsx
+03:49:36  INFO      Updated (6 replacement(s)): E:\workplace\lsevin\src\app\providers\hotel\pages\HotelGallery.tsx
+03:49:36  INFO      Updated (4 replacement(s)): E:\workplace\lsevin\src\app\providers\salon\BeautySalonDashboard.tsx
+03:49:36  INFO      Updated (6 replacement(s)): E:\workplace\lsevin\src\app\providers\salon\pages\SalonGallery.tsx
+03:49:36  INFO      Updated (4 replacement(s)): E:\workplace\lsevin\src\app\providers\salon\pages\SalonStaff.tsx
+03:49:36  INFO      Updated (3 replacement(s)): E:\workplace\lsevin\src\app\providers\tourism\pages\TourismDestinations.tsx
+03:49:36  INFO      Updated (6 replacement(s)): E:\workplace\lsevin\src\app\providers\tourism\pages\TourismMedia.tsx
+03:49:36  INFO      Replace step done — 31 file(s) modified.
+03:49:36  INFO      Step 3 complete.
+
+03:49:36  INFO        Full log written to: download_unsplash.log
