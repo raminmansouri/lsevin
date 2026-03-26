@@ -339,7 +339,7 @@ function Home({ params, searchParams }: PageProps)  {
                   />
                 </Suspense> 
 
-          {categories.map(cat => (
+          {/* {categories.map(cat => (
             <Link
             href={cat.path}
               key={cat.id}
@@ -357,7 +357,7 @@ function Home({ params, searchParams }: PageProps)  {
                 <h3 className="text-white font-bold text-lg">{cat.label}</h3>
               </div>
             </Link>
-          ))}
+          ))} */}
         </div>
       </div>
       

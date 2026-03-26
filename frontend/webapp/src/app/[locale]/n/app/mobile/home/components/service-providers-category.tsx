@@ -35,12 +35,12 @@ export const ServiceProvidersCategoriesSuspenseBoundary = async ({
             result={serviceProviders}
           >
             {(serviceProvidersData) => (
-              <div>
+              <>
                 <HomeServiceProvidersCategories
-                  serviceProvidersGroups={serviceProvidersData}
+                  serviceProvidersGroups={serviceProvidersData.slice(0,6)}
                   t={t}
                 />
-              </div>
+              </>
             )}
           </ServerFetchResult>
         </>

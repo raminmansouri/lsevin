@@ -1,6 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { env } from "@/config/env/client";
+
 import {
   Carousel,
   CarouselContent,
@@ -14,6 +16,51 @@ import {
 } from "@/features/service-providers/types";
 import { Link } from "@/i18n/navigation";
 import { TranslationType } from "@/types/next";
+
+ const categories = [
+    { 
+      id: 1,
+      label: 'Medical', 
+      path: '/n/app/mobile/medical/clinics', 
+      image: '/unsplash_images/photo-1631217868264-e5b90bb7e133__w=400&h=300&fit=crop.jpg',
+      gradient: 'from-red-500/90 to-red-600/90'
+    },
+    { 
+      id: 2,
+      label: 'Beauty & Spa', 
+      path: '/n/app/mobile/beauty', 
+      image: '/unsplash_images/photo-1560066984-138dadb4c035__w=400&h=300&fit=crop.jpg',
+      gradient: 'from-pink-500/90 to-rose-600/90'
+    },
+    { 
+      id: 3,
+      label: 'Fitness', 
+      path: '/n/n/app/mobile/mobile/fitness', 
+      image: '/unsplash_images/photo-1534438327276-14e5300c3a48__w=400&h=300&fit=crop.jpg',
+      gradient: 'from-purple-500/90 to-purple-600/90'
+    },
+    { 
+      id: 4,
+      label: 'Hotels', 
+      path: '/n/app/mobile/hotels', 
+      image: '/unsplash_images/photo-1566073771259-6a8506099945__w=400&h=300&fit=crop.jpg',
+      gradient: 'from-blue-500/90 to-blue-600/90'
+    },
+    { 
+      id: 5,
+      label: 'Pharmacy', 
+      path: '/n/app/mobile/pharmacy', 
+      image: '/unsplash_images/photo-1576602976047-174e57a47881__w=400&h=300&fit=crop.jpg',
+      gradient: 'from-teal-500/90 to-teal-600/90'
+    },
+    { 
+      id: 6,
+      label: 'Education', 
+      path: '/n/app/mobile/education', 
+      image: '/unsplash_images/photo-1523240795612-9a054b0db644__w=400&h=300&fit=crop.jpg',
+      gradient: 'from-amber-500/90 to-orange-600/90'
+    },
+  ];
 
 export const HomeServiceProvidersCategories = ({
   serviceProvidersGroups,
@@ -36,25 +83,23 @@ export const HomeServiceProvidersCategories = ({
   }
 
   return (
-    <section>
-      {/* Group by provider types */}
-      <div className="space-y-12">
-        {serviceProvidersGroups.map((group, groupIndex) => (
+        serviceProvidersGroups.map((group, groupIndex) => (
           <ServiceProviderGroup
             key={`${group.providerTypeName}-${groupIndex}`}
+            index={groupIndex+1}
             group={group}
             t={t}
           />
-        ))}
-      </div>
-    </section>
+        ))
   );
 };
 
 const ServiceProviderGroup = ({
   group,
+  index,
   t,
 }: {
+  index:number,
   group: {
     providerTypeId: string;
     providerTypeName: string;
@@ -66,51 +111,36 @@ const ServiceProviderGroup = ({
   if (!group.serviceProviders?.length) {
     return null;
   }
+  let i=index < 7 ? index: 6;
+  const provider=group.serviceProviders?.[0];
 
   return (
-    <div>
-      {/* Group Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h3 className="text-xl font-semibold">{group.providerTypeName}</h3>
-          <Badge variant="default">{group.totalCount}</Badge>
-        </div>
-        <Link href={`/type/${group.providerTypeId}`}>
-          <Button variant="link">{t("serviceProviders.viewAll")}</Button>
-        </Link>
-      </div>
 
-      {/* Mobile: Horizontal Carousel */}
-      <div className="block md:hidden">
-        <Carousel
-          opts={{
-            align: "start",
-            loop: false,
-          }}
-          className="w-full"
-        >
-          <CarouselContent className="-ml-2 md:-ml-4">
-            {group.serviceProviders.map((provider) => (
-              <CarouselItem
-                key={provider.id}
-                className="basis-[95%] rounded-md py-2 pl-2 md:pl-4"
-              >
-                <ServiceProviderCard provider={provider} />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-        </Carousel>
-      </div>
-
-      {/* Desktop: Grid Layout */}
-      <div className="hidden md:grid md:grid-cols-2 md:gap-6 lg:grid-cols-3 xl:grid-cols-4">
-        {group.serviceProviders.map((provider) => (
-          <ServiceProviderCard key={provider.id} provider={provider} />
-        ))}
-      </div>
-    </div>
+            <Link
+            href={`/type/${group.providerTypeId}`}
+              key={group.providerTypeId}
+              data-index={i}
+              // onClick={() => navigate(group.path)}
+              className="relative rounded-2xl overflow-hidden aspect-[4/3] group shadow-sm hover:shadow-xl transition-all active:scale-95"
+            >
+              <img 
+              src={`${env.NEXT_PUBLIC_FILES_URL}/${provider?.thumbnailUrl}`}
+                              // alt={provider?.name}
+                alt={group.providerTypeName}
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+              <div className={`absolute inset-0 bg-gradient-to-t ${categories.find(f=>f.id==i)?.gradient}`} />
+              
+              <div className="relative z-10 h-full flex items-end p-4">
+                <h3 className="text-white font-bold text-lg">{group.providerTypeName}</h3>
+              </div>
+            </Link>
+          
+    
   );
 };
+
+
 
 export const HomeServiceProvidersSkeleton = () => {
   return (
