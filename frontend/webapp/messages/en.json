@@ -1,4 +1,5 @@
 {
+ 
   "Manifest": {
     "name": "L Sevin"
   },
@@ -588,6 +589,9 @@
     }
   },
   "Consulting": {
+     "serviceProviders":{
+"viewAll":"view all"
+  },
     "page": {
       "title": "Request Consultation",
       "description": "Request a consultation for your medical or beauty needs.",

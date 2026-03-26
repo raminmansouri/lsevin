@@ -2,6 +2,7 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+ 
   "Manifest": {
     "name": "L Sevin"
   },
@@ -591,6 +592,9 @@ declare const messages: {
     }
   },
   "Consulting": {
+     "serviceProviders":{
+"viewAll":"view all"
+  },
     "page": {
       "title": "Request Consultation",
       "description": "Request a consultation for your medical or beauty needs.",

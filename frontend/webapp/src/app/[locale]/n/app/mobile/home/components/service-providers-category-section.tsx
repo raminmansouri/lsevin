@@ -207,4 +207,4 @@ const ServiceProviderCardSkeleton = () => {
   );
 };
 
-export default HomeServiceProviders;
+export default HomeServiceProvidersCategories;

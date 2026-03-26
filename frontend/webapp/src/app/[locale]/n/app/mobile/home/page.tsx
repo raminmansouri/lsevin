@@ -1,4 +1,4 @@
-
+//"use client"
 // import { useNavigate } from '@/hooks/use-navigate';
 import { 
   Search, 
@@ -19,25 +19,48 @@ import {
 } from 'lucide-react';
 import { IconButton } from '../../design-system/mobile-components';
 import { Chip } from '../../design-system/components';
-import { Suspense, useState } from 'react';
+import { Suspense } from 'react';
 import { useTranslations } from 'next-intl';
 import { TRANSLATION_KEY } from '@/features/consulting/types/constants';
 import { useNavigate } from '@/hooks/use-navigate';
 // import { useLocalization } from '../../contexts/LocalizationContext';
 import { PageProps } from "@/types/next";
 import { ServiceProvidersCategoriesSuspenseBoundary } from './components/service-providers-category';
+import LocationPicker from './components/location-picker';
+import { getTranslations } from 'next-intl/server';
+import { Metadata } from 'next';
+import { Link, redirect } from '@/i18n/navigation';
 
 
-const Home = async ({ params, searchParams }: PageProps) => {
+/* export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations(TRANSLATION_KEY);
+
+  return {
+    title: t("title"),
+    description: t("description"),
+    keywords: t("keywords").split(","),
+    openGraph: {
+      title: t("title"),
+      description: t("description"),
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: t("title"),
+      description: t("description"),
+    },
+  };
+}
+ */
+
+function Home({ params, searchParams }: PageProps)  {
 
 
     const t = useTranslations();
   
-  const navigate = useNavigate();
+  const navigate = redirect //useNavigate();
   // const { isRTL } = useLocalization();
-  const [showLocationPicker, setShowLocationPicker] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState({ city: 'Dubai', country: 'UAE' });
-  
+
   const categories = [
     { 
       id: 1,
@@ -195,6 +218,7 @@ const Home = async ({ params, searchParams }: PageProps) => {
     },
   ];
   
+  
   return (
     <div className="min-h-screen bg-white">
       {/* Premium Header */}
@@ -206,13 +230,18 @@ const Home = async ({ params, searchParams }: PageProps) => {
           </div>
           
           <div className="flex items-center gap-2">
-            <IconButton 
+            <Link 
+            href='/n/app/mobile/notifications'
+            >
+             <IconButton 
               icon={<Bell size={22} />} 
               badge={3}
-              onClick={() => navigate('/n/app/mobile/notifications')}
-            />
-            <button 
-              onClick={() => navigate('/n/app/mobile/profile')}
+              //onClick={() => navigate('/n/app/mobile/notifications')}
+            /> 
+            </Link>
+
+            <Link 
+              href='/n/app/mobile/profile'
               className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-[#eacb7f]/30"
             >
               <img 
@@ -220,81 +249,24 @@ const Home = async ({ params, searchParams }: PageProps) => {
                 alt="Profile"
                 className="w-full h-full object-cover"
               />
-            </button>
+            </Link>
           </div>
         </div>
         
-        {/* Premium Location */}
-        <button 
-          onClick={() => setShowLocationPicker(true)}
-          className="flex items-center gap-1.5 text-sm group"
-        >
-          <MapPin size={16} className="text-[#083f30]" />
-          <span className="font-semibold text-gray-900">{selectedLocation.city}, {selectedLocation.country}</span>
-          <ChevronRight size={16} className="text-gray-400 group-hover:translate-x-0.5 transition-transform" />
-        </button>
-        
-        {/* Location Picker */}
-        {showLocationPicker && (
-          <div className="absolute top-20 left-5 right-5 bg-white rounded-2xl shadow-lg p-5 z-50">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900">Select Location</h3>
-              <button 
-                onClick={() => setShowLocationPicker(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <ChevronDown size={20} />
-              </button>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                onClick={() => setSelectedLocation({ city: 'Dubai', country: 'UAE' })}
-                className="flex flex-col items-center gap-2 p-3 bg-gray-100 rounded-2xl hover:bg-gray-200 transition-colors"
-              >
-                <img 
-                  src="/unsplash_images/photo-1560066984-138dadb4c035__w=100&h=100&fit=crop.jpg"
-                  alt="Dubai"
-                  className="w-10 h-10 object-cover"
-                />
-                <span className="text-sm font-medium text-gray-900">Dubai, UAE</span>
-              </button>
-              <button
-                onClick={() => setSelectedLocation({ city: 'Istanbul', country: 'Turkey' })}
-                className="flex flex-col items-center gap-2 p-3 bg-gray-100 rounded-2xl hover:bg-gray-200 transition-colors"
-              >
-                <img 
-                  src="/unsplash_images/photo-1631217868264-e5b90bb7e133__w=100&h=100&fit=crop.jpg"
-                  alt="Istanbul"
-                  className="w-10 h-10 object-cover"
-                />
-                <span className="text-sm font-medium text-gray-900">Istanbul, Turkey</span>
-              </button>
-              <button
-                onClick={() => setSelectedLocation({ city: 'Bali', country: 'Indonesia' })}
-                className="flex flex-col items-center gap-2 p-3 bg-gray-100 rounded-2xl hover:bg-gray-200 transition-colors"
-              >
-                <img 
-                  src="/unsplash_images/photo-1540555700478-4be289fbecef__w=100&h=100&fit=crop.jpg"
-                  alt="Bali"
-                  className="w-10 h-10 object-cover"
-                />
-                <span className="text-sm font-medium text-gray-900">Bali, Indonesia</span>
-              </button>
-            </div>
-          </div>
-        )}
+     
+     <LocationPicker/>
       </div>
       
       {/* Premium Search Bar */}
       <div className="px-5 py-4 bg-gray-50">
-        <button
-          onClick={() => navigate('/n/app/mobile/search')}
+        <Link
+        href='/n/app/mobile/search'
+          // onClick={() => navigate('/n/app/mobile/search')}
           className="w-full h-14 bg-white rounded-2xl px-5 flex items-center gap-3 shadow-sm border border-gray-100 hover:shadow-md transition-all"
         >
           <Search size={22} className="text-[#083f30]" />
           <span className="text-gray-500 font-medium">Search treatments, clinics...</span>
-        </button>
+        </Link>
         
         {/* Quick Search Chips */}
         <div className="flex gap-2 overflow-x-auto hide-scrollbar mt-3 pb-1">
@@ -331,12 +303,13 @@ const Home = async ({ params, searchParams }: PageProps) => {
               First-time bookings only • Valid until Mar 15
             </p>
             <div>
-              <button 
-                onClick={() => navigate('/n/app/mobile/offers')}
+              <Link
+              href='/n/app/mobile/offers' 
+                // onClick={() => navigate('/n/app/mobile/offers')}
                 className="bg-[#eacb7f] text-[#083f30] px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#e0b654] transition-all shadow-lg hover:shadow-xl active:scale-95"
               >
                 Explore Offers
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -345,29 +318,32 @@ const Home = async ({ params, searchParams }: PageProps) => {
       {/* Premium Categories Grid */}
       <div className="px-5 pb-8">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-xl font-bold text-gray-900">{t("ExploreServices")}</h2>
-          <button 
-            onClick={() => navigate('/n/app/mobile/categories')}
+          <h2 className="text-xl font-bold text-gray-900">Explore Services</h2>
+          <Link
+          href='/n/app/mobile/categories' 
+
+            // onClick={() => navigate('/n/app/mobile/categories')}
             className="text-sm font-semibold text-[#083f30] hover:underline flex items-center gap-1"
           >
             View All
             <ChevronRight size={16} />
-          </button>
+          </Link>
         </div>
         
         <div className="grid grid-cols-2 gap-3">
 
-          <Suspense >
+         <Suspense fallback={<div>hi</div>} >
                   <ServiceProvidersCategoriesSuspenseBoundary
                     params={params}
                     searchParams={searchParams}
                   />
-                </Suspense>
+                </Suspense> 
 
           {categories.map(cat => (
-            <button
+            <Link
+            href={cat.path}
               key={cat.id}
-              onClick={() => navigate(cat.path)}
+              // onClick={() => navigate(cat.path)}
               className="relative rounded-2xl overflow-hidden aspect-[4/3] group shadow-sm hover:shadow-xl transition-all active:scale-95"
             >
               <img 
@@ -380,7 +356,7 @@ const Home = async ({ params, searchParams }: PageProps) => {
               <div className="relative z-10 h-full flex items-end p-4">
                 <h3 className="text-white font-bold text-lg">{cat.label}</h3>
               </div>
-            </button>
+            </Link>
           ))}
         </div>
       </div>
@@ -392,20 +368,22 @@ const Home = async ({ params, searchParams }: PageProps) => {
             <h2 className="text-xl font-bold text-gray-900 mb-1">Featured Services</h2>
             <p className="text-sm text-gray-600">Handpicked by our experts</p>
           </div>
-          <button 
-            onClick={() => navigate('/n/app/mobile/featured')}
+          <Link
+          href='/n/app/mobile/featured' 
+            // onClick={() => navigate('/n/app/mobile/featured')}
             className="text-sm font-semibold text-[#083f30] hover:underline flex items-center gap-1"
           >
             See All
             <ChevronRight size={16} />
-          </button>
+          </Link>
         </div>
         
         <div className="flex gap-4 overflow-x-auto hide-scrollbar px-5 pb-2">
           {featuredServices.map(service => (
-            <div
+            <Link
               key={service.id}
-              onClick={() => navigate(`/n/app/mobile/treatment/${service.id}`)}
+              href={`/n/app/mobile/treatment/${service.id}`}
+              // onClick={() => navigate(`/n/app/mobile/treatment/${service.id}`)}
               className="flex-none w-80 bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer"
             >
               {/* Image */}
@@ -491,7 +469,7 @@ const Home = async ({ params, searchParams }: PageProps) => {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
@@ -535,9 +513,10 @@ const Home = async ({ params, searchParams }: PageProps) => {
         
         <div className="flex gap-3 overflow-x-auto hide-scrollbar px-5 pb-2">
           {trendingTreatments.map(treatment => (
-            <div 
+            <Link 
               key={treatment.id}
-              onClick={() => navigate(`/n/app/mobile/treatment/${treatment.id}`)}
+              href={`/n/app/mobile/treatment/${treatment.id}`}
+              // onClick={() => navigate(`/n/app/mobile/treatment/${treatment.id}`)}
               className="flex-none w-40 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer"
             >
               <div className="relative aspect-square">
@@ -565,15 +544,16 @@ const Home = async ({ params, searchParams }: PageProps) => {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
       
       {/* Map Discovery Preview */}
       <div className="px-5 pb-8">
-        <button 
-          onClick={() => navigate('/n/app/mobile/map')}
+        <Link 
+        href={'/n/app/mobile/map'}
+          // onClick={() => navigate('/n/app/mobile/map')}
           className="w-full relative rounded-2xl overflow-hidden h-48 shadow-lg hover:shadow-xl transition-all active:scale-98"
         >
           <img 
@@ -594,7 +574,7 @@ const Home = async ({ params, searchParams }: PageProps) => {
               </div>
             </div>
           </div>
-        </button>
+        </Link>
       </div>
       
       {/* Trusted Providers */}
@@ -609,9 +589,10 @@ const Home = async ({ params, searchParams }: PageProps) => {
         
         <div className="flex gap-4 overflow-x-auto hide-scrollbar px-5 pb-2">
           {trustedProviders.map((provider, idx) => (
-            <div
+            <Link
               key={idx}
-              onClick={() => navigate(`/n/app/mobile/clinic/${idx + 1}`)}
+              href={`/n/app/mobile/clinic/${idx + 1}`}
+              // onClick={() => navigate(`/n/app/mobile/clinic/${idx + 1}`)}
               className="flex-none w-44 bg-white rounded-2xl p-4 shadow-md hover:shadow-xl transition-all cursor-pointer border border-gray-100"
             >
               <div className="relative mb-3">
@@ -636,7 +617,7 @@ const Home = async ({ params, searchParams }: PageProps) => {
                 <span className="font-bold text-sm text-gray-900">{provider.rating}</span>
                 <span className="text-xs text-gray-500 ml-0.5">Verified</span>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
@@ -711,12 +692,13 @@ const Home = async ({ params, searchParams }: PageProps) => {
                     <span className="text-xs font-semibold text-[#083f30]">VIP Access</span>
                   </div>
                 </div>
-                <button 
-                  onClick={() => navigate('/n/app/mobile/rewards')}
+                <Link
+                href='/n/app/mobile/rewards' 
+                  // onClick={() => navigate('/n/app/mobile/rewards')}
                   className="bg-[#083f30] text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#0a5a44] transition-all shadow-lg active:scale-95"
                 >
                   Join Now - It's Free
-                </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -726,5 +708,12 @@ const Home = async ({ params, searchParams }: PageProps) => {
   );
 }
 
+
+// Home.getInitialProps = async ({ context }) => {
+//   // Access and process additional data as needed
+//   const { locales } = await getLocales();
+
+//   return { context };
+// }
 
 export default Home;
