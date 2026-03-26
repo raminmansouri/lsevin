@@ -51,7 +51,7 @@ export default function HotelBookingFlow() {
       perNight: true,
       amenities: ['Sea View', 'Free WiFi', 'Mini Bar', 'Smart TV'],
       popular: true,
-      image: 'unsplash_images/photo-1582719478250-c89cae4dc85b__w=400&h=300&fit=crop.jpg'
+      image: '/unsplash_images/photo-1582719478250-c89cae4dc85b__w=400&h=300&fit=crop.jpg'
     },
     {
       id: 'executive-suite',
@@ -64,7 +64,7 @@ export default function HotelBookingFlow() {
       perNight: true,
       amenities: ['Sea View', 'Living Room', 'Balcony', 'Coffee Machine'],
       popular: true,
-      image: 'unsplash_images/photo-1590490360182-c33d57733427__w=400&h=300&fit=crop.jpg'
+      image: '/unsplash_images/photo-1590490360182-c33d57733427__w=400&h=300&fit=crop.jpg'
     },
     {
       id: 'standard-room',
@@ -76,7 +76,7 @@ export default function HotelBookingFlow() {
       price: 120,
       perNight: true,
       amenities: ['City View', 'Free WiFi', 'Work Desk', 'Rain Shower'],
-      image: 'unsplash_images/photo-1611892440504-42a792e24d32__w=400&h=300&fit=crop.jpg'
+      image: '/unsplash_images/photo-1611892440504-42a792e24d32__w=400&h=300&fit=crop.jpg'
     },
   ];
   

@@ -4,6 +4,7 @@ import { setRequestLocale } from "next-intl/server";
 import Navbar from "@/components/navbar";
 import Shell from "@/components/shell";
 import { LocalePageProps } from "@/types/next";
+import { BottomTabBar } from "./app/design-system/mobile-components";
 
 const MainLayout = ({ children, params }: LocalePageProps) => {
   return (
@@ -13,6 +14,9 @@ const MainLayout = ({ children, params }: LocalePageProps) => {
           <div className="flex flex-col gap-4">
             <Navbar />
             {children}
+
+            <BottomTabBar />
+            
           </div>
         </SuspenseBoundary>
       </Suspense>

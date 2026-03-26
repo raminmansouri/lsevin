@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { ArrowLeft, Copy, Share2, Check, Gift, Users, DollarSign, Mail, MessageSquare, Facebook, Instagram } from 'lucide-react';
 
 export default function ShareFriends() {

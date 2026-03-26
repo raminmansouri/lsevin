@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 
 export default function Splash() {
   const navigate = useNavigate();

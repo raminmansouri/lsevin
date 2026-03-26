@@ -66,10 +66,10 @@ export default function TreatmentDetail() {
     rating: 4.9,
     reviews: 1247,
     images: [
-      'unsplash_images/photo-1622296089863-eb7fc530daa8__w=1200&h=800&fit=crop.jpg',
+      '/unsplash_images/photo-1622296089863-eb7fc530daa8__w=1200&h=800&fit=crop.jpg',
       'https://images.unsplash.com/photo-1629909615957-be38eea5915d?w=1200&h=800&fit=crop',
-      'unsplash_images/photo-1551190822-a9333d879b1f__w=1200&h=800&fit=crop.jpg',
-      'unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=1200&h=800&fit=crop.jpg',
+      '/unsplash_images/photo-1551190822-a9333d879b1f__w=1200&h=800&fit=crop.jpg',
+      '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=1200&h=800&fit=crop.jpg',
     ],
     duration: '6-8 hours',
     recovery: '7-10 days',
@@ -150,7 +150,7 @@ export default function TreatmentDetail() {
       verified: true,
       helpful: 89,
       images: [
-        'unsplash_images/photo-1622296089863-eb7fc530daa8__w=400&h=300&fit=crop.jpg',
+        '/unsplash_images/photo-1622296089863-eb7fc530daa8__w=400&h=300&fit=crop.jpg',
         'https://images.unsplash.com/photo-1629909615957-be38eea5915d?w=400&h=300&fit=crop'
       ]
     },
@@ -184,7 +184,7 @@ export default function TreatmentDetail() {
     },
     {
       id: 'treat-local-2',
-      image: 'unsplash_images/photo-1551190822-a9333d879b1f__w=400&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1551190822-a9333d879b1f__w=400&h=400&fit=crop.jpg',
       title: 'DHI Hair Transplant Premium',
       provider: 'Bodrum Medical Clinic',
       rating: 4.9,
@@ -201,7 +201,7 @@ export default function TreatmentDetail() {
   const internationalRecommendations = [
     {
       id: 'treat-int-1',
-      image: 'unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=400&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=400&h=400&fit=crop.jpg',
       title: 'Advanced FUE Hair Restoration',
       provider: 'Tehran Excellence Clinic',
       rating: 4.7,
@@ -215,7 +215,7 @@ export default function TreatmentDetail() {
     },
     {
       id: 'treat-int-2',
-      image: 'unsplash_images/photo-1588776814546-1ffcf47267a5__w=400&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1588776814546-1ffcf47267a5__w=400&h=400&fit=crop.jpg',
       title: 'Premium Hair Transplant Package',
       provider: 'Dubai Wellness Center',
       rating: 4.8,

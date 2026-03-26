@@ -1,6 +1,6 @@
 "use client"
 
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { Settings, Wallet as WalletIcon, Gift, Heart, FileText, Bell, Globe, Shield, LogOut, Share2 } from 'lucide-react';
 
 export default function Profile() {
@@ -24,7 +24,7 @@ export default function Profile() {
         <div className="flex items-center gap-4 mb-4">
           <div className="w-20 h-20 rounded-full overflow-hidden">
             <img 
-              src="unsplash_images/photo-1494790108377-be9c29b29330__w=200&h=200&fit=crop.jpg" 
+              src="/unsplash_images/photo-1494790108377-be9c29b29330__w=200&h=200&fit=crop.jpg" 
               alt="Profile"
               className="w-full h-full object-cover"
             />

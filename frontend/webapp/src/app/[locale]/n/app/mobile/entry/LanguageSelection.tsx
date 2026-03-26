@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { Check } from 'lucide-react';
 import { useLocalization } from '../../contexts/LocalizationContext';
 import { Button } from '../../design-system/components';

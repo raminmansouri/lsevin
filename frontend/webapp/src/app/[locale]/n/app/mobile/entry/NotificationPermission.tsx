@@ -1,6 +1,6 @@
 "use client"
 
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { Bell } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocalization } from '../../contexts/LocalizationContext';

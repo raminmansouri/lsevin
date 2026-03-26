@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { 
   CheckCircle2, 
   Download,

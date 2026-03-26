@@ -1,30 +1,32 @@
+"use client"
 import { Home, Search, Calendar, User, ChevronLeft, Bell, Heart, MapPin, Star, CheckCircle, Shield } from 'lucide-react';
-import { Link, useLocation } from 'react-router';
 import { useLocalization } from '../contexts/LocalizationContext';
+import { Link, usePathname } from '@/i18n/navigation';
 
 // Bottom Tab Bar
 export function BottomTabBar() {
-  const location = useLocation();
-  const { isRTL } = useLocalization();
+  const pathname =usePathname();// useLocation();
+  const { isRTL } ={isRTL:false} // useLocalization();
   
   const tabs = [
-    { icon: Home, label: 'Home', path: '/app/home' },
-    { icon: Search, label: 'Explore', path: '/app/explore' },
-    { icon: Calendar, label: 'Bookings', path: '/app/bookings' },
-    { icon: User, label: 'Profile', path: '/app/profile' },
+    { icon: Home, label: 'Home', path: '/n/app/mobile/home' },
+    { icon: Search, label: 'Explore', path: '/n/app/mobile/explore' },
+    { icon: Calendar, label: 'Bookings', path: '/n/app/mobile/bookings' },
+    { icon: User, label: 'Profile', path: '/n/app/mobile/profile' },
   ];
   
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 safe-area-bottom z-50">
       <div className={`flex items-center justify-around max-w-md mx-auto ${isRTL ? 'flex-row-reverse' : ''}`}>
         {tabs.map(tab => {
-          const isActive = location.pathname.startsWith(tab.path);
+          const isActive = pathname?.startsWith(tab.path);
           const Icon = tab.icon;
           
           return (
             <Link
               key={tab.path}
               to={tab.path}
+              href={tab.path}
               className={`flex flex-col items-center gap-1 py-2 px-3 transition ${
                 isActive ? 'text-[#083f30]' : 'text-gray-400'
               }`}

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { 
   ChevronLeft, 
   Sparkles, 
@@ -41,7 +41,7 @@ export default function Offers() {
       subtitle: 'First-time bookings only',
       provider: 'Istanbul Medical Center',
       category: 'medical',
-      image: 'unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=600&h=400&fit=crop.jpg',
       discount: '20%',
       validUntil: 'Mar 15, 2026',
       code: 'FIRST20',
@@ -57,7 +57,7 @@ export default function Offers() {
       subtitle: 'Limited time offer',
       provider: 'Elite Beauty Clinic Dubai',
       category: 'beauty',
-      image: 'unsplash_images/photo-1540555700478-4be289fbecef__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1540555700478-4be289fbecef__w=600&h=400&fit=crop.jpg',
       discount: '33%',
       validUntil: 'Mar 20, 2026',
       code: 'LASER3FOR2',
@@ -73,7 +73,7 @@ export default function Offers() {
       subtitle: 'New members only',
       provider: 'FitZone Premium Gym',
       category: 'fitness',
-      image: 'unsplash_images/photo-1534438327276-14e5300c3a48__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1534438327276-14e5300c3a48__w=600&h=400&fit=crop.jpg',
       discount: '30%',
       validUntil: 'Mar 25, 2026',
       code: 'GYM30',
@@ -89,7 +89,7 @@ export default function Offers() {
       subtitle: 'Dental treatments',
       provider: 'SmileCare Dental Clinic',
       category: 'medical',
-      image: 'unsplash_images/photo-1606811971618-4486d14f3f99__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1606811971618-4486d14f3f99__w=600&h=400&fit=crop.jpg',
       discount: '15%',
       validUntil: 'Mar 18, 2026',
       code: 'SMILE15',
@@ -105,7 +105,7 @@ export default function Offers() {
       subtitle: 'Includes massage, facial & more',
       provider: 'Serenity Wellness Spa',
       category: 'beauty',
-      image: 'unsplash_images/photo-1544161515-4ab6ce6db874__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1544161515-4ab6ce6db874__w=600&h=400&fit=crop.jpg',
       discount: '25%',
       validUntil: 'Mar 22, 2026',
       code: 'SPA25',
@@ -121,7 +121,7 @@ export default function Offers() {
       subtitle: 'Professional trainers',
       provider: 'PowerFit Personal Training',
       category: 'fitness',
-      image: 'unsplash_images/photo-1571019613454-1cb2f99b2d8b__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1571019613454-1cb2f99b2d8b__w=600&h=400&fit=crop.jpg',
       discount: '40%',
       validUntil: 'Mar 30, 2026',
       code: 'PT40',

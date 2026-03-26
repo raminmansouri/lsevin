@@ -1,6 +1,6 @@
 "use client"
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { ChevronLeft, Camera, User, Calendar, Globe, MapPin, DollarSign } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocalization } from '../../contexts/LocalizationContext';
@@ -23,7 +23,7 @@ export default function CompleteProfile() {
   
   const handlePhotoUpload = () => {
     // Simulate photo upload
-    setProfilePhoto('unsplash_images/photo-1472099645785-5658abf4ff4e__w=400.jpg');
+    setProfilePhoto('/unsplash_images/photo-1472099645785-5658abf4ff4e__w=400.jpg');
   };
   
   const handleContinue = async () => {

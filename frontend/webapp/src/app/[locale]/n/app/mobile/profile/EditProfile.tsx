@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { ArrowLeft, Camera, Save } from 'lucide-react';
 
 export default function EditProfile() {
@@ -55,7 +55,7 @@ export default function EditProfile() {
           <div className="relative">
             <div className="w-24 h-24 rounded-full overflow-hidden">
               <img 
-                src="unsplash_images/photo-1494790108377-be9c29b29330__w=200&h=200&fit=crop.jpg" 
+                src="/unsplash_images/photo-1494790108377-be9c29b29330__w=200&h=200&fit=crop.jpg" 
                 alt="Profile"
                 className="w-full h-full object-cover"
               />

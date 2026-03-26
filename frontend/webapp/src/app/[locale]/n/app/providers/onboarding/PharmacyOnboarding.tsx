@@ -1,6 +1,6 @@
 "use client"
 
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { Pill, ArrowLeft, ArrowRight, Upload, MapPin, Phone, Save, Clock } from 'lucide-react';
 
 export default function PharmacyOnboarding() {

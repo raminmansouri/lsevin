@@ -47,7 +47,7 @@ export default function GymBookingFlow() {
       intensity: 'High',
       capacity: '20 spots',
       popular: true,
-      image: 'unsplash_images/photo-1534438327276-14e5300c3a48__w=400&h=300&fit=crop.jpg'
+      image: '/unsplash_images/photo-1534438327276-14e5300c3a48__w=400&h=300&fit=crop.jpg'
     },
     {
       id: 'yoga-session',
@@ -59,7 +59,7 @@ export default function GymBookingFlow() {
       intensity: 'Medium',
       capacity: '15 spots',
       popular: true,
-      image: 'unsplash_images/photo-1544367567-0f2fcb009e0b__w=400&h=300&fit=crop.jpg'
+      image: '/unsplash_images/photo-1544367567-0f2fcb009e0b__w=400&h=300&fit=crop.jpg'
     },
     {
       id: 'personal-training',
@@ -70,7 +70,7 @@ export default function GymBookingFlow() {
       category: '1-on-1',
       intensity: 'Custom',
       capacity: '1-on-1',
-      image: 'unsplash_images/photo-1571019614242-c5c5dee9f50b__w=400&h=300&fit=crop.jpg'
+      image: '/unsplash_images/photo-1571019614242-c5c5dee9f50b__w=400&h=300&fit=crop.jpg'
     },
     {
       id: 'crossfit',
@@ -81,7 +81,7 @@ export default function GymBookingFlow() {
       category: 'CrossFit',
       intensity: 'High',
       capacity: '12 spots',
-      image: 'unsplash_images/photo-1517836357463-d25dfeac3438__w=400&h=300&fit=crop.jpg'
+      image: '/unsplash_images/photo-1517836357463-d25dfeac3438__w=400&h=300&fit=crop.jpg'
     },
   ];
   
@@ -108,7 +108,7 @@ export default function GymBookingFlow() {
       reviews: 678,
       clients: '1,500+',
       certifications: ['RYT-500', 'Prenatal Yoga', 'Meditation Teacher'],
-      image: 'unsplash_images/photo-1548690312-e3b507d8c110__w=400&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1548690312-e3b507d8c110__w=400&h=400&fit=crop.jpg',
       verified: true,
       nextAvailable: 'Mar 12, 2026'
     },
@@ -121,7 +121,7 @@ export default function GymBookingFlow() {
       reviews: 892,
       clients: '2,000+',
       certifications: ['CSCS', 'USAW L1', 'Sports Nutritionist'],
-      image: 'unsplash_images/photo-1568602471122-7832951cc4c5__w=400&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1568602471122-7832951cc4c5__w=400&h=400&fit=crop.jpg',
       verified: true,
       nextAvailable: 'Mar 14, 2026'
     },

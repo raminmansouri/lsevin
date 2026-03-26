@@ -26,22 +26,22 @@ export default function TourismMedia() {
     { 
       name: 'Destinations', 
       images: [
-        'unsplash_images/photo-1537996194471-e657df975ab4__w=400&h=300&fit=crop.jpg',
-        'unsplash_images/photo-1559827260-dc66d52bef19__w=400&h=300&fit=crop.jpg',
+        '/unsplash_images/photo-1537996194471-e657df975ab4__w=400&h=300&fit=crop.jpg',
+        '/unsplash_images/photo-1559827260-dc66d52bef19__w=400&h=300&fit=crop.jpg',
       ]
     },
     { 
       name: 'Tour Packages', 
       images: [
-        'unsplash_images/photo-1552733407-5d5c46c3bb3b__w=400&h=300&fit=crop.jpg',
+        '/unsplash_images/photo-1552733407-5d5c46c3bb3b__w=400&h=300&fit=crop.jpg',
         'https://images.unsplash.com/photo-1583430862812-86b89a08aa10?w=400&h=300&fit=crop',
       ]
     },
     { 
       name: 'Fleet & Vehicles', 
       images: [
-        'unsplash_images/photo-1464219789935-c2d9d9aba644__w=400&h=300&fit=crop.jpg',
-        'unsplash_images/photo-1449965408869-eaa3f722e40d__w=400&h=300&fit=crop.jpg',
+        '/unsplash_images/photo-1464219789935-c2d9d9aba644__w=400&h=300&fit=crop.jpg',
+        '/unsplash_images/photo-1449965408869-eaa3f722e40d__w=400&h=300&fit=crop.jpg',
       ]
     },
   ];

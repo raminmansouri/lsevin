@@ -64,7 +64,7 @@ export default function BookingFlow() {
     recovery: '7-10 days',
     price: 2499,
     currency: 'USD',
-    image: 'unsplash_images/photo-1622296089863-eb7fc530daa8__w=600&h=400&fit=crop.jpg',
+    image: '/unsplash_images/photo-1622296089863-eb7fc530daa8__w=600&h=400&fit=crop.jpg',
     category: 'Hair Transplant',
     accreditation: 'JCI Accredited'
   };
@@ -82,7 +82,7 @@ export default function BookingFlow() {
       credentials: ['MD', 'ISHRS Member', 'Board Certified'],
       verified: true,
       consultation: 0,
-      image: 'unsplash_images/photo-1612349317150-e413f6a5b16d__w=400&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1612349317150-e413f6a5b16d__w=400&h=400&fit=crop.jpg',
       nextAvailable: 'Mar 15, 2026'
     },
     {
@@ -97,7 +97,7 @@ export default function BookingFlow() {
       credentials: ['MD', 'FUE Specialist', 'ABHRS'],
       verified: true,
       consultation: 0,
-      image: 'unsplash_images/photo-1622253692010-333f2da6031d__w=400&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1622253692010-333f2da6031d__w=400&h=400&fit=crop.jpg',
       nextAvailable: 'Mar 12, 2026'
     },
   ];

@@ -23,9 +23,9 @@ export default function SalonGallery() {
   ];
 
   const gallery = [
-    { id: 1, category: 'Hair', service: 'Hair Color Transformation', before: 'unsplash_images/photo-1560066984-138dadb4c035__w=400.jpg&h=400&fit=crop', after: 'unsplash_images/photo-1522337094846-8a818192de1f__w=400&h=400&fit=crop.jpg', status: 'visible' },
-    { id: 2, category: 'Nails', service: 'Gel Nails - French Manicure', before: 'unsplash_images/photo-1604654894610-df63bc536371__w=400&h=400&fit=crop.jpg', after: 'unsplash_images/photo-1610992015732-2449b76344bc__w=400&h=400&fit=crop.jpg', status: 'visible' },
-    { id: 3, category: 'Makeup', service: 'Bridal Makeup', before: 'unsplash_images/photo-1487412720507-e7ab37603c6f__w=400&h=400&fit=crop.jpg', after: 'unsplash_images/photo-1487412947147-5cebf100ffc2__w=400&h=400&fit=crop.jpg', status: 'visible' },
+    { id: 1, category: 'Hair', service: 'Hair Color Transformation', before: '/unsplash_images/photo-1560066984-138dadb4c035__w=400.jpg&h=400&fit=crop', after: '/unsplash_images/photo-1522337094846-8a818192de1f__w=400&h=400&fit=crop.jpg', status: 'visible' },
+    { id: 2, category: 'Nails', service: 'Gel Nails - French Manicure', before: '/unsplash_images/photo-1604654894610-df63bc536371__w=400&h=400&fit=crop.jpg', after: '/unsplash_images/photo-1610992015732-2449b76344bc__w=400&h=400&fit=crop.jpg', status: 'visible' },
+    { id: 3, category: 'Makeup', service: 'Bridal Makeup', before: '/unsplash_images/photo-1487412720507-e7ab37603c6f__w=400&h=400&fit=crop.jpg', after: '/unsplash_images/photo-1487412947147-5cebf100ffc2__w=400&h=400&fit=crop.jpg', status: 'visible' },
   ];
 
   return (

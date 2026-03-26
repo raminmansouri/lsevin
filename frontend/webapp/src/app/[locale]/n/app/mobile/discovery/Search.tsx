@@ -1,6 +1,6 @@
 "use client"
 
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { Search as SearchIcon, X, Clock, TrendingUp, ArrowUpRight } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { User, Mail, Lock, Eye, EyeOff, Tag, ChevronLeft, Phone } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocalization } from '../../contexts/LocalizationContext';

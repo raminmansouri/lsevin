@@ -64,10 +64,10 @@ export default function ClinicDetail() {
     accredited: true,
     responseTime: '< 2 hours',
     images: [
-      'unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=1200&h=800&fit=crop.jpg',
-      'unsplash_images/photo-1631217868264-e5b90bb7e133__w=1200&h=800&fit=crop.jpg',
-      'unsplash_images/photo-1586773860418-d37222d8fce3__w=1200&h=800&fit=crop.jpg',
-      'unsplash_images/photo-1512678080530-7760d81faba6__w=1200&h=800&fit=crop.jpg',
+      '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=1200&h=800&fit=crop.jpg',
+      '/unsplash_images/photo-1631217868264-e5b90bb7e133__w=1200&h=800&fit=crop.jpg',
+      '/unsplash_images/photo-1586773860418-d37222d8fce3__w=1200&h=800&fit=crop.jpg',
+      '/unsplash_images/photo-1512678080530-7760d81faba6__w=1200&h=800&fit=crop.jpg',
     ],
     certifications: [
       { name: 'JCI Accredited', verified: true },
@@ -92,7 +92,7 @@ export default function ClinicDetail() {
       rating: 4.9,
       reviews: 1247,
       popular: true,
-      image: 'unsplash_images/photo-1622296089863-eb7fc530daa8__w=600&h=400&fit=crop.jpg'
+      image: '/unsplash_images/photo-1622296089863-eb7fc530daa8__w=600&h=400&fit=crop.jpg'
     },
     {
       id: 2,
@@ -103,7 +103,7 @@ export default function ClinicDetail() {
       recovery: '10-14 days',
       rating: 4.8,
       reviews: 892,
-      image: 'unsplash_images/photo-1576091160399-112ba8d25d1d__w=600&h=400&fit=crop.jpg'
+      image: '/unsplash_images/photo-1576091160399-112ba8d25d1d__w=600&h=400&fit=crop.jpg'
     },
     {
       id: 3,
@@ -114,7 +114,7 @@ export default function ClinicDetail() {
       recovery: '3-6 months',
       rating: 4.9,
       reviews: 654,
-      image: 'unsplash_images/photo-1588776814546-1ffcf47267a5__w=600&h=400&fit=crop.jpg'
+      image: '/unsplash_images/photo-1588776814546-1ffcf47267a5__w=600&h=400&fit=crop.jpg'
     },
   ];
   
@@ -126,7 +126,7 @@ export default function ClinicDetail() {
       experience: '18 years',
       patients: '12,000+',
       rating: 4.9,
-      image: 'unsplash_images/photo-1612349317150-e413f6a5b16d__w=400&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1612349317150-e413f6a5b16d__w=400&h=400&fit=crop.jpg',
       verified: true
     },
     {
@@ -136,7 +136,7 @@ export default function ClinicDetail() {
       experience: '15 years',
       patients: '8,500+',
       rating: 4.8,
-      image: 'unsplash_images/photo-1594824476967-48c8b964273f__w=400&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1594824476967-48c8b964273f__w=400&h=400&fit=crop.jpg',
       verified: true
     },
     {
@@ -146,7 +146,7 @@ export default function ClinicDetail() {
       experience: '12 years',
       patients: '6,200+',
       rating: 4.9,
-      image: 'unsplash_images/photo-1622253692010-333f2da6031d__w=400&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1622253692010-333f2da6031d__w=400&h=400&fit=crop.jpg',
       verified: true
     },
   ];
@@ -162,7 +162,7 @@ export default function ClinicDetail() {
       review: 'Exceptional service from start to finish. The clinic is modern, staff is professional, and Dr. Mehmet is a true expert. Results exceeded my expectations!',
       verified: true,
       helpful: 47,
-      images: ['unsplash_images/photo-1622296089863-eb7fc530daa8__w=400&h=300&fit=crop.jpg']
+      images: ['/unsplash_images/photo-1622296089863-eb7fc530daa8__w=400&h=300&fit=crop.jpg']
     },
     {
       id: 2,
@@ -203,7 +203,7 @@ export default function ClinicDetail() {
     },
     {
       id: 'clinic-local-2',
-      image: 'unsplash_images/photo-1631217868264-e5b90bb7e133__w=400&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1631217868264-e5b90bb7e133__w=400&h=400&fit=crop.jpg',
       title: 'Bodrum Aesthetic Center',
       rating: 4.7,
       reviewCount: 967,
@@ -217,7 +217,7 @@ export default function ClinicDetail() {
   const internationalRecommendations = [
     {
       id: 'clinic-int-1',
-      image: 'unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=400&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=400&h=400&fit=crop.jpg',
       title: 'Tehran Premium Healthcare',
       rating: 4.6,
       reviewCount: 2187,
@@ -228,7 +228,7 @@ export default function ClinicDetail() {
     },
     {
       id: 'clinic-int-2',
-      image: 'unsplash_images/photo-1586773860418-d37222d8fce3__w=400&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1586773860418-d37222d8fce3__w=400&h=400&fit=crop.jpg',
       title: 'Dubai Excellence Medical',
       rating: 4.9,
       reviewCount: 1876,

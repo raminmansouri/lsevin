@@ -23,10 +23,10 @@ export default function TourismDestinations() {
   ];
 
   const destinations = [
-    { name: 'Ubud', region: 'Central Bali', category: 'Cultural', packages: 8, status: 'active', image: 'unsplash_images/photo-1537996194471-e657df975ab4__w=400&h=300&fit=crop.jpg' },
-    { name: 'Seminyak', region: 'South Bali', category: 'Beach & Nightlife', packages: 6, status: 'active', image: 'unsplash_images/photo-1559827260-dc66d52bef19__w=400&h=300&fit=crop.jpg' },
-    { name: 'Mount Batur', region: 'East Bali', category: 'Adventure', packages: 4, status: 'active', image: 'unsplash_images/photo-1552733407-5d5c46c3bb3b__w=400&h=300&fit=crop.jpg' },
-    { name: 'Nusa Penida', region: 'Islands', category: 'Island Tours', packages: 5, status: 'active', image: 'unsplash_images/photo-1559827260-dc66d52bef19__w=400&h=300&fit=crop.jpg' },
+    { name: 'Ubud', region: 'Central Bali', category: 'Cultural', packages: 8, status: 'active', image: '/unsplash_images/photo-1537996194471-e657df975ab4__w=400&h=300&fit=crop.jpg' },
+    { name: 'Seminyak', region: 'South Bali', category: 'Beach & Nightlife', packages: 6, status: 'active', image: '/unsplash_images/photo-1559827260-dc66d52bef19__w=400&h=300&fit=crop.jpg' },
+    { name: 'Mount Batur', region: 'East Bali', category: 'Adventure', packages: 4, status: 'active', image: '/unsplash_images/photo-1552733407-5d5c46c3bb3b__w=400&h=300&fit=crop.jpg' },
+    { name: 'Nusa Penida', region: 'Islands', category: 'Island Tours', packages: 5, status: 'active', image: '/unsplash_images/photo-1559827260-dc66d52bef19__w=400&h=300&fit=crop.jpg' },
   ];
 
   return (

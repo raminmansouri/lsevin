@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { ChevronLeft, Calendar, Tag, MessageCircle, Bell } from 'lucide-react';
 
 export default function Notifications() {

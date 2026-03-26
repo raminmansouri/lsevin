@@ -34,7 +34,7 @@ i18n
       de: { translation: de },
       fr: { translation: fr },
     },
-    lng: localStorage.getItem('lsevin_language') || 'en',
+    lng: /* localStorage?.getItem('lsevin_language') || */ 'en',
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false,

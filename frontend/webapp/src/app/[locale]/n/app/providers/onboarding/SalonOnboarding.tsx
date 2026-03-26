@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { Scissors, ArrowLeft, ArrowRight, Upload, MapPin, Phone, Mail, Save, Users, Sparkles } from 'lucide-react';
 
 export default function SalonOnboarding() {

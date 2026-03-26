@@ -1,6 +1,6 @@
 "use client"
 
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { GraduationCap, ArrowLeft, ArrowRight, Upload, MapPin, Phone, Save, Award } from 'lucide-react';
 
 export default function EducationOnboarding() {

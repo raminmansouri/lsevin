@@ -58,7 +58,7 @@ export default function SalonStaff() {
       phone: '+971 50 123 4567',
       email: 'anna.martinez@luxurybeauty.com',
       joinedDate: '2023-01-15',
-      image: 'unsplash_images/photo-1494790108377-be9c29b29330__w=400&h=400&fit=crop.jpg'
+      image: '/unsplash_images/photo-1494790108377-be9c29b29330__w=400&h=400&fit=crop.jpg'
     },
     {
       id: '2',
@@ -74,7 +74,7 @@ export default function SalonStaff() {
       phone: '+971 55 234 5678',
       email: 'maria.santos@luxurybeauty.com',
       joinedDate: '2023-03-20',
-      image: 'unsplash_images/photo-1438761681033-6461ffad8d80__w=400&h=400&fit=crop.jpg'
+      image: '/unsplash_images/photo-1438761681033-6461ffad8d80__w=400&h=400&fit=crop.jpg'
     },
     {
       id: '3',
@@ -90,7 +90,7 @@ export default function SalonStaff() {
       phone: '+971 56 345 6789',
       email: 'sofia.rodriguez@luxurybeauty.com',
       joinedDate: '2023-06-10',
-      image: 'unsplash_images/photo-1534528741775-53994a69daeb__w=400&h=400&fit=crop.jpg'
+      image: '/unsplash_images/photo-1534528741775-53994a69daeb__w=400&h=400&fit=crop.jpg'
     },
     {
       id: '4',
@@ -106,7 +106,7 @@ export default function SalonStaff() {
       phone: '+971 52 456 7890',
       email: 'elena.popescu@luxurybeauty.com',
       joinedDate: '2024-01-05',
-      image: 'unsplash_images/photo-1544005313-94ddf0286df2__w=400&h=400&fit=crop.jpg'
+      image: '/unsplash_images/photo-1544005313-94ddf0286df2__w=400&h=400&fit=crop.jpg'
     },
   ];
 

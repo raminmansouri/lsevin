@@ -1,6 +1,5 @@
-"use client"
 
-// import { useNavigate } from 'react-router';
+// import { useNavigate } from '@/hooks/use-navigate';
 import { 
   Search, 
   Bell, 
@@ -20,16 +19,21 @@ import {
 } from 'lucide-react';
 import { IconButton } from '../../design-system/mobile-components';
 import { Chip } from '../../design-system/components';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { TRANSLATION_KEY } from '@/features/consulting/types/constants';
+import { useNavigate } from '@/hooks/use-navigate';
 // import { useLocalization } from '../../contexts/LocalizationContext';
+import { PageProps } from "@/types/next";
+import { ServiceProvidersCategoriesSuspenseBoundary } from './components/service-providers-category';
 
-export default function Home() {
+
+const Home = async ({ params, searchParams }: PageProps) => {
+
 
     const t = useTranslations();
   
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   // const { isRTL } = useLocalization();
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState({ city: 'Dubai', country: 'UAE' });
@@ -38,43 +42,43 @@ export default function Home() {
     { 
       id: 1,
       label: 'Medical', 
-      path: '/app/clinics', 
-      image: 'unsplash_images/photo-1631217868264-e5b90bb7e133__w=400&h=300&fit=crop.jpg',
+      path: '/n/app/mobile/medical/clinics', 
+      image: '/unsplash_images/photo-1631217868264-e5b90bb7e133__w=400&h=300&fit=crop.jpg',
       gradient: 'from-red-500/90 to-red-600/90'
     },
     { 
       id: 2,
       label: 'Beauty & Spa', 
-      path: '/app/beauty', 
-      image: 'unsplash_images/photo-1560066984-138dadb4c035__w=400&h=300&fit=crop.jpg',
+      path: '/n/app/mobile/beauty', 
+      image: '/unsplash_images/photo-1560066984-138dadb4c035__w=400&h=300&fit=crop.jpg',
       gradient: 'from-pink-500/90 to-rose-600/90'
     },
     { 
       id: 3,
       label: 'Fitness', 
-      path: '/app/fitness', 
-      image: 'unsplash_images/photo-1534438327276-14e5300c3a48__w=400&h=300&fit=crop.jpg',
+      path: '/n/n/app/mobile/mobile/fitness', 
+      image: '/unsplash_images/photo-1534438327276-14e5300c3a48__w=400&h=300&fit=crop.jpg',
       gradient: 'from-purple-500/90 to-purple-600/90'
     },
     { 
       id: 4,
       label: 'Hotels', 
-      path: '/app/hotels', 
-      image: 'unsplash_images/photo-1566073771259-6a8506099945__w=400&h=300&fit=crop.jpg',
+      path: '/n/app/mobile/hotels', 
+      image: '/unsplash_images/photo-1566073771259-6a8506099945__w=400&h=300&fit=crop.jpg',
       gradient: 'from-blue-500/90 to-blue-600/90'
     },
     { 
       id: 5,
       label: 'Pharmacy', 
-      path: '/app/pharmacy', 
-      image: 'unsplash_images/photo-1576602976047-174e57a47881__w=400&h=300&fit=crop.jpg',
+      path: '/n/app/mobile/pharmacy', 
+      image: '/unsplash_images/photo-1576602976047-174e57a47881__w=400&h=300&fit=crop.jpg',
       gradient: 'from-teal-500/90 to-teal-600/90'
     },
     { 
       id: 6,
       label: 'Education', 
-      path: '/app/education', 
-      image: 'unsplash_images/photo-1523240795612-9a054b0db644__w=400&h=300&fit=crop.jpg',
+      path: '/n/app/mobile/education', 
+      image: '/unsplash_images/photo-1523240795612-9a054b0db644__w=400&h=300&fit=crop.jpg',
       gradient: 'from-amber-500/90 to-orange-600/90'
     },
   ];
@@ -90,7 +94,7 @@ export default function Home() {
   const featuredServices = [
     {
       id: 1,
-      image: 'unsplash_images/photo-1551190822-a9333d879b1f__w=800&h=600&fit=crop.jpg',
+      image: '/unsplash_images/photo-1551190822-a9333d879b1f__w=800&h=600&fit=crop.jpg',
       title: 'Premium Hair Transplant Package',
       subtitle: 'All-inclusive 3-day medical tourism',
       provider: 'Istanbul Medical Center',
@@ -105,7 +109,7 @@ export default function Home() {
     },
     {
       id: 2,
-      image: 'unsplash_images/photo-1588776814546-1ffcf47267a5__w=800&h=600&fit=crop.jpg',
+      image: '/unsplash_images/photo-1588776814546-1ffcf47267a5__w=800&h=600&fit=crop.jpg',
       title: 'Hollywood Smile Veneers',
       subtitle: 'Premium porcelain veneers by experts',
       provider: 'Dubai Smile Clinic',
@@ -120,7 +124,7 @@ export default function Home() {
     },
     {
       id: 3,
-      image: 'unsplash_images/photo-1540555700478-4be289fbecef__w=800&h=600&fit=crop.jpg',
+      image: '/unsplash_images/photo-1540555700478-4be289fbecef__w=800&h=600&fit=crop.jpg',
       title: 'Luxury Wellness Retreat',
       subtitle: '7-day detox & rejuvenation program',
       provider: 'Bali Wellness Resort',
@@ -139,28 +143,28 @@ export default function Home() {
       name: 'Hair Transplant', 
       growth: '+45%', 
       bookings: '2.3k',
-      image: 'unsplash_images/photo-1622296089863-eb7fc530daa8__w=600&h=400&fit=crop.jpg' 
+      image: '/unsplash_images/photo-1622296089863-eb7fc530daa8__w=600&h=400&fit=crop.jpg' 
     },
     { 
       id: 2,
       name: 'Dental Implants', 
       growth: '+32%', 
       bookings: '1.8k',
-      image: 'unsplash_images/photo-1606811971618-4486d14f3f99__w=600&h=400&fit=crop.jpg' 
+      image: '/unsplash_images/photo-1606811971618-4486d14f3f99__w=600&h=400&fit=crop.jpg' 
     },
     { 
       id: 3,
       name: 'IVF Treatment', 
       growth: '+28%', 
       bookings: '1.5k',
-      image: 'unsplash_images/photo-1584515979956-d9f6e5d09982__w=600&h=400&fit=crop.jpg' 
+      image: '/unsplash_images/photo-1584515979956-d9f6e5d09982__w=600&h=400&fit=crop.jpg' 
     },
     { 
       id: 4,
       name: 'Laser Eye Surgery', 
       growth: '+25%', 
       bookings: '1.2k',
-      image: 'unsplash_images/photo-1585435557343-3b092031a831__w=600&h=400&fit=crop.jpg' 
+      image: '/unsplash_images/photo-1585435557343-3b092031a831__w=600&h=400&fit=crop.jpg' 
     },
   ];
   
@@ -169,25 +173,25 @@ export default function Home() {
       name: 'Istanbul Medical Center', 
       rating: 4.9, 
       verified: true,
-      image: 'unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=200&h=200&fit=crop.jpg'
+      image: '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=200&h=200&fit=crop.jpg'
     },
     { 
       name: 'Dubai Smile Clinic', 
       rating: 4.9, 
       verified: true,
-      image: 'unsplash_images/photo-1629909613654-28e377c37b09__w=200&h=200&fit=crop.jpg'
+      image: '/unsplash_images/photo-1629909613654-28e377c37b09__w=200&h=200&fit=crop.jpg'
     },
     { 
       name: 'Bali Wellness Resort', 
       rating: 5.0, 
       verified: true,
-      image: 'unsplash_images/photo-1540555700478-4be289fbecef__w=200&h=200&fit=crop.jpg'
+      image: '/unsplash_images/photo-1540555700478-4be289fbecef__w=200&h=200&fit=crop.jpg'
     },
     { 
       name: 'Cyprus Fertility Center', 
       rating: 4.8, 
       verified: true,
-      image: 'unsplash_images/photo-1551190822-a9333d879b1f__w=200&h=200&fit=crop.jpg'
+      image: '/unsplash_images/photo-1551190822-a9333d879b1f__w=200&h=200&fit=crop.jpg'
     },
   ];
   
@@ -205,14 +209,14 @@ export default function Home() {
             <IconButton 
               icon={<Bell size={22} />} 
               badge={3}
-              onClick={() => navigate('/app/notifications')}
+              onClick={() => navigate('/n/app/mobile/notifications')}
             />
             <button 
-              onClick={() => navigate('/app/profile')}
+              onClick={() => navigate('/n/app/mobile/profile')}
               className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-[#eacb7f]/30"
             >
               <img 
-                src="unsplash_images/photo-1494790108377-be9c29b29330__w=100&h=100&fit=crop.jpg" 
+                src="/unsplash_images/photo-1494790108377-be9c29b29330__w=100&h=100&fit=crop.jpg" 
                 alt="Profile"
                 className="w-full h-full object-cover"
               />
@@ -249,7 +253,7 @@ export default function Home() {
                 className="flex flex-col items-center gap-2 p-3 bg-gray-100 rounded-2xl hover:bg-gray-200 transition-colors"
               >
                 <img 
-                  src="unsplash_images/photo-1560066984-138dadb4c035__w=100&h=100&fit=crop.jpg"
+                  src="/unsplash_images/photo-1560066984-138dadb4c035__w=100&h=100&fit=crop.jpg"
                   alt="Dubai"
                   className="w-10 h-10 object-cover"
                 />
@@ -260,7 +264,7 @@ export default function Home() {
                 className="flex flex-col items-center gap-2 p-3 bg-gray-100 rounded-2xl hover:bg-gray-200 transition-colors"
               >
                 <img 
-                  src="unsplash_images/photo-1631217868264-e5b90bb7e133__w=100&h=100&fit=crop.jpg"
+                  src="/unsplash_images/photo-1631217868264-e5b90bb7e133__w=100&h=100&fit=crop.jpg"
                   alt="Istanbul"
                   className="w-10 h-10 object-cover"
                 />
@@ -271,7 +275,7 @@ export default function Home() {
                 className="flex flex-col items-center gap-2 p-3 bg-gray-100 rounded-2xl hover:bg-gray-200 transition-colors"
               >
                 <img 
-                  src="unsplash_images/photo-1540555700478-4be289fbecef__w=100&h=100&fit=crop.jpg"
+                  src="/unsplash_images/photo-1540555700478-4be289fbecef__w=100&h=100&fit=crop.jpg"
                   alt="Bali"
                   className="w-10 h-10 object-cover"
                 />
@@ -285,7 +289,7 @@ export default function Home() {
       {/* Premium Search Bar */}
       <div className="px-5 py-4 bg-gray-50">
         <button
-          onClick={() => navigate('/app/search')}
+          onClick={() => navigate('/n/app/mobile/search')}
           className="w-full h-14 bg-white rounded-2xl px-5 flex items-center gap-3 shadow-sm border border-gray-100 hover:shadow-md transition-all"
         >
           <Search size={22} className="text-[#083f30]" />
@@ -309,7 +313,7 @@ export default function Home() {
       <div className="px-5 py-6">
         <div className="relative rounded-3xl overflow-hidden h-48 shadow-lg">
           <img 
-            src="unsplash_images/photo-1540555700478-4be289fbecef__w=1200&h=600&fit=crop.jpg"
+            src="/unsplash_images/photo-1540555700478-4be289fbecef__w=1200&h=600&fit=crop.jpg"
             alt="Hero"
             className="absolute inset-0 w-full h-full object-cover"
           />
@@ -328,7 +332,7 @@ export default function Home() {
             </p>
             <div>
               <button 
-                onClick={() => navigate('/app/offers')}
+                onClick={() => navigate('/n/app/mobile/offers')}
                 className="bg-[#eacb7f] text-[#083f30] px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#e0b654] transition-all shadow-lg hover:shadow-xl active:scale-95"
               >
                 Explore Offers
@@ -343,7 +347,7 @@ export default function Home() {
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-xl font-bold text-gray-900">{t("ExploreServices")}</h2>
           <button 
-            onClick={() => navigate('/app/categories')}
+            onClick={() => navigate('/n/app/mobile/categories')}
             className="text-sm font-semibold text-[#083f30] hover:underline flex items-center gap-1"
           >
             View All
@@ -352,6 +356,14 @@ export default function Home() {
         </div>
         
         <div className="grid grid-cols-2 gap-3">
+
+          <Suspense >
+                  <ServiceProvidersCategoriesSuspenseBoundary
+                    params={params}
+                    searchParams={searchParams}
+                  />
+                </Suspense>
+
           {categories.map(cat => (
             <button
               key={cat.id}
@@ -381,7 +393,7 @@ export default function Home() {
             <p className="text-sm text-gray-600">Handpicked by our experts</p>
           </div>
           <button 
-            onClick={() => navigate('/app/featured')}
+            onClick={() => navigate('/n/app/mobile/featured')}
             className="text-sm font-semibold text-[#083f30] hover:underline flex items-center gap-1"
           >
             See All
@@ -393,7 +405,7 @@ export default function Home() {
           {featuredServices.map(service => (
             <div
               key={service.id}
-              onClick={() => navigate(`/app/treatment/${service.id}`)}
+              onClick={() => navigate(`/n/app/mobile/treatment/${service.id}`)}
               className="flex-none w-80 bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer"
             >
               {/* Image */}
@@ -488,7 +500,7 @@ export default function Home() {
       <div className="px-5 pb-8">
         <div className="relative rounded-2xl overflow-hidden shadow-lg">
           <img 
-            src="unsplash_images/photo-1544367567-0f2fcb009e0b__w=1200&h=400&fit=crop.jpg"
+            src="/unsplash_images/photo-1544367567-0f2fcb009e0b__w=1200&h=400&fit=crop.jpg"
             alt="Sponsored"
             className="absolute inset-0 w-full h-full object-cover"
           />
@@ -525,7 +537,7 @@ export default function Home() {
           {trendingTreatments.map(treatment => (
             <div 
               key={treatment.id}
-              onClick={() => navigate(`/app/treatment/${treatment.id}`)}
+              onClick={() => navigate(`/n/app/mobile/treatment/${treatment.id}`)}
               className="flex-none w-40 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer"
             >
               <div className="relative aspect-square">
@@ -561,11 +573,11 @@ export default function Home() {
       {/* Map Discovery Preview */}
       <div className="px-5 pb-8">
         <button 
-          onClick={() => navigate('/app/map')}
+          onClick={() => navigate('/n/app/mobile/map')}
           className="w-full relative rounded-2xl overflow-hidden h-48 shadow-lg hover:shadow-xl transition-all active:scale-98"
         >
           <img 
-            src="unsplash_images/photo-1524661135-423995f22d0b__w=1200&h=600&fit=crop.jpg"
+            src="/unsplash_images/photo-1524661135-423995f22d0b__w=1200&h=600&fit=crop.jpg"
             alt="Map"
             className="absolute inset-0 w-full h-full object-cover"
           />
@@ -599,7 +611,7 @@ export default function Home() {
           {trustedProviders.map((provider, idx) => (
             <div
               key={idx}
-              onClick={() => navigate(`/app/clinic/${idx + 1}`)}
+              onClick={() => navigate(`/n/app/mobile/clinic/${idx + 1}`)}
               className="flex-none w-44 bg-white rounded-2xl p-4 shadow-md hover:shadow-xl transition-all cursor-pointer border border-gray-100"
             >
               <div className="relative mb-3">
@@ -661,7 +673,7 @@ export default function Home() {
       <div className="px-5 pb-28">
         <div className="relative rounded-2xl overflow-hidden shadow-lg">
           <img 
-            src="unsplash_images/photo-1545205597-3d9d02c29597__w=1200&h=400&fit=crop.jpg"
+            src="/unsplash_images/photo-1545205597-3d9d02c29597__w=1200&h=400&fit=crop.jpg"
             alt="Loyalty"
             className="absolute inset-0 w-full h-full object-cover"
           />
@@ -700,7 +712,7 @@ export default function Home() {
                   </div>
                 </div>
                 <button 
-                  onClick={() => navigate('/app/rewards')}
+                  onClick={() => navigate('/n/app/mobile/rewards')}
                   className="bg-[#083f30] text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#0a5a44] transition-all shadow-lg active:scale-95"
                 >
                   Join Now - It's Free
@@ -713,3 +725,6 @@ export default function Home() {
     </div>
   );
 }
+
+
+export default Home;

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { ChevronLeft, Lock, Eye, EyeOff, Fingerprint, Smartphone, MapPin, Bell, Trash2 } from 'lucide-react';
 import { Input, Button } from '../../design-system/components';
 

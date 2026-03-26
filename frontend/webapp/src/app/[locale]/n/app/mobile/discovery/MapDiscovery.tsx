@@ -1,6 +1,6 @@
 "use client"
 
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { 
   ChevronLeft, 
   MapPin, 
@@ -46,7 +46,7 @@ export default function MapDiscovery() {
     {
       id: 1,
       name: 'Istanbul Medical Center',
-      image: 'unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=200&h=200&fit=crop.jpg',
+      image: '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=200&h=200&fit=crop.jpg',
       rating: 4.9,
       reviews: 2847,
       verified: true,
@@ -57,7 +57,7 @@ export default function MapDiscovery() {
     {
       id: 2,
       name: 'Dubai Smile Clinic',
-      image: 'unsplash_images/photo-1629909613654-28e377c37b09__w=200&h=200&fit=crop.jpg',
+      image: '/unsplash_images/photo-1629909613654-28e377c37b09__w=200&h=200&fit=crop.jpg',
       rating: 4.9,
       reviews: 1523,
       verified: true,
@@ -68,7 +68,7 @@ export default function MapDiscovery() {
     {
       id: 3,
       name: 'Bangkok Aesthetic Clinic',
-      image: 'unsplash_images/photo-1512678080530-7760d81faba6__w=200&h=200&fit=crop.jpg',
+      image: '/unsplash_images/photo-1512678080530-7760d81faba6__w=200&h=200&fit=crop.jpg',
       rating: 4.8,
       reviews: 892,
       verified: true,
@@ -79,7 +79,7 @@ export default function MapDiscovery() {
     {
       id: 4,
       name: 'Vienna Dental Excellence',
-      image: 'unsplash_images/photo-1588776814546-1ffcf47267a5__w=200&h=200&fit=crop.jpg',
+      image: '/unsplash_images/photo-1588776814546-1ffcf47267a5__w=200&h=200&fit=crop.jpg',
       rating: 4.9,
       reviews: 734,
       verified: true,
@@ -159,7 +159,7 @@ export default function MapDiscovery() {
             {/* Map Background with Grid Pattern */}
             <div className="absolute inset-0">
               <img 
-                src="unsplash_images/photo-1524661135-423995f22d0b__w=1200&h=800&fit=crop.jpg"
+                src="/unsplash_images/photo-1524661135-423995f22d0b__w=1200&h=800&fit=crop.jpg"
                 alt="Map"
                 className="w-full h-full object-cover opacity-40"
               />

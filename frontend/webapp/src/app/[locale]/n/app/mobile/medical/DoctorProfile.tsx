@@ -52,7 +52,7 @@ export default function DoctorProfile() {
     name: 'Dr. Mehmet Yavuz',
     title: 'MD, FISHRS',
     specialty: 'Hair Transplant & Restoration Surgeon',
-    image: 'unsplash_images/photo-1612349317150-e413f6a5b16d__w=800&h=800&fit=crop.jpg',
+    image: '/unsplash_images/photo-1612349317150-e413f6a5b16d__w=800&h=800&fit=crop.jpg',
     rating: 4.9,
     reviews: 847,
     experience: 18,
@@ -120,7 +120,7 @@ export default function DoctorProfile() {
       verified: true,
       helpful: 124,
       images: [
-        'unsplash_images/photo-1622296089863-eb7fc530daa8__w=400&h=300&fit=crop.jpg',
+        '/unsplash_images/photo-1622296089863-eb7fc530daa8__w=400&h=300&fit=crop.jpg',
         'https://images.unsplash.com/photo-1629909615957-be38eea5915d?w=400&h=300&fit=crop'
       ]
     },
@@ -150,13 +150,13 @@ export default function DoctorProfile() {
   
   const beforeAfter = [
     {
-      before: 'unsplash_images/photo-1629909613654-28e377c37b09__w=400&h=300&fit=crop.jpg',
-      after: 'unsplash_images/photo-1622296089863-eb7fc530daa8__w=400&h=300&fit=crop.jpg',
+      before: '/unsplash_images/photo-1629909613654-28e377c37b09__w=400&h=300&fit=crop.jpg',
+      after: '/unsplash_images/photo-1622296089863-eb7fc530daa8__w=400&h=300&fit=crop.jpg',
       procedure: 'Hair Transplant - 4500 Grafts',
       months: '12 months post-op'
     },
     {
-      before: 'unsplash_images/photo-1629909613654-28e377c37b09__w=400&h=300&fit=crop.jpg',
+      before: '/unsplash_images/photo-1629909613654-28e377c37b09__w=400&h=300&fit=crop.jpg',
       after: 'https://images.unsplash.com/photo-1629909615957-be38eea5915d?w=400&h=300&fit=crop',
       procedure: 'Hair Transplant - 3800 Grafts',
       months: '10 months post-op'

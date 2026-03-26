@@ -31,7 +31,7 @@ export default function BookingDetail() {
     id: 'BK-2024-001',
     service: 'Premium Hair Transplant Package',
     provider: 'Istanbul Medical Center',
-    providerImage: 'unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=600&h=400&fit=crop.jpg',
+    providerImage: '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=600&h=400&fit=crop.jpg',
     date: 'March 18, 2026',
     time: '09:00 AM',
     duration: '4-6 hours',
@@ -60,7 +60,7 @@ export default function BookingDetail() {
       name: 'Dr. Mehmet Yilmaz',
       title: 'Hair Transplant Specialist',
       experience: '15+ years',
-      image: 'unsplash_images/photo-1559839734-2b71ea197ec2__w=200&h=200&fit=crop.jpg'
+      image: '/unsplash_images/photo-1559839734-2b71ea197ec2__w=200&h=200&fit=crop.jpg'
     }
   };
 

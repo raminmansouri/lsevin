@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { ChevronLeft, Heart, MapPin, Star, X } from 'lucide-react';
 
 export default function Favorites() {
@@ -9,10 +9,10 @@ export default function Favorites() {
   const [activeTab, setActiveTab] = useState('all');
   
   const favorites = [
-    { id: 1, type: 'clinic', name: 'Dubai Healthcare City Clinic', location: 'Healthcare City, Dubai', rating: 4.9, reviews: 1248, image: 'unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=400.jpg' },
-    { id: 2, type: 'doctor', name: 'Dr. Sarah Johnson', specialty: 'Cardiologist', location: 'Jumeirah, Dubai', rating: 4.8, reviews: 892, image: 'unsplash_images/photo-1559839734-2b71ea197ec2__w=400.jpg' },
-    { id: 3, type: 'salon', name: 'Elegance Beauty Spa', location: 'Marina, Dubai', rating: 4.9, reviews: 654, image: 'unsplash_images/photo-1560066984-138dadb4c035__w=400.jpg' },
-    { id: 4, type: 'gym', name: 'FitZone Wellness Center', location: 'Downtown, Dubai', rating: 4.7, reviews: 432, image: 'unsplash_images/photo-1534438327276-14e5300c3a48__w=400.jpg' },
+    { id: 1, type: 'clinic', name: 'Dubai Healthcare City Clinic', location: 'Healthcare City, Dubai', rating: 4.9, reviews: 1248, image: '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=400.jpg' },
+    { id: 2, type: 'doctor', name: 'Dr. Sarah Johnson', specialty: 'Cardiologist', location: 'Jumeirah, Dubai', rating: 4.8, reviews: 892, image: '/unsplash_images/photo-1559839734-2b71ea197ec2__w=400.jpg' },
+    { id: 3, type: 'salon', name: 'Elegance Beauty Spa', location: 'Marina, Dubai', rating: 4.9, reviews: 654, image: '/unsplash_images/photo-1560066984-138dadb4c035__w=400.jpg' },
+    { id: 4, type: 'gym', name: 'FitZone Wellness Center', location: 'Downtown, Dubai', rating: 4.7, reviews: 432, image: '/unsplash_images/photo-1534438327276-14e5300c3a48__w=400.jpg' },
   ];
   
   const tabs = [

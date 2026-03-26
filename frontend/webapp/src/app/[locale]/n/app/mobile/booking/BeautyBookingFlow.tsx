@@ -43,7 +43,7 @@ export default function BeautyBookingFlow() {
       price: 180,
       category: 'Hair Care',
       popular: true,
-      image: 'unsplash_images/photo-1560066984-138dadb4c035__w=400&h=300&fit=crop.jpg'
+      image: '/unsplash_images/photo-1560066984-138dadb4c035__w=400&h=300&fit=crop.jpg'
     },
     {
       id: 'spa-facial',
@@ -53,7 +53,7 @@ export default function BeautyBookingFlow() {
       price: 120,
       category: 'Facial',
       popular: true,
-      image: 'unsplash_images/photo-1570172619644-dfd03ed5d881__w=400&h=300&fit=crop.jpg'
+      image: '/unsplash_images/photo-1570172619644-dfd03ed5d881__w=400&h=300&fit=crop.jpg'
     },
     {
       id: 'manicure-pedicure',
@@ -62,7 +62,7 @@ export default function BeautyBookingFlow() {
       duration: '60 min',
       price: 85,
       category: 'Nails',
-      image: 'unsplash_images/photo-1604654894610-df63bc536371__w=400&h=300&fit=crop.jpg'
+      image: '/unsplash_images/photo-1604654894610-df63bc536371__w=400&h=300&fit=crop.jpg'
     },
   ];
   
@@ -75,7 +75,7 @@ export default function BeautyBookingFlow() {
       rating: 4.9,
       reviews: 847,
       clients: '2,500+',
-      image: 'unsplash_images/photo-1580489944761-15a19d654956__w=400&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1580489944761-15a19d654956__w=400&h=400&fit=crop.jpg',
       verified: true,
       nextAvailable: 'Mar 15, 2026'
     },
@@ -87,7 +87,7 @@ export default function BeautyBookingFlow() {
       rating: 4.8,
       reviews: 692,
       clients: '2,200+',
-      image: 'unsplash_images/photo-1573496359142-b8d87734a5a2__w=400&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1573496359142-b8d87734a5a2__w=400&h=400&fit=crop.jpg',
       verified: true,
       nextAvailable: 'Mar 12, 2026'
     },
@@ -99,7 +99,7 @@ export default function BeautyBookingFlow() {
       rating: 4.9,
       reviews: 534,
       clients: '1,800+',
-      image: 'unsplash_images/photo-1594744803329-e58b31de8bf5__w=400&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1594744803329-e58b31de8bf5__w=400&h=400&fit=crop.jpg',
       verified: true,
       nextAvailable: 'Mar 14, 2026'
     },

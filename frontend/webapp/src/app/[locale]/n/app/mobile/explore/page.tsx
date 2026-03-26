@@ -1,6 +1,6 @@
 "use client"
 
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { 
   Search, 
   SlidersHorizontal, 
@@ -52,7 +52,7 @@ export default function Explore() {
     {
       id: 1,
       name: 'Istanbul Medical Center',
-      image: 'unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=600&h=400&fit=crop.jpg',
       rating: 4.9,
       reviews: 2847,
       verified: true,
@@ -65,7 +65,7 @@ export default function Explore() {
     {
       id: 2,
       name: 'Dubai Smile Clinic',
-      image: 'unsplash_images/photo-1629909613654-28e377c37b09__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1629909613654-28e377c37b09__w=600&h=400&fit=crop.jpg',
       rating: 4.9,
       reviews: 1523,
       verified: true,
@@ -78,7 +78,7 @@ export default function Explore() {
     {
       id: 3,
       name: 'Bali Wellness Resort',
-      image: 'unsplash_images/photo-1540555700478-4be289fbecef__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1540555700478-4be289fbecef__w=600&h=400&fit=crop.jpg',
       rating: 5.0,
       reviews: 892,
       verified: true,
@@ -91,7 +91,7 @@ export default function Explore() {
     {
       id: 4,
       name: 'Cyprus Fertility Center',
-      image: 'unsplash_images/photo-1551190822-a9333d879b1f__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1551190822-a9333d879b1f__w=600&h=400&fit=crop.jpg',
       rating: 4.8,
       reviews: 456,
       verified: true,
@@ -104,7 +104,7 @@ export default function Explore() {
     {
       id: 5,
       name: 'Bangkok Aesthetic Clinic',
-      image: 'unsplash_images/photo-1512678080530-7760d81faba6__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1512678080530-7760d81faba6__w=600&h=400&fit=crop.jpg',
       rating: 4.9,
       reviews: 1289,
       verified: true,
@@ -117,7 +117,7 @@ export default function Explore() {
     {
       id: 6,
       name: 'Vienna Dental Excellence',
-      image: 'unsplash_images/photo-1588776814546-1ffcf47267a5__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1588776814546-1ffcf47267a5__w=600&h=400&fit=crop.jpg',
       rating: 4.9,
       reviews: 734,
       verified: true,
@@ -134,7 +134,7 @@ export default function Explore() {
       id: 1,
       name: 'Hair Transplant Package',
       provider: 'Istanbul Medical Center',
-      image: 'unsplash_images/photo-1622296089863-eb7fc530daa8__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1622296089863-eb7fc530daa8__w=600&h=400&fit=crop.jpg',
       price: 2499,
       originalPrice: 3200,
       rating: 4.9,
@@ -146,7 +146,7 @@ export default function Explore() {
       id: 2,
       name: 'Hollywood Smile Veneers',
       provider: 'Dubai Smile Clinic',
-      image: 'unsplash_images/photo-1588776814546-1ffcf47267a5__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1588776814546-1ffcf47267a5__w=600&h=400&fit=crop.jpg',
       price: 3200,
       originalPrice: 4500,
       rating: 4.9,
@@ -158,7 +158,7 @@ export default function Explore() {
       id: 3,
       name: 'IVF Treatment Cycle',
       provider: 'Cyprus Fertility Center',
-      image: 'unsplash_images/photo-1584515979956-d9f6e5d09982__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1584515979956-d9f6e5d09982__w=600&h=400&fit=crop.jpg',
       price: 3800,
       rating: 4.8,
       reviews: 234,
@@ -169,7 +169,7 @@ export default function Explore() {
       id: 4,
       name: 'Full Body Checkup',
       provider: 'Bangkok Medical Center',
-      image: 'unsplash_images/photo-1579684385127-1ef15d508118__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1579684385127-1ef15d508118__w=600&h=400&fit=crop.jpg',
       price: 450,
       originalPrice: 600,
       rating: 4.9,
@@ -184,7 +184,7 @@ export default function Explore() {
       id: 1,
       name: 'Premium Wellness Retreat',
       subtitle: '7-day detox & rejuvenation',
-      image: 'unsplash_images/photo-1544367567-0f2fcb009e0b__w=800&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1544367567-0f2fcb009e0b__w=800&h=400&fit=crop.jpg',
       price: 899,
       tag: 'Sponsored'
     },
@@ -456,10 +456,10 @@ export default function Explore() {
         
         <div className="grid grid-cols-2 gap-3">
           {[
-            { label: 'Medical', image: 'unsplash_images/photo-1631217868264-e5b90bb7e133__w=400&h=300&fit=crop.jpg', count: 482 },
-            { label: 'Beauty & Spa', image: 'unsplash_images/photo-1560066984-138dadb4c035__w=400&h=300&fit=crop.jpg', count: 231 },
-            { label: 'Fitness', image: 'unsplash_images/photo-1534438327276-14e5300c3a48__w=400&h=300&fit=crop.jpg', count: 156 },
-            { label: 'Hotels', image: 'unsplash_images/photo-1566073771259-6a8506099945__w=400&h=300&fit=crop.jpg', count: 189 },
+            { label: 'Medical', image: '/unsplash_images/photo-1631217868264-e5b90bb7e133__w=400&h=300&fit=crop.jpg', count: 482 },
+            { label: 'Beauty & Spa', image: '/unsplash_images/photo-1560066984-138dadb4c035__w=400&h=300&fit=crop.jpg', count: 231 },
+            { label: 'Fitness', image: '/unsplash_images/photo-1534438327276-14e5300c3a48__w=400&h=300&fit=crop.jpg', count: 156 },
+            { label: 'Hotels', image: '/unsplash_images/photo-1566073771259-6a8506099945__w=400&h=300&fit=crop.jpg', count: 189 },
           ].map((cat, idx) => (
             <button
               key={idx}

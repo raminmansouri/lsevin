@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { User, ArrowLeft, ArrowRight, Upload, Award, Calendar, MapPin, Phone, Mail, Save, Building2, Clock } from 'lucide-react';
 
 export default function DoctorOnboarding() {

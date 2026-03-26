@@ -1,29 +1,29 @@
 "use client"
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { Button } from '../../design-system/components';
 
 const slides = [
   {
     title: 'Discover Premium Healthcare Worldwide',
     description: 'Access top clinics, hospitals, and specialists across the globe with verified credentials and transparent pricing.',
-    image: 'unsplash_images/photo-1576091160399-112ba8d25d1d__w=800&h=600&fit=crop.jpg',
+    image: '/unsplash_images/photo-1576091160399-112ba8d25d1d__w=800&h=600&fit=crop.jpg',
   },
   {
     title: 'Book Beauty & Wellness Services',
     description: 'Find and book treatments at premium salons, spas, gyms, and wellness centers in your area or abroad.',
-    image: 'unsplash_images/photo-1544161515-4ab6ce6db874__w=800&h=600&fit=crop.jpg',
+    image: '/unsplash_images/photo-1544161515-4ab6ce6db874__w=800&h=600&fit=crop.jpg',
   },
   {
     title: 'All-in-One Travel & Care Support',
     description: 'Get hotels, transfers, translation, insurance, and post-care follow-up all in one seamless platform.',
-    image: 'unsplash_images/photo-1587825140708-dfaf72ae4b04__w=800&h=600&fit=crop.jpg',
+    image: '/unsplash_images/photo-1587825140708-dfaf72ae4b04__w=800&h=600&fit=crop.jpg',
   },
   {
     title: 'Earn Rewards & Save More',
     description: 'Join our loyalty club, earn points on every booking, unlock exclusive deals, and refer friends for rewards.',
-    image: 'unsplash_images/photo-1607083206968-13611e3d76db__w=800&h=600&fit=crop.jpg',
+    image: '/unsplash_images/photo-1607083206968-13611e3d76db__w=800&h=600&fit=crop.jpg',
   },
 ];
 

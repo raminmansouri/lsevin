@@ -1,6 +1,6 @@
 "use client"
 
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { 
   Calendar, 
   Clock, 
@@ -29,7 +29,7 @@ export default function Bookings() {
       id: 'BK-2024-001',
       service: 'Hair Transplant Package',
       provider: 'Istanbul Medical Center',
-      image: 'unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=400&h=300&fit=crop.jpg',
+      image: '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=400&h=300&fit=crop.jpg',
       date: 'March 18, 2026',
       time: '09:00 AM',
       location: 'Istanbul, Turkey',
@@ -42,7 +42,7 @@ export default function Bookings() {
       id: 'BK-2024-002',
       service: 'Dental Veneers',
       provider: 'Dubai Smile Clinic',
-      image: 'unsplash_images/photo-1629909613654-28e377c37b09__w=400&h=300&fit=crop.jpg',
+      image: '/unsplash_images/photo-1629909613654-28e377c37b09__w=400&h=300&fit=crop.jpg',
       date: 'March 25, 2026',
       time: '02:00 PM',
       location: 'Dubai, UAE',
@@ -55,7 +55,7 @@ export default function Bookings() {
       id: 'BK-2024-003',
       service: 'Wellness Retreat',
       provider: 'Bali Wellness Resort',
-      image: 'unsplash_images/photo-1540555700478-4be289fbecef__w=400&h=300&fit=crop.jpg',
+      image: '/unsplash_images/photo-1540555700478-4be289fbecef__w=400&h=300&fit=crop.jpg',
       date: 'April 5, 2026',
       time: '10:00 AM',
       location: 'Ubud, Bali',
@@ -71,7 +71,7 @@ export default function Bookings() {
       id: 'BK-2024-000',
       service: 'Full Body Checkup',
       provider: 'Bangkok Medical Center',
-      image: 'unsplash_images/photo-1579684385127-1ef15d508118__w=400&h=300&fit=crop.jpg',
+      image: '/unsplash_images/photo-1579684385127-1ef15d508118__w=400&h=300&fit=crop.jpg',
       date: 'February 15, 2026',
       time: '11:00 AM',
       location: 'Bangkok, Thailand',
@@ -87,7 +87,7 @@ export default function Bookings() {
       id: 'BK-2024-099',
       service: 'Laser Eye Surgery',
       provider: 'Vienna Eye Clinic',
-      image: 'unsplash_images/photo-1585435557343-3b092031a831__w=400&h=300&fit=crop.jpg',
+      image: '/unsplash_images/photo-1585435557343-3b092031a831__w=400&h=300&fit=crop.jpg',
       date: 'March 10, 2026',
       time: '03:00 PM',
       location: 'Vienna, Austria',

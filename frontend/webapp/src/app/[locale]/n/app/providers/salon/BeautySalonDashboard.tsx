@@ -140,10 +140,10 @@ export default function BeautySalonDashboard() {
           <h3 className="font-semibold text-gray-900 mb-6">Staff Performance Today</h3>
           <div className="space-y-4">
             {[
-              { name: 'Anna Martinez', services: 8, revenue: '$840', image: 'unsplash_images/photo-1494790108377-be9c29b29330__w=100&h=100&fit=crop.jpg' },
-              { name: 'Maria Santos', services: 6, revenue: '$720', image: 'unsplash_images/photo-1438761681033-6461ffad8d80__w=100&h=100&fit=crop.jpg' },
-              { name: 'Sofia Rodriguez', services: 7, revenue: '$680', image: 'unsplash_images/photo-1534528741775-53994a69daeb__w=100&h=100&fit=crop.jpg' },
-              { name: 'Elena Popescu', services: 5, revenue: '$560', image: 'unsplash_images/photo-1544005313-94ddf0286df2__w=100&h=100&fit=crop.jpg' },
+              { name: 'Anna Martinez', services: 8, revenue: '$840', image: '/unsplash_images/photo-1494790108377-be9c29b29330__w=100&h=100&fit=crop.jpg' },
+              { name: 'Maria Santos', services: 6, revenue: '$720', image: '/unsplash_images/photo-1438761681033-6461ffad8d80__w=100&h=100&fit=crop.jpg' },
+              { name: 'Sofia Rodriguez', services: 7, revenue: '$680', image: '/unsplash_images/photo-1534528741775-53994a69daeb__w=100&h=100&fit=crop.jpg' },
+              { name: 'Elena Popescu', services: 5, revenue: '$560', image: '/unsplash_images/photo-1544005313-94ddf0286df2__w=100&h=100&fit=crop.jpg' },
             ].map((staff, idx) => (
               <div key={idx} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                 <img 

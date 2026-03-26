@@ -51,7 +51,7 @@ export default function GymTrainers() {
       status: 'active',
       profileCompletion: 100,
       classesThisWeek: 12,
-      image: 'unsplash_images/photo-1594381898411-846e7d193883__w=400&h=400&fit=crop.jpg'
+      image: '/unsplash_images/photo-1594381898411-846e7d193883__w=400&h=400&fit=crop.jpg'
     },
     {
       id: '2',
@@ -64,7 +64,7 @@ export default function GymTrainers() {
       status: 'active',
       profileCompletion: 95,
       classesThisWeek: 10,
-      image: 'unsplash_images/photo-1544005313-94ddf0286df2__w=400&h=400&fit=crop.jpg'
+      image: '/unsplash_images/photo-1544005313-94ddf0286df2__w=400&h=400&fit=crop.jpg'
     },
     {
       id: '3',
@@ -77,7 +77,7 @@ export default function GymTrainers() {
       status: 'on-break',
       profileCompletion: 90,
       classesThisWeek: 8,
-      image: 'unsplash_images/photo-1567013127542-490d757e51fc__w=400&h=400&fit=crop.jpg'
+      image: '/unsplash_images/photo-1567013127542-490d757e51fc__w=400&h=400&fit=crop.jpg'
     },
   ];
 

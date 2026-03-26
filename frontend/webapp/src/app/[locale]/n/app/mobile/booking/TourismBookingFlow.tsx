@@ -51,7 +51,7 @@ export default function TourismBookingFlow() {
       includes: ['Professional guide', 'Lunch', 'All entrance fees', 'Hotel pickup'],
       groupSize: 'Max 12 people',
       popular: true,
-      image: 'unsplash_images/photo-1469854523086-cc02fe5d8800__w=400&h=300&fit=crop.jpg'
+      image: '/unsplash_images/photo-1469854523086-cc02fe5d8800__w=400&h=300&fit=crop.jpg'
     },
     {
       id: 'airport-transfer',
@@ -64,7 +64,7 @@ export default function TourismBookingFlow() {
       includes: ['Professional driver', 'Flight tracking', 'Free waiting time', 'Door-to-door'],
       groupSize: 'Up to 4 passengers',
       popular: true,
-      image: 'unsplash_images/photo-1449965408869-eaa3f722e40d__w=400&h=300&fit=crop.jpg'
+      image: '/unsplash_images/photo-1449965408869-eaa3f722e40d__w=400&h=300&fit=crop.jpg'
     },
     {
       id: 'cultural-tour',
@@ -76,7 +76,7 @@ export default function TourismBookingFlow() {
       category: 'Cultural',
       includes: ['Expert guide', 'Museum tickets', 'Traditional lunch', 'Photos included'],
       groupSize: 'Small group',
-      image: 'unsplash_images/photo-1533094602577-198d3beab8ea__w=400&h=300&fit=crop.jpg'
+      image: '/unsplash_images/photo-1533094602577-198d3beab8ea__w=400&h=300&fit=crop.jpg'
     },
   ];
   

@@ -21,9 +21,9 @@ import NotificationPermission from "./mobile/entry/NotificationPermission";
 
 // Main App
 import Home from "./mobile/home/page";
-import Explore from "./mobile/explore/Explore";
-import Bookings from "./mobile/bookings/Bookings";
-import Profile from "./mobile/profile/Profile";
+import Explore from "./mobile/explore/page";
+import Bookings from "./mobile/bookings/page";
+import Profile from "./mobile/profile/page";
 import Offers from "./mobile/offers/Offers";
 
 // Discovery
@@ -33,7 +33,7 @@ import CategoryBrowser from "./mobile/discovery/CategoryBrowser";
 import MapDiscovery from "./mobile/discovery/MapDiscovery";
 
 // Medical
-import ClinicListing from "./mobile/medical/ClinicListing";
+import ClinicListing from "./mobile/medical/clinics/page";
 import ClinicDetail from "./mobile/medical/ClinicDetail";
 import DoctorProfile from "./mobile/medical/DoctorProfile";
 import TreatmentDetail from "./mobile/medical/TreatmentDetail";

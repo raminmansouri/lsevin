@@ -1,5 +1,5 @@
 import { Star, MapPin, BadgeCheck, ChevronRight } from 'lucide-react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { useLocalization } from '../../contexts/LocalizationContext';
 
 interface RecommendationCard {

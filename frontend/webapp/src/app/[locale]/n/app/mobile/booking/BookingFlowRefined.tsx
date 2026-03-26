@@ -79,10 +79,10 @@ export default function BookingFlowRefined() {
     price: 2499,
     depositAmount: 500,
     currency: 'USD',
-    image: 'unsplash_images/photo-1622296089863-eb7fc530daa8__w=600&h=400&fit=crop.jpg',
+    image: '/unsplash_images/photo-1622296089863-eb7fc530daa8__w=600&h=400&fit=crop.jpg',
     category: 'Hair Transplant',
     accreditation: 'JCI Accredited',
-    clinicImage: 'unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=400&h=300&fit=crop.jpg'
+    clinicImage: '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=400&h=300&fit=crop.jpg'
   };
   
   const doctors = [
@@ -98,7 +98,7 @@ export default function BookingFlowRefined() {
       credentials: ['MD', 'ISHRS Member', 'Board Certified'],
       verified: true,
       consultation: 0,
-      image: 'unsplash_images/photo-1612349317150-e413f6a5b16d__w=400&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1612349317150-e413f6a5b16d__w=400&h=400&fit=crop.jpg',
       nextAvailable: 'Mar 15, 2026',
       bio: 'Leading hair transplant specialist with expertise in FUE and DHI techniques'
     },
@@ -114,7 +114,7 @@ export default function BookingFlowRefined() {
       credentials: ['MD', 'FUE Specialist', 'ABHRS'],
       verified: true,
       consultation: 0,
-      image: 'unsplash_images/photo-1622253692010-333f2da6031d__w=400&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1622253692010-333f2da6031d__w=400&h=400&fit=crop.jpg',
       nextAvailable: 'Mar 12, 2026',
       bio: 'Internationally recognized expert in advanced hair restoration procedures'
     },

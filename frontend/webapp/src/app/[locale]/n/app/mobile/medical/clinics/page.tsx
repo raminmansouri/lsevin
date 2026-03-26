@@ -1,6 +1,6 @@
 "use client"
 
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { 
   ChevronLeft, 
   SlidersHorizontal, 
@@ -39,7 +39,7 @@ export default function ClinicListing() {
     {
       id: 1,
       name: 'Istanbul Medical Center',
-      image: 'unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=600&h=400&fit=crop.jpg',
       rating: 4.9,
       reviews: 2847,
       verified: true,
@@ -55,7 +55,7 @@ export default function ClinicListing() {
     {
       id: 2,
       name: 'Dubai Smile Clinic',
-      image: 'unsplash_images/photo-1629909613654-28e377c37b09__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1629909613654-28e377c37b09__w=600&h=400&fit=crop.jpg',
       rating: 4.9,
       reviews: 1523,
       verified: true,
@@ -71,7 +71,7 @@ export default function ClinicListing() {
     {
       id: 3,
       name: 'Bali Wellness Resort',
-      image: 'unsplash_images/photo-1540555700478-4be289fbecef__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1540555700478-4be289fbecef__w=600&h=400&fit=crop.jpg',
       rating: 5.0,
       reviews: 892,
       verified: true,
@@ -87,7 +87,7 @@ export default function ClinicListing() {
     {
       id: 4,
       name: 'Cyprus Fertility Center',
-      image: 'unsplash_images/photo-1551190822-a9333d879b1f__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1551190822-a9333d879b1f__w=600&h=400&fit=crop.jpg',
       rating: 4.8,
       reviews: 456,
       verified: true,
@@ -103,7 +103,7 @@ export default function ClinicListing() {
     {
       id: 5,
       name: 'Bangkok Aesthetic Clinic',
-      image: 'unsplash_images/photo-1512678080530-7760d81faba6__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1512678080530-7760d81faba6__w=600&h=400&fit=crop.jpg',
       rating: 4.9,
       reviews: 1289,
       verified: true,
@@ -119,7 +119,7 @@ export default function ClinicListing() {
     {
       id: 6,
       name: 'Vienna Dental Excellence',
-      image: 'unsplash_images/photo-1588776814546-1ffcf47267a5__w=600&h=400&fit=crop.jpg',
+      image: '/unsplash_images/photo-1588776814546-1ffcf47267a5__w=600&h=400&fit=crop.jpg',
       rating: 4.9,
       reviews: 734,
       verified: true,

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { Building2, User, Scissors, Dumbbell, Hotel, Plane, Pill, GraduationCap, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 const providerTypes = [

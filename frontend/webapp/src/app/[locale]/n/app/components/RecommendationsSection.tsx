@@ -1,6 +1,6 @@
 "use client"
 
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { Star, MapPin, TrendingUp, BadgeCheck, ChevronRight } from 'lucide-react';
 
 interface Provider {
@@ -43,7 +43,7 @@ export default function RecommendationsSection({
       priceFrom: 2299,
       currency: 'USD',
       verified: true,
-      image: 'unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=600&h=400&fit=crop.jpg'
+      image: '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=600&h=400&fit=crop.jpg'
     },
     {
       id: 3,
@@ -56,7 +56,7 @@ export default function RecommendationsSection({
       priceFrom: 2599,
       currency: 'USD',
       verified: true,
-      image: 'unsplash_images/photo-1631217868264-e5b90bb7e133__w=600&h=400&fit=crop.jpg'
+      image: '/unsplash_images/photo-1631217868264-e5b90bb7e133__w=600&h=400&fit=crop.jpg'
     },
   ];
 
@@ -73,7 +73,7 @@ export default function RecommendationsSection({
       priceFrom: 1899,
       currency: 'USD',
       verified: true,
-      image: 'unsplash_images/photo-1586773860418-d37222d8fce3__w=600&h=400&fit=crop.jpg'
+      image: '/unsplash_images/photo-1586773860418-d37222d8fce3__w=600&h=400&fit=crop.jpg'
     },
     {
       id: 5,
@@ -86,7 +86,7 @@ export default function RecommendationsSection({
       priceFrom: 2199,
       currency: 'USD',
       verified: true,
-      image: 'unsplash_images/photo-1512678080530-7760d81faba6__w=600&h=400&fit=crop.jpg'
+      image: '/unsplash_images/photo-1512678080530-7760d81faba6__w=600&h=400&fit=crop.jpg'
     },
     {
       id: 6,
@@ -99,7 +99,7 @@ export default function RecommendationsSection({
       priceFrom: 3499,
       currency: 'USD',
       verified: true,
-      image: 'unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=600&h=400&fit=crop.jpg'
+      image: '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=600&h=400&fit=crop.jpg'
     },
   ];
 

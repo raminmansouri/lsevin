@@ -27,22 +27,22 @@ export default function HotelGallery() {
     { 
       name: 'Property Exterior', 
       images: [
-        'unsplash_images/photo-1566073771259-6a8506099945__w=400&h=300&fit=crop.jpg',
-        'unsplash_images/photo-1542314831-068cd1dbfeeb__w=400&h=300&fit=crop.jpg',
+        '/unsplash_images/photo-1566073771259-6a8506099945__w=400&h=300&fit=crop.jpg',
+        '/unsplash_images/photo-1542314831-068cd1dbfeeb__w=400&h=300&fit=crop.jpg',
       ]
     },
     { 
       name: 'Deluxe Suite', 
       images: [
-        'unsplash_images/photo-1582719478250-c89cae4dc85b__w=400&h=300&fit=crop.jpg',
-        'unsplash_images/photo-1590490360182-c33d57733427__w=400&h=300&fit=crop.jpg',
+        '/unsplash_images/photo-1582719478250-c89cae4dc85b__w=400&h=300&fit=crop.jpg',
+        '/unsplash_images/photo-1590490360182-c33d57733427__w=400&h=300&fit=crop.jpg',
       ]
     },
     { 
       name: 'Amenities', 
       images: [
-        'unsplash_images/photo-1571896349842-33c89424de2d__w=400&h=300&fit=crop.jpg',
-        'unsplash_images/photo-1540541338287-41700207dee6__w=400&h=300&fit=crop.jpg',
+        '/unsplash_images/photo-1571896349842-33c89424de2d__w=400&h=300&fit=crop.jpg',
+        '/unsplash_images/photo-1540541338287-41700207dee6__w=400&h=300&fit=crop.jpg',
       ]
     },
   ];
