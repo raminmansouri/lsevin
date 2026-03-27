@@ -260,6 +260,11 @@ export interface IServiceProvider {
   attributes: IAttribute[];
 }
 
+
+export interface IFeaturedServiceResponse {
+  services: ServiceProviderService[];
+}
+
 export interface IServiceProviderDetails {
   id: string;
   name: string;
@@ -359,15 +364,29 @@ export interface ServiceProviderStaff {
 }
 
 // Service interfaces
+export interface ServiceBadge {
+  name:string;
+}
+
+export interface ServiceFeature {
+  name:string;
+}
+
 export interface ServiceProviderService {
+  reviews: number;
+  rating?:number;
+  location?: string;
+  providerName: string;
   id: string;
   serviceDefinitionId: string;
   durationMinutes: number;
   displayName: LocalizedContentResponse;
   description?: LocalizedContentResponse;
+  url?: LocalizedContentResponse;
   isActive: boolean;
   currency: string;
   value: number;
+  discount?: number;
   // Additional fields for custom pricing and duration
   customPrice?: number;
   basePrice?: number;
@@ -376,6 +395,32 @@ export interface ServiceProviderService {
   categoryName?: string;
   notes?: LocalizedContentResponse;
   attributeValues?: ServiceProviderAttributeItem[];
+  badges?: ServiceBadge[];
+  features?: ServiceFeature[];
+}
+
+export interface ServiceProviderService {
+  providerName: string;
+  id: string;
+  serviceDefinitionId: string;
+  durationMinutes: number;
+  displayName: LocalizedContentResponse;
+  description?: LocalizedContentResponse;
+  url?: LocalizedContentResponse;
+  isActive: boolean;
+  currency: string;
+  value: number;
+  discount?: number;
+  // Additional fields for custom pricing and duration
+  customPrice?: number;
+  basePrice?: number;
+  customDuration?: number;
+  baseDuration?: number;
+  categoryName?: string;
+  notes?: LocalizedContentResponse;
+  attributeValues?: ServiceProviderAttributeItem[];
+  badges?: ServiceBadge[];
+  features?: ServiceFeature[];
 }
 
 export interface ServiceProviderAttributeItem {

@@ -15,6 +15,11 @@ export function getServiceProviderIdTag(id: string) {
   return getIdTag("service-providers", id);
 }
 
+
+export function getFeaturedServicesTag() {
+  return getIdTag("service-providers",'featured-services');
+}
+
 export function getUserServiceProviderTag(userId: string) {
   return getUserTag("service-providers", userId);
 }
