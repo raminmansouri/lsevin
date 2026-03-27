@@ -168,7 +168,7 @@ const FeaturedService = ({
               <div className="relative aspect-[16/10] overflow-hidden">
                 <img 
               src={`${env.NEXT_PUBLIC_FILES_URL}/${service?.url}`}
-                  alt={service.displayName}
+                  alt={getLocalizedValue(service.displayName,localeHeader)}
                   className="w-full h-full object-cover"
                 />
                 

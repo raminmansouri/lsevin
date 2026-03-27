@@ -20,6 +20,10 @@ export function getFeaturedServicesTag() {
   return getIdTag("service-providers",'featured-services');
 }
 
+export function getTrendingServicesTag() {
+  return getIdTag("service-providers",'trending-services');
+}
+
 export function getUserServiceProviderTag(userId: string) {
   return getUserTag("service-providers", userId);
 }

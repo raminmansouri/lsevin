@@ -265,6 +265,41 @@ export interface IFeaturedServiceResponse {
   services: ServiceProviderService[];
 }
 
+
+export interface ITrendingServiceResponse {
+  services: TrendingService[];
+}
+
+
+export interface TrendingService {
+  growth:number;
+  bookings: number;
+  reviews: number;
+  rating?:number;
+  location?: string;
+  providerName: string;
+  id: string;
+  serviceDefinitionId: string;
+  durationMinutes: number;
+  displayName: LocalizedContentResponse;
+  description?: LocalizedContentResponse;
+  url?: LocalizedContentResponse;
+  isActive: boolean;
+  currency: string;
+  value: number;
+  discount?: number;
+  // Additional fields for custom pricing and duration
+  customPrice?: number;
+  basePrice?: number;
+  customDuration?: number;
+  baseDuration?: number;
+  categoryName?: string;
+  notes?: LocalizedContentResponse;
+  attributeValues?: ServiceProviderAttributeItem[];
+  badges?: ServiceBadge[];
+  features?: ServiceFeature[];
+}
+
 export interface IServiceProviderDetails {
   id: string;
   name: string;

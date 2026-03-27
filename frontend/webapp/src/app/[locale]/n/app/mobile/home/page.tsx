@@ -31,6 +31,7 @@ import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
 import { Link, redirect } from '@/i18n/navigation';
 import HomeFeaturedServicesSuspenseBoundary from './components/service-providers';
+import HomeTrendingServicesSuspenseBoundary from './components/trending-services';
 
 
 /* export async function generateMetadata(): Promise<Metadata> {
@@ -116,37 +117,6 @@ function Home({ params, searchParams }: PageProps)  {
   ];
   
   
-  
-  const trendingTreatments = [
-    { 
-      id: 1,
-      name: 'Hair Transplant', 
-      growth: '+45%', 
-      bookings: '2.3k',
-      image: '/unsplash_images/photo-1622296089863-eb7fc530daa8__w=600&h=400&fit=crop.jpg' 
-    },
-    { 
-      id: 2,
-      name: 'Dental Implants', 
-      growth: '+32%', 
-      bookings: '1.8k',
-      image: '/unsplash_images/photo-1606811971618-4486d14f3f99__w=600&h=400&fit=crop.jpg' 
-    },
-    { 
-      id: 3,
-      name: 'IVF Treatment', 
-      growth: '+28%', 
-      bookings: '1.5k',
-      image: '/unsplash_images/photo-1584515979956-d9f6e5d09982__w=600&h=400&fit=crop.jpg' 
-    },
-    { 
-      id: 4,
-      name: 'Laser Eye Surgery', 
-      growth: '+25%', 
-      bookings: '1.2k',
-      image: '/unsplash_images/photo-1585435557343-3b092031a831__w=600&h=400&fit=crop.jpg' 
-    },
-  ];
   
   const trustedProviders = [
     { 
@@ -385,40 +355,16 @@ function Home({ params, searchParams }: PageProps)  {
         </div>
         
         <div className="flex gap-3 overflow-x-auto hide-scrollbar px-5 pb-2">
-          {trendingTreatments.map(treatment => (
-            <Link 
-              key={treatment.id}
-              href={`/n/app/mobile/treatment/${treatment.id}`}
-              // onClick={() => navigate(`/n/app/mobile/treatment/${treatment.id}`)}
-              className="flex-none w-40 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer"
-            >
-              <div className="relative aspect-square">
-                <img 
-                  src={treatment.image} 
-                  alt={treatment.name}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                
-                {/* Trend Badge */}
-                <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 bg-green-500 rounded-full">
-                  <TrendingUp size={12} className="text-white" />
-                  <span className="text-xs font-bold text-white">{treatment.growth}</span>
-                </div>
-                
-                {/* Info */}
-                <div className="absolute bottom-0 left-0 right-0 p-3">
-                  <h3 className="font-bold text-white text-sm mb-1 line-clamp-2">
-                    {treatment.name}
-                  </h3>
-                  <div className="flex items-center gap-1 text-white/80">
-                    <Users size={12} />
-                    <span className="text-xs font-medium">{treatment.bookings} bookings</span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
+        
+ <Suspense fallback={<div>hi</div>} >
+                  <HomeTrendingServicesSuspenseBoundary
+                    params={params}
+                    searchParams={searchParams}
+                  />
+                </Suspense> 
+        
+        
+         
         </div>
       </div>
       

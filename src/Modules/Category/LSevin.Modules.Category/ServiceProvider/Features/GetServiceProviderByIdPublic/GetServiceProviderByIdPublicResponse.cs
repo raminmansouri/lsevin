@@ -66,6 +66,28 @@ public sealed class ServiceProviderServiceDto
     public List<ServiceBadgeDto> Badges { get; set; }
     public List<ServiceFeatureDto> Features { get; set; }
 }
+
+public sealed class TrendingServiceDto
+{
+    public Guid Id { get; init; }
+    public Guid ServiceDefinitionId { get; init; }
+    public string DisplayName { get; init; } = null!;
+    public string? Description { get; init; }
+    public string? Url { get; init; }
+    public string? ProviderName { get; init; }
+    public string? Location { get; init; }
+    public bool IsActive { get; init; }
+    public string Currency { get; set; } = null!;
+    public decimal Value { get; set; }
+    public decimal? Discount { get; set; }
+    public decimal? Reviews { get; set; }
+    public decimal? Growth { get; set; }
+    public decimal? Rating { get; set; }
+    public decimal? Bookings { get; set; }
+
+    public List<ServiceBadgeDto> Badges { get; set; }
+    public List<ServiceFeatureDto> Features { get; set; }
+}
 public sealed class ServiceBadgeDto
 {
     public string Name { get; init; }
