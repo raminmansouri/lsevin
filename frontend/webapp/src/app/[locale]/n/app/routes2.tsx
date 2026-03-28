@@ -27,10 +27,10 @@ import Profile from "./mobile/profile/page";
 import Offers from "./mobile/offers/Offers";
 
 // Discovery
-import Search from "./mobile/discovery/Search";
-import SearchResults from "./mobile/discovery/SearchResults";
-import CategoryBrowser from "./mobile/discovery/CategoryBrowser";
-import MapDiscovery from "./mobile/discovery/MapDiscovery";
+import Search from "./mobile/search/page";
+import SearchResults from "./mobile/search/SearchResults";
+import CategoryBrowser from "./mobile/search/CategoryBrowser";
+import MapDiscovery from "./mobile/search/MapDiscovery";
 
 // Medical
 import ClinicListing from "./mobile/medical/clinics/page";
