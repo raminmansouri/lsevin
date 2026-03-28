@@ -266,6 +266,32 @@ export interface IFeaturedServiceResponse {
 }
 
 
+
+export interface TrustedProvider {
+  rating: number;
+  verified: boolean;
+  bookings: number;
+  growth: number;
+  image: string;
+  id: string;
+  name: string;
+  description: string;
+  contactEmail: string;
+  phoneNumberCountryCode?: string;
+  phoneNumber?: string;
+  address: string; // Formatted address string
+  isActive: boolean;
+  providerTypeId: string;
+  providerTypeName: string;
+  grade: string;
+  serviceCount: number;
+  galleryItemCount: number;
+  policyCount: number;
+  staffCount: number;
+  createDate: string;
+  lastModifiedDate?: string;
+}
+
 export interface ITrendingServiceResponse {
   services: TrendingService[];
 }

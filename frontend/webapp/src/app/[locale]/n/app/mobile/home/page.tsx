@@ -32,6 +32,7 @@ import { Metadata } from 'next';
 import { Link, redirect } from '@/i18n/navigation';
 import HomeFeaturedServicesSuspenseBoundary from './components/service-providers';
 import HomeTrendingServicesSuspenseBoundary from './components/trending-services';
+import HomeTrustedProvidersSuspenseBoundary from './components/trusted-providers';
 
 
 /* export async function generateMetadata(): Promise<Metadata> {
@@ -118,32 +119,7 @@ function Home({ params, searchParams }: PageProps)  {
   
   
   
-  const trustedProviders = [
-    { 
-      name: 'Istanbul Medical Center', 
-      rating: 4.9, 
-      verified: true,
-      image: '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=200&h=200&fit=crop.jpg'
-    },
-    { 
-      name: 'Dubai Smile Clinic', 
-      rating: 4.9, 
-      verified: true,
-      image: '/unsplash_images/photo-1629909613654-28e377c37b09__w=200&h=200&fit=crop.jpg'
-    },
-    { 
-      name: 'Bali Wellness Resort', 
-      rating: 5.0, 
-      verified: true,
-      image: '/unsplash_images/photo-1540555700478-4be289fbecef__w=200&h=200&fit=crop.jpg'
-    },
-    { 
-      name: 'Cyprus Fertility Center', 
-      rating: 4.8, 
-      verified: true,
-      image: '/unsplash_images/photo-1551190822-a9333d879b1f__w=200&h=200&fit=crop.jpg'
-    },
-  ];
+  
   
   
   return (
@@ -407,37 +383,13 @@ function Home({ params, searchParams }: PageProps)  {
         </div>
         
         <div className="flex gap-4 overflow-x-auto hide-scrollbar px-5 pb-2">
-          {trustedProviders.map((provider, idx) => (
-            <Link
-              key={idx}
-              href={`/n/app/mobile/clinic/${idx + 1}`}
-              // onClick={() => navigate(`/n/app/mobile/clinic/${idx + 1}`)}
-              className="flex-none w-44 bg-white rounded-2xl p-4 shadow-md hover:shadow-xl transition-all cursor-pointer border border-gray-100"
-            >
-              <div className="relative mb-3">
-                <img 
-                  src={provider.image}
-                  alt={provider.name}
-                  className="w-full aspect-square object-cover rounded-xl"
-                />
-                {provider.verified && (
-                  <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-[#083f30] rounded-full flex items-center justify-center shadow-lg">
-                    <BadgeCheck size={18} className="text-[#eacb7f]" />
-                  </div>
-                )}
-              </div>
-              
-              <h3 className="font-bold text-sm text-gray-900 mb-2 line-clamp-2 leading-tight">
-                {provider.name}
-              </h3>
-              
-              <div className="flex items-center gap-1">
-                <Star size={14} className="fill-yellow-400 text-yellow-400" />
-                <span className="font-bold text-sm text-gray-900">{provider.rating}</span>
-                <span className="text-xs text-gray-500 ml-0.5">Verified</span>
-              </div>
-            </Link>
-          ))}
+             <Suspense fallback={<div>hi</div>} >
+                  <HomeTrustedProvidersSuspenseBoundary
+                    params={params}
+                    searchParams={searchParams}
+                  />
+                </Suspense> 
+
         </div>
       </div>
       

@@ -93,6 +93,7 @@ internal static class Routes
         internal const string GetAll = $"{AdminUrl}";
 
         internal const string GetPublicById = $"{MainUrl}/{{serviceProviderId:guid}}";
+        internal const string GetTrustedProviders = $"{MainUrl}/trusted-providers";
         internal const string GetFeaturedServices = $"{MainUrl}/featured-services";
         internal const string GetTrendingServices = $"{MainUrl}/trending-services";
         internal const string GetById = $"{AdminUrl}/{{serviceProviderId:guid}}";
