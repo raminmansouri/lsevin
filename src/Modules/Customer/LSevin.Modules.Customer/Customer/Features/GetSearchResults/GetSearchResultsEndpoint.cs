@@ -1,4 +1,5 @@
 using BuildingBlocks.Core.ErrorHandling;
+using BuildingBlocks.Core.Messaging.Queries.Paging;
 using BuildingBlocks.Core.ResultPattern;
 using BuildingBlocks.Web.Endpoints;
 using BuildingBlocks.Web.Extensions;
@@ -36,10 +37,12 @@ internal sealed class GetSearchResultsEndpoint : EndpointResponseHandler, IEndpo
     }
 
     private static Task<Results<Ok<GetSearchResultsResponse>, ProblemHttpResult>> Handle(
-        [AsParameters] BaseEndpointServices<CustomerModule> services
+        [AsParameters] BaseEndpointServices<CustomerModule> services,
+        [AsParameters] PageRequest pageRequest
+
     ) =>
         Result
-            .Create(GetSearchResultsQuery.Of)
+            .Create(GetSearchResultsQuery.Of(pageRequest?.Filters))
             .Bind(query => services.Gateway.SendQueryAsync(query, services.CancellationToken))
             .Match<
                 GetSearchResultsResponse,

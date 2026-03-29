@@ -19,6 +19,9 @@ export function getServiceProviderIdTag(id: string) {
 export function getFeaturedServicesTag() {
   return getIdTag("service-providers",'featured-services');
 }
+export function getSearchResultsTag() {
+  return getIdTag("service-providers",'search-results');
+}
 
 export function getTrendingServicesTag() {
   return getIdTag("service-providers",'trending-services');

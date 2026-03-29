@@ -265,7 +265,35 @@ export interface IFeaturedServiceResponse {
   services: ServiceProviderService[];
 }
 
+export interface SearchResultsResponse {
+  results:SearchResultsItem[];
+  categories:SearchResultsCategory[];
+  filters:SearchResultsFilter[];
+}
 
+export interface SearchResultsFilter {
+    id:string;
+  label:string;
+}
+
+export interface SearchResultsCategory {
+    id:string;
+  label:string;
+}
+export interface SearchResultsItem {
+id: number,
+type: string,
+name: string,
+provider: string,
+image: string
+location: string,
+rating: number,
+reviews: number,
+price: number,
+originalPrice: number,
+verified: boolean,
+tags: string[]
+}
 export interface SearchHistoryTrendingSearchVm {
   query:string;
   trend:string;
@@ -274,6 +302,7 @@ export interface SearchHistoryPopularCategoryVm {
   label:string;
   icon:string;
 }
+
 export interface SearchHistoryResponse {
 recentSearches:string[];
 popularCategories:SearchHistoryPopularCategoryVm[];

@@ -38,6 +38,14 @@ internal sealed class GetSearchResultsQueryHandler(
    new SearchResultCategory() { Id= "packages", Label= "Packages" }
   };
 
+
+
+        var filters = new List<SearchResultFilters>() {
+   new SearchResultFilters() { Id= "Verified Only", Label= "Verified Only" },
+   new SearchResultFilters() { Id= "4+ Stars", Label= "4+ Stars" },
+  };
+
+
         var results = new List<SearchResultItem>() {
      new SearchResultItem{
       Id= 1,
@@ -109,6 +117,7 @@ internal sealed class GetSearchResultsQueryHandler(
         var searchHistoryResponse = new GetSearchResultsResponse
         {
             Results = results,
+            Filters = filters,
             Categories = categories
         };
 

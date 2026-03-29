@@ -7,6 +7,7 @@ public sealed record GetSearchResultsResponse
     public string[] RecentSearches { get; internal set; }
     public List<SearchResultItem> Results { get; internal set; }
     public List<SearchResultCategory> Categories { get; internal set; }
+    public List<SearchResultFilters> Filters { get; internal set; }
 }
 
 public sealed record SearchResultCategory
@@ -14,6 +15,14 @@ public sealed record SearchResultCategory
     public string Id { get; internal set; }
     public string Label { get; internal set; }
 }
+
+
+public sealed record SearchResultFilters
+{
+    public string Id { get; internal set; }
+    public string Label { get; internal set; }
+}
+
 public sealed record SearchResultItem
 {
     public int Id { get; internal set; }
