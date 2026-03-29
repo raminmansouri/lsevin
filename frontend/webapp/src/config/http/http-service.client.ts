@@ -63,6 +63,9 @@ async function apiBase<T>(
   url: string,
   options?: AxiosRequestConfig
 ): Promise<T> {
+  console.log('urllll:',httpService.getUri())
+  ;
+
   const response: AxiosResponse = await httpService(url, options);
   return response.data as T;
 }
@@ -75,6 +78,7 @@ async function readData<T>(
     headers: headers,
     method: "GET",
   };
+  console.log('trying:....',url,options)
   return await apiBase<T>(url, options);
 }
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useNavigate, useSearchParams } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { 
   ChevronLeft, 
   SlidersHorizontal, 
@@ -12,11 +12,12 @@ import {
   Filter,
   X
 } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
 export default function SearchResults() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('relevance');

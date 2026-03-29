@@ -266,6 +266,19 @@ export interface IFeaturedServiceResponse {
 }
 
 
+export interface SearchHistoryTrendingSearchVm {
+  query:string;
+  trend:string;
+}
+export interface SearchHistoryPopularCategoryVm {
+  label:string;
+  icon:string;
+}
+export interface SearchHistoryResponse {
+recentSearches:string[];
+popularCategories:SearchHistoryPopularCategoryVm[];
+trendingSearches:SearchHistoryTrendingSearchVm[];
+}
 
 export interface TrustedProvider {
   rating: number;

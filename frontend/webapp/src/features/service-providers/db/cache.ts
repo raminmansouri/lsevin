@@ -28,6 +28,9 @@ export function getTrendingServicesTag() {
 export function getTrustedProvidersTag() {
   return getIdTag("service-providers",'trusted-providers');
 }
+export function getSearchHistoryTag() {
+  return getIdTag("service-providers",'search-history');
+}
 
 export function getUserServiceProviderTag(userId: string) {
   return getUserTag("service-providers", userId);

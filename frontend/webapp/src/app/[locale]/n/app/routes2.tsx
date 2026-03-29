@@ -28,7 +28,7 @@ import Offers from "./mobile/offers/Offers";
 
 // Discovery
 import Search from "./mobile/search/page";
-import SearchResults from "./mobile/search/SearchResults";
+import SearchResults from "./mobile/search-results/page";
 import CategoryBrowser from "./mobile/search/CategoryBrowser";
 import MapDiscovery from "./mobile/search/MapDiscovery";
 
