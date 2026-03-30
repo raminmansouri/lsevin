@@ -1,11 +1,28 @@
 "use client"
+import { useFetchCpCategoryGroups } from '@/features/service-providers/api/client/fetch-cp-category-groups';
+import { useFetchExplore } from '@/features/service-providers/api/client/fetch-explore';
+import { CpCategoryGroup, ExploreCategory } from '@/features/service-providers/types';
 import { useRouter } from '@/i18n/navigation';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export default function CategoryBrowser() {
   const router = useRouter();
 
   
+    const { data ,refetch} = useFetchCpCategoryGroups({});
+  
+    useEffect(() => {
+      // Auto-focus on mount
+      if (data?.categoryGroups) setCategoryGroups(data?.categoryGroups);
+  
+      
+    }, [data]);
+  
+    const [categoryGroups, setCategoryGroups] = useState<CpCategoryGroup[]>([])
+
+ /* 
+
   const categoryGroups = [
     {
       title: 'Medical Services',
@@ -153,7 +170,7 @@ export default function CategoryBrowser() {
       ]
     },
   ];
-
+ */
   return (
     <div className="min-h-screen bg-white pb-24">
       {/* Header */}

@@ -274,6 +274,21 @@ categories :ExploreCategory[]
 
 }
 
+    export interface CpCategoryGroupsResponse{
+      categoryGroups:CpCategoryGroup[]
+    }
+
+   export interface CpCategory{
+          count: number,
+          name:string,
+          image:string,
+          gradient:string,
+    }
+    export interface CpCategoryGroup{
+       title: string,
+      categories:CpCategory []
+    }
+
 export interface ExploreCategory {
   id:string,
   label:string,
