@@ -53,13 +53,30 @@ export function addSearchParam(
 }
 export function addAllParams(
   searchParams: URLSearchParams,
-  params: FilterParams
+  params: any
 ) {
-  if(Object.keys(params).length>0){
-    Object.keys(params).map(key=>{
-      searchParams.set(key,params[key])
+  const excludeNames = [
+    "filters",
+    "startDate",
+    "endDate",
+    "pageNumber",
+    "pageSize",
+    "sortOrder",
+  ]
+  console.log('searchParams before', searchParams.toString())
+  if (Object.keys(params).length > 0) {
+    Object.keys(params).map(key => {
+      if (
+        searchParams.has(key) == false &&
+        excludeNames.indexOf(key) < 0)
+        {
+        console.log('searchParams add', key, params[key], 'ex:' + excludeNames[key])
+       searchParams.set(key, params[key]) 
+
+        }
     })
   }
+  console.log('searchParams after', searchParams.toString())
   return searchParams;
 }
 

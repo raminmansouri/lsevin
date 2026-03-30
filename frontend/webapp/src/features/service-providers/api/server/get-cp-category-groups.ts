@@ -28,13 +28,14 @@ export const getCpCategoryGroups = async (
   params?: CpCategoryGroupsFilterParams
 ): Promise<ApiReturnType<CpCategoryGroupsResponse>> => {
   "use cache: remote";
-  console.log('server explore called:')
+  console.log('server getCpCategoryGroups called:')
 
   cacheTag(getCpCategoryGroupsTag());
   cacheLife("default");
 
   const searchParams = new URLSearchParams();
   if (params) {
+    addAllFilterParams(searchParams, params);
     addAllParams(searchParams, params);
   }
   

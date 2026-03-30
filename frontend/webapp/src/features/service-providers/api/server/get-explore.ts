@@ -40,6 +40,7 @@ export const getExplore = async (
 
   const searchParams = new URLSearchParams();
   if (params) {
+    addAllFilterParams(searchParams, params);
     addAllParams(searchParams, params);
   }
   
