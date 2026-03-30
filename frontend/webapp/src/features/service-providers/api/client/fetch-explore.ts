@@ -5,7 +5,7 @@ import { ApiReturnType, PaginatedResult } from "@/types/network";
 
 import { getTrustedProvidersTag, getServiceProviderIdTag, getExploreTag } from "../../db/cache";
 import { ITrendingServiceResponse, ExploreResponse, TrustedProvider } from "../../types";
-import { addAllFilterParams } from "@/lib/filter-params";
+import { addAllFilterParams, addAllParams } from "@/lib/filter-params";
 import { FilterParams } from "@/types/filter";
 import { readData } from "@/config/http/http-service.client";
 import { queryOptions, useQuery } from "@tanstack/react-query";
@@ -27,17 +27,15 @@ const fetchExplore = async (
 
 ): Promise<ExploreResponse> => {
 
+
+  console.log('fetch explore:',filters)
   const searchParams = new URLSearchParams();
   if (params) {
     addAllFilterParams(searchParams, params);
   }
 
   if(filters){
-    if (filters && Object.entries(filters).length > 0) {
-      Object.keys(filters).forEach((key) => {
-        searchParams.append(key, filters[key]);
-      });
-    }
+    addAllParams(searchParams,filters)
   }
 
 

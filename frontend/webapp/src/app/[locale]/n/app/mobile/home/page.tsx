@@ -464,7 +464,7 @@ function Home({ params, searchParams }: PageProps)  {
                   </div>
                 </div>
                 <Link
-                href='/n/app/mobile/rewards' 
+                href='/n/app/mobile/profile/rewards' 
                   // onClick={() => navigate('/n/app/mobile/rewards')}
                   className="bg-[#083f30] text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#0a5a44] transition-all shadow-lg active:scale-95"
                 >

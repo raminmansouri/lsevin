@@ -48,11 +48,11 @@ import SupportChat from "./mobile/care/SupportChat";
 
 // Profile & Settings
 import Wallet from "./mobile/profile/Wallet";
-import Rewards from "./mobile/profile/Rewards";
+import Rewards from "./mobile/profile/rewards/page";
 import Settings from "./mobile/profile/Settings";
 import Favorites from "./mobile/profile/Favorites";
 import MedicalProfile from "./mobile/profile/MedicalProfile";
-import Notifications from "./mobile/profile/Notifications";
+import Notifications from "./mobile/notifications/page";
 import PrivacySecurity from "./mobile/profile/PrivacySecurity";
 import EditProfile from "./mobile/profile/EditProfile";
 import Transactions from "./mobile/profile/Transactions";
