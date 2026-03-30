@@ -13,6 +13,7 @@ internal static class Routes
         internal const string GetCurrent = $"{MainUrl}/current";
         internal const string GetSearchHistory = $"{MainUrl}/GetSearchHistory";
         internal const string GetSearchResults = $"{MainUrl}/GetSearchResults";
+        internal const string Explore = $"{MainUrl}/Explore";
 
         internal const string Update = $"{MainUrl}";
 

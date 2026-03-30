@@ -1,9 +1,11 @@
-import { useNavigate } from '@/hooks/use-navigate';
+"use client"
+import { useRouter } from '@/i18n/navigation';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function CategoryBrowser() {
-  const navigate = useNavigate();
+  const router = useRouter();
 
+  
   const categoryGroups = [
     {
       title: 'Medical Services',
@@ -158,7 +160,7 @@ export default function CategoryBrowser() {
       <div className="sticky top-0 z-40 bg-white border-b border-gray-100 px-5 pt-3 pb-4">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => router.back()}
             className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
           >
             <ChevronLeft size={24} className="text-gray-700" />
@@ -186,7 +188,7 @@ export default function CategoryBrowser() {
               {group.categories.map((category, catIdx) => (
                 <button
                   key={catIdx}
-                  onClick={() => navigate(`/app/search-results?q=${encodeURIComponent(category.name)}`)}
+                  onClick={() => router.push(`/app/search-results?q=${encodeURIComponent(category.name)}`)}
                   className="relative rounded-2xl overflow-hidden aspect-[4/3] group shadow-sm hover:shadow-xl transition-all active:scale-95"
                 >
                   <img 
@@ -223,7 +225,7 @@ export default function CategoryBrowser() {
               Use our smart search to find exactly what you need
             </p>
             <button 
-              onClick={() => navigate('/app/search')}
+              onClick={() => router.push('/app/search')}
               className="bg-[#eacb7f] text-[#083f30] px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#e0b654] transition-all shadow-lg"
             >
               Search Now

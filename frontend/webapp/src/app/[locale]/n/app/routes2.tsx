@@ -29,8 +29,8 @@ import Offers from "./mobile/offers/Offers";
 // Discovery
 import Search from "./mobile/search/page";
 import SearchResults from "./mobile/search-results/page";
-import CategoryBrowser from "./mobile/search/CategoryBrowser";
-import MapDiscovery from "./mobile/search/MapDiscovery";
+import CategoryBrowser from "./mobile/categories/page";
+import MapDiscovery from "./mobile/search/map/page";
 
 // Medical
 import ClinicListing from "./mobile/medical/clinics/page";

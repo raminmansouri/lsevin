@@ -51,6 +51,18 @@ export function addSearchParam(
   }
   return searchParams;
 }
+export function addAllParams(
+  searchParams: URLSearchParams,
+  params: FilterParams
+) {
+  if(Object.keys(params).length>0){
+    Object.keys(params).map(key=>{
+      searchParams.set(key,params[key])
+    })
+  }
+  return searchParams;
+}
+
 
 export function addAllFilterParams(
   searchParams: URLSearchParams,

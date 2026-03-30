@@ -265,48 +265,100 @@ export interface IFeaturedServiceResponse {
   services: ServiceProviderService[];
 }
 
+
+export interface ExploreResponse {
+sponsoredProviders :ExploreSponsoredProvider[]
+trendingServices :ExploreTrendingService[]
+featuredProviders :ExploreFeaturedProvider[]
+categories :ExploreCategory[]
+
+}
+
+export interface ExploreCategory {
+  id:string,
+  label:string,
+  count: number
+}
+
+export interface ExploreFeaturedProvider {
+  id: number,
+  rating: number,
+  reviews: number,
+  name: string,
+  image: string,
+  location: string,
+  responseTime: string,
+  bookings: string,
+  badge: string,
+  specialties: string[],
+  verified: true,
+}
+
+export interface ExploreTrendingService {
+  name: string,
+  provider: string,
+  image: string,
+  growth: string,
+  location: string,
+  id: number,
+  price: number,
+  originalPrice: number,
+  rating: number,
+  reviews: number,
+
+}
+
+export interface ExploreSponsoredProvider {
+  id: number,
+  name: string,
+  subtitle: string,
+  image: string,
+  price: number,
+  tag: string
+};
+
 export interface SearchResultsResponse {
-  results:SearchResultsItem[];
-  categories:SearchResultsCategory[];
-  filters:SearchResultsFilter[];
+  results: SearchResultsItem[];
+  categories: SearchResultsCategory[];
+  filters: SearchResultsFilter[];
 }
 
 export interface SearchResultsFilter {
-    id:string;
-  label:string;
+  id: string;
+  label: string;
 }
 
 export interface SearchResultsCategory {
-    id:string;
-  label:string;
+  id: string;
+  label: string;
 }
 export interface SearchResultsItem {
-id: number,
-type: string,
-name: string,
-provider: string,
-image: string
-location: string,
-rating: number,
-reviews: number,
-price: number,
-originalPrice: number,
-verified: boolean,
-tags: string[]
+  id: number,
+  type: string,
+  name: string,
+  provider: string,
+  image: string
+  location: string,
+  rating: number,
+  reviews: number,
+  price: number,
+  originalPrice: number,
+  verified: boolean,
+  tags: string[]
 }
 export interface SearchHistoryTrendingSearchVm {
-  query:string;
-  trend:string;
+  query: string;
+  trend: string;
 }
 export interface SearchHistoryPopularCategoryVm {
-  label:string;
-  icon:string;
+  label: string;
+  icon: string;
 }
 
 export interface SearchHistoryResponse {
-recentSearches:string[];
-popularCategories:SearchHistoryPopularCategoryVm[];
-trendingSearches:SearchHistoryTrendingSearchVm[];
+  recentSearches: string[];
+  popularCategories: SearchHistoryPopularCategoryVm[];
+  trendingSearches: SearchHistoryTrendingSearchVm[];
 }
 
 export interface TrustedProvider {
@@ -340,10 +392,10 @@ export interface ITrendingServiceResponse {
 
 
 export interface TrendingService {
-  growth:number;
+  growth: number;
   bookings: number;
   reviews: number;
-  rating?:number;
+  rating?: number;
   location?: string;
   providerName: string;
   id: string;
@@ -451,8 +503,8 @@ export interface AvailableCity {
 }
 
 // Legacy aliases for backward compatibility
-export interface IAvailableCountry extends AvailableCountry {}
-export interface IAvailableCity extends AvailableCity {}
+export interface IAvailableCountry extends AvailableCountry { }
+export interface IAvailableCity extends AvailableCity { }
 
 // ============ Sub-Entity Interfaces (for details management) ============
 
@@ -468,16 +520,16 @@ export interface ServiceProviderStaff {
 
 // Service interfaces
 export interface ServiceBadge {
-  name:string;
+  name: string;
 }
 
 export interface ServiceFeature {
-  name:string;
+  name: string;
 }
 
 export interface ServiceProviderService {
   reviews: number;
-  rating?:number;
+  rating?: number;
   location?: string;
   providerName: string;
   id: string;
