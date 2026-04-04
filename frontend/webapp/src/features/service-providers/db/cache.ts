@@ -25,6 +25,10 @@ export function getCpCategoryGroupsTag() {
 export function getExploreTag() {
   return getIdTag("service-providers",'explore');
 }
+
+export function getBookingsTag() {
+  return getIdTag("service-providers",'bookings');
+}
 export function getSearchResultsTag() {
   return getIdTag("service-providers",'search-results');
 }

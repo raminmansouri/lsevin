@@ -1,5 +1,7 @@
 "use client"
 
+import { useFetchBookings } from '@/features/service-providers/api/client/fetch-bookings';
+import { Booking } from '@/features/service-providers/types';
 import { useNavigate } from '@/hooks/use-navigate';
 import { 
   Calendar, 
@@ -12,7 +14,7 @@ import {
   XCircle,
   CalendarX
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Bookings() {
   const navigate = useNavigate();
@@ -24,80 +26,21 @@ export default function Bookings() {
     { id: 'cancelled' as const, label: 'Cancelled', count: 1 },
   ];
 
-  const upcomingBookings = [
-    {
-      id: 'BK-2024-001',
-      service: 'Hair Transplant Package',
-      provider: 'Istanbul Medical Center',
-      image: '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=400&h=300&fit=crop.jpg',
-      date: 'March 18, 2026',
-      time: '09:00 AM',
-      location: 'Istanbul, Turkey',
-      status: 'confirmed',
-      paymentStatus: 'paid',
-      price: 2499,
-      verified: true
-    },
-    {
-      id: 'BK-2024-002',
-      service: 'Dental Veneers',
-      provider: 'Dubai Smile Clinic',
-      image: '/unsplash_images/photo-1629909613654-28e377c37b09__w=400&h=300&fit=crop.jpg',
-      date: 'March 25, 2026',
-      time: '02:00 PM',
-      location: 'Dubai, UAE',
-      status: 'pending',
-      paymentStatus: 'pending',
-      price: 3200,
-      verified: true
-    },
-    {
-      id: 'BK-2024-003',
-      service: 'Wellness Retreat',
-      provider: 'Bali Wellness Resort',
-      image: '/unsplash_images/photo-1540555700478-4be289fbecef__w=400&h=300&fit=crop.jpg',
-      date: 'April 5, 2026',
-      time: '10:00 AM',
-      location: 'Ubud, Bali',
-      status: 'confirmed',
-      paymentStatus: 'paid',
-      price: 899,
-      verified: true
-    },
-  ];
+  const [upcommingBookings, setUpcommingBookings] = useState<Booking[]>([])
+  const [pastBookings, setPastBookings] = useState<Booking[]>([])
+  const [cancelledBookings, setCancelledBookings] = useState<Booking[]>([])
 
-  const pastBookings = [
-    {
-      id: 'BK-2024-000',
-      service: 'Full Body Checkup',
-      provider: 'Bangkok Medical Center',
-      image: '/unsplash_images/photo-1579684385127-1ef15d508118__w=400&h=300&fit=crop.jpg',
-      date: 'February 15, 2026',
-      time: '11:00 AM',
-      location: 'Bangkok, Thailand',
-      status: 'completed',
-      paymentStatus: 'paid',
-      price: 450,
-      verified: true
-    },
-  ];
+    const { data ,refetch} = useFetchBookings({});
+  
+    useEffect(() => {
+      // Auto-focus on mount
+      if (data?.upcomingBookings) setUpcommingBookings(data?.upcomingBookings);
+  
+      if (data?.pastBookings) setPastBookings(data?.pastBookings);
+      if (data?.cancelledBookings) setCancelledBookings(data?.cancelledBookings);
+  
+    }, [data]);
 
-  const cancelledBookings = [
-    {
-      id: 'BK-2024-099',
-      service: 'Laser Eye Surgery',
-      provider: 'Vienna Eye Clinic',
-      image: '/unsplash_images/photo-1585435557343-3b092031a831__w=400&h=300&fit=crop.jpg',
-      date: 'March 10, 2026',
-      time: '03:00 PM',
-      location: 'Vienna, Austria',
-      status: 'cancelled',
-      paymentStatus: 'refunded',
-      price: 1800,
-      verified: true,
-      cancelReason: 'Cancelled by user'
-    },
-  ];
 
   const getBookings = () => {
     switch (activeTab) {

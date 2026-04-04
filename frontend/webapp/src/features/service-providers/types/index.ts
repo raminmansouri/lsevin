@@ -274,6 +274,29 @@ categories :ExploreCategory[]
 
 }
 
+
+export interface Booking {
+    id: string;
+    service: string;
+    provider: string;
+    image?: string;  // Optional field
+    date: string;
+    time: string;
+    location: string;
+    status: string;
+    paymentStatus: string;
+    price: number;
+    verified: boolean;
+}
+
+
+export interface BookingsResponse {
+cancelledBookings :Booking[]
+upcomingBookings   :Booking[]
+pastBookings :Booking[]
+
+}
+
     export interface CpCategoryGroupsResponse{
       categoryGroups:CpCategoryGroup[]
     }
