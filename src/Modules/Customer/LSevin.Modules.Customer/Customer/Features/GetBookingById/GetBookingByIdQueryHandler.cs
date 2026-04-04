@@ -35,9 +35,7 @@ internal sealed class GetBookingByIdQueryHandler(
    
         var searchHistoryResponse = new GetBookingByIdResponse
         {
-            CancelledGetBookingById = GetBookingById.CancelledGetBookingById().ToList(),
-            UpcomingGetBookingById = GetBookingById.UpcomingGetBookingById().ToList(),
-            PastGetBookingById = GetBookingById.PastGetBookingById().ToList(),
+            Booking= GetBookingByIdDummyData.GetData()
         };
 
 

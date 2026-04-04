@@ -7,7 +7,7 @@ namespace LSevin.Modules.Category.ServiceProvider.Features.GetServiceProviderByI
 
 public sealed record GetBookingByIdResponse
 {
-    public Booking Booking { get; internal set; }
+    public BookingRecord Booking { get; internal set; }
 }
 
 public class BookingRecord
@@ -59,7 +59,7 @@ public class Agent
 // Example usage:
 public class GetBookingByIdDummyData
 {
-    public static void GetData()
+    public static BookingRecord GetData()
     {
         var booking = new BookingRecord()
         {
@@ -86,5 +86,6 @@ public class GetBookingByIdDummyData
             contact = new Contact{ phone = "+90 212 555 0123", email = "info@istanbulmedical.com", address = "Halaskargazi Cad. No:38/6, 34371 Şişli/Istanbul" },
             doctor = new Agent { name = "Dr. Mehmet Yilmaz", title = "Hair Transplant Specialist", experience = "15+ years" }
         };
+        return booking;
     }
 }
