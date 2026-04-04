@@ -290,6 +290,53 @@ export interface Booking {
 }
 
 
+export interface BookingRecord {
+    id: string;
+    service: string;
+    provider: string;
+    providerImage?: string;  // Optional field
+    date: string;
+    time: string;
+    duration?: string;
+    location: string;
+    fullAddress?: string;  // Optional field
+    status: string;
+    paymentStatus: string;
+    price: number;
+    deposit?: number;
+    remaining?: number;
+    verified?: boolean;
+    bookingDate?: string;  // Optional field
+    confirmationCode?: string;  // Optional field
+    included?: IncludedServicesType;  // Optional array type
+    contact?: ContactType;  // Optional object type
+    agent?: Agent;  // Optional object type
+}
+
+// Define an interface for the included services
+interface IncludedServicesType {
+    name: string;
+    title: string;
+    experience: string;
+}
+
+// Define a type for the contact information
+type ContactType = {
+    phone: string;
+    email: string;
+    address?: string;  // Optional field
+};
+
+// Define a type for the doctor's information
+type Agent = {
+    name: string;
+    title: string;
+    experience: string;
+    image?: string;  // Optional field
+};
+
+
+
 export interface BookingsResponse {
 cancelledBookings :Booking[]
 upcomingBookings   :Booking[]
@@ -426,6 +473,10 @@ export interface TrustedProvider {
 
 export interface ITrendingServiceResponse {
   services: TrendingService[];
+}
+
+export interface GetBookingByIdResponse {
+  booking: BookingRecord;
 }
 
 

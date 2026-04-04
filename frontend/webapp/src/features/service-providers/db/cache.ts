@@ -19,6 +19,9 @@ export function getServiceProviderIdTag(id: string) {
 export function getFeaturedServicesTag() {
   return getIdTag("service-providers",'featured-services');
 }
+export function getGetBookingByIdTag() {
+  return getIdTag("service-providers",'get-booking-by-id');
+}
 export function getCpCategoryGroupsTag() {
   return getIdTag("service-providers",'cp-category-groups');
 }

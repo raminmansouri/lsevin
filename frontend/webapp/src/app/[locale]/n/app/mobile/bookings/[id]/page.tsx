@@ -18,59 +18,37 @@ import {
   Navigation,
   XCircle
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PageProps } from "@/types/next";
 import { useRouter } from '@/i18n/navigation';
+import { BookingRecord } from '@/features/service-providers/types';
+import { useFetchGetBookingById } from '@/features/service-providers/api/client/fetch-getBookingById';
 
 export default async function BookingDetail({ params, searchParams }: PageProps) {
   const router = useRouter();
   const { id } = await searchParams;
   const [showCancelModal, setShowCancelModal] = useState(false);
 
-  // Mock booking data
-  const booking = {
-    id: 'BK-2024-001',
-    service: 'Premium Hair Transplant Package',
-    provider: 'Istanbul Medical Center',
-    providerImage: '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=600&h=400&fit=crop.jpg',
-    date: 'March 18, 2026',
-    time: '09:00 AM',
-    duration: '4-6 hours',
-    location: 'Şişli, Istanbul, Turkey',
-    fullAddress: 'Halaskargazi Cad. No:38/6, 34371 Şişli/Istanbul',
-    status: 'confirmed',
-    paymentStatus: 'paid',
-    price: 2499,
-    deposit: 500,
-    remaining: 1999,
-    verified: true,
-    bookingDate: 'February 28, 2026',
-    confirmationCode: 'LSEVIN-HT-2024-001',
-    included: [
-      'FUE Hair Transplant (4000 grafts)',
-      '3 nights hotel accommodation',
-      'Airport transfers',
-      'Post-op medications',
-      '1-year follow-up'
-    ],
-    contact: {
-      phone: '+90 212 555 0123',
-      email: 'info@istanbulmedical.com'
-    },
-    doctor: {
-      name: 'Dr. Mehmet Yilmaz',
-      title: 'Hair Transplant Specialist',
-      experience: '15+ years',
-      image: '/unsplash_images/photo-1559839734-2b71ea197ec2__w=200&h=200&fit=crop.jpg'
-    }
-  };
+  
+
+  
+    const [booking, setBooking] = useState<BookingRecord>()
+  
+      const { data ,refetch} = useFetchGetBookingById({
+        id:id
+      });
+    
+      useEffect(() => {
+        // Auto-focus on mount
+        if (data?.booking) setBooking(data?.booking);
+      }, [data]);
 
   const getStatusBadge = () => {
     const badges = {
       confirmed: { icon: CheckCircle, text: 'Confirmed', color: 'bg-green-50 text-green-700 border-green-200' },
       pending: { icon: AlertCircle, text: 'Pending Confirmation', color: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
     };
-    return badges[booking.status as keyof typeof badges];
+    return badges[booking?.status as keyof typeof badges];
   };
 
   const statusBadge = getStatusBadge();
@@ -91,7 +69,7 @@ export default async function BookingDetail({ params, searchParams }: PageProps)
             
             <div className="flex-1">
               <h1 className="text-xl font-bold text-gray-900">Booking Details</h1>
-              <p className="text-sm text-gray-600">{booking.id}</p>
+              <p className="text-sm text-gray-600">{booking?.id}</p>
             </div>
           </div>
         </div>
@@ -115,16 +93,16 @@ export default async function BookingDetail({ params, searchParams }: PageProps)
         <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
           <div className="relative h-48">
             <img 
-              src={booking.providerImage}
-              alt={booking.service}
+              src={booking?.providerImage}
+              alt={booking?.service}
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
             <div className="absolute bottom-4 left-4 right-4">
-              <h2 className="text-xl font-bold text-white mb-1">{booking.service}</h2>
+              <h2 className="text-xl font-bold text-white mb-1">{booking?.service}</h2>
               <div className="flex items-center gap-2">
-                <span className="text-white/90">{booking.provider}</span>
-                {booking.verified && (
+                <span className="text-white/90">{booking?.provider}</span>
+                {booking?.verified && (
                   <div className="w-5 h-5 bg-[#083f30] rounded-full flex items-center justify-center">
                     <BadgeCheck size={14} className="text-[#eacb7f]" />
                   </div>
@@ -142,14 +120,14 @@ export default async function BookingDetail({ params, searchParams }: PageProps)
                   <Calendar size={20} className="text-[#083f30]" />
                   <div>
                     <p className="text-xs text-gray-600">Date</p>
-                    <p className="font-semibold text-gray-900">{booking.date}</p>
+                    <p className="font-semibold text-gray-900">{booking?.date}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                   <Clock size={20} className="text-[#083f30]" />
                   <div>
                     <p className="text-xs text-gray-600">Time</p>
-                    <p className="font-semibold text-gray-900">{booking.time}</p>
+                    <p className="font-semibold text-gray-900">{booking?.time}</p>
                   </div>
                 </div>
               </div>
@@ -161,8 +139,8 @@ export default async function BookingDetail({ params, searchParams }: PageProps)
                 <MapPin size={20} className="text-[#083f30] flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-gray-600 mb-0.5">Location</p>
-                  <p className="font-semibold text-gray-900 mb-0.5">{booking.location}</p>
-                  <p className="text-xs text-gray-600 line-clamp-2">{booking.fullAddress}</p>
+                  <p className="font-semibold text-gray-900 mb-0.5">{booking?.location}</p>
+                  <p className="text-xs text-gray-600 line-clamp-2">{booking?.fullAddress}</p>
                 </div>
                 <button className="flex-shrink-0 w-9 h-9 bg-[#083f30] rounded-full flex items-center justify-center">
                   <Navigation size={16} className="text-white" />
@@ -177,14 +155,14 @@ export default async function BookingDetail({ params, searchParams }: PageProps)
           <h3 className="font-bold text-gray-900 mb-3">Your Doctor</h3>
           <div className="flex items-center gap-3">
             <img 
-              src={booking.doctor.image}
-              alt={booking.doctor.name}
+              src={booking?.agent?.image}
+              alt={booking?.agent?.name}
               className="w-14 h-14 rounded-full object-cover"
             />
             <div className="flex-1">
-              <p className="font-bold text-gray-900">{booking.doctor.name}</p>
-              <p className="text-sm text-gray-600">{booking.doctor.title}</p>
-              <p className="text-xs text-[#083f30] font-medium">{booking.doctor.experience} experience</p>
+              <p className="font-bold text-gray-900">{booking?.agent?.name}</p>
+              <p className="text-sm text-gray-600">{booking?.agent?.title}</p>
+              <p className="text-xs text-[#083f30] font-medium">{booking?.agent?.experience} experience</p>
             </div>
           </div>
         </div>
@@ -193,7 +171,7 @@ export default async function BookingDetail({ params, searchParams }: PageProps)
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
           <h3 className="font-bold text-gray-900 mb-3">Package Includes</h3>
           <div className="space-y-2">
-            {booking.included.map((item, idx) => (
+            {booking?.included?.map((item, idx) => (
               <div key={idx} className="flex items-start gap-2">
                 <CheckCircle size={18} className="text-green-600 flex-shrink-0 mt-0.5" />
                 <span className="text-sm text-gray-700">{item}</span>
@@ -212,22 +190,22 @@ export default async function BookingDetail({ params, searchParams }: PageProps)
           <div className="space-y-2 mb-3">
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600">Total Amount</span>
-              <span className="font-semibold text-gray-900">${booking.price.toLocaleString()}</span>
+              <span className="font-semibold text-gray-900">${booking?.price.toLocaleString()}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600">Deposit Paid</span>
-              <span className="font-semibold text-green-600">-${booking.deposit.toLocaleString()}</span>
+              <span className="font-semibold text-green-600">-${booking?.deposit?.toLocaleString()}</span>
             </div>
             <div className="h-px bg-gray-200 my-2" />
             <div className="flex items-center justify-between">
               <span className="font-semibold text-gray-900">Remaining</span>
-              <span className="text-xl font-bold text-[#083f30]">${booking.remaining.toLocaleString()}</span>
+              <span className="text-xl font-bold text-[#083f30]">${booking?.remaining?.toLocaleString()}</span>
             </div>
           </div>
 
           <div className="px-3 py-2 bg-green-50 rounded-xl border border-green-200">
             <p className="text-xs text-green-700">
-              <span className="font-semibold">✓ Paid:</span> Deposit of ${booking.deposit} paid on {booking.bookingDate}
+              <span className="font-semibold">✓ Paid:</span> Deposit of ${booking?.deposit} paid on {booking?.bookingDate}
             </p>
           </div>
         </div>
@@ -237,7 +215,7 @@ export default async function BookingDetail({ params, searchParams }: PageProps)
           <h3 className="font-bold text-gray-900 mb-3">Contact Provider</h3>
           <div className="space-y-2">
             <a 
-              href={`tel:${booking.contact.phone}`}
+              href={`tel:${booking?.contact?.phone}`}
               className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
             >
               <div className="w-10 h-10 bg-[#083f30] rounded-full flex items-center justify-center">
@@ -245,12 +223,12 @@ export default async function BookingDetail({ params, searchParams }: PageProps)
               </div>
               <div className="flex-1">
                 <p className="text-xs text-gray-600">Phone</p>
-                <p className="font-semibold text-gray-900">{booking.contact.phone}</p>
+                <p className="font-semibold text-gray-900">{booking?.contact?.phone}</p>
               </div>
             </a>
             
             <a 
-              href={`mailto:${booking.contact.email}`}
+              href={`mailto:${booking?.contact?.email}`}
               className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
             >
               <div className="w-10 h-10 bg-[#083f30] rounded-full flex items-center justify-center">
@@ -258,7 +236,7 @@ export default async function BookingDetail({ params, searchParams }: PageProps)
               </div>
               <div className="flex-1">
                 <p className="text-xs text-gray-600">Email</p>
-                <p className="font-semibold text-gray-900">{booking.contact.email}</p>
+                <p className="font-semibold text-gray-900">{booking?.contact?.email}</p>
               </div>
             </a>
           </div>
@@ -270,15 +248,15 @@ export default async function BookingDetail({ params, searchParams }: PageProps)
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-gray-600">Booking ID</span>
-              <span className="font-semibold text-gray-900">{booking.id}</span>
+              <span className="font-semibold text-gray-900">{booking?.id}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Confirmation Code</span>
-              <span className="font-semibold text-gray-900">{booking.confirmationCode}</span>
+              <span className="font-semibold text-gray-900">{booking?.confirmationCode}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Booked On</span>
-              <span className="font-semibold text-gray-900">{booking.bookingDate}</span>
+              <span className="font-semibold text-gray-900">{booking?.bookingDate}</span>
             </div>
           </div>
         </div>
@@ -338,14 +316,14 @@ export default async function BookingDetail({ params, searchParams }: PageProps)
               {/* Booking Summary */}
               <div className="bg-gray-50 rounded-2xl p-4 mb-4">
                 <p className="text-sm text-gray-600 mb-1">Booking</p>
-                <p className="font-bold text-gray-900 mb-2">{booking.service}</p>
-                <p className="text-sm text-gray-600">{booking.date} at {booking.time}</p>
+                <p className="font-bold text-gray-900 mb-2">{booking?.service}</p>
+                <p className="text-sm text-gray-600">{booking?.date} at {booking?.time}</p>
               </div>
               
               {/* Cancellation Policy Warning */}
               <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
                 <p className="text-xs text-red-700">
-                  <span className="font-semibold">⚠️ Cancellation Policy:</span> Your deposit of ${booking.deposit} may not be refundable depending on the provider's cancellation policy.
+                  <span className="font-semibold">⚠️ Cancellation Policy:</span> Your deposit of ${booking?.deposit} may not be refundable depending on the provider's cancellation policy.
                 </p>
               </div>
             </div>
