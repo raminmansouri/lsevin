@@ -1,6 +1,5 @@
 "use client"
 
-import { useNavigate, useParams } from 'react-router';
 import { 
   ChevronLeft, 
   Calendar, 
@@ -20,10 +19,12 @@ import {
   XCircle
 } from 'lucide-react';
 import { useState } from 'react';
+import { PageProps } from "@/types/next";
+import { useRouter } from '@/i18n/navigation';
 
-export default function BookingDetail() {
-  const navigate = useNavigate();
-  const { id } = useParams();
+export default async function BookingDetail({ params, searchParams }: PageProps) {
+  const router = useRouter();
+  const { id } = await searchParams;
   const [showCancelModal, setShowCancelModal] = useState(false);
 
   // Mock booking data
@@ -82,7 +83,7 @@ export default function BookingDetail() {
         <div className="px-5 pt-3 pb-4">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => router.back()}
               className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
             >
               <ChevronLeft size={24} className="text-gray-700" />

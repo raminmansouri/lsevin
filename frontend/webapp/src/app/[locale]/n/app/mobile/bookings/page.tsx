@@ -174,7 +174,7 @@ export default function Bookings() {
             return (
               <div
                 key={booking.id}
-                onClick={() => navigate(`/app/booking-detail/${booking.id}`)}
+                onClick={() => navigate(`/n/app/mobile/bookings/${booking.id}`)}
                 className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer"
               >
                 <div className="p-4">

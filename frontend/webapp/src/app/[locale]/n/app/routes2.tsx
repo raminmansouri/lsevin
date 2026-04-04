@@ -43,7 +43,7 @@ import BookingFlow from "./mobile/booking/BookingFlow";
 import PaymentSuccess from "./mobile/booking/PaymentSuccess";
 
 // Care
-import BookingDetail from "./mobile/bookings/BookingDetail";
+import BookingDetail from "./mobile/bookings/[id]/page";
 import SupportChat from "./mobile/care/SupportChat";
 
 // Profile & Settings

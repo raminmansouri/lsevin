@@ -24,7 +24,6 @@ import { useTranslations } from 'next-intl';
 import { TRANSLATION_KEY } from '@/features/consulting/types/constants';
 import { useNavigate } from '@/hooks/use-navigate';
 // import { useLocalization } from '../../contexts/LocalizationContext';
-import { PageProps } from "@/types/next";
 import { ServiceProvidersCategoriesSuspenseBoundary } from './components/service-providers-category';
 import LocationPicker from './components/location-picker';
 import { getTranslations } from 'next-intl/server';
@@ -33,6 +32,7 @@ import { Link, redirect } from '@/i18n/navigation';
 import HomeFeaturedServicesSuspenseBoundary from './components/service-providers';
 import HomeTrendingServicesSuspenseBoundary from './components/trending-services';
 import HomeTrustedProvidersSuspenseBoundary from './components/trusted-providers';
+import { PageProps } from "@/types/next";
 
 
 /* export async function generateMetadata(): Promise<Metadata> {
