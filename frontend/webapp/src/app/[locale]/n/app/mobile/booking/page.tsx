@@ -125,7 +125,6 @@ export default function BookingFlow() {
     { time: '02:00 PM', available: true },
     { time: '03:00 PM', available: true },
   ];
-  
 
   const services = [
     {
@@ -205,10 +204,10 @@ export default function BookingFlow() {
   ];
   
   const steps = [
-    { num: 1, label: 'Doctor & Date' },
-    { num: 2, label: 'Add-ons' },
-    { num: 3, label: 'Medical Files' },
-    { num: 4, label: 'Review & Pay' },
+    { num: 1, label: 'Doctor & Date',components:['services'] },
+    { num: 2, label: 'Add-ons' ,components:[]},
+    { num: 3, label: 'Medical Files',components:[] },
+    { num: 4, label: 'Review & Pay' ,components:[]},
   ];
   
   const toggleAddon = (addonId: string) => {
