@@ -18,24 +18,57 @@ import {
   Navigation,
   XCircle
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { PageProps } from "@/types/next";
 import { useRouter } from '@/i18n/navigation';
 import { BookingRecord } from '@/features/service-providers/types';
 import { useFetchGetBookingById } from '@/features/service-providers/api/client/fetch-getBookingById';
+import { cancelBookingAction } from '@/features/booking/actions/cancel-booking';
+import useAction from '@/hooks/use-action';
+import { useTranslations } from 'next-intl';
+import { TRANSLATION_KEY } from '@/features/consulting/types/constants';
+import { toast } from "sonner";
+import { useSearchParams } from 'next/navigation';
+import { useNavigate } from '@/hooks/use-navigate';
 
-export default async function BookingDetail({ params, searchParams }: PageProps) {
-  const router = useRouter();
-  const { id } = await searchParams;
+
+export default function BookingDetail() {
+
+  const router=useRouter();
+  const navigate=useNavigate();
+  const searchParams = useSearchParams();
+  
+  const id:string= searchParams.get('id');
+  
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const t = useTranslations(TRANSLATION_KEY);
 
   
+  
+    const { execute: executeCancelBooking } = useAction(cancelBookingAction, {
+      startTransition,
+      onSuccess: () => {
+        toast.success(t("booking.messages.cancelSuccess"));
+      
+      },
+      onError: (error) => {
+        toast.error(error?.detail || t("booking.messages.cancelError"));
+      },
+    });
 
+  const cancelBooking=():Promise<void>=>{
+
+      return executeCancelBooking({
+        reason:'',
+        bookingId:id
+      });
+  }
   
     const [booking, setBooking] = useState<BookingRecord>()
   
       const { data ,refetch} = useFetchGetBookingById({
-        id:id
+        id:5
       });
     
       useEffect(() => {
@@ -48,7 +81,7 @@ export default async function BookingDetail({ params, searchParams }: PageProps)
       confirmed: { icon: CheckCircle, text: 'Confirmed', color: 'bg-green-50 text-green-700 border-green-200' },
       pending: { icon: AlertCircle, text: 'Pending Confirmation', color: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
     };
-    return badges[booking?.status as keyof typeof badges];
+    return booking ? badges[booking?.status as keyof typeof badges] : badges.pending;
   };
 
   const statusBadge = getStatusBadge();
@@ -151,7 +184,7 @@ export default async function BookingDetail({ params, searchParams }: PageProps)
         </div>
 
         {/* Doctor Info */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+       {booking && booking.agent && <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
           <h3 className="font-bold text-gray-900 mb-3">Your Doctor</h3>
           <div className="flex items-center gap-3">
             <img 
@@ -166,6 +199,7 @@ export default async function BookingDetail({ params, searchParams }: PageProps)
             </div>
           </div>
         </div>
+}
 
         {/* Package Includes */}
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
@@ -174,7 +208,7 @@ export default async function BookingDetail({ params, searchParams }: PageProps)
             {booking?.included?.map((item, idx) => (
               <div key={idx} className="flex items-start gap-2">
                 <CheckCircle size={18} className="text-green-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-gray-700">{item}</span>
+                <span className="text-sm text-gray-700">{item.title}</span>
               </div>
             ))}
           </div>
@@ -339,8 +373,14 @@ export default async function BookingDetail({ params, searchParams }: PageProps)
               <button
                 onClick={() => {
                   // In real app: API call to cancel booking
-                  setShowCancelModal(false);
+
+                  cancelBooking().then(s=>{
+  setShowCancelModal(false);
                   navigate('/app/bookings');
+
+                  })
+                
+                  
                 }}
                 className="flex-1 h-12 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors active:scale-95"
               >

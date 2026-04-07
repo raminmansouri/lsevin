@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 
 import {
-  getSearchHistory,
   useGetServiceHistory,
 } from "@/features/service-providers/api/client/fetch-search-history";
 import { useNavigate } from "@/hooks/use-navigate";

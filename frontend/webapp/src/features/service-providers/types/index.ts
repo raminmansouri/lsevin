@@ -308,7 +308,7 @@ export interface BookingRecord {
     verified?: boolean;
     bookingDate?: string;  // Optional field
     confirmationCode?: string;  // Optional field
-    included?: IncludedServicesType;  // Optional array type
+    included?: IncludedServicesType[];  // Optional array type
     contact?: ContactType;  // Optional object type
     agent?: Agent;  // Optional object type
 }
@@ -418,6 +418,7 @@ export interface SearchResultsCategory {
   label: string;
 }
 export interface SearchResultsItem {
+  specialties:string[],
   id: number,
   type: string,
   name: string,

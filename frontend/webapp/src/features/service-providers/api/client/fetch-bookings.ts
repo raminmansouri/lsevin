@@ -36,7 +36,7 @@ const fetchBookings = async (
   }
 
 
-  const path = `/customer/Bookings?${searchParams.toString()}`
+  const path = `/customer/bookings?${searchParams.toString()}`
 
   console.log('use hook path:', path)
 

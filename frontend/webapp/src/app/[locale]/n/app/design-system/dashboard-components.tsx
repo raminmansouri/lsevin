@@ -435,7 +435,7 @@ export function DataTable<T extends { id: string | number }>({
                 onClick={() => onRowClick?.(row)}
               >
                 {columns.map((column, idx) => {
-                  const value = typeof column.accessor === 'function'
+                  const value:any = typeof column.accessor === 'function'
                     ? column.accessor(row)
                     : row[column.accessor];
                   

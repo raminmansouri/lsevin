@@ -10,6 +10,10 @@ export function getProviderTypeIdTag(id: string) {
   return getIdTag("provider-types", id);
 }
 
+export function getNotificationCountTag() {
+  return getIdTag("provider-types", 'getNotificationCountTag');
+}
+
 export function getProviderTypeUserTag(userId: string) {
   return getUserTag("provider-types", userId);
 }

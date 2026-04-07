@@ -45,7 +45,7 @@ export default function Bookings() {
   const getBookings = () => {
     switch (activeTab) {
       case 'upcoming':
-        return upcomingBookings;
+        return upcommingBookings;
       case 'past':
         return pastBookings;
       case 'cancelled':

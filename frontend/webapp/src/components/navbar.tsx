@@ -1,3 +1,4 @@
+import NotificationsBar from "@/features/shared/components/Notifications/notifications-bar";
 import LocaleSwitcher from "./locale/locale-switcher";
 import { Logo } from "./logo";
 import { Skeleton } from "./ui/skeleton";
@@ -9,6 +10,7 @@ const Navabr = () => {
       <nav className="flex items-center justify-between">
         <Logo />
         <div className="flex items-center gap-4">
+          <NotificationsBar/>
           <LocaleSwitcher />
           <UserInfo />
         </div>

@@ -16,12 +16,12 @@ export async function GET(request: NextRequest) {
   const page = searchParams.get("PageNumber");
   const pageSize = searchParams.get("PageSize");
   const locale = searchParams.get("Locale");
-const priceRange= searchParams.get("priceRange[]");
-const distance= searchParams.get("distance");
-const minRating= searchParams.get("minRating");
-const verifiedOnly= searchParams.get("verifiedOnly");
-const languages= searchParams.get("languages");
-const responseTime= searchParams.get("responseTime");
+const priceRange:any= searchParams.get("priceRange[]");
+const distance:any= searchParams.get("distance");
+const minRating:any= searchParams.get("minRating");
+const verifiedOnly:any= searchParams.get("verifiedOnly");
+const languages:any= searchParams.get("languages");
+const responseTime:any= searchParams.get("responseTime");
 
   const localeHeader = localeToHeader(locale as LocaleTypes);
   const session = await getSession();

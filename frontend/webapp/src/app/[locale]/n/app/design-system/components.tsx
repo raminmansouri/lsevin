@@ -116,7 +116,7 @@ interface CardProps {
 export function Card({ 
   children, 
   variant = 'default', 
-  padding = '4', 
+  padding = 4, 
   className = '',
   onClick 
 }: CardProps) {

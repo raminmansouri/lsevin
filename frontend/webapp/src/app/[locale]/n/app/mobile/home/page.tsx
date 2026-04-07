@@ -33,6 +33,7 @@ import HomeFeaturedServicesSuspenseBoundary from './components/service-providers
 import HomeTrendingServicesSuspenseBoundary from './components/trending-services';
 import HomeTrustedProvidersSuspenseBoundary from './components/trusted-providers';
 import { PageProps } from "@/types/next";
+import NotificationsBar from '@/features/shared/components/Notifications/notifications-bar';
 
 
 /* export async function generateMetadata(): Promise<Metadata> {
@@ -133,7 +134,8 @@ function Home({ params, searchParams }: PageProps)  {
           </div>
           
           <div className="flex items-center gap-2">
-            <Link 
+            {/* <NotificationsBar/> */}
+            {/* <Link  
             href='/n/app/mobile/notifications'
             >
              <IconButton 
@@ -141,7 +143,7 @@ function Home({ params, searchParams }: PageProps)  {
               badge={3}
               //onClick={() => navigate('/n/app/mobile/notifications')}
             /> 
-            </Link>
+            </Link> */}
 
             <Link 
               href='/n/app/mobile/profile'

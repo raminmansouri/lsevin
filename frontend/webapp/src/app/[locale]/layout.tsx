@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Vazirmatn } from "next/font/google";
+// import { Vazirmatn } from "next/font/google";
 import { notFound } from "next/navigation";
 
 import { Providers } from "@/components/providers";
@@ -14,11 +14,11 @@ import { LoadingSpinner } from "@/components/loading-spinner";
 import { getDirection } from "@/config/locales";
 import { LocaleTypes } from "@/types/common";
 
-const vazirmatn = Vazirmatn({
-  subsets: ["latin"],
-  variable: "--font-vazirmatn",
-  display: "swap",
-});
+// const vazirmatn = Vazirmatn({
+//   subsets: ["latin"],
+//   variable: "--font-vazirmatn",
+//   display: "swap",
+// });
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -76,7 +76,7 @@ const SuspenseBoundary = async ({ children, params }: LocalePageProps) => {
     <html lang={locale} suppressHydrationWarning>
       <body
         dir={getDirection(locale as LocaleTypes)}
-        className={`${vazirmatn.className} antialiased`}
+        className={` antialiased`}
         suppressHydrationWarning
       >
         <NextIntlClientProvider locale={locale}>

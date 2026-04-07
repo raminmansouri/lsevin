@@ -25,7 +25,7 @@ export function BottomTabBar() {
           return (
             <Link
               key={tab.path}
-              to={tab.path}
+              // to={tab.path}
               href={tab.path}
               className={`flex flex-col items-center gap-1 py-2 px-3 transition ${
                 isActive ? 'text-[#083f30]' : 'text-gray-400'

@@ -72,7 +72,7 @@ async function apiBase<T>(
 
 async function readData<T>(
   url: string,
-  headers?: AxiosRequestHeaders
+  headers?: AxiosRequestHeaders 
 ): Promise<T> {
   const options: AxiosRequestConfig = {
     headers: headers,

@@ -14,6 +14,7 @@ internal static class Routes
         internal const string GetSearchHistory = $"{MainUrl}/GetSearchHistory";
         internal const string GetSearchResults = $"{MainUrl}/GetSearchResults";
         internal const string Explore = $"{MainUrl}/Explore";
+        internal const string GetNotificationCount = $"{MainUrl}/GetNotificationCount";
         internal const string Bookings = $"{MainUrl}/Bookings";
         internal const string GetBookingById = $"{MainUrl}/GetBookingById";
         internal const string CpCategoryGroups = $"{MainUrl}/CpCategoryGroups";

@@ -18,6 +18,7 @@ using BuildingBlocks.Web.Modules.Extensions;
 using BuildingBlocks.Web.OpenApi;
 using BuildingBlocks.Web.ProblemDetail.Extensions;
 using BuildingBlocks.Web.RateLimit;
+using LSevin.Api.Hubs;
 using Serilog;
 using Serilog.Events;
 using CategoryModule = LSevin.Modules.Category.CategoryReference;
@@ -67,6 +68,9 @@ try
     configuration.AddModulesSettingsFile(env.ContentRootPath);
 
     builder.Services.AddMemoryCache();
+
+    //builder.Services.AddSignalR();
+    builder.Services.AddAuthentication(); // whatever you us
 
     builder.Services.AddHttpContextAccessor();
 
@@ -128,6 +132,12 @@ try
     app.UseFileUploadService(configuration, env);
 
     app.UseAuthentication().UseAuthorization();
+
+    //app.UseEndpoints(endpoints =>
+    //{
+    //    endpoints.MapHub<ClientHub>("/clientHub");
+    //    // other endpoints
+    //});
 
     /*----------------- Module Middleware Setup ------------------*/
     await app.ConfigureModules();

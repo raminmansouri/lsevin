@@ -24,7 +24,7 @@ import Home from "./mobile/home/page";
 import Explore from "./mobile/explore/page";
 import Bookings from "./mobile/bookings/page";
 import Profile from "./mobile/profile/page";
-import Offers from "./mobile/offers/Offers";
+import Offers from "./mobile/offers/page";
 
 // Discovery
 import Search from "./mobile/search/page";

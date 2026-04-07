@@ -36,7 +36,7 @@ const fetchGetBookingById = async (
   }
 
 
-  const path = `/customer/GetBookingById?${searchParams.toString()}`
+  const path = `/customer/getBookingById?${searchParams.toString()}`
 
   console.log('use hook path:', path)
 

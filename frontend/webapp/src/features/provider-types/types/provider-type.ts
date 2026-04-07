@@ -56,6 +56,9 @@ export interface AttributeOption {
 }
 
 // API response type
+export interface NotificationCountResponse {
+count:number;
+}
 export interface ProviderTypeResponse {
   id: string;
   name: LocalizedContentResponse;
