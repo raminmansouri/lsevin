@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from '@/hooks/use-navigate';
 import { 
   ChevronLeft, 
@@ -16,6 +16,8 @@ import {
   X,
   Check
 } from 'lucide-react';
+import { Offer, OfferCategory } from '@/features/service-providers/types';
+import { useFetchOffers } from '@/features/service-providers/api/client/fetch-offers';
 
 export default function Offers() {
   const navigate = useNavigate();
@@ -33,8 +35,39 @@ export default function Offers() {
     e.stopPropagation(); // Prevent card click
     navigate(`/app/booking/${offerId}`);
   };
+
+    // Filter states
+  const [filters, setFilters] = useState({
+    priceRange: [0, 5000],
+    distance: 10,
+    minRating: 0,
+    verifiedOnly: false,
+    languages: [] as string[],
+    responseTime: "any" as "any" | "fast" | "instant",
+  });
+  const {data}= useFetchOffers(filters);
   
-  const offers = [
+  const [offers, setOffers] = useState<Offer[]>([]);
+  const [tabs, setTabs] = useState<OfferCategory[]>(
+    [
+       { id: 'all', label: 'All Offers', count: offers.length },
+    { id: 'medical', label: 'Medical', count: offers.filter(o => o.category === 'medical').length },
+    { id: 'beauty', label: 'Beauty & Spa', count: offers.filter(o => o.category === 'beauty').length },
+    { id: 'fitness', label: 'Fitness', count: offers.filter(o => o.category === 'fitness').length },
+ 
+    ]
+  );
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+ 
+  useEffect(() => {
+    // Auto-focus on mount
+    if (data?.offers) setOffers(data?.offers);
+    if (data?.categories) setTabs(data?.categories);
+
+  }, [data]);
+  /* const offers = [
     {
       id: 1,
       title: '20% Off Premium Packages',
@@ -131,14 +164,14 @@ export default function Offers() {
       originalPrice: 150,
       discountedPrice: 90
     }
-  ];
+  ]; */
   
-  const tabs = [
-    { id: 'all', label: 'All Offers', count: offers.length },
-    { id: 'medical', label: 'Medical', count: offers.filter(o => o.category === 'medical').length },
-    { id: 'beauty', label: 'Beauty & Spa', count: offers.filter(o => o.category === 'beauty').length },
-    { id: 'fitness', label: 'Fitness', count: offers.filter(o => o.category === 'fitness').length },
-  ];
+  // const tabs = [
+  //   { id: 'all', label: 'All Offers', count: offers.length },
+  //   { id: 'medical', label: 'Medical', count: offers.filter(o => o.category === 'medical').length },
+  //   { id: 'beauty', label: 'Beauty & Spa', count: offers.filter(o => o.category === 'beauty').length },
+  //   { id: 'fitness', label: 'Fitness', count: offers.filter(o => o.category === 'fitness').length },
+  // ];
   
   const filteredOffers = selectedTab === 'all' 
     ? offers 
@@ -190,8 +223,8 @@ export default function Offers() {
       <div className="px-5 pt-4 pb-2">
         <div className="relative h-40 rounded-2xl overflow-hidden shadow-lg">
           <img 
-            src={offers[0].image}
-            alt={offers[0].title}
+            src={offers[0]?.image}
+            alt={offers[0]?.title}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-[#083f30]/95 to-[#083f30]/60" />
@@ -202,15 +235,15 @@ export default function Offers() {
               <span className="text-xs font-bold text-[#eacb7f] uppercase tracking-wide">Featured Deal</span>
             </div>
             <h2 className="text-xl font-bold text-white mb-1">
-              {offers[0].title}
+              {offers[0]?.title}
             </h2>
             <p className="text-white/90 text-sm">
-              Use code: <span className="font-bold text-[#eacb7f]">{offers[0].code}</span>
+              Use code: <span className="font-bold text-[#eacb7f]">{offers[0]?.code}</span>
             </p>
           </div>
           
           <div className="absolute top-3 right-3 bg-[#eacb7f] px-3 py-1.5 rounded-full">
-            <span className="text-sm font-bold text-[#083f30]">{offers[0].discount} OFF</span>
+            <span className="text-sm font-bold text-[#083f30]">{offers[0]?.discount} OFF</span>
           </div>
         </div>
       </div>

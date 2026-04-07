@@ -266,6 +266,32 @@ export interface IFeaturedServiceResponse {
 }
 
 
+export interface OfferCategory {
+  id: string;
+  label: string;
+  count: number;
+}
+export interface Offer {
+  id: number;
+  title: string;
+  subtitle: string;
+  provider: string;
+  category: string;
+  image: string;
+  discount: string;
+  validUntil: string;
+  code: string;
+  verified: boolean;
+  location: string;
+  rating: number;
+  originalPrice: number;
+  discountedPrice: number;
+}
+
+export interface OffersResponse {
+offers:Offer[];
+categories:OfferCategory[];
+}
 export interface ExploreResponse {
 sponsoredProviders :ExploreSponsoredProvider[]
 trendingServices :ExploreTrendingService[]
