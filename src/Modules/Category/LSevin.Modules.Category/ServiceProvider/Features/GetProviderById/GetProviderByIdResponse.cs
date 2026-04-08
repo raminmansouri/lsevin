@@ -2,9 +2,9 @@ using BuildingBlocks.Core.Dtos.Localization;
 using BuildingBlocks.Core.Models;
 using LSevin.Modules.Category.ServiceProvider.Dtos;
 
-namespace LSevin.Modules.Category.ServiceProvider.Features.GetServiceProviderById;
+namespace LSevin.Modules.Category.ServiceProvider.Features.GetProviderById;
 
-public sealed record GetServiceProviderByIdResponse(
+public sealed record GetProviderByIdResponse(
     Guid Id,
     LocalizedContentResponseDto Name,
     LocalizedContentResponseDto Description,

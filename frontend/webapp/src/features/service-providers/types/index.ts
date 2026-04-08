@@ -458,6 +458,85 @@ export interface Recommendation {
   link: string;
 }
 
+/*  ────────────────────────────────────────────────────────────────────────  */
+/*  1️⃣  Types that start with **GetBySpecialistId**                         */
+/*  ────────────────────────────────────────────────────────────────────────  */
+
+export interface GetBySpecialistIdSpecialist {
+  id: string;
+  name: string;
+  title: string;
+  specialty: string;
+  image: string;
+  rating: number;
+  reviews: number;
+  experience: number;
+  patients: string;
+  successRate: string;
+  verified: boolean;
+  languages: string[];
+  clinic: string;
+  clinicId: string;
+  location: string;
+  responseTime: string;
+  consultationFee: number;
+}
+
+export interface GetBySpecialistIdEducation {
+  degree: string;
+  institution: string;
+  year: string;
+}
+
+export interface GetBySpecialistIdCertification {
+  name: string;
+  issuer: string;
+  verified: boolean;
+}
+
+export interface GetBySpecialistIdAchievement {
+  /** The icon is a React component in the original source.
+   *  In a plain‑JSON world we just keep a string placeholder. */
+  icon: string;
+  title: string;
+  organization: string;
+}
+
+export interface GetBySpecialistIdReview {
+  id: number;
+  name: string;
+  country: string;
+  date: string;                     // e.g. "2 weeks ago"
+  rating: number;
+  treatment: string;
+  review: string;
+  verified: boolean;
+  helpful: number;
+  images?: string[];
+}
+
+export interface GetBySpecialistIdBeforeAfter {
+  before: string;
+  after: string;
+  procedure: string;
+  months: string;
+}
+
+/*  ────────────────────────────────────────────────────────────────────────  */
+/*  2️⃣  Root response object                                              */
+/*  ────────────────────────────────────────────────────────────────────────  */
+
+export interface GetSpecialistByIdResponse {
+  specialist: GetBySpecialistIdSpecialist;
+  education: GetBySpecialistIdEducation[];
+  certifications: GetBySpecialistIdCertification[];
+  specializations: string[];
+  achievements: GetBySpecialistIdAchievement[];
+  recentReviews: GetBySpecialistIdReview[];
+  beforeAfter: GetBySpecialistIdBeforeAfter[];
+}
+
+
 // ----------  Full provider payload ----------
 export interface ProviderResponse {
   provider: Provider;
