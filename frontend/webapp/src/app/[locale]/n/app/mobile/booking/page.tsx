@@ -202,111 +202,10 @@ export default function BookingFlow() {
       details: ['Trip cancellation', 'Medical complications', 'Lost baggage']
     },
   ];
-  
-  const steps = [
-    { num: 1, label: 'Doctor & Date',components:['services'] },
-    { num: 2, label: 'Add-ons' ,components:[]},
-    { num: 3, label: 'Medical Files',components:[] },
-    { num: 4, label: 'Review & Pay' ,components:[]},
-  ];
-  
-  const toggleAddon = (addonId: string) => {
-    if (selectedAddons.includes(addonId)) {
-      setSelectedAddons(selectedAddons.filter(id => id !== addonId));
-    } else {
-      setSelectedAddons([...selectedAddons, addonId]);
-    }
-  };
-  
-  const calculateTotal = () => {
-    const service = services.find(s => s.id === selectedService);
-    let total = service?.price || 0;
-    selectedAddons.forEach(addonId => {
-      const addon = addons.find(a => a.id === addonId);
-      if (addon) total += addon.price;
-    });
-    return total;
-  };
-  
-  const handleNext = () => {
-    if (step < 4) setStep(step + 1);
-  };
-  
-  const handleBack = () => {
-    if (step > 1) setStep(step - 1);
-    else navigate(-1);
-  };
-  
-  const canProceed = () => {
-    if (step === 1) return selectedDoctor && selectedDate && selectedTime;
-    if (step === 2) return true; // Add-ons are optional
-    if (step === 3) return true; // Medical files are optional for now (can be uploaded later)
-    if (step === 4) return paymentMethod;
-    return false;
-  };
-  
-  const getButtonLabel = () => {
-    if (step === 1) return 'Continue to Add-ons';
-    if (step === 2) return selectedAddons.length > 0 ? 'Continue to Medical Files' : 'Skip to Medical Files';
-    if (step === 3) return uploadedFiles.length > 0 ? 'Continue to Review' : 'Skip to Review';
-    if (step === 4) return 'Confirm & Pay';
-    return 'Continue';
-  };
-  
 
-  const selectedServiceData = services.find(s => s.id === selectedService);
-
-  return (
-    <div className="min-h-screen bg-gray-50 pb-24">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="px-5 py-4">
-          <div className="flex items-center gap-3 mb-4">
-            <button 
-              onClick={handleBack}
-              className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors active:scale-95"
-            >
-              <ArrowLeft size={20} className="text-gray-900" />
-            </button>
-            <h1 className="text-lg font-bold text-gray-900">Book Treatment</h1>
-          </div>
-          
-          {/* Progress Steps */}
-          <div className="flex items-center justify-between">
-            {steps.map((s, idx) => (
-              <div key={s.num} className="flex items-center flex-1">
-                <div className="flex flex-col items-center">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${
-                    step >= s.num
-                      ? 'bg-[#083f30] text-white'
-                      : 'bg-gray-200 text-gray-500'
-                  }`}>
-                    {step > s.num ? <CheckCircle2 size={18} /> : s.num}
-                  </div>
-                  <span className={`text-xs mt-1.5 font-medium ${
-                    step >= s.num ? 'text-[#083f30]' : 'text-gray-500'
-                  }`}>
-                    {s.label}
-                  </span>
-                </div>
-                
-                {idx < steps.length - 1 && (
-                  <div className={`h-0.5 flex-1 mx-2 transition-colors ${
-                    step > s.num ? 'bg-[#083f30]' : 'bg-gray-200'
-                  }`} />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-      
-      {/* Content */}
-      <div className="px-5 py-6">
-        {/* Step 1: Doctor & Date Selection */}
-        {step === 1 && (
-          <div className="space-y-6">
-             {/* Select Service */}
+  const ChooseYourService=()=>{
+    return (<>
+     {/* Select Service */}
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4">Choose Your Service</h2>
               <div className="space-y-3">
@@ -362,9 +261,11 @@ export default function BookingFlow() {
                   </button>
                 ))}
               </div>
-            </div>
-
-            {/* Select Doctor */}
+            </div></>)
+  }
+  const ChooseYourSpecialist=()=>{
+    return (<>
+    {/* Select Doctor */}
            {selectedService && ( <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4">Choose Your Specialist</h2>
               <div className="space-y-3">
@@ -416,8 +317,11 @@ export default function BookingFlow() {
                 ))}
               </div>
             </div>
-           )}
-            {/* Select Date */}
+           )}</>)
+  }  
+  const SelectDate=()=>{
+    return (<>
+     {/* Select Date */}
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4">Select Date</h2>
               <div className="bg-white rounded-2xl p-4 border border-gray-200">
@@ -451,34 +355,12 @@ export default function BookingFlow() {
                   ))}
                 </div>
               </div>
-            </div>
-            
-            {/* Select Time */}
-            {selectedDate && (
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Select Time</h2>
-                <div className="grid grid-cols-2 gap-3">
-                  {timeSlots.map(slot => (
-                    <button
-                      key={slot.time}
-                      onClick={() => slot.available && setSelectedTime(slot.time)}
-                      disabled={!slot.available}
-                      className={`h-14 rounded-xl flex items-center justify-center font-semibold transition-all ${
-                        selectedTime === slot.time
-                          ? 'bg-[#083f30] text-white shadow-md'
-                          : slot.available
-                          ? 'bg-white border-2 border-gray-200 hover:border-[#083f30] text-gray-900'
-                          : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      }`}
-                    >
-                      {slot.time}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {/* Selection Summary - Step 1 */}
+            </div></>)
+  }
+
+  const ChooseYourServiceCanProceed=()=>{
+return (<>
+{/* Selection Summary - Step 1 */}
             {canProceed() && (
               <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <div className="flex items-start gap-3 mb-4">
@@ -513,14 +395,38 @@ export default function BookingFlow() {
                   <ChevronRight size={20} />
                 </button>
               </div>
-            )}
-          </div>
-        )}
-        
-        {/* Step 2: Add-ons */}
-        {step === 2 && (
-          <div className="space-y-6">
-            <div>
+            )}</>) 
+  }
+  const SelectTime=()=>{
+    return (<>
+     {/* Select Time */}
+            {selectedDate && (
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Select Time</h2>
+                <div className="grid grid-cols-2 gap-3">
+                  {timeSlots.map(slot => (
+                    <button
+                      key={slot.time}
+                      onClick={() => slot.available && setSelectedTime(slot.time)}
+                      disabled={!slot.available}
+                      className={`h-14 rounded-xl flex items-center justify-center font-semibold transition-all ${
+                        selectedTime === slot.time
+                          ? 'bg-[#083f30] text-white shadow-md'
+                          : slot.available
+                          ? 'bg-white border-2 border-gray-200 hover:border-[#083f30] text-gray-900'
+                          : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      }`}
+                    >
+                      {slot.time}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}</>)
+  }
+  const AddOns=()=>{
+    return (<>
+     <div>
               <h2 className="text-xl font-bold text-gray-900 mb-2">Enhance Your Experience</h2>
               <p className="text-sm text-gray-600 mb-4">
                 Optional add-ons to make your medical journey seamless
@@ -602,8 +508,7 @@ export default function BookingFlow() {
                 </div>
               ))}
             </div>
-            
-            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4">
+              <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4">
               <div className="flex gap-3">
                 <Info size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
                 <div>
@@ -646,13 +551,13 @@ export default function BookingFlow() {
                 <ChevronRight size={20} />
               </button>
             </div>
-          </div>
-        )}
-        
-        {/* Step 3: Medical Files */}
-        {step === 3 && (
-          <div className="space-y-6">
-            <div>
+            
+            </>)
+  }
+  
+  const UploadFiles=()=>{
+    return (<>
+    <div>
               <h2 className="text-xl font-bold text-gray-900 mb-2">Medical Documentation</h2>
               <p className="text-sm text-gray-600 mb-4">
                 Upload your medical records to help our specialists prepare the best treatment plan for you
@@ -763,8 +668,8 @@ export default function BookingFlow() {
                 </div>
               </div>
             )}
-            
-            {/* Continue Section */}
+
+              {/* Continue Section */}
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-4 shadow-md">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
@@ -795,13 +700,12 @@ export default function BookingFlow() {
                 <ChevronRight size={20} />
               </button>
             </div>
-          </div>
-        )}
-        
-        {/* Step 4: Review & Payment */}
-        {step === 4 && (
-          <div className="space-y-6">
-            {/* Booking Summary */}
+            </>)
+  }
+
+  const ReviewPay=()=>{
+    return (<>
+     {/* Booking Summary */}
             <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
               <div className="p-4 bg-gradient-to-r from-[#083f30] to-[#0a5a44]">
                 <h2 className="text-lg font-bold text-white">Booking Summary</h2>
@@ -1080,9 +984,144 @@ export default function BookingFlow() {
               <label htmlFor="terms">
                 I agree to the <a href="#" className="text-[#083f30] font-semibold hover:underline">Terms & Conditions</a>, <a href="#" className="text-[#083f30] font-semibold hover:underline">Privacy Policy</a>, and <a href="#" className="text-[#083f30] font-semibold hover:underline">Cancellation Policy</a>
               </label>
-            </div>
+            </div></>)
+  }
+
+  const StepDefinitions={
+ChooseYourService:<ChooseYourService/>,
+ChooseYourSpecialist:<ChooseYourSpecialist/>,
+SelectDate:<SelectDate/>,
+SelectTime:<SelectTime/>,
+ChooseYourServiceCanProceed:<ChooseYourServiceCanProceed/>,
+AddOns:<AddOns/>,
+UploadFiles:<UploadFiles/>,
+ReviewPay:<ReviewPay/>,
+  }
+  
+  const steps = [
+    { num: 1, label: 'Doctor & Date',components:[
+      StepDefinitions.ChooseYourService,
+      StepDefinitions.ChooseYourSpecialist,
+      StepDefinitions.SelectDate,
+      StepDefinitions.SelectTime,
+      
+    ] },
+    { num: 2, label: 'Add-ons' ,components:[
+      StepDefinitions.AddOns
+
+    ]},
+    { num: 3, label: 'Medical Files',components:[
+      StepDefinitions.UploadFiles
+    ] },
+    { num: 4, label: 'Review & Pay' ,components:[
+      StepDefinitions.ReviewPay
+    ]},
+  ];
+  
+  const toggleAddon = (addonId: string) => {
+    if (selectedAddons.includes(addonId)) {
+      setSelectedAddons(selectedAddons.filter(id => id !== addonId));
+    } else {
+      setSelectedAddons([...selectedAddons, addonId]);
+    }
+  };
+  
+  const calculateTotal = () => {
+    const service = services.find(s => s.id === selectedService);
+    let total = service?.price || 0;
+    selectedAddons.forEach(addonId => {
+      const addon = addons.find(a => a.id === addonId);
+      if (addon) total += addon.price;
+    });
+    return total;
+  };
+  
+  const handleNext = () => {
+    if (step < 4) setStep(step + 1);
+  };
+  
+  const handleBack = () => {
+    if (step > 1) setStep(step - 1);
+    else navigate(-1);
+  };
+  
+  const canProceed = () => {
+    if (step === 1) return selectedDoctor && selectedDate && selectedTime;
+    if (step === 2) return true; // Add-ons are optional
+    if (step === 3) return true; // Medical files are optional for now (can be uploaded later)
+    if (step === 4) return paymentMethod;
+    return false;
+  };
+  
+  const getButtonLabel = () => {
+    if (step === 1) return 'Continue to Add-ons';
+    if (step === 2) return selectedAddons.length > 0 ? 'Continue to Medical Files' : 'Skip to Medical Files';
+    if (step === 3) return uploadedFiles.length > 0 ? 'Continue to Review' : 'Skip to Review';
+    if (step === 4) return 'Confirm & Pay';
+    return 'Continue';
+  };
+  
+
+  const selectedServiceData = services.find(s => s.id === selectedService);
+
+  return (
+    <div className="min-h-screen bg-gray-50 pb-24">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div className="px-5 py-4">
+          <div className="flex items-center gap-3 mb-4">
+            <button 
+              onClick={handleBack}
+              className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors active:scale-95"
+            >
+              <ArrowLeft size={20} className="text-gray-900" />
+            </button>
+            <h1 className="text-lg font-bold text-gray-900">Book Treatment</h1>
           </div>
-        )}
+          
+          {/* Progress Steps */}
+          <div className="flex items-center justify-between">
+            {steps.map((s, idx) => (
+              <div key={s.num} className="flex items-center flex-1">
+                <div className="flex flex-col items-center">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${
+                    step >= s.num
+                      ? 'bg-[#083f30] text-white'
+                      : 'bg-gray-200 text-gray-500'
+                  }`}>
+                    {step > s.num ? <CheckCircle2 size={18} /> : s.num}
+                  </div>
+                  <span className={`text-xs mt-1.5 font-medium ${
+                    step >= s.num ? 'text-[#083f30]' : 'text-gray-500'
+                  }`}>
+                    {s.label}
+                  </span>
+                </div>
+                
+                {idx < steps.length - 1 && (
+                  <div className={`h-0.5 flex-1 mx-2 transition-colors ${
+                    step > s.num ? 'bg-[#083f30]' : 'bg-gray-200'
+                  }`} />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* Content */}
+      <div className="px-5 py-6">
+        {/* Step 1: Doctor & Date Selection */}
+
+        {steps.filter(f=>f.num===step).map(s=>{
+          
+         return (<>
+         {steps[0].components.map(c=>{
+              return (c);
+            })}
+         </>)
+        })}
+       
       </div>
       
       {/* Sticky Bottom CTA */}

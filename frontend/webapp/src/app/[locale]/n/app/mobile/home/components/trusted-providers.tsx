@@ -150,7 +150,7 @@ const HomeTrustedProvider = ({
 
             <Link
               key={provider.id}
-              href={`/n/app/mobile/clinic/${provider.id }`}
+              href={`/n/app/mobile/provider/${provider.id }`}
               // onClick={() => navigate(`/n/app/mobile/clinic/${idx + 1}`)}
               className="flex-none w-44 bg-white rounded-2xl p-4 shadow-md hover:shadow-xl transition-all cursor-pointer border border-gray-100"
             >

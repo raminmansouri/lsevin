@@ -1,6 +1,7 @@
 import { Star, MapPin, BadgeCheck, ChevronRight } from 'lucide-react';
 import { useNavigate } from '@/hooks/use-navigate';
 import { useLocalization } from '../../contexts/LocalizationContext';
+import { useLocaleAndDirection } from '@/hooks/use-localeAndDirection';
 
 interface RecommendationCard {
   id: string;
@@ -28,8 +29,9 @@ export default function RecommendationSection({
   internationalRecommendations,
   userCountry = 'Turkey'
 }: RecommendationSectionProps) {
+  const { locale, dir }=useLocaleAndDirection();
   const navigate = useNavigate();
-  const { isRTL } = useLocalization();
+  const isRTL= dir==='rtl';
 
   const RecommendationCard = ({ card }: { card: RecommendationCard }) => (
     <button

@@ -385,6 +385,92 @@ pastBookings :Booking[]
       categories:CpCategory []
     }
 
+// ----------  Basic building blocks ----------
+export interface Certification {
+  name: string;
+  verified: boolean;
+}
+
+export interface Provider {
+  id: string;
+  name: string;
+  tagline: string;
+  location: string;
+  rating: number;
+  reviews: number;
+  verified: boolean;
+  accredited: boolean;
+  responseTime: string;
+  images: string[];
+  certifications: Certification[];
+  languages: string[];
+  established: number;
+  totalPatients: string;
+  successRate: string;
+}
+
+export interface Service {
+  id: number;
+  name: string;
+  price: number;
+  currency: string;
+  duration: string;
+  recovery: string;
+  rating: number;
+  reviews: number;
+  popular?: boolean;          // only the first treatment has this flag
+  image: string;
+}
+
+export interface Specialist {
+  id: number;
+  name: string;
+  specialty: string;
+  experience: string;
+  patients: string;
+  rating: number;
+  image: string;
+  verified: boolean;
+}
+
+export interface Review {
+  id: number;
+  name: string;
+  country: string;
+  date: string;
+  rating: number;
+  treatment: string;
+  review: string;
+  verified: boolean;
+  helpful: number;
+  images?: string[];
+}
+
+export interface Recommendation {
+  id: string;
+  image: string;
+  title: string;
+  rating: number;
+  reviewCount: number;
+  city: string;
+  country: string;
+  verified: boolean;
+  link: string;
+}
+
+// ----------  Full provider payload ----------
+export interface ProviderResponse {
+  provider: Provider;
+  services: Service[];
+  specialists: Specialist[];
+  recentReviews: Review[];
+  localRecommendations: Recommendation[];
+  internationalRecommendations: Recommendation[];
+}
+
+
+
+
 export interface ExploreCategory {
   id:string,
   label:string,
