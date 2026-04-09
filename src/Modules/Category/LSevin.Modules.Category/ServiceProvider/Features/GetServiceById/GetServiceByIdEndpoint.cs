@@ -10,15 +10,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 
-namespace LSevin.Modules.Category.ServiceProvider.Features.GetProviderById;
+namespace LSevin.Modules.Category.ServiceProvider.Features.GetServiceById;
 
-internal sealed class GetProviderByIdEndpoint : EndpointResponseHandler, IEndpointDefinition
+internal sealed class GetServiceByIdEndpoint : EndpointResponseHandler, IEndpointDefinition
 {
     public void ConfigureEndpoints(IEndpointRouteBuilder app)
     {
-        app.MapGet(Routes.ServiceProvider.GetProviderById, Handle)
+        app.MapGet(Routes.ServiceProvider.GetServiceById, Handle)
             .RequireAuthorization(SecurityConstants.Role.Admin)
-            .Produces<ProviderResponse>()
+            .Produces<GetServiceByIdResponse>()
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -26,22 +26,22 @@ internal sealed class GetProviderByIdEndpoint : EndpointResponseHandler, IEndpoi
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithTags(Routes.ServiceProvider.Group)
-            .WithName(nameof(GetProviderById))
-            .WithDisplayName(nameof(GetProviderById).Humanize())
+            .WithName(nameof(GetServiceById))
+            .WithDisplayName(nameof(GetServiceById).Humanize())
             .WithSummaryAndDescription(
-                nameof(GetProviderById).Humanize(),
-                nameof(GetProviderById).Humanize()
+                nameof(GetServiceById).Humanize(),
+                nameof(GetServiceById).Humanize()
             );
     }
 
-    private static Task<Results<Ok<ProviderResponse>, ProblemHttpResult>> Handle(
+    private static Task<Results<Ok<GetServiceByIdResponse>, ProblemHttpResult>> Handle(
         [AsParameters] BaseEndpointServices<CategoryModule> services,
-        Guid serviceProviderId
+        Guid id
     ) =>
         Result
-            .Create(GetProviderByIdQuery.Of(serviceProviderId))
+            .Create(GetServiceByIdQuery.Of(id))
             .Bind(query => services.Gateway.SendQueryAsync(query, services.CancellationToken))
-            .Match<ProviderResponse, Results<Ok<ProviderResponse>, ProblemHttpResult>>(
+            .Match<GetServiceByIdResponse, Results<Ok<GetServiceByIdResponse>, ProblemHttpResult>>(
                 onSuccess: result => EndpointSucceedOk(result),
                 onFailure: error => EndpointFailed(error)
             );

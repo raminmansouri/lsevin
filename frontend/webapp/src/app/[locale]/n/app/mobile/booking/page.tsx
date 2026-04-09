@@ -37,12 +37,16 @@ import {
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
+import { BookingFormValues, bookingSchema } from './types';
+import { zodResolver } from '@hookform/resolvers/zod';
+import ServiceSelection from './components/ServiceSelection';
 
 export default function BookingFlow() {
   const navigate = useNavigate();
   const searchParams = useSearchParams();
     
-  const serviceId:string= searchParams.get('id');
+  const id:string= searchParams.get('id');
   // const { serviceId } = router.get;
   
   const [step, setStep] = useState<number>(1);
@@ -58,7 +62,7 @@ export default function BookingFlow() {
   const [selectedCurrency, setSelectedCurrency] = useState<'USD' | 'EUR' | 'GBP'>('USD');
   
   const treatment = {
-    id: serviceId || '1',
+    id: '1',
     name: 'Premium Hair Transplant - FUE Method',
     clinic: 'Istanbul Medical Center',
     city: 'Istanbul',
@@ -68,6 +72,7 @@ export default function BookingFlow() {
     verified: true,
     duration: '6-8 hours',
     recovery: '7-10 days',
+    depositAmount: 24599,
     price: 2499,
     currency: 'USD',
     image: '/unsplash_images/photo-1622296089863-eb7fc530daa8__w=600&h=400&fit=crop.jpg',
@@ -158,6 +163,48 @@ export default function BookingFlow() {
     },
   ];
 
+    const providers = [
+    { 
+      id:'1',
+      name: 'Istanbul Medical Center', 
+      description: 'Istanbul Medical Center', 
+      rating: 4.9, 
+      verified: true,
+      popular: true,
+      image: '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=200&h=200&fit=crop.jpg'
+    },
+    { 
+      id:'2',
+
+      name: 'Dubai Smile Clinic', 
+      description: 'Dubai Smile Clinic', 
+      rating: 4.9, 
+      popular: true,
+      verified: true,
+      image: '/unsplash_images/photo-1629909613654-28e377c37b09__w=200&h=200&fit=crop.jpg'
+    },
+    { 
+      id:'3',
+
+      popular: true,
+      name: 'Bali Wellness Resort', 
+      description: 'Bali Wellness Resort', 
+      rating: 5.0, 
+      verified: true,
+      image: '/unsplash_images/photo-1540555700478-4be289fbecef__w=200&h=200&fit=crop.jpg'
+    },
+    { 
+      id:'4',
+
+      name: 'Cyprus Fertility Center', 
+      description: 'Cyprus Fertility Center', 
+      rating: 4.8, 
+      popular: true,
+      verified: true,
+      image: '/unsplash_images/photo-1551190822-a9333d879b1f__w=200&h=200&fit=crop.jpg'
+    },
+  ];
+
   const addons = [
     {
       id: 'hotel',
@@ -203,122 +250,9 @@ export default function BookingFlow() {
     },
   ];
 
-  const ChooseYourService=()=>{
-    return (<>
-     {/* Select Service */}
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Choose Your Service</h2>
-              <div className="space-y-3">
-                {services.map(service => (
-                  <button
-                    key={service.id}
-                    onClick={() => setSelectedService(service.id)}
-                    className={`w-full bg-white rounded-2xl overflow-hidden border-2 transition-all ${
-                      selectedService === service.id
-                        ? 'border-[#083f30] shadow-lg scale-[1.02]'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="flex gap-4 p-4">
-                      <div className="relative flex-shrink-0">
-                        <img 
-                          src={service.image}
-                          alt={service.name}
-                          className="w-24 h-24 rounded-xl object-cover"
-                        />
-                        {service.popular && (
-                          <div className="absolute -top-2 -right-2 px-2 py-1 bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] text-[#083f30] rounded-lg text-xs font-bold shadow-md">
-                            POPULAR
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="flex-1 text-left">
-                        <div className="flex items-start justify-between mb-1">
-                          <div className="flex-1">
-                            <h3 className="font-bold text-gray-900 mb-1">{service.name}</h3>
-                            <p className="text-sm text-gray-600 mb-2">{service.description}</p>
-                            <div className="flex items-center gap-3 text-xs text-gray-600">
-                              <div className="flex items-center gap-1">
-                                <Clock size={14} />
-                                <span>{service.duration}</span>
-                              </div>
-                              <span>•</span>
-                              <span className="px-2 py-0.5 bg-gray-100 rounded-md font-semibold">
-                                {service.category}
-                              </span>
-                            </div>
-                          </div>
-                          
-                          <div className="text-right ml-3">
-                            <div className="text-lg font-bold text-[#083f30]">
-                              ${service.price}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div></>)
-  }
-  const ChooseYourSpecialist=()=>{
-    return (<>
-    {/* Select Doctor */}
-           {selectedService && ( <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Choose Your Specialist</h2>
-              <div className="space-y-3">
-                {doctors.map(doctor => (
-                  <button
-                    key={doctor.id}
-                    onClick={() => setSelectedDoctor(doctor.id)}
-                    className={`w-full bg-white rounded-2xl p-4 border-2 transition-all ${
-                      selectedDoctor === doctor.id
-                        ? 'border-[#083f30] shadow-md'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="flex gap-4">
-                      <div className="relative flex-shrink-0">
-                        <img 
-                          src={doctor.image}
-                          alt={doctor.name}
-                          className="w-20 h-20 rounded-xl object-cover"
-                        />
-                        <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#083f30] rounded-full flex items-center justify-center">
-                          <BadgeCheck size={14} className="text-[#eacb7f]" />
-                        </div>
-                      </div>
-                      
-                      <div className="flex-1 text-left">
-                        <h3 className="font-bold text-gray-900 mb-1">{doctor.name}</h3>
-                        <p className="text-sm text-gray-600 mb-2">{doctor.specialty}</p>
-                        
-                        <div className="flex items-center gap-3 text-xs text-gray-600 mb-2">
-                          <span>{doctor.experience}</span>
-                          <span>•</span>
-                          <span>{doctor.patients} patients</span>
-                        </div>
-                        
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1">
-                            <Star size={14} className="fill-yellow-400 text-yellow-400" />
-                            <span className="font-bold text-sm text-gray-900">{doctor.rating}</span>
-                          </div>
-                          
-                          <span className="text-xs text-[#083f30] font-semibold">
-                            Next: {doctor.nextAvailable}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-           )}</>)
-  }  
+
+
+   
   const SelectDate=()=>{
     return (<>
      {/* Select Date */}
@@ -357,7 +291,6 @@ export default function BookingFlow() {
               </div>
             </div></>)
   }
-
   const ChooseYourServiceCanProceed=()=>{
 return (<>
 {/* Selection Summary - Step 1 */}
@@ -988,8 +921,7 @@ return (<>
   }
 
   const StepDefinitions={
-ChooseYourService:<ChooseYourService/>,
-ChooseYourSpecialist:<ChooseYourSpecialist/>,
+ChooseYourService:<ServiceSelection/>,
 SelectDate:<SelectDate/>,
 SelectTime:<SelectTime/>,
 ChooseYourServiceCanProceed:<ChooseYourServiceCanProceed/>,
@@ -1001,7 +933,6 @@ ReviewPay:<ReviewPay/>,
   const steps = [
     { num: 1, label: 'Doctor & Date',components:[
       StepDefinitions.ChooseYourService,
-      StepDefinitions.ChooseYourSpecialist,
       StepDefinitions.SelectDate,
       StepDefinitions.SelectTime,
       
@@ -1036,6 +967,13 @@ ReviewPay:<ReviewPay/>,
     return total;
   };
   
+  const getDepositAmount = () => {
+    return depositOption === "deposit"
+      ? treatment.depositAmount
+      : calculateTotal();
+  };
+
+
   const handleNext = () => {
     if (step < 4) setStep(step + 1);
   };
@@ -1044,9 +982,21 @@ ReviewPay:<ReviewPay/>,
     if (step > 1) setStep(step - 1);
     else navigate(-1);
   };
+
+  const methods = useForm<BookingFormValues>({
+    resolver: zodResolver(bookingSchema),
+    defaultValues: {
+    },
+  });
+
+
+  const providerId = methods.watch({ name: 'providerId' });
+  const serviceId   = methods.watch({ name: 'serviceId' });
+  const specialistId = methods.watch({ name: 'specialistId' });
+
   
   const canProceed = () => {
-    if (step === 1) return selectedDoctor && selectedDate && selectedTime;
+    if (step === 1) return providerId && serviceId && specialistId;
     if (step === 2) return true; // Add-ons are optional
     if (step === 3) return true; // Medical files are optional for now (can be uploaded later)
     if (step === 4) return paymentMethod;
@@ -1064,7 +1014,11 @@ ReviewPay:<ReviewPay/>,
 
   const selectedServiceData = services.find(s => s.id === selectedService);
 
+
+
+
   return (
+     <FormProvider {...methods}>
     <div className="min-h-screen bg-gray-50 pb-24">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
@@ -1116,7 +1070,7 @@ ReviewPay:<ReviewPay/>,
         {steps.filter(f=>f.num===step).map(s=>{
           
          return (<>
-         {steps[0].components.map(c=>{
+         {s.components.map(c=>{
               return (c);
             })}
          </>)
@@ -1223,5 +1177,6 @@ ReviewPay:<ReviewPay/>,
         </div>{" "}
       </div>{" "}
     </div>
+    </FormProvider>
   );
 }

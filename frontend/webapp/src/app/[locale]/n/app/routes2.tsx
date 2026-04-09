@@ -50,7 +50,7 @@ import SupportChat from "./mobile/care/SupportChat";
 import Wallet from "./mobile/profile/Wallet";
 import Rewards from "./mobile/profile/rewards/page";
 import Settings from "./mobile/profile/Settings";
-import Favorites from "./mobile/profile/Favorites";
+import Favorites from "./mobile/profile/favorites/page";
 import MedicalProfile from "./mobile/profile/MedicalProfile";
 import Notifications from "./mobile/notifications/page";
 import PrivacySecurity from "./mobile/profile/PrivacySecurity";

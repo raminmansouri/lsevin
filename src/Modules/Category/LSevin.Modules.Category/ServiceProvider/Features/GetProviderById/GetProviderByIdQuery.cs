@@ -1,5 +1,4 @@
 using BuildingBlocks.Core.Messaging.Queries;
-using LSevin.Modules.Category.ServiceProvider.Features.GetProviderById.ProviderModels;
 
 namespace LSevin.Modules.Category.ServiceProvider.Features.GetProviderById;
 

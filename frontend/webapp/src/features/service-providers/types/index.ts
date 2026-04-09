@@ -456,7 +456,106 @@ export interface Recommendation {
   country: string;
   verified: boolean;
   link: string;
+
+
 }
+
+// --------------------
+// 1️⃣  GetServiceBydResponse
+// --------------------
+export interface GetServiceBydResponse {
+  service: GetServiceBydService;
+  included: string[];
+  process: GetServiceBydProcessStep[];
+  faqs: GetServiceBydFaq[];
+  topReviews: GetServiceBydTopReview[];
+  localRecommendations: GetServiceBydRecommendation[];
+  internationalRecommendations: GetServiceBydRecommendation[];
+}
+
+// --------------------
+// 2️⃣  Service + related objects
+// --------------------
+export interface GetServiceBydService {
+  id: string;
+  name: string;
+  subtitle: string;
+  clinic: string;
+  clinicId: string;
+  location: string;
+  price: number;
+  originalPrice: number;
+  currency: string;
+  otherCurrencies: GetServiceBydOtherCurrency[];
+  rating: number;
+  reviews: number;
+  images: string[];
+  duration: string;
+  recovery: string;
+  anesthesia: string;
+  stayRequired: string;
+  verified: boolean;
+  popular: boolean;
+  successRate: string;
+  satisfaction: string;
+}
+
+export interface GetServiceBydOtherCurrency {
+  code: string;
+  amount: number;
+}
+
+// --------------------
+// 3️⃣  Process steps
+// --------------------
+export interface GetServiceBydProcessStep {
+  step: number;
+  title: string;
+  description: string;
+  duration: string;
+}
+
+// --------------------
+// 4️⃣  FAQ
+// --------------------
+export interface GetServiceBydFaq {
+  q: string;
+  a: string;
+}
+
+// --------------------
+// 5️⃣  Top review
+// --------------------
+export interface GetServiceBydTopReview {
+  id: number;
+  name: string;
+  country: string;
+  date: string;
+  rating: number;
+  review: string;
+  verified: boolean;
+  helpful: number;
+  images?: string[];
+}
+
+// --------------------
+// 6️⃣  Recommendation
+// --------------------
+export interface GetServiceBydRecommendation {
+  id: string;
+  image: string;
+  title: string;
+  provider: string;
+  rating: number;
+  reviewCount: number;
+  city: string;
+  country: string;
+  price: number;
+  currency: string;
+  verified: boolean;
+  link: string;
+}
+
 
 /*  ────────────────────────────────────────────────────────────────────────  */
 /*  1️⃣  Types that start with **GetBySpecialistId**                         */
@@ -521,6 +620,7 @@ export interface GetBySpecialistIdBeforeAfter {
   procedure: string;
   months: string;
 }
+
 
 /*  ────────────────────────────────────────────────────────────────────────  */
 /*  2️⃣  Root response object                                              */

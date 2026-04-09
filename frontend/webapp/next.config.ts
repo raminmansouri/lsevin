@@ -3,7 +3,7 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 // pull from env
 const filesUrl = new URL(
-  process.env.NEXT_PUBLIC_FILES_URL || "http://localhost:3000"
+  process.env.NEXT_PUBLIC_FILES_URL || "http://localhost:5003"
 );
 
 const withNextIntl = createNextIntlPlugin({
