@@ -1,0 +1,3 @@
+namespace LSevin.Modules.Category.ServiceProvider.Features.GetBookingSpecialistByProviderAndService;
+
+public sealed record GetBookingSpecialistByProviderAndServiceRequest(bool? IsActive);

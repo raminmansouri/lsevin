@@ -3,9 +3,9 @@ import React, { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import z from "zod/v3";
 
-import { nodes } from "../../../../../../../components/blocks/editor-00/nodes";
+import { nodes } from "../../../../../../../../components/blocks/editor-00/nodes";
 import { BadgeCheck, Clock, Star, List } from 'lucide-react';
-import { BookingFormValues } from "../types";
+import { BookingFormValues } from "../../types";
 
   const services = [
     {

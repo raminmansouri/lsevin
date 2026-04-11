@@ -40,7 +40,7 @@ import { useState } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { BookingFormValues, bookingSchema } from './types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import ServiceSelection from './components/ServiceSelection';
+import ServiceSelection from './components/ServiceSelection/ServiceSelection';
 
 export default function BookingFlow() {
   const navigate = useNavigate();

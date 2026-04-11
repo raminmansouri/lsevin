@@ -82,6 +82,20 @@ internal static class Routes
         internal const string ChangeActivation = $"{AdminUrl}/{{serviceDefinitionId:guid}}/activation";
     }
 
+    internal static class Booking
+    {
+        internal const string Group = "Booking";
+
+        internal const string MainUrl = $"{AppBaseUrl}/service-providers";
+        internal const string AdminUrl = $"{AppBaseUrl}/admin/booking";
+
+        internal const string GetBookingServiceSelectionData = $"{AdminUrl}/{{serviceProviderId:guid}}/staff";
+        internal const string GetBookingAvailableDateTimes = $"{AdminUrl}/{{serviceProviderId:guid}}/staff";
+        internal const string GetBookingSpecialistByProviderAndService = $"{AdminUrl}/GetBookingSpecialistByProviderAndService";
+        internal const string GetBookingGetServicesByProviderAndSpecialist = $"{AdminUrl}/GetBookingGetServicesByProviderAndSpecialist";
+        internal const string GetBookingGetProvidersByServiceAndSpecialist = $"{AdminUrl}/GetBookingGetProvidersByServiceAndSpecialist";
+
+    }
     internal static class ServiceProvider
     {
         internal const string Group = "ServiceProvider";

@@ -1011,3 +1011,118 @@ export interface IServiceProviderComment {
   isMine: boolean; // CRITICAL: For delete button visibility
   createDate: string;
 }
+
+
+
+
+
+
+
+
+/* ------------- TypeScript ---------- */
+
+/** ---------- Service ---------- */
+export interface GetBookingServiceSelectionDataService {
+  id: string;
+  name: string;
+  description: string;
+  duration: string;
+  price: number;
+  category: string;
+  popular: boolean;
+  image: string;
+}
+
+/** ---------- Provider ---------- */
+export interface GetBookingServiceSelectionDataProvider {
+  id: string;
+  name: string;
+  description: string;
+  rating: number;
+  verified: boolean;
+  popular: boolean;
+  image: string;
+}
+
+/** ---------- Doctor ---------- */
+export interface GetBookingServiceSelectionDataSpecialist {
+  id: string;
+  name: string;
+  specialty: string;
+  experience: string;
+  rating: number;
+  reviews: number;
+  patients: string;
+  languages: string[];
+  credentials: string[];
+  verified: boolean;
+  consultation: number;
+  image: string;
+  nextAvailable: string;
+}
+
+/** ---------- Response ---------- */
+export interface GetBookingGetServicesByProviderAndSpecialistResponse {
+  services: GetBookingServiceSelectionDataService[];
+}
+export interface GetBookingGetProvidersByServiceAndSpecialistResponse {
+  providers: GetBookingServiceSelectionDataProvider[];
+}
+export interface GetBookingSpecialistByProviderAndServiceResponse {
+  specialists: GetBookingServiceSelectionDataSpecialist[];
+}
+
+
+
+
+
+
+
+/* --------------------------------------------------- */
+/* 1️⃣ TypeScript – Type definitions & sample data    */
+/* --------------------------------------------------- */
+
+/* ────────────────────────────────────────────────── */
+/* 1. Date entry -------------------------------------- */
+export interface GetBookingAvailableDateTimesDate {
+  date: string;   // “YYYY-MM-DD”
+  day:  string;   // “Mon”, “Tue”, …
+  available: boolean;
+}
+
+/* ────────────────────────────────────────────────── */
+/* 2. Time‑slot entry --------------------------------- */
+export interface GetBookingAvailableDateTimesTimeSlot {
+  time:      string;   // e.g. “09:00 AM”
+  available: boolean;
+}
+
+/* ────────────────────────────────────────────────── */
+/* 3. Response container -------------------------------- */
+export interface GetBookingAvailableDateTimesResponse {
+  dates:      GetBookingAvailableDateTimesDate[];
+  timeSlots:  GetBookingAvailableDateTimesTimeSlot[];
+}
+
+/* --------------------------------------------------- */
+/* 2️⃣ Sample data (the “mock backend”)                */
+/* --------------------------------------------------- */
+export const GetBookingAvailableDateTimesSample: GetBookingAvailableDateTimesResponse = {
+  dates: [
+    { date: '2026-03-15', day: 'Mon', available: true  },
+    { date: '2026-03-16', day: 'Tue', available: true  },
+    { date: '2026-03-17', day: 'Wed', available: false },
+    { date: '2026-03-18', day: 'Thu', available: true  },
+    { date: '2026-03-19', day: 'Fri', available: true  },
+    { date: '2026-03-20', day: 'Sat', available: false },
+    { date: '2026-03-21', day: 'Sun', available: false },
+  ] as GetBookingAvailableDateTimesDate[],
+
+  timeSlots: [
+    { time: '09:00 AM', available: true  },
+    { time: '10:00 AM', available: true  },
+    { time: '11:00 AM', available: false },
+    { time: '02:00 PM', available: true  },
+    { time: '03:00 PM', available: true  },
+  ] as GetBookingAvailableDateTimesTimeSlot[],
+};
