@@ -1,4 +1,5 @@
 using BuildingBlocks.Core.ErrorHandling;
+using BuildingBlocks.Core.Messaging.Queries.Paging;
 using BuildingBlocks.Core.ResultPattern;
 using BuildingBlocks.Security.Common;
 using BuildingBlocks.Web.Endpoints;
@@ -10,40 +11,36 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 
-namespace LSevin.Modules.Category.ServiceProvider.Features.GetBookingAvailableDateTimes;
+namespace LSevin.Modules.Category.ServiceProvider.Features.GetBookingSteps;
 
-internal sealed class GetBookingAvailableDateTimesEndpoint : EndpointResponseHandler, IEndpointDefinition
+internal sealed class GetBookingStepsEndpoint : EndpointResponseHandler, IEndpointDefinition
 {
     public void ConfigureEndpoints(IEndpointRouteBuilder app)
     {
-        app.MapGet(Routes.Booking.GetBookingAvailableDateTimes, Handle)
+        app.MapGet(Routes.Booking.GetBookingSteps, Handle)
             .RequireAuthorization(SecurityConstants.Role.Admin)
-            .Produces<IReadOnlyCollection<GetBookingAvailableDateTimesResponse>>()
+            .Produces<IPageList<GetBookingStepsResponse>>()
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
-            .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithTags(Routes.ServiceProvider.Group)
-            .WithName(nameof(GetBookingAvailableDateTimes))
-            .WithDisplayName(nameof(GetBookingAvailableDateTimes).Humanize())
-            .WithSummaryAndDescription(
-                nameof(GetBookingAvailableDateTimes).Humanize(),
-                nameof(GetBookingAvailableDateTimes).Humanize()
-            );
+            .WithName(nameof(GetBookingSteps))
+            .WithDisplayName(nameof(GetBookingSteps).Humanize())
+            .WithSummaryAndDescription(nameof(GetBookingSteps).Humanize(), nameof(GetBookingSteps).Humanize());
     }
 
-    private static Task<Results<Ok<GetBookingAvailableDateTimesResponse>, ProblemHttpResult>> Handle(
+    private static Task<Results<Ok<IPageList<GetBookingStepsResponse>>, ProblemHttpResult>> Handle(
         [AsParameters] BaseEndpointServices<CategoryModule> services,
-        Guid id,
-        [AsParameters] GetBookingAvailableDateTimesRequest request
+        [AsParameters] GetBookingStepsRequest request,
+        [AsParameters] PageRequest pageRequest
     ) =>
         Result
-            .Create(GetBookingAvailableDateTimesQuery.Of(id, request.IsActive))
+            .Create(GetBookingStepsQuery.Of(request, pageRequest))
             .Bind(query => services.Gateway.SendQueryAsync(query, services.CancellationToken))
             .Match<
-                GetBookingAvailableDateTimesResponse,
-                Results<Ok<GetBookingAvailableDateTimesResponse>, ProblemHttpResult>
+                IPageList<GetBookingStepsResponse>,
+                Results<Ok<IPageList<GetBookingStepsResponse>>, ProblemHttpResult>
             >(onSuccess: result => EndpointSucceedOk(result), onFailure: error => EndpointFailed(error));
 }

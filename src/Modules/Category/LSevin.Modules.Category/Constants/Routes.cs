@@ -94,6 +94,7 @@ internal static class Routes
         internal const string GetBookingSpecialistByProviderAndService = $"{AdminUrl}/GetBookingSpecialistByProviderAndService";
         internal const string GetBookingGetServicesByProviderAndSpecialist = $"{AdminUrl}/GetBookingGetServicesByProviderAndSpecialist";
         internal const string GetBookingGetProvidersByServiceAndSpecialist = $"{AdminUrl}/GetBookingGetProvidersByServiceAndSpecialist";
+        internal const string GetBookingSteps = $"{AdminUrl}/GetBookingSteps";
 
     }
     internal static class ServiceProvider

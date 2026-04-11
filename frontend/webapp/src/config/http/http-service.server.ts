@@ -108,8 +108,8 @@ const customFetch = async <TResult extends ApiDataValue>(
   url: string,
   options: FetcherOptions
 ): Promise<ApiReturnType<TResult>> => {
-  try {
     const finalUrl = new URL(`${env.NEXT_PUBLIC_API_URL}/${url}`);
+  try {
     const fetchOptions = await prepareRequest(finalUrl, options);
 
     // 🔥 LOG IT (copy/paste runnable)
@@ -121,15 +121,17 @@ const customFetch = async <TResult extends ApiDataValue>(
     });
 
     const response = await fetch(finalUrl, fetchOptions);
-    return await handleFetchApiResponse<TResult>(response);
+    return await handleFetchApiResponse<TResult>(finalUrl?.toString(),response);
   } catch (error: unknown) {
-    console.log(error);
+    console.log(finalUrl.toString(),error);
     const err = error as IProblem;
     if (err) {
       const problem: IProblem = {
+        url:finalUrl.toString(),
         title: err?.title ?? "مشکلی رخ داده است",
         status: err?.status ?? 500,
         detail: err?.detail ?? "مشکلی رخ داده است",
+        err: err,
         errors: err?.errors,
       };
       return { error: problem };
@@ -203,7 +205,7 @@ export const patchData = <TPayload, TResult extends ApiDataValue>(
 };
 
 async function handleFetchApiResponse<TSuccess>(
-  response: Response
+  finalUrl:string,response: Response
 ): Promise<ApiReturnType<TSuccess>> {
   // Handle successful responses
   if (response.ok) {
@@ -235,6 +237,7 @@ async function handleFetchApiResponse<TSuccess>(
   }
 
   const problem: IProblem = {
+    url:finalUrl,
     title: error.title || "Error",
     status: response.status,
     detail: error.detail || error.message || "An error occurred",

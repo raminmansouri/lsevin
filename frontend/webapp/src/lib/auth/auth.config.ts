@@ -14,6 +14,7 @@ import {
 type Locale = (typeof routing.locales)[number];
 
 export const authConfig = {
+  trustHost:true,
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;

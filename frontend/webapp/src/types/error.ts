@@ -1,7 +1,9 @@
 interface IProblem {
+  url?: string;
   title: string;
   status: number;
   detail?: string;
+  err?: any;
   errors?: Record<string, string[]>;
 }
 

@@ -34,7 +34,7 @@ internal sealed class GetBookingGetProvidersByServiceAndSpecialistEndpoint : End
             );
     }
 
-    private static Task<Results<Ok<IReadOnlyCollection<GetBookingGetProvidersByServiceAndSpecialistResponse>>, ProblemHttpResult>> Handle(
+    private static Task<Results<Ok<GetBookingGetProvidersByServiceAndSpecialistResponse>, ProblemHttpResult>> Handle(
         [AsParameters] BaseEndpointServices<CategoryModule> services,
         Guid id,
         [AsParameters] GetBookingGetProvidersByServiceAndSpecialistRequest request
@@ -43,7 +43,7 @@ internal sealed class GetBookingGetProvidersByServiceAndSpecialistEndpoint : End
             .Create(GetBookingGetProvidersByServiceAndSpecialistQuery.Of(id, request.IsActive))
             .Bind(query => services.Gateway.SendQueryAsync(query, services.CancellationToken))
             .Match<
-                IReadOnlyCollection<GetBookingGetProvidersByServiceAndSpecialistResponse>,
-                Results<Ok<IReadOnlyCollection<GetBookingGetProvidersByServiceAndSpecialistResponse>>, ProblemHttpResult>
+                GetBookingGetProvidersByServiceAndSpecialistResponse,
+                Results<Ok<GetBookingGetProvidersByServiceAndSpecialistResponse>, ProblemHttpResult>
             >(onSuccess: result => EndpointSucceedOk(result), onFailure: error => EndpointFailed(error));
 }
