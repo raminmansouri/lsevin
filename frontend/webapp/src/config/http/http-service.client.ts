@@ -17,7 +17,7 @@ const httpService = axios.create({
   },
 });
 
-httpService.interceptors.request.use(
+/* httpService.interceptors.request.use(
   (config) => {
     logAxiosRequest(config, {
       enabled: true,
@@ -57,7 +57,7 @@ httpService.interceptors.response.use(
     // ⚠️ don’t swallow errors, let callers handle them too
     return Promise.reject(error);
   }
-);
+); */
 
 async function apiBase<T>(
   url: string,

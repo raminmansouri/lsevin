@@ -91,10 +91,15 @@ internal static class Routes
 
         internal const string GetBookingServiceSelectionData = $"{AdminUrl}/{{serviceProviderId:guid}}/staff";
         internal const string GetBookingAvailableDateTimes = $"{AdminUrl}/{{serviceProviderId:guid}}/staff";
-        internal const string GetBookingSpecialistByProviderAndService = $"{AdminUrl}/GetBookingSpecialistByProviderAndService";
-        internal const string GetBookingGetServicesByProviderAndSpecialist = $"{AdminUrl}/GetBookingGetServicesByProviderAndSpecialist";
+        
         internal const string GetBookingGetProvidersByServiceAndSpecialist = $"{AdminUrl}/GetBookingGetProvidersByServiceAndSpecialist";
+        internal const string GetBookingGetServicesByProviderAndSpecialist = $"{AdminUrl}/GetBookingGetServicesByProviderAndSpecialist";
+        internal const string GetBookingSpecialistByProviderAndService = $"{AdminUrl}/GetBookingSpecialistByProviderAndService";
+        internal const string GetAddOns = $"{AdminUrl}/GetAddOns";
+        
         internal const string GetBookingSteps = $"{AdminUrl}/GetBookingSteps";
+        internal const string GetBookingAvailableTimes = $"{AdminUrl}/GetBookingAvailableTimes";
+        internal const string GetBookingAvailableDates = $"{AdminUrl}/GetBookingAvailableDates";
 
     }
     internal static class ServiceProvider

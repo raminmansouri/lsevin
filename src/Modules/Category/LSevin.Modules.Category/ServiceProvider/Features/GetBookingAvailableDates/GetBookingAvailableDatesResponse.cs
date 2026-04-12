@@ -1,8 +1,8 @@
-﻿namespace LSevin.Modules.Category.ServiceProvider.Features.GetBookingAvailableDateTimes;
+﻿namespace LSevin.Modules.Category.ServiceProvider.Features.GetBookingAvailableDates;
 
 /* ────────────────────────────────────────────────── */
 /* 1. Date entry ------------------------------------- */
-public class GetBookingAvailableDateTimesDate
+public class GetBookingAvailableDatesDate
 {
     public string Date { get; set; }   // “YYYY-MM-DD”
     public string Day { get; set; }   // “Mon”, “Tue”, …
@@ -11,7 +11,7 @@ public class GetBookingAvailableDateTimesDate
 
 /* ────────────────────────────────────────────────── */
 /* 2. Time‑slot entry -------------------------------- */
-public class GetBookingAvailableDateTimesTimeSlot
+public class GetBookingAvailableDatesTimeSlot
 {
     public string Time { get; set; }   // e.g. “09:00 AM”
     public bool Available { get; set; }
@@ -19,21 +19,21 @@ public class GetBookingAvailableDateTimesTimeSlot
 
 /* ────────────────────────────────────────────────── */
 /* 3. Response container ------------------------------ */
-public class GetBookingAvailableDateTimesResponse
+public class GetBookingAvailableDatesResponse
 {
-    public List<GetBookingAvailableDateTimesDate> Dates { get; set; } = new();
-    public List<GetBookingAvailableDateTimesTimeSlot> TimeSlots { get; set; } = new();
+    public List<GetBookingAvailableDatesDate> Dates { get; set; } = new();
+    public List<GetBookingAvailableDatesTimeSlot> TimeSlots { get; set; } = new();
 }
 
 /* ────────────────────────────────────────────────── */
 /* 4. Sample data provider (acts like a “backend”) ---- */
-public static class GetBookingAvailableDateTimesProvider
+public static class GetBookingAvailableDatesProvider
 {
-    public static GetBookingAvailableDateTimesResponse GetBookingAvailableDateTimes()
+    public static GetBookingAvailableDatesResponse GetBookingAvailableDates()
     {
-        return new GetBookingAvailableDateTimesResponse
+        return new GetBookingAvailableDatesResponse
         {
-            Dates = new List<GetBookingAvailableDateTimesDate>
+            Dates = new List<GetBookingAvailableDatesDate>
                 {
                     new() { Date = "2026-03-15", Day = "Mon", Available = true  },
                     new() { Date = "2026-03-16", Day = "Tue", Available = true  },
@@ -44,7 +44,7 @@ public static class GetBookingAvailableDateTimesProvider
                     new() { Date = "2026-03-21", Day = "Sun", Available = false },
                 },
 
-            TimeSlots = new List<GetBookingAvailableDateTimesTimeSlot>
+            TimeSlots = new List<GetBookingAvailableDatesTimeSlot>
                 {
                     new() { Time = "09:00 AM", Available = true  },
                     new() { Time = "10:00 AM", Available = true  },

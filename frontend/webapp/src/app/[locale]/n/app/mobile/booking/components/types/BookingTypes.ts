@@ -11,3 +11,11 @@ export interface FileUpload {
   description?: string
   docId: string
 }
+
+
+export interface BookingCheckoutResponse{
+
+}
+export interface BookingCheckoutPayload{
+  
+}

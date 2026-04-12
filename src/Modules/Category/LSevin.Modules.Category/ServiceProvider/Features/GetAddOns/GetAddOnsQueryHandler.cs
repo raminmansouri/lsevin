@@ -10,15 +10,15 @@ using BuildingBlocks.Web.Services;
 using Dapper;
 using LSevin.Modules.Category.Resources;
 
-namespace LSevin.Modules.Category.ServiceProvider.Features.GetBookingAvailableDateTimes;
+namespace LSevin.Modules.Category.ServiceProvider.Features.GetAddOns;
 
-internal sealed class GetBookingAvailableDateTimesQueryHandler(
+internal sealed class GetAddOnsQueryHandler(
     IDbConnectionFactory dbConnectionFactory,
     ILocaleAccessor localeAccessor
-) : IQueryHandler<GetBookingAvailableDateTimesQuery, GetBookingAvailableDateTimesResponse>
+) : IQueryHandler<GetAddOnsQuery, AddonListResponse>
 {
-    public async Task<Result<GetBookingAvailableDateTimesResponse>> Handle(
-        GetBookingAvailableDateTimesQuery request,
+    public async Task<Result<AddonListResponse>> Handle(
+        GetAddOnsQuery request,
         CancellationToken cancellationToken
     )
     {
@@ -47,7 +47,7 @@ internal sealed class GetBookingAvailableDateTimesQueryHandler(
         var currentLocale = localeAccessor.CurrentLocale;
         var defaultLocale = localeAccessor.DefaultLocale;
 
-        var response= GetBookingAvailableDateTimesProvider.GetBookingAvailableDateTimes();
+        var response= AddonProvider.GetAddons();
         return response;
     }
 }

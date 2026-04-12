@@ -6,6 +6,7 @@ type CACHE_TAG =
   | "service-provider-requests"
   | "service-provider-comments"
   | "categories"
+  | "bookings"
   | "provider-types"
   | "service-definitions"
   | "staff";

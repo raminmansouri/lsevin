@@ -1074,10 +1074,6 @@ export interface GetBookingSpecialistByProviderAndServiceResponse {
 
 
 
-
-
-
-
 /* --------------------------------------------------- */
 /* 1️⃣ TypeScript – Type definitions & sample data    */
 /* --------------------------------------------------- */

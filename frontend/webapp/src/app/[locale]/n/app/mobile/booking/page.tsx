@@ -42,11 +42,37 @@ import { BookingFormValues, bookingSchema } from './types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import ServiceSelection from './components/ServiceSelection/ServiceSelection';
 import UploadFiles from './components/UploadFiles/UploadFiles';
+import { useBookingCheckout } from '@/features/booking/api/client/post-booking-checkout';
+import { useGetAddons } from '@/features/booking/api/client/fetch-addons';
+import { useLocale } from 'next-intl';
+import { useGetAvailableDates } from '@/features/booking/api/client/fetch-available-dates';
+import { useGetAvailableTimeslots } from '@/features/booking/api/client/fetch-available-timeslots';
 
-export default function BookingFlow() {
+export default function BookingServiceWizardPage() {
+    const locale = useLocale();
   const navigate = useNavigate();
   const searchParams = useSearchParams();
-    
+      const methods = useForm<BookingFormValues>({
+    resolver: zodResolver(bookingSchema),
+    defaultValues: {
+    },
+  });
+
+
+  const { mutate: bookingCheckout, isPending, error } = useBookingCheckout();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    bookingCheckout({
+     
+    });
+  };
+
+
+
+  const providerId = methods.watch({ name: 'providerId' });
+  const serviceId   = methods.watch({ name: 'serviceId' });
+  const specialistId = methods.watch({ name: 'specialistId' });
   const id:string= searchParams.get('id');
   // const { serviceId } = router.get;
   
@@ -62,7 +88,12 @@ export default function BookingFlow() {
   const [promoCode, setPromoCode] = useState<string>('');
   const [selectedCurrency, setSelectedCurrency] = useState<'USD' | 'EUR' | 'GBP'>('USD');
   
-  const treatment = {
+
+  
+
+
+
+  const service = {
     id: '1',
     name: 'Premium Hair Transplant - FUE Method',
     clinic: 'Istanbul Medical Center',
@@ -81,7 +112,7 @@ export default function BookingFlow() {
     accreditation: 'JCI Accredited'
   };
   
-  const doctors = [
+  const specialists = [
     {
       id: '1',
       name: 'Dr. Mehmet Yavuz',
@@ -113,151 +144,24 @@ export default function BookingFlow() {
       nextAvailable: 'Mar 12, 2026'
     },
   ];
-  
-  const availableDates = [
-    { date: '2026-03-15', day: 'Mon', available: true },
-    { date: '2026-03-16', day: 'Tue', available: true },
-    { date: '2026-03-17', day: 'Wed', available: false },
-    { date: '2026-03-18', day: 'Thu', available: true },
-    { date: '2026-03-19', day: 'Fri', available: true },
-    { date: '2026-03-20', day: 'Sat', available: false },
-    { date: '2026-03-21', day: 'Sun', available: false },
-  ];
-  
-  const timeSlots = [
-    { time: '09:00 AM', available: true },
-    { time: '10:00 AM', available: true },
-    { time: '11:00 AM', available: false },
-    { time: '02:00 PM', available: true },
-    { time: '03:00 PM', available: true },
-  ];
-
-  const services = [
-    {
-      id: 'hair-treatment',
-      name: 'Keratin Hair Treatment',
-      description: 'Professional smoothing treatment',
-      duration: '2.5 hours',
-      price: 180,
-      category: 'Hair Care',
-      popular: true,
-      image: '/unsplash_images/photo-1560066984-138dadb4c035__w=400&h=300&fit=crop.jpg'
-    },
-    {
-      id: 'spa-facial',
-      name: 'Luxury Facial Spa',
-      description: 'Deep cleansing and rejuvenation',
-      duration: '90 min',
-      price: 120,
-      category: 'Facial',
-      popular: true,
-      image: '/unsplash_images/photo-1570172619644-dfd03ed5d881__w=400&h=300&fit=crop.jpg'
-    },
-    {
-      id: 'manicure-pedicure',
-      name: 'Premium Manicure & Pedicure',
-      description: 'Complete nail care package',
-      duration: '60 min',
-      price: 85,
-      category: 'Nails',
-      image: '/unsplash_images/photo-1604654894610-df63bc536371__w=400&h=300&fit=crop.jpg'
-    },
-  ];
-
-    const providers = [
-    { 
-      id:'1',
-      name: 'Istanbul Medical Center', 
-      description: 'Istanbul Medical Center', 
-      rating: 4.9, 
-      verified: true,
-      popular: true,
-      image: '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=200&h=200&fit=crop.jpg'
-    },
-    { 
-      id:'2',
-
-      name: 'Dubai Smile Clinic', 
-      description: 'Dubai Smile Clinic', 
-      rating: 4.9, 
-      popular: true,
-      verified: true,
-      image: '/unsplash_images/photo-1629909613654-28e377c37b09__w=200&h=200&fit=crop.jpg'
-    },
-    { 
-      id:'3',
-
-      popular: true,
-      name: 'Bali Wellness Resort', 
-      description: 'Bali Wellness Resort', 
-      rating: 5.0, 
-      verified: true,
-      image: '/unsplash_images/photo-1540555700478-4be289fbecef__w=200&h=200&fit=crop.jpg'
-    },
-    { 
-      id:'4',
-
-      name: 'Cyprus Fertility Center', 
-      description: 'Cyprus Fertility Center', 
-      rating: 4.8, 
-      popular: true,
-      verified: true,
-      image: '/unsplash_images/photo-1551190822-a9333d879b1f__w=200&h=200&fit=crop.jpg'
-    },
-  ];
-
-  const addons = [
-    {
-      id: 'hotel',
-      name: '4-Star Hotel Package',
-      description: '3 nights accommodation near clinic',
-      price: 180,
-      icon: <HotelIcon size={24} className="text-[#083f30]" />,
-      popular: true,
-      details: ['Breakfast included', 'Free WiFi', '10 min from clinic']
-    },
-    {
-      id: 'transfer',
-      name: 'VIP Airport Transfer',
-      description: 'Round-trip luxury car service',
-      price: 80,
-      icon: <Car size={24} className="text-[#083f30]" />,
-      popular: true,
-      details: ['Meet & greet', 'Premium vehicle', 'Professional driver']
-    },
-    {
-      id: 'translator',
-      name: 'Personal Translator',
-      description: 'Dedicated translator for your stay',
-      price: 120,
-      icon: <Globe size={24} className="text-[#083f30]" />,
-      details: ['Available 24/7', 'Medical terminology expert', 'Multiple languages']
-    },
-    {
-      id: 'vip',
-      name: 'VIP Patient Support',
-      description: 'Priority support & concierge service',
-      price: 150,
-      icon: <Headphones size={24} className="text-[#083f30]" />,
-      details: ['24/7 hotline', 'Dedicated coordinator', 'Priority scheduling']
-    },
-    {
-      id: 'insurance',
-      name: 'Medical Travel Insurance',
-      description: 'Comprehensive coverage for your trip',
-      price: 95,
-      icon: <Shield size={24} className="text-[#083f30]" />,
-      details: ['Trip cancellation', 'Medical complications', 'Lost baggage']
-    },
-  ];
 
 
-
-   
   const SelectDate=()=>{
     const { setValue,resetField } = useFormContext();
 
+    
+    const {
+      data: availableDatesResponse,
+      refetch: refetchAvailableDates
+    } = useGetAvailableDates(
+      providerId,
+      serviceId,
+      specialistId,
+      locale);
+
+
     return (<>
+    
      {/* Select Date */}
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4">Select Date</h2>
@@ -273,7 +177,7 @@ export default function BookingFlow() {
                 </div>
                 
                 <div className="grid grid-cols-7 gap-2">
-                  {availableDates.map(date => (
+                  {availableDatesResponse?.dates?.map(date => (
                     <button
                       key={date.date}
                       onClick={() => 
@@ -304,6 +208,7 @@ export default function BookingFlow() {
               </div>
             </div></>)
   }
+  
   const ChooseYourServiceCanProceed=()=>{
 return (<>
 {/* Selection Summary - Step 1 */}
@@ -318,7 +223,7 @@ return (<>
                     <div className="space-y-1.5 text-sm text-green-800">
                       <div className="flex items-center gap-2">
                         <BadgeCheck size={14} className="flex-shrink-0" />
-                        <span>Doctor: {doctors.find(d => d.id === selectedDoctor)?.name}</span>
+                        <span>Doctor: {specialists.find(d => d.id === selectedDoctor)?.name}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar size={14} className="flex-shrink-0" />
@@ -343,8 +248,20 @@ return (<>
               </div>
             )}</>) 
   }
+
   const SelectTime=()=>{
     const { setValue,resetField } = useFormContext();
+
+     const {
+      data: availableTimesResponse,
+      refetch: refetchAvailableTimes
+    } = useGetAvailableTimeslots(
+      selectedDate,
+      providerId,
+      serviceId,
+      specialistId,
+      locale);
+
 
     return (<>
      {/* Select Time */}
@@ -352,7 +269,7 @@ return (<>
               <div>
                 <h2 className="text-xl font-bold text-gray-900 mb-4">Select Time</h2>
                 <div className="grid grid-cols-2 gap-3">
-                  {timeSlots.map(slot => (
+                  {availableTimesResponse?.slots?.map(slot => (
                     <button
                       key={slot.time}
                       onClick={() => 
@@ -379,7 +296,20 @@ return (<>
               </div>
             )}</>)
   }
+
+  
   const AddOns=()=>{
+
+    
+    const {
+      data: addOnsResponse,
+      refetch: refetchAddOns
+    } = useGetAddons(
+      providerId,
+      serviceId,
+      specialistId,
+      locale);
+
 
     const { setValue,resetField } = useFormContext();
     const toggleAddon = (addonId: string) => {
@@ -403,7 +333,7 @@ return (<>
             </div>
             
             <div className="space-y-3">
-              {addons.map(addon => (
+              {addOnsResponse?.addons.map(addon => (
                 <div
                   key={addon.id}
                   className={`bg-white rounded-2xl border-2 transition-all overflow-hidden ${
@@ -523,9 +453,7 @@ return (<>
             
             </>)
   }
-  
-
-
+ 
   const ReviewPay=()=>{
     return (<>
      {/* Booking Summary */}
@@ -547,25 +475,25 @@ return (<>
                   
                   <div className="flex gap-4 p-3 bg-gray-50 rounded-xl">
                     <img 
-                      src={treatment.image}
-                      alt={treatment.name}
+                      src={service.image}
+                      alt={service.name}
                       className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
                     />
                     <div className="flex-1">
-                      <h4 className="font-bold text-gray-900 mb-1 text-sm">{treatment.name}</h4>
-                      <p className="text-xs text-gray-600 mb-2">{treatment.clinic}</p>
+                      <h4 className="font-bold text-gray-900 mb-1 text-sm">{service.name}</h4>
+                      <p className="text-xs text-gray-600 mb-2">{service.clinic}</p>
                       <div className="flex items-center gap-2">
                         <span className="px-2 py-0.5 bg-[#083f30] text-white rounded-md text-xs font-semibold">
-                          {treatment.accreditation}
+                          {service.accreditation}
                         </span>
                         <div className="flex items-center gap-1">
                           <Star size={12} className="fill-yellow-400 text-yellow-400" />
-                          <span className="text-xs font-semibold text-gray-900">{treatment.rating}</span>
+                          <span className="text-xs font-semibold text-gray-900">{service.rating}</span>
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold text-gray-900">${treatment.price}</div>
+                      <div className="font-bold text-gray-900">${service.price}</div>
                     </div>
                   </div>
                   
@@ -573,16 +501,16 @@ return (<>
                   <div className="mt-3 p-3 bg-blue-50 rounded-xl border border-blue-100">
                     <div className="flex items-center gap-3">
                       <img 
-                        src={doctors.find(d => d.id === selectedDoctor)?.image}
-                        alt={doctors.find(d => d.id === selectedDoctor)?.name}
+                        src={specialists.find(d => d.id === selectedDoctor)?.image}
+                        alt={specialists.find(d => d.id === selectedDoctor)?.name}
                         className="w-12 h-12 rounded-lg object-cover"
                       />
                       <div className="flex-1">
                         <div className="font-bold text-gray-900 text-sm">
-                          {doctors.find(d => d.id === selectedDoctor)?.name}
+                          {specialists.find(d => d.id === selectedDoctor)?.name}
                         </div>
                         <div className="text-xs text-gray-600">
-                          {doctors.find(d => d.id === selectedDoctor)?.specialty}
+                          {specialists.find(d => d.id === selectedDoctor)?.specialty}
                         </div>
                       </div>
                       <BadgeCheck size={20} className="text-[#083f30]" />
@@ -702,7 +630,7 @@ return (<>
                   <div className="space-y-2 mb-3">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-600">Treatment fee</span>
-                      <span className="font-semibold text-gray-900">${treatment.price}</span>
+                      <span className="font-semibold text-gray-900">${service.price}</span>
                     </div>
                     {selectedAddons.length > 0 && (
                       <div className="flex items-center justify-between text-sm">
@@ -847,8 +775,8 @@ ReviewPay:<ReviewPay/>,
   
   
   const calculateTotal = () => {
-    const service = services.find(s => s.id === selectedService);
-    let total = service?.price || 0;
+    // const service = services.find(s => s.id === selectedService);
+    let total = 0 //service?.price || 0;
     selectedAddons.forEach(addonId => {
       const addon = addons.find(a => a.id === addonId);
       if (addon) total += addon.price;
@@ -858,7 +786,7 @@ ReviewPay:<ReviewPay/>,
   
   const getDepositAmount = () => {
     return depositOption === "deposit"
-      ? treatment.depositAmount
+      ? service.depositAmount
       : calculateTotal();
   };
 
@@ -872,16 +800,7 @@ ReviewPay:<ReviewPay/>,
     else navigate(-1);
   };
 
-  const methods = useForm<BookingFormValues>({
-    resolver: zodResolver(bookingSchema),
-    defaultValues: {
-    },
-  });
 
-
-  const providerId = methods.watch({ name: 'providerId' });
-  const serviceId   = methods.watch({ name: 'serviceId' });
-  const specialistId = methods.watch({ name: 'specialistId' });
 
   
   const canProceed = () => {
@@ -901,7 +820,6 @@ ReviewPay:<ReviewPay/>,
   };
   
 
-  const selectedServiceData = services.find(s => s.id === selectedService);
 
 
 
