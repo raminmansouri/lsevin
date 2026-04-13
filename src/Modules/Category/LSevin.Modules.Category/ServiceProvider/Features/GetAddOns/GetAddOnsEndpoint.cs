@@ -18,7 +18,7 @@ internal sealed class GetAddOnsEndpoint : EndpointResponseHandler, IEndpointDefi
     {
         app.MapGet(Routes.Booking.GetAddOns, Handle)
             .RequireAuthorization(SecurityConstants.Role.Admin)
-            .Produces<IReadOnlyCollection<GetAddOnsResponse>>()
+            .Produces<IReadOnlyCollection<AddonListResponse>>()
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -34,7 +34,7 @@ internal sealed class GetAddOnsEndpoint : EndpointResponseHandler, IEndpointDefi
             );
     }
 
-    private static Task<Results<Ok<GetAddOnsResponse>, ProblemHttpResult>> Handle(
+    private static Task<Results<Ok<AddonListResponse>, ProblemHttpResult>> Handle(
         [AsParameters] BaseEndpointServices<CategoryModule> services,
         Guid id,
         [AsParameters] GetAddOnsRequest request
@@ -43,7 +43,7 @@ internal sealed class GetAddOnsEndpoint : EndpointResponseHandler, IEndpointDefi
             .Create(GetAddOnsQuery.Of(id, request.IsActive))
             .Bind(query => services.Gateway.SendQueryAsync(query, services.CancellationToken))
             .Match<
-                GetAddOnsResponse,
-                Results<Ok<GetAddOnsResponse>, ProblemHttpResult>
+                AddonListResponse,
+                Results<Ok<AddonListResponse>, ProblemHttpResult>
             >(onSuccess: result => EndpointSucceedOk(result), onFailure: error => EndpointFailed(error));
 }

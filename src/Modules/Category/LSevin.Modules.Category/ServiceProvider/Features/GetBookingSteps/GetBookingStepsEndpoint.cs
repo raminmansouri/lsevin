@@ -19,7 +19,7 @@ internal sealed class GetBookingStepsEndpoint : EndpointResponseHandler, IEndpoi
     {
         app.MapGet(Routes.Booking.GetBookingSteps, Handle)
             .RequireAuthorization(SecurityConstants.Role.Admin)
-            .Produces<IPageList<GetBookingStepsResponse>>()
+            .Produces<GetBookingStepsResponse>()
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -31,16 +31,15 @@ internal sealed class GetBookingStepsEndpoint : EndpointResponseHandler, IEndpoi
             .WithSummaryAndDescription(nameof(GetBookingSteps).Humanize(), nameof(GetBookingSteps).Humanize());
     }
 
-    private static Task<Results<Ok<IPageList<GetBookingStepsResponse>>, ProblemHttpResult>> Handle(
+    private static Task<Results<Ok<GetBookingStepsResponse>, ProblemHttpResult>> Handle(
         [AsParameters] BaseEndpointServices<CategoryModule> services,
-        [AsParameters] GetBookingStepsRequest request,
-        [AsParameters] PageRequest pageRequest
+        [AsParameters] GetBookingStepsRequest request
     ) =>
         Result
-            .Create(GetBookingStepsQuery.Of(request, pageRequest))
+            .Create(GetBookingStepsQuery.Of(request))
             .Bind(query => services.Gateway.SendQueryAsync(query, services.CancellationToken))
             .Match<
-                IPageList<GetBookingStepsResponse>,
-                Results<Ok<IPageList<GetBookingStepsResponse>>, ProblemHttpResult>
+                GetBookingStepsResponse,
+                Results<Ok<GetBookingStepsResponse>, ProblemHttpResult>
             >(onSuccess: result => EndpointSucceedOk(result), onFailure: error => EndpointFailed(error));
 }

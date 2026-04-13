@@ -19,6 +19,8 @@ export const bookingSchema = z.object({
   selectedTime:     z.string().min(1, { message: "selectedTime is required" }),
   selectedTimeFrom: z.string().min(1, { message: "selectedTimeFrom is required" }),
   selectedTimeTo:   z.string().min(1, { message: "selectedTimeTo is required" }),
+  
+  paymentMethod:   z.string().min(1, { message: "paymentMethod is required" }),
 
   /* -------------- add‑ons -------------- */
   addOns: z

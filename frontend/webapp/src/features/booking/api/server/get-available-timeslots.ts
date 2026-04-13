@@ -8,6 +8,7 @@ import {
 import { readData } from "@/config/http/http-service.server";
 import { BaseRequest } from "@/types/common";
 import { ApiReturnType } from "@/types/network";
+import { ADMIN_BASE_PATH, CATEGORY_MODULE_BASE_PATH } from "@/features/shared/types/constants";
 
 export interface TimeSlot {
   time: string;
@@ -21,11 +22,18 @@ export interface GetAvailableTimeslotsResponse {
 export const getAvailableTimeslots = async (
   request: BaseRequest
 ): Promise<ApiReturnType<GetAvailableTimeslotsResponse>> => {
-  cacheTag("booking-getAvailableTimeslots");
+  "use cache"
+  cacheTag("booking-GetBookingAvailableTimes");
   cacheLife("default");
+  const searchParams = new URLSearchParams();
+  searchParams.set("Locale", request.locale);
+  //  searchParams.set("providerId", request. providerId ?? '');
+  //  searchParams.set("serviceId",  request.serviceId ?? '');
+  //  searchParams.set("specialistId",  request.specialistId ?? '');
+
   const response = await readData<GetAvailableTimeslotsResponse>(
-    "/booking/getAvailableTimeslots",
+    `${CATEGORY_MODULE_BASE_PATH}/${ADMIN_BASE_PATH}/booking/GetBookingAvailableTimes?${searchParams.toString()}`,
     { ...request }
-  );
+  ); 
   return response;
 };

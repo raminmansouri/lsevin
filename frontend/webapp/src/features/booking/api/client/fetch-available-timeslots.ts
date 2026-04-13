@@ -24,12 +24,12 @@ export const getAvailableTimeslotsClient = async (
 ): Promise<GetAvailableTimeslotsResponse> => {
   const searchParams = new URLSearchParams();
   searchParams.set("Locale", locale);
-  searchParams.set("selectedDate", selectedDate);
-  searchParams.set("providerId", providerId);
-  searchParams.set("serviceId", serviceId);
-  searchParams.set("specialistId", specialistId);
+  searchParams.set("selectedDate", selectedDate ?? '');
+  searchParams.set("providerId", providerId ?? '');
+  searchParams.set("serviceId", serviceId ?? '');
+  searchParams.set("specialistId", specialistId ?? '');
   return await readData<GetAvailableTimeslotsResponse>(
-    `/booking/getAvailableTimeslots?${searchParams.toString()}`
+    `/booking/get-available-timeslots?${searchParams.toString()}`
   );
 };
 

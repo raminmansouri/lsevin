@@ -22,13 +22,13 @@ export const getAvailableDatesClient = async (
       specialistId, locale: Locale
 ): Promise<GetAvailableDatesResponse> => {
   const searchParams = new URLSearchParams();
-  searchParams.set("Locale", locale);
-  searchParams.set("providerId", providerId);
-  searchParams.set("serviceId", serviceId);
-  searchParams.set("specialistId", specialistId);
+  searchParams.set("Locale", locale ?? '');
+  searchParams.set("providerId", providerId ?? '');
+  searchParams.set("serviceId", serviceId ?? '');
+  searchParams.set("specialistId", specialistId ?? '');
   
   return await readData<GetAvailableDatesResponse>(
-    `/booking/getAvailableDates?${searchParams.toString()}`
+    `/booking/get-available-dates?${searchParams.toString()}`
   );
 };
 

@@ -235,7 +235,7 @@ export default function TreatmentDetail() {
   const [selectedCurrency, setSelectedCurrency] = useState('USD');
   
   const displayPrice = selectedCurrency === 'USD' 
-    ? treatment.price 
+    ? treatment.price
     : treatment.otherCurrencies.find(c => c.code === selectedCurrency)?.amount || treatment.price;
   
   const displayOriginalPrice = selectedCurrency === 'USD'

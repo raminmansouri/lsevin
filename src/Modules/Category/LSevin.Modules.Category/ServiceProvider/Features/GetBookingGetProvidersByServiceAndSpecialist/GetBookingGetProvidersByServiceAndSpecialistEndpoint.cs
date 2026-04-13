@@ -36,11 +36,10 @@ internal sealed class GetBookingGetProvidersByServiceAndSpecialistEndpoint : End
 
     private static Task<Results<Ok<GetBookingGetProvidersByServiceAndSpecialistResponse>, ProblemHttpResult>> Handle(
         [AsParameters] BaseEndpointServices<CategoryModule> services,
-        Guid id,
         [AsParameters] GetBookingGetProvidersByServiceAndSpecialistRequest request
     ) =>
         Result
-            .Create(GetBookingGetProvidersByServiceAndSpecialistQuery.Of(id, request.IsActive))
+            .Create(GetBookingGetProvidersByServiceAndSpecialistQuery.Of())
             .Bind(query => services.Gateway.SendQueryAsync(query, services.CancellationToken))
             .Match<
                 GetBookingGetProvidersByServiceAndSpecialistResponse,

@@ -46,7 +46,7 @@ export const useGetProvidersByServiceAndSpecialist = (
     queryKey: queryServicesBySearchKey(search, locale),
     queryFn: ({ pageParam }) =>
       getProvidersByServiceAndSpecialistClient(search, pageParam as number, locale),
-    enabled: providerId || serviceId,
+    enabled: !providerId,
     staleTime: 1000 * 60 * 5, // 5 minutes
     gcTime: 1000 * 60 * 60, // 1 hour
   });

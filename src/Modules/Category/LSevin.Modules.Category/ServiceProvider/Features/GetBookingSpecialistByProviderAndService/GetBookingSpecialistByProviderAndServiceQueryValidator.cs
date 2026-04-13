@@ -8,6 +8,6 @@ internal sealed class GetBookingSpecialistByProviderAndServiceQueryValidator : A
 {
     public GetBookingSpecialistByProviderAndServiceQueryValidator()
     {
-        RuleFor(query => query.ServiceProviderId).ValidateGuid(CategoryResource.Service_Provider);
+        //RuleFor(query => query.ServiceProviderId).ValidateGuid(CategoryResource.Service_Provider);
     }
 }

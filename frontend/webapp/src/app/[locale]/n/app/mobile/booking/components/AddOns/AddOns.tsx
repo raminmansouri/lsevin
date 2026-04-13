@@ -1,53 +1,56 @@
 import { Car, CheckCircle2, ChevronRight, Globe, Headphones, HotelIcon, Info, Plus, Shield } from "lucide-react";
-
-const addons = [
-    {
-        id: 'hotel',
-        name: '4-Star Hotel Package',
-        description: '3 nights accommodation near clinic',
-        price: 180,
-        icon: <HotelIcon size={24} className="text-[#083f30]" />,
-        popular: true,
-        details: ['Breakfast included', 'Free WiFi', '10 min from clinic']
-    },
-    {
-        id: 'transfer',
-        name: 'VIP Airport Transfer',
-        description: 'Round-trip luxury car service',
-        price: 80,
-        icon: <Car size={24} className="text-[#083f30]" />,
-        popular: true,
-        details: ['Meet & greet', 'Premium vehicle', 'Professional driver']
-    },
-    {
-        id: 'translator',
-        name: 'Personal Translator',
-        description: 'Dedicated translator for your stay',
-        price: 120,
-        icon: <Globe size={24} className="text-[#083f30]" />,
-        details: ['Available 24/7', 'Medical terminology expert', 'Multiple languages']
-    },
-    {
-        id: 'vip',
-        name: 'VIP Patient Support',
-        description: 'Priority support & concierge service',
-        price: 150,
-        icon: <Headphones size={24} className="text-[#083f30]" />,
-        details: ['24/7 hotline', 'Dedicated coordinator', 'Priority scheduling']
-    },
-    {
-        id: 'insurance',
-        name: 'Medical Travel Insurance',
-        description: 'Comprehensive coverage for your trip',
-        price: 95,
-        icon: <Shield size={24} className="text-[#083f30]" />,
-        details: ['Trip cancellation', 'Medical complications', 'Lost baggage']
-    },
-];
+import { useBooking } from "../../hooks/use-booking";
+import { useGetAddons } from "@/features/booking/api/client/fetch-addons";
+import { useLocale } from "next-intl";
+import { useFormContext } from "react-hook-form";
 
 
+export const AddOns = () => {
 
-export const AddOns = ({ handleNext, selectedAddons, setSelectedAddons, toggleAddon }) => {
+    const locale = useLocale();
+
+    const {
+        handleNext,
+        handleBack,
+        step, setStep,
+        calculateTotal,
+        addons,
+        selectedAddons,
+        services,
+        providers,
+        specialists,
+        selectedDate,
+        selectedTime,
+        uploadedFiles,
+        service,
+        provider,
+        selectedSpecialist,
+        providerId,
+        serviceId,
+        specialistId,
+        paymentMethod
+    } = useBooking();
+
+    const {
+        data: addOnsResponse,
+        refetch: refetchAddOns
+    } = useGetAddons(
+        providerId,
+        serviceId,
+        specialistId,
+        locale);
+
+    const { setValue, resetField } = useFormContext();
+    const toggleAddon = (addonId: string) => {
+        if (selectedAddons.find(f => f.id == addonId)) {
+            const temp = selectedAddons.filter(id => id !== addonId);
+            setValue('selectedAddons', temp)
+        } else {
+            const temp = [...selectedAddons, addonId];
+            setValue('selectedAddons', temp)
+        }
+    };
+
     return (<>
         <div>
             <h2 className="text-xl font-bold text-gray-900 mb-2">Enhance Your Experience</h2>
@@ -57,12 +60,12 @@ export const AddOns = ({ handleNext, selectedAddons, setSelectedAddons, toggleAd
         </div>
 
         <div className="space-y-3">
-            {addons.map(addon => (
+            {addOnsResponse?.addons.map(addon => (
                 <div
                     key={addon.id}
-                    className={`bg-white rounded-2xl border-2 transition-all overflow-hidden ${selectedAddons.includes(addon.id)
-                            ? 'border-[#083f30] shadow-md'
-                            : 'border-gray-200'
+                    className={`bg-white rounded-2xl border-2 transition-all overflow-hidden ${selectedAddons.find(f => f.id == addon.id)
+                        ? 'border-[#083f30] shadow-md'
+                        : 'border-gray-200'
                         }`}
                 >
                     <div className="p-4">
@@ -106,12 +109,12 @@ export const AddOns = ({ handleNext, selectedAddons, setSelectedAddons, toggleAd
 
                                 <button
                                     onClick={() => toggleAddon(addon.id)}
-                                    className={`w-full h-10 rounded-xl font-semibold transition-all ${selectedAddons.includes(addon.id)
-                                            ? 'bg-[#083f30] text-white'
-                                            : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                                    className={`w-full h-10 rounded-xl font-semibold transition-all ${selectedAddons.find(f => f.id == addon.id)
+                                        ? 'bg-[#083f30] text-white'
+                                        : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                                         }`}
                                 >
-                                    {selectedAddons.includes(addon.id) ? (
+                                    {selectedAddons.find(f => f.id == addon.id) ? (
                                         <span className="flex items-center justify-center gap-2">
                                             <CheckCircle2 size={18} />
                                             Added

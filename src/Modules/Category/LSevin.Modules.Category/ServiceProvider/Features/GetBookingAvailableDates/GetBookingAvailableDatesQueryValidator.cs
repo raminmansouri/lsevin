@@ -8,6 +8,6 @@ internal sealed class GetBookingAvailableDatesQueryValidator : AbstractValidator
 {
     public GetBookingAvailableDatesQueryValidator()
     {
-        RuleFor(query => query.ServiceProviderId).ValidateGuid(CategoryResource.Service_Provider);
+        //RuleFor(query => query.ServiceProviderId).ValidateGuid(CategoryResource.Service_Provider);
     }
 }

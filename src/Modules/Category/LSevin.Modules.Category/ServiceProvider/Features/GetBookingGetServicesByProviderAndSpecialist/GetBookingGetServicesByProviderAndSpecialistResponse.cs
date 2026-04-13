@@ -8,6 +8,9 @@ public class GetBookingGetServicesByProviderAndSpecialistService
     public string Name { get; set; } = null!;
     public string Description { get; set; } = null!;
     public string Duration { get; set; } = null!;
+    public string Provider { get; set; } = null!;
+    public int Rating { get; set; }
+    public int Accreditation { get; set; }
     public int Price { get; set; }
     public string Category { get; set; } = null!;
     public bool Popular { get; set; }

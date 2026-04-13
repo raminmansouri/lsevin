@@ -1023,6 +1023,10 @@ export interface IServiceProviderComment {
 
 /** ---------- Service ---------- */
 export interface GetBookingServiceSelectionDataService {
+  depositAmount: any;
+  rating: number;
+  accreditation: number;
+  provider: string;
   id: string;
   name: string;
   description: string;

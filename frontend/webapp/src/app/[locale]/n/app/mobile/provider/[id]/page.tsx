@@ -36,8 +36,8 @@ export default function ClinicDetail() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: clinic.name,
-          text: `Check out ${clinic.name} - ${clinic.tagline}`,
+          title: provider.name,
+          text: `Check out ${provider.name} - ${provider.tagline}`,
           url: window.location.href,
         });
       } catch (err) {
@@ -55,7 +55,7 @@ export default function ClinicDetail() {
     // In production, you would save to favorites context/backend here
   };
   
-  const clinic = {
+  const provider = {
     id: id || '1',
     name: 'Istanbul Medical Center',
     tagline: 'World-Class Hair Transplant & Aesthetic Surgery',
@@ -83,7 +83,7 @@ export default function ClinicDetail() {
     successRate: '98.5%',
   };
   
-  const treatments = [
+  const services = [
     {
       id: 1,
       name: 'Premium Hair Transplant - FUE',
@@ -120,7 +120,7 @@ export default function ClinicDetail() {
     },
   ];
   
-  const doctors = [
+  const specialists = [
     {
       id: 1,
       name: 'Dr. Mehmet Yavuz',
@@ -161,7 +161,7 @@ export default function ClinicDetail() {
       date: '2 weeks ago',
       rating: 5,
       treatment: 'Hair Transplant',
-      review: 'Exceptional service from start to finish. The clinic is modern, staff is professional, and Dr. Mehmet is a true expert. Results exceeded my expectations!',
+      review: 'Exceptional service from start to finish. The provider is modern, staff is professional, and Dr. Mehmet is a true expert. Results exceeded my expectations!',
       verified: true,
       helpful: 47,
       images: ['/unsplash_images/photo-1622296089863-eb7fc530daa8__w=400&h=300&fit=crop.jpg']
@@ -184,7 +184,7 @@ export default function ClinicDetail() {
       date: '1 month ago',
       rating: 5,
       treatment: 'Dental Implants',
-      review: 'Outstanding quality at a fraction of US prices. The clinic arranged everything - hotel, transfer, translator. Felt safe and well cared for throughout.',
+      review: 'Outstanding quality at a fraction of US prices. The provider arranged everything - hotel, transfer, translator. Felt safe and well cared for throughout.',
       verified: true,
       helpful: 28
     },
@@ -193,7 +193,7 @@ export default function ClinicDetail() {
   // Recommendation data
   const localRecommendations = [
     {
-      id: 'clinic-local-1',
+      id: 'provider-local-1',
       image: 'https://images.unsplash.com/photo-1629909615957-be38eea5915d?w=400&h=400&fit=crop',
       title: 'Ankara Medical Excellence',
       rating: 4.8,
@@ -204,7 +204,7 @@ export default function ClinicDetail() {
       link: '/n/app/mobile/provider/2'
     },
     {
-      id: 'clinic-local-2',
+      id: 'provider-local-2',
       image: '/unsplash_images/photo-1631217868264-e5b90bb7e133__w=400&h=400&fit=crop.jpg',
       title: 'Bodrum Aesthetic Center',
       rating: 4.7,
@@ -218,7 +218,7 @@ export default function ClinicDetail() {
 
   const internationalRecommendations = [
     {
-      id: 'clinic-int-1',
+      id: 'provider-int-1',
       image: '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=400&h=400&fit=crop.jpg',
       title: 'Tehran Premium Healthcare',
       rating: 4.6,
@@ -229,7 +229,7 @@ export default function ClinicDetail() {
       link: '/n/app/mobile/provider/4'
     },
     {
-      id: 'clinic-int-2',
+      id: 'provider-int-2',
       image: '/unsplash_images/photo-1586773860418-d37222d8fce3__w=400&h=400&fit=crop.jpg',
       title: 'Dubai Excellence Medical',
       rating: 4.9,
@@ -250,8 +250,8 @@ export default function ClinicDetail() {
       <div className="relative">
         <div className="relative h-80 overflow-hidden">
           <img 
-            src={clinic.images[currentImageIndex]}
-            alt={clinic.name}
+            src={provider.images[currentImageIndex]}
+            alt={provider.name}
             className="w-full h-full object-cover"
           />
           
@@ -289,12 +289,12 @@ export default function ClinicDetail() {
             className="absolute bottom-4 right-4 px-3 py-2 bg-black/70 backdrop-blur-sm rounded-xl text-white text-sm font-semibold flex items-center gap-2 hover:bg-black/80 transition-colors"
           >
             <ImageIcon size={16} />
-            {currentImageIndex + 1} / {clinic.images.length}
+            {currentImageIndex + 1} / {provider.images.length}
           </button>
           
           {/* Image Dots */}
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-            {clinic.images.map((_, idx) => (
+            {provider.images.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentImageIndex(idx)}
@@ -315,13 +315,13 @@ export default function ClinicDetail() {
         <div className="mb-6">
           {/* Verification Badges */}
           <div className="flex items-center gap-2 mb-3">
-            {clinic.verified && (
+            {provider.verified && (
               <span className="flex items-center gap-1 px-3 py-1 bg-[#083f30] rounded-full text-white text-xs font-bold">
                 <BadgeCheck size={14} />
                 Verified
               </span>
             )}
-            {clinic.accredited && (
+            {provider.accredited && (
               <span className="flex items-center gap-1 px-3 py-1 bg-blue-600 rounded-full text-white text-xs font-bold">
                 <Award size={14} />
                 JCI Accredited
@@ -335,16 +335,16 @@ export default function ClinicDetail() {
           
           {/* Name & Location */}
           <h1 className="text-2xl font-bold text-gray-900 mb-2 leading-tight">
-            {clinic.name}
+            {provider.name}
           </h1>
           <p className="text-base text-gray-600 mb-3">
-            {clinic.tagline}
+            {provider.tagline}
           </p>
           
           {/* Location */}
           <div className="flex items-center gap-2 text-sm text-gray-700 mb-4">
             <MapPin size={16} className="text-[#083f30]" />
-            <span className="font-medium">{clinic.location}</span>
+            <span className="font-medium">{provider.location}</span>
           </div>
           
           {/* Rating & Reviews */}
@@ -352,10 +352,10 @@ export default function ClinicDetail() {
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1">
                 <Star size={20} className="fill-yellow-400 text-yellow-400" />
-                <span className="text-xl font-bold text-gray-900">{clinic.rating}</span>
+                <span className="text-xl font-bold text-gray-900">{provider.rating}</span>
               </div>
               <span className="text-sm text-gray-600">
-                ({clinic.reviews.toLocaleString()} reviews)
+                ({provider.reviews.toLocaleString()} reviews)
               </span>
             </div>
             
@@ -364,7 +364,7 @@ export default function ClinicDetail() {
             <div className="flex items-center gap-1.5">
               <Clock size={16} className="text-gray-500" />
               <span className="text-sm text-gray-700 font-medium">
-                {clinic.responseTime}
+                {provider.responseTime}
               </span>
             </div>
           </div>
@@ -374,19 +374,19 @@ export default function ClinicDetail() {
         <div className="grid grid-cols-3 gap-3 mb-6">
           <div className="bg-gray-50 rounded-xl p-3 text-center">
             <div className="text-lg font-bold text-gray-900 mb-0.5">
-              {clinic.totalPatients}
+              {provider.totalPatients}
             </div>
             <div className="text-xs text-gray-600">Patients</div>
           </div>
           <div className="bg-gray-50 rounded-xl p-3 text-center">
             <div className="text-lg font-bold text-gray-900 mb-0.5">
-              {clinic.successRate}
+              {provider.successRate}
             </div>
             <div className="text-xs text-gray-600">Success Rate</div>
           </div>
           <div className="bg-gray-50 rounded-xl p-3 text-center">
             <div className="text-lg font-bold text-gray-900 mb-0.5">
-              {clinic.established}
+              {provider.established}
             </div>
             <div className="text-xs text-gray-600">Established</div>
           </div>
@@ -399,7 +399,7 @@ export default function ClinicDetail() {
             Certifications & Accreditations
           </h3>
           <div className="grid grid-cols-2 gap-2">
-            {clinic.certifications.map((cert, idx) => (
+            {provider.certifications.map((cert, idx) => (
               <div 
                 key={idx}
                 className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-xl border border-green-100"
@@ -420,7 +420,7 @@ export default function ClinicDetail() {
             Languages Spoken
           </h3>
           <div className="flex flex-wrap gap-2">
-            {clinic.languages.map((lang, idx) => (
+            {provider.languages.map((lang, idx) => (
               <span 
                 key={idx}
                 className="px-3 py-1.5 bg-gray-100 rounded-lg text-sm font-medium text-gray-900"
@@ -461,7 +461,7 @@ export default function ClinicDetail() {
         {/* Tab Content */}
         {selectedTab === 'treatments' && (
           <div className="space-y-4">
-            {treatments.map(treatment => (
+            {services.map(treatment => (
               <div
                 key={treatment.id}
                 onClick={() => navigate(`/n/app/mobile/service/${treatment.id}`)}
@@ -512,7 +512,7 @@ export default function ClinicDetail() {
         
         {selectedTab === 'doctors' && (
           <div className="space-y-4">
-            {doctors.map(doctor => (
+            {specialists.map(doctor => (
               <div
                 key={doctor.id}
                 onClick={() => navigate(`/n/app/mobile/specialist/${doctor.id}`)}
@@ -629,7 +629,7 @@ export default function ClinicDetail() {
             {/* Add a Review */}
             {showReviewForm && (
               <ReviewForm 
-                providerName={clinic.name}
+                providerName={provider.name}
                 onClose={() => setShowReviewForm(false)}
               />
             )}

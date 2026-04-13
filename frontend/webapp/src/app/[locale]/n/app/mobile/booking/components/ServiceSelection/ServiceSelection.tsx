@@ -4,7 +4,7 @@ import { useFormContext } from "react-hook-form";
 import z from "zod/v3";
 
 import { nodes } from "../../../../../../../../components/blocks/editor-00/nodes";
-import { BadgeCheck, Clock, Star, List } from 'lucide-react';
+import { BadgeCheck, Clock, Star, List, ChevronRight, CheckCircle2, Calendar } from 'lucide-react';
 import { BookingFormValues } from "../../types";
 
 /* const services = [
@@ -128,6 +128,7 @@ import { useGetProvidersByServiceAndSpecialist } from "@/features/booking/api/cl
 import { useLocale } from "next-intl";
 import { useGetServicesByProviderAndSpecialist } from "@/features/booking/api/client/fetch-services-by-provider-and-specialist";
 import { useGetSpecialistByProviderAndService } from "@/features/booking/api/client/fetch-specialist-by-provider-and-service";
+import { useBooking } from "../../hooks/use-booking";
 
 /* ----- Types & Enums ----- */
 interface INode {
@@ -146,15 +147,32 @@ enum NodeType {
 /* ----- Main component ----- */
 export default function ServiceSelection() {
   /* 1️⃣  Grab the form context */
-  const { setValue, resetField } = useFormContext();
 
-  /* 2️⃣  Watch the three id fields */
-  const providerId = useWatch({ name: 'providerId' });
-  const serviceId = useWatch({ name: 'serviceId' });
-  const specialistId = useWatch({ name: 'specialistId' });
+ const {
+        setValue,
+        getButtonLabel,
+        canProceed,
+        calculateTotal,
+        addons,
+        selectedAddons,
+        selectedDate,
+        selectedTime,
+        uploadedFiles,
+        service,
+        provider,
+        selectedSpecialist,
+        providerId,
+        serviceId,
+        specialistId,
+        paymentMethod,
+        handleNext,
+        handleBack,
+        navigate,
+        step, setStep,
+        locale
+      } = useBooking();
 
-  const locale = useLocale();
-
+      
   const {
     data: providersResponse,
     refetch
@@ -212,9 +230,46 @@ export default function ServiceSelection() {
 
   /* 4️⃣  Pick the node that is currently selected (or first one if none) */
   const selectedNode = useMemo(() => nodes.find(n => n.isSelected) ?? nodes[0], [nodes]);
-  const [showAllProviders, setShowAllProviders] = useState(false)
-  const [showAllServices, setShowAllServices] = useState(false)
-  const [showAllSpecialists, setShowAllSpecialists] = useState(false)
+
+   const ChooseYourServiceCanProceed = () => {
+      return (<>
+        {/* Selection Summary - Step 1 */}
+        {canProceed() && (
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <CheckCircle2 size={20} className="text-white" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-green-900 mb-2">Ready to Continue!</h3>
+                <div className="space-y-1.5 text-sm text-green-800">
+                  <div className="flex items-center gap-2">
+                    <BadgeCheck size={14} className="flex-shrink-0" />
+                    <span>Doctor: {specialists.find(d => d.id === specialistId)?.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar size={14} className="flex-shrink-0" />
+                    <span>Date: {selectedDate}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock size={14} className="flex-shrink-0" />
+                    <span>Time: {selectedTime}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+  
+            {/* Continue Button - Directly in Summary */}
+            <button
+              onClick={handleNext}
+              className="w-full h-14 bg-gradient-to-r from-[#083f30] to-[#0a5a44] text-white rounded-xl font-bold hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg"
+            >
+              Continue to Add-ons
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        )}</>)
+    }
 
   const refetchData = () => {
 

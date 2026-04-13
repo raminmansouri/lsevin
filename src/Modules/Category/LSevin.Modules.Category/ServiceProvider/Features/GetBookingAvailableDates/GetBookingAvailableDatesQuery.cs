@@ -2,9 +2,9 @@ using BuildingBlocks.Core.Messaging.Queries;
 
 namespace LSevin.Modules.Category.ServiceProvider.Features.GetBookingAvailableDates;
 
-internal sealed record GetBookingAvailableDatesQuery(Guid ServiceProviderId, bool? IsActive)
+internal sealed record GetBookingAvailableDatesQuery()
     : Query<GetBookingAvailableDatesResponse>
 {
-    public static GetBookingAvailableDatesQuery Of(Guid serviceProviderId, bool? isActive = null) =>
-        new(serviceProviderId, isActive);
+    public static GetBookingAvailableDatesQuery Of() =>
+        new();
 }

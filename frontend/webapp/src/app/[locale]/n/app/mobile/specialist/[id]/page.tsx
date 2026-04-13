@@ -32,8 +32,8 @@ export default function DoctorProfile() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: doctor.name,
-          text: `Check out ${doctor.name} - ${doctor.specialty}`,
+          title: specialist.name,
+          text: `Check out ${specialist.name} - ${specialist.specialty}`,
           url: window.location.href,
         });
       } catch (err) {
@@ -49,7 +49,7 @@ export default function DoctorProfile() {
     setIsFavorited(!isFavorited);
   };
   
-  const doctor = {
+  const specialist = {
     id: id || '1',
     name: 'Dr. Mehmet Yavuz',
     title: 'MD, FISHRS',
@@ -196,11 +196,11 @@ export default function DoctorProfile() {
               {/* Avatar */}
               <div className="relative flex-shrink-0">
                 <img 
-                  src={doctor.image}
-                  alt={doctor.name}
+                  src={specialist.image}
+                  alt={specialist.name}
                   className="w-24 h-24 rounded-2xl object-cover"
                 />
-                {doctor.verified && (
+                {specialist.verified && (
                   <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-[#083f30] rounded-full flex items-center justify-center shadow-lg">
                     <BadgeCheck size={18} className="text-[#eacb7f]" />
                   </div>
@@ -210,11 +210,11 @@ export default function DoctorProfile() {
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <h1 className="text-xl font-bold text-gray-900 mb-1">
-                  {doctor.name}
+                  {specialist.name}
                 </h1>
-                <p className="text-sm text-gray-600 mb-1">{doctor.title}</p>
+                <p className="text-sm text-gray-600 mb-1">{specialist.title}</p>
                 <p className="text-sm font-semibold text-[#083f30]">
-                  {doctor.specialty}
+                  {specialist.specialty}
                 </p>
               </div>
             </div>
@@ -223,26 +223,26 @@ export default function DoctorProfile() {
             <div className="grid grid-cols-3 gap-3 mb-4">
               <div className="bg-gray-50 rounded-xl p-3 text-center">
                 <div className="text-lg font-bold text-gray-900 mb-0.5">
-                  {doctor.rating}
+                  {specialist.rating}
                 </div>
                 <div className="flex items-center justify-center gap-0.5 mb-1">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} size={10} className="fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
-                <div className="text-xs text-gray-600">{doctor.reviews} reviews</div>
+                <div className="text-xs text-gray-600">{specialist.reviews} reviews</div>
               </div>
               
               <div className="bg-gray-50 rounded-xl p-3 text-center">
                 <div className="text-lg font-bold text-gray-900 mb-0.5">
-                  {doctor.experience}
+                  {specialist.experience}
                 </div>
                 <div className="text-xs text-gray-600">Years Exp.</div>
               </div>
               
               <div className="bg-gray-50 rounded-xl p-3 text-center">
                 <div className="text-lg font-bold text-gray-900 mb-0.5">
-                  {doctor.patients}
+                  {specialist.patients}
                 </div>
                 <div className="text-xs text-gray-600">Patients</div>
               </div>
@@ -252,7 +252,7 @@ export default function DoctorProfile() {
             <div className="flex items-center justify-between pt-3 border-t border-gray-100">
               <div className="flex items-center gap-2 text-sm">
                 <Building size={16} className="text-[#083f30]" />
-                <span className="font-semibold text-gray-900">{doctor.clinic}</span>
+                <span className="font-semibold text-gray-900">{specialist.clinic}</span>
               </div>
               
               <div className="flex items-center gap-1 text-sm">
@@ -295,7 +295,7 @@ export default function DoctorProfile() {
           <div className="space-y-6">
             {/* Bio */}
             <div>
-              <h2 className="text-lg font-bold text-gray-900 mb-3">About Dr. {doctor.name.split(' ')[1]}</h2>
+              <h2 className="text-lg font-bold text-gray-900 mb-3">About Dr. {specialist.name.split(' ')[1]}</h2>
               <p className="text-sm text-gray-700 leading-relaxed">
                 Dr. Mehmet Yavuz is one of the world's leading hair transplant surgeons with over 18 years of experience. He has performed more than 12,000 successful hair restoration procedures for patients from 65+ countries. His expertise in advanced FUE techniques, combined with an artistic eye for natural hairline design, has earned him international recognition.
               </p>
@@ -340,7 +340,7 @@ export default function DoctorProfile() {
               <div className="flex items-center gap-2">
                 <Globe size={20} className="text-[#083f30]" />
                 <span className="text-sm text-gray-700">
-                  {doctor.languages.join(', ')}
+                  {specialist.languages.join(', ')}
                 </span>
               </div>
             </div>
@@ -394,19 +394,19 @@ export default function DoctorProfile() {
             {/* Rating Summary */}
             <div className="bg-gradient-to-br from-[#083f30] to-[#0a5a44] rounded-2xl p-6 text-white">
               <div className="text-center mb-4">
-                <div className="text-5xl font-bold mb-2">{doctor.rating}</div>
+                <div className="text-5xl font-bold mb-2">{specialist.rating}</div>
                 <div className="flex items-center justify-center gap-1 mb-2">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} size={18} className="fill-[#eacb7f] text-[#eacb7f]" />
                   ))}
                 </div>
-                <div className="text-white/90">Based on {doctor.reviews} reviews</div>
+                <div className="text-white/90">Based on {specialist.reviews} reviews</div>
               </div>
               
               <div className="pt-4 border-t border-white/20">
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-[#eacb7f] mb-1">{doctor.successRate}</div>
+                    <div className="text-2xl font-bold text-[#eacb7f] mb-1">{specialist.successRate}</div>
                     <div className="text-sm text-white/80">Success Rate</div>
                   </div>
                   <div>
@@ -533,7 +533,7 @@ export default function DoctorProfile() {
                 <div>
                   <h3 className="font-bold text-green-900 mb-1">Verified by LSevin</h3>
                   <p className="text-sm text-green-800 leading-relaxed">
-                    All credentials have been verified by our medical board. Dr. {doctor.name.split(' ')[1]} meets the highest standards of medical excellence.
+                    All credentials have been verified by our medical board. Dr. {specialist.name.split(' ')[1]} meets the highest standards of medical excellence.
                   </p>
                 </div>
               </div>
@@ -548,7 +548,7 @@ export default function DoctorProfile() {
           <div className="flex-1">
             <div className="text-xs text-gray-600 mb-0.5">Consultation</div>
             <div className="font-bold text-[#083f30] text-lg">
-              {doctor.consultationFee === 0 ? 'Free' : `$${doctor.consultationFee}`}
+              {specialist.consultationFee === 0 ? 'Free' : `$${specialist.consultationFee}`}
             </div>
           </div>
           

@@ -2,23 +2,16 @@ namespace LSevin.Modules.Category.ServiceProvider.Features.GetBookingSteps;
 
 public sealed record BookingStep
 {
+    public string Label{get;set;}
+    public int Num{get;set;}
+    public string[] Components { get; set; }
+}
+public sealed record GetBookingStepsResponse 
+{
+    public BookingStep[] Steps { get; set; }
+}
+
+public class GetBookingStepsProvider
+{
 
 }
-public sealed record GetBookingStepsResponse(
-    Guid Id,
-    string Name,
-    string Description,
-    string ContactEmail,
-    string? PhoneNumberCountryCode,
-    string? PhoneNumber,
-    string Address,
-    bool IsActive,
-    Guid ProviderTypeId,
-    string ProviderTypeName,
-    int ServiceCount,
-    int GalleryItemCount,
-    int PolicyCount,
-    int StaffCount,
-    DateTime CreateDate,
-    DateTime? LastModifiedDate
-);

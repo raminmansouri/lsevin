@@ -1,12 +1,14 @@
-/* app/api/booking/get-booking-steps/route.ts */
+/* app/api/booking/get-pending-booking/route.ts */
 import { NextRequest, NextResponse } from "next/server";
 
+import { getSession } from "@/lib/auth/session";
 import { localeToHeader } from "@/config/locales";
 import { LocaleTypes } from "@/types/common";
 
-import { getBookingSteps } from "@/features/booking/api/server/get-booking-steps";
-import { getSession } from "@/lib/auth/session";
+import { getPendingBooking } from "@/features/booking/api/server/get-pending-booking";
 
+/* ------------------------------------------------------------------ */
+/*  GET /api/booking/get-pending-booking?Locale=en-US                */
 /* ------------------------------------------------------------------ */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -16,15 +18,8 @@ export async function GET(request: NextRequest) {
   const session = await getSession();
   const token = session?.user?.accessToken;
 
-  const providerId = searchParams.get("providerId");
-  const serviceId = searchParams.get("serviceId");
-  const specialistId = searchParams.get("specialistId");
-
-  const { data, error } = await getBookingSteps({
+  const { data, error } = await getPendingBooking({
     locale: localeHeader,
-    providerId,
-    serviceId,
-    specialistId,
     token,
   });
 

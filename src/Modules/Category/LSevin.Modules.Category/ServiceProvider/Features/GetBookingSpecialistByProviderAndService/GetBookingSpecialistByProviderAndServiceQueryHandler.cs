@@ -27,21 +27,8 @@ internal sealed class GetBookingSpecialistByProviderAndServiceQueryHandler(
 
         await using var connection = await dbConnectionFactory.GetOrCreateConnectionAsync(cancellationToken);
         var parameters = new DynamicParameters();
-        parameters.Add("ServiceProviderId", request.ServiceProviderId);
-
-        // First check if the service provider exists
-        var serviceProviderExists = await connection.ExecuteScalarAsync<bool>(
-            new CommandDefinition(
-                "SELECT EXISTS(SELECT 1 FROM category.service_providers WHERE id = @ServiceProviderId)",
-                parameters,
-                cancellationToken: cancellationToken
-            )
-        );
-
-        if (!serviceProviderExists)
-        {
-            return AppError.NotFoundErrorMessage(CategoryResource.Service_Provider);
-        }
+       
+       
 
         // Build the query with optional filters
         var sql = new StringBuilder();

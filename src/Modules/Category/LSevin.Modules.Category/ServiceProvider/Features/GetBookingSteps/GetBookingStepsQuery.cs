@@ -1,22 +1,26 @@
+using BuildingBlocks.Core.Messaging.Queries;
 using BuildingBlocks.Core.Messaging.Queries.Paging;
+using LSevin.Modules.Category.ServiceProvider.Features.GetProviderById;
 
 namespace LSevin.Modules.Category.ServiceProvider.Features.GetBookingSteps;
 
-internal sealed record GetBookingStepsQuery(bool? IsActive, Guid[]? ProviderTypeIds)
-    : PageQuery<IPageList<GetBookingStepsResponse>>
-{
-    public static GetBookingStepsQuery Of(GetBookingStepsRequest request, PageRequest pageRequest)
-    {
-        var (pageNumber, pageSize, filters, sortOrder, startDate, endDate) = pageRequest;
+internal sealed record GetBookingStepsQuery(
 
-        return new GetBookingStepsQuery(request.IsActive, request.ProviderTypeIds)
+    string providerId,
+    string serviceId,
+    string specialistId
+    )
+    : Query<GetBookingStepsResponse>
+{
+    public static GetBookingStepsQuery 
+        Of(GetBookingStepsRequest request)
+    {
+        return new GetBookingStepsQuery(
+            request.specialistId,
+            request.providerId,
+            request.serviceId
+            )
         {
-            PageNumber = pageNumber,
-            PageSize = pageSize,
-            Filters = filters,
-            SortOrder = sortOrder,
-            StartDate = startDate,
-            EndDate = endDate,
         };
     }
 }

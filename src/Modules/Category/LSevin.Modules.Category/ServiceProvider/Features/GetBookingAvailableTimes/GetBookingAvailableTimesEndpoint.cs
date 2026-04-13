@@ -36,11 +36,10 @@ internal sealed class GetBookingAvailableTimesEndpoint : EndpointResponseHandler
 
     private static Task<Results<Ok<GetBookingAvailableTimesResponse>, ProblemHttpResult>> Handle(
         [AsParameters] BaseEndpointServices<CategoryModule> services,
-        Guid id,
         [AsParameters] GetBookingAvailableTimesRequest request
     ) =>
         Result
-            .Create(GetBookingAvailableTimesQuery.Of(id, request.IsActive))
+            .Create(GetBookingAvailableTimesQuery.Of( ))
             .Bind(query => services.Gateway.SendQueryAsync(query, services.CancellationToken))
             .Match<
                 GetBookingAvailableTimesResponse,
