@@ -75,3 +75,8 @@ You can additionally hide or lock:
 - updated_by
 
 through `adminOverrides`.
+
+## Embedded one-to-many child tables
+
+The parent edit screen now resolves incoming one-to-many foreign keys and renders each child table as an embedded management card. Configure labels, page size, visible child columns, and action visibility through `adminOverrides["schema.parent_table"].children`.
+

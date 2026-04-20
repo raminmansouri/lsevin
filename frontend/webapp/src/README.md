@@ -83,7 +83,7 @@ Server actions for:
 - create row
 - update row
 - delete row
-- bulk delete
+- create/edit/delete embedded child rows
 - many-to-many sync
 
 ### 7) UI shell
@@ -99,6 +99,7 @@ Includes:
 ## Notes
 
 1. This scaffold prefers **metadata-driven generation** over hand-written pages.
-2. Complex many-to-many and inline one-to-many editing are handled through **override config**, because those cases require business intent.
+2. Embedded one-to-many child collections are supported on the parent edit page and can be renamed, filtered, or tuned through **override config**.
 3. Localized JSON fields are rendered as translation tabs. For tables, the selected admin locale is shown with fallback support.
 4. Relation dropdowns are lazy-loaded through `/api/admin/relation-options`.
+5. One-to-many child tables on the parent edit page refresh through `/api/admin/child-collection` and load edit records through `/api/admin/child-record`.

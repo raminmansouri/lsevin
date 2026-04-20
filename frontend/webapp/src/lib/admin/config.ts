@@ -74,3 +74,23 @@ export const adminOverrides: AdminOverrideMap = {
     },
   },
 };
+
+
+// Example override for embedded one-to-many collections on a parent edit page:
+// export const customerChildExample = {
+//   "crm.customers": {
+//     label: "Customers",
+//     children: {
+//       "crm.addresses": {
+//         label: "Addresses",
+//         pageSize: 5,
+//         listColumns: ["address_line_1", "city", "postal_code", "is_primary"],
+//       },
+//       "crm.contacts": {
+//         label: "Contacts",
+//         pageSize: 5,
+//         listColumns: ["full_name", "phone", "email", "is_primary"],
+//       },
+//     },
+//   },
+// };

@@ -489,6 +489,7 @@ async function validateDataForInsertOrUpdate(
   }
 
   if (issues.length > 0) {
+    console.error(issues)
     throw new CrudValidationError(`Invalid ${mode} payload.`, issues);
   }
 

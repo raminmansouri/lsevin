@@ -1,12 +1,14 @@
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/admin/ui/page-header";
 import { DynamicForm } from "@/components/admin/forms/dynamic-form";
+import { OneToManyManager } from "@/components/admin/relations/one-to-many-manager";
 import { getResolvedTableDefinition } from "@/lib/admin/metadata";
 import { getAdminSession } from "@/lib/admin/auth";
 import { assertAdminPermission } from "@/lib/admin/guard";
 import { getRecordById } from "@/lib/admin/record-query";
-import { updateRecordAction } from "../../../../_actions";
 // import { updateRecordAction } from "@/app/(admin)/admin/_actions";
+import { getChildCollectionPanels } from "@/lib/admin/child-relations";
+import { updateRecordAction } from "../../../../_actions";
 
 type Props = {
   params: Promise<{ schema: string; table: string; id: string }>;
@@ -23,6 +25,13 @@ export default async function EditRecordPage({ params }: Props) {
   ]);
 
   if (!definition || !record) return notFound();
+
+  const childPanels = await getChildCollectionPanels({
+    parentSchema: schema,
+    parentTable: table,
+    parentRecordId: id,
+    locale: session.locale,
+  });
 
   return (
     <div className="space-y-6">
@@ -48,6 +57,14 @@ export default async function EditRecordPage({ params }: Props) {
           }}
         />
       </div>
+
+      <OneToManyManager
+        parentSchema={schema}
+        parentTable={table}
+        parentRecordId={id}
+        locale={session.locale}
+        panels={childPanels}
+      />
     </div>
   );
 }

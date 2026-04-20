@@ -53,6 +53,19 @@ export type AdminManyToManyOverride = {
   targetDisplayField?: string;
 };
 
+export type AdminChildCollectionOverride = {
+  label?: string;
+  description?: string;
+  hidden?: boolean;
+  icon?: string;
+  listColumns?: string[];
+  pageSize?: number;
+  allowCreate?: boolean;
+  allowEdit?: boolean;
+  allowDelete?: boolean;
+  defaultSort?: { field: string; direction: "asc" | "desc" };
+};
+
 export type AdminColumnOverride = {
   label?: string;
   description?: string;
@@ -83,6 +96,7 @@ export type AdminTableOverride = {
   pageTitle?: string;
   readonly?: boolean;
   columns?: Record<string, AdminColumnOverride>;
+  children?: Record<string, AdminChildCollectionOverride>;
 };
 
 export type AdminOverrideMap = Record<string, AdminTableOverride>;
@@ -121,6 +135,24 @@ export type ResolvedFieldDefinition = {
   manyToMany?: AdminManyToManyOverride;
 };
 
+export type ResolvedChildCollectionDefinition = {
+  key: string;
+  constraintName: string;
+  schema: string;
+  table: string;
+  label: string;
+  description?: string | null;
+  icon?: string;
+  parentColumn: string;
+  foreignKeyColumn: string;
+  listColumns?: string[];
+  pageSize: number;
+  allowCreate: boolean;
+  allowEdit: boolean;
+  allowDelete: boolean;
+  defaultSort?: { field: string; direction: "asc" | "desc" };
+};
+
 export type ResolvedTableDefinition = {
   key: string;
   schema: string;
@@ -133,6 +165,7 @@ export type ResolvedTableDefinition = {
   fields: ResolvedFieldDefinition[];
   listFields: ResolvedFieldDefinition[];
   formFields: ResolvedFieldDefinition[];
+  childCollections: ResolvedChildCollectionDefinition[];
   defaultSort: { field: string; direction: "asc" | "desc" };
 };
 

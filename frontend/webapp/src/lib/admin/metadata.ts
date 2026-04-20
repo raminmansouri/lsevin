@@ -9,6 +9,7 @@ import {
 } from "./core/db-introspection";
 import { getEnumValuesForColumn } from "./core/db-builder-enums";
 import {
+  ResolvedChildCollectionDefinition,
   ResolvedFieldDefinition,
   ResolvedTableDefinition,
 } from "./types";
@@ -36,6 +37,53 @@ function defaultFilterOperators(column: ColumnMetadata, fieldKind: string) {
   }
   if (fieldKind === "relation" || column.isEnum) return ["eq", "in", "is_null", "is_not_null"] as const;
   return ["ilike", "eq", "is_null", "is_not_null"] as const;
+}
+
+function resolveChildCollections(
+  definition: Awaited<ReturnType<typeof getTableDefinition>>,
+  resolvedFields: ResolvedFieldDefinition[]
+): ResolvedChildCollectionDefinition[] {
+  if (!definition) return [];
+
+  const tableKey = `${definition.table.schemaName}.${definition.table.tableName}`;
+  const override = adminOverrides[tableKey];
+  const primaryKey = definition.columns.find((c) => c.isPrimaryKey)?.columnName ?? null;
+
+  return definition.relations
+    .filter((relation) => relation.direction === "one_to_many" && relation.columnPairs.length === 1)
+    .map((relation) => {
+      const childTableKey = `${relation.foreignSchema}.${relation.foreignTable}`;
+      const childOverride =
+        override?.children?.[relation.constraintName] ??
+        override?.children?.[childTableKey];
+
+      if (childOverride?.hidden) return null;
+
+      const pair = relation.columnPairs[0];
+      const parentField = resolvedFields.find((field) => field.columnName === pair.localColumn);
+      const defaultLabel = inferFieldLabel(relation.foreignTable);
+
+      return {
+        key: `${relation.constraintName}:${childTableKey}`,
+        constraintName: relation.constraintName,
+        schema: relation.foreignSchema,
+        table: relation.foreignTable,
+        label: childOverride?.label ?? defaultLabel,
+        description:
+          childOverride?.description ??
+          `Manage ${defaultLabel.toLowerCase()} linked through ${parentField?.label ?? pair.localColumn}.`,
+        icon: childOverride?.icon,
+        parentColumn: pair.localColumn,
+        foreignKeyColumn: pair.foreignColumn,
+        listColumns: childOverride?.listColumns,
+        pageSize: Math.max(1, Math.min(childOverride?.pageSize ?? 10, 50)),
+        allowCreate: childOverride?.allowCreate ?? true,
+        allowEdit: childOverride?.allowEdit ?? true,
+        allowDelete: childOverride?.allowDelete ?? true,
+        defaultSort: childOverride?.defaultSort,
+      } satisfies ResolvedChildCollectionDefinition;
+    })
+    .filter(Boolean) as ResolvedChildCollectionDefinition[];
 }
 
 export async function getResolvedTableDefinition(
@@ -133,6 +181,7 @@ export async function getResolvedTableDefinition(
     ) ?? resolvedFields.filter((f) => !f.hidden && f.list);
 
     const formFields = resolvedFields.filter((f) => !f.hidden && f.form);
+    const childCollections = resolveChildCollections(definition, resolvedFields);
 
     return {
       key: tableKey,
@@ -146,6 +195,7 @@ export async function getResolvedTableDefinition(
       fields: resolvedFields,
       listFields,
       formFields,
+      childCollections,
       defaultSort: override?.defaultSort ?? {
         field: primaryKey ?? resolvedFields[0]?.columnName ?? "id",
         direction: "desc",
