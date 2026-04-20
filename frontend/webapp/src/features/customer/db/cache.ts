@@ -15,6 +15,10 @@ export function getHomePageTag(id: string) {
   return getIdTag("home-page", id);
 }
 
+export function getGetPickedLocationsTag() {
+  return getIdTag("home-page", 'picked-locations');
+}
+
 export function revalidateHomePageRequestCache(
   id?: string,
 ) {

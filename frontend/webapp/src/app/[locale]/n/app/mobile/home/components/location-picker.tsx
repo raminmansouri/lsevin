@@ -3,6 +3,9 @@ import React, { useState } from "react";
 import { ChevronDown, ChevronRight, MapPin } from "lucide-react";
 
 export default function LocationPicker() {
+
+  
+  
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState({
     city: "Dubai",
