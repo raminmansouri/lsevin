@@ -8,6 +8,7 @@ using BuildingBlocks.Web.Services;
 using Dapper;
 using LSevin.Modules.Category.ServiceProvider.Features.GetServiceProviderByIdPublic;
 using LSevin.Modules.Customer.Customer.Features.Explore;
+using System.Data;
 
 namespace LSevin.Modules.Category.ServiceProvider.Features.GetServiceProviderByIdPublic;
 
@@ -215,6 +216,69 @@ internal sealed class CpCategoryGroupsQueryHandler(
 
 
         return response;
+    }
+
+
+    public static string DapperSQL = @"
+SELECT 
+    cg.title AS ""Title"",
+
+    c.id AS ""CategoryId"",
+    c.name_translations->>'en' AS ""Name"",
+    c.image_url AS ""Image"",
+    c.gradient AS ""Gradient"",
+    COUNT(sd.id) AS ""Count""
+
+FROM category.category_groups cg
+
+JOIN category.categories c 
+    ON c.group_id = cg.id
+
+LEFT JOIN category.service_definitions sd 
+    ON sd.category_id = c.id
+
+GROUP BY 
+    cg.title,
+    c.id,
+    c.name_translations,
+    c.image_url,
+    c.gradient
+
+ORDER BY cg.title;";
+
+
+    public async Task<CpCategoryGroupsResponse> GetCategoryGroups(IDbConnection db)
+    {
+        var sql = DapperSQL;
+
+        var groupDict = new Dictionary<string, CpGroup>();
+
+        var result = await db.QueryAsync<CpGroup, CpCategory, CpGroup>(
+            sql,
+            (group, category) =>
+            {
+                if (!groupDict.TryGetValue(group.Title, out var existingGroup))
+                {
+                    existingGroup = new CpGroup
+                    {
+                        Title = group.Title,
+                        Categories = new List<CpCategory>()
+                    };
+
+                    groupDict.Add(existingGroup.Title, existingGroup);
+                }
+
+                existingGroup.Categories.Add(category);
+
+                return existingGroup;
+            },
+            splitOn: "CategoryId"
+        );
+
+        return new CpCategoryGroupsResponse
+        {
+            CategoryGroups = groupDict.Values.ToList()
+        };
     }
 }
 

@@ -17,10 +17,18 @@ export async function GET(request: NextRequest) {
   const session = await getSession();
   const token = session?.user?.accessToken;
 
+    const providerId = searchParams.get("providerId");
+  const serviceId = searchParams.get("serviceId");
+  const specialistId = searchParams.get("specialistId");
+ 
+  
   const { data, error } = await getProvidersByServiceAndSpecialist(
     { locale: localeHeader, token },
     {
       filters: search || "",
+          providerId,
+serviceId,
+specialistId,
       startDate: "",
       endDate: "",
       pageNumber: page ? parseInt(page) : DEFAULT_PAGE_NUMBER,

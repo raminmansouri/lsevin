@@ -205,7 +205,7 @@ export default function CategoryBrowser() {
               {group.categories.map((category, catIdx) => (
                 <button
                   key={catIdx}
-                  onClick={() => router.push(`/app/search-results?q=${encodeURIComponent(category.name)}`)}
+                  onClick={() => router.push(`/n/app/mobile/search-results?q=${encodeURIComponent(category.name)}`)}
                   className="relative rounded-2xl overflow-hidden aspect-[4/3] group shadow-sm hover:shadow-xl transition-all active:scale-95"
                 >
                   <img 
@@ -242,7 +242,7 @@ export default function CategoryBrowser() {
               Use our smart search to find exactly what you need
             </p>
             <button 
-              onClick={() => router.push('/app/search')}
+              onClick={() => router.push('/n/app/mobile/search')}
               className="bg-[#eacb7f] text-[#083f30] px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#e0b654] transition-all shadow-lg"
             >
               Search Now

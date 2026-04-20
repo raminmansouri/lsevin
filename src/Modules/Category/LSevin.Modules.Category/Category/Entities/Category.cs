@@ -51,6 +51,7 @@ public sealed class Category : AggregateRoot<CategoryId>
     public CategoryId? ParentId { get; private set; }
     public int DisplayOrder { get; private set; }
     public bool IsActive { get; private set; }
+    public string? ImageUrl { get; private set; }
     public string? IconUrl { get; private set; }
     public IReadOnlyCollection<Category> Children => _children.AsReadOnly();
     private readonly List<Category> _children;
@@ -83,7 +84,8 @@ public sealed class Category : AggregateRoot<CategoryId>
         LocalizedString description,
         int displayOrder,
         bool isActive,
-        string? iconUrl
+        string? iconUrl,
+        string? imageUrl
     )
     {
         Guard.Against.Null(name, nameof(name));
@@ -95,6 +97,7 @@ public sealed class Category : AggregateRoot<CategoryId>
         DisplayOrder = displayOrder;
         IsActive = isActive;
         IconUrl = iconUrl;
+        ImageUrl = imageUrl;
     }
 
     public void ChangeParent(CategoryId? newParentId)

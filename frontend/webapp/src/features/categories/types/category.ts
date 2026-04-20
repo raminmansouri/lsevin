@@ -10,6 +10,7 @@ export interface CategoryListItem {
   description?: string;
   parentId?: string;
   parentName?: string;
+  imageUrl?: string;
 }
 
 // Detail Response Type (all translations)
@@ -19,6 +20,7 @@ export interface CategoryDetails {
   description?: LocalizedContentResponse;
   parentId?: string;
   parentName?: string;
+  imageUrl?: string;
   displayOrder: number;
   isActive: boolean;
   iconUrl?: string;

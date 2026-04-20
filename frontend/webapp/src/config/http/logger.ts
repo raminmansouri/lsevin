@@ -173,3 +173,80 @@ export function logRequest(
     console.log(`\n[HTTP LOG ${stamp}] Node fetch:\n${nodeFetch}\n`);
   }
 }
+
+function tryFormatResponseBody(
+  rawText: string,
+  contentType: string | null,
+  opts: Required<RequestLogOptions>
+): unknown {
+  if (!rawText) return "";
+
+  let parsed: unknown = rawText;
+
+  const looksJson =
+    contentType?.includes("application/json") ||
+    contentType?.includes("application/problem+json");
+
+  if (looksJson) {
+    try {
+      parsed = JSON.parse(rawText);
+    } catch {
+      parsed = rawText;
+    }
+  } else {
+    parsed = tryParseJson(rawText);
+  }
+
+  const redacted = redactJsonKeys(parsed, opts.redactBodyKeys);
+
+  if (typeof redacted === "string") {
+    return redacted.length > opts.maxBodyLength
+      ? redacted.slice(0, opts.maxBodyLength) + "…<truncated>"
+      : redacted;
+  }
+
+  const json = JSON.stringify(redacted);
+  if (json.length > opts.maxBodyLength) {
+    return json.slice(0, opts.maxBodyLength) + "…<truncated>";
+  }
+
+  return redacted;
+}
+
+export async function logResponse(
+  fullUrl: string,
+  response: Response,
+  opts?: RequestLogOptions
+) {
+  const o = { ...DEFAULT_LOG_OPTIONS, ...(opts ?? {}) };
+  if (!o.enabled) return;
+
+  const method = (response.url ? "FETCH" : "UNKNOWN").toUpperCase();
+  const headersObj = headersToObject(response.headers);
+  const safeHeaders = redactHeaders(headersObj, o.redactHeaders);
+
+  let safeBody: unknown = "";
+
+  try {
+    const rawText = await response.text();
+    safeBody = tryFormatResponseBody(
+      rawText,
+      response.headers.get("content-type"),
+      o
+    );
+  } catch (error) {
+    safeBody = `[unreadable response body: ${
+      error instanceof Error ? error.message : "unknown error"
+    }]`;
+  }
+
+  console.log(`\n[HTTP RESPONSE ${new Date().toISOString()}]`, {
+    url: fullUrl,
+    method,
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok,
+    headers: safeHeaders,
+    body: safeBody,
+  });
+}

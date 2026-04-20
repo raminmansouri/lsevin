@@ -6,11 +6,14 @@ import { ApiReturnType, PaginatedResult } from "@/types/network";
 import { getTrustedProvidersTag, getServiceProviderIdTag, getSearchResultsTag } from "../../db/cache";
 import { ITrendingServiceResponse, SearchResultsResponse, TrustedProvider } from "../../types";
 import { addAllFilterParams } from "@/lib/filter-params";
-import { FilterParams } from "@/types/filter";
+import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, FilterParams } from "@/types/filter";
 import { readData } from "@/config/http/http-service.client";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { IProblem } from "@/types/error";
 import axios, { AxiosRequestConfig } from "axios";
+import { insert } from "@/lib/admin/db-crud";
+import sql from "@/config/database/db";
+import { getSession } from "next-auth/react";
 
 
 interface SearchResultsFilterParams extends FilterParams {
@@ -32,6 +35,24 @@ const fetchSearchResults = async (
     // }
   }
 
+  var session = await getSession();
+  var userId = session.user?.id;
+
+/* 
+
+  if (params?.filters) {
+    insert(sql, {
+      schema: 'search',
+      table: 'user_search_history'
+    }, {
+      'id': null,
+      'user_id': userId,
+      'term': params?.filters,
+      'created_at': 'created_at',
+      'category_id': 'category_id',
+      'normalized_term': params?.filters?.trim()
+    })
+  } */
 
   const path = `/customer/search-results`
 
@@ -66,10 +87,17 @@ const SERVICE_DEFINITION_DETAILS_CACHE_TAG = "search-results";
 const queryKey = () =>
   [SERVICE_DEFINITION_DETAILS_CACHE_TAG] as const;
 
-export const useFetchSearchResults = () => {
+export const useFetchSearchResults = (term: string) => {
   const options = queryOptions<SearchResultsResponse, IProblem>({
     queryKey: queryKey(),
-    queryFn: () => fetchSearchResults(),
+    queryFn: () => fetchSearchResults({
+      filters: term,
+      startDate: "",
+      endDate: "",
+      pageNumber: DEFAULT_PAGE_NUMBER,
+      pageSize: DEFAULT_PAGE_SIZE,
+      sortOrder: ""
+    }),
     enabled: true, // Only run when serviceDefinitionId is provided
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes

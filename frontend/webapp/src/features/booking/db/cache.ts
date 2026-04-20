@@ -10,6 +10,13 @@ export function getBookingIdTag(id: string) {
   return getIdTag("bookings", id);
 }
 
+
+export function getGetUploadFilesTag(providerId,
+    serviceId,
+    specialistId) {
+  return getIdTag("bookings", `s:${specialistId}-p:${providerId}-se:${serviceId}`);
+}
+
 export function getBookingUserTag(userId: string) {
   return getUserTag("bookings", userId);
 }

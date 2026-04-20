@@ -7,6 +7,7 @@ using BuildingBlocks.Core.ResultPattern;
 using BuildingBlocks.Web.Services;
 using Dapper;
 using LSevin.Modules.Category.ServiceProvider.Features.GetServiceProviderByIdPublic;
+using System.Threading;
 
 namespace LSevin.Modules.Category.ServiceProvider.Features.GetServiceProviderByIdPublic;
 
@@ -42,6 +43,52 @@ internal sealed class BookingsQueryHandler(
 
 
         return searchHistoryResponse;
+    }
+
+    public async Task<BookingsResponse> GetBookingsAsync(CancellationToken cancellationToken)
+    {
+        var sql = @"
+            SELECT 
+                b.id, b.service, b.provider, b.image, 
+                b.selected_date AS date, b.selected_time AS time, 
+                b.location, b.payment_status, b.price, 
+                b.status, b.verified, b.cancel_reason
+            FROM booking.bookings b
+            WHERE b.selected_date >= CURRENT_DATE AND b.status = 'Upcoming'
+
+            UNION ALL
+
+            SELECT 
+                b.id, b.service, b.provider, b.image, 
+                b.selected_date AS date, b.selected_time AS time, 
+                b.location, b.payment_status, b.price, 
+                b.status, b.verified, b.cancel_reason
+            FROM booking.bookings b
+            WHERE b.selected_date < CURRENT_DATE AND b.status = 'Past'
+
+            UNION ALL
+
+            SELECT 
+                b.id, b.service, b.provider, b.image, 
+                b.selected_date AS date, b.selected_time AS time, 
+                b.location, b.payment_status, b.price, 
+                b.status, b.verified, b.cancel_reason
+            FROM booking.bookings b
+            WHERE b.status = 'Cancelled';";
+        await using var connection = await dbConnectionFactory.GetOrCreateConnectionAsync(cancellationToken);
+
+        var bookings = await connection.QueryAsync<Booking>(sql);
+
+        var upcomingBookings = bookings.Where(b => b.Status == "Upcoming").ToList();
+        var pastBookings = bookings.Where(b => b.Status == "Past").ToList();
+        var cancelledBookings = bookings.Where(b => b.Status == "Cancelled").ToList();
+
+        return new BookingsResponse
+        {
+            UpcomingBookings = upcomingBookings,
+            PastBookings = pastBookings,
+            CancelledBookings = cancelledBookings
+        };
     }
 }
 

@@ -27,6 +27,11 @@ internal static class Routes
         internal const string GetDocuments = $"{MainUrl}/documents";
 
         internal const string DeleteDocument = $"{MainUrl}/document/{{documentId:guid}}";
+
+        public static string GetFavorites= $"{MainUrl}/GetFavorites";
+        public static string GetRewardsPage = $"{MainUrl}/GetRewardsPage";
+        public static string GetHomePage = $"{MainUrl}/GetHomePage";
+
     }
 
     internal static class Consulting

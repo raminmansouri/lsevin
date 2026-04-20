@@ -10,6 +10,7 @@ using Dapper;
 using LSevin.Modules.Category.Currency.Services;
 using LSevin.Modules.Category.Resources;
 using LSevin.Modules.Category.ServiceProvider.Dtos;
+using LSevin.Modules.Category.ServiceProvider.Features.GetServicePageById;
 using System.Text.Json;
 
 namespace LSevin.Modules.Category.ServiceProvider.Features.GetServiceById;
@@ -37,4 +38,7 @@ internal sealed class GetServiceByIdQueryHandler(
 
         return data;
     }
+
+
+    
 }

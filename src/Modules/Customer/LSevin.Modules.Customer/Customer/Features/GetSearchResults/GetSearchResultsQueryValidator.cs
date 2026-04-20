@@ -7,6 +7,7 @@ internal sealed class GetSearchResultsQueryValidator : AbstractValidator<GetSear
 {
     public GetSearchResultsQueryValidator()
     {
-       // RuleFor(x => x.ServiceProviderId).ValidateGuid(CategoryResource.Service_Provider);
+       
+           RuleFor(x => x.term).NotEmpty();
     }
 }

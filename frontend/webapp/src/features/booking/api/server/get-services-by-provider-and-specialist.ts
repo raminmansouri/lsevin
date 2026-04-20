@@ -10,7 +10,7 @@ import {
   ADMIN_BASE_PATH,
   CATEGORY_MODULE_BASE_PATH,
 } from "@/features/shared/types/constants";
-import { addAllFilterParams } from "@/lib/filter-params";
+import { addAllFilterParams, addAllParams } from "@/lib/filter-params";
 import { BaseRequest } from "@/types/common";
 import { FilterParams } from "@/types/filter";
 import { ApiReturnType, PaginatedResult } from "@/types/network";
@@ -22,15 +22,15 @@ import { getBookingIdTag } from "../../db/cache";
 
 export const getServicesByProviderAndSpecialist = async (
   request: BaseRequest,
-  params?: FilterParams
+  params?: any
 ): Promise<ApiReturnType<GetBookingGetServicesByProviderAndSpecialistResponse>> => {
-  "use cache: remote";
-  cacheTag(getBookingIdTag('getServicesByProviderAndSpecialist'));
-  cacheLife("default");
+  // "use cache: remote";
+  // cacheTag(getBookingIdTag('getServicesByProviderAndSpecialist'));
+  // cacheLife("default");
 
   const searchParams = new URLSearchParams();
   if (params) {
-    addAllFilterParams(searchParams, params);
+    addAllParams(searchParams, params,true);
   }
   const response = await readData<GetBookingGetServicesByProviderAndSpecialistResponse>(
     `${CATEGORY_MODULE_BASE_PATH}/${ADMIN_BASE_PATH}/booking/GetBookingGetServicesByProviderAndSpecialist?${searchParams.toString()}`,

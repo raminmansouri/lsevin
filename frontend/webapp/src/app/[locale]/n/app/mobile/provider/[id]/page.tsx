@@ -23,12 +23,27 @@ import { useState } from 'react';
 import ReviewForm from '../../../components/ReviewForm';
 import RecommendationSection from '../../components/RecommendationSection';
 import { useNavigate } from '@/hooks/use-navigate';
-import { useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
+import { useFetchProviderPageData } from '@/features/service-providers/api/client/fetch-provider-page-data';
+import { useLocale, useTranslations } from 'next-intl';
+import { CardContent } from '@/components/ui/card';
+import { ZodErrorProvider } from '@/components/providers/zod-error-provider';
+import { CATEGORY_TRANSLATION_KEY } from '@/features/categories/constants';
+import { Skeleton } from '@/components/ui/skeleton';
+import { hasLexicalContent, LexicalRenderer } from '@/components/editor/lexical-renderer';
+import { TRANSLATION_KEY } from '@/features/service-providers/types/constants';
+import { localeToHeader } from '@/config/locales';
+import { LocaleTypes } from '@/types/common';
+import { env } from "@/config/env/client";
+import { getLocalizedValue } from '@/features/shared/utils/localization';
+import Image from 'next/image';
 
 export default function ClinicDetail() {
   const navigate = useNavigate();
   const searchParams=useSearchParams();
-  const id = searchParams.get("id");
+  // const id = searchParams.get("id");
+  const { id } = useParams();   // → id === '1'
+
   const [selectedTab, setSelectedTab] = useState<'overview' | 'treatments' | 'doctors' | 'reviews'>('overview');
   const [isFavorited, setIsFavorited] = useState(false);
   
@@ -55,206 +70,54 @@ export default function ClinicDetail() {
     // In production, you would save to favorites context/backend here
   };
   
-  const provider = {
-    id: id || '1',
-    name: 'Istanbul Medical Center',
-    tagline: 'World-Class Hair Transplant & Aesthetic Surgery',
-    location: 'Sisli, Istanbul, Turkey',
-    rating: 4.9,
-    reviews: 2847,
-    verified: true,
-    accredited: true,
-    responseTime: '< 2 hours',
-    images: [
-      '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=1200&h=800&fit=crop.jpg',
-      '/unsplash_images/photo-1631217868264-e5b90bb7e133__w=1200&h=800&fit=crop.jpg',
-      '/unsplash_images/photo-1586773860418-d37222d8fce3__w=1200&h=800&fit=crop.jpg',
-      '/unsplash_images/photo-1512678080530-7760d81faba6__w=1200&h=800&fit=crop.jpg',
-    ],
-    certifications: [
-      { name: 'JCI Accredited', verified: true },
-      { name: 'ISO 9001:2015', verified: true },
-      { name: 'ISHRS Member', verified: true },
-      { name: 'Turkey Ministry of Health', verified: true },
-    ],
-    languages: ['English', 'Arabic', 'Turkish', 'Russian'],
-    established: 2008,
-    totalPatients: '50,000+',
-    successRate: '98.5%',
-  };
-  
-  const services = [
-    {
-      id: 1,
-      name: 'Premium Hair Transplant - FUE',
-      price: 2499,
-      currency: 'USD',
-      duration: '6-8 hours',
-      recovery: '7-10 days',
-      rating: 4.9,
-      reviews: 1247,
-      popular: true,
-      image: '/unsplash_images/photo-1622296089863-eb7fc530daa8__w=600&h=400&fit=crop.jpg'
-    },
-    {
-      id: 2,
-      name: 'Rhinoplasty (Nose Surgery)',
-      price: 3200,
-      currency: 'USD',
-      duration: '2-3 hours',
-      recovery: '10-14 days',
-      rating: 4.8,
-      reviews: 892,
-      image: '/unsplash_images/photo-1576091160399-112ba8d25d1d__w=600&h=400&fit=crop.jpg'
-    },
-    {
-      id: 3,
-      name: 'Dental Implants - Full Set',
-      price: 4500,
-      currency: 'USD',
-      duration: '3-5 days',
-      recovery: '3-6 months',
-      rating: 4.9,
-      reviews: 654,
-      image: '/unsplash_images/photo-1588776814546-1ffcf47267a5__w=600&h=400&fit=crop.jpg'
-    },
-  ];
-  
-  const specialists = [
-    {
-      id: 1,
-      name: 'Dr. Mehmet Yavuz',
-      specialty: 'Hair Transplant Surgeon',
-      experience: '18 years',
-      patients: '12,000+',
-      rating: 4.9,
-      image: '/unsplash_images/photo-1612349317150-e413f6a5b16d__w=400&h=400&fit=crop.jpg',
-      verified: true
-    },
-    {
-      id: 2,
-      name: 'Dr. Ayse Demir',
-      specialty: 'Plastic Surgeon',
-      experience: '15 years',
-      patients: '8,500+',
-      rating: 4.8,
-      image: '/unsplash_images/photo-1594824476967-48c8b964273f__w=400&h=400&fit=crop.jpg',
-      verified: true
-    },
-    {
-      id: 3,
-      name: 'Dr. Can Ozturk',
-      specialty: 'Cosmetic Dentist',
-      experience: '12 years',
-      patients: '6,200+',
-      rating: 4.9,
-      image: '/unsplash_images/photo-1622253692010-333f2da6031d__w=400&h=400&fit=crop.jpg',
-      verified: true
-    },
-  ];
-  
-  const recentReviews = [
-    {
-      id: 1,
-      name: 'James Morrison',
-      country: 'UK',
-      date: '2 weeks ago',
-      rating: 5,
-      treatment: 'Hair Transplant',
-      review: 'Exceptional service from start to finish. The provider is modern, staff is professional, and Dr. Mehmet is a true expert. Results exceeded my expectations!',
-      verified: true,
-      helpful: 47,
-      images: ['/unsplash_images/photo-1622296089863-eb7fc530daa8__w=400&h=300&fit=crop.jpg']
-    },
-    {
-      id: 2,
-      name: 'Sarah Al-Mansouri',
-      country: 'UAE',
-      date: '1 month ago',
-      rating: 5,
-      treatment: 'Rhinoplasty',
-      review: 'Best decision ever! The entire team was caring and attentive. Dr. Ayse understood exactly what I wanted. Recovery was smooth with excellent aftercare support.',
-      verified: true,
-      helpful: 32
-    },
-    {
-      id: 3,
-      name: 'Michael Chen',
-      country: 'USA',
-      date: '1 month ago',
-      rating: 5,
-      treatment: 'Dental Implants',
-      review: 'Outstanding quality at a fraction of US prices. The provider arranged everything - hotel, transfer, translator. Felt safe and well cared for throughout.',
-      verified: true,
-      helpful: 28
-    },
-  ];
 
-  // Recommendation data
-  const localRecommendations = [
-    {
-      id: 'provider-local-1',
-      image: 'https://images.unsplash.com/photo-1629909615957-be38eea5915d?w=400&h=400&fit=crop',
-      title: 'Ankara Medical Excellence',
-      rating: 4.8,
-      reviewCount: 1543,
-      city: 'Ankara',
-      country: 'Turkey',
-      verified: true,
-      link: '/n/app/mobile/provider/2'
-    },
-    {
-      id: 'provider-local-2',
-      image: '/unsplash_images/photo-1631217868264-e5b90bb7e133__w=400&h=400&fit=crop.jpg',
-      title: 'Bodrum Aesthetic Center',
-      rating: 4.7,
-      reviewCount: 967,
-      city: 'Bodrum',
-      country: 'Turkey',
-      verified: true,
-      link: '/n/app/mobile/provider/3'
-    },
-  ];
 
-  const internationalRecommendations = [
-    {
-      id: 'provider-int-1',
-      image: '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=400&h=400&fit=crop.jpg',
-      title: 'Tehran Premium Healthcare',
-      rating: 4.6,
-      reviewCount: 2187,
-      city: 'Tehran',
-      country: 'Iran',
-      verified: true,
-      link: '/n/app/mobile/provider/4'
-    },
-    {
-      id: 'provider-int-2',
-      image: '/unsplash_images/photo-1586773860418-d37222d8fce3__w=400&h=400&fit=crop.jpg',
-      title: 'Dubai Excellence Medical',
-      rating: 4.9,
-      reviewCount: 1876,
-      city: 'Dubai',
-      country: 'UAE',
-      verified: true,
-      link: '/n/app/mobile/provider/5'
-    },
-  ];
+  
+  const locale=useLocale();
+  const { data,
+    error,
+    isFetching,} = useFetchProviderPageData(id,locale);
+
+
+      const provider=data?.provider; 
+      const services=data?.services; 
+      const specialists=data?.specialists; 
+      const recentReviews=data?.recentReviews;
+      const localRecommendations=data?.localRecommendations;
+      const internationalRecommendations=data?.internationalRecommendations;;
+
+
+  
   
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showReviewForm, setShowReviewForm] = useState(false);
+    const t = useTranslations(TRANSLATION_KEY);
+  
+
+    const localeHeader = localeToHeader(locale as LocaleTypes);
+
+  if(!data)
+  return (<><ProviderPageSkeleton/></>);
   
   return (
     <div className="min-h-screen bg-white pb-32">
       {/* Image Gallery */}
       <div className="relative">
         <div className="relative h-80 overflow-hidden">
-          <img 
-            src={provider.images[currentImageIndex]}
+          {/* <img 
+            src={`/files/${provider.images[currentImageIndex]}`}
             alt={provider.name}
             className="w-full h-full object-cover"
-          />
+          /> */}
           
+           <Image
+                        src={`${env.NEXT_PUBLIC_FILES_URL}/${provider.images[currentImageIndex]}`}
+                        // alt={getLocalizedValue(provider.name, localeHeader)}
+                        alt={provider.name}
+                        fill
+            className="w-full h-full object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      />
           {/* Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           
@@ -338,7 +201,16 @@ export default function ClinicDetail() {
             {provider.name}
           </h1>
           <p className="text-base text-gray-600 mb-3">
-            {provider.tagline}
+            {provider.tagline && hasLexicalContent(provider.tagline) ? (
+                          <LexicalRenderer
+                            content={provider.tagline}
+                            className="text-muted-foreground leading-relaxed"
+                          />
+                        ) : (
+                          <p className="text-muted-foreground leading-relaxed">
+                            {t("noDescription")}
+                          </p>
+                        )}
           </p>
           
           {/* Location */}
@@ -469,7 +341,7 @@ export default function ClinicDetail() {
               >
                 <div className="flex gap-4 p-4">
                   <img 
-                    src={treatment.image}
+                    src={`/files/${treatment.image}`}
                     alt={treatment.name}
                     className="w-24 h-24 rounded-xl object-cover flex-shrink-0"
                   />
@@ -716,5 +588,48 @@ export default function ClinicDetail() {
         </div>
       </div>
     </div>
+  );
+}
+
+
+
+export function ProviderPageSkeleton() {
+  return (
+    <CardContent>
+      <ZodErrorProvider componentNamespace={CATEGORY_TRANSLATION_KEY}>
+        <div className="space-y-6">
+          {/* Name Field */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-9 w-full rounded-md" />
+          </div>
+
+          {/* Description Field */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-20 w-full rounded-md" />
+          </div>
+
+          {/* Category Image Field */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-40 w-full rounded-md" />
+            <Skeleton className="h-9 w-full rounded-md" />
+          </div>
+
+          {/* Parent Category Field */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-9 w-full rounded-md" />
+          </div>
+
+          {/* Submit Buttons */}
+          <div className="flex gap-4 pt-4">
+            <Skeleton className="h-9 w-32 rounded-md" />
+            <Skeleton className="h-9 w-20 rounded-md" />
+          </div>
+        </div>
+      </ZodErrorProvider>
+    </CardContent>
   );
 }

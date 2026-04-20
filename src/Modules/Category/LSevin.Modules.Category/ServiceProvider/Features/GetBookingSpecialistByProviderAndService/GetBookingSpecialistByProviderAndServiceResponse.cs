@@ -51,7 +51,7 @@ public static class GetBookingServiceSelectionSampleData
                 {
                     new()
                     {
-                        Id          = "hair-treatment",
+                        Id          = Guid.NewGuid().ToString(),
                         Name        = "Keratin Hair Treatment",
                         Description = "Professional smoothing treatment",
                         Duration    = "2.5 hours",
@@ -63,7 +63,7 @@ public static class GetBookingServiceSelectionSampleData
                     },
                     new()
                     {
-                        Id          = "spa-facial",
+                        Id          = Guid.NewGuid().ToString(),
                         Name        = "Luxury Facial Spa",
                         Description = "Deep cleansing and rejuvenation",
                         Duration    = "90 min",
@@ -75,7 +75,7 @@ public static class GetBookingServiceSelectionSampleData
                     },
                     new()
                     {
-                        Id          = "manicure-pedicure",
+                        Id          = Guid.NewGuid().ToString(),
                         Name        = "Premium Manicure & Pedicure",
                         Description = "Complete nail care package",
                         Duration    = "60 min",
@@ -91,7 +91,7 @@ public static class GetBookingServiceSelectionSampleData
                 {
                     new()
                     {
-                        Id          = "1",
+                        Id          = Guid.NewGuid().ToString(),
                         Name        = "Istanbul Medical Center",
                         Description = "Istanbul Medical Center",
                         Rating      = 4.9,
@@ -102,7 +102,7 @@ public static class GetBookingServiceSelectionSampleData
                     },
                     new()
                     {
-                        Id          = "2",
+                        Id          = Guid.NewGuid().ToString(),
                         Name        = "Dubai Smile Clinic",
                         Description = "Dubai Smile Clinic",
                         Rating      = 4.9,
@@ -113,7 +113,7 @@ public static class GetBookingServiceSelectionSampleData
                     },
                     new()
                     {
-                        Id          = "3",
+                        Id          = Guid.NewGuid().ToString(),
                         Name        = "Bali Wellness Resort",
                         Description = "Bali Wellness Resort",
                         Rating      = 5.0,
@@ -124,7 +124,7 @@ public static class GetBookingServiceSelectionSampleData
                     },
                     new()
                     {
-                        Id          = "4",
+                        Id          = Guid.NewGuid().ToString(),
                         Name        = "Cyprus Fertility Center",
                         Description = "Cyprus Fertility Center",
                         Rating      = 4.8,
@@ -139,11 +139,11 @@ public static class GetBookingServiceSelectionSampleData
                 {
                     new()
                     {
-                        Id           = "1",
+                        Id           = "019c93fb-1014-8d81-2e4b-517b171b2d19",
                         Name         = "Dr. Mehmet Yavuz",
                         Specialty    = "Hair Transplant Surgeon",
                         Experience   = "18 years",
-                        Rating       = 4.9,
+                        Rating       = 4.9, 
                         Reviews      = 1247,
                         Patients     = "12,000+",
                         Languages    = new[] { "English", "Turkish", "Arabic" },
@@ -156,7 +156,7 @@ public static class GetBookingServiceSelectionSampleData
                     },
                     new()
                     {
-                        Id           = "2",
+                        Id           = Guid.NewGuid().ToString(),
                         Name         = "Dr. Can Ozturk",
                         Specialty    = "Hair Restoration Expert",
                         Experience   = "15 years",

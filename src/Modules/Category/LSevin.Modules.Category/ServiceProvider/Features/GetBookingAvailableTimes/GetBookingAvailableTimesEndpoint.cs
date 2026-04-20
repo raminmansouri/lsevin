@@ -39,7 +39,10 @@ internal sealed class GetBookingAvailableTimesEndpoint : EndpointResponseHandler
         [AsParameters] GetBookingAvailableTimesRequest request
     ) =>
         Result
-            .Create(GetBookingAvailableTimesQuery.Of( ))
+            .Create(GetBookingAvailableTimesQuery.Of(request.providerId,
+   request.serviceId,
+   request.specialistId,
+   request.selectedDate))
             .Bind(query => services.Gateway.SendQueryAsync(query, services.CancellationToken))
             .Match<
                 GetBookingAvailableTimesResponse,

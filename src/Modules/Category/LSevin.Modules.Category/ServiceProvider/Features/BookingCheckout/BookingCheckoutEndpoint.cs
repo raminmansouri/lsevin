@@ -15,7 +15,7 @@ internal sealed class BookingCheckoutEndpoint : EndpointResponseHandler, IEndpoi
 {
     public void ConfigureEndpoints(IEndpointRouteBuilder app)
     {
-        app.MapPost(Routes.ServiceProvider.Create, Handle)
+        app.MapPost(Routes.Booking.BookingCheckout, Handle)
             .RequireAuthorization(SecurityConstants.Role.Admin)
             .Produces<Guid>()
             .ProducesValidationProblem()
@@ -39,15 +39,20 @@ internal sealed class BookingCheckoutEndpoint : EndpointResponseHandler, IEndpoi
         Result
             .Create(
                 new BookingCheckoutCommand(
-                    request.Name,
-                    request.Description,
-                    request.ContactEmail,
-                    request.ContactPhone,
-                    request.CountryCode,
-                    request.Address,
-                    request.ProviderTypeId,
-                    request.IsActive,
-                    request.GradeId
+                    request.ProviderId,
+                    request.ServiceId,
+                    request.SpecialistId,
+                    request.SelectedDate,
+                    request.SelectedDateFrom,
+                    request.SelectedDateTo,
+                    request.SelectedTime,
+                    request.SelectedTimeFrom,
+                    request.SelectedTimeTo,
+                    request.PaymentMethod,
+                    request.AddOns,
+                    request.UploadFiles,
+                    request.AdditionalServices,
+                    request.Step
                 )
             )
             .Bind(command => services.Gateway.SendCommandAsync(command, services.CancellationToken))

@@ -1,5 +1,11 @@
 "use client"
 
+import { ZodErrorProvider } from '@/components/providers/zod-error-provider';
+import { CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { CATEGORY_TRANSLATION_KEY } from '@/features/categories/constants';
+import { useFetchServicePage } from '@/features/service-providers/api/client/fetch-service-page';
+import { useFetchSpecialistPage } from '@/features/service-providers/api/client/fetch-specialist-page';
 import { useNavigate } from '@/hooks/use-navigate';
 import { 
   ArrowLeft, 
@@ -18,13 +24,16 @@ import {
   Mail,
   Building
 } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
+import { useLocale } from 'next-intl';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
 export default function DoctorProfile() {
   const navigate = useNavigate();
   const searchParams=useSearchParams();
-  const id  = searchParams.get('id');
+  // const id  = searchParams.get('id');
+    const { id } = useParams();   // → id === '1'
+  
   const [selectedTab, setSelectedTab] = useState<'about' | 'reviews' | 'credentials'>('about');
   const [isFavorited, setIsFavorited] = useState(false);
   
@@ -48,122 +57,37 @@ export default function DoctorProfile() {
   const handleFavorite = () => {
     setIsFavorited(!isFavorited);
   };
+
+  const locale=useLocale();
   
-  const specialist = {
-    id: id || '1',
-    name: 'Dr. Mehmet Yavuz',
-    title: 'MD, FISHRS',
-    specialty: 'Hair Transplant & Restoration Surgeon',
-    image: '/unsplash_images/photo-1612349317150-e413f6a5b16d__w=800&h=800&fit=crop.jpg',
-    rating: 4.9,
-    reviews: 847,
-    experience: 18,
-    patients: '12,000+',
-    successRate: '98.5%',
-    verified: true,
-    languages: ['English', 'Turkish', 'Arabic'],
-    clinic: 'Istanbul Medical Center',
-    clinicId: '1',
-    location: 'Istanbul, Turkey',
-    responseTime: '< 1 hour',
-    consultationFee: 0,
-  };
+  const {data}= useFetchSpecialistPage(id,locale)
+
   
-  const education = [
-    {
-      degree: 'Doctor of Medicine (MD)',
-      institution: 'Istanbul University Medical School',
-      year: '2002',
-    },
-    {
-      degree: 'Hair Transplant Surgery Fellowship',
-      institution: 'American Academy of Cosmetic Surgery',
-      year: '2006',
-    },
-    {
-      degree: 'Advanced FUE Training',
-      institution: 'International Society of Hair Restoration Surgery',
-      year: '2008',
-    },
-  ];
+  const specialist =data?.specialist;
   
-  const certifications = [
-    { name: 'Fellow of ISHRS', issuer: 'International Society of Hair Restoration Surgery', verified: true },
-    { name: 'Board Certified Surgeon', issuer: 'Turkish Medical Board', verified: true },
-    { name: 'FUE Master Certificate', issuer: 'European Hair Institute', verified: true },
-    { name: 'Advanced Sapphire FUE', issuer: 'World Hair Academy', verified: true },
-  ];
+  const education =data?.education;
   
-  const specializations = [
-    'FUE Hair Transplant',
-    'Sapphire FUE Technique',
-    'DHI (Direct Hair Implantation)',
-    'Beard & Eyebrow Transplant',
-    'Revision Hair Transplant',
-    'PRP Therapy for Hair Loss',
-  ];
+  const certifications =data?.certifications;
   
-  const achievements = [
-    { icon: <Award size={24} />, title: 'Best Hair Surgeon 2023', organization: 'Turkish Medical Excellence' },
-    { icon: <Users size={24} />, title: '12,000+ Patients', organization: 'From 65+ Countries' },
-    { icon: <Star size={24} />, title: 'Top 1% Worldwide', organization: 'Hair Transplant Surgeons' },
-    { icon: <TrendingUp size={24} />, title: '98.5% Success Rate', organization: 'Verified Patient Outcomes' },
-  ];
+  const specializations =data?.specializations;
   
-  const recentReviews = [
-    {
-      id: 1,
-      name: 'Michael Thompson',
-      country: 'USA',
-      date: '2 weeks ago',
-      rating: 5,
-      treatment: 'Hair Transplant',
-      review: 'Dr. Yavuz is an absolute master of his craft. The results are beyond my expectations - natural hairline, dense coverage, minimal scarring. His attention to detail and artistic approach are exceptional. The entire team was professional and caring throughout the journey.',
-      verified: true,
-      helpful: 124,
-      images: [
-        '/unsplash_images/photo-1622296089863-eb7fc530daa8__w=400&h=300&fit=crop.jpg',
-        'https://images.unsplash.com/photo-1629909615957-be38eea5915d?w=400&h=300&fit=crop'
-      ]
-    },
-    {
-      id: 2,
-      name: 'Ahmed Al-Farsi',
-      country: 'Saudi Arabia',
-      date: '1 month ago',
-      rating: 5,
-      treatment: 'Hair Transplant',
-      review: 'Flew from Riyadh specifically for Dr. Yavuz and it was worth every mile. His expertise is unmatched. He took time to explain every step, designed a perfect hairline, and the procedure was painless. 6 months post-op and growth is fantastic!',
-      verified: true,
-      helpful: 89
-    },
-    {
-      id: 3,
-      name: 'David Chen',
-      country: 'UK',
-      date: '1 month ago',
-      rating: 5,
-      treatment: 'Hair Transplant',
-      review: 'After researching 20+ surgeons worldwide, I chose Dr. Yavuz and couldn\'t be happier. His technique is flawless, results look completely natural, and his team provided excellent care. Highly recommend!',
-      verified: true,
-      helpful: 67
-    },
-  ];
   
-  const beforeAfter = [
-    {
-      before: '/unsplash_images/photo-1629909613654-28e377c37b09__w=400&h=300&fit=crop.jpg',
-      after: '/unsplash_images/photo-1622296089863-eb7fc530daa8__w=400&h=300&fit=crop.jpg',
-      procedure: 'Hair Transplant - 4500 Grafts',
-      months: '12 months post-op'
-    },
-    {
-      before: '/unsplash_images/photo-1629909613654-28e377c37b09__w=400&h=300&fit=crop.jpg',
-      after: 'https://images.unsplash.com/photo-1629909615957-be38eea5915d?w=400&h=300&fit=crop',
-      procedure: 'Hair Transplant - 3800 Grafts',
-      months: '10 months post-op'
-    },
-  ];
+  const ICONS = {
+     Award: <Award size={24} />,
+     Users: <Users size={24} />,
+     Star: <Star size={24} />,
+     TrendingUp: <TrendingUp size={24} />
+  }
+
+  const achievements =data?.achievements;
+  
+  const recentReviews =data?.recentReviews;
+  
+  const beforeAfter = data?.beforeAfter;
+
+  if(!data){
+    return (<><SpecialistPageSkeleton/></>);
+  }
   
   return (
     <div className="min-h-screen bg-white pb-32">
@@ -196,11 +120,11 @@ export default function DoctorProfile() {
               {/* Avatar */}
               <div className="relative flex-shrink-0">
                 <img 
-                  src={specialist.image}
-                  alt={specialist.name}
+                  src={specialist?.image}
+                  alt={specialist?.name}
                   className="w-24 h-24 rounded-2xl object-cover"
                 />
-                {specialist.verified && (
+                {specialist?.verified && (
                   <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-[#083f30] rounded-full flex items-center justify-center shadow-lg">
                     <BadgeCheck size={18} className="text-[#eacb7f]" />
                   </div>
@@ -308,7 +232,7 @@ export default function DoctorProfile() {
                 {achievements.map((achievement, idx) => (
                   <div key={idx} className="flex gap-4 bg-gray-50 rounded-xl p-4">
                     <div className="w-12 h-12 bg-[#083f30]/10 rounded-xl flex items-center justify-center text-[#083f30] flex-shrink-0">
-                      {achievement.icon}
+                      {ICONS[achievement.icon]}
                     </div>
                     <div>
                       <h4 className="font-bold text-gray-900 mb-0.5">{achievement.title}</h4>
@@ -553,7 +477,7 @@ export default function DoctorProfile() {
           </div>
           
           <button 
-            onClick={() => navigate('/app/book-consultation')}
+            onClick={() => navigate(`/n/app/mobile/booking?specialistId=${id}`)}
             className="h-14 px-8 bg-gradient-to-r from-[#083f30] to-[#0a5a44] text-white rounded-2xl font-bold hover:shadow-xl transition-all active:scale-95 flex items-center gap-2"
           >
             <Calendar size={20} />
@@ -562,5 +486,48 @@ export default function DoctorProfile() {
         </div>
       </div>
     </div>
+  );
+}
+
+
+
+export function SpecialistPageSkeleton() {
+  return (
+    <CardContent>
+      <ZodErrorProvider componentNamespace={CATEGORY_TRANSLATION_KEY}>
+        <div className="space-y-6">
+          {/* Name Field */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-9 w-full rounded-md" />
+          </div>
+
+          {/* Description Field */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-20 w-full rounded-md" />
+          </div>
+
+          {/* Category Image Field */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-40 w-full rounded-md" />
+            <Skeleton className="h-9 w-full rounded-md" />
+          </div>
+
+          {/* Parent Category Field */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-9 w-full rounded-md" />
+          </div>
+
+          {/* Submit Buttons */}
+          <div className="flex gap-4 pt-4">
+            <Skeleton className="h-9 w-32 rounded-md" />
+            <Skeleton className="h-9 w-20 rounded-md" />
+          </div>
+        </div>
+      </ZodErrorProvider>
+    </CardContent>
   );
 }

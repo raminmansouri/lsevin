@@ -1,140 +1,33 @@
-"use client"
-import React, { useEffect, useState } from "react";
-import { useFormContext } from "react-hook-form";
-import z from "zod/v3";
+"use client";
 
-import { nodes } from "../../../../../../../../components/blocks/editor-00/nodes";
-import { BadgeCheck, Clock, Star, List, ChevronRight, CheckCircle2, Calendar } from 'lucide-react';
-import { BookingFormValues } from "../../types";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  BadgeCheck,
+  Clock,
+  Star,
+  ChevronRight,
+  CheckCircle2,
+  Calendar,
+  Search,
+} from "lucide-react";
+import { useTranslations } from "next-intl";
 
-/* const services = [
-  {
-    id: "hair-treatment",
-    name: "Keratin Hair Treatment",
-    description: "Professional smoothing treatment",
-    duration: "2.5 hours",
-    price: 180,
-    category: "Hair Care",
-    popular: true,
-    image:
-      "/unsplash_images/photo-1560066984-138dadb4c035__w=400&h=300&fit=crop.jpg",
-  },
-  {
-    id: "spa-facial",
-    name: "Luxury Facial Spa",
-    description: "Deep cleansing and rejuvenation",
-    duration: "90 min",
-    price: 120,
-    category: "Facial",
-    popular: true,
-    image:
-      "/unsplash_images/photo-1570172619644-dfd03ed5d881__w=400&h=300&fit=crop.jpg",
-  },
-  {
-    id: "manicure-pedicure",
-    name: "Premium Manicure & Pedicure",
-    description: "Complete nail care package",
-    duration: "60 min",
-    price: 85,
-    category: "Nails",
-    image:
-      "/unsplash_images/photo-1604654894610-df63bc536371__w=400&h=300&fit=crop.jpg",
-  },
-];
-
-const providers = [
-  {
-    id: "1",
-    name: "Istanbul Medical Center",
-    description: "Istanbul Medical Center",
-    rating: 4.9,
-    verified: true,
-    popular: true,
-    image:
-      "/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=200&h=200&fit=crop.jpg",
-  },
-  {
-    id: "2",
-
-    name: "Dubai Smile Clinic",
-    description: "Dubai Smile Clinic",
-    rating: 4.9,
-    popular: true,
-    verified: true,
-    image:
-      "/unsplash_images/photo-1629909613654-28e377c37b09__w=200&h=200&fit=crop.jpg",
-  },
-  {
-    id: "3",
-
-    popular: true,
-    name: "Bali Wellness Resort",
-    description: "Bali Wellness Resort",
-    rating: 5.0,
-    verified: true,
-    image:
-      "/unsplash_images/photo-1540555700478-4be289fbecef__w=200&h=200&fit=crop.jpg",
-  },
-  {
-    id: "4",
-
-    name: "Cyprus Fertility Center",
-    description: "Cyprus Fertility Center",
-    rating: 4.8,
-    popular: true,
-    verified: true,
-    image:
-      "/unsplash_images/photo-1551190822-a9333d879b1f__w=200&h=200&fit=crop.jpg",
-  },
-];
-
-const doctors = [
-  {
-    id: '1',
-    name: 'Dr. Mehmet Yavuz',
-    specialty: 'Hair Transplant Surgeon',
-    experience: '18 years',
-    rating: 4.9,
-    reviews: 1247,
-    patients: '12,000+',
-    languages: ['English', 'Turkish', 'Arabic'],
-    credentials: ['MD', 'ISHRS Member', 'Board Certified'],
-    verified: true,
-    consultation: 0,
-    image: '/unsplash_images/photo-1612349317150-e413f6a5b16d__w=400&h=400&fit=crop.jpg',
-    nextAvailable: 'Mar 15, 2026'
-  },
-  {
-    id: '2',
-    name: 'Dr. Can Ozturk',
-    specialty: 'Hair Restoration Expert',
-    experience: '15 years',
-    rating: 4.8,
-    reviews: 892,
-    patients: '10,500+',
-    languages: ['English', 'Turkish', 'German'],
-    credentials: ['MD', 'FUE Specialist', 'ABHRS'],
-    verified: true,
-    consultation: 0,
-    image: '/unsplash_images/photo-1622253692010-333f2da6031d__w=400&h=400&fit=crop.jpg',
-    nextAvailable: 'Mar 12, 2026'
-  },
-];
- */
-
-import { useWatch } from 'react-hook-form';
-import { useMemo } from 'react';
 import { useGetProvidersByServiceAndSpecialist } from "@/features/booking/api/client/fetch-providers-by-service-and-specialist";
-import { useLocale } from "next-intl";
 import { useGetServicesByProviderAndSpecialist } from "@/features/booking/api/client/fetch-services-by-provider-and-specialist";
 import { useGetSpecialistByProviderAndService } from "@/features/booking/api/client/fetch-specialist-by-provider-and-service";
 import { useBooking } from "../../hooks/use-booking";
+import { TRANSLATION_KEY } from "@/features/home/types/constants";
+import {
+  hasLexicalContent,
+  LexicalRenderer,
+} from "@/components/editor/lexical-renderer";
+import { useSearchParams } from "next/navigation";
 
 /* ----- Types & Enums ----- */
 interface INode {
   name: NodeType;
   edges: NodeType[];
-  isSelected: boolean; // we only need a boolean in the UI
+  isSelected: boolean;
 }
 
 enum NodeType {
@@ -143,550 +36,1020 @@ enum NodeType {
   Specialist,
 }
 
+type ProviderItem = {
+  id: string;
+  name: string;
+  description?: string;
+  image?: string;
+  popular?: boolean;
+};
+
+type ServiceItem = {
+  id: string;
+  name: string;
+  description?: string;
+  image?: string;
+  popular?: boolean;
+  duration?: string;
+  category?: string;
+  price?: number | string;
+};
+
+type SpecialistItem = {
+  id: string;
+  name: string;
+  specialty?: string;
+  experience?: string;
+  patients?: string | number;
+  rating?: number | string;
+  nextAvailable?: string;
+  image?: string;
+};
+
+const INITIAL_VISIBLE_COUNT = 3;
+const LOAD_MORE_STEP = 3;
+
+/* ----- Small UI helpers ----- */
+function LoadMoreButton({
+  shown,
+  total,
+  onClick,
+}: {
+  shown: number;
+  total: number;
+  onClick: () => void;
+}) {
+  if (shown >= total) return null;
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="mt-4 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-[#083f30] transition hover:border-[#083f30] hover:bg-gray-50"
+    >
+      Load more ({Math.min(LOAD_MORE_STEP, total - shown)} more)
+    </button>
+  );
+}
+
+function SearchInput({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}) {
+  return (
+    <div className="relative mb-4">
+      <Search
+        size={18}
+        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+      />
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="h-11 w-full rounded-xl border border-gray-200 bg-white pl-10 pr-4 text-sm outline-none transition focus:border-[#083f30]"
+      />
+    </div>
+  );
+}
+
+function ImageOrPlaceholder({
+  src,
+  alt,
+  className,
+}: {
+  src?: string;
+  alt: string;
+  className: string;
+}) {
+  if (!src) {
+    return <div className={`${className} bg-gray-200`} />;
+  }
+
+  return <img src={src} alt={alt} className={className} />;
+}
+
+function ProviderSkeletonList({ count = 3 }: { count?: number }) {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: count }).map((_, index) => (
+        <div
+          key={index}
+          className="overflow-hidden rounded-2xl border-2 border-gray-200 bg-white p-4 animate-pulse"
+        >
+          <div className="flex gap-4">
+            <div className="h-24 w-24 rounded-xl bg-gray-200" />
+            <div className="flex-1">
+              <div className="mb-3 h-5 w-1/2 rounded bg-gray-200" />
+              <div className="mb-2 h-4 w-full rounded bg-gray-200" />
+              <div className="mb-2 h-4 w-4/5 rounded bg-gray-200" />
+              <div className="h-3 w-1/3 rounded bg-gray-200" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ServiceSkeletonList({ count = 3 }: { count?: number }) {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: count }).map((_, index) => (
+        <div
+          key={index}
+          className="overflow-hidden rounded-2xl border-2 border-gray-200 bg-white p-4 animate-pulse"
+        >
+          <div className="flex gap-4">
+            <div className="h-24 w-24 rounded-xl bg-gray-200" />
+            <div className="flex-1">
+              <div className="mb-3 h-5 w-1/2 rounded bg-gray-200" />
+              <div className="mb-2 h-4 w-full rounded bg-gray-200" />
+              <div className="mb-3 h-4 w-3/4 rounded bg-gray-200" />
+              <div className="flex items-center justify-between">
+                <div className="h-4 w-1/3 rounded bg-gray-200" />
+                <div className="h-5 w-16 rounded bg-gray-200" />
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SpecialistSkeletonList({ count = 3 }: { count?: number }) {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: count }).map((_, index) => (
+        <div
+          key={index}
+          className="rounded-2xl border-2 border-gray-200 bg-white p-4 animate-pulse"
+        >
+          <div className="flex gap-4">
+            <div className="h-20 w-20 rounded-xl bg-gray-200" />
+            <div className="flex-1">
+              <div className="mb-3 h-5 w-1/2 rounded bg-gray-200" />
+              <div className="mb-2 h-4 w-2/3 rounded bg-gray-200" />
+              <div className="mb-3 h-4 w-1/2 rounded bg-gray-200" />
+              <div className="flex items-center justify-between">
+                <div className="h-4 w-16 rounded bg-gray-200" />
+                <div className="h-4 w-24 rounded bg-gray-200" />
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function EmptyState({ text }: { text: string }) {
+  return (
+    <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-6 text-center text-sm text-gray-500">
+      {text}
+    </div>
+  );
+}
+
+function normalizeText(value: unknown) {
+  if (value == null) return "";
+  return String(value).trim().toLowerCase();
+}
 
 /* ----- Main component ----- */
 export default function ServiceSelection() {
-  /* 1️⃣  Grab the form context */
+  const {
+    setValue,
+    canProceed,
+    selectedDate,
+    selectedTime,
+    providerId,
+    serviceId,
+    specialistId,
+    handleNext,
+    setData,
+    locale,
+  } = useBooking();
 
- const {
-        setValue,
-        getButtonLabel,
-        canProceed,
-        calculateTotal,
-        addons,
-        selectedAddons,
-        selectedDate,
-        selectedTime,
-        uploadedFiles,
-        service,
-        provider,
-        selectedSpecialist,
-        providerId,
-        serviceId,
-        specialistId,
-        paymentMethod,
-        handleNext,
-        handleBack,
-        navigate,
-        step, setStep,
-        locale
-      } = useBooking();
+  const t = useTranslations(TRANSLATION_KEY);
 
-      
   const {
     data: providersResponse,
-    refetch
+    // isLoading: isProvidersLoading,
+    isFetching: isProvidersFetching,
+    refetch:refetchProviders
   } = useGetProvidersByServiceAndSpecialist(
     providerId,
     serviceId,
-    '',
-    locale);
-
-    const providers=providersResponse?.providers;
-
+    specialistId,
+    "",
+    locale
+  );
 
   const {
     data: servicesResponse,
-    refetch: refetchServices
+    // isLoading: isServicesLoading,
+    isFetching: isServicesFetching,
+    refetch:refetchServices
   } = useGetServicesByProviderAndSpecialist(
     providerId,
-    specialistId,
-    '',
-    locale);
-
-    const services=servicesResponse?.services;
-
-  const {
-    data: specialistsResponose,
-    refetch: refetchSpecialist
-  } = useGetSpecialistByProviderAndService(
     serviceId,
     specialistId,
-    '',
-    locale);
+    "",
+    locale
+  );
 
-    const specialists=specialistsResponose?.specialists;
+  const {
+    data: specialistsResponse,
+    // isLoading: isSpecialistsLoading,
+    isFetching: isSpecialistsFetching,
+    refetch:refetchSpecialists
+  } = useGetSpecialistByProviderAndService(
+    providerId,
+    serviceId,
+    specialistId,
+    "",
+    locale
+  );
 
 
-  /* 3️⃣  Build the node graph each time a watched value changes */
-  const nodes = useMemo<INode[]>(() => [
-    {
-      name: NodeType.Provider,
-      edges: [NodeType.Service, NodeType.Specialist],
-      isSelected: !!providerId,
+    const searchParams = useSearchParams();
+      const providerIdFromUrl = searchParams.get('id'); // providerId
+      const serviceIdFromUrl = searchParams.get('serviceId');
+      const specialistIdFromUrl = searchParams.get('specialistId');
+  
+  
+  useEffect(() => {
+    
+     if( !providerId && (!providers || providers?.length==0) )
+        refetchProviders();
+   
+    if(!serviceId && (!services || services?.length==0) )
+       refetchServices();
+  
+    if(!specialistId && (!specialists || specialists?.length==0) )
+     refetchSpecialists();
 
-    },
-    {
-      name: NodeType.Service,
-      edges: [NodeType.Provider, NodeType.Specialist],
-      isSelected: !!serviceId,
-    },
-    {
-      name: NodeType.Specialist,
-      edges: [NodeType.Service, NodeType.Provider],
-      isSelected: !!specialistId,
-    },
-  ], [providerId, serviceId, specialistId]);
+  }, [  providerId,serviceId,specialistId])
 
-  /* 4️⃣  Pick the node that is currently selected (or first one if none) */
-  const selectedNode = useMemo(() => nodes.find(n => n.isSelected) ?? nodes[0], [nodes]);
+    
 
-   const ChooseYourServiceCanProceed = () => {
-      return (<>
-        {/* Selection Summary - Step 1 */}
-        {canProceed() && (
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="flex items-start gap-3 mb-4">
-              <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
-                <CheckCircle2 size={20} className="text-white" />
+    
+
+  const providers: ProviderItem[] = providersResponse?.providers ?? [];
+  const services: ServiceItem[] = servicesResponse?.services ?? [];
+  const specialists: SpecialistItem[] = specialistsResponse?.specialist ?? [];
+
+  const providersPending =  isProvidersFetching;
+  const servicesPending =  isServicesFetching;
+  const specialistsPending = isSpecialistsFetching;
+
+  const [visibleProvidersCount, setVisibleProvidersCount] = useState(
+    INITIAL_VISIBLE_COUNT
+  );
+  const [visibleServicesCount, setVisibleServicesCount] = useState(
+    INITIAL_VISIBLE_COUNT
+  );
+  const [visibleSpecialistsCount, setVisibleSpecialistsCount] = useState(
+    INITIAL_VISIBLE_COUNT
+  );
+
+  const [providerSearch, setProviderSearch] = useState("");
+  const [serviceSearch, setServiceSearch] = useState("");
+  const [specialistSearch, setSpecialistSearch] = useState("");
+
+  useEffect(() => {
+    if (providerId && providers.length > 0) {
+      setData("providers", providers);
+    }
+    if (serviceId && services.length > 0) {
+      setData("services", services);
+    }
+    if (specialistId && specialists.length > 0) {
+      setData("specialists", specialists);
+    }
+  }, [
+    providerId,
+    serviceId,
+    specialistId,
+    providers,
+    services,
+    specialists,
+    setData,
+  ]);
+
+  useEffect(() => {
+    setVisibleProvidersCount(INITIAL_VISIBLE_COUNT);
+  }, [serviceId, specialistId, providerSearch]);
+
+  useEffect(() => {
+    setVisibleServicesCount(INITIAL_VISIBLE_COUNT);
+  }, [providerId, specialistId, serviceSearch]);
+
+  useEffect(() => {
+    setVisibleSpecialistsCount(INITIAL_VISIBLE_COUNT);
+  }, [providerId, serviceId, specialistSearch]);
+
+  const filteredProviders = useMemo(() => {
+    const query = normalizeText(providerSearch);
+    if (!query) return providers;
+
+    return providers.filter((provider) => {
+      const searchable = [
+        provider.name,
+        provider.description,
+      ]
+        .map(normalizeText)
+        .join(" ");
+
+      return searchable.includes(query);
+    });
+  }, [providers, providerSearch]);
+
+  const filteredServices = useMemo(() => {
+    const query = normalizeText(serviceSearch);
+    if (!query) return services;
+
+    return services.filter((service) => {
+      const searchable = [
+        service.name,
+        service.description,
+        service.category,
+        service.duration,
+        service.price,
+      ]
+        .map(normalizeText)
+        .join(" ");
+
+      return searchable.includes(query);
+    });
+  }, [services, serviceSearch]);
+
+  const filteredSpecialists = useMemo(() => {
+    const query = normalizeText(specialistSearch);
+    if (!query) return specialists;
+
+    return specialists.filter((doctor) => {
+      const searchable = [
+        doctor.name,
+        doctor.specialty,
+        doctor.experience,
+        doctor.patients,
+        doctor.rating,
+        doctor.nextAvailable,
+      ]
+        .map(normalizeText)
+        .join(" ");
+
+      return searchable.includes(query);
+    });
+  }, [specialists, specialistSearch]);
+
+  const visibleProviders = useMemo(
+    () => filteredProviders.slice(0, visibleProvidersCount),
+    [filteredProviders, visibleProvidersCount]
+  );
+
+  const visibleServices = useMemo(
+    () => filteredServices.slice(0, visibleServicesCount),
+    [filteredServices, visibleServicesCount]
+  );
+
+  const visibleSpecialists = useMemo(
+    () => filteredSpecialists.slice(0, visibleSpecialistsCount),
+    [filteredSpecialists, visibleSpecialistsCount]
+  );
+
+  const nodes = useMemo<INode[]>(
+    () => [
+      {
+        name: NodeType.Provider,
+        edges: [NodeType.Service, NodeType.Specialist],
+        isSelected: !!providerId,
+      },
+      {
+        name: NodeType.Service,
+        edges: [NodeType.Provider, NodeType.Specialist],
+        isSelected: !!serviceId,
+      },
+      {
+        name: NodeType.Specialist,
+        edges: [NodeType.Service, NodeType.Provider],
+        isSelected: !!specialistId,
+      },
+    ],
+    [providerId, serviceId, specialistId]
+  );
+
+  const selectedNode = useMemo(
+    () => nodes.find((n) => n.isSelected) ?? nodes[0],
+    [nodes]
+  );
+
+  const onServiceSelection = (service: ServiceItem) => {
+    if (serviceId === service.id) {
+      setValue("serviceId", undefined);
+      // setValue("specialistId", undefined);
+    } else {
+      setValue("serviceId", service.id);
+      // setValue("specialistId", undefined);
+      setVisibleSpecialistsCount(INITIAL_VISIBLE_COUNT);
+    }
+  };
+
+  const onProviderSelection = (provider: ProviderItem) => {
+    if (providerId === provider.id) {
+      setValue("providerId", undefined);
+      // setValue("serviceId", undefined);
+      // setValue("specialistId", undefined);
+    } else {
+      setValue("providerId", provider.id);
+      // setValue("serviceId", undefined);
+      // setValue("specialistId", undefined);
+      setVisibleServicesCount(INITIAL_VISIBLE_COUNT);
+      setVisibleSpecialistsCount(INITIAL_VISIBLE_COUNT);
+    }
+  };
+
+  const onSpecialistSelection = (doctor: SpecialistItem) => {
+    if (specialistId === doctor.id) {
+      setValue("specialistId", undefined);
+    } else {
+      setValue("specialistId", doctor.id);
+    }
+  };
+
+  const ContinueSummary = () => {
+    if (!canProceed()) return null;
+
+    return (
+      <div className="mt-6 rounded-2xl border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 p-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div className="mb-4 flex items-start gap-3">
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-green-600">
+            <CheckCircle2 size={20} className="text-white" />
+          </div>
+
+          <div className="flex-1">
+            <h3 className="mb-2 font-bold text-green-900">Ready to Continue!</h3>
+
+            <div className="space-y-1.5 text-sm text-green-800">
+              <div className="flex items-center gap-2">
+                <BadgeCheck size={14} className="flex-shrink-0" />
+                <span>
+                  Doctor:{" "}
+                  {specialists.find((d) => d.id === specialistId)?.name ?? "-"}
+                </span>
               </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-green-900 mb-2">Ready to Continue!</h3>
-                <div className="space-y-1.5 text-sm text-green-800">
-                  <div className="flex items-center gap-2">
-                    <BadgeCheck size={14} className="flex-shrink-0" />
-                    <span>Doctor: {specialists.find(d => d.id === specialistId)?.name}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar size={14} className="flex-shrink-0" />
-                    <span>Date: {selectedDate}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock size={14} className="flex-shrink-0" />
-                    <span>Time: {selectedTime}</span>
-                  </div>
-                </div>
+
+              <div className="flex items-center gap-2">
+                <Calendar size={14} className="flex-shrink-0" />
+                <span>Date: {selectedDate ?? "-"}</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Clock size={14} className="flex-shrink-0" />
+                <span>Time: {selectedTime ?? "-"}</span>
               </div>
             </div>
-  
-            {/* Continue Button - Directly in Summary */}
-            <button
-              onClick={handleNext}
-              className="w-full h-14 bg-gradient-to-r from-[#083f30] to-[#0a5a44] text-white rounded-xl font-bold hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg"
-            >
-              Continue to Add-ons
-              <ChevronRight size={20} />
-            </button>
           </div>
-        )}</>)
-    }
+        </div>
 
-  const refetchData = () => {
+        <button
+          type="button"
+          onClick={handleNext}
+          className="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#083f30] to-[#0a5a44] font-bold text-white shadow-lg transition-all hover:shadow-xl active:scale-95"
+        >
+          Continue to Add-ons
+          <ChevronRight size={20} />
+        </button>
+      </div>
+    );
+  };
 
-  }
-  const onServiceSelection = (service) => {
-    if (serviceId === service.id) {
-      setValue('serviceId', undefined)
-      // setValue('providerId',undefined)
-      setValue('specialistId', undefined)
-    } else {
-      setValue('serviceId', service.id)
-    }
-    refetchData();
-  }
-
-  const onProviderSelection = (provider) => {
-    if (providerId === provider.id) {
-      setValue('providerId', undefined)
-      setValue('serviceId', undefined)
-      setValue('specialistId', undefined)
-    } else {
-      setValue('providerId', provider.id)
-    }
-    refetchData();
-  }
-
-  const onSpecialistSelection = (doctor) => {
-    if (specialistId === doctor.id) {
-      setValue('specialistId', undefined)
-
-    } else {
-      setValue('specialistId', doctor.id)
-    }
-    refetchData();
-  }
-
-  /* ----- Component maps ----- */
   const ChooseYourProvider = () => {
     return (
-      <>
-        {/* Select Service */}
-        <div>
-          <h2 className="mb-4 text-xl font-bold text-gray-900">
-            Choose Your Provider
-          </h2>
-          <div className="space-y-3">
-            {providers?.map((provider) => (
-              <button
-                key={provider.id}
-                onClick={() => {
-                  onProviderSelection(provider)
+      <div>
+        <h2 className="mb-4 text-xl font-bold text-gray-900">
+          Choose Your Provider
+        </h2>
 
-                }}
-                className={`w-full overflow-hidden rounded-2xl border-2 bg-white transition-all ${providerId === provider.id
-                    ? "scale-[1.02] border-[#083f30] shadow-lg"
-                    : "border-gray-200 hover:border-gray-300"
+        <SearchInput
+          value={providerSearch}
+          onChange={setProviderSearch}
+          placeholder="Search providers..."
+        />
+
+        {providersPending ? (
+          <ProviderSkeletonList />
+        ) : filteredProviders.length === 0 ? (
+          <EmptyState
+            text={
+              providerSearch.trim()
+                ? "No providers match your search."
+                : "No providers found."
+            }
+          />
+        ) : (
+          <>
+            <div className="space-y-3">
+              {visibleProviders.map((provider) => (
+                <button
+                  key={provider.id}
+                  type="button"
+                  onClick={() => onProviderSelection(provider)}
+                  className={`w-full overflow-hidden rounded-2xl border-2 bg-white transition-all ${
+                    providerId === provider.id
+                      ? "scale-[1.02] border-[#083f30] shadow-lg"
+                      : "border-gray-200 hover:border-gray-300"
                   }`}
-              >
-                <div className="flex gap-4 p-4">
-                  <div className="relative flex-shrink-0">
-                    <img
-                      src={provider.image}
-                      alt={provider.name}
-                      className="h-24 w-24 rounded-xl object-cover"
-                    />
-                    {provider.popular && (
-                      <div className="absolute -top-2 -right-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">
-                        POPULAR
-                      </div>
-                    )}
-                  </div>
+                >
+                  <div className="flex gap-4 p-4">
+                    <div className="relative flex-shrink-0">
+                      <ImageOrPlaceholder
+                        src={provider.image}
+                        alt={provider.name}
+                        className="h-24 w-24 rounded-xl object-cover"
+                      />
 
-                  <div className="flex-1 text-left">
-                    <div className="mb-1 flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="mb-1 font-bold text-gray-900">
-                          {provider.name}
-                        </h3>
-                        <p className="mb-2 text-sm text-gray-600">
-                          {provider.description}
-                        </p>
-                        <div className="flex items-center gap-3 text-xs text-gray-600">
-                          {/* <div className="flex items-center gap-1">
-                                  <Clock size={14} />
-                                  <span>{provider.duration}</span>
-                                </div> */}
-                          <span>•</span>
-                          {/* <span className="px-2 py-0.5 bg-gray-100 rounded-md font-semibold">
-                                  {provider.category}
-                                </span> */}
+                      {provider.popular && (
+                        <div className="absolute -right-2 -top-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">
+                          POPULAR
                         </div>
-                      </div>
+                      )}
+                    </div>
 
-                      <div className="ml-3 text-right">
-                        {/* <div className="text-lg font-bold text-[#083f30]">
-                                ${service.price}
-                              </div> */}
+                    <div className="flex-1 text-left">
+                      <div className="mb-1 flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="mb-1 font-bold text-gray-900">
+                            {provider.name}
+                          </h3>
+
+                          <div className="mb-2 text-sm text-gray-600">
+                            {provider.description &&
+                            hasLexicalContent(provider.description) ? (
+                              <LexicalRenderer
+                                content={provider.description}
+                                className="text-muted-foreground leading-relaxed"
+                              />
+                            ) : provider.description ? (
+                              <p className="text-muted-foreground leading-relaxed">
+                                {provider.description}
+                              </p>
+                            ) : (
+                              <p className="text-muted-foreground leading-relaxed">
+                                {t("noDescription")}
+                              </p>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      </>
+                </button>
+              ))}
+            </div>
+
+            <LoadMoreButton
+              shown={visibleProviders.length}
+              total={filteredProviders.length}
+              onClick={() =>
+                setVisibleProvidersCount((prev) => prev + LOAD_MORE_STEP)
+              }
+            />
+          </>
+        )}
+      </div>
     );
   };
+
   const SelectedProvider = () => {
+    const selectedProviders = providers.filter((f) => providerId === f.id);
+
     return (
-      <>
-        {/* Select Service */}
-        <div>
-          <h2 className="mb-4 text-xl font-bold text-gray-900">
-            Selected Provider
-          </h2>
+      <div>
+        <h2 className="mb-4 text-xl font-bold text-gray-900">
+          Selected Provider
+        </h2>
+
+        {providersPending ? (
+          <ProviderSkeletonList count={1} />
+        ) : selectedProviders.length === 0 ? (
+          <EmptyState text="No provider selected." />
+        ) : (
           <div className="space-y-3">
-            {providers?.filter(f => providerId === f.id).map((provider) => (
+            {selectedProviders.map((provider) => (
               <button
                 key={provider.id}
-                onClick={() => {
-                  onProviderSelection(provider)
-
-                }}
-                className={`w-full overflow-hidden rounded-2xl border-2 bg-white transition-all ${providerId === provider.id
+                type="button"
+                onClick={() => onProviderSelection(provider)}
+                className={`w-full overflow-hidden rounded-2xl border-2 bg-white transition-all ${
+                  providerId === provider.id
                     ? "scale-[1.02] border-[#083f30] shadow-lg"
                     : "border-gray-200 hover:border-gray-300"
-                  }`}
+                }`}
               >
                 <div className="flex gap-4 p-4">
                   <div className="relative flex-shrink-0">
-                    <img
+                    <ImageOrPlaceholder
                       src={provider.image}
                       alt={provider.name}
                       className="h-24 w-24 rounded-xl object-cover"
                     />
+
                     {provider.popular && (
-                      <div className="absolute -top-2 -right-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">
+                      <div className="absolute -right-2 -top-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">
                         POPULAR
                       </div>
                     )}
-                  </div>
-
-                  <div className="flex-1 text-left">
-                    <div className="mb-1 flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="mb-1 font-bold text-gray-900">
-                          {provider.name}
-                        </h3>
-                        <p className="mb-2 text-sm text-gray-600">
-                          {provider.description}
-                        </p>
-                        <div className="flex items-center gap-3 text-xs text-gray-600">
-                          {/* <div className="flex items-center gap-1">
-                                  <Clock size={14} />
-                                  <span>{provider.duration}</span>
-                                </div> */}
-                          <span>•</span>
-                          {/* <span className="px-2 py-0.5 bg-gray-100 rounded-md font-semibold">
-                                  {provider.category}
-                                </span> */}
-                        </div>
-                      </div>
-
-                      <div className="ml-3 text-right">
-                        {/* <div className="text-lg font-bold text-[#083f30]">
-                                <List onClick={()=>setShowAllProviders(!showAllProviders)}/>
-                              </div>  */}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </button>
-            ))}
-
-          </div>
-        </div>
-      </>
-    );
-  };
-  const ChooseYourService = () => {
-    return (
-      <>
-        {/* Select Service */}
-        <div>
-          <h2 className="mb-4 text-xl font-bold text-gray-900">
-            Choose Your Service
-          </h2>
-          <div className="space-y-3">
-            {services?.map((service) => (
-              <button
-                key={service.id}
-                onClick={() => onServiceSelection(service)}
-                className={`w-full overflow-hidden rounded-2xl border-2 bg-white transition-all ${serviceId === service.id
-                    ? "scale-[1.02] border-[#083f30] shadow-lg"
-                    : "border-gray-200 hover:border-gray-300"
-                  }`}
-              >
-                <div className="flex gap-4 p-4">
-                  <div className="relative flex-shrink-0">
-                    <img
-                      src={service.image}
-                      alt={service.name}
-                      className="h-24 w-24 rounded-xl object-cover"
-                    />
-                    {service.popular && (
-                      <div className="absolute -top-2 -right-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">
-                        POPULAR
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex-1 text-left">
-                    <div className="mb-1 flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="mb-1 font-bold text-gray-900">
-                          {service.name}
-                        </h3>
-                        <p className="mb-2 text-sm text-gray-600">
-                          {service.description}
-                        </p>
-                        <div className="flex items-center gap-3 text-xs text-gray-600">
-                          <div className="flex items-center gap-1">
-                            <Clock size={14} />
-                            <span>{service.duration}</span>
-                          </div>
-                          <span>•</span>
-                          <span className="rounded-md bg-gray-100 px-2 py-0.5 font-semibold">
-                            {service.category}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="ml-3 text-right">
-                        <div className="text-lg font-bold text-[#083f30]">
-                          ${service.price}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      </>
-    );
-  };
-
-
-  const SelectedService = () => {
-    return (
-      <>
-        {/* Select Service */}
-        <div>
-          <h2 className="mb-4 text-xl font-bold text-gray-900">
-            Selected Service
-          </h2>
-          <div className="space-y-3">
-            {services?.filter(f => serviceId === f.id).map((service) => (
-              <button
-                key={service.id}
-                onClick={() => onServiceSelection(service)}
-                className={`w-full overflow-hidden rounded-2xl border-2 bg-white transition-all ${serviceId === service.id
-                    ? "scale-[1.02] border-[#083f30] shadow-lg"
-                    : "border-gray-200 hover:border-gray-300"
-                  }`}
-              >
-                <div className="flex gap-4 p-4">
-                  <div className="relative flex-shrink-0">
-                    <img
-                      src={service.image}
-                      alt={service.name}
-                      className="h-24 w-24 rounded-xl object-cover"
-                    />
-                    {service.popular && (
-                      <div className="absolute -top-2 -right-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">
-                        POPULAR
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex-1 text-left">
-                    <div className="mb-1 flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="mb-1 font-bold text-gray-900">
-                          {service.name}
-                        </h3>
-                        <p className="mb-2 text-sm text-gray-600">
-                          {service.description}
-                        </p>
-                        <div className="flex items-center gap-3 text-xs text-gray-600">
-                          <div className="flex items-center gap-1">
-                            <Clock size={14} />
-                            <span>{service.duration}</span>
-                          </div>
-                          <span>•</span>
-                          <span className="rounded-md bg-gray-100 px-2 py-0.5 font-semibold">
-                            {service.category}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="ml-3 text-right">
-                        <div className="text-lg font-bold text-[#083f30]">
-                          ${service.price}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      </>
-    );
-  };
-  const ChooseYourSpecialist = () => {
-    return (
-      <>
-        {/* Select Doctor */}
-        <div>
-          <h2 className="mb-4 text-xl font-bold text-gray-900">
-            Choose Your Specialist
-          </h2>
-          <div className="space-y-3">
-            {specialists?.map((doctor) => (
-              <button
-                key={doctor.id}
-                onClick={() =>
-
-                  onSpecialistSelection(doctor)
-                }
-                className={`w-full rounded-2xl border-2 bg-white p-4 transition-all ${specialistId === doctor.id
-                    ? "border-[#083f30] shadow-md"
-                    : "border-gray-200 hover:border-gray-300"
-                  }`}
-              >
-                <div className="flex gap-4">
-                  <div className="relative flex-shrink-0">
-                    <img
-                      src={doctor.image}
-                      alt={doctor.name}
-                      className="h-20 w-20 rounded-xl object-cover"
-                    />
-                    <div className="absolute -right-1 -bottom-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#083f30]">
-                      <BadgeCheck size={14} className="text-[#eacb7f]" />
-                    </div>
                   </div>
 
                   <div className="flex-1 text-left">
                     <h3 className="mb-1 font-bold text-gray-900">
-                      {doctor.name}
+                      {provider.name}
                     </h3>
-                    <p className="mb-2 text-sm text-gray-600">
-                      {doctor.specialty}
-                    </p>
 
-                    <div className="mb-2 flex items-center gap-3 text-xs text-gray-600">
-                      <span>{doctor.experience}</span>
-                      <span>•</span>
-                      <span>{doctor.patients} patients</span>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <Star
-                          size={14}
-                          className="fill-yellow-400 text-yellow-400"
+                    <div className="mb-2 text-sm text-gray-600">
+                      {provider.description &&
+                      hasLexicalContent(provider.description) ? (
+                        <LexicalRenderer
+                          content={provider.description}
+                          className="text-muted-foreground leading-relaxed"
                         />
-                        <span className="text-sm font-bold text-gray-900">
-                          {doctor.rating}
-                        </span>
-                      </div>
-
-                      <span className="text-xs font-semibold text-[#083f30]">
-                        Next: {doctor.nextAvailable}
-                      </span>
+                      ) : provider.description ? (
+                        <p className="text-muted-foreground leading-relaxed">
+                          {provider.description}
+                        </p>
+                      ) : (
+                        <p className="text-muted-foreground leading-relaxed">
+                          {t("noDescription")}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
               </button>
             ))}
           </div>
-        </div>
-      </>
+        )}
+      </div>
+    );
+  };
+
+  const ChooseYourService = () => {
+    return (
+      <div>
+        <h2 className="mb-4 text-xl font-bold text-gray-900">
+          Choose Your Service
+        </h2>
+
+        <SearchInput
+          value={serviceSearch}
+          onChange={setServiceSearch}
+          placeholder="Search services..."
+        />
+
+        {servicesPending ? (
+          <ServiceSkeletonList />
+        ) : filteredServices.length === 0 ? (
+          <EmptyState
+            text={
+              serviceSearch.trim()
+                ? "No services match your search."
+                : "No services found."
+            }
+          />
+        ) : (
+          <>
+            <div className="space-y-3">
+              {visibleServices.map((service) => (
+                <button
+                  key={service.id}
+                  type="button"
+                  onClick={() => onServiceSelection(service)}
+                  className={`w-full overflow-hidden rounded-2xl border-2 bg-white transition-all ${
+                    serviceId === service.id
+                      ? "scale-[1.02] border-[#083f30] shadow-lg"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <div className="flex gap-4 p-4">
+                    <div className="relative flex-shrink-0">
+                      <ImageOrPlaceholder
+                        src={service.image}
+                        alt={service.name}
+                        className="h-24 w-24 rounded-xl object-cover"
+                      />
+
+                      {service.popular && (
+                        <div className="absolute -right-2 -top-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">
+                          POPULAR
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 text-left">
+                      <div className="mb-1 flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="mb-1 font-bold text-gray-900">
+                            {service.name}
+                          </h3>
+
+                          <p className="mb-2 text-sm text-gray-600">
+                            {service.description &&
+                            hasLexicalContent(service.description) ? (
+                              <LexicalRenderer
+                                content={service.description}
+                                className="text-muted-foreground leading-relaxed"
+                              />
+                            ) : service.description ? (
+                              <p className="text-muted-foreground leading-relaxed">
+                                {service.description}
+                              </p>
+                            ) : (
+                              <p className="text-muted-foreground leading-relaxed">
+                                {t("noDescription")}
+                              </p>
+                            )}
+                          </p>
+
+                          <div className="flex items-center gap-3 text-xs text-gray-600">
+                            <div className="flex items-center gap-1">
+                              <Clock size={14} />
+                              <span>{service.duration ?? "-"}</span>
+                            </div>
+
+                            <span>•</span>
+
+                            <span className="rounded-md bg-gray-100 px-2 py-0.5 font-semibold">
+                              {service.category ?? "-"}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="ml-3 text-right">
+                          <div className="text-lg font-bold text-[#083f30]">
+                            {service.price != null ? `$${service.price}` : "-"}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <LoadMoreButton
+              shown={visibleServices.length}
+              total={filteredServices.length}
+              onClick={() =>
+                setVisibleServicesCount((prev) => prev + LOAD_MORE_STEP)
+              }
+            />
+          </>
+        )}
+      </div>
+    );
+  };
+
+  const SelectedService = () => {
+    const selectedServices = services.filter((f) => serviceId === f.id);
+
+    return (
+      <div>
+        <h2 className="mb-4 text-xl font-bold text-gray-900">
+          Selected Service
+        </h2>
+
+        {servicesPending ? (
+          <ServiceSkeletonList count={1} />
+        ) : selectedServices.length === 0 ? (
+          <EmptyState text="No service selected." />
+        ) : (
+          <div className="space-y-3">
+            {selectedServices.map((service) => (
+              <button
+                key={service.id}
+                type="button"
+                onClick={() => onServiceSelection(service)}
+                className={`w-full overflow-hidden rounded-2xl border-2 bg-white transition-all ${
+                  serviceId === service.id
+                    ? "scale-[1.02] border-[#083f30] shadow-lg"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+              >
+                <div className="flex gap-4 p-4">
+                  <div className="relative flex-shrink-0">
+                    <ImageOrPlaceholder
+                      src={service.image}
+                      alt={service.name}
+                      className="h-24 w-24 rounded-xl object-cover"
+                    />
+
+                    {service.popular && (
+                      <div className="absolute -right-2 -top-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">
+                        POPULAR
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1 text-left">
+                    <div className="mb-1 flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="mb-1 font-bold text-gray-900">
+                          {service.name}
+                        </h3>
+
+                        <p className="mb-2 text-sm text-gray-600">
+                         {service.description &&
+                            hasLexicalContent(service.description) ? (
+                              <LexicalRenderer
+                                content={service.description}
+                                className="text-muted-foreground leading-relaxed"
+                              />
+                            ) : service.description ? (
+                              <p className="text-muted-foreground leading-relaxed">
+                                {service.description}
+                              </p>
+                            ) : (
+                              <p className="text-muted-foreground leading-relaxed">
+                                {t("noDescription")}
+                              </p>
+                            )}
+                        </p>
+
+                        <div className="flex items-center gap-3 text-xs text-gray-600">
+                          <div className="flex items-center gap-1">
+                            <Clock size={14} />
+                            <span>{service.duration ?? "-"}</span>
+                          </div>
+
+                          <span>•</span>
+
+                          <span className="rounded-md bg-gray-100 px-2 py-0.5 font-semibold">
+                            {service.category ?? "-"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="ml-3 text-right">
+                        <div className="text-lg font-bold text-[#083f30]">
+                          {service.price != null ? `$${service.price}` : "-"}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const ChooseYourSpecialist = () => {
+    return (
+      <div>
+        <h2 className="mb-4 text-xl font-bold text-gray-900">
+          Choose Your Specialist
+        </h2>
+
+        <SearchInput
+          value={specialistSearch}
+          onChange={setSpecialistSearch}
+          placeholder="Search specialists..."
+        />
+
+        {specialistsPending ? (
+          <SpecialistSkeletonList />
+        ) : filteredSpecialists.length === 0 ? (
+          <EmptyState
+            text={
+              specialistSearch.trim()
+                ? "No specialists match your search."
+                : "No specialists found."
+            }
+          />
+        ) : (
+          <>
+            <div className="space-y-3">
+              {visibleSpecialists.map((doctor) => (
+                <button
+                  key={doctor.id}
+                  type="button"
+                  onClick={() => onSpecialistSelection(doctor)}
+                  className={`w-full rounded-2xl border-2 bg-white p-4 transition-all ${
+                    specialistId === doctor.id
+                      ? "border-[#083f30] shadow-md"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <div className="flex gap-4">
+                    <div className="relative flex-shrink-0">
+                      <ImageOrPlaceholder
+                        src={doctor.image}
+                        alt={doctor.name}
+                        className="h-20 w-20 rounded-xl object-cover"
+                      />
+
+                      <div className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#083f30]">
+                        <BadgeCheck size={14} className="text-[#eacb7f]" />
+                      </div>
+                    </div>
+
+                    <div className="flex-1 text-left">
+                      <h3 className="mb-1 font-bold text-gray-900">
+                        {doctor.name}
+                      </h3>
+
+                      <p className="mb-2 text-sm text-gray-600">
+                        {doctor.specialty ?? "-"}
+                      </p>
+
+                      <div className="mb-2 flex items-center gap-3 text-xs text-gray-600">
+                        <span>{doctor.experience ?? "-"}</span>
+                        <span>•</span>
+                        <span>{doctor.patients ?? "-"} patients</span>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1">
+                          <Star
+                            size={14}
+                            className="fill-yellow-400 text-yellow-400"
+                          />
+                          <span className="text-sm font-bold text-gray-900">
+                            {doctor.rating ?? "-"}
+                          </span>
+                        </div>
+
+                        <span className="text-xs font-semibold text-[#083f30]">
+                          Next: {doctor.nextAvailable ?? "-"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <LoadMoreButton
+              shown={visibleSpecialists.length}
+              total={filteredSpecialists.length}
+              onClick={() =>
+                setVisibleSpecialistsCount((prev) => prev + LOAD_MORE_STEP)
+              }
+            />
+          </>
+        )}
+      </div>
     );
   };
 
   const SelectedSpecialist = () => {
+    const selectedSpecialists = specialists.filter((f) => specialistId === f.id);
+
     return (
-      <>
-        {/* Select Doctor */}
-        <div>
-          <h2 className="mb-4 text-xl font-bold text-gray-900">
-            Selected Specialist
-          </h2>
+      <div>
+        <h2 className="mb-4 text-xl font-bold text-gray-900">
+          Selected Specialist
+        </h2>
+
+
+
+        {specialistsPending ? (
+          <SpecialistSkeletonList count={1} />
+        ) : selectedSpecialists.length === 0 ? (
+          <EmptyState text="No specialist selected." />
+        ) : (
           <div className="space-y-3">
-            {specialists?.filter(f => specialistId === f.id).map((doctor) => (
+            {selectedSpecialists.map((doctor) => (
               <button
                 key={doctor.id}
-                onClick={() => onSpecialistSelection(doctor.id)}
-
-                className={`w-full rounded-2xl border-2 bg-white p-4 transition-all ${specialistId === doctor.id
+                type="button"
+                onClick={() => onSpecialistSelection(doctor)}
+                className={`w-full rounded-2xl border-2 bg-white p-4 transition-all ${
+                  specialistId === doctor.id
                     ? "border-[#083f30] shadow-md"
                     : "border-gray-200 hover:border-gray-300"
-                  }`}
+                }`}
               >
                 <div className="flex gap-4">
                   <div className="relative flex-shrink-0">
-                    <img
+                    <ImageOrPlaceholder
                       src={doctor.image}
                       alt={doctor.name}
                       className="h-20 w-20 rounded-xl object-cover"
                     />
-                    <div className="absolute -right-1 -bottom-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#083f30]">
+
+                    <div className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#083f30]">
                       <BadgeCheck size={14} className="text-[#eacb7f]" />
                     </div>
                   </div>
@@ -695,14 +1058,15 @@ export default function ServiceSelection() {
                     <h3 className="mb-1 font-bold text-gray-900">
                       {doctor.name}
                     </h3>
+
                     <p className="mb-2 text-sm text-gray-600">
-                      {doctor.specialty}
+                      {doctor.specialty ?? "-"}
                     </p>
 
                     <div className="mb-2 flex items-center gap-3 text-xs text-gray-600">
-                      <span>{doctor.experience}</span>
+                      <span>{doctor.experience ?? "-"}</span>
                       <span>•</span>
-                      <span>{doctor.patients} patients</span>
+                      <span>{doctor.patients ?? "-"} patients</span>
                     </div>
 
                     <div className="flex items-center justify-between">
@@ -712,12 +1076,12 @@ export default function ServiceSelection() {
                           className="fill-yellow-400 text-yellow-400"
                         />
                         <span className="text-sm font-bold text-gray-900">
-                          {doctor.rating}
+                          {doctor.rating ?? "-"}
                         </span>
                       </div>
 
                       <span className="text-xs font-semibold text-[#083f30]">
-                        Next: {doctor.nextAvailable}
+                        Next: {doctor.nextAvailable ?? "-"}
                       </span>
                     </div>
                   </div>
@@ -725,41 +1089,41 @@ export default function ServiceSelection() {
               </button>
             ))}
           </div>
-        </div>
-      </>
+        )}
+      </div>
     );
   };
 
   const edgeComponentMap = {
-    [NodeType.Provider]: <ChooseYourProvider />,
-    [NodeType.Service]: <ChooseYourService />,
-    [NodeType.Specialist]: <ChooseYourSpecialist />,
+    [NodeType.Provider]: ChooseYourProvider(),
+    [NodeType.Service]: ChooseYourService(),
+    [NodeType.Specialist]: ChooseYourSpecialist(),
   };
-
 
   const edgeComponentSelectedMap = {
-    [NodeType.Provider]: <SelectedProvider />,
-    [NodeType.Service]: <SelectedService />,
-    [NodeType.Specialist]: <SelectedSpecialist />,
+    [NodeType.Provider]: SelectedProvider(),
+    [NodeType.Service]: SelectedService(),
+    [NodeType.Specialist]: SelectedSpecialist(),
   };
 
-  /* ----- Render ----- */
+  
   if (!selectedNode) return <>please select a node</>;
 
   return (
     <div>
+      {/* providerId={providerId},<br/>
+serviceId={serviceId},<br/>
+specialistId={specialistId}<br/>
+ */}
+      {nodes.map((n) => (
+        <div key={n.name} className="mb-6">
+          {n.isSelected
+            ? edgeComponentSelectedMap[n.name]
+            : edgeComponentMap[n.name]}
+        </div>
+      ))}
 
-      {/* The selected node’s own component */}
-      {/* {edgeComponentMap[selectedNode.name]} */}
-
-      {/* All other nodes that are *not* selected */}
-      {nodes
-        .map(n => (
-          <div key={n.name}>
-            {n.isSelected && <>{edgeComponentSelectedMap[n.name]}</>}
-            {!n.isSelected && <>{edgeComponentMap[n.name]}</>}
-          </div>
-        ))}
+      <ContinueSummary />
     </div>
   );
 }

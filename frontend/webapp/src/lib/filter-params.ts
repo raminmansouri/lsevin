@@ -53,7 +53,8 @@ export function addSearchParam(
 }
 export function addAllParams(
   searchParams: URLSearchParams,
-  params: any
+  params: any,
+  dontAddNulls=false
 ) {
   const excludeNames = [
     "filters",
@@ -64,21 +65,24 @@ export function addAllParams(
     "sortOrder",
   ]
   console.log('searchParams changed', params)
-  console.log('searchParams before', searchParams.toString(),params)
+  console.log('searchParams before', searchParams.toString(), params)
   if (Object.keys(params).length > 0) {
-    for ( let key in params){
+    for (let key in params) {
       if (
         searchParams.has(key) == false &&
         excludeNames.indexOf(key) < 0) {
 
         if (Array.isArray(params[key])) { // Check if the value is an array
-         console.log('searchParams arr', key, params[key], 'ex:' + excludeNames[key])
-  params[key].forEach((value, index) => {
-            searchParams.set(`${key}[]`,value)
+          console.log('searchParams arr', key, params[key], 'ex:' + excludeNames[key])
+          params[key].forEach((value, index) => {
+
+            if (!dontAddNulls)
+              searchParams.set(`${key}[]`, value ?? '')
           });
         } else {
-            console.log('searchParams add', key, params[key], 'ex:' + excludeNames[key])
-          searchParams.set(key, params[key])
+          console.log('searchParams add', key, params[key], 'ex:' + excludeNames[key])
+          if (!dontAddNulls)
+            searchParams.set(key, params[key] ?? '')
 
         }
 

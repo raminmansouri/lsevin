@@ -1,5 +1,3 @@
-using System.Text;
-using System.Text.Json;
 using Ardalis.GuardClauses;
 using BuildingBlocks.Core.Dtos.Localization;
 using BuildingBlocks.Core.ErrorHandling;
@@ -9,6 +7,10 @@ using BuildingBlocks.Core.ResultPattern;
 using BuildingBlocks.Web.Services;
 using Dapper;
 using LSevin.Modules.Category.Resources;
+using LSevin.Modules.Category.ServiceProvider.Data.Repository;
+using LSevin.Modules.Category.ServiceProvider.Features.GetBookingAvailableDates;
+using System.Text;
+using System.Text.Json;
 
 namespace LSevin.Modules.Category.ServiceProvider.Features.GetBookingAvailableTimes;
 
@@ -33,6 +35,18 @@ internal sealed class GetBookingAvailableTimesQueryHandler(
         var currentLocale = localeAccessor.CurrentLocale;
         var defaultLocale = localeAccessor.DefaultLocale;
 
+        //var response= GetBookingAvailableTimesProvider.GetBookingAvailableTimes();
+        //return response;
+
+      /*  var response = await new AvailableDateTimesRepository(connection)
+            .GetAvailableTimesAsync
+          (new GetBookingAvailableTimesRequest(
+             request.providerId,
+             request.serviceId,
+             request.specialistId,
+             request.selectedDate
+          ))
+          ;*/
         var response= GetBookingAvailableTimesProvider.GetBookingAvailableTimes();
         return response;
     }

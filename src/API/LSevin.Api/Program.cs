@@ -19,6 +19,9 @@ using BuildingBlocks.Web.OpenApi;
 using BuildingBlocks.Web.ProblemDetail.Extensions;
 using BuildingBlocks.Web.RateLimit;
 using LSevin.Api.Hubs;
+using LSevinModels.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
 using CategoryModule = LSevin.Modules.Category.CategoryReference;
@@ -74,7 +77,16 @@ try
 
     builder.Services.AddHttpContextAccessor();
 
+    builder.Services.AddDbContextPool<LsevinContext>((sp, options) =>
+    {
+        options.UseNpgsql(databaseConnectionString);
+    });
+
+
+
     builder.AddCustomObservability();
+
+
 
     builder.Services.AddBaseHealthCheck(databaseConnectionString, redisConnectionString, eventStoreConnectionString);
 

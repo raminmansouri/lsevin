@@ -26,6 +26,9 @@ internal static class Routes
         internal const string ChangeActivation = $"{AdminUrl}/{{categoryId:guid}}/activation";
 
         internal const string GetCategoryTree = $"{AdminUrl}/tree";
+
+        internal const string UpdateImage = $"{AdminUrl}/UpdateImage/{{categoryId:guid}}";
+        internal const string UploadAnyFile = $"{AdminUrl}/UploadAnyFile";
     }
 
     internal static class Location
@@ -100,6 +103,8 @@ internal static class Routes
         internal const string GetBookingSteps = $"{AdminUrl}/GetBookingSteps";
         internal const string GetBookingAvailableTimes = $"{AdminUrl}/GetBookingAvailableTimes";
         internal const string GetBookingAvailableDates = $"{AdminUrl}/GetBookingAvailableDates";
+        internal const string GetUploadFiles = $"{AdminUrl}/GetUploadFiles";
+        internal const string BookingCheckout = $"{AdminUrl}/BookingCheckout";
 
     }
     internal static class ServiceProvider
@@ -187,6 +192,10 @@ internal static class Routes
         internal const string AddComment = $"{MainUrl}/{{serviceProviderId:guid}}/comments";
         internal const string GetComments = $"{MainUrl}/{{serviceProviderId:guid}}/comments";
         internal const string RemoveComment = $"{MainUrl}/{{serviceProviderId:guid}}/comments/{{commentId:guid}}";
+
+        public const string GetSpecialistPage = $"{MainUrl}/GetSpecialistPage/{{id:guid}}";
+        public const string GetServicePageById = $"{MainUrl}/GetServicePageById/{{id:guid}}";
+        public const string GetProviderPageData = $"{MainUrl}/GetProviderPageData/{{id:guid}}";
     }
 
     internal static class Staff

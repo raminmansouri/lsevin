@@ -9,6 +9,7 @@ using BuildingBlocks.Core.ResultPattern;
 using BuildingBlocks.Web.Services;
 using Dapper;
 using LSevin.Modules.Category.Resources;
+using LSevin.Modules.Category.ServiceProvider.Data.Repository;
 
 namespace LSevin.Modules.Category.ServiceProvider.Features.GetBookingAvailableDates;
 
@@ -34,6 +35,13 @@ internal sealed class GetBookingAvailableDatesQueryHandler(
         var currentLocale = localeAccessor.CurrentLocale;
         var defaultLocale = localeAccessor.DefaultLocale;
 
+
+  /*      var response=await new AvailableDateTimesRepository(connection).GetAvailableDatesAsync
+            (new GetBookingAvailableDatesRequest
+            (request.providerId,
+    request.serviceId,
+    request.specialistId
+                ));*/
         var response= GetBookingAvailableDatesProvider.GetBookingAvailableDates();
         return response;
     }

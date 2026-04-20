@@ -115,7 +115,9 @@ internal sealed class GetCategoriesQueryHandler(
                 c.is_active AS {nameof(GetCategoriesResponse.IsActive)},
                 c.icon_url AS {nameof(GetCategoriesResponse.IconUrl)},
                 c.create_date AS {nameof(GetCategoriesResponse.CreateDate)},
-                c.last_modified_date AS {nameof(GetCategoriesResponse.LastModifiedDate)}
+                c.last_modified_date AS {nameof(GetCategoriesResponse.LastModifiedDate)},
+                c.image_url AS {nameof(GetCategoriesResponse.ImageUrl)}
+            
             """;
     }
 

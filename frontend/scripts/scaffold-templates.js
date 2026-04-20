@@ -5,7 +5,7 @@
  *      node create-ts-and-cs-templates.js -s <skeleton-name> -n <name> -t <type> -f <json-file>
  *
  *  Example:
- *      node create-ts-and-cs-templates.js -s blogSkeleton -n post -t blog -f mock-posts.json
+ *      node scaffold-templates.js  -s blogSkeleton -n post -t blog -f mock-posts.json
  *
  *  The script creates:
  *    1. TypeScript files under  `features/service-<name>/`

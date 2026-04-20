@@ -15,6 +15,11 @@ export async function GET(request: NextRequest) {
   const page = searchParams.get("PageNumber");
   const pageSize = searchParams.get("PageSize");
   const locale = searchParams.get("Locale");
+  const providerId = searchParams.get("providerId");
+  const serviceId = searchParams.get("serviceId");
+  const specialistId = searchParams.get("specialistId");
+
+  
   const localeHeader = localeToHeader(locale as LocaleTypes);
   const session = await getSession();
   const token = session?.user?.accessToken;
@@ -23,6 +28,9 @@ export async function GET(request: NextRequest) {
     { locale: localeHeader, token },
     {
       filters: search || "",
+      providerId,
+serviceId,
+specialistId,
       startDate: "",
       endDate: "",
       pageNumber: page ? parseInt(page) : DEFAULT_PAGE_NUMBER,

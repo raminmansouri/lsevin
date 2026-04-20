@@ -8,6 +8,7 @@ using BuildingBlocks.Web.Services;
 using Dapper;
 using LSevin.Modules.Category.ServiceProvider.Features.GetServiceProviderByIdPublic;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Data;
 
 namespace LSevin.Modules.Category.ServiceProvider.Features.GetServiceProviderByIdPublic;
 
@@ -173,5 +174,94 @@ internal sealed class OffersQueryHandler(
               Count = 5 }
         };
     }
+
+
+    public static string DapperSQL = @"
+SELECT 
+    o.id                         AS ""Id"",
+    o.title                      AS ""Title"",
+    o.subtitle                   AS ""Subtitle"",
+
+    sp.name_translations->>'en'  AS ""Provider"",
+
+    c.name_translations->>'en'   AS ""Category"",
+
+    ps.image_url                 AS ""Image"",
+
+    o.discount_percent           AS ""Discount"",
+
+    o.valid_until::date::text    AS ""ValidUntil"",
+
+    o.code                       AS ""Code"",
+
+    sp.is_verified               AS ""Verified"",
+
+    sp.city || ', ' || sp.country AS ""Location"",
+
+    sp.rating::decimal           AS ""Rating"",
+
+    ps.value::decimal            AS ""OriginalPrice"",
+
+    ROUND(
+        ps.value * (1 - o.discount_percent / 100.0), 
+        2
+    )                            AS ""DiscountedPrice""
+
+FROM marketing.offers o
+
+JOIN category.provider_services ps 
+    ON ps.id = o.provider_service_id
+
+JOIN category.service_providers sp 
+    ON sp.id = ps.service_provider_id
+
+LEFT JOIN category.service_definitions sd 
+    ON sd.id = ps.service_definition_id
+
+LEFT JOIN category.categories c 
+    ON c.id = sd.category_id
+
+WHERE 
+    o.is_active = TRUE
+    AND o.valid_until > now()
+
+ORDER BY o.valid_until ASC;";
+
+
+    public static string CategorySQL = @"
+SELECT 
+    c.id::text AS ""Id"",
+    c.name_translations->>'en' AS ""Label"",
+    COUNT(o.id) AS ""Count""
+FROM marketing.offers o
+JOIN category.provider_services ps 
+    ON ps.id = o.provider_service_id
+JOIN category.service_definitions sd 
+    ON sd.id = ps.service_definition_id
+JOIN category.categories c 
+    ON c.id = sd.category_id
+WHERE o.is_active = TRUE
+GROUP BY c.id;";
+
+
+    public async Task<OffersResponse> GetOffers(IDbConnection db)
+    {
+        var offersSql = DapperSQL;
+        var categoriesSql = CategorySQL;
+
+        var offers = (await db.QueryAsync<OfferDto>(offersSql)).ToList();
+
+        var categories = (await db.QueryAsync<OffersQueryHandler.OfferCategory>(
+            categoriesSql
+        )).ToArray();
+
+        return new OffersResponse
+        {
+            Offers = offers,
+            Categories = categories
+        };
+    }
+
+
 }
 

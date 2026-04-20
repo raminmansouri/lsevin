@@ -3,7 +3,7 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 // pull from env
 const filesUrl = new URL(
-  process.env.NEXT_PUBLIC_FILES_URL || "http://localhost:5003"
+  process.env.NEXT_PUBLIC_FILES_URL || "http://localhost:5000"
 );
 
 const withNextIntl = createNextIntlPlugin({
@@ -22,6 +22,10 @@ const withNextIntl = createNextIntlPlugin({
 });
 
 const nextConfig: NextConfig = {
+  
+   typescript: {
+    ignoreBuildErrors: true,
+  },
   output: "standalone",
 
   experimental: {

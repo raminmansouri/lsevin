@@ -22,7 +22,8 @@ export interface GetAddonsResponse {
 export const getAddonsClient = async (
     providerId,
     serviceId,
-    specialistId, locale
+    specialistId, 
+    locale
 ): Promise<GetAddonsResponse> => {
 
     const searchParams = new URLSearchParams();
@@ -35,7 +36,7 @@ export const getAddonsClient = async (
     } if (locale) {
         searchParams.set("locale", locale);
     }
-    return await readData<GetAddonsResponse>(`/booking/getAddons?${searchParams.toString()}`);
+    return await readData<GetAddonsResponse>(`/booking/get-addons?${searchParams.toString()}`);
 };
 
 /* ------------------------------------------- */
@@ -51,7 +52,7 @@ export const useGetAddons = (providerId,
             getAddonsClient(providerId,
                 serviceId,
                 specialistId, locale),
-                enabled:providerId && serviceId && specialistId,
+                enabled:()=>providerId && serviceId && specialistId,
         staleTime: 1000 * 60 * 5,
         gcTime: 1000 * 60 * 60,
     });

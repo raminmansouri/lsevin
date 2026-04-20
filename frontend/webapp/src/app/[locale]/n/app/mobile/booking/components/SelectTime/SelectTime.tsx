@@ -51,7 +51,7 @@ export const SelectTime = () => {
         <div>
           <h2 className="text-xl font-bold text-gray-900 mb-4">Select Time</h2>
           <div className="grid grid-cols-2 gap-3">
-            {availableTimesResponse?.slots?.map(slot => (
+            {availableTimesResponse?.timeSlots?.map(slot => (
               <button
                 key={slot.time}
                 onClick={() => {

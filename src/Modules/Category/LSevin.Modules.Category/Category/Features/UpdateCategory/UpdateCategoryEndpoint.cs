@@ -34,12 +34,13 @@ internal sealed class UpdateCategoryEndpoint : EndpointResponseHandler, IEndpoin
     private static Task<Results<Ok<Guid>, ProblemHttpResult>> Handle(
         [AsParameters] BaseEndpointServices<CategoryModule> services,
         [FromRoute] Guid categoryId,
-        [FromBody] UpdateCategoryRequest request
+         [FromBody] UpdateCategoryRequest request
     ) =>
         Result
             .Create(
                 new UpdateCategoryCommand(
                     categoryId,
+                    request.File,
                     request.Name,
                     request.Description,
                     request.IsActive,

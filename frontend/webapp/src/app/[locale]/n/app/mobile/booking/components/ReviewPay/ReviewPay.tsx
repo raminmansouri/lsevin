@@ -30,11 +30,11 @@ export const ReviewPay=()=>{
         providerId,
         serviceId,
         specialistId,
+        paymentMethod,
     } = useBooking();
   
-      const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
     
-    
+      
     return (<>
       {/* Booking Summary */}
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
@@ -55,25 +55,25 @@ export const ReviewPay=()=>{
 
             <div className="flex gap-4 p-3 bg-gray-50 rounded-xl">
               <img
-                src={service.image}
-                alt={service.name}
+                src={service?.image}
+                alt={service?.name}
                 className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
               />
               <div className="flex-1">
-                <h4 className="font-bold text-gray-900 mb-1 text-sm">{service.name}</h4>
-                <p className="text-xs text-gray-600 mb-2">{service.provider}</p>
+                <h4 className="font-bold text-gray-900 mb-1 text-sm">{service?.name}</h4>
+                <p className="text-xs text-gray-600 mb-2">{service?.provider}</p>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-0.5 bg-[#083f30] text-white rounded-md text-xs font-semibold">
-                    {service.accreditation}
+                    {service?.accreditation}
                   </span>
                   <div className="flex items-center gap-1">
                     <Star size={12} className="fill-yellow-400 text-yellow-400" />
-                    <span className="text-xs font-semibold text-gray-900">{service.rating}</span>
+                    <span className="text-xs font-semibold text-gray-900">{service?.rating}</span>
                   </div>
                 </div>
               </div>
               <div className="text-right">
-                <div className="font-bold text-gray-900">${service.price}</div>
+                <div className="font-bold text-gray-900">${service?.price}</div>
               </div>
             </div>
 
@@ -172,18 +172,18 @@ export const ReviewPay=()=>{
               <h3 className="font-bold text-gray-900">Medical Documents</h3>
             </div>
 
-            {uploadedFiles.length > 0 ? (
+            {uploadedFiles?.length > 0 ? (
               <div className="p-3 bg-green-50 rounded-xl border border-green-100">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 size={18} className="text-green-600" />
                     <span className="font-semibold text-green-900 text-sm">
-                      {uploadedFiles.length} document{uploadedFiles.length > 1 ? 's' : ''} uploaded
+                      {uploadedFiles?.length} document{uploadedFiles?.length > 1 ? 's' : ''} uploaded
                     </span>
                   </div>
                 </div>
                 <div className="space-y-1">
-                  {uploadedFiles.map((file, idx) => (
+                  {uploadedFiles?.map((file, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-xs text-green-800">
                       <div className="w-1 h-1 bg-green-600 rounded-full" />
                       <span className="capitalize">{file.description} records</span>
@@ -211,7 +211,7 @@ export const ReviewPay=()=>{
             <div className="space-y-2 mb-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-600">Treatment fee</span>
-                <span className="font-semibold text-gray-900">${service.price}</span>
+                <span className="font-semibold text-gray-900">${service?.price}</span>
               </div>
               {selectedAddons.length > 0 && (
                 <div className="flex items-center justify-between text-sm">

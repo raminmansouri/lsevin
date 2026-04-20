@@ -7,6 +7,7 @@ using BuildingBlocks.Core.ResultPattern;
 using BuildingBlocks.Web.Services;
 using Dapper;
 using LSevin.Modules.Category.Resources;
+using LSevin.Modules.Category.ServiceProvider.Data.Repository;
 using LSevin.Modules.Category.ServiceProvider.Features.GetBookingGetProvidersByServiceAndSpecialist;
 using LSevin.Modules.Category.ServiceProvider.Features.GetBookingSpecialistByProviderAndService;
 using System.Text;
@@ -34,11 +35,24 @@ internal sealed class GetBookingGetServicesByProviderAndSpecialistQueryHandler(
         var currentLocale = localeAccessor.CurrentLocale;
         var defaultLocale = localeAccessor.DefaultLocale;
 
-        var response = GetBookingServiceSelectionSampleData.GetBookingSpecialistByProviderAndService().Services;
+
+
+        var repository = new BookingServiceSelectionRepository(connection);
+       
+        var services = await repository.GetServicesAsync(request.providerId,
+  request.serviceId,
+  request.specialistId, currentLocale, cancellationToken);
+
         return new GetBookingGetServicesByProviderAndSpecialistResponse
         {
-            Services = response
+            Services = services
         };
+
+        //var response = GetBookingServiceSelectionSampleData.GetBookingSpecialistByProviderAndService().Services;
+        //return new GetBookingGetServicesByProviderAndSpecialistResponse
+        //{
+        //    Services = response
+        //};
     }
 }
 

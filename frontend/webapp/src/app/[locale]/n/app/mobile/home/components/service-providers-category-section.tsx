@@ -16,6 +16,7 @@ import {
 } from "@/features/service-providers/types";
 import { Link } from "@/i18n/navigation";
 import { TranslationType } from "@/types/next";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 
  const categories = [
     { 
@@ -123,7 +124,7 @@ const ServiceProviderGroup = ({
               // onClick={() => navigate(group.path)}
               className="relative rounded-2xl overflow-hidden aspect-[4/3] group shadow-sm hover:shadow-xl transition-all active:scale-95"
             >
-              <img 
+              <ImageWithFallback fill 
               src={`${env.NEXT_PUBLIC_FILES_URL}/${provider?.thumbnailUrl}`}
                               // alt={provider?.name}
                 alt={group.providerTypeName}

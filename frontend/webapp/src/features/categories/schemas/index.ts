@@ -4,10 +4,12 @@ import { LocalizedContentSchema } from "@/features/shared/schemas/localization";
 
 // Category schema for create/update operations (matches API_CHANGES.md)
 export const CategorySchema = z.object({
-  categoryId: z.guid().optional(),
-  name: LocalizedContentSchema,
-  description: LocalizedContentSchema,
-  parentId: z.guid().optional(),
+ categoryId: z.string().optional(),
+  name: z.any(),
+  description: z.any().optional(),
+  parentId: z.string().optional(),
+  image: z.instanceof(File).optional(),
+  // removeImage: z.boolean().optional(),
 });
 
 export const CategoryFormSchema = CategorySchema;

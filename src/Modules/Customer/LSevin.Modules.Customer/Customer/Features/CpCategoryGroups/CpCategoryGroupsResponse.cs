@@ -16,11 +16,13 @@ public sealed record CpGroup
     public List<CpCategory> Categories { get; internal set; }
 }
 
-public sealed record CpCategory
 
+
+public sealed record CpCategory
 {
     public string Name { get; internal set; }
     public string Image { get; internal set; }
     public int Count { get; internal set; }
     public string Gradient { get; internal set; }
+    public int CategoryId { get; internal set; }
 }

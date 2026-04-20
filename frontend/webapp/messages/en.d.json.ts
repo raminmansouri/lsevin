@@ -2,7 +2,50 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
- 
+  "UploadFiles": {
+    "title": "Upload documents",
+    "subtitle": "Please upload the requested files for your booking",
+    "description": "Supported formats: PNG, JPG, JPEG, PDF",
+    "requiredBadge": "Required",
+    "optionalBadge": "Optional",
+    "missingRequiredTitle": "Some required files are still missing:",
+    "chooseFile": "Choose file",
+    "pendingBadge": "Pending",
+    "reuploadBtn": "Upload Again",
+    "uploadedBadge": "Added",
+    "removeBtn": "Remove",
+    "continueBtn": "Continue",
+    "changeFile": "Change file",
+    "uploadRequiredHint": "Required files must be uploaded before continuing.",
+    "acceptedFilesDesc": "PNG, JPG, JPEG, PDF — maximum file size: 10 MB.",
+    "acceptedFilesTitle": "Accepted files",
+    "missingRequiredFile": "This file is required.",
+    "replaceFile": "Replace file",
+        "uploadBtn": "Choose file",
+    "uploadCardTitle": "Upload Documents",
+    "uploadCardDesc": "Attach the required documents for this booking.",
+    "filesUploaded": "uploaded",
+    "requiredFilesPending": "Some required files still need to be uploaded before you continue.",
+    "removeFile": "Remove file",
+    "uploadFile": "Upload file",
+    "uploaded": "Uploaded",
+    "notUploaded": "Not uploaded",
+    "fileSelected": "File selected",
+    "noFileSelected": "No file selected",
+    "continue": "Continue",
+    "back": "Back",
+    "skip": "Skip",
+    "uploadHint": "PNG, JPG or PDF",
+    "uploadHelp": "Please upload a clear and readable file",
+    "requiredFilesMessage": "Please upload all required documents before continuing",
+    "successMessage": "Files uploaded successfully",
+    "errorMessage": "Failed to upload file",
+    "invalidFileType": "Invalid file type",
+    "fileTooLarge": "File size is too large",
+    "selectDocument": "Select a document",
+    "document": "Document",
+    "documents": "Documents"
+  },
   "Manifest": {
     "name": "L Sevin"
   },
@@ -28,7 +71,7 @@ declare const messages: {
     "staff": "Staff",
     "serviceProviders": "Service Providers"
   },
-  "HomePage": {
+  "HomePage": { 
     "title": "L Sevin - Automated Healthcare",
     "description": "Streamlining patient scheduling from hotel stays to medical appointments",
     "keywords": "automation healthcare,healthcare automation,medical tourism,medical booking",
@@ -592,9 +635,6 @@ declare const messages: {
     }
   },
   "Consulting": {
-     "serviceProviders":{
-"viewAll":"view all"
-  },
     "page": {
       "title": "Request Consultation",
       "description": "Request a consultation for your medical or beauty needs.",
@@ -675,6 +715,11 @@ declare const messages: {
       "description": {
         "label": "Description",
         "translations": "Category description is required in at least one language"
+      },
+      "image": {
+        "label": "Category image",
+        "hint": "Upload an image for this category",
+        "remove": "Remove image"
       },
       "descriptionPlaceholder": "Enter category description",
       "parentId": "Parent Category",

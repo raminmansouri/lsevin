@@ -40,14 +40,21 @@ export const AddOns = () => {
         specialistId,
         locale);
 
+
+
     const { setValue, resetField } = useFormContext();
     const toggleAddon = (addonId: string) => {
-        if (selectedAddons.find(f => f.id == addonId)) {
-            const temp = selectedAddons.filter(id => id !== addonId);
-            setValue('selectedAddons', temp)
+        let _selectedAddons=[];
+        if(selectedAddons){
+            _selectedAddons=selectedAddons;
+        }
+
+        if (_selectedAddons?.find(f => f == addonId)) {
+            const temp = _selectedAddons?.filter(id => id !== addonId);
+            setValue('addOns', temp)
         } else {
-            const temp = [...selectedAddons, addonId];
-            setValue('selectedAddons', temp)
+            const temp = [..._selectedAddons, addonId];
+            setValue('addOns', temp)
         }
     };
 
@@ -60,10 +67,10 @@ export const AddOns = () => {
         </div>
 
         <div className="space-y-3">
-            {addOnsResponse?.addons.map(addon => (
+            {addOnsResponse?.addons?.map(addon => (
                 <div
                     key={addon.id}
-                    className={`bg-white rounded-2xl border-2 transition-all overflow-hidden ${selectedAddons.find(f => f.id == addon.id)
+                    className={`bg-white rounded-2xl border-2 transition-all overflow-hidden ${selectedAddons?.find(f => f.id == addon.id)
                         ? 'border-[#083f30] shadow-md'
                         : 'border-gray-200'
                         }`}
@@ -109,12 +116,12 @@ export const AddOns = () => {
 
                                 <button
                                     onClick={() => toggleAddon(addon.id)}
-                                    className={`w-full h-10 rounded-xl font-semibold transition-all ${selectedAddons.find(f => f.id == addon.id)
+                                    className={`w-full h-10 rounded-xl font-semibold transition-all ${selectedAddons?.find(f => f.id == addon.id)
                                         ? 'bg-[#083f30] text-white'
                                         : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                                         }`}
                                 >
-                                    {selectedAddons.find(f => f.id == addon.id) ? (
+                                    {selectedAddons?.find(f => f == addon.id) ? (
                                         <span className="flex items-center justify-center gap-2">
                                             <CheckCircle2 size={18} />
                                             Added
@@ -152,13 +159,13 @@ export const AddOns = () => {
                 </div>
                 <div className="flex-1">
                     <h3 className="font-bold text-blue-900 mb-1">
-                        {selectedAddons.length > 0
-                            ? `${selectedAddons.length} Add-on${selectedAddons.length > 1 ? 's' : ''} Selected`
+                        {selectedAddons?.length > 0
+                            ? `${selectedAddons?.length} Add-on${selectedAddons?.length > 1 ? 's' : ''} Selected`
                             : 'Ready to Continue'
                         }
                     </h3>
                     <p className="text-sm text-blue-800">
-                        {selectedAddons.length > 0
+                        {selectedAddons?.length > 0
                             ? 'Enhance your treatment with premium services'
                             : 'You can add services later or continue to the next step'
                         }
@@ -171,7 +178,7 @@ export const AddOns = () => {
                 onClick={handleNext}
                 className="w-full h-14 bg-gradient-to-r from-[#083f30] to-[#0a5a44] text-white rounded-xl font-bold hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg"
             >
-                {selectedAddons.length > 0 ? 'Continue to Medical Files' : 'Skip to Medical Files'}
+                {selectedAddons?.length > 0 ? 'Continue to Medical Files' : 'Skip to Medical Files'}
                 <ChevronRight size={20} />
             </button>
         </div>

@@ -50,10 +50,10 @@ public class Contact
 
 public class Agent
 {
-    public string name;
-    public string title;
-    public string experience;
-    public string? image;
+    public string name { get; set; }
+    public string title { get; set; }
+    public string experience { get; set; }
+    public string? image { get; set; }
 }
 
 // Example usage:

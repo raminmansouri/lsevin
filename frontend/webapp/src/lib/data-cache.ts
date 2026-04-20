@@ -2,6 +2,7 @@ type CACHE_TAG =
   | "users"
   | "user-documents"
   | "consulting"
+  | "home-page"
   | "service-providers"
   | "service-provider-requests"
   | "service-provider-comments"

@@ -29,6 +29,8 @@ import {
   ExploreTrendingService,
 } from "@/features/service-providers/types";
 import { useNavigate } from "@/hooks/use-navigate";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { env } from "@/config/env/client";
 
 export default function Explore() {
   const navigate = useNavigate();
@@ -151,7 +153,7 @@ export default function Explore() {
               </h2>
             </div>
             <button
-              onClick={() => navigate("/n/app/mobile/clinics")}
+              onClick={() => navigate("/n/app/mobile/explore")}
               className="flex items-center gap-1 text-sm font-semibold text-[#083f30] hover:underline"
             >
               View All
@@ -167,14 +169,14 @@ export default function Explore() {
           {featuredProviders.map((provider) => (
             <div
               key={provider.id}
-              onClick={() => navigate(`/n/app/mobile/clinic/${provider.id}`)}
+              onClick={() => navigate(`/n/app/mobile/provider/${provider.id}`)}
               className="cursor-pointer overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-lg"
             >
               <div className="flex gap-4 p-4">
                 {/* Image */}
                 <div className="relative flex-shrink-0">
-                  <img
-                    src={provider.image}
+                  <ImageWithFallback fill
+                               src={`${env.NEXT_PUBLIC_FILES_URL}/${provider?.image}`}
                     alt={provider.name}
                     className="h-24 w-24 rounded-xl object-cover"
                   />
@@ -229,7 +231,7 @@ export default function Explore() {
 
                   {/* Specialties */}
                   <div className="mb-2 flex flex-wrap gap-1.5">
-                    {provider.specialties.slice(0, 2).map((specialty) => (
+                    {provider.specialties?.slice(0, 2).map((specialty) => (
                       <span
                         key={specialty}
                         className="rounded-md bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700"
@@ -237,9 +239,9 @@ export default function Explore() {
                         {specialty}
                       </span>
                     ))}
-                    {provider.specialties.length > 2 && (
+                    {provider.specialties?.length > 2 && (
                       <span className="rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-                        +{provider.specialties.length - 2}
+                        +{provider.specialties?.length - 2}
                       </span>
                     )}
                   </div>
@@ -266,8 +268,8 @@ export default function Explore() {
       {/* Sponsored Banner */}
       <div className="px-5 py-4">
         <div className="relative overflow-hidden rounded-2xl shadow-lg">
-          <img
-            src={sponsoredProviders?.[0]?.image}
+          <ImageWithFallback fill
+                               src={`${env.NEXT_PUBLIC_FILES_URL}/${sponsoredProviders?.[0]?.image}`}
             alt="Sponsored"
             className="absolute inset-0 h-full w-full object-cover"
           />
@@ -311,12 +313,12 @@ export default function Explore() {
           {trendingServices.map((service) => (
             <div
               key={service.id}
-              onClick={() => navigate(`/n/app/mobile/treatment/${service.id}`)}
+              onClick={() => navigate(`/n/app/mobile/service/${service.id}`)}
               className="w-64 flex-none cursor-pointer overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-md transition-all hover:shadow-xl"
             >
               <div className="relative aspect-[16/10]">
-                <img
-                  src={service.image}
+                <ImageWithFallback fill
+                               src={`${env.NEXT_PUBLIC_FILES_URL}/${service?.image}`}
                   alt={service.name}
                   className="h-full w-full object-cover"
                 />
@@ -425,8 +427,8 @@ export default function Explore() {
               onClick={() => navigate("/n/app/mobile/categories")}
               className="group relative aspect-[4/3] overflow-hidden rounded-2xl shadow-sm transition-all hover:shadow-xl"
             >
-              <img
-                src={cat.image}
+              <img 
+                               src={cat?.image}
                 alt={cat.label}
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
               />

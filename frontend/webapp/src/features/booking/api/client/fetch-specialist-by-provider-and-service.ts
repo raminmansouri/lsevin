@@ -19,16 +19,22 @@ import { PaginatedResult } from "@/types/network";
 import { GetBookingSpecialistByProviderAndServiceResponse } from "@/features/service-providers/types";
 
 export const getSpecialistByProviderAndServiceClient = async (
-  search: string,
-  page: number,
+     providerId,
+    serviceId,
+    specialistId,
   locale: Locale
 ) => {
   const searchParams = new URLSearchParams();
-  if (search) {
-    searchParams.set("Search", search);
+  if (providerId) {
+    searchParams.set("providerId", providerId);
   }
-  searchParams.set("PageNumber", (page || DEFAULT_PAGE_NUMBER).toString());
-  searchParams.set("PageSize", DEFAULT_PAGE_SIZE.toString());
+  if (serviceId) {
+    searchParams.set("serviceId", serviceId);
+  }
+  if (specialistId) {
+    searchParams.set("specialistId", specialistId);
+  }
+
   searchParams.set("Locale", locale);
 
   return await readData<GetBookingSpecialistByProviderAndServiceResponse>(
@@ -41,14 +47,20 @@ const queryServicesBySearchKey = (search: string, locale: Locale) =>
   [tag, search, locale] as const;
 
 export const useGetSpecialistByProviderAndService = (
-   serviceId,
-        specialistId,
+    providerId,
+    serviceId,
+    specialistId,
   search: string, locale: Locale) => {
   const options = queryOptions<GetBookingSpecialistByProviderAndServiceResponse, IProblem>({
     queryKey: queryServicesBySearchKey(search, locale),
     queryFn: ({ pageParam }) =>
-      getSpecialistByProviderAndServiceClient(search, pageParam as number, locale),
-    enabled: serviceId || specialistId,
+      getSpecialistByProviderAndServiceClient(
+            providerId,
+    serviceId,
+    specialistId, locale),
+    enabled: ()=>    providerId ||
+    serviceId ||
+    specialistId,
     staleTime: 1000 * 60 * 5, // 5 minutes
     gcTime: 1000 * 60 * 60, // 1 hour
   });

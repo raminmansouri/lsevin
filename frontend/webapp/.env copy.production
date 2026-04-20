@@ -1,0 +1,9 @@
+NEXT_PUBLIC_URL=https://appmain.lsevin.com
+NEXT_PUBLIC_API_URL=http://lsevin-api/api/v1
+INTERNAL_API_URL=http://lsevin-api/api/v1
+NEXT_PUBLIC_FILES_URL=https://lsevin-api/files
+NEXT_PUBLIC_SOCKET_URL=https://lsevin-api/hubs
+NEXT_PUBLIC_MAPBOX_TOKEN=pk.eyJ1IjoiZGFuaTcyNzciLCJhIjoiY21sbnAxODRrMHQ2cTNlczloOWdpcG1zbiJ9.3A2rxsUNxKs8b2IBswHQlg
+BOOKING_ORIGIN=http://lsevin-booking-webapp:4002
+AUTH_SECRET=c29tZV1zdWVyLXNlY3JldC12YWx1ZS1oZXJlLTEyMzQ=
+WEBHOOK_KEY=DFGHJK345gereg6werg6wr5h156aERT

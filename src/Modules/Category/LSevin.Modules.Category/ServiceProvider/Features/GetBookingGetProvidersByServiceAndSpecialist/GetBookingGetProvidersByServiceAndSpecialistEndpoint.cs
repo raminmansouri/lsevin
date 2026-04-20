@@ -39,7 +39,9 @@ internal sealed class GetBookingGetProvidersByServiceAndSpecialistEndpoint : End
         [AsParameters] GetBookingGetProvidersByServiceAndSpecialistRequest request
     ) =>
         Result
-            .Create(GetBookingGetProvidersByServiceAndSpecialistQuery.Of())
+            .Create(GetBookingGetProvidersByServiceAndSpecialistQuery.Of(request.providerId,
+    request.serviceId,
+    request.specialistId))
             .Bind(query => services.Gateway.SendQueryAsync(query, services.CancellationToken))
             .Match<
                 GetBookingGetProvidersByServiceAndSpecialistResponse,

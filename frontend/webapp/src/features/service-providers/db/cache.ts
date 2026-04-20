@@ -15,6 +15,15 @@ export function getServiceProviderIdTag(id: string) {
   return getIdTag("service-providers", id);
 }
 
+export function getProviderPageDataTag(id: string) {
+  return getIdTag("service-providers",'page-'+ id);
+}
+
+
+export function getServicePageDataTag(id: string) {
+  return getIdTag("service-providers",'service-'+ id);
+}
+
 
 export function getFeaturedServicesTag() {
   return getIdTag("service-providers",'featured-services');
@@ -53,6 +62,10 @@ export function getSearchHistoryTag() {
 
 export function getUserServiceProviderTag(userId: string) {
   return getUserTag("service-providers", userId);
+}
+
+export function getSpecialistPageByIdTag(id: string) {
+  return getUserTag("service-providers", 'spec-'+id);
 }
 
 export function revalidateServiceProviderCache(id: string, userId: string) {

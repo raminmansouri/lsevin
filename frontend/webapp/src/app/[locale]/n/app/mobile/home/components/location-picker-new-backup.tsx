@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale } from "next-intl";
 import {useLocationStore} from "@/app/[locale]/n/app/mobile/home/store/locationStore.ts";
-import {useGetLocations} from "@/app/[locale]/n/app/mobile/home/hooks/use-get-locations.ts";
+import { useFetchGetLocations } from "../hooks/use-get-locations";
 
 // import { useLocationStore } from "@/store/locationStore";
 // import type { Location } from "@/types/location";
@@ -23,7 +23,7 @@ const LocationPicker = () => {
   const searchParams = useSearchParams();
 
   /* ---- 2.  Fetch the list of locations -------------------------------- */
-  const { data, isLoading } = useGetLocations ();
+  const { data } = useFetchGetLocations ();
 
   /* ---- 3.  Local state for the currently selected location ---------- */
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(

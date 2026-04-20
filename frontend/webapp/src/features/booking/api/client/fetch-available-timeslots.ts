@@ -11,7 +11,7 @@ export interface TimeSlot {
 }
 
 export interface GetAvailableTimeslotsResponse {
-  slots: TimeSlot[];
+  timeSlots: TimeSlot[];
 }
 
 /* ------------------------------------------- */

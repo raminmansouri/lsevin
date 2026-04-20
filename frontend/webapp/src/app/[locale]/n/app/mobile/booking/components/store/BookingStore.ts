@@ -14,7 +14,7 @@ interface BookingState {
   specialists: GetBookingServiceSelectionDataSpecialist[];
   providers: GetBookingServiceSelectionDataProvider[];
   booking: BookingFormValues;
-//   inc: () => void
+  setData: (name,data) => void
 }
 
 
@@ -30,5 +30,5 @@ export const useBookingStore = create<RootState>((set, get) => ({
     specialists: [],
     providers: [],
     booking:{},
-    setBookingInitData: (name,data) => set({ [name]:data }),
+    setData: (name,data) => set({ [name]:data }),
 }));

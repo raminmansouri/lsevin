@@ -17,7 +17,8 @@ import { useLocale } from "next-intl";
 import { localeToHeader } from "@/config/locales";
 import { LocaleTypes } from "@/types/common";
 import { getLocalizedValue } from "@/features/shared/utils/localization";
-
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+/* 
 
 const featuredServices = [
     {
@@ -68,7 +69,7 @@ const featuredServices = [
     //   features: ['Daily Spa', 'Yoga Classes', 'Organic Meals']
     // },
   ];
-
+ */
 
 const HomeFeaturedServicesSuspenseBoundary = async ({
   params,
@@ -160,14 +161,14 @@ const FeaturedService = ({
 
             <Link
               key={service.id}
-              href={`/n/app/mobile/treatment/${service.id}`}
+              href={`/n/app/mobile/service/${service.id}`}
               // onClick={() => navigate(`/n/app/mobile/treatment/${service.id}`)}
               className="flex-none w-80 bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer"
             >
               {/* Image */}
               <div className="relative aspect-[16/10] overflow-hidden">
-                <img 
-              src={`${env.NEXT_PUBLIC_FILES_URL}/${service?.url}`}
+                <ImageWithFallback fill 
+              src={`${env.NEXT_PUBLIC_FILES_URL}/${service?.image}`}
                   alt={getLocalizedValue(service.displayName,localeHeader)}
                   className="w-full h-full object-cover"
                 />
@@ -186,7 +187,7 @@ const FeaturedService = ({
                 
                 {/* Badges */}
                 <div className="absolute bottom-3 left-3 flex gap-1.5">
-                  {(service.badges ?? featuredServices?.[0]?.badges)?.map(badge => (
+                  {(service.badges)?.map(badge => (
                     <span 
                       key={badge.name}
                       className="px-2 py-1 bg-white/95 backdrop-blur-sm rounded-lg text-xs font-semibold text-gray-900 shadow-sm"
@@ -212,14 +213,14 @@ const FeaturedService = ({
                     <BadgeCheck size={16} className="text-[#083f30]" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold text-gray-900 line-clamp-1">{service.providerName ?? 'Bali Wellness Resort'}</div>
-                    <div className="text-xs text-gray-500">{service.location ??  'Ubud, Bali'}</div>
+                    <div className="text-sm font-semibold text-gray-900 line-clamp-1">providerName:{service.providerName }</div>
+                    <div className="text-xs text-gray-500">{service.location}</div>
                   </div>
                 </div>
                 
                 {/* Features */}
                 <div className="flex gap-1.5 mb-3 flex-wrap">
-                  {(service.features ?? featuredServices?.[0]?.features)?.map(feature => (
+                  {(service.features)?.map(feature => (
                     <span 
                       key={ feature.name }
                       className="text-xs px-2 py-1 bg-green-50 text-green-700 rounded-md font-medium"
@@ -233,8 +234,8 @@ const FeaturedService = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <Star size={16} className="fill-yellow-400 text-yellow-400" />
-                    <span className="font-bold text-gray-900">{service.rating ?? 2647}</span>
-                    <span className="text-sm text-gray-500">({service.reviews?.toLocaleString() ?? 2415})</span>
+                    <span className="font-bold text-gray-900">{service.rating }</span>
+                    <span className="text-sm text-gray-500">({service.reviews?.toLocaleString() })</span>
                   </div>
                   
                   <div className="text-right">

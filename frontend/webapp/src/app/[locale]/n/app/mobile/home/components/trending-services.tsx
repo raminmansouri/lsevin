@@ -17,6 +17,7 @@ import { localeToHeader } from "@/config/locales";
 import { LocaleTypes } from "@/types/common";
 import { getLocalizedValue } from "@/features/shared/utils/localization";
 import { getTrendingServices } from "@/features/service-providers/api/server/get-trending-services";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 
 
 
@@ -147,12 +148,17 @@ const HomeTrendingService = ({
               // onClick={() => navigate(`/n/app/mobile/service/${service.id}`)}
               className="flex-none w-40 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer"
             >
+
+              
               <div className="relative aspect-square">
-                <img 
+                <ImageWithFallback
+                fill 
                   src={`${env.NEXT_PUBLIC_FILES_URL}/${service?.url}`}
-                  alt={getLocalizedValue(service.displayName,localeHeader)}
+                  alt={service.displayName}
                   className="w-full h-full object-cover"
-                />
+                /> 
+
+                
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                 
                 {/* Trend Badge */}
@@ -164,7 +170,7 @@ const HomeTrendingService = ({
                 {/* Info */}
                 <div className="absolute bottom-0 left-0 right-0 p-3">
                   <h3 className="font-bold text-white text-sm mb-1 line-clamp-2">
-                    {getLocalizedValue(service.displayName,localeHeader)}
+                    {service.displayName}
                   </h3>
                   <div className="flex items-center gap-1 text-white/80">
                     <Users size={12} />

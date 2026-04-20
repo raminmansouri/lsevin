@@ -8,7 +8,11 @@ import { logout } from "@/features/auth/actions/logout";
 import { ApiError } from "@/types/error";
 
 import { errorHandler, networkErrorStrategy } from "./http-error-strategies";
-import { logAxiosError, logAxiosRequest } from "./logAxios";
+import {
+  logAxiosError,
+  logAxiosRequest,
+  logAxiosResponse,
+} from "./logAxios";
 
 const httpService = axios.create({
   baseURL: "/api",
@@ -17,14 +21,14 @@ const httpService = axios.create({
   },
 });
 
-/* httpService.interceptors.request.use(
+httpService.interceptors.request.use(
   (config) => {
-    logAxiosRequest(config, {
-      enabled: true,
-      format: "curl", // "curl" | "node-fetch" | "both"
-      // If you want to replay with real tokens, remove "authorization" from redactHeaders
-      // redactHeaders: ["cookie", "set-cookie"],
-    });
+    try {
+      logAxiosRequest(config, {
+        enabled: true,
+        format: "curl",
+      });
+    } catch {}
     return config;
   },
   (error) => {
@@ -34,7 +38,14 @@ const httpService = axios.create({
 );
 
 httpService.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    try {
+      logAxiosResponse(response, {
+        enabled: true,
+      });
+    } catch {}
+    return response;
+  },
   async (error) => {
     logAxiosError(error, { format: "curl" });
 
@@ -54,31 +65,27 @@ httpService.interceptors.response.use(
       networkErrorStrategy();
     }
 
-    // ⚠️ don’t swallow errors, let callers handle them too
     return Promise.reject(error);
   }
-); */
+);
 
 async function apiBase<T>(
   url: string,
   options?: AxiosRequestConfig
 ): Promise<T> {
-  console.log('urllll:',httpService.getUri())
-  ;
-
   const response: AxiosResponse = await httpService(url, options);
   return response.data as T;
 }
 
 async function readData<T>(
   url: string,
-  headers?: AxiosRequestHeaders 
+  headers?: AxiosRequestHeaders
 ): Promise<T> {
   const options: AxiosRequestConfig = {
-    headers: headers,
+    headers,
     method: "GET",
   };
-  console.log('trying:....',url,options)
+
   return await apiBase<T>(url, options);
 }
 
@@ -89,7 +96,7 @@ async function postData<TModel, TResult>(
 ): Promise<TResult> {
   const options: AxiosRequestConfig = {
     method: "POST",
-    headers: headers,
+    headers,
     data: JSON.stringify(data),
   };
 
@@ -103,7 +110,7 @@ async function putData<TModel, TResult>(
 ): Promise<TResult> {
   const options: AxiosRequestConfig = {
     method: "PUT",
-    headers: headers,
+    headers,
     data: JSON.stringify(data),
   };
 
@@ -116,7 +123,7 @@ async function deleteData(
 ): Promise<void> {
   const options: AxiosRequestConfig = {
     method: "DELETE",
-    headers: headers,
+    headers,
   };
 
   return await apiBase(url, options);

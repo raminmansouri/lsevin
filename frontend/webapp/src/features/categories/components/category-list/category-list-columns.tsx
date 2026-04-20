@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { CategoryListItem } from "../../types/category";
+import Image from "next/image";
+import { env } from "@/config/env/client";
 
 export const getCategoryListColumns = (
   t: ReturnType<typeof useTranslations>,
@@ -54,6 +56,7 @@ export const getCategoryListColumns = (
     },
     enableSorting: false,
   },
+  
   {
     id: "actions",
     header: t("table.actions"),
@@ -85,5 +88,28 @@ export const getCategoryListColumns = (
         </DropdownMenu>
       );
     },
+    
   },
+  {
+    accessorKey: "imageUrl",
+    header: 'image',
+    cell: ({ row }) => {
+      const imageUrl = row.original.imageUrl;
+      const description = row.original.description;
+      return (
+          <div style={{width:'100%',height:'100%'}}>
+{imageUrl && <Image
+                                src={`${env.NEXT_PUBLIC_FILES_URL}/${imageUrl}`}
+                                 alt={description}
+                                className="object-cover"
+                                
+                                width="50"
+                                height="50"
+                              />
+                              }
+          </div>
+      );
+    },
+    enableSorting: false,
+  }
 ];

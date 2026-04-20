@@ -36,11 +36,10 @@ internal sealed class GetAddOnsEndpoint : EndpointResponseHandler, IEndpointDefi
 
     private static Task<Results<Ok<AddonListResponse>, ProblemHttpResult>> Handle(
         [AsParameters] BaseEndpointServices<CategoryModule> services,
-        Guid id,
         [AsParameters] GetAddOnsRequest request
     ) =>
         Result
-            .Create(GetAddOnsQuery.Of(id, request.IsActive))
+            .Create(GetAddOnsQuery.Of(Guid.NewGuid(), request.IsActive))
             .Bind(query => services.Gateway.SendQueryAsync(query, services.CancellationToken))
             .Match<
                 AddonListResponse,

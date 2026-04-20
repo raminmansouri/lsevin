@@ -22,7 +22,7 @@ import {
 } from "@/features/service-providers/types";
 import { useNavigate } from "@/hooks/use-navigate";
 
-export default function SearchResults() {
+ export default function SearchResults() {
   const navigate = useNavigate();
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
@@ -30,7 +30,9 @@ export default function SearchResults() {
   const [sortBy, setSortBy] = useState("relevance");
   const [showFilters, setShowFilters] = useState(false);
 
-  const { data } = useFetchSearchResults();
+  const { data } = useFetchSearchResults({
+    term:q
+  });
 
   useEffect(() => {
     // Auto-focus on mount
@@ -234,8 +236,8 @@ return  <div className="flex items-center gap-1.5 rounded-full bg-[#083f30] px-3
             onClick={() =>
               navigate(
                 result.type === "clinic"
-                  ? `/app/clinic/${result.id}`
-                  : `/app/treatment/${result.id}`
+                  ? `/n/app/mobile/provider/${result.id}`
+                  : `/n/app/mobile/service/${result.id}`
               )
             }
             className="cursor-pointer overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-lg"

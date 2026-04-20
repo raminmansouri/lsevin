@@ -12,13 +12,19 @@ export async function GET(request: NextRequest) {
   const locale = searchParams.get("Locale");
   const localeHeader = localeToHeader(locale as LocaleTypes);
 
+  const providerId= searchParams.get("providerId");
+  const serviceId= searchParams.get("serviceId");
+  const specialistId= searchParams.get("specialistId");
+ 
   const session = await getSession();
   const token = session?.user?.accessToken;
-
+ 
   const { data, error } = await getAddons({
     locale: localeHeader,
     token,
-  });
+  },providerId,
+serviceId,
+specialistId);
 
   if (error) {
     return NextResponse.json(error, { status: error.status });

@@ -778,13 +778,14 @@ export interface TrendingService {
   reviews: number;
   rating?: number;
   location?: string;
+  image?: string;
   providerName: string;
   id: string;
   serviceDefinitionId: string;
   durationMinutes: number;
-  displayName: LocalizedContentResponse;
+  displayName: string;
   description?: LocalizedContentResponse;
-  url?: LocalizedContentResponse;
+  url?: string;
   isActive: boolean;
   currency: string;
   value: number;
@@ -911,6 +912,7 @@ export interface ServiceFeature {
 export interface ServiceProviderService {
   reviews: number;
   rating?: number;
+  image?: string;
   location?: string;
   providerName: string;
   id: string;
@@ -936,6 +938,7 @@ export interface ServiceProviderService {
 }
 
 export interface ServiceProviderService {
+  image?: string;
   providerName: string;
   id: string;
   serviceDefinitionId: string;
@@ -1073,7 +1076,7 @@ export interface GetBookingGetProvidersByServiceAndSpecialistResponse {
   providers: GetBookingServiceSelectionDataProvider[];
 }
 export interface GetBookingSpecialistByProviderAndServiceResponse {
-  specialists: GetBookingServiceSelectionDataSpecialist[];
+  specialist: GetBookingServiceSelectionDataSpecialist[];
 }
 
 

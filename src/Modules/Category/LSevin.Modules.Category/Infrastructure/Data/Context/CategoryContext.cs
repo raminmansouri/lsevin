@@ -36,6 +36,7 @@ internal sealed class CategoryContext(DbContextOptions<CategoryContext> options)
     }
 
     public DbSet<Category.Entities.Category> Categories { get; set; } = null!;
+    public DbSet<BookingDomain> Bookings { get; set; } = null!;
 
     // ServiceDefinition aggregate
     public DbSet<ServiceDefinition.Entities.ServiceDefinition> ServiceDefinitions { get; set; } = null!;

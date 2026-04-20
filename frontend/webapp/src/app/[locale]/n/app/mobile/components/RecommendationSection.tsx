@@ -35,7 +35,7 @@ export default function RecommendationSection({
 
   const RecommendationCard = ({ card }: { card: RecommendationCard }) => (
     <button
-      onClick={() => navigate(card.link)}
+      onClick={() => navigate('/n/app/mobile/'+card.link)}
       className={`flex gap-3 bg-white border border-gray-200 rounded-2xl p-3 hover:border-[#083f30] hover:shadow-md transition-all active:scale-98 w-full ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}
     >
       {/* Image */}

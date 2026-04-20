@@ -69,6 +69,7 @@ import { removeProviderService } from "../../../actions/remove-provider-service"
 import { updateProviderService } from "../../../actions/update-provider-service";
 import { ServiceProviderService } from "../../../types";
 import { TRANSLATION_KEY } from "../../../types/constants";
+import ImageGalleryManager from "./image-gallery-manager";
 
 interface ServiceProviderServiceManagerProps {
   serviceProviderId: string;
@@ -729,6 +730,21 @@ export default function ServiceProviderServiceManager({
                           </p>
                         </div>
                       )}
+
+
+                      <div className="mt-4">
+  <ImageGalleryManager
+    title="Service image gallery"
+    description="Add or remove service gallery images."
+    listUrl={`/api/v1/service-providers/${serviceProviderId}/services/${service.id}/gallery`}
+    uploadUrl={`/api/v1/service-providers/${serviceProviderId}/services/${service.id}/gallery`}
+    deleteUrl={(imageId) =>
+      `/api/v1/service-providers/${serviceProviderId}/services/${service.id}/gallery/${imageId}`
+    }
+    disabled={isPending || editingId !== null}
+    onUpdate={onUpdate}
+  />
+</div>
                     </div>
 
                     <div className="flex gap-1">

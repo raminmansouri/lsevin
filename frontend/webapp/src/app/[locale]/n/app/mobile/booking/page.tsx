@@ -51,10 +51,18 @@ import { StepDefinitions } from './components/types/BookingTypes';
 export default function BookingServiceWizardPage() {
   const locale = useLocale();
   const searchParams = useSearchParams();
+    const providerIdFromUrl = searchParams.get('id'); // providerId
+    const serviceIdFromUrl = searchParams.get('serviceId');
+    const specialistIdFromUrl = searchParams.get('specialistId');
+
 
   const methods = useForm<BookingFormValues>({
     resolver: zodResolver(bookingSchema),
     defaultValues: {
+
+         providerId: providerIdFromUrl,
+      serviceId: serviceIdFromUrl,
+      specialistId: specialistIdFromUrl,
     },
   });
 
@@ -81,20 +89,18 @@ export default function BookingServiceWizardPage() {
     handleBack,
     navigate,
     step, setStep
-  } = useBooking();
+  } = useBooking(methods);
   /* ------------------------------------------------------------------
     3️⃣  Hydrate the form when the component mounts *or* when the
          query string changes.
     ------------------------------------------------------------------ */
   useEffect(() => {
-    const providerId = searchParams.get('id'); // providerId
-    const serviceId = searchParams.get('serviceId');
-    const specialistId = searchParams.get('specialistId');
+
 
     /*  If you expect numeric IDs, cast them. */
-    if (providerId) methods.setValue('providerId', providerId);
-    if (serviceId) methods.setValue('serviceId', serviceId);
-    if (specialistId) methods.setValue('specialistId', specialistId);
+    if (providerId) methods.setValue('providerId', providerIdFromUrl);
+    if (serviceId) methods.setValue('serviceId', serviceIdFromUrl);
+    if (specialistId) methods.setValue('specialistId', specialistIdFromUrl);
 
     /*  If the IDs are strings, just pass the string directly: */
     // if (providerId)   methods.setValue('providerId', providerId);

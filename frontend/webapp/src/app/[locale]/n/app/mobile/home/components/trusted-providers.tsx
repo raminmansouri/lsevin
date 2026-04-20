@@ -18,6 +18,7 @@ import { withBaseHeaders } from "@/config/http/http-service.server";
 import { TrustedProvider } from "@/features/service-providers/types";
 import { getTrustedProviders } from "@/features/service-providers/api/server/get-trusted-providers";
 import { FilterParams } from "@/types/filter";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 
 
 
@@ -154,8 +155,11 @@ const HomeTrustedProvider = ({
               // onClick={() => navigate(`/n/app/mobile/clinic/${idx + 1}`)}
               className="flex-none w-44 bg-white rounded-2xl p-4 shadow-md hover:shadow-xl transition-all cursor-pointer border border-gray-100"
             >
+
+
+              {/* {JSON.stringify(provider)} */}
               <div className="relative mb-3">
-                <img 
+                <ImageWithFallback fill 
                   src={provider?.image ? `${env.NEXT_PUBLIC_FILES_URL}/${provider?.image}`:
                 trustedProviders[0]?.image}
                   alt={provider.name}
