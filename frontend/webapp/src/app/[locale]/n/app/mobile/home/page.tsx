@@ -352,7 +352,7 @@ import { getPopularSearches } from '@/features/home/api/server/get-popular-searc
       {/* Map Discovery Preview */}
       <div className="px-5 pb-8">
         <Link
-          href={'/n/app/mobile/search/map'}
+          href={'/n/app/mobile/map-discovery'}
           // onClick={() => navigate('/n/app/mobile/map')}
           className="w-full relative rounded-2xl overflow-hidden h-48 shadow-lg hover:shadow-xl transition-all active:scale-98"
         >
