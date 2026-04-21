@@ -1,0 +1,531 @@
+"use client";
+
+import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import {
+  ArrowLeft,
+  Plus,
+  CreditCard,
+  Building2,
+  Smartphone,
+  ArrowUpRight,
+  ArrowDownLeft,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Eye,
+  EyeOff,
+  Filter,
+  Tag,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
+
+import { useNavigate } from "@/hooks/use-navigate";
+import { createWalletTopUpIntentAction } from "./actions";
+import type {
+  CreateTopUpIntentInput,
+  WalletPageData,
+  WalletPaymentMethod,
+  WalletTransactionRow,
+} from "./types";
+
+interface WalletPageClientProps {
+  initialData: WalletPageData;
+}
+
+const quickAmounts = [100, 250, 500, 1000] as const;
+
+function currencySymbol(currency: string) {
+  switch (currency) {
+    case "USD":
+      return "$";
+    case "EUR":
+      return "€";
+    case "GBP":
+      return "£";
+    case "AED":
+      return "AED ";
+    default:
+      return `${currency} `;
+  }
+}
+
+function formatAmount(amount: number) {
+  return Math.abs(amount).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+function formatDate(dateString: string) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const candidate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+  if (candidate.getTime() === today.getTime()) {
+    return `Today, ${date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })}`;
+  }
+
+  if (candidate.getTime() === yesterday.getTime()) {
+    return `Yesterday, ${date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })}`;
+  }
+
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function TransactionStatus({ status }: { status: WalletTransactionRow["status"] }) {
+  if (status === "completed") {
+    return (
+      <div className="flex items-center gap-1 text-xs text-green-600">
+        <CheckCircle2 size={12} />
+        <span>Completed</span>
+      </div>
+    );
+  }
+
+  if (status === "pending" || status === "processing") {
+    return (
+      <div className="flex items-center gap-1 text-xs text-amber-600">
+        <Clock size={12} />
+        <span>{status === "pending" ? "Pending" : "Processing"}</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-1 text-xs text-red-600">
+      <AlertCircle size={12} />
+      <span>{status === "failed" ? "Failed" : "Cancelled"}</span>
+    </div>
+  );
+}
+
+export default function WalletPageClient({
+  initialData,
+}: WalletPageClientProps) {
+  const navigate = useNavigate();
+  const router = useRouter();
+
+  const [showBalance, setShowBalance] = useState(true);
+  const [selectedCurrency, setSelectedCurrency] = useState(
+    initialData.defaultCurrency || "USD"
+  );
+  const [showTopUpModal, setShowTopUpModal] = useState(false);
+  const [topUpAmount, setTopUpAmount] = useState<number | null>(null);
+  const [topUpMethod, setTopUpMethod] = useState<
+    Exclude<WalletPaymentMethod, "wallet"> | null
+  >(null);
+  const [filterMode, setFilterMode] = useState<"all" | "credit" | "debit">("all");
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, startSubmitting] = useTransition();
+
+  const balances = initialData.balances;
+  const transactions = useMemo(() => {
+    return initialData.transactions.filter((transaction) => {
+      if (filterMode === "all") return true;
+      return transaction.direction === filterMode;
+    });
+  }, [filterMode, initialData.transactions]);
+
+  const handleTopUp = () => {
+    if (!topUpAmount || !topUpMethod) {
+      return;
+    }
+
+    setSubmitError(null);
+
+    startSubmitting(async () => {
+      const payload: CreateTopUpIntentInput = {
+        amount: topUpAmount,
+        currencyCode: selectedCurrency,
+        paymentMethod: topUpMethod,
+      };
+
+      const result = await createWalletTopUpIntentAction(payload);
+
+      if (!result.ok) {
+        setSubmitError(result.message);
+        return;
+      }
+
+      setShowTopUpModal(false);
+      setTopUpAmount(null);
+      setTopUpMethod(null);
+
+      if (result.redirectUrl) {
+        router.push(result.redirectUrl);
+        return;
+      }
+
+      router.refresh();
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 pb-24">
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div className="px-5 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate(-1)}
+              className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors active:scale-95"
+            >
+              <ArrowLeft size={20} className="text-gray-900" />
+            </button>
+            <h1 className="text-lg font-bold text-gray-900">Wallet</h1>
+          </div>
+
+          <button
+            onClick={() => navigate("/app/wallet/history")}
+            className="h-10 px-4 text-sm font-semibold text-[#083f30] hover:underline"
+          >
+            View All
+          </button>
+        </div>
+      </div>
+
+      <div className="px-5 py-6">
+        <div className="bg-gradient-to-br from-[#083f30] to-[#0a5a44] rounded-3xl p-6 shadow-xl">
+          <div className="flex items-start justify-between mb-6">
+            <div>
+              <p className="text-white/80 text-sm mb-2">Total Balance</p>
+              <div className="flex items-baseline gap-3">
+                {showBalance ? (
+                  <>
+                    <span className="text-4xl font-bold text-white">
+                      {currencySymbol(selectedCurrency)}
+                      {(balances[selectedCurrency] ?? 0).toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                    <span className="text-white/60 text-lg">{selectedCurrency}</span>
+                  </>
+                ) : (
+                  <span className="text-4xl font-bold text-white">••••••</span>
+                )}
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowBalance((value) => !value)}
+              className="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+            >
+              {showBalance ? (
+                <Eye size={20} className="text-white" />
+              ) : (
+                <EyeOff size={20} className="text-white" />
+              )}
+            </button>
+          </div>
+
+          <div className="flex gap-2 mb-6">
+            {initialData.supportedCurrencies.map((currency) => (
+              <button
+                key={currency}
+                onClick={() => setSelectedCurrency(currency)}
+                className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
+                  selectedCurrency === currency
+                    ? "bg-[#eacb7f] text-[#083f30]"
+                    : "bg-white/10 text-white hover:bg-white/20"
+                }`}
+              >
+                {currency}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex justify-center">
+            <button
+              onClick={() => setShowTopUpModal(true)}
+              className="bg-[#eacb7f] hover:bg-[#d4b76c] rounded-xl px-8 py-4 transition-colors flex items-center gap-3"
+            >
+              <div className="w-10 h-10 bg-[#083f30] rounded-full flex items-center justify-center">
+                <Plus size={20} className="text-white" />
+              </div>
+              <span className="text-[#083f30] font-bold">Top Up Wallet</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-5">
+        <div className="mb-4 flex gap-2">
+          <button
+            onClick={() => navigate("/app/coupon")}
+            className="flex-1 h-12 bg-white border-2 border-gray-200 rounded-xl font-semibold text-gray-900 hover:border-[#083f30] transition-all flex items-center justify-center gap-2"
+          >
+            <Tag size={18} />
+            Apply Coupon
+          </button>
+        </div>
+
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-gray-900">Recent Transactions</h2>
+          <button
+            onClick={() =>
+              setFilterMode((current) =>
+                current === "all" ? "credit" : current === "credit" ? "debit" : "all"
+              )
+            }
+            className="text-sm font-semibold text-[#083f30] hover:underline"
+          >
+            <Filter size={16} className="inline-block mr-1" />
+            {filterMode === "all"
+              ? "Filter"
+              : filterMode === "credit"
+              ? "Credits"
+              : "Debits"}
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          {transactions.map((transaction) => (
+            <button
+              key={transaction.id}
+              onClick={() => navigate(`/app/wallet/transaction/${transaction.id}`)}
+              className="w-full bg-white rounded-2xl p-4 border border-gray-200 hover:border-[#083f30] hover:shadow-md transition-all"
+            >
+              <div className="flex items-start gap-4">
+                <div
+                  className={`w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    transaction.direction === "credit" ? "bg-green-50" : "bg-gray-50"
+                  }`}
+                >
+                  <div
+                    className={
+                      transaction.direction === "credit"
+                        ? "text-green-600"
+                        : "text-gray-600"
+                    }
+                  >
+                    {transaction.direction === "credit" ? (
+                      <ArrowDownLeft size={20} />
+                    ) : (
+                      <ArrowUpRight size={20} />
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex-1 min-w-0 text-left">
+                  <div className="font-semibold text-gray-900 mb-0.5 line-clamp-1">
+                    {transaction.title}
+                  </div>
+                  <div className="text-sm text-gray-600 mb-1 line-clamp-1">
+                    {transaction.subtitle ?? "LSevin Wallet"}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <Clock size={12} />
+                    <span>{formatDate(transaction.occurredAt)}</span>
+                  </div>
+                </div>
+
+                <div className="text-right flex-shrink-0">
+                  <div
+                    className={`font-bold mb-1 ${
+                      transaction.direction === "credit"
+                        ? "text-green-600"
+                        : "text-gray-900"
+                    }`}
+                  >
+                    {transaction.direction === "credit" ? "+" : ""}
+                    {currencySymbol(transaction.currencyCode)}
+                    {formatAmount(transaction.amount)}
+                  </div>
+                  <TransactionStatus status={transaction.status} />
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {transactions.length === 0 && (
+          <div className="bg-white rounded-2xl p-12 text-center">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Clock size={28} className="text-gray-400" />
+            </div>
+            <h3 className="font-bold text-gray-900 mb-2">No Transactions Yet</h3>
+            <p className="text-sm text-gray-600 mb-6">
+              Start using your wallet to see transactions here
+            </p>
+            <button
+              onClick={() => setShowTopUpModal(true)}
+              className="px-6 py-3 bg-[#083f30] text-white rounded-xl font-semibold hover:bg-[#0a5a44] transition-colors"
+            >
+              Top Up Wallet
+            </button>
+          </div>
+        )}
+      </div>
+
+      {showTopUpModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center p-0">
+          <div className="bg-white rounded-t-3xl w-full max-w-lg animate-slide-up">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-900">Top Up Wallet</h2>
+                <button
+                  onClick={() => {
+                    setShowTopUpModal(false);
+                    setTopUpAmount(null);
+                    setTopUpMethod(null);
+                    setSubmitError(null);
+                  }}
+                  className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                >
+                  <XCircle size={24} className="text-gray-500" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 max-h-[70vh] overflow-y-auto">
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-900 mb-3">
+                  Select Amount
+                </label>
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  {quickAmounts.map((amount) => (
+                    <button
+                      key={amount}
+                      onClick={() => setTopUpAmount(amount)}
+                      className={`h-14 rounded-xl border-2 font-bold transition-all ${
+                        topUpAmount === amount
+                          ? "border-[#083f30] bg-[#083f30]/5 text-[#083f30]"
+                          : "border-gray-200 hover:border-gray-300 text-gray-900"
+                      }`}
+                    >
+                      {currencySymbol(selectedCurrency)}
+                      {amount.toLocaleString()}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">
+                    {currencySymbol(selectedCurrency)}
+                  </span>
+                  <input
+                    type="number"
+                    min={1}
+                    step="0.01"
+                    value={topUpAmount ?? ""}
+                    onChange={(e) => {
+                      const parsed = Number(e.target.value);
+                      setTopUpAmount(Number.isFinite(parsed) && parsed > 0 ? parsed : null);
+                    }}
+                    placeholder="Enter custom amount"
+                    className="w-full h-14 pl-14 pr-4 border-2 border-gray-200 rounded-xl font-semibold focus:border-[#083f30] focus:outline-none transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-900 mb-3">
+                  Payment Method
+                </label>
+                <div className="space-y-2">
+                  {[
+                    {
+                      id: "card",
+                      name: "Credit / Debit Card",
+                      icon: <CreditCard size={24} />,
+                      details: "Visa, Mastercard, Amex",
+                    },
+                    {
+                      id: "bank",
+                      name: "Bank Transfer",
+                      icon: <Building2 size={24} />,
+                      details: "Direct bank transfer",
+                    },
+                    {
+                      id: "apple",
+                      name: "Apple Pay",
+                      icon: <Smartphone size={24} />,
+                      details: "Quick & secure",
+                    },
+                  ].map((method) => (
+                    <button
+                      key={method.id}
+                      onClick={() =>
+                        setTopUpMethod(method.id as Exclude<WalletPaymentMethod, "wallet">)
+                      }
+                      className={`w-full flex items-center gap-4 p-4 border-2 rounded-xl transition-all ${
+                        topUpMethod === method.id
+                          ? "border-[#083f30] bg-[#083f30]/5"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-[#083f30]">
+                        {method.icon}
+                      </div>
+                      <div className="flex-1 text-left">
+                        <div className="font-semibold text-gray-900">{method.name}</div>
+                        <div className="text-sm text-gray-600">{method.details}</div>
+                      </div>
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          topUpMethod === method.id
+                            ? "border-[#083f30]"
+                            : "border-gray-300"
+                        }`}
+                      >
+                        {topUpMethod === method.id && (
+                          <div className="w-3 h-3 bg-[#083f30] rounded-full" />
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {submitError && (
+                <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                  {submitError}
+                </div>
+              )}
+            </div>
+
+            <div className="sticky bottom-0 bg-white p-6 pb-24 border-t border-gray-200">
+              <button
+                onClick={handleTopUp}
+                disabled={!topUpAmount || !topUpMethod || isSubmitting}
+                className={`w-full h-14 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
+                  topUpAmount && topUpMethod && !isSubmitting
+                    ? "bg-[#083f30] text-white hover:bg-[#0a5a44] shadow-lg active:scale-95"
+                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                }`}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    Top Up {currencySymbol(selectedCurrency)}
+                    {topUpAmount?.toLocaleString() ?? "0"}
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
