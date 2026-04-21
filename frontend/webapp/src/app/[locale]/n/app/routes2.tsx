@@ -30,7 +30,7 @@ import Offers from "./mobile/offers/page";
 import Search from "./mobile/search/page";
 import SearchResults from "./mobile/search-results/page";
 import CategoryBrowser from "./mobile/categories/page";
-import MapDiscovery from "./mobile/search/map/page";
+import MapDiscovery from "./mobile/map-discovery/page";
 
 // Medical
 import ClinicListing from "./mobile/medical/clinics/page";
