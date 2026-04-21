@@ -54,7 +54,7 @@ const fetchSearchResults = async (
     })
   } */
 
-  const path = `/customer/search-results`
+  const path = `/customer/search-results?${searchParams.toString()}`
 
   console.log('use hook path:', path)
 

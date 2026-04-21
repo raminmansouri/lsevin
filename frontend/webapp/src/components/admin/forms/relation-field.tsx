@@ -6,6 +6,7 @@ import { Search } from "lucide-react";
 import { RelationOption, ResolvedFieldDefinition } from "@/lib/admin/types";
 
 type Props = {
+  key: string;
   schema: string;
   table: string;
   field: ResolvedFieldDefinition;
@@ -13,7 +14,7 @@ type Props = {
   locale: string;
 };
 
-export function RelationField({ schema, table, field, control, locale }: Props) {
+export function RelationField({ schema, table, field, control, locale,key }: Props) {
   const [search, setSearch] = useState("");
   const [options, setOptions] = useState<RelationOption[]>([]);
   const [open, setOpen] = useState(false);
@@ -43,13 +44,14 @@ export function RelationField({ schema, table, field, control, locale }: Props) 
 
   return (
     <Controller
+      
       control={control}
       name={field.columnName}
       render={({ field: rhfField, fieldState }) => {
         const selected = options.find((x) => x.value === String(rhfField.value ?? ""));
 
         return (
-          <div className="space-y-2">
+          <div className="space-y-2" key={key}>
             <label className="text-sm font-medium">{field.label}</label>
             <div className="rounded-2xl border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950">
               <div className="mb-3 flex items-center gap-2 rounded-xl border border-zinc-200 px-3 py-2 dark:border-zinc-800">

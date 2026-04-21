@@ -32,7 +32,10 @@ export function DynamicForm({
 
   const form = useForm<Record<string, any>>({
     resolver: zodResolver(schema),
-    defaultValues: initialValues ?? {},
+    defaultValues: {
+      'last_modified_date': new Date().toString()
+      , 'create_date': new Date().toString(), ...(initialValues ?? {})
+    },
   });
 
   const values = form.watch();

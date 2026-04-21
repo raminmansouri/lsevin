@@ -1,16 +1,52 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Control, Controller } from "react-hook-form";
 
 type Props = {
   name: string;
   control: Control<any>;
-  locales: string[];
+  locales: string[]; // must be full locale codes like en-US, fa-IR
   label: string;
   placeholder?: string;
   multiline?: boolean;
 };
+
+function normalizeMultilingualValue(input: unknown): Record<string, string> {
+  if (!input) return {};
+
+  if (typeof input === "string") {
+    try {
+      const parsed = JSON.parse(input);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        return Object.fromEntries(
+          Object.entries(parsed).filter(
+            ([key, value]) =>
+              !/^\d+$/.test(key) && (typeof value === "string" || value == null)
+          )
+        ) as Record<string, string>;
+      }
+      return {};
+    } catch {
+      return {};
+    }
+  }
+
+  if (typeof input === "object" && !Array.isArray(input)) {
+    return Object.fromEntries(
+      Object.entries(input as Record<string, unknown>).filter(
+        ([key, value]) =>
+          !/^\d+$/.test(key) && (typeof value === "string" || value == null)
+      )
+    ) as Record<string, string>;
+  }
+
+  return {};
+}
+
+function getLocaleLabel(locale: string) {
+  return locale;
+}
 
 export function MultilingualField({
   name,
@@ -20,26 +56,32 @@ export function MultilingualField({
   placeholder,
   multiline = false,
 }: Props) {
-  const [activeLocale, setActiveLocale] = useState(locales[0] ?? "en");
+  const normalizedLocales = useMemo(
+    () => (locales?.length ? locales : ["en-US"]),
+    [locales]
+  );
+
+  const [activeLocale, setActiveLocale] = useState(normalizedLocales[0]);
 
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <label className="text-sm font-medium">{label}</label>
+
         <div className="flex flex-wrap items-center gap-2">
-          {locales.map((locale) => (
+          {normalizedLocales.map((locale) => (
             <button
               key={locale}
               type="button"
               onClick={() => setActiveLocale(locale)}
               className={[
-                "rounded-xl border px-3 py-1.5 text-xs uppercase tracking-wide",
+                "rounded-xl border px-3 py-1.5 text-xs tracking-wide",
                 activeLocale === locale
                   ? "border-zinc-900 bg-zinc-900 text-white dark:border-white dark:bg-white dark:text-zinc-950"
                   : "border-zinc-200 dark:border-zinc-800",
               ].join(" ")}
             >
-              {locale}
+              {getLocaleLabel(locale)}
             </button>
           ))}
         </div>
@@ -49,8 +91,8 @@ export function MultilingualField({
         control={control}
         name={name}
         render={({ field }) => {
-          const value = field.value ?? {};
-          const currentValue = value?.[activeLocale] ?? "";
+          const value = normalizeMultilingualValue(field.value);
+          const currentValue = value[activeLocale] ?? "";
 
           const update = (nextValue: string) => {
             field.onChange({

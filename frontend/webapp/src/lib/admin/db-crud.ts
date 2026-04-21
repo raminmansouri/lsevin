@@ -837,6 +837,10 @@ export async function update(
 
   await validateForeignKeysIfRequested(sql, meta, payload, options.validateForeignKeys);
 
+/*    const assignments = Object.entries(payload)
+  .filter(s=> !meta.columnsByName.get(s[0]).isPrimaryKey).map(
+    ([column, value]) => sql`${sql(column)} = ${value}`
+  ); */
   const assignments = Object.entries(payload).map(
     ([column, value]) => sql`${sql(column)} = ${value}`
   );

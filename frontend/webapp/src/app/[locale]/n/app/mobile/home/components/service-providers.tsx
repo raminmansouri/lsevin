@@ -213,7 +213,7 @@ const FeaturedService = ({
                     <BadgeCheck size={16} className="text-[#083f30]" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold text-gray-900 line-clamp-1">providerName:{service.providerName }</div>
+                    <div className="text-sm font-semibold text-gray-900 line-clamp-1">{service.providerName }</div>
                     <div className="text-xs text-gray-500">{service.location}</div>
                   </div>
                 </div>

@@ -23,9 +23,43 @@ function buildLocalizedExpr(
   locale: string,
   fallback: string
 ) {
-  return sql`common.get_translation(${qIdentifier(sql, alias, column)}, ${locale}, ${fallback})`;
-}
+  const source = qIdentifier(sql, alias, column);
+  const jsonbSource = sql`${source}::jsonb`;
 
+  return sql`
+    (
+      case
+        when ${source} is null then null
+        when jsonb_typeof(${jsonbSource}) = 'object'
+          then common.get_translation(${jsonbSource}, ${locale}, ${fallback})
+        when jsonb_typeof(${jsonbSource}) = 'string'
+          then trim(both '"' from ${jsonbSource}::text)
+        else ${jsonbSource}::text
+      end
+    )
+  `;
+}
+function resolveFilterExpr(
+  sql: SqlClient,
+  field: Awaited<ReturnType<typeof getResolvedTableDefinition>>["listFields"][number],
+  filter: { mode?: "display" | "raw" },
+  locale: string,
+  fallbackLocale: string
+) {
+  if (filter.mode === "raw") {
+    return qIdentifier(sql, "t", field.columnName);
+  }
+
+  if (field.isLocalized) {
+    return buildLocalizedExpr(sql, "t", field.columnName, locale, fallbackLocale);
+  }
+
+  if (field.relation) {
+    return qIdentifier(sql, `${field.columnName}__rel`, field.relation.displayField);
+  }
+
+  return qIdentifier(sql, "t", field.columnName);
+}
 function coercePageNumber(value: unknown, fallback: number) {
   const parsed = Number(value);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
@@ -79,11 +113,8 @@ function buildWhereClause(
     const field = listFields.find((x) => x.columnName === filter.field);
     if (!field) continue;
 
-    const expr = field.isLocalized
-      ? buildLocalizedExpr(sql, "t", field.columnName, locale, fallbackLocale)
-      : field.relation
-        ? qIdentifier(sql, `${field.columnName}__rel`, field.relation.displayField)
-        : qIdentifier(sql, "t", field.columnName);
+  const expr = resolveFilterExpr(sql, field, filter, locale, fallbackLocale);
+
 
     switch (filter.op) {
       case "eq":

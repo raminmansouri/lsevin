@@ -1,33 +1,66 @@
 "use client";
 
-import { useMemo, useTransition } from "react";
+import { useEffect, useMemo, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save } from "lucide-react";
 import { toast } from "sonner";
-import { buildDynamicZodSchema } from "@/lib/admin/validation";
+import { buildDynamicZodSchema, setDefaultValues } from "@/lib/admin/validation";
 import { ResolvedTableDefinition } from "@/lib/admin/types";
 import { MultilingualField } from "./multilingual-field";
 import { JsonEditorField } from "./json-editor";
 import { RelationField } from "./relation-field";
 import { ManyToManyField } from "./many-to-many-field";
+import { RHFMultiMediaPickerField, RHFSingleMediaPickerField } from "@/features/media-picker-addon";
 
 type Props = {
   definition: ResolvedTableDefinition;
   locale: string;
   mode: "create" | "edit";
   initialValues?: Record<string, any>;
+  lockedValues?: Record<string, unknown>;
   onSubmitAction: (payload: Record<string, unknown>) => Promise<{ ok: boolean; message?: string }>;
   excludeFields?: string[];
   submitLabel?: string;
   onSuccess?: () => void;
 };
 
+function normalizeMultilingualPayload(input: unknown): Record<string, string> {
+  if (!input) return {};
+
+  if (typeof input === "string") {
+    try {
+      const parsed = JSON.parse(input);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        return Object.fromEntries(
+          Object.entries(parsed).filter(
+            ([key, value]) => !/^\d+$/.test(key) && (typeof value === "string" || value == null)
+          )
+        ) as Record<string, string>;
+      }
+      return {};
+    } catch {
+      return {};
+    }
+  }
+
+  if (typeof input === "object" && !Array.isArray(input)) {
+    return Object.fromEntries(
+      Object.entries(input as Record<string, unknown>).filter(
+        ([key, value]) => !/^\d+$/.test(key) && (typeof value === "string" || value == null)
+      )
+    ) as Record<string, string>;
+  }
+
+  return {};
+}
+
 export function DynamicForm({
   definition,
   locale,
   mode,
   initialValues,
+  lockedValues,
   onSubmitAction,
   excludeFields = [],
   submitLabel,
@@ -43,16 +76,45 @@ export function DynamicForm({
     () => ({ ...definition, formFields: renderedFields }),
     [definition, renderedFields]
   );
+
+  const defaultValues = useMemo(() => setDefaultValues(schemaDefinition), [schemaDefinition]);
   const schema = useMemo(() => buildDynamicZodSchema(schemaDefinition), [schemaDefinition]);
+
+  const mergedInitialValues = useMemo(
+    () => ({ ...defaultValues,  ...(initialValues ?? {}), ...(lockedValues ?? {}) }),
+    [initialValues, lockedValues]
+  );
 
   const form = useForm<Record<string, any>>({
     resolver: zodResolver(schema),
-    defaultValues: initialValues ?? {},
+    defaultValues: mergedInitialValues,
   });
+
+  useEffect(() => {
+    form.reset(mergedInitialValues);
+  }, [form, mergedInitialValues]);
+
 
   const values = form.watch();
 
   function renderField(field: ResolvedTableDefinition["formFields"][number]) {
+
+    if ((field.columnName=='id' &&  field.isPrimaryKey ) || 
+      ['create_date','last_modified_date'].indexOf(field.columnName)>=0  ) {
+      return (<>
+        <input type="hidden"
+          key={field.columnName}
+          readOnly {...form.register(field.columnName)}
+          required={false} />
+           {form.formState.errors[field.columnName] ? (
+            <p className="text-xs text-red-500">
+              {String(form.formState.errors[field.columnName]?.message ?? "")}
+            </p>
+          ) : null}
+      </>)
+    }
+
+
     if (field.readOnly && mode === "edit") {
       return (
         <div key={field.columnName} className="space-y-2">
@@ -64,17 +126,82 @@ export function DynamicForm({
       );
     }
 
+    if (["medias","files", 'images', 'videos'].indexOf(field.fieldKind) >= 0) {
+
+      return (<>
+        <div key={field.columnName} className="space-y-2">
+          <RHFMultiMediaPickerField
+            control={form.control}
+            name={field.columnName}
+            label="Brochures"
+            placeholder="Pick files"
+            mediaType="all"
+            helperText="Stores ids as comma-separated text."
+            modalTitle="Pick brochures"
+            key={field.columnName}
+          />
+          {form.formState.errors[field.columnName] ? (
+            <p className="text-xs text-red-500">
+              {String(form.formState.errors[field.columnName]?.message ?? "")}
+            </p>
+          ) : null}
+        </div></>)
+    }
+
+    if (["media","file", 'image', 'gif', 'video'].indexOf(field.fieldKind) >= 0) {
+
+      return (<>
+        <div key={field.columnName} className="space-y-2">
+          <RHFSingleMediaPickerField
+            control={form.control}
+            name={field.columnName}
+            label="Thumbnail"
+            placeholder="Pick image"
+            mediaType="image"
+            helperText="Stores one media id in a hidden input."
+            modalTitle="Pick thumbnail"
+            key={field.columnName}
+
+
+          />
+          {form.formState.errors[field.columnName] ? (
+            <p className="text-xs text-red-500">
+              {String(form.formState.errors[field.columnName]?.message ?? "")}
+            </p>
+          ) : null}
+        </div>
+      </>)
+    }
     if (field.fieldKind === "multilingual") {
       return (
         <MultilingualField
+  name={field.columnName}
+  control={form.control}
+  label={field.label}
+  locales={[
+    "ar-SA",
+    "de-DE",
+    "en-US",
+    "es-ES",
+    "fa-IR",
+    "fr-FR",
+    "ku-KU",
+    "tr-TR",
+  ]}
+          multiline={field.label.toLowerCase().includes("description")}
+
+  // multiline={field.fieldKind === "multilingual-textarea"}
+/>
+       
+      );
+       {/* <MultilingualField
           key={field.columnName}
           name={field.columnName}
           control={form.control}
           locales={field.locales ?? [locale]}
           label={field.label}
           multiline={field.label.toLowerCase().includes("description")}
-        />
-      );
+        /> */}
     }
 
     if (field.fieldKind === "relation" && field.relation) {
@@ -180,8 +307,8 @@ export function DynamicForm({
     return (
       <div key={field.columnName} className="space-y-2">
         <label className="text-sm font-medium">{field.label}</label>
-        
-        
+
+
         <input
           type={inputType}
           {...form.register(field.columnName)}
@@ -201,7 +328,18 @@ export function DynamicForm({
     <form
       onSubmit={form.handleSubmit((payload) => {
         startTransition(async () => {
-          const result = await onSubmitAction(form.getValues());
+          const _payload=form.getValues();
+          const nextPayload = { ..._payload, ...(lockedValues ?? {}) };
+          for (const field of definition.formFields) {
+            if (field.fieldKind === "multilingual") {
+              nextPayload[field.columnName] = normalizeMultilingualPayload(
+                nextPayload[field.columnName]
+              );
+            }
+          }
+          const result = await onSubmitAction(nextPayload);
+          //const result = await onSubmitAction(payload);
+
           if (result.ok) {
             toast.success(result.message ?? `${mode === "create" ? "Created" : "Updated"} successfully.`);
             onSuccess?.();

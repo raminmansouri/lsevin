@@ -1,10 +1,13 @@
-"use client"
 
+import { getProfileForEdit } from '@/features/profile/actions/profile.actions';
+import FetchDisplayProfileInfo from '@/features/profile/components/fetch-display-profile-info';
 import { useNavigate } from '@/hooks/use-navigate';
 import { Settings, Wallet as WalletIcon, Gift, Heart, FileText, Bell, Globe, Shield, LogOut, Share2 } from 'lucide-react';
+import Link from 'next/link';
 
-export default function Profile() {
-  const navigate = useNavigate();
+export default async function Profile() {
+    const profile = await getProfileForEdit("en-US");
+  
   
   const menuItems = [
     { icon: WalletIcon, label: 'Wallet & Payments', path: '/app/wallet', color: 'text-green-600' },
@@ -21,25 +24,9 @@ export default function Profile() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white px-6 py-8 border-b border-gray-200">
-        <div className="flex items-center gap-4 mb-4">
-          <div className="w-20 h-20 rounded-full overflow-hidden">
-            <img 
-              src="/unsplash_images/photo-1494790108377-be9c29b29330__w=200&h=200&fit=crop.jpg" 
-              alt="Profile"
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="flex-1">
-            <h1 className="text-xl font-bold text-gray-900">Sarah Anderson</h1>
-            <p className="text-sm text-gray-500">sarah.anderson@email.com</p>
-            <button 
-              onClick={() => navigate('/app/edit-profile')}
-              className="mt-2 text-sm font-semibold text-[#083f30] hover:underline"
-            >
-              Edit Profile
-            </button>
-          </div>
-        </div>
+        <FetchDisplayProfileInfo profile={profile}>
+
+        </FetchDisplayProfileInfo>
         
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mt-6">
@@ -63,9 +50,10 @@ export default function Profile() {
         {menuItems.map(item => {
           const Icon = item.icon;
           return (
-            <button
+            <Link
               key={item.path}
-              onClick={() => navigate(item.path)}
+              // onClick={() => navigate(item.path)}
+              href={item.path}
               className="w-full bg-white rounded-2xl p-4 flex items-center gap-4 hover:shadow-md transition"
             >
               <div className={`w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center ${item.color}`}>
@@ -75,7 +63,7 @@ export default function Profile() {
               <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-            </button>
+            </Link>
           );
         })}
         

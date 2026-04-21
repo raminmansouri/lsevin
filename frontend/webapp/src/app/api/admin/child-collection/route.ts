@@ -56,12 +56,13 @@ export async function GET(request: NextRequest) {
         sortField: collection.defaultSort?.field,
         sortDirection: collection.defaultSort?.direction,
         filters: [
-          {
-            field: collection.foreignKeyColumn,
-            op: "eq",
-            value: parentLink.value,
-          },
-        ],
+  {
+    field: collection.foreignKeyColumn,
+    op: "eq",
+    value: parentLink.value,
+    mode: "raw",
+  },
+],
       },
       locale
     );

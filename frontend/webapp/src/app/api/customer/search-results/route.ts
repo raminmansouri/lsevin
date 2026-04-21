@@ -11,7 +11,7 @@ import { getSearchResults } from "@/features/service-providers/api/server/get-se
 export async function GET(request: NextRequest) {
   console.log('search-results called:')
   const { searchParams } = new URL(request.url);
-  const search = searchParams.get("Search");
+  const search = searchParams.get("filters");
   const page = searchParams.get("PageNumber");
   const pageSize = searchParams.get("PageSize");
   const locale = searchParams.get("Locale");

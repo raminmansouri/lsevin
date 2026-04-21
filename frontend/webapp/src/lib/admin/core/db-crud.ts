@@ -143,7 +143,7 @@ function isInsertableColumn(column: ColumnMetadata): boolean {
 function isUpdatableColumn(column: ColumnMetadata): boolean {
   if (column.isGenerated) return false;
   if (column.isIdentity) return false;
-  if (column.isPrimaryKey) return false;
+  // if (column.isPrimaryKey) return false;
   return true;
 }
 
@@ -220,7 +220,8 @@ function normalizePredicate(input: unknown): CrudPredicate {
 }
 
 function isUuid(value: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+  return true;
+  //return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
 
 function isIntegerDataType(type: string): boolean {
@@ -735,6 +736,7 @@ export async function insert(
   const columns = Object.keys(payload);
   const returningFragment = buildReturningFragment(sql, meta, options.returning);
 
+
   if (columns.length === 0) {
     return sql`
       insert into ${buildQualifiedTable(sql, meta.ref)}
@@ -745,10 +747,11 @@ export async function insert(
 
   const values = columns.map((column) => payload[column]);
 
+
   return sql`
     insert into ${buildQualifiedTable(sql, meta.ref)}
     (${buildColumnsFragment(sql, columns)})
-    values (${sql(values)})
+    values ${sql(values)}
     ${returningFragment}
   `;
 }
@@ -838,9 +841,14 @@ export async function update(
 
   await validateForeignKeysIfRequested(sql, meta, payload, options.validateForeignKeys);
 
-  const assignments = Object.entries(payload).map(
+   const assignments = Object.entries(payload)
+  .filter(s=> !meta.columnsByName.get(s[0]).isPrimaryKey).map(
     ([column, value]) => sql`${sql(column)} = ${value}`
   );
+
+  // const assignments = Object.entries(payload).map(
+  //   ([column, value]) => sql`${sql(column)} = ${value}`
+  // );
 
   return sql`
     update ${buildQualifiedTable(sql, meta.ref)}

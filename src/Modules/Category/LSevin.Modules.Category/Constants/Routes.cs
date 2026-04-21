@@ -28,7 +28,7 @@ internal static class Routes
         internal const string GetCategoryTree = $"{AdminUrl}/tree";
 
         internal const string UpdateImage = $"{AdminUrl}/UpdateAnyFile/{{categoryId:guid}}";
-        internal const string UploadAnyFile = $"{AdminUrl}/UploadAnyFile";
+        internal const string UploadAnyFile = $"File/UploadAnyFile";
     }
 
     internal static class Location

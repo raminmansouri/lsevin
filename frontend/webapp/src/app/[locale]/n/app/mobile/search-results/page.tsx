@@ -30,9 +30,7 @@ import { useNavigate } from "@/hooks/use-navigate";
   const [sortBy, setSortBy] = useState("relevance");
   const [showFilters, setShowFilters] = useState(false);
 
-  const { data } = useFetchSearchResults({
-    term:q
-  });
+  const { data } = useFetchSearchResults(query);
 
   useEffect(() => {
     // Auto-focus on mount

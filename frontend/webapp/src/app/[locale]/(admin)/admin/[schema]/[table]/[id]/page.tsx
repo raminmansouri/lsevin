@@ -48,7 +48,8 @@ export default async function ViewRecordPage({ params }: Props) {
           {definition.fields.map((field) => (
             <div key={field.columnName} className="rounded-2xl border border-zinc-200 p-4 dark:border-zinc-800">
               <div className="mb-1 text-xs uppercase tracking-wide text-zinc-500">{field.label}</div>
-              <div className="text-sm">{String(record[field.columnName] ?? "—")}</div>
+              <div className="text-sm">
+                {String(record[field.columnName] ?? "—")}</div>
             </div>
           ))}
         </div>

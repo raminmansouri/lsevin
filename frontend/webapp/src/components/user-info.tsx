@@ -19,11 +19,32 @@ import { UserRole } from "@/types/common";
 
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Skeleton } from "./ui/skeleton";
+import { EditProfileInitialData } from "@/features/profile/schemas/profile.schema";
+import { useMemo } from "react";
+import { resolveMediaUrl } from "@/features/profile/components/profile-image-picker";
 
-const UserInfo = () => {
+const UserInfo = ({profile}:{profile:EditProfileInitialData}) => {
   const { user, status } = useCurrentSession(true);
   const isAdmin = user?.roles?.includes(UserRole.Admin);
   const t = useTranslations("UserInfo");
+    const resolvedImageUrl = useMemo(
+    () => resolveMediaUrl(profile?.profileImageUrl),
+    [profile?.profileImageUrl]
+  );
+
+  const fullName=`${profile?.firstName} ${profile?.lastName}`;
+
+
+  const initials = useMemo(() => {
+    const value = fullName
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join("");
+
+    return value || "U";
+  }, [fullName]);
 
   if (status === "loading") {
     return (
@@ -35,14 +56,19 @@ const UserInfo = () => {
 
   if (!user) return null;
 
-  const initials = `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`;
+  // const initials = `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button className="relative size-8 rounded-full">
-          <Avatar>
+          {/* <Avatar>
             <AvatarImage src={undefined} alt={user.firstName} />
+            <AvatarFallback className="bg-secondary">{initials}</AvatarFallback>
+          </Avatar> */}
+
+              <Avatar>
+            <AvatarImage src={resolvedImageUrl} alt={`${profile.firstName} ${profile.lastName}`} />
             <AvatarFallback className="bg-secondary">{initials}</AvatarFallback>
           </Avatar>
         </Button>

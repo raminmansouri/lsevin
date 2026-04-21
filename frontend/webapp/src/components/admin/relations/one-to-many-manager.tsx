@@ -10,6 +10,9 @@ import {
   ResolvedTableDefinition,
 } from "@/lib/admin/types";
 import { createChildRecordAction, deleteChildRecordAction, updateChildRecordAction } from "@/app/[locale]/(admin)/admin/_actions";
+import { hasLexicalContent, LexicalRenderer } from "@/components/editor/lexical-renderer";
+import { env } from "@/config/env/client";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 // import {
 //   createChildRecordAction,
 //   deleteChildRecordAction,
@@ -240,13 +243,55 @@ function ChildCollectionCard({
               result.rows.map((row, index) => (
                 <tr key={String(row.__pk ?? index)} className="border-b border-zinc-100 dark:border-zinc-800">
                   {listFields.map((field) => {
-                    const display = row[`${field.columnName}__label`] ?? row[field.columnName];
+                    const display: any = row[`${field.columnName}__label`] ?? row[field.columnName];
                     return (
                       <td key={field.columnName} className="max-w-[260px] px-4 py-3 align-top">
                         {display === null || display === undefined || display === "" ? (
                           <span className="text-zinc-400">—</span>
                         ) : (
-                          <span className="truncate">{String(display)}</span>
+                          <span className="truncate">
+
+                            {['image','url','Url'].indexOf(field.columnName)>=0 && 
+                            <ImageWithFallback
+                                              width={50}
+                                              height={50}
+                                              src={`${env.NEXT_PUBLIC_FILES_URL}/${display}`}
+                                              alt={display}
+
+                                              className="h-full w-full object-cover"
+                                            />
+                            }
+
+                            {/* 
+                            <Image
+                                                    src={`${env.NEXT_PUBLIC_FILES_URL}/${display}`}
+                                                    // alt={getLocalizedValue(item.title, localeHeader)}
+                                                    alt={display}
+                                                    fill
+                                                    className="object-cover"
+                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                  /> */}
+                            {/* <a target="_blank" href={`${env.NEXT_PUBLIC_FILES_URL}/${ row[field.columnName]}`}>link</a> */}
+
+                            {display &&
+                              hasLexicalContent(display) ? (
+                              <div style={{ overflow: "hidden", height: '50px' }}>
+                                <LexicalRenderer
+                                  content={display}
+
+                                />
+                              </div>
+                            ) : (
+                              <>
+                                <div style={{ overflow: "hidden", height: '50px', maxWidth: '100px' }}>
+                                  {String(display)}
+                                </div>
+                              </>
+                            )}
+
+
+
+                          </span>
                         )}
                       </td>
                     );
@@ -315,7 +360,15 @@ function ChildCollectionCard({
               definition={panel.childDefinition}
               locale={locale}
               mode={modal.mode}
-              initialValues={modal.mode === "edit" ? (modal.record as Record<string, any>) : undefined}
+              initialValues={
+                modal.mode === "edit"
+                  ? ({
+                    ...(modal.record as Record<string, any>),
+                    [panel.collection.foreignKeyColumn]: panel.parentLinkValue,
+                  } as Record<string, any>)
+                  : ({ [panel.collection.foreignKeyColumn]: panel.parentLinkValue } as Record<string, any>)
+              }
+              lockedValues={{ [panel.collection.foreignKeyColumn]: panel.parentLinkValue }}
               excludeFields={[panel.collection.foreignKeyColumn]}
               submitLabel={modal.mode === "create" ? `Add ${panel.childDefinition.label}` : `Save ${panel.childDefinition.label}`}
               onSubmitAction={async (values) => {

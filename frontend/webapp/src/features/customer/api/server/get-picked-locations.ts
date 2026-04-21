@@ -40,8 +40,11 @@ export const getGetPickedLocations = async (
 
 
     const pickedLocations= await sql`
-      SELECT id, locationid, image, latitude, longitude
-	FROM category.picked_locations;
+   SELECT locationid, image, latitude, longitude,common.get_translation_t(l.value_translations,${request?.locale ?? 'fa'},'en') city,
+   common.get_translation_t(parent.value_translations,${request?.locale ?? 'fa'},'en')   country
+	FROM category.picked_locations p
+	inner join category.locations l on p.locationid=l.id
+	inner join category.locations parent on l.parent_id=parent.id
     `
 
   return pickedLocations;

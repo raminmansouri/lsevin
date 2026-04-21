@@ -53,7 +53,7 @@ previous AS (
     GROUP BY normalized_term
 )
 SELECT 
-    r.normalized_term AS "Query",
+    r.normalized_term AS "query",
     CONCAT(
         '+',
         ROUND(
@@ -61,7 +61,7 @@ SELECT
             0
         ),
         '%'
-    ) AS "Trend"
+    ) AS "trend"
 FROM recent r
 LEFT JOIN previous p 
     ON p.normalized_term = r.normalized_term

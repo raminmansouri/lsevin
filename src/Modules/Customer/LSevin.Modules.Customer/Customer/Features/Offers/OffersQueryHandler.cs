@@ -35,13 +35,13 @@ internal sealed class OffersQueryHandler(
         var defaultLocale = localeAccessor.DefaultLocale;
 
    
-        var searchHistoryResponse = new OffersResponse
-        {
-            Offers=StaticOffers,
-            Categories=GetOfferCategories()
-        };
+        //var searchHistoryResponse = new OffersResponse
+        //{
+        //    Offers=StaticOffers,
+        //    Categories=GetOfferCategories()
+        //};
 
-
+        var searchHistoryResponse = await GetOffers(connection);
 
         return searchHistoryResponse;
     }

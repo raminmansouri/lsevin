@@ -77,7 +77,7 @@ try
 
     builder.Services.AddHttpContextAccessor();
 
-    builder.Services.AddDbContextPool<LsevinContext>((sp, options) =>
+    builder.Services.AddDbContextFactory<LsevinContext>((sp, options) =>
     {
         options.UseNpgsql(databaseConnectionString);
     });

@@ -17,6 +17,14 @@ export function inferFieldKind(column: ColumnMetadata): AdminFieldKind {
   const dataType = column.dataType.toLowerCase();
   const udt = column.udtName.toLowerCase();
 
+  if (column.columnName.toLowerCase().indexOf('url')>=0) return "image";
+  if (column.columnName.toLowerCase().indexOf('images')>=0) return "images";
+  if (column.columnName.toLowerCase().indexOf('image')>=0) return "image";
+  if (column.columnName.toLowerCase().indexOf('videos')>=0) return "videos";
+  if (column.columnName.toLowerCase().indexOf('video')>=0) return "video";
+  if (column.columnName.toLowerCase().indexOf('gif')>=0) return "gif";
+  if (column.columnName.toLowerCase().indexOf('file')>=0) return "file";
+  if (column.columnName.toLowerCase().indexOf('files')>=0) return "files";
   if (isTranslationColumn(column)) return "multilingual";
   if (column.manyToOne.length > 0 || name.endsWith("_id")) return "relation";
   if (column.isEnum) return "enum";

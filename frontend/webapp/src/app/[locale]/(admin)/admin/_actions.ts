@@ -243,7 +243,13 @@ export async function createChildRecordAction(args: {
       }
     }
 
-    const inserted = await insert(sql, { schema: args.childSchema, table: args.childTable }, payload, { returning: "*" });
+    const inserted = await insert(
+      sql,
+      { schema: args.childSchema, table: args.childTable },
+      payload,
+      { returning: "*" }
+    );
+
     const childRow = inserted[0];
     const childId = childDefinition.primaryKey ? childRow?.[childDefinition.primaryKey] : null;
 

@@ -76,6 +76,22 @@ export const adminOverrides: AdminOverrideMap = {
 };
 
 
+export function resolveContentLocale(locale?: string | null) {
+  const value = locale ?? "en-US";
+
+  const map: Record<string, string> = {
+    ar: "ar-SA",
+    de: "de-DE",
+    en: "en-US",
+    es: "es-ES",
+    fa: "fa-IR",
+    fr: "fr-FR",
+    ku: "ku-KU",
+    tr: "tr-TR",
+  };
+
+  return map[value] ?? value;
+}
 // Example override for embedded one-to-many collections on a parent edit page:
 // export const customerChildExample = {
 //   "crm.customers": {

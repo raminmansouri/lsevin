@@ -13,6 +13,7 @@ import {
 import { ChevronLeft, ChevronRight, Filter, Pencil, Trash2, Eye } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ResolvedTableDefinition, ListQueryResultRow } from "@/lib/admin/types";
+import { hasLexicalContent, LexicalRenderer } from "@/components/editor/lexical-renderer";
 
 type Props = {
   definition: ResolvedTableDefinition;
@@ -171,7 +172,23 @@ export function DynamicDataTable({
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="max-w-[280px] px-4 py-3 align-middle">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+
+                      {cell.column.columnDef.cell &&
+                        hasLexicalContent(cell.getValue()?.toString()) ? (
+                        <div style={{ overflow: "hidden", height: '50px' }}>
+                          <LexicalRenderer
+                            content={cell.getValue()?.toString()}
+
+                          />
+                        </div>
+                      ) : (
+                        <>
+                        <div style={{ overflow: "hidden", height: '50px',maxWidth:'100px' }}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </div>
+                        </>
+                      )}
+
                     </td>
                   ))}
                 </tr>

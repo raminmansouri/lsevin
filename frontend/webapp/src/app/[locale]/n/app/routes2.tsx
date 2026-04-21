@@ -54,7 +54,7 @@ import Favorites from "./mobile/profile/favorites/page";
 import MedicalProfile from "./mobile/profile/MedicalProfile";
 import Notifications from "./mobile/notifications/page";
 import PrivacySecurity from "./mobile/profile/PrivacySecurity";
-import EditProfile from "./mobile/profile/EditProfile";
+import EditProfile from "./mobile/profile/EditProfile/page";
 import Transactions from "./mobile/profile/Transactions";
 import TransactionDetail from "./mobile/profile/TransactionDetail";
 import Coupon from "./mobile/profile/Coupon";

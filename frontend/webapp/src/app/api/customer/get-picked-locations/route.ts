@@ -9,6 +9,7 @@ import { getSearchHistory } from "@/features/service-providers/api/server/get-se
 import { getSearchResults } from "@/features/service-providers/api/server/get-search-results";
 import { getExplore } from "@/features/service-providers/api/server/get-explore";
 import { getOffers } from "@/features/service-providers/api/server/get-offers";
+import { getGetPickedLocations } from "@/features/customer/api/server/get-picked-locations";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
   const token = session?.user?.accessToken;
   console.log('-------------------- offers called --------------------')
 
-  const { data, error } = await getPicked(
+  const data = await getGetPickedLocations(
     { locale: localeHeader, token },
     {
       filters: search || "",
@@ -35,9 +36,9 @@ export async function GET(request: NextRequest) {
     }
   );
 
-  if (error) {
-    return NextResponse.json(error, { status: error.status });
-  }
+  // if (error) {
+  //   return NextResponse.json(error, { status: error.status });
+  // }
 
   return NextResponse.json(data);
 }

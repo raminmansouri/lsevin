@@ -3,16 +3,20 @@ import LocaleSwitcher from "./locale/locale-switcher";
 import { Logo } from "./logo";
 import { Skeleton } from "./ui/skeleton";
 import UserInfo from "./user-info";
+import { getProfileForEdit } from "@/features/profile/actions/profile.actions";
 
-const Navabr = () => {
+const Navabr = async () => {
+
+  const profile = await getProfileForEdit("en-US");
+
   return (
     <header className="container">
       <nav className="flex items-center justify-between">
         <Logo />
         <div className="flex items-center gap-4">
-          <NotificationsBar/>
+          <NotificationsBar />
           <LocaleSwitcher />
-          <UserInfo />
+          <UserInfo profile={profile} />
         </div>
       </nav>
     </header>

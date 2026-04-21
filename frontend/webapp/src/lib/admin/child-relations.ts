@@ -119,13 +119,14 @@ export async function getChildCollectionPanels(args: {
         pageSize: collection.pageSize,
         sortField,
         sortDirection,
-        filters: [
-          {
-            field: collection.foreignKeyColumn,
-            op: "eq",
-            value: parentLinkValue,
-          },
-        ],
+       filters: [
+  {
+    field: collection.foreignKeyColumn,
+    op: "eq",
+    value: parentLinkValue,
+    mode: "raw",
+  },
+],
       },
       args.locale
     );

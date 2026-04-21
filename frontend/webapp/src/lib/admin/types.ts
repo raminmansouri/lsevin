@@ -7,6 +7,13 @@ export type AdminLocaleConfig = {
 };
 
 export type AdminFieldKind =
+  | "files"
+  | "images"
+  | "video"
+  | "videos"
+  | "gif"
+  | "image"
+  | "file"
   | "text"
   | "textarea"
   | "richtext"
@@ -21,6 +28,7 @@ export type AdminFieldKind =
   | "image"
   | "relation"
   | "multilingual"
+  | "multilingual-textarea"
   | "hidden"
   | "readonly"
   | "many-to-many";
@@ -169,10 +177,12 @@ export type ResolvedTableDefinition = {
   defaultSort: { field: string; direction: "asc" | "desc" };
 };
 
+
 export type ListQueryFilter = {
   field: string;
   op: AdminFilterOperator;
   value?: unknown;
+  mode?: "display" | "raw";
 };
 
 export type ListQueryInput = {

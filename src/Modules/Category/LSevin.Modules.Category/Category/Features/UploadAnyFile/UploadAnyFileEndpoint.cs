@@ -18,7 +18,7 @@ internal sealed class UpdateCategoryEndpoint : EndpointResponseHandler, IEndpoin
 {
     public void ConfigureEndpoints(IEndpointRouteBuilder app)
     {
-        app.MapPut(Routes.Category.UpdateImage, Handle)
+        app.MapPut(Routes.Category.UploadAnyFile, Handle)
             .RequireAuthorization(SecurityConstants.Role.Admin)
             .DisableAntiforgery()
             .Accepts<UploadAnyFileRequest>(RequestHeaderConstValues.MultipartFormDataContent)

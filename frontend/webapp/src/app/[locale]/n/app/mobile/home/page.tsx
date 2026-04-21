@@ -70,7 +70,7 @@ import { getPopularSearches } from '@/features/home/api/server/get-popular-searc
 
 
 
-  function Home({ params, searchParams }: PageProps) {
+   function Home({ params, searchParams }: PageProps) {
 
 
   const t = useTranslations();
