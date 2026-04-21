@@ -17,6 +17,8 @@ import {
 import { Link } from "@/i18n/navigation";
 import { TranslationType } from "@/types/next";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { NearbyCategory } from "../../map-discovery/nearby.data";
+import Image from "next/image";
 
  const categories = [
     { 
@@ -67,7 +69,7 @@ export const HomeServiceProvidersCategories = ({
   serviceProvidersGroups,
   t,
 }: {
-  serviceProvidersGroups: IServiceProvidersGroupedResponse;
+  serviceProvidersGroups: NearbyCategory[];
   t: TranslationType;
 }) => {
   if (!serviceProvidersGroups?.length) {
@@ -86,7 +88,7 @@ export const HomeServiceProvidersCategories = ({
   return (
         serviceProvidersGroups.map((group, groupIndex) => (
           <ServiceProviderGroup
-            key={`${group.providerTypeName}-${groupIndex}`}
+            key={`${group.id}-${groupIndex}`}
             index={groupIndex+1}
             group={group}
             t={t}
@@ -101,39 +103,33 @@ const ServiceProviderGroup = ({
   t,
 }: {
   index:number,
-  group: {
-    providerTypeId: string;
-    providerTypeName: string;
-    totalCount: number;
-    serviceProviders: IServiceProvider[];
-  };
+  group:NearbyCategory;
   t: TranslationType;
 }) => {
-  if (!group.serviceProviders?.length) {
-    return null;
-  }
+ 
+
   let i=index < 7 ? index: 6;
-  const provider=group.serviceProviders?.[0];
+  const provider=group.label;
 
   return (
 
             <Link
-            href={`/type/${group.providerTypeId}`}
-              key={group.providerTypeId}
+            href={`/n/app/mobile/map-discovery?categoryId=${group.id}`}
+              key={group.id}
               data-index={i}
               // onClick={() => navigate(group.path)}
               className="relative rounded-2xl overflow-hidden aspect-[4/3] group shadow-sm hover:shadow-xl transition-all active:scale-95"
             >
-              <ImageWithFallback fill 
-              src={`${env.NEXT_PUBLIC_FILES_URL}/${provider?.thumbnailUrl}`}
+              <img  
+              src={`${env.NEXT_PUBLIC_FILES_URL}/${group?.image}`}
                               // alt={provider?.name}
-                alt={group.providerTypeName}
+                alt={group.label}
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
               />
               <div className={`absolute inset-0 bg-gradient-to-t ${categories.find(f=>f.id==i)?.gradient}`} />
               
               <div className="relative z-10 h-full flex items-end p-4">
-                <h3 className="text-white font-bold text-lg">{group.providerTypeName}</h3>
+                <h3 className="text-white font-bold text-lg z-50">{group.label}</h3>
               </div>
             </Link>
           

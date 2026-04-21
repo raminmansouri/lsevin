@@ -16,6 +16,7 @@ export type NearbyFiltersInput = {
 };
 
 export type NearbyCategory = {
+  image?: string;
   id: string;
   label: string;
 };

@@ -7,6 +7,7 @@ import { TRANSLATION_KEY } from "@/features/consulting/types/constants";
 import ServerFetchResult from "@/components/fetcher/fetch.server";
 import { IServiceProvidersGroupedResponse } from "@/features/service-providers/types";
 import { HomeServiceProvidersCategories } from "./service-providers-category-section";
+import getCategories from "../actions/get-categories";
 
 export const ServiceProvidersCategoriesSuspenseBoundary = async ({
   params,
@@ -16,33 +17,27 @@ export const ServiceProvidersCategoriesSuspenseBoundary = async ({
   const { countryCode, cityCode, slug } =
     homeSearchParamsCache.parse(searchParamsData);
 
-  const serviceProviders = await withBaseHeaders((locale, token) =>
-    getPublicServiceProviders(
-      { locale, token },
-      {
-        filters: slug,
-        countryCode,
-        cityCode,
-      }
-    )
-  );
+  // const serviceProviders = await withBaseHeaders((locale, token) =>
+  //   getPublicServiceProviders(
+  //     { locale, token },
+  //     {
+  //       filters: slug,
+  //       countryCode,
+  //       cityCode,
+  //     }
+  //   )
+  // );
+
+  const categories= await getCategories();
 
   return (
     <LocaleBoundary params={params} tanslationNameSpace={TRANSLATION_KEY}>
       {(t) => (
         <>
-          <ServerFetchResult<IServiceProvidersGroupedResponse>
-            result={serviceProviders}
-          >
-            {(serviceProvidersData) => (
-              <>
-                <HomeServiceProvidersCategories
-                  serviceProvidersGroups={serviceProvidersData.slice(0,6)}
+          <HomeServiceProvidersCategories
+                  serviceProvidersGroups={categories.slice(0,6)}
                   t={t}
                 />
-              </>
-            )}
-          </ServerFetchResult>
         </>
       )}
     </LocaleBoundary>
