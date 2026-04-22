@@ -1,5 +1,6 @@
 "use client";
 
+import { resolveAdminTableCellExtension } from "@/lib/admin/extensions/form-and-table-renderers";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
@@ -43,12 +44,24 @@ export function DynamicDataTable({
       accessorKey: field.columnName,
       header: field.label,
       cell: ({ row }) => {
+
+
         const relationLabel = row.original[`${field.columnName}__label`];
         const value = relationLabel ?? row.getValue(field.columnName);
         if (value === null || value === undefined || value === "") {
           return <span className="text-zinc-400">—</span>;
         }
 
+        const customCell = resolveAdminTableCellExtension({
+          definition,
+          field,
+          row: row.original,
+          value,
+        });
+
+        if (customCell) {
+          return customCell;
+        }
         if (typeof value === "boolean") {
           return (
             <span className={value ? "text-emerald-600" : "text-zinc-500"}>
@@ -183,9 +196,9 @@ export function DynamicDataTable({
                         </div>
                       ) : (
                         <>
-                        <div style={{ overflow: "hidden", height: '50px',maxWidth:'100px' }}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </div>
+                          <div style={{ overflow: "hidden", height: '50px', maxWidth: '100px' }}>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </div>
                         </>
                       )}
 
