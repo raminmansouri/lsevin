@@ -43,6 +43,7 @@ import UserInfo from './components/user-info';
 import UserInfoSubBar from './components/user-info';
 import sql from '@/config/database/db';
 import { getPopularSearches } from '@/features/home/api/server/get-popular-searches';
+import { SponsoredMediaCarouselSection } from '@/features/home/components/sponsored-media-carousel-section';
 
 
 /* export async function generateMetadata(): Promise<Metadata> {
@@ -303,7 +304,7 @@ import { getPopularSearches } from '@/features/home/api/server/get-popular-searc
       </div>
 
       {/* Native Ad Banner - Premium */}
-      <div className="px-5 pb-8">
+   {/*    <div className="px-5 pb-8">
         <div className="relative rounded-2xl overflow-hidden shadow-lg">
           <img
             src="/unsplash_images/photo-1544367567-0f2fcb009e0b__w=1200&h=400&fit=crop.jpg"
@@ -327,7 +328,9 @@ import { getPopularSearches } from '@/features/home/api/server/get-popular-searc
             </button>
           </div>
         </div>
-      </div>
+      </div> */}
+
+<SponsoredMediaCarouselSection />
 
       {/* Trending Treatments */}
       <div className="pb-8">
