@@ -291,6 +291,7 @@ async function coerceScalarValue(
   mode: "insert" | "update" | "where"
 ): Promise<unknown> {
   if (rawValue === undefined) return undefined;
+  if (rawValue === '' && column.columnDefault) return rawValue;
 
   if (rawValue === null) {
     if (!column.isNullable && mode !== "where") {

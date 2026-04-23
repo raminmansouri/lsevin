@@ -292,6 +292,7 @@ async function coerceScalarValue(
   mode: "insert" | "update" | "where"
 ): Promise<unknown> {
   if (rawValue === undefined) return undefined;
+  if (rawValue === '' && (column.columnDefault || column.isNullable)) return rawValue;
 
   if (rawValue === null) {
     if (!column.isNullable && mode !== "where") {
@@ -745,13 +746,28 @@ export async function insert(
       ${returningFragment}
     `;
   }
-
-  const values = columns.map((column) => payload[column]);
+  
+  let columnsRefined = [...columns];
+  for(const col of columns)
+  {
+      const columnMeta= meta.columns.find(f=>f.columnName==col)
+      if(columnMeta.columnDefault || columnMeta.isNullable )
+       {
+         if(payload[col] === '')
+        {
+          delete payload[col];
+          columnsRefined =columnsRefined.filter(f=>f!==col);
+        }
+       }
+           
+  }
+  
+  const values = columnsRefined.map((column) => payload[column]);
 
 
   return sql`
     insert into ${buildQualifiedTable(sql, meta.ref)}
-    (${buildColumnsFragment(sql, columns)})
+    (${buildColumnsFragment(sql, columnsRefined)})
     values ${sql(values)}
     ${returningFragment}
   `;

@@ -59,7 +59,7 @@ export function buildDynamicZodSchema(definition: ResolvedTableDefinition) {
       case "time":
         // if (['create_date', 'last_modified_date'].indexOf(field.columnName) >= 0)
         // continue;
-        schema = z.string().min(1);
+        schema = z.string();
         break;
       case "json":
         schema = z.union([
