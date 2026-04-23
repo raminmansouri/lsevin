@@ -5,7 +5,7 @@
 -- Dumped from database version 16.0
 -- Dumped by pg_dump version 17.1
 
--- Started on 2026-04-22 16:10:21
+-- Started on 2026-04-24 00:50:22
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -70,6 +70,16 @@ CREATE SCHEMA customer;
 ALTER SCHEMA customer OWNER TO postgres;
 
 --
+-- TOC entry 22 (class 2615 OID 22192)
+-- Name: form_builder; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+CREATE SCHEMA form_builder;
+
+
+ALTER SCHEMA form_builder OWNER TO postgres;
+
+--
 -- TOC entry 12 (class 2615 OID 16401)
 -- Name: identity; Type: SCHEMA; Schema: -; Owner: postgres
 --
@@ -120,6 +130,16 @@ CREATE SCHEMA notify;
 ALTER SCHEMA notify OWNER TO postgres;
 
 --
+-- TOC entry 21 (class 2615 OID 21787)
+-- Name: provider_portal; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+CREATE SCHEMA provider_portal;
+
+
+ALTER SCHEMA provider_portal OWNER TO postgres;
+
+--
 -- TOC entry 14 (class 2615 OID 18023)
 -- Name: search; Type: SCHEMA; Schema: -; Owner: postgres
 --
@@ -148,7 +168,7 @@ CREATE EXTENSION IF NOT EXISTS btree_gist WITH SCHEMA public;
 
 
 --
--- TOC entry 7145 (class 0 OID 0)
+-- TOC entry 7739 (class 0 OID 0)
 -- Dependencies: 4
 -- Name: EXTENSION btree_gist; Type: COMMENT; Schema: -; Owner: 
 --
@@ -165,7 +185,7 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
 
 
 --
--- TOC entry 7146 (class 0 OID 0)
+-- TOC entry 7740 (class 0 OID 0)
 -- Dependencies: 3
 -- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: 
 --
@@ -182,7 +202,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
 
 
 --
--- TOC entry 7147 (class 0 OID 0)
+-- TOC entry 7741 (class 0 OID 0)
 -- Dependencies: 2
 -- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: 
 --
@@ -191,7 +211,7 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 
 
 --
--- TOC entry 1525 (class 1247 OID 19306)
+-- TOC entry 1560 (class 1247 OID 19306)
 -- Name: favorite_type; Type: TYPE; Schema: customer; Owner: postgres
 --
 
@@ -205,7 +225,95 @@ CREATE TYPE customer.favorite_type AS ENUM (
 ALTER TYPE customer.favorite_type OWNER TO postgres;
 
 --
--- TOC entry 1636 (class 1247 OID 20102)
+-- TOC entry 1857 (class 1247 OID 21202)
+-- Name: discount_type; Type: TYPE; Schema: marketing; Owner: postgres
+--
+
+CREATE TYPE marketing.discount_type AS ENUM (
+    'percent',
+    'fixed'
+);
+
+
+ALTER TYPE marketing.discount_type OWNER TO postgres;
+
+--
+-- TOC entry 1860 (class 1247 OID 21208)
+-- Name: referral_invitation_status; Type: TYPE; Schema: marketing; Owner: postgres
+--
+
+CREATE TYPE marketing.referral_invitation_status AS ENUM (
+    'sent',
+    'registered',
+    'profile_completed',
+    'qualified',
+    'rewarded',
+    'cancelled'
+);
+
+
+ALTER TYPE marketing.referral_invitation_status OWNER TO postgres;
+
+--
+-- TOC entry 1848 (class 1247 OID 21179)
+-- Name: referral_program_status; Type: TYPE; Schema: marketing; Owner: postgres
+--
+
+CREATE TYPE marketing.referral_program_status AS ENUM (
+    'draft',
+    'active',
+    'archived'
+);
+
+
+ALTER TYPE marketing.referral_program_status OWNER TO postgres;
+
+--
+-- TOC entry 1854 (class 1247 OID 21196)
+-- Name: reward_recipient; Type: TYPE; Schema: marketing; Owner: postgres
+--
+
+CREATE TYPE marketing.reward_recipient AS ENUM (
+    'referrer',
+    'referee'
+);
+
+
+ALTER TYPE marketing.reward_recipient OWNER TO postgres;
+
+--
+-- TOC entry 1851 (class 1247 OID 21186)
+-- Name: reward_trigger; Type: TYPE; Schema: marketing; Owner: postgres
+--
+
+CREATE TYPE marketing.reward_trigger AS ENUM (
+    'signup',
+    'profile_completed',
+    'referral_joined',
+    'first_booking_completed'
+);
+
+
+ALTER TYPE marketing.reward_trigger OWNER TO postgres;
+
+--
+-- TOC entry 1863 (class 1247 OID 21222)
+-- Name: user_coupon_status; Type: TYPE; Schema: marketing; Owner: postgres
+--
+
+CREATE TYPE marketing.user_coupon_status AS ENUM (
+    'issued',
+    'reserved',
+    'redeemed',
+    'expired',
+    'cancelled'
+);
+
+
+ALTER TYPE marketing.user_coupon_status OWNER TO postgres;
+
+--
+-- TOC entry 1671 (class 1247 OID 20102)
 -- Name: delivery_channel; Type: TYPE; Schema: notify; Owner: postgres
 --
 
@@ -221,7 +329,7 @@ CREATE TYPE notify.delivery_channel AS ENUM (
 ALTER TYPE notify.delivery_channel OWNER TO postgres;
 
 --
--- TOC entry 1639 (class 1247 OID 20114)
+-- TOC entry 1674 (class 1247 OID 20114)
 -- Name: notification_status; Type: TYPE; Schema: notify; Owner: postgres
 --
 
@@ -237,7 +345,7 @@ CREATE TYPE notify.notification_status AS ENUM (
 ALTER TYPE notify.notification_status OWNER TO postgres;
 
 --
--- TOC entry 1633 (class 1247 OID 20095)
+-- TOC entry 1668 (class 1247 OID 20095)
 -- Name: notification_type; Type: TYPE; Schema: notify; Owner: postgres
 --
 
@@ -251,7 +359,81 @@ CREATE TYPE notify.notification_type AS ENUM (
 ALTER TYPE notify.notification_type OWNER TO postgres;
 
 --
--- TOC entry 1669 (class 1247 OID 20268)
+-- TOC entry 1887 (class 1247 OID 21802)
+-- Name: application_status; Type: TYPE; Schema: provider_portal; Owner: postgres
+--
+
+CREATE TYPE provider_portal.application_status AS ENUM (
+    'draft',
+    'submitted',
+    'in_review',
+    'approved',
+    'rejected',
+    'disabled'
+);
+
+
+ALTER TYPE provider_portal.application_status OWNER TO postgres;
+
+--
+-- TOC entry 1884 (class 1247 OID 21789)
+-- Name: membership_role; Type: TYPE; Schema: provider_portal; Owner: postgres
+--
+
+CREATE TYPE provider_portal.membership_role AS ENUM (
+    'owner',
+    'admin',
+    'manager',
+    'editor',
+    'viewer',
+    'staff'
+);
+
+
+ALTER TYPE provider_portal.membership_role OWNER TO postgres;
+
+--
+-- TOC entry 1893 (class 1247 OID 21826)
+-- Name: section_page_kind; Type: TYPE; Schema: provider_portal; Owner: postgres
+--
+
+CREATE TYPE provider_portal.section_page_kind AS ENUM (
+    'dashboard',
+    'bookings',
+    'services',
+    'staff',
+    'media',
+    'availability',
+    'reviews',
+    'offers',
+    'analytics',
+    'billing',
+    'support',
+    'settings',
+    'custom',
+    'applications'
+);
+
+
+ALTER TYPE provider_portal.section_page_kind OWNER TO postgres;
+
+--
+-- TOC entry 1890 (class 1247 OID 21816)
+-- Name: ticket_status; Type: TYPE; Schema: provider_portal; Owner: postgres
+--
+
+CREATE TYPE provider_portal.ticket_status AS ENUM (
+    'open',
+    'in_progress',
+    'resolved',
+    'closed'
+);
+
+
+ALTER TYPE provider_portal.ticket_status OWNER TO postgres;
+
+--
+-- TOC entry 1704 (class 1247 OID 20268)
 -- Name: address_type; Type: TYPE; Schema: shop; Owner: postgres
 --
 
@@ -264,7 +446,7 @@ CREATE TYPE shop.address_type AS ENUM (
 ALTER TYPE shop.address_type OWNER TO postgres;
 
 --
--- TOC entry 1657 (class 1247 OID 20202)
+-- TOC entry 1692 (class 1247 OID 20202)
 -- Name: cart_status; Type: TYPE; Schema: shop; Owner: postgres
 --
 
@@ -279,7 +461,7 @@ CREATE TYPE shop.cart_status AS ENUM (
 ALTER TYPE shop.cart_status OWNER TO postgres;
 
 --
--- TOC entry 1690 (class 1247 OID 20332)
+-- TOC entry 1725 (class 1247 OID 20332)
 -- Name: comparison_status; Type: TYPE; Schema: shop; Owner: postgres
 --
 
@@ -292,7 +474,7 @@ CREATE TYPE shop.comparison_status AS ENUM (
 ALTER TYPE shop.comparison_status OWNER TO postgres;
 
 --
--- TOC entry 1672 (class 1247 OID 20274)
+-- TOC entry 1707 (class 1247 OID 20274)
 -- Name: coupon_type; Type: TYPE; Schema: shop; Owner: postgres
 --
 
@@ -306,7 +488,7 @@ CREATE TYPE shop.coupon_type AS ENUM (
 ALTER TYPE shop.coupon_type OWNER TO postgres;
 
 --
--- TOC entry 1675 (class 1247 OID 20282)
+-- TOC entry 1710 (class 1247 OID 20282)
 -- Name: discount_scope; Type: TYPE; Schema: shop; Owner: postgres
 --
 
@@ -322,7 +504,7 @@ CREATE TYPE shop.discount_scope AS ENUM (
 ALTER TYPE shop.discount_scope OWNER TO postgres;
 
 --
--- TOC entry 1684 (class 1247 OID 20316)
+-- TOC entry 1719 (class 1247 OID 20316)
 -- Name: fulfillment_type; Type: TYPE; Schema: shop; Owner: postgres
 --
 
@@ -336,7 +518,7 @@ CREATE TYPE shop.fulfillment_type AS ENUM (
 ALTER TYPE shop.fulfillment_type OWNER TO postgres;
 
 --
--- TOC entry 1654 (class 1247 OID 20188)
+-- TOC entry 1689 (class 1247 OID 20188)
 -- Name: inventory_movement_type; Type: TYPE; Schema: shop; Owner: postgres
 --
 
@@ -353,7 +535,7 @@ CREATE TYPE shop.inventory_movement_type AS ENUM (
 ALTER TYPE shop.inventory_movement_type OWNER TO postgres;
 
 --
--- TOC entry 1660 (class 1247 OID 20212)
+-- TOC entry 1695 (class 1247 OID 20212)
 -- Name: order_status; Type: TYPE; Schema: shop; Owner: postgres
 --
 
@@ -375,7 +557,7 @@ CREATE TYPE shop.order_status AS ENUM (
 ALTER TYPE shop.order_status OWNER TO postgres;
 
 --
--- TOC entry 1663 (class 1247 OID 20236)
+-- TOC entry 1698 (class 1247 OID 20236)
 -- Name: payment_status; Type: TYPE; Schema: shop; Owner: postgres
 --
 
@@ -393,7 +575,7 @@ CREATE TYPE shop.payment_status AS ENUM (
 ALTER TYPE shop.payment_status OWNER TO postgres;
 
 --
--- TOC entry 1651 (class 1247 OID 20180)
+-- TOC entry 1686 (class 1247 OID 20180)
 -- Name: product_status; Type: TYPE; Schema: shop; Owner: postgres
 --
 
@@ -407,7 +589,7 @@ CREATE TYPE shop.product_status AS ENUM (
 ALTER TYPE shop.product_status OWNER TO postgres;
 
 --
--- TOC entry 1648 (class 1247 OID 20170)
+-- TOC entry 1683 (class 1247 OID 20170)
 -- Name: product_type; Type: TYPE; Schema: shop; Owner: postgres
 --
 
@@ -422,7 +604,7 @@ CREATE TYPE shop.product_type AS ENUM (
 ALTER TYPE shop.product_type OWNER TO postgres;
 
 --
--- TOC entry 1687 (class 1247 OID 20324)
+-- TOC entry 1722 (class 1247 OID 20324)
 -- Name: question_status; Type: TYPE; Schema: shop; Owner: postgres
 --
 
@@ -436,7 +618,7 @@ CREATE TYPE shop.question_status AS ENUM (
 ALTER TYPE shop.question_status OWNER TO postgres;
 
 --
--- TOC entry 1681 (class 1247 OID 20302)
+-- TOC entry 1716 (class 1247 OID 20302)
 -- Name: return_status; Type: TYPE; Schema: shop; Owner: postgres
 --
 
@@ -453,7 +635,7 @@ CREATE TYPE shop.return_status AS ENUM (
 ALTER TYPE shop.return_status OWNER TO postgres;
 
 --
--- TOC entry 1678 (class 1247 OID 20294)
+-- TOC entry 1713 (class 1247 OID 20294)
 -- Name: review_status; Type: TYPE; Schema: shop; Owner: postgres
 --
 
@@ -467,7 +649,7 @@ CREATE TYPE shop.review_status AS ENUM (
 ALTER TYPE shop.review_status OWNER TO postgres;
 
 --
--- TOC entry 1666 (class 1247 OID 20252)
+-- TOC entry 1701 (class 1247 OID 20252)
 -- Name: shipment_status; Type: TYPE; Schema: shop; Owner: postgres
 --
 
@@ -485,7 +667,36 @@ CREATE TYPE shop.shipment_status AS ENUM (
 ALTER TYPE shop.shipment_status OWNER TO postgres;
 
 --
--- TOC entry 406 (class 1255 OID 19304)
+-- TOC entry 474 (class 1255 OID 22607)
+-- Name: set_last_modified_date(); Type: FUNCTION; Schema: booking; Owner: postgres
+--
+
+CREATE FUNCTION booking.set_last_modified_date() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+
+    IF EXISTS(SELECT 1 
+             FROM information_schema.columns 
+             WHERE table_name = TG_TABLE_NAME AND column_name = 'updated_at') THEN
+    NEW.updated_at = now();
+  END IF;
+
+    IF EXISTS(SELECT 1 
+             FROM information_schema.columns 
+             WHERE table_name = TG_TABLE_NAME AND column_name = 'last_modified_date') THEN
+    NEW.last_modified_date = now();
+  END IF;
+  
+  RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION booking.set_last_modified_date() OWNER TO postgres;
+
+--
+-- TOC entry 439 (class 1255 OID 19304)
 -- Name: get_translation(jsonb, text, text); Type: FUNCTION; Schema: common; Owner: postgres
 --
 
@@ -509,7 +720,7 @@ $$;
 ALTER FUNCTION common.get_translation(translations jsonb, preferred_language text, fallback_language text) OWNER TO postgres;
 
 --
--- TOC entry 427 (class 1255 OID 19467)
+-- TOC entry 460 (class 1255 OID 19467)
 -- Name: get_translation_t(jsonb, text, text); Type: FUNCTION; Schema: common; Owner: postgres
 --
 
@@ -590,7 +801,24 @@ $$;
 ALTER FUNCTION common.get_translation_t(translations jsonb, preferred_language text, fallback_language text) OWNER TO postgres;
 
 --
--- TOC entry 415 (class 1255 OID 19643)
+-- TOC entry 489 (class 1255 OID 22417)
+-- Name: set_last_modified_date(); Type: FUNCTION; Schema: form_builder; Owner: postgres
+--
+
+CREATE FUNCTION form_builder.set_last_modified_date() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  NEW.last_modified_date = now();
+  RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION form_builder.set_last_modified_date() OWNER TO postgres;
+
+--
+-- TOC entry 448 (class 1255 OID 19643)
 -- Name: set_last_modified_date(); Type: FUNCTION; Schema: media; Owner: postgres
 --
 
@@ -607,7 +835,7 @@ $$;
 ALTER FUNCTION media.set_last_modified_date() OWNER TO postgres;
 
 --
--- TOC entry 612 (class 1255 OID 20166)
+-- TOC entry 647 (class 1255 OID 20166)
 -- Name: create_booking_notification(uuid, character varying, text, uuid, character varying, character varying, text); Type: FUNCTION; Schema: notify; Owner: postgres
 --
 
@@ -659,7 +887,7 @@ $$;
 ALTER FUNCTION notify.create_booking_notification(p_customer_id uuid, p_title character varying, p_body text, p_booking_id uuid, p_email character varying, p_phone character varying, p_push_token text) OWNER TO postgres;
 
 --
--- TOC entry 587 (class 1255 OID 20163)
+-- TOC entry 622 (class 1255 OID 20163)
 -- Name: set_updated_at(); Type: FUNCTION; Schema: notify; Owner: postgres
 --
 
@@ -680,7 +908,7 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- TOC entry 336 (class 1259 OID 19570)
+-- TOC entry 338 (class 1259 OID 19570)
 -- Name: role_table_permissions; Type: TABLE; Schema: auth; Owner: postgres
 --
 
@@ -699,7 +927,7 @@ CREATE TABLE auth.role_table_permissions (
 ALTER TABLE auth.role_table_permissions OWNER TO postgres;
 
 --
--- TOC entry 334 (class 1259 OID 19550)
+-- TOC entry 336 (class 1259 OID 19550)
 -- Name: roles; Type: TABLE; Schema: auth; Owner: postgres
 --
 
@@ -712,7 +940,7 @@ CREATE TABLE auth.roles (
 ALTER TABLE auth.roles OWNER TO postgres;
 
 --
--- TOC entry 335 (class 1259 OID 19560)
+-- TOC entry 337 (class 1259 OID 19560)
 -- Name: user_roles; Type: TABLE; Schema: auth; Owner: postgres
 --
 
@@ -725,7 +953,7 @@ CREATE TABLE auth.user_roles (
 ALTER TABLE auth.user_roles OWNER TO postgres;
 
 --
--- TOC entry 355 (class 1259 OID 20032)
+-- TOC entry 357 (class 1259 OID 20032)
 -- Name: booking_addons; Type: TABLE; Schema: booking; Owner: postgres
 --
 
@@ -745,7 +973,44 @@ CREATE TABLE booking.booking_addons (
 ALTER TABLE booking.booking_addons OWNER TO postgres;
 
 --
--- TOC entry 356 (class 1259 OID 20055)
+-- TOC entry 431 (class 1259 OID 22560)
+-- Name: booking_child_bookings; Type: TABLE; Schema: booking; Owner: postgres
+--
+
+CREATE TABLE booking.booking_child_bookings (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    parent_booking_id uuid NOT NULL,
+    provider_type_id uuid NOT NULL,
+    provider_id uuid,
+    service_id uuid,
+    specialist_id uuid,
+    selected_date date,
+    selected_date_from date,
+    selected_date_to date,
+    selected_time time without time zone,
+    selected_time_from time without time zone,
+    selected_time_to time without time zone,
+    adults integer,
+    children integer,
+    infants integer,
+    rooms integer,
+    booking_ui_mode text DEFAULT 'default_slot'::text NOT NULL,
+    form_submission_id uuid,
+    subtotal_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    currency character varying(15) DEFAULT 'USD'::character varying NOT NULL,
+    status character varying(30) DEFAULT 'Confirmed'::character varying NOT NULL,
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_booking_child_bookings_guest_counts CHECK (((COALESCE(adults, 0) >= 0) AND (COALESCE(children, 0) >= 0) AND (COALESCE(infants, 0) >= 0) AND (COALESCE(rooms, 0) >= 0))),
+    CONSTRAINT ck_booking_child_bookings_ui_mode CHECK ((booking_ui_mode = ANY (ARRAY['default_slot'::text, 'date_range'::text, 'custom_form'::text])))
+);
+
+
+ALTER TABLE booking.booking_child_bookings OWNER TO postgres;
+
+--
+-- TOC entry 358 (class 1259 OID 20055)
 -- Name: booking_documents; Type: TABLE; Schema: booking; Owner: postgres
 --
 
@@ -765,7 +1030,7 @@ CREATE TABLE booking.booking_documents (
 ALTER TABLE booking.booking_documents OWNER TO postgres;
 
 --
--- TOC entry 353 (class 1259 OID 19996)
+-- TOC entry 355 (class 1259 OID 19996)
 -- Name: booking_draft_addons; Type: TABLE; Schema: booking; Owner: postgres
 --
 
@@ -784,7 +1049,44 @@ CREATE TABLE booking.booking_draft_addons (
 ALTER TABLE booking.booking_draft_addons OWNER TO postgres;
 
 --
--- TOC entry 354 (class 1259 OID 20017)
+-- TOC entry 430 (class 1259 OID 22512)
+-- Name: booking_draft_child_bookings; Type: TABLE; Schema: booking; Owner: postgres
+--
+
+CREATE TABLE booking.booking_draft_child_bookings (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    parent_draft_id uuid NOT NULL,
+    provider_type_id uuid NOT NULL,
+    provider_id uuid,
+    service_id uuid,
+    specialist_id uuid,
+    selected_date date,
+    selected_date_from date,
+    selected_date_to date,
+    selected_time time without time zone,
+    selected_time_from time without time zone,
+    selected_time_to time without time zone,
+    adults integer,
+    children integer,
+    infants integer,
+    rooms integer,
+    booking_ui_mode text DEFAULT 'default_slot'::text NOT NULL,
+    form_submission_id uuid,
+    subtotal_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    currency character varying(15) DEFAULT 'USD'::character varying NOT NULL,
+    status character varying(30) DEFAULT 'Draft'::character varying NOT NULL,
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_booking_draft_child_bookings_guest_counts CHECK (((COALESCE(adults, 0) >= 0) AND (COALESCE(children, 0) >= 0) AND (COALESCE(infants, 0) >= 0) AND (COALESCE(rooms, 0) >= 0))),
+    CONSTRAINT ck_booking_draft_child_bookings_ui_mode CHECK ((booking_ui_mode = ANY (ARRAY['default_slot'::text, 'date_range'::text, 'custom_form'::text])))
+);
+
+
+ALTER TABLE booking.booking_draft_child_bookings OWNER TO postgres;
+
+--
+-- TOC entry 356 (class 1259 OID 20017)
 -- Name: booking_draft_documents; Type: TABLE; Schema: booking; Owner: postgres
 --
 
@@ -804,7 +1106,7 @@ CREATE TABLE booking.booking_draft_documents (
 ALTER TABLE booking.booking_draft_documents OWNER TO postgres;
 
 --
--- TOC entry 352 (class 1259 OID 19960)
+-- TOC entry 354 (class 1259 OID 19960)
 -- Name: booking_drafts; Type: TABLE; Schema: booking; Owner: postgres
 --
 
@@ -831,6 +1133,8 @@ CREATE TABLE booking.booking_drafts (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     submitted_at timestamp with time zone,
+    selected_date_from time without time zone,
+    selected_date_to time without time zone,
     CONSTRAINT ck_booking_drafts_current_step CHECK ((current_step >= 1))
 );
 
@@ -838,20 +1142,20 @@ CREATE TABLE booking.booking_drafts (
 ALTER TABLE booking.booking_drafts OWNER TO postgres;
 
 --
--- TOC entry 310 (class 1259 OID 18381)
+-- TOC entry 312 (class 1259 OID 18381)
 -- Name: bookings; Type: TABLE; Schema: booking; Owner: postgres
 --
 
 CREATE TABLE booking.bookings (
     provider_id uuid NOT NULL,
     service_id uuid NOT NULL,
-    specialist_id uuid NOT NULL,
-    selected_date date NOT NULL,
-    selected_date_from time without time zone NOT NULL,
-    selected_date_to time without time zone NOT NULL,
-    selected_time time without time zone NOT NULL,
-    selected_time_from time without time zone NOT NULL,
-    selected_time_to time without time zone NOT NULL,
+    specialist_id uuid,
+    selected_date date,
+    selected_date_from time without time zone,
+    selected_date_to time without time zone,
+    selected_time time without time zone,
+    selected_time_from time without time zone,
+    selected_time_to time without time zone,
     payment_method text NOT NULL,
     add_ons jsonb NOT NULL,
     upload_files jsonb NOT NULL,
@@ -868,6 +1172,20 @@ CREATE TABLE booking.bookings (
     paid_amount numeric(18,2) DEFAULT 0 NOT NULL,
     payment_reference character varying(150),
     wallet_payment_intent_id uuid,
+    applied_coupon_id uuid,
+    applied_discount_type character varying(20),
+    applied_discount_value numeric(10,2),
+    applied_discount_amount numeric(18,2),
+    provider_notes text,
+    provider_updated_at timestamp with time zone,
+    booking_ui_mode text DEFAULT 'default_slot'::text NOT NULL,
+    form_submission_id uuid,
+    adults integer,
+    children integer,
+    infants integer,
+    rooms integer,
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    CONSTRAINT ck_bookings_booking_ui_mode CHECK ((booking_ui_mode = ANY (ARRAY['default_slot'::text, 'date_range'::text, 'custom_form'::text]))),
     CONSTRAINT ck_bookings_time_range CHECK ((selected_time_from < selected_time_to))
 );
 
@@ -875,7 +1193,7 @@ CREATE TABLE booking.bookings (
 ALTER TABLE booking.bookings OWNER TO postgres;
 
 --
--- TOC entry 357 (class 1259 OID 20070)
+-- TOC entry 359 (class 1259 OID 20070)
 -- Name: payments; Type: TABLE; Schema: booking; Owner: postgres
 --
 
@@ -898,7 +1216,7 @@ CREATE TABLE booking.payments (
 ALTER TABLE booking.payments OWNER TO postgres;
 
 --
--- TOC entry 230 (class 1259 OID 16413)
+-- TOC entry 232 (class 1259 OID 16413)
 -- Name: Currency; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -912,7 +1230,7 @@ CREATE TABLE category."Currency" (
 ALTER TABLE category."Currency" OWNER TO postgres;
 
 --
--- TOC entry 231 (class 1259 OID 16418)
+-- TOC entry 233 (class 1259 OID 16418)
 -- Name: Currency_Id_seq; Type: SEQUENCE; Schema: category; Owner: postgres
 --
 
@@ -927,7 +1245,7 @@ ALTER TABLE category."Currency" ALTER COLUMN "Id" ADD GENERATED BY DEFAULT AS ID
 
 
 --
--- TOC entry 232 (class 1259 OID 16419)
+-- TOC entry 234 (class 1259 OID 16419)
 -- Name: LocationType; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -940,7 +1258,7 @@ CREATE TABLE category."LocationType" (
 ALTER TABLE category."LocationType" OWNER TO postgres;
 
 --
--- TOC entry 233 (class 1259 OID 16422)
+-- TOC entry 235 (class 1259 OID 16422)
 -- Name: __EFMigrationsHistory; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -953,7 +1271,7 @@ CREATE TABLE category."__EFMigrationsHistory" (
 ALTER TABLE category."__EFMigrationsHistory" OWNER TO postgres;
 
 --
--- TOC entry 319 (class 1259 OID 18542)
+-- TOC entry 321 (class 1259 OID 18542)
 -- Name: addon_details; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -968,7 +1286,7 @@ CREATE TABLE category.addon_details (
 ALTER TABLE category.addon_details OWNER TO postgres;
 
 --
--- TOC entry 318 (class 1259 OID 18530)
+-- TOC entry 320 (class 1259 OID 18530)
 -- Name: addons; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -993,7 +1311,7 @@ CREATE TABLE category.addons (
 ALTER TABLE category.addons OWNER TO postgres;
 
 --
--- TOC entry 234 (class 1259 OID 16425)
+-- TOC entry 236 (class 1259 OID 16425)
 -- Name: attribute_types; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1006,7 +1324,7 @@ CREATE TABLE category.attribute_types (
 ALTER TABLE category.attribute_types OWNER TO postgres;
 
 --
--- TOC entry 235 (class 1259 OID 16428)
+-- TOC entry 237 (class 1259 OID 16428)
 -- Name: categories; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1031,7 +1349,7 @@ CREATE TABLE category.categories (
 ALTER TABLE category.categories OWNER TO postgres;
 
 --
--- TOC entry 312 (class 1259 OID 18392)
+-- TOC entry 314 (class 1259 OID 18392)
 -- Name: category_groups; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1044,7 +1362,7 @@ CREATE TABLE category.category_groups (
 ALTER TABLE category.category_groups OWNER TO postgres;
 
 --
--- TOC entry 311 (class 1259 OID 18391)
+-- TOC entry 313 (class 1259 OID 18391)
 -- Name: category_groups_id_seq; Type: SEQUENCE; Schema: category; Owner: postgres
 --
 
@@ -1060,8 +1378,8 @@ CREATE SEQUENCE category.category_groups_id_seq
 ALTER SEQUENCE category.category_groups_id_seq OWNER TO postgres;
 
 --
--- TOC entry 7148 (class 0 OID 0)
--- Dependencies: 311
+-- TOC entry 7742 (class 0 OID 0)
+-- Dependencies: 313
 -- Name: category_groups_id_seq; Type: SEQUENCE OWNED BY; Schema: category; Owner: postgres
 --
 
@@ -1069,7 +1387,7 @@ ALTER SEQUENCE category.category_groups_id_seq OWNED BY category.category_groups
 
 
 --
--- TOC entry 236 (class 1259 OID 16436)
+-- TOC entry 238 (class 1259 OID 16436)
 -- Name: currencies; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1086,7 +1404,7 @@ CREATE TABLE category.currencies (
 ALTER TABLE category.currencies OWNER TO postgres;
 
 --
--- TOC entry 237 (class 1259 OID 16446)
+-- TOC entry 239 (class 1259 OID 16446)
 -- Name: inbox_message_consumers; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1099,7 +1417,7 @@ CREATE TABLE category.inbox_message_consumers (
 ALTER TABLE category.inbox_message_consumers OWNER TO postgres;
 
 --
--- TOC entry 238 (class 1259 OID 16451)
+-- TOC entry 240 (class 1259 OID 16451)
 -- Name: inbox_messages; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1116,7 +1434,7 @@ CREATE TABLE category.inbox_messages (
 ALTER TABLE category.inbox_messages OWNER TO postgres;
 
 --
--- TOC entry 239 (class 1259 OID 16456)
+-- TOC entry 241 (class 1259 OID 16456)
 -- Name: internal_command_message_consumers; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1129,7 +1447,7 @@ CREATE TABLE category.internal_command_message_consumers (
 ALTER TABLE category.internal_command_message_consumers OWNER TO postgres;
 
 --
--- TOC entry 240 (class 1259 OID 16461)
+-- TOC entry 242 (class 1259 OID 16461)
 -- Name: internal_command_messages; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1146,7 +1464,7 @@ CREATE TABLE category.internal_command_messages (
 ALTER TABLE category.internal_command_messages OWNER TO postgres;
 
 --
--- TOC entry 241 (class 1259 OID 16466)
+-- TOC entry 243 (class 1259 OID 16466)
 -- Name: locations; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1165,7 +1483,7 @@ CREATE TABLE category.locations (
 ALTER TABLE category.locations OWNER TO postgres;
 
 --
--- TOC entry 242 (class 1259 OID 16473)
+-- TOC entry 244 (class 1259 OID 16473)
 -- Name: outbox_message_consumers; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1178,7 +1496,7 @@ CREATE TABLE category.outbox_message_consumers (
 ALTER TABLE category.outbox_message_consumers OWNER TO postgres;
 
 --
--- TOC entry 243 (class 1259 OID 16478)
+-- TOC entry 245 (class 1259 OID 16478)
 -- Name: outbox_messages; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1195,7 +1513,7 @@ CREATE TABLE category.outbox_messages (
 ALTER TABLE category.outbox_messages OWNER TO postgres;
 
 --
--- TOC entry 337 (class 1259 OID 19599)
+-- TOC entry 339 (class 1259 OID 19599)
 -- Name: picked_locations; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1211,7 +1529,7 @@ CREATE TABLE category.picked_locations (
 ALTER TABLE category.picked_locations OWNER TO postgres;
 
 --
--- TOC entry 244 (class 1259 OID 16483)
+-- TOC entry 246 (class 1259 OID 16483)
 -- Name: provider_attribute_definition_domain_options; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1226,7 +1544,7 @@ CREATE TABLE category.provider_attribute_definition_domain_options (
 ALTER TABLE category.provider_attribute_definition_domain_options OWNER TO postgres;
 
 --
--- TOC entry 245 (class 1259 OID 16488)
+-- TOC entry 247 (class 1259 OID 16488)
 -- Name: provider_attribute_definition_domain_options_id_seq; Type: SEQUENCE; Schema: category; Owner: postgres
 --
 
@@ -1241,7 +1559,7 @@ ALTER TABLE category.provider_attribute_definition_domain_options ALTER COLUMN i
 
 
 --
--- TOC entry 246 (class 1259 OID 16489)
+-- TOC entry 248 (class 1259 OID 16489)
 -- Name: provider_attribute_definitions; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1261,7 +1579,7 @@ CREATE TABLE category.provider_attribute_definitions (
 ALTER TABLE category.provider_attribute_definitions OWNER TO postgres;
 
 --
--- TOC entry 247 (class 1259 OID 16494)
+-- TOC entry 249 (class 1259 OID 16494)
 -- Name: provider_attributes; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1278,7 +1596,7 @@ CREATE TABLE category.provider_attributes (
 ALTER TABLE category.provider_attributes OWNER TO postgres;
 
 --
--- TOC entry 304 (class 1259 OID 17872)
+-- TOC entry 306 (class 1259 OID 17872)
 -- Name: provider_certifications; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1293,7 +1611,7 @@ CREATE TABLE category.provider_certifications (
 ALTER TABLE category.provider_certifications OWNER TO postgres;
 
 --
--- TOC entry 248 (class 1259 OID 16499)
+-- TOC entry 250 (class 1259 OID 16499)
 -- Name: provider_gallery_items; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1313,7 +1631,7 @@ CREATE TABLE category.provider_gallery_items (
 ALTER TABLE category.provider_gallery_items OWNER TO postgres;
 
 --
--- TOC entry 331 (class 1259 OID 19468)
+-- TOC entry 333 (class 1259 OID 19468)
 -- Name: provider_languages; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1327,7 +1645,7 @@ CREATE TABLE category.provider_languages (
 ALTER TABLE category.provider_languages OWNER TO postgres;
 
 --
--- TOC entry 249 (class 1259 OID 16504)
+-- TOC entry 251 (class 1259 OID 16504)
 -- Name: provider_policies; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1344,7 +1662,7 @@ CREATE TABLE category.provider_policies (
 ALTER TABLE category.provider_policies OWNER TO postgres;
 
 --
--- TOC entry 306 (class 1259 OID 17891)
+-- TOC entry 308 (class 1259 OID 17891)
 -- Name: provider_recommendations; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1360,7 +1678,7 @@ CREATE TABLE category.provider_recommendations (
 ALTER TABLE category.provider_recommendations OWNER TO postgres;
 
 --
--- TOC entry 320 (class 1259 OID 18556)
+-- TOC entry 322 (class 1259 OID 18556)
 -- Name: provider_service_addons; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1373,7 +1691,7 @@ CREATE TABLE category.provider_service_addons (
 ALTER TABLE category.provider_service_addons OWNER TO postgres;
 
 --
--- TOC entry 333 (class 1259 OID 19506)
+-- TOC entry 335 (class 1259 OID 19506)
 -- Name: provider_service_gallery_items; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1394,7 +1712,7 @@ CREATE TABLE category.provider_service_gallery_items (
 ALTER TABLE category.provider_service_gallery_items OWNER TO postgres;
 
 --
--- TOC entry 250 (class 1259 OID 16509)
+-- TOC entry 252 (class 1259 OID 16509)
 -- Name: provider_services; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1432,7 +1750,7 @@ CREATE TABLE category.provider_services (
 ALTER TABLE category.provider_services OWNER TO postgres;
 
 --
--- TOC entry 251 (class 1259 OID 16515)
+-- TOC entry 253 (class 1259 OID 16515)
 -- Name: provider_staffs; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1450,7 +1768,7 @@ CREATE TABLE category.provider_staffs (
 ALTER TABLE category.provider_staffs OWNER TO postgres;
 
 --
--- TOC entry 252 (class 1259 OID 16520)
+-- TOC entry 254 (class 1259 OID 16520)
 -- Name: provider_types; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1468,7 +1786,7 @@ CREATE TABLE category.provider_types (
 ALTER TABLE category.provider_types OWNER TO postgres;
 
 --
--- TOC entry 305 (class 1259 OID 17885)
+-- TOC entry 307 (class 1259 OID 17885)
 -- Name: review_images; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1482,7 +1800,7 @@ CREATE TABLE category.review_images (
 ALTER TABLE category.review_images OWNER TO postgres;
 
 --
--- TOC entry 253 (class 1259 OID 16527)
+-- TOC entry 255 (class 1259 OID 16527)
 -- Name: service_attribute_definition_options; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1498,7 +1816,7 @@ CREATE TABLE category.service_attribute_definition_options (
 ALTER TABLE category.service_attribute_definition_options OWNER TO postgres;
 
 --
--- TOC entry 254 (class 1259 OID 16532)
+-- TOC entry 256 (class 1259 OID 16532)
 -- Name: service_attribute_definition_options_id_seq; Type: SEQUENCE; Schema: category; Owner: postgres
 --
 
@@ -1513,7 +1831,7 @@ ALTER TABLE category.service_attribute_definition_options ALTER COLUMN id ADD GE
 
 
 --
--- TOC entry 255 (class 1259 OID 16533)
+-- TOC entry 257 (class 1259 OID 16533)
 -- Name: service_attribute_definitions; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1534,7 +1852,7 @@ CREATE TABLE category.service_attribute_definitions (
 ALTER TABLE category.service_attribute_definitions OWNER TO postgres;
 
 --
--- TOC entry 256 (class 1259 OID 16538)
+-- TOC entry 258 (class 1259 OID 16538)
 -- Name: service_attribute_values; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1551,7 +1869,27 @@ CREATE TABLE category.service_attribute_values (
 ALTER TABLE category.service_attribute_values OWNER TO postgres;
 
 --
--- TOC entry 257 (class 1259 OID 16543)
+-- TOC entry 432 (class 1259 OID 22622)
+-- Name: service_definition_addon_provider_types; Type: TABLE; Schema: category; Owner: postgres
+--
+
+CREATE TABLE category.service_definition_addon_provider_types (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    service_definition_id uuid NOT NULL,
+    provider_type_id uuid NOT NULL,
+    icon text,
+    display_order integer DEFAULT 0 NOT NULL,
+    is_required boolean DEFAULT false NOT NULL,
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now()
+);
+
+
+ALTER TABLE category.service_definition_addon_provider_types OWNER TO postgres;
+
+--
+-- TOC entry 259 (class 1259 OID 16543)
 -- Name: service_definition_domain_requirements; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1566,7 +1904,7 @@ CREATE TABLE category.service_definition_domain_requirements (
 ALTER TABLE category.service_definition_domain_requirements OWNER TO postgres;
 
 --
--- TOC entry 258 (class 1259 OID 16548)
+-- TOC entry 260 (class 1259 OID 16548)
 -- Name: service_definition_domain_requirements_id_seq; Type: SEQUENCE; Schema: category; Owner: postgres
 --
 
@@ -1581,7 +1919,7 @@ ALTER TABLE category.service_definition_domain_requirements ALTER COLUMN id ADD 
 
 
 --
--- TOC entry 259 (class 1259 OID 16549)
+-- TOC entry 261 (class 1259 OID 16549)
 -- Name: service_definitions; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1596,14 +1934,17 @@ CREATE TABLE category.service_definitions (
     currency character varying(15) NOT NULL,
     value numeric(18,2) NOT NULL,
     create_date timestamp with time zone DEFAULT now() NOT NULL,
-    last_modified_date timestamp with time zone DEFAULT now()
+    last_modified_date timestamp with time zone DEFAULT now(),
+    requires_specialist boolean DEFAULT true NOT NULL,
+    booking_ui_mode text DEFAULT 'default_slot'::text NOT NULL,
+    CONSTRAINT ck_service_definitions_booking_ui_mode CHECK ((booking_ui_mode = ANY (ARRAY['default_slot'::text, 'date_range'::text, 'custom_form'::text])))
 );
 
 
 ALTER TABLE category.service_definitions OWNER TO postgres;
 
 --
--- TOC entry 309 (class 1259 OID 17912)
+-- TOC entry 311 (class 1259 OID 17912)
 -- Name: service_faqs; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1618,7 +1959,7 @@ CREATE TABLE category.service_faqs (
 ALTER TABLE category.service_faqs OWNER TO postgres;
 
 --
--- TOC entry 307 (class 1259 OID 17898)
+-- TOC entry 309 (class 1259 OID 17898)
 -- Name: service_included; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1632,7 +1973,7 @@ CREATE TABLE category.service_included (
 ALTER TABLE category.service_included OWNER TO postgres;
 
 --
--- TOC entry 308 (class 1259 OID 17904)
+-- TOC entry 310 (class 1259 OID 17904)
 -- Name: service_process; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1649,7 +1990,7 @@ CREATE TABLE category.service_process (
 ALTER TABLE category.service_process OWNER TO postgres;
 
 --
--- TOC entry 260 (class 1259 OID 16556)
+-- TOC entry 262 (class 1259 OID 16556)
 -- Name: service_provider_comments; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1673,7 +2014,7 @@ CREATE TABLE category.service_provider_comments (
 ALTER TABLE category.service_provider_comments OWNER TO postgres;
 
 --
--- TOC entry 261 (class 1259 OID 16562)
+-- TOC entry 263 (class 1259 OID 16562)
 -- Name: service_provider_grades; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1686,7 +2027,7 @@ CREATE TABLE category.service_provider_grades (
 ALTER TABLE category.service_provider_grades OWNER TO postgres;
 
 --
--- TOC entry 262 (class 1259 OID 16565)
+-- TOC entry 264 (class 1259 OID 16565)
 -- Name: service_provider_request_statuses; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1699,7 +2040,7 @@ CREATE TABLE category.service_provider_request_statuses (
 ALTER TABLE category.service_provider_request_statuses OWNER TO postgres;
 
 --
--- TOC entry 263 (class 1259 OID 16568)
+-- TOC entry 265 (class 1259 OID 16568)
 -- Name: service_provider_requests; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1719,7 +2060,7 @@ CREATE TABLE category.service_provider_requests (
 ALTER TABLE category.service_provider_requests OWNER TO postgres;
 
 --
--- TOC entry 264 (class 1259 OID 16575)
+-- TOC entry 266 (class 1259 OID 16575)
 -- Name: service_providers; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1763,7 +2104,7 @@ CREATE TABLE category.service_providers (
 ALTER TABLE category.service_providers OWNER TO postgres;
 
 --
--- TOC entry 324 (class 1259 OID 19338)
+-- TOC entry 326 (class 1259 OID 19338)
 -- Name: service_upload_file_requirements; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1789,12 +2130,12 @@ CREATE TABLE category.service_upload_file_requirements (
 ALTER TABLE category.service_upload_file_requirements OWNER TO postgres;
 
 --
--- TOC entry 265 (class 1259 OID 16582)
+-- TOC entry 267 (class 1259 OID 16582)
 -- Name: staff; Type: TABLE; Schema: category; Owner: postgres
 --
 
 CREATE TABLE category.staff (
-    id uuid NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     name_translations jsonb NOT NULL,
     biography_translations jsonb NOT NULL,
     title_translations jsonb NOT NULL,
@@ -1818,7 +2159,7 @@ CREATE TABLE category.staff (
 ALTER TABLE category.staff OWNER TO postgres;
 
 --
--- TOC entry 329 (class 1259 OID 19425)
+-- TOC entry 331 (class 1259 OID 19425)
 -- Name: staff_achievements; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1837,12 +2178,12 @@ CREATE TABLE category.staff_achievements (
 ALTER TABLE category.staff_achievements OWNER TO postgres;
 
 --
--- TOC entry 266 (class 1259 OID 16589)
+-- TOC entry 268 (class 1259 OID 16589)
 -- Name: staff_availabilities; Type: TABLE; Schema: category; Owner: postgres
 --
 
 CREATE TABLE category.staff_availabilities (
-    id uuid NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     day_of_week integer NOT NULL,
     is_recurring boolean NOT NULL,
     availability_status_id integer NOT NULL,
@@ -1860,7 +2201,7 @@ CREATE TABLE category.staff_availabilities (
 ALTER TABLE category.staff_availabilities OWNER TO postgres;
 
 --
--- TOC entry 267 (class 1259 OID 16592)
+-- TOC entry 269 (class 1259 OID 16592)
 -- Name: staff_availability_statuses; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1873,7 +2214,7 @@ CREATE TABLE category.staff_availability_statuses (
 ALTER TABLE category.staff_availability_statuses OWNER TO postgres;
 
 --
--- TOC entry 330 (class 1259 OID 19443)
+-- TOC entry 332 (class 1259 OID 19443)
 -- Name: staff_before_after; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1893,7 +2234,7 @@ CREATE TABLE category.staff_before_after (
 ALTER TABLE category.staff_before_after OWNER TO postgres;
 
 --
--- TOC entry 328 (class 1259 OID 19410)
+-- TOC entry 330 (class 1259 OID 19410)
 -- Name: staff_certifications; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1911,7 +2252,7 @@ CREATE TABLE category.staff_certifications (
 ALTER TABLE category.staff_certifications OWNER TO postgres;
 
 --
--- TOC entry 321 (class 1259 OID 18578)
+-- TOC entry 323 (class 1259 OID 18578)
 -- Name: staff_credentials; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1926,7 +2267,7 @@ CREATE TABLE category.staff_credentials (
 ALTER TABLE category.staff_credentials OWNER TO postgres;
 
 --
--- TOC entry 327 (class 1259 OID 19395)
+-- TOC entry 329 (class 1259 OID 19395)
 -- Name: staff_education; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1944,7 +2285,7 @@ CREATE TABLE category.staff_education (
 ALTER TABLE category.staff_education OWNER TO postgres;
 
 --
--- TOC entry 332 (class 1259 OID 19484)
+-- TOC entry 334 (class 1259 OID 19484)
 -- Name: staff_gallery_items; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1965,7 +2306,7 @@ CREATE TABLE category.staff_gallery_items (
 ALTER TABLE category.staff_gallery_items OWNER TO postgres;
 
 --
--- TOC entry 325 (class 1259 OID 19367)
+-- TOC entry 327 (class 1259 OID 19367)
 -- Name: staff_languages; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -1979,12 +2320,12 @@ CREATE TABLE category.staff_languages (
 ALTER TABLE category.staff_languages OWNER TO postgres;
 
 --
--- TOC entry 268 (class 1259 OID 16595)
+-- TOC entry 270 (class 1259 OID 16595)
 -- Name: staff_services; Type: TABLE; Schema: category; Owner: postgres
 --
 
 CREATE TABLE category.staff_services (
-    id uuid NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     service_definition_id uuid NOT NULL,
     is_active boolean NOT NULL,
     notes_translations jsonb NOT NULL,
@@ -1997,7 +2338,7 @@ CREATE TABLE category.staff_services (
 ALTER TABLE category.staff_services OWNER TO postgres;
 
 --
--- TOC entry 326 (class 1259 OID 19381)
+-- TOC entry 328 (class 1259 OID 19381)
 -- Name: staff_specializations; Type: TABLE; Schema: category; Owner: postgres
 --
 
@@ -2011,7 +2352,7 @@ CREATE TABLE category.staff_specializations (
 ALTER TABLE category.staff_specializations OWNER TO postgres;
 
 --
--- TOC entry 269 (class 1259 OID 16600)
+-- TOC entry 271 (class 1259 OID 16600)
 -- Name: __EFMigrationsHistory; Type: TABLE; Schema: customer; Owner: postgres
 --
 
@@ -2024,7 +2365,7 @@ CREATE TABLE customer."__EFMigrationsHistory" (
 ALTER TABLE customer."__EFMigrationsHistory" OWNER TO postgres;
 
 --
--- TOC entry 270 (class 1259 OID 16603)
+-- TOC entry 272 (class 1259 OID 16603)
 -- Name: consulting_selected_document_references; Type: TABLE; Schema: customer; Owner: postgres
 --
 
@@ -2037,7 +2378,7 @@ CREATE TABLE customer.consulting_selected_document_references (
 ALTER TABLE customer.consulting_selected_document_references OWNER TO postgres;
 
 --
--- TOC entry 271 (class 1259 OID 16606)
+-- TOC entry 273 (class 1259 OID 16606)
 -- Name: consultings; Type: TABLE; Schema: customer; Owner: postgres
 --
 
@@ -2055,7 +2396,7 @@ CREATE TABLE customer.consultings (
 ALTER TABLE customer.consultings OWNER TO postgres;
 
 --
--- TOC entry 272 (class 1259 OID 16615)
+-- TOC entry 274 (class 1259 OID 16615)
 -- Name: customer_document_types; Type: TABLE; Schema: customer; Owner: postgres
 --
 
@@ -2068,7 +2409,7 @@ CREATE TABLE customer.customer_document_types (
 ALTER TABLE customer.customer_document_types OWNER TO postgres;
 
 --
--- TOC entry 273 (class 1259 OID 16618)
+-- TOC entry 275 (class 1259 OID 16618)
 -- Name: customer_documents; Type: TABLE; Schema: customer; Owner: postgres
 --
 
@@ -2085,7 +2426,7 @@ CREATE TABLE customer.customer_documents (
 ALTER TABLE customer.customer_documents OWNER TO postgres;
 
 --
--- TOC entry 274 (class 1259 OID 16622)
+-- TOC entry 276 (class 1259 OID 16622)
 -- Name: customers; Type: TABLE; Schema: customer; Owner: postgres
 --
 
@@ -2116,7 +2457,7 @@ CREATE TABLE customer.customers (
 ALTER TABLE customer.customers OWNER TO postgres;
 
 --
--- TOC entry 323 (class 1259 OID 19314)
+-- TOC entry 325 (class 1259 OID 19314)
 -- Name: favorites; Type: TABLE; Schema: customer; Owner: postgres
 --
 
@@ -2132,7 +2473,7 @@ CREATE TABLE customer.favorites (
 ALTER TABLE customer.favorites OWNER TO postgres;
 
 --
--- TOC entry 322 (class 1259 OID 19313)
+-- TOC entry 324 (class 1259 OID 19313)
 -- Name: favorites_id_seq; Type: SEQUENCE; Schema: customer; Owner: postgres
 --
 
@@ -2147,7 +2488,7 @@ ALTER TABLE customer.favorites ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENT
 
 
 --
--- TOC entry 275 (class 1259 OID 16630)
+-- TOC entry 277 (class 1259 OID 16630)
 -- Name: inbox_message_consumers; Type: TABLE; Schema: customer; Owner: postgres
 --
 
@@ -2160,7 +2501,7 @@ CREATE TABLE customer.inbox_message_consumers (
 ALTER TABLE customer.inbox_message_consumers OWNER TO postgres;
 
 --
--- TOC entry 276 (class 1259 OID 16635)
+-- TOC entry 278 (class 1259 OID 16635)
 -- Name: inbox_messages; Type: TABLE; Schema: customer; Owner: postgres
 --
 
@@ -2177,7 +2518,7 @@ CREATE TABLE customer.inbox_messages (
 ALTER TABLE customer.inbox_messages OWNER TO postgres;
 
 --
--- TOC entry 277 (class 1259 OID 16640)
+-- TOC entry 279 (class 1259 OID 16640)
 -- Name: internal_command_message_consumers; Type: TABLE; Schema: customer; Owner: postgres
 --
 
@@ -2190,7 +2531,7 @@ CREATE TABLE customer.internal_command_message_consumers (
 ALTER TABLE customer.internal_command_message_consumers OWNER TO postgres;
 
 --
--- TOC entry 278 (class 1259 OID 16645)
+-- TOC entry 280 (class 1259 OID 16645)
 -- Name: internal_command_messages; Type: TABLE; Schema: customer; Owner: postgres
 --
 
@@ -2207,7 +2548,7 @@ CREATE TABLE customer.internal_command_messages (
 ALTER TABLE customer.internal_command_messages OWNER TO postgres;
 
 --
--- TOC entry 279 (class 1259 OID 16650)
+-- TOC entry 281 (class 1259 OID 16650)
 -- Name: outbox_message_consumers; Type: TABLE; Schema: customer; Owner: postgres
 --
 
@@ -2220,7 +2561,7 @@ CREATE TABLE customer.outbox_message_consumers (
 ALTER TABLE customer.outbox_message_consumers OWNER TO postgres;
 
 --
--- TOC entry 280 (class 1259 OID 16655)
+-- TOC entry 282 (class 1259 OID 16655)
 -- Name: outbox_messages; Type: TABLE; Schema: customer; Owner: postgres
 --
 
@@ -2237,7 +2578,7 @@ CREATE TABLE customer.outbox_messages (
 ALTER TABLE customer.outbox_messages OWNER TO postgres;
 
 --
--- TOC entry 348 (class 1259 OID 19847)
+-- TOC entry 350 (class 1259 OID 19847)
 -- Name: wallet_accounts; Type: TABLE; Schema: customer; Owner: postgres
 --
 
@@ -2255,7 +2596,7 @@ CREATE TABLE customer.wallet_accounts (
 ALTER TABLE customer.wallet_accounts OWNER TO postgres;
 
 --
--- TOC entry 350 (class 1259 OID 19899)
+-- TOC entry 352 (class 1259 OID 19899)
 -- Name: wallet_transactions; Type: TABLE; Schema: customer; Owner: postgres
 --
 
@@ -2288,7 +2629,7 @@ CREATE TABLE customer.wallet_transactions (
 ALTER TABLE customer.wallet_transactions OWNER TO postgres;
 
 --
--- TOC entry 351 (class 1259 OID 19941)
+-- TOC entry 353 (class 1259 OID 19941)
 -- Name: wallet_balances; Type: VIEW; Schema: customer; Owner: postgres
 --
 
@@ -2315,7 +2656,7 @@ CREATE VIEW customer.wallet_balances AS
 ALTER VIEW customer.wallet_balances OWNER TO postgres;
 
 --
--- TOC entry 349 (class 1259 OID 19865)
+-- TOC entry 351 (class 1259 OID 19865)
 -- Name: wallet_payment_intents; Type: TABLE; Schema: customer; Owner: postgres
 --
 
@@ -2347,7 +2688,216 @@ CREATE TABLE customer.wallet_payment_intents (
 ALTER TABLE customer.wallet_payment_intents OWNER TO postgres;
 
 --
--- TOC entry 281 (class 1259 OID 16660)
+-- TOC entry 427 (class 1259 OID 22329)
+-- Name: field_conditions; Type: TABLE; Schema: form_builder; Owner: postgres
+--
+
+CREATE TABLE form_builder.field_conditions (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    field_id uuid NOT NULL,
+    depends_on_field_id uuid NOT NULL,
+    condition_type text DEFAULT 'equals'::text NOT NULL,
+    expected_value jsonb,
+    action text DEFAULT 'show'::text NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_condition_action CHECK ((action = ANY (ARRAY['show'::text, 'hide'::text, 'require'::text, 'disable'::text]))),
+    CONSTRAINT ck_condition_type CHECK ((condition_type = ANY (ARRAY['equals'::text, 'not_equals'::text, 'in'::text, 'not_in'::text, 'greater_than'::text, 'less_than'::text, 'has_value'::text, 'not_has_value'::text])))
+);
+
+
+ALTER TABLE form_builder.field_conditions OWNER TO postgres;
+
+--
+-- TOC entry 426 (class 1259 OID 22309)
+-- Name: field_options; Type: TABLE; Schema: form_builder; Owner: postgres
+--
+
+CREATE TABLE form_builder.field_options (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    field_id uuid NOT NULL,
+    value text NOT NULL,
+    label text NOT NULL,
+    label_translations jsonb DEFAULT '{}'::jsonb NOT NULL,
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    display_order integer DEFAULT 0 NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE form_builder.field_options OWNER TO postgres;
+
+--
+-- TOC entry 421 (class 1259 OID 22193)
+-- Name: field_types; Type: TABLE; Schema: form_builder; Owner: postgres
+--
+
+CREATE TABLE form_builder.field_types (
+    code text NOT NULL,
+    display_name text NOT NULL,
+    category text DEFAULT 'input'::text NOT NULL,
+    supports_options boolean DEFAULT false NOT NULL,
+    supports_conditions boolean DEFAULT true NOT NULL,
+    supports_multilingual boolean DEFAULT false NOT NULL,
+    supports_media boolean DEFAULT false NOT NULL,
+    supports_repeatable boolean DEFAULT false NOT NULL,
+    configuration_schema jsonb DEFAULT '{}'::jsonb NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE form_builder.field_types OWNER TO postgres;
+
+--
+-- TOC entry 425 (class 1259 OID 22269)
+-- Name: form_fields; Type: TABLE; Schema: form_builder; Owner: postgres
+--
+
+CREATE TABLE form_builder.form_fields (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    form_version_id uuid NOT NULL,
+    section_id uuid,
+    parent_field_id uuid,
+    key text NOT NULL,
+    field_type_code text NOT NULL,
+    label text NOT NULL,
+    placeholder text,
+    help_text text,
+    default_value jsonb,
+    is_required boolean DEFAULT false NOT NULL,
+    is_hidden boolean DEFAULT false NOT NULL,
+    is_repeatable boolean DEFAULT false NOT NULL,
+    display_order integer DEFAULT 0 NOT NULL,
+    column_span integer DEFAULT 12 NOT NULL,
+    settings jsonb DEFAULT '{}'::jsonb NOT NULL,
+    validation_rules jsonb DEFAULT '{}'::jsonb NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_form_field_col_span CHECK (((column_span >= 1) AND (column_span <= 12)))
+);
+
+
+ALTER TABLE form_builder.form_fields OWNER TO postgres;
+
+--
+-- TOC entry 424 (class 1259 OID 22250)
+-- Name: form_sections; Type: TABLE; Schema: form_builder; Owner: postgres
+--
+
+CREATE TABLE form_builder.form_sections (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    form_version_id uuid NOT NULL,
+    key text NOT NULL,
+    title text,
+    description text,
+    display_order integer DEFAULT 0 NOT NULL,
+    settings jsonb DEFAULT '{}'::jsonb NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE form_builder.form_sections OWNER TO postgres;
+
+--
+-- TOC entry 423 (class 1259 OID 22226)
+-- Name: form_versions; Type: TABLE; Schema: form_builder; Owner: postgres
+--
+
+CREATE TABLE form_builder.form_versions (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    form_id uuid NOT NULL,
+    version_number integer NOT NULL,
+    title text NOT NULL,
+    schema_version integer DEFAULT 1 NOT NULL,
+    status text DEFAULT 'draft'::text NOT NULL,
+    locales text[] DEFAULT ARRAY['en-US'::text] NOT NULL,
+    settings jsonb DEFAULT '{}'::jsonb NOT NULL,
+    is_active boolean DEFAULT false NOT NULL,
+    published_at timestamp with time zone,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_form_version_status CHECK ((status = ANY (ARRAY['draft'::text, 'published'::text, 'archived'::text])))
+);
+
+
+ALTER TABLE form_builder.form_versions OWNER TO postgres;
+
+--
+-- TOC entry 422 (class 1259 OID 22210)
+-- Name: forms; Type: TABLE; Schema: form_builder; Owner: postgres
+--
+
+CREATE TABLE form_builder.forms (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    key text NOT NULL,
+    name text NOT NULL,
+    description text,
+    form_scope text DEFAULT 'service_booking'::text NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    is_deleted boolean DEFAULT false NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_form_scope CHECK ((form_scope = ANY (ARRAY['service_booking'::text, 'addon_booking'::text, 'generic'::text])))
+);
+
+
+ALTER TABLE form_builder.forms OWNER TO postgres;
+
+--
+-- TOC entry 428 (class 1259 OID 22353)
+-- Name: service_definition_forms; Type: TABLE; Schema: form_builder; Owner: postgres
+--
+
+CREATE TABLE form_builder.service_definition_forms (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    service_definition_id uuid NOT NULL,
+    form_id uuid NOT NULL,
+    usage_scope text DEFAULT 'main_booking'::text NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    display_order integer DEFAULT 0 NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_service_definition_forms_usage_scope CHECK ((usage_scope = ANY (ARRAY['main_booking'::text, 'child_addon_booking'::text])))
+);
+
+
+ALTER TABLE form_builder.service_definition_forms OWNER TO postgres;
+
+--
+-- TOC entry 429 (class 1259 OID 22378)
+-- Name: submissions; Type: TABLE; Schema: form_builder; Owner: postgres
+--
+
+CREATE TABLE form_builder.submissions (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    form_version_id uuid NOT NULL,
+    service_definition_id uuid,
+    booking_draft_id uuid,
+    booking_draft_child_id uuid,
+    booking_id uuid,
+    booking_child_id uuid,
+    submitted_by_user_id uuid,
+    locale text,
+    submission_scope text DEFAULT 'booking'::text NOT NULL,
+    status text DEFAULT 'draft'::text NOT NULL,
+    payload jsonb DEFAULT '{}'::jsonb NOT NULL,
+    normalized_payload jsonb DEFAULT '{}'::jsonb NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL,
+    submitted_at timestamp with time zone,
+    CONSTRAINT ck_submissions_scope CHECK ((submission_scope = ANY (ARRAY['booking'::text, 'admin_preview'::text, 'generic'::text]))),
+    CONSTRAINT ck_submissions_status CHECK ((status = ANY (ARRAY['draft'::text, 'submitted'::text, 'archived'::text])))
+);
+
+
+ALTER TABLE form_builder.submissions OWNER TO postgres;
+
+--
+-- TOC entry 283 (class 1259 OID 16660)
 -- Name: __EFMigrationsHistory; Type: TABLE; Schema: identity; Owner: postgres
 --
 
@@ -2360,7 +2910,7 @@ CREATE TABLE identity."__EFMigrationsHistory" (
 ALTER TABLE identity."__EFMigrationsHistory" OWNER TO postgres;
 
 --
--- TOC entry 282 (class 1259 OID 16663)
+-- TOC entry 284 (class 1259 OID 16663)
 -- Name: access_tokens; Type: TABLE; Schema: identity; Owner: postgres
 --
 
@@ -2377,7 +2927,7 @@ CREATE TABLE identity.access_tokens (
 ALTER TABLE identity.access_tokens OWNER TO postgres;
 
 --
--- TOC entry 283 (class 1259 OID 16668)
+-- TOC entry 285 (class 1259 OID 16668)
 -- Name: asp_net_role_claims; Type: TABLE; Schema: identity; Owner: postgres
 --
 
@@ -2392,7 +2942,7 @@ CREATE TABLE identity.asp_net_role_claims (
 ALTER TABLE identity.asp_net_role_claims OWNER TO postgres;
 
 --
--- TOC entry 284 (class 1259 OID 16673)
+-- TOC entry 286 (class 1259 OID 16673)
 -- Name: asp_net_role_claims_id_seq; Type: SEQUENCE; Schema: identity; Owner: postgres
 --
 
@@ -2407,7 +2957,7 @@ ALTER TABLE identity.asp_net_role_claims ALTER COLUMN id ADD GENERATED BY DEFAUL
 
 
 --
--- TOC entry 285 (class 1259 OID 16674)
+-- TOC entry 287 (class 1259 OID 16674)
 -- Name: asp_net_roles; Type: TABLE; Schema: identity; Owner: postgres
 --
 
@@ -2422,7 +2972,7 @@ CREATE TABLE identity.asp_net_roles (
 ALTER TABLE identity.asp_net_roles OWNER TO postgres;
 
 --
--- TOC entry 286 (class 1259 OID 16679)
+-- TOC entry 288 (class 1259 OID 16679)
 -- Name: asp_net_user_claims; Type: TABLE; Schema: identity; Owner: postgres
 --
 
@@ -2437,7 +2987,7 @@ CREATE TABLE identity.asp_net_user_claims (
 ALTER TABLE identity.asp_net_user_claims OWNER TO postgres;
 
 --
--- TOC entry 287 (class 1259 OID 16684)
+-- TOC entry 289 (class 1259 OID 16684)
 -- Name: asp_net_user_claims_id_seq; Type: SEQUENCE; Schema: identity; Owner: postgres
 --
 
@@ -2452,7 +3002,7 @@ ALTER TABLE identity.asp_net_user_claims ALTER COLUMN id ADD GENERATED BY DEFAUL
 
 
 --
--- TOC entry 288 (class 1259 OID 16685)
+-- TOC entry 290 (class 1259 OID 16685)
 -- Name: asp_net_user_logins; Type: TABLE; Schema: identity; Owner: postgres
 --
 
@@ -2467,7 +3017,7 @@ CREATE TABLE identity.asp_net_user_logins (
 ALTER TABLE identity.asp_net_user_logins OWNER TO postgres;
 
 --
--- TOC entry 289 (class 1259 OID 16690)
+-- TOC entry 291 (class 1259 OID 16690)
 -- Name: asp_net_user_roles; Type: TABLE; Schema: identity; Owner: postgres
 --
 
@@ -2480,7 +3030,7 @@ CREATE TABLE identity.asp_net_user_roles (
 ALTER TABLE identity.asp_net_user_roles OWNER TO postgres;
 
 --
--- TOC entry 290 (class 1259 OID 16693)
+-- TOC entry 292 (class 1259 OID 16693)
 -- Name: asp_net_user_tokens; Type: TABLE; Schema: identity; Owner: postgres
 --
 
@@ -2495,7 +3045,7 @@ CREATE TABLE identity.asp_net_user_tokens (
 ALTER TABLE identity.asp_net_user_tokens OWNER TO postgres;
 
 --
--- TOC entry 291 (class 1259 OID 16698)
+-- TOC entry 293 (class 1259 OID 16698)
 -- Name: asp_net_users; Type: TABLE; Schema: identity; Owner: postgres
 --
 
@@ -2536,7 +3086,7 @@ CREATE TABLE identity.asp_net_users (
 ALTER TABLE identity.asp_net_users OWNER TO postgres;
 
 --
--- TOC entry 292 (class 1259 OID 16705)
+-- TOC entry 294 (class 1259 OID 16705)
 -- Name: email_verification_codes; Type: TABLE; Schema: identity; Owner: postgres
 --
 
@@ -2552,7 +3102,7 @@ CREATE TABLE identity.email_verification_codes (
 ALTER TABLE identity.email_verification_codes OWNER TO postgres;
 
 --
--- TOC entry 293 (class 1259 OID 16708)
+-- TOC entry 295 (class 1259 OID 16708)
 -- Name: inbox_message_consumers; Type: TABLE; Schema: identity; Owner: postgres
 --
 
@@ -2565,7 +3115,7 @@ CREATE TABLE identity.inbox_message_consumers (
 ALTER TABLE identity.inbox_message_consumers OWNER TO postgres;
 
 --
--- TOC entry 294 (class 1259 OID 16713)
+-- TOC entry 296 (class 1259 OID 16713)
 -- Name: inbox_messages; Type: TABLE; Schema: identity; Owner: postgres
 --
 
@@ -2582,7 +3132,7 @@ CREATE TABLE identity.inbox_messages (
 ALTER TABLE identity.inbox_messages OWNER TO postgres;
 
 --
--- TOC entry 295 (class 1259 OID 16718)
+-- TOC entry 297 (class 1259 OID 16718)
 -- Name: internal_command_message_consumers; Type: TABLE; Schema: identity; Owner: postgres
 --
 
@@ -2595,7 +3145,7 @@ CREATE TABLE identity.internal_command_message_consumers (
 ALTER TABLE identity.internal_command_message_consumers OWNER TO postgres;
 
 --
--- TOC entry 296 (class 1259 OID 16723)
+-- TOC entry 298 (class 1259 OID 16723)
 -- Name: internal_command_messages; Type: TABLE; Schema: identity; Owner: postgres
 --
 
@@ -2612,7 +3162,7 @@ CREATE TABLE identity.internal_command_messages (
 ALTER TABLE identity.internal_command_messages OWNER TO postgres;
 
 --
--- TOC entry 297 (class 1259 OID 16728)
+-- TOC entry 299 (class 1259 OID 16728)
 -- Name: outbox_message_consumers; Type: TABLE; Schema: identity; Owner: postgres
 --
 
@@ -2625,7 +3175,7 @@ CREATE TABLE identity.outbox_message_consumers (
 ALTER TABLE identity.outbox_message_consumers OWNER TO postgres;
 
 --
--- TOC entry 298 (class 1259 OID 16733)
+-- TOC entry 300 (class 1259 OID 16733)
 -- Name: outbox_messages; Type: TABLE; Schema: identity; Owner: postgres
 --
 
@@ -2642,7 +3192,7 @@ CREATE TABLE identity.outbox_messages (
 ALTER TABLE identity.outbox_messages OWNER TO postgres;
 
 --
--- TOC entry 299 (class 1259 OID 16738)
+-- TOC entry 301 (class 1259 OID 16738)
 -- Name: password_reset_codes; Type: TABLE; Schema: identity; Owner: postgres
 --
 
@@ -2658,7 +3208,7 @@ CREATE TABLE identity.password_reset_codes (
 ALTER TABLE identity.password_reset_codes OWNER TO postgres;
 
 --
--- TOC entry 300 (class 1259 OID 16741)
+-- TOC entry 302 (class 1259 OID 16741)
 -- Name: phone_login_codes; Type: TABLE; Schema: identity; Owner: postgres
 --
 
@@ -2679,7 +3229,7 @@ CREATE TABLE identity.phone_login_codes (
 ALTER TABLE identity.phone_login_codes OWNER TO postgres;
 
 --
--- TOC entry 301 (class 1259 OID 16746)
+-- TOC entry 303 (class 1259 OID 16746)
 -- Name: refresh_tokens; Type: TABLE; Schema: identity; Owner: postgres
 --
 
@@ -2697,7 +3247,7 @@ CREATE TABLE identity.refresh_tokens (
 ALTER TABLE identity.refresh_tokens OWNER TO postgres;
 
 --
--- TOC entry 341 (class 1259 OID 19683)
+-- TOC entry 343 (class 1259 OID 19683)
 -- Name: user_preferences; Type: TABLE; Schema: identity; Owner: postgres
 --
 
@@ -2730,7 +3280,7 @@ CREATE TABLE identity.user_preferences (
 ALTER TABLE identity.user_preferences OWNER TO postgres;
 
 --
--- TOC entry 343 (class 1259 OID 19745)
+-- TOC entry 345 (class 1259 OID 19745)
 -- Name: accounts; Type: TABLE; Schema: loyalty; Owner: postgres
 --
 
@@ -2748,7 +3298,7 @@ CREATE TABLE loyalty.accounts (
 ALTER TABLE loyalty.accounts OWNER TO postgres;
 
 --
--- TOC entry 346 (class 1259 OID 19806)
+-- TOC entry 348 (class 1259 OID 19806)
 -- Name: coupons; Type: TABLE; Schema: loyalty; Owner: postgres
 --
 
@@ -2773,7 +3323,7 @@ CREATE TABLE loyalty.coupons (
 ALTER TABLE loyalty.coupons OWNER TO postgres;
 
 --
--- TOC entry 347 (class 1259 OID 19824)
+-- TOC entry 349 (class 1259 OID 19824)
 -- Name: customer_coupons; Type: TABLE; Schema: loyalty; Owner: postgres
 --
 
@@ -2791,7 +3341,7 @@ CREATE TABLE loyalty.customer_coupons (
 ALTER TABLE loyalty.customer_coupons OWNER TO postgres;
 
 --
--- TOC entry 344 (class 1259 OID 19767)
+-- TOC entry 346 (class 1259 OID 19767)
 -- Name: ledger; Type: TABLE; Schema: loyalty; Owner: postgres
 --
 
@@ -2811,7 +3361,7 @@ CREATE TABLE loyalty.ledger (
 ALTER TABLE loyalty.ledger OWNER TO postgres;
 
 --
--- TOC entry 345 (class 1259 OID 19783)
+-- TOC entry 347 (class 1259 OID 19783)
 -- Name: referrals; Type: TABLE; Schema: loyalty; Owner: postgres
 --
 
@@ -2831,7 +3381,7 @@ CREATE TABLE loyalty.referrals (
 ALTER TABLE loyalty.referrals OWNER TO postgres;
 
 --
--- TOC entry 342 (class 1259 OID 19732)
+-- TOC entry 344 (class 1259 OID 19732)
 -- Name: tiers; Type: TABLE; Schema: loyalty; Owner: postgres
 --
 
@@ -2852,7 +3402,7 @@ CREATE TABLE loyalty.tiers (
 ALTER TABLE loyalty.tiers OWNER TO postgres;
 
 --
--- TOC entry 316 (class 1259 OID 18497)
+-- TOC entry 318 (class 1259 OID 18497)
 -- Name: offers; Type: TABLE; Schema: marketing; Owner: postgres
 --
 
@@ -2869,6 +3419,7 @@ CREATE TABLE marketing.offers (
     is_featured boolean DEFAULT false,
     usage_limit integer,
     used_count integer DEFAULT 0,
+    description_translations jsonb DEFAULT '{}'::jsonb NOT NULL,
     CONSTRAINT valid_until_check CHECK ((valid_until > created_at))
 );
 
@@ -2876,7 +3427,7 @@ CREATE TABLE marketing.offers (
 ALTER TABLE marketing.offers OWNER TO postgres;
 
 --
--- TOC entry 315 (class 1259 OID 18496)
+-- TOC entry 317 (class 1259 OID 18496)
 -- Name: offers_id_seq; Type: SEQUENCE; Schema: marketing; Owner: postgres
 --
 
@@ -2892,8 +3443,8 @@ CREATE SEQUENCE marketing.offers_id_seq
 ALTER SEQUENCE marketing.offers_id_seq OWNER TO postgres;
 
 --
--- TOC entry 7149 (class 0 OID 0)
--- Dependencies: 315
+-- TOC entry 7743 (class 0 OID 0)
+-- Dependencies: 317
 -- Name: offers_id_seq; Type: SEQUENCE OWNED BY; Schema: marketing; Owner: postgres
 --
 
@@ -2901,7 +3452,159 @@ ALTER SEQUENCE marketing.offers_id_seq OWNED BY marketing.offers.id;
 
 
 --
--- TOC entry 338 (class 1259 OID 19619)
+-- TOC entry 404 (class 1259 OID 21271)
+-- Name: referral_codes; Type: TABLE; Schema: marketing; Owner: postgres
+--
+
+CREATE TABLE marketing.referral_codes (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    program_id uuid NOT NULL,
+    customer_id uuid NOT NULL,
+    code character varying(50) NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    last_used_at timestamp with time zone
+);
+
+
+ALTER TABLE marketing.referral_codes OWNER TO postgres;
+
+--
+-- TOC entry 405 (class 1259 OID 21293)
+-- Name: referral_invitations; Type: TABLE; Schema: marketing; Owner: postgres
+--
+
+CREATE TABLE marketing.referral_invitations (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    program_id uuid NOT NULL,
+    referral_code_id uuid NOT NULL,
+    referrer_customer_id uuid NOT NULL,
+    referee_customer_id uuid,
+    referee_email character varying(250),
+    referee_phone character varying(30),
+    invite_channel character varying(50),
+    status marketing.referral_invitation_status DEFAULT 'sent'::marketing.referral_invitation_status NOT NULL,
+    invited_at timestamp with time zone DEFAULT now() NOT NULL,
+    signed_up_at timestamp with time zone,
+    profile_completed_at timestamp with time zone,
+    qualified_at timestamp with time zone,
+    first_booking_completed_at timestamp with time zone,
+    notes text,
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL
+);
+
+
+ALTER TABLE marketing.referral_invitations OWNER TO postgres;
+
+--
+-- TOC entry 402 (class 1259 OID 21233)
+-- Name: referral_programs; Type: TABLE; Schema: marketing; Owner: postgres
+--
+
+CREATE TABLE marketing.referral_programs (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    code character varying(100) NOT NULL,
+    name character varying(200) NOT NULL,
+    description text,
+    status marketing.referral_program_status DEFAULT 'draft'::marketing.referral_program_status NOT NULL,
+    starts_at timestamp with time zone,
+    ends_at timestamp with time zone,
+    is_default boolean DEFAULT false NOT NULL,
+    allow_stacking boolean DEFAULT false NOT NULL,
+    require_previous_coupon_redeemed boolean DEFAULT true NOT NULL,
+    max_referrals_per_referrer integer,
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_referral_programs_max_referrals_nonnegative CHECK (((max_referrals_per_referrer IS NULL) OR (max_referrals_per_referrer >= 0)))
+);
+
+
+ALTER TABLE marketing.referral_programs OWNER TO postgres;
+
+--
+-- TOC entry 403 (class 1259 OID 21251)
+-- Name: referral_reward_rules; Type: TABLE; Schema: marketing; Owner: postgres
+--
+
+CREATE TABLE marketing.referral_reward_rules (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    program_id uuid NOT NULL,
+    trigger marketing.reward_trigger NOT NULL,
+    recipient marketing.reward_recipient NOT NULL,
+    referral_ordinal integer,
+    discount_type marketing.discount_type NOT NULL,
+    discount_value numeric(10,2) NOT NULL,
+    currency_code character varying(15),
+    title character varying(200) NOT NULL,
+    description text,
+    sort_order integer DEFAULT 0 NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    requires_previous_coupon_redeemed boolean DEFAULT true NOT NULL,
+    max_issuance_per_user integer,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_referral_reward_rules_discount_positive CHECK ((discount_value > (0)::numeric)),
+    CONSTRAINT ck_referral_reward_rules_referral_ordinal_positive CHECK (((referral_ordinal IS NULL) OR (referral_ordinal > 0)))
+);
+
+
+ALTER TABLE marketing.referral_reward_rules OWNER TO postgres;
+
+--
+-- TOC entry 407 (class 1259 OID 21363)
+-- Name: referral_share_events; Type: TABLE; Schema: marketing; Owner: postgres
+--
+
+CREATE TABLE marketing.referral_share_events (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    referral_code_id uuid NOT NULL,
+    customer_id uuid NOT NULL,
+    channel character varying(50) NOT NULL,
+    shared_at timestamp with time zone DEFAULT now() NOT NULL,
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL
+);
+
+
+ALTER TABLE marketing.referral_share_events OWNER TO postgres;
+
+--
+-- TOC entry 406 (class 1259 OID 21324)
+-- Name: user_discount_coupons; Type: TABLE; Schema: marketing; Owner: postgres
+--
+
+CREATE TABLE marketing.user_discount_coupons (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    customer_id uuid NOT NULL,
+    program_id uuid NOT NULL,
+    reward_rule_id uuid,
+    referral_invitation_id uuid,
+    code character varying(50) NOT NULL,
+    source_type character varying(50) DEFAULT 'referral'::character varying NOT NULL,
+    title character varying(200) NOT NULL,
+    description text,
+    discount_type marketing.discount_type NOT NULL,
+    discount_value numeric(10,2) NOT NULL,
+    currency_code character varying(15),
+    status marketing.user_coupon_status DEFAULT 'issued'::marketing.user_coupon_status NOT NULL,
+    queue_position integer DEFAULT 1 NOT NULL,
+    is_combinable boolean DEFAULT false NOT NULL,
+    requires_previous_coupon_redeemed boolean DEFAULT true NOT NULL,
+    issued_at timestamp with time zone DEFAULT now() NOT NULL,
+    reserved_at timestamp with time zone,
+    redeemed_at timestamp with time zone,
+    expires_at timestamp with time zone,
+    order_reference character varying(100),
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    CONSTRAINT ck_user_discount_coupons_discount_positive CHECK ((discount_value > (0)::numeric)),
+    CONSTRAINT ck_user_discount_coupons_queue_position_positive CHECK ((queue_position > 0))
+);
+
+
+ALTER TABLE marketing.user_discount_coupons OWNER TO postgres;
+
+--
+-- TOC entry 340 (class 1259 OID 19619)
 -- Name: media_library; Type: TABLE; Schema: media; Owner: postgres
 --
 
@@ -2933,7 +3636,7 @@ CREATE TABLE media.media_library (
 ALTER TABLE media.media_library OWNER TO postgres;
 
 --
--- TOC entry 340 (class 1259 OID 19672)
+-- TOC entry 342 (class 1259 OID 19672)
 -- Name: media_type; Type: TABLE; Schema: media; Owner: postgres
 --
 
@@ -2946,7 +3649,7 @@ CREATE TABLE media.media_type (
 ALTER TABLE media.media_type OWNER TO postgres;
 
 --
--- TOC entry 339 (class 1259 OID 19661)
+-- TOC entry 341 (class 1259 OID 19661)
 -- Name: sponsered_slider; Type: TABLE; Schema: media; Owner: postgres
 --
 
@@ -2966,7 +3669,7 @@ CREATE TABLE media.sponsered_slider (
 ALTER TABLE media.sponsered_slider OWNER TO postgres;
 
 --
--- TOC entry 359 (class 1259 OID 20142)
+-- TOC entry 361 (class 1259 OID 20142)
 -- Name: notification_deliveries; Type: TABLE; Schema: notify; Owner: postgres
 --
 
@@ -2991,7 +3694,7 @@ CREATE TABLE notify.notification_deliveries (
 ALTER TABLE notify.notification_deliveries OWNER TO postgres;
 
 --
--- TOC entry 358 (class 1259 OID 20125)
+-- TOC entry 360 (class 1259 OID 20125)
 -- Name: notifications; Type: TABLE; Schema: notify; Owner: postgres
 --
 
@@ -3014,7 +3717,311 @@ CREATE TABLE notify.notifications (
 ALTER TABLE notify.notifications OWNER TO postgres;
 
 --
--- TOC entry 302 (class 1259 OID 16751)
+-- TOC entry 410 (class 1259 OID 21900)
+-- Name: form_definitions; Type: TABLE; Schema: provider_portal; Owner: postgres
+--
+
+CREATE TABLE provider_portal.form_definitions (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    provider_type_id uuid,
+    code text NOT NULL,
+    scope text NOT NULL,
+    title_translations jsonb DEFAULT '{}'::jsonb NOT NULL,
+    description_translations jsonb DEFAULT '{}'::jsonb NOT NULL,
+    version integer DEFAULT 1 NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    settings jsonb DEFAULT '{}'::jsonb NOT NULL,
+    published_at timestamp with time zone,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE provider_portal.form_definitions OWNER TO postgres;
+
+--
+-- TOC entry 412 (class 1259 OID 21953)
+-- Name: form_field_options; Type: TABLE; Schema: provider_portal; Owner: postgres
+--
+
+CREATE TABLE provider_portal.form_field_options (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    form_field_id uuid NOT NULL,
+    option_value text NOT NULL,
+    label_translations jsonb DEFAULT '{}'::jsonb NOT NULL,
+    sort_order integer DEFAULT 0 NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE provider_portal.form_field_options OWNER TO postgres;
+
+--
+-- TOC entry 411 (class 1259 OID 21923)
+-- Name: form_fields; Type: TABLE; Schema: provider_portal; Owner: postgres
+--
+
+CREATE TABLE provider_portal.form_fields (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    form_definition_id uuid NOT NULL,
+    field_key text NOT NULL,
+    label_translations jsonb DEFAULT '{}'::jsonb NOT NULL,
+    help_translations jsonb DEFAULT '{}'::jsonb NOT NULL,
+    placeholder_translations jsonb DEFAULT '{}'::jsonb NOT NULL,
+    field_type text NOT NULL,
+    data_type text DEFAULT 'string'::text NOT NULL,
+    column_binding text,
+    value_path text,
+    is_required boolean DEFAULT false NOT NULL,
+    sort_order integer DEFAULT 0 NOT NULL,
+    width text,
+    option_source_kind text DEFAULT 'none'::text NOT NULL,
+    option_source_config jsonb DEFAULT '{}'::jsonb NOT NULL,
+    validation_rules jsonb DEFAULT '{}'::jsonb NOT NULL,
+    default_value jsonb,
+    conditional_logic jsonb DEFAULT '{}'::jsonb NOT NULL,
+    ui_props jsonb DEFAULT '{}'::jsonb NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE provider_portal.form_fields OWNER TO postgres;
+
+--
+-- TOC entry 414 (class 1259 OID 22000)
+-- Name: onboarding_applications; Type: TABLE; Schema: provider_portal; Owner: postgres
+--
+
+CREATE TABLE provider_portal.onboarding_applications (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    application_number text DEFAULT concat('APP-', to_char(now(), 'YYYYMMDD'::text), '-', upper(SUBSTRING(replace((public.uuid_generate_v4())::text, '-'::text, ''::text) FROM 1 FOR 8))),
+    applicant_user_id uuid NOT NULL,
+    provider_type_id uuid NOT NULL,
+    service_provider_id uuid,
+    current_form_definition_id uuid,
+    current_step integer DEFAULT 1 NOT NULL,
+    status provider_portal.application_status DEFAULT 'draft'::provider_portal.application_status NOT NULL,
+    legal_name text,
+    display_name_translations jsonb DEFAULT '{}'::jsonb NOT NULL,
+    email character varying(250),
+    phone_number_country_code character varying(5),
+    phone_number character varying(20),
+    country_location_id uuid,
+    city_location_id uuid,
+    address_text text,
+    website_url text,
+    submission_payload jsonb DEFAULT '{}'::jsonb NOT NULL,
+    internal_note text,
+    review_reason text,
+    reviewed_by uuid,
+    reviewed_at timestamp with time zone,
+    submitted_at timestamp with time zone,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE provider_portal.onboarding_applications OWNER TO postgres;
+
+--
+-- TOC entry 415 (class 1259 OID 22053)
+-- Name: onboarding_documents; Type: TABLE; Schema: provider_portal; Owner: postgres
+--
+
+CREATE TABLE provider_portal.onboarding_documents (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    application_id uuid NOT NULL,
+    document_kind text NOT NULL,
+    media_id uuid,
+    file_url text,
+    title text,
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE provider_portal.onboarding_documents OWNER TO postgres;
+
+--
+-- TOC entry 419 (class 1259 OID 22146)
+-- Name: payout_accounts; Type: TABLE; Schema: provider_portal; Owner: postgres
+--
+
+CREATE TABLE provider_portal.payout_accounts (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    service_provider_id uuid NOT NULL,
+    account_holder_name text NOT NULL,
+    bank_name text,
+    iban text,
+    swift_code text,
+    account_number_last4 text,
+    country character varying(15),
+    currency_code character varying(10) DEFAULT 'USD'::character varying NOT NULL,
+    is_default boolean DEFAULT false NOT NULL,
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE provider_portal.payout_accounts OWNER TO postgres;
+
+--
+-- TOC entry 420 (class 1259 OID 22164)
+-- Name: portal_invoices; Type: TABLE; Schema: provider_portal; Owner: postgres
+--
+
+CREATE TABLE provider_portal.portal_invoices (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    service_provider_id uuid NOT NULL,
+    billing_period_start date,
+    billing_period_end date,
+    currency_code character varying(10) DEFAULT 'USD'::character varying NOT NULL,
+    subtotal numeric(18,2) DEFAULT 0 NOT NULL,
+    tax_total numeric(18,2) DEFAULT 0 NOT NULL,
+    total numeric(18,2) DEFAULT 0 NOT NULL,
+    status text DEFAULT 'draft'::text NOT NULL,
+    pdf_url text,
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE provider_portal.portal_invoices OWNER TO postgres;
+
+--
+-- TOC entry 409 (class 1259 OID 21876)
+-- Name: portal_sections; Type: TABLE; Schema: provider_portal; Owner: postgres
+--
+
+CREATE TABLE provider_portal.portal_sections (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    provider_type_id uuid NOT NULL,
+    section_key text NOT NULL,
+    label_translations jsonb DEFAULT '{}'::jsonb NOT NULL,
+    description_translations jsonb DEFAULT '{}'::jsonb NOT NULL,
+    icon_name text,
+    page_kind provider_portal.section_page_kind DEFAULT 'custom'::provider_portal.section_page_kind NOT NULL,
+    sort_order integer DEFAULT 0 NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    settings jsonb DEFAULT '{}'::jsonb NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE provider_portal.portal_sections OWNER TO postgres;
+
+--
+-- TOC entry 413 (class 1259 OID 21973)
+-- Name: provider_members; Type: TABLE; Schema: provider_portal; Owner: postgres
+--
+
+CREATE TABLE provider_portal.provider_members (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    service_provider_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    role provider_portal.membership_role DEFAULT 'owner'::provider_portal.membership_role NOT NULL,
+    is_default boolean DEFAULT false NOT NULL,
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE provider_portal.provider_members OWNER TO postgres;
+
+--
+-- TOC entry 416 (class 1259 OID 22074)
+-- Name: provider_operating_hours; Type: TABLE; Schema: provider_portal; Owner: postgres
+--
+
+CREATE TABLE provider_portal.provider_operating_hours (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    service_provider_id uuid NOT NULL,
+    day_of_week smallint NOT NULL,
+    opens_at time without time zone,
+    closes_at time without time zone,
+    is_closed boolean DEFAULT false NOT NULL,
+    slot_interval_minutes integer DEFAULT 15 NOT NULL,
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT provider_operating_hours_day_of_week_check CHECK (((day_of_week >= 1) AND (day_of_week <= 7))),
+    CONSTRAINT provider_operating_hours_slot_interval_minutes_check CHECK ((slot_interval_minutes > 0))
+);
+
+
+ALTER TABLE provider_portal.provider_operating_hours OWNER TO postgres;
+
+--
+-- TOC entry 417 (class 1259 OID 22096)
+-- Name: provider_service_addon_settings; Type: TABLE; Schema: provider_portal; Owner: postgres
+--
+
+CREATE TABLE provider_portal.provider_service_addon_settings (
+    provider_service_id uuid NOT NULL,
+    addon_id text NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    custom_price numeric(18,2),
+    custom_config jsonb DEFAULT '{}'::jsonb NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE provider_portal.provider_service_addon_settings OWNER TO postgres;
+
+--
+-- TOC entry 408 (class 1259 OID 21855)
+-- Name: provider_type_catalog; Type: TABLE; Schema: provider_portal; Owner: postgres
+--
+
+CREATE TABLE provider_portal.provider_type_catalog (
+    provider_type_id uuid NOT NULL,
+    code text NOT NULL,
+    description_translations jsonb DEFAULT '{}'::jsonb NOT NULL,
+    icon_name text,
+    sort_order integer DEFAULT 0 NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    is_onboarding_enabled boolean DEFAULT true NOT NULL,
+    onboarding_form_code text,
+    profile_form_code text,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE provider_portal.provider_type_catalog OWNER TO postgres;
+
+--
+-- TOC entry 418 (class 1259 OID 22117)
+-- Name: support_tickets; Type: TABLE; Schema: provider_portal; Owner: postgres
+--
+
+CREATE TABLE provider_portal.support_tickets (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    service_provider_id uuid NOT NULL,
+    created_by_user_id uuid,
+    assigned_to_user_id uuid,
+    subject text NOT NULL,
+    message text NOT NULL,
+    status provider_portal.ticket_status DEFAULT 'open'::provider_portal.ticket_status NOT NULL,
+    priority text DEFAULT 'normal'::text NOT NULL,
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    create_date timestamp with time zone DEFAULT now() NOT NULL,
+    last_modified_date timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE provider_portal.support_tickets OWNER TO postgres;
+
+--
+-- TOC entry 304 (class 1259 OID 16751)
 -- Name: translation_audit; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -3037,7 +4044,7 @@ CREATE TABLE public.translation_audit (
 ALTER TABLE public.translation_audit OWNER TO postgres;
 
 --
--- TOC entry 303 (class 1259 OID 16757)
+-- TOC entry 305 (class 1259 OID 16757)
 -- Name: translation_audit_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -3052,8 +4059,8 @@ CREATE SEQUENCE public.translation_audit_id_seq
 ALTER SEQUENCE public.translation_audit_id_seq OWNER TO postgres;
 
 --
--- TOC entry 7150 (class 0 OID 0)
--- Dependencies: 303
+-- TOC entry 7744 (class 0 OID 0)
+-- Dependencies: 305
 -- Name: translation_audit_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
@@ -3061,7 +4068,7 @@ ALTER SEQUENCE public.translation_audit_id_seq OWNED BY public.translation_audit
 
 
 --
--- TOC entry 317 (class 1259 OID 18520)
+-- TOC entry 319 (class 1259 OID 18520)
 -- Name: trending_searches; Type: TABLE; Schema: search; Owner: postgres
 --
 
@@ -3075,7 +4082,7 @@ CREATE TABLE search.trending_searches (
 ALTER TABLE search.trending_searches OWNER TO postgres;
 
 --
--- TOC entry 314 (class 1259 OID 18406)
+-- TOC entry 316 (class 1259 OID 18406)
 -- Name: user_search_history; Type: TABLE; Schema: search; Owner: postgres
 --
 
@@ -3092,7 +4099,7 @@ CREATE TABLE search.user_search_history (
 ALTER TABLE search.user_search_history OWNER TO postgres;
 
 --
--- TOC entry 313 (class 1259 OID 18405)
+-- TOC entry 315 (class 1259 OID 18405)
 -- Name: user_search_history_id_seq; Type: SEQUENCE; Schema: search; Owner: postgres
 --
 
@@ -3108,8 +4115,8 @@ CREATE SEQUENCE search.user_search_history_id_seq
 ALTER SEQUENCE search.user_search_history_id_seq OWNER TO postgres;
 
 --
--- TOC entry 7151 (class 0 OID 0)
--- Dependencies: 313
+-- TOC entry 7745 (class 0 OID 0)
+-- Dependencies: 315
 -- Name: user_search_history_id_seq; Type: SEQUENCE OWNED BY; Schema: search; Owner: postgres
 --
 
@@ -3117,7 +4124,7 @@ ALTER SEQUENCE search.user_search_history_id_seq OWNED BY search.user_search_his
 
 
 --
--- TOC entry 378 (class 1259 OID 20705)
+-- TOC entry 380 (class 1259 OID 20705)
 -- Name: abandoned_carts; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3136,7 +4143,7 @@ CREATE TABLE shop.abandoned_carts (
 ALTER TABLE shop.abandoned_carts OWNER TO postgres;
 
 --
--- TOC entry 366 (class 1259 OID 20464)
+-- TOC entry 368 (class 1259 OID 20464)
 -- Name: attribute_values; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3154,7 +4161,7 @@ CREATE TABLE shop.attribute_values (
 ALTER TABLE shop.attribute_values OWNER TO postgres;
 
 --
--- TOC entry 365 (class 1259 OID 20449)
+-- TOC entry 367 (class 1259 OID 20449)
 -- Name: attributes; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3172,7 +4179,7 @@ CREATE TABLE shop.attributes (
 ALTER TABLE shop.attributes OWNER TO postgres;
 
 --
--- TOC entry 360 (class 1259 OID 20337)
+-- TOC entry 362 (class 1259 OID 20337)
 -- Name: brands; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3193,7 +4200,7 @@ CREATE TABLE shop.brands (
 ALTER TABLE shop.brands OWNER TO postgres;
 
 --
--- TOC entry 377 (class 1259 OID 20676)
+-- TOC entry 379 (class 1259 OID 20676)
 -- Name: cart_items; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3217,7 +4224,7 @@ CREATE TABLE shop.cart_items (
 ALTER TABLE shop.cart_items OWNER TO postgres;
 
 --
--- TOC entry 376 (class 1259 OID 20658)
+-- TOC entry 378 (class 1259 OID 20658)
 -- Name: carts; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3239,7 +4246,7 @@ CREATE TABLE shop.carts (
 ALTER TABLE shop.carts OWNER TO postgres;
 
 --
--- TOC entry 361 (class 1259 OID 20352)
+-- TOC entry 363 (class 1259 OID 20352)
 -- Name: categories; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3266,7 +4273,7 @@ CREATE TABLE shop.categories (
 ALTER TABLE shop.categories OWNER TO postgres;
 
 --
--- TOC entry 398 (class 1259 OID 21137)
+-- TOC entry 400 (class 1259 OID 21137)
 -- Name: compare_list_items; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3282,7 +4289,7 @@ CREATE TABLE shop.compare_list_items (
 ALTER TABLE shop.compare_list_items OWNER TO postgres;
 
 --
--- TOC entry 397 (class 1259 OID 21122)
+-- TOC entry 399 (class 1259 OID 21122)
 -- Name: compare_lists; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3298,7 +4305,7 @@ CREATE TABLE shop.compare_lists (
 ALTER TABLE shop.compare_lists OWNER TO postgres;
 
 --
--- TOC entry 380 (class 1259 OID 20748)
+-- TOC entry 382 (class 1259 OID 20748)
 -- Name: coupon_redemptions; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3317,7 +4324,7 @@ CREATE TABLE shop.coupon_redemptions (
 ALTER TABLE shop.coupon_redemptions OWNER TO postgres;
 
 --
--- TOC entry 379 (class 1259 OID 20729)
+-- TOC entry 381 (class 1259 OID 20729)
 -- Name: coupons; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3347,7 +4354,7 @@ CREATE TABLE shop.coupons (
 ALTER TABLE shop.coupons OWNER TO postgres;
 
 --
--- TOC entry 373 (class 1259 OID 20602)
+-- TOC entry 375 (class 1259 OID 20602)
 -- Name: customer_addresses; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3375,7 +4382,7 @@ CREATE TABLE shop.customer_addresses (
 ALTER TABLE shop.customer_addresses OWNER TO postgres;
 
 --
--- TOC entry 374 (class 1259 OID 20619)
+-- TOC entry 376 (class 1259 OID 20619)
 -- Name: delivery_methods; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3399,7 +4406,7 @@ CREATE TABLE shop.delivery_methods (
 ALTER TABLE shop.delivery_methods OWNER TO postgres;
 
 --
--- TOC entry 371 (class 1259 OID 20558)
+-- TOC entry 373 (class 1259 OID 20558)
 -- Name: inventory; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3424,7 +4431,7 @@ CREATE TABLE shop.inventory (
 ALTER TABLE shop.inventory OWNER TO postgres;
 
 --
--- TOC entry 372 (class 1259 OID 20588)
+-- TOC entry 374 (class 1259 OID 20588)
 -- Name: inventory_movements; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3444,7 +4451,7 @@ CREATE TABLE shop.inventory_movements (
 ALTER TABLE shop.inventory_movements OWNER TO postgres;
 
 --
--- TOC entry 383 (class 1259 OID 20821)
+-- TOC entry 385 (class 1259 OID 20821)
 -- Name: order_addresses; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3469,7 +4476,7 @@ CREATE TABLE shop.order_addresses (
 ALTER TABLE shop.order_addresses OWNER TO postgres;
 
 --
--- TOC entry 384 (class 1259 OID 20835)
+-- TOC entry 386 (class 1259 OID 20835)
 -- Name: order_items; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3498,7 +4505,7 @@ CREATE TABLE shop.order_items (
 ALTER TABLE shop.order_items OWNER TO postgres;
 
 --
--- TOC entry 385 (class 1259 OID 20867)
+-- TOC entry 387 (class 1259 OID 20867)
 -- Name: order_status_history; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3516,7 +4523,7 @@ CREATE TABLE shop.order_status_history (
 ALTER TABLE shop.order_status_history OWNER TO postgres;
 
 --
--- TOC entry 382 (class 1259 OID 20788)
+-- TOC entry 384 (class 1259 OID 20788)
 -- Name: orders; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3549,7 +4556,7 @@ CREATE TABLE shop.orders (
 ALTER TABLE shop.orders OWNER TO postgres;
 
 --
--- TOC entry 375 (class 1259 OID 20638)
+-- TOC entry 377 (class 1259 OID 20638)
 -- Name: payment_methods; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3573,7 +4580,7 @@ CREATE TABLE shop.payment_methods (
 ALTER TABLE shop.payment_methods OWNER TO postgres;
 
 --
--- TOC entry 386 (class 1259 OID 20881)
+-- TOC entry 388 (class 1259 OID 20881)
 -- Name: payment_transactions; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3600,7 +4607,7 @@ CREATE TABLE shop.payment_transactions (
 ALTER TABLE shop.payment_transactions OWNER TO postgres;
 
 --
--- TOC entry 381 (class 1259 OID 20773)
+-- TOC entry 383 (class 1259 OID 20773)
 -- Name: pricing_rules; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3625,7 +4632,7 @@ CREATE TABLE shop.pricing_rules (
 ALTER TABLE shop.pricing_rules OWNER TO postgres;
 
 --
--- TOC entry 367 (class 1259 OID 20481)
+-- TOC entry 369 (class 1259 OID 20481)
 -- Name: product_attributes; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3640,7 +4647,7 @@ CREATE TABLE shop.product_attributes (
 ALTER TABLE shop.product_attributes OWNER TO postgres;
 
 --
--- TOC entry 363 (class 1259 OID 20413)
+-- TOC entry 365 (class 1259 OID 20413)
 -- Name: product_categories; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3655,7 +4662,7 @@ CREATE TABLE shop.product_categories (
 ALTER TABLE shop.product_categories OWNER TO postgres;
 
 --
--- TOC entry 364 (class 1259 OID 20431)
+-- TOC entry 366 (class 1259 OID 20431)
 -- Name: product_media; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3675,7 +4682,7 @@ CREATE TABLE shop.product_media (
 ALTER TABLE shop.product_media OWNER TO postgres;
 
 --
--- TOC entry 395 (class 1259 OID 21082)
+-- TOC entry 397 (class 1259 OID 21082)
 -- Name: product_questions; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3695,7 +4702,7 @@ CREATE TABLE shop.product_questions (
 ALTER TABLE shop.product_questions OWNER TO postgres;
 
 --
--- TOC entry 394 (class 1259 OID 21054)
+-- TOC entry 396 (class 1259 OID 21054)
 -- Name: product_reviews; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3718,7 +4725,7 @@ CREATE TABLE shop.product_reviews (
 ALTER TABLE shop.product_reviews OWNER TO postgres;
 
 --
--- TOC entry 368 (class 1259 OID 20498)
+-- TOC entry 370 (class 1259 OID 20498)
 -- Name: product_variants; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3746,7 +4753,7 @@ CREATE TABLE shop.product_variants (
 ALTER TABLE shop.product_variants OWNER TO postgres;
 
 --
--- TOC entry 362 (class 1259 OID 20375)
+-- TOC entry 364 (class 1259 OID 20375)
 -- Name: products; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3789,7 +4796,7 @@ CREATE TABLE shop.products (
 ALTER TABLE shop.products OWNER TO postgres;
 
 --
--- TOC entry 396 (class 1259 OID 21103)
+-- TOC entry 398 (class 1259 OID 21103)
 -- Name: recently_viewed_products; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3805,7 +4812,7 @@ CREATE TABLE shop.recently_viewed_products (
 ALTER TABLE shop.recently_viewed_products OWNER TO postgres;
 
 --
--- TOC entry 391 (class 1259 OID 20992)
+-- TOC entry 393 (class 1259 OID 20992)
 -- Name: refunds; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3826,7 +4833,7 @@ CREATE TABLE shop.refunds (
 ALTER TABLE shop.refunds OWNER TO postgres;
 
 --
--- TOC entry 390 (class 1259 OID 20973)
+-- TOC entry 392 (class 1259 OID 20973)
 -- Name: return_items; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3844,7 +4851,7 @@ CREATE TABLE shop.return_items (
 ALTER TABLE shop.return_items OWNER TO postgres;
 
 --
--- TOC entry 389 (class 1259 OID 20951)
+-- TOC entry 391 (class 1259 OID 20951)
 -- Name: return_requests; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3865,7 +4872,7 @@ CREATE TABLE shop.return_requests (
 ALTER TABLE shop.return_requests OWNER TO postgres;
 
 --
--- TOC entry 388 (class 1259 OID 20934)
+-- TOC entry 390 (class 1259 OID 20934)
 -- Name: shipment_items; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3881,7 +4888,7 @@ CREATE TABLE shop.shipment_items (
 ALTER TABLE shop.shipment_items OWNER TO postgres;
 
 --
--- TOC entry 387 (class 1259 OID 20906)
+-- TOC entry 389 (class 1259 OID 20906)
 -- Name: shipments; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3905,7 +4912,7 @@ CREATE TABLE shop.shipments (
 ALTER TABLE shop.shipments OWNER TO postgres;
 
 --
--- TOC entry 399 (class 1259 OID 21170)
+-- TOC entry 401 (class 1259 OID 21170)
 -- Name: v_product_price_summary; Type: VIEW; Schema: shop; Owner: postgres
 --
 
@@ -3947,7 +4954,7 @@ CREATE VIEW shop.v_product_price_summary AS
 ALTER VIEW shop.v_product_price_summary OWNER TO postgres;
 
 --
--- TOC entry 369 (class 1259 OID 20525)
+-- TOC entry 371 (class 1259 OID 20525)
 -- Name: variant_attribute_values; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3961,7 +4968,7 @@ CREATE TABLE shop.variant_attribute_values (
 ALTER TABLE shop.variant_attribute_values OWNER TO postgres;
 
 --
--- TOC entry 370 (class 1259 OID 20545)
+-- TOC entry 372 (class 1259 OID 20545)
 -- Name: warehouses; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3982,7 +4989,7 @@ CREATE TABLE shop.warehouses (
 ALTER TABLE shop.warehouses OWNER TO postgres;
 
 --
--- TOC entry 393 (class 1259 OID 21032)
+-- TOC entry 395 (class 1259 OID 21032)
 -- Name: wishlist_items; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -3998,7 +5005,7 @@ CREATE TABLE shop.wishlist_items (
 ALTER TABLE shop.wishlist_items OWNER TO postgres;
 
 --
--- TOC entry 392 (class 1259 OID 21014)
+-- TOC entry 394 (class 1259 OID 21014)
 -- Name: wishlists; Type: TABLE; Schema: shop; Owner: postgres
 --
 
@@ -4014,7 +5021,7 @@ CREATE TABLE shop.wishlists (
 ALTER TABLE shop.wishlists OWNER TO postgres;
 
 --
--- TOC entry 5850 (class 2604 OID 18395)
+-- TOC entry 6015 (class 2604 OID 18395)
 -- Name: category_groups id; Type: DEFAULT; Schema: category; Owner: postgres
 --
 
@@ -4022,7 +5029,7 @@ ALTER TABLE ONLY category.category_groups ALTER COLUMN id SET DEFAULT nextval('c
 
 
 --
--- TOC entry 5853 (class 2604 OID 18500)
+-- TOC entry 6018 (class 2604 OID 18500)
 -- Name: offers id; Type: DEFAULT; Schema: marketing; Owner: postgres
 --
 
@@ -4030,7 +5037,7 @@ ALTER TABLE ONLY marketing.offers ALTER COLUMN id SET DEFAULT nextval('marketing
 
 
 --
--- TOC entry 5835 (class 2604 OID 16758)
+-- TOC entry 5998 (class 2604 OID 16758)
 -- Name: translation_audit id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -4038,7 +5045,7 @@ ALTER TABLE ONLY public.translation_audit ALTER COLUMN id SET DEFAULT nextval('p
 
 
 --
--- TOC entry 5851 (class 2604 OID 18409)
+-- TOC entry 6016 (class 2604 OID 18409)
 -- Name: user_search_history id; Type: DEFAULT; Schema: search; Owner: postgres
 --
 
@@ -4046,7 +5053,7 @@ ALTER TABLE ONLY search.user_search_history ALTER COLUMN id SET DEFAULT nextval(
 
 
 --
--- TOC entry 6617 (class 2606 OID 19581)
+-- TOC entry 7012 (class 2606 OID 19581)
 -- Name: role_table_permissions role_table_permissions_pkey; Type: CONSTRAINT; Schema: auth; Owner: postgres
 --
 
@@ -4055,7 +5062,7 @@ ALTER TABLE ONLY auth.role_table_permissions
 
 
 --
--- TOC entry 6619 (class 2606 OID 19583)
+-- TOC entry 7014 (class 2606 OID 19583)
 -- Name: role_table_permissions role_table_permissions_role_id_schema_name_table_name_key; Type: CONSTRAINT; Schema: auth; Owner: postgres
 --
 
@@ -4064,7 +5071,7 @@ ALTER TABLE ONLY auth.role_table_permissions
 
 
 --
--- TOC entry 6610 (class 2606 OID 19559)
+-- TOC entry 7005 (class 2606 OID 19559)
 -- Name: roles roles_name_key; Type: CONSTRAINT; Schema: auth; Owner: postgres
 --
 
@@ -4073,7 +5080,7 @@ ALTER TABLE ONLY auth.roles
 
 
 --
--- TOC entry 6612 (class 2606 OID 19557)
+-- TOC entry 7007 (class 2606 OID 19557)
 -- Name: roles roles_pkey; Type: CONSTRAINT; Schema: auth; Owner: postgres
 --
 
@@ -4082,7 +5089,7 @@ ALTER TABLE ONLY auth.roles
 
 
 --
--- TOC entry 6614 (class 2606 OID 19564)
+-- TOC entry 7009 (class 2606 OID 19564)
 -- Name: user_roles user_roles_pkey; Type: CONSTRAINT; Schema: auth; Owner: postgres
 --
 
@@ -4091,7 +5098,7 @@ ALTER TABLE ONLY auth.user_roles
 
 
 --
--- TOC entry 6690 (class 2606 OID 20043)
+-- TOC entry 7085 (class 2606 OID 20043)
 -- Name: booking_addons booking_addons_pkey; Type: CONSTRAINT; Schema: booking; Owner: postgres
 --
 
@@ -4100,7 +5107,16 @@ ALTER TABLE ONLY booking.booking_addons
 
 
 --
--- TOC entry 6693 (class 2606 OID 20063)
+-- TOC entry 7343 (class 2606 OID 22576)
+-- Name: booking_child_bookings booking_child_bookings_pkey; Type: CONSTRAINT; Schema: booking; Owner: postgres
+--
+
+ALTER TABLE ONLY booking.booking_child_bookings
+    ADD CONSTRAINT booking_child_bookings_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7088 (class 2606 OID 20063)
 -- Name: booking_documents booking_documents_pkey; Type: CONSTRAINT; Schema: booking; Owner: postgres
 --
 
@@ -4109,7 +5125,7 @@ ALTER TABLE ONLY booking.booking_documents
 
 
 --
--- TOC entry 6685 (class 2606 OID 20006)
+-- TOC entry 7080 (class 2606 OID 20006)
 -- Name: booking_draft_addons booking_draft_addons_pkey; Type: CONSTRAINT; Schema: booking; Owner: postgres
 --
 
@@ -4118,7 +5134,16 @@ ALTER TABLE ONLY booking.booking_draft_addons
 
 
 --
--- TOC entry 6687 (class 2606 OID 20025)
+-- TOC entry 7340 (class 2606 OID 22528)
+-- Name: booking_draft_child_bookings booking_draft_child_bookings_pkey; Type: CONSTRAINT; Schema: booking; Owner: postgres
+--
+
+ALTER TABLE ONLY booking.booking_draft_child_bookings
+    ADD CONSTRAINT booking_draft_child_bookings_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7082 (class 2606 OID 20025)
 -- Name: booking_draft_documents booking_draft_documents_pkey; Type: CONSTRAINT; Schema: booking; Owner: postgres
 --
 
@@ -4127,7 +5152,7 @@ ALTER TABLE ONLY booking.booking_draft_documents
 
 
 --
--- TOC entry 6681 (class 2606 OID 19978)
+-- TOC entry 7076 (class 2606 OID 19978)
 -- Name: booking_drafts booking_drafts_pkey; Type: CONSTRAINT; Schema: booking; Owner: postgres
 --
 
@@ -4136,16 +5161,25 @@ ALTER TABLE ONLY booking.booking_drafts
 
 
 --
--- TOC entry 6530 (class 2606 OID 19298)
+-- TOC entry 6925 (class 2606 OID 22460)
+-- Name: bookings bookings_pkey; Type: CONSTRAINT; Schema: booking; Owner: postgres
+--
+
+ALTER TABLE ONLY booking.bookings
+    ADD CONSTRAINT bookings_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 6927 (class 2606 OID 22462)
 -- Name: bookings ex_bookings_no_overlap_per_specialist; Type: CONSTRAINT; Schema: booking; Owner: postgres
 --
 
 ALTER TABLE ONLY booking.bookings
-    ADD CONSTRAINT ex_bookings_no_overlap_per_specialist EXCLUDE USING gist (provider_id WITH =, specialist_id WITH =, selected_date WITH =, tsrange(((selected_date)::timestamp without time zone + (selected_time_from)::interval), ((selected_date)::timestamp without time zone + (selected_time_to)::interval), '[)'::text) WITH &&) WHERE (((booking_status)::text = ANY ((ARRAY['Pending'::character varying, 'Confirmed'::character varying])::text[])));
+    ADD CONSTRAINT ex_bookings_no_overlap_per_specialist EXCLUDE USING gist (provider_id WITH =, specialist_id WITH =, selected_date WITH =, tsrange(((selected_date)::timestamp without time zone + (selected_time_from)::interval), ((selected_date)::timestamp without time zone + (selected_time_to)::interval), '[)'::text) WITH &&) WHERE (((specialist_id IS NOT NULL) AND (booking_ui_mode = 'default_slot'::text) AND (selected_date IS NOT NULL) AND (selected_time_from IS NOT NULL) AND (selected_time_to IS NOT NULL) AND ((booking_status)::text = ANY (ARRAY[('Pending'::character varying)::text, ('Confirmed'::character varying)::text]))));
 
 
 --
--- TOC entry 6697 (class 2606 OID 20082)
+-- TOC entry 7092 (class 2606 OID 20082)
 -- Name: payments payments_pkey; Type: CONSTRAINT; Schema: booking; Owner: postgres
 --
 
@@ -4154,16 +5188,7 @@ ALTER TABLE ONLY booking.payments
 
 
 --
--- TOC entry 6536 (class 2606 OID 19256)
--- Name: bookings pk_booking; Type: CONSTRAINT; Schema: booking; Owner: postgres
---
-
-ALTER TABLE ONLY booking.bookings
-    ADD CONSTRAINT pk_booking PRIMARY KEY (provider_id, service_id, specialist_id, selected_date, selected_time);
-
-
---
--- TOC entry 6538 (class 2606 OID 19274)
+-- TOC entry 6933 (class 2606 OID 19274)
 -- Name: bookings uq_bookings_id; Type: CONSTRAINT; Schema: booking; Owner: postgres
 --
 
@@ -4172,7 +5197,7 @@ ALTER TABLE ONLY booking.bookings
 
 
 --
--- TOC entry 6541 (class 2606 OID 18397)
+-- TOC entry 6936 (class 2606 OID 18397)
 -- Name: category_groups category_groups_pkey; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4181,7 +5206,7 @@ ALTER TABLE ONLY category.category_groups
 
 
 --
--- TOC entry 6270 (class 2606 OID 16967)
+-- TOC entry 6665 (class 2606 OID 16967)
 -- Name: __EFMigrationsHistory pk___ef_migrations_history; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4190,7 +5215,7 @@ ALTER TABLE ONLY category."__EFMigrationsHistory"
 
 
 --
--- TOC entry 6555 (class 2606 OID 18550)
+-- TOC entry 6950 (class 2606 OID 18550)
 -- Name: addon_details pk_addon_details; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4199,7 +5224,7 @@ ALTER TABLE ONLY category.addon_details
 
 
 --
--- TOC entry 6552 (class 2606 OID 18541)
+-- TOC entry 6947 (class 2606 OID 18541)
 -- Name: addons pk_addons; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4208,7 +5233,7 @@ ALTER TABLE ONLY category.addons
 
 
 --
--- TOC entry 6272 (class 2606 OID 16969)
+-- TOC entry 6667 (class 2606 OID 16969)
 -- Name: attribute_types pk_attribute_types; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4217,7 +5242,7 @@ ALTER TABLE ONLY category.attribute_types
 
 
 --
--- TOC entry 6275 (class 2606 OID 16971)
+-- TOC entry 6670 (class 2606 OID 16971)
 -- Name: categories pk_categories; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4226,7 +5251,7 @@ ALTER TABLE ONLY category.categories
 
 
 --
--- TOC entry 6277 (class 2606 OID 16973)
+-- TOC entry 6672 (class 2606 OID 16973)
 -- Name: currencies pk_currencies; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4235,7 +5260,7 @@ ALTER TABLE ONLY category.currencies
 
 
 --
--- TOC entry 6280 (class 2606 OID 16975)
+-- TOC entry 6675 (class 2606 OID 16975)
 -- Name: inbox_message_consumers pk_inbox_message_consumers; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4244,7 +5269,7 @@ ALTER TABLE ONLY category.inbox_message_consumers
 
 
 --
--- TOC entry 6286 (class 2606 OID 16977)
+-- TOC entry 6681 (class 2606 OID 16977)
 -- Name: inbox_messages pk_inbox_messages; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4253,7 +5278,7 @@ ALTER TABLE ONLY category.inbox_messages
 
 
 --
--- TOC entry 6289 (class 2606 OID 16979)
+-- TOC entry 6684 (class 2606 OID 16979)
 -- Name: internal_command_message_consumers pk_internal_command_message_consumers; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4262,7 +5287,7 @@ ALTER TABLE ONLY category.internal_command_message_consumers
 
 
 --
--- TOC entry 6295 (class 2606 OID 16981)
+-- TOC entry 6690 (class 2606 OID 16981)
 -- Name: internal_command_messages pk_internal_command_messages; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4271,7 +5296,7 @@ ALTER TABLE ONLY category.internal_command_messages
 
 
 --
--- TOC entry 6268 (class 2606 OID 16983)
+-- TOC entry 6663 (class 2606 OID 16983)
 -- Name: LocationType pk_location_type; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4280,7 +5305,7 @@ ALTER TABLE ONLY category."LocationType"
 
 
 --
--- TOC entry 6300 (class 2606 OID 16985)
+-- TOC entry 6695 (class 2606 OID 16985)
 -- Name: locations pk_locations; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4289,7 +5314,7 @@ ALTER TABLE ONLY category.locations
 
 
 --
--- TOC entry 6305 (class 2606 OID 16987)
+-- TOC entry 6700 (class 2606 OID 16987)
 -- Name: outbox_message_consumers pk_outbox_message_consumers; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4298,7 +5323,7 @@ ALTER TABLE ONLY category.outbox_message_consumers
 
 
 --
--- TOC entry 6311 (class 2606 OID 16989)
+-- TOC entry 6706 (class 2606 OID 16989)
 -- Name: outbox_messages pk_outbox_messages; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4307,7 +5332,7 @@ ALTER TABLE ONLY category.outbox_messages
 
 
 --
--- TOC entry 6621 (class 2606 OID 19605)
+-- TOC entry 7016 (class 2606 OID 19605)
 -- Name: picked_locations pk_picked_locations; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4316,7 +5341,7 @@ ALTER TABLE ONLY category.picked_locations
 
 
 --
--- TOC entry 6313 (class 2606 OID 16991)
+-- TOC entry 6708 (class 2606 OID 16991)
 -- Name: provider_attribute_definition_domain_options pk_provider_attribute_definition_domain_options; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4325,7 +5350,7 @@ ALTER TABLE ONLY category.provider_attribute_definition_domain_options
 
 
 --
--- TOC entry 6317 (class 2606 OID 16993)
+-- TOC entry 6712 (class 2606 OID 16993)
 -- Name: provider_attribute_definitions pk_provider_attribute_definitions; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4334,7 +5359,7 @@ ALTER TABLE ONLY category.provider_attribute_definitions
 
 
 --
--- TOC entry 6321 (class 2606 OID 16995)
+-- TOC entry 6716 (class 2606 OID 16995)
 -- Name: provider_attributes pk_provider_attributes; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4343,7 +5368,7 @@ ALTER TABLE ONLY category.provider_attributes
 
 
 --
--- TOC entry 6325 (class 2606 OID 16997)
+-- TOC entry 6720 (class 2606 OID 16997)
 -- Name: provider_gallery_items pk_provider_gallery_items; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4352,7 +5377,7 @@ ALTER TABLE ONLY category.provider_gallery_items
 
 
 --
--- TOC entry 6598 (class 2606 OID 19475)
+-- TOC entry 6993 (class 2606 OID 19475)
 -- Name: provider_languages pk_provider_languages; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4361,7 +5386,7 @@ ALTER TABLE ONLY category.provider_languages
 
 
 --
--- TOC entry 6329 (class 2606 OID 16999)
+-- TOC entry 6724 (class 2606 OID 16999)
 -- Name: provider_policies pk_provider_policies; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4370,7 +5395,7 @@ ALTER TABLE ONLY category.provider_policies
 
 
 --
--- TOC entry 6558 (class 2606 OID 18562)
+-- TOC entry 6953 (class 2606 OID 18562)
 -- Name: provider_service_addons pk_provider_service_addons; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4379,7 +5404,7 @@ ALTER TABLE ONLY category.provider_service_addons
 
 
 --
--- TOC entry 6607 (class 2606 OID 19519)
+-- TOC entry 7002 (class 2606 OID 19519)
 -- Name: provider_service_gallery_items pk_provider_service_gallery_items; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4388,7 +5413,7 @@ ALTER TABLE ONLY category.provider_service_gallery_items
 
 
 --
--- TOC entry 6335 (class 2606 OID 17001)
+-- TOC entry 6730 (class 2606 OID 17001)
 -- Name: provider_services pk_provider_services; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4397,7 +5422,7 @@ ALTER TABLE ONLY category.provider_services
 
 
 --
--- TOC entry 6340 (class 2606 OID 17003)
+-- TOC entry 6735 (class 2606 OID 17003)
 -- Name: provider_staffs pk_provider_staffs; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4406,7 +5431,7 @@ ALTER TABLE ONLY category.provider_staffs
 
 
 --
--- TOC entry 6342 (class 2606 OID 17005)
+-- TOC entry 6737 (class 2606 OID 17005)
 -- Name: provider_types pk_provider_types; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4415,7 +5440,7 @@ ALTER TABLE ONLY category.provider_types
 
 
 --
--- TOC entry 6344 (class 2606 OID 17007)
+-- TOC entry 6739 (class 2606 OID 17007)
 -- Name: service_attribute_definition_options pk_service_attribute_definition_options; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4424,7 +5449,7 @@ ALTER TABLE ONLY category.service_attribute_definition_options
 
 
 --
--- TOC entry 6348 (class 2606 OID 17009)
+-- TOC entry 6743 (class 2606 OID 17009)
 -- Name: service_attribute_definitions pk_service_attribute_definitions; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4433,7 +5458,7 @@ ALTER TABLE ONLY category.service_attribute_definitions
 
 
 --
--- TOC entry 6352 (class 2606 OID 17011)
+-- TOC entry 6747 (class 2606 OID 17011)
 -- Name: service_attribute_values pk_service_attribute_values; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4442,7 +5467,7 @@ ALTER TABLE ONLY category.service_attribute_values
 
 
 --
--- TOC entry 6354 (class 2606 OID 17013)
+-- TOC entry 6749 (class 2606 OID 17013)
 -- Name: service_definition_domain_requirements pk_service_definition_domain_requirements; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4451,7 +5476,7 @@ ALTER TABLE ONLY category.service_definition_domain_requirements
 
 
 --
--- TOC entry 6357 (class 2606 OID 17015)
+-- TOC entry 6752 (class 2606 OID 17015)
 -- Name: service_definitions pk_service_definitions; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4460,7 +5485,7 @@ ALTER TABLE ONLY category.service_definitions
 
 
 --
--- TOC entry 6363 (class 2606 OID 17017)
+-- TOC entry 6758 (class 2606 OID 17017)
 -- Name: service_provider_comments pk_service_provider_comments; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4469,7 +5494,7 @@ ALTER TABLE ONLY category.service_provider_comments
 
 
 --
--- TOC entry 6365 (class 2606 OID 17019)
+-- TOC entry 6760 (class 2606 OID 17019)
 -- Name: service_provider_grades pk_service_provider_grades; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4478,7 +5503,7 @@ ALTER TABLE ONLY category.service_provider_grades
 
 
 --
--- TOC entry 6367 (class 2606 OID 17021)
+-- TOC entry 6762 (class 2606 OID 17021)
 -- Name: service_provider_request_statuses pk_service_provider_request_statuses; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4487,7 +5512,7 @@ ALTER TABLE ONLY category.service_provider_request_statuses
 
 
 --
--- TOC entry 6372 (class 2606 OID 17023)
+-- TOC entry 6767 (class 2606 OID 17023)
 -- Name: service_provider_requests pk_service_provider_requests; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4496,7 +5521,7 @@ ALTER TABLE ONLY category.service_provider_requests
 
 
 --
--- TOC entry 6383 (class 2606 OID 17025)
+-- TOC entry 6778 (class 2606 OID 17025)
 -- Name: service_providers pk_service_providers; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4505,7 +5530,7 @@ ALTER TABLE ONLY category.service_providers
 
 
 --
--- TOC entry 6574 (class 2606 OID 19355)
+-- TOC entry 6969 (class 2606 OID 19355)
 -- Name: service_upload_file_requirements pk_service_upload_file_requirements; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4514,7 +5539,7 @@ ALTER TABLE ONLY category.service_upload_file_requirements
 
 
 --
--- TOC entry 6385 (class 2606 OID 17027)
+-- TOC entry 6780 (class 2606 OID 17027)
 -- Name: staff pk_staff; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4523,7 +5548,7 @@ ALTER TABLE ONLY category.staff
 
 
 --
--- TOC entry 6591 (class 2606 OID 19435)
+-- TOC entry 6986 (class 2606 OID 19435)
 -- Name: staff_achievements pk_staff_achievements; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4532,7 +5557,7 @@ ALTER TABLE ONLY category.staff_achievements
 
 
 --
--- TOC entry 6391 (class 2606 OID 17029)
+-- TOC entry 6786 (class 2606 OID 17029)
 -- Name: staff_availabilities pk_staff_availabilities; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4541,7 +5566,7 @@ ALTER TABLE ONLY category.staff_availabilities
 
 
 --
--- TOC entry 6393 (class 2606 OID 17031)
+-- TOC entry 6788 (class 2606 OID 17031)
 -- Name: staff_availability_statuses pk_staff_availability_statuses; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4550,7 +5575,7 @@ ALTER TABLE ONLY category.staff_availability_statuses
 
 
 --
--- TOC entry 6595 (class 2606 OID 19453)
+-- TOC entry 6990 (class 2606 OID 19453)
 -- Name: staff_before_after pk_staff_before_after; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4559,7 +5584,7 @@ ALTER TABLE ONLY category.staff_before_after
 
 
 --
--- TOC entry 6587 (class 2606 OID 19418)
+-- TOC entry 6982 (class 2606 OID 19418)
 -- Name: staff_certifications pk_staff_certifications; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4568,7 +5593,7 @@ ALTER TABLE ONLY category.staff_certifications
 
 
 --
--- TOC entry 6561 (class 2606 OID 18586)
+-- TOC entry 6956 (class 2606 OID 18586)
 -- Name: staff_credentials pk_staff_credentials; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4577,7 +5602,7 @@ ALTER TABLE ONLY category.staff_credentials
 
 
 --
--- TOC entry 6584 (class 2606 OID 19402)
+-- TOC entry 6979 (class 2606 OID 19402)
 -- Name: staff_education pk_staff_education; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4586,7 +5611,7 @@ ALTER TABLE ONLY category.staff_education
 
 
 --
--- TOC entry 6602 (class 2606 OID 19497)
+-- TOC entry 6997 (class 2606 OID 19497)
 -- Name: staff_gallery_items pk_staff_gallery_items; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4595,7 +5620,7 @@ ALTER TABLE ONLY category.staff_gallery_items
 
 
 --
--- TOC entry 6577 (class 2606 OID 19374)
+-- TOC entry 6972 (class 2606 OID 19374)
 -- Name: staff_languages pk_staff_languages; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4604,7 +5629,7 @@ ALTER TABLE ONLY category.staff_languages
 
 
 --
--- TOC entry 6398 (class 2606 OID 17033)
+-- TOC entry 6793 (class 2606 OID 17033)
 -- Name: staff_services pk_staff_services; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4613,7 +5638,7 @@ ALTER TABLE ONLY category.staff_services
 
 
 --
--- TOC entry 6580 (class 2606 OID 19388)
+-- TOC entry 6975 (class 2606 OID 19388)
 -- Name: staff_specializations pk_staff_specializations; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4622,7 +5647,7 @@ ALTER TABLE ONLY category.staff_specializations
 
 
 --
--- TOC entry 6517 (class 2606 OID 17878)
+-- TOC entry 6912 (class 2606 OID 17878)
 -- Name: provider_certifications provider_certifications_pkey; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4631,7 +5656,7 @@ ALTER TABLE ONLY category.provider_certifications
 
 
 --
--- TOC entry 6522 (class 2606 OID 17897)
+-- TOC entry 6917 (class 2606 OID 17897)
 -- Name: provider_recommendations provider_recommendations_pkey; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4640,7 +5665,7 @@ ALTER TABLE ONLY category.provider_recommendations
 
 
 --
--- TOC entry 6520 (class 2606 OID 17890)
+-- TOC entry 6915 (class 2606 OID 17890)
 -- Name: review_images review_images_pkey; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4649,7 +5674,16 @@ ALTER TABLE ONLY category.review_images
 
 
 --
--- TOC entry 6528 (class 2606 OID 17919)
+-- TOC entry 7345 (class 2606 OID 22633)
+-- Name: service_definition_addon_provider_types service_definition_addon_provider_types_pkey; Type: CONSTRAINT; Schema: category; Owner: postgres
+--
+
+ALTER TABLE ONLY category.service_definition_addon_provider_types
+    ADD CONSTRAINT service_definition_addon_provider_types_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 6923 (class 2606 OID 17919)
 -- Name: service_faqs service_faqs_pkey; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4658,7 +5692,7 @@ ALTER TABLE ONLY category.service_faqs
 
 
 --
--- TOC entry 6524 (class 2606 OID 17903)
+-- TOC entry 6919 (class 2606 OID 17903)
 -- Name: service_included service_included_pkey; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4667,7 +5701,7 @@ ALTER TABLE ONLY category.service_included
 
 
 --
--- TOC entry 6526 (class 2606 OID 17911)
+-- TOC entry 6921 (class 2606 OID 17911)
 -- Name: service_process service_process_pkey; Type: CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -4676,7 +5710,7 @@ ALTER TABLE ONLY category.service_process
 
 
 --
--- TOC entry 6563 (class 2606 OID 19319)
+-- TOC entry 6958 (class 2606 OID 19319)
 -- Name: favorites favorites_pkey; Type: CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -4685,7 +5719,7 @@ ALTER TABLE ONLY customer.favorites
 
 
 --
--- TOC entry 6400 (class 2606 OID 17035)
+-- TOC entry 6795 (class 2606 OID 17035)
 -- Name: __EFMigrationsHistory pk___ef_migrations_history; Type: CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -4694,7 +5728,7 @@ ALTER TABLE ONLY customer."__EFMigrationsHistory"
 
 
 --
--- TOC entry 6402 (class 2606 OID 17037)
+-- TOC entry 6797 (class 2606 OID 17037)
 -- Name: consulting_selected_document_references pk_consulting_selected_document_references; Type: CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -4703,7 +5737,7 @@ ALTER TABLE ONLY customer.consulting_selected_document_references
 
 
 --
--- TOC entry 6406 (class 2606 OID 17039)
+-- TOC entry 6801 (class 2606 OID 17039)
 -- Name: consultings pk_consultings; Type: CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -4712,7 +5746,7 @@ ALTER TABLE ONLY customer.consultings
 
 
 --
--- TOC entry 6408 (class 2606 OID 17041)
+-- TOC entry 6803 (class 2606 OID 17041)
 -- Name: customer_document_types pk_customer_document_types; Type: CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -4721,7 +5755,7 @@ ALTER TABLE ONLY customer.customer_document_types
 
 
 --
--- TOC entry 6412 (class 2606 OID 17043)
+-- TOC entry 6807 (class 2606 OID 17043)
 -- Name: customer_documents pk_customer_documents; Type: CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -4730,7 +5764,7 @@ ALTER TABLE ONLY customer.customer_documents
 
 
 --
--- TOC entry 6416 (class 2606 OID 17045)
+-- TOC entry 6811 (class 2606 OID 17045)
 -- Name: customers pk_customers; Type: CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -4739,7 +5773,7 @@ ALTER TABLE ONLY customer.customers
 
 
 --
--- TOC entry 6419 (class 2606 OID 17047)
+-- TOC entry 6814 (class 2606 OID 17047)
 -- Name: inbox_message_consumers pk_inbox_message_consumers; Type: CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -4748,7 +5782,7 @@ ALTER TABLE ONLY customer.inbox_message_consumers
 
 
 --
--- TOC entry 6425 (class 2606 OID 17049)
+-- TOC entry 6820 (class 2606 OID 17049)
 -- Name: inbox_messages pk_inbox_messages; Type: CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -4757,7 +5791,7 @@ ALTER TABLE ONLY customer.inbox_messages
 
 
 --
--- TOC entry 6428 (class 2606 OID 17051)
+-- TOC entry 6823 (class 2606 OID 17051)
 -- Name: internal_command_message_consumers pk_internal_command_message_consumers; Type: CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -4766,7 +5800,7 @@ ALTER TABLE ONLY customer.internal_command_message_consumers
 
 
 --
--- TOC entry 6434 (class 2606 OID 17053)
+-- TOC entry 6829 (class 2606 OID 17053)
 -- Name: internal_command_messages pk_internal_command_messages; Type: CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -4775,7 +5809,7 @@ ALTER TABLE ONLY customer.internal_command_messages
 
 
 --
--- TOC entry 6437 (class 2606 OID 17055)
+-- TOC entry 6832 (class 2606 OID 17055)
 -- Name: outbox_message_consumers pk_outbox_message_consumers; Type: CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -4784,7 +5818,7 @@ ALTER TABLE ONLY customer.outbox_message_consumers
 
 
 --
--- TOC entry 6443 (class 2606 OID 17057)
+-- TOC entry 6838 (class 2606 OID 17057)
 -- Name: outbox_messages pk_outbox_messages; Type: CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -4793,7 +5827,7 @@ ALTER TABLE ONLY customer.outbox_messages
 
 
 --
--- TOC entry 6570 (class 2606 OID 19321)
+-- TOC entry 6965 (class 2606 OID 19321)
 -- Name: favorites uq_favorites_customer_type_entity; Type: CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -4802,7 +5836,7 @@ ALTER TABLE ONLY customer.favorites
 
 
 --
--- TOC entry 6666 (class 2606 OID 19857)
+-- TOC entry 7061 (class 2606 OID 19857)
 -- Name: wallet_accounts wallet_accounts_pkey; Type: CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -4811,7 +5845,7 @@ ALTER TABLE ONLY customer.wallet_accounts
 
 
 --
--- TOC entry 6668 (class 2606 OID 19859)
+-- TOC entry 7063 (class 2606 OID 19859)
 -- Name: wallet_accounts wallet_accounts_user_id_key; Type: CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -4820,7 +5854,7 @@ ALTER TABLE ONLY customer.wallet_accounts
 
 
 --
--- TOC entry 6673 (class 2606 OID 19880)
+-- TOC entry 7068 (class 2606 OID 19880)
 -- Name: wallet_payment_intents wallet_payment_intents_pkey; Type: CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -4829,7 +5863,7 @@ ALTER TABLE ONLY customer.wallet_payment_intents
 
 
 --
--- TOC entry 6679 (class 2606 OID 19916)
+-- TOC entry 7074 (class 2606 OID 19916)
 -- Name: wallet_transactions wallet_transactions_pkey; Type: CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -4838,7 +5872,133 @@ ALTER TABLE ONLY customer.wallet_transactions
 
 
 --
--- TOC entry 6445 (class 2606 OID 17059)
+-- TOC entry 7330 (class 2606 OID 22342)
+-- Name: field_conditions field_conditions_pkey; Type: CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.field_conditions
+    ADD CONSTRAINT field_conditions_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7326 (class 2606 OID 22321)
+-- Name: field_options field_options_pkey; Type: CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.field_options
+    ADD CONSTRAINT field_options_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7307 (class 2606 OID 22209)
+-- Name: field_types field_types_pkey; Type: CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.field_types
+    ADD CONSTRAINT field_types_pkey PRIMARY KEY (code);
+
+
+--
+-- TOC entry 7322 (class 2606 OID 22286)
+-- Name: form_fields form_fields_pkey; Type: CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.form_fields
+    ADD CONSTRAINT form_fields_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7318 (class 2606 OID 22261)
+-- Name: form_sections form_sections_pkey; Type: CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.form_sections
+    ADD CONSTRAINT form_sections_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7313 (class 2606 OID 22241)
+-- Name: form_versions form_versions_pkey; Type: CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.form_versions
+    ADD CONSTRAINT form_versions_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7309 (class 2606 OID 22225)
+-- Name: forms forms_key_key; Type: CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.forms
+    ADD CONSTRAINT forms_key_key UNIQUE (key);
+
+
+--
+-- TOC entry 7311 (class 2606 OID 22223)
+-- Name: forms forms_pkey; Type: CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.forms
+    ADD CONSTRAINT forms_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7332 (class 2606 OID 22366)
+-- Name: service_definition_forms service_definition_forms_pkey; Type: CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.service_definition_forms
+    ADD CONSTRAINT service_definition_forms_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7338 (class 2606 OID 22393)
+-- Name: submissions submissions_pkey; Type: CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.submissions
+    ADD CONSTRAINT submissions_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7328 (class 2606 OID 22323)
+-- Name: field_options uq_field_option_value; Type: CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.field_options
+    ADD CONSTRAINT uq_field_option_value UNIQUE (field_id, value);
+
+
+--
+-- TOC entry 7324 (class 2606 OID 22288)
+-- Name: form_fields uq_form_field_key; Type: CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.form_fields
+    ADD CONSTRAINT uq_form_field_key UNIQUE (form_version_id, key);
+
+
+--
+-- TOC entry 7320 (class 2606 OID 22263)
+-- Name: form_sections uq_form_section_key; Type: CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.form_sections
+    ADD CONSTRAINT uq_form_section_key UNIQUE (form_version_id, key);
+
+
+--
+-- TOC entry 7315 (class 2606 OID 22243)
+-- Name: form_versions uq_form_versions_form_version; Type: CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.form_versions
+    ADD CONSTRAINT uq_form_versions_form_version UNIQUE (form_id, version_number);
+
+
+--
+-- TOC entry 6840 (class 2606 OID 17059)
 -- Name: __EFMigrationsHistory pk___ef_migrations_history; Type: CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -4847,7 +6007,7 @@ ALTER TABLE ONLY identity."__EFMigrationsHistory"
 
 
 --
--- TOC entry 6449 (class 2606 OID 17061)
+-- TOC entry 6844 (class 2606 OID 17061)
 -- Name: access_tokens pk_access_tokens; Type: CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -4856,7 +6016,7 @@ ALTER TABLE ONLY identity.access_tokens
 
 
 --
--- TOC entry 6452 (class 2606 OID 17063)
+-- TOC entry 6847 (class 2606 OID 17063)
 -- Name: asp_net_role_claims pk_asp_net_role_claims; Type: CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -4865,7 +6025,7 @@ ALTER TABLE ONLY identity.asp_net_role_claims
 
 
 --
--- TOC entry 6455 (class 2606 OID 17065)
+-- TOC entry 6850 (class 2606 OID 17065)
 -- Name: asp_net_roles pk_asp_net_roles; Type: CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -4874,7 +6034,7 @@ ALTER TABLE ONLY identity.asp_net_roles
 
 
 --
--- TOC entry 6458 (class 2606 OID 17067)
+-- TOC entry 6853 (class 2606 OID 17067)
 -- Name: asp_net_user_claims pk_asp_net_user_claims; Type: CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -4883,7 +6043,7 @@ ALTER TABLE ONLY identity.asp_net_user_claims
 
 
 --
--- TOC entry 6461 (class 2606 OID 17069)
+-- TOC entry 6856 (class 2606 OID 17069)
 -- Name: asp_net_user_logins pk_asp_net_user_logins; Type: CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -4892,7 +6052,7 @@ ALTER TABLE ONLY identity.asp_net_user_logins
 
 
 --
--- TOC entry 6464 (class 2606 OID 17071)
+-- TOC entry 6859 (class 2606 OID 17071)
 -- Name: asp_net_user_roles pk_asp_net_user_roles; Type: CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -4901,7 +6061,7 @@ ALTER TABLE ONLY identity.asp_net_user_roles
 
 
 --
--- TOC entry 6466 (class 2606 OID 17073)
+-- TOC entry 6861 (class 2606 OID 17073)
 -- Name: asp_net_user_tokens pk_asp_net_user_tokens; Type: CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -4910,7 +6070,7 @@ ALTER TABLE ONLY identity.asp_net_user_tokens
 
 
 --
--- TOC entry 6472 (class 2606 OID 17075)
+-- TOC entry 6867 (class 2606 OID 17075)
 -- Name: asp_net_users pk_asp_net_users; Type: CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -4919,7 +6079,7 @@ ALTER TABLE ONLY identity.asp_net_users
 
 
 --
--- TOC entry 6474 (class 2606 OID 17077)
+-- TOC entry 6869 (class 2606 OID 17077)
 -- Name: email_verification_codes pk_email_verification_codes; Type: CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -4928,7 +6088,7 @@ ALTER TABLE ONLY identity.email_verification_codes
 
 
 --
--- TOC entry 6477 (class 2606 OID 17079)
+-- TOC entry 6872 (class 2606 OID 17079)
 -- Name: inbox_message_consumers pk_inbox_message_consumers; Type: CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -4937,7 +6097,7 @@ ALTER TABLE ONLY identity.inbox_message_consumers
 
 
 --
--- TOC entry 6483 (class 2606 OID 17081)
+-- TOC entry 6878 (class 2606 OID 17081)
 -- Name: inbox_messages pk_inbox_messages; Type: CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -4946,7 +6106,7 @@ ALTER TABLE ONLY identity.inbox_messages
 
 
 --
--- TOC entry 6486 (class 2606 OID 17083)
+-- TOC entry 6881 (class 2606 OID 17083)
 -- Name: internal_command_message_consumers pk_internal_command_message_consumers; Type: CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -4955,7 +6115,7 @@ ALTER TABLE ONLY identity.internal_command_message_consumers
 
 
 --
--- TOC entry 6492 (class 2606 OID 17085)
+-- TOC entry 6887 (class 2606 OID 17085)
 -- Name: internal_command_messages pk_internal_command_messages; Type: CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -4964,7 +6124,7 @@ ALTER TABLE ONLY identity.internal_command_messages
 
 
 --
--- TOC entry 6495 (class 2606 OID 17087)
+-- TOC entry 6890 (class 2606 OID 17087)
 -- Name: outbox_message_consumers pk_outbox_message_consumers; Type: CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -4973,7 +6133,7 @@ ALTER TABLE ONLY identity.outbox_message_consumers
 
 
 --
--- TOC entry 6501 (class 2606 OID 17089)
+-- TOC entry 6896 (class 2606 OID 17089)
 -- Name: outbox_messages pk_outbox_messages; Type: CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -4982,7 +6142,7 @@ ALTER TABLE ONLY identity.outbox_messages
 
 
 --
--- TOC entry 6503 (class 2606 OID 17091)
+-- TOC entry 6898 (class 2606 OID 17091)
 -- Name: password_reset_codes pk_password_reset_codes; Type: CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -4991,7 +6151,7 @@ ALTER TABLE ONLY identity.password_reset_codes
 
 
 --
--- TOC entry 6508 (class 2606 OID 17093)
+-- TOC entry 6903 (class 2606 OID 17093)
 -- Name: phone_login_codes pk_phone_login_codes; Type: CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -5000,7 +6160,7 @@ ALTER TABLE ONLY identity.phone_login_codes
 
 
 --
--- TOC entry 6512 (class 2606 OID 17095)
+-- TOC entry 6907 (class 2606 OID 17095)
 -- Name: refresh_tokens pk_refresh_tokens; Type: CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -5009,7 +6169,7 @@ ALTER TABLE ONLY identity.refresh_tokens
 
 
 --
--- TOC entry 6641 (class 2606 OID 19705)
+-- TOC entry 7036 (class 2606 OID 19705)
 -- Name: user_preferences pk_user_preferences; Type: CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -5018,7 +6178,7 @@ ALTER TABLE ONLY identity.user_preferences
 
 
 --
--- TOC entry 6647 (class 2606 OID 19754)
+-- TOC entry 7042 (class 2606 OID 19754)
 -- Name: accounts accounts_pkey; Type: CONSTRAINT; Schema: loyalty; Owner: postgres
 --
 
@@ -5027,7 +6187,7 @@ ALTER TABLE ONLY loyalty.accounts
 
 
 --
--- TOC entry 6649 (class 2606 OID 19756)
+-- TOC entry 7044 (class 2606 OID 19756)
 -- Name: accounts accounts_referral_code_key; Type: CONSTRAINT; Schema: loyalty; Owner: postgres
 --
 
@@ -5036,7 +6196,7 @@ ALTER TABLE ONLY loyalty.accounts
 
 
 --
--- TOC entry 6657 (class 2606 OID 19818)
+-- TOC entry 7052 (class 2606 OID 19818)
 -- Name: coupons coupons_code_key; Type: CONSTRAINT; Schema: loyalty; Owner: postgres
 --
 
@@ -5045,7 +6205,7 @@ ALTER TABLE ONLY loyalty.coupons
 
 
 --
--- TOC entry 6659 (class 2606 OID 19816)
+-- TOC entry 7054 (class 2606 OID 19816)
 -- Name: coupons coupons_pkey; Type: CONSTRAINT; Schema: loyalty; Owner: postgres
 --
 
@@ -5054,7 +6214,7 @@ ALTER TABLE ONLY loyalty.coupons
 
 
 --
--- TOC entry 6661 (class 2606 OID 19835)
+-- TOC entry 7056 (class 2606 OID 19835)
 -- Name: customer_coupons customer_coupons_customer_id_coupon_id_key; Type: CONSTRAINT; Schema: loyalty; Owner: postgres
 --
 
@@ -5063,7 +6223,7 @@ ALTER TABLE ONLY loyalty.customer_coupons
 
 
 --
--- TOC entry 6663 (class 2606 OID 19833)
+-- TOC entry 7058 (class 2606 OID 19833)
 -- Name: customer_coupons customer_coupons_pkey; Type: CONSTRAINT; Schema: loyalty; Owner: postgres
 --
 
@@ -5072,7 +6232,7 @@ ALTER TABLE ONLY loyalty.customer_coupons
 
 
 --
--- TOC entry 6652 (class 2606 OID 19776)
+-- TOC entry 7047 (class 2606 OID 19776)
 -- Name: ledger ledger_pkey; Type: CONSTRAINT; Schema: loyalty; Owner: postgres
 --
 
@@ -5081,7 +6241,7 @@ ALTER TABLE ONLY loyalty.ledger
 
 
 --
--- TOC entry 6655 (class 2606 OID 19794)
+-- TOC entry 7050 (class 2606 OID 19794)
 -- Name: referrals referrals_pkey; Type: CONSTRAINT; Schema: loyalty; Owner: postgres
 --
 
@@ -5090,7 +6250,7 @@ ALTER TABLE ONLY loyalty.referrals
 
 
 --
--- TOC entry 6643 (class 2606 OID 19744)
+-- TOC entry 7038 (class 2606 OID 19744)
 -- Name: tiers tiers_name_key; Type: CONSTRAINT; Schema: loyalty; Owner: postgres
 --
 
@@ -5099,7 +6259,7 @@ ALTER TABLE ONLY loyalty.tiers
 
 
 --
--- TOC entry 6645 (class 2606 OID 19742)
+-- TOC entry 7040 (class 2606 OID 19742)
 -- Name: tiers tiers_pkey; Type: CONSTRAINT; Schema: loyalty; Owner: postgres
 --
 
@@ -5108,7 +6268,7 @@ ALTER TABLE ONLY loyalty.tiers
 
 
 --
--- TOC entry 6550 (class 2606 OID 18506)
+-- TOC entry 6945 (class 2606 OID 18506)
 -- Name: offers offers_pkey; Type: CONSTRAINT; Schema: marketing; Owner: postgres
 --
 
@@ -5117,7 +6277,97 @@ ALTER TABLE ONLY marketing.offers
 
 
 --
--- TOC entry 6631 (class 2606 OID 19634)
+-- TOC entry 7235 (class 2606 OID 21280)
+-- Name: referral_codes referral_codes_code_key; Type: CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.referral_codes
+    ADD CONSTRAINT referral_codes_code_key UNIQUE (code);
+
+
+--
+-- TOC entry 7237 (class 2606 OID 21278)
+-- Name: referral_codes referral_codes_pkey; Type: CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.referral_codes
+    ADD CONSTRAINT referral_codes_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7243 (class 2606 OID 21303)
+-- Name: referral_invitations referral_invitations_pkey; Type: CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.referral_invitations
+    ADD CONSTRAINT referral_invitations_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7227 (class 2606 OID 21250)
+-- Name: referral_programs referral_programs_code_key; Type: CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.referral_programs
+    ADD CONSTRAINT referral_programs_code_key UNIQUE (code);
+
+
+--
+-- TOC entry 7229 (class 2606 OID 21248)
+-- Name: referral_programs referral_programs_pkey; Type: CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.referral_programs
+    ADD CONSTRAINT referral_programs_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7232 (class 2606 OID 21265)
+-- Name: referral_reward_rules referral_reward_rules_pkey; Type: CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.referral_reward_rules
+    ADD CONSTRAINT referral_reward_rules_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7252 (class 2606 OID 21372)
+-- Name: referral_share_events referral_share_events_pkey; Type: CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.referral_share_events
+    ADD CONSTRAINT referral_share_events_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7239 (class 2606 OID 21282)
+-- Name: referral_codes uq_referral_codes_program_customer; Type: CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.referral_codes
+    ADD CONSTRAINT uq_referral_codes_program_customer UNIQUE (program_id, customer_id);
+
+
+--
+-- TOC entry 7247 (class 2606 OID 21342)
+-- Name: user_discount_coupons user_discount_coupons_code_key; Type: CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.user_discount_coupons
+    ADD CONSTRAINT user_discount_coupons_code_key UNIQUE (code);
+
+
+--
+-- TOC entry 7249 (class 2606 OID 21340)
+-- Name: user_discount_coupons user_discount_coupons_pkey; Type: CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.user_discount_coupons
+    ADD CONSTRAINT user_discount_coupons_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7026 (class 2606 OID 19634)
 -- Name: media_library media_library_pkey; Type: CONSTRAINT; Schema: media; Owner: postgres
 --
 
@@ -5126,7 +6376,7 @@ ALTER TABLE ONLY media.media_library
 
 
 --
--- TOC entry 6636 (class 2606 OID 19677)
+-- TOC entry 7031 (class 2606 OID 19677)
 -- Name: media_type media_type_pkey; Type: CONSTRAINT; Schema: media; Owner: postgres
 --
 
@@ -5135,7 +6385,7 @@ ALTER TABLE ONLY media.media_type
 
 
 --
--- TOC entry 6634 (class 2606 OID 19668)
+-- TOC entry 7029 (class 2606 OID 19668)
 -- Name: sponsered_slider sponsered_slider_pkey; Type: CONSTRAINT; Schema: media; Owner: postgres
 --
 
@@ -5144,7 +6394,7 @@ ALTER TABLE ONLY media.sponsered_slider
 
 
 --
--- TOC entry 6706 (class 2606 OID 20152)
+-- TOC entry 7101 (class 2606 OID 20152)
 -- Name: notification_deliveries notification_deliveries_pkey; Type: CONSTRAINT; Schema: notify; Owner: postgres
 --
 
@@ -5153,7 +6403,7 @@ ALTER TABLE ONLY notify.notification_deliveries
 
 
 --
--- TOC entry 6702 (class 2606 OID 20136)
+-- TOC entry 7097 (class 2606 OID 20136)
 -- Name: notifications notifications_pkey; Type: CONSTRAINT; Schema: notify; Owner: postgres
 --
 
@@ -5162,7 +6412,196 @@ ALTER TABLE ONLY notify.notifications
 
 
 --
--- TOC entry 6515 (class 2606 OID 17097)
+-- TOC entry 7264 (class 2606 OID 21914)
+-- Name: form_definitions form_definitions_pkey; Type: CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.form_definitions
+    ADD CONSTRAINT form_definitions_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7266 (class 2606 OID 21916)
+-- Name: form_definitions form_definitions_provider_type_id_code_version_key; Type: CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.form_definitions
+    ADD CONSTRAINT form_definitions_provider_type_id_code_version_key UNIQUE (provider_type_id, code, version);
+
+
+--
+-- TOC entry 7274 (class 2606 OID 21966)
+-- Name: form_field_options form_field_options_form_field_id_option_value_key; Type: CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.form_field_options
+    ADD CONSTRAINT form_field_options_form_field_id_option_value_key UNIQUE (form_field_id, option_value);
+
+
+--
+-- TOC entry 7276 (class 2606 OID 21964)
+-- Name: form_field_options form_field_options_pkey; Type: CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.form_field_options
+    ADD CONSTRAINT form_field_options_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7269 (class 2606 OID 21946)
+-- Name: form_fields form_fields_form_definition_id_field_key_key; Type: CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.form_fields
+    ADD CONSTRAINT form_fields_form_definition_id_field_key_key UNIQUE (form_definition_id, field_key);
+
+
+--
+-- TOC entry 7271 (class 2606 OID 21944)
+-- Name: form_fields form_fields_pkey; Type: CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.form_fields
+    ADD CONSTRAINT form_fields_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7287 (class 2606 OID 22015)
+-- Name: onboarding_applications onboarding_applications_application_number_key; Type: CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.onboarding_applications
+    ADD CONSTRAINT onboarding_applications_application_number_key UNIQUE (application_number);
+
+
+--
+-- TOC entry 7289 (class 2606 OID 22013)
+-- Name: onboarding_applications onboarding_applications_pkey; Type: CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.onboarding_applications
+    ADD CONSTRAINT onboarding_applications_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7292 (class 2606 OID 22062)
+-- Name: onboarding_documents onboarding_documents_pkey; Type: CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.onboarding_documents
+    ADD CONSTRAINT onboarding_documents_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7303 (class 2606 OID 22158)
+-- Name: payout_accounts payout_accounts_pkey; Type: CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.payout_accounts
+    ADD CONSTRAINT payout_accounts_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7305 (class 2606 OID 22179)
+-- Name: portal_invoices portal_invoices_pkey; Type: CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.portal_invoices
+    ADD CONSTRAINT portal_invoices_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7260 (class 2606 OID 21891)
+-- Name: portal_sections portal_sections_pkey; Type: CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.portal_sections
+    ADD CONSTRAINT portal_sections_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7262 (class 2606 OID 21893)
+-- Name: portal_sections portal_sections_provider_type_id_section_key_key; Type: CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.portal_sections
+    ADD CONSTRAINT portal_sections_provider_type_id_section_key_key UNIQUE (provider_type_id, section_key);
+
+
+--
+-- TOC entry 7281 (class 2606 OID 21985)
+-- Name: provider_members provider_members_pkey; Type: CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.provider_members
+    ADD CONSTRAINT provider_members_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7283 (class 2606 OID 21987)
+-- Name: provider_members provider_members_service_provider_id_user_id_key; Type: CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.provider_members
+    ADD CONSTRAINT provider_members_service_provider_id_user_id_key UNIQUE (service_provider_id, user_id);
+
+
+--
+-- TOC entry 7294 (class 2606 OID 22088)
+-- Name: provider_operating_hours provider_operating_hours_pkey; Type: CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.provider_operating_hours
+    ADD CONSTRAINT provider_operating_hours_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 7296 (class 2606 OID 22090)
+-- Name: provider_operating_hours provider_operating_hours_service_provider_id_day_of_week_key; Type: CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.provider_operating_hours
+    ADD CONSTRAINT provider_operating_hours_service_provider_id_day_of_week_key UNIQUE (service_provider_id, day_of_week);
+
+
+--
+-- TOC entry 7298 (class 2606 OID 22106)
+-- Name: provider_service_addon_settings provider_service_addon_settings_pkey; Type: CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.provider_service_addon_settings
+    ADD CONSTRAINT provider_service_addon_settings_pkey PRIMARY KEY (provider_service_id, addon_id);
+
+
+--
+-- TOC entry 7255 (class 2606 OID 21869)
+-- Name: provider_type_catalog provider_type_catalog_code_key; Type: CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.provider_type_catalog
+    ADD CONSTRAINT provider_type_catalog_code_key UNIQUE (code);
+
+
+--
+-- TOC entry 7257 (class 2606 OID 21867)
+-- Name: provider_type_catalog provider_type_catalog_pkey; Type: CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.provider_type_catalog
+    ADD CONSTRAINT provider_type_catalog_pkey PRIMARY KEY (provider_type_id);
+
+
+--
+-- TOC entry 7301 (class 2606 OID 22129)
+-- Name: support_tickets support_tickets_pkey; Type: CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.support_tickets
+    ADD CONSTRAINT support_tickets_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 6910 (class 2606 OID 17097)
 -- Name: translation_audit translation_audit_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -5171,7 +6610,7 @@ ALTER TABLE ONLY public.translation_audit
 
 
 --
--- TOC entry 6546 (class 2606 OID 18414)
+-- TOC entry 6941 (class 2606 OID 18414)
 -- Name: user_search_history user_search_history_pkey; Type: CONSTRAINT; Schema: search; Owner: postgres
 --
 
@@ -5180,7 +6619,7 @@ ALTER TABLE ONLY search.user_search_history
 
 
 --
--- TOC entry 6775 (class 2606 OID 20716)
+-- TOC entry 7170 (class 2606 OID 20716)
 -- Name: abandoned_carts abandoned_carts_cart_id_key; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5189,7 +6628,7 @@ ALTER TABLE ONLY shop.abandoned_carts
 
 
 --
--- TOC entry 6777 (class 2606 OID 20714)
+-- TOC entry 7172 (class 2606 OID 20714)
 -- Name: abandoned_carts abandoned_carts_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5198,7 +6637,7 @@ ALTER TABLE ONLY shop.abandoned_carts
 
 
 --
--- TOC entry 6779 (class 2606 OID 20718)
+-- TOC entry 7174 (class 2606 OID 20718)
 -- Name: abandoned_carts abandoned_carts_recovery_token_key; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5207,7 +6646,7 @@ ALTER TABLE ONLY shop.abandoned_carts
 
 
 --
--- TOC entry 6735 (class 2606 OID 20473)
+-- TOC entry 7130 (class 2606 OID 20473)
 -- Name: attribute_values attribute_values_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5216,7 +6655,7 @@ ALTER TABLE ONLY shop.attribute_values
 
 
 --
--- TOC entry 6731 (class 2606 OID 20461)
+-- TOC entry 7126 (class 2606 OID 20461)
 -- Name: attributes attributes_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5225,7 +6664,7 @@ ALTER TABLE ONLY shop.attributes
 
 
 --
--- TOC entry 6733 (class 2606 OID 20463)
+-- TOC entry 7128 (class 2606 OID 20463)
 -- Name: attributes attributes_slug_key; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5234,7 +6673,7 @@ ALTER TABLE ONLY shop.attributes
 
 
 --
--- TOC entry 6708 (class 2606 OID 20349)
+-- TOC entry 7103 (class 2606 OID 20349)
 -- Name: brands brands_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5243,7 +6682,7 @@ ALTER TABLE ONLY shop.brands
 
 
 --
--- TOC entry 6710 (class 2606 OID 20351)
+-- TOC entry 7105 (class 2606 OID 20351)
 -- Name: brands brands_slug_key; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5252,7 +6691,7 @@ ALTER TABLE ONLY shop.brands
 
 
 --
--- TOC entry 6773 (class 2606 OID 20689)
+-- TOC entry 7168 (class 2606 OID 20689)
 -- Name: cart_items cart_items_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5261,7 +6700,7 @@ ALTER TABLE ONLY shop.cart_items
 
 
 --
--- TOC entry 6771 (class 2606 OID 20670)
+-- TOC entry 7166 (class 2606 OID 20670)
 -- Name: carts carts_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5270,7 +6709,7 @@ ALTER TABLE ONLY shop.carts
 
 
 --
--- TOC entry 6712 (class 2606 OID 20367)
+-- TOC entry 7107 (class 2606 OID 20367)
 -- Name: categories categories_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5279,7 +6718,7 @@ ALTER TABLE ONLY shop.categories
 
 
 --
--- TOC entry 6714 (class 2606 OID 20369)
+-- TOC entry 7109 (class 2606 OID 20369)
 -- Name: categories categories_slug_key; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5288,7 +6727,7 @@ ALTER TABLE ONLY shop.categories
 
 
 --
--- TOC entry 6830 (class 2606 OID 21144)
+-- TOC entry 7225 (class 2606 OID 21144)
 -- Name: compare_list_items compare_list_items_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5297,7 +6736,7 @@ ALTER TABLE ONLY shop.compare_list_items
 
 
 --
--- TOC entry 6828 (class 2606 OID 21131)
+-- TOC entry 7223 (class 2606 OID 21131)
 -- Name: compare_lists compare_lists_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5306,7 +6745,7 @@ ALTER TABLE ONLY shop.compare_lists
 
 
 --
--- TOC entry 6785 (class 2606 OID 20757)
+-- TOC entry 7180 (class 2606 OID 20757)
 -- Name: coupon_redemptions coupon_redemptions_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5315,7 +6754,7 @@ ALTER TABLE ONLY shop.coupon_redemptions
 
 
 --
--- TOC entry 6781 (class 2606 OID 20747)
+-- TOC entry 7176 (class 2606 OID 20747)
 -- Name: coupons coupons_code_key; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5324,7 +6763,7 @@ ALTER TABLE ONLY shop.coupons
 
 
 --
--- TOC entry 6783 (class 2606 OID 20745)
+-- TOC entry 7178 (class 2606 OID 20745)
 -- Name: coupons coupons_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5333,7 +6772,7 @@ ALTER TABLE ONLY shop.coupons
 
 
 --
--- TOC entry 6761 (class 2606 OID 20613)
+-- TOC entry 7156 (class 2606 OID 20613)
 -- Name: customer_addresses customer_addresses_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5342,7 +6781,7 @@ ALTER TABLE ONLY shop.customer_addresses
 
 
 --
--- TOC entry 6763 (class 2606 OID 20637)
+-- TOC entry 7158 (class 2606 OID 20637)
 -- Name: delivery_methods delivery_methods_code_key; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5351,7 +6790,7 @@ ALTER TABLE ONLY shop.delivery_methods
 
 
 --
--- TOC entry 6765 (class 2606 OID 20635)
+-- TOC entry 7160 (class 2606 OID 20635)
 -- Name: delivery_methods delivery_methods_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5360,7 +6799,7 @@ ALTER TABLE ONLY shop.delivery_methods
 
 
 --
--- TOC entry 6759 (class 2606 OID 20596)
+-- TOC entry 7154 (class 2606 OID 20596)
 -- Name: inventory_movements inventory_movements_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5369,7 +6808,7 @@ ALTER TABLE ONLY shop.inventory_movements
 
 
 --
--- TOC entry 6756 (class 2606 OID 20572)
+-- TOC entry 7151 (class 2606 OID 20572)
 -- Name: inventory inventory_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5378,7 +6817,7 @@ ALTER TABLE ONLY shop.inventory
 
 
 --
--- TOC entry 6795 (class 2606 OID 20829)
+-- TOC entry 7190 (class 2606 OID 20829)
 -- Name: order_addresses order_addresses_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5387,7 +6826,7 @@ ALTER TABLE ONLY shop.order_addresses
 
 
 --
--- TOC entry 6797 (class 2606 OID 20851)
+-- TOC entry 7192 (class 2606 OID 20851)
 -- Name: order_items order_items_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5396,7 +6835,7 @@ ALTER TABLE ONLY shop.order_items
 
 
 --
--- TOC entry 6799 (class 2606 OID 20875)
+-- TOC entry 7194 (class 2606 OID 20875)
 -- Name: order_status_history order_status_history_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5405,7 +6844,7 @@ ALTER TABLE ONLY shop.order_status_history
 
 
 --
--- TOC entry 6791 (class 2606 OID 20810)
+-- TOC entry 7186 (class 2606 OID 20810)
 -- Name: orders orders_order_number_key; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5414,7 +6853,7 @@ ALTER TABLE ONLY shop.orders
 
 
 --
--- TOC entry 6793 (class 2606 OID 20808)
+-- TOC entry 7188 (class 2606 OID 20808)
 -- Name: orders orders_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5423,7 +6862,7 @@ ALTER TABLE ONLY shop.orders
 
 
 --
--- TOC entry 6767 (class 2606 OID 20657)
+-- TOC entry 7162 (class 2606 OID 20657)
 -- Name: payment_methods payment_methods_code_key; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5432,7 +6871,7 @@ ALTER TABLE ONLY shop.payment_methods
 
 
 --
--- TOC entry 6769 (class 2606 OID 20655)
+-- TOC entry 7164 (class 2606 OID 20655)
 -- Name: payment_methods payment_methods_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5441,7 +6880,7 @@ ALTER TABLE ONLY shop.payment_methods
 
 
 --
--- TOC entry 6801 (class 2606 OID 20895)
+-- TOC entry 7196 (class 2606 OID 20895)
 -- Name: payment_transactions payment_transactions_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5450,7 +6889,7 @@ ALTER TABLE ONLY shop.payment_transactions
 
 
 --
--- TOC entry 6787 (class 2606 OID 20787)
+-- TOC entry 7182 (class 2606 OID 20787)
 -- Name: pricing_rules pricing_rules_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5459,7 +6898,7 @@ ALTER TABLE ONLY shop.pricing_rules
 
 
 --
--- TOC entry 6739 (class 2606 OID 20487)
+-- TOC entry 7134 (class 2606 OID 20487)
 -- Name: product_attributes product_attributes_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5468,7 +6907,7 @@ ALTER TABLE ONLY shop.product_attributes
 
 
 --
--- TOC entry 6725 (class 2606 OID 20419)
+-- TOC entry 7120 (class 2606 OID 20419)
 -- Name: product_categories product_categories_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5477,7 +6916,7 @@ ALTER TABLE ONLY shop.product_categories
 
 
 --
--- TOC entry 6729 (class 2606 OID 20443)
+-- TOC entry 7124 (class 2606 OID 20443)
 -- Name: product_media product_media_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5486,7 +6925,7 @@ ALTER TABLE ONLY shop.product_media
 
 
 --
--- TOC entry 6824 (class 2606 OID 21092)
+-- TOC entry 7219 (class 2606 OID 21092)
 -- Name: product_questions product_questions_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5495,7 +6934,7 @@ ALTER TABLE ONLY shop.product_questions
 
 
 --
--- TOC entry 6822 (class 2606 OID 21066)
+-- TOC entry 7217 (class 2606 OID 21066)
 -- Name: product_reviews product_reviews_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5504,7 +6943,7 @@ ALTER TABLE ONLY shop.product_reviews
 
 
 --
--- TOC entry 6742 (class 2606 OID 20513)
+-- TOC entry 7137 (class 2606 OID 20513)
 -- Name: product_variants product_variants_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5513,7 +6952,7 @@ ALTER TABLE ONLY shop.product_variants
 
 
 --
--- TOC entry 6744 (class 2606 OID 20515)
+-- TOC entry 7139 (class 2606 OID 20515)
 -- Name: product_variants product_variants_sku_key; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5522,7 +6961,7 @@ ALTER TABLE ONLY shop.product_variants
 
 
 --
--- TOC entry 6721 (class 2606 OID 20400)
+-- TOC entry 7116 (class 2606 OID 20400)
 -- Name: products products_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5531,7 +6970,7 @@ ALTER TABLE ONLY shop.products
 
 
 --
--- TOC entry 6723 (class 2606 OID 20402)
+-- TOC entry 7118 (class 2606 OID 20402)
 -- Name: products products_slug_key; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5540,7 +6979,7 @@ ALTER TABLE ONLY shop.products
 
 
 --
--- TOC entry 6826 (class 2606 OID 21111)
+-- TOC entry 7221 (class 2606 OID 21111)
 -- Name: recently_viewed_products recently_viewed_products_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5549,7 +6988,7 @@ ALTER TABLE ONLY shop.recently_viewed_products
 
 
 --
--- TOC entry 6813 (class 2606 OID 21003)
+-- TOC entry 7208 (class 2606 OID 21003)
 -- Name: refunds refunds_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5558,7 +6997,7 @@ ALTER TABLE ONLY shop.refunds
 
 
 --
--- TOC entry 6811 (class 2606 OID 20981)
+-- TOC entry 7206 (class 2606 OID 20981)
 -- Name: return_items return_items_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5567,7 +7006,7 @@ ALTER TABLE ONLY shop.return_items
 
 
 --
--- TOC entry 6809 (class 2606 OID 20962)
+-- TOC entry 7204 (class 2606 OID 20962)
 -- Name: return_requests return_requests_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5576,7 +7015,7 @@ ALTER TABLE ONLY shop.return_requests
 
 
 --
--- TOC entry 6807 (class 2606 OID 20940)
+-- TOC entry 7202 (class 2606 OID 20940)
 -- Name: shipment_items shipment_items_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5585,7 +7024,7 @@ ALTER TABLE ONLY shop.shipment_items
 
 
 --
--- TOC entry 6803 (class 2606 OID 20916)
+-- TOC entry 7198 (class 2606 OID 20916)
 -- Name: shipments shipments_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5594,7 +7033,7 @@ ALTER TABLE ONLY shop.shipments
 
 
 --
--- TOC entry 6805 (class 2606 OID 20918)
+-- TOC entry 7200 (class 2606 OID 20918)
 -- Name: shipments shipments_shipment_number_key; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5603,7 +7042,7 @@ ALTER TABLE ONLY shop.shipments
 
 
 --
--- TOC entry 6737 (class 2606 OID 20475)
+-- TOC entry 7132 (class 2606 OID 20475)
 -- Name: attribute_values uq_shop_attribute_values; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5612,7 +7051,7 @@ ALTER TABLE ONLY shop.attribute_values
 
 
 --
--- TOC entry 6746 (class 2606 OID 20519)
+-- TOC entry 7141 (class 2606 OID 20519)
 -- Name: product_variants uq_shop_product_variants_option_key; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5621,7 +7060,7 @@ ALTER TABLE ONLY shop.product_variants
 
 
 --
--- TOC entry 6748 (class 2606 OID 20517)
+-- TOC entry 7143 (class 2606 OID 20517)
 -- Name: product_variants uq_shop_product_variants_slug; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5630,7 +7069,7 @@ ALTER TABLE ONLY shop.product_variants
 
 
 --
--- TOC entry 6815 (class 2606 OID 21026)
+-- TOC entry 7210 (class 2606 OID 21026)
 -- Name: wishlists uq_shop_wishlists_customer_name; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5639,7 +7078,7 @@ ALTER TABLE ONLY shop.wishlists
 
 
 --
--- TOC entry 6750 (class 2606 OID 20529)
+-- TOC entry 7145 (class 2606 OID 20529)
 -- Name: variant_attribute_values variant_attribute_values_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5648,7 +7087,7 @@ ALTER TABLE ONLY shop.variant_attribute_values
 
 
 --
--- TOC entry 6752 (class 2606 OID 20557)
+-- TOC entry 7147 (class 2606 OID 20557)
 -- Name: warehouses warehouses_code_key; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5657,7 +7096,7 @@ ALTER TABLE ONLY shop.warehouses
 
 
 --
--- TOC entry 6754 (class 2606 OID 20555)
+-- TOC entry 7149 (class 2606 OID 20555)
 -- Name: warehouses warehouses_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5666,7 +7105,7 @@ ALTER TABLE ONLY shop.warehouses
 
 
 --
--- TOC entry 6819 (class 2606 OID 21038)
+-- TOC entry 7214 (class 2606 OID 21038)
 -- Name: wishlist_items wishlist_items_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5675,7 +7114,7 @@ ALTER TABLE ONLY shop.wishlist_items
 
 
 --
--- TOC entry 6817 (class 2606 OID 21024)
+-- TOC entry 7212 (class 2606 OID 21024)
 -- Name: wishlists wishlists_pkey; Type: CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -5684,7 +7123,7 @@ ALTER TABLE ONLY shop.wishlists
 
 
 --
--- TOC entry 6615 (class 1259 OID 19589)
+-- TOC entry 7010 (class 1259 OID 19589)
 -- Name: ix_role_table_permissions_lookup; Type: INDEX; Schema: auth; Owner: postgres
 --
 
@@ -5692,7 +7131,7 @@ CREATE INDEX ix_role_table_permissions_lookup ON auth.role_table_permissions USI
 
 
 --
--- TOC entry 6691 (class 1259 OID 20054)
+-- TOC entry 7086 (class 1259 OID 20054)
 -- Name: ix_booking_addons_booking_id; Type: INDEX; Schema: booking; Owner: postgres
 --
 
@@ -5700,7 +7139,7 @@ CREATE INDEX ix_booking_addons_booking_id ON booking.booking_addons USING btree 
 
 
 --
--- TOC entry 6531 (class 1259 OID 19296)
+-- TOC entry 6928 (class 1259 OID 19296)
 -- Name: ix_booking_bookings_provider_service_specialist_selected_date; Type: INDEX; Schema: booking; Owner: postgres
 --
 
@@ -5708,7 +7147,7 @@ CREATE INDEX ix_booking_bookings_provider_service_specialist_selected_date ON bo
 
 
 --
--- TOC entry 6532 (class 1259 OID 19295)
+-- TOC entry 6929 (class 1259 OID 19295)
 -- Name: ix_booking_bookings_provider_specialist_selected_date; Type: INDEX; Schema: booking; Owner: postgres
 --
 
@@ -5716,7 +7155,7 @@ CREATE INDEX ix_booking_bookings_provider_specialist_selected_date ON booking.bo
 
 
 --
--- TOC entry 6694 (class 1259 OID 20069)
+-- TOC entry 7089 (class 1259 OID 20069)
 -- Name: ix_booking_documents_booking_id; Type: INDEX; Schema: booking; Owner: postgres
 --
 
@@ -5724,7 +7163,7 @@ CREATE INDEX ix_booking_documents_booking_id ON booking.booking_documents USING 
 
 
 --
--- TOC entry 6688 (class 1259 OID 20031)
+-- TOC entry 7083 (class 1259 OID 20031)
 -- Name: ix_booking_draft_documents_draft_id; Type: INDEX; Schema: booking; Owner: postgres
 --
 
@@ -5732,7 +7171,7 @@ CREATE INDEX ix_booking_draft_documents_draft_id ON booking.booking_draft_docume
 
 
 --
--- TOC entry 6682 (class 1259 OID 19995)
+-- TOC entry 7077 (class 1259 OID 19995)
 -- Name: ix_booking_drafts_provider_service_specialist; Type: INDEX; Schema: booking; Owner: postgres
 --
 
@@ -5740,7 +7179,7 @@ CREATE INDEX ix_booking_drafts_provider_service_specialist ON booking.booking_dr
 
 
 --
--- TOC entry 6683 (class 1259 OID 19994)
+-- TOC entry 7078 (class 1259 OID 19994)
 -- Name: ix_booking_drafts_user_status; Type: INDEX; Schema: booking; Owner: postgres
 --
 
@@ -5748,7 +7187,7 @@ CREATE INDEX ix_booking_drafts_user_status ON booking.booking_drafts USING btree
 
 
 --
--- TOC entry 6533 (class 1259 OID 19953)
+-- TOC entry 6930 (class 1259 OID 19953)
 -- Name: ix_bookings_payment_reference; Type: INDEX; Schema: booking; Owner: postgres
 --
 
@@ -5756,7 +7195,7 @@ CREATE INDEX ix_bookings_payment_reference ON booking.bookings USING btree (paym
 
 
 --
--- TOC entry 6534 (class 1259 OID 19952)
+-- TOC entry 6931 (class 1259 OID 19952)
 -- Name: ix_bookings_wallet_payment_intent_id; Type: INDEX; Schema: booking; Owner: postgres
 --
 
@@ -5764,7 +7203,7 @@ CREATE INDEX ix_bookings_wallet_payment_intent_id ON booking.bookings USING btre
 
 
 --
--- TOC entry 6695 (class 1259 OID 20088)
+-- TOC entry 7090 (class 1259 OID 20088)
 -- Name: ix_payments_booking_id; Type: INDEX; Schema: booking; Owner: postgres
 --
 
@@ -5772,7 +7211,15 @@ CREATE INDEX ix_payments_booking_id ON booking.payments USING btree (booking_id)
 
 
 --
--- TOC entry 6539 (class 1259 OID 19366)
+-- TOC entry 7341 (class 1259 OID 22559)
+-- Name: ux_booking_draft_child_one_provider_type; Type: INDEX; Schema: booking; Owner: postgres
+--
+
+CREATE UNIQUE INDEX ux_booking_draft_child_one_provider_type ON booking.booking_draft_child_bookings USING btree (parent_draft_id, provider_type_id);
+
+
+--
+-- TOC entry 6934 (class 1259 OID 19366)
 -- Name: ux_bookings_one_pending_checkout_per_user; Type: INDEX; Schema: booking; Owner: postgres
 --
 
@@ -5780,7 +7227,7 @@ CREATE UNIQUE INDEX ux_bookings_one_pending_checkout_per_user ON booking.booking
 
 
 --
--- TOC entry 6281 (class 1259 OID 17098)
+-- TOC entry 6676 (class 1259 OID 17098)
 -- Name: idx_inbox_messages_occurred_on; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5788,7 +7235,7 @@ CREATE INDEX idx_inbox_messages_occurred_on ON category.inbox_messages USING btr
 
 
 --
--- TOC entry 6282 (class 1259 OID 17099)
+-- TOC entry 6677 (class 1259 OID 17099)
 -- Name: idx_inbox_messages_processed_occurred; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5796,7 +7243,7 @@ CREATE INDEX idx_inbox_messages_processed_occurred ON category.inbox_messages US
 
 
 --
--- TOC entry 6283 (class 1259 OID 17100)
+-- TOC entry 6678 (class 1259 OID 17100)
 -- Name: idx_inbox_messages_processed_on; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5804,7 +7251,7 @@ CREATE INDEX idx_inbox_messages_processed_on ON category.inbox_messages USING bt
 
 
 --
--- TOC entry 6284 (class 1259 OID 17101)
+-- TOC entry 6679 (class 1259 OID 17101)
 -- Name: idx_inbox_messages_unprocessed; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5812,7 +7259,7 @@ CREATE INDEX idx_inbox_messages_unprocessed ON category.inbox_messages USING btr
 
 
 --
--- TOC entry 6290 (class 1259 OID 17102)
+-- TOC entry 6685 (class 1259 OID 17102)
 -- Name: idx_internal_command_messages_occurred_on; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5820,7 +7267,7 @@ CREATE INDEX idx_internal_command_messages_occurred_on ON category.internal_comm
 
 
 --
--- TOC entry 6291 (class 1259 OID 17103)
+-- TOC entry 6686 (class 1259 OID 17103)
 -- Name: idx_internal_command_messages_processed_occurred; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5828,7 +7275,7 @@ CREATE INDEX idx_internal_command_messages_processed_occurred ON category.intern
 
 
 --
--- TOC entry 6292 (class 1259 OID 17104)
+-- TOC entry 6687 (class 1259 OID 17104)
 -- Name: idx_internal_command_messages_processed_on; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5836,7 +7283,7 @@ CREATE INDEX idx_internal_command_messages_processed_on ON category.internal_com
 
 
 --
--- TOC entry 6293 (class 1259 OID 17105)
+-- TOC entry 6688 (class 1259 OID 17105)
 -- Name: idx_internal_command_messages_unprocessed; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5844,7 +7291,7 @@ CREATE INDEX idx_internal_command_messages_unprocessed ON category.internal_comm
 
 
 --
--- TOC entry 6306 (class 1259 OID 17106)
+-- TOC entry 6701 (class 1259 OID 17106)
 -- Name: idx_outbox_messages_occurred_on; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5852,7 +7299,7 @@ CREATE INDEX idx_outbox_messages_occurred_on ON category.outbox_messages USING b
 
 
 --
--- TOC entry 6307 (class 1259 OID 17107)
+-- TOC entry 6702 (class 1259 OID 17107)
 -- Name: idx_outbox_messages_processed_occurred; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5860,7 +7307,7 @@ CREATE INDEX idx_outbox_messages_processed_occurred ON category.outbox_messages 
 
 
 --
--- TOC entry 6308 (class 1259 OID 17108)
+-- TOC entry 6703 (class 1259 OID 17108)
 -- Name: idx_outbox_messages_processed_on; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5868,7 +7315,7 @@ CREATE INDEX idx_outbox_messages_processed_on ON category.outbox_messages USING 
 
 
 --
--- TOC entry 6309 (class 1259 OID 17109)
+-- TOC entry 6704 (class 1259 OID 17109)
 -- Name: idx_outbox_messages_unprocessed; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5876,7 +7323,7 @@ CREATE INDEX idx_outbox_messages_unprocessed ON category.outbox_messages USING b
 
 
 --
--- TOC entry 6330 (class 1259 OID 18403)
+-- TOC entry 6725 (class 1259 OID 18403)
 -- Name: idx_provider_services_search; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5884,7 +7331,7 @@ CREATE INDEX idx_provider_services_search ON category.provider_services USING gi
 
 
 --
--- TOC entry 6373 (class 1259 OID 18404)
+-- TOC entry 6768 (class 1259 OID 18404)
 -- Name: idx_providers_search; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5892,7 +7339,7 @@ CREATE INDEX idx_providers_search ON category.service_providers USING gin (searc
 
 
 --
--- TOC entry 6278 (class 1259 OID 17110)
+-- TOC entry 6673 (class 1259 OID 17110)
 -- Name: inbox_message_consumers_message_id_name; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5900,7 +7347,7 @@ CREATE INDEX inbox_message_consumers_message_id_name ON category.inbox_message_c
 
 
 --
--- TOC entry 6287 (class 1259 OID 17111)
+-- TOC entry 6682 (class 1259 OID 17111)
 -- Name: internal_command_message_consumers_message_id_name; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5908,7 +7355,7 @@ CREATE INDEX internal_command_message_consumers_message_id_name ON category.inte
 
 
 --
--- TOC entry 6553 (class 1259 OID 18573)
+-- TOC entry 6948 (class 1259 OID 18573)
 -- Name: ix_addon_details_addon_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5916,7 +7363,7 @@ CREATE INDEX ix_addon_details_addon_id ON category.addon_details USING btree (ad
 
 
 --
--- TOC entry 6273 (class 1259 OID 17112)
+-- TOC entry 6668 (class 1259 OID 17112)
 -- Name: ix_categories_parent_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5924,7 +7371,7 @@ CREATE INDEX ix_categories_parent_id ON category.categories USING btree (parent_
 
 
 --
--- TOC entry 6296 (class 1259 OID 17113)
+-- TOC entry 6691 (class 1259 OID 17113)
 -- Name: ix_locations_code; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5932,7 +7379,7 @@ CREATE INDEX ix_locations_code ON category.locations USING btree (code);
 
 
 --
--- TOC entry 6297 (class 1259 OID 17114)
+-- TOC entry 6692 (class 1259 OID 17114)
 -- Name: ix_locations_location_type_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5940,7 +7387,7 @@ CREATE INDEX ix_locations_location_type_id ON category.locations USING btree (lo
 
 
 --
--- TOC entry 6298 (class 1259 OID 17115)
+-- TOC entry 6693 (class 1259 OID 17115)
 -- Name: ix_locations_parent_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5948,7 +7395,7 @@ CREATE INDEX ix_locations_parent_id ON category.locations USING btree (parent_id
 
 
 --
--- TOC entry 6314 (class 1259 OID 17116)
+-- TOC entry 6709 (class 1259 OID 17116)
 -- Name: ix_provider_attribute_definitions_attribute_type_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5956,7 +7403,7 @@ CREATE INDEX ix_provider_attribute_definitions_attribute_type_id ON category.pro
 
 
 --
--- TOC entry 6315 (class 1259 OID 17117)
+-- TOC entry 6710 (class 1259 OID 17117)
 -- Name: ix_provider_attribute_definitions_provider_type_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5964,7 +7411,7 @@ CREATE INDEX ix_provider_attribute_definitions_provider_type_id ON category.prov
 
 
 --
--- TOC entry 6318 (class 1259 OID 17118)
+-- TOC entry 6713 (class 1259 OID 17118)
 -- Name: ix_provider_attributes_attribute_definition_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5972,7 +7419,7 @@ CREATE INDEX ix_provider_attributes_attribute_definition_id ON category.provider
 
 
 --
--- TOC entry 6319 (class 1259 OID 17119)
+-- TOC entry 6714 (class 1259 OID 17119)
 -- Name: ix_provider_attributes_service_provider_id_attribute_definitio; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5980,7 +7427,7 @@ CREATE UNIQUE INDEX ix_provider_attributes_service_provider_id_attribute_definit
 
 
 --
--- TOC entry 6322 (class 1259 OID 17120)
+-- TOC entry 6717 (class 1259 OID 17120)
 -- Name: ix_provider_gallery_items_display_order; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5988,7 +7435,7 @@ CREATE INDEX ix_provider_gallery_items_display_order ON category.provider_galler
 
 
 --
--- TOC entry 6323 (class 1259 OID 17121)
+-- TOC entry 6718 (class 1259 OID 17121)
 -- Name: ix_provider_gallery_items_service_provider_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -5996,7 +7443,7 @@ CREATE INDEX ix_provider_gallery_items_service_provider_id ON category.provider_
 
 
 --
--- TOC entry 6596 (class 1259 OID 19481)
+-- TOC entry 6991 (class 1259 OID 19481)
 -- Name: ix_provider_languages_service_provider_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6004,7 +7451,7 @@ CREATE INDEX ix_provider_languages_service_provider_id ON category.provider_lang
 
 
 --
--- TOC entry 6326 (class 1259 OID 17122)
+-- TOC entry 6721 (class 1259 OID 17122)
 -- Name: ix_provider_policies_service_provider_id_type_translations; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6012,7 +7459,7 @@ CREATE UNIQUE INDEX ix_provider_policies_service_provider_id_type_translations O
 
 
 --
--- TOC entry 6327 (class 1259 OID 17123)
+-- TOC entry 6722 (class 1259 OID 17123)
 -- Name: ix_provider_policies_type_translations; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6020,7 +7467,7 @@ CREATE INDEX ix_provider_policies_type_translations ON category.provider_policie
 
 
 --
--- TOC entry 6604 (class 1259 OID 19526)
+-- TOC entry 6999 (class 1259 OID 19526)
 -- Name: ix_provider_service_gallery_items_display_order; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6028,7 +7475,7 @@ CREATE INDEX ix_provider_service_gallery_items_display_order ON category.provide
 
 
 --
--- TOC entry 6605 (class 1259 OID 19525)
+-- TOC entry 7000 (class 1259 OID 19525)
 -- Name: ix_provider_service_gallery_items_service_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6036,7 +7483,7 @@ CREATE INDEX ix_provider_service_gallery_items_service_id ON category.provider_s
 
 
 --
--- TOC entry 6331 (class 1259 OID 17124)
+-- TOC entry 6726 (class 1259 OID 17124)
 -- Name: ix_provider_services_is_active; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6044,7 +7491,7 @@ CREATE INDEX ix_provider_services_is_active ON category.provider_services USING 
 
 
 --
--- TOC entry 6332 (class 1259 OID 17125)
+-- TOC entry 6727 (class 1259 OID 17125)
 -- Name: ix_provider_services_service_definition_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6052,7 +7499,7 @@ CREATE INDEX ix_provider_services_service_definition_id ON category.provider_ser
 
 
 --
--- TOC entry 6333 (class 1259 OID 17126)
+-- TOC entry 6728 (class 1259 OID 17126)
 -- Name: ix_provider_services_service_provider_id_service_definition_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6060,7 +7507,7 @@ CREATE UNIQUE INDEX ix_provider_services_service_provider_id_service_definition_
 
 
 --
--- TOC entry 6336 (class 1259 OID 17127)
+-- TOC entry 6731 (class 1259 OID 17127)
 -- Name: ix_provider_staffs_is_active; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6068,7 +7515,7 @@ CREATE INDEX ix_provider_staffs_is_active ON category.provider_staffs USING btre
 
 
 --
--- TOC entry 6337 (class 1259 OID 17128)
+-- TOC entry 6732 (class 1259 OID 17128)
 -- Name: ix_provider_staffs_service_provider_id_staff_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6076,7 +7523,7 @@ CREATE UNIQUE INDEX ix_provider_staffs_service_provider_id_staff_id ON category.
 
 
 --
--- TOC entry 6338 (class 1259 OID 17129)
+-- TOC entry 6733 (class 1259 OID 17129)
 -- Name: ix_provider_staffs_staff_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6084,7 +7531,7 @@ CREATE INDEX ix_provider_staffs_staff_id ON category.provider_staffs USING btree
 
 
 --
--- TOC entry 6556 (class 1259 OID 18574)
+-- TOC entry 6951 (class 1259 OID 18574)
 -- Name: ix_psa_addon_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6092,7 +7539,7 @@ CREATE INDEX ix_psa_addon_id ON category.provider_service_addons USING btree (ad
 
 
 --
--- TOC entry 6518 (class 1259 OID 19466)
+-- TOC entry 6913 (class 1259 OID 19466)
 -- Name: ix_review_images_review_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6100,7 +7547,7 @@ CREATE INDEX ix_review_images_review_id ON category.review_images USING btree (r
 
 
 --
--- TOC entry 6345 (class 1259 OID 17130)
+-- TOC entry 6740 (class 1259 OID 17130)
 -- Name: ix_service_attribute_definitions_attribute_type_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6108,7 +7555,7 @@ CREATE INDEX ix_service_attribute_definitions_attribute_type_id ON category.serv
 
 
 --
--- TOC entry 6346 (class 1259 OID 17131)
+-- TOC entry 6741 (class 1259 OID 17131)
 -- Name: ix_service_attribute_definitions_service_definition_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6116,7 +7563,7 @@ CREATE INDEX ix_service_attribute_definitions_service_definition_id ON category.
 
 
 --
--- TOC entry 6349 (class 1259 OID 17132)
+-- TOC entry 6744 (class 1259 OID 17132)
 -- Name: ix_service_attribute_values_attribute_definition_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6124,7 +7571,7 @@ CREATE INDEX ix_service_attribute_values_attribute_definition_id ON category.ser
 
 
 --
--- TOC entry 6350 (class 1259 OID 17133)
+-- TOC entry 6745 (class 1259 OID 17133)
 -- Name: ix_service_attribute_values_provider_service_id_attribute_defi; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6132,7 +7579,7 @@ CREATE UNIQUE INDEX ix_service_attribute_values_provider_service_id_attribute_de
 
 
 --
--- TOC entry 6355 (class 1259 OID 17134)
+-- TOC entry 6750 (class 1259 OID 17134)
 -- Name: ix_service_definitions_category_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6140,7 +7587,7 @@ CREATE INDEX ix_service_definitions_category_id ON category.service_definitions 
 
 
 --
--- TOC entry 6358 (class 1259 OID 17135)
+-- TOC entry 6753 (class 1259 OID 17135)
 -- Name: ix_service_provider_comments_create_date; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6148,7 +7595,7 @@ CREATE INDEX ix_service_provider_comments_create_date ON category.service_provid
 
 
 --
--- TOC entry 6359 (class 1259 OID 17136)
+-- TOC entry 6754 (class 1259 OID 17136)
 -- Name: ix_service_provider_comments_customer_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6156,7 +7603,7 @@ CREATE INDEX ix_service_provider_comments_customer_id ON category.service_provid
 
 
 --
--- TOC entry 6360 (class 1259 OID 17137)
+-- TOC entry 6755 (class 1259 OID 17137)
 -- Name: ix_service_provider_comments_service_provider_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6164,7 +7611,7 @@ CREATE INDEX ix_service_provider_comments_service_provider_id ON category.servic
 
 
 --
--- TOC entry 6361 (class 1259 OID 17138)
+-- TOC entry 6756 (class 1259 OID 17138)
 -- Name: ix_service_provider_comments_service_provider_id_is_public; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6172,7 +7619,7 @@ CREATE INDEX ix_service_provider_comments_service_provider_id_is_public ON categ
 
 
 --
--- TOC entry 6368 (class 1259 OID 17139)
+-- TOC entry 6763 (class 1259 OID 17139)
 -- Name: ix_service_provider_requests_customer_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6180,7 +7627,7 @@ CREATE INDEX ix_service_provider_requests_customer_id ON category.service_provid
 
 
 --
--- TOC entry 6369 (class 1259 OID 17140)
+-- TOC entry 6764 (class 1259 OID 17140)
 -- Name: ix_service_provider_requests_request_status_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6188,7 +7635,7 @@ CREATE INDEX ix_service_provider_requests_request_status_id ON category.service_
 
 
 --
--- TOC entry 6370 (class 1259 OID 17141)
+-- TOC entry 6765 (class 1259 OID 17141)
 -- Name: ix_service_provider_requests_service_provider_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6196,7 +7643,7 @@ CREATE INDEX ix_service_provider_requests_service_provider_id ON category.servic
 
 
 --
--- TOC entry 6374 (class 1259 OID 17142)
+-- TOC entry 6769 (class 1259 OID 17142)
 -- Name: ix_service_providers_country_city; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6204,7 +7651,7 @@ CREATE INDEX ix_service_providers_country_city ON category.service_providers USI
 
 
 --
--- TOC entry 6375 (class 1259 OID 17143)
+-- TOC entry 6770 (class 1259 OID 17143)
 -- Name: ix_service_providers_grade_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6212,7 +7659,7 @@ CREATE INDEX ix_service_providers_grade_id ON category.service_providers USING b
 
 
 --
--- TOC entry 6376 (class 1259 OID 17144)
+-- TOC entry 6771 (class 1259 OID 17144)
 -- Name: ix_service_providers_grade_id_provider_type_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6220,7 +7667,7 @@ CREATE INDEX ix_service_providers_grade_id_provider_type_id ON category.service_
 
 
 --
--- TOC entry 6377 (class 1259 OID 17145)
+-- TOC entry 6772 (class 1259 OID 17145)
 -- Name: ix_service_providers_grade_id_provider_type_id_country_city; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6228,7 +7675,7 @@ CREATE INDEX ix_service_providers_grade_id_provider_type_id_country_city ON cate
 
 
 --
--- TOC entry 6378 (class 1259 OID 17146)
+-- TOC entry 6773 (class 1259 OID 17146)
 -- Name: ix_service_providers_is_active; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6236,7 +7683,7 @@ CREATE INDEX ix_service_providers_is_active ON category.service_providers USING 
 
 
 --
--- TOC entry 6379 (class 1259 OID 17147)
+-- TOC entry 6774 (class 1259 OID 17147)
 -- Name: ix_service_providers_name_translations; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6244,7 +7691,7 @@ CREATE INDEX ix_service_providers_name_translations ON category.service_provider
 
 
 --
--- TOC entry 6380 (class 1259 OID 17148)
+-- TOC entry 6775 (class 1259 OID 17148)
 -- Name: ix_service_providers_provider_type_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6252,7 +7699,7 @@ CREATE INDEX ix_service_providers_provider_type_id ON category.service_providers
 
 
 --
--- TOC entry 6381 (class 1259 OID 17149)
+-- TOC entry 6776 (class 1259 OID 17149)
 -- Name: ix_service_providers_provider_type_id_country_city; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6260,7 +7707,7 @@ CREATE INDEX ix_service_providers_provider_type_id_country_city ON category.serv
 
 
 --
--- TOC entry 6588 (class 1259 OID 19441)
+-- TOC entry 6983 (class 1259 OID 19441)
 -- Name: ix_staff_achievements_staff_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6268,7 +7715,7 @@ CREATE INDEX ix_staff_achievements_staff_id ON category.staff_achievements USING
 
 
 --
--- TOC entry 6589 (class 1259 OID 19442)
+-- TOC entry 6984 (class 1259 OID 19442)
 -- Name: ix_staff_achievements_staff_id_display_order; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6276,7 +7723,7 @@ CREATE INDEX ix_staff_achievements_staff_id_display_order ON category.staff_achi
 
 
 --
--- TOC entry 6386 (class 1259 OID 17150)
+-- TOC entry 6781 (class 1259 OID 17150)
 -- Name: ix_staff_availabilities_availability_status_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6284,7 +7731,7 @@ CREATE INDEX ix_staff_availabilities_availability_status_id ON category.staff_av
 
 
 --
--- TOC entry 6387 (class 1259 OID 17151)
+-- TOC entry 6782 (class 1259 OID 17151)
 -- Name: ix_staff_availabilities_staff_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6292,7 +7739,7 @@ CREATE INDEX ix_staff_availabilities_staff_id ON category.staff_availabilities U
 
 
 --
--- TOC entry 6388 (class 1259 OID 17152)
+-- TOC entry 6783 (class 1259 OID 17152)
 -- Name: ix_staff_availabilities_staff_id_day_of_week; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6300,7 +7747,7 @@ CREATE INDEX ix_staff_availabilities_staff_id_day_of_week ON category.staff_avai
 
 
 --
--- TOC entry 6389 (class 1259 OID 19294)
+-- TOC entry 6784 (class 1259 OID 19294)
 -- Name: ix_staff_availabilities_staff_id_specific_date; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6308,7 +7755,7 @@ CREATE INDEX ix_staff_availabilities_staff_id_specific_date ON category.staff_av
 
 
 --
--- TOC entry 6592 (class 1259 OID 19459)
+-- TOC entry 6987 (class 1259 OID 19459)
 -- Name: ix_staff_before_after_staff_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6316,7 +7763,7 @@ CREATE INDEX ix_staff_before_after_staff_id ON category.staff_before_after USING
 
 
 --
--- TOC entry 6593 (class 1259 OID 19460)
+-- TOC entry 6988 (class 1259 OID 19460)
 -- Name: ix_staff_before_after_staff_id_display_order; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6324,7 +7771,7 @@ CREATE INDEX ix_staff_before_after_staff_id_display_order ON category.staff_befo
 
 
 --
--- TOC entry 6585 (class 1259 OID 19424)
+-- TOC entry 6980 (class 1259 OID 19424)
 -- Name: ix_staff_certifications_staff_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6332,7 +7779,7 @@ CREATE INDEX ix_staff_certifications_staff_id ON category.staff_certifications U
 
 
 --
--- TOC entry 6559 (class 1259 OID 18592)
+-- TOC entry 6954 (class 1259 OID 18592)
 -- Name: ix_staff_credentials_staff_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6340,7 +7787,7 @@ CREATE INDEX ix_staff_credentials_staff_id ON category.staff_credentials USING b
 
 
 --
--- TOC entry 6581 (class 1259 OID 19408)
+-- TOC entry 6976 (class 1259 OID 19408)
 -- Name: ix_staff_education_staff_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6348,7 +7795,7 @@ CREATE INDEX ix_staff_education_staff_id ON category.staff_education USING btree
 
 
 --
--- TOC entry 6582 (class 1259 OID 19409)
+-- TOC entry 6977 (class 1259 OID 19409)
 -- Name: ix_staff_education_staff_id_year; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6356,7 +7803,7 @@ CREATE INDEX ix_staff_education_staff_id_year ON category.staff_education USING 
 
 
 --
--- TOC entry 6599 (class 1259 OID 19504)
+-- TOC entry 6994 (class 1259 OID 19504)
 -- Name: ix_staff_gallery_items_display_order; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6364,7 +7811,7 @@ CREATE INDEX ix_staff_gallery_items_display_order ON category.staff_gallery_item
 
 
 --
--- TOC entry 6600 (class 1259 OID 19503)
+-- TOC entry 6995 (class 1259 OID 19503)
 -- Name: ix_staff_gallery_items_staff_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6372,7 +7819,7 @@ CREATE INDEX ix_staff_gallery_items_staff_id ON category.staff_gallery_items USI
 
 
 --
--- TOC entry 6575 (class 1259 OID 19380)
+-- TOC entry 6970 (class 1259 OID 19380)
 -- Name: ix_staff_languages_staff_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6380,7 +7827,7 @@ CREATE INDEX ix_staff_languages_staff_id ON category.staff_languages USING btree
 
 
 --
--- TOC entry 6394 (class 1259 OID 19293)
+-- TOC entry 6789 (class 1259 OID 19293)
 -- Name: ix_staff_services_service_definition_id_staff_id_active; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6388,7 +7835,7 @@ CREATE INDEX ix_staff_services_service_definition_id_staff_id_active ON category
 
 
 --
--- TOC entry 6395 (class 1259 OID 17153)
+-- TOC entry 6790 (class 1259 OID 17153)
 -- Name: ix_staff_services_staff_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6396,7 +7843,7 @@ CREATE INDEX ix_staff_services_staff_id ON category.staff_services USING btree (
 
 
 --
--- TOC entry 6396 (class 1259 OID 17154)
+-- TOC entry 6791 (class 1259 OID 17154)
 -- Name: ix_staff_services_staff_id_service_definition_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6404,7 +7851,7 @@ CREATE UNIQUE INDEX ix_staff_services_staff_id_service_definition_id ON category
 
 
 --
--- TOC entry 6578 (class 1259 OID 19394)
+-- TOC entry 6973 (class 1259 OID 19394)
 -- Name: ix_staff_specializations_staff_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6412,7 +7859,7 @@ CREATE INDEX ix_staff_specializations_staff_id ON category.staff_specializations
 
 
 --
--- TOC entry 6571 (class 1259 OID 19361)
+-- TOC entry 6966 (class 1259 OID 19361)
 -- Name: ix_sufr_service_definition_id; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6420,7 +7867,7 @@ CREATE INDEX ix_sufr_service_definition_id ON category.service_upload_file_requi
 
 
 --
--- TOC entry 6572 (class 1259 OID 19362)
+-- TOC entry 6967 (class 1259 OID 19362)
 -- Name: ix_sufr_service_definition_id_display_order; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6428,7 +7875,7 @@ CREATE INDEX ix_sufr_service_definition_id_display_order ON category.service_upl
 
 
 --
--- TOC entry 6303 (class 1259 OID 17155)
+-- TOC entry 6698 (class 1259 OID 17155)
 -- Name: outbox_message_consumers_message_id_name; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6436,7 +7883,7 @@ CREATE INDEX outbox_message_consumers_message_id_name ON category.outbox_message
 
 
 --
--- TOC entry 6301 (class 1259 OID 17156)
+-- TOC entry 6696 (class 1259 OID 17156)
 -- Name: ux_locations_city_parent_code; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6444,7 +7891,7 @@ CREATE UNIQUE INDEX ux_locations_city_parent_code ON category.locations USING bt
 
 
 --
--- TOC entry 6302 (class 1259 OID 17157)
+-- TOC entry 6697 (class 1259 OID 17157)
 -- Name: ux_locations_country_code; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6452,7 +7899,7 @@ CREATE UNIQUE INDEX ux_locations_country_code ON category.locations USING btree 
 
 
 --
--- TOC entry 6608 (class 1259 OID 19527)
+-- TOC entry 7003 (class 1259 OID 19527)
 -- Name: ux_provider_service_gallery_items_one_primary; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6460,7 +7907,7 @@ CREATE UNIQUE INDEX ux_provider_service_gallery_items_one_primary ON category.pr
 
 
 --
--- TOC entry 6603 (class 1259 OID 19505)
+-- TOC entry 6998 (class 1259 OID 19505)
 -- Name: ux_staff_gallery_items_one_primary; Type: INDEX; Schema: category; Owner: postgres
 --
 
@@ -6468,7 +7915,7 @@ CREATE UNIQUE INDEX ux_staff_gallery_items_one_primary ON category.staff_gallery
 
 
 --
--- TOC entry 6420 (class 1259 OID 17158)
+-- TOC entry 6815 (class 1259 OID 17158)
 -- Name: idx_inbox_messages_occurred_on; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6476,7 +7923,7 @@ CREATE INDEX idx_inbox_messages_occurred_on ON customer.inbox_messages USING btr
 
 
 --
--- TOC entry 6421 (class 1259 OID 17159)
+-- TOC entry 6816 (class 1259 OID 17159)
 -- Name: idx_inbox_messages_processed_occurred; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6484,7 +7931,7 @@ CREATE INDEX idx_inbox_messages_processed_occurred ON customer.inbox_messages US
 
 
 --
--- TOC entry 6422 (class 1259 OID 17160)
+-- TOC entry 6817 (class 1259 OID 17160)
 -- Name: idx_inbox_messages_processed_on; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6492,7 +7939,7 @@ CREATE INDEX idx_inbox_messages_processed_on ON customer.inbox_messages USING bt
 
 
 --
--- TOC entry 6423 (class 1259 OID 17161)
+-- TOC entry 6818 (class 1259 OID 17161)
 -- Name: idx_inbox_messages_unprocessed; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6500,7 +7947,7 @@ CREATE INDEX idx_inbox_messages_unprocessed ON customer.inbox_messages USING btr
 
 
 --
--- TOC entry 6429 (class 1259 OID 17162)
+-- TOC entry 6824 (class 1259 OID 17162)
 -- Name: idx_internal_command_messages_occurred_on; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6508,7 +7955,7 @@ CREATE INDEX idx_internal_command_messages_occurred_on ON customer.internal_comm
 
 
 --
--- TOC entry 6430 (class 1259 OID 17163)
+-- TOC entry 6825 (class 1259 OID 17163)
 -- Name: idx_internal_command_messages_processed_occurred; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6516,7 +7963,7 @@ CREATE INDEX idx_internal_command_messages_processed_occurred ON customer.intern
 
 
 --
--- TOC entry 6431 (class 1259 OID 17164)
+-- TOC entry 6826 (class 1259 OID 17164)
 -- Name: idx_internal_command_messages_processed_on; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6524,7 +7971,7 @@ CREATE INDEX idx_internal_command_messages_processed_on ON customer.internal_com
 
 
 --
--- TOC entry 6432 (class 1259 OID 17165)
+-- TOC entry 6827 (class 1259 OID 17165)
 -- Name: idx_internal_command_messages_unprocessed; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6532,7 +7979,7 @@ CREATE INDEX idx_internal_command_messages_unprocessed ON customer.internal_comm
 
 
 --
--- TOC entry 6438 (class 1259 OID 17166)
+-- TOC entry 6833 (class 1259 OID 17166)
 -- Name: idx_outbox_messages_occurred_on; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6540,7 +7987,7 @@ CREATE INDEX idx_outbox_messages_occurred_on ON customer.outbox_messages USING b
 
 
 --
--- TOC entry 6439 (class 1259 OID 17167)
+-- TOC entry 6834 (class 1259 OID 17167)
 -- Name: idx_outbox_messages_processed_occurred; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6548,7 +7995,7 @@ CREATE INDEX idx_outbox_messages_processed_occurred ON customer.outbox_messages 
 
 
 --
--- TOC entry 6440 (class 1259 OID 17168)
+-- TOC entry 6835 (class 1259 OID 17168)
 -- Name: idx_outbox_messages_processed_on; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6556,7 +8003,7 @@ CREATE INDEX idx_outbox_messages_processed_on ON customer.outbox_messages USING 
 
 
 --
--- TOC entry 6441 (class 1259 OID 17169)
+-- TOC entry 6836 (class 1259 OID 17169)
 -- Name: idx_outbox_messages_unprocessed; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6564,7 +8011,7 @@ CREATE INDEX idx_outbox_messages_unprocessed ON customer.outbox_messages USING b
 
 
 --
--- TOC entry 6417 (class 1259 OID 17170)
+-- TOC entry 6812 (class 1259 OID 17170)
 -- Name: inbox_message_consumers_message_id_name; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6572,7 +8019,7 @@ CREATE INDEX inbox_message_consumers_message_id_name ON customer.inbox_message_c
 
 
 --
--- TOC entry 6426 (class 1259 OID 17171)
+-- TOC entry 6821 (class 1259 OID 17171)
 -- Name: internal_command_message_consumers_message_id_name; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6580,7 +8027,7 @@ CREATE INDEX internal_command_message_consumers_message_id_name ON customer.inte
 
 
 --
--- TOC entry 6403 (class 1259 OID 17172)
+-- TOC entry 6798 (class 1259 OID 17172)
 -- Name: ix_consultings_category_id; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6588,7 +8035,7 @@ CREATE INDEX ix_consultings_category_id ON customer.consultings USING btree (cat
 
 
 --
--- TOC entry 6404 (class 1259 OID 17173)
+-- TOC entry 6799 (class 1259 OID 17173)
 -- Name: ix_consultings_customer_id; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6596,7 +8043,7 @@ CREATE INDEX ix_consultings_customer_id ON customer.consultings USING btree (cus
 
 
 --
--- TOC entry 6409 (class 1259 OID 17174)
+-- TOC entry 6804 (class 1259 OID 17174)
 -- Name: ix_customer_documents_customer_id; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6604,7 +8051,7 @@ CREATE INDEX ix_customer_documents_customer_id ON customer.customer_documents US
 
 
 --
--- TOC entry 6410 (class 1259 OID 17175)
+-- TOC entry 6805 (class 1259 OID 17175)
 -- Name: ix_customer_documents_document_type_id; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6612,7 +8059,7 @@ CREATE INDEX ix_customer_documents_document_type_id ON customer.customer_documen
 
 
 --
--- TOC entry 6413 (class 1259 OID 17176)
+-- TOC entry 6808 (class 1259 OID 17176)
 -- Name: ix_customers_email; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6620,7 +8067,7 @@ CREATE UNIQUE INDEX ix_customers_email ON customer.customers USING btree (email)
 
 
 --
--- TOC entry 6414 (class 1259 OID 17177)
+-- TOC entry 6809 (class 1259 OID 17177)
 -- Name: ix_customers_phone_number_phone_number_country_code; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6628,7 +8075,7 @@ CREATE UNIQUE INDEX ix_customers_phone_number_phone_number_country_code ON custo
 
 
 --
--- TOC entry 6564 (class 1259 OID 21176)
+-- TOC entry 6959 (class 1259 OID 21176)
 -- Name: ix_favorites_customer_created_at; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6636,7 +8083,7 @@ CREATE INDEX ix_favorites_customer_created_at ON customer.favorites USING btree 
 
 
 --
--- TOC entry 6565 (class 1259 OID 19327)
+-- TOC entry 6960 (class 1259 OID 19327)
 -- Name: ix_favorites_customer_id; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6644,7 +8091,7 @@ CREATE INDEX ix_favorites_customer_id ON customer.favorites USING btree (custome
 
 
 --
--- TOC entry 6566 (class 1259 OID 19328)
+-- TOC entry 6961 (class 1259 OID 19328)
 -- Name: ix_favorites_customer_type; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6652,7 +8099,7 @@ CREATE INDEX ix_favorites_customer_type ON customer.favorites USING btree (custo
 
 
 --
--- TOC entry 6567 (class 1259 OID 21177)
+-- TOC entry 6962 (class 1259 OID 21177)
 -- Name: ix_favorites_customer_type_created_at; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6660,7 +8107,7 @@ CREATE INDEX ix_favorites_customer_type_created_at ON customer.favorites USING b
 
 
 --
--- TOC entry 6568 (class 1259 OID 19329)
+-- TOC entry 6963 (class 1259 OID 19329)
 -- Name: ix_favorites_entity; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6668,7 +8115,7 @@ CREATE INDEX ix_favorites_entity ON customer.favorites USING btree (entity_id);
 
 
 --
--- TOC entry 6669 (class 1259 OID 19898)
+-- TOC entry 7064 (class 1259 OID 19898)
 -- Name: ix_wallet_payment_intents_booking; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6676,7 +8123,7 @@ CREATE INDEX ix_wallet_payment_intents_booking ON customer.wallet_payment_intent
 
 
 --
--- TOC entry 6670 (class 1259 OID 19896)
+-- TOC entry 7065 (class 1259 OID 19896)
 -- Name: ix_wallet_payment_intents_user_created; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6684,7 +8131,7 @@ CREATE INDEX ix_wallet_payment_intents_user_created ON customer.wallet_payment_i
 
 
 --
--- TOC entry 6671 (class 1259 OID 19897)
+-- TOC entry 7066 (class 1259 OID 19897)
 -- Name: ix_wallet_payment_intents_wallet_status; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6692,7 +8139,7 @@ CREATE INDEX ix_wallet_payment_intents_wallet_status ON customer.wallet_payment_
 
 
 --
--- TOC entry 6674 (class 1259 OID 19939)
+-- TOC entry 7069 (class 1259 OID 19939)
 -- Name: ix_wallet_transactions_booking; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6700,7 +8147,7 @@ CREATE INDEX ix_wallet_transactions_booking ON customer.wallet_transactions USIN
 
 
 --
--- TOC entry 6675 (class 1259 OID 19940)
+-- TOC entry 7070 (class 1259 OID 19940)
 -- Name: ix_wallet_transactions_payment_intent; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6708,7 +8155,7 @@ CREATE INDEX ix_wallet_transactions_payment_intent ON customer.wallet_transactio
 
 
 --
--- TOC entry 6676 (class 1259 OID 19937)
+-- TOC entry 7071 (class 1259 OID 19937)
 -- Name: ix_wallet_transactions_user_occurred; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6716,7 +8163,7 @@ CREATE INDEX ix_wallet_transactions_user_occurred ON customer.wallet_transaction
 
 
 --
--- TOC entry 6677 (class 1259 OID 19938)
+-- TOC entry 7072 (class 1259 OID 19938)
 -- Name: ix_wallet_transactions_wallet_currency; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6724,7 +8171,7 @@ CREATE INDEX ix_wallet_transactions_wallet_currency ON customer.wallet_transacti
 
 
 --
--- TOC entry 6435 (class 1259 OID 17178)
+-- TOC entry 6830 (class 1259 OID 17178)
 -- Name: outbox_message_consumers_message_id_name; Type: INDEX; Schema: customer; Owner: postgres
 --
 
@@ -6732,7 +8179,47 @@ CREATE INDEX outbox_message_consumers_message_id_name ON customer.outbox_message
 
 
 --
--- TOC entry 6467 (class 1259 OID 17179)
+-- TOC entry 7334 (class 1259 OID 22416)
+-- Name: ix_form_submissions_booking; Type: INDEX; Schema: form_builder; Owner: postgres
+--
+
+CREATE INDEX ix_form_submissions_booking ON form_builder.submissions USING btree (booking_id, create_date DESC);
+
+
+--
+-- TOC entry 7335 (class 1259 OID 22415)
+-- Name: ix_form_submissions_booking_draft; Type: INDEX; Schema: form_builder; Owner: postgres
+--
+
+CREATE INDEX ix_form_submissions_booking_draft ON form_builder.submissions USING btree (booking_draft_id, create_date DESC);
+
+
+--
+-- TOC entry 7336 (class 1259 OID 22414)
+-- Name: ix_form_submissions_service_definition; Type: INDEX; Schema: form_builder; Owner: postgres
+--
+
+CREATE INDEX ix_form_submissions_service_definition ON form_builder.submissions USING btree (service_definition_id, create_date DESC);
+
+
+--
+-- TOC entry 7316 (class 1259 OID 22249)
+-- Name: ux_form_versions_active; Type: INDEX; Schema: form_builder; Owner: postgres
+--
+
+CREATE UNIQUE INDEX ux_form_versions_active ON form_builder.form_versions USING btree (form_id) WHERE (is_active = true);
+
+
+--
+-- TOC entry 7333 (class 1259 OID 22377)
+-- Name: ux_service_definition_forms_active; Type: INDEX; Schema: form_builder; Owner: postgres
+--
+
+CREATE UNIQUE INDEX ux_service_definition_forms_active ON form_builder.service_definition_forms USING btree (service_definition_id, usage_scope) WHERE (is_active = true);
+
+
+--
+-- TOC entry 6862 (class 1259 OID 17179)
 -- Name: EmailIndex; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6740,7 +8227,7 @@ CREATE UNIQUE INDEX "EmailIndex" ON identity.asp_net_users USING btree (normaliz
 
 
 --
--- TOC entry 6453 (class 1259 OID 17180)
+-- TOC entry 6848 (class 1259 OID 17180)
 -- Name: RoleNameIndex; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6748,7 +8235,7 @@ CREATE UNIQUE INDEX "RoleNameIndex" ON identity.asp_net_roles USING btree (norma
 
 
 --
--- TOC entry 6468 (class 1259 OID 17181)
+-- TOC entry 6863 (class 1259 OID 17181)
 -- Name: UserNameIndex; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6756,7 +8243,7 @@ CREATE UNIQUE INDEX "UserNameIndex" ON identity.asp_net_users USING btree (norma
 
 
 --
--- TOC entry 6478 (class 1259 OID 17182)
+-- TOC entry 6873 (class 1259 OID 17182)
 -- Name: idx_inbox_messages_occurred_on; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6764,7 +8251,7 @@ CREATE INDEX idx_inbox_messages_occurred_on ON identity.inbox_messages USING btr
 
 
 --
--- TOC entry 6479 (class 1259 OID 17183)
+-- TOC entry 6874 (class 1259 OID 17183)
 -- Name: idx_inbox_messages_processed_occurred; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6772,7 +8259,7 @@ CREATE INDEX idx_inbox_messages_processed_occurred ON identity.inbox_messages US
 
 
 --
--- TOC entry 6480 (class 1259 OID 17184)
+-- TOC entry 6875 (class 1259 OID 17184)
 -- Name: idx_inbox_messages_processed_on; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6780,7 +8267,7 @@ CREATE INDEX idx_inbox_messages_processed_on ON identity.inbox_messages USING bt
 
 
 --
--- TOC entry 6481 (class 1259 OID 17185)
+-- TOC entry 6876 (class 1259 OID 17185)
 -- Name: idx_inbox_messages_unprocessed; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6788,7 +8275,7 @@ CREATE INDEX idx_inbox_messages_unprocessed ON identity.inbox_messages USING btr
 
 
 --
--- TOC entry 6487 (class 1259 OID 17186)
+-- TOC entry 6882 (class 1259 OID 17186)
 -- Name: idx_internal_command_messages_occurred_on; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6796,7 +8283,7 @@ CREATE INDEX idx_internal_command_messages_occurred_on ON identity.internal_comm
 
 
 --
--- TOC entry 6488 (class 1259 OID 17187)
+-- TOC entry 6883 (class 1259 OID 17187)
 -- Name: idx_internal_command_messages_processed_occurred; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6804,7 +8291,7 @@ CREATE INDEX idx_internal_command_messages_processed_occurred ON identity.intern
 
 
 --
--- TOC entry 6489 (class 1259 OID 17188)
+-- TOC entry 6884 (class 1259 OID 17188)
 -- Name: idx_internal_command_messages_processed_on; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6812,7 +8299,7 @@ CREATE INDEX idx_internal_command_messages_processed_on ON identity.internal_com
 
 
 --
--- TOC entry 6490 (class 1259 OID 17189)
+-- TOC entry 6885 (class 1259 OID 17189)
 -- Name: idx_internal_command_messages_unprocessed; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6820,7 +8307,7 @@ CREATE INDEX idx_internal_command_messages_unprocessed ON identity.internal_comm
 
 
 --
--- TOC entry 6496 (class 1259 OID 17190)
+-- TOC entry 6891 (class 1259 OID 17190)
 -- Name: idx_outbox_messages_occurred_on; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6828,7 +8315,7 @@ CREATE INDEX idx_outbox_messages_occurred_on ON identity.outbox_messages USING b
 
 
 --
--- TOC entry 6497 (class 1259 OID 17191)
+-- TOC entry 6892 (class 1259 OID 17191)
 -- Name: idx_outbox_messages_processed_occurred; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6836,7 +8323,7 @@ CREATE INDEX idx_outbox_messages_processed_occurred ON identity.outbox_messages 
 
 
 --
--- TOC entry 6498 (class 1259 OID 17192)
+-- TOC entry 6893 (class 1259 OID 17192)
 -- Name: idx_outbox_messages_processed_on; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6844,7 +8331,7 @@ CREATE INDEX idx_outbox_messages_processed_on ON identity.outbox_messages USING 
 
 
 --
--- TOC entry 6499 (class 1259 OID 17193)
+-- TOC entry 6894 (class 1259 OID 17193)
 -- Name: idx_outbox_messages_unprocessed; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6852,7 +8339,7 @@ CREATE INDEX idx_outbox_messages_unprocessed ON identity.outbox_messages USING b
 
 
 --
--- TOC entry 6475 (class 1259 OID 17194)
+-- TOC entry 6870 (class 1259 OID 17194)
 -- Name: inbox_message_consumers_message_id_name; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6860,7 +8347,7 @@ CREATE INDEX inbox_message_consumers_message_id_name ON identity.inbox_message_c
 
 
 --
--- TOC entry 6484 (class 1259 OID 17195)
+-- TOC entry 6879 (class 1259 OID 17195)
 -- Name: internal_command_message_consumers_message_id_name; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6868,7 +8355,7 @@ CREATE INDEX internal_command_message_consumers_message_id_name ON identity.inte
 
 
 --
--- TOC entry 6446 (class 1259 OID 17196)
+-- TOC entry 6841 (class 1259 OID 17196)
 -- Name: ix_access_tokens_token_user_id; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6876,7 +8363,7 @@ CREATE UNIQUE INDEX ix_access_tokens_token_user_id ON identity.access_tokens USI
 
 
 --
--- TOC entry 6447 (class 1259 OID 17197)
+-- TOC entry 6842 (class 1259 OID 17197)
 -- Name: ix_access_tokens_user_id; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6884,7 +8371,7 @@ CREATE INDEX ix_access_tokens_user_id ON identity.access_tokens USING btree (use
 
 
 --
--- TOC entry 6450 (class 1259 OID 17198)
+-- TOC entry 6845 (class 1259 OID 17198)
 -- Name: ix_asp_net_role_claims_role_id; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6892,7 +8379,7 @@ CREATE INDEX ix_asp_net_role_claims_role_id ON identity.asp_net_role_claims USIN
 
 
 --
--- TOC entry 6456 (class 1259 OID 17199)
+-- TOC entry 6851 (class 1259 OID 17199)
 -- Name: ix_asp_net_user_claims_user_id; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6900,7 +8387,7 @@ CREATE INDEX ix_asp_net_user_claims_user_id ON identity.asp_net_user_claims USIN
 
 
 --
--- TOC entry 6459 (class 1259 OID 17200)
+-- TOC entry 6854 (class 1259 OID 17200)
 -- Name: ix_asp_net_user_logins_user_id; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6908,7 +8395,7 @@ CREATE INDEX ix_asp_net_user_logins_user_id ON identity.asp_net_user_logins USIN
 
 
 --
--- TOC entry 6462 (class 1259 OID 17201)
+-- TOC entry 6857 (class 1259 OID 17201)
 -- Name: ix_asp_net_user_roles_role_id; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6916,7 +8403,7 @@ CREATE INDEX ix_asp_net_user_roles_role_id ON identity.asp_net_user_roles USING 
 
 
 --
--- TOC entry 6469 (class 1259 OID 17202)
+-- TOC entry 6864 (class 1259 OID 17202)
 -- Name: ix_asp_net_users_email; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6924,7 +8411,7 @@ CREATE UNIQUE INDEX ix_asp_net_users_email ON identity.asp_net_users USING btree
 
 
 --
--- TOC entry 6470 (class 1259 OID 19656)
+-- TOC entry 6865 (class 1259 OID 19656)
 -- Name: ix_asp_net_users_phone_number_country_code_phone_number; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6932,7 +8419,7 @@ CREATE UNIQUE INDEX ix_asp_net_users_phone_number_country_code_phone_number ON i
 
 
 --
--- TOC entry 6504 (class 1259 OID 17204)
+-- TOC entry 6899 (class 1259 OID 17204)
 -- Name: ix_phone_login_codes_expires_at; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6940,7 +8427,7 @@ CREATE INDEX ix_phone_login_codes_expires_at ON identity.phone_login_codes USING
 
 
 --
--- TOC entry 6505 (class 1259 OID 17205)
+-- TOC entry 6900 (class 1259 OID 17205)
 -- Name: ix_phone_login_codes_user_id; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6948,7 +8435,7 @@ CREATE INDEX ix_phone_login_codes_user_id ON identity.phone_login_codes USING bt
 
 
 --
--- TOC entry 6506 (class 1259 OID 17206)
+-- TOC entry 6901 (class 1259 OID 17206)
 -- Name: ix_phone_login_codes_user_id_is_invalidated_expires_at; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6956,7 +8443,7 @@ CREATE INDEX ix_phone_login_codes_user_id_is_invalidated_expires_at ON identity.
 
 
 --
--- TOC entry 6509 (class 1259 OID 17207)
+-- TOC entry 6904 (class 1259 OID 17207)
 -- Name: ix_refresh_tokens_token_user_id; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6964,7 +8451,7 @@ CREATE UNIQUE INDEX ix_refresh_tokens_token_user_id ON identity.refresh_tokens U
 
 
 --
--- TOC entry 6510 (class 1259 OID 17208)
+-- TOC entry 6905 (class 1259 OID 17208)
 -- Name: ix_refresh_tokens_user_id; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6972,7 +8459,7 @@ CREATE INDEX ix_refresh_tokens_user_id ON identity.refresh_tokens USING btree (u
 
 
 --
--- TOC entry 6637 (class 1259 OID 19727)
+-- TOC entry 7032 (class 1259 OID 19727)
 -- Name: ix_user_preferences_selected_city_location_id; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6980,7 +8467,7 @@ CREATE INDEX ix_user_preferences_selected_city_location_id ON identity.user_pref
 
 
 --
--- TOC entry 6638 (class 1259 OID 19726)
+-- TOC entry 7033 (class 1259 OID 19726)
 -- Name: ix_user_preferences_selected_country_location_id; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6988,7 +8475,7 @@ CREATE INDEX ix_user_preferences_selected_country_location_id ON identity.user_p
 
 
 --
--- TOC entry 6639 (class 1259 OID 19728)
+-- TOC entry 7034 (class 1259 OID 19728)
 -- Name: ix_user_preferences_selected_picked_location_id; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -6996,7 +8483,7 @@ CREATE INDEX ix_user_preferences_selected_picked_location_id ON identity.user_pr
 
 
 --
--- TOC entry 6493 (class 1259 OID 17209)
+-- TOC entry 6888 (class 1259 OID 17209)
 -- Name: outbox_message_consumers_message_id_name; Type: INDEX; Schema: identity; Owner: postgres
 --
 
@@ -7004,7 +8491,7 @@ CREATE INDEX outbox_message_consumers_message_id_name ON identity.outbox_message
 
 
 --
--- TOC entry 6664 (class 1259 OID 19846)
+-- TOC entry 7059 (class 1259 OID 19846)
 -- Name: ix_loyalty_customer_coupons_customer; Type: INDEX; Schema: loyalty; Owner: postgres
 --
 
@@ -7012,7 +8499,7 @@ CREATE INDEX ix_loyalty_customer_coupons_customer ON loyalty.customer_coupons US
 
 
 --
--- TOC entry 6650 (class 1259 OID 19782)
+-- TOC entry 7045 (class 1259 OID 19782)
 -- Name: ix_loyalty_ledger_customer_date; Type: INDEX; Schema: loyalty; Owner: postgres
 --
 
@@ -7020,7 +8507,7 @@ CREATE INDEX ix_loyalty_ledger_customer_date ON loyalty.ledger USING btree (cust
 
 
 --
--- TOC entry 6653 (class 1259 OID 19805)
+-- TOC entry 7048 (class 1259 OID 19805)
 -- Name: ix_loyalty_referrals_referrer; Type: INDEX; Schema: loyalty; Owner: postgres
 --
 
@@ -7028,7 +8515,7 @@ CREATE INDEX ix_loyalty_referrals_referrer ON loyalty.referrals USING btree (ref
 
 
 --
--- TOC entry 6547 (class 1259 OID 18512)
+-- TOC entry 6942 (class 1259 OID 18512)
 -- Name: idx_offers_active; Type: INDEX; Schema: marketing; Owner: postgres
 --
 
@@ -7036,7 +8523,7 @@ CREATE INDEX idx_offers_active ON marketing.offers USING btree (is_active, valid
 
 
 --
--- TOC entry 6548 (class 1259 OID 18516)
+-- TOC entry 6943 (class 1259 OID 18516)
 -- Name: idx_offers_provider_service; Type: INDEX; Schema: marketing; Owner: postgres
 --
 
@@ -7044,7 +8531,63 @@ CREATE INDEX idx_offers_provider_service ON marketing.offers USING btree (provid
 
 
 --
--- TOC entry 6622 (class 1259 OID 19637)
+-- TOC entry 7233 (class 1259 OID 21384)
+-- Name: ix_referral_codes_customer_program; Type: INDEX; Schema: marketing; Owner: postgres
+--
+
+CREATE INDEX ix_referral_codes_customer_program ON marketing.referral_codes USING btree (customer_id, program_id, is_active);
+
+
+--
+-- TOC entry 7240 (class 1259 OID 21386)
+-- Name: ix_referral_invitations_referee_customer; Type: INDEX; Schema: marketing; Owner: postgres
+--
+
+CREATE INDEX ix_referral_invitations_referee_customer ON marketing.referral_invitations USING btree (referee_customer_id);
+
+
+--
+-- TOC entry 7241 (class 1259 OID 21385)
+-- Name: ix_referral_invitations_referrer_program; Type: INDEX; Schema: marketing; Owner: postgres
+--
+
+CREATE INDEX ix_referral_invitations_referrer_program ON marketing.referral_invitations USING btree (referrer_customer_id, program_id, invited_at DESC);
+
+
+--
+-- TOC entry 7230 (class 1259 OID 21383)
+-- Name: ix_referral_reward_rules_program_sort; Type: INDEX; Schema: marketing; Owner: postgres
+--
+
+CREATE INDEX ix_referral_reward_rules_program_sort ON marketing.referral_reward_rules USING btree (program_id, sort_order, referral_ordinal);
+
+
+--
+-- TOC entry 7244 (class 1259 OID 21387)
+-- Name: ix_user_discount_coupons_customer_status_queue; Type: INDEX; Schema: marketing; Owner: postgres
+--
+
+CREATE INDEX ix_user_discount_coupons_customer_status_queue ON marketing.user_discount_coupons USING btree (customer_id, status, queue_position, issued_at);
+
+
+--
+-- TOC entry 7245 (class 1259 OID 21388)
+-- Name: ix_user_discount_coupons_program; Type: INDEX; Schema: marketing; Owner: postgres
+--
+
+CREATE INDEX ix_user_discount_coupons_program ON marketing.user_discount_coupons USING btree (program_id, issued_at DESC);
+
+
+--
+-- TOC entry 7250 (class 1259 OID 21389)
+-- Name: ux_user_discount_coupon_one_reserved_per_customer; Type: INDEX; Schema: marketing; Owner: postgres
+--
+
+CREATE UNIQUE INDEX ux_user_discount_coupon_one_reserved_per_customer ON marketing.user_discount_coupons USING btree (customer_id) WHERE (status = 'reserved'::marketing.user_coupon_status);
+
+
+--
+-- TOC entry 7017 (class 1259 OID 19637)
 -- Name: ix_media_library_create_date; Type: INDEX; Schema: media; Owner: postgres
 --
 
@@ -7052,7 +8595,7 @@ CREATE INDEX ix_media_library_create_date ON media.media_library USING btree (cr
 
 
 --
--- TOC entry 6623 (class 1259 OID 19642)
+-- TOC entry 7018 (class 1259 OID 19642)
 -- Name: ix_media_library_description_translations_gin; Type: INDEX; Schema: media; Owner: postgres
 --
 
@@ -7060,7 +8603,7 @@ CREATE INDEX ix_media_library_description_translations_gin ON media.media_librar
 
 
 --
--- TOC entry 6624 (class 1259 OID 19638)
+-- TOC entry 7019 (class 1259 OID 19638)
 -- Name: ix_media_library_is_public; Type: INDEX; Schema: media; Owner: postgres
 --
 
@@ -7068,7 +8611,7 @@ CREATE INDEX ix_media_library_is_public ON media.media_library USING btree (is_p
 
 
 --
--- TOC entry 6625 (class 1259 OID 19635)
+-- TOC entry 7020 (class 1259 OID 19635)
 -- Name: ix_media_library_media_type; Type: INDEX; Schema: media; Owner: postgres
 --
 
@@ -7076,7 +8619,7 @@ CREATE INDEX ix_media_library_media_type ON media.media_library USING btree (med
 
 
 --
--- TOC entry 6626 (class 1259 OID 19636)
+-- TOC entry 7021 (class 1259 OID 19636)
 -- Name: ix_media_library_mime_type; Type: INDEX; Schema: media; Owner: postgres
 --
 
@@ -7084,7 +8627,7 @@ CREATE INDEX ix_media_library_mime_type ON media.media_library USING btree (mime
 
 
 --
--- TOC entry 6627 (class 1259 OID 19639)
+-- TOC entry 7022 (class 1259 OID 19639)
 -- Name: ix_media_library_original_name; Type: INDEX; Schema: media; Owner: postgres
 --
 
@@ -7092,7 +8635,7 @@ CREATE INDEX ix_media_library_original_name ON media.media_library USING btree (
 
 
 --
--- TOC entry 6628 (class 1259 OID 19640)
+-- TOC entry 7023 (class 1259 OID 19640)
 -- Name: ix_media_library_stored_name; Type: INDEX; Schema: media; Owner: postgres
 --
 
@@ -7100,7 +8643,7 @@ CREATE INDEX ix_media_library_stored_name ON media.media_library USING btree (st
 
 
 --
--- TOC entry 6629 (class 1259 OID 19641)
+-- TOC entry 7024 (class 1259 OID 19641)
 -- Name: ix_media_library_title_translations_gin; Type: INDEX; Schema: media; Owner: postgres
 --
 
@@ -7108,7 +8651,7 @@ CREATE INDEX ix_media_library_title_translations_gin ON media.media_library USIN
 
 
 --
--- TOC entry 6632 (class 1259 OID 20092)
+-- TOC entry 7027 (class 1259 OID 20092)
 -- Name: ix_sponsered_slider_active_order; Type: INDEX; Schema: media; Owner: postgres
 --
 
@@ -7116,7 +8659,7 @@ CREATE INDEX ix_sponsered_slider_active_order ON media.sponsered_slider USING bt
 
 
 --
--- TOC entry 6703 (class 1259 OID 20162)
+-- TOC entry 7098 (class 1259 OID 20162)
 -- Name: ix_notify_deliveries_channel_status; Type: INDEX; Schema: notify; Owner: postgres
 --
 
@@ -7124,7 +8667,7 @@ CREATE INDEX ix_notify_deliveries_channel_status ON notify.notification_deliveri
 
 
 --
--- TOC entry 6704 (class 1259 OID 20161)
+-- TOC entry 7099 (class 1259 OID 20161)
 -- Name: ix_notify_deliveries_notification; Type: INDEX; Schema: notify; Owner: postgres
 --
 
@@ -7132,7 +8675,7 @@ CREATE INDEX ix_notify_deliveries_notification ON notify.notification_deliveries
 
 
 --
--- TOC entry 6698 (class 1259 OID 20158)
+-- TOC entry 7093 (class 1259 OID 20158)
 -- Name: ix_notify_notifications_customer_created; Type: INDEX; Schema: notify; Owner: postgres
 --
 
@@ -7140,7 +8683,7 @@ CREATE INDEX ix_notify_notifications_customer_created ON notify.notifications US
 
 
 --
--- TOC entry 6699 (class 1259 OID 20159)
+-- TOC entry 7094 (class 1259 OID 20159)
 -- Name: ix_notify_notifications_customer_read; Type: INDEX; Schema: notify; Owner: postgres
 --
 
@@ -7148,7 +8691,7 @@ CREATE INDEX ix_notify_notifications_customer_read ON notify.notifications USING
 
 
 --
--- TOC entry 6700 (class 1259 OID 20160)
+-- TOC entry 7095 (class 1259 OID 20160)
 -- Name: ix_notify_notifications_type; Type: INDEX; Schema: notify; Owner: postgres
 --
 
@@ -7156,7 +8699,95 @@ CREATE INDEX ix_notify_notifications_type ON notify.notifications USING btree (n
 
 
 --
--- TOC entry 6513 (class 1259 OID 17210)
+-- TOC entry 7267 (class 1259 OID 21922)
+-- Name: ix_form_definitions_scope; Type: INDEX; Schema: provider_portal; Owner: postgres
+--
+
+CREATE INDEX ix_form_definitions_scope ON provider_portal.form_definitions USING btree (scope, is_active, provider_type_id, code);
+
+
+--
+-- TOC entry 7277 (class 1259 OID 21972)
+-- Name: ix_form_field_options_lookup; Type: INDEX; Schema: provider_portal; Owner: postgres
+--
+
+CREATE INDEX ix_form_field_options_lookup ON provider_portal.form_field_options USING btree (form_field_id, is_enabled, sort_order, option_value);
+
+
+--
+-- TOC entry 7272 (class 1259 OID 21952)
+-- Name: ix_form_fields_lookup; Type: INDEX; Schema: provider_portal; Owner: postgres
+--
+
+CREATE INDEX ix_form_fields_lookup ON provider_portal.form_fields USING btree (form_definition_id, is_enabled, sort_order, field_key);
+
+
+--
+-- TOC entry 7284 (class 1259 OID 22052)
+-- Name: ix_onboarding_applications_provider_type; Type: INDEX; Schema: provider_portal; Owner: postgres
+--
+
+CREATE INDEX ix_onboarding_applications_provider_type ON provider_portal.onboarding_applications USING btree (provider_type_id, status, last_modified_date DESC);
+
+
+--
+-- TOC entry 7285 (class 1259 OID 22051)
+-- Name: ix_onboarding_applications_user_status; Type: INDEX; Schema: provider_portal; Owner: postgres
+--
+
+CREATE INDEX ix_onboarding_applications_user_status ON provider_portal.onboarding_applications USING btree (applicant_user_id, status, last_modified_date DESC);
+
+
+--
+-- TOC entry 7290 (class 1259 OID 22073)
+-- Name: ix_onboarding_documents_application; Type: INDEX; Schema: provider_portal; Owner: postgres
+--
+
+CREATE INDEX ix_onboarding_documents_application ON provider_portal.onboarding_documents USING btree (application_id, document_kind);
+
+
+--
+-- TOC entry 7258 (class 1259 OID 21899)
+-- Name: ix_portal_sections_lookup; Type: INDEX; Schema: provider_portal; Owner: postgres
+--
+
+CREATE INDEX ix_portal_sections_lookup ON provider_portal.portal_sections USING btree (provider_type_id, is_enabled, sort_order, section_key);
+
+
+--
+-- TOC entry 7278 (class 1259 OID 21999)
+-- Name: ix_provider_members_provider; Type: INDEX; Schema: provider_portal; Owner: postgres
+--
+
+CREATE INDEX ix_provider_members_provider ON provider_portal.provider_members USING btree (service_provider_id, role);
+
+
+--
+-- TOC entry 7279 (class 1259 OID 21998)
+-- Name: ix_provider_members_user; Type: INDEX; Schema: provider_portal; Owner: postgres
+--
+
+CREATE INDEX ix_provider_members_user ON provider_portal.provider_members USING btree (user_id, role);
+
+
+--
+-- TOC entry 7253 (class 1259 OID 21875)
+-- Name: ix_provider_type_catalog_sort; Type: INDEX; Schema: provider_portal; Owner: postgres
+--
+
+CREATE INDEX ix_provider_type_catalog_sort ON provider_portal.provider_type_catalog USING btree (is_enabled, sort_order, code);
+
+
+--
+-- TOC entry 7299 (class 1259 OID 22145)
+-- Name: ix_support_tickets_provider; Type: INDEX; Schema: provider_portal; Owner: postgres
+--
+
+CREATE INDEX ix_support_tickets_provider ON provider_portal.support_tickets USING btree (service_provider_id, status, last_modified_date DESC);
+
+
+--
+-- TOC entry 6908 (class 1259 OID 17210)
 -- Name: ix_translation_audit_lookup; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -7164,7 +8795,7 @@ CREATE INDEX ix_translation_audit_lookup ON public.translation_audit USING btree
 
 
 --
--- TOC entry 6542 (class 1259 OID 18519)
+-- TOC entry 6937 (class 1259 OID 18519)
 -- Name: idx_search_history_category; Type: INDEX; Schema: search; Owner: postgres
 --
 
@@ -7172,7 +8803,7 @@ CREATE INDEX idx_search_history_category ON search.user_search_history USING btr
 
 
 --
--- TOC entry 6543 (class 1259 OID 18518)
+-- TOC entry 6938 (class 1259 OID 18518)
 -- Name: idx_search_history_term; Type: INDEX; Schema: search; Owner: postgres
 --
 
@@ -7180,7 +8811,7 @@ CREATE INDEX idx_search_history_term ON search.user_search_history USING btree (
 
 
 --
--- TOC entry 6544 (class 1259 OID 18517)
+-- TOC entry 6939 (class 1259 OID 18517)
 -- Name: idx_search_history_user; Type: INDEX; Schema: search; Owner: postgres
 --
 
@@ -7188,7 +8819,7 @@ CREATE INDEX idx_search_history_user ON search.user_search_history USING btree (
 
 
 --
--- TOC entry 6715 (class 1259 OID 21159)
+-- TOC entry 7110 (class 1259 OID 21159)
 -- Name: ix_shop_categories_parent; Type: INDEX; Schema: shop; Owner: postgres
 --
 
@@ -7196,7 +8827,7 @@ CREATE INDEX ix_shop_categories_parent ON shop.categories USING btree (parent_id
 
 
 --
--- TOC entry 6757 (class 1259 OID 21162)
+-- TOC entry 7152 (class 1259 OID 21162)
 -- Name: ix_shop_inventory_warehouse; Type: INDEX; Schema: shop; Owner: postgres
 --
 
@@ -7204,7 +8835,7 @@ CREATE INDEX ix_shop_inventory_warehouse ON shop.inventory USING btree (warehous
 
 
 --
--- TOC entry 6788 (class 1259 OID 21163)
+-- TOC entry 7183 (class 1259 OID 21163)
 -- Name: ix_shop_orders_customer; Type: INDEX; Schema: shop; Owner: postgres
 --
 
@@ -7212,7 +8843,7 @@ CREATE INDEX ix_shop_orders_customer ON shop.orders USING btree (customer_id, pl
 
 
 --
--- TOC entry 6789 (class 1259 OID 21164)
+-- TOC entry 7184 (class 1259 OID 21164)
 -- Name: ix_shop_orders_status; Type: INDEX; Schema: shop; Owner: postgres
 --
 
@@ -7220,7 +8851,7 @@ CREATE INDEX ix_shop_orders_status ON shop.orders USING btree (status, payment_s
 
 
 --
--- TOC entry 6727 (class 1259 OID 21160)
+-- TOC entry 7122 (class 1259 OID 21160)
 -- Name: ix_shop_product_media_product; Type: INDEX; Schema: shop; Owner: postgres
 --
 
@@ -7228,7 +8859,7 @@ CREATE INDEX ix_shop_product_media_product ON shop.product_media USING btree (pr
 
 
 --
--- TOC entry 6716 (class 1259 OID 21156)
+-- TOC entry 7111 (class 1259 OID 21156)
 -- Name: ix_shop_products_brand; Type: INDEX; Schema: shop; Owner: postgres
 --
 
@@ -7236,7 +8867,7 @@ CREATE INDEX ix_shop_products_brand ON shop.products USING btree (brand_id);
 
 
 --
--- TOC entry 6717 (class 1259 OID 21157)
+-- TOC entry 7112 (class 1259 OID 21157)
 -- Name: ix_shop_products_featured; Type: INDEX; Schema: shop; Owner: postgres
 --
 
@@ -7244,7 +8875,7 @@ CREATE INDEX ix_shop_products_featured ON shop.products USING btree (is_featured
 
 
 --
--- TOC entry 6718 (class 1259 OID 21158)
+-- TOC entry 7113 (class 1259 OID 21158)
 -- Name: ix_shop_products_search; Type: INDEX; Schema: shop; Owner: postgres
 --
 
@@ -7252,7 +8883,7 @@ CREATE INDEX ix_shop_products_search ON shop.products USING gin (search_vector);
 
 
 --
--- TOC entry 6719 (class 1259 OID 21155)
+-- TOC entry 7114 (class 1259 OID 21155)
 -- Name: ix_shop_products_status; Type: INDEX; Schema: shop; Owner: postgres
 --
 
@@ -7260,7 +8891,7 @@ CREATE INDEX ix_shop_products_status ON shop.products USING btree (status, publi
 
 
 --
--- TOC entry 6820 (class 1259 OID 21165)
+-- TOC entry 7215 (class 1259 OID 21165)
 -- Name: ix_shop_reviews_product_status; Type: INDEX; Schema: shop; Owner: postgres
 --
 
@@ -7268,7 +8899,7 @@ CREATE INDEX ix_shop_reviews_product_status ON shop.product_reviews USING btree 
 
 
 --
--- TOC entry 6740 (class 1259 OID 21161)
+-- TOC entry 7135 (class 1259 OID 21161)
 -- Name: ix_shop_variants_product; Type: INDEX; Schema: shop; Owner: postgres
 --
 
@@ -7276,7 +8907,7 @@ CREATE INDEX ix_shop_variants_product ON shop.product_variants USING btree (prod
 
 
 --
--- TOC entry 6726 (class 1259 OID 20430)
+-- TOC entry 7121 (class 1259 OID 20430)
 -- Name: ux_shop_product_categories_primary; Type: INDEX; Schema: shop; Owner: postgres
 --
 
@@ -7284,7 +8915,95 @@ CREATE UNIQUE INDEX ux_shop_product_categories_primary ON shop.product_categorie
 
 
 --
--- TOC entry 6992 (class 2620 OID 19644)
+-- TOC entry 7588 (class 2620 OID 22610)
+-- Name: booking_child_bookings trg_booking_children_lmd; Type: TRIGGER; Schema: booking; Owner: postgres
+--
+
+CREATE TRIGGER trg_booking_children_lmd BEFORE UPDATE ON booking.booking_child_bookings FOR EACH ROW EXECUTE FUNCTION booking.set_last_modified_date();
+
+
+--
+-- TOC entry 7587 (class 2620 OID 22609)
+-- Name: booking_draft_child_bookings trg_booking_draft_children_lmd; Type: TRIGGER; Schema: booking; Owner: postgres
+--
+
+CREATE TRIGGER trg_booking_draft_children_lmd BEFORE UPDATE ON booking.booking_draft_child_bookings FOR EACH ROW EXECUTE FUNCTION booking.set_last_modified_date();
+
+
+--
+-- TOC entry 7576 (class 2620 OID 22608)
+-- Name: booking_drafts trg_booking_drafts_lmd; Type: TRIGGER; Schema: booking; Owner: postgres
+--
+
+CREATE TRIGGER trg_booking_drafts_lmd BEFORE UPDATE ON booking.booking_drafts FOR EACH ROW EXECUTE FUNCTION booking.set_last_modified_date();
+
+
+--
+-- TOC entry 7584 (class 2620 OID 22617)
+-- Name: field_conditions trg_form_builder_conditions_lmd; Type: TRIGGER; Schema: form_builder; Owner: postgres
+--
+
+CREATE TRIGGER trg_form_builder_conditions_lmd BEFORE UPDATE ON form_builder.field_conditions FOR EACH ROW EXECUTE FUNCTION form_builder.set_last_modified_date();
+
+
+--
+-- TOC entry 7582 (class 2620 OID 22615)
+-- Name: form_fields trg_form_builder_fields_lmd; Type: TRIGGER; Schema: form_builder; Owner: postgres
+--
+
+CREATE TRIGGER trg_form_builder_fields_lmd BEFORE UPDATE ON form_builder.form_fields FOR EACH ROW EXECUTE FUNCTION form_builder.set_last_modified_date();
+
+
+--
+-- TOC entry 7579 (class 2620 OID 22612)
+-- Name: forms trg_form_builder_forms_lmd; Type: TRIGGER; Schema: form_builder; Owner: postgres
+--
+
+CREATE TRIGGER trg_form_builder_forms_lmd BEFORE UPDATE ON form_builder.forms FOR EACH ROW EXECUTE FUNCTION form_builder.set_last_modified_date();
+
+
+--
+-- TOC entry 7583 (class 2620 OID 22616)
+-- Name: field_options trg_form_builder_options_lmd; Type: TRIGGER; Schema: form_builder; Owner: postgres
+--
+
+CREATE TRIGGER trg_form_builder_options_lmd BEFORE UPDATE ON form_builder.field_options FOR EACH ROW EXECUTE FUNCTION form_builder.set_last_modified_date();
+
+
+--
+-- TOC entry 7585 (class 2620 OID 22618)
+-- Name: service_definition_forms trg_form_builder_sdf_lmd; Type: TRIGGER; Schema: form_builder; Owner: postgres
+--
+
+CREATE TRIGGER trg_form_builder_sdf_lmd BEFORE UPDATE ON form_builder.service_definition_forms FOR EACH ROW EXECUTE FUNCTION form_builder.set_last_modified_date();
+
+
+--
+-- TOC entry 7581 (class 2620 OID 22614)
+-- Name: form_sections trg_form_builder_sections_lmd; Type: TRIGGER; Schema: form_builder; Owner: postgres
+--
+
+CREATE TRIGGER trg_form_builder_sections_lmd BEFORE UPDATE ON form_builder.form_sections FOR EACH ROW EXECUTE FUNCTION form_builder.set_last_modified_date();
+
+
+--
+-- TOC entry 7586 (class 2620 OID 22619)
+-- Name: submissions trg_form_builder_submissions_lmd; Type: TRIGGER; Schema: form_builder; Owner: postgres
+--
+
+CREATE TRIGGER trg_form_builder_submissions_lmd BEFORE UPDATE ON form_builder.submissions FOR EACH ROW EXECUTE FUNCTION form_builder.set_last_modified_date();
+
+
+--
+-- TOC entry 7580 (class 2620 OID 22613)
+-- Name: form_versions trg_form_builder_versions_lmd; Type: TRIGGER; Schema: form_builder; Owner: postgres
+--
+
+CREATE TRIGGER trg_form_builder_versions_lmd BEFORE UPDATE ON form_builder.form_versions FOR EACH ROW EXECUTE FUNCTION form_builder.set_last_modified_date();
+
+
+--
+-- TOC entry 7575 (class 2620 OID 19644)
 -- Name: media_library trg_media_library_last_modified_date; Type: TRIGGER; Schema: media; Owner: postgres
 --
 
@@ -7292,7 +9011,7 @@ CREATE TRIGGER trg_media_library_last_modified_date BEFORE UPDATE ON media.media
 
 
 --
--- TOC entry 6994 (class 2620 OID 20165)
+-- TOC entry 7578 (class 2620 OID 20165)
 -- Name: notification_deliveries trg_notify_notification_deliveries_updated_at; Type: TRIGGER; Schema: notify; Owner: postgres
 --
 
@@ -7300,7 +9019,7 @@ CREATE TRIGGER trg_notify_notification_deliveries_updated_at BEFORE UPDATE ON no
 
 
 --
--- TOC entry 6993 (class 2620 OID 20164)
+-- TOC entry 7577 (class 2620 OID 20164)
 -- Name: notifications trg_notify_notifications_updated_at; Type: TRIGGER; Schema: notify; Owner: postgres
 --
 
@@ -7308,7 +9027,7 @@ CREATE TRIGGER trg_notify_notifications_updated_at BEFORE UPDATE ON notify.notif
 
 
 --
--- TOC entry 6896 (class 2606 OID 19584)
+-- TOC entry 7413 (class 2606 OID 19584)
 -- Name: role_table_permissions role_table_permissions_role_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: postgres
 --
 
@@ -7317,7 +9036,7 @@ ALTER TABLE ONLY auth.role_table_permissions
 
 
 --
--- TOC entry 6894 (class 2606 OID 19590)
+-- TOC entry 7411 (class 2606 OID 19590)
 -- Name: user_roles userId; Type: FK CONSTRAINT; Schema: auth; Owner: postgres
 --
 
@@ -7326,7 +9045,7 @@ ALTER TABLE ONLY auth.user_roles
 
 
 --
--- TOC entry 6895 (class 2606 OID 19565)
+-- TOC entry 7412 (class 2606 OID 19565)
 -- Name: user_roles user_roles_role_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: postgres
 --
 
@@ -7335,7 +9054,7 @@ ALTER TABLE ONLY auth.user_roles
 
 
 --
--- TOC entry 6925 (class 2606 OID 20049)
+-- TOC entry 7442 (class 2606 OID 20049)
 -- Name: booking_addons booking_addons_addon_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
 --
 
@@ -7344,7 +9063,7 @@ ALTER TABLE ONLY booking.booking_addons
 
 
 --
--- TOC entry 6926 (class 2606 OID 20044)
+-- TOC entry 7443 (class 2606 OID 20044)
 -- Name: booking_addons booking_addons_booking_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
 --
 
@@ -7353,7 +9072,61 @@ ALTER TABLE ONLY booking.booking_addons
 
 
 --
--- TOC entry 6927 (class 2606 OID 20064)
+-- TOC entry 7567 (class 2606 OID 22602)
+-- Name: booking_child_bookings booking_child_bookings_form_submission_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
+--
+
+ALTER TABLE ONLY booking.booking_child_bookings
+    ADD CONSTRAINT booking_child_bookings_form_submission_id_fkey FOREIGN KEY (form_submission_id) REFERENCES form_builder.submissions(id) ON DELETE SET NULL;
+
+
+--
+-- TOC entry 7568 (class 2606 OID 22577)
+-- Name: booking_child_bookings booking_child_bookings_parent_booking_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
+--
+
+ALTER TABLE ONLY booking.booking_child_bookings
+    ADD CONSTRAINT booking_child_bookings_parent_booking_id_fkey FOREIGN KEY (parent_booking_id) REFERENCES booking.bookings(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7569 (class 2606 OID 22587)
+-- Name: booking_child_bookings booking_child_bookings_provider_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
+--
+
+ALTER TABLE ONLY booking.booking_child_bookings
+    ADD CONSTRAINT booking_child_bookings_provider_id_fkey FOREIGN KEY (provider_id) REFERENCES category.service_providers(id) ON DELETE RESTRICT;
+
+
+--
+-- TOC entry 7570 (class 2606 OID 22582)
+-- Name: booking_child_bookings booking_child_bookings_provider_type_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
+--
+
+ALTER TABLE ONLY booking.booking_child_bookings
+    ADD CONSTRAINT booking_child_bookings_provider_type_id_fkey FOREIGN KEY (provider_type_id) REFERENCES category.provider_types(id) ON DELETE RESTRICT;
+
+
+--
+-- TOC entry 7571 (class 2606 OID 22592)
+-- Name: booking_child_bookings booking_child_bookings_service_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
+--
+
+ALTER TABLE ONLY booking.booking_child_bookings
+    ADD CONSTRAINT booking_child_bookings_service_id_fkey FOREIGN KEY (service_id) REFERENCES category.provider_services(id) ON DELETE RESTRICT;
+
+
+--
+-- TOC entry 7572 (class 2606 OID 22597)
+-- Name: booking_child_bookings booking_child_bookings_specialist_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
+--
+
+ALTER TABLE ONLY booking.booking_child_bookings
+    ADD CONSTRAINT booking_child_bookings_specialist_id_fkey FOREIGN KEY (specialist_id) REFERENCES category.staff(id) ON DELETE RESTRICT;
+
+
+--
+-- TOC entry 7444 (class 2606 OID 20064)
 -- Name: booking_documents booking_documents_booking_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
 --
 
@@ -7362,7 +9135,7 @@ ALTER TABLE ONLY booking.booking_documents
 
 
 --
--- TOC entry 6922 (class 2606 OID 20012)
+-- TOC entry 7439 (class 2606 OID 20012)
 -- Name: booking_draft_addons booking_draft_addons_addon_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
 --
 
@@ -7371,7 +9144,7 @@ ALTER TABLE ONLY booking.booking_draft_addons
 
 
 --
--- TOC entry 6923 (class 2606 OID 20007)
+-- TOC entry 7440 (class 2606 OID 20007)
 -- Name: booking_draft_addons booking_draft_addons_draft_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
 --
 
@@ -7380,7 +9153,61 @@ ALTER TABLE ONLY booking.booking_draft_addons
 
 
 --
--- TOC entry 6924 (class 2606 OID 20026)
+-- TOC entry 7561 (class 2606 OID 22554)
+-- Name: booking_draft_child_bookings booking_draft_child_bookings_form_submission_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
+--
+
+ALTER TABLE ONLY booking.booking_draft_child_bookings
+    ADD CONSTRAINT booking_draft_child_bookings_form_submission_id_fkey FOREIGN KEY (form_submission_id) REFERENCES form_builder.submissions(id) ON DELETE SET NULL;
+
+
+--
+-- TOC entry 7562 (class 2606 OID 22529)
+-- Name: booking_draft_child_bookings booking_draft_child_bookings_parent_draft_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
+--
+
+ALTER TABLE ONLY booking.booking_draft_child_bookings
+    ADD CONSTRAINT booking_draft_child_bookings_parent_draft_id_fkey FOREIGN KEY (parent_draft_id) REFERENCES booking.booking_drafts(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7563 (class 2606 OID 22539)
+-- Name: booking_draft_child_bookings booking_draft_child_bookings_provider_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
+--
+
+ALTER TABLE ONLY booking.booking_draft_child_bookings
+    ADD CONSTRAINT booking_draft_child_bookings_provider_id_fkey FOREIGN KEY (provider_id) REFERENCES category.service_providers(id) ON DELETE RESTRICT;
+
+
+--
+-- TOC entry 7564 (class 2606 OID 22534)
+-- Name: booking_draft_child_bookings booking_draft_child_bookings_provider_type_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
+--
+
+ALTER TABLE ONLY booking.booking_draft_child_bookings
+    ADD CONSTRAINT booking_draft_child_bookings_provider_type_id_fkey FOREIGN KEY (provider_type_id) REFERENCES category.provider_types(id) ON DELETE RESTRICT;
+
+
+--
+-- TOC entry 7565 (class 2606 OID 22544)
+-- Name: booking_draft_child_bookings booking_draft_child_bookings_service_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
+--
+
+ALTER TABLE ONLY booking.booking_draft_child_bookings
+    ADD CONSTRAINT booking_draft_child_bookings_service_id_fkey FOREIGN KEY (service_id) REFERENCES category.provider_services(id) ON DELETE RESTRICT;
+
+
+--
+-- TOC entry 7566 (class 2606 OID 22549)
+-- Name: booking_draft_child_bookings booking_draft_child_bookings_specialist_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
+--
+
+ALTER TABLE ONLY booking.booking_draft_child_bookings
+    ADD CONSTRAINT booking_draft_child_bookings_specialist_id_fkey FOREIGN KEY (specialist_id) REFERENCES category.staff(id) ON DELETE RESTRICT;
+
+
+--
+-- TOC entry 7441 (class 2606 OID 20026)
 -- Name: booking_draft_documents booking_draft_documents_draft_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
 --
 
@@ -7389,7 +9216,7 @@ ALTER TABLE ONLY booking.booking_draft_documents
 
 
 --
--- TOC entry 6919 (class 2606 OID 19979)
+-- TOC entry 7436 (class 2606 OID 19979)
 -- Name: booking_drafts booking_drafts_provider_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
 --
 
@@ -7398,7 +9225,7 @@ ALTER TABLE ONLY booking.booking_drafts
 
 
 --
--- TOC entry 6920 (class 2606 OID 19984)
+-- TOC entry 7437 (class 2606 OID 19984)
 -- Name: booking_drafts booking_drafts_service_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
 --
 
@@ -7407,7 +9234,7 @@ ALTER TABLE ONLY booking.booking_drafts
 
 
 --
--- TOC entry 6921 (class 2606 OID 19989)
+-- TOC entry 7438 (class 2606 OID 19989)
 -- Name: booking_drafts booking_drafts_specialist_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
 --
 
@@ -7416,7 +9243,16 @@ ALTER TABLE ONLY booking.booking_drafts
 
 
 --
--- TOC entry 6874 (class 2606 OID 19280)
+-- TOC entry 7389 (class 2606 OID 22453)
+-- Name: bookings bookings_form_submission_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
+--
+
+ALTER TABLE ONLY booking.bookings
+    ADD CONSTRAINT bookings_form_submission_id_fkey FOREIGN KEY (form_submission_id) REFERENCES form_builder.submissions(id) ON DELETE SET NULL;
+
+
+--
+-- TOC entry 7390 (class 2606 OID 19280)
 -- Name: bookings fk_booking_bookings_provider_services_service_id; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
 --
 
@@ -7425,7 +9261,7 @@ ALTER TABLE ONLY booking.bookings
 
 
 --
--- TOC entry 6875 (class 2606 OID 19275)
+-- TOC entry 7391 (class 2606 OID 19275)
 -- Name: bookings fk_booking_bookings_service_providers_provider_id; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
 --
 
@@ -7434,7 +9270,7 @@ ALTER TABLE ONLY booking.bookings
 
 
 --
--- TOC entry 6876 (class 2606 OID 19285)
+-- TOC entry 7392 (class 2606 OID 19285)
 -- Name: bookings fk_booking_bookings_staff_specialist_id; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
 --
 
@@ -7443,7 +9279,16 @@ ALTER TABLE ONLY booking.bookings
 
 
 --
--- TOC entry 6877 (class 2606 OID 19947)
+-- TOC entry 7393 (class 2606 OID 21390)
+-- Name: bookings fk_bookings_applied_coupon; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
+--
+
+ALTER TABLE ONLY booking.bookings
+    ADD CONSTRAINT fk_bookings_applied_coupon FOREIGN KEY (applied_coupon_id) REFERENCES marketing.user_discount_coupons(id);
+
+
+--
+-- TOC entry 7394 (class 2606 OID 19947)
 -- Name: bookings fk_bookings_wallet_payment_intent; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
 --
 
@@ -7452,7 +9297,7 @@ ALTER TABLE ONLY booking.bookings
 
 
 --
--- TOC entry 6928 (class 2606 OID 20083)
+-- TOC entry 7445 (class 2606 OID 20083)
 -- Name: payments payments_booking_id_fkey; Type: FK CONSTRAINT; Schema: booking; Owner: postgres
 --
 
@@ -7461,7 +9306,7 @@ ALTER TABLE ONLY booking.payments
 
 
 --
--- TOC entry 6897 (class 2606 OID 19646)
+-- TOC entry 7414 (class 2606 OID 19646)
 -- Name: picked_locations LocationId; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7470,7 +9315,7 @@ ALTER TABLE ONLY category.picked_locations
 
 
 --
--- TOC entry 6831 (class 2606 OID 18398)
+-- TOC entry 7346 (class 2606 OID 18398)
 -- Name: categories categories_group_id_fkey; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7479,7 +9324,7 @@ ALTER TABLE ONLY category.categories
 
 
 --
--- TOC entry 6879 (class 2606 OID 18551)
+-- TOC entry 7396 (class 2606 OID 18551)
 -- Name: addon_details fk_addon_details_addons; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7488,7 +9333,7 @@ ALTER TABLE ONLY category.addon_details
 
 
 --
--- TOC entry 6832 (class 2606 OID 17211)
+-- TOC entry 7347 (class 2606 OID 17211)
 -- Name: categories fk_categories_categories_parent_id; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7497,7 +9342,7 @@ ALTER TABLE ONLY category.categories
 
 
 --
--- TOC entry 6833 (class 2606 OID 17216)
+-- TOC entry 7348 (class 2606 OID 17216)
 -- Name: locations fk_locations_location_type_location_type_id; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7506,7 +9351,7 @@ ALTER TABLE ONLY category.locations
 
 
 --
--- TOC entry 6834 (class 2606 OID 17221)
+-- TOC entry 7349 (class 2606 OID 17221)
 -- Name: locations fk_locations_locations_parent_id; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7515,7 +9360,7 @@ ALTER TABLE ONLY category.locations
 
 
 --
--- TOC entry 6835 (class 2606 OID 17226)
+-- TOC entry 7350 (class 2606 OID 17226)
 -- Name: provider_attribute_definition_domain_options fk_provider_attribute_definition_domain_options_provider_attri; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7524,7 +9369,7 @@ ALTER TABLE ONLY category.provider_attribute_definition_domain_options
 
 
 --
--- TOC entry 6836 (class 2606 OID 17231)
+-- TOC entry 7351 (class 2606 OID 17231)
 -- Name: provider_attribute_definitions fk_provider_attribute_definitions_attribute_types_attribute_ty; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7533,7 +9378,7 @@ ALTER TABLE ONLY category.provider_attribute_definitions
 
 
 --
--- TOC entry 6837 (class 2606 OID 17236)
+-- TOC entry 7352 (class 2606 OID 17236)
 -- Name: provider_attribute_definitions fk_provider_attribute_definitions_provider_types_provider_type; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7542,7 +9387,7 @@ ALTER TABLE ONLY category.provider_attribute_definitions
 
 
 --
--- TOC entry 6838 (class 2606 OID 17241)
+-- TOC entry 7353 (class 2606 OID 17241)
 -- Name: provider_attributes fk_provider_attributes_service_providers_service_provider_id; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7551,7 +9396,7 @@ ALTER TABLE ONLY category.provider_attributes
 
 
 --
--- TOC entry 6839 (class 2606 OID 17246)
+-- TOC entry 7354 (class 2606 OID 17246)
 -- Name: provider_gallery_items fk_provider_gallery_items_service_providers_service_provider_id; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7560,7 +9405,7 @@ ALTER TABLE ONLY category.provider_gallery_items
 
 
 --
--- TOC entry 6891 (class 2606 OID 19476)
+-- TOC entry 7408 (class 2606 OID 19476)
 -- Name: provider_languages fk_provider_languages_service_provider; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7569,7 +9414,7 @@ ALTER TABLE ONLY category.provider_languages
 
 
 --
--- TOC entry 6840 (class 2606 OID 17251)
+-- TOC entry 7355 (class 2606 OID 17251)
 -- Name: provider_policies fk_provider_policies_service_providers_service_provider_id; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7578,7 +9423,7 @@ ALTER TABLE ONLY category.provider_policies
 
 
 --
--- TOC entry 6893 (class 2606 OID 19520)
+-- TOC entry 7410 (class 2606 OID 19520)
 -- Name: provider_service_gallery_items fk_provider_service_gallery_items_provider_service; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7587,7 +9432,7 @@ ALTER TABLE ONLY category.provider_service_gallery_items
 
 
 --
--- TOC entry 6841 (class 2606 OID 17256)
+-- TOC entry 7356 (class 2606 OID 17256)
 -- Name: provider_services fk_provider_services_service_definitions_service_definition_id; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7596,7 +9441,7 @@ ALTER TABLE ONLY category.provider_services
 
 
 --
--- TOC entry 6842 (class 2606 OID 17261)
+-- TOC entry 7357 (class 2606 OID 17261)
 -- Name: provider_services fk_provider_services_service_providers_service_provider_id; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7605,7 +9450,7 @@ ALTER TABLE ONLY category.provider_services
 
 
 --
--- TOC entry 6843 (class 2606 OID 17266)
+-- TOC entry 7358 (class 2606 OID 17266)
 -- Name: provider_staffs fk_provider_staffs_service_providers_service_provider_id; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7614,7 +9459,7 @@ ALTER TABLE ONLY category.provider_staffs
 
 
 --
--- TOC entry 6844 (class 2606 OID 17271)
+-- TOC entry 7359 (class 2606 OID 17271)
 -- Name: provider_staffs fk_provider_staffs_staffs_staff_id; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7623,7 +9468,7 @@ ALTER TABLE ONLY category.provider_staffs
 
 
 --
--- TOC entry 6880 (class 2606 OID 18568)
+-- TOC entry 7397 (class 2606 OID 18568)
 -- Name: provider_service_addons fk_psa_addons; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7632,7 +9477,7 @@ ALTER TABLE ONLY category.provider_service_addons
 
 
 --
--- TOC entry 6881 (class 2606 OID 18563)
+-- TOC entry 7398 (class 2606 OID 18563)
 -- Name: provider_service_addons fk_psa_provider_services; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7641,7 +9486,7 @@ ALTER TABLE ONLY category.provider_service_addons
 
 
 --
--- TOC entry 6873 (class 2606 OID 19461)
+-- TOC entry 7388 (class 2606 OID 19461)
 -- Name: review_images fk_review_images_service_provider_comments_review_id; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7650,7 +9495,7 @@ ALTER TABLE ONLY category.review_images
 
 
 --
--- TOC entry 6845 (class 2606 OID 17276)
+-- TOC entry 7360 (class 2606 OID 17276)
 -- Name: service_attribute_definition_options fk_service_attribute_definition_options_service_attribute_defi; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7659,7 +9504,7 @@ ALTER TABLE ONLY category.service_attribute_definition_options
 
 
 --
--- TOC entry 6846 (class 2606 OID 17281)
+-- TOC entry 7361 (class 2606 OID 17281)
 -- Name: service_attribute_definitions fk_service_attribute_definitions_attribute_types_attribute_typ; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7668,7 +9513,7 @@ ALTER TABLE ONLY category.service_attribute_definitions
 
 
 --
--- TOC entry 6847 (class 2606 OID 17286)
+-- TOC entry 7362 (class 2606 OID 17286)
 -- Name: service_attribute_definitions fk_service_attribute_definitions_service_definitions_service_d; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7677,7 +9522,7 @@ ALTER TABLE ONLY category.service_attribute_definitions
 
 
 --
--- TOC entry 6848 (class 2606 OID 17291)
+-- TOC entry 7363 (class 2606 OID 17291)
 -- Name: service_attribute_values fk_service_attribute_values_provider_services_provider_service; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7686,7 +9531,7 @@ ALTER TABLE ONLY category.service_attribute_values
 
 
 --
--- TOC entry 6849 (class 2606 OID 17296)
+-- TOC entry 7364 (class 2606 OID 17296)
 -- Name: service_definition_domain_requirements fk_service_definition_domain_requirements_service_definitions_; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7695,7 +9540,7 @@ ALTER TABLE ONLY category.service_definition_domain_requirements
 
 
 --
--- TOC entry 6850 (class 2606 OID 17301)
+-- TOC entry 7365 (class 2606 OID 17301)
 -- Name: service_definitions fk_service_definitions_categories_category_id; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7704,7 +9549,7 @@ ALTER TABLE ONLY category.service_definitions
 
 
 --
--- TOC entry 6851 (class 2606 OID 17306)
+-- TOC entry 7366 (class 2606 OID 17306)
 -- Name: service_provider_comments fk_service_provider_comments_service_providers_service_provide; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7713,7 +9558,7 @@ ALTER TABLE ONLY category.service_provider_comments
 
 
 --
--- TOC entry 6852 (class 2606 OID 17311)
+-- TOC entry 7367 (class 2606 OID 17311)
 -- Name: service_provider_requests fk_service_provider_requests_service_provider_request_statuses; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7722,7 +9567,7 @@ ALTER TABLE ONLY category.service_provider_requests
 
 
 --
--- TOC entry 6853 (class 2606 OID 17316)
+-- TOC entry 7368 (class 2606 OID 17316)
 -- Name: service_provider_requests fk_service_provider_requests_service_providers_service_provide; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7731,7 +9576,7 @@ ALTER TABLE ONLY category.service_provider_requests
 
 
 --
--- TOC entry 6854 (class 2606 OID 17321)
+-- TOC entry 7369 (class 2606 OID 17321)
 -- Name: service_providers fk_service_providers_provider_types_provider_type_id; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7740,7 +9585,7 @@ ALTER TABLE ONLY category.service_providers
 
 
 --
--- TOC entry 6855 (class 2606 OID 17326)
+-- TOC entry 7370 (class 2606 OID 17326)
 -- Name: service_providers fk_service_providers_service_provider_grades_grade_id; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7749,7 +9594,7 @@ ALTER TABLE ONLY category.service_providers
 
 
 --
--- TOC entry 6884 (class 2606 OID 19356)
+-- TOC entry 7401 (class 2606 OID 19356)
 -- Name: service_upload_file_requirements fk_service_upload_file_requirements_service_definition; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7758,7 +9603,7 @@ ALTER TABLE ONLY category.service_upload_file_requirements
 
 
 --
--- TOC entry 6889 (class 2606 OID 19436)
+-- TOC entry 7406 (class 2606 OID 19436)
 -- Name: staff_achievements fk_staff_achievements_staff; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7767,7 +9612,7 @@ ALTER TABLE ONLY category.staff_achievements
 
 
 --
--- TOC entry 6856 (class 2606 OID 17331)
+-- TOC entry 7371 (class 2606 OID 17331)
 -- Name: staff_availabilities fk_staff_availabilities_staff_availability_statuses_availabili; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7776,7 +9621,7 @@ ALTER TABLE ONLY category.staff_availabilities
 
 
 --
--- TOC entry 6857 (class 2606 OID 17336)
+-- TOC entry 7372 (class 2606 OID 17336)
 -- Name: staff_availabilities fk_staff_availabilities_staffs_staff_id; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7785,7 +9630,7 @@ ALTER TABLE ONLY category.staff_availabilities
 
 
 --
--- TOC entry 6890 (class 2606 OID 19454)
+-- TOC entry 7407 (class 2606 OID 19454)
 -- Name: staff_before_after fk_staff_before_after_staff; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7794,7 +9639,7 @@ ALTER TABLE ONLY category.staff_before_after
 
 
 --
--- TOC entry 6888 (class 2606 OID 19419)
+-- TOC entry 7405 (class 2606 OID 19419)
 -- Name: staff_certifications fk_staff_certifications_staff; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7803,7 +9648,7 @@ ALTER TABLE ONLY category.staff_certifications
 
 
 --
--- TOC entry 6882 (class 2606 OID 18587)
+-- TOC entry 7399 (class 2606 OID 18587)
 -- Name: staff_credentials fk_staff_credentials_staff; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7812,7 +9657,7 @@ ALTER TABLE ONLY category.staff_credentials
 
 
 --
--- TOC entry 6887 (class 2606 OID 19403)
+-- TOC entry 7404 (class 2606 OID 19403)
 -- Name: staff_education fk_staff_education_staff; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7821,7 +9666,7 @@ ALTER TABLE ONLY category.staff_education
 
 
 --
--- TOC entry 6892 (class 2606 OID 19498)
+-- TOC entry 7409 (class 2606 OID 19498)
 -- Name: staff_gallery_items fk_staff_gallery_items_staff; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7830,7 +9675,7 @@ ALTER TABLE ONLY category.staff_gallery_items
 
 
 --
--- TOC entry 6885 (class 2606 OID 19375)
+-- TOC entry 7402 (class 2606 OID 19375)
 -- Name: staff_languages fk_staff_languages_staff; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7839,7 +9684,7 @@ ALTER TABLE ONLY category.staff_languages
 
 
 --
--- TOC entry 6858 (class 2606 OID 19250)
+-- TOC entry 7373 (class 2606 OID 19250)
 -- Name: staff_services fk_staff_services_service_definitions_service_definition_id; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7848,7 +9693,7 @@ ALTER TABLE ONLY category.staff_services
 
 
 --
--- TOC entry 6859 (class 2606 OID 17341)
+-- TOC entry 7374 (class 2606 OID 17341)
 -- Name: staff_services fk_staff_services_staffs_staff_id; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7857,7 +9702,7 @@ ALTER TABLE ONLY category.staff_services
 
 
 --
--- TOC entry 6886 (class 2606 OID 19389)
+-- TOC entry 7403 (class 2606 OID 19389)
 -- Name: staff_specializations fk_staff_specializations_staff; Type: FK CONSTRAINT; Schema: category; Owner: postgres
 --
 
@@ -7866,7 +9711,25 @@ ALTER TABLE ONLY category.staff_specializations
 
 
 --
--- TOC entry 6860 (class 2606 OID 17346)
+-- TOC entry 7573 (class 2606 OID 22634)
+-- Name: service_definition_addon_provider_types service_definition_addon_provider_ty_service_definition_id_fkey; Type: FK CONSTRAINT; Schema: category; Owner: postgres
+--
+
+ALTER TABLE ONLY category.service_definition_addon_provider_types
+    ADD CONSTRAINT service_definition_addon_provider_ty_service_definition_id_fkey FOREIGN KEY (service_definition_id) REFERENCES category.service_definitions(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7574 (class 2606 OID 22639)
+-- Name: service_definition_addon_provider_types service_definition_addon_provider_types_provider_type_id_fkey; Type: FK CONSTRAINT; Schema: category; Owner: postgres
+--
+
+ALTER TABLE ONLY category.service_definition_addon_provider_types
+    ADD CONSTRAINT service_definition_addon_provider_types_provider_type_id_fkey FOREIGN KEY (provider_type_id) REFERENCES category.provider_types(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7375 (class 2606 OID 17346)
 -- Name: consulting_selected_document_references fk_consulting_selected_document_references_consultings_consult; Type: FK CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -7875,7 +9738,7 @@ ALTER TABLE ONLY customer.consulting_selected_document_references
 
 
 --
--- TOC entry 6861 (class 2606 OID 17351)
+-- TOC entry 7376 (class 2606 OID 17351)
 -- Name: consultings fk_consultings_customers_customer_id; Type: FK CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -7884,7 +9747,7 @@ ALTER TABLE ONLY customer.consultings
 
 
 --
--- TOC entry 6862 (class 2606 OID 17356)
+-- TOC entry 7377 (class 2606 OID 17356)
 -- Name: customer_documents fk_customer_documents_customer_document_types_document_type_id; Type: FK CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -7893,7 +9756,7 @@ ALTER TABLE ONLY customer.customer_documents
 
 
 --
--- TOC entry 6863 (class 2606 OID 17361)
+-- TOC entry 7378 (class 2606 OID 17361)
 -- Name: customer_documents fk_customer_documents_customers_customer_id; Type: FK CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -7902,7 +9765,7 @@ ALTER TABLE ONLY customer.customer_documents
 
 
 --
--- TOC entry 6883 (class 2606 OID 19322)
+-- TOC entry 7400 (class 2606 OID 19322)
 -- Name: favorites fk_favorites_customer; Type: FK CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -7911,7 +9774,7 @@ ALTER TABLE ONLY customer.favorites
 
 
 --
--- TOC entry 6911 (class 2606 OID 19860)
+-- TOC entry 7428 (class 2606 OID 19860)
 -- Name: wallet_accounts fk_wallet_accounts_user; Type: FK CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -7920,7 +9783,7 @@ ALTER TABLE ONLY customer.wallet_accounts
 
 
 --
--- TOC entry 6912 (class 2606 OID 19891)
+-- TOC entry 7429 (class 2606 OID 19891)
 -- Name: wallet_payment_intents fk_wallet_payment_intents_booking; Type: FK CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -7929,7 +9792,7 @@ ALTER TABLE ONLY customer.wallet_payment_intents
 
 
 --
--- TOC entry 6913 (class 2606 OID 19886)
+-- TOC entry 7430 (class 2606 OID 19886)
 -- Name: wallet_payment_intents fk_wallet_payment_intents_user; Type: FK CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -7938,7 +9801,7 @@ ALTER TABLE ONLY customer.wallet_payment_intents
 
 
 --
--- TOC entry 6914 (class 2606 OID 19881)
+-- TOC entry 7431 (class 2606 OID 19881)
 -- Name: wallet_payment_intents fk_wallet_payment_intents_wallet_account; Type: FK CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -7947,7 +9810,7 @@ ALTER TABLE ONLY customer.wallet_payment_intents
 
 
 --
--- TOC entry 6915 (class 2606 OID 19927)
+-- TOC entry 7432 (class 2606 OID 19927)
 -- Name: wallet_transactions fk_wallet_transactions_booking; Type: FK CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -7956,7 +9819,7 @@ ALTER TABLE ONLY customer.wallet_transactions
 
 
 --
--- TOC entry 6916 (class 2606 OID 19932)
+-- TOC entry 7433 (class 2606 OID 19932)
 -- Name: wallet_transactions fk_wallet_transactions_payment_intent; Type: FK CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -7965,7 +9828,7 @@ ALTER TABLE ONLY customer.wallet_transactions
 
 
 --
--- TOC entry 6917 (class 2606 OID 19922)
+-- TOC entry 7434 (class 2606 OID 19922)
 -- Name: wallet_transactions fk_wallet_transactions_user; Type: FK CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -7974,7 +9837,7 @@ ALTER TABLE ONLY customer.wallet_transactions
 
 
 --
--- TOC entry 6918 (class 2606 OID 19917)
+-- TOC entry 7435 (class 2606 OID 19917)
 -- Name: wallet_transactions fk_wallet_transactions_wallet_account; Type: FK CONSTRAINT; Schema: customer; Owner: postgres
 --
 
@@ -7983,7 +9846,142 @@ ALTER TABLE ONLY customer.wallet_transactions
 
 
 --
--- TOC entry 6864 (class 2606 OID 17366)
+-- TOC entry 7553 (class 2606 OID 22348)
+-- Name: field_conditions field_conditions_depends_on_field_id_fkey; Type: FK CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.field_conditions
+    ADD CONSTRAINT field_conditions_depends_on_field_id_fkey FOREIGN KEY (depends_on_field_id) REFERENCES form_builder.form_fields(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7554 (class 2606 OID 22343)
+-- Name: field_conditions field_conditions_field_id_fkey; Type: FK CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.field_conditions
+    ADD CONSTRAINT field_conditions_field_id_fkey FOREIGN KEY (field_id) REFERENCES form_builder.form_fields(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7552 (class 2606 OID 22324)
+-- Name: field_options field_options_field_id_fkey; Type: FK CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.field_options
+    ADD CONSTRAINT field_options_field_id_fkey FOREIGN KEY (field_id) REFERENCES form_builder.form_fields(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7548 (class 2606 OID 22304)
+-- Name: form_fields form_fields_field_type_code_fkey; Type: FK CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.form_fields
+    ADD CONSTRAINT form_fields_field_type_code_fkey FOREIGN KEY (field_type_code) REFERENCES form_builder.field_types(code);
+
+
+--
+-- TOC entry 7549 (class 2606 OID 22289)
+-- Name: form_fields form_fields_form_version_id_fkey; Type: FK CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.form_fields
+    ADD CONSTRAINT form_fields_form_version_id_fkey FOREIGN KEY (form_version_id) REFERENCES form_builder.form_versions(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7550 (class 2606 OID 22299)
+-- Name: form_fields form_fields_parent_field_id_fkey; Type: FK CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.form_fields
+    ADD CONSTRAINT form_fields_parent_field_id_fkey FOREIGN KEY (parent_field_id) REFERENCES form_builder.form_fields(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7551 (class 2606 OID 22294)
+-- Name: form_fields form_fields_section_id_fkey; Type: FK CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.form_fields
+    ADD CONSTRAINT form_fields_section_id_fkey FOREIGN KEY (section_id) REFERENCES form_builder.form_sections(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7547 (class 2606 OID 22264)
+-- Name: form_sections form_sections_form_version_id_fkey; Type: FK CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.form_sections
+    ADD CONSTRAINT form_sections_form_version_id_fkey FOREIGN KEY (form_version_id) REFERENCES form_builder.form_versions(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7546 (class 2606 OID 22244)
+-- Name: form_versions form_versions_form_id_fkey; Type: FK CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.form_versions
+    ADD CONSTRAINT form_versions_form_id_fkey FOREIGN KEY (form_id) REFERENCES form_builder.forms(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7555 (class 2606 OID 22372)
+-- Name: service_definition_forms service_definition_forms_form_id_fkey; Type: FK CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.service_definition_forms
+    ADD CONSTRAINT service_definition_forms_form_id_fkey FOREIGN KEY (form_id) REFERENCES form_builder.forms(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7556 (class 2606 OID 22367)
+-- Name: service_definition_forms service_definition_forms_service_definition_id_fkey; Type: FK CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.service_definition_forms
+    ADD CONSTRAINT service_definition_forms_service_definition_id_fkey FOREIGN KEY (service_definition_id) REFERENCES category.service_definitions(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7557 (class 2606 OID 22404)
+-- Name: submissions submissions_booking_draft_id_fkey; Type: FK CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.submissions
+    ADD CONSTRAINT submissions_booking_draft_id_fkey FOREIGN KEY (booking_draft_id) REFERENCES booking.booking_drafts(id) ON DELETE SET NULL;
+
+
+--
+-- TOC entry 7558 (class 2606 OID 22409)
+-- Name: submissions submissions_booking_id_fkey; Type: FK CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.submissions
+    ADD CONSTRAINT submissions_booking_id_fkey FOREIGN KEY (booking_id) REFERENCES booking.bookings(id) ON DELETE SET NULL;
+
+
+--
+-- TOC entry 7559 (class 2606 OID 22394)
+-- Name: submissions submissions_form_version_id_fkey; Type: FK CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.submissions
+    ADD CONSTRAINT submissions_form_version_id_fkey FOREIGN KEY (form_version_id) REFERENCES form_builder.form_versions(id);
+
+
+--
+-- TOC entry 7560 (class 2606 OID 22399)
+-- Name: submissions submissions_service_definition_id_fkey; Type: FK CONSTRAINT; Schema: form_builder; Owner: postgres
+--
+
+ALTER TABLE ONLY form_builder.submissions
+    ADD CONSTRAINT submissions_service_definition_id_fkey FOREIGN KEY (service_definition_id) REFERENCES category.service_definitions(id) ON DELETE SET NULL;
+
+
+--
+-- TOC entry 7379 (class 2606 OID 17366)
 -- Name: access_tokens fk_access_tokens_asp_net_users_user_id; Type: FK CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -7992,7 +9990,7 @@ ALTER TABLE ONLY identity.access_tokens
 
 
 --
--- TOC entry 6865 (class 2606 OID 17371)
+-- TOC entry 7380 (class 2606 OID 17371)
 -- Name: asp_net_role_claims fk_asp_net_role_claims_asp_net_roles_role_id; Type: FK CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -8001,7 +9999,7 @@ ALTER TABLE ONLY identity.asp_net_role_claims
 
 
 --
--- TOC entry 6866 (class 2606 OID 17376)
+-- TOC entry 7381 (class 2606 OID 17376)
 -- Name: asp_net_user_claims fk_asp_net_user_claims_asp_net_users_user_id; Type: FK CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -8010,7 +10008,7 @@ ALTER TABLE ONLY identity.asp_net_user_claims
 
 
 --
--- TOC entry 6867 (class 2606 OID 17381)
+-- TOC entry 7382 (class 2606 OID 17381)
 -- Name: asp_net_user_logins fk_asp_net_user_logins_asp_net_users_user_id; Type: FK CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -8019,7 +10017,7 @@ ALTER TABLE ONLY identity.asp_net_user_logins
 
 
 --
--- TOC entry 6868 (class 2606 OID 17386)
+-- TOC entry 7383 (class 2606 OID 17386)
 -- Name: asp_net_user_roles fk_asp_net_user_roles_asp_net_roles_role_id; Type: FK CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -8028,7 +10026,7 @@ ALTER TABLE ONLY identity.asp_net_user_roles
 
 
 --
--- TOC entry 6869 (class 2606 OID 17391)
+-- TOC entry 7384 (class 2606 OID 17391)
 -- Name: asp_net_user_roles fk_asp_net_user_roles_asp_net_users_user_id; Type: FK CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -8037,7 +10035,7 @@ ALTER TABLE ONLY identity.asp_net_user_roles
 
 
 --
--- TOC entry 6870 (class 2606 OID 17396)
+-- TOC entry 7385 (class 2606 OID 17396)
 -- Name: asp_net_user_tokens fk_asp_net_user_tokens_asp_net_users_user_id; Type: FK CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -8046,7 +10044,7 @@ ALTER TABLE ONLY identity.asp_net_user_tokens
 
 
 --
--- TOC entry 6871 (class 2606 OID 17401)
+-- TOC entry 7386 (class 2606 OID 17401)
 -- Name: phone_login_codes fk_phone_login_codes_asp_net_users_user_id; Type: FK CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -8055,7 +10053,7 @@ ALTER TABLE ONLY identity.phone_login_codes
 
 
 --
--- TOC entry 6872 (class 2606 OID 17406)
+-- TOC entry 7387 (class 2606 OID 17406)
 -- Name: refresh_tokens fk_refresh_tokens_asp_net_users_user_id; Type: FK CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -8064,7 +10062,7 @@ ALTER TABLE ONLY identity.refresh_tokens
 
 
 --
--- TOC entry 6899 (class 2606 OID 19716)
+-- TOC entry 7416 (class 2606 OID 19716)
 -- Name: user_preferences fk_user_preferences_city_location; Type: FK CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -8073,7 +10071,7 @@ ALTER TABLE ONLY identity.user_preferences
 
 
 --
--- TOC entry 6900 (class 2606 OID 19711)
+-- TOC entry 7417 (class 2606 OID 19711)
 -- Name: user_preferences fk_user_preferences_country_location; Type: FK CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -8082,7 +10080,7 @@ ALTER TABLE ONLY identity.user_preferences
 
 
 --
--- TOC entry 6901 (class 2606 OID 19721)
+-- TOC entry 7418 (class 2606 OID 19721)
 -- Name: user_preferences fk_user_preferences_picked_location; Type: FK CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -8091,7 +10089,7 @@ ALTER TABLE ONLY identity.user_preferences
 
 
 --
--- TOC entry 6902 (class 2606 OID 19706)
+-- TOC entry 7419 (class 2606 OID 19706)
 -- Name: user_preferences fk_user_preferences_user; Type: FK CONSTRAINT; Schema: identity; Owner: postgres
 --
 
@@ -8100,7 +10098,7 @@ ALTER TABLE ONLY identity.user_preferences
 
 
 --
--- TOC entry 6903 (class 2606 OID 19762)
+-- TOC entry 7420 (class 2606 OID 19762)
 -- Name: accounts accounts_current_tier_id_fkey; Type: FK CONSTRAINT; Schema: loyalty; Owner: postgres
 --
 
@@ -8109,7 +10107,7 @@ ALTER TABLE ONLY loyalty.accounts
 
 
 --
--- TOC entry 6904 (class 2606 OID 19757)
+-- TOC entry 7421 (class 2606 OID 19757)
 -- Name: accounts accounts_customer_id_fkey; Type: FK CONSTRAINT; Schema: loyalty; Owner: postgres
 --
 
@@ -8118,7 +10116,7 @@ ALTER TABLE ONLY loyalty.accounts
 
 
 --
--- TOC entry 6908 (class 2606 OID 19819)
+-- TOC entry 7425 (class 2606 OID 19819)
 -- Name: coupons coupons_provider_service_id_fkey; Type: FK CONSTRAINT; Schema: loyalty; Owner: postgres
 --
 
@@ -8127,7 +10125,7 @@ ALTER TABLE ONLY loyalty.coupons
 
 
 --
--- TOC entry 6909 (class 2606 OID 19841)
+-- TOC entry 7426 (class 2606 OID 19841)
 -- Name: customer_coupons customer_coupons_coupon_id_fkey; Type: FK CONSTRAINT; Schema: loyalty; Owner: postgres
 --
 
@@ -8136,7 +10134,7 @@ ALTER TABLE ONLY loyalty.customer_coupons
 
 
 --
--- TOC entry 6910 (class 2606 OID 19836)
+-- TOC entry 7427 (class 2606 OID 19836)
 -- Name: customer_coupons customer_coupons_customer_id_fkey; Type: FK CONSTRAINT; Schema: loyalty; Owner: postgres
 --
 
@@ -8145,7 +10143,7 @@ ALTER TABLE ONLY loyalty.customer_coupons
 
 
 --
--- TOC entry 6905 (class 2606 OID 19777)
+-- TOC entry 7422 (class 2606 OID 19777)
 -- Name: ledger ledger_customer_id_fkey; Type: FK CONSTRAINT; Schema: loyalty; Owner: postgres
 --
 
@@ -8154,7 +10152,7 @@ ALTER TABLE ONLY loyalty.ledger
 
 
 --
--- TOC entry 6906 (class 2606 OID 19800)
+-- TOC entry 7423 (class 2606 OID 19800)
 -- Name: referrals referrals_referred_customer_id_fkey; Type: FK CONSTRAINT; Schema: loyalty; Owner: postgres
 --
 
@@ -8163,7 +10161,7 @@ ALTER TABLE ONLY loyalty.referrals
 
 
 --
--- TOC entry 6907 (class 2606 OID 19795)
+-- TOC entry 7424 (class 2606 OID 19795)
 -- Name: referrals referrals_referrer_customer_id_fkey; Type: FK CONSTRAINT; Schema: loyalty; Owner: postgres
 --
 
@@ -8172,7 +10170,7 @@ ALTER TABLE ONLY loyalty.referrals
 
 
 --
--- TOC entry 6878 (class 2606 OID 18507)
+-- TOC entry 7395 (class 2606 OID 18507)
 -- Name: offers offers_provider_service_id_fkey; Type: FK CONSTRAINT; Schema: marketing; Owner: postgres
 --
 
@@ -8181,7 +10179,124 @@ ALTER TABLE ONLY marketing.offers
 
 
 --
--- TOC entry 6898 (class 2606 OID 19678)
+-- TOC entry 7510 (class 2606 OID 21288)
+-- Name: referral_codes referral_codes_customer_id_fkey; Type: FK CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.referral_codes
+    ADD CONSTRAINT referral_codes_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES customer.customers(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7511 (class 2606 OID 21283)
+-- Name: referral_codes referral_codes_program_id_fkey; Type: FK CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.referral_codes
+    ADD CONSTRAINT referral_codes_program_id_fkey FOREIGN KEY (program_id) REFERENCES marketing.referral_programs(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7512 (class 2606 OID 21304)
+-- Name: referral_invitations referral_invitations_program_id_fkey; Type: FK CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.referral_invitations
+    ADD CONSTRAINT referral_invitations_program_id_fkey FOREIGN KEY (program_id) REFERENCES marketing.referral_programs(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7513 (class 2606 OID 21319)
+-- Name: referral_invitations referral_invitations_referee_customer_id_fkey; Type: FK CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.referral_invitations
+    ADD CONSTRAINT referral_invitations_referee_customer_id_fkey FOREIGN KEY (referee_customer_id) REFERENCES customer.customers(id) ON DELETE SET NULL;
+
+
+--
+-- TOC entry 7514 (class 2606 OID 21309)
+-- Name: referral_invitations referral_invitations_referral_code_id_fkey; Type: FK CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.referral_invitations
+    ADD CONSTRAINT referral_invitations_referral_code_id_fkey FOREIGN KEY (referral_code_id) REFERENCES marketing.referral_codes(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7515 (class 2606 OID 21314)
+-- Name: referral_invitations referral_invitations_referrer_customer_id_fkey; Type: FK CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.referral_invitations
+    ADD CONSTRAINT referral_invitations_referrer_customer_id_fkey FOREIGN KEY (referrer_customer_id) REFERENCES customer.customers(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7509 (class 2606 OID 21266)
+-- Name: referral_reward_rules referral_reward_rules_program_id_fkey; Type: FK CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.referral_reward_rules
+    ADD CONSTRAINT referral_reward_rules_program_id_fkey FOREIGN KEY (program_id) REFERENCES marketing.referral_programs(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7520 (class 2606 OID 21378)
+-- Name: referral_share_events referral_share_events_customer_id_fkey; Type: FK CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.referral_share_events
+    ADD CONSTRAINT referral_share_events_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES customer.customers(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7521 (class 2606 OID 21373)
+-- Name: referral_share_events referral_share_events_referral_code_id_fkey; Type: FK CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.referral_share_events
+    ADD CONSTRAINT referral_share_events_referral_code_id_fkey FOREIGN KEY (referral_code_id) REFERENCES marketing.referral_codes(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7516 (class 2606 OID 21343)
+-- Name: user_discount_coupons user_discount_coupons_customer_id_fkey; Type: FK CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.user_discount_coupons
+    ADD CONSTRAINT user_discount_coupons_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES customer.customers(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7517 (class 2606 OID 21348)
+-- Name: user_discount_coupons user_discount_coupons_program_id_fkey; Type: FK CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.user_discount_coupons
+    ADD CONSTRAINT user_discount_coupons_program_id_fkey FOREIGN KEY (program_id) REFERENCES marketing.referral_programs(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7518 (class 2606 OID 21358)
+-- Name: user_discount_coupons user_discount_coupons_referral_invitation_id_fkey; Type: FK CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.user_discount_coupons
+    ADD CONSTRAINT user_discount_coupons_referral_invitation_id_fkey FOREIGN KEY (referral_invitation_id) REFERENCES marketing.referral_invitations(id) ON DELETE SET NULL;
+
+
+--
+-- TOC entry 7519 (class 2606 OID 21353)
+-- Name: user_discount_coupons user_discount_coupons_reward_rule_id_fkey; Type: FK CONSTRAINT; Schema: marketing; Owner: postgres
+--
+
+ALTER TABLE ONLY marketing.user_discount_coupons
+    ADD CONSTRAINT user_discount_coupons_reward_rule_id_fkey FOREIGN KEY (reward_rule_id) REFERENCES marketing.referral_reward_rules(id) ON DELETE SET NULL;
+
+
+--
+-- TOC entry 7415 (class 2606 OID 19678)
 -- Name: sponsered_slider fk_media_type; Type: FK CONSTRAINT; Schema: media; Owner: postgres
 --
 
@@ -8190,7 +10305,7 @@ ALTER TABLE ONLY media.sponsered_slider
 
 
 --
--- TOC entry 6930 (class 2606 OID 20153)
+-- TOC entry 7447 (class 2606 OID 20153)
 -- Name: notification_deliveries notification_deliveries_notification_id_fkey; Type: FK CONSTRAINT; Schema: notify; Owner: postgres
 --
 
@@ -8199,7 +10314,7 @@ ALTER TABLE ONLY notify.notification_deliveries
 
 
 --
--- TOC entry 6929 (class 2606 OID 20137)
+-- TOC entry 7446 (class 2606 OID 20137)
 -- Name: notifications notifications_customer_id_fkey; Type: FK CONSTRAINT; Schema: notify; Owner: postgres
 --
 
@@ -8208,7 +10323,223 @@ ALTER TABLE ONLY notify.notifications
 
 
 --
--- TOC entry 6953 (class 2606 OID 20719)
+-- TOC entry 7524 (class 2606 OID 21917)
+-- Name: form_definitions form_definitions_provider_type_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.form_definitions
+    ADD CONSTRAINT form_definitions_provider_type_id_fkey FOREIGN KEY (provider_type_id) REFERENCES category.provider_types(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7526 (class 2606 OID 21967)
+-- Name: form_field_options form_field_options_form_field_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.form_field_options
+    ADD CONSTRAINT form_field_options_form_field_id_fkey FOREIGN KEY (form_field_id) REFERENCES provider_portal.form_fields(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7525 (class 2606 OID 21947)
+-- Name: form_fields form_fields_form_definition_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.form_fields
+    ADD CONSTRAINT form_fields_form_definition_id_fkey FOREIGN KEY (form_definition_id) REFERENCES provider_portal.form_definitions(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7529 (class 2606 OID 22016)
+-- Name: onboarding_applications onboarding_applications_applicant_user_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.onboarding_applications
+    ADD CONSTRAINT onboarding_applications_applicant_user_id_fkey FOREIGN KEY (applicant_user_id) REFERENCES identity.asp_net_users(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7530 (class 2606 OID 22041)
+-- Name: onboarding_applications onboarding_applications_city_location_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.onboarding_applications
+    ADD CONSTRAINT onboarding_applications_city_location_id_fkey FOREIGN KEY (city_location_id) REFERENCES category.locations(id) ON DELETE SET NULL;
+
+
+--
+-- TOC entry 7531 (class 2606 OID 22036)
+-- Name: onboarding_applications onboarding_applications_country_location_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.onboarding_applications
+    ADD CONSTRAINT onboarding_applications_country_location_id_fkey FOREIGN KEY (country_location_id) REFERENCES category.locations(id) ON DELETE SET NULL;
+
+
+--
+-- TOC entry 7532 (class 2606 OID 22031)
+-- Name: onboarding_applications onboarding_applications_current_form_definition_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.onboarding_applications
+    ADD CONSTRAINT onboarding_applications_current_form_definition_id_fkey FOREIGN KEY (current_form_definition_id) REFERENCES provider_portal.form_definitions(id) ON DELETE SET NULL;
+
+
+--
+-- TOC entry 7533 (class 2606 OID 22021)
+-- Name: onboarding_applications onboarding_applications_provider_type_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.onboarding_applications
+    ADD CONSTRAINT onboarding_applications_provider_type_id_fkey FOREIGN KEY (provider_type_id) REFERENCES category.provider_types(id);
+
+
+--
+-- TOC entry 7534 (class 2606 OID 22046)
+-- Name: onboarding_applications onboarding_applications_reviewed_by_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.onboarding_applications
+    ADD CONSTRAINT onboarding_applications_reviewed_by_fkey FOREIGN KEY (reviewed_by) REFERENCES identity.asp_net_users(id) ON DELETE SET NULL;
+
+
+--
+-- TOC entry 7535 (class 2606 OID 22026)
+-- Name: onboarding_applications onboarding_applications_service_provider_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.onboarding_applications
+    ADD CONSTRAINT onboarding_applications_service_provider_id_fkey FOREIGN KEY (service_provider_id) REFERENCES category.service_providers(id) ON DELETE SET NULL;
+
+
+--
+-- TOC entry 7536 (class 2606 OID 22063)
+-- Name: onboarding_documents onboarding_documents_application_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.onboarding_documents
+    ADD CONSTRAINT onboarding_documents_application_id_fkey FOREIGN KEY (application_id) REFERENCES provider_portal.onboarding_applications(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7537 (class 2606 OID 22068)
+-- Name: onboarding_documents onboarding_documents_media_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.onboarding_documents
+    ADD CONSTRAINT onboarding_documents_media_id_fkey FOREIGN KEY (media_id) REFERENCES media.media_library(id) ON DELETE SET NULL;
+
+
+--
+-- TOC entry 7544 (class 2606 OID 22159)
+-- Name: payout_accounts payout_accounts_service_provider_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.payout_accounts
+    ADD CONSTRAINT payout_accounts_service_provider_id_fkey FOREIGN KEY (service_provider_id) REFERENCES category.service_providers(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7545 (class 2606 OID 22180)
+-- Name: portal_invoices portal_invoices_service_provider_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.portal_invoices
+    ADD CONSTRAINT portal_invoices_service_provider_id_fkey FOREIGN KEY (service_provider_id) REFERENCES category.service_providers(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7523 (class 2606 OID 21894)
+-- Name: portal_sections portal_sections_provider_type_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.portal_sections
+    ADD CONSTRAINT portal_sections_provider_type_id_fkey FOREIGN KEY (provider_type_id) REFERENCES category.provider_types(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7527 (class 2606 OID 21988)
+-- Name: provider_members provider_members_service_provider_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.provider_members
+    ADD CONSTRAINT provider_members_service_provider_id_fkey FOREIGN KEY (service_provider_id) REFERENCES category.service_providers(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7528 (class 2606 OID 21993)
+-- Name: provider_members provider_members_user_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.provider_members
+    ADD CONSTRAINT provider_members_user_id_fkey FOREIGN KEY (user_id) REFERENCES identity.asp_net_users(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7538 (class 2606 OID 22091)
+-- Name: provider_operating_hours provider_operating_hours_service_provider_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.provider_operating_hours
+    ADD CONSTRAINT provider_operating_hours_service_provider_id_fkey FOREIGN KEY (service_provider_id) REFERENCES category.service_providers(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7539 (class 2606 OID 22112)
+-- Name: provider_service_addon_settings provider_service_addon_settings_addon_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.provider_service_addon_settings
+    ADD CONSTRAINT provider_service_addon_settings_addon_id_fkey FOREIGN KEY (addon_id) REFERENCES category.addons(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7540 (class 2606 OID 22107)
+-- Name: provider_service_addon_settings provider_service_addon_settings_provider_service_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.provider_service_addon_settings
+    ADD CONSTRAINT provider_service_addon_settings_provider_service_id_fkey FOREIGN KEY (provider_service_id) REFERENCES category.provider_services(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7522 (class 2606 OID 21870)
+-- Name: provider_type_catalog provider_type_catalog_provider_type_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.provider_type_catalog
+    ADD CONSTRAINT provider_type_catalog_provider_type_id_fkey FOREIGN KEY (provider_type_id) REFERENCES category.provider_types(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7541 (class 2606 OID 22140)
+-- Name: support_tickets support_tickets_assigned_to_user_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.support_tickets
+    ADD CONSTRAINT support_tickets_assigned_to_user_id_fkey FOREIGN KEY (assigned_to_user_id) REFERENCES identity.asp_net_users(id) ON DELETE SET NULL;
+
+
+--
+-- TOC entry 7542 (class 2606 OID 22135)
+-- Name: support_tickets support_tickets_created_by_user_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.support_tickets
+    ADD CONSTRAINT support_tickets_created_by_user_id_fkey FOREIGN KEY (created_by_user_id) REFERENCES identity.asp_net_users(id) ON DELETE SET NULL;
+
+
+--
+-- TOC entry 7543 (class 2606 OID 22130)
+-- Name: support_tickets support_tickets_service_provider_id_fkey; Type: FK CONSTRAINT; Schema: provider_portal; Owner: postgres
+--
+
+ALTER TABLE ONLY provider_portal.support_tickets
+    ADD CONSTRAINT support_tickets_service_provider_id_fkey FOREIGN KEY (service_provider_id) REFERENCES category.service_providers(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 7470 (class 2606 OID 20719)
 -- Name: abandoned_carts abandoned_carts_cart_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8217,7 +10548,7 @@ ALTER TABLE ONLY shop.abandoned_carts
 
 
 --
--- TOC entry 6954 (class 2606 OID 20724)
+-- TOC entry 7471 (class 2606 OID 20724)
 -- Name: abandoned_carts abandoned_carts_customer_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8226,7 +10557,7 @@ ALTER TABLE ONLY shop.abandoned_carts
 
 
 --
--- TOC entry 6937 (class 2606 OID 20476)
+-- TOC entry 7454 (class 2606 OID 20476)
 -- Name: attribute_values attribute_values_attribute_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8235,7 +10566,7 @@ ALTER TABLE ONLY shop.attribute_values
 
 
 --
--- TOC entry 6950 (class 2606 OID 20690)
+-- TOC entry 7467 (class 2606 OID 20690)
 -- Name: cart_items cart_items_cart_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8244,7 +10575,7 @@ ALTER TABLE ONLY shop.cart_items
 
 
 --
--- TOC entry 6951 (class 2606 OID 20695)
+-- TOC entry 7468 (class 2606 OID 20695)
 -- Name: cart_items cart_items_product_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8253,7 +10584,7 @@ ALTER TABLE ONLY shop.cart_items
 
 
 --
--- TOC entry 6952 (class 2606 OID 20700)
+-- TOC entry 7469 (class 2606 OID 20700)
 -- Name: cart_items cart_items_variant_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8262,7 +10593,7 @@ ALTER TABLE ONLY shop.cart_items
 
 
 --
--- TOC entry 6949 (class 2606 OID 20671)
+-- TOC entry 7466 (class 2606 OID 20671)
 -- Name: carts carts_customer_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8271,7 +10602,7 @@ ALTER TABLE ONLY shop.carts
 
 
 --
--- TOC entry 6931 (class 2606 OID 20370)
+-- TOC entry 7448 (class 2606 OID 20370)
 -- Name: categories categories_parent_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8280,7 +10611,7 @@ ALTER TABLE ONLY shop.categories
 
 
 --
--- TOC entry 6990 (class 2606 OID 21145)
+-- TOC entry 7507 (class 2606 OID 21145)
 -- Name: compare_list_items compare_list_items_compare_list_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8289,7 +10620,7 @@ ALTER TABLE ONLY shop.compare_list_items
 
 
 --
--- TOC entry 6991 (class 2606 OID 21150)
+-- TOC entry 7508 (class 2606 OID 21150)
 -- Name: compare_list_items compare_list_items_product_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8298,7 +10629,7 @@ ALTER TABLE ONLY shop.compare_list_items
 
 
 --
--- TOC entry 6989 (class 2606 OID 21132)
+-- TOC entry 7506 (class 2606 OID 21132)
 -- Name: compare_lists compare_lists_customer_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8307,7 +10638,7 @@ ALTER TABLE ONLY shop.compare_lists
 
 
 --
--- TOC entry 6955 (class 2606 OID 20768)
+-- TOC entry 7472 (class 2606 OID 20768)
 -- Name: coupon_redemptions coupon_redemptions_cart_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8316,7 +10647,7 @@ ALTER TABLE ONLY shop.coupon_redemptions
 
 
 --
--- TOC entry 6956 (class 2606 OID 20758)
+-- TOC entry 7473 (class 2606 OID 20758)
 -- Name: coupon_redemptions coupon_redemptions_coupon_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8325,7 +10656,7 @@ ALTER TABLE ONLY shop.coupon_redemptions
 
 
 --
--- TOC entry 6957 (class 2606 OID 20763)
+-- TOC entry 7474 (class 2606 OID 20763)
 -- Name: coupon_redemptions coupon_redemptions_customer_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8334,7 +10665,7 @@ ALTER TABLE ONLY shop.coupon_redemptions
 
 
 --
--- TOC entry 6948 (class 2606 OID 20614)
+-- TOC entry 7465 (class 2606 OID 20614)
 -- Name: customer_addresses customer_addresses_customer_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8343,7 +10674,7 @@ ALTER TABLE ONLY shop.customer_addresses
 
 
 --
--- TOC entry 6947 (class 2606 OID 20597)
+-- TOC entry 7464 (class 2606 OID 20597)
 -- Name: inventory_movements inventory_movements_inventory_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8352,7 +10683,7 @@ ALTER TABLE ONLY shop.inventory_movements
 
 
 --
--- TOC entry 6944 (class 2606 OID 20573)
+-- TOC entry 7461 (class 2606 OID 20573)
 -- Name: inventory inventory_product_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8361,7 +10692,7 @@ ALTER TABLE ONLY shop.inventory
 
 
 --
--- TOC entry 6945 (class 2606 OID 20578)
+-- TOC entry 7462 (class 2606 OID 20578)
 -- Name: inventory inventory_variant_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8370,7 +10701,7 @@ ALTER TABLE ONLY shop.inventory
 
 
 --
--- TOC entry 6946 (class 2606 OID 20583)
+-- TOC entry 7463 (class 2606 OID 20583)
 -- Name: inventory inventory_warehouse_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8379,7 +10710,7 @@ ALTER TABLE ONLY shop.inventory
 
 
 --
--- TOC entry 6960 (class 2606 OID 20830)
+-- TOC entry 7477 (class 2606 OID 20830)
 -- Name: order_addresses order_addresses_order_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8388,7 +10719,7 @@ ALTER TABLE ONLY shop.order_addresses
 
 
 --
--- TOC entry 6961 (class 2606 OID 20852)
+-- TOC entry 7478 (class 2606 OID 20852)
 -- Name: order_items order_items_order_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8397,7 +10728,7 @@ ALTER TABLE ONLY shop.order_items
 
 
 --
--- TOC entry 6962 (class 2606 OID 20857)
+-- TOC entry 7479 (class 2606 OID 20857)
 -- Name: order_items order_items_product_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8406,7 +10737,7 @@ ALTER TABLE ONLY shop.order_items
 
 
 --
--- TOC entry 6963 (class 2606 OID 20862)
+-- TOC entry 7480 (class 2606 OID 20862)
 -- Name: order_items order_items_variant_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8415,7 +10746,7 @@ ALTER TABLE ONLY shop.order_items
 
 
 --
--- TOC entry 6964 (class 2606 OID 20876)
+-- TOC entry 7481 (class 2606 OID 20876)
 -- Name: order_status_history order_status_history_order_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8424,7 +10755,7 @@ ALTER TABLE ONLY shop.order_status_history
 
 
 --
--- TOC entry 6958 (class 2606 OID 20816)
+-- TOC entry 7475 (class 2606 OID 20816)
 -- Name: orders orders_cart_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8433,7 +10764,7 @@ ALTER TABLE ONLY shop.orders
 
 
 --
--- TOC entry 6959 (class 2606 OID 20811)
+-- TOC entry 7476 (class 2606 OID 20811)
 -- Name: orders orders_customer_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8442,7 +10773,7 @@ ALTER TABLE ONLY shop.orders
 
 
 --
--- TOC entry 6965 (class 2606 OID 20896)
+-- TOC entry 7482 (class 2606 OID 20896)
 -- Name: payment_transactions payment_transactions_order_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8451,7 +10782,7 @@ ALTER TABLE ONLY shop.payment_transactions
 
 
 --
--- TOC entry 6966 (class 2606 OID 20901)
+-- TOC entry 7483 (class 2606 OID 20901)
 -- Name: payment_transactions payment_transactions_payment_method_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8460,7 +10791,7 @@ ALTER TABLE ONLY shop.payment_transactions
 
 
 --
--- TOC entry 6938 (class 2606 OID 20493)
+-- TOC entry 7455 (class 2606 OID 20493)
 -- Name: product_attributes product_attributes_attribute_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8469,7 +10800,7 @@ ALTER TABLE ONLY shop.product_attributes
 
 
 --
--- TOC entry 6939 (class 2606 OID 20488)
+-- TOC entry 7456 (class 2606 OID 20488)
 -- Name: product_attributes product_attributes_product_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8478,7 +10809,7 @@ ALTER TABLE ONLY shop.product_attributes
 
 
 --
--- TOC entry 6934 (class 2606 OID 20425)
+-- TOC entry 7451 (class 2606 OID 20425)
 -- Name: product_categories product_categories_category_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8487,7 +10818,7 @@ ALTER TABLE ONLY shop.product_categories
 
 
 --
--- TOC entry 6935 (class 2606 OID 20420)
+-- TOC entry 7452 (class 2606 OID 20420)
 -- Name: product_categories product_categories_product_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8496,7 +10827,7 @@ ALTER TABLE ONLY shop.product_categories
 
 
 --
--- TOC entry 6936 (class 2606 OID 20444)
+-- TOC entry 7453 (class 2606 OID 20444)
 -- Name: product_media product_media_product_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8505,7 +10836,7 @@ ALTER TABLE ONLY shop.product_media
 
 
 --
--- TOC entry 6985 (class 2606 OID 21098)
+-- TOC entry 7502 (class 2606 OID 21098)
 -- Name: product_questions product_questions_customer_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8514,7 +10845,7 @@ ALTER TABLE ONLY shop.product_questions
 
 
 --
--- TOC entry 6986 (class 2606 OID 21093)
+-- TOC entry 7503 (class 2606 OID 21093)
 -- Name: product_questions product_questions_product_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8523,7 +10854,7 @@ ALTER TABLE ONLY shop.product_questions
 
 
 --
--- TOC entry 6982 (class 2606 OID 21077)
+-- TOC entry 7499 (class 2606 OID 21077)
 -- Name: product_reviews product_reviews_customer_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8532,7 +10863,7 @@ ALTER TABLE ONLY shop.product_reviews
 
 
 --
--- TOC entry 6983 (class 2606 OID 21072)
+-- TOC entry 7500 (class 2606 OID 21072)
 -- Name: product_reviews product_reviews_order_item_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8541,7 +10872,7 @@ ALTER TABLE ONLY shop.product_reviews
 
 
 --
--- TOC entry 6984 (class 2606 OID 21067)
+-- TOC entry 7501 (class 2606 OID 21067)
 -- Name: product_reviews product_reviews_product_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8550,7 +10881,7 @@ ALTER TABLE ONLY shop.product_reviews
 
 
 --
--- TOC entry 6940 (class 2606 OID 20520)
+-- TOC entry 7457 (class 2606 OID 20520)
 -- Name: product_variants product_variants_product_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8559,7 +10890,7 @@ ALTER TABLE ONLY shop.product_variants
 
 
 --
--- TOC entry 6932 (class 2606 OID 20403)
+-- TOC entry 7449 (class 2606 OID 20403)
 -- Name: products products_brand_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8568,7 +10899,7 @@ ALTER TABLE ONLY shop.products
 
 
 --
--- TOC entry 6933 (class 2606 OID 20408)
+-- TOC entry 7450 (class 2606 OID 20408)
 -- Name: products products_primary_category_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8577,7 +10908,7 @@ ALTER TABLE ONLY shop.products
 
 
 --
--- TOC entry 6987 (class 2606 OID 21112)
+-- TOC entry 7504 (class 2606 OID 21112)
 -- Name: recently_viewed_products recently_viewed_products_customer_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8586,7 +10917,7 @@ ALTER TABLE ONLY shop.recently_viewed_products
 
 
 --
--- TOC entry 6988 (class 2606 OID 21117)
+-- TOC entry 7505 (class 2606 OID 21117)
 -- Name: recently_viewed_products recently_viewed_products_product_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8595,7 +10926,7 @@ ALTER TABLE ONLY shop.recently_viewed_products
 
 
 --
--- TOC entry 6976 (class 2606 OID 21004)
+-- TOC entry 7493 (class 2606 OID 21004)
 -- Name: refunds refunds_order_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8604,7 +10935,7 @@ ALTER TABLE ONLY shop.refunds
 
 
 --
--- TOC entry 6977 (class 2606 OID 21009)
+-- TOC entry 7494 (class 2606 OID 21009)
 -- Name: refunds refunds_payment_transaction_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8613,7 +10944,7 @@ ALTER TABLE ONLY shop.refunds
 
 
 --
--- TOC entry 6974 (class 2606 OID 20987)
+-- TOC entry 7491 (class 2606 OID 20987)
 -- Name: return_items return_items_order_item_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8622,7 +10953,7 @@ ALTER TABLE ONLY shop.return_items
 
 
 --
--- TOC entry 6975 (class 2606 OID 20982)
+-- TOC entry 7492 (class 2606 OID 20982)
 -- Name: return_items return_items_return_request_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8631,7 +10962,7 @@ ALTER TABLE ONLY shop.return_items
 
 
 --
--- TOC entry 6972 (class 2606 OID 20968)
+-- TOC entry 7489 (class 2606 OID 20968)
 -- Name: return_requests return_requests_customer_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8640,7 +10971,7 @@ ALTER TABLE ONLY shop.return_requests
 
 
 --
--- TOC entry 6973 (class 2606 OID 20963)
+-- TOC entry 7490 (class 2606 OID 20963)
 -- Name: return_requests return_requests_order_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8649,7 +10980,7 @@ ALTER TABLE ONLY shop.return_requests
 
 
 --
--- TOC entry 6970 (class 2606 OID 20946)
+-- TOC entry 7487 (class 2606 OID 20946)
 -- Name: shipment_items shipment_items_order_item_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8658,7 +10989,7 @@ ALTER TABLE ONLY shop.shipment_items
 
 
 --
--- TOC entry 6971 (class 2606 OID 20941)
+-- TOC entry 7488 (class 2606 OID 20941)
 -- Name: shipment_items shipment_items_shipment_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8667,7 +10998,7 @@ ALTER TABLE ONLY shop.shipment_items
 
 
 --
--- TOC entry 6967 (class 2606 OID 20924)
+-- TOC entry 7484 (class 2606 OID 20924)
 -- Name: shipments shipments_delivery_method_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8676,7 +11007,7 @@ ALTER TABLE ONLY shop.shipments
 
 
 --
--- TOC entry 6968 (class 2606 OID 20919)
+-- TOC entry 7485 (class 2606 OID 20919)
 -- Name: shipments shipments_order_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8685,7 +11016,7 @@ ALTER TABLE ONLY shop.shipments
 
 
 --
--- TOC entry 6969 (class 2606 OID 20929)
+-- TOC entry 7486 (class 2606 OID 20929)
 -- Name: shipments shipments_warehouse_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8694,7 +11025,7 @@ ALTER TABLE ONLY shop.shipments
 
 
 --
--- TOC entry 6941 (class 2606 OID 20535)
+-- TOC entry 7458 (class 2606 OID 20535)
 -- Name: variant_attribute_values variant_attribute_values_attribute_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8703,7 +11034,7 @@ ALTER TABLE ONLY shop.variant_attribute_values
 
 
 --
--- TOC entry 6942 (class 2606 OID 20540)
+-- TOC entry 7459 (class 2606 OID 20540)
 -- Name: variant_attribute_values variant_attribute_values_attribute_value_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8712,7 +11043,7 @@ ALTER TABLE ONLY shop.variant_attribute_values
 
 
 --
--- TOC entry 6943 (class 2606 OID 20530)
+-- TOC entry 7460 (class 2606 OID 20530)
 -- Name: variant_attribute_values variant_attribute_values_variant_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8721,7 +11052,7 @@ ALTER TABLE ONLY shop.variant_attribute_values
 
 
 --
--- TOC entry 6979 (class 2606 OID 21044)
+-- TOC entry 7496 (class 2606 OID 21044)
 -- Name: wishlist_items wishlist_items_product_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8730,7 +11061,7 @@ ALTER TABLE ONLY shop.wishlist_items
 
 
 --
--- TOC entry 6980 (class 2606 OID 21049)
+-- TOC entry 7497 (class 2606 OID 21049)
 -- Name: wishlist_items wishlist_items_variant_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8739,7 +11070,7 @@ ALTER TABLE ONLY shop.wishlist_items
 
 
 --
--- TOC entry 6981 (class 2606 OID 21039)
+-- TOC entry 7498 (class 2606 OID 21039)
 -- Name: wishlist_items wishlist_items_wishlist_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8748,7 +11079,7 @@ ALTER TABLE ONLY shop.wishlist_items
 
 
 --
--- TOC entry 6978 (class 2606 OID 21027)
+-- TOC entry 7495 (class 2606 OID 21027)
 -- Name: wishlists wishlists_customer_id_fkey; Type: FK CONSTRAINT; Schema: shop; Owner: postgres
 --
 
@@ -8756,7 +11087,7 @@ ALTER TABLE ONLY shop.wishlists
     ADD CONSTRAINT wishlists_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES customer.customers(id) ON DELETE CASCADE;
 
 
--- Completed on 2026-04-22 16:10:31
+-- Completed on 2026-04-24 00:50:32
 
 --
 -- PostgreSQL database dump complete
