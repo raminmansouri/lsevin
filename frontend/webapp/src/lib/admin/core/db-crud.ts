@@ -482,6 +482,7 @@ async function validateDataForInsertOrUpdate(
       if (!isInsertableColumn(column)) continue;
       if (column.isNullable) continue;
       if (column.columnDefault) continue;
+      if (column.isPrimaryKey) continue;
 
       if (!(column.columnName in out)) {
         issues.push(`Required column "${column.columnName}" is missing.`);

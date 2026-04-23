@@ -20,7 +20,7 @@ export function setDefaultValues(definition: ResolvedTableDefinition) {
       case "date":
       case "datetime":
       case "time":
-        defaultValues[field.columnName]=new Date().toISOString();
+        // defaultValues[field.columnName]=new Date().toISOString();
         // if (['create_date', 'last_modified_date'].indexOf(field.columnName) >= 0)
         // continue;
         break;
