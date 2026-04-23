@@ -7,6 +7,12 @@ if (!connectionString) {
 }
 
 export const sql = postgres(connectionString, {
+   debug(connection, query, params, types) {
+    console.log("-----------------------------SQL:-----------------------------");
+    console.log("SQL:", query);
+    console.log("Params:", params);
+    console.log("-----------------------------END:-----------------------------");
+  },
   max: 10,
   idle_timeout: 20,
   connect_timeout: 15,
