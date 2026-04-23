@@ -1,6 +1,6 @@
 "use client";
 
-import { resolveAdminFormFieldExtension } from "@/lib/admin/extensions/form-and-table-renderers";
+import { normalizeAdminFormFieldExtension, resolveAdminFormFieldExtension } from "@/lib/admin/extensions/form-and-table-renderers";
 import { useEffect, useMemo, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -100,21 +100,26 @@ export function DynamicForm({
 
   function renderField(field: ResolvedTableDefinition["formFields"][number]) {
 
+    const customField = normalizeAdminFormFieldExtension(
+      resolveAdminFormFieldExtension({
+        definition,
+        field,
+        form,
+        locale,
+        mode,
+        values,
+      })
+    );
 
-    const customField = resolveAdminFormFieldExtension({
-  definition,
-  field,
-  form,
-  locale,
-  mode,
-  values,
-});
-
-
-if (customField) {
-  return <div key={field.columnName}>
-    {customField}</div>;
-}
+    if (customField?.replace || customField?.before || customField?.after) {
+      return (
+        <div key={field.columnName} className="space-y-3">
+          {customField.before}
+          {customField.replace}
+          {customField.after}
+        </div>
+      );
+    }
 
     if ((field.columnName=='id' &&  field.isPrimaryKey ) || 
       ['create_date','last_modified_date'].indexOf(field.columnName)>=0  ) {

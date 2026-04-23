@@ -1,5 +1,6 @@
 "use client";
 
+import { hasLexicalContent, LexicalRenderer } from "@/components/editor/lexical-renderer";
 import { Check, ChevronDown, Loader2, Search, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -7,6 +8,7 @@ export type AsyncSelectOption = {
   value: string;
   label: string;
   description?: string | null;
+  raw?: Record<string, string | null>;
 };
 
 export type AsyncSelectResult = {
@@ -144,7 +146,21 @@ export function AsyncSearchableSingleSelect({
               <div className="min-w-0">
                 <div className="truncate text-sm font-medium">{selectedLabel}</div>
                 {selectedDescription ? (
-                  <div className="truncate text-xs text-zinc-500">{selectedDescription}</div>
+                  <div className="truncate text-xs text-zinc-500">
+                    
+                    {/* {selectedDescription} */}
+                     {selectedDescription &&
+                                            hasLexicalContent(selectedDescription) ? (
+                                              <LexicalRenderer
+                                                content={selectedDescription}
+                    
+                                              />
+                                          ) : (
+                                            <>
+                                                {selectedDescription}
+                                            </>
+                                          )}
+                    </div>
                 ) : null}
               </div>
             ) : (
@@ -209,7 +225,20 @@ export function AsyncSearchableSingleSelect({
                         <div className="min-w-0">
                           <div className="truncate text-sm font-medium">{item.label}</div>
                           {item.description ? (
-                            <div className="truncate text-xs opacity-75">{item.description}</div>
+                            <div className="truncate text-xs opacity-75">
+                              
+                               {item.description &&
+                                            hasLexicalContent(item.description) ? (
+                                              <LexicalRenderer
+                                                content={item.description}
+                    
+                                              />
+                                          ) : (
+                                            <>
+                                                {item.description}
+                                            </>
+                                          )}
+                              </div>
                           ) : null}
                         </div>
                         {isSelected ? <Check className="ml-3 h-4 w-4 shrink-0" /> : null}

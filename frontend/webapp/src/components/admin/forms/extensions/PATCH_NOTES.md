@@ -1,121 +1,23 @@
-# Additive extension patch for dependent relation fields + custom field/cell registries
+This extension layer adds three capabilities without rewriting the working core:
 
-This patch adds a safe extension layer without changing your working CRUD flow.
+1. Cascading lazy selects via extension config only.
+2. Virtual/transient parent fields (for forms like marketing.offers where provider_service_id exists but provider_id does not).
+3. Form field augmentation support: before / replace / after.
 
-## New files
+What is included:
+- Generic configured relation field bound to a config key.
+- Generic cascading chain field that can render provider -> service or category -> provider -> service.
+- Backward-compatible relation-cascade API with raw parent columns for edit hydration.
+- Additive dynamic-form integration that understands extension augmentations.
 
-- `src/lib/admin/extensions/dependent-relations.ts`
-- `src/lib/admin/extensions/form-and-table-renderers.tsx`
-- `src/components/admin/forms/extensions/async-searchable-single-select.tsx`
-- `src/components/admin/forms/extensions/dependent-relation-field.tsx`
-- `src/app/api/admin/relation-cascade-options/route.ts`
+Current example:
+- marketing.offers.provider_service_id renders as a two-step chain:
+  Provider (__provider_id, transient) -> Service (provider_service_id)
 
-## What it gives you
+How to add a deeper chain:
+- Add a transient field config like marketing.offers.__category_id
+- Make marketing.offers.__provider_id depend on __category_id
+- Update the chain for marketing.offers.provider_service_id to steps:
+  __category_id -> __provider_id -> provider_service_id
 
-- `booking.bookings.service_id` can now depend on `provider_id`
-- one extension point for custom form fields per `schema.table.column`
-- one extension point for custom datatable cells per `schema.table.column`
-- future multi-parent chains like category -> provider -> service by config, not switch statements
-
-## Minimal edits to existing files
-
-### 1) `src/components/admin/forms/dynamic-form.tsx`
-
-Add import:
-
-```ts
-import { resolveAdminFormFieldExtension } from "@/lib/admin/extensions/form-and-table-renderers";
-```
-
-Inside `renderField(field)` add this near the top, after the hidden/id check and before built-in kind checks:
-
-```ts
-const customField = resolveAdminFormFieldExtension({
-  definition,
-  field,
-  form,
-  locale,
-  mode,
-  values,
-});
-
-if (customField) {
-  return <div key={field.columnName}>{customField}</div>;
-}
-```
-
-### 2) `src/components/admin/table/dynamic-data-table.tsx`
-
-Add import:
-
-```ts
-import { resolveAdminTableCellExtension } from "@/lib/admin/extensions/form-and-table-renderers";
-```
-
-Inside the column cell renderer, before your existing default formatting, add:
-
-```ts
-const customCell = resolveAdminTableCellExtension({
-  definition,
-  field,
-  row: row.original,
-  value,
-});
-
-if (customCell) {
-  return customCell;
-}
-```
-
-Use your existing `value` variable from the cell function.
-
-### 3) `src/lib/db.ts`
-
-If you do **not** already have a postgres.js client exported from `@/lib/db`, add one like this:
-
-```ts
-import postgres from "postgres";
-
-export const db = postgres(process.env.DATABASE_URL!, {
-  prepare: false,
-});
-```
-
-If your project already has a client somewhere else, only change the import in:
-
-- `src/app/api/admin/relation-cascade-options/route.ts`
-
-## How to add more dependent fields later
-
-Edit `src/lib/admin/extensions/dependent-relations.ts` and add more entries.
-
-Example shape:
-
-```ts
-"schema.table.column": {
-  key: "schema.table.column",
-  schema: "target_schema",
-  table: "target_table",
-  valueColumn: "id",
-  labelColumn: "name_translations",
-  labelMode: "translation",
-  parentFilters: [
-    {
-      parentField: "provider_id",
-      targetColumn: "service_provider_id",
-      required: true,
-    },
-  ],
-}
-```
-
-## Multi-level chains
-
-You do **not** need one special 3-level component.
-
-Configure each step independently:
-
-- provider field depends on category field
-- service field depends on provider field
-
-That keeps the system open for extension and avoids hardcoding category/provider/service into the core builder.
+All transient fields are still stripped before submit because the existing DynamicForm already removes keys starting with '__'.

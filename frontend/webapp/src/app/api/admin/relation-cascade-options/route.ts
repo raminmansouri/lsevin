@@ -1,27 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
 import { assertAdminPermission } from "@/lib/admin/guard";
-import { getAdminDependentRelationConfig } from "@/lib/admin/extensions/dependent-relations";
-// Replace this import if your postgres.js client lives elsewhere.
-import { db } from "@/lib/db";
+import { getAdminDependentRelationConfigByKey } from "@/lib/admin/extensions/dependent-relations";
+import sql from "@/config/database/db";
 
 function ident(name: string) {
   return '"' + name.replaceAll('"', '""') + '"';
 }
 
 function tableRef(schema: string, table: string) {
-  return db.unsafe(`${ident(schema)}.${ident(table)}`);
+  return sql.unsafe(`${ident(schema)}.${ident(table)}`);
 }
 
 function colRef(alias: string, column: string) {
-  return db.unsafe(`${alias}.${ident(column)}`);
+  return sql.unsafe(`${alias}.${ident(column)}`);
 }
 
-function buildTextExpr(alias: string, column: string, mode: "text" | "translation", locale: string, fallbackLocale: string) {
+function joinFragments(parts: any[], separator: any) {
+  if (!parts.length) return sql``;
+
+  return parts.slice(1).reduce((acc, part) => {
+    return sql`${acc}${separator}${part}`;
+  }, parts[0]);
+}
+
+function inferColumnMode(column: string): "text" | "translation" {
+  return column.endsWith("_translations") ? "translation" : "text";
+}
+
+function buildTextExpr(
+  alias: string,
+  column: string,
+  mode: "text" | "translation",
+  locale: string,
+  fallbackLocale: string
+) {
   const ref = colRef(alias, column);
+
   if (mode === "translation") {
-    return db`common.get_translation_t(${ref}, ${locale}, ${fallbackLocale})`;
+    return sql`common.get_translation_t(${ref}, ${locale}, ${fallbackLocale})`;
   }
+
   return ref;
+}
+
+function getAdminDependentRelationConfigFromKey(key: string) {
+  return getAdminDependentRelationConfigByKey(key);
 }
 
 export async function GET(req: NextRequest) {
@@ -30,72 +53,156 @@ export async function GET(req: NextRequest) {
   const fallbackLocale = req.nextUrl.searchParams.get("fallbackLocale") || locale;
   const search = req.nextUrl.searchParams.get("search") || "";
   const page = Math.max(1, Number(req.nextUrl.searchParams.get("page") || "1"));
-  const pageSize = Math.max(1, Math.min(50, Number(req.nextUrl.searchParams.get("pageSize") || "20")));
+  const pageSize = Math.max(
+    1,
+    Math.min(50, Number(req.nextUrl.searchParams.get("pageSize") || "20"))
+  );
   const id = req.nextUrl.searchParams.get("id");
   const parentsRaw = req.nextUrl.searchParams.get("parents");
-  const parents = parentsRaw ? JSON.parse(parentsRaw) as Array<{ field: string; value: unknown }> : [];
+  const parents = parentsRaw
+    ? (JSON.parse(parentsRaw) as Array<{ field: string; value: unknown }>)
+    : [];
 
   if (!key) {
     return NextResponse.json({ message: "Missing key." }, { status: 400 });
   }
 
   const config = getAdminDependentRelationConfigFromKey(key);
+
   if (!config) {
-    return NextResponse.json({ message: "Unknown dependent relation key." }, { status: 404 });
+    return NextResponse.json(
+      { message: "Unknown dependent relation key." },
+      { status: 404 }
+    );
   }
 
   await assertAdminPermission(config.schema, config.table, "list");
 
-  const labelExpr = buildTextExpr("t", config.labelColumn, config.labelMode ?? "text", locale, fallbackLocale);
+  const labelExpr = buildTextExpr(
+    "t",
+    config.labelColumn,
+    config.labelMode ?? inferColumnMode(config.labelColumn),
+    locale,
+    fallbackLocale
+  );
+
   const descriptionExpr = config.descriptionColumn
-    ? buildTextExpr("t", config.descriptionColumn, config.descriptionMode ?? "text", locale, fallbackLocale)
-    : db`null`;
+    ? buildTextExpr(
+        "t",
+        config.descriptionColumn,
+        config.descriptionMode ?? inferColumnMode(config.descriptionColumn),
+        locale,
+        fallbackLocale
+      )
+    : sql`null`;
+
+  const rawColumns = Array.from(
+    new Set(
+      (config.parentFilters ?? [])
+        .map((item) => item.targetColumn)
+        .filter(Boolean)
+    )
+  );
 
   const whereParts: any[] = [];
 
   if (id) {
-    whereParts.push(db`${colRef("t", config.valueColumn)} = ${id}`);
+    whereParts.push(sql`${colRef("t", config.valueColumn)} = ${id}`);
   }
 
   for (const filter of config.staticFilters ?? []) {
     const ref = colRef("t", filter.column);
-    if (filter.op === "true") whereParts.push(db`${ref} = true`);
-    else if (filter.op === "false") whereParts.push(db`${ref} = false`);
-    else whereParts.push(db`${ref} = ${filter.value as any}`);
+
+    if (filter.op === "true") {
+      whereParts.push(sql`${ref} = true`);
+    } else if (filter.op === "false") {
+      whereParts.push(sql`${ref} = false`);
+    } else if (filter.op === "neq") {
+      whereParts.push(sql`${ref} <> ${filter.value as any}`);
+    } else {
+      whereParts.push(sql`${ref} = ${filter.value as any}`);
+    }
   }
 
   for (const parentFilter of config.parentFilters ?? []) {
-    const incoming = parents.find((item) => item.field === parentFilter.targetColumn);
+    const incoming =
+      parents.find((item) => item.field === parentFilter.parentField) ??
+      parents.find((item) => item.field === parentFilter.targetColumn);
+
     const value = incoming?.value;
+
     if (value === undefined || value === null || value === "") {
       if (parentFilter.required !== false && !id) {
         return NextResponse.json({ items: [], hasMore: false });
       }
       continue;
     }
-    whereParts.push(db`${colRef("t", parentFilter.targetColumn)} = ${value as any}`);
+
+    whereParts.push(
+      sql`${colRef("t", parentFilter.targetColumn)} = ${value as any}`
+    );
   }
 
   if (search) {
     const searchLike = `%${search}%`;
-    const exprs = (config.searchColumns?.length ? config.searchColumns : [config.labelColumn]).map((column) => {
-      return db`${buildTextExpr("t", column, column === config.labelColumn ? config.labelMode ?? "text" : "translation", locale, fallbackLocale)} ilike ${searchLike}`;
+
+    const exprs = (
+      config.searchColumns?.length ? config.searchColumns : [config.labelColumn]
+    ).map((column) => {
+      const mode =
+        column === config.labelColumn
+          ? config.labelMode ?? inferColumnMode(column)
+          : inferColumnMode(column);
+
+      return sql`${buildTextExpr(
+        "t",
+        column,
+        mode,
+        locale,
+        fallbackLocale
+      )} ilike ${searchLike}`;
     });
-    whereParts.push(db`(${db.join(exprs, db` or `)})`);
+
+    whereParts.push(sql`(${joinFragments(exprs, sql` or `)})`);
   }
 
-  const whereSql = whereParts.length ? db`where ${db.join(whereParts, db` and `)}` : db``;
+  const whereSql = whereParts.length
+    ? sql`where ${joinFragments(whereParts, sql` and `)}`
+    : sql``;
 
   const orderByExpr = config.orderBy
-    ? buildTextExpr("t", config.orderBy.column, config.orderBy.mode ?? "text", locale, fallbackLocale)
+    ? buildTextExpr(
+        "t",
+        config.orderBy.column,
+        config.orderBy.mode ?? inferColumnMode(config.orderBy.column),
+        locale,
+        fallbackLocale
+      )
     : labelExpr;
-  const orderDir = config.orderBy?.direction === "desc" ? db.unsafe("desc") : db.unsafe("asc");
 
-  const rows = await db<Array<{ value: string; label: string; description: string | null }>>`
-    select
-      ${colRef("t", config.valueColumn)}::text as value,
-      ${labelExpr}::text as label,
-      ${descriptionExpr}::text as description
+  const orderDir =
+    config.orderBy?.direction === "desc"
+      ? sql.unsafe("desc")
+      : sql.unsafe("asc");
+
+  const rawSelects = rawColumns.map((column) => {
+    return sql`${colRef("t", column)}::text as ${sql.unsafe(
+      ident(`__raw__${column}`)
+    )}`;
+  });
+
+  const selectList = joinFragments(
+    [
+      sql`${colRef("t", config.valueColumn)}::text as value`,
+      sql`${labelExpr}::text as label`,
+      sql`${descriptionExpr}::text as description`,
+      ...rawSelects,
+    ],
+    sql`, `
+  );
+
+  const rows = await sql<any[]>`
+    select ${selectList}
     from ${tableRef(config.schema, config.table)} as t
     ${whereSql}
     order by ${orderByExpr} ${orderDir}
@@ -103,16 +210,27 @@ export async function GET(req: NextRequest) {
     offset ${id ? 0 : (page - 1) * pageSize}
   `;
 
+  const mapped = rows.map((row) => {
+    const raw = Object.fromEntries(
+      rawColumns.map((column) => [column, row[`__raw__${column}`] ?? null])
+    );
+
+    return {
+      value: row.value,
+      label: row.label,
+      description: row.description,
+      raw,
+    };
+  });
+
   if (id) {
-    return NextResponse.json({ item: rows[0] ?? null });
+    return NextResponse.json({ item: mapped[0] ?? null });
   }
 
-  const hasMore = rows.length > pageSize;
-  return NextResponse.json({ items: rows.slice(0, pageSize), hasMore });
-}
+  const hasMore = mapped.length > pageSize;
 
-function getAdminDependentRelationConfigFromKey(key: string) {
-  const [schema, table, column] = key.split(".");
-  if (!schema || !table || !column) return null;
-  return getAdminDependentRelationConfig(schema, table, column);
+  return NextResponse.json({
+    items: mapped.slice(0, pageSize),
+    hasMore,
+  });
 }
