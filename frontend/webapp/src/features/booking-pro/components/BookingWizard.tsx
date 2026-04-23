@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { DynamicServiceForm } from '@/features/form-builder/components/DynamicServiceForm';
 import type { BookingDraftState, ChildBookingDraft, ProviderCardItem, ProviderTypeAddonItem, ServiceCardItem, SpecialistCardItem, UploadRequirementItem } from '../types';
 import { ChildAddonBookingCard } from './ChildAddonBookingCard';
+import { PaymentMethodsPanel } from './PaymentMethodsPanel';
 import { EntityCard, providerMeta, serviceMeta } from './EntityCard';
 import { SearchLoadMoreList } from './SearchLoadMoreList';
 
@@ -62,6 +63,7 @@ export function BookingWizard() {
   const [mainServiceForm, setMainServiceForm] = useState<any>(null);
   const [submitting, setSubmitting] = useState(false);
   const [checkoutResult, setCheckoutResult] = useState<any>(null);
+  const [paymentIntentResult, setPaymentIntentResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -125,6 +127,7 @@ export function BookingWizard() {
   }, [draft?.providerId, draft?.serviceId, draft?.requiresSpecialist, specialistSearch, specialistOffset, locale, resumeChoiceRequired]);
 
   useEffect(() => {
+    debugger
     if (!draft?.serviceId || resumeChoiceRequired) return;
     getJson<{ item: { service_definition_id: string; booking_ui_mode: string; requires_specialist: boolean; value: number; currency: string } }>(`/api/booking-pro/service-mode?serviceId=${draft.serviceId}`)
       .then(async ({ item }) => {
@@ -221,6 +224,28 @@ export function BookingWizard() {
       setSubmitting(false);
     }
   }
+
+
+async function handleCreatePaymentIntent() {
+  if (!checkoutResult?.bookingId) return;
+  setSubmitting(true);
+  setError(null);
+  try {
+    const result = await getJson('/api/booking-pro/payments/create-intent', {
+      method: 'POST',
+      body: JSON.stringify({
+        bookingId: checkoutResult.bookingId,
+        paymentMethodCode: draft.paymentMethod || 'card',
+        returnUrl: typeof window !== 'undefined' ? window.location.href : undefined,
+      }),
+    });
+    setPaymentIntentResult(result);
+  } catch (e: any) {
+    setError(e.message || 'Failed to start payment');
+  } finally {
+    setSubmitting(false);
+  }
+}
 
   if (loadingDraft || !draft) {
     return <div className="min-h-screen bg-slate-50 p-6 text-sm text-slate-500">Loading booking…</div>;
@@ -475,13 +500,19 @@ export function BookingWizard() {
                   <div className="flex justify-between"><span>Add-on sub-bookings</span><span>{draft.childBookings.length}</span></div>
                   <div className="flex justify-between"><span>Add-on subtotal</span><span>{draft.currency} {draft.addonsAmount ?? 0}</span></div>
                   <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <label className="text-sm font-semibold text-slate-700">Payment method
-                      <select value={draft.paymentMethod ?? 'card'} onChange={(e) => { const next = { ...draft, paymentMethod: e.target.value }; setDraft(next); patchDraft(next).catch((er) => setError(er.message)); }} className="mt-2 h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 outline-none focus:border-[#155e75]">
-                        <option value="card">Card</option>
-                        <option value="bank">Bank transfer</option>
-                        <option value="wallet">Wallet</option>
-                      </select>
-                    </label>
+                    <div>
+                      <div className="text-sm font-semibold text-slate-700">Payment method</div>
+                      <div className="mt-2">
+                        <PaymentMethodsPanel
+                          selected={draft.paymentMethod ?? 'card'}
+                          onChange={(code) => {
+                            const next = { ...draft, paymentMethod: code };
+                            setDraft(next);
+                            patchDraft(next).catch((er) => setError(er.message));
+                          }}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -490,6 +521,17 @@ export function BookingWizard() {
                   <div className="text-lg font-bold">Booking submitted</div>
                   <div className="mt-2 text-sm">Booking ID: {checkoutResult.bookingId}</div>
                   <div className="text-sm">Payment status: {checkoutResult.paymentStatus}</div>
+                  <button type="button" onClick={handleCreatePaymentIntent} className="mt-4 rounded-2xl bg-[#083f30] px-4 py-3 text-sm font-semibold text-white">Continue to payment</button>
+                </div>
+              ) : null}
+
+              {paymentIntentResult ? (
+                <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-lg">
+                  <div className="text-lg font-bold text-slate-900">Payment action</div>
+                  <div className="mt-2 text-sm text-slate-600">Method: {paymentIntentResult.method}</div>
+                  <div className="text-sm text-slate-600">Status: {paymentIntentResult.status}</div>
+                  {paymentIntentResult.instructions ? <div className="mt-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">{paymentIntentResult.instructions}</div> : null}
+                  {paymentIntentResult.actionUrl ? <a href={paymentIntentResult.actionUrl} className="mt-4 inline-flex rounded-2xl bg-[#083f30] px-4 py-3 text-sm font-semibold text-white">Open gateway action</a> : null}
                 </div>
               ) : null}
             </div>

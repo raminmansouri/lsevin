@@ -3,7 +3,8 @@ import { cookies, headers } from 'next/headers';
 
 export async function resolveCurrentUserId(): Promise<string | null> {
   const session=await getSession();
-  return session?.user?.id || null;
+
+  return session?.user?.id;
   // const h = await headers();
   // const c = await cookies();
 
