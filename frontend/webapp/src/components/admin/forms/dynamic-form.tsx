@@ -357,6 +357,10 @@ export function DynamicForm({
               nextPayload[field.columnName] = normalizeMultilingualPayload(
                 nextPayload[field.columnName]
               );
+            } 
+            
+            if (field.isPrimaryKey) {
+               delete nextPayload[field.columnName];
             }
           }
 
