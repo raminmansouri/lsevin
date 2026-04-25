@@ -69,6 +69,15 @@ declare const messages: {
     "serviceDefinitions": "Service Definitions",
     "providerTypes": "Provider Types",
     "staff": "Staff",
+    "platformdata": "platform data",
+    "wallettransactions": "wallet transactions",
+    "bookings": "bookings",
+    "bookingdrafts": "booking drafts",
+    "loyalty": "loyalty",
+    "users": "users",
+    "customers": "customers",
+    "payments": "payments",
+    "walletpaymentintents": "wallet payment intents",
     "serviceProviders": "Service Providers"
   },
   "HomePage": { 

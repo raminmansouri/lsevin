@@ -1,42 +1,26 @@
 import { Suspense } from "react";
-import { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
 
 import ServerFetchResult from "@/components/fetcher/fetch.server";
-import LocaleBoundary from "@/components/locale/locale-boundary";
 import { PageHeader } from "@/components/page/page-header";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { withBaseHeaders } from "@/config/http/http-service.server";
 import { getStaffById } from "@/features/staff/api/server/get-staff-by-id";
-import {
-  StaffForm,
-  StaffFormSkeleton,
-} from "@/features/staff/components/staff-form";
-import { STAFF_TRANSLATION_KEY } from "@/features/staff/constants";
-import { StaffDetails } from "@/features/staff/types";
-import { PageParams, PageProps } from "@/types/next";
+import { StaffForm, StaffFormSkeleton } from "@/features/staff/components/staff-form";
+import { getStaffFormOptions } from "@/features/staff/lib/staff-db";
+import type { StaffDetails } from "@/features/staff/types";
+import type { PageProps } from "@/types/next";
 
-interface UpdateStaffPageProps extends PageParams {
+type UpdateStaffPageParams = {
+  locale: string;
   staffId: string;
-}
+};
 
-export async function generateMetadata(
-  props: PageProps<UpdateStaffPageProps>
-): Promise<Metadata> {
-  const { locale } = await props.params;
-  const t = await getTranslations({
-    locale,
-    namespace: STAFF_TRANSLATION_KEY,
-  });
+export const metadata: Metadata = {
+  title: "Update staff",
+  description: "Update a staff profile and all related records.",
+};
 
-  return {
-    title: t("update.page.title"),
-    description: t("update.page.description"),
-  };
-}
-
-const UpdateStaffPage = async ({ params }: PageProps<UpdateStaffPageProps>) => {
+const UpdateStaffPage = ({ params }: PageProps<UpdateStaffPageParams>) => {
   return (
     <Suspense fallback={<UpdateStaffPageSkeleton />}>
       <SuspenseBoundary params={params} />
@@ -44,45 +28,35 @@ const UpdateStaffPage = async ({ params }: PageProps<UpdateStaffPageProps>) => {
   );
 };
 
-const UpdateStaffPageSkeleton = () => {
+const UpdateStaffPageSkeleton = () => (
+  <Card className="border-gray-200 shadow-sm">
+    <CardHeader className="border-b">
+      <CardTitle>
+        <PageHeader title="Update staff" />
+      </CardTitle>
+    </CardHeader>
+    <StaffFormSkeleton />
+  </Card>
+);
+
+const SuspenseBoundary = async ({ params }: { params: Promise<UpdateStaffPageParams> }) => {
+  const { locale, staffId } = await params;
+  const [result, options] = await Promise.all([
+    getStaffById(staffId, { locale }),
+    getStaffFormOptions(locale),
+  ]);
+
   return (
-    <Card>
-      <CardHeader className="flex-between">
+    <Card className="border-gray-200 shadow-sm">
+      <CardHeader className="border-b bg-gradient-to-r from-[#083f30]/5 to-[#eac074]/10">
         <CardTitle>
-          <Skeleton className="h-10 w-32" />
+          <PageHeader title="Update staff" description="Edit core profile, services, availability, credentials, provider links, and media." />
         </CardTitle>
       </CardHeader>
-      <StaffFormSkeleton />
+      <ServerFetchResult<StaffDetails> singleData result={result}>
+        {(staff) => <StaffForm staff={staff} options={options} />}
+      </ServerFetchResult>
     </Card>
-  );
-};
-
-const SuspenseBoundary = async ({
-  params,
-}: {
-  params: Promise<{ locale: string; staffId: string }>;
-}) => {
-  const { staffId } = await params;
-
-  const result = await withBaseHeaders((locale, token) => {
-    return getStaffById(staffId, { locale, token });
-  });
-
-  return (
-    <LocaleBoundary params={params} tanslationNameSpace={STAFF_TRANSLATION_KEY}>
-      {(t) => (
-        <Card>
-          <CardHeader className="flex-between border-b">
-            <CardTitle>
-              <PageHeader title={t("update.title")} />
-            </CardTitle>
-          </CardHeader>
-          <ServerFetchResult<StaffDetails> singleData result={result}>
-            {(staff) => <StaffForm staff={staff} />}
-          </ServerFetchResult>
-        </Card>
-      )}
-    </LocaleBoundary>
   );
 };
 

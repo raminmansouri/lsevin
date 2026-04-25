@@ -20,7 +20,7 @@ type Props = {
 };
 
 const ServiceDefinitionListTable = ({ items, pagination }: Props) => {
-  const [, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
   const [selectedServiceDefinition, setSelectedServiceDefinition] =
     useState<ServiceDefinition | null>(null);
   const t = useTranslations(SERVICE_DEFINITION_TRANSLATION_KEY);
@@ -44,7 +44,7 @@ const ServiceDefinitionListTable = ({ items, pagination }: Props) => {
     }
   );
 
-  const { handleDelete, DeleteConfirmDialog } = useServiceDefinitionActions({
+  const { handleDelete, handleToggleActivation, DeleteConfirmDialog } = useServiceDefinitionActions({
     startTransition,
   });
 
@@ -65,22 +65,22 @@ const ServiceDefinitionListTable = ({ items, pagination }: Props) => {
     setSelectedServiceDefinition(serviceDefinition);
   };
 
-  // const handleToggleActivationRow = (serviceDefinition: ServiceDefinition) => {
-  //   handleToggleActivation({
-  //     serviceDefinition,
-  //     optimisticActivationOperation: (id) => {
-  //       updateOptimisticItems({ type: "activation", id });
-  //     },
-  //   });
-  // };
+  const handleToggleActivationRow = (serviceDefinition: ServiceDefinition) => {
+    handleToggleActivation({
+      serviceDefinition,
+      optimisticActivationOperation: (id) => {
+        updateOptimisticItems({ type: "activation", id });
+      },
+    });
+  };
 
   const columns = getServiceDefinitionListColumns(
     t,
     handleEditRow,
     handleDeleteRow,
-    handleViewDetailsRow
-    // handleToggleActivationRow,
-    // isPending
+    handleViewDetailsRow,
+    handleToggleActivationRow,
+    isPending
   );
 
   return (

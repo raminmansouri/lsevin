@@ -48,6 +48,43 @@ const data: AdminSidebarItemType[] = [
     title: "serviceProviders",
     url: "/admin/service-providers",
   },
+  {
+    title: "bookingdrafts",
+    url: "/admin/booking-drafts",
+  },
+  {
+    title: "bookings",
+    url: "/admin/bookings",
+  },
+
+  {
+    title: "customers",
+    url: "/admin/customers",
+  },
+  {
+    title: "users",
+    url: "/admin/identity-users",
+  },
+  {
+    title: "loyalty",
+    url: "/admin/loyalty",
+  },
+  {
+    title: "payments",
+    url: "/admin/payments",
+  }, 
+  {
+    title: "walletpaymentintents",
+    url: "/admin/wallet-payment-intents",
+  },
+  {
+    title: "wallettransactions",
+    url: "/admin/wallet-transactions",
+  }, 
+  {
+    title: "platformdata",
+    url: "/admin/platform-data",
+  },
 ];
 
 export function AdminSidebar({

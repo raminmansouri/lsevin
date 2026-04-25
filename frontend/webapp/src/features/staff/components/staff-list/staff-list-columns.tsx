@@ -1,10 +1,8 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { CalendarClock, MoreHorizontal, Star, Stethoscope, UsersRound } from "lucide-react";
 
-import { LexicalRenderer } from "@/components/editor/lexical-renderer";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,24 +10,53 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { env } from "@/config/env/client";
 
-import { Staff } from "../../types";
+import type { Staff } from "../../types";
+
+function mediaUrl(value?: string | null) {
+  if (!value) return undefined;
+  if (value.startsWith("http://") || value.startsWith("https://") || value.startsWith("/")) return value;
+  return `${env.NEXT_PUBLIC_FILES_URL}/${value}`;
+}
 
 export const getStaffListColumns = (
-  t: ReturnType<typeof useTranslations>,
   handleEdit: (staff: Staff) => void,
   handleDelete: (staff: Staff) => void,
-  handleDetails: (staff: Staff) => void
+  handleToggle: (staff: Staff) => void
 ): ColumnDef<Staff>[] => [
   {
     accessorKey: "name",
-    header: t("table.name"),
+    header: "Staff",
     cell: ({ row }) => {
       const staff = row.original;
       return (
-        <div className="flex flex-col">
-          <span className="font-medium">{staff.name}</span>
-          <span className="text-muted-foreground text-sm">{staff.title}</span>
+        <div className="flex min-w-[260px] items-center gap-3">
+          <div className="relative h-12 w-12 overflow-hidden rounded-2xl bg-gray-100 ring-1 ring-gray-200">
+            {staff.profileImageUrl ? (
+              <ImageWithFallback
+                fill
+                src={mediaUrl(staff.profileImageUrl) || ""}
+                alt={staff.name}
+                className="object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-[#083f30]">
+                {staff.name?.slice(0, 1) || "S"}
+              </div>
+            )}
+          </div>
+          <div className="min-w-0">
+            <div className="truncate font-semibold text-gray-900">{staff.name || "Untitled staff"}</div>
+            <div className="truncate text-sm text-muted-foreground">{staff.title || staff.specialty || "No title"}</div>
+            <div className="mt-1 flex flex-wrap gap-1">
+              <span className="rounded-full bg-[#083f30]/10 px-2 py-0.5 text-xs font-medium text-[#083f30]">
+                {staff.isActive ? "Active" : "Inactive"}
+              </span>
+              {staff.specialty && <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-700">{staff.specialty}</span>}
+            </div>
+          </div>
         </div>
       );
     },
@@ -37,44 +64,45 @@ export const getStaffListColumns = (
     enableHiding: false,
   },
   {
-    accessorKey: "biography",
-    header: t("table.biography"),
-    cell: ({ row }) => {
-      const biography = row.original.biography;
-      return (
-        <LexicalRenderer
-          className="max-w-[200px] truncate"
-          content={biography || "-"}
-        />
-      );
-    },
-    enableSorting: false,
+    accessorKey: "rating",
+    header: "Rating",
+    cell: ({ row }) => (
+      <div className="flex items-center gap-1 text-sm">
+        <Star className="h-4 w-4 fill-current text-amber-500" />
+        <span className="font-medium">{Number(row.original.rating || 0).toFixed(1)}</span>
+        <span className="text-muted-foreground">({row.original.reviewCount})</span>
+      </div>
+    ),
   },
-  // {
-  //   accessorKey: "isActive",
-  //   header: t("table.status"),
-  //   cell: ({ row }) => {
-  //     const isActive = row.original.isActive;
-  //     return (
-  //       <span
-  //         className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-  //           isActive
-  //             ? "bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20"
-  //             : "bg-gray-50 text-gray-600 ring-1 ring-inset ring-gray-500/10"
-  //         }`}
-  //       >
-  //         {isActive ? t("status.active") : t("status.inactive")}
-  //       </span>
-  //     );
-  //   },
-  //   enableSorting: true,
-  // },
   {
-    id: "actions",
-    header: t("table.actions"),
+    accessorKey: "serviceCount",
+    header: "Coverage",
     cell: ({ row }) => {
       const staff = row.original;
-
+      return (
+        <div className="space-y-1 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2"><Stethoscope className="h-4 w-4" /> {staff.serviceCount} services</div>
+          <div className="flex items-center gap-2"><UsersRound className="h-4 w-4" /> {staff.providerCount} providers</div>
+          <div className="flex items-center gap-2"><CalendarClock className="h-4 w-4" /> {staff.bookingCount} bookings</div>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "consultationFee",
+    header: "Fee",
+    cell: ({ row }) => <span className="font-medium">{Number(row.original.consultationFee || 0).toLocaleString()}</span>,
+  },
+  {
+    accessorKey: "experienceYears",
+    header: "Experience",
+    cell: ({ row }) => row.original.experienceYears ? `${row.original.experienceYears} years` : row.original.experience || "-",
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => {
+      const staff = row.original;
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -84,18 +112,9 @@ export const getStaffListColumns = (
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleDetails(staff)}>
-              {t("actions.viewDetails")}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleEdit(staff)}>
-              {t("actions.editStaff")}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => handleDelete(staff)}
-              className="text-destructive"
-            >
-              {t("actions.deleteStaff")}
-            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleEdit(staff)}>Edit full profile</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleToggle(staff)}>{staff.isActive ? "Deactivate" : "Activate"}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleDelete(staff)} className="text-destructive">Delete</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

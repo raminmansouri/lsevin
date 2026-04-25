@@ -1,75 +1,59 @@
-import React, { Suspense } from "react";
-import { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
-import { SearchParams } from "nuqs";
+import { Suspense } from "react";
+import type { Metadata } from "next";
+import type { SearchParams } from "nuqs";
 
 import ServerFetchResult from "@/components/fetcher/fetch.server";
-import { withBaseHeaders } from "@/config/http/http-service.server";
+import { PageHeader } from "@/components/page/page-header";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getStaff } from "@/features/staff/api/server/get-staff";
-import StaffListTable, {
-  StaffListTableSkeleton,
-} from "@/features/staff/components/staff-list/staff-list-table";
-import { STAFF_TRANSLATION_KEY } from "@/features/staff/constants";
-import { Staff } from "@/features/staff/types";
-import {
-  transformPaginatedResultToPagination,
-  transformSearchParamsToFilterParams,
-} from "@/lib/filter-params";
-import { FilterParams } from "@/types/filter";
-import { PaginatedResult } from "@/types/network";
-import { PageProps } from "@/types/next";
+import StaffListTable, { StaffListTableSkeleton } from "@/features/staff/components/staff-list/staff-list-table";
+import type { Staff } from "@/features/staff/types";
+import { transformPaginatedResultToPagination, transformSearchParamsToFilterParams } from "@/lib/filter-params";
+import type { FilterParams } from "@/types/filter";
+import type { PaginatedResult } from "@/types/network";
+import type { PageProps } from "@/types/next";
 
-export async function generateMetadata(
-  props: Omit<PageProps, "children">
-): Promise<Metadata> {
-  const { locale } = await props.params;
-  const t = await getTranslations({
-    locale,
-    namespace: STAFF_TRANSLATION_KEY,
-  });
+export const metadata: Metadata = {
+  title: "Staff",
+  description: "Manage staff, specialists, service assignments, availability, credentials, and media.",
+};
 
-  return {
-    title: t("page.title"),
-    description: t("page.description"),
-  };
-}
-
-const StaffPage = ({ searchParams }: PageProps) => {
+const StaffPage = ({ searchParams, params }: PageProps) => {
   return (
-    <Suspense fallback={<StaffListTableSkeleton />}>
-      <SuspenseBoundary searchParams={searchParams} />
-    </Suspense>
+    <Card className="border-gray-200 shadow-sm">
+      <CardHeader className="border-b bg-gradient-to-r from-[#083f30]/5 to-[#eac074]/10">
+        <CardTitle>
+          <PageHeader title="Staff management" description="Manage specialists, provider assignments, services, availability, achievements, and gallery content." />
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-0">
+        <Suspense fallback={<StaffListTableSkeleton />}>
+          <SuspenseBoundary searchParams={searchParams} params={params} />
+        </Suspense>
+      </CardContent>
+    </Card>
   );
 };
 
 const SuspenseBoundary = async ({
   searchParams,
+  params,
 }: {
   searchParams: Promise<SearchParams>;
+  params: Promise<{ locale: string }>;
 }) => {
-  const searchParamsData = await searchParams;
-  const filterParams: FilterParams =
-    transformSearchParamsToFilterParams(searchParamsData);
-
-  const result = await withBaseHeaders(
-    async (locale, token) => {
-      return getStaff({ locale, token }, filterParams);
-    },
-    {
-      adminRequired: true,
-    }
-  );
+  const [searchParamsData, routeParams] = await Promise.all([searchParams, params]);
+  const filterParams: FilterParams = transformSearchParamsToFilterParams(searchParamsData);
+  const result = await getStaff({ locale: routeParams.locale }, filterParams);
 
   return (
     <ServerFetchResult<PaginatedResult<Staff>> result={result}>
-      {(staff) => {
-        return (
-          <StaffListTable
-            items={staff.items}
-            pagination={transformPaginatedResultToPagination(staff)}
-          />
-        );
-      }}
+      {(staff) => (
+        <StaffListTable
+          items={staff.items}
+          pagination={transformPaginatedResultToPagination(staff)}
+        />
+      )}
     </ServerFetchResult>
   );
 };

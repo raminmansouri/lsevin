@@ -1,49 +1,31 @@
 "use server";
 
-import { deleteData } from "@/config/http/http-service.server";
-import {
-  ADMIN_BASE_PATH,
-  CATEGORY_MODULE_BASE_PATH,
-} from "@/features/shared/types/constants";
 import { createAuthenticatedSafeAction } from "@/lib/safe-action";
-import { LocaleHeaderTypes } from "@/types/common";
 
 import { revalidateStaffCache } from "../../db/cache";
+import { deleteStaffOrDeactivate } from "../../lib/staff-db";
 import { DeleteStaffSchema } from "./schema";
-import { InputType } from "./types";
+import type { InputType, ReturnType } from "./types";
 
 const handler = async (
   input: InputType,
-  token: string,
-  userId: string,
-  locale: LocaleHeaderTypes
-) => {
-  const { staffId } = input;
-
-  const { data, error } = await deleteData(
-    `${CATEGORY_MODULE_BASE_PATH}/${ADMIN_BASE_PATH}/staff/${staffId}`,
-    undefined,
-    {
-      token,
-      locale,
-    }
-  );
-
-  if (data) {
+  _token: string,
+  userId: string
+): Promise<ReturnType> => {
+  try {
+    const result = await deleteStaffOrDeactivate(input.staffId);
     revalidateStaffCache({ id: input.staffId, userId });
+    return { data: result, error: undefined };
+  } catch (error) {
     return {
-      data: data,
-      error: error,
+      data: undefined,
+      error: {
+        title: "Delete staff failed",
+        detail: error instanceof Error ? error.message : "Could not delete staff.",
+        status: 500,
+      } as any,
     };
   }
-
-  return {
-    data: undefined,
-    error: error,
-  };
 };
 
-export const deleteStaffAction = createAuthenticatedSafeAction(
-  DeleteStaffSchema,
-  handler
-);
+export const deleteStaffAction = createAuthenticatedSafeAction(DeleteStaffSchema, handler);

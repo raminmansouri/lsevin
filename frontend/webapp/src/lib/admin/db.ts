@@ -1,3 +1,4 @@
+import sql from "@/config/database/db";
 import postgres from "postgres";
 
 declare global {
@@ -10,22 +11,7 @@ export function getAdminSql() {
   }
 
   if (!global.__adminSql) {
-    global.__adminSql = postgres(process.env.DATABASE_URL, {
-        debug(connection, query, params, types) {
-    console.log("-----------------------------SQL:-----------------------------");
-    console.log("SQL:", query);
-    console.log("Params:", params);
-    console.log("-----------------------------END:-----------------------------");
-
-  },
-      max: 10,
-      prepare: true,
-      idle_timeout: 20,
-      connect_timeout: 10,
-      transform: {
-        undefined: null,
-      },
-    });
+    global.__adminSql = sql;
   }
 
   return global.__adminSql;

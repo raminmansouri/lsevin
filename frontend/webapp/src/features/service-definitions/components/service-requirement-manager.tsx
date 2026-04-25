@@ -135,19 +135,19 @@ export function ServiceRequirementManager({
     });
   };
 
-  const handleRemoveRequirement = async (index: number) => {
+  const handleRemoveRequirement = async (requirementId: number) => {
     const confirmed = await confirmDelete();
     if (!confirmed) return;
 
     startTransition(async () => {
       await executeRemove({
         serviceDefinitionId: serviceDefinition.id,
-        requirementIndex: index,
+        requirementIndex: requirementId,
       });
     });
   };
 
-  const handleUpdateRequirement = async (index: number) => {
+  const handleUpdateRequirement = async (requirementId: number) => {
     const hasDescriptionTranslation = Object.values(
       editFormData.description.translations
     ).some((t) => t?.trim());
@@ -164,7 +164,7 @@ export function ServiceRequirementManager({
     startTransition(async () => {
       await executeUpdate({
         serviceDefinitionId: serviceDefinition.id,
-        requirementIndex: index,
+        requirementIndex: requirementId,
         ...editFormData,
         ...normalizedFields,
       });
@@ -212,7 +212,7 @@ export function ServiceRequirementManager({
             <div className="space-y-3">
               {serviceDefinition.requirements.map((requirement, index) => (
                 <div
-                  key={`requirement-${index}`}
+                  key={requirement.id}
                   className="rounded-lg border p-4"
                 >
                   {editingIndex === index ? (
@@ -258,7 +258,7 @@ export function ServiceRequirementManager({
 
                       <div className="flex gap-2">
                         <Button
-                          onClick={() => handleUpdateRequirement(index)}
+                          onClick={() => handleUpdateRequirement(requirement.id)}
                           disabled={
                             isPending ||
                             !Object.values(
@@ -320,7 +320,7 @@ export function ServiceRequirementManager({
                           type="button"
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleRemoveRequirement(index)}
+                          onClick={() => handleRemoveRequirement(requirement.id)}
                           disabled={isPending || editingIndex !== null}
                           className="text-destructive hover:text-destructive"
                         >

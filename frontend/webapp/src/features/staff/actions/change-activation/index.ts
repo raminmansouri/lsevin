@@ -1,39 +1,31 @@
 "use server";
 
-import { patchData } from "@/config/http/http-service.server";
-import {
-  ADMIN_BASE_PATH,
-  CATEGORY_MODULE_BASE_PATH,
-} from "@/features/shared/types/constants";
 import { createAuthenticatedSafeAction } from "@/lib/safe-action";
-import { LocaleHeaderTypes } from "@/types/common";
 
 import { revalidateStaffCache } from "../../db/cache";
+import { setStaffActivation } from "../../lib/staff-db";
 import { ChangeStaffActivationSchema } from "./schema";
-import { InputType, ReturnType } from "./types";
+import type { InputType, ReturnType } from "./types";
 
 const handler = async (
   input: InputType,
-  token: string,
-  userId: string,
-  locale: LocaleHeaderTypes
+  _token: string,
+  userId: string
 ): Promise<ReturnType> => {
-  const { staffId, isActive } = input;
-
-  const { data, error } = await patchData<{ isActive: boolean }, boolean>(
-    `${CATEGORY_MODULE_BASE_PATH}/${ADMIN_BASE_PATH}/staff/${staffId}/activation`,
-    { isActive },
-    { locale, token }
-  );
-
-  if (data) {
-    revalidateStaffCache({ id: staffId, userId });
+  try {
+    const data = await setStaffActivation(input.staffId, input.isActive);
+    revalidateStaffCache({ id: input.staffId, userId });
     return { data, error: undefined };
+  } catch (error) {
+    return {
+      data: undefined,
+      error: {
+        title: "Status update failed",
+        detail: error instanceof Error ? error.message : "Could not update staff status.",
+        status: 500,
+      } as any,
+    };
   }
-  return { data: undefined, error };
 };
 
-export const changeStaffActivationAction = createAuthenticatedSafeAction(
-  ChangeStaffActivationSchema,
-  handler
-);
+export const changeStaffActivationAction = createAuthenticatedSafeAction(ChangeStaffActivationSchema, handler);

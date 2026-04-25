@@ -1,7 +1,4 @@
 import { z } from "zod/v4";
-
-export const DeleteStaffSchema = z.object({
-  staffId: z.guid(),
-});
-
+import { DeleteStaffSchema } from "../../schemas";
+export { DeleteStaffSchema };
 export type DeleteStaffInput = z.infer<typeof DeleteStaffSchema>;

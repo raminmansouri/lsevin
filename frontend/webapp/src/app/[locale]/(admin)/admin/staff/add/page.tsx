@@ -1,42 +1,28 @@
-import { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
 
 import { PageHeader } from "@/components/page/page-header";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { StaffForm } from "@/features/staff/components/staff-form";
-import { STAFF_TRANSLATION_KEY } from "@/features/staff/constants";
-import { PageProps } from "@/types/next";
+import { getStaffFormOptions } from "@/features/staff/lib/staff-db";
+import type { PageProps } from "@/types/next";
 
-export async function generateMetadata(
-  props: Omit<PageProps, "children">
-): Promise<Metadata> {
-  const { locale } = await props.params;
-  const t = await getTranslations({
-    locale,
-    namespace: STAFF_TRANSLATION_KEY,
-  });
-
-  return {
-    title: t("add.page.title"),
-    description: t("add.page.description"),
-  };
-}
+export const metadata: Metadata = {
+  title: "Add staff",
+  description: "Create a full staff profile with all related staff tables.",
+};
 
 const AddStaffPage = async ({ params }: PageProps) => {
   const { locale } = await params;
-  const t = await getTranslations({
-    locale,
-    namespace: STAFF_TRANSLATION_KEY,
-  });
+  const options = await getStaffFormOptions(locale);
 
   return (
-    <Card>
-      <CardHeader className="flex-between border-b">
+    <Card className="border-gray-200 shadow-sm">
+      <CardHeader className="border-b bg-gradient-to-r from-[#083f30]/5 to-[#eac074]/10">
         <CardTitle>
-          <PageHeader title={t("add.title")} />
+          <PageHeader title="Add staff" description="Create the core profile and all related staff records in one place." />
         </CardTitle>
       </CardHeader>
-      <StaffForm />
+      <StaffForm options={options} />
     </Card>
   );
 };

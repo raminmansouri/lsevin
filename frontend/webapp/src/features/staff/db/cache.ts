@@ -22,22 +22,6 @@ export function revalidateStaffCache({
   userId: string;
 }) {
   revalidateTag(getStaffGlobalTag());
-  if (id) {
-    revalidateTag(getStaffIdTag(id));
-  }
+  if (id) revalidateTag(getStaffIdTag(id));
   revalidateTag(getStaffUserTag(userId));
-}
-
-export function revalidateBulkStaffCache({
-  ids,
-  userId,
-}: {
-  ids: string[];
-  userId: string;
-}) {
-  ids.forEach((id) => {
-    revalidateTag(getStaffIdTag(id));
-  });
-  revalidateTag(getStaffUserTag(userId));
-  revalidateTag(getStaffGlobalTag());
 }

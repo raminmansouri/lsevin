@@ -5,5 +5,5 @@ import { ServiceRequirementCreateSchema } from "../../schemas";
 export const UpdateServiceRequirementSchema =
   ServiceRequirementCreateSchema.extend({
     serviceDefinitionId: z.guid(),
-    requirementIndex: z.number().int().min(0),
+    requirementIndex: z.coerce.number().int().min(0),
   });

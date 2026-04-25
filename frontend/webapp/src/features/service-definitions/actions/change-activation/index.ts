@@ -1,53 +1,21 @@
 "use server";
 
-import { patchData } from "@/config/http/http-service.server";
-import {
-  ADMIN_BASE_PATH,
-  CATEGORY_MODULE_BASE_PATH,
-} from "@/features/shared/types/constants";
 import { createAuthenticatedSafeAction } from "@/lib/safe-action";
-import { LocaleHeaderTypes } from "@/types/common";
 
+import { actionFail, setServiceDefinitionActivationInDb } from "../../db/service-definition-repository";
 import { revalidateServiceDefinitionCache } from "../../db/cache";
 import { ChangeServiceDefinitionActivationSchema } from "./schema";
 import { InputType, ReturnType } from "./types";
 
-const handler = async (
-  input: InputType,
-  token: string,
-  userId: string,
-  locale: LocaleHeaderTypes
-): Promise<ReturnType> => {
-  const { serviceDefinitionId, isActive } = input;
-
-  const { data, error } = await patchData<
-    Omit<InputType, "serviceDefinitionId">,
-    string
-  >(
-    `${CATEGORY_MODULE_BASE_PATH}/${ADMIN_BASE_PATH}/service-definitions/${serviceDefinitionId}/activation`,
-    { isActive },
-    {
-      token,
-      locale,
-    }
-  );
-
-  if (data) {
-    revalidateServiceDefinitionCache({ id: serviceDefinitionId, userId });
-    return {
-      data: data,
-      error: error,
-    };
+const handler = async (input: InputType, _token: string, userId: string): Promise<ReturnType> => {
+  try {
+    const id = await setServiceDefinitionActivationInDb(input.serviceDefinitionId, input.isActive);
+    revalidateServiceDefinitionCache({ id, userId });
+    return { data: id, error: undefined };
+  } catch (error) {
+    return actionFail(error, "Failed to change activation status.") as ReturnType;
   }
-
-  return {
-    data: undefined,
-    error: error,
-  };
 };
 
 export const changeServiceDefinitionActivationAction =
-  createAuthenticatedSafeAction(
-    ChangeServiceDefinitionActivationSchema,
-    handler
-  );
+  createAuthenticatedSafeAction(ChangeServiceDefinitionActivationSchema, handler);

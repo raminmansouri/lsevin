@@ -5,12 +5,9 @@ import {
   unstable_cacheTag as cacheTag,
 } from "next/cache";
 
-import { readData } from "@/config/http/http-service.server";
-import {
-  ADMIN_BASE_PATH,
-  CATEGORY_MODULE_BASE_PATH,
-} from "@/features/shared/types/constants";
 import { LocaleHeaderTypes } from "@/types/common";
+
+import { getServiceDefinitionOptionsFromDb } from "../../db/service-definition-repository";
 
 export interface ServiceDefinitionOption {
   id: string;
@@ -23,21 +20,28 @@ export interface ServiceDefinitionOption {
   isActive: boolean;
 }
 
+function pickTranslation(value: { translations?: Record<string, string> }, locale: string) {
+  const translations = value.translations || {};
+  return translations[locale] || translations[locale.split("-")[0]] || translations.en || Object.values(translations)[0] || "";
+}
+
 export const getServiceDefinitionOptions = async (
   locale: LocaleHeaderTypes,
-  token: string
+  _token: string
 ): Promise<ServiceDefinitionOption[]> => {
   "use cache: remote";
   cacheLife("hours");
   cacheTag("service-definition-options");
 
-  const { data } = await readData<ServiceDefinitionOption[]>(
-    `${CATEGORY_MODULE_BASE_PATH}/${ADMIN_BASE_PATH}/service-definitions/options`,
-    {
-      locale,
-      token,
-    }
-  );
-
-  return data?.filter((option) => option.isActive) ?? [];
+  const options = await getServiceDefinitionOptionsFromDb(locale);
+  return options.map((option) => ({
+    id: option.id,
+    name: pickTranslation(option.name, locale),
+    description: pickTranslation(option.description, locale),
+    categoryName: option.categoryName,
+    price: option.price,
+    currency: option.currency,
+    durationMinutes: option.durationMinutes,
+    isActive: option.isActive,
+  }));
 };
