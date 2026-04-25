@@ -33,13 +33,13 @@ internal sealed class BookingsQueryHandler(
         var currentLocale = localeAccessor.CurrentLocale;
         var defaultLocale = localeAccessor.DefaultLocale;
 
-   
-        var searchHistoryResponse = new BookingsResponse
+
+        var searchHistoryResponse = await GetBookingsAsync(cancellationToken);/*new BookingsResponse
         {
             CancelledBookings = Bookings.CancelledBookings().ToList(),
             UpcomingBookings = Bookings.UpcomingBookings().ToList(),
             PastBookings = Bookings.PastBookings().ToList(),
-        };
+        };*/
 
 
         return searchHistoryResponse;

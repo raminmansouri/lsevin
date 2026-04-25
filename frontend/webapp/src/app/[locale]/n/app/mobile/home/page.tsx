@@ -44,6 +44,7 @@ import UserInfoSubBar from './components/user-info';
 import sql from '@/config/database/db';
 import { getPopularSearches } from '@/features/home/api/server/get-popular-searches';
 import { SponsoredMediaCarouselSection } from '@/features/home/components/sponsored-media-carousel-section';
+import { getQuickSearches } from './actions/get-quick-searches';
 
 
 /* export async function generateMetadata(): Promise<Metadata> {
@@ -71,103 +72,34 @@ import { SponsoredMediaCarouselSection } from '@/features/home/components/sponso
 
 
 
-   function Home({ params, searchParams }: PageProps) {
+async function Home({ params, searchParams }: PageProps) {
 
 
-  const t = useTranslations();
 
-  const navigate = redirect //useNavigate();
-  // const { isRTL } = useLocalization();
-
-  // const { data} = useFetchGetHomePage({});
-
-  
-  const categories = [
-    {
-      id: 1,
-      label: 'Medical',
-      path: '/n/app/mobile/medical/clinics',
-      image: '/unsplash_images/photo-1631217868264-e5b90bb7e133__w=400&h=300&fit=crop.jpg',
-      gradient: 'from-red-500/90 to-red-600/90'
-    },
-    {
-      id: 2,
-      label: 'Beauty & Spa',
-      path: '/n/app/mobile/beauty',
-      image: '/unsplash_images/photo-1560066984-138dadb4c035__w=400&h=300&fit=crop.jpg',
-      gradient: 'from-pink-500/90 to-rose-600/90'
-    },
-    {
-      id: 3,
-      label: 'Fitness',
-      path: '/n/n/app/mobile/mobile/fitness',
-      image: '/unsplash_images/photo-1534438327276-14e5300c3a48__w=400&h=300&fit=crop.jpg',
-      gradient: 'from-purple-500/90 to-purple-600/90'
-    },
-    {
-      id: 4,
-      label: 'Hotels',
-      path: '/n/app/mobile/hotels',
-      image: '/unsplash_images/photo-1566073771259-6a8506099945__w=400&h=300&fit=crop.jpg',
-      gradient: 'from-blue-500/90 to-blue-600/90'
-    },
-    {
-      id: 5,
-      label: 'Pharmacy',
-      path: '/n/app/mobile/pharmacy',
-      image: '/unsplash_images/photo-1576602976047-174e57a47881__w=400&h=300&fit=crop.jpg',
-      gradient: 'from-teal-500/90 to-teal-600/90'
-    },
-    {
-      id: 6,
-      label: 'Education',
-      path: '/n/app/mobile/education',
-      image: '/unsplash_images/photo-1523240795612-9a054b0db644__w=400&h=300&fit=crop.jpg',
-      gradient: 'from-amber-500/90 to-orange-600/90'
-    },
+  const fallbackQuickSearches = [
+    "Hair Transplant",
+    "Dental Veneers",
+    "Spa Day",
+    "IVF Treatment",
+    "Gym Membership",
   ];
+  const limit = 8;
 
-  const quickSearches = [
-    'Hair Transplant',
-    'Dental Veneers',
-    'Spa Day',
-    'IVF Treatment',
-    'Gym Membership'
-  ];
+  const dbQuickSearches = await getQuickSearches(sql, limit);
+  const quickSearches =
+    dbQuickSearches.length > 0 ? dbQuickSearches : fallbackQuickSearches;
 
 
-  const HomePage = {
-    categories,
-    quickSearches
-  };
-  
-  getPopularSearches().then(s=>{
-    console.log('-----------------------------')
-    console.log('-----------------------------')
-    console.log('-----------------------------')
-    console.log('-----------------------------')
-    console.log('-----------------------------')
-    console.log(s)
 
-  }).catch(e=>{
-        console.log('-----------------------------')
-    console.log('-----------------------------')
-    console.log('-----------------------------')
-    console.log('-----------------------------')
-    console.log('-----------------------------')
-    console.log(e)
-  })
 
-  
 
-  
 
   return (
     <div className="min-h-screen bg-white">
       {/* Premium Header */}
       <div className="bg-white px-5 pt-3 pb-4 border-b border-gray-100 sticky top-0 z-40 backdrop-blur-xl bg-white/95">
-      
-        <UserInfoSubBar/>
+
+        <UserInfoSubBar />
 
         <LocationPicker />
       </div>
@@ -187,10 +119,10 @@ import { SponsoredMediaCarouselSection } from '@/features/home/components/sponso
         <div className="flex gap-2 overflow-x-auto hide-scrollbar mt-3 pb-1">
           {quickSearches.map(search => (
             <Link
-            href={`/n/app/mobile/search-results?q=${search}`}
+              href={`/n/app/mobile/search-results?q=${search}`}
               key={search}
               className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 border border-gray-200 hover:border-[#083f30] hover:text-[#083f30] transition-colors whitespace-nowrap"
-            > 
+            >
               {search}
             </Link>
           ))}
@@ -304,7 +236,7 @@ import { SponsoredMediaCarouselSection } from '@/features/home/components/sponso
       </div>
 
       {/* Native Ad Banner - Premium */}
-   {/*    <div className="px-5 pb-8">
+      {/*    <div className="px-5 pb-8">
         <div className="relative rounded-2xl overflow-hidden shadow-lg">
           <img
             src="/unsplash_images/photo-1544367567-0f2fcb009e0b__w=1200&h=400&fit=crop.jpg"
@@ -330,7 +262,7 @@ import { SponsoredMediaCarouselSection } from '@/features/home/components/sponso
         </div>
       </div> */}
 
-<SponsoredMediaCarouselSection />
+      <SponsoredMediaCarouselSection />
 
       {/* Trending Treatments */}
       <div className="pb-8">

@@ -34,7 +34,7 @@ const steps = [
   { key: 4, label: 'Files' },
   { key: 5, label: 'Review & Pay' },
 ] as const;
-
+ 
 export function BookingWizard() {
   const locale = useLocale();
   const router = useRouter();

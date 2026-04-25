@@ -4,21 +4,29 @@ import FetchDisplayProfileInfo from '@/features/profile/components/fetch-display
 import { useNavigate } from '@/hooks/use-navigate';
 import { Settings, Wallet as WalletIcon, Gift, Heart, FileText, Bell, Globe, Shield, LogOut, Share2 } from 'lucide-react';
 import Link from 'next/link';
+import SignOutButton from './components/sign-out-button';
+import { getSession } from '@/lib/auth/session';
+import { CustomerStats } from './components/customer-stats';
+import { getLocale } from 'next-intl/server';
 
 export default async function Profile() {
     const profile = await getProfileForEdit("en-US");
   
   
   const menuItems = [
-    { icon: WalletIcon, label: 'Wallet & Payments', path: '/app/wallet', color: 'text-green-600' },
-    { icon: Gift, label: 'Rewards & Loyalty', path: '/app/rewards', color: 'text-orange-600' },
-    { icon: Share2, label: 'Share with Friends', path: '/app/share', color: 'text-blue-600' },
-    { icon: Heart, label: 'Saved Favorites', path: '/app/favorites', color: 'text-red-600' },
-    { icon: FileText, label: 'Medical Profile', path: '/app/medical-profile', color: 'text-blue-600' },
-    { icon: Bell, label: 'Notifications', path: '/app/notifications', color: 'text-purple-600' },
-    { icon: Globe, label: 'Language & Currency', path: '/app/settings', color: 'text-teal-600' },
-    { icon: Shield, label: 'Privacy & Security', path: '/app/privacy-security', color: 'text-indigo-600' },
+    { icon: WalletIcon, label: 'Wallet & Payments', path: '/n/app/mobile/profile/wallet', color: 'text-green-600' },
+    { icon: Gift, label: 'Rewards & Loyalty', path: '/n/app/mobile/profile/rewards', color: 'text-orange-600' },
+    { icon: Share2, label: 'Share with Friends', path: '/n/app/mobile/profile/share', color: 'text-blue-600' },
+    { icon: Heart, label: 'Saved Favorites', path: '/n/app/mobile/profile/favorites', color: 'text-red-600' },
+    { icon: FileText, label: 'Medical Profile', path: '/n/app/mobile/profile/medical-profile', color: 'text-blue-600' },
+    { icon: Bell, label: 'Notifications', path: '/n/app/mobile/notifications', color: 'text-purple-600' },
+    // { icon: Globe, label: 'Language & Currency', path: '/n/app/mobile/profile/settings', color: 'text-teal-600' },
+    { icon: Shield, label: 'Privacy & Security', path: '/n/app/mobile/profile/privacy-security', color: 'text-indigo-600' },
   ];
+  
+  const session=await getSession();
+  const identityUserId=session?.user?.id;
+  const locale=await getLocale();
   
   return (
     <div className="min-h-screen bg-gray-50">
@@ -29,7 +37,9 @@ export default async function Profile() {
         </FetchDisplayProfileInfo>
         
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mt-6">
+              <CustomerStats identityUserId={identityUserId} locale={locale} />
+
+       {/*  <div className="grid grid-cols-3 gap-4 mt-6">
           <div className="text-center">
             <div className="text-xl font-bold text-gray-900">12</div>
             <div className="text-xs text-gray-500">Bookings</div>
@@ -42,7 +52,7 @@ export default async function Profile() {
             <div className="text-xl font-bold text-gray-900">$850</div>
             <div className="text-xs text-gray-500">Saved</div>
           </div>
-        </div>
+        </div> */}
       </div>
       
       {/* Menu Items */}
@@ -68,12 +78,8 @@ export default async function Profile() {
         })}
         
         {/* Logout */}
-        <button className="w-full bg-white rounded-2xl p-4 flex items-center gap-4 hover:shadow-md transition text-red-600">
-          <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
-            <LogOut size={20} />
-          </div>
-          <span className="flex-1 text-left font-medium">Log Out</span>
-        </button>
+        <SignOutButton/>
+        
       </div>
     </div>
   );

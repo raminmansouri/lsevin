@@ -242,18 +242,79 @@ export async function getShareFriendsPageData(
   };
 }
 
-export async function resolveCustomerFromIdentityUser(
+
+type IdentityUserForCustomer = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone_number_country_code: string;
+  phone_number: string;
+  birth_date: string | null;
+  gender: string | null;
+  address: string | null;
+  city: string | null;
+  country: string | null;
+  is_profile_confirmed: boolean;
+  profile_confirmed_at: string | null;
+};
+
+type CustomerRecord = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone_number_country_code: string;
+  phone_number: string;
+};
+
+function isUniqueViolation(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: string }).code === "23505"
+  );
+}
+
+async function getIdentityUserForCustomer(
   sql: Sql,
   identityUserId: string
-): Promise<ResolvedCustomer> {
-  const identityRows = await sql<{
-    id: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-    phone_number_country_code: string;
-    phone_number: string;
-  }[]>`
+): Promise<IdentityUserForCustomer> {
+  const rows = await sql<IdentityUserForCustomer[]>`
+    SELECT
+      id,
+      first_name,
+      last_name,
+      email,
+      phone_number_country_code,
+      phone_number,
+      birth_date,
+      gender,
+      address,
+      city,
+      country,
+      is_profile_confirmed,
+      profile_confirmed_at
+    FROM identity.asp_net_users
+    WHERE id = ${identityUserId}
+    LIMIT 1
+  `;
+
+  const identityUser = rows[0];
+
+  if (!identityUser) {
+    throw new Error("Authenticated user was not found.");
+  }
+
+  return identityUser;
+}
+
+export async function findCustomerForIdentityUser(
+  sql: Sql,
+  identityUser: IdentityUserForCustomer
+): Promise<CustomerRecord | null> {
+  const rows = await sql<CustomerRecord[]>`
     SELECT
       id,
       first_name,
@@ -261,26 +322,6 @@ export async function resolveCustomerFromIdentityUser(
       email,
       phone_number_country_code,
       phone_number
-    FROM identity.asp_net_users
-    WHERE id = ${identityUserId}
-    LIMIT 1
-  `;
-
-  const identityUser = identityRows[0];
-
-  if (!identityUser) {
-    throw new Error("Authenticated user was not found.");
-  }
-
-  const customerRows = await sql<{
-    id: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-    phone_number_country_code: string;
-    phone_number: string;
-  }[]>`
-    SELECT id, first_name, last_name, email, phone_number_country_code, phone_number
     FROM customer.customers
     WHERE id = ${identityUser.id}
        OR email = ${identityUser.email}
@@ -288,17 +329,126 @@ export async function resolveCustomerFromIdentityUser(
          phone_number_country_code = ${identityUser.phone_number_country_code}
          AND phone_number = ${identityUser.phone_number}
        )
-    ORDER BY CASE WHEN id = ${identityUser.id} THEN 0 ELSE 1 END, create_date ASC
+    ORDER BY
+      CASE
+        WHEN id = ${identityUser.id} THEN 0
+        WHEN email = ${identityUser.email} THEN 1
+        ELSE 2
+      END,
+      create_date ASC
     LIMIT 1
   `;
 
-  const customer = customerRows[0];
+  return rows[0] ?? null;
+}
 
-  if (!customer) {
-    throw new Error(
-      "No matching customer.customers record was found for the signed-in user."
-    );
+export async function createCustomerFromIdentityUser(
+  sql: Sql,
+  identityUser: IdentityUserForCustomer
+): Promise<CustomerRecord> {
+  const streetTranslations = identityUser.address?.trim()
+    ? JSON.stringify({ en: identityUser.address.trim() })
+    : null;
+
+  try {
+    const rows = await sql<CustomerRecord[]>`
+      INSERT INTO customer.customers (
+        id,
+        phone_number,
+        phone_number_country_code,
+        email,
+        birth_date,
+        street_translations,
+        city,
+        country,
+        detail_translations,
+        zip_code,
+        first_name,
+        last_name,
+        create_date,
+        last_modified_date,
+        gender,
+        is_active,
+        latitude,
+        longitude,
+        is_profile_confirmed,
+        profile_confirmed_at
+      )
+      VALUES (
+        ${identityUser.id},
+        ${identityUser.phone_number},
+        ${identityUser.phone_number_country_code},
+        ${identityUser.email},
+        ${identityUser.birth_date},
+        ${streetTranslations}::jsonb,
+        ${identityUser.city},
+        ${identityUser.country},
+        ${null}::jsonb,
+        ${null},
+        ${identityUser.first_name},
+        ${identityUser.last_name},
+        now(),
+        now(),
+        ${identityUser.gender},
+        true,
+        ${null},
+        ${null},
+        ${identityUser.is_profile_confirmed},
+        ${identityUser.profile_confirmed_at}
+      )
+      ON CONFLICT (id) DO NOTHING
+      RETURNING
+        id,
+        first_name,
+        last_name,
+        email,
+        phone_number_country_code,
+        phone_number
+    `;
+
+    if (rows[0]) {
+      return rows[0];
+    }
+
+    const existingCustomer = await findCustomerForIdentityUser(sql, identityUser);
+
+    if (existingCustomer) {
+      return existingCustomer;
+    }
+
+    throw new Error("Customer could not be created or resolved.");
+  } catch (error) {
+    if (isUniqueViolation(error)) {
+      const existingCustomer = await findCustomerForIdentityUser(sql, identityUser);
+
+      if (existingCustomer) {
+        return existingCustomer;
+      }
+    }
+
+    throw error;
   }
+}
+
+export async function ensureCustomerFromIdentityUser(
+  sql: Sql,
+  identityUser: IdentityUserForCustomer
+): Promise<CustomerRecord> {
+  const existingCustomer = await findCustomerForIdentityUser(sql, identityUser);
+
+  if (existingCustomer) {
+    return existingCustomer;
+  }
+
+  return createCustomerFromIdentityUser(sql, identityUser);
+}
+
+export async function resolveCustomerFromIdentityUser(
+  sql: Sql,
+  identityUserId: string
+): Promise<ResolvedCustomer> {
+  const identityUser = await getIdentityUserForCustomer(sql, identityUserId);
+  const customer = await ensureCustomerFromIdentityUser(sql, identityUser);
 
   return {
     identityUserId: identityUser.id,

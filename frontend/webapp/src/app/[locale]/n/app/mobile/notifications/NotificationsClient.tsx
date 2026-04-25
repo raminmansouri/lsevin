@@ -147,7 +147,7 @@ export default function NotificationsClient({
         <div className="px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => router.push("/app/profile")}
+              onClick={() => router.push("/n/app/mobile/profile")}
               className="w-10 h-10 -ml-2 flex items-center justify-center text-gray-600"
             >
               <ChevronLeft size={24} />
