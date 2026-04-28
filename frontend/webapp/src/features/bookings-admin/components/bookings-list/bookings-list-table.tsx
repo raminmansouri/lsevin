@@ -11,6 +11,8 @@ export default function BookingsListTable({ items }: { items: BookingListItem[] 
   const columns = getBookingColumns(
     (item) => router.push(`/admin/bookings/${item.id}/update`),
     (item) => router.push(`/admin/bookings/${item.id}/update`),
+    (item) => router.push(`/admin/bookings/${item.id}/financial`),
+    (item) => router.push(`/admin/bookings/${item.id}/payment-terms`),
   );
 
   return <DataTable columns={columns} data={items} pagination={{ page: 1, size: items.length || 1, totalElements: items.length, totalPages: 1 }} />;

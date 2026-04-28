@@ -5,7 +5,7 @@ import { Edit, Plus, Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { LexicalRenderer } from "@/components/editor/lexical-renderer";
+import { SafeLexicalRenderer } from "./safe-lexical-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -288,7 +288,7 @@ export function ServiceRequirementManager({
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <div className="flex-1">
-                            <LexicalRenderer
+                            <SafeLexicalRenderer
                               content={getLocalizedValue(
                                 requirement.description,
                                 localeHeader

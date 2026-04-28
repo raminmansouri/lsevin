@@ -1,0 +1,1 @@
+export { DeleteSponseredSliderSchema } from "../../schemas";

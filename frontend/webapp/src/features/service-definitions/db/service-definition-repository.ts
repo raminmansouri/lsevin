@@ -76,8 +76,73 @@ type UploadRequirementMutationInput = {
   exampleFileUrl?: string | null;
 };
 
+export type ServiceDefinitionLookupType =
+  | "categories"
+  | "currencies"
+  | "pricingModels"
+  | "attributeTypes";
+
+export type ServiceDefinitionLookupOption = {
+  value: string;
+  label: string;
+  description?: string;
+};
+
 const DEFAULT_PAGE_SIZE = 20;
 const DEFAULT_LOCALE = "en";
+const DEFAULT_LOOKUP_LIMIT = 30;
+
+const FALLBACK_CURRENCIES: ServiceDefinitionLookupOption[] = [
+  { value: "USD", label: "USD" },
+  { value: "EUR", label: "EUR" },
+  { value: "GBP", label: "GBP" },
+  { value: "AED", label: "AED" },
+  { value: "TRY", label: "TRY" },
+  { value: "IRR", label: "IRR" },
+  { value: "OMR", label: "OMR" },
+];
+
+const FALLBACK_PRICING_MODELS: ServiceDefinitionLookupOption[] = [
+  { value: "Fixed", label: "Fixed" },
+  { value: "StartingFrom", label: "Starting from" },
+  { value: "Variable", label: "Variable" },
+  { value: "Hourly", label: "Hourly" },
+  { value: "Package", label: "Package" },
+  { value: "Free", label: "Free" },
+];
+
+function filterStaticLookupOptions(
+  options: ServiceDefinitionLookupOption[],
+  search: string,
+  limit: number
+) {
+  const normalizedSearch = search.trim().toLowerCase();
+  const filtered = normalizedSearch
+    ? options.filter((option) => {
+        const haystack = [option.value, option.label, option.description]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(normalizedSearch);
+      })
+    : options;
+
+  return filtered.slice(0, limit);
+}
+
+function mergeLookupOptions(
+  ...groups: ServiceDefinitionLookupOption[][]
+): ServiceDefinitionLookupOption[] {
+  const map = new Map<string, ServiceDefinitionLookupOption>();
+  for (const group of groups) {
+    for (const option of group) {
+      if (!option.value) continue;
+      if (!map.has(option.value)) map.set(option.value, option);
+    }
+  }
+  return Array.from(map.values());
+}
+
 
 function toProblem(error: unknown, fallback = "Database operation failed."): Problem {
   const message = error instanceof Error ? error.message : fallback;
@@ -146,7 +211,25 @@ function parsePageParams(params?: FilterParams) {
   );
 
   const search = String(
-    raw.Search ?? raw.search ?? raw.q ?? raw.Query ?? raw.query ?? ""
+    raw.Search ??
+      raw.search ??
+      raw.q ??
+      raw.Q ??
+      raw.Query ??
+      raw.query ??
+      raw.keyword ??
+      raw.Keyword ??
+      raw.term ??
+      raw.Term ??
+      raw.searchTerm ??
+      raw.SearchTerm ??
+      raw.searchValue ??
+      raw.SearchValue ??
+      raw.globalFilter ??
+      raw.GlobalFilter ??
+      raw.filter ??
+      raw.Filter ??
+      ""
   ).trim();
 
   const categoryId = String(raw.CategoryId ?? raw.categoryId ?? "").trim();
@@ -243,6 +326,166 @@ function mapUsageRow(row: Record<string, unknown>): ServiceDefinitionUsageSummar
   };
 }
 
+
+export async function getServiceDefinitionLookupOptionsFromDb({
+  lookupType,
+  search = "",
+  locale,
+  limit = DEFAULT_LOOKUP_LIMIT,
+}: {
+  lookupType: ServiceDefinitionLookupType;
+  search?: string;
+  locale?: string | null;
+  limit?: number;
+}): Promise<ServiceDefinitionLookupOption[]> {
+  const normalizedLocale = normalizeLocale(locale);
+  const normalizedLimit = Math.min(100, Math.max(1, asNumber(limit, DEFAULT_LOOKUP_LIMIT)));
+  const normalizedSearch = String(search ?? "").trim();
+  const searchPattern = `%${normalizedSearch}%`;
+
+  if (lookupType === "pricingModels") {
+    return filterStaticLookupOptions(FALLBACK_PRICING_MODELS, normalizedSearch, normalizedLimit);
+  }
+
+  if (lookupType === "currencies") {
+    const rows = await sql<ServiceDefinitionLookupOption[]>`
+      select
+        c.symbol::text as value,
+        coalesce(nullif(trim(c.name), ''), c.symbol)::text as label,
+        c.symbol::text as description
+      from category.currencies c
+      where ${normalizedSearch} = ''
+        or c.symbol ilike ${searchPattern}
+        or c.name ilike ${searchPattern}
+      order by c.symbol asc
+      limit ${normalizedLimit}
+    `;
+
+    return mergeLookupOptions(
+      rows,
+      filterStaticLookupOptions(FALLBACK_CURRENCIES, normalizedSearch, normalizedLimit)
+    ).slice(0, normalizedLimit);
+  }
+
+  if (lookupType === "attributeTypes") {
+    return await sql<ServiceDefinitionLookupOption[]>`
+      select
+        at.id::text as value,
+        at.name::text as label,
+        null::text as description
+      from category.attribute_types at
+      where ${normalizedSearch} = ''
+        or at.name ilike ${searchPattern}
+        or at.id::text ilike ${searchPattern}
+      order by at.id asc
+      limit ${normalizedLimit}
+    `;
+  }
+
+  if (lookupType === "categories") {
+    return await sql<ServiceDefinitionLookupOption[]>`
+      with base as (
+        select
+          c.id,
+          c.parent_id,
+          c.name_translations,
+          p.name_translations as parent_name_translations,
+          case
+            when jsonb_typeof(c.name_translations) = 'object'
+            then c.name_translations
+            else '{}'::jsonb
+          end as safe_name_translations,
+          case
+            when jsonb_typeof(p.name_translations) = 'object'
+            then p.name_translations
+            else '{}'::jsonb
+          end as safe_parent_name_translations,
+          coalesce(c.name_translations::text, '') as name_search_text,
+          coalesce(p.name_translations::text, '') as parent_name_search_text
+        from category.categories c
+        left join category.categories p on p.id = c.parent_id
+        where c.is_active = true
+      ), labels as (
+        select
+          b.id::text as value,
+          coalesce(
+            nullif(
+              case
+                when jsonb_typeof(b.name_translations) = 'string' then b.name_translations #>> '{}'
+                when jsonb_typeof(b.name_translations) = 'object' and b.name_translations ? 'root' then (
+                  select string_agg(nullif(lexical.value #>> '{}', ''), ' ' order by lexical.ord)
+                  from jsonb_path_query(b.name_translations, '$.**.text') with ordinality as lexical(value, ord)
+                )
+                else common.get_translation_t(b.safe_name_translations, ${normalizedLocale}, 'en')
+              end,
+              ''
+            ),
+            b.id::text
+          ) as name,
+          nullif(
+            case
+              when jsonb_typeof(b.parent_name_translations) = 'string' then b.parent_name_translations #>> '{}'
+              when jsonb_typeof(b.parent_name_translations) = 'object' and b.parent_name_translations ? 'root' then (
+                select string_agg(nullif(lexical.value #>> '{}', ''), ' ' order by lexical.ord)
+                from jsonb_path_query(b.parent_name_translations, '$.**.text') with ordinality as lexical(value, ord)
+              )
+              else common.get_translation_t(b.safe_parent_name_translations, ${normalizedLocale}, 'en')
+            end,
+            ''
+          ) as parent_name,
+          b.name_search_text,
+          b.parent_name_search_text,
+          b.safe_name_translations,
+          b.safe_parent_name_translations
+        from base b
+      ), filtered as (
+        select
+          l.value,
+          case
+            when l.parent_name is not null then l.parent_name || ' > ' || l.name
+            else l.name
+          end as label,
+          null::text as description
+        from labels l
+        where ${normalizedSearch} = ''
+          or l.value ilike ${searchPattern}
+          or l.name ilike ${searchPattern}
+          or l.parent_name ilike ${searchPattern}
+          or l.name_search_text ilike ${searchPattern}
+          or l.parent_name_search_text ilike ${searchPattern}
+          or l.safe_name_translations::text ilike ${searchPattern}
+          or l.safe_parent_name_translations::text ilike ${searchPattern}
+          or exists (
+            select 1
+            from jsonb_each_text(l.safe_name_translations) as tr(key, value)
+            where tr.value ilike ${searchPattern}
+          )
+          or exists (
+            select 1
+            from jsonb_path_query(l.safe_name_translations, '$.**.text') as lexical(value)
+            where lexical.value #>> '{}' ilike ${searchPattern}
+          )
+          or exists (
+            select 1
+            from jsonb_each_text(l.safe_parent_name_translations) as tr(key, value)
+            where tr.value ilike ${searchPattern}
+          )
+          or exists (
+            select 1
+            from jsonb_path_query(l.safe_parent_name_translations, '$.**.text') as lexical(value)
+            where lexical.value #>> '{}' ilike ${searchPattern}
+          )
+      )
+      select value, label, description
+      from filtered
+      order by label asc
+      limit ${normalizedLimit}
+    `;
+  }
+
+  return [];
+}
+
 async function resolveAttributeTypeId(attributeType: string | number): Promise<number> {
   if (typeof attributeType === "number" && Number.isFinite(attributeType)) return attributeType;
 
@@ -273,9 +516,66 @@ export async function getServiceDefinitionsFromDb(
     const { pageNumber, pageSize, offset, search, categoryId, status } = parsePageParams(params);
     const normalizedLocale = normalizeLocale(locale);
     const activeFilter: boolean | null = status === "active" ? true : status === "inactive" ? false : null;
+    const searchPattern = `%${search}%`;
+
+    const categoryFilterSql = categoryId
+      ? sql`and sd.category_id = ${categoryId}::uuid`
+      : sql``;
+
+    const activeFilterSql = activeFilter === null
+      ? sql``
+      : sql`and sd.is_active = ${activeFilter}`;
+
+    const searchFilterSql = search
+      ? sql`
+          and (
+            b.id::text ilike ${searchPattern}
+            or b.name_search_text ilike ${searchPattern}
+            or b.description_search_text ilike ${searchPattern}
+            or b.category_search_text ilike ${searchPattern}
+            or b.safe_name_translations::text ilike ${searchPattern}
+            or b.safe_description_translations::text ilike ${searchPattern}
+            or b.safe_category_translations::text ilike ${searchPattern}
+            or exists (
+              select 1
+              from jsonb_each_text(b.safe_name_translations) as tr(key, value)
+              where tr.value ilike ${searchPattern}
+            )
+            or exists (
+              select 1
+              from jsonb_path_query(b.safe_name_translations, '$.**.text') as lexical(value)
+              where lexical.value #>> '{}' ilike ${searchPattern}
+            )
+            or exists (
+              select 1
+              from jsonb_each_text(b.safe_description_translations) as tr(key, value)
+              where tr.value ilike ${searchPattern}
+            )
+            or exists (
+              select 1
+              from jsonb_path_query(b.safe_description_translations, '$.**.text') as lexical(value)
+              where lexical.value #>> '{}' ilike ${searchPattern}
+            )
+            or exists (
+              select 1
+              from jsonb_each_text(b.safe_category_translations) as tr(key, value)
+              where tr.value ilike ${searchPattern}
+            )
+            or exists (
+              select 1
+              from jsonb_path_query(b.safe_category_translations, '$.**.text') as lexical(value)
+              where lexical.value #>> '{}' ilike ${searchPattern}
+            )
+            or b.pricing_model ilike ${searchPattern}
+            or b.currency ilike ${searchPattern}
+            or b.value::text ilike ${searchPattern}
+            or b.duration_minutes::text ilike ${searchPattern}
+          )
+        `
+      : sql``;
 
     const rows = await sql<Record<string, unknown>[]>`
-      with filtered as (
+      with base as (
         select
           sd.id,
           sd.name_translations,
@@ -286,25 +586,79 @@ export async function getServiceDefinitionsFromDb(
           sd.is_active,
           sd.currency,
           sd.value,
-          common.get_translation_t(case when jsonb_typeof(sd.name_translations) = 'object' then sd.name_translations else '{}'::jsonb end, ${normalizedLocale}, 'en') as name,
-          common.get_translation_t(case when jsonb_typeof(sd.description_translations) = 'object' then sd.description_translations else '{}'::jsonb end, ${normalizedLocale}, 'en') as description,
-          common.get_translation_t(case when jsonb_typeof(c.name_translations) = 'object' then c.name_translations else '{}'::jsonb end, ${normalizedLocale}, 'en') as category_name,
-          count(distinct sad.id) as attribute_count,
-          count(distinct sddr.id) as requirement_count,
-          count(distinct sufr.id) as upload_requirement_count,
-          count(distinct ps.id) as provider_service_count,
-          count(distinct ss.id) as staff_service_count
+          case
+            when jsonb_typeof(sd.name_translations) = 'object'
+            then sd.name_translations
+            else '{}'::jsonb
+          end as safe_name_translations,
+          case
+            when jsonb_typeof(sd.description_translations) = 'object'
+            then sd.description_translations
+            else '{}'::jsonb
+          end as safe_description_translations,
+          case
+            when jsonb_typeof(c.name_translations) = 'object'
+            then c.name_translations
+            else '{}'::jsonb
+          end as safe_category_translations,
+          coalesce(sd.name_translations::text, '') as name_search_text,
+          coalesce(sd.description_translations::text, '') as description_search_text,
+          coalesce(c.name_translations::text, '') as category_search_text
         from category.service_definitions sd
         join category.categories c on c.id = sd.category_id
-        left join category.service_attribute_definitions sad on sad.service_definition_id = sd.id
-        left join category.service_definition_domain_requirements sddr on sddr.service_definition_id = sd.id
-        left join category.service_upload_file_requirements sufr on sufr.service_definition_id = sd.id
-        left join category.provider_services ps on ps.service_definition_id = sd.id
-        left join category.staff_services ss on ss.service_definition_id = sd.id
-        where (${search} = '' or common.get_translation_t(case when jsonb_typeof(sd.name_translations) = 'object' then sd.name_translations else '{}'::jsonb end, ${normalizedLocale}, 'en') ilike ${`%${search}%`} or common.get_translation_t(case when jsonb_typeof(sd.description_translations) = 'object' then sd.description_translations else '{}'::jsonb end, ${normalizedLocale}, 'en') ilike ${`%${search}%`})
-          and (${categoryId} = '' or sd.category_id = nullif(${categoryId}, '')::uuid)
-          and (${activeFilter}::boolean is null or sd.is_active = ${activeFilter})
-        group by sd.id, c.id
+        where true
+          ${categoryFilterSql}
+          ${activeFilterSql}
+      ), filtered as (
+        select
+          b.id,
+          b.name_translations,
+          b.description_translations,
+          b.category_id,
+          b.duration_minutes,
+          b.pricing_model,
+          b.is_active,
+          b.currency,
+          b.value,
+          case
+            when jsonb_typeof(b.name_translations) = 'string' then b.name_translations #>> '{}'
+            when jsonb_typeof(b.name_translations) = 'object' and b.name_translations ? 'root' then b.name_translations::text
+            else common.get_translation_t(b.safe_name_translations, ${normalizedLocale}, 'en')
+          end as name,
+          case
+            when jsonb_typeof(b.description_translations) = 'string' then b.description_translations #>> '{}'
+            when jsonb_typeof(b.description_translations) = 'object' and b.description_translations ? 'root' then b.description_translations::text
+            else common.get_translation_t(b.safe_description_translations, ${normalizedLocale}, 'en')
+          end as description,
+          common.get_translation_t(b.safe_category_translations, ${normalizedLocale}, 'en') as category_name,
+          (
+            select count(*)
+            from category.service_attribute_definitions sad
+            where sad.service_definition_id = b.id
+          ) as attribute_count,
+          (
+            select count(*)
+            from category.service_definition_domain_requirements sddr
+            where sddr.service_definition_id = b.id
+          ) as requirement_count,
+          (
+            select count(*)
+            from category.service_upload_file_requirements sufr
+            where sufr.service_definition_id = b.id
+          ) as upload_requirement_count,
+          (
+            select count(*)
+            from category.provider_services ps
+            where ps.service_definition_id = b.id
+          ) as provider_service_count,
+          (
+            select count(*)
+            from category.staff_services ss
+            where ss.service_definition_id = b.id
+          ) as staff_service_count
+        from base b
+        where true
+          ${searchFilterSql}
       ), counted as (
         select *, count(*) over() as total_count
         from filtered
@@ -346,9 +700,58 @@ export async function getServiceDefinitionsAllLocalesFromDb(
   try {
     const { pageNumber, pageSize, offset, search } = parsePageParams(params);
     const normalizedLocale = normalizeLocale(locale);
+    const searchPattern = `%${search}%`;
+
+    const searchFilterSql = search
+      ? sql`
+          and (
+            b.id::text ilike ${searchPattern}
+            or b.name_search_text ilike ${searchPattern}
+            or b.description_search_text ilike ${searchPattern}
+            or b.category_search_text ilike ${searchPattern}
+            or b.safe_name_translations::text ilike ${searchPattern}
+            or b.safe_description_translations::text ilike ${searchPattern}
+            or b.safe_category_translations::text ilike ${searchPattern}
+            or exists (
+              select 1
+              from jsonb_each_text(b.safe_name_translations) as tr(key, value)
+              where tr.value ilike ${searchPattern}
+            )
+            or exists (
+              select 1
+              from jsonb_path_query(b.safe_name_translations, '$.**.text') as lexical(value)
+              where lexical.value #>> '{}' ilike ${searchPattern}
+            )
+            or exists (
+              select 1
+              from jsonb_each_text(b.safe_description_translations) as tr(key, value)
+              where tr.value ilike ${searchPattern}
+            )
+            or exists (
+              select 1
+              from jsonb_path_query(b.safe_description_translations, '$.**.text') as lexical(value)
+              where lexical.value #>> '{}' ilike ${searchPattern}
+            )
+            or exists (
+              select 1
+              from jsonb_each_text(b.safe_category_translations) as tr(key, value)
+              where tr.value ilike ${searchPattern}
+            )
+            or exists (
+              select 1
+              from jsonb_path_query(b.safe_category_translations, '$.**.text') as lexical(value)
+              where lexical.value #>> '{}' ilike ${searchPattern}
+            )
+            or b.pricing_model ilike ${searchPattern}
+            or b.currency ilike ${searchPattern}
+            or b.value::text ilike ${searchPattern}
+            or b.duration_minutes::text ilike ${searchPattern}
+          )
+        `
+      : sql``;
 
     const rows = await sql<Record<string, unknown>[]>`
-      with filtered as (
+      with base as (
         select
           sd.id,
           sd.name_translations,
@@ -359,13 +762,46 @@ export async function getServiceDefinitionsAllLocalesFromDb(
           sd.is_active,
           sd.currency,
           sd.value,
-          common.get_translation_t(case when jsonb_typeof(c.name_translations) = 'object' then c.name_translations else '{}'::jsonb end, ${normalizedLocale}, 'en') as category_name,
-          common.get_translation_t(case when jsonb_typeof(sd.name_translations) = 'object' then sd.name_translations else '{}'::jsonb end, ${normalizedLocale}, 'en') as sort_name
+          case
+            when jsonb_typeof(sd.name_translations) = 'object'
+            then sd.name_translations
+            else '{}'::jsonb
+          end as safe_name_translations,
+          case
+            when jsonb_typeof(sd.description_translations) = 'object'
+            then sd.description_translations
+            else '{}'::jsonb
+          end as safe_description_translations,
+          case
+            when jsonb_typeof(c.name_translations) = 'object'
+            then c.name_translations
+            else '{}'::jsonb
+          end as safe_category_translations,
+          coalesce(sd.name_translations::text, '') as name_search_text,
+          coalesce(sd.description_translations::text, '') as description_search_text,
+          coalesce(c.name_translations::text, '') as category_search_text
         from category.service_definitions sd
         join category.categories c on c.id = sd.category_id
-        where ${search} = ''
-          or common.get_translation_t(case when jsonb_typeof(sd.name_translations) = 'object' then sd.name_translations else '{}'::jsonb end, ${normalizedLocale}, 'en') ilike ${`%${search}%`}
-          or common.get_translation_t(case when jsonb_typeof(sd.description_translations) = 'object' then sd.description_translations else '{}'::jsonb end, ${normalizedLocale}, 'en') ilike ${`%${search}%`}
+      ), filtered as (
+        select
+          b.id,
+          b.name_translations,
+          b.description_translations,
+          b.category_id,
+          b.duration_minutes,
+          b.pricing_model,
+          b.is_active,
+          b.currency,
+          b.value,
+          common.get_translation_t(b.safe_category_translations, ${normalizedLocale}, 'en') as category_name,
+          case
+            when jsonb_typeof(b.name_translations) = 'string' then b.name_translations #>> '{}'
+            when jsonb_typeof(b.name_translations) = 'object' and b.name_translations ? 'root' then b.name_translations::text
+            else common.get_translation_t(b.safe_name_translations, ${normalizedLocale}, 'en')
+          end as sort_name
+        from base b
+        where true
+          ${searchFilterSql}
       ), counted as (
         select *, count(*) over() as total_count
         from filtered

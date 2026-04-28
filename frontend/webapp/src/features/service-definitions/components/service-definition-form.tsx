@@ -1,25 +1,14 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, ChevronsUpDown, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { InfiniteScroll } from "@/components/fetcher/infinite-scroll";
 import { ZodErrorProvider } from "@/components/providers/zod-error-provider";
-import { CategoryOption } from "@/components/selectors/category-selector";
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import {
   Form,
   FormControl,
@@ -29,21 +18,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-import { useCategoriesBySearch } from "@/features/categories/api/client";
 import { LocalizedInput } from "@/features/shared/components/LocalizedInput";
 import {
   createEmptyLocalizedContent,
@@ -51,7 +27,6 @@ import {
 } from "@/features/shared/utils/localization";
 import useAction from "@/hooks/use-action";
 import { useRouter } from "@/i18n/navigation";
-import { cn } from "@/lib/utils";
 
 import { createServiceDefinitionAction } from "../actions/create-service-definition";
 import { updateServiceDefinitionAction } from "../actions/update-service-definition";
@@ -63,129 +38,33 @@ import {
   ServiceDefinitionFormSchema,
 } from "../schemas";
 import { ServiceDefinitionDetails } from "../types/service-definition";
+import { LazyServiceDefinitionLookupSelect } from "./lazy-service-definition-lookup-select";
 
 interface ServiceDefinitionFormProps {
   serviceDefinition?: ServiceDefinitionDetails;
 }
 
-const CURRENCIES = ["USD", "EUR", "GBP", "AED", "TRY", "IRR", "OMR"];
-const PRICING_MODELS = ["Fixed", "StartingFrom", "Variable", "Hourly", "Package", "Free"];
+const CURRENCY_OPTIONS = ["USD", "EUR", "GBP", "AED", "TRY", "IRR", "OMR"].map((currency) => ({
+  value: currency,
+  label: currency,
+}));
 
-interface CategorySelectorWithInfiniteScrollProps {
-  value?: string;
-  onValueChange?: (value: string | undefined) => void;
-  options: CategoryOption[];
-  onSearch?: (search: string) => void;
-  placeholder?: string;
-  disabled?: boolean;
-  hasNextPage?: boolean;
-  fetchNextPage?: () => void;
-  isFetchingNextPage?: boolean;
-}
-
-function CategorySelectorWithInfiniteScroll({
-  value,
-  onValueChange,
-  options,
-  onSearch,
-  placeholder,
-  disabled = false,
-  hasNextPage = false,
-  fetchNextPage,
-  isFetchingNextPage = false,
-}: CategorySelectorWithInfiniteScrollProps) {
-  const [open, setOpen] = useState(false);
-  const selectedOption = value ? options.find((option) => option.categoryId === value) : undefined;
-  const formatDisplayName = (option: CategoryOption) =>
-    option.parentName ? `${option.parentName} > ${option.name}` : option.name;
-
-  const handleSelect = (optionId: string) => {
-    onValueChange?.(value === optionId ? undefined : optionId);
-    setOpen(false);
-  };
-
-  const handleRemove = (event: React.MouseEvent | React.KeyboardEvent) => {
-    event.stopPropagation();
-    onValueChange?.(undefined);
-  };
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between"
-          disabled={disabled}
-        >
-          {selectedOption ? (
-            <span className="flex items-center gap-2">
-              {formatDisplayName(selectedOption)}
-              {value && (
-                <span
-                  className="hover:bg-muted-foreground/20 ml-auto cursor-pointer rounded-full p-0.5"
-                  onClick={handleRemove}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      handleRemove(event);
-                    }
-                  }}
-                >
-                  <X className="h-3 w-3" />
-                </span>
-              )}
-            </span>
-          ) : (
-            <span className="text-muted-foreground">{placeholder || "Select category"}</span>
-          )}
-          <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-full p-0" align="start">
-        <Command shouldFilter={false}>
-          <CommandInput placeholder="Search categories..." onValueChange={onSearch} />
-          <CommandList>
-            <CommandEmpty>No category found.</CommandEmpty>
-            <CommandGroup>
-              {options.map((option) => (
-                <CommandItem key={option.categoryId} value={option.name} onSelect={() => handleSelect(option.categoryId)}>
-                  <Check className={cn("mr-2 h-4 w-4", value === option.categoryId ? "opacity-100" : "opacity-0")} />
-                  {formatDisplayName(option)}
-                </CommandItem>
-              ))}
-              {hasNextPage && (
-                <CommandItem>
-                  <InfiniteScroll
-                    isManual
-                    hasNextPage={hasNextPage}
-                    isFetchingNextPage={isFetchingNextPage}
-                    fetchNextPage={fetchNextPage || (() => {})}
-                  />
-                </CommandItem>
-              )}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  );
-}
+const PRICING_MODEL_OPTIONS = [
+  { value: "Fixed", label: "Fixed" },
+  { value: "StartingFrom", label: "Starting from" },
+  { value: "Variable", label: "Variable" },
+  { value: "Hourly", label: "Hourly" },
+  { value: "Package", label: "Package" },
+  { value: "Free", label: "Free" },
+];
 
 export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [categorySearch, setCategorySearch] = useState("");
   const locale = useLocale();
   const componentT = useTranslations(SERVICE_DEFINITION_TRANSLATION_KEY);
   const { invalidateAllCache } = useServiceDefinitionsBySearchCacheManagement();
   const { invalidateAllCache: invalidateAllLocalesCache } = useServiceDefinitionsAllLocalesBySearchCacheManagement();
-
-  const { data: categoryOptions, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useCategoriesBySearch(categorySearch, locale);
 
   const isEdit = !!serviceDefinition;
   const form = useForm<ServiceDefinitionFormInput>({
@@ -230,6 +109,29 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
 
     startTransition(async () => execute(payload));
   };
+
+  const initialCategoryOptions = serviceDefinition?.categoryId
+    ? [
+        {
+          value: serviceDefinition.categoryId,
+          label: serviceDefinition.categoryName || serviceDefinition.categoryId,
+        },
+      ]
+    : [];
+
+  const initialCurrencyOptions = serviceDefinition?.currency
+    ? [{ value: serviceDefinition.currency, label: serviceDefinition.currency }, ...CURRENCY_OPTIONS]
+    : CURRENCY_OPTIONS;
+
+  const initialPricingModelOptions = serviceDefinition?.pricingModel
+    ? [
+        {
+          value: serviceDefinition.pricingModel,
+          label: serviceDefinition.pricingModel,
+        },
+        ...PRICING_MODEL_OPTIONS,
+      ]
+    : PRICING_MODEL_OPTIONS;
 
   return (
     <CardContent>
@@ -290,16 +192,17 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
                     <FormItem>
                       <FormLabel>{componentT("form.categoryId.label")}</FormLabel>
                       <FormControl>
-                        <CategorySelectorWithInfiniteScroll
+                        <LazyServiceDefinitionLookupSelect
+                          lookupType="categories"
+                          locale={locale}
                           value={field.value}
-                          onValueChange={field.onChange}
-                          options={categoryOptions ?? []}
-                          onSearch={setCategorySearch}
+                          onValueChange={(nextValue) => field.onChange(nextValue ?? "")}
                           placeholder={componentT("form.categoryId.placeholder")}
+                          searchPlaceholder="Search categories..."
+                          emptyMessage="No category found."
+                          initialOptions={initialCategoryOptions}
                           disabled={isPending}
-                          hasNextPage={hasNextPage}
-                          fetchNextPage={fetchNextPage}
-                          isFetchingNextPage={isFetchingNextPage}
+                          allowClear={false}
                         />
                       </FormControl>
                       <FormMessage />
@@ -328,14 +231,20 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{componentT("form.currency.label")}</FormLabel>
-                        <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
-                          <FormControl>
-                            <SelectTrigger><SelectValue /></SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {CURRENCIES.map((currency) => <SelectItem key={currency} value={currency}>{currency}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
+                        <FormControl>
+                          <LazyServiceDefinitionLookupSelect
+                            lookupType="currencies"
+                            locale={locale}
+                            value={field.value}
+                            onValueChange={(nextValue) => field.onChange(nextValue ?? "")}
+                            placeholder="Currency"
+                            searchPlaceholder="Search currencies..."
+                            emptyMessage="No currency found."
+                            initialOptions={initialCurrencyOptions}
+                            disabled={isPending}
+                            allowClear={false}
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -362,14 +271,20 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{componentT("form.pricingModel.label")}</FormLabel>
-                      <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
-                        <FormControl>
-                          <SelectTrigger><SelectValue /></SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {PRICING_MODELS.map((model) => <SelectItem key={model} value={model}>{model}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <LazyServiceDefinitionLookupSelect
+                          lookupType="pricingModels"
+                          locale={locale}
+                          value={field.value}
+                          onValueChange={(nextValue) => field.onChange(nextValue ?? "")}
+                          placeholder="Pricing model"
+                          searchPlaceholder="Search pricing models..."
+                          emptyMessage="No pricing model found."
+                          initialOptions={initialPricingModelOptions}
+                          disabled={isPending}
+                          allowClear={false}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

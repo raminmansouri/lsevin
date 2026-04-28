@@ -8,6 +8,12 @@ import { formatBytes, isImage, isVideo, truncateMiddle } from "../utils";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { env } from "@/config/env/client";
 
+function mediaSrc(fileUrl: string) {
+  if (!fileUrl) return "";
+  if (/^https?:\/\//i.test(fileUrl) || fileUrl.startsWith("/")) return fileUrl;
+  return `${env.NEXT_PUBLIC_FILES_URL}/${fileUrl}`;
+}
+
 function MediaIcon({ item }: { item: MediaItem }) {
   if (isImage(item)) return <ImageIcon className="h-4 w-4" />;
   if (isVideo(item)) return <Film className="h-4 w-4" />;
@@ -44,15 +50,13 @@ export default function MediaPreviewList({
                 <ImageWithFallback
                   width={50}
                   height={50}
-                  src={`${env.NEXT_PUBLIC_FILES_URL}/${item.fileUrl ?? item}`}
+                  src={mediaSrc(item.fileUrl)}
                   alt={item.originalName}
                   className="h-full w-full object-cover"
                 />
               ) : (
                 <MediaIcon item={item} />
               )}
-
-              
             </div>
 
             <div className="min-w-0">

@@ -34,6 +34,7 @@ export interface UploadMediaResult {
   id?: string;
   fileUrl: string;
   originalName: string;
+  storedName?: string | null;
   mimeType: string;
   mediaType: MediaType;
   fileSize: number;

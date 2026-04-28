@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { Edit, Plus, Trash2 } from "lucide-react";
+import { Edit, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -18,10 +18,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { hasLexicalContent, LexicalRenderer } from "@/components/editor/lexical-renderer";
+import { SUPPORTED_LOCALE_HEADERS } from "@/config/locales";
 import { LocalizedInput } from "@/features/shared/components/LocalizedInput";
-import { createEmptyLocalizedContent, normalizeLocalizedContent } from "@/features/shared/utils/localization";
+import { createEmptyLocalizedContent } from "@/features/shared/utils/localization";
 import useAction from "@/hooks/use-action";
 import { Link } from "@/i18n/navigation";
 
@@ -48,6 +49,11 @@ import {
   AdminProviderLookupData,
   AdminServiceProviderDetails,
 } from "../../db/admin-service-providers.queries";
+import {
+  normalizeLocalizedContentForDatabase,
+  normalizeMediaPickerValue,
+  toLocalizedInputValue,
+} from "../../lib/admin-form-normalizers";
 import { RHFSingleMediaPickerField } from "../service-provider-data-entry/media-picker-adapter";
 import { LazyAdminLookupSelect } from "./lazy-admin-lookup-select";
 
@@ -122,6 +128,44 @@ function MetricCard({ title, value, hint }: { title: string; value: string | num
 
 function EmptyState({ title }: { title: string }) {
   return <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">{title}</div>;
+}
+
+function formatMoney(value: number | string | null | undefined, currency?: string | null, locale = "en-US") {
+  const numericValue = Number(value || 0);
+  const formatter = new Intl.NumberFormat(locale || "en-US", {
+    minimumFractionDigits: numericValue % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  });
+  return `${currency || ""} ${formatter.format(Number.isFinite(numericValue) ? numericValue : 0)}`.trim();
+}
+
+function parseFormattedNumber(value: string | number | null | undefined) {
+  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+  const raw = String(value || "").trim();
+  if (!raw) return 0;
+
+  const sanitized = raw.replace(/[^0-9.,-]/g, "");
+  const lastComma = sanitized.lastIndexOf(",");
+  const lastDot = sanitized.lastIndexOf(".");
+  const decimalSeparator = lastComma > lastDot ? "," : lastDot > -1 ? "." : "";
+
+  let normalized = sanitized;
+  if (decimalSeparator) {
+    const decimalIndex = normalized.lastIndexOf(decimalSeparator);
+    const integerPart = normalized.slice(0, decimalIndex).replace(/[.,]/g, "");
+    const decimalPart = normalized.slice(decimalIndex + 1).replace(/[.,]/g, "");
+    normalized = `${integerPart}.${decimalPart}`;
+  } else {
+    normalized = normalized.replace(/[.,]/g, "");
+  }
+
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function formatNumberInput(value: string | number | null | undefined, locale = "en-US") {
+  const parsed = parseFormattedNumber(value);
+  return new Intl.NumberFormat(locale || "en-US", { maximumFractionDigits: 2 }).format(parsed);
 }
 
 function ActionErrorToast(error: any) {
@@ -293,9 +337,9 @@ function CertificationsManager({ provider }: { provider: AdminServiceProviderDet
 }
 
 type ProviderGalleryDraftForm = {
-  title: Record<string, string>;
-  description: Record<string, string>;
-  url: string;
+  title: Record<string, unknown>;
+  description: Record<string, unknown>;
+  url: unknown;
   mediaType: string;
   displayOrder: number;
 };
@@ -316,11 +360,18 @@ function GalleryManager({ provider }: { provider: AdminServiceProviderDetails })
   const del = useAction(deleteProviderGalleryItemAction, { startTransition, onSuccess: () => toast.success("Media item deleted."), onError: ActionErrorToast });
 
   const onAddGalleryItem = galleryForm.handleSubmit((values) => {
+    const normalizedUrl = normalizeMediaPickerValue(values.url);
+
+    if (!normalizedUrl) {
+      toast.error("Please pick a media item before adding it to the gallery.");
+      return;
+    }
+
     save.execute({
       serviceProviderId: provider.id,
-      title: normalizeLocalizedContent(values.title),
-      description: normalizeLocalizedContent(values.description),
-      url: values.url,
+      title: normalizeLocalizedContentForDatabase(values.title),
+      description: normalizeLocalizedContentForDatabase(values.description),
+      url: normalizedUrl,
       mediaType: values.mediaType || "image",
       displayOrder: Number(values.displayOrder || 0),
     });
@@ -336,7 +387,7 @@ function GalleryManager({ provider }: { provider: AdminServiceProviderDetails })
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <LocalizedInput label="Title" value={field.value} onChange={field.onChange} maxLength={250} />
+                  <LocalizedInput label="Title" value={field.value} onChange={field.onChange} supportedLocales={SUPPORTED_LOCALE_HEADERS} maxLength={250} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -348,7 +399,7 @@ function GalleryManager({ provider }: { provider: AdminServiceProviderDetails })
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <LocalizedInput label="Description" value={field.value} onChange={field.onChange} richText rows={4} maxLength={2000} />
+                  <LocalizedInput label="Description" value={field.value} onChange={field.onChange} supportedLocales={SUPPORTED_LOCALE_HEADERS} richText rows={4} maxLength={2000} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -390,7 +441,7 @@ function GalleryManager({ provider }: { provider: AdminServiceProviderDetails })
               )}
             />
           </div>
-          <Button type="button" onClick={() => onAddGalleryItem()} disabled={isPending || !galleryForm.watch("url")} className="self-start">
+          <Button type="button" onClick={() => onAddGalleryItem()} disabled={isPending} className="self-start">
             <Plus className="mr-2 h-4 w-4" /> Add
           </Button>
         </div>
@@ -415,7 +466,7 @@ function GalleryManager({ provider }: { provider: AdminServiceProviderDetails })
 
 type ProviderPolicyDraftForm = {
   policyTypeId: string;
-  description: Record<string, string>;
+  description: Record<string, unknown>;
 };
 
 function PoliciesManager({ provider, lookups, locale }: Props) {
@@ -436,7 +487,7 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
       serviceProviderId: provider.id,
       policyTypeId: values.policyTypeId,
       type: { "en-US": selectedPolicyType?.label || "Policy" },
-      description: normalizeLocalizedContent(values.description),
+      description: normalizeLocalizedContentForDatabase(values.description),
     });
   });
 
@@ -471,7 +522,7 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <LocalizedInput label="Description" value={field.value} onChange={field.onChange} richText rows={4} maxLength={2000} />
+                  <LocalizedInput label="Description" value={field.value} onChange={field.onChange} supportedLocales={SUPPORTED_LOCALE_HEADERS} richText rows={4} maxLength={2000} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -536,48 +587,372 @@ function AttributesManager({ provider, lookups, locale }: Props) {
   );
 }
 
+type ServiceManagerFormValues = {
+  serviceDefinitionId: string;
+  displayName: Record<string, unknown>;
+  description: Record<string, unknown>;
+  currency: string;
+  priceText: string;
+  durationMinutes: string;
+  imageUrl: unknown;
+  isActive: boolean;
+  isPopular: boolean;
+  slotIntervalMinutes: string;
+  tagsText: string;
+};
+
+function emptyServiceFormValues(defaultCurrency = "USD"): ServiceManagerFormValues {
+  return {
+    serviceDefinitionId: "",
+    displayName: createEmptyLocalizedContent(),
+    description: createEmptyLocalizedContent(),
+    currency: defaultCurrency,
+    priceText: "0",
+    durationMinutes: "0",
+    imageUrl: "",
+    isActive: true,
+    isPopular: false,
+    slotIntervalMinutes: "15",
+    tagsText: "",
+  };
+}
+
 function ServicesManager({ provider, lookups, locale }: Props) {
   const [isPending, startTransition] = useTransition();
-  const [serviceDefinitionId, setServiceDefinitionId] = useState("");
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState("0");
-  const [currency, setCurrency] = useState("USD");
-  const [duration, setDuration] = useState("0");
-  const [imageUrl, setImageUrl] = useState("");
-  const [isActive, setIsActive] = useState(true);
-  const save = useAction(saveProviderServiceAction, { startTransition, onSuccess: () => { toast.success("Service saved."); setName(""); }, onError: ActionErrorToast });
+  const [showForm, setShowForm] = useState(false);
+  const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
+  const serviceForm = useForm<ServiceManagerFormValues>({
+    defaultValues: emptyServiceFormValues(lookups.currencies[0]?.code || "USD"),
+  });
+
+  const resetServiceForm = () => {
+    setEditingServiceId(null);
+    serviceForm.reset(emptyServiceFormValues(lookups.currencies[0]?.code || "USD"));
+  };
+
+  const save = useAction(saveProviderServiceAction, {
+    startTransition,
+    onSuccess: () => {
+      toast.success(editingServiceId ? "Service updated." : "Service saved.");
+      resetServiceForm();
+      setShowForm(false);
+    },
+    onError: ActionErrorToast,
+  });
   const del = useAction(deleteProviderServiceAction, { startTransition, onSuccess: () => toast.success("Service deleted."), onError: ActionErrorToast });
+
+  const startCreate = () => {
+    resetServiceForm();
+    setShowForm(true);
+  };
+
+  const startEdit = (item: AdminServiceProviderDetails["services"][number]) => {
+    setEditingServiceId(item.id);
+    serviceForm.reset({
+      serviceDefinitionId: item.serviceDefinitionId,
+      displayName: toLocalizedInputValue(item.displayName, locale, SUPPORTED_LOCALE_HEADERS),
+      description: toLocalizedInputValue(item.description, locale, SUPPORTED_LOCALE_HEADERS),
+      currency: item.currency || lookups.currencies[0]?.code || "USD",
+      priceText: formatNumberInput(item.value, locale),
+      durationMinutes: String(item.durationMinutes ?? 0),
+      imageUrl: item.imageUrl || "",
+      isActive: item.isActive,
+      isPopular: item.isPopular,
+      slotIntervalMinutes: String(item.slotIntervalMinutes || 15),
+      tagsText: item.tags.join(", "),
+    });
+    setShowForm(true);
+  };
+
+  const onSubmitService = serviceForm.handleSubmit((values) => {
+    const displayName = normalizeLocalizedContentForDatabase(values.displayName);
+    const description = normalizeLocalizedContentForDatabase(values.description);
+
+    save.execute({
+      serviceProviderId: provider.id,
+      id: editingServiceId,
+      serviceDefinitionId: values.serviceDefinitionId,
+      displayName,
+      description,
+      isActive: values.isActive,
+      currency: values.currency,
+      value: parseFormattedNumber(values.priceText),
+      durationMinutes: Number(values.durationMinutes || 0),
+      imageUrl: normalizeMediaPickerValue(values.imageUrl) || null,
+      isPopular: values.isPopular,
+      tagsText: values.tagsText,
+      slotIntervalMinutes: Number(values.slotIntervalMinutes || 15),
+      addonIds: provider.services.find((item) => item.id === editingServiceId)?.addonIds || [],
+    });
+  });
+
+  const excludedServiceDefinitionIds = provider.services
+    .filter((item) => item.id !== editingServiceId)
+    .map((item) => item.serviceDefinitionId);
 
   return (
     <RelationCard title="Provider services" description="Manages category.provider_services, provider_service_addons, and service image references.">
-      <div className="grid gap-3 xl:grid-cols-[260px_1fr_100px_100px_100px_1fr_auto]">
-        <LazyAdminLookupSelect
-          lookupType="serviceDefinitions"
-          locale={locale}
-          value={serviceDefinitionId}
-          onValueChange={setServiceDefinitionId}
-          placeholder="Definition"
-          initialOptions={lookups.serviceDefinitions}
-          excludeIds={provider.services.map((item) => item.serviceDefinitionId)}
-          disabled={isPending}
-          contentClassName="w-[460px]"
-        />
-        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Display name" disabled={isPending} />
-        <Input value={currency} onChange={(e) => setCurrency(e.target.value)} placeholder="USD" disabled={isPending} />
-        <Input value={price} onChange={(e) => setPrice(e.target.value)} type="number" placeholder="Price" disabled={isPending} />
-        <Input value={duration} onChange={(e) => setDuration(e.target.value)} type="number" placeholder="Minutes" disabled={isPending} />
-        <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="Media id / image URL" disabled={isPending} />
-        <Button onClick={() => save.execute({ serviceProviderId: provider.id, serviceDefinitionId, displayName: { "en-US": name }, description: {}, isActive, currency, value: Number(price), durationMinutes: Number(duration), imageUrl, addonIds: [], slotIntervalMinutes: 15 })} disabled={isPending || !serviceDefinitionId || !name.trim()}><Plus className="mr-2 h-4 w-4" /> Add</Button>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-sm text-muted-foreground">
+          Use the service definition selector, localized rich text fields, currency list, and media picker. Prices are formatted with thousands separators.
+        </div>
+        <Button type="button" onClick={startCreate} disabled={isPending} className="self-start sm:self-auto">
+          <Plus className="mr-2 h-4 w-4" /> Add provider service
+        </Button>
       </div>
-      <label className="flex items-center gap-2 text-sm"><Checkbox checked={isActive} onCheckedChange={(v) => setIsActive(Boolean(v))} /> New service active</label>
-      <div className="space-y-2">
+
+      {showForm ? (
+        <Card className="border-dashed bg-muted/20">
+          <CardHeader className="pb-4">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <CardTitle className="text-base">{editingServiceId ? "Edit provider service" : "Add provider service"}</CardTitle>
+                <CardDescription>
+                  Name and description keep the full localized JSON object, including Lexical rich-text values.
+                </CardDescription>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  resetServiceForm();
+                  setShowForm(false);
+                }}
+                disabled={isPending}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Form {...serviceForm}>
+              <div className="space-y-5">
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <FormField
+                    control={serviceForm.control}
+                    name="serviceDefinitionId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Service definition</FormLabel>
+                        <FormControl>
+                          <LazyAdminLookupSelect
+                            lookupType="serviceDefinitions"
+                            locale={locale}
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Search and select service definition"
+                            searchPlaceholder="Search service definitions..."
+                            initialOptions={lookups.serviceDefinitions}
+                            excludeIds={excludedServiceDefinitionIds}
+                            disabled={isPending}
+                            contentClassName="w-[520px]"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={serviceForm.control}
+                    name="currency"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Currency</FormLabel>
+                        <FormControl>
+                          <LazyAdminLookupSelect
+                            lookupType="currencies"
+                            locale={locale}
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Select currency"
+                            searchPlaceholder="Search currency..."
+                            initialOptions={lookups.currencies}
+                            valueField="code"
+                            clearable={false}
+                            disabled={isPending}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={serviceForm.control}
+                  name="displayName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <LocalizedInput label="Display name" value={field.value} onChange={field.onChange} supportedLocales={SUPPORTED_LOCALE_HEADERS} required maxLength={250} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={serviceForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <LocalizedInput label="Description" value={field.value} onChange={field.onChange} supportedLocales={SUPPORTED_LOCALE_HEADERS} richText rows={5} maxLength={3000} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid gap-4 md:grid-cols-3">
+                  <FormField
+                    control={serviceForm.control}
+                    name="priceText"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Price</FormLabel>
+                        <FormControl>
+                          <Input
+                            dir="ltr"
+                            inputMode="decimal"
+                            value={field.value}
+                            onChange={(event) => field.onChange(event.target.value)}
+                            onBlur={() => field.onChange(formatNumberInput(field.value, locale))}
+                            placeholder="0"
+                            disabled={isPending}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={serviceForm.control}
+                    name="durationMinutes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Duration minutes</FormLabel>
+                        <FormControl><Input type="number" min="0" {...field} disabled={isPending} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={serviceForm.control}
+                    name="slotIntervalMinutes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Slot interval minutes</FormLabel>
+                        <FormControl><Input type="number" min="1" {...field} disabled={isPending} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+                  <FormField
+                    control={serviceForm.control}
+                    name="tagsText"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tags</FormLabel>
+                        <FormControl><Input {...field} value={field.value || ""} placeholder="Comma separated tags" disabled={isPending} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <RHFSingleMediaPickerField
+                    control={serviceForm.control}
+                    name="imageUrl"
+                    label="Service image"
+                    placeholder="Pick image"
+                    mediaType="image"
+                    helperText="Stores one media id in provider_services.image_url."
+                    modalTitle="Pick service image"
+                    key="provider-service-image-url"
+                  />
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <FormField
+                    control={serviceForm.control}
+                    name="isActive"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center gap-2 rounded-xl border px-3 py-2">
+                        <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                        <FormLabel className="m-0">Active</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={serviceForm.control}
+                    name="isPopular"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center gap-2 rounded-xl border px-3 py-2">
+                        <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                        <FormLabel className="m-0">Popular</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="flex flex-wrap justify-end gap-2 border-t pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      resetServiceForm();
+                      setShowForm(false);
+                    }}
+                    disabled={isPending}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="button" onClick={() => onSubmitService()} disabled={isPending || !serviceForm.watch("serviceDefinitionId")}>
+                    <Plus className="mr-2 h-4 w-4" /> {editingServiceId ? "Save service" : "Add service"}
+                  </Button>
+                </div>
+              </div>
+            </Form>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      <div className="space-y-3">
         {provider.services.length ? provider.services.map((item) => (
-          <div key={item.id} className="grid items-center gap-3 rounded-xl border p-3 lg:grid-cols-[1fr_auto_auto_auto_auto]">
-            <div><div className="font-medium">{translationText(item.displayName, item.serviceDefinitionName)}</div><div className="text-sm text-muted-foreground">{item.serviceDefinitionName} · {item.durationMinutes} min · {item.currency} {item.value}</div></div>
-            {item.isPopular ? <Badge>Popular</Badge> : null}
-            <Badge variant={item.isActive ? "default" : "secondary"}>{item.isActive ? "Active" : "Inactive"}</Badge>
-            <Badge variant="outline">{item.rating} ★</Badge>
-            <Button variant="ghost" size="sm" onClick={() => del.execute({ serviceProviderId: provider.id, id: item.id })}><Trash2 className="h-4 w-4" /></Button>
+          <div key={item.id} className="rounded-2xl border p-4 transition-colors hover:bg-muted/20" dir="auto">
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+              <div className="min-w-0 space-y-2 text-start">
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="truncate text-base font-semibold">{translationText(item.displayName, item.serviceDefinitionName)}</div>
+                  {item.isPopular ? <Badge>Popular</Badge> : null}
+                  <Badge variant={item.isActive ? "default" : "secondary"}>{item.isActive ? "Active" : "Inactive"}</Badge>
+                </div>
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                  <span>{item.serviceDefinitionName}</span>
+                  {item.categoryName ? <span>{item.categoryName}</span> : null}
+                  <span>{item.durationMinutes} min</span>
+                  <span className="font-medium text-foreground">{formatMoney(item.value, item.currency, locale)}</span>
+                  <span>{item.rating} ★ / {item.reviewCount} reviews</span>
+                </div>
+                <RichTranslation value={item.description} fallback="No service description." />
+                {item.tags.length ? <div className="flex flex-wrap gap-1">{item.tags.map((tag) => <Badge key={tag} variant="outline">{tag}</Badge>)}</div> : null}
+              </div>
+              <div className="flex flex-wrap justify-end gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={() => startEdit(item)} disabled={isPending}>
+                  <Edit className="mr-2 h-4 w-4" /> Edit
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => del.execute({ serviceProviderId: provider.id, id: item.id })} disabled={isPending}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           </div>
         )) : <EmptyState title="No provider services yet." />}
       </div>

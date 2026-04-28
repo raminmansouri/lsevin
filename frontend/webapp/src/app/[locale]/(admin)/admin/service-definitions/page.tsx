@@ -48,8 +48,20 @@ const SuspenseBoundary = async ({
   searchParams: Promise<SearchParams>;
 }) => {
   const searchParamsData = await searchParams;
-  const filterParams: FilterParams =
-    transformSearchParamsToFilterParams(searchParamsData);
+  const rawSearchEntries =
+    typeof (searchParamsData as unknown as URLSearchParams).entries === "function"
+      ? Array.from((searchParamsData as unknown as URLSearchParams).entries())
+      : Object.entries(searchParamsData).map(([key, value]) => [
+          key,
+          Array.isArray(value) ? value[0] ?? "" : value ?? "",
+        ]);
+
+  const rawFilterParams = Object.fromEntries(rawSearchEntries) as FilterParams;
+
+  const filterParams: FilterParams = {
+    ...transformSearchParamsToFilterParams(searchParamsData),
+    ...rawFilterParams,
+  };
 
   const result = await withBaseHeaders(
     async (locale, token) => {

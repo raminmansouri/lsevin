@@ -74,6 +74,7 @@ declare const messages: {
     "bookings": "bookings",
     "bookingdrafts": "booking drafts",
     "loyalty": "loyalty",
+    "sponsered-slider": "sponsered slider",
     "users": "users",
     "customers": "customers",
     "payments": "payments",

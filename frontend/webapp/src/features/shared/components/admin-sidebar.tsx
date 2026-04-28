@@ -84,6 +84,9 @@ const data: AdminSidebarItemType[] = [
   {
     title: "platformdata",
     url: "/admin/platform-data",
+  },{
+    title: "sponsered-slider",
+    url: "/admin/sponsered-slider",
   },
 ];
 

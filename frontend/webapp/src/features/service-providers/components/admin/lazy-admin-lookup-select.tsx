@@ -152,7 +152,8 @@ export function LazyAdminLookupSelect({
         if (!response.ok) throw new Error(`Lookup request failed with ${response.status}`);
 
         const payload = (await response.json()) as LookupResponse;
-        setItems(uniqueByOptionValue([...initialOptions, ...payload.items], valueField));
+        const baseOptions = search.trim() ? [] : initialOptions;
+        setItems(uniqueByOptionValue([...baseOptions, ...payload.items], valueField));
         setPage(payload.page);
         setHasMore(payload.hasMore);
       } catch (requestError) {

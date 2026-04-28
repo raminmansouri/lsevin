@@ -413,19 +413,19 @@ export async function getStaffDetailsById(
       sql<{ language: string }[]>`select language from category.staff_languages where staff_id = ${staffId} order by language asc`,
       sql<{ specialty: string }[]>`select specialty from category.staff_specializations where staff_id = ${staffId} order by specialty asc`,
       sql<any[]>`
-        select id::text, degree, institution, year, create_date::text as "createDate", last_modified_date::text as "lastModifiedDate"
+        select id::text, degree, institution, year, image_url as "imageUrl", create_date::text as "createDate", last_modified_date::text as "lastModifiedDate"
         from category.staff_education
         where staff_id = ${staffId}
         order by year desc nulls last, create_date desc
       `,
       sql<any[]>`
-        select id::text, name, issuer, is_verified as "isVerified", create_date::text as "createDate", last_modified_date::text as "lastModifiedDate"
+        select id::text, name, issuer, is_verified as "isVerified", image_url as "imageUrl", create_date::text as "createDate", last_modified_date::text as "lastModifiedDate"
         from category.staff_certifications
         where staff_id = ${staffId}
         order by is_verified desc, name asc
       `,
       sql<any[]>`
-        select id::text, credential, is_verified as "isVerified"
+        select id::text, credential, is_verified as "isVerified", image_url as "imageUrl"
         from category.staff_credentials
         where staff_id = ${staffId}
         order by is_verified desc, credential asc
@@ -588,25 +588,24 @@ async function insertStaffChildren(db: QueryLike, staffId: string, input: StaffM
 
   for (const item of input.education || []) {
     await db`
-      insert into category.staff_education (id, staff_id, degree, institution, year, create_date, last_modified_date)
-      values (public.uuid_generate_v4(), ${staffId}, ${item.degree}, ${item.institution}, ${item.year || null}, now(), now())
+      insert into category.staff_education (id, staff_id, degree, institution, year, image_url, create_date, last_modified_date)
+      values (public.uuid_generate_v4(), ${staffId}, ${item.degree}, ${item.institution}, ${item.year || null}, ${item.imageUrl || null}, now(), now())
     `;
   }
 
   for (const item of input.certifications || []) {
     await db`
-      insert into category.staff_certifications (id, staff_id, name, issuer, is_verified, create_date, last_modified_date)
-      values (public.uuid_generate_v4(), ${staffId}, ${item.name}, ${item.issuer || null}, ${item.isVerified ?? false}, now(), now())
+      insert into category.staff_certifications (id, staff_id, name, issuer, is_verified, image_url, create_date, last_modified_date)
+      values (public.uuid_generate_v4(), ${staffId}, ${item.name}, ${item.issuer || null}, ${item.isVerified ?? false}, ${item.imageUrl || null}, now(), now())
     `;
   }
 
   for (const item of input.credentials || []) {
     await db`
-      insert into category.staff_credentials (id, staff_id, credential, is_verified)
-      values (public.uuid_generate_v4(), ${staffId}, ${item.credential}, ${item.isVerified ?? false})
+      insert into category.staff_credentials (id, staff_id, credential, is_verified, image_url)
+      values (public.uuid_generate_v4(), ${staffId}, ${item.credential}, ${item.isVerified ?? false}, ${item.imageUrl || null})
     `;
   }
-
   for (const item of input.achievements || []) {
     await db`
       insert into category.staff_achievements (id, staff_id, icon, title, organization, display_order, create_date, last_modified_date)

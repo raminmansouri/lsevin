@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Eye } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
-import { LexicalRenderer } from "@/components/editor/lexical-renderer";
+import { SafeLexicalRenderer } from "./safe-lexical-renderer";
 import { ResponsiveModal } from "@/components/responsive-modal";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -122,7 +122,7 @@ export function ServiceDefinitionDetailsModal({
                     </p>
                     <div>
                       <strong>{t("form.description.label")}:</strong>{" "}
-                      <LexicalRenderer
+                      <SafeLexicalRenderer
                         content={getLocalizedValue(
                           details.description,
                           localeHeader

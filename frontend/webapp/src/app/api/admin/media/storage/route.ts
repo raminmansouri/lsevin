@@ -1,16 +1,37 @@
-import { randomUUID } from "node:crypto";
-import path from "node:path";
-import { promises as fs } from "node:fs";
-
 import { NextRequest, NextResponse } from "next/server";
-import { postData, putData, withBaseHeaders } from "@/config/http/http-service.server";
-import { ADMIN_BASE_PATH, CATEGORY_MODULE_BASE_PATH } from "@/features/shared/types/constants";
-import { OutputType } from "@/features/categories/actions/upload-category-image/types";
-import { getSession } from '../../../../../lib/auth/session';
 
+import { putData } from "@/config/http/http-service.server";
+import { getSession } from "../../../../../lib/auth/session";
 
-function sanitizeFileName(name: string) {
-  return name.replace(/[^\w.\-]+/g, "-").toLowerCase();
+function resolveMediaType(mimeType?: string | null): "image" | "video" | "file" {
+  if (mimeType?.startsWith("image/")) return "image";
+  if (mimeType?.startsWith("video/")) return "video";
+  return "file";
+}
+
+function getExtension(fileName: string) {
+  const index = fileName.lastIndexOf(".");
+  if (index < 0) return null;
+  return fileName.slice(index + 1).toLowerCase();
+}
+
+function firstString(value: unknown): string | null {
+  if (typeof value === "string") return value;
+  if (Array.isArray(value)) {
+    const item = value.find((entry) => typeof entry === "string");
+    return typeof item === "string" ? item : null;
+  }
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    return (
+      firstString(record.fileUrl) ??
+      firstString(record.url) ??
+      firstString(record.path) ??
+      firstString(record.data) ??
+      firstString(record.result)
+    );
+  }
+  return null;
 }
 
 export async function POST(request: NextRequest) {
@@ -22,43 +43,51 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file was provided." }, { status: 400 });
     }
 
-
-    const now = new Date();
-
     const session = await getSession();
     const user = session?.user;
 
-    formData.append('path', '1')
+    if (!formData.has("path")) {
+      formData.append("path", "1");
+    }
 
-    const { data, error } =
-      await putData<FormData, OutputType>(
-        `File/UploadAnyFile?path=1`,
-        formData,
-        { locale: 'en', token: user?.accessToken }
-      )
+    const { data, error } = await putData<FormData, any>(
+      "File/UploadAnyFile?path=1",
+      formData,
+      { locale: "en", token: user?.accessToken }
+    );
 
+    if (error) {
+      return NextResponse.json(
+        { error: typeof error === "string" ? error : "File storage upload failed." },
+        { status: 502 }
+      );
+    }
 
+    const fileUrl = firstString(data);
 
-
+    if (!fileUrl) {
+      return NextResponse.json(
+        { error: "File storage upload did not return a usable URL." },
+        { status: 502 }
+      );
+    }
 
     return NextResponse.json({
-      fileUrl: data,
+      fileUrl,
+      originalName: file.name,
       storedName: file.name,
+      mimeType: file.type || "application/octet-stream",
+      mediaType: resolveMediaType(file.type),
+      fileSize: file.size,
+      extension: getExtension(file.name),
+      width: null,
+      height: null,
+      durationSeconds: null,
     });
-
-
   } catch (error) {
-    console.log('+++++++++++++++++++++++++++++++')
-    console.log('+++++++++++++++++++++++++++++++')
-    console.log('+++++++++++++++++++++++++++++++')
-    console.log('+++++++++++++++++++++++++++++++')
-    console.log('+++++++++++++++++++++++++++++++')
-    console.log(error)
-
     return NextResponse.json(
       {
-        error:
-          error instanceof Error ? error.message : "Failed to store uploaded file.",
+        error: error instanceof Error ? error.message : "Failed to store uploaded file.",
       },
       { status: 500 }
     );

@@ -28,6 +28,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { RHFSingleMediaPickerField, RHFMultiMediaPickerField } from "@/features/media-picker-addon";
+import { RHFLazySearchableSelectField } from "@/features/admin-lazy-select";
 import { LocalizedInput } from "@/features/shared/components/LocalizedInput";
 import { normalizeLocalizedFields } from "@/features/shared/utils/localization";
 import useAction from "@/hooks/use-action";
@@ -42,6 +43,7 @@ import { DayOfWeek, StaffDetails, StaffFormOptions } from "../types";
 type StaffFormProps = {
   staff?: StaffDetails;
   options: StaffFormOptions;
+  locale?: string;
 };
 
 const STAFF_TRANSLATION_LOCALES = ["ar-SA", "de-DE", "en-US", "es-ES", "fa-IR", "fr-FR", "ku-KU", "tr-TR"] as const;
@@ -182,7 +184,7 @@ function ArrayItemShell({ children, onRemove }: { children: React.ReactNode; onR
   );
 }
 
-export function StaffForm({ staff, options }: StaffFormProps) {
+export function StaffForm({ staff, options, locale = "en-US" }: StaffFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const isEdit = !!staff;
@@ -373,9 +375,15 @@ export function StaffForm({ staff, options }: StaffFormProps) {
                 {providerAssignments.fields.length === 0 && <p className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">No provider assigned yet.</p>}
                 {providerAssignments.fields.map((field, index) => (
                   <ArrayItemShell key={field.id} onRemove={() => providerAssignments.remove(index)}>
-                    <FormField control={form.control} name={`providerAssignments.${index}.serviceProviderId`} render={({ field }) => (
-                      <FormItem><FormLabel>Provider</FormLabel><FormControl><select className="h-10 w-full rounded-md border bg-background px-3 text-sm" {...field}><option value="">Select provider</option>{options.serviceProviders.map((provider) => <option key={provider.id} value={provider.id}>{provider.name} {provider.city ? `• ${provider.city}` : ""}</option>)}</select></FormControl><FormMessage /></FormItem>
-                    )} />
+                    <RHFLazySearchableSelectField
+                      control={form.control}
+                      name={`providerAssignments.${index}.serviceProviderId` as any}
+                      label="Provider"
+                      resource="serviceProviders"
+                      locale={locale}
+                      placeholder="Search and select provider"
+                      disabled={isPending}
+                    />
                     <FormField control={form.control} name={`providerAssignments.${index}.isActive`} render={({ field }) => (
                       <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>Active assignment</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
                     )} />
@@ -396,9 +404,15 @@ export function StaffForm({ staff, options }: StaffFormProps) {
                 {services.fields.length === 0 && <p className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">No service assigned yet.</p>}
                 {services.fields.map((field, index) => (
                   <ArrayItemShell key={field.id} onRemove={() => services.remove(index)}>
-                    <FormField control={form.control} name={`services.${index}.serviceDefinitionId`} render={({ field }) => (
-                      <FormItem><FormLabel>Service definition</FormLabel><FormControl><select className="h-10 w-full rounded-md border bg-background px-3 text-sm" {...field}><option value="">Select service</option>{options.serviceDefinitions.map((service) => <option key={service.id} value={service.id}>{service.name} • {service.value} {service.currency}</option>)}</select></FormControl><FormMessage /></FormItem>
-                    )} />
+                    <RHFLazySearchableSelectField
+                      control={form.control}
+                      name={`services.${index}.serviceDefinitionId` as any}
+                      label="Service definition"
+                      resource="serviceDefinitions"
+                      locale={locale}
+                      placeholder="Search and select service"
+                      disabled={isPending}
+                    />
                     <FormField control={form.control} name={`services.${index}.isActive`} render={({ field }) => (
                       <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>Active service</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
                     )} />
@@ -421,12 +435,24 @@ export function StaffForm({ staff, options }: StaffFormProps) {
                   const isRecurring = form.watch(`availabilities.${index}.isRecurring`);
                   return (
                     <ArrayItemShell key={field.id} onRemove={() => availabilities.remove(index)}>
-                      <FormField control={form.control} name={`availabilities.${index}.dayOfWeek`} render={({ field }) => (
-                        <FormItem><FormLabel>Day</FormLabel><FormControl><select className="h-10 w-full rounded-md border bg-background px-3 text-sm" {...field}>{Object.values(DayOfWeek).map((day) => <option key={day} value={day}>{day}</option>)}</select></FormControl><FormMessage /></FormItem>
-                      )} />
-                      <FormField control={form.control} name={`availabilities.${index}.availabilityStatusId`} render={({ field }) => (
-                        <FormItem><FormLabel>Status</FormLabel><FormControl><select className="h-10 w-full rounded-md border bg-background px-3 text-sm" {...field}>{options.availabilityStatuses.map((status) => <option key={status.id} value={status.id}>{status.name}</option>)}</select></FormControl><FormMessage /></FormItem>
-                      )} />
+                      <RHFLazySearchableSelectField
+                        control={form.control}
+                        name={`availabilities.${index}.dayOfWeek` as any}
+                        label="Day"
+                        resource="daysOfWeek"
+                        locale={locale}
+                        placeholder="Search and select day"
+                        disabled={isPending}
+                      />
+                      <RHFLazySearchableSelectField
+                        control={form.control}
+                        name={`availabilities.${index}.availabilityStatusId` as any}
+                        label="Status"
+                        resource="staffAvailabilityStatuses"
+                        locale={locale}
+                        placeholder="Search and select status"
+                        disabled={isPending}
+                      />
                       <FormField control={form.control} name={`availabilities.${index}.startTime`} render={({ field }) => (
                         <FormItem><FormLabel>Start time</FormLabel><FormControl><Input {...field} placeholder="09:00:00" /></FormControl><FormMessage /></FormItem>
                       )} />
@@ -449,15 +475,65 @@ export function StaffForm({ staff, options }: StaffFormProps) {
               <CardHeader className="flex flex-row items-start justify-between gap-3">
                 <SectionHeader icon={GraduationCap} title="Education, certifications and credentials" />
                 <div className="flex flex-wrap gap-2">
-                  <Button type="button" variant="outline" onClick={() => education.append({ degree: "", institution: "", year: undefined })}><Plus className="mr-2 h-4 w-4" /> Education</Button>
-                  <Button type="button" variant="outline" onClick={() => certifications.append({ name: "", issuer: "", isVerified: false })}><Plus className="mr-2 h-4 w-4" /> Certification</Button>
-                  <Button type="button" variant="outline" onClick={() => credentials.append({ credential: "", isVerified: false })}><Plus className="mr-2 h-4 w-4" /> Credential</Button>
+                  <Button type="button" variant="outline" onClick={() => education.append({ degree: "", institution: "", year: undefined, imageUrl: "" })}><Plus className="mr-2 h-4 w-4" /> Education</Button>
+                  <Button type="button" variant="outline" onClick={() => certifications.append({ name: "", issuer: "", isVerified: false, imageUrl: "" })}><Plus className="mr-2 h-4 w-4" /> Certification</Button>
+                  <Button type="button" variant="outline" onClick={() => credentials.append({ credential: "", isVerified: false, imageUrl: "" })}><Plus className="mr-2 h-4 w-4" /> Credential</Button>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {education.fields.map((field, index) => <ArrayItemShell key={field.id} onRemove={() => education.remove(index)}><FormField control={form.control} name={`education.${index}.degree`} render={({ field }) => <FormItem><FormLabel>Degree</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`education.${index}.institution`} render={({ field }) => <FormItem><FormLabel>Institution</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`education.${index}.year`} render={({ field }) => <FormItem><FormLabel>Year</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ""} /></FormControl><FormMessage /></FormItem>} /></ArrayItemShell>)}
-                {certifications.fields.map((field, index) => <ArrayItemShell key={field.id} onRemove={() => certifications.remove(index)}><FormField control={form.control} name={`certifications.${index}.name`} render={({ field }) => <FormItem><FormLabel>Certification</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`certifications.${index}.issuer`} render={({ field }) => <FormItem><FormLabel>Issuer</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`certifications.${index}.isVerified`} render={({ field }) => <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>Verified</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>} /></ArrayItemShell>)}
-                {credentials.fields.map((field, index) => <ArrayItemShell key={field.id} onRemove={() => credentials.remove(index)}><FormField control={form.control} name={`credentials.${index}.credential`} render={({ field }) => <FormItem><FormLabel>Credential</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`credentials.${index}.isVerified`} render={({ field }) => <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>Verified</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>} /></ArrayItemShell>)}
+                {education.fields.map((field, index) => (
+                  <ArrayItemShell key={field.id} onRemove={() => education.remove(index)}>
+                    <div className="md:col-span-2">
+                      <RHFSingleMediaPickerField
+                        control={form.control}
+                        name={`education.${index}.imageUrl` as any}
+                        label="Education image"
+                        placeholder="Pick degree/certificate image"
+                        mediaType="image"
+                        helperText="Stores one media id/path in category.staff_education.image_url."
+                        modalTitle="Pick education image"
+                      />
+                    </div>
+                    <FormField control={form.control} name={`education.${index}.degree`} render={({ field }) => <FormItem><FormLabel>Degree</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+                    <FormField control={form.control} name={`education.${index}.institution`} render={({ field }) => <FormItem><FormLabel>Institution</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+                    <FormField control={form.control} name={`education.${index}.year`} render={({ field }) => <FormItem><FormLabel>Year</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ""} /></FormControl><FormMessage /></FormItem>} />
+                  </ArrayItemShell>
+                ))}
+                {certifications.fields.map((field, index) => (
+                  <ArrayItemShell key={field.id} onRemove={() => certifications.remove(index)}>
+                    <div className="md:col-span-2">
+                      <RHFSingleMediaPickerField
+                        control={form.control}
+                        name={`certifications.${index}.imageUrl` as any}
+                        label="Certification image"
+                        placeholder="Pick certificate image"
+                        mediaType="image"
+                        helperText="Stores one media id/path in category.staff_certifications.image_url."
+                        modalTitle="Pick certification image"
+                      />
+                    </div>
+                    <FormField control={form.control} name={`certifications.${index}.name`} render={({ field }) => <FormItem><FormLabel>Certification</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+                    <FormField control={form.control} name={`certifications.${index}.issuer`} render={({ field }) => <FormItem><FormLabel>Issuer</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl><FormMessage /></FormItem>} />
+                    <FormField control={form.control} name={`certifications.${index}.isVerified`} render={({ field }) => <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>Verified</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>} />
+                  </ArrayItemShell>
+                ))}
+                {credentials.fields.map((field, index) => (
+                  <ArrayItemShell key={field.id} onRemove={() => credentials.remove(index)}>
+                    <div className="md:col-span-2">
+                      <RHFSingleMediaPickerField
+                        control={form.control}
+                        name={`credentials.${index}.imageUrl` as any}
+                        label="Credential image"
+                        placeholder="Pick credential image"
+                        mediaType="image"
+                        helperText="Stores one media id/path in category.staff_credentials.image_url."
+                        modalTitle="Pick credential image"
+                      />
+                    </div>
+                    <FormField control={form.control} name={`credentials.${index}.credential`} render={({ field }) => <FormItem><FormLabel>Credential</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+                    <FormField control={form.control} name={`credentials.${index}.isVerified`} render={({ field }) => <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>Verified</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>} />
+                  </ArrayItemShell>
+                ))}
               </CardContent>
             </Card>
 
@@ -481,7 +557,7 @@ export function StaffForm({ staff, options }: StaffFormProps) {
               </CardHeader>
               <CardContent className="space-y-4">
                 <RHFMultiMediaPickerField control={form.control} name="galleryBulkMediaIds" label="Bulk add gallery media" placeholder="Pick files" mediaType="all" helperText="Stores selected ids as comma-separated text; they are converted into gallery rows on save." modalTitle="Pick gallery files" />
-                {galleryItems.fields.map((field, index) => <ArrayItemShell key={field.id} onRemove={() => galleryItems.remove(index)}><div className="md:col-span-2"><RHFSingleMediaPickerField control={form.control} name={`galleryItems.${index}.url` as any} label="Media" placeholder="Pick media" mediaType="all" helperText="Stores one media id/path." modalTitle="Pick media" /></div><FormField control={form.control} name={`galleryItems.${index}.title`} render={({ field }) => <FormItem className="md:col-span-2"><LocalizedInput label="Title" value={field.value} onChange={field.onChange} /><FormMessage /></FormItem>} /><FormField control={form.control} name={`galleryItems.${index}.description`} render={({ field }) => <FormItem className="md:col-span-2"><LocalizedInput label="Description" value={field.value} onChange={field.onChange} rows={3} /><FormMessage /></FormItem>} /><FormField control={form.control} name={`galleryItems.${index}.mediaType`} render={({ field }) => <FormItem><FormLabel>Media type</FormLabel><FormControl><select className="h-10 w-full rounded-md border bg-background px-3 text-sm" {...field}><option value="image">Image</option><option value="video">Video</option><option value="file">File</option></select></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`galleryItems.${index}.displayOrder`} render={({ field }) => <FormItem><FormLabel>Display order</FormLabel><FormControl><Input type="number" min={0} {...field} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`galleryItems.${index}.isPrimary`} render={({ field }) => <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>Primary</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>} /></ArrayItemShell>)}
+                {galleryItems.fields.map((field, index) => <ArrayItemShell key={field.id} onRemove={() => galleryItems.remove(index)}><div className="md:col-span-2"><RHFSingleMediaPickerField control={form.control} name={`galleryItems.${index}.url` as any} label="Media" placeholder="Pick media" mediaType="all" helperText="Stores one media id/path." modalTitle="Pick media" /></div><FormField control={form.control} name={`galleryItems.${index}.title`} render={({ field }) => <FormItem className="md:col-span-2"><LocalizedInput label="Title" value={field.value} onChange={field.onChange} /><FormMessage /></FormItem>} /><FormField control={form.control} name={`galleryItems.${index}.description`} render={({ field }) => <FormItem className="md:col-span-2"><LocalizedInput label="Description" value={field.value} onChange={field.onChange} rows={3} /><FormMessage /></FormItem>} /><RHFLazySearchableSelectField control={form.control} name={`galleryItems.${index}.mediaType` as any} label="Media type" resource="staffGalleryMediaTypes" locale={locale} placeholder="Search and select media type" disabled={isPending} /><FormField control={form.control} name={`galleryItems.${index}.displayOrder`} render={({ field }) => <FormItem><FormLabel>Display order</FormLabel><FormControl><Input type="number" min={0} {...field} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`galleryItems.${index}.isPrimary`} render={({ field }) => <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>Primary</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>} /></ArrayItemShell>)}
                 {beforeAfterItems.fields.map((field, index) => <ArrayItemShell key={field.id} onRemove={() => beforeAfterItems.remove(index)}><RHFSingleMediaPickerField control={form.control} name={`beforeAfterItems.${index}.beforeImage` as any} label="Before image" placeholder="Pick before image" mediaType="image" helperText="Stores one media id/path." modalTitle="Pick before image" /><RHFSingleMediaPickerField control={form.control} name={`beforeAfterItems.${index}.afterImage` as any} label="After image" placeholder="Pick after image" mediaType="image" helperText="Stores one media id/path." modalTitle="Pick after image" /><FormField control={form.control} name={`beforeAfterItems.${index}.procedure`} render={({ field }) => <FormItem><FormLabel>Procedure</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`beforeAfterItems.${index}.months`} render={({ field }) => <FormItem><FormLabel>Months</FormLabel><FormControl><Input type="number" min={0} {...field} value={field.value ?? ""} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`beforeAfterItems.${index}.displayOrder`} render={({ field }) => <FormItem><FormLabel>Display order</FormLabel><FormControl><Input type="number" min={0} {...field} /></FormControl><FormMessage /></FormItem>} /></ArrayItemShell>)}
               </CardContent>
             </Card>

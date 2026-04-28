@@ -1,8 +1,6 @@
 import "server-only";
 
 import {
-  unstable_cacheLife as cacheLife,
-  unstable_cacheTag as cacheTag,
   revalidateTag,
 } from "next/cache";
 
@@ -35,6 +33,7 @@ export type AdminLookupType =
   | "attributeDefinitions"
   | "requestStatuses"
   | "policyTypes"
+  | "currencies"
   | "addons";
 
 export type AdminLookupSearchResult = {
@@ -71,6 +70,7 @@ export type AdminProviderLookupData = {
   })[];
   requestStatuses: AdminLookupOption[];
   policyTypes: AdminLookupOption[];
+  currencies: AdminLookupOption[];
   addons: AdminLookupOption[];
 };
 
@@ -317,8 +317,58 @@ function safeJsonObject(columnSql: any) {
   return sql`case when jsonb_typeof(${columnSql}) = 'object' then ${columnSql} else ${EMPTY_TRANSLATIONS_SQL} end`;
 }
 
+function normalizeLocaleCode(locale?: string | null) {
+  const normalized = String(locale || "en-US").trim().replace("_", "-");
+  return normalized || "en-US";
+}
+
 function translated(columnSql: any, locale: string) {
-  return sql`common.get_translation_t(${safeJsonObject(columnSql)}, ${locale}, 'en-US')`;
+  const source = safeJsonObject(columnSql);
+  const preferred = normalizeLocaleCode(locale);
+  const preferredNorm = preferred.toLowerCase();
+  const preferredBase = preferredNorm.split("-")[0] || preferredNorm;
+  const fallback = "en-US";
+  const fallbackNorm = fallback.toLowerCase();
+  const fallbackBase = "en";
+
+  return sql`coalesce(
+    nullif(btrim(${source} ->> ${preferred}), ''),
+    (
+      select nullif(btrim(e.value), '')
+      from jsonb_each_text(${source}) e
+      where lower(replace(e.key, '_', '-')) = ${preferredNorm}
+      limit 1
+    ),
+    (
+      select nullif(btrim(e.value), '')
+      from jsonb_each_text(${source}) e
+      where split_part(lower(replace(e.key, '_', '-')), '-', 1) = ${preferredBase}
+      order by case when lower(replace(e.key, '_', '-')) = ${preferredBase} then 0 else 1 end, e.key
+      limit 1
+    ),
+    nullif(btrim(${source} ->> ${fallback}), ''),
+    (
+      select nullif(btrim(e.value), '')
+      from jsonb_each_text(${source}) e
+      where lower(replace(e.key, '_', '-')) = ${fallbackNorm}
+      limit 1
+    ),
+    (
+      select nullif(btrim(e.value), '')
+      from jsonb_each_text(${source}) e
+      where split_part(lower(replace(e.key, '_', '-')), '-', 1) = ${fallbackBase}
+      order by case when lower(replace(e.key, '_', '-')) = ${fallbackBase} then 0 else 1 end, e.key
+      limit 1
+    ),
+    (
+      select nullif(btrim(e.value), '')
+      from jsonb_each_text(${source}) e
+      where nullif(btrim(e.value), '') is not null
+      order by e.key
+      limit 1
+    ),
+    ''
+  )`;
 }
 
 function asNumber(value: unknown, fallback = 0): number {
@@ -360,22 +410,83 @@ function fail<T>(title: string, status = 500, detail?: string): ApiReturnType<T>
   } as ApiReturnType<T>;
 }
 
+function resolveSearchText(params: AdminServiceProviderFilterParams | undefined) {
+  const value =
+    params?.filters ||
+    (params as any)?.filter ||
+    (params as any)?.search ||
+    (params as any)?.q ||
+    (params as any)?.query ||
+    (params as any)?.globalFilter;
+
+  return typeof value === "string" ? value.trim() : "";
+}
+
 function buildWhere(params: AdminServiceProviderFilterParams | undefined, locale: string) {
   const parts: any[] = [];
-  const search = params?.filters?.trim();
+  const search = resolveSearchText(params);
 
   if (search) {
     const like = `%${search}%`;
     parts.push(sql`(
       ${translated(sql`sp.name_translations`, locale)} ilike ${like}
       or ${translated(sql`sp.description_translations`, locale)} ilike ${like}
+      or ${translated(sql`sp.detail_translations`, locale)} ilike ${like}
+      or ${translated(sql`sp.street_translations`, locale)} ilike ${like}
       or sp.email ilike ${like}
       or sp.phone_number ilike ${like}
+      or sp.phone_number_country_code ilike ${like}
       or coalesce(sp.country, '') ilike ${like}
       or coalesce(sp.city, '') ilike ${like}
+      or coalesce(sp.zip_code, '') ilike ${like}
+      or coalesce(sp.sponsored_tag, '') ilike ${like}
+      or coalesce(sp.response_time, '') ilike ${like}
+      or coalesce(sp.total_patients, '') ilike ${like}
+      or coalesce(sp.success_rate, '') ilike ${like}
+      or ${translated(sql`pt.name_translations`, locale)} ilike ${like}
+      or coalesce(g.name, '') ilike ${like}
       or exists (
         select 1 from unnest(coalesce(sp.specialties, array[]::text[])) s
         where s ilike ${like}
+      )
+      or exists (
+        select 1 from unnest(coalesce(sp.languages, array[]::text[])) l
+        where l ilike ${like}
+      )
+      or exists (
+        select 1
+        from category.provider_services ps
+        join category.service_definitions sd on sd.id = ps.service_definition_id
+        left join category.categories c on c.id = sd.category_id
+        where ps.service_provider_id = sp.id
+          and (
+            ${translated(sql`ps.display_name_translations`, locale)} ilike ${like}
+            or ${translated(sql`ps.description_translations`, locale)} ilike ${like}
+            or ${translated(sql`sd.name_translations`, locale)} ilike ${like}
+            or ${translated(sql`sd.description_translations`, locale)} ilike ${like}
+            or ${translated(sql`c.name_translations`, locale)} ilike ${like}
+            or coalesce(ps.currency, '') ilike ${like}
+            or coalesce(ps.recovery, '') ilike ${like}
+            or coalesce(ps.anesthesia, '') ilike ${like}
+            or coalesce(ps.stay_required, '') ilike ${like}
+            or coalesce(ps.success_rate, '') ilike ${like}
+            or coalesce(ps.satisfaction, '') ilike ${like}
+            or exists (
+              select 1 from unnest(coalesce(ps.tags, array[]::text[])) tag
+              where tag ilike ${like}
+            )
+          )
+      )
+      or exists (
+        select 1
+        from category.provider_staffs psf
+        join category.staff stf on stf.id = psf.staff_id
+        where psf.service_provider_id = sp.id
+          and (
+            ${translated(sql`stf.name_translations`, locale)} ilike ${like}
+            or ${translated(sql`stf.title_translations`, locale)} ilike ${like}
+            or coalesce(stf.specialty, '') ilike ${like}
+          )
       )
     )`);
   }
@@ -404,10 +515,12 @@ function buildWhere(params: AdminServiceProviderFilterParams | undefined, locale
   return sql`where ${combined}`;
 }
 
-function buildOrder(sortOrder?: string) {
+function buildOrder(sortOrder?: string, locale = "en-US") {
   switch (sortOrder) {
+    case "name-asc":
+      return sql`${translated(sql`sp.name_translations`, locale)} asc nulls last`;
     case "name-desc":
-      return sql`provider_name desc nulls last`;
+      return sql`${translated(sql`sp.name_translations`, locale)} desc nulls last`;
     case "rating-desc":
       return sql`sp.rating desc nulls last, sp.review_count desc nulls last`;
     case "featured-desc":
@@ -424,16 +537,12 @@ export async function getAdminServiceProviders(
   locale: string,
   params?: AdminServiceProviderFilterParams
 ): Promise<ApiReturnType<PaginatedResult<AdminServiceProviderListItem>>> {
-  "use cache: remote";
-  cacheTag(getServiceProviderGlobalTag());
-  cacheLife("default");
-
   try {
     const pageNumber = Math.max(1, Number(params?.pageNumber || DEFAULT_PAGE_NUMBER));
     const pageSize = Math.min(100, Math.max(1, Number(params?.pageSize || DEFAULT_PAGE_SIZE)));
     const offset = (pageNumber - 1) * pageSize;
     const whereSql = buildWhere(params, locale);
-    const orderSql = buildOrder(params?.sortOrder);
+    const orderSql = buildOrder(params?.sortOrder, locale);
 
     const rows = await sql<(AdminServiceProviderListItem & CountRow)[]>`
       select
@@ -575,10 +684,6 @@ export async function getAdminServiceProviderById(
   locale: string,
   id: string
 ): Promise<ApiReturnType<AdminServiceProviderDetails>> {
-  "use cache: remote";
-  cacheTag(getServiceProviderIdTag(id));
-  cacheLife("default");
-
   try {
     const rows = await sql<ProviderRow[]>`
       select
@@ -1075,6 +1180,14 @@ export async function searchAdminProviderLookupOptions(
         order by display_order, label
         limit ${limit} offset ${offset}
       `;
+    } else if (params.type === "currencies") {
+      rows = await sql<AdminLookupOption[]>`
+        select symbol as id, symbol as code, concat(symbol, case when nullif(name, '') is not null then concat(' · ', name) else '' end) as label
+        from category.currencies
+        where ${hasQuery ? sql`(symbol ilike ${like} or name ilike ${like})` : sql`true`}
+        order by symbol
+        limit ${limit} offset ${offset}
+      `;
     } else if (params.type === "addons") {
       rows = await sql<AdminLookupOption[]>`
         select id, concat(name, ' · ', source_type) as label
@@ -1094,12 +1207,8 @@ export async function searchAdminProviderLookupOptions(
 }
 
 export async function getAdminProviderLookupData(locale: string): Promise<ApiReturnType<AdminProviderLookupData>> {
-  "use cache: remote";
-  cacheTag("admin-service-provider-lookups");
-  cacheLife("default");
-
   try {
-    const [providerTypes, grades, countries, cities, serviceDefinitions, staff, providers, attributeDefinitions, requestStatuses, policyTypes, addons] = await Promise.all([
+    const [providerTypes, grades, countries, cities, serviceDefinitions, staff, providers, attributeDefinitions, requestStatuses, policyTypes, currencies, addons] = await Promise.all([
       sql<AdminLookupOption[]>`
         select id::text, ${translated(sql`name_translations`, locale)} as label
         from category.provider_types
@@ -1171,6 +1280,12 @@ export async function getAdminProviderLookupData(locale: string): Promise<ApiRet
         limit 50
       `,
       sql<AdminLookupOption[]>`
+        select symbol as id, symbol as code, concat(symbol, case when nullif(name, '') is not null then concat(' · ', name) else '' end) as label
+        from category.currencies
+        order by symbol
+        limit 50
+      `,
+      sql<AdminLookupOption[]>`
         select id, name as label
         from category.addons
         where is_active = true
@@ -1179,7 +1294,7 @@ export async function getAdminProviderLookupData(locale: string): Promise<ApiRet
       `,
     ]);
 
-    return ok({ providerTypes, grades, countries, cities, serviceDefinitions, staff, providers, attributeDefinitions, requestStatuses, policyTypes, addons });
+    return ok({ providerTypes, grades, countries, cities, serviceDefinitions, staff, providers, attributeDefinitions, requestStatuses, policyTypes, currencies, addons });
   } catch (error) {
     console.error("getAdminProviderLookupData failed", error);
     return fail("Could not load service provider lookup data.");

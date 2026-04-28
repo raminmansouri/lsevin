@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useTranslations } from "next-intl";
@@ -11,13 +12,14 @@ export const ProviderTypeListToolbar = () => {
   const t = useTranslations(PROVIDER_TYPE_TRANSLATION_KEY);
   const router = useRouter();
 
-  const handleAddProviderType = () => {
-    router.push("/admin/provider-types/add");
-  };
-
   return (
-    <Button onClick={handleAddProviderType}>
-      {t("actions.addProviderType")}
-    </Button>
+    <div className="flex flex-wrap items-center gap-2">
+      <Button onClick={() => router.push("/admin/provider-types/add")}>
+        {t("actions.addProviderType")}
+      </Button>
+      <Button variant="outline" onClick={() => router.push("/admin/service-definitions")}>
+        Service definitions
+      </Button>
+    </div>
   );
 };

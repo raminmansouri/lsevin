@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, ToggleLeft, ToggleRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { LexicalRenderer } from "@/components/editor/lexical-renderer";
+import { SafeLexicalRenderer } from "../safe-lexical-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,7 +49,7 @@ export const getServiceDefinitionListColumns = (
     accessorKey: "description",
     header: t("table.description"),
     cell: ({ row }) => (
-      <LexicalRenderer className="line-clamp-2 max-w-[280px] text-sm text-muted-foreground" content={row.original.description || "-"} />
+      <SafeLexicalRenderer className="line-clamp-2 max-w-[280px] text-sm text-muted-foreground" content={row.original.description || "-"} />
     ),
     enableSorting: false,
   },

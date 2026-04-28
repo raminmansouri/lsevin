@@ -54,7 +54,7 @@ const SuspenseBoundary = async ({ params }: { params: Promise<UpdateStaffPagePar
         </CardTitle>
       </CardHeader>
       <ServerFetchResult<StaffDetails> singleData result={result}>
-        {(staff) => <StaffForm staff={staff} options={options} />}
+        {(staff) => <StaffForm staff={staff} options={options} locale={locale} />}
       </ServerFetchResult>
     </Card>
   );

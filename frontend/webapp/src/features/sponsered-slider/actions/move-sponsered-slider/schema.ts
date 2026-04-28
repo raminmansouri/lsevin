@@ -1,0 +1,1 @@
+export { MoveSponseredSliderSchema } from "../../schemas";

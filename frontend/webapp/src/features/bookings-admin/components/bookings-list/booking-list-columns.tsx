@@ -11,6 +11,8 @@ import type { BookingListItem } from "../../types";
 export const getBookingColumns = (
   onEdit: (item: BookingListItem) => void,
   onView: (item: BookingListItem) => void,
+  onFinancial: (item: BookingListItem) => void,
+  onPaymentTerms: (item: BookingListItem) => void,
 ): ColumnDef<BookingListItem>[] => [
   { accessorKey: 'providerName', header: 'Provider' },
   { accessorKey: 'serviceName', header: 'Service' },
@@ -31,6 +33,8 @@ export const getBookingColumns = (
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => onView(item)}>Details</DropdownMenuItem>
             <DropdownMenuItem onClick={() => onEdit(item)}>Edit</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onFinancial(item)}>Financial</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onPaymentTerms(item)}>Payment terms</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

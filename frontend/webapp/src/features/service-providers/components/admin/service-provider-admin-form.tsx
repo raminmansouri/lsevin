@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save, ArrowLeft } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -19,15 +19,19 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { SUPPORTED_LOCALE_HEADERS } from "@/config/locales";
 import { LocalizedInput } from "@/features/shared/components/LocalizedInput";
-import {
-  createEmptyLocalizedContent,
-  normalizeLocalizedContent,
-} from "@/features/shared/utils/localization";
+import { createEmptyLocalizedContent } from "@/features/shared/utils/localization";
 import useAction from "@/hooks/use-action";
 import { useRouter } from "@/i18n/navigation";
 
 import { saveServiceProviderProfileAction } from "../../actions/admin";
+import {
+  normalizeLocalizedContentForDatabase,
+  normalizeMediaPickerValue,
+  toLocalizedInputValue,
+  type AdminLocalizedInputValue,
+} from "../../lib/admin-form-normalizers";
 import {
   saveServiceProviderProfileSchema,
   type SaveServiceProviderProfileInput,
@@ -45,50 +49,109 @@ type Props = {
   locale: string;
 };
 
-function translationsOrEmpty(value?: Record<string, string> | null) {
-  return value && Object.keys(value).length ? value : createEmptyLocalizedContent();
+type ServiceProviderAdminFormValues = Omit<
+  SaveServiceProviderProfileInput,
+  "name" | "description" | "street" | "detail" | "imageUrl"
+> & {
+  name: AdminLocalizedInputValue;
+  description: AdminLocalizedInputValue;
+  street: AdminLocalizedInputValue;
+  detail: AdminLocalizedInputValue;
+  imageUrl: unknown;
+};
+
+function translationsOrEmpty(value?: Record<string, string> | null, locale?: string): AdminLocalizedInputValue {
+  const normalized = toLocalizedInputValue(value, locale, SUPPORTED_LOCALE_HEADERS);
+  return Object.keys(normalized.translations).length
+    ? normalized
+    : (createEmptyLocalizedContent() as AdminLocalizedInputValue);
+}
+
+function buildServiceProviderDefaultValues(
+  provider: AdminServiceProviderDetails | undefined,
+  locale: string
+): ServiceProviderAdminFormValues {
+  return {
+    serviceProviderId: provider?.id,
+    name: translationsOrEmpty(provider?.name, locale),
+    description: translationsOrEmpty(provider?.description, locale),
+    providerTypeId: provider?.providerTypeId ?? "",
+    isActive: provider?.isActive ?? true,
+    country: provider?.country ?? "",
+    city: provider?.city ?? "",
+    street: translationsOrEmpty(provider?.street, locale),
+    detail: translationsOrEmpty(provider?.detail, locale),
+    zipCode: provider?.zipCode ?? "",
+    email: provider?.email ?? "",
+    phoneNumberCountryCode: provider?.phoneNumberCountryCode ?? "+98",
+    phoneNumber: provider?.phoneNumber ?? "",
+    gradeId: provider?.gradeId ?? undefined,
+    latitude: provider?.latitude ?? undefined,
+    longitude: provider?.longitude ?? undefined,
+    rating: provider?.rating ?? 0,
+    reviewCount: provider?.reviewCount ?? 0,
+    accredited: provider?.accredited ?? false,
+    responseTime: provider?.responseTime ?? "",
+    establishedYear: provider?.establishedYear ?? undefined,
+    totalPatients: provider?.totalPatients ?? "",
+    successRate: provider?.successRate ?? "",
+    languagesText: provider?.languages?.join(", ") ?? "",
+    isSponsored: provider?.isSponsored ?? false,
+    sponsoredTag: provider?.sponsoredTag ?? "",
+    specialtiesText: provider?.specialties?.join(", ") ?? "",
+    featuredScore: provider?.featuredScore ?? 0,
+    imageUrl: provider?.imageUrl ?? "",
+    timezoneId: provider?.timezoneId ?? "UTC",
+  };
+}
+
+function parseCoordinatePair(value: string) {
+  const matches = value
+    .replace(/[،؛]/g, ",")
+    .match(/-?\d+(?:[.,]\d+)?/g);
+
+  if (!matches || matches.length < 2) return null;
+
+  const latitude = Number(matches[0].replace(",", "."));
+  const longitude = Number(matches[1].replace(",", "."));
+
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+  if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) return null;
+
+  return { latitude, longitude };
 }
 
 export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [coordinatesText, setCoordinatesText] = useState(
+    provider?.latitude !== null && provider?.latitude !== undefined && provider?.longitude !== null && provider?.longitude !== undefined
+      ? `${provider.latitude}, ${provider.longitude}`
+      : ""
+  );
   const isEdit = Boolean(provider?.id);
 
-  const form = useForm<SaveServiceProviderProfileInput>({
-    resolver: zodResolver(saveServiceProviderProfileSchema),
-    defaultValues: {
-      serviceProviderId: provider?.id,
-      name: translationsOrEmpty(provider?.name),
-      description: translationsOrEmpty(provider?.description),
-      providerTypeId: provider?.providerTypeId ?? "",
-      isActive: provider?.isActive ?? true,
-      country: provider?.country ?? "",
-      city: provider?.city ?? "",
-      street: translationsOrEmpty(provider?.street),
-      detail: translationsOrEmpty(provider?.detail),
-      zipCode: provider?.zipCode ?? "",
-      email: provider?.email ?? "",
-      phoneNumberCountryCode: provider?.phoneNumberCountryCode ?? "+98",
-      phoneNumber: provider?.phoneNumber ?? "",
-      gradeId: provider?.gradeId ?? undefined,
-      latitude: provider?.latitude ?? undefined,
-      longitude: provider?.longitude ?? undefined,
-      rating: provider?.rating ?? 0,
-      reviewCount: provider?.reviewCount ?? 0,
-      accredited: provider?.accredited ?? false,
-      responseTime: provider?.responseTime ?? "",
-      establishedYear: provider?.establishedYear ?? undefined,
-      totalPatients: provider?.totalPatients ?? "",
-      successRate: provider?.successRate ?? "",
-      languagesText: provider?.languages?.join(", ") ?? "",
-      isSponsored: provider?.isSponsored ?? false,
-      sponsoredTag: provider?.sponsoredTag ?? "",
-      specialtiesText: provider?.specialties?.join(", ") ?? "",
-      featuredScore: provider?.featuredScore ?? 0,
-      imageUrl: provider?.imageUrl ?? "",
-      timezoneId: provider?.timezoneId ?? "UTC",
-    },
+  const defaultValues = useMemo(
+    () => buildServiceProviderDefaultValues(provider, locale),
+    [provider, locale]
+  );
+
+  const form = useForm<ServiceProviderAdminFormValues>({
+    resolver: zodResolver(saveServiceProviderProfileSchema) as any,
+    defaultValues,
   });
+
+  useEffect(() => {
+    form.reset(defaultValues);
+    setCoordinatesText(
+      provider?.latitude !== null &&
+        provider?.latitude !== undefined &&
+        provider?.longitude !== null &&
+        provider?.longitude !== undefined
+        ? `${provider.latitude}, ${provider.longitude}`
+        : ""
+    );
+  }, [defaultValues, form, provider?.latitude, provider?.longitude]);
 
   const { execute } = useAction(saveServiceProviderProfileAction, {
     startTransition,
@@ -102,14 +165,14 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
     },
   });
 
-  const onSubmit = (values: SaveServiceProviderProfileInput) => {
+  const onSubmit = (values: ServiceProviderAdminFormValues) => {
     startTransition(async () => {
       await execute({
         ...values,
-        name: normalizeLocalizedContent(values.name),
-        description: normalizeLocalizedContent(values.description),
-        street: values.street ? normalizeLocalizedContent(values.street) : {},
-        detail: values.detail ? normalizeLocalizedContent(values.detail) : {},
+        name: normalizeLocalizedContentForDatabase(values.name),
+        description: normalizeLocalizedContentForDatabase(values.description),
+        street: values.street ? normalizeLocalizedContentForDatabase(values.street) : {},
+        detail: values.detail ? normalizeLocalizedContentForDatabase(values.detail) : {},
         email: values.email.trim(),
         phoneNumberCountryCode: values.phoneNumberCountryCode.trim(),
         phoneNumber: values.phoneNumber.trim(),
@@ -118,7 +181,7 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
         totalPatients: values.totalPatients?.trim() || null,
         successRate: values.successRate?.trim() || null,
         sponsoredTag: values.sponsoredTag?.trim() || null,
-        imageUrl: values.imageUrl?.trim() || null,
+        imageUrl: normalizeMediaPickerValue(values.imageUrl) || null,
         timezoneId: values.timezoneId?.trim() || "UTC",
       });
     });
@@ -157,7 +220,7 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <LocalizedInput label="Name" value={field.value} onChange={field.onChange} required maxLength={200} />
+                          <LocalizedInput label="Name" value={field.value} onChange={field.onChange} supportedLocales={SUPPORTED_LOCALE_HEADERS} required maxLength={200} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -170,7 +233,7 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <LocalizedInput label="Description" value={field.value} onChange={field.onChange} richText rows={5} maxLength={3000} />
+                          <LocalizedInput label="Description" value={field.value} onChange={field.onChange} supportedLocales={SUPPORTED_LOCALE_HEADERS} richText rows={5} maxLength={3000} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -300,20 +363,62 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
                   </div>
 
                   <FormField control={form.control} name="street" render={({ field }) => (
-                    <FormItem><FormControl><LocalizedInput label="Street" value={field.value || createEmptyLocalizedContent()} onChange={field.onChange} maxLength={500} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormControl><LocalizedInput label="Street" value={field.value || createEmptyLocalizedContent()} onChange={field.onChange} supportedLocales={SUPPORTED_LOCALE_HEADERS} maxLength={500} /></FormControl><FormMessage /></FormItem>
                   )} />
 
                   <FormField control={form.control} name="detail" render={({ field }) => (
-                    <FormItem><FormControl><LocalizedInput label="Address details" value={field.value || createEmptyLocalizedContent()} onChange={field.onChange} rows={3} maxLength={1000} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormControl><LocalizedInput label="Address details" value={field.value || createEmptyLocalizedContent()} onChange={field.onChange} supportedLocales={SUPPORTED_LOCALE_HEADERS} rows={3} maxLength={1000} /></FormControl><FormMessage /></FormItem>
                   )} />
 
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <FormField control={form.control} name="latitude" render={({ field }) => (
-                      <FormItem><FormLabel>Latitude</FormLabel><FormControl><Input type="number" step="0.0000001" {...field} value={field.value ?? ""} disabled={isPending} /></FormControl><FormMessage /></FormItem>
-                    )} />
-                    <FormField control={form.control} name="longitude" render={({ field }) => (
-                      <FormItem><FormLabel>Longitude</FormLabel><FormControl><Input type="number" step="0.0000001" {...field} value={field.value ?? ""} disabled={isPending} /></FormControl><FormMessage /></FormItem>
-                    )} />
+                  <div className="space-y-3 rounded-2xl border p-4">
+                    <div className="space-y-1">
+                      <FormLabel>Google Maps coordinates</FormLabel>
+                      <div className="grid gap-2 md:grid-cols-[1fr_auto]">
+                        <Input
+                          dir="ltr"
+                          value={coordinatesText}
+                          onChange={(event) => {
+                            const raw = event.target.value;
+                            setCoordinatesText(raw);
+                            const parsed = parseCoordinatePair(raw);
+                            if (parsed) {
+                              form.setValue("latitude", parsed.latitude, { shouldDirty: true, shouldValidate: true });
+                              form.setValue("longitude", parsed.longitude, { shouldDirty: true, shouldValidate: true });
+                            }
+                          }}
+                          onBlur={() => {
+                            const parsed = parseCoordinatePair(coordinatesText);
+                            if (parsed) setCoordinatesText(`${parsed.latitude}, ${parsed.longitude}`);
+                          }}
+                          placeholder="35.6892, 51.3890"
+                          disabled={isPending}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={isPending || !parseCoordinatePair(coordinatesText)}
+                          onClick={() => {
+                            const parsed = parseCoordinatePair(coordinatesText);
+                            if (!parsed) return;
+                            form.setValue("latitude", parsed.latitude, { shouldDirty: true, shouldValidate: true });
+                            form.setValue("longitude", parsed.longitude, { shouldDirty: true, shouldValidate: true });
+                            setCoordinatesText(`${parsed.latitude}, ${parsed.longitude}`);
+                          }}
+                        >
+                          Apply
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">Paste directly from Google Maps. The first number is latitude and the second is longitude.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <FormField control={form.control} name="latitude" render={({ field }) => (
+                        <FormItem><FormLabel>Latitude</FormLabel><FormControl><Input type="number" step="0.0000001" {...field} value={field.value ?? ""} disabled={isPending} /></FormControl><FormMessage /></FormItem>
+                      )} />
+                      <FormField control={form.control} name="longitude" render={({ field }) => (
+                        <FormItem><FormLabel>Longitude</FormLabel><FormControl><Input type="number" step="0.0000001" {...field} value={field.value ?? ""} disabled={isPending} /></FormControl><FormMessage /></FormItem>
+                      )} />
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-[160px_1fr]">

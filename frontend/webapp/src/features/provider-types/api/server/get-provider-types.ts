@@ -1,3 +1,4 @@
+
 import "server-only";
 
 import {
@@ -5,17 +6,12 @@ import {
   unstable_cacheTag as cacheTag,
 } from "next/cache";
 
-import { readData } from "@/config/http/http-service.server";
-import {
-  ADMIN_BASE_PATH,
-  CATEGORY_MODULE_BASE_PATH,
-} from "@/features/shared/types/constants";
-import { addAllFilterParams } from "@/lib/filter-params";
 import { BaseRequest } from "@/types/common";
 import { FilterParams } from "@/types/filter";
 import { ApiReturnType, PaginatedResult } from "@/types/network";
 
 import { getProviderTypeGlobalTag } from "../../db/cache";
+import { listProviderTypes, providerTypeProblem } from "../../db/provider-types.repository";
 import { ProviderTypeFiltered } from "../../types/provider-type";
 
 export const getProviderTypes = async (
@@ -26,16 +22,10 @@ export const getProviderTypes = async (
   cacheTag(getProviderTypeGlobalTag());
   cacheLife("default");
 
-  const searchParams = new URLSearchParams();
-  if (params) {
-    addAllFilterParams(searchParams, params);
+  try {
+    const data = await listProviderTypes(params as Record<string, unknown>, request.locale);
+    return { data, error: undefined } as ApiReturnType<PaginatedResult<ProviderTypeFiltered>>;
+  } catch (error) {
+    return { data: undefined, error: providerTypeProblem(error) } as ApiReturnType<PaginatedResult<ProviderTypeFiltered>>;
   }
-
-  const response = await readData<PaginatedResult<ProviderTypeFiltered>>(
-    `${CATEGORY_MODULE_BASE_PATH}/${ADMIN_BASE_PATH}/provider-types?${searchParams.toString()}`,
-    {
-      ...request,
-    }
-  );
-  return response;
 };

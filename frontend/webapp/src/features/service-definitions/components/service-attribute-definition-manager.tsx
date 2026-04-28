@@ -5,7 +5,7 @@ import { Edit, Plus, Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { LexicalRenderer } from "@/components/editor/lexical-renderer";
+import { SafeLexicalRenderer } from "./safe-lexical-renderer";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,13 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { localeToHeader } from "@/config/locales";
 import {
@@ -50,6 +43,7 @@ import {
   ServiceAttributeDefinition,
   ServiceDefinitionDetails,
 } from "../types/service-definition";
+import { LazyServiceDefinitionLookupSelect } from "./lazy-service-definition-lookup-select";
 
 interface ServiceAttributeDefinitionManagerProps {
   serviceDefinition: ServiceDefinitionDetails;
@@ -57,6 +51,10 @@ interface ServiceAttributeDefinitionManagerProps {
 }
 
 const ATTRIBUTE_TYPE_OPTIONS = getAttributeTypeOptions(false); // Use common types only
+const ATTRIBUTE_TYPE_LOOKUP_OPTIONS = ATTRIBUTE_TYPE_OPTIONS.map((option) => ({
+  value: option.value.toString(),
+  label: option.label,
+}));
 
 export function ServiceAttributeDefinitionManager({
   serviceDefinition,
@@ -449,12 +447,13 @@ export function ServiceAttributeDefinitionManager({
                         <label className="text-sm font-medium">
                           {t("attributes.form.attributeType")}
                         </label>
-                        <Select
+                        <LazyServiceDefinitionLookupSelect
+                          lookupType="attributeTypes"
+                          locale={locale}
                           value={editFormData.attributeType.toString()}
                           onValueChange={(value) => {
-                            const attributeType = parseInt(
-                              value
-                            ) as AttributeType;
+                            if (!value) return;
+                            const attributeType = parseInt(value) as AttributeType;
                             setEditFormData((prev) => ({
                               ...prev,
                               attributeType,
@@ -472,26 +471,13 @@ export function ServiceAttributeDefinitionManager({
                               ]);
                             }
                           }}
+                          placeholder={t("attributes.form.attributeTypePlaceholder")}
+                          searchPlaceholder="Search attribute types..."
+                          emptyMessage="No attribute type found."
+                          initialOptions={ATTRIBUTE_TYPE_LOOKUP_OPTIONS}
                           disabled={isPending}
-                        >
-                          <SelectTrigger>
-                            <SelectValue
-                              placeholder={t(
-                                "attributes.form.attributeTypePlaceholder"
-                              )}
-                            />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {ATTRIBUTE_TYPE_OPTIONS.map((option) => (
-                              <SelectItem
-                                key={option.value}
-                                value={option.value.toString()}
-                              >
-                                {option.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          allowClear={false}
+                        />
                       </div>
 
                       {/* Required & Affects Pricing Toggles */}
@@ -660,7 +646,7 @@ export function ServiceAttributeDefinitionManager({
                               {getLocalizedValue(attribute.name, localeHeader)}
                             </h4>
                             <div className="text-muted-foreground text-sm">
-                              <LexicalRenderer
+                              <SafeLexicalRenderer
                                 content={getLocalizedValue(
                                   attribute.description,
                                   localeHeader
@@ -766,9 +752,12 @@ export function ServiceAttributeDefinitionManager({
                     <label className="text-sm font-medium">
                       {t("attributes.form.attributeType")}
                     </label>
-                    <Select
+                    <LazyServiceDefinitionLookupSelect
+                      lookupType="attributeTypes"
+                      locale={locale}
                       value={newAttribute.attributeType.toString()}
                       onValueChange={(value) => {
+                        if (!value) return;
                         const attributeType = parseInt(value) as AttributeType;
                         setNewAttribute((prev) => ({
                           ...prev,
@@ -781,26 +770,13 @@ export function ServiceAttributeDefinitionManager({
                           setOptionFields([]);
                         }
                       }}
+                      placeholder={t("attributes.form.attributeTypePlaceholder")}
+                      searchPlaceholder="Search attribute types..."
+                      emptyMessage="No attribute type found."
+                      initialOptions={ATTRIBUTE_TYPE_LOOKUP_OPTIONS}
                       disabled={isPending}
-                    >
-                      <SelectTrigger>
-                        <SelectValue
-                          placeholder={t(
-                            "attributes.form.attributeTypePlaceholder"
-                          )}
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {ATTRIBUTE_TYPE_OPTIONS.map((option) => (
-                          <SelectItem
-                            key={option.value}
-                            value={option.value.toString()}
-                          >
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      allowClear={false}
+                    />
                   </div>
 
                   {/* Required & Affects Pricing Toggles */}

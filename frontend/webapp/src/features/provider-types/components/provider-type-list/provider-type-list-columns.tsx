@@ -1,3 +1,4 @@
+
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
@@ -16,80 +17,73 @@ import { IconRenderer } from "@/components/ui/icon-renderer";
 
 import { ProviderTypeFiltered } from "../../types/provider-type";
 
+const ProviderTypeVisual = ({ providerType }: { providerType: ProviderTypeFiltered }) => {
+  const image = providerType.imagePreviewUrl || providerType.imageUrl;
+
+  if (image) {
+    return (
+      <img
+        src={image}
+        alt={providerType.name}
+        className="h-12 w-12 rounded-xl border bg-muted object-cover shadow-sm"
+      />
+    );
+  }
+
+  if (providerType.iconUrl) {
+    return (
+      <div className="flex h-12 w-12 items-center justify-center rounded-xl border bg-muted">
+        <IconRenderer iconName={providerType.iconUrl} size={22} />
+      </div>
+    );
+  }
+
+  return <div className="h-12 w-12 rounded-xl border bg-muted" />;
+};
+
 export const getProviderTypeListColumns = (
   t: ReturnType<typeof useTranslations>,
   handleEdit: (providerType: ProviderTypeFiltered) => void,
   handleDelete: (providerType: ProviderTypeFiltered) => void,
   handleViewDetails: (providerType: ProviderTypeFiltered) => void
-  // handleToggleActivation: (providerType: ProviderType) => void
 ): ColumnDef<ProviderTypeFiltered>[] => [
+  {
+    id: "visual",
+    header: "Image",
+    cell: ({ row }) => <ProviderTypeVisual providerType={row.original} />,
+    enableSorting: false,
+  },
   {
     accessorKey: "name",
     header: t("table.name"),
-    cell: ({ row }) => {
-      const providerType = row.original;
-      return (
-        <div className="flex flex-col">
-          <span className="font-medium">{providerType.name}</span>
-        </div>
-      );
-    },
+    cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
     enableSorting: true,
     enableHiding: false,
   },
   {
-    accessorKey: "iconUrl",
-    header: t("table.icon"),
-    cell: ({ row }) => {
-      const iconUrl = row.original.iconUrl;
-      return iconUrl ? (
-        <IconRenderer iconName={iconUrl} size={20} />
-      ) : (
-        <span className="text-muted-foreground text-xs">-</span>
-      );
-    },
-    enableSorting: false,
-  },
-  {
     accessorKey: "description",
     header: t("table.description"),
-    cell: ({ row }) => {
-      const description = row.original.description;
-      return (
-        <LexicalRenderer
-          className="max-w-[200px] truncate"
-          content={description || "-"}
-        />
-      );
-    },
+    cell: ({ row }) => (
+      <LexicalRenderer className="max-w-[260px] truncate" content={row.original.description || "-"} />
+    ),
     enableSorting: false,
   },
   {
     accessorKey: "attributeDefinitions",
     header: t("table.attributes"),
-    cell: ({ row }) => {
-      const providerType = row.original;
-      return (
-        <div className="text-center">
-          {providerType.attributeDefinitionsCount || 0}
-        </div>
-      );
-    },
+    cell: ({ row }) => <div className="text-center">{row.original.attributeDefinitionsCount || 0}</div>,
     enableSorting: false,
   },
-  // {
-  //   accessorKey: "isActive",
-  //   header: t("table.status"),
-  //   cell: ({ row }) => {
-  //     const providerType = row.original;
-  //     return (
-  //       <Badge variant={providerType.isActive ? "default" : "secondary"}>
-  //         {providerType.isActive ? t("status.active") : t("status.inactive")}
-  //       </Badge>
-  //     );
-  //   },
-  //   enableSorting: true,
-  // },
+  {
+    accessorKey: "isActive",
+    header: t("table.status"),
+    cell: ({ row }) => (
+      <span className={row.original.isActive ? "text-emerald-600" : "text-muted-foreground"}>
+        {row.original.isActive ? t("status.active") : t("status.inactive")}
+      </span>
+    ),
+    enableSorting: true,
+  },
   {
     id: "actions",
     header: t("table.actions"),
@@ -111,16 +105,7 @@ export const getProviderTypeListColumns = (
             <DropdownMenuItem onClick={() => handleEdit(providerType)}>
               {t("actions.editProviderType")}
             </DropdownMenuItem>
-            {/* <DropdownMenuItem onClick={() => handleToggleActivation(providerType)}>
-              {providerType.isActive
-                ? t("actions.deactivate")
-                : t("actions.activate")
-              }
-            </DropdownMenuItem> */}
-            <DropdownMenuItem
-              onClick={() => handleDelete(providerType)}
-              className="text-destructive"
-            >
+            <DropdownMenuItem onClick={() => handleDelete(providerType)} className="text-destructive">
               {t("actions.deleteProviderType")}
             </DropdownMenuItem>
           </DropdownMenuContent>

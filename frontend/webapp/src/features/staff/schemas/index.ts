@@ -58,6 +58,7 @@ export const StaffEducationSchema = z.object({
   degree: z.string().trim().min(1).max(200),
   institution: z.string().trim().min(1).max(250),
   year: nullablePositiveYear,
+  imageUrl: optionalTrimmedString,
 });
 
 export const StaffCertificationSchema = z.object({
@@ -65,12 +66,14 @@ export const StaffCertificationSchema = z.object({
   name: z.string().trim().min(1).max(200),
   issuer: optionalTrimmedString,
   isVerified: z.boolean().default(false),
+  imageUrl: optionalTrimmedString,
 });
 
 export const StaffCredentialSchema = z.object({
   id: z.guid().optional(),
   credential: z.string().trim().min(1),
   isVerified: z.boolean().default(false),
+  imageUrl: optionalTrimmedString,
 });
 
 export const StaffAchievementSchema = z.object({

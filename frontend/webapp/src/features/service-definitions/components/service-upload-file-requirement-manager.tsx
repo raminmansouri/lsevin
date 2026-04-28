@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod/v4";
 
-import { LexicalRenderer } from "@/components/editor/lexical-renderer";
+import { SafeLexicalRenderer } from "./safe-lexical-renderer";
 import { RHFSingleMediaPickerField } from "@/features/media-picker-addon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -366,7 +366,7 @@ export function ServiceUploadFileRequirementManager({ serviceDefinition, onUpdat
                       {requirement.isRequired && <Badge>Required</Badge>}
                       <Badge variant="secondary">Max {requirement.maxFiles}</Badge>
                     </div>
-                    <LexicalRenderer
+                    <SafeLexicalRenderer
                       content={getLocalizedValue(requirement.description, localeHeader)}
                       className="text-sm text-muted-foreground"
                     />

@@ -83,6 +83,7 @@ export interface StaffEducationResponse {
   degree: string;
   institution: string;
   year?: number | null;
+  imageUrl?: string | null;
   createDate?: string;
   lastModifiedDate?: string | null;
 }
@@ -92,6 +93,7 @@ export interface StaffCertificationResponse {
   name: string;
   issuer?: string | null;
   isVerified: boolean;
+  imageUrl?: string | null;
   createDate?: string;
   lastModifiedDate?: string | null;
 }
@@ -100,6 +102,7 @@ export interface StaffCredentialResponse {
   id?: string;
   credential: string;
   isVerified: boolean;
+  imageUrl?: string | null;
 }
 
 export interface StaffAchievementResponse {

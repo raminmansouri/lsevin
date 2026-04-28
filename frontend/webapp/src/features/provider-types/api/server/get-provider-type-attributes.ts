@@ -1,28 +1,42 @@
+
 import "server-only";
 
-import {
-  unstable_cacheLife as cacheLife,
-  unstable_cacheTag as cacheTag,
-} from "next/cache";
-
-import { readData } from "@/config/http/http-service.server";
-import { CATEGORY_MODULE_BASE_PATH } from "@/features/shared/types/constants";
-import { BaseRequest } from "@/types/common";
 import { ApiReturnType } from "@/types/network";
 
-import { getProviderTypeIdTag } from "../../db/cache";
+import { getProviderType, providerTypeProblem } from "../../db/provider-types.repository";
 import { ProviderTypeAttributesResponse } from "../../types/provider-type";
 
 export const getProviderTypeAttributes = async (
-  request: BaseRequest,
   providerTypeId: string
 ): Promise<ApiReturnType<ProviderTypeAttributesResponse>> => {
-  "use cache: remote";
-  cacheTag(getProviderTypeIdTag(providerTypeId));
-  cacheLife("default");
+  try {
+    const providerType = await getProviderType(providerTypeId);
+    if (!providerType) {
+      return {
+        data: undefined,
+        error: { title: "Not found", detail: "Provider type was not found.", status: 404 },
+      } as ApiReturnType<ProviderTypeAttributesResponse>;
+    }
 
-  return readData<ProviderTypeAttributesResponse>(
-    `${CATEGORY_MODULE_BASE_PATH}/provider-types/${providerTypeId}/attributes`,
-    { ...request }
-  );
+    return {
+      data: {
+        providerTypeId: providerType.id,
+        providerTypeName: providerType.name?.translations?.["en-US"] ?? providerType.name?.translations?.en ?? "",
+        attributes: providerType.attributeDefinitions.map((attribute) => ({
+          id: attribute.id,
+          name: attribute.name?.translations?.["en-US"] ?? attribute.name?.translations?.en ?? "",
+          description: attribute.description?.translations?.["en-US"] ?? attribute.description?.translations?.en ?? "",
+          attributeType: String(attribute.attributeType),
+          isRequired: attribute.isRequired,
+          options: attribute.options?.map((option) => ({
+            displayName: option.displayName?.translations?.["en-US"] ?? option.displayName?.translations?.en ?? "",
+            value: option.value?.translations?.["en-US"] ?? option.value?.translations?.en ?? "",
+          })),
+        })),
+      },
+      error: undefined,
+    } as ApiReturnType<ProviderTypeAttributesResponse>;
+  } catch (error) {
+    return { data: undefined, error: providerTypeProblem(error) } as ApiReturnType<ProviderTypeAttributesResponse>;
+  }
 };

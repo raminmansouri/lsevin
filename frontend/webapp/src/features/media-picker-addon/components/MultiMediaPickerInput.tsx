@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Images } from "lucide-react";
 
-import { getMediaByIds } from "../api";
+import { getMediaByReferences } from "../api";
 import MediaPickerModal from "./MediaPickerModal";
 import MediaPreviewList from "./MediaPreviewList";
 import type { BaseMediaPickerInputProps, MediaItem } from "../types";
@@ -43,7 +43,7 @@ export default function MultiMediaPickerInput({
 
   useEffect(() => {
     const run = async () => {
-      const items = await getMediaByIds(selectedIds);
+      const items = await getMediaByReferences(selectedIds);
       setSelectedItems(items);
     };
     run();

@@ -53,9 +53,20 @@ const SuspenseBoundary = async ({
   const [{ locale }, searchParamsData] = await Promise.all([params, searchParams]);
   const filterParams: FilterParams = transformSearchParamsToFilterParams(searchParamsData);
   const { providerTypeIds } = providerTypeSearchParamsCache.parse(searchParamsData);
+  const searchText =
+    typeof searchParamsData.filters === "string"
+      ? searchParamsData.filters
+      : typeof searchParamsData.search === "string"
+        ? searchParamsData.search
+        : typeof searchParamsData.q === "string"
+          ? searchParamsData.q
+          : typeof searchParamsData.query === "string"
+            ? searchParamsData.query
+            : undefined;
 
   const result = await getAdminServiceProviders(locale, {
     ...filterParams,
+    filters: searchText ?? filterParams.filters,
     providerTypeIds,
   });
 

@@ -17,6 +17,7 @@ const VALID_TYPES = new Set<AdminLookupType>([
   "attributeDefinitions",
   "requestStatuses",
   "policyTypes",
+  "currencies",
   "addons",
 ]);
 

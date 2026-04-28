@@ -7,9 +7,90 @@ import { createAuthenticatedSafeAction } from "@/lib/safe-action";
 import { LocaleHeaderTypes } from "@/types/common";
 
 import { revalidateAdminServiceProvider } from "../../db/admin-service-providers.queries";
+import {
+  normalizeAdminLocalizedContent,
+  normalizeOptionalAdminLocalizedContent,
+} from "../../lib/admin-form-normalizers";
 
-const translationsSchema = z.record(z.string(), z.string()).default({});
-const nullableTranslationsSchema = translationsSchema.nullish();
+const translationsSchema = z.preprocess(
+  normalizeAdminLocalizedContent,
+  z.record(z.string(), z.string()).default({})
+);
+
+const nullableTranslationsSchema = z.preprocess(
+  normalizeOptionalAdminLocalizedContent,
+  z.record(z.string(), z.string()).nullable().optional()
+);
+
+function normalizeMediaPickerValue(value: unknown): string {
+  if (typeof value === "string") return value.trim();
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const normalized = normalizeMediaPickerValue(item);
+      if (normalized) return normalized;
+    }
+    return "";
+  }
+  if (!value || typeof value !== "object") return "";
+
+  const item = value as Record<string, unknown>;
+  const directKeys = [
+    "id",
+    "mediaId",
+    "media_id",
+    "fileId",
+    "file_id",
+    "assetId",
+    "asset_id",
+    "storedName",
+    "stored_name",
+    "storageKey",
+    "storage_key",
+    "fileUrl",
+    "file_url",
+    "publicUrl",
+    "public_url",
+    "downloadUrl",
+    "download_url",
+    "previewUrl",
+    "preview_url",
+    "thumbnailUrl",
+    "thumbnail_url",
+    "url",
+    "src",
+    "href",
+    "path",
+    "value",
+    "key",
+  ];
+
+  for (const key of directKeys) {
+    const candidate = item[key];
+    if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
+  }
+
+  const nestedKeys = ["media", "file", "asset", "selected", "item", "data", "record", "attachment"];
+  for (const key of nestedKeys) {
+    const normalized = normalizeMediaPickerValue(item[key]);
+    if (normalized) return normalized;
+  }
+
+  return "";
+}
+
+const mediaValueSchema = z.preprocess(
+  normalizeMediaPickerValue,
+  z.string().min(1, "Please pick a media item.").max(500)
+);
+
+const nullableMediaValueSchema = z.preprocess(
+  (value) => {
+    const normalized = normalizeMediaPickerValue(value);
+    return normalized || null;
+  },
+  z.string().max(500).nullable().optional()
+);
+
 const uuidSchema = z.guid();
 const optionalUuidSchema = z.guid().optional().nullable();
 
@@ -100,7 +181,7 @@ const saveServiceProviderProfileSchema = z.object({
   sponsoredTag: z.string().max(50).optional().nullable(),
   specialtiesText: z.string().optional().nullable(),
   featuredScore: z.coerce.number().min(0).default(0),
-  imageUrl: z.string().optional().nullable(),
+  imageUrl: nullableMediaValueSchema,
   timezoneId: z.string().min(1).default("UTC"),
 });
 
@@ -329,7 +410,7 @@ const providerGalleryItemSchema = z.object({
   id: optionalUuidSchema,
   title: translationsSchema,
   description: translationsSchema,
-  url: z.string().min(1).max(500),
+  url: mediaValueSchema,
   mediaType: z.string().min(1).max(50).default("image"),
   displayOrder: z.coerce.number().int().min(0).default(0),
 });
@@ -491,7 +572,7 @@ const providerServiceSchema = z.object({
   value: z.coerce.number().min(0),
   durationMinutes: z.coerce.number().int().min(0).default(0),
   recovery: z.string().max(100).optional().nullable(),
-  imageUrl: z.string().optional().nullable(),
+  imageUrl: nullableMediaValueSchema,
   isPopular: z.boolean().default(false),
   anesthesia: z.string().max(100).optional().nullable(),
   stayRequired: z.string().max(100).optional().nullable(),

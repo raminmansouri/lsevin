@@ -1,9 +1,30 @@
 import { z } from "zod/v4";
 
-export const adminTranslationsSchema = z.record(z.string(), z.string()).default({});
-export const adminNullableTranslationsSchema = adminTranslationsSchema.nullish();
+import {
+  normalizeLocalizedContentForDatabase,
+  normalizeMediaPickerValue,
+  normalizeOptionalLocalizedContentForDatabase,
+} from "../lib/admin-form-normalizers";
+
+export const adminTranslationsSchema = z.preprocess(
+  normalizeLocalizedContentForDatabase,
+  z.record(z.string(), z.string()).default({})
+);
+
+export const adminNullableTranslationsSchema = z.preprocess(
+  normalizeOptionalLocalizedContentForDatabase,
+  z.record(z.string(), z.string()).nullable().optional()
+);
 export const adminUuidSchema = z.guid();
 export const adminOptionalUuidSchema = z.guid().optional().nullable();
+
+export const adminNullableMediaValueSchema = z.preprocess(
+  (value) => {
+    const normalized = normalizeMediaPickerValue(value);
+    return normalized || null;
+  },
+  z.string().max(500).nullable().optional()
+);
 
 export const saveServiceProviderProfileSchema = z.object({
   serviceProviderId: adminOptionalUuidSchema,
@@ -34,7 +55,7 @@ export const saveServiceProviderProfileSchema = z.object({
   sponsoredTag: z.string().max(50).optional().nullable(),
   specialtiesText: z.string().optional().nullable(),
   featuredScore: z.coerce.number().min(0).default(0),
-  imageUrl: z.string().optional().nullable(),
+  imageUrl: adminNullableMediaValueSchema,
   timezoneId: z.string().min(1).default("UTC"),
 });
 

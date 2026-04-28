@@ -63,7 +63,17 @@ declare const messages: {
     "serviceDefinitions": "تعریف خدمات",
     "providerTypes": "انواع ارائه‌دهندگان",
     "staff": "پرسنل",
-    "serviceProviders": "ارائه‌دهندگان خدمات"
+    "serviceProviders": "ارائه‌دهندگان خدمات",
+    "platformdata": "دیتا پلتفرم",
+    "wallettransactions": "تراکنش های کیف پول",
+    "bookings": "رزرو ها",
+    "bookingdrafts": "رزرو های رها شده",
+    "loyalty": "وفاداری",
+    "sponsered-slider": "sponsered slider",
+    "users": "کاربران",
+    "customers": "مشتریان",
+    "payments": "پرداخت ها",
+    "walletpaymentintents": "لاگ تراکنش ها"
   },
   "HomePage": {
     "title": "ال سوین - سلامت هوشمند",

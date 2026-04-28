@@ -22,7 +22,7 @@ const AddStaffPage = async ({ params }: PageProps) => {
           <PageHeader title="Add staff" description="Create the core profile and all related staff records in one place." />
         </CardTitle>
       </CardHeader>
-      <StaffForm options={options} />
+      <StaffForm options={options} locale={locale} />
     </Card>
   );
 };

@@ -1,6 +1,8 @@
 import 'server-only';
 
 import db from '@/config/database/db';
+import { calculateBookingPaymentTerms, resolveBookingPaymentPolicy } from '@/features/commercial/lib/server/payment-policy-engine';
+import { applyCommercialSnapshotAfterCheckout } from './commercial-integration';
 import { pickTranslation } from '../utils/translation';
 import type {
   BookingDraftState,
@@ -656,7 +658,27 @@ export async function checkoutDraft(
 
   const totals = await recalculateDraftTotals(draft.id);
 
-  return await db.begin(async (tx) => {
+  const [scope] = await db<any[]>`
+    select d.provider_id as "providerId",
+           d.service_id as "providerServiceId",
+           ps.service_definition_id as "serviceDefinitionId",
+           sp.provider_type_id as "providerTypeId"
+    from booking.booking_drafts d
+    left join category.provider_services ps on ps.id = d.service_id
+    left join category.service_providers sp on sp.id = d.provider_id
+    where d.id = ${draft.id}
+    limit 1
+  `;
+
+  const paymentPolicy = await resolveBookingPaymentPolicy({
+    providerTypeId: scope?.providerTypeId ?? null,
+    providerId: scope?.providerId ?? null,
+    serviceDefinitionId: scope?.serviceDefinitionId ?? null,
+    providerServiceId: scope?.providerServiceId ?? null,
+  });
+  const paymentTerms = calculateBookingPaymentTerms(totals.totalAmount, totals.currency, paymentPolicy);
+
+  const txResult = await db.begin(async (tx) => {
     const [lockedDraft] = await tx`
       select d.*
       from booking.booking_drafts d
@@ -697,22 +719,9 @@ export async function checkoutDraft(
             selected_time_to = d.selected_time_to,
             payment_method = ${payload.paymentMethod},
             add_ons = '[]'::jsonb,
-            upload_files = coalesce(
-              (
-                select jsonb_agg(
-                  jsonb_build_object(
-                    'title', x.title,
-                    'fileUrl', x.file_url,
-                    'requirementId', x.requirement_id
-                  )
-                )
-                from booking.booking_draft_documents x
-                where x.draft_id = d.id
-              ),
-              '[]'::jsonb
-            ),
+            upload_files = coalesce((select jsonb_agg(jsonb_build_object('title', x.title,'fileUrl', x.file_url,'requirementId', x.requirement_id)) from booking.booking_draft_documents x where x.draft_id = d.id),'[]'::jsonb),
             additional_services = '[]'::jsonb,
-            payment_status = 'Pending',
+            payment_status = case when ${paymentTerms.dueNowAmount} <= 0 then 'NotRequired' else 'Pending' end,
             booking_status = 'Pending',
             currency_code = ${totals.currency},
             total_amount = ${totals.totalAmount},
@@ -723,7 +732,21 @@ export async function checkoutDraft(
             children = (d.metadata ->> 'children')::integer,
             infants = (d.metadata ->> 'infants')::integer,
             rooms = (d.metadata ->> 'rooms')::integer,
-            metadata = d.metadata
+            metadata = d.metadata,
+            source_currency_code = coalesce(d.source_currency_code, ${totals.currency}),
+            display_currency_code = coalesce(d.display_currency_code, ${totals.currency}),
+            payment_currency_code = coalesce(d.payment_currency_code, ${totals.currency}),
+            settlement_currency_code = coalesce(d.settlement_currency_code, d.source_currency_code, ${totals.currency}),
+            source_subtotal_amount = coalesce(d.source_subtotal_amount, d.subtotal_amount, ${totals.subtotalAmount}),
+            source_addons_amount = coalesce(d.source_addons_amount, d.addons_amount, ${totals.addonsAmount}),
+            source_total_amount = coalesce(d.source_total_amount, d.total_amount, ${totals.totalAmount}),
+            display_subtotal_amount = coalesce(d.display_subtotal_amount, d.subtotal_amount, ${totals.subtotalAmount}),
+            display_addons_amount = coalesce(d.display_addons_amount, d.addons_amount, ${totals.addonsAmount}),
+            display_total_amount = coalesce(d.display_total_amount, d.total_amount, ${totals.totalAmount}),
+            exchange_rate = d.exchange_rate,
+            exchange_rate_ids = coalesce(d.exchange_rate_ids, array[]::uuid[]),
+            fx_quote_id = d.fx_quote_id,
+            pricing_snapshot = coalesce(d.pricing_snapshot, '{}'::jsonb)
         from booking.booking_drafts d
         left join category.provider_services ps on ps.id = d.service_id
         left join category.service_definitions sd on sd.id = ps.service_definition_id
@@ -731,26 +754,12 @@ export async function checkoutDraft(
           and d.id = ${draft.id}
       `;
 
-      await tx`
-        delete from booking.booking_child_bookings
-        where parent_booking_id = ${bookingId}
-      `;
-
-      await tx`
-        delete from booking.booking_documents
-        where booking_id = ${bookingId}
-      `;
-
-      await tx`
-        delete from booking.booking_addons
-        where booking_id = ${bookingId}
-      `;
-
-      await tx`
-        delete from booking.payments
-        where booking_id = ${bookingId}
-          and status = 'Pending'
-      `;
+      await tx`delete from booking.booking_child_bookings where parent_booking_id = ${bookingId}`;
+      await tx`delete from booking.booking_documents where booking_id = ${bookingId}`;
+      await tx`delete from booking.booking_addons where booking_id = ${bookingId}`;
+      await tx`delete from booking.payments where booking_id = ${bookingId}`;
+      await tx`delete from commercial.booking_payment_schedule_lines where payment_terms_id in (select id from commercial.booking_payment_terms where booking_id = ${bookingId})`;
+      await tx`delete from commercial.booking_payment_terms where booking_id = ${bookingId}`;
     } else {
       const [booking] = await tx`
         insert into booking.bookings (
@@ -760,7 +769,11 @@ export async function checkoutDraft(
           payment_method, add_ons, upload_files, additional_services,
           payment_status, booking_status, user_id,
           currency_code, total_amount, paid_amount,
-          booking_ui_mode, form_submission_id, adults, children, infants, rooms, metadata
+          booking_ui_mode, form_submission_id, adults, children, infants, rooms, metadata,
+          source_currency_code, display_currency_code, payment_currency_code, settlement_currency_code,
+          source_subtotal_amount, source_addons_amount, source_total_amount,
+          display_subtotal_amount, display_addons_amount, display_total_amount,
+          exchange_rate, exchange_rate_ids, fx_quote_id, pricing_snapshot
         )
         select public.uuid_generate_v4(),
                d.provider_id,
@@ -774,22 +787,9 @@ export async function checkoutDraft(
                d.selected_time_to,
                ${payload.paymentMethod},
                '[]'::jsonb,
-               coalesce(
-                 (
-                   select jsonb_agg(
-                     jsonb_build_object(
-                       'title', x.title,
-                       'fileUrl', x.file_url,
-                       'requirementId', x.requirement_id
-                     )
-                   )
-                   from booking.booking_draft_documents x
-                   where x.draft_id = d.id
-                 ),
-                 '[]'::jsonb
-               ),
+               coalesce((select jsonb_agg(jsonb_build_object('title', x.title,'fileUrl', x.file_url,'requirementId', x.requirement_id)) from booking.booking_draft_documents x where x.draft_id = d.id),'[]'::jsonb),
                '[]'::jsonb,
-               'Pending',
+               case when ${paymentTerms.dueNowAmount} <= 0 then 'NotRequired' else 'Pending' end,
                'Pending',
                d.user_id,
                ${totals.currency},
@@ -801,7 +801,21 @@ export async function checkoutDraft(
                (d.metadata ->> 'children')::integer,
                (d.metadata ->> 'infants')::integer,
                (d.metadata ->> 'rooms')::integer,
-               d.metadata
+               d.metadata,
+               coalesce(d.source_currency_code, ${totals.currency}),
+               coalesce(d.display_currency_code, ${totals.currency}),
+               coalesce(d.payment_currency_code, ${totals.currency}),
+               coalesce(d.settlement_currency_code, d.source_currency_code, ${totals.currency}),
+               coalesce(d.source_subtotal_amount, d.subtotal_amount, ${totals.subtotalAmount}),
+               coalesce(d.source_addons_amount, d.addons_amount, ${totals.addonsAmount}),
+               coalesce(d.source_total_amount, d.total_amount, ${totals.totalAmount}),
+               coalesce(d.display_subtotal_amount, d.subtotal_amount, ${totals.subtotalAmount}),
+               coalesce(d.display_addons_amount, d.addons_amount, ${totals.addonsAmount}),
+               coalesce(d.display_total_amount, d.total_amount, ${totals.totalAmount}),
+               d.exchange_rate,
+               coalesce(d.exchange_rate_ids, array[]::uuid[]),
+               d.fx_quote_id,
+               coalesce(d.pricing_snapshot, '{}'::jsonb)
         from booking.booking_drafts d
         left join category.provider_services ps on ps.id = d.service_id
         left join category.service_definitions sd on sd.id = ps.service_definition_id
@@ -821,65 +835,88 @@ export async function checkoutDraft(
         booking_ui_mode, form_submission_id, subtotal_amount, currency, status, metadata
       )
       select ${bookingId},
-             provider_type_id,
-             provider_id,
-             service_id,
-             specialist_id,
-             selected_date,
-             selected_date_from,
-             selected_date_to,
-             selected_time,
-             selected_time_from,
-             selected_time_to,
-             adults,
-             children,
-             infants,
-             rooms,
-             booking_ui_mode,
-             form_submission_id,
-             coalesce(
-               (select value from category.provider_services ps where ps.id = booking_draft_child_bookings.service_id),
-               subtotal_amount
-             ),
-             currency,
-             'Confirmed',
-             metadata
+             provider_type_id, provider_id, service_id, specialist_id,
+             selected_date, selected_date_from, selected_date_to,
+             selected_time, selected_time_from, selected_time_to,
+             adults, children, infants, rooms,
+             booking_ui_mode, form_submission_id,
+             coalesce((select value from category.provider_services ps where ps.id = booking_draft_child_bookings.service_id), subtotal_amount),
+             currency, 'Confirmed', metadata
       from booking.booking_draft_child_bookings
       where parent_draft_id = ${draft.id}
     `;
 
     await tx`
-      insert into booking.booking_documents (
-        booking_id, requirement_id, title, file_name, file_url
-      )
+      insert into booking.booking_documents (booking_id, requirement_id, title, file_name, file_url)
       select ${bookingId}, requirement_id, title, file_name, file_url
       from booking.booking_draft_documents
       where draft_id = ${draft.id}
     `;
 
     await tx`
-      insert into booking.booking_addons (
-        booking_id, addon_id, source_type, addon_kind, quantity, unit_price, config
-      )
+      insert into booking.booking_addons (booking_id, addon_id, source_type, addon_kind, quantity, unit_price, config)
       select ${bookingId}, addon_id, source_type, addon_kind, quantity, unit_price, config
       from booking.booking_draft_addons
       where draft_id = ${draft.id}
     `;
 
-    const [payment] = await tx`
-      insert into booking.payments (
-        booking_id, user_id, payment_method, amount, currency, status
-      )
-      values (
-        ${bookingId},
-        ${userId},
-        ${payload.paymentMethod},
-        ${totals.totalAmount},
-        ${totals.currency},
-        'Pending'
+    const [savedTerms] = await tx<any[]>`
+      insert into commercial.booking_payment_terms (
+        booking_id, policy_id, collection_mode, payment_currency_code, total_amount,
+        due_now_amount, due_later_amount, deposit_percent, deposit_fixed_amount,
+        balance_due_trigger, deposit_refundable_mode, terms_snapshot
+      ) values (
+        ${bookingId}, ${paymentPolicy?.id ?? null}, ${paymentTerms.collectionMode}, ${paymentTerms.paymentCurrencyCode}, ${paymentTerms.totalAmount},
+        ${paymentTerms.dueNowAmount}, ${paymentTerms.dueLaterAmount}, ${paymentTerms.depositPercent}, ${paymentTerms.depositFixedAmount},
+        ${paymentTerms.balanceDueTrigger}, ${paymentTerms.depositRefundableMode}, ${paymentTerms.termsSnapshot as any}
       )
       returning id
     `;
+
+    for (const line of paymentTerms.schedule) {
+      await tx`
+        insert into commercial.booking_payment_schedule_lines (
+          payment_terms_id, line_no, line_type, label, amount, currency_code, status, metadata
+        ) values (
+          ${savedTerms.id}, ${line.lineNo}, ${line.lineType}, ${line.label}, ${line.amount}, ${line.currencyCode},
+          ${line.amount <= 0 ? 'waived' : 'pending'}, ${line.metadata as any}
+        )
+      `;
+    }
+
+    let paymentStatus = 'Pending';
+    let paymentId: string | null = null;
+    if (paymentTerms.dueNowAmount <= 0) {
+      const [payment] = await tx`
+        insert into booking.payments (
+          booking_id, user_id, payment_method, gateway, amount, currency, status,
+          source_currency_code, settlement_currency_code, source_amount, settlement_amount
+        ) values (
+          ${bookingId}, ${userId}, 'free_booking', 'internal', 0, ${paymentTerms.paymentCurrencyCode}, 'Succeeded',
+          ${totals.currency}, ${totals.currency}, 0, 0
+        ) returning id
+      `;
+      paymentId = payment.id;
+      paymentStatus = 'NotRequired';
+      await tx`
+        update booking.bookings
+        set payment_status = 'NotRequired',
+            paid_amount = 0,
+            payment_method = 'free_booking'
+        where id = ${bookingId}
+      `;
+    } else {
+      const [payment] = await tx`
+        insert into booking.payments (
+          booking_id, user_id, payment_method, amount, currency, status,
+          source_currency_code, settlement_currency_code, source_amount, settlement_amount
+        ) values (
+          ${bookingId}, ${userId}, ${payload.paymentMethod}, ${paymentTerms.dueNowAmount}, ${paymentTerms.paymentCurrencyCode}, 'Pending',
+          ${totals.currency}, ${totals.currency}, ${paymentTerms.dueNowAmount}, ${paymentTerms.dueNowAmount}
+        ) returning id
+      `;
+      paymentId = payment.id;
+    }
 
     await tx`
       update booking.booking_drafts
@@ -891,12 +928,19 @@ export async function checkoutDraft(
       where id = ${draft.id}
     `;
 
-    return {
-      bookingId,
-      paymentId: payment.id,
-      totalAmount: totals.totalAmount,
-      currency: totals.currency,
-      paymentStatus: 'Pending'
-    };
+    return { bookingId, paymentId, dueNowAmount: paymentTerms.dueNowAmount, dueLaterAmount: paymentTerms.dueLaterAmount, collectionMode: paymentTerms.collectionMode, currency: paymentTerms.paymentCurrencyCode, paymentStatus };
   });
+
+  await applyCommercialSnapshotAfterCheckout({ bookingId: txResult.bookingId, paymentId: txResult.paymentId });
+
+  return {
+    bookingId: txResult.bookingId,
+    paymentId: txResult.paymentId,
+    totalAmount: totals.totalAmount,
+    dueNowAmount: txResult.dueNowAmount,
+    dueLaterAmount: txResult.dueLaterAmount,
+    collectionMode: txResult.collectionMode,
+    currency: txResult.currency,
+    paymentStatus: txResult.paymentStatus,
+  };
 }
