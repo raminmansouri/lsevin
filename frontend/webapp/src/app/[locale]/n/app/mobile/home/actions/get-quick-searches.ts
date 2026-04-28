@@ -1,67 +1,56 @@
-import { Sql } from "postgres";
+import 'server-only';
+
+import type { Sql } from 'postgres';
 
 type QuickSearchRow = {
   term: string;
 };
 
-type MobileSearchEntryProps = {
-  limit?: number;
-  basePath?: string;
-  placeholder?: string;
-  className?: string;
-};
-
-
-export async function getQuickSearches(
-  db: Sql,
-  limit = 8
-): Promise<string[]> {
+export async function getQuickSearches(db: Sql, limit = 8): Promise<string[]> {
   const rows = await db<QuickSearchRow[]>`
-    WITH raw_candidates AS (
-      SELECT
-        btrim(term) AS term,
-        0 AS source_rank,
-        0::bigint AS usage_count,
-        COALESCE(calculated_at, TIMESTAMP '1970-01-01') AS last_seen
-      FROM search.trending_searches
-      WHERE NULLIF(btrim(term), '') IS NOT NULL
+    with raw_candidates as (
+      select
+        btrim(term) as term,
+        0 as source_rank,
+        0::bigint as usage_count,
+        coalesce(calculated_at, timestamp '1970-01-01') as last_seen
+      from search.trending_searches
+      where nullif(btrim(term), '') is not null
 
-      UNION ALL
+      union all
 
-      SELECT
-        (array_agg(btrim(term) ORDER BY created_at DESC))[1] AS term,
-        1 AS source_rank,
-        COUNT(*)::bigint AS usage_count,
-        MAX(created_at) AS last_seen
-      FROM search.user_search_history
-      WHERE NULLIF(btrim(term), '') IS NOT NULL
-        AND created_at >= now() - INTERVAL '120 days'
-      GROUP BY lower(btrim(COALESCE(NULLIF(normalized_term, ''), term)))
+      select
+        (array_agg(btrim(term) order by created_at desc))[1] as term,
+        1 as source_rank,
+        count(*)::bigint as usage_count,
+        max(created_at) as last_seen
+      from search.user_search_history
+      where nullif(btrim(term), '') is not null
+        and created_at >= now() - interval '120 days'
+      group by lower(btrim(coalesce(nullif(normalized_term, ''), term)))
     ),
-
-    deduped AS (
-      SELECT DISTINCT ON (lower(term))
+    deduped as (
+      select distinct on (lower(term))
         term,
         source_rank,
         usage_count,
         last_seen
-      FROM raw_candidates
-      WHERE NULLIF(btrim(term), '') IS NOT NULL
-      ORDER BY
+      from raw_candidates
+      where nullif(btrim(term), '') is not null
+      order by
         lower(term),
-        source_rank ASC,
-        usage_count DESC,
-        last_seen DESC
+        source_rank asc,
+        usage_count desc,
+        last_seen desc
     )
-
-    SELECT term
-    FROM deduped
-    ORDER BY
-      source_rank ASC,
-      usage_count DESC,
-      last_seen DESC,
-      term ASC
-    LIMIT ${limit};
+    select term
+    from deduped
+    order by
+      source_rank asc,
+      usage_count desc,
+      last_seen desc,
+      term asc
+    limit ${limit}
   `;
 
   return rows.map((row) => row.term).filter(Boolean);

@@ -36,6 +36,7 @@ import { ICurrentUser } from "@/features/shared/types/user";
 import { getUserRoles } from "@/lib/auth/session";
 import { UserRole } from "@/types/common";
 import { PageProps } from "@/types/next";
+import { redirect } from "next/navigation";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations(TRANSLATION_KEY);
@@ -58,6 +59,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const HomePage = async ({ params, searchParams }: PageProps) => {
+  redirect('/n/app/mobile/home')
   return (
     <div className="container flex flex-col gap-8">
       <HeroSection />

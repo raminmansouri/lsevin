@@ -61,25 +61,3 @@ export async function getAdminExchangeRates(): Promise<AdminExchangeRate[]> {
 
   return rows.map((row) => ({ ...row, rate: Number(row.rate) }));
 }
-
-
-export async function getAdminCurrencyByCode(code: string): Promise<Currency | null> {
-  const rows = await sql<Currency[]>`
-    select
-      code,
-      name,
-      native_name as "nativeName",
-      symbol,
-      decimal_digits as "decimalDigits",
-      is_iso as "isIso",
-      is_active as "isActive",
-      is_display_enabled as "isDisplayEnabled",
-      is_payment_enabled as "isPaymentEnabled",
-      is_settlement_enabled as "isSettlementEnabled",
-      sort_order as "sortOrder"
-    from finance.currencies
-    where code = upper(${code})
-    limit 1
-  `;
-  return rows[0] ?? null;
-}

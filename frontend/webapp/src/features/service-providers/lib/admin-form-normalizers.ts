@@ -68,6 +68,22 @@ export function normalizeMediaPickerValue(value: unknown): string {
   return "";
 }
 
+function parseJsonObjectString(value: string): Record<string, unknown> | null {
+  const trimmed = value.trim();
+  if (!trimmed || !trimmed.startsWith("{")) return null;
+
+  try {
+    const parsed = JSON.parse(trimmed) as unknown;
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      return parsed as Record<string, unknown>;
+    }
+  } catch {
+    // This is probably normal text or Lexical JSON content stored as a locale value.
+  }
+
+  return null;
+}
+
 function normalizeTranslationScalar(value: unknown): string {
   if (value === undefined || value === null) return "";
   if (typeof value === "string") return value.trim();
@@ -75,8 +91,9 @@ function normalizeTranslationScalar(value: unknown): string {
     return String(value);
   }
 
-  // LocalizedInput with richText can return the Lexical editor state as an object.
-  // The database stores localized values as text, so keep the Lexical JSON as a string.
+  // LocalizedInput richText can return the Lexical editor state as an object.
+  // PostgreSQL localized columns store locale values as text, so keep the
+  // Lexical editor state as a JSON string.
   try {
     return JSON.stringify(value);
   } catch {
@@ -84,12 +101,34 @@ function normalizeTranslationScalar(value: unknown): string {
   }
 }
 
-export function normalizeAdminLocalizedContent(value: unknown): Record<string, string> {
-  if (!value || typeof value !== "object") return {};
+function getLocalizedSource(value: unknown): Record<string, unknown> | null {
+  if (!value) return null;
 
-  const source = (value as Record<string, unknown>).translations && typeof (value as Record<string, unknown>).translations === "object"
-    ? (value as Record<string, unknown>).translations as Record<string, unknown>
-    : value as Record<string, unknown>;
+  // Some PostgreSQL/client layers return jsonb as a JSON string. The edit form
+  // must still hydrate from '{"fa-IR":"..."}'.
+  if (typeof value === "string") {
+    return parseJsonObjectString(value);
+  }
+
+  if (Array.isArray(value) || typeof value !== "object") return null;
+
+  const record = value as Record<string, unknown>;
+  const translations = record.translations;
+
+  if (typeof translations === "string") {
+    return parseJsonObjectString(translations) || null;
+  }
+
+  if (translations && typeof translations === "object" && !Array.isArray(translations)) {
+    return translations as Record<string, unknown>;
+  }
+
+  return record;
+}
+
+export function normalizeAdminLocalizedContent(value: unknown): Record<string, string> {
+  const source = getLocalizedSource(value);
+  if (!source) return {};
 
   const result: Record<string, string> = {};
 
@@ -119,7 +158,7 @@ const DEFAULT_REGIONAL_LOCALE_BY_BASE: Record<string, string> = {
 };
 
 function normalizeLocaleKey(locale: string) {
-  return String(locale || "").trim().replace("_", "-");
+  return String(locale || "").trim().replaceAll("_", "-");
 }
 
 function baseLocale(locale: string) {
@@ -165,12 +204,6 @@ export type AdminLocalizedInputValue = {
   translations: Record<string, string>;
 };
 
-/**
- * LocalizedInput expects `{ translations: { "fa-IR": "..." } }`, not a raw JSONB map.
- * The database stores raw JSONB maps such as `{ "fa-IR": "..." }`, so this adapter
- * wraps DB values for the form. If an old row uses a base key such as `fa`, it is
- * promoted to the regional key used by the shared component, such as `fa-IR`.
- */
 function sameLocaleFamily(left: string, right: string) {
   const a = normalizeLocaleKey(left).toLowerCase();
   const b = normalizeLocaleKey(right).toLowerCase();
@@ -190,10 +223,9 @@ function localizedInputKeysForSourceKey(
 
   const keys: string[] = [];
 
-  // LocalizedInput renders exactly the keys from SUPPORTED_LOCALE_HEADERS.
-  // Some projects use base keys like "fa" while the DB stores "fa-IR".
-  // Other projects use regional keys like "fa-IR". Feed the component the
-  // configured keys so edit forms never render empty for valid JSONB.
+  // LocalizedInput renders exactly supportedLocales. Feed every matching key
+  // from the project config so rows stored as fa-IR still render when a project
+  // uses fa, and vice versa.
   if (supportedLocales?.length) {
     for (const supportedLocale of supportedLocales) {
       if (sameLocaleFamily(String(supportedLocale), regional)) {
@@ -241,17 +273,67 @@ export function toLocalizedInputValue(
   return { translations: result };
 }
 
-/**
- * Before saving, collapse base-locale aliases back to regional DB keys.
- * Example: fa -> fa-IR, en -> en-US.
- */
-export function normalizeLocalizedContentForDatabase(value: unknown): Record<string, string> {
-  const source = normalizeAdminLocalizedContent(value);
-  const result: Record<string, string> = {};
+type LocalizedDatabaseCandidate = {
+  sourceKey: string;
+  value: string;
+  index: number;
+  score: number;
+};
 
-  for (const [key, localeValue] of Object.entries(source)) {
+function localePreferenceScore(
+  sourceKey: string,
+  index: number,
+  currentLocale?: string | null,
+  supportedLocales?: readonly string[] | null
+) {
+  const normalizedSource = normalizeLocaleKey(sourceKey);
+  const sourceBase = baseLocale(normalizedSource);
+  const currentNorm = normalizeLocaleKey(currentLocale || "");
+  const currentRegional = currentNorm ? preferredRegionalLocale(currentNorm) : "";
+  const currentBase = baseLocale(currentNorm || currentRegional);
+
+  const supportedNorms = (supportedLocales || [])
+    .map((item) => normalizeLocaleKey(String(item)))
+    .filter(Boolean);
+
+  // This mirrors LocalizedInput: it renders and writes only supportedLocales.
+  // For route locale /fa and supported locale fa-IR, the edited key is fa-IR,
+  // not fa. For projects that really support fa, the edited key is fa.
+  const activeUiLocale =
+    supportedNorms.find((item) => currentNorm && item.toLowerCase() === currentNorm.toLowerCase()) ||
+    supportedNorms.find((item) => currentBase && sameLocaleFamily(item, currentBase)) ||
+    currentRegional ||
+    currentNorm;
+
+  let score = 0;
+
+  if (activeUiLocale && normalizedSource.toLowerCase() === activeUiLocale.toLowerCase()) score += 120;
+  if (currentRegional && normalizedSource.toLowerCase() === currentRegional.toLowerCase()) score += 70;
+  if (currentNorm && normalizedSource.toLowerCase() === currentNorm.toLowerCase()) score += 60;
+  if (currentBase && sourceBase === currentBase) score += 40;
+
+  for (const supportedNorm of supportedNorms) {
+    if (normalizedSource.toLowerCase() === supportedNorm.toLowerCase()) score += 40;
+    else if (sameLocaleFamily(normalizedSource, supportedNorm)) score += 10;
+  }
+
+  // Base aliases such as fa/en can still win when the UI itself is base-keyed.
+  if (normalizedSource && !normalizedSource.includes("-")) score += 10;
+  score += index / 1000;
+  return score;
+}
+
+export function normalizeLocalizedContentForDatabase(
+  value: unknown,
+  currentLocale?: string | null,
+  supportedLocales?: readonly string[] | null
+): Record<string, string> {
+  const source = normalizeAdminLocalizedContent(value);
+  const candidatesByTarget: Record<string, LocalizedDatabaseCandidate[]> = {};
+
+  Object.entries(source).forEach(([key, localeValue], index) => {
     const normalizedValue = normalizeTranslationScalar(localeValue);
-    if (!normalizedValue) continue;
+    if (!normalizedValue) return;
 
     const normalizedKey = normalizeLocaleKey(key);
     const base = baseLocale(normalizedKey);
@@ -259,13 +341,34 @@ export function normalizeLocalizedContentForDatabase(value: unknown): Record<str
       ? preferredRegionalLocale(normalizedKey)
       : DEFAULT_REGIONAL_LOCALE_BY_BASE[base] || normalizedKey;
 
-    if (!result[targetKey]) result[targetKey] = normalizedValue;
+    if (!targetKey) return;
+
+    const candidate: LocalizedDatabaseCandidate = {
+      sourceKey: normalizedKey,
+      value: normalizedValue,
+      index,
+      score: localePreferenceScore(normalizedKey, index, currentLocale, supportedLocales),
+    };
+
+    candidatesByTarget[targetKey] = candidatesByTarget[targetKey] || [];
+    candidatesByTarget[targetKey].push(candidate);
+  });
+
+  const result: Record<string, string> = {};
+  for (const [targetKey, candidates] of Object.entries(candidatesByTarget)) {
+    const winner = [...candidates].sort((a, b) => b.score - a.score)[0];
+    if (winner?.value) result[targetKey] = winner.value;
   }
 
   return result;
 }
 
-export function normalizeOptionalLocalizedContentForDatabase(value: unknown): Record<string, string> | null {
-  const normalized = normalizeLocalizedContentForDatabase(value);
+export function normalizeOptionalLocalizedContentForDatabase(
+  value: unknown,
+  currentLocale?: string | null,
+  supportedLocales?: readonly string[] | null
+): Record<string, string> | null {
+  const normalized = normalizeLocalizedContentForDatabase(value, currentLocale, supportedLocales);
   return Object.keys(normalized).length ? normalized : null;
 }
+

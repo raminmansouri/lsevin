@@ -1,6 +1,5 @@
-// src/features/explore/components/sponsored-media-carousel-section.tsx
-import { getSponsoredSlides } from "../api/server/get-sponsored-slides";
-import { SponsoredMediaCarousel } from "./sponsored-media-carousel";
+import { getSponsoredSlides } from '../api/server/get-sponsored-slides';
+import { SponsoredMediaCarousel } from './sponsored-media-carousel';
 
 export async function SponsoredMediaCarouselSection() {
   const slides = await getSponsoredSlides();

@@ -1,47 +1,29 @@
-// src/features/explore/components/sponsored-media-carousel.tsx
-"use client";
+'use client';
 
-import { ChevronLeft, ChevronRight, ExternalLink, Pause, Play } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, ExternalLink, Pause, Play } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { ImageWithFallback } from "@/components/ui/image-with-fallback";
-import { SponsoredSlide } from "../api/server/get-sponsored-slides";
-// import type { SponsoredSlide } from "../data/get-sponsored-slides";
+import { ImageWithFallback } from '@/components/ui/image-with-fallback';
+
+import type { SponsoredSlide } from '../api/server/get-sponsored-slides';
+import { resolveHomeMediaUrl } from './home-media';
 
 type SponsoredMediaCarouselProps = {
   slides: SponsoredSlide[];
   autoPlayMs?: number;
 };
 
-function isAbsoluteUrl(value: string) {
-  return /^https?:\/\//i.test(value);
-}
-
-function resolveMediaUrl(value: string) {
-  if (!value) return "";
-
-  if (isAbsoluteUrl(value)) return value;
-
-  const base = process.env.NEXT_PUBLIC_FILES_URL?.replace(/\/+$/, "") ?? "";
-  const path = value.replace(/^\/+/, "");
-
-  return base ? `${base}/${path}` : `/${path}`;
-}
-
 function isExternalLink(value: string) {
   return /^https?:\/\//i.test(value);
 }
 
-export function SponsoredMediaCarousel({
-  slides,
-  autoPlayMs = 6000,
-}: SponsoredMediaCarouselProps) {
+export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredMediaCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const touchStartX = useRef<number | null>(null);
 
-  const safeSlides = useMemo(() => slides.filter((x) => !!x.url), [slides]);
+  const safeSlides = useMemo(() => slides.filter((item) => Boolean(item.url)), [slides]);
 
   useEffect(() => {
     if (safeSlides.length <= 1 || isPaused) return;
@@ -57,7 +39,7 @@ export function SponsoredMediaCarousel({
     videoRefs.current.forEach((video, index) => {
       if (!video) return;
 
-      if (index === activeIndex && safeSlides[index]?.mediaType === "video") {
+      if (index === activeIndex && safeSlides[index]?.mediaType === 'video') {
         void video.play().catch(() => undefined);
       } else {
         video.pause();
@@ -81,14 +63,14 @@ export function SponsoredMediaCarousel({
     setActiveIndex(index);
   };
 
-  const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    touchStartX.current = e.touches[0]?.clientX ?? null;
+  const onTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    touchStartX.current = event.touches[0]?.clientX ?? null;
   };
 
-  const onTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+  const onTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
     if (touchStartX.current == null) return;
 
-    const endX = e.changedTouches[0]?.clientX ?? touchStartX.current;
+    const endX = event.changedTouches[0]?.clientX ?? touchStartX.current;
     const delta = endX - touchStartX.current;
 
     if (Math.abs(delta) > 50) {
@@ -111,21 +93,25 @@ export function SponsoredMediaCarousel({
         <div className="relative aspect-[16/9] w-full">
           {safeSlides.map((slide, index) => {
             const active = index === activeIndex;
-            const mediaSrc = resolveMediaUrl(slide.url);
+            const mediaSrc = resolveHomeMediaUrl(slide.url);
+            const title = slide.title || 'Discover featured wellness offers';
+            const subtitle =
+              slide.subtitle || 'Image, GIF, and video creatives served from your media tables with direct landing links.';
+            const buttonLabel = slide.buttonLabel || 'Learn More';
 
             return (
               <div
                 key={slide.id}
                 className={`absolute inset-0 transition-all duration-500 ${
                   active
-                    ? "opacity-100 translate-x-0 z-10"
+                    ? 'z-10 translate-x-0 opacity-100'
                     : index < activeIndex
-                    ? "opacity-0 -translate-x-4 z-0"
-                    : "opacity-0 translate-x-4 z-0"
+                      ? 'z-0 -translate-x-4 opacity-0'
+                      : 'z-0 translate-x-4 opacity-0'
                 }`}
                 aria-hidden={!active}
               >
-                {slide.mediaType === "video" ? (
+                {slide.mediaType === 'video' ? (
                   <video
                     ref={(node) => {
                       videoRefs.current[index] = node;
@@ -135,14 +121,16 @@ export function SponsoredMediaCarousel({
                     muted
                     loop
                     playsInline
-                    preload={active ? "metadata" : "none"}
+                    preload={active ? 'metadata' : 'none'}
                   />
                 ) : (
                   <ImageWithFallback
                     fill
                     src={mediaSrc}
-                    alt={`Sponsored slide ${index + 1}`}
-                    className="h-full w-full object-cover"
+                    alt={title}
+                    sizes="100vw"
+                    className="object-cover"
+                    priority={active}
                   />
                 )}
 
@@ -157,9 +145,9 @@ export function SponsoredMediaCarousel({
 
                     <button
                       type="button"
-                      onClick={() => setIsPaused((v) => !v)}
+                      onClick={() => setIsPaused((value) => !value)}
                       className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-md transition hover:bg-black/45"
-                      aria-label={isPaused ? "Resume carousel" : "Pause carousel"}
+                      aria-label={isPaused ? 'Resume carousel' : 'Pause carousel'}
                     >
                       {isPaused ? <Play size={16} /> : <Pause size={16} />}
                     </button>
@@ -170,27 +158,23 @@ export function SponsoredMediaCarousel({
                       Premium placement
                     </p>
 
-                    <h3 className="mb-2 text-2xl font-bold text-white sm:text-3xl">
-                      Discover featured wellness offers
-                    </h3>
+                    <h3 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{title}</h3>
 
-                    <p className="mb-5 text-sm leading-6 text-white/85 sm:text-base">
-                      Image, GIF, and video creatives served from your media tables with direct landing links.
-                    </p>
+                    <p className="mb-5 text-sm leading-6 text-white/85 sm:text-base">{subtitle}</p>
 
                     {slide.link ? (
                       <a
                         href={slide.link}
-                        target={isExternalLink(slide.link) ? "_blank" : undefined}
-                        rel={isExternalLink(slide.link) ? "noreferrer noopener" : undefined}
+                        target={isExternalLink(slide.link) ? '_blank' : undefined}
+                        rel={isExternalLink(slide.link) ? 'noreferrer noopener' : undefined}
                         className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-bold text-gray-950 transition hover:bg-gray-100"
                       >
-                        Learn More
+                        {buttonLabel}
                         <ExternalLink size={16} />
                       </a>
                     ) : (
                       <div className="inline-flex items-center rounded-2xl bg-white/15 px-5 py-3 text-sm font-semibold text-white backdrop-blur-md">
-                        Sponsored placement
+                        {buttonLabel}
                       </div>
                     )}
                   </div>
@@ -200,7 +184,7 @@ export function SponsoredMediaCarousel({
           })}
         </div>
 
-        {safeSlides.length > 1 && (
+        {safeSlides.length > 1 ? (
           <>
             <button
               type="button"
@@ -227,14 +211,14 @@ export function SponsoredMediaCarousel({
                   type="button"
                   onClick={() => goTo(index)}
                   className={`h-2.5 rounded-full transition-all ${
-                    index === activeIndex ? "w-8 bg-white" : "w-2.5 bg-white/45 hover:bg-white/70"
+                    index === activeIndex ? 'w-8 bg-white' : 'w-2.5 bg-white/45 hover:bg-white/70'
                   }`}
                   aria-label={`Go to slide ${index + 1}`}
                 />
               ))}
             </div>
           </>
-        )}
+        ) : null}
       </div>
     </div>
   );

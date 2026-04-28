@@ -1,74 +1,65 @@
-import {ProviderPageDataResponse} from "@/features/service-providers/types/provider-page-types.ts";
-import { addAllFilterParams } from "@/lib/filter-params";
-import { IProblem } from "@/types/error";
+import { getProviderPageAction } from "@/features/service-providers/actions/provider-page";
+import type { ProviderPageDataResponse } from "@/features/service-providers/types/provider-page-types";
+import type { IProblem } from "@/types/error";
 import { queryOptions, useQuery } from "@tanstack/react-query";
-import axios, { AxiosRequestConfig } from "axios";
 
-/**
- * Replace the URL with whatever backend you use.
- * This stub just returns a static payload; in production you would
- * call your real API (`/api/providers/${id}?lang=${locale}` etc.).
- */
+export type ProviderPageCurrencyOptions = {
+  targetCurrencyCode?: string | null;
+  selectedCountryCode?: string | null;
+  browserCountryCode?: string | null;
+  userId?: string | null;
+};
 
+const fetchProviderPageData = async (
+  providerId: string,
+  locale: string,
+  currencyOptions?: ProviderPageCurrencyOptions
+): Promise<ProviderPageDataResponse> => {
+  const response = await getProviderPageAction({
+    providerId,
+    locale,
+    targetCurrencyCode: currencyOptions?.targetCurrencyCode,
+    selectedCountryCode: currencyOptions?.selectedCountryCode,
+    browserCountryCode: currencyOptions?.browserCountryCode,
+    userId: currencyOptions?.userId,
+  });
 
-
-
-const FetchProviderPageData = async (
-    providerId: string,
-    locale: string,
-  
-  ): Promise<ProviderPageDataResponse> => {
-  
-    const searchParams = new URLSearchParams();
-  
-    searchParams.set('id',providerId)
-    const path = `/service-providers/get-provider-page-data?${searchParams.toString()}`
-  
-    console.log('use hook path:', path)
-  
-  
-  
-    const httpService = axios.create({
-      baseURL: "/api",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  
-    const options: AxiosRequestConfig = {
-      method: "GET",
+  if (response.error || !response.data) {
+    const error = new Error(response.error?.detail || response.error?.title || "Could not load provider page.") as Error & {
+      problem?: IProblem;
     };
-    const response = await httpService(path, options);
-  
-    return response.data as ProviderPageDataResponse;
-  
-  
-    // const response = await readData<SearchHistoryResponse>(path);
-  
-  };
-  
-  
-  
-  
-  
-  const SERVICE_DEFINITION_DETAILS_CACHE_TAG = "provider-page-history";
-  const queryKey = (providerId,locale) =>
-    [SERVICE_DEFINITION_DETAILS_CACHE_TAG,providerId,locale] as const;
-  
-  export const useFetchProviderPageData = (providerId,locale) => {
-    const options = queryOptions<ProviderPageDataResponse, IProblem>({
-      queryKey: queryKey(providerId,locale),
-      queryFn: () => FetchProviderPageData(providerId,locale),
-      enabled: true, // Only run when serviceDefinitionId is provided
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes
-    });
-  
-    const { data, error, isFetching, refetch } = useQuery(options);
-    return {
-      data,
-      error,
-      isFetching,
-      refetch,
-    };
-  };
+    error.problem = response.error;
+    throw error;
+  }
+
+  return response.data;
+};
+
+const PROVIDER_PAGE_CACHE_TAG = "provider-page-data";
+const queryKey = (providerId?: string | null, locale?: string | null, options?: ProviderPageCurrencyOptions) =>
+  [
+    PROVIDER_PAGE_CACHE_TAG,
+    providerId || "",
+    locale || "",
+    options?.targetCurrencyCode || "",
+    options?.selectedCountryCode || "",
+    options?.browserCountryCode || "",
+    options?.userId || "",
+  ] as const;
+
+export const useFetchProviderPageData = (
+  providerId?: string | null,
+  locale?: string | null,
+  currencyOptions?: ProviderPageCurrencyOptions
+) => {
+  const options = queryOptions<ProviderPageDataResponse, IProblem | Error>({
+    queryKey: queryKey(providerId, locale, currencyOptions),
+    queryFn: () => fetchProviderPageData(providerId as string, locale || "en", currencyOptions),
+    enabled: Boolean(providerId),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
+
+  const { data, error, isFetching, refetch } = useQuery(options);
+  return { data, error, isFetching, refetch };
+};

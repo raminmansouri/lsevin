@@ -1,536 +1,678 @@
-"use client"
+"use client";
 
 import {
-
+  AlertCircle,
   ArrowLeft,
-  Share2,
-  Heart,
-  Star,
+  Award,
   BadgeCheck,
-  Clock,
   Calendar,
   CheckCircle2,
-  AlertCircle,
+  ChevronRight,
+  Clock,
+  FileText,
+  Image as ImageIcon,
+  Languages,
+  MapPin,
+  Medal,
+  Percent,
+  PlusCircle,
   Shield,
-  Award,
+  Share2,
+  Sparkles,
+  Star,
+  Tag,
   TrendingUp,
   Users,
-  Image as ImageIcon,
-  ChevronRight
-} from 'lucide-react';
-import { useState } from 'react';
-import RecommendationSection from '../../components/RecommendationSection';
-import { useParams, useSearchParams } from 'next/navigation';
-import { useNavigate } from '@/hooks/use-navigate';
-import { useFetchServicePage } from '@/features/service-providers/api/client/fetch-service-page';
-import { useLocale, useTranslations } from 'next-intl';
-import { CardContent } from '@/components/ui/card';
-import { ZodErrorProvider } from '@/components/providers/zod-error-provider';
-import { CATEGORY_TRANSLATION_KEY } from '@/features/categories/constants';
-import { Skeleton } from '@/components/ui/skeleton';
-import { hasLexicalContent, LexicalRenderer } from '@/components/editor/lexical-renderer';
-import { TRANSLATION_KEY } from '@/features/home/types/constants';
+} from "lucide-react";
+import type { ReactNode } from "react";
+import { useMemo, useState } from "react";
 
-export default function TreatmentDetail() {
-  const navigate = useNavigate();
-  const searchParams = useSearchParams()
-  // const id  = searchParams.get('id');
-  const { id } = useParams();   // → id === '1'
-  const t = useTranslations(TRANSLATION_KEY);
+import RecommendationSection from "../../components/RecommendationSection";
+import { PriceConverterCardClient } from "@/features/finance/components/price-converter-card-client";
+import { PriceTextClient } from "@/features/finance/components/price-text-client";
+import { FavoriteButton } from "@/features/favorites/components/favorite-button";
+import { LexicalDescription } from "@/features/service-providers/components/lexical-description";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { Skeleton } from "@/components/ui/skeleton";
+import { env } from "@/config/env/client";
+import { useNavigate } from "@/hooks/use-navigate";
+import type {
+  GetServicePageByIdResponse,
+  ProviderAttribute,
+  ProviderPolicy,
+  ServiceAddon,
+  ServiceAttribute,
+  ServiceDomainRequirement,
+  ServiceGalleryItem,
+  ServiceOffer,
+  ServiceProviderOffering,
+  ServiceSpecialist,
+  ServiceUploadRequirement,
+} from "@/features/service-providers/types/service-page.types";
 
+type ServicePageProps = {
+  data: GetServicePageByIdResponse;
+  serviceId: string;
+  locale: string;
+};
 
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isFavorited, setIsFavorited] = useState(false);
+function formatNumber(value: number, locale: string) {
+  return new Intl.NumberFormat(locale || "en-US").format(value || 0);
+}
 
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: service.name,
-          text: `Check out ${service.name} at ${service.clinic}`,
-          url: window.location.href,
-        });
-      } catch (err) {
-        console.log('Share cancelled');
-      }
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      alert('Link copied to clipboard!');
-    }
-  };
+function formatReviewDate(value: string, locale: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat(locale || "en-US", { month: "short", day: "numeric", year: "numeric" }).format(date);
+}
 
-  const handleFavorite = () => {
-    setIsFavorited(!isFavorited);
-  };
+function formatDate(value: string, locale: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat(locale || "en-US", { month: "short", day: "numeric", year: "numeric" }).format(date);
+}
 
-
-  const locale = useLocale();
-
-  const { data } = useFetchServicePage(id, locale)
-
-  const service = data?.service;
-
-  const included = data?.included;
-
-  const process = data?.process;
-
-  const faqs = data?.faqs;
-
-  const topReviews = data?.topReviews;
-
-  // Recommendation data
-  const localRecommendations = data?.localRecommendations;
-
-  const internationalRecommendations = data?.internationalRecommendations;
-
-  const getServicePageByIdResponse = {
-    service,
-    included,
-    process,
-    faqs,
-    topReviews,
-    localRecommendations,
-    internationalRecommendations,
-
+function formatBytes(bytes: number) {
+  if (!bytes) return "No limit";
+  const units = ["B", "KB", "MB", "GB"];
+  let value = bytes;
+  let unit = 0;
+  while (value >= 1024 && unit < units.length - 1) {
+    value /= 1024;
+    unit += 1;
   }
-  const [showAllFAQs, setShowAllFAQs] = useState(false);
-  const [selectedCurrency, setSelectedCurrency] = useState('USD');
+  return `${value.toFixed(value >= 10 || unit === 0 ? 0 : 1)} ${units[unit]}`;
+}
 
+function isAbsoluteUrl(value: string) {
+  return /^(https?:)?\/\//i.test(value) || /^data:/i.test(value) || /^blob:/i.test(value);
+}
 
-  if (!data) {
-    return (<><ServicePageSkeleton /></>);
+function resolveMediaUrl(value?: string | null) {
+  if (!value) return "";
+  if (isAbsoluteUrl(value)) return value;
+
+  const base = env.NEXT_PUBLIC_FILES_URL?.replace(/\/+$/, "") ?? "";
+  const path = value.replace(/^\/+/, "");
+
+  return base ? `${base}/${path}` : `/${path}`;
+}
+
+function Chip({ children }: { children: ReactNode }) {
+  return <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">{children}</span>;
+}
+
+function MediaPreview({ item, alt, className }: { item?: ServiceGalleryItem; alt: string; className: string }) {
+  const src = resolveMediaUrl(item?.url);
+
+  if (!src) {
+    return (
+      <div className={`${className} flex items-center justify-center bg-gray-100 text-gray-400`}>
+        <ImageIcon size={28} />
+      </div>
+    );
   }
 
-  const displayPrice = selectedCurrency === 'USD'
-    ? service.price
-    : service.otherCurrencies.find(c => c.code === selectedCurrency)?.amount || service.price;
-
-  const displayOriginalPrice = selectedCurrency === 'USD'
-    ? service.originalPrice
-    : Math.round((service.otherCurrencies.find(c => c.code === selectedCurrency)?.amount || service.price) * 1.28);
+  if (item?.mediaType?.toLowerCase().includes("video")) {
+    return <video src={src} className={className} controls playsInline preload="metadata" />;
+  }
 
   return (
-    <div className="min-h-screen bg-white pb-36">
-      {/* Image Gallery */}
-      <div className="relative">
-        <div className="relative h-80 overflow-hidden">
-          <img
-            src={service.images[currentImageIndex]}
-            alt={service.name}
-            className="w-full h-full object-cover"
-          />
+    <ImageWithFallback
+      src={src}
+      alt={alt}
+      fill
+      className={className}
+      sizes="100vw"
+      fallbackClassName="bg-gray-100"
+    />
+  );
+}
 
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+function ThumbImage({ src, alt, className }: { src?: string | null; alt: string; className: string }) {
+  const resolved = resolveMediaUrl(src);
+  return (
+    <div className={`relative overflow-hidden bg-gray-100 ${className}`}>
+      {resolved ? (
+        <ImageWithFallback
+          fill
+          src={resolved}
+          alt={alt}
+          className="h-full w-full object-cover"
+          sizes="(max-width: 768px) 96px, 160px"
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center text-gray-400">
+          <ImageIcon size={24} />
+        </div>
+      )}
+    </div>
+  );
+}
 
-          {/* Navigation */}
-          <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4">
-            <button
-              onClick={() => navigate(-1)}
-              className="w-10 h-10 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform active:scale-95"
-            >
-              <ArrowLeft size={20} className="text-gray-900" />
-            </button>
+function ProviderOfferingCard({ provider, currentProviderServiceId, locale }: { provider: ServiceProviderOffering; currentProviderServiceId: string; locale: string }) {
+  const navigate = useNavigate();
+  const isCurrent = provider.providerServiceId === currentProviderServiceId;
 
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleShare}
-                className="w-10 h-10 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform active:scale-95"
-              >
-                <Share2 size={20} className="text-gray-900" />
-              </button>
-              <button
-                onClick={handleFavorite}
-                className={`w-10 h-10 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform active:scale-95 ${isFavorited ? 'text-red-500' : 'text-gray-900'
-                  }`}
-              >
-                <Heart size={20} />
-              </button>
+  return (
+    <button
+      type="button"
+      onClick={() => navigate(`/n/app/mobile/service/${provider.providerServiceId}`)}
+      className={`w-full rounded-2xl border bg-white p-3 text-left transition-all active:scale-[0.99] ${
+        isCurrent ? "border-[#083f30] shadow-md ring-1 ring-[#083f30]/10" : "border-gray-200 hover:border-[#083f30] hover:shadow-md"
+      }`}
+    >
+      <div className="flex gap-3">
+        <ThumbImage src={provider.image} alt={provider.provider} className="h-24 w-24 flex-shrink-0 rounded-xl" />
+
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <h3 className="line-clamp-1 text-sm font-bold text-gray-900">{provider.provider}</h3>
+              <p className="line-clamp-1 text-xs text-gray-600">{provider.title}</p>
+            </div>
+            {isCurrent && <span className="rounded-full bg-[#083f30] px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">Selected</span>}
+          </div>
+
+          <div className="mb-2 flex items-center gap-2 text-xs text-gray-600">
+            <Star size={13} className="fill-yellow-400 text-yellow-400" />
+            <span className="font-bold text-gray-900">{provider.rating || "—"}</span>
+            <span>({formatNumber(provider.reviewCount, locale)})</span>
+            {provider.providerTypeName && <span className="truncate">• {provider.providerTypeName}</span>}
+          </div>
+
+          <div className="mb-2 flex items-center gap-1 text-xs text-gray-600">
+            <MapPin size={12} className="flex-shrink-0" />
+            <span className="truncate">{[provider.city, provider.country].filter(Boolean).join(", ")}</span>
+          </div>
+
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex min-w-0 gap-1 overflow-hidden">
+              {provider.verified && <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-[10px] font-semibold text-green-700"><BadgeCheck size={11} /> Verified</span>}
+              {provider.sponsored && <span className="rounded-full bg-amber-50 px-2 py-1 text-[10px] font-semibold text-amber-700">Sponsored</span>}
+            </div>
+            <PriceTextClient amount={provider.displayPrice.amount} currencyCode={provider.displayPrice.code} locale={locale} className="whitespace-nowrap text-sm font-bold text-[#083f30]" />
+          </div>
+        </div>
+
+        <ChevronRight size={16} className="self-center text-gray-400" />
+      </div>
+    </button>
+  );
+}
+
+function ProvidersForServiceSection({ providers, currentProviderServiceId, locale }: { providers: ServiceProviderOffering[]; currentProviderServiceId: string; locale: string }) {
+  const [showAllProviders, setShowAllProviders] = useState(false);
+  const visibleProviders = showAllProviders ? providers : providers.slice(0, 4);
+  if (!providers.length) return null;
+
+  return (
+    <section className="mb-8">
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">Providers offering this service</h2>
+          <p className="mt-1 text-sm text-gray-600">Compare clinics and providers that can deliver this treatment.</p>
+        </div>
+        <span className="rounded-full bg-[#083f30]/10 px-3 py-1 text-xs font-bold text-[#083f30]">{providers.length}</span>
+      </div>
+
+      <div className="space-y-3">
+        {visibleProviders.map((provider) => <ProviderOfferingCard key={provider.providerServiceId} provider={provider} currentProviderServiceId={currentProviderServiceId} locale={locale} />)}
+      </div>
+
+      {!showAllProviders && providers.length > visibleProviders.length && (
+        <button type="button" onClick={() => setShowAllProviders(true)} className="mt-3 text-sm font-semibold text-[#083f30] hover:underline">
+          Show {providers.length - visibleProviders.length} more providers
+        </button>
+      )}
+    </section>
+  );
+}
+
+function ServiceAttributesSection({ attributes }: { attributes: ServiceAttribute[] }) {
+  if (!attributes.length) return null;
+  return (
+    <section className="mb-8">
+      <h2 className="mb-4 text-xl font-bold text-gray-900">Service details and options</h2>
+      <div className="space-y-3">
+        {attributes.map((attribute) => (
+          <div key={attribute.id} className="rounded-2xl border border-gray-200 bg-white p-4">
+            <div className="mb-2 flex items-start justify-between gap-3">
+              <div>
+                <h3 className="font-bold text-gray-900">{attribute.name}</h3>
+                {attribute.description && <LexicalDescription content={attribute.description} className="mt-1 text-sm text-gray-600" />}
+              </div>
+              <div className="flex flex-shrink-0 gap-1">
+                {attribute.isRequired && <span className="rounded-full bg-red-50 px-2 py-1 text-[10px] font-bold text-red-700">Required</span>}
+                {attribute.affectsPricing && <span className="rounded-full bg-amber-50 px-2 py-1 text-[10px] font-bold text-amber-700">Pricing</span>}
+              </div>
+            </div>
+            {attribute.value && <p className="rounded-xl bg-gray-50 px-3 py-2 text-sm font-medium text-gray-800">{attribute.value}</p>}
+            {attribute.availableOptions.length > 0 && (
+              <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+                {attribute.availableOptions.map((option) => (
+                  <Chip key={`${attribute.id}-${option.id}`}>{option.name || option.value}{option.additionalPrice > 0 ? ` +${option.additionalPrice}` : ""}</Chip>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function AddonsSection({ addOns, locale }: { addOns: ServiceAddon[]; locale: string }) {
+  if (!addOns.length) return null;
+  return (
+    <section className="mb-8">
+      <h2 className="mb-4 text-xl font-bold text-gray-900">Available add-ons</h2>
+      <div className="space-y-3">
+        {addOns.map((addon) => (
+          <div key={addon.id} className="rounded-2xl border border-gray-200 bg-white p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="mb-1 flex items-center gap-2">
+                  <PlusCircle size={18} className="text-[#083f30]" />
+                  <h3 className="font-bold text-gray-900">{addon.name}</h3>
+                  {addon.popular && <span className="rounded-full bg-orange-50 px-2 py-1 text-[10px] font-bold text-orange-700">Popular</span>}
+                  {addon.isRequired && <span className="rounded-full bg-red-50 px-2 py-1 text-[10px] font-bold text-red-700">Required</span>}
+                </div>
+                {addon.description && <LexicalDescription content={addon.description} className="text-sm leading-relaxed text-gray-600" />}
+              </div>
+              <PriceTextClient amount={addon.displayPrice.amount} currencyCode={addon.displayPrice.code} locale={locale} className="whitespace-nowrap text-sm font-bold text-[#083f30]" />
+            </div>
+            {addon.details.length > 0 && (
+              <ul className="mt-3 space-y-1 text-sm text-gray-700">
+                {addon.details.map((detail, index) => <li key={`${addon.id}-${index}`} className="flex gap-2"><CheckCircle2 size={15} className="mt-0.5 flex-shrink-0 text-green-600" />{detail}</li>)}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function OffersSection({ offers, locale }: { offers: ServiceOffer[]; locale: string }) {
+  if (!offers.length) return null;
+  return (
+    <section className="mb-8">
+      <h2 className="mb-4 text-xl font-bold text-gray-900">Active offers</h2>
+      <div className="space-y-3">
+        {offers.map((offer) => (
+          <div key={offer.id} className="rounded-2xl border border-amber-100 bg-amber-50 p-4">
+            <div className="mb-2 flex items-start justify-between gap-3">
+              <div>
+                <h3 className="flex items-center gap-2 font-bold text-amber-950"><Percent size={18} />{offer.title}</h3>
+                {offer.subtitle && <p className="mt-1 text-sm text-amber-800">{offer.subtitle}</p>}
+              </div>
+              <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-amber-700">-{offer.discountPercent}%</span>
+            </div>
+            {offer.description && <LexicalDescription content={offer.description} className="text-sm leading-relaxed text-amber-900" />}
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-amber-900">
+              {offer.code && <span className="rounded-full bg-white px-2 py-1 font-bold">Code: {offer.code}</span>}
+              <span>Valid until {formatDate(offer.validUntil, locale)}</span>
             </div>
           </div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-          {/* Image Counter */}
-          <button
-            onClick={() => navigate(`/n/app/mobile/service/${id}/gallery`)}
-            className="absolute bottom-4 right-4 px-3 py-2 bg-black/70 backdrop-blur-sm rounded-xl text-white text-sm font-semibold flex items-center gap-2 hover:bg-black/80 transition-colors"
-          >
-            <ImageIcon size={16} />
-            {currentImageIndex + 1} / {service.images.length}
-          </button>
-
-          {/* Image Dots */}
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-            {service.images.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentImageIndex(idx)}
-                className={`w-2 h-2 rounded-full transition-all ${idx === currentImageIndex
-                    ? 'bg-white w-6'
-                    : 'bg-white/50'
-                  }`}
-              />
-            ))}
+function RequirementsSection({ uploadRequirements, domainRequirements }: { uploadRequirements: ServiceUploadRequirement[]; domainRequirements: ServiceDomainRequirement[] }) {
+  if (!uploadRequirements.length && !domainRequirements.length) return null;
+  return (
+    <section className="mb-8">
+      <h2 className="mb-4 text-xl font-bold text-gray-900">Requirements before booking</h2>
+      <div className="space-y-3">
+        {domainRequirements.map((requirement) => (
+          <div key={`domain-${requirement.id}`} className="rounded-2xl border border-gray-200 bg-white p-4">
+            <div className="flex gap-3">
+              <AlertCircle size={20} className="mt-0.5 flex-shrink-0 text-blue-600" />
+              <div>
+                <h3 className="font-bold text-gray-900">{requirement.isMandatory ? "Mandatory requirement" : "Requirement"}</h3>
+                <LexicalDescription content={requirement.description} className="mt-1 text-sm text-gray-600" />
+              </div>
+            </div>
           </div>
+        ))}
+        {uploadRequirements.map((requirement) => (
+          <div key={requirement.id} className="rounded-2xl border border-gray-200 bg-white p-4">
+            <div className="mb-2 flex items-start justify-between gap-3">
+              <div>
+                <h3 className="flex items-center gap-2 font-bold text-gray-900"><FileText size={18} />{requirement.title}</h3>
+                {requirement.description && <LexicalDescription content={requirement.description} className="mt-1 text-sm text-gray-600" />}
+              </div>
+              {requirement.isRequired && <span className="rounded-full bg-red-50 px-2 py-1 text-[10px] font-bold text-red-700">Required</span>}
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs text-gray-600">
+              <Chip>Max files: {requirement.maxFiles}</Chip>
+              <Chip>Max size: {formatBytes(requirement.maxFileSizeBytes)}</Chip>
+              {requirement.allowedExtensions.map((ext) => <Chip key={ext}>{ext}</Chip>)}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ProviderProfileSection({ data }: { data: GetServicePageByIdResponse }) {
+  const provider = data.service.providerProfile;
+  return (
+    <section className="mb-8 rounded-3xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="mb-4 flex gap-4">
+        <ThumbImage src={provider.image} alt={provider.name} className="h-24 w-24 flex-shrink-0 rounded-2xl" />
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-center gap-2">
+            <h2 className="line-clamp-1 text-xl font-bold text-gray-900">{provider.name}</h2>
+            {provider.accredited && <BadgeCheck size={18} className="text-[#083f30]" />}
+          </div>
+          <p className="text-sm font-semibold text-[#083f30]">{provider.providerTypeName || "Provider"}</p>
+          <LexicalDescription content={provider.description || data.service.providerDescription} className="mt-1 line-clamp-2 text-sm text-gray-600" fallback="-" />
         </div>
       </div>
 
-      {/* Main Content */}
+      <div className="mb-4 grid grid-cols-2 gap-3">
+        <div className="rounded-xl bg-gray-50 p-3"><div className="text-xs text-gray-500">Rating</div><div className="font-bold text-gray-900">{provider.rating || "—"} ({provider.reviewCount})</div></div>
+        <div className="rounded-xl bg-gray-50 p-3"><div className="text-xs text-gray-500">Response</div><div className="font-bold text-gray-900">{provider.responseTime || "On request"}</div></div>
+        <div className="rounded-xl bg-gray-50 p-3"><div className="text-xs text-gray-500">Established</div><div className="font-bold text-gray-900">{provider.establishedYear || "—"}</div></div>
+        <div className="rounded-xl bg-gray-50 p-3"><div className="text-xs text-gray-500">Patients</div><div className="font-bold text-gray-900">{provider.totalPatients || "—"}</div></div>
+      </div>
+
+      <div className="space-y-2 text-sm text-gray-700">
+        <div className="flex gap-2"><MapPin size={16} className="mt-0.5 flex-shrink-0 text-gray-500" /><span>{[provider.street, provider.city, provider.country].filter(Boolean).join(", ") || "Location on request"}</span></div>
+        {provider.languages.length > 0 && <div className="flex gap-2"><Languages size={16} className="mt-0.5 flex-shrink-0 text-gray-500" /><span>{provider.languages.join(", ")}</span></div>}
+        {provider.specialties.length > 0 && <div className="flex gap-2"><Sparkles size={16} className="mt-0.5 flex-shrink-0 text-gray-500" /><span>{provider.specialties.join(", ")}</span></div>}
+      </div>
+
+      {data.providerAttributes.length > 0 && (
+        <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+          {data.providerAttributes.slice(0, 8).map((attr: ProviderAttribute) => <Chip key={attr.id}>{attr.name}: {attr.value}</Chip>)}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function SpecialistsSection({ specialists, locale }: { specialists: ServiceSpecialist[]; locale: string }) {
+  if (!specialists.length) return null;
+  return (
+    <section className="mb-8">
+      <h2 className="mb-4 text-xl font-bold text-gray-900">Specialists</h2>
+      <div className="space-y-3">
+        {specialists.map((specialist) => (
+          <div key={specialist.id} className="rounded-2xl border border-gray-200 bg-white p-4">
+            <div className="flex gap-3">
+              <ThumbImage src={specialist.image} alt={specialist.name} className="h-20 w-20 flex-shrink-0 rounded-2xl" />
+              <div className="min-w-0 flex-1">
+                <div className="mb-1 flex items-start justify-between gap-2">
+                  <div>
+                    <h3 className="font-bold text-gray-900">{specialist.name}</h3>
+                    <p className="text-sm text-gray-600">{specialist.title || specialist.specialty}</p>
+                  </div>
+                  {specialist.canProvideThisService && <span className="rounded-full bg-green-50 px-2 py-1 text-[10px] font-bold text-green-700">This service</span>}
+                </div>
+                <div className="mb-2 flex items-center gap-2 text-xs text-gray-600"><Star size={13} className="fill-yellow-400 text-yellow-400" />{specialist.rating || "—"} ({specialist.reviewCount})</div>
+                {specialist.nextAvailableLabel && <p className="text-xs font-semibold text-[#083f30]">{specialist.nextAvailableLabel}</p>}
+              </div>
+            </div>
+            {specialist.biography && <LexicalDescription content={specialist.biography} className="mt-3 line-clamp-3 text-sm leading-relaxed text-gray-600" />}
+            <div className="mt-3 flex flex-wrap gap-2">
+              {specialist.experience && <Chip>{specialist.experience}</Chip>}
+              {specialist.languages.slice(0, 4).map((language) => <Chip key={language}>{language}</Chip>)}
+              {specialist.consultationFee > 0 && <Chip>Consultation: <PriceTextClient amount={specialist.consultationDisplayPrice.amount} currencyCode={specialist.consultationDisplayPrice.code} locale={locale} /></Chip>}
+            </div>
+            {specialist.certifications.length > 0 && (
+              <div className="mt-3 space-y-1 text-xs text-gray-600">
+                {specialist.certifications.slice(0, 2).map((cert) => <div key={cert.id} className="flex items-center gap-1"><Medal size={13} />{cert.name}{cert.issuer ? ` — ${cert.issuer}` : ""}</div>)}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function PoliciesSection({ policies }: { policies: ProviderPolicy[] }) {
+  if (!policies.length) return null;
+  return (
+    <section className="mb-8">
+      <h2 className="mb-4 text-xl font-bold text-gray-900">Provider policies</h2>
+      <div className="space-y-3">
+        {policies.map((policy) => (
+          <div key={policy.id} className="rounded-2xl border border-gray-200 bg-white p-4">
+            <h3 className="mb-1 font-bold text-gray-900">{policy.type}</h3>
+            <LexicalDescription content={policy.description} className="text-sm leading-relaxed text-gray-600" fallback="-" />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export default function ServicePage({ data, serviceId, locale }: ServicePageProps) {
+  const navigate = useNavigate();
+  const service = data.service;
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showAllFAQs, setShowAllFAQs] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState(service.displayCurrencyCode || service.currency);
+
+  const galleryItems = service.galleryItems || [];
+  const currentGalleryItem = galleryItems[currentImageIndex];
+  const selectedPrice = service.priceOptions.find((price) => price.targetCurrencyCode === selectedCurrency) || service.priceOptions[0];
+  const selectedOriginalPrice = service.originalPriceOptions.find((price) => price.targetCurrencyCode === selectedCurrency) || service.originalPriceOptions[0];
+  const displayPrice = selectedPrice?.targetAmount ?? service.displayPrice.amount;
+  const displayCurrencyCode = selectedPrice?.targetCurrencyCode ?? service.displayPrice.code;
+  const displayOriginalPrice = selectedOriginalPrice?.targetAmount ?? service.displayOriginalPrice.amount;
+  const hasDiscount = displayOriginalPrice > displayPrice;
+  const importantInfo = useMemo(() => {
+    const items = [
+      service.requiresSpecialist ? "Specialist selection may be required during booking" : "This service can be booked without choosing a specialist first",
+      service.bookingUiMode === "date_range" ? "This service uses date-range availability" : "Availability is confirmed during the booking flow",
+      data.uploadRequirements.length ? "Medical or identity documents may be requested" : "No upload requirement is configured for this service yet",
+      "Final treatment plan and price can depend on provider assessment",
+    ];
+    return items;
+  }, [data.uploadRequirements.length, service.bookingUiMode, service.requiresSpecialist]);
+
+  const handleShare = async () => {
+    const shareText = service.clinic ? `Check out ${service.name} at ${service.clinic}` : `Check out ${service.name}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: service.name, text: shareText, url: window.location.href });
+      } catch {
+        // User cancelled the native share sheet.
+      }
+      return;
+    }
+    await navigator.clipboard.writeText(window.location.href);
+  };
+
+  return (
+    <div className="min-h-screen bg-white pb-36">
+      <div className="relative">
+        <div className="relative h-80 overflow-hidden bg-gray-100">
+          <MediaPreview item={currentGalleryItem} alt={service.name} className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
+          <div className="absolute left-0 right-0 top-0 flex items-center justify-between p-4">
+            <button type="button" onClick={() => navigate(-1)} className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow-lg backdrop-blur-sm transition-transform hover:scale-105 active:scale-95">
+              <ArrowLeft size={20} className="text-gray-900" />
+            </button>
+            <div className="flex items-center gap-2">
+              <button type="button" onClick={handleShare} className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow-lg backdrop-blur-sm transition-transform hover:scale-105 active:scale-95">
+                <Share2 size={18} className="text-gray-900" />
+              </button>
+              <FavoriteButton
+                entityId={service.providerServiceId}
+                entityType="service"
+                initialIsFavorite={service.isFavorite}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow-lg backdrop-blur-sm transition-transform hover:scale-105 active:scale-95"
+                iconClassName="h-[18px] w-[18px]"
+                ariaLabel="Save service"
+              />
+            </div>
+          </div>
+
+          {galleryItems.length > 1 && (
+            <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 px-5">
+              {galleryItems.slice(0, 6).map((item, index) => (
+                <button key={item.id} type="button" onClick={() => setCurrentImageIndex(index)} className={`h-14 w-14 overflow-hidden rounded-xl border-2 transition-all ${index === currentImageIndex ? "border-white shadow-lg" : "border-white/30 opacity-70"}`}>
+                  <div className="relative h-full w-full">
+                    <MediaPreview item={item} alt={`${service.name} ${index + 1}`} className="h-full w-full object-cover" />
+                  </div>
+                </button>
+              ))}
+              {galleryItems.length > 6 && (
+                <button type="button" onClick={() => navigate(`/n/app/mobile/service/${serviceId}/gallery`)} className="flex h-14 w-14 items-center justify-center rounded-xl bg-black/50 text-xs font-bold text-white backdrop-blur-sm">+{galleryItems.length - 6}</button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="px-5 py-6">
-        {/* Badges */}
-        <div className="flex items-center gap-2 mb-3">
-          {service.verified && (
-            <span className="flex items-center gap-1 px-3 py-1 bg-[#083f30] rounded-full text-white text-xs font-bold">
-              <BadgeCheck size={14} />
-              Verified
-            </span>
-          )}
-          {service.popular && (
-            <span className="flex items-center gap-1 px-3 py-1 bg-orange-500 rounded-full text-white text-xs font-bold">
-              <TrendingUp size={14} />
-              Most Popular
-            </span>
-          )}
-          <span className="flex items-center gap-1 px-3 py-1 bg-blue-600 rounded-full text-white text-xs font-bold">
-            <Award size={14} />
-            Top Rated
-          </span>
+        <div className="mb-3 flex flex-wrap gap-2">
+          {service.verified && <span className="flex items-center gap-1 rounded-full bg-[#083f30] px-3 py-1 text-xs font-bold text-white"><BadgeCheck size={14} />Verified</span>}
+          {service.popular && <span className="flex items-center gap-1 rounded-full bg-orange-500 px-3 py-1 text-xs font-bold text-white"><TrendingUp size={14} />Featured</span>}
+          {service.categoryName && <span className="flex items-center gap-1 rounded-full bg-blue-600 px-3 py-1 text-xs font-bold text-white"><Award size={14} />{service.categoryName}</span>}
+          {service.tags.slice(0, 3).map((tag) => <span key={tag} className="flex items-center gap-1 rounded-full bg-gray-900 px-3 py-1 text-xs font-bold text-white"><Tag size={13} />{tag}</span>)}
         </div>
 
-        {/* Title */}
-        <h1 className="text-2xl font-bold text-gray-900 mb-2 leading-tight">
-          {service.name}
-        </h1>
-        <p className="text-base text-gray-600 mb-4">
-          {/* {service.subtitle} */}
+        <h1 className="mb-2 text-2xl font-bold leading-tight text-gray-900">{service.name}</h1>
+        <div className="mb-4 text-base text-gray-600">
+          <LexicalDescription content={service.subtitle} fallback="-" className="leading-relaxed text-muted-foreground" />
+        </div>
 
-          {service.subtitle && hasLexicalContent(service.subtitle) ? (
-            <LexicalRenderer
-              content={service.subtitle}
-              className="text-muted-foreground leading-relaxed"
-            />
-          ) : (
-            <p className="text-muted-foreground leading-relaxed">
-              {t("noDescription")}
-            </p>
-          )}
-        </p>
-
-        {/* Clinic Info */}
-        <button
-          onClick={() => navigate(`/app/clinic/${service.clinicId}`)}
-          className="flex items-center gap-3 mb-4 w-full text-left hover:bg-gray-50 -mx-2 px-2 py-2 rounded-xl transition-colors"
-        >
-          <div className="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center flex-shrink-0">
-            <Shield size={20} className="text-[#083f30]" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-0.5">
-              <h3 className="font-bold text-gray-900">{service.clinic}</h3>
-              <BadgeCheck size={16} className="text-[#083f30]" />
+        <button type="button" onClick={() => navigate(`/n/app/mobile/service-providers/${service.clinicId}`)} className="-mx-2 mb-4 flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-gray-50">
+          <ThumbImage src={service.providerProfile.image} alt={service.clinic} className="h-12 w-12 flex-shrink-0 rounded-xl" />
+          <div className="min-w-0 flex-1">
+            <div className="mb-0.5 flex items-center gap-2">
+              <h3 className="truncate font-bold text-gray-900">{service.clinic}</h3>
+              {service.verified && <BadgeCheck size={16} className="text-[#083f30]" />}
             </div>
-            <p className="text-sm text-gray-600">{service.location}</p>
+            <p className="truncate text-sm text-gray-600">{service.location || "Location on request"}</p>
           </div>
           <ChevronRight size={20} className="text-gray-400" />
         </button>
 
-        {/* Rating & Stats */}
-        <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-200">
-          <div className="flex items-center gap-2">
-            <Star size={20} className="fill-yellow-400 text-yellow-400" />
-            <span className="text-xl font-bold text-gray-900">{service.rating}</span>
-            <span className="text-sm text-gray-600">
-              ({service.reviews.toLocaleString()} reviews)
-            </span>
-          </div>
+        <div className="mb-6 flex items-center gap-4 border-b border-gray-200 pb-6">
+          <div className="flex items-center gap-2"><Star size={20} className="fill-yellow-400 text-yellow-400" /><span className="text-xl font-bold text-gray-900">{service.rating || "—"}</span><span className="text-sm text-gray-600">({formatNumber(service.reviews, locale)} reviews)</span></div>
+          {service.providerCount > 1 && <span className="text-sm font-semibold text-[#083f30]">{service.providerCount} providers available</span>}
         </div>
 
-        {/* Price Section */}
-        <div className="mb-6 p-4 bg-gradient-to-br from-[#083f30] to-[#0a5a44] rounded-2xl">
-          <div className="flex items-start justify-between mb-3">
-            <div>
-              <p className="text-white/80 text-sm mb-1">Package Price</p>
-              <div className="flex items-baseline gap-3">
-                <div className="text-3xl font-bold text-white">
-                  {selectedCurrency === 'USD' ? '$' : selectedCurrency === 'EUR' ? '€' : selectedCurrency === 'GBP' ? '£' : 'AED '}
-                  {displayPrice.toLocaleString()}
-                </div>
-                <div className="text-white/60 line-through text-lg">
-                  {selectedCurrency === 'USD' ? '$' : selectedCurrency === 'EUR' ? '€' : selectedCurrency === 'GBP' ? '£' : 'AED '}
-                  {displayOriginalPrice.toLocaleString()}
-                </div>
-              </div>
-              <p className="text-[#eacb7f] text-sm font-semibold mt-1">
-                Save {Math.round(((displayOriginalPrice - displayPrice) / displayOriginalPrice) * 100)}% • All-inclusive package
-              </p>
+        <PriceConverterCardClient label="Package Price" convertedPrices={service.priceOptions} convertedOriginalPrices={service.originalPriceOptions} selectedCurrencyCode={selectedCurrency} onCurrencyChange={setSelectedCurrency} badgeText="Provider package price" locale={locale} />
+
+        <div className="mb-6 grid grid-cols-2 gap-3">
+          <div className="rounded-xl bg-gray-50 p-4"><Clock size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">Duration</div><div className="font-bold text-gray-900">{service.duration}</div></div>
+          <div className="rounded-xl bg-gray-50 p-4"><Calendar size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">Recovery</div><div className="font-bold text-gray-900">{service.recovery}</div></div>
+          <div className="rounded-xl bg-gray-50 p-4"><Shield size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">Success Rate</div><div className="font-bold text-gray-900">{service.successRate}</div></div>
+          <div className="rounded-xl bg-gray-50 p-4"><Users size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">Satisfaction</div><div className="font-bold text-gray-900">{service.satisfaction}</div></div>
+        </div>
+
+        <ProviderProfileSection data={data} />
+        <SpecialistsSection specialists={data.specialists} locale={locale} />
+        <OffersSection offers={data.offers} locale={locale} />
+        <ServiceAttributesSection attributes={data.serviceAttributes} />
+        <AddonsSection addOns={data.addOns} locale={locale} />
+        <RequirementsSection uploadRequirements={data.uploadRequirements} domainRequirements={data.domainRequirements} />
+
+        {data.included.length > 0 && (
+          <section className="mb-6">
+            <h2 className="mb-4 text-xl font-bold text-gray-900">What's Included</h2>
+            <div className="space-y-3">
+              {data.included.map((item, idx) => <div key={`${item}-${idx}`} className="flex items-start gap-3"><CheckCircle2 size={20} className="mt-0.5 flex-shrink-0 text-green-600" /><span className="text-sm leading-relaxed text-gray-700">{item}</span></div>)}
             </div>
-          </div>
+          </section>
+        )}
 
-          {/* Currency Selector */}
-          <div className="flex gap-2">
-            {['USD', 'EUR', 'GBP', 'AED'].map(currency => (
-              <button
-                key={currency}
-                onClick={() => setSelectedCurrency(currency)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${selectedCurrency === currency
-                    ? 'bg-[#eacb7f] text-[#083f30]'
-                    : 'bg-white/10 text-white hover:bg-white/20'
-                  }`}
-              >
-                {currency}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Quick Info Grid */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          <div className="bg-gray-50 rounded-xl p-4">
-            <Clock size={20} className="text-[#083f30] mb-2" />
-            <div className="text-xs text-gray-600 mb-1">Duration</div>
-            <div className="font-bold text-gray-900">{service.duration}</div>
-          </div>
-          <div className="bg-gray-50 rounded-xl p-4">
-            <Calendar size={20} className="text-[#083f30] mb-2" />
-            <div className="text-xs text-gray-600 mb-1">Recovery</div>
-            <div className="font-bold text-gray-900">{service.recovery}</div>
-          </div>
-          <div className="bg-gray-50 rounded-xl p-4">
-            <Shield size={20} className="text-[#083f30] mb-2" />
-            <div className="text-xs text-gray-600 mb-1">Success Rate</div>
-            <div className="font-bold text-gray-900">{service.successRate}</div>
-          </div>
-          <div className="bg-gray-50 rounded-xl p-4">
-            <Users size={20} className="text-[#083f30] mb-2" />
-            <div className="text-xs text-gray-600 mb-1">Satisfaction</div>
-            <div className="font-bold text-gray-900">{service.satisfaction}</div>
-          </div>
-        </div>
-
-        {/* What's Included */}
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">What's Included</h2>
-          <div className="space-y-3">
-            {included.map((item, idx) => (
-              <div key={idx} className="flex items-start gap-3">
-                <CheckCircle2 size={20} className="text-green-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-gray-700 leading-relaxed">{item}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Treatment Process */}
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Treatment Process</h2>
-          <div className="space-y-4">
-            {process.map((step, idx) => (
-              <div key={idx} className="flex gap-4">
-                <div className="flex flex-col items-center flex-shrink-0">
-                  <div className="w-10 h-10 bg-[#083f30] rounded-full flex items-center justify-center text-white font-bold">
-                    {step.step}
-                  </div>
-                  {idx < process.length - 1 && (
-                    <div className="w-0.5 h-12 bg-gray-200 my-1" />
-                  )}
+        {data.process.length > 0 && (
+          <section className="mb-6">
+            <h2 className="mb-4 text-xl font-bold text-gray-900">Treatment Process</h2>
+            <div className="space-y-4">
+              {data.process.map((step, idx) => (
+                <div key={`${step.step}-${idx}`} className="flex gap-4">
+                  <div className="flex flex-shrink-0 flex-col items-center"><div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#083f30] font-bold text-white">{step.step}</div>{idx < data.process.length - 1 && <div className="my-1 h-12 w-0.5 bg-gray-200" />}</div>
+                  <div className="flex-1 pb-4"><div className="mb-1 flex items-center justify-between gap-3"><h3 className="font-bold text-gray-900">{step.title}</h3>{step.duration && <span className="text-xs font-medium text-gray-500">{step.duration}</span>}</div>{step.description && <LexicalDescription content={step.description} className="text-sm leading-relaxed text-gray-600" />}</div>
                 </div>
+              ))}
+            </div>
+          </section>
+        )}
 
-                <div className="flex-1 pb-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-bold text-gray-900">{step.title}</h3>
-                    <span className="text-xs text-gray-500 font-medium">{step.duration}</span>
-                  </div>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    {step.description}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Important Information */}
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-2xl">
+        <div className="mb-6 rounded-2xl border border-blue-100 bg-blue-50 p-4">
           <div className="flex items-start gap-3">
-            <AlertCircle size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
+            <AlertCircle size={20} className="mt-0.5 flex-shrink-0 text-blue-600" />
             <div>
-              <h3 className="font-bold text-blue-900 mb-2">Important Information</h3>
-              <ul className="space-y-1.5 text-sm text-blue-800">
-                <li>• Consultation required before booking confirmation</li>
-                <li>• Stop blood thinners 1 week before procedure</li>
-                <li>• Avoid alcohol and smoking 3 days before</li>
-                <li>• Plan to stay 2-3 nights in Istanbul</li>
-              </ul>
+              <h3 className="mb-2 font-bold text-blue-900">Important Information</h3>
+              <ul className="space-y-1.5 text-sm text-blue-800">{importantInfo.map((item) => <li key={item}>• {item}</li>)}</ul>
             </div>
           </div>
         </div>
 
-        {/* Recommendations */}
-        <RecommendationSection
-          localRecommendations={localRecommendations}
-          internationalRecommendations={internationalRecommendations}
-          userCountry="Turkey"
-        />
+        <ProvidersForServiceSection providers={data.providers} currentProviderServiceId={service.providerServiceId} locale={locale} />
+        {(data.localRecommendations.length > 0 || data.internationalRecommendations.length > 0) && <RecommendationSection localRecommendations={data.localRecommendations} internationalRecommendations={data.internationalRecommendations} userCountry={service.country || "your country"} />}
 
-        {/* Reviews */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900">Patient Reviews</h2>
-            <button
-              onClick={() => navigate(`/n/app/mobile/service/${id}/reviews`)}
-              className="text-sm font-semibold text-[#083f30] hover:underline"
-            >
-              View All
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            {topReviews.map(review => (
-              <div
-                key={review.id}
-                className="bg-white border border-gray-200 rounded-2xl p-4"
-              >
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-bold flex-shrink-0">
-                    {review.name.charAt(0)}
+        {data.topReviews.length > 0 && (
+          <section className="mb-6">
+            <div className="mb-4 flex items-center justify-between"><h2 className="text-xl font-bold text-gray-900">Patient Reviews</h2><button type="button" onClick={() => navigate(`/n/app/mobile/service/${serviceId}/reviews`)} className="text-sm font-semibold text-[#083f30] hover:underline">View All</button></div>
+            <div className="space-y-4">
+              {data.topReviews.map((review) => (
+                <div key={review.id} className="rounded-2xl border border-gray-200 bg-white p-4">
+                  <div className="mb-3 flex items-start gap-3">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 font-bold text-gray-600">{review.name.charAt(0)}</div>
+                    <div className="min-w-0 flex-1"><div className="mb-1 flex items-center gap-2"><h4 className="font-bold text-gray-900">{review.name}</h4>{review.verified && <BadgeCheck size={16} className="text-[#083f30]" />}</div><div className="mb-2 flex items-center gap-2 text-xs text-gray-600">{review.country && <span>{review.country}</span>}{review.country && <span>•</span>}<span>{formatReviewDate(review.date, locale)}</span>{review.treatment && <span>• {review.treatment}</span>}</div></div>
+                    <div className="flex items-center gap-0.5">{[...Array(Math.max(0, Math.min(5, Math.round(review.rating))))].map((_, i) => <Star key={i} size={14} className="fill-yellow-400 text-yellow-400" />)}</div>
                   </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-bold text-gray-900">{review.name}</h4>
-                      {review.verified && (
-                        <BadgeCheck size={16} className="text-[#083f30]" />
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
-                      <span>{review.country}</span>
-                      <span>•</span>
-                      <span>{review.date}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-0.5">
-                    {[...Array(Math.round(review.rating))].map((_, i) => (
-                      <Star key={i} size={14} className="fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
+                  <p className="mb-3 text-sm leading-relaxed text-gray-700">{review.review}</p>
+                  {review.images && review.images.length > 0 && <div className="mb-3 flex gap-2 overflow-x-auto">{review.images.map((img, idx) => <ThumbImage key={`${img}-${idx}`} src={img} alt="Review" className="h-24 w-24 flex-shrink-0 rounded-lg" />)}</div>}
+                  <button type="button" className="text-xs font-medium text-gray-600 hover:text-gray-900">👍 Helpful ({formatNumber(review.helpful, locale)})</button>
                 </div>
+              ))}
+            </div>
+          </section>
+        )}
 
-                <p className="text-sm text-gray-700 leading-relaxed mb-3">
-                  {review.review}
-                </p>
+        <PoliciesSection policies={data.policies} />
 
-                {review.images && (
-                  <div className="flex gap-2 mb-3 overflow-x-auto hide-scrollbar">
-                    {review.images.map((img, idx) => (
-                      <img
-                        key={idx}
-                        src={img}
-                        alt="Review"
-                        className="w-24 h-24 rounded-lg object-cover flex-shrink-0"
-                      />
-                    ))}
-                  </div>
-                )}
-
-                <button className="text-xs text-gray-600 hover:text-gray-900 font-medium">
-                  👍 Helpful ({review.helpful})
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* FAQs */}
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {faqs.slice(0, showAllFAQs ? faqs.length : 2).map((faq, idx) => (
-              <div key={idx} className="bg-gray-50 rounded-xl p-4">
-                <h3 className="font-bold text-gray-900 mb-2">{faq.q}</h3>
-                <p className="text-sm text-gray-700 leading-relaxed">{faq.a}</p>
-              </div>
-            ))}
-          </div>
-
-          {!showAllFAQs && faqs.length > 2 && (
-            <button
-              onClick={() => setShowAllFAQs(true)}
-              className="mt-3 text-sm font-semibold text-[#083f30] hover:underline"
-            >
-              Show {faqs.length - 2} more questions
-            </button>
-          )}
-        </div>
+        {data.faqs.length > 0 && (
+          <section className="mb-6">
+            <h2 className="mb-4 text-xl font-bold text-gray-900">Frequently Asked Questions</h2>
+            <div className="space-y-3">{data.faqs.slice(0, showAllFAQs ? data.faqs.length : 2).map((faq, idx) => <div key={`${faq.q}-${idx}`} className="rounded-xl bg-gray-50 p-4"><h3 className="mb-2 font-bold text-gray-900">{faq.q}</h3><p className="text-sm leading-relaxed text-gray-700">{faq.a}</p></div>)}</div>
+            {!showAllFAQs && data.faqs.length > 2 && <button type="button" onClick={() => setShowAllFAQs(true)} className="mt-3 text-sm font-semibold text-[#083f30] hover:underline">Show {data.faqs.length - 2} more questions</button>}
+          </section>
+        )}
       </div>
 
-      {/* Sticky Bottom CTA */}
-      <div className="fixed bottom-20 left-0 right-0 bg-white border-t border-gray-200 px-5 py-4 shadow-2xl z-40 safe-area-bottom rounded-t-3xl">
+      <div className="safe-area-bottom fixed bottom-20 left-0 right-0 z-40 rounded-t-3xl border-t border-gray-200 bg-white px-5 py-4 shadow-2xl">
         <div className="flex items-center gap-3">
-          <div className="flex-1">
-            <div className="text-xs text-gray-600 mb-0.5">Total Package Price</div>
-            <div className="flex items-baseline gap-2">
-              <div className="text-2xl font-bold text-[#083f30]">
-                {selectedCurrency === 'USD' ? '$' : selectedCurrency === 'EUR' ? '€' : selectedCurrency === 'GBP' ? '£' : 'AED '}
-                {displayPrice.toLocaleString()}
-              </div>
-              <div className="text-sm text-gray-500 line-through">
-                {selectedCurrency === 'USD' ? '$' : selectedCurrency === 'EUR' ? '€' : selectedCurrency === 'GBP' ? '£' : 'AED '}
-                {displayOriginalPrice.toLocaleString()}
-              </div>
-            </div>
+          <div className="min-w-0 flex-1">
+            <div className="mb-0.5 text-xs text-gray-600">Total Package Price</div>
+            <div className="flex items-baseline gap-2"><PriceTextClient amount={displayPrice} currencyCode={displayCurrencyCode} locale={locale} className="text-2xl font-bold text-[#083f30]" />{hasDiscount && <PriceTextClient amount={displayOriginalPrice} currencyCode={displayCurrencyCode} locale={locale} className="text-sm text-gray-500 line-through" />}</div>
           </div>
-
-          <button
-            onClick={() => navigate(`/n/app/mobile/booking?serviceId=${id}`)}
-            className="h-14 px-8 bg-gradient-to-r from-[#083f30] to-[#0a5a44] text-white rounded-2xl font-bold hover:shadow-xl transition-all active:scale-95 flex items-center gap-2"
-          >
-            Book Now
-          </button>
+          <button type="button" onClick={() => navigate(`/n/app/mobile/booking?serviceId=${service.providerServiceId}`)} className="flex h-14 items-center gap-2 rounded-2xl bg-gradient-to-r from-[#083f30] to-[#0a5a44] px-8 font-bold text-white transition-all hover:shadow-xl active:scale-95">Book Now</button>
         </div>
       </div>
     </div>
   );
 }
 
-
-
 export function ServicePageSkeleton() {
   return (
-    <CardContent>
-      <ZodErrorProvider componentNamespace={CATEGORY_TRANSLATION_KEY}>
-        <div className="space-y-6">
-          {/* Name Field */}
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-9 w-full rounded-md" />
-          </div>
-
-          {/* Description Field */}
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-20 w-full rounded-md" />
-          </div>
-
-          {/* Category Image Field */}
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-40 w-full rounded-md" />
-            <Skeleton className="h-9 w-full rounded-md" />
-          </div>
-
-          {/* Parent Category Field */}
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-28" />
-            <Skeleton className="h-9 w-full rounded-md" />
-          </div>
-
-          {/* Submit Buttons */}
-          <div className="flex gap-4 pt-4">
-            <Skeleton className="h-9 w-32 rounded-md" />
-            <Skeleton className="h-9 w-20 rounded-md" />
-          </div>
-        </div>
-      </ZodErrorProvider>
-    </CardContent>
+    <div className="min-h-screen bg-white pb-36">
+      <Skeleton className="h-80 w-full rounded-none" />
+      <div className="space-y-6 px-5 py-6">
+        <div className="flex gap-2"><Skeleton className="h-7 w-20 rounded-full" /><Skeleton className="h-7 w-24 rounded-full" /></div>
+        <Skeleton className="h-8 w-4/5" />
+        <Skeleton className="h-20 w-full rounded-xl" />
+        <Skeleton className="h-20 w-full rounded-2xl" />
+        <Skeleton className="h-36 w-full rounded-2xl" />
+        <div className="grid grid-cols-2 gap-3"><Skeleton className="h-24 rounded-xl" /><Skeleton className="h-24 rounded-xl" /><Skeleton className="h-24 rounded-xl" /><Skeleton className="h-24 rounded-xl" /></div>
+      </div>
+    </div>
   );
 }

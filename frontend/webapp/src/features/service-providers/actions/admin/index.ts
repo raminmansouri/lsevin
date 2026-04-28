@@ -8,17 +8,17 @@ import { LocaleHeaderTypes } from "@/types/common";
 
 import { revalidateAdminServiceProvider } from "../../db/admin-service-providers.queries";
 import {
-  normalizeAdminLocalizedContent,
-  normalizeOptionalAdminLocalizedContent,
+  normalizeLocalizedContentForDatabase,
+  normalizeOptionalLocalizedContentForDatabase,
 } from "../../lib/admin-form-normalizers";
 
 const translationsSchema = z.preprocess(
-  normalizeAdminLocalizedContent,
+  normalizeLocalizedContentForDatabase,
   z.record(z.string(), z.string()).default({})
 );
 
 const nullableTranslationsSchema = z.preprocess(
-  normalizeOptionalAdminLocalizedContent,
+  normalizeOptionalLocalizedContentForDatabase,
   z.record(z.string(), z.string()).nullable().optional()
 );
 
@@ -90,6 +90,40 @@ const nullableMediaValueSchema = z.preprocess(
   },
   z.string().max(500).nullable().optional()
 );
+
+function toJsonbRecord(value: unknown): Record<string, string> {
+  // Never pass pre-serialized JSON strings to postgres.js for jsonb columns.
+  // If a caller accidentally sends '{"en-US":"Name"}' as text, parse it
+  // back into an object first; otherwise PostgreSQL stores a JSON string.
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) return {};
+    try {
+      const parsed = JSON.parse(trimmed) as unknown;
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        return normalizeLocalizedContentForDatabase(parsed);
+      }
+    } catch {
+      return { "en-US": trimmed };
+    }
+  }
+
+  return normalizeLocalizedContentForDatabase(value);
+}
+
+function toNullableJsonbRecord(value: unknown): Record<string, string> | null {
+  const normalized = toJsonbRecord(value);
+  return Object.keys(normalized).length ? normalized : null;
+}
+
+function jsonb(value: unknown) {
+  return sql.json(toJsonbRecord(value));
+}
+
+function nullableJsonb(value: unknown) {
+  const normalized = toNullableJsonbRecord(value);
+  return normalized ? sql.json(normalized) : null;
+}
 
 const uuidSchema = z.guid();
 const optionalUuidSchema = z.guid().optional().nullable();
@@ -202,14 +236,14 @@ const saveServiceProviderProfileHandler = async (
         await tx`
           update category.service_providers
           set
-            name_translations = ${JSON.stringify(input.name)}::jsonb,
-            description_translations = ${JSON.stringify(input.description)}::jsonb,
+            name_translations = ${jsonb(input.name)}::jsonb,
+            description_translations = ${jsonb(input.description)}::jsonb,
             is_active = ${input.isActive},
             provider_type_id = ${input.providerTypeId},
             city = ${input.city},
             country = ${input.country},
-            detail_translations = ${JSON.stringify(input.detail || {})}::jsonb,
-            street_translations = ${JSON.stringify(input.street || {})}::jsonb,
+            detail_translations = ${nullableJsonb(input.detail) ?? sql.json({})}::jsonb,
+            street_translations = ${nullableJsonb(input.street) ?? sql.json({})}::jsonb,
             zip_code = ${nullableString(input.zipCode)},
             email = ${input.email.trim()},
             phone_number_country_code = ${input.phoneNumberCountryCode.trim()},
@@ -274,14 +308,14 @@ const saveServiceProviderProfileHandler = async (
           search_vector
         ) values (
           public.uuid_generate_v4(),
-          ${JSON.stringify(input.name)}::jsonb,
-          ${JSON.stringify(input.description)}::jsonb,
+          ${jsonb(input.name)}::jsonb,
+          ${jsonb(input.description)}::jsonb,
           ${input.isActive},
           ${input.providerTypeId},
           ${input.city},
           ${input.country},
-          ${JSON.stringify(input.detail || {})}::jsonb,
-          ${JSON.stringify(input.street || {})}::jsonb,
+          ${nullableJsonb(input.detail) ?? sql.json({})}::jsonb,
+          ${nullableJsonb(input.street) ?? sql.json({})}::jsonb,
           ${nullableString(input.zipCode)},
           ${input.email.trim()},
           ${input.phoneNumberCountryCode.trim()},
@@ -422,8 +456,8 @@ export const saveProviderGalleryItemAction = createAuthenticatedSafeAction(
       const rows = input.id
         ? await sql<{ id: string }[]>`
             update category.provider_gallery_items
-            set title_translations = ${JSON.stringify(input.title)}::jsonb,
-                description_translations = ${JSON.stringify(input.description)}::jsonb,
+            set title_translations = ${jsonb(input.title)}::jsonb,
+                description_translations = ${jsonb(input.description)}::jsonb,
                 url = ${input.url},
                 media_type = ${input.mediaType},
                 display_order = ${input.displayOrder},
@@ -433,7 +467,7 @@ export const saveProviderGalleryItemAction = createAuthenticatedSafeAction(
           `
         : await sql<{ id: string }[]>`
             insert into category.provider_gallery_items (title_translations, description_translations, url, media_type, display_order, service_provider_id, create_date)
-            values (${JSON.stringify(input.title)}::jsonb, ${JSON.stringify(input.description)}::jsonb, ${input.url}, ${input.mediaType}, ${input.displayOrder}, ${input.serviceProviderId}, now())
+            values (${jsonb(input.title)}::jsonb, ${jsonb(input.description)}::jsonb, ${input.url}, ${input.mediaType}, ${input.displayOrder}, ${input.serviceProviderId}, now())
             returning id::text
           `;
       revalidateAdminServiceProvider(input.serviceProviderId);
@@ -486,15 +520,15 @@ export const saveProviderPolicyAction = createAuthenticatedSafeAction(
         ? await sql<{ id: string }[]>`
             update category.provider_policies
             set provider_policy_type_id = ${input.policyTypeId ?? null},
-                type_translations = ${JSON.stringify(typeTranslations)}::jsonb,
-                description_translations = ${JSON.stringify(input.description)}::jsonb,
+                type_translations = ${jsonb(typeTranslations)}::jsonb,
+                description_translations = ${jsonb(input.description)}::jsonb,
                 last_modified_date = now()
             where id = ${input.id} and service_provider_id = ${input.serviceProviderId}
             returning id::text
           `
         : await sql<{ id: string }[]>`
             insert into category.provider_policies (id, provider_policy_type_id, type_translations, description_translations, service_provider_id, create_date)
-            values (public.uuid_generate_v4(), ${input.policyTypeId ?? null}, ${JSON.stringify(typeTranslations)}::jsonb, ${JSON.stringify(input.description)}::jsonb, ${input.serviceProviderId}, now())
+            values (public.uuid_generate_v4(), ${input.policyTypeId ?? null}, ${jsonb(typeTranslations)}::jsonb, ${jsonb(input.description)}::jsonb, ${input.serviceProviderId}, now())
             returning id::text
           `;
       revalidateAdminServiceProvider(input.serviceProviderId);
@@ -533,7 +567,7 @@ export const saveProviderAttributeAction = createAuthenticatedSafeAction(
     try {
       const rows = await sql<{ id: string }[]>`
         insert into category.provider_attributes (id, attribute_definition_id, value_translations, service_provider_id, create_date)
-        values (coalesce(${input.id ?? null}::uuid, public.uuid_generate_v4()), ${input.attributeDefinitionId}, ${JSON.stringify(input.value)}::jsonb, ${input.serviceProviderId}, now())
+        values (coalesce(${input.id ?? null}::uuid, public.uuid_generate_v4()), ${input.attributeDefinitionId}, ${jsonb(input.value)}::jsonb, ${input.serviceProviderId}, now())
         on conflict (service_provider_id, attribute_definition_id)
         do update set value_translations = excluded.value_translations, last_modified_date = now()
         returning id::text
@@ -594,8 +628,8 @@ export const saveProviderServiceAction = createAuthenticatedSafeAction(
           ? await tx<{ id: string }[]>`
               update category.provider_services
               set service_definition_id = ${input.serviceDefinitionId},
-                  display_name_translations = ${JSON.stringify(input.displayName)}::jsonb,
-                  description_translations = ${JSON.stringify(input.description)}::jsonb,
+                  display_name_translations = ${jsonb(input.displayName)}::jsonb,
+                  description_translations = ${jsonb(input.description)}::jsonb,
                   is_active = ${input.isActive},
                   currency = ${input.currency},
                   value = ${input.value},
@@ -623,7 +657,7 @@ export const saveProviderServiceAction = createAuthenticatedSafeAction(
                 anesthesia, stay_required, success_rate, satisfaction, trending_score, growth, tags,
                 slot_interval_minutes, create_date, search_vector
               ) values (
-                public.uuid_generate_v4(), ${input.serviceDefinitionId}, ${JSON.stringify(input.displayName)}::jsonb, ${JSON.stringify(input.description)}::jsonb, ${input.isActive},
+                public.uuid_generate_v4(), ${input.serviceDefinitionId}, ${jsonb(input.displayName)}::jsonb, ${jsonb(input.description)}::jsonb, ${input.isActive},
                 ${input.serviceProviderId}, ${input.currency}, ${input.value}, ${input.durationMinutes}, ${nullableString(input.recovery)}, ${nullableString(input.imageUrl)}, ${input.isPopular},
                 ${nullableString(input.anesthesia)}, ${nullableString(input.stayRequired)}, ${nullableString(input.successRate)}, ${nullableString(input.satisfaction)}, ${input.trendingScore}, ${nullableString(input.growth)}, ${splitCsv(input.tagsText)},
                 ${input.slotIntervalMinutes}, now(), to_tsvector('simple', coalesce(${getTranslationForSearchVector(input.displayName)}, ''))
@@ -673,7 +707,7 @@ export const saveProviderStaffAction = createAuthenticatedSafeAction(
     try {
       const rows = await sql<{ id: string }[]>`
         insert into category.provider_staffs (id, staff_id, notes_translations, is_active, service_provider_id, create_date)
-        values (coalesce(${input.id ?? null}::uuid, public.uuid_generate_v4()), ${input.staffId}, ${JSON.stringify(input.notes)}::jsonb, ${input.isActive}, ${input.serviceProviderId}, now())
+        values (coalesce(${input.id ?? null}::uuid, public.uuid_generate_v4()), ${input.staffId}, ${jsonb(input.notes)}::jsonb, ${input.isActive}, ${input.serviceProviderId}, now())
         on conflict (service_provider_id, staff_id)
         do update set notes_translations = excluded.notes_translations, is_active = excluded.is_active, last_modified_date = now()
         returning id::text

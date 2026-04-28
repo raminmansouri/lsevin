@@ -1,52 +1,54 @@
 import "server-only";
-/* ----------------------------------------------------
- * The actual server side implementation that talks
- * ---------------------------------------------------- */
-import type { NextRequest } from 'next/server';
 
 import {
-    unstable_cacheLife as cacheLife,
-    unstable_cacheTag as cacheTag,
-  } from "next/cache";
+  unstable_cacheLife as cacheLife,
+  unstable_cacheTag as cacheTag,
+} from "next/cache";
 
-import { getServicePageDataTag, getServiceProviderGlobalTag } from '../../db/cache';
-import { GetServicePageByIdParams, GetServicePageByIdResponse } from "../../types/service-page.types";
-import { readData } from "@/config/http/http-service.server";
-import { CATEGORY_MODULE_BASE_PATH, CUSTOMER_MODULE_BASE_PATH } from "@/features/shared/types/constants";
-import { SearchResultsResponse } from "../../types";
+import { getServicePageDataTag } from "../../db/cache";
+import {
+  GetServicePageByIdParams,
+  GetServicePageByIdResponse,
+} from "../../types/service-page.types";
+import { getServicePageByIdFromDb } from "../../server/service-page.repository";
 import { BaseRequest } from "@/types/common";
 import { ApiReturnType } from "@/types/network";
 
-export const GET_SERVICE_PAGE_TAG = 'booking-get-service-page-by-id';   // tag used in the query key
+export const GET_SERVICE_PAGE_TAG = "booking-get-service-page-by-id";
 
 export function getServicePageByIdTag(id: string) {
-  return `${GET_SERVICE_PAGE_TAG}:${id}`;   // e.g. booking-get-service-page-by-id:123
+  return `${GET_SERVICE_PAGE_TAG}:${id}`;
 }
 
-/* ----------------------------------------------------
- * Helper that returns a single service page.
- * ---------------------------------------------------- */
 export async function getServicePageById(
-    request: BaseRequest,
-    params: GetServicePageByIdParams,
+  request: BaseRequest,
+  params: GetServicePageByIdParams
 ): Promise<ApiReturnType<GetServicePageByIdResponse>> {
-    "use cache: remote";
-    cacheTag(getServicePageDataTag(params.serviceId));
-    cacheLife("default");
+  "use cache: remote";
+  cacheTag(getServicePageDataTag(params.serviceId));
+  cacheLife("default");
 
-  const { serviceId } = params;
-  const tag = getServicePageByIdTag(serviceId);
+  const locale =
+    (request as any)?.locale ||
+    (request as any)?.headers?.["x-locale"] ||
+    (request as any)?.headers?.["accept-language"] ||
+    "en-US";
 
-  const searchParams = new URLSearchParams();
- 
+  const data = await getServicePageByIdFromDb({
+    serviceId: params.serviceId,
+    locale,
+  });
 
-  const response = await readData<GetServicePageByIdResponse>(
-    `${CATEGORY_MODULE_BASE_PATH}/service-providers/GetServicePageById/${serviceId}`,
-    {
-      ...request,
-    }
-  );
+  if (!data) {
+    return {
+      data: undefined,
+      error: {
+        title: "Service was not found.",
+        status: 404,
+        detail: "No active service/provider service matched the requested id.",
+      },
+    } as ApiReturnType<GetServicePageByIdResponse>;
+  }
 
-  return response;
+  return { data, error: undefined } as ApiReturnType<GetServicePageByIdResponse>;
 }
-

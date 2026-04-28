@@ -1,48 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { localeToHeader } from "@/config/locales";
-import { getCommentsByServiceProvider } from "@/features/service-providers/api/server/get-comments-by-service-provider";
-import { getSession } from "@/lib/auth/session";
-import { LocaleTypes } from "@/types/common";
-import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from "@/types/filter";
-import { getProviderPageData } from "@/features/service-providers/api/server/get-provider-page-data";
+import { getProviderPageDataFromDb } from "@/features/service-providers/server/provider-page.repository";
 
-export async function GET(
-  request: NextRequest,
-  // { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
 
-  const id = request.nextUrl.searchParams.get("id"); // "1"
+  const providerId = searchParams.get("id") || searchParams.get("providerId");
+  const locale = searchParams.get("locale") || request.headers.get("x-locale") || "en-US";
 
-  if (!id) {
+  const result = await getProviderPageDataFromDb({
+    providerId: providerId || "",
+    locale,
+    targetCurrencyCode: searchParams.get("currency") || searchParams.get("targetCurrencyCode"),
+    selectedCountryCode: searchParams.get("country") || searchParams.get("selectedCountryCode"),
+    browserCountryCode: searchParams.get("browserCountry") || searchParams.get("browserCountryCode"),
+    userId: searchParams.get("userId"),
+  });
+
+  if (result.error || !result.data) {
     return NextResponse.json(
-      { error: "Missing id query param" },
-      { status: 400 }
+      result.error || { title: "Could not load provider page.", status: 500 },
+      { status: result.error?.status || 500 }
     );
   }
-  
-  console.log('request:',request)
-  // console.log('params:',params)
-  // const { id: serviceProviderId } = await params;
-  const { searchParams } = new URL(request.url);
 
-  const page = searchParams.get("PageNumber");
-  const pageSize = searchParams.get("PageSize");
-  const locale = searchParams.get("Locale");
-  const localeHeader = localeToHeader(locale as LocaleTypes);
-
-  // Get session - token may be null for anonymous users
-  const session = await getSession();
-  const token = session?.user?.accessToken;
-
-  const { data, error } = await getProviderPageData(
-    { locale: localeHeader, token }, // Token is optional
-    id
-  );
-
-  if (error) {
-    return NextResponse.json(error, { status: error.status });
-  }
-
-  return NextResponse.json(data);
+  return NextResponse.json(result.data);
 }

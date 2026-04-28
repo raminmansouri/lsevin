@@ -1,105 +1,101 @@
-"use client"
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { ArrowLeft, Image as ImageIcon, PlayCircle } from "lucide-react";
 
-import { 
-  LayoutDashboard, Calendar, Users, Scissors, Clock, DollarSign, Gift, Image, Star, TrendingUp, MessageSquare, Settings,
-  Upload, Eye, Trash2
-} from 'lucide-react';
-import { DashboardLayout } from '../../../../design-system/dashboard-components';
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { LexicalDescription } from "@/features/service-providers/components/lexical-description";
+import { env } from "@/config/env/server";
+import { getServicePageByIdFromDb } from "@/features/service-providers/server/service-page.repository";
 
-export default function SalonGallery() {
-  const navigation = [
-    { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/provider/salon/dashboard' },
-    { label: 'Bookings', icon: <Calendar size={20} />, path: '/provider/salon/bookings', badge: 12 },
-    { label: 'Staff', icon: <Users size={20} />, path: '/provider/salon/staff' },
-    { label: 'Services', icon: <Scissors size={20} />, path: '/provider/salon/services' },
-    { label: 'Time Slots', icon: <Clock size={20} />, path: '/provider/salon/timeslots' },
-    { label: 'Pricing', icon: <DollarSign size={20} />, path: '/provider/salon/pricing' },
-    { label: 'Offers', icon: <Gift size={20} />, path: '/provider/salon/offers' },
-    { label: 'Before/After', icon: <Image size={20} />, path: '/provider/salon/gallery' },
-    { label: 'Reviews', icon: <Star size={20} />, path: '/provider/salon/reviews' },
-    { label: 'Analytics', icon: <TrendingUp size={20} />, path: '/provider/salon/analytics' },
-    { label: 'Support', icon: <MessageSquare size={20} />, path: '/provider/salon/support' },
-    { label: 'Settings', icon: <Settings size={20} />, path: '/provider/salon/settings' },
-  ];
+type ServiceGalleryRouteParams = {
+  locale: string;
+  id: string;
+};
 
-  const gallery = [
-    { id: 1, category: 'Hair', service: 'Hair Color Transformation', before: '/unsplash_images/photo-1560066984-138dadb4c035__w=400.jpg&h=400&fit=crop', after: '/unsplash_images/photo-1522337094846-8a818192de1f__w=400&h=400&fit=crop.jpg', status: 'visible' },
-    { id: 2, category: 'Nails', service: 'Gel Nails - French Manicure', before: '/unsplash_images/photo-1604654894610-df63bc536371__w=400&h=400&fit=crop.jpg', after: '/unsplash_images/photo-1610992015732-2449b76344bc__w=400&h=400&fit=crop.jpg', status: 'visible' },
-    { id: 3, category: 'Makeup', service: 'Bridal Makeup', before: '/unsplash_images/photo-1487412720507-e7ab37603c6f__w=400&h=400&fit=crop.jpg', after: '/unsplash_images/photo-1487412947147-5cebf100ffc2__w=400&h=400&fit=crop.jpg', status: 'visible' },
-  ];
+type ServiceGalleryPageProps = {
+  params: Promise<ServiceGalleryRouteParams> | ServiceGalleryRouteParams;
+};
+
+function isAbsoluteUrl(value: string) {
+  return /^(https?:)?\/\//i.test(value) || /^data:/i.test(value) || /^blob:/i.test(value);
+}
+
+function resolveServerMediaUrl(value?: string | null) {
+  if (!value) return "";
+  if (isAbsoluteUrl(value)) return value;
+
+  const base = env.NEXT_PUBLIC_FILES_URL?.replace(/\/+$/, "") ?? "";
+  const path = value.replace(/^\/+/, "");
+
+  return base ? `${base}/${path}` : `/${path}`;
+}
+
+export default async function ServiceGalleryPage({ params }: ServiceGalleryPageProps) {
+  const { locale, id } = await params;
+  const data = await getServicePageByIdFromDb({ serviceId: id, locale });
+
+  if (!data) {
+    notFound();
+  }
+
+  const gallery = data.service.galleryItems || [];
+  const backHref = `/${locale}/n/app/mobile/service/${id}`;
 
   return (
-    <DashboardLayout 
-      navigation={navigation} 
-      headerTitle="Before & After Gallery"
-      userRole="provider"
-      userName="Maria Santos"
-      providerName="Luxury Beauty & Spa"
-    >
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h3 className="text-2xl font-bold text-gray-900">Portfolio Gallery</h3>
-          <p className="text-sm text-gray-500 mt-1">Showcase your transformation results</p>
-        </div>
-        <button className="h-10 px-4 bg-[#083f30] text-white rounded-lg font-medium hover:bg-[#0a5a44] flex items-center gap-2">
-          <Upload size={18} />
-          Upload Before & After
-        </button>
-      </div>
-
-      <div className="grid grid-cols-4 gap-6 mb-6">
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <div className="text-sm font-medium text-gray-600 mb-2">Total Galleries</div>
-          <div className="text-2xl font-bold text-gray-900">3</div>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <div className="text-sm font-medium text-gray-600 mb-2">Visible</div>
-          <div className="text-2xl font-bold text-green-900">3</div>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <div className="text-sm font-medium text-gray-600 mb-2">Total Views</div>
-          <div className="text-2xl font-bold text-blue-900">1,247</div>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <div className="text-sm font-medium text-gray-600 mb-2">Engagement</div>
-          <div className="text-2xl font-bold text-purple-900">8.4%</div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-6">
-        {gallery.map(item => (
-          <div key={item.id} className="bg-white rounded-xl border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h4 className="font-semibold text-gray-900">{item.service}</h4>
-                <span className="inline-block px-2 py-1 bg-purple-50 text-purple-700 text-xs font-semibold rounded mt-1">{item.category}</span>
-              </div>
-              <div className="flex gap-2">
-                <button className="p-2 hover:bg-gray-100 rounded-lg"><Eye size={16} /></button>
-                <button className="p-2 hover:bg-red-50 rounded-lg"><Trash2 size={16} className="text-red-600" /></button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <div className="text-xs font-medium text-gray-600 mb-2">Before</div>
-                <img src={item.before} alt="Before" className="w-full h-48 object-cover rounded-lg" />
-              </div>
-              <div>
-                <div className="text-xs font-medium text-gray-600 mb-2">After</div>
-                <img src={item.after} alt="After" className="w-full h-48 object-cover rounded-lg" />
-              </div>
-            </div>
-
-            <div className="mt-4 flex items-center justify-between">
-              <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
-                {item.status.toUpperCase()}
-              </span>
-              <button className="text-sm text-[#083f30] font-medium hover:underline">Edit Gallery</button>
-            </div>
+    <main className="min-h-screen bg-white pb-24">
+      <div className="sticky top-0 z-20 border-b border-gray-100 bg-white/95 px-5 py-4 backdrop-blur">
+        <div className="flex items-center gap-3">
+          <Link href={backHref} className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-900">
+            <ArrowLeft size={20} />
+          </Link>
+          <div className="min-w-0">
+            <h1 className="truncate text-xl font-bold text-gray-900">Service gallery</h1>
+            <p className="truncate text-sm text-gray-600">{data.service.name}</p>
           </div>
-        ))}
+        </div>
       </div>
-    </DashboardLayout>
+
+      <div className="px-5 py-6">
+        {gallery.length === 0 ? (
+          <div className="flex min-h-72 flex-col items-center justify-center rounded-3xl border border-dashed border-gray-200 bg-gray-50 p-8 text-center">
+            <ImageIcon size={36} className="mb-3 text-gray-400" />
+            <h2 className="text-lg font-bold text-gray-900">No gallery items yet</h2>
+            <p className="mt-1 text-sm text-gray-600">This provider has not published images or videos for this service.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            {gallery.map((item, index) => {
+              const isVideo = item.mediaType?.toLowerCase().includes("video");
+              const isLarge = index === 0 || index % 5 === 0;
+              const mediaSrc = resolveServerMediaUrl(item.url);
+
+              return (
+                <figure key={item.id} className={`group relative overflow-hidden rounded-2xl bg-gray-100 ${isLarge ? "col-span-2 h-72" : "h-44"}`}>
+                  {isVideo ? (
+                    <video src={mediaSrc} className="h-full w-full object-cover" controls playsInline preload="metadata" />
+                  ) : (
+                    <ImageWithFallback
+                      fill
+                      src={mediaSrc}
+                      alt={item.title || data.service.name}
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      sizes="(max-width: 768px) 50vw, 33vw"
+                    />
+                  )}
+
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 text-white">
+                    <div className="flex items-center gap-2">
+                      {isVideo && <PlayCircle size={16} className="flex-shrink-0" />}
+                      <figcaption className="line-clamp-1 text-sm font-bold">{item.title || `${data.service.name} ${index + 1}`}</figcaption>
+                    </div>
+                    {item.description && <LexicalDescription content={item.description} className="mt-1 line-clamp-2 text-xs text-white/80" />}
+                  </div>
+                </figure>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </main>
   );
 }

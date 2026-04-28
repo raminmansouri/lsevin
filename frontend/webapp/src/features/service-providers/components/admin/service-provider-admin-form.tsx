@@ -21,7 +21,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { SUPPORTED_LOCALE_HEADERS } from "@/config/locales";
 import { LocalizedInput } from "@/features/shared/components/LocalizedInput";
-import { createEmptyLocalizedContent } from "@/features/shared/utils/localization";
 import useAction from "@/hooks/use-action";
 import { useRouter } from "@/i18n/navigation";
 
@@ -60,11 +59,8 @@ type ServiceProviderAdminFormValues = Omit<
   imageUrl: unknown;
 };
 
-function translationsOrEmpty(value?: Record<string, string> | null, locale?: string): AdminLocalizedInputValue {
-  const normalized = toLocalizedInputValue(value, locale, SUPPORTED_LOCALE_HEADERS);
-  return Object.keys(normalized.translations).length
-    ? normalized
-    : (createEmptyLocalizedContent() as AdminLocalizedInputValue);
+function translationsOrEmpty(value?: unknown, locale?: string): AdminLocalizedInputValue {
+  return toLocalizedInputValue(value, locale, SUPPORTED_LOCALE_HEADERS);
 }
 
 function buildServiceProviderDefaultValues(
@@ -121,6 +117,44 @@ function parseCoordinatePair(value: string) {
   return { latitude, longitude };
 }
 
+
+type LocalizedInputBridgeProps = {
+  label: string;
+  value: unknown;
+  onChange: (value: AdminLocalizedInputValue) => void;
+  locale: string;
+  required?: boolean;
+  maxLength?: number;
+  description?: string;
+  error?: string;
+  multiline?: boolean;
+  rows?: number;
+  richText?: boolean;
+};
+
+function LocalizedInputBridge({
+  value,
+  onChange,
+  locale,
+  ...props
+}: LocalizedInputBridgeProps) {
+  const normalizedValue = useMemo(
+    () => toLocalizedInputValue(value, locale, SUPPORTED_LOCALE_HEADERS),
+    [value, locale]
+  );
+
+  return (
+    <LocalizedInput
+      {...props}
+      value={normalizedValue}
+      onChange={(nextValue) =>
+        onChange(toLocalizedInputValue(nextValue, locale, SUPPORTED_LOCALE_HEADERS))
+      }
+      supportedLocales={SUPPORTED_LOCALE_HEADERS}
+    />
+  );
+}
+
 export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -169,10 +203,10 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
     startTransition(async () => {
       await execute({
         ...values,
-        name: normalizeLocalizedContentForDatabase(values.name),
-        description: normalizeLocalizedContentForDatabase(values.description),
-        street: values.street ? normalizeLocalizedContentForDatabase(values.street) : {},
-        detail: values.detail ? normalizeLocalizedContentForDatabase(values.detail) : {},
+        name: normalizeLocalizedContentForDatabase(values.name, locale, SUPPORTED_LOCALE_HEADERS),
+        description: normalizeLocalizedContentForDatabase(values.description, locale, SUPPORTED_LOCALE_HEADERS),
+        street: values.street ? normalizeLocalizedContentForDatabase(values.street, locale, SUPPORTED_LOCALE_HEADERS) : {},
+        detail: values.detail ? normalizeLocalizedContentForDatabase(values.detail, locale, SUPPORTED_LOCALE_HEADERS) : {},
         email: values.email.trim(),
         phoneNumberCountryCode: values.phoneNumberCountryCode.trim(),
         phoneNumber: values.phoneNumber.trim(),
@@ -220,7 +254,7 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <LocalizedInput label="Name" value={field.value} onChange={field.onChange} supportedLocales={SUPPORTED_LOCALE_HEADERS} required maxLength={200} />
+                          <LocalizedInputBridge label="Name" value={field.value} onChange={field.onChange} locale={locale} required maxLength={200} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -233,7 +267,7 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <LocalizedInput label="Description" value={field.value} onChange={field.onChange} supportedLocales={SUPPORTED_LOCALE_HEADERS} richText rows={5} maxLength={3000} />
+                          <LocalizedInputBridge label="Description" value={field.value} onChange={field.onChange} locale={locale} richText rows={5} maxLength={3000} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -363,11 +397,11 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
                   </div>
 
                   <FormField control={form.control} name="street" render={({ field }) => (
-                    <FormItem><FormControl><LocalizedInput label="Street" value={field.value || createEmptyLocalizedContent()} onChange={field.onChange} supportedLocales={SUPPORTED_LOCALE_HEADERS} maxLength={500} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormControl><LocalizedInputBridge label="Street" value={field.value} onChange={field.onChange} locale={locale} maxLength={500} /></FormControl><FormMessage /></FormItem>
                   )} />
 
                   <FormField control={form.control} name="detail" render={({ field }) => (
-                    <FormItem><FormControl><LocalizedInput label="Address details" value={field.value || createEmptyLocalizedContent()} onChange={field.onChange} supportedLocales={SUPPORTED_LOCALE_HEADERS} rows={3} maxLength={1000} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormControl><LocalizedInputBridge label="Address details" value={field.value} onChange={field.onChange} locale={locale} rows={3} maxLength={1000} /></FormControl><FormMessage /></FormItem>
                   )} />
 
                   <div className="space-y-3 rounded-2xl border p-4">
@@ -411,14 +445,12 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
                       <p className="text-xs text-muted-foreground">Paste directly from Google Maps. The first number is latitude and the second is longitude.</p>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                      <FormField control={form.control} name="latitude" render={({ field }) => (
-                        <FormItem><FormLabel>Latitude</FormLabel><FormControl><Input type="number" step="0.0000001" {...field} value={field.value ?? ""} disabled={isPending} /></FormControl><FormMessage /></FormItem>
-                      )} />
-                      <FormField control={form.control} name="longitude" render={({ field }) => (
-                        <FormItem><FormLabel>Longitude</FormLabel><FormControl><Input type="number" step="0.0000001" {...field} value={field.value ?? ""} disabled={isPending} /></FormControl><FormMessage /></FormItem>
-                      )} />
-                    </div>
+                    <FormField control={form.control} name="latitude" render={({ field }) => (
+                      <input type="hidden" name={field.name} value={field.value ?? ""} ref={field.ref} readOnly />
+                    )} />
+                    <FormField control={form.control} name="longitude" render={({ field }) => (
+                      <input type="hidden" name={field.name} value={field.value ?? ""} ref={field.ref} readOnly />
+                    )} />
                   </div>
 
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-[160px_1fr]">

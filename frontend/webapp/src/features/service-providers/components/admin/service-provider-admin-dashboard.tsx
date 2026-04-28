@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { Edit, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
@@ -53,6 +53,7 @@ import {
   normalizeLocalizedContentForDatabase,
   normalizeMediaPickerValue,
   toLocalizedInputValue,
+  type AdminLocalizedInputValue,
 } from "../../lib/admin-form-normalizers";
 import { RHFSingleMediaPickerField } from "../service-provider-data-entry/media-picker-adapter";
 import { LazyAdminLookupSelect } from "./lazy-admin-lookup-select";
@@ -112,6 +113,44 @@ function RichTranslation({
   }
 
   return <p className={className}>{content || fallback}</p>;
+}
+
+
+type LocalizedInputBridgeProps = {
+  label: string;
+  value: unknown;
+  onChange: (value: AdminLocalizedInputValue) => void;
+  locale: string;
+  required?: boolean;
+  maxLength?: number;
+  description?: string;
+  error?: string;
+  multiline?: boolean;
+  rows?: number;
+  richText?: boolean;
+};
+
+function LocalizedInputBridge({
+  value,
+  onChange,
+  locale,
+  ...props
+}: LocalizedInputBridgeProps) {
+  const normalizedValue = useMemo(
+    () => toLocalizedInputValue(value, locale, SUPPORTED_LOCALE_HEADERS),
+    [value, locale]
+  );
+
+  return (
+    <LocalizedInput
+      {...props}
+      value={normalizedValue}
+      onChange={(nextValue) =>
+        onChange(toLocalizedInputValue(nextValue, locale, SUPPORTED_LOCALE_HEADERS))
+      }
+      supportedLocales={SUPPORTED_LOCALE_HEADERS}
+    />
+  );
 }
 
 function MetricCard({ title, value, hint }: { title: string; value: string | number; hint?: string }) {
@@ -228,7 +267,7 @@ export function ServiceProviderAdminDashboard({ provider, lookups, locale }: Pro
               <StaffManager provider={provider} lookups={lookups} locale={locale} />
             </TabsContent>
             <TabsContent value="media" className="m-0 p-6">
-              <GalleryManager provider={provider} />
+              <GalleryManager provider={provider} locale={locale} />
             </TabsContent>
             <TabsContent value="policies" className="m-0 p-6">
               <PoliciesManager provider={provider} lookups={lookups} locale={locale} />
@@ -344,7 +383,7 @@ type ProviderGalleryDraftForm = {
   displayOrder: number;
 };
 
-function GalleryManager({ provider }: { provider: AdminServiceProviderDetails }) {
+function GalleryManager({ provider, locale }: { provider: AdminServiceProviderDetails; locale: string }) {
   const [isPending, startTransition] = useTransition();
   const galleryForm = useForm<ProviderGalleryDraftForm>({
     defaultValues: {
@@ -369,8 +408,8 @@ function GalleryManager({ provider }: { provider: AdminServiceProviderDetails })
 
     save.execute({
       serviceProviderId: provider.id,
-      title: normalizeLocalizedContentForDatabase(values.title),
-      description: normalizeLocalizedContentForDatabase(values.description),
+      title: normalizeLocalizedContentForDatabase(values.title, locale, SUPPORTED_LOCALE_HEADERS),
+      description: normalizeLocalizedContentForDatabase(values.description, locale, SUPPORTED_LOCALE_HEADERS),
       url: normalizedUrl,
       mediaType: values.mediaType || "image",
       displayOrder: Number(values.displayOrder || 0),
@@ -387,7 +426,7 @@ function GalleryManager({ provider }: { provider: AdminServiceProviderDetails })
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <LocalizedInput label="Title" value={field.value} onChange={field.onChange} supportedLocales={SUPPORTED_LOCALE_HEADERS} maxLength={250} />
+                  <LocalizedInputBridge label="Title" value={field.value} onChange={field.onChange} locale={locale} maxLength={250} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -399,7 +438,7 @@ function GalleryManager({ provider }: { provider: AdminServiceProviderDetails })
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <LocalizedInput label="Description" value={field.value} onChange={field.onChange} supportedLocales={SUPPORTED_LOCALE_HEADERS} richText rows={4} maxLength={2000} />
+                  <LocalizedInputBridge label="Description" value={field.value} onChange={field.onChange} locale={locale} richText rows={4} maxLength={2000} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -487,7 +526,7 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
       serviceProviderId: provider.id,
       policyTypeId: values.policyTypeId,
       type: { "en-US": selectedPolicyType?.label || "Policy" },
-      description: normalizeLocalizedContentForDatabase(values.description),
+      description: normalizeLocalizedContentForDatabase(values.description, locale, SUPPORTED_LOCALE_HEADERS),
     });
   });
 
@@ -522,7 +561,7 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <LocalizedInput label="Description" value={field.value} onChange={field.onChange} supportedLocales={SUPPORTED_LOCALE_HEADERS} richText rows={4} maxLength={2000} />
+                  <LocalizedInputBridge label="Description" value={field.value} onChange={field.onChange} locale={locale} richText rows={4} maxLength={2000} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -665,8 +704,8 @@ function ServicesManager({ provider, lookups, locale }: Props) {
   };
 
   const onSubmitService = serviceForm.handleSubmit((values) => {
-    const displayName = normalizeLocalizedContentForDatabase(values.displayName);
-    const description = normalizeLocalizedContentForDatabase(values.description);
+    const displayName = normalizeLocalizedContentForDatabase(values.displayName, locale, SUPPORTED_LOCALE_HEADERS);
+    const description = normalizeLocalizedContentForDatabase(values.description, locale, SUPPORTED_LOCALE_HEADERS);
 
     save.execute({
       serviceProviderId: provider.id,
@@ -786,7 +825,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <LocalizedInput label="Display name" value={field.value} onChange={field.onChange} supportedLocales={SUPPORTED_LOCALE_HEADERS} required maxLength={250} />
+                        <LocalizedInputBridge label="Display name" value={field.value} onChange={field.onChange} locale={locale} required maxLength={250} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -799,7 +838,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <LocalizedInput label="Description" value={field.value} onChange={field.onChange} supportedLocales={SUPPORTED_LOCALE_HEADERS} richText rows={5} maxLength={3000} />
+                        <LocalizedInputBridge label="Description" value={field.value} onChange={field.onChange} locale={locale} richText rows={5} maxLength={3000} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
