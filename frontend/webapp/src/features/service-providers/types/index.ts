@@ -305,13 +305,14 @@ export interface Booking {
     id: string;
     service: string;
     provider: string;
-    image?: string;  // Optional field
+    image?: string;
     date: string;
     time: string;
     location: string;
     status: string;
     paymentStatus: string;
     price: number;
+    currency?: string;
     verified: boolean;
 }
 
@@ -320,45 +321,80 @@ export interface BookingRecord {
     id: string;
     service: string;
     provider: string;
-    providerImage?: string;  // Optional field
+    image?: string;
+    providerImage?: string;
+    providerDescription?: string;
+    serviceDescription?: string;
     date: string;
     time: string;
     duration?: string;
     location: string;
-    fullAddress?: string;  // Optional field
+    fullAddress?: string;
     status: string;
     paymentStatus: string;
     price: number;
+    currency?: string;
     deposit?: number;
     remaining?: number;
     verified?: boolean;
-    bookingDate?: string;  // Optional field
-    confirmationCode?: string;  // Optional field
-    included?: IncludedServicesType[];  // Optional array type
-    contact?: ContactType;  // Optional object type
-    agent?: Agent;  // Optional object type
+    bookingDate?: string;
+    confirmationCode?: string;
+    paymentMethod?: string;
+    notes?: string;
+    included?: IncludedServicesType[];
+    addons?: BookingAddonSummary[];
+    documents?: BookingDocumentSummary[];
+    childBookings?: BookingChildSummary[];
+    contact?: ContactType;
+    agent?: Agent;
 }
 
-// Define an interface for the included services
-interface IncludedServicesType {
+export interface IncludedServicesType {
     name: string;
     title: string;
-    experience: string;
+    experience?: string;
 }
 
-// Define a type for the contact information
-type ContactType = {
+export interface BookingAddonSummary {
+    id: string;
+    name: string;
+    quantity: number;
+    unitPrice: number;
+    currency: string;
+    kind?: string;
+}
+
+export interface BookingDocumentSummary {
+    id: string;
+    title: string;
+    fileName: string;
+    fileUrl: string;
+    mimeType?: string | null;
+    sizeBytes?: number | null;
+}
+
+export interface BookingChildSummary {
+    id: string;
+    status: string;
+    provider: string;
+    service: string;
+    date: string;
+    time: string;
+    subtotal: number;
+    currency: string;
+}
+
+export type ContactType = {
     phone: string;
     email: string;
-    address?: string;  // Optional field
+    address?: string;
 };
 
-// Define a type for the doctor's information
-type Agent = {
+export type Agent = {
     name: string;
     title: string;
     experience: string;
-    image?: string;  // Optional field
+    image?: string;
 };
 
 
@@ -702,44 +738,34 @@ export interface SearchResultsResponse {
 export interface SearchResultsFilter {
   id: string;
   label: string;
-  count?: number;
 }
 
 export interface SearchResultsCategory {
   id: string;
   label: string;
-  count?: number;
 }
-
 export interface SearchResultsItem {
-  id: string;
-  type: "service" | "provider" | "specialist";
-  name: string;
-  provider: string;
-  image: string;
-  location: string;
-  rating: number;
-  reviews: number;
-  price: number;
-  originalPrice?: number | null;
-  currency: string;
-  verified: boolean;
-  specialties: string[];
-  tags: string[];
-  href: string;
+  specialties:string[],
+  id: number,
+  type: string,
+  name: string,
+  provider: string,
+  image: string
+  location: string,
+  rating: number,
+  reviews: number,
+  price: number,
+  originalPrice: number,
+  verified: boolean,
+  tags: string[]
 }
-
 export interface SearchHistoryTrendingSearchVm {
   query: string;
   trend: string;
 }
-
 export interface SearchHistoryPopularCategoryVm {
-  id: string;
   label: string;
   icon: string;
-  image?: string | null;
-  count?: number;
 }
 
 export interface SearchHistoryResponse {

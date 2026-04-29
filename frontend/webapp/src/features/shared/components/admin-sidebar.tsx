@@ -90,6 +90,12 @@ const data: AdminSidebarItemType[] = [
   },{
     title: "home-sections",
     url: "/admin/home-sections/",
+  },{
+    title: "currencies",
+    url: "/admin/finance/currencies",
+  },,{
+    title: "exchange-rates",
+    url: "/admin/finance/exchange-rates",
   },
 ];
 

@@ -13,7 +13,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useRouter } from '@/i18n/navigation';
 
-import { createExchangeRateAction, ExchangeRateFormSchema } from '../../actions/admin-currency-actions';
+import { createExchangeRateAction } from '../../actions/admin-currency-actions';
+import { ExchangeRateFormSchema } from '../../schemas/admin-currency-schemas';
 import type { Currency } from '../../types';
 
 type FormInput = z.infer<typeof ExchangeRateFormSchema>;

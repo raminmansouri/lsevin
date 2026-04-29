@@ -387,7 +387,7 @@ export default function ExploreClient({
           </div>
 
           <button
-            onClick={() => router.push("/app/map")}
+            onClick={() => router.push("/n/app/mobile/map-discovery")}
             className="w-11 h-11 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
           >
             <MapPin size={22} className="text-[#083f30]" />
