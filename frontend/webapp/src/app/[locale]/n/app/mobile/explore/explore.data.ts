@@ -3,21 +3,33 @@ import { unstable_noStore as noStore } from "next/cache";
 
 
 export type ExploreResponseTime = "any" | "fast" | "instant";
+export type ExploreSort = "recommended" | "rating" | "price_low" | "price_high" | "newest";
 
 export type ExploreFiltersInput = {
   q: string;
   categoryId: string | null;
+  providerTypeId: string | null;
   minPrice: number;
   maxPrice: number;
   minRating: number;
   verifiedOnly: boolean;
   languages: string[];
   responseTime: ExploreResponseTime;
+  sort: ExploreSort;
 };
 
 export type ExploreCategory = {
   id: string;
   label: string;
+  count: number;
+};
+
+export type ExploreProviderType = {
+  id: string;
+  label: string;
+  description: string;
+  image: string;
+  icon: string;
   count: number;
 };
 
@@ -64,6 +76,7 @@ export type ExploreSponsoredProvider = {
 export type ExplorePageData = {
   customerId: string | null;
   categories: ExploreCategory[];
+  providerTypes: ExploreProviderType[];
   featuredProviders: ExploreFeaturedProvider[];
   trendingServices: ExploreTrendingService[];
   sponsoredProviders: ExploreSponsoredProvider[];
@@ -85,11 +98,15 @@ export function parseExploreFilters(
   params: Record<string, string | string[] | undefined>,
 ): ExploreFiltersInput {
   const responseTime = toSingleString(params.responseTime).trim().toLowerCase();
+  const sort = toSingleString(params.sort).trim().toLowerCase();
   const languagesRaw = toSingleString(params.languages).trim();
+  const categoryId = toSingleString(params.categoryId).trim();
+  const providerTypeId = toSingleString(params.providerTypeId).trim();
 
   return {
     q: toSingleString(params.q).trim(),
-    categoryId: toSingleString(params.categoryId).trim() || null,
+    categoryId: categoryId && categoryId !== "all" ? categoryId : null,
+    providerTypeId: providerTypeId && providerTypeId !== "all" ? providerTypeId : null,
     minPrice: Math.max(0, toFiniteNumber(params.minPrice, 0)),
     maxPrice: Math.max(0, toFiniteNumber(params.maxPrice, 5000)),
     minRating: Math.max(0, toFiniteNumber(params.minRating, 0)),
@@ -106,6 +123,10 @@ export function parseExploreFilters(
       responseTime === "fast" || responseTime === "instant"
         ? (responseTime as ExploreResponseTime)
         : "any",
+    sort:
+      sort === "rating" || sort === "price_low" || sort === "price_high" || sort === "newest"
+        ? (sort as ExploreSort)
+        : "recommended",
   };
 }
 
@@ -132,6 +153,20 @@ function joinSql(parts: any[], separator: any) {
     parts[0]
   );
 }
+
+function uniqueById<T extends { id: string }>(rows: T[]): T[] {
+  const seen = new Set<string>();
+  const uniqueRows: T[] = [];
+
+  for (const row of rows) {
+    if (!row.id || seen.has(row.id)) continue;
+    seen.add(row.id);
+    uniqueRows.push(row);
+  }
+
+  return uniqueRows;
+}
+
 function buildFeaturedProvidersWhere(filters: ExploreFiltersInput, lang: string) {
   const conditions = [sql`sp.is_active = true`];
 
@@ -206,6 +241,10 @@ function buildFeaturedProvidersWhere(filters: ExploreFiltersInput, lang: string)
     `);
   }
 
+  if (filters.providerTypeId) {
+    conditions.push(sql`sp.provider_type_id = ${filters.providerTypeId}::uuid`);
+  }
+
   return conditions.length
     ? sql`where ${joinSql(conditions, sql` and `)}`
     : sql``;
@@ -216,6 +255,10 @@ function buildTrendingServicesWhere(filters: ExploreFiltersInput, lang: string) 
 
   if (filters.categoryId) {
     conditions.push(sql`sd.category_id = ${filters.categoryId}::uuid`);
+  }
+
+  if (filters.providerTypeId) {
+    conditions.push(sql`sp.provider_type_id = ${filters.providerTypeId}::uuid`);
   }
 
   if (filters.minPrice > 0) {
@@ -302,7 +345,7 @@ export async function getExplorePageData({
   const lang = normalizeLocale(locale);
   const customerId = await resolveCurrentCustomerId();
   const featuredWhereSql = buildFeaturedProvidersWhere(filters, lang);
-const trendingWhereSql = buildTrendingServicesWhere(filters, lang);
+  const trendingWhereSql = buildTrendingServicesWhere(filters, lang);
 
 
   const categoryRows = await sql<ExploreCategory[]>`
@@ -333,6 +376,44 @@ const trendingWhereSql = buildTrendingServicesWhere(filters, lang);
     ...categoryRows,
   ];
 
+  const providerTypeRows = await sql<ExploreProviderType[]>`
+    select
+      pt.id::text as id,
+      common.get_translation_t(pt.name_translations, ${lang}, 'en') as label,
+      common.get_translation_t(pt.description_translations, ${lang}, 'en') as description,
+      coalesce(
+        nullif(btrim(ml.file_url), ''),
+        nullif(btrim(pt.image_url), ''),
+        nullif(btrim(pt.icon_url), '')
+      ) as image,
+      coalesce(nullif(btrim(pt.icon_url), ''), '') as icon,
+      count(distinct sp.id)::int as count
+    from category.provider_types pt
+    left join media.media_library ml
+      on ml.id::text = nullif(btrim(pt.image_url), '')
+    left join category.service_providers sp
+      on sp.provider_type_id = pt.id
+     and sp.is_active = true
+    where pt.is_active = true
+    group by
+      pt.id,
+      common.get_translation_t(pt.name_translations, ${lang}, 'en'),
+      common.get_translation_t(pt.description_translations, ${lang}, 'en'),
+      ml.file_url,
+      pt.image_url,
+      pt.icon_url
+    order by count(distinct sp.id) desc, label asc
+  `;
+
+  const providerTypes: ExploreProviderType[] = providerTypeRows.map((row) => ({
+    id: row.id,
+    label: row.label,
+    description: row.description || "",
+    image: coalesceImage(row.image),
+    icon: row.icon || "",
+    count: Number(row.count ?? 0),
+  }));
+
   const favoriteProviderIds = customerId
     ? await sql<{ entity_id: string }[]>`
         select entity_id::text as entity_id
@@ -353,62 +434,6 @@ const trendingWhereSql = buildTrendingServicesWhere(filters, lang);
 
   const providerFavoriteSet = new Set(favoriteProviderIds.map((x) => x.entity_id));
   const serviceFavoriteSet = new Set(favoriteServiceIds.map((x) => x.entity_id));
-const languageFilter = filters.languages
-  .map((x) => x.trim().toLowerCase())
-  .filter(Boolean);
-
-const hasLanguages = languageFilter.length > 0;
-const hasCategory = !!filters.categoryId;
-const searchTerm = filters.q.trim();
-const hasSearch = searchTerm.length > 0;
-
-const languageSql = hasLanguages
-  ? sql`
-      and (
-        exists (
-          select 1
-          from category.provider_languages pl
-          where pl.service_provider_id = sp.id
-            and lower(pl.language) = any(${sql.array(languageFilter, "text")})
-        )
-        or exists (
-          select 1
-          from unnest(coalesce(sp.languages, array[]::text[])) as provider_language(language)
-          where lower(provider_language.language) = any(${sql.array(languageFilter, "text")})
-        )
-      )
-    `
-  : sql``;
-
-const categorySql = hasCategory
-  ? sql`
-      and exists (
-        select 1
-        from category.provider_services ps
-        join category.service_definitions sd on sd.id = ps.service_definition_id
-        where ps.service_provider_id = sp.id
-          and ps.is_active = true
-          and sd.category_id = ${filters.categoryId!}::uuid
-      )
-    `
-  : sql``;
-
-const searchSql = hasSearch
-  ? sql`
-      and (
-        sp.search_vector @@ websearch_to_tsquery('simple', ${searchTerm})
-        or common.get_translation_t(sp.name_translations, ${lang}, 'en') ilike ${`%${searchTerm}%`}
-        or exists (
-          select 1
-          from unnest(coalesce(sp.specialties, array[]::text[])) as specialty
-          where specialty ilike ${`%${searchTerm}%`}
-        )
-      )
-    `
-  : sql``;
-
-
-
 
 const featuredRows = await sql`
   select 
@@ -420,8 +445,8 @@ const featuredRows = await sql`
     coalesce(sp.accredited, false) as verified,
     trim(
       concat_ws(', ',
-        nullif(common.get_translation_t(city_loc.value_translations, ${lang}, 'en'), ''),
-        nullif(common.get_translation_t(country_loc.value_translations, ${lang}, 'en'), '')
+        nullif(city_loc.name, ''),
+        nullif(country_loc.name, '')
       )
     ) as location,
     coalesce(sp.response_time, '') as response_time,
@@ -429,12 +454,22 @@ const featuredRows = await sql`
     coalesce(sp.success_rate, '') as badge,
     coalesce(sp.specialties, array[]::text[]) as specialties
   from category.service_providers sp
-  left join category.locations country_loc
-    on country_loc.code = sp.country
-   and country_loc.location_type_id = 1
-  left join category.locations city_loc
-    on city_loc.code = sp.city
-   and city_loc.location_type_id = 2
+  left join lateral (
+    select common.get_translation_t(l.value_translations, ${lang}, 'en') as name
+    from category.locations l
+    where l.code = sp.country
+      and l.location_type_id = 1
+    order by coalesce(l.display_order, 0), l.create_date desc
+    limit 1
+  ) country_loc on true
+  left join lateral (
+    select common.get_translation_t(l.value_translations, ${lang}, 'en') as name
+    from category.locations l
+    where l.code = sp.city
+      and l.location_type_id = 2
+    order by coalesce(l.display_order, 0), l.create_date desc
+    limit 1
+  ) city_loc on true
   left join lateral (
     select g.url
     from category.provider_gallery_items g
@@ -451,7 +486,7 @@ const featuredRows = await sql`
   limit 10
 `;
 
-  const featuredProviders: ExploreFeaturedProvider[] = featuredRows.map((row) => ({
+  const featuredProviders: ExploreFeaturedProvider[] = uniqueById(featuredRows).map((row) => ({
     id: row.id,
     name: row.name,
     image: coalesceImage(row.image),
@@ -489,19 +524,29 @@ const featuredRows = await sql`
     end as growth,
     trim(
       concat_ws(', ',
-        nullif(common.get_translation_t(city_loc.value_translations, ${lang}, 'en'), ''),
-        nullif(common.get_translation_t(country_loc.value_translations, ${lang}, 'en'), '')
+        nullif(city_loc.name, ''),
+        nullif(country_loc.name, '')
       )
     ) as location
   from category.provider_services ps
   join category.service_providers sp on sp.id = ps.service_provider_id
   join category.service_definitions sd on sd.id = ps.service_definition_id
-  left join category.locations country_loc
-    on country_loc.code = sp.country
-   and country_loc.location_type_id = 1
-  left join category.locations city_loc
-    on city_loc.code = sp.city
-   and city_loc.location_type_id = 2
+  left join lateral (
+    select common.get_translation_t(l.value_translations, ${lang}, 'en') as name
+    from category.locations l
+    where l.code = sp.country
+      and l.location_type_id = 1
+    order by coalesce(l.display_order, 0), l.create_date desc
+    limit 1
+  ) country_loc on true
+  left join lateral (
+    select common.get_translation_t(l.value_translations, ${lang}, 'en') as name
+    from category.locations l
+    where l.code = sp.city
+      and l.location_type_id = 2
+    order by coalesce(l.display_order, 0), l.create_date desc
+    limit 1
+  ) city_loc on true
   left join lateral (
     select g.url
     from category.provider_service_gallery_items g
@@ -533,7 +578,7 @@ const featuredRows = await sql`
   limit 10
 `;
 
-  const trendingServices: ExploreTrendingService[] = trendingRows.map((row) => ({
+  const trendingServices: ExploreTrendingService[] = uniqueById(trendingRows).map((row) => ({
     id: row.id,
     providerId: row.provider_id,
     name: row.name,
@@ -585,6 +630,7 @@ const featuredRows = await sql`
     ) pgi on true
     where sp.is_active = true
       and sp.is_sponsored = true
+      and (${filters.providerTypeId === null} or sp.provider_type_id = ${filters.providerTypeId ?? null}::uuid)
       and (${filters.verifiedOnly} = false or coalesce(sp.accredited, false) = true)
       and (${filters.minRating} = 0 or coalesce(sp.rating, 0) >= ${filters.minRating})
       and (
@@ -598,7 +644,7 @@ const featuredRows = await sql`
     limit 10
   `;
 
-  const sponsoredProviders: ExploreSponsoredProvider[] = sponsoredRows.map((row) => ({
+  const sponsoredProviders: ExploreSponsoredProvider[] = uniqueById(sponsoredRows).map((row) => ({
     id: row.id,
     name: row.name,
     subtitle: row.subtitle || "",
@@ -632,6 +678,7 @@ const featuredRows = await sql`
   return {
     customerId,
     categories,
+    providerTypes,
     featuredProviders,
     trendingServices,
     sponsoredProviders,

@@ -1,218 +1,275 @@
-"use client"
+"use client";
 
-import { useFetchBookings } from '@/features/service-providers/api/client/fetch-bookings';
-import { Booking } from '@/features/service-providers/types';
-import { useNavigate } from '@/hooks/use-navigate';
-import { 
-  Calendar, 
-  Clock, 
-  MapPin, 
-  BadgeCheck,
-  ChevronRight,
+import { useMemo, useState } from "react";
+import {
   AlertCircle,
+  BadgeCheck,
+  Calendar,
+  CalendarX,
+  ChevronRight,
   CheckCircle,
+  Clock,
+  Loader2,
+  MapPin,
+  RefreshCw,
   XCircle,
-  CalendarX
-} from 'lucide-react';
-import { useEffect, useState } from 'react';
+} from "lucide-react";
+
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { env } from "@/config/env/client";
+import { useFetchBookings } from "@/features/service-providers/api/client/fetch-bookings";
+import type { Booking } from "@/features/service-providers/types";
+import { useNavigate } from "@/hooks/use-navigate";
+
+const BRAND_GREEN = "#083f30";
+
+type BookingTab = "upcoming" | "past" | "cancelled";
+
+const TABS: Array<{ id: BookingTab; label: string }> = [
+  { id: "upcoming", label: "Upcoming" },
+  { id: "past", label: "Past" },
+  { id: "cancelled", label: "Cancelled" },
+];
+
+function normalizeStatus(value?: string | null) {
+  return String(value || "pending").trim().toLowerCase();
+}
+
+function buildFileUrl(value?: string | null) {
+  const raw = String(value || "").trim();
+  if (!raw) return undefined;
+  if (/^(https?:|data:|blob:|\/)/i.test(raw)) return raw;
+  return `${env.NEXT_PUBLIC_FILES_URL}/${raw}`;
+}
+
+function formatMoney(amount: number, currency?: string | null) {
+  const code = String(currency || "USD").trim().toUpperCase();
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency: code,
+      maximumFractionDigits: 2,
+    }).format(amount || 0);
+  } catch {
+    return `${(amount || 0).toLocaleString()} ${code}`;
+  }
+}
+
+function getStatusBadge(status: string) {
+  const normalized = normalizeStatus(status);
+  if (["confirmed", "completed", "done"].includes(normalized)) {
+    return {
+      icon: CheckCircle,
+      text: normalized === "completed" || normalized === "done" ? "Completed" : "Confirmed",
+      color: "bg-green-50 text-green-700",
+    };
+  }
+  if (["cancelled", "canceled"].includes(normalized)) {
+    return { icon: XCircle, text: "Cancelled", color: "bg-red-50 text-red-700" };
+  }
+  return { icon: AlertCircle, text: "Pending", color: "bg-yellow-50 text-yellow-700" };
+}
+
+function getPaymentBadge(status: string) {
+  const normalized = normalizeStatus(status);
+  if (normalized === "paid") return { text: "Paid", color: "bg-green-600" };
+  if (normalized === "refunded") return { text: "Refunded", color: "bg-gray-600" };
+  return { text: "Payment Due", color: "bg-yellow-600" };
+}
+
+function BookingCard({ booking, onOpen }: { booking: Booking; onOpen: () => void }) {
+  const statusBadge = getStatusBadge(booking.status);
+  const paymentBadge = getPaymentBadge(booking.paymentStatus);
+  const StatusIcon = statusBadge.icon;
+  const imageSrc = buildFileUrl(booking.image);
+
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className="w-full cursor-pointer overflow-hidden rounded-2xl border border-gray-100 bg-white text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#083f30]/20"
+    >
+      <div className="p-4">
+        <div className="mb-3 flex items-start justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 ${statusBadge.color}`}>
+              <StatusIcon size={14} />
+              <span className="text-xs font-semibold">{statusBadge.text}</span>
+            </div>
+            <div className={`rounded-lg px-2.5 py-1 ${paymentBadge.color}`}>
+              <span className="text-xs font-semibold text-white">{paymentBadge.text}</span>
+            </div>
+          </div>
+          <ChevronRight size={20} className="mt-0.5 flex-shrink-0 text-gray-400 rtl:rotate-180" />
+        </div>
+
+        <div className="flex gap-4">
+          <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100">
+            {imageSrc ? (
+              <ImageWithFallback
+                fill
+                src={imageSrc}
+                alt={booking.service}
+                className="object-cover"
+                sizes="80px"
+                fallbackClassName="rounded-xl"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-lg font-bold text-gray-300">
+                {booking.service.slice(0, 1).toUpperCase()}
+              </div>
+            )}
+            {booking.verified && (
+              <div className="absolute -bottom-1.5 -right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-[#083f30] shadow-lg">
+                <BadgeCheck size={14} className="text-[#eacb7f]" />
+              </div>
+            )}
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <h3 className="mb-1 line-clamp-1 font-bold text-gray-900">{booking.service}</h3>
+            <p className="mb-2 line-clamp-1 text-sm text-gray-600">{booking.provider}</p>
+
+            <div className="space-y-1.5">
+              <div className="flex min-w-0 items-center gap-1.5">
+                <Calendar size={14} className="flex-shrink-0 text-gray-400" />
+                <span className="truncate text-sm font-medium text-gray-700">{booking.date}</span>
+                <span className="text-gray-300">•</span>
+                <Clock size={14} className="flex-shrink-0 text-gray-400" />
+                <span className="truncate text-sm font-medium text-gray-700">{booking.time}</span>
+              </div>
+
+              <div className="flex min-w-0 items-center gap-1.5">
+                <MapPin size={14} className="flex-shrink-0 text-gray-400" />
+                <span className="line-clamp-1 text-sm text-gray-600">{booking.location}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-3 flex items-center justify-between gap-3 border-t border-gray-100 pt-3">
+          <div className="min-w-0">
+            <span className="text-xs text-gray-500">Booking ID</span>
+            <p className="truncate text-sm font-semibold text-gray-900">{booking.id}</p>
+          </div>
+          <div className="flex-shrink-0 text-right">
+            <span className="text-xs text-gray-500">Total</span>
+            <p className="text-lg font-bold text-[#083f30]">{formatMoney(booking.price, booking.currency)}</p>
+          </div>
+        </div>
+      </div>
+    </button>
+  );
+}
 
 export default function Bookings() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'upcoming' | 'past' | 'cancelled'>('upcoming');
+  const [activeTab, setActiveTab] = useState<BookingTab>("upcoming");
+  const { data, error, isFetching, refetch } = useFetchBookings({});
 
-  const tabs = [
-    { id: 'upcoming' as const, label: 'Upcoming', count: 3 },
-    { id: 'past' as const, label: 'Past', count: 12 },
-    { id: 'cancelled' as const, label: 'Cancelled', count: 1 },
-  ];
+  const counts = useMemo(
+    () => ({
+      upcoming: data?.upcomingBookings.length ?? 0,
+      past: data?.pastBookings.length ?? 0,
+      cancelled: data?.cancelledBookings.length ?? 0,
+    }),
+    [data]
+  );
 
-  const [upcommingBookings, setUpcommingBookings] = useState<Booking[]>([])
-  const [pastBookings, setPastBookings] = useState<Booking[]>([])
-  const [cancelledBookings, setCancelledBookings] = useState<Booking[]>([])
-
-    const { data ,refetch} = useFetchBookings({});
-  
-    useEffect(() => {
-      // Auto-focus on mount
-      if (data?.upcomingBookings) setUpcommingBookings(data?.upcomingBookings);
-  
-      if (data?.pastBookings) setPastBookings(data?.pastBookings);
-      if (data?.cancelledBookings) setCancelledBookings(data?.cancelledBookings);
-  
-    }, [data]);
-
-
-  const getBookings = () => {
-    switch (activeTab) {
-      case 'upcoming':
-        return upcommingBookings;
-      case 'past':
-        return pastBookings;
-      case 'cancelled':
-        return cancelledBookings;
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
-    const badges = {
-      confirmed: { icon: CheckCircle, text: 'Confirmed', color: 'bg-green-50 text-green-700' },
-      pending: { icon: AlertCircle, text: 'Pending', color: 'bg-yellow-50 text-yellow-700' },
-      completed: { icon: CheckCircle, text: 'Completed', color: 'bg-blue-50 text-blue-700' },
-      cancelled: { icon: XCircle, text: 'Cancelled', color: 'bg-red-50 text-red-700' },
-    };
-    return badges[status as keyof typeof badges];
-  };
-
-  const getPaymentBadge = (status: string) => {
-    const badges = {
-      paid: { text: 'Paid', color: 'bg-green-600' },
-      pending: { text: 'Payment Due', color: 'bg-yellow-600' },
-      refunded: { text: 'Refunded', color: 'bg-gray-600' },
-    };
-    return badges[status as keyof typeof badges];
-  };
-
-  const bookings = getBookings();
+  const bookings = useMemo(() => {
+    if (activeTab === "past") return data?.pastBookings ?? [];
+    if (activeTab === "cancelled") return data?.cancelledBookings ?? [];
+    return data?.upcomingBookings ?? [];
+  }, [activeTab, data]);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
-      {/* Header */}
-      <div className="bg-white px-5 pt-3 pb-4 border-b border-gray-100">
-        <div className="mb-4">
-          <h1 className="text-2xl font-bold text-gray-900">My Bookings</h1>
-          <p className="text-sm text-gray-600 mt-0.5">Manage your appointments</p>
+      <div className="sticky top-0 z-30 border-b border-gray-100 bg-white px-5 pb-4 pt-3">
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">My Bookings</h1>
+            <p className="mt-0.5 text-sm text-gray-600">Manage your appointments and booking requests</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-60"
+            aria-label="Refresh bookings"
+          >
+            {isFetching ? <Loader2 size={18} className="animate-spin" /> : <RefreshCw size={18} />}
+          </button>
         </div>
 
-        {/* Tabs */}
         <div className="flex gap-2">
-          {tabs.map(tab => (
+          {TABS.map((tab) => (
             <button
               key={tab.id}
+              type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+              className={`flex-1 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all ${
                 activeTab === tab.id
-                  ? 'bg-[#083f30] text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? "bg-[#083f30] text-white shadow-sm"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
               {tab.label}
-              {tab.count > 0 && (
-                <span className={`ml-1.5 ${activeTab === tab.id ? 'opacity-80' : 'opacity-60'}`}>
-                  ({tab.count})
-                </span>
-              )}
+              <span className={`ms-1.5 ${activeTab === tab.id ? "opacity-80" : "opacity-60"}`}>({counts[tab.id]})</span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Bookings List */}
-      {bookings.length > 0 ? (
-        <div className="px-5 py-4 space-y-3">
-          {bookings.map(booking => {
-            const statusBadge = getStatusBadge(booking.status);
-            const paymentBadge = getPaymentBadge(booking.paymentStatus);
-            const StatusIcon = statusBadge.icon;
-
-            return (
-              <div
-                key={booking.id}
-                onClick={() => navigate(`/n/app/mobile/bookings/${booking.id}`)}
-                className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer"
-              >
-                <div className="p-4">
-                  {/* Header Row */}
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <div className={`px-2.5 py-1 rounded-lg flex items-center gap-1.5 ${statusBadge.color}`}>
-                        <StatusIcon size={14} />
-                        <span className="text-xs font-semibold">{statusBadge.text}</span>
-                      </div>
-                      <div className={`px-2.5 py-1 rounded-lg ${paymentBadge.color}`}>
-                        <span className="text-xs font-semibold text-white">{paymentBadge.text}</span>
-                      </div>
-                    </div>
-                    <ChevronRight size={20} className="text-gray-400" />
-                  </div>
-
-                  {/* Main Content */}
-                  <div className="flex gap-4">
-                    {/* Image */}
-                    <div className="relative flex-shrink-0">
-                      <img 
-                        src={booking.image}
-                        alt={booking.service}
-                        className="w-20 h-20 rounded-xl object-cover"
-                      />
-                      {booking.verified && (
-                        <div className="absolute -bottom-1.5 -right-1.5 w-6 h-6 bg-[#083f30] rounded-full flex items-center justify-center shadow-lg">
-                          <BadgeCheck size={14} className="text-[#eacb7f]" />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Details */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-gray-900 mb-1 line-clamp-1">
-                        {booking.service}
-                      </h3>
-                      <p className="text-sm text-gray-600 mb-2 line-clamp-1">
-                        {booking.provider}
-                      </p>
-
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-1.5">
-                          <Calendar size={14} className="text-gray-400 flex-shrink-0" />
-                          <span className="text-sm text-gray-700 font-medium">{booking.date}</span>
-                          <span className="text-gray-300">•</span>
-                          <Clock size={14} className="text-gray-400 flex-shrink-0" />
-                          <span className="text-sm text-gray-700 font-medium">{booking.time}</span>
-                        </div>
-
-                        <div className="flex items-center gap-1.5">
-                          <MapPin size={14} className="text-gray-400 flex-shrink-0" />
-                          <span className="text-sm text-gray-600 line-clamp-1">{booking.location}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Footer */}
-                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                    <div>
-                      <span className="text-xs text-gray-500">Booking ID</span>
-                      <p className="text-sm font-semibold text-gray-900">{booking.id}</p>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-xs text-gray-500">Total</span>
-                      <p className="text-lg font-bold text-[#083f30]">
-                        ${booking.price.toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+      {error ? (
+        <div className="px-5 py-12 text-center">
+          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-red-50">
+            <AlertCircle size={32} className="text-red-500" />
+          </div>
+          <h3 className="mb-2 font-bold text-gray-900">Bookings could not be loaded</h3>
+          <p className="mx-auto mb-6 max-w-sm text-sm text-gray-600">{error.detail || error.title || "Please refresh and try again."}</p>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="rounded-xl bg-[#083f30] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#0a5a44]"
+          >
+            Try Again
+          </button>
+        </div>
+      ) : isFetching && !data ? (
+        <div className="space-y-3 px-5 py-4">
+          {[1, 2, 3].map((item) => (
+            <div key={item} className="h-44 animate-pulse rounded-2xl border border-gray-100 bg-white shadow-sm" />
+          ))}
+        </div>
+      ) : bookings.length > 0 ? (
+        <div className="space-y-3 px-5 py-4">
+          {bookings.map((booking) => (
+            <BookingCard
+              key={booking.id}
+              booking={booking}
+              onOpen={() => navigate(`/n/app/mobile/bookings/${booking.id}`)}
+            />
+          ))}
         </div>
       ) : (
-        /* Empty State */
         <div className="px-5 py-16 text-center">
-          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
             <CalendarX size={32} className="text-gray-400" />
           </div>
-          <h3 className="font-bold text-gray-900 mb-2">No {activeTab} bookings</h3>
-          <p className="text-gray-600 mb-6 max-w-sm mx-auto">
-            {activeTab === 'upcoming' 
-              ? "You don't have any upcoming appointments. Start exploring our services!"
-              : activeTab === 'past'
-              ? "You haven't completed any bookings yet."
-              : "You don't have any cancelled bookings."}
+          <h3 className="mb-2 font-bold text-gray-900">No {activeTab} bookings</h3>
+          <p className="mx-auto mb-6 max-w-sm text-gray-600">
+            {activeTab === "upcoming"
+              ? "You do not have any upcoming appointments. Start exploring available services."
+              : activeTab === "past"
+                ? "Completed bookings will appear here after your appointments are finished."
+                : "Cancelled bookings will appear here when a booking is cancelled."}
           </p>
-          {activeTab === 'upcoming' && (
+          {activeTab === "upcoming" && (
             <button
-              onClick={() => navigate('/app/explore')}
-              className="px-6 py-3 bg-[#083f30] text-white rounded-xl font-semibold hover:bg-[#0a5a44] transition-colors"
+              type="button"
+              onClick={() => navigate("/n/app/mobile/explore")}
+              className="rounded-xl bg-[#083f30] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#0a5a44]"
+              style={{ backgroundColor: BRAND_GREEN }}
             >
               Explore Services
             </button>

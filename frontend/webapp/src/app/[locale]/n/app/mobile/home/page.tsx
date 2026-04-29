@@ -39,7 +39,7 @@ const fallbackQuickSearches = [
   'Gym Membership',
 ];
 
-async function getLocaleFromParams(params: PageProps['params']) {
+export async function getLocaleFromParams(params: PageProps['params']) {
   const resolved = await params;
   return String((resolved as { locale?: string } | undefined)?.locale || 'en-US');
 }
@@ -322,15 +322,29 @@ function ExploreNearbySection({
 }
 
 function PremiumPackagesSection({ section }: { section: HomeManagedSection }) {
+  const mediaUrl = resolveHomeMediaUrl(section.imageUrl);
+
   return (
     <section className="px-5 pb-8">
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#083f30] to-[#0a5a44] p-6 shadow-lg">
+      <div className="relative min-h-[210px] overflow-hidden rounded-2xl bg-gradient-to-br from-[#083f30] to-[#0a5a44] p-6 shadow-lg">
+        {mediaUrl ? (
+          <ImageWithFallback
+            fill
+            src={mediaUrl}
+            alt={section.title || 'Premium packages'}
+            sizes="100vw"
+            className="object-cover"
+          />
+        ) : null}
+        {mediaUrl ? (
+          <div className="absolute inset-0 bg-gradient-to-br from-[#083f30]/90 via-[#083f30]/75 to-[#0a5a44]/45" />
+        ) : null}
         <div className="absolute right-0 top-0 -mr-8 -mt-8 h-32 w-32 rounded-full bg-[#eacb7f]/10" />
         <div className="absolute bottom-0 right-0 -mb-12 mr-6 h-24 w-24 rounded-full bg-[#eacb7f]/10" />
 
         <div className="relative z-10">
           <div className="mb-3 flex items-center gap-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#eacb7f]/20">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#eacb7f]/20 backdrop-blur-sm">
               <Sparkles size={24} className="text-[#eacb7f]" />
             </div>
             <div>
@@ -341,7 +355,7 @@ function PremiumPackagesSection({ section }: { section: HomeManagedSection }) {
 
           <HomeLexicalDescription
             content={section.description}
-            className="mb-4 text-sm leading-relaxed text-white/90 [&_p]:text-white/90"
+            className="mb-4 max-w-[85%] text-sm leading-relaxed text-white/90 [&_p]:text-white/90"
             fallback="Bundle services with accommodation, transfers, and aftercare when packages are available for your destination."
           />
 
@@ -375,7 +389,7 @@ function LoyaltyClubSection({ section, locale }: { section: HomeManagedSection; 
             loading="lazy"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#eacb7f]/95 to-[#e0b654]/90" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#eacb7f]/90 via-[#eacb7f]/75 to-[#e0b654]/60" />
 
         <div className="relative z-10 p-6">
           <div className="flex items-start gap-4">

@@ -4,7 +4,7 @@ This version keeps the approved prototype layout and card structure, and only ch
 
 ## Files
 
-- `Explore.tsx` — server wrapper that reads search params and fetches data
+- `page.tsx` — server wrapper that reads search params and fetches data
 - `ExploreClient.tsx` — the approved UI, preserved as the interactive client component
 - `explore.data.ts` — postgres.js queries and filter parsing
 - `explore.actions.ts` — server action for favorites
@@ -18,7 +18,7 @@ This version keeps the approved prototype layout and card structure, and only ch
 - styling approach
 - icon usage
 - top header/search/filter/category strip
-- featured/sponsored/trending/category sections
+- featured/sponsored/trending sections
 
 ## What changed underneath
 
@@ -28,17 +28,27 @@ This version keeps the approved prototype layout and card structure, and only ch
 - language filters use `category.provider_languages` and provider language arrays
 - favorites use `customer.favorites`
 - search uses provider/service `search_vector` plus translated name fallback
+- the bottom browse grid now shows provider types from `category.provider_types`
+- the previous bottom category grid is still kept in `ExploreClient.tsx` as a JSX comment for rollback
+
+## Fixes in this build
+
+- Bottom provider-type `View All` now expands/collapses the provider-type grid instead of clearing the selected provider type filter.
+- Provider type query no longer limits the data to 8 rows, so `View All` can reveal all active provider types.
+- Featured, trending, and sponsored rows are deduped by `id` before rendering.
+- Location joins now use `left join lateral ... limit 1` to prevent duplicated provider rows when `category.locations` has repeated codes.
+- React keys are namespaced to avoid collisions between sections.
 
 ## Important integration notes
 
-1. Update `@/lib/postgres` import if your postgres singleton lives elsewhere.
+1. Update `@/config/database/db` import if your postgres singleton lives elsewhere.
 2. Replace `resolveCurrentCustomerId()` in `explore.data.ts` with your real auth/session logic.
 3. This package assumes routes like:
-   - `/app/explore`
+   - `/app/mobile/explore` or your localized equivalent
    - `/app/search`
    - `/app/map`
    - `/app/clinic/[id]`
    - `/app/treatment/[id]`
-   - `/app/categories`
+   - `/app/clinics`
 4. The search button visually stays the same. It routes to `/app/search` while preserving current filter query params.
-5. Category tiles were kept visually similar, but because the schema does not provide a guaranteed image per category in the prototype format, they use gradient backgrounds instead of introducing fake assets.
+5. Provider type images use `image_url`, then media library `file_url` when `image_url` stores a media id, then `icon_url`, then `/placeholder.svg`.

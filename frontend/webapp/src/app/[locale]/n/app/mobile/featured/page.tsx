@@ -3,17 +3,27 @@ import { useFetchExplore } from '@/features/service-providers/api/client/fetch-e
 import { CpCategoryGroup, ExploreCategory } from '@/features/service-providers/types';
 import { Link, useRouter } from '@/i18n/navigation';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Suspense,   } from 'react';
+import { Suspense, } from 'react';
 import HomeFeaturedServicesSuspenseBoundary from '../home/components/service-providers';
 import { PageProps } from "@/types/next";
+import { getLocaleFromParams } from '../home/page';
+import { homeSearchParamsCache } from '@/features/home/types';
+import { getFeaturedHomeServices } from '@/features/home/api/server/get-home-page';
 
-export default function CategoryBrowser(
+export default async function CategoryBrowser(
   { params, searchParams }: PageProps
 ) {
   // const router = useRouter();
 
+  const locale = await getLocaleFromParams(params);
+  const searchParamsData = await searchParams;
+  const { countryCode, cityCode } = homeSearchParamsCache.parse(searchParamsData);
 
-  
+  const queryInput = { locale, countryCode, cityCode };
+  const featuredServices = await getFeaturedHomeServices(queryInput, 999);
+
+
+
 
 
   return (
@@ -21,13 +31,13 @@ export default function CategoryBrowser(
       {/* Header */}
       <div className="sticky top-0 z-40 bg-white border-b border-gray-100 px-5 pt-3 pb-4">
         <div className="flex items-center gap-3">
-         <Link
+          <Link
             href="/n/app/mobile/home"
             className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
           >
             <ChevronLeft size={24} className="text-gray-700" />
-          </Link> 
-          
+          </Link>
+
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Featured Services</h1>
             <p className="text-sm text-gray-600">Browse all services</p>
@@ -38,13 +48,14 @@ export default function CategoryBrowser(
       {/* Category Groups */}
       <div className="px-5 py-6 space-y-8">
         <div className="grid grid-cols-4 gap-3">
-        <Suspense fallback={<div>hi</div>} >
-                  <HomeFeaturedServicesSuspenseBoundary
-                    params={params}
-                    searchParams={searchParams}
-                  />
-                </Suspense> 
-      </div>
+          <Suspense fallback={<div>hi</div>} >
+            <HomeFeaturedServicesSuspenseBoundary
+              services={featuredServices}
+              locale={locale}
+              selectedCountryCode={countryCode}
+            />
+          </Suspense>
+        </div>
       </div>
 
       {/* CTA Banner */}
@@ -57,8 +68,8 @@ export default function CategoryBrowser(
             <p className="text-white/90 text-sm mb-4">
               Use our smart search to find exactly what you need
             </p>
-            <Link 
-             href='/n/app/mobile/search'
+            <Link
+              href='/n/app/mobile/search'
               className="bg-[#eacb7f] text-[#083f30] px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#e0b654] transition-all shadow-lg"
             >
               Search Now

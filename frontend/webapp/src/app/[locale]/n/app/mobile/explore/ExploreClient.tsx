@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { env } from "@/config/env/client";
+import { hasLexicalContent, LexicalRenderer } from "@/components/editor/lexical-renderer";
 import {
   Search,
   SlidersHorizontal,
@@ -20,11 +22,14 @@ import {
   Globe,
 } from "lucide-react";
 
+import { ImageWithFallback } from "../../components/figma/ImageWithFallback";
+
 import FavoriteButton from "./FavoriteButton";
 import type {
   ExploreCategory,
   ExploreFeaturedProvider,
   ExploreFiltersInput,
+  ExploreProviderType,
   ExploreSponsoredProvider,
   ExploreTrendingService,
 } from "./explore.data";
@@ -39,6 +44,7 @@ type FilterFormValues = {
 
 type OptimisticUiFilters = {
   categoryId: string;
+  providerTypeId: string;
   maxPrice: number;
   minRating: number;
   verifiedOnly: boolean;
@@ -51,12 +57,16 @@ function buildExploreQuery(next: ExploreFiltersInput) {
 
   if (next.q) params.set("q", next.q);
   if (next.categoryId && next.categoryId !== "all") params.set("categoryId", next.categoryId);
+  if (next.providerTypeId && next.providerTypeId !== "all") {
+    params.set("providerTypeId", next.providerTypeId);
+  }
   if (next.minPrice > 0) params.set("minPrice", String(next.minPrice));
   if (next.maxPrice > 0 && next.maxPrice !== 5000) params.set("maxPrice", String(next.maxPrice));
   if (next.minRating > 0) params.set("minRating", String(next.minRating));
   if (next.verifiedOnly) params.set("verifiedOnly", "1");
   if (next.languages.length > 0) params.set("languages", next.languages.join(","));
   if (next.responseTime !== "any") params.set("responseTime", next.responseTime);
+  if (next.sort && next.sort !== "recommended") params.set("sort", next.sort);
 
   const query = params.toString();
   return query ? `/n/app/mobile/explore?${query}` : "/n/app/mobile/explore";
@@ -74,6 +84,18 @@ function formatPrice(value: number | null, currency: string = "USD") {
   } catch {
     return `$${value.toLocaleString("en")}`;
   }
+}
+
+function resolveMediaSrc(src: string | null | undefined) {
+  const value = src?.trim();
+
+  if (!value || value === "/placeholder.svg") return "/placeholder.svg";
+  if (value.startsWith("data:") || value.startsWith("blob:") || /^https?:\/\//i.test(value)) {
+    return value;
+  }
+
+  const baseUrl = env.NEXT_PUBLIC_FILES_URL?.replace(/\/$/, "");
+  return baseUrl ? `${baseUrl}/${value.replace(/^\/+/, "")}` : value;
 }
 
 function navigateSmooth(
@@ -144,6 +166,7 @@ function ExplorePendingOverlay() {
 export default function ExploreClient({
   customerId,
   categories,
+  providerTypes,
   featuredProviders,
   trendingServices,
   sponsoredProviders,
@@ -152,6 +175,7 @@ export default function ExploreClient({
 }: {
   customerId: string | null;
   categories: ExploreCategory[];
+  providerTypes: ExploreProviderType[];
   featuredProviders: ExploreFeaturedProvider[];
   trendingServices: ExploreTrendingService[];
   sponsoredProviders: ExploreSponsoredProvider[];
@@ -161,10 +185,12 @@ export default function ExploreClient({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [showFilters, setShowFilters] = useState(false);
+  const [showAllProviderTypes, setShowAllProviderTypes] = useState(false);
 
   const initialUiFilters = useMemo<OptimisticUiFilters>(
     () => ({
       categoryId: initialFilters.categoryId ?? "all",
+      providerTypeId: initialFilters.providerTypeId ?? "all",
       maxPrice: initialFilters.maxPrice || 5000,
       minRating: initialFilters.minRating || 0,
       verifiedOnly: initialFilters.verifiedOnly,
@@ -220,6 +246,7 @@ export default function ExploreClient({
     activeUiFilters.minRating > 0 ||
     activeUiFilters.languages.length > 0 ||
     activeUiFilters.responseTime !== "any" ||
+    activeUiFilters.providerTypeId !== "all" ||
     activeUiFilters.maxPrice !== 5000;
 
   const applyCategory = (categoryId: string) => {
@@ -236,6 +263,33 @@ export default function ExploreClient({
       buildExploreQuery({
         ...initialFilters,
         categoryId: nextCategoryId === "all" ? null : nextCategoryId,
+        providerTypeId:
+          activeUiFilters.providerTypeId === "all" ? null : activeUiFilters.providerTypeId,
+        minPrice: 0,
+        maxPrice: activeUiFilters.maxPrice,
+        minRating: activeUiFilters.minRating,
+        verifiedOnly: activeUiFilters.verifiedOnly,
+        languages: activeUiFilters.languages,
+        responseTime: activeUiFilters.responseTime,
+      }),
+    );
+  };
+
+  const applyProviderType = (providerTypeId: string) => {
+    const nextProviderTypeId = providerTypeId === "all" ? "all" : providerTypeId;
+
+    setUiFilters((prev) => ({
+      ...prev,
+      providerTypeId: nextProviderTypeId,
+    }));
+
+    navigateSmooth(
+      startTransition,
+      router,
+      buildExploreQuery({
+        ...initialFilters,
+        categoryId: activeUiFilters.categoryId === "all" ? null : activeUiFilters.categoryId,
+        providerTypeId: nextProviderTypeId === "all" ? null : nextProviderTypeId,
         minPrice: 0,
         maxPrice: activeUiFilters.maxPrice,
         minRating: activeUiFilters.minRating,
@@ -249,6 +303,7 @@ export default function ExploreClient({
   const applyFilters = form.handleSubmit((values) => {
     const nextUiFilters: OptimisticUiFilters = {
       categoryId: activeUiFilters.categoryId,
+      providerTypeId: activeUiFilters.providerTypeId,
       maxPrice: values.maxPrice,
       minRating: values.minRating,
       verifiedOnly: values.verifiedOnly,
@@ -265,6 +320,8 @@ export default function ExploreClient({
       buildExploreQuery({
         ...initialFilters,
         categoryId: nextUiFilters.categoryId === "all" ? null : nextUiFilters.categoryId,
+        providerTypeId:
+          nextUiFilters.providerTypeId === "all" ? null : nextUiFilters.providerTypeId,
         minPrice: 0,
         maxPrice: nextUiFilters.maxPrice,
         minRating: nextUiFilters.minRating,
@@ -278,6 +335,7 @@ export default function ExploreClient({
   const clearFilters = () => {
     const cleared: OptimisticUiFilters = {
       categoryId: activeUiFilters.categoryId,
+      providerTypeId: activeUiFilters.providerTypeId,
       maxPrice: 5000,
       minRating: 0,
       verifiedOnly: false,
@@ -301,6 +359,7 @@ export default function ExploreClient({
       buildExploreQuery({
         ...initialFilters,
         categoryId: cleared.categoryId === "all" ? null : cleared.categoryId,
+        providerTypeId: cleared.providerTypeId === "all" ? null : cleared.providerTypeId,
         minPrice: 0,
         maxPrice: 5000,
         minRating: 0,
@@ -312,6 +371,9 @@ export default function ExploreClient({
   };
 
   const searchLabel = initialFilters.q ? initialFilters.q : "Search services...";
+  const visibleProviderTypes = showAllProviderTypes
+    ? providerTypes
+    : providerTypes.slice(0, 4);
 
   return (
     <div className="relative min-h-screen bg-white pb-24">
@@ -359,7 +421,7 @@ export default function ExploreClient({
         <div className="flex gap-2 overflow-x-auto hide-scrollbar mt-3 pb-1 -mx-5 px-5">
           {categories.map((cat) => (
             <button
-              key={cat.id}
+              key={`category-${cat.id}`}
               onClick={() => applyCategory(cat.id)}
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
                 activeUiFilters.categoryId === cat.id
@@ -398,13 +460,17 @@ export default function ExploreClient({
         <div className="space-y-3 px-5">
           {featuredProviders.map((provider) => (
             <div
-              key={provider.id}
+              key={`featured-provider-${provider.id}`}
               onClick={() => router.push(`/app/clinic/${provider.id}`)}
               className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all cursor-pointer"
             >
               <div className="flex gap-4 p-4">
                 <div className="relative flex-shrink-0">
-                  <img src={provider.image} alt={provider.name} className="w-24 h-24 rounded-xl object-cover" />
+                  <ImageWithFallback
+                    src={resolveMediaSrc(provider.image)}
+                    alt={provider.name}
+                    className="w-24 h-24 rounded-xl object-cover"
+                  />
                   {provider.verified && (
                     <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 bg-[#083f30] rounded-full flex items-center justify-center shadow-lg">
                       <BadgeCheck size={16} className="text-[#eacb7f]" />
@@ -437,9 +503,9 @@ export default function ExploreClient({
                   </div>
 
                   <div className="flex gap-1.5 flex-wrap mb-2">
-                    {provider.specialties.slice(0, 2).map((specialty) => (
+                    {provider.specialties.slice(0, 2).map((specialty, specialtyIndex) => (
                       <span
-                        key={specialty}
+                        key={`specialty-${provider.id}-${specialty}-${specialtyIndex}`}
                         className="text-xs px-2 py-0.5 bg-green-50 text-green-700 rounded-md font-medium"
                       >
                         {specialty}
@@ -474,8 +540,8 @@ export default function ExploreClient({
       {sponsoredProviders[0] && (
         <div className="px-5 py-4">
           <div className="relative rounded-2xl overflow-hidden shadow-lg">
-            <img
-              src={sponsoredProviders[0].image}
+            <ImageWithFallback
+              src={resolveMediaSrc(sponsoredProviders[0].image)}
               alt="Sponsored"
               className="absolute inset-0 w-full h-full object-cover"
             />
@@ -517,12 +583,16 @@ export default function ExploreClient({
         <div className="flex gap-4 overflow-x-auto hide-scrollbar px-5 pb-2">
           {trendingServices.map((service) => (
             <div
-              key={service.id}
+              key={`trending-service-${service.id}`}
               onClick={() => router.push(`/app/treatment/${service.id}`)}
               className="flex-none w-64 bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer border border-gray-100"
             >
               <div className="relative aspect-[16/10]">
-                <img src={service.image} alt={service.name} className="w-full h-full object-cover" />
+                <ImageWithFallback
+                  src={resolveMediaSrc(service.image)}
+                  alt={service.name}
+                  className="w-full h-full object-cover"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
                 {service.growth && (
@@ -574,6 +644,82 @@ export default function ExploreClient({
 
       <div className="px-5 py-6">
         <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Browse Provider Types</h2>
+            <p className="text-sm text-gray-600 mt-1">Choose the kind of provider you need</p>
+          </div>
+          {providerTypes.length > 4 && (
+            <button
+              type="button"
+              onClick={() => setShowAllProviderTypes((current) => !current)}
+              className="text-sm font-semibold text-[#083f30] hover:underline flex items-center gap-1"
+            >
+              {showAllProviderTypes ? "Show Less" : "View All"}
+              <ChevronRight
+                size={16}
+                className={showAllProviderTypes ? "rotate-90 transition-transform" : "transition-transform"}
+              />
+            </button>
+          )}
+        </div>
+
+        {providerTypes.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-5 text-sm text-gray-500">
+            No provider types are available yet.
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            {visibleProviderTypes.map((providerType) => (
+              <article
+                key={`provider-type-${providerType.id}`}
+                role="button"
+                tabIndex={0}
+                onClick={() => applyProviderType(providerType.id)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    applyProviderType(providerType.id);
+                  }
+                }}
+                className={`relative cursor-pointer rounded-2xl overflow-hidden aspect-[4/3] group shadow-sm hover:shadow-xl transition-all ${
+                  activeUiFilters.providerTypeId === providerType.id ? "ring-2 ring-[#eacb7f]" : ""
+                }`}
+              >
+                <ImageWithFallback
+                  src={resolveMediaSrc(providerType.image)}
+                  alt={providerType.label}
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/5" />
+
+                <div className="relative z-10 flex h-full flex-col justify-end p-4">
+                  <h3 className="text-white font-bold text-lg mb-1 line-clamp-1">
+                    {providerType.label}
+                  </h3>
+                  <div className="mb-2 line-clamp-2 text-xs leading-5 text-white/90 [&_*]:text-white/90">
+                    {providerType.description && hasLexicalContent(providerType.description) ? (
+                      <LexicalRenderer
+                        content={providerType.description}
+                        className="line-clamp-2 text-white/90"
+                      />
+                    ) : (
+                      <p className="line-clamp-2 text-white/90">-</p>
+                    )}
+                  </div>
+                  <p className="text-white/90 text-xs">{providerType.count} providers</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/*
+        Previous bottom category browse grid kept intentionally.
+        Boss may ask to switch this section back from provider types to categories.
+
+      <div className="px-5 py-6">
+        <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-gray-900">Browse Categories</h2>
           <button
             onClick={() => router.push("/app/categories")}
@@ -590,7 +736,7 @@ export default function ExploreClient({
             .slice(0, 4)
             .map((cat) => (
               <button
-                key={cat.id}
+                key={`category-${cat.id}`}
                 onClick={() => applyCategory(cat.id)}
                 className="relative rounded-2xl overflow-hidden aspect-[4/3] group shadow-sm hover:shadow-xl transition-all"
               >
@@ -605,6 +751,7 @@ export default function ExploreClient({
             ))}
         </div>
       </div>
+      */}
 
       {showFilters && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-end animate-in fade-in duration-200">

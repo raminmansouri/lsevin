@@ -702,34 +702,44 @@ export interface SearchResultsResponse {
 export interface SearchResultsFilter {
   id: string;
   label: string;
+  count?: number;
 }
 
 export interface SearchResultsCategory {
   id: string;
   label: string;
+  count?: number;
 }
+
 export interface SearchResultsItem {
-  specialties:string[],
-  id: number,
-  type: string,
-  name: string,
-  provider: string,
-  image: string
-  location: string,
-  rating: number,
-  reviews: number,
-  price: number,
-  originalPrice: number,
-  verified: boolean,
-  tags: string[]
+  id: string;
+  type: "service" | "provider" | "specialist";
+  name: string;
+  provider: string;
+  image: string;
+  location: string;
+  rating: number;
+  reviews: number;
+  price: number;
+  originalPrice?: number | null;
+  currency: string;
+  verified: boolean;
+  specialties: string[];
+  tags: string[];
+  href: string;
 }
+
 export interface SearchHistoryTrendingSearchVm {
   query: string;
   trend: string;
 }
+
 export interface SearchHistoryPopularCategoryVm {
+  id: string;
   label: string;
   icon: string;
+  image?: string | null;
+  count?: number;
 }
 
 export interface SearchHistoryResponse {

@@ -21,6 +21,7 @@ export default async function Explore({
     <ExploreClient
       customerId={data.customerId}
       categories={data.categories}
+      providerTypes={data.providerTypes}
       featuredProviders={data.featuredProviders}
       trendingServices={data.trendingServices}
       sponsoredProviders={data.sponsoredProviders}
