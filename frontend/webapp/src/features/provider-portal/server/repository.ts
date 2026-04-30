@@ -11,15 +11,32 @@ import type {
   OfferRow,
   OperatingHourRow,
   PayoutAccountRow,
+  ProviderAddonOption,
   ProviderApplication,
+  ProviderCertificationRow,
+  ProviderPolicyRow,
+  ProviderPolicyTypeOption,
   ProviderPortalRole,
+  ProviderProfileRelatedRecords,
+  ProviderServiceRelatedRecords,
   ProviderServiceRow,
+  ProviderStaffRelatedRecords,
   ProviderSummary,
   ProviderTypeOption,
   ProviderWorkspace,
   ReviewRow,
+  ServiceAddonSettingRow,
   ServiceDefinitionOption,
+  ServiceFaqRow,
+  ServiceGalleryRow,
+  ServiceIncludedRow,
+  ServiceProcessRow,
+  StaffAvailabilityRow,
+  StaffCertificationRow,
+  StaffEducationRow,
+  StaffGalleryRow,
   StaffRow,
+  StaffServiceRow,
   SupportTicketRow,
 } from "../types";
 
@@ -190,7 +207,6 @@ export async function requireProviderPermission(
   providerId: string,
   permission: ProviderPortalPermission
 ): Promise<ProviderPortalRole> {
-  return;
   const role = await getMembershipRole(userId, providerId);
   if (!role) throw new Error("You do not have access to this provider.");
   if (!hasPortalPermission(role, permission)) throw new Error("You do not have permission to perform this action.");
@@ -356,119 +372,6 @@ export async function createProviderApplication(userId: string, input: {
     returning id::text
   `;
   return rows[0].id;
-}
-
-export async function approveApplication(adminUserId: string, applicationId: string, reviewNote?: string) {
-  const rows = await sql<any[]>`
-    select *
-    from provider_portal.onboarding_applications
-    where id = ${applicationId}::uuid
-    for update
-  `;
-  const app = rows[0];
-  if (!app) throw new Error("Application was not found.");
-  if (app.status === "approved" && app.service_provider_id) return String(app.service_provider_id);
-
-  const payload = app.submission_payload || {};
-  const country = String(payload.country || "IR").slice(0, 15);
-  const city = String(payload.city || "Tehran").slice(0, 15);
-  const displayName = app.display_name_translations || {};
-  const description = {};
-  const phoneCode = String(app.phone_number_country_code || "+98").slice(0, 3);
-  const phone = String(app.phone_number || "").slice(0, 15);
-  const email = app.email || "";
-
-  const providerRows = await sql<{ id: string }[]>`
-    insert into category.service_providers (
-      id,
-      name_translations,
-      description_translations,
-      is_active,
-      provider_type_id,
-      city,
-      country,
-      detail_translations,
-      street_translations,
-      email,
-      phone_number_country_code,
-      phone_number,
-      create_date,
-      last_modified_date,
-      timezone_id
-    ) values (
-      public.uuid_generate_v4(),
-      ${sql.json(displayName)}::jsonb,
-      ${sql.json(description)}::jsonb,
-      true,
-      ${app.provider_type_id}::uuid,
-      ${city},
-      ${country},
-      '{}'::jsonb,
-      '{}'::jsonb,
-      ${email},
-      ${phoneCode},
-      ${phone},
-      now(),
-      now(),
-      'UTC'
-    )
-    returning id::text
-  `;
-
-  const providerId = providerRows[0].id;
-
-  await sql`
-    insert into provider_portal.provider_members (
-      service_provider_id,
-      user_id,
-      role,
-      is_default,
-      metadata,
-      create_date,
-      last_modified_date
-    )
-    select
-      ${providerId}::uuid,
-      ${app.applicant_user_id}::uuid,
-      'owner',
-      true,
-      '{}'::jsonb,
-      now(),
-      now()
-    where not exists (
-      select 1 from provider_portal.provider_members
-      where service_provider_id = ${providerId}::uuid
-        and user_id = ${app.applicant_user_id}::uuid
-    )
-  `;
-
-  await sql`
-    update provider_portal.onboarding_applications
-    set
-      status = 'approved',
-      service_provider_id = ${providerId}::uuid,
-      reviewed_by = ${adminUserId}::uuid,
-      reviewed_at = now(),
-      internal_note = nullif(${reviewNote || ""}, ''),
-      last_modified_date = now()
-    where id = ${applicationId}::uuid
-  `;
-
-  return providerId;
-}
-
-export async function rejectApplication(adminUserId: string, applicationId: string, reviewReason: string) {
-  await sql`
-    update provider_portal.onboarding_applications
-    set
-      status = 'rejected',
-      reviewed_by = ${adminUserId}::uuid,
-      reviewed_at = now(),
-      review_reason = ${reviewReason},
-      last_modified_date = now()
-    where id = ${applicationId}::uuid
-  `;
-  return true;
 }
 
 export async function updateProviderProfile(userId: string, input: any) {
@@ -1289,6 +1192,951 @@ export async function updateSupportTicketStatus(userId: string, input: any) {
     set status = ${input.status}, last_modified_date = now()
     where id = ${input.ticketId}::uuid
       and service_provider_id = ${input.providerId}::uuid
+  `;
+  return true;
+}
+
+export async function listProviderProfileRelatedRecords(
+  userId: string,
+  providerId: string,
+  locale: string
+): Promise<ProviderProfileRelatedRecords> {
+  await requireProviderPermission(userId, providerId, "viewDashboard");
+  const lang = safeLocale(locale);
+
+  const [certifications, policies, policyTypes] = await Promise.all([
+    sql<ProviderCertificationRow[]>`
+      select
+        id::text,
+        name,
+        coalesce(is_verified, false) as "isVerified"
+      from category.provider_certifications
+      where service_provider_id = ${providerId}::uuid
+      order by name asc
+    `,
+    sql<ProviderPolicyRow[]>`
+      select
+        pp.id::text,
+        pp.type_translations as type,
+        ${translationExpr(sql`pp.type_translations`, lang)} as "displayType",
+        pp.description_translations as description,
+        pp.provider_policy_type_id::text as "providerPolicyTypeId"
+      from category.provider_policies pp
+      where pp.service_provider_id = ${providerId}::uuid
+      order by pp.create_date desc
+    `,
+    sql<ProviderPolicyTypeOption[]>`
+      select
+        ppt.id::text,
+        ppt.code,
+        ${translationExpr(sql`ppt.name_translations`, lang)} as label
+      from category.provider_policy_types ppt
+      where ppt.is_active = true
+      order by ppt.display_order asc, label asc
+    `,
+  ]);
+
+  return { certifications, policies, policyTypes };
+}
+
+export async function saveProviderCertification(userId: string, input: any) {
+  await requireProviderPermission(userId, input.providerId, "manageProfile");
+
+  if (input.certificationId) {
+    await sql`
+      update category.provider_certifications
+      set name = ${input.name}
+      where id = ${input.certificationId}::uuid
+        and service_provider_id = ${input.providerId}::uuid
+        and coalesce(is_verified, false) = false
+    `;
+    return input.certificationId;
+  }
+
+  const rows = await sql<{ id: string }[]>`
+    insert into category.provider_certifications (
+      service_provider_id,
+      name,
+      is_verified
+    ) values (
+      ${input.providerId}::uuid,
+      ${input.name},
+      false
+    )
+    returning id::text
+  `;
+  return rows[0].id;
+}
+
+export async function deleteProviderCertification(userId: string, providerId: string, certificationId: string) {
+  await requireProviderPermission(userId, providerId, "manageProfile");
+  await sql`
+    delete from category.provider_certifications
+    where id = ${certificationId}::uuid
+      and service_provider_id = ${providerId}::uuid
+      and coalesce(is_verified, false) = false
+  `;
+  return true;
+}
+
+export async function saveProviderPolicy(userId: string, input: any) {
+  await requireProviderPermission(userId, input.providerId, "manageProfile");
+
+  const type = translationFromFlat(input.typeEn, input.typeFa);
+  const description = translationFromFlat(input.descriptionEn, input.descriptionFa);
+
+  if (input.policyId) {
+    await sql`
+      update category.provider_policies
+      set
+        type_translations = ${sql.json(type)}::jsonb,
+        description_translations = ${sql.json(description)}::jsonb,
+        provider_policy_type_id = ${input.providerPolicyTypeId || null}::uuid,
+        last_modified_date = now()
+      where id = ${input.policyId}::uuid
+        and service_provider_id = ${input.providerId}::uuid
+    `;
+    return input.policyId;
+  }
+
+  const rows = await sql<{ id: string }[]>`
+    insert into category.provider_policies (
+      id,
+      type_translations,
+      description_translations,
+      service_provider_id,
+      provider_policy_type_id,
+      create_date,
+      last_modified_date
+    ) values (
+      public.uuid_generate_v4(),
+      ${sql.json(type)}::jsonb,
+      ${sql.json(description)}::jsonb,
+      ${input.providerId}::uuid,
+      ${input.providerPolicyTypeId || null}::uuid,
+      now(),
+      now()
+    )
+    returning id::text
+  `;
+  return rows[0].id;
+}
+
+export async function deleteProviderPolicy(userId: string, providerId: string, policyId: string) {
+  await requireProviderPermission(userId, providerId, "manageProfile");
+  await sql`
+    delete from category.provider_policies
+    where id = ${policyId}::uuid
+      and service_provider_id = ${providerId}::uuid
+  `;
+  return true;
+}
+
+export async function listProviderServiceRelatedRecords(
+  userId: string,
+  providerId: string,
+  locale: string
+): Promise<ProviderServiceRelatedRecords> {
+  await requireProviderPermission(userId, providerId, "viewDashboard");
+  const lang = safeLocale(locale);
+
+  const [serviceGallery, addonSettings, addonOptions, included, process, faqs] = await Promise.all([
+    sql<ServiceGalleryRow[]>`
+      select
+        psgi.id::text,
+        psgi.provider_service_id::text as "providerServiceId",
+        ${translationExpr(sql`ps.display_name_translations`, lang)} as "serviceName",
+        psgi.title_translations as title,
+        ${translationExpr(sql`psgi.title_translations`, lang)} as "displayTitle",
+        psgi.description_translations as description,
+        psgi.url,
+        psgi.media_type as "mediaType",
+        psgi.display_order::int as "displayOrder",
+        psgi.is_primary as "isPrimary"
+      from category.provider_service_gallery_items psgi
+      join category.provider_services ps on ps.id = psgi.provider_service_id
+      where ps.service_provider_id = ${providerId}::uuid
+      order by psgi.display_order asc, psgi.create_date desc
+    `,
+    sql<ServiceAddonSettingRow[]>`
+      select
+        ps.id::text as "providerServiceId",
+        a.id as "addonId",
+        ${translationExpr(sql`ps.display_name_translations`, lang)} as "serviceName",
+        a.name as "addonName",
+        coalesce(a.price, 0)::float8 as "defaultPrice",
+        a.currency_code as "defaultCurrencyCode",
+        psas.custom_price::float8 as "customPrice",
+        coalesce(psas.is_enabled, false) as "isEnabled"
+      from provider_portal.provider_service_addon_settings psas
+      join category.provider_services ps on ps.id = psas.provider_service_id
+      join category.addons a on a.id = psas.addon_id
+      where ps.service_provider_id = ${providerId}::uuid
+      order by "serviceName" asc, "addonName" asc
+    `,
+    sql<ProviderAddonOption[]>`
+      select
+        a.id,
+        a.name,
+        coalesce(a.price, 0)::float8 as price,
+        a.currency_code as "currencyCode",
+        a.addon_kind as "addonKind"
+      from category.addons a
+      where a.source_type in ('provider', 'lsevin')
+        and a.is_active = true
+      order by a.name asc
+    `,
+    sql<ServiceIncludedRow[]>`
+      select
+        si.id::text,
+        si.service_id::text as "providerServiceId",
+        ${translationExpr(sql`ps.display_name_translations`, lang)} as "serviceName",
+        si.item
+      from category.service_included si
+      join category.provider_services ps on ps.id = si.service_id
+      where ps.service_provider_id = ${providerId}::uuid
+      order by si.item asc
+    `,
+    sql<ServiceProcessRow[]>`
+      select
+        sp.id::text,
+        sp.service_id::text as "providerServiceId",
+        ${translationExpr(sql`ps.display_name_translations`, lang)} as "serviceName",
+        sp.step::int,
+        sp.title,
+        sp.description,
+        sp.duration
+      from category.service_process sp
+      join category.provider_services ps on ps.id = sp.service_id
+      where ps.service_provider_id = ${providerId}::uuid
+      order by sp.step asc, sp.id asc
+    `,
+    sql<ServiceFaqRow[]>`
+      select
+        sf.id::text,
+        sf.service_id::text as "providerServiceId",
+        ${translationExpr(sql`ps.display_name_translations`, lang)} as "serviceName",
+        sf.question,
+        sf.answer
+      from category.service_faqs sf
+      join category.provider_services ps on ps.id = sf.service_id
+      where ps.service_provider_id = ${providerId}::uuid
+      order by sf.question asc
+    `,
+  ]);
+
+  return { serviceGallery, addonSettings, addonOptions, included, process, faqs };
+}
+
+export async function saveServiceGalleryItem(userId: string, input: any) {
+  await requireProviderPermission(userId, input.providerId, "manageServices");
+
+  const owned = await sql<{ id: string }[]>`
+    select id::text
+    from category.provider_services
+    where id = ${input.providerServiceId}::uuid
+      and service_provider_id = ${input.providerId}::uuid
+    limit 1
+  `;
+  if (!owned.length) throw new Error("Service does not belong to this provider.");
+
+  const title = translationFromFlat(input.titleEn, input.titleFa);
+  const description = translationFromFlat(input.descriptionEn, input.descriptionFa);
+
+  if (input.isPrimary) {
+    await sql`
+      update category.provider_service_gallery_items
+      set is_primary = false, last_modified_date = now()
+      where provider_service_id = ${input.providerServiceId}::uuid
+    `;
+  }
+
+  if (input.serviceGalleryItemId) {
+    await sql`
+      update category.provider_service_gallery_items
+      set
+        provider_service_id = ${input.providerServiceId}::uuid,
+        title_translations = ${sql.json(title)}::jsonb,
+        description_translations = ${sql.json(description)}::jsonb,
+        url = ${input.url},
+        media_type = ${input.mediaType},
+        display_order = ${input.displayOrder},
+        is_primary = ${input.isPrimary},
+        last_modified_date = now()
+      where id = ${input.serviceGalleryItemId}::uuid
+        and exists (
+          select 1 from category.provider_services ps
+          where ps.id = category.provider_service_gallery_items.provider_service_id
+            and ps.service_provider_id = ${input.providerId}::uuid
+        )
+    `;
+    return input.serviceGalleryItemId;
+  }
+
+  const rows = await sql<{ id: string }[]>`
+    insert into category.provider_service_gallery_items (
+      title_translations,
+      description_translations,
+      url,
+      media_type,
+      display_order,
+      is_primary,
+      provider_service_id,
+      create_date,
+      last_modified_date
+    ) values (
+      ${sql.json(title)}::jsonb,
+      ${sql.json(description)}::jsonb,
+      ${input.url},
+      ${input.mediaType},
+      ${input.displayOrder},
+      ${input.isPrimary},
+      ${input.providerServiceId}::uuid,
+      now(),
+      now()
+    )
+    returning id::text
+  `;
+  return rows[0].id;
+}
+
+export async function deleteServiceGalleryItem(userId: string, providerId: string, serviceGalleryItemId: string) {
+  await requireProviderPermission(userId, providerId, "manageServices");
+  await sql`
+    delete from category.provider_service_gallery_items psgi
+    where psgi.id = ${serviceGalleryItemId}::uuid
+      and exists (
+        select 1 from category.provider_services ps
+        where ps.id = psgi.provider_service_id
+          and ps.service_provider_id = ${providerId}::uuid
+      )
+  `;
+  return true;
+}
+
+export async function saveServiceAddonSetting(userId: string, input: any) {
+  await requireProviderPermission(userId, input.providerId, "manageServices");
+
+  const owned = await sql<{ id: string }[]>`
+    select id::text
+    from category.provider_services
+    where id = ${input.providerServiceId}::uuid
+      and service_provider_id = ${input.providerId}::uuid
+    limit 1
+  `;
+  if (!owned.length) throw new Error("Service does not belong to this provider.");
+
+  await sql`
+    insert into provider_portal.provider_service_addon_settings (
+      provider_service_id,
+      addon_id,
+      is_enabled,
+      custom_price,
+      custom_config,
+      create_date,
+      last_modified_date
+    ) values (
+      ${input.providerServiceId}::uuid,
+      ${input.addonId},
+      ${input.isEnabled},
+      ${input.customPrice},
+      '{}'::jsonb,
+      now(),
+      now()
+    )
+    on conflict (provider_service_id, addon_id)
+    do update set
+      is_enabled = excluded.is_enabled,
+      custom_price = excluded.custom_price,
+      last_modified_date = now()
+  `;
+
+  await sql`
+    insert into category.provider_service_addons (provider_service_id, addon_id)
+    values (${input.providerServiceId}::uuid, ${input.addonId})
+    on conflict (provider_service_id, addon_id) do nothing
+  `;
+
+  return true;
+}
+
+export async function deleteServiceAddonSetting(userId: string, providerId: string, providerServiceId: string, addonId: string) {
+  await requireProviderPermission(userId, providerId, "manageServices");
+  await sql`
+    delete from provider_portal.provider_service_addon_settings psas
+    where psas.provider_service_id = ${providerServiceId}::uuid
+      and psas.addon_id = ${addonId}
+      and exists (
+        select 1 from category.provider_services ps
+        where ps.id = psas.provider_service_id
+          and ps.service_provider_id = ${providerId}::uuid
+      )
+  `;
+  await sql`
+    delete from category.provider_service_addons psa
+    where psa.provider_service_id = ${providerServiceId}::uuid
+      and psa.addon_id = ${addonId}
+      and exists (
+        select 1 from category.provider_services ps
+        where ps.id = psa.provider_service_id
+          and ps.service_provider_id = ${providerId}::uuid
+      )
+  `;
+  return true;
+}
+
+export async function listProviderStaffRelatedRecords(
+  userId: string,
+  providerId: string,
+  locale: string
+): Promise<ProviderStaffRelatedRecords> {
+  await requireProviderPermission(userId, providerId, "viewDashboard");
+  const lang = safeLocale(locale);
+
+  const [certifications, education, availability, gallery, services, serviceDefinitions] = await Promise.all([
+    sql<StaffCertificationRow[]>`
+      select
+        sc.id::text,
+        sc.staff_id::text as "staffId",
+        ${translationExpr(sql`s.name_translations`, lang)} as "staffName",
+        sc.name,
+        sc.issuer,
+        sc.is_verified as "isVerified"
+      from category.staff_certifications sc
+      join category.staff s on s.id = sc.staff_id
+      where exists (
+        select 1 from category.provider_staffs pst
+        where pst.staff_id = sc.staff_id
+          and pst.service_provider_id = ${providerId}::uuid
+      )
+      order by sc.create_date desc
+    `,
+    sql<StaffEducationRow[]>`
+      select
+        se.id::text,
+        se.staff_id::text as "staffId",
+        ${translationExpr(sql`s.name_translations`, lang)} as "staffName",
+        se.degree,
+        se.institution,
+        se.year
+      from category.staff_education se
+      join category.staff s on s.id = se.staff_id
+      where exists (
+        select 1 from category.provider_staffs pst
+        where pst.staff_id = se.staff_id
+          and pst.service_provider_id = ${providerId}::uuid
+      )
+      order by se.create_date desc
+    `,
+    sql<StaffAvailabilityRow[]>`
+      select
+        sa.id::text,
+        sa.staff_id::text as "staffId",
+        ${translationExpr(sql`s.name_translations`, lang)} as "staffName",
+        sa.day_of_week::int as "dayOfWeek",
+        sa.start_time::text as "startTime",
+        sa.end_time::text as "endTime",
+        sa.is_recurring as "isRecurring",
+        sa.availability_status_id::int as "availabilityStatusId",
+        sa.specific_date::text as "specificDate"
+      from category.staff_availabilities sa
+      join category.staff s on s.id = sa.staff_id
+      where exists (
+        select 1 from category.provider_staffs pst
+        where pst.staff_id = sa.staff_id
+          and pst.service_provider_id = ${providerId}::uuid
+      )
+      order by sa.day_of_week asc, sa.start_time asc
+    `,
+    sql<StaffGalleryRow[]>`
+      select
+        sgi.id::text,
+        sgi.staff_id::text as "staffId",
+        ${translationExpr(sql`s.name_translations`, lang)} as "staffName",
+        sgi.title_translations as title,
+        ${translationExpr(sql`sgi.title_translations`, lang)} as "displayTitle",
+        sgi.description_translations as description,
+        sgi.url,
+        sgi.media_type as "mediaType",
+        sgi.display_order::int as "displayOrder",
+        sgi.is_primary as "isPrimary"
+      from category.staff_gallery_items sgi
+      join category.staff s on s.id = sgi.staff_id
+      where exists (
+        select 1 from category.provider_staffs pst
+        where pst.staff_id = sgi.staff_id
+          and pst.service_provider_id = ${providerId}::uuid
+      )
+      order by sgi.display_order asc, sgi.create_date desc
+    `,
+    sql<StaffServiceRow[]>`
+      select
+        ss.id::text,
+        ss.staff_id::text as "staffId",
+        ${translationExpr(sql`s.name_translations`, lang)} as "staffName",
+        ss.service_definition_id::text as "serviceDefinitionId",
+        ${translationExpr(sql`sd.name_translations`, lang)} as "serviceDefinitionName",
+        ss.is_active as "isActive",
+        ss.notes_translations as notes
+      from category.staff_services ss
+      join category.staff s on s.id = ss.staff_id
+      join category.service_definitions sd on sd.id = ss.service_definition_id
+      where exists (
+        select 1 from category.provider_staffs pst
+        where pst.staff_id = ss.staff_id
+          and pst.service_provider_id = ${providerId}::uuid
+      )
+      order by ss.create_date desc
+    `,
+    listServiceDefinitionOptions(locale),
+  ]);
+
+  return { certifications, education, availability, gallery, services, serviceDefinitions };
+}
+
+async function requireProviderStaffOwnership(providerId: string, staffId: string) {
+  const rows = await sql<{ id: string }[]>`
+    select pst.id::text
+    from category.provider_staffs pst
+    where pst.staff_id = ${staffId}::uuid
+      and pst.service_provider_id = ${providerId}::uuid
+    limit 1
+  `;
+  if (!rows.length) throw new Error("Staff member does not belong to this provider.");
+}
+
+export async function saveStaffCertification(userId: string, input: any) {
+  await requireProviderPermission(userId, input.providerId, "manageStaff");
+  await requireProviderStaffOwnership(input.providerId, input.staffId);
+
+  if (input.certificationId) {
+    await sql`
+      update category.staff_certifications
+      set
+        name = ${input.name},
+        issuer = ${input.issuer},
+        last_modified_date = now()
+      where id = ${input.certificationId}::uuid
+        and staff_id = ${input.staffId}::uuid
+        and is_verified = false
+    `;
+    return input.certificationId;
+  }
+
+  const rows = await sql<{ id: string }[]>`
+    insert into category.staff_certifications (
+      staff_id,
+      name,
+      issuer,
+      is_verified,
+      create_date,
+      last_modified_date
+    ) values (
+      ${input.staffId}::uuid,
+      ${input.name},
+      ${input.issuer},
+      false,
+      now(),
+      now()
+    )
+    returning id::text
+  `;
+  return rows[0].id;
+}
+
+export async function deleteStaffCertification(userId: string, providerId: string, certificationId: string) {
+  await requireProviderPermission(userId, providerId, "manageStaff");
+  await sql`
+    delete from category.staff_certifications sc
+    where sc.id = ${certificationId}::uuid
+      and sc.is_verified = false
+      and exists (
+        select 1 from category.provider_staffs pst
+        where pst.staff_id = sc.staff_id
+          and pst.service_provider_id = ${providerId}::uuid
+      )
+  `;
+  return true;
+}
+
+export async function saveStaffEducation(userId: string, input: any) {
+  await requireProviderPermission(userId, input.providerId, "manageStaff");
+  await requireProviderStaffOwnership(input.providerId, input.staffId);
+
+  if (input.educationId) {
+    await sql`
+      update category.staff_education
+      set
+        degree = ${input.degree},
+        institution = ${input.institution},
+        year = ${input.year},
+        last_modified_date = now()
+      where id = ${input.educationId}::uuid
+        and staff_id = ${input.staffId}::uuid
+    `;
+    return input.educationId;
+  }
+
+  const rows = await sql<{ id: string }[]>`
+    insert into category.staff_education (
+      staff_id,
+      degree,
+      institution,
+      year,
+      create_date,
+      last_modified_date
+    ) values (
+      ${input.staffId}::uuid,
+      ${input.degree},
+      ${input.institution},
+      ${input.year},
+      now(),
+      now()
+    )
+    returning id::text
+  `;
+  return rows[0].id;
+}
+
+export async function deleteStaffEducation(userId: string, providerId: string, educationId: string) {
+  await requireProviderPermission(userId, providerId, "manageStaff");
+  await sql`
+    delete from category.staff_education se
+    where se.id = ${educationId}::uuid
+      and exists (
+        select 1 from category.provider_staffs pst
+        where pst.staff_id = se.staff_id
+          and pst.service_provider_id = ${providerId}::uuid
+      )
+  `;
+  return true;
+}
+
+export async function saveStaffAvailability(userId: string, input: any) {
+  await requireProviderPermission(userId, input.providerId, "manageStaff");
+  await requireProviderStaffOwnership(input.providerId, input.staffId);
+
+  if (input.availabilityId) {
+    await sql`
+      update category.staff_availabilities
+      set
+        day_of_week = ${input.dayOfWeek},
+        start_time = ${input.startTime}::interval,
+        end_time = ${input.endTime}::interval,
+        is_recurring = ${input.isRecurring},
+        availability_status_id = ${input.availabilityStatusId},
+        specific_date = ${input.specificDate}::timestamptz,
+        last_modified_date = now()
+      where id = ${input.availabilityId}::uuid
+        and staff_id = ${input.staffId}::uuid
+    `;
+    return input.availabilityId;
+  }
+
+  const rows = await sql<{ id: string }[]>`
+    insert into category.staff_availabilities (
+      day_of_week,
+      is_recurring,
+      availability_status_id,
+      specific_date,
+      staff_id,
+      end_time,
+      start_time,
+      create_date,
+      last_modified_date
+    ) values (
+      ${input.dayOfWeek},
+      ${input.isRecurring},
+      ${input.availabilityStatusId},
+      ${input.specificDate}::timestamptz,
+      ${input.staffId}::uuid,
+      ${input.endTime}::interval,
+      ${input.startTime}::interval,
+      now(),
+      now()
+    )
+    returning id::text
+  `;
+  return rows[0].id;
+}
+
+export async function deleteStaffAvailability(userId: string, providerId: string, availabilityId: string) {
+  await requireProviderPermission(userId, providerId, "manageStaff");
+  await sql`
+    delete from category.staff_availabilities sa
+    where sa.id = ${availabilityId}::uuid
+      and exists (
+        select 1 from category.provider_staffs pst
+        where pst.staff_id = sa.staff_id
+          and pst.service_provider_id = ${providerId}::uuid
+      )
+  `;
+  return true;
+}
+
+export async function saveStaffGalleryItem(userId: string, input: any) {
+  await requireProviderPermission(userId, input.providerId, "manageStaff");
+  await requireProviderStaffOwnership(input.providerId, input.staffId);
+
+  const title = translationFromFlat(input.titleEn, input.titleFa);
+  const description = translationFromFlat(input.descriptionEn, input.descriptionFa);
+
+  if (input.isPrimary) {
+    await sql`
+      update category.staff_gallery_items
+      set is_primary = false, last_modified_date = now()
+      where staff_id = ${input.staffId}::uuid
+    `;
+  }
+
+  if (input.staffGalleryItemId) {
+    await sql`
+      update category.staff_gallery_items
+      set
+        staff_id = ${input.staffId}::uuid,
+        title_translations = ${sql.json(title)}::jsonb,
+        description_translations = ${sql.json(description)}::jsonb,
+        url = ${input.url},
+        media_type = ${input.mediaType},
+        display_order = ${input.displayOrder},
+        is_primary = ${input.isPrimary},
+        last_modified_date = now()
+      where id = ${input.staffGalleryItemId}::uuid
+        and exists (
+          select 1 from category.provider_staffs pst
+          where pst.staff_id = category.staff_gallery_items.staff_id
+            and pst.service_provider_id = ${input.providerId}::uuid
+        )
+    `;
+    return input.staffGalleryItemId;
+  }
+
+  const rows = await sql<{ id: string }[]>`
+    insert into category.staff_gallery_items (
+      title_translations,
+      description_translations,
+      url,
+      media_type,
+      display_order,
+      is_primary,
+      staff_id,
+      create_date,
+      last_modified_date
+    ) values (
+      ${sql.json(title)}::jsonb,
+      ${sql.json(description)}::jsonb,
+      ${input.url},
+      ${input.mediaType},
+      ${input.displayOrder},
+      ${input.isPrimary},
+      ${input.staffId}::uuid,
+      now(),
+      now()
+    )
+    returning id::text
+  `;
+  return rows[0].id;
+}
+
+export async function deleteStaffGalleryItem(userId: string, providerId: string, staffGalleryItemId: string) {
+  await requireProviderPermission(userId, providerId, "manageStaff");
+  await sql`
+    delete from category.staff_gallery_items sgi
+    where sgi.id = ${staffGalleryItemId}::uuid
+      and exists (
+        select 1 from category.provider_staffs pst
+        where pst.staff_id = sgi.staff_id
+          and pst.service_provider_id = ${providerId}::uuid
+      )
+  `;
+  return true;
+}
+
+export async function saveStaffService(userId: string, input: any) {
+  await requireProviderPermission(userId, input.providerId, "manageStaff");
+  await requireProviderStaffOwnership(input.providerId, input.staffId);
+
+  const notes = translationFromFlat(input.notesEn, input.notesFa);
+
+  if (input.staffServiceId) {
+    await sql`
+      update category.staff_services
+      set
+        service_definition_id = ${input.serviceDefinitionId}::uuid,
+        notes_translations = ${sql.json(notes)}::jsonb,
+        is_active = ${input.isActive},
+        last_modified_date = now()
+      where id = ${input.staffServiceId}::uuid
+        and staff_id = ${input.staffId}::uuid
+    `;
+    return input.staffServiceId;
+  }
+
+  const rows = await sql<{ id: string }[]>`
+    insert into category.staff_services (
+      service_definition_id,
+      is_active,
+      notes_translations,
+      staff_id,
+      create_date,
+      last_modified_date
+    ) values (
+      ${input.serviceDefinitionId}::uuid,
+      ${input.isActive},
+      ${sql.json(notes)}::jsonb,
+      ${input.staffId}::uuid,
+      now(),
+      now()
+    )
+    returning id::text
+  `;
+  return rows[0].id;
+}
+
+export async function deleteStaffService(userId: string, providerId: string, staffServiceId: string) {
+  await requireProviderPermission(userId, providerId, "manageStaff");
+  await sql`
+    delete from category.staff_services ss
+    where ss.id = ${staffServiceId}::uuid
+      and exists (
+        select 1 from category.provider_staffs pst
+        where pst.staff_id = ss.staff_id
+          and pst.service_provider_id = ${providerId}::uuid
+      )
+  `;
+  return true;
+}
+
+export async function deletePayoutAccount(userId: string, providerId: string, payoutAccountId: string) {
+  await requireProviderPermission(userId, providerId, "managePayouts");
+  await sql`
+    delete from provider_portal.payout_accounts
+    where id = ${payoutAccountId}::uuid
+      and service_provider_id = ${providerId}::uuid
+      and is_default = false
+  `;
+  return true;
+}
+
+async function requireProviderServiceOwnership(providerId: string, providerServiceId: string) {
+  const rows = await sql<{ id: string }[]>`
+    select id::text
+    from category.provider_services
+    where id = ${providerServiceId}::uuid
+      and service_provider_id = ${providerId}::uuid
+    limit 1
+  `;
+  if (!rows.length) throw new Error("Service does not belong to this provider.");
+}
+
+export async function saveServiceIncluded(userId: string, input: any) {
+  await requireProviderPermission(userId, input.providerId, "manageServices");
+  await requireProviderServiceOwnership(input.providerId, input.providerServiceId);
+
+  if (input.includedId) {
+    await sql`
+      update category.service_included
+      set item = ${input.item}
+      where id = ${input.includedId}::uuid
+        and service_id = ${input.providerServiceId}::uuid
+    `;
+    return input.includedId;
+  }
+
+  const rows = await sql<{ id: string }[]>`
+    insert into category.service_included (service_id, item)
+    values (${input.providerServiceId}::uuid, ${input.item})
+    returning id::text
+  `;
+  return rows[0].id;
+}
+
+export async function deleteServiceIncluded(userId: string, providerId: string, includedId: string) {
+  await requireProviderPermission(userId, providerId, "manageServices");
+  await sql`
+    delete from category.service_included si
+    where si.id = ${includedId}::uuid
+      and exists (
+        select 1 from category.provider_services ps
+        where ps.id = si.service_id
+          and ps.service_provider_id = ${providerId}::uuid
+      )
+  `;
+  return true;
+}
+
+export async function saveServiceProcess(userId: string, input: any) {
+  await requireProviderPermission(userId, input.providerId, "manageServices");
+  await requireProviderServiceOwnership(input.providerId, input.providerServiceId);
+
+  if (input.processId) {
+    await sql`
+      update category.service_process
+      set
+        step = ${input.step},
+        title = ${input.title},
+        description = ${input.description},
+        duration = ${input.duration}
+      where id = ${input.processId}::uuid
+        and service_id = ${input.providerServiceId}::uuid
+    `;
+    return input.processId;
+  }
+
+  const rows = await sql<{ id: string }[]>`
+    insert into category.service_process (service_id, step, title, description, duration)
+    values (${input.providerServiceId}::uuid, ${input.step}, ${input.title}, ${input.description}, ${input.duration})
+    returning id::text
+  `;
+  return rows[0].id;
+}
+
+export async function deleteServiceProcess(userId: string, providerId: string, processId: string) {
+  await requireProviderPermission(userId, providerId, "manageServices");
+  await sql`
+    delete from category.service_process sp
+    where sp.id = ${processId}::uuid
+      and exists (
+        select 1 from category.provider_services ps
+        where ps.id = sp.service_id
+          and ps.service_provider_id = ${providerId}::uuid
+      )
+  `;
+  return true;
+}
+
+export async function saveServiceFaq(userId: string, input: any) {
+  await requireProviderPermission(userId, input.providerId, "manageServices");
+  await requireProviderServiceOwnership(input.providerId, input.providerServiceId);
+
+  if (input.faqId) {
+    await sql`
+      update category.service_faqs
+      set question = ${input.question}, answer = ${input.answer}
+      where id = ${input.faqId}::uuid
+        and service_id = ${input.providerServiceId}::uuid
+    `;
+    return input.faqId;
+  }
+
+  const rows = await sql<{ id: string }[]>`
+    insert into category.service_faqs (service_id, question, answer)
+    values (${input.providerServiceId}::uuid, ${input.question}, ${input.answer})
+    returning id::text
+  `;
+  return rows[0].id;
+}
+
+export async function deleteServiceFaq(userId: string, providerId: string, faqId: string) {
+  await requireProviderPermission(userId, providerId, "manageServices");
+  await sql`
+    delete from category.service_faqs sf
+    where sf.id = ${faqId}::uuid
+      and exists (
+        select 1 from category.provider_services ps
+        where ps.id = sf.service_id
+          and ps.service_provider_id = ${providerId}::uuid
+      )
   `;
   return true;
 }

@@ -1,210 +1,155 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import db from "@/config/database/db";
 
-import sql from "@/config/database/db";
-
-type LazySelectOption = {
-  value: string;
-  label: string;
-  description?: string | null;
-  badge?: string | null;
-  imageUrl?: string | null;
-  meta?: Record<string, unknown>;
+type LazyResourceConfig = {
+  from: string;
+  valueExpression: string;
+  labelExpression: (locale: string) => string;
+  descriptionExpression?: (locale: string) => string;
+  badgeExpression?: string;
+  imageExpression?: string;
+  searchExpression?: (locale: string) => string;
+  where?: string;
+  orderBy?: string;
 };
 
-const FALLBACK_LOCALE = "en-US";
-const MAX_LIMIT = 50;
-
-function normalizeLocale(value: string | null) {
-  return value && value.trim() ? value.trim() : FALLBACK_LOCALE;
+function sqlStringLiteral(value: string) {
+  return `'${value.replace(/'/g, "''")}'`;
 }
 
-function normalizeQuery(value: string | null) {
-  return value?.trim() || "";
+function translation(column: string, locale: string) {
+  return `common.get_translation_t(${column}, ${sqlStringLiteral(locale)}, 'en-US')`;
 }
 
-function normalizeLimit(value: string | null) {
-  const parsed = Number(value || 20);
-  if (!Number.isFinite(parsed)) return 20;
-  return Math.max(1, Math.min(MAX_LIMIT, Math.trunc(parsed)));
-}
+const RESOURCES: Record<string, LazyResourceConfig> = {
+  service_definitions: {
+    from: "category.service_definitions sd",
+    valueExpression: "sd.id::text",
+    labelExpression: (locale) => translation("sd.name_translations", locale),
+    descriptionExpression: (locale) => translation("sd.description_translations", locale),
+    badgeExpression: "sd.booking_ui_mode",
+    searchExpression: (locale) => `${translation("sd.name_translations", locale)} || ' ' || ${translation("sd.description_translations", locale)} || ' ' || sd.id::text`,
+    where: "sd.is_active = true",
+    orderBy: "sd.last_modified_date desc nulls last, sd.create_date desc",
+  },
+  provider_services: {
+    from: "category.provider_services ps",
+    valueExpression: "ps.id::text",
+    labelExpression: (locale) => translation("ps.display_name_translations", locale),
+    descriptionExpression: (locale) => translation("ps.description_translations", locale),
+    imageExpression: "ps.image_url",
+    searchExpression: (locale) => `${translation("ps.display_name_translations", locale)} || ' ' || ${translation("ps.description_translations", locale)} || ' ' || ps.id::text`,
+    where: "ps.is_active = true",
+    orderBy: "ps.last_modified_date desc nulls last, ps.create_date desc",
+  },
+  service_providers: {
+    from: "category.service_providers sp",
+    valueExpression: "sp.id::text",
+    labelExpression: (locale) => translation("sp.name_translations", locale),
+    descriptionExpression: () => "concat_ws(' — ', sp.email, sp.phone_number)",
+    imageExpression: "sp.image_url",
+    searchExpression: (locale) => `${translation("sp.name_translations", locale)} || ' ' || coalesce(sp.email, '') || ' ' || coalesce(sp.phone_number, '') || ' ' || sp.id::text`,
+    where: "sp.is_active = true",
+    orderBy: "sp.last_modified_date desc nulls last, sp.create_date desc",
+  },
+  staff: {
+    from: "category.staff st",
+    valueExpression: "st.id::text",
+    labelExpression: (locale) => translation("st.name_translations", locale),
+    descriptionExpression: (locale) => `nullif(${translation("st.title_translations", locale)}, '')`,
+    imageExpression: "st.profile_image_url",
+    searchExpression: (locale) => `${translation("st.name_translations", locale)} || ' ' || ${translation("st.title_translations", locale)} || ' ' || coalesce(st.specialty, '') || ' ' || st.id::text`,
+    where: "st.is_active = true",
+    orderBy: "st.last_modified_date desc nulls last, st.create_date desc",
+  },
+  categories: {
+    from: "category.categories c",
+    valueExpression: "c.id::text",
+    labelExpression: (locale) => translation("c.name_translations", locale),
+    descriptionExpression: (locale) => translation("c.description_translations", locale),
+    imageExpression: "coalesce(c.image_url, c.icon_url)",
+    searchExpression: (locale) => `${translation("c.name_translations", locale)} || ' ' || ${translation("c.description_translations", locale)} || ' ' || c.id::text`,
+    where: "c.is_active = true",
+    orderBy: "c.display_order asc, c.last_modified_date desc nulls last",
+  },
+  provider_types: {
+    from: "category.provider_types pt",
+    valueExpression: "pt.id::text",
+    labelExpression: (locale) => translation("pt.name_translations", locale),
+    descriptionExpression: (locale) => translation("pt.description_translations", locale),
+    imageExpression: "coalesce(pt.image_url, pt.icon_url)",
+    searchExpression: (locale) => `${translation("pt.name_translations", locale)} || ' ' || ${translation("pt.description_translations", locale)} || ' ' || pt.id::text`,
+    where: "pt.is_active = true",
+    orderBy: "pt.last_modified_date desc nulls last, pt.create_date desc",
+  },
+  addons: {
+    from: "category.addons a",
+    valueExpression: "a.id",
+    labelExpression: () => "a.name",
+    descriptionExpression: () => "concat(a.price::text, ' ', a.currency_code)",
+    badgeExpression: "a.addon_kind",
+    searchExpression: () => "a.id || ' ' || a.name || ' ' || coalesce(a.description, '')",
+    where: "a.is_active = true",
+    orderBy: "a.name asc",
+  },
+  locations: {
+    from: "category.locations l",
+    valueExpression: "l.id::text",
+    labelExpression: (locale) => `concat(l.code, ' — ', ${translation("l.value_translations", locale)})`,
+    badgeExpression: "l.location_type_id::text",
+    searchExpression: (locale) => `l.code || ' ' || ${translation("l.value_translations", locale)} || ' ' || l.id::text`,
+    orderBy: "l.display_order asc nulls last, l.code asc",
+  },
+};
 
-function normalizeSelected(value: string | null) {
-  return (value || "")
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const resource = searchParams.get("resource") || "";
+  const config = RESOURCES[resource];
+
+  if (!config) {
+    return NextResponse.json({ items: [], error: "Unsupported lazy-select resource" }, { status: 400 });
+  }
+
+  const q = (searchParams.get("q") || "").trim();
+  const locale = (searchParams.get("locale") || "en-US").replace(/_/g, "-").slice(0, 10);
+  const selected = (searchParams.get("selected") || "")
     .split(",")
     .map((item) => item.trim())
-    .filter(Boolean)
-    .slice(0, 100);
-}
+    .filter(Boolean);
+  const limit = Math.min(50, Math.max(1, Number(searchParams.get("limit") || 20)));
 
-function localizedText(columnExpression: string, locale: string) {
-  const column = sql.unsafe(columnExpression);
-  return sql`common.get_translation_t(
-    case
-      when jsonb_typeof(${column}) = 'object' then ${column}
-      else '{}'::jsonb
-    end,
-    ${locale},
-    ${FALLBACK_LOCALE}
-  )`;
-}
+  const label = config.labelExpression(locale);
+  const description = config.descriptionExpression?.(locale) ?? "null::text";
+  const badge = config.badgeExpression ?? "null::text";
+  const image = config.imageExpression ?? "null::text";
+  const search = config.searchExpression?.(locale) ?? label;
+  const where = config.where ? `and (${config.where})` : "";
+  const orderBy = config.orderBy ?? "label asc";
 
-function selectedClause(columnExpression: string, selected: string[]) {
-  if (!selected.length) return sql``;
-  return sql`or ${sql.unsafe(columnExpression)} in ${sql(selected)}`;
-}
+  const rows = await db.unsafe(
+    `
+      select
+        ${config.valueExpression} as value,
+        coalesce(nullif(${label}, ''), ${config.valueExpression}) as label,
+        nullif(${description}, '') as description,
+        nullif(${badge}, '') as badge,
+        nullif(${image}, '') as "imageUrl"
+      from ${config.from}
+      where true
+        ${where}
+        and (
+          $1 = ''
+          or (${search}) ilike ('%' || $1 || '%')
+          or (${config.valueExpression}) = any($2::text[])
+        )
+      order by
+        case when (${config.valueExpression}) = any($2::text[]) then 0 else 1 end,
+        ${orderBy}
+      limit $3
+    `,
+    [q, selected, limit]
+  );
 
-function staticSearch(items: LazySelectOption[], q: string, selected: string[], limit: number) {
-  const normalized = q.toLowerCase();
-  const selectedSet = new Set(selected);
-
-  return items
-    .filter((item) => {
-      if (selectedSet.has(item.value)) return true;
-      if (!normalized) return true;
-      return [item.label, item.description, item.badge, item.value]
-        .filter(Boolean)
-        .some((value) => String(value).toLowerCase().includes(normalized));
-    })
-    .slice(0, limit);
-}
-
-async function serviceProviders(locale: string, q: string, selected: string[], limit: number): Promise<LazySelectOption[]> {
-  const like = `%${q}%`;
-  return sql<LazySelectOption[]>`
-    select
-      sp.id::text as value,
-      ${localizedText("sp.name_translations", locale)} as label,
-      concat_ws(' • ', nullif(${localizedText("pt.name_translations", locale)}, ''), nullif(sp.country, ''), nullif(sp.city, '')) as description,
-      case when sp.is_active then 'Active' else 'Inactive' end as badge,
-      sp.image_url as "imageUrl",
-      jsonb_build_object(
-        'country', sp.country,
-        'city', sp.city,
-        'isActive', sp.is_active,
-        'providerTypeId', sp.provider_type_id::text
-      ) as meta
-    from category.service_providers sp
-    left join category.provider_types pt on pt.id = sp.provider_type_id
-    where
-      ${q} = ''
-      or ${localizedText("sp.name_translations", locale)} ilike ${like}
-      or ${localizedText("pt.name_translations", locale)} ilike ${like}
-      or coalesce(sp.country, '') ilike ${like}
-      or coalesce(sp.city, '') ilike ${like}
-      ${selectedClause("sp.id::text", selected)}
-    order by sp.is_active desc, label asc
-    limit ${limit}
-  `;
-}
-
-async function serviceDefinitions(locale: string, q: string, selected: string[], limit: number): Promise<LazySelectOption[]> {
-  const like = `%${q}%`;
-  return sql<LazySelectOption[]>`
-    select
-      sd.id::text as value,
-      ${localizedText("sd.name_translations", locale)} as label,
-      concat_ws(' • ', nullif(${localizedText("c.name_translations", locale)}, ''), sd.duration_minutes::text || ' min') as description,
-      concat(sd.value::text, ' ', sd.currency) as badge,
-      null::text as "imageUrl",
-      jsonb_build_object(
-        'categoryId', sd.category_id::text,
-        'durationMinutes', sd.duration_minutes,
-        'pricingModel', sd.pricing_model,
-        'currency', sd.currency,
-        'value', sd.value,
-        'isActive', sd.is_active
-      ) as meta
-    from category.service_definitions sd
-    join category.categories c on c.id = sd.category_id
-    where
-      ${q} = ''
-      or ${localizedText("sd.name_translations", locale)} ilike ${like}
-      or ${localizedText("sd.description_translations", locale)} ilike ${like}
-      or ${localizedText("c.name_translations", locale)} ilike ${like}
-      or coalesce(sd.pricing_model, '') ilike ${like}
-      or coalesce(sd.currency, '') ilike ${like}
-      ${selectedClause("sd.id::text", selected)}
-    order by sd.is_active desc, label asc
-    limit ${limit}
-  `;
-}
-
-async function availabilityStatuses(q: string, selected: string[], limit: number): Promise<LazySelectOption[]> {
-  const like = `%${q}%`;
-  return sql<LazySelectOption[]>`
-    select
-      sas.id::text as value,
-      sas.name as label,
-      'Availability status'::text as description,
-      null::text as badge,
-      null::text as "imageUrl",
-      jsonb_build_object('id', sas.id) as meta
-    from category.staff_availability_statuses sas
-    where
-      ${q} = ''
-      or sas.name ilike ${like}
-      ${selectedClause("sas.id::text", selected)}
-    order by sas.id asc
-    limit ${limit}
-  `;
-}
-
-const DAYS_OF_WEEK: LazySelectOption[] = [
-  { value: "Monday", label: "Monday", description: "Day 1" },
-  { value: "Tuesday", label: "Tuesday", description: "Day 2" },
-  { value: "Wednesday", label: "Wednesday", description: "Day 3" },
-  { value: "Thursday", label: "Thursday", description: "Day 4" },
-  { value: "Friday", label: "Friday", description: "Day 5" },
-  { value: "Saturday", label: "Saturday", description: "Day 6" },
-  { value: "Sunday", label: "Sunday", description: "Day 7" },
-];
-
-const GALLERY_MEDIA_TYPES: LazySelectOption[] = [
-  { value: "image", label: "Image", description: "Photo or static image" },
-  { value: "video", label: "Video", description: "Video media" },
-  { value: "gif", label: "GIF", description: "Animated image" },
-  { value: "file", label: "File", description: "Document or downloadable file" },
-];
-
-export async function GET(request: NextRequest) {
-  try {
-    const params = request.nextUrl.searchParams;
-    const resource = params.get("resource") || "";
-    const q = normalizeQuery(params.get("q"));
-    const locale = normalizeLocale(params.get("locale"));
-    const selected = normalizeSelected(params.get("selected"));
-    const limit = normalizeLimit(params.get("limit"));
-
-    let items: LazySelectOption[] = [];
-
-    switch (resource) {
-      case "serviceProviders":
-        items = await serviceProviders(locale, q, selected, limit);
-        break;
-      case "serviceDefinitions":
-        items = await serviceDefinitions(locale, q, selected, limit);
-        break;
-      case "staffAvailabilityStatuses":
-      case "availabilityStatuses":
-        items = await availabilityStatuses(q, selected, limit);
-        break;
-      case "daysOfWeek":
-        items = staticSearch(DAYS_OF_WEEK, q, selected, limit);
-        break;
-      case "staffGalleryMediaTypes":
-      case "mediaTypes":
-        items = staticSearch(GALLERY_MEDIA_TYPES, q, selected, limit);
-        break;
-      default:
-        return NextResponse.json({ items: [], error: `Unsupported lazy select resource: ${resource}` }, { status: 400 });
-    }
-
-    return NextResponse.json({ items });
-  } catch (error) {
-    console.error("[admin/lazy-search-options]", error);
-    return NextResponse.json(
-      { items: [], error: error instanceof Error ? error.message : "Lazy select lookup failed." },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json({ items: rows });
 }

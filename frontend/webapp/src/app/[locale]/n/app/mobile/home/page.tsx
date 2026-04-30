@@ -39,7 +39,7 @@ const fallbackQuickSearches = [
   'Gym Membership',
 ];
 
-export async function getLocaleFromParams(params: PageProps['params']) {
+async function getLocaleFromParams(params: PageProps['params']) {
   const resolved = await params;
   return String((resolved as { locale?: string } | undefined)?.locale || 'en-US');
 }
@@ -130,7 +130,7 @@ async function Home({ params, searchParams }: PageProps) {
 
       <HomeHeroBanner offer={heroOffer} section={homeSections.hero_featured} />
 
-      <section className="px-5 pb-8">
+      <section className="px-5 pb-8 lg:px-8">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-900">Explore Categories</h2>
           <Link
@@ -142,7 +142,7 @@ async function Home({ params, searchParams }: PageProps) {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
           <ServiceProvidersCategoriesSuspenseBoundary categories={categories} />
         </div>
       </section>

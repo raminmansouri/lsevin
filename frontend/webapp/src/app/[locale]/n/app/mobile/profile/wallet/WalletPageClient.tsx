@@ -191,7 +191,7 @@ export default function WalletPageClient({
           </div>
 
           <button
-            onClick={() => navigate("/app/wallet/history")}
+            onClick={() => navigate("/n/app/mobile/profile/my-wallet/history")}
             className="h-10 px-4 text-sm font-semibold text-[#083f30] hover:underline"
           >
             View All

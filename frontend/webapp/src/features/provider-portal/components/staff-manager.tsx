@@ -17,14 +17,28 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "@/i18n/navigation";
 
+import { LocalizedRichPreview } from "./localized-rich-preview";
+import { PortalImage } from "./portal-image";
 import { displayTranslation } from "../lib/normalizers";
 import type { ProviderWorkspace, StaffRow } from "../types";
 
 type FormValues = z.infer<typeof saveStaffSchema>;
 
-export function StaffManager({ workspace, staff }: { workspace: ProviderWorkspace; staff: StaffRow[] }) {
-  const [editing, setEditing] = useState<StaffRow | null>(null);
+export function StaffManager({
+  workspace,
+  staff,
+  initialStaffId,
+  formOnly = false,
+}: {
+  workspace: ProviderWorkspace;
+  staff: StaffRow[];
+  initialStaffId?: string;
+  formOnly?: boolean;
+}) {
+  const initialEditing = initialStaffId ? staff.find((item) => item.id === initialStaffId || item.providerStaffId === initialStaffId) ?? null : null;
+  const [editing, setEditing] = useState<StaffRow | null>(initialEditing);
   const canManage = workspace.permissions.manageStaff;
+  const visibleStaff = formOnly && editing ? [editing] : staff;
 
   return (
     <div className="space-y-6">
@@ -36,16 +50,19 @@ export function StaffManager({ workspace, staff }: { workspace: ProviderWorkspac
           <CardDescription>Create provider-owned staff records and link them to this provider.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3">
-          {staff.length ? staff.map((item) => (
+          {visibleStaff.length ? visibleStaff.map((item) => (
             <div key={item.providerStaffId} className="rounded-2xl border border-slate-200 p-4">
               <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                <div>
+                <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-slate-200">
+                  <PortalImage src={item.profileImageUrl} alt={item.displayName} />
+                </div>
+                <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="font-semibold">{item.displayName}</h3>
                     <Badge variant={item.isActive ? "default" : "secondary"}>{item.isActive ? "Active" : "Inactive"}</Badge>
                   </div>
                   <p className="mt-1 text-sm text-slate-500">{displayTranslation(item.title, "en-US", "-")}</p>
-                  <p className="mt-2 text-sm text-slate-600">{displayTranslation(item.biography, "en-US", "-")}</p>
+                  <div className="mt-2 text-sm text-slate-600"><LocalizedRichPreview translations={item.biography} /></div>
                   <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-500">
                     {item.specialty ? <Badge variant="outline">{item.specialty}</Badge> : null}
                     {item.experienceYears !== null ? <Badge variant="outline">{item.experienceYears} years</Badge> : null}
@@ -147,6 +164,9 @@ function StaffForm({ providerId, editing, onDone }: { providerId: string; editin
           <Field label="Profile image URL / media id">
             <Input {...form.register("profileImageUrl")} disabled={isPending} />
           </Field>
+          <div className="relative h-24 overflow-hidden rounded-2xl border border-slate-200">
+            <PortalImage src={form.watch("profileImageUrl")} alt="Staff profile preview" />
+          </div>
           <Field label="Specialty">
             <Input {...form.register("specialty")} disabled={isPending} />
           </Field>

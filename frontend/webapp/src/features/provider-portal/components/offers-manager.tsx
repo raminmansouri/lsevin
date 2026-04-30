@@ -24,12 +24,18 @@ export function OffersManager({
   workspace,
   offers,
   services,
+  initialOfferId,
+  formOnly = false,
 }: {
   workspace: ProviderWorkspace;
   offers: OfferRow[];
   services: ProviderServiceRow[];
+  initialOfferId?: number;
+  formOnly?: boolean;
 }) {
-  const [editing, setEditing] = useState<OfferRow | null>(null);
+  const initialEditing = initialOfferId ? offers.find((offer) => offer.id === initialOfferId) ?? null : null;
+  const [editing, setEditing] = useState<OfferRow | null>(initialEditing);
+  const visibleOffers = formOnly && editing ? [editing] : offers;
 
   return (
     <div className="space-y-6">
@@ -46,7 +52,7 @@ export function OffersManager({
           <CardDescription>Marketing offers linked to provider services.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          {offers.length ? offers.map((offer) => (
+          {visibleOffers.length ? visibleOffers.map((offer) => (
             <div key={offer.id} className="rounded-2xl border border-slate-200 p-4">
               <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div>

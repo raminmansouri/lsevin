@@ -236,3 +236,157 @@ export type SupportTicketRow = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type ProviderCertificationRow = {
+  id: string;
+  name: string;
+  isVerified: boolean;
+};
+
+export type ProviderPolicyTypeOption = {
+  id: string;
+  code: string;
+  label: string;
+};
+
+export type ProviderPolicyRow = {
+  id: string;
+  type: TranslationMap;
+  displayType: string;
+  description: TranslationMap;
+  providerPolicyTypeId: string | null;
+};
+
+export type ProviderProfileRelatedRecords = {
+  certifications: ProviderCertificationRow[];
+  policies: ProviderPolicyRow[];
+  policyTypes: ProviderPolicyTypeOption[];
+};
+
+export type ServiceGalleryRow = {
+  id: string;
+  providerServiceId: string;
+  serviceName: string;
+  title: TranslationMap;
+  displayTitle: string;
+  description: TranslationMap;
+  url: string;
+  mediaType: string;
+  displayOrder: number;
+  isPrimary: boolean;
+};
+
+export type ProviderAddonOption = {
+  id: string;
+  name: string;
+  price: number;
+  currencyCode: string;
+  addonKind: string;
+};
+
+export type ServiceAddonSettingRow = {
+  providerServiceId: string;
+  addonId: string;
+  serviceName: string;
+  addonName: string;
+  defaultPrice: number;
+  defaultCurrencyCode: string;
+  customPrice: number | null;
+  isEnabled: boolean;
+};
+
+export type ProviderServiceRelatedRecords = {
+  serviceGallery: ServiceGalleryRow[];
+  addonSettings: ServiceAddonSettingRow[];
+  addonOptions: ProviderAddonOption[];
+  included: ServiceIncludedRow[];
+  process: ServiceProcessRow[];
+  faqs: ServiceFaqRow[];
+};
+
+export type StaffCertificationRow = {
+  id: string;
+  staffId: string;
+  staffName: string;
+  name: string;
+  issuer: string | null;
+  isVerified: boolean;
+};
+
+export type StaffEducationRow = {
+  id: string;
+  staffId: string;
+  staffName: string;
+  degree: string;
+  institution: string;
+  year: number | null;
+};
+
+export type StaffAvailabilityRow = {
+  id: string;
+  staffId: string;
+  staffName: string;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  isRecurring: boolean;
+  availabilityStatusId: number;
+  specificDate: string | null;
+};
+
+export type StaffGalleryRow = {
+  id: string;
+  staffId: string;
+  staffName: string;
+  title: TranslationMap;
+  displayTitle: string;
+  description: TranslationMap;
+  url: string;
+  mediaType: string;
+  displayOrder: number;
+  isPrimary: boolean;
+};
+
+export type StaffServiceRow = {
+  id: string;
+  staffId: string;
+  staffName: string;
+  serviceDefinitionId: string;
+  serviceDefinitionName: string;
+  isActive: boolean;
+  notes: TranslationMap;
+};
+
+export type ProviderStaffRelatedRecords = {
+  certifications: StaffCertificationRow[];
+  education: StaffEducationRow[];
+  availability: StaffAvailabilityRow[];
+  gallery: StaffGalleryRow[];
+  services: StaffServiceRow[];
+  serviceDefinitions: ServiceDefinitionOption[];
+};
+
+export type ServiceIncludedRow = {
+  id: string;
+  providerServiceId: string;
+  serviceName: string;
+  item: string;
+};
+
+export type ServiceProcessRow = {
+  id: string;
+  providerServiceId: string;
+  serviceName: string;
+  step: number;
+  title: string | null;
+  description: string | null;
+  duration: string | null;
+};
+
+export type ServiceFaqRow = {
+  id: string;
+  providerServiceId: string;
+  serviceName: string;
+  question: string | null;
+  answer: string | null;
+};

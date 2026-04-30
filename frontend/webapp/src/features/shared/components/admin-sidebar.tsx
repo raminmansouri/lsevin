@@ -49,54 +49,81 @@ const data: AdminSidebarItemType[] = [
     url: "/admin/service-providers",
   },
   {
-    title: "bookingdrafts",
-    url: "/admin/booking-drafts",
-  },
-  {
     title: "bookings",
     url: "/admin/bookings",
+    items: [
+      { title: "bookings", url: "/admin/bookings" },
+      { title: "bookingdrafts", url: "/admin/booking-drafts" },
+      {
+        title: "payments",
+        url: "/admin/payments",
+      },
+      {
+        title: "walletpaymentintents",
+        url: "/admin/wallet-payment-intents",
+      },
+      {
+        title: "wallettransactions",
+        url: "/admin/wallet-transactions",
+      },
+    ],
   },
 
   {
     title: "customers",
     url: "/admin/customers",
-  },
-  {
-    title: "users",
-    url: "/admin/identity-users",
+    items: [
+      { title: "users", url: "/admin/identity-users" },
+      { title: "customers", url: "/admin/customers" },
+    ],
   },
   {
     title: "loyalty",
     url: "/admin/loyalty",
   },
   {
-    title: "payments",
-    url: "/admin/payments",
-  }, 
-  {
-    title: "walletpaymentintents",
-    url: "/admin/wallet-payment-intents",
+    title: "form-builder",
+    url: "/admin/form-builder",
   },
-  {
-    title: "wallettransactions",
-    url: "/admin/wallet-transactions",
-  }, 
   {
     title: "platformdata",
     url: "/admin/platform-data",
-  },{
-    title: "sponsered-slider",
-    url: "/admin/sponsered-slider",
-  },{
+  },
+  {
     title: "home-sections",
     url: "/admin/home-sections/",
-  },{
+    items: [
+      {
+        title: "sponsered-slider",
+        url: "/admin/sponsered-slider",
+      } ,{
+        title: "home-sections",
+        url: "/admin/home-sections/",
+      }
+    ]
+  }, {
     title: "currencies",
     url: "/admin/finance/currencies",
-  },,{
-    title: "exchange-rates",
-    url: "/admin/finance/exchange-rates",
+    items: [
+      {
+        title: "currencies",
+        url: "/admin/finance/currencies",
+      },{
+        title: "exchange-rates",
+        url: "/admin/finance/exchange-rates",
+      },
+    ]
   },
+  {
+    title: "support",
+    url: "/admin/support",
+    items: [
+      { title: "inbox", url: "/admin/support" },
+      { title: "settings", url: "/admin/support/settings" },
+      { title: "cannedReplies", url: "/admin/support/canned-replies" },
+      { title: "tags", url: "/admin/support/tags" },
+    ],
+  }
 ];
 
 export function AdminSidebar({

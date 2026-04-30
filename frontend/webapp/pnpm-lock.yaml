@@ -311,6 +311,9 @@ importers:
       vaul:
         specifier: 1.1.2
         version: 1.1.2(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      zarinpal-node-sdk:
+        specifier: ^2.2.0
+        version: 2.2.0
       zod:
         specifier: 4.1.12
         version: 4.1.12
@@ -6250,6 +6253,9 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  zarinpal-node-sdk@2.2.0:
+    resolution: {integrity: sha512-T6oRxE6b98HpUwOLiM1/TA3z7U4SJJny0Uni2Vod7feNxV7E/NiHFkblHTvCoPwIP7qSgCf75oF2tpQ3KZP4yw==}
 
   zod-validation-error@3.5.3:
     resolution: {integrity: sha512-OT5Y8lbUadqVZCsnyFaTQ4/O2mys4tj7PqhdbBCp7McPwvIEKfPtdA6QfPeFQK2/Rz5LgwmAXRJTugBNBi0btw==}
@@ -12904,6 +12910,13 @@ snapshots:
       lib0: 0.2.114
 
   yocto-queue@0.1.0: {}
+
+  zarinpal-node-sdk@2.2.0:
+    dependencies:
+      axios: 1.12.2
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - debug
 
   zod-validation-error@3.5.3(zod@3.25.76):
     dependencies:

@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Edit, Plus, Trash2 } from "lucide-react";
+import { Edit, Eye, ImageIcon, ListChecks, Plus, Sparkles, Trash2, Workflow, HelpCircle, Gift } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -14,75 +14,192 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 
+import { LocalizedRichPreview } from "./localized-rich-preview";
+import { PortalImage } from "./portal-image";
 import { displayTranslation, joinCsv } from "../lib/normalizers";
 import type { ProviderServiceRow, ProviderWorkspace, ServiceDefinitionOption } from "../types";
 
 type FormValues = z.infer<typeof saveProviderServiceSchema>;
 
+function actionLinkClass(primary = false) {
+  return [
+    "inline-flex h-9 items-center justify-center rounded-xl px-3 text-sm font-medium transition",
+    primary ? "bg-slate-950 text-white hover:bg-slate-800" : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-950",
+  ].join(" ");
+}
+
 export function ServicesManager({
   workspace,
   services,
   definitions,
+  initialServiceId,
+  formOnly = false,
 }: {
   workspace: ProviderWorkspace;
   services: ProviderServiceRow[];
   definitions: ServiceDefinitionOption[];
+  initialServiceId?: string;
+  formOnly?: boolean;
 }) {
-  const [editing, setEditing] = useState<ProviderServiceRow | null>(null);
+  const initialEditing = initialServiceId ? services.find((service) => service.id === initialServiceId) ?? null : null;
+  const [editing, setEditing] = useState<ProviderServiceRow | null>(initialEditing);
   const canManage = workspace.permissions.manageServices;
+  const base = `/provider-portal/providers/${workspace.provider.id}`;
+
+  if (formOnly) {
+    return (
+      <div className="space-y-6">
+        {canManage ? (
+          <ServiceForm
+            providerId={workspace.provider.id}
+            definitions={definitions}
+            editing={editing}
+            onDone={() => setEditing(null)}
+          />
+        ) : <PermissionNotice role={workspace.role} />}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {canManage ? (
-        <ServiceForm
-          providerId={workspace.provider.id}
-          definitions={definitions}
-          editing={editing}
-          onDone={() => setEditing(null)}
-        />
-      ) : null}
-
-      <Card className="rounded-3xl border-slate-200 shadow-sm">
-        <CardHeader>
-          <CardTitle>Services</CardTitle>
-          <CardDescription>Provider-owned services linked to global service definitions.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {services.length ? services.map((service) => (
-            <div key={service.id} className="rounded-2xl border border-slate-200 p-4">
-              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="font-semibold text-slate-950">{service.name}</h3>
-                    <Badge variant={service.isActive ? "default" : "secondary"}>{service.isActive ? "Active" : "Inactive"}</Badge>
-                    {service.isPopular ? <Badge variant="outline">Popular</Badge> : null}
-                  </div>
-                  <p className="mt-1 text-sm text-slate-500">{service.serviceDefinitionName}</p>
-                  <p className="mt-2 text-sm text-slate-600">{displayTranslation(service.description, "en-US", "-")}</p>
-                  <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-500">
-                    <span>{service.currency} {service.value.toLocaleString()}</span>
-                    <span>· {service.durationMinutes} min</span>
-                    <span>· slot {service.slotIntervalMinutes} min</span>
-                    {service.tags?.map((tag) => <Badge key={tag} variant="outline">{tag}</Badge>)}
-                  </div>
-                </div>
-                {canManage ? (
-                  <div className="flex shrink-0 gap-2">
-                    <Button type="button" variant="outline" size="sm" onClick={() => setEditing(service)}>
-                      <Edit className="mr-2 h-4 w-4" /> Edit
-                    </Button>
-                    <DeleteServiceButton providerId={workspace.provider.id} serviceId={service.id} />
-                  </div>
-                ) : null}
-              </div>
+      <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <div className="flex items-center gap-2 text-sm font-semibold text-slate-500">
+              <Sparkles className="h-4 w-4" /> Services
             </div>
-          )) : (
-            <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-slate-500">No services yet.</div>
+            <h1 className="mt-1 text-2xl font-bold text-slate-950">Manage provider services</h1>
+            <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500">
+              This is the provider-owned service catalog. Each row has direct admin-style actions for editing, media, add-ons, included items, process steps and FAQs.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {canManage ? (
+              <Link href={`${base}/services/new`} className={actionLinkClass(true)}>
+                <Plus className="mr-2 h-4 w-4" /> Add service
+              </Link>
+            ) : null}
+            <Link href={`${base}/dashboard`} className={actionLinkClass(false)}>
+              <Eye className="mr-2 h-4 w-4" /> Dashboard
+            </Link>
+          </div>
+        </div>
+        {!canManage ? <PermissionNotice role={workspace.role} /> : null}
+      </div>
+
+      <Card className="overflow-hidden rounded-[2rem] border-slate-200 bg-white shadow-sm">
+        <CardHeader className="border-b border-slate-100 bg-slate-50/60">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <CardTitle>All services</CardTitle>
+              <CardDescription>Visible edit/manage buttons are rendered per row when your provider membership role can manage services.</CardDescription>
+            </div>
+            <Badge variant="outline" className="w-fit rounded-xl px-3 py-1.5">{services.length} records</Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          {services.length ? (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[980px] text-left text-sm">
+                <thead className="border-b border-slate-100 bg-white text-xs uppercase tracking-wide text-slate-500">
+                  <tr>
+                    <th className="px-5 py-3 font-semibold">Service</th>
+                    <th className="px-5 py-3 font-semibold">Price</th>
+                    <th className="px-5 py-3 font-semibold">Timing</th>
+                    <th className="px-5 py-3 font-semibold">Status</th>
+                    <th className="px-5 py-3 text-right font-semibold">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {services.map((service) => (
+                    <tr key={service.id} className="align-top transition hover:bg-slate-50/70">
+                      <td className="px-5 py-4">
+                        <div className="flex gap-4">
+                          <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
+                            <PortalImage src={service.imageUrl} alt={service.name} />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="font-semibold text-slate-950">{service.name}</p>
+                              {service.isPopular ? <Badge variant="outline">Popular</Badge> : null}
+                            </div>
+                            <p className="mt-1 text-xs text-slate-500">{service.serviceDefinitionName}</p>
+                            <div className="mt-2 line-clamp-2 max-w-xl text-sm text-slate-600">
+                              <LocalizedRichPreview translations={service.description} />
+                            </div>
+                            {service.tags?.length ? (
+                              <div className="mt-2 flex flex-wrap gap-1">
+                                {service.tags.map((tag) => <Badge key={tag} variant="outline" className="text-[10px]">{tag}</Badge>)}
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-5 py-4 font-medium text-slate-800">{service.currency} {service.value.toLocaleString()}</td>
+                      <td className="px-5 py-4 text-slate-600">
+                        <div>{service.durationMinutes} min duration</div>
+                        <div className="text-xs text-slate-500">{service.slotIntervalMinutes} min slot interval</div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <Badge variant={service.isActive ? "default" : "secondary"}>{service.isActive ? "Active" : "Inactive"}</Badge>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="flex flex-wrap justify-end gap-2">
+                          {canManage ? (
+                            <>
+                              <Link href={`${base}/services/${service.id}/edit`} className={actionLinkClass(false)}>
+                                <Edit className="mr-2 h-4 w-4" /> Edit
+                              </Link>
+                              <Link href={`${base}/services/${service.id}/gallery`} className={actionLinkClass(false)}>
+                                <ImageIcon className="mr-2 h-4 w-4" /> Media
+                              </Link>
+                              <Link href={`${base}/services/${service.id}/add-ons`} className={actionLinkClass(false)}>
+                                <Gift className="mr-2 h-4 w-4" /> Add-ons
+                              </Link>
+                              <Link href={`${base}/services/${service.id}/included`} className={actionLinkClass(false)}>
+                                <ListChecks className="mr-2 h-4 w-4" /> Included
+                              </Link>
+                              <Link href={`${base}/services/${service.id}/process`} className={actionLinkClass(false)}>
+                                <Workflow className="mr-2 h-4 w-4" /> Process
+                              </Link>
+                              <Link href={`${base}/services/${service.id}/faqs`} className={actionLinkClass(false)}>
+                                <HelpCircle className="mr-2 h-4 w-4" /> FAQs
+                              </Link>
+                              <DeleteServiceButton providerId={workspace.provider.id} serviceId={service.id} />
+                            </>
+                          ) : (
+                            <span className="rounded-xl bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">Read-only role</span>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-3 p-12 text-center">
+              <div className="rounded-3xl bg-slate-100 p-4 text-slate-500"><Sparkles className="h-7 w-7" /></div>
+              <div>
+                <p className="font-semibold text-slate-950">No services yet</p>
+                <p className="mt-1 text-sm text-slate-500">Create the first provider-owned service for this workspace.</p>
+              </div>
+              {canManage ? <Link href={`${base}/services/new`} className={actionLinkClass(true)}><Plus className="mr-2 h-4 w-4" /> Add service</Link> : null}
+            </div>
           )}
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function PermissionNotice({ role }: { role: string }) {
+  return (
+    <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-800">
+      Your current provider portal role is <span className="font-semibold">{role}</span>, so service edit actions are disabled. For the actual provider owner, the row in <code>provider_portal.provider_members</code> must be <code>owner</code>, <code>admin</code>, <code>manager</code>, or <code>editor</code>.
     </div>
   );
 }
@@ -138,7 +255,7 @@ function ServiceForm({
   };
 
   return (
-    <Card className="rounded-3xl border-slate-200 shadow-sm">
+    <Card className="rounded-[2rem] border-slate-200 shadow-sm">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
@@ -240,6 +357,7 @@ function DeleteServiceButton({ providerId, serviceId }: { providerId: string; se
       variant="destructive"
       size="sm"
       disabled={isPending}
+      className="rounded-xl"
       onClick={() => {
         if (!confirm("Deactivate this service?")) return;
         startTransition(async () => {

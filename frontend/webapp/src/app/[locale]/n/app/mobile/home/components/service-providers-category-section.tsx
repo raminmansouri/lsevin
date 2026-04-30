@@ -11,7 +11,7 @@ export function HomeServiceProvidersCategories({
 }) {
   if (!categories.length) {
     return (
-      <div className="col-span-2 rounded-3xl border border-dashed border-gray-200 bg-gray-50 px-5 py-8 text-center">
+      <div className="col-span-2 rounded-3xl border border-dashed border-gray-200 bg-gray-50 px-5 py-8 text-center lg:col-span-4">
         <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#083f30] shadow-sm">
           <Grid2X2 size={20} />
         </div>
@@ -43,7 +43,7 @@ function ServiceProviderCategoryCard({ category }: { category: HomeCategory }) {
           fill
           src={mediaUrl}
           alt={category.label}
-          sizes="50vw"
+          sizes="(min-width: 1024px) 25vw, 50vw"
           className="object-cover transition-transform duration-500 group-hover:scale-110"
         />
       ) : (
@@ -53,7 +53,7 @@ function ServiceProviderCategoryCard({ category }: { category: HomeCategory }) {
       <div className={`absolute inset-0 bg-gradient-to-t ${category.gradient || 'from-[#083f30]/90 to-[#083f30]/40'}`} />
 
       <div className="relative z-10 flex h-full flex-col justify-end p-4">
-        <h3 className="line-clamp-2 text-lg font-bold leading-tight text-white">{category.label}</h3>
+        <h3 className="line-clamp-2 text-lg font-bold leading-tight text-white lg:text-base xl:text-lg">{category.label}</h3>
         {category.serviceCount > 0 ? (
           <p className="mt-1 text-xs font-semibold text-white/80">{category.serviceCount.toLocaleString()} services</p>
         ) : null}

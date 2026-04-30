@@ -7,7 +7,12 @@ export type FieldTypeCode =
   | "select"
   | "radio"
   | "checkbox"
+  | "lazy_searchable_select"
+  | "file_upload"
   | "date"
+  | "datetime"
+  | "persian_date"
+  | "persian_datetime"
   | "date_range"
   | "time"
   | "time_range"
@@ -18,6 +23,10 @@ export type FieldTypeCode =
   | "multilingual_textarea"
   | "richtext"
   | (string & {});
+
+export type FormUsageScope = "main_booking" | "child_addon_booking";
+export type FormSubmissionScope = "booking" | "admin_preview" | "generic";
+export type FormSubmissionStatus = "draft" | "submitted" | "archived";
 
 export interface FormOption {
   id?: string;
@@ -75,9 +84,9 @@ export interface FormSection {
 export interface RuntimeServiceForm {
   formId: string;
   formVersionId: string;
-  serviceDefinitionId: string;
+  serviceDefinitionId?: string | null;
   serviceId?: string;
-  usageScope: "main_booking" | "child_addon_booking";
+  usageScope?: FormUsageScope;
   locales: string[];
   title: string;
   sections: FormSection[];
@@ -86,17 +95,54 @@ export interface RuntimeServiceForm {
 
 export interface DynamicFormSubmissionPayload {
   formVersionId: string;
-  serviceDefinitionId?: string;
-  bookingDraftId?: string;
-  bookingDraftChildId?: string;
-  bookingId?: string;
-  bookingChildId?: string;
-  locale?: string;
-  status?: "draft" | "submitted" | "archived";
+  serviceDefinitionId?: string | null;
+  bookingDraftId?: string | null;
+  bookingDraftChildId?: string | null;
+  bookingId?: string | null;
+  bookingChildId?: string | null;
+  submittedByUserId?: string | null;
+  locale?: string | null;
+  submissionScope?: FormSubmissionScope;
+  status?: FormSubmissionStatus;
   payload: Record<string, unknown>;
+  normalizedPayload?: Record<string, unknown>;
 }
 
 export interface DynamicFormSubmissionResult {
   submissionId: string;
   status: string;
+}
+
+export interface AdminFormSubmissionListItem {
+  id: string;
+  formId: string;
+  formKey: string;
+  formName: string;
+  formVersionId: string;
+  versionNumber: number;
+  versionTitle: string;
+  serviceDefinitionId?: string | null;
+  bookingDraftId?: string | null;
+  bookingDraftChildId?: string | null;
+  bookingId?: string | null;
+  bookingChildId?: string | null;
+  submittedByUserId?: string | null;
+  locale?: string | null;
+  submissionScope: FormSubmissionScope;
+  status: FormSubmissionStatus;
+  payload: Record<string, unknown>;
+  normalizedPayload: Record<string, unknown>;
+  displayValues?: Array<{
+    key: string;
+    label: string;
+    value: unknown;
+    fieldTypeCode?: string;
+    sectionKey?: string | null;
+    sectionTitle?: string | null;
+    sectionDisplayOrder?: number | null;
+    displayOrder?: number | null;
+  }>;
+  createDate: string;
+  lastModifiedDate: string;
+  submittedAt?: string | null;
 }

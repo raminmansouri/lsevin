@@ -2,6 +2,7 @@
 import 'server-only';
 
 import db from '@/config/database/db';
+import { buildDisplayValuesFromPayload, type SubmissionDisplayField } from '../lib/submission-display';
 
 export async function listFormsAdmin() {
   const rows = await db`
@@ -36,7 +37,7 @@ export async function getFormForDesigner(formId: string) {
       f.description,
       f.form_scope
     from form_builder.forms f
-    where f.id = ${formId}
+    where f.id = ${formId}::uuid
     limit 1
   `;
 
@@ -49,13 +50,16 @@ export async function getFormForDesigner(formId: string) {
       fv.title,
       fv.status,
       fv.locales,
+      fv.settings,
       fv.is_active,
       fv.create_date,
       fv.last_modified_date
     from form_builder.form_versions fv
-    where fv.form_id = ${formId}
+    where fv.form_id = ${formId}::uuid
     order by
+      case when exists (select 1 from form_builder.form_fields x where x.form_version_id = fv.id) then 0 else 1 end asc,
       fv.version_number desc,
+      fv.is_active desc,
       fv.create_date desc,
       fv.last_modified_date desc,
       fv.id desc
@@ -77,6 +81,7 @@ export async function getFormForDesigner(formId: string) {
       locales: ["en-US"],
       status: "draft",
       activateVersion: false,
+      settings: { layoutMode: "standard" },
       sections: [],
     };
   }
@@ -111,6 +116,7 @@ export async function getFormForDesigner(formId: string) {
                 select coalesce(
                   jsonb_agg(
                     jsonb_build_object(
+                      'id', fo.id,
                       'value', fo.value,
                       'label', fo.label,
                       'labelTranslations', fo.label_translations,
@@ -149,6 +155,7 @@ export async function getFormForDesigner(formId: string) {
     locales: version.locales ?? ["en-US"],
     status: version.status,
     activateVersion: version.is_active,
+    settings: version.settings ?? { layoutMode: "standard" },
     sections: sections.map((s: any) => ({
       id: s.id,
       key: s.key,
@@ -178,4 +185,166 @@ export async function createServiceDefinitionFormMapping(input: {
     returning id
   `;
   return row;
+}
+
+type ListSubmissionsParams = {
+  formId?: string | null;
+  formVersionId?: string | null;
+  status?: string | null;
+  submissionScope?: string | null;
+  q?: string | null;
+  limit?: number;
+  offset?: number;
+};
+
+function pushParam(params: unknown[], value: unknown) {
+  params.push(value);
+  return `$${params.length}`;
+}
+
+export async function listFormSubmissionsAdmin(params: ListSubmissionsParams = {}) {
+  const queryParams: unknown[] = [];
+  const where: string[] = ["true"];
+
+  if (params.formId) where.push(`f.id = ${pushParam(queryParams, params.formId)}::uuid`);
+  if (params.formVersionId) where.push(`s.form_version_id = ${pushParam(queryParams, params.formVersionId)}::uuid`);
+  if (params.status) where.push(`s.status = ${pushParam(queryParams, params.status)}`);
+  if (params.submissionScope) where.push(`s.submission_scope = ${pushParam(queryParams, params.submissionScope)}`);
+  if (params.q?.trim()) {
+    const placeholder = pushParam(queryParams, `%${params.q.trim()}%`);
+    where.push(`(
+      f.key ilike ${placeholder}
+      or f.name ilike ${placeholder}
+      or fv.title ilike ${placeholder}
+      or s.id::text ilike ${placeholder}
+      or s.payload::text ilike ${placeholder}
+    )`);
+  }
+
+  const limitPlaceholder = pushParam(queryParams, Math.min(200, Math.max(1, Number(params.limit ?? 50))));
+  const offsetPlaceholder = pushParam(queryParams, Math.max(0, Number(params.offset ?? 0)));
+
+  const rows = await db.unsafe(
+    `
+      select
+        s.id,
+        f.id as "formId",
+        f.key as "formKey",
+        f.name as "formName",
+        fv.id as "formVersionId",
+        fv.version_number as "versionNumber",
+        fv.title as "versionTitle",
+        s.service_definition_id as "serviceDefinitionId",
+        s.booking_draft_id as "bookingDraftId",
+        s.booking_draft_child_id as "bookingDraftChildId",
+        s.booking_id as "bookingId",
+        s.booking_child_id as "bookingChildId",
+        s.submitted_by_user_id as "submittedByUserId",
+        s.locale,
+        s.submission_scope as "submissionScope",
+        s.status,
+        s.payload,
+        s.normalized_payload as "normalizedPayload",
+        (
+          select coalesce(
+            jsonb_agg(
+              jsonb_build_object(
+                'key', ff.key,
+                'label', ff.label,
+                'fieldTypeCode', ff.field_type_code,
+                'sectionKey', fs.key,
+                'sectionTitle', fs.title,
+                'sectionDisplayOrder', fs.display_order,
+                'displayOrder', ff.display_order
+              )
+              order by fs.display_order asc, ff.display_order asc
+            ),
+            '[]'::jsonb
+          )
+          from form_builder.form_sections fs
+          join form_builder.form_fields ff on ff.section_id = fs.id
+          where fs.form_version_id = fv.id
+        ) as "fieldDefinitions",
+        s.create_date as "createDate",
+        s.last_modified_date as "lastModifiedDate",
+        s.submitted_at as "submittedAt"
+      from form_builder.submissions s
+      join form_builder.form_versions fv on fv.id = s.form_version_id
+      join form_builder.forms f on f.id = fv.form_id
+      where ${where.join(" and ")}
+      order by s.create_date desc, s.id desc
+      limit ${limitPlaceholder}
+      offset ${offsetPlaceholder}
+    `,
+    queryParams
+  );
+
+  return rows.map(enrichSubmissionRow);
+}
+
+function normalizeSubmissionFields(value: unknown): SubmissionDisplayField[] {
+  return Array.isArray(value) ? (value as SubmissionDisplayField[]) : [];
+}
+
+function enrichSubmissionRow<T extends Record<string, any>>(row: T) {
+  const fieldDefinitions = normalizeSubmissionFields(row.fieldDefinitions);
+  const { fieldDefinitions: _fieldDefinitions, ...rest } = row;
+  return {
+    ...rest,
+    displayValues: buildDisplayValuesFromPayload((row.payload ?? {}) as Record<string, unknown>, fieldDefinitions),
+  };
+}
+
+export async function getFormSubmissionAdmin(submissionId: string) {
+  const rows = await db`
+    select
+      s.id,
+      f.id as "formId",
+      f.key as "formKey",
+      f.name as "formName",
+      fv.id as "formVersionId",
+      fv.version_number as "versionNumber",
+      fv.title as "versionTitle",
+      s.service_definition_id as "serviceDefinitionId",
+      s.booking_draft_id as "bookingDraftId",
+      s.booking_draft_child_id as "bookingDraftChildId",
+      s.booking_id as "bookingId",
+      s.booking_child_id as "bookingChildId",
+      s.submitted_by_user_id as "submittedByUserId",
+      s.locale,
+      s.submission_scope as "submissionScope",
+      s.status,
+      s.payload,
+      s.normalized_payload as "normalizedPayload",
+      (
+        select coalesce(
+          jsonb_agg(
+            jsonb_build_object(
+              'key', ff.key,
+              'label', ff.label,
+              'fieldTypeCode', ff.field_type_code,
+              'sectionKey', fs.key,
+              'sectionTitle', fs.title,
+              'sectionDisplayOrder', fs.display_order,
+              'displayOrder', ff.display_order
+            )
+            order by fs.display_order asc, ff.display_order asc
+          ),
+          '[]'::jsonb
+        )
+        from form_builder.form_sections fs
+        join form_builder.form_fields ff on ff.section_id = fs.id
+        where fs.form_version_id = fv.id
+      ) as "fieldDefinitions",
+      s.create_date as "createDate",
+      s.last_modified_date as "lastModifiedDate",
+      s.submitted_at as "submittedAt"
+    from form_builder.submissions s
+    join form_builder.form_versions fv on fv.id = s.form_version_id
+    join form_builder.forms f on f.id = fv.form_id
+    where s.id = ${submissionId}::uuid
+    limit 1
+  `;
+
+  return rows[0] ? enrichSubmissionRow(rows[0] as any) : null;
 }

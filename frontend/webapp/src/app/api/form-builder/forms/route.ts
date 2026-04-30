@@ -1,31 +1,37 @@
-
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { listFormsAdmin, getFormForDesigner } from "@/features/form-builder/server/admin-repository";
 import { upsertFormDefinition } from "@/features/form-builder/server/repository";
-import { getFormForDesigner, listFormsAdmin } from "@/features/form-builder/server/admin-repository";
 
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const formId = searchParams.get("formId");
+
   try {
-    const { searchParams } = new URL(request.url);
-    const formId = searchParams.get("formId");
     if (formId) {
       const item = await getFormForDesigner(formId);
+      if (!item) return NextResponse.json({ error: "Form not found" }, { status: 404 });
       return NextResponse.json({ item });
     }
+
     const items = await listFormsAdmin();
     return NextResponse.json({ items });
   } catch (error) {
-    console.error("GET /api/form-builder/forms failed", error);
-    return NextResponse.json({ message: "Failed to load forms" }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Failed to load forms" },
+      { status: 500 }
+    );
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
     const body = await request.json();
     const result = await upsertFormDefinition(body);
-    return NextResponse.json(result, { status: 201 });
+    return NextResponse.json({ item: result, result, formId: result.formId });
   } catch (error) {
-    console.error("POST /api/form-builder/forms failed", error);
-    return NextResponse.json({ message: "Failed to save form definition" }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Failed to save form" },
+      { status: 400 }
+    );
   }
 }

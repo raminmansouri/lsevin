@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "@/i18n/navigation";
 
+import { PortalImage } from "./portal-image";
 import { displayTranslation, joinCsv } from "../lib/normalizers";
 import type { ProviderWorkspace } from "../types";
 
@@ -134,6 +135,10 @@ export function ProviderProfileForm({ workspace }: { workspace: ProviderWorkspac
           <Field label="Image URL / media id">
             <Input {...form.register("imageUrl")} placeholder="media id or URL" disabled={isPending} />
           </Field>
+
+          <div className="relative h-32 overflow-hidden rounded-2xl border border-slate-200 md:col-span-2">
+            <PortalImage src={form.watch("imageUrl")} alt={provider.displayName} className="object-cover" />
+          </div>
 
           <Field label="Response time">
             <Input {...form.register("responseTime")} placeholder="Usually responds in 1 hour" disabled={isPending} />

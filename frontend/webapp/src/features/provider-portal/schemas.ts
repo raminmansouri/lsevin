@@ -182,12 +182,185 @@ export const updateSupportTicketSchema = z.object({
   status: z.enum(["open", "in_progress", "resolved", "closed"]),
 });
 
-export const approveApplicationSchema = z.object({
-  applicationId: uuid,
-  reviewNote: z.string().trim().optional().default(""),
+
+export const saveProviderCertificationSchema = z.object({
+  providerId: uuid,
+  certificationId: uuid.optional().nullable(),
+  name: z.string().trim().min(1, "Certification name is required."),
 });
 
-export const rejectApplicationSchema = z.object({
-  applicationId: uuid,
-  reviewReason: z.string().trim().min(2, "Rejection reason is required."),
+export const deleteProviderCertificationSchema = z.object({
+  providerId: uuid,
+  certificationId: uuid,
+});
+
+export const saveProviderPolicySchema = z.object({
+  providerId: uuid,
+  policyId: uuid.optional().nullable(),
+  providerPolicyTypeId: uuid.optional().nullable(),
+  typeEn: z.string().trim().optional().default(""),
+  typeFa: z.string().trim().optional().default(""),
+  descriptionEn: z.string().trim().optional().default(""),
+  descriptionFa: z.string().trim().optional().default(""),
+});
+
+export const deleteProviderPolicySchema = z.object({
+  providerId: uuid,
+  policyId: uuid,
+});
+
+export const saveServiceGalleryItemSchema = z.object({
+  providerId: uuid,
+  serviceGalleryItemId: uuid.optional().nullable(),
+  providerServiceId: uuid,
+  titleEn: z.string().trim().optional().default(""),
+  titleFa: z.string().trim().optional().default(""),
+  descriptionEn: z.string().trim().optional().default(""),
+  descriptionFa: z.string().trim().optional().default(""),
+  url: z.string().trim().min(1, "Media URL or media id is required."),
+  mediaType: z.enum(["image", "video", "gif", "file"]).default("image"),
+  displayOrder: z.coerce.number().int().default(0),
+  isPrimary: z.coerce.boolean().default(false),
+});
+
+export const deleteServiceGalleryItemSchema = z.object({
+  providerId: uuid,
+  serviceGalleryItemId: uuid,
+});
+
+export const saveServiceAddonSettingSchema = z.object({
+  providerId: uuid,
+  providerServiceId: uuid,
+  addonId: z.string().trim().min(1),
+  isEnabled: z.coerce.boolean().default(true),
+  customPrice: optionalNumber.refine((value) => value === null || value === undefined || value >= 0, "Custom price cannot be negative."),
+});
+
+export const deleteServiceAddonSettingSchema = z.object({
+  providerId: uuid,
+  providerServiceId: uuid,
+  addonId: z.string().trim().min(1),
+});
+
+export const saveStaffCertificationSchema = z.object({
+  providerId: uuid,
+  certificationId: uuid.optional().nullable(),
+  staffId: uuid,
+  name: z.string().trim().min(1, "Certification name is required."),
+  issuer: optionalText,
+});
+
+export const deleteStaffCertificationSchema = z.object({
+  providerId: uuid,
+  certificationId: uuid,
+});
+
+export const saveStaffEducationSchema = z.object({
+  providerId: uuid,
+  educationId: uuid.optional().nullable(),
+  staffId: uuid,
+  degree: z.string().trim().min(1, "Degree is required."),
+  institution: z.string().trim().min(1, "Institution is required."),
+  year: optionalInt.refine((value) => value === null || value === undefined || (value >= 1900 && value <= 2200), "Year is invalid."),
+});
+
+export const deleteStaffEducationSchema = z.object({
+  providerId: uuid,
+  educationId: uuid,
+});
+
+export const saveStaffAvailabilitySchema = z.object({
+  providerId: uuid,
+  availabilityId: uuid.optional().nullable(),
+  staffId: uuid,
+  dayOfWeek: z.coerce.number().int().min(1).max(7),
+  startTime: z.string().trim().min(1),
+  endTime: z.string().trim().min(1),
+  isRecurring: z.coerce.boolean().default(true),
+  availabilityStatusId: z.coerce.number().int().min(1).default(1),
+  specificDate: optionalText,
+});
+
+export const deleteStaffAvailabilitySchema = z.object({
+  providerId: uuid,
+  availabilityId: uuid,
+});
+
+export const saveStaffGalleryItemSchema = z.object({
+  providerId: uuid,
+  staffGalleryItemId: uuid.optional().nullable(),
+  staffId: uuid,
+  titleEn: z.string().trim().optional().default(""),
+  titleFa: z.string().trim().optional().default(""),
+  descriptionEn: z.string().trim().optional().default(""),
+  descriptionFa: z.string().trim().optional().default(""),
+  url: z.string().trim().min(1, "Media URL or media id is required."),
+  mediaType: z.enum(["image", "video", "gif", "file"]).default("image"),
+  displayOrder: z.coerce.number().int().default(0),
+  isPrimary: z.coerce.boolean().default(false),
+});
+
+export const deleteStaffGalleryItemSchema = z.object({
+  providerId: uuid,
+  staffGalleryItemId: uuid,
+});
+
+export const saveStaffServiceSchema = z.object({
+  providerId: uuid,
+  staffServiceId: uuid.optional().nullable(),
+  staffId: uuid,
+  serviceDefinitionId: uuid,
+  notesEn: z.string().trim().optional().default(""),
+  notesFa: z.string().trim().optional().default(""),
+  isActive: z.coerce.boolean().default(true),
+});
+
+export const deleteStaffServiceSchema = z.object({
+  providerId: uuid,
+  staffServiceId: uuid,
+});
+
+export const deletePayoutAccountSchema = z.object({
+  providerId: uuid,
+  payoutAccountId: uuid,
+});
+
+export const saveServiceIncludedSchema = z.object({
+  providerId: uuid,
+  includedId: uuid.optional().nullable(),
+  providerServiceId: uuid,
+  item: z.string().trim().min(1, "Included item is required.").max(200),
+});
+
+export const deleteServiceIncludedSchema = z.object({
+  providerId: uuid,
+  includedId: uuid,
+});
+
+export const saveServiceProcessSchema = z.object({
+  providerId: uuid,
+  processId: uuid.optional().nullable(),
+  providerServiceId: uuid,
+  step: z.coerce.number().int().min(1),
+  title: optionalText,
+  description: optionalText,
+  duration: optionalText,
+});
+
+export const deleteServiceProcessSchema = z.object({
+  providerId: uuid,
+  processId: uuid,
+});
+
+export const saveServiceFaqSchema = z.object({
+  providerId: uuid,
+  faqId: uuid.optional().nullable(),
+  providerServiceId: uuid,
+  question: optionalText,
+  answer: optionalText,
+});
+
+export const deleteServiceFaqSchema = z.object({
+  providerId: uuid,
+  faqId: uuid,
 });

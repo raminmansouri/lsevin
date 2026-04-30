@@ -116,6 +116,7 @@
     "use-debounce": "10.0.6",
     "uuid": "13.0.0",
     "vaul": "1.1.2",
+    "zarinpal-node-sdk": "^2.2.0",
     "zod": "4.1.12",
     "zustand": "5.0.8"
   },

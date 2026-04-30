@@ -13,8 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { useRouter } from '@/i18n/navigation';
 
-import { upsertCurrencyAction } from '../../actions/admin-currency-actions';
-import { CurrencyFormSchema } from '../../schemas/admin-currency-schemas';
+import { CurrencyFormSchema, upsertCurrencyAction } from '../../actions/admin-currency-actions';
 import type { Currency } from '../../types';
 
 type FormInput = z.infer<typeof CurrencyFormSchema>;

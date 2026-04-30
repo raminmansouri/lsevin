@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "@/i18n/navigation";
 
+import { LocalizedRichPreview } from "./localized-rich-preview";
+import { PortalImage } from "./portal-image";
 import { displayTranslation } from "../lib/normalizers";
 import type { GalleryRow, ProviderWorkspace } from "../types";
 
@@ -37,15 +39,12 @@ export function MediaManager({ workspace, gallery }: { workspace: ProviderWorksp
         <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {gallery.length ? gallery.map((item) => (
             <div key={item.id} className="overflow-hidden rounded-2xl border border-slate-200">
-              {item.mediaType === "image" || item.mediaType === "gif" ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={item.url} alt={item.displayTitle || "Provider media"} className="h-44 w-full object-cover" />
-              ) : (
-                <div className="flex h-44 items-center justify-center bg-slate-100 text-sm text-slate-500">{item.mediaType}</div>
-              )}
+              <div className="relative h-44 w-full">
+                <PortalImage src={item.url} alt={item.displayTitle || "Provider media"} />
+              </div>
               <div className="space-y-3 p-4">
                 <h3 className="font-semibold">{item.displayTitle || item.url}</h3>
-                <p className="line-clamp-2 text-sm text-slate-500">{displayTranslation(item.description, "en-US", "-")}</p>
+                <div className="line-clamp-2 text-sm text-slate-500"><LocalizedRichPreview translations={item.description} /></div>
                 {workspace.permissions.manageMedia ? (
                   <div className="flex gap-2">
                     <Button type="button" variant="outline" size="sm" onClick={() => setEditing(item)}>
@@ -147,6 +146,10 @@ function GalleryForm({ providerId, editing, onDone }: { providerId: string; edit
             <span className="text-sm font-medium">Display order</span>
             <Input type="number" {...form.register("displayOrder")} disabled={isPending} />
           </label>
+
+          <div className="relative h-32 overflow-hidden rounded-2xl border border-slate-200 md:col-span-2">
+            <PortalImage src={form.watch("url")} alt="Media preview" />
+          </div>
 
           <div className="flex justify-end gap-3 border-t pt-5 md:col-span-2">
             {editing ? <Button type="button" variant="outline" onClick={onDone}>Cancel edit</Button> : null}
