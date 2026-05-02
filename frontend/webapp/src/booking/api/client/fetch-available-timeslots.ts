@@ -35,14 +35,14 @@ export const getAvailableTimeslotsClient = async (
 
 /* ------------------------------------------- */
 const tag = "booking-getAvailableTimeslots";
-const queryAvailableTimeslotsKey = (locale: Locale) => [tag, locale] as const;
+const queryAvailableTimeslotsKey = (selectedDate: unknown, providerId: unknown, serviceId: unknown, specialistId: unknown, locale: Locale) => [tag, locale, selectedDate ?? null, providerId ?? null, serviceId ?? null, specialistId ?? null] as const;
 
 export const useGetAvailableTimeslots = ( selectedDate,
       providerId,
       serviceId,
       specialistId,locale: Locale) => {
   const options = queryOptions<GetAvailableTimeslotsResponse, IProblem>({
-    queryKey: queryAvailableTimeslotsKey(locale),
+    queryKey: queryAvailableTimeslotsKey(selectedDate, providerId, serviceId, specialistId, locale),
     queryFn: () => getAvailableTimeslotsClient( selectedDate,
       providerId,
       serviceId,

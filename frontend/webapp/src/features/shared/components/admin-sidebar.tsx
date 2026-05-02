@@ -48,6 +48,10 @@ const data: AdminSidebarItemType[] = [
     title: "serviceProviders",
     url: "/admin/service-providers",
   },
+    {
+    title: "availability",
+    url: "/admin/availability",
+  },
   {
     title: "bookings",
     url: "/admin/bookings",
@@ -108,9 +112,13 @@ const data: AdminSidebarItemType[] = [
       {
         title: "currencies",
         url: "/admin/finance/currencies",
-      },{
+      },
+      {
         title: "exchange-rates",
         url: "/admin/finance/exchange-rates",
+      },    {
+        title: "payment-gateways",
+        url: "/admin/payment-gateway",
       },
     ]
   },

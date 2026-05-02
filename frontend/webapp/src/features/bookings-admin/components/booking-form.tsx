@@ -17,6 +17,7 @@ import { getBookingAdminLookups } from "@/features/booking-admin-shared/server/l
 import { saveBookingAction } from "../actions/save-booking";
 import { BookingFormSchema, type BookingFormInput } from "../schemas";
 import type { BookingDetail } from "../types";
+import { formatBookingDate, normalizeBookingCalendar, parseBookingCalendarDate } from "@/features/booking-pro/lib/calendar";
 
 interface Props {
   booking?: BookingDetail | null;
@@ -26,6 +27,7 @@ interface Props {
 
 export function BookingForm({ booking, locale, lookups }: Props) {
   const router = useRouter();
+  const adminCalendar = normalizeBookingCalendar(undefined, locale);
   const [isPending, startTransition] = useTransition();
   const form = useForm<BookingFormInput>({
     resolver: zodResolver(BookingFormSchema),
@@ -160,7 +162,37 @@ export function BookingForm({ booking, locale, lookups }: Props) {
           </div>
 
           <div className="grid gap-4 md:grid-cols-4">
-            <FormField control={form.control} name="selectedDate" render={({ field }) => <FormItem><FormLabel>Date</FormLabel><FormControl><Input type="date" {...field} value={field.value ?? ''} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField
+              control={form.control}
+              name="selectedDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Date</FormLabel>
+                  <FormControl>
+                    <div className="space-y-2">
+                      <Input type="date" {...field} value={field.value ?? ''} disabled={isPending} />
+                      {adminCalendar === 'jalali' ? (
+                        <Input
+                          type="text"
+                          placeholder="Jalali date, e.g. 1405/02/10"
+                          disabled={isPending}
+                          onBlur={(event) => {
+                            const iso = parseBookingCalendarDate(event.target.value, 'jalali', locale);
+                            if (iso) field.onChange(iso);
+                          }}
+                        />
+                      ) : null}
+                      {field.value ? (
+                        <p className="text-xs text-muted-foreground">
+                          Display: {formatBookingDate(field.value, { locale, calendar: adminCalendar })}
+                        </p>
+                      ) : null}
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField control={form.control} name="selectedTime" render={({ field }) => <FormItem><FormLabel>Time</FormLabel><FormControl><Input type="time" {...field} value={field.value ?? ''} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
             <FormField control={form.control} name="selectedTimeFrom" render={({ field }) => <FormItem><FormLabel>From</FormLabel><FormControl><Input type="time" {...field} value={field.value ?? ''} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
             <FormField control={form.control} name="selectedTimeTo" render={({ field }) => <FormItem><FormLabel>To</FormLabel><FormControl><Input type="time" {...field} value={field.value ?? ''} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />

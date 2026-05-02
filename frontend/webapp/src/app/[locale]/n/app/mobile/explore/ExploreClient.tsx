@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { env } from "@/config/env/client";
@@ -25,6 +25,13 @@ import {
 import { ImageWithFallback } from "../../components/figma/ImageWithFallback";
 
 import FavoriteButton from "./FavoriteButton";
+import LazySearchableSelect from "./LazySearchableSelect";
+import {
+  getExploreCityOptionAction,
+  getExploreCountryOptionAction,
+  searchExploreCityOptionsAction,
+  searchExploreCountryOptionsAction,
+} from "./explore-location.actions";
 import type {
   ExploreCategory,
   ExploreFeaturedProvider,
@@ -35,6 +42,8 @@ import type {
 } from "./explore.data";
 
 type FilterFormValues = {
+  countryCode: string | null;
+  cityCode: string | null;
   maxPrice: number;
   minRating: number;
   verifiedOnly: boolean;
@@ -45,6 +54,8 @@ type FilterFormValues = {
 type OptimisticUiFilters = {
   categoryId: string;
   providerTypeId: string;
+  countryCode: string | null;
+  cityCode: string | null;
   maxPrice: number;
   minRating: number;
   verifiedOnly: boolean;
@@ -60,6 +71,8 @@ function buildExploreQuery(next: ExploreFiltersInput) {
   if (next.providerTypeId && next.providerTypeId !== "all") {
     params.set("providerTypeId", next.providerTypeId);
   }
+  if (next.countryCode) params.set("country", next.countryCode);
+  if (next.cityCode) params.set("city", next.cityCode);
   if (next.minPrice > 0) params.set("minPrice", String(next.minPrice));
   if (next.maxPrice > 0 && next.maxPrice !== 5000) params.set("maxPrice", String(next.maxPrice));
   if (next.minRating > 0) params.set("minRating", String(next.minRating));
@@ -171,6 +184,7 @@ export default function ExploreClient({
   trendingServices,
   sponsoredProviders,
   availableLanguages,
+  locale,
   filters: initialFilters,
 }: {
   customerId: string | null;
@@ -180,6 +194,7 @@ export default function ExploreClient({
   trendingServices: ExploreTrendingService[];
   sponsoredProviders: ExploreSponsoredProvider[];
   availableLanguages: string[];
+  locale: string;
   filters: ExploreFiltersInput;
 }) {
   const router = useRouter();
@@ -191,6 +206,8 @@ export default function ExploreClient({
     () => ({
       categoryId: initialFilters.categoryId ?? "all",
       providerTypeId: initialFilters.providerTypeId ?? "all",
+      countryCode: initialFilters.countryCode,
+      cityCode: initialFilters.cityCode,
       maxPrice: initialFilters.maxPrice || 5000,
       minRating: initialFilters.minRating || 0,
       verifiedOnly: initialFilters.verifiedOnly,
@@ -208,6 +225,8 @@ export default function ExploreClient({
 
   const form = useForm<FilterFormValues>({
     defaultValues: {
+      countryCode: initialUiFilters.countryCode,
+      cityCode: initialUiFilters.cityCode,
       maxPrice: initialUiFilters.maxPrice,
       minRating: initialUiFilters.minRating,
       verifiedOnly: initialUiFilters.verifiedOnly,
@@ -218,6 +237,8 @@ export default function ExploreClient({
 
   useEffect(() => {
     form.reset({
+      countryCode: initialUiFilters.countryCode,
+      cityCode: initialUiFilters.cityCode,
       maxPrice: initialUiFilters.maxPrice,
       minRating: initialUiFilters.minRating,
       verifiedOnly: initialUiFilters.verifiedOnly,
@@ -230,6 +251,8 @@ export default function ExploreClient({
 
   const modalFilters = useMemo(
     () => ({
+      countryCode: watched.countryCode ?? null,
+      cityCode: watched.cityCode ?? null,
       priceRange: [0, watched.maxPrice ?? 5000] as [number, number],
       minRating: watched.minRating ?? 0,
       verifiedOnly: watched.verifiedOnly ?? false,
@@ -237,6 +260,31 @@ export default function ExploreClient({
       responseTime: watched.responseTime ?? "any",
     }),
     [watched],
+  );
+
+  const selectedCountryCode = watched.countryCode ?? null;
+
+  const loadCountryOptions = useCallback(
+    (args: { search: string; page: number; pageSize: number }) =>
+      searchExploreCountryOptionsAction({ locale, ...args }),
+    [locale],
+  );
+
+  const loadSelectedCountry = useCallback(
+    (value: string) => getExploreCountryOptionAction({ locale, value }),
+    [locale],
+  );
+
+  const loadCityOptions = useCallback(
+    (args: { search: string; page: number; pageSize: number }) =>
+      searchExploreCityOptionsAction({ locale, countryCode: selectedCountryCode, ...args }),
+    [locale, selectedCountryCode],
+  );
+
+  const loadSelectedCity = useCallback(
+    (value: string) =>
+      getExploreCityOptionAction({ locale, countryCode: selectedCountryCode, value }),
+    [locale, selectedCountryCode],
   );
 
   const activeUiFilters = uiFilters;
@@ -247,6 +295,8 @@ export default function ExploreClient({
     activeUiFilters.languages.length > 0 ||
     activeUiFilters.responseTime !== "any" ||
     activeUiFilters.providerTypeId !== "all" ||
+    Boolean(activeUiFilters.countryCode) ||
+    Boolean(activeUiFilters.cityCode) ||
     activeUiFilters.maxPrice !== 5000;
 
   const applyCategory = (categoryId: string) => {
@@ -265,6 +315,8 @@ export default function ExploreClient({
         categoryId: nextCategoryId === "all" ? null : nextCategoryId,
         providerTypeId:
           activeUiFilters.providerTypeId === "all" ? null : activeUiFilters.providerTypeId,
+        countryCode: activeUiFilters.countryCode,
+        cityCode: activeUiFilters.cityCode,
         minPrice: 0,
         maxPrice: activeUiFilters.maxPrice,
         minRating: activeUiFilters.minRating,
@@ -290,6 +342,8 @@ export default function ExploreClient({
         ...initialFilters,
         categoryId: activeUiFilters.categoryId === "all" ? null : activeUiFilters.categoryId,
         providerTypeId: nextProviderTypeId === "all" ? null : nextProviderTypeId,
+        countryCode: activeUiFilters.countryCode,
+        cityCode: activeUiFilters.cityCode,
         minPrice: 0,
         maxPrice: activeUiFilters.maxPrice,
         minRating: activeUiFilters.minRating,
@@ -304,6 +358,8 @@ export default function ExploreClient({
     const nextUiFilters: OptimisticUiFilters = {
       categoryId: activeUiFilters.categoryId,
       providerTypeId: activeUiFilters.providerTypeId,
+      countryCode: values.countryCode ?? null,
+      cityCode: values.cityCode ?? null,
       maxPrice: values.maxPrice,
       minRating: values.minRating,
       verifiedOnly: values.verifiedOnly,
@@ -322,6 +378,8 @@ export default function ExploreClient({
         categoryId: nextUiFilters.categoryId === "all" ? null : nextUiFilters.categoryId,
         providerTypeId:
           nextUiFilters.providerTypeId === "all" ? null : nextUiFilters.providerTypeId,
+        countryCode: nextUiFilters.countryCode,
+        cityCode: nextUiFilters.cityCode,
         minPrice: 0,
         maxPrice: nextUiFilters.maxPrice,
         minRating: nextUiFilters.minRating,
@@ -336,6 +394,8 @@ export default function ExploreClient({
     const cleared: OptimisticUiFilters = {
       categoryId: activeUiFilters.categoryId,
       providerTypeId: activeUiFilters.providerTypeId,
+      countryCode: null,
+      cityCode: null,
       maxPrice: 5000,
       minRating: 0,
       verifiedOnly: false,
@@ -344,6 +404,8 @@ export default function ExploreClient({
     };
 
     form.reset({
+      countryCode: null,
+      cityCode: null,
       maxPrice: 5000,
       minRating: 0,
       verifiedOnly: false,
@@ -360,6 +422,8 @@ export default function ExploreClient({
         ...initialFilters,
         categoryId: cleared.categoryId === "all" ? null : cleared.categoryId,
         providerTypeId: cleared.providerTypeId === "all" ? null : cleared.providerTypeId,
+        countryCode: cleared.countryCode,
+        cityCode: cleared.cityCode,
         minPrice: 0,
         maxPrice: 5000,
         minRating: 0,
@@ -387,7 +451,7 @@ export default function ExploreClient({
           </div>
 
           <button
-            onClick={() => router.push("/n/app/mobile/map-discovery")}
+            onClick={() => router.push("/app/map")}
             className="w-11 h-11 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
           >
             <MapPin size={22} className="text-[#083f30]" />
@@ -774,6 +838,40 @@ export default function ExploreClient({
             </div>
 
             <div className="px-5 py-6 space-y-6">
+              <div>
+                <div className="mb-3 flex items-center gap-2">
+                  <MapPin size={20} className="text-[#083f30]" />
+                  <h3 className="font-bold text-gray-900">Location</h3>
+                </div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <LazySearchableSelect
+                    label="Country"
+                    value={modalFilters.countryCode}
+                    placeholder="Select country"
+                    searchPlaceholder="Search countries..."
+                    emptyText="No countries found."
+                    loadOptions={loadCountryOptions}
+                    loadByValue={loadSelectedCountry}
+                    onChange={(value) => {
+                      form.setValue("countryCode", value, { shouldDirty: true });
+                      form.setValue("cityCode", null, { shouldDirty: true });
+                    }}
+                  />
+                  <LazySearchableSelect
+                    key={modalFilters.countryCode ?? "no-country"}
+                    label="City"
+                    value={modalFilters.cityCode}
+                    disabled={!modalFilters.countryCode}
+                    placeholder={modalFilters.countryCode ? "Select city" : "Select country first"}
+                    searchPlaceholder="Search cities..."
+                    emptyText="No cities found for this country."
+                    loadOptions={loadCityOptions}
+                    loadByValue={loadSelectedCity}
+                    onChange={(value) => form.setValue("cityCode", value, { shouldDirty: true })}
+                  />
+                </div>
+              </div>
+
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">

@@ -26,6 +26,7 @@ export default async function Explore({
       trendingServices={data.trendingServices}
       sponsoredProviders={data.sponsoredProviders}
       availableLanguages={data.availableLanguages}
+      locale={locale}
       filters={filters}
     />
   );

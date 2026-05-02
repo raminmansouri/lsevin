@@ -40,11 +40,19 @@ export interface WalletTransactionRow {
   occurredAt: string;
 }
 
+export interface WalletPaymentGatewayOption {
+  code: "zarinpal" | (string & {});
+  displayName: string;
+  provider: string;
+  currency: "IRR" | "IRT" | (string & {});
+}
+
 export interface WalletPageData {
   defaultCurrency: WalletCurrency;
   balances: Record<string, number>;
   pendingBalances: Record<string, number>;
   supportedCurrencies: WalletCurrency[];
+  paymentGateways: WalletPaymentGatewayOption[];
   transactions: WalletTransactionRow[];
 }
 
@@ -52,6 +60,8 @@ export interface CreateTopUpIntentInput {
   amount: number;
   currencyCode: WalletCurrency;
   paymentMethod: Exclude<WalletPaymentMethod, "wallet">;
+  /** Required when paymentMethod is "card". */
+  gateway?: "zarinpal" | (string & {}) | null;
 }
 
 export type CreateTopUpIntentResult =

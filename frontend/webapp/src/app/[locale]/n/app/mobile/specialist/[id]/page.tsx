@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getSpecialistPageAction } from "@/features/service-providers/actions/specialist-page";
 
@@ -27,8 +28,20 @@ async function resolveCurrentUserId() {
   }
 }
 
+export async function generateMetadata({ params }: Pick<PageProps, "params">) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "SpecialistPage" });
+
+  return {
+    title: t("metadata.title"),
+    description: t("metadata.description"),
+  };
+}
+
 export default async function SpecialistPage({ params, searchParams }: PageProps) {
   const resolvedParams = await params;
+  setRequestLocale(resolvedParams.locale);
+
   const resolvedSearchParams = searchParams ? await searchParams : {};
 
   const userId = await resolveCurrentUserId();

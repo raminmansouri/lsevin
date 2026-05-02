@@ -1,15 +1,6 @@
-import { SupportManager } from "@/features/provider-portal/components/support-manager";
-import { getProviderWorkspace, listSupportTickets } from "@/features/provider-portal/server/repository";
-import { requireCurrentUserId } from "@/features/provider-portal/server/session";
+import { redirect } from "next/navigation";
 
-export default async function ProviderSupportPage({ params }: { params: Promise<{ locale: string; providerId: string }> }) {
+export default async function ProviderLegacyRouteRedirect({ params }: { params: Promise<{ locale: string; providerId: string }> }) {
   const { locale, providerId } = await params;
-  const userId = await requireCurrentUserId();
-
-  const [workspace, tickets] = await Promise.all([
-    getProviderWorkspace(userId, providerId, locale),
-    listSupportTickets(userId, providerId),
-  ]);
-
-  return <SupportManager workspace={workspace} tickets={tickets} />;
+  redirect("/" + locale + "/provider-portal/providers/" + providerId + "/manage/support-tickets");
 }

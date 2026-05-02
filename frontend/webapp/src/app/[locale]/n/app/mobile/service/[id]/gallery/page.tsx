@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Image as ImageIcon, PlayCircle } from "lucide-react";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { ArrowLeft, ArrowRight, Image as ImageIcon, PlayCircle } from "lucide-react";
 
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { LexicalDescription } from "@/features/service-providers/components/lexical-description";
@@ -30,8 +31,25 @@ function resolveServerMediaUrl(value?: string | null) {
   return base ? `${base}/${path}` : `/${path}`;
 }
 
+function isRtlLocale(locale: string) {
+  return /^(fa|ar|ku|ur)(-|_|$)/i.test(locale);
+}
+
+export async function generateMetadata({ params }: Pick<ServiceGalleryPageProps, "params">) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "ServiceGalleryPage" });
+
+  return {
+    title: t("metadata.title"),
+    description: t("metadata.description"),
+  };
+}
+
 export default async function ServiceGalleryPage({ params }: ServiceGalleryPageProps) {
   const { locale, id } = await params;
+  setRequestLocale(locale);
+
+  const t = await getTranslations({ locale, namespace: "ServiceGalleryPage" });
   const data = await getServicePageByIdFromDb({ serviceId: id, locale });
 
   if (!data) {
@@ -40,16 +58,21 @@ export default async function ServiceGalleryPage({ params }: ServiceGalleryPageP
 
   const gallery = data.service.galleryItems || [];
   const backHref = `/${locale}/n/app/mobile/service/${id}`;
+  const BackIcon = isRtlLocale(locale) ? ArrowRight : ArrowLeft;
 
   return (
     <main className="min-h-screen bg-white pb-24">
       <div className="sticky top-0 z-20 border-b border-gray-100 bg-white/95 px-5 py-4 backdrop-blur">
         <div className="flex items-center gap-3">
-          <Link href={backHref} className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-900">
-            <ArrowLeft size={20} />
+          <Link
+            href={backHref}
+            aria-label={t("actions.backToService")}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-900"
+          >
+            <BackIcon size={20} />
           </Link>
           <div className="min-w-0">
-            <h1 className="truncate text-xl font-bold text-gray-900">Service gallery</h1>
+            <h1 className="truncate text-xl font-bold text-gray-900">{t("header.title")}</h1>
             <p className="truncate text-sm text-gray-600">{data.service.name}</p>
           </div>
         </div>
@@ -59,8 +82,8 @@ export default async function ServiceGalleryPage({ params }: ServiceGalleryPageP
         {gallery.length === 0 ? (
           <div className="flex min-h-72 flex-col items-center justify-center rounded-3xl border border-dashed border-gray-200 bg-gray-50 p-8 text-center">
             <ImageIcon size={36} className="mb-3 text-gray-400" />
-            <h2 className="text-lg font-bold text-gray-900">No gallery items yet</h2>
-            <p className="mt-1 text-sm text-gray-600">This provider has not published images or videos for this service.</p>
+            <h2 className="text-lg font-bold text-gray-900">{t("empty.title")}</h2>
+            <p className="mt-1 text-sm text-gray-600">{t("empty.description")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3">
@@ -86,7 +109,9 @@ export default async function ServiceGalleryPage({ params }: ServiceGalleryPageP
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 text-white">
                     <div className="flex items-center gap-2">
                       {isVideo && <PlayCircle size={16} className="flex-shrink-0" />}
-                      <figcaption className="line-clamp-1 text-sm font-bold">{item.title || `${data.service.name} ${index + 1}`}</figcaption>
+                      <figcaption className="line-clamp-1 text-sm font-bold">
+                        {item.title || t("gallery.fallbackCaption", { name: data.service.name, number: index + 1 })}
+                      </figcaption>
                     </div>
                     {item.description && <LexicalDescription content={item.description} className="mt-1 line-clamp-2 text-xs text-white/80" />}
                   </div>

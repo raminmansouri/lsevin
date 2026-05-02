@@ -74,6 +74,8 @@ export default function ExploreFilters({
     if (filters.minRating != null) count += 1;
     if (filters.verifiedOnly) count += 1;
     if (filters.languages.length > 0) count += 1;
+    if (filters.countryCode) count += 1;
+    if (filters.cityCode) count += 1;
     if (filters.responseTime !== "any") count += 1;
     if (filters.sort !== "recommended") count += 1;
     return count;
@@ -127,6 +129,10 @@ export default function ExploreFilters({
       "verified",
       "responseTime",
       "languages",
+      "country",
+      "countryCode",
+      "city",
+      "cityCode",
       "sort",
     ].forEach((key) => params.delete(key));
 

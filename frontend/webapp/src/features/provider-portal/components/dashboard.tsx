@@ -3,26 +3,28 @@ import {
   Banknote,
   BookOpen,
   Briefcase,
+  Building2,
   CalendarCheck,
   CalendarDays,
   CreditCard,
+  FileText,
   HelpCircle,
-  Gift,
   ImageIcon,
   LifeBuoy,
-  ListChecks,
   MessageCircle,
+  MessageSquare,
   Percent,
-  Plus,
   ShieldCheck,
   Sparkles,
   Star,
   Users,
 } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
 
+import { providerResourceConfigs } from "../resource-config";
 import type { ProviderWorkspace } from "../types";
 
 function Metric({ title, value, hint, icon: Icon }: { title: string; value: string | number; hint: string; icon: any }) {
@@ -40,16 +42,57 @@ function Metric({ title, value, hint, icon: Icon }: { title: string; value: stri
   );
 }
 
-function RouteCard({ href, title, description, icon: Icon }: { href: string; title: string; description: string; icon: any }) {
+const icons: Record<string, any> = {
+  "provider-certifications": ShieldCheck,
+  "provider-policies": FileText,
+  "provider-gallery": ImageIcon,
+  "provider-attributes": Building2,
+  services: Sparkles,
+  "service-gallery": ImageIcon,
+  "service-included": Briefcase,
+  "service-process": CalendarCheck,
+  "service-faqs": HelpCircle,
+  "service-attribute-values": Building2,
+  "provider-staff-links": Users,
+  "staff-profiles": Users,
+  "staff-certifications": Award,
+  "staff-credentials": ShieldCheck,
+  "staff-education": BookOpen,
+  "staff-achievements": Award,
+  "staff-gallery": ImageIcon,
+  "staff-before-after": ImageIcon,
+  "staff-availability": CalendarDays,
+  "staff-services": Briefcase,
+  "operating-hours": CalendarDays,
+  offers: Percent,
+  "payout-accounts": Banknote,
+  "support-tickets": LifeBuoy,
+  bookings: FileText,
+  reviews: MessageSquare,
+  "customer-requests": HelpCircle,
+  "provider-ledger": CreditCard,
+  invoices: FileText,
+};
+
+function ResourceCard({ base, resource }: { base: string; resource: (typeof providerResourceConfigs)[number] }) {
+  const Icon = icons[resource.key] || Building2;
   return (
-    <Link href={href} className="group rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
+    <Link href={`${base}/manage/${resource.key}`} className="group rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
       <div className="flex items-start gap-4">
         <div className="rounded-2xl bg-slate-100 p-3 text-slate-700 transition group-hover:bg-slate-950 group-hover:text-white">
           <Icon className="h-5 w-5" />
         </div>
-        <div>
-          <h3 className="font-semibold text-slate-950">{title}</h3>
-          <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="font-semibold text-slate-950">{resource.pluralLabel}</h3>
+            <Badge variant="outline" className="rounded-lg text-[10px]">{resource.group}</Badge>
+          </div>
+          <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-500">{resource.description}</p>
+          <div className="mt-3 flex flex-wrap gap-1.5 text-[10px] font-semibold uppercase tracking-wide">
+            {resource.create ? <span className="rounded-lg bg-emerald-50 px-2 py-1 text-emerald-700">Create</span> : <span className="rounded-lg bg-slate-100 px-2 py-1 text-slate-500">No create</span>}
+            {resource.update ? <span className="rounded-lg bg-blue-50 px-2 py-1 text-blue-700">Edit</span> : <span className="rounded-lg bg-slate-100 px-2 py-1 text-slate-500">Read only</span>}
+            {resource.delete ? <span className="rounded-lg bg-rose-50 px-2 py-1 text-rose-700">Delete</span> : null}
+          </div>
         </div>
       </div>
     </Link>
@@ -58,68 +101,52 @@ function RouteCard({ href, title, description, icon: Icon }: { href: string; tit
 
 export function ProviderDashboard({ workspace }: { workspace: ProviderWorkspace }) {
   const base = `/provider-portal/providers/${workspace.provider.id}`;
-
-  const shortcuts = [
-    workspace.permissions.manageProfile ? { href: `${base}/profile`, title: "Profile", description: "Edit public provider name, descriptions, image, contact, languages and specialties.", icon: Sparkles } : null,
-    workspace.permissions.manageProfile ? { href: `${base}/profile/certifications`, title: "Provider certifications", description: "Add and maintain provider-owned certification records.", icon: ShieldCheck } : null,
-    workspace.permissions.manageProfile ? { href: `${base}/profile/policies`, title: "Provider policies", description: "Manage cancellation, refund, privacy and custom provider policies.", icon: Award } : null,
-    workspace.permissions.manageServices ? { href: `${base}/services/new`, title: "Add service", description: "Create a provider-owned service linked to a global service definition.", icon: Plus } : null,
-    workspace.permissions.manageServices ? { href: `${base}/services/gallery/new`, title: "Service gallery", description: "Add image, GIF, video and file records for each provider service.", icon: ImageIcon } : null,
-    workspace.permissions.manageServices ? { href: `${base}/services/add-ons/new`, title: "Service add-ons", description: "Enable add-ons and provider-specific add-on pricing per service.", icon: Gift } : null,
-    workspace.permissions.manageServices ? { href: `${base}/services/included/new`, title: "Included items", description: "Maintain what is included in each service package.", icon: ListChecks } : null,
-    workspace.permissions.manageServices ? { href: `${base}/services/process/new`, title: "Process steps", description: "Create service journey/process records.", icon: CalendarCheck } : null,
-    workspace.permissions.manageServices ? { href: `${base}/services/faqs/new`, title: "Service FAQs", description: "Add service questions and answers.", icon: HelpCircle } : null,
-    workspace.permissions.manageStaff ? { href: `${base}/staff/new`, title: "Add staff", description: "Create doctors, specialists, trainers, teachers or other provider staff.", icon: Users } : null,
-    workspace.permissions.manageStaff ? { href: `${base}/staff/certifications/new`, title: "Staff certifications", description: "Add provider-owned staff certification records.", icon: Award } : null,
-    workspace.permissions.manageStaff ? { href: `${base}/staff/education/new`, title: "Staff education", description: "Maintain degree and institution records.", icon: BookOpen } : null,
-    workspace.permissions.manageStaff ? { href: `${base}/staff/availability/new`, title: "Staff availability", description: "Control staff-level availability records.", icon: CalendarDays } : null,
-    workspace.permissions.manageStaff ? { href: `${base}/staff/services/new`, title: "Staff service links", description: "Connect staff to service definitions they can provide.", icon: Briefcase } : null,
-    workspace.permissions.manageStaff ? { href: `${base}/staff/gallery/new`, title: "Staff gallery", description: "Manage specialist images, videos and profile media.", icon: ImageIcon } : null,
-    workspace.permissions.manageAvailability ? { href: `${base}/availability/operating-hours`, title: "Operating hours", description: "Edit provider weekly opening hours and slot interval.", icon: CalendarDays } : null,
-    workspace.permissions.manageMedia ? { href: `${base}/media/new`, title: "Provider media", description: "Add provider gallery records.", icon: ImageIcon } : null,
-    workspace.permissions.manageOffers ? { href: `${base}/offers/new`, title: "Create offer", description: "Create marketing offers for provider services.", icon: Percent } : null,
-    workspace.permissions.managePayouts ? { href: `${base}/billing/payout-accounts`, title: "Payout accounts", description: "Add and manage provider payout account drafts.", icon: Banknote } : null,
-    workspace.permissions.manageSupport ? { href: `${base}/support/new`, title: "New support ticket", description: "Open a provider-to-LSevin support ticket.", icon: LifeBuoy } : null,
-  ].filter(Boolean) as Array<{ href: string; title: string; description: string; icon: any }>;
+  const visibleResources = providerResourceConfigs;
+  const groups = visibleResources.reduce<Record<string, typeof visibleResources>>((acc, resource) => {
+    acc[resource.group] ||= [];
+    acc[resource.group].push(resource);
+    return acc;
+  }, {});
 
   return (
     <div className="space-y-6">
+      <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Provider admin panel</p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">Manage all data shown on your LSevin provider page</h1>
+        <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-500">
+          This dashboard is now organized like a real back office: profile content, services, service content blocks, staff, scheduling, offers, billing, support, bookings, reviews and customer requests.
+        </p>
+      </section>
+
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <Metric title="Services" value={`${workspace.stats.activeServices}/${workspace.stats.services}`} hint="Active / total service rows" icon={Sparkles} />
         <Metric title="Staff" value={workspace.stats.staff} hint="Active provider staff links" icon={Users} />
         <Metric title="Bookings" value={workspace.stats.bookings} hint={`${workspace.stats.pendingBookings} pending or confirmed`} icon={CalendarCheck} />
         <Metric title="Reviews" value={workspace.stats.reviews} hint={`${workspace.provider.rating.toFixed(2)} rating, ${workspace.provider.reviewCount} counter`} icon={Star} />
         <Metric title="Support" value={workspace.stats.unreadTickets} hint="Open or in-progress tickets" icon={MessageCircle} />
-        <Metric
-          title="Pending ledger"
-          value={`${workspace.stats.ledgerCurrency || ""} ${workspace.stats.pendingLedgerAmount.toLocaleString()}`.trim()}
-          hint="Provider ledger pending amount"
-          icon={CreditCard}
-        />
+        <Metric title="Pending ledger" value={`${workspace.stats.ledgerCurrency || ""} ${workspace.stats.pendingLedgerAmount.toLocaleString()}`.trim()} hint="Provider ledger pending amount" icon={CreditCard} />
       </div>
 
-      <Card className="rounded-3xl border-slate-200 shadow-sm">
-        <CardHeader>
-          <CardTitle>Provider workspace menu</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {shortcuts.map((shortcut) => <RouteCard key={shortcut.href} {...shortcut} />)}
-          </div>
-        </CardContent>
-      </Card>
+      {Object.entries(groups).map(([group, resources]) => (
+        <Card key={group} className="rounded-3xl border-slate-200 shadow-sm">
+          <CardHeader>
+            <CardTitle>{group}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {resources.map((resource) => <ResourceCard key={resource.key} base={base} resource={resource} />)}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
 
       <Card className="rounded-3xl border-slate-200 shadow-sm">
         <CardHeader>
-          <CardTitle>Operational guardrails</CardTitle>
+          <CardTitle>Provider ownership guardrails</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 text-sm leading-6 text-slate-600 md:grid-cols-2">
-          <div className="rounded-2xl bg-slate-50 p-4">
-            This portal is provider-owned. Providers can only manage records owned by providers where they have a `provider_portal.provider_members` membership.
-          </div>
-          <div className="rounded-2xl bg-slate-50 p-4">
-            Provider type, city/country, sponsorship, verified trust flags, commission, and payout activation remain admin-controlled.
-          </div>
+          <div className="rounded-2xl bg-slate-50 p-4">Every query and mutation is scoped through `provider_portal.provider_members` first, then through the actual provider-owned table relationship.</div>
+          <div className="rounded-2xl bg-slate-50 p-4">Admin-only business controls remain outside this provider portal: provider type, sponsorship, verified flags, commission policy, payout approval and global service definitions.</div>
         </CardContent>
       </Card>
     </div>

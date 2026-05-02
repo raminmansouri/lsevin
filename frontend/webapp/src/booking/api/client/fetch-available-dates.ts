@@ -34,14 +34,14 @@ export const getAvailableDatesClient = async (
 
 /* ------------------------------------------- */
 const tag = "booking-getAvailableDates";
-const queryAvailableDatesKey = (locale: Locale) => [tag, locale] as const;
+const queryAvailableDatesKey = (providerId: unknown, serviceId: unknown, specialistId: unknown, locale: Locale) => [tag, locale, providerId ?? null, serviceId ?? null, specialistId ?? null] as const;
 
 export const useGetAvailableDates = (providerId,
       serviceId,
       specialistId,
       locale: Locale) => {
   const options = queryOptions<GetAvailableDatesResponse, IProblem>({
-    queryKey: queryAvailableDatesKey(locale),
+    queryKey: queryAvailableDatesKey(providerId, serviceId, specialistId, locale),
     queryFn: () => getAvailableDatesClient(providerId,
       serviceId,
       specialistId,locale),

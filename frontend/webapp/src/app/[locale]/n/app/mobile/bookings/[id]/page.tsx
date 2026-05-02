@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
-import { useParams } from "next/navigation";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { useParams, useSearchParams } from "next/navigation";
 import {
   AlertCircle,
   BadgeCheck,
@@ -30,6 +30,9 @@ import { hasLexicalContent, LexicalRenderer } from "@/components/editor/lexical-
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { env } from "@/config/env/client";
 import { cancelBookingAction } from "@/booking/actions/cancel-booking";
+import { getEnabledPaymentGatewaysAction } from "@/payment/actions/get-enabled-payment-gateways";
+import type { AvailablePaymentGateway } from "@/payment/actions/get-enabled-payment-gateways/types";
+import { initiateBookingPaymentAction } from "@/payment/actions/initiate-booking-payment";
 import { useFetchGetBookingById } from "@/features/service-providers/api/client/fetch-getBookingById";
 import type { BookingAddonSummary, BookingChildSummary, BookingDocumentSummary, BookingRecord } from "@/features/service-providers/types";
 import { useRouter } from "@/i18n/navigation";
@@ -202,13 +205,28 @@ function DocumentsList({ documents }: { documents?: BookingDocumentSummary[] }) 
   );
 }
 
-function BookingDetailContent({ booking, onCancel }: { booking: BookingRecord; onCancel: () => void }) {
+function BookingDetailContent({
+  booking,
+  onCancel,
+  onPay,
+  isPaying,
+  paymentGateway,
+}: {
+  booking: BookingRecord;
+  onCancel: () => void;
+  onPay: (gateway: AvailablePaymentGateway) => void;
+  isPaying: boolean;
+  paymentGateway?: AvailablePaymentGateway | null;
+}) {
   const navigate = useNavigate();
   const imageSrc = buildFileUrl(booking.providerImage || booking.image);
   const agentImageSrc = buildFileUrl(booking.agent?.image);
   const statusBadge = getStatusBadge(booking.status);
   const StatusIcon = statusBadge.icon;
-  const canCancel = !["cancelled", "canceled", "completed", "done"].includes(normalizeStatus(booking.status));
+  const normalizedBookingStatus = normalizeStatus(booking.status);
+  const normalizedPaymentStatus = normalizeStatus(booking.paymentStatus);
+  const canCancel = !["cancelled", "canceled", "completed", "done"].includes(normalizedBookingStatus);
+  const canPay = Boolean(paymentGateway) && Number(booking.remaining || 0) > 0 && !["paid", "succeeded", "captured", "completed", "refunded"].includes(normalizedPaymentStatus) && !["cancelled", "canceled", "completed", "done"].includes(normalizedBookingStatus);
   const directionsHref = booking.fullAddress
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(booking.fullAddress)}`
     : undefined;
@@ -415,10 +433,22 @@ function BookingDetailContent({ booking, onCancel }: { booking: BookingRecord; o
       </div>
 
       <div className="space-y-2">
+        {canPay && (
+          <button
+            type="button"
+            disabled={isPaying}
+            onClick={() => paymentGateway && onPay(paymentGateway)}
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#083f30] font-semibold text-white transition-colors hover:bg-[#0a5a44] disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {isPaying ? <Loader2 size={18} className="animate-spin" /> : <CreditCard size={20} />}
+            {paymentGateway ? `Pay with ${paymentGateway.displayName}` : "Payment unavailable"}
+          </button>
+        )}
+
         <button
           type="button"
           onClick={() => window.print()}
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#083f30] font-semibold text-white transition-colors hover:bg-[#0a5a44]"
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gray-900 font-semibold text-white transition-colors hover:bg-black"
         >
           <Download size={20} />
           Download Confirmation
@@ -450,12 +480,15 @@ function BookingDetailContent({ booking, onCancel }: { booking: BookingRecord; o
 export default function BookingDetail() {
   const router = useRouter();
   const navigate = useNavigate();
+  const searchParams = useSearchParams();
   const params = useParams<{ id: string }>();
   const id = String(params?.id || "").trim();
 
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [isPaymentPending, startPaymentTransition] = useTransition();
+  const [enabledPaymentGateways, setEnabledPaymentGateways] = useState<AvailablePaymentGateway[]>([]);
   const { data, error, isFetching, refetch } = useFetchGetBookingById({ id });
   const booking = data?.booking;
 
@@ -472,6 +505,46 @@ export default function BookingDetail() {
       toast.error(actionError?.detail || actionError?.title || "Booking could not be cancelled.");
     },
   });
+
+  const { execute: executeLoadPaymentGateways } = useAction(getEnabledPaymentGatewaysAction, {
+    onSuccess: (gateways) => {
+      setEnabledPaymentGateways(gateways || []);
+    },
+    onError: () => {
+      setEnabledPaymentGateways([]);
+    },
+  });
+
+  const { execute: executeInitiatePayment } = useAction(initiateBookingPaymentAction, {
+    startTransition: startPaymentTransition,
+    onSuccess: (payment) => {
+      if (!payment?.redirectUrl) {
+        toast.error("Payment gateway did not return a redirect URL.");
+        return;
+      }
+
+      window.location.assign(payment.redirectUrl);
+    },
+    onError: (actionError) => {
+      toast.error(actionError?.detail || actionError?.title || "Payment could not be started.");
+    },
+  });
+
+  useEffect(() => {
+    executeLoadPaymentGateways({});
+  }, [executeLoadPaymentGateways]);
+
+  useEffect(() => {
+    const paymentStatus = searchParams.get("payment");
+    if (paymentStatus === "succeeded") {
+      toast.success("Payment verified successfully.");
+      refetch();
+    } else if (paymentStatus === "failed") {
+      toast.error(searchParams.get("message") || "Payment verification failed.");
+    } else if (paymentStatus === "cancelled") {
+      toast.info("Payment was cancelled.");
+    }
+  }, [searchParams, refetch]);
 
   const cancelSummary = useMemo(() => {
     if (!booking) return "";
@@ -531,7 +604,13 @@ export default function BookingDetail() {
           <div className="h-32 animate-pulse rounded-2xl bg-white" />
         </div>
       ) : booking ? (
-        <BookingDetailContent booking={booking} onCancel={() => setShowCancelModal(true)} />
+        <BookingDetailContent
+          booking={booking}
+          onCancel={() => setShowCancelModal(true)}
+          onPay={(gateway) => executeInitiatePayment({ bookingId: booking.id, gateway: gateway.code })}
+          isPaying={isPaymentPending}
+          paymentGateway={enabledPaymentGateways[0] || null}
+        />
       ) : null}
 
       {showCancelModal && booking && (

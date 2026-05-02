@@ -1,15 +1,6 @@
-import { BillingManager } from "@/features/provider-portal/components/billing-manager";
-import { getProviderWorkspace, listBilling } from "@/features/provider-portal/server/repository";
-import { requireCurrentUserId } from "@/features/provider-portal/server/session";
+import { redirect } from "next/navigation";
 
-export default async function ProviderPayoutAccountsPage({ params }: { params: Promise<{ locale: string; providerId: string }> }) {
+export default async function ProviderLegacyRouteRedirect({ params }: { params: Promise<{ locale: string; providerId: string }> }) {
   const { locale, providerId } = await params;
-  const userId = await requireCurrentUserId();
-
-  const [workspace, billing] = await Promise.all([
-    getProviderWorkspace(userId, providerId, locale),
-    listBilling(userId, providerId),
-  ]);
-
-  return <BillingManager workspace={workspace} ledgers={billing.ledgers} payoutAccounts={billing.payoutAccounts} />;
+  redirect("/" + locale + "/provider-portal/providers/" + providerId + "/manage/payout-accounts");
 }

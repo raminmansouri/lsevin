@@ -11,6 +11,8 @@ export type NearbyFiltersInput = {
   verifiedOnly: boolean;
   languages: string[];
   specialties: string[];
+  countryCode: string | null;
+  cityCode: string | null;
   lat: number | null;
   lng: number | null;
 };
@@ -62,10 +64,16 @@ export function parseNearbyFilters(
 ): NearbyFiltersInput {
   const languagesRaw = toSingleString(params.languages).trim();
   const specialtiesRaw = toSingleString(params.specialties).trim();
+  const countryCode = (toSingleString(params.countryCode) || toSingleString(params.country)).trim() || null;
+  const cityCode = countryCode
+    ? (toSingleString(params.cityCode) || toSingleString(params.city)).trim() || null
+    : null;
 
   return {
     q: toSingleString(params.q).trim(),
     categoryId: toSingleString(params.categoryId).trim() || null,
+    countryCode,
+    cityCode,
     minPrice: Math.max(0, toFiniteNumber(params.minPrice, 0)),
     maxPrice: Math.max(0, toFiniteNumber(params.maxPrice, 5000)),
     distanceKm: Math.max(1, toFiniteNumber(params.distanceKm ?? params.distance, 10)),
@@ -130,6 +138,14 @@ function buildNearbyWhere(filters: NearbyFiltersInput, lang: string) {
         and cps.is_active = true
         and csd.category_id = ${filters.categoryId}::uuid
     )`);
+  }
+
+  if (filters.countryCode) {
+    conditions.push(sql`sp.country = ${filters.countryCode}`);
+  }
+
+  if (filters.cityCode) {
+    conditions.push(sql`sp.city = ${filters.cityCode}`);
   }
 
   if (filters.minPrice > 0 || filters.maxPrice > 0) {

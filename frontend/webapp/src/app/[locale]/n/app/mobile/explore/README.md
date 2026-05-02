@@ -8,6 +8,8 @@ This version keeps the approved prototype layout and card structure, and only ch
 - `ExploreClient.tsx` — the approved UI, preserved as the interactive client component
 - `explore.data.ts` — postgres.js queries and filter parsing
 - `explore.actions.ts` — server action for favorites
+- `explore-location.actions.ts` — server actions for lazy country/city selector options
+- `LazySearchableSelect.tsx` — reusable lazy loaded searchable single-select UI
 - `FavoriteButton.tsx` — favorite toggle button
 
 ## What stayed the same
@@ -25,6 +27,7 @@ This version keeps the approved prototype layout and card structure, and only ch
 - `react-router` navigation was replaced with `next/navigation`
 - static arrays were replaced with postgres.js queries
 - filters now drive real SQL conditions
+- country/city filters use lazy searchable selectors and provider location codes from `category.service_providers`
 - language filters use `category.provider_languages` and provider language arrays
 - favorites use `customer.favorites`
 - search uses provider/service `search_vector` plus translated name fallback
@@ -38,6 +41,15 @@ This version keeps the approved prototype layout and card structure, and only ch
 - Featured, trending, and sponsored rows are deduped by `id` before rendering.
 - Location joins now use `left join lateral ... limit 1` to prevent duplicated provider rows when `category.locations` has repeated codes.
 - React keys are namespaced to avoid collisions between sections.
+
+## Additions in this build
+
+- Added country then city selection inside Advanced Filters.
+- Country selector is lazy loaded and searchable; it only fetches options when opened or searched.
+- City selector is lazy loaded and searchable; it stays disabled until a country is selected and clears itself when country changes.
+- Added `explore-location.actions.ts` for location option lookups without coupling the UI to the main explore query.
+- Added `LazySearchableSelect.tsx` as a small reusable selector for this page.
+- Existing category/provider-type filtering and old commented category grid were preserved.
 
 ## Important integration notes
 

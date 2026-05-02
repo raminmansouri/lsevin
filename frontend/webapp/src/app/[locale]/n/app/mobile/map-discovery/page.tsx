@@ -14,6 +14,7 @@ export default async function MapDiscoveryPage({
 
   return (
     <NearbyClient
+      locale={locale}
       customerId={data.customerId}
       categories={data.categories}
       providers={data.providers}

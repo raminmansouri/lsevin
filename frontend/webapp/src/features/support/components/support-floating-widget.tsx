@@ -129,7 +129,7 @@ export function SupportFloatingWidget({ bootstrap, disabledOnCurrentRoute }: Pro
   };
 
   return (
-    <div dir={isRtl ? "rtl" : "ltr"} className={`fixed bottom-23 z-50 ${position}`}>
+    <div dir={isRtl ? "rtl" : "ltr"} className={`fixed bottom-45 z-50 ${position}`}>
       {isOpen && (
         <div className="mb-3 w-[calc(100vw-2rem)] max-w-[390px] overflow-hidden rounded-[28px] border bg-white shadow-2xl">
           <div className="p-4 text-white" style={{ background: `linear-gradient(135deg, ${data.settings.primaryColor}, ${data.settings.accentColor})` }}>

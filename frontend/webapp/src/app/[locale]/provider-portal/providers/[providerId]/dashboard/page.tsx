@@ -6,6 +6,5 @@ export default async function ProviderDashboardPage({ params }: { params: Promis
   const { locale, providerId } = await params;
   const userId = await requireCurrentUserId();
   const workspace = await getProviderWorkspace(userId, providerId, locale);
-
   return <ProviderDashboard workspace={workspace} />;
 }

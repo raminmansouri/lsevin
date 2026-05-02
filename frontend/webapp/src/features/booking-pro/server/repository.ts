@@ -1,8 +1,9 @@
 import 'server-only';
-
+import { assertNoUndefinedRecord, pgNumber, pgString } from './checkout-null-safety';
 import db from '@/config/database/db';
 import { calculateBookingPaymentTerms, resolveBookingPaymentPolicy } from '@/features/commercial/lib/server/payment-policy-engine';
 import { applyCommercialSnapshotAfterCheckout } from './commercial-integration';
+import { assertDraftAvailabilityBeforeCheckout } from './booking-availability.repository';
 import { pickTranslation } from '../utils/translation';
 import type {
   BookingDraftState,
@@ -16,6 +17,188 @@ import type {
 } from '../types';
 
 type Locale = string;
+
+function normalizePaymentScheduleLineType(lineType: unknown): "deposit" | "balance" {
+  const raw = String(lineType ?? "").trim().toLowerCase();
+  if (["balance", "remaining", "remaining_balance", "due_later", "later", "final"].includes(raw)) {
+    return "balance";
+  }
+
+  // Internal semantic type. We may persist a different DB-compatible value later,
+  // after reading the actual check constraint installed in the current database.
+  return "deposit";
+}
+
+function extractAllowedScheduleLineTypes(definition: string | null | undefined) {
+  if (!definition || !/line_type/i.test(definition)) return [] as string[];
+  const matches = Array.from(definition.matchAll(/'([^']+)'/g)).map((match) => match[1]);
+  return Array.from(new Set(matches.map((value) => value.trim()).filter(Boolean)));
+}
+
+async function listAllowedScheduleLineTypes(tx: any) {
+  const rows = await tx<any[]>`
+    select pg_get_constraintdef(c.oid) as definition
+    from pg_constraint c
+    join pg_class r on r.oid = c.conrelid
+    join pg_namespace n on n.oid = r.relnamespace
+    where n.nspname = 'commercial'
+      and r.relname = 'booking_payment_schedule_lines'
+      and c.contype = 'c'
+      and pg_get_constraintdef(c.oid) ilike '%line_type%'
+  `;
+
+  const allowed = rows.flatMap((row) => extractAllowedScheduleLineTypes(row.definition));
+  return Array.from(new Set(allowed));
+}
+
+function choosePersistedScheduleLineType(semanticType: "deposit" | "balance", allowedTypes: string[]) {
+  // If there is no check constraint, keep our canonical values.
+  if (!allowedTypes.length) return semanticType;
+
+  const normalizedAllowed = allowedTypes.map((value) => value.trim()).filter(Boolean);
+  const allowedByLower = new Map(normalizedAllowed.map((value) => [value.toLowerCase(), value]));
+  if (allowedByLower.has(semanticType)) return allowedByLower.get(semanticType)!;
+
+  const dueNowCandidates = [
+    "deposit",
+    "due_now",
+    "pay_now",
+    "upfront",
+    "advance",
+    "booking_fee",
+    "fixed",
+    "fixed_fee",
+    "percent",
+    "full_payment",
+    "payment",
+    "installment",
+  ];
+  const balanceCandidates = [
+    "balance",
+    "due_later",
+    "remaining",
+    "remaining_balance",
+    "final",
+    "provider_balance",
+    "installment",
+    "payment",
+  ];
+
+  const candidates = semanticType === "balance" ? balanceCandidates : dueNowCandidates;
+  const found = candidates.find((candidate) => allowedByLower.has(candidate));
+
+  // If we cannot find a safe value, skip inserting the schedule row instead of
+  // breaking checkout. booking_payment_terms still stores due_now/due_later amounts.
+  return found ? allowedByLower.get(found)! : null;
+}
+
+type DraftCouponSnapshot = {
+  source: "loyalty" | "marketing";
+  id: string;
+  code: string;
+  discountType: "percent" | "fixed";
+  discountValue: number;
+  discountAmount: number;
+  title?: string | null;
+  customerCouponId?: string | null;
+};
+
+function normalizeDiscountType(value: unknown): "percent" | "fixed" {
+  const raw = String(value ?? "").trim().toLowerCase();
+  if (["percent", "percentage", "%"].includes(raw)) return "percent";
+  return "fixed";
+}
+
+function calculateCouponDiscount(type: "percent" | "fixed", value: number, grossAmount: number) {
+  const safeValue = Number.isFinite(value) ? Math.max(0, value) : 0;
+  if (type === "percent") return Math.min(grossAmount, Math.round((grossAmount * Math.min(safeValue, 100) / 100) * 100) / 100);
+  return Math.min(grossAmount, Math.round(safeValue * 100) / 100);
+}
+
+async function resolveDraftCoupon(draftId: string, grossAmount: number): Promise<DraftCouponSnapshot | null> {
+  const [draft] = await db<any[]>`
+    select d.user_id, d.service_id, coalesce(d.metadata, '{}'::jsonb) as metadata
+    from booking.booking_drafts d
+    where d.id = ${draftId}
+    limit 1
+  `;
+
+  const rawCode = String(
+    draft?.metadata?.couponCode ??
+    draft?.metadata?.appliedCouponCode ??
+    draft?.metadata?.coupon_code ??
+    ""
+  ).trim();
+
+  if (!rawCode || grossAmount <= 0 || !draft?.user_id) return null;
+
+  const [loyalty] = await db<any[]>`
+    select c.id,
+           c.code,
+           c.title,
+           c.discount_type,
+           c.discount_value,
+           c.min_purchase,
+           cc.id as customer_coupon_id,
+           cc.status as customer_coupon_status
+    from loyalty.coupons c
+    left join loyalty.customer_coupons cc
+      on cc.coupon_id = c.id
+     and cc.customer_id = ${draft.user_id}
+    where lower(c.code) = lower(${rawCode})
+      and c.is_active = true
+      and (c.starts_at is null or c.starts_at <= now())
+      and (c.expires_at is null or c.expires_at >= now())
+      and (c.provider_service_id is null or c.provider_service_id = ${draft.service_id})
+      and coalesce(c.min_purchase, 0) <= ${grossAmount}
+      and (cc.id is null or lower(cc.status) in ('available', 'issued'))
+    order by case when cc.id is not null then 0 else 1 end, c.create_date desc
+    limit 1
+  `;
+
+  if (loyalty) {
+    const discountType = normalizeDiscountType(loyalty.discount_type);
+    const discountValue = Number(loyalty.discount_value ?? 0);
+    return {
+      source: "loyalty",
+      id: String(loyalty.id),
+      code: String(loyalty.code),
+      title: loyalty.title ?? null,
+      discountType,
+      discountValue,
+      discountAmount: calculateCouponDiscount(discountType, discountValue, grossAmount),
+      customerCouponId: loyalty.customer_coupon_id ? String(loyalty.customer_coupon_id) : null,
+    };
+  }
+
+  const [marketing] = await db<any[]>`
+    select id, code, title, discount_type, discount_value, currency_code, status
+    from marketing.user_discount_coupons
+    where customer_id = ${draft.user_id}
+      and lower(code) = lower(${rawCode})
+      and status in ('issued', 'reserved')
+      and (expires_at is null or expires_at >= now())
+    order by issued_at desc
+    limit 1
+  `;
+
+  if (marketing) {
+    const discountType = normalizeDiscountType(marketing.discount_type);
+    const discountValue = Number(marketing.discount_value ?? 0);
+    return {
+      source: "marketing",
+      id: String(marketing.id),
+      code: String(marketing.code),
+      title: marketing.title ?? null,
+      discountType,
+      discountValue,
+      discountAmount: calculateCouponDiscount(discountType, discountValue, grossAmount),
+      customerCouponId: null,
+    };
+  }
+
+  return null;
+}
 
 function mapDraftRow(row: any): BookingDraftState {
   return {
@@ -235,7 +418,7 @@ export async function upsertMainDraftSelection(
         selected_time_to = coalesce(${isTimeString(input.selectedTimeTo) ? input.selectedTimeTo : null}, selected_time_to),
 
         use_lsevin = coalesce(${input.useLsevin ?? null}, use_lsevin),
-        current_step = greatest(coalesce(${input.currentStep ?? null}, current_step), current_step),
+        current_step = coalesce(${input.currentStep ?? null}, current_step),
         payment_method = coalesce(${input.paymentMethod ?? null}, payment_method),
         currency = coalesce(${input.currency ?? null}, currency),
         subtotal_amount = coalesce(${input.subtotalAmount ?? null}, subtotal_amount),
@@ -610,28 +793,149 @@ export async function listUploadRequirements(providerServiceId: string, locale =
 }
 
 export async function recalculateDraftTotals(draftId: string) {
-  const mainRows = await db`
+  const mainRows = await db<any[]>`
     select coalesce(ps.value, 0) as main_amount,
-           coalesce(ps.currency, d.currency) as currency
+           coalesce(ps.currency, d.currency) as currency,
+           coalesce(d.use_lsevin, false) as use_lsevin,
+           d.metadata
     from booking.booking_drafts d
     left join category.provider_services ps on ps.id = d.service_id
     where d.id = ${draftId}
   `;
-  const childRows = await db`
-    select coalesce(sum(coalesce(ps.value, c.subtotal_amount, 0)), 0) as child_amount
-    from booking.booking_draft_child_bookings c
-    left join category.provider_services ps on ps.id = c.service_id
-    where c.parent_draft_id = ${draftId}
-  `;
+  const useLsevin = Boolean(mainRows[0]?.use_lsevin);
+  const childRows = useLsevin
+    ? await db<any[]>`
+        select coalesce(sum(coalesce(ps.value, c.subtotal_amount, 0)), 0) as child_amount
+        from booking.booking_draft_child_bookings c
+        left join category.provider_services ps on ps.id = c.service_id
+        where c.parent_draft_id = ${draftId}
+      `
+    : [{ child_amount: 0 }];
   const mainAmount = Number(mainRows[0]?.main_amount ?? 0);
   const childAmount = Number(childRows[0]?.child_amount ?? 0);
-  const total = mainAmount + childAmount;
+  const grossTotal = Math.round((mainAmount + childAmount) * 100) / 100;
+  const coupon = await resolveDraftCoupon(draftId, grossTotal);
+  const discountAmount = coupon ? Math.min(grossTotal, coupon.discountAmount) : 0;
+  const total = Math.round(Math.max(0, grossTotal - discountAmount) * 100) / 100;
+
+  const cleanCouponMetadataSql = db`
+    coalesce(metadata, '{}'::jsonb)
+      - 'couponCode'
+      - 'appliedCouponCode'
+      - 'appliedCouponId'
+      - 'appliedCouponSource'
+      - 'appliedDiscountType'
+      - 'appliedDiscountValue'
+      - 'appliedDiscountAmount'
+      - 'couponTitle'
+      - 'customerCouponId'
+  `;
+
+  if (coupon) {
+    await db`
+      update booking.booking_drafts
+      set subtotal_amount = ${mainAmount},
+          addons_amount = ${childAmount},
+          total_amount = ${total},
+          metadata = (${cleanCouponMetadataSql}) || ${JSON.stringify({
+            couponCode: coupon.code,
+            appliedCouponCode: coupon.code,
+            appliedCouponId: coupon.id,
+            appliedCouponSource: coupon.source,
+            appliedDiscountType: coupon.discountType,
+            appliedDiscountValue: coupon.discountValue,
+            appliedDiscountAmount: discountAmount,
+            couponTitle: coupon.title ?? null,
+            customerCouponId: coupon.customerCouponId ?? null,
+          })}::jsonb
+      where id = ${draftId}
+    `;
+  } else {
+    await db`
+      update booking.booking_drafts
+      set subtotal_amount = ${mainAmount},
+          addons_amount = ${childAmount},
+          total_amount = ${total},
+          metadata = ${cleanCouponMetadataSql}
+      where id = ${draftId}
+    `;
+  }
+
+  return {
+    subtotalAmount: mainAmount,
+    addonsAmount: childAmount,
+    grossTotalAmount: grossTotal,
+    totalAmount: total,
+    discountAmount,
+    appliedCouponId: coupon?.id ?? null,
+    appliedCouponCode: coupon?.code ?? null,
+    appliedCouponSource: coupon?.source ?? null,
+    appliedDiscountType: coupon?.discountType ?? null,
+    appliedDiscountValue: coupon?.discountValue ?? null,
+    customerCouponId: coupon?.customerCouponId ?? null,
+    currency: mainRows[0]?.currency ?? 'USD',
+  };
+}
+
+export async function applyDraftCoupon(userId: string, draftId: string, couponCode: string) {
+  const code = String(couponCode ?? '').trim();
+  if (!code) throw new Error('Coupon code is required');
+
+  const [draft] = await db<any[]>`
+    select id
+    from booking.booking_drafts
+    where id = ${draftId}
+      and user_id = ${userId}
+      and status in ('Draft', 'InProgress')
+    limit 1
+  `;
+  if (!draft) throw new Error('Draft not found');
+
   await db`
     update booking.booking_drafts
-    set subtotal_amount = ${mainAmount}, addons_amount = ${childAmount}, total_amount = ${total}
+    set metadata = coalesce(metadata, '{}'::jsonb) || ${JSON.stringify({ couponCode: code })}::jsonb,
+        updated_at = now()
     where id = ${draftId}
   `;
-  return { subtotalAmount: mainAmount, addonsAmount: childAmount, totalAmount: total, currency: mainRows[0]?.currency ?? 'USD' };
+
+  const totals = await recalculateDraftTotals(draftId);
+  if (!totals.appliedCouponId) {
+    await removeDraftCoupon(userId, draftId);
+    throw new Error('Coupon is invalid, expired, already used, or not applicable to this booking.');
+  }
+
+  return { ok: true, totals };
+}
+
+export async function removeDraftCoupon(userId: string, draftId: string) {
+  const [draft] = await db<any[]>`
+    select id
+    from booking.booking_drafts
+    where id = ${draftId}
+      and user_id = ${userId}
+      and status in ('Draft', 'InProgress')
+    limit 1
+  `;
+  if (!draft) throw new Error('Draft not found');
+
+  await db`
+    update booking.booking_drafts
+    set metadata = coalesce(metadata, '{}'::jsonb)
+      - 'couponCode'
+      - 'appliedCouponCode'
+      - 'appliedCouponId'
+      - 'appliedCouponSource'
+      - 'appliedDiscountType'
+      - 'appliedDiscountValue'
+      - 'appliedDiscountAmount'
+      - 'couponTitle'
+      - 'customerCouponId',
+      updated_at = now()
+    where id = ${draftId}
+  `;
+
+  const totals = await recalculateDraftTotals(draftId);
+  return { ok: true, totals };
 }
 
 async function getDraftByIdForUser(userId: string, draftId: string) {
@@ -677,6 +981,21 @@ export async function checkoutDraft(
     providerServiceId: scope?.providerServiceId ?? null,
   });
   const paymentTerms = calculateBookingPaymentTerms(totals.totalAmount, totals.currency, paymentPolicy);
+  const scheduleLines = (paymentTerms.schedule || [])
+    .map((line: any, index: number) => ({
+      ...line,
+      lineNo: Number(line.lineNo || line.line_no || index + 1),
+      lineType: normalizePaymentScheduleLineType(line.lineType ?? line.line_type),
+      amount: Number(line.amount || 0),
+      currencyCode: String(line.currencyCode || line.currency_code || paymentTerms.paymentCurrencyCode || totals.currency || 'USD').toUpperCase(),
+      label: String(line.label || (normalizePaymentScheduleLineType(line.lineType ?? line.line_type) === 'balance' ? 'Remaining balance' : 'Payment due now')),
+      metadata: line.metadata && typeof line.metadata === 'object' ? line.metadata : {},
+    }))
+    .filter((line: any) => line.amount > 0);
+
+  // Final guard before converting a draft into a booking. This checks generic service/resource availability
+  // (hotel rooms, seats, equipment, etc.) as well as the legacy provider/staff availability fallback.
+  await assertDraftAvailabilityBeforeCheckout(draft.id);
 
   const txResult = await db.begin(async (tx) => {
     const [lockedDraft] = await tx`
@@ -726,6 +1045,10 @@ export async function checkoutDraft(
             currency_code = ${totals.currency},
             total_amount = ${totals.totalAmount},
             paid_amount = 0,
+            applied_coupon_id = ${totals.appliedCouponId ?? null},
+            applied_discount_type = ${totals.appliedDiscountType ?? null},
+            applied_discount_value = ${totals.appliedDiscountValue ?? null},
+            applied_discount_amount = ${totals.discountAmount ?? 0},
             booking_ui_mode = coalesce(sd.booking_ui_mode, 'default_slot'),
             form_submission_id = (d.metadata ->> 'formSubmissionId')::uuid,
             adults = (d.metadata ->> 'adults')::integer,
@@ -769,6 +1092,7 @@ export async function checkoutDraft(
           payment_method, add_ons, upload_files, additional_services,
           payment_status, booking_status, user_id,
           currency_code, total_amount, paid_amount,
+          applied_coupon_id, applied_discount_type, applied_discount_value, applied_discount_amount,
           booking_ui_mode, form_submission_id, adults, children, infants, rooms, metadata,
           source_currency_code, display_currency_code, payment_currency_code, settlement_currency_code,
           source_subtotal_amount, source_addons_amount, source_total_amount,
@@ -795,6 +1119,10 @@ export async function checkoutDraft(
                ${totals.currency},
                ${totals.totalAmount},
                0,
+               ${totals.appliedCouponId ?? null},
+               ${totals.appliedDiscountType ?? null},
+               ${totals.appliedDiscountValue ?? null},
+               ${totals.discountAmount ?? 0},
                coalesce(sd.booking_ui_mode, 'default_slot'),
                (d.metadata ->> 'formSubmissionId')::uuid,
                (d.metadata ->> 'adults')::integer,
@@ -844,6 +1172,7 @@ export async function checkoutDraft(
              currency, 'Confirmed', metadata
       from booking.booking_draft_child_bookings
       where parent_draft_id = ${draft.id}
+        and ${Boolean(lockedDraft.use_lsevin)} = true
     `;
 
     await tx`
@@ -851,6 +1180,7 @@ export async function checkoutDraft(
       select ${bookingId}, requirement_id, title, file_name, file_url
       from booking.booking_draft_documents
       where draft_id = ${draft.id}
+        and ${Boolean(lockedDraft.use_lsevin)} = true
     `;
 
     await tx`
@@ -858,6 +1188,7 @@ export async function checkoutDraft(
       select ${bookingId}, addon_id, source_type, addon_kind, quantity, unit_price, config
       from booking.booking_draft_addons
       where draft_id = ${draft.id}
+        and ${Boolean(lockedDraft.use_lsevin)} = true
     `;
 
     const [savedTerms] = await tx<any[]>`
@@ -873,13 +1204,18 @@ export async function checkoutDraft(
       returning id
     `;
 
-    for (const line of paymentTerms.schedule) {
+    const allowedScheduleLineTypes = await listAllowedScheduleLineTypes(tx);
+    for (const line of scheduleLines) {
+      const semanticLineType = normalizePaymentScheduleLineType(line.lineType);
+      const persistedLineType = choosePersistedScheduleLineType(semanticLineType, allowedScheduleLineTypes);
+      if (!persistedLineType) continue;
+
       await tx`
         insert into commercial.booking_payment_schedule_lines (
           payment_terms_id, line_no, line_type, label, amount, currency_code, status, metadata
         ) values (
-          ${savedTerms.id}, ${line.lineNo}, ${line.lineType}, ${line.label}, ${line.amount}, ${line.currencyCode},
-          ${line.amount <= 0 ? 'waived' : 'pending'}, ${line.metadata as any}
+          ${savedTerms.id}, ${line.lineNo}, ${persistedLineType}, ${line.label}, ${line.amount}, ${line.currencyCode},
+          'pending', ${({ ...(line.metadata ?? {}), semanticLineType, originalLineType: line.lineType }) as any}
         )
       `;
     }
@@ -916,6 +1252,29 @@ export async function checkoutDraft(
         ) returning id
       `;
       paymentId = payment.id;
+    }
+
+    if (totals.appliedCouponSource === 'loyalty' && totals.customerCouponId) {
+      await tx`
+        update loyalty.customer_coupons
+        set status = 'Redeemed',
+            redeemed_at = coalesce(redeemed_at, now()),
+            booking_id = ${bookingId}
+        where id = ${totals.customerCouponId}
+          and customer_id = ${userId}
+      `;
+    }
+
+    if (totals.appliedCouponSource === 'marketing' && totals.appliedCouponId) {
+      await tx`
+        update marketing.user_discount_coupons
+        set status = 'reserved',
+            reserved_at = coalesce(reserved_at, now()),
+            order_reference = ${bookingId}
+        where id = ${totals.appliedCouponId}
+          and customer_id = ${userId}
+          and status = 'issued'
+      `;
     }
 
     await tx`

@@ -358,6 +358,12 @@
     "title": "L Sevin",
     "description": "Automated healthcare platform that streamlines patient scheduling from hotel stays to medical appointments"
   },
+    "SpecialistPage": {
+    "metadata": {
+      "title": "Specialist profile | LSEVIN",
+      "description": "View specialist profile, services, availability, reviews, and booking details on LSEVIN."
+    }
+  },
   "Error": {
     "title": "Something went wrong",
     "description": "Please contact the system administrator."
@@ -366,8 +372,236 @@
     "title": "Page not found",
     "description": "Please use the main page of the website."
   },
+  
+  "ServicePage": {
+    "metadata": {
+      "title": "Service details | LSEVIN",
+      "description": "View service details, pricing, provider information, gallery, reviews, and booking options on LSEVIN."
+    }
+  },
+  "ServiceGalleryPage": {
+    "metadata": {
+      "title": "Service gallery | LSEVIN",
+      "description": "Browse images and videos published for this service on LSEVIN."
+    },
+    "actions": {
+      "backToService": "Back to service details"
+    },
+    "header": {
+      "title": "Service gallery"
+    },
+    "empty": {
+      "title": "No gallery items yet",
+      "description": "This provider has not published images or videos for this service."
+    },
+    "gallery": {
+      "fallbackCaption": "{name} {number}"
+    }
+  }
+,
+    "AvailabilityAdmin": {
+    "dashboard": {
+      "eyebrow": "Generic availability",
+      "title": "Availability rules and bookable resources",
+      "description": "Define availability for providers, service definitions, provider services, staff, provider-staff relations, and inventory resources such as hotel rooms, beds, seats, vehicles, equipment, or units."
+    },
+    "stats": {
+      "activeRules": "Active rules",
+      "blockRules": "Block/blackout rules",
+      "resources": "Resources",
+      "inactiveResources": "Inactive resources"
+    },
+    "tabs": {
+      "rules": "Rules",
+      "resources": "Resources"
+    },
+    "actions": {
+      "addRule": "Add rule",
+      "addResource": "Add resource",
+      "edit": "Edit",
+      "enable": "Enable",
+      "disable": "Disable",
+      "delete": "Delete",
+      "filter": "Filter",
+      "saveRule": "Save rule",
+      "saveResource": "Save resource",
+      "cancel": "Cancel"
+    },
+    "status": {
+      "active": "Active",
+      "disabled": "Disabled"
+    },
+    "confirm": {
+      "deleteRule": "Delete this availability rule?",
+      "deleteResource": "Delete this resource? Rules linked to it must be deleted first."
+    },
+    "ruleForm": {
+      "addTitle": "Add availability rule",
+      "editTitle": "Edit availability rule",
+      "description": "Create recurring windows, blackout periods, or capacity overrides for any bookable target."
+    },
+    "resourceForm": {
+      "addTitle": "Add bookable resource",
+      "editTitle": "Edit bookable resource",
+      "description": "Use resources for capacity-based booking inventory. Example: hotel provider = hotel, provider service = room type, resource = physical room group or inventory pool.",
+      "selectedServiceHelp": "Selected service: {service}. The resource will be linked to this service inventory."
+    },
+    "sections": {
+      "schedule": "When does this rule apply?"
+    },
+    "fields": {
+      "targetType": "Target type",
+      "target": "Target",
+      "provider": "Provider",
+      "providerService": "Provider service / room type",
+      "resourceContext": "Resource context",
+      "ruleType": "Rule type",
+      "recurringWeekday": "Recurring weekday",
+      "specificDateOnly": "Specific date only",
+      "specificDate": "Specific date exception",
+      "startsAt": "Starts at",
+      "endsAt": "Ends at",
+      "capacity": "Capacity override",
+      "slotInterval": "Slot interval minutes",
+      "priority": "Priority",
+      "minBookingMinutes": "Min booking minutes",
+      "maxBookingMinutes": "Max booking minutes",
+      "timezone": "Timezone",
+      "activeRule": "Active. Disabled rules stay saved but are ignored by booking availability.",
+      "resourceType": "Resource type",
+      "code": "Code",
+      "totalCapacity": "Total capacity",
+      "activeResource": "Active",
+      "nameWithLocale": "Name {locale}",
+      "descriptionWithLocale": "Description {locale}",
+      "recurringWeekdays": "Recurring weekdays",
+      "resourceName": "Resource name",
+      "resourceDescription": "Resource description"
+    },
+    "targetTypes": {
+      "provider": "Provider",
+      "provider_service": "Provider service / room type",
+      "service_definition": "Service definition",
+      "staff": "Staff",
+      "provider_staff": "Provider staff relation",
+      "bookable_resource": "Bookable resource"
+    },
+    "targetTypeHelp": {
+      "provider": "Applies to all services under a provider unless a more specific rule overrides it.",
+      "provider_service": "Best for service-level schedules and hotel room type availability.",
+      "service_definition": "Applies to all provider services using the service definition.",
+      "staff": "Applies to a person globally.",
+      "provider_staff": "Applies to a staff member only within a specific provider.",
+      "bookable_resource": "Applies to a concrete capacity resource such as rooms, beds, vehicles, seats, or equipment."
+    },
+    "resourceTypes": {
+      "generic": "Generic",
+      "room": "Room",
+      "bed": "Bed",
+      "seat": "Seat",
+      "table": "Table",
+      "vehicle": "Vehicle",
+      "equipment": "Equipment",
+      "unit": "Unit"
+    },
+    "ruleTypes": {
+      "available": "Available window",
+      "blocked": "Block / blackout"
+    },
+    "days": {
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday",
+      "7": "Sunday"
+    },
+    "daysShort": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
+    },
+    "labels": {
+      "anyDate": "Any date",
+      "allDay": "All day",
+      "capacity": "Capacity",
+      "priority": "Priority",
+      "rules": "Rules",
+      "specificDateMode": "Specific-date mode: this rule applies only to the selected date.",
+      "weeklyMode": "Weekly mode: this rule will be saved for {count} weekday(s).",
+      "noWeekdaysSelected": "No weekdays selected. Select weekdays or choose a specific date."
+    },
+    "placeholders": {
+      "searchAdmin": "Search provider, service, resource code...",
+      "selectProvider": "Select provider",
+      "optionalProviderContext": "Optional provider context",
+      "selectProviderFirst": "Select provider first",
+      "selectTarget": "Select target",
+      "searchTargets": "Search targets...",
+      "searchProviders": "Search providers...",
+      "searchServices": "Search services...",
+      "searchResources": "Search resources...",
+      "optionalServiceContext": "Optional service / room type context",
+      "optionalResource": "Optional resource",
+      "auto": "Auto",
+      "resourceCode": "STD-ROOM, DBL-ROOM, CAR-01"
+    },
+    "filters": {
+      "allProviders": "All providers",
+      "allServices": "All services / room types"
+    },
+    "empty": {
+      "noProviders": "No providers found.",
+      "noServices": "No services found for this provider.",
+      "noResources": "No resources found.",
+      "noTargets": "No targets found.",
+      "noRules": "No availability rules found.",
+      "noResourcesAdmin": "No bookable resources found."
+    },
+    "toasts": {
+      "ruleCreated": "Availability rule created.",
+      "ruleUpdated": "Availability rule updated.",
+      "ruleSaveFailed": "Rule could not be saved.",
+      "ruleStatusUpdated": "Rule status updated.",
+      "ruleUpdateFailed": "Rule could not be updated.",
+      "ruleDeleted": "Rule deleted.",
+      "ruleDeleteFailed": "Rule could not be deleted.",
+      "resourceCreated": "Resource created.",
+      "resourceUpdated": "Resource updated.",
+      "resourceSaveFailed": "Resource could not be saved.",
+      "resourceStatusUpdated": "Resource status updated.",
+      "resourceUpdateFailed": "Resource could not be updated.",
+      "resourceDeleted": "Resource deleted.",
+      "resourceDeleteFailed": "Resource could not be deleted."
+    },
+    "help": {
+      "weekdayBulk": "Select several weekdays once. The system will create the required weekly availability records for you, so you do not need to submit the same service seven times.",
+      "specificDateOverridesWeekdays": "Use this only for a one-day exception. It ignores the selected weekdays.",
+      "resourceName": "Shown to admins and providers when managing inventory. Example: Deluxe rooms inventory, Room 204, VIP bed capacity.",
+      "resourceDescription": "Optional internal/admin description for what this resource represents."
+    },
+    "quickDays": {
+      "everyDay": "Every day",
+      "weekdays": "Weekdays",
+      "weekend": "Weekend",
+      "clear": "Clear"
+    },
+    "resourceHelp": {
+      "title": "What is a resource?",
+      "body": "A resource is the real bookable capacity behind a service. For hotels, the provider can be the hotel, the service can be “Deluxe Room”, and the resource can represent the room inventory with capacity such as 20 rooms. For clinics it can be a doctor chair, bed, device, or any limited unit."
+    }
+  }
+
+,
   "Admin": {
+    "availability": "availability",
     "dashboard": "Dashboard",
+    "payment-gateways": "payment gateways",
     "form-builder": "form builder",
     "home-sections": "home sections",
     "support": "support",

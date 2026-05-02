@@ -9,6 +9,8 @@ export type ExploreFiltersInput = {
   q: string;
   categoryId: string | null;
   providerTypeId: string | null;
+  countryCode: string | null;
+  cityCode: string | null;
   minPrice: number;
   maxPrice: number;
   minRating: number;
@@ -102,11 +104,15 @@ export function parseExploreFilters(
   const languagesRaw = toSingleString(params.languages).trim();
   const categoryId = toSingleString(params.categoryId).trim();
   const providerTypeId = toSingleString(params.providerTypeId).trim();
+  const countryCode = toSingleString(params.countryCode || params.country).trim();
+  const cityCode = toSingleString(params.cityCode || params.city).trim();
 
   return {
     q: toSingleString(params.q).trim(),
     categoryId: categoryId && categoryId !== "all" ? categoryId : null,
     providerTypeId: providerTypeId && providerTypeId !== "all" ? providerTypeId : null,
+    countryCode: countryCode && countryCode !== "all" ? countryCode : null,
+    cityCode: cityCode && cityCode !== "all" ? cityCode : null,
     minPrice: Math.max(0, toFiniteNumber(params.minPrice, 0)),
     maxPrice: Math.max(0, toFiniteNumber(params.maxPrice, 5000)),
     minRating: Math.max(0, toFiniteNumber(params.minRating, 0)),
@@ -245,6 +251,14 @@ function buildFeaturedProvidersWhere(filters: ExploreFiltersInput, lang: string)
     conditions.push(sql`sp.provider_type_id = ${filters.providerTypeId}::uuid`);
   }
 
+  if (filters.countryCode) {
+    conditions.push(sql`sp.country = ${filters.countryCode}`);
+  }
+
+  if (filters.cityCode) {
+    conditions.push(sql`sp.city = ${filters.cityCode}`);
+  }
+
   return conditions.length
     ? sql`where ${joinSql(conditions, sql` and `)}`
     : sql``;
@@ -259,6 +273,14 @@ function buildTrendingServicesWhere(filters: ExploreFiltersInput, lang: string) 
 
   if (filters.providerTypeId) {
     conditions.push(sql`sp.provider_type_id = ${filters.providerTypeId}::uuid`);
+  }
+
+  if (filters.countryCode) {
+    conditions.push(sql`sp.country = ${filters.countryCode}`);
+  }
+
+  if (filters.cityCode) {
+    conditions.push(sql`sp.city = ${filters.cityCode}`);
   }
 
   if (filters.minPrice > 0) {
@@ -631,6 +653,8 @@ const featuredRows = await sql`
     where sp.is_active = true
       and sp.is_sponsored = true
       and (${filters.providerTypeId === null} or sp.provider_type_id = ${filters.providerTypeId ?? null}::uuid)
+      and (${filters.countryCode === null} or sp.country = ${filters.countryCode ?? null})
+      and (${filters.cityCode === null} or sp.city = ${filters.cityCode ?? null})
       and (${filters.verifiedOnly} = false or coalesce(sp.accredited, false) = true)
       and (${filters.minRating} = 0 or coalesce(sp.rating, 0) >= ${filters.minRating})
       and (

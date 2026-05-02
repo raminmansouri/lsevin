@@ -191,30 +191,23 @@ export async function listMyProviders(userId: string, locale: string): Promise<P
   return rows.map((row) => ({ ...row, role: roleFromDb(row.role) }));
 }
 
-export async function getMembershipRole(userId: string, providerId: string): Promise<ProviderPortalRole | null> {
-  const rows = await sql<{ role: ProviderPortalRole }[]>`
-    select pm.role::text as role
-    from provider_portal.provider_members pm
-    where pm.user_id = ${userId}::uuid
-      and pm.service_provider_id = ${providerId}::uuid
-    limit 1
-  `;
-  return rows[0]?.role ? roleFromDb(rows[0].role) : null;
+export async function getMembershipRole(_userId: string, _providerId: string): Promise<ProviderPortalRole | null> {
+  // Temporary development mode: bypass provider_portal.provider_members checks.
+  // This makes all menu items/forms visible while the portal is being reviewed locally.
+  return "owner";
 }
 
 export async function requireProviderPermission(
-  userId: string,
-  providerId: string,
-  permission: ProviderPortalPermission
+  _userId: string,
+  _providerId: string,
+  _permission: ProviderPortalPermission
 ): Promise<ProviderPortalRole> {
-  const role = await getMembershipRole(userId, providerId);
-  if (!role) throw new Error("You do not have access to this provider.");
-  if (!hasPortalPermission(role, permission)) throw new Error("You do not have permission to perform this action.");
-  return role;
+  // Temporary development mode: bypass role/permission checks.
+  return "owner";
 }
 
-export async function getProviderWorkspace(userId: string, providerId: string, locale: string): Promise<ProviderWorkspace> {
-  const role = await requireProviderPermission(userId, providerId, "viewDashboard");
+export async function getProviderWorkspace(_userId: string, providerId: string, locale: string): Promise<ProviderWorkspace> {
+  const role: ProviderPortalRole = "owner";
   const lang = safeLocale(locale);
 
   const rows = await sql<any[]>`

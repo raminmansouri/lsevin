@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import {
@@ -19,10 +19,14 @@ import {
 } from "lucide-react";
 
 import NearbyMap from "./NearbyMap";
+import { AsyncSearchableSingleSelect } from "@/components/admin/forms/extensions/async-searchable-single-select";
+import { loadMapDiscoveryLocationByValue, loadMapDiscoveryLocationOptions } from "./location-options.actions";
 import type { NearbyCategory, NearbyFiltersInput, NearbyProvider } from "./nearby.data";
 import FavoriteButton from "../explore/FavoriteButton";
 
 type FilterFormValues = {
+  countryCode: string | null;
+  cityCode: string | null;
   maxPrice: number;
   distanceKm: number;
   minRating: number;
@@ -33,6 +37,8 @@ type FilterFormValues = {
 
 type UiFilters = {
   categoryId: string;
+  countryCode: string | null;
+  cityCode: string | null;
   maxPrice: number;
   distanceKm: number;
   minRating: number;
@@ -46,6 +52,8 @@ function buildNearbyQuery(next: NearbyFiltersInput) {
 
   if (next.q) params.set("q", next.q);
   if (next.categoryId && next.categoryId !== "all") params.set("categoryId", next.categoryId);
+  if (next.countryCode) params.set("countryCode", next.countryCode);
+  if (next.cityCode) params.set("cityCode", next.cityCode);
   if (next.minPrice > 0) params.set("minPrice", String(next.minPrice));
   if (next.maxPrice > 0 && next.maxPrice !== 5000) params.set("maxPrice", String(next.maxPrice));
   if (next.distanceKm > 0 && next.distanceKm !== 10) params.set("distanceKm", String(next.distanceKm));
@@ -71,6 +79,7 @@ function PendingOverlay() {
 }
 
 export default function NearbyClient({
+  locale,
   customerId,
   categories,
   providers,
@@ -79,6 +88,7 @@ export default function NearbyClient({
   filters: initialFilters,
   mapCenter,
 }: {
+  locale: string;
   customerId: string | null;
   categories: NearbyCategory[];
   providers: NearbyProvider[];
@@ -95,6 +105,8 @@ export default function NearbyClient({
 
   const initialUiFilters = useMemo<UiFilters>(() => ({
     categoryId: initialFilters.categoryId ?? "all",
+    countryCode: initialFilters.countryCode,
+    cityCode: initialFilters.cityCode,
     maxPrice: initialFilters.maxPrice || 5000,
     distanceKm: initialFilters.distanceKm || 10,
     minRating: initialFilters.minRating || 0,
@@ -113,6 +125,8 @@ export default function NearbyClient({
 
   const form = useForm<FilterFormValues>({
     defaultValues: {
+      countryCode: initialUiFilters.countryCode,
+      cityCode: initialUiFilters.cityCode,
       maxPrice: initialUiFilters.maxPrice,
       distanceKm: initialUiFilters.distanceKm,
       minRating: initialUiFilters.minRating,
@@ -124,6 +138,8 @@ export default function NearbyClient({
 
   useEffect(() => {
     form.reset({
+      countryCode: initialUiFilters.countryCode,
+      cityCode: initialUiFilters.cityCode,
       maxPrice: initialUiFilters.maxPrice,
       distanceKm: initialUiFilters.distanceKm,
       minRating: initialUiFilters.minRating,
@@ -134,7 +150,43 @@ export default function NearbyClient({
   }, [form, initialUiFilters]);
 
   const watched = form.watch();
+  const selectedCountryCode = watched.countryCode ?? null;
   const selectedProvider = providers.find((provider) => provider.id === selectedProviderId) ?? null;
+
+  const loadCountryOptions = useCallback(
+    (args: { search: string; page: number; pageSize: number }) =>
+      loadMapDiscoveryLocationOptions({
+        kind: "country",
+        locale,
+        search: args.search,
+        page: args.page,
+        pageSize: args.pageSize,
+      }),
+    [locale],
+  );
+
+  const loadCountryByValue = useCallback(
+    (value: string) => loadMapDiscoveryLocationByValue({ kind: "country", locale, value }),
+    [locale],
+  );
+
+  const loadCityOptions = useCallback(
+    (args: { search: string; page: number; pageSize: number }) =>
+      loadMapDiscoveryLocationOptions({
+        kind: "city",
+        locale,
+        countryCode: selectedCountryCode,
+        search: args.search,
+        page: args.page,
+        pageSize: args.pageSize,
+      }),
+    [locale, selectedCountryCode],
+  );
+
+  const loadCityByValue = useCallback(
+    (value: string) => loadMapDiscoveryLocationByValue({ kind: "city", locale, value, countryCode: selectedCountryCode }),
+    [locale, selectedCountryCode],
+  );
 
   const applyCategory = (categoryId: string) => {
     const nextCategoryId = categoryId === "all" ? "all" : categoryId;
@@ -143,6 +195,8 @@ export default function NearbyClient({
     navigateSmooth(startTransition, router, buildNearbyQuery({
       ...initialFilters,
       categoryId: nextCategoryId === "all" ? null : nextCategoryId,
+      countryCode: uiFilters.countryCode,
+      cityCode: uiFilters.cityCode,
       minPrice: 0,
       maxPrice: uiFilters.maxPrice,
       distanceKm: uiFilters.distanceKm,
@@ -156,6 +210,8 @@ export default function NearbyClient({
   const applyFilters = form.handleSubmit((values) => {
     const nextUi: UiFilters = {
       categoryId: uiFilters.categoryId,
+      countryCode: values.countryCode,
+      cityCode: values.cityCode,
       maxPrice: values.maxPrice,
       distanceKm: values.distanceKm,
       minRating: values.minRating,
@@ -168,6 +224,8 @@ export default function NearbyClient({
     navigateSmooth(startTransition, router, buildNearbyQuery({
       ...initialFilters,
       categoryId: nextUi.categoryId === "all" ? null : nextUi.categoryId,
+      countryCode: nextUi.countryCode,
+      cityCode: nextUi.cityCode,
       minPrice: 0,
       maxPrice: nextUi.maxPrice,
       distanceKm: nextUi.distanceKm,
@@ -181,6 +239,8 @@ export default function NearbyClient({
   const clearFilters = () => {
     const cleared: UiFilters = {
       categoryId: uiFilters.categoryId,
+      countryCode: null,
+      cityCode: null,
       maxPrice: 5000,
       distanceKm: 10,
       minRating: 0,
@@ -189,6 +249,8 @@ export default function NearbyClient({
       specialties: [],
     };
     form.reset({
+      countryCode: null,
+      cityCode: null,
       maxPrice: 5000,
       distanceKm: 10,
       minRating: 0,
@@ -200,6 +262,8 @@ export default function NearbyClient({
     navigateSmooth(startTransition, router, buildNearbyQuery({
       ...initialFilters,
       categoryId: cleared.categoryId === "all" ? null : cleared.categoryId,
+      countryCode: null,
+      cityCode: null,
       minPrice: 0,
       maxPrice: 5000,
       distanceKm: 10,
@@ -216,6 +280,8 @@ export default function NearbyClient({
       navigateSmooth(startTransition, router, buildNearbyQuery({
         ...initialFilters,
         categoryId: uiFilters.categoryId === "all" ? null : uiFilters.categoryId,
+        countryCode: uiFilters.countryCode,
+        cityCode: uiFilters.cityCode,
         minPrice: 0,
         maxPrice: uiFilters.maxPrice,
         distanceKm: uiFilters.distanceKm,
@@ -230,6 +296,8 @@ export default function NearbyClient({
   };
 
   const activeFilters = {
+    countryCode: watched.countryCode ?? null,
+    cityCode: watched.cityCode ?? null,
     priceRange: [0, watched.maxPrice ?? 5000] as [number, number],
     distanceKm: watched.distanceKm ?? 10,
     minRating: watched.minRating ?? 0,
@@ -239,6 +307,8 @@ export default function NearbyClient({
   };
 
   const hasActiveFilters =
+    uiFilters.countryCode != null ||
+    uiFilters.cityCode != null ||
     uiFilters.verifiedOnly ||
     uiFilters.minRating > 0 ||
     uiFilters.languages.length > 0 ||
@@ -433,6 +503,40 @@ export default function NearbyClient({
             </div>
 
             <div className="px-5 py-6 space-y-6">
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <Globe size={20} className="text-[#083f30]" />
+                  <h3 className="font-bold text-gray-900">Location</h3>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <AsyncSearchableSingleSelect
+                    label="Country"
+                    value={activeFilters.countryCode}
+                    placeholder="Select country"
+                    searchPlaceholder="Search countries..."
+                    emptyText="No countries found."
+                    loadOptions={loadCountryOptions}
+                    loadByValue={loadCountryByValue}
+                    onChange={(value) => {
+                      form.setValue("countryCode", value);
+                      form.setValue("cityCode", null);
+                    }}
+                  />
+
+                  <AsyncSearchableSingleSelect
+                    label="City"
+                    value={activeFilters.cityCode}
+                    disabled={!activeFilters.countryCode}
+                    placeholder={activeFilters.countryCode ? "Select city" : "Select country first"}
+                    searchPlaceholder="Search cities..."
+                    emptyText={activeFilters.countryCode ? "No cities found." : "Select a country first."}
+                    loadOptions={loadCityOptions}
+                    loadByValue={loadCityByValue}
+                    onChange={(value) => form.setValue("cityCode", value)}
+                  />
+                </div>
+              </div>
+
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">

@@ -6,6 +6,5 @@ export default async function ProviderSettingsPage({ params }: { params: Promise
   const { locale, providerId } = await params;
   const userId = await requireCurrentUserId();
   const workspace = await getProviderWorkspace(userId, providerId, locale);
-
   return <SettingsManager workspace={workspace} />;
 }

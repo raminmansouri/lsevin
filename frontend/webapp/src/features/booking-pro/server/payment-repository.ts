@@ -2,6 +2,8 @@
 import 'server-only';
 
 import db from '@/config/database/db';
+import { listEnabledPaymentGatewayOptions } from '@/payment/server/payment-gateway.repository';
+import { initiateBookingPayment } from '@/payment/server/payment.service';
 
 export interface PaymentMethodItem {
   code: string;
@@ -116,6 +118,8 @@ export async function createBookingPaymentIntent(params: {
 
   const amount = Number(booking.payment_amount ?? booking.due_now_amount ?? booking.total_amount ?? 0);
   const currency = booking.payment_currency ?? booking.payment_currency_code ?? booking.currency_code ?? 'USD';
+  const normalizedMethodCode = String(params.paymentMethodCode || '').trim().toLowerCase();
+
   if (amount <= 0) {
     return {
       paymentId: booking.payment_id ?? null,
@@ -125,6 +129,36 @@ export async function createBookingPaymentIntent(params: {
       completed: true,
       amount,
       currency,
+    };
+  }
+
+  if (['card', 'gateway_card', 'zarinpal'].includes(normalizedMethodCode)) {
+    const enabledGateways = await listEnabledPaymentGatewayOptions({ context: 'booking_online_card' });
+    const requestedGateway = normalizedMethodCode === 'zarinpal' ? 'zarinpal' : enabledGateways[0]?.code;
+    const gateway = enabledGateways.find((item) => item.code === requestedGateway);
+
+    if (!gateway) {
+      throw new Error('No online card payment gateway is enabled. Enable Zarinpal from Admin > Payment Gateways.');
+    }
+
+    const gatewayResult = await initiateBookingPayment({
+      bookingId: params.bookingId,
+      userId: params.userId,
+      gateway: gateway.code as any,
+      locale: 'en',
+    });
+
+    return {
+      paymentId: gatewayResult.paymentId,
+      bookingId: params.bookingId,
+      method: gateway.code,
+      status: 'requires_action',
+      completed: false,
+      amount: gatewayResult.amount,
+      currency: gatewayResult.currency,
+      externalReference: gatewayResult.authority ?? null,
+      actionUrl: gatewayResult.redirectUrl,
+      gateway: gateway.code,
     };
   }
 
@@ -174,15 +208,25 @@ export async function createBookingPaymentIntent(params: {
         )
       `;
 
-      const [current] = await tx<any[]>`select total_amount, coalesce(paid_amount,0) as paid_amount from booking.bookings where id = ${params.bookingId} limit 1`;
+      const [current] = await tx<any[]>`
+        select b.total_amount,
+               coalesce(b.paid_amount,0) as paid_amount,
+               coalesce(pt.due_now_amount, b.total_amount, 0) as lsevin_due_now_amount
+        from booking.bookings b
+        left join commercial.booking_payment_terms pt on pt.booking_id = b.id
+        where b.id = ${params.bookingId}
+        limit 1
+      `;
       const newPaid = Number(current?.paid_amount ?? 0) + amount;
-      const fullyPaid = newPaid >= Number(current?.total_amount ?? 0);
+      const requiredByLsevin = Number(current?.lsevin_due_now_amount ?? current?.total_amount ?? 0);
+      const lsevinPaid = newPaid >= requiredByLsevin;
 
       await tx`
         update booking.bookings
         set wallet_payment_intent_id = ${intent.id},
             payment_method = 'wallet',
-            payment_status = ${fullyPaid ? 'Paid' : 'PartiallyPaid'},
+            payment_status = ${lsevinPaid ? 'Paid' : 'PartiallyPaid'},
+            booking_status = ${lsevinPaid ? 'Confirmed' : 'Pending'},
             paid_amount = ${newPaid},
             payment_reference = ${intent.id}
         where id = ${params.bookingId}
@@ -256,19 +300,34 @@ export async function confirmBookingPayment(params: {
 
     if (normalized === 'Succeeded' && payment.status !== 'Succeeded') {
       const [booking] = await tx<any[]>`
-        select total_amount, coalesce(paid_amount,0) as paid_amount
-        from booking.bookings
-        where id = ${params.bookingId}
+        select b.total_amount,
+               coalesce(b.paid_amount,0) as paid_amount,
+               coalesce(pt.due_now_amount, b.total_amount, 0) as lsevin_due_now_amount
+        from booking.bookings b
+        left join commercial.booking_payment_terms pt on pt.booking_id = b.id
+        where b.id = ${params.bookingId}
         limit 1
       `;
       const newPaid = Number(booking?.paid_amount ?? 0) + Number(payment.amount ?? 0);
-      const fullyPaid = newPaid >= Number(booking?.total_amount ?? 0);
+      const requiredByLsevin = Number(booking?.lsevin_due_now_amount ?? booking?.total_amount ?? 0);
+      const lsevinPaid = newPaid >= requiredByLsevin;
       await tx`
         update booking.bookings
-        set payment_status = ${fullyPaid ? 'Paid' : 'PartiallyPaid'},
+        set payment_status = ${lsevinPaid ? 'Paid' : 'PartiallyPaid'},
+            booking_status = ${lsevinPaid ? 'Confirmed' : 'Pending'},
             paid_amount = ${newPaid},
             payment_reference = coalesce(${params.externalReference ?? null}, payment_reference)
         where id = ${params.bookingId}
+      `;
+
+      await tx`
+        update marketing.user_discount_coupons udc
+        set status = 'redeemed',
+            redeemed_at = coalesce(redeemed_at, now())
+        from booking.bookings b
+        where b.id = ${params.bookingId}
+          and b.applied_coupon_id = udc.id
+          and udc.status = 'reserved'
       `;
     } else if (normalized === 'Failed') {
       await tx`

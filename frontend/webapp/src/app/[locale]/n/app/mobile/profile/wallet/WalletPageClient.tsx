@@ -7,7 +7,6 @@ import {
   Plus,
   CreditCard,
   Building2,
-  Smartphone,
   ArrowUpRight,
   ArrowDownLeft,
   Clock,
@@ -34,7 +33,11 @@ interface WalletPageClientProps {
   initialData: WalletPageData;
 }
 
-const quickAmounts = [100, 250, 500, 1000] as const;
+function getQuickAmounts(currency: string) {
+  if (currency === "IRR") return [1000000, 2500000, 5000000, 10000000] as const;
+  if (currency === "IRT") return [100000, 250000, 500000, 1000000] as const;
+  return [100, 250, 500, 1000] as const;
+}
 
 function currencySymbol(currency: string) {
   switch (currency) {
@@ -46,6 +49,10 @@ function currencySymbol(currency: string) {
       return "£";
     case "AED":
       return "AED ";
+    case "IRR":
+      return "﷼ ";
+    case "IRT":
+      return "تومان ";
     default:
       return `${currency} `;
   }
@@ -130,6 +137,9 @@ export default function WalletPageClient({
   const [topUpMethod, setTopUpMethod] = useState<
     Exclude<WalletPaymentMethod, "wallet"> | null
   >(null);
+  const [selectedGateway, setSelectedGateway] = useState<string | null>(
+    initialData.paymentGateways?.[0]?.code ?? null
+  );
   const [filterMode, setFilterMode] = useState<"all" | "credit" | "debit">("all");
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, startSubmitting] = useTransition();
@@ -141,6 +151,9 @@ export default function WalletPageClient({
       return transaction.direction === filterMode;
     });
   }, [filterMode, initialData.transactions]);
+
+  const quickAmounts = getQuickAmounts(selectedCurrency);
+  const onlineCardGateways = initialData.paymentGateways ?? [];
 
   const handleTopUp = () => {
     if (!topUpAmount || !topUpMethod) {
@@ -154,6 +167,7 @@ export default function WalletPageClient({
         amount: topUpAmount,
         currencyCode: selectedCurrency,
         paymentMethod: topUpMethod,
+        gateway: topUpMethod === "card" ? selectedGateway : null,
       };
 
       const result = await createWalletTopUpIntentAction(payload);
@@ -442,21 +456,15 @@ export default function WalletPageClient({
                   {[
                     {
                       id: "card",
-                      name: "Credit / Debit Card",
+                      name: "Online Card Payment",
                       icon: <CreditCard size={24} />,
-                      details: "Visa, Mastercard, Amex",
+                      details: onlineCardGateways.length ? "Charges the equivalent Iranian Rial/Toman amount" : "No enabled card gateway",
                     },
                     {
                       id: "bank",
                       name: "Bank Transfer",
                       icon: <Building2 size={24} />,
                       details: "Direct bank transfer",
-                    },
-                    {
-                      id: "apple",
-                      name: "Apple Pay",
-                      icon: <Smartphone size={24} />,
-                      details: "Quick & secure",
                     },
                   ].map((method) => (
                     <button
@@ -491,6 +499,43 @@ export default function WalletPageClient({
                     </button>
                   ))}
                 </div>
+
+                {topUpMethod === "card" ? (
+                  <div className="mt-4 space-y-2 rounded-2xl border border-gray-200 bg-gray-50 p-3">
+                    <div className="text-xs font-bold uppercase tracking-wide text-gray-500">Gateway</div>
+                    {onlineCardGateways.length === 0 ? (
+                      <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                        No online card gateway is enabled. Enable Zarinpal from Admin → Payment Gateways.
+                      </div>
+                    ) : null}
+                    {onlineCardGateways.map((gateway) => (
+                      <button
+                        key={gateway.code}
+                        type="button"
+                        onClick={() => setSelectedGateway(gateway.code)}
+                        className={`w-full rounded-xl border-2 p-3 text-left transition-all ${
+                          selectedGateway === gateway.code
+                            ? "border-[#083f30] bg-white"
+                            : "border-gray-200 bg-white hover:border-gray-300"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <div className="font-semibold text-gray-900">{gateway.displayName}</div>
+                            <div className="text-xs text-gray-600">Charges equivalent {gateway.currency}; wallet credits {selectedCurrency}</div>
+                          </div>
+                          <div
+                            className={`h-5 w-5 rounded-full border-2 ${
+                              selectedGateway === gateway.code
+                                ? "border-[#083f30] bg-[#083f30]"
+                                : "border-gray-300"
+                            }`}
+                          />
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
               </div>
 
               {submitError && (
@@ -503,9 +548,9 @@ export default function WalletPageClient({
             <div className="sticky bottom-0 bg-white p-6 pb-24 border-t border-gray-200">
               <button
                 onClick={handleTopUp}
-                disabled={!topUpAmount || !topUpMethod || isSubmitting}
+                disabled={!topUpAmount || !topUpMethod || (topUpMethod === "card" && !selectedGateway) || isSubmitting}
                 className={`w-full h-14 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
-                  topUpAmount && topUpMethod && !isSubmitting
+                  topUpAmount && topUpMethod && !(topUpMethod === "card" && !selectedGateway) && !isSubmitting
                     ? "bg-[#083f30] text-white hover:bg-[#0a5a44] shadow-lg active:scale-95"
                     : "bg-gray-200 text-gray-400 cursor-not-allowed"
                 }`}

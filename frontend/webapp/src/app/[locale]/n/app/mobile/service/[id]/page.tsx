@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { getUserId } from '@/lib/auth/session';
 import { getServicePageByIdFromDb } from '@/features/service-providers/server/service-page.repository';
@@ -23,8 +24,20 @@ async function getOptionalUserId() {
   }
 }
 
+export async function generateMetadata({ params }: Pick<ServicePageRouteProps, 'params'>) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'ServicePage' });
+
+  return {
+    title: t('metadata.title'),
+    description: t('metadata.description'),
+  };
+}
+
 export default async function TreatmentDetailPage({ params, searchParams }: ServicePageRouteProps) {
   const { locale, id } = await params;
+  setRequestLocale(locale);
+
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const userId = await getOptionalUserId();
 
