@@ -2,6 +2,7 @@ import "server-only";
 
 import sql from "@/config/database/db";
 import type { PaymentAttempt, PaymentGatewayCode, PaymentVerificationResult } from "../types";
+import { COUNTRY_CODES } from "@/app/[locale]/n/app/components/CountryCodeSelector";
 
 const UUID_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
 
@@ -181,7 +182,8 @@ export async function prepareBookingPaymentAttempt(input: {
     throw new Error("Could not create a payment attempt.");
   }
 
-  const mobile = [booking.phoneCountryCode, booking.phoneNumber]
+  const code = booking.phoneCountryCode =='IR' ? '0': COUNTRY_CODES[booking.phoneCountryCode];
+  const mobile = [code, booking.phoneNumber]
     .map((part) => String(part || "").trim())
     .filter(Boolean)
     .join("");

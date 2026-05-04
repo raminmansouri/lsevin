@@ -15,7 +15,7 @@ function getAppBaseUrl(request: NextRequest) {
 }
 
 function buildWalletRedirect(request: NextRequest, locale: string, status: string, message?: string | null) {
-  const url = new URL(`/${locale}/app/wallet`, getAppBaseUrl(request));
+  const url = new URL(`/${locale}/n/app/mobile/profile/wallet`, getAppBaseUrl(request));
   url.searchParams.set("payment", status);
   if (message) url.searchParams.set("message", message);
   return url;
