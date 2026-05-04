@@ -1,17 +1,16 @@
 import "server-only";
 
-import {
-  revalidateTag,
-} from "next/cache";
+import { revalidateTag } from "next/cache";
 
 import sql from "@/config/database/db";
-import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, FilterParams } from "@/types/filter";
+import {
+  DEFAULT_PAGE_NUMBER,
+  DEFAULT_PAGE_SIZE,
+  FilterParams,
+} from "@/types/filter";
 import { ApiReturnType, PaginatedResult } from "@/types/network";
 
-import {
-  getServiceProviderGlobalTag,
-  getServiceProviderIdTag,
-} from "./cache";
+import { getServiceProviderGlobalTag, getServiceProviderIdTag } from "./cache";
 
 export type JsonTranslations = Record<string, string>;
 
@@ -181,6 +180,20 @@ export type AdminProviderStaff = {
   isActive: boolean;
 };
 
+export type AdminProviderCommentReply = {
+  id: string;
+  reviewId: string;
+  authorName: string;
+  authorRole: "admin" | "customer";
+  replyText: string;
+  isPublic: boolean;
+  isVerified: boolean;
+  moderationStatus: "pending" | "approved" | "rejected";
+  createdByAdmin: boolean;
+  createDate: string;
+  lastModifiedDate: string | null;
+};
+
 export type AdminProviderComment = {
   id: string;
   customerId: string;
@@ -190,11 +203,22 @@ export type AdminProviderComment = {
   isPublic: boolean;
   isVerified: boolean;
   helpfulCount: number;
+  notHelpfulCount: number;
+  pros: string[];
+  cons: string[];
   country: string | null;
   treatment: string | null;
   images: string[];
   createDate: string;
   lastModifiedDate: string | null;
+  providerServiceId: string | null;
+  providerServiceName: string | null;
+  staffId: string | null;
+  staffName: string | null;
+  reviewTarget: "provider" | "service" | "specialist";
+  moderationStatus: "pending" | "approved" | "rejected";
+  createdByAdmin: boolean;
+  replies: AdminProviderCommentReply[];
 };
 
 export type AdminProviderRequest = {
@@ -318,7 +342,9 @@ function safeJsonObject(columnSql: any) {
 }
 
 function normalizeLocaleCode(locale?: string | null) {
-  const normalized = String(locale || "en-US").trim().replace("_", "-");
+  const normalized = String(locale || "en-US")
+    .trim()
+    .replace("_", "-");
   return normalized || "en-US";
 }
 
@@ -411,21 +437,30 @@ function normalizeTranslations(value: unknown): JsonTranslations {
 
 function normalizeStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
-  return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+  return value.filter(
+    (item): item is string =>
+      typeof item === "string" && item.trim().length > 0,
+  );
 }
 
 function ok<T>(data: T): ApiReturnType<T> {
   return { data, error: undefined } as ApiReturnType<T>;
 }
 
-function fail<T>(title: string, status = 500, detail?: string): ApiReturnType<T> {
+function fail<T>(
+  title: string,
+  status = 500,
+  detail?: string,
+): ApiReturnType<T> {
   return {
     data: undefined,
     error: { title, status, detail },
   } as ApiReturnType<T>;
 }
 
-function resolveSearchText(params: AdminServiceProviderFilterParams | undefined) {
+function resolveSearchText(
+  params: AdminServiceProviderFilterParams | undefined,
+) {
   const value =
     params?.filters ||
     (params as any)?.filter ||
@@ -437,7 +472,10 @@ function resolveSearchText(params: AdminServiceProviderFilterParams | undefined)
   return typeof value === "string" ? value.trim() : "";
 }
 
-function buildWhere(params: AdminServiceProviderFilterParams | undefined, locale: string) {
+function buildWhere(
+  params: AdminServiceProviderFilterParams | undefined,
+  locale: string,
+) {
   const parts: any[] = [];
   const search = resolveSearchText(params);
 
@@ -526,7 +564,9 @@ function buildWhere(params: AdminServiceProviderFilterParams | undefined, locale
   }
 
   if (!parts.length) return sql``;
-  const combined = parts.reduce((acc, part, index) => (index === 0 ? part : sql`${acc} and ${part}`));
+  const combined = parts.reduce((acc, part, index) =>
+    index === 0 ? part : sql`${acc} and ${part}`,
+  );
   return sql`where ${combined}`;
 }
 
@@ -550,11 +590,17 @@ function buildOrder(sortOrder?: string, locale = "en-US") {
 
 export async function getAdminServiceProviders(
   locale: string,
-  params?: AdminServiceProviderFilterParams
+  params?: AdminServiceProviderFilterParams,
 ): Promise<ApiReturnType<PaginatedResult<AdminServiceProviderListItem>>> {
   try {
-    const pageNumber = Math.max(1, Number(params?.pageNumber || DEFAULT_PAGE_NUMBER));
-    const pageSize = Math.min(100, Math.max(1, Number(params?.pageSize || DEFAULT_PAGE_SIZE)));
+    const pageNumber = Math.max(
+      1,
+      Number(params?.pageNumber || DEFAULT_PAGE_NUMBER),
+    );
+    const pageSize = Math.min(
+      100,
+      Math.max(1, Number(params?.pageSize || DEFAULT_PAGE_SIZE)),
+    );
     const offset = (pageNumber - 1) * pageSize;
     const whereSql = buildWhere(params, locale);
     const orderSql = buildOrder(params?.sortOrder, locale);
@@ -697,7 +743,7 @@ type ProviderRow = {
 
 export async function getAdminServiceProviderById(
   locale: string,
-  id: string
+  id: string,
 ): Promise<ApiReturnType<AdminServiceProviderDetails>> {
   try {
     const rows = await sql<ProviderRow[]>`
@@ -744,14 +790,26 @@ export async function getAdminServiceProviderById(
     const provider = rows[0];
     if (!provider) return fail("Service provider not found.", 404);
 
-    const [attributes, galleryItems, policies, certifications, services, staff, comments, requests, bookings, bookingDrafts, recommendations] = await Promise.all([
+    const [
+      attributes,
+      galleryItems,
+      policies,
+      certifications,
+      services,
+      staff,
+      comments,
+      requests,
+      bookings,
+      bookingDrafts,
+      recommendations,
+    ] = await Promise.all([
       getProviderAttributes(locale, id),
       getProviderGalleryItems(id),
       getProviderPolicies(id),
       getProviderCertifications(id),
       getProviderServices(locale, id),
       getProviderStaff(locale, id),
-      getProviderComments(id),
+      getProviderComments(locale, id),
       getProviderRequests(id),
       getProviderBookings(locale, id),
       getProviderBookingDrafts(locale, id),
@@ -769,7 +827,10 @@ export async function getAdminServiceProviderById(
       street: provider.street ? normalizeTranslations(provider.street) : null,
       latitude,
       longitude,
-      coordinates: latitude !== null && longitude !== null ? { latitude, longitude } : null,
+      coordinates:
+        latitude !== null && longitude !== null
+          ? { latitude, longitude }
+          : null,
       rating: asNumber(provider.rating),
       featuredScore: asNumber(provider.featuredScore),
       languages: normalizeStringArray(provider.languages),
@@ -792,7 +853,10 @@ export async function getAdminServiceProviderById(
   }
 }
 
-async function getProviderAttributes(locale: string, serviceProviderId: string): Promise<AdminProviderAttribute[]> {
+async function getProviderAttributes(
+  locale: string,
+  serviceProviderId: string,
+): Promise<AdminProviderAttribute[]> {
   const rows = await sql<AdminProviderAttribute[]>`
     select
       pa.id::text,
@@ -807,10 +871,15 @@ async function getProviderAttributes(locale: string, serviceProviderId: string):
     where pa.service_provider_id = ${serviceProviderId}
     order by "attributeName"
   `;
-  return rows.map(row => ({ ...row, value: normalizeTranslations(row.value) }));
+  return rows.map((row) => ({
+    ...row,
+    value: normalizeTranslations(row.value),
+  }));
 }
 
-async function getProviderGalleryItems(serviceProviderId: string): Promise<AdminProviderGalleryItem[]> {
+async function getProviderGalleryItems(
+  serviceProviderId: string,
+): Promise<AdminProviderGalleryItem[]> {
   const rows = await sql<AdminProviderGalleryItem[]>`
     select
       id::text,
@@ -823,10 +892,16 @@ async function getProviderGalleryItems(serviceProviderId: string): Promise<Admin
     where service_provider_id = ${serviceProviderId}
     order by display_order, create_date
   `;
-  return rows.map(row => ({ ...row, title: normalizeTranslations(row.title), description: normalizeTranslations(row.description) }));
+  return rows.map((row) => ({
+    ...row,
+    title: normalizeTranslations(row.title),
+    description: normalizeTranslations(row.description),
+  }));
 }
 
-async function getProviderPolicies(serviceProviderId: string): Promise<AdminProviderPolicy[]> {
+async function getProviderPolicies(
+  serviceProviderId: string,
+): Promise<AdminProviderPolicy[]> {
   const rows = await sql<AdminProviderPolicy[]>`
     select
       pp.id::text,
@@ -841,10 +916,16 @@ async function getProviderPolicies(serviceProviderId: string): Promise<AdminProv
     where pp.service_provider_id = ${serviceProviderId}
     order by pp.create_date desc
   `;
-  return rows.map(row => ({ ...row, type: normalizeTranslations(row.type), description: normalizeTranslations(row.description) }));
+  return rows.map((row) => ({
+    ...row,
+    type: normalizeTranslations(row.type),
+    description: normalizeTranslations(row.description),
+  }));
 }
 
-async function getProviderCertifications(serviceProviderId: string): Promise<AdminProviderCertification[]> {
+async function getProviderCertifications(
+  serviceProviderId: string,
+): Promise<AdminProviderCertification[]> {
   return sql<AdminProviderCertification[]>`
     select id::text, name, coalesce(is_verified, false) as "isVerified"
     from category.provider_certifications
@@ -853,8 +934,22 @@ async function getProviderCertifications(serviceProviderId: string): Promise<Adm
   `;
 }
 
-async function getProviderServices(locale: string, serviceProviderId: string): Promise<AdminProviderService[]> {
-  const rows = await sql<(Omit<AdminProviderService, "addonIds" | "galleryItems" | "displayName" | "description" | "tags"> & { displayName: unknown; description: unknown; tags: string[] | null; addonIds: string[] | null; galleryItems: unknown })[]>`
+async function getProviderServices(
+  locale: string,
+  serviceProviderId: string,
+): Promise<AdminProviderService[]> {
+  const rows = await sql<
+    (Omit<
+      AdminProviderService,
+      "addonIds" | "galleryItems" | "displayName" | "description" | "tags"
+    > & {
+      displayName: unknown;
+      description: unknown;
+      tags: string[] | null;
+      addonIds: string[] | null;
+      galleryItems: unknown;
+    })[]
+  >`
     select
       ps.id::text,
       ps.service_definition_id::text as "serviceDefinitionId",
@@ -899,7 +994,7 @@ async function getProviderServices(locale: string, serviceProviderId: string): P
     order by ps.is_active desc, ${translated(sql`ps.display_name_translations`, locale)}
   `;
 
-  return rows.map(row => ({
+  return rows.map((row) => ({
     ...row,
     displayName: normalizeTranslations(row.displayName),
     description: normalizeTranslations(row.description),
@@ -915,7 +1010,10 @@ async function getProviderServices(locale: string, serviceProviderId: string): P
   }));
 }
 
-async function getProviderStaff(locale: string, serviceProviderId: string): Promise<AdminProviderStaff[]> {
+async function getProviderStaff(
+  locale: string,
+  serviceProviderId: string,
+): Promise<AdminProviderStaff[]> {
   const rows = await sql<(AdminProviderStaff & { notes: unknown })[]>`
     select
       psf.id::text,
@@ -930,11 +1028,49 @@ async function getProviderStaff(locale: string, serviceProviderId: string): Prom
     where psf.service_provider_id = ${serviceProviderId}
     order by psf.is_active desc, "staffName"
   `;
-  return rows.map(row => ({ ...row, notes: normalizeTranslations(row.notes) }));
+  return rows.map((row) => ({
+    ...row,
+    notes: normalizeTranslations(row.notes),
+  }));
 }
 
-async function getProviderComments(serviceProviderId: string): Promise<AdminProviderComment[]> {
-  return sql<AdminProviderComment[]>`
+
+function normalizeAdminCommentReplies(value: unknown): AdminProviderCommentReply[] {
+  if (!value) return [];
+  let source: unknown = value;
+  if (typeof value === "string") {
+    try {
+      source = JSON.parse(value);
+    } catch {
+      source = [];
+    }
+  }
+  if (!Array.isArray(source)) return [];
+  return source
+    .map((item) => {
+      const row = item as Record<string, unknown>;
+      return {
+        id: String(row.id || ""),
+        reviewId: String(row.reviewId || ""),
+        authorName: String(row.authorName || "LSevin"),
+        authorRole: row.authorRole === "admin" ? "admin" : "customer",
+        replyText: String(row.replyText || ""),
+        isPublic: Boolean(row.isPublic),
+        isVerified: Boolean(row.isVerified),
+        moderationStatus: row.moderationStatus === "approved" || row.moderationStatus === "rejected" ? row.moderationStatus : "pending",
+        createdByAdmin: Boolean(row.createdByAdmin),
+        createDate: String(row.createDate || ""),
+        lastModifiedDate: row.lastModifiedDate ? String(row.lastModifiedDate) : null,
+      } satisfies AdminProviderCommentReply;
+    })
+    .filter((item) => item.id && item.replyText);
+}
+
+async function getProviderComments(
+  locale: string,
+  serviceProviderId: string,
+): Promise<AdminProviderComment[]> {
+  const rows = await sql<(Omit<AdminProviderComment, "replies"> & { replies: unknown })[]>`
     select
       c.id::text,
       c.customer_id::text as "customerId",
@@ -944,18 +1080,57 @@ async function getProviderComments(serviceProviderId: string): Promise<AdminProv
       c.is_public as "isPublic",
       coalesce(c.is_verified, false) as "isVerified",
       coalesce(c.helpful_count, 0)::int as "helpfulCount",
+      coalesce(c.not_helpful_count, 0)::int as "notHelpfulCount",
+      coalesce(c.pros, array[]::text[]) as pros,
+      coalesce(c.cons, array[]::text[]) as cons,
       c.country,
       c.treatment,
       coalesce((select array_agg(ri.image_url order by ri.id) from category.review_images ri where ri.review_id = c.id), array[]::varchar[])::text[] as images,
       c.create_date::text as "createDate",
-      c.last_modified_date::text as "lastModifiedDate"
+      c.last_modified_date::text as "lastModifiedDate",
+      c.provider_service_id::text as "providerServiceId",
+      ${translated(sql`ps.display_name_translations`, locale)} as "providerServiceName",
+      c.staff_id::text as "staffId",
+      ${translated(sql`s.name_translations`, locale)} as "staffName",
+      coalesce(c.review_target, case when c.staff_id is not null then 'specialist' when c.provider_service_id is not null then 'service' else 'provider' end)::text as "reviewTarget",
+      coalesce(c.moderation_status, case when c.is_public then 'approved' else 'pending' end)::text as "moderationStatus",
+      coalesce(c.created_by_admin, false) as "createdByAdmin",
+      coalesce((
+        select jsonb_agg(
+          jsonb_build_object(
+            'id', r.id::text,
+            'reviewId', r.review_id::text,
+            'authorName', r.author_name,
+            'authorRole', r.author_role,
+            'replyText', r.reply_text,
+            'isPublic', r.is_public,
+            'isVerified', coalesce(r.is_verified, false),
+            'moderationStatus', coalesce(r.moderation_status, case when r.is_public then 'approved' else 'pending' end),
+            'createdByAdmin', coalesce(r.created_by_admin, false),
+            'createDate', r.create_date::text,
+            'lastModifiedDate', r.last_modified_date::text
+          )
+          order by case coalesce(r.moderation_status, case when r.is_public then 'approved' else 'pending' end) when 'pending' then 0 when 'approved' then 1 else 2 end, r.create_date asc
+        )
+        from category.service_provider_comment_replies r
+        where r.review_id = c.id
+      ), '[]'::jsonb) as replies
     from category.service_provider_comments c
+    left join category.provider_services ps on ps.id = c.provider_service_id
+    left join category.staff s on s.id = c.staff_id
     where c.service_provider_id = ${serviceProviderId}
-    order by c.create_date desc
+    order by case coalesce(c.moderation_status, case when c.is_public then 'approved' else 'pending' end) when 'pending' then 0 when 'approved' then 1 else 2 end, c.create_date desc
   `;
+
+  return rows.map((row) => ({
+    ...row,
+    replies: normalizeAdminCommentReplies(row.replies),
+  }));
 }
 
-async function getProviderRequests(serviceProviderId: string): Promise<AdminProviderRequest[]> {
+async function getProviderRequests(
+  serviceProviderId: string,
+): Promise<AdminProviderRequest[]> {
   return sql<AdminProviderRequest[]>`
     select
       r.id::text,
@@ -974,7 +1149,10 @@ async function getProviderRequests(serviceProviderId: string): Promise<AdminProv
   `;
 }
 
-async function getProviderBookings(locale: string, serviceProviderId: string): Promise<AdminProviderBooking[]> {
+async function getProviderBookings(
+  locale: string,
+  serviceProviderId: string,
+): Promise<AdminProviderBooking[]> {
   return sql<AdminProviderBooking[]>`
     select
       b.id::text,
@@ -1002,7 +1180,10 @@ async function getProviderBookings(locale: string, serviceProviderId: string): P
   `;
 }
 
-async function getProviderBookingDrafts(locale: string, serviceProviderId: string): Promise<AdminProviderDraft[]> {
+async function getProviderBookingDrafts(
+  locale: string,
+  serviceProviderId: string,
+): Promise<AdminProviderDraft[]> {
   return sql<AdminProviderDraft[]>`
     select
       d.id::text,
@@ -1026,7 +1207,10 @@ async function getProviderBookingDrafts(locale: string, serviceProviderId: strin
   `;
 }
 
-async function getProviderRecommendations(locale: string, serviceProviderId: string): Promise<AdminProviderRecommendation[]> {
+async function getProviderRecommendations(
+  locale: string,
+  serviceProviderId: string,
+): Promise<AdminProviderRecommendation[]> {
   return sql<AdminProviderRecommendation[]>`
     select
       pr.id::text,
@@ -1042,12 +1226,17 @@ async function getProviderRecommendations(locale: string, serviceProviderId: str
   `;
 }
 
-
 function normalizeLookupPage(page?: number, pageSize?: number) {
-  const normalizedPage = Number.isInteger(page) && Number(page) > 0 ? Number(page) : 1;
+  const normalizedPage =
+    Number.isInteger(page) && Number(page) > 0 ? Number(page) : 1;
   const normalizedPageSize = Math.min(
-    Math.max(Number.isInteger(pageSize) && Number(pageSize) > 0 ? Number(pageSize) : 30, 1),
-    100
+    Math.max(
+      Number.isInteger(pageSize) && Number(pageSize) > 0
+        ? Number(pageSize)
+        : 30,
+      1,
+    ),
+    100,
   );
 
   return {
@@ -1058,7 +1247,11 @@ function normalizeLookupPage(page?: number, pageSize?: number) {
   };
 }
 
-function lookupPage<T extends AdminLookupOption>(rows: T[], page: number, pageSize: number): AdminLookupSearchResult {
+function lookupPage<T extends AdminLookupOption>(
+  rows: T[],
+  page: number,
+  pageSize: number,
+): AdminLookupSearchResult {
   return {
     items: rows.slice(0, pageSize),
     hasMore: rows.length > pageSize,
@@ -1068,13 +1261,16 @@ function lookupPage<T extends AdminLookupOption>(rows: T[], page: number, pageSi
 }
 
 export async function searchAdminProviderLookupOptions(
-  params: SearchAdminLookupOptionsParams
+  params: SearchAdminLookupOptionsParams,
 ): Promise<ApiReturnType<AdminLookupSearchResult>> {
   const locale = params.locale || "en-US";
   const query = params.query?.trim() || "";
   const like = `%${query}%`;
   const hasQuery = query.length > 0;
-  const { page, pageSize, limit, offset } = normalizeLookupPage(params.page, params.pageSize);
+  const { page, pageSize, limit, offset } = normalizeLookupPage(
+    params.page,
+    params.pageSize,
+  );
 
   try {
     let rows: AdminLookupOption[] = [];
@@ -1114,14 +1310,18 @@ export async function searchAdminProviderLookupOptions(
         select l.id::text, l.code, ${label} as label, l.parent_id::text as "parentId"
         from category.locations l
         where l.location_type_id = 2
-          and ${parentId ? sql`(
+          and ${
+            parentId
+              ? sql`(
             l.parent_id::text = ${parentId}
             or l.parent_id in (
               select country.id
               from category.locations country
               where country.location_type_id = 1 and country.code = ${parentId}
             )
-          )` : sql`true`}
+          )`
+              : sql`true`
+          }
           and ${hasQuery ? sql`(${label} ilike ${like} or l.code ilike ${like})` : sql`true`}
         order by l.display_order nulls last, label
         limit ${limit} offset ${offset}
@@ -1163,7 +1363,9 @@ export async function searchAdminProviderLookupOptions(
     } else if (params.type === "attributeDefinitions") {
       const label = translated(sql`pad.name_translations`, locale);
       const providerTypeId = params.providerTypeId?.trim();
-      rows = await sql<(AdminProviderLookupData["attributeDefinitions"][number])[]>`
+      rows = await sql<
+        AdminProviderLookupData["attributeDefinitions"][number][]
+      >`
         select
           pad.id::text,
           ${label} as label,
@@ -1221,9 +1423,24 @@ export async function searchAdminProviderLookupOptions(
   }
 }
 
-export async function getAdminProviderLookupData(locale: string): Promise<ApiReturnType<AdminProviderLookupData>> {
+export async function getAdminProviderLookupData(
+  locale: string,
+): Promise<ApiReturnType<AdminProviderLookupData>> {
   try {
-    const [providerTypes, grades, countries, cities, serviceDefinitions, staff, providers, attributeDefinitions, requestStatuses, policyTypes, currencies, addons] = await Promise.all([
+    const [
+      providerTypes,
+      grades,
+      countries,
+      cities,
+      serviceDefinitions,
+      staff,
+      providers,
+      attributeDefinitions,
+      requestStatuses,
+      policyTypes,
+      currencies,
+      addons,
+    ] = await Promise.all([
       sql<AdminLookupOption[]>`
         select id::text, ${translated(sql`name_translations`, locale)} as label
         from category.provider_types
@@ -1270,7 +1487,7 @@ export async function getAdminProviderLookupData(locale: string): Promise<ApiRet
         order by label
         limit 30
       `,
-      sql<(AdminProviderLookupData["attributeDefinitions"][number])[]>`
+      sql<AdminProviderLookupData["attributeDefinitions"][number][]>`
         select
           pad.id::text,
           ${translated(sql`pad.name_translations`, locale)} as label,
@@ -1309,7 +1526,20 @@ export async function getAdminProviderLookupData(locale: string): Promise<ApiRet
       `,
     ]);
 
-    return ok({ providerTypes, grades, countries, cities, serviceDefinitions, staff, providers, attributeDefinitions, requestStatuses, policyTypes, currencies, addons });
+    return ok({
+      providerTypes,
+      grades,
+      countries,
+      cities,
+      serviceDefinitions,
+      staff,
+      providers,
+      attributeDefinitions,
+      requestStatuses,
+      policyTypes,
+      currencies,
+      addons,
+    });
   } catch (error) {
     console.error("getAdminProviderLookupData failed", error);
     return fail("Could not load service provider lookup data.");
@@ -1319,5 +1549,6 @@ export async function getAdminProviderLookupData(locale: string): Promise<ApiRet
 export function revalidateAdminServiceProvider(serviceProviderId?: string) {
   revalidateTag(getServiceProviderGlobalTag());
   revalidateTag("admin-service-provider-lookups");
-  if (serviceProviderId) revalidateTag(getServiceProviderIdTag(serviceProviderId));
+  if (serviceProviderId)
+    revalidateTag(getServiceProviderIdTag(serviceProviderId));
 }

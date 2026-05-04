@@ -294,6 +294,17 @@ export interface StaffEducation {
   year: number | null;
 }
 
+export interface ReviewReply {
+  id: string;
+  name: string;
+  role: "admin" | "customer";
+  reply: string;
+  date: string;
+  verified?: boolean;
+  createdByAdmin?: boolean;
+  replies?: ReviewReply[];
+}
+
 export interface TopReview {
   id: string | number;
   name: string;
@@ -303,8 +314,12 @@ export interface TopReview {
   review: string;
   verified: boolean;
   helpful: number;
+  notHelpful?: number;
+  pros?: string[];
+  cons?: string[];
   treatment: string;
   images?: string[];
+  createdByAdmin?: boolean;
 }
 
 export type GetServicePageQueryKey = ['service-page', string, string];

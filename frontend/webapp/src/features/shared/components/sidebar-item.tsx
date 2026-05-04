@@ -23,6 +23,24 @@ import { Link } from "@/i18n/navigation";
 
 import { AdminSidebarItemType } from "../types/common";
 
+
+function formatAdminLabel(key: string) {
+  return key
+    .replace(/[-_]/g, ' ')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/^./, (char) => char.toUpperCase());
+}
+
+function safeTranslate(t: ReturnType<typeof useTranslations>, key: string) {
+  try {
+    return t(key);
+  } catch {
+    return formatAdminLabel(key);
+  }
+}
+
 export function AdminSidebarItem({ item }: { item: AdminSidebarItemType }) {
   const segments = useSelectedLayoutSegments();
   const { isRtl } = useDirection();
@@ -42,7 +60,7 @@ export function AdminSidebarItem({ item }: { item: AdminSidebarItemType }) {
     return (
       <Collapsible
         key={item.title}
-        title={t(item.title)}
+        title={safeTranslate(t, item.title)}
         defaultOpen={defaultOpen} // Open if parent or child is active
         className="group/collapsible"
       >
@@ -52,7 +70,7 @@ export function AdminSidebarItem({ item }: { item: AdminSidebarItemType }) {
             className="group/label text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sm"
           >
             <CollapsibleTrigger>
-              {t(item.title)}{" "}
+              {safeTranslate(t, item.title)}{" "}
               {isRtl ? (
                 <ChevronLeft className="mr-auto size-4 transition-transform group-data-[state=open]/collapsible:-rotate-90" />
               ) : (
@@ -69,7 +87,7 @@ export function AdminSidebarItem({ item }: { item: AdminSidebarItemType }) {
                       <SidebarMenuButton
                         isActive={isRouteActive(subItem.url, segments)}
                       >
-                        {t(subItem.title)}
+                        {safeTranslate(t, subItem.title)}
                       </SidebarMenuButton>
                     </Link>
                   </SidebarMenuItem>
@@ -88,7 +106,7 @@ export function AdminSidebarItem({ item }: { item: AdminSidebarItemType }) {
           <SidebarMenuItem>
             <Link href={item.url}>
               <SidebarMenuButton isActive={isActive}>
-                {t(item.title)}
+                {safeTranslate(t, item.title)}
               </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>

@@ -23,7 +23,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocale } from "next-intl";
 import { useParams, useSearchParams } from "next/navigation";
 
-import ReviewForm from "../../../components/ReviewForm";
+import ReviewForm, { type ReviewFormSubmitValue } from "../../../components/ReviewForm";
+import { DigikalaReviewCard } from "../../../components/DigikalaReviewCard";
+import { useReviewEligibility } from "../../../components/useReviewEligibility";
 import RecommendationsSection from "../../../components/RecommendationsSection";
 import { PriceTextClient } from "@/features/finance/components/price-text-client";
 import { useFetchProviderPageData } from "@/features/service-providers/api/client/fetch-provider-page-data";
@@ -37,6 +39,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 
 const FALLBACK_IMAGE = "/placeholder-provider.svg";
+
+type ReviewSort = "newest" | "buyers" | "helpful";
+
+function reviewSortLabels(locale?: string | null) {
+  const key = String(locale || "en").split("-")[0]?.toLowerCase();
+  if (key === "fa") {
+    return { newest: "جدیدترین", buyers: "دیدگاه خریداران", helpful: "مفیدترین", more: "مشاهده بیشتر", loading: "در حال بارگذاری..." };
+  }
+  return { newest: "Newest", buyers: "Booked customers", helpful: "Most helpful", more: "Show more", loading: "Loading reviews..." };
+}
 
 function firstParam(value: string | string[] | undefined): string {
   return Array.isArray(value) ? value[0] || "" : value || "";
@@ -78,6 +90,7 @@ export default function ProviderDetailPage() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [visibleReviews, setVisibleReviews] = useState<Review[]>([]);
+  const [reviewSort, setReviewSort] = useState<ReviewSort>("newest");
   const [hasMoreReviews, setHasMoreReviews] = useState(false);
   const [isLoadingMoreReviews, setIsLoadingMoreReviews] = useState(false);
 
@@ -92,6 +105,8 @@ export default function ProviderDetailPage() {
   );
 
   const { data, error, isFetching, refetch } = useFetchProviderPageData(providerId, locale, currencyOptions);
+  const reviewEligibility = useReviewEligibility({ open: showReviewForm, providerId, targetType: "provider", locale });
+  const sortText = reviewSortLabels(locale);
 
   useEffect(() => {
     if (!data?.provider) return;
@@ -185,7 +200,7 @@ export default function ProviderDetailPage() {
     }
   };
 
-  const handleReviewSubmit = async (review: { rating: number; title: string; comment: string; images: File[] }) => {
+  const handleReviewSubmit = async (review: ReviewFormSubmitValue) => {
     if (!user?.id) {
       throw new Error("Please sign in and complete your profile before writing a review.");
     }
@@ -199,7 +214,10 @@ export default function ProviderDetailPage() {
         title: review.title,
         treatment: review.title || "Provider experience",
         comment: review.comment,
+        pros: review.pros,
+        cons: review.cons,
         imageUrls: [],
+        targetType: "provider",
       }),
     });
 
@@ -209,10 +227,30 @@ export default function ProviderDetailPage() {
     }
 
     const payload = await response.json();
-    if (payload.review) {
+    if (payload.review && !payload.requiresModeration) {
       setVisibleReviews((current) => [payload.review, ...current.filter((item) => item.id !== payload.review.id)]);
     }
     await refetch();
+  };
+
+  const fetchReviewsPage = async (options: { offset: number; sort: ReviewSort }) => {
+    const params = new URLSearchParams({ offset: String(options.offset), limit: "3", sort: options.sort });
+    const response = await fetch(`/api/service-providers/${provider.id}/reviews?${params.toString()}`);
+    if (!response.ok) throw new Error("Could not load reviews.");
+    return response.json() as Promise<{ reviews: Review[]; hasMore: boolean }>;
+  };
+
+  const changeReviewSort = async (sort: ReviewSort) => {
+    if (reviewSort === sort || isLoadingMoreReviews) return;
+    setReviewSort(sort);
+    setIsLoadingMoreReviews(true);
+    try {
+      const payload = await fetchReviewsPage({ offset: 0, sort });
+      setVisibleReviews(payload.reviews || []);
+      setHasMoreReviews(Boolean(payload.hasMore));
+    } finally {
+      setIsLoadingMoreReviews(false);
+    }
   };
 
   const loadMoreReviews = async () => {
@@ -220,9 +258,7 @@ export default function ProviderDetailPage() {
 
     setIsLoadingMoreReviews(true);
     try {
-      const response = await fetch(`/api/service-providers/${provider.id}/reviews?offset=${visibleReviews.length}&limit=10`);
-      if (!response.ok) throw new Error("Could not load reviews.");
-      const payload = await response.json();
+      const payload = await fetchReviewsPage({ offset: visibleReviews.length, sort: reviewSort });
       setVisibleReviews((current) => {
         const existing = new Set(current.map((item) => item.id));
         return [...current, ...(payload.reviews || []).filter((item: Review) => !existing.has(item.id))];
@@ -504,44 +540,22 @@ export default function ProviderDetailPage() {
               <MessageSquare size={20} /> Write a Review
             </button>
 
-            {visibleReviews.length ? visibleReviews.map((review) => (
-              <div key={review.id} className="rounded-2xl border border-gray-200 bg-white p-4">
-                <div className="mb-3 flex items-start gap-3">
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 font-bold text-gray-600">
-                    {review.name.charAt(0)}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="mb-1 flex items-center gap-2">
-                      <h4 className="font-bold text-gray-900">{review.name}</h4>
-                      {review.verified ? <BadgeCheck size={16} className="text-[#083f30]" /> : null}
-                    </div>
-                    <div className="mb-2 flex items-center gap-2 text-xs text-gray-600">
-                      {review.country ? <span>{review.country}</span> : null}
-                      {review.country ? <span>•</span> : null}
-                      <span>{review.date}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-0.5">
-                    {Array.from({ length: review.rating }).map((_, i) => (
-                      <Star key={i} size={14} className="fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-                </div>
-                <span className="mb-3 inline-block rounded-md bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-700">{review.treatment}</span>
-                <p className="mb-3 text-sm leading-relaxed text-gray-700">{review.review}</p>
-                {review.images?.length ? (
-                  <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
-                    {review.images.map((img, idx) => (
-                      <span key={`${img}-${idx}`} className="relative block h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
-                        <ImageWithFallback fill src={mediaUrl(img)} alt="Review" sizes="80px" className="object-cover" fallbackClassName="h-full w-full" />
-                      </span>
-                    ))}
-                  </div>
-                ) : null}
-                <button className="text-xs font-medium text-gray-600 hover:text-gray-900" type="button">
-                  👍 Helpful ({review.helpful})
+            <div className="flex flex-wrap gap-2">
+              {(["newest", "buyers", "helpful"] as ReviewSort[]).map((sort) => (
+                <button
+                  key={sort}
+                  type="button"
+                  onClick={() => changeReviewSort(sort)}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-bold transition-colors ${reviewSort === sort ? "border-[#083f30] bg-[#083f30] text-white" : "border-gray-200 bg-white text-gray-700"}`}
+                  disabled={isLoadingMoreReviews}
+                >
+                  {sortText[sort]}
                 </button>
-              </div>
+              ))}
+            </div>
+
+            {visibleReviews.length ? visibleReviews.map((review) => (
+              <DigikalaReviewCard key={review.id} review={review} locale={locale} providerId={provider.id} />
             )) : <EmptyState title="No public reviews yet" text="Reviews will appear here after customers publish them." />}
 
             {hasMoreReviews ? (
@@ -552,7 +566,7 @@ export default function ProviderDetailPage() {
                 type="button"
               >
                 {isLoadingMoreReviews ? <Loader2 size={16} className="animate-spin" /> : null}
-                {isLoadingMoreReviews ? "Loading reviews..." : "Load more reviews"}
+                {isLoadingMoreReviews ? sortText.loading : sortText.more}
               </button>
             ) : null}
 
@@ -561,6 +575,9 @@ export default function ProviderDetailPage() {
                 providerName={provider.name}
                 onClose={() => setShowReviewForm(false)}
                 onSubmit={handleReviewSubmit}
+                locale={locale}
+                eligibilityState={reviewEligibility.eligibilityState}
+                eligibilityMessage={reviewEligibility.eligibilityMessage}
               />
             ) : null}
           </div>

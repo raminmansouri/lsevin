@@ -25,9 +25,12 @@ import {
   Users,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import RecommendationSection from "../../components/RecommendationSection";
+import ReviewForm, { type ReviewFormSubmitValue } from "../../../components/ReviewForm";
+import { DigikalaReviewCard } from "../../../components/DigikalaReviewCard";
+import { useReviewEligibility } from "../../../components/useReviewEligibility";
 import { PriceConverterCardClient } from "@/features/finance/components/price-converter-card-client";
 import { PriceTextClient } from "@/features/finance/components/price-text-client";
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
@@ -48,6 +51,7 @@ import type {
   ServiceProviderOffering,
   ServiceSpecialist,
   ServiceUploadRequirement,
+  TopReview,
 } from "@/features/service-providers/types/service-page.types";
 
 type ServicePageProps = {
@@ -55,6 +59,16 @@ type ServicePageProps = {
   serviceId: string;
   locale: string;
 };
+
+type ReviewSort = "newest" | "buyers" | "helpful";
+
+function reviewSortLabels(locale?: string | null) {
+  const key = String(locale || "en").split("-")[0]?.toLowerCase();
+  if (key === "fa") {
+    return { newest: "جدیدترین", buyers: "دیدگاه خریداران", helpful: "مفیدترین", more: "مشاهده بیشتر", loading: "در حال بارگذاری..." };
+  }
+  return { newest: "Newest", buyers: "Booked customers", helpful: "Most helpful", more: "Show more", loading: "Loading reviews..." };
+}
 
 function formatNumber(value: number, locale: string) {
   return new Intl.NumberFormat(locale || "en-US").format(value || 0);
@@ -460,6 +474,25 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showAllFAQs, setShowAllFAQs] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState(service.displayCurrencyCode || service.currency);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [visibleReviews, setVisibleReviews] = useState<TopReview[]>(data.topReviews || []);
+  const [reviewSort, setReviewSort] = useState<ReviewSort>("newest");
+  const [hasMoreReviews, setHasMoreReviews] = useState((data.topReviews || []).length >= 3);
+  const [isLoadingMoreReviews, setIsLoadingMoreReviews] = useState(false);
+
+  useEffect(() => {
+    setVisibleReviews(data.topReviews || []);
+    setHasMoreReviews((data.topReviews || []).length >= 3);
+  }, [data.topReviews]);
+
+  const reviewEligibility = useReviewEligibility({
+    open: showReviewForm,
+    providerId: service.clinicId,
+    targetType: "service",
+    providerServiceId: service.providerServiceId,
+    locale,
+  });
+  const sortText = reviewSortLabels(locale);
 
   const galleryItems = service.galleryItems || [];
   const currentGalleryItem = galleryItems[currentImageIndex];
@@ -490,6 +523,71 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
       return;
     }
     await navigator.clipboard.writeText(window.location.href);
+  };
+
+  const handleReviewSubmit = async (review: ReviewFormSubmitValue) => {
+    const response = await fetch(`/api/service-providers/${service.clinicId}/reviews`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        rating: review.rating,
+        title: review.title,
+        treatment: review.title || service.name,
+        comment: review.comment,
+        pros: review.pros,
+        cons: review.cons,
+        imageUrls: [],
+        targetType: "service",
+        providerServiceId: service.providerServiceId,
+      }),
+    });
+
+    if (!response.ok) {
+      const problem = await response.json().catch(() => null);
+      throw new Error(problem?.title || "Could not submit review.");
+    }
+  };
+
+
+  const fetchReviewsPage = async (options: { offset: number; sort: ReviewSort }) => {
+    const params = new URLSearchParams({
+      offset: String(options.offset),
+      limit: "3",
+      sort: options.sort,
+      targetType: "service",
+      providerServiceId: service.providerServiceId,
+    });
+    const response = await fetch(`/api/service-providers/${service.clinicId}/reviews?${params.toString()}`);
+    if (!response.ok) throw new Error("Could not load reviews.");
+    return response.json() as Promise<{ reviews: TopReview[]; hasMore: boolean }>;
+  };
+
+  const changeReviewSort = async (sort: ReviewSort) => {
+    if (reviewSort === sort || isLoadingMoreReviews) return;
+    setReviewSort(sort);
+    setIsLoadingMoreReviews(true);
+    try {
+      const payload = await fetchReviewsPage({ offset: 0, sort });
+      setVisibleReviews(payload.reviews || []);
+      setHasMoreReviews(Boolean(payload.hasMore));
+    } finally {
+      setIsLoadingMoreReviews(false);
+    }
+  };
+
+  const loadMoreReviews = async () => {
+    if (isLoadingMoreReviews || !hasMoreReviews) return;
+    setIsLoadingMoreReviews(true);
+    try {
+      const payload = await fetchReviewsPage({ offset: visibleReviews.length, sort: reviewSort });
+      setVisibleReviews((current) => {
+        const existing = new Set(current.map((item) => item.id));
+        return [...current, ...(payload.reviews || []).filter((item) => !existing.has(item.id))];
+      });
+      setHasMoreReviews(Boolean(payload.hasMore));
+    } finally {
+      setIsLoadingMoreReviews(false);
+    }
   };
 
   return (
@@ -617,25 +715,56 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
         <ProvidersForServiceSection providers={data.providers} currentProviderServiceId={service.providerServiceId} locale={locale} />
         {(data.localRecommendations.length > 0 || data.internationalRecommendations.length > 0) && <RecommendationSection localRecommendations={data.localRecommendations} internationalRecommendations={data.internationalRecommendations} userCountry={service.country || "your country"} />}
 
-        {data.topReviews.length > 0 && (
-          <section className="mb-6">
-            <div className="mb-4 flex items-center justify-between"><h2 className="text-xl font-bold text-gray-900">Patient Reviews</h2><button type="button" onClick={() => navigate(`/n/app/mobile/service/${serviceId}/reviews`)} className="text-sm font-semibold text-[#083f30] hover:underline">View All</button></div>
-            <div className="space-y-4">
-              {data.topReviews.map((review) => (
-                <div key={review.id} className="rounded-2xl border border-gray-200 bg-white p-4">
-                  <div className="mb-3 flex items-start gap-3">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 font-bold text-gray-600">{review.name.charAt(0)}</div>
-                    <div className="min-w-0 flex-1"><div className="mb-1 flex items-center gap-2"><h4 className="font-bold text-gray-900">{review.name}</h4>{review.verified && <BadgeCheck size={16} className="text-[#083f30]" />}</div><div className="mb-2 flex items-center gap-2 text-xs text-gray-600">{review.country && <span>{review.country}</span>}{review.country && <span>•</span>}<span>{formatReviewDate(review.date, locale)}</span>{review.treatment && <span>• {review.treatment}</span>}</div></div>
-                    <div className="flex items-center gap-0.5">{[...Array(Math.max(0, Math.min(5, Math.round(review.rating))))].map((_, i) => <Star key={i} size={14} className="fill-yellow-400 text-yellow-400" />)}</div>
-                  </div>
-                  <p className="mb-3 text-sm leading-relaxed text-gray-700">{review.review}</p>
-                  {review.images && review.images.length > 0 && <div className="mb-3 flex gap-2 overflow-x-auto">{review.images.map((img, idx) => <ThumbImage key={`${img}-${idx}`} src={img} alt="Review" className="h-24 w-24 flex-shrink-0 rounded-lg" />)}</div>}
-                  <button type="button" className="text-xs font-medium text-gray-600 hover:text-gray-900">👍 Helpful ({formatNumber(review.helpful, locale)})</button>
-                </div>
-              ))}
+        <section className="mb-6">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h2 className="text-xl font-bold text-gray-900">Patient Reviews</h2>
+            <div className="flex items-center gap-3">
+              {visibleReviews.length > 0 ? (
+                <button type="button" onClick={() => navigate(`/n/app/mobile/service/${serviceId}/reviews`)} className="text-sm font-semibold text-[#083f30] hover:underline">View All</button>
+              ) : null}
+              <button type="button" onClick={() => setShowReviewForm(true)} className="rounded-xl bg-[#083f30] px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-[#0a5a44]">Write Review</button>
             </div>
-          </section>
-        )}
+          </div>
+          <div className="mb-4 flex flex-wrap gap-2">
+            {(["newest", "buyers", "helpful"] as ReviewSort[]).map((sort) => (
+              <button
+                key={sort}
+                type="button"
+                onClick={() => changeReviewSort(sort)}
+                disabled={isLoadingMoreReviews}
+                className={`rounded-full border px-3 py-1.5 text-xs font-bold transition-colors ${reviewSort === sort ? "border-[#083f30] bg-[#083f30] text-white" : "border-gray-200 bg-white text-gray-700"}`}
+              >
+                {sortText[sort]}
+              </button>
+            ))}
+          </div>
+          {visibleReviews.length > 0 ? (
+            <div className="space-y-4">
+              {visibleReviews.map((review) => (
+                <DigikalaReviewCard key={review.id} review={review} locale={locale} providerId={service.clinicId} />
+              ))}
+              {hasMoreReviews ? (
+                <button type="button" onClick={loadMoreReviews} disabled={isLoadingMoreReviews} className="flex h-11 w-full items-center justify-center rounded-xl border border-gray-200 bg-white text-sm font-bold text-[#083f30] disabled:opacity-60">
+                  {isLoadingMoreReviews ? sortText.loading : sortText.more}
+                </button>
+              ) : null}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-5 text-sm text-gray-600">No public reviews yet. Booked customers can submit a review for this service.</div>
+          )}
+        </section>
+
+        {showReviewForm ? (
+          <ReviewForm
+            providerName={service.clinic || service.name}
+            treatmentName={service.name}
+            onClose={() => setShowReviewForm(false)}
+            onSubmit={handleReviewSubmit}
+            locale={locale}
+            eligibilityState={reviewEligibility.eligibilityState}
+            eligibilityMessage={reviewEligibility.eligibilityMessage}
+          />
+        ) : null}
 
         <PoliciesSection policies={data.policies} />
 

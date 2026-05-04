@@ -212,14 +212,16 @@ export function SupportFloatingWidget({ bootstrap, disabledOnCurrentRoute }: Pro
       <button
         type="button"
         onClick={() => setIsOpen((value) => !value)}
-        className="group flex items-center gap-3 rounded-full px-4 py-3 text-sm font-semibold text-white shadow-2xl transition-transform hover:scale-[1.02] active:scale-95"
+        className="group flex items-center rounded-full px-4 py-3 text-sm font-semibold text-white shadow-2xl transition-transform hover:scale-[1.02] active:scale-95"
         style={{ backgroundColor: data.settings.primaryColor, color: data.settings.textColor, borderRadius: data.settings.borderRadius }}
       >
         <span className="relative flex h-11 w-11 items-center justify-center rounded-full bg-white/15">
           <MessageCircle className="h-5 w-5" />
           {unread > 0 && <Badge className="absolute -right-2 -top-2 h-5 min-w-5 rounded-full bg-red-600 px-1 text-[10px] text-white">{unread}</Badge>}
         </span>
-        {!data.settings.compactMode && <span>{labels.launcherLabel}</span>}
+        {!data.settings.compactMode && <span>
+          {/* {labels.launcherLabel} */}
+          </span>}
       </button>
     </div>
   );

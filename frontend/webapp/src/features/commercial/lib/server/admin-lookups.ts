@@ -3,8 +3,9 @@ import "server-only";
 import sql from "@/config/database/db";
 
 export interface AdminLookupOption {
-  value: string;
+  id: string;
   label: string;
+  code?: string;
 }
 
 export interface CommercialPolicyLookups {
@@ -13,33 +14,40 @@ export interface CommercialPolicyLookups {
   serviceDefinitions: AdminLookupOption[];
   providerServices: AdminLookupOption[];
   addons: AdminLookupOption[];
+  currencies: AdminLookupOption[];
 }
 
 export async function getCommercialPolicyLookups(): Promise<CommercialPolicyLookups> {
-  const [providerTypes, providers, serviceDefinitions, providerServices, addons] = await Promise.all([
+  const [providerTypes, providers, serviceDefinitions, providerServices, addons, currencies] = await Promise.all([
     sql<AdminLookupOption[]>`
-      select id::text as value, common.get_translation_t(name_translations, 'en-US', 'en') as label
+      select id::text as id, common.get_translation_t(name_translations, 'en-US', 'en') as label
       from category.provider_types
       where is_active = true
       order by label asc
       limit 200
     `,
     sql<AdminLookupOption[]>`
-      select id::text as value, common.get_translation_t(name_translations, 'en-US', 'en') as label
+      select id::text as id, common.get_translation_t(name_translations, 'en-US', 'en') as label
       from category.service_providers
       where is_active = true
       order by label asc
       limit 200
     `,
     sql<AdminLookupOption[]>`
-      select id::text as value, common.get_translation_t(name_translations, 'en-US', 'en') as label
+      select id::text as id, common.get_translation_t(name_translations, 'en-US', 'en') as label
       from category.service_definitions
       where is_active = true
       order by label asc
       limit 200
     `,
     sql<AdminLookupOption[]>`
-      select ps.id::text as value, concat(common.get_translation_t(ps.display_name_translations, 'en-US', 'en'), ' • ', common.get_translation_t(sp.name_translations, 'en-US', 'en')) as label
+      select
+        ps.id::text as id,
+        concat(
+          common.get_translation_t(ps.display_name_translations, 'en-US', 'en'),
+          ' • ',
+          common.get_translation_t(sp.name_translations, 'en-US', 'en')
+        ) as label
       from category.provider_services ps
       join category.service_providers sp on sp.id = ps.service_provider_id
       where ps.is_active = true
@@ -47,15 +55,21 @@ export async function getCommercialPolicyLookups(): Promise<CommercialPolicyLook
       limit 200
     `,
     sql<AdminLookupOption[]>`
-      select id::text as value, name as label
+      select id::text as id, name as label
       from category.addons
       where is_active = true
       order by name asc
       limit 200
     `,
+    sql<AdminLookupOption[]>`
+      select symbol as id, concat(symbol, case when nullif(name, '') is not null then concat(' • ', name) else '' end) as label
+      from category.currencies
+      order by symbol asc
+      limit 200
+    `,
   ]);
 
-  return { providerTypes, providers, serviceDefinitions, providerServices, addons };
+  return { providerTypes, providers, serviceDefinitions, providerServices, addons, currencies };
 }
 
 export async function getCommercialDashboardSummary() {

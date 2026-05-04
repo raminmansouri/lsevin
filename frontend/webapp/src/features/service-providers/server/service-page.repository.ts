@@ -73,6 +73,21 @@ function normalizeJsonArray<T>(value: unknown): T[] {
   return [];
 }
 
+
+function normalizeReviewReplies(value: unknown) {
+  return normalizeJsonArray<Record<string, unknown>>(value)
+    .map((row) => ({
+      id: String(row.id || ""),
+      name: asString(row.name, "LSevin"),
+      role: row.role === "admin" ? "admin" as const : "customer" as const,
+      reply: asString(row.reply),
+      date: asString(row.date),
+      verified: Boolean(row.verified),
+      createdByAdmin: Boolean(row.createdByAdmin),
+    }))
+    .filter((item) => item.id && item.reply);
+}
+
 function uniqueNonEmpty(values: Array<string | null | undefined>) {
   return Array.from(new Set(values.map((value) => String(value || '').trim()).filter(Boolean)));
 }
@@ -271,8 +286,13 @@ type ReviewRow = {
   comment_text: string;
   is_verified: boolean | null;
   helpful_count: number | string | null;
+  not_helpful_count: number | string | null;
+  pros: string[] | null;
+  cons: string[] | null;
+  created_by_admin: boolean | null;
   create_date: string | Date;
   images: string[] | null;
+  replies: unknown;
 };
 
 type ServiceAttributeRow = {
@@ -721,7 +741,7 @@ async function getProvidersForService(serviceDefinitionId: string, locale: strin
   return Promise.all(rows.map((row) => mapOffering(row, options)));
 }
 
-async function getTopReviews(providerId: string): Promise<TopReview[]> {
+async function getTopReviews(providerId: string, providerServiceId: string): Promise<TopReview[]> {
   const rows = await sql<ReviewRow[]>`
     select
       spc.id::text as id,
@@ -732,15 +752,47 @@ async function getTopReviews(providerId: string): Promise<TopReview[]> {
       spc.comment_text,
       spc.is_verified,
       spc.helpful_count,
+      coalesce(spc.not_helpful_count, 0) as not_helpful_count,
+      coalesce(spc.pros, array[]::text[]) as pros,
+      coalesce(spc.cons, array[]::text[]) as cons,
+      coalesce(spc.created_by_admin, false) as created_by_admin,
       spc.create_date,
+      coalesce((
+        select jsonb_agg(
+          jsonb_build_object(
+            'id', r.id::text,
+            'name', r.author_name,
+            'role', r.author_role,
+            'reply', r.reply_text,
+            'date', r.create_date::text,
+            'verified', coalesce(r.is_verified, false),
+            'createdByAdmin', coalesce(r.created_by_admin, false)
+          )
+          order by coalesce(r.created_by_admin, false) desc, r.create_date asc
+        )
+        from category.service_provider_comment_replies r
+        where r.review_id = spc.id
+          and r.is_public = true
+          and coalesce(r.moderation_status, case when r.is_public then 'approved' else 'pending' end) = 'approved'
+      ), '[]'::jsonb) as replies,
       coalesce(array_remove(array_agg(coalesce(m.file_url, ri.image_url) order by ri.id) filter (where ri.image_url is not null), null), array[]::varchar[]) as images
     from category.service_provider_comments spc
     left join category.review_images ri on ri.review_id = spc.id
     left join media.media_library m on m.id::text = nullif(ri.image_url, '')
-    where spc.service_provider_id = ${providerId}::uuid and spc.is_public = true
+    where spc.service_provider_id = ${providerId}::uuid
+      and spc.is_public = true
+      and coalesce(spc.moderation_status, case when spc.is_public then 'approved' else 'pending' end) = 'approved'
+      and (
+        spc.provider_service_id = ${providerServiceId}::uuid
+        or (spc.provider_service_id is null and spc.staff_id is null)
+      )
     group by spc.id
-    order by spc.rating desc nulls last, spc.helpful_count desc, spc.create_date desc
-    limit 6
+    order by
+      case when spc.provider_service_id = ${providerServiceId}::uuid then 0 else 1 end,
+      spc.rating desc nulls last,
+      spc.helpful_count desc,
+      spc.create_date desc
+    limit 3
   `;
   return rows.map((row) => ({
     id: row.id,
@@ -752,7 +804,12 @@ async function getTopReviews(providerId: string): Promise<TopReview[]> {
     review: row.comment_text,
     verified: Boolean(row.is_verified),
     helpful: asNumber(row.helpful_count, 0),
+    notHelpful: asNumber(row.not_helpful_count, 0),
+    pros: normalizeArray<string>(row.pros),
+    cons: normalizeArray<string>(row.cons),
     images: normalizeArray<string>(row.images),
+    createdByAdmin: Boolean(row.created_by_admin),
+    replies: normalizeReviewReplies(row.replies),
   }));
 }
 
@@ -1169,7 +1226,7 @@ export async function getServicePageByIdFromDb({
     getProcessItems(row.service_definition_id, row.provider_service_id),
     getFaqs(row.service_definition_id, row.provider_service_id),
     getProvidersForService(row.service_definition_id, normalizedLocale, { preferredCurrencyCode: resolvedDisplayCurrencyCode, customerId: userId }),
-    getTopReviews(row.provider_id),
+    getTopReviews(row.provider_id, row.provider_service_id),
     getGalleryItems(row.provider_service_id, row.provider_id, normalizedLocale, fallbackImages),
     getProviderGalleryItems(row.provider_id, normalizedLocale),
     getIsFavorite({ customerId: userId, favoriteType: 'service', entityId: row.provider_service_id }),

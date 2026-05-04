@@ -6,15 +6,22 @@ import { deleteBookingPaymentPolicy, upsertBookingPaymentPolicy } from '../lib/s
 
 export async function upsertBookingPaymentPolicyAction(payload: BookingPaymentPolicyFormInput) {
   const input = BookingPaymentPolicyFormSchema.parse(payload);
+  const normalizedDepositType = input.collectionMode === 'deposit_percent'
+    ? 'percent'
+    : input.collectionMode === 'deposit_fixed'
+      ? 'fixed'
+      : 'none';
+  const normalizedScopeId = input.scopeType === 'global' ? null : (input.scopeId ?? null);
+
   const result = await upsertBookingPaymentPolicy({
     policyId: input.policyId,
     name: input.name,
     description: input.description ?? null,
     scopeType: input.scopeType,
-    scopeId: input.scopeId ?? null,
+    scopeId: normalizedScopeId,
     collectionMode: input.collectionMode,
-    depositType: input.depositType,
-    depositValue: input.depositValue,
+    depositType: normalizedDepositType,
+    depositValue: normalizedDepositType === 'none' ? 0 : input.depositValue,
     minimumDueNowAmount: input.minimumDueNowAmount,
     capDueNowAmount: input.capDueNowAmount ?? null,
     dueNowRoundingMode: input.dueNowRoundingMode,

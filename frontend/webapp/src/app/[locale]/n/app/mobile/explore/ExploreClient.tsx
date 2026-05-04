@@ -451,7 +451,7 @@ export default function ExploreClient({
           </div>
 
           <button
-            onClick={() => router.push("/app/map")}
+            onClick={() => router.push("/en/n/app/mobile/map-discovery")}
             className="w-11 h-11 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
           >
             <MapPin size={22} className="text-[#083f30]" />
@@ -462,7 +462,7 @@ export default function ExploreClient({
           <button
             onClick={() =>
               router.push(
-                buildExploreQuery(initialFilters).replace("/n/app/mobile/explore", "/app/search"),
+                buildExploreQuery(initialFilters).replace("/n/app/mobile/explore", "/en/n/app/mobile/search"),
               )
             }
             className="flex-1 h-12 bg-gray-50 rounded-xl px-4 flex items-center gap-3 border border-gray-100 hover:border-[#083f30] transition-colors"
@@ -525,7 +525,7 @@ export default function ExploreClient({
           {featuredProviders.map((provider) => (
             <div
               key={`featured-provider-${provider.id}`}
-              onClick={() => router.push(`/app/clinic/${provider.id}`)}
+              onClick={() => router.push(`/en/n/app/mobile/provider/${provider.id}`)}
               className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all cursor-pointer"
             >
               <div className="flex gap-4 p-4">
@@ -619,7 +619,7 @@ export default function ExploreClient({
               <p className="text-white/90 text-sm mb-4">{sponsoredProviders[0].subtitle}</p>
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => router.push(`/app/clinic/${sponsoredProviders[0].id}`)}
+                  onClick={() => router.push(`/en/n/app/mobile/provider/${sponsoredProviders[0].id}`)}
                   className="bg-white text-purple-900 px-6 py-3 rounded-xl font-bold text-sm hover:bg-gray-100 transition-all shadow-lg"
                 >
                   Learn More
@@ -648,7 +648,7 @@ export default function ExploreClient({
           {trendingServices.map((service) => (
             <div
               key={`trending-service-${service.id}`}
-              onClick={() => router.push(`/app/treatment/${service.id}`)}
+              onClick={() => router.push(`/en/n/app/mobile/service/${service.id}`)}
               className="flex-none w-64 bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer border border-gray-100"
             >
               <div className="relative aspect-[16/10]">

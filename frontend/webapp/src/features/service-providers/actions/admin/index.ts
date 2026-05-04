@@ -7,6 +7,7 @@ import { createAuthenticatedSafeAction } from "@/lib/safe-action";
 import { LocaleHeaderTypes } from "@/types/common";
 
 import { revalidateAdminServiceProvider } from "../../db/admin-service-providers.queries";
+import { refreshReviewStats } from "../../server/review-stats";
 import {
   normalizeLocalizedContentForDatabase,
   normalizeOptionalLocalizedContentForDatabase,
@@ -14,12 +15,12 @@ import {
 
 const translationsSchema = z.preprocess(
   normalizeLocalizedContentForDatabase,
-  z.record(z.string(), z.string()).default({})
+  z.record(z.string(), z.string()).default({}),
 );
 
 const nullableTranslationsSchema = z.preprocess(
   normalizeOptionalLocalizedContentForDatabase,
-  z.record(z.string(), z.string()).nullable().optional()
+  z.record(z.string(), z.string()).nullable().optional(),
 );
 
 function normalizeMediaPickerValue(value: unknown): string {
@@ -66,10 +67,20 @@ function normalizeMediaPickerValue(value: unknown): string {
 
   for (const key of directKeys) {
     const candidate = item[key];
-    if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
+    if (typeof candidate === "string" && candidate.trim())
+      return candidate.trim();
   }
 
-  const nestedKeys = ["media", "file", "asset", "selected", "item", "data", "record", "attachment"];
+  const nestedKeys = [
+    "media",
+    "file",
+    "asset",
+    "selected",
+    "item",
+    "data",
+    "record",
+    "attachment",
+  ];
   for (const key of nestedKeys) {
     const normalized = normalizeMediaPickerValue(item[key]);
     if (normalized) return normalized;
@@ -80,16 +91,13 @@ function normalizeMediaPickerValue(value: unknown): string {
 
 const mediaValueSchema = z.preprocess(
   normalizeMediaPickerValue,
-  z.string().min(1, "Please pick a media item.").max(500)
+  z.string().min(1, "Please pick a media item.").max(500),
 );
 
-const nullableMediaValueSchema = z.preprocess(
-  (value) => {
-    const normalized = normalizeMediaPickerValue(value);
-    return normalized || null;
-  },
-  z.string().max(500).nullable().optional()
-);
+const nullableMediaValueSchema = z.preprocess((value) => {
+  const normalized = normalizeMediaPickerValue(value);
+  return normalized || null;
+}, z.string().max(500).nullable().optional());
 
 function toJsonbRecord(value: unknown): Record<string, string> {
   // Never pass pre-serialized JSON strings to postgres.js for jsonb columns.
@@ -128,7 +136,11 @@ function nullableJsonb(value: unknown) {
 const uuidSchema = z.guid();
 const optionalUuidSchema = z.guid().optional().nullable();
 
-const problem = (title: string, status = 500, detail?: string) => ({ title, status, detail });
+const problem = (title: string, status = 500, detail?: string) => ({
+  title,
+  status,
+  detail,
+});
 
 function nullableString(value?: string | null) {
   const trimmed = value?.trim();
@@ -153,7 +165,9 @@ function toNumber(value?: number | string | null, fallback = 0): number {
   return n ?? fallback;
 }
 
-function getTranslationForSearchVector(value: Record<string, string> | null | undefined): string {
+function getTranslationForSearchVector(
+  value: Record<string, string> | null | undefined,
+): string {
   if (!value || typeof value !== "object") return "";
 
   const preferredLocales = ["en-US", "en", "fa-IR", "fa"];
@@ -163,19 +177,23 @@ function getTranslationForSearchVector(value: Record<string, string> | null | un
   }
 
   const enRegionalKey = Object.keys(value).find((key) =>
-    key.toLowerCase().replace("_", "-").startsWith("en-")
+    key.toLowerCase().replace("_", "-").startsWith("en-"),
   );
   if (enRegionalKey && value[enRegionalKey]?.trim()) {
     return value[enRegionalKey].trim();
   }
 
   const firstNonEmpty = Object.values(value).find(
-    (item) => typeof item === "string" && item.trim().length > 0
+    (item) => typeof item === "string" && item.trim().length > 0,
   );
   return firstNonEmpty?.trim() || "";
 }
 
-async function syncProviderLanguages(tx: any, serviceProviderId: string, languages: string[]) {
+async function syncProviderLanguages(
+  tx: any,
+  serviceProviderId: string,
+  languages: string[],
+) {
   await tx`delete from category.provider_languages where service_provider_id = ${serviceProviderId}`;
   for (const language of languages) {
     await tx`
@@ -207,7 +225,13 @@ const saveServiceProviderProfileSchema = z.object({
   reviewCount: z.coerce.number().int().min(0).default(0),
   accredited: z.boolean().default(false),
   responseTime: z.string().max(50).optional().nullable(),
-  establishedYear: z.coerce.number().int().min(1800).max(2200).optional().nullable(),
+  establishedYear: z.coerce
+    .number()
+    .int()
+    .min(1800)
+    .max(2200)
+    .optional()
+    .nullable(),
   totalPatients: z.string().max(50).optional().nullable(),
   successRate: z.string().max(50).optional().nullable(),
   languagesText: z.string().optional().nullable(),
@@ -219,13 +243,15 @@ const saveServiceProviderProfileSchema = z.object({
   timezoneId: z.string().min(1).default("UTC"),
 });
 
-export type SaveServiceProviderProfileInput = z.infer<typeof saveServiceProviderProfileSchema>;
+export type SaveServiceProviderProfileInput = z.infer<
+  typeof saveServiceProviderProfileSchema
+>;
 
 const saveServiceProviderProfileHandler = async (
   input: SaveServiceProviderProfileInput,
   _token: string,
   _userId: string,
-  _locale: LocaleHeaderTypes
+  _locale: LocaleHeaderTypes,
 ) => {
   try {
     const languages = splitCsv(input.languagesText);
@@ -348,14 +374,18 @@ const saveServiceProviderProfileHandler = async (
     return { data: id, error: undefined };
   } catch (error: any) {
     console.error("saveServiceProviderProfileAction failed", error);
-    return { data: undefined, error: problem("Could not save service provider.", 500, error?.message), payload: input };
+    return {
+      data: undefined,
+      error: problem("Could not save service provider.", 500, error?.message),
+      payload: input,
+    };
   }
 };
 
 export const saveServiceProviderProfileAction = createAuthenticatedSafeAction(
   saveServiceProviderProfileSchema,
   saveServiceProviderProfileHandler,
-  { adminRequired: true }
+  { adminRequired: true },
 );
 
 const deleteServiceProviderDirectSchema = z.object({ id: uuidSchema });
@@ -369,13 +399,24 @@ export const deleteServiceProviderDirectAction = createAuthenticatedSafeAction(
       return { data: input.id, error: undefined };
     } catch (error: any) {
       console.error("deleteServiceProviderDirectAction failed", error);
-      return { data: undefined, error: problem("Could not delete service provider.", 500, error?.message), payload: input };
+      return {
+        data: undefined,
+        error: problem(
+          "Could not delete service provider.",
+          500,
+          error?.message,
+        ),
+        payload: input,
+      };
     }
   },
-  { adminRequired: true }
+  { adminRequired: true },
 );
 
-const toggleServiceProviderDirectSchema = z.object({ id: uuidSchema, isActive: z.boolean() });
+const toggleServiceProviderDirectSchema = z.object({
+  id: uuidSchema,
+  isActive: z.boolean(),
+});
 
 export const toggleServiceProviderDirectAction = createAuthenticatedSafeAction(
   toggleServiceProviderDirectSchema,
@@ -386,10 +427,18 @@ export const toggleServiceProviderDirectAction = createAuthenticatedSafeAction(
       return { data: input.id, error: undefined };
     } catch (error: any) {
       console.error("toggleServiceProviderDirectAction failed", error);
-      return { data: undefined, error: problem("Could not update activation status.", 500, error?.message), payload: input };
+      return {
+        data: undefined,
+        error: problem(
+          "Could not update activation status.",
+          500,
+          error?.message,
+        ),
+        payload: input,
+      };
     }
   },
-  { adminRequired: true }
+  { adminRequired: true },
 );
 
 const providerCertificationSchema = z.object({
@@ -407,7 +456,7 @@ export const saveProviderCertificationAction = createAuthenticatedSafeAction(
         ? await sql<{ id: string }[]>`
             update category.provider_certifications
             set name = ${input.name.trim()}, is_verified = ${input.isVerified}
-            where id = ${input.id} and service_provider_id = ${input.serviceProviderId}
+            where id = ${input.id}::uuid and service_provider_id = ${input.serviceProviderId}::uuid
             returning id::text
           `
         : await sql<{ id: string }[]>`
@@ -419,24 +468,32 @@ export const saveProviderCertificationAction = createAuthenticatedSafeAction(
       return { data: rows[0]?.id, error: undefined };
     } catch (error: any) {
       console.error("saveProviderCertificationAction failed", error);
-      return { data: undefined, error: problem("Could not save certification.", 500, error?.message), payload: input };
+      return {
+        data: undefined,
+        error: problem("Could not save certification.", 500, error?.message),
+        payload: input,
+      };
     }
   },
-  { adminRequired: true }
+  { adminRequired: true },
 );
 
 export const deleteProviderCertificationAction = createAuthenticatedSafeAction(
   z.object({ serviceProviderId: uuidSchema, id: uuidSchema }),
   async (input) => {
     try {
-      await sql`delete from category.provider_certifications where id = ${input.id} and service_provider_id = ${input.serviceProviderId}`;
+      await sql`delete from category.provider_certifications where id = ${input.id}::uuid and service_provider_id = ${input.serviceProviderId}::uuid`;
       revalidateAdminServiceProvider(input.serviceProviderId);
       return { data: input.id, error: undefined };
     } catch (error: any) {
-      return { data: undefined, error: problem("Could not delete certification.", 500, error?.message), payload: input };
+      return {
+        data: undefined,
+        error: problem("Could not delete certification.", 500, error?.message),
+        payload: input,
+      };
     }
   },
-  { adminRequired: true }
+  { adminRequired: true },
 );
 
 const providerGalleryItemSchema = z.object({
@@ -462,7 +519,7 @@ export const saveProviderGalleryItemAction = createAuthenticatedSafeAction(
                 media_type = ${input.mediaType},
                 display_order = ${input.displayOrder},
                 last_modified_date = now()
-            where id = ${input.id} and service_provider_id = ${input.serviceProviderId}
+            where id = ${input.id}::uuid and service_provider_id = ${input.serviceProviderId}::uuid
             returning id::text
           `
         : await sql<{ id: string }[]>`
@@ -473,24 +530,32 @@ export const saveProviderGalleryItemAction = createAuthenticatedSafeAction(
       revalidateAdminServiceProvider(input.serviceProviderId);
       return { data: rows[0]?.id, error: undefined };
     } catch (error: any) {
-      return { data: undefined, error: problem("Could not save gallery item.", 500, error?.message), payload: input };
+      return {
+        data: undefined,
+        error: problem("Could not save gallery item.", 500, error?.message),
+        payload: input,
+      };
     }
   },
-  { adminRequired: true }
+  { adminRequired: true },
 );
 
 export const deleteProviderGalleryItemAction = createAuthenticatedSafeAction(
   z.object({ serviceProviderId: uuidSchema, id: uuidSchema }),
   async (input) => {
     try {
-      await sql`delete from category.provider_gallery_items where id = ${input.id} and service_provider_id = ${input.serviceProviderId}`;
+      await sql`delete from category.provider_gallery_items where id = ${input.id}::uuid and service_provider_id = ${input.serviceProviderId}::uuid`;
       revalidateAdminServiceProvider(input.serviceProviderId);
       return { data: input.id, error: undefined };
     } catch (error: any) {
-      return { data: undefined, error: problem("Could not delete gallery item.", 500, error?.message), payload: input };
+      return {
+        data: undefined,
+        error: problem("Could not delete gallery item.", 500, error?.message),
+        payload: input,
+      };
     }
   },
-  { adminRequired: true }
+  { adminRequired: true },
 );
 
 const providerPolicySchema = z.object({
@@ -514,7 +579,8 @@ export const saveProviderPolicyAction = createAuthenticatedSafeAction(
           `
         : [];
 
-      const typeTranslations = policyTypeRows[0]?.nameTranslations || input.type;
+      const typeTranslations =
+        policyTypeRows[0]?.nameTranslations || input.type;
 
       const rows = input.id
         ? await sql<{ id: string }[]>`
@@ -523,7 +589,7 @@ export const saveProviderPolicyAction = createAuthenticatedSafeAction(
                 type_translations = ${jsonb(typeTranslations)}::jsonb,
                 description_translations = ${jsonb(input.description)}::jsonb,
                 last_modified_date = now()
-            where id = ${input.id} and service_provider_id = ${input.serviceProviderId}
+            where id = ${input.id}::uuid and service_provider_id = ${input.serviceProviderId}::uuid
             returning id::text
           `
         : await sql<{ id: string }[]>`
@@ -534,24 +600,32 @@ export const saveProviderPolicyAction = createAuthenticatedSafeAction(
       revalidateAdminServiceProvider(input.serviceProviderId);
       return { data: rows[0]?.id, error: undefined };
     } catch (error: any) {
-      return { data: undefined, error: problem("Could not save policy.", 500, error?.message), payload: input };
+      return {
+        data: undefined,
+        error: problem("Could not save policy.", 500, error?.message),
+        payload: input,
+      };
     }
   },
-  { adminRequired: true }
+  { adminRequired: true },
 );
 
 export const deleteProviderPolicyAction = createAuthenticatedSafeAction(
   z.object({ serviceProviderId: uuidSchema, id: uuidSchema }),
   async (input) => {
     try {
-      await sql`delete from category.provider_policies where id = ${input.id} and service_provider_id = ${input.serviceProviderId}`;
+      await sql`delete from category.provider_policies where id = ${input.id}::uuid and service_provider_id = ${input.serviceProviderId}::uuid`;
       revalidateAdminServiceProvider(input.serviceProviderId);
       return { data: input.id, error: undefined };
     } catch (error: any) {
-      return { data: undefined, error: problem("Could not delete policy.", 500, error?.message), payload: input };
+      return {
+        data: undefined,
+        error: problem("Could not delete policy.", 500, error?.message),
+        payload: input,
+      };
     }
   },
-  { adminRequired: true }
+  { adminRequired: true },
 );
 
 const providerAttributeSchema = z.object({
@@ -575,24 +649,32 @@ export const saveProviderAttributeAction = createAuthenticatedSafeAction(
       revalidateAdminServiceProvider(input.serviceProviderId);
       return { data: rows[0]?.id, error: undefined };
     } catch (error: any) {
-      return { data: undefined, error: problem("Could not save attribute.", 500, error?.message), payload: input };
+      return {
+        data: undefined,
+        error: problem("Could not save attribute.", 500, error?.message),
+        payload: input,
+      };
     }
   },
-  { adminRequired: true }
+  { adminRequired: true },
 );
 
 export const deleteProviderAttributeAction = createAuthenticatedSafeAction(
   z.object({ serviceProviderId: uuidSchema, id: uuidSchema }),
   async (input) => {
     try {
-      await sql`delete from category.provider_attributes where id = ${input.id} and service_provider_id = ${input.serviceProviderId}`;
+      await sql`delete from category.provider_attributes where id = ${input.id}::uuid and service_provider_id = ${input.serviceProviderId}::uuid`;
       revalidateAdminServiceProvider(input.serviceProviderId);
       return { data: input.id, error: undefined };
     } catch (error: any) {
-      return { data: undefined, error: problem("Could not delete attribute.", 500, error?.message), payload: input };
+      return {
+        data: undefined,
+        error: problem("Could not delete attribute.", 500, error?.message),
+        payload: input,
+      };
     }
   },
-  { adminRequired: true }
+  { adminRequired: true },
 );
 
 const providerServiceSchema = z.object({
@@ -647,7 +729,7 @@ export const saveProviderServiceAction = createAuthenticatedSafeAction(
                   slot_interval_minutes = ${input.slotIntervalMinutes},
                   search_vector = to_tsvector('simple', coalesce(${getTranslationForSearchVector(input.displayName)}, '')),
                   last_modified_date = now()
-              where id = ${input.id} and service_provider_id = ${input.serviceProviderId}
+              where id = ${input.id}::uuid and service_provider_id = ${input.serviceProviderId}::uuid
               returning id::text
             `
           : await tx<{ id: string }[]>`
@@ -673,24 +755,36 @@ export const saveProviderServiceAction = createAuthenticatedSafeAction(
       revalidateAdminServiceProvider(input.serviceProviderId);
       return { data: serviceId, error: undefined };
     } catch (error: any) {
-      return { data: undefined, error: problem("Could not save provider service.", 500, error?.message), payload: input };
+      return {
+        data: undefined,
+        error: problem("Could not save provider service.", 500, error?.message),
+        payload: input,
+      };
     }
   },
-  { adminRequired: true }
+  { adminRequired: true },
 );
 
 export const deleteProviderServiceAction = createAuthenticatedSafeAction(
   z.object({ serviceProviderId: uuidSchema, id: uuidSchema }),
   async (input) => {
     try {
-      await sql`delete from category.provider_services where id = ${input.id} and service_provider_id = ${input.serviceProviderId}`;
+      await sql`delete from category.provider_services where id = ${input.id}::uuid and service_provider_id = ${input.serviceProviderId}::uuid`;
       revalidateAdminServiceProvider(input.serviceProviderId);
       return { data: input.id, error: undefined };
     } catch (error: any) {
-      return { data: undefined, error: problem("Could not delete provider service.", 500, error?.message), payload: input };
+      return {
+        data: undefined,
+        error: problem(
+          "Could not delete provider service.",
+          500,
+          error?.message,
+        ),
+        payload: input,
+      };
     }
   },
-  { adminRequired: true }
+  { adminRequired: true },
 );
 
 const providerStaffSchema = z.object({
@@ -715,24 +809,32 @@ export const saveProviderStaffAction = createAuthenticatedSafeAction(
       revalidateAdminServiceProvider(input.serviceProviderId);
       return { data: rows[0]?.id, error: undefined };
     } catch (error: any) {
-      return { data: undefined, error: problem("Could not save provider staff.", 500, error?.message), payload: input };
+      return {
+        data: undefined,
+        error: problem("Could not save provider staff.", 500, error?.message),
+        payload: input,
+      };
     }
   },
-  { adminRequired: true }
+  { adminRequired: true },
 );
 
 export const deleteProviderStaffAction = createAuthenticatedSafeAction(
   z.object({ serviceProviderId: uuidSchema, id: uuidSchema }),
   async (input) => {
     try {
-      await sql`delete from category.provider_staffs where id = ${input.id} and service_provider_id = ${input.serviceProviderId}`;
+      await sql`delete from category.provider_staffs where id = ${input.id}::uuid and service_provider_id = ${input.serviceProviderId}::uuid`;
       revalidateAdminServiceProvider(input.serviceProviderId);
       return { data: input.id, error: undefined };
     } catch (error: any) {
-      return { data: undefined, error: problem("Could not delete provider staff.", 500, error?.message), payload: input };
+      return {
+        data: undefined,
+        error: problem("Could not delete provider staff.", 500, error?.message),
+        payload: input,
+      };
     }
   },
-  { adminRequired: true }
+  { adminRequired: true },
 );
 
 const providerRecommendationSchema = z.object({
@@ -761,10 +863,14 @@ export const saveProviderRecommendationAction = createAuthenticatedSafeAction(
       revalidateAdminServiceProvider(input.serviceProviderId);
       return { data: rows[0]?.id, error: undefined };
     } catch (error: any) {
-      return { data: undefined, error: problem("Could not save recommendation.", 500, error?.message), payload: input };
+      return {
+        data: undefined,
+        error: problem("Could not save recommendation.", 500, error?.message),
+        payload: input,
+      };
     }
   },
-  { adminRequired: true }
+  { adminRequired: true },
 );
 
 export const deleteProviderRecommendationAction = createAuthenticatedSafeAction(
@@ -775,58 +881,387 @@ export const deleteProviderRecommendationAction = createAuthenticatedSafeAction(
       revalidateAdminServiceProvider(input.serviceProviderId);
       return { data: input.id, error: undefined };
     } catch (error: any) {
-      return { data: undefined, error: problem("Could not delete recommendation.", 500, error?.message), payload: input };
+      return {
+        data: undefined,
+        error: problem("Could not delete recommendation.", 500, error?.message),
+        payload: input,
+      };
     }
   },
-  { adminRequired: true }
+  { adminRequired: true },
 );
 
-export const updateProviderCommentModerationAction = createAuthenticatedSafeAction(
-  z.object({ serviceProviderId: uuidSchema, id: uuidSchema, isPublic: z.boolean(), isVerified: z.boolean(), helpfulCount: z.coerce.number().int().min(0).default(0) }),
+const reviewTargetSchema = z.enum(["provider", "service", "specialist"]);
+const reviewModerationStatusSchema = z.enum([
+  "pending",
+  "approved",
+  "rejected",
+]);
+
+async function assertProviderReviewTarget(input: {
+  serviceProviderId: string;
+  reviewTarget: z.infer<typeof reviewTargetSchema>;
+  providerServiceId?: string | null;
+  staffId?: string | null;
+}) {
+  if (input.reviewTarget === "service") {
+    if (!input.providerServiceId)
+      throw new Error(
+        "Select a provider service for service-targeted reviews.",
+      );
+
+    const rows = await sql<{ exists: boolean }[]>`
+      select exists(
+        select 1
+        from category.provider_services ps
+        where ps.id = ${input.providerServiceId}::uuid
+          and ps.service_provider_id = ${input.serviceProviderId}::uuid
+      ) as exists
+    `;
+
+    if (!rows[0]?.exists)
+      throw new Error("Selected service does not belong to this provider.");
+  }
+
+  if (input.reviewTarget === "specialist") {
+    if (!input.staffId)
+      throw new Error("Select a specialist for specialist-targeted reviews.");
+
+    const rows = await sql<{ exists: boolean }[]>`
+      select exists(
+        select 1
+        from category.provider_staffs psf
+        where psf.staff_id = ${input.staffId}::uuid
+          and psf.service_provider_id = ${input.serviceProviderId}::uuid
+      ) as exists
+    `;
+
+    if (!rows[0]?.exists)
+      throw new Error("Selected specialist is not linked to this provider.");
+  }
+}
+
+function parseReviewHighlights(value?: string[] | null) {
+  return Array.isArray(value)
+    ? Array.from(new Set(value.map((item) => String(item || "").trim()).filter(Boolean))).slice(0, 8)
+    : [];
+}
+
+const saveProviderCommentSchema = z.object({
+  serviceProviderId: uuidSchema,
+  reviewTarget: reviewTargetSchema.default("provider"),
+  providerServiceId: optionalUuidSchema,
+  staffId: optionalUuidSchema,
+  customerName: z
+    .string()
+    .trim()
+    .min(1)
+    .max(120)
+    .default("LSevin editorial team"),
+  country: z.string().trim().max(120).optional().nullable(),
+  treatment: z.string().trim().max(120).optional().nullable(),
+  commentText: z.string().trim().min(10).max(2000),
+  rating: z.coerce.number().int().min(1).max(5),
+  isVerified: z.boolean().default(false),
+  helpfulCount: z.coerce.number().int().min(0).default(0),
+  notHelpfulCount: z.coerce.number().int().min(0).default(0),
+  pros: z.array(z.string().trim().min(1).max(80)).max(8).default([]),
+  cons: z.array(z.string().trim().min(1).max(80)).max(8).default([]),
+  moderationStatus: reviewModerationStatusSchema.default("approved"),
+});
+
+export const saveProviderCommentAction = createAuthenticatedSafeAction(
+  saveProviderCommentSchema,
+  async (input) => {
+    try {
+      await assertProviderReviewTarget(input);
+
+      const providerServiceId =
+        input.reviewTarget === "service" ? input.providerServiceId : null;
+      const staffId =
+        input.reviewTarget === "specialist" ? input.staffId : null;
+      const isPublic = input.moderationStatus === "approved";
+      const pros = parseReviewHighlights(input.pros);
+      const cons = parseReviewHighlights(input.cons);
+
+      const rows = await sql<{ id: string }[]>`
+        insert into category.service_provider_comments (
+          id, service_provider_id, provider_service_id, staff_id, review_target,
+          customer_id, customer_name, comment_text, rating, is_public, moderation_status,
+          created_by_admin, create_date, last_modified_date, country, treatment, is_verified, helpful_count, not_helpful_count, pros, cons
+        ) values (
+          public.uuid_generate_v4(),
+          ${input.serviceProviderId}::uuid,
+          ${providerServiceId}::uuid,
+          ${staffId}::uuid,
+          ${input.reviewTarget},
+          public.uuid_generate_v4(),
+          ${input.customerName},
+          ${input.commentText},
+          ${input.rating},
+          ${isPublic},
+          ${input.moderationStatus},
+          true,
+          now(),
+          now(),
+          ${input.country || null},
+          ${input.treatment || null},
+          ${input.isVerified},
+          ${input.helpfulCount},
+          ${input.notHelpfulCount},
+          ${pros}::text[],
+          ${cons}::text[]
+        )
+        returning id::text
+      `;
+
+      await refreshReviewStats({
+        providerId: input.serviceProviderId,
+        providerServiceId,
+        staffId,
+      });
+      revalidateAdminServiceProvider(input.serviceProviderId);
+      return { data: rows[0]?.id, error: undefined };
+    } catch (error: any) {
+      return {
+        data: undefined,
+        error: problem("Could not add review.", 500, error?.message),
+        payload: input,
+      };
+    }
+  },
+  { adminRequired: true },
+);
+
+export const updateProviderCommentModerationAction =
+  createAuthenticatedSafeAction(
+    z.object({
+      serviceProviderId: uuidSchema,
+      id: uuidSchema,
+      isPublic: z.boolean().default(false),
+      isVerified: z.boolean(),
+      helpfulCount: z.coerce.number().int().min(0).default(0),
+      notHelpfulCount: z.coerce.number().int().min(0).default(0),
+      moderationStatus: reviewModerationStatusSchema.optional(),
+    }),
+    async (input) => {
+      try {
+        const existing = await sql<
+          { providerServiceId: string | null; staffId: string | null }[]
+        >`
+        select provider_service_id::text as "providerServiceId", staff_id::text as "staffId"
+        from category.service_provider_comments
+        where id = ${input.id}::uuid and service_provider_id = ${input.serviceProviderId}::uuid
+        limit 1
+      `;
+
+        const moderationStatus =
+          input.moderationStatus || (input.isPublic ? "approved" : "rejected");
+        const isPublic = moderationStatus === "approved" && input.isPublic;
+
+        await sql`
+        update category.service_provider_comments
+        set is_public = ${isPublic},
+            moderation_status = ${moderationStatus},
+            is_verified = ${input.isVerified},
+            helpful_count = ${input.helpfulCount},
+            not_helpful_count = ${input.notHelpfulCount},
+            last_modified_date = now()
+        where id = ${input.id}::uuid and service_provider_id = ${input.serviceProviderId}::uuid
+      `;
+
+        await refreshReviewStats({
+          providerId: input.serviceProviderId,
+          providerServiceId: existing[0]?.providerServiceId,
+          staffId: existing[0]?.staffId,
+        });
+        revalidateAdminServiceProvider(input.serviceProviderId);
+        return { data: input.id, error: undefined };
+      } catch (error: any) {
+        return {
+          data: undefined,
+          error: problem(
+            "Could not update review moderation.",
+            500,
+            error?.message,
+          ),
+          payload: input,
+        };
+      }
+    },
+    { adminRequired: true },
+  );
+
+
+
+const saveProviderCommentReplySchema = z.object({
+  serviceProviderId: uuidSchema,
+  reviewId: uuidSchema,
+  authorName: z.string().trim().min(1).max(120).default("LSevin admin"),
+  replyText: z.string().trim().min(2).max(1000),
+  moderationStatus: reviewModerationStatusSchema.default("approved"),
+  isVerified: z.boolean().default(true),
+});
+
+export const saveProviderCommentReplyAction = createAuthenticatedSafeAction(
+  saveProviderCommentReplySchema,
+  async (input) => {
+    try {
+      const review = await sql<{ id: string }[]>`
+        select id::text
+        from category.service_provider_comments
+        where id = ${input.reviewId}::uuid
+          and service_provider_id = ${input.serviceProviderId}::uuid
+        limit 1
+      `;
+      if (!review[0]) throw new Error("Review was not found for this provider.");
+
+      const isPublic = input.moderationStatus === "approved";
+      const rows = await sql<{ id: string }[]>`
+        insert into category.service_provider_comment_replies (
+          id, review_id, service_provider_id, author_name, author_role, reply_text,
+          is_public, moderation_status, created_by_admin, is_verified, create_date, last_modified_date
+        ) values (
+          public.uuid_generate_v4(),
+          ${input.reviewId}::uuid,
+          ${input.serviceProviderId}::uuid,
+          ${input.authorName},
+          'admin',
+          ${input.replyText},
+          ${isPublic},
+          ${input.moderationStatus},
+          true,
+          ${input.isVerified},
+          now(),
+          now()
+        )
+        returning id::text
+      `;
+
+      revalidateAdminServiceProvider(input.serviceProviderId);
+      return { data: rows[0]?.id, error: undefined };
+    } catch (error: any) {
+      return {
+        data: undefined,
+        error: problem("Could not add review reply.", 500, error?.message),
+        payload: input,
+      };
+    }
+  },
+  { adminRequired: true },
+);
+
+export const updateProviderCommentReplyModerationAction =
+  createAuthenticatedSafeAction(
+    z.object({
+      serviceProviderId: uuidSchema,
+      replyId: uuidSchema,
+      moderationStatus: reviewModerationStatusSchema,
+      isVerified: z.boolean().default(true),
+    }),
+    async (input) => {
+      try {
+        const isPublic = input.moderationStatus === "approved";
+        await sql`
+          update category.service_provider_comment_replies
+          set is_public = ${isPublic},
+              moderation_status = ${input.moderationStatus},
+              is_verified = ${input.isVerified},
+              last_modified_date = now()
+          where id = ${input.replyId}::uuid
+            and service_provider_id = ${input.serviceProviderId}::uuid
+        `;
+
+        revalidateAdminServiceProvider(input.serviceProviderId);
+        return { data: input.replyId, error: undefined };
+      } catch (error: any) {
+        return {
+          data: undefined,
+          error: problem("Could not update review reply.", 500, error?.message),
+          payload: input,
+        };
+      }
+    },
+    { adminRequired: true },
+  );
+
+export const deleteProviderCommentReplyAction = createAuthenticatedSafeAction(
+  z.object({ serviceProviderId: uuidSchema, replyId: uuidSchema }),
   async (input) => {
     try {
       await sql`
-        update category.service_provider_comments
-        set is_public = ${input.isPublic}, is_verified = ${input.isVerified}, helpful_count = ${input.helpfulCount}, last_modified_date = now()
-        where id = ${input.id} and service_provider_id = ${input.serviceProviderId}
+        delete from category.service_provider_comment_replies
+        where id = ${input.replyId}::uuid
+          and service_provider_id = ${input.serviceProviderId}::uuid
       `;
       revalidateAdminServiceProvider(input.serviceProviderId);
-      return { data: input.id, error: undefined };
+      return { data: input.replyId, error: undefined };
     } catch (error: any) {
-      return { data: undefined, error: problem("Could not update review moderation.", 500, error?.message), payload: input };
+      return {
+        data: undefined,
+        error: problem("Could not delete review reply.", 500, error?.message),
+        payload: input,
+      };
     }
   },
-  { adminRequired: true }
+  { adminRequired: true },
 );
 
 export const deleteProviderCommentAction = createAuthenticatedSafeAction(
   z.object({ serviceProviderId: uuidSchema, id: uuidSchema }),
   async (input) => {
     try {
-      await sql`delete from category.service_provider_comments where id = ${input.id} and service_provider_id = ${input.serviceProviderId}`;
+      const existing = await sql<
+        { providerServiceId: string | null; staffId: string | null }[]
+      >`
+        select provider_service_id::text as "providerServiceId", staff_id::text as "staffId"
+        from category.service_provider_comments
+        where id = ${input.id}::uuid and service_provider_id = ${input.serviceProviderId}::uuid
+        limit 1
+      `;
+
+      await sql`delete from category.review_images where review_id = ${input.id}::uuid`;
+      await sql`delete from category.service_provider_comments where id = ${input.id}::uuid and service_provider_id = ${input.serviceProviderId}::uuid`;
+      await refreshReviewStats({
+        providerId: input.serviceProviderId,
+        providerServiceId: existing[0]?.providerServiceId,
+        staffId: existing[0]?.staffId,
+      });
       revalidateAdminServiceProvider(input.serviceProviderId);
       return { data: input.id, error: undefined };
     } catch (error: any) {
-      return { data: undefined, error: problem("Could not delete review.", 500, error?.message), payload: input };
+      return {
+        data: undefined,
+        error: problem("Could not delete review.", 500, error?.message),
+        payload: input,
+      };
     }
   },
-  { adminRequired: true }
+  { adminRequired: true },
 );
 
 export const updateProviderRequestStatusAction = createAuthenticatedSafeAction(
-  z.object({ serviceProviderId: uuidSchema, id: uuidSchema, requestStatusId: z.coerce.number().int().positive() }),
+  z.object({
+    serviceProviderId: uuidSchema,
+    id: uuidSchema,
+    requestStatusId: z.coerce.number().int().positive(),
+  }),
   async (input) => {
     try {
       await sql`
         update category.service_provider_requests
         set request_status_id = ${input.requestStatusId}, last_modified_date = now()
-        where id = ${input.id} and service_provider_id = ${input.serviceProviderId}
+        where id = ${input.id}::uuid and service_provider_id = ${input.serviceProviderId}::uuid
       `;
       revalidateAdminServiceProvider(input.serviceProviderId);
       return { data: input.id, error: undefined };
     } catch (error: any) {
-      return { data: undefined, error: problem("Could not update request status.", 500, error?.message), payload: input };
+      return {
+        data: undefined,
+        error: problem("Could not update request status.", 500, error?.message),
+        payload: input,
+      };
     }
   },
-  { adminRequired: true }
+  { adminRequired: true },
 );

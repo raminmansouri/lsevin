@@ -6,29 +6,40 @@ import type { BookingPaymentPolicyRecord, BookingPaymentTermsRecord } from '../.
 export async function getBookingPaymentPolicies(params?: { search?: string; scopeType?: string; isActive?: boolean; }) {
   const search = params?.search?.trim() || null;
   return sql<BookingPaymentPolicyRecord[]>`
-    select id,
-           name,
-           description,
-           scope_type as "scopeType",
-           scope_id as "scopeId",
-           collection_mode as "collectionMode",
-           deposit_type as "depositType",
-           deposit_value::float8 as "depositValue",
-           minimum_due_now_amount::float8 as "minimumDueNowAmount",
-           cap_due_now_amount::float8 as "capDueNowAmount",
-           due_now_rounding_mode as "dueNowRoundingMode",
-           balance_due_trigger as "balanceDueTrigger",
-           allow_wallet_for_due_now as "allowWalletForDueNow",
-           allow_gateway_for_due_now as "allowGatewayForDueNow",
-           deposit_refundable_mode as "depositRefundableMode",
-           priority,
-           is_active as "isActive",
-           metadata
-    from commercial.booking_payment_policies
-    where (${search} is null or name ilike ${search ? `%${search}%` : null} or coalesce(description, '') ilike ${search ? `%${search}%` : null})
-      and (${params?.scopeType ?? null} is null or scope_type = ${params?.scopeType ?? null})
-      and (${params?.isActive ?? null} is null or is_active = ${params?.isActive ?? null})
-    order by priority asc, created_at desc
+    with input as (
+      select
+        ${search}::text as search_text,
+        ${params?.scopeType ?? null}::text as scope_type_filter,
+        ${params?.isActive ?? null}::boolean as is_active_filter
+    )
+    select bpp.id,
+           bpp.name,
+           bpp.description,
+           bpp.scope_type as "scopeType",
+           bpp.scope_id as "scopeId",
+           bpp.collection_mode as "collectionMode",
+           bpp.deposit_type as "depositType",
+           bpp.deposit_value::float8 as "depositValue",
+           bpp.minimum_due_now_amount::float8 as "minimumDueNowAmount",
+           bpp.cap_due_now_amount::float8 as "capDueNowAmount",
+           bpp.due_now_rounding_mode as "dueNowRoundingMode",
+           bpp.balance_due_trigger as "balanceDueTrigger",
+           bpp.allow_wallet_for_due_now as "allowWalletForDueNow",
+           bpp.allow_gateway_for_due_now as "allowGatewayForDueNow",
+           bpp.deposit_refundable_mode as "depositRefundableMode",
+           bpp.priority,
+           bpp.is_active as "isActive",
+           bpp.metadata
+    from commercial.booking_payment_policies bpp
+    cross join input i
+    where (
+        i.search_text is null
+        or bpp.name ilike ('%' || i.search_text || '%')
+        or coalesce(bpp.description, '') ilike ('%' || i.search_text || '%')
+      )
+      and (i.scope_type_filter is null or bpp.scope_type = i.scope_type_filter)
+      and (i.is_active_filter is null or bpp.is_active = i.is_active_filter)
+    order by bpp.priority asc, bpp.created_at desc
   `;
 }
 
@@ -79,16 +90,24 @@ export async function upsertBookingPaymentPolicy(input: {
   isActive: boolean;
   metadata: Record<string, unknown>;
 }) {
+  const normalizedDepositType = input.collectionMode === 'deposit_percent'
+    ? 'percent'
+    : input.collectionMode === 'deposit_fixed'
+      ? 'fixed'
+      : 'none';
+  const normalizedDepositValue = normalizedDepositType === 'none' ? 0 : input.depositValue;
+  const normalizedScopeId = input.scopeType === 'global' ? null : (input.scopeId ?? null);
+
   const rows = input.policyId
     ? await sql<any[]>`
         update commercial.booking_payment_policies
            set name = ${input.name},
                description = ${input.description ?? null},
                scope_type = ${input.scopeType},
-               scope_id = ${input.scopeId ?? null},
+               scope_id = ${normalizedScopeId},
                collection_mode = ${input.collectionMode},
-               deposit_type = ${input.depositType},
-               deposit_value = ${input.depositValue},
+               deposit_type = ${normalizedDepositType},
+               deposit_value = ${normalizedDepositValue},
                minimum_due_now_amount = ${input.minimumDueNowAmount},
                cap_due_now_amount = ${input.capDueNowAmount ?? null},
                due_now_rounding_mode = ${input.dueNowRoundingMode},
@@ -110,8 +129,8 @@ export async function upsertBookingPaymentPolicy(input: {
           due_now_rounding_mode, balance_due_trigger, allow_wallet_for_due_now,
           allow_gateway_for_due_now, deposit_refundable_mode, priority, is_active, metadata
         ) values (
-          ${input.name}, ${input.description ?? null}, ${input.scopeType}, ${input.scopeId ?? null}, ${input.collectionMode}, ${input.depositType},
-          ${input.depositValue}, ${input.minimumDueNowAmount}, ${input.capDueNowAmount ?? null},
+          ${input.name}, ${input.description ?? null}, ${input.scopeType}, ${normalizedScopeId}, ${input.collectionMode}, ${normalizedDepositType},
+          ${normalizedDepositValue}, ${input.minimumDueNowAmount}, ${input.capDueNowAmount ?? null},
           ${input.dueNowRoundingMode}, ${input.balanceDueTrigger}, ${input.allowWalletForDueNow},
           ${input.allowGatewayForDueNow}, ${input.depositRefundableMode}, ${input.priority}, ${input.isActive}, ${input.metadata as any}
         )

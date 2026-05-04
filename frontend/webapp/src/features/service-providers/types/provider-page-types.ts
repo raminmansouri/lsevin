@@ -84,6 +84,17 @@ export interface Specialist {
   verified: boolean;
 }
 
+export interface ReviewReply {
+  id: string;
+  name: string;
+  role: "admin" | "customer";
+  reply: string;
+  date: string;
+  verified?: boolean;
+  createdByAdmin?: boolean;
+  replies?: ReviewReply[];
+}
+
 export interface Review {
   id: string;
   name: string;
@@ -94,7 +105,11 @@ export interface Review {
   review: string;
   verified: boolean;
   helpful: number;
+  notHelpful?: number;
+  pros?: string[];
+  cons?: string[];
   images?: string[];
+  createdByAdmin?: boolean;
 }
 
 export interface ReviewsPage {

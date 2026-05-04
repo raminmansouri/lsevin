@@ -14,6 +14,7 @@ const VALID_TYPES = new Set<AdminLookupType>([
   "serviceDefinitions",
   "staff",
   "providers",
+  "providerServices",
   "attributeDefinitions",
   "requestStatuses",
   "policyTypes",

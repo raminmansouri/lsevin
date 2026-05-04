@@ -1,7 +1,10 @@
 import "server-only";
 
 import sql from "@/config/database/db";
-import { convertMoney, resolvePreferredCurrencyCode } from "@/features/finance/lib/server/currency-queries";
+import {
+  convertMoney,
+  resolvePreferredCurrencyCode,
+} from "@/features/finance/lib/server/currency-queries";
 import type { ConvertedMoney } from "@/features/finance/types";
 import type {
   ProviderAttribute,
@@ -10,10 +13,12 @@ import type {
   Recommendation,
   ReviewsPage,
   Review,
+  ReviewReply,
   Service,
   ServiceAttribute,
 } from "@/features/service-providers/types/provider-page-types";
 import type { ApiReturnType } from "@/types/network";
+
 
 export type ProviderPageQueryInput = {
   providerId: string;
@@ -25,6 +30,11 @@ export type ProviderPageQueryInput = {
   marginProfile?: string | null;
 };
 
+export type ReviewTargetType = "provider" | "service" | "specialist";
+export type ReviewSort = "newest" | "buyers" | "helpful";
+export type ReviewEligibilityReason = "not_signed_in" | "not_booked" | "already_reviewed" | "invalid_target" | null;
+
+
 export type ProviderReviewInput = {
   providerId: string;
   userId?: string | null;
@@ -33,6 +43,18 @@ export type ProviderReviewInput = {
   comment: string;
   treatment?: string | null;
   imageUrls?: string[] | null;
+  pros?: string[] | null;
+  cons?: string[] | null;
+  targetType?: ReviewTargetType | null;
+  providerServiceId?: string | null;
+  staffId?: string | null;
+};
+
+export type ProviderReviewReplyInput = {
+  providerId: string;
+  reviewId: string;
+  userId?: string | null;
+  replyText: string;
 };
 
 type ProviderRow = {
@@ -98,14 +120,21 @@ type CustomerIdentity = {
   country: string | null;
 };
 
-const UUID_PATTERN = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
-const DEFAULT_REVIEW_LIMIT = 10;
+const UUID_PATTERN =
+  "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
+const DEFAULT_REVIEW_LIMIT = 3;
 
-const ok = <T,>(data: T): ApiReturnType<T> => ({ data, error: undefined } as ApiReturnType<T>);
-const fail = <T,>(title: string, status = 500, detail?: string): ApiReturnType<T> => ({
-  data: undefined,
-  error: { title, status, detail },
-} as ApiReturnType<T>);
+const ok = <T>(data: T): ApiReturnType<T> =>
+  ({ data, error: undefined }) as ApiReturnType<T>;
+const fail = <T>(
+  title: string,
+  status = 500,
+  detail?: string,
+): ApiReturnType<T> =>
+  ({
+    data: undefined,
+    error: { title, status, detail },
+  }) as ApiReturnType<T>;
 
 function isUuid(value?: string | null): value is string {
   return Boolean(value && new RegExp(UUID_PATTERN).test(String(value).trim()));
@@ -118,7 +147,17 @@ function toNumber(value: unknown, fallback = 0): number {
 }
 
 function toStringArray(value: unknown): string[] {
-  return Array.isArray(value) ? value.map((item) => String(item || "").trim()).filter(Boolean) : [];
+  return Array.isArray(value)
+    ? value.map((item) => String(item || "").trim()).filter(Boolean)
+    : [];
+}
+
+function toLimitedStringArray(value: unknown, limit = 8, itemLimit = 80): string[] {
+  return Array.from(new Set(toStringArray(value).map((item) => item.slice(0, itemLimit).trim()).filter(Boolean))).slice(0, limit);
+}
+
+function normalizeReviewSort(value?: string | null): ReviewSort {
+  return value === "buyers" || value === "helpful" || value === "newest" ? value : "newest";
 }
 
 function toObjectArray<T>(value: unknown): T[] {
@@ -126,7 +165,9 @@ function toObjectArray<T>(value: unknown): T[] {
 }
 
 function normalizeLocale(locale?: string | null): string {
-  const raw = String(locale || "en-US").trim().replace("_", "-");
+  const raw = String(locale || "en-US")
+    .trim()
+    .replace("_", "-");
   const map: Record<string, string> = {
     en: "en-US",
     fa: "fa-IR",
@@ -145,11 +186,18 @@ function durationLabel(minutes?: number | null): string {
   if (!Number.isFinite(value) || value <= 0) return "Flexible";
   if (value < 60) return `${value} min`;
   const hours = value / 60;
-  return Number.isInteger(hours) ? `${hours} hour${hours === 1 ? "" : "s"}` : `${value} min`;
+  return Number.isInteger(hours)
+    ? `${hours} hour${hours === 1 ? "" : "s"}`
+    : `${value} min`;
 }
 
-function normalizePhone(countryCode?: string | null, phone?: string | null): string | null {
-  const cc = String(countryCode || "").trim().replace(/^\+/, "");
+function normalizePhone(
+  countryCode?: string | null,
+  phone?: string | null,
+): string | null {
+  const cc = String(countryCode || "")
+    .trim()
+    .replace(/^\+/, "");
   const num = String(phone || "").trim();
   if (!cc && !num) return null;
   return `${cc ? `+${cc}` : ""}${cc && num ? " " : ""}${num}`;
@@ -177,8 +225,12 @@ async function safeConvert(input: {
   targetCurrencyCode: string;
   marginProfile?: string | null;
 }): Promise<ConvertedMoney> {
-  const sourceCurrencyCode = (input.sourceCurrencyCode || "USD").trim().toUpperCase();
-  const targetCurrencyCode = (input.targetCurrencyCode || sourceCurrencyCode).trim().toUpperCase();
+  const sourceCurrencyCode = (input.sourceCurrencyCode || "USD")
+    .trim()
+    .toUpperCase();
+  const targetCurrencyCode = (input.targetCurrencyCode || sourceCurrencyCode)
+    .trim()
+    .toUpperCase();
 
   try {
     return await convertMoney({
@@ -204,7 +256,9 @@ async function safeConvert(input: {
   }
 }
 
-async function resolveDisplayCurrency(input: ProviderPageQueryInput): Promise<string> {
+async function resolveDisplayCurrency(
+  input: ProviderPageQueryInput,
+): Promise<string> {
   try {
     return await resolvePreferredCurrencyCode({
       userId: input.userId,
@@ -218,7 +272,9 @@ async function resolveDisplayCurrency(input: ProviderPageQueryInput): Promise<st
   }
 }
 
-async function resolveCustomerIdentity(userId?: string | null): Promise<CustomerIdentity | null> {
+async function resolveCustomerIdentity(
+  userId?: string | null,
+): Promise<CustomerIdentity | null> {
   const rawUserId = String(userId || "").trim();
   if (!isUuid(rawUserId)) return null;
 
@@ -262,7 +318,10 @@ async function resolveCustomerIdentity(userId?: string | null): Promise<Customer
   return rows[0] || null;
 }
 
-async function isProviderFavorite(providerId: string, userId?: string | null): Promise<boolean> {
+async function isProviderFavorite(
+  providerId: string,
+  userId?: string | null,
+): Promise<boolean> {
   const customer = await resolveCustomerIdentity(userId);
   if (!customer) return false;
 
@@ -279,7 +338,9 @@ async function isProviderFavorite(providerId: string, userId?: string | null): P
   return Boolean(rows[0]?.exists);
 }
 
-export async function getProviderPageDataFromDb(input: ProviderPageQueryInput): Promise<ApiReturnType<ProviderPageDataResponse>> {
+export async function getProviderPageDataFromDb(
+  input: ProviderPageQueryInput,
+): Promise<ApiReturnType<ProviderPageDataResponse>> {
   const providerId = String(input.providerId || "").trim();
   if (!isUuid(providerId)) return fail("A valid provider id is required.", 400);
 
@@ -351,10 +412,23 @@ export async function getProviderPageDataFromDb(input: ProviderPageQueryInput): 
     if (!row) return fail("Provider was not found or is not active.", 404);
 
     const displayCurrencyCode = await resolveDisplayCurrency(input);
-    const [serviceRows, specialistRows, reviewsPage, localRows, internationalRows, attributes, policies, isFavorite] = await Promise.all([
+    const [
+      serviceRows,
+      specialistRows,
+      reviewsPage,
+      localRows,
+      internationalRows,
+      attributes,
+      policies,
+      isFavorite,
+    ] = await Promise.all([
       getServiceRows(locale, providerId),
       getSpecialistRows(locale, providerId),
-      getProviderReviewsPage({ providerId, offset: 0, limit: DEFAULT_REVIEW_LIMIT }),
+      getProviderReviewsPage({
+        providerId,
+        offset: 0,
+        limit: DEFAULT_REVIEW_LIMIT,
+      }),
       getRecommendationRows(locale, providerId, row.country, true),
       getRecommendationRows(locale, providerId, row.country, false),
       getProviderAttributes(locale, providerId),
@@ -362,11 +436,20 @@ export async function getProviderPageDataFromDb(input: ProviderPageQueryInput): 
       isProviderFavorite(providerId, input.userId),
     ]);
 
-    const services = await Promise.all(serviceRows.map((service) => mapService(service, displayCurrencyCode, input.marginProfile)));
-    const [localRecommendations, internationalRecommendations] = await Promise.all([
-      mapRecommendations(localRows, displayCurrencyCode, input.marginProfile),
-      mapRecommendations(internationalRows, displayCurrencyCode, input.marginProfile),
-    ]);
+    const services = await Promise.all(
+      serviceRows.map((service) =>
+        mapService(service, displayCurrencyCode, input.marginProfile),
+      ),
+    );
+    const [localRecommendations, internationalRecommendations] =
+      await Promise.all([
+        mapRecommendations(localRows, displayCurrencyCode, input.marginProfile),
+        mapRecommendations(
+          internationalRows,
+          displayCurrencyCode,
+          input.marginProfile,
+        ),
+      ]);
 
     const providerImages = toStringArray(row.images);
 
@@ -391,7 +474,9 @@ export async function getProviderPageDataFromDb(input: ProviderPageQueryInput): 
         responseTime: row.responseTime || "Usually responds fast",
         image: providerImages[0] || "",
         images: providerImages,
-        certifications: toObjectArray<{ name: string; verified: boolean }>(row.certifications),
+        certifications: toObjectArray<{ name: string; verified: boolean }>(
+          row.certifications,
+        ),
         languages: toStringArray(row.languages),
         attributes,
         policies,
@@ -406,7 +491,9 @@ export async function getProviderPageDataFromDb(input: ProviderPageQueryInput): 
         id: specialist.id,
         name: specialist.name,
         specialty: specialist.specialty || "Specialist",
-        experience: specialist.experienceYears ? `${specialist.experienceYears} years` : specialist.experience || "Experienced",
+        experience: specialist.experienceYears
+          ? `${specialist.experienceYears} years`
+          : specialist.experience || "Experienced",
         patients: specialist.patients || "—",
         rating: toNumber(specialist.rating),
         image: specialist.image || "",
@@ -419,11 +506,19 @@ export async function getProviderPageDataFromDb(input: ProviderPageQueryInput): 
       internationalRecommendations,
     });
   } catch (error) {
-    return fail("Could not load provider page.", 500, error instanceof Error ? error.message : undefined);
+    return fail(
+      "Could not load provider page.",
+      500,
+      error instanceof Error ? error.message : undefined,
+    );
   }
 }
 
-async function mapService(service: ServiceRow, displayCurrencyCode: string, marginProfile?: string | null): Promise<Service> {
+async function mapService(
+  service: ServiceRow,
+  displayCurrencyCode: string,
+  marginProfile?: string | null,
+): Promise<Service> {
   const sourcePrice = toNumber(service.price);
   const sourceCurrency = (service.currency || "USD").trim().toUpperCase();
   const converted = await safeConvert({
@@ -455,7 +550,10 @@ async function mapService(service: ServiceRow, displayCurrencyCode: string, marg
   };
 }
 
-async function getServiceRows(locale: string, providerId: string): Promise<ServiceRow[]> {
+async function getServiceRows(
+  locale: string,
+  providerId: string,
+): Promise<ServiceRow[]> {
   return sql<ServiceRow[]>`
     select
       ps.id::text,
@@ -548,7 +646,10 @@ async function getSpecialistRows(locale: string, providerId: string) {
   `;
 }
 
-async function getProviderAttributes(locale: string, providerId: string): Promise<ProviderAttribute[]> {
+async function getProviderAttributes(
+  locale: string,
+  providerId: string,
+): Promise<ProviderAttribute[]> {
   const rows = await sql<ProviderAttribute[]>`
     select
       pa.id::text,
@@ -565,7 +666,10 @@ async function getProviderAttributes(locale: string, providerId: string): Promis
   return rows.filter((item) => item.name && item.value);
 }
 
-async function getProviderPolicies(locale: string, providerId: string): Promise<ProviderPolicy[]> {
+async function getProviderPolicies(
+  locale: string,
+  providerId: string,
+): Promise<ProviderPolicy[]> {
   const rows = await sql<ProviderPolicy[]>`
     select
       pp.id::text,
@@ -586,6 +690,24 @@ async function getProviderPolicies(locale: string, providerId: string): Promise<
   return rows.filter((item) => item.description);
 }
 
+function normalizeReviewReplies(value: unknown): ReviewReply[] {
+  const items = Array.isArray(value) ? value : [];
+  return items
+    .map((item) => {
+      const row = item as Record<string, unknown>;
+      return {
+        id: String(row.id || ""),
+        name: String(row.name || "LSevin"),
+        role: row.role === "admin" ? "admin" : "customer",
+        reply: String(row.reply || ""),
+        date: relativeDateLabel(String(row.date || "")),
+        verified: Boolean(row.verified),
+        createdByAdmin: Boolean(row.createdByAdmin),
+      } satisfies ReviewReply;
+    })
+    .filter((item) => item.id && item.reply);
+}
+
 function mapReviewRow(review: any): Review {
   return {
     id: review.id,
@@ -597,13 +719,35 @@ function mapReviewRow(review: any): Review {
     review: review.review,
     verified: Boolean(review.verified),
     helpful: toNumber(review.helpful),
+    notHelpful: toNumber(review.notHelpful),
+    pros: toStringArray(review.pros),
+    cons: toStringArray(review.cons),
     images: toStringArray(review.images),
+    createdByAdmin: Boolean(review.createdByAdmin),
+    replies: normalizeReviewReplies(review.replies),
   };
 }
 
-async function getProviderReviewsPage(input: { providerId: string; offset?: number; limit?: number }): Promise<ReviewsPage> {
+async function getProviderReviewsPage(input: {
+  providerId: string;
+  offset?: number;
+  limit?: number;
+  sort?: ReviewSort | string | null;
+  targetType?: ReviewTargetType | null;
+  providerServiceId?: string | null;
+  staffId?: string | null;
+}): Promise<ReviewsPage> {
   const offset = Math.max(0, Number(input.offset || 0));
-  const limit = Math.min(30, Math.max(1, Number(input.limit || DEFAULT_REVIEW_LIMIT)));
+  const limit = Math.min(
+    30,
+    Math.max(1, Number(input.limit || DEFAULT_REVIEW_LIMIT)),
+  );
+  const sort = normalizeReviewSort(input.sort);
+  const targetType = input.targetType === "service" || input.targetType === "specialist" ? input.targetType : "provider";
+  const providerServiceId = isUuid(input.providerServiceId) ? input.providerServiceId : null;
+  const staffId = isUuid(input.staffId) ? input.staffId : null;
+  const targetFilter = targetType === "service" && providerServiceId ? sql`and c.provider_service_id = ${providerServiceId}::uuid` : targetType === "specialist" && staffId ? sql`and c.staff_id = ${staffId}::uuid` : sql``;
+  const orderBy = sort === "helpful" ? sql`coalesce(c.helpful_count, 0) desc, c.create_date desc` : sort === "buyers" ? sql`coalesce(c.created_by_admin, false) asc, coalesce(c.is_verified, false) desc, c.create_date desc` : sql`c.create_date desc`;
 
   const [rows, countRows] = await Promise.all([
     sql<any[]>`
@@ -617,6 +761,28 @@ async function getProviderReviewsPage(input: { providerId: string; offset?: numb
         c.comment_text as review,
         coalesce(c.is_verified, false) as verified,
         coalesce(c.helpful_count, 0)::int as helpful,
+        coalesce(c.not_helpful_count, 0)::int as "notHelpful",
+        coalesce(c.pros, array[]::text[]) as pros,
+        coalesce(c.cons, array[]::text[]) as cons,
+        coalesce(c.created_by_admin, false) as "createdByAdmin",
+        coalesce((
+          select jsonb_agg(
+            jsonb_build_object(
+              'id', r.id::text,
+              'name', r.author_name,
+              'role', r.author_role,
+              'reply', r.reply_text,
+              'date', r.create_date::text,
+              'verified', coalesce(r.is_verified, false),
+              'createdByAdmin', coalesce(r.created_by_admin, false)
+            )
+            order by coalesce(r.created_by_admin, false) desc, r.create_date asc
+          )
+          from category.service_provider_comment_replies r
+          where r.review_id = c.id
+            and r.is_public = true
+            and coalesce(r.moderation_status, case when r.is_public then 'approved' else 'pending' end) = 'approved'
+        ), '[]'::jsonb) as replies,
         coalesce((
           select array_agg(coalesce(ml.file_url, nullif(ri.image_url, '')) order by ri.id)
           from category.review_images ri
@@ -628,7 +794,9 @@ async function getProviderReviewsPage(input: { providerId: string; offset?: numb
       from category.service_provider_comments c
       where c.service_provider_id = ${input.providerId}::uuid
         and c.is_public = true
-      order by c.create_date desc
+        and coalesce(c.moderation_status, case when c.is_public then 'approved' else 'pending' end) = 'approved'
+        ${targetFilter}
+      order by ${orderBy}
       limit ${limit} offset ${offset}
     `,
     sql<{ total: number | string }[]>`
@@ -636,6 +804,8 @@ async function getProviderReviewsPage(input: { providerId: string; offset?: numb
       from category.service_provider_comments c
       where c.service_provider_id = ${input.providerId}::uuid
         and c.is_public = true
+        and coalesce(c.moderation_status, case when c.is_public then 'approved' else 'pending' end) = 'approved'
+        ${targetFilter}
     `,
   ]);
 
@@ -646,18 +816,45 @@ async function getProviderReviewsPage(input: { providerId: string; offset?: numb
   return { reviews, total, nextOffset, hasMore: nextOffset < total };
 }
 
-export async function getProviderReviewsPageFromDb(input: { providerId: string; offset?: number; limit?: number }): Promise<ApiReturnType<ReviewsPage>> {
+export async function getProviderReviewsPageFromDb(input: {
+  providerId: string;
+  offset?: number;
+  limit?: number;
+  sort?: ReviewSort | string | null;
+  targetType?: ReviewTargetType | null;
+  providerServiceId?: string | null;
+  staffId?: string | null;
+}): Promise<ApiReturnType<ReviewsPage>> {
   const providerId = String(input.providerId || "").trim();
   if (!isUuid(providerId)) return fail("A valid provider id is required.", 400);
 
   try {
-    return ok(await getProviderReviewsPage({ providerId, offset: input.offset, limit: input.limit }));
+    return ok(
+      await getProviderReviewsPage({
+        providerId,
+        offset: input.offset,
+        limit: input.limit,
+        sort: input.sort,
+        targetType: input.targetType,
+        providerServiceId: input.providerServiceId,
+        staffId: input.staffId,
+      }),
+    );
   } catch (error) {
-    return fail("Could not load provider reviews.", 500, error instanceof Error ? error.message : undefined);
+    return fail(
+      "Could not load provider reviews.",
+      500,
+      error instanceof Error ? error.message : undefined,
+    );
   }
 }
 
-async function getRecommendationRows(locale: string, providerId: string, providerCountry: string | null, sameCountry: boolean): Promise<RecommendationRow[]> {
+async function getRecommendationRows(
+  locale: string,
+  providerId: string,
+  providerCountry: string | null,
+  sameCountry: boolean,
+): Promise<RecommendationRow[]> {
   const country = String(providerCountry || "").trim();
   return sql<RecommendationRow[]>`
     select
@@ -705,33 +902,45 @@ async function getRecommendationRows(locale: string, providerId: string, provide
   `;
 }
 
-async function mapRecommendations(rows: RecommendationRow[], displayCurrencyCode: string, marginProfile?: string | null): Promise<Recommendation[]> {
-  return Promise.all(rows.map(async (row) => {
-    const sourcePrice = row.priceFrom === null || row.priceFrom === undefined ? null : toNumber(row.priceFrom);
-    const sourceCurrency = (row.currency || "USD").trim().toUpperCase();
-    const converted = sourcePrice === null ? null : await safeConvert({
-      amount: sourcePrice,
-      sourceCurrencyCode: sourceCurrency,
-      targetCurrencyCode: displayCurrencyCode,
-      marginProfile,
-    });
+async function mapRecommendations(
+  rows: RecommendationRow[],
+  displayCurrencyCode: string,
+  marginProfile?: string | null,
+): Promise<Recommendation[]> {
+  return Promise.all(
+    rows.map(async (row) => {
+      const sourcePrice =
+        row.priceFrom === null || row.priceFrom === undefined
+          ? null
+          : toNumber(row.priceFrom);
+      const sourceCurrency = (row.currency || "USD").trim().toUpperCase();
+      const converted =
+        sourcePrice === null
+          ? null
+          : await safeConvert({
+              amount: sourcePrice,
+              sourceCurrencyCode: sourceCurrency,
+              targetCurrencyCode: displayCurrencyCode,
+              marginProfile,
+            });
 
-    return {
-      id: row.id,
-      image: row.image || "",
-      title: row.title,
-      rating: toNumber(row.rating),
-      reviewCount: toNumber(row.reviewCount),
-      city: row.city || "",
-      country: row.country || "",
-      verified: Boolean(row.verified),
-      link: row.link,
-      priceFrom: converted?.targetAmount ?? null,
-      currency: converted?.targetCurrencyCode ?? null,
-      sourcePrice,
-      sourceCurrency,
-    };
-  }));
+      return {
+        id: row.id,
+        image: row.image || "",
+        title: row.title,
+        rating: toNumber(row.rating),
+        reviewCount: toNumber(row.reviewCount),
+        city: row.city || "",
+        country: row.country || "",
+        verified: Boolean(row.verified),
+        link: row.link,
+        priceFrom: converted?.targetAmount ?? null,
+        currency: converted?.targetCurrencyCode ?? null,
+        sourcePrice,
+        sourceCurrency,
+      };
+    }),
+  );
 }
 
 export async function setProviderFavoriteInDb(input: {
@@ -744,7 +953,11 @@ export async function setProviderFavoriteInDb(input: {
 
   try {
     const customer = await resolveCustomerIdentity(input.userId);
-    if (!customer) return fail("Please sign in and complete your customer profile before saving favorites.", 401);
+    if (!customer)
+      return fail(
+        "Please sign in and complete your customer profile before saving favorites.",
+        401,
+      );
 
     if (input.isFavorite) {
       await sql`
@@ -764,35 +977,321 @@ export async function setProviderFavoriteInDb(input: {
 
     return ok({ isFavorite: false });
   } catch (error) {
-    return fail("Could not update favorite status.", 500, error instanceof Error ? error.message : undefined);
+    return fail(
+      "Could not update favorite status.",
+      500,
+      error instanceof Error ? error.message : undefined,
+    );
   }
 }
 
-export async function createProviderReviewInDb(input: ProviderReviewInput): Promise<ApiReturnType<{ review: Review }>> {
+async function resolveReviewTarget(input: ProviderReviewInput): Promise<{
+  targetType: ReviewTargetType;
+  providerServiceId: string | null;
+  staffId: string | null;
+}> {
   const providerId = String(input.providerId || "").trim();
-  if (!isUuid(providerId)) return fail("A valid provider id is required.", 400);
+  const requestedTarget = (input.targetType ||
+    (input.staffId
+      ? "specialist"
+      : input.providerServiceId
+        ? "service"
+        : "provider")) as ReviewTargetType;
+  const providerServiceId =
+    String(input.providerServiceId || "").trim() || null;
+  const staffId = String(input.staffId || "").trim() || null;
 
-  const rating = Math.max(1, Math.min(5, Math.round(Number(input.rating || 0))));
-  const comment = String(input.comment || "").trim();
-  if (!rating) return fail("Please select a rating.", 400);
-  if (comment.length < 10) return fail("Review must be at least 10 characters.", 400);
+  if (requestedTarget === "service") {
+    if (!isUuid(providerServiceId))
+      throw new Error("A valid service id is required for service reviews.");
+
+    const rows = await sql<{ exists: boolean }[]>`
+      select exists(
+        select 1
+        from category.provider_services ps
+        where ps.id = ${providerServiceId}::uuid
+          and ps.service_provider_id = ${providerId}::uuid
+          and coalesce(ps.is_active, true) = true
+      ) as exists
+    `;
+
+    if (!rows[0]?.exists)
+      throw new Error("This service does not belong to the selected provider.");
+    return { targetType: "service", providerServiceId, staffId: null };
+  }
+
+  if (requestedTarget === "specialist") {
+    if (!isUuid(staffId))
+      throw new Error(
+        "A valid specialist id is required for specialist reviews.",
+      );
+
+    const rows = await sql<{ exists: boolean }[]>`
+      select exists(
+        select 1
+        from category.provider_staffs psf
+        where psf.staff_id = ${staffId}::uuid
+          and psf.service_provider_id = ${providerId}::uuid
+          and coalesce(psf.is_active, true) = true
+      ) as exists
+    `;
+
+    if (!rows[0]?.exists)
+      throw new Error(
+        "This specialist is not linked to the selected provider.",
+      );
+    return { targetType: "specialist", providerServiceId: null, staffId };
+  }
+
+  return { targetType: "provider", providerServiceId: null, staffId: null };
+}
+
+async function customerHasBookedTarget(input: {
+  customerId: string;
+  userId?: string | null;
+  providerId: string;
+  providerServiceId?: string | null;
+  staffId?: string | null;
+  targetType: ReviewTargetType;
+}) {
+  const candidateUserIds = [
+    input.customerId,
+    String(input.userId || "").trim(),
+  ].filter(isUuid);
+  const providerServiceId = input.providerServiceId || null;
+  const staffId = input.staffId || null;
+
+  const rows = await sql<{ exists: boolean }[]>`
+    select exists(
+      select 1
+      from booking.bookings b
+      where b.user_id::text = any(${sql.array(candidateUserIds, "text")})
+        and lower(coalesce(b.booking_status, '')) in ('confirmed', 'completed')
+        and (
+          (${input.targetType} = 'provider' and b.provider_id = ${input.providerId}::uuid)
+          or (${input.targetType} = 'service' and ${providerServiceId}::uuid is not null and b.service_id = ${providerServiceId}::uuid)
+          or (${input.targetType} = 'specialist' and ${staffId}::uuid is not null and b.specialist_id = ${staffId}::uuid)
+        )
+      union all
+      select 1
+      from booking.booking_child_bookings cb
+      join booking.bookings b on b.id = cb.parent_booking_id
+      where b.user_id::text = any(${sql.array(candidateUserIds, "text")})
+        and lower(coalesce(cb.status, b.booking_status, '')) in ('confirmed', 'completed')
+        and (
+          (${input.targetType} = 'provider' and cb.provider_id = ${input.providerId}::uuid)
+          or (${input.targetType} = 'service' and ${providerServiceId}::uuid is not null and cb.service_id = ${providerServiceId}::uuid)
+          or (${input.targetType} = 'specialist' and ${staffId}::uuid is not null and cb.specialist_id = ${staffId}::uuid)
+        )
+    ) as exists
+  `;
+
+  return Boolean(rows[0]?.exists);
+}
+
+async function customerAlreadyReviewedTarget(input: {
+  customerId: string;
+  providerId: string;
+  providerServiceId?: string | null;
+  staffId?: string | null;
+}) {
+  const emptyUuid = "00000000-0000-0000-0000-000000000000";
+  const providerServiceId = input.providerServiceId || emptyUuid;
+  const staffId = input.staffId || emptyUuid;
+
+  const rows = await sql<{ exists: boolean }[]>`
+    select exists(
+      select 1
+      from category.service_provider_comments c
+      where c.customer_id = ${input.customerId}::uuid
+        and c.service_provider_id = ${input.providerId}::uuid
+        and coalesce(c.provider_service_id, ${emptyUuid}::uuid) = ${providerServiceId}::uuid
+        and coalesce(c.staff_id, ${emptyUuid}::uuid) = ${staffId}::uuid
+    ) as exists
+  `;
+
+  return Boolean(rows[0]?.exists);
+}
+
+export async function getProviderReviewEligibilityInDb(input: {
+  providerId: string;
+  userId?: string | null;
+  targetType?: ReviewTargetType | null;
+  providerServiceId?: string | null;
+  staffId?: string | null;
+}): Promise<ApiReturnType<{ canReview: boolean; reason: ReviewEligibilityReason }>> {
+  const providerId = String(input.providerId || "").trim();
+  if (!isUuid(providerId)) return ok({ canReview: false, reason: "invalid_target" });
 
   try {
     const customer = await resolveCustomerIdentity(input.userId);
-    if (!customer) return fail("Please sign in and complete your customer profile before writing a review.", 401);
+    if (!customer) return ok({ canReview: false, reason: "not_signed_in" });
 
-    const treatment = String(input.treatment || input.title || "Provider experience").trim().slice(0, 100) || "Provider experience";
+    let target: Awaited<ReturnType<typeof resolveReviewTarget>>;
+    try {
+      target = await resolveReviewTarget({
+        providerId,
+        userId: input.userId,
+        rating: 5,
+        comment: "eligibility check only",
+        targetType: input.targetType,
+        providerServiceId: input.providerServiceId,
+        staffId: input.staffId,
+      });
+    } catch {
+      return ok({ canReview: false, reason: "invalid_target" });
+    }
+
+    const hasBooking = await customerHasBookedTarget({
+      customerId: customer.id,
+      userId: input.userId,
+      providerId,
+      targetType: target.targetType,
+      providerServiceId: target.providerServiceId,
+      staffId: target.staffId,
+    });
+    if (!hasBooking) return ok({ canReview: false, reason: "not_booked" });
+
+    const alreadyReviewed = await customerAlreadyReviewedTarget({
+      customerId: customer.id,
+      providerId,
+      providerServiceId: target.providerServiceId,
+      staffId: target.staffId,
+    });
+    if (alreadyReviewed) return ok({ canReview: false, reason: "already_reviewed" });
+
+    return ok({ canReview: true, reason: null });
+  } catch (error) {
+    return fail(
+      "Could not check review eligibility.",
+      500,
+      error instanceof Error ? error.message : undefined,
+    );
+  }
+}
+
+function buildPendingReviewPreview(input: {
+  id: string;
+  customer: CustomerIdentity;
+  rating: number;
+  comment: string;
+  treatment: string;
+  imageUrls: string[];
+  pros?: string[];
+  cons?: string[];
+}): Review {
+  return {
+    id: input.id,
+    name: input.customer.name || "LSevin customer",
+    country: input.customer.country || "",
+    date: "Pending moderation",
+    rating: Math.max(0, Math.min(5, input.rating)),
+    treatment: input.treatment || "Provider experience",
+    review: input.comment,
+    verified: true,
+    helpful: 0,
+    notHelpful: 0,
+    pros: input.pros || [],
+    cons: input.cons || [],
+    images: input.imageUrls,
+    createdByAdmin: false,
+  };
+}
+
+function buildPendingReplyPreview(input: {
+  id: string;
+  customer: CustomerIdentity;
+  replyText: string;
+}): ReviewReply {
+  return {
+    id: input.id,
+    name: input.customer.name || "LSevin customer",
+    role: "customer",
+    reply: input.replyText,
+    date: "Pending moderation",
+    verified: true,
+    createdByAdmin: false,
+  };
+}
+
+export async function createProviderReviewInDb(
+  input: ProviderReviewInput,
+): Promise<ApiReturnType<{ review: Review; requiresModeration: boolean }>> {
+  const providerId = String(input.providerId || "").trim();
+  if (!isUuid(providerId)) return fail("A valid provider id is required.", 400);
+
+  const rawRating = Number(input.rating || 0);
+  if (!Number.isFinite(rawRating) || rawRating < 1 || rawRating > 5) {
+    return fail("Please select a rating between 1 and 5.", 400);
+  }
+  const rating = Math.round(rawRating);
+  const comment = String(input.comment || "").trim();
+  if (comment.length < 10)
+    return fail("Review must be at least 10 characters.", 400);
+
+  try {
+    const customer = await resolveCustomerIdentity(input.userId);
+    if (!customer)
+      return fail(
+        "Please sign in and complete your customer profile before writing a review.",
+        401,
+      );
+
+    const target = await resolveReviewTarget({ ...input, providerId });
+    const hasBooking = await customerHasBookedTarget({
+      customerId: customer.id,
+      userId: input.userId,
+      providerId,
+      targetType: target.targetType,
+      providerServiceId: target.providerServiceId,
+      staffId: target.staffId,
+    });
+
+    if (!hasBooking) {
+      return fail(
+        "Only customers with a confirmed or completed booking can review this provider, service, or specialist.",
+        403,
+      );
+    }
+
+    const alreadyReviewed = await customerAlreadyReviewedTarget({
+      customerId: customer.id,
+      providerId,
+      providerServiceId: target.providerServiceId,
+      staffId: target.staffId,
+    });
+
+    if (alreadyReviewed) {
+      return fail(
+        "You have already submitted feedback for this booked item.",
+        409,
+      );
+    }
+
+    const treatment =
+      String(input.treatment || input.title || "Provider experience")
+        .trim()
+        .slice(0, 100) || "Provider experience";
     const imageUrls = toStringArray(input.imageUrls).slice(0, 4);
+    const pros = toLimitedStringArray(input.pros);
+    const cons = toLimitedStringArray(input.cons);
 
     const inserted = await sql<{ id: string }[]>`
       insert into category.service_provider_comments (
         id,
         service_provider_id,
+        provider_service_id,
+        staff_id,
+        review_target,
         customer_id,
         customer_name,
         comment_text,
         rating,
         is_public,
+        moderation_status,
+        created_by_admin,
+        pros,
+        cons,
         create_date,
         last_modified_date,
         country,
@@ -802,11 +1301,18 @@ export async function createProviderReviewInDb(input: ProviderReviewInput): Prom
       ) values (
         public.uuid_generate_v4(),
         ${providerId}::uuid,
+        ${target.providerServiceId}::uuid,
+        ${target.staffId}::uuid,
+        ${target.targetType},
         ${customer.id}::uuid,
         ${customer.name},
         ${comment},
         ${rating},
-        true,
+        false,
+        'pending',
+        false,
+        ${pros}::text[],
+        ${cons}::text[],
         now(),
         now(),
         ${customer.country},
@@ -827,27 +1333,127 @@ export async function createProviderReviewInDb(input: ProviderReviewInput): Prom
       `;
     }
 
-    await sql`
-      update category.service_providers sp
-      set
-        rating = stats.avg_rating::numeric(3,2),
-        review_count = stats.total,
-        last_modified_date = now()
-      from (
-        select round(coalesce(avg(c.rating), 0)::numeric, 2) as avg_rating, count(*)::int as total
-        from category.service_provider_comments c
-        where c.service_provider_id = ${providerId}::uuid
-          and c.is_public = true
-      ) stats
-      where sp.id = ${providerId}::uuid
-    `;
+    if (!reviewId) return fail("Review could not be created.", 500);
 
-    const page = await getProviderReviewsPage({ providerId, offset: 0, limit: 1 });
-    const review = page.reviews[0];
-    if (!review) return fail("Review was saved but could not be reloaded.", 500);
-
-    return ok({ review });
+    return ok({
+      review: buildPendingReviewPreview({
+        id: reviewId,
+        customer,
+        rating,
+        comment,
+        treatment,
+        imageUrls,
+        pros,
+        cons,
+      }),
+      requiresModeration: true,
+    });
   } catch (error) {
-    return fail("Could not submit review.", 500, error instanceof Error ? error.message : undefined);
+    return fail(
+      "Could not submit review.",
+      500,
+      error instanceof Error ? error.message : undefined,
+    );
   }
 }
+
+export async function createProviderReviewReplyInDb(
+  input: ProviderReviewReplyInput,
+): Promise<ApiReturnType<{ reply: ReviewReply; requiresModeration: boolean }>> {
+  const providerId = String(input.providerId || "").trim();
+  const reviewId = String(input.reviewId || "").trim();
+  if (!isUuid(providerId) || !isUuid(reviewId))
+    return fail("A valid provider and review id are required.", 400);
+
+  const replyText = String(input.replyText || "").trim();
+  if (replyText.length < 2)
+    return fail("Reply must be at least 2 characters.", 400);
+  if (replyText.length > 1000)
+    return fail("Reply must be 1000 characters or less.", 400);
+
+  try {
+    const customer = await resolveCustomerIdentity(input.userId);
+    if (!customer)
+      return fail(
+        "Please sign in first. Only booked users can reply to reviews.",
+        401,
+      );
+
+    const reviewRows = await sql<
+      {
+        providerServiceId: string | null;
+        staffId: string | null;
+        reviewTarget: ReviewTargetType;
+      }[]
+    >`
+      select
+        c.provider_service_id::text as "providerServiceId",
+        c.staff_id::text as "staffId",
+        coalesce(c.review_target, case when c.staff_id is not null then 'specialist' when c.provider_service_id is not null then 'service' else 'provider' end)::text as "reviewTarget"
+      from category.service_provider_comments c
+      where c.id = ${reviewId}::uuid
+        and c.service_provider_id = ${providerId}::uuid
+        and c.is_public = true
+        and coalesce(c.moderation_status, case when c.is_public then 'approved' else 'pending' end) = 'approved'
+      limit 1
+    `;
+
+    const target = reviewRows[0];
+    if (!target) return fail("Review was not found or is not public.", 404);
+
+    const hasBooking = await customerHasBookedTarget({
+      customerId: customer.id,
+      userId: input.userId,
+      providerId,
+      targetType: target.reviewTarget,
+      providerServiceId: target.providerServiceId,
+      staffId: target.staffId,
+    });
+
+    if (!hasBooking)
+      return fail(
+        "Only booked users can reply to reviews for this item.",
+        403,
+      );
+
+    const authorUserId = isUuid(input.userId) ? input.userId : null;
+    const inserted = await sql<{ id: string }[]>`
+      insert into category.service_provider_comment_replies (
+        id, review_id, service_provider_id, author_customer_id, author_user_id,
+        author_name, author_role, reply_text, is_public, moderation_status,
+        created_by_admin, is_verified, create_date, last_modified_date
+      ) values (
+        public.uuid_generate_v4(),
+        ${reviewId}::uuid,
+        ${providerId}::uuid,
+        ${customer.id}::uuid,
+        ${authorUserId}::uuid,
+        ${customer.name},
+        'customer',
+        ${replyText},
+        false,
+        'pending',
+        false,
+        true,
+        now(),
+        now()
+      )
+      returning id::text
+    `;
+
+    const replyId = inserted[0]?.id;
+    if (!replyId) return fail("Reply could not be created.", 500);
+
+    return ok({
+      reply: buildPendingReplyPreview({ id: replyId, customer, replyText }),
+      requiresModeration: true,
+    });
+  } catch (error) {
+    return fail(
+      "Could not submit review reply.",
+      500,
+      error instanceof Error ? error.message : undefined,
+    );
+  }
+}
+

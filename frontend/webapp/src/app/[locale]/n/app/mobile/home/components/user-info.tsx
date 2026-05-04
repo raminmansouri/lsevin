@@ -3,7 +3,7 @@ import { useCurrentSession } from '@/hooks/use-current-session';
 import { UserRole } from '@/types/common';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Button, Skeleton } from '../../../design-system/components';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
@@ -12,12 +12,20 @@ import { signOut } from 'next-auth/react';
 import NotificationsBar from '@/features/shared/components/Notifications/notifications-bar';
 import LocaleSwitcher from '@/components/locale/locale-switcher';
 import UserInfo from '@/components/user-info';
+import { resolveMediaUrl } from '@/features/profile/components/profile-image-picker';
 
-export default function UserInfoSubBar() {
+export default function UserInfoSubBar({profile}) {
     const { user, status } = useCurrentSession(true);
       const isAdmin = user?.roles?.includes(UserRole.Admin);
       const t = useTranslations("UserInfo");
     
+
+        const resolvedImageUrl = useMemo(
+          () => resolveMediaUrl(profile?.profileImageUrl),
+          [profile?.profileImageUrl]
+        );
+
+
       if (status === "loading") {
         return (
           <div className="flex items-center gap-2">
@@ -101,7 +109,7 @@ export default function UserInfoSubBar() {
               className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-[#eacb7f]/30"
             >
               <img
-                src="/unsplash_images/photo-1494790108377-be9c29b29330__w=100&h=100&fit=crop.jpg"
+                src={resolvedImageUrl}
                 alt="Profile"
                 className="w-full h-full object-cover"
               />

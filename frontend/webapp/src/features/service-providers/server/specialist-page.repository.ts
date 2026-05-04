@@ -51,6 +51,34 @@ function normalizeArray<T>(value: unknown): T[] {
   return Array.isArray(value) ? (value.filter(Boolean) as T[]) : [];
 }
 
+function normalizeJsonArray<T>(value: unknown): T[] {
+  if (!value) return [];
+  if (Array.isArray(value)) return value.filter(Boolean) as T[];
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? (parsed.filter(Boolean) as T[]) : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
+function normalizeReviewReplies(value: unknown) {
+  return normalizeJsonArray<Record<string, unknown>>(value)
+    .map((row) => ({
+      id: String(row.id || ""),
+      name: asString(row.name, "LSevin"),
+      role: row.role === "admin" ? "admin" as const : "customer" as const,
+      reply: asString(row.reply),
+      date: asString(row.date),
+      verified: Boolean(row.verified),
+      createdByAdmin: Boolean(row.createdByAdmin),
+    }))
+    .filter((item) => item.id && item.reply);
+}
+
 function uniqueNonEmpty(values: Array<string | null | undefined>) {
   return Array.from(new Set(values.map((value) => String(value || "").trim()).filter(Boolean)));
 }
@@ -198,8 +226,13 @@ type ReviewRow = {
   treatment: string | null;
   isVerified: boolean | null;
   helpfulCount: number | string | null;
+  notHelpfulCount: number | string | null;
+  pros: string[] | null;
+  cons: string[] | null;
+  createdByAdmin: boolean | null;
   createDate: string | Date;
   images: string[] | null;
+  replies: unknown;
 };
 
 async function getSpecialistRow(specialistId: string, locale: string) {
@@ -580,7 +613,29 @@ async function getReviews(specialistId: string, locale: string): Promise<Special
       spc.treatment,
       spc.is_verified as "isVerified",
       spc.helpful_count as "helpfulCount",
+      coalesce(spc.not_helpful_count, 0) as "notHelpfulCount",
+      coalesce(spc.pros, array[]::text[]) as pros,
+      coalesce(spc.cons, array[]::text[]) as cons,
+      coalesce(spc.created_by_admin, false) as "createdByAdmin",
       spc.create_date as "createDate",
+      coalesce((
+        select jsonb_agg(
+          jsonb_build_object(
+            'id', r.id::text,
+            'name', r.author_name,
+            'role', r.author_role,
+            'reply', r.reply_text,
+            'date', r.create_date::text,
+            'verified', coalesce(r.is_verified, false),
+            'createdByAdmin', coalesce(r.created_by_admin, false)
+          )
+          order by coalesce(r.created_by_admin, false) desc, r.create_date asc
+        )
+        from category.service_provider_comment_replies r
+        where r.review_id = spc.id
+          and r.is_public = true
+          and coalesce(r.moderation_status, case when r.is_public then 'approved' else 'pending' end) = 'approved'
+      ), '[]'::jsonb) as replies,
       coalesce(
         array_remove(array_agg(ri.image_url order by ri.id) filter (where ri.image_url is not null), null),
         array[]::varchar[]
@@ -590,8 +645,17 @@ async function getReviews(specialistId: string, locale: string): Promise<Special
     left join category.review_images ri on ri.review_id = spc.id
     where spc.service_provider_id in (select service_provider_id from linked_providers)
       and spc.is_public = true
+      and coalesce(spc.moderation_status, case when spc.is_public then 'approved' else 'pending' end) = 'approved'
+      and (
+        spc.staff_id = ${specialistId}::uuid
+        or (spc.staff_id is null and spc.provider_service_id is null)
+      )
     group by spc.id, sp.id, sp.name_translations
-    order by spc.rating desc nulls last, spc.helpful_count desc, spc.create_date desc
+    order by
+      case when spc.staff_id = ${specialistId}::uuid then 0 else 1 end,
+      spc.rating desc nulls last,
+      spc.helpful_count desc,
+      spc.create_date desc
     limit 20
   `;
 
@@ -607,7 +671,12 @@ async function getReviews(specialistId: string, locale: string): Promise<Special
     review: row.commentText,
     verified: Boolean(row.isVerified),
     helpful: asNumber(row.helpfulCount, 0),
+    notHelpful: asNumber(row.notHelpfulCount, 0),
+    pros: normalizeArray<string>(row.pros),
+    cons: normalizeArray<string>(row.cons),
     images: normalizeArray<string>(row.images),
+    createdByAdmin: Boolean(row.createdByAdmin),
+    replies: normalizeReviewReplies(row.replies),
   }));
 }
 

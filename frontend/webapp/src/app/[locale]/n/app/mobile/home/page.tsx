@@ -30,6 +30,8 @@ import { HomeLexicalDescription } from '@/features/home/components/home-lexical-
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { SponsoredMediaCarouselSection } from '@/features/home/components/sponsored-media-carousel-section';
 import { homeSearchParamsCache } from '@/features/home/types';
+import { getActiveLocationQueryScope } from '@/features/locations/server/active-location';
+import { getProfileForEdit } from '@/features/profile/actions/profile.actions';
 
 const fallbackQuickSearches = [
   'Hair Transplant',
@@ -75,7 +77,15 @@ async function Home({ params, searchParams }: PageProps) {
   const searchParamsData = await searchParams;
   const { countryCode, cityCode } = homeSearchParamsCache.parse(searchParamsData);
 
-  const queryInput = { locale, countryCode, cityCode };
+  const queryInput = await getActiveLocationQueryScope({
+    locale,
+    countryCode,
+    cityCode,
+    includeProfile: true,
+    includeIp: true,
+  });
+  
+ 
 
   const [
     dbQuickSearches,
@@ -86,6 +96,7 @@ async function Home({ params, searchParams }: PageProps) {
     heroOffer,
     nearbyProviderCount,
     homeSections,
+    profile
   ] = await Promise.all([
     getQuickSearches(sql, 8),
     getHomeCategories(queryInput, 6),
@@ -95,6 +106,7 @@ async function Home({ params, searchParams }: PageProps) {
     getHomeHeroOffer(queryInput),
     getNearbyProviderCount(queryInput),
     getHomeManagedSections(locale),
+     getProfileForEdit("en-US")
   ]);
 
   const quickSearches = dbQuickSearches.length > 0 ? dbQuickSearches : fallbackQuickSearches;
@@ -102,8 +114,8 @@ async function Home({ params, searchParams }: PageProps) {
   return (
     <div className="min-h-screen bg-white">
       <div className="sticky top-0 z-40 border-b border-gray-100 bg-white/95 px-5 pb-4 pt-3 backdrop-blur-xl">
-        <UserInfoSubBar />
-        <LocationPicker />
+        <UserInfoSubBar profile={profile}/>
+        <LocationPicker locale={locale} />
       </div>
 
       <section className="bg-gray-50 px-5 py-4">
@@ -166,7 +178,7 @@ async function Home({ params, searchParams }: PageProps) {
           <HomeFeaturedServicesSuspenseBoundary
             services={featuredServices}
             locale={locale}
-            selectedCountryCode={countryCode}
+            selectedCountryCode={queryInput.countryCode}
           />
         </div>
       </section>
@@ -190,8 +202,8 @@ async function Home({ params, searchParams }: PageProps) {
       <ExploreNearbySection
         section={homeSections.explore_nearby}
         nearbyProviderCount={nearbyProviderCount}
-        countryCode={countryCode}
-        cityCode={cityCode}
+        countryCode={queryInput.countryCode}
+        cityCode={queryInput.cityCode}
       />
 
       <section className="pb-8">

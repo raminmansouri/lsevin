@@ -39,8 +39,18 @@ export interface Specialist {
     organization: string;
   }
   
+  export interface ReviewReply {
+    id: string;
+    name: string;
+    role: "admin" | "customer";
+    reply: string;
+    date: string;
+    verified?: boolean;
+    createdByAdmin?: boolean;
+  }
+
   export interface Review {
-    id: number;
+    id: string | number;
     name: string;
     country: string;
     date: string;
@@ -49,7 +59,14 @@ export interface Specialist {
     review: string;
     verified: boolean;
     helpful: number;
+    notHelpful?: number;
+    pros?: string[];
+    cons?: string[];
     images?: string[];
+    createdByAdmin?: boolean;
+    providerId?: string;
+    providerName?: string;
+    replies?: ReviewReply[];
   }
   
   export interface BeforeAfter {
@@ -69,3 +86,5 @@ export interface Specialist {
     beforeAfter: BeforeAfter[];
   }
   
+
+export type SpecialistReview = Review & { id: string; providerId: string; providerName: string; images: string[]; };

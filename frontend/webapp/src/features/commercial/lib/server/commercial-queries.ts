@@ -11,31 +11,43 @@ export async function getCompensationPolicies(params?: {
 }) {
   const search = params?.search?.trim() || null;
   const rows = await sql<CompensationPolicy[]>`
+    with input as (
+      select
+        ${search}::text as search_text,
+        ${params?.scopeType ?? null}::text as scope_type_filter,
+        ${params?.appliesTo ?? null}::text as applies_to_filter,
+        ${params?.isActive ?? null}::boolean as is_active_filter
+    )
     select
-      id,
-      name,
-      description,
-      scope_type as "scopeType",
-      scope_id as "scopeId",
-      applies_to as "appliesTo",
-      fee_mode as "feeMode",
-      platform_percent::float8 as "platformPercent",
-      platform_fixed_amount::float8 as "platformFixedAmount",
-      minimum_platform_amount::float8 as "minimumPlatformAmount",
-      provider_percent_override::float8 as "providerPercentOverride",
-      gateway_fee_mode as "gatewayFeeMode",
-      currency_code as "currencyCode",
-      priority,
-      is_active as "isActive",
-      effective_from::text as "effectiveFrom",
-      effective_to::text as "effectiveTo",
-      metadata
-    from commercial.compensation_policies
-    where (${search} is null or name ilike ${search ? `%${search}%` : null} or coalesce(description, '') ilike ${search ? `%${search}%` : null})
-      and (${params?.scopeType ?? null} is null or scope_type = ${params?.scopeType ?? null})
-      and (${params?.appliesTo ?? null} is null or applies_to = ${params?.appliesTo ?? null})
-      and (${params?.isActive ?? null} is null or is_active = ${params?.isActive ?? null})
-    order by priority asc, created_at desc
+      cp.id,
+      cp.name,
+      cp.description,
+      cp.scope_type as "scopeType",
+      cp.scope_id as "scopeId",
+      cp.applies_to as "appliesTo",
+      cp.fee_mode as "feeMode",
+      cp.platform_percent::float8 as "platformPercent",
+      cp.platform_fixed_amount::float8 as "platformFixedAmount",
+      cp.minimum_platform_amount::float8 as "minimumPlatformAmount",
+      cp.provider_percent_override::float8 as "providerPercentOverride",
+      cp.gateway_fee_mode as "gatewayFeeMode",
+      cp.currency_code as "currencyCode",
+      cp.priority,
+      cp.is_active as "isActive",
+      cp.effective_from::text as "effectiveFrom",
+      cp.effective_to::text as "effectiveTo",
+      cp.metadata
+    from commercial.compensation_policies cp
+    cross join input i
+    where (
+        i.search_text is null
+        or cp.name ilike ('%' || i.search_text || '%')
+        or coalesce(cp.description, '') ilike ('%' || i.search_text || '%')
+      )
+      and (i.scope_type_filter is null or cp.scope_type = i.scope_type_filter)
+      and (i.applies_to_filter is null or cp.applies_to = i.applies_to_filter)
+      and (i.is_active_filter is null or cp.is_active = i.is_active_filter)
+    order by cp.priority asc, cp.created_at desc
   `;
 
   return rows;
@@ -76,6 +88,12 @@ export async function getProviderLedgerEntries(params?: {
   status?: string;
 }) {
   return sql<(ProviderLedgerEntry & { providerName: string | null })[]>`
+    with input as (
+      select
+        ${params?.providerId ?? null}::uuid as provider_id,
+        ${params?.bookingId ?? null}::uuid as booking_id,
+        ${params?.status ?? null}::text as status_filter
+    )
     select
       pl.id,
       pl.provider_id as "providerId",
@@ -94,15 +112,21 @@ export async function getProviderLedgerEntries(params?: {
       common.get_translation_t(sp.name_translations, 'en-US', 'en') as "providerName"
     from commercial.provider_ledgers pl
     join category.service_providers sp on sp.id = pl.provider_id
-    where (${params?.providerId ?? null} is null or pl.provider_id = ${params?.providerId ?? null})
-      and (${params?.bookingId ?? null} is null or pl.booking_id = ${params?.bookingId ?? null})
-      and (${params?.status ?? null} is null or pl.status = ${params?.status ?? null})
+    cross join input i
+    where (i.provider_id is null or pl.provider_id = i.provider_id)
+      and (i.booking_id is null or pl.booking_id = i.booking_id)
+      and (i.status_filter is null or pl.status = i.status_filter)
     order by pl.created_at desc
   `;
 }
 
 export async function getRefundRequests(params?: { status?: string; bookingId?: string }) {
   return sql<any[]>`
+    with input as (
+      select
+        ${params?.status ?? null}::text as status_filter,
+        ${params?.bookingId ?? null}::uuid as booking_id_filter
+    )
     select
       rr.*,
       p.amount::float8 as payment_amount,
@@ -112,8 +136,9 @@ export async function getRefundRequests(params?: { status?: string; bookingId?: 
     from commercial.refund_requests rr
     left join booking.payments p on p.id = rr.payment_id
     left join booking.bookings b on b.id = rr.booking_id
-    where (${params?.status ?? null} is null or rr.status = ${params?.status ?? null})
-      and (${params?.bookingId ?? null} is null or rr.booking_id = ${params?.bookingId ?? null})
+    cross join input i
+    where (i.status_filter is null or rr.status = i.status_filter)
+      and (i.booking_id_filter is null or rr.booking_id = i.booking_id_filter)
     order by rr.created_at desc
   `;
 }

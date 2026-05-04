@@ -53,6 +53,16 @@ const data: AdminSidebarItemType[] = [
     url: "/admin/availability",
   },
   {
+  title: "notifications",
+  url: "/admin/notification-templates",
+  items: [
+    {
+      title: "templates",
+      url: "/admin/notification-templates",
+    },
+  ],
+},
+  {
     title: "bookings",
     url: "/admin/bookings",
     items: [
@@ -61,14 +71,27 @@ const data: AdminSidebarItemType[] = [
       {
         title: "payments",
         url: "/admin/payments",
+      }, {
+        title: "commercial",
+        url: "/admin/commercial",
       },
       {
         title: "walletpaymentintents",
         url: "/admin/wallet-payment-intents",
-      },
+      }, 
       {
         title: "wallettransactions",
         url: "/admin/wallet-transactions",
+      },   {
+        title: "refunds",
+        url: "/admin/refunds",
+      }, {
+        title: "booking-calendar",
+        url: "/admin/booking-calendar",
+      },
+       {
+        title: "payment-gateways",
+        url: "/admin/payment-gateways",
       },
     ],
   },
@@ -116,10 +139,7 @@ const data: AdminSidebarItemType[] = [
       {
         title: "exchange-rates",
         url: "/admin/finance/exchange-rates",
-      },    {
-        title: "payment-gateways",
-        url: "/admin/payment-gateway",
-      },
+      },   
     ]
   },
   {

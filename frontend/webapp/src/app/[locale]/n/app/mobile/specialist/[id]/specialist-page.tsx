@@ -39,6 +39,26 @@ import type {
   SpecialistService,
 } from "@/features/service-providers/types/specialist-page-types";
 import { useNavigate } from "@/hooks/use-navigate";
+import ReviewForm, { type ReviewFormSubmitValue } from "../../../components/ReviewForm";
+import { DigikalaReviewCard } from "../../../components/DigikalaReviewCard";
+import { useReviewEligibility } from "../../../components/useReviewEligibility";
+
+type ReviewSort = "newest" | "buyers" | "helpful";
+
+function reviewSortLabels(locale?: string | null) {
+  const key = String(locale || "en").split("-")[0]?.toLowerCase();
+  if (key === "fa") {
+    return { newest: "جدیدترین", buyers: "دیدگاه خریداران", helpful: "مفیدترین", more: "مشاهده بیشتر" };
+  }
+  return { newest: "Newest", buyers: "Booked customers", helpful: "Most helpful", more: "Show more" };
+}
+
+function reviewSortValue(review: SpecialistReview, sort: ReviewSort) {
+  if (sort === "helpful") return Number(review.helpful || 0) - Number(review.notHelpful || 0);
+  if (sort === "buyers") return (review.createdByAdmin ? 0 : 1000000) + (review.verified ? 1000 : 0) + Number(review.helpful || 0);
+  const time = new Date(String(review.date || "")).getTime();
+  return Number.isFinite(time) ? time : 0;
+}
 
 function mediaUrl(value?: string | null) {
   if (!value) return "";
@@ -336,55 +356,41 @@ function ServicesSection({ services, navigate }: { services: SpecialistService[]
 }
 
 function ReviewsSection({ reviews, locale }: { reviews: SpecialistReview[]; locale: string }) {
+  const [sort, setSort] = useState<ReviewSort>("newest");
+  const [visibleCount, setVisibleCount] = useState(3);
+  const text = reviewSortLabels(locale);
+  const sortedReviews = useMemo(
+    () => [...reviews].sort((a, b) => reviewSortValue(b, sort) - reviewSortValue(a, sort)),
+    [reviews, sort],
+  );
+  const visibleReviews = sortedReviews.slice(0, visibleCount);
+
   if (!reviews.length) {
     return <EmptyState title="No reviews yet" description="Public reviews from the specialist’s connected providers will appear here." />;
   }
 
   return (
     <div className="space-y-4">
-      {reviews.map((review) => (
-        <div key={review.id} className="rounded-2xl border border-gray-200 bg-white p-4">
-          <div className="mb-3 flex items-start gap-3">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 font-bold text-gray-700">
-              {review.name.charAt(0).toUpperCase()}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="mb-1 flex items-center gap-2">
-                <h4 className="font-bold text-gray-900">{review.name}</h4>
-                {review.verified ? <BadgeCheck size={16} className="text-[#083f30]" /> : null}
-              </div>
-              <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
-                {review.country ? <span>{review.country}</span> : null}
-                {review.country ? <span>•</span> : null}
-                <span>{formatDate(review.date, locale)}</span>
-                <span>•</span>
-                <span>{review.providerName}</span>
-              </div>
-            </div>
-            <Stars rating={review.rating} />
-          </div>
-
-          {review.treatment ? (
-            <span className="mb-3 inline-block rounded-md bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-700">
-              {review.treatment}
-            </span>
-          ) : null}
-
-          <p className="text-sm leading-relaxed text-gray-700">{review.review}</p>
-
-          {review.images.length ? (
-            <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-              {review.images.map((image, index) => (
-                <div key={`${review.id}-${image}-${index}`} className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100">
-                  <MediaImage src={image} alt="Review image" className="object-cover" sizes="80px" />
-                </div>
-              ))}
-            </div>
-          ) : null}
-
-          <div className="mt-3 text-xs font-medium text-gray-500">👍 Helpful ({review.helpful})</div>
-        </div>
+      <div className="flex flex-wrap gap-2">
+        {(["newest", "buyers", "helpful"] as ReviewSort[]).map((item) => (
+          <button
+            key={item}
+            type="button"
+            onClick={() => { setSort(item); setVisibleCount(3); }}
+            className={`rounded-full border px-3 py-1.5 text-xs font-bold transition-colors ${sort === item ? "border-[#083f30] bg-[#083f30] text-white" : "border-gray-200 bg-white text-gray-700"}`}
+          >
+            {text[item]}
+          </button>
+        ))}
+      </div>
+      {visibleReviews.map((review) => (
+        <DigikalaReviewCard key={review.id} review={review} locale={locale} providerId={review.providerId} />
       ))}
+      {visibleReviews.length < sortedReviews.length ? (
+        <button type="button" onClick={() => setVisibleCount((value) => value + 3)} className="flex h-11 w-full items-center justify-center rounded-xl border border-gray-200 bg-white text-sm font-bold text-[#083f30]">
+          {text.more}
+        </button>
+      ) : null}
     </div>
   );
 }
@@ -517,10 +523,19 @@ export default function SpecialistProfileClient({
   const [selectedTab, setSelectedTab] = useState<"about" | "providers" | "services" | "reviews" | "credentials">("about");
   const [isFavorited, setIsFavorited] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
 
   const specialist = data.specialist;
   const primaryGalleryImage = data.gallery.find((item) => item.isPrimary)?.url || data.gallery[0]?.url || specialist.image;
   const galleryCount = data.gallery.length + data.beforeAfter.length;
+  const primaryProviderId = data.providers[0]?.id;
+  const reviewEligibility = useReviewEligibility({
+    open: showReviewForm,
+    providerId: primaryProviderId,
+    targetType: "specialist",
+    staffId: specialistId,
+    locale,
+  });
 
   const tabs = useMemo(
     () => [
@@ -550,6 +565,34 @@ export default function SpecialistProfileClient({
     }
 
     await navigator.clipboard.writeText(window.location.href);
+  };
+
+  const handleReviewSubmit = async (review: ReviewFormSubmitValue) => {
+    const providerId = primaryProviderId;
+    if (!providerId) {
+      throw new Error("This specialist is not linked to an active provider yet.");
+    }
+
+    const response = await fetch(`/api/service-providers/${providerId}/reviews`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        rating: review.rating,
+        title: review.title,
+        treatment: review.title || specialist.name,
+        comment: review.comment,
+        pros: review.pros,
+        cons: review.cons,
+        imageUrls: [],
+        targetType: "specialist",
+        staffId: specialistId,
+      }),
+    });
+
+    if (!response.ok) {
+      const problem = await response.json().catch(() => null);
+      throw new Error(problem?.title || "Could not submit review.");
+    }
   };
 
   return (
@@ -774,6 +817,13 @@ export default function SpecialistProfileClient({
 
         {selectedTab === "reviews" ? (
           <div className="space-y-6">
+            <button
+              type="button"
+              onClick={() => setShowReviewForm(true)}
+              className="flex h-12 w-full items-center justify-center rounded-xl bg-[#083f30] font-bold text-white transition-all active:scale-95"
+            >
+              Write a Review
+            </button>
             <div className="rounded-2xl bg-gradient-to-br from-[#083f30] to-[#0a5a44] p-6 text-white">
               <div className="text-center">
                 <div className="mb-2 text-5xl font-bold">{specialist.rating || "-"}</div>
@@ -797,6 +847,18 @@ export default function SpecialistProfileClient({
 
         {selectedTab === "credentials" ? <CredentialsSection data={data} /> : null}
       </div>
+
+      {showReviewForm ? (
+        <ReviewForm
+          providerName={specialist.name}
+          treatmentName={specialist.specialty || "Specialist consultation"}
+          onClose={() => setShowReviewForm(false)}
+          onSubmit={handleReviewSubmit}
+          locale={locale}
+          eligibilityState={reviewEligibility.eligibilityState}
+          eligibilityMessage={reviewEligibility.eligibilityMessage}
+        />
+      ) : null}
 
       <div className="fixed bottom-20 left-0 right-0 z-40 rounded-t-3xl border-t border-gray-200 bg-white px-5 py-4 shadow-2xl">
         <div className="flex items-center gap-3">
