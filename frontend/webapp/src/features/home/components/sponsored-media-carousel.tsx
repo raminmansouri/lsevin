@@ -90,7 +90,7 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        <div className="relative aspect-[16/9] w-full">
+        <div className="relative aspect-[16/9] w-full  h-full lg:h-80">
           {safeSlides.map((slide, index) => {
             const active = index === activeIndex;
             const mediaSrc = resolveHomeMediaUrl(slide.url);

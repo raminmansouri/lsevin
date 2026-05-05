@@ -1,10 +1,11 @@
 "use server";
 
 import sql from "@/config/database/db";
+import { resolveCurrentNotificationCustomerId } from "@/features/notification/server/current-notification-customer";
 import { revalidatePath } from "next/cache";
 
 async function resolveCurrentCustomerId(): Promise<string | null> {
-  return null;
+  return resolveCurrentNotificationCustomerId();
 }
 
 export async function markNotificationReadAction(notificationId: string) {
@@ -19,7 +20,7 @@ export async function markNotificationReadAction(notificationId: string) {
       and read_at is null
   `;
 
-  revalidatePath("/n/app/notifications");
+  revalidatePath("/n/app/mobile/notifications");
 }
 
 export async function markAllNotificationsReadAction() {
@@ -33,5 +34,5 @@ export async function markAllNotificationsReadAction() {
       and read_at is null
   `;
 
-  revalidatePath("/n/app/notifications");
+  revalidatePath("/n/app/mobile/notifications");
 }

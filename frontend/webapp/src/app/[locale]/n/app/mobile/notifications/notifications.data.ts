@@ -1,4 +1,5 @@
 import sql from "@/config/database/db";
+import { resolveCurrentNotificationCustomerId } from "@/features/notification/server/current-notification-customer";
 import { unstable_noStore as noStore } from "next/cache";
 
 export type NotificationTab = "all" | "booking" | "offer" | "system";
@@ -52,7 +53,7 @@ function normalizeLocale(locale: string) {
 }
 
 async function resolveCurrentCustomerId(): Promise<string | null> {
-  return null;
+  return resolveCurrentNotificationCustomerId();
 }
 
 function humanizeDistance(from: Date) {
