@@ -1,5 +1,7 @@
 "use client"
 
+
+import { useTranslations } from "next-intl";
 import { useState } from 'react';
 import { 
   LayoutDashboard,
@@ -34,6 +36,7 @@ import {
 import { DashboardLayout } from '../design-system/dashboard-components';
 
 export default function AuditLogs() {
+  const tAdmin = useTranslations("AdminGenerated");
   const [searchQuery, setSearchQuery] = useState('');
   const [severityFilter, setSeverityFilter] = useState('all');
   const [moduleFilter, setModuleFilter] = useState('all');
@@ -41,19 +44,19 @@ export default function AuditLogs() {
   const [dateFilter, setDateFilter] = useState('last-7-days');
   
   const navigation = [
-    { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
-    { label: 'Live Activity', icon: <Activity size={20} />, path: '/admin/activity' },
-    { label: 'Users', icon: <Users size={20} />, path: '/admin/users', badge: 12 },
-    { label: 'Providers', icon: <Building2 size={20} />, path: '/admin/providers', badge: 8 },
-    { label: 'Bookings', icon: <ShoppingBag size={20} />, path: '/admin/bookings' },
-    { label: 'Payments', icon: <Wallet size={20} />, path: '/admin/payments' },
-    { label: 'Campaigns', icon: <TrendingUp size={20} />, path: '/admin/campaigns' },
-    { label: 'Rewards', icon: <Gift size={20} />, path: '/admin/rewards' },
-    { label: 'Support', icon: <MessageSquare size={20} />, path: '/admin/support', badge: 23 },
-    { label: 'Reports', icon: <BarChart3 size={20} />, path: '/admin/reports' },
-    { label: 'Localization', icon: <Globe size={20} />, path: '/admin/localization' },
-    { label: 'Settings', icon: <Settings size={20} />, path: '/admin/settings' },
-    { label: 'Audit Logs', icon: <FileText size={20} />, path: '/admin/audit' },
+    { label: tAdmin("dashboard"), icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
+    { label: tAdmin("liveActivity"), icon: <Activity size={20} />, path: '/admin/activity' },
+    { label: tAdmin("users"), icon: <Users size={20} />, path: '/admin/users', badge: 12 },
+    { label: tAdmin("providers"), icon: <Building2 size={20} />, path: '/admin/providers', badge: 8 },
+    { label: tAdmin("bookings"), icon: <ShoppingBag size={20} />, path: '/admin/bookings' },
+    { label: tAdmin("payments"), icon: <Wallet size={20} />, path: '/admin/payments' },
+    { label: tAdmin("campaigns"), icon: <TrendingUp size={20} />, path: '/admin/campaigns' },
+    { label: tAdmin("rewards"), icon: <Gift size={20} />, path: '/admin/rewards' },
+    { label: tAdmin("support"), icon: <MessageSquare size={20} />, path: '/admin/support', badge: 23 },
+    { label: tAdmin("reports"), icon: <BarChart3 size={20} />, path: '/admin/reports' },
+    { label: tAdmin("localization"), icon: <Globe size={20} />, path: '/admin/localization' },
+    { label: tAdmin("settings"), icon: <Settings size={20} />, path: '/admin/settings' },
+    { label: tAdmin("auditLogs"), icon: <FileText size={20} />, path: '/admin/audit' },
   ];
 
   const auditLogs = [
@@ -230,13 +233,13 @@ export default function AuditLogs() {
   const getSeverityBadge = (severity: string) => {
     switch(severity) {
       case 'Critical':
-        return <span className="px-2.5 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><AlertCircle size={12} />Critical</span>;
+        return <span className="px-2.5 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><AlertCircle size={12} />{tAdmin("critical")}</span>;
       case 'High':
-        return <span className="px-2.5 py-1 bg-orange-50 text-orange-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><AlertTriangle size={12} />High</span>;
+        return <span className="px-2.5 py-1 bg-orange-50 text-orange-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><AlertTriangle size={12} />{tAdmin("high")}</span>;
       case 'Medium':
-        return <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Info size={12} />Medium</span>;
+        return <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Info size={12} />{tAdmin("medium")}</span>;
       case 'Low':
-        return <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><CheckCircle2 size={12} />Low</span>;
+        return <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><CheckCircle2 size={12} />{tAdmin("low")}</span>;
       default:
         return null;
     }
@@ -286,16 +289,16 @@ export default function AuditLogs() {
   return (
     <DashboardLayout 
       navigation={navigation} 
-      headerTitle="Audit Logs"
+      headerTitle={tAdmin("auditLogs")}
       userRole="admin"
-      userName="System Admin"
+      userName={tAdmin("systemAdmin")}
     >
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Audit Logs</h1>
-            <p className="text-gray-600">Compliance tracking and system activity audit trail</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">{tAdmin("auditLogs")}</h1>
+            <p className="text-gray-600">{tAdmin("complianceTrackingAndSystemActivityAuditTrail")}</p>
           </div>
           <div className="flex items-center gap-3">
             <button className="px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50">
@@ -318,7 +321,7 @@ export default function AuditLogs() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">2,847</div>
-            <div className="text-sm text-gray-600">Total Logs (7 days)</div>
+            <div className="text-sm text-gray-600">{tAdmin("totalLogs7Days")}</div>
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -328,7 +331,7 @@ export default function AuditLogs() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">23</div>
-            <div className="text-sm text-gray-600">Critical Events</div>
+            <div className="text-sm text-gray-600">{tAdmin("criticalEvents")}</div>
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -338,7 +341,7 @@ export default function AuditLogs() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">187</div>
-            <div className="text-sm text-gray-600">High Priority</div>
+            <div className="text-sm text-gray-600">{tAdmin("highPriority")}</div>
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -348,7 +351,7 @@ export default function AuditLogs() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">15</div>
-            <div className="text-sm text-gray-600">Active Admins</div>
+            <div className="text-sm text-gray-600">{tAdmin("activeAdmins")}</div>
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -358,7 +361,7 @@ export default function AuditLogs() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">98.2%</div>
-            <div className="text-sm text-gray-600">Security Score</div>
+            <div className="text-sm text-gray-600">{tAdmin("securityScore")}</div>
           </div>
         </div>
 
@@ -366,21 +369,21 @@ export default function AuditLogs() {
         <div className="bg-white rounded-2xl border border-gray-200 p-5">
           <div className="grid grid-cols-5 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Search Logs</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("searchLogs")}</label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Actor, action, details..."
+                  placeholder={tAdmin("actorActionDetails")}
                   className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent"
                 />
               </div>
             </div>
             
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Date Range</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("dateRange")}</label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <select
@@ -388,65 +391,65 @@ export default function AuditLogs() {
                   onChange={(e) => setDateFilter(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
                 >
-                  <option value="last-24-hours">Last 24 Hours</option>
-                  <option value="last-7-days">Last 7 Days</option>
-                  <option value="last-30-days">Last 30 Days</option>
-                  <option value="last-90-days">Last 90 Days</option>
-                  <option value="custom">Custom Range</option>
+                  <option value="last-24-hours">{tAdmin("last24Hours")}</option>
+                  <option value="last-7-days">{tAdmin("last7Days2")}</option>
+                  <option value="last-30-days">{tAdmin("last30Days2")}</option>
+                  <option value="last-90-days">{tAdmin("last90Days2")}</option>
+                  <option value="custom">{tAdmin("customRange2")}</option>
                 </select>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Severity</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("severity")}</label>
               <select
                 value={severityFilter}
                 onChange={(e) => setSeverityFilter(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
               >
-                <option value="all">All Severity</option>
-                <option value="Critical">Critical</option>
-                <option value="High">High</option>
-                <option value="Medium">Medium</option>
-                <option value="Low">Low</option>
+                <option value="all">{tAdmin("allSeverity")}</option>
+                <option value="Critical">{tAdmin("critical")}</option>
+                <option value="High">{tAdmin("high")}</option>
+                <option value="Medium">{tAdmin("medium")}</option>
+                <option value="Low">{tAdmin("low")}</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Module</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("module")}</label>
               <select
                 value={moduleFilter}
                 onChange={(e) => setModuleFilter(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
               >
-                <option value="all">All Modules</option>
-                <option value="User Management">User Management</option>
-                <option value="Payments">Payments</option>
-                <option value="Provider Management">Provider Management</option>
-                <option value="System Settings">System Settings</option>
-                <option value="Campaigns">Campaigns</option>
-                <option value="Support">Support</option>
-                <option value="Access Control">Access Control</option>
-                <option value="Bookings">Bookings</option>
-                <option value="Security">Security</option>
-                <option value="Rewards">Rewards</option>
+                <option value="all">{tAdmin("allModules")}</option>
+                <option value="User Management">{tAdmin("userManagement")}</option>
+                <option value="Payments">{tAdmin("payments")}</option>
+                <option value="Provider Management">{tAdmin("providerManagement")}</option>
+                <option value="System Settings">{tAdmin("systemSettings")}</option>
+                <option value="Campaigns">{tAdmin("campaigns")}</option>
+                <option value="Support">{tAdmin("support")}</option>
+                <option value="Access Control">{tAdmin("accessControl")}</option>
+                <option value="Bookings">{tAdmin("bookings")}</option>
+                <option value="Security">{tAdmin("security")}</option>
+                <option value="Rewards">{tAdmin("rewards")}</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Action Type</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("actionType")}</label>
               <select
                 value={actionFilter}
                 onChange={(e) => setActionFilter(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
               >
-                <option value="all">All Actions</option>
-                <option value="create">Create</option>
-                <option value="update">Update</option>
-                <option value="delete">Delete</option>
-                <option value="approve">Approve</option>
-                <option value="suspend">Suspend</option>
-                <option value="login">Login</option>
+                <option value="all">{tAdmin("allActions")}</option>
+                <option value="create">{tAdmin("create")}</option>
+                <option value="update">{tAdmin("update")}</option>
+                <option value="delete">{tAdmin("delete")}</option>
+                <option value="approve">{tAdmin("approve")}</option>
+                <option value="suspend">{tAdmin("suspend")}</option>
+                <option value="login">{tAdmin("login")}</option>
               </select>
             </div>
           </div>
@@ -464,14 +467,14 @@ export default function AuditLogs() {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Log ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Timestamp</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Actor</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Action</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Module</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Target</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Severity</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">IP / Device</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("logID")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("timestamp")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("actor")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("action")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("module")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("target")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("severity")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("iPDevice")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">

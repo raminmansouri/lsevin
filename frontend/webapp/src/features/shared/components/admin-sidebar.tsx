@@ -101,7 +101,10 @@ const data: AdminSidebarItemType[] = [
     url: "/admin/customers",
     items: [
       { title: "users", url: "/admin/identity-users" },
+      { title: "picked-locations", url: "/admin/picked-locations" },
       { title: "customers", url: "/admin/customers" },
+      { title: "provider-policy-types", url: "/admin/provider-policy-types" },
+      
     ],
   },
   {
@@ -124,8 +127,8 @@ const data: AdminSidebarItemType[] = [
         title: "sponsered-slider",
         url: "/admin/sponsered-slider",
       } ,{
-        title: "home-sections",
-        url: "/admin/home-sections/",
+        title: "auth-content",
+        url: "/admin/auth-content",
       }
     ]
   }, {

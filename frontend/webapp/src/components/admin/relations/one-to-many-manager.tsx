@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from "next-intl";
 import { useMemo, useState, useTransition, type ReactNode } from "react";
 import { Plus, Pencil, RefreshCw, Trash2, Search, X } from "lucide-react";
 import { toast } from "sonner";
@@ -88,6 +90,7 @@ function ChildCollectionCard({
   locale: string;
   panel: ChildCollectionPanel;
 }) {
+  const tAdmin = useTranslations("AdminGenerated");
   const [result, setResult] = useState<ListQueryResult>(panel.initialResult);
   const [query, setQuery] = useState("");
   const [modal, setModal] = useState<ModalState>(null);
@@ -229,7 +232,7 @@ function ChildCollectionCard({
                   {field.label}
                 </th>
               ))}
-              <th className="px-4 py-3 text-right font-medium text-zinc-600 dark:text-zinc-300">Actions</th>
+              <th className="px-4 py-3 text-right font-medium text-zinc-600 dark:text-zinc-300">{tAdmin("actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -414,12 +417,13 @@ export function OneToManyManager({
   locale,
   panels,
 }: Props) {
+  const tAdmin = useTranslations("AdminGenerated");
   if (panels.length === 0) return null;
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold">Related Records</h2>
+        <h2 className="text-xl font-semibold">{tAdmin("relatedRecords")}</h2>
         <p className="mt-1 text-sm text-zinc-500">
           View and manage one-to-many child records without leaving the parent edit page.
         </p>

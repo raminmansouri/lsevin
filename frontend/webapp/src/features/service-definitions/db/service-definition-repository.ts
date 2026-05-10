@@ -89,7 +89,7 @@ export type ServiceDefinitionLookupOption = {
 };
 
 const DEFAULT_PAGE_SIZE = 20;
-const DEFAULT_LOCALE = "en";
+const DEFAULT_LOCALE = "en-US";
 const DEFAULT_LOOKUP_LIMIT = 30;
 
 const FALLBACK_CURRENCIES: ServiceDefinitionLookupOption[] = [
@@ -199,6 +199,10 @@ function asBoolean(value: unknown, fallback = false) {
   return typeof value === "boolean" ? value : fallback;
 }
 
+function toIlikePattern(value: string) {
+  return `%${value.replace(/[\\%_]/g, "\\$&")}%`;
+}
+
 function parsePageParams(params?: FilterParams) {
   const raw = (params || {}) as Record<string, unknown>;
   const pageNumber = Math.max(
@@ -229,6 +233,8 @@ function parsePageParams(params?: FilterParams) {
       raw.GlobalFilter ??
       raw.filter ??
       raw.Filter ??
+      raw.filters ??
+      raw.Filters ??
       ""
   ).trim();
 
@@ -516,7 +522,7 @@ export async function getServiceDefinitionsFromDb(
     const { pageNumber, pageSize, offset, search, categoryId, status } = parsePageParams(params);
     const normalizedLocale = normalizeLocale(locale);
     const activeFilter: boolean | null = status === "active" ? true : status === "inactive" ? false : null;
-    const searchPattern = `%${search}%`;
+    const searchPattern = toIlikePattern(search);
 
     const categoryFilterSql = categoryId
       ? sql`and sd.category_id = ${categoryId}::uuid`
@@ -570,6 +576,12 @@ export async function getServiceDefinitionsFromDb(
             or b.currency ilike ${searchPattern}
             or b.value::text ilike ${searchPattern}
             or b.duration_minutes::text ilike ${searchPattern}
+            or not exists (
+              select 1
+              from unnest(regexp_split_to_array(${search}, '\s+')) as term(value)
+              where nullif(trim(term.value), '') is not null
+                and b.combined_search_text not ilike ('%' || term.value || '%')
+            )
           )
         `
       : sql``;
@@ -603,7 +615,18 @@ export async function getServiceDefinitionsFromDb(
           end as safe_category_translations,
           coalesce(sd.name_translations::text, '') as name_search_text,
           coalesce(sd.description_translations::text, '') as description_search_text,
-          coalesce(c.name_translations::text, '') as category_search_text
+          coalesce(c.name_translations::text, '') as category_search_text,
+          concat_ws(
+            ' ',
+            sd.id::text,
+            coalesce(sd.name_translations::text, ''),
+            coalesce(sd.description_translations::text, ''),
+            coalesce(c.name_translations::text, ''),
+            coalesce(sd.pricing_model, ''),
+            coalesce(sd.currency, ''),
+            coalesce(sd.value::text, ''),
+            coalesce(sd.duration_minutes::text, '')
+          ) as combined_search_text
         from category.service_definitions sd
         join category.categories c on c.id = sd.category_id
         where true
@@ -700,7 +723,7 @@ export async function getServiceDefinitionsAllLocalesFromDb(
   try {
     const { pageNumber, pageSize, offset, search } = parsePageParams(params);
     const normalizedLocale = normalizeLocale(locale);
-    const searchPattern = `%${search}%`;
+    const searchPattern = toIlikePattern(search);
 
     const searchFilterSql = search
       ? sql`
@@ -746,6 +769,12 @@ export async function getServiceDefinitionsAllLocalesFromDb(
             or b.currency ilike ${searchPattern}
             or b.value::text ilike ${searchPattern}
             or b.duration_minutes::text ilike ${searchPattern}
+            or not exists (
+              select 1
+              from unnest(regexp_split_to_array(${search}, '\s+')) as term(value)
+              where nullif(trim(term.value), '') is not null
+                and b.combined_search_text not ilike ('%' || term.value || '%')
+            )
           )
         `
       : sql``;
@@ -779,7 +808,18 @@ export async function getServiceDefinitionsAllLocalesFromDb(
           end as safe_category_translations,
           coalesce(sd.name_translations::text, '') as name_search_text,
           coalesce(sd.description_translations::text, '') as description_search_text,
-          coalesce(c.name_translations::text, '') as category_search_text
+          coalesce(c.name_translations::text, '') as category_search_text,
+          concat_ws(
+            ' ',
+            sd.id::text,
+            coalesce(sd.name_translations::text, ''),
+            coalesce(sd.description_translations::text, ''),
+            coalesce(c.name_translations::text, ''),
+            coalesce(sd.pricing_model, ''),
+            coalesce(sd.currency, ''),
+            coalesce(sd.value::text, ''),
+            coalesce(sd.duration_minutes::text, '')
+          ) as combined_search_text
         from category.service_definitions sd
         join category.categories c on c.id = sd.category_id
       ), filtered as (

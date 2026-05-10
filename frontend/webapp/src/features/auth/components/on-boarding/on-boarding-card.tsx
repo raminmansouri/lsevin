@@ -1,9 +1,6 @@
 "use client";
 
 import { ArrowLeft } from "lucide-react";
-import { useTranslations } from "next-intl";
-import Image from "next/image";
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -14,48 +11,38 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCarouselNavigation } from "@/components/ui/use-carousel-navigation";
 import { useRouter } from "@/i18n/navigation";
+import { type AuthOnboardingStepContent } from "@/features/auth-content/types/auth-content.types";
 
-const TRANSLATION_KEY = "Auth.OnBoarding";
+type Props = {
+  steps: AuthOnboardingStepContent[];
+};
 
-const OnBoardingCard = () => {
+const DEFAULT_PRIMARY_URL = "/sign-up";
+const DEFAULT_SECONDARY_URL = "/sign-in";
+
+const OnBoardingCard = ({ steps }: Props) => {
   const router = useRouter();
-  const t = useTranslations(TRANSLATION_KEY);
-
-  const steps = [
-    {
-      title: t("step1.title"),
-      description: t("step1.description"),
-      image: "/images/board-step-1.png",
-      primaryButton: t("step1.primaryButton"),
-      secondaryButton: t("step1.secondaryButton"),
-    },
-    {
-      title: t("step2.title"),
-      description: t("step2.description"),
-      image: "/images/board-step-2.png",
-      primaryButton: t("step2.primaryButton"),
-      secondaryButton: t("step2.secondaryButton"),
-    },
-  ];
-
+  const safeSteps = steps.length ? steps : [];
   const { setApi, currentIndex, scrollToIndex } = useCarouselNavigation();
 
   const handleNext = (e?: React.MouseEvent<HTMLButtonElement>) => {
     e?.preventDefault();
     e?.stopPropagation();
-    if (currentIndex < steps.length - 1) {
-      const nextIndex = currentIndex + 1;
-      scrollToIndex(nextIndex);
-    } else {
-      router.push("/sign-up");
+
+    if (currentIndex < safeSteps.length - 1) {
+      scrollToIndex(currentIndex + 1);
+      return;
     }
+
+    router.push(safeSteps[currentIndex]?.primaryButtonUrl || DEFAULT_PRIMARY_URL);
   };
 
   const handleSecondaryButton = () => {
-    router.push("/sign-in");
+    router.push(safeSteps[currentIndex]?.secondaryButtonUrl || DEFAULT_SECONDARY_URL);
   };
 
-  const step = steps[currentIndex];
+  const step = safeSteps[currentIndex];
+
   return (
     <div className="max-w-md p-1 md:p-0">
       <Card className="border-primary bg-primary p-2 shadow-lg">
@@ -68,31 +55,34 @@ const OnBoardingCard = () => {
           }}
         >
           <CarouselContent className="cursor-grab active:cursor-grabbing">
-            {steps.map((step, index) => (
-              <CarouselItem key={index}>
-                {/* Image Container */}
+            {safeSteps.map((step, index) => (
+              <CarouselItem key={step.id || step.itemKey || index}>
                 <div className="bg-background mb-1 rounded-lg">
                   <div className="relative flex h-[216px] w-full items-center justify-center">
-                    <Image
-                      src={step.image || "/placeholder.png"}
-                      alt="Medical illustration"
-                      width={287}
-                      height={216}
-                      className="object-contain"
-                      priority
+                    <img
+                      src={step.mediaUrl || "/placeholder.png"}
+                      alt={step.alt || step.title || "LSevin onboarding"}
+                      className="max-h-full max-w-full object-contain"
+                      loading={index === 0 ? "eager" : "lazy"}
                     />
                   </div>
                 </div>
 
                 <CardContent className="space-y-4 p-4 text-right">
-                  {/* Text Content */}
                   <div className="space-y-2">
+                    {step.eyebrow ? (
+                      <p className="text-primary-foreground/80 text-center text-xs font-semibold uppercase tracking-[0.16em] md:text-start">
+                        {step.eyebrow}
+                      </p>
+                    ) : null}
                     <h2 className="text-primary-foreground text-center text-2xl font-bold md:text-start">
                       {step.title}
                     </h2>
-                    <p className="text-primary-foreground/90 text-center text-base leading-relaxed md:text-start">
-                      {step.description}
-                    </p>
+                    {step.description ? (
+                      <p className="text-primary-foreground/90 text-center text-base leading-relaxed md:text-start">
+                        {step.description}
+                      </p>
+                    ) : null}
                   </div>
                 </CardContent>
               </CarouselItem>
@@ -100,11 +90,9 @@ const OnBoardingCard = () => {
           </CarouselContent>
         </Carousel>
 
-        {/* Footer */}
         <div className="flex flex-col-reverse items-center justify-between gap-2 px-6 pb-4 md:flex-row">
-          {/* Progress Dots */}
           <div className="flex gap-2">
-            {steps.map((_, index) => (
+            {safeSteps.map((_, index) => (
               <button
                 key={index}
                 onClick={() => scrollToIndex(index)}
@@ -116,22 +104,23 @@ const OnBoardingCard = () => {
             ))}
           </div>
 
-          {/* Buttons */}
           <div className="flex w-full flex-col-reverse gap-2 md:w-auto md:flex-row">
-            <Button
-              variant="ghost"
-              className="text-primary-foreground hover:bg-background/10 hover:text-primary-foreground"
-              onClick={handleSecondaryButton}
-            >
-              {step?.secondaryButton}
-            </Button>
+            {step?.secondaryButton ? (
+              <Button
+                variant="ghost"
+                className="text-primary-foreground hover:bg-background/10 hover:text-primary-foreground"
+                onClick={handleSecondaryButton}
+              >
+                {step.secondaryButton}
+              </Button>
+            ) : null}
             <Button
               variant="secondary"
               onClick={handleNext}
               className="bg-background text-primary hover:bg-background/90 hover:text-primary flex ltr:flex-row-reverse"
             >
               <ArrowLeft className="mr-2 size-4 ltr:rotate-180" />
-              {step?.primaryButton}
+              {step?.primaryButton || step?.buttonTitle || "Continue"}
             </Button>
           </div>
         </div>

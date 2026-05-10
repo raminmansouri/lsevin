@@ -1,5 +1,7 @@
 'use client';
 
+
+import { useTranslations } from "next-intl";
 import { useMemo, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,6 +17,7 @@ import { createRefundRequestAction } from '../../actions/admin-commercial-action
 import { RefundRequestInput, RefundRequestSchema } from '../../schemas';
 
 export function RefundRequestForm({ bookingId, paymentId, chargeLines = [] as any[] }: { bookingId: string; paymentId?: string | null; chargeLines?: any[]; }) {
+  const tAdmin = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
   const [selectedLineIds, setSelectedLineIds] = useState<string[]>([]);
 
@@ -50,7 +53,7 @@ export function RefundRequestForm({ bookingId, paymentId, chargeLines = [] as an
     startTransition(async () => {
       try {
         await createRefundRequestAction({ ...values, refundLines: lines });
-        toast.success('Refund request created.');
+        toast.success(tAdmin("refundRequestCreated"));
         form.reset({ bookingId, paymentId: paymentId ?? null, refundScope: 'full', reason: '', customerNote: '', adminNote: '', refundLines: [] });
         setSelectedLineIds([]);
       } catch (error) {
@@ -62,24 +65,24 @@ export function RefundRequestForm({ bookingId, paymentId, chargeLines = [] as an
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Create refund request</CardTitle>
+        <CardTitle>{tAdmin("createRefundRequest")}</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <FormField control={form.control} name="refundScope" render={({ field }) => (
-                <FormItem><FormLabel>Refund scope</FormLabel><FormControl><select {...field} className="w-full rounded-md border bg-background px-3 py-2 text-sm" disabled={isPending}><option value="full">Full refund</option><option value="partial">Partial refund</option></select></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>{tAdmin("refundScope")}</FormLabel><FormControl><select {...field} className="w-full rounded-md border bg-background px-3 py-2 text-sm" disabled={isPending}><option value="full">{tAdmin("fullRefund")}</option><option value="partial">{tAdmin("partialRefund")}</option></select></FormControl><FormMessage /></FormItem>
               )} />
               <div className="rounded-md border p-3 text-sm">
-                <div className="text-muted-foreground">Selected amount</div>
+                <div className="text-muted-foreground">{tAdmin("selectedAmount")}</div>
                 <div className="font-semibold">{totalSelected.toFixed(2)}</div>
               </div>
             </div>
 
             {form.watch('refundScope') === 'partial' && (
               <div className="space-y-2 rounded-xl border p-4">
-                <div className="font-medium">Select charge lines to refund</div>
+                <div className="font-medium">{tAdmin("selectChargeLinesToRefund")}</div>
                 {chargeLines.map((line) => {
                   const checked = selectedLineIds.includes(line.id);
                   return (
@@ -105,13 +108,13 @@ export function RefundRequestForm({ bookingId, paymentId, chargeLines = [] as an
             )}
 
             <FormField control={form.control} name="reason" render={({ field }) => (
-              <FormItem><FormLabel>Reason</FormLabel><FormControl><Input {...field} disabled={isPending} placeholder="Customer cancelled before confirmation" /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>{tAdmin("reason")}</FormLabel><FormControl><Input {...field} disabled={isPending} placeholder={tAdmin("customerCancelledBeforeConfirmation")} /></FormControl><FormMessage /></FormItem>
             )} />
             <FormField control={form.control} name="customerNote" render={({ field }) => (
-              <FormItem><FormLabel>Customer note</FormLabel><FormControl><Textarea {...field} value={field.value ?? ''} rows={3} disabled={isPending} /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>{tAdmin("customerNote")}</FormLabel><FormControl><Textarea {...field} value={field.value ?? ''} rows={3} disabled={isPending} /></FormControl><FormMessage /></FormItem>
             )} />
             <FormField control={form.control} name="adminNote" render={({ field }) => (
-              <FormItem><FormLabel>Admin note</FormLabel><FormControl><Textarea {...field} value={field.value ?? ''} rows={3} disabled={isPending} /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>{tAdmin("adminNote")}</FormLabel><FormControl><Textarea {...field} value={field.value ?? ''} rows={3} disabled={isPending} /></FormControl><FormMessage /></FormItem>
             )} />
 
             <Button type="submit" disabled={isPending || (form.watch('refundScope') === 'partial' && selectedLineIds.length === 0)}>

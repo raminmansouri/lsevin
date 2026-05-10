@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from "next-intl";
 import { Plus, Save, Trash2 } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -19,6 +21,7 @@ type Draft = { id?: string; title: string; shortcut: string; bodyEn: string; bod
 const emptyDraft: Draft = { title: "", shortcut: "", bodyEn: "", bodyFa: "", isActive: true, displayOrder: 0 };
 
 export function SupportCannedRepliesManager({ replies }: Props) {
+  const tAdmin = useTranslations("AdminGenerated");
   const [items, setItems] = useState(replies);
   const [draft, setDraft] = useState<Draft>(emptyDraft);
   const [isPending, startTransition] = useTransition();
@@ -47,7 +50,7 @@ export function SupportCannedRepliesManager({ replies }: Props) {
       if (result.data) {
         setItems((current) => draft.id ? current.map((item) => item.id === result.data!.id ? result.data! : item) : [result.data!, ...current]);
         reset();
-        toast.success("Canned reply saved.");
+        toast.success(tAdmin("cannedReplySaved"));
       }
       if (result.fieldErrors) toast.error(Object.values(result.fieldErrors)[0]?.[0] || "Please check canned reply.");
       if (result.error) toast.error(result.error.detail || result.error.title);
@@ -60,7 +63,7 @@ export function SupportCannedRepliesManager({ replies }: Props) {
       if (result.data) {
         setItems((current) => current.filter((item) => item.id !== reply.id));
         if (draft.id === reply.id) reset();
-        toast.success("Canned reply deleted.");
+        toast.success(tAdmin("cannedReplyDeleted"));
       }
       if (result.error) toast.error(result.error.detail || result.error.title);
     });
@@ -71,26 +74,26 @@ export function SupportCannedRepliesManager({ replies }: Props) {
       <Card className="rounded-3xl">
         <CardHeader><CardTitle>{draft.id ? "Edit canned reply" : "New canned reply"}</CardTitle></CardHeader>
         <CardContent className="space-y-4">
-          <Input value={draft.title} onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))} placeholder="Title" />
+          <Input value={draft.title} onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))} placeholder={tAdmin("title")} />
           <div className="grid gap-3 sm:grid-cols-2">
             <Input value={draft.shortcut} onChange={(event) => setDraft((current) => ({ ...current, shortcut: event.target.value }))} placeholder="/shortcut" />
-            <Input type="number" value={draft.displayOrder} onChange={(event) => setDraft((current) => ({ ...current, displayOrder: Number(event.target.value || 0) }))} placeholder="Display order" />
+            <Input type="number" value={draft.displayOrder} onChange={(event) => setDraft((current) => ({ ...current, displayOrder: Number(event.target.value || 0) }))} placeholder={tAdmin("displayOrder")} />
           </div>
-          <Textarea value={draft.bodyEn} onChange={(event) => setDraft((current) => ({ ...current, bodyEn: event.target.value }))} placeholder="English reply" className="min-h-[120px]" />
+          <Textarea value={draft.bodyEn} onChange={(event) => setDraft((current) => ({ ...current, bodyEn: event.target.value }))} placeholder={tAdmin("englishReply")} className="min-h-[120px]" />
           <Textarea dir="rtl" value={draft.bodyFa} onChange={(event) => setDraft((current) => ({ ...current, bodyFa: event.target.value }))} placeholder="متن فارسی" className="min-h-[120px]" />
           <div className="flex items-center justify-between rounded-2xl border bg-slate-50 p-4">
-            <span className="text-sm font-medium">Active</span>
+            <span className="text-sm font-medium">{tAdmin("active")}</span>
             <Switch checked={draft.isActive} onCheckedChange={(checked) => setDraft((current) => ({ ...current, isActive: checked }))} />
           </div>
           <div className="flex gap-2">
-            <Button disabled={isPending} onClick={save} className="flex-1 rounded-2xl"><Save className="mr-2 h-4 w-4" />Save</Button>
-            <Button type="button" variant="outline" onClick={reset} className="rounded-2xl"><Plus className="mr-2 h-4 w-4" />New</Button>
+            <Button disabled={isPending} onClick={save} className="flex-1 rounded-2xl"><Save className="mr-2 h-4 w-4" />{tAdmin("save")}</Button>
+            <Button type="button" variant="outline" onClick={reset} className="rounded-2xl"><Plus className="mr-2 h-4 w-4" />{tAdmin("new")}</Button>
           </div>
         </CardContent>
       </Card>
 
       <Card className="rounded-3xl">
-        <CardHeader><CardTitle>Canned replies</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{tAdmin("cannedReplies")}</CardTitle></CardHeader>
         <CardContent className="space-y-2">
           {items.map((reply) => (
             <div key={reply.id} className="flex items-start justify-between gap-3 rounded-2xl border p-4">

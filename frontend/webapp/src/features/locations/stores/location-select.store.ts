@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import type { LazyOption, LazyOptionsResult } from "./location-select.types";
+import type { LazyOption, LazyOptionsResult } from "../location-select.types";
 
 type QueryCacheEntry = LazyOptionsResult & {
   updatedAt: number;

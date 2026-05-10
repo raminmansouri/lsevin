@@ -229,13 +229,13 @@ export interface StaffMutationInput {
   successRate?: string;
   providerAssignments: Array<{
     id?: string;
-    serviceProviderId: string;
+    serviceProviderId?: string;
     notes: LocalizedContent;
     isActive: boolean;
   }>;
   services: Array<{
     id?: string;
-    serviceDefinitionId: string;
+    serviceDefinitionId?: string;
     isActive: boolean;
     notes: LocalizedContent;
   }>;

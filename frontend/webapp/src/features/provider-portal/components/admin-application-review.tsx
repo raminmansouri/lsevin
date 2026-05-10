@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { useTransition } from "react";
 import { CheckCircle2, XCircle } from "lucide-react";
@@ -12,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "@/i18n/navigation";
 
 export function AdminApplicationReview({ application }: { application: any }) {
+  const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -23,24 +26,24 @@ export function AdminApplicationReview({ application }: { application: any }) {
           <CardDescription>{application.application_number || application.id}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 text-sm md:grid-cols-2">
-          <Info label="Status" value={application.status} />
-          <Info label="Applicant" value={`${application.applicant_name || "-"} ${application.applicant_email ? `(${application.applicant_email})` : ""}`} />
-          <Info label="Legal name" value={application.legal_name || "-"} />
-          <Info label="Email" value={application.email || "-"} />
-          <Info label="Phone" value={`${application.phone_number_country_code || ""} ${application.phone_number || ""}`} />
-          <Info label="Country" value={application.submission_payload?.country || "-"} />
-          <Info label="City" value={application.submission_payload?.city || "-"} />
-          <Info label="Website" value={application.website_url || "-"} />
+          <Info label={tAdmin("status")} value={application.status} />
+          <Info label={tAdmin("applicant")} value={`${application.applicant_name || "-"} ${application.applicant_email ? `(${application.applicant_email})` : ""}`} />
+          <Info label={tAdmin("legalName")} value={application.legal_name || "-"} />
+          <Info label={tAdmin("email")} value={application.email || "-"} />
+          <Info label={tAdmin("phone")} value={`${application.phone_number_country_code || ""} ${application.phone_number || ""}`} />
+          <Info label={tAdmin("country")} value={application.submission_payload?.country || "-"} />
+          <Info label={tAdmin("city")} value={application.submission_payload?.city || "-"} />
+          <Info label={tAdmin("website")} value={application.website_url || "-"} />
           <div className="md:col-span-2">
-            <Info label="Address" value={application.address_text || "-"} />
+            <Info label={tAdmin("address")} value={application.address_text || "-"} />
           </div>
         </CardContent>
       </Card>
 
       <Card className="rounded-3xl border-slate-200 shadow-sm">
         <CardHeader>
-          <CardTitle>Review decision</CardTitle>
-          <CardDescription>Approval creates `category.service_providers` and an owner row in `provider_portal.provider_members`.</CardDescription>
+          <CardTitle>{tAdmin("reviewDecision")}</CardTitle>
+          <CardDescription>{tAdmin("approvalCreatesCategoryServiceProvidersAndAnOwnerRowInProvidb9a85e0a")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form
@@ -55,14 +58,14 @@ export function AdminApplicationReview({ application }: { application: any }) {
                   toast.error(response.error || "Application could not be approved.");
                   return;
                 }
-                toast.success("Application approved and provider created.");
+                toast.success(tAdmin("applicationApprovedAndProviderCreated"));
                 router.push("/admin/provider-portal/applications");
                 router.refresh();
               });
             }}
           >
             <label className="space-y-2 block">
-              <span className="text-sm font-medium">Review note</span>
+              <span className="text-sm font-medium">{tAdmin("reviewNote")}</span>
               <Textarea name="reviewNote" rows={3} disabled={isPending} />
             </label>
 
@@ -85,7 +88,7 @@ export function AdminApplicationReview({ application }: { application: any }) {
                       toast.error(response.error || "Application could not be rejected.");
                       return;
                     }
-                    toast.success("Application rejected.");
+                    toast.success(tAdmin("applicationRejected"));
                     router.push("/admin/provider-portal/applications");
                     router.refresh();
                   });

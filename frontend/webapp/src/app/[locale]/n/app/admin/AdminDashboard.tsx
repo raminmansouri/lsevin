@@ -1,4 +1,6 @@
 "use client"
+
+import { useTranslations } from "next-intl";
 import { useState } from 'react';
 import { 
   LayoutDashboard,
@@ -54,25 +56,26 @@ import {
 import { DashboardLayout } from '../design-system/dashboard-components';
 
 export default function AdminDashboard() {
+  const tAdmin = useTranslations("AdminGenerated");
   const [dateRange, setDateRange] = useState('30d');
   const [selectedCountry, setSelectedCountry] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
   
   const navigation = [
-    { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
-    { label: 'Live Activity', icon: <Activity size={20} />, path: '/admin/activity' },
-    { label: 'Users', icon: <Users size={20} />, path: '/admin/users', badge: 12 },
-    { label: 'Providers', icon: <Building2 size={20} />, path: '/admin/providers', badge: 8 },
-    { label: 'Bookings', icon: <ShoppingBag size={20} />, path: '/admin/bookings' },
-    { label: 'Payments', icon: <Wallet size={20} />, path: '/admin/payments' },
-    { label: 'Campaigns', icon: <TrendingUp size={20} />, path: '/admin/campaigns' },
-    { label: 'Rewards', icon: <Gift size={20} />, path: '/admin/rewards' },
-    { label: 'Support', icon: <MessageSquare size={20} />, path: '/admin/support', badge: 23 },
-    { label: 'Reports', icon: <BarChart3 size={20} />, path: '/admin/reports' },
-    { label: 'Localization', icon: <Globe size={20} />, path: '/admin/localization' },
-    { label: 'Settings', icon: <Settings size={20} />, path: '/admin/settings' },
-    { label: 'Audit Logs', icon: <FileText size={20} />, path: '/admin/audit' },
+    { label: tAdmin("dashboard"), icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
+    { label: tAdmin("liveActivity"), icon: <Activity size={20} />, path: '/admin/activity' },
+    { label: tAdmin("users"), icon: <Users size={20} />, path: '/admin/users', badge: 12 },
+    { label: tAdmin("providers"), icon: <Building2 size={20} />, path: '/admin/providers', badge: 8 },
+    { label: tAdmin("bookings"), icon: <ShoppingBag size={20} />, path: '/admin/bookings' },
+    { label: tAdmin("payments"), icon: <Wallet size={20} />, path: '/admin/payments' },
+    { label: tAdmin("campaigns"), icon: <TrendingUp size={20} />, path: '/admin/campaigns' },
+    { label: tAdmin("rewards"), icon: <Gift size={20} />, path: '/admin/rewards' },
+    { label: tAdmin("support"), icon: <MessageSquare size={20} />, path: '/admin/support', badge: 23 },
+    { label: tAdmin("reports"), icon: <BarChart3 size={20} />, path: '/admin/reports' },
+    { label: tAdmin("localization"), icon: <Globe size={20} />, path: '/admin/localization' },
+    { label: tAdmin("settings"), icon: <Settings size={20} />, path: '/admin/settings' },
+    { label: tAdmin("auditLogs"), icon: <FileText size={20} />, path: '/admin/audit' },
   ];
   
   // Revenue data for chart
@@ -195,9 +198,9 @@ export default function AdminDashboard() {
   return (
     <DashboardLayout 
       navigation={navigation} 
-      headerTitle="Analytics Dashboard"
+      headerTitle={tAdmin("analyticsDashboard")}
       userRole="admin"
-      userName="System Admin"
+      userName={tAdmin("systemAdmin")}
     >
       {/* Filters Bar */}
       <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-8">
@@ -211,12 +214,12 @@ export default function AdminDashboard() {
                 onChange={(e) => setDateRange(e.target.value)}
                 className="h-10 pl-10 pr-10 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 hover:bg-gray-100 transition-colors appearance-none cursor-pointer"
               >
-                <option value="7d">Last 7 days</option>
-                <option value="30d">Last 30 days</option>
-                <option value="90d">Last 90 days</option>
-                <option value="12m">Last 12 months</option>
-                <option value="ytd">Year to date</option>
-                <option value="custom">Custom range</option>
+                <option value="7d">{tAdmin("last7Days")}</option>
+                <option value="30d">{tAdmin("last30Days")}</option>
+                <option value="90d">{tAdmin("last90Days")}</option>
+                <option value="12m">{tAdmin("last12Months")}</option>
+                <option value="ytd">{tAdmin("yearToDate")}</option>
+                <option value="custom">{tAdmin("customRange")}</option>
               </select>
               <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
             </div>
@@ -229,12 +232,12 @@ export default function AdminDashboard() {
                 onChange={(e) => setSelectedCountry(e.target.value)}
                 className="h-10 pl-10 pr-10 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 hover:bg-gray-100 transition-colors appearance-none cursor-pointer"
               >
-                <option value="all">All Countries</option>
-                <option value="turkey">Turkey</option>
-                <option value="uae">UAE</option>
-                <option value="cyprus">Cyprus</option>
-                <option value="indonesia">Indonesia</option>
-                <option value="thailand">Thailand</option>
+                <option value="all">{tAdmin("allCountries")}</option>
+                <option value="turkey">{tAdmin("turkey")}</option>
+                <option value="uae">{tAdmin("uAE")}</option>
+                <option value="cyprus">{tAdmin("cyprus")}</option>
+                <option value="indonesia">{tAdmin("indonesia")}</option>
+                <option value="thailand">{tAdmin("thailand")}</option>
               </select>
               <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
             </div>
@@ -247,12 +250,12 @@ export default function AdminDashboard() {
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="h-10 pl-10 pr-10 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 hover:bg-gray-100 transition-colors appearance-none cursor-pointer"
               >
-                <option value="all">All Categories</option>
-                <option value="medical">Medical</option>
-                <option value="beauty">Beauty & Spa</option>
-                <option value="fitness">Fitness</option>
-                <option value="tourism">Tourism</option>
-                <option value="pharmacy">Pharmacy</option>
+                <option value="all">{tAdmin("allCategories")}</option>
+                <option value="medical">{tAdmin("medical")}</option>
+                <option value="beauty">{tAdmin("beautySpa")}</option>
+                <option value="fitness">{tAdmin("fitness")}</option>
+                <option value="tourism">{tAdmin("tourism")}</option>
+                <option value="pharmacy">{tAdmin("pharmacy")}</option>
               </select>
               <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
             </div>
@@ -276,28 +279,28 @@ export default function AdminDashboard() {
       {/* Primary Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard
-          label="Total Revenue"
+          label={tAdmin("totalRevenue")}
           value="$3.44M"
           change={{ value: '+18.2%', trend: 'up' }}
           icon={<DollarSign size={24} />}
           subtitle="vs previous period"
         />
         <StatCard
-          label="Total Bookings"
+          label={tAdmin("totalBookings")}
           value="13,471"
           change={{ value: '+24.5%', trend: 'up' }}
           icon={<ShoppingBag size={24} />}
           subtitle="vs previous period"
         />
         <StatCard
-          label="Active Users"
+          label={tAdmin("activeUsers")}
           value="48,392"
           change={{ value: '+12.8%', trend: 'up' }}
           icon={<Users size={24} />}
           subtitle="vs previous period"
         />
         <StatCard
-          label="Active Providers"
+          label={tAdmin("activeProviders")}
           value="1,284"
           change={{ value: '+8.3%', trend: 'up' }}
           icon={<Building2 size={24} />}
@@ -308,25 +311,25 @@ export default function AdminDashboard() {
       {/* Secondary Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard
-          label="Avg Booking Value"
+          label={tAdmin("avgBookingValue")}
           value="$255"
           change={{ value: '+5.2%', trend: 'up' }}
           icon={<TrendingUp size={24} />}
         />
         <StatCard
-          label="Conversion Rate"
+          label={tAdmin("conversionRate")}
           value="4.8%"
           change={{ value: '+0.8%', trend: 'up' }}
           icon={<CheckCircle2 size={24} />}
         />
         <StatCard
-          label="Payment Success"
+          label={tAdmin("paymentSuccess")}
           value="98.2%"
           change={{ value: '+1.2%', trend: 'up' }}
           icon={<CreditCard size={24} />}
         />
         <StatCard
-          label="Customer Satisfaction"
+          label={tAdmin("customerSatisfaction")}
           value="4.7/5"
           change={{ value: '+0.2', trend: 'up' }}
           icon={<TrendingUp size={24} />}
@@ -338,8 +341,8 @@ export default function AdminDashboard() {
         <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-gray-900">Revenue Overview</h3>
-              <p className="text-sm text-gray-600 mt-1">Tracking revenue and booking trends</p>
+              <h3 className="text-lg font-bold text-gray-900">{tAdmin("revenueOverview")}</h3>
+              <p className="text-sm text-gray-600 mt-1">{tAdmin("trackingRevenueAndBookingTrends")}</p>
             </div>
           </div>
           
@@ -390,8 +393,8 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-gray-900">User Growth</h3>
-              <p className="text-sm text-gray-600 mt-1">6-month trend</p>
+              <h3 className="text-lg font-bold text-gray-900">{tAdmin("userGrowth")}</h3>
+              <p className="text-sm text-gray-600 mt-1">{tAdmin("text6MonthTrend")}</p>
             </div>
           </div>
           
@@ -438,8 +441,8 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-gray-900">Category Performance</h3>
-              <p className="text-sm text-gray-600 mt-1">Revenue by service category</p>
+              <h3 className="text-lg font-bold text-gray-900">{tAdmin("categoryPerformance")}</h3>
+              <p className="text-sm text-gray-600 mt-1">{tAdmin("revenueByServiceCategory")}</p>
             </div>
           </div>
           
@@ -491,8 +494,8 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-gray-900">Country Performance</h3>
-              <p className="text-sm text-gray-600 mt-1">Top markets by revenue</p>
+              <h3 className="text-lg font-bold text-gray-900">{tAdmin("countryPerformance")}</h3>
+              <p className="text-sm text-gray-600 mt-1">{tAdmin("topMarketsByRevenue")}</p>
             </div>
           </div>
           
@@ -535,8 +538,8 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-gray-900">Payment Methods</h3>
-              <p className="text-sm text-gray-600 mt-1">Distribution by payment type</p>
+              <h3 className="text-lg font-bold text-gray-900">{tAdmin("paymentMethods")}</h3>
+              <p className="text-sm text-gray-600 mt-1">{tAdmin("distributionByPaymentType")}</p>
             </div>
           </div>
           
@@ -576,15 +579,15 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-200">
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-900 mb-1">98.2%</div>
-              <div className="text-xs text-gray-600">Success Rate</div>
+              <div className="text-xs text-gray-600">{tAdmin("successRate2")}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-900 mb-1">$255</div>
-              <div className="text-xs text-gray-600">Avg Transaction</div>
+              <div className="text-xs text-gray-600">{tAdmin("avgTransaction")}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-900 mb-1">1.8%</div>
-              <div className="text-xs text-gray-600">Refund Rate</div>
+              <div className="text-xs text-gray-600">{tAdmin("refundRate")}</div>
             </div>
           </div>
         </div>
@@ -593,12 +596,12 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-gray-900">Live Activity</h3>
-              <p className="text-sm text-gray-600 mt-1">Real-time booking updates</p>
+              <h3 className="text-lg font-bold text-gray-900">{tAdmin("liveActivity")}</h3>
+              <p className="text-sm text-gray-600 mt-1">{tAdmin("realTimeBookingUpdates")}</p>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-sm font-semibold text-green-600">Live</span>
+              <span className="text-sm font-semibold text-green-600">{tAdmin("live")}</span>
             </div>
           </div>
           
@@ -650,8 +653,8 @@ export default function AdminDashboard() {
       <div className="bg-white rounded-2xl border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-lg font-bold text-gray-900">Top Performing Providers</h3>
-            <p className="text-sm text-gray-600 mt-1">Ranked by revenue generated</p>
+            <h3 className="text-lg font-bold text-gray-900">{tAdmin("topPerformingProviders")}</h3>
+            <p className="text-sm text-gray-600 mt-1">{tAdmin("rankedByRevenueGenerated")}</p>
           </div>
           <button className="text-sm font-semibold text-[#083f30] hover:underline">
             View Full Leaderboard
@@ -662,14 +665,14 @@ export default function AdminDashboard() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Rank</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Provider</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Category</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Location</th>
-                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-600">Revenue</th>
-                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-600">Bookings</th>
-                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-600">Rating</th>
-                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-600">Growth</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">{tAdmin("rank")}</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">{tAdmin("provider")}</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">{tAdmin("category")}</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">{tAdmin("location")}</th>
+                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-600">{tAdmin("revenue")}</th>
+                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-600">{tAdmin("bookings")}</th>
+                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-600">{tAdmin("rating")}</th>
+                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-600">{tAdmin("growth")}</th>
               </tr>
             </thead>
             <tbody>

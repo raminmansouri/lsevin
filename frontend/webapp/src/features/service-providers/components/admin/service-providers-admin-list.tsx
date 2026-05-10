@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from "next-intl";
 import { useOptimistic, useTransition } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Eye, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
@@ -120,13 +122,14 @@ function columns(onDelete: (item: AdminServiceProviderListItem) => void): Column
 }
 
 export function ServiceProvidersAdminList({ items, pagination }: Props) {
+  const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [optimisticItems, removeOptimistic] = useOptimistic(items, (state, id: string) => state.filter((item) => item.id !== id));
   const action = useAction(deleteServiceProviderDirectAction, {
     startTransition,
     onSuccess: () => {
-      toast.success("Service provider deleted.");
+      toast.success(tAdmin("serviceProviderDeleted"));
       router.refresh();
     },
     onError: (error) => toast.error(error.detail || error.title || "Could not delete service provider."),

@@ -1,5 +1,7 @@
 'use client';
 
+
+import { useTranslations } from "next-intl";
 import Link from 'next/link';
 import { useTransition } from 'react';
 import { toast } from 'sonner';
@@ -10,10 +12,11 @@ import { deleteBookingPaymentPolicyAction } from '../../../actions/admin-payment
 import type { BookingPaymentPolicyRecord } from '../../../types';
 
 export function BookingPaymentPoliciesTable({ rows }: { rows: BookingPaymentPolicyRecord[] }) {
+  const tAdmin = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
 
   if (!rows.length) {
-    return <div className="rounded-md border p-6 text-sm text-muted-foreground">No booking payment policies found.</div>;
+    return <div className="rounded-md border p-6 text-sm text-muted-foreground">{tAdmin("noBookingPaymentPoliciesFound")}</div>;
   }
 
   return (
@@ -21,13 +24,13 @@ export function BookingPaymentPoliciesTable({ rows }: { rows: BookingPaymentPoli
       <table className="w-full text-sm">
         <thead className="bg-muted/50">
           <tr className="text-left">
-            <th className="px-4 py-3 font-medium">Name</th>
-            <th className="px-4 py-3 font-medium">Scope</th>
-            <th className="px-4 py-3 font-medium">Collection</th>
-            <th className="px-4 py-3 font-medium">Deposit</th>
-            <th className="px-4 py-3 font-medium">Priority</th>
-            <th className="px-4 py-3 font-medium">Active</th>
-            <th className="px-4 py-3 font-medium text-right">Actions</th>
+            <th className="px-4 py-3 font-medium">{tAdmin("name")}</th>
+            <th className="px-4 py-3 font-medium">{tAdmin("scope")}</th>
+            <th className="px-4 py-3 font-medium">{tAdmin("collection")}</th>
+            <th className="px-4 py-3 font-medium">{tAdmin("deposit")}</th>
+            <th className="px-4 py-3 font-medium">{tAdmin("priority")}</th>
+            <th className="px-4 py-3 font-medium">{tAdmin("active")}</th>
+            <th className="px-4 py-3 font-medium text-right">{tAdmin("actions")}</th>
           </tr>
         </thead>
         <tbody>
@@ -44,18 +47,18 @@ export function BookingPaymentPoliciesTable({ rows }: { rows: BookingPaymentPoli
               <td className="px-4 py-3">{row.isActive ? 'Yes' : 'No'}</td>
               <td className="px-4 py-3">
                 <div className="flex items-center justify-end gap-2">
-                  <Button asChild variant="outline" size="sm"><Link href={`/admin/commercial/payment-policies/${row.id}/edit`}><Pencil className="mr-2 h-4 w-4" />Edit</Link></Button>
+                  <Button asChild variant="outline" size="sm"><Link href={`/admin/commercial/payment-policies/${row.id}/edit`}><Pencil className="mr-2 h-4 w-4" />{tAdmin("edit")}</Link></Button>
                   <Button variant="destructive" size="sm" disabled={isPending} onClick={() => {
                     if (!confirm(`Delete payment policy “${row.name}”?`)) return;
                     startTransition(async () => {
                       try {
                         await deleteBookingPaymentPolicyAction(row.id);
-                        toast.success('Booking payment policy deleted.');
+                        toast.success(tAdmin("bookingPaymentPolicyDeleted"));
                       } catch (error) {
                         toast.error(error instanceof Error ? error.message : 'Delete failed.');
                       }
                     });
-                  }}><Trash2 className="mr-2 h-4 w-4" />Delete</Button>
+                  }}><Trash2 className="mr-2 h-4 w-4" />{tAdmin("delete")}</Button>
                 </div>
               </td>
             </tr>

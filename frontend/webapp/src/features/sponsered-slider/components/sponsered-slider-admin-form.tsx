@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from "next-intl";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -127,6 +129,7 @@ function serverFieldErrorsToMessages(fieldErrors?: Record<string, string[]>) {
 }
 
 export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderAdminRow | null }) {
+  const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [serverMessage, setServerMessage] = useState<string | null>(null);
@@ -206,8 +209,8 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
         <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Placement and media</CardTitle>
-              <CardDescription>Select where this slide appears and attach its image, GIF, or video.</CardDescription>
+              <CardTitle>{tAdmin("placementAndMedia")}</CardTitle>
+              <CardDescription>{tAdmin("selectWhereThisSlideAppearsAndAttachItsImageGIFOrVideo")}</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-5 md:grid-cols-2">
               <FormField
@@ -215,11 +218,11 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
                 name="placementKey"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Placement</FormLabel>
+                    <FormLabel>{tAdmin("placement")}</FormLabel>
                     <Select disabled={isPending} value={field.value} onValueChange={field.onChange}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select placement" />
+                          <SelectValue placeholder={tAdmin("selectPlacement")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -228,7 +231,7 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormDescription>Use the same key in the frontend component, for example home_native_ad.</FormDescription>
+                    <FormDescription>{tAdmin("useTheSameKeyInTheFrontendComponentForExampleHomeNativeAd")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -237,8 +240,8 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
               <RHFSingleMediaPickerField
                 control={form.control}
                 name="mediaId"
-                label="Media library item"
-                placeholder="Pick image, GIF, or video"
+                label={tAdmin("mediaLibraryItem")}
+                placeholder={tAdmin("pickImageGIFOrVideo")}
                 mediaType="all"
                 helperText="Preferred. The frontend resolves the file URL from media.media_library."
                 modalTitle="Pick slider media"
@@ -249,11 +252,11 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
                 name="url"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Direct media URL fallback</FormLabel>
+                    <FormLabel>{tAdmin("directMediaURLFallback")}</FormLabel>
                     <FormControl>
                       <Input {...field} value={field.value || ""} disabled={isPending} placeholder="https://..." />
                     </FormControl>
-                    <FormDescription>Used only when no media library item is selected.</FormDescription>
+                    <FormDescription>{tAdmin("usedOnlyWhenNoMediaLibraryItemIsSelected")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -264,7 +267,7 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
                 name="link"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Main CTA link</FormLabel>
+                    <FormLabel>{tAdmin("mainCTALink")}</FormLabel>
                     <FormControl>
                       <Input {...field} value={field.value || ""} disabled={isPending} placeholder="/n/app/mobile/offers" />
                     </FormControl>
@@ -278,9 +281,9 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
                 name="secondaryLink"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Secondary CTA link</FormLabel>
+                    <FormLabel>{tAdmin("secondaryCTALink")}</FormLabel>
                     <FormControl>
-                      <Input {...field} value={field.value || ""} disabled={isPending} placeholder="Optional" />
+                      <Input {...field} value={field.value || ""} disabled={isPending} placeholder={tAdmin("optional")} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -296,8 +299,8 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
                       <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isPending} />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel>Open links in new tab</FormLabel>
-                      <FormDescription>Useful for external campaign URLs.</FormDescription>
+                      <FormLabel>{tAdmin("openLinksInNewTab")}</FormLabel>
+                      <FormDescription>{tAdmin("usefulForExternalCampaignURLs")}</FormDescription>
                     </div>
                   </FormItem>
                 )}
@@ -307,30 +310,30 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
 
           <Card>
             <CardHeader>
-              <CardTitle>Frontend texts</CardTitle>
-              <CardDescription>These fields replace hardcoded texts like “Premium placement” and “Discover featured wellness offers”. All text fields are optional; empty values simply hide or fall back on the frontend.</CardDescription>
+              <CardTitle>{tAdmin("frontendTexts")}</CardTitle>
+              <CardDescription>{tAdmin("theseFieldsReplaceHardcodedTextsLikePremiumPlacementAndDiscob5a31e64")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <LocalizedInput
-                label="Eyebrow / small top text"
+                label={tAdmin("eyebrowSmallTopText")}
                 value={localizedValue(form.watch("eyebrowTranslations") as never) as never}
                 onChange={setLocalizedField("eyebrowTranslations")}
                 maxLength={120}
               />
               <LocalizedInput
-                label="Title"
+                label={tAdmin("title")}
                 value={localizedValue(form.watch("titleTranslations") as never) as never}
                 onChange={setLocalizedField("titleTranslations")}
                 maxLength={180}
               />
               <LocalizedInput
-                label="Subtitle"
+                label={tAdmin("subtitle")}
                 value={localizedValue(form.watch("subtitleTranslations") as never) as never}
                 onChange={setLocalizedField("subtitleTranslations")}
                 maxLength={260}
               />
               <LocalizedInput
-                label="Description / body text"
+                label={tAdmin("descriptionBodyText")}
                 value={localizedValue(form.watch("descriptionTranslations") as never) as never}
                 onChange={setLocalizedField("descriptionTranslations")}
                 multiline
@@ -338,25 +341,25 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
                 maxLength={1200}
               />
               <LocalizedInput
-                label="Main button label"
+                label={tAdmin("mainButtonLabel")}
                 value={localizedValue(form.watch("buttonLabelTranslations") as never) as never}
                 onChange={setLocalizedField("buttonLabelTranslations")}
                 maxLength={80}
               />
               <LocalizedInput
-                label="Secondary button label"
+                label={tAdmin("secondaryButtonLabel")}
                 value={localizedValue(form.watch("secondaryButtonLabelTranslations") as never) as never}
                 onChange={setLocalizedField("secondaryButtonLabelTranslations")}
                 maxLength={80}
               />
               <LocalizedInput
-                label="Badge text"
+                label={tAdmin("badgeText")}
                 value={localizedValue(form.watch("badgeTranslations") as never) as never}
                 onChange={setLocalizedField("badgeTranslations")}
                 maxLength={100}
               />
               <LocalizedInput
-                label="ARIA label"
+                label={tAdmin("aRIALabel")}
                 value={localizedValue(form.watch("ariaLabelTranslations") as never) as never}
                 onChange={setLocalizedField("ariaLabelTranslations")}
                 maxLength={180}
@@ -366,8 +369,8 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
 
           <Card>
             <CardHeader>
-              <CardTitle>Display controls</CardTitle>
-              <CardDescription>Fine tune ordering, overlay style, and activation.</CardDescription>
+              <CardTitle>{tAdmin("displayControls")}</CardTitle>
+              <CardDescription>{tAdmin("fineTuneOrderingOverlayStyleAndActivation")}</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
               <FormField
@@ -375,7 +378,7 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
                 name="overlayVariant"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Overlay variant</FormLabel>
+                    <FormLabel>{tAdmin("overlayVariant")}</FormLabel>
                     <Select disabled={isPending} value={field.value} onValueChange={field.onChange}>
                       <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                       <SelectContent>
@@ -392,7 +395,7 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
                 name="contentAlignment"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Content alignment</FormLabel>
+                    <FormLabel>{tAdmin("contentAlignment")}</FormLabel>
                     <Select disabled={isPending} value={field.value} onValueChange={field.onChange}>
                       <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                       <SelectContent>
@@ -409,7 +412,7 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
                 name="displayOrder"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Display order</FormLabel>
+                    <FormLabel>{tAdmin("displayOrder")}</FormLabel>
                     <FormControl><Input {...field} value={String(field.value ?? 0)} disabled={isPending} type="number" /></FormControl>
                     <FormMessage />
                   </FormItem>
@@ -423,8 +426,8 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
                   <FormItem className="flex flex-row items-start gap-3 rounded-2xl border border-slate-200 p-4">
                     <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isPending} /></FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel>Active</FormLabel>
-                      <FormDescription>Inactive slides are hidden from frontend.</FormDescription>
+                      <FormLabel>{tAdmin("active")}</FormLabel>
+                      <FormDescription>{tAdmin("inactiveSlidesAreHiddenFromFrontend")}</FormDescription>
                     </div>
                   </FormItem>
                 )}
@@ -434,8 +437,8 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
 
           <Card>
             <CardHeader>
-              <CardTitle>Metadata</CardTitle>
-              <CardDescription>Optional JSON for campaign id, tracking tags, provider ids, or custom flags.</CardDescription>
+              <CardTitle>{tAdmin("metadata")}</CardTitle>
+              <CardDescription>{tAdmin("optionalJSONForCampaignIdTrackingTagsProviderIdsOrCustomFlags")}</CardDescription>
             </CardHeader>
             <CardContent>
               <FormField
@@ -443,7 +446,7 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
                 name="metadata"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Metadata JSON</FormLabel>
+                    <FormLabel>{tAdmin("metadataJSON")}</FormLabel>
                     <FormControl>
                       <Textarea
                         value={JSON.stringify(field.value || {}, null, 2)}
@@ -480,7 +483,7 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
 
           <div className="flex justify-end gap-3">
             <Button asChild type="button" variant="outline">
-              <Link href="/admin/sponsered-slider">Cancel</Link>
+              <Link href="/admin/sponsered-slider">{tAdmin("cancel")}</Link>
             </Button>
             <Button type="submit" disabled={isPending} className="gap-2">
               <Save className="h-4 w-4" />

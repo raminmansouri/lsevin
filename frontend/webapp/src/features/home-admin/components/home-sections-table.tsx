@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Edit, Image as ImageIcon } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
@@ -10,10 +11,11 @@ import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import type { HomeSectionListItem } from '../types';
 
 export function HomeSectionsTable({ sections }: { sections: HomeSectionListItem[] }) {
+  const tAdmin = useTranslations("AdminGenerated");
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Home sections</CardTitle>
+        <CardTitle>{tAdmin("homeSections")}</CardTitle>
         <CardDescription>
           Edit app home page content blocks such as hero featured copy, nearby discovery, premium packages, and loyalty club.
         </CardDescription>
@@ -23,11 +25,11 @@ export function HomeSectionsTable({ sections }: { sections: HomeSectionListItem[
           <table className="w-full text-sm">
             <thead className="bg-muted/60 text-left text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
-                <th className="px-4 py-3 font-semibold">Section</th>
-                <th className="px-4 py-3 font-semibold">Content</th>
-                <th className="px-4 py-3 font-semibold">Status</th>
-                <th className="px-4 py-3 font-semibold">Order</th>
-                <th className="px-4 py-3 text-right font-semibold">Actions</th>
+                <th className="px-4 py-3 font-semibold">{tAdmin("section")}</th>
+                <th className="px-4 py-3 font-semibold">{tAdmin("content")}</th>
+                <th className="px-4 py-3 font-semibold">{tAdmin("status")}</th>
+                <th className="px-4 py-3 font-semibold">{tAdmin("order")}</th>
+                <th className="px-4 py-3 text-right font-semibold">{tAdmin("actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y">

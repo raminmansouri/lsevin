@@ -26,6 +26,7 @@ export type AdminLookupType =
   | "grades"
   | "countries"
   | "cities"
+  | "categories"
   | "serviceDefinitions"
   | "staff"
   | "providers"
@@ -50,6 +51,7 @@ export type SearchAdminLookupOptionsParams = {
   pageSize?: number;
   parentId?: string | null;
   providerTypeId?: string | null;
+  categoryId?: string | null;
   excludeProviderId?: string | null;
 };
 
@@ -58,6 +60,7 @@ export type AdminProviderLookupData = {
   grades: AdminLookupOption[];
   countries: AdminLookupOption[];
   cities: AdminLookupOption[];
+  categories: AdminLookupOption[];
   serviceDefinitions: AdminLookupOption[];
   staff: AdminLookupOption[];
   providers: AdminLookupOption[];
@@ -140,12 +143,15 @@ export type AdminProviderCertification = {
   id: string;
   name: string;
   isVerified: boolean;
+  imageUrl: string | null;
+  secondaryImageUrl: string | null;
 };
 
 export type AdminProviderService = {
   id: string;
   serviceDefinitionId: string;
   serviceDefinitionName: string;
+  categoryId: string | null;
   categoryName: string | null;
   displayName: JsonTranslations;
   description: JsonTranslations;
@@ -334,6 +340,9 @@ export type AdminServiceProviderFilterParams = FilterParams & {
 };
 
 type CountRow = { total_count: number | string };
+
+const CERTIFICATION_UUID_PATTERN =
+  "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
 
 const EMPTY_TRANSLATIONS_SQL = sql`'{}'::jsonb`;
 
@@ -927,10 +936,19 @@ async function getProviderCertifications(
   serviceProviderId: string,
 ): Promise<AdminProviderCertification[]> {
   return sql<AdminProviderCertification[]>`
-    select id::text, name, coalesce(is_verified, false) as "isVerified"
-    from category.provider_certifications
-    where service_provider_id = ${serviceProviderId}
-    order by name
+    select
+      pc.id::text,
+      pc.name,
+      coalesce(pc.is_verified, false) as "isVerified",
+      coalesce(image_media.file_url, nullif(pc.image_url, '')) as "imageUrl",
+      coalesce(secondary_image_media.file_url, nullif(pc.secondary_image_url, '')) as "secondaryImageUrl"
+    from category.provider_certifications pc
+    left join media.media_library image_media
+      on image_media.id = case when pc.image_url ~* ${CERTIFICATION_UUID_PATTERN} then pc.image_url::uuid else null end
+    left join media.media_library secondary_image_media
+      on secondary_image_media.id = case when pc.secondary_image_url ~* ${CERTIFICATION_UUID_PATTERN} then pc.secondary_image_url::uuid else null end
+    where pc.service_provider_id = ${serviceProviderId}
+    order by pc.name
   `;
 }
 
@@ -954,6 +972,7 @@ async function getProviderServices(
       ps.id::text,
       ps.service_definition_id::text as "serviceDefinitionId",
       ${translated(sql`sd.name_translations`, locale)} as "serviceDefinitionName",
+      sd.category_id::text as "categoryId",
       ${translated(sql`c.name_translations`, locale)} as "categoryName",
       ${safeJsonObject(sql`ps.display_name_translations`)} as "displayName",
       ${safeJsonObject(sql`ps.description_translations`)} as description,
@@ -1305,6 +1324,7 @@ export async function searchAdminProviderLookupOptions(
       `;
     } else if (params.type === "cities") {
       const label = translated(sql`l.value_translations`, locale);
+      const countryLabel = translated(sql`country.value_translations`, locale);
       const parentId = params.parentId?.trim();
       rows = await sql<AdminLookupOption[]>`
         select l.id::text, l.code, ${label} as label, l.parent_id::text as "parentId"
@@ -1317,7 +1337,12 @@ export async function searchAdminProviderLookupOptions(
             or l.parent_id in (
               select country.id
               from category.locations country
-              where country.location_type_id = 1 and country.code = ${parentId}
+              where country.location_type_id = 1
+                and (
+                  country.id::text = ${parentId}
+                  or lower(country.code) = lower(${parentId})
+                  or lower(${countryLabel}) = lower(${parentId})
+                )
             )
           )`
               : sql`true`
@@ -1326,14 +1351,29 @@ export async function searchAdminProviderLookupOptions(
         order by l.display_order nulls last, label
         limit ${limit} offset ${offset}
       `;
+    } else if (params.type === "categories") {
+      const label = translated(sql`c.name_translations`, locale);
+      rows = await sql<AdminLookupOption[]>`
+        select c.id::text, ${label} as label, c.parent_id::text as "parentId"
+        from category.categories c
+        where coalesce(c.is_active, true) = true
+          and ${hasQuery ? sql`(${label} ilike ${like})` : sql`true`}
+        order by c.display_order nulls last, label
+        limit ${limit} offset ${offset}
+      `;
     } else if (params.type === "serviceDefinitions") {
       const serviceLabel = translated(sql`sd.name_translations`, locale);
       const categoryLabel = translated(sql`c.name_translations`, locale);
+      const categoryId = params.categoryId?.trim();
       rows = await sql<AdminLookupOption[]>`
-        select sd.id::text, concat(${serviceLabel}, ' · ', coalesce(${categoryLabel}, '')) as label
+        select
+          sd.id::text,
+          concat(${serviceLabel}, ' · ', coalesce(${categoryLabel}, '')) as label,
+          sd.category_id::text as "parentId"
         from category.service_definitions sd
         left join category.categories c on c.id = sd.category_id
         where sd.is_active = true
+          and ${categoryId ? sql`sd.category_id::text = ${categoryId}` : sql`true`}
           and ${hasQuery ? sql`(${serviceLabel} ilike ${like} or ${categoryLabel} ilike ${like})` : sql`true`}
         order by label
         limit ${limit} offset ${offset}
@@ -1432,6 +1472,7 @@ export async function getAdminProviderLookupData(
       grades,
       countries,
       cities,
+      categories,
       serviceDefinitions,
       staff,
       providers,
@@ -1467,7 +1508,17 @@ export async function getAdminProviderLookupData(
         limit 50
       `,
       sql<AdminLookupOption[]>`
-        select sd.id::text, concat(${translated(sql`sd.name_translations`, locale)}, ' · ', ${translated(sql`c.name_translations`, locale)}) as label
+        select c.id::text, ${translated(sql`c.name_translations`, locale)} as label, c.parent_id::text as "parentId"
+        from category.categories c
+        where coalesce(c.is_active, true) = true
+        order by c.display_order nulls last, label
+        limit 100
+      `,
+      sql<AdminLookupOption[]>`
+        select
+          sd.id::text,
+          concat(${translated(sql`sd.name_translations`, locale)}, ' · ', coalesce(${translated(sql`c.name_translations`, locale)}, '')) as label,
+          sd.category_id::text as "parentId"
         from category.service_definitions sd
         left join category.categories c on c.id = sd.category_id
         where sd.is_active = true
@@ -1531,6 +1582,7 @@ export async function getAdminProviderLookupData(
       grades,
       countries,
       cities,
+      categories,
       serviceDefinitions,
       staff,
       providers,

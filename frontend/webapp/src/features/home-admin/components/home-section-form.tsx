@@ -1,5 +1,7 @@
 'use client';
 
+
+import { useTranslations } from "next-intl";
 import { useTransition } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -21,6 +23,7 @@ import { HomeSectionFormSchema, type HomeSectionFormInput } from '../actions/sch
 import type { AdminHomeSection } from '../types';
 
 export function HomeSectionForm({ section }: { section: AdminHomeSection }) {
+  const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -61,7 +64,7 @@ export function HomeSectionForm({ section }: { section: AdminHomeSection }) {
           iconName: values.iconName?.trim() || '',
           metadata: values.metadata?.trim() || '{}',
         });
-        toast.success('Home section saved.');
+        toast.success(tAdmin("homeSectionSaved"));
         router.push('/admin/home-sections');
         router.refresh();
       } catch (error) {
@@ -73,7 +76,7 @@ export function HomeSectionForm({ section }: { section: AdminHomeSection }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Edit home section</CardTitle>
+        <CardTitle>{tAdmin("editHomeSection")}</CardTitle>
         <CardDescription>
           Manage the text, media, link, and active state for <span className="font-mono">{section.sectionKey}</span>.
         </CardDescription>
@@ -87,7 +90,7 @@ export function HomeSectionForm({ section }: { section: AdminHomeSection }) {
                 name="sectionKey"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Section key</FormLabel>
+                    <FormLabel>{tAdmin("sectionKey")}</FormLabel>
                     <FormControl>
                       <Input {...field} readOnly disabled className="font-mono" />
                     </FormControl>
@@ -101,7 +104,7 @@ export function HomeSectionForm({ section }: { section: AdminHomeSection }) {
                 name="displayOrder"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Display order</FormLabel>
+                    <FormLabel>{tAdmin("displayOrder")}</FormLabel>
                     <FormControl>
                       <Input {...field} type="number" disabled={isPending} />
                     </FormControl>
@@ -116,8 +119,8 @@ export function HomeSectionForm({ section }: { section: AdminHomeSection }) {
                 render={({ field }) => (
                   <FormItem className="flex h-[72px] items-center justify-between rounded-xl border px-4">
                     <div>
-                      <FormLabel>Active</FormLabel>
-                      <p className="text-xs text-muted-foreground">Hidden sections fall back to safe defaults on the app.</p>
+                      <FormLabel>{tAdmin("active")}</FormLabel>
+                      <p className="text-xs text-muted-foreground">{tAdmin("hiddenSectionsFallBackToSafeDefaultsOnTheApp")}</p>
                     </div>
                     <FormControl>
                       <Switch checked={Boolean(field.value)} onCheckedChange={field.onChange} disabled={isPending} />
@@ -132,7 +135,7 @@ export function HomeSectionForm({ section }: { section: AdminHomeSection }) {
               name="badge"
               render={({ field }) => (
                 <FormItem>
-                  <LocalizedInput label="Badge / eyebrow text" value={field.value} onChange={field.onChange} />
+                  <LocalizedInput label={tAdmin("badgeEyebrowText")} value={field.value} onChange={field.onChange} />
                 </FormItem>
               )}
             />
@@ -142,7 +145,7 @@ export function HomeSectionForm({ section }: { section: AdminHomeSection }) {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <LocalizedInput label="Title" value={field.value} onChange={field.onChange} />
+                  <LocalizedInput label={tAdmin("title")} value={field.value} onChange={field.onChange} />
                 </FormItem>
               )}
             />
@@ -153,7 +156,7 @@ export function HomeSectionForm({ section }: { section: AdminHomeSection }) {
               render={({ field }) => (
                 <FormItem>
                   <LocalizedInput
-                    label="Subtitle"
+                    label={tAdmin("subtitle")}
                     value={field.value}
                     onChange={field.onChange}
                     multiline
@@ -170,7 +173,7 @@ export function HomeSectionForm({ section }: { section: AdminHomeSection }) {
               render={({ field }) => (
                 <FormItem>
                   <LocalizedInput
-                    label="Description"
+                    label={tAdmin("description")}
                     value={field.value}
                     onChange={field.onChange}
                     richText
@@ -186,7 +189,7 @@ export function HomeSectionForm({ section }: { section: AdminHomeSection }) {
               name="buttonLabel"
               render={({ field }) => (
                 <FormItem>
-                  <LocalizedInput label="Button label" value={field.value} onChange={field.onChange} />
+                  <LocalizedInput label={tAdmin("buttonLabel")} value={field.value} onChange={field.onChange} />
                 </FormItem>
               )}
             />
@@ -197,7 +200,7 @@ export function HomeSectionForm({ section }: { section: AdminHomeSection }) {
                 name="buttonHref"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Button/link href</FormLabel>
+                    <FormLabel>{tAdmin("buttonLinkHref")}</FormLabel>
                     <FormControl>
                       <Input {...field} value={field.value || ''} placeholder="/n/app/mobile/offers" disabled={isPending} />
                     </FormControl>
@@ -211,9 +214,9 @@ export function HomeSectionForm({ section }: { section: AdminHomeSection }) {
                 name="iconName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Icon name</FormLabel>
+                    <FormLabel>{tAdmin("iconName")}</FormLabel>
                     <FormControl>
-                      <Input {...field} value={field.value || ''} placeholder="Sparkles, Gift, Map" disabled={isPending} />
+                      <Input {...field} value={field.value || ''} placeholder={tAdmin("sparklesGiftMap")} disabled={isPending} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -224,8 +227,8 @@ export function HomeSectionForm({ section }: { section: AdminHomeSection }) {
             <RHFSingleMediaPickerField
               control={form.control}
               name="imageUrl"
-              label="Section image"
-              placeholder="Pick image"
+              label={tAdmin("sectionImage")}
+              placeholder={tAdmin("pickImage")}
               mediaType="image"
               helperText="Stores the selected media id. The app resolves it through media.media_library and NEXT_PUBLIC_FILES_URL."
               disabled={isPending}
@@ -236,7 +239,7 @@ export function HomeSectionForm({ section }: { section: AdminHomeSection }) {
               name="metadata"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Metadata JSON</FormLabel>
+                  <FormLabel>{tAdmin("metadataJSON")}</FormLabel>
                   <FormControl>
                     <Textarea {...field} value={field.value || '{}'} rows={8} className="font-mono text-xs" disabled={isPending} />
                   </FormControl>

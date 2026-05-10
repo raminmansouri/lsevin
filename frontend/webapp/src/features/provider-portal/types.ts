@@ -241,6 +241,8 @@ export type ProviderCertificationRow = {
   id: string;
   name: string;
   isVerified: boolean;
+  imageUrl: string | null;
+  secondaryImageUrl: string | null;
 };
 
 export type ProviderPolicyTypeOption = {

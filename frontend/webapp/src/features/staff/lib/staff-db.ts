@@ -59,18 +59,24 @@ function readFilter(params: FilterParams | undefined, keys: string[], fallback?:
   for (const key of keys) {
     if (source[key] !== undefined && source[key] !== null && source[key] !== "") return source[key];
   }
-  const nestedCandidates = [source.filter, source.filters, source.query] as AnyRecord[];
+
+  const nestedCandidates = [source.filter, source.filters, source.query];
   for (const nested of nestedCandidates) {
+    if (typeof nested === "string" && nested.trim() !== "") return nested;
     if (!nested || typeof nested !== "object") continue;
+
+    const nestedObject = nested as AnyRecord;
     for (const key of keys) {
-      if (nested[key] !== undefined && nested[key] !== null && nested[key] !== "") return nested[key];
+      if (nestedObject[key] !== undefined && nestedObject[key] !== null && nestedObject[key] !== "") return nestedObject[key];
     }
   }
   return fallback;
 }
 
 function normalizeSearch(params?: FilterParams): string {
-  return String(readFilter(params, ["search", "searchTerm", "q", "keyword", "term"], "") || "").trim();
+  return String(
+    readFilter(params, ["search", "Search", "searchTerm", "q", "keyword", "term", "filters", "filter"], "") || ""
+  ).trim();
 }
 
 function normalizePage(params?: FilterParams) {
@@ -133,9 +139,11 @@ function localizedJsonOrEmpty(value: unknown): Record<string, string> {
 
   if (!isPlainObject(value)) return normalized;
 
-  for (const [rawKey, item] of Object.entries(value)) {
+  const source = isPlainObject(value.translations) ? value.translations : value;
+
+  for (const [rawKey, item] of Object.entries(source)) {
     const key = normalizeLocaleKey(rawKey);
-    if (!key) continue;
+    if (!key || key === "translations") continue;
     normalized[key] = typeof item === "string" ? item : item == null ? "" : String(item);
   }
 
@@ -151,6 +159,20 @@ function tr(columnExpression: string, locale: string) {
     end,
     ${locale},
     ${FALLBACK_LOCALE}
+  )`;
+}
+
+function allTranslationValuesMatch(columnExpression: string, like: string) {
+  const column = sql.unsafe(columnExpression);
+  return sql`exists (
+    select 1
+    from jsonb_each_text(
+      case
+        when ${column} is not null and jsonb_typeof(${column}) = 'object' then ${column}
+        else '{}'::jsonb
+      end
+    ) as translations(key, value)
+    where translations.value ilike ${like}
   )`;
 }
 
@@ -228,6 +250,205 @@ export async function getStaffFormOptions(localeOrRequest?: Partial<BaseRequest>
   return { serviceDefinitions, serviceProviders, availabilityStatuses };
 }
 
+
+export type StaffLookupResource =
+  | "serviceProviders"
+  | "serviceDefinitions"
+  | "daysOfWeek"
+  | "staffAvailabilityStatuses"
+  | "staffGalleryMediaTypes"
+  | "languages"
+  | "specializations";
+
+export type StaffLookupOption = {
+  id: string;
+  label: string;
+  description?: string | null;
+  code?: string | null;
+  isActive?: boolean | null;
+};
+
+export type StaffLookupResult = {
+  items: StaffLookupOption[];
+  hasMore: boolean;
+  page: number;
+  pageSize: number;
+};
+
+type StaffLookupRequest = {
+  resource: string;
+  locale?: string;
+  q?: string;
+  page?: number;
+  pageSize?: number;
+};
+
+function staticLookupResult(items: StaffLookupOption[], request: StaffLookupRequest): StaffLookupResult {
+  const search = String(request.q || "").trim().toLowerCase();
+  const page = Math.max(1, asNumber(request.page, 1));
+  const pageSize = Math.max(1, Math.min(100, asNumber(request.pageSize, 30)));
+  const filtered = search
+    ? items.filter((item) => [item.label, item.description, item.code, item.id].some((value) => String(value || "").toLowerCase().includes(search)))
+    : items;
+  const start = (page - 1) * pageSize;
+  return {
+    items: filtered.slice(start, start + pageSize),
+    hasMore: start + pageSize < filtered.length,
+    page,
+    pageSize,
+  };
+}
+
+export async function searchStaffLookupOptions(request: StaffLookupRequest): Promise<StaffLookupResult> {
+  const resource = String(request.resource || "") as StaffLookupResource;
+  const locale = normalizeLocale(request.locale || FALLBACK_LOCALE);
+  const search = String(request.q || "").trim();
+  const like = `%${search}%`;
+  const page = Math.max(1, asNumber(request.page, 1));
+  const pageSize = Math.max(1, Math.min(100, asNumber(request.pageSize, 30)));
+  const offset = (page - 1) * pageSize;
+
+  if (resource === "daysOfWeek") {
+    return staticLookupResult(
+      [
+        { id: "Monday", label: "Monday" },
+        { id: "Tuesday", label: "Tuesday" },
+        { id: "Wednesday", label: "Wednesday" },
+        { id: "Thursday", label: "Thursday" },
+        { id: "Friday", label: "Friday" },
+        { id: "Saturday", label: "Saturday" },
+        { id: "Sunday", label: "Sunday" },
+      ],
+      request
+    );
+  }
+
+  if (resource === "staffGalleryMediaTypes") {
+    return staticLookupResult(
+      [
+        { id: "image", label: "Image" },
+        { id: "video", label: "Video" },
+        { id: "gif", label: "GIF" },
+        { id: "file", label: "File" },
+      ],
+      request
+    );
+  }
+
+  if (resource === "staffAvailabilityStatuses") {
+    const rows = await sql<(StaffLookupOption & { totalCount: number })[]>`
+      select
+        sas.id::text as id,
+        sas.name as label,
+        null::text as description,
+        null::text as code,
+        true as "isActive",
+        count(*) over()::int as "totalCount"
+      from category.staff_availability_statuses sas
+      where ${search === ""} or sas.name ilike ${like} or sas.id::text = ${search}
+      order by sas.id asc
+      limit ${pageSize} offset ${offset}
+    `;
+    const total = Number(rows[0]?.totalCount || 0);
+    return { items: rows.map(({ totalCount: _totalCount, ...item }) => item), hasMore: offset + rows.length < total, page, pageSize };
+  }
+
+  if (resource === "serviceProviders") {
+    const rows = await sql<(StaffLookupOption & { totalCount: number })[]>`
+      select
+        sp.id::text as id,
+        ${tr("sp.name_translations", locale)} as label,
+        concat_ws(' • ', nullif(${tr("pt.name_translations", locale)}, ''), nullif(sp.country, ''), nullif(sp.city, '')) as description,
+        null::text as code,
+        sp.is_active as "isActive",
+        count(*) over()::int as "totalCount"
+      from category.service_providers sp
+      left join category.provider_types pt on pt.id = sp.provider_type_id
+      where ${search === ""}
+        or sp.id::text = ${search}
+        or ${allTranslationValuesMatch("sp.name_translations", like)}
+        or ${allTranslationValuesMatch("pt.name_translations", like)}
+        or sp.country ilike ${like}
+        or sp.city ilike ${like}
+      order by sp.is_active desc, label asc, sp.create_date desc
+      limit ${pageSize} offset ${offset}
+    `;
+    const total = Number(rows[0]?.totalCount || 0);
+    return { items: rows.map(({ totalCount: _totalCount, ...item }) => ({ ...item, label: item.label || item.id })), hasMore: offset + rows.length < total, page, pageSize };
+  }
+
+  if (resource === "serviceDefinitions") {
+    const rows = await sql<(StaffLookupOption & { totalCount: number })[]>`
+      select
+        sd.id::text as id,
+        ${tr("sd.name_translations", locale)} as label,
+        concat_ws(' • ', nullif(${tr("c.name_translations", locale)}, ''), sd.currency::text, sd.value::text) as description,
+        sd.pricing_model::text as code,
+        sd.is_active as "isActive",
+        count(*) over()::int as "totalCount"
+      from category.service_definitions sd
+      left join category.categories c on c.id = sd.category_id
+      where ${search === ""}
+        or sd.id::text = ${search}
+        or ${allTranslationValuesMatch("sd.name_translations", like)}
+        or ${allTranslationValuesMatch("sd.description_translations", like)}
+        or ${allTranslationValuesMatch("c.name_translations", like)}
+        or sd.pricing_model ilike ${like}
+      order by sd.is_active desc, label asc, sd.create_date desc
+      limit ${pageSize} offset ${offset}
+    `;
+    const total = Number(rows[0]?.totalCount || 0);
+    return { items: rows.map(({ totalCount: _totalCount, ...item }) => ({ ...item, label: item.label || item.id })), hasMore: offset + rows.length < total, page, pageSize };
+  }
+
+  if (resource === "languages") {
+    const rows = await sql<(StaffLookupOption & { totalCount: number })[]>`
+      with base as (
+        select distinct language as value from category.staff_languages where nullif(btrim(language), '') is not null
+        union
+        values ('English'), ('Persian'), ('Arabic'), ('Turkish'), ('Kurdish'), ('German'), ('French'), ('Spanish')
+      )
+      select
+        value as id,
+        value as label,
+        null::text as description,
+        null::text as code,
+        true as "isActive",
+        count(*) over()::int as "totalCount"
+      from base
+      where ${search === ""} or value ilike ${like}
+      order by label asc
+      limit ${pageSize} offset ${offset}
+    `;
+    const total = Number(rows[0]?.totalCount || 0);
+    return { items: rows.map(({ totalCount: _totalCount, ...item }) => item), hasMore: offset + rows.length < total, page, pageSize };
+  }
+
+  if (resource === "specializations") {
+    const rows = await sql<(StaffLookupOption & { totalCount: number })[]>`
+      select
+        specialty as id,
+        specialty as label,
+        null::text as description,
+        null::text as code,
+        true as "isActive",
+        count(*) over()::int as "totalCount"
+      from (
+        select distinct specialty
+        from category.staff_specializations
+        where nullif(btrim(specialty), '') is not null
+      ) specialties
+      where ${search === ""} or specialty ilike ${like}
+      order by label asc
+      limit ${pageSize} offset ${offset}
+    `;
+    const total = Number(rows[0]?.totalCount || 0);
+    return { items: rows.map(({ totalCount: _totalCount, ...item }) => item), hasMore: offset + rows.length < total, page, pageSize };
+  }
+
+  return { items: [], hasMore: false, page, pageSize };
+}
+
 export async function getStaffRows(
   request: Partial<BaseRequest>,
   params?: FilterParams
@@ -280,6 +501,9 @@ export async function getStaffRows(
         ${search} = ''
         or ${tr("s.name_translations", locale)} ilike ${like}
         or ${tr("s.title_translations", locale)} ilike ${like}
+        or ${allTranslationValuesMatch("s.name_translations", like)}
+        or ${allTranslationValuesMatch("s.title_translations", like)}
+        or ${allTranslationValuesMatch("s.specialty_translations", like)}
         or coalesce(s.specialty, '') ilike ${like}
       order by s.create_date desc
       limit ${pageSize}
@@ -293,6 +517,9 @@ export async function getStaffRows(
         ${search} = ''
         or ${tr("s.name_translations", locale)} ilike ${like}
         or ${tr("s.title_translations", locale)} ilike ${like}
+        or ${allTranslationValuesMatch("s.name_translations", like)}
+        or ${allTranslationValuesMatch("s.title_translations", like)}
+        or ${allTranslationValuesMatch("s.specialty_translations", like)}
         or coalesce(s.specialty, '') ilike ${like}
     `;
 

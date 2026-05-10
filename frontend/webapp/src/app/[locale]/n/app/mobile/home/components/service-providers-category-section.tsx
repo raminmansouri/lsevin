@@ -4,10 +4,33 @@ import type { HomeCategory } from '@/features/home/api/server/get-home-page';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { Grid2X2 } from 'lucide-react';
 
+export type HomeCategoryLabels = {
+  emptyTitle: string;
+  emptyDescription: string;
+  serviceCount: string;
+};
+
+const defaultLabels: HomeCategoryLabels = {
+  emptyTitle: 'No service categories found',
+  emptyDescription: 'Add active categories, services, and providers to show them here.',
+  serviceCount: '{count} services',
+};
+
+function formatLabel(template: string, replacements: Record<string, string | number>) {
+  return Object.entries(replacements).reduce(
+    (value, [key, replacement]) => value.replaceAll(`{${key}}`, String(replacement)),
+    template
+  );
+}
+
 export function HomeServiceProvidersCategories({
   categories,
+  locale = 'en-US',
+  labels = defaultLabels,
 }: {
   categories: HomeCategory[];
+  locale?: string;
+  labels?: HomeCategoryLabels;
 }) {
   if (!categories.length) {
     return (
@@ -15,8 +38,8 @@ export function HomeServiceProvidersCategories({
         <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#083f30] shadow-sm">
           <Grid2X2 size={20} />
         </div>
-        <p className="text-sm font-semibold text-gray-900">No service categories found</p>
-        <p className="mt-1 text-xs text-gray-500">Add active categories, services, and providers to show them here.</p>
+        <p className="text-sm font-semibold text-gray-900">{labels.emptyTitle}</p>
+        <p className="mt-1 text-xs text-gray-500">{labels.emptyDescription}</p>
       </div>
     );
   }
@@ -24,13 +47,21 @@ export function HomeServiceProvidersCategories({
   return (
     <>
       {categories.map((category) => (
-        <ServiceProviderCategoryCard key={category.id} category={category} />
+        <ServiceProviderCategoryCard key={category.id} category={category} locale={locale} labels={labels} />
       ))}
     </>
   );
 }
 
-function ServiceProviderCategoryCard({ category }: { category: HomeCategory }) {
+function ServiceProviderCategoryCard({
+  category,
+  locale,
+  labels,
+}: {
+  category: HomeCategory;
+  locale: string;
+  labels: HomeCategoryLabels;
+}) {
   const mediaUrl = resolveHomeMediaUrl(category.imageUrl);
 
   return (
@@ -55,7 +86,9 @@ function ServiceProviderCategoryCard({ category }: { category: HomeCategory }) {
       <div className="relative z-10 flex h-full flex-col justify-end p-4">
         <h3 className="line-clamp-2 text-lg font-bold leading-tight text-white lg:text-base xl:text-lg">{category.label}</h3>
         {category.serviceCount > 0 ? (
-          <p className="mt-1 text-xs font-semibold text-white/80">{category.serviceCount.toLocaleString()} services</p>
+          <p className="mt-1 text-xs font-semibold text-white/80">
+            {formatLabel(labels.serviceCount, { count: category.serviceCount.toLocaleString(locale) })}
+          </p>
         ) : null}
       </div>
     </Link>

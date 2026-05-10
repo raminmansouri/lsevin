@@ -16,7 +16,7 @@ const Navabr = async () => {
         <div className="flex items-center gap-4">
           <NotificationsBar />
           <LocaleSwitcher />
-          <UserInfo profile={profile} />
+          {/* <UserInfo profile={profile} /> */}
         </div>
       </nav>
     </header>

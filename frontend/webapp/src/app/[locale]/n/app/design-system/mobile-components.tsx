@@ -1,5 +1,5 @@
 "use client"
-import { Home, Search, Calendar, User, ChevronLeft, Bell, Heart, MapPin, Star, CheckCircle, Shield } from 'lucide-react';
+import {MessageCircle,  Home, Search, Calendar, User, ChevronLeft, Bell, Heart, MapPin, Star, CheckCircle, Shield } from 'lucide-react';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { Link, usePathname } from '@/i18n/navigation';
 
@@ -12,6 +12,7 @@ export function BottomTabBar() {
     { icon: Home, label: 'Home', path: '/n/app/mobile/home' },
     { icon: Search, label: 'Explore', path: '/n/app/mobile/explore' },
     { icon: Calendar, label: 'Bookings', path: '/n/app/mobile/bookings' },
+    { icon: MessageCircle, label: 'Support', path: '/n/app/mobile/support' },
     { icon: User, label: 'Profile', path: '/n/app/mobile/profile' },
   ];
   

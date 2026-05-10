@@ -862,12 +862,19 @@ export function MediaManager({
               const title = getLocalizedValue(item.titleTranslations, locale);
 
               return (
-                <button
+                <div
                   key={item.id}
-                  type="button"
+                  role="button"
+                  tabIndex={0}
                   onClick={() => toggleItem(item)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      toggleItem(item);
+                    }
+                  }}
                   className={cx(
-                    "group relative overflow-hidden rounded-[24px] border bg-white text-left shadow-sm transition",
+                    "group relative overflow-hidden rounded-[24px] border bg-white text-left shadow-sm transition focus:outline-none focus:ring-2 focus:ring-sky-200",
                     selected
                       ? "border-sky-500 ring-2 ring-sky-100"
                       : "border-slate-200 hover:border-slate-300 hover:shadow-md"
@@ -919,7 +926,7 @@ export function MediaManager({
                       </button>
                     </div>
                   </div>
-                </button>
+                </div>
               );
             })}
           </div>

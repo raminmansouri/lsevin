@@ -1,6 +1,8 @@
 export interface Certification {
   name: string;
   verified: boolean;
+  imageUrl?: string | null;
+  secondaryImageUrl?: string | null;
 }
 
 export interface ProviderAttribute {

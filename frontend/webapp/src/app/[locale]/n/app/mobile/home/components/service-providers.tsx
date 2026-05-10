@@ -9,20 +9,45 @@ import { HomeLexicalDescription } from '@/features/home/components/home-lexical-
 import { formatMoney } from '@/features/finance/lib/money';
 import { Link } from '@/i18n/navigation';
 
+export type HomeFeaturedServiceLabels = {
+  emptyTitle: string;
+  emptyDescription: string;
+  discountOff: string;
+  availableDestination: string;
+  noDescription: string;
+};
+
+const defaultLabels: HomeFeaturedServiceLabels = {
+  emptyTitle: 'No featured services yet',
+  emptyDescription: 'Mark provider services as popular or add offers to feature them here.',
+  discountOff: '{percent}% OFF',
+  availableDestination: 'Available destination',
+  noDescription: 'No description available.',
+};
+
+function formatLabel(template: string, replacements: Record<string, string | number>) {
+  return Object.entries(replacements).reduce(
+    (value, [key, replacement]) => value.replaceAll(`{${key}}`, String(replacement)),
+    template
+  );
+}
+
 export default function HomeFeaturedServicesSuspenseBoundary({
   services,
   locale,
   selectedCountryCode,
+  labels = defaultLabels,
 }: {
   services: HomeFeaturedService[];
   locale: string;
   selectedCountryCode?: string | null;
+  labels?: HomeFeaturedServiceLabels;
 }) {
   if (!services.length) {
     return (
       <div className="w-full rounded-3xl border border-dashed border-gray-200 bg-gray-50 px-5 py-8 text-center">
-        <p className="text-sm font-semibold text-gray-900">No featured services yet</p>
-        <p className="mt-1 text-xs text-gray-500">Mark provider services as popular or add offers to feature them here.</p>
+        <p className="text-sm font-semibold text-gray-900">{labels.emptyTitle}</p>
+        <p className="mt-1 text-xs text-gray-500">{labels.emptyDescription}</p>
       </div>
     );
   }
@@ -35,6 +60,7 @@ export default function HomeFeaturedServicesSuspenseBoundary({
           service={service}
           locale={locale}
           selectedCountryCode={selectedCountryCode}
+          labels={labels}
         />
       ))}
     </>
@@ -45,10 +71,12 @@ function FeaturedServiceCard({
   service,
   locale,
   selectedCountryCode,
+  labels,
 }: {
   service: HomeFeaturedService;
   locale: string;
   selectedCountryCode?: string | null;
+  labels: HomeFeaturedServiceLabels;
 }) {
   const mediaUrl = resolveHomeMediaUrl(service.imageUrl);
 
@@ -74,7 +102,7 @@ function FeaturedServiceCard({
 
         {service.discountPercent ? (
           <div className="absolute left-3 top-3 rounded-full bg-red-500 px-3 py-1 text-xs font-bold text-white shadow-lg">
-            {Math.round(service.discountPercent)}% OFF
+            {formatLabel(labels.discountOff, { percent: Math.round(service.discountPercent) })}
           </div>
         ) : null}
 
@@ -101,6 +129,7 @@ function FeaturedServiceCard({
         <HomeLexicalDescription
           content={service.description}
           className="mb-3 line-clamp-1 text-sm text-gray-600 [&_p]:line-clamp-1"
+          fallback={labels.noDescription}
         />
 
         <div className="mb-3 flex items-center gap-2 border-b border-gray-100 pb-3">
@@ -109,7 +138,7 @@ function FeaturedServiceCard({
           </div>
           <div className="min-w-0 flex-1">
             <div className="line-clamp-1 text-sm font-semibold text-gray-900">{service.providerName}</div>
-            <div className="line-clamp-1 text-xs text-gray-500">{service.location || 'Available destination'}</div>
+            <div className="line-clamp-1 text-xs text-gray-500">{service.location || labels.availableDestination}</div>
           </div>
         </div>
 
@@ -127,7 +156,7 @@ function FeaturedServiceCard({
           <div className="flex min-w-0 items-center gap-1.5">
             <Star size={16} className="fill-yellow-400 text-yellow-400" />
             <span className="font-bold text-gray-900">{service.rating.toFixed(1)}</span>
-            <span className="truncate text-sm text-gray-500">({service.reviewCount.toLocaleString()})</span>
+            <span className="truncate text-sm text-gray-500">({service.reviewCount.toLocaleString(locale)})</span>
           </div>
 
           <div className="text-right">

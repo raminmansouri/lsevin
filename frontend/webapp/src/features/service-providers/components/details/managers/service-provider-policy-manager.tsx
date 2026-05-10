@@ -32,6 +32,30 @@ import { updateProviderPolicyAction } from "../../../actions/update-provider-pol
 import { ServiceProviderPolicy } from "../../../types";
 import { TRANSLATION_KEY } from "../../../types/constants";
 
+function localizedContentHasValue(value: { translations?: Record<string, unknown> }) {
+  return Object.values(value.translations || {}).some((item) => {
+    const raw = String(item || "").trim();
+    if (!raw) return false;
+
+    try {
+      const parsed = JSON.parse(raw) as any;
+      const root = parsed?.root;
+      if (!root || !Array.isArray(root.children)) return raw.length > 0;
+
+      const walk = (nodes: any[]): boolean =>
+        nodes.some((node) => {
+          if (typeof node?.text === "string" && node.text.trim()) return true;
+          if (Array.isArray(node?.children)) return walk(node.children);
+          return false;
+        });
+
+      return walk(root.children);
+    } catch {
+      return raw.length > 0;
+    }
+  });
+}
+
 interface ServiceProviderPolicyManagerProps {
   serviceProviderId: string;
   currentPolicies?: ServiceProviderPolicy[];
@@ -120,9 +144,8 @@ export default function ServiceProviderPolicyManager({
     });
 
     // Validate that both fields have at least one translation
-    const hasType = Object.keys(normalizedFields.type.translations).length > 0;
-    const hasDescription =
-      Object.keys(normalizedFields.description.translations).length > 0;
+    const hasType = localizedContentHasValue(normalizedFields.type);
+    const hasDescription = localizedContentHasValue(normalizedFields.description);
 
     if (!hasType) {
       toast.error(t("policies.messages.typeRequired"));
@@ -177,9 +200,8 @@ export default function ServiceProviderPolicyManager({
     });
 
     // Validate that both fields have at least one translation
-    const hasType = Object.keys(normalizedFields.type.translations).length > 0;
-    const hasDescription =
-      Object.keys(normalizedFields.description.translations).length > 0;
+    const hasType = localizedContentHasValue(normalizedFields.type);
+    const hasDescription = localizedContentHasValue(normalizedFields.description);
 
     if (!hasType) {
       toast.error(t("policies.messages.typeRequired"));
@@ -399,11 +421,7 @@ export default function ServiceProviderPolicyManager({
               </Button>
               <Button
                 onClick={handleAdd}
-                disabled={
-                  isPending ||
-                  Object.keys(newPolicy.type.translations).length === 0 ||
-                  Object.keys(newPolicy.description.translations).length === 0
-                }
+                disabled={isPending}
               >
                 {t("policies.actions.add")}
               </Button>

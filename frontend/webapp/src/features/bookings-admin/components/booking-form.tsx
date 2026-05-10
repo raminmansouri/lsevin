@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from "next-intl";
 import { useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -26,6 +28,7 @@ interface Props {
 }
 
 export function BookingForm({ booking, locale, lookups }: Props) {
+  const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const adminCalendar = normalizeBookingCalendar(undefined, locale);
   const [isPending, startTransition] = useTransition();
@@ -60,7 +63,7 @@ export function BookingForm({ booking, locale, lookups }: Props) {
     startTransition(async () => {
       try {
         await saveBookingAction(values);
-        toast.success("Booking saved");
+        toast.success(tAdmin("bookingSaved"));
         router.push('/admin/bookings');
       } catch (error: any) {
         toast.error(error?.message ?? 'Failed to save booking');
@@ -80,14 +83,14 @@ export function BookingForm({ booking, locale, lookups }: Props) {
               name="providerId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Provider</FormLabel>
+                  <FormLabel>{tAdmin("provider")}</FormLabel>
                   <FormControl>
                     <LazyAdminLookupSelect
                       lookupType="serviceProviders"
                       locale={locale}
                       value={field.value}
                       onValueChange={field.onChange}
-                      placeholder="Select provider"
+                      placeholder={tAdmin("selectProvider")}
                       initialOptions={lookups.providers}
                       disabled={isPending}
                     />
@@ -101,14 +104,14 @@ export function BookingForm({ booking, locale, lookups }: Props) {
               name="serviceId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Service</FormLabel>
+                  <FormLabel>{tAdmin("service")}</FormLabel>
                   <FormControl>
                     <LazyAdminLookupSelect
                       lookupType="providerServices"
                       locale={locale}
                       value={field.value}
                       onValueChange={field.onChange}
-                      placeholder="Select service"
+                      placeholder={tAdmin("selectService")}
                       initialOptions={lookups.services}
                       disabled={isPending}
                     />
@@ -122,14 +125,14 @@ export function BookingForm({ booking, locale, lookups }: Props) {
               name="specialistId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Specialist</FormLabel>
+                  <FormLabel>{tAdmin("specialist")}</FormLabel>
                   <FormControl>
                     <LazyAdminLookupSelect
                       lookupType="staff"
                       locale={locale}
                       value={field.value}
                       onValueChange={field.onChange}
-                      placeholder="Select specialist"
+                      placeholder={tAdmin("selectSpecialist")}
                       initialOptions={lookups.specialists}
                       disabled={isPending}
                     />
@@ -143,14 +146,14 @@ export function BookingForm({ booking, locale, lookups }: Props) {
               name="paymentMethod"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Payment method</FormLabel>
+                  <FormLabel>{tAdmin("paymentMethod")}</FormLabel>
                   <FormControl>
                     <LazyAdminLookupSelect
                       lookupType="paymentMethods"
                       locale={locale}
                       value={field.value}
                       onValueChange={field.onChange}
-                      placeholder="Select payment method"
+                      placeholder={tAdmin("selectPaymentMethod")}
                       initialOptions={lookups.paymentMethods}
                       disabled={isPending}
                     />
@@ -167,14 +170,14 @@ export function BookingForm({ booking, locale, lookups }: Props) {
               name="selectedDate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Date</FormLabel>
+                  <FormLabel>{tAdmin("date")}</FormLabel>
                   <FormControl>
                     <div className="space-y-2">
                       <Input type="date" {...field} value={field.value ?? ''} disabled={isPending} />
                       {adminCalendar === 'jalali' ? (
                         <Input
                           type="text"
-                          placeholder="Jalali date, e.g. 1405/02/10"
+                          placeholder={tAdmin("jalaliDateEG14050210")}
                           disabled={isPending}
                           onBlur={(event) => {
                             const iso = parseBookingCalendarDate(event.target.value, 'jalali', locale);
@@ -193,23 +196,23 @@ export function BookingForm({ booking, locale, lookups }: Props) {
                 </FormItem>
               )}
             />
-            <FormField control={form.control} name="selectedTime" render={({ field }) => <FormItem><FormLabel>Time</FormLabel><FormControl><Input type="time" {...field} value={field.value ?? ''} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
-            <FormField control={form.control} name="selectedTimeFrom" render={({ field }) => <FormItem><FormLabel>From</FormLabel><FormControl><Input type="time" {...field} value={field.value ?? ''} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
-            <FormField control={form.control} name="selectedTimeTo" render={({ field }) => <FormItem><FormLabel>To</FormLabel><FormControl><Input type="time" {...field} value={field.value ?? ''} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="selectedTime" render={({ field }) => <FormItem><FormLabel>{tAdmin("time")}</FormLabel><FormControl><Input type="time" {...field} value={field.value ?? ''} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="selectedTimeFrom" render={({ field }) => <FormItem><FormLabel>{tAdmin("from")}</FormLabel><FormControl><Input type="time" {...field} value={field.value ?? ''} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="selectedTimeTo" render={({ field }) => <FormItem><FormLabel>{tAdmin("to")}</FormLabel><FormControl><Input type="time" {...field} value={field.value ?? ''} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
-            <FormField control={form.control} name="bookingStatus" render={({ field }) => <FormItem><FormLabel>Booking status</FormLabel><FormControl><Input {...field} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
-            <FormField control={form.control} name="paymentStatus" render={({ field }) => <FormItem><FormLabel>Payment status</FormLabel><FormControl><Input {...field} value={field.value ?? ''} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
-            <FormField control={form.control} name="currencyCode" render={({ field }) => <FormItem><FormLabel>Currency</FormLabel><FormControl><Input {...field} value={field.value ?? ''} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="bookingStatus" render={({ field }) => <FormItem><FormLabel>{tAdmin("bookingStatus")}</FormLabel><FormControl><Input {...field} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="paymentStatus" render={({ field }) => <FormItem><FormLabel>{tAdmin("paymentStatus")}</FormLabel><FormControl><Input {...field} value={field.value ?? ''} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="currencyCode" render={({ field }) => <FormItem><FormLabel>{tAdmin("currency")}</FormLabel><FormControl><Input {...field} value={field.value ?? ''} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
           </div>
 
           <div className="grid gap-4 md:grid-cols-5">
-            <FormField control={form.control} name="totalAmount" render={({ field }) => <FormItem><FormLabel>Total</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={field.value ?? 0} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
-            <FormField control={form.control} name="paidAmount" render={({ field }) => <FormItem><FormLabel>Paid</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={field.value ?? 0} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
-            <FormField control={form.control} name="adults" render={({ field }) => <FormItem><FormLabel>Adults</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? 0} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
-            <FormField control={form.control} name="children" render={({ field }) => <FormItem><FormLabel>Children</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? 0} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
-            <FormField control={form.control} name="rooms" render={({ field }) => <FormItem><FormLabel>Rooms</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? 0} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="totalAmount" render={({ field }) => <FormItem><FormLabel>{tAdmin("total")}</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={field.value ?? 0} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="paidAmount" render={({ field }) => <FormItem><FormLabel>{tAdmin("paid")}</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={field.value ?? 0} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="adults" render={({ field }) => <FormItem><FormLabel>{tAdmin("adults")}</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? 0} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="children" render={({ field }) => <FormItem><FormLabel>{tAdmin("children")}</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? 0} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="rooms" render={({ field }) => <FormItem><FormLabel>{tAdmin("rooms")}</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? 0} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
           </div>
 
           <FormField
@@ -217,7 +220,7 @@ export function BookingForm({ booking, locale, lookups }: Props) {
             name="providerNotes"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Provider notes</FormLabel>
+                <FormLabel>{tAdmin("providerNotes")}</FormLabel>
                 <FormControl>
                   <Textarea {...field} value={field.value ?? ''} rows={5} disabled={isPending} />
                 </FormControl>

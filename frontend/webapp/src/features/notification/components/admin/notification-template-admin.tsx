@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from "next-intl";
 import { useMemo, useState, useTransition, type ComponentType } from "react";
 import {
   Bell,
@@ -231,10 +233,11 @@ function ChannelBadge({ channel }: { channel: NotificationChannel }) {
 }
 
 function MissingTableWarning() {
+  const tAdmin = useTranslations("AdminGenerated");
   return (
     <Card className="border-amber-200 bg-amber-50/60">
       <CardHeader>
-        <CardTitle className="text-amber-900">Notification template table is not installed</CardTitle>
+        <CardTitle className="text-amber-900">{tAdmin("notificationTemplateTableIsNotInstalled")}</CardTitle>
         <CardDescription className="text-amber-800">
           Run <code>database/migrations/20260504_notify_notification_templates.sql</code> before using this page.
         </CardDescription>
@@ -244,6 +247,7 @@ function MissingTableWarning() {
 }
 
 function TemplateToolbar({ tableMissing }: { tableMissing: boolean }) {
+  const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -289,7 +293,7 @@ function TemplateToolbar({ tableMissing }: { tableMissing: boolean }) {
               setSearch(event.target.value);
               commitSearch(event.target.value);
             }}
-            placeholder="Search keys, names, content, variables..."
+            placeholder={tAdmin("searchKeysNamesContentVariables")}
             className="h-9 pl-9 pr-9"
             disabled={tableMissing}
           />
@@ -315,10 +319,10 @@ function TemplateToolbar({ tableMissing }: { tableMissing: boolean }) {
           disabled={tableMissing}
         >
           <SelectTrigger className="h-9 w-full sm:w-[150px]">
-            <SelectValue placeholder="Type" />
+            <SelectValue placeholder={tAdmin("type")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All types</SelectItem>
+            <SelectItem value="all">{tAdmin("allTypes")}</SelectItem>
             {NOTIFICATION_TYPES.map((type) => (
               <SelectItem key={type} value={type}>
                 {TYPE_LABELS[type]}
@@ -333,10 +337,10 @@ function TemplateToolbar({ tableMissing }: { tableMissing: boolean }) {
           disabled={tableMissing}
         >
           <SelectTrigger className="h-9 w-full sm:w-[160px]">
-            <SelectValue placeholder="Channel" />
+            <SelectValue placeholder={tAdmin("channel")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All channels</SelectItem>
+            <SelectItem value="all">{tAdmin("allChannels")}</SelectItem>
             {NOTIFICATION_CHANNELS.map((channel) => (
               <SelectItem key={channel} value={channel}>
                 {CHANNEL_LABELS[channel]}
@@ -351,12 +355,12 @@ function TemplateToolbar({ tableMissing }: { tableMissing: boolean }) {
           disabled={tableMissing}
         >
           <SelectTrigger className="h-9 w-full sm:w-[150px]">
-            <SelectValue placeholder="Status" />
+            <SelectValue placeholder={tAdmin("status")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All statuses</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value="all">{tAdmin("allStatuses")}</SelectItem>
+            <SelectItem value="active">{tAdmin("active")}</SelectItem>
+            <SelectItem value="inactive">{tAdmin("inactive")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -738,6 +742,7 @@ function TemplateCard({
 }
 
 export function NotificationTemplateAdmin({ data }: { data: AdminNotificationTemplatesPageData }) {
+  const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [draft, setDraft] = useState<TemplateDraft | null>(null);
@@ -745,7 +750,7 @@ export function NotificationTemplateAdmin({ data }: { data: AdminNotificationTem
   const saveAction = useAction(saveNotificationTemplateAction, {
     startTransition,
     onSuccess: () => {
-      toast.success("Notification template saved.");
+      toast.success(tAdmin("notificationTemplateSaved"));
       setDraft(null);
       router.refresh();
     },
@@ -755,7 +760,7 @@ export function NotificationTemplateAdmin({ data }: { data: AdminNotificationTem
   const deleteAction = useAction(deleteNotificationTemplateAction, {
     startTransition,
     onSuccess: () => {
-      toast.success("Notification template deleted.");
+      toast.success(tAdmin("notificationTemplateDeleted"));
       router.refresh();
     },
     onError: (error) => toast.error(error.detail || error.title || "Could not delete notification template."),
@@ -779,7 +784,7 @@ export function NotificationTemplateAdmin({ data }: { data: AdminNotificationTem
     <div className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Notification templates</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{tAdmin("notificationTemplates")}</h1>
           <p className="text-muted-foreground">
             Edit message formats for in-app, email, SMS, and push notifications without changing code.
           </p>
@@ -793,17 +798,17 @@ export function NotificationTemplateAdmin({ data }: { data: AdminNotificationTem
       {data.tableMissing ? <MissingTableWarning /> : null}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-        <MetricCard title="Total" value={data.stats.totalCount} hint="All templates" />
-        <MetricCard title="Active" value={data.stats.activeCount} hint="Usable by senders" />
-        <MetricCard title="Inactive" value={data.stats.inactiveCount} hint="Disabled" />
-        <MetricCard title="Booking" value={data.stats.bookingCount} />
-        <MetricCard title="Offer" value={data.stats.offerCount} />
-        <MetricCard title="System" value={data.stats.systemCount} />
+        <MetricCard title={tAdmin("total")} value={data.stats.totalCount} hint="All templates" />
+        <MetricCard title={tAdmin("active")} value={data.stats.activeCount} hint="Usable by senders" />
+        <MetricCard title={tAdmin("inactive")} value={data.stats.inactiveCount} hint="Disabled" />
+        <MetricCard title={tAdmin("booking")} value={data.stats.bookingCount} />
+        <MetricCard title={tAdmin("offer")} value={data.stats.offerCount} />
+        <MetricCard title={tAdmin("system")} value={data.stats.systemCount} />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Templates</CardTitle>
+          <CardTitle>{tAdmin("templates")}</CardTitle>
           <CardDescription>
             Showing {data.pagination.currentStartIndex}-{data.pagination.currentEndIndex} of {data.pagination.totalCount}
           </CardDescription>

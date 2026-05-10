@@ -1,5 +1,7 @@
 "use client"
 
+
+import { useTranslations } from "next-intl";
 import { useState } from 'react';
 import { 
   LayoutDashboard,
@@ -38,6 +40,7 @@ import {
 import { DashboardLayout } from '../design-system/dashboard-components';
 
 export default function Users() {
+  const tAdmin = useTranslations("AdminGenerated");
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -67,19 +70,19 @@ export default function Users() {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   
   const navigation = [
-    { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
-    { label: 'Live Activity', icon: <Activity size={20} />, path: '/admin/activity' },
-    { label: 'Users', icon: <UsersIcon size={20} />, path: '/admin/users', badge: 12 },
-    { label: 'Providers', icon: <Building2 size={20} />, path: '/admin/providers', badge: 8 },
-    { label: 'Bookings', icon: <ShoppingBag size={20} />, path: '/admin/bookings' },
-    { label: 'Payments', icon: <Wallet size={20} />, path: '/admin/payments' },
-    { label: 'Campaigns', icon: <TrendingUp size={20} />, path: '/admin/campaigns' },
-    { label: 'Rewards', icon: <Gift size={20} />, path: '/admin/rewards' },
-    { label: 'Support', icon: <MessageSquare size={20} />, path: '/admin/support', badge: 23 },
-    { label: 'Reports', icon: <BarChart3 size={20} />, path: '/admin/reports' },
-    { label: 'Localization', icon: <Globe size={20} />, path: '/admin/localization' },
-    { label: 'Settings', icon: <Settings size={20} />, path: '/admin/settings' },
-    { label: 'Audit Logs', icon: <FileText size={20} />, path: '/admin/audit' },
+    { label: tAdmin("dashboard"), icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
+    { label: tAdmin("liveActivity"), icon: <Activity size={20} />, path: '/admin/activity' },
+    { label: tAdmin("users"), icon: <UsersIcon size={20} />, path: '/admin/users', badge: 12 },
+    { label: tAdmin("providers"), icon: <Building2 size={20} />, path: '/admin/providers', badge: 8 },
+    { label: tAdmin("bookings"), icon: <ShoppingBag size={20} />, path: '/admin/bookings' },
+    { label: tAdmin("payments"), icon: <Wallet size={20} />, path: '/admin/payments' },
+    { label: tAdmin("campaigns"), icon: <TrendingUp size={20} />, path: '/admin/campaigns' },
+    { label: tAdmin("rewards"), icon: <Gift size={20} />, path: '/admin/rewards' },
+    { label: tAdmin("support"), icon: <MessageSquare size={20} />, path: '/admin/support', badge: 23 },
+    { label: tAdmin("reports"), icon: <BarChart3 size={20} />, path: '/admin/reports' },
+    { label: tAdmin("localization"), icon: <Globe size={20} />, path: '/admin/localization' },
+    { label: tAdmin("settings"), icon: <Settings size={20} />, path: '/admin/settings' },
+    { label: tAdmin("auditLogs"), icon: <FileText size={20} />, path: '/admin/audit' },
   ];
 
   const users = [
@@ -238,11 +241,11 @@ export default function Users() {
   const getStatusBadge = (status: string) => {
     switch(status) {
       case 'Active':
-        return <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><CheckCircle2 size={12} />Active</span>;
+        return <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><CheckCircle2 size={12} />{tAdmin("active")}</span>;
       case 'Suspended':
-        return <span className="px-2.5 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Ban size={12} />Suspended</span>;
+        return <span className="px-2.5 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Ban size={12} />{tAdmin("suspended")}</span>;
       case 'Pending Verification':
-        return <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Clock size={12} />Pending</span>;
+        return <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Clock size={12} />{tAdmin("pending")}</span>;
       default:
         return <span className="px-2.5 py-1 bg-gray-50 text-gray-700 text-xs font-semibold rounded-lg">{status}</span>;
     }
@@ -332,27 +335,27 @@ export default function Users() {
   return (
     <DashboardLayout 
       navigation={navigation} 
-      headerTitle="User Management"
+      headerTitle={tAdmin("userManagement")}
       userRole="admin"
-      userName="System Admin"
+      userName={tAdmin("systemAdmin")}
     >
       <div className="p-8 space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">User Management</h1>
-            <p className="text-gray-600">Manage and monitor all platform users</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">{tAdmin("userManagement")}</h1>
+            <p className="text-gray-600">{tAdmin("manageAndMonitorAllPlatformUsers")}</p>
           </div>
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <button className="flex-1 sm:flex-none px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50">
               <Download size={16} className="inline mr-2" />
-              <span className="hidden sm:inline">Export Users</span>
-              <span className="sm:hidden">Export</span>
+              <span className="hidden sm:inline">{tAdmin("exportUsers")}</span>
+              <span className="sm:hidden">{tAdmin("export")}</span>
             </button>
             <button className="flex-1 sm:flex-none px-4 py-2 bg-[#083f30] rounded-xl text-sm font-semibold text-white hover:bg-[#083f30]/90" onClick={() => setShowAddUserModal(true)}>
               <UsersIcon size={16} className="inline mr-2" />
-              <span className="hidden sm:inline">Add User</span>
-              <span className="sm:hidden">Add</span>
+              <span className="hidden sm:inline">{tAdmin("addUser")}</span>
+              <span className="sm:hidden">{tAdmin("add")}</span>
             </button>
           </div>
         </div>
@@ -366,7 +369,7 @@ export default function Users() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">48,392</div>
-            <div className="text-sm text-gray-600">Total Users</div>
+            <div className="text-sm text-gray-600">{tAdmin("totalUsers")}</div>
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -376,7 +379,7 @@ export default function Users() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">45,127</div>
-            <div className="text-sm text-gray-600">Active Users</div>
+            <div className="text-sm text-gray-600">{tAdmin("activeUsers")}</div>
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -386,7 +389,7 @@ export default function Users() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">41,203</div>
-            <div className="text-sm text-gray-600">Verified Users</div>
+            <div className="text-sm text-gray-600">{tAdmin("verifiedUsers")}</div>
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -396,7 +399,7 @@ export default function Users() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">1,245</div>
-            <div className="text-sm text-gray-600">Pending Verification</div>
+            <div className="text-sm text-gray-600">{tAdmin("pendingVerification")}</div>
           </div>
         </div>
 
@@ -404,59 +407,59 @@ export default function Users() {
         <div className="bg-white rounded-2xl border border-gray-200 p-5">
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
             <div className="md:col-span-2 lg:col-span-2">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Search Users</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("searchUsers")}</label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Name, email, or user ID..."
+                  placeholder={tAdmin("nameEmailOrUserID")}
                   className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent"
                 />
               </div>
             </div>
             
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Role</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("role")}</label>
               <select
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
               >
-                <option value="all">All Roles</option>
-                <option value="Patient">Patient</option>
-                <option value="Medical Tourist">Medical Tourist</option>
+                <option value="all">{tAdmin("allRoles")}</option>
+                <option value="Patient">{tAdmin("patient")}</option>
+                <option value="Medical Tourist">{tAdmin("medicalTourist")}</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("status")}</label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
               >
-                <option value="all">All Status</option>
-                <option value="Active">Active</option>
-                <option value="Suspended">Suspended</option>
-                <option value="Pending Verification">Pending</option>
+                <option value="all">{tAdmin("allStatus")}</option>
+                <option value="Active">{tAdmin("active")}</option>
+                <option value="Suspended">{tAdmin("suspended")}</option>
+                <option value="Pending Verification">{tAdmin("pending")}</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Country</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("country")}</label>
               <select
                 value={countryFilter}
                 onChange={(e) => setCountryFilter(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
               >
-                <option value="all">All Countries</option>
-                <option value="Turkey">Turkey</option>
-                <option value="UAE">UAE</option>
-                <option value="Cyprus">Cyprus</option>
-                <option value="Indonesia">Indonesia</option>
-                <option value="Thailand">Thailand</option>
+                <option value="all">{tAdmin("allCountries")}</option>
+                <option value="Turkey">{tAdmin("turkey")}</option>
+                <option value="UAE">{tAdmin("uAE")}</option>
+                <option value="Cyprus">{tAdmin("cyprus")}</option>
+                <option value="Indonesia">{tAdmin("indonesia")}</option>
+                <option value="Thailand">{tAdmin("thailand")}</option>
               </select>
             </div>
           </div>
@@ -481,15 +484,15 @@ export default function Users() {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">User</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Contact</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Location</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Role</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Activity</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Bookings</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Total Spent</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("user")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("contact")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("location")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("role")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("status")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("activity")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("bookings")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("totalSpent")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -599,7 +602,7 @@ export default function Users() {
                 {/* User Details Grid */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <div className="text-xs font-semibold text-gray-500 uppercase mb-1">Contact</div>
+                    <div className="text-xs font-semibold text-gray-500 uppercase mb-1">{tAdmin("contact")}</div>
                     <div className="space-y-1">
                       <div className="text-xs text-gray-900 flex items-center gap-1">
                         <Mail size={10} className="text-gray-400" />
@@ -613,7 +616,7 @@ export default function Users() {
                   </div>
 
                   <div>
-                    <div className="text-xs font-semibold text-gray-500 uppercase mb-1">Location</div>
+                    <div className="text-xs font-semibold text-gray-500 uppercase mb-1">{tAdmin("location")}</div>
                     <div className="flex items-center gap-1 text-xs text-gray-700">
                       <MapPin size={12} className="text-gray-400" />
                       {user.country}
@@ -621,7 +624,7 @@ export default function Users() {
                   </div>
 
                   <div>
-                    <div className="text-xs font-semibold text-gray-500 uppercase mb-1">Role & Status</div>
+                    <div className="text-xs font-semibold text-gray-500 uppercase mb-1">{tAdmin("roleStatus")}</div>
                     <div className="flex items-center gap-2">
                       <span className="px-2 py-0.5 bg-blue-50 text-blue-700 text-xs font-semibold rounded">
                         {user.role}
@@ -631,7 +634,7 @@ export default function Users() {
                   </div>
 
                   <div>
-                    <div className="text-xs font-semibold text-gray-500 uppercase mb-1">Activity</div>
+                    <div className="text-xs font-semibold text-gray-500 uppercase mb-1">{tAdmin("activity")}</div>
                     <div className="text-xs text-gray-700">{user.lastActive}</div>
                     <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
                       <Calendar size={10} />
@@ -640,12 +643,12 @@ export default function Users() {
                   </div>
 
                   <div>
-                    <div className="text-xs font-semibold text-gray-500 uppercase mb-1">Bookings</div>
+                    <div className="text-xs font-semibold text-gray-500 uppercase mb-1">{tAdmin("bookings")}</div>
                     <div className="text-sm font-semibold text-gray-900">{user.bookings}</div>
                   </div>
 
                   <div>
-                    <div className="text-xs font-semibold text-gray-500 uppercase mb-1">Total Spent</div>
+                    <div className="text-xs font-semibold text-gray-500 uppercase mb-1">{tAdmin("totalSpent")}</div>
                     <div className="text-sm font-bold text-[#083f30]">${user.totalSpent.toLocaleString()}</div>
                   </div>
                 </div>
@@ -685,10 +688,10 @@ export default function Users() {
           <div className="bg-white rounded-2xl p-4 sm:p-6 lg:p-8 w-full max-w-2xl max-h-[92vh] sm:max-h-[90vh] overflow-y-auto">
             <div className="flex items-start justify-between mb-4 sm:mb-6 sticky top-0 bg-white pb-3 border-b sm:border-0 border-gray-100 -mx-4 px-4 sm:mx-0 sm:px-0 sm:pb-0 sm:static">
               <div className="flex-1 pr-2">
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900">Add New User</h2>
-                <p className="text-xs sm:text-sm text-gray-600 mt-1">Create a new user account for the platform</p>
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900">{tAdmin("addNewUser")}</h2>
+                <p className="text-xs sm:text-sm text-gray-600 mt-1">{tAdmin("createANewUserAccountForThePlatform")}</p>
               </div>
-              <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 flex-shrink-0" onClick={handleCloseModal} aria-label="Close">
+              <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 flex-shrink-0" onClick={handleCloseModal} aria-label={tAdmin("close")}>
                 <X size={20} />
               </button>
             </div>
@@ -696,43 +699,43 @@ export default function Users() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">First Name</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">{tAdmin("firstName2")}</label>
                   <input
                     type="text"
                     value={formData.firstName}
                     onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                    placeholder="Enter first name"
+                    placeholder={tAdmin("enterFirstName")}
                     className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent"
                   />
                   {formErrors.firstName && <p className="text-xs sm:text-sm text-red-500 mt-1">{formErrors.firstName}</p>}
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">Last Name</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">{tAdmin("lastName2")}</label>
                   <input
                     type="text"
                     value={formData.lastName}
                     onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                    placeholder="Enter last name"
+                    placeholder={tAdmin("enterLastName")}
                     className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent"
                   />
                   {formErrors.lastName && <p className="text-xs sm:text-sm text-red-500 mt-1">{formErrors.lastName}</p>}
                 </div>
                 
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">Email</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">{tAdmin("email")}</label>
                   <input
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="Enter email"
+                    placeholder={tAdmin("enterEmail")}
                     className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent"
                   />
                   {formErrors.email && <p className="text-xs sm:text-sm text-red-500 mt-1">{formErrors.email}</p>}
                 </div>
                 
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">Phone</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">{tAdmin("phone")}</label>
                   <div className="flex gap-2">
                     <select
                       value={formData.countryCode}
@@ -757,75 +760,75 @@ export default function Users() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">Role</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">{tAdmin("role")}</label>
                   <select
                     value={formData.role}
                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                     className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
                   >
-                    <option value="Patient">Patient</option>
-                    <option value="Medical Tourist">Medical Tourist</option>
+                    <option value="Patient">{tAdmin("patient")}</option>
+                    <option value="Medical Tourist">{tAdmin("medicalTourist")}</option>
                   </select>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">Country</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">{tAdmin("country")}</label>
                   <select
                     value={formData.country}
                     onChange={(e) => setFormData({ ...formData, country: e.target.value })}
                     className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
                   >
-                    <option value="UAE">UAE</option>
-                    <option value="Turkey">Turkey</option>
-                    <option value="Cyprus">Cyprus</option>
-                    <option value="Indonesia">Indonesia</option>
-                    <option value="Thailand">Thailand</option>
+                    <option value="UAE">{tAdmin("uAE")}</option>
+                    <option value="Turkey">{tAdmin("turkey")}</option>
+                    <option value="Cyprus">{tAdmin("cyprus")}</option>
+                    <option value="Indonesia">{tAdmin("indonesia")}</option>
+                    <option value="Thailand">{tAdmin("thailand")}</option>
                   </select>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">City</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">{tAdmin("city")}</label>
                   <input
                     type="text"
                     value={formData.city}
                     onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    placeholder="Enter city"
+                    placeholder={tAdmin("enterCity")}
                     className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">Account Status</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">{tAdmin("accountStatus")}</label>
                   <select
                     value={formData.accountStatus}
                     onChange={(e) => setFormData({ ...formData, accountStatus: e.target.value })}
                     className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
                   >
-                    <option value="Active">Active</option>
-                    <option value="Suspended">Suspended</option>
-                    <option value="Pending Verification">Pending Verification</option>
+                    <option value="Active">{tAdmin("active")}</option>
+                    <option value="Suspended">{tAdmin("suspended")}</option>
+                    <option value="Pending Verification">{tAdmin("pendingVerification")}</option>
                   </select>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">Verification Status</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">{tAdmin("verificationStatus")}</label>
                   <select
                     value={formData.verificationStatus}
                     onChange={(e) => setFormData({ ...formData, verificationStatus: e.target.value })}
                     className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
                   >
-                    <option value="Verified">Verified</option>
-                    <option value="Unverified">Unverified</option>
+                    <option value="Verified">{tAdmin("verified")}</option>
+                    <option value="Unverified">{tAdmin("unverified")}</option>
                   </select>
                 </div>
                 
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">Notes</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">{tAdmin("notes")}</label>
                   <textarea
                     rows={3}
                     value={formData.notes}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    placeholder="Enter any additional notes"
+                    placeholder={tAdmin("enterAnyAdditionalNotes")}
                     className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent resize-none"
                   />
                 </div>
@@ -840,7 +843,7 @@ export default function Users() {
                     onChange={(e) => setFormData({ ...formData, sendInvite: e.target.checked })}
                     className="w-4 h-4 text-[#083f30] bg-gray-100 border-gray-300 rounded focus:ring-[#083f30] focus:ring-2"
                   />
-                  <label htmlFor="sendInvite" className="text-xs sm:text-sm font-medium text-gray-700">Send account setup email</label>
+                  <label htmlFor="sendInvite" className="text-xs sm:text-sm font-medium text-gray-700">{tAdmin("sendAccountSetupEmail")}</label>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
                   <button
@@ -858,12 +861,12 @@ export default function Users() {
                     {isSubmitting ? (
                       <>
                         <Loader2 className="animate-spin" size={16} />
-                        <span>Creating...</span>
+                        <span>{tAdmin("creating")}</span>
                       </>
                     ) : (
                       <>
                         <CheckCircle2 size={16} />
-                        <span>Create User</span>
+                        <span>{tAdmin("createUser")}</span>
                       </>
                     )}
                   </button>

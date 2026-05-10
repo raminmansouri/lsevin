@@ -1202,7 +1202,9 @@ export async function listProviderProfileRelatedRecords(
       select
         id::text,
         name,
-        coalesce(is_verified, false) as "isVerified"
+        coalesce(is_verified, false) as "isVerified",
+        image_url as "imageUrl",
+        secondary_image_url as "secondaryImageUrl"
       from category.provider_certifications
       where service_provider_id = ${providerId}::uuid
       order by name asc
@@ -1238,7 +1240,10 @@ export async function saveProviderCertification(userId: string, input: any) {
   if (input.certificationId) {
     await sql`
       update category.provider_certifications
-      set name = ${input.name}
+      set
+        name = ${input.name},
+        image_url = ${input.imageUrl || null},
+        secondary_image_url = ${input.secondaryImageUrl || null}
       where id = ${input.certificationId}::uuid
         and service_provider_id = ${input.providerId}::uuid
         and coalesce(is_verified, false) = false
@@ -1250,11 +1255,15 @@ export async function saveProviderCertification(userId: string, input: any) {
     insert into category.provider_certifications (
       service_provider_id,
       name,
-      is_verified
+      is_verified,
+      image_url,
+      secondary_image_url
     ) values (
       ${input.providerId}::uuid,
       ${input.name},
-      false
+      false,
+      ${input.imageUrl || null},
+      ${input.secondaryImageUrl || null}
     )
     returning id::text
   `;

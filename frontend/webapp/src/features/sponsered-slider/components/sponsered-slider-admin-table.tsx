@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Edit, ExternalLink, ImageIcon, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 
@@ -14,11 +15,12 @@ function pickTranslation(value?: Record<string, string>, fallback?: string | nul
 }
 
 export function SponseredSliderAdminTable({ rows }: { rows: SponseredSliderAdminRow[] }) {
+  const tAdmin = useTranslations("AdminGenerated");
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-950">Sponsored slider</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-950">{tAdmin("sponsoredSlider")}</h1>
           <p className="mt-1 text-sm text-slate-500">
             Manage image, GIF, video slides and all frontend copy from the admin panel.
           </p>
@@ -33,7 +35,7 @@ export function SponseredSliderAdminTable({ rows }: { rows: SponseredSliderAdmin
 
       <Card className="overflow-hidden">
         <CardHeader>
-          <CardTitle>Slides</CardTitle>
+          <CardTitle>{tAdmin("slides")}</CardTitle>
           <CardDescription>{rows.length} slide{rows.length === 1 ? "" : "s"} configured.</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
@@ -41,13 +43,13 @@ export function SponseredSliderAdminTable({ rows }: { rows: SponseredSliderAdmin
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[80px]">Order</TableHead>
-                  <TableHead>Placement</TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Eyebrow</TableHead>
-                  <TableHead>CTA</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="w-[80px]">{tAdmin("order")}</TableHead>
+                  <TableHead>{tAdmin("placement")}</TableHead>
+                  <TableHead>{tAdmin("title")}</TableHead>
+                  <TableHead>{tAdmin("eyebrow")}</TableHead>
+                  <TableHead>{tAdmin("cTA")}</TableHead>
+                  <TableHead>{tAdmin("status")}</TableHead>
+                  <TableHead className="text-right">{tAdmin("actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -79,26 +81,26 @@ export function SponseredSliderAdminTable({ rows }: { rows: SponseredSliderAdmin
                     <TableCell>
                       <div className="flex justify-end gap-2">
                         {(row.mediaId || row.url) && (
-                          <Button asChild size="icon" variant="ghost" title="Open media">
+                          <Button asChild size="icon" variant="ghost" title={tAdmin("openMedia")}>
                             <Link href={row.url || `/admin/media?selected=${row.mediaId}`} target="_blank">
                               <ImageIcon className="h-4 w-4" />
                             </Link>
                           </Button>
                         )}
                         {row.link && (
-                          <Button asChild size="icon" variant="ghost" title="Open link">
+                          <Button asChild size="icon" variant="ghost" title={tAdmin("openLink")}>
                             <Link href={row.link} target="_blank">
                               <ExternalLink className="h-4 w-4" />
                             </Link>
                           </Button>
                         )}
-                        <Button asChild size="icon" variant="ghost" title="Edit">
+                        <Button asChild size="icon" variant="ghost" title={tAdmin("edit")}>
                           <Link href={`/admin/sponsered-slider/${row.id}/update`}>
                             <Edit className="h-4 w-4" />
                           </Link>
                         </Button>
                         <form action={deleteSponseredSliderAction.bind(null, row.id)}>
-                          <Button size="icon" variant="ghost" className="text-red-600 hover:text-red-700" title="Delete">
+                          <Button size="icon" variant="ghost" className="text-red-600 hover:text-red-700" title={tAdmin("delete")}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </form>

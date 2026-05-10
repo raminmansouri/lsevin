@@ -1,5 +1,7 @@
 "use client"
 
+
+import { useTranslations } from "next-intl";
 import { useState } from 'react';
 import { 
   LayoutDashboard,
@@ -30,23 +32,24 @@ interface Provider {
 }
 
 export default function ProviderApprovalQueue() {
+  const tAdmin = useTranslations("AdminGenerated");
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   
   const navigation = [
-    { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
-    { label: 'Live Activity', icon: <Activity size={20} />, path: '/admin/activity' },
-    { label: 'Users', icon: <Users size={20} />, path: '/admin/users', badge: 12 },
-    { label: 'Providers', icon: <Building2 size={20} />, path: '/admin/providers', badge: 8 },
-    { label: 'Bookings', icon: <ShoppingBag size={20} />, path: '/admin/bookings' },
-    { label: 'Payments', icon: <Wallet size={20} />, path: '/admin/payments' },
-    { label: 'Campaigns', icon: <TrendingUp size={20} />, path: '/admin/campaigns' },
-    { label: 'Rewards', icon: <Gift size={20} />, path: '/admin/rewards' },
-    { label: 'Support', icon: <MessageSquare size={20} />, path: '/admin/support', badge: 23 },
-    { label: 'Reports', icon: <BarChart3 size={20} />, path: '/admin/reports' },
-    { label: 'Localization', icon: <Globe size={20} />, path: '/admin/localization' },
-    { label: 'Settings', icon: <Settings size={20} />, path: '/admin/settings' },
-    { label: 'Audit Logs', icon: <FileText size={20} />, path: '/admin/audit' },
+    { label: tAdmin("dashboard"), icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
+    { label: tAdmin("liveActivity"), icon: <Activity size={20} />, path: '/admin/activity' },
+    { label: tAdmin("users"), icon: <Users size={20} />, path: '/admin/users', badge: 12 },
+    { label: tAdmin("providers"), icon: <Building2 size={20} />, path: '/admin/providers', badge: 8 },
+    { label: tAdmin("bookings"), icon: <ShoppingBag size={20} />, path: '/admin/bookings' },
+    { label: tAdmin("payments"), icon: <Wallet size={20} />, path: '/admin/payments' },
+    { label: tAdmin("campaigns"), icon: <TrendingUp size={20} />, path: '/admin/campaigns' },
+    { label: tAdmin("rewards"), icon: <Gift size={20} />, path: '/admin/rewards' },
+    { label: tAdmin("support"), icon: <MessageSquare size={20} />, path: '/admin/support', badge: 23 },
+    { label: tAdmin("reports"), icon: <BarChart3 size={20} />, path: '/admin/reports' },
+    { label: tAdmin("localization"), icon: <Globe size={20} />, path: '/admin/localization' },
+    { label: tAdmin("settings"), icon: <Settings size={20} />, path: '/admin/settings' },
+    { label: tAdmin("auditLogs"), icon: <FileText size={20} />, path: '/admin/audit' },
   ];
   
   const providers: Provider[] = [
@@ -202,32 +205,32 @@ export default function ProviderApprovalQueue() {
   return (
     <DashboardLayout 
       navigation={navigation} 
-      headerTitle="Provider Approval Queue"
+      headerTitle={tAdmin("providerApprovalQueue")}
       userRole="admin"
-      userName="System Admin"
+      userName={tAdmin("systemAdmin")}
     >
       {/* Page Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Provider Applications</h1>
-        <p className="text-gray-600">Review and approve new provider registrations</p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">{tAdmin("providerApplications")}</h1>
+        <p className="text-gray-600">{tAdmin("reviewAndApproveNewProviderRegistrations")}</p>
       </div>
       
       {/* Stats */}
       <div className="grid grid-cols-4 gap-6 mb-6">
         <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <div className="text-sm text-gray-600 mb-1">Total Applications</div>
+          <div className="text-sm text-gray-600 mb-1">{tAdmin("totalApplications")}</div>
           <div className="text-2xl font-bold text-gray-900">284</div>
         </div>
         <div className="bg-yellow-50 rounded-xl border border-yellow-200 p-5">
-          <div className="text-sm text-yellow-700 mb-1">Pending Review</div>
+          <div className="text-sm text-yellow-700 mb-1">{tAdmin("pendingReview")}</div>
           <div className="text-2xl font-bold text-yellow-900">8</div>
         </div>
         <div className="bg-green-50 rounded-xl border border-green-200 p-5">
-          <div className="text-sm text-green-700 mb-1">Approved</div>
+          <div className="text-sm text-green-700 mb-1">{tAdmin("approved")}</div>
           <div className="text-2xl font-bold text-green-900">248</div>
         </div>
         <div className="bg-red-50 rounded-xl border border-red-200 p-5">
-          <div className="text-sm text-red-700 mb-1">Rejected</div>
+          <div className="text-sm text-red-700 mb-1">{tAdmin("rejected")}</div>
           <div className="text-2xl font-bold text-red-900">28</div>
         </div>
       </div>
@@ -235,27 +238,27 @@ export default function ProviderApprovalQueue() {
       {/* Filters */}
       <FilterBar>
         <FilterSelect
-          label="Status"
+          label={tAdmin("status")}
           options={[
-            { value: 'all', label: 'All Status' },
-            { value: 'pending', label: 'Pending' },
-            { value: 'approved', label: 'Approved' },
-            { value: 'rejected', label: 'Rejected' },
+            { value: 'all', label: tAdmin("allStatus") },
+            { value: 'pending', label: tAdmin("pending") },
+            { value: 'approved', label: tAdmin("approved") },
+            { value: 'rejected', label: tAdmin("rejected") },
           ]}
           value={statusFilter}
           onChange={setStatusFilter}
         />
         
         <FilterSelect
-          label="Provider Type"
+          label={tAdmin("providerType2")}
           options={[
-            { value: 'all', label: 'All Types' },
-            { value: 'medical', label: 'Medical' },
-            { value: 'beauty', label: 'Beauty & Spa' },
-            { value: 'fitness', label: 'Fitness' },
-            { value: 'hotel', label: 'Hotel' },
-            { value: 'pharmacy', label: 'Pharmacy' },
-            { value: 'tourism', label: 'Tourism' },
+            { value: 'all', label: tAdmin("allTypes2") },
+            { value: 'medical', label: tAdmin("medical") },
+            { value: 'beauty', label: tAdmin("beautySpa") },
+            { value: 'fitness', label: tAdmin("fitness") },
+            { value: 'hotel', label: tAdmin("hotel") },
+            { value: 'pharmacy', label: tAdmin("pharmacy") },
+            { value: 'tourism', label: tAdmin("tourism") },
           ]}
           value={typeFilter}
           onChange={setTypeFilter}

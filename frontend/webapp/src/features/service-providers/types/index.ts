@@ -425,6 +425,8 @@ pastBookings :Booking[]
 export interface Certification {
   name: string;
   verified: boolean;
+  imageUrl?: string | null;
+  secondaryImageUrl?: string | null;
 }
 
 export interface Provider {
@@ -850,6 +852,7 @@ export interface IServiceProviderDetails {
   providerTypeName: string;
   attributes: IAttribute[];
   policies: IPolicy[];
+  certifications?: Certification[];
   gallery: IGallery[];
   services: (Omit<ServiceProviderService, "description" | "displayName"> & {
     description: string;

@@ -46,7 +46,7 @@ export default function MapDiscovery() {
     {
       id: 1,
       name: 'Istanbul Medical Center',
-      image: '/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=200&h=200&fit=crop.jpg',
+      image: '/placeholder.svg',
       rating: 4.9,
       reviews: 2847,
       verified: true,
@@ -57,7 +57,7 @@ export default function MapDiscovery() {
     {
       id: 2,
       name: 'Dubai Smile Clinic',
-      image: '/unsplash_images/photo-1629909613654-28e377c37b09__w=200&h=200&fit=crop.jpg',
+      image: '/placeholder.svg',
       rating: 4.9,
       reviews: 1523,
       verified: true,
@@ -68,7 +68,7 @@ export default function MapDiscovery() {
     {
       id: 3,
       name: 'Bangkok Aesthetic Clinic',
-      image: '/unsplash_images/photo-1512678080530-7760d81faba6__w=200&h=200&fit=crop.jpg',
+      image: '/placeholder.svg',
       rating: 4.8,
       reviews: 892,
       verified: true,
@@ -79,7 +79,7 @@ export default function MapDiscovery() {
     {
       id: 4,
       name: 'Vienna Dental Excellence',
-      image: '/unsplash_images/photo-1588776814546-1ffcf47267a5__w=200&h=200&fit=crop.jpg',
+      image: '/placeholder.svg',
       rating: 4.9,
       reviews: 734,
       verified: true,
@@ -159,7 +159,7 @@ export default function MapDiscovery() {
             {/* Map Background with Grid Pattern */}
             <div className="absolute inset-0">
               <img 
-                src="/unsplash_images/photo-1524661135-423995f22d0b__w=1200&h=800&fit=crop.jpg"
+                src="/placeholder.svg"
                 alt="Map"
                 className="w-full h-full object-cover opacity-40"
               />
@@ -221,7 +221,7 @@ export default function MapDiscovery() {
           {selectedProviderData && (
             <div className="absolute bottom-24 left-0 right-0 px-5 z-40">
               <div 
-                onClick={() => navigate(`/app/clinic/${selectedProviderData.id}`)}
+                onClick={() => navigate(`/n/app/mobile/provider/${selectedProviderData.id}`)}
                 className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden cursor-pointer"
               >
                 <div className="flex gap-4 p-4">
@@ -288,7 +288,7 @@ export default function MapDiscovery() {
           {providers.map(provider => (
             <div
               key={provider.id}
-              onClick={() => navigate(`/app/clinic/${provider.id}`)}
+              onClick={() => navigate(`/n/app/mobile/provider/${provider.id}`)}
               className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all cursor-pointer"
             >
               <div className="flex gap-4 p-4">
@@ -460,7 +460,7 @@ export default function MapDiscovery() {
                     </div>
                     <div className="text-left">
                       <h3 className="font-bold text-gray-900">Verified Providers Only</h3>
-                      <p className="text-sm text-gray-600">Show only accredited clinics</p>
+                      <p className="text-sm text-gray-600">Show only accredited providers</p>
                     </div>
                   </div>
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${

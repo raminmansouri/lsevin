@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { PropsWithChildren } from "react";
 import { Bell, Search, UserCircle2 } from "lucide-react";
@@ -9,6 +10,7 @@ type Props = PropsWithChildren<{
 }>;
 
 export function AdminShell({ navigation, children }: Props) {
+  const tAdmin = useTranslations("AdminGenerated");
   return (
     <div className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50">
       <div className="grid min-h-screen grid-cols-1 md:grid-cols-[280px_1fr]">
@@ -21,8 +23,8 @@ export function AdminShell({ navigation, children }: Props) {
                   <Search className="h-5 w-5" />
                 </div>
                 <div className="hidden min-w-0 sm:block">
-                  <p className="truncate text-sm font-medium">Dynamic Admin</p>
-                  <p className="truncate text-xs text-zinc-500">Metadata-driven dashboard</p>
+                  <p className="truncate text-sm font-medium">{tAdmin("dynamicAdmin")}</p>
+                  <p className="truncate text-xs text-zinc-500">{tAdmin("metadataDrivenDashboard")}</p>
                 </div>
               </div>
 

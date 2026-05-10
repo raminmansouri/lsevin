@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from "next-intl";
 import { Eye, MessageCircle, Paintbrush, Save, Settings2 } from "lucide-react";
 import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -33,6 +35,7 @@ const labelKeys = [
 ] as const;
 
 export function SupportSettingsForm({ settings }: Props) {
+  const tAdmin = useTranslations("AdminGenerated");
   const [form, setForm] = useState(settings);
   const [activeLocale, setActiveLocale] = useState<LabelLocale>("en-US");
   const [officeHoursText, setOfficeHoursText] = useState(JSON.stringify(settings.officeHours || {}, null, 2));
@@ -77,7 +80,7 @@ export function SupportSettingsForm({ settings }: Props) {
         const result = await updateSupportSettingsAction(payload);
         if (result.data) {
           setForm(result.data);
-          toast.success("Support settings saved.");
+          toast.success(tAdmin("supportSettingsSaved"));
         }
         if (result.fieldErrors) toast.error(Object.values(result.fieldErrors)[0]?.[0] || "Please check settings.");
         if (result.error) toast.error(result.error.detail || result.error.title);
@@ -92,8 +95,8 @@ export function SupportSettingsForm({ settings }: Props) {
       <div className="space-y-5">
         <Card className="rounded-3xl">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Settings2 className="h-5 w-5" />Behavior</CardTitle>
-            <CardDescription>Control where support appears and who can start a conversation.</CardDescription>
+            <CardTitle className="flex items-center gap-2"><Settings2 className="h-5 w-5" />{tAdmin("behavior")}</CardTitle>
+            <CardDescription>{tAdmin("controlWhereSupportAppearsAndWhoCanStartAConversation")}</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
             {[
@@ -116,25 +119,25 @@ export function SupportSettingsForm({ settings }: Props) {
 
         <Card className="rounded-3xl">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Paintbrush className="h-5 w-5" />Skin</CardTitle>
-            <CardDescription>Customize launcher color, radius, icon, and position.</CardDescription>
+            <CardTitle className="flex items-center gap-2"><Paintbrush className="h-5 w-5" />{tAdmin("skin")}</CardTitle>
+            <CardDescription>{tAdmin("customizeLauncherColorRadiusIconAndPosition")}</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2"><Label>Primary color</Label><Input value={form.primaryColor} onChange={(event) => setValue("primaryColor", event.target.value)} /></div>
-            <div className="space-y-2"><Label>Accent color</Label><Input value={form.accentColor} onChange={(event) => setValue("accentColor", event.target.value)} /></div>
-            <div className="space-y-2"><Label>Text color</Label><Input value={form.textColor} onChange={(event) => setValue("textColor", event.target.value)} /></div>
-            <div className="space-y-2"><Label>Border radius</Label><Input value={form.borderRadius} onChange={(event) => setValue("borderRadius", event.target.value)} /></div>
-            <div className="space-y-2"><Label>Launcher icon</Label><Input value={form.launcherIcon} onChange={(event) => setValue("launcherIcon", event.target.value)} /></div>
-            <div className="space-y-2"><Label>Position</Label><select className="h-10 w-full rounded-md border bg-background px-3 text-sm" value={form.launcherPosition} onChange={(event) => setValue("launcherPosition", event.target.value as any)}><option value="bottom-right">Bottom right</option><option value="bottom-left">Bottom left</option></select></div>
-            <div className="space-y-2"><Label>Theme mode</Label><select className="h-10 w-full rounded-md border bg-background px-3 text-sm" value={form.themeMode} onChange={(event) => setValue("themeMode", event.target.value as any)}><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></div>
-            <div className="flex items-center justify-between rounded-2xl border bg-slate-50 p-4"><Label>Compact launcher</Label><Switch checked={form.compactMode} onCheckedChange={(checked) => setValue("compactMode", checked)} /></div>
+            <div className="space-y-2"><Label>{tAdmin("primaryColor")}</Label><Input value={form.primaryColor} onChange={(event) => setValue("primaryColor", event.target.value)} /></div>
+            <div className="space-y-2"><Label>{tAdmin("accentColor")}</Label><Input value={form.accentColor} onChange={(event) => setValue("accentColor", event.target.value)} /></div>
+            <div className="space-y-2"><Label>{tAdmin("textColor")}</Label><Input value={form.textColor} onChange={(event) => setValue("textColor", event.target.value)} /></div>
+            <div className="space-y-2"><Label>{tAdmin("borderRadius")}</Label><Input value={form.borderRadius} onChange={(event) => setValue("borderRadius", event.target.value)} /></div>
+            <div className="space-y-2"><Label>{tAdmin("launcherIcon")}</Label><Input value={form.launcherIcon} onChange={(event) => setValue("launcherIcon", event.target.value)} /></div>
+            <div className="space-y-2"><Label>{tAdmin("position")}</Label><select className="h-10 w-full rounded-md border bg-background px-3 text-sm" value={form.launcherPosition} onChange={(event) => setValue("launcherPosition", event.target.value as any)}><option value="bottom-right">{tAdmin("bottomRight")}</option><option value="bottom-left">{tAdmin("bottomLeft")}</option></select></div>
+            <div className="space-y-2"><Label>{tAdmin("themeMode")}</Label><select className="h-10 w-full rounded-md border bg-background px-3 text-sm" value={form.themeMode} onChange={(event) => setValue("themeMode", event.target.value as any)}><option value="system">{tAdmin("system")}</option><option value="light">{tAdmin("light")}</option><option value="dark">{tAdmin("dark")}</option></select></div>
+            <div className="flex items-center justify-between rounded-2xl border bg-slate-50 p-4"><Label>{tAdmin("compactLauncher")}</Label><Switch checked={form.compactMode} onCheckedChange={(checked) => setValue("compactMode", checked)} /></div>
           </CardContent>
         </Card>
 
         <Card className="rounded-3xl">
           <CardHeader>
-            <CardTitle>Labels</CardTitle>
-            <CardDescription>English and Persian labels are stored as JSONB objects, not stringified JSON.</CardDescription>
+            <CardTitle>{tAdmin("labels")}</CardTitle>
+            <CardDescription>{tAdmin("englishAndPersianLabelsAreStoredAsJSONBObjectsNotStringifiedJSON")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-2">
@@ -158,13 +161,13 @@ export function SupportSettingsForm({ settings }: Props) {
 
         <Card className="rounded-3xl">
           <CardHeader>
-            <CardTitle>Advanced JSON settings</CardTitle>
-            <CardDescription>Keep these as valid JSON objects.</CardDescription>
+            <CardTitle>{tAdmin("advancedJSONSettings")}</CardTitle>
+            <CardDescription>{tAdmin("keepTheseAsValidJSONObjects")}</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 lg:grid-cols-3">
-            <div className="space-y-2"><Label>Office hours</Label><Textarea value={officeHoursText} onChange={(event) => setOfficeHoursText(event.target.value)} className="min-h-[180px] font-mono text-xs" /></div>
-            <div className="space-y-2"><Label>Offline settings</Label><Textarea value={offlineText} onChange={(event) => setOfflineText(event.target.value)} className="min-h-[180px] font-mono text-xs" /></div>
-            <div className="space-y-2"><Label>Auto reply settings</Label><Textarea value={autoReplyText} onChange={(event) => setAutoReplyText(event.target.value)} className="min-h-[180px] font-mono text-xs" /></div>
+            <div className="space-y-2"><Label>{tAdmin("officeHours")}</Label><Textarea value={officeHoursText} onChange={(event) => setOfficeHoursText(event.target.value)} className="min-h-[180px] font-mono text-xs" /></div>
+            <div className="space-y-2"><Label>{tAdmin("offlineSettings")}</Label><Textarea value={offlineText} onChange={(event) => setOfflineText(event.target.value)} className="min-h-[180px] font-mono text-xs" /></div>
+            <div className="space-y-2"><Label>{tAdmin("autoReplySettings")}</Label><Textarea value={autoReplyText} onChange={(event) => setAutoReplyText(event.target.value)} className="min-h-[180px] font-mono text-xs" /></div>
           </CardContent>
         </Card>
       </div>
@@ -172,7 +175,7 @@ export function SupportSettingsForm({ settings }: Props) {
       <aside className="space-y-5">
         <Card className="sticky top-4 rounded-3xl">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Eye className="h-5 w-5" />Live preview</CardTitle>
+            <CardTitle className="flex items-center gap-2"><Eye className="h-5 w-5" />{tAdmin("livePreview")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-hidden rounded-[28px] border bg-white shadow-xl">

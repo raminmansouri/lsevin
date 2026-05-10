@@ -1,5 +1,7 @@
 "use client"
 
+
+import { useTranslations } from "next-intl";
 import { useState } from 'react';
 import { 
   LayoutDashboard,
@@ -31,6 +33,7 @@ import {
 import { DashboardLayout } from '../design-system/dashboard-components';
 
 export default function Support() {
+  const tAdmin = useTranslations("AdminGenerated");
   const [searchQuery, setSearchQuery] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -38,19 +41,19 @@ export default function Support() {
   const [typeFilter, setTypeFilter] = useState('all');
   
   const navigation = [
-    { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
-    { label: 'Live Activity', icon: <Activity size={20} />, path: '/admin/activity' },
-    { label: 'Users', icon: <Users size={20} />, path: '/admin/users', badge: 12 },
-    { label: 'Providers', icon: <Building2 size={20} />, path: '/admin/providers', badge: 8 },
-    { label: 'Bookings', icon: <ShoppingBag size={20} />, path: '/admin/bookings' },
-    { label: 'Payments', icon: <Wallet size={20} />, path: '/admin/payments' },
-    { label: 'Campaigns', icon: <TrendingUp size={20} />, path: '/admin/campaigns' },
-    { label: 'Rewards', icon: <Gift size={20} />, path: '/admin/rewards' },
-    { label: 'Support', icon: <MessageSquare size={20} />, path: '/admin/support', badge: 23 },
-    { label: 'Reports', icon: <BarChart3 size={20} />, path: '/admin/reports' },
-    { label: 'Localization', icon: <Globe size={20} />, path: '/admin/localization' },
-    { label: 'Settings', icon: <Settings size={20} />, path: '/admin/settings' },
-    { label: 'Audit Logs', icon: <FileText size={20} />, path: '/admin/audit' },
+    { label: tAdmin("dashboard"), icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
+    { label: tAdmin("liveActivity"), icon: <Activity size={20} />, path: '/admin/activity' },
+    { label: tAdmin("users"), icon: <Users size={20} />, path: '/admin/users', badge: 12 },
+    { label: tAdmin("providers"), icon: <Building2 size={20} />, path: '/admin/providers', badge: 8 },
+    { label: tAdmin("bookings"), icon: <ShoppingBag size={20} />, path: '/admin/bookings' },
+    { label: tAdmin("payments"), icon: <Wallet size={20} />, path: '/admin/payments' },
+    { label: tAdmin("campaigns"), icon: <TrendingUp size={20} />, path: '/admin/campaigns' },
+    { label: tAdmin("rewards"), icon: <Gift size={20} />, path: '/admin/rewards' },
+    { label: tAdmin("support"), icon: <MessageSquare size={20} />, path: '/admin/support', badge: 23 },
+    { label: tAdmin("reports"), icon: <BarChart3 size={20} />, path: '/admin/reports' },
+    { label: tAdmin("localization"), icon: <Globe size={20} />, path: '/admin/localization' },
+    { label: tAdmin("settings"), icon: <Settings size={20} />, path: '/admin/settings' },
+    { label: tAdmin("auditLogs"), icon: <FileText size={20} />, path: '/admin/audit' },
   ];
 
   const tickets = [
@@ -209,11 +212,11 @@ export default function Support() {
   const getPriorityBadge = (priority: string) => {
     switch(priority) {
       case 'High':
-        return <span className="px-2.5 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Flag size={12} />High</span>;
+        return <span className="px-2.5 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Flag size={12} />{tAdmin("high")}</span>;
       case 'Medium':
-        return <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Flag size={12} />Medium</span>;
+        return <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Flag size={12} />{tAdmin("medium")}</span>;
       case 'Low':
-        return <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Flag size={12} />Low</span>;
+        return <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Flag size={12} />{tAdmin("low")}</span>;
       default:
         return null;
     }
@@ -222,15 +225,15 @@ export default function Support() {
   const getStatusBadge = (status: string) => {
     switch(status) {
       case 'Open':
-        return <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><AlertCircle size={12} />Open</span>;
+        return <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><AlertCircle size={12} />{tAdmin("open")}</span>;
       case 'In Progress':
-        return <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Clock size={12} />In Progress</span>;
+        return <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Clock size={12} />{tAdmin("inProgress")}</span>;
       case 'Escalated':
-        return <span className="px-2.5 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><AlertCircle size={12} />Escalated</span>;
+        return <span className="px-2.5 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><AlertCircle size={12} />{tAdmin("escalated")}</span>;
       case 'Pending User':
-        return <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Clock size={12} />Pending User</span>;
+        return <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Clock size={12} />{tAdmin("pendingUser")}</span>;
       case 'Resolved':
-        return <span className="px-2.5 py-1 bg-gray-50 text-gray-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><CheckCircle2 size={12} />Resolved</span>;
+        return <span className="px-2.5 py-1 bg-gray-50 text-gray-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><CheckCircle2 size={12} />{tAdmin("resolved")}</span>;
       default:
         return null;
     }
@@ -252,16 +255,16 @@ export default function Support() {
   return (
     <DashboardLayout 
       navigation={navigation} 
-      headerTitle="Support & Tickets"
+      headerTitle={tAdmin("supportTickets")}
       userRole="admin"
-      userName="System Admin"
+      userName={tAdmin("systemAdmin")}
     >
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Support & Tickets</h1>
-            <p className="text-gray-600">Manage customer support tickets and inquiries</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">{tAdmin("supportTickets")}</h1>
+            <p className="text-gray-600">{tAdmin("manageCustomerSupportTicketsAndInquiries")}</p>
           </div>
           <div className="flex items-center gap-3">
             <button className="px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50">
@@ -284,7 +287,7 @@ export default function Support() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">247</div>
-            <div className="text-sm text-gray-600">Total Tickets</div>
+            <div className="text-sm text-gray-600">{tAdmin("totalTickets")}</div>
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -294,7 +297,7 @@ export default function Support() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">23</div>
-            <div className="text-sm text-gray-600">Open Tickets</div>
+            <div className="text-sm text-gray-600">{tAdmin("openTickets")}</div>
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -304,7 +307,7 @@ export default function Support() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">15</div>
-            <div className="text-sm text-gray-600">In Progress</div>
+            <div className="text-sm text-gray-600">{tAdmin("inProgress")}</div>
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -314,7 +317,7 @@ export default function Support() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">8</div>
-            <div className="text-sm text-gray-600">Escalated</div>
+            <div className="text-sm text-gray-600">{tAdmin("escalated")}</div>
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -323,8 +326,8 @@ export default function Support() {
                 <Clock className="text-purple-600" size={20} />
               </div>
             </div>
-            <div className="text-2xl font-bold text-gray-900 mb-1">1h 45m</div>
-            <div className="text-sm text-gray-600">Avg Response Time</div>
+            <div className="text-2xl font-bold text-gray-900 mb-1">{tAdmin("text1h45m")}</div>
+            <div className="text-sm text-gray-600">{tAdmin("avgResponseTime")}</div>
           </div>
         </div>
 
@@ -332,76 +335,76 @@ export default function Support() {
         <div className="bg-white rounded-2xl border border-gray-200 p-5">
           <div className="grid grid-cols-5 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Search Tickets</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("searchTickets")}</label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Ticket ID, subject, user..."
+                  placeholder={tAdmin("ticketIDSubjectUser")}
                   className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent"
                 />
               </div>
             </div>
             
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Priority</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("priority")}</label>
               <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
               >
-                <option value="all">All Priorities</option>
-                <option value="High">High</option>
-                <option value="Medium">Medium</option>
-                <option value="Low">Low</option>
+                <option value="all">{tAdmin("allPriorities")}</option>
+                <option value="High">{tAdmin("high")}</option>
+                <option value="Medium">{tAdmin("medium")}</option>
+                <option value="Low">{tAdmin("low")}</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("status")}</label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
               >
-                <option value="all">All Status</option>
-                <option value="Open">Open</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Escalated">Escalated</option>
-                <option value="Pending User">Pending User</option>
-                <option value="Resolved">Resolved</option>
+                <option value="all">{tAdmin("allStatus")}</option>
+                <option value="Open">{tAdmin("open")}</option>
+                <option value="In Progress">{tAdmin("inProgress")}</option>
+                <option value="Escalated">{tAdmin("escalated")}</option>
+                <option value="Pending User">{tAdmin("pendingUser")}</option>
+                <option value="Resolved">{tAdmin("resolved")}</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Type</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("type")}</label>
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
               >
-                <option value="all">All Types</option>
-                <option value="User">User</option>
-                <option value="Provider">Provider</option>
+                <option value="all">{tAdmin("allTypes2")}</option>
+                <option value="User">{tAdmin("user")}</option>
+                <option value="Provider">{tAdmin("provider")}</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("category")}</label>
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
               >
-                <option value="all">All Categories</option>
-                <option value="Payment Issue">Payment Issue</option>
-                <option value="Booking Management">Booking Management</option>
-                <option value="Refund Request">Refund Request</option>
-                <option value="Technical Issue">Technical Issue</option>
-                <option value="Account Verification">Account Verification</option>
-                <option value="General Inquiry">General Inquiry</option>
+                <option value="all">{tAdmin("allCategories")}</option>
+                <option value="Payment Issue">{tAdmin("paymentIssue")}</option>
+                <option value="Booking Management">{tAdmin("bookingManagement")}</option>
+                <option value="Refund Request">{tAdmin("refundRequest2")}</option>
+                <option value="Technical Issue">{tAdmin("technicalIssue")}</option>
+                <option value="Account Verification">{tAdmin("accountVerification")}</option>
+                <option value="General Inquiry">{tAdmin("generalInquiry")}</option>
               </select>
             </div>
           </div>
@@ -419,15 +422,15 @@ export default function Support() {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Ticket ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Subject</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">User/Provider</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Category</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Priority</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Assigned To</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Response Time</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("ticketID")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("subject")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("userProvider")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("category")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("priority")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("status")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("assignedTo")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("responseTime2")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">

@@ -1,21 +1,23 @@
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function IdentityUserDetailCard({ user }: { user: any }) {
+  const tAdmin = useTranslations("AdminGenerated");
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader><CardTitle>Preferences</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{tAdmin("preferences")}</CardTitle></CardHeader>
         <CardContent className="grid gap-3 md:grid-cols-3">
-          <Info label="Preferred locale" value={user.preferred_locale} />
-          <Info label="Preferred currency" value={user.preferred_currency_code} />
-          <Info label="Theme" value={user.preferred_theme} />
-          <Info label="Notifications" value={String(user.notifications_enabled)} />
-          <Info label="Marketing notifications" value={String(user.marketing_notifications_enabled)} />
+          <Info label={tAdmin("preferredLocale")} value={user.preferred_locale} />
+          <Info label={tAdmin("preferredCurrency")} value={user.preferred_currency_code} />
+          <Info label={tAdmin("theme")} value={user.preferred_theme} />
+          <Info label={tAdmin("notifications")} value={String(user.notifications_enabled)} />
+          <Info label={tAdmin("marketingNotifications")} value={String(user.marketing_notifications_enabled)} />
         </CardContent>
       </Card>
       <Card>
-        <CardHeader><CardTitle>Roles</CardTitle></CardHeader>
-        <CardContent className="space-y-2">{user.roles?.length ? user.roles.map((item: any) => <div key={item.roleId} className="rounded-md border px-3 py-2 text-sm">{item.name}</div>) : <p className="text-sm text-muted-foreground">No roles.</p>}</CardContent>
+        <CardHeader><CardTitle>{tAdmin("roles")}</CardTitle></CardHeader>
+        <CardContent className="space-y-2">{user.roles?.length ? user.roles.map((item: any) => <div key={item.roleId} className="rounded-md border px-3 py-2 text-sm">{item.name}</div>) : <p className="text-sm text-muted-foreground">{tAdmin("noRoles")}</p>}</CardContent>
       </Card>
     </div>
   );

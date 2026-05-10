@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from "next-intl";
 import { normalizeAdminFormFieldExtension, resolveAdminFormFieldExtension } from "@/lib/admin/extensions/form-and-table-renderers";
 import { useEffect, useMemo, useTransition } from "react";
 import { useForm } from "react-hook-form";
@@ -67,6 +69,7 @@ export function DynamicForm({
   submitLabel,
   onSuccess,
 }: Props) {
+  const tAdmin = useTranslations("AdminGenerated");
   const [pending, startTransition] = useTransition();
   const hiddenFieldSet = useMemo(() => new Set(excludeFields), [excludeFields]);
   const renderedFields = useMemo(
@@ -155,8 +158,8 @@ export function DynamicForm({
           <RHFMultiMediaPickerField
             control={form.control}
             name={field.columnName}
-            label="Brochures"
-            placeholder="Pick files"
+            label={tAdmin("brochures")}
+            placeholder={tAdmin("pickFiles")}
             mediaType="all"
             helperText="Stores ids as comma-separated text."
             modalTitle="Pick brochures"
@@ -177,8 +180,8 @@ export function DynamicForm({
           <RHFSingleMediaPickerField
             control={form.control}
             name={field.columnName}
-            label="Thumbnail"
-            placeholder="Pick image"
+            label={tAdmin("thumbnail")}
+            placeholder={tAdmin("pickImage")}
             mediaType="image"
             helperText="Stores one media id in a hidden input."
             modalTitle="Pick thumbnail"
@@ -315,7 +318,7 @@ export function DynamicForm({
             {...form.register(field.columnName)}
             className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-2.5 text-sm outline-none dark:border-zinc-800 dark:bg-zinc-950"
           >
-            <option value="">Select...</option>
+            <option value="">{tAdmin("select")}</option>
             {field.enumValues.map((option) => (
               <option key={option} value={option}>
                 {option}

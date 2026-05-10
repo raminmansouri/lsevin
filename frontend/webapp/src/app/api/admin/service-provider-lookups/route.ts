@@ -11,6 +11,7 @@ const VALID_TYPES = new Set<AdminLookupType>([
   "grades",
   "countries",
   "cities",
+  "categories",
   "serviceDefinitions",
   "staff",
   "providers",
@@ -46,6 +47,7 @@ export async function GET(request: NextRequest) {
     pageSize: toPositiveInt(searchParams.get("pageSize"), 30),
     parentId: searchParams.get("parentId"),
     providerTypeId: searchParams.get("providerTypeId"),
+    categoryId: searchParams.get("categoryId"),
     excludeProviderId: searchParams.get("excludeProviderId"),
   });
 

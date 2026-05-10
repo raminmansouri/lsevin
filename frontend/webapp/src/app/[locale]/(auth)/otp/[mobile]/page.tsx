@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import LocaleBoundary from "@/components/locale/locale-boundary";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TRANSLATION_KEY } from "@/features/auth/actions/verify-otp/types";
+import { getAuthPageContent } from "@/features/auth/db/auth-content.queries";
 import OtpForm, {
   OtpFormSkeleton,
 } from "@/features/auth/components/otp/otp-form";
@@ -17,8 +18,14 @@ export async function generateMetadata(
 ) {
   const { locale } = await props.params;
   const t = await getTranslations({ locale, namespace: TRANSLATION_KEY });
-  return {
+  const content = await getAuthPageContent(locale, "otp", {
     title: t("page.title"),
+    description: "",
+  });
+
+  return {
+    title: content.title,
+    description: content.description,
   };
 }
 
@@ -42,14 +49,21 @@ const OtpPage = ({ params }: { params: Promise<OtpPageParams> }) => {
     <Suspense fallback={<OtpBoundarySkeleton />}>
       <LocaleBoundary params={params} tanslationNameSpace={TRANSLATION_KEY}>
         {async (t) => {
-          const { mobile } = await params;
+          const { locale, mobile } = await params;
           const decodedMobile = decodeURIComponent(mobile);
+          const content = await getAuthPageContent(locale, "otp", {
+            title: t("page.title"),
+            description: t("page.description", { mobile: decodedMobile }),
+          });
 
           return (
             <div>
               <AuthPageHeader
-                title={t("page.title")}
-                description={t("page.description", { mobile: decodedMobile })}
+                eyebrow={content.eyebrow}
+                title={content.title}
+                description={content.description}
+                imageUrl={content.mediaUrl}
+                imageAlt={content.alt}
               />
               <OtpForm phoneNumber={decodedMobile} />
               <AuthLinksContainer>

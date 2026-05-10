@@ -51,11 +51,11 @@ function normalizeLocale(locale?: string | null) {
 const fallbackSections: HomeManagedSections = {
   hero_featured: {
     key: 'hero_featured',
-    badge: 'Featured',
-    title: 'Discover premium health and wellness services',
-    subtitle: 'Compare trusted providers and book services across LSevin destinations.',
+    badge: '',
+    title: '',
+    subtitle: '',
     description: '',
-    buttonLabel: 'Explore Offers',
+    buttonLabel: '',
     buttonHref: '/n/app/mobile/offers',
     imageUrl: null,
     iconName: 'Sparkles',
@@ -64,8 +64,8 @@ const fallbackSections: HomeManagedSections = {
   explore_nearby: {
     key: 'explore_nearby',
     badge: '',
-    title: 'Explore Nearby',
-    subtitle: '{count} providers ready to discover',
+    title: '',
+    subtitle: '',
     description: '',
     buttonLabel: '',
     buttonHref: '/n/app/mobile/map-discovery',
@@ -76,10 +76,10 @@ const fallbackSections: HomeManagedSections = {
   premium_packages: {
     key: 'premium_packages',
     badge: '',
-    title: 'Premium Packages',
-    subtitle: 'Save on bundled experiences',
-    description: 'Bundle services with accommodation, transfers, and aftercare when packages are available for your destination.',
-    buttonLabel: 'View Packages',
+    title: '',
+    subtitle: '',
+    description: '',
+    buttonLabel: '',
     buttonHref: '/n/app/mobile/packages',
     imageUrl: null,
     iconName: 'Sparkles',
@@ -88,20 +88,14 @@ const fallbackSections: HomeManagedSections = {
   loyalty_club: {
     key: 'loyalty_club',
     badge: '',
-    title: 'Join Loyalty Club',
+    title: '',
     subtitle: '',
-    description: 'Earn points on every booking, unlock rewards, and get priority access to new services.',
-    buttonLabel: "Join Now - It's Free",
+    description: '',
+    buttonLabel: '',
     buttonHref: '/n/app/mobile/profile/rewards',
     imageUrl: null,
     iconName: 'Gift',
-    metadata: {
-      benefits: [
-        { label: 'Cashback', value: '5%' },
-        { label: 'Rewards', icon: 'Award' },
-        { label: 'VIP Access', icon: 'Star' },
-      ],
-    },
+    metadata: {},
   },
 };
 

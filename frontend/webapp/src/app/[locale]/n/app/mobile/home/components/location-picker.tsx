@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, ChevronRight, Loader2, LocateFixed, MapPin, Navigation, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -14,6 +15,7 @@ import { RHFCountryCitySelect } from '@/features/locations/components/rhf-countr
 import { getPickedLocations, type HomePickedLocation } from '../actions/get-picked-locations';
 import {
   getInitialHomeLocationAction,
+  resolveHomeLocationFromDetectedIpAction,
   resolveHomeLocationFromCodesAction,
   resolveHomeLocationFromCoordinatesAction,
   resolveHomeLocationFromIdsAction,
@@ -35,8 +37,29 @@ type ApplyLocationOptions = {
   persist?: boolean;
 };
 
+type DetectedIpGeoLocation = {
+  countryCode: string | null;
+  country: string | null;
+  city: string | null;
+  latitude: number | null;
+  longitude: number | null;
+};
+
 type Props = {
   locale?: string;
+};
+
+type LocationSourceLabels = {
+  chooseOrDetect: string;
+  gps: string;
+  profile: string;
+  phone: string;
+  ip: string;
+  saved: string;
+  picked: string;
+  manual: string;
+  url: string;
+  current: string;
 };
 
 const STORAGE_KEY = 'lsevin.home.selected-location.v1';
@@ -109,44 +132,135 @@ function persistLocation(location: HomeResolvedLocation) {
   }
 }
 
-function getLocationTitle(location: HomeResolvedLocation) {
+function getLocationTitle(location: HomeResolvedLocation, fallback: string) {
   const city = location.city?.trim();
   const country = location.country?.trim();
 
   if (city && country && city.toLowerCase() !== country.toLowerCase()) return `${city}, ${country}`;
-  return country || city || 'Select location';
+  return country || city || fallback;
 }
 
-function getLocationSourceLabel(location: HomeResolvedLocation) {
-  if (location.id === INITIAL_LOCATION.id) return 'Choose or detect your destination';
+function getLocationSourceLabel(location: HomeResolvedLocation, labels: LocationSourceLabels) {
+  if (location.id === INITIAL_LOCATION.id) return labels.chooseOrDetect;
 
   switch (location.source) {
     case 'gps':
-      return 'Detected from your device location';
+      return labels.gps;
     case 'profile':
-      return 'Detected from your profile';
+      return labels.profile;
     case 'phone':
-      return 'Detected from your mobile number';
+      return labels.phone;
     case 'ip':
-      return 'Approximated from your network';
+      return labels.ip;
     case 'saved':
-      return 'Loaded from saved preference';
+      return labels.saved;
     case 'picked':
-      return 'Selected featured destination';
+      return labels.picked;
     case 'manual':
-      return 'Selected manually';
+      return labels.manual;
     case 'url':
-      return 'Selected destination';
+      return labels.url;
     default:
-      return 'Current destination';
+      return labels.current;
   }
 }
 
+
+function numberOrNull(value: unknown): number | null {
+  if (value == null || value === '') return null;
+  const parsed = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function stringOrNull(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return trimmed ? trimmed : null;
+}
+
+function normalizeIpGeoPayload(payload: unknown): DetectedIpGeoLocation | null {
+  if (!payload || typeof payload !== 'object') return null;
+
+  const record = payload as Record<string, unknown>;
+
+  if (record.error === true || record.success === false || record.status === 'fail') {
+    return null;
+  }
+
+  const countryCode = stringOrNull(
+    record.countryCode ?? record.country_code ?? record.country_code2 ?? record.countryCodeIso2 ?? record.country
+  )?.toUpperCase() ?? null;
+  const country = stringOrNull(record.countryName ?? record.country_name ?? record.country_name_en ?? record.country);
+  const city = stringOrNull(record.city ?? record.cityName ?? record.regionName);
+  const latitude = numberOrNull(record.latitude ?? record.lat);
+  const longitude = numberOrNull(record.longitude ?? record.lon ?? record.lng);
+
+  if (!countryCode && !country && !city && (latitude == null || longitude == null)) return null;
+
+  return {
+    countryCode,
+    country,
+    city,
+    latitude,
+    longitude,
+  };
+}
+
+async function fetchJsonWithTimeout(url: string, timeoutMs = 2000) {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      cache: 'no-store',
+      signal: controller.signal,
+    });
+
+    if (!response.ok) return null;
+    return response.json();
+  } catch {
+    return null;
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+}
+
+async function lookupIpGeoWithoutGps(): Promise<DetectedIpGeoLocation | null> {
+  if (typeof window === 'undefined') return null;
+
+  const sameOriginPayload = await fetchJsonWithTimeout('/api/location/client-ip-geo');
+  const sameOriginLocation = normalizeIpGeoPayload(sameOriginPayload);
+  if (sameOriginLocation) return sameOriginLocation;
+
+  const browserEndpoint = process.env.NEXT_PUBLIC_IP_GEOLOCATION_ENDPOINT?.trim() || 'https://ipapi.co/json/';
+  if (!browserEndpoint) return null;
+
+  const browserPayload = await fetchJsonWithTimeout(browserEndpoint);
+  return normalizeIpGeoPayload(browserPayload);
+}
+
 export default function LocationPicker({ locale = 'en-US' }: Props) {
+  const t = useTranslations('Home.location');
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const localeForQueries = normalizeLocale(locale);
+
+  const sourceLabels = useMemo<LocationSourceLabels>(
+    () => ({
+      chooseOrDetect: t('source.chooseOrDetect'),
+      gps: t('source.gps'),
+      profile: t('source.profile'),
+      phone: t('source.phone'),
+      ip: t('source.ip'),
+      saved: t('source.saved'),
+      picked: t('source.picked'),
+      manual: t('source.manual'),
+      url: t('source.url'),
+      current: t('source.current'),
+    }),
+    [t]
+  );
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -168,6 +282,8 @@ export default function LocationPicker({ locale = 'en-US' }: Props) {
   const [hasLoadedLocations, setHasLoadedLocations] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<HomeResolvedLocation>(INITIAL_LOCATION);
   const [locationMessage, setLocationMessage] = useState<string | null>(null);
+
+  const locationTitleFallback = t('selectLocation');
 
   const applyLocation = useCallback(
     (location: HomeResolvedLocation, options: ApplyLocationOptions = {}) => {
@@ -209,7 +325,7 @@ export default function LocationPicker({ locale = 'en-US' }: Props) {
   const detectFromAccountPhoneOrIp = useCallback(
     (navigation: NavigationMode = 'replace') => {
       setIsDetecting(true);
-      setLocationMessage('Detecting from saved profile, mobile number, or network...');
+      setLocationMessage(t('messages.detectingAutomatic'));
 
       startTransition(async () => {
         try {
@@ -217,29 +333,54 @@ export default function LocationPicker({ locale = 'en-US' }: Props) {
 
           if (resolved?.countryCode || resolved?.cityCode) {
             applyLocation(resolved, { navigation });
-            setLocationMessage(`${getLocationSourceLabel(resolved)}: ${getLocationTitle(resolved)}`);
+            setLocationMessage(
+              t('messages.detectedFromSource', {
+                source: getLocationSourceLabel(resolved, sourceLabels),
+                location: getLocationTitle(resolved, locationTitleFallback),
+              })
+            );
             return;
           }
 
-          setLocationMessage('We could not detect your location automatically. Please choose it manually.');
+          const detectedIpLocation = await lookupIpGeoWithoutGps();
+
+          if (detectedIpLocation) {
+            const resolvedFromIp = await resolveHomeLocationFromDetectedIpAction({
+              ...detectedIpLocation,
+              locale: localeForQueries,
+            });
+
+            if (resolvedFromIp?.countryCode || resolvedFromIp?.cityCode) {
+              applyLocation(resolvedFromIp, { navigation });
+              setLocationMessage(
+                t('messages.detectedFromSource', {
+                  source: getLocationSourceLabel(resolvedFromIp, sourceLabels),
+                  location: getLocationTitle(resolvedFromIp, locationTitleFallback),
+                })
+              );
+              return;
+            }
+          }
+
+          setLocationMessage(t('messages.autoDetectFailed'));
           setShowLocationPicker(true);
         } finally {
           setIsDetecting(false);
         }
       });
     },
-    [applyLocation, localeForQueries, startTransition]
+    [applyLocation, localeForQueries, locationTitleFallback, sourceLabels, startTransition, t]
   );
 
   const requestBrowserLocation = useCallback(() => {
     if (typeof window === 'undefined' || !navigator.geolocation) {
-      setLocationMessage('Your browser does not support location detection. Please choose your location manually.');
+      setLocationMessage(t('messages.browserUnsupported'));
       setShowLocationPicker(true);
       return;
     }
 
     setIsDetecting(true);
-    setLocationMessage('Requesting permission to use your current location...');
+    setLocationMessage(t('messages.requestingPermission'));
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -255,11 +396,15 @@ export default function LocationPicker({ locale = 'en-US' }: Props) {
             if (resolved?.countryCode || resolved?.cityCode) {
               applyLocation(resolved, { navigation: 'replace' });
               setShowLocationPicker(false);
-              setLocationMessage(`Using nearest supported destination: ${getLocationTitle(resolved)}`);
+              setLocationMessage(
+                t('messages.usingNearestDestination', {
+                  location: getLocationTitle(resolved, locationTitleFallback),
+                })
+              );
               return;
             }
 
-            setLocationMessage('Your device location was detected, but no supported LSevin destination was found nearby.');
+            setLocationMessage(t('messages.noSupportedDestination'));
             setShowLocationPicker(true);
           } finally {
             setIsDetecting(false);
@@ -268,7 +413,7 @@ export default function LocationPicker({ locale = 'en-US' }: Props) {
       },
       () => {
         setIsDetecting(false);
-        setLocationMessage('Location permission was not granted. You can still choose your destination manually.');
+        setLocationMessage(t('messages.permissionDenied'));
         detectFromAccountPhoneOrIp('replace');
       },
       {
@@ -277,7 +422,7 @@ export default function LocationPicker({ locale = 'en-US' }: Props) {
         maximumAge: 5 * 60 * 1000,
       }
     );
-  }, [applyLocation, detectFromAccountPhoneOrIp, localeForQueries, startTransition]);
+  }, [applyLocation, detectFromAccountPhoneOrIp, localeForQueries, locationTitleFallback, startTransition, t]);
 
   useEffect(() => {
     setMounted(true);
@@ -346,12 +491,12 @@ export default function LocationPicker({ locale = 'en-US' }: Props) {
   const handleApplyManualSelection = () => {
     const values = form.getValues();
     if (!values.countryId && !values.cityId) {
-      setLocationMessage('Please select a country or city first.');
+      setLocationMessage(t('messages.selectCountryOrCity'));
       return;
     }
 
     setIsDetecting(true);
-    setLocationMessage('Applying selected destination...');
+    setLocationMessage(t('messages.applyingSelected'));
 
     startTransition(async () => {
       try {
@@ -367,7 +512,7 @@ export default function LocationPicker({ locale = 'en-US' }: Props) {
           return;
         }
 
-        setLocationMessage('Selected location could not be resolved. Please try another country or city.');
+        setLocationMessage(t('messages.resolveFailed'));
       } finally {
         setIsDetecting(false);
       }
@@ -386,18 +531,16 @@ export default function LocationPicker({ locale = 'en-US' }: Props) {
               <div className="mt-2 w-full max-w-3xl overflow-hidden rounded-[28px] border border-white/60 bg-white shadow-[0_25px_80px_rgba(0,0,0,0.25)]">
                 <div className="flex items-start justify-between gap-4 border-b border-slate-100 bg-gradient-to-r from-[#083f30] via-[#0b4c3d] to-[#0f6b56] px-5 py-5 text-white sm:px-6">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70">Destination</p>
-                    <h3 className="mt-1 text-xl font-bold sm:text-2xl">Select Location</h3>
-                    <p className="mt-1 text-sm text-white/80">
-                      Detect your location, use your account information, or choose country and city manually.
-                    </p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70">{t('modal.eyebrow')}</p>
+                    <h3 className="mt-1 text-xl font-bold sm:text-2xl">{t('modal.title')}</h3>
+                    <p className="mt-1 text-sm text-white/80">{t('modal.description')}</p>
                   </div>
 
                   <button
                     type="button"
                     onClick={() => setShowLocationPicker(false)}
                     className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
-                    aria-label="Close location picker"
+                    aria-label={t('modal.closeAria')}
                   >
                     <X size={18} />
                   </button>
@@ -415,8 +558,8 @@ export default function LocationPicker({ locale = 'en-US' }: Props) {
                         {isBusy ? <Loader2 className="animate-spin" size={20} /> : <LocateFixed size={20} />}
                       </div>
                       <div>
-                        <div className="text-sm font-bold text-emerald-950">Use current location</div>
-                        <p className="mt-0.5 text-xs leading-5 text-emerald-800/80">Browser asks for permission, then LSevin picks the nearest supported destination.</p>
+                        <div className="text-sm font-bold text-emerald-950">{t('currentLocation.title')}</div>
+                        <p className="mt-0.5 text-xs leading-5 text-emerald-800/80">{t('currentLocation.description')}</p>
                       </div>
                     </button>
 
@@ -430,8 +573,8 @@ export default function LocationPicker({ locale = 'en-US' }: Props) {
                         {isBusy ? <Loader2 className="animate-spin" size={20} /> : <Navigation size={20} />}
                       </div>
                       <div>
-                        <div className="text-sm font-bold text-slate-950">Detect without GPS</div>
-                        <p className="mt-0.5 text-xs leading-5 text-slate-500">Uses saved profile, mobile country code, or geo headers from your hosting/proxy.</p>
+                        <div className="text-sm font-bold text-slate-950">{t('detectWithoutGps.title')}</div>
+                        <p className="mt-0.5 text-xs leading-5 text-slate-500">{t('detectWithoutGps.description')}</p>
                       </div>
                     </button>
                   </div>
@@ -444,10 +587,8 @@ export default function LocationPicker({ locale = 'en-US' }: Props) {
 
                   <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
                     <div className="mb-3">
-                      <h4 className="text-sm font-semibold text-slate-900">Manual selection</h4>
-                      <p className="mt-1 text-xs text-slate-500">
-                        Use the lazy-loaded selectors below if your destination is not listed in featured locations.
-                      </p>
+                      <h4 className="text-sm font-semibold text-slate-900">{t('manual.title')}</h4>
+                      <p className="mt-1 text-xs text-slate-500">{t('manual.description')}</p>
                     </div>
 
                     <RHFCountryCitySelect
@@ -456,8 +597,8 @@ export default function LocationPicker({ locale = 'en-US' }: Props) {
                       cityName="cityId"
                       locale={localeForQueries}
                       fallbackLocale="en-US"
-                      countryLabel="Country"
-                      cityLabel="City"
+                      countryLabel={t('manual.country')}
+                      cityLabel={t('manual.city')}
                     />
 
                     <div className="mt-4 flex justify-end">
@@ -467,19 +608,19 @@ export default function LocationPicker({ locale = 'en-US' }: Props) {
                         disabled={!canApplyManualSelection || isBusy}
                         className="rounded-2xl bg-[#083f30] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0a513f] disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        {isBusy ? 'Applying...' : 'Apply location'}
+                        {isBusy ? t('manual.applying') : t('manual.apply')}
                       </button>
                     </div>
                   </div>
 
                   <div className="mb-3 flex items-center justify-between">
                     <div>
-                      <h4 className="text-base font-bold text-slate-900">Featured destinations</h4>
-                      <p className="text-sm text-slate-500">Quick picks for popular locations</p>
+                      <h4 className="text-base font-bold text-slate-900">{t('featuredDestinations.title')}</h4>
+                      <p className="text-sm text-slate-500">{t('featuredDestinations.description')}</p>
                     </div>
 
                     <div className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                      {availableLocations.length} available
+                      {t('featuredDestinations.available', { count: availableLocations.length })}
                     </div>
                   </div>
 
@@ -547,8 +688,8 @@ export default function LocationPicker({ locale = 'en-US' }: Props) {
                       <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-200">
                         <MapPin className="text-slate-500" size={20} />
                       </div>
-                      <h4 className="text-sm font-semibold text-slate-900">No featured locations found</h4>
-                      <p className="mt-1 text-sm text-slate-500">Add picked locations in admin to show quick choices here.</p>
+                      <h4 className="text-sm font-semibold text-slate-900">{t('featuredDestinations.emptyTitle')}</h4>
+                      <p className="mt-1 text-sm text-slate-500">{t('featuredDestinations.emptyDescription')}</p>
                     </div>
                   )}
                 </div>
@@ -571,9 +712,9 @@ export default function LocationPicker({ locale = 'en-US' }: Props) {
             <MapPin size={20} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium uppercase tracking-[0.16em] text-gray-500">Current destination</p>
-            <p className="truncate text-sm font-bold text-gray-900">{getLocationTitle(selectedLocation)}</p>
-            <p className="truncate text-[11px] font-medium text-gray-500">{getLocationSourceLabel(selectedLocation)}</p>
+            <p className="text-xs font-medium uppercase tracking-[0.16em] text-gray-500">{t('currentDestination')}</p>
+            <p className="truncate text-sm font-bold text-gray-900">{getLocationTitle(selectedLocation, locationTitleFallback)}</p>
+            <p className="truncate text-[11px] font-medium text-gray-500">{getLocationSourceLabel(selectedLocation, sourceLabels)}</p>
           </div>
           {isBusy ? <Loader2 size={18} className="animate-spin text-gray-400" /> : <ChevronRight size={18} className="text-gray-400" />}
         </button>
@@ -586,7 +727,7 @@ export default function LocationPicker({ locale = 'en-US' }: Props) {
             className="flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-2 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isBusy ? <Loader2 size={14} className="animate-spin" /> : <LocateFixed size={14} />}
-            Use my current location
+            {t('useMyCurrentLocation')}
           </button>
         ) : null}
       </div>

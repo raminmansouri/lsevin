@@ -116,7 +116,7 @@ function Chip({ children }: { children: ReactNode }) {
   return <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">{children}</span>;
 }
 
-function MediaPreview({ item, alt, className }: { item?: ServiceGalleryItem; alt: string; className: string }) {
+function MediaPreview({ item, alt, className, sizes = "100vw" }: { item?: ServiceGalleryItem; alt: string; className: string; sizes?: string }) {
   const src = resolveMediaUrl(item?.url);
 
   if (!src) {
@@ -127,8 +127,14 @@ function MediaPreview({ item, alt, className }: { item?: ServiceGalleryItem; alt
     );
   }
 
-  if (item?.mediaType?.toLowerCase().includes("video")) {
+  const mediaType = item?.mediaType?.toLowerCase() || "";
+
+  if (mediaType.includes("video")) {
     return <video src={src} className={className} controls playsInline preload="metadata" />;
+  }
+
+  if (mediaType.includes("gif") || src.split("?")[0]?.toLowerCase().endsWith(".gif")) {
+    return <img src={src} alt={alt} className={className} loading="lazy" />;
   }
 
   return (
@@ -137,7 +143,7 @@ function MediaPreview({ item, alt, className }: { item?: ServiceGalleryItem; alt
       alt={alt}
       fill
       className={className}
-      sizes="100vw"
+      sizes={sizes}
       fallbackClassName="bg-gray-100"
     />
   );
@@ -177,7 +183,7 @@ function ProviderOfferingCard({ provider, currentProviderServiceId, locale }: { 
       }`}
     >
       <div className="flex gap-3">
-        <ThumbImage src={provider.image} alt={provider.provider} className="h-24 w-24 flex-shrink-0 rounded-xl" />
+        <ThumbImage src={provider.image} alt={provider.provider} className="h-24 w-24 flex-shrink-0 rounded-xl lg:h-32 lg:w-40 lg:rounded-2xl" />
 
         <div className="min-w-0 flex-1">
           <div className="mb-1 flex items-start justify-between gap-2">
@@ -378,7 +384,7 @@ function ProviderProfileSection({ data }: { data: GetServicePageByIdResponse }) 
   return (
     <section className="mb-8 rounded-3xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="mb-4 flex gap-4">
-        <ThumbImage src={provider.image} alt={provider.name} className="h-24 w-24 flex-shrink-0 rounded-2xl" />
+        <ThumbImage src={provider.image} alt={provider.name} className="h-24 w-24 flex-shrink-0 rounded-2xl lg:h-32 lg:w-40" />
         <div className="min-w-0 flex-1">
           <div className="mb-1 flex items-center gap-2">
             <h2 className="line-clamp-1 text-xl font-bold text-gray-900">{provider.name}</h2>
@@ -412,15 +418,22 @@ function ProviderProfileSection({ data }: { data: GetServicePageByIdResponse }) 
 }
 
 function SpecialistsSection({ specialists, locale }: { specialists: ServiceSpecialist[]; locale: string }) {
+  const navigate = useNavigate();
+
   if (!specialists.length) return null;
   return (
     <section className="mb-8">
       <h2 className="mb-4 text-xl font-bold text-gray-900">Specialists</h2>
       <div className="space-y-3">
         {specialists.map((specialist) => (
-          <div key={specialist.id} className="rounded-2xl border border-gray-200 bg-white p-4">
+          <button
+            key={specialist.id}
+            type="button"
+            onClick={() => navigate(`/n/app/mobile/specialist/${specialist.id}`)}
+            className="w-full rounded-2xl border border-gray-200 bg-white p-4 text-left transition-all hover:border-[#083f30] hover:shadow-md active:scale-[0.99] lg:p-5"
+          >
             <div className="flex gap-3">
-              <ThumbImage src={specialist.image} alt={specialist.name} className="h-20 w-20 flex-shrink-0 rounded-2xl" />
+              <ThumbImage src={specialist.image} alt={specialist.name} className="h-20 w-20 flex-shrink-0 rounded-2xl lg:h-28 lg:w-28" />
               <div className="min-w-0 flex-1">
                 <div className="mb-1 flex items-start justify-between gap-2">
                   <div>
@@ -444,7 +457,7 @@ function SpecialistsSection({ specialists, locale }: { specialists: ServiceSpeci
                 {specialist.certifications.slice(0, 2).map((cert) => <div key={cert.id} className="flex items-center gap-1"><Medal size={13} />{cert.name}{cert.issuer ? ` — ${cert.issuer}` : ""}</div>)}
               </div>
             )}
-          </div>
+          </button>
         ))}
       </div>
     </section>
@@ -592,9 +605,9 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
 
   return (
     <div className="min-h-screen bg-white pb-36">
-      <div className="relative">
-        <div className="relative h-80 overflow-hidden bg-gray-100">
-          <MediaPreview item={currentGalleryItem} alt={service.name} className="h-full w-full object-cover" />
+      <div className="relative lg:px-6 lg:pt-6">
+        <div className="relative h-80 overflow-hidden bg-gray-100 lg:h-[460px] lg:rounded-[2rem] lg:shadow-xl">
+          <MediaPreview item={currentGalleryItem} alt={service.name} className="h-full w-full object-cover" sizes="(min-width: 1024px) 960px, 100vw" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
           <div className="absolute left-0 right-0 top-0 flex items-center justify-between p-4">
@@ -621,7 +634,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
               {galleryItems.slice(0, 6).map((item, index) => (
                 <button key={item.id} type="button" onClick={() => setCurrentImageIndex(index)} className={`h-14 w-14 overflow-hidden rounded-xl border-2 transition-all ${index === currentImageIndex ? "border-white shadow-lg" : "border-white/30 opacity-70"}`}>
                   <div className="relative h-full w-full">
-                    <MediaPreview item={item} alt={`${service.name} ${index + 1}`} className="h-full w-full object-cover" />
+                    <MediaPreview item={item} alt={`${service.name} ${index + 1}`} className="h-full w-full object-cover" sizes="56px" />
                   </div>
                 </button>
               ))}
@@ -633,7 +646,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
         </div>
       </div>
 
-      <div className="px-5 py-6">
+      <div className="px-5 py-6 lg:px-8">
         <div className="mb-3 flex flex-wrap gap-2">
           {service.verified && <span className="flex items-center gap-1 rounded-full bg-[#083f30] px-3 py-1 text-xs font-bold text-white"><BadgeCheck size={14} />Verified</span>}
           {service.popular && <span className="flex items-center gap-1 rounded-full bg-orange-500 px-3 py-1 text-xs font-bold text-white"><TrendingUp size={14} />Featured</span>}
@@ -646,7 +659,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
           <LexicalDescription content={service.subtitle} fallback="-" className="leading-relaxed text-muted-foreground" />
         </div>
 
-        <button type="button" onClick={() => navigate(`/n/app/mobile/service-providers/${service.clinicId}`)} className="-mx-2 mb-4 flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-gray-50">
+        <button type="button" onClick={() => navigate(`/n/app/mobile/provider/${service.clinicId}`)} className="-mx-2 mb-4 flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-gray-50">
           <ThumbImage src={service.providerProfile.image} alt={service.clinic} className="h-12 w-12 flex-shrink-0 rounded-xl" />
           <div className="min-w-0 flex-1">
             <div className="mb-0.5 flex items-center gap-2">
@@ -719,8 +732,8 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
           <div className="mb-4 flex items-center justify-between gap-3">
             <h2 className="text-xl font-bold text-gray-900">Patient Reviews</h2>
             <div className="flex items-center gap-3">
-              {visibleReviews.length > 0 ? (
-                <button type="button" onClick={() => navigate(`/n/app/mobile/service/${serviceId}/reviews`)} className="text-sm font-semibold text-[#083f30] hover:underline">View All</button>
+              {hasMoreReviews ? (
+                <button type="button" onClick={loadMoreReviews} className="text-sm font-semibold text-[#083f30] hover:underline">View All</button>
               ) : null}
               <button type="button" onClick={() => setShowReviewForm(true)} className="rounded-xl bg-[#083f30] px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-[#0a5a44]">Write Review</button>
             </div>

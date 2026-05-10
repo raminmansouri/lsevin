@@ -271,9 +271,9 @@ export default function ProviderDetailPage() {
 
   return (
     <div className="min-h-screen bg-white pb-32">
-      <div className="relative">
-        <div className="relative h-80 overflow-hidden bg-gray-100">
-          <ImageWithFallback fill src={heroImage} alt={provider.name} sizes="100vw" priority className="object-cover" fallbackClassName="h-full w-full" />
+      <div className="relative lg:px-6 lg:pt-6">
+        <div className="relative h-80 overflow-hidden bg-gray-100 lg:h-[460px] lg:rounded-[2rem] lg:shadow-xl">
+          <ImageWithFallback fill src={heroImage} alt={provider.name} sizes="(min-width: 1024px) 960px, 100vw" priority className="object-cover" fallbackClassName="h-full w-full" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
 
           <div className="absolute left-0 right-0 top-0 flex items-center justify-between p-4">
@@ -326,7 +326,7 @@ export default function ProviderDetailPage() {
         </div>
       </div>
 
-      <div className="px-5 py-6">
+      <div className="px-5 py-6 lg:px-8">
         <div className="mb-6">
           <div className="mb-3 flex flex-wrap items-center gap-2">
             {provider.verified ? (
@@ -436,9 +436,9 @@ export default function ProviderDetailPage() {
                 className="w-full overflow-hidden rounded-2xl border border-gray-200 bg-white text-left transition-all hover:shadow-lg"
                 type="button"
               >
-                <div className="flex gap-4 p-4">
-                  <span className="relative block h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100">
-                    <ImageWithFallback fill src={mediaUrl(treatment.image)} alt={treatment.name} sizes="96px" className="object-cover" fallbackClassName="h-full w-full" />
+                <div className="flex gap-4 p-4 lg:gap-5 lg:p-5">
+                  <span className="relative block h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100 lg:h-32 lg:w-40 lg:rounded-2xl">
+                    <ImageWithFallback fill src={mediaUrl(treatment.image)} alt={treatment.name} sizes="(min-width: 1024px) 160px, 96px" className="object-cover" fallbackClassName="h-full w-full" />
                   </span>
 
                   <div className="min-w-0 flex-1">
@@ -496,13 +496,13 @@ export default function ProviderDetailPage() {
               <button
                 key={doctor.id}
                 onClick={() => navigate(`/n/app/mobile/specialist/${doctor.id}`)}
-                className="w-full rounded-2xl border border-gray-200 bg-white p-4 text-left transition-all hover:shadow-lg"
+                className="w-full rounded-2xl border border-gray-200 bg-white p-4 text-left transition-all hover:shadow-lg lg:p-5"
                 type="button"
               >
                 <div className="flex gap-4">
                   <div className="relative flex-shrink-0">
-                    <span className="relative block h-20 w-20 overflow-hidden rounded-xl bg-gray-100">
-                      <ImageWithFallback fill src={mediaUrl(doctor.image)} alt={doctor.name} sizes="80px" className="object-cover" fallbackClassName="h-full w-full" />
+                    <span className="relative block h-20 w-20 overflow-hidden rounded-xl bg-gray-100 lg:h-28 lg:w-28 lg:rounded-2xl">
+                      <ImageWithFallback fill src={mediaUrl(doctor.image)} alt={doctor.name} sizes="(min-width: 1024px) 112px, 80px" className="object-cover" fallbackClassName="h-full w-full" />
                     </span>
                     {doctor.verified ? (
                       <div className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#083f30]">
@@ -593,10 +593,10 @@ export default function ProviderDetailPage() {
             {images.length > 1 ? (
               <div>
                 <h3 className="mb-3 text-lg font-bold text-gray-900">Gallery</h3>
-                <div className="flex gap-3 overflow-x-auto pb-1">
+                <div className="flex gap-3 overflow-x-auto pb-1 lg:grid lg:grid-cols-4 lg:overflow-visible">
                   {images.map((image, index) => (
-                    <button key={`${image}-${index}`} type="button" onClick={() => setCurrentImageIndex(index)} className="relative h-24 w-28 flex-shrink-0 overflow-hidden rounded-xl border border-gray-200">
-                      <ImageWithFallback fill src={mediaUrl(image)} alt={`${provider.name} ${index + 1}`} sizes="112px" className="object-cover" fallbackClassName="h-full w-full" />
+                    <button key={`${image}-${index}`} type="button" onClick={() => setCurrentImageIndex(index)} className="relative h-24 w-28 flex-shrink-0 overflow-hidden rounded-xl border border-gray-200 lg:h-36 lg:w-full lg:flex-shrink lg:rounded-2xl">
+                      <ImageWithFallback fill src={mediaUrl(image)} alt={`${provider.name} ${index + 1}`} sizes="(min-width: 1024px) 25vw, 112px" className="object-cover" fallbackClassName="h-full w-full" />
                     </button>
                   ))}
                 </div>
@@ -622,9 +622,17 @@ export default function ProviderDetailPage() {
                 <h3 className="mb-3 text-lg font-bold text-gray-900">Certifications</h3>
                 <div className="space-y-3">
                   {provider.certifications.map((item) => (
-                    <div key={item.name} className="flex items-start gap-3">
-                      {item.verified ? <Shield size={20} className="mt-0.5 flex-shrink-0 text-[#083f30]" /> : <CheckCircle2 size={20} className="mt-0.5 flex-shrink-0 text-gray-400" />}
-                      <span className="text-sm text-gray-700">{item.name}</span>
+                    <div key={item.name} className="rounded-xl border border-gray-100 bg-white p-3">
+                      <div className="flex items-start gap-3">
+                        {item.verified ? <Shield size={20} className="mt-0.5 flex-shrink-0 text-[#083f30]" /> : <CheckCircle2 size={20} className="mt-0.5 flex-shrink-0 text-gray-400" />}
+                        <span className="text-sm text-gray-700">{item.name}</span>
+                      </div>
+                      {(item.imageUrl || item.secondaryImageUrl) ? (
+                        <div className="mt-3 flex flex-wrap gap-2 text-xs text-gray-500">
+                          {item.imageUrl ? <span className="rounded-full bg-gray-100 px-2 py-1">Certificate image 1</span> : null}
+                          {item.secondaryImageUrl ? <span className="rounded-full bg-gray-100 px-2 py-1">Certificate image 2</span> : null}
+                        </div>
+                      ) : null}
                     </div>
                   ))}
                 </div>

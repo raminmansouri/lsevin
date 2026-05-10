@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from "next-intl";
 import { resolveAdminTableCellExtension } from "@/lib/admin/extensions/form-and-table-renderers";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -33,6 +35,7 @@ export function DynamicDataTable({
   pageCount,
   total,
 }: Props) {
+  const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -140,7 +143,7 @@ export function DynamicDataTable({
             onKeyDown={(e) => {
               if (e.key === "Enter") updateQuery({ q: globalSearch, page: 1 });
             }}
-            placeholder="Search records..."
+            placeholder={tAdmin("searchRecords")}
             className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-2 text-sm outline-none ring-0 placeholder:text-zinc-400 focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-950"
           />
           <button

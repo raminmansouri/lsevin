@@ -76,7 +76,7 @@ type ProviderRow = {
   accredited: boolean | null;
   responseTime: string | null;
   images: string[] | null;
-  certifications: { name: string; verified: boolean }[] | null;
+  certifications: { name: string; verified: boolean; imageUrl?: string | null; secondaryImageUrl?: string | null }[] | null;
   languages: string[] | null;
   established: number | null;
   totalPatients: string | null;
@@ -394,8 +394,20 @@ export async function getProviderPageDataFromDb(
         where resolved_url is not null
       ) gallery on true
       left join lateral (
-        select jsonb_agg(jsonb_build_object('name', pc.name, 'verified', coalesce(pc.is_verified, false)) order by pc.name) as certifications
+        select jsonb_agg(
+          jsonb_build_object(
+            'name', pc.name,
+            'verified', coalesce(pc.is_verified, false),
+            'imageUrl', coalesce(image_media.file_url, nullif(pc.image_url, '')),
+            'secondaryImageUrl', coalesce(secondary_image_media.file_url, nullif(pc.secondary_image_url, ''))
+          )
+          order by pc.name
+        ) as certifications
         from category.provider_certifications pc
+        left join media.media_library image_media
+          on image_media.id = case when pc.image_url ~* ${UUID_PATTERN} then pc.image_url::uuid else null end
+        left join media.media_library secondary_image_media
+          on secondary_image_media.id = case when pc.secondary_image_url ~* ${UUID_PATTERN} then pc.secondary_image_url::uuid else null end
         where pc.service_provider_id = sp.id
       ) cert on true
       left join lateral (
@@ -474,7 +486,7 @@ export async function getProviderPageDataFromDb(
         responseTime: row.responseTime || "Usually responds fast",
         image: providerImages[0] || "",
         images: providerImages,
-        certifications: toObjectArray<{ name: string; verified: boolean }>(
+        certifications: toObjectArray<{ name: string; verified: boolean; imageUrl?: string | null; secondaryImageUrl?: string | null }>(
           row.certifications,
         ),
         languages: toStringArray(row.languages),

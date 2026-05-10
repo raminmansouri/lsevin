@@ -139,9 +139,6 @@ function locationLabel(city: string | null, country: string | null) {
 
 export async function getHomeCategories(input: HomeQueryInput, limit = 6): Promise<HomeCategory[]> {
   const locale = normalizeLocale(input.locale);
-  const countryCode = normalizeFilter(input.countryCode);
-  const cityCode = normalizeFilter(input.cityCode);
-
   const rows = await sql<{
     id: string;
     label: string;
@@ -154,25 +151,17 @@ export async function getHomeCategories(input: HomeQueryInput, limit = 6): Promi
       common.get_translation_t(c.name_translations, ${locale}::text, 'en-US') as label,
       nullif(coalesce(cm.file_url, c.image_url, c.icon_url, ''), '') as "imageUrl",
       nullif(c.gradient, '') as gradient,
-      count(distinct ps.id)::int as "serviceCount"
+      count(distinct sd.id)::int as "serviceCount"
     from category.categories c
-    join category.service_definitions sd
+    left join category.service_definitions sd
       on sd.category_id = c.id
      and sd.is_active = true
-    join category.provider_services ps
-      on ps.service_definition_id = sd.id
-     and ps.is_active = true
-    join category.service_providers sp
-      on sp.id = ps.service_provider_id
-     and sp.is_active = true
     left join media.media_library cm
       on cm.id::text = coalesce(nullif(c.image_url, ''), nullif(c.icon_url, ''))
     where c.is_active = true
       and coalesce(c.display_in_home_page, true) = true
-      and (${countryCode}::text is null or upper(sp.country) = upper(${countryCode}::text))
-      and (${cityCode}::text is null or upper(sp.city) = upper(${cityCode}::text))
     group by c.id, label, "imageUrl", gradient, c.display_order
-    order by coalesce(c.display_order, 0) asc, count(distinct ps.id) desc, label asc
+    order by coalesce(c.display_order, 0) asc, count(distinct sd.id) desc, label asc
     limit ${limit}
   `;
 
@@ -216,8 +205,15 @@ export async function getFeaturedHomeServices(input: HomeQueryInput, limit = 8):
     select
       ps.id::text as id,
       sp.id::text as "providerId",
-      common.get_translation_t(ps.display_name_translations, ${locale}::text, 'en-US') as "displayName",
-      common.get_translation_t(ps.description_translations, ${locale}::text, 'en-US') as description,
+      coalesce(
+        nullif(common.get_translation_t(sd.name_translations, ${locale}::text, 'en-US'), ''),
+        nullif(common.get_translation_t(ps.display_name_translations, ${locale}::text, 'en-US'), ''),
+        common.get_translation_t(sp.name_translations, ${locale}::text, 'en-US')
+      ) as "displayName",
+      coalesce(
+        nullif(common.get_translation_t(sd.description_translations, ${locale}::text, 'en-US'), ''),
+        common.get_translation_t(ps.description_translations, ${locale}::text, 'en-US')
+      ) as description,
       common.get_translation_t(sp.name_translations, ${locale}::text, 'en-US') as "providerName",
       sp.city,
       sp.country,
@@ -236,7 +232,7 @@ export async function getFeaturedHomeServices(input: HomeQueryInput, limit = 8):
         else null
       end as "originalAmount",
       active_offer.discount_percent as "discountPercent",
-      nullif(coalesce(gm.file_url, gallery.url, psm.file_url, ps.image_url, spm.file_url, sp.image_url, ''), '') as "imageUrl",
+      nullif(coalesce(sdm.file_url, sd.image_url, def_gm.file_url, definition_gallery.url, gm.file_url, gallery.url, psm.file_url, ps.image_url, spm.file_url, sp.image_url, ''), '') as "imageUrl",
       ps.tags,
       ps.recovery,
       ps.success_rate as "successRate",
@@ -253,6 +249,24 @@ export async function getFeaturedHomeServices(input: HomeQueryInput, limit = 8):
     left join lateral (
       select psgi.url
       from category.provider_service_gallery_items psgi
+      join category.provider_services definition_ps
+        on definition_ps.id = psgi.provider_service_id
+       and definition_ps.is_active = true
+      join category.service_providers definition_sp
+        on definition_sp.id = definition_ps.service_provider_id
+       and definition_sp.is_active = true
+      where definition_ps.service_definition_id = sd.id
+      order by
+        psgi.is_primary desc,
+        coalesce(definition_ps.is_popular, false) desc,
+        coalesce(definition_sp.is_sponsored, false) desc,
+        psgi.display_order asc,
+        psgi.create_date desc
+      limit 1
+    ) definition_gallery on true
+    left join lateral (
+      select psgi.url
+      from category.provider_service_gallery_items psgi
       where psgi.provider_service_id = ps.id
       order by psgi.is_primary desc, psgi.display_order asc, psgi.create_date desc
       limit 1
@@ -266,6 +280,8 @@ export async function getFeaturedHomeServices(input: HomeQueryInput, limit = 8):
       order by coalesce(o.is_featured, false) desc, o.discount_percent desc, o.created_at desc
       limit 1
     ) active_offer on true
+    left join media.media_library sdm on sdm.id::text = nullif(sd.image_url, '')
+    left join media.media_library def_gm on def_gm.id::text = definition_gallery.url
     left join media.media_library gm on gm.id::text = gallery.url
     left join media.media_library psm on psm.id::text = ps.image_url
     left join media.media_library spm on spm.id::text = sp.image_url
@@ -325,8 +341,11 @@ export async function getTrendingHomeServices(input: HomeQueryInput, limit = 8):
   }[]>`
     select
       ps.id::text as id,
-      common.get_translation_t(ps.display_name_translations, ${locale}::text, 'en-US') as "displayName",
-      nullif(coalesce(gm.file_url, gallery.url, psm.file_url, ps.image_url, spm.file_url, sp.image_url, ''), '') as "imageUrl",
+      coalesce(
+        nullif(common.get_translation_t(sd.name_translations, ${locale}::text, 'en-US'), ''),
+        common.get_translation_t(ps.display_name_translations, ${locale}::text, 'en-US')
+      ) as "displayName",
+      nullif(coalesce(sdm.file_url, sd.image_url, gm.file_url, gallery.url, psm.file_url, ps.image_url, spm.file_url, sp.image_url, ''), '') as "imageUrl",
       coalesce(recent_bookings.booking_count, 0)::int as "bookingCount",
       nullif(ps.growth, '') as growth,
       coalesce(ps.trending_score, 0) as "trendingScore"
@@ -351,6 +370,7 @@ export async function getTrendingHomeServices(input: HomeQueryInput, limit = 8):
         and b.create_date >= now() - interval '30 days'
         and coalesce(b.booking_status, '') not in ('Cancelled', 'Rejected')
     ) recent_bookings on true
+    left join media.media_library sdm on sdm.id::text = nullif(sd.image_url, '')
     left join media.media_library gm on gm.id::text = gallery.url
     left join media.media_library psm on psm.id::text = ps.image_url
     left join media.media_library spm on spm.id::text = sp.image_url
@@ -464,7 +484,7 @@ export async function getHomeHeroOffer(input: HomeQueryInput): Promise<HomeHeroO
       o.discount_percent as "discountPercent",
       o.valid_until::text as "validUntil",
       ps.id::text as "serviceId",
-      nullif(coalesce(gm.file_url, gallery.url, psm.file_url, ps.image_url, spm.file_url, sp.image_url, ''), '') as "imageUrl"
+      nullif(coalesce(sdm.file_url, sd.image_url, gm.file_url, gallery.url, psm.file_url, ps.image_url, spm.file_url, sp.image_url, ''), '') as "imageUrl"
     from marketing.offers o
     join category.provider_services ps
       on ps.id = o.provider_service_id
@@ -472,6 +492,9 @@ export async function getHomeHeroOffer(input: HomeQueryInput): Promise<HomeHeroO
     join category.service_providers sp
       on sp.id = ps.service_provider_id
      and sp.is_active = true
+    join category.service_definitions sd
+      on sd.id = ps.service_definition_id
+     and sd.is_active = true
     left join lateral (
       select psgi.url
       from category.provider_service_gallery_items psgi
@@ -479,6 +502,7 @@ export async function getHomeHeroOffer(input: HomeQueryInput): Promise<HomeHeroO
       order by psgi.is_primary desc, psgi.display_order asc, psgi.create_date desc
       limit 1
     ) gallery on true
+    left join media.media_library sdm on sdm.id::text = nullif(sd.image_url, '')
     left join media.media_library gm on gm.id::text = gallery.url
     left join media.media_library psm on psm.id::text = ps.image_url
     left join media.media_library spm on spm.id::text = sp.image_url

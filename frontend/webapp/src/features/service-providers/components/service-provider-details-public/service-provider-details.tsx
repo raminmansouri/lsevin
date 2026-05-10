@@ -22,6 +22,13 @@ type Props = {
   t: TranslationType;
 };
 
+function resolveCertificateImageSrc(value?: string | null) {
+  const src = String(value || "").trim();
+  if (!src) return "";
+  if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/")) return src;
+  return `${env.NEXT_PUBLIC_FILES_URL}/${src}`;
+}
+
 export const ServiceProviderDetails = async ({ serviceProvider, t }: Props) => {
   const {
     name,
@@ -32,6 +39,7 @@ export const ServiceProviderDetails = async ({ serviceProvider, t }: Props) => {
     coordinates,
     attributes,
     policies,
+    certifications = [],
     gallery,
     services,
     staff,
@@ -249,6 +257,42 @@ export const ServiceProviderDetails = async ({ serviceProvider, t }: Props) => {
                     )}
                   </Badge>
                 ))}
+              </div>
+            </div>
+          )}
+
+
+          {/* Certifications Section */}
+          {certifications.length > 0 && (
+            <div>
+              <div className="mb-4 flex items-center">
+                <div className="bg-primary me-3 h-2 w-2 rounded-full"></div>
+                <h2 className="text-lg font-semibold">Certifications</h2>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {certifications.map((certificate, index) => {
+                  const imageUrls = [certificate.imageUrl, certificate.secondaryImageUrl]
+                    .map(resolveCertificateImageSrc)
+                    .filter(Boolean);
+
+                  return (
+                    <div key={`${certificate.name}-${index}`} className="rounded-lg border bg-muted/20 p-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <h3 className="font-medium">{certificate.name}</h3>
+                        {certificate.verified ? <Badge variant="outline">Verified</Badge> : null}
+                      </div>
+                      {imageUrls.length ? (
+                        <div className="mt-3 grid grid-cols-2 gap-3">
+                          {imageUrls.map((src) => (
+                            <div key={src} className="relative h-28 overflow-hidden rounded-lg border bg-background">
+                              <Image src={src} alt={certificate.name} fill className="object-cover" sizes="160px" />
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

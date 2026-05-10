@@ -1,5 +1,7 @@
 'use client';
 
+
+import { useTranslations } from "next-intl";
 import Link from 'next/link';
 import { useTransition } from 'react';
 import { toast } from 'sonner';
@@ -8,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { updateProviderLedgerStatusAction } from '../../actions/admin-commercial-actions';
 
 export function ProviderLedgerTable({ rows }: { rows: any[] }) {
+  const tAdmin = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
 
   const updateStatus = (ledgerId: string, status: 'pending' | 'approved' | 'paid' | 'cancelled') => {
@@ -26,14 +29,14 @@ export function ProviderLedgerTable({ rows }: { rows: any[] }) {
       <table className="w-full min-w-[1100px] text-sm">
         <thead className="bg-muted/50">
           <tr>
-            <th className="p-3 text-left">Provider</th>
-            <th className="p-3 text-left">Entry type</th>
-            <th className="p-3 text-left">Amount</th>
-            <th className="p-3 text-left">Currency</th>
-            <th className="p-3 text-left">Status</th>
-            <th className="p-3 text-left">Reference</th>
-            <th className="p-3 text-left">Booking</th>
-            <th className="p-3 text-right">Actions</th>
+            <th className="p-3 text-left">{tAdmin("provider")}</th>
+            <th className="p-3 text-left">{tAdmin("entryType")}</th>
+            <th className="p-3 text-left">{tAdmin("amount")}</th>
+            <th className="p-3 text-left">{tAdmin("currency")}</th>
+            <th className="p-3 text-left">{tAdmin("status")}</th>
+            <th className="p-3 text-left">{tAdmin("reference")}</th>
+            <th className="p-3 text-left">{tAdmin("booking")}</th>
+            <th className="p-3 text-right">{tAdmin("actions")}</th>
           </tr>
         </thead>
         <tbody>
@@ -48,7 +51,7 @@ export function ProviderLedgerTable({ rows }: { rows: any[] }) {
               <td className="p-3">{row.currencyCode}</td>
               <td className="p-3">{row.status}</td>
               <td className="p-3 text-xs text-muted-foreground">{row.referenceType ?? '—'}</td>
-              <td className="p-3">{row.bookingId ? <Link href={`/admin/bookings/${row.bookingId}/financial`} className="underline">Open financials</Link> : '—'}</td>
+              <td className="p-3">{row.bookingId ? <Link href={`/admin/bookings/${row.bookingId}/financial`} className="underline">{tAdmin("openFinancials")}</Link> : '—'}</td>
               <td className="p-3 text-right">
                 <div className="flex justify-end gap-2">
                   <Button size="sm" variant="outline" disabled={isPending} onClick={() => updateStatus(row.id, 'approved')}>Approve</Button>

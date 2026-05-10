@@ -1,5 +1,7 @@
 'use client';
 
+
+import { useTranslations } from "next-intl";
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,6 +21,7 @@ import type { Currency } from '../../types';
 type FormInput = z.infer<typeof CurrencyFormSchema>;
 
 export function CurrencyForm({ currency }: { currency?: Currency }) {
+  const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -43,7 +46,7 @@ export function CurrencyForm({ currency }: { currency?: Currency }) {
     startTransition(async () => {
       try {
         await upsertCurrencyAction(values);
-        toast.success('Currency saved.');
+        toast.success(tAdmin("currencySaved"));
         router.push('/admin/finance/currencies');
         router.refresh();
       } catch (error) {
@@ -63,42 +66,42 @@ export function CurrencyForm({ currency }: { currency?: Currency }) {
             <div className="grid gap-4 md:grid-cols-3">
               <FormField control={form.control} name="code" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Code</FormLabel>
-                  <FormControl><Input {...field} disabled={!!currency || isPending} placeholder="USD" /></FormControl>
+                  <FormLabel>{tAdmin("code")}</FormLabel>
+                  <FormControl><Input {...field} disabled={!!currency || isPending} placeholder={tAdmin("uSD")} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
               <FormField control={form.control} name="name" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl><Input {...field} disabled={isPending} placeholder="United States Dollar" /></FormControl>
+                  <FormLabel>{tAdmin("name")}</FormLabel>
+                  <FormControl><Input {...field} disabled={isPending} placeholder={tAdmin("unitedStatesDollar")} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
               <FormField control={form.control} name="nativeName" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Native name</FormLabel>
-                  <FormControl><Input {...field} value={field.value || ''} disabled={isPending} placeholder="US Dollar" /></FormControl>
+                  <FormLabel>{tAdmin("nativeName")}</FormLabel>
+                  <FormControl><Input {...field} value={field.value || ''} disabled={isPending} placeholder={tAdmin("uSDollar")} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
               <FormField control={form.control} name="symbol" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Symbol</FormLabel>
+                  <FormLabel>{tAdmin("symbol")}</FormLabel>
                   <FormControl><Input {...field} disabled={isPending} placeholder="$" /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
               <FormField control={form.control} name="decimalDigits" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Decimal digits</FormLabel>
+                  <FormLabel>{tAdmin("decimalDigits")}</FormLabel>
                   <FormControl><Input {...field} type="number" min={0} max={6} disabled={isPending} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
               <FormField control={form.control} name="sortOrder" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Sort order</FormLabel>
+                  <FormLabel>{tAdmin("sortOrder")}</FormLabel>
                   <FormControl><Input {...field} type="number" disabled={isPending} /></FormControl>
                   <FormMessage />
                 </FormItem>

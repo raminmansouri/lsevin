@@ -114,10 +114,14 @@ function joinSql(parts: any[], separator: any) {
   return parts.slice(1).reduce((acc, part) => sql`${acc}${separator}${part}`, parts[0]);
 }
 
+function isRawUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+}
+
 function coalesceImage(...candidates: Array<string | null | undefined>) {
   for (const candidate of candidates) {
     const value = candidate?.trim();
-    if (value) return value;
+    if (value && !isRawUuid(value)) return value;
   }
   return "/placeholder.svg";
 }
@@ -271,7 +275,16 @@ export async function getNearbyPageData({
     select
       sp.id::text as id,
       common.get_translation_t(sp.name_translations, ${lang}, 'en') as name,
-      coalesce(pgi.url, sp.image_url) as image,
+      coalesce(
+        nullif(btrim(pgi_media.file_url), ''),
+        nullif(btrim(pgi_media.storage_path), ''),
+        nullif(btrim(pgi_media.storage_key), ''),
+        (case when nullif(btrim(pgi.url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then nullif(btrim(pgi.url), '') end),
+        nullif(btrim(sp_media.file_url), ''),
+        nullif(btrim(sp_media.storage_path), ''),
+        nullif(btrim(sp_media.storage_key), ''),
+        (case when nullif(btrim(sp.image_url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then nullif(btrim(sp.image_url), '') end)
+      ) as image,
       coalesce(sp.rating, 0)::float as rating,
       coalesce(sp.review_count, 0)::int as reviews,
       coalesce(sp.accredited, false) as verified,
@@ -312,6 +325,10 @@ export async function getNearbyPageData({
       order by g.display_order asc, g.create_date asc
       limit 1
     ) pgi on true
+    left join media.media_library pgi_media
+      on pgi_media.id::text = nullif(btrim(pgi.url), '')
+    left join media.media_library sp_media
+      on sp_media.id::text = nullif(btrim(sp.image_url), '')
     left join lateral (
       select min(ps.value)::float as price_from
       from category.provider_services ps

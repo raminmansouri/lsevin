@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight, ExternalLink, Pause, Play } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 
@@ -18,6 +19,7 @@ function isExternalLink(value: string) {
 }
 
 export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredMediaCarouselProps) {
+  const t = useTranslations('Home.sponsoredCarousel');
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
@@ -94,10 +96,9 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
           {safeSlides.map((slide, index) => {
             const active = index === activeIndex;
             const mediaSrc = resolveHomeMediaUrl(slide.url);
-            const title = slide.title || 'Discover featured wellness offers';
-            const subtitle =
-              slide.subtitle || 'Image, GIF, and video creatives served from your media tables with direct landing links.';
-            const buttonLabel = slide.buttonLabel || 'Learn More';
+            const title = slide.title || t('fallbackTitle');
+            const subtitle = slide.subtitle || t('fallbackSubtitle');
+            const buttonLabel = slide.buttonLabel || t('fallbackButton');
 
             return (
               <div
@@ -140,14 +141,14 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
                 <div className="relative z-10 flex h-full flex-col justify-between p-5 sm:p-6">
                   <div className="flex items-start justify-between gap-3">
                     <div className="inline-flex w-fit items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-white backdrop-blur-md">
-                      Sponsored
+                      {t('sponsored')}
                     </div>
 
                     <button
                       type="button"
                       onClick={() => setIsPaused((value) => !value)}
                       className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-md transition hover:bg-black/45"
-                      aria-label={isPaused ? 'Resume carousel' : 'Pause carousel'}
+                      aria-label={isPaused ? t('resumeAria') : t('pauseAria')}
                     >
                       {isPaused ? <Play size={16} /> : <Pause size={16} />}
                     </button>
@@ -155,7 +156,7 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
 
                   <div className="max-w-md">
                     <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-white/70">
-                      Premium placement
+                      {t('premiumPlacement')}
                     </p>
 
                     <h3 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{title}</h3>
@@ -190,7 +191,7 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
               type="button"
               onClick={() => goTo(activeIndex - 1)}
               className="absolute left-3 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-lg transition hover:bg-white group-hover:flex"
-              aria-label="Previous slide"
+              aria-label={t('previousSlideAria')}
             >
               <ChevronLeft size={20} />
             </button>
@@ -199,7 +200,7 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
               type="button"
               onClick={() => goTo(activeIndex + 1)}
               className="absolute right-3 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-lg transition hover:bg-white group-hover:flex"
-              aria-label="Next slide"
+              aria-label={t('nextSlideAria')}
             >
               <ChevronRight size={20} />
             </button>
@@ -213,7 +214,7 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
                   className={`h-2.5 rounded-full transition-all ${
                     index === activeIndex ? 'w-8 bg-white' : 'w-2.5 bg-white/45 hover:bg-white/70'
                   }`}
-                  aria-label={`Go to slide ${index + 1}`}
+                  aria-label={t('goToSlideAria', { index: index + 1 })}
                 />
               ))}
             </div>

@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from "next-intl";
 import { useMemo, useState, useTransition } from "react";
 import { CalendarClock, Database, Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
@@ -70,6 +72,7 @@ function emptyResource(): BookableResource {
 }
 
 export function GenericAvailabilityManager({ rules, resources }: Props) {
+  const tAdmin = useTranslations("AdminGenerated");
   const [rule, setRule] = useState<GenericAvailabilityRule>(emptyRule());
   const [resource, setResource] = useState<BookableResource>(emptyResource());
   const [rulePending, startRuleTransition] = useTransition();
@@ -77,13 +80,13 @@ export function GenericAvailabilityManager({ rules, resources }: Props) {
 
   const { execute: saveRule } = useAction(saveGenericAvailabilityRuleAction, {
     startTransition: startRuleTransition,
-    onSuccess: () => toast.success("Availability rule saved."),
+    onSuccess: () => toast.success(tAdmin("availabilityRuleSaved")),
     onError: (error) => toast.error(error?.detail || error?.title || "Rule could not be saved."),
   });
 
   const { execute: saveResource } = useAction(saveBookableResourceAction, {
     startTransition: startResourceTransition,
-    onSuccess: () => toast.success("Bookable resource saved."),
+    onSuccess: () => toast.success(tAdmin("bookableResourceSaved")),
     onError: (error) => toast.error(error?.detail || error?.title || "Resource could not be saved."),
   });
 
@@ -97,7 +100,7 @@ export function GenericAvailabilityManager({ rules, resources }: Props) {
             <div className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
               <CalendarClock size={16} /> Generic availability
             </div>
-            <h1 className="text-2xl font-bold text-slate-950">Availability for providers, services, staff, and resources</h1>
+            <h1 className="text-2xl font-bold text-slate-950">{tAdmin("availabilityForProvidersServicesStaffAndResources")}</h1>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
               Use provider-service rules for service-level schedules, and bookable resources for capacity-based inventory like hotel rooms, beds, cars, seats, or equipment. Existing staff availability still works as a fallback.
             </p>
@@ -109,8 +112,8 @@ export function GenericAvailabilityManager({ rules, resources }: Props) {
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-lg font-bold text-slate-950">Availability rule</h2>
-              <p className="text-sm text-slate-500">Recurring weekly rule or specific-date exception.</p>
+              <h2 className="text-lg font-bold text-slate-950">{tAdmin("availabilityRule")}</h2>
+              <p className="text-sm text-slate-500">{tAdmin("recurringWeeklyRuleOrSpecificDateException")}</p>
             </div>
             <button type="button" onClick={() => setRule(emptyRule())} className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600">New</button>
           </div>
@@ -121,7 +124,7 @@ export function GenericAvailabilityManager({ rules, resources }: Props) {
                 const found = rules.find((item) => item.id === event.target.value);
                 if (found) setRule({ ...found });
               }} className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-900">
-                <option value="">Create new rule</option>
+                <option value="">{tAdmin("createNewRule")}</option>
                 {rules.map((item) => <option key={item.id} value={item.id}>{item.targetType} • {item.dayOfWeek ? DAYS.find((d) => d.value === item.dayOfWeek)?.label : item.specificDate} • {item.startsAt || 'all day'}</option>)}
               </select>
             </label>
@@ -133,27 +136,27 @@ export function GenericAvailabilityManager({ rules, resources }: Props) {
             </label>
 
             <label className="block text-sm font-semibold text-slate-700">Target ID
-              <input value={rule.targetId || ""} onChange={(event) => setRule((current) => ({ ...current, targetId: event.target.value }))} placeholder="UUID of provider service, provider, staff, or resource" className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-900" />
+              <input value={rule.targetId || ""} onChange={(event) => setRule((current) => ({ ...current, targetId: event.target.value }))} placeholder={tAdmin("uUIDOfProviderServiceProviderStaffOrResource")} className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-900" />
             </label>
 
             <label className="block text-sm font-semibold text-slate-700">Provider ID
-              <input value={rule.serviceProviderId || ""} onChange={(event) => setRule((current) => ({ ...current, serviceProviderId: event.target.value || null }))} placeholder="Optional but recommended" className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-900" />
+              <input value={rule.serviceProviderId || ""} onChange={(event) => setRule((current) => ({ ...current, serviceProviderId: event.target.value || null }))} placeholder={tAdmin("optionalButRecommended")} className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-900" />
             </label>
 
             <label className="block text-sm font-semibold text-slate-700">Provider service ID
-              <input value={rule.providerServiceId || ""} onChange={(event) => setRule((current) => ({ ...current, providerServiceId: event.target.value || null }))} placeholder="Service/room type UUID" className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-900" />
+              <input value={rule.providerServiceId || ""} onChange={(event) => setRule((current) => ({ ...current, providerServiceId: event.target.value || null }))} placeholder={tAdmin("serviceRoomTypeUUID")} className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-900" />
             </label>
 
             <label className="block text-sm font-semibold text-slate-700">Resource ID
               <select value={rule.resourceId || ""} onChange={(event) => setRule((current) => ({ ...current, resourceId: event.target.value || null, targetId: current.targetType === 'bookable_resource' && event.target.value ? event.target.value : current.targetId }))} className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-900">
-                <option value="">No specific resource</option>
+                <option value="">{tAdmin("noSpecificResource")}</option>
                 {resources.map((item) => <option key={item.id} value={item.id}>{item.resourceType} • {item.code || item.id}</option>)}
               </select>
             </label>
 
             <label className="block text-sm font-semibold text-slate-700">Recurring day
               <select value={rule.dayOfWeek || ""} onChange={(event) => setRule((current) => ({ ...current, dayOfWeek: event.target.value ? Number(event.target.value) : null, specificDate: event.target.value ? null : current.specificDate }))} className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-900">
-                <option value="">Specific date only</option>
+                <option value="">{tAdmin("specificDateOnly")}</option>
                 {DAYS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
               </select>
             </label>
@@ -171,7 +174,7 @@ export function GenericAvailabilityManager({ rules, resources }: Props) {
             </label>
 
             <label className="block text-sm font-semibold text-slate-700">Capacity
-              <input type="number" min={1} value={rule.capacity ?? ""} onChange={(event) => setRule((current) => ({ ...current, capacity: event.target.value ? Number(event.target.value) : null }))} placeholder="Blank = resource total or 1" className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-900" />
+              <input type="number" min={1} value={rule.capacity ?? ""} onChange={(event) => setRule((current) => ({ ...current, capacity: event.target.value ? Number(event.target.value) : null }))} placeholder={tAdmin("blankResourceTotalOr1")} className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-900" />
             </label>
 
             <label className="block text-sm font-semibold text-slate-700">Slot interval
@@ -201,8 +204,8 @@ export function GenericAvailabilityManager({ rules, resources }: Props) {
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-lg font-bold text-slate-950">Bookable resources</h2>
-              <p className="text-sm text-slate-500">For hotels: define room inventory per provider service. For other services: seats, cars, equipment, etc.</p>
+              <h2 className="text-lg font-bold text-slate-950">{tAdmin("bookableResources")}</h2>
+              <p className="text-sm text-slate-500">{tAdmin("forHotelsDefineRoomInventoryPerProviderServiceForOtherServic29372b28")}</p>
             </div>
             <button type="button" onClick={() => setResource(emptyResource())} className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600">New</button>
           </div>
@@ -213,7 +216,7 @@ export function GenericAvailabilityManager({ rules, resources }: Props) {
                 const found = resources.find((item) => item.id === event.target.value);
                 if (found) setResource({ ...found });
               }} className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-900">
-                <option value="">Create new resource</option>
+                <option value="">{tAdmin("createNewResource")}</option>
                 {resources.map((item) => <option key={item.id} value={item.id}>{item.resourceType} • {item.code || item.id} • capacity {item.totalCapacity}</option>)}
               </select>
             </label>
@@ -229,11 +232,11 @@ export function GenericAvailabilityManager({ rules, resources }: Props) {
             </label>
 
             <label className="block text-sm font-semibold text-slate-700">Provider service ID
-              <input value={resource.providerServiceId || ""} onChange={(event) => setResource((current) => ({ ...current, providerServiceId: event.target.value || null }))} placeholder="Room-type / service UUID" className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-900" />
+              <input value={resource.providerServiceId || ""} onChange={(event) => setResource((current) => ({ ...current, providerServiceId: event.target.value || null }))} placeholder={tAdmin("roomTypeServiceUUID")} className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-900" />
             </label>
 
             <label className="block text-sm font-semibold text-slate-700">Code
-              <input value={resource.code || ""} onChange={(event) => setResource((current) => ({ ...current, code: event.target.value }))} placeholder="DBL-STD, ROOM-101, CAR-01" className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-900" />
+              <input value={resource.code || ""} onChange={(event) => setResource((current) => ({ ...current, code: event.target.value }))} placeholder={tAdmin("dBLSTDROOM101CAR01")} className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-900" />
             </label>
 
             <label className="block text-sm font-semibold text-slate-700">Total capacity

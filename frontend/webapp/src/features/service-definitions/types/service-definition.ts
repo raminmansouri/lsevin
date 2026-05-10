@@ -6,6 +6,8 @@ export interface ServiceDefinition {
   description: string;
   categoryId: string;
   categoryName: string;
+  mediaUrl?: string | null;
+  mediaType?: "image" | "video" | "gif";
   durationMinutes: number;
   basePrice: number;
   currency: string;
@@ -32,6 +34,8 @@ export interface ServiceDefinitionDetails {
   description: LocalizedContentResponse;
   categoryId: string;
   categoryName: string;
+  mediaUrl?: string | null;
+  mediaType?: "image" | "video" | "gif";
   durationMinutes: number;
   currency: string;
   basePrice: number;
@@ -87,6 +91,8 @@ export interface ServiceDefinitionWithAllLocales {
   description: LocalizedContentResponse;
   categoryId: string;
   categoryName: string;
+  mediaUrl?: string | null;
+  mediaType?: "image" | "video" | "gif";
   durationMinutes: number;
   basePrice: number;
   currency: string;

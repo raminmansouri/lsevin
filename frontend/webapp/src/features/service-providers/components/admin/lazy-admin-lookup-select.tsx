@@ -112,9 +112,24 @@ export function LazyAdminLookupSelect({
 
   const selectedOption = useMemo(() => {
     if (!selectedValue) return undefined;
-    return uniqueByOptionValue([...initialOptions, ...items], valueField).find(
-      (item) => optionValue(item, valueField) === selectedValue || String(item.id) === selectedValue
-    );
+    const normalizedSelectedValue = selectedValue.trim().toLowerCase();
+
+    return uniqueByOptionValue([...initialOptions, ...items], valueField).find((item) => {
+      const candidates = [
+        optionValue(item, valueField),
+        String(item.id),
+        item.code ? String(item.code) : "",
+        item.label,
+      ];
+
+      return candidates.some((candidate) => {
+        const normalizedCandidate = String(candidate || "").trim();
+        return (
+          normalizedCandidate === selectedValue ||
+          normalizedCandidate.toLowerCase() === normalizedSelectedValue
+        );
+      });
+    });
   }, [initialOptions, items, selectedValue, valueField]);
 
   useEffect(() => {

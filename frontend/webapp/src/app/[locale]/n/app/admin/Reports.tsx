@@ -1,5 +1,7 @@
 "use client"
 
+
+import { useTranslations } from "next-intl";
 import { useState } from 'react';
 import { 
   LayoutDashboard,
@@ -27,24 +29,25 @@ import {
 import { DashboardLayout } from '../design-system/dashboard-components';
 
 export default function Reports() {
+  const tAdmin = useTranslations("AdminGenerated");
   const [dateRange, setDateRange] = useState('last-30-days');
   const [countryFilter, setCountryFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   
   const navigation = [
-    { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
-    { label: 'Live Activity', icon: <Activity size={20} />, path: '/admin/activity' },
-    { label: 'Users', icon: <Users size={20} />, path: '/admin/users', badge: 12 },
-    { label: 'Providers', icon: <Building2 size={20} />, path: '/admin/providers', badge: 8 },
-    { label: 'Bookings', icon: <ShoppingBag size={20} />, path: '/admin/bookings' },
-    { label: 'Payments', icon: <Wallet size={20} />, path: '/admin/payments' },
-    { label: 'Campaigns', icon: <TrendingUp size={20} />, path: '/admin/campaigns' },
-    { label: 'Rewards', icon: <Gift size={20} />, path: '/admin/rewards' },
-    { label: 'Support', icon: <MessageSquare size={20} />, path: '/admin/support', badge: 23 },
-    { label: 'Reports', icon: <BarChart3 size={20} />, path: '/admin/reports' },
-    { label: 'Localization', icon: <Globe size={20} />, path: '/admin/localization' },
-    { label: 'Settings', icon: <Settings size={20} />, path: '/admin/settings' },
-    { label: 'Audit Logs', icon: <FileText size={20} />, path: '/admin/audit' },
+    { label: tAdmin("dashboard"), icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
+    { label: tAdmin("liveActivity"), icon: <Activity size={20} />, path: '/admin/activity' },
+    { label: tAdmin("users"), icon: <Users size={20} />, path: '/admin/users', badge: 12 },
+    { label: tAdmin("providers"), icon: <Building2 size={20} />, path: '/admin/providers', badge: 8 },
+    { label: tAdmin("bookings"), icon: <ShoppingBag size={20} />, path: '/admin/bookings' },
+    { label: tAdmin("payments"), icon: <Wallet size={20} />, path: '/admin/payments' },
+    { label: tAdmin("campaigns"), icon: <TrendingUp size={20} />, path: '/admin/campaigns' },
+    { label: tAdmin("rewards"), icon: <Gift size={20} />, path: '/admin/rewards' },
+    { label: tAdmin("support"), icon: <MessageSquare size={20} />, path: '/admin/support', badge: 23 },
+    { label: tAdmin("reports"), icon: <BarChart3 size={20} />, path: '/admin/reports' },
+    { label: tAdmin("localization"), icon: <Globe size={20} />, path: '/admin/localization' },
+    { label: tAdmin("settings"), icon: <Settings size={20} />, path: '/admin/settings' },
+    { label: tAdmin("auditLogs"), icon: <FileText size={20} />, path: '/admin/audit' },
   ];
 
   const reportCategories = [
@@ -172,16 +175,16 @@ export default function Reports() {
   return (
     <DashboardLayout 
       navigation={navigation} 
-      headerTitle="Reports Center"
+      headerTitle={tAdmin("reportsCenter")}
       userRole="admin"
-      userName="System Admin"
+      userName={tAdmin("systemAdmin")}
     >
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Reports Center</h1>
-            <p className="text-gray-600">Generate, export, and schedule platform reports</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">{tAdmin("reportsCenter")}</h1>
+            <p className="text-gray-600">{tAdmin("generateExportAndSchedulePlatformReports")}</p>
           </div>
           <div className="flex items-center gap-3">
             <button className="px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50">
@@ -199,7 +202,7 @@ export default function Reports() {
         <div className="bg-white rounded-2xl border border-gray-200 p-5">
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Date Range</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("dateRange")}</label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <select
@@ -207,20 +210,20 @@ export default function Reports() {
                   onChange={(e) => setDateRange(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
                 >
-                  <option value="last-7-days">Last 7 Days</option>
-                  <option value="last-30-days">Last 30 Days</option>
-                  <option value="last-90-days">Last 90 Days</option>
-                  <option value="this-month">This Month</option>
-                  <option value="last-month">Last Month</option>
-                  <option value="this-quarter">This Quarter</option>
-                  <option value="this-year">This Year</option>
-                  <option value="custom">Custom Range</option>
+                  <option value="last-7-days">{tAdmin("last7Days2")}</option>
+                  <option value="last-30-days">{tAdmin("last30Days2")}</option>
+                  <option value="last-90-days">{tAdmin("last90Days2")}</option>
+                  <option value="this-month">{tAdmin("thisMonth")}</option>
+                  <option value="last-month">{tAdmin("lastMonth")}</option>
+                  <option value="this-quarter">{tAdmin("thisQuarter")}</option>
+                  <option value="this-year">{tAdmin("thisYear")}</option>
+                  <option value="custom">{tAdmin("customRange2")}</option>
                 </select>
               </div>
             </div>
             
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Country</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("country")}</label>
               <div className="relative">
                 <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <select
@@ -228,18 +231,18 @@ export default function Reports() {
                   onChange={(e) => setCountryFilter(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
                 >
-                  <option value="all">All Countries</option>
-                  <option value="turkey">Turkey</option>
-                  <option value="uae">UAE</option>
-                  <option value="cyprus">Cyprus</option>
-                  <option value="indonesia">Indonesia</option>
-                  <option value="thailand">Thailand</option>
+                  <option value="all">{tAdmin("allCountries")}</option>
+                  <option value="turkey">{tAdmin("turkey")}</option>
+                  <option value="uae">{tAdmin("uAE")}</option>
+                  <option value="cyprus">{tAdmin("cyprus")}</option>
+                  <option value="indonesia">{tAdmin("indonesia")}</option>
+                  <option value="thailand">{tAdmin("thailand")}</option>
                 </select>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("category")}</label>
               <div className="relative">
                 <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <select
@@ -247,12 +250,12 @@ export default function Reports() {
                   onChange={(e) => setCategoryFilter(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
                 >
-                  <option value="all">All Categories</option>
-                  <option value="medical">Medical</option>
-                  <option value="beauty">Beauty & Spa</option>
-                  <option value="fitness">Fitness</option>
-                  <option value="tourism">Tourism</option>
-                  <option value="pharmacy">Pharmacy</option>
+                  <option value="all">{tAdmin("allCategories")}</option>
+                  <option value="medical">{tAdmin("medical")}</option>
+                  <option value="beauty">{tAdmin("beautySpa")}</option>
+                  <option value="fitness">{tAdmin("fitness")}</option>
+                  <option value="tourism">{tAdmin("tourism")}</option>
+                  <option value="pharmacy">{tAdmin("pharmacy")}</option>
                 </select>
               </div>
             </div>
@@ -302,7 +305,7 @@ export default function Reports() {
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
           <div className="p-5 border-b border-gray-200">
             <div className="flex items-center justify-between">
-              <h2 className="font-bold text-gray-900">Scheduled Reports</h2>
+              <h2 className="font-bold text-gray-900">{tAdmin("scheduledReports")}</h2>
               <button className="px-3 py-1.5 bg-[#083f30] text-white rounded-lg text-sm font-semibold hover:bg-[#083f30]/90">
                 <Calendar size={14} className="inline mr-1" />
                 New Schedule
@@ -314,14 +317,14 @@ export default function Reports() {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Report ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Report Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Type</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Schedule</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Format</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Next Run</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("reportID")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("reportName")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("type")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("schedule")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("format")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("status")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("nextRun")}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">

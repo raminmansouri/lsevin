@@ -1,5 +1,7 @@
 "use client"
 
+
+import { useTranslations } from "next-intl";
 import { useState } from 'react';
 import { 
   LayoutDashboard,
@@ -31,24 +33,25 @@ import {
 import { DashboardLayout } from '../design-system/dashboard-components';
 
 export default function Campaigns() {
+  const tAdmin = useTranslations("AdminGenerated");
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [countryFilter, setCountryFilter] = useState('all');
   
   const navigation = [
-    { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
-    { label: 'Live Activity', icon: <Activity size={20} />, path: '/admin/activity' },
-    { label: 'Users', icon: <Users size={20} />, path: '/admin/users', badge: 12 },
-    { label: 'Providers', icon: <Building2 size={20} />, path: '/admin/providers', badge: 8 },
-    { label: 'Bookings', icon: <ShoppingBag size={20} />, path: '/admin/bookings' },
-    { label: 'Payments', icon: <Wallet size={20} />, path: '/admin/payments' },
-    { label: 'Campaigns', icon: <TrendingUp size={20} />, path: '/admin/campaigns' },
-    { label: 'Rewards', icon: <Gift size={20} />, path: '/admin/rewards' },
-    { label: 'Support', icon: <MessageSquare size={20} />, path: '/admin/support', badge: 23 },
-    { label: 'Reports', icon: <BarChart3 size={20} />, path: '/admin/reports' },
-    { label: 'Localization', icon: <Globe size={20} />, path: '/admin/localization' },
-    { label: 'Settings', icon: <Settings size={20} />, path: '/admin/settings' },
-    { label: 'Audit Logs', icon: <FileText size={20} />, path: '/admin/audit' },
+    { label: tAdmin("dashboard"), icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
+    { label: tAdmin("liveActivity"), icon: <Activity size={20} />, path: '/admin/activity' },
+    { label: tAdmin("users"), icon: <Users size={20} />, path: '/admin/users', badge: 12 },
+    { label: tAdmin("providers"), icon: <Building2 size={20} />, path: '/admin/providers', badge: 8 },
+    { label: tAdmin("bookings"), icon: <ShoppingBag size={20} />, path: '/admin/bookings' },
+    { label: tAdmin("payments"), icon: <Wallet size={20} />, path: '/admin/payments' },
+    { label: tAdmin("campaigns"), icon: <TrendingUp size={20} />, path: '/admin/campaigns' },
+    { label: tAdmin("rewards"), icon: <Gift size={20} />, path: '/admin/rewards' },
+    { label: tAdmin("support"), icon: <MessageSquare size={20} />, path: '/admin/support', badge: 23 },
+    { label: tAdmin("reports"), icon: <BarChart3 size={20} />, path: '/admin/reports' },
+    { label: tAdmin("localization"), icon: <Globe size={20} />, path: '/admin/localization' },
+    { label: tAdmin("settings"), icon: <Settings size={20} />, path: '/admin/settings' },
+    { label: tAdmin("auditLogs"), icon: <FileText size={20} />, path: '/admin/audit' },
   ];
 
   const campaigns = [
@@ -165,13 +168,13 @@ export default function Campaigns() {
   const getStatusBadge = (status: string) => {
     switch(status) {
       case 'Active':
-        return <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Play size={12} />Active</span>;
+        return <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Play size={12} />{tAdmin("active")}</span>;
       case 'Paused':
-        return <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Pause size={12} />Paused</span>;
+        return <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Pause size={12} />{tAdmin("paused")}</span>;
       case 'Scheduled':
-        return <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Calendar size={12} />Scheduled</span>;
+        return <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Calendar size={12} />{tAdmin("scheduled")}</span>;
       case 'Completed':
-        return <span className="px-2.5 py-1 bg-gray-50 text-gray-700 text-xs font-semibold rounded-lg">Completed</span>;
+        return <span className="px-2.5 py-1 bg-gray-50 text-gray-700 text-xs font-semibold rounded-lg">{tAdmin("completed")}</span>;
       default:
         return <span className="px-2.5 py-1 bg-gray-50 text-gray-700 text-xs font-semibold rounded-lg">{status}</span>;
     }
@@ -193,16 +196,16 @@ export default function Campaigns() {
   return (
     <DashboardLayout 
       navigation={navigation} 
-      headerTitle="Campaign Management"
+      headerTitle={tAdmin("campaignManagement")}
       userRole="admin"
-      userName="System Admin"
+      userName={tAdmin("systemAdmin")}
     >
       <div className="p-8 space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Campaign Management</h1>
-            <p className="text-gray-600">Marketing campaigns and promotional content</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">{tAdmin("campaignManagement")}</h1>
+            <p className="text-gray-600">{tAdmin("marketingCampaignsAndPromotionalContent")}</p>
           </div>
           <button className="px-4 py-2 bg-[#083f30] rounded-xl text-sm font-semibold text-white hover:bg-[#083f30]/90">
             <Plus size={16} className="inline mr-2" />
@@ -219,7 +222,7 @@ export default function Campaigns() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">${totalBudget.toLocaleString()}</div>
-            <div className="text-sm text-gray-600">Total Budget</div>
+            <div className="text-sm text-gray-600">{tAdmin("totalBudget")}</div>
             <div className="text-xs text-gray-500 mt-1">${totalSpent.toLocaleString()} spent</div>
           </div>
           
@@ -230,7 +233,7 @@ export default function Campaigns() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">{(totalImpressions / 1000).toFixed(1)}K</div>
-            <div className="text-sm text-gray-600">Total Impressions</div>
+            <div className="text-sm text-gray-600">{tAdmin("totalImpressions")}</div>
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -240,7 +243,7 @@ export default function Campaigns() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">{totalConversions}</div>
-            <div className="text-sm text-gray-600">Total Conversions</div>
+            <div className="text-sm text-gray-600">{tAdmin("totalConversions")}</div>
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -250,7 +253,7 @@ export default function Campaigns() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">{campaigns.filter(c => c.status === 'Active').length}</div>
-            <div className="text-sm text-gray-600">Active Campaigns</div>
+            <div className="text-sm text-gray-600">{tAdmin("activeCampaigns")}</div>
           </div>
         </div>
 
@@ -258,48 +261,48 @@ export default function Campaigns() {
         <div className="bg-white rounded-2xl border border-gray-200 p-5">
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("status")}</label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
               >
-                <option value="all">All Status</option>
-                <option value="Active">Active</option>
-                <option value="Paused">Paused</option>
-                <option value="Scheduled">Scheduled</option>
-                <option value="Completed">Completed</option>
+                <option value="all">{tAdmin("allStatus")}</option>
+                <option value="Active">{tAdmin("active")}</option>
+                <option value="Paused">{tAdmin("paused")}</option>
+                <option value="Scheduled">{tAdmin("scheduled")}</option>
+                <option value="Completed">{tAdmin("completed")}</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("category")}</label>
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
               >
-                <option value="all">All Categories</option>
-                <option value="Medical">Medical</option>
-                <option value="Beauty & Spa">Beauty & Spa</option>
-                <option value="Fitness">Fitness</option>
-                <option value="Pharmacy">Pharmacy</option>
+                <option value="all">{tAdmin("allCategories")}</option>
+                <option value="Medical">{tAdmin("medical")}</option>
+                <option value="Beauty & Spa">{tAdmin("beautySpa")}</option>
+                <option value="Fitness">{tAdmin("fitness")}</option>
+                <option value="Pharmacy">{tAdmin("pharmacy")}</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Target Country</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("targetCountry")}</label>
               <select
                 value={countryFilter}
                 onChange={(e) => setCountryFilter(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
               >
-                <option value="all">All Countries</option>
-                <option value="Turkey">Turkey</option>
-                <option value="UAE">UAE</option>
-                <option value="Cyprus">Cyprus</option>
-                <option value="Indonesia">Indonesia</option>
-                <option value="Thailand">Thailand</option>
+                <option value="all">{tAdmin("allCountries")}</option>
+                <option value="Turkey">{tAdmin("turkey")}</option>
+                <option value="UAE">{tAdmin("uAE")}</option>
+                <option value="Cyprus">{tAdmin("cyprus")}</option>
+                <option value="Indonesia">{tAdmin("indonesia")}</option>
+                <option value="Thailand">{tAdmin("thailand")}</option>
               </select>
             </div>
           </div>
@@ -355,7 +358,7 @@ export default function Campaigns() {
                 {/* Budget Progress */}
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-gray-700">Budget</span>
+                    <span className="text-sm font-semibold text-gray-700">{tAdmin("budget")}</span>
                     <span className="text-sm text-gray-600">
                       ${campaign.spent.toLocaleString()} / ${campaign.budget.toLocaleString()}
                     </span>
@@ -372,19 +375,19 @@ export default function Campaigns() {
                 {/* Performance Metrics */}
                 <div className="grid grid-cols-4 gap-3">
                   <div>
-                    <div className="text-xs text-gray-500 mb-1">Impressions</div>
+                    <div className="text-xs text-gray-500 mb-1">{tAdmin("impressions")}</div>
                     <div className="font-bold text-gray-900">{(campaign.impressions / 1000).toFixed(1)}K</div>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-500 mb-1">Clicks</div>
+                    <div className="text-xs text-gray-500 mb-1">{tAdmin("clicks")}</div>
                     <div className="font-bold text-gray-900">{campaign.clicks}</div>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-500 mb-1">CTR</div>
+                    <div className="text-xs text-gray-500 mb-1">{tAdmin("cTR")}</div>
                     <div className="font-bold text-blue-600">{ctr}%</div>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-500 mb-1">Conv. Rate</div>
+                    <div className="text-xs text-gray-500 mb-1">{tAdmin("convRate")}</div>
                     <div className="font-bold text-green-600">{conversionRate}%</div>
                   </div>
                 </div>

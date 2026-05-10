@@ -56,11 +56,17 @@ This version keeps the approved prototype layout and card structure, and only ch
 1. Update `@/config/database/db` import if your postgres singleton lives elsewhere.
 2. Replace `resolveCurrentCustomerId()` in `explore.data.ts` with your real auth/session logic.
 3. This package assumes routes like:
-   - `/app/mobile/explore` or your localized equivalent
-   - `/app/search`
-   - `/app/map`
-   - `/app/clinic/[id]`
-   - `/app/treatment/[id]`
-   - `/app/clinics`
-4. The search button visually stays the same. It routes to `/app/search` while preserving current filter query params.
+   - `/n/app/mobile/explore`
+   - `/n/app/mobile/map-discovery`
+   - `/n/app/mobile/provider/[id]`
+   - `/n/app/mobile/service/[id]`
+4. The search button visually stays the same. It routes to `/n/app/mobile/map-discovery` while preserving current filter query params.
 5. Provider type images use `image_url`, then media library `file_url` when `image_url` stores a media id, then `icon_url`, then `/placeholder.svg`.
+
+## Fixes in this patch
+
+- Removed stale `/app/clinics`, `/app/search`, and hardcoded `/en/...` navigation from the active Explore UI.
+- Routed Featured Providers `View All` and the search/discovery affordance to `/n/app/mobile/map-discovery` with the current filters preserved.
+- Routed provider and service cards only to `/n/app/mobile/provider/[id]` and `/n/app/mobile/service/[id]`.
+- Resolved media-library UUID image values to `media.media_library` URLs for provider types, featured providers, sponsored providers, and trending services.
+- Added client-side image normalization so raw UUIDs or empty values fall back safely to `/placeholder.svg` instead of rendering broken image requests.

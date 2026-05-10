@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useTransition } from "react";
+import type React from "react";
+import { useEffect, useMemo, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Award,
@@ -28,9 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { RHFSingleMediaPickerField, RHFMultiMediaPickerField } from "@/features/media-picker-addon";
-import { RHFLazySearchableSelectField } from "@/features/admin-lazy-select";
 import { LocalizedInput } from "@/features/shared/components/LocalizedInput";
-import { normalizeLocalizedFields } from "@/features/shared/utils/localization";
 import useAction from "@/hooks/use-action";
 import { useRouter } from "@/i18n/navigation";
 
@@ -39,6 +38,7 @@ import { updateStaffAction } from "../actions/update-staff";
 import { STAFF_TRANSLATION_KEY } from "../constants";
 import { StaffFormInput, StaffSchema } from "../schemas";
 import { DayOfWeek, StaffDetails, StaffFormOptions } from "../types";
+import { RHFStaffLazyMultiSelectField, RHFStaffLazySelectField, type StaffLookupOption } from "./staff-lazy-select";
 
 type StaffFormProps = {
   staff?: StaffDetails;
@@ -67,23 +67,82 @@ const LOCALE_ALIASES: Record<string, string> = {
   "tr-tr": "tr-TR",
 };
 
-function emptyLocalized() {
+function emptyTranslations() {
   return Object.fromEntries(STAFF_TRANSLATION_LOCALES.map((locale) => [locale, ""])) as Record<string, string>;
 }
 
-function normalizeStaffLocalized(value: unknown) {
-  const normalized = emptyLocalized();
-  if (!value || typeof value !== "object" || Array.isArray(value)) return normalized;
+function emptyLocalized() {
+  return { translations: emptyTranslations() };
+}
 
-  for (const [rawKey, rawValue] of Object.entries(value as Record<string, unknown>)) {
+function normalizeStaffLocalized(value: unknown) {
+  const normalized = emptyTranslations();
+  if (!value || typeof value !== "object" || Array.isArray(value)) return { translations: normalized };
+
+  const source =
+    "translations" in value &&
+    value.translations &&
+    typeof value.translations === "object" &&
+    !Array.isArray(value.translations)
+      ? (value.translations as Record<string, unknown>)
+      : (value as Record<string, unknown>);
+
+  for (const [rawKey, rawValue] of Object.entries(source)) {
     const lookupKey = rawKey.trim().replace(/_/g, "-").toLowerCase();
     const key = LOCALE_ALIASES[lookupKey] || rawKey.trim();
-    if (!key) continue;
+    if (!key || key === "translations") continue;
     normalized[key] = typeof rawValue === "string" ? rawValue : rawValue == null ? "" : String(rawValue);
   }
 
-  return normalized;
+  return { translations: normalized };
 }
+
+function toLookupOption(id: unknown, label: unknown, description?: unknown, code?: unknown, isActive?: unknown): StaffLookupOption | null {
+  const optionId = id == null ? "" : String(id);
+  if (!optionId) return null;
+  return {
+    id: optionId,
+    label: label == null || String(label).trim() === "" ? optionId : String(label),
+    description: description == null || String(description).trim() === "" ? null : String(description),
+    code: code == null || String(code).trim() === "" ? null : String(code),
+    isActive: typeof isActive === "boolean" ? isActive : null,
+  };
+}
+
+function uniqueLookupOptions(options: Array<StaffLookupOption | null | undefined>) {
+  const seen = new Set<string>();
+  const result: StaffLookupOption[] = [];
+
+  for (const option of options) {
+    if (!option?.id || seen.has(option.id)) continue;
+    seen.add(option.id);
+    result.push(option);
+  }
+
+  return result;
+}
+
+const DAY_LOOKUP_OPTIONS: StaffLookupOption[] = [
+  { id: "Monday", label: "Monday" },
+  { id: "Tuesday", label: "Tuesday" },
+  { id: "Wednesday", label: "Wednesday" },
+  { id: "Thursday", label: "Thursday" },
+  { id: "Friday", label: "Friday" },
+  { id: "Saturday", label: "Saturday" },
+  { id: "Sunday", label: "Sunday" },
+];
+
+const MEDIA_TYPE_LOOKUP_OPTIONS: StaffLookupOption[] = [
+  { id: "image", label: "Image" },
+  { id: "video", label: "Video" },
+  { id: "gif", label: "GIF" },
+  { id: "file", label: "File" },
+];
+
+const COMMON_LANGUAGE_LOOKUP_OPTIONS: StaffLookupOption[] = ["English", "Persian", "Arabic", "Turkish", "Kurdish", "German", "French", "Spanish"].map((language) => ({
+  id: language,
+  label: language,
+}));
 
 const defaultAvailabilityStatusId = (options: StaffFormOptions) => options.availabilityStatuses[0]?.id ?? 1;
 
@@ -150,13 +209,6 @@ function detailsToDefaultValues(staff: StaffDetails | undefined, options: StaffF
   };
 }
 
-function splitCsv(value: string): string[] {
-  return value
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
-
 function SectionHeader({ icon: Icon, title, description }: { icon: LucideIcon; title: string; description?: string }) {
   return (
     <div className="flex items-start gap-3">
@@ -197,6 +249,69 @@ export function StaffForm({ staff, options, locale = "en-US" }: StaffFormProps) 
     mode: "onSubmit",
   });
 
+  useEffect(() => {
+    form.reset(defaultValues);
+  }, [defaultValues, form]);
+
+  const providerInitialOptions = useMemo(
+    () =>
+      uniqueLookupOptions([
+        ...options.serviceProviders.map((provider) =>
+          toLookupOption(
+            provider.id,
+            provider.name,
+            [provider.providerTypeName, provider.country, provider.city].filter(Boolean).join(" • "),
+            undefined,
+            provider.isActive
+          )
+        ),
+        ...(staff?.providerAssignments || []).map((provider) =>
+          toLookupOption(provider.serviceProviderId, provider.serviceProviderName, provider.providerTypeName, undefined, provider.isActive)
+        ),
+      ]),
+    [options.serviceProviders, staff?.providerAssignments]
+  );
+
+  const serviceDefinitionInitialOptions = useMemo(
+    () =>
+      uniqueLookupOptions([
+        ...options.serviceDefinitions.map((service) =>
+          toLookupOption(
+            service.id,
+            service.name,
+            [service.categoryName, service.currency, service.value].filter(Boolean).join(" • "),
+            `${service.durationMinutes || 0} min`,
+            service.isActive
+          )
+        ),
+        ...(staff?.services || []).map((service) =>
+          toLookupOption(
+            service.serviceDefinitionId,
+            service.serviceName,
+            [service.currency, service.price, `${service.durationInMinutes || 0} min`].filter(Boolean).join(" • "),
+            undefined,
+            service.isActive
+          )
+        ),
+      ]),
+    [options.serviceDefinitions, staff?.services]
+  );
+
+  const availabilityStatusInitialOptions = useMemo(
+    () => options.availabilityStatuses.map((status) => toLookupOption(status.id, status.name)).filter(Boolean) as StaffLookupOption[],
+    [options.availabilityStatuses]
+  );
+
+  const languageInitialOptions = useMemo(
+    () => uniqueLookupOptions([...COMMON_LANGUAGE_LOOKUP_OPTIONS, ...(staff?.languages || []).map((language) => toLookupOption(language, language))]),
+    [staff?.languages]
+  );
+
+  const specializationInitialOptions = useMemo(
+    () => uniqueLookupOptions((staff?.specializations || []).map((specialization) => toLookupOption(specialization, specialization))),
+    [staff?.specializations]
+  );
+
   const providerAssignments = useFieldArray({ control: form.control, name: "providerAssignments" });
   const services = useFieldArray({ control: form.control, name: "services" });
   const availabilities = useFieldArray({ control: form.control, name: "availabilities" });
@@ -218,32 +333,35 @@ export function StaffForm({ staff, options, locale = "en-US" }: StaffFormProps) 
   });
 
   const onSubmit = async (values: StaffFormInput) => {
-    const normalized = normalizeLocalizedFields({
-      name: values.name,
-      biography: values.biography,
-      title: values.title,
-      specialtyTranslations: values.specialtyTranslations || emptyLocalized(),
-    });
-
     const payload = {
       ...values,
-      ...normalized,
-      languages: values.languages.map((item) => item.trim()).filter(Boolean),
-      specializations: values.specializations.map((item) => item.trim()).filter(Boolean),
+      name: normalizeStaffLocalized(values.name),
+      biography: normalizeStaffLocalized(values.biography),
+      title: normalizeStaffLocalized(values.title),
+      specialtyTranslations: normalizeStaffLocalized(values.specialtyTranslations || emptyLocalized()),
+      languages: (values.languages || []).map((item) => item.trim()).filter(Boolean),
+      specializations: (values.specializations || []).map((item) => item.trim()).filter(Boolean),
       profileImageUrl: values.profileImageUrl?.trim() || undefined,
-      galleryItems: values.galleryItems.map((item, index) => ({
-        ...item,
-        displayOrder: item.displayOrder ?? index,
-      })),
+      providerAssignments: (values.providerAssignments || [])
+        .filter((item) => item.serviceProviderId)
+        .map((item) => ({ ...item, notes: normalizeStaffLocalized(item.notes) })),
+      services: (values.services || [])
+        .filter((item) => item.serviceDefinitionId)
+        .map((item) => ({ ...item, notes: normalizeStaffLocalized(item.notes) })),
+      galleryItems: (values.galleryItems || [])
+        .filter((item) => item.url)
+        .map((item, index) => ({
+          ...item,
+          title: normalizeStaffLocalized(item.title),
+          description: normalizeStaffLocalized(item.description),
+          displayOrder: item.displayOrder ?? index,
+        })),
     };
 
     startTransition(async () => {
       await execute(payload as any);
     });
   };
-
-  const languagesValue = form.watch("languages").join(", ");
-  const specializationsValue = form.watch("specializations").join(", ");
 
   return (
     <CardContent className="p-6">
@@ -353,16 +471,32 @@ export function StaffForm({ staff, options, locale = "en-US" }: StaffFormProps) 
             <Card className="border-gray-200 shadow-sm">
               <CardHeader><SectionHeader icon={Languages} title="Languages and specializations" description="Stored in staff_languages and staff_specializations." /></CardHeader>
               <CardContent className="grid gap-5 md:grid-cols-2">
-                <div className="space-y-2">
-                  <FormLabel>Languages</FormLabel>
-                  <Input value={languagesValue} onChange={(event) => form.setValue("languages", splitCsv(event.target.value), { shouldDirty: true })} placeholder="English, Persian, Arabic, Turkish" />
-                  <p className="text-xs text-muted-foreground">Comma-separated values.</p>
-                </div>
-                <div className="space-y-2">
-                  <FormLabel>Specializations</FormLabel>
-                  <Input value={specializationsValue} onChange={(event) => form.setValue("specializations", splitCsv(event.target.value), { shouldDirty: true })} placeholder="Rhinoplasty, Hair transplant, Dental implant" />
-                  <p className="text-xs text-muted-foreground">Comma-separated values.</p>
-                </div>
+                <RHFStaffLazyMultiSelectField
+                  control={form.control}
+                  name="languages"
+                  label="Languages"
+                  resource="languages"
+                  locale={locale}
+                  initialOptions={languageInitialOptions}
+                  placeholder="Search, select, or add languages"
+                  searchPlaceholder="Search languages..."
+                  allowCustomValue
+                  customValueLabel="Add language"
+                  description="Search existing staff languages or type a new one and select Add."
+                />
+                <RHFStaffLazyMultiSelectField
+                  control={form.control}
+                  name="specializations"
+                  label="Specializations"
+                  resource="specializations"
+                  locale={locale}
+                  initialOptions={specializationInitialOptions}
+                  placeholder="Search, select, or add specializations"
+                  searchPlaceholder="Search specializations..."
+                  allowCustomValue
+                  customValueLabel="Add specialization"
+                  description="Search existing specializations or type a new one and select Add."
+                />
               </CardContent>
             </Card>
 
@@ -375,20 +509,21 @@ export function StaffForm({ staff, options, locale = "en-US" }: StaffFormProps) 
                 {providerAssignments.fields.length === 0 && <p className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">No provider assigned yet.</p>}
                 {providerAssignments.fields.map((field, index) => (
                   <ArrayItemShell key={field.id} onRemove={() => providerAssignments.remove(index)}>
-                    <RHFLazySearchableSelectField
+                    <RHFStaffLazySelectField
                       control={form.control}
                       name={`providerAssignments.${index}.serviceProviderId` as any}
                       label="Provider"
                       resource="serviceProviders"
                       locale={locale}
+                      initialOptions={providerInitialOptions}
                       placeholder="Search and select provider"
-                      disabled={isPending}
+                      searchPlaceholder="Search providers by name, city, country, or type..."
                     />
                     <FormField control={form.control} name={`providerAssignments.${index}.isActive`} render={({ field }) => (
                       <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>Active assignment</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
                     )} />
                     <FormField control={form.control} name={`providerAssignments.${index}.notes`} render={({ field }) => (
-                      <FormItem className="md:col-span-2"><LocalizedInput label="Provider notes" value={field.value} onChange={field.onChange} rows={3} /><FormMessage /></FormItem>
+                      <FormItem className="md:col-span-2"><LocalizedInput label="Provider notes" value={field.value} onChange={field.onChange} multiline rows={3} /><FormMessage /></FormItem>
                     )} />
                   </ArrayItemShell>
                 ))}
@@ -404,20 +539,21 @@ export function StaffForm({ staff, options, locale = "en-US" }: StaffFormProps) 
                 {services.fields.length === 0 && <p className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">No service assigned yet.</p>}
                 {services.fields.map((field, index) => (
                   <ArrayItemShell key={field.id} onRemove={() => services.remove(index)}>
-                    <RHFLazySearchableSelectField
+                    <RHFStaffLazySelectField
                       control={form.control}
                       name={`services.${index}.serviceDefinitionId` as any}
                       label="Service definition"
                       resource="serviceDefinitions"
                       locale={locale}
+                      initialOptions={serviceDefinitionInitialOptions}
                       placeholder="Search and select service"
-                      disabled={isPending}
+                      searchPlaceholder="Search service definitions by name, category, or pricing model..."
                     />
                     <FormField control={form.control} name={`services.${index}.isActive`} render={({ field }) => (
                       <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>Active service</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
                     )} />
                     <FormField control={form.control} name={`services.${index}.notes`} render={({ field }) => (
-                      <FormItem className="md:col-span-2"><LocalizedInput label="Service notes" value={field.value} onChange={field.onChange} rows={3} /><FormMessage /></FormItem>
+                      <FormItem className="md:col-span-2"><LocalizedInput label="Service notes" value={field.value} onChange={field.onChange} multiline rows={3} /><FormMessage /></FormItem>
                     )} />
                   </ArrayItemShell>
                 ))}
@@ -435,23 +571,23 @@ export function StaffForm({ staff, options, locale = "en-US" }: StaffFormProps) 
                   const isRecurring = form.watch(`availabilities.${index}.isRecurring`);
                   return (
                     <ArrayItemShell key={field.id} onRemove={() => availabilities.remove(index)}>
-                      <RHFLazySearchableSelectField
+                      <RHFStaffLazySelectField
                         control={form.control}
                         name={`availabilities.${index}.dayOfWeek` as any}
                         label="Day"
                         resource="daysOfWeek"
                         locale={locale}
+                        initialOptions={DAY_LOOKUP_OPTIONS}
                         placeholder="Search and select day"
-                        disabled={isPending}
                       />
-                      <RHFLazySearchableSelectField
+                      <RHFStaffLazySelectField
                         control={form.control}
                         name={`availabilities.${index}.availabilityStatusId` as any}
                         label="Status"
                         resource="staffAvailabilityStatuses"
                         locale={locale}
+                        initialOptions={availabilityStatusInitialOptions}
                         placeholder="Search and select status"
-                        disabled={isPending}
                       />
                       <FormField control={form.control} name={`availabilities.${index}.startTime`} render={({ field }) => (
                         <FormItem><FormLabel>Start time</FormLabel><FormControl><Input {...field} placeholder="09:00:00" /></FormControl><FormMessage /></FormItem>
@@ -557,7 +693,7 @@ export function StaffForm({ staff, options, locale = "en-US" }: StaffFormProps) 
               </CardHeader>
               <CardContent className="space-y-4">
                 <RHFMultiMediaPickerField control={form.control} name="galleryBulkMediaIds" label="Bulk add gallery media" placeholder="Pick files" mediaType="all" helperText="Stores selected ids as comma-separated text; they are converted into gallery rows on save." modalTitle="Pick gallery files" />
-                {galleryItems.fields.map((field, index) => <ArrayItemShell key={field.id} onRemove={() => galleryItems.remove(index)}><div className="md:col-span-2"><RHFSingleMediaPickerField control={form.control} name={`galleryItems.${index}.url` as any} label="Media" placeholder="Pick media" mediaType="all" helperText="Stores one media id/path." modalTitle="Pick media" /></div><FormField control={form.control} name={`galleryItems.${index}.title`} render={({ field }) => <FormItem className="md:col-span-2"><LocalizedInput label="Title" value={field.value} onChange={field.onChange} /><FormMessage /></FormItem>} /><FormField control={form.control} name={`galleryItems.${index}.description`} render={({ field }) => <FormItem className="md:col-span-2"><LocalizedInput label="Description" value={field.value} onChange={field.onChange} rows={3} /><FormMessage /></FormItem>} /><RHFLazySearchableSelectField control={form.control} name={`galleryItems.${index}.mediaType` as any} label="Media type" resource="staffGalleryMediaTypes" locale={locale} placeholder="Search and select media type" disabled={isPending} /><FormField control={form.control} name={`galleryItems.${index}.displayOrder`} render={({ field }) => <FormItem><FormLabel>Display order</FormLabel><FormControl><Input type="number" min={0} {...field} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`galleryItems.${index}.isPrimary`} render={({ field }) => <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>Primary</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>} /></ArrayItemShell>)}
+                {galleryItems.fields.map((field, index) => <ArrayItemShell key={field.id} onRemove={() => galleryItems.remove(index)}><div className="md:col-span-2"><RHFSingleMediaPickerField control={form.control} name={`galleryItems.${index}.url` as any} label="Media" placeholder="Pick media" mediaType="all" helperText="Stores one media id/path." modalTitle="Pick media" /></div><FormField control={form.control} name={`galleryItems.${index}.title`} render={({ field }) => <FormItem className="md:col-span-2"><LocalizedInput label="Title" value={field.value} onChange={field.onChange} /><FormMessage /></FormItem>} /><FormField control={form.control} name={`galleryItems.${index}.description`} render={({ field }) => <FormItem className="md:col-span-2"><LocalizedInput label="Description" value={field.value} onChange={field.onChange} multiline rows={3} /><FormMessage /></FormItem>} /><RHFStaffLazySelectField control={form.control} name={`galleryItems.${index}.mediaType` as any} label="Media type" resource="staffGalleryMediaTypes" locale={locale} initialOptions={MEDIA_TYPE_LOOKUP_OPTIONS} placeholder="Search and select media type" /><FormField control={form.control} name={`galleryItems.${index}.displayOrder`} render={({ field }) => <FormItem><FormLabel>Display order</FormLabel><FormControl><Input type="number" min={0} {...field} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`galleryItems.${index}.isPrimary`} render={({ field }) => <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>Primary</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>} /></ArrayItemShell>)}
                 {beforeAfterItems.fields.map((field, index) => <ArrayItemShell key={field.id} onRemove={() => beforeAfterItems.remove(index)}><RHFSingleMediaPickerField control={form.control} name={`beforeAfterItems.${index}.beforeImage` as any} label="Before image" placeholder="Pick before image" mediaType="image" helperText="Stores one media id/path." modalTitle="Pick before image" /><RHFSingleMediaPickerField control={form.control} name={`beforeAfterItems.${index}.afterImage` as any} label="After image" placeholder="Pick after image" mediaType="image" helperText="Stores one media id/path." modalTitle="Pick after image" /><FormField control={form.control} name={`beforeAfterItems.${index}.procedure`} render={({ field }) => <FormItem><FormLabel>Procedure</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`beforeAfterItems.${index}.months`} render={({ field }) => <FormItem><FormLabel>Months</FormLabel><FormControl><Input type="number" min={0} {...field} value={field.value ?? ""} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`beforeAfterItems.${index}.displayOrder`} render={({ field }) => <FormItem><FormLabel>Display order</FormLabel><FormControl><Input type="number" min={0} {...field} /></FormControl><FormMessage /></FormItem>} /></ArrayItemShell>)}
               </CardContent>
             </Card>

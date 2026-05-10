@@ -187,6 +187,8 @@ export const saveProviderCertificationSchema = z.object({
   providerId: uuid,
   certificationId: uuid.optional().nullable(),
   name: z.string().trim().min(1, "Certification name is required."),
+  imageUrl: z.string().trim().max(500).optional().nullable().default(null),
+  secondaryImageUrl: z.string().trim().max(500).optional().nullable().default(null),
 });
 
 export const deleteProviderCertificationSchema = z.object({

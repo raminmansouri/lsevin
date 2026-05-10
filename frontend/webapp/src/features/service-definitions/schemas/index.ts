@@ -17,6 +17,8 @@ export const ServiceDefinitionSchema = z.object({
   name: LocalizedContentSchema,
   description: LocalizedContentSchema,
   categoryId: z.guid(),
+  mediaUrl: z.string().trim().optional().nullable(),
+  mediaType: z.enum(["image", "video", "gif"]).default("image"),
   durationMinutes: z.coerce.number().int().min(0),
   currency: z.string().trim().min(1).max(15),
   value: z.coerce.number().min(0),

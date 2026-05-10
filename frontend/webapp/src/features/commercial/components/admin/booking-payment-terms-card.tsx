@@ -1,12 +1,14 @@
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { BookingPaymentTermsRecord } from '../../types';
 
 export function BookingPaymentTermsCard({ terms }: { terms: BookingPaymentTermsRecord | null }) {
+  const tAdmin = useTranslations("AdminGenerated");
   if (!terms) {
     return (
       <Card>
-        <CardHeader><CardTitle>Booking payment terms</CardTitle></CardHeader>
-        <CardContent><p className="text-sm text-muted-foreground">No frozen booking payment terms were found for this booking yet.</p></CardContent>
+        <CardHeader><CardTitle>{tAdmin("bookingPaymentTerms")}</CardTitle></CardHeader>
+        <CardContent><p className="text-sm text-muted-foreground">{tAdmin("noFrozenBookingPaymentTermsWereFoundForThisBookingYet")}</p></CardContent>
       </Card>
     );
   }
@@ -14,30 +16,30 @@ export function BookingPaymentTermsCard({ terms }: { terms: BookingPaymentTermsR
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Booking payment terms</CardTitle>
+        <CardTitle>{tAdmin("bookingPaymentTerms")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid gap-4 md:grid-cols-4">
-          <div><div className="text-xs text-muted-foreground">Collection mode</div><div className="font-medium">{terms.collectionMode}</div></div>
-          <div><div className="text-xs text-muted-foreground">Currency</div><div className="font-medium">{terms.paymentCurrencyCode}</div></div>
-          <div><div className="text-xs text-muted-foreground">Due now</div><div className="font-medium">{terms.dueNowAmount}</div></div>
-          <div><div className="text-xs text-muted-foreground">Due later</div><div className="font-medium">{terms.dueLaterAmount}</div></div>
+          <div><div className="text-xs text-muted-foreground">{tAdmin("collectionMode")}</div><div className="font-medium">{terms.collectionMode}</div></div>
+          <div><div className="text-xs text-muted-foreground">{tAdmin("currency")}</div><div className="font-medium">{terms.paymentCurrencyCode}</div></div>
+          <div><div className="text-xs text-muted-foreground">{tAdmin("dueNow")}</div><div className="font-medium">{terms.dueNowAmount}</div></div>
+          <div><div className="text-xs text-muted-foreground">{tAdmin("dueLater")}</div><div className="font-medium">{terms.dueLaterAmount}</div></div>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
-          <div><div className="text-xs text-muted-foreground">Deposit percent</div><div className="font-medium">{terms.depositPercent ?? '—'}</div></div>
-          <div><div className="text-xs text-muted-foreground">Deposit fixed</div><div className="font-medium">{terms.depositFixedAmount ?? '—'}</div></div>
-          <div><div className="text-xs text-muted-foreground">Refund mode</div><div className="font-medium">{terms.depositRefundableMode}</div></div>
+          <div><div className="text-xs text-muted-foreground">{tAdmin("depositPercent")}</div><div className="font-medium">{terms.depositPercent ?? '—'}</div></div>
+          <div><div className="text-xs text-muted-foreground">{tAdmin("depositFixed")}</div><div className="font-medium">{terms.depositFixedAmount ?? '—'}</div></div>
+          <div><div className="text-xs text-muted-foreground">{tAdmin("refundMode")}</div><div className="font-medium">{terms.depositRefundableMode}</div></div>
         </div>
         <div className="overflow-hidden rounded-md border">
           <table className="w-full text-sm">
             <thead className="bg-muted/50">
               <tr className="text-left">
-                <th className="px-4 py-3">Line</th>
-                <th className="px-4 py-3">Type</th>
-                <th className="px-4 py-3">Label</th>
-                <th className="px-4 py-3">Amount</th>
-                <th className="px-4 py-3">Currency</th>
-                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">{tAdmin("line")}</th>
+                <th className="px-4 py-3">{tAdmin("type")}</th>
+                <th className="px-4 py-3">{tAdmin("label")}</th>
+                <th className="px-4 py-3">{tAdmin("amount")}</th>
+                <th className="px-4 py-3">{tAdmin("currency")}</th>
+                <th className="px-4 py-3">{tAdmin("status")}</th>
               </tr>
             </thead>
             <tbody>

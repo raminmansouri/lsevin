@@ -10,7 +10,6 @@ import {
 import {
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
@@ -23,6 +22,22 @@ type LoadOptionsParams = {
   page: number;
   pageSize: number;
 };
+
+function mergeUniqueOptions(existing: LazyOption[], incoming: LazyOption[]) {
+  if (existing.length === 0) return incoming;
+  if (incoming.length === 0) return existing;
+
+  const seen = new Set(existing.map((item) => item.value));
+  const merged = [...existing];
+
+  for (const item of incoming) {
+    if (seen.has(item.value)) continue;
+    seen.add(item.value);
+    merged.push(item);
+  }
+
+  return merged;
+}
 
 type Props = {
   value: string | null | undefined;
@@ -68,28 +83,28 @@ export function AsyncSingleSelect({
   const panelRef = useRef<HTMLDivElement | null>(null);
   const requestRef = useRef(0);
 
-  const store = useLocationSelectStore();
+  const cachedSelectedOption = useLocationSelectStore((state) =>
+    value ? state.getItem(`${cacheKey}|item|${value}`) : undefined
+  );
+  const getCachedQuery = useLocationSelectStore((state) => state.getQuery);
+  const setCachedQuery = useLocationSelectStore((state) => state.setQuery);
+  const setCachedItems = useLocationSelectStore((state) => state.setItems);
 
   const selectedOption =
-    (value ? store.getItem(`${cacheKey}|item|${value}`) : undefined) ??
+    cachedSelectedOption ??
     items.find((item) => item.value === value) ??
     null;
-
-  const queryCacheKey = useMemo(
-    () => `${cacheKey}|query|${debouncedSearch}|${page}|${pageSize}`,
-    [cacheKey, debouncedSearch, page, pageSize]
-  );
 
   const loadPage = useCallback(
     async (nextPage: number, nextSearch: string, append: boolean) => {
       const nextQueryCacheKey = `${cacheKey}|query|${nextSearch}|${nextPage}|${pageSize}`;
-      const cached = store.getQuery(nextQueryCacheKey);
+      const cached = getCachedQuery(nextQueryCacheKey);
 
       if (cached) {
-        setItems((prev) => (append ? [...prev, ...cached.items] : cached.items));
+        setItems((prev) => (append ? mergeUniqueOptions(prev, cached.items) : cached.items));
         setHasMore(cached.hasMore);
         setPage(nextPage);
-        store.setItems(cacheKey, cached.items);
+        setCachedItems(cacheKey, cached.items);
         return;
       }
 
@@ -105,19 +120,19 @@ export function AsyncSingleSelect({
 
         if (requestRef.current !== currentRequest) return;
 
-        setItems((prev) => (append ? [...prev, ...result.items] : result.items));
+        setItems((prev) => (append ? mergeUniqueOptions(prev, result.items) : result.items));
         setHasMore(result.hasMore);
         setPage(nextPage);
 
-        store.setQuery(nextQueryCacheKey, result);
-        store.setItems(cacheKey, result.items);
+        setCachedQuery(nextQueryCacheKey, result);
+        setCachedItems(cacheKey, result.items);
       } finally {
         if (requestRef.current === currentRequest) {
           setIsLoading(false);
         }
       }
     },
-    [cacheKey, loadOptions, pageSize, store]
+    [cacheKey, getCachedQuery, loadOptions, pageSize, setCachedItems, setCachedQuery]
   );
 
   useEffect(() => {
@@ -149,14 +164,14 @@ export function AsyncSingleSelect({
     void (async () => {
       const item = await loadByValue(value);
       if (!cancelled && item) {
-        store.setItem(`${cacheKey}|item|${item.value}`, item);
+        useLocationSelectStore.getState().setItem(`${cacheKey}|item|${item.value}`, item);
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [value, selectedOption, loadByValue, cacheKey, store]);
+  }, [value, selectedOption, loadByValue, cacheKey]);
 
   useEffect(() => {
     if (!open) return;

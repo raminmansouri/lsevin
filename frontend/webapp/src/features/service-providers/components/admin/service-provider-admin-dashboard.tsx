@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from "next-intl";
 import { useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { Edit, Plus, Trash2, X } from "lucide-react";
@@ -40,7 +42,7 @@ import { SUPPORTED_LOCALE_HEADERS } from "@/config/locales";
 import { LocalizedInput } from "@/features/shared/components/LocalizedInput";
 import { createEmptyLocalizedContent } from "@/features/shared/utils/localization";
 import useAction from "@/hooks/use-action";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 
 import {
   deleteProviderAttributeAction,
@@ -76,6 +78,7 @@ import {
   type AdminLocalizedInputValue,
 } from "../../lib/admin-form-normalizers";
 import { RHFSingleMediaPickerField } from "../service-provider-data-entry/media-picker-adapter";
+import SingleMediaPickerInput from "@/features/media-picker-addon/components/SingleMediaPickerInput";
 import { LazyAdminLookupSelect } from "./lazy-admin-lookup-select";
 
 type Props = {
@@ -86,6 +89,30 @@ type Props = {
 
 function text(value?: string | null) {
   return value && value.trim() ? value : "-";
+}
+
+function hasLocalizedMeaningfulContent(value: Record<string, string>) {
+  return Object.values(value).some((item) => {
+    const raw = String(item || "").trim();
+    if (!raw) return false;
+
+    try {
+      const parsed = JSON.parse(raw) as any;
+      const root = parsed?.root;
+      if (!root || !Array.isArray(root.children)) return raw.length > 0;
+
+      const walk = (nodes: any[]): boolean =>
+        nodes.some((node) => {
+          if (typeof node?.text === "string" && node.text.trim()) return true;
+          if (Array.isArray(node?.children)) return walk(node.children);
+          return false;
+        });
+
+      return walk(root.children);
+    } catch {
+      return raw.length > 0;
+    }
+  });
 }
 
 function translationText(
@@ -269,6 +296,7 @@ export function ServiceProviderAdminDashboard({
   lookups,
   locale,
 }: Props) {
+  const tAdmin = useTranslations("AdminGenerated");
   const tabs = [
     ["overview", "Overview"],
     ["services", "Services"],
@@ -297,7 +325,7 @@ export function ServiceProviderAdminDashboard({
                   {provider.isActive ? "Active" : "Inactive"}
                 </Badge>
                 {provider.accredited ? (
-                  <Badge variant="outline">Accredited</Badge>
+                  <Badge variant="outline">{tAdmin("accredited")}</Badge>
                 ) : null}
                 {provider.isSponsored ? (
                   <Badge>{provider.sponsoredTag || "Sponsored"}</Badge>
@@ -392,33 +420,34 @@ export function ServiceProviderAdminDashboard({
 }
 
 function OverviewTab({ provider }: { provider: AdminServiceProviderDetails }) {
+  const tAdmin = useTranslations("AdminGenerated");
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard
-          title="Services"
+          title={tAdmin("services")}
           value={provider.services.length}
           hint="Provider-service rows"
         />
         <MetricCard
-          title="Staff"
+          title={tAdmin("staff")}
           value={provider.staff.length}
           hint="Linked specialists/staff"
         />
         <MetricCard
-          title="Rating"
+          title={tAdmin("rating")}
           value={`${provider.rating.toFixed(2)} / 5`}
           hint={`${provider.reviewCount} public review counter`}
         />
         <MetricCard
-          title="Bookings"
+          title={tAdmin("bookings")}
           value={provider.bookings.length}
           hint="Latest loaded bookings"
         />
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>Description</CardTitle>
+          <CardTitle>{tAdmin("description")}</CardTitle>
         </CardHeader>
         <CardContent>
           <RichTranslation
@@ -431,43 +460,43 @@ function OverviewTab({ provider }: { provider: AdminServiceProviderDetails }) {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Profile summary</CardTitle>
+            <CardTitle>{tAdmin("profileSummary")}</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3 text-sm md:grid-cols-2">
-            <Info label="Email" value={provider.email} />
+            <Info label={tAdmin("email")} value={provider.email} />
             <Info
-              label="Phone"
+              label={tAdmin("phone")}
               value={`${provider.phoneNumberCountryCode} ${provider.phoneNumber}`}
             />
             <Info
-              label="Address"
+              label={tAdmin("address")}
               value={[provider.city, provider.country, provider.zipCode]
                 .filter(Boolean)
                 .join(", ")}
             />
-            <Info label="Timezone" value={provider.timezoneId} />
+            <Info label={tAdmin("timezone")} value={provider.timezoneId} />
             <Info
-              label="Established"
+              label={tAdmin("established")}
               value={text(provider.establishedYear?.toString())}
             />
-            <Info label="Response time" value={text(provider.responseTime)} />
-            <Info label="Success rate" value={text(provider.successRate)} />
-            <Info label="Total patients" value={text(provider.totalPatients)} />
+            <Info label={tAdmin("responseTime")} value={text(provider.responseTime)} />
+            <Info label={tAdmin("successRate")} value={text(provider.successRate)} />
+            <Info label={tAdmin("totalPatients")} value={text(provider.totalPatients)} />
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Discovery</CardTitle>
+            <CardTitle>{tAdmin("discovery")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-sm">
             <Info
-              label="Languages"
+              label={tAdmin("languages")}
               value={
                 provider.languages.length ? provider.languages.join(", ") : "-"
               }
             />
             <Info
-              label="Specialties"
+              label={tAdmin("specialties")}
               value={
                 provider.specialties.length
                   ? provider.specialties.join(", ")
@@ -475,11 +504,11 @@ function OverviewTab({ provider }: { provider: AdminServiceProviderDetails }) {
               }
             />
             <Info
-              label="Featured score"
+              label={tAdmin("featuredScore")}
               value={provider.featuredScore.toString()}
             />
             <Info
-              label="Coordinates"
+              label={tAdmin("coordinates")}
               value={
                 provider.coordinates
                   ? `${provider.coordinates.latitude}, ${provider.coordinates.longitude}`
@@ -509,33 +538,44 @@ function CertificationsManager({
 }: {
   provider: AdminServiceProviderDetails;
 }) {
+  const tAdmin = useTranslations("AdminGenerated");
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [name, setName] = useState("");
   const [isVerified, setIsVerified] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
+  const [secondaryImageUrl, setSecondaryImageUrl] = useState("");
   const save = useAction(saveProviderCertificationAction, {
     startTransition,
     onSuccess: () => {
-      toast.success("Certification saved.");
+      toast.success(tAdmin("certificationSaved"));
       setName("");
+      setIsVerified(false);
+      setImageUrl("");
+      setSecondaryImageUrl("");
+      router.refresh();
     },
     onError: ActionErrorToast,
   });
   const del = useAction(deleteProviderCertificationAction, {
     startTransition,
-    onSuccess: () => toast.success("Certification deleted."),
+    onSuccess: () => {
+      toast.success(tAdmin("certificationDeleted"));
+      router.refresh();
+    },
     onError: ActionErrorToast,
   });
 
   return (
     <RelationCard
-      title="Certifications"
+      title={tAdmin("certifications")}
       description="Manages category.provider_certifications."
     >
-      <div className="grid gap-3 md:grid-cols-[1fr_auto_auto]">
+      <div className="grid gap-3 md:grid-cols-[1fr_auto]">
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Certification name"
+          placeholder={tAdmin("certificationName")}
           disabled={isPending}
         />
         <label className="flex items-center gap-2 rounded-md border px-3 text-sm">
@@ -545,14 +585,46 @@ function CertificationsManager({
           />{" "}
           Verified
         </label>
-        <Button
-          onClick={() =>
-            save.execute({ serviceProviderId: provider.id, name, isVerified })
-          }
-          disabled={isPending || !name.trim()}
-        >
-          <Plus className="mr-2 h-4 w-4" /> Add
-        </Button>
+        <div className="md:col-span-2 grid gap-3 md:grid-cols-2">
+          <SingleMediaPickerInput
+            name="provider-certification-image"
+            label="Certificate image"
+            placeholder="Pick certificate image"
+            mediaType="image"
+            value={imageUrl}
+            onValueChange={setImageUrl}
+            disabled={isPending}
+            helperText="Optional. Stored in provider_certifications.image_url."
+            modalTitle="Pick certificate image"
+          />
+          <SingleMediaPickerInput
+            name="provider-certification-secondary-image"
+            label="Second image"
+            placeholder="Pick second image"
+            mediaType="image"
+            value={secondaryImageUrl}
+            onValueChange={setSecondaryImageUrl}
+            disabled={isPending}
+            helperText="Optional second certificate page/image."
+            modalTitle="Pick second certificate image"
+          />
+        </div>
+        <div className="md:col-span-2 flex justify-end">
+          <Button
+            onClick={() =>
+              save.execute({
+                serviceProviderId: provider.id,
+                name,
+                isVerified,
+                imageUrl,
+                secondaryImageUrl,
+              })
+            }
+            disabled={isPending || !name.trim()}
+          >
+            <Plus className="mr-2 h-4 w-4" /> Add
+          </Button>
+        </div>
       </div>
       <div className="space-y-2">
         {provider.certifications.length ? (
@@ -563,8 +635,29 @@ function CertificationsManager({
             >
               <div>
                 <div className="font-medium">{item.name}</div>
-                {item.isVerified ? (
-                  <Badge variant="outline">Verified</Badge>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {item.isVerified ? (
+                    <Badge variant="outline">{tAdmin("verified")}</Badge>
+                  ) : null}
+                  {item.imageUrl ? <Badge variant="secondary">Image 1</Badge> : null}
+                  {item.secondaryImageUrl ? <Badge variant="secondary">Image 2</Badge> : null}
+                </div>
+                {(item.imageUrl || item.secondaryImageUrl) ? (
+                  <div className="mt-3 flex flex-wrap gap-3">
+                    {[item.imageUrl, item.secondaryImageUrl]
+                      .filter((url) => {
+                        const src = String(url || "").trim();
+                        return src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/");
+                      })
+                      .map((url) => (
+                        <img
+                          key={String(url)}
+                          src={String(url)}
+                          alt={item.name}
+                          className="h-20 w-28 rounded-lg border object-cover"
+                        />
+                      ))}
+                  </div>
                 ) : null}
               </div>
               <Button
@@ -579,7 +672,7 @@ function CertificationsManager({
             </div>
           ))
         ) : (
-          <EmptyState title="No certifications yet." />
+          <EmptyState title={tAdmin("noCertificationsYet")} />
         )}
       </div>
     </RelationCard>
@@ -601,6 +694,7 @@ function GalleryManager({
   provider: AdminServiceProviderDetails;
   locale: string;
 }) {
+  const tAdmin = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
   const galleryForm = useForm<ProviderGalleryDraftForm>({
     defaultValues: {
@@ -615,7 +709,7 @@ function GalleryManager({
   const save = useAction(saveProviderGalleryItemAction, {
     startTransition,
     onSuccess: () => {
-      toast.success("Media item saved.");
+      toast.success(tAdmin("mediaItemSaved"));
       galleryForm.reset({
         title: createEmptyLocalizedContent(),
         description: createEmptyLocalizedContent(),
@@ -628,7 +722,7 @@ function GalleryManager({
   });
   const del = useAction(deleteProviderGalleryItemAction, {
     startTransition,
-    onSuccess: () => toast.success("Media item deleted."),
+    onSuccess: () => toast.success(tAdmin("mediaItemDeleted")),
     onError: ActionErrorToast,
   });
 
@@ -636,7 +730,7 @@ function GalleryManager({
     const normalizedUrl = normalizeMediaPickerValue(values.url);
 
     if (!normalizedUrl) {
-      toast.error("Please pick a media item before adding it to the gallery.");
+      toast.error(tAdmin("pleasePickAMediaItemBeforeAddingItToTheGallery"));
       return;
     }
 
@@ -660,7 +754,7 @@ function GalleryManager({
 
   return (
     <RelationCard
-      title="Media gallery"
+      title={tAdmin("mediaGallery")}
       description="Manages category.provider_gallery_items. The media field uses the central media picker and stores one media id or URL."
     >
       <Form {...galleryForm}>
@@ -672,7 +766,7 @@ function GalleryManager({
               <FormItem>
                 <FormControl>
                   <LocalizedInputBridge
-                    label="Title"
+                    label={tAdmin("title")}
                     value={field.value}
                     onChange={field.onChange}
                     locale={locale}
@@ -690,7 +784,7 @@ function GalleryManager({
               <FormItem>
                 <FormControl>
                   <LocalizedInputBridge
-                    label="Description"
+                    label={tAdmin("description")}
                     value={field.value}
                     onChange={field.onChange}
                     locale={locale}
@@ -706,8 +800,8 @@ function GalleryManager({
           <RHFSingleMediaPickerField
             control={galleryForm.control}
             name="url"
-            label="Media"
-            placeholder="Pick media"
+            label={tAdmin("media")}
+            placeholder={tAdmin("pickMedia")}
             mediaType="all"
             helperText="Stores one media id in provider_gallery_items.url."
             modalTitle="Pick gallery media"
@@ -720,12 +814,12 @@ function GalleryManager({
                 <FormItem>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Media type" />
+                      <SelectValue placeholder={tAdmin("mediaType")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="image">Image</SelectItem>
-                      <SelectItem value="video">Video</SelectItem>
-                      <SelectItem value="file">File</SelectItem>
+                      <SelectItem value="image">{tAdmin("image")}</SelectItem>
+                      <SelectItem value="video">{tAdmin("video")}</SelectItem>
+                      <SelectItem value="file">{tAdmin("file")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormItem>
@@ -741,7 +835,7 @@ function GalleryManager({
                       type="number"
                       value={field.value}
                       onChange={(e) => field.onChange(Number(e.target.value))}
-                      placeholder="Order"
+                      placeholder={tAdmin("order")}
                     />
                   </FormControl>
                 </FormItem>
@@ -793,7 +887,7 @@ function GalleryManager({
             </div>
           ))
         ) : (
-          <EmptyState title="No gallery items yet." />
+          <EmptyState title={tAdmin("noGalleryItemsYet")} />
         )}
       </div>
     </RelationCard>
@@ -806,6 +900,8 @@ type ProviderPolicyDraftForm = {
 };
 
 function PoliciesManager({ provider, lookups, locale }: Props) {
+  const tAdmin = useTranslations("AdminGenerated");
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const policyForm = useForm<ProviderPolicyDraftForm>({
     defaultValues: {
@@ -816,40 +912,65 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
   const save = useAction(saveProviderPolicyAction, {
     startTransition,
     onSuccess: () => {
-      toast.success("Policy saved.");
+      toast.success(tAdmin("policySaved"));
       policyForm.reset({
         policyTypeId: "",
         description: createEmptyLocalizedContent(),
       });
+      router.refresh();
     },
     onError: ActionErrorToast,
   });
   const del = useAction(deleteProviderPolicyAction, {
     startTransition,
-    onSuccess: () => toast.success("Policy deleted."),
+    onSuccess: () => {
+      toast.success(tAdmin("policyDeleted"));
+      router.refresh();
+    },
     onError: ActionErrorToast,
   });
 
   const onAddPolicy = policyForm.handleSubmit((values) => {
-    const selectedPolicyType = lookups.policyTypes.find(
-      (item) => String(item.id) === values.policyTypeId,
+    const policyTypeId = String(values.policyTypeId || "").trim();
+    const selectedPolicyType = lookups.policyTypes.find((item) => {
+      const id = String(item.id || "").trim();
+      const code = String(item.code || "").trim();
+      return id === policyTypeId || code === policyTypeId;
+    });
+    const description = normalizeLocalizedContentForDatabase(
+      values.description,
+      locale,
+      SUPPORTED_LOCALE_HEADERS,
     );
+
+    if (!hasLocalizedMeaningfulContent(description)) {
+      toast.error("Please enter a policy description.");
+      return;
+    }
 
     save.execute({
       serviceProviderId: provider.id,
-      policyTypeId: values.policyTypeId,
-      type: { "en-US": selectedPolicyType?.label || "Policy" },
-      description: normalizeLocalizedContentForDatabase(
-        values.description,
-        locale,
-        SUPPORTED_LOCALE_HEADERS,
-      ),
+      // provider_policy_type_id is nullable in the database. Do not block saving
+      // if the lookup is empty or the admin wants a generic/custom policy.
+      policyTypeId: policyTypeId || null,
+      type: selectedPolicyType?.label
+        ? normalizeLocalizedContentForDatabase(
+            { [locale || "en-US"]: selectedPolicyType.label },
+            locale,
+            SUPPORTED_LOCALE_HEADERS,
+          )
+        : normalizeLocalizedContentForDatabase(
+            { [locale || "en-US"]: "Policy" },
+            locale,
+            SUPPORTED_LOCALE_HEADERS,
+          ),
+      description,
     });
   });
 
   return (
     <RelationCard
-      title="Policies"
+      title={tAdmin("policies")}
       description="Cancellation, refund, admission, age, document, and house rules."
     >
       <Form {...policyForm}>
@@ -864,8 +985,15 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
                     lookupType="policyTypes"
                     locale={locale}
                     value={field.value}
-                    onValueChange={field.onChange}
-                    placeholder="Select policy type"
+                    onValueChange={(value) => {
+                      policyForm.setValue("policyTypeId", String(value || "").trim(), {
+                        shouldDirty: true,
+                        shouldTouch: true,
+                        shouldValidate: true,
+                      });
+                      policyForm.clearErrors("policyTypeId");
+                    }}
+                    placeholder={tAdmin("selectPolicyType")}
                     initialOptions={lookups.policyTypes}
                     disabled={isPending}
                     contentClassName="w-[420px]"
@@ -882,9 +1010,12 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
               <FormItem>
                 <FormControl>
                   <LocalizedInputBridge
-                    label="Description"
+                    label={tAdmin("description")}
                     value={field.value}
-                    onChange={field.onChange}
+                    onChange={(value) => {
+                      field.onChange(value);
+                      policyForm.clearErrors("description");
+                    }}
                     locale={locale}
                     richText
                     rows={4}
@@ -898,7 +1029,7 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
           <Button
             type="button"
             onClick={() => onAddPolicy()}
-            disabled={isPending || !policyForm.watch("policyTypeId")}
+            disabled={isPending}
             className="self-start"
           >
             <Plus className="mr-2 h-4 w-4" /> Add
@@ -938,7 +1069,7 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
             </div>
           ))
         ) : (
-          <EmptyState title="No policies yet." />
+          <EmptyState title={tAdmin("noPoliciesYet")} />
         )}
       </div>
     </RelationCard>
@@ -946,26 +1077,27 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
 }
 
 function AttributesManager({ provider, lookups, locale }: Props) {
+  const tAdmin = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
   const [attributeDefinitionId, setAttributeDefinitionId] = useState("");
   const [value, setValue] = useState("");
   const save = useAction(saveProviderAttributeAction, {
     startTransition,
     onSuccess: () => {
-      toast.success("Attribute saved.");
+      toast.success(tAdmin("attributeSaved"));
       setValue("");
     },
     onError: ActionErrorToast,
   });
   const del = useAction(deleteProviderAttributeAction, {
     startTransition,
-    onSuccess: () => toast.success("Attribute deleted."),
+    onSuccess: () => toast.success(tAdmin("attributeDeleted")),
     onError: ActionErrorToast,
   });
 
   return (
     <RelationCard
-      title="Provider attributes"
+      title={tAdmin("providerAttributes")}
       description="Dynamic attributes configured per provider type."
     >
       <div className="grid gap-3 md:grid-cols-[320px_1fr_auto]">
@@ -974,7 +1106,7 @@ function AttributesManager({ provider, lookups, locale }: Props) {
           locale={locale}
           value={attributeDefinitionId}
           onValueChange={setAttributeDefinitionId}
-          placeholder="Select attribute"
+          placeholder={tAdmin("selectAttribute")}
           initialOptions={lookups.attributeDefinitions.filter(
             (item) => item.providerTypeId === provider.providerTypeId,
           )}
@@ -985,7 +1117,7 @@ function AttributesManager({ provider, lookups, locale }: Props) {
         <Input
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder="Value"
+          placeholder={tAdmin("value")}
           disabled={isPending}
         />
         <Button
@@ -1026,7 +1158,7 @@ function AttributesManager({ provider, lookups, locale }: Props) {
             </div>
           ))
         ) : (
-          <EmptyState title="No attributes yet." />
+          <EmptyState title={tAdmin("noAttributesYet")} />
         )}
       </div>
     </RelationCard>
@@ -1066,6 +1198,7 @@ function emptyServiceFormValues(
 }
 
 function ServicesManager({ provider, lookups, locale }: Props) {
+  const tAdmin = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
   const [showForm, setShowForm] = useState(false);
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
@@ -1091,7 +1224,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
   });
   const del = useAction(deleteProviderServiceAction, {
     startTransition,
-    onSuccess: () => toast.success("Service deleted."),
+    onSuccess: () => toast.success(tAdmin("serviceDeleted")),
     onError: ActionErrorToast,
   });
 
@@ -1164,7 +1297,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
 
   return (
     <RelationCard
-      title="Provider services"
+      title={tAdmin("providerServices")}
       description="Manages category.provider_services, provider_service_addons, and service image references."
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -1221,14 +1354,14 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                     name="serviceDefinitionId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Service definition</FormLabel>
+                        <FormLabel>{tAdmin("serviceDefinition")}</FormLabel>
                         <FormControl>
                           <LazyAdminLookupSelect
                             lookupType="serviceDefinitions"
                             locale={locale}
                             value={field.value}
                             onValueChange={field.onChange}
-                            placeholder="Search and select service definition"
+                            placeholder={tAdmin("searchAndSelectServiceDefinition")}
                             searchPlaceholder="Search service definitions..."
                             initialOptions={lookups.serviceDefinitions}
                             excludeIds={excludedServiceDefinitionIds}
@@ -1246,14 +1379,14 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                     name="currency"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Currency</FormLabel>
+                        <FormLabel>{tAdmin("currency")}</FormLabel>
                         <FormControl>
                           <LazyAdminLookupSelect
                             lookupType="currencies"
                             locale={locale}
                             value={field.value}
                             onValueChange={field.onChange}
-                            placeholder="Select currency"
+                            placeholder={tAdmin("selectCurrency")}
                             searchPlaceholder="Search currency..."
                             initialOptions={lookups.currencies}
                             valueField="code"
@@ -1274,7 +1407,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                     <FormItem>
                       <FormControl>
                         <LocalizedInputBridge
-                          label="Display name"
+                          label={tAdmin("displayName")}
                           value={field.value}
                           onChange={field.onChange}
                           locale={locale}
@@ -1294,7 +1427,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                     <FormItem>
                       <FormControl>
                         <LocalizedInputBridge
-                          label="Description"
+                          label={tAdmin("description")}
                           value={field.value}
                           onChange={field.onChange}
                           locale={locale}
@@ -1314,7 +1447,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                     name="priceText"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Price</FormLabel>
+                        <FormLabel>{tAdmin("price")}</FormLabel>
                         <FormControl>
                           <Input
                             dir="ltr"
@@ -1342,7 +1475,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                     name="durationMinutes"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Duration minutes</FormLabel>
+                        <FormLabel>{tAdmin("durationMinutes")}</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -1361,7 +1494,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                     name="slotIntervalMinutes"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Slot interval minutes</FormLabel>
+                        <FormLabel>{tAdmin("slotIntervalMinutes")}</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -1382,12 +1515,12 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                     name="tagsText"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Tags</FormLabel>
+                        <FormLabel>{tAdmin("tags")}</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
                             value={field.value || ""}
-                            placeholder="Comma separated tags"
+                            placeholder={tAdmin("commaSeparatedTags")}
                             disabled={isPending}
                           />
                         </FormControl>
@@ -1399,8 +1532,8 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                   <RHFSingleMediaPickerField
                     control={serviceForm.control}
                     name="imageUrl"
-                    label="Service image"
-                    placeholder="Pick image"
+                    label={tAdmin("serviceImage")}
+                    placeholder={tAdmin("pickImage")}
                     mediaType="image"
                     helperText="Stores one media id in provider_services.image_url."
                     modalTitle="Pick service image"
@@ -1420,7 +1553,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                             onCheckedChange={field.onChange}
                           />
                         </FormControl>
-                        <FormLabel className="m-0">Active</FormLabel>
+                        <FormLabel className="m-0">{tAdmin("active")}</FormLabel>
                       </FormItem>
                     )}
                   />
@@ -1435,7 +1568,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                             onCheckedChange={field.onChange}
                           />
                         </FormControl>
-                        <FormLabel className="m-0">Popular</FormLabel>
+                        <FormLabel className="m-0">{tAdmin("popular")}</FormLabel>
                       </FormItem>
                     )}
                   />
@@ -1487,7 +1620,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                         item.serviceDefinitionName,
                       )}
                     </div>
-                    {item.isPopular ? <Badge>Popular</Badge> : null}
+                    {item.isPopular ? <Badge>{tAdmin("popular")}</Badge> : null}
                     <Badge variant={item.isActive ? "default" : "secondary"}>
                       {item.isActive ? "Active" : "Inactive"}
                     </Badge>
@@ -1547,7 +1680,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
             </div>
           ))
         ) : (
-          <EmptyState title="No provider services yet." />
+          <EmptyState title={tAdmin("noProviderServicesYet")} />
         )}
       </div>
     </RelationCard>
@@ -1555,6 +1688,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
 }
 
 function StaffManager({ provider, lookups, locale }: Props) {
+  const tAdmin = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
   const [staffId, setStaffId] = useState("");
   const [notes, setNotes] = useState("");
@@ -1562,20 +1696,20 @@ function StaffManager({ provider, lookups, locale }: Props) {
   const save = useAction(saveProviderStaffAction, {
     startTransition,
     onSuccess: () => {
-      toast.success("Staff linked.");
+      toast.success(tAdmin("staffLinked"));
       setNotes("");
     },
     onError: ActionErrorToast,
   });
   const del = useAction(deleteProviderStaffAction, {
     startTransition,
-    onSuccess: () => toast.success("Staff unlinked."),
+    onSuccess: () => toast.success(tAdmin("staffUnlinked")),
     onError: ActionErrorToast,
   });
 
   return (
     <RelationCard
-      title="Provider staff"
+      title={tAdmin("providerStaff")}
       description="Links specialists/staff to this provider."
     >
       <div className="grid gap-3 md:grid-cols-[320px_1fr_auto]">
@@ -1584,7 +1718,7 @@ function StaffManager({ provider, lookups, locale }: Props) {
           locale={locale}
           value={staffId}
           onValueChange={setStaffId}
-          placeholder="Select staff"
+          placeholder={tAdmin("selectStaff")}
           initialOptions={lookups.staff}
           excludeIds={provider.staff.map((item) => item.staffId)}
           disabled={isPending}
@@ -1593,7 +1727,7 @@ function StaffManager({ provider, lookups, locale }: Props) {
         <Input
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="Notes"
+          placeholder={tAdmin("notes")}
           disabled={isPending}
         />
         <Button
@@ -1643,7 +1777,7 @@ function StaffManager({ provider, lookups, locale }: Props) {
             </div>
           ))
         ) : (
-          <EmptyState title="No staff linked yet." />
+          <EmptyState title={tAdmin("noStaffLinkedYet")} />
         )}
       </div>
     </RelationCard>
@@ -1686,24 +1820,25 @@ function ReviewsManager({
 }: {
   provider: AdminServiceProviderDetails;
 }) {
+  const tAdmin = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
   const [draft, setDraft] = useState(emptyReviewDraft);
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
 
   const update = useAction(updateProviderCommentModerationAction, {
     startTransition,
-    onSuccess: () => toast.success("Review updated."),
+    onSuccess: () => toast.success(tAdmin("reviewUpdated")),
     onError: ActionErrorToast,
   });
   const del = useAction(deleteProviderCommentAction, {
     startTransition,
-    onSuccess: () => toast.success("Review deleted."),
+    onSuccess: () => toast.success(tAdmin("reviewDeleted")),
     onError: ActionErrorToast,
   });
   const save = useAction(saveProviderCommentAction, {
     startTransition,
     onSuccess: () => {
-      toast.success("SEO/admin review added.");
+      toast.success(tAdmin("sEOAdminReviewAdded"));
       setDraft(emptyReviewDraft);
     },
     onError: ActionErrorToast,
@@ -1711,19 +1846,19 @@ function ReviewsManager({
   const saveReply = useAction(saveProviderCommentReplyAction, {
     startTransition,
     onSuccess: () => {
-      toast.success("Review reply added.");
+      toast.success(tAdmin("reviewReplyAdded"));
       setReplyDrafts({});
     },
     onError: ActionErrorToast,
   });
   const updateReply = useAction(updateProviderCommentReplyModerationAction, {
     startTransition,
-    onSuccess: () => toast.success("Review reply updated."),
+    onSuccess: () => toast.success(tAdmin("reviewReplyUpdated")),
     onError: ActionErrorToast,
   });
   const deleteReply = useAction(deleteProviderCommentReplyAction, {
     startTransition,
-    onSuccess: () => toast.success("Review reply deleted."),
+    onSuccess: () => toast.success(tAdmin("reviewReplyDeleted")),
     onError: ActionErrorToast,
   });
 
@@ -1781,19 +1916,19 @@ function ReviewsManager({
 
   return (
     <RelationCard
-      title="Reviews and comments"
+      title={tAdmin("reviewsAndComments")}
       description="Customer feedback is booking-gated and stays pending until admin approval. Admin can also add public SEO reviews."
     >
       <div className="rounded-2xl border bg-muted/20 p-4">
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
-            <div className="font-semibold">Add admin / SEO review</div>
+            <div className="font-semibold">{tAdmin("addAdminSEOReview")}</div>
             <p className="text-sm text-muted-foreground">
               Use this only for curated editorial comments or imported reviews.
               Customer reviews should come from booked customers.
             </p>
           </div>
-          <Badge variant="outline">Admin created</Badge>
+          <Badge variant="outline">{tAdmin("adminCreated")}</Badge>
         </div>
         <div className="grid gap-3 lg:grid-cols-3">
           <Input
@@ -1801,7 +1936,7 @@ function ReviewsManager({
             onChange={(e) =>
               setDraft((v) => ({ ...v, customerName: e.target.value }))
             }
-            placeholder="Reviewer name"
+            placeholder={tAdmin("reviewerName")}
             disabled={isPending}
           />
           <Input
@@ -1809,7 +1944,7 @@ function ReviewsManager({
             onChange={(e) =>
               setDraft((v) => ({ ...v, country: e.target.value }))
             }
-            placeholder="Country"
+            placeholder={tAdmin("country")}
             disabled={isPending}
           />
           <Input
@@ -1817,7 +1952,7 @@ function ReviewsManager({
             onChange={(e) =>
               setDraft((v) => ({ ...v, treatment: e.target.value }))
             }
-            placeholder="Treatment / SEO title"
+            placeholder={tAdmin("treatmentSEOTitle")}
             disabled={isPending}
           />
           <Select
@@ -1833,12 +1968,12 @@ function ReviewsManager({
             disabled={isPending}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Target" />
+              <SelectValue placeholder={tAdmin("target")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="provider">Provider</SelectItem>
-              <SelectItem value="service">Service</SelectItem>
-              <SelectItem value="specialist">Specialist</SelectItem>
+              <SelectItem value="provider">{tAdmin("provider")}</SelectItem>
+              <SelectItem value="service">{tAdmin("service")}</SelectItem>
+              <SelectItem value="specialist">{tAdmin("specialist")}</SelectItem>
             </SelectContent>
           </Select>
           {draft.reviewTarget === "service" ? (
@@ -1850,7 +1985,7 @@ function ReviewsManager({
               disabled={isPending}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Provider service" />
+                <SelectValue placeholder={tAdmin("providerService")} />
               </SelectTrigger>
               <SelectContent>
                 {provider.services.map((service) => (
@@ -1873,7 +2008,7 @@ function ReviewsManager({
               disabled={isPending}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Specialist" />
+                <SelectValue placeholder={tAdmin("specialist")} />
               </SelectTrigger>
               <SelectContent>
                 {provider.staff.map((staff) => (
@@ -1892,7 +2027,7 @@ function ReviewsManager({
             onChange={(e) =>
               setDraft((v) => ({ ...v, rating: Number(e.target.value || 5) }))
             }
-            placeholder="Rating"
+            placeholder={tAdmin("rating")}
             disabled={isPending}
           />
           <Input
@@ -1902,7 +2037,7 @@ function ReviewsManager({
             onChange={(e) =>
               setDraft((v) => ({ ...v, helpfulCount: Number(e.target.value || 0) }))
             }
-            placeholder="Helpful votes"
+            placeholder={tAdmin("helpfulVotes")}
             disabled={isPending}
           />
           <Input
@@ -1912,7 +2047,7 @@ function ReviewsManager({
             onChange={(e) =>
               setDraft((v) => ({ ...v, notHelpfulCount: Number(e.target.value || 0) }))
             }
-            placeholder="Dislike votes"
+            placeholder={tAdmin("dislikeVotes")}
             disabled={isPending}
           />
           <Select
@@ -1926,12 +2061,12 @@ function ReviewsManager({
             disabled={isPending}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Status" />
+              <SelectValue placeholder={tAdmin("status")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="approved">Approved / public</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="rejected">Rejected / hidden</SelectItem>
+              <SelectItem value="approved">{tAdmin("approvedPublic")}</SelectItem>
+              <SelectItem value="pending">{tAdmin("pending")}</SelectItem>
+              <SelectItem value="rejected">{tAdmin("rejectedHidden")}</SelectItem>
             </SelectContent>
           </Select>
           <label className="flex items-center gap-2 rounded-xl border bg-background px-3 py-2 text-sm">
@@ -1951,7 +2086,7 @@ function ReviewsManager({
             onChange={(e) =>
               setDraft((v) => ({ ...v, prosText: e.target.value }))
             }
-            placeholder="Pros, one per line or comma separated"
+            placeholder={tAdmin("prosOnePerLineOrCommaSeparated")}
             rows={3}
             className="w-full rounded-xl border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
             disabled={isPending}
@@ -1961,7 +2096,7 @@ function ReviewsManager({
             onChange={(e) =>
               setDraft((v) => ({ ...v, consText: e.target.value }))
             }
-            placeholder="Cons, one per line or comma separated"
+            placeholder={tAdmin("consOnePerLineOrCommaSeparated")}
             rows={3}
             className="w-full rounded-xl border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
             disabled={isPending}
@@ -1972,7 +2107,7 @@ function ReviewsManager({
           onChange={(e) =>
             setDraft((v) => ({ ...v, commentText: e.target.value }))
           }
-          placeholder="Review text"
+          placeholder={tAdmin("reviewText")}
           rows={4}
           className="mt-3 w-full rounded-xl border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
           disabled={isPending}
@@ -2019,13 +2154,13 @@ function ReviewsManager({
                     <div className="grid gap-2 text-xs lg:grid-cols-2">
                       {item.pros?.length ? (
                         <div className="rounded-lg bg-emerald-50 p-2 text-emerald-800">
-                          <div className="mb-1 font-semibold">Pros</div>
+                          <div className="mb-1 font-semibold">{tAdmin("pros")}</div>
                           {item.pros.map((point) => <div key={point}>+ {point}</div>)}
                         </div>
                       ) : null}
                       {item.cons?.length ? (
                         <div className="rounded-lg bg-rose-50 p-2 text-rose-800">
-                          <div className="mb-1 font-semibold">Cons</div>
+                          <div className="mb-1 font-semibold">{tAdmin("cons")}</div>
                           {item.cons.map((point) => <div key={point}>- {point}</div>)}
                         </div>
                       ) : null}
@@ -2047,7 +2182,7 @@ function ReviewsManager({
                       {item.isPublic ? "Public" : "Hidden"}
                     </Badge>
                     {item.isVerified ? (
-                      <Badge variant="outline">Verified booking</Badge>
+                      <Badge variant="outline">{tAdmin("verifiedBooking")}</Badge>
                     ) : null}
                     <Badge variant="outline">Helpful {item.helpfulCount}</Badge>
                     <Badge variant="outline">Dislike {item.notHelpfulCount}</Badge>
@@ -2078,7 +2213,7 @@ function ReviewsManager({
                             >
                               {reply.moderationStatus}
                             </Badge>
-                            {reply.isVerified ? <Badge variant="outline">Verified</Badge> : null}
+                            {reply.isVerified ? <Badge variant="outline">{tAdmin("verified")}</Badge> : null}
                             <span className="text-muted-foreground">{dateText(reply.createDate)}</span>
                           </div>
                           <p className="text-sm text-muted-foreground">{reply.replyText}</p>
@@ -2158,7 +2293,7 @@ function ReviewsManager({
                           [item.id]: event.target.value,
                         }))
                       }
-                      placeholder="Answer this review as admin"
+                      placeholder={tAdmin("answerThisReviewAsAdmin")}
                       rows={3}
                       maxLength={1000}
                       className="w-full rounded-xl border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
@@ -2240,7 +2375,7 @@ function ReviewsManager({
             </div>
           ))
         ) : (
-          <EmptyState title="No reviews yet." />
+          <EmptyState title={tAdmin("noReviewsYet")} />
         )}
       </div>
     </RelationCard>
@@ -2248,15 +2383,16 @@ function ReviewsManager({
 }
 
 function RequestsManager({ provider, lookups, locale }: Props) {
+  const tAdmin = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
   const update = useAction(updateProviderRequestStatusAction, {
     startTransition,
-    onSuccess: () => toast.success("Request status updated."),
+    onSuccess: () => toast.success(tAdmin("requestStatusUpdated")),
     onError: ActionErrorToast,
   });
   return (
     <RelationCard
-      title="Provider requests"
+      title={tAdmin("providerRequests")}
       description="Admin status workflow for service_provider_requests."
     >
       <div className="space-y-2">
@@ -2287,7 +2423,7 @@ function RequestsManager({ provider, lookups, locale }: Props) {
                     requestStatusId: Number(value),
                   })
                 }
-                placeholder="Request status"
+                placeholder={tAdmin("requestStatus")}
                 initialOptions={lookups.requestStatuses}
                 disabled={isPending}
                 clearable={false}
@@ -2295,7 +2431,7 @@ function RequestsManager({ provider, lookups, locale }: Props) {
             </div>
           ))
         ) : (
-          <EmptyState title="No provider requests." />
+          <EmptyState title={tAdmin("noProviderRequests")} />
         )}
       </div>
     </RelationCard>
@@ -2303,14 +2439,15 @@ function RequestsManager({ provider, lookups, locale }: Props) {
 }
 
 function BookingsTab({ provider }: { provider: AdminServiceProviderDetails }) {
+  const tAdmin = useTranslations("AdminGenerated");
   return (
     <RelationCard
-      title="Bookings and drafts"
+      title={tAdmin("bookingsAndDrafts")}
       description="Read-only operational snapshot from booking.bookings and booking.booking_drafts."
     >
       <div className="space-y-4">
         <div>
-          <h3 className="mb-2 font-medium">Bookings</h3>
+          <h3 className="mb-2 font-medium">{tAdmin("bookings")}</h3>
           <div className="space-y-2">
             {provider.bookings.length ? (
               provider.bookings.map((item) => (
@@ -2333,12 +2470,12 @@ function BookingsTab({ provider }: { provider: AdminServiceProviderDetails }) {
                 </div>
               ))
             ) : (
-              <EmptyState title="No bookings loaded." />
+              <EmptyState title={tAdmin("noBookingsLoaded")} />
             )}
           </div>
         </div>
         <div>
-          <h3 className="mb-2 font-medium">Drafts</h3>
+          <h3 className="mb-2 font-medium">{tAdmin("drafts")}</h3>
           <div className="space-y-2">
             {provider.bookingDrafts.length ? (
               provider.bookingDrafts.map((item) => (
@@ -2362,7 +2499,7 @@ function BookingsTab({ provider }: { provider: AdminServiceProviderDetails }) {
                 </div>
               ))
             ) : (
-              <EmptyState title="No drafts loaded." />
+              <EmptyState title={tAdmin("noDraftsLoaded")} />
             )}
           </div>
         </div>
@@ -2372,22 +2509,23 @@ function BookingsTab({ provider }: { provider: AdminServiceProviderDetails }) {
 }
 
 function RecommendationsManager({ provider, lookups, locale }: Props) {
+  const tAdmin = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
   const [targetProviderId, setTargetProviderId] = useState("");
   const [type, setType] = useState("similar");
   const save = useAction(saveProviderRecommendationAction, {
     startTransition,
-    onSuccess: () => toast.success("Recommendation saved."),
+    onSuccess: () => toast.success(tAdmin("recommendationSaved")),
     onError: ActionErrorToast,
   });
   const del = useAction(deleteProviderRecommendationAction, {
     startTransition,
-    onSuccess: () => toast.success("Recommendation deleted."),
+    onSuccess: () => toast.success(tAdmin("recommendationDeleted")),
     onError: ActionErrorToast,
   });
   return (
     <RelationCard
-      title="Recommendations"
+      title={tAdmin("recommendations")}
       description="Controls local/international/similar provider recommendations."
     >
       <div className="grid gap-3 md:grid-cols-[1fr_180px_auto]">
@@ -2396,7 +2534,7 @@ function RecommendationsManager({ provider, lookups, locale }: Props) {
           locale={locale}
           value={targetProviderId}
           onValueChange={setTargetProviderId}
-          placeholder="Target provider"
+          placeholder={tAdmin("targetProvider")}
           initialOptions={lookups.providers.filter(
             (item) => String(item.id) !== provider.id,
           )}
@@ -2446,7 +2584,7 @@ function RecommendationsManager({ provider, lookups, locale }: Props) {
             </div>
           ))
         ) : (
-          <EmptyState title="No recommendations yet." />
+          <EmptyState title={tAdmin("noRecommendationsYet")} />
         )}
       </div>
     </RelationCard>

@@ -483,9 +483,113 @@ function decodeHeaderText(value: string | null) {
   }
 }
 
+type IpGeoLookupResult = {
+  countryCode: string | null;
+  city: string | null;
+};
+
+function normalizeClientIp(value?: string | null) {
+  const first = trimOrNull(value)?.split(',')[0]?.trim();
+  if (!first || first.toLowerCase() === 'unknown') return null;
+
+  return first
+    .replace(/^::ffff:/i, '')
+    .replace(/^\[|\]$/g, '');
+}
+
+function isPublicIpAddress(ip: string) {
+  const value = ip.toLowerCase();
+
+  if (value === '::1' || value === 'localhost') return false;
+  if (value.startsWith('fc') || value.startsWith('fd') || value.startsWith('fe80:')) return false;
+
+  const parts = value.split('.').map((part) => Number(part));
+  if (parts.length !== 4 || parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) {
+    return value.includes(':');
+  }
+
+  const [a, b] = parts;
+  if (a === 10 || a === 127 || a === 0 || a === 169) return false;
+  if (a === 172 && b >= 16 && b <= 31) return false;
+  if (a === 192 && b === 168) return false;
+
+  return true;
+}
+
+function getClientIpFromHeaders(headerStore: Headers) {
+  const raw = getFirstHeaderValue(headerStore, [
+    'cf-connecting-ip',
+    'true-client-ip',
+    'x-real-ip',
+    'x-client-ip',
+    'fastly-client-ip',
+    'x-vercel-forwarded-for',
+    'x-forwarded-for',
+  ]);
+
+  const ip = normalizeClientIp(raw);
+  return ip && isPublicIpAddress(ip) ? ip : null;
+}
+
+function buildIpGeoLookupUrl(ip: string) {
+  const template = trimOrNull(process.env.IP_GEOLOCATION_ENDPOINT);
+  if (template) return template.replace('{ip}', encodeURIComponent(ip));
+
+  if (process.env.DISABLE_PUBLIC_IP_GEOLOOKUP === 'true') return null;
+
+  return `https://ipapi.co/${encodeURIComponent(ip)}/json/`;
+}
+
+function mapIpGeoPayload(payload: Record<string, unknown> | null): IpGeoLookupResult | null {
+  if (!payload || typeof payload !== 'object') return null;
+
+  const countryCode = upperOrNull(
+    String(
+      payload.country_code ??
+        payload.countryCode ??
+        payload.country ??
+        payload.country_code2 ??
+        ''
+    )
+  );
+  const city = trimOrNull(String(payload.city ?? payload.cityName ?? payload.regionName ?? ''));
+
+  if (!countryCode && !city) return null;
+  return { countryCode, city };
+}
+
+async function lookupClientIpLocation(headerStore: Headers): Promise<IpGeoLookupResult | null> {
+  const ip = getClientIpFromHeaders(headerStore);
+  if (!ip) return null;
+
+  const url = buildIpGeoLookupUrl(ip);
+  if (!url) return null;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 1500);
+
+  try {
+    const response = await fetch(url, {
+      cache: 'no-store',
+      signal: controller.signal,
+    });
+
+    if (!response.ok) return null;
+
+    const payload = (await response.json()) as Record<string, unknown>;
+    if (payload.error === true || payload.status === 'fail') return null;
+
+    return mapIpGeoPayload(payload);
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 async function getIpLocationCandidate(locale?: string | null) {
   const headerStore = await headers();
-  const countryCode = upperOrNull(
+  let countryCode = upperOrNull(
     getFirstHeaderValue(headerStore, [
       'x-vercel-ip-country',
       'cf-ipcountry',
@@ -495,7 +599,7 @@ async function getIpLocationCandidate(locale?: string | null) {
       'x-appengine-country',
     ])
   );
-  const city = decodeHeaderText(
+  let city = decodeHeaderText(
     getFirstHeaderValue(headerStore, [
       'x-vercel-ip-city',
       'cf-ipcity',
@@ -504,6 +608,12 @@ async function getIpLocationCandidate(locale?: string | null) {
       'x-appengine-city',
     ])
   );
+
+  if (!countryCode && !city) {
+    const lookup = await lookupClientIpLocation(headerStore);
+    countryCode = lookup?.countryCode ?? null;
+    city = lookup?.city ?? null;
+  }
 
   if (!countryCode && !city) return null;
 

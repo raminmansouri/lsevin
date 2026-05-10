@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Search, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -71,33 +71,32 @@ export const ServiceDefinitionListToolbar = () => {
     setSearch(currentSearch);
   }, [currentSearch]);
 
-  const doSearch=()=>{
-    if (search.trim() === currentSearch) return;
+  const applySearch = useCallback(
+    (nextSearch: string) => {
+      if (nextSearch.trim() === currentSearch) return;
 
-      const params = normalizeListUrlParams(searchParams, search);
+      const params = normalizeListUrlParams(searchParams, nextSearch);
       const query = params.toString();
       const nextUrl = query ? `${pathname}?${query}` : pathname;
 
       startTransition(() => {
         router.replace(nextUrl, { scroll: false });
       });
-  }
+    },
+    [currentSearch, pathname, router, searchParams]
+  );
+
+  const doSearch = () => {
+    applySearch(search);
+  };
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      if (search.trim() === currentSearch) return;
-
-      const params = normalizeListUrlParams(searchParams, search);
-      const query = params.toString();
-      const nextUrl = query ? `${pathname}?${query}` : pathname;
-
-      startTransition(() => {
-        router.replace(nextUrl, { scroll: false });
-      });
+      applySearch(search);
     }, 750);
 
     return () => window.clearTimeout(timer);
-  }, [ currentSearch, pathname, router,  searchParams]);
+  }, [applySearch, search]);
 
   const handleAddServiceDefinition = () => {
     router.push(`${pathname}/add`);
@@ -105,6 +104,7 @@ export const ServiceDefinitionListToolbar = () => {
 
   const handleClearSearch = () => {
     setSearch("");
+    applySearch("");
   };
 
   return (
@@ -113,9 +113,9 @@ export const ServiceDefinitionListToolbar = () => {
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <input
           value={search}
-          onKeyDown={s=>{
-            if(s.key==='Enter'){
-      doSearch();
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              doSearch();
             }
           }}
           onChange={(event) => setSearch(event.target.value)}

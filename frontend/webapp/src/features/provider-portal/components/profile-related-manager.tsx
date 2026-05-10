@@ -21,6 +21,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "@/i18n/navigation";
+import SingleMediaPickerInput from "@/features/media-picker-addon/components/SingleMediaPickerInput";
 
 import { LocalizedRichPreview } from "./localized-rich-preview";
 import { displayTranslation } from "../lib/normalizers";
@@ -71,6 +72,12 @@ function ProviderCertificationsCard({ providerId, certifications }: { providerId
                   <Badge variant={item.isVerified ? "default" : "secondary"}>{item.isVerified ? "Verified" : "Provider added"}</Badge>
                 </div>
                 {item.isVerified ? <p className="mt-1 text-xs text-slate-500">Verified records cannot be changed by provider users.</p> : null}
+                {(item.imageUrl || item.secondaryImageUrl) ? (
+                  <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-500">
+                    {item.imageUrl ? <span className="rounded-full bg-slate-100 px-2 py-1">Image 1 attached</span> : null}
+                    {item.secondaryImageUrl ? <span className="rounded-full bg-slate-100 px-2 py-1">Image 2 attached</span> : null}
+                  </div>
+                ) : null}
               </div>
               {!item.isVerified ? (
                 <div className="flex gap-2">
@@ -95,6 +102,8 @@ function CertificationForm({ providerId, editing, onDone }: { providerId: string
       providerId,
       certificationId: editing?.id || null,
       name: editing?.name || "",
+      imageUrl: editing?.imageUrl || null,
+      secondaryImageUrl: editing?.secondaryImageUrl || null,
     },
   });
 
@@ -103,7 +112,7 @@ function CertificationForm({ providerId, editing, onDone }: { providerId: string
       const response = await saveProviderCertificationAction(values);
       if (!response.ok) return toast.error(response.error || "Certification could not be saved.");
       toast.success("Certification saved.");
-      form.reset({ providerId, certificationId: null, name: "" });
+      form.reset({ providerId, certificationId: null, name: "", imageUrl: null, secondaryImageUrl: null });
       onDone();
       router.refresh();
     });
@@ -119,6 +128,30 @@ function CertificationForm({ providerId, editing, onDone }: { providerId: string
       <div className="flex gap-2">
         {editing ? <Button type="button" variant="outline" onClick={onDone}>Cancel</Button> : null}
         <Button type="submit" disabled={isPending}>{isPending ? "Saving..." : editing ? "Update" : "Add"}</Button>
+      </div>
+      <div className="md:col-span-2 grid gap-3 md:grid-cols-2">
+        <SingleMediaPickerInput
+          name="imageUrl"
+          label="Certificate image"
+          placeholder="Pick certificate image"
+          mediaType="image"
+          value={form.watch("imageUrl") || ""}
+          onValueChange={(value) => form.setValue("imageUrl", value || null, { shouldDirty: true })}
+          disabled={isPending}
+          helperText="Optional certificate image."
+          modalTitle="Pick certificate image"
+        />
+        <SingleMediaPickerInput
+          name="secondaryImageUrl"
+          label="Second image"
+          placeholder="Pick second image"
+          mediaType="image"
+          value={form.watch("secondaryImageUrl") || ""}
+          onValueChange={(value) => form.setValue("secondaryImageUrl", value || null, { shouldDirty: true })}
+          disabled={isPending}
+          helperText="Optional second page/image."
+          modalTitle="Pick second certificate image"
+        />
       </div>
     </form>
   );

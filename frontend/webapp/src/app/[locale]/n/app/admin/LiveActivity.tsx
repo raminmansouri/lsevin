@@ -1,5 +1,7 @@
 "use client"
 
+
+import { useTranslations } from "next-intl";
 import { useState } from 'react';
 import { 
   LayoutDashboard,
@@ -30,25 +32,26 @@ import {
 import { DashboardLayout } from '../design-system/dashboard-components';
 
 export default function LiveActivity() {
+  const tAdmin = useTranslations("AdminGenerated");
   const [eventTypeFilter, setEventTypeFilter] = useState('all');
   const [countryFilter, setCountryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   
   const navigation = [
-    { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
-    { label: 'Live Activity', icon: <Activity size={20} />, path: '/admin/activity' },
-    { label: 'Users', icon: <Users size={20} />, path: '/admin/users', badge: 12 },
-    { label: 'Providers', icon: <Building2 size={20} />, path: '/admin/providers', badge: 8 },
-    { label: 'Bookings', icon: <ShoppingBag size={20} />, path: '/admin/bookings' },
-    { label: 'Payments', icon: <Wallet size={20} />, path: '/admin/payments' },
-    { label: 'Campaigns', icon: <TrendingUp size={20} />, path: '/admin/campaigns' },
-    { label: 'Rewards', icon: <Gift size={20} />, path: '/admin/rewards' },
-    { label: 'Support', icon: <MessageSquare size={20} />, path: '/admin/support', badge: 23 },
-    { label: 'Reports', icon: <BarChart3 size={20} />, path: '/admin/reports' },
-    { label: 'Localization', icon: <Globe size={20} />, path: '/admin/localization' },
-    { label: 'Settings', icon: <Settings size={20} />, path: '/admin/settings' },
-    { label: 'Audit Logs', icon: <FileText size={20} />, path: '/admin/audit' },
+    { label: tAdmin("dashboard"), icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
+    { label: tAdmin("liveActivity"), icon: <Activity size={20} />, path: '/admin/activity' },
+    { label: tAdmin("users"), icon: <Users size={20} />, path: '/admin/users', badge: 12 },
+    { label: tAdmin("providers"), icon: <Building2 size={20} />, path: '/admin/providers', badge: 8 },
+    { label: tAdmin("bookings"), icon: <ShoppingBag size={20} />, path: '/admin/bookings' },
+    { label: tAdmin("payments"), icon: <Wallet size={20} />, path: '/admin/payments' },
+    { label: tAdmin("campaigns"), icon: <TrendingUp size={20} />, path: '/admin/campaigns' },
+    { label: tAdmin("rewards"), icon: <Gift size={20} />, path: '/admin/rewards' },
+    { label: tAdmin("support"), icon: <MessageSquare size={20} />, path: '/admin/support', badge: 23 },
+    { label: tAdmin("reports"), icon: <BarChart3 size={20} />, path: '/admin/reports' },
+    { label: tAdmin("localization"), icon: <Globe size={20} />, path: '/admin/localization' },
+    { label: tAdmin("settings"), icon: <Settings size={20} />, path: '/admin/settings' },
+    { label: tAdmin("auditLogs"), icon: <FileText size={20} />, path: '/admin/audit' },
   ];
 
   const liveEvents = [
@@ -229,13 +232,13 @@ export default function LiveActivity() {
   const getStatusBadge = (status: string) => {
     switch(status) {
       case 'completed':
-        return <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-lg flex items-center gap-1"><CheckCircle2 size={12} />Completed</span>;
+        return <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-lg flex items-center gap-1"><CheckCircle2 size={12} />{tAdmin("completed")}</span>;
       case 'pending':
-        return <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-lg flex items-center gap-1"><Clock size={12} />Pending</span>;
+        return <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-lg flex items-center gap-1"><Clock size={12} />{tAdmin("pending")}</span>;
       case 'escalated':
-        return <span className="px-2.5 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded-lg flex items-center gap-1"><AlertTriangle size={12} />Escalated</span>;
+        return <span className="px-2.5 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded-lg flex items-center gap-1"><AlertTriangle size={12} />{tAdmin("escalated")}</span>;
       case 'cancelled':
-        return <span className="px-2.5 py-1 bg-gray-50 text-gray-700 text-xs font-semibold rounded-lg flex items-center gap-1"><XCircle size={12} />Cancelled</span>;
+        return <span className="px-2.5 py-1 bg-gray-50 text-gray-700 text-xs font-semibold rounded-lg flex items-center gap-1"><XCircle size={12} />{tAdmin("cancelled")}</span>;
       default:
         return <span className="px-2.5 py-1 bg-gray-50 text-gray-700 text-xs font-semibold rounded-lg">{status}</span>;
     }
@@ -256,21 +259,21 @@ export default function LiveActivity() {
   return (
     <DashboardLayout 
       navigation={navigation} 
-      headerTitle="Live Activity Monitor"
+      headerTitle={tAdmin("liveActivityMonitor")}
       userRole="admin"
-      userName="System Admin"
+      userName={tAdmin("systemAdmin")}
     >
       <div className="p-8 space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Live Activity</h1>
-            <p className="text-gray-600">Real-time monitoring of platform events and actions</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">{tAdmin("liveActivity")}</h1>
+            <p className="text-gray-600">{tAdmin("realTimeMonitoringOfPlatformEventsAndActions")}</p>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-xl">
               <Circle className="w-2 h-2 fill-green-500 text-green-500 animate-pulse" />
-              <span className="text-sm font-semibold text-green-700">Live</span>
+              <span className="text-sm font-semibold text-green-700">{tAdmin("live")}</span>
             </div>
             <button className="px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50">
               <Calendar size={16} className="inline mr-2" />
@@ -283,21 +286,21 @@ export default function LiveActivity() {
         <div className="bg-white rounded-2xl border border-gray-200 p-5">
           <div className="grid grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Search</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("search")}</label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="User, ID, or details..."
+                  placeholder={tAdmin("userIDOrDetails")}
                   className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent"
                 />
               </div>
             </div>
             
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Event Type</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("eventType")}</label>
               <div className="relative">
                 <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <select
@@ -305,18 +308,18 @@ export default function LiveActivity() {
                   onChange={(e) => setEventTypeFilter(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
                 >
-                  <option value="all">All Types</option>
-                  <option value="booking">Bookings</option>
-                  <option value="user">Users</option>
-                  <option value="payment">Payments</option>
-                  <option value="provider">Providers</option>
-                  <option value="support">Support</option>
+                  <option value="all">{tAdmin("allTypes2")}</option>
+                  <option value="booking">{tAdmin("bookings")}</option>
+                  <option value="user">{tAdmin("users")}</option>
+                  <option value="payment">{tAdmin("payments")}</option>
+                  <option value="provider">{tAdmin("providers")}</option>
+                  <option value="support">{tAdmin("support")}</option>
                 </select>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Country</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("country")}</label>
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <select
@@ -324,28 +327,28 @@ export default function LiveActivity() {
                   onChange={(e) => setCountryFilter(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
                 >
-                  <option value="all">All Countries</option>
-                  <option value="Turkey">Turkey</option>
-                  <option value="UAE">UAE</option>
-                  <option value="Cyprus">Cyprus</option>
-                  <option value="Indonesia">Indonesia</option>
-                  <option value="Thailand">Thailand</option>
+                  <option value="all">{tAdmin("allCountries")}</option>
+                  <option value="Turkey">{tAdmin("turkey")}</option>
+                  <option value="UAE">{tAdmin("uAE")}</option>
+                  <option value="Cyprus">{tAdmin("cyprus")}</option>
+                  <option value="Indonesia">{tAdmin("indonesia")}</option>
+                  <option value="Thailand">{tAdmin("thailand")}</option>
                 </select>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("status")}</label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
               >
-                <option value="all">All Status</option>
-                <option value="completed">Completed</option>
-                <option value="pending">Pending</option>
-                <option value="escalated">Escalated</option>
-                <option value="cancelled">Cancelled</option>
+                <option value="all">{tAdmin("allStatus")}</option>
+                <option value="completed">{tAdmin("completed")}</option>
+                <option value="pending">{tAdmin("pending")}</option>
+                <option value="escalated">{tAdmin("escalated")}</option>
+                <option value="cancelled">{tAdmin("cancelled")}</option>
               </select>
             </div>
           </div>
@@ -355,7 +358,7 @@ export default function LiveActivity() {
         <div className="bg-white rounded-2xl border border-gray-200">
           <div className="p-5 border-b border-gray-200">
             <div className="flex items-center justify-between">
-              <h2 className="font-bold text-gray-900">Activity Timeline</h2>
+              <h2 className="font-bold text-gray-900">{tAdmin("activityTimeline")}</h2>
               <span className="text-sm text-gray-600">{filteredEvents.length} events</span>
             </div>
           </div>

@@ -279,7 +279,7 @@ function ProvidersSection({ providers, navigate }: { providers: SpecialistProvid
           onClick={() => navigate(`/n/app/mobile/provider/${provider.id}`)}
           className="flex w-full gap-3 rounded-2xl border border-gray-200 bg-white p-3 text-left transition-colors hover:bg-gray-50 active:scale-[0.99]"
         >
-          <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl bg-gray-100">
+          <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl bg-gray-100 lg:h-28 lg:w-32">
             <MediaImage src={provider.image} alt={provider.name} className="object-cover" />
           </div>
           <div className="min-w-0 flex-1">
@@ -320,7 +320,7 @@ function ServicesSection({ services, navigate }: { services: SpecialistService[]
           className="w-full overflow-hidden rounded-2xl border border-gray-200 bg-white text-left shadow-sm transition hover:bg-gray-50 active:scale-[0.99]"
         >
           <div className="flex gap-3 p-3">
-            <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl bg-gray-100">
+            <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl bg-gray-100 lg:h-32 lg:w-40">
               <MediaImage src={service.image} alt={service.name} className="object-cover" />
             </div>
             <div className="min-w-0 flex-1">
@@ -605,9 +605,9 @@ export default function SpecialistProfileClient({
       />
 
       <div className="relative">
-        <div className="absolute inset-x-0 top-0 h-56 bg-gradient-to-b from-[#083f30] to-[#0a5a44]" />
+        <div className="absolute inset-x-0 top-0 h-56 bg-gradient-to-b from-[#083f30] to-[#0a5a44] lg:h-72" />
 
-        <div className="relative z-10 flex items-center justify-between px-5 py-4">
+        <div className="relative z-10 flex items-center justify-between px-5 py-4 lg:px-8">
           <button
             type="button"
             onClick={() => navigate(-1)}
@@ -637,10 +637,10 @@ export default function SpecialistProfileClient({
           </div>
         </div>
 
-        <div className="relative z-10 px-5 pb-6">
+        <div className="relative z-10 px-5 pb-6 lg:px-8">
           <div className="overflow-hidden rounded-3xl bg-white shadow-xl">
-            <div className="relative h-40 bg-gray-100">
-              <MediaImage src={primaryGalleryImage} alt={specialist.name} className="object-cover" />
+            <div className="relative h-40 bg-gray-100 lg:h-[320px]">
+              <MediaImage src={primaryGalleryImage} alt={specialist.name} className="object-cover" sizes="(min-width: 1024px) 960px, 100vw" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
               <button
                 type="button"
@@ -654,8 +654,8 @@ export default function SpecialistProfileClient({
 
             <div className="p-5">
               <div className="flex gap-4">
-                <div className="relative -mt-14 h-28 w-28 flex-shrink-0 overflow-hidden rounded-3xl border-4 border-white bg-gray-100 shadow-md">
-                  <MediaImage src={specialist.image} alt={specialist.name} className="object-cover" sizes="112px" />
+                <div className="relative -mt-14 h-28 w-28 flex-shrink-0 overflow-hidden rounded-3xl border-4 border-white bg-gray-100 shadow-md lg:-mt-20 lg:h-36 lg:w-36">
+                  <MediaImage src={specialist.image} alt={specialist.name} className="object-cover" sizes="(min-width: 1024px) 144px, 112px" />
                   {specialist.verified ? (
                     <div className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full bg-[#083f30] shadow-lg">
                       <BadgeCheck size={18} className="text-[#eacb7f]" />
@@ -701,8 +701,8 @@ export default function SpecialistProfileClient({
         </div>
       </div>
 
-      <div className="px-5">
-        <div className="-mx-5 mb-6 flex gap-2 overflow-x-auto border-b border-gray-200 px-5">
+      <div className="px-5 lg:px-8">
+        <div className="-mx-5 mb-6 flex gap-2 overflow-x-auto border-b border-gray-200 px-5 lg:-mx-8 lg:px-8">
           {tabs.map((tab) => (
             <button
               key={tab.id}

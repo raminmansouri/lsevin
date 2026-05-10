@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, ToggleLeft, ToggleRight } from "lucide-react";
+import { ImageIcon, MoreHorizontal, PlayCircle, ToggleLeft, ToggleRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { SafeLexicalRenderer } from "../safe-lexical-renderer";
@@ -38,6 +38,12 @@ export const getServiceDefinitionListColumns = (
               {serviceDefinition.isActive ? t("status.active") : t("status.inactive")}
             </Badge>
             <Badge variant="outline">{serviceDefinition.pricingModel}</Badge>
+            {serviceDefinition.mediaUrl && (
+              <Badge variant="secondary" className="gap-1">
+                {serviceDefinition.mediaType === "video" ? <PlayCircle className="h-3 w-3" /> : <ImageIcon className="h-3 w-3" />}
+                {serviceDefinition.mediaType?.toUpperCase() || "MEDIA"}
+              </Badge>
+            )}
           </div>
         </div>
       );

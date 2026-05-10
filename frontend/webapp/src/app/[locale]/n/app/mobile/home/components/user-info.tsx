@@ -18,6 +18,7 @@ export default function UserInfoSubBar({profile}) {
     const { user, status } = useCurrentSession(true);
       const isAdmin = user?.roles?.includes(UserRole.Admin);
       const t = useTranslations("UserInfo");
+      const homeT = useTranslations("Home.userInfo");
     
 
         const resolvedImageUrl = useMemo(
@@ -43,7 +44,7 @@ export default function UserInfoSubBar({profile}) {
     
       <div className="flex items-center justify-between mb-3">
           <div className="flex-1">
-            <p className="text-xs font-medium text-gray-500 mb-0.5">Good Morning</p>
+            <p className="text-xs font-medium text-gray-500 mb-0.5">{homeT("goodMorning")}</p>
             <h1 className="text-lg font-bold text-gray-900">
                             {user.firstName} {user.lastName}
 
@@ -110,7 +111,7 @@ export default function UserInfoSubBar({profile}) {
             >
               <img
                 src={resolvedImageUrl}
-                alt="Profile"
+                alt={homeT("profileAlt")}
                 className="w-full h-full object-cover"
               />
             </Link>

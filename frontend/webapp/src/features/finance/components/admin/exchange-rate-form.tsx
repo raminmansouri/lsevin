@@ -1,5 +1,7 @@
 'use client';
 
+
+import { useTranslations } from "next-intl";
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,6 +21,7 @@ import type { Currency } from '../../types';
 type FormInput = z.infer<typeof ExchangeRateFormSchema>;
 
 export function ExchangeRateForm({ currencies }: { currencies: Currency[] }) {
+  const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -37,7 +40,7 @@ export function ExchangeRateForm({ currencies }: { currencies: Currency[] }) {
     startTransition(async () => {
       try {
         await createExchangeRateAction(values);
-        toast.success('Exchange rate saved.');
+        toast.success(tAdmin("exchangeRateSaved"));
         router.push('/admin/finance/exchange-rates');
         router.refresh();
       } catch (error) {
@@ -49,7 +52,7 @@ export function ExchangeRateForm({ currencies }: { currencies: Currency[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Create exchange rate</CardTitle>
+        <CardTitle>{tAdmin("createExchangeRate")}</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -57,9 +60,9 @@ export function ExchangeRateForm({ currencies }: { currencies: Currency[] }) {
             <div className="grid gap-4 md:grid-cols-5">
               <FormField control={form.control} name="baseCurrencyCode" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Base</FormLabel>
+                  <FormLabel>{tAdmin("base")}</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Base" /></SelectTrigger></FormControl>
+                    <FormControl><SelectTrigger><SelectValue placeholder={tAdmin("base")} /></SelectTrigger></FormControl>
                     <SelectContent>
                       {currencies.map((currency) => <SelectItem key={currency.code} value={currency.code}>{currency.code} — {currency.name}</SelectItem>)}
                     </SelectContent>
@@ -70,9 +73,9 @@ export function ExchangeRateForm({ currencies }: { currencies: Currency[] }) {
 
               <FormField control={form.control} name="quoteCurrencyCode" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Quote</FormLabel>
+                  <FormLabel>{tAdmin("quote")}</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Quote" /></SelectTrigger></FormControl>
+                    <FormControl><SelectTrigger><SelectValue placeholder={tAdmin("quote")} /></SelectTrigger></FormControl>
                     <SelectContent>
                       {currencies.map((currency) => <SelectItem key={currency.code} value={currency.code}>{currency.code} — {currency.name}</SelectItem>)}
                     </SelectContent>
@@ -83,7 +86,7 @@ export function ExchangeRateForm({ currencies }: { currencies: Currency[] }) {
 
               <FormField control={form.control} name="rate" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Rate</FormLabel>
+                  <FormLabel>{tAdmin("rate")}</FormLabel>
                   <FormControl><Input {...field} type="number" step="0.000000000001" min="0" disabled={isPending} /></FormControl>
                   <FormMessage />
                 </FormItem>
@@ -91,7 +94,7 @@ export function ExchangeRateForm({ currencies }: { currencies: Currency[] }) {
 
               <FormField control={form.control} name="source" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Source</FormLabel>
+                  <FormLabel>{tAdmin("source")}</FormLabel>
                   <FormControl><Input {...field} disabled={isPending} placeholder="manual_admin" /></FormControl>
                   <FormMessage />
                 </FormItem>
@@ -99,7 +102,7 @@ export function ExchangeRateForm({ currencies }: { currencies: Currency[] }) {
 
               <FormField control={form.control} name="expiresAt" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Expires at</FormLabel>
+                  <FormLabel>{tAdmin("expiresAt")}</FormLabel>
                   <FormControl><Input {...field} value={field.value || ''} type="datetime-local" disabled={isPending} /></FormControl>
                   <FormMessage />
                 </FormItem>

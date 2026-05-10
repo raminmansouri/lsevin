@@ -41,6 +41,6 @@ export async function toggleExploreFavoriteAction(input: {
     `;
   }
 
-  revalidatePath(input.path ?? "/app/explore");
+  revalidatePath(input.path ?? "/n/app/mobile/explore");
   return { ok: true, active: existing.length === 0 };
 }

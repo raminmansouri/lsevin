@@ -14,6 +14,8 @@ export type CategoryBrowserCategory = {
   icon: string | null;
   iconUrl: string | null;
   gradient: string | null;
+  parentId: string | null;
+  childCount: number;
   count: number;
   serviceCount: number;
   displayOrder: number;
@@ -35,6 +37,8 @@ type CategoryBrowserRow = {
   icon: string | null;
   icon_url: string | null;
   gradient: string | null;
+  parent_id: string | null;
+  child_count: number;
   provider_count: number;
   service_count: number;
   display_order: number;
@@ -53,12 +57,17 @@ const getCategoryBrowserRows = unstable_cache(
         nullif(btrim(c.icon), '') as icon,
         nullif(btrim(c.icon_url), '') as icon_url,
         nullif(btrim(c.gradient), '') as gradient,
+        c.parent_id::text as parent_id,
+        count(distinct child.id)::int as child_count,
         count(distinct sp.id)::int as provider_count,
         count(distinct sd.id)::int as service_count,
         coalesce(c.display_order, 0)::int as display_order
       from category.categories c
       left join category.category_groups cg
         on cg.id = c.group_id
+      left join category.categories child
+        on child.parent_id = c.id
+       and child.is_active = true
       left join category.service_definitions sd
         on sd.category_id = c.id
        and sd.is_active = true
@@ -73,6 +82,7 @@ const getCategoryBrowserRows = unstable_cache(
         c.group_id,
         cg.title,
         c.id,
+        c.parent_id,
         c.name_translations,
         c.description_translations,
         c.image_url,
@@ -123,6 +133,8 @@ export async function getCategoryBrowserGroups(): Promise<CategoryBrowserGroup[]
       icon: row.icon,
       iconUrl: row.icon_url,
       gradient: row.gradient,
+      parentId: row.parent_id,
+      childCount: Number(row.child_count || 0),
       count: Number(row.provider_count || 0),
       serviceCount: Number(row.service_count || 0),
       displayOrder: Number(row.display_order || 0),

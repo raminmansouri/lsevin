@@ -4,6 +4,21 @@ import { LocalizedContentSchema } from "@/features/shared/schemas/localization";
 
 import { DayOfWeek } from "../types";
 
+
+const OptionalStaffLocalizedContentSchema = z
+  .object({
+    translations: z.record(z.string(), z.string()).default({}),
+  })
+  .refine(
+    (data) => Object.keys(data.translations).every((locale) => /^[a-z]{2}(-[A-Z]{2})?$/.test(locale)),
+    { params: { code: "invalid" } }
+  );
+
+const optionalGuid = z.preprocess(
+  (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+  z.guid().optional()
+);
+
 const optionalTrimmedString = z.preprocess(
   (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
   z.string().trim().optional()
@@ -18,16 +33,16 @@ export const DayOfWeekSchema = z.enum(DayOfWeek);
 
 export const StaffProviderAssignmentSchema = z.object({
   id: z.guid().optional(),
-  serviceProviderId: z.guid(),
-  notes: LocalizedContentSchema,
+  serviceProviderId: optionalGuid,
+  notes: OptionalStaffLocalizedContentSchema,
   isActive: z.boolean().default(true),
 });
 
 export const StaffServiceSchema = z.object({
   id: z.guid().optional(),
-  serviceDefinitionId: z.guid(),
+  serviceDefinitionId: optionalGuid,
   isActive: z.boolean().default(true),
-  notes: LocalizedContentSchema,
+  notes: OptionalStaffLocalizedContentSchema,
 });
 
 export const StaffAvailabilitySchema = z
@@ -86,8 +101,8 @@ export const StaffAchievementSchema = z.object({
 
 export const StaffGalleryItemSchema = z.object({
   id: z.guid().optional(),
-  title: LocalizedContentSchema,
-  description: LocalizedContentSchema,
+  title: OptionalStaffLocalizedContentSchema,
+  description: OptionalStaffLocalizedContentSchema,
   url: z.string().trim().min(1).max(500),
   mediaType: z.string().trim().min(1).max(50).default("image"),
   displayOrder: z.coerce.number().int().min(0).default(0),
@@ -120,7 +135,7 @@ export const StaffSchema = z.object({
   consultationFee: z.coerce.number().min(0).default(0),
   nextAvailableLabel: optionalTrimmedString,
   reviewCount: z.coerce.number().int().min(0).default(0),
-  specialtyTranslations: LocalizedContentSchema.optional(),
+  specialtyTranslations: OptionalStaffLocalizedContentSchema.optional(),
   experienceYears: z.preprocess(
     (value) => (value === "" || value === null ? undefined : value),
     z.coerce.number().int().min(0).max(100).optional()

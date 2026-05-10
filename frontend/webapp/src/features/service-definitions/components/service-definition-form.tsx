@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { LocalizedInput } from "@/features/shared/components/LocalizedInput";
+import { SingleMediaPickerInput, type MediaItem } from "@/features/media-picker-addon";
 import {
   createEmptyLocalizedContent,
   normalizeLocalizedFields,
@@ -58,6 +59,22 @@ const PRICING_MODEL_OPTIONS = [
   { value: "Free", label: "Free" },
 ];
 
+const SERVICE_MEDIA_TYPE_OPTIONS = [
+  { value: "image", label: "Image" },
+  { value: "video", label: "Video" },
+  { value: "gif", label: "GIF" },
+] as const;
+
+function detectServiceMediaType(item?: MediaItem | null): "image" | "video" | "gif" {
+  const mimeType = item?.mimeType?.toLowerCase() || "";
+  const extension = item?.extension?.toLowerCase() || "";
+  const fileUrl = item?.fileUrl?.toLowerCase() || "";
+
+  if (item?.mediaType === "video" || mimeType.startsWith("video/")) return "video";
+  if (mimeType === "image/gif" || extension === "gif" || fileUrl.split("?")[0]?.endsWith(".gif")) return "gif";
+  return "image";
+}
+
 export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -73,6 +90,8 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
       name: serviceDefinition?.name ? { translations: serviceDefinition.name.translations } : createEmptyLocalizedContent(),
       description: serviceDefinition?.description ? { translations: serviceDefinition.description.translations } : createEmptyLocalizedContent(),
       categoryId: serviceDefinition?.categoryId,
+      mediaUrl: serviceDefinition?.mediaUrl ?? "",
+      mediaType: serviceDefinition?.mediaType ?? "image",
       durationMinutes: serviceDefinition?.durationMinutes ?? 0,
       currency: serviceDefinition?.currency ?? "USD",
       value: serviceDefinition?.basePrice ?? 0,
@@ -103,6 +122,8 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
     const payload = {
       ...values,
       ...normalizedFields,
+      mediaUrl: values.mediaUrl?.trim() || null,
+      mediaType: values.mediaType || "image",
       currency: values.currency.trim(),
       pricingModel: values.pricingModel.trim(),
     };
@@ -182,6 +203,75 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
                     </FormItem>
                   )}
                 />
+
+                <div className="rounded-2xl border bg-muted/20 p-4">
+                  <div className="mb-4">
+                    <h3 className="text-sm font-semibold">Service definition media</h3>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Pick one hero visual for this service definition. The value is stored as a virtual media reference or direct URL, not a database foreign key.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_180px]">
+                    <FormField
+                      control={form.control}
+                      name="mediaUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <SingleMediaPickerInput
+                              name={field.name}
+                              value={field.value ?? ""}
+                              onValueChange={field.onChange}
+                              onItemsChange={(items) => {
+                                const selectedItem = items[0];
+                                if (selectedItem) {
+                                  form.setValue("mediaType", detectServiceMediaType(selectedItem), {
+                                    shouldDirty: true,
+                                    shouldTouch: true,
+                                  });
+                                }
+                              }}
+                              label="Media"
+                              placeholder="Pick image, video, or GIF"
+                              mediaType="all"
+                              helperText="Stores one media picker value in a hidden input. GIF files are detected from image/gif MIME type or .gif extension."
+                              modalTitle="Pick service definition media"
+                              disabled={isPending}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="mediaType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Media type</FormLabel>
+                          <FormControl>
+                            <select
+                              value={field.value || "image"}
+                              onChange={field.onChange}
+                              disabled={isPending}
+                              className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm shadow-sm outline-none transition focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              {SERVICE_MEDIA_TYPE_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </select>
+                          </FormControl>
+                          <p className="text-xs text-muted-foreground">Override auto-detection for legacy URLs when needed.</p>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-4 rounded-2xl border bg-muted/20 p-4">

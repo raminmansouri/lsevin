@@ -146,10 +146,14 @@ async function resolveCurrentCustomerId(): Promise<string | null> {
 
 
 
+function isRawUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+}
+
 function coalesceImage(...candidates: Array<string | null | undefined>) {
   for (const candidate of candidates) {
     const value = candidate?.trim();
-    if (value) return value;
+    if (value && !isRawUuid(value)) return value;
   }
   return "/placeholder.svg";
 }
@@ -405,7 +409,9 @@ export async function getExplorePageData({
       common.get_translation_t(pt.description_translations, ${lang}, 'en') as description,
       coalesce(
         nullif(btrim(ml.file_url), ''),
-        nullif(btrim(pt.image_url), ''),
+        nullif(btrim(ml.storage_path), ''),
+        nullif(btrim(ml.storage_key), ''),
+        (case when nullif(btrim(pt.image_url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then nullif(btrim(pt.image_url), '') end),
         nullif(btrim(pt.icon_url), '')
       ) as image,
       coalesce(nullif(btrim(pt.icon_url), ''), '') as icon,
@@ -422,6 +428,8 @@ export async function getExplorePageData({
       common.get_translation_t(pt.name_translations, ${lang}, 'en'),
       common.get_translation_t(pt.description_translations, ${lang}, 'en'),
       ml.file_url,
+      ml.storage_path,
+      ml.storage_key,
       pt.image_url,
       pt.icon_url
     order by count(distinct sp.id) desc, label asc
@@ -461,7 +469,16 @@ const featuredRows = await sql`
   select 
     sp.id::text as id,
     common.get_translation_t(sp.name_translations, ${lang}, 'en') as name,
-    coalesce(pgi.url, sp.image_url) as image,
+    coalesce(
+      nullif(btrim(pgi_media.file_url), ''),
+      nullif(btrim(pgi_media.storage_path), ''),
+      nullif(btrim(pgi_media.storage_key), ''),
+      (case when nullif(btrim(pgi.url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then nullif(btrim(pgi.url), '') end),
+      nullif(btrim(sp_media.file_url), ''),
+      nullif(btrim(sp_media.storage_path), ''),
+      nullif(btrim(sp_media.storage_key), ''),
+      (case when nullif(btrim(sp.image_url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then nullif(btrim(sp.image_url), '') end)
+    ) as image,
     coalesce(sp.rating, 0)::float as rating,
     coalesce(sp.review_count, 0)::int as reviews,
     coalesce(sp.accredited, false) as verified,
@@ -499,6 +516,10 @@ const featuredRows = await sql`
     order by g.display_order asc, g.create_date asc
     limit 1
   ) pgi on true
+  left join media.media_library pgi_media
+    on pgi_media.id::text = nullif(btrim(pgi.url), '')
+  left join media.media_library sp_media
+    on sp_media.id::text = nullif(btrim(sp.image_url), '')
   ${featuredWhereSql}
   order by
     coalesce(sp.featured_score, 0) desc,
@@ -531,7 +552,20 @@ const featuredRows = await sql`
     sp.id::text as provider_id,
     common.get_translation_t(ps.display_name_translations, ${lang}, 'en') as name,
     common.get_translation_t(sp.name_translations, ${lang}, 'en') as provider,
-    coalesce(nullif(btrim(ps.image_url), ''), psgi.url, pgi.url) as image,
+    coalesce(
+      nullif(btrim(ps_media.file_url), ''),
+      nullif(btrim(ps_media.storage_path), ''),
+      nullif(btrim(ps_media.storage_key), ''),
+      (case when nullif(btrim(ps.image_url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then nullif(btrim(ps.image_url), '') end),
+      nullif(btrim(psgi_media.file_url), ''),
+      nullif(btrim(psgi_media.storage_path), ''),
+      nullif(btrim(psgi_media.storage_key), ''),
+      (case when nullif(btrim(psgi.url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then nullif(btrim(psgi.url), '') end),
+      nullif(btrim(pgi_media.file_url), ''),
+      nullif(btrim(pgi_media.storage_path), ''),
+      nullif(btrim(pgi_media.storage_key), ''),
+      (case when nullif(btrim(pgi.url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then nullif(btrim(pgi.url), '') end)
+    ) as image,
     ps.value::float as price,
     case
       when offer.discount_percent is not null and offer.discount_percent > 0
@@ -583,6 +617,12 @@ const featuredRows = await sql`
     order by g.display_order asc, g.create_date asc
     limit 1
   ) pgi on true
+  left join media.media_library ps_media
+    on ps_media.id::text = nullif(btrim(ps.image_url), '')
+  left join media.media_library psgi_media
+    on psgi_media.id::text = nullif(btrim(psgi.url), '')
+  left join media.media_library pgi_media
+    on pgi_media.id::text = nullif(btrim(pgi.url), '')
   left join lateral (
     select o.discount_percent
     from marketing.offers o
@@ -620,7 +660,20 @@ const featuredRows = await sql`
       sp.id::text as id,
       common.get_translation_t(sp.name_translations, ${lang}, 'en') as name,
       common.get_translation_t(sp.description_translations, ${lang}, 'en') as subtitle,
-      coalesce(nullif(btrim(ps_pick.image_url), ''), pgi.url, sp.image_url) as image,
+      coalesce(
+        nullif(btrim(ps_pick_media.file_url), ''),
+        nullif(btrim(ps_pick_media.storage_path), ''),
+        nullif(btrim(ps_pick_media.storage_key), ''),
+        (case when nullif(btrim(ps_pick.image_url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then nullif(btrim(ps_pick.image_url), '') end),
+        nullif(btrim(pgi_media.file_url), ''),
+        nullif(btrim(pgi_media.storage_path), ''),
+        nullif(btrim(pgi_media.storage_key), ''),
+        (case when nullif(btrim(pgi.url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then nullif(btrim(pgi.url), '') end),
+        nullif(btrim(sp_media.file_url), ''),
+        nullif(btrim(sp_media.storage_path), ''),
+        nullif(btrim(sp_media.storage_key), ''),
+        (case when nullif(btrim(sp.image_url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then nullif(btrim(sp.image_url), '') end)
+      ) as image,
       ps_pick.value::float as price,
       coalesce(ps_pick.currency, 'USD') as currency,
       coalesce(sp.sponsored_tag, 'Sponsored') as tag
@@ -650,6 +703,12 @@ const featuredRows = await sql`
       order by g.display_order asc, g.create_date asc
       limit 1
     ) pgi on true
+    left join media.media_library ps_pick_media
+      on ps_pick_media.id::text = nullif(btrim(ps_pick.image_url), '')
+    left join media.media_library pgi_media
+      on pgi_media.id::text = nullif(btrim(pgi.url), '')
+    left join media.media_library sp_media
+      on sp_media.id::text = nullif(btrim(sp.image_url), '')
     where sp.is_active = true
       and sp.is_sponsored = true
       and (${filters.providerTypeId === null} or sp.provider_type_id = ${filters.providerTypeId ?? null}::uuid)

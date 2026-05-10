@@ -57,7 +57,7 @@ export default async function ServiceGalleryPage({ params }: ServiceGalleryPageP
   }
 
   const gallery = data.service.galleryItems || [];
-  const backHref = `/${locale}/n/app/mobile/service/${id}`;
+  const backHref = `/n/app/mobile/service/${id}`;
   const BackIcon = isRtlLocale(locale) ? ArrowRight : ArrowLeft;
 
   return (
@@ -78,7 +78,7 @@ export default async function ServiceGalleryPage({ params }: ServiceGalleryPageP
         </div>
       </div>
 
-      <div className="px-5 py-6">
+      <div className="px-5 py-6 lg:px-8">
         {gallery.length === 0 ? (
           <div className="flex min-h-72 flex-col items-center justify-center rounded-3xl border border-dashed border-gray-200 bg-gray-50 p-8 text-center">
             <ImageIcon size={36} className="mb-3 text-gray-400" />
@@ -86,23 +86,27 @@ export default async function ServiceGalleryPage({ params }: ServiceGalleryPageP
             <p className="mt-1 text-sm text-gray-600">{t("empty.description")}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 lg:gap-5 xl:grid-cols-4">
             {gallery.map((item, index) => {
-              const isVideo = item.mediaType?.toLowerCase().includes("video");
+              const mediaType = item.mediaType?.toLowerCase() || "";
+              const isVideo = mediaType.includes("video");
+              const isGif = mediaType.includes("gif") || item.url.split("?")[0]?.toLowerCase().endsWith(".gif");
               const isLarge = index === 0 || index % 5 === 0;
               const mediaSrc = resolveServerMediaUrl(item.url);
 
               return (
-                <figure key={item.id} className={`group relative overflow-hidden rounded-2xl bg-gray-100 ${isLarge ? "col-span-2 h-72" : "h-44"}`}>
+                <figure key={item.id} className={`group relative overflow-hidden rounded-2xl bg-gray-100 lg:rounded-3xl ${isLarge ? "col-span-2 h-72 lg:h-[360px]" : "h-44 lg:h-64"}`}>
                   {isVideo ? (
                     <video src={mediaSrc} className="h-full w-full object-cover" controls playsInline preload="metadata" />
+                  ) : isGif ? (
+                    <img src={mediaSrc} alt={item.title || data.service.name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
                   ) : (
                     <ImageWithFallback
                       fill
                       src={mediaSrc}
                       alt={item.title || data.service.name}
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      sizes="(max-width: 768px) 50vw, 33vw"
+                      sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, 50vw"
                     />
                   )}
 

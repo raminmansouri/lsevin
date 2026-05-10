@@ -1,5 +1,7 @@
 'use client';
 
+
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useTransition } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -32,6 +34,7 @@ export function CompensationPolicyForm({
   policy?: CompensationPolicy | null;
   lookups: CommercialPolicyLookups;
 }) {
+  const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -88,7 +91,7 @@ export function CompensationPolicyForm({
     startTransition(async () => {
       try {
         await upsertCompensationPolicyAction(values);
-        toast.success('Compensation policy saved.');
+        toast.success(tAdmin("compensationPolicySaved"));
         router.push('/admin/commercial/policies');
         router.refresh();
       } catch (error) {
@@ -113,7 +116,7 @@ export function CompensationPolicyForm({
                 name="name"
                 render={({ field }) => (
                   <FormItem className="xl:col-span-2">
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>{tAdmin("name")}</FormLabel>
                     <FormControl>
                       <Input {...field} disabled={isPending} />
                     </FormControl>
@@ -126,7 +129,7 @@ export function CompensationPolicyForm({
                 name="scopeType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Scope type</FormLabel>
+                    <FormLabel>{tAdmin("scopeType")}</FormLabel>
                     <FormControl>
                       <select
                         {...field}
@@ -149,7 +152,7 @@ export function CompensationPolicyForm({
                 name="appliesTo"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Applies to</FormLabel>
+                    <FormLabel>{tAdmin("appliesTo")}</FormLabel>
                     <FormControl>
                       <select
                         {...field}
@@ -174,18 +177,18 @@ export function CompensationPolicyForm({
               name="scopeId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Scope target</FormLabel>
+                  <FormLabel>{tAdmin("scopeTarget")}</FormLabel>
                   <FormControl>
                     <div key={scopeType}>
                       {scopeType === 'global' ? (
-                        <Input value="" disabled placeholder="No scope target needed for global policies" />
+                        <Input value="" disabled placeholder={tAdmin("noScopeTargetNeededForGlobalPolicies")} />
                       ) : scopeType === 'provider_type' ? (
                         <LazyAdminLookupSelect
                           lookupType="providerTypes"
                           locale="en"
                           value={field.value ?? ''}
                           onValueChange={field.onChange}
-                          placeholder="Select provider type"
+                          placeholder={tAdmin("selectProviderType")}
                           initialOptions={lookups.providerTypes}
                           disabled={isPending}
                         />
@@ -195,7 +198,7 @@ export function CompensationPolicyForm({
                           locale="en"
                           value={field.value ?? ''}
                           onValueChange={field.onChange}
-                          placeholder="Select provider"
+                          placeholder={tAdmin("selectProvider")}
                           initialOptions={lookups.providers}
                           disabled={isPending}
                           contentClassName="w-[460px]"
@@ -206,7 +209,7 @@ export function CompensationPolicyForm({
                           locale="en"
                           value={field.value ?? ''}
                           onValueChange={field.onChange}
-                          placeholder="Select service definition"
+                          placeholder={tAdmin("selectServiceDefinition")}
                           initialOptions={lookups.serviceDefinitions}
                           disabled={isPending}
                           contentClassName="w-[460px]"
@@ -217,7 +220,7 @@ export function CompensationPolicyForm({
                           locale="en"
                           value={field.value ?? ''}
                           onValueChange={field.onChange}
-                          placeholder="Select provider service"
+                          placeholder={tAdmin("selectProviderService")}
                           initialOptions={lookups.providerServices}
                           disabled={isPending}
                           contentClassName="w-[520px]"
@@ -228,7 +231,7 @@ export function CompensationPolicyForm({
                           locale="en"
                           value={field.value ?? ''}
                           onValueChange={field.onChange}
-                          placeholder="Select addon"
+                          placeholder={tAdmin("selectAddon")}
                           initialOptions={lookups.addons}
                           disabled={isPending}
                         />
@@ -237,7 +240,7 @@ export function CompensationPolicyForm({
                           {...field}
                           value={field.value ?? ''}
                           disabled={targetDisabled || isPending}
-                          placeholder="Scope id"
+                          placeholder={tAdmin("scopeId")}
                         />
                       )}
                     </div>
@@ -254,7 +257,7 @@ export function CompensationPolicyForm({
                 name="feeMode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Fee mode</FormLabel>
+                    <FormLabel>{tAdmin("feeMode")}</FormLabel>
                     <FormControl>
                       <select
                         {...field}
@@ -277,7 +280,7 @@ export function CompensationPolicyForm({
                 name="gatewayFeeMode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Gateway fee mode</FormLabel>
+                    <FormLabel>{tAdmin("gatewayFeeMode")}</FormLabel>
                     <FormControl>
                       <select
                         {...field}
@@ -300,14 +303,14 @@ export function CompensationPolicyForm({
                 name="currencyCode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Currency override</FormLabel>
+                    <FormLabel>{tAdmin("currencyOverride")}</FormLabel>
                     <FormControl>
                       <LazyAdminLookupSelect
                         lookupType="currencies"
                         locale="en"
                         value={field.value ?? ''}
                         onValueChange={field.onChange}
-                        placeholder="Select currency"
+                        placeholder={tAdmin("selectCurrency")}
                         initialOptions={lookups.currencies}
                         disabled={isPending}
                       />
@@ -321,7 +324,7 @@ export function CompensationPolicyForm({
                 name="priority"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Priority</FormLabel>
+                    <FormLabel>{tAdmin("priority")}</FormLabel>
                     <FormControl>
                       <Input {...field} type="number" disabled={isPending} />
                     </FormControl>
@@ -337,7 +340,7 @@ export function CompensationPolicyForm({
                 name="platformPercent"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Platform percent</FormLabel>
+                    <FormLabel>{tAdmin("platformPercent")}</FormLabel>
                     <FormControl>
                       <Input {...field} type="number" step="0.01" disabled={isPending} />
                     </FormControl>
@@ -350,7 +353,7 @@ export function CompensationPolicyForm({
                 name="platformFixedAmount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Platform fixed amount</FormLabel>
+                    <FormLabel>{tAdmin("platformFixedAmount")}</FormLabel>
                     <FormControl>
                       <Input {...field} type="number" step="0.01" disabled={isPending} />
                     </FormControl>
@@ -363,7 +366,7 @@ export function CompensationPolicyForm({
                 name="minimumPlatformAmount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Minimum platform amount</FormLabel>
+                    <FormLabel>{tAdmin("minimumPlatformAmount")}</FormLabel>
                     <FormControl>
                       <Input {...field} type="number" step="0.01" disabled={isPending} />
                     </FormControl>
@@ -376,7 +379,7 @@ export function CompensationPolicyForm({
                 name="providerPercentOverride"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Provider percent override</FormLabel>
+                    <FormLabel>{tAdmin("providerPercentOverride")}</FormLabel>
                     <FormControl>
                       <Input {...field} type="number" step="0.01" value={field.value ?? ''} disabled={isPending} />
                     </FormControl>
@@ -392,7 +395,7 @@ export function CompensationPolicyForm({
                 name="effectiveFrom"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Effective from</FormLabel>
+                    <FormLabel>{tAdmin("effectiveFrom")}</FormLabel>
                     <FormControl>
                       <Input {...field} type="datetime-local" value={field.value ?? ''} disabled={isPending} />
                     </FormControl>
@@ -405,7 +408,7 @@ export function CompensationPolicyForm({
                 name="effectiveTo"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Effective to</FormLabel>
+                    <FormLabel>{tAdmin("effectiveTo")}</FormLabel>
                     <FormControl>
                       <Input {...field} type="datetime-local" value={field.value ?? ''} disabled={isPending} />
                     </FormControl>
@@ -420,7 +423,7 @@ export function CompensationPolicyForm({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>{tAdmin("description")}</FormLabel>
                   <FormControl>
                     <Textarea rows={3} {...field} value={field.value ?? ''} />
                   </FormControl>
@@ -434,7 +437,7 @@ export function CompensationPolicyForm({
               name="isActive"
               render={({ field }) => (
                 <FormItem className="flex items-center justify-between rounded-md border px-3 py-2">
-                  <FormLabel>Active</FormLabel>
+                  <FormLabel>{tAdmin("active")}</FormLabel>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
@@ -447,7 +450,7 @@ export function CompensationPolicyForm({
               name="metadataText"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Metadata JSON</FormLabel>
+                  <FormLabel>{tAdmin("metadataJSON")}</FormLabel>
                   <FormControl>
                     <Textarea rows={6} {...field} />
                   </FormControl>

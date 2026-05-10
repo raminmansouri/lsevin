@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useTransition } from "react";
 import { toast } from "sonner";
@@ -53,6 +55,7 @@ function badge(value: unknown) {
 }
 
 export function AdminDataTable({ config, result, search, locale }: Props) {
+  const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
@@ -61,7 +64,7 @@ export function AdminDataTable({ config, result, search, locale }: Props) {
   const { execute } = useAction(deleteAdminRowAction, {
     startTransition,
     onSuccess: () => {
-      toast.success("Record deleted.");
+      toast.success(tAdmin("recordDeleted"));
       router.refresh();
     },
     onError: (error) => toast.error(error.detail || "Delete failed."),
@@ -101,7 +104,7 @@ export function AdminDataTable({ config, result, search, locale }: Props) {
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input name="q" defaultValue={search} className="pl-9" placeholder={`Search ${config.searchableColumns?.join(", ") || config.title}`} />
           </div>
-          <Button type="submit" variant="outline">Search</Button>
+          <Button type="submit" variant="outline">{tAdmin("search")}</Button>
         </form>
       </CardHeader>
       <CardContent>
@@ -110,7 +113,7 @@ export function AdminDataTable({ config, result, search, locale }: Props) {
             <thead className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
               <tr>
                 {columns.map((column) => <th key={column} className="px-4 py-3 font-semibold">{column.replaceAll("_", " ")}</th>)}
-                <th className="px-4 py-3 text-right font-semibold">Actions</th>
+                <th className="px-4 py-3 text-right font-semibold">{tAdmin("actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -145,7 +148,7 @@ export function AdminDataTable({ config, result, search, locale }: Props) {
               })}
               {!result.rows.length && (
                 <tr>
-                  <td colSpan={columns.length + 1} className="px-4 py-16 text-center text-muted-foreground">No records found.</td>
+                  <td colSpan={columns.length + 1} className="px-4 py-16 text-center text-muted-foreground">{tAdmin("noRecordsFound")}</td>
                 </tr>
               )}
             </tbody>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition, type SyntheticEvent, type TransitionStartFunction } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import {
@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 
 import NearbyMap from "./NearbyMap";
+import { getConfiguredMapProvider, type SupportedMapProvider } from "@/components/map/map-provider";
 import { AsyncSearchableSingleSelect } from "@/components/admin/forms/extensions/async-searchable-single-select";
 import { loadMapDiscoveryLocationByValue, loadMapDiscoveryLocationOptions } from "./location-options.actions";
 import type { NearbyCategory, NearbyFiltersInput, NearbyProvider } from "./nearby.data";
@@ -68,7 +69,7 @@ function buildNearbyQuery(next: NearbyFiltersInput) {
   return query ? `/n/app/mobile/map-discovery?${query}` : "/n/app/mobile/map-discovery";
 }
 
-function navigateSmooth(startTransition: React.TransitionStartFunction, router: ReturnType<typeof useRouter>, href: string) {
+function navigateSmooth(startTransition: TransitionStartFunction, router: ReturnType<typeof useRouter>, href: string) {
   startTransition(() => {
     router.replace(href, { scroll: false });
   });
@@ -76,6 +77,17 @@ function navigateSmooth(startTransition: React.TransitionStartFunction, router: 
 
 function PendingOverlay() {
   return <div className="pointer-events-none absolute inset-0 z-30 bg-white/45 backdrop-blur-[1px]" />;
+}
+
+function providerHref(providerId: string) {
+  return `/n/app/mobile/provider/${providerId}`;
+}
+
+function handleImageFallback(event: SyntheticEvent<HTMLImageElement>) {
+  const image = event.currentTarget;
+  if (image.dataset.fallbackApplied === "1") return;
+  image.dataset.fallbackApplied = "1";
+  image.src = "/placeholder.svg";
 }
 
 export default function NearbyClient({
@@ -100,6 +112,7 @@ export default function NearbyClient({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [viewMode, setViewMode] = useState<"map" | "list">("map");
+  const [mapProvider, setMapProvider] = useState<SupportedMapProvider>(() => getConfiguredMapProvider());
   const [selectedProviderId, setSelectedProviderId] = useState<string | null>(providers[0]?.id ?? null);
   const [showFilters, setShowFilters] = useState(false);
 
@@ -357,14 +370,32 @@ export default function NearbyClient({
             ))}
           </div>
 
-          <button
-            onClick={() => setShowFilters(true)}
-            className="w-full h-10 px-4 bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors"
-          >
-            <SlidersHorizontal size={18} className="text-gray-700" />
-            <span className="text-sm font-medium text-gray-700">Advanced Filters</span>
-            {hasActiveFilters && <span className="w-2 h-2 bg-[#083f30] rounded-full" />}
-          </button>
+          <div className="grid grid-cols-[1fr_auto] gap-2">
+            <button
+              onClick={() => setShowFilters(true)}
+              className="h-10 rounded-xl border border-gray-200 bg-gray-50 px-4 flex items-center justify-center gap-2 transition-colors hover:bg-gray-100"
+            >
+              <SlidersHorizontal size={18} className="text-gray-700" />
+              <span className="text-sm font-medium text-gray-700">Advanced Filters</span>
+              {hasActiveFilters && <span className="h-2 w-2 rounded-full bg-[#083f30]" />}
+            </button>
+
+            <div className="flex h-10 overflow-hidden rounded-xl border border-gray-200 bg-gray-50 p-1">
+              {(["mapbox", "neshan"] as SupportedMapProvider[]).map((provider) => (
+                <button
+                  key={provider}
+                  type="button"
+                  onClick={() => setMapProvider(provider)}
+                  className={`rounded-lg px-3 text-xs font-semibold capitalize transition-colors ${
+                    mapProvider === provider ? "bg-[#083f30] text-white" : "text-gray-600 hover:bg-gray-100"
+                  }`}
+                  aria-pressed={mapProvider === provider}
+                >
+                  {provider}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -375,6 +406,7 @@ export default function NearbyClient({
             selectedProvider={selectedProvider}
             onSelectProvider={setSelectedProviderId}
             center={mapCenter}
+            provider={mapProvider}
           />
 
           <button
@@ -385,18 +417,18 @@ export default function NearbyClient({
           </button>
 
           <div className="absolute bottom-2 left-2 text-xs text-gray-500 bg-white/80 px-2 py-1 rounded z-20">
-            Interactive Map
+            {mapProvider === "neshan" ? "Neshan Map" : "Mapbox Map"}
           </div>
 
           {selectedProvider && (
             <div className="absolute bottom-24 left-0 right-0 px-5 z-40">
               <div
-                onClick={() => router.push(`/app/clinic/${selectedProvider.id}`)}
+                onClick={() => router.push(providerHref(selectedProvider.id))}
                 className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden cursor-pointer"
               >
                 <div className="flex gap-4 p-4">
                   <div className="relative flex-shrink-0">
-                    <img src={selectedProvider.image} alt={selectedProvider.name} className="w-20 h-20 rounded-xl object-cover" />
+                    <img src={selectedProvider.image} alt={selectedProvider.name} onError={handleImageFallback} className="w-20 h-20 rounded-xl object-cover" />
                     {selectedProvider.verified && (
                       <div className="absolute -bottom-1.5 -right-1.5 w-6 h-6 bg-[#083f30] rounded-full flex items-center justify-center shadow-lg">
                         <BadgeCheck size={14} className="text-[#eacb7f]" />
@@ -443,12 +475,12 @@ export default function NearbyClient({
           {providers.map((provider) => (
             <div
               key={provider.id}
-              onClick={() => router.push(`/app/clinic/${provider.id}`)}
+              onClick={() => router.push(providerHref(provider.id))}
               className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all cursor-pointer"
             >
               <div className="flex gap-4 p-4">
                 <div className="relative flex-shrink-0">
-                  <img src={provider.image} alt={provider.name} className="w-24 h-24 rounded-xl object-cover" />
+                  <img src={provider.image} alt={provider.name} onError={handleImageFallback} className="w-24 h-24 rounded-xl object-cover" />
                   {provider.verified && (
                     <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 bg-[#083f30] rounded-full flex items-center justify-center shadow-lg">
                       <BadgeCheck size={16} className="text-[#eacb7f]" />
@@ -581,7 +613,7 @@ export default function NearbyClient({
                 <button type="button" onClick={() => form.setValue("verifiedOnly", !activeFilters.verifiedOnly)} className={`w-full p-4 rounded-2xl border-2 transition-all flex items-center justify-between ${activeFilters.verifiedOnly ? "bg-green-50 border-green-200" : "bg-white border-gray-200 hover:border-gray-300"}`}>
                   <div className="flex items-center gap-3">
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${activeFilters.verifiedOnly ? "bg-green-600" : "bg-gray-100"}`}><BadgeCheck size={24} className={activeFilters.verifiedOnly ? "text-white" : "text-gray-400"} /></div>
-                    <div className="text-left"><h3 className="font-bold text-gray-900">Verified Providers Only</h3><p className="text-sm text-gray-600">Show only accredited clinics</p></div>
+                    <div className="text-left"><h3 className="font-bold text-gray-900">Verified Providers Only</h3><p className="text-sm text-gray-600">Show only accredited providers</p></div>
                   </div>
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${activeFilters.verifiedOnly ? "bg-green-600" : "bg-gray-200"}`}>{activeFilters.verifiedOnly && <Check size={16} className="text-white" />}</div>
                 </button>

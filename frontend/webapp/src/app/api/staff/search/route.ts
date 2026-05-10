@@ -8,22 +8,22 @@ import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from "@/types/filter";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const search = searchParams.get("Search");
-  const page = searchParams.get("PageNumber");
-  const pageSize = searchParams.get("PageSize");
-  const locale = searchParams.get("Locale");
-  const localeHeader = localeToHeader(locale as LocaleTypes);
+  const search = searchParams.get("Search") || searchParams.get("search") || searchParams.get("q") || "";
+  const page = searchParams.get("PageNumber") || searchParams.get("page");
+  const pageSize = searchParams.get("PageSize") || searchParams.get("pageSize");
+  const locale = searchParams.get("Locale") || searchParams.get("locale") || "en";
+  const localeHeader = localeToHeader(locale as LocaleTypes) || locale;
   const session = await getSession();
   const token = session?.user?.accessToken;
 
   const { data, error } = await getStaff(
     { locale: localeHeader, token },
     {
-      filters: search || "",
+      filters: search,
       startDate: "",
       endDate: "",
-      pageNumber: page ? parseInt(page) : DEFAULT_PAGE_NUMBER,
-      pageSize: pageSize ? parseInt(pageSize) : DEFAULT_PAGE_SIZE,
+      pageNumber: page ? parseInt(page, 10) : DEFAULT_PAGE_NUMBER,
+      pageSize: pageSize ? parseInt(pageSize, 10) : DEFAULT_PAGE_SIZE,
       sortOrder: "",
     }
   );

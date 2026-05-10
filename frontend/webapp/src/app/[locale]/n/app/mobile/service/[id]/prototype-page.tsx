@@ -339,7 +339,7 @@ export default function TreatmentDetail() {
         
         {/* Clinic Info */}
         <button
-          onClick={() => navigate(`/app/clinic/${treatment.clinicId}`)}
+          onClick={() => navigate(`/n/app/mobile/provider/${treatment.clinicId}`)}
           className="flex items-center gap-3 mb-4 w-full text-left hover:bg-gray-50 -mx-2 px-2 py-2 rounded-xl transition-colors"
         >
           <div className="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center flex-shrink-0">

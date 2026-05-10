@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from "next-intl";
 import { useMemo, useState, useTransition } from "react";
 import { CalendarDays, Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
@@ -43,6 +45,7 @@ function emptyForm(): BookingCalendarSettings {
 }
 
 export function BookingCalendarSettingsForm({ settings }: Props) {
+  const tAdmin = useTranslations("AdminGenerated");
   const [form, setForm] = useState<BookingCalendarSettings>(() => settings[0] || emptyForm());
   const [isPending, startTransition] = useTransition();
 
@@ -50,7 +53,7 @@ export function BookingCalendarSettingsForm({ settings }: Props) {
 
   const { execute } = useAction(saveBookingCalendarSettingsAction, {
     startTransition,
-    onSuccess: () => toast.success("Booking calendar settings saved."),
+    onSuccess: () => toast.success(tAdmin("bookingCalendarSettingsSaved")),
     onError: (error) => toast.error(error?.detail || error?.title || "Settings could not be saved."),
   });
 
@@ -82,7 +85,7 @@ export function BookingCalendarSettingsForm({ settings }: Props) {
             <div className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
               <CalendarDays size={16} /> Booking calendar
             </div>
-            <h1 className="text-2xl font-bold text-slate-950">Calendar & date settings</h1>
+            <h1 className="text-2xl font-bold text-slate-950">{tAdmin("calendarDateSettings")}</h1>
             <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600">
               Store all booking dates as Gregorian PostgreSQL dates, while allowing the user/admin UI to display and input either Gregorian or Jalali dates.
             </p>
@@ -91,7 +94,7 @@ export function BookingCalendarSettingsForm({ settings }: Props) {
 
         <div className="grid gap-4 md:grid-cols-2">
           <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700">Edit existing setting</span>
+            <span className="mb-2 block text-sm font-semibold text-slate-700">{tAdmin("editExistingSetting")}</span>
             <select
               value={selectedKey}
               onChange={(event) => selectExisting(event.target.value)}
@@ -102,12 +105,12 @@ export function BookingCalendarSettingsForm({ settings }: Props) {
                   {item.scopeType} {item.scopeId ? `• ${item.scopeId}` : ""}
                 </option>
               ))}
-              <option value="global:">Create / edit global default</option>
+              <option value="global:">{tAdmin("createEditGlobalDefault")}</option>
             </select>
           </label>
 
           <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700">Scope</span>
+            <span className="mb-2 block text-sm font-semibold text-slate-700">{tAdmin("scope")}</span>
             <select
               value={form.scopeType}
               onChange={(event) => setForm((current) => ({ ...current, scopeType: event.target.value as BookingCalendarSettings["scopeType"], scopeId: event.target.value === "global" ? null : current.scopeId }))}
@@ -120,40 +123,40 @@ export function BookingCalendarSettingsForm({ settings }: Props) {
           </label>
 
           <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700">Scope ID</span>
+            <span className="mb-2 block text-sm font-semibold text-slate-700">{tAdmin("scopeID")}</span>
             <input
               value={form.scopeId || ""}
               disabled={form.scopeType === "global"}
               onChange={(event) => setForm((current) => ({ ...current, scopeId: event.target.value }))}
-              placeholder="UUID for provider/service/provider type, empty for global"
+              placeholder={tAdmin("uUIDForProviderServiceProviderTypeEmptyForGlobal")}
               className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-900 disabled:bg-slate-50 disabled:text-slate-400"
             />
           </label>
 
           <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700">Default calendar</span>
+            <span className="mb-2 block text-sm font-semibold text-slate-700">{tAdmin("defaultCalendar")}</span>
             <select
               value={form.defaultCalendar}
               onChange={(event) => setForm((current) => ({ ...current, defaultCalendar: event.target.value as "gregorian" | "jalali" }))}
               className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-900"
             >
-              <option value="gregorian">Gregorian</option>
-              <option value="jalali">Jalali / Persian</option>
+              <option value="gregorian">{tAdmin("gregorian")}</option>
+              <option value="jalali">{tAdmin("jalaliPersian")}</option>
             </select>
           </label>
 
           <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700">Timezone</span>
+            <span className="mb-2 block text-sm font-semibold text-slate-700">{tAdmin("timezone")}</span>
             <input
               value={form.timezoneId}
               onChange={(event) => setForm((current) => ({ ...current, timezoneId: event.target.value }))}
-              placeholder="Asia/Tehran, Europe/Istanbul, UTC"
+              placeholder={tAdmin("asiaTehranEuropeIstanbulUTC")}
               className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-900"
             />
           </label>
 
           <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700">Week starts on</span>
+            <span className="mb-2 block text-sm font-semibold text-slate-700">{tAdmin("weekStartsOn")}</span>
             <select
               value={form.weekStartsOn}
               onChange={(event) => setForm((current) => ({ ...current, weekStartsOn: Number(event.target.value) }))}
@@ -167,7 +170,7 @@ export function BookingCalendarSettingsForm({ settings }: Props) {
         </div>
 
         <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <p className="mb-3 text-sm font-semibold text-slate-700">Enabled calendars</p>
+          <p className="mb-3 text-sm font-semibold text-slate-700">{tAdmin("enabledCalendars")}</p>
           <div className="flex flex-wrap gap-3">
             {(["gregorian", "jalali"] as const).map((calendar) => (
               <button

@@ -19,6 +19,7 @@ import {
 } from "@/features/shared/types/coordinates";
 
 import { MapComponent } from "./map-component";
+import type { SupportedMapProvider } from "./map-provider";
 
 export interface MapPickerProps {
   namePrefix: string;
@@ -26,6 +27,7 @@ export interface MapPickerProps {
   className?: string;
   label?: string;
   description?: string;
+  mapProvider?: SupportedMapProvider;
 }
 
 export function MapPicker({
@@ -34,6 +36,7 @@ export function MapPicker({
   className = "",
   label = "Location",
   description = "Click on the map, drag the marker, or enter coordinates manually",
+  mapProvider,
 }: MapPickerProps) {
   const { control, watch, setValue } = useFormContext();
 
@@ -118,6 +121,7 @@ export function MapPicker({
         onCoordinatesChange={handleMapCoordinatesChange}
         interactive={!disabled}
         height="400px"
+        provider={mapProvider}
       />
 
       {/* Manual coordinate input */}

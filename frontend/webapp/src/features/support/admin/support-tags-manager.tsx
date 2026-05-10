@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from "next-intl";
 import { Plus, Save, Trash2 } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -18,6 +20,7 @@ type Draft = { id?: string; name: string; color: string; isActive: boolean };
 const emptyDraft: Draft = { name: "", color: "#083f30", isActive: true };
 
 export function SupportTagsManager({ tags }: Props) {
+  const tAdmin = useTranslations("AdminGenerated");
   const [items, setItems] = useState(tags);
   const [draft, setDraft] = useState<Draft>(emptyDraft);
   const [isPending, startTransition] = useTransition();
@@ -31,7 +34,7 @@ export function SupportTagsManager({ tags }: Props) {
       if (result.data) {
         setItems((current) => draft.id ? current.map((item) => item.id === result.data!.id ? result.data! : item) : [result.data!, ...current]);
         reset();
-        toast.success("Tag saved.");
+        toast.success(tAdmin("tagSaved"));
       }
       if (result.fieldErrors) toast.error(Object.values(result.fieldErrors)[0]?.[0] || "Please check tag.");
       if (result.error) toast.error(result.error.detail || result.error.title);
@@ -44,7 +47,7 @@ export function SupportTagsManager({ tags }: Props) {
       if (result.data) {
         setItems((current) => current.filter((item) => item.id !== tag.id));
         if (draft.id === tag.id) reset();
-        toast.success("Tag deleted.");
+        toast.success(tAdmin("tagDeleted"));
       }
       if (result.error) toast.error(result.error.detail || result.error.title);
     });
@@ -55,21 +58,21 @@ export function SupportTagsManager({ tags }: Props) {
       <Card className="rounded-3xl">
         <CardHeader><CardTitle>{draft.id ? "Edit tag" : "New tag"}</CardTitle></CardHeader>
         <CardContent className="space-y-4">
-          <Input value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} placeholder="Tag name" />
+          <Input value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} placeholder={tAdmin("tagName")} />
           <Input value={draft.color} onChange={(event) => setDraft((current) => ({ ...current, color: event.target.value }))} placeholder="#083f30" />
           <div className="flex items-center justify-between rounded-2xl border bg-slate-50 p-4">
-            <span className="text-sm font-medium">Active</span>
+            <span className="text-sm font-medium">{tAdmin("active")}</span>
             <Switch checked={draft.isActive} onCheckedChange={(checked) => setDraft((current) => ({ ...current, isActive: checked }))} />
           </div>
           <div className="flex gap-2">
-            <Button disabled={isPending} onClick={save} className="flex-1 rounded-2xl"><Save className="mr-2 h-4 w-4" />Save</Button>
-            <Button type="button" variant="outline" onClick={reset} className="rounded-2xl"><Plus className="mr-2 h-4 w-4" />New</Button>
+            <Button disabled={isPending} onClick={save} className="flex-1 rounded-2xl"><Save className="mr-2 h-4 w-4" />{tAdmin("save")}</Button>
+            <Button type="button" variant="outline" onClick={reset} className="rounded-2xl"><Plus className="mr-2 h-4 w-4" />{tAdmin("new")}</Button>
           </div>
         </CardContent>
       </Card>
 
       <Card className="rounded-3xl">
-        <CardHeader><CardTitle>Support tags</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{tAdmin("supportTags")}</CardTitle></CardHeader>
         <CardContent className="space-y-2">
           {items.map((tag) => (
             <div key={tag.id} className="flex items-center justify-between gap-3 rounded-2xl border p-3">

@@ -13,6 +13,15 @@ export type SponsoredSlide = {
   displayOrder: number;
 };
 
+function normalizeLocale(locale?: string | null) {
+  const value = (locale || 'en-US').trim();
+  if (value.toLowerCase() === 'en') return 'en-US';
+  if (value.toLowerCase() === 'fa') return 'fa-IR';
+  if (value.toLowerCase() === 'ar') return 'ar-SA';
+  if (value.toLowerCase() === 'tr') return 'tr-TR';
+  return value;
+}
+
 function normalizeMediaType(value: string | null | undefined): SponsoredSlide['mediaType'] {
   const v = (value ?? '').trim().toLowerCase();
 
@@ -27,7 +36,9 @@ function numberValue(value: unknown): number {
   return 0;
 }
 
-export async function getSponsoredSlides(limit = 8): Promise<SponsoredSlide[]> {
+export async function getSponsoredSlides(locale?: string | null, limit = 8): Promise<SponsoredSlide[]> {
+  const normalizedLocale = normalizeLocale(locale);
+
   const rows = await sql<{
     id: string;
     link: string | null;
@@ -41,21 +52,21 @@ export async function getSponsoredSlides(limit = 8): Promise<SponsoredSlide[]> {
   }[]>`
     select
       s.id::text as id,
-      nullif(btrim(s.link), '') as link,
+      nullif(btrim(coalesce(s.link, s.secondary_link, '')), '') as link,
       coalesce(nullif(ml.file_url, ''), s.url) as url,
       mt.name as media_type,
       ml.mime_type,
-      nullif(btrim(s.title), '') as title,
-      nullif(btrim(s.subtitle), '') as subtitle,
-      nullif(btrim(s.button_label), '') as "buttonLabel",
+      coalesce(nullif(common.get_translation_t(s.title_translations, ${normalizedLocale}::text, 'en-US'), ''), nullif(btrim(s.title), '')) as title,
+      coalesce(nullif(common.get_translation_t(s.subtitle_translations, ${normalizedLocale}::text, 'en-US'), ''), nullif(common.get_translation_t(s.description_translations, ${normalizedLocale}::text, 'en-US'), ''), nullif(btrim(s.subtitle), '')) as subtitle,
+      coalesce(nullif(common.get_translation_t(s.button_label_translations, ${normalizedLocale}::text, 'en-US'), ''), nullif(btrim(s.button_label), '')) as "buttonLabel",
       s.display_order as "displayOrder"
     from media.sponsered_slider s
     left join media.media_type mt
       on mt.id = s.media_type_id
     left join media.media_library ml
-      on ml.id::text = s.url
+      on ml.id::text = coalesce(nullif(s.media_id::text, ''), nullif(s.url, ''))
     where coalesce(s.is_active, true) = true
-      and nullif(btrim(coalesce(ml.file_url, s.url)), '') is not null
+      and coalesce(nullif(btrim(ml.file_url), ''), nullif(btrim(s.url), '')) is not null
     order by s.display_order asc, s.id desc
     limit ${limit}
   `;

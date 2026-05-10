@@ -63,7 +63,15 @@ type OptimisticUiFilters = {
   responseTime: "any" | "fast" | "instant";
 };
 
-function buildExploreQuery(next: ExploreFiltersInput) {
+const MOBILE_BASE_PATH = "/n/app/mobile";
+const EXPLORE_PATH = `${MOBILE_BASE_PATH}/explore`;
+const MAP_DISCOVERY_PATH = `${MOBILE_BASE_PATH}/map-discovery`;
+
+function buildMobilePath(path: string) {
+  return `${MOBILE_BASE_PATH}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+function buildFilteredMobilePath(path: string, next: ExploreFiltersInput) {
   const params = new URLSearchParams();
 
   if (next.q) params.set("q", next.q);
@@ -82,7 +90,16 @@ function buildExploreQuery(next: ExploreFiltersInput) {
   if (next.sort && next.sort !== "recommended") params.set("sort", next.sort);
 
   const query = params.toString();
-  return query ? `/n/app/mobile/explore?${query}` : "/n/app/mobile/explore";
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return query ? `${MOBILE_BASE_PATH}${normalizedPath}?${query}` : `${MOBILE_BASE_PATH}${normalizedPath}`;
+}
+
+function buildExploreQuery(next: ExploreFiltersInput) {
+  return buildFilteredMobilePath("/explore", next);
+}
+
+function buildMapDiscoveryQuery(next: ExploreFiltersInput) {
+  return buildFilteredMobilePath("/map-discovery", next);
 }
 
 function formatPrice(value: number | null, currency: string = "USD") {
@@ -100,15 +117,47 @@ function formatPrice(value: number | null, currency: string = "USD") {
 }
 
 function resolveMediaSrc(src: string | null | undefined) {
-  const value = src?.trim();
+  const value = src?.trim().replace(/\\/g, "/");
 
   if (!value || value === "/placeholder.svg") return "/placeholder.svg";
   if (value.startsWith("data:") || value.startsWith("blob:") || /^https?:\/\//i.test(value)) {
     return value;
   }
 
+  // A raw media-library UUID is not a browser-loadable image URL. The SQL query
+  // resolves known UUID values to media.file_url; if one still reaches the UI,
+  // prefer a safe placeholder instead of a guaranteed broken request.
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)) {
+    return "/placeholder.svg";
+  }
+
+  // Some legacy fields contain icon names such as "stethoscope" instead of
+  // media paths. Do not send those through <img>; they would always 404.
+  if (!value.includes("/") && !/\.[a-z0-9]{2,5}(?:$|[?#])/i.test(value)) {
+    return "/placeholder.svg";
+  }
+
+  const publicAssetPrefixes = [
+    "/placeholder.svg",
+    "/assets/",
+    "/icons/",
+    "/images/",
+    "/img/",
+    "/unsplash_images/",
+    "/_next/",
+  ];
+
+  if (publicAssetPrefixes.some((prefix) => value.startsWith(prefix))) {
+    return value;
+  }
+
   const baseUrl = env.NEXT_PUBLIC_FILES_URL?.replace(/\/$/, "");
-  return baseUrl ? `${baseUrl}/${value.replace(/^\/+/, "")}` : value;
+
+  if (value.startsWith("/")) {
+    return baseUrl ? `${baseUrl}${value}` : value;
+  }
+
+  return baseUrl ? `${baseUrl}/${value.replace(/^\/+/, "")}` : `/${value.replace(/^\/+/, "")}`;
 }
 
 function navigateSmooth(
@@ -434,6 +483,24 @@ export default function ExploreClient({
     );
   };
 
+  const currentFilters = useMemo<ExploreFiltersInput>(
+    () => ({
+      ...initialFilters,
+      categoryId: activeUiFilters.categoryId === "all" ? null : activeUiFilters.categoryId,
+      providerTypeId:
+        activeUiFilters.providerTypeId === "all" ? null : activeUiFilters.providerTypeId,
+      countryCode: activeUiFilters.countryCode,
+      cityCode: activeUiFilters.cityCode,
+      minPrice: 0,
+      maxPrice: activeUiFilters.maxPrice,
+      minRating: activeUiFilters.minRating,
+      verifiedOnly: activeUiFilters.verifiedOnly,
+      languages: activeUiFilters.languages,
+      responseTime: activeUiFilters.responseTime,
+    }),
+    [activeUiFilters, initialFilters],
+  );
+
   const searchLabel = initialFilters.q ? initialFilters.q : "Search services...";
   const visibleProviderTypes = showAllProviderTypes
     ? providerTypes
@@ -451,7 +518,7 @@ export default function ExploreClient({
           </div>
 
           <button
-            onClick={() => router.push("/en/n/app/mobile/map-discovery")}
+            onClick={() => router.push(MAP_DISCOVERY_PATH)}
             className="w-11 h-11 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
           >
             <MapPin size={22} className="text-[#083f30]" />
@@ -460,11 +527,7 @@ export default function ExploreClient({
 
         <div className="flex gap-2">
           <button
-            onClick={() =>
-              router.push(
-                buildExploreQuery(initialFilters).replace("/n/app/mobile/explore", "/en/n/app/mobile/search"),
-              )
-            }
+            onClick={() => router.push(buildMapDiscoveryQuery(currentFilters))}
             className="flex-1 h-12 bg-gray-50 rounded-xl px-4 flex items-center gap-3 border border-gray-100 hover:border-[#083f30] transition-colors"
           >
             <Search size={20} className="text-gray-400" />
@@ -507,11 +570,7 @@ export default function ExploreClient({
               <h2 className="text-xl font-bold text-gray-900">Featured Providers</h2>
             </div>
             <button
-              onClick={() =>
-                router.push(
-                  buildExploreQuery(initialFilters).replace("/n/app/mobile/explore", "/app/clinics"),
-                )
-              }
+              onClick={() => router.push(buildMapDiscoveryQuery(currentFilters))}
               className="text-sm font-semibold text-[#083f30] hover:underline flex items-center gap-1"
             >
               View All
@@ -525,7 +584,7 @@ export default function ExploreClient({
           {featuredProviders.map((provider) => (
             <div
               key={`featured-provider-${provider.id}`}
-              onClick={() => router.push(`/en/n/app/mobile/provider/${provider.id}`)}
+              onClick={() => router.push(buildMobilePath(`/provider/${provider.id}`))}
               className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all cursor-pointer"
             >
               <div className="flex gap-4 p-4">
@@ -619,7 +678,7 @@ export default function ExploreClient({
               <p className="text-white/90 text-sm mb-4">{sponsoredProviders[0].subtitle}</p>
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => router.push(`/en/n/app/mobile/provider/${sponsoredProviders[0].id}`)}
+                  onClick={() => router.push(buildMobilePath(`/provider/${sponsoredProviders[0].id}`))}
                   className="bg-white text-purple-900 px-6 py-3 rounded-xl font-bold text-sm hover:bg-gray-100 transition-all shadow-lg"
                 >
                   Learn More
@@ -648,7 +707,7 @@ export default function ExploreClient({
           {trendingServices.map((service) => (
             <div
               key={`trending-service-${service.id}`}
-              onClick={() => router.push(`/en/n/app/mobile/service/${service.id}`)}
+              onClick={() => router.push(buildMobilePath(`/service/${service.id}`))}
               className="flex-none w-64 bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer border border-gray-100"
             >
               <div className="relative aspect-[16/10]">
@@ -786,7 +845,7 @@ export default function ExploreClient({
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-gray-900">Browse Categories</h2>
           <button
-            onClick={() => router.push("/app/categories")}
+            onClick={() => router.push(EXPLORE_PATH)}
             className="text-sm font-semibold text-[#083f30] hover:underline flex items-center gap-1"
           >
             View All
@@ -981,7 +1040,7 @@ export default function ExploreClient({
                     </div>
                     <div className="text-left">
                       <h3 className="font-bold text-gray-900">Verified Providers Only</h3>
-                      <p className="text-sm text-gray-600">Show only accredited clinics</p>
+                      <p className="text-sm text-gray-600">Show only accredited providers</p>
                     </div>
                   </div>
                   <div

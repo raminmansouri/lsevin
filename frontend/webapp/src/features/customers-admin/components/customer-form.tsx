@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from "next-intl";
 import { useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -32,6 +34,7 @@ const schema = z.object({
 type Values = z.infer<typeof schema>;
 
 export function CustomerForm({ customer }: { customer?: any }) {
+  const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const form = useForm<Values>({
@@ -56,17 +59,17 @@ export function CustomerForm({ customer }: { customer?: any }) {
     <CardContent>
       <Form {...form}>
         <form className="space-y-6" onSubmit={form.handleSubmit((values) => startTransition(async () => {
-          try { await saveCustomerAction(values); toast.success('Customer saved'); router.push('/admin/customers'); } catch (error: any) { toast.error(error?.message ?? 'Failed to save customer'); }
+          try { await saveCustomerAction(values); toast.success(tAdmin("customerSaved")); router.push('/admin/customers'); } catch (error: any) { toast.error(error?.message ?? 'Failed to save customer'); }
         }))}>
           <div className="grid gap-4 md:grid-cols-2">
-            <FormField control={form.control} name="firstName" render={({ field }) => <FormItem><FormLabel>First name</FormLabel><FormControl><Input {...field} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
-            <FormField control={form.control} name="lastName" render={({ field }) => <FormItem><FormLabel>Last name</FormLabel><FormControl><Input {...field} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
-            <FormField control={form.control} name="email" render={({ field }) => <FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} type="email" disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
-            <FormField control={form.control} name="phoneNumberCountryCode" render={({ field }) => <FormItem><FormLabel>Country code</FormLabel><FormControl><Input {...field} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
-            <FormField control={form.control} name="phoneNumber" render={({ field }) => <FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
-            <FormField control={form.control} name="country" render={({ field }) => <FormItem><FormLabel>Country</FormLabel><FormControl><Input {...field} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="firstName" render={({ field }) => <FormItem><FormLabel>{tAdmin("firstName")}</FormLabel><FormControl><Input {...field} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="lastName" render={({ field }) => <FormItem><FormLabel>{tAdmin("lastName")}</FormLabel><FormControl><Input {...field} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="email" render={({ field }) => <FormItem><FormLabel>{tAdmin("email")}</FormLabel><FormControl><Input {...field} type="email" disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="phoneNumberCountryCode" render={({ field }) => <FormItem><FormLabel>{tAdmin("countryCode")}</FormLabel><FormControl><Input {...field} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="phoneNumber" render={({ field }) => <FormItem><FormLabel>{tAdmin("phone")}</FormLabel><FormControl><Input {...field} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="country" render={({ field }) => <FormItem><FormLabel>{tAdmin("country")}</FormLabel><FormControl><Input {...field} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
           </div>
-          <RHFSingleMediaPickerField control={form.control} name="profileImageUrl" label="Profile image" placeholder="Pick image" mediaType="image" helperText="Stores one media id in a hidden input." modalTitle="Pick profile image" />
+          <RHFSingleMediaPickerField control={form.control} name="profileImageUrl" label={tAdmin("profileImage")} placeholder={tAdmin("pickImage")} mediaType="image" helperText="Stores one media id in a hidden input." modalTitle="Pick profile image" />
           <div className="flex gap-3"><Button type="submit" disabled={isPending}>{isPending ? 'Saving...' : 'Save customer'}</Button><Button type="button" variant="outline" onClick={() => router.push('/admin/customers')} disabled={isPending}>Cancel</Button></div>
         </form>
       </Form>

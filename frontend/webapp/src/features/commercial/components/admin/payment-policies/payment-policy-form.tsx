@@ -1,5 +1,7 @@
 'use client';
 
+
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useTransition } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -34,6 +36,7 @@ export function BookingPaymentPolicyForm({
   policy?: BookingPaymentPolicyRecord | null;
   lookups: CommercialPolicyLookups;
 }) {
+  const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -100,7 +103,7 @@ export function BookingPaymentPolicyForm({
     startTransition(async () => {
       try {
         await upsertBookingPaymentPolicyAction(values);
-        toast.success('Booking payment policy saved.');
+        toast.success(tAdmin("bookingPaymentPolicySaved"));
         router.push('/admin/commercial/payment-policies');
         router.refresh();
       } catch (error) {
@@ -126,7 +129,7 @@ export function BookingPaymentPolicyForm({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>{tAdmin("name")}</FormLabel>
                     <FormControl>
                       <Input {...field} disabled={isPending} />
                     </FormControl>
@@ -139,7 +142,7 @@ export function BookingPaymentPolicyForm({
                 name="priority"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Priority</FormLabel>
+                    <FormLabel>{tAdmin("priority")}</FormLabel>
                     <FormControl>
                       <Input type="number" {...field} disabled={isPending} />
                     </FormControl>
@@ -154,7 +157,7 @@ export function BookingPaymentPolicyForm({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>{tAdmin("description")}</FormLabel>
                   <FormControl>
                     <Textarea rows={3} {...field} value={field.value ?? ''} />
                   </FormControl>
@@ -169,7 +172,7 @@ export function BookingPaymentPolicyForm({
                 name="scopeType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Scope type</FormLabel>
+                    <FormLabel>{tAdmin("scopeType")}</FormLabel>
                     <FormControl>
                       <select
                         value={field.value}
@@ -194,7 +197,7 @@ export function BookingPaymentPolicyForm({
                 name="scopeId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Scope target</FormLabel>
+                    <FormLabel>{tAdmin("scopeTarget")}</FormLabel>
                     <FormControl>
                       <div key={scopeType}>
                         {scopeType === 'provider_type' ? (
@@ -203,7 +206,7 @@ export function BookingPaymentPolicyForm({
                             locale="en"
                             value={field.value ?? ''}
                             onValueChange={field.onChange}
-                            placeholder="Select provider type"
+                            placeholder={tAdmin("selectProviderType")}
                             initialOptions={lookups.providerTypes}
                             disabled={isPending}
                           />
@@ -213,7 +216,7 @@ export function BookingPaymentPolicyForm({
                             locale="en"
                             value={field.value ?? ''}
                             onValueChange={field.onChange}
-                            placeholder="Select provider"
+                            placeholder={tAdmin("selectProvider")}
                             initialOptions={lookups.providers}
                             disabled={isPending}
                             contentClassName="w-[460px]"
@@ -224,7 +227,7 @@ export function BookingPaymentPolicyForm({
                             locale="en"
                             value={field.value ?? ''}
                             onValueChange={field.onChange}
-                            placeholder="Select service definition"
+                            placeholder={tAdmin("selectServiceDefinition")}
                             initialOptions={lookups.serviceDefinitions}
                             disabled={isPending}
                             contentClassName="w-[460px]"
@@ -235,7 +238,7 @@ export function BookingPaymentPolicyForm({
                             locale="en"
                             value={field.value ?? ''}
                             onValueChange={field.onChange}
-                            placeholder="Select provider service"
+                            placeholder={tAdmin("selectProviderService")}
                             initialOptions={lookups.providerServices}
                             disabled={isPending}
                             contentClassName="w-[520px]"
@@ -243,7 +246,7 @@ export function BookingPaymentPolicyForm({
                         ) : (
                           <Input
                             value=""
-                            placeholder="No scope target required for global policies"
+                            placeholder={tAdmin("noScopeTargetRequiredForGlobalPolicies")}
                             disabled={targetDisabled || isPending}
                           />
                         )}
@@ -262,7 +265,7 @@ export function BookingPaymentPolicyForm({
                 name="collectionMode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Collection mode</FormLabel>
+                    <FormLabel>{tAdmin("collectionMode")}</FormLabel>
                     <FormControl>
                       <select
                         value={field.value}
@@ -286,7 +289,7 @@ export function BookingPaymentPolicyForm({
                 name="depositType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Deposit type</FormLabel>
+                    <FormLabel>{tAdmin("depositType")}</FormLabel>
                     <FormControl>
                       <select
                         value={field.value}
@@ -310,7 +313,7 @@ export function BookingPaymentPolicyForm({
                 name="depositValue"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Deposit value</FormLabel>
+                    <FormLabel>{tAdmin("depositValue")}</FormLabel>
                     <FormControl>
                       <Input type="number" step="0.01" {...field} disabled={isPending} />
                     </FormControl>
@@ -326,7 +329,7 @@ export function BookingPaymentPolicyForm({
                 name="minimumDueNowAmount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Minimum due now</FormLabel>
+                    <FormLabel>{tAdmin("minimumDueNow")}</FormLabel>
                     <FormControl>
                       <Input type="number" step="0.01" {...field} disabled={isPending} />
                     </FormControl>
@@ -339,7 +342,7 @@ export function BookingPaymentPolicyForm({
                 name="capDueNowAmount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Cap due now</FormLabel>
+                    <FormLabel>{tAdmin("capDueNow")}</FormLabel>
                     <FormControl>
                       <Input type="number" step="0.01" {...field} value={field.value ?? ''} disabled={isPending} />
                     </FormControl>
@@ -352,7 +355,7 @@ export function BookingPaymentPolicyForm({
                 name="dueNowRoundingMode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Rounding mode</FormLabel>
+                    <FormLabel>{tAdmin("roundingMode")}</FormLabel>
                     <FormControl>
                       <select
                         value={field.value}
@@ -379,7 +382,7 @@ export function BookingPaymentPolicyForm({
                 name="balanceDueTrigger"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Balance due trigger</FormLabel>
+                    <FormLabel>{tAdmin("balanceDueTrigger")}</FormLabel>
                     <FormControl>
                       <select
                         value={field.value}
@@ -403,7 +406,7 @@ export function BookingPaymentPolicyForm({
                 name="depositRefundableMode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Deposit refundable mode</FormLabel>
+                    <FormLabel>{tAdmin("depositRefundableMode")}</FormLabel>
                     <FormControl>
                       <select
                         value={field.value}
@@ -428,7 +431,7 @@ export function BookingPaymentPolicyForm({
                   name="allowWalletForDueNow"
                   render={({ field }) => (
                     <FormItem className="flex items-center justify-between rounded-md border px-3 py-2">
-                      <FormLabel>Wallet</FormLabel>
+                      <FormLabel>{tAdmin("wallet")}</FormLabel>
                       <FormControl>
                         <Switch checked={field.value} onCheckedChange={field.onChange} />
                       </FormControl>
@@ -440,7 +443,7 @@ export function BookingPaymentPolicyForm({
                   name="allowGatewayForDueNow"
                   render={({ field }) => (
                     <FormItem className="flex items-center justify-between rounded-md border px-3 py-2">
-                      <FormLabel>Gateway</FormLabel>
+                      <FormLabel>{tAdmin("gateway")}</FormLabel>
                       <FormControl>
                         <Switch checked={field.value} onCheckedChange={field.onChange} />
                       </FormControl>
@@ -455,7 +458,7 @@ export function BookingPaymentPolicyForm({
               name="isActive"
               render={({ field }) => (
                 <FormItem className="flex items-center justify-between rounded-md border px-3 py-2">
-                  <FormLabel>Active</FormLabel>
+                  <FormLabel>{tAdmin("active")}</FormLabel>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
@@ -468,7 +471,7 @@ export function BookingPaymentPolicyForm({
               name="metadataText"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Metadata JSON</FormLabel>
+                  <FormLabel>{tAdmin("metadataJSON")}</FormLabel>
                   <FormControl>
                     <Textarea rows={6} {...field} />
                   </FormControl>

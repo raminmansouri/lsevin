@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Database, TableProperties } from "lucide-react";
 import { ResolvedTableDefinition } from "@/lib/admin/types";
@@ -7,6 +8,7 @@ type Props = {
 };
 
 export function AdminSidebar({ navigation }: Props) {
+  const tAdmin = useTranslations("AdminGenerated");
   const grouped = navigation.reduce<Record<string, ResolvedTableDefinition[]>>((acc, item) => {
     acc[item.schema] ||= [];
     acc[item.schema].push(item);
@@ -21,8 +23,8 @@ export function AdminSidebar({ navigation }: Props) {
             <Database className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-semibold">Admin Dashboard</p>
-            <p className="text-xs text-zinc-500">Schema-aware navigation</p>
+            <p className="text-sm font-semibold">{tAdmin("adminDashboard")}</p>
+            <p className="text-xs text-zinc-500">{tAdmin("schemaAwareNavigation")}</p>
           </div>
         </div>
 

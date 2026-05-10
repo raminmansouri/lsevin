@@ -546,8 +546,14 @@ async function getPrimaryServiceRow(serviceId: string, locale: string) {
       coalesce(sp.specialties, array[]::text[]) as provider_specialties,
       sp.is_sponsored as provider_is_sponsored,
       sp.sponsored_tag as provider_sponsored_tag,
-      coalesce(nullif(common.get_translation_t(ps.display_name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}), ''), common.get_translation_t(sd.name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE})) as service_name,
-      coalesce(nullif(common.get_translation_t(ps.description_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}), ''), common.get_translation_t(sd.description_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE})) as service_description,
+      coalesce(
+        nullif(common.get_translation_t(sd.name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}), ''),
+        common.get_translation_t(ps.display_name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE})
+      ) as service_name,
+      coalesce(
+        nullif(common.get_translation_t(sd.description_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}), ''),
+        common.get_translation_t(ps.description_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE})
+      ) as service_description,
       common.get_translation_t(sd.name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as service_definition_name,
       common.get_translation_t(sd.description_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as service_definition_description,
       ps.currency,
@@ -556,7 +562,7 @@ async function getPrimaryServiceRow(serviceId: string, locale: string) {
       coalesce(ps.rating, sp.rating, 0) as rating,
       coalesce(ps.review_count, sp.review_count, 0) as review_count,
       ps.recovery,
-      coalesce(ps_media.file_url, ps.image_url) as image_url,
+      coalesce(sd_media.file_url, sd.image_url, def_gallery_media.file_url, definition_gallery.url, ps_media.file_url, ps.image_url) as image_url,
       ps.is_popular,
       ps.anesthesia,
       ps.stay_required,
@@ -572,6 +578,27 @@ async function getPrimaryServiceRow(serviceId: string, locale: string) {
     join category.service_providers sp on sp.id = ps.service_provider_id
     left join category.provider_types pt on pt.id = sp.provider_type_id
     left join category.service_provider_grades spg on spg.id = sp.grade_id
+    left join lateral (
+      select psgi.url
+      from category.provider_service_gallery_items psgi
+      join category.provider_services definition_ps
+        on definition_ps.id = psgi.provider_service_id
+       and definition_ps.is_active = true
+      join category.service_providers definition_sp
+        on definition_sp.id = definition_ps.service_provider_id
+       and definition_sp.is_active = true
+      where definition_ps.service_definition_id = sd.id
+      order by
+        case when definition_ps.id = ps.id then 0 else 1 end,
+        psgi.is_primary desc,
+        coalesce(definition_ps.is_popular, false) desc,
+        coalesce(definition_sp.is_sponsored, false) desc,
+        psgi.display_order asc,
+        psgi.create_date desc
+      limit 1
+    ) definition_gallery on true
+    left join media.media_library sd_media on sd_media.id::text = nullif(sd.image_url, '')
+    left join media.media_library def_gallery_media on def_gallery_media.id::text = definition_gallery.url
     left join media.media_library ps_media on ps_media.id::text = nullif(ps.image_url, '')
     left join media.media_library sp_media on sp_media.id::text = nullif(sp.image_url, '')
     limit 1
@@ -628,8 +655,34 @@ function mapGalleryRow(row: GalleryRow): ServiceGalleryItem {
   };
 }
 
-async function getGalleryItems(providerServiceId: string, providerId: string, locale: string, fallbackImages: string[]): Promise<ServiceGalleryItem[]> {
+function dedupeGalleryItems(items: ServiceGalleryItem[]) {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const key = item.url.trim().toLowerCase();
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+async function getGalleryItems(serviceDefinitionId: string, providerServiceId: string, locale: string, fallbackImages: string[]): Promise<ServiceGalleryItem[]> {
   const serviceGallery = await sql<GalleryRow[]>`
+    with active_provider_services as (
+      select
+        ps.id,
+        ps.service_provider_id,
+        ps.is_popular,
+        ps.rating,
+        ps.review_count,
+        ps.create_date,
+        sp.is_sponsored,
+        sp.featured_score
+      from category.provider_services ps
+      join category.service_providers sp on sp.id = ps.service_provider_id
+      where ps.service_definition_id = ${serviceDefinitionId}::uuid
+        and ps.is_active = true
+        and sp.is_active = true
+    )
     select
       psgi.id::text as id,
       common.get_translation_t(psgi.title_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as title,
@@ -640,34 +693,64 @@ async function getGalleryItems(providerServiceId: string, providerId: string, lo
       psgi.is_primary,
       'provider_service_gallery'::text as source
     from category.provider_service_gallery_items psgi
+    join active_provider_services aps on aps.id = psgi.provider_service_id
     left join media.media_library m on m.id::text = nullif(psgi.url, '')
-    where psgi.provider_service_id = ${providerServiceId}::uuid
-    order by psgi.is_primary desc, psgi.display_order asc, psgi.create_date desc
+    order by
+      case when aps.id = ${providerServiceId}::uuid then 0 else 1 end,
+      psgi.is_primary desc,
+      coalesce(aps.is_popular, false) desc,
+      coalesce(aps.is_sponsored, false) desc,
+      coalesce(aps.rating, 0) desc,
+      coalesce(aps.review_count, 0) desc,
+      psgi.display_order asc,
+      psgi.create_date desc
+    limit 36
   `;
 
-  const providerGallery = serviceGallery.length
-    ? []
-    : await sql<GalleryRow[]>`
-        select
-          pgi.id::text as id,
-          common.get_translation_t(pgi.title_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as title,
-          common.get_translation_t(pgi.description_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as description,
-          coalesce(m.file_url, pgi.url) as url,
-          coalesce(m.media_type, pgi.media_type, 'image') as media_type,
-          pgi.display_order,
-          false as is_primary,
-          'provider_gallery'::text as source
-        from category.provider_gallery_items pgi
-        left join media.media_library m on m.id::text = nullif(pgi.url, '')
-        where pgi.service_provider_id = ${providerId}::uuid
-        order by pgi.display_order asc, pgi.create_date desc
-        limit 12
-      `;
+  const providerGallery = await sql<GalleryRow[]>`
+    with active_provider_services as (
+      select distinct
+        ps.service_provider_id,
+        ps.id as provider_service_id,
+        ps.is_popular,
+        ps.rating,
+        ps.review_count,
+        ps.create_date,
+        sp.is_sponsored,
+        sp.featured_score
+      from category.provider_services ps
+      join category.service_providers sp on sp.id = ps.service_provider_id
+      where ps.service_definition_id = ${serviceDefinitionId}::uuid
+        and ps.is_active = true
+        and sp.is_active = true
+    )
+    select
+      pgi.id::text as id,
+      common.get_translation_t(pgi.title_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as title,
+      common.get_translation_t(pgi.description_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as description,
+      coalesce(m.file_url, pgi.url) as url,
+      coalesce(m.media_type, pgi.media_type, 'image') as media_type,
+      pgi.display_order,
+      false as is_primary,
+      'provider_gallery'::text as source
+    from category.provider_gallery_items pgi
+    join active_provider_services aps on aps.service_provider_id = pgi.service_provider_id
+    left join media.media_library m on m.id::text = nullif(pgi.url, '')
+    order by
+      case when aps.provider_service_id = ${providerServiceId}::uuid then 0 else 1 end,
+      coalesce(aps.is_popular, false) desc,
+      coalesce(aps.is_sponsored, false) desc,
+      coalesce(aps.rating, 0) desc,
+      coalesce(aps.review_count, 0) desc,
+      pgi.display_order asc,
+      pgi.create_date desc
+    limit 24
+  `;
 
-  const dbGallery = [...serviceGallery, ...providerGallery].map(mapGalleryRow);
-  const existingUrls = new Set(dbGallery.map((item) => item.url));
+  const dbGallery = dedupeGalleryItems([...serviceGallery, ...providerGallery].map(mapGalleryRow));
+  const existingUrls = new Set(dbGallery.map((item) => item.url.trim().toLowerCase()));
   const fallbackGallery = fallbackImages
-    .filter((url) => !existingUrls.has(url))
+    .filter((url) => !existingUrls.has(url.trim().toLowerCase()))
     .map((url, index): ServiceGalleryItem => ({
       id: `fallback-${index}`,
       title: '',
@@ -708,11 +791,14 @@ async function getProvidersForService(serviceDefinitionId: string, locale: strin
       ps.service_definition_id::text as service_definition_id,
       sp.id::text as provider_id,
       common.get_translation_t(pt.name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as provider_type_name,
-      coalesce(nullif(common.get_translation_t(ps.display_name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}), ''), common.get_translation_t(sd.name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE})) as service_name,
+      coalesce(
+        nullif(common.get_translation_t(sd.name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}), ''),
+        common.get_translation_t(ps.display_name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE})
+      ) as service_name,
       common.get_translation_t(sp.name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as provider_name,
       common.get_translation_t(sp.description_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as provider_description,
       coalesce(sp_media.file_url, sp.image_url) as provider_image_url,
-      coalesce(ps_media.file_url, ps.image_url) as service_image_url,
+      coalesce(sd_media.file_url, sd.image_url, def_gallery_media.file_url, definition_gallery.url, ps_media.file_url, ps.image_url) as service_image_url,
       sp.city,
       sp.country,
       sp.response_time,
@@ -730,6 +816,27 @@ async function getProvidersForService(serviceDefinitionId: string, locale: strin
     join category.service_providers sp on sp.id = ps.service_provider_id
     join category.service_definitions sd on sd.id = ps.service_definition_id
     left join category.provider_types pt on pt.id = sp.provider_type_id
+    left join lateral (
+      select psgi.url
+      from category.provider_service_gallery_items psgi
+      join category.provider_services definition_ps
+        on definition_ps.id = psgi.provider_service_id
+       and definition_ps.is_active = true
+      join category.service_providers definition_sp
+        on definition_sp.id = definition_ps.service_provider_id
+       and definition_sp.is_active = true
+      where definition_ps.service_definition_id = sd.id
+      order by
+        case when definition_ps.id = ps.id then 0 else 1 end,
+        psgi.is_primary desc,
+        coalesce(definition_ps.is_popular, false) desc,
+        coalesce(definition_sp.is_sponsored, false) desc,
+        psgi.display_order asc,
+        psgi.create_date desc
+      limit 1
+    ) definition_gallery on true
+    left join media.media_library sd_media on sd_media.id::text = nullif(sd.image_url, '')
+    left join media.media_library def_gallery_media on def_gallery_media.id::text = definition_gallery.url
     left join media.media_library ps_media on ps_media.id::text = nullif(ps.image_url, '')
     left join media.media_library sp_media on sp_media.id::text = nullif(sp.image_url, '')
     where ps.service_definition_id = ${serviceDefinitionId}::uuid
@@ -1227,7 +1334,7 @@ export async function getServicePageByIdFromDb({
     getFaqs(row.service_definition_id, row.provider_service_id),
     getProvidersForService(row.service_definition_id, normalizedLocale, { preferredCurrencyCode: resolvedDisplayCurrencyCode, customerId: userId }),
     getTopReviews(row.provider_id, row.provider_service_id),
-    getGalleryItems(row.provider_service_id, row.provider_id, normalizedLocale, fallbackImages),
+    getGalleryItems(row.service_definition_id, row.provider_service_id, normalizedLocale, fallbackImages),
     getProviderGalleryItems(row.provider_id, normalizedLocale),
     getIsFavorite({ customerId: userId, favoriteType: 'service', entityId: row.provider_service_id }),
     getServiceAttributes(row.provider_service_id, row.service_definition_id, normalizedLocale),

@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Database, Lock, CalendarCheck, Users } from "lucide-react";
 
@@ -14,6 +15,7 @@ function schemaIcon(schema: string) {
 }
 
 export function AdminDataDashboard({ cards }: { cards: AdminDashboardCard[] }) {
+  const tAdmin = useTranslations("AdminGenerated");
   const grouped = cards.reduce<Record<string, AdminDashboardCard[]>>((acc, card) => {
     acc[card.schema] ||= [];
     acc[card.schema].push(card);
@@ -23,8 +25,8 @@ export function AdminDataDashboard({ cards }: { cards: AdminDashboardCard[] }) {
   return (
     <div className="space-y-8">
       <div className="rounded-3xl bg-gradient-to-br from-[#0f182b] via-[#155e75] to-[#139ddc] p-8 text-white shadow-sm">
-        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-white/70">Admin data control</p>
-        <h1 className="mt-3 text-3xl font-bold">Booking, Identity & Customer</h1>
+        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-white/70">{tAdmin("adminDataControl")}</p>
+        <h1 className="mt-3 text-3xl font-bold">{tAdmin("bookingIdentityCustomer")}</h1>
         <p className="mt-3 max-w-3xl text-white/80">
           Direct PostgreSQL admin console for operational bookings, ASP.NET Identity users/roles/security records, customer profiles, documents, favorites, and wallet flows.
         </p>
@@ -48,7 +50,7 @@ export function AdminDataDashboard({ cards }: { cards: AdminDashboardCard[] }) {
                     <CardHeader className="pb-2">
                       <div className="flex items-start justify-between gap-3">
                         <CardTitle className="text-base">{card.title}</CardTitle>
-                        {card.readOnly && <Badge variant="outline">Read-only</Badge>}
+                        {card.readOnly && <Badge variant="outline">{tAdmin("readOnly")}</Badge>}
                       </div>
                       <CardDescription className="line-clamp-2">{card.description}</CardDescription>
                     </CardHeader>

@@ -1,4 +1,5 @@
 import { Award, ChevronRight, Gift, Map, Search, Sparkles, Star, TrendingUp } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import { Skeleton } from '../../design-system/components';
@@ -33,14 +34,6 @@ import { homeSearchParamsCache } from '@/features/home/types';
 import { getActiveLocationQueryScope } from '@/features/locations/server/active-location';
 import { getProfileForEdit } from '@/features/profile/actions/profile.actions';
 
-const fallbackQuickSearches = [
-  'Hair Transplant',
-  'Dental Veneers',
-  'Spa Day',
-  'IVF Treatment',
-  'Gym Membership',
-];
-
 async function getLocaleFromParams(params: PageProps['params']) {
   const resolved = await params;
   return String((resolved as { locale?: string } | undefined)?.locale || 'en-US');
@@ -72,8 +65,166 @@ function metadataText(value: unknown, locale: string) {
   );
 }
 
+type HomePageLabels = {
+  common: {
+    noDescription: string;
+    viewAll: string;
+    seeAll: string;
+  };
+  quickSearches: string[];
+  search: {
+    placeholder: string;
+  };
+  categories: {
+    title: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    serviceCount: string;
+  };
+  featured: {
+    title: string;
+    subtitle: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    discountOff: string;
+    availableDestination: string;
+  };
+  trending: {
+    title: string;
+    subtitle: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    bookings: string;
+  };
+  trusted: {
+    title: string;
+    subtitle: string;
+    emptyTitle: string;
+    emptyDescription: string;
+  };
+  hero: {
+    imageAlt: string;
+    fallbackImageAlt: string;
+    limitedTime: string;
+    featured: string;
+    title: string;
+    description: string;
+    button: string;
+  };
+  exploreNearby: {
+    imageAlt: string;
+    title: string;
+    selectedAreaScope: string;
+    readyScope: string;
+    subtitle: string;
+  };
+  premiumPackages: {
+    imageAlt: string;
+    title: string;
+    subtitle: string;
+    description: string;
+    button: string;
+  };
+  loyaltyClub: {
+    imageAlt: string;
+    title: string;
+    description: string;
+    button: string;
+    cashback: string;
+    rewards: string;
+    vipAccess: string;
+    benefit: string;
+  };
+};
+
+function formatLabel(template: string, replacements: Record<string, string | number | null | undefined>) {
+  return Object.entries(replacements).reduce(
+    (value, [key, replacement]) => value.replaceAll(`{${key}}`, String(replacement ?? '')),
+    template || ''
+  );
+}
+
 async function Home({ params, searchParams }: PageProps) {
   const locale = await getLocaleFromParams(params);
+  const t = await getTranslations({ locale, namespace: 'Home' });
+  const labels: HomePageLabels = {
+    common: {
+      noDescription: t('common.noDescription'),
+      viewAll: t('common.viewAll'),
+      seeAll: t('common.seeAll'),
+    },
+    quickSearches: [
+      t('quickSearches.hairTransplant'),
+      t('quickSearches.dentalVeneers'),
+      t('quickSearches.spaDay'),
+      t('quickSearches.ivfTreatment'),
+      t('quickSearches.gymMembership'),
+    ],
+    search: {
+      placeholder: t('search.placeholder'),
+    },
+    categories: {
+      title: t('categories.title'),
+      emptyTitle: t('categories.emptyTitle'),
+      emptyDescription: t('categories.emptyDescription'),
+      serviceCount: t('categories.serviceCount', { count: '{count}' }),
+    },
+    featured: {
+      title: t('featured.title'),
+      subtitle: t('featured.subtitle'),
+      emptyTitle: t('featured.emptyTitle'),
+      emptyDescription: t('featured.emptyDescription'),
+      discountOff: t('featured.discountOff', { percent: '{percent}' }),
+      availableDestination: t('featured.availableDestination'),
+    },
+    trending: {
+      title: t('trending.title'),
+      subtitle: t('trending.subtitle'),
+      emptyTitle: t('trending.emptyTitle'),
+      emptyDescription: t('trending.emptyDescription'),
+      bookings: t('trending.bookings', { count: '{count}' }),
+    },
+    trusted: {
+      title: t('trusted.title'),
+      subtitle: t('trusted.subtitle'),
+      emptyTitle: t('trusted.emptyTitle'),
+      emptyDescription: t('trusted.emptyDescription'),
+    },
+    hero: {
+      imageAlt: t('hero.imageAlt'),
+      fallbackImageAlt: t('hero.fallbackImageAlt'),
+      limitedTime: t('hero.limitedTime'),
+      featured: t('hero.featured'),
+      title: t('hero.title'),
+      description: t('hero.description'),
+      button: t('hero.button'),
+    },
+    exploreNearby: {
+      imageAlt: t('exploreNearby.imageAlt'),
+      title: t('exploreNearby.title'),
+      selectedAreaScope: t('exploreNearby.selectedAreaScope'),
+      readyScope: t('exploreNearby.readyScope'),
+      subtitle: t('exploreNearby.subtitle', { count: '{count}', scope: '{scope}' }),
+    },
+    premiumPackages: {
+      imageAlt: t('premiumPackages.imageAlt'),
+      title: t('premiumPackages.title'),
+      subtitle: t('premiumPackages.subtitle'),
+      description: t('premiumPackages.description'),
+      button: t('premiumPackages.button'),
+    },
+    loyaltyClub: {
+      imageAlt: t('loyaltyClub.imageAlt'),
+      title: t('loyaltyClub.title'),
+      description: t('loyaltyClub.description'),
+      button: t('loyaltyClub.button'),
+      cashback: t('loyaltyClub.cashback'),
+      rewards: t('loyaltyClub.rewards'),
+      vipAccess: t('loyaltyClub.vipAccess'),
+      benefit: t('loyaltyClub.benefit', { index: '{index}' }),
+    },
+  };
+
   const searchParamsData = await searchParams;
   const { countryCode, cityCode } = homeSearchParamsCache.parse(searchParamsData);
 
@@ -84,8 +235,6 @@ async function Home({ params, searchParams }: PageProps) {
     includeProfile: true,
     includeIp: true,
   });
-  
- 
 
   const [
     dbQuickSearches,
@@ -96,7 +245,7 @@ async function Home({ params, searchParams }: PageProps) {
     heroOffer,
     nearbyProviderCount,
     homeSections,
-    profile
+    profile,
   ] = await Promise.all([
     getQuickSearches(sql, 8),
     getHomeCategories(queryInput, 6),
@@ -106,15 +255,15 @@ async function Home({ params, searchParams }: PageProps) {
     getHomeHeroOffer(queryInput),
     getNearbyProviderCount(queryInput),
     getHomeManagedSections(locale),
-     getProfileForEdit("en-US")
+    getProfileForEdit('en-US'),
   ]);
 
-  const quickSearches = dbQuickSearches.length > 0 ? dbQuickSearches : fallbackQuickSearches;
+  const quickSearches = dbQuickSearches.length > 0 ? dbQuickSearches : labels.quickSearches;
 
   return (
     <div className="min-h-screen bg-white">
       <div className="sticky top-0 z-40 border-b border-gray-100 bg-white/95 px-5 pb-4 pt-3 backdrop-blur-xl">
-        <UserInfoSubBar profile={profile}/>
+        <UserInfoSubBar profile={profile} />
         <LocationPicker locale={locale} />
       </div>
 
@@ -124,7 +273,7 @@ async function Home({ params, searchParams }: PageProps) {
           className="flex h-14 w-full items-center gap-3 rounded-2xl border border-gray-100 bg-white px-5 shadow-sm transition-all hover:shadow-md"
         >
           <Search size={22} className="text-[#083f30]" />
-          <span className="font-medium text-gray-500">Search treatments, clinics...</span>
+          <span className="font-medium text-gray-500">{labels.search.placeholder}</span>
         </Link>
 
         <div className="hide-scrollbar mt-3 flex gap-2 overflow-x-auto pb-1">
@@ -140,36 +289,44 @@ async function Home({ params, searchParams }: PageProps) {
         </div>
       </section>
 
-      <HomeHeroBanner offer={heroOffer} section={homeSections.hero_featured} />
+      <HomeHeroBanner offer={heroOffer} section={homeSections.hero_featured} labels={labels.hero} noDescription={labels.common.noDescription} />
 
       <section className="px-5 pb-8 lg:px-8">
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-900">Explore Categories</h2>
+          <h2 className="text-xl font-bold text-gray-900">{labels.categories.title}</h2>
           <Link
             href="/n/app/mobile/categories"
             className="flex items-center gap-1 text-sm font-semibold text-[#083f30] hover:underline"
           >
-            View All
+            {labels.common.viewAll}
             <ChevronRight size={16} />
           </Link>
         </div>
 
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
-          <ServiceProvidersCategoriesSuspenseBoundary categories={categories} />
+          <ServiceProvidersCategoriesSuspenseBoundary
+            categories={categories}
+            locale={locale}
+            labels={{
+              emptyTitle: labels.categories.emptyTitle,
+              emptyDescription: labels.categories.emptyDescription,
+              serviceCount: labels.categories.serviceCount,
+            }}
+          />
         </div>
       </section>
 
       <section className="pb-8">
         <div className="mb-5 flex items-center justify-between px-5">
           <div>
-            <h2 className="mb-1 text-xl font-bold text-gray-900">Featured Services</h2>
-            <p className="text-sm text-gray-600">Handpicked by our experts</p>
+            <h2 className="mb-1 text-xl font-bold text-gray-900">{labels.featured.title}</h2>
+            <p className="text-sm text-gray-600">{labels.featured.subtitle}</p>
           </div>
           <Link
             href="/n/app/mobile/featured"
             className="flex items-center gap-1 text-sm font-semibold text-[#083f30] hover:underline"
           >
-            See All
+            {labels.common.seeAll}
             <ChevronRight size={16} />
           </Link>
         </div>
@@ -179,23 +336,37 @@ async function Home({ params, searchParams }: PageProps) {
             services={featuredServices}
             locale={locale}
             selectedCountryCode={queryInput.countryCode}
+            labels={{
+              emptyTitle: labels.featured.emptyTitle,
+              emptyDescription: labels.featured.emptyDescription,
+              discountOff: labels.featured.discountOff,
+              availableDestination: labels.featured.availableDestination,
+              noDescription: labels.common.noDescription,
+            }}
           />
         </div>
       </section>
 
-      <SponsoredMediaCarouselSection />
+      <SponsoredMediaCarouselSection locale={locale} />
 
       <section className="pb-8">
         <div className="mb-5 px-5">
           <div className="mb-1 flex items-center gap-2">
             <TrendingUp size={22} className="text-orange-500" />
-            <h2 className="text-xl font-bold text-gray-900">Trending This Month</h2>
+            <h2 className="text-xl font-bold text-gray-900">{labels.trending.title}</h2>
           </div>
-          <p className="text-sm text-gray-600">Most booked treatments right now</p>
+          <p className="text-sm text-gray-600">{labels.trending.subtitle}</p>
         </div>
 
         <div className="hide-scrollbar flex gap-3 overflow-x-auto px-5 pb-2">
-          <HomeTrendingServicesSuspenseBoundary services={trendingServices} />
+          <HomeTrendingServicesSuspenseBoundary
+            services={trendingServices}
+            labels={{
+              emptyTitle: labels.trending.emptyTitle,
+              emptyDescription: labels.trending.emptyDescription,
+              bookings: labels.trending.bookings,
+            }}
+          />
         </div>
       </section>
 
@@ -204,29 +375,49 @@ async function Home({ params, searchParams }: PageProps) {
         nearbyProviderCount={nearbyProviderCount}
         countryCode={queryInput.countryCode}
         cityCode={queryInput.cityCode}
+        locale={locale}
+        labels={labels.exploreNearby}
       />
 
       <section className="pb-8">
         <div className="mb-5 px-5">
           <div className="mb-1 flex items-center gap-2">
             <Award size={22} className="text-[#083f30]" />
-            <h2 className="text-xl font-bold text-gray-900">Trusted Providers</h2>
+            <h2 className="text-xl font-bold text-gray-900">{labels.trusted.title}</h2>
           </div>
-          <p className="text-sm text-gray-600">Verified by our quality team</p>
+          <p className="text-sm text-gray-600">{labels.trusted.subtitle}</p>
         </div>
 
         <div className="hide-scrollbar flex gap-4 overflow-x-auto px-5 pb-2">
-          <HomeTrustedProvidersSuspenseBoundary providers={trustedProviders} />
+          <HomeTrustedProvidersSuspenseBoundary
+            providers={trustedProviders}
+            locale={locale}
+            labels={{
+              emptyTitle: labels.trusted.emptyTitle,
+              emptyDescription: labels.trusted.emptyDescription,
+              noDescription: labels.common.noDescription,
+            }}
+          />
         </div>
       </section>
 
-      <PremiumPackagesSection section={homeSections.premium_packages} />
-      <LoyaltyClubSection section={homeSections.loyalty_club} locale={locale} />
+      <PremiumPackagesSection section={homeSections.premium_packages} labels={labels.premiumPackages} />
+      <LoyaltyClubSection section={homeSections.loyalty_club} locale={locale} labels={labels.loyaltyClub} />
     </div>
   );
 }
 
-function HomeHeroBanner({ offer, section }: { offer: HomeHeroOffer | null; section: HomeManagedSection }) {
+function HomeHeroBanner({
+  offer,
+  section,
+  labels,
+  noDescription,
+}: {
+  offer: HomeHeroOffer | null;
+  section: HomeManagedSection;
+  labels: HomePageLabels['hero'];
+  noDescription: string;
+}) {
   const mediaUrl = resolveHomeMediaUrl(section.imageUrl || offer?.imageUrl);
   const href = section.buttonHref || (offer?.serviceId ? `/n/app/mobile/service/${offer.serviceId}` : '/n/app/mobile/offers');
 
@@ -237,14 +428,14 @@ function HomeHeroBanner({ offer, section }: { offer: HomeHeroOffer | null; secti
           <ImageWithFallback
             fill
             src={mediaUrl}
-            alt={section.title || offer?.title || 'Featured offer'}
+            alt={section.title || offer?.title || labels.imageAlt}
             sizes="100vw"
             className="object-cover"
           />
         ) : (
           <img
             src="/unsplash_images/photo-1540555700478-4be289fbecef__w=1200&h=600&fit=crop.jpg"
-            alt="Featured wellness offer"
+            alt={labels.fallbackImageAlt}
             className="absolute inset-0 h-full w-full object-cover"
           />
         )}
@@ -254,23 +445,23 @@ function HomeHeroBanner({ offer, section }: { offer: HomeHeroOffer | null; secti
           <div className="mb-2 flex items-center gap-2">
             <Sparkles size={18} className="text-[#eacb7f]" />
             <span className="text-xs font-bold uppercase tracking-wide text-[#eacb7f]">
-              {section.badge || (offer?.discountPercent ? 'Limited Time' : 'Featured')}
+              {section.badge || (offer?.discountPercent ? labels.limitedTime : labels.featured)}
             </span>
           </div>
           <h2 className="mb-2 text-2xl font-bold leading-tight text-white">
-            {section.title || offer?.title || 'Discover premium health and wellness services'}
+            {section.title || offer?.title || labels.title}
           </h2>
           <HomeLexicalDescription
-            content={section.description || section.subtitle || offer?.subtitle || 'Compare trusted providers and book services across LSevin destinations.'}
+            content={section.description || offer?.subtitle}
             className="mb-4 text-sm font-medium text-white/90 [&_p]:text-white/90"
-            fallback="Compare trusted providers and book services across LSevin destinations."
+            fallback={labels.description || noDescription}
           />
           <div>
             <Link
               href={href}
               className="inline-flex rounded-xl bg-[#eacb7f] px-6 py-3 text-sm font-bold text-[#083f30] shadow-lg transition-all hover:bg-[#e0b654] hover:shadow-xl active:scale-95"
             >
-              {section.buttonLabel || 'Explore Offers'}
+              {section.buttonLabel || labels.button}
             </Link>
           </div>
         </div>
@@ -284,18 +475,20 @@ function ExploreNearbySection({
   nearbyProviderCount,
   countryCode,
   cityCode,
+  locale,
+  labels,
 }: {
   section: HomeManagedSection;
   nearbyProviderCount: number;
   countryCode?: string | null;
   cityCode?: string | null;
+  locale: string;
+  labels: HomePageLabels['exploreNearby'];
 }) {
   const mediaUrl = resolveHomeMediaUrl(section.imageUrl);
-  const scope = countryCode || cityCode ? 'in your selected area' : 'ready to discover';
-  const subtitle = formatHomeSectionText(section.subtitle, {
-    count: nearbyProviderCount.toLocaleString(),
-    scope,
-  });
+  const scope = countryCode || cityCode ? labels.selectedAreaScope : labels.readyScope;
+  const count = nearbyProviderCount.toLocaleString(locale);
+  const subtitle = formatHomeSectionText(section.subtitle, { count, scope }) || formatLabel(labels.subtitle, { count, scope });
 
   return (
     <section className="px-5 pb-8">
@@ -304,11 +497,11 @@ function ExploreNearbySection({
         className="relative block h-48 w-full overflow-hidden rounded-2xl shadow-lg transition-all hover:shadow-xl active:scale-[0.98]"
       >
         {mediaUrl ? (
-          <ImageWithFallback fill src={mediaUrl} alt={section.title || 'Map discovery'} sizes="100vw" className="object-cover" />
+          <ImageWithFallback fill src={mediaUrl} alt={section.title || labels.imageAlt} sizes="100vw" className="object-cover" />
         ) : (
           <img
             src="/unsplash_images/photo-1524661135-423995f22d0b__w=1200&h=600&fit=crop.jpg"
-            alt="Map discovery"
+            alt={labels.imageAlt}
             className="absolute inset-0 h-full w-full object-cover"
             loading="lazy"
           />
@@ -321,10 +514,8 @@ function ExploreNearbySection({
               <Map size={20} className="text-white" />
             </div>
             <div className="text-left">
-              <h3 className="text-lg font-bold text-white">{section.title || 'Explore Nearby'}</h3>
-              <p className="text-sm text-white/90">
-                {subtitle || `${nearbyProviderCount.toLocaleString()} providers ${scope}`}
-              </p>
+              <h3 className="text-lg font-bold text-white">{section.title || labels.title}</h3>
+              <p className="text-sm text-white/90">{subtitle}</p>
             </div>
           </div>
         </div>
@@ -333,7 +524,7 @@ function ExploreNearbySection({
   );
 }
 
-function PremiumPackagesSection({ section }: { section: HomeManagedSection }) {
+function PremiumPackagesSection({ section, labels }: { section: HomeManagedSection; labels: HomePageLabels['premiumPackages'] }) {
   const mediaUrl = resolveHomeMediaUrl(section.imageUrl);
 
   return (
@@ -343,7 +534,7 @@ function PremiumPackagesSection({ section }: { section: HomeManagedSection }) {
           <ImageWithFallback
             fill
             src={mediaUrl}
-            alt={section.title || 'Premium packages'}
+            alt={section.title || labels.imageAlt}
             sizes="100vw"
             className="object-cover"
           />
@@ -360,22 +551,22 @@ function PremiumPackagesSection({ section }: { section: HomeManagedSection }) {
               <Sparkles size={24} className="text-[#eacb7f]" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white">{section.title || 'Premium Packages'}</h3>
-              {section.subtitle ? <p className="text-sm text-white/80">{section.subtitle}</p> : null}
+              <h3 className="text-lg font-bold text-white">{section.title || labels.title}</h3>
+              <p className="text-sm text-white/80">{section.subtitle || labels.subtitle}</p>
             </div>
           </div>
 
           <HomeLexicalDescription
             content={section.description}
             className="mb-4 max-w-[85%] text-sm leading-relaxed text-white/90 [&_p]:text-white/90"
-            fallback="Bundle services with accommodation, transfers, and aftercare when packages are available for your destination."
+            fallback={labels.description}
           />
 
           <Link
             href={section.buttonHref || '/n/app/mobile/packages'}
             className="inline-flex rounded-xl bg-[#eacb7f] px-6 py-3 text-sm font-bold text-[#083f30] shadow-lg transition-all hover:bg-[#e0b654]"
           >
-            {section.buttonLabel || 'View Packages'}
+            {section.buttonLabel || labels.button}
           </Link>
         </div>
       </div>
@@ -383,20 +574,33 @@ function PremiumPackagesSection({ section }: { section: HomeManagedSection }) {
   );
 }
 
-function LoyaltyClubSection({ section, locale }: { section: HomeManagedSection; locale: string }) {
+function LoyaltyClubSection({
+  section,
+  locale,
+  labels,
+}: {
+  section: HomeManagedSection;
+  locale: string;
+  labels: HomePageLabels['loyaltyClub'];
+}) {
   const mediaUrl = resolveHomeMediaUrl(section.imageUrl);
   const rawBenefits = (section.metadata as { benefits?: unknown }).benefits;
   const benefits = Array.isArray(rawBenefits) ? rawBenefits.slice(0, 3) : [];
+  const fallbackBenefits = [
+    { label: labels.cashback, value: '5%' },
+    { label: labels.rewards, icon: 'Award' },
+    { label: labels.vipAccess, icon: 'Star' },
+  ];
 
   return (
     <section className="px-5 pb-28">
       <div className="relative overflow-hidden rounded-2xl shadow-lg">
         {mediaUrl ? (
-          <ImageWithFallback fill src={mediaUrl} alt={section.title || 'Loyalty club'} sizes="100vw" className="object-cover" />
+          <ImageWithFallback fill src={mediaUrl} alt={section.title || labels.imageAlt} sizes="100vw" className="object-cover" />
         ) : (
           <img
             src="/unsplash_images/photo-1545205597-3d9d02c29597__w=1200&h=400&fit=crop.jpg"
-            alt="Loyalty club"
+            alt={labels.imageAlt}
             className="absolute inset-0 h-full w-full object-cover"
             loading="lazy"
           />
@@ -409,16 +613,16 @@ function LoyaltyClubSection({ section, locale }: { section: HomeManagedSection; 
               <Gift size={28} className="text-[#083f30]" />
             </div>
             <div className="flex-1">
-              <h3 className="mb-2 text-xl font-bold text-[#083f30]">{section.title || 'Join Loyalty Club'}</h3>
+              <h3 className="mb-2 text-xl font-bold text-[#083f30]">{section.title || labels.title}</h3>
               <HomeLexicalDescription
                 content={section.description}
                 className="mb-4 text-sm leading-relaxed text-[#083f30]/80 [&_p]:text-[#083f30]/80"
-                fallback="Earn points on every booking, unlock rewards, and get priority access to new services."
+                fallback={labels.description}
               />
               <div className="mb-4 flex items-center gap-3">
-                {(benefits.length ? benefits : [{ label: 'Cashback', value: '5%' }, { label: 'Rewards', icon: 'Award' }, { label: 'VIP Access', icon: 'Star' }]).map((item, index) => {
+                {(benefits.length ? benefits : fallbackBenefits).map((item, index) => {
                   const benefit = item as Record<string, unknown>;
-                  const label = metadataText(benefit.label, locale) || `Benefit ${index + 1}`;
+                  const label = metadataText(benefit.label, locale) || formatLabel(labels.benefit, { index: index + 1 });
                   const value = typeof benefit.value === 'string' ? benefit.value : '';
                   const icon = String(benefit.icon || '');
 
@@ -436,7 +640,7 @@ function LoyaltyClubSection({ section, locale }: { section: HomeManagedSection; 
                 href={section.buttonHref || '/n/app/mobile/profile/rewards'}
                 className="inline-flex rounded-xl bg-[#083f30] px-6 py-3 text-sm font-bold text-white shadow-lg transition-all hover:bg-[#0a5a44] active:scale-95"
               >
-                {section.buttonLabel || "Join Now - It's Free"}
+                {section.buttonLabel || labels.button}
               </Link>
             </div>
           </div>
