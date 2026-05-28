@@ -41,7 +41,7 @@ export default function MediaPickerDemo() {
             label="Thumbnail"
             placeholder="Pick image"
             mediaType="image"
-            helperText="Stores one media id in a hidden input."
+            helperText="Stores the selected media URL in a hidden input."
             modalTitle="Pick thumbnail"
           />
 

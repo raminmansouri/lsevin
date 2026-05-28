@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, ChevronDown, Loader2, Search, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 export type LazySelectOption = {
@@ -33,12 +34,14 @@ export default function LazySearchableSelect({
   disabled = false,
   placeholder,
   searchPlaceholder,
-  emptyText = "No results found.",
+  emptyText,
   pageSize = 20,
   onChange,
   loadOptions,
   loadByValue,
 }: LazySearchableSelectProps) {
+  const t = useTranslations("LazySelect");
+  const resolvedEmptyText = emptyText ?? t("emptyText");
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -208,7 +211,7 @@ export default function LazySearchableSelect({
 
             <div className="max-h-72 overflow-auto p-2">
               {items.length === 0 && !loading ? (
-                <div className="px-3 py-8 text-center text-sm text-gray-500">{emptyText}</div>
+                <div className="px-3 py-8 text-center text-sm text-gray-500">{resolvedEmptyText}</div>
               ) : (
                 <div className="space-y-1">
                   {items.map((item) => {
@@ -247,7 +250,7 @@ export default function LazySearchableSelect({
                       disabled={loading}
                       className="mt-2 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-60"
                     >
-                      {loading ? "Loading..." : "Load more"}
+                      {loading ? t("loading") : t("loadMore")}
                     </button>
                   ) : null}
                 </div>

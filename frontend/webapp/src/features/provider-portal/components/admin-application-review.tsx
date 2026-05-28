@@ -7,7 +7,7 @@ import { useTransition } from "react";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
-import { approveProviderApplicationAction, rejectProviderApplicationAction } from "@/features/provider-portal/actions";
+// import { approveProviderApplicationAction, rejectProviderApplicationAction } from "@/features/provider-portal/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -53,7 +53,7 @@ export function AdminApplicationReview({ application }: { application: any }) {
               const formData = new FormData(event.currentTarget);
               const reviewNote = String(formData.get("reviewNote") || "");
               startTransition(async () => {
-                const response = await approveProviderApplicationAction({ applicationId: application.id, reviewNote });
+                const response = undefined //await approveProviderApplicationAction({ applicationId: application.id, reviewNote });
                 if (!response.ok) {
                   toast.error(response.error || "Application could not be approved.");
                   return;
@@ -83,7 +83,7 @@ export function AdminApplicationReview({ application }: { application: any }) {
                   const reason = prompt("Rejection reason");
                   if (!reason) return;
                   startTransition(async () => {
-                    const response = await rejectProviderApplicationAction({ applicationId: application.id, reviewReason: reason });
+                    const response = undefined// await rejectProviderApplicationAction({ applicationId: application.id, reviewReason: reason });
                     if (!response.ok) {
                       toast.error(response.error || "Application could not be rejected.");
                       return;

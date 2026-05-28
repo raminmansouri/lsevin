@@ -1,8 +1,16 @@
 import { StaffRelatedManager } from "@/features/provider-portal/components/staff-related-manager";
-import { getProviderWorkspace, listProviderStaff, listProviderStaffRelatedRecords } from "@/features/provider-portal/server/repository";
+import {
+  getProviderWorkspace,
+  listProviderStaff,
+  listProviderStaffRelatedRecords,
+} from "@/features/provider-portal/server/repository";
 import { requireCurrentUserId } from "@/features/provider-portal/server/session";
 
-export default async function ProviderStaffRelatedPage({ params }: { params: Promise<{ locale: string; providerId: string; staffId?: string }> }) {
+export default async function ProviderStaffRelatedPage({
+  params,
+}: {
+  params: Promise<{ locale: string; providerId: string; staffId?: string }>;
+}) {
   const { locale, providerId, staffId } = await params;
   const userId = await requireCurrentUserId();
 
@@ -14,5 +22,13 @@ export default async function ProviderStaffRelatedPage({ params }: { params: Pro
 
   if (!workspace.permissions.manageStaff) return null;
 
-  return <StaffRelatedManager providerId={workspace.provider.id} staff={staff} related={related} staffId={staffId} focus="certifications" />;
+  return (
+    <StaffRelatedManager
+      providerId={workspace.provider.id}
+      staff={staff}
+      related={related}
+      staffId={staffId}
+      focus="certifications"
+    />
+  );
 }

@@ -9,9 +9,10 @@ import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { env } from "@/config/env/client";
 
 function mediaSrc(fileUrl: string) {
-  if (!fileUrl) return "";
-  if (/^https?:\/\//i.test(fileUrl) || fileUrl.startsWith("/")) return fileUrl;
-  return `${env.NEXT_PUBLIC_FILES_URL}/${fileUrl}`;
+  const src = String(fileUrl || "").trim();
+  if (!src) return "";
+  if (/^(https?:)?\/\//i.test(src) || src.startsWith("/") || src.startsWith("blob:") || src.startsWith("data:")) return src;
+  return `${String(env.NEXT_PUBLIC_FILES_URL || "").replace(/\/+$/, "")}/${src.replace(/^\/+/, "")}`;
 }
 
 function MediaIcon({ item }: { item: MediaItem }) {

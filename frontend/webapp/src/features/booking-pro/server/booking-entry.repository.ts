@@ -53,7 +53,7 @@ function asUuid(value: Id) {
 }
 
 function localeToDb(locale?: string | null) {
-  const raw = String(locale || "en-US").trim().replace("_", "-");
+  const raw = String(locale || "fa-IR").trim().replace("_", "-");
   const map: Record<string, string> = {
     en: "en-US",
     fa: "fa-IR",
@@ -64,7 +64,7 @@ function localeToDb(locale?: string | null) {
     es: "es-ES",
     ku: "ku-KU",
   };
-  return map[raw.toLowerCase()] || raw;
+  return map[raw.toLowerCase()] || raw || "fa-IR";
 }
 
 export async function resolveBookingEntry(input: {
@@ -74,68 +74,49 @@ export async function resolveBookingEntry(input: {
   specialistId?: Id;
 }): Promise<BookingEntryResolution> {
   const locale = localeToDb(input.locale);
-  let providerId = asUuid(input.providerId);
-  let serviceId = asUuid(input.serviceId);
-  let specialistId = asUuid(input.specialistId);
+  const explicitProviderId = asUuid(input.providerId);
+  const explicitServiceId = asUuid(input.serviceId);
+  const explicitSpecialistId = asUuid(input.specialistId);
 
-  if (serviceId && !providerId) {
-    const [service] = await sql<{ providerId: string }[]>`
-      select service_provider_id::text as "providerId"
+  let providerId = explicitProviderId;
+  const serviceId = explicitServiceId;
+  const specialistId = explicitSpecialistId;
+  let serviceDefinitionId: string | null = null;
+
+  if (serviceId) {
+    const [service] = await sql<{ providerId: string; serviceDefinitionId: string }[]>`
+      select service_provider_id::text as "providerId",
+             service_definition_id::text as "serviceDefinitionId"
       from category.provider_services
       where id = ${serviceId}::uuid
-      limit 1
-    `;
-    providerId = service?.providerId || null;
-  }
-
-  if (specialistId && !providerId) {
-    const [membership] = await sql<{ providerId: string }[]>`
-      select service_provider_id::text as "providerId"
-      from category.provider_staffs
-      where staff_id = ${specialistId}::uuid
         and is_active = true
-      order by create_date desc
       limit 1
     `;
-    providerId = membership?.providerId || null;
+    providerId = providerId || service?.providerId || null;
+    serviceDefinitionId = service?.serviceDefinitionId || null;
   }
-
-  if (providerId && specialistId && !serviceId) {
-    const [service] = await sql<{ id: string }[]>`
-      select ps.id::text as id
-      from category.provider_services ps
-      join category.staff_services ss on ss.service_definition_id = ps.service_definition_id
-      where ps.service_provider_id = ${providerId}::uuid
-        and ss.staff_id = ${specialistId}::uuid
-        and ps.is_active = true
-        and ss.is_active = true
-      order by ps.is_popular desc nulls last, ps.rating desc nulls last, ps.create_date desc
-      limit 1
-    `;
-    serviceId = service?.id || null;
-  }
-
-  const serviceDefinitionId = serviceId
-    ? (await sql<{ serviceDefinitionId: string }[]>`
-        select service_definition_id::text as "serviceDefinitionId"
-        from category.provider_services
-        where id = ${serviceId}::uuid
-        limit 1
-      `)[0]?.serviceDefinitionId || null
-    : null;
 
   const providerRows = await sql<BookingEntryProvider[]>`
     select distinct
       sp.id::text as id,
-      common.get_translation_t(sp.name_translations, ${locale}, 'en-US') as name,
-      sp.image_url as image,
+      common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') as name,
+      coalesce(
+        nullif(sp.image_url, ''),
+        (
+          select nullif(pgi.url, '')
+          from category.provider_gallery_items pgi
+          where pgi.service_provider_id = sp.id
+          order by pgi.display_order asc, pgi.create_date desc
+          limit 1
+        )
+      ) as image,
       sp.city,
       sp.country,
       coalesce(sp.rating, 0)::float8 as rating,
       coalesce(sp.review_count, 0)::int as "reviewCount"
     from category.service_providers sp
     left join category.provider_services ps on ps.service_provider_id = sp.id
-    left join category.provider_staffs pst on pst.service_provider_id = sp.id
+    left join category.provider_staffs pst on pst.service_provider_id = sp.id and pst.is_active = true
     where sp.is_active = true
       and (${providerId}::uuid is null or sp.id = ${providerId}::uuid)
       and (${serviceDefinitionId}::uuid is null or ps.service_definition_id = ${serviceDefinitionId}::uuid)
@@ -149,9 +130,27 @@ export async function resolveBookingEntry(input: {
       ps.id::text as id,
       ps.service_provider_id::text as "providerId",
       ps.service_definition_id::text as "serviceDefinitionId",
-      common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US') as name,
-      common.get_translation_t(ps.description_translations, ${locale}, 'en-US') as description,
-      ps.image_url as image,
+      coalesce(
+        nullif(common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR'), ''),
+        nullif(common.get_translation_t(sd.name_translations, ${locale}, 'fa-IR'), ''),
+        ''
+      ) as name,
+      coalesce(
+        nullif(common.get_translation_t(ps.description_translations, ${locale}, 'fa-IR'), ''),
+        nullif(common.get_translation_t(sd.description_translations, ${locale}, 'fa-IR'), ''),
+        ''
+      ) as description,
+      coalesce(
+        nullif(ps.image_url, ''),
+        nullif(sd.image_url, ''),
+        (
+          select nullif(psgi.url, '')
+          from category.provider_service_gallery_items psgi
+          where psgi.provider_service_id = ps.id
+          order by psgi.is_primary desc, psgi.display_order asc, psgi.create_date desc
+          limit 1
+        )
+      ) as image,
       coalesce(nullif(ps.duration_minutes, 0), nullif(sd.duration_minutes, 0), 30)::int as "durationMinutes",
       coalesce(nullif(ps.slot_interval_minutes, 0), 15)::int as "slotIntervalMinutes",
       coalesce(ps.value, sd.value, 0)::float8 as price,
@@ -170,9 +169,18 @@ export async function resolveBookingEntry(input: {
   const specialistRows = await sql<BookingEntrySpecialist[]>`
     select distinct
       s.id::text as id,
-      common.get_translation_t(s.name_translations, ${locale}, 'en-US') as name,
-      common.get_translation_t(s.title_translations, ${locale}, 'en-US') as title,
-      s.profile_image_url as image,
+      common.get_translation_t(s.name_translations, ${locale}, 'fa-IR') as name,
+      common.get_translation_t(s.title_translations, ${locale}, 'fa-IR') as title,
+      coalesce(
+        nullif(s.profile_image_url, ''),
+        (
+          select nullif(sgi.url, '')
+          from category.staff_gallery_items sgi
+          where sgi.staff_id = s.id
+          order by sgi.is_primary desc, sgi.display_order asc, sgi.create_date desc
+          limit 1
+        )
+      ) as image,
       coalesce(s.rating, 0)::float8 as rating,
       coalesce(s.review_count, 0)::int as "reviewCount"
     from category.staff s
@@ -187,9 +195,9 @@ export async function resolveBookingEntry(input: {
   `;
 
   return {
-    selectedProviderId: providerId || providerRows[0]?.id || null,
-    selectedServiceId: serviceId || serviceRows[0]?.id || null,
-    selectedSpecialistId: specialistId || specialistRows[0]?.id || null,
+    selectedProviderId: providerId,
+    selectedServiceId: serviceId,
+    selectedSpecialistId: specialistId,
     providers: providerRows,
     services: serviceRows,
     specialists: specialistRows,

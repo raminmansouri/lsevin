@@ -2,13 +2,13 @@
 import { useState } from 'react';
 import { useNavigate } from '@/hooks/use-navigate';
 import { ChevronLeft, Camera, User, Calendar, Globe, MapPin, DollarSign } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useLocalization } from '../../contexts/LocalizationContext';
 import { Input, Button } from '../../design-system/components';
 
 export default function CompleteProfile() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const t = useTranslations('MobileProfile.completeProfile');
   const { isRTL, supportedLanguages } = useLocalization();
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [firstName, setFirstName] = useState('');
@@ -46,10 +46,10 @@ export default function CompleteProfile() {
         </button>
         
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {t('profile.completeProfile')}
+          {t('title')}
         </h1>
         <p className="text-gray-500 text-lg">
-          {t('profile.completeProfileSubtitle')}
+          {t('subtitle')}
         </p>
       </div>
       
@@ -62,7 +62,7 @@ export default function CompleteProfile() {
             className="relative w-24 h-24 rounded-full bg-gray-100 border-2 border-gray-200 overflow-hidden group"
           >
             {profilePhoto ? (
-              <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+              <img src={profilePhoto} alt={t('profileAlt')} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-gray-400">
                 <User size={32} />
@@ -73,23 +73,23 @@ export default function CompleteProfile() {
             </div>
           </button>
           <button onClick={handlePhotoUpload} className="mt-3 text-sm font-medium text-[#083f30] hover:underline">
-            {t('profile.uploadPhoto')}
+            {t('uploadPhoto')}
           </button>
         </div>
         
         {/* Name */}
         <div className="grid grid-cols-2 gap-4">
           <Input
-            label="First Name"
+            label={t('firstNameLabel')}
             type="text"
-            placeholder="First name"
+            placeholder={t('firstNamePlaceholder')}
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
           />
           <Input
-            label="Last Name"
+            label={t('lastNameLabel')}
             type="text"
-            placeholder="Last name"
+            placeholder={t('lastNamePlaceholder')}
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
           />
@@ -97,12 +97,12 @@ export default function CompleteProfile() {
         
         {/* Gender */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">{t('profile.gender')}</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">{t('gender')}</label>
           <div className="grid grid-cols-3 gap-3">
             {[
-              { value: 'male', label: t('profile.male') },
-              { value: 'female', label: t('profile.female') },
-              { value: 'other', label: t('profile.other') }
+              { value: 'male', label: t('male') },
+              { value: 'female', label: t('female') },
+              { value: 'other', label: t('other') }
             ].map((option) => (
               <button
                 key={option.value}
@@ -123,7 +123,7 @@ export default function CompleteProfile() {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             <Calendar size={16} className="inline mr-2" />
-            {t('profile.dateOfBirth')}
+            {t('dateOfBirth')}
           </label>
           <input
             type="date"
@@ -137,7 +137,7 @@ export default function CompleteProfile() {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             <Globe size={16} className="inline mr-2" />
-            {t('profile.preferredLanguage')}
+            {t('preferredLanguage')}
           </label>
           <select
             value={language}
@@ -157,24 +157,24 @@ export default function CompleteProfile() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               <MapPin size={16} className="inline mr-2" />
-              {t('profile.country')}
+              {t('country')}
             </label>
             <select
               value={country}
               onChange={(e) => setCountry(e.target.value)}
               className="w-full h-12 px-4 bg-white border-2 border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent"
             >
-              <option value="">{t('profile.selectCountry')}</option>
-              <option value="ae">🇦🇪 UAE</option>
-              <option value="sa">🇸🇦 Saudi Arabia</option>
-              <option value="tr">🇹🇷 Turkey</option>
-              <option value="ir">🇮🇷 Iran</option>
+              <option value="">{t('selectCountry')}</option>
+              <option value="ae">🇦🇪 {t('countries.uae')}</option>
+              <option value="sa">🇸🇦 {t('countries.saudiArabia')}</option>
+              <option value="tr">🇹🇷 {t('countries.turkey')}</option>
+              <option value="ir">🇮🇷 {t('countries.iran')}</option>
             </select>
           </div>
           <Input
-            label={t('profile.city')}
+            label={t('city')}
             type="text"
-            placeholder={t('profile.enterCity')}
+            placeholder={t('enterCity')}
             value={city}
             onChange={(e) => setCity(e.target.value)}
           />
@@ -190,13 +190,13 @@ export default function CompleteProfile() {
           onClick={handleContinue}
           isLoading={isLoading}
         >
-          {t('common.continue')}
+          {t('continue')}
         </Button>
         <button 
           onClick={() => navigate('/location-permission')}
           className="w-full text-gray-600 hover:text-gray-900 font-medium"
         >
-          {t('profile.skipForNow')}
+          {t('skipForNow')}
         </button>
       </div>
     </div>

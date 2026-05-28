@@ -7,7 +7,7 @@ import { LocaleTypes } from "@/types/common";
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from "@/types/filter";
 import { getSearchHistory } from "@/features/service-providers/api/server/get-search-history";
 import { getSearchResults } from "@/features/service-providers/api/server/get-search-results";
-import { getGetFavorites } from "@/features/service-providers/api/server/get-GetFavorites";
+import { getFavorites } from "@/features/customer/api/server/get-favorites";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -27,7 +27,7 @@ const responseTime:any= searchParams.get("responseTime");
   const session = await getSession();
   const token = session?.user?.accessToken;
 
-  const { data, error } = await getGetFavorites(
+  const { data, error } = await getFavorites(
     { locale: localeHeader, token },
     {
       filters: search || "",

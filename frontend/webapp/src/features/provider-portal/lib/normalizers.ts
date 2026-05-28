@@ -6,7 +6,12 @@ export function emptyTranslations(): TranslationMap {
   return Object.fromEntries(PORTAL_LOCALES.map((locale) => [locale, ""]));
 }
 
-export function translationFromFlat(en?: string | null, fa?: string | null, ar?: string | null, tr?: string | null): TranslationMap {
+export function translationFromFlat(
+  en?: string | null,
+  fa?: string | null,
+  ar?: string | null,
+  tr?: string | null,
+): TranslationMap {
   const primary = (en || fa || ar || tr || "").trim();
 
   return {
@@ -17,25 +22,37 @@ export function translationFromFlat(en?: string | null, fa?: string | null, ar?:
   };
 }
 
-export function displayTranslation(value?: TranslationMap | null, locale = "en-US", fallback = "-") {
+export function displayTranslation(
+  value?: TranslationMap | null,
+  locale = "en-US",
+  fallback = "-",
+) {
   if (!value || typeof value !== "object") return fallback;
 
   const exact = value[locale]?.trim();
   if (exact) return exact;
 
   const normalizedLocale = locale.toLowerCase().replace("_", "-");
-  const sameLocaleKey = Object.keys(value).find((key) => key.toLowerCase().replace("_", "-") === normalizedLocale);
-  if (sameLocaleKey && value[sameLocaleKey]?.trim()) return value[sameLocaleKey].trim();
+  const sameLocaleKey = Object.keys(value).find(
+    (key) => key.toLowerCase().replace("_", "-") === normalizedLocale,
+  );
+  if (sameLocaleKey && value[sameLocaleKey]?.trim())
+    return value[sameLocaleKey].trim();
 
   const base = normalizedLocale.split("-")[0];
-  const sameBaseKey = Object.keys(value).find((key) => key.toLowerCase().replace("_", "-").split("-")[0] === base);
-  if (sameBaseKey && value[sameBaseKey]?.trim()) return value[sameBaseKey].trim();
+  const sameBaseKey = Object.keys(value).find(
+    (key) => key.toLowerCase().replace("_", "-").split("-")[0] === base,
+  );
+  if (sameBaseKey && value[sameBaseKey]?.trim())
+    return value[sameBaseKey].trim();
 
   return (
     value["en-US"]?.trim() ||
     value["en"]?.trim() ||
     value["fa-IR"]?.trim() ||
-    Object.values(value).find((item) => typeof item === "string" && item.trim())?.trim() ||
+    Object.values(value)
+      .find((item) => typeof item === "string" && item.trim())
+      ?.trim() ||
     fallback
   );
 }

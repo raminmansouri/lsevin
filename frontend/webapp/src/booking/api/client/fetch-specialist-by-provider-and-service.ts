@@ -19,9 +19,10 @@ import { PaginatedResult } from "@/types/network";
 import { GetBookingSpecialistByProviderAndServiceResponse } from "@/features/service-providers/types";
 
 export const getSpecialistByProviderAndServiceClient = async (
-     providerId,
-    serviceId,
-    specialistId,
+  providerId,
+  serviceId,
+  specialistId,
+  search: string,
   locale: Locale
 ) => {
   const searchParams = new URLSearchParams();
@@ -34,6 +35,9 @@ export const getSpecialistByProviderAndServiceClient = async (
   if (specialistId) {
     searchParams.set("specialistId", specialistId);
   }
+  if (search) {
+    searchParams.set("Search", search);
+  }
 
   searchParams.set("Locale", locale);
 
@@ -43,8 +47,13 @@ export const getSpecialistByProviderAndServiceClient = async (
 };
 
 const tag = "booking-getBookingSpecialistByProviderAndServiceResponse";
-const queryServicesBySearchKey = (search: string, locale: Locale) =>
-  [tag, search, locale] as const;
+const queryServicesBySearchKey = (
+  providerId: string | null | undefined,
+  serviceId: string | null | undefined,
+  specialistId: string | null | undefined,
+  search: string,
+  locale: Locale
+) => [tag, providerId || "", serviceId || "", specialistId || "", search || "", locale] as const;
 
 export const useGetSpecialistByProviderAndService = (
     providerId,
@@ -52,15 +61,16 @@ export const useGetSpecialistByProviderAndService = (
     specialistId,
   search: string, locale: Locale) => {
   const options = queryOptions<GetBookingSpecialistByProviderAndServiceResponse, IProblem>({
-    queryKey: queryServicesBySearchKey(search, locale),
+    queryKey: queryServicesBySearchKey(providerId, serviceId, specialistId, search, locale),
     queryFn: ({ pageParam }) =>
       getSpecialistByProviderAndServiceClient(
-            providerId,
-    serviceId,
-    specialistId, locale),
-    enabled: ()=>    providerId ||
-    serviceId ||
-    specialistId,
+        providerId,
+        serviceId,
+        specialistId,
+        search,
+        locale
+      ),
+    enabled: Boolean(providerId || serviceId || specialistId),
     staleTime: 1000 * 60 * 5, // 5 minutes
     gcTime: 1000 * 60 * 60, // 1 hour
   });

@@ -1,7 +1,16 @@
 import { displayTranslation, joinCsv } from "./normalizers";
-import type { ProviderAddonOption, ProviderPolicyTypeOption, ProviderServiceRow, ServiceDefinitionOption, StaffRow } from "../types";
+import type {
+  ProviderAddonOption,
+  ProviderPolicyTypeOption,
+  ProviderServiceRow,
+  ServiceDefinitionOption,
+  StaffRow,
+} from "../types";
 
-export function tr(value: Record<string, string> | null | undefined, locale = "en-US") {
+export function tr(
+  value: Record<string, string> | null | undefined,
+  locale = "en-US",
+) {
   return displayTranslation(value || {}, locale, "");
 }
 
@@ -27,7 +36,9 @@ export function toTimeInput(value: string | null | undefined) {
   return clean.slice(0, 5);
 }
 
-export function serviceDefinitionOptions(definitions: ServiceDefinitionOption[]) {
+export function serviceDefinitionOptions(
+  definitions: ServiceDefinitionOption[],
+) {
   return definitions.map((item) => ({ value: item.id, label: item.label }));
 }
 
@@ -40,11 +51,17 @@ export function staffOptions(staff: StaffRow[]) {
 }
 
 export function policyTypeOptions(policyTypes: ProviderPolicyTypeOption[]) {
-  return policyTypes.map((item) => ({ value: item.id, label: item.label || item.code }));
+  return policyTypes.map((item) => ({
+    value: item.id,
+    label: item.label || item.code,
+  }));
 }
 
 export function addonOptions(addons: ProviderAddonOption[]) {
-  return addons.map((item) => ({ value: item.id, label: `${item.name} (${item.currencyCode} ${item.price})` }));
+  return addons.map((item) => ({
+    value: item.id,
+    label: `${item.name} (${item.currencyCode} ${item.price})`,
+  }));
 }
 
 export function providerPortalBack(providerId: string, suffix: string) {

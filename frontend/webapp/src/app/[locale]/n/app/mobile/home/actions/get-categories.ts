@@ -11,6 +11,7 @@ export default async function getCategories() {
     select
       c.id::text as id,
       c.image_url as image,
+      nullif(c.gradient, '') as gradient,
       common.get_translation_t(c.name_translations, ${locale}, 'en-US') as label
     from category.categories c
     where c.is_active = true

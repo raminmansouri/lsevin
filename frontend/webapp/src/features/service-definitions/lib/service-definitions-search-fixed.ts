@@ -12,6 +12,8 @@ type ServiceDefinitionRow = {
   description: string;
   category_id: string;
   category_name: string;
+  media_url: string | null;
+  media_type: string | null;
   duration_minutes: number;
   pricing_model: string;
   is_active: boolean;
@@ -94,6 +96,8 @@ export async function getServiceDefinitionsFixed(params: ServiceDefinitionListPa
         sd.name_translations,
         sd.description_translations,
         sd.category_id,
+        sd.image_url,
+        sd.media_type,
         sd.duration_minutes,
         sd.pricing_model,
         sd.is_active,
@@ -168,6 +172,8 @@ export async function getServiceDefinitionsFixed(params: ServiceDefinitionListPa
       description,
       category_id::text,
       category_name,
+      nullif(btrim(coalesce(image_url, '')), '') as media_url,
+      case when media_type in ('image', 'video', 'gif') then media_type else 'image' end as media_type,
       duration_minutes,
       pricing_model,
       is_active,
@@ -194,6 +200,8 @@ export async function getServiceDefinitionsFixed(params: ServiceDefinitionListPa
       description: row.description,
       categoryId: row.category_id,
       categoryName: row.category_name,
+      mediaUrl: row.media_url ?? null,
+      mediaType: row.media_type === "video" || row.media_type === "gif" ? row.media_type : "image",
       durationMinutes: Number(row.duration_minutes ?? 0),
       pricingModel: row.pricing_model,
       isActive: row.is_active,

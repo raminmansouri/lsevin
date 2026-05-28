@@ -140,7 +140,7 @@ export function formatBookingDate(
   }
 
   const calendar = normalizeBookingCalendar(options?.calendar, options?.locale);
-  const locale = calendar === "jalali" ? "fa-IR-u-ca-persian" : options?.locale || "en-US";
+  const locale = calendar === "jalali" ? "fa-IR-u-ca-persian" : options?.locale || "fa-IR";
   const date = new Date(`${safeIso}T12:00:00Z`);
 
   return new Intl.DateTimeFormat(locale, {
@@ -167,7 +167,7 @@ export function formatBookingDateTime(
 
   const normalizedTime = String(time || "00:00").slice(0, 5);
   const calendar = normalizeBookingCalendar(options?.calendar, options?.locale);
-  const locale = calendar === "jalali" ? "fa-IR-u-ca-persian" : options?.locale || "en-US";
+  const locale = calendar === "jalali" ? "fa-IR-u-ca-persian" : options?.locale || "fa-IR";
   const date = new Date(`${safeIso}T${normalizedTime}:00Z`);
 
   return new Intl.DateTimeFormat(locale, {

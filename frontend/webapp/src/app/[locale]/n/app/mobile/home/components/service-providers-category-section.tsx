@@ -3,6 +3,7 @@ import { Link } from '@/i18n/navigation';
 import type { HomeCategory } from '@/features/home/api/server/get-home-page';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { Grid2X2 } from 'lucide-react';
+import { getCategoryOverlayClassName, getCategoryOverlayStyle } from '@/features/categories/utils/category-overlay';
 
 export type HomeCategoryLabels = {
   emptyTitle: string;
@@ -63,6 +64,8 @@ function ServiceProviderCategoryCard({
   labels: HomeCategoryLabels;
 }) {
   const mediaUrl = resolveHomeMediaUrl(category.imageUrl);
+  const overlayClassName = getCategoryOverlayClassName(category.gradient);
+  const overlayStyle = getCategoryOverlayStyle(category.gradient);
 
   return (
     <Link
@@ -81,7 +84,17 @@ function ServiceProviderCategoryCard({
         <div className="absolute inset-0 bg-gradient-to-br from-[#083f30] to-[#0f6b56]" />
       )}
 
-      <div className={`absolute inset-0 bg-gradient-to-t ${category.gradient || 'from-[#083f30]/90 to-[#083f30]/40'}`} />
+      <div
+        className={[
+          "pointer-events-none absolute inset-0",
+          overlayClassName ? `bg-gradient-to-t ${overlayClassName}` : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+        style={overlayStyle}
+        data-category-gradient={category.gradient || undefined}
+        data-category-overlay={overlayStyle?.background ? "inline-style" : overlayClassName || "default"}
+      />
 
       <div className="relative z-10 flex h-full flex-col justify-end p-4">
         <h3 className="line-clamp-2 text-lg font-bold leading-tight text-white lg:text-base xl:text-lg">{category.label}</h3>

@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import {
   ArrowLeft,
   Plus,
@@ -58,14 +59,14 @@ function currencySymbol(currency: string) {
   }
 }
 
-function formatAmount(amount: number) {
-  return Math.abs(amount).toLocaleString("en-US", {
+function formatAmount(amount: number, locale: string) {
+  return Math.abs(amount).toLocaleString(locale, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
 }
 
-function formatDate(dateString: string) {
+function formatDate(dateString: string, locale: string, t: ReturnType<typeof useTranslations>) {
   const date = new Date(dateString);
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -74,20 +75,20 @@ function formatDate(dateString: string) {
   const candidate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
   if (candidate.getTime() === today.getTime()) {
-    return `Today, ${date.toLocaleTimeString("en-US", {
+    return t("todayAt", { time: date.toLocaleTimeString(locale, {
       hour: "2-digit",
       minute: "2-digit",
-    })}`;
+    }) });
   }
 
   if (candidate.getTime() === yesterday.getTime()) {
-    return `Yesterday, ${date.toLocaleTimeString("en-US", {
+    return t("yesterdayAt", { time: date.toLocaleTimeString(locale, {
       hour: "2-digit",
       minute: "2-digit",
-    })}`;
+    }) });
   }
 
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString(locale, {
     month: "short",
     day: "numeric",
     hour: "2-digit",
@@ -95,12 +96,12 @@ function formatDate(dateString: string) {
   });
 }
 
-function TransactionStatus({ status }: { status: WalletTransactionRow["status"] }) {
+function TransactionStatus({ status, t }: { status: WalletTransactionRow["status"]; t: ReturnType<typeof useTranslations> }) {
   if (status === "completed") {
     return (
       <div className="flex items-center gap-1 text-xs text-green-600">
         <CheckCircle2 size={12} />
-        <span>Completed</span>
+        <span>{t("statuses.completed")}</span>
       </div>
     );
   }
@@ -109,7 +110,7 @@ function TransactionStatus({ status }: { status: WalletTransactionRow["status"] 
     return (
       <div className="flex items-center gap-1 text-xs text-amber-600">
         <Clock size={12} />
-        <span>{status === "pending" ? "Pending" : "Processing"}</span>
+        <span>{status === "pending" ? t("statuses.pending") : t("statuses.processing")}</span>
       </div>
     );
   }
@@ -117,7 +118,7 @@ function TransactionStatus({ status }: { status: WalletTransactionRow["status"] 
   return (
     <div className="flex items-center gap-1 text-xs text-red-600">
       <AlertCircle size={12} />
-      <span>{status === "failed" ? "Failed" : "Cancelled"}</span>
+      <span>{status === "failed" ? t("statuses.failed") : t("statuses.cancelled")}</span>
     </div>
   );
 }
@@ -127,6 +128,8 @@ export default function WalletPageClient({
 }: WalletPageClientProps) {
   const navigate = useNavigate();
   const router = useRouter();
+  const locale = useLocale();
+  const t = useTranslations("MobileProfile.wallet");
 
   const [showBalance, setShowBalance] = useState(true);
   const [selectedCurrency, setSelectedCurrency] = useState(
@@ -201,14 +204,14 @@ export default function WalletPageClient({
             >
               <ArrowLeft size={20} className="text-gray-900" />
             </button>
-            <h1 className="text-lg font-bold text-gray-900">Wallet</h1>
+            <h1 className="text-lg font-bold text-gray-900">{t("title")}</h1>
           </div>
 
           <button
             onClick={() => navigate("/n/app/mobile/profile/my-wallet/history")}
             className="h-10 px-4 text-sm font-semibold text-[#083f30] hover:underline"
           >
-            View All
+            {t("viewAll")}
           </button>
         </div>
       </div>
@@ -217,13 +220,13 @@ export default function WalletPageClient({
         <div className="bg-gradient-to-br from-[#083f30] to-[#0a5a44] rounded-3xl p-6 shadow-xl">
           <div className="flex items-start justify-between mb-6">
             <div>
-              <p className="text-white/80 text-sm mb-2">Total Balance</p>
+              <p className="text-white/80 text-sm mb-2">{t("totalBalance")}</p>
               <div className="flex items-baseline gap-3">
                 {showBalance ? (
                   <>
                     <span className="text-4xl font-bold text-white">
                       {currencySymbol(selectedCurrency)}
-                      {(balances[selectedCurrency] ?? 0).toLocaleString("en-US", {
+                      {(balances[selectedCurrency] ?? 0).toLocaleString(locale, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
@@ -272,7 +275,7 @@ export default function WalletPageClient({
               <div className="w-10 h-10 bg-[#083f30] rounded-full flex items-center justify-center">
                 <Plus size={20} className="text-white" />
               </div>
-              <span className="text-[#083f30] font-bold">Top Up Wallet</span>
+              <span className="text-[#083f30] font-bold">{t("topUpWallet")}</span>
             </button>
           </div>
         </div>
@@ -285,12 +288,12 @@ export default function WalletPageClient({
             className="flex-1 h-12 bg-white border-2 border-gray-200 rounded-xl font-semibold text-gray-900 hover:border-[#083f30] transition-all flex items-center justify-center gap-2"
           >
             <Tag size={18} />
-            Apply Coupon
+            {t("applyCoupon")}
           </button>
         </div>
 
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-900">Recent Transactions</h2>
+          <h2 className="text-lg font-bold text-gray-900">{t("recentTransactions")}</h2>
           <button
             onClick={() =>
               setFilterMode((current) =>
@@ -301,10 +304,10 @@ export default function WalletPageClient({
           >
             <Filter size={16} className="inline-block mr-1" />
             {filterMode === "all"
-              ? "Filter"
+              ? t("filters.filter")
               : filterMode === "credit"
-              ? "Credits"
-              : "Debits"}
+              ? t("filters.credits")
+              : t("filters.debits")}
           </button>
         </div>
 
@@ -341,11 +344,11 @@ export default function WalletPageClient({
                     {transaction.title}
                   </div>
                   <div className="text-sm text-gray-600 mb-1 line-clamp-1">
-                    {transaction.subtitle ?? "LSevin Wallet"}
+                    {transaction.subtitle ?? t("lsevinWallet")}
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-500">
                     <Clock size={12} />
-                    <span>{formatDate(transaction.occurredAt)}</span>
+                    <span>{formatDate(transaction.occurredAt, locale, t)}</span>
                   </div>
                 </div>
 
@@ -359,9 +362,9 @@ export default function WalletPageClient({
                   >
                     {transaction.direction === "credit" ? "+" : ""}
                     {currencySymbol(transaction.currencyCode)}
-                    {formatAmount(transaction.amount)}
+                    {formatAmount(transaction.amount, locale)}
                   </div>
-                  <TransactionStatus status={transaction.status} />
+                  <TransactionStatus status={transaction.status} t={t} />
                 </div>
               </div>
             </button>
@@ -373,15 +376,15 @@ export default function WalletPageClient({
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Clock size={28} className="text-gray-400" />
             </div>
-            <h3 className="font-bold text-gray-900 mb-2">No Transactions Yet</h3>
+            <h3 className="font-bold text-gray-900 mb-2">{t("noTransactionsYet")}</h3>
             <p className="text-sm text-gray-600 mb-6">
-              Start using your wallet to see transactions here
+              {t("emptyDescription")}
             </p>
             <button
               onClick={() => setShowTopUpModal(true)}
               className="px-6 py-3 bg-[#083f30] text-white rounded-xl font-semibold hover:bg-[#0a5a44] transition-colors"
             >
-              Top Up Wallet
+              {t("topUpWallet")}
             </button>
           </div>
         )}
@@ -392,7 +395,7 @@ export default function WalletPageClient({
           <div className="bg-white rounded-t-3xl w-full max-w-lg animate-slide-up">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Top Up Wallet</h2>
+                <h2 className="text-xl font-bold text-gray-900">{t("topUpWallet")}</h2>
                 <button
                   onClick={() => {
                     setShowTopUpModal(false);
@@ -410,7 +413,7 @@ export default function WalletPageClient({
             <div className="p-6 max-h-[70vh] overflow-y-auto">
               <div className="mb-6">
                 <label className="block text-sm font-semibold text-gray-900 mb-3">
-                  Select Amount
+                  {t("selectAmount")}
                 </label>
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   {quickAmounts.map((amount) => (
@@ -424,7 +427,7 @@ export default function WalletPageClient({
                       }`}
                     >
                       {currencySymbol(selectedCurrency)}
-                      {amount.toLocaleString()}
+                      {amount.toLocaleString(locale)}
                     </button>
                   ))}
                 </div>
@@ -442,7 +445,7 @@ export default function WalletPageClient({
                       const parsed = Number(e.target.value);
                       setTopUpAmount(Number.isFinite(parsed) && parsed > 0 ? parsed : null);
                     }}
-                    placeholder="Enter custom amount"
+                    placeholder={t("enterCustomAmount")}
                     className="w-full h-14 pl-14 pr-4 border-2 border-gray-200 rounded-xl font-semibold focus:border-[#083f30] focus:outline-none transition-colors"
                   />
                 </div>
@@ -450,21 +453,21 @@ export default function WalletPageClient({
 
               <div className="mb-6">
                 <label className="block text-sm font-semibold text-gray-900 mb-3">
-                  Payment Method
+                  {t("paymentMethod")}
                 </label>
                 <div className="space-y-2">
                   {[
                     {
                       id: "card",
-                      name: "Online Card Payment",
+                      name: t("paymentMethods.onlineCard"),
                       icon: <CreditCard size={24} />,
-                      details: onlineCardGateways.length ? "Charges the equivalent Iranian Rial/Toman amount" : "No enabled card gateway",
+                      details: onlineCardGateways.length ? t("paymentMethods.cardDetails") : t("paymentMethods.noGateway"),
                     },
                     {
                       id: "bank",
-                      name: "Bank Transfer",
+                      name: t("paymentMethods.bankTransfer"),
                       icon: <Building2 size={24} />,
-                      details: "Direct bank transfer",
+                      details: t("paymentMethods.bankDetails"),
                     },
                   ].map((method) => (
                     <button
@@ -502,10 +505,10 @@ export default function WalletPageClient({
 
                 {topUpMethod === "card" ? (
                   <div className="mt-4 space-y-2 rounded-2xl border border-gray-200 bg-gray-50 p-3">
-                    <div className="text-xs font-bold uppercase tracking-wide text-gray-500">Gateway</div>
+                    <div className="text-xs font-bold uppercase tracking-wide text-gray-500">{t("gateway")}</div>
                     {onlineCardGateways.length === 0 ? (
                       <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-                        No online card gateway is enabled. Enable Zarinpal from Admin → Payment Gateways.
+                        {t("noOnlineGateway")}
                       </div>
                     ) : null}
                     {onlineCardGateways.map((gateway) => (
@@ -522,7 +525,7 @@ export default function WalletPageClient({
                         <div className="flex items-center justify-between gap-3">
                           <div>
                             <div className="font-semibold text-gray-900">{gateway.displayName}</div>
-                            <div className="text-xs text-gray-600">Charges equivalent {gateway.currency}; wallet credits {selectedCurrency}</div>
+                            <div className="text-xs text-gray-600">{t("gatewayCurrencyNote", { currency: gateway.currency, selectedCurrency })}</div>
                           </div>
                           <div
                             className={`h-5 w-5 rounded-full border-2 ${
@@ -558,12 +561,12 @@ export default function WalletPageClient({
                 {isSubmitting ? (
                   <>
                     <Loader2 size={18} className="animate-spin" />
-                    Processing...
+                    {t("processing")}
                   </>
                 ) : (
                   <>
-                    Top Up {currencySymbol(selectedCurrency)}
-                    {topUpAmount?.toLocaleString() ?? "0"}
+                    {t("topUpAmount", { amount: `${currencySymbol(selectedCurrency)}${topUpAmount?.toLocaleString(locale) ?? "0"}` })}
+                    
                   </>
                 )}
               </button>

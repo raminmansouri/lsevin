@@ -16,7 +16,7 @@ import { BaseRequest } from "@/types/common";
 import { FilterParams } from "@/types/filter";
 import { ApiReturnType, PaginatedResult } from "@/types/network";
 import { getFavoritesTag } from "../../db/cache";
-import { FavoritesResponse } from "../../types";
+// import { FavoritesResponse } from "../../types";
 
 
 export interface FavoritesFilterParams extends FilterParams{
@@ -31,11 +31,11 @@ export interface FavoritesFilterParams extends FilterParams{
 export const getFavorites = async (
   request: BaseRequest,
   params?: FavoritesFilterParams
-): Promise<ApiReturnType<FavoritesResponse>> => {
+): Promise<ApiReturnType<any>> => {
   "use cache: remote";
   console.log('server Favorites called:')
 
-  cacheTag(getFavoritesTag());
+  cacheTag(getFavoritesTag(request?.userId));
   cacheLife("default");
 
   const searchParams = new URLSearchParams();
@@ -45,7 +45,7 @@ export const getFavorites = async (
   }
   
 
-  const response = await readData<FavoritesResponse>(
+  const response = await readData<any>(
     `${CUSTOMER_MODULE_BASE_PATH}/customer/Favorites?${searchParams.toString()}`,
     {
       ...request,

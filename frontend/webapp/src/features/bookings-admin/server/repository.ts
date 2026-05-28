@@ -2,7 +2,7 @@ import "server-only";
 import { db } from "@/features/booking-admin-shared/server/db";
 import type { BookingDetail, BookingListItem } from "../types";
 
-export async function getBookings(locale = "en-US"): Promise<BookingListItem[]> {
+export async function getBookings(locale = "fa-IR"): Promise<BookingListItem[]> {
   return db<BookingListItem[]>`
     select
       b.id,
@@ -13,9 +13,9 @@ export async function getBookings(locale = "en-US"): Promise<BookingListItem[]> 
       b.selected_time::text as "selectedTime",
       b.total_amount::text as "totalAmount",
       b.currency_code as "currencyCode",
-      common.get_translation_t(sp.name_translations, ${locale}, 'en-US') as "providerName",
-      common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US') as "serviceName",
-      common.get_translation_t(st.name_translations, ${locale}, 'en-US') as "specialistName",
+      common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') as "providerName",
+      common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR') as "serviceName",
+      common.get_translation_t(st.name_translations, ${locale}, 'fa-IR') as "specialistName",
       trim(concat(coalesce(u.first_name, ''), ' ', coalesce(u.last_name, ''))) as "customerName",
       u.email as "customerEmail",
       b.create_date as "createDate"
@@ -29,7 +29,7 @@ export async function getBookings(locale = "en-US"): Promise<BookingListItem[]> 
   `;
 }
 
-export async function getBookingById(bookingId: string, locale = "en-US"): Promise<BookingDetail | null> {
+export async function getBookingById(bookingId: string, locale = "fa-IR"): Promise<BookingDetail | null> {
   const rows = await db<any[]>`
     select
       b.id,
@@ -58,9 +58,9 @@ export async function getBookingById(bookingId: string, locale = "en-US"): Promi
       b.infants,
       b.rooms,
       b.metadata,
-      common.get_translation_t(sp.name_translations, ${locale}, 'en-US') as "providerName",
-      common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US') as "serviceName",
-      common.get_translation_t(st.name_translations, ${locale}, 'en-US') as "specialistName",
+      common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') as "providerName",
+      common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR') as "serviceName",
+      common.get_translation_t(st.name_translations, ${locale}, 'fa-IR') as "specialistName",
       trim(concat(coalesce(u.first_name, ''), ' ', coalesce(u.last_name, ''))) as "customerName",
       u.email as "customerEmail",
       b.create_date as "createDate",
@@ -129,9 +129,9 @@ export async function getBookingById(bookingId: string, locale = "en-US"): Promi
           'currency', cb.currency,
           'status', cb.status,
           'metadata', cb.metadata,
-          'providerName', common.get_translation_t(sp2.name_translations, ${locale}, 'en-US'),
-          'serviceName', common.get_translation_t(ps2.display_name_translations, ${locale}, 'en-US'),
-          'specialistName', common.get_translation_t(st2.name_translations, ${locale}, 'en-US'),
+          'providerName', common.get_translation_t(sp2.name_translations, ${locale}, 'fa-IR'),
+          'serviceName', common.get_translation_t(ps2.display_name_translations, ${locale}, 'fa-IR'),
+          'specialistName', common.get_translation_t(st2.name_translations, ${locale}, 'fa-IR'),
           'adminNote', coalesce(cb.metadata->>'adminNote', ''),
           'reviewedAt', cb.metadata->>'reviewedAt'
         ) order by cb.create_date asc)

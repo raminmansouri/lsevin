@@ -26,7 +26,7 @@ async function getCurrentUserId(): Promise<string> {
 }
 
 export async function setProfileImageAction(input: {
-  mediaId: string;
+  mediaId?: string | null;
   imageUrl: string;
 }): Promise<ProfileImageActionResult> {
   try {
@@ -71,12 +71,14 @@ export async function setProfileImageAction(input: {
 
     revalidatePath("/profile");
     revalidatePath("/profile/edit");
+    revalidatePath("/n/app/mobile/profile");
+    revalidatePath("/n/app/mobile/profile/EditProfile");
 
     return {
       ok: true,
       message: "Profile photo updated.",
       imageUrl: input.imageUrl,
-      mediaId: input.mediaId,
+      mediaId: input.mediaId ?? null,
     };
   } catch {
     return {
@@ -124,7 +126,6 @@ export async function removeProfileImageAction(): Promise<ProfileImageActionResu
     await sql`
       UPDATE identity.asp_net_users
       SET
-        profile_image_media_id = NULL,
         profile_image_url = NULL,
         profile_image_updated_at = NOW()
       WHERE id = ${userId}
@@ -132,6 +133,8 @@ export async function removeProfileImageAction(): Promise<ProfileImageActionResu
 
     revalidatePath("/profile");
     revalidatePath("/profile/edit");
+    revalidatePath("/n/app/mobile/profile");
+    revalidatePath("/n/app/mobile/profile/EditProfile");
 
     return {
       ok: true,

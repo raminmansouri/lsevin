@@ -15,6 +15,7 @@ import { useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useBooking } from "../../hooks/use-booking";
 import { useFetchUploadFiles } from "@/features/booking/api/client/fetch-upload-files";
+import { RichTextPreview } from "@/features/booking/components/rich-text-preview";
 
 interface DocumentFromServer {
   id: string;
@@ -393,18 +394,18 @@ export default function UploadFiles({
                         )}
                       </div>
 
-                      {doc.description ? (
-                        <p className="mt-1 text-sm text-gray-500">
-                          {doc.description}
-                        </p>
-                      ) : (
-                        <p className="mt-1 text-sm text-gray-500">
-                          {t(
-                            "defaultDescription",
-                            "Please upload the requested document."
-                          )}
-                        </p>
-                      )}
+                      <RichTextPreview
+                        content={doc.description}
+                        className="mt-1 text-sm text-gray-500"
+                        fallback={
+                          <p className="mt-1 text-sm text-gray-500">
+                            {t(
+                              "defaultDescription",
+                              "Please upload the requested document."
+                            )}
+                          </p>
+                        }
+                      />
 
                       {isMissing && (
                         <p className="mt-2 text-sm text-red-600">

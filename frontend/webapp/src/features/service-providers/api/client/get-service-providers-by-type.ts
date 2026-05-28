@@ -22,12 +22,13 @@ export const getServiceProvidersByTypeClient = async (
   locale: Locale,
   countryCode?: string,
   cityCode?: string,
-  attributeFilters?: AttributeFilterValue[]
+  attributeFilters?: AttributeFilterValue[],
+  options?: { pageSize?: number; forMap?: boolean }
 ) => {
   const searchParams = new URLSearchParams({
     ProviderTypeId: providerTypeId,
     PageNumber: (page || DEFAULT_PAGE_NUMBER).toString(),
-    PageSize: DEFAULT_PAGE_SIZE.toString(),
+    PageSize: String(options?.pageSize || DEFAULT_PAGE_SIZE),
     Locale: locale,
   });
 
@@ -37,6 +38,7 @@ export const getServiceProvidersByTypeClient = async (
   if (attributeFilters && attributeFilters.length > 0) {
     searchParams.set("AttributeFilters", JSON.stringify(attributeFilters));
   }
+  if (options?.forMap) searchParams.set("ForMap", "true");
 
   return await readData<PaginatedResult<IServiceProvider>>(
     `/service-providers/by-type?${searchParams.toString()}`

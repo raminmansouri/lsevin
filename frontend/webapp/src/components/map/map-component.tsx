@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import Map, {
   MapMouseEvent,
   MapRef,
@@ -65,6 +66,7 @@ function MapboxMapComponent({
   zoom = 13,
   height = "400px",
 }: Omit<MapComponentProps, "provider">) {
+  const t = useTranslations("MapShared");
   const mapRef = useRef<MapRef>(null);
   const initialCoords = coordinates || DEFAULT_COORDINATES;
 
@@ -112,7 +114,7 @@ function MapboxMapComponent({
       <MissingMapConfiguration
         className={className}
         height={height}
-        message="Mapbox configuration missing. Set NEXT_PUBLIC_MAPBOX_TOKEN or switch NEXT_PUBLIC_MAP_PROVIDER to neshan."
+        message={t("mapboxConfigurationMissing")}
       />
     );
   }
@@ -149,12 +151,23 @@ function MapboxMapComponent({
 
 function createNeshanPinElement() {
   const element = document.createElement("div");
-  element.className = "-translate-x-1/2 -translate-y-full transform";
+  element.className = "lsevin-neshan-picker-marker";
+
+  // Keep the SDK-controlled marker root clean. Tailwind transform/position
+  // utilities on this element can override Neshan/MapboxGL marker placement.
+  element.style.position = "absolute";
+  element.style.top = "0";
+  element.style.left = "0";
+  element.style.width = "32px";
+  element.style.height = "32px";
+
   element.innerHTML = `
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="rgba(8, 63, 48, 0.2)" stroke="#083f30" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"></path>
-      <circle cx="12" cy="10" r="3"></circle>
-    </svg>
+    <div class="-translate-x-1/2 -translate-y-full transform">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="rgba(8, 63, 48, 0.2)" stroke="#083f30" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"></path>
+        <circle cx="12" cy="10" r="3"></circle>
+      </svg>
+    </div>
   `;
   return element;
 }
@@ -167,6 +180,7 @@ function NeshanMapComponent({
   zoom = 13,
   height = "400px",
 }: Omit<MapComponentProps, "provider">) {
+  const t = useTranslations("MapShared");
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
@@ -198,7 +212,7 @@ function NeshanMapComponent({
       maxZoom: 21,
       trackResize: true,
       mapKey: NESHAN_MAP_KEY,
-      poi: true,
+      poi: false,
       traffic: false,
       isTouchPlatform: true,
       mapTypeControllerOptions: {
@@ -207,6 +221,11 @@ function NeshanMapComponent({
       },
     });
 
+    const resizeMap = () => map.resize?.();
+    map.once?.("load", resizeMap);
+    requestAnimationFrame(resizeMap);
+    window.setTimeout(resizeMap, 250);
+
     const marker = new neshan.Marker({
       element: createNeshanPinElement(),
       draggable: interactive,
@@ -214,6 +233,8 @@ function NeshanMapComponent({
     })
       .setLngLat([markerCoords.longitude, markerCoords.latitude])
       .addTo(map);
+
+    marker.getElement?.().style?.setProperty("position", "absolute", "important");
 
     if (interactive && onCoordinatesChange) {
       map.on("click", (event: any) => {
@@ -266,7 +287,7 @@ function NeshanMapComponent({
       <MissingMapConfiguration
         className={className}
         height={height}
-        message="Neshan configuration missing. Set NEXT_PUBLIC_NESHAN_MAP_KEY."
+        message={t("neshanConfigurationMissing")}
       />
     );
   }
@@ -276,7 +297,7 @@ function NeshanMapComponent({
       <MissingMapConfiguration
         className={className}
         height={height}
-        message={error}
+        message={t("neshanMapLoadError")}
       />
     );
   }

@@ -16,7 +16,6 @@ export interface ProviderCardItem {
   responseTime?: string | null;
   successRate?: string | null;
   totalPatients?: string | null;
-  languages?: string[] | null;
 }
 
 export interface ServiceCardItem {

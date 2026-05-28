@@ -1,4 +1,10 @@
-export type ProviderPortalRole = "owner" | "admin" | "manager" | "editor" | "viewer" | "staff";
+export type ProviderPortalRole =
+  | "owner"
+  | "admin"
+  | "manager"
+  | "editor"
+  | "viewer"
+  | "staff";
 
 export type ActionResult<T = unknown> = {
   ok: boolean;

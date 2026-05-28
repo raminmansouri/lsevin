@@ -11,6 +11,7 @@ export interface CategoryListItem {
   parentId?: string;
   parentName?: string;
   imageUrl?: string;
+  gradient?: string;
 }
 
 // Detail Response Type (all translations)
@@ -21,6 +22,7 @@ export interface CategoryDetails {
   parentId?: string;
   parentName?: string;
   imageUrl?: string;
+  gradient?: string;
   displayOrder: number;
   isActive: boolean;
   iconUrl?: string;
@@ -37,6 +39,7 @@ export interface CategoryInput {
   displayOrder?: number;
   isActive?: boolean;
   iconUrl?: string;
+  gradient?: string;
 }
 
 // Maintain backward compatibility

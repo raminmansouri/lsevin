@@ -6,8 +6,6 @@ import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { z } from 'zod';
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -15,10 +13,11 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { useRouter } from '@/i18n/navigation';
 
-import { CurrencyFormSchema, upsertCurrencyAction } from '../../actions/admin-currency-actions';
+import { upsertCurrencyAction } from '../../actions/admin-currency-actions';
+import { CurrencyFormSchema, type CurrencyFormInput } from '../../schemas/admin-currency-schemas';
 import type { Currency } from '../../types';
 
-type FormInput = z.infer<typeof CurrencyFormSchema>;
+type FormInput = CurrencyFormInput;
 
 export function CurrencyForm({ currency }: { currency?: Currency }) {
   const tAdmin = useTranslations("AdminGenerated");

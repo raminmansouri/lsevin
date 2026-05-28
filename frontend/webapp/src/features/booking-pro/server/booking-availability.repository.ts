@@ -51,7 +51,7 @@ function addDays(base: Date, days: number) {
 }
 
 function normalizeLocale(locale?: string | null) {
-  const raw = String(locale || "en-US").trim().replace("_", "-");
+  const raw = String(locale || "fa-IR").trim().replace("_", "-");
   const map: Record<string, string> = {
     en: "en-US",
     fa: "fa-IR",
@@ -62,7 +62,7 @@ function normalizeLocale(locale?: string | null) {
     es: "es-ES",
     ku: "ku-KU",
   };
-  return map[raw.toLowerCase()] || raw;
+  return map[raw.toLowerCase()] || raw || "fa-IR";
 }
 
 function formatTimeLabel(time: string, locale: string) {
@@ -190,6 +190,8 @@ export async function getBookingAvailableDatesFromDb(input: {
           (r.target_type = 'provider' and r.target_id = ctx.provider_id)
           or (r.target_type = 'provider_service' and r.target_id = ctx.service_id)
           or (r.target_type = 'service_definition' and r.target_id = ctx.service_definition_id)
+          or (r.target_type = 'staff' and r.target_id = ctx.specialist_id)
+          or (r.target_type = 'provider_staff' and r.target_id = ctx.provider_staff_id)
           or (r.target_type = 'bookable_resource' and exists (
             select 1 from provider_portal.bookable_resources br
             where br.id = r.target_id and br.provider_service_id = ctx.service_id and br.is_active = true
@@ -293,15 +295,23 @@ export async function getBookingAvailableDatesFromDb(input: {
             )
           )
           or (
-            srp.has_generic_staff_rules = false and exists (
-              select 1
-              from category.staff_availabilities sa
-              left join category.staff_availability_statuses sas on sas.id = sa.availability_status_id
-              where sa.staff_id = s.specialist_id
-                and ((sa.specific_date is not null and sa.specific_date::date = s.selected_date) or (sa.is_recurring = true and sa.day_of_week = extract(isodow from s.selected_date)::int))
-                and sa.start_time <= (s.slot_start::time - time '00:00')
-                and sa.end_time >= (s.slot_end::time - time '00:00')
-                and coalesce(lower(sas.name), 'available') not in ('unavailable', 'busy', 'blocked', 'inactive', 'disabled')
+            srp.has_generic_staff_rules = false and (
+              not exists (
+                select 1
+                from category.staff_availabilities sa_any
+                where sa_any.staff_id = s.specialist_id
+                  and ((sa_any.specific_date is not null and sa_any.specific_date::date = s.selected_date) or (sa_any.is_recurring = true and sa_any.day_of_week = extract(isodow from s.selected_date)::int))
+              )
+              or exists (
+                select 1
+                from category.staff_availabilities sa
+                left join category.staff_availability_statuses sas on sas.id = sa.availability_status_id
+                where sa.staff_id = s.specialist_id
+                  and ((sa.specific_date is not null and sa.specific_date::date = s.selected_date) or (sa.is_recurring = true and sa.day_of_week = extract(isodow from s.selected_date)::int))
+                  and sa.start_time <= (s.slot_start::time - time '00:00')
+                  and sa.end_time >= (s.slot_end::time - time '00:00')
+                  and coalesce(lower(sas.name), 'available') not in ('unavailable', 'busy', 'blocked', 'inactive', 'disabled')
+              )
             )
           )
         )
@@ -376,6 +386,8 @@ export async function getBookingAvailableTimeSlotsFromDb(input: {
           (r.target_type = 'provider' and r.target_id = ctx.provider_id)
           or (r.target_type = 'provider_service' and r.target_id = ctx.service_id)
           or (r.target_type = 'service_definition' and r.target_id = ctx.service_definition_id)
+          or (r.target_type = 'staff' and r.target_id = ctx.specialist_id)
+          or (r.target_type = 'provider_staff' and r.target_id = ctx.provider_staff_id)
           or (r.target_type = 'bookable_resource' and exists (
             select 1 from provider_portal.bookable_resources br
             where br.id = r.target_id and br.provider_service_id = ctx.service_id and br.is_active = true
@@ -486,15 +498,23 @@ export async function getBookingAvailableTimeSlotsFromDb(input: {
             )
           )
           or (
-            (select has_generic_staff_rules from staff_rule_presence) = false and exists (
-              select 1
-              from category.staff_availabilities sa
-              left join category.staff_availability_statuses sas on sas.id = sa.availability_status_id
-              where sa.staff_id = s.specialist_id
-                and ((sa.specific_date is not null and sa.specific_date::date = s.selected_date) or (sa.is_recurring = true and sa.day_of_week = extract(isodow from s.selected_date)::int))
-                and sa.start_time <= (s.slot_start::time - time '00:00')
-                and sa.end_time >= (s.slot_end::time - time '00:00')
-                and coalesce(lower(sas.name), 'available') not in ('unavailable', 'busy', 'blocked', 'inactive', 'disabled')
+            (select has_generic_staff_rules from staff_rule_presence) = false and (
+              not exists (
+                select 1
+                from category.staff_availabilities sa_any
+                where sa_any.staff_id = s.specialist_id
+                  and ((sa_any.specific_date is not null and sa_any.specific_date::date = s.selected_date) or (sa_any.is_recurring = true and sa_any.day_of_week = extract(isodow from s.selected_date)::int))
+              )
+              or exists (
+                select 1
+                from category.staff_availabilities sa
+                left join category.staff_availability_statuses sas on sas.id = sa.availability_status_id
+                where sa.staff_id = s.specialist_id
+                  and ((sa.specific_date is not null and sa.specific_date::date = s.selected_date) or (sa.is_recurring = true and sa.day_of_week = extract(isodow from s.selected_date)::int))
+                  and sa.start_time <= (s.slot_start::time - time '00:00')
+                  and sa.end_time >= (s.slot_end::time - time '00:00')
+                  and coalesce(lower(sas.name), 'available') not in ('unavailable', 'busy', 'blocked', 'inactive', 'disabled')
+              )
             )
           )
         ) as staff_available
@@ -698,7 +718,7 @@ export async function assertDraftAvailabilityBeforeCheckout(draftId: string) {
       serviceId: item.serviceId,
       specialistId: item.specialistId,
       selectedDate: item.selectedDate,
-      locale: "en-US",
+      locale: "fa-IR",
     });
     const selected = slots.timeSlots.find((slot) => slot.time === String(item.selectedTimeFrom).slice(0, 5) && slot.endTime === String(item.selectedTimeTo).slice(0, 5));
     if (!selected?.available) {

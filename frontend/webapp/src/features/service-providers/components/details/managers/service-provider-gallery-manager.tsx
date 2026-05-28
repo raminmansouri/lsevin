@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Edit, Image as ImageIcon, Plus, Trash2 } from "lucide-react";
+import { Edit, Film, Image as ImageIcon, Plus, Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -21,7 +21,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { env } from "@/config/env/client";
 import { localeToHeader } from "@/config/locales";
 import { useServiceProvidersByTypeCacheManagement } from "@/features/service-providers/api/client/get-service-providers-by-type";
 import { LocalizedInput } from "@/features/shared/components/LocalizedInput";
@@ -39,6 +38,7 @@ import { removeGalleryItem } from "../../../actions/remove-gallery-item";
 import { updateProviderGalleryItem } from "../../../actions/update-provider-gallery-item";
 import { ServiceProviderGalleryItem } from "../../../types";
 import { TRANSLATION_KEY } from "../../../types/constants";
+import { isVideoMedia, resolveMediaUrl } from "../../../lib/media-url";
 
 interface ServiceProviderGalleryManagerProps {
   serviceProviderId: string;
@@ -129,10 +129,11 @@ export default function ServiceProviderGalleryManager({
 
   const dropZoneConfig = {
     maxFiles: 1,
-    maxSize: 10 * 1024 * 1024, // 10MB
+    maxSize: 200 * 1024 * 1024, // 200MB for provider videos
     multiple: false,
     accept: {
-      "image/*": [], // Accept all image types
+      "image/*": [],
+      "video/*": [],
     },
   };
 
@@ -249,6 +250,38 @@ export default function ServiceProviderGalleryManager({
     (a, b) => a.displayOrder - b.displayOrder
   );
 
+  const renderMediaPreview = (item: ServiceProviderGalleryItem) => {
+    const src = resolveMediaUrl(item.url);
+    const isVideo = isVideoMedia(item.mediaType, item.url);
+
+    if (isVideo) {
+      return (
+        <>
+          <video
+            src={src}
+            className="h-full w-full object-cover"
+            muted
+            playsInline
+            preload="metadata"
+          />
+          <span className="absolute left-2 top-2 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white">
+            Video
+          </span>
+        </>
+      );
+    }
+
+    return (
+      <Image
+        src={src}
+        alt={getLocalizedValue(item.title, localeHeader)}
+        fill
+        className="object-cover"
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+      />
+    );
+  };
+
   return (
     <div className="space-y-6 pt-4">
       <div className="flex items-center justify-between">
@@ -286,15 +319,9 @@ export default function ServiceProviderGalleryManager({
                 {editingId === item.id ? (
                   // Edit Mode
                   <CardContent className="space-y-4 p-4">
-                    {/* Current Image Preview */}
+                    {/* Current media preview */}
                     <div className="relative aspect-video overflow-hidden rounded-md">
-                      <Image
-                        src={`${env.NEXT_PUBLIC_FILES_URL}/${item.url}`}
-                        alt={getLocalizedValue(item.title, localeHeader)}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
+                      {renderMediaPreview(item)}
                     </div>
 
                     {/* Optional new image upload */}
@@ -310,7 +337,7 @@ export default function ServiceProviderGalleryManager({
                       >
                         <FileInput className="outline-1 outline-slate-500 outline-dashed">
                           <div className="flex w-full flex-col items-center justify-center p-4">
-                            <ImageIcon className="mb-2 h-6 w-6 text-gray-500" />
+                            <Film className="mb-2 h-6 w-6 text-gray-500" />
                             <p className="text-xs text-gray-500 dark:text-gray-400">
                               {t("gallery.form.newFilePlaceholder")}
                             </p>
@@ -321,7 +348,11 @@ export default function ServiceProviderGalleryManager({
                             editFiles.length > 0 &&
                             editFiles.map((file, i) => (
                               <FileUploaderItem key={i} index={i}>
-                                <ImageIcon className="h-4 w-4 text-current" />
+                                {file.type.startsWith("video/") ? (
+                                  <Film className="h-4 w-4 text-current" />
+                                ) : (
+                                  <ImageIcon className="h-4 w-4 text-current" />
+                                )}
                                 <span className="text-xs">{file.name}</span>
                               </FileUploaderItem>
                             ))}
@@ -393,13 +424,7 @@ export default function ServiceProviderGalleryManager({
                   // Display Mode
                   <>
                     <div className="relative aspect-video">
-                      <Image
-                        src={`${env.NEXT_PUBLIC_FILES_URL}/${item.url}`}
-                        alt={getLocalizedValue(item.title, localeHeader)}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
+                      {renderMediaPreview(item)}
                       <div className="absolute top-2 right-2 flex gap-2">
                         <Button
                           variant="secondary"
@@ -462,7 +487,7 @@ export default function ServiceProviderGalleryManager({
               >
                 <FileInput className="outline-1 outline-slate-500 outline-dashed">
                   <div className="flex w-full flex-col items-center justify-center p-8">
-                    <ImageIcon className="mb-2 h-8 w-8 text-gray-500" />
+                    <Film className="mb-2 h-8 w-8 text-gray-500" />
                     <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">
                       <span className="font-semibold">
                         {t("gallery.form.filePlaceholder")}
@@ -478,7 +503,11 @@ export default function ServiceProviderGalleryManager({
                     files.length > 0 &&
                     files.map((file, i) => (
                       <FileUploaderItem key={i} index={i}>
-                        <ImageIcon className="h-4 w-4 text-current" />
+                        {file.type.startsWith("video/") ? (
+                          <Film className="h-4 w-4 text-current" />
+                        ) : (
+                          <ImageIcon className="h-4 w-4 text-current" />
+                        )}
                         <span>{file.name}</span>
                       </FileUploaderItem>
                     ))}

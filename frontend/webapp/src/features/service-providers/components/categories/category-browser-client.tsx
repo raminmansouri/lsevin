@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties } from "react";
+import { useMemo, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -12,6 +12,7 @@ import { hasLexicalContent, LexicalRenderer } from "@/components/editor/lexical-
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { env } from "@/config/env/client";
 import { Link, useRouter } from "@/i18n/navigation";
+import { getCategoryOverlayClassName, getCategoryOverlayStyle } from "@/features/categories/utils/category-overlay";
 import type {
   CategoryBrowserCategory,
   CategoryBrowserGroup,
@@ -42,7 +43,6 @@ const ALLOWED_GRADIENTS = [
 ] as const;
 
 const FALLBACK_GRADIENTS = ALLOWED_GRADIENTS.slice(0, 8);
-const ALLOWED_GRADIENT_SET = new Set<string>(ALLOWED_GRADIENTS);
 const ROOT_PARENT_KEY = "__root__";
 
 function parentKey(parentId?: string | null) {
@@ -63,19 +63,14 @@ function getCategoryHref(category: CategoryBrowserCategory) {
 }
 
 function getGradientClass(category: CategoryBrowserCategory, index: number) {
-  if (category.gradient && ALLOWED_GRADIENT_SET.has(category.gradient)) {
-    return category.gradient;
-  }
-
-  return FALLBACK_GRADIENTS[index % FALLBACK_GRADIENTS.length];
+  return getCategoryOverlayClassName(
+    category.gradient,
+    FALLBACK_GRADIENTS[index % FALLBACK_GRADIENTS.length]
+  );
 }
 
 function getGradientStyle(category: CategoryBrowserCategory) {
-  if (!category.gradient || category.gradient.includes("from-")) return undefined;
-
-  return {
-    background: category.gradient,
-  } as CSSProperties;
+  return getCategoryOverlayStyle(category.gradient);
 }
 
 function sortCategories(categories: CategoryBrowserCategory[]) {
@@ -159,8 +154,15 @@ function CategoryCardContent({
     <>
       <CategoryMedia category={category} />
       <div
-        className={`absolute inset-0 bg-gradient-to-t ${gradientClass}`}
+        className={[
+          "pointer-events-none absolute inset-0",
+          gradientClass ? `bg-gradient-to-t ${gradientClass}` : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
         style={gradientStyle}
+        data-category-gradient={category.gradient || undefined}
+        data-category-overlay={gradientStyle?.background ? "inline-style" : gradientClass || "default"}
       />
 
       <div className="relative z-10 flex h-full flex-col justify-end p-4 text-left">
@@ -462,7 +464,7 @@ export function CategoryBrowserClient({
               Can&apos;t find what you&apos;re looking for?
             </h3>
             <p className="mb-4 text-sm leading-6 text-white/90">
-              Use smart search to find treatments, providers, packages, and nearby services.
+              Use smart search to find services, providers, packages, and nearby specialists.
             </p>
             <Link
               href="/n/app/mobile/search"

@@ -36,17 +36,6 @@ function normalizeMediaPickerValue(value: unknown): string {
 
   const item = value as Record<string, unknown>;
   const directKeys = [
-    "id",
-    "mediaId",
-    "media_id",
-    "fileId",
-    "file_id",
-    "assetId",
-    "asset_id",
-    "storedName",
-    "stored_name",
-    "storageKey",
-    "storage_key",
     "fileUrl",
     "file_url",
     "publicUrl",
@@ -62,7 +51,18 @@ function normalizeMediaPickerValue(value: unknown): string {
     "href",
     "path",
     "value",
+    "storedName",
+    "stored_name",
+    "storageKey",
+    "storage_key",
     "key",
+    "id",
+    "mediaId",
+    "media_id",
+    "fileId",
+    "file_id",
+    "assetId",
+    "asset_id",
   ];
 
   for (const key of directKeys) {

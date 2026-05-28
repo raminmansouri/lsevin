@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { useMemo, useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Edit, Plus, UserX } from "lucide-react";
@@ -8,17 +9,27 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { deleteStaffLinkAction, saveStaffAction } from "@/features/provider-portal/actions";
+import {
+  deleteStaffLinkAction,
+  saveStaffAction,
+} from "@/features/provider-portal/actions";
 import { saveStaffSchema } from "@/features/provider-portal/schemas";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "@/i18n/navigation";
 
 import { LocalizedRichPreview } from "./localized-rich-preview";
 import { PortalImage } from "./portal-image";
+import { tCommon, tLabel, tMessage, tStatus } from "../lib/i18n";
 import { displayTranslation } from "../lib/normalizers";
 import type { ProviderWorkspace, StaffRow } from "../types";
 
@@ -35,52 +46,106 @@ export function StaffManager({
   initialStaffId?: string;
   formOnly?: boolean;
 }) {
-  const initialEditing = initialStaffId ? staff.find((item) => item.id === initialStaffId || item.providerStaffId === initialStaffId) ?? null : null;
+  const t = useTranslations("ProviderPortal");
+  const initialEditing = initialStaffId
+    ? (staff.find(
+        (item) =>
+          item.id === initialStaffId || item.providerStaffId === initialStaffId,
+      ) ?? null)
+    : null;
   const [editing, setEditing] = useState<StaffRow | null>(initialEditing);
   const canManage = workspace.permissions.manageStaff;
   const visibleStaff = formOnly && editing ? [editing] : staff;
 
   return (
     <div className="space-y-6">
-      {canManage ? <StaffForm providerId={workspace.provider.id} editing={editing} onDone={() => setEditing(null)} /> : null}
+      {canManage ? (
+        <StaffForm
+          providerId={workspace.provider.id}
+          editing={editing}
+          onDone={() => setEditing(null)}
+        />
+      ) : null}
 
       <Card className="rounded-3xl border-slate-200 shadow-sm">
         <CardHeader>
-          <CardTitle>Staff and specialists</CardTitle>
-          <CardDescription>Create provider-owned staff records and link them to this provider.</CardDescription>
+          <CardTitle>
+            {tCommon(t, "staffAndSpecialists", "Staff and specialists")}
+          </CardTitle>
+          <CardDescription>
+            {tCommon(
+              t,
+              "staffAndSpecialistsDescription",
+              "Create provider-owned staff records and link them to this provider.",
+            )}
+          </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3">
-          {visibleStaff.length ? visibleStaff.map((item) => (
-            <div key={item.providerStaffId} className="rounded-2xl border border-slate-200 p-4">
-              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-slate-200">
-                  <PortalImage src={item.profileImageUrl} alt={item.displayName} />
+          {visibleStaff.length ? (
+            visibleStaff.map((item) => (
+              <div
+                key={item.providerStaffId}
+                className="rounded-2xl border border-slate-200 p-4"
+              >
+                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                  <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-slate-200">
+                    <PortalImage
+                      src={item.profileImageUrl}
+                      alt={item.displayName}
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-semibold">{item.displayName}</h3>
+                      <Badge variant={item.isActive ? "default" : "secondary"}>
+                        {item.isActive
+                          ? tStatus(t, "active")
+                          : tStatus(t, "inactive")}
+                      </Badge>
+                    </div>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {displayTranslation(item.title, "en-US", "-")}
+                    </p>
+                    <div className="mt-2 text-sm text-slate-600">
+                      <LocalizedRichPreview translations={item.biography} />
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-500">
+                      {item.specialty ? (
+                        <Badge variant="outline">{item.specialty}</Badge>
+                      ) : null}
+                      {item.experienceYears !== null ? (
+                        <Badge variant="outline">
+                          {item.experienceYears} {tCommon(t, "years", "years")}
+                        </Badge>
+                      ) : null}
+                      <Badge variant="outline">
+                        {tCommon(t, "fee", "Fee")} {item.consultationFee}
+                      </Badge>
+                    </div>
+                  </div>
+                  {canManage ? (
+                    <div className="flex shrink-0 gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEditing(item)}
+                      >
+                        <Edit className="mr-2 h-4 w-4" />{" "}
+                        {tCommon(t, "edit", "Edit")}
+                      </Button>
+                      <DeactivateStaffButton
+                        providerId={workspace.provider.id}
+                        providerStaffId={item.providerStaffId}
+                      />
+                    </div>
+                  ) : null}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="font-semibold">{item.displayName}</h3>
-                    <Badge variant={item.isActive ? "default" : "secondary"}>{item.isActive ? "Active" : "Inactive"}</Badge>
-                  </div>
-                  <p className="mt-1 text-sm text-slate-500">{displayTranslation(item.title, "en-US", "-")}</p>
-                  <div className="mt-2 text-sm text-slate-600"><LocalizedRichPreview translations={item.biography} /></div>
-                  <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-500">
-                    {item.specialty ? <Badge variant="outline">{item.specialty}</Badge> : null}
-                    {item.experienceYears !== null ? <Badge variant="outline">{item.experienceYears} years</Badge> : null}
-                    <Badge variant="outline">Fee {item.consultationFee}</Badge>
-                  </div>
-                </div>
-                {canManage ? (
-                  <div className="flex shrink-0 gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setEditing(item)}>
-                      <Edit className="mr-2 h-4 w-4" /> Edit
-                    </Button>
-                    <DeactivateStaffButton providerId={workspace.provider.id} providerStaffId={item.providerStaffId} />
-                  </div>
-                ) : null}
               </div>
+            ))
+          ) : (
+            <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-slate-500">
+              {tCommon(t, "noStaffYet", "No staff yet.")}
             </div>
-          )) : (
-            <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-slate-500">No staff yet.</div>
           )}
         </CardContent>
       </Card>
@@ -88,28 +153,44 @@ export function StaffManager({
   );
 }
 
-function StaffForm({ providerId, editing, onDone }: { providerId: string; editing: StaffRow | null; onDone: () => void }) {
+function StaffForm({
+  providerId,
+  editing,
+  onDone,
+}: {
+  providerId: string;
+  editing: StaffRow | null;
+  onDone: () => void;
+}) {
+  const t = useTranslations("ProviderPortal");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const defaultValues = useMemo<FormValues>(() => ({
-    providerId,
-    staffId: editing?.id || undefined,
-    providerStaffId: editing?.providerStaffId || undefined,
-    nameEn: editing ? displayTranslation(editing.name, "en-US", "") : "",
-    nameFa: editing ? displayTranslation(editing.name, "fa-IR", "") : "",
-    titleEn: editing ? displayTranslation(editing.title, "en-US", "") : "",
-    titleFa: editing ? displayTranslation(editing.title, "fa-IR", "") : "",
-    biographyEn: editing ? displayTranslation(editing.biography, "en-US", "") : "",
-    biographyFa: editing ? displayTranslation(editing.biography, "fa-IR", "") : "",
-    profileImageUrl: editing?.profileImageUrl || "",
-    specialty: editing?.specialty || "",
-    experienceYears: editing?.experienceYears || undefined,
-    consultationFee: editing?.consultationFee || 0,
-    notesEn: editing ? displayTranslation(editing.notes, "en-US", "") : "",
-    notesFa: editing ? displayTranslation(editing.notes, "fa-IR", "") : "",
-    isActive: editing?.isActive ?? true,
-  }), [providerId, editing]);
+  const defaultValues = useMemo<FormValues>(
+    () => ({
+      providerId,
+      staffId: editing?.id || undefined,
+      providerStaffId: editing?.providerStaffId || undefined,
+      nameEn: editing ? displayTranslation(editing.name, "en-US", "") : "",
+      nameFa: editing ? displayTranslation(editing.name, "fa-IR", "") : "",
+      titleEn: editing ? displayTranslation(editing.title, "en-US", "") : "",
+      titleFa: editing ? displayTranslation(editing.title, "fa-IR", "") : "",
+      biographyEn: editing
+        ? displayTranslation(editing.biography, "en-US", "")
+        : "",
+      biographyFa: editing
+        ? displayTranslation(editing.biography, "fa-IR", "")
+        : "",
+      profileImageUrl: editing?.profileImageUrl || "",
+      specialty: editing?.specialty || "",
+      experienceYears: editing?.experienceYears || undefined,
+      consultationFee: editing?.consultationFee || 0,
+      notesEn: editing ? displayTranslation(editing.notes, "en-US", "") : "",
+      notesFa: editing ? displayTranslation(editing.notes, "fa-IR", "") : "",
+      isActive: editing?.isActive ?? true,
+    }),
+    [providerId, editing],
+  );
 
   const form = useForm<FormValues>({
     resolver: zodResolver(saveStaffSchema),
@@ -120,10 +201,17 @@ function StaffForm({ providerId, editing, onDone }: { providerId: string; editin
     startTransition(async () => {
       const response = await saveStaffAction(values);
       if (!response.ok) {
-        toast.error(response.error || "Staff could not be saved.");
+        toast.error(
+          response.error ||
+            tCommon(t, "staffCouldNotBeSaved", "Staff could not be saved."),
+        );
         return;
       }
-      toast.success(editing ? "Staff updated." : "Staff created.");
+      toast.success(
+        editing
+          ? tCommon(t, "staffUpdated", "Staff updated.")
+          : tCommon(t, "staffCreated", "Staff created."),
+      );
       onDone();
       router.refresh();
     });
@@ -133,17 +221,32 @@ function StaffForm({ providerId, editing, onDone }: { providerId: string; editin
     <Card className="rounded-3xl border-slate-200 shadow-sm">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Plus className="h-4 w-4" /> {editing ? "Edit staff" : "Add staff"}
+          <Plus className="h-4 w-4" />{" "}
+          {editing
+            ? tCommon(t, "editStaff", "Edit staff")
+            : tCommon(t, "addStaff", "Add staff")}
         </CardTitle>
-        <CardDescription>Specialists remain linked to the selected provider only.</CardDescription>
+        <CardDescription>
+          {tCommon(
+            t,
+            "specialistsRemainLinked",
+            "Specialists remain linked to the selected provider only.",
+          )}
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 md:grid-cols-2">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="grid gap-4 md:grid-cols-2"
+        >
           <input type="hidden" {...form.register("providerId")} />
           <input type="hidden" {...form.register("staffId")} />
           <input type="hidden" {...form.register("providerStaffId")} />
 
-          <Field label="Name English" error={form.formState.errors.nameEn?.message}>
+          <Field
+            label="Name English"
+            error={form.formState.errors.nameEn?.message}
+          >
             <Input {...form.register("nameEn")} disabled={isPending} />
           </Field>
           <Field label="Name Persian">
@@ -156,25 +259,45 @@ function StaffForm({ providerId, editing, onDone }: { providerId: string; editin
             <Input {...form.register("titleFa")} disabled={isPending} />
           </Field>
           <Field label="Biography English" className="md:col-span-2">
-            <Textarea {...form.register("biographyEn")} rows={4} disabled={isPending} />
+            <Textarea
+              {...form.register("biographyEn")}
+              rows={4}
+              disabled={isPending}
+            />
           </Field>
           <Field label="Biography Persian" className="md:col-span-2">
-            <Textarea {...form.register("biographyFa")} rows={4} disabled={isPending} />
+            <Textarea
+              {...form.register("biographyFa")}
+              rows={4}
+              disabled={isPending}
+            />
           </Field>
           <Field label="Profile image URL / media id">
             <Input {...form.register("profileImageUrl")} disabled={isPending} />
           </Field>
           <div className="relative h-24 overflow-hidden rounded-2xl border border-slate-200">
-            <PortalImage src={form.watch("profileImageUrl")} alt="Staff profile preview" />
+            <PortalImage
+              src={form.watch("profileImageUrl")}
+              alt={tMessage(t, "Staff profile preview")}
+            />
           </div>
           <Field label="Specialty">
             <Input {...form.register("specialty")} disabled={isPending} />
           </Field>
           <Field label="Experience years">
-            <Input {...form.register("experienceYears")} type="number" disabled={isPending} />
+            <Input
+              {...form.register("experienceYears")}
+              type="number"
+              disabled={isPending}
+            />
           </Field>
           <Field label="Consultation fee">
-            <Input {...form.register("consultationFee")} type="number" step="0.01" disabled={isPending} />
+            <Input
+              {...form.register("consultationFee")}
+              type="number"
+              step="0.01"
+              disabled={isPending}
+            />
           </Field>
           <Field label="Provider notes English">
             <Input {...form.register("notesEn")} disabled={isPending} />
@@ -183,12 +306,26 @@ function StaffForm({ providerId, editing, onDone }: { providerId: string; editin
             <Input {...form.register("notesFa")} disabled={isPending} />
           </Field>
           <label className="flex items-center gap-2 text-sm md:col-span-2">
-            <input type="checkbox" {...form.register("isActive")} className="h-4 w-4 rounded border-slate-300" />
-            Active
+            <input
+              type="checkbox"
+              {...form.register("isActive")}
+              className="h-4 w-4 rounded border-slate-300"
+            />
+            {tStatus(t, "active")}
           </label>
           <div className="flex justify-end gap-3 border-t pt-5 md:col-span-2">
-            {editing ? <Button type="button" variant="outline" onClick={onDone}>Cancel edit</Button> : null}
-            <Button type="submit" disabled={isPending}>{isPending ? "Saving..." : editing ? "Save staff" : "Add staff"}</Button>
+            {editing ? (
+              <Button type="button" variant="outline" onClick={onDone}>
+                {tCommon(t, "cancelEdit", "Cancel edit")}
+              </Button>
+            ) : null}
+            <Button type="submit" disabled={isPending}>
+              {isPending
+                ? tCommon(t, "saving", "Saving...")
+                : editing
+                  ? tCommon(t, "saveStaff", "Save staff")
+                  : tCommon(t, "addStaff", "Add staff")}
+            </Button>
           </div>
         </form>
       </CardContent>
@@ -196,7 +333,14 @@ function StaffForm({ providerId, editing, onDone }: { providerId: string; editin
   );
 }
 
-function DeactivateStaffButton({ providerId, providerStaffId }: { providerId: string; providerStaffId: string }) {
+function DeactivateStaffButton({
+  providerId,
+  providerStaffId,
+}: {
+  providerId: string;
+  providerStaffId: string;
+}) {
+  const t = useTranslations("ProviderPortal");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -207,27 +351,60 @@ function DeactivateStaffButton({ providerId, providerStaffId }: { providerId: st
       size="sm"
       disabled={isPending}
       onClick={() => {
-        if (!confirm("Deactivate this staff link?")) return;
+        if (
+          !confirm(
+            tCommon(
+              t,
+              "deactivateThisStaffLink",
+              "Deactivate this staff link?",
+            ),
+          )
+        )
+          return;
         startTransition(async () => {
-          const response = await deleteStaffLinkAction({ providerId, providerStaffId });
+          const response = await deleteStaffLinkAction({
+            providerId,
+            providerStaffId,
+          });
           if (!response.ok) {
-            toast.error(response.error || "Staff could not be deactivated.");
+            toast.error(
+              response.error ||
+                tCommon(
+                  t,
+                  "staffCouldNotBeDeactivated",
+                  "Staff could not be deactivated.",
+                ),
+            );
             return;
           }
-          toast.success("Staff deactivated.");
+          toast.success(tCommon(t, "staffDeactivated", "Staff deactivated."));
           router.refresh();
         });
       }}
     >
-      <UserX className="mr-2 h-4 w-4" /> Deactivate
+      <UserX className="mr-2 h-4 w-4" />{" "}
+      {tCommon(t, "deactivate", "Deactivate")}
     </Button>
   );
 }
 
-function Field({ label, error, className, children }: { label: string; error?: string; className?: string; children: ReactNode }) {
+function Field({
+  label,
+  error,
+  className,
+  children,
+}: {
+  label: string;
+  error?: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  const t = useTranslations("ProviderPortal");
   return (
     <label className={`space-y-2 ${className || ""}`}>
-      <span className="text-sm font-medium text-slate-700">{label}</span>
+      <span className="text-sm font-medium text-slate-700">
+        {tLabel(t, label)}
+      </span>
       {children}
       {error ? <p className="text-xs text-red-600">{error}</p> : null}
     </label>

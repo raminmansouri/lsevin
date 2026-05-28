@@ -168,8 +168,6 @@ export async function updateProfileAction(
           last_name = ${data.lastName},
           email = ${data.email.toLowerCase()},
           normalized_email = ${normalizedEmail},
-          phone_number_country_code = ${data.phoneCountryCode},
-          phone_number = ${data.phoneNumber},
           birth_date = ${data.dateOfBirth || null},
           gender = ${data.gender || null},
           address = ${data.address},
@@ -186,6 +184,8 @@ export async function updateProfileAction(
 
     revalidatePath("/profile");
     revalidatePath("/profile/edit");
+    revalidatePath("/n/app/mobile/profile");
+    revalidatePath("/n/app/mobile/profile/EditProfile");
 
     return result;
   } catch (error) {
@@ -194,10 +194,6 @@ export async function updateProfileAction(
 
       if (constraint === "ix_asp_net_users_email" || constraint === "EmailIndex") {
         return { ok: false, message: "This email is already in use." };
-      }
-
-      if (constraint === "ix_asp_net_users_phone_number_country_code_phone_number") {
-        return { ok: false, message: "This phone number is already in use." };
       }
 
       if (constraint === "UserNameIndex") {
@@ -297,6 +293,8 @@ export async function confirmProfileAction(): Promise<ActionResult> {
 
     revalidatePath("/profile");
     revalidatePath("/profile/edit");
+    revalidatePath("/n/app/mobile/profile");
+    revalidatePath("/n/app/mobile/profile/EditProfile");
 
     return result;
   } catch {

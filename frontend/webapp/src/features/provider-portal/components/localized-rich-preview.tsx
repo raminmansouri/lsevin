@@ -1,6 +1,9 @@
 "use client";
 
-import { hasLexicalContent, LexicalRenderer } from "@/components/editor/lexical-renderer";
+import {
+  hasLexicalContent,
+  LexicalRenderer,
+} from "@/components/editor/lexical-renderer";
 
 import { displayTranslation } from "../lib/normalizers";
 import type { TranslationMap } from "../types";
@@ -14,7 +17,9 @@ export function LocalizedRichPreview({
   locale?: string;
   className?: string;
 }) {
-  const value = translations ? displayTranslation(translations, locale, "") : "";
+  const value = translations
+    ? displayTranslation(translations, locale, "")
+    : "";
 
   if (value && hasLexicalContent(value)) {
     return <LexicalRenderer content={value} className={className} />;

@@ -11,6 +11,8 @@ type RawServiceDefinitionRow = {
   description: string;
   category_id: string;
   category_name: string;
+  media_url: string | null;
+  media_type: string | null;
   duration_minutes: number;
   pricing_model: string;
   is_active: boolean;
@@ -30,6 +32,8 @@ export type ServiceDefinitionTableItem = {
   description: string;
   categoryId: string;
   categoryName: string;
+  mediaUrl?: string | null;
+  mediaType?: "image" | "video" | "gif";
   durationMinutes: number;
   pricingModel: string;
   isActive: boolean;
@@ -82,6 +86,8 @@ export async function getServiceDefinitionsForTable(args: {
       select
         sd.id,
         sd.category_id,
+        sd.image_url,
+        sd.media_type,
         sd.duration_minutes,
         sd.pricing_model,
         sd.is_active,
@@ -156,6 +162,8 @@ export async function getServiceDefinitionsForTable(args: {
       description,
       category_id::text,
       category_name,
+      nullif(btrim(coalesce(image_url, '')), '') as media_url,
+      case when media_type in ('image', 'video', 'gif') then media_type else 'image' end as media_type,
       duration_minutes,
       pricing_model,
       is_active,
@@ -182,6 +190,8 @@ export async function getServiceDefinitionsForTable(args: {
       description: row.description,
       categoryId: row.category_id,
       categoryName: row.category_name,
+      mediaUrl: row.media_url ?? null,
+      mediaType: row.media_type === "video" || row.media_type === "gif" ? row.media_type : "image",
       durationMinutes: n(row.duration_minutes),
       pricingModel: row.pricing_model,
       isActive: row.is_active,

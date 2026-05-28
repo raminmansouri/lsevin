@@ -285,6 +285,7 @@ export interface StaffCertification {
   name: string;
   issuer: string;
   isVerified: boolean;
+  imageUrl?: string;
 }
 
 export interface StaffEducation {
@@ -292,6 +293,7 @@ export interface StaffEducation {
   degree: string;
   institution: string;
   year: number | null;
+  imageUrl?: string;
 }
 
 export interface ReviewReply {

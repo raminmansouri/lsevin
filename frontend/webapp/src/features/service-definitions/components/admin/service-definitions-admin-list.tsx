@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useRef, useState, useTransition } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Clock, MoreHorizontal, Pencil, Settings2 } from "lucide-react";
+import { Clock, ImageIcon, MoreHorizontal, Pencil, PlayCircle, Settings2, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { DataTable, DataTableSkeleton } from "@/components/data-table";
 import { Badge } from "@/components/ui/badge";
@@ -12,9 +14,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Link } from "@/i18n/navigation";
+import useAction from "@/hooks/use-action";
+import { useConfirm } from "@/hooks/use-confirm";
+import { Link, useRouter } from "@/i18n/navigation";
 import { Pagination } from "@/types/filter";
 
+import { deleteServiceDefinitionAction } from "../../actions/delete-service-definition";
 import type {
   AdminServiceDefinitionCategoryOption,
   AdminServiceDefinitionListItem,
@@ -42,13 +47,24 @@ function compactText(value: string | null | undefined, max = 140) {
   return text.length > max ? `${text.slice(0, max - 1)}…` : text;
 }
 
-const columns: ColumnDef<AdminServiceDefinitionListItem>[] = [
+const getColumns = (
+  onDelete: (item: AdminServiceDefinitionListItem) => void,
+  isPending: boolean,
+): ColumnDef<AdminServiceDefinitionListItem>[] => [
   {
     accessorKey: "name",
     header: "Service definition",
     cell: ({ row }) => (
       <div className="min-w-[260px] space-y-1">
-        <div className="font-medium leading-none">{row.original.name || "Untitled service"}</div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-medium leading-none">{row.original.name || "Untitled service"}</span>
+          {row.original.mediaUrl && (
+            <Badge variant="secondary" className="gap-1 text-[10px] uppercase">
+              {row.original.mediaType === "video" ? <PlayCircle className="size-3" /> : <ImageIcon className="size-3" />}
+              {row.original.mediaType || "media"}
+            </Badge>
+          )}
+        </div>
         <div className="text-xs text-muted-foreground">{compactText(row.original.description)}</div>
       </div>
     ),
@@ -129,6 +145,13 @@ const columns: ColumnDef<AdminServiceDefinitionListItem>[] = [
               <Settings2 className="mr-2 h-4 w-4" /> Add-on provider types
             </DropdownMenuItem>
           </Link>
+          <DropdownMenuItem
+            className="text-destructive focus:text-destructive"
+            disabled={isPending}
+            onClick={() => onDelete(row.original)}
+          >
+            <Trash2 className="mr-2 h-4 w-4" /> Remove
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     ),
@@ -136,10 +159,56 @@ const columns: ColumnDef<AdminServiceDefinitionListItem>[] = [
 ];
 
 export function ServiceDefinitionsAdminList({ items, pagination, categories }: Props) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [rows, setRows] = useState(items);
+  const pendingDeleteIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    setRows(items);
+  }, [items]);
+
+  const { execute: executeDelete } = useAction(deleteServiceDefinitionAction, {
+    startTransition,
+    onSuccess: () => {
+      const deletedId = pendingDeleteIdRef.current;
+      if (deletedId) {
+        setRows((currentRows) => currentRows.filter((item) => item.id !== deletedId));
+      }
+      pendingDeleteIdRef.current = null;
+      toast.success("Service definition removed.");
+      router.refresh();
+    },
+    onError: (error) => {
+      pendingDeleteIdRef.current = null;
+      toast.error(error.detail || "Could not remove service definition.");
+      router.refresh();
+    },
+  });
+
+  const [DeleteConfirmDialog, confirmDelete] = useConfirm(
+    "Remove service definition",
+    "This will permanently remove the service definition. If it is used by provider or staff services, the system will block deletion and you should deactivate it instead.",
+    "destructive",
+  );
+
+  const handleDelete = async (item: AdminServiceDefinitionListItem) => {
+    const confirmed = await confirmDelete();
+    if (!confirmed) return;
+
+    pendingDeleteIdRef.current = item.id;
+    startTransition(async () => {
+      await executeDelete({ serviceDefinitionId: item.id });
+    });
+  };
+
   return (
-    <DataTable columns={columns} data={items} pagination={pagination}>
-      <ServiceDefinitionsListToolbar categories={categories} />
-    </DataTable>
+    <>
+      <DataTable columns={getColumns(handleDelete, isPending)} data={rows} pagination={pagination}>
+        <ServiceDefinitionsListToolbar categories={categories} />
+      </DataTable>
+      <DeleteConfirmDialog />
+    </>
   );
 }
 

@@ -2,7 +2,7 @@ import "server-only";
 import { db } from "./db";
 import type { LookupOption } from "../types";
 
-export async function getBookingAdminLookups(locale = "en-US") {
+export async function getBookingAdminLookups(locale = "fa-IR") {
   const [providers, services, specialists, paymentMethods] = await Promise.all([
     db<LookupOption[]>`
       select common.get_translation_t(name_translations, ${locale}, 'en-US') as label, id::text as value

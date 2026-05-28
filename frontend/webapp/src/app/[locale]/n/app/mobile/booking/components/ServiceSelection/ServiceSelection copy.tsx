@@ -1,12 +1,10 @@
-"use client"
+"use client";
 import React, { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import z from "zod/v3";
-
 import { nodes } from "../../../../../../../../components/blocks/editor-00/nodes";
 import { BadgeCheck, Clock, Star, List, ChevronRight, CheckCircle2, Calendar } from 'lucide-react';
 import { BookingFormValues } from "../../types";
-
 /* const services = [
   {
     id: "hair-treatment",
@@ -121,7 +119,6 @@ const doctors = [
   },
 ];
  */
-
 import { useWatch } from 'react-hook-form';
 import { useMemo } from 'react';
 import { useGetProvidersByServiceAndSpecialist } from "@/features/booking/api/client/fetch-providers-by-service-and-specialist";
@@ -131,241 +128,144 @@ import { useGetSpecialistByProviderAndService } from "@/features/booking/api/cli
 import { useBooking } from "../../hooks/use-booking";
 import { TRANSLATION_KEY } from "@/features/home/types/constants";
 import { hasLexicalContent, LexicalRenderer } from "@/components/editor/lexical-renderer";
-
 /* ----- Types & Enums ----- */
 interface INode {
-  name: NodeType;
-  edges: NodeType[];
-  isSelected: boolean; // we only need a boolean in the UI
+    name: NodeType;
+    edges: NodeType[];
+    isSelected: boolean; // we only need a boolean in the UI
 }
-
 enum NodeType {
-  Provider,
-  Service,
-  Specialist,
+    Provider,
+    Service,
+    Specialist
 }
-
-
 /* ----- Main component ----- */
 export default function ServiceSelection() {
-  /* 1️⃣  Grab the form context */
-
- const {
-        setValue,
-        getButtonLabel,
-        canProceed,
-        calculateTotal,
-        addons,
-        selectedAddons,
-        selectedDate,
-        selectedTime,
-        uploadedFiles,
-        service,
-        provider,
-        selectedSpecialist,
-        providerId,
-        serviceId,
-        specialistId,
-        paymentMethod,
-        handleNext,
-        handleBack,
-        setData,
-        navigate,
-        step, setStep,
-        locale
-      } = useBooking();
-
-      
-  const {
-    data: providersResponse,
-    refetch
-  } = useGetProvidersByServiceAndSpecialist(
-    providerId,
-    serviceId,
-    specialistId,
-    '',
-    locale);
-
-    const providers=providersResponse?.providers;
-
-
-  const {
-    data: servicesResponse,
-    refetch: refetchServices
-  } = useGetServicesByProviderAndSpecialist(
-      providerId,
-    serviceId,
-    specialistId,
-    '',
-    locale);
-
-    const services=servicesResponse?.services;
-
-  const {
-    data: specialistsResponose,
-    refetch: refetchSpecialist
-  } = useGetSpecialistByProviderAndService(
-      providerId,
-    serviceId,
-    specialistId,
-    '',
-    locale);
-
-    const specialists=specialistsResponose?.specialist;
-
-
-     useEffect(() => {
+    const tBooking = useTranslations("Booking");
+    /* 1️⃣  Grab the form context */
+    const { setValue, getButtonLabel, canProceed, calculateTotal, addons, selectedAddons, selectedDate, selectedTime, uploadedFiles, service, provider, selectedSpecialist, providerId, serviceId, specialistId, paymentMethod, handleNext, handleBack, setData, navigate, step, setStep, locale } = useBooking();
+    const { data: providersResponse, refetch } = useGetProvidersByServiceAndSpecialist(providerId, serviceId, specialistId, '', locale);
+    const providers = providersResponse?.providers;
+    const { data: servicesResponse, refetch: refetchServices } = useGetServicesByProviderAndSpecialist(providerId, serviceId, specialistId, '', locale);
+    const services = servicesResponse?.services;
+    const { data: specialistsResponose, refetch: refetchSpecialist } = useGetSpecialistByProviderAndService(providerId, serviceId, specialistId, '', locale);
+    const specialists = specialistsResponose?.specialist;
+    useEffect(() => {
         /*  If you expect numeric IDs, cast them. */
-
-
-        if (providerId && providers) 
-           setData( 'providers',providers)
-        if (serviceId) 
-           setData( 'services',services)
-        if (specialistId) 
-           setData( 'specialists',specialists)
-
-    
+        if (providerId && providers)
+            setData('providers', providers);
+        if (serviceId)
+            setData('services', services);
+        if (specialistId)
+            setData('specialists', specialists);
         /*  If the IDs are strings, just pass the string directly: */
         // if (providerId)   methods.setValue('providerId', providerId);
         // …etc.
-      }, [services,serviceId,specialistId,specialists,providers,providerId]);   
-
-
-  /* 3️⃣  Build the node graph each time a watched value changes */
-  const nodes = useMemo<INode[]>(() => [
-    {
-      name: NodeType.Provider,
-      edges: [NodeType.Service, NodeType.Specialist],
-      isSelected: !!providerId,
-
-    },
-    {
-      name: NodeType.Service,
-      edges: [NodeType.Provider, NodeType.Specialist],
-      isSelected: !!serviceId,
-    },
-    {
-      name: NodeType.Specialist,
-      edges: [NodeType.Service, NodeType.Provider],
-      isSelected: !!specialistId,
-    },
-  ], [providerId, serviceId, specialistId]);
-
-  /* 4️⃣  Pick the node that is currently selected (or first one if none) */
-  const selectedNode = useMemo(() => nodes.find(n => n.isSelected) ?? nodes[0], [nodes]);
-
-   const ChooseYourServiceCanProceed = () => {
-      return (<>
+    }, [services, serviceId, specialistId, specialists, providers, providerId]);
+    /* 3️⃣  Build the node graph each time a watched value changes */
+    const nodes = useMemo<INode[]>(() => [
+        {
+            name: NodeType.Provider,
+            edges: [NodeType.Service, NodeType.Specialist],
+            isSelected: !!providerId,
+        },
+        {
+            name: NodeType.Service,
+            edges: [NodeType.Provider, NodeType.Specialist],
+            isSelected: !!serviceId,
+        },
+        {
+            name: NodeType.Specialist,
+            edges: [NodeType.Service, NodeType.Provider],
+            isSelected: !!specialistId,
+        },
+    ], [providerId, serviceId, specialistId]);
+    /* 4️⃣  Pick the node that is currently selected (or first one if none) */
+    const selectedNode = useMemo(() => nodes.find(n => n.isSelected) ?? nodes[0], [nodes]);
+    const ChooseYourServiceCanProceed = () => {
+        const tBooking = useTranslations("Booking");
+        return (<>
         {/* Selection Summary - Step 1 */}
-        {canProceed() && (
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+        {canProceed() && (<div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <div className="flex items-start gap-3 mb-4">
               <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
-                <CheckCircle2 size={20} className="text-white" />
+                <CheckCircle2 size={20} className="text-white"/>
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-green-900 mb-2">Ready to Continue!</h3>
+                <h3 className="font-bold text-green-900 mb-2">{tBooking("readyToContinue")}</h3>
                 <div className="space-y-1.5 text-sm text-green-800">
                   <div className="flex items-center gap-2">
-                    <BadgeCheck size={14} className="flex-shrink-0" />
-                    <span>Doctor: {specialists.find(d => d.id === specialistId)?.name}</span>
+                    <BadgeCheck size={14} className="flex-shrink-0"/>
+                    <span>{tBooking("doctor")}{specialists.find(d => d.id === specialistId)?.name}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Calendar size={14} className="flex-shrink-0" />
-                    <span>Date: {selectedDate}</span>
+                    <Calendar size={14} className="flex-shrink-0"/>
+                    <span>{tBooking("date")}{selectedDate}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Clock size={14} className="flex-shrink-0" />
-                    <span>Time: {selectedTime}</span>
+                    <Clock size={14} className="flex-shrink-0"/>
+                    <span>{tBooking("time2")}{selectedTime}</span>
                   </div>
                 </div>
               </div>
             </div>
   
             {/* Continue Button - Directly in Summary */}
-            <button
-              onClick={handleNext}
-              className="w-full h-14 bg-gradient-to-r from-[#083f30] to-[#0a5a44] text-white rounded-xl font-bold hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg"
-            >
-              Continue to Add-ons
-              <ChevronRight size={20} />
+            <button onClick={handleNext} className="w-full h-14 bg-gradient-to-r from-[#083f30] to-[#0a5a44] text-white rounded-xl font-bold hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg">{tBooking("continueToAddOns")}<ChevronRight size={20}/>
             </button>
-          </div>
-        )}</>)
-    }
-
-  const refetchData = () => {
-
-  }
-  const onServiceSelection = (service) => {
-    if (serviceId === service.id) {
-      setValue('serviceId', undefined)
-      // setValue('providerId',undefined)
-      setValue('specialistId', undefined)
-    } else {
-      setValue('serviceId', service.id)
-    }
-    refetchData();
-  }
-
-  const onProviderSelection = (provider) => {
-    if (providerId === provider.id) {
-      setValue('providerId', undefined)
-      setValue('serviceId', undefined)
-      setValue('specialistId', undefined)
-    } else {
-      setValue('providerId', provider.id)
-    }
-    refetchData();
-  }
-
-  const onSpecialistSelection = (doctor) => {
-    if (specialistId === doctor.id) {
-      setValue('specialistId', undefined)
-
-    } else {
-      setValue('specialistId', doctor.id)
-    }
-    refetchData();
-  }
-
-      const t = useTranslations(TRANSLATION_KEY);
-
-  /* ----- Component maps ----- */
-  const ChooseYourProvider = () => {
-    return (
-      <>
+          </div>)}</>);
+    };
+    const refetchData = () => {
+    };
+    const onServiceSelection = (service) => {
+        if (serviceId === service.id) {
+            setValue('serviceId', undefined);
+            // setValue('providerId',undefined)
+            setValue('specialistId', undefined);
+        }
+        else {
+            setValue('serviceId', service.id);
+        }
+        refetchData();
+    };
+    const onProviderSelection = (provider) => {
+        if (providerId === provider.id) {
+            setValue('providerId', undefined);
+            setValue('serviceId', undefined);
+            setValue('specialistId', undefined);
+        }
+        else {
+            setValue('providerId', provider.id);
+        }
+        refetchData();
+    };
+    const onSpecialistSelection = (doctor) => {
+        if (specialistId === doctor.id) {
+            setValue('specialistId', undefined);
+        }
+        else {
+            setValue('specialistId', doctor.id);
+        }
+        refetchData();
+    };
+    const t = useTranslations(TRANSLATION_KEY);
+    /* ----- Component maps ----- */
+    const ChooseYourProvider = () => {
+        const tBooking = useTranslations("Booking");
+        return (<>
         {/* Select Service */}
         <div>
-          <h2 className="mb-4 text-xl font-bold text-gray-900">
-            Choose Your Provider
-          </h2>
+          <h2 className="mb-4 text-xl font-bold text-gray-900">{tBooking("chooseYourProvider")}</h2>
           <div className="space-y-3">
-            {providers?.map((provider) => (
-              <button
-                key={provider.id}
-                onClick={() => {
-                  onProviderSelection(provider)
-
-                }}
-                className={`w-full overflow-hidden rounded-2xl border-2 bg-white transition-all ${providerId === provider.id
+            {providers?.map((provider) => (<button key={provider.id} onClick={() => {
+                    onProviderSelection(provider);
+                }} className={`w-full overflow-hidden rounded-2xl border-2 bg-white transition-all ${providerId === provider.id
                     ? "scale-[1.02] border-[#083f30] shadow-lg"
-                    : "border-gray-200 hover:border-gray-300"
-                  }`}
-              >
+                    : "border-gray-200 hover:border-gray-300"}`}>
                 <div className="flex gap-4 p-4">
                   <div className="relative flex-shrink-0">
-                    <img
-                      src={provider.image}
-                      alt={provider.name}
-                      className="h-24 w-24 rounded-xl object-cover"
-                    />
-                    {provider.popular && (
-                      <div className="absolute -top-2 -right-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">
-                        POPULAR
-                      </div>
-                    )}
+                    <img src={provider.image} alt={provider.name} className="h-24 w-24 rounded-xl object-cover"/>
+                    {provider.popular && (<div className="absolute -top-2 -right-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">{tBooking("pOPULAR")}</div>)}
                   </div>
 
                   <div className="flex-1 text-left">
@@ -377,77 +277,51 @@ export default function ServiceSelection() {
                         <p className="mb-2 text-sm text-gray-600">
                           {/* {provider.description} */}
 
-                           {provider.description && hasLexicalContent(provider.description) ? (
-                          <LexicalRenderer
-                            content={provider.description}
-                            className="text-muted-foreground leading-relaxed"
-                          />
-                        ) : (
-                          <p className="text-muted-foreground leading-relaxed">
+                           {provider.description && hasLexicalContent(provider.description) ? (<LexicalRenderer content={provider.description} className="text-muted-foreground leading-relaxed"/>) : (<p className="text-muted-foreground leading-relaxed">
                             {t("noDescription")}
-                          </p>
-                        )}
+                          </p>)}
                         </p>
                         <div className="flex items-center gap-3 text-xs text-gray-600">
                           {/* <div className="flex items-center gap-1">
-                                  <Clock size={14} />
-                                  <span>{provider.duration}</span>
-                                </div> */}
+                        <Clock size={14} />
+                        <span>{provider.duration}</span>
+                      </div> */}
                           <span>•</span>
                           {/* <span className="px-2 py-0.5 bg-gray-100 rounded-md font-semibold">
-                                  {provider.category}
-                                </span> */}
+                        {provider.category}
+                      </span> */}
                         </div>
                       </div>
 
                       <div className="ml-3 text-right">
                         {/* <div className="text-lg font-bold text-[#083f30]">
-                                ${service.price}
-                              </div> */}
+                        ${service.price}
+                      </div> */}
                       </div>
                     </div>
                   </div>
                 </div>
-              </button>
-            ))}
+              </button>))}
           </div>
         </div>
-      </>
-    );
-  };
-  const SelectedProvider = () => {
-    return (
-      <>
+      </>);
+    };
+    const SelectedProvider = () => {
+        const tBooking = useTranslations("Booking");
+        return (<>
         {/* Select Service */}
         <div>
-          <h2 className="mb-4 text-xl font-bold text-gray-900">
-            Selected Provider
-          </h2>
+          <h2 className="mb-4 text-xl font-bold text-gray-900">{tBooking("selectedProvider")}</h2>
           <div className="space-y-3">
-            {providers?.filter(f => providerId === f.id).map((provider) => (
-              <button
-                key={provider.id}
-                onClick={() => {
-                  onProviderSelection(provider)
-
-                }}
-                className={`w-full overflow-hidden rounded-2xl border-2 bg-white transition-all ${providerId === provider.id
+            {providers?.filter(f => providerId === f.id).map((provider) => (<button key={provider.id} onClick={() => {
+                    onProviderSelection(provider);
+                }} className={`w-full overflow-hidden rounded-2xl border-2 bg-white transition-all ${providerId === provider.id
                     ? "scale-[1.02] border-[#083f30] shadow-lg"
-                    : "border-gray-200 hover:border-gray-300"
-                  }`}
-              >
+                    : "border-gray-200 hover:border-gray-300"}`}>
                 <div className="flex gap-4 p-4">
                   <div className="relative flex-shrink-0">
-                    <img
-                      src={provider.image}
-                      alt={provider.name}
-                      className="h-24 w-24 rounded-xl object-cover"
-                    />
-                    {provider.popular && (
-                      <div className="absolute -top-2 -right-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">
-                        POPULAR
-                      </div>
-                    )}
+                    <img src={provider.image} alt={provider.name} className="h-24 w-24 rounded-xl object-cover"/>
+                    {provider.popular && (<div className="absolute -top-2 -right-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">{tBooking("pOPULAR")}</div>)}
                   </div>
 
                   <div className="flex-1 text-left">
@@ -461,62 +335,44 @@ export default function ServiceSelection() {
                         </p>
                         <div className="flex items-center gap-3 text-xs text-gray-600">
                           {/* <div className="flex items-center gap-1">
-                                  <Clock size={14} />
-                                  <span>{provider.duration}</span>
-                                </div> */}
+                        <Clock size={14} />
+                        <span>{provider.duration}</span>
+                      </div> */}
                           <span>•</span>
                           {/* <span className="px-2 py-0.5 bg-gray-100 rounded-md font-semibold">
-                                  {provider.category}
-                                </span> */}
+                        {provider.category}
+                      </span> */}
                         </div>
                       </div>
 
                       <div className="ml-3 text-right">
                         {/* <div className="text-lg font-bold text-[#083f30]">
-                                <List onClick={()=>setShowAllProviders(!showAllProviders)}/>
-                              </div>  */}
+                        <List onClick={()=>setShowAllProviders(!showAllProviders)}/>
+                      </div>  */}
                       </div>
                     </div>
                   </div>
                 </div>
-              </button>
-            ))}
+              </button>))}
 
           </div>
         </div>
-      </>
-    );
-  };
-  const ChooseYourService = () => {
-    return (
-      <>
+      </>);
+    };
+    const ChooseYourService = () => {
+        const tBooking = useTranslations("Booking");
+        return (<>
         {/* Select Service */}
         <div>
-          <h2 className="mb-4 text-xl font-bold text-gray-900">
-            Choose Your Service
-          </h2>
+          <h2 className="mb-4 text-xl font-bold text-gray-900">{tBooking("chooseYourService")}</h2>
           <div className="space-y-3">
-            {services?.map((service) => (
-              <button
-                key={service.id}
-                onClick={() => onServiceSelection(service)}
-                className={`w-full overflow-hidden rounded-2xl border-2 bg-white transition-all ${serviceId === service.id
+            {services?.map((service) => (<button key={service.id} onClick={() => onServiceSelection(service)} className={`w-full overflow-hidden rounded-2xl border-2 bg-white transition-all ${serviceId === service.id
                     ? "scale-[1.02] border-[#083f30] shadow-lg"
-                    : "border-gray-200 hover:border-gray-300"
-                  }`}
-              >
+                    : "border-gray-200 hover:border-gray-300"}`}>
                 <div className="flex gap-4 p-4">
                   <div className="relative flex-shrink-0">
-                    <img
-                      src={service.image}
-                      alt={service.name}
-                      className="h-24 w-24 rounded-xl object-cover"
-                    />
-                    {service.popular && (
-                      <div className="absolute -top-2 -right-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">
-                        POPULAR
-                      </div>
-                    )}
+                    <img src={service.image} alt={service.name} className="h-24 w-24 rounded-xl object-cover"/>
+                    {service.popular && (<div className="absolute -top-2 -right-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">{tBooking("pOPULAR")}</div>)}
                   </div>
 
                   <div className="flex-1 text-left">
@@ -530,7 +386,7 @@ export default function ServiceSelection() {
                         </p>
                         <div className="flex items-center gap-3 text-xs text-gray-600">
                           <div className="flex items-center gap-1">
-                            <Clock size={14} />
+                            <Clock size={14}/>
                             <span>{service.duration}</span>
                           </div>
                           <span>•</span>
@@ -548,45 +404,25 @@ export default function ServiceSelection() {
                     </div>
                   </div>
                 </div>
-              </button>
-            ))}
+              </button>))}
           </div>
         </div>
-      </>
-    );
-  };
-
-
-  const SelectedService = () => {
-    return (
-      <>
+      </>);
+    };
+    const SelectedService = () => {
+        const tBooking = useTranslations("Booking");
+        return (<>
         {/* Select Service */}
         <div>
-          <h2 className="mb-4 text-xl font-bold text-gray-900">
-            Selected Service
-          </h2>
+          <h2 className="mb-4 text-xl font-bold text-gray-900">{tBooking("selectedService")}</h2>
           <div className="space-y-3">
-            {services?.filter(f => serviceId === f.id).map((service) => (
-              <button
-                key={service.id}
-                onClick={() => onServiceSelection(service)}
-                className={`w-full overflow-hidden rounded-2xl border-2 bg-white transition-all ${serviceId === service.id
+            {services?.filter(f => serviceId === f.id).map((service) => (<button key={service.id} onClick={() => onServiceSelection(service)} className={`w-full overflow-hidden rounded-2xl border-2 bg-white transition-all ${serviceId === service.id
                     ? "scale-[1.02] border-[#083f30] shadow-lg"
-                    : "border-gray-200 hover:border-gray-300"
-                  }`}
-              >
+                    : "border-gray-200 hover:border-gray-300"}`}>
                 <div className="flex gap-4 p-4">
                   <div className="relative flex-shrink-0">
-                    <img
-                      src={service.image}
-                      alt={service.name}
-                      className="h-24 w-24 rounded-xl object-cover"
-                    />
-                    {service.popular && (
-                      <div className="absolute -top-2 -right-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">
-                        POPULAR
-                      </div>
-                    )}
+                    <img src={service.image} alt={service.name} className="h-24 w-24 rounded-xl object-cover"/>
+                    {service.popular && (<div className="absolute -top-2 -right-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">{tBooking("pOPULAR")}</div>)}
                   </div>
 
                   <div className="flex-1 text-left">
@@ -600,7 +436,7 @@ export default function ServiceSelection() {
                         </p>
                         <div className="flex items-center gap-3 text-xs text-gray-600">
                           <div className="flex items-center gap-1">
-                            <Clock size={14} />
+                            <Clock size={14}/>
                             <span>{service.duration}</span>
                           </div>
                           <span>•</span>
@@ -618,43 +454,26 @@ export default function ServiceSelection() {
                     </div>
                   </div>
                 </div>
-              </button>
-            ))}
+              </button>))}
           </div>
         </div>
-      </>
-    );
-  };
-  const ChooseYourSpecialist = () => {
-    return (
-      <>
+      </>);
+    };
+    const ChooseYourSpecialist = () => {
+        const tBooking = useTranslations("Booking");
+        return (<>
         {/* Select Doctor */}
         <div>
-          <h2 className="mb-4 text-xl font-bold text-gray-900">
-            Choose Your Specialist
-          </h2>
+          <h2 className="mb-4 text-xl font-bold text-gray-900">{tBooking("chooseYourSpecialist")}</h2>
           <div className="space-y-3">
-            {specialists?.map((doctor) => (
-              <button
-                key={doctor.id}
-                onClick={() =>
-
-                  onSpecialistSelection(doctor)
-                }
-                className={`w-full rounded-2xl border-2 bg-white p-4 transition-all ${specialistId === doctor.id
+            {specialists?.map((doctor) => (<button key={doctor.id} onClick={() => onSpecialistSelection(doctor)} className={`w-full rounded-2xl border-2 bg-white p-4 transition-all ${specialistId === doctor.id
                     ? "border-[#083f30] shadow-md"
-                    : "border-gray-200 hover:border-gray-300"
-                  }`}
-              >
+                    : "border-gray-200 hover:border-gray-300"}`}>
                 <div className="flex gap-4">
                   <div className="relative flex-shrink-0">
-                    <img
-                      src={doctor.image}
-                      alt={doctor.name}
-                      className="h-20 w-20 rounded-xl object-cover"
-                    />
+                    <img src={doctor.image} alt={doctor.name} className="h-20 w-20 rounded-xl object-cover"/>
                     <div className="absolute -right-1 -bottom-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#083f30]">
-                      <BadgeCheck size={14} className="text-[#eacb7f]" />
+                      <BadgeCheck size={14} className="text-[#eacb7f]"/>
                     </div>
                   </div>
 
@@ -669,62 +488,42 @@ export default function ServiceSelection() {
                     <div className="mb-2 flex items-center gap-3 text-xs text-gray-600">
                       <span>{doctor.experience}</span>
                       <span>•</span>
-                      <span>{doctor.patients} patients</span>
+                      <span>{doctor.patients}{tBooking("patients")}</span>
                     </div>
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
-                        <Star
-                          size={14}
-                          className="fill-yellow-400 text-yellow-400"
-                        />
+                        <Star size={14} className="fill-yellow-400 text-yellow-400"/>
                         <span className="text-sm font-bold text-gray-900">
                           {doctor.rating}
                         </span>
                       </div>
 
-                      <span className="text-xs font-semibold text-[#083f30]">
-                        Next: {doctor.nextAvailable}
+                      <span className="text-xs font-semibold text-[#083f30]">{tBooking("next")}{doctor.nextAvailable}
                       </span>
                     </div>
                   </div>
                 </div>
-              </button>
-            ))}
+              </button>))}
           </div>
         </div>
-      </>
-    );
-  };
-
-  const SelectedSpecialist = () => {
-    return (
-      <>
+      </>);
+    };
+    const SelectedSpecialist = () => {
+        const tBooking = useTranslations("Booking");
+        return (<>
         {/* Select Doctor */}
         <div>
-          <h2 className="mb-4 text-xl font-bold text-gray-900">
-            Selected Specialist
-          </h2>
+          <h2 className="mb-4 text-xl font-bold text-gray-900">{tBooking("selectedSpecialist")}</h2>
           <div className="space-y-3">
-            {specialists?.filter(f => specialistId === f.id).map((doctor) => (
-              <button
-                key={doctor.id}
-                onClick={() => onSpecialistSelection(doctor.id)}
-
-                className={`w-full rounded-2xl border-2 bg-white p-4 transition-all ${specialistId === doctor.id
+            {specialists?.filter(f => specialistId === f.id).map((doctor) => (<button key={doctor.id} onClick={() => onSpecialistSelection(doctor.id)} className={`w-full rounded-2xl border-2 bg-white p-4 transition-all ${specialistId === doctor.id
                     ? "border-[#083f30] shadow-md"
-                    : "border-gray-200 hover:border-gray-300"
-                  }`}
-              >
+                    : "border-gray-200 hover:border-gray-300"}`}>
                 <div className="flex gap-4">
                   <div className="relative flex-shrink-0">
-                    <img
-                      src={doctor.image}
-                      alt={doctor.name}
-                      className="h-20 w-20 rounded-xl object-cover"
-                    />
+                    <img src={doctor.image} alt={doctor.name} className="h-20 w-20 rounded-xl object-cover"/>
                     <div className="absolute -right-1 -bottom-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#083f30]">
-                      <BadgeCheck size={14} className="text-[#eacb7f]" />
+                      <BadgeCheck size={14} className="text-[#eacb7f]"/>
                     </div>
                   </div>
 
@@ -739,52 +538,41 @@ export default function ServiceSelection() {
                     <div className="mb-2 flex items-center gap-3 text-xs text-gray-600">
                       <span>{doctor.experience}</span>
                       <span>•</span>
-                      <span>{doctor.patients} patients</span>
+                      <span>{doctor.patients}{tBooking("patients")}</span>
                     </div>
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
-                        <Star
-                          size={14}
-                          className="fill-yellow-400 text-yellow-400"
-                        />
+                        <Star size={14} className="fill-yellow-400 text-yellow-400"/>
                         <span className="text-sm font-bold text-gray-900">
                           {doctor.rating}
                         </span>
                       </div>
 
-                      <span className="text-xs font-semibold text-[#083f30]">
-                        Next: {doctor.nextAvailable}
+                      <span className="text-xs font-semibold text-[#083f30]">{tBooking("next")}{doctor.nextAvailable}
                       </span>
                     </div>
                   </div>
                 </div>
-              </button>
-            ))}
+              </button>))}
           </div>
         </div>
-      </>
-    );
-  };
-
-  const edgeComponentMap = {
-    [NodeType.Provider]: <ChooseYourProvider />,
-    [NodeType.Service]: <ChooseYourService />,
-    [NodeType.Specialist]: <ChooseYourSpecialist />,
-  };
-
-
-  const edgeComponentSelectedMap = {
-    [NodeType.Provider]: <SelectedProvider />,
-    [NodeType.Service]: <SelectedService />,
-    [NodeType.Specialist]: <SelectedSpecialist />,
-  };
-
-  /* ----- Render ----- */
-  if (!selectedNode) return <>please select a node</>;
-
-  return (
-    <div>
+      </>);
+    };
+    const edgeComponentMap = {
+        [NodeType.Provider]: <ChooseYourProvider />,
+        [NodeType.Service]: <ChooseYourService />,
+        [NodeType.Specialist]: <ChooseYourSpecialist />,
+    };
+    const edgeComponentSelectedMap = {
+        [NodeType.Provider]: <SelectedProvider />,
+        [NodeType.Service]: <SelectedService />,
+        [NodeType.Specialist]: <SelectedSpecialist />,
+    };
+    /* ----- Render ----- */
+    if (!selectedNode)
+        return <>{tBooking("pleaseSelectANode")}</>;
+    return (<div>
 
       {/* The selected node’s own component */}
       {/* {edgeComponentMap[selectedNode.name]} */}
@@ -792,12 +580,9 @@ export default function ServiceSelection() {
       {/* All other nodes that are *not* selected */}
 
       {nodes
-        .map(n => (
-          <div key={n.name}>
+            .map(n => (<div key={n.name}>
             {n.isSelected && <>{edgeComponentSelectedMap[n.name]}</>}
             {!n.isSelected && <>{edgeComponentMap[n.name]}</>}
-          </div>
-        ))}
-    </div>
-  );
+          </div>))}
+    </div>);
 }

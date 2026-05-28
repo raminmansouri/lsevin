@@ -1,7 +1,7 @@
 import "server-only";
 import { db } from "@/features/booking-admin-shared/server/db";
 
-export async function getBookingDrafts(locale = 'en-US') {
+export async function getBookingDrafts(locale = 'fa-IR') {
   return db<any[]>`
     select
       d.id,
@@ -25,7 +25,7 @@ export async function getBookingDrafts(locale = 'en-US') {
   `;
 }
 
-export async function getBookingDraftById(draftId: string, locale = 'en-US') {
+export async function getBookingDraftById(draftId: string, locale = 'fa-IR') {
   const rows = await db<any[]>`
     select
       d.*,

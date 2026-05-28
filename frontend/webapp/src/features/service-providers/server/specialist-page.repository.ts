@@ -242,7 +242,7 @@ async function getSpecialistRow(specialistId: string, locale: string) {
       common.get_translation_t(s.name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as name,
       common.get_translation_t(s.biography_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as biography,
       common.get_translation_t(s.title_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as title,
-      s.profile_image_url as "profileImageUrl",
+      coalesce(profile_media.file_url, s.profile_image_url) as "profileImageUrl",
       s.experience,
       s.patients,
       s.rating,
@@ -271,11 +271,12 @@ async function getSpecialistRow(specialistId: string, locale: string) {
           and sc.is_verified = true
       ) as verified
     from category.staff s
+    left join media.media_library profile_media on profile_media.id::text = nullif(s.profile_image_url, '')
     left join category.staff_languages sl on sl.staff_id = s.id
     left join category.staff_specializations ss on ss.staff_id = s.id
     where s.id = ${specialistId}::uuid
       and s.is_active = true
-    group by s.id
+    group by s.id, profile_media.file_url
     limit 1
   `;
 
@@ -289,7 +290,7 @@ async function getSpecialistProviders(specialistId: string, locale: string): Pro
       ps.id::text as "providerStaffId",
       common.get_translation_t(sp.name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as name,
       common.get_translation_t(sp.description_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as description,
-      sp.image_url as image,
+      coalesce(nullif(sp.image_url, ''), provider_gallery.url) as image,
       common.get_translation_t(pt.name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as "providerTypeName",
       sp.city,
       sp.country,
@@ -301,6 +302,14 @@ async function getSpecialistProviders(specialistId: string, locale: string): Pro
     from category.provider_staffs ps
     join category.service_providers sp on sp.id = ps.service_provider_id
     left join category.provider_types pt on pt.id = sp.provider_type_id
+    left join lateral (
+      select pgi.url
+      from category.provider_gallery_items pgi
+      where pgi.service_provider_id = sp.id
+        and nullif(pgi.url, '') is not null
+      order by pgi.display_order asc, pgi.create_date asc
+      limit 1
+    ) provider_gallery on true
     where ps.staff_id = ${specialistId}::uuid
       and ps.is_active = true
       and sp.is_active = true
@@ -358,7 +367,7 @@ async function getSpecialistServiceRows(specialistId: string, locale: string): P
         nullif(common.get_translation_t(ps.description_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}), ''),
         common.get_translation_t(sd.description_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE})
       ) as description,
-      coalesce(ps.image_url, sp.image_url) as image,
+      coalesce(nullif(ps.image_url, ''), service_gallery.url, nullif(sp.image_url, ''), provider_gallery.url) as image,
       sp.city,
       sp.country,
       ps.value,
@@ -378,6 +387,22 @@ async function getSpecialistServiceRows(specialistId: string, locale: string): P
     from category.provider_services ps
     join category.service_definitions sd on sd.id = ps.service_definition_id
     join category.service_providers sp on sp.id = ps.service_provider_id
+    left join lateral (
+      select psgi.url
+      from category.provider_service_gallery_items psgi
+      where psgi.provider_service_id = ps.id
+        and nullif(psgi.url, '') is not null
+      order by psgi.is_primary desc, psgi.display_order asc, psgi.create_date asc
+      limit 1
+    ) service_gallery on true
+    left join lateral (
+      select pgi.url
+      from category.provider_gallery_items pgi
+      where pgi.service_provider_id = sp.id
+        and nullif(pgi.url, '') is not null
+      order by pgi.display_order asc, pgi.create_date asc
+      limit 1
+    ) provider_gallery on true
     where ps.service_provider_id in (select service_provider_id from linked_providers)
       and ps.is_active = true
       and sd.is_active = true
@@ -441,7 +466,8 @@ async function getEducation(specialistId: string): Promise<SpecialistEducation[]
       id::text as id,
       degree,
       institution,
-      year
+      year,
+      image_url as "imageUrl"
     from category.staff_education
     where staff_id = ${specialistId}::uuid
     order by year desc nulls last, create_date desc
@@ -452,6 +478,7 @@ async function getEducation(specialistId: string): Promise<SpecialistEducation[]
     degree: asString(row.degree),
     institution: asString(row.institution),
     year: asNullableNumber(row.year),
+    imageUrl: asString(row.imageUrl),
   }));
 }
 
@@ -461,7 +488,8 @@ async function getCertifications(specialistId: string): Promise<SpecialistCertif
       id::text as id,
       name,
       issuer,
-      is_verified as verified
+      is_verified as verified,
+      image_url as "imageUrl"
     from category.staff_certifications
     where staff_id = ${specialistId}::uuid
     order by is_verified desc, create_date desc
@@ -472,6 +500,7 @@ async function getCertifications(specialistId: string): Promise<SpecialistCertif
     name: asString(row.name),
     issuer: asString(row.issuer),
     verified: Boolean(row.verified),
+    imageUrl: asString(row.imageUrl),
   }));
 }
 
@@ -480,7 +509,8 @@ async function getCredentials(specialistId: string): Promise<SpecialistCredentia
     select
       id::text as id,
       credential,
-      is_verified as verified
+      is_verified as verified,
+      image_url as "imageUrl"
     from category.staff_credentials
     where staff_id = ${specialistId}::uuid
     order by is_verified desc, credential asc
@@ -490,6 +520,7 @@ async function getCredentials(specialistId: string): Promise<SpecialistCredentia
     id: row.id,
     credential: asString(row.credential),
     verified: Boolean(row.verified),
+    imageUrl: asString(row.imageUrl),
   }));
 }
 
@@ -756,7 +787,7 @@ export async function getSpecialistPageFromDb({
       title: asString(specialistRow.title),
       specialty: asString(specialistRow.specialty),
       biography: asString(specialistRow.biography),
-      image: specialistRow.profileImageUrl,
+      image: asString(specialistRow.profileImageUrl),
       rating: asNumber(specialistRow.rating, 0),
       reviews: asNumber(specialistRow.reviewCount, recentReviews.length),
       experience: asString(

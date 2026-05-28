@@ -37,7 +37,13 @@ import { CategoryDetails } from "../types/category";
 import { initialUpdateCategoryImageActionState } from "../actions/upload-category-image/types";
 import { updateCategoryImageAction } from "../actions/upload-category-image";
 import { env } from "@/config/env/client";
-import Image from "next/image";
+import {
+  DEFAULT_CATEGORY_OVERLAY_COLOR,
+  DEFAULT_CATEGORY_OVERLAY_OPACITY,
+  buildCategoryOverlayGradient,
+  buildCategoryOverlayValue,
+  extractCategoryOverlayConfig,
+} from "../utils/category-overlay";
 
 interface CategoryFormProps {
   category?: CategoryDetails;
@@ -54,6 +60,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
   const isEdit = !!category;
   const parentId =
     searchParams.get("parentId") || category?.parentId || undefined;
+  const overlayDefaults = extractCategoryOverlayConfig(category?.gradient);
 
   const form = useForm<CategoryFormInput>({
     defaultValues: {
@@ -65,9 +72,20 @@ export function CategoryForm({ category }: CategoryFormProps) {
         ? { translations: category.description.translations }
         : createEmptyLocalizedContent(),
       parentId: parentId,
+      gradient: category?.gradient ?? "",
+      overlayColor: overlayDefaults.color,
+      overlayOpacity: overlayDefaults.opacity,
     },
     resolver: zodResolver(CategoryFormSchema),
   });
+
+  const overlayColor = form.watch("overlayColor") || DEFAULT_CATEGORY_OVERLAY_COLOR;
+  const overlayOpacity =
+    form.watch("overlayOpacity") ?? DEFAULT_CATEGORY_OVERLAY_OPACITY;
+  const overlayGradient = buildCategoryOverlayGradient(
+    overlayColor,
+    overlayOpacity
+  );
 
   const action = isEdit ? updateCategoryAction : createCategoryAction;
 
@@ -88,10 +106,15 @@ export function CategoryForm({ category }: CategoryFormProps) {
       name: values.name,
       description: values.description,
     });
+    const { overlayColor, overlayOpacity, ...categoryValues } = values;
 
     const payload = {
-      ...values,
+      ...categoryValues,
       ...normalizedFields,
+      gradient: buildCategoryOverlayValue(
+        overlayColor || DEFAULT_CATEGORY_OVERLAY_COLOR,
+        overlayOpacity ?? DEFAULT_CATEGORY_OVERLAY_OPACITY
+      ),
       parentId: values.parentId || undefined,
     };
 
@@ -121,7 +144,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
                     control={form.control}
                     name="categoryId"
                     render={({ field }) => (
-                      <Input {...field} type="hidden" disabled />
+                      <Input {...field} type="hidden" />
                     )}
                   />
                 )}
@@ -166,6 +189,89 @@ export function CategoryForm({ category }: CategoryFormProps) {
                     </FormItem>
                   )}
                 />
+
+                <div className="rounded-xl border bg-muted/20 p-4 space-y-4">
+                  <div className="space-y-1">
+                    <h3 className="text-sm font-semibold">Category card overlay</h3>
+                    <p className="text-xs text-muted-foreground">
+                      This controls the colored layer shown over category images on the home page and categories page.
+                    </p>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="overlayColor"
+                      render={({ field }) => (
+                        <FormItem>
+                          <label className="text-sm font-medium">Overlay color</label>
+                          <FormControl>
+                            <div className="flex items-center gap-3">
+                              <Input
+                                type="color"
+                                value={field.value || DEFAULT_CATEGORY_OVERLAY_COLOR}
+                                onChange={field.onChange}
+                                className="h-10 w-16 cursor-pointer p-1"
+                              />
+                              <Input
+                                value={field.value || DEFAULT_CATEGORY_OVERLAY_COLOR}
+                                onChange={field.onChange}
+                                placeholder="#083f30"
+                              />
+                            </div>
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="overlayOpacity"
+                      render={({ field }) => (
+                        <FormItem>
+                          <label className="text-sm font-medium">Overlay opacity</label>
+                          <FormControl>
+                            <div className="flex items-center gap-3">
+                              <Input
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.05"
+                                value={field.value ?? DEFAULT_CATEGORY_OVERLAY_OPACITY}
+                                onChange={(event) => field.onChange(Number(event.target.value))}
+                              />
+                              <Input
+                                type="number"
+                                min="0"
+                                max="1"
+                                step="0.05"
+                                value={field.value ?? DEFAULT_CATEGORY_OVERLAY_OPACITY}
+                                onChange={(event) => field.onChange(Number(event.target.value))}
+                                className="w-24"
+                              />
+                            </div>
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="relative h-32 overflow-hidden rounded-xl bg-slate-200">
+                    {category?.imageUrl ? (
+                      <img
+                        src={category.imageUrl.startsWith("http") ? category.imageUrl : `${env.NEXT_PUBLIC_FILES_URL}/${category.imageUrl.replace(/^\//, "")}`}
+                        alt="Category overlay preview"
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-gradient-to-br from-slate-200 to-slate-300" />
+                    )}
+                    <div className="absolute inset-0" style={{ background: overlayGradient }} />
+                    <div className="absolute bottom-3 left-3 right-3 text-sm font-semibold text-white drop-shadow">
+                      {componentT("form.name.label")} preview
+                    </div>
+                  </div>
+                </div>
 
                 {/* Submit Buttons */}
                 <div className="flex gap-4 pt-4">
@@ -259,15 +365,6 @@ function CategoryImageUploadForm({ category }: { category: CategoryDetails }) {
           Upload or replace the category image separately.
         </p>
       </div>
-        <div className="relative aspect-video overflow-hidden rounded-md">
-                      <Image
-                        src={`${env.NEXT_PUBLIC_FILES_URL}/${category.imageUrl}`}
-                         alt={'category image'}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
-                    </div>
 
       {previewUrl ? (
         <div className="overflow-hidden rounded-lg border">

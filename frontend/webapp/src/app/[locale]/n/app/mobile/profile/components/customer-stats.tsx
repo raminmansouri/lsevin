@@ -1,5 +1,6 @@
 import type { Sql } from "postgres";
 import { CalendarCheck2, Coins, PiggyBank } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 import sql from "@/config/database/db";
 
@@ -125,20 +126,21 @@ export async function CustomerStats({
   className = "",
 }: CustomerStatsProps) {
   const stats = await getCustomerStatsByIdentityUser(sql, identityUserId);
+  const t = await getTranslations({ locale, namespace: "MobileProfile.stats" });
 
   const items = [
     {
-      label: "Bookings",
+      label: t("bookings"),
       value: formatNumber(stats.bookingsCount, locale),
       icon: CalendarCheck2,
     },
     {
-      label: "Points",
+      label: t("points"),
       value: formatNumber(stats.pointsBalance, locale),
       icon: Coins,
     },
     {
-      label: "Saved",
+      label: t("saved"),
       value: formatMoney(stats.savedAmount, stats.currencyCode, locale),
       icon: PiggyBank,
     },

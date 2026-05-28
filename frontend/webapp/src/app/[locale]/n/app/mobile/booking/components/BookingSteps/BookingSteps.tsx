@@ -1,7 +1,6 @@
-import React from 'react'
-
+import React from 'react';
+import { useTranslations } from "next-intl";
 export default function BookingSteps() {
-  return (
-    <div>BookingSteps</div>
-  )
+    const tBooking = useTranslations("Booking");
+    return (<div>{tBooking("bookingSteps")}</div>);
 }

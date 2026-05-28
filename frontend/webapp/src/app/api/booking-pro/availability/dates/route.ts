@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
   try {
     const s = request.nextUrl.searchParams;
     const data = await getBookingAvailableDatesFromDb({
-      locale: s.get('locale') ?? 'en-US',
+      locale: s.get('locale') ?? 'fa-IR',
       calendar: s.get('calendar') ?? undefined,
       providerId: s.get('providerId') ?? undefined,
       serviceId: s.get('serviceId') ?? undefined,

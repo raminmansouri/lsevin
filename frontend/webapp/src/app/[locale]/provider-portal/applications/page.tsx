@@ -1,8 +1,15 @@
 import { ProviderPortalHome } from "@/features/provider-portal/components/portal-home";
-import { listMyProviderApplications, listMyProviders } from "@/features/provider-portal/server/repository";
+import {
+  listMyProviderApplications,
+  listMyProviders,
+} from "@/features/provider-portal/server/repository";
 import { requireCurrentUserId } from "@/features/provider-portal/server/session";
 
-export default async function ProviderApplicationsPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function ProviderApplicationsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
   const userId = await requireCurrentUserId();
 
@@ -11,5 +18,7 @@ export default async function ProviderApplicationsPage({ params }: { params: Pro
     listMyProviderApplications(userId, locale),
   ]);
 
-  return <ProviderPortalHome providers={providers} applications={applications} />;
+  return (
+    <ProviderPortalHome providers={providers} applications={applications} />
+  );
 }

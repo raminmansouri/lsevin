@@ -1,11 +1,26 @@
 import { notFound } from "next/navigation";
 
 import { ProviderRecordForm } from "@/features/provider-portal/components/provider-record-form";
-import { getProviderWorkspace, listProviderStaff, listProviderStaffRelatedRecords } from "@/features/provider-portal/server/repository";
+import {
+  getProviderWorkspace,
+  listProviderStaff,
+  listProviderStaffRelatedRecords,
+} from "@/features/provider-portal/server/repository";
 import { requireCurrentUserId } from "@/features/provider-portal/server/session";
-import { providerPortalBack, serviceDefinitionOptions, staffOptions, toDateInput, toTimeInput, tr } from "@/features/provider-portal/lib/form-page-utils";
+import {
+  providerPortalBack,
+  serviceDefinitionOptions,
+  staffOptions,
+  toDateInput,
+  toTimeInput,
+  tr,
+} from "@/features/provider-portal/lib/form-page-utils";
 
-export default async function NewStaffAvailabilityPage({ params }: { params: Promise<{ locale: string; providerId: string; staffId: string }> }) {
+export default async function NewStaffAvailabilityPage({
+  params,
+}: {
+  params: Promise<{ locale: string; providerId: string; staffId: string }>;
+}) {
   const { locale, providerId, staffId } = await params;
   const userId = await requireCurrentUserId();
   await getProviderWorkspace(userId, providerId, locale);
@@ -15,14 +30,87 @@ export default async function NewStaffAvailabilityPage({ params }: { params: Pro
   const fields = [
     { name: "providerId", type: "hidden" as const },
     { name: "availabilityId", type: "hidden" as const },
-    { name: "staffId", label: "Staff", type: "select" as const, required: true, options: staffOptions(staff), fullWidth: true },
-    { name: "dayOfWeek", label: "Day of week", type: "select" as const, required: true, options: [{ value: 1, label: "Monday" }, { value: 2, label: "Tuesday" }, { value: 3, label: "Wednesday" }, { value: 4, label: "Thursday" }, { value: 5, label: "Friday" }, { value: 6, label: "Saturday" }, { value: 7, label: "Sunday" }] },
-    { name: "startTime", label: "Start time", type: "time" as const, required: true },
-    { name: "endTime", label: "End time", type: "time" as const, required: true },
-    { name: "availabilityStatusId", label: "Status id", type: "number" as const, min: 1 },
-    { name: "specificDate", label: "Specific date", type: "date" as const, helpText: "Optional. Leave empty for recurring weekly availability." },
-    { name: "isRecurring", label: "Recurring weekly", type: "checkbox" as const },
+    {
+      name: "staffId",
+      label: "کارشناس / پزشک",
+      type: "select" as const,
+      required: true,
+      options: staffOptions(staff),
+      fullWidth: true,
+      helpText: "شخصی را انتخاب کنید که این زمان کاری برای او قابل رزرو شود.",
+    },
+    {
+      name: "dayOfWeek",
+      label: "روز هفته",
+      type: "select" as const,
+      required: true,
+      helpText: "برای برنامه ثابت هفتگی، روز تکرارشونده را انتخاب کنید.",
+      options: [
+        { value: 1, label: "دوشنبه" },
+        { value: 2, label: "سه‌شنبه" },
+        { value: 3, label: "چهارشنبه" },
+        { value: 4, label: "پنجشنبه" },
+        { value: 5, label: "جمعه" },
+        { value: 6, label: "شنبه" },
+        { value: 7, label: "یکشنبه" },
+      ],
+    },
+    {
+      name: "startTime",
+      label: "ساعت شروع",
+      type: "time" as const,
+      required: true,
+      helpText: "از این ساعت، نوبت‌دهی برای مشتری شروع می‌شود.",
+    },
+    {
+      name: "endTime",
+      label: "ساعت پایان",
+      type: "time" as const,
+      required: true,
+      helpText: "بعد از این ساعت نوبتی ساخته نمی‌شود؛ پایان باید بعد از شروع باشد.",
+    },
+    {
+      name: "availabilityStatusId",
+      label: "وضعیت",
+      type: "number" as const,
+      min: 1,
+      helpText: "عدد 1 یعنی قابل رزرو. برای وضعیت‌های دیگر فقط در صورتی تغییر دهید که سیستم شما آن‌ها را تعریف کرده باشد.",
+    },
+    {
+      name: "specificDate",
+      label: "تاریخ خاص",
+      type: "date" as const,
+      helpText: "اختیاری است. اگر تکرار هفتگی روشن است، این قسمت را خالی بگذارید. برای تعطیلی یا برنامه یک‌روزه، تاریخ خاص را وارد کنید.",
+    },
+    {
+      name: "isRecurring",
+      label: "تکرار هفتگی",
+      type: "checkbox" as const,
+      helpText: "روشن باشد یعنی این بازه هر هفته تکرار می‌شود؛ خاموش باشد یعنی فقط تاریخ خاص اعمال می‌شود.",
+    },
   ];
 
-  return <ProviderRecordForm operation="saveStaffAvailability" title="Add staff availability" description="Add a working time block for this staff/specialist." fields={fields} initialValues={{ providerId, staffId, dayOfWeek: 1, startTime: "09:00", endTime: "17:00", availabilityStatusId: 1, isRecurring: true }} backHref={providerPortalBack(providerId, `/staff/${staffId}/availability`)} submitLabel="Save availability" successMessage="Availability saved." />;
+  return (
+    <ProviderRecordForm
+      operation="saveStaffAvailability"
+      title="تعریف زمان کاری کارشناس"
+      description="برای این کارشناس یک بازه زمانی قابل رزرو تعریف کنید. اگر تکرار هفتگی روشن باشد، همین ساعت در هر هفته تکرار می‌شود."
+      fields={fields}
+      initialValues={{
+        providerId,
+        staffId,
+        dayOfWeek: 1,
+        startTime: "09:00",
+        endTime: "17:00",
+        availabilityStatusId: 1,
+        isRecurring: true,
+      }}
+      backHref={providerPortalBack(
+        providerId,
+        `/staff/${staffId}/availability`,
+      )}
+      submitLabel="ذخیره زمان کاری"
+      successMessage="زمان کاری ذخیره شد."
+    />
+  );
 }

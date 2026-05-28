@@ -76,7 +76,7 @@ function isUuid(value?: string | null): value is string {
 }
 
 function normalizeLocale(locale?: string | null): string {
-  const raw = String(locale || "en-US").trim().replace("_", "-");
+  const raw = String(locale || "fa-IR").trim().replace("_", "-");
   const map: Record<string, string> = {
     en: "en-US",
     fa: "fa-IR",
@@ -88,7 +88,7 @@ function normalizeLocale(locale?: string | null): string {
     ku: "ku-KU",
   };
 
-  return map[raw.toLowerCase()] || raw || "en-US";
+  return map[raw.toLowerCase()] || raw || "fa-IR";
 }
 
 function toNumber(value: unknown, fallback = 0): number {

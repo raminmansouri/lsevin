@@ -2,7 +2,11 @@ import "server-only";
 
 import sql from "@/config/database/db";
 
-import { buildPermissionMap, hasPortalPermission, type ProviderPortalPermission } from "../lib/permissions";
+import {
+  buildPermissionMap,
+  hasPortalPermission,
+  type ProviderPortalPermission,
+} from "../lib/permissions";
 import { splitCsv, translationFromFlat } from "../lib/normalizers";
 import type {
   BookingRow,
@@ -50,11 +54,14 @@ function translationExpr(column: any, locale: string) {
 
 function roleFromDb(value: unknown): ProviderPortalRole {
   const role = String(value || "viewer") as ProviderPortalRole;
-  if (["owner", "admin", "manager", "editor", "viewer", "staff"].includes(role)) return role;
+  if (["owner", "admin", "manager", "editor", "viewer", "staff"].includes(role))
+    return role;
   return "viewer";
 }
 
-export async function getProviderTypes(locale: string): Promise<ProviderTypeOption[]> {
+export async function getProviderTypes(
+  locale: string,
+): Promise<ProviderTypeOption[]> {
   const lang = safeLocale(locale);
   const rows = await sql<ProviderTypeOption[]>`
     select
@@ -68,7 +75,10 @@ export async function getProviderTypes(locale: string): Promise<ProviderTypeOpti
   return rows;
 }
 
-export async function listMyProviderApplications(userId: string, locale: string): Promise<ProviderApplication[]> {
+export async function listMyProviderApplications(
+  userId: string,
+  locale: string,
+): Promise<ProviderApplication[]> {
   const lang = safeLocale(locale);
   const rows = await sql<ProviderApplication[]>`
     select
@@ -94,7 +104,9 @@ export async function listMyProviderApplications(userId: string, locale: string)
   return rows;
 }
 
-export async function listAllProviderApplications(locale: string): Promise<ProviderApplication[]> {
+export async function listAllProviderApplications(
+  locale: string,
+): Promise<ProviderApplication[]> {
   const lang = safeLocale(locale);
   const rows = await sql<ProviderApplication[]>`
     select
@@ -128,7 +140,10 @@ export async function listAllProviderApplications(locale: string): Promise<Provi
   return rows;
 }
 
-export async function getProviderApplicationForAdmin(applicationId: string, locale: string) {
+export async function getProviderApplicationForAdmin(
+  applicationId: string,
+  locale: string,
+) {
   const lang = safeLocale(locale);
   const rows = await sql<any[]>`
     select
@@ -149,7 +164,10 @@ export async function getProviderApplicationForAdmin(applicationId: string, loca
   return rows[0] || null;
 }
 
-export async function listMyProviders(userId: string, locale: string): Promise<ProviderSummary[]> {
+export async function listMyProviders(
+  userId: string,
+  locale: string,
+): Promise<ProviderSummary[]> {
   const lang = safeLocale(locale);
   const rows = await sql<ProviderSummary[]>`
     select
@@ -191,7 +209,10 @@ export async function listMyProviders(userId: string, locale: string): Promise<P
   return rows.map((row) => ({ ...row, role: roleFromDb(row.role) }));
 }
 
-export async function getMembershipRole(_userId: string, _providerId: string): Promise<ProviderPortalRole | null> {
+export async function getMembershipRole(
+  _userId: string,
+  _providerId: string,
+): Promise<ProviderPortalRole | null> {
   // Temporary development mode: bypass provider_portal.provider_members checks.
   // This makes all menu items/forms visible while the portal is being reviewed locally.
   return "owner";
@@ -200,13 +221,17 @@ export async function getMembershipRole(_userId: string, _providerId: string): P
 export async function requireProviderPermission(
   _userId: string,
   _providerId: string,
-  _permission: ProviderPortalPermission
+  _permission: ProviderPortalPermission,
 ): Promise<ProviderPortalRole> {
   // Temporary development mode: bypass role/permission checks.
   return "owner";
 }
 
-export async function getProviderWorkspace(_userId: string, providerId: string, locale: string): Promise<ProviderWorkspace> {
+export async function getProviderWorkspace(
+  _userId: string,
+  providerId: string,
+  locale: string,
+): Promise<ProviderWorkspace> {
   const role: ProviderPortalRole = "owner";
   const lang = safeLocale(locale);
 
@@ -314,20 +339,26 @@ export async function getProviderWorkspace(_userId: string, providerId: string, 
   };
 }
 
-export async function createProviderApplication(userId: string, input: {
-  providerTypeId: string;
-  legalName: string;
-  displayNameEn: string;
-  displayNameFa?: string;
-  email?: string | null;
-  phoneNumberCountryCode: string;
-  phoneNumber: string;
-  country: string;
-  city: string;
-  addressText?: string | null;
-  websiteUrl?: string | null;
-}) {
-  const displayName = translationFromFlat(input.displayNameEn, input.displayNameFa);
+export async function createProviderApplication(
+  userId: string,
+  input: {
+    providerTypeId: string;
+    legalName: string;
+    displayNameEn: string;
+    displayNameFa?: string;
+    email?: string | null;
+    phoneNumberCountryCode: string;
+    phoneNumber: string;
+    country: string;
+    city: string;
+    addressText?: string | null;
+    websiteUrl?: string | null;
+  },
+) {
+  const displayName = translationFromFlat(
+    input.displayNameEn,
+    input.displayNameFa,
+  );
   const rows = await sql<{ id: string }[]>`
     insert into provider_portal.onboarding_applications (
       applicant_user_id,
@@ -398,7 +429,9 @@ export async function updateProviderProfile(userId: string, input: any) {
   return true;
 }
 
-export async function listServiceDefinitionOptions(locale: string): Promise<ServiceDefinitionOption[]> {
+export async function listServiceDefinitionOptions(
+  locale: string,
+): Promise<ServiceDefinitionOption[]> {
   const lang = safeLocale(locale);
   return await sql<ServiceDefinitionOption[]>`
     select
@@ -414,7 +447,11 @@ export async function listServiceDefinitionOptions(locale: string): Promise<Serv
   `;
 }
 
-export async function listProviderServices(userId: string, providerId: string, locale: string): Promise<ProviderServiceRow[]> {
+export async function listProviderServices(
+  userId: string,
+  providerId: string,
+  locale: string,
+): Promise<ProviderServiceRow[]> {
   await requireProviderPermission(userId, providerId, "viewDashboard");
   const lang = safeLocale(locale);
   return await sql<ProviderServiceRow[]>`
@@ -446,7 +483,10 @@ export async function saveProviderService(userId: string, input: any) {
   await requireProviderPermission(userId, input.providerId, "manageServices");
 
   const displayName = translationFromFlat(input.nameEn, input.nameFa);
-  const description = translationFromFlat(input.descriptionEn, input.descriptionFa);
+  const description = translationFromFlat(
+    input.descriptionEn,
+    input.descriptionFa,
+  );
   const tags = splitCsv(input.tagsCsv);
 
   if (input.serviceId) {
@@ -511,7 +551,11 @@ export async function saveProviderService(userId: string, input: any) {
   return rows[0].id;
 }
 
-export async function deleteProviderService(userId: string, providerId: string, serviceId: string) {
+export async function deleteProviderService(
+  userId: string,
+  providerId: string,
+  serviceId: string,
+) {
   await requireProviderPermission(userId, providerId, "manageServices");
   await sql`
     update category.provider_services
@@ -522,7 +566,11 @@ export async function deleteProviderService(userId: string, providerId: string, 
   return true;
 }
 
-export async function listProviderStaff(userId: string, providerId: string, locale: string): Promise<StaffRow[]> {
+export async function listProviderStaff(
+  userId: string,
+  providerId: string,
+  locale: string,
+): Promise<StaffRow[]> {
   await requireProviderPermission(userId, providerId, "viewDashboard");
   const lang = safeLocale(locale);
 
@@ -639,7 +687,11 @@ export async function saveProviderStaff(userId: string, input: any) {
   return linkRows[0].id;
 }
 
-export async function deleteProviderStaffLink(userId: string, providerId: string, providerStaffId: string) {
+export async function deleteProviderStaffLink(
+  userId: string,
+  providerId: string,
+  providerStaffId: string,
+) {
   await requireProviderPermission(userId, providerId, "manageStaff");
   await sql`
     update category.provider_staffs
@@ -650,7 +702,10 @@ export async function deleteProviderStaffLink(userId: string, providerId: string
   return true;
 }
 
-export async function listOperatingHours(userId: string, providerId: string): Promise<OperatingHourRow[]> {
+export async function listOperatingHours(
+  userId: string,
+  providerId: string,
+): Promise<OperatingHourRow[]> {
   await requireProviderPermission(userId, providerId, "viewDashboard");
   const rows = await sql<OperatingHourRow[]>`
     select
@@ -668,18 +723,24 @@ export async function listOperatingHours(userId: string, providerId: string): Pr
   const byDay = new Map(rows.map((row) => [row.dayOfWeek, row]));
   return Array.from({ length: 7 }, (_, index) => {
     const day = index + 1;
-    return byDay.get(day) || {
-      id: null,
-      dayOfWeek: day,
-      opensAt: "09:00",
-      closesAt: "18:00",
-      isClosed: false,
-      slotIntervalMinutes: 15,
-    };
+    return (
+      byDay.get(day) || {
+        id: null,
+        dayOfWeek: day,
+        opensAt: "09:00",
+        closesAt: "18:00",
+        isClosed: false,
+        slotIntervalMinutes: 15,
+      }
+    );
   });
 }
 
-export async function saveOperatingHours(userId: string, providerId: string, hours: OperatingHourRow[]) {
+export async function saveOperatingHours(
+  userId: string,
+  providerId: string,
+  hours: OperatingHourRow[],
+) {
   await requireProviderPermission(userId, providerId, "manageAvailability");
 
   for (const hour of hours) {
@@ -718,7 +779,11 @@ export async function saveOperatingHours(userId: string, providerId: string, hou
   return true;
 }
 
-export async function listProviderBookings(userId: string, providerId: string, locale: string): Promise<BookingRow[]> {
+export async function listProviderBookings(
+  userId: string,
+  providerId: string,
+  locale: string,
+): Promise<BookingRow[]> {
   await requireProviderPermission(userId, providerId, "manageBookings");
   const lang = safeLocale(locale);
 
@@ -820,7 +885,11 @@ export async function updateProviderBooking(userId: string, input: any) {
   return true;
 }
 
-export async function listProviderGallery(userId: string, providerId: string, locale: string): Promise<GalleryRow[]> {
+export async function listProviderGallery(
+  userId: string,
+  providerId: string,
+  locale: string,
+): Promise<GalleryRow[]> {
   await requireProviderPermission(userId, providerId, "viewDashboard");
   const lang = safeLocale(locale);
 
@@ -843,7 +912,10 @@ export async function saveGalleryItem(userId: string, input: any) {
   await requireProviderPermission(userId, input.providerId, "manageMedia");
 
   const title = translationFromFlat(input.titleEn, input.titleFa);
-  const description = translationFromFlat(input.descriptionEn, input.descriptionFa);
+  const description = translationFromFlat(
+    input.descriptionEn,
+    input.descriptionFa,
+  );
 
   if (input.galleryItemId) {
     await sql`
@@ -889,7 +961,11 @@ export async function saveGalleryItem(userId: string, input: any) {
   return rows[0].id;
 }
 
-export async function deleteGalleryItem(userId: string, providerId: string, galleryItemId: string) {
+export async function deleteGalleryItem(
+  userId: string,
+  providerId: string,
+  galleryItemId: string,
+) {
   await requireProviderPermission(userId, providerId, "manageMedia");
   await sql`
     delete from category.provider_gallery_items
@@ -899,7 +975,10 @@ export async function deleteGalleryItem(userId: string, providerId: string, gall
   return true;
 }
 
-export async function listProviderReviews(userId: string, providerId: string): Promise<ReviewRow[]> {
+export async function listProviderReviews(
+  userId: string,
+  providerId: string,
+): Promise<ReviewRow[]> {
   await requireProviderPermission(userId, providerId, "viewReviews");
   return await sql<ReviewRow[]>`
     select
@@ -920,7 +999,11 @@ export async function listProviderReviews(userId: string, providerId: string): P
   `;
 }
 
-export async function listProviderOffers(userId: string, providerId: string, locale: string): Promise<OfferRow[]> {
+export async function listProviderOffers(
+  userId: string,
+  providerId: string,
+  locale: string,
+): Promise<OfferRow[]> {
   await requireProviderPermission(userId, providerId, "viewDashboard");
   const lang = safeLocale(locale);
 
@@ -954,9 +1037,13 @@ export async function saveOffer(userId: string, input: any) {
       and service_provider_id = ${input.providerId}::uuid
     limit 1
   `;
-  if (!serviceRows.length) throw new Error("Service does not belong to this provider.");
+  if (!serviceRows.length)
+    throw new Error("Service does not belong to this provider.");
 
-  const description = translationFromFlat(input.descriptionEn, input.descriptionFa);
+  const description = translationFromFlat(
+    input.descriptionEn,
+    input.descriptionFa,
+  );
 
   if (input.offerId) {
     await sql`
@@ -1015,7 +1102,11 @@ export async function saveOffer(userId: string, input: any) {
   return rows[0].id;
 }
 
-export async function deleteOffer(userId: string, providerId: string, offerId: number) {
+export async function deleteOffer(
+  userId: string,
+  providerId: string,
+  offerId: number,
+) {
   await requireProviderPermission(userId, providerId, "manageOffers");
   await sql`
     delete from marketing.offers o
@@ -1131,7 +1222,10 @@ export async function savePayoutAccount(userId: string, input: any) {
   return rows[0].id;
 }
 
-export async function listSupportTickets(userId: string, providerId: string): Promise<SupportTicketRow[]> {
+export async function listSupportTickets(
+  userId: string,
+  providerId: string,
+): Promise<SupportTicketRow[]> {
   await requireProviderPermission(userId, providerId, "manageSupport");
   return await sql<SupportTicketRow[]>`
     select
@@ -1192,7 +1286,7 @@ export async function updateSupportTicketStatus(userId: string, input: any) {
 export async function listProviderProfileRelatedRecords(
   userId: string,
   providerId: string,
-  locale: string
+  locale: string,
 ): Promise<ProviderProfileRelatedRecords> {
   await requireProviderPermission(userId, providerId, "viewDashboard");
   const lang = safeLocale(locale);
@@ -1270,7 +1364,11 @@ export async function saveProviderCertification(userId: string, input: any) {
   return rows[0].id;
 }
 
-export async function deleteProviderCertification(userId: string, providerId: string, certificationId: string) {
+export async function deleteProviderCertification(
+  userId: string,
+  providerId: string,
+  certificationId: string,
+) {
   await requireProviderPermission(userId, providerId, "manageProfile");
   await sql`
     delete from category.provider_certifications
@@ -1285,7 +1383,10 @@ export async function saveProviderPolicy(userId: string, input: any) {
   await requireProviderPermission(userId, input.providerId, "manageProfile");
 
   const type = translationFromFlat(input.typeEn, input.typeFa);
-  const description = translationFromFlat(input.descriptionEn, input.descriptionFa);
+  const description = translationFromFlat(
+    input.descriptionEn,
+    input.descriptionFa,
+  );
 
   if (input.policyId) {
     await sql`
@@ -1324,7 +1425,11 @@ export async function saveProviderPolicy(userId: string, input: any) {
   return rows[0].id;
 }
 
-export async function deleteProviderPolicy(userId: string, providerId: string, policyId: string) {
+export async function deleteProviderPolicy(
+  userId: string,
+  providerId: string,
+  policyId: string,
+) {
   await requireProviderPermission(userId, providerId, "manageProfile");
   await sql`
     delete from category.provider_policies
@@ -1337,13 +1442,14 @@ export async function deleteProviderPolicy(userId: string, providerId: string, p
 export async function listProviderServiceRelatedRecords(
   userId: string,
   providerId: string,
-  locale: string
+  locale: string,
 ): Promise<ProviderServiceRelatedRecords> {
   await requireProviderPermission(userId, providerId, "viewDashboard");
   const lang = safeLocale(locale);
 
-  const [serviceGallery, addonSettings, addonOptions, included, process, faqs] = await Promise.all([
-    sql<ServiceGalleryRow[]>`
+  const [serviceGallery, addonSettings, addonOptions, included, process, faqs] =
+    await Promise.all([
+      sql<ServiceGalleryRow[]>`
       select
         psgi.id::text,
         psgi.provider_service_id::text as "providerServiceId",
@@ -1360,7 +1466,7 @@ export async function listProviderServiceRelatedRecords(
       where ps.service_provider_id = ${providerId}::uuid
       order by psgi.display_order asc, psgi.create_date desc
     `,
-    sql<ServiceAddonSettingRow[]>`
+      sql<ServiceAddonSettingRow[]>`
       select
         ps.id::text as "providerServiceId",
         a.id as "addonId",
@@ -1376,7 +1482,7 @@ export async function listProviderServiceRelatedRecords(
       where ps.service_provider_id = ${providerId}::uuid
       order by "serviceName" asc, "addonName" asc
     `,
-    sql<ProviderAddonOption[]>`
+      sql<ProviderAddonOption[]>`
       select
         a.id,
         a.name,
@@ -1388,7 +1494,7 @@ export async function listProviderServiceRelatedRecords(
         and a.is_active = true
       order by a.name asc
     `,
-    sql<ServiceIncludedRow[]>`
+      sql<ServiceIncludedRow[]>`
       select
         si.id::text,
         si.service_id::text as "providerServiceId",
@@ -1399,7 +1505,7 @@ export async function listProviderServiceRelatedRecords(
       where ps.service_provider_id = ${providerId}::uuid
       order by si.item asc
     `,
-    sql<ServiceProcessRow[]>`
+      sql<ServiceProcessRow[]>`
       select
         sp.id::text,
         sp.service_id::text as "providerServiceId",
@@ -1413,7 +1519,7 @@ export async function listProviderServiceRelatedRecords(
       where ps.service_provider_id = ${providerId}::uuid
       order by sp.step asc, sp.id asc
     `,
-    sql<ServiceFaqRow[]>`
+      sql<ServiceFaqRow[]>`
       select
         sf.id::text,
         sf.service_id::text as "providerServiceId",
@@ -1425,9 +1531,16 @@ export async function listProviderServiceRelatedRecords(
       where ps.service_provider_id = ${providerId}::uuid
       order by sf.question asc
     `,
-  ]);
+    ]);
 
-  return { serviceGallery, addonSettings, addonOptions, included, process, faqs };
+  return {
+    serviceGallery,
+    addonSettings,
+    addonOptions,
+    included,
+    process,
+    faqs,
+  };
 }
 
 export async function saveServiceGalleryItem(userId: string, input: any) {
@@ -1440,10 +1553,14 @@ export async function saveServiceGalleryItem(userId: string, input: any) {
       and service_provider_id = ${input.providerId}::uuid
     limit 1
   `;
-  if (!owned.length) throw new Error("Service does not belong to this provider.");
+  if (!owned.length)
+    throw new Error("Service does not belong to this provider.");
 
   const title = translationFromFlat(input.titleEn, input.titleFa);
-  const description = translationFromFlat(input.descriptionEn, input.descriptionFa);
+  const description = translationFromFlat(
+    input.descriptionEn,
+    input.descriptionFa,
+  );
 
   if (input.isPrimary) {
     await sql`
@@ -1502,7 +1619,11 @@ export async function saveServiceGalleryItem(userId: string, input: any) {
   return rows[0].id;
 }
 
-export async function deleteServiceGalleryItem(userId: string, providerId: string, serviceGalleryItemId: string) {
+export async function deleteServiceGalleryItem(
+  userId: string,
+  providerId: string,
+  serviceGalleryItemId: string,
+) {
   await requireProviderPermission(userId, providerId, "manageServices");
   await sql`
     delete from category.provider_service_gallery_items psgi
@@ -1526,7 +1647,8 @@ export async function saveServiceAddonSetting(userId: string, input: any) {
       and service_provider_id = ${input.providerId}::uuid
     limit 1
   `;
-  if (!owned.length) throw new Error("Service does not belong to this provider.");
+  if (!owned.length)
+    throw new Error("Service does not belong to this provider.");
 
   await sql`
     insert into provider_portal.provider_service_addon_settings (
@@ -1562,7 +1684,12 @@ export async function saveServiceAddonSetting(userId: string, input: any) {
   return true;
 }
 
-export async function deleteServiceAddonSetting(userId: string, providerId: string, providerServiceId: string, addonId: string) {
+export async function deleteServiceAddonSetting(
+  userId: string,
+  providerId: string,
+  providerServiceId: string,
+  addonId: string,
+) {
   await requireProviderPermission(userId, providerId, "manageServices");
   await sql`
     delete from provider_portal.provider_service_addon_settings psas
@@ -1590,12 +1717,19 @@ export async function deleteServiceAddonSetting(userId: string, providerId: stri
 export async function listProviderStaffRelatedRecords(
   userId: string,
   providerId: string,
-  locale: string
+  locale: string,
 ): Promise<ProviderStaffRelatedRecords> {
   await requireProviderPermission(userId, providerId, "viewDashboard");
   const lang = safeLocale(locale);
 
-  const [certifications, education, availability, gallery, services, serviceDefinitions] = await Promise.all([
+  const [
+    certifications,
+    education,
+    availability,
+    gallery,
+    services,
+    serviceDefinitions,
+  ] = await Promise.all([
     sql<StaffCertificationRow[]>`
       select
         sc.id::text,
@@ -1693,10 +1827,20 @@ export async function listProviderStaffRelatedRecords(
     listServiceDefinitionOptions(locale),
   ]);
 
-  return { certifications, education, availability, gallery, services, serviceDefinitions };
+  return {
+    certifications,
+    education,
+    availability,
+    gallery,
+    services,
+    serviceDefinitions,
+  };
 }
 
-async function requireProviderStaffOwnership(providerId: string, staffId: string) {
+async function requireProviderStaffOwnership(
+  providerId: string,
+  staffId: string,
+) {
   const rows = await sql<{ id: string }[]>`
     select pst.id::text
     from category.provider_staffs pst
@@ -1704,7 +1848,8 @@ async function requireProviderStaffOwnership(providerId: string, staffId: string
       and pst.service_provider_id = ${providerId}::uuid
     limit 1
   `;
-  if (!rows.length) throw new Error("Staff member does not belong to this provider.");
+  if (!rows.length)
+    throw new Error("Staff member does not belong to this provider.");
 }
 
 export async function saveStaffCertification(userId: string, input: any) {
@@ -1746,7 +1891,11 @@ export async function saveStaffCertification(userId: string, input: any) {
   return rows[0].id;
 }
 
-export async function deleteStaffCertification(userId: string, providerId: string, certificationId: string) {
+export async function deleteStaffCertification(
+  userId: string,
+  providerId: string,
+  certificationId: string,
+) {
   await requireProviderPermission(userId, providerId, "manageStaff");
   await sql`
     delete from category.staff_certifications sc
@@ -1800,7 +1949,11 @@ export async function saveStaffEducation(userId: string, input: any) {
   return rows[0].id;
 }
 
-export async function deleteStaffEducation(userId: string, providerId: string, educationId: string) {
+export async function deleteStaffEducation(
+  userId: string,
+  providerId: string,
+  educationId: string,
+) {
   await requireProviderPermission(userId, providerId, "manageStaff");
   await sql`
     delete from category.staff_education se
@@ -1862,7 +2015,11 @@ export async function saveStaffAvailability(userId: string, input: any) {
   return rows[0].id;
 }
 
-export async function deleteStaffAvailability(userId: string, providerId: string, availabilityId: string) {
+export async function deleteStaffAvailability(
+  userId: string,
+  providerId: string,
+  availabilityId: string,
+) {
   await requireProviderPermission(userId, providerId, "manageStaff");
   await sql`
     delete from category.staff_availabilities sa
@@ -1881,7 +2038,10 @@ export async function saveStaffGalleryItem(userId: string, input: any) {
   await requireProviderStaffOwnership(input.providerId, input.staffId);
 
   const title = translationFromFlat(input.titleEn, input.titleFa);
-  const description = translationFromFlat(input.descriptionEn, input.descriptionFa);
+  const description = translationFromFlat(
+    input.descriptionEn,
+    input.descriptionFa,
+  );
 
   if (input.isPrimary) {
     await sql`
@@ -1940,7 +2100,11 @@ export async function saveStaffGalleryItem(userId: string, input: any) {
   return rows[0].id;
 }
 
-export async function deleteStaffGalleryItem(userId: string, providerId: string, staffGalleryItemId: string) {
+export async function deleteStaffGalleryItem(
+  userId: string,
+  providerId: string,
+  staffGalleryItemId: string,
+) {
   await requireProviderPermission(userId, providerId, "manageStaff");
   await sql`
     delete from category.staff_gallery_items sgi
@@ -1995,7 +2159,11 @@ export async function saveStaffService(userId: string, input: any) {
   return rows[0].id;
 }
 
-export async function deleteStaffService(userId: string, providerId: string, staffServiceId: string) {
+export async function deleteStaffService(
+  userId: string,
+  providerId: string,
+  staffServiceId: string,
+) {
   await requireProviderPermission(userId, providerId, "manageStaff");
   await sql`
     delete from category.staff_services ss
@@ -2009,7 +2177,11 @@ export async function deleteStaffService(userId: string, providerId: string, sta
   return true;
 }
 
-export async function deletePayoutAccount(userId: string, providerId: string, payoutAccountId: string) {
+export async function deletePayoutAccount(
+  userId: string,
+  providerId: string,
+  payoutAccountId: string,
+) {
   await requireProviderPermission(userId, providerId, "managePayouts");
   await sql`
     delete from provider_portal.payout_accounts
@@ -2020,7 +2192,10 @@ export async function deletePayoutAccount(userId: string, providerId: string, pa
   return true;
 }
 
-async function requireProviderServiceOwnership(providerId: string, providerServiceId: string) {
+async function requireProviderServiceOwnership(
+  providerId: string,
+  providerServiceId: string,
+) {
   const rows = await sql<{ id: string }[]>`
     select id::text
     from category.provider_services
@@ -2028,12 +2203,16 @@ async function requireProviderServiceOwnership(providerId: string, providerServi
       and service_provider_id = ${providerId}::uuid
     limit 1
   `;
-  if (!rows.length) throw new Error("Service does not belong to this provider.");
+  if (!rows.length)
+    throw new Error("Service does not belong to this provider.");
 }
 
 export async function saveServiceIncluded(userId: string, input: any) {
   await requireProviderPermission(userId, input.providerId, "manageServices");
-  await requireProviderServiceOwnership(input.providerId, input.providerServiceId);
+  await requireProviderServiceOwnership(
+    input.providerId,
+    input.providerServiceId,
+  );
 
   if (input.includedId) {
     await sql`
@@ -2053,7 +2232,11 @@ export async function saveServiceIncluded(userId: string, input: any) {
   return rows[0].id;
 }
 
-export async function deleteServiceIncluded(userId: string, providerId: string, includedId: string) {
+export async function deleteServiceIncluded(
+  userId: string,
+  providerId: string,
+  includedId: string,
+) {
   await requireProviderPermission(userId, providerId, "manageServices");
   await sql`
     delete from category.service_included si
@@ -2069,7 +2252,10 @@ export async function deleteServiceIncluded(userId: string, providerId: string, 
 
 export async function saveServiceProcess(userId: string, input: any) {
   await requireProviderPermission(userId, input.providerId, "manageServices");
-  await requireProviderServiceOwnership(input.providerId, input.providerServiceId);
+  await requireProviderServiceOwnership(
+    input.providerId,
+    input.providerServiceId,
+  );
 
   if (input.processId) {
     await sql`
@@ -2093,7 +2279,11 @@ export async function saveServiceProcess(userId: string, input: any) {
   return rows[0].id;
 }
 
-export async function deleteServiceProcess(userId: string, providerId: string, processId: string) {
+export async function deleteServiceProcess(
+  userId: string,
+  providerId: string,
+  processId: string,
+) {
   await requireProviderPermission(userId, providerId, "manageServices");
   await sql`
     delete from category.service_process sp
@@ -2109,7 +2299,10 @@ export async function deleteServiceProcess(userId: string, providerId: string, p
 
 export async function saveServiceFaq(userId: string, input: any) {
   await requireProviderPermission(userId, input.providerId, "manageServices");
-  await requireProviderServiceOwnership(input.providerId, input.providerServiceId);
+  await requireProviderServiceOwnership(
+    input.providerId,
+    input.providerServiceId,
+  );
 
   if (input.faqId) {
     await sql`
@@ -2129,7 +2322,11 @@ export async function saveServiceFaq(userId: string, input: any) {
   return rows[0].id;
 }
 
-export async function deleteServiceFaq(userId: string, providerId: string, faqId: string) {
+export async function deleteServiceFaq(
+  userId: string,
+  providerId: string,
+  faqId: string,
+) {
   await requireProviderPermission(userId, providerId, "manageServices");
   await sql`
     delete from category.service_faqs sf

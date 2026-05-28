@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
   const search = searchParams.get("Search");
   const page = searchParams.get("PageNumber");
   const pageSize = searchParams.get("PageSize");
+  const forMap = searchParams.get("ForMap") === "true";
   const countryCode = searchParams.get("CountryCode");
   const cityCode = searchParams.get("CityCode");
   const attributeFiltersParam = searchParams.get("AttributeFilters");
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest) {
       startDate: "",
       endDate: "",
       pageNumber: page ? parseInt(page) : DEFAULT_PAGE_NUMBER,
-      pageSize: pageSize ? parseInt(pageSize) : DEFAULT_PAGE_SIZE,
+      pageSize: pageSize ? parseInt(pageSize) : forMap ? 500 : DEFAULT_PAGE_SIZE,
       sortOrder: "",
       countryCode: countryCode || undefined,
       cityCode: cityCode || undefined,

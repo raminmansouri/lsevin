@@ -8,7 +8,10 @@ export default async function MapDiscoveryPage({
   params: Promise<{ locale: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const [{ locale }, resolvedSearchParams] = await Promise.all([params, searchParams]);
+  const [{ locale }, resolvedSearchParams] = await Promise.all([
+    params,
+    searchParams,
+  ]);
   const filters = parseNearbyFilters(resolvedSearchParams);
   const data = await getNearbyPageData({ locale, filters });
 
@@ -20,6 +23,7 @@ export default async function MapDiscoveryPage({
       providers={data.providers}
       availableLanguages={data.availableLanguages}
       availableSpecialties={data.availableSpecialties}
+      availableCurrencies={data.availableCurrencies}
       filters={filters}
       mapCenter={data.mapCenter}
     />

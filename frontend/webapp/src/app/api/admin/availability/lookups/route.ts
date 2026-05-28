@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
 
   const input = {
     lookupType,
-    locale: clean(params.get("locale")) || "en-US",
+    locale: clean(params.get("locale")) || "fa-IR",
     search: clean(params.get("search")),
     id: clean(params.get("id")),
     page: intParam(params.get("page"), 1),

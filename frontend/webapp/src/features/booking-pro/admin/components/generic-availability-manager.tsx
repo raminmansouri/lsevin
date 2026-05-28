@@ -25,6 +25,8 @@ const TARGET_TYPES = [
 ] as const;
 
 const RESOURCE_TYPES = ["generic", "room", "bed", "seat", "table", "vehicle", "equipment", "unit"] as const;
+const TIMEZONE_OPTIONS = ["Asia/Tehran", "Europe/Istanbul", "Asia/Dubai", "Asia/Baghdad", "Asia/Qatar", "Asia/Kuwait", "UTC"];
+
 const DAYS = [
   { value: 1, label: "Monday" },
   { value: 2, label: "Tuesday" },
@@ -52,7 +54,7 @@ function emptyRule(): GenericAvailabilityRule {
     minBookingMinutes: null,
     maxBookingMinutes: null,
     priority: 100,
-    timezoneId: "UTC",
+    timezoneId: "Asia/Tehran",
     metadata: {},
   };
 }
@@ -182,7 +184,9 @@ export function GenericAvailabilityManager({ rules, resources }: Props) {
             </label>
 
             <label className="block text-sm font-semibold text-slate-700">Timezone
-              <input value={rule.timezoneId || "UTC"} onChange={(event) => setRule((current) => ({ ...current, timezoneId: event.target.value || "UTC" }))} className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-900" />
+              <select value={rule.timezoneId || "Asia/Tehran"} onChange={(event) => setRule((current) => ({ ...current, timezoneId: event.target.value || "Asia/Tehran" }))} className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-900">
+                {TIMEZONE_OPTIONS.map((timezone) => <option key={timezone} value={timezone}>{timezone}</option>)}
+              </select>
             </label>
 
             <label className="block text-sm font-semibold text-slate-700">Priority

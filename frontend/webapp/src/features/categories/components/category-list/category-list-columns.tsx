@@ -16,6 +16,7 @@ import {
 import { CategoryListItem } from "../../types/category";
 import Image from "next/image";
 import { env } from "@/config/env/client";
+import { getCategoryOverlayClassName, getCategoryOverlayStyle } from "../../utils/category-overlay";
 
 export const getCategoryListColumns = (
   t: ReturnType<typeof useTranslations>,
@@ -52,6 +53,34 @@ export const getCategoryListColumns = (
           className="max-w-[200px] truncate"
           content={description || "-"}
         />
+      );
+    },
+    enableSorting: false,
+  },
+  
+  {
+    accessorKey: "gradient",
+    header: "Overlay",
+    cell: ({ row }) => {
+      const gradient = row.original.gradient;
+      const overlayClassName = getCategoryOverlayClassName(gradient);
+      const overlayStyle = getCategoryOverlayStyle(gradient);
+
+      return (
+        <div className="flex items-center gap-2">
+          <span
+            className={[
+              "inline-flex h-7 w-14 rounded-md",
+              overlayClassName ? `bg-gradient-to-t ${overlayClassName}` : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+            style={overlayStyle}
+          />
+          <span className="text-xs text-muted-foreground">
+            {gradient ? "Custom" : "Default"}
+          </span>
+        </div>
       );
     },
     enableSorting: false,

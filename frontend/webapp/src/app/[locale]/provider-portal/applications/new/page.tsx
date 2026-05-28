@@ -2,7 +2,11 @@ import { ProviderApplicationForm } from "@/features/provider-portal/components/a
 import { getProviderTypes } from "@/features/provider-portal/server/repository";
 import { requireCurrentUserId } from "@/features/provider-portal/server/session";
 
-export default async function NewProviderApplicationPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function NewProviderApplicationPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
   await requireCurrentUserId();
   const providerTypes = await getProviderTypes(locale);

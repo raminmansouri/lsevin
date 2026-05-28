@@ -14,6 +14,12 @@ import { saveBookableResourceAction } from "@/features/booking-pro/admin/actions
 import { LazyAvailabilityLookupSelect } from "./lazy-availability-lookup-select";
 import type { BookableResource, LookupOption } from "@/features/booking-pro/server/generic-availability-admin.repository";
 import type { LocalizedContent } from "@/features/shared/types/localization";
+import {
+  availabilityText,
+  readableGuideClass,
+  readableHelpClass,
+  resourceTypeExplanationsFa,
+} from "./availability-admin-copy";
 
 const RESOURCE_TYPES = ["generic", "room", "bed", "seat", "table", "vehicle", "equipment", "unit"] as const;
 
@@ -46,20 +52,41 @@ function emptyResource(providerId?: string, providerServiceId?: string): Bookabl
 
 export function BookableResourceForm({ resource, locale }: Props) {
   const t = useTranslations("AvailabilityAdmin");
+  const { tr, isPersian } = availabilityText(locale, t as any);
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [form, setForm] = useState<BookableResource>(resource || emptyResource());
 
   const hasProvider = useMemo(() => Boolean(form.serviceProviderId), [form.serviceProviderId]);
+  const selectedResourceTypeExplanation = isPersian ? resourceTypeExplanationsFa[form.resourceType] : "Choose the type that matches the real capacity unit this booking consumes.";
+  const resourceGuide = isPersian
+    ? {
+        title: "راهنمای منبع قابل رزرو",
+        body: "منبع یعنی چیزی که ظرفیت رزرو را محدود می‌کند؛ مثل اتاق هتل، تخت کلینیک، صندلی کلاس، خودرو، دستگاه یا هر ظرفیت واقعی دیگر.",
+        tips: [
+          "اگر خدمت فقط توسط یک پزشک انجام می‌شود و منبع جداگانه ندارد، معمولاً لازم نیست منبع بسازید.",
+          "اگر برای یک خدمت چند اتاق یا چند ظرفیت دارید، برای هر نوع منبع یک رکورد بسازید و ظرفیت کل را وارد کنید.",
+          "اتصال منبع به Provider Service باعث می‌شود فقط همان خدمت از ظرفیت این منبع استفاده کند.",
+        ],
+      }
+    : {
+        title: "Bookable resource guide",
+        body: "A resource is anything that limits booking capacity, such as a hotel room, clinic bed, class seat, vehicle, device, or physical unit.",
+        tips: [
+          "If a service is only controlled by one doctor or staff member, you usually do not need a separate resource.",
+          "If a service has rooms, beds, or shared equipment, create a resource and enter its total capacity.",
+          "Connecting a resource to a provider service makes only that service consume this capacity.",
+        ],
+      };
 
   const { execute } = useAction(saveBookableResourceAction, {
     startTransition,
     onSuccess: () => {
-      toast.success(resource?.id ? t("toasts.resourceUpdated") : t("toasts.resourceCreated"));
+      toast.success(resource?.id ? tr("toasts.resourceUpdated") : tr("toasts.resourceCreated"));
       router.push("/admin/availability");
       router.refresh();
     },
-    onError: (error) => toast.error(error?.detail || error?.title || t("toasts.resourceSaveFailed")),
+    onError: (error) => toast.error(error?.detail || error?.title || tr("toasts.resourceSaveFailed")),
   });
 
   function onProviderChange(value: string | null) {
@@ -81,8 +108,8 @@ export function BookableResourceForm({ resource, locale }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{resource?.id ? t("resourceForm.editTitle") : t("resourceForm.addTitle")}</CardTitle>
-        <CardDescription>{t("resourceForm.description")}</CardDescription>
+        <CardTitle>{resource?.id ? tr("resourceForm.editTitle") : tr("resourceForm.addTitle")}</CardTitle>
+        <CardDescription>{tr("resourceForm.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form
@@ -92,66 +119,73 @@ export function BookableResourceForm({ resource, locale }: Props) {
             execute({ ...form, id: form.id || undefined } as any);
           }}
         >
-          <div className="rounded-2xl border bg-muted/30 p-4 text-sm leading-6 text-muted-foreground">
-            <div className="mb-1 flex items-center gap-2 font-medium text-foreground">
+          <div dir={isPersian ? "rtl" : "ltr"} className={readableGuideClass}>
+            <div className="mb-1 flex items-center gap-2 font-semibold text-slate-950 dark:text-amber-50">
               <HelpCircle className="h-4 w-4" />
-              {t("resourceHelp.title")}
+              {resourceGuide.title}
             </div>
-            <p>{t("resourceHelp.body")}</p>
+            <p>{resourceGuide.body}</p>
+            <ul className="mt-3 list-inside list-disc space-y-1 text-xs leading-6">
+              {resourceGuide.tips.map((tip) => (
+                <li key={tip}>{tip}</li>
+              ))}
+            </ul>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <LazyAvailabilityLookupSelect
-              label={t("fields.provider")}
+              label={tr("fields.provider")}
               value={form.serviceProviderId || null}
               locale={locale}
               lookupType="providers"
-              placeholder={t("placeholders.selectProvider")}
-              searchPlaceholder={t("placeholders.searchProviders")}
-              emptyText={t("empty.noProviders")}
+              placeholder={tr("placeholders.selectProvider")}
+              searchPlaceholder={tr("placeholders.searchProviders")}
+              emptyText={tr("empty.noProviders")}
               disabled={isPending}
               onChange={onProviderChange}
             />
 
             <LazyAvailabilityLookupSelect
-              label={t("fields.providerService")}
+              label={tr("fields.providerService")}
               value={form.providerServiceId || null}
               locale={locale}
               lookupType="providerServices"
               serviceProviderId={form.serviceProviderId || null}
-              placeholder={t("placeholders.optionalServiceContext")}
-              searchPlaceholder={t("placeholders.searchServices")}
-              emptyText={t("empty.noServices")}
-              requiredParentMessage={t("placeholders.selectProviderFirst")}
+              placeholder={tr("placeholders.optionalServiceContext")}
+              searchPlaceholder={tr("placeholders.searchServices")}
+              emptyText={tr("empty.noServices")}
+              requiredParentMessage={tr("placeholders.selectProviderFirst")}
               disabled={isPending || !hasProvider}
               onChange={onProviderServiceChange}
             />
 
             <label className="block text-sm font-medium">
-              {t("fields.resourceType")}
+              {tr("fields.resourceType")}
               <select
                 value={form.resourceType}
                 onChange={(event) => setForm((current) => ({ ...current, resourceType: event.target.value as BookableResource["resourceType"] }))}
                 className="mt-2 h-11 w-full rounded-xl border bg-background px-3 text-sm outline-none focus:border-primary"
               >
                 {RESOURCE_TYPES.map((type) => (
-                  <option key={type} value={type}>{t(`resourceTypes.${type}`)}</option>
+                  <option key={type} value={type}>{tr(`resourceTypes.${type}`)}</option>
                 ))}
               </select>
+              <span className={readableHelpClass}>{selectedResourceTypeExplanation}</span>
             </label>
 
             <label className="block text-sm font-medium">
-              {t("fields.resourceCode")}
+              {tr("fields.resourceCode")}
               <input
                 value={form.code || ""}
                 onChange={(event) => setForm((current) => ({ ...current, code: event.target.value }))}
-                placeholder={t("placeholders.resourceCode")}
+                placeholder={tr("placeholders.resourceCode")}
                 className="mt-2 h-11 w-full rounded-xl border bg-background px-3 text-sm outline-none focus:border-primary"
               />
+              <span className={readableHelpClass}>{isPersian ? "کد داخلی برای تشخیص سریع؛ مثل ROOM-101 یا LASER-01. مشتری معمولاً این کد را نمی‌بیند." : "Internal code for quick identification, such as ROOM-101 or LASER-01. Customers usually do not see it."}</span>
             </label>
 
             <label className="block text-sm font-medium">
-              {t("fields.totalCapacity")}
+              {tr("fields.totalCapacity")}
               <input
                 type="number"
                 min={1}
@@ -159,23 +193,24 @@ export function BookableResourceForm({ resource, locale }: Props) {
                 onChange={(event) => setForm((current) => ({ ...current, totalCapacity: Number(event.target.value || 1) }))}
                 className="mt-2 h-11 w-full rounded-xl border bg-background px-3 text-sm outline-none focus:border-primary"
               />
+              <span className={readableHelpClass}>{isPersian ? "تعداد همزمان قابل رزرو از این منبع؛ برای یک اتاق عدد 1، برای کلاس با 12 صندلی عدد 12." : "How many bookings can use this resource at the same time; 1 for one room, 12 for a 12-seat class."}</span>
             </label>
           </div>
 
           <LocalizedInput
-            label={t("fields.resourceName")}
+            label={tr("fields.resourceName")}
             value={toLocalizedContent(form.nameTranslations)}
             onChange={(value) => setForm((current) => ({ ...current, nameTranslations: fromLocalizedContent(value) }))}
-            description={t("help.resourceName")}
+            description={tr("help.resourceName")}
             required
             maxLength={200}
           />
 
           <LocalizedInput
-            label={t("fields.resourceDescription")}
+            label={tr("fields.resourceDescription")}
             value={toLocalizedContent(form.descriptionTranslations)}
             onChange={(value) => setForm((current) => ({ ...current, descriptionTranslations: fromLocalizedContent(value) }))}
-            description={t("help.resourceDescription")}
+            description={tr("help.resourceDescription")}
             multiline
             rows={3}
             maxLength={800}
@@ -188,16 +223,16 @@ export function BookableResourceForm({ resource, locale }: Props) {
               onChange={(event) => setForm((current) => ({ ...current, isActive: event.target.checked }))}
               className="h-4 w-4"
             />
-            {t("fields.activeResource")}
+            {tr("fields.activeResource")}
           </label>
 
           <div className="flex flex-wrap gap-3">
             <Button type="submit" disabled={isPending}>
               {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              {t("actions.saveResource")}
+              {tr("actions.saveResource")}
             </Button>
             <Button type="button" asChild variant="outline">
-              <Link href="/admin/availability">{t("actions.cancel")}</Link>
+              <Link href="/admin/availability">{tr("actions.cancel")}</Link>
             </Button>
           </div>
         </form>

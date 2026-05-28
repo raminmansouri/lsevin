@@ -14,6 +14,8 @@ export type AdminServiceDefinitionListItem = {
   description: string;
   categoryId: string;
   categoryName: string;
+  mediaUrl: string | null;
+  mediaType: "image" | "video" | "gif";
   durationMinutes: number;
   pricingModel: string;
   isActive: boolean;
@@ -200,6 +202,8 @@ export async function getAdminServiceDefinitions(
         ${translated(sql`sd.description_translations`, locale)} as description,
         sd.category_id::text as "categoryId",
         ${translated(sql`c.name_translations`, locale)} as "categoryName",
+        nullif(btrim(coalesce(sd.image_url, '')), '') as "mediaUrl",
+        case when sd.media_type in ('image', 'video', 'gif') then sd.media_type else 'image' end as "mediaType",
         coalesce(sd.duration_minutes, 0)::int as "durationMinutes",
         sd.pricing_model as "pricingModel",
         sd.is_active as "isActive",

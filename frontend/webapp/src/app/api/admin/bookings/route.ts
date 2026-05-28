@@ -5,7 +5,7 @@ import { listAdminBookings } from '@/features/booking-pro/server/admin-repositor
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const items = await listAdminBookings({
-    locale: searchParams.get('locale') ?? 'en-US',
+    locale: searchParams.get('locale') ?? 'fa-IR',
     search: searchParams.get('search') ?? '',
     status: searchParams.get('status') ?? '',
     take: Number(searchParams.get('take') ?? 20),

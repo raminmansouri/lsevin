@@ -225,12 +225,10 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
                               onValueChange={field.onChange}
                               onItemsChange={(items) => {
                                 const selectedItem = items[0];
-                                if (selectedItem) {
-                                  form.setValue("mediaType", detectServiceMediaType(selectedItem), {
-                                    shouldDirty: true,
-                                    shouldTouch: true,
-                                  });
-                                }
+                                form.setValue("mediaType", selectedItem ? detectServiceMediaType(selectedItem) : "image", {
+                                  shouldDirty: true,
+                                  shouldTouch: true,
+                                });
                               }}
                               label="Media"
                               placeholder="Pick image, video, or GIF"

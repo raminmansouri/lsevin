@@ -456,7 +456,7 @@ export interface Service {
   recovery: string;
   rating: number;
   reviews: number;
-  popular?: boolean;          // only the first treatment has this flag
+  popular?: boolean;          // only the first service has this flag
   image: string;
 }
 
@@ -623,12 +623,14 @@ export interface GetBySpecialistIdEducation {
   degree: string;
   institution: string;
   year: string;
+  imageUrl?: string;
 }
 
 export interface GetBySpecialistIdCertification {
   name: string;
   issuer: string;
   verified: boolean;
+  imageUrl?: string;
 }
 
 export interface GetBySpecialistIdAchievement {
@@ -828,6 +830,7 @@ export interface TrendingService {
   currency: string;
   value: number;
   discount?: number;
+  trendingScore?: number;
   // Additional fields for custom pricing and duration
   customPrice?: number;
   basePrice?: number;
@@ -964,6 +967,7 @@ export interface ServiceProviderService {
   currency: string;
   value: number;
   discount?: number;
+  trendingScore?: number;
   // Additional fields for custom pricing and duration
   customPrice?: number;
   basePrice?: number;
@@ -989,6 +993,7 @@ export interface ServiceProviderService {
   currency: string;
   value: number;
   discount?: number;
+  trendingScore?: number;
   // Additional fields for custom pricing and duration
   customPrice?: number;
   basePrice?: number;
@@ -1090,7 +1095,7 @@ export interface GetBookingServiceSelectionDataProvider {
   image: string;
 }
 
-/** ---------- Doctor ---------- */
+/** ---------- Specialist ---------- */
 export interface GetBookingServiceSelectionDataSpecialist {
   id: string;
   name: string;

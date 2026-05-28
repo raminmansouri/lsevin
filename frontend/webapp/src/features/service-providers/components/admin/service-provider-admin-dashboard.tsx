@@ -41,6 +41,7 @@ import {
 import { SUPPORTED_LOCALE_HEADERS } from "@/config/locales";
 import { LocalizedInput } from "@/features/shared/components/LocalizedInput";
 import { createEmptyLocalizedContent } from "@/features/shared/utils/localization";
+import SingleMediaPickerInput from "@/features/media-picker-addon/components/SingleMediaPickerInput";
 import useAction from "@/hooks/use-action";
 import { Link, useRouter } from "@/i18n/navigation";
 
@@ -78,7 +79,6 @@ import {
   type AdminLocalizedInputValue,
 } from "../../lib/admin-form-normalizers";
 import { RHFSingleMediaPickerField } from "../service-provider-data-entry/media-picker-adapter";
-import SingleMediaPickerInput from "@/features/media-picker-addon/components/SingleMediaPickerInput";
 import { LazyAdminLookupSelect } from "./lazy-admin-lookup-select";
 
 type Props = {
@@ -253,24 +253,79 @@ function formatMoney(
   return `${currency || ""} ${formatter.format(Number.isFinite(numericValue) ? numericValue : 0)}`.trim();
 }
 
+function normalizeLocalizedDigits(value: string) {
+  const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
+  const arabicDigits = "٠١٢٣٤٥٦٧٨٩";
+
+  return value.replace(/[۰-۹٠-٩]/g, (digit) => {
+    const persianIndex = persianDigits.indexOf(digit);
+    if (persianIndex >= 0) return String(persianIndex);
+
+    const arabicIndex = arabicDigits.indexOf(digit);
+    return arabicIndex >= 0 ? String(arabicIndex) : digit;
+  });
+}
+
+function isGroupedThousands(value: string, separator: "," | ".") {
+  const unsigned = value.replace(/^-/, "");
+  const parts = unsigned.split(separator);
+
+  if (parts.length < 2 || parts[0].length < 1 || parts[0].length > 3) {
+    return false;
+  }
+
+  return parts.slice(1).every((part) => /^\d{3}$/.test(part));
+}
+
+function normalizeSingleSeparatorNumber(value: string, separator: "," | ".") {
+  if (isGroupedThousands(value, separator)) {
+    return value.replaceAll(separator, "");
+  }
+
+  const lastSeparatorIndex = value.lastIndexOf(separator);
+  const integerPart = value.slice(0, lastSeparatorIndex).replace(/[.,]/g, "");
+  const decimalPart = value.slice(lastSeparatorIndex + 1).replace(/[.,]/g, "");
+
+  // Price fields are stored as numeric(18,2). A lone separator followed by
+  // three digits is therefore almost always a thousands separator produced by
+  // Intl.NumberFormat: 1,000 / 1.000 => 1000, not 1.
+  if (decimalPart.length > 2) {
+    return `${integerPart}${decimalPart}`;
+  }
+
+  return `${integerPart}.${decimalPart}`;
+}
+
 function parseFormattedNumber(value: string | number | null | undefined) {
   if (typeof value === "number") return Number.isFinite(value) ? value : 0;
-  const raw = String(value || "").trim();
+
+  const raw = normalizeLocalizedDigits(String(value || "").trim())
+    .replace(/٫/g, ".")
+    .replace(/٬/g, ",");
   if (!raw) return 0;
 
   const sanitized = raw.replace(/[^0-9.,-]/g, "");
+  if (!sanitized || sanitized === "-" || sanitized === "." || sanitized === ",") {
+    return 0;
+  }
+
+  const commaCount = (sanitized.match(/,/g) || []).length;
+  const dotCount = (sanitized.match(/\./g) || []).length;
   const lastComma = sanitized.lastIndexOf(",");
   const lastDot = sanitized.lastIndexOf(".");
-  const decimalSeparator = lastComma > lastDot ? "," : lastDot > -1 ? "." : "";
 
   let normalized = sanitized;
-  if (decimalSeparator) {
+
+  if (commaCount > 0 && dotCount > 0) {
+    const decimalSeparator = lastComma > lastDot ? "," : ".";
     const decimalIndex = normalized.lastIndexOf(decimalSeparator);
     const integerPart = normalized.slice(0, decimalIndex).replace(/[.,]/g, "");
     const decimalPart = normalized.slice(decimalIndex + 1).replace(/[.,]/g, "");
-    normalized = `${integerPart}.${decimalPart}`;
-  } else {
-    normalized = normalized.replace(/[.,]/g, "");
+    normalized = decimalPart ? `${integerPart}.${decimalPart}` : integerPart;
+  } else if (commaCount > 0) {
+    normalized = normalizeSingleSeparatorNumber(normalized, ",");
+  } else if (dotCount > 0) {
+    normalized = normalizeSingleSeparatorNumber(normalized, ".");
   }
 
   const parsed = Number(normalized);
@@ -594,7 +649,7 @@ function CertificationsManager({
             value={imageUrl}
             onValueChange={setImageUrl}
             disabled={isPending}
-            helperText="Optional. Stored in provider_certifications.image_url."
+            helperText="Optional. Stores the resolved media URL in provider_certifications.image_url."
             modalTitle="Pick certificate image"
           />
           <SingleMediaPickerInput
@@ -605,7 +660,7 @@ function CertificationsManager({
             value={secondaryImageUrl}
             onValueChange={setSecondaryImageUrl}
             disabled={isPending}
-            helperText="Optional second certificate page/image."
+            helperText="Optional. Stores the resolved media URL in provider_certifications.secondary_image_url."
             modalTitle="Pick second certificate image"
           />
         </div>
@@ -755,7 +810,7 @@ function GalleryManager({
   return (
     <RelationCard
       title={tAdmin("mediaGallery")}
-      description="Manages category.provider_gallery_items. The media field uses the central media picker and stores one media id or URL."
+      description="Manages category.provider_gallery_items. The media field uses the central media picker and stores the selected media URL."
     >
       <Form {...galleryForm}>
         <div className="grid gap-4 xl:grid-cols-[1fr_1fr_180px_140px_auto]">
@@ -803,7 +858,7 @@ function GalleryManager({
             label={tAdmin("media")}
             placeholder={tAdmin("pickMedia")}
             mediaType="all"
-            helperText="Stores one media id in provider_gallery_items.url."
+            helperText="Stores the selected media URL in provider_gallery_items.url."
             modalTitle="Pick gallery media"
           />
           <div className="grid gap-3">
@@ -1172,6 +1227,7 @@ type ServiceManagerFormValues = {
   currency: string;
   priceText: string;
   durationMinutes: string;
+  trendingScoreText: string;
   imageUrl: unknown;
   isActive: boolean;
   isPopular: boolean;
@@ -1189,6 +1245,7 @@ function emptyServiceFormValues(
     currency: defaultCurrency,
     priceText: "0",
     durationMinutes: "0",
+    trendingScoreText: "0",
     imageUrl: "",
     isActive: true,
     isPopular: false,
@@ -1250,6 +1307,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
       currency: item.currency || lookups.currencies[0]?.code || "USD",
       priceText: formatNumberInput(item.value, locale),
       durationMinutes: String(item.durationMinutes ?? 0),
+      trendingScoreText: formatNumberInput(item.trendingScore ?? 0, locale),
       imageUrl: item.imageUrl || "",
       isActive: item.isActive,
       isPopular: item.isPopular,
@@ -1281,6 +1339,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
       currency: values.currency,
       value: parseFormattedNumber(values.priceText),
       durationMinutes: Number(values.durationMinutes || 0),
+      trendingScore: parseFormattedNumber(values.trendingScoreText),
       imageUrl: normalizeMediaPickerValue(values.imageUrl) || null,
       isPopular: values.isPopular,
       tagsText: values.tagsText,
@@ -1441,7 +1500,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                   )}
                 />
 
-                <div className="grid gap-4 md:grid-cols-3">
+                <div className="grid gap-4 md:grid-cols-4">
                   <FormField
                     control={serviceForm.control}
                     name="priceText"
@@ -1481,6 +1540,28 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                             type="number"
                             min="0"
                             {...field}
+                            disabled={isPending}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={serviceForm.control}
+                    name="trendingScoreText"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Trending score</FormLabel>
+                        <FormControl>
+                          <Input
+                            dir="ltr"
+                            inputMode="decimal"
+                            value={field.value}
+                            onChange={(event) => field.onChange(event.target.value)}
+                            onBlur={() => field.onChange(formatNumberInput(field.value, locale))}
+                            placeholder="0"
                             disabled={isPending}
                           />
                         </FormControl>
@@ -1535,7 +1616,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                     label={tAdmin("serviceImage")}
                     placeholder={tAdmin("pickImage")}
                     mediaType="image"
-                    helperText="Stores one media id in provider_services.image_url."
+                    helperText="Stores the selected media URL in provider_services.image_url."
                     modalTitle="Pick service image"
                     key="provider-service-image-url"
                   />
@@ -1637,6 +1718,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                     <span>
                       {item.rating} ★ / {item.reviewCount} reviews
                     </span>
+                    <span>Trending: {item.trendingScore ?? 0}</span>
                   </div>
                   <RichTranslation
                     value={item.description}

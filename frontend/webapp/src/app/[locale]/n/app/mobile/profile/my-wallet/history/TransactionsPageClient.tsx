@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useNavigate } from "@/hooks/use-navigate";
+import { useLocale, useTranslations } from "next-intl";
 import {
   ArrowLeft,
   Filter,
@@ -31,6 +32,8 @@ interface TransactionsPageClientProps {
 
 export default function TransactionsPageClient({ initialData }: TransactionsPageClientProps) {
   const navigate = useNavigate();
+  const locale = useLocale();
+  const t = useTranslations("MobileProfile.transactions");
   const [showFilters, setShowFilters] = useState(false);
   const [selectedType, setSelectedType] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
@@ -69,7 +72,7 @@ export default function TransactionsPageClient({ initialData }: TransactionsPage
             >
               <ArrowLeft size={20} className="text-gray-900" />
             </button>
-            <h1 className="text-lg font-bold text-gray-900">All Transactions</h1>
+            <h1 className="text-lg font-bold text-gray-900">{t("title")}</h1>
           </div>
 
           <button
@@ -77,7 +80,7 @@ export default function TransactionsPageClient({ initialData }: TransactionsPage
             className="relative h-10 px-4 text-sm font-semibold text-[#083f30] hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-1"
           >
             <Filter size={16} />
-            <span>Filter</span>
+            <span>{t("filter")}</span>
             {activeFiltersCount > 0 && (
               <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#083f30] text-white text-xs rounded-full flex items-center justify-center">
                 {activeFiltersCount}
@@ -90,18 +93,18 @@ export default function TransactionsPageClient({ initialData }: TransactionsPage
       <div className="px-5 py-4">
         <div className="bg-white rounded-2xl p-4">
           <p className="text-sm text-gray-600 mb-1">
-            Showing {filteredTransactions.length} transactions • Net in {summaryCurrency}
+            {t("summary", { count: filteredTransactions.length, currency: summaryCurrency })}
           </p>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-bold text-gray-900">
               {summaryNet > 0 ? "+" : ""}
               {currencySymbol(summaryCurrency)}
-              {Math.abs(summaryNet).toLocaleString("en-US", {
+              {Math.abs(summaryNet).toLocaleString(locale, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}
             </span>
-            <span className="text-sm text-gray-500">total</span>
+            <span className="text-sm text-gray-500">{t("total")}</span>
           </div>
         </div>
       </div>
@@ -142,7 +145,7 @@ export default function TransactionsPageClient({ initialData }: TransactionsPage
                 <div className="flex-1 min-w-0 text-left">
                   <div className="font-semibold text-gray-900 mb-0.5 line-clamp-1">{transaction.title}</div>
                   <div className="text-sm text-gray-600 mb-1 line-clamp-1">
-                    {transaction.subtitle ?? "LSevin Wallet"}
+                    {transaction.subtitle ?? t("lsevinWallet")}
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-500">
                     <Clock size={12} />
@@ -181,8 +184,8 @@ export default function TransactionsPageClient({ initialData }: TransactionsPage
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Clock size={28} className="text-gray-400" />
             </div>
-            <h3 className="font-bold text-gray-900 mb-2">No Transactions Found</h3>
-            <p className="text-sm text-gray-600 mb-6">Try adjusting your filters</p>
+            <h3 className="font-bold text-gray-900 mb-2">{t("noTransactionsFound")}</h3>
+            <p className="text-sm text-gray-600 mb-6">{t("tryAdjustingFilters")}</p>
             <button
               onClick={clearFilters}
               className="px-6 py-3 bg-[#083f30] text-white rounded-xl font-semibold hover:bg-[#0a5a44] transition-colors"
@@ -198,7 +201,7 @@ export default function TransactionsPageClient({ initialData }: TransactionsPage
           <div className="bg-white rounded-t-3xl w-full max-w-lg animate-slide-up">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Filter Transactions</h2>
+                <h2 className="text-xl font-bold text-gray-900">{t("filterTransactions")}</h2>
                 <button
                   onClick={() => setShowFilters(false)}
                   className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
@@ -210,12 +213,12 @@ export default function TransactionsPageClient({ initialData }: TransactionsPage
 
             <div className="p-6 space-y-6 max-h-[60vh] overflow-y-auto">
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-3">Transaction Type</label>
+                <label className="block text-sm font-semibold text-gray-900 mb-3">{t("transactionType")}</label>
                 <div className="space-y-2">
                   {[
-                    { value: "all", label: "All Types" },
-                    { value: "credit", label: "Money In" },
-                    { value: "debit", label: "Money Out" },
+                    { value: "all", label: t("types.all") },
+                    { value: "credit", label: t("types.credit") },
+                    { value: "debit", label: t("types.debit") },
                   ].map((option) => (
                     <button
                       key={option.value}
@@ -240,13 +243,13 @@ export default function TransactionsPageClient({ initialData }: TransactionsPage
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-3">Status</label>
+                <label className="block text-sm font-semibold text-gray-900 mb-3">{t("status")}</label>
                 <div className="space-y-2">
                   {[
-                    { value: "all", label: "All Statuses" },
-                    { value: "completed", label: "Completed" },
-                    { value: "pending", label: "Pending" },
-                    { value: "failed", label: "Failed" },
+                    { value: "all", label: t("statuses.all") },
+                    { value: "completed", label: t("statuses.completed") },
+                    { value: "pending", label: t("statuses.pending") },
+                    { value: "failed", label: t("statuses.failed") },
                   ].map((option) => (
                     <button
                       key={option.value}
@@ -271,14 +274,14 @@ export default function TransactionsPageClient({ initialData }: TransactionsPage
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-3">Time Period</label>
+                <label className="block text-sm font-semibold text-gray-900 mb-3">{t("timePeriod")}</label>
                 <div className="space-y-2">
                   {[
-                    { value: "all", label: "All Time" },
-                    { value: "today", label: "Today" },
-                    { value: "week", label: "Last 7 Days" },
-                    { value: "month", label: "Last 30 Days" },
-                    { value: "3months", label: "Last 3 Months" },
+                    { value: "all", label: t("periods.all") },
+                    { value: "today", label: t("periods.today") },
+                    { value: "week", label: t("periods.week") },
+                    { value: "month", label: t("periods.month") },
+                    { value: "3months", label: t("periods.threeMonths") },
                   ].map((option) => (
                     <button
                       key={option.value}

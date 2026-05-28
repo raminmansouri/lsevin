@@ -14,7 +14,14 @@ export const PROVIDER_PORTAL_PERMISSIONS = {
   manageProfile: ["owner", "admin", "manager", "editor", "viewer", "staff"],
   manageServices: ["owner", "admin", "manager", "editor", "viewer", "staff"],
   manageStaff: ["owner", "admin", "manager", "editor", "viewer", "staff"],
-  manageAvailability: ["owner", "admin", "manager", "editor", "viewer", "staff"],
+  manageAvailability: [
+    "owner",
+    "admin",
+    "manager",
+    "editor",
+    "viewer",
+    "staff",
+  ],
   manageBookings: ["owner", "admin", "manager", "editor", "viewer", "staff"],
   manageMedia: ["owner", "admin", "manager", "editor", "viewer", "staff"],
   viewReviews: ["owner", "admin", "manager", "editor", "viewer", "staff"],
@@ -29,16 +36,22 @@ export type ProviderPortalPermission = keyof typeof PROVIDER_PORTAL_PERMISSIONS;
 
 // Temporary development mode: all portal permissions are open so the provider
 // back office can be reviewed without membership/role configuration blocking UI.
-export function hasPortalPermission(_role: ProviderPortalRole, _permission: ProviderPortalPermission) {
+export function hasPortalPermission(
+  _role: ProviderPortalRole,
+  _permission: ProviderPortalPermission,
+) {
   return true;
 }
 
 export function buildPermissionMap(_role: ProviderPortalRole) {
   return Object.fromEntries(
-    Object.keys(PROVIDER_PORTAL_PERMISSIONS).map((key) => [key, true])
+    Object.keys(PROVIDER_PORTAL_PERMISSIONS).map((key) => [key, true]),
   );
 }
 
-export function roleAtLeast(role: ProviderPortalRole, minimum: ProviderPortalRole) {
+export function roleAtLeast(
+  role: ProviderPortalRole,
+  minimum: ProviderPortalRole,
+) {
   return ROLE_WEIGHT[role] >= ROLE_WEIGHT[minimum];
 }

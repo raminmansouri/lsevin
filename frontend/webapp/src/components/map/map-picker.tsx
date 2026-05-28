@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { RotateCcw } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useFormContext } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -34,10 +35,13 @@ export function MapPicker({
   namePrefix,
   disabled = false,
   className = "",
-  label = "Location",
-  description = "Click on the map, drag the marker, or enter coordinates manually",
+  label,
+  description,
   mapProvider,
 }: MapPickerProps) {
+  const t = useTranslations("MapShared");
+  const resolvedLabel = label ?? t("location");
+  const resolvedDescription = description ?? t("locationDescription");
   const { control, watch, setValue } = useFormContext();
 
   // Watch the coordinates field from the form
@@ -98,8 +102,8 @@ export function MapPicker({
     <div className={`space-y-4 ${className}`}>
       <div className="flex items-center justify-between">
         <div>
-          <label className="text-sm font-medium">{label}</label>
-          <p className="text-muted-foreground text-sm">{description}</p>
+          <label className="text-sm font-medium">{resolvedLabel}</label>
+          <p className="text-muted-foreground text-sm">{resolvedDescription}</p>
         </div>
         {localCoordinates && (
           <Button
@@ -111,7 +115,7 @@ export function MapPicker({
             disabled={disabled}
           >
             <RotateCcw className="h-4 w-4" />
-            Reset
+            {t("reset")}
           </Button>
         )}
       </div>
@@ -131,7 +135,7 @@ export function MapPicker({
           name={`${namePrefix}.latitude`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Latitude</FormLabel>
+              <FormLabel>{t("latitude")}</FormLabel>
               <FormControl>
                 <Input
                   {...field}
@@ -158,7 +162,7 @@ export function MapPicker({
           name={`${namePrefix}.longitude`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Longitude</FormLabel>
+              <FormLabel>{t("longitude")}</FormLabel>
               <FormControl>
                 <Input
                   {...field}

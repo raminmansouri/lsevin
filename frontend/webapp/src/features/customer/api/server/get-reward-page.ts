@@ -15,8 +15,8 @@ import { addAllFilterParams, addAllParams } from "@/lib/filter-params";
 import { BaseRequest } from "@/types/common";
 import { FilterParams } from "@/types/filter";
 import { ApiReturnType, PaginatedResult } from "@/types/network";
-import { getGetRewardsPageTag } from "../../db/cache";
-import { GetRewardsPageResponse } from "../../types";
+import { getRewardsPageTag } from "../../db/cache";
+// import { GetRewardsPageResponse } from "../../types";
 
 
 export interface GetRewardsPageFilterParams extends FilterParams{
@@ -31,11 +31,11 @@ export interface GetRewardsPageFilterParams extends FilterParams{
 export const getGetRewardsPage = async (
   request: BaseRequest,
   params?: GetRewardsPageFilterParams
-): Promise<ApiReturnType<GetRewardsPageResponse>> => {
+): Promise<ApiReturnType<any>> => {
   "use cache: remote";
   console.log('server GetRewardsPage called:')
 
-  cacheTag(getGetRewardsPageTag());
+  cacheTag(getRewardsPageTag(request.userId));
   cacheLife("default");
 
   const searchParams = new URLSearchParams();
@@ -45,7 +45,7 @@ export const getGetRewardsPage = async (
   }
   
 
-  const response = await readData<GetRewardsPageResponse>(
+  const response = await readData<any>(
     `${CUSTOMER_MODULE_BASE_PATH}/customer/GetRewardsPage?${searchParams.toString()}`,
     {
       ...request,

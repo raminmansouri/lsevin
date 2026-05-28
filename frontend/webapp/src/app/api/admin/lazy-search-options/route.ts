@@ -53,11 +53,11 @@ const RESOURCES: Record<string, LazyResourceConfig> = {
     orderBy: "sp.last_modified_date desc nulls last, sp.create_date desc",
   },
   staff: {
-    from: "category.staff st",
+    from: "category.staff st left join media.media_library st_profile_media on st_profile_media.id::text = nullif(btrim(st.profile_image_url), '')",
     valueExpression: "st.id::text",
     labelExpression: (locale) => translation("st.name_translations", locale),
     descriptionExpression: (locale) => `nullif(${translation("st.title_translations", locale)}, '')`,
-    imageExpression: "st.profile_image_url",
+    imageExpression: "coalesce(nullif(btrim(st_profile_media.file_url), ''), case when nullif(btrim(st.profile_image_url), '') is not null and nullif(btrim(st.profile_image_url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then nullif(btrim(st.profile_image_url), '') end)",
     searchExpression: (locale) => `${translation("st.name_translations", locale)} || ' ' || ${translation("st.title_translations", locale)} || ' ' || coalesce(st.specialty, '') || ' ' || st.id::text`,
     where: "st.is_active = true",
     orderBy: "st.last_modified_date desc nulls last, st.create_date desc",

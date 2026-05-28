@@ -17,8 +17,9 @@ import { GetBookingGetServicesByProviderAndSpecialistResponse } from "@/features
 
 export const getServicesByProviderAndSpecialistClient = async (
   providerId,
-    serviceId,
-    specialistId,
+  serviceId,
+  specialistId,
+  search: string,
   locale: Locale
 ) => {
  const searchParams = new URLSearchParams();
@@ -31,6 +32,9 @@ export const getServicesByProviderAndSpecialistClient = async (
   if (specialistId) {
     searchParams.set("specialistId", specialistId);
   }
+  if (search) {
+    searchParams.set("Search", search);
+  }
 
   searchParams.set("Locale", locale);
 
@@ -40,8 +44,13 @@ export const getServicesByProviderAndSpecialistClient = async (
 };
 
 const tag = "booking-getServicesByProviderAndSpecialist";
-const queryServicesBySearchKey = (search: string, locale: Locale) =>
-  [tag, search, locale] as const;
+const queryServicesBySearchKey = (
+  providerId: string | null | undefined,
+  serviceId: string | null | undefined,
+  specialistId: string | null | undefined,
+  search: string,
+  locale: Locale
+) => [tag, providerId || "", serviceId || "", specialistId || "", search || "", locale] as const;
 
 export const useGetServicesByProviderAndSpecialist = (
    providerId,
@@ -49,12 +58,16 @@ export const useGetServicesByProviderAndSpecialist = (
     specialistId,
         search: string, locale: Locale) => {
   const options = queryOptions<GetBookingGetServicesByProviderAndSpecialistResponse, IProblem>({
-    queryKey: queryServicesBySearchKey(search, locale),
+    queryKey: queryServicesBySearchKey(providerId, serviceId, specialistId, search, locale),
     queryFn: ({ pageParam }) =>
-      getServicesByProviderAndSpecialistClient(  providerId,
-    serviceId,
-    specialistId,  locale),
-    // enabled: providerId || specialistId,
+      getServicesByProviderAndSpecialistClient(
+        providerId,
+        serviceId,
+        specialistId,
+        search,
+        locale
+      ),
+    enabled: true,
     staleTime: 1000 * 60 * 5, // 5 minutes
     gcTime: 1000 * 60 * 60, // 1 hour
   });

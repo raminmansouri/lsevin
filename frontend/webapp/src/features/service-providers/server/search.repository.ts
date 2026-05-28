@@ -78,6 +78,24 @@ function normalizeLocale(locale?: string | null) {
   return value || DEFAULT_LOCALE;
 }
 
+function isPersianLocale(locale?: string | null) {
+  return normalizeLocale(locale).toLowerCase().startsWith("fa");
+}
+
+function getSearchStaticLabels(locale?: string | null) {
+  const isFa = isPersianLocale(locale);
+
+  return {
+    category: isFa ? "دسته‌بندی" : "Category",
+    searchIcon: isFa ? "جستجو" : "Search",
+    sponsored: isFa ? "اسپانسر شده" : "Sponsored",
+    verified: isFa ? "تأیید شده" : "Verified",
+    untitled: isFa ? "بدون عنوان" : "Untitled",
+    defaultProvider: "LSevin",
+    providerType: isFa ? "نوع ارائه‌دهنده" : "Provider type",
+  };
+}
+
 function normalizeUuidOrNull(value?: string | null) {
   const normalized = value?.trim();
   if (!normalized) return null;
@@ -87,6 +105,11 @@ function normalizeUuidOrNull(value?: string | null) {
   )
     ? normalized
     : null;
+}
+
+function normalizeOptionalText(value?: string | null) {
+  const normalized = value?.trim();
+  return normalized || null;
 }
 
 export function normalizeSearchTerm(value?: string | null) {
@@ -241,6 +264,7 @@ export async function getPopularSearchCategories(
   limit = 8
 ): Promise<SearchHistoryPopularCategoryVm[]> {
   const normalizedLocale = normalizeLocale(locale);
+  const labels = getSearchStaticLabels(normalizedLocale);
 
   const rows = await sql<PopularCategoryRow[]>`
     SELECT
@@ -267,8 +291,8 @@ export async function getPopularSearchCategories(
 
   return rows.map((row) => ({
     id: row.id,
-    label: row.label || "Category",
-    icon: row.icon || "Search",
+    label: row.label || labels.category,
+    icon: row.icon || labels.searchIcon,
     image: row.image,
     count: toNumber(row.count),
   }));
@@ -335,12 +359,13 @@ export async function getSearchResults(params?: {
 }): Promise<SearchResultsResponse> {
   const term = normalizeSearchTerm(params?.term);
   const normalizedLocale = normalizeLocale(params?.locale);
+  const labels = getSearchStaticLabels(normalizedLocale);
   const limit = Math.max(1, Math.min(params?.limit ?? 30, 60));
   const likeTerm = `%${term}%`;
   const categoryId = normalizeUuidOrNull(params?.categoryId);
   const providerTypeId = normalizeUuidOrNull(params?.providerTypeId);
-  const country = params?.country?.trim() || null;
-  const city = params?.city?.trim() || null;
+  const country = normalizeOptionalText(params?.country);
+  const city = normalizeOptionalText(params?.city);
 
   const [resultRows, categoryRows, filterRows] = await Promise.all([
     sql<SearchResultRow[]>`
@@ -380,10 +405,10 @@ export async function getSearchResults(params?: {
           ARRAY_REMOVE(ARRAY[
             NULLIF(common.get_translation_t(c.name_translations, params.locale, 'en-US'), ''),
             NULLIF(common.get_translation_t(pt.name_translations, params.locale, 'en-US'), ''),
-            CASE WHEN sp.is_sponsored THEN COALESCE(NULLIF(BTRIM(sp.sponsored_tag), ''), 'Sponsored') END,
-            CASE WHEN sp.accredited THEN 'Verified' END
+            CASE WHEN sp.is_sponsored THEN COALESCE(NULLIF(BTRIM(sp.sponsored_tag), ''), ${labels.sponsored}) END,
+            CASE WHEN sp.accredited THEN ${labels.verified} END
           ], NULL) AS tags,
-          CONCAT('/n/app/mobile/services/', ps.id::text) AS href,
+          CONCAT('/n/app/mobile/service/', ps.id::text) AS href,
           (
             CASE WHEN params.q IS NULL THEN 0 ELSE
               ts_rank_cd(
@@ -420,10 +445,53 @@ export async function getSearchResults(params?: {
             OR common.get_translation_t(ps.display_name_translations, params.locale, 'en-US') ILIKE params.like_q
             OR common.get_translation_t(ps.description_translations, params.locale, 'en-US') ILIKE params.like_q
             OR common.get_translation_t(sd.name_translations, params.locale, 'en-US') ILIKE params.like_q
+            OR common.get_translation_t(sd.description_translations, params.locale, 'en-US') ILIKE params.like_q
             OR common.get_translation_t(c.name_translations, params.locale, 'en-US') ILIKE params.like_q
+            OR common.get_translation_t(c.description_translations, params.locale, 'en-US') ILIKE params.like_q
             OR common.get_translation_t(sp.name_translations, params.locale, 'en-US') ILIKE params.like_q
-            OR ps.search_vector @@ plainto_tsquery('simple', params.q)
-            OR sp.search_vector @@ plainto_tsquery('simple', params.q)
+            OR common.get_translation_t(sp.description_translations, params.locale, 'en-US') ILIKE params.like_q
+            OR EXISTS (
+              SELECT 1
+              FROM jsonb_each_text(CASE WHEN jsonb_typeof(ps.display_name_translations) = 'object' THEN ps.display_name_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
+              WHERE translated.translated_value ILIKE params.like_q
+            )
+            OR EXISTS (
+              SELECT 1
+              FROM jsonb_each_text(CASE WHEN jsonb_typeof(ps.description_translations) = 'object' THEN ps.description_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
+              WHERE translated.translated_value ILIKE params.like_q
+            )
+            OR EXISTS (
+              SELECT 1
+              FROM jsonb_each_text(CASE WHEN jsonb_typeof(sd.name_translations) = 'object' THEN sd.name_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
+              WHERE translated.translated_value ILIKE params.like_q
+            )
+            OR EXISTS (
+              SELECT 1
+              FROM jsonb_each_text(CASE WHEN jsonb_typeof(sd.description_translations) = 'object' THEN sd.description_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
+              WHERE translated.translated_value ILIKE params.like_q
+            )
+            OR EXISTS (
+              SELECT 1
+              FROM jsonb_each_text(CASE WHEN jsonb_typeof(c.name_translations) = 'object' THEN c.name_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
+              WHERE translated.translated_value ILIKE params.like_q
+            )
+            OR EXISTS (
+              SELECT 1
+              FROM jsonb_each_text(CASE WHEN jsonb_typeof(c.description_translations) = 'object' THEN c.description_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
+              WHERE translated.translated_value ILIKE params.like_q
+            )
+            OR EXISTS (
+              SELECT 1
+              FROM jsonb_each_text(CASE WHEN jsonb_typeof(sp.name_translations) = 'object' THEN sp.name_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
+              WHERE translated.translated_value ILIKE params.like_q
+            )
+            OR EXISTS (
+              SELECT 1
+              FROM jsonb_each_text(CASE WHEN jsonb_typeof(sp.description_translations) = 'object' THEN sp.description_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
+              WHERE translated.translated_value ILIKE params.like_q
+            )
+            OR COALESCE(ps.search_vector, to_tsvector('simple', '')) @@ plainto_tsquery('simple', params.q)
+            OR COALESCE(sp.search_vector, to_tsvector('simple', '')) @@ plainto_tsquery('simple', params.q)
             OR EXISTS (
               SELECT 1 FROM unnest(COALESCE(ps.tags, sp.specialties, ARRAY[]::text[])) AS tag
               WHERE tag ILIKE params.like_q
@@ -447,10 +515,10 @@ export async function getSearchResults(params?: {
           COALESCE(sp.specialties, ARRAY[]::text[]) AS specialties,
           ARRAY_REMOVE(ARRAY[
             NULLIF(common.get_translation_t(pt.name_translations, params.locale, 'en-US'), ''),
-            CASE WHEN sp.is_sponsored THEN COALESCE(NULLIF(BTRIM(sp.sponsored_tag), ''), 'Sponsored') END,
-            CASE WHEN sp.accredited THEN 'Verified' END
+            CASE WHEN sp.is_sponsored THEN COALESCE(NULLIF(BTRIM(sp.sponsored_tag), ''), ${labels.sponsored}) END,
+            CASE WHEN sp.accredited THEN ${labels.verified} END
           ], NULL) AS tags,
-          CONCAT('/n/app/mobile/providers/', sp.id::text) AS href,
+          CONCAT('/n/app/mobile/provider/', sp.id::text) AS href,
           (
             CASE WHEN params.q IS NULL THEN 0 ELSE
               ts_rank_cd(
@@ -492,7 +560,28 @@ export async function getSearchResults(params?: {
             OR common.get_translation_t(sp.name_translations, params.locale, 'en-US') ILIKE params.like_q
             OR common.get_translation_t(sp.description_translations, params.locale, 'en-US') ILIKE params.like_q
             OR common.get_translation_t(pt.name_translations, params.locale, 'en-US') ILIKE params.like_q
-            OR sp.search_vector @@ plainto_tsquery('simple', params.q)
+            OR common.get_translation_t(pt.description_translations, params.locale, 'en-US') ILIKE params.like_q
+            OR EXISTS (
+              SELECT 1
+              FROM jsonb_each_text(CASE WHEN jsonb_typeof(sp.name_translations) = 'object' THEN sp.name_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
+              WHERE translated.translated_value ILIKE params.like_q
+            )
+            OR EXISTS (
+              SELECT 1
+              FROM jsonb_each_text(CASE WHEN jsonb_typeof(sp.description_translations) = 'object' THEN sp.description_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
+              WHERE translated.translated_value ILIKE params.like_q
+            )
+            OR EXISTS (
+              SELECT 1
+              FROM jsonb_each_text(CASE WHEN jsonb_typeof(pt.name_translations) = 'object' THEN pt.name_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
+              WHERE translated.translated_value ILIKE params.like_q
+            )
+            OR EXISTS (
+              SELECT 1
+              FROM jsonb_each_text(CASE WHEN jsonb_typeof(pt.description_translations) = 'object' THEN pt.description_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
+              WHERE translated.translated_value ILIKE params.like_q
+            )
+            OR COALESCE(sp.search_vector, to_tsvector('simple', '')) @@ plainto_tsquery('simple', params.q)
             OR EXISTS (
               SELECT 1 FROM unnest(COALESCE(sp.specialties, ARRAY[]::text[])) AS specialty
               WHERE specialty ILIKE params.like_q
@@ -505,7 +594,15 @@ export async function getSearchResults(params?: {
           'specialist'::text AS type,
           common.get_translation_t(staff.name_translations, params.locale, 'en-US') AS name,
           common.get_translation_t(sp.name_translations, params.locale, 'en-US') AS provider,
-          NULLIF(BTRIM(staff.profile_image_url), '') AS image,
+          COALESCE(
+            NULLIF(BTRIM(staff_profile_media.file_url), ''),
+            CASE
+              WHEN NULLIF(BTRIM(staff.profile_image_url), '') IS NOT NULL
+                AND NULLIF(BTRIM(staff.profile_image_url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+              THEN NULLIF(BTRIM(staff.profile_image_url), '')
+            END,
+            NULLIF(BTRIM(staff_gallery.url), '')
+          ) AS image,
           CONCAT_WS(', ', NULLIF(BTRIM(sp.city), ''), NULLIF(BTRIM(sp.country), '')) AS location,
           COALESCE(staff.rating, 0)::float8 AS rating,
           COALESCE(staff.review_count, 0)::int AS reviews,
@@ -518,13 +615,32 @@ export async function getSearchResults(params?: {
             NULLIF(common.get_translation_t(staff.title_translations, params.locale, 'en-US'), ''),
             NULLIF(common.get_translation_t(sp.name_translations, params.locale, 'en-US'), '')
           ], NULL) AS tags,
-          CONCAT('/n/app/mobile/specialists/', staff.id::text) AS href,
+          CONCAT('/n/app/mobile/specialist/', staff.id::text) AS href,
           (COALESCE(staff.rating, 0)::float8 / 10) AS rank_score
         FROM category.staff staff
         JOIN category.provider_staffs psf ON psf.staff_id = staff.id AND psf.is_active = true
         JOIN category.service_providers sp ON sp.id = psf.service_provider_id AND sp.is_active = true
         JOIN category.provider_types pt ON pt.id = sp.provider_type_id
         CROSS JOIN params
+        LEFT JOIN media.media_library staff_profile_media
+          ON staff_profile_media.id::text = NULLIF(BTRIM(staff.profile_image_url), '')
+        LEFT JOIN LATERAL (
+          SELECT COALESCE(
+            NULLIF(BTRIM(staff_gallery_media.file_url), ''),
+            CASE
+              WHEN NULLIF(BTRIM(sgi.url), '') IS NOT NULL
+                AND NULLIF(BTRIM(sgi.url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+              THEN NULLIF(BTRIM(sgi.url), '')
+            END
+          ) AS url
+          FROM category.staff_gallery_items sgi
+          LEFT JOIN media.media_library staff_gallery_media
+            ON staff_gallery_media.id::text = NULLIF(BTRIM(sgi.url), '')
+          WHERE sgi.staff_id = staff.id
+            AND COALESCE(NULLIF(BTRIM(sgi.media_type), ''), 'image') = 'image'
+          ORDER BY sgi.is_primary DESC, sgi.display_order ASC, sgi.create_date DESC
+          LIMIT 1
+        ) staff_gallery ON true
         LEFT JOIN LATERAL (
           SELECT ps.currency
           FROM category.provider_services ps
@@ -545,8 +661,34 @@ export async function getSearchResults(params?: {
             OR common.get_translation_t(staff.name_translations, params.locale, 'en-US') ILIKE params.like_q
             OR common.get_translation_t(staff.title_translations, params.locale, 'en-US') ILIKE params.like_q
             OR common.get_translation_t(staff.biography_translations, params.locale, 'en-US') ILIKE params.like_q
+            OR common.get_translation_t(staff.specialty_translations, params.locale, 'en-US') ILIKE params.like_q
             OR staff.specialty ILIKE params.like_q
             OR common.get_translation_t(sp.name_translations, params.locale, 'en-US') ILIKE params.like_q
+            OR EXISTS (
+              SELECT 1
+              FROM jsonb_each_text(CASE WHEN jsonb_typeof(staff.name_translations) = 'object' THEN staff.name_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
+              WHERE translated.translated_value ILIKE params.like_q
+            )
+            OR EXISTS (
+              SELECT 1
+              FROM jsonb_each_text(CASE WHEN jsonb_typeof(staff.title_translations) = 'object' THEN staff.title_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
+              WHERE translated.translated_value ILIKE params.like_q
+            )
+            OR EXISTS (
+              SELECT 1
+              FROM jsonb_each_text(CASE WHEN jsonb_typeof(staff.biography_translations) = 'object' THEN staff.biography_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
+              WHERE translated.translated_value ILIKE params.like_q
+            )
+            OR EXISTS (
+              SELECT 1
+              FROM jsonb_each_text(CASE WHEN jsonb_typeof(staff.specialty_translations) = 'object' THEN staff.specialty_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
+              WHERE translated.translated_value ILIKE params.like_q
+            )
+            OR EXISTS (
+              SELECT 1
+              FROM jsonb_each_text(CASE WHEN jsonb_typeof(sp.name_translations) = 'object' THEN sp.name_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
+              WHERE translated.translated_value ILIKE params.like_q
+            )
           )
       )
       SELECT *
@@ -615,8 +757,8 @@ export async function getSearchResults(params?: {
   const results: SearchResultsItem[] = resultRows.map((row) => ({
     id: row.id,
     type: row.type,
-    name: row.name || "Untitled",
-    provider: row.provider || "LSevin",
+    name: row.name || labels.untitled,
+    provider: row.provider || labels.defaultProvider,
     image: row.image || "",
     location: row.location || "",
     rating: toNumber(row.rating),
@@ -632,13 +774,13 @@ export async function getSearchResults(params?: {
 
   const categories: SearchResultsCategory[] = categoryRows.map((row) => ({
     id: row.id,
-    label: row.label || "Category",
+    label: row.label || labels.category,
     count: toNumber(row.count),
   }));
 
   const filters: SearchResultsFilter[] = filterRows.map((row) => ({
     id: row.id,
-    label: row.label || "Provider type",
+    label: row.label || labels.providerType,
     count: toNumber(row.count),
   }));
 

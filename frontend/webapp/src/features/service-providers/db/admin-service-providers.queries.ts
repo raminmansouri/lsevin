@@ -341,9 +341,6 @@ export type AdminServiceProviderFilterParams = FilterParams & {
 
 type CountRow = { total_count: number | string };
 
-const CERTIFICATION_UUID_PATTERN =
-  "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
-
 const EMPTY_TRANSLATIONS_SQL = sql`'{}'::jsonb`;
 
 function safeJsonObject(columnSql: any) {
@@ -940,13 +937,9 @@ async function getProviderCertifications(
       pc.id::text,
       pc.name,
       coalesce(pc.is_verified, false) as "isVerified",
-      coalesce(image_media.file_url, nullif(pc.image_url, '')) as "imageUrl",
-      coalesce(secondary_image_media.file_url, nullif(pc.secondary_image_url, '')) as "secondaryImageUrl"
+      nullif(pc.image_url, '') as "imageUrl",
+      nullif(pc.secondary_image_url, '') as "secondaryImageUrl"
     from category.provider_certifications pc
-    left join media.media_library image_media
-      on image_media.id = case when pc.image_url ~* ${CERTIFICATION_UUID_PATTERN} then pc.image_url::uuid else null end
-    left join media.media_library secondary_image_media
-      on secondary_image_media.id = case when pc.secondary_image_url ~* ${CERTIFICATION_UUID_PATTERN} then pc.secondary_image_url::uuid else null end
     where pc.service_provider_id = ${serviceProviderId}
     order by pc.name
   `;

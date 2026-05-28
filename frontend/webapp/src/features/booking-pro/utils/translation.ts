@@ -1,4 +1,4 @@
-export function pickTranslation(value: unknown, locale = 'en-US', fallback = 'en'): string {
+export function pickTranslation(value: unknown, locale = 'fa-IR', fallback = 'en'): string {
   if (!value || typeof value !== 'object') return '';
   const record = value as Record<string, string>;
   const normalized = locale.replace('_', '-');

@@ -27,11 +27,15 @@ type LocalizedInputLike = {
   translations?: Record<string, string>;
 } | Record<string, string> | null | undefined;
 
+type ServiceDefinitionMediaType = "image" | "video" | "gif";
+
 type ServiceDefinitionMutationInput = {
   serviceDefinitionId?: string;
   name: LocalizedInputLike;
   description: LocalizedInputLike;
   categoryId: string;
+  mediaUrl?: string | null;
+  mediaType?: ServiceDefinitionMediaType | null;
   durationMinutes: number;
   pricingModel: string;
   isActive: boolean;
@@ -199,6 +203,16 @@ function asBoolean(value: unknown, fallback = false) {
   return typeof value === "boolean" ? value : fallback;
 }
 
+function nullableTrimmed(value: unknown): string | null {
+  const normalized = String(value ?? "").trim();
+  return normalized.length ? normalized : null;
+}
+
+function normalizeServiceDefinitionMediaType(value: unknown): ServiceDefinitionMediaType {
+  const normalized = String(value ?? "").trim().toLowerCase();
+  return normalized === "video" || normalized === "gif" ? normalized : "image";
+}
+
 function toIlikePattern(value: string) {
   return `%${value.replace(/[\\%_]/g, "\\$&")}%`;
 }
@@ -271,6 +285,8 @@ function mapListRow(row: Record<string, unknown>): ServiceDefinition {
     description: String(row.description ?? ""),
     categoryId: String(row.category_id ?? ""),
     categoryName: String(row.category_name ?? ""),
+    mediaUrl: nullableTrimmed(row.media_url ?? row.image_url),
+    mediaType: normalizeServiceDefinitionMediaType(row.media_type),
     durationMinutes: asNumber(row.duration_minutes),
     basePrice: asNumber(row.base_price ?? row.value),
     currency: String(row.currency ?? ""),
@@ -291,6 +307,8 @@ function mapAllLocaleRow(row: Record<string, unknown>): ServiceDefinitionWithAll
     description: localizedResponse(row.description_translations),
     categoryId: String(row.category_id ?? ""),
     categoryName: String(row.category_name ?? ""),
+    mediaUrl: nullableTrimmed(row.media_url ?? row.image_url),
+    mediaType: normalizeServiceDefinitionMediaType(row.media_type),
     durationMinutes: asNumber(row.duration_minutes),
     basePrice: asNumber(row.base_price ?? row.value),
     currency: String(row.currency ?? ""),
@@ -593,6 +611,8 @@ export async function getServiceDefinitionsFromDb(
           sd.name_translations,
           sd.description_translations,
           sd.category_id,
+          sd.image_url,
+          sd.media_type,
           sd.duration_minutes,
           sd.pricing_model,
           sd.is_active,
@@ -638,6 +658,8 @@ export async function getServiceDefinitionsFromDb(
           b.name_translations,
           b.description_translations,
           b.category_id,
+          b.image_url,
+          b.media_type,
           b.duration_minutes,
           b.pricing_model,
           b.is_active,
@@ -692,6 +714,8 @@ export async function getServiceDefinitionsFromDb(
         description,
         category_id,
         category_name,
+        image_url as media_url,
+        media_type,
         duration_minutes,
         pricing_model,
         is_active,
@@ -786,6 +810,8 @@ export async function getServiceDefinitionsAllLocalesFromDb(
           sd.name_translations,
           sd.description_translations,
           sd.category_id,
+          sd.image_url,
+          sd.media_type,
           sd.duration_minutes,
           sd.pricing_model,
           sd.is_active,
@@ -828,6 +854,8 @@ export async function getServiceDefinitionsAllLocalesFromDb(
           b.name_translations,
           b.description_translations,
           b.category_id,
+          b.image_url,
+          b.media_type,
           b.duration_minutes,
           b.pricing_model,
           b.is_active,
@@ -944,6 +972,8 @@ export async function getServiceDefinitionByIdFromDb(
       description: localizedResponse(row.description_translations),
       categoryId: String(row.category_id),
       categoryName: String(row.category_name ?? ""),
+      mediaUrl: nullableTrimmed(row.image_url),
+      mediaType: normalizeServiceDefinitionMediaType(row.media_type),
       durationMinutes: asNumber(row.duration_minutes),
       currency: String(row.currency ?? ""),
       basePrice: asNumber(row.value),
@@ -968,6 +998,8 @@ export async function createServiceDefinitionInDb(input: ServiceDefinitionMutati
       name_translations,
       description_translations,
       category_id,
+      image_url,
+      media_type,
       duration_minutes,
       pricing_model,
       is_active,
@@ -980,6 +1012,8 @@ export async function createServiceDefinitionInDb(input: ServiceDefinitionMutati
       ${sql.json(normalizeTranslations(input.name))},
       ${sql.json(normalizeTranslations(input.description))},
       ${input.categoryId},
+      ${nullableTrimmed(input.mediaUrl)},
+      ${normalizeServiceDefinitionMediaType(input.mediaType)},
       ${input.durationMinutes},
       ${input.pricingModel},
       ${input.isActive},
@@ -1003,6 +1037,8 @@ export async function updateServiceDefinitionInDb(input: ServiceDefinitionMutati
       name_translations = ${sql.json(normalizeTranslations(input.name))},
       description_translations = ${sql.json(normalizeTranslations(input.description))},
       category_id = ${input.categoryId},
+      image_url = ${nullableTrimmed(input.mediaUrl)},
+      media_type = ${normalizeServiceDefinitionMediaType(input.mediaType)},
       duration_minutes = ${input.durationMinutes},
       pricing_model = ${input.pricingModel},
       is_active = ${input.isActive},

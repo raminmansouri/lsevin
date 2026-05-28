@@ -7,26 +7,28 @@ import Link from 'next/link';
 import SignOutButton from './components/sign-out-button';
 import { getSession } from '@/lib/auth/session';
 import { CustomerStats } from './components/customer-stats';
-import { getLocale } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 
 export default async function Profile() {
-    const profile = await getProfileForEdit("en-US");
+  const locale = await getLocale();
+  const dataLocale = locale === "fa" ? "fa-IR" : "en-US";
+  const t = await getTranslations({ locale, namespace: "MobileProfile.main" });
+  const profile = await getProfileForEdit(dataLocale);
   
   
   const menuItems = [
-    { icon: WalletIcon, label: 'Wallet & Payments', path: '/n/app/mobile/profile/wallet', color: 'text-green-600' },
-    { icon: Gift, label: 'Rewards & Loyalty', path: '/n/app/mobile/profile/rewards', color: 'text-orange-600' },
-    { icon: Share2, label: 'Share with Friends', path: '/n/app/mobile/profile/share', color: 'text-blue-600' },
-    { icon: Heart, label: 'Saved Favorites', path: '/n/app/mobile/profile/favorites', color: 'text-red-600' },
-    { icon: FileText, label: 'Medical Profile', path: '/n/app/mobile/profile/medical-profile', color: 'text-blue-600' },
-    { icon: Bell, label: 'Notifications', path: '/n/app/mobile/notifications', color: 'text-purple-600' },
+    { icon: WalletIcon, label: t('menu.walletPayments'), path: '/n/app/mobile/profile/wallet', color: 'text-green-600' },
+    { icon: Gift, label: t('menu.rewardsLoyalty'), path: '/n/app/mobile/profile/rewards', color: 'text-orange-600' },
+    { icon: Share2, label: t('menu.shareWithFriends'), path: '/n/app/mobile/profile/share', color: 'text-blue-600' },
+    { icon: Heart, label: t('menu.savedFavorites'), path: '/n/app/mobile/profile/favorites', color: 'text-red-600' },
+    { icon: FileText, label: t('menu.medicalProfile'), path: '/n/app/mobile/profile/medical-profile', color: 'text-blue-600' },
+    { icon: Bell, label: t('menu.notifications'), path: '/n/app/mobile/notifications', color: 'text-purple-600' },
     // { icon: Globe, label: 'Language & Currency', path: '/n/app/mobile/profile/settings', color: 'text-teal-600' },
-    { icon: Shield, label: 'Privacy & Security', path: '/n/app/mobile/profile/privacy-security', color: 'text-indigo-600' },
+    { icon: Shield, label: t('menu.privacySecurity'), path: '/n/app/mobile/profile/privacy-security', color: 'text-indigo-600' },
   ];
   
   const session=await getSession();
   const identityUserId=session?.user?.id;
-  const locale=await getLocale();
   
   return (
     <div className="min-h-screen bg-gray-50">

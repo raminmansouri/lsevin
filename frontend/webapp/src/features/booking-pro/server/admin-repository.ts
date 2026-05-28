@@ -5,7 +5,7 @@ import db from '@/config/database/db';
 import { pickTranslation } from '@/features/booking-pro/utils/translation';
 
 export async function listAdminBookings(params: { locale?: string; search?: string; status?: string; take?: number; offset?: number }) {
-  const locale = params.locale ?? 'en-US';
+  const locale = params.locale ?? 'fa-IR';
   const search = params.search ?? '';
   const like = `%${search}%`;
   const take = params.take ?? 20;
@@ -61,7 +61,7 @@ export async function listAdminBookings(params: { locale?: string; search?: stri
 
 export async function getAdminBookingDetail(
   bookingId: string,
-  locale = "en-US"
+  locale = "fa-IR"
 ) {
   const rows = await db`
     select b.*,

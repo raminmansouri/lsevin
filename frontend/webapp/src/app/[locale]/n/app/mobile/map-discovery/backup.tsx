@@ -1,6 +1,7 @@
 "use client"
 
 import { useNavigate } from '@/hooks/use-navigate';
+import { useTranslations } from 'next-intl';
 import { 
   ChevronLeft, 
   MapPin, 
@@ -19,6 +20,7 @@ import { useState } from 'react';
 
 export default function MapDiscovery() {
   const navigate = useNavigate();
+  const t = useTranslations('MapDiscovery');
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [selectedProvider, setSelectedProvider] = useState<number | null>(1);
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -35,11 +37,11 @@ export default function MapDiscovery() {
   });
 
   const categories = [
-    { id: 'all', label: 'All' },
-    { id: 'medical', label: 'Medical' },
-    { id: 'beauty', label: 'Beauty' },
-    { id: 'fitness', label: 'Fitness' },
-    { id: 'hotels', label: 'Hotels' },
+    { id: 'all', label: t('backup.categories.all') },
+    { id: 'medical', label: t('backup.categories.medical') },
+    { id: 'beauty', label: t('backup.categories.beauty') },
+    { id: 'fitness', label: t('backup.categories.fitness') },
+    { id: 'hotels', label: t('backup.categories.hotels') },
   ];
 
   const providers = [
@@ -50,7 +52,7 @@ export default function MapDiscovery() {
       rating: 4.9,
       reviews: 2847,
       verified: true,
-      location: '2.3 km away',
+      location: t('backup.distanceAway', { distance: '2.3' }),
       specialties: ['Hair Transplant', 'Dental'],
       coordinates: { lat: 41.0082, lng: 28.9784 }
     },
@@ -61,7 +63,7 @@ export default function MapDiscovery() {
       rating: 4.9,
       reviews: 1523,
       verified: true,
-      location: '3.7 km away',
+      location: t('backup.distanceAway', { distance: '3.7' }),
       specialties: ['Dental Veneers', 'Implants'],
       coordinates: { lat: 25.2048, lng: 55.2708 }
     },
@@ -72,7 +74,7 @@ export default function MapDiscovery() {
       rating: 4.8,
       reviews: 892,
       verified: true,
-      location: '5.1 km away',
+      location: t('backup.distanceAway', { distance: '5.1' }),
       specialties: ['Cosmetic Surgery', 'Botox'],
       coordinates: { lat: 13.7563, lng: 100.5018 }
     },
@@ -83,7 +85,7 @@ export default function MapDiscovery() {
       rating: 4.9,
       reviews: 734,
       verified: true,
-      location: '1.8 km away',
+      location: t('backup.distanceAway', { distance: '1.8' }),
       specialties: ['Dental', 'Cosmetic'],
       coordinates: { lat: 48.2082, lng: 16.3738 }
     },
@@ -105,8 +107,8 @@ export default function MapDiscovery() {
             </button>
             
             <div className="flex-1">
-              <h1 className="text-xl font-bold text-gray-900">Map Discovery</h1>
-              <p className="text-sm text-gray-600">{providers.length} providers nearby</p>
+              <h1 className="text-xl font-bold text-gray-900">{t('title')}</h1>
+              <p className="text-sm text-gray-600">{t('providersNearby', { count: providers.length })}</p>
             </div>
 
             <button 
@@ -144,7 +146,7 @@ export default function MapDiscovery() {
             className="w-full h-10 px-4 bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors"
           >
             <SlidersHorizontal size={18} className="text-gray-700" />
-            <span className="text-sm font-medium text-gray-700">Advanced Filters</span>
+            <span className="text-sm font-medium text-gray-700">{t('advancedFilters')}</span>
             {(filters.verifiedOnly || filters.minRating > 0 || filters.languages.length > 0) && (
               <span className="w-2 h-2 bg-[#083f30] rounded-full" />
             )}
@@ -160,7 +162,7 @@ export default function MapDiscovery() {
             <div className="absolute inset-0">
               <img 
                 src="/placeholder.svg"
-                alt="Map"
+                alt={t('backup.mapAlt')}
                 className="w-full h-full object-cover opacity-40"
               />
               {/* Subtle grid overlay */}
@@ -213,7 +215,7 @@ export default function MapDiscovery() {
             
             {/* Map Attribution */}
             <div className="absolute bottom-2 left-2 text-xs text-gray-500 bg-white/80 px-2 py-1 rounded">
-              Interactive Map
+              {t('backup.interactiveMap')}
             </div>
           </div>
 
@@ -252,7 +254,7 @@ export default function MapDiscovery() {
                       <Star size={14} className="fill-yellow-400 text-yellow-400" />
                       <span className="font-bold text-sm">{selectedProviderData.rating}</span>
                       <span className="text-xs text-gray-500">
-                        ({selectedProviderData.reviews.toLocaleString()})
+                        {t('reviewsCount', { count: selectedProviderData.reviews })}
                       </span>
                     </div>
                     <div className="flex gap-1.5">
@@ -344,7 +346,7 @@ export default function MapDiscovery() {
             {/* Header */}
             <div className="sticky top-0 bg-white border-b border-gray-200 px-5 py-4 z-10">
               <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xl font-bold text-gray-900">Advanced Filters</h2>
+                <h2 className="text-xl font-bold text-gray-900">{t('advancedFilters')}</h2>
                 <button
                   onClick={() => setShowFilters(false)}
                   className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
@@ -352,7 +354,7 @@ export default function MapDiscovery() {
                   <X size={20} className="text-gray-600" />
                 </button>
               </div>
-              <p className="text-sm text-gray-600">Refine your search results</p>
+              <p className="text-sm text-gray-600">{t('refineSearchResults')}</p>
             </div>
             
             {/* Filters Content */}
@@ -362,7 +364,7 @@ export default function MapDiscovery() {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <DollarSign size={20} className="text-[#083f30]" />
-                    <h3 className="font-bold text-gray-900">Price Range</h3>
+                    <h3 className="font-bold text-gray-900">{t('filters.priceRange')}</h3>
                   </div>
                   <span className="text-sm font-semibold text-[#083f30]">
                     ${filters.priceRange[0]} - ${filters.priceRange[1]}
@@ -393,7 +395,7 @@ export default function MapDiscovery() {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <MapPin size={20} className="text-[#083f30]" />
-                    <h3 className="font-bold text-gray-900">Distance</h3>
+                    <h3 className="font-bold text-gray-900">{t('filters.distance')}</h3>
                   </div>
                   <span className="text-sm font-semibold text-[#083f30]">
                     {filters.distance} km
@@ -412,8 +414,8 @@ export default function MapDiscovery() {
                     }}
                   />
                   <div className="flex justify-between text-xs text-gray-500">
-                    <span>1 km</span>
-                    <span>50 km</span>
+                    <span>{t('filters.oneKm')}</span>
+                    <span>{t('filters.fiftyKm')}</span>
                   </div>
                 </div>
               </div>
@@ -422,7 +424,7 @@ export default function MapDiscovery() {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Star size={20} className="text-[#083f30]" />
-                  <h3 className="font-bold text-gray-900">Minimum Rating</h3>
+                  <h3 className="font-bold text-gray-900">{t('filters.minimumRating')}</h3>
                 </div>
                 <div className="grid grid-cols-5 gap-2">
                   {[0, 3.0, 3.5, 4.0, 4.5].map(rating => (
@@ -435,7 +437,7 @@ export default function MapDiscovery() {
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
-                      <span className="text-sm">{rating === 0 ? 'Any' : `${rating}+`}</span>
+                      <span className="text-sm">{rating === 0 ? t('filters.any') : `${rating}+`}</span>
                       {rating > 0 && <Star size={12} className="fill-current" />}
                     </button>
                   ))}
@@ -459,8 +461,8 @@ export default function MapDiscovery() {
                       <BadgeCheck size={24} className={filters.verifiedOnly ? 'text-white' : 'text-gray-400'} />
                     </div>
                     <div className="text-left">
-                      <h3 className="font-bold text-gray-900">Verified Providers Only</h3>
-                      <p className="text-sm text-gray-600">Show only accredited providers</p>
+                      <h3 className="font-bold text-gray-900">{t('filters.verifiedProvidersOnly')}</h3>
+                      <p className="text-sm text-gray-600">{t('filters.showOnlyAccreditedProviders')}</p>
                     </div>
                   </div>
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${
@@ -475,26 +477,34 @@ export default function MapDiscovery() {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Globe size={20} className="text-[#083f30]" />
-                  <h3 className="font-bold text-gray-900">Languages Spoken</h3>
+                  <h3 className="font-bold text-gray-900">{t('filters.languagesSpoken')}</h3>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {['English', 'Arabic', 'Turkish', 'German', 'French', 'Spanish', 'Russian'].map(lang => (
+                  {[
+                    { value: 'English', label: t('backup.languages.english') },
+                    { value: 'Arabic', label: t('backup.languages.arabic') },
+                    { value: 'Turkish', label: t('backup.languages.turkish') },
+                    { value: 'German', label: t('backup.languages.german') },
+                    { value: 'French', label: t('backup.languages.french') },
+                    { value: 'Spanish', label: t('backup.languages.spanish') },
+                    { value: 'Russian', label: t('backup.languages.russian') },
+                  ].map(lang => (
                     <button
-                      key={lang}
+                      key={lang.value}
                       onClick={() => {
-                        if (filters.languages.includes(lang)) {
-                          setFilters({...filters, languages: filters.languages.filter(l => l !== lang)});
+                        if (filters.languages.includes(lang.value)) {
+                          setFilters({...filters, languages: filters.languages.filter(l => l !== lang.value)});
                         } else {
-                          setFilters({...filters, languages: [...filters.languages, lang]});
+                          setFilters({...filters, languages: [...filters.languages, lang.value]});
                         }
                       }}
                       className={`px-4 py-2 rounded-xl font-medium transition-all ${
-                        filters.languages.includes(lang)
+                        filters.languages.includes(lang.value)
                           ? 'bg-[#083f30] text-white shadow-md'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
-                      {lang}
+                      {lang.label}
                     </button>
                   ))}
                 </div>
@@ -504,26 +514,33 @@ export default function MapDiscovery() {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Award size={20} className="text-[#083f30]" />
-                  <h3 className="font-bold text-gray-900">Specialties</h3>
+                  <h3 className="font-bold text-gray-900">{t('filters.specialties')}</h3>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {['Hair Transplant', 'Dental', 'Cosmetic Surgery', 'Botox', 'Implants', 'Veneers'].map(spec => (
+                  {[
+                    { value: 'Hair Transplant', label: t('backup.specialties.hairTransplant') },
+                    { value: 'Dental', label: t('backup.specialties.dental') },
+                    { value: 'Cosmetic Surgery', label: t('backup.specialties.cosmeticSurgery') },
+                    { value: 'Botox', label: t('backup.specialties.botox') },
+                    { value: 'Implants', label: t('backup.specialties.implants') },
+                    { value: 'Veneers', label: t('backup.specialties.veneers') },
+                  ].map(spec => (
                     <button
-                      key={spec}
+                      key={spec.value}
                       onClick={() => {
-                        if (filters.specialties.includes(spec)) {
-                          setFilters({...filters, specialties: filters.specialties.filter(s => s !== spec)});
+                        if (filters.specialties.includes(spec.value)) {
+                          setFilters({...filters, specialties: filters.specialties.filter(s => s !== spec.value)});
                         } else {
-                          setFilters({...filters, specialties: [...filters.specialties, spec]});
+                          setFilters({...filters, specialties: [...filters.specialties, spec.value]});
                         }
                       }}
                       className={`px-4 py-2 rounded-xl font-medium transition-all ${
-                        filters.specialties.includes(spec)
+                        filters.specialties.includes(spec.value)
                           ? 'bg-[#083f30] text-white shadow-md'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
-                      {spec}
+                      {spec.label}
                     </button>
                   ))}
                 </div>

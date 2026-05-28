@@ -320,7 +320,7 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
           <CardHeader className="border-b">
             <CardTitle>{isEdit ? "Edit service provider" : "Create service provider"}</CardTitle>
             <CardDescription>
-              Manage the complete provider profile directly from PostgreSQL. Image fields store the selected media id or URL.
+              Manage the complete provider profile directly from PostgreSQL. Image fields store the selected media URL.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-8 pt-6">
@@ -410,7 +410,7 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
                     label={tAdmin("providerImage")}
                     placeholder={tAdmin("pickImage")}
                     mediaType="image"
-                    helperText="Stores one media id in service_providers.image_url."
+                    helperText="Stores the selected media URL in service_providers.image_url."
                     modalTitle="Pick provider image"
                     key="imageUrl"
                   />

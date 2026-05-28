@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
-import { env } from "@/config/env/client";
 import { hasLexicalContent, LexicalRenderer } from "@/components/editor/lexical-renderer";
 import {
   Search,
@@ -22,7 +22,6 @@ import {
   Globe,
 } from "lucide-react";
 
-import { ImageWithFallback } from "../../components/figma/ImageWithFallback";
 
 import FavoriteButton from "./FavoriteButton";
 import LazySearchableSelect from "./LazySearchableSelect";
@@ -34,17 +33,22 @@ import {
 } from "./explore-location.actions";
 import type {
   ExploreCategory,
+  ExploreCurrencyOption,
   ExploreFeaturedProvider,
   ExploreFiltersInput,
+  ExploreLanguageOption,
   ExploreProviderType,
   ExploreSponsoredProvider,
   ExploreTrendingService,
 } from "./explore.data";
+import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 
 type FilterFormValues = {
   countryCode: string | null;
   cityCode: string | null;
   maxPrice: number;
+  currencyCode: string | null;
   minRating: number;
   verifiedOnly: boolean;
   responseTime: "any" | "fast" | "instant";
@@ -57,6 +61,7 @@ type OptimisticUiFilters = {
   countryCode: string | null;
   cityCode: string | null;
   maxPrice: number;
+  currencyCode: string | null;
   minRating: number;
   verifiedOnly: boolean;
   languages: string[];
@@ -83,6 +88,7 @@ function buildFilteredMobilePath(path: string, next: ExploreFiltersInput) {
   if (next.cityCode) params.set("city", next.cityCode);
   if (next.minPrice > 0) params.set("minPrice", String(next.minPrice));
   if (next.maxPrice > 0 && next.maxPrice !== 5000) params.set("maxPrice", String(next.maxPrice));
+  if (next.currencyCode) params.set("currency", next.currencyCode);
   if (next.minRating > 0) params.set("minRating", String(next.minRating));
   if (next.verifiedOnly) params.set("verifiedOnly", "1");
   if (next.languages.length > 0) params.set("languages", next.languages.join(","));
@@ -116,48 +122,45 @@ function formatPrice(value: number | null, currency: string = "USD") {
   }
 }
 
-function resolveMediaSrc(src: string | null | undefined) {
-  const value = src?.trim().replace(/\\/g, "/");
 
-  if (!value || value === "/placeholder.svg") return "/placeholder.svg";
-  if (value.startsWith("data:") || value.startsWith("blob:") || /^https?:\/\//i.test(value)) {
-    return value;
+
+const BARE_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function firstMediaValue(value?: string | null): string {
+  return String(value || "")
+    .split(/[،,|]/)
+    .map((part) => part.trim().replace(/^[\[\]'"]+|[\]'"]+$/g, "").replace(/\\/g, "/"))
+    .find(Boolean) ?? "";
+}
+
+function mediaUrl(value?: string | null, fallback = "/placeholder-provider.svg"): string {
+  const raw = firstMediaValue(value);
+
+  // A bare media-library UUID should have been resolved by the server query.
+  // Sending it to <Image> creates a broken request like /<uuid>, so fail safe.
+  if (!raw || BARE_UUID_RE.test(raw)) return fallback;
+
+  return resolveHomeMediaUrl(raw) || fallback;
+}
+
+function MaybeLexicalText({
+  content,
+  className,
+  fallback = "-",
+}: {
+  content: string | null | undefined;
+  className?: string;
+  fallback?: string;
+}) {
+  const value = content?.trim();
+
+  if (!value) return <p className={className}>{fallback}</p>;
+
+  if (hasLexicalContent(value)) {
+    return <LexicalRenderer content={value} className={className} />;
   }
 
-  // A raw media-library UUID is not a browser-loadable image URL. The SQL query
-  // resolves known UUID values to media.file_url; if one still reaches the UI,
-  // prefer a safe placeholder instead of a guaranteed broken request.
-  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)) {
-    return "/placeholder.svg";
-  }
-
-  // Some legacy fields contain icon names such as "stethoscope" instead of
-  // media paths. Do not send those through <img>; they would always 404.
-  if (!value.includes("/") && !/\.[a-z0-9]{2,5}(?:$|[?#])/i.test(value)) {
-    return "/placeholder.svg";
-  }
-
-  const publicAssetPrefixes = [
-    "/placeholder.svg",
-    "/assets/",
-    "/icons/",
-    "/images/",
-    "/img/",
-    "/unsplash_images/",
-    "/_next/",
-  ];
-
-  if (publicAssetPrefixes.some((prefix) => value.startsWith(prefix))) {
-    return value;
-  }
-
-  const baseUrl = env.NEXT_PUBLIC_FILES_URL?.replace(/\/$/, "");
-
-  if (value.startsWith("/")) {
-    return baseUrl ? `${baseUrl}${value}` : value;
-  }
-
-  return baseUrl ? `${baseUrl}/${value.replace(/^\/+/, "")}` : `/${value.replace(/^\/+/, "")}`;
+  return <p className={className}>{value}</p>;
 }
 
 function navigateSmooth(
@@ -233,6 +236,7 @@ export default function ExploreClient({
   trendingServices,
   sponsoredProviders,
   availableLanguages,
+  availableCurrencies,
   locale,
   filters: initialFilters,
 }: {
@@ -242,11 +246,13 @@ export default function ExploreClient({
   featuredProviders: ExploreFeaturedProvider[];
   trendingServices: ExploreTrendingService[];
   sponsoredProviders: ExploreSponsoredProvider[];
-  availableLanguages: string[];
+  availableLanguages: ExploreLanguageOption[];
+  availableCurrencies: ExploreCurrencyOption[];
   locale: string;
   filters: ExploreFiltersInput;
 }) {
   const router = useRouter();
+  const t = useTranslations("Explore");
   const [isPending, startTransition] = useTransition();
   const [showFilters, setShowFilters] = useState(false);
   const [showAllProviderTypes, setShowAllProviderTypes] = useState(false);
@@ -258,6 +264,7 @@ export default function ExploreClient({
       countryCode: initialFilters.countryCode,
       cityCode: initialFilters.cityCode,
       maxPrice: initialFilters.maxPrice || 5000,
+      currencyCode: initialFilters.currencyCode,
       minRating: initialFilters.minRating || 0,
       verifiedOnly: initialFilters.verifiedOnly,
       languages: initialFilters.languages,
@@ -277,6 +284,7 @@ export default function ExploreClient({
       countryCode: initialUiFilters.countryCode,
       cityCode: initialUiFilters.cityCode,
       maxPrice: initialUiFilters.maxPrice,
+      currencyCode: initialUiFilters.currencyCode,
       minRating: initialUiFilters.minRating,
       verifiedOnly: initialUiFilters.verifiedOnly,
       languages: initialUiFilters.languages,
@@ -289,6 +297,7 @@ export default function ExploreClient({
       countryCode: initialUiFilters.countryCode,
       cityCode: initialUiFilters.cityCode,
       maxPrice: initialUiFilters.maxPrice,
+      currencyCode: initialUiFilters.currencyCode,
       minRating: initialUiFilters.minRating,
       verifiedOnly: initialUiFilters.verifiedOnly,
       languages: initialUiFilters.languages,
@@ -303,6 +312,7 @@ export default function ExploreClient({
       countryCode: watched.countryCode ?? null,
       cityCode: watched.cityCode ?? null,
       priceRange: [0, watched.maxPrice ?? 5000] as [number, number],
+      currencyCode: watched.currencyCode ?? null,
       minRating: watched.minRating ?? 0,
       verifiedOnly: watched.verifiedOnly ?? false,
       languages: watched.languages ?? [],
@@ -312,6 +322,22 @@ export default function ExploreClient({
   );
 
   const selectedCountryCode = watched.countryCode ?? null;
+
+  const selectedCurrency = useMemo(() => {
+    const selected = availableCurrencies.find((currency) => currency.code === modalFilters.currencyCode);
+    return selected ?? availableCurrencies[0] ?? { code: "USD", label: t("currencies.usDollar"), symbol: "$", count: 0 };
+  }, [availableCurrencies, modalFilters.currencyCode, t]);
+
+  const languageLabelByValue = useMemo(() => {
+    return new Map(availableLanguages.map((language) => [language.value, language.label]));
+  }, [availableLanguages]);
+
+  const selectedLanguageLabels = modalFilters.languages.map((value) => ({
+    value,
+    label: languageLabelByValue.get(value) ?? value,
+  }));
+
+  const pricePrefix = modalFilters.currencyCode ? selectedCurrency.symbol : "";
 
   const loadCountryOptions = useCallback(
     (args: { search: string; page: number; pageSize: number }) =>
@@ -346,6 +372,7 @@ export default function ExploreClient({
     activeUiFilters.providerTypeId !== "all" ||
     Boolean(activeUiFilters.countryCode) ||
     Boolean(activeUiFilters.cityCode) ||
+    Boolean(activeUiFilters.currencyCode) ||
     activeUiFilters.maxPrice !== 5000;
 
   const applyCategory = (categoryId: string) => {
@@ -368,6 +395,7 @@ export default function ExploreClient({
         cityCode: activeUiFilters.cityCode,
         minPrice: 0,
         maxPrice: activeUiFilters.maxPrice,
+        currencyCode: activeUiFilters.currencyCode,
         minRating: activeUiFilters.minRating,
         verifiedOnly: activeUiFilters.verifiedOnly,
         languages: activeUiFilters.languages,
@@ -395,6 +423,7 @@ export default function ExploreClient({
         cityCode: activeUiFilters.cityCode,
         minPrice: 0,
         maxPrice: activeUiFilters.maxPrice,
+        currencyCode: activeUiFilters.currencyCode,
         minRating: activeUiFilters.minRating,
         verifiedOnly: activeUiFilters.verifiedOnly,
         languages: activeUiFilters.languages,
@@ -410,6 +439,7 @@ export default function ExploreClient({
       countryCode: values.countryCode ?? null,
       cityCode: values.cityCode ?? null,
       maxPrice: values.maxPrice,
+      currencyCode: values.currencyCode ?? null,
       minRating: values.minRating,
       verifiedOnly: values.verifiedOnly,
       languages: values.languages,
@@ -431,6 +461,7 @@ export default function ExploreClient({
         cityCode: nextUiFilters.cityCode,
         minPrice: 0,
         maxPrice: nextUiFilters.maxPrice,
+        currencyCode: nextUiFilters.currencyCode,
         minRating: nextUiFilters.minRating,
         verifiedOnly: nextUiFilters.verifiedOnly,
         languages: nextUiFilters.languages,
@@ -446,6 +477,7 @@ export default function ExploreClient({
       countryCode: null,
       cityCode: null,
       maxPrice: 5000,
+      currencyCode: null,
       minRating: 0,
       verifiedOnly: false,
       languages: [],
@@ -456,6 +488,7 @@ export default function ExploreClient({
       countryCode: null,
       cityCode: null,
       maxPrice: 5000,
+      currencyCode: null,
       minRating: 0,
       verifiedOnly: false,
       languages: [],
@@ -475,6 +508,7 @@ export default function ExploreClient({
         cityCode: cleared.cityCode,
         minPrice: 0,
         maxPrice: 5000,
+        currencyCode: null,
         minRating: 0,
         verifiedOnly: false,
         languages: [],
@@ -493,6 +527,7 @@ export default function ExploreClient({
       cityCode: activeUiFilters.cityCode,
       minPrice: 0,
       maxPrice: activeUiFilters.maxPrice,
+      currencyCode: activeUiFilters.currencyCode,
       minRating: activeUiFilters.minRating,
       verifiedOnly: activeUiFilters.verifiedOnly,
       languages: activeUiFilters.languages,
@@ -501,7 +536,7 @@ export default function ExploreClient({
     [activeUiFilters, initialFilters],
   );
 
-  const searchLabel = initialFilters.q ? initialFilters.q : "Search services...";
+  const searchLabel = initialFilters.q ? initialFilters.q : t("search.placeholder");
   const visibleProviderTypes = showAllProviderTypes
     ? providerTypes
     : providerTypes.slice(0, 4);
@@ -513,8 +548,8 @@ export default function ExploreClient({
       <div className="bg-white px-5 pt-3 pb-4 border-b border-gray-100 sticky top-0 z-40 backdrop-blur-xl bg-white/95">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Explore</h1>
-            <p className="text-sm text-gray-600 mt-0.5">Discover healthcare worldwide</p>
+            <h1 className="text-2xl font-bold text-gray-900">{t("header.title")}</h1>
+            <p className="text-sm text-gray-600 mt-0.5">{t("header.subtitle")}</p>
           </div>
 
           <button
@@ -567,17 +602,17 @@ export default function ExploreClient({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Award size={22} className="text-[#083f30]" />
-              <h2 className="text-xl font-bold text-gray-900">Featured Providers</h2>
+              <h2 className="text-xl font-bold text-gray-900">{t("featured.title")}</h2>
             </div>
             <button
               onClick={() => router.push(buildMapDiscoveryQuery(currentFilters))}
               className="text-sm font-semibold text-[#083f30] hover:underline flex items-center gap-1"
             >
-              View All
+              {t("actions.viewAll")}
               <ChevronRight size={16} />
             </button>
           </div>
-          <p className="text-sm text-gray-600 mt-1">Verified and top-rated healthcare providers</p>
+          <p className="text-sm text-gray-600 mt-1">{t("featured.subtitle")}</p>
         </div>
 
         <div className="space-y-3 px-5">
@@ -587,10 +622,13 @@ export default function ExploreClient({
               onClick={() => router.push(buildMobilePath(`/provider/${provider.id}`))}
               className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all cursor-pointer"
             >
+              
               <div className="flex gap-4 p-4">
                 <div className="relative flex-shrink-0">
                   <ImageWithFallback
-                    src={resolveMediaSrc(provider.image)}
+                       width={200}
+                height={200}
+                    src={mediaUrl(provider.image)}
                     alt={provider.name}
                     className="w-24 h-24 rounded-xl object-cover"
                   />
@@ -643,7 +681,7 @@ export default function ExploreClient({
 
                   <div className="flex items-center gap-1">
                     <Clock size={12} className="text-green-600" />
-                    <span className="text-xs font-medium text-green-700">Responds {provider.responseTime}</span>
+                    <span className="text-xs font-medium text-green-700">{t("provider.responds", { time: provider.responseTime })}</span>
                   </div>
                 </div>
 
@@ -664,8 +702,10 @@ export default function ExploreClient({
         <div className="px-5 py-4">
           <div className="relative rounded-2xl overflow-hidden shadow-lg">
             <ImageWithFallback
-              src={resolveMediaSrc(sponsoredProviders[0].image)}
-              alt="Sponsored"
+                 width={200}
+                height={200}
+              src={mediaUrl(sponsoredProviders[0].image)}
+              alt={t("sponsored.alt")}
               className="absolute inset-0 w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-purple-900/90 via-purple-800/80 to-transparent" />
@@ -675,13 +715,17 @@ export default function ExploreClient({
                 {sponsoredProviders[0].tag}
               </span>
               <h3 className="text-xl font-bold text-white mb-2">{sponsoredProviders[0].name}</h3>
-              <p className="text-white/90 text-sm mb-4">{sponsoredProviders[0].subtitle}</p>
+              <MaybeLexicalText
+                content={sponsoredProviders[0].subtitle}
+                className="text-white/90 text-sm mb-4 line-clamp-3 [&_*]:text-white/90"
+                fallback=""
+              />
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => router.push(buildMobilePath(`/provider/${sponsoredProviders[0].id}`))}
                   className="bg-white text-purple-900 px-6 py-3 rounded-xl font-bold text-sm hover:bg-gray-100 transition-all shadow-lg"
                 >
-                  Learn More
+                  {t("actions.learnMore")}
                 </button>
                 {sponsoredProviders[0].price != null && (
                   <span className="text-2xl font-bold text-white">
@@ -698,9 +742,9 @@ export default function ExploreClient({
         <div className="px-5 mb-4">
           <div className="flex items-center gap-2 mb-1">
             <TrendingUp size={22} className="text-orange-500" />
-            <h2 className="text-xl font-bold text-gray-900">Trending Services</h2>
+            <h2 className="text-xl font-bold text-gray-900">{t("trending.title")}</h2>
           </div>
-          <p className="text-sm text-gray-600">Most booked this week</p>
+          <p className="text-sm text-gray-600">{t("trending.subtitle")}</p>
         </div>
 
         <div className="flex gap-4 overflow-x-auto hide-scrollbar px-5 pb-2">
@@ -710,9 +754,12 @@ export default function ExploreClient({
               onClick={() => router.push(buildMobilePath(`/service/${service.id}`))}
               className="flex-none w-64 bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer border border-gray-100"
             >
+              
               <div className="relative aspect-[16/10]">
                 <ImageWithFallback
-                  src={resolveMediaSrc(service.image)}
+                     width={200}
+                height={200}
+                  src={mediaUrl(service.image)}
                   alt={service.name}
                   className="w-full h-full object-cover"
                 />
@@ -754,9 +801,9 @@ export default function ExploreClient({
 
                   <div className="text-right">
                     {service.originalPrice && (
-                      <div className="text-xs text-gray-400 line-through">{formatPrice(service.originalPrice)}</div>
+                      <div className="text-xs text-gray-400 line-through">{formatPrice(service.originalPrice, service.currency)}</div>
                     )}
-                    <div className="font-bold text-[#083f30]">{formatPrice(service.price)}</div>
+                    <div className="font-bold text-[#083f30]">{formatPrice(service.price, service.currency)}</div>
                   </div>
                 </div>
               </div>
@@ -768,8 +815,8 @@ export default function ExploreClient({
       <div className="px-5 py-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Browse Provider Types</h2>
-            <p className="text-sm text-gray-600 mt-1">Choose the kind of provider you need</p>
+            <h2 className="text-xl font-bold text-gray-900">{t("providerTypes.title")}</h2>
+            <p className="text-sm text-gray-600 mt-1">{t("providerTypes.subtitle")}</p>
           </div>
           {providerTypes.length > 4 && (
             <button
@@ -777,7 +824,7 @@ export default function ExploreClient({
               onClick={() => setShowAllProviderTypes((current) => !current)}
               className="text-sm font-semibold text-[#083f30] hover:underline flex items-center gap-1"
             >
-              {showAllProviderTypes ? "Show Less" : "View All"}
+              {showAllProviderTypes ? t("actions.showLess") : t("actions.viewAll")}
               <ChevronRight
                 size={16}
                 className={showAllProviderTypes ? "rotate-90 transition-transform" : "transition-transform"}
@@ -788,7 +835,7 @@ export default function ExploreClient({
 
         {providerTypes.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-5 text-sm text-gray-500">
-            No provider types are available yet.
+            {t("providerTypes.empty")}
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3">
@@ -804,32 +851,33 @@ export default function ExploreClient({
                     applyProviderType(providerType.id);
                   }
                 }}
-                className={`relative cursor-pointer rounded-2xl overflow-hidden aspect-[4/3] group shadow-sm hover:shadow-xl transition-all ${
+                className={`flex cursor-pointer items-center gap-3 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm transition-all hover:shadow-lg ${
                   activeUiFilters.providerTypeId === providerType.id ? "ring-2 ring-[#eacb7f]" : ""
                 }`}
               >
-                <ImageWithFallback
-                  src={resolveMediaSrc(providerType.image)}
-                  alt={providerType.label}
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/5" />
+                
+                <div className="relative h-14 w-14 flex-none overflow-hidden rounded-xl bg-gray-100">
+                  <ImageWithFallback
+                    fill
+                    src={mediaUrl(providerType.image)}
+                    alt={providerType.label}
+                    sizes="56px"
+                    className="object-cover"
+                    fallbackClassName="h-full w-full"
+                  />
+                </div>
 
-                <div className="relative z-10 flex h-full flex-col justify-end p-4">
-                  <h3 className="text-white font-bold text-lg mb-1 line-clamp-1">
+                <div className="min-w-0 flex-1">
+                  <h3 className="mb-1 line-clamp-1 text-sm font-bold text-gray-900">
                     {providerType.label}
                   </h3>
-                  <div className="mb-2 line-clamp-2 text-xs leading-5 text-white/90 [&_*]:text-white/90">
-                    {providerType.description && hasLexicalContent(providerType.description) ? (
-                      <LexicalRenderer
-                        content={providerType.description}
-                        className="line-clamp-2 text-white/90"
-                      />
-                    ) : (
-                      <p className="line-clamp-2 text-white/90">-</p>
-                    )}
+                  <div className="mb-1 line-clamp-2 text-xs leading-5 text-gray-600 [&_*]:text-gray-600">
+                    <MaybeLexicalText
+                      content={providerType.description}
+                      className="line-clamp-2 text-gray-600"
+                    />
                   </div>
-                  <p className="text-white/90 text-xs">{providerType.count} providers</p>
+                  <p className="text-xs font-medium text-[#083f30]">{t("counts.providers", { count: providerType.count })}</p>
                 </div>
               </article>
             ))}
@@ -877,14 +925,14 @@ export default function ExploreClient({
       */}
 
       {showFilters && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-end animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[80] bg-black/50 flex items-end animate-in fade-in duration-200">
           <form
             onSubmit={applyFilters}
             className="w-full bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-300"
           >
             <div className="sticky top-0 bg-white border-b border-gray-200 px-5 py-4 z-10">
               <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xl font-bold text-gray-900">Advanced Filters</h2>
+                <h2 className="text-xl font-bold text-gray-900">{t("filters.title")}</h2>
                 <button
                   type="button"
                   onClick={() => setShowFilters(false)}
@@ -893,22 +941,22 @@ export default function ExploreClient({
                   <X size={20} className="text-gray-600" />
                 </button>
               </div>
-              <p className="text-sm text-gray-600">Find exactly what you're looking for</p>
+              <p className="text-sm text-gray-600">{t("filters.subtitle")}</p>
             </div>
 
             <div className="px-5 py-6 space-y-6">
               <div>
                 <div className="mb-3 flex items-center gap-2">
                   <MapPin size={20} className="text-[#083f30]" />
-                  <h3 className="font-bold text-gray-900">Location</h3>
+                  <h3 className="font-bold text-gray-900">{t("filters.location")}</h3>
                 </div>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <LazySearchableSelect
-                    label="Country"
+                    label={t("filters.country")}
                     value={modalFilters.countryCode}
-                    placeholder="Select country"
-                    searchPlaceholder="Search countries..."
-                    emptyText="No countries found."
+                    placeholder={t("filters.selectCountry")}
+                    searchPlaceholder={t("filters.searchCountries")}
+                    emptyText={t("filters.noCountries")}
                     loadOptions={loadCountryOptions}
                     loadByValue={loadSelectedCountry}
                     onChange={(value) => {
@@ -918,12 +966,12 @@ export default function ExploreClient({
                   />
                   <LazySearchableSelect
                     key={modalFilters.countryCode ?? "no-country"}
-                    label="City"
+                    label={t("filters.city")}
                     value={modalFilters.cityCode}
                     disabled={!modalFilters.countryCode}
-                    placeholder={modalFilters.countryCode ? "Select city" : "Select country first"}
-                    searchPlaceholder="Search cities..."
-                    emptyText="No cities found for this country."
+                    placeholder={modalFilters.countryCode ? t("filters.selectCity") : t("filters.selectCountryFirst")}
+                    searchPlaceholder={t("filters.searchCities")}
+                    emptyText={t("filters.noCitiesForCountry")}
                     loadOptions={loadCityOptions}
                     loadByValue={loadSelectedCity}
                     onChange={(value) => form.setValue("cityCode", value, { shouldDirty: true })}
@@ -935,28 +983,52 @@ export default function ExploreClient({
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <DollarSign size={20} className="text-[#083f30]" />
-                    <h3 className="font-bold text-gray-900">Price Range</h3>
+                    <h3 className="font-bold text-gray-900">{t("filters.priceRange")}</h3>
                   </div>
                   <span className="text-sm font-semibold text-[#083f30]">
-                    $0 - ${modalFilters.priceRange[1]}
+                    {pricePrefix}0 - {pricePrefix}
+                    {modalFilters.priceRange[1].toLocaleString(locale)}
                   </span>
                 </div>
+
+                <div className="mb-4">
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    {t("filters.currency")}
+                  </label>
+                  <select
+                    value={modalFilters.currencyCode ?? ""}
+                    onChange={(event) => {
+                      form.setValue("currencyCode", event.target.value || null, { shouldDirty: true });
+                    }}
+                    className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-900 outline-none transition focus:border-[#083f30] focus:ring-2 focus:ring-[#083f30]/10"
+                  >
+                    <option value="">{t("filters.allCurrencies")}</option>
+                    {availableCurrencies.map((currency) => (
+                      <option key={currency.code} value={currency.code}>
+                        {currency.symbol} {currency.code} — {currency.label} ({currency.count})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 <div className="space-y-2">
                   <input
                     type="range"
+                    dir="ltr"
                     min="0"
                     max="10000"
                     step="100"
                     value={modalFilters.priceRange[1]}
-                    onChange={(e) => form.setValue("maxPrice", Number(e.target.value))}
+                    onChange={(e) => form.setValue("maxPrice", Number(e.target.value), { shouldDirty: true })}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                     style={{
+                      direction: "ltr",
                       background: `linear-gradient(to right, #083f30 0%, #083f30 ${(modalFilters.priceRange[1] / 10000) * 100}%, #e5e7eb ${(modalFilters.priceRange[1] / 10000) * 100}%, #e5e7eb 100%)`,
                     }}
                   />
                   <div className="flex justify-between text-xs text-gray-500">
-                    <span>$0</span>
-                    <span>$10,000+</span>
+                    <span>{pricePrefix}0</span>
+                    <span>{pricePrefix}10,000+</span>
                   </div>
                 </div>
               </div>
@@ -964,7 +1036,7 @@ export default function ExploreClient({
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Star size={20} className="text-[#083f30]" />
-                  <h3 className="font-bold text-gray-900">Minimum Rating</h3>
+                  <h3 className="font-bold text-gray-900">{t("filters.minimumRating")}</h3>
                 </div>
                 <div className="grid grid-cols-5 gap-2">
                   {[0, 3.0, 3.5, 4.0, 4.5].map((rating) => (
@@ -978,7 +1050,7 @@ export default function ExploreClient({
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                       }`}
                     >
-                      <span className="text-sm">{rating === 0 ? "Any" : `${rating}+`}</span>
+                      <span className="text-sm">{rating === 0 ? t("filters.any") : `${rating}+`}</span>
                       {rating > 0 && <Star size={12} className="fill-current" />}
                     </button>
                   ))}
@@ -988,13 +1060,13 @@ export default function ExploreClient({
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Clock size={20} className="text-[#083f30]" />
-                  <h3 className="font-bold text-gray-900">Response Time</h3>
+                  <h3 className="font-bold text-gray-900">{t("filters.responseTime")}</h3>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                   {[
-                    { value: "any", label: "Any" },
-                    { value: "fast", label: "< 1 hour" },
-                    { value: "instant", label: "< 30 min" },
+                    { value: "any", label: t("filters.response.any") },
+                    { value: "fast", label: t("filters.response.fast") },
+                    { value: "instant", label: t("filters.response.instant") },
                   ].map((option) => (
                     <button
                       type="button"
@@ -1039,8 +1111,8 @@ export default function ExploreClient({
                       />
                     </div>
                     <div className="text-left">
-                      <h3 className="font-bold text-gray-900">Verified Providers Only</h3>
-                      <p className="text-sm text-gray-600">Show only accredited providers</p>
+                      <h3 className="font-bold text-gray-900">{t("filters.verifiedOnly")}</h3>
+                      <p className="text-sm text-gray-600">{t("filters.verifiedOnlyDescription")}</p>
                     </div>
                   </div>
                   <div
@@ -1056,47 +1128,68 @@ export default function ExploreClient({
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Globe size={20} className="text-[#083f30]" />
-                  <h3 className="font-bold text-gray-900">Languages Spoken</h3>
+                  <h3 className="font-bold text-gray-900">{t("filters.languagesSpoken")}</h3>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {availableLanguages.map((lang) => (
-                    <button
-                      type="button"
-                      key={lang}
-                      onClick={() => {
-                        const current = modalFilters.languages;
-                        const next = current.includes(lang)
-                          ? current.filter((item) => item !== lang)
-                          : [...current, lang];
-                        form.setValue("languages", next);
-                      }}
-                      className={`px-4 py-2 rounded-xl font-medium transition-all ${
-                        modalFilters.languages.includes(lang)
-                          ? "bg-[#083f30] text-white shadow-md"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                    >
-                      {lang}
-                    </button>
+
+                <select
+                  value=""
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    if (!value) return;
+
+                    const current = modalFilters.languages;
+                    if (!current.includes(value)) {
+                      form.setValue("languages", [...current, value], { shouldDirty: true });
+                    }
+                  }}
+                  className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-900 outline-none transition focus:border-[#083f30] focus:ring-2 focus:ring-[#083f30]/10"
+                >
+                  <option value="">{t("filters.selectLanguage")}</option>
+                  {availableLanguages.map((language) => (
+                    <option key={language.value} value={language.value}>
+                      {language.label} ({language.count})
+                    </option>
                   ))}
-                </div>
+                </select>
+
+                {selectedLanguageLabels.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {selectedLanguageLabels.map((language) => (
+                      <button
+                        key={language.value}
+                        type="button"
+                        onClick={() => {
+                          form.setValue(
+                            "languages",
+                            modalFilters.languages.filter((item) => item !== language.value),
+                            { shouldDirty: true },
+                          );
+                        }}
+                        className="inline-flex items-center gap-2 rounded-xl bg-[#083f30] px-3 py-2 text-sm font-semibold text-white shadow-sm"
+                      >
+                        {language.label}
+                        <X size={14} />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className="sticky bottom-0 bg-white border-t border-gray-200 px-5 py-4">
+            <div className="sticky bottom-0 z-20 bg-white border-t border-gray-200 px-5 pb-[calc(env(safe-area-inset-bottom)+5.75rem)] pt-4 sm:pb-4">
               <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={clearFilters}
                   className="flex-1 h-12 rounded-xl bg-gray-100 text-gray-900 font-bold hover:bg-gray-200 transition-colors"
                 >
-                  Clear All
+                  {t("actions.clearAll")}
                 </button>
                 <button
                   type="submit"
                   className="flex-1 h-12 rounded-xl bg-gradient-to-r from-[#083f30] to-[#0a5a44] text-white font-bold hover:shadow-lg transition-all"
                 >
-                  Apply Filters
+                  {t("actions.applyFilters")}
                 </button>
               </div>
             </div>

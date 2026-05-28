@@ -14,6 +14,14 @@ import { revalidateServiceProviderCache } from "../../db/cache";
 import { updateProviderGalleryItemSchema } from "./schema";
 import { InputType, OutputType, ReturnType, TRANSLATION_KEY } from "./types";
 
+const MAX_PROVIDER_MEDIA_SIZE_BYTES = 200 * 1024 * 1024;
+
+function getProviderMediaType(file: File): "image" | "video" | null {
+  if (file.type.startsWith("image/")) return "image";
+  if (file.type.startsWith("video/")) return "video";
+  return null;
+}
+
 const handler = async (input: InputType): Promise<ReturnType> => {
   const t = await getTranslations(TRANSLATION_KEY);
 
@@ -27,10 +35,13 @@ const handler = async (input: InputType): Promise<ReturnType> => {
       file,
     } = input;
 
+    let mediaType: "image" | "video" | null = null;
+
     // Validate file if provided
     if (file) {
-      // Validate file type (images only)
-      if (!file.type.startsWith("image/")) {
+      // Validate file type (images and videos)
+      mediaType = getProviderMediaType(file);
+      if (!mediaType) {
         return {
           data: undefined,
           error: { title: t("errors.invalidFileType"), status: 400 },
@@ -38,8 +49,8 @@ const handler = async (input: InputType): Promise<ReturnType> => {
         };
       }
 
-      // Validate file size (max 10MB)
-      if (file.size > 10 * 1024 * 1024) {
+      // Validate file size
+      if (file.size > MAX_PROVIDER_MEDIA_SIZE_BYTES) {
         return {
           data: undefined,
           error: { title: t("errors.fileTooLarge"), status: 400 },
@@ -53,8 +64,9 @@ const handler = async (input: InputType): Promise<ReturnType> => {
     formData.append("description", JSON.stringify(description));
     formData.append("displayOrder", displayOrder.toString());
 
-    if (file) {
+    if (file && mediaType) {
       formData.append("file", file);
+      formData.append("mediaType", mediaType);
     }
 
     const { data, error } = await withBaseHeaders((locale, token) =>

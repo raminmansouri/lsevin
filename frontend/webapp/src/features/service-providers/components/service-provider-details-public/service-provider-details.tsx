@@ -7,7 +7,6 @@ import {
 import ServerFetchResult from "@/components/fetcher/fetch.server";
 import { MapViewer } from "@/components/map/map-viewer";
 import { Badge } from "@/components/ui/badge";
-import { env } from "@/config/env/client";
 import { withBaseHeaders } from "@/config/http/http-service.server";
 import { TranslationType } from "@/types/next";
 
@@ -16,18 +15,13 @@ import { IServiceProviderDetails, IServiceProviderRequest } from "../../types";
 import ServiceProviderRequestsModalWrapper from "../requests/service-provider.requests-section";
 import ServiceProviderCallSection from "./service-provider-call-section";
 import ServiceProviderGallerySection from "./service-provider-gallery-section";
+import { isVideoMedia, resolveMediaUrl } from "../../lib/media-url";
 
 type Props = {
   serviceProvider: IServiceProviderDetails;
   t: TranslationType;
 };
 
-function resolveCertificateImageSrc(value?: string | null) {
-  const src = String(value || "").trim();
-  if (!src) return "";
-  if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/")) return src;
-  return `${env.NEXT_PUBLIC_FILES_URL}/${src}`;
-}
 
 export const ServiceProviderDetails = async ({ serviceProvider, t }: Props) => {
   const {
@@ -49,6 +43,8 @@ export const ServiceProviderDetails = async ({ serviceProvider, t }: Props) => {
     gallery.length > 0
       ? gallery.sort((a, b) => a.displayOrder - b.displayOrder)[0]
       : null;
+  const heroImageSrc = resolveMediaUrl(heroImage?.url);
+  const heroIsVideo = isVideoMedia(heroImage?.mediaType, heroImage?.url);
 
   const myRequestsResult = await withBaseHeaders((locale, token, userId) =>
     getMyServiceProviderRequests({ locale, token, userId }, serviceProvider.id)
@@ -59,14 +55,25 @@ export const ServiceProviderDetails = async ({ serviceProvider, t }: Props) => {
       {/* Hero Image Background */}
       {heroImage ? (
         <div className="relative h-80 w-full overflow-hidden md:h-96">
-          <Image
-            src={`${env.NEXT_PUBLIC_FILES_URL}/${heroImage.url}`}
-            alt={heroImage.title || name}
-            fill
-            className="object-cover"
-            priority
-            sizes="100vw"
-          />
+          {heroIsVideo ? (
+            <video
+              src={heroImageSrc}
+              className="h-full w-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+          ) : (
+            <Image
+              src={heroImageSrc}
+              alt={heroImage.title || name}
+              fill
+              className="object-cover"
+              priority
+              sizes="100vw"
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
           {/* Gallery count badge */}
@@ -108,11 +115,17 @@ export const ServiceProviderDetails = async ({ serviceProvider, t }: Props) => {
               <div className="bg-primary me-3 h-2 w-2 rounded-full"></div>
               <h2 className="text-lg font-semibold">{t("aboutProvider")}</h2>
             </div>
-            {description && hasLexicalContent(description) ? (
-              <LexicalRenderer
-                content={description}
-                className="text-muted-foreground leading-relaxed"
-              />
+            {description ? (
+              hasLexicalContent(description) ? (
+                <LexicalRenderer
+                  content={description}
+                  className="text-muted-foreground leading-relaxed"
+                />
+              ) : (
+                <p className="text-muted-foreground leading-relaxed">
+                  {description}
+                </p>
+              )
             ) : (
               <p className="text-muted-foreground leading-relaxed">
                 {t("noDescription")}
@@ -183,13 +196,18 @@ export const ServiceProviderDetails = async ({ serviceProvider, t }: Props) => {
                           </Badge>
                         </div>
                       </div>
-                      {service.description &&
-                        hasLexicalContent(service.description) && (
+                      {service.description ? (
+                        hasLexicalContent(service.description) ? (
                           <LexicalRenderer
                             content={service.description}
                             className="text-muted-foreground mt-1 text-sm"
                           />
-                        )}
+                        ) : (
+                          <p className="text-muted-foreground mt-1 text-sm">
+                            {service.description}
+                          </p>
+                        )
+                      ) : null}
                     </div>
                   </div>
                 ))}
@@ -205,36 +223,62 @@ export const ServiceProviderDetails = async ({ serviceProvider, t }: Props) => {
                 <h2 className="text-lg font-semibold">{t("ourStaff")}</h2>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                {staff.map((member) => (
-                  <div
-                    key={member.id}
-                    className="bg-muted/20 flex gap-4 rounded-lg p-4"
-                  >
-                    <div className="flex-1">
-                      <h3 className="font-semibold">{member.staffName}</h3>
-                      {member.staffTitle && (
-                        <p className="text-muted-foreground text-sm">
-                          {member.staffTitle}
-                        </p>
-                      )}
-                      {member.staffBiography &&
-                        hasLexicalContent(member.staffBiography) && (
-                          <LexicalRenderer
-                            content={member.staffBiography}
-                            className="text-muted-foreground mt-2 text-sm"
-                          />
-                        )}
-                      {member.notes && hasLexicalContent(member.notes) && (
-                        <div className="mt-2">
-                          <LexicalRenderer
-                            content={member.notes}
-                            className="text-muted-foreground text-xs italic"
+                {staff.map((member) => {
+                  const staffImageSrc = resolveMediaUrl(member.profileImageUrl);
+
+                  return (
+                    <div
+                      key={member.id}
+                      className="bg-muted/20 flex gap-4 rounded-lg p-4"
+                    >
+                      {staffImageSrc ? (
+                        <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-full bg-muted">
+                          <Image
+                            src={staffImageSrc}
+                            alt={member.staffName}
+                            fill
+                            className="object-cover"
+                            sizes="64px"
                           />
                         </div>
-                      )}
+                      ) : null}
+                      <div className="flex-1">
+                        <h3 className="font-semibold">{member.staffName}</h3>
+                        {member.staffTitle && (
+                          <p className="text-muted-foreground text-sm">
+                            {member.staffTitle}
+                          </p>
+                        )}
+                        {member.staffBiography ? (
+                          hasLexicalContent(member.staffBiography) ? (
+                            <LexicalRenderer
+                              content={member.staffBiography}
+                              className="text-muted-foreground mt-2 text-sm"
+                            />
+                          ) : (
+                            <p className="text-muted-foreground mt-2 text-sm">
+                              {member.staffBiography}
+                            </p>
+                          )
+                        ) : null}
+                        {member.notes ? (
+                          <div className="mt-2">
+                            {hasLexicalContent(member.notes) ? (
+                              <LexicalRenderer
+                                content={member.notes}
+                                className="text-muted-foreground text-xs italic"
+                              />
+                            ) : (
+                              <p className="text-muted-foreground text-xs italic">
+                                {member.notes}
+                              </p>
+                            )}
+                          </div>
+                        ) : null}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -253,7 +297,7 @@ export const ServiceProviderDetails = async ({ serviceProvider, t }: Props) => {
                     {hasLexicalContent(attribute.value) ? (
                       <LexicalRenderer content={attribute.value} />
                     ) : (
-                      <p>{attribute.value}</p>
+                      <span>{attribute.value}</span>
                     )}
                   </Badge>
                 ))}
@@ -272,7 +316,7 @@ export const ServiceProviderDetails = async ({ serviceProvider, t }: Props) => {
               <div className="grid gap-3 sm:grid-cols-2">
                 {certifications.map((certificate, index) => {
                   const imageUrls = [certificate.imageUrl, certificate.secondaryImageUrl]
-                    .map(resolveCertificateImageSrc)
+                    .map(resolveMediaUrl)
                     .filter(Boolean);
 
                   return (
@@ -308,16 +352,18 @@ export const ServiceProviderDetails = async ({ serviceProvider, t }: Props) => {
                 {policies.map((policy) => (
                   <div key={policy.id} className="space-y-2">
                     <h4 className="font-medium">{policy.policyTypeName}</h4>
-                    {hasLexicalContent(policy.description) ? (
-                      <LexicalRenderer
-                        content={policy.description}
-                        className="text-muted-foreground text-sm leading-relaxed"
-                      />
-                    ) : (
-                      <p className="text-muted-foreground text-sm leading-relaxed">
-                        {/* No description */}
-                      </p>
-                    )}
+                    {policy.description ? (
+                      hasLexicalContent(policy.description) ? (
+                        <LexicalRenderer
+                          content={policy.description}
+                          className="text-muted-foreground text-sm leading-relaxed"
+                        />
+                      ) : (
+                        <p className="text-muted-foreground text-sm leading-relaxed">
+                          {policy.description}
+                        </p>
+                      )
+                    ) : null}
                   </div>
                 ))}
               </div>

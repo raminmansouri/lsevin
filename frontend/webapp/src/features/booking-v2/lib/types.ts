@@ -26,6 +26,7 @@ export interface BookingCatalogService {
   providerId: string;
   serviceDefinitionId: string;
   name: string;
+  description?: string | null;
   price: number;
   currency: string;
   durationMinutes: number;

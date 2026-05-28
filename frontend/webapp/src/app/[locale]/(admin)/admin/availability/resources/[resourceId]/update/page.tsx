@@ -9,7 +9,7 @@ type Props = {
 
 export default async function UpdateBookableResourcePage({ params }: Props) {
   const resolvedParams = await params;
-  const locale = resolvedParams.locale || "en-US";
+  const locale = resolvedParams.locale || "fa-IR";
   const resource = await getBookableResourceById(resolvedParams.resourceId, locale);
   if (!resource) notFound();
   return <BookableResourceForm locale={locale} resource={resource} />;

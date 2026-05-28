@@ -31,9 +31,10 @@ import { createEmptyLocalizedContent, DEFAULT_MEDIA_LOCALES } from "@/components
 type FilterType = "all" | MediaType;
 
 function mediaSrc(fileUrl: string) {
-  if (!fileUrl) return "";
-  if (/^https?:\/\//i.test(fileUrl) || fileUrl.startsWith("/")) return fileUrl;
-  return `${env.NEXT_PUBLIC_FILES_URL}/${fileUrl}`;
+  const src = String(fileUrl || "").trim();
+  if (!src) return "";
+  if (/^(https?:)?\/\//i.test(src) || src.startsWith("/") || src.startsWith("blob:") || src.startsWith("data:")) return src;
+  return `${String(env.NEXT_PUBLIC_FILES_URL || "").replace(/\/+$/, "")}/${src.replace(/^\/+/, "")}`;
 }
 
 function MediaThumb({ item }: { item: MediaItem }) {

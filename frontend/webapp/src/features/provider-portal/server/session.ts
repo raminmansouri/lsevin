@@ -11,5 +11,9 @@ export async function getCurrentUserId() {
 // session/member row is missing. Replace this with a throwing guard before production.
 export async function requireCurrentUserId() {
   const userId = await getCurrentUserId();
-  return userId || process.env.PROVIDER_PORTAL_DEV_USER_ID || "00000000-0000-0000-0000-000000000000";
+  return (
+    userId ||
+    process.env.PROVIDER_PORTAL_DEV_USER_ID ||
+    "00000000-0000-0000-0000-000000000000"
+  );
 }

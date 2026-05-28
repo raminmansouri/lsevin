@@ -2,15 +2,16 @@
 import { useNavigate } from '@/hooks/use-navigate';
 import React, { useMemo } from 'react'
 import { EditProfileInitialData } from '../schemas/profile.schema';
-import { ImageWithFallback } from '@/app/[locale]/n/app/components/figma/ImageWithFallback';
 import { resolveMediaUrl } from './profile-image-picker';
 import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
+import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
+import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 
 export default function FetchDisplayProfileInfo({profile}:{profile:EditProfileInitialData}) {
   const navigate = useNavigate();
   const resolvedImageUrl = useMemo(
-    () => resolveMediaUrl(profile?.profileImageUrl),
+    () => resolveHomeMediaUrl(profile?.profileImageUrl),
     [profile?.profileImageUrl]
   );
 
@@ -36,15 +37,26 @@ export default function FetchDisplayProfileInfo({profile}:{profile:EditProfileIn
               alt="Profile"
               className="w-full h-full object-cover"
             /> */}
-            <Avatar>
-            <AvatarImage src={resolvedImageUrl} alt={`${profile.firstName} ${profile.lastName}`} />
+         {/*    <Avatar>
+              
+            <ImageWithFallback width={100} height={100} src={resolvedImageUrl}
+             alt={`${profile.firstName} ${profile.lastName}`} />
             <AvatarFallback className="bg-secondary">{initials}</AvatarFallback>
           </Avatar>
-          
+            */} 
+              <ImageWithFallback width={100} height={100} src={resolvedImageUrl}
+             alt={`${profile?.firstName} ${profile?.lastName}`} />
+     
+ 
+
+ {/* 
+  */}
+      
           </div>
           <div className="flex-1">
             <h1 className="text-xl font-bold text-gray-900">{profile.firstName} {profile.lastName}</h1>
             <p className="text-sm text-gray-500">{profile.email}</p>
+           
             <button 
               onClick={() => navigate('/n/app/mobile/profile/EditProfile')}
               className="mt-2 text-sm font-semibold text-[#083f30] hover:underline"

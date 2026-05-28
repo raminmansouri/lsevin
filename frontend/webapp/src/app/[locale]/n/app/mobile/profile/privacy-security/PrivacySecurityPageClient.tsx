@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import {
   Bell,
   ChevronLeft,
@@ -30,6 +31,7 @@ type Props = {
 };
 
 export default function PrivacySecurityPageClient({ initialData }: Props) {
+  const t = useTranslations("MobileProfile.privacySecurity");
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -55,7 +57,7 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
         await action();
         setMessage(successMessage);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Something went wrong.");
+        setError(err instanceof Error ? err.message : t("messages.somethingWentWrong"));
       }
     });
   }
@@ -108,9 +110,9 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
       setLocationPermissionStatus(locationStatus);
       setNotificationPermissionStatus(notificationStatus);
       await syncPermissionsToServer(locationStatus, notificationStatus);
-      if (showSuccess) setMessage("Permission state refreshed.");
+      if (showSuccess) setMessage(t("messages.permissionStateRefreshed"));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not refresh permission state.");
+      setError(err instanceof Error ? err.message : t("messages.couldNotRefreshPermission"));
     } finally {
       setPermissionLoading("none");
     }
@@ -139,7 +141,7 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
               resolve();
               return;
             }
-            reject(new Error(error.message || "Could not read current location."));
+            reject(new Error(error.message || t("messages.couldNotReadLocation")));
           },
           { maximumAge: 0, timeout: 10000, enableHighAccuracy: false },
         );
@@ -150,9 +152,9 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
       setLocationPermissionStatus(locationStatus);
       setNotificationPermissionStatus(notificationStatus);
       await syncPermissionsToServer(locationStatus, notificationStatus);
-      setMessage(locationStatus === "granted" ? "Location permission granted." : "Location permission status updated.");
+      setMessage(locationStatus === "granted" ? t("messages.locationGranted") : t("messages.locationUpdated"));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not request location permission.");
+      setError(err instanceof Error ? err.message : t("messages.couldNotRequestLocation"));
     } finally {
       setPermissionLoading("none");
     }
@@ -175,9 +177,9 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
       setNotificationPermissionStatus(notificationStatus);
       setLocationPermissionStatus(locationStatus);
       await syncPermissionsToServer(locationStatus, notificationStatus);
-      setMessage(notificationStatus === "granted" ? "Notification permission granted." : "Notification permission status updated.");
+      setMessage(notificationStatus === "granted" ? t("messages.notificationGranted") : t("messages.notificationUpdated"));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not request notification permission.");
+      setError(err instanceof Error ? err.message : t("messages.couldNotRequestNotification"));
     } finally {
       setPermissionLoading("none");
     }
@@ -187,7 +189,7 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
 
   const securityNote = useMemo(() => {
     if (locationPermissionStatus === "denied" || notificationPermissionStatus === "denied") {
-      return "One or more browser permissions are blocked. The user may need to re-enable them in browser or OS settings.";
+      return t("messages.permissionsBlocked");
     }
     return null;
   }, [locationPermissionStatus, notificationPermissionStatus]);
@@ -199,23 +201,23 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
           <a href="/n/app/mobile/profile/settings" className="flex h-10 w-10 items-center justify-center rounded-full text-gray-600 transition hover:bg-gray-100">
             <ChevronLeft size={22} />
           </a>
-          <h1 className="text-xl font-bold text-gray-900">Privacy & Security</h1>
+          <h1 className="text-xl font-bold text-gray-900">{t("title")}</h1>
         </div>
       </div>
 
       <div className="space-y-6 p-6">
         <section className="rounded-xl border border-gray-200 bg-white p-4">
-          <h3 className="mb-4 font-bold text-gray-900">Change Password</h3>
+          <h3 className="mb-4 font-bold text-gray-900">{t("changePassword")}</h3>
           <div className="space-y-4">
-            <InputRow label="Current Password" type={showCurrentPassword ? "text" : "password"} value={currentPassword} onChange={setCurrentPassword} placeholder="Enter current password" icon={<Lock size={18} />} toggle={<button type="button" onClick={() => setShowCurrentPassword((v) => !v)}>{showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>} />
-            <InputRow label="New Password" type={showNewPassword ? "text" : "password"} value={newPassword} onChange={setNewPassword} placeholder="Enter new password" icon={<Lock size={18} />} toggle={<button type="button" onClick={() => setShowNewPassword((v) => !v)}>{showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>} />
-            <InputRow label="Confirm New Password" type={showConfirmPassword ? "text" : "password"} value={confirmPassword} onChange={setConfirmPassword} placeholder="Re-enter new password" icon={<Lock size={18} />} toggle={<button type="button" onClick={() => setShowConfirmPassword((v) => !v)}>{showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>} />
+            <InputRow label={t("currentPassword")} type={showCurrentPassword ? "text" : "password"} value={currentPassword} onChange={setCurrentPassword} placeholder={t("enterCurrentPassword")} icon={<Lock size={18} />} toggle={<button type="button" onClick={() => setShowCurrentPassword((v) => !v)}>{showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>} />
+            <InputRow label={t("newPassword")} type={showNewPassword ? "text" : "password"} value={newPassword} onChange={setNewPassword} placeholder={t("enterNewPassword")} icon={<Lock size={18} />} toggle={<button type="button" onClick={() => setShowNewPassword((v) => !v)}>{showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>} />
+            <InputRow label={t("confirmNewPassword")} type={showConfirmPassword ? "text" : "password"} value={confirmPassword} onChange={setConfirmPassword} placeholder={t("reenterNewPassword")} icon={<Lock size={18} />} toggle={<button type="button" onClick={() => setShowConfirmPassword((v) => !v)}>{showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>} />
             <button type="button" disabled={isPending} onClick={() => runAction(async () => {
               await changePassword({ currentPassword, newPassword, confirmPassword });
               setCurrentPassword("");
               setNewPassword("");
               setConfirmPassword("");
-            }, "Password updated.")} className="h-12 w-full rounded-xl bg-[#083f30] font-semibold text-white transition hover:bg-[#0a5a44] disabled:bg-gray-300">Update Password</button>
+            }, t("messages.passwordUpdated"))} className="h-12 w-full rounded-xl bg-[#083f30] font-semibold text-white transition hover:bg-[#0a5a44] disabled:bg-gray-300">{t("updatePassword")}</button>
           </div>
         </section>
 
@@ -224,25 +226,25 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50"><Fingerprint size={20} className="text-purple-600" /></div>
               <div>
-                <h3 className="font-bold text-gray-900">Biometric Login</h3>
-                <p className="text-sm text-gray-600">Store the user preference for Face ID / fingerprint login.</p>
+                <h3 className="font-bold text-gray-900">{t("biometricLogin")}</h3>
+                <p className="text-sm text-gray-600">{t("biometricDescription")}</p>
               </div>
             </div>
             <Toggle checked={biometricEnabled} onChange={(checked) => {
               setBiometricEnabled(checked);
-              runAction(() => updateBiometricEnabled(checked), "Biometric preference updated.");
+              runAction(() => updateBiometricEnabled(checked), t("messages.biometricUpdated"));
             }} />
           </div>
         </section>
 
         <section className="rounded-xl border border-gray-200 bg-white p-4">
           <div className="mb-4 flex items-center justify-between gap-4">
-            <h3 className="font-bold text-gray-900">Active Sessions</h3>
-            <button type="button" onClick={() => window.location.reload()} className="text-sm font-medium text-[#083f30]">Refresh</button>
+            <h3 className="font-bold text-gray-900">{t("activeSessions")}</h3>
+            <button type="button" onClick={() => window.location.reload()} className="text-sm font-medium text-[#083f30]">{t("refresh")}</button>
           </div>
           <div className="space-y-3">
             {sessionRows.length === 0 ? (
-              <p className="rounded-lg bg-gray-50 p-3 text-sm text-gray-600">No tracked sessions yet.</p>
+              <p className="rounded-lg bg-gray-50 p-3 text-sm text-gray-600">{t("noTrackedSessions") }</p>
             ) : (
               sessionRows.map((session) => (
                 <div key={session.id} className="flex items-start justify-between rounded-lg bg-gray-50 p-3">
@@ -251,13 +253,13 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
                     <div>
                       <div className="flex items-center gap-2">
                         <p className="font-medium text-gray-900">{session.deviceName}</p>
-                        {session.isCurrent ? <span className="rounded bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">Current</span> : null}
+                        {session.isCurrent ? <span className="rounded bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">{t("current") }</span> : null}
                       </div>
                       <p className="text-sm text-gray-600">{session.locationLabel}</p>
                       <p className="mt-1 text-xs text-gray-500">{session.lastActiveLabel}</p>
                     </div>
                   </div>
-                  {!session.isCurrent ? <button type="button" className="text-sm font-medium text-red-600" onClick={() => runAction(() => revokeSession(session.id), "Session revoked.")}>Revoke</button> : null}
+                  {!session.isCurrent ? <button type="button" className="text-sm font-medium text-red-600" onClick={() => runAction(() => revokeSession(session.id), t("messages.sessionRevoked"))}>{t("revoke") }</button> : null}
                 </div>
               ))
             )}
@@ -266,7 +268,7 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
 
         <section className="rounded-xl border border-gray-200 bg-white p-4">
           <div className="mb-4 flex items-center justify-between gap-4">
-            <h3 className="font-bold text-gray-900">Privacy Controls</h3>
+            <h3 className="font-bold text-gray-900">{t("privacyControls")}</h3>
             <button type="button" onClick={() => void refreshPermissions(true)} className="inline-flex items-center gap-2 text-sm font-medium text-[#083f30]" disabled={permissionLoading !== "none"}>
               <RefreshCw size={15} className={permissionLoading === "refresh" ? "animate-spin" : ""} />
               Refresh
@@ -276,21 +278,23 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
           <div className="space-y-3">
             <PermissionCard
               icon={<MapPin size={20} className="text-gray-600" />}
-              title="Location Permissions"
+              title={t("locationPermissions")}
               value={locationPermissionStatus}
               summary={permissionHelpText("location", locationPermissionStatus)}
-              actionLabel={locationPermissionStatus === "granted" ? "Refresh" : locationPermissionStatus === "denied" ? "Check Again" : "Request Access"}
+              actionLabel={locationPermissionStatus === "granted" ? t("refresh") : locationPermissionStatus === "denied" ? t("checkAgain") : t("requestAccess")}
               onAction={() => locationPermissionStatus === "granted" ? refreshPermissions(true) : requestLocationPermission()}
               isBusy={permissionLoading === "location" || permissionLoading === "refresh"}
+              t={t}
             />
             <PermissionCard
               icon={<Bell size={20} className="text-gray-600" />}
-              title="Notification Permissions"
+              title={t("notificationPermissions")}
               value={notificationPermissionStatus}
               summary={permissionHelpText("notification", notificationPermissionStatus)}
-              actionLabel={notificationPermissionStatus === "granted" ? "Refresh" : notificationPermissionStatus === "denied" ? "Check Again" : "Request Access"}
+              actionLabel={notificationPermissionStatus === "granted" ? t("refresh") : notificationPermissionStatus === "denied" ? t("checkAgain") : t("requestAccess")}
               onAction={() => notificationPermissionStatus === "granted" ? refreshPermissions(true) : requestNotificationPermission()}
               isBusy={permissionLoading === "notification" || permissionLoading === "refresh"}
+              t={t}
             />
           </div>
 
@@ -301,12 +305,12 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
           <div className="mb-4 flex items-start gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50"><Trash2 size={20} className="text-red-600" /></div>
             <div>
-              <h3 className="font-bold text-gray-900">Delete Account</h3>
-              <p className="text-sm text-gray-600">Create a controlled deletion request for review. The destructive delete should happen in your backend workflow, not directly from the client.</p>
+              <h3 className="font-bold text-gray-900">{t("deleteAccount")}</h3>
+              <p className="text-sm text-gray-600">{t("deleteDescription")}</p>
             </div>
           </div>
-          <textarea value={deleteReason} onChange={(e) => setDeleteReason(e.target.value)} placeholder="Optional reason" rows={3} className="w-full rounded-xl border-2 border-gray-300 px-4 py-3 focus:border-red-500 focus:outline-none" />
-          <button type="button" disabled={isPending || initialData.hasPendingDeletionRequest} onClick={() => runAction(() => requestAccountDeletion(deleteReason), "Account deletion requested.")} className="mt-4 h-12 w-full rounded-xl border-2 border-red-600 font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:border-red-200 disabled:text-red-300">{initialData.hasPendingDeletionRequest ? "Deletion request already open" : "Request Account Deletion"}</button>
+          <textarea value={deleteReason} onChange={(e) => setDeleteReason(e.target.value)} placeholder={t("optionalReason")} rows={3} className="w-full rounded-xl border-2 border-gray-300 px-4 py-3 focus:border-red-500 focus:outline-none" />
+          <button type="button" disabled={isPending || initialData.hasPendingDeletionRequest} onClick={() => runAction(() => requestAccountDeletion(deleteReason), t("messages.accountDeletionRequested"))} className="mt-4 h-12 w-full rounded-xl border-2 border-red-600 font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:border-red-200 disabled:text-red-300">{initialData.hasPendingDeletionRequest ? t("deletionRequestOpen") : t("requestAccountDeletion")}</button>
         </section>
 
         {error ? <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"><ShieldAlert size={18} /><span>{error}</span></div> : null}
@@ -338,7 +342,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (value: boo
   );
 }
 
-function PermissionCard({ icon, title, value, summary, actionLabel, onAction, isBusy }: { icon: React.ReactNode; title: string; value: PermissionStatusValue; summary: string; actionLabel: string; onAction: () => void | Promise<void>; isBusy: boolean; }) {
+function PermissionCard({ icon, title, value, summary, actionLabel, onAction, isBusy, t }: { icon: React.ReactNode; title: string; value: PermissionStatusValue; summary: string; actionLabel: string; onAction: () => void | Promise<void>; isBusy: boolean; t: ReturnType<typeof useTranslations>; }) {
   const badge = permissionBadgeLabel(value);
   return (
     <div className="rounded-lg bg-gray-50 p-3">
@@ -355,7 +359,7 @@ function PermissionCard({ icon, title, value, summary, actionLabel, onAction, is
         </div>
       </div>
       <button type="button" onClick={() => void onAction()} disabled={isBusy || value === "unsupported"} className="h-11 w-full rounded-xl border border-gray-300 bg-white px-4 text-sm font-medium text-gray-900 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400">
-        {isBusy ? "Working..." : value === "unsupported" ? "Not supported on this browser" : actionLabel}
+        {isBusy ? t("working") : value === "unsupported" ? t("notSupported") : actionLabel}
       </button>
     </div>
   );

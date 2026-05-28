@@ -16,9 +16,10 @@ import { PaginatedResult } from "@/types/network";
 import { GetBookingGetProvidersByServiceAndSpecialistResponse } from "@/features/service-providers/types";
 
 export const getProvidersByServiceAndSpecialistClient = async (
-    providerId,
-    serviceId,
-    specialistId,
+  providerId,
+  serviceId,
+  specialistId,
+  search: string,
   locale: Locale
 ) => {
  const searchParams = new URLSearchParams();
@@ -31,6 +32,9 @@ export const getProvidersByServiceAndSpecialistClient = async (
   if (specialistId) {
     searchParams.set("specialistId", specialistId);
   }
+  if (search) {
+    searchParams.set("Search", search);
+  }
 
   searchParams.set("Locale", locale);
 
@@ -40,8 +44,13 @@ export const getProvidersByServiceAndSpecialistClient = async (
 };
 
 const tag = "booking-getBookingGetProvidersByServiceAndSpecialistResponse";
-const queryServicesBySearchKey = (search: string, locale: Locale) =>
-  [tag, search, locale] as const;
+const queryServicesBySearchKey = (
+  providerId: string | null | undefined,
+  serviceId: string | null | undefined,
+  specialistId: string | null | undefined,
+  search: string,
+  locale: Locale
+) => [tag, providerId || "", serviceId || "", specialistId || "", search || "", locale] as const;
 
 export const useGetProvidersByServiceAndSpecialist = (
   providerId,
@@ -49,12 +58,16 @@ export const useGetProvidersByServiceAndSpecialist = (
     specialistId,
   search: string, locale: Locale) => {
   const options = queryOptions<GetBookingGetProvidersByServiceAndSpecialistResponse, IProblem>({
-    queryKey: queryServicesBySearchKey(search, locale),
+    queryKey: queryServicesBySearchKey(providerId, serviceId, specialistId, search, locale),
     queryFn: ({ pageParam }) =>
-      getProvidersByServiceAndSpecialistClient(  providerId,
-    serviceId,
-    specialistId,  locale),
-    enabled:()=> !providerId,
+      getProvidersByServiceAndSpecialistClient(
+        providerId,
+        serviceId,
+        specialistId,
+        search,
+        locale
+      ),
+    enabled: true,
     staleTime: 1000 * 60 * 5, // 5 minutes
     gcTime: 1000 * 60 * 60, // 1 hour
   });

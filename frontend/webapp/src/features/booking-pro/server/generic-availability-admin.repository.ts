@@ -27,6 +27,8 @@ export type GenericAvailabilityRule = {
   serviceProviderLabel?: string | null;
   providerServiceId?: string | null;
   providerServiceLabel?: string | null;
+  providerServiceDescription?: string | null;
+  targetDescription?: string | null;
   resourceId?: string | null;
   resourceLabel?: string | null;
   dayOfWeek?: number | null;
@@ -100,7 +102,7 @@ function cleanString(value: unknown) {
 }
 
 function localeOrDefault(locale?: string | null) {
-  const raw = String(locale || "en-US").trim().replace("_", "-");
+  const raw = String(locale || "fa-IR").trim().replace("_", "-");
   const map: Record<string, string> = {
     en: "en-US",
     fa: "fa-IR",
@@ -111,7 +113,7 @@ function localeOrDefault(locale?: string | null) {
     es: "es-ES",
     ku: "ku-KU",
   };
-  return map[raw.toLowerCase()] || raw || "en-US";
+  return map[raw.toLowerCase()] || raw || "fa-IR";
 }
 
 function getAvailabilityGroupId(metadata: unknown, fallback?: string | null) {
@@ -242,7 +244,7 @@ async function deleteAvailabilityRuleGroup(tx: any, ruleId: string) {
   return true;
 }
 
-export async function getAvailabilityLookups(localeInput = "en-US"): Promise<AvailabilityLookups> {
+export async function getAvailabilityLookups(localeInput = "fa-IR"): Promise<AvailabilityLookups> {
   void localeInput;
   const empty: LookupOption[] = [];
   return {
@@ -297,7 +299,7 @@ async function queryAvailabilityLookupItems(input: SearchLookupInput, oneOnly = 
     return sql<LookupOption[]>`
       select
         sp.id::text as value,
-        common.get_translation_t(sp.name_translations, ${locale}, 'en-US') as label,
+        common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') as label,
         concat(coalesce(sp.country, ''), case when sp.city is not null then concat(' / ', sp.city) else '' end) as description,
         'Provider' as group,
         sp.id::text as "serviceProviderId",
@@ -307,12 +309,12 @@ async function queryAvailabilityLookupItems(input: SearchLookupInput, oneOnly = 
         and (${id}::uuid is null or sp.id = ${id}::uuid)
         and (
           ${search}::text is null
-          or common.get_translation_t(sp.name_translations, ${locale}, 'en-US') ilike ${search}::text
+          or common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') ilike ${search}::text
           or coalesce(sp.email, '') ilike ${search}::text
           or coalesce(sp.city, '') ilike ${search}::text
           or coalesce(sp.country, '') ilike ${search}::text
         )
-      order by common.get_translation_t(sp.name_translations, ${locale}, 'en-US') asc
+      order by common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') asc
       limit ${limit} offset ${oneOnly ? 0 : offset}
     `;
   }
@@ -321,8 +323,20 @@ async function queryAvailabilityLookupItems(input: SearchLookupInput, oneOnly = 
     return sql<LookupOption[]>`
       select
         ps.id::text as value,
-        concat(common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US'), ' · ', common.get_translation_t(sp.name_translations, ${locale}, 'en-US')) as label,
-        concat(coalesce(sd.booking_ui_mode, 'default_slot'), ' · ', coalesce(ps.currency, sd.currency, 'USD'), ' ', coalesce(ps.value, sd.value, 0)::text) as description,
+        concat(
+          coalesce(
+            nullif(common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR'), ''),
+            nullif(common.get_translation_t(sd.name_translations, ${locale}, 'fa-IR'), ''),
+            ps.id::text
+          ),
+          ' · ',
+          common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR')
+        ) as label,
+        coalesce(
+          nullif(common.get_translation_t(ps.description_translations, ${locale}, 'fa-IR'), ''),
+          nullif(common.get_translation_t(sd.description_translations, ${locale}, 'fa-IR'), ''),
+          concat(coalesce(sd.booking_ui_mode, 'default_slot'), ' · ', coalesce(ps.currency, sd.currency, 'USD'), ' ', coalesce(ps.value, sd.value, 0)::text)
+        ) as description,
         'Provider service' as group,
         ps.service_provider_id::text as "serviceProviderId",
         ps.id::text as "providerServiceId",
@@ -336,10 +350,13 @@ async function queryAvailabilityLookupItems(input: SearchLookupInput, oneOnly = 
         and (${providerId}::uuid is null or ps.service_provider_id = ${providerId}::uuid)
         and (
           ${search}::text is null
-          or common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US') ilike ${search}::text
-          or common.get_translation_t(sp.name_translations, ${locale}, 'en-US') ilike ${search}::text
+          or common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR') ilike ${search}::text
+          or common.get_translation_t(ps.description_translations, ${locale}, 'fa-IR') ilike ${search}::text
+          or common.get_translation_t(sd.name_translations, ${locale}, 'fa-IR') ilike ${search}::text
+          or common.get_translation_t(sd.description_translations, ${locale}, 'fa-IR') ilike ${search}::text
+          or common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') ilike ${search}::text
         )
-      order by common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US') asc
+      order by coalesce(nullif(common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR'), ''), common.get_translation_t(sd.name_translations, ${locale}, 'fa-IR')) asc
       limit ${limit} offset ${oneOnly ? 0 : offset}
     `;
   }
@@ -348,7 +365,7 @@ async function queryAvailabilityLookupItems(input: SearchLookupInput, oneOnly = 
     return sql<LookupOption[]>`
       select
         sd.id::text as value,
-        common.get_translation_t(sd.name_translations, ${locale}, 'en-US') as label,
+        common.get_translation_t(sd.name_translations, ${locale}, 'fa-IR') as label,
         concat('Mode: ', coalesce(sd.booking_ui_mode, 'default_slot')) as description,
         'Service definition' as group,
         sd.id::text as "serviceDefinitionId",
@@ -356,8 +373,8 @@ async function queryAvailabilityLookupItems(input: SearchLookupInput, oneOnly = 
       from category.service_definitions sd
       where sd.is_active = true
         and (${id}::uuid is null or sd.id = ${id}::uuid)
-        and (${search}::text is null or common.get_translation_t(sd.name_translations, ${locale}, 'en-US') ilike ${search}::text)
-      order by common.get_translation_t(sd.name_translations, ${locale}, 'en-US') asc
+        and (${search}::text is null or common.get_translation_t(sd.name_translations, ${locale}, 'fa-IR') ilike ${search}::text)
+      order by common.get_translation_t(sd.name_translations, ${locale}, 'fa-IR') asc
       limit ${limit} offset ${oneOnly ? 0 : offset}
     `;
   }
@@ -366,16 +383,16 @@ async function queryAvailabilityLookupItems(input: SearchLookupInput, oneOnly = 
     return sql<LookupOption[]>`
       select
         s.id::text as value,
-        common.get_translation_t(s.name_translations, ${locale}, 'en-US') as label,
-        common.get_translation_t(s.title_translations, ${locale}, 'en-US') as description,
+        common.get_translation_t(s.name_translations, ${locale}, 'fa-IR') as label,
+        common.get_translation_t(s.title_translations, ${locale}, 'fa-IR') as description,
         'Staff' as group,
         s.id::text as "staffId",
         'staff'::text as "targetType"
       from category.staff s
       where s.is_active = true
         and (${id}::uuid is null or s.id = ${id}::uuid)
-        and (${search}::text is null or common.get_translation_t(s.name_translations, ${locale}, 'en-US') ilike ${search}::text)
-      order by common.get_translation_t(s.name_translations, ${locale}, 'en-US') asc
+        and (${search}::text is null or common.get_translation_t(s.name_translations, ${locale}, 'fa-IR') ilike ${search}::text)
+      order by common.get_translation_t(s.name_translations, ${locale}, 'fa-IR') asc
       limit ${limit} offset ${oneOnly ? 0 : offset}
     `;
   }
@@ -384,8 +401,8 @@ async function queryAvailabilityLookupItems(input: SearchLookupInput, oneOnly = 
     return sql<LookupOption[]>`
       select
         pst.id::text as value,
-        concat(common.get_translation_t(s.name_translations, ${locale}, 'en-US'), ' · ', common.get_translation_t(sp.name_translations, ${locale}, 'en-US')) as label,
-        common.get_translation_t(pst.notes_translations, ${locale}, 'en-US') as description,
+        concat(common.get_translation_t(s.name_translations, ${locale}, 'fa-IR'), ' · ', common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR')) as label,
+        common.get_translation_t(pst.notes_translations, ${locale}, 'fa-IR') as description,
         'Provider staff relation' as group,
         pst.service_provider_id::text as "serviceProviderId",
         'provider_staff'::text as "targetType",
@@ -398,10 +415,10 @@ async function queryAvailabilityLookupItems(input: SearchLookupInput, oneOnly = 
         and (${providerId}::uuid is null or pst.service_provider_id = ${providerId}::uuid)
         and (
           ${search}::text is null
-          or common.get_translation_t(s.name_translations, ${locale}, 'en-US') ilike ${search}::text
-          or common.get_translation_t(sp.name_translations, ${locale}, 'en-US') ilike ${search}::text
+          or common.get_translation_t(s.name_translations, ${locale}, 'fa-IR') ilike ${search}::text
+          or common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') ilike ${search}::text
         )
-      order by common.get_translation_t(s.name_translations, ${locale}, 'en-US') asc
+      order by common.get_translation_t(s.name_translations, ${locale}, 'fa-IR') asc
       limit ${limit} offset ${oneOnly ? 0 : offset}
     `;
   }
@@ -410,8 +427,8 @@ async function queryAvailabilityLookupItems(input: SearchLookupInput, oneOnly = 
     return sql<LookupOption[]>`
       select
         br.id::text as value,
-        concat(coalesce(nullif(common.get_translation_t(br.name_translations, ${locale}, 'en-US'), ''), br.code, br.id::text), ' · ', br.resource_type) as label,
-        concat('Capacity ', br.total_capacity::text, ' · ', common.get_translation_t(sp.name_translations, ${locale}, 'en-US')) as description,
+        concat(coalesce(nullif(common.get_translation_t(br.name_translations, ${locale}, 'fa-IR'), ''), br.code, br.id::text), ' · ', br.resource_type) as label,
+        concat('Capacity ', br.total_capacity::text, ' · ', common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR')) as description,
         'Bookable resource' as group,
         br.service_provider_id::text as "serviceProviderId",
         br.provider_service_id::text as "providerServiceId",
@@ -426,8 +443,8 @@ async function queryAvailabilityLookupItems(input: SearchLookupInput, oneOnly = 
         and (
           ${search}::text is null
           or coalesce(br.code, '') ilike ${search}::text
-          or common.get_translation_t(br.name_translations, ${locale}, 'en-US') ilike ${search}::text
-          or common.get_translation_t(sp.name_translations, ${locale}, 'en-US') ilike ${search}::text
+          or common.get_translation_t(br.name_translations, ${locale}, 'fa-IR') ilike ${search}::text
+          or common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') ilike ${search}::text
         )
       order by br.resource_type asc, br.code asc nulls last
       limit ${limit} offset ${oneOnly ? 0 : offset}
@@ -489,29 +506,29 @@ export async function listGenericAvailabilityAdminData(input?: {
         r.target_type as "targetType",
         r.target_id::text as "targetId",
         case
-          when r.target_type = 'provider' then (select common.get_translation_t(sp.name_translations, ${locale}, 'en-US') from category.service_providers sp where sp.id = r.target_id)
-          when r.target_type = 'provider_service' then (select common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US') from category.provider_services ps where ps.id = r.target_id)
-          when r.target_type = 'service_definition' then (select common.get_translation_t(sd.name_translations, ${locale}, 'en-US') from category.service_definitions sd where sd.id = r.target_id)
-          when r.target_type = 'staff' then (select common.get_translation_t(st.name_translations, ${locale}, 'en-US') from category.staff st where st.id = r.target_id)
+          when r.target_type = 'provider' then (select common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') from category.service_providers sp where sp.id = r.target_id)
+          when r.target_type = 'provider_service' then (select coalesce(nullif(common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR'), ''), nullif(common.get_translation_t(sd.name_translations, ${locale}, 'fa-IR'), ''), ps.id::text) from category.provider_services ps left join category.service_definitions sd on sd.id = ps.service_definition_id where ps.id = r.target_id)
+          when r.target_type = 'service_definition' then (select common.get_translation_t(sd.name_translations, ${locale}, 'fa-IR') from category.service_definitions sd where sd.id = r.target_id)
+          when r.target_type = 'staff' then (select common.get_translation_t(st.name_translations, ${locale}, 'fa-IR') from category.staff st where st.id = r.target_id)
           when r.target_type = 'provider_staff' then (
-            select concat(common.get_translation_t(st.name_translations, ${locale}, 'en-US'), ' · ', common.get_translation_t(sp.name_translations, ${locale}, 'en-US'))
+            select concat(common.get_translation_t(st.name_translations, ${locale}, 'fa-IR'), ' · ', common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR'))
             from category.provider_staffs pst
             join category.staff st on st.id = pst.staff_id
             join category.service_providers sp on sp.id = pst.service_provider_id
             where pst.id = r.target_id
           )
           when r.target_type = 'bookable_resource' then (
-            select coalesce(nullif(common.get_translation_t(br.name_translations, ${locale}, 'en-US'), ''), br.code, br.id::text)
+            select coalesce(nullif(common.get_translation_t(br.name_translations, ${locale}, 'fa-IR'), ''), br.code, br.id::text)
             from provider_portal.bookable_resources br where br.id = r.target_id
           )
           else r.target_id::text
         end as "targetLabel",
         r.service_provider_id::text as "serviceProviderId",
-        common.get_translation_t(sp.name_translations, ${locale}, 'en-US') as "serviceProviderLabel",
+        common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') as "serviceProviderLabel",
         r.provider_service_id::text as "providerServiceId",
-        common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US') as "providerServiceLabel",
+        coalesce(nullif(common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR'), ''), nullif(common.get_translation_t(sd_for_ps.name_translations, ${locale}, 'fa-IR'), ''), ps.id::text) as "providerServiceLabel",
         r.resource_id::text as "resourceId",
-        coalesce(nullif(common.get_translation_t(br.name_translations, ${locale}, 'en-US'), ''), br.code, br.id::text) as "resourceLabel",
+        coalesce(nullif(common.get_translation_t(br.name_translations, ${locale}, 'fa-IR'), ''), br.code, br.id::text) as "resourceLabel",
         r.day_of_week as "dayOfWeek",
         r.specific_date::text as "specificDate",
         r.starts_at::text as "startsAt",
@@ -528,6 +545,7 @@ export async function listGenericAvailabilityAdminData(input?: {
       from provider_portal.generic_availability_rules r
       left join category.service_providers sp on sp.id = r.service_provider_id
       left join category.provider_services ps on ps.id = r.provider_service_id
+      left join category.service_definitions sd_for_ps on sd_for_ps.id = ps.service_definition_id
       left join provider_portal.bookable_resources br on br.id = r.resource_id
       where (${targetType}::text is null or r.target_type = ${targetType}::text)
         and (${targetId}::uuid is null or r.target_id = ${targetId}::uuid)
@@ -539,8 +557,8 @@ export async function listGenericAvailabilityAdminData(input?: {
           or r.target_type ilike '%' || ${q}::text || '%'
           or coalesce(r.timezone_id, '') ilike '%' || ${q}::text || '%'
           or coalesce(br.code, '') ilike '%' || ${q}::text || '%'
-          or common.get_translation_t(sp.name_translations, ${locale}, 'en-US') ilike '%' || ${q}::text || '%'
-          or common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US') ilike '%' || ${q}::text || '%'
+          or common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') ilike '%' || ${q}::text || '%'
+          or common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR') ilike '%' || ${q}::text || '%'
         )
       order by coalesce(r.is_active, true) desc, r.priority asc, r.target_type asc, r.day_of_week nulls last, r.specific_date nulls last, r.starts_at nulls last
       limit 500
@@ -549,9 +567,9 @@ export async function listGenericAvailabilityAdminData(input?: {
       select
         br.id::text,
         br.service_provider_id::text as "serviceProviderId",
-        common.get_translation_t(sp.name_translations, ${locale}, 'en-US') as "serviceProviderLabel",
+        common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') as "serviceProviderLabel",
         br.provider_service_id::text as "providerServiceId",
-        common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US') as "providerServiceLabel",
+        coalesce(nullif(common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR'), ''), nullif(common.get_translation_t(sd_for_ps.name_translations, ${locale}, 'fa-IR'), ''), ps.id::text) as "providerServiceLabel",
         br.resource_type as "resourceType",
         br.code,
         br.name_translations as "nameTranslations",
@@ -567,6 +585,7 @@ export async function listGenericAvailabilityAdminData(input?: {
       from provider_portal.bookable_resources br
       join category.service_providers sp on sp.id = br.service_provider_id
       left join category.provider_services ps on ps.id = br.provider_service_id
+      left join category.service_definitions sd_for_ps on sd_for_ps.id = ps.service_definition_id
       where (${providerServiceId}::uuid is null or br.provider_service_id = ${providerServiceId}::uuid)
         and (${serviceProviderId}::uuid is null or br.service_provider_id = ${serviceProviderId}::uuid)
         and (${resourceId}::uuid is null or br.id = ${resourceId}::uuid)
@@ -574,9 +593,9 @@ export async function listGenericAvailabilityAdminData(input?: {
           ${q}::text is null
           or br.resource_type ilike '%' || ${q}::text || '%'
           or coalesce(br.code, '') ilike '%' || ${q}::text || '%'
-          or common.get_translation_t(br.name_translations, ${locale}, 'en-US') ilike '%' || ${q}::text || '%'
-          or common.get_translation_t(sp.name_translations, ${locale}, 'en-US') ilike '%' || ${q}::text || '%'
-          or common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US') ilike '%' || ${q}::text || '%'
+          or common.get_translation_t(br.name_translations, ${locale}, 'fa-IR') ilike '%' || ${q}::text || '%'
+          or common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') ilike '%' || ${q}::text || '%'
+          or common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR') ilike '%' || ${q}::text || '%'
         )
       order by br.is_active desc, br.resource_type asc, br.code asc nulls last, br.create_date desc
       limit 500
@@ -599,7 +618,7 @@ export async function listGenericAvailabilityAdminData(input?: {
   };
 }
 
-export async function getGenericAvailabilityRuleById(id: string, localeInput = "en-US") {
+export async function getGenericAvailabilityRuleById(id: string, localeInput = "fa-IR") {
   const ruleId = asUuid(id);
   if (!ruleId) return null;
   const locale = localeOrDefault(localeInput);
@@ -610,29 +629,50 @@ export async function getGenericAvailabilityRuleById(id: string, localeInput = "
       r.target_type as "targetType",
       r.target_id::text as "targetId",
       case
-        when r.target_type = 'provider' then (select common.get_translation_t(sp.name_translations, ${locale}, 'en-US') from category.service_providers sp where sp.id = r.target_id)
-        when r.target_type = 'provider_service' then (select common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US') from category.provider_services ps where ps.id = r.target_id)
-        when r.target_type = 'service_definition' then (select common.get_translation_t(sd.name_translations, ${locale}, 'en-US') from category.service_definitions sd where sd.id = r.target_id)
-        when r.target_type = 'staff' then (select common.get_translation_t(st.name_translations, ${locale}, 'en-US') from category.staff st where st.id = r.target_id)
+        when r.target_type = 'provider' then (select common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') from category.service_providers sp where sp.id = r.target_id)
+        when r.target_type = 'provider_service' then (select coalesce(nullif(common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR'), ''), nullif(common.get_translation_t(sd.name_translations, ${locale}, 'fa-IR'), ''), ps.id::text) from category.provider_services ps left join category.service_definitions sd on sd.id = ps.service_definition_id where ps.id = r.target_id)
+        when r.target_type = 'service_definition' then (select common.get_translation_t(sd.name_translations, ${locale}, 'fa-IR') from category.service_definitions sd where sd.id = r.target_id)
+        when r.target_type = 'staff' then (select common.get_translation_t(st.name_translations, ${locale}, 'fa-IR') from category.staff st where st.id = r.target_id)
         when r.target_type = 'provider_staff' then (
-          select concat(common.get_translation_t(st.name_translations, ${locale}, 'en-US'), ' · ', common.get_translation_t(sp.name_translations, ${locale}, 'en-US'))
+          select concat(common.get_translation_t(st.name_translations, ${locale}, 'fa-IR'), ' · ', common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR'))
           from category.provider_staffs pst
           join category.staff st on st.id = pst.staff_id
           join category.service_providers sp on sp.id = pst.service_provider_id
           where pst.id = r.target_id
         )
         when r.target_type = 'bookable_resource' then (
-          select coalesce(nullif(common.get_translation_t(br.name_translations, ${locale}, 'en-US'), ''), br.code, br.id::text)
+          select coalesce(nullif(common.get_translation_t(br.name_translations, ${locale}, 'fa-IR'), ''), br.code, br.id::text)
           from provider_portal.bookable_resources br where br.id = r.target_id
         )
         else r.target_id::text
       end as "targetLabel",
+      case
+        when r.target_type = 'provider_service' then (
+          select coalesce(
+            nullif(common.get_translation_t(ps.description_translations, ${locale}, 'fa-IR'), ''),
+            nullif(common.get_translation_t(sd.description_translations, ${locale}, 'fa-IR'), '')
+          )
+          from category.provider_services ps
+          left join category.service_definitions sd on sd.id = ps.service_definition_id
+          where ps.id = r.target_id
+        )
+        when r.target_type = 'service_definition' then (select common.get_translation_t(sd.description_translations, ${locale}, 'fa-IR') from category.service_definitions sd where sd.id = r.target_id)
+        else null
+      end as "targetDescription",
       r.service_provider_id::text as "serviceProviderId",
-      common.get_translation_t(sp.name_translations, ${locale}, 'en-US') as "serviceProviderLabel",
+      common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') as "serviceProviderLabel",
       r.provider_service_id::text as "providerServiceId",
-      common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US') as "providerServiceLabel",
+      coalesce(
+        nullif(common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR'), ''),
+        nullif(common.get_translation_t(sd_for_ps.name_translations, ${locale}, 'fa-IR'), ''),
+        ps.id::text
+      ) as "providerServiceLabel",
+      coalesce(
+        nullif(common.get_translation_t(ps.description_translations, ${locale}, 'fa-IR'), ''),
+        nullif(common.get_translation_t(sd_for_ps.description_translations, ${locale}, 'fa-IR'), '')
+      ) as "providerServiceDescription",
       r.resource_id::text as "resourceId",
-      coalesce(nullif(common.get_translation_t(br.name_translations, ${locale}, 'en-US'), ''), br.code, br.id::text) as "resourceLabel",
+      coalesce(nullif(common.get_translation_t(br.name_translations, ${locale}, 'fa-IR'), ''), br.code, br.id::text) as "resourceLabel",
       r.day_of_week as "dayOfWeek",
       r.specific_date::text as "specificDate",
       r.starts_at::text as "startsAt",
@@ -649,6 +689,7 @@ export async function getGenericAvailabilityRuleById(id: string, localeInput = "
     from provider_portal.generic_availability_rules r
     left join category.service_providers sp on sp.id = r.service_provider_id
     left join category.provider_services ps on ps.id = r.provider_service_id
+    left join category.service_definitions sd_for_ps on sd_for_ps.id = ps.service_definition_id
     left join provider_portal.bookable_resources br on br.id = r.resource_id
     where r.id = ${ruleId}::uuid
     limit 1
@@ -727,7 +768,7 @@ export async function getGenericAvailabilityRuleById(id: string, localeInput = "
   return { ...row, ...(consolidated[0] || {}), id: row.id };
 }
 
-export async function getBookableResourceById(id: string, localeInput = "en-US") {
+export async function getBookableResourceById(id: string, localeInput = "fa-IR") {
   const resourceId = asUuid(id);
   if (!resourceId) return null;
   const locale = localeOrDefault(localeInput);
@@ -736,9 +777,9 @@ export async function getBookableResourceById(id: string, localeInput = "en-US")
     select
       br.id::text,
       br.service_provider_id::text as "serviceProviderId",
-      common.get_translation_t(sp.name_translations, ${locale}, 'en-US') as "serviceProviderLabel",
+      common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') as "serviceProviderLabel",
       br.provider_service_id::text as "providerServiceId",
-      common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US') as "providerServiceLabel",
+      common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR') as "providerServiceLabel",
       br.resource_type as "resourceType",
       br.code,
       br.name_translations as "nameTranslations",
@@ -754,6 +795,7 @@ export async function getBookableResourceById(id: string, localeInput = "en-US")
     from provider_portal.bookable_resources br
     join category.service_providers sp on sp.id = br.service_provider_id
     left join category.provider_services ps on ps.id = br.provider_service_id
+    left join category.service_definitions sd_for_ps on sd_for_ps.id = ps.service_definition_id
     where br.id = ${resourceId}::uuid
     limit 1
   `;

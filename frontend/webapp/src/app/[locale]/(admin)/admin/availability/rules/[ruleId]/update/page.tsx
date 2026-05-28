@@ -9,7 +9,7 @@ type Props = {
 
 export default async function UpdateAvailabilityRulePage({ params }: Props) {
   const resolvedParams = await params;
-  const locale = resolvedParams.locale || "en-US";
+  const locale = resolvedParams.locale || "fa-IR";
   const rule = await getGenericAvailabilityRuleById(resolvedParams.ruleId, locale);
   if (!rule) notFound();
   return <AvailabilityRuleForm locale={locale} rule={rule} />;

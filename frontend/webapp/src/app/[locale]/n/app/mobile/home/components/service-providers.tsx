@@ -85,14 +85,14 @@ function FeaturedServiceCard({
       href={`/n/app/mobile/service/${service.id}`}
       className="flex-none w-80 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-md transition-all hover:shadow-xl active:scale-[0.99]"
     >
-      <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
+      <div className="relative aspect-[16/10] overflow-hidden bg-gray-50">
         {mediaUrl ? (
           <ImageWithFallback
             fill
             src={mediaUrl}
             alt={service.displayName}
             sizes="320px"
-            className="object-cover transition duration-500 hover:scale-105"
+            className="object-contain transition duration-500 hover:scale-105"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#083f30] to-[#0f6b56] text-sm font-semibold text-white/80">

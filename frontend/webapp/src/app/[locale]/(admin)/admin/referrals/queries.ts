@@ -1,11 +1,12 @@
 import postgres, { type Sql } from "postgres";
 
-import { getCurrentUserIdOrThrow } from "../../share/auth";
+// import { getCurrentUserIdOrThrow } from "../../share/auth";
 import type {
   ReferralAdminDashboardData,
   ReferralPoliciesData,
   SaveReferralPoliciesInput,
 } from "./types";
+import { getCurrentUserIdOrThrow } from "@/app/wallet/auth";
 
 function formatDiscount(discountType: "percent" | "fixed", discountValue: number): string {
   return discountType === "percent" ? `${discountValue}%` : `$${discountValue.toFixed(2)}`;

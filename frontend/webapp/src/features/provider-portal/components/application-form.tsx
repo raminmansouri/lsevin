@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Building2 } from "lucide-react";
@@ -10,17 +11,30 @@ import { z } from "zod";
 import { createProviderApplicationAction } from "@/features/provider-portal/actions";
 import { createProviderApplicationSchema } from "@/features/provider-portal/schemas";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "@/i18n/navigation";
+
+import { tCommon, tLabel, tMessage } from "../lib/i18n";
 
 import type { ProviderTypeOption } from "../types";
 
 type FormValues = z.infer<typeof createProviderApplicationSchema>;
 
-export function ProviderApplicationForm({ providerTypes }: { providerTypes: ProviderTypeOption[] }) {
+export function ProviderApplicationForm({
+  providerTypes,
+}: {
+  providerTypes: ProviderTypeOption[];
+}) {
   const router = useRouter();
+  const t = useTranslations("ProviderPortal");
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<FormValues>({
@@ -44,10 +58,23 @@ export function ProviderApplicationForm({ providerTypes }: { providerTypes: Prov
     startTransition(async () => {
       const response = await createProviderApplicationAction(values);
       if (!response.ok) {
-        toast.error(response.error || "Application could not be submitted.");
+        toast.error(
+          response.error ||
+            tCommon(
+              t,
+              "applicationCouldNotBeSubmitted",
+              "Application could not be submitted.",
+            ),
+        );
         return;
       }
-      toast.success("Provider application submitted.");
+      toast.success(
+        tCommon(
+          t,
+          "providerApplicationSubmitted",
+          "Provider application submitted.",
+        ),
+      );
       router.push("/provider-portal/applications");
       router.refresh();
     });
@@ -58,87 +85,193 @@ export function ProviderApplicationForm({ providerTypes }: { providerTypes: Prov
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-2xl">
           <Building2 className="h-5 w-5" />
-          Submit provider application
+          {tCommon(
+            t,
+            "submitProviderApplication",
+            "Submit provider application",
+          )}
         </CardTitle>
         <CardDescription>
-          Admin approval will create the provider workspace and assign you as owner.
+          {tCommon(
+            t,
+            "applicationFormDescription",
+            "Admin approval will create the provider workspace and assign you as owner.",
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-5 md:grid-cols-2">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="grid gap-5 md:grid-cols-2"
+        >
           <label className="space-y-2">
-            <span className="text-sm font-medium">Provider type</span>
-            <select {...form.register("providerTypeId")} className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm">
+            <span className="text-sm font-medium">
+              {tLabel(t, "Provider type")}
+            </span>
+            <select
+              {...form.register("providerTypeId")}
+              className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm"
+            >
               {providerTypes.map((item) => (
-                <option key={item.id} value={item.id}>{item.label}</option>
+                <option key={item.id} value={item.id}>
+                  {item.label}
+                </option>
               ))}
             </select>
-            {form.formState.errors.providerTypeId ? <p className="text-xs text-red-600">{form.formState.errors.providerTypeId.message}</p> : null}
+            {form.formState.errors.providerTypeId ? (
+              <p className="text-xs text-red-600">
+                {form.formState.errors.providerTypeId.message}
+              </p>
+            ) : null}
           </label>
 
           <label className="space-y-2">
-            <span className="text-sm font-medium">Legal business name</span>
-            <Input {...form.register("legalName")} placeholder="Official company / clinic name" disabled={isPending} />
-            {form.formState.errors.legalName ? <p className="text-xs text-red-600">{form.formState.errors.legalName.message}</p> : null}
+            <span className="text-sm font-medium">
+              {tLabel(t, "Legal business name")}
+            </span>
+            <Input
+              {...form.register("legalName")}
+              placeholder={tMessage(t, "Official company / clinic name")}
+              disabled={isPending}
+            />
+            {form.formState.errors.legalName ? (
+              <p className="text-xs text-red-600">
+                {form.formState.errors.legalName.message}
+              </p>
+            ) : null}
           </label>
 
           <label className="space-y-2">
-            <span className="text-sm font-medium">Display name English</span>
-            <Input {...form.register("displayNameEn")} placeholder="Name shown to users" disabled={isPending} />
-            {form.formState.errors.displayNameEn ? <p className="text-xs text-red-600">{form.formState.errors.displayNameEn.message}</p> : null}
+            <span className="text-sm font-medium">
+              {tLabel(t, "Display name English")}
+            </span>
+            <Input
+              {...form.register("displayNameEn")}
+              placeholder={tMessage(t, "Name shown to users")}
+              disabled={isPending}
+            />
+            {form.formState.errors.displayNameEn ? (
+              <p className="text-xs text-red-600">
+                {form.formState.errors.displayNameEn.message}
+              </p>
+            ) : null}
           </label>
 
           <label className="space-y-2">
-            <span className="text-sm font-medium">Display name Persian</span>
-            <Input {...form.register("displayNameFa")} placeholder="نام فارسی" disabled={isPending} />
+            <span className="text-sm font-medium">
+              {tLabel(t, "Display name Persian")}
+            </span>
+            <Input
+              {...form.register("displayNameFa")}
+              placeholder={tMessage(t, "Persian name")}
+              disabled={isPending}
+            />
           </label>
 
           <label className="space-y-2">
-            <span className="text-sm font-medium">Email</span>
-            <Input {...form.register("email")} type="email" placeholder="provider@example.com" disabled={isPending} />
-            {form.formState.errors.email ? <p className="text-xs text-red-600">{form.formState.errors.email.message}</p> : null}
+            <span className="text-sm font-medium">{tLabel(t, "Email")}</span>
+            <Input
+              {...form.register("email")}
+              type="email"
+              placeholder={tMessage(t, "provider@example.com")}
+              disabled={isPending}
+            />
+            {form.formState.errors.email ? (
+              <p className="text-xs text-red-600">
+                {form.formState.errors.email.message}
+              </p>
+            ) : null}
           </label>
 
           <div className="grid grid-cols-[100px_1fr] gap-3">
             <label className="space-y-2">
-              <span className="text-sm font-medium">Code</span>
-              <Input {...form.register("phoneNumberCountryCode")} placeholder="+98" disabled={isPending} />
+              <span className="text-sm font-medium">{tLabel(t, "Code")}</span>
+              <Input
+                {...form.register("phoneNumberCountryCode")}
+                placeholder={tMessage(t, "+98")}
+                disabled={isPending}
+              />
             </label>
             <label className="space-y-2">
-              <span className="text-sm font-medium">Phone</span>
-              <Input {...form.register("phoneNumber")} placeholder="912..." disabled={isPending} />
-              {form.formState.errors.phoneNumber ? <p className="text-xs text-red-600">{form.formState.errors.phoneNumber.message}</p> : null}
+              <span className="text-sm font-medium">{tLabel(t, "Phone")}</span>
+              <Input
+                {...form.register("phoneNumber")}
+                placeholder={tMessage(t, "912...")}
+                disabled={isPending}
+              />
+              {form.formState.errors.phoneNumber ? (
+                <p className="text-xs text-red-600">
+                  {form.formState.errors.phoneNumber.message}
+                </p>
+              ) : null}
             </label>
           </div>
 
           <label className="space-y-2">
-            <span className="text-sm font-medium">Country code/name</span>
-            <Input {...form.register("country")} placeholder="IR, TR, UAE..." maxLength={15} disabled={isPending} />
-            {form.formState.errors.country ? <p className="text-xs text-red-600">{form.formState.errors.country.message}</p> : null}
+            <span className="text-sm font-medium">
+              {tLabel(t, "Country code/name")}
+            </span>
+            <Input
+              {...form.register("country")}
+              placeholder={tMessage(t, "IR, TR, UAE...")}
+              maxLength={15}
+              disabled={isPending}
+            />
+            {form.formState.errors.country ? (
+              <p className="text-xs text-red-600">
+                {form.formState.errors.country.message}
+              </p>
+            ) : null}
           </label>
 
           <label className="space-y-2">
-            <span className="text-sm font-medium">City code/name</span>
-            <Input {...form.register("city")} placeholder="Tehran, Istanbul..." maxLength={15} disabled={isPending} />
-            {form.formState.errors.city ? <p className="text-xs text-red-600">{form.formState.errors.city.message}</p> : null}
+            <span className="text-sm font-medium">
+              {tLabel(t, "City code/name")}
+            </span>
+            <Input
+              {...form.register("city")}
+              placeholder={tMessage(t, "Tehran, Istanbul...")}
+              maxLength={15}
+              disabled={isPending}
+            />
+            {form.formState.errors.city ? (
+              <p className="text-xs text-red-600">
+                {form.formState.errors.city.message}
+              </p>
+            ) : null}
           </label>
 
           <label className="space-y-2 md:col-span-2">
-            <span className="text-sm font-medium">Address</span>
-            <Textarea {...form.register("addressText")} placeholder="Provider address for admin review" disabled={isPending} />
+            <span className="text-sm font-medium">{tLabel(t, "Address")}</span>
+            <Textarea
+              {...form.register("addressText")}
+              placeholder={tMessage(t, "Provider address for admin review")}
+              disabled={isPending}
+            />
           </label>
 
           <label className="space-y-2 md:col-span-2">
-            <span className="text-sm font-medium">Website</span>
-            <Input {...form.register("websiteUrl")} placeholder="https://..." disabled={isPending} />
+            <span className="text-sm font-medium">{tLabel(t, "Website")}</span>
+            <Input
+              {...form.register("websiteUrl")}
+              placeholder={tMessage(t, "https://...")}
+              disabled={isPending}
+            />
           </label>
 
           <div className="flex justify-end gap-3 border-t pt-5 md:col-span-2">
-            <Button type="button" variant="outline" onClick={() => router.push("/provider-portal")} disabled={isPending}>
-              Cancel
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.push("/provider-portal")}
+              disabled={isPending}
+            >
+              {tCommon(t, "cancel", "Cancel")}
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Submitting..." : "Submit application"}
+              {isPending
+                ? tCommon(t, "submitting", "Submitting...")
+                : tCommon(t, "submitApplication", "Submit application")}
             </Button>
           </div>
         </form>

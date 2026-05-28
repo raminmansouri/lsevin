@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   AlertCircle,
   ArrowLeft,
@@ -53,6 +54,7 @@ type Props = {
 
 export default function MedicalProfilePageClient({ initialData }: Props) {
   const router = useRouter();
+  const t = useTranslations("MobileProfile.medicalProfile");
   const [isPending, startTransition] = useTransition();
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [allergies, setAllergies] = useState(initialData.allergies);
@@ -109,7 +111,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
         closeModal();
         router.refresh();
       } catch (error) {
-        setFormError(error instanceof Error ? error.message : "Failed to add allergy.");
+        setFormError(error instanceof Error ? error.message : t("errors.addAllergy"));
       }
     });
   }
@@ -129,7 +131,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
         closeModal();
         router.refresh();
       } catch (error) {
-        setFormError(error instanceof Error ? error.message : "Failed to add medication.");
+        setFormError(error instanceof Error ? error.message : t("errors.addMedication"));
       }
     });
   }
@@ -148,7 +150,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
         closeModal();
         router.refresh();
       } catch (error) {
-        setFormError(error instanceof Error ? error.message : "Failed to add condition.");
+        setFormError(error instanceof Error ? error.message : t("errors.addCondition"));
       }
     });
   }
@@ -175,7 +177,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
       } catch (error) {
         window.clearInterval(timer);
         setDocumentForm((prev) => ({ ...prev, uploadStatus: "error", uploadProgress: 0 }));
-        setFormError(error instanceof Error ? error.message : "Failed to upload document.");
+        setFormError(error instanceof Error ? error.message : t("errors.uploadDocument"));
       }
     });
   }
@@ -189,7 +191,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
         closeModal();
         router.refresh();
       } catch (error) {
-        setFormError(error instanceof Error ? error.message : "Failed to save emergency contact.");
+        setFormError(error instanceof Error ? error.message : t("errors.saveEmergencyContact"));
       }
     });
   }
@@ -241,7 +243,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
           >
             <ArrowLeft size={20} className="text-gray-900" />
           </button>
-          <h1 className="text-lg font-bold text-gray-900 ml-3">Medical Profile</h1>
+          <h1 className="text-lg font-bold text-gray-900 ml-3">{t("title")}</h1>
         </div>
       </div>
 
@@ -252,7 +254,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
               <Lock size={20} className="text-white" />
             </div>
             <div>
-              <h3 className="font-bold mb-1">Your Privacy is Protected</h3>
+              <h3 className="font-bold mb-1">{t("privacyTitle")}</h3>
               <p className="text-sm text-white/90">
                 All medical information is encrypted, HIPAA-compliant, and only shared with your authorized healthcare providers.
               </p>
@@ -268,7 +270,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
               <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center">
                 <AlertCircle size={20} className="text-red-600" />
               </div>
-              <h3 className="font-bold text-gray-900">Allergies</h3>
+              <h3 className="font-bold text-gray-900">{t("sections.allergies")}</h3>
             </div>
             <button
               onClick={() => setActiveModal("allergy")}
@@ -296,7 +298,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
             </div>
           ) : (
             <div className="text-center py-6">
-              <p className="text-gray-500 text-sm mb-3">No allergies recorded</p>
+              <p className="text-gray-500 text-sm mb-3">{t("empty.noAllergies")}</p>
               <button
                 onClick={() => setActiveModal("allergy")}
                 className="text-sm font-semibold text-[#083f30] hover:underline"
@@ -314,7 +316,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
               <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
                 <Pill size={20} className="text-purple-600" />
               </div>
-              <h3 className="font-bold text-gray-900">Current Medications</h3>
+              <h3 className="font-bold text-gray-900">{t("sections.currentMedications")}</h3>
             </div>
             <button
               onClick={() => setActiveModal("medication")}
@@ -342,7 +344,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
             </div>
           ) : (
             <div className="text-center py-6">
-              <p className="text-gray-500 text-sm mb-3">No medications recorded</p>
+              <p className="text-gray-500 text-sm mb-3">{t("empty.noMedications")}</p>
               <button
                 onClick={() => setActiveModal("medication")}
                 className="text-sm font-semibold text-[#083f30] hover:underline"
@@ -360,7 +362,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
               <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
                 <FileText size={20} className="text-blue-600" />
               </div>
-              <h3 className="font-bold text-gray-900">Medical History</h3>
+              <h3 className="font-bold text-gray-900">{t("sections.medicalHistory")}</h3>
             </div>
             <button
               onClick={() => setActiveModal("condition")}
@@ -388,7 +390,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
             </div>
           ) : (
             <div className="text-center py-6">
-              <p className="text-gray-500 text-sm mb-3">No conditions recorded</p>
+              <p className="text-gray-500 text-sm mb-3">{t("empty.noConditions")}</p>
               <button
                 onClick={() => setActiveModal("condition")}
                 className="text-sm font-semibold text-[#083f30] hover:underline"
@@ -406,7 +408,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
               <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
                 <FileText size={20} className="text-green-600" />
               </div>
-              <h3 className="font-bold text-gray-900">Medical Documents</h3>
+              <h3 className="font-bold text-gray-900">{t("sections.medicalDocuments")}</h3>
             </div>
             <button
               onClick={() => setActiveModal("document")}
@@ -439,7 +441,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
             </div>
           ) : (
             <div className="text-center py-6">
-              <p className="text-gray-500 text-sm mb-3">No documents uploaded</p>
+              <p className="text-gray-500 text-sm mb-3">{t("empty.noDocuments")}</p>
               <button
                 onClick={() => setActiveModal("document")}
                 className="text-sm font-semibold text-[#083f30] hover:underline"
@@ -457,7 +459,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
               <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center">
                 <Phone size={20} className="text-orange-600" />
               </div>
-              <h3 className="font-bold text-gray-900">Emergency Contact</h3>
+              <h3 className="font-bold text-gray-900">{t("sections.emergencyContact")}</h3>
             </div>
             <button
               onClick={() => {
@@ -474,7 +476,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
           <div className="p-4 bg-orange-50 rounded-xl border border-orange-100">
             <div className="flex items-center gap-2 mb-2">
               <User size={16} className="text-gray-600" />
-              <span className="text-gray-900 font-semibold">{emergencyContact.name || "No contact saved"}</span>
+              <span className="text-gray-900 font-semibold">{emergencyContact.name || t("empty.noContactSaved")}</span>
             </div>
             <div className="flex items-center gap-2 mb-1">
               <Phone size={16} className="text-gray-600" />
@@ -492,7 +494,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
         <>
           <div className="sticky top-0 z-10 border-b border-gray-200 bg-white p-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">Add Allergy</h2>
+              <h2 className="text-xl font-bold text-gray-900">{t("modals.addAllergy")}</h2>
               <button
                 onClick={closeModal}
                 className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-gray-100"
@@ -506,7 +508,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
           <div className="overflow-y-auto p-6 pb-28 space-y-4 max-h-[calc(90dvh-88px)]">
             <div>
               <label className="mb-2 block text-sm font-semibold text-gray-900">
-                Allergy Name <span className="text-red-500">*</span>
+                {t("fields.allergyName")} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -514,7 +516,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
                 onChange={(e) =>
                   setAllergyForm({ ...allergyForm, name: e.target.value })
                 }
-                placeholder="e.g., Penicillin"
+                placeholder={t("placeholders.allergyName")}
                 className="h-12 w-full rounded-xl border-2 border-gray-300 px-4 transition-colors focus:border-[#083f30] focus:outline-none"
               />
             </div>
@@ -533,9 +535,9 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
                 }
                 className="h-12 w-full rounded-xl border-2 border-gray-300 bg-white px-4 transition-colors focus:border-[#083f30] focus:outline-none"
               >
-                <option value="mild">Mild</option>
-                <option value="moderate">Moderate</option>
-                <option value="severe">Severe</option>
+                <option value="mild">{t("severity.mild")}</option>
+                <option value="moderate">{t("severity.moderate")}</option>
+                <option value="severe">{t("severity.severe")}</option>
               </select>
             </div>
 
@@ -548,7 +550,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
                 onChange={(e) =>
                   setAllergyForm({ ...allergyForm, notes: e.target.value })
                 }
-                placeholder="Additional information about reactions..."
+                placeholder={t("placeholders.reactionNotes")}
                 rows={3}
                 className="w-full resize-none rounded-xl border-2 border-gray-300 px-4 py-3 transition-colors focus:border-[#083f30] focus:outline-none"
               />

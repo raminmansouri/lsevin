@@ -367,6 +367,20 @@ export function StaffAvailabilityManager({
         </Button>
       </div>
 
+      <div dir={locale.toLowerCase().startsWith("fa") ? "rtl" : "ltr"} className="rounded-2xl border bg-muted/40 p-4 text-sm leading-6 text-muted-foreground">
+        <div className="font-semibold text-foreground">{locale.toLowerCase().startsWith("fa") ? "راهنمای زمان‌های قابل رزرو" : "Booking time guide"}</div>
+        <p className="mt-1">
+          {locale.toLowerCase().startsWith("fa")
+            ? "برای برنامه ثابت، روز هفته را انتخاب کنید و تکرار هفتگی را روشن بگذارید. برای یک تاریخ خاص یا استثنا، تکرار هفتگی را خاموش کنید و تاریخ را وارد کنید."
+            : "For a fixed weekly schedule, choose a weekday and keep recurring enabled. For a one-off date or exception, disable recurring and choose the date."}
+        </p>
+        <p className="mt-2 text-xs">
+          {locale.toLowerCase().startsWith("fa")
+            ? "ساعت پایان باید بعد از ساعت شروع باشد. وضعیت قابل رزرو یعنی مشتری می‌تواند در این بازه نوبت بگیرد."
+            : "End time must be after start time. Available status means customers can book during this window."}
+        </p>
+      </div>
+
       {/* Existing availabilities */}
       <div className="grid gap-3">
         {staff.availabilities.length === 0 ? (

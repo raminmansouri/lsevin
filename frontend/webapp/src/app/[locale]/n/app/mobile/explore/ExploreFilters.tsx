@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import {
   BadgeCheck,
@@ -34,6 +35,7 @@ type ExploreFiltersProps = {
 type ExploreFiltersFormValues = {
   minPrice: string;
   maxPrice: string;
+  currencyCode: string;
   minRating: string;
   verifiedOnly: boolean;
   responseTime: ExploreResponseTime;
@@ -45,6 +47,7 @@ export default function ExploreFilters({
   filters,
   availableLanguages,
 }: ExploreFiltersProps) {
+  const t = useTranslations("Explore");
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -54,6 +57,7 @@ export default function ExploreFilters({
     defaultValues: {
       minPrice: filters.minPrice?.toString() ?? "",
       maxPrice: filters.maxPrice?.toString() ?? "",
+      currencyCode: filters.currencyCode ?? "",
       minRating: filters.minRating?.toString() ?? "",
       verifiedOnly: filters.verifiedOnly,
       responseTime: filters.responseTime,
@@ -71,6 +75,7 @@ export default function ExploreFilters({
     let count = 0;
     if (filters.minPrice != null) count += 1;
     if (filters.maxPrice != null) count += 1;
+    if (filters.currencyCode) count += 1;
     if (filters.minRating != null) count += 1;
     if (filters.verifiedOnly) count += 1;
     if (filters.languages.length > 0) count += 1;
@@ -86,6 +91,7 @@ export default function ExploreFilters({
 
     setOrDelete(params, "minPrice", values.minPrice.trim());
     setOrDelete(params, "maxPrice", values.maxPrice.trim());
+    setOrDelete(params, "currency", values.currencyCode.trim().toUpperCase());
     setOrDelete(params, "minRating", values.minRating.trim());
     setOrDelete(params, "verified", values.verifiedOnly ? "1" : "");
     setOrDelete(
@@ -114,6 +120,7 @@ export default function ExploreFilters({
     form.reset({
       minPrice: "",
       maxPrice: "",
+      currencyCode: "",
       minRating: "",
       verifiedOnly: false,
       responseTime: "any",
@@ -125,6 +132,8 @@ export default function ExploreFilters({
     [
       "minPrice",
       "maxPrice",
+      "currency",
+      "currencyCode",
       "minRating",
       "verified",
       "responseTime",
@@ -168,9 +177,9 @@ export default function ExploreFilters({
             <div className="sticky top-0 z-10 border-b border-neutral-200 bg-white px-5 py-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-xl font-bold text-neutral-950">Filters</h2>
+                  <h2 className="text-xl font-bold text-neutral-950">{t("filtersPanel.title")}</h2>
                   <p className="text-sm text-neutral-600">
-                    Apply real filters to the Explore results.
+                    {t("filtersPanel.subtitle")}
                   </p>
                 </div>
 
@@ -191,29 +200,35 @@ export default function ExploreFilters({
               <section className="space-y-3">
                 <div className="flex items-center gap-2">
                   <DollarSign size={18} className="text-emerald-800" />
-                  <h3 className="font-bold text-neutral-950">Price range</h3>
+                  <h3 className="font-bold text-neutral-950">{t("filters.priceRange")}</h3>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <input
                     {...form.register("minPrice")}
                     inputMode="numeric"
-                    placeholder="Min"
+                    placeholder={t("filters.minPrice")}
                     className="h-12 rounded-2xl border border-neutral-200 px-4 text-sm outline-none transition focus:border-emerald-700"
                   />
                   <input
                     {...form.register("maxPrice")}
                     inputMode="numeric"
-                    placeholder="Max"
+                    placeholder={t("filters.maxPrice")}
                     className="h-12 rounded-2xl border border-neutral-200 px-4 text-sm outline-none transition focus:border-emerald-700"
                   />
                 </div>
+
+                <input
+                  {...form.register("currencyCode")}
+                  placeholder={t("filters.currencyPlaceholder")}
+                  className="h-12 w-full rounded-2xl border border-neutral-200 px-4 text-sm uppercase outline-none transition focus:border-emerald-700"
+                />
               </section>
 
               <section className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Star size={18} className="text-emerald-800" />
-                  <h3 className="font-bold text-neutral-950">Minimum rating</h3>
+                  <h3 className="font-bold text-neutral-950">{t("filters.minimumRating")}</h3>
                 </div>
 
                 <div className="grid grid-cols-5 gap-2">
@@ -229,7 +244,7 @@ export default function ExploreFilters({
                           : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200",
                       ].join(" ")}
                     >
-                      {value ? `${value}+` : "Any"}
+                      {value ? `${value}+` : t("filters.any")}
                     </button>
                   ))}
                 </div>
@@ -238,14 +253,14 @@ export default function ExploreFilters({
               <section className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Clock size={18} className="text-emerald-800" />
-                  <h3 className="font-bold text-neutral-950">Response time</h3>
+                  <h3 className="font-bold text-neutral-950">{t("filters.responseTime")}</h3>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2">
                   {[
-                    { value: "any", label: "Any" },
-                    { value: "fast", label: "< 1 hour" },
-                    { value: "instant", label: "< 30 min" },
+                    { value: "any", label: t("filters.response.any") },
+                    { value: "fast", label: t("filters.response.fast") },
+                    { value: "instant", label: t("filters.response.instant") },
                   ].map((option) => (
                     <button
                       key={option.value}
@@ -296,10 +311,10 @@ export default function ExploreFilters({
 
                     <div>
                       <h3 className="font-bold text-neutral-950">
-                        Verified providers only
+                        {t("filters.verifiedOnly")}
                       </h3>
                       <p className="text-sm text-neutral-600">
-                        Restrict results to accredited providers.
+                        {t("filtersPanel.verifiedOnlyDescription")}
                       </p>
                     </div>
                   </div>
@@ -320,7 +335,7 @@ export default function ExploreFilters({
               <section className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Globe size={18} className="text-emerald-800" />
-                  <h3 className="font-bold text-neutral-950">Languages</h3>
+                  <h3 className="font-bold text-neutral-950">{t("filters.languages")}</h3>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
@@ -356,17 +371,17 @@ export default function ExploreFilters({
               </section>
 
               <section className="space-y-3">
-                <h3 className="font-bold text-neutral-950">Sort order</h3>
+                <h3 className="font-bold text-neutral-950">{t("sort.title")}</h3>
 
                 <select
                   {...form.register("sort")}
                   className="h-12 w-full rounded-2xl border border-neutral-200 px-4 text-sm outline-none transition focus:border-emerald-700"
                 >
-                  <option value="recommended">Recommended</option>
-                  <option value="price_asc">Price: low to high</option>
-                  <option value="price_desc">Price: high to low</option>
-                  <option value="rating_desc">Highest rated</option>
-                  <option value="newest">Newest</option>
+                  <option value="recommended">{t("sort.recommended")}</option>
+                  <option value="price_low">{t("sort.priceLow")}</option>
+                  <option value="price_high">{t("sort.priceHigh")}</option>
+                  <option value="rating">{t("sort.rating")}</option>
+                  <option value="newest">{t("sort.newest")}</option>
                 </select>
               </section>
 
@@ -376,7 +391,7 @@ export default function ExploreFilters({
                   onClick={clearFilters}
                   className="inline-flex h-12 flex-1 items-center justify-center rounded-2xl bg-neutral-100 text-sm font-bold text-neutral-900 transition hover:bg-neutral-200"
                 >
-                  Clear all
+                  {t("actions.clearAll")}
                 </button>
 
                 <button
@@ -384,7 +399,7 @@ export default function ExploreFilters({
                   disabled={isPending}
                   className="inline-flex h-12 flex-1 items-center justify-center rounded-2xl bg-emerald-800 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {isPending ? "Applying..." : "Apply filters"}
+                  {isPending ? t("actions.applying") : t("actions.applyFilters")}
                 </button>
               </div>
             </form>

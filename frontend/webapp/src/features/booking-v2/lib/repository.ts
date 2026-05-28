@@ -74,7 +74,7 @@ export async function getCatalog(params: {
   specialistId?: string | null;
   locale?: string;
 }) {
-  const { providerId, serviceId, specialistId, locale = "en" } = params;
+  const { providerId, serviceId, specialistId, locale = "fa-IR" } = params;
 
   const providers = await sql<BookingCatalogProvider[]>`
     SELECT DISTINCT
@@ -82,7 +82,16 @@ export async function getCatalog(params: {
       COALESCE(common.get_translation_t(sp.name_translations, ${locale}, 'en'), '') AS name,
       sp.city,
       sp.country,
-      sp.image_url AS "imageUrl"
+      COALESCE(
+        NULLIF(sp.image_url, ''),
+        (
+          SELECT NULLIF(pgi.url, '')
+          FROM category.provider_gallery_items pgi
+          WHERE pgi.service_provider_id = sp.id
+          ORDER BY pgi.display_order ASC, pgi.create_date DESC
+          LIMIT 1
+        )
+      ) AS "imageUrl"
     FROM category.service_providers sp
     WHERE sp.is_active = true
       AND (
@@ -116,13 +125,33 @@ export async function getCatalog(params: {
       ps.id,
       ps.service_provider_id AS "providerId",
       ps.service_definition_id AS "serviceDefinitionId",
-      COALESCE(common.get_translation_t(ps.display_name_translations, ${locale}, 'en'), '') AS name,
+      COALESCE(
+        NULLIF(common.get_translation_t(ps.display_name_translations, ${locale}, 'en'), ''),
+        NULLIF(common.get_translation_t(sd.name_translations, ${locale}, 'en'), ''),
+        ''
+      ) AS name,
+      COALESCE(
+        NULLIF(common.get_translation_t(ps.description_translations, ${locale}, 'en'), ''),
+        NULLIF(common.get_translation_t(sd.description_translations, ${locale}, 'en'), ''),
+        ''
+      ) AS description,
       ps.value AS price,
       ps.currency,
       ps.duration_minutes AS "durationMinutes",
-      ps.image_url AS "imageUrl",
+      COALESCE(
+        NULLIF(ps.image_url, ''),
+        NULLIF(sd.image_url, ''),
+        (
+          SELECT NULLIF(psgi.url, '')
+          FROM category.provider_service_gallery_items psgi
+          WHERE psgi.provider_service_id = ps.id
+          ORDER BY psgi.is_primary DESC, psgi.display_order ASC, psgi.create_date DESC
+          LIMIT 1
+        )
+      ) AS "imageUrl",
       ps.slot_interval_minutes AS "slotIntervalMinutes"
     FROM category.provider_services ps
+    LEFT JOIN category.service_definitions sd ON sd.id = ps.service_definition_id
     WHERE ps.is_active = true
       AND (
         ${providerId ?? null}::uuid IS NULL
@@ -150,7 +179,16 @@ export async function getCatalog(params: {
       st.id,
       COALESCE(common.get_translation_t(st.name_translations, ${locale}, 'en'), '') AS name,
       NULLIF(COALESCE(common.get_translation_t(st.title_translations, ${locale}, 'en'), ''), '') AS title,
-      st.profile_image_url AS "imageUrl"
+      COALESCE(
+        NULLIF(st.profile_image_url, ''),
+        (
+          SELECT NULLIF(sgi.url, '')
+          FROM category.staff_gallery_items sgi
+          WHERE sgi.staff_id = st.id
+          ORDER BY sgi.is_primary DESC, sgi.display_order ASC, sgi.create_date DESC
+          LIMIT 1
+        )
+      ) AS "imageUrl"
     FROM category.staff st
     WHERE st.is_active = true
       AND (
@@ -190,7 +228,7 @@ export async function getAddons(params: {
   includeLsevin: boolean;
   locale?: string;
 }) {
-  const { serviceId, includeLsevin, locale = "en" } = params;
+  const { serviceId, includeLsevin, locale = "fa-IR" } = params;
 
   const rows = await sql<(BookingAddon & { details_text: string[] | null })[]>`
     SELECT

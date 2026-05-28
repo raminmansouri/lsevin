@@ -25,7 +25,7 @@ type Props = {
   mediaId: string | null;
   fullName: string;
   isLocked: boolean;
-  bottomBarHeight
+  bottomBarHeight?: number;
 };
 
 type PersistedMediaLike = {
@@ -57,7 +57,7 @@ export default function ProfileImagePicker({
   mediaId,
   fullName,
   isLocked,
-    bottomBarHeight = 76,
+  bottomBarHeight = 76,
 }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -68,7 +68,7 @@ export default function ProfileImagePicker({
   const [isRemoving, startRemoveTransition] = useTransition();
 
   const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(imageUrl);
-  const [currentMediaId, setCurrentMediaId] = useState<string | null>(mediaId);
+  const [, setCurrentMediaId] = useState<string | null>(mediaId);
 
   const resolvedImageUrl = useMemo(
     () => resolveMediaUrl(currentImageUrl),
@@ -153,7 +153,7 @@ export default function ProfileImagePicker({
       }
 
       const result = await setProfileImageAction({
-        mediaId: createdMediaId,
+        mediaId: createdMediaId ?? null,
         imageUrl: createdFileUrl,
       });
 

@@ -1,15 +1,28 @@
 import { z } from "zod";
 
 const uuid = z.string().uuid();
-const optionalText = z.string().trim().optional().nullable().transform((value) => value || null);
-const looseEmail = z.string().trim().email().optional().or(z.literal("")).transform((value) => value || null);
+const optionalText = z
+  .string()
+  .trim()
+  .optional()
+  .nullable()
+  .transform((value) => value || null);
+const looseEmail = z
+  .string()
+  .trim()
+  .email()
+  .optional()
+  .or(z.literal(""))
+  .transform((value) => value || null);
 const optionalNumber = z.preprocess(
-  (value) => value === "" || value === null || value === undefined ? null : value,
-  z.coerce.number().optional().nullable()
+  (value) =>
+    value === "" || value === null || value === undefined ? null : value,
+  z.coerce.number().optional().nullable(),
 );
 const optionalInt = z.preprocess(
-  (value) => value === "" || value === null || value === undefined ? null : value,
-  z.coerce.number().int().optional().nullable()
+  (value) =>
+    value === "" || value === null || value === undefined ? null : value,
+  z.coerce.number().int().optional().nullable(),
 );
 
 export const createProviderApplicationSchema = z.object({
@@ -20,8 +33,16 @@ export const createProviderApplicationSchema = z.object({
   email: looseEmail,
   phoneNumberCountryCode: z.string().trim().min(1).max(5).default("+98"),
   phoneNumber: z.string().trim().min(5, "Phone number is required."),
-  country: z.string().trim().min(2, "Country is required.").max(15, "Database country column supports max 15 chars."),
-  city: z.string().trim().min(2, "City is required.").max(15, "Database city column supports max 15 chars."),
+  country: z
+    .string()
+    .trim()
+    .min(2, "Country is required.")
+    .max(15, "Database country column supports max 15 chars."),
+  city: z
+    .string()
+    .trim()
+    .min(2, "City is required.")
+    .max(15, "Database city column supports max 15 chars."),
   addressText: optionalText,
   websiteUrl: optionalText,
 });
@@ -41,10 +62,22 @@ export const updateProviderProfileSchema = z.object({
   phoneNumber: z.string().trim().min(5).max(15),
   zipCode: optionalText,
   imageUrl: optionalText,
-  latitude: optionalNumber.refine((value) => value === null || value === undefined || (value >= -90 && value <= 90), "Latitude must be between -90 and 90."),
-  longitude: optionalNumber.refine((value) => value === null || value === undefined || (value >= -180 && value <= 180), "Longitude must be between -180 and 180."),
+  latitude: optionalNumber.refine(
+    (value) =>
+      value === null || value === undefined || (value >= -90 && value <= 90),
+    "Latitude must be between -90 and 90.",
+  ),
+  longitude: optionalNumber.refine(
+    (value) =>
+      value === null || value === undefined || (value >= -180 && value <= 180),
+    "Longitude must be between -180 and 180.",
+  ),
   responseTime: optionalText,
-  establishedYear: optionalInt.refine((value) => value === null || value === undefined || (value >= 1800 && value <= 2200), "Established year is invalid."),
+  establishedYear: optionalInt.refine(
+    (value) =>
+      value === null || value === undefined || (value >= 1800 && value <= 2200),
+    "Established year is invalid.",
+  ),
   totalPatients: optionalText,
   successRate: optionalText,
   languagesCsv: z.string().trim().optional().default(""),
@@ -87,7 +120,11 @@ export const saveStaffSchema = z.object({
   biographyFa: z.string().trim().optional().default(""),
   profileImageUrl: optionalText,
   specialty: optionalText,
-  experienceYears: optionalInt.refine((value) => value === null || value === undefined || (value >= 0 && value <= 80), "Experience years is invalid."),
+  experienceYears: optionalInt.refine(
+    (value) =>
+      value === null || value === undefined || (value >= 0 && value <= 80),
+    "Experience years is invalid.",
+  ),
   consultationFee: z.coerce.number().min(0).default(0),
   notesEn: z.string().trim().optional().default(""),
   notesFa: z.string().trim().optional().default(""),
@@ -101,13 +138,17 @@ export const deleteStaffLinkSchema = z.object({
 
 export const saveOperatingHoursSchema = z.object({
   providerId: uuid,
-  hours: z.array(z.object({
-    dayOfWeek: z.coerce.number().int().min(1).max(7),
-    opensAt: z.string().trim().optional().nullable(),
-    closesAt: z.string().trim().optional().nullable(),
-    isClosed: z.coerce.boolean().default(false),
-    slotIntervalMinutes: z.coerce.number().int().min(1).default(15),
-  })).length(7),
+  hours: z
+    .array(
+      z.object({
+        dayOfWeek: z.coerce.number().int().min(1).max(7),
+        opensAt: z.string().trim().optional().nullable(),
+        closesAt: z.string().trim().optional().nullable(),
+        isClosed: z.coerce.boolean().default(false),
+        slotIntervalMinutes: z.coerce.number().int().min(1).default(15),
+      }),
+    )
+    .length(7),
 });
 
 export const updateBookingProviderSchema = z.object({
@@ -146,7 +187,10 @@ export const saveOfferSchema = z.object({
   code: optionalText,
   isActive: z.coerce.boolean().default(true),
   isFeatured: z.coerce.boolean().default(false),
-  usageLimit: optionalInt.refine((value) => value === null || value === undefined || value >= 0, "Usage limit is invalid."),
+  usageLimit: optionalInt.refine(
+    (value) => value === null || value === undefined || value >= 0,
+    "Usage limit is invalid.",
+  ),
   descriptionEn: z.string().trim().optional().default(""),
   descriptionFa: z.string().trim().optional().default(""),
 });
@@ -163,7 +207,13 @@ export const savePayoutAccountSchema = z.object({
   bankName: optionalText,
   iban: optionalText,
   swiftCode: optionalText,
-  accountNumberLast4: z.string().trim().max(4).optional().nullable().transform((value) => value || null),
+  accountNumberLast4: z
+    .string()
+    .trim()
+    .max(4)
+    .optional()
+    .nullable()
+    .transform((value) => value || null),
   country: optionalText,
   currencyCode: z.string().trim().min(3).max(10).default("USD"),
   isDefault: z.coerce.boolean().default(false),
@@ -182,13 +232,18 @@ export const updateSupportTicketSchema = z.object({
   status: z.enum(["open", "in_progress", "resolved", "closed"]),
 });
 
-
 export const saveProviderCertificationSchema = z.object({
   providerId: uuid,
   certificationId: uuid.optional().nullable(),
   name: z.string().trim().min(1, "Certification name is required."),
   imageUrl: z.string().trim().max(500).optional().nullable().default(null),
-  secondaryImageUrl: z.string().trim().max(500).optional().nullable().default(null),
+  secondaryImageUrl: z
+    .string()
+    .trim()
+    .max(500)
+    .optional()
+    .nullable()
+    .default(null),
 });
 
 export const deleteProviderCertificationSchema = z.object({
@@ -235,7 +290,10 @@ export const saveServiceAddonSettingSchema = z.object({
   providerServiceId: uuid,
   addonId: z.string().trim().min(1),
   isEnabled: z.coerce.boolean().default(true),
-  customPrice: optionalNumber.refine((value) => value === null || value === undefined || value >= 0, "Custom price cannot be negative."),
+  customPrice: optionalNumber.refine(
+    (value) => value === null || value === undefined || value >= 0,
+    "Custom price cannot be negative.",
+  ),
 });
 
 export const deleteServiceAddonSettingSchema = z.object({
@@ -263,7 +321,11 @@ export const saveStaffEducationSchema = z.object({
   staffId: uuid,
   degree: z.string().trim().min(1, "Degree is required."),
   institution: z.string().trim().min(1, "Institution is required."),
-  year: optionalInt.refine((value) => value === null || value === undefined || (value >= 1900 && value <= 2200), "Year is invalid."),
+  year: optionalInt.refine(
+    (value) =>
+      value === null || value === undefined || (value >= 1900 && value <= 2200),
+    "Year is invalid.",
+  ),
 });
 
 export const deleteStaffEducationSchema = z.object({

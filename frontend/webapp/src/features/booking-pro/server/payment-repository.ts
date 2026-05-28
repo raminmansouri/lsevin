@@ -132,9 +132,12 @@ export async function createBookingPaymentIntent(params: {
     };
   }
 
-  if (['card', 'gateway_card', 'zarinpal'].includes(normalizedMethodCode)) {
-    const enabledGateways = await listEnabledPaymentGatewayOptions({ context: 'booking_online_card' });
-    const requestedGateway = normalizedMethodCode === 'zarinpal' ? 'zarinpal' : enabledGateways[0]?.code;
+  const enabledGateways = await listEnabledPaymentGatewayOptions({ context: 'booking_online_card' });
+  const selectedEnabledGateway = enabledGateways.find((item) => item.code.toLowerCase() === normalizedMethodCode);
+  const shouldUseOnlineGateway = ['card', 'gateway_card', 'online_card', 'zarinpal'].includes(normalizedMethodCode) || Boolean(selectedEnabledGateway);
+
+  if (shouldUseOnlineGateway) {
+    const requestedGateway = selectedEnabledGateway?.code ?? (normalizedMethodCode === 'zarinpal' ? 'zarinpal' : enabledGateways[0]?.code);
     const gateway = enabledGateways.find((item) => item.code === requestedGateway);
 
     if (!gateway) {

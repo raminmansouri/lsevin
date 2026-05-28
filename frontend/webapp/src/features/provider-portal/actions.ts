@@ -114,7 +114,9 @@ function revalidateProviderPortal(providerId?: string) {
   }
 }
 
-export async function createProviderApplicationAction(input: unknown): Promise<ActionResult<string>> {
+export async function createProviderApplicationAction(
+  input: unknown,
+): Promise<ActionResult<string>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = createProviderApplicationSchema.parse(input);
@@ -127,7 +129,9 @@ export async function createProviderApplicationAction(input: unknown): Promise<A
   }
 }
 
-export async function updateProviderProfileAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function updateProviderProfileAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = updateProviderProfileSchema.parse(input);
@@ -139,7 +143,9 @@ export async function updateProviderProfileAction(input: unknown): Promise<Actio
   }
 }
 
-export async function saveProviderCertificationAction(input: unknown): Promise<ActionResult<string>> {
+export async function saveProviderCertificationAction(
+  input: unknown,
+): Promise<ActionResult<string>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = saveProviderCertificationSchema.parse(input);
@@ -151,11 +157,17 @@ export async function saveProviderCertificationAction(input: unknown): Promise<A
   }
 }
 
-export async function deleteProviderCertificationAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function deleteProviderCertificationAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = deleteProviderCertificationSchema.parse(input);
-    await deleteProviderCertification(userId, parsed.providerId, parsed.certificationId);
+    await deleteProviderCertification(
+      userId,
+      parsed.providerId,
+      parsed.certificationId,
+    );
     revalidateProviderPortal(parsed.providerId);
     return result(true);
   } catch (error) {
@@ -163,7 +175,9 @@ export async function deleteProviderCertificationAction(input: unknown): Promise
   }
 }
 
-export async function saveProviderPolicyAction(input: unknown): Promise<ActionResult<string>> {
+export async function saveProviderPolicyAction(
+  input: unknown,
+): Promise<ActionResult<string>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = saveProviderPolicySchema.parse(input);
@@ -175,7 +189,9 @@ export async function saveProviderPolicyAction(input: unknown): Promise<ActionRe
   }
 }
 
-export async function deleteProviderPolicyAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function deleteProviderPolicyAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = deleteProviderPolicySchema.parse(input);
@@ -187,7 +203,9 @@ export async function deleteProviderPolicyAction(input: unknown): Promise<Action
   }
 }
 
-export async function saveProviderServiceAction(input: unknown): Promise<ActionResult<string>> {
+export async function saveProviderServiceAction(
+  input: unknown,
+): Promise<ActionResult<string>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = saveProviderServiceSchema.parse(input);
@@ -199,7 +217,9 @@ export async function saveProviderServiceAction(input: unknown): Promise<ActionR
   }
 }
 
-export async function deleteProviderServiceAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function deleteProviderServiceAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = deleteProviderServiceSchema.parse(input);
@@ -211,7 +231,9 @@ export async function deleteProviderServiceAction(input: unknown): Promise<Actio
   }
 }
 
-export async function saveServiceGalleryItemAction(input: unknown): Promise<ActionResult<string>> {
+export async function saveServiceGalleryItemAction(
+  input: unknown,
+): Promise<ActionResult<string>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = saveServiceGalleryItemSchema.parse(input);
@@ -223,11 +245,17 @@ export async function saveServiceGalleryItemAction(input: unknown): Promise<Acti
   }
 }
 
-export async function deleteServiceGalleryItemAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function deleteServiceGalleryItemAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = deleteServiceGalleryItemSchema.parse(input);
-    await deleteServiceGalleryItem(userId, parsed.providerId, parsed.serviceGalleryItemId);
+    await deleteServiceGalleryItem(
+      userId,
+      parsed.providerId,
+      parsed.serviceGalleryItemId,
+    );
     revalidateProviderPortal(parsed.providerId);
     return result(true);
   } catch (error) {
@@ -235,7 +263,9 @@ export async function deleteServiceGalleryItemAction(input: unknown): Promise<Ac
   }
 }
 
-export async function saveServiceAddonSettingAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function saveServiceAddonSettingAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = saveServiceAddonSettingSchema.parse(input);
@@ -247,11 +277,18 @@ export async function saveServiceAddonSettingAction(input: unknown): Promise<Act
   }
 }
 
-export async function deleteServiceAddonSettingAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function deleteServiceAddonSettingAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = deleteServiceAddonSettingSchema.parse(input);
-    await deleteServiceAddonSetting(userId, parsed.providerId, parsed.providerServiceId, parsed.addonId);
+    await deleteServiceAddonSetting(
+      userId,
+      parsed.providerId,
+      parsed.providerServiceId,
+      parsed.addonId,
+    );
     revalidateProviderPortal(parsed.providerId);
     return result(true);
   } catch (error) {
@@ -259,7 +296,9 @@ export async function deleteServiceAddonSettingAction(input: unknown): Promise<A
   }
 }
 
-export async function saveServiceIncludedAction(input: unknown): Promise<ActionResult<string>> {
+export async function saveServiceIncludedAction(
+  input: unknown,
+): Promise<ActionResult<string>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = saveServiceIncludedSchema.parse(input);
@@ -271,7 +310,9 @@ export async function saveServiceIncludedAction(input: unknown): Promise<ActionR
   }
 }
 
-export async function deleteServiceIncludedAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function deleteServiceIncludedAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = deleteServiceIncludedSchema.parse(input);
@@ -283,7 +324,9 @@ export async function deleteServiceIncludedAction(input: unknown): Promise<Actio
   }
 }
 
-export async function saveServiceProcessAction(input: unknown): Promise<ActionResult<string>> {
+export async function saveServiceProcessAction(
+  input: unknown,
+): Promise<ActionResult<string>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = saveServiceProcessSchema.parse(input);
@@ -295,7 +338,9 @@ export async function saveServiceProcessAction(input: unknown): Promise<ActionRe
   }
 }
 
-export async function deleteServiceProcessAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function deleteServiceProcessAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = deleteServiceProcessSchema.parse(input);
@@ -307,7 +352,9 @@ export async function deleteServiceProcessAction(input: unknown): Promise<Action
   }
 }
 
-export async function saveServiceFaqAction(input: unknown): Promise<ActionResult<string>> {
+export async function saveServiceFaqAction(
+  input: unknown,
+): Promise<ActionResult<string>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = saveServiceFaqSchema.parse(input);
@@ -319,7 +366,9 @@ export async function saveServiceFaqAction(input: unknown): Promise<ActionResult
   }
 }
 
-export async function deleteServiceFaqAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function deleteServiceFaqAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = deleteServiceFaqSchema.parse(input);
@@ -331,7 +380,9 @@ export async function deleteServiceFaqAction(input: unknown): Promise<ActionResu
   }
 }
 
-export async function saveStaffAction(input: unknown): Promise<ActionResult<string>> {
+export async function saveStaffAction(
+  input: unknown,
+): Promise<ActionResult<string>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = saveStaffSchema.parse(input);
@@ -343,11 +394,17 @@ export async function saveStaffAction(input: unknown): Promise<ActionResult<stri
   }
 }
 
-export async function deleteStaffLinkAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function deleteStaffLinkAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = deleteStaffLinkSchema.parse(input);
-    await deleteProviderStaffLink(userId, parsed.providerId, parsed.providerStaffId);
+    await deleteProviderStaffLink(
+      userId,
+      parsed.providerId,
+      parsed.providerStaffId,
+    );
     revalidateProviderPortal(parsed.providerId);
     return result(true);
   } catch (error) {
@@ -355,7 +412,9 @@ export async function deleteStaffLinkAction(input: unknown): Promise<ActionResul
   }
 }
 
-export async function saveStaffCertificationAction(input: unknown): Promise<ActionResult<string>> {
+export async function saveStaffCertificationAction(
+  input: unknown,
+): Promise<ActionResult<string>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = saveStaffCertificationSchema.parse(input);
@@ -367,11 +426,17 @@ export async function saveStaffCertificationAction(input: unknown): Promise<Acti
   }
 }
 
-export async function deleteStaffCertificationAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function deleteStaffCertificationAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = deleteStaffCertificationSchema.parse(input);
-    await deleteStaffCertification(userId, parsed.providerId, parsed.certificationId);
+    await deleteStaffCertification(
+      userId,
+      parsed.providerId,
+      parsed.certificationId,
+    );
     revalidateProviderPortal(parsed.providerId);
     return result(true);
   } catch (error) {
@@ -379,7 +444,9 @@ export async function deleteStaffCertificationAction(input: unknown): Promise<Ac
   }
 }
 
-export async function saveStaffEducationAction(input: unknown): Promise<ActionResult<string>> {
+export async function saveStaffEducationAction(
+  input: unknown,
+): Promise<ActionResult<string>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = saveStaffEducationSchema.parse(input);
@@ -391,7 +458,9 @@ export async function saveStaffEducationAction(input: unknown): Promise<ActionRe
   }
 }
 
-export async function deleteStaffEducationAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function deleteStaffEducationAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = deleteStaffEducationSchema.parse(input);
@@ -403,7 +472,9 @@ export async function deleteStaffEducationAction(input: unknown): Promise<Action
   }
 }
 
-export async function saveStaffAvailabilityAction(input: unknown): Promise<ActionResult<string>> {
+export async function saveStaffAvailabilityAction(
+  input: unknown,
+): Promise<ActionResult<string>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = saveStaffAvailabilitySchema.parse(input);
@@ -415,11 +486,17 @@ export async function saveStaffAvailabilityAction(input: unknown): Promise<Actio
   }
 }
 
-export async function deleteStaffAvailabilityAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function deleteStaffAvailabilityAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = deleteStaffAvailabilitySchema.parse(input);
-    await deleteStaffAvailability(userId, parsed.providerId, parsed.availabilityId);
+    await deleteStaffAvailability(
+      userId,
+      parsed.providerId,
+      parsed.availabilityId,
+    );
     revalidateProviderPortal(parsed.providerId);
     return result(true);
   } catch (error) {
@@ -427,7 +504,9 @@ export async function deleteStaffAvailabilityAction(input: unknown): Promise<Act
   }
 }
 
-export async function saveStaffGalleryItemAction(input: unknown): Promise<ActionResult<string>> {
+export async function saveStaffGalleryItemAction(
+  input: unknown,
+): Promise<ActionResult<string>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = saveStaffGalleryItemSchema.parse(input);
@@ -439,11 +518,17 @@ export async function saveStaffGalleryItemAction(input: unknown): Promise<Action
   }
 }
 
-export async function deleteStaffGalleryItemAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function deleteStaffGalleryItemAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = deleteStaffGalleryItemSchema.parse(input);
-    await deleteStaffGalleryItem(userId, parsed.providerId, parsed.staffGalleryItemId);
+    await deleteStaffGalleryItem(
+      userId,
+      parsed.providerId,
+      parsed.staffGalleryItemId,
+    );
     revalidateProviderPortal(parsed.providerId);
     return result(true);
   } catch (error) {
@@ -451,7 +536,9 @@ export async function deleteStaffGalleryItemAction(input: unknown): Promise<Acti
   }
 }
 
-export async function saveStaffServiceAction(input: unknown): Promise<ActionResult<string>> {
+export async function saveStaffServiceAction(
+  input: unknown,
+): Promise<ActionResult<string>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = saveStaffServiceSchema.parse(input);
@@ -463,7 +550,9 @@ export async function saveStaffServiceAction(input: unknown): Promise<ActionResu
   }
 }
 
-export async function deleteStaffServiceAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function deleteStaffServiceAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = deleteStaffServiceSchema.parse(input);
@@ -475,7 +564,9 @@ export async function deleteStaffServiceAction(input: unknown): Promise<ActionRe
   }
 }
 
-export async function saveOperatingHoursAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function saveOperatingHoursAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = saveOperatingHoursSchema.parse(input);
@@ -487,7 +578,9 @@ export async function saveOperatingHoursAction(input: unknown): Promise<ActionRe
   }
 }
 
-export async function updateProviderBookingAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function updateProviderBookingAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = updateBookingProviderSchema.parse(input);
@@ -499,7 +592,9 @@ export async function updateProviderBookingAction(input: unknown): Promise<Actio
   }
 }
 
-export async function saveGalleryItemAction(input: unknown): Promise<ActionResult<string>> {
+export async function saveGalleryItemAction(
+  input: unknown,
+): Promise<ActionResult<string>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = saveGalleryItemSchema.parse(input);
@@ -511,7 +606,9 @@ export async function saveGalleryItemAction(input: unknown): Promise<ActionResul
   }
 }
 
-export async function deleteGalleryItemAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function deleteGalleryItemAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = deleteGalleryItemSchema.parse(input);
@@ -523,7 +620,9 @@ export async function deleteGalleryItemAction(input: unknown): Promise<ActionRes
   }
 }
 
-export async function saveOfferAction(input: unknown): Promise<ActionResult<number>> {
+export async function saveOfferAction(
+  input: unknown,
+): Promise<ActionResult<number>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = saveOfferSchema.parse(input);
@@ -535,7 +634,9 @@ export async function saveOfferAction(input: unknown): Promise<ActionResult<numb
   }
 }
 
-export async function deleteOfferAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function deleteOfferAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = deleteOfferSchema.parse(input);
@@ -547,7 +648,9 @@ export async function deleteOfferAction(input: unknown): Promise<ActionResult<bo
   }
 }
 
-export async function savePayoutAccountAction(input: unknown): Promise<ActionResult<string>> {
+export async function savePayoutAccountAction(
+  input: unknown,
+): Promise<ActionResult<string>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = savePayoutAccountSchema.parse(input);
@@ -559,11 +662,17 @@ export async function savePayoutAccountAction(input: unknown): Promise<ActionRes
   }
 }
 
-export async function deletePayoutAccountAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function deletePayoutAccountAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = deletePayoutAccountSchema.parse(input);
-    await deletePayoutAccount(userId, parsed.providerId, parsed.payoutAccountId);
+    await deletePayoutAccount(
+      userId,
+      parsed.providerId,
+      parsed.payoutAccountId,
+    );
     revalidateProviderPortal(parsed.providerId);
     return result(true);
   } catch (error) {
@@ -571,7 +680,9 @@ export async function deletePayoutAccountAction(input: unknown): Promise<ActionR
   }
 }
 
-export async function createSupportTicketAction(input: unknown): Promise<ActionResult<string>> {
+export async function createSupportTicketAction(
+  input: unknown,
+): Promise<ActionResult<string>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = createSupportTicketSchema.parse(input);
@@ -583,7 +694,9 @@ export async function createSupportTicketAction(input: unknown): Promise<ActionR
   }
 }
 
-export async function updateSupportTicketAction(input: unknown): Promise<ActionResult<boolean>> {
+export async function updateSupportTicketAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
   try {
     const userId = await requireCurrentUserId();
     const parsed = updateSupportTicketSchema.parse(input);
@@ -594,4 +707,3 @@ export async function updateSupportTicketAction(input: unknown): Promise<ActionR
     return failure(error);
   }
 }
-

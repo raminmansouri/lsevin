@@ -11,6 +11,7 @@ import {
   TrendingUp,
   X,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { env } from "@/config/env/client";
@@ -35,11 +36,17 @@ function isLikelyImageUrl(value?: string | null) {
   return /\.(avif|gif|jpe?g|png|webp|svg)$/i.test(value) || value.includes("/");
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 function resolveMediaUrl(value?: string | null) {
   const cleaned = value?.trim();
-  if (!cleaned) return "";
+  if (!cleaned || UUID_RE.test(cleaned)) return "";
   if (/^(https?:)?\/\//i.test(cleaned) || cleaned.startsWith("data:")) return cleaned;
-  return `${env.NEXT_PUBLIC_FILES_URL}/${cleaned.replace(/^\/+/, "")}`;
+
+  const base = env.NEXT_PUBLIC_FILES_URL?.replace(/\/+$/, "") || "";
+  const path = cleaned.replace(/^\/+/, "");
+
+  return base ? `${base}/${path}` : `/${path}`;
 }
 
 function normalizeTerm(value: string) {
@@ -47,6 +54,7 @@ function normalizeTerm(value: string) {
 }
 
 export function MobileSearchPageClient({ initialData }: MobileSearchPageClientProps) {
+  const t = useTranslations("MobileSearch");
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isPending, startTransition] = useTransition();
@@ -137,7 +145,7 @@ export function MobileSearchPageClient({ initialData }: MobileSearchPageClientPr
           <button
             type="button"
             onClick={goBack}
-            aria-label="Close search"
+            aria-label={t("closeSearch")}
             className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full transition-colors hover:bg-gray-100 active:scale-95"
           >
             <X size={24} className="text-gray-700" />
@@ -156,7 +164,7 @@ export function MobileSearchPageClient({ initialData }: MobileSearchPageClientPr
               onKeyDown={(event) => {
                 if (event.key === "Enter") navigateToResults(searchQuery);
               }}
-              placeholder="Search treatments, clinics, doctors..."
+              placeholder={t("searchPlaceholder")}
               className="h-12 w-full rounded-xl border border-gray-200 bg-gray-50 pr-12 pl-12 text-gray-900 placeholder-gray-500 transition-all focus:border-[#083f30] focus:ring-2 focus:ring-[#083f30]/10 focus:outline-none rtl:pr-12 rtl:pl-12"
               autoComplete="off"
               spellCheck={false}
@@ -165,7 +173,7 @@ export function MobileSearchPageClient({ initialData }: MobileSearchPageClientPr
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                aria-label="Clear search text"
+                aria-label={t("clearSearchText")}
                 className="absolute top-1/2 right-4 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-gray-200 transition-colors hover:bg-gray-300 rtl:right-auto rtl:left-4"
               >
                 <X size={14} className="text-gray-600" />
@@ -182,7 +190,7 @@ export function MobileSearchPageClient({ initialData }: MobileSearchPageClientPr
             className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#083f30] font-semibold text-white transition-colors hover:bg-[#0a5a44] disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isPending ? <Loader2 size={18} className="animate-spin" /> : <SearchIcon size={18} />}
-            Search
+            {t("search")}
           </button>
         ) : null}
       </div>
@@ -228,13 +236,15 @@ function RecentSearchesSection({
   onRemove: (term: string) => void;
   onClearAll: () => void;
 }) {
+  const t = useTranslations("MobileSearch");
+
   return (
     <section className="mb-8" aria-labelledby="recent-searches-title">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Clock size={20} className="text-gray-600" />
           <h2 id="recent-searches-title" className="font-bold text-gray-900">
-            Recent Searches
+            {t("recentSearches")}
           </h2>
         </div>
         <button
@@ -242,7 +252,7 @@ function RecentSearchesSection({
           onClick={onClearAll}
           className="text-sm font-semibold text-[#083f30] hover:underline"
         >
-          Clear All
+          {t("clearAll")}
         </button>
       </div>
 
@@ -265,7 +275,7 @@ function RecentSearchesSection({
             <button
               type="button"
               onClick={() => onRemove(search)}
-              aria-label={`Remove ${search}`}
+              aria-label={t("removeSearch", { term: search })}
               className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full opacity-70 transition-colors hover:bg-gray-200 md:opacity-0 md:group-hover:opacity-100"
             >
               <X size={16} className="text-gray-500" />
@@ -284,12 +294,14 @@ function TrendingSearchesSection({
   searches: SearchHistoryTrendingSearchVm[];
   onSearch: (query: string) => void;
 }) {
+  const t = useTranslations("MobileSearch");
+
   return (
     <section className="mb-8" aria-labelledby="trending-searches-title">
       <div className="mb-4 flex items-center gap-2">
         <TrendingUp size={20} className="text-orange-500" />
         <h2 id="trending-searches-title" className="font-bold text-gray-900">
-          Trending Now
+          {t("trendingNow")}
         </h2>
       </div>
 
@@ -330,12 +342,14 @@ function PopularCategoriesSection({
   categories: SearchHistoryPopularCategoryVm[];
   onSearch: (query: string) => void;
 }) {
+  const t = useTranslations("MobileSearch");
+
   return (
     <section aria-labelledby="popular-categories-title">
       <div className="mb-4 flex items-center gap-2">
         <Sparkles size={20} className="text-[#083f30]" />
         <h2 id="popular-categories-title" className="font-bold text-gray-900">
-          Popular Categories
+          {t("popularCategories")}
         </h2>
       </div>
 
@@ -388,7 +402,7 @@ function PopularCategoriesSection({
                 </div>
                 {typeof category.count === "number" ? (
                   <div className="mt-1 text-xs font-medium text-gray-500">
-                    {category.count} service{category.count === 1 ? "" : "s"}
+                    {t("serviceCount", { count: category.count })}
                   </div>
                 ) : null}
               </div>
@@ -407,6 +421,7 @@ function EmptySearchState({
   query: string;
   onSearch: (query: string) => void;
 }) {
+  const t = useTranslations("MobileSearch");
   const normalized = normalizeTerm(query);
 
   return (
@@ -414,9 +429,9 @@ function EmptySearchState({
       <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm">
         <SearchIcon size={22} className="text-[#083f30]" />
       </div>
-      <h2 className="font-bold text-gray-900">No suggestions found</h2>
+      <h2 className="font-bold text-gray-900">{t("noSuggestionsFound")}</h2>
       <p className="mt-1 text-sm leading-6 text-gray-600">
-        Continue to the full results page to search all services, providers, and specialists.
+        {t("continueToFullResults")}
       </p>
       {normalized ? (
         <button
@@ -424,7 +439,7 @@ function EmptySearchState({
           onClick={() => onSearch(normalized)}
           className="mt-4 rounded-xl bg-[#083f30] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#0a5a44]"
         >
-          Search “{normalized}”
+          {t("searchQuery", { query: normalized })}
         </button>
       ) : null}
     </div>
@@ -432,13 +447,15 @@ function EmptySearchState({
 }
 
 function SearchTips() {
+  const t = useTranslations("MobileSearch");
+
   return (
     <aside className="mt-8 rounded-2xl border border-blue-100 bg-blue-50 p-4">
-      <h3 className="mb-2 font-bold text-blue-900">Search Tips</h3>
+      <h3 className="mb-2 font-bold text-blue-900">{t("searchTips")}</h3>
       <ul className="space-y-1 text-sm text-blue-800">
-        <li>• Try searching by treatment name, condition, specialty, provider, or doctor.</li>
-        <li>• Add a country or city for more specific results.</li>
-        <li>• Use shorter keywords when you are not sure about the exact service name.</li>
+        <li>{t("tips.serviceName")}</li>
+        <li>{t("tips.countryOrCity")}</li>
+        <li>{t("tips.shorterKeywords")}</li>
       </ul>
     </aside>
   );

@@ -12,23 +12,6 @@ export const profileFormSchema = z.object({
   lastName: z.string().trim().min(2, "Last name is required").max(50),
   email: z.string().trim().email("Enter a valid email").max(250),
 
-  phoneCountryCode: z
-    .string()
-    .trim()
-    .regex(/^\+?\d{1,3}$/, "Invalid country code")
-    .transform((value) => value.replace(/\D/g, "")),
-
-  phoneNumber: z
-    .string()
-    .trim()
-    .min(4, "Phone number is required")
-    .max(20)
-    .transform((value) => value.replace(/[^\d]/g, ""))
-    .refine(
-      (value) => value.length >= 4 && value.length <= 20,
-      "Invalid phone number"
-    ),
-
   dateOfBirth: z
     .string()
     .refine(
@@ -47,6 +30,8 @@ export type ProfileFormValues = z.input<typeof profileFormSchema>;
 export type ParsedProfileFormValues = z.output<typeof profileFormSchema>;
 
 export type EditProfileInitialData = ProfileFormValues & {
+  phoneCountryCode: string;
+  phoneNumber: string;
   isProfileConfirmed: boolean;
-  profileImageUrl
+  profileImageUrl: string | null;
 };

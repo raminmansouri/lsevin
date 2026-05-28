@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useNavigate } from "@/hooks/use-navigate";
+import { useTranslations } from "next-intl";
 import { ChevronLeft, Heart, MapPin, Star } from "lucide-react";
 
 import { removeFavoriteAction } from "./actions";
@@ -16,6 +17,7 @@ export default function FavoritesPageClient({
   initialData,
 }: FavoritesPageClientProps) {
   const navigate = useNavigate();
+  const t = useTranslations("MobileProfile.favorites");
   const [activeTab, setActiveTab] = useState<FavoritesTabId>("all");
   const [favorites, setFavorites] = useState<FavoriteCard[]>(initialData.favorites);
   const [pendingFavoriteId, startTransition] = useTransition();
@@ -31,13 +33,13 @@ export default function FavoritesPageClient({
     };
 
     return [
-      { id: "all", label: "All", count: counts.all },
-      { id: "clinic", label: "Clinics", count: counts.clinic },
-      { id: "doctor", label: "Doctors", count: counts.doctor },
-      { id: "salon", label: "Salons", count: counts.salon },
-      { id: "gym", label: "Gyms", count: counts.gym },
+      { id: "all", label: t("tabs.all"), count: counts.all },
+      { id: "clinic", label: t("tabs.clinics"), count: counts.clinic },
+      { id: "doctor", label: t("tabs.doctors"), count: counts.doctor },
+      { id: "salon", label: t("tabs.salons"), count: counts.salon },
+      { id: "gym", label: t("tabs.gyms"), count: counts.gym },
     ] as FavoritesPageData["tabs"];
-  }, [favorites]);
+  }, [favorites, t]);
 
   const filteredFavorites = useMemo(() => {
     if (activeTab === "all") {
@@ -76,7 +78,7 @@ export default function FavoritesPageClient({
           >
             <ChevronLeft size={24} />
           </button>
-          <h1 className="text-xl font-bold text-gray-900">Saved Favorites</h1>
+          <h1 className="text-xl font-bold text-gray-900">{t("title")}</h1>
         </div>
 
         <div className="px-6 overflow-x-auto">
@@ -139,7 +141,7 @@ export default function FavoritesPageClient({
                         }}
                         disabled={pendingFavoriteId}
                         className="w-8 h-8 flex items-center justify-center text-red-500 disabled:opacity-50"
-                        aria-label={`Remove ${item.name} from favorites`}
+                        aria-label={t("removeFavoriteAria", { name: item.name })}
                       >
                         <Heart size={20} fill="currentColor" />
                       </button>
@@ -161,13 +163,13 @@ export default function FavoritesPageClient({
             <div className="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
               <Heart size={32} className="text-gray-400" />
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">No Favorites Yet</h3>
-            <p className="text-gray-600 mb-6">Start saving your favorite providers</p>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">{t("emptyTitle")}</h3>
+            <p className="text-gray-600 mb-6">{t("emptyDescription")}</p>
             <button
               onClick={() => navigate("/app/explore")}
               className="px-6 py-3 bg-[#083f30] text-white rounded-xl font-medium"
             >
-              Explore Services
+              {t("exploreServices")}
             </button>
           </div>
         )}

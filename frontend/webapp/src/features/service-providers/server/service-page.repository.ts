@@ -30,6 +30,21 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i
 const DEFAULT_FALLBACK_LOCALE = 'en-US';
 const DEFAULT_DISPLAY_CURRENCIES = ['USD', 'EUR', 'GBP', 'AED', 'TRY', 'IRT', 'IRR', 'OMR', 'IQD', 'KWD', 'QAR', 'SAR', 'RUB', 'CNY'];
 
+const ABSOLUTE_MEDIA_URL_RE = /^(https?:|data:|blob:)/i;
+const MEDIA_UUID_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
+function trimMediaSlashes(value: string) {
+  return value.replace(/^\/+/, '').replace(/\/+$/, '');
+}
+
+function normalizeStoredMediaUrl(value: string | null | undefined) {
+  const raw = String(value || '').trim();
+  if (!raw || MEDIA_UUID_RE.test(raw)) return '';
+  if (ABSOLUTE_MEDIA_URL_RE.test(raw) || raw.startsWith('/')) return raw;
+  const base = process.env.NEXT_PUBLIC_FILES_URL || process.env.NEXT_PUBLIC_API_URL || '';
+  return base ? `${trimMediaSlashes(base)}/${trimMediaSlashes(raw)}` : raw;
+}
+
 function isUuid(value: string | null | undefined): value is string {
   return typeof value === 'string' && UUID_RE.test(value);
 }
@@ -397,7 +412,7 @@ type SpecialistRow = {
 async function mapOffering(row: ProviderOfferingRow, options: { preferredCurrencyCode: string; customerId?: string | null }): Promise<ServiceProviderOffering> {
   const rating = asNumber(row.rating ?? row.provider_rating, 0);
   const reviewCount = asNumber(row.review_count ?? row.provider_review_count, 0);
-  const image = asString(row.service_image_url || row.provider_image_url, '');
+  const image = normalizeStoredMediaUrl(row.service_image_url || row.provider_image_url);
   const price = asNumber(row.price, 0);
   const currency = normalizeCurrencyCode(row.currency);
   const priceOptions = await safeGetConvertedPriceOptions({
@@ -457,7 +472,7 @@ function splitRecommendations(providers: ServiceProviderOffering[], currentProvi
   return {
     localRecommendations: localRecommendations.map((item) => ({
       id: item.providerServiceId,
-      image: item.image,
+      image: normalizeStoredMediaUrl(item.image),
       title: item.title,
       provider: item.provider,
       rating: item.rating,
@@ -471,7 +486,7 @@ function splitRecommendations(providers: ServiceProviderOffering[], currentProvi
     })),
     internationalRecommendations: internationalRecommendations.map((item) => ({
       id: item.providerServiceId,
-      image: item.image,
+      image: normalizeStoredMediaUrl(item.image),
       title: item.title,
       provider: item.provider,
       rating: item.rating,
@@ -647,7 +662,7 @@ function mapGalleryRow(row: GalleryRow): ServiceGalleryItem {
     id: row.id,
     title: asString(row.title),
     description: asString(row.description),
-    url: row.url,
+    url: normalizeStoredMediaUrl(row.url),
     mediaType: asString(row.media_type, 'image'),
     displayOrder: asNumber(row.display_order, 0),
     isPrimary: Boolean(row.is_primary),
@@ -1233,7 +1248,7 @@ async function getSpecialists(providerId: string, serviceDefinitionId: string, l
       id: asString(item.id),
       title: asString(item.title),
       description: asString(item.description),
-      url: asString(item.url),
+      url: normalizeStoredMediaUrl(asString(item.url)),
       mediaType: asString(item.mediaType, 'image'),
       displayOrder: asNumber(item.displayOrder, 0),
       isPrimary: Boolean(item.isPrimary),
@@ -1246,7 +1261,7 @@ async function getSpecialists(providerId: string, serviceDefinitionId: string, l
       name: row.name,
       title: asString(row.title),
       biography: asString(row.biography),
-      image: asString(row.image),
+      image: normalizeStoredMediaUrl(row.image),
       rating: asNumber(row.rating, 0),
       reviewCount: asNumber(row.review_count, 0),
       specialty: asString(row.specialty),
@@ -1347,7 +1362,7 @@ export async function getServicePageByIdFromDb({
     getSpecialists(row.provider_id, row.service_definition_id, normalizedLocale, resolvedDisplayCurrencyCode, sourceCurrencyCode),
   ]);
 
-  const images = uniqueNonEmpty(galleryItems.map((item) => item.url));
+  const images = uniqueNonEmpty(galleryItems.map((item) => normalizeStoredMediaUrl(item.url)));
   const price = asNumber(row.value, 0);
   const rating = asNumber(row.rating ?? row.provider_rating, 0);
   const reviewCount = asNumber(row.review_count ?? row.provider_review_count, 0);
@@ -1368,7 +1383,7 @@ export async function getServicePageByIdFromDb({
     id: row.provider_id,
     name: row.provider_name,
     description: asString(row.provider_description),
-    image: asString(row.provider_image_url),
+    image: normalizeStoredMediaUrl(row.provider_image_url),
     providerTypeName: asString(row.provider_type_name),
     gradeName: asString(row.provider_grade_name),
     email: asString(row.provider_email),

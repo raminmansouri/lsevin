@@ -398,16 +398,12 @@ export async function getProviderPageDataFromDb(
           jsonb_build_object(
             'name', pc.name,
             'verified', coalesce(pc.is_verified, false),
-            'imageUrl', coalesce(image_media.file_url, nullif(pc.image_url, '')),
-            'secondaryImageUrl', coalesce(secondary_image_media.file_url, nullif(pc.secondary_image_url, ''))
+            'imageUrl', nullif(pc.image_url, ''),
+            'secondaryImageUrl', nullif(pc.secondary_image_url, '')
           )
           order by pc.name
         ) as certifications
         from category.provider_certifications pc
-        left join media.media_library image_media
-          on image_media.id = case when pc.image_url ~* ${UUID_PATTERN} then pc.image_url::uuid else null end
-        left join media.media_library secondary_image_media
-          on secondary_image_media.id = case when pc.secondary_image_url ~* ${UUID_PATTERN} then pc.secondary_image_url::uuid else null end
         where pc.service_provider_id = sp.id
       ) cert on true
       left join lateral (

@@ -13,7 +13,7 @@ function one(value: string | string[] | undefined) {
 export default async function AdminAvailabilityPage({ params, searchParams }: Props) {
   const resolvedParams = await params;
   const resolvedSearch = await searchParams;
-  const locale = resolvedParams.locale || "en-US";
+  const locale = resolvedParams.locale || "fa-IR";
 
   const search = {
     q: one(resolvedSearch?.q) || null,

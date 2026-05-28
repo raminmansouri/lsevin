@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useNavigate } from "@/hooks/use-navigate";
+import { useLocale, useTranslations } from "next-intl";
 import {
   ArrowLeft,
   Download,
@@ -33,6 +34,8 @@ export default function TransactionDetailPageClient({
   transaction,
 }: TransactionDetailPageClientProps) {
   const navigate = useNavigate();
+  const locale = useLocale();
+  const t = useTranslations("MobileProfile.transactionDetail");
   const [shareMessage, setShareMessage] = useState<string | null>(null);
   const status = getStatusPresentation(transaction.status);
 
@@ -49,7 +52,7 @@ export default function TransactionDetailPageClient({
         });
       } else if (navigator.clipboard) {
         await navigator.clipboard.writeText(`${text}\n${url}`);
-        setShareMessage("Transaction link copied.");
+        setShareMessage(t("transactionLinkCopied"));
         window.setTimeout(() => setShareMessage(null), 2500);
       }
     } catch {
@@ -94,7 +97,7 @@ export default function TransactionDetailPageClient({
             >
               <ArrowLeft size={20} className="text-gray-900" />
             </button>
-            <h1 className="text-lg font-bold text-gray-900">Transaction Details</h1>
+            <h1 className="text-lg font-bold text-gray-900">{t("title")}</h1>
           </div>
 
           <div className="flex gap-2">
@@ -143,14 +146,14 @@ export default function TransactionDetailPageClient({
         </div>
 
         <div className="bg-white rounded-2xl p-5 space-y-4">
-          <h2 className="font-bold text-gray-900">Transaction Information</h2>
+          <h2 className="font-bold text-gray-900">{t("transactionInformation")}</h2>
 
           <div className="space-y-3">
             <div className="flex items-start justify-between py-3 border-b border-gray-100">
               <div className="flex items-start gap-3">
                 <FileText size={20} className="text-gray-400 mt-0.5" />
                 <div>
-                  <p className="text-sm text-gray-600 mb-0.5">Transaction ID</p>
+                  <p className="text-sm text-gray-600 mb-0.5">{t("transactionId")}</p>
                   <p className="font-semibold text-gray-900 break-all">{transaction.transactionReference}</p>
                 </div>
               </div>
@@ -160,7 +163,7 @@ export default function TransactionDetailPageClient({
               <div className="flex items-start gap-3">
                 <CreditCard size={20} className="text-gray-400 mt-0.5" />
                 <div>
-                  <p className="text-sm text-gray-600 mb-0.5">Payment Method</p>
+                  <p className="text-sm text-gray-600 mb-0.5">{t("paymentMethod")}</p>
                   <p className="font-semibold text-gray-900">{transaction.paymentMethodLabel}</p>
                 </div>
               </div>
@@ -171,7 +174,7 @@ export default function TransactionDetailPageClient({
                 <div className="flex items-start gap-3">
                   <FileText size={20} className="text-gray-400 mt-0.5" />
                   <div>
-                    <p className="text-sm text-gray-600 mb-0.5">Booking Reference</p>
+                    <p className="text-sm text-gray-600 mb-0.5">{t("bookingReference")}</p>
                     <p className="font-semibold text-gray-900">{transaction.bookingReference}</p>
                   </div>
                 </div>
@@ -182,7 +185,7 @@ export default function TransactionDetailPageClient({
               <div className="flex items-start gap-3">
                 <FileText size={20} className="text-gray-400 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm text-gray-600 mb-0.5">Description</p>
+                  <p className="text-sm text-gray-600 mb-0.5">{t("description")}</p>
                   <p className="font-semibold text-gray-900">{transaction.description}</p>
                 </div>
               </div>
@@ -192,9 +195,9 @@ export default function TransactionDetailPageClient({
               <div className="flex items-start gap-3">
                 <MapPin size={20} className="text-gray-400 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm text-gray-600 mb-0.5">Provider</p>
+                  <p className="text-sm text-gray-600 mb-0.5">{t("provider")}</p>
                   <p className="font-semibold text-gray-900 mb-1">
-                    {transaction.providerName ?? "LSevin Wallet"}
+                    {transaction.providerName ?? t("lsevinWallet")}
                   </p>
                   {transaction.providerAddress && (
                     <p className="text-sm text-gray-600">{transaction.providerAddress}</p>
@@ -206,14 +209,14 @@ export default function TransactionDetailPageClient({
         </div>
 
         <div className="bg-white rounded-2xl p-5 space-y-4">
-          <h2 className="font-bold text-gray-900">Payment Breakdown</h2>
+          <h2 className="font-bold text-gray-900">{t("paymentBreakdown")}</h2>
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-gray-600">Subtotal</span>
+              <span className="text-gray-600">{t("subtotal")}</span>
               <span className="font-semibold text-gray-900">
                 {currencySymbol(transaction.currencyCode)}
-                {transaction.subtotal.toLocaleString("en-US", {
+                {transaction.subtotal.toLocaleString(locale, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
@@ -221,10 +224,10 @@ export default function TransactionDetailPageClient({
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-gray-600">Service Fee</span>
+              <span className="text-gray-600">{t("serviceFee")}</span>
               <span className="font-semibold text-gray-900">
                 {currencySymbol(transaction.currencyCode)}
-                {transaction.fee.toLocaleString("en-US", {
+                {transaction.fee.toLocaleString(locale, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
@@ -232,10 +235,10 @@ export default function TransactionDetailPageClient({
             </div>
 
             <div className="pt-3 border-t border-gray-200 flex items-center justify-between">
-              <span className="font-bold text-gray-900">Total</span>
+              <span className="font-bold text-gray-900">{t("total")}</span>
               <span className="text-xl font-bold text-gray-900">
                 {currencySymbol(transaction.currencyCode)}
-                {transaction.total.toLocaleString("en-US", {
+                {transaction.total.toLocaleString(locale, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
@@ -270,7 +273,7 @@ export default function TransactionDetailPageClient({
             <div className="flex items-start gap-3">
               <XCircle size={20} className="text-red-600 mt-0.5" />
               <div>
-                <h3 className="font-bold text-red-900 mb-1">Payment Failed</h3>
+                <h3 className="font-bold text-red-900 mb-1">{t("paymentFailed")}</h3>
                 <p className="text-sm text-red-700 mb-4">
                   This payment could not be processed. Please try again or use a different payment method.
                 </p>
@@ -296,7 +299,7 @@ export default function TransactionDetailPageClient({
             <div className="flex items-start gap-3">
               <AlertCircle size={20} className="text-orange-600 mt-0.5" />
               <div>
-                <h3 className="font-bold text-orange-900 mb-1">Payment Pending</h3>
+                <h3 className="font-bold text-orange-900 mb-1">{t("paymentPending")}</h3>
                 <p className="text-sm text-orange-700">
                   This transaction is still being processed. Refresh the wallet or check back shortly for the final status.
                 </p>
@@ -306,7 +309,7 @@ export default function TransactionDetailPageClient({
         )}
 
         <div className="bg-gray-100 rounded-2xl p-5 text-center">
-          <p className="text-sm text-gray-600 mb-3">Need help with this transaction?</p>
+          <p className="text-sm text-gray-600 mb-3">{t("needHelp")}</p>
           <button
             onClick={() => navigate("/app/support")}
             className="px-6 py-3 bg-white text-[#083f30] font-semibold rounded-xl hover:shadow-md transition-all"

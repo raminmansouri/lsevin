@@ -8,10 +8,10 @@ export function parseCommaSeparatedIds(value?: string | null): string[] {
     .filter(Boolean);
 }
 
-// The picker stores media_library.id values in form fields.
-// File URLs are display data, not stable references for CRUD forms.
-export function toCommaSeparatedIds(items: Array<Pick<MediaItem, "id">>): string {
-  return items.map((item) => item.id).filter(Boolean).join(",");
+// Target CRUD forms store resolved media URLs, not media_library ids.
+// Keep the historical function name so existing inputs do not need a refactor.
+export function toCommaSeparatedIds(items: Array<Pick<MediaItem, "id" | "fileUrl">>): string {
+  return items.map((item) => item.fileUrl || item.id).filter(Boolean).join(",");
 }
 
 export function isLikelyUuid(value: string): boolean {

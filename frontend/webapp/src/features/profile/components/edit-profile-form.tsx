@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { useForm, type FieldError } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Camera, Lock, Save, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Lock, Save, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { useNavigate } from "@/hooks/use-navigate";
@@ -17,7 +17,6 @@ import {
     type ProfileFormValues,
 } from "../schemas/profile.schema";
 import { useEditProfileStore } from "../stores/edit-profile.store";
-import { RHFSingleMediaPickerField } from "@/features/media-picker-addon";
 import ProfileImagePicker from "./profile-image-picker";
 
 type Props = {
@@ -46,28 +45,43 @@ function Field({
     );
 }
 
+function formatLockedPhonePart(value: string) {
+    const normalized = value.trim();
+    if (!normalized) return "";
+    return /^\d+$/.test(normalized) ? `+${normalized}` : normalized;
+}
+
 export default function EditProfileForm({ initialData }: Props) {
     const navigate = useNavigate();
     const [isPending, startTransition] = useTransition();
 
     const isLocked = initialData.isProfileConfirmed;
-    const { isConfirmDialogOpen, openConfirmDialog, closeConfirmDialog } =
+    const { isConfirmDialogOpen, closeConfirmDialog } =
         useEditProfileStore();
 
     const {
-        control,
         register,
         handleSubmit,
         formState: { errors, isDirty },
     } = useForm<ProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
-        defaultValues: initialData,
+        defaultValues: {
+            firstName: initialData.firstName,
+            lastName: initialData.lastName,
+            email: initialData.email,
+            dateOfBirth: initialData.dateOfBirth,
+            gender: initialData.gender,
+            address: initialData.address,
+            city: initialData.city,
+            country: initialData.country,
+        },
     });
 
     const inputClass = `w-full h-12 px-4 border rounded-xl focus:outline-none transition-colors ${isLocked
             ? "border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed"
             : "border-gray-300 focus:border-[#083f30] bg-white"
         }`;
+    const lockedInputClass = "w-full h-12 px-4 border border-gray-200 rounded-xl bg-gray-100 text-gray-500 cursor-not-allowed";
 
     const handleSave = handleSubmit((values) => {
         startTransition(async () => {
@@ -145,44 +159,14 @@ export default function EditProfileForm({ initialData }: Props) {
 
                 <div className="flex flex-col items-center">
                     <div className="relative">
-                        {/* <div className="w-24 h-24 rounded-full overflow-hidden bg-white">
-                            <img
-                                src="/unsplash_images/photo-1494790108377-be9c29b29330__w=200&h=200&fit=crop.jpg"
-                                alt="Profile"
-                                className="w-full h-full object-cover"
-                            />
-
-                        </div>
-                        <button
-                            type="button"
-                            disabled
-                            className="absolute bottom-0 right-0 w-9 h-9 bg-gray-300 rounded-full flex items-center justify-center shadow-lg cursor-not-allowed"
-                        >
-                            <Camera size={16} className="text-white" />
-                        </button> */}
-                        
                         <ProfileImagePicker
                             imageUrl={initialData.profileImageUrl}
-                            mediaId={''}
+                            mediaId={""}
                             fullName={`${initialData.firstName} ${initialData.lastName}`}
-                            isLocked={false}
-                              bottomBarHeight={80}
+                            isLocked={isLocked}
+                            bottomBarHeight={80}
                         />
-
-                        {/* <RHFSingleMediaPickerField
-                        control={control}
-                        name={'firstName'}
-                        label="Thumbnail"
-                        placeholder="Pick image"
-                        mediaType="image"
-                        helperText="Stores one media id in a hidden input."
-                        modalTitle="Pick thumbnail"
-                        key={'profileImage'}
-            
-            
-                      /> */}
                     </div>
-                    {/* <p className="text-sm text-gray-600 mt-2">Change profile photo</p> */}
                 </div>
 
                 <div className="bg-white rounded-2xl p-5 space-y-5">
@@ -213,28 +197,33 @@ export default function EditProfileForm({ initialData }: Props) {
                         />
                     </Field>
 
-                    <div className="grid grid-cols-3 gap-3">
-                        <Field label="Code" error={errors.phoneCountryCode}>
+                    {/* <div className="grid grid-cols-3 gap-3">
+                        <Field label="Code">
                             <input
                                 type="text"
-                                {...register("phoneCountryCode")}
-                                disabled={isLocked || isPending}
-                                placeholder="+1"
-                                className={inputClass}
+                                value={formatLockedPhonePart(initialData.phoneCountryCode)}
+                                readOnly
+                                disabled
+                                className={lockedInputClass}
                             />
                         </Field>
 
                         <div className="col-span-2">
-                            <Field label="Phone Number" error={errors.phoneNumber}>
+                            <Field label="Phone Number">
                                 <input
                                     type="tel"
-                                    {...register("phoneNumber")}
-                                    disabled={isLocked || isPending}
-                                    className={inputClass}
+                                    value={initialData.phoneNumber}
+                                    readOnly
+                                    disabled
+                                    className={lockedInputClass}
                                 />
                             </Field>
                         </div>
-                    </div>
+                    </div> */}
+
+                    <p className="-mt-2 text-xs text-gray-500">
+                        Mobile number is the base account identity and cannot be changed from profile.
+                    </p>
 
                     <Field label="Date of Birth" error={errors.dateOfBirth}>
                         <input
@@ -317,15 +306,6 @@ export default function EditProfileForm({ initialData }: Props) {
                                 </>
                             )}
                         </button>
-
-                        {/* <button
-                            type="button"
-                            onClick={openConfirmDialog}
-                            disabled={isPending}
-                            className="w-full h-12 border border-[#083f30] text-[#083f30] rounded-xl font-semibold hover:bg-[#083f30]/5 transition-all active:scale-95 disabled:opacity-50"
-                        >
-                            Confirm Profile
-                        </button> */}
                     </div>
                 )}
             </div>

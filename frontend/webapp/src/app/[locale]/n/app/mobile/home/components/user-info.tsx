@@ -12,7 +12,8 @@ import { signOut } from 'next-auth/react';
 import NotificationsBar from '@/features/shared/components/Notifications/notifications-bar';
 import LocaleSwitcher from '@/components/locale/locale-switcher';
 import UserInfo from '@/components/user-info';
-import { resolveMediaUrl } from '@/features/profile/components/profile-image-picker';
+import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
+import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 
 export default function UserInfoSubBar({profile}) {
     const { user, status } = useCurrentSession(true);
@@ -22,7 +23,7 @@ export default function UserInfoSubBar({profile}) {
     
 
         const resolvedImageUrl = useMemo(
-          () => resolveMediaUrl(profile?.profileImageUrl),
+          () => resolveHomeMediaUrl(profile?.profileImageUrl),
           [profile?.profileImageUrl]
         );
 
@@ -109,7 +110,9 @@ export default function UserInfoSubBar({profile}) {
               href='/n/app/mobile/profile'
               className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-[#eacb7f]/30"
             >
-              <img
+              <ImageWithFallback
+               width={100}
+               height={100}
                 src={resolvedImageUrl}
                 alt={homeT("profileAlt")}
                 className="w-full h-full object-cover"

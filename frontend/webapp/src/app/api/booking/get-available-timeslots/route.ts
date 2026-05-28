@@ -8,7 +8,7 @@ import { getAvailableTimeslots } from "@/features/booking/api/server/get-availab
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const locale = searchParams.get("Locale");
+  const locale = searchParams.get("Locale") || "fa-IR";
   const localeHeader = localeToHeader(locale as LocaleTypes);
 
   const session = await getSession();

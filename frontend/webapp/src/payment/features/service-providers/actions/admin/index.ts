@@ -36,17 +36,6 @@ function normalizeMediaPickerValue(value: unknown): string {
 
   const item = value as Record<string, unknown>;
   const directKeys = [
-    "id",
-    "mediaId",
-    "media_id",
-    "fileId",
-    "file_id",
-    "assetId",
-    "asset_id",
-    "storedName",
-    "stored_name",
-    "storageKey",
-    "storage_key",
     "fileUrl",
     "file_url",
     "publicUrl",
@@ -62,7 +51,18 @@ function normalizeMediaPickerValue(value: unknown): string {
     "href",
     "path",
     "value",
+    "storedName",
+    "stored_name",
+    "storageKey",
+    "storage_key",
     "key",
+    "id",
+    "mediaId",
+    "media_id",
+    "fileId",
+    "file_id",
+    "assetId",
+    "asset_id",
   ];
 
   for (const key of directKeys) {
@@ -446,6 +446,8 @@ const providerCertificationSchema = z.object({
   id: optionalUuidSchema,
   name: z.string().min(1).max(200),
   isVerified: z.boolean().default(false),
+  imageUrl: z.preprocess((value) => normalizeMediaPickerValue(value) || null, z.string().max(500).nullable().optional()),
+  secondaryImageUrl: z.preprocess((value) => normalizeMediaPickerValue(value) || null, z.string().max(500).nullable().optional()),
 });
 
 export const saveProviderCertificationAction = createAuthenticatedSafeAction(
@@ -455,13 +457,17 @@ export const saveProviderCertificationAction = createAuthenticatedSafeAction(
       const rows = input.id
         ? await sql<{ id: string }[]>`
             update category.provider_certifications
-            set name = ${input.name.trim()}, is_verified = ${input.isVerified}
+            set
+              name = ${input.name.trim()},
+              is_verified = ${input.isVerified},
+              image_url = ${input.imageUrl || null},
+              secondary_image_url = ${input.secondaryImageUrl || null}
             where id = ${input.id}::uuid and service_provider_id = ${input.serviceProviderId}::uuid
             returning id::text
           `
         : await sql<{ id: string }[]>`
-            insert into category.provider_certifications (service_provider_id, name, is_verified)
-            values (${input.serviceProviderId}, ${input.name.trim()}, ${input.isVerified})
+            insert into category.provider_certifications (service_provider_id, name, is_verified, image_url, secondary_image_url)
+            values (${input.serviceProviderId}, ${input.name.trim()}, ${input.isVerified}, ${input.imageUrl || null}, ${input.secondaryImageUrl || null})
             returning id::text
           `;
       revalidateAdminServiceProvider(input.serviceProviderId);

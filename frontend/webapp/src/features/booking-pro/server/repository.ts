@@ -18,6 +18,76 @@ import type {
 
 type Locale = string;
 
+const SAFE_DRAFT_METADATA_KEYS = new Set([
+  'formSubmissionId',
+  'adults',
+  'children',
+  'infants',
+  'rooms',
+  'bookingUiMode',
+  'requiresSpecialist',
+  'selectedDateFrom',
+  'selectedDateTo',
+  'serviceDefinitionId',
+  'couponCode',
+  'appliedCouponCode',
+  'appliedCouponId',
+  'appliedCouponSource',
+  'appliedDiscountType',
+  'appliedDiscountValue',
+  'appliedDiscountAmount',
+  'couponTitle',
+  'customerCouponId',
+]);
+
+function sanitizeDraftMetadataPatch(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+
+  const output: Record<string, unknown> = {};
+  for (const [key, raw] of Object.entries(value as Record<string, unknown>)) {
+    if (!SAFE_DRAFT_METADATA_KEYS.has(key)) continue;
+    if (raw === undefined) continue;
+
+    if (typeof raw === 'string') {
+      const normalized = raw.trim();
+      if (!normalized || normalized.length > 500 || normalized.startsWith('data:')) continue;
+      output[key] = normalized;
+      continue;
+    }
+
+    if (typeof raw === 'number') {
+      if (Number.isFinite(raw)) output[key] = raw;
+      continue;
+    }
+
+    if (typeof raw === 'boolean' || raw === null) {
+      output[key] = raw;
+    }
+  }
+
+  return output;
+}
+
+function normalizeDraftDocumentRef(value: unknown) {
+  const normalized = String(value ?? '').trim();
+  if (!normalized) return '';
+  if (normalized.startsWith('data:')) {
+    throw new Error('Draft documents must store only uploaded media ids or URLs, not inline file content. Please upload the file first and save its media URL/id.');
+  }
+  if (normalized.length > 2000) {
+    throw new Error('Draft document reference is too long. Please upload the file first and save only the media URL/id.');
+  }
+  return normalized;
+}
+
+function compactDraftDocumentRef(value: unknown) {
+  try {
+    return normalizeDraftDocumentRef(value);
+  } catch {
+    return '';
+  }
+}
+
 function normalizePaymentScheduleLineType(lineType: unknown): "deposit" | "balance" {
   const raw = String(lineType ?? "").trim().toLowerCase();
   if (["balance", "remaining", "remaining_balance", "due_later", "later", "final"].includes(raw)) {
@@ -201,6 +271,23 @@ async function resolveDraftCoupon(draftId: string, grossAmount: number): Promise
 }
 
 function mapDraftRow(row: any): BookingDraftState {
+  const metadata = sanitizeDraftMetadataPatch(row.metadata);
+  const childBookings = Array.isArray(row.child_bookings)
+    ? row.child_bookings.map((child: any) => ({
+        ...child,
+        metadata: sanitizeDraftMetadataPatch(child?.metadata),
+      }))
+    : [];
+  const uploadFiles = Array.isArray(row.upload_files)
+    ? row.upload_files
+        .map((file: any) => ({
+          ...file,
+          fileUrl: compactDraftDocumentRef(file?.fileUrl ?? file?.file_url),
+          mediaIds: compactDraftDocumentRef(file?.mediaIds ?? file?.fileUrl ?? file?.file_url),
+        }))
+        .filter((file: any) => file.fileUrl || file.mediaIds)
+    : [];
+
   return {
     id: row.id,
     userId: row.user_id ?? undefined,
@@ -228,10 +315,10 @@ function mapDraftRow(row: any): BookingDraftState {
     totalAmount: Number(row.total_amount ?? 0),
     useLsevin: row.use_lsevin ?? false,
     notes: row.notes ?? undefined,
-    metadata: row.metadata ?? {},
-    formSubmissionId: row.form_submission_id ?? row.metadata?.formSubmissionId ?? undefined,
-    childBookings: row.child_bookings ?? [],
-    uploadFiles: row.upload_files ?? [],
+    metadata,
+    formSubmissionId: (row.form_submission_id ?? metadata.formSubmissionId) as string | undefined,
+    childBookings,
+    uploadFiles,
   };
 }
 
@@ -376,63 +463,68 @@ function isDateString(value: unknown): value is string {
   return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value);
 }
 
+function hasInput<T extends object>(input: T, key: keyof T) {
+  return Object.prototype.hasOwnProperty.call(input, key);
+}
+
 export async function upsertMainDraftSelection(
   userId: string,
   input: Partial<BookingDraftState>
 ) {
   const draft = await getOrCreateActiveDraft(userId);
 
-  const metadataPatch = Object.fromEntries(
-    Object.entries({
-      formSubmissionId: input.formSubmissionId ?? undefined,
-      adults: input.adults ?? undefined,
-      children: input.children ?? undefined,
-      infants: input.infants ?? undefined,
-      rooms: input.rooms ?? undefined,
-      bookingUiMode: input.bookingUiMode ?? undefined,
-      requiresSpecialist: input.requiresSpecialist ?? undefined,
+  const metadataPatch = sanitizeDraftMetadataPatch({
+    formSubmissionId: hasInput(input, 'formSubmissionId') ? input.formSubmissionId ?? null : undefined,
+    adults: input.adults ?? undefined,
+    children: input.children ?? undefined,
+    infants: input.infants ?? undefined,
+    rooms: input.rooms ?? undefined,
+    bookingUiMode: input.bookingUiMode ?? undefined,
+    requiresSpecialist: input.requiresSpecialist ?? undefined,
 
-      // keep date-range style values here for now because main draft schema
-      // does not currently support date typed selected_date_from/to
-      selectedDateFrom:
-        isDateString(input.selectedDateFrom) ? input.selectedDateFrom : undefined,
-      selectedDateTo:
-        isDateString(input.selectedDateTo) ? input.selectedDateTo : undefined,
-      serviceDefinitionId: input.serviceDefinitionId ?? undefined,
-    }).filter(([, value]) => value !== undefined && value !== null)
-  );
+    // keep date-range style values here for now because main draft schema
+    // does not currently support date typed selected_date_from/to
+    selectedDateFrom: hasInput(input, 'selectedDateFrom')
+      ? (isDateString(input.selectedDateFrom) ? input.selectedDateFrom : null)
+      : undefined,
+    selectedDateTo: hasInput(input, 'selectedDateTo')
+      ? (isDateString(input.selectedDateTo) ? input.selectedDateTo : null)
+      : undefined,
+    serviceDefinitionId: hasInput(input, 'serviceDefinitionId') ? input.serviceDefinitionId ?? null : undefined,
+  });
 
   await db`
     update booking.booking_drafts
-    set provider_id = coalesce(${input.providerId ?? null}, provider_id),
-        service_id = coalesce(${input.serviceId ?? null}, service_id),
-        specialist_id = coalesce(${input.specialistId ?? null}, specialist_id),
-        selected_date = coalesce(${isDateString(input.selectedDate) ? input.selectedDate : null}, selected_date),
-        selected_time = coalesce(${isTimeString(input.selectedTime) ? input.selectedTime : null}, selected_time),
+    set provider_id = case when ${hasInput(input, 'providerId')} then ${input.providerId ?? null} else provider_id end,
+        service_id = case when ${hasInput(input, 'serviceId')} then ${input.serviceId ?? null} else service_id end,
+        specialist_id = case when ${hasInput(input, 'specialistId')} then ${input.specialistId ?? null} else specialist_id end,
+        selected_date = case when ${hasInput(input, 'selectedDate')} then ${isDateString(input.selectedDate) ? input.selectedDate : null} else selected_date end,
+        selected_time = case when ${hasInput(input, 'selectedTime')} then ${isTimeString(input.selectedTime) ? input.selectedTime : null} else selected_time end,
 
         -- these columns are TIME in your latest schema
-        selected_date_from = coalesce(${isTimeString(input.selectedDateFrom) ? input.selectedDateFrom : null}, selected_date_from),
-        selected_date_to = coalesce(${isTimeString(input.selectedDateTo) ? input.selectedDateTo : null}, selected_date_to),
+        selected_date_from = case when ${hasInput(input, 'selectedDateFrom')} then ${isTimeString(input.selectedDateFrom) ? input.selectedDateFrom : null} else selected_date_from end,
+        selected_date_to = case when ${hasInput(input, 'selectedDateTo')} then ${isTimeString(input.selectedDateTo) ? input.selectedDateTo : null} else selected_date_to end,
 
-        selected_time_from = coalesce(${isTimeString(input.selectedTimeFrom) ? input.selectedTimeFrom : null}, selected_time_from),
-        selected_time_to = coalesce(${isTimeString(input.selectedTimeTo) ? input.selectedTimeTo : null}, selected_time_to),
+        selected_time_from = case when ${hasInput(input, 'selectedTimeFrom')} then ${isTimeString(input.selectedTimeFrom) ? input.selectedTimeFrom : null} else selected_time_from end,
+        selected_time_to = case when ${hasInput(input, 'selectedTimeTo')} then ${isTimeString(input.selectedTimeTo) ? input.selectedTimeTo : null} else selected_time_to end,
 
-        use_lsevin = coalesce(${input.useLsevin ?? null}, use_lsevin),
-        current_step = coalesce(${input.currentStep ?? null}, current_step),
-        payment_method = coalesce(${input.paymentMethod ?? null}, payment_method),
-        currency = coalesce(${input.currency ?? null}, currency),
-        subtotal_amount = coalesce(${input.subtotalAmount ?? null}, subtotal_amount),
-        addons_amount = coalesce(${input.addonsAmount ?? null}, addons_amount),
-        total_amount = coalesce(${input.totalAmount ?? null}, total_amount),
-        notes = coalesce(${input.notes ?? null}, notes),
+        use_lsevin = case when ${hasInput(input, 'useLsevin')} then coalesce(${input.useLsevin ?? null}, false) else use_lsevin end,
+        current_step = case when ${hasInput(input, 'currentStep')} then coalesce(${input.currentStep ?? null}, current_step) else current_step end,
+        payment_method = case when ${hasInput(input, 'paymentMethod')} then ${input.paymentMethod ?? null} else payment_method end,
+        currency = case when ${hasInput(input, 'currency')} then coalesce(${input.currency ?? null}, currency) else currency end,
+        subtotal_amount = case when ${hasInput(input, 'subtotalAmount')} then coalesce(${input.subtotalAmount ?? null}, 0) else subtotal_amount end,
+        addons_amount = case when ${hasInput(input, 'addonsAmount')} then coalesce(${input.addonsAmount ?? null}, 0) else addons_amount end,
+        total_amount = case when ${hasInput(input, 'totalAmount')} then coalesce(${input.totalAmount ?? null}, 0) else total_amount end,
+        notes = case when ${hasInput(input, 'notes')} then ${input.notes ?? null} else notes end,
         metadata = coalesce(metadata, '{}'::jsonb) || ${JSON.stringify(metadataPatch)}::jsonb
     where id = ${draft.id}
   `;
 
-  if (input.metadata && Object.keys(input.metadata).length > 0) {
+  const safeClientMetadataPatch = sanitizeDraftMetadataPatch(input.metadata);
+  if (Object.keys(safeClientMetadataPatch).length > 0) {
     await db`
       update booking.booking_drafts
-      set metadata = coalesce(metadata, '{}'::jsonb) || ${JSON.stringify(input.metadata)}::jsonb
+      set metadata = coalesce(metadata, '{}'::jsonb) || ${JSON.stringify(safeClientMetadataPatch)}::jsonb
       where id = ${draft.id}
     `;
   }
@@ -450,9 +542,9 @@ export async function saveDraftDocuments(userId: string, draftId: string, docume
         ) values (
           ${draftId},
           ${doc.requirementId ?? null},
-          ${doc.title ?? 'Document'},
-          ${doc.fileName ?? doc.fileUrl ?? ''},
-          ${doc.fileUrl ?? ''}
+          ${String(doc.title ?? 'Document').slice(0, 250)},
+          ${normalizeDraftDocumentRef((doc as any).fileName ?? (doc as any).mediaIds ?? doc.fileUrl ?? '')},
+          ${normalizeDraftDocumentRef((doc as any).fileUrl ?? (doc as any).mediaIds ?? '')}
         )
       `;
     }
@@ -521,7 +613,7 @@ export async function saveChildDraft(userId: string, draftId: string, child: Chi
       ${child.formSubmissionId ?? null},
       coalesce(${child.subtotalAmount ?? null}, (select value from service_meta), 0),
       coalesce(${child.currency ?? null}, (select currency from service_meta), 'USD'),
-      ${child.metadata ?? {} as any},
+      ${sanitizeDraftMetadataPatch(child.metadata) as any},
       'Completed'
     )
     on conflict (parent_draft_id, provider_type_id)
@@ -551,43 +643,166 @@ export async function saveChildDraft(userId: string, draftId: string, child: Chi
   return rows[0];
 }
 
-export async function listProviders(params: { locale?: Locale; search?: string; providerTypeId?: string; take?: number; offset?: number; }) {
-  const { locale = 'en-US', search = '', providerTypeId, take = 3, offset = 0 } = params;
-  const like = `%${search}%`;
+function normalizeCatalogSearch(search?: string) {
+  return String(search || '')
+    .replace(/[\u200c\u200f\u202a-\u202e]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+export async function listProviders(params: { locale?: Locale; search?: string; providerTypeId?: string; providerId?: string; serviceId?: string; specialistId?: string; take?: number; offset?: number; }) {
+  const { locale = 'fa-IR', search = '', providerTypeId, providerId, serviceId, specialistId, take = 3, offset = 0 } = params;
+  const searchText = normalizeCatalogSearch(search);
+  const normalizedSearchText = searchText.replace(/[يى]/g, 'ی').replace(/ك/g, 'ک');
+  const like = `%${searchText}%`;
+  const normalizedLike = `%${normalizedSearchText}%`;
   const rows = await db`
-    select sp.id,
-           sp.provider_type_id,
-           sp.name_translations,
-           sp.description_translations,
-           sp.image_url,
-           sp.city,
-           sp.country,
-           sp.rating,
-           sp.review_count,
-           sp.featured_score,
-           sp.is_sponsored,
-           sp.specialties,
-           sp.response_time,
-           sp.success_rate,
-           sp.total_patients,
-           sp.languages
-    from category.service_providers sp
-    where sp.is_active = true
-      and (${providerTypeId ?? null}::uuid is null or sp.provider_type_id = ${providerTypeId ?? null})
-      and (
-        ${search} = ''
-        or common.get_translation_t(sp.name_translations, ${locale}, 'en') ilike ${like}
-        or common.get_translation_t(sp.description_translations, ${locale}, 'en') ilike ${like}
+    with providers as (
+      select sp.id,
+             sp.provider_type_id,
+             common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') as provider_name,
+             common.get_translation_t(sp.description_translations, ${locale}, 'fa-IR') as provider_description,
+             coalesce(
+               nullif(sp.image_url, ''),
+               (
+                 select nullif(pgi.url, '')
+                 from category.provider_gallery_items pgi
+                 where pgi.service_provider_id = sp.id
+                 order by pgi.display_order asc, pgi.create_date desc
+                 limit 1
+               )
+             ) as image_url,
+             sp.city,
+             sp.country,
+             sp.rating,
+             sp.review_count,
+             sp.featured_score,
+             sp.is_sponsored,
+             sp.specialties,
+             sp.response_time,
+             sp.success_rate,
+             sp.total_patients,
+             sp.name_translations,
+             sp.description_translations,
+             sp.email,
+             sp.phone_number,
+             concat_ws(' ',
+               common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR'),
+               common.get_translation_t(sp.description_translations, ${locale}, 'fa-IR'),
+               sp.name_translations::text,
+               sp.description_translations::text,
+               sp.city,
+               sp.country,
+               sp.email,
+               sp.phone_number
+             ) as search_blob,
+             regexp_replace(
+               replace(replace(replace(replace(concat_ws(' ',
+                 common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR'),
+                 common.get_translation_t(sp.description_translations, ${locale}, 'fa-IR'),
+                 sp.name_translations::text,
+                 sp.description_translations::text,
+                 sp.city,
+                 sp.country,
+                 sp.email,
+                 sp.phone_number
+               ), 'ي', 'ی'), 'ى', 'ی'), 'ك', 'ک'), chr(8204), ' '),
+               '\\s+',
+               ' ',
+               'g'
+             ) as normalized_search_blob
+      from category.service_providers sp
+      where sp.is_active = true
+        and (${providerId ?? null}::uuid is null or sp.id = ${providerId ?? null}::uuid)
+        and (${providerTypeId ?? null}::uuid is null or sp.provider_type_id = ${providerTypeId ?? null}::uuid)
+        and (
+          ${serviceId ?? null}::uuid is null
+          or exists (
+            select 1
+            from category.provider_services fps
+            where fps.id = ${serviceId ?? null}::uuid
+              and fps.service_provider_id = sp.id
+              and fps.is_active = true
+          )
+        )
+        and (
+          ${specialistId ?? null}::uuid is null
+          or exists (
+            select 1
+            from category.provider_staffs fpst
+            where fpst.service_provider_id = sp.id
+              and fpst.staff_id = ${specialistId ?? null}::uuid
+              and fpst.is_active = true
+          )
+        )
+    )
+    select id,
+           provider_type_id,
+           provider_name,
+           provider_description,
+           image_url,
+           city,
+           country,
+           rating,
+           review_count,
+           featured_score,
+           is_sponsored,
+           specialties,
+           response_time,
+           success_rate,
+           total_patients
+    from providers p
+    where (
+      ${searchText}::text = ''
+      or p.provider_name ilike ${like}
+      or p.provider_description ilike ${like}
+      or replace(replace(replace(p.provider_name, 'ي', 'ی'), 'ك', 'ک'), chr(8204), ' ') ilike ${normalizedLike}
+      or replace(replace(replace(p.provider_description, 'ي', 'ی'), 'ك', 'ک'), chr(8204), ' ') ilike ${normalizedLike}
+      or coalesce(p.city, '') ilike ${like}
+      or coalesce(p.country, '') ilike ${like}
+      or coalesce(p.email, '') ilike ${like}
+      or coalesce(p.phone_number, '') ilike ${like}
+      or exists (
+        select 1
+        from jsonb_each_text(coalesce(p.name_translations, '{}'::jsonb)) tr
+        where tr.value ilike ${like}
+           or replace(replace(replace(tr.value, 'ي', 'ی'), 'ك', 'ک'), chr(8204), ' ') ilike ${normalizedLike}
       )
-    order by sp.featured_score desc nulls last, sp.rating desc nulls last, sp.review_count desc nulls last, sp.create_date desc
+      or exists (
+        select 1
+        from jsonb_each_text(coalesce(p.description_translations, '{}'::jsonb)) tr
+        where tr.value ilike ${like}
+           or replace(replace(replace(tr.value, 'ي', 'ی'), 'ك', 'ک'), chr(8204), ' ') ilike ${normalizedLike}
+      )
+      or (
+        ${normalizedSearchText}::text <> ''
+        and not exists (
+          select 1
+          from unnest(regexp_split_to_array(${normalizedSearchText}::text, '\\s+')) as term
+          where nullif(btrim(term), '') is not null
+            and p.normalized_search_blob not ilike ('%' || term || '%')
+        )
+      )
+    )
+    order by
+      case
+        when ${searchText}::text = '' then 10
+        when p.provider_name ilike ${like} then 0
+        when replace(replace(replace(p.provider_name, 'ي', 'ی'), 'ك', 'ک'), chr(8204), ' ') ilike ${normalizedLike} then 1
+        when coalesce(p.city, '') ilike ${like} or coalesce(p.country, '') ilike ${like} then 2
+        else 5
+      end,
+      p.featured_score desc nulls last,
+      p.rating desc nulls last,
+      p.review_count desc nulls last
     limit ${take} offset ${offset}
   `;
 
   const items: ProviderCardItem[] = rows.map((row: any) => ({
     id: row.id,
     providerTypeId: row.provider_type_id,
-    name: pickTranslation(row.name_translations, locale),
-    description: pickTranslation(row.description_translations, locale),
+    name: row.provider_name || '',
+    description: row.provider_description || '',
     imageUrl: row.image_url,
     city: row.city,
     country: row.country,
@@ -599,52 +814,170 @@ export async function listProviders(params: { locale?: Locale; search?: string; 
     responseTime: row.response_time,
     successRate: row.success_rate,
     totalPatients: row.total_patients,
-    languages: row.languages,
   }));
 
   return { items, hasMore: items.length === take };
 }
 
-export async function listServices(params: { providerId: string; locale?: Locale; search?: string; take?: number; offset?: number; }) {
-  const { providerId, locale = 'en-US', search = '', take = 3, offset = 0 } = params;
-  const like = `%${search}%`;
+export async function listServices(params: { providerId?: string; serviceId?: string; specialistId?: string; locale?: Locale; search?: string; take?: number; offset?: number; }) {
+  const { providerId, serviceId, specialistId, locale = 'fa-IR', search = '', take = 3, offset = 0 } = params;
+  const searchText = normalizeCatalogSearch(search);
+  const normalizedSearchText = searchText.replace(/[يى]/g, 'ی').replace(/ك/g, 'ک');
+  const like = `%${searchText}%`;
+  const normalizedLike = `%${normalizedSearchText}%`;
   const rows = await db`
-    select ps.id,
-           ps.service_definition_id,
-           ps.display_name_translations,
-           ps.description_translations,
-           ps.image_url,
-           ps.currency,
-           ps.value,
-           ps.duration_minutes,
-           ps.slot_interval_minutes,
-           ps.rating,
-           ps.review_count,
-           ps.recovery,
-           ps.success_rate,
-           ps.satisfaction,
-           ps.growth,
-           ps.is_popular,
-           sd.requires_specialist,
-           sd.booking_ui_mode
-    from category.provider_services ps
-    join category.service_definitions sd on sd.id = ps.service_definition_id
-    where ps.is_active = true
-      and ps.service_provider_id = ${providerId}
-      and (
-        ${search} = ''
-        or common.get_translation_t(ps.display_name_translations, ${locale}, 'en') ilike ${like}
-        or common.get_translation_t(ps.description_translations, ${locale}, 'en') ilike ${like}
+    with services as (
+      select ps.id,
+             ps.service_provider_id,
+             ps.service_definition_id,
+             coalesce(
+               nullif(common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR'), ''),
+               nullif(common.get_translation_t(sd.name_translations, ${locale}, 'fa-IR'), ''),
+               ''
+             ) as service_name,
+             coalesce(
+               nullif(common.get_translation_t(ps.description_translations, ${locale}, 'fa-IR'), ''),
+               nullif(common.get_translation_t(sd.description_translations, ${locale}, 'fa-IR'), ''),
+               ''
+             ) as service_description,
+             ps.display_name_translations,
+             ps.description_translations,
+             sd.name_translations as service_definition_name_translations,
+             sd.description_translations as service_definition_description_translations,
+             coalesce(
+               nullif(ps.image_url, ''),
+               nullif(sd.image_url, ''),
+               (
+                 select nullif(psgi.url, '')
+                 from category.provider_service_gallery_items psgi
+                 where psgi.provider_service_id = ps.id
+                 order by psgi.is_primary desc, psgi.display_order asc, psgi.create_date desc
+                 limit 1
+               )
+             ) as image_url,
+             ps.currency,
+             ps.value,
+             ps.duration_minutes,
+             ps.slot_interval_minutes,
+             ps.rating,
+             ps.review_count,
+             ps.recovery,
+             ps.success_rate,
+             ps.satisfaction,
+             ps.growth,
+             ps.is_popular,
+             sd.requires_specialist,
+             sd.booking_ui_mode,
+             concat_ws(' ',
+               common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR'),
+               common.get_translation_t(ps.description_translations, ${locale}, 'fa-IR'),
+               common.get_translation_t(sd.name_translations, ${locale}, 'fa-IR'),
+               common.get_translation_t(sd.description_translations, ${locale}, 'fa-IR'),
+               ps.display_name_translations::text,
+               ps.description_translations::text,
+               sd.name_translations::text,
+               sd.description_translations::text
+             ) as search_blob,
+             regexp_replace(
+               replace(replace(replace(replace(concat_ws(' ',
+                 common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR'),
+                 common.get_translation_t(ps.description_translations, ${locale}, 'fa-IR'),
+                 common.get_translation_t(sd.name_translations, ${locale}, 'fa-IR'),
+                 common.get_translation_t(sd.description_translations, ${locale}, 'fa-IR'),
+                 ps.display_name_translations::text,
+                 ps.description_translations::text,
+                 sd.name_translations::text,
+                 sd.description_translations::text
+               ), 'ي', 'ی'), 'ى', 'ی'), 'ك', 'ک'), chr(8204), ' '),
+               '\\s+',
+               ' ',
+               'g'
+             ) as normalized_search_blob
+      from category.provider_services ps
+      join category.service_definitions sd on sd.id = ps.service_definition_id
+      where ps.is_active = true
+        and (${providerId ?? null}::uuid is null or ps.service_provider_id = ${providerId ?? null}::uuid)
+        and (${serviceId ?? null}::uuid is null or ps.id = ${serviceId ?? null}::uuid)
+        and (
+          ${specialistId ?? null}::uuid is null
+          or exists (
+            select 1
+            from category.provider_staffs pst
+            join category.staff_services ss on ss.staff_id = pst.staff_id
+              and ss.service_definition_id = ps.service_definition_id
+              and ss.is_active = true
+            where pst.service_provider_id = ps.service_provider_id
+              and pst.staff_id = ${specialistId ?? null}::uuid
+              and pst.is_active = true
+          )
+        )
+    )
+    select id,
+           service_provider_id,
+           service_definition_id,
+           service_name,
+           service_description,
+           image_url,
+           currency,
+           value,
+           duration_minutes,
+           slot_interval_minutes,
+           rating,
+           review_count,
+           recovery,
+           success_rate,
+           satisfaction,
+           growth,
+           is_popular,
+           requires_specialist,
+           booking_ui_mode
+    from services s
+    where (
+      ${searchText}::text = ''
+      or s.service_name ilike ${like}
+      or s.service_description ilike ${like}
+      or replace(replace(replace(s.service_name, 'ي', 'ی'), 'ك', 'ک'), chr(8204), ' ') ilike ${normalizedLike}
+      or replace(replace(replace(s.service_description, 'ي', 'ی'), 'ك', 'ک'), chr(8204), ' ') ilike ${normalizedLike}
+      or exists (
+        select 1
+        from jsonb_each_text(coalesce(s.display_name_translations, '{}'::jsonb) || coalesce(s.service_definition_name_translations, '{}'::jsonb)) tr
+        where tr.value ilike ${like}
+           or replace(replace(replace(tr.value, 'ي', 'ی'), 'ك', 'ک'), chr(8204), ' ') ilike ${normalizedLike}
       )
-    order by ps.is_popular desc nulls last, ps.rating desc nulls last, ps.review_count desc nulls last, ps.create_date desc
+      or exists (
+        select 1
+        from jsonb_each_text(coalesce(s.description_translations, '{}'::jsonb) || coalesce(s.service_definition_description_translations, '{}'::jsonb)) tr
+        where tr.value ilike ${like}
+           or replace(replace(replace(tr.value, 'ي', 'ی'), 'ك', 'ک'), chr(8204), ' ') ilike ${normalizedLike}
+      )
+      or (
+        ${normalizedSearchText}::text <> ''
+        and not exists (
+          select 1
+          from unnest(regexp_split_to_array(${normalizedSearchText}::text, '\\s+')) as term
+          where nullif(btrim(term), '') is not null
+            and s.normalized_search_blob not ilike ('%' || term || '%')
+        )
+      )
+    )
+    order by
+      case
+        when ${searchText}::text = '' then 10
+        when s.service_name ilike ${like} then 0
+        when replace(replace(replace(s.service_name, 'ي', 'ی'), 'ك', 'ک'), chr(8204), ' ') ilike ${normalizedLike} then 1
+        else 5
+      end,
+      s.is_popular desc nulls last,
+      s.rating desc nulls last,
+      s.review_count desc nulls last
     limit ${take} offset ${offset}
   `;
 
   const items: ServiceCardItem[] = rows.map((row: any) => ({
     id: row.id,
     serviceDefinitionId: row.service_definition_id,
-    name: pickTranslation(row.display_name_translations, locale),
-    description: pickTranslation(row.description_translations, locale),
+    name: row.service_name || '',
+    description: row.service_description || '',
     imageUrl: row.image_url,
     currency: row.currency,
     value: Number(row.value ?? 0),
@@ -664,42 +997,128 @@ export async function listServices(params: { providerId: string; locale?: Locale
   return { items, hasMore: items.length === take };
 }
 
-export async function listSpecialists(params: { providerId: string; serviceId: string; locale?: Locale; search?: string; take?: number; offset?: number; }) {
-  const { providerId, serviceId, locale = 'en-US', search = '', take = 3, offset = 0 } = params;
-  const like = `%${search}%`;
+export async function listSpecialists(params: { providerId?: string; serviceId?: string; specialistId?: string; locale?: Locale; search?: string; take?: number; offset?: number; }) {
+  const { providerId, serviceId, specialistId, locale = 'fa-IR', search = '', take = 3, offset = 0 } = params;
+  const searchText = normalizeCatalogSearch(search);
+  const normalizedSearchText = searchText.replace(/[يى]/g, 'ی').replace(/ك/g, 'ک');
+  const like = `%${searchText}%`;
+  const normalizedLike = `%${normalizedSearchText}%`;
   const rows = await db`
-    select s.id,
-           s.name_translations,
-           s.title_translations,
-           s.specialty,
-           s.profile_image_url,
-           s.rating,
-           s.review_count,
-           s.experience,
-           s.patients,
-           s.next_available_label,
-           s.success_rate
-    from category.provider_staffs ps
-    join category.staff s on s.id = ps.staff_id and s.is_active = true
-    join category.staff_services ss on ss.staff_id = s.id and ss.service_definition_id = (
-      select service_definition_id from category.provider_services where id = ${serviceId}
-    ) and ss.is_active = true
-    where ps.is_active = true
-      and ps.service_provider_id = ${providerId}
-      and (
-        ${search} = ''
-        or common.get_translation_t(s.name_translations, ${locale}, 'en') ilike ${like}
-        or common.get_translation_t(s.title_translations, ${locale}, 'en') ilike ${like}
-        or coalesce(s.specialty, '') ilike ${like}
+    with specialists as (
+      select s.id,
+             common.get_translation_t(s.name_translations, ${locale}, 'fa-IR') as specialist_name,
+             common.get_translation_t(s.title_translations, ${locale}, 'fa-IR') as specialist_title,
+             s.name_translations,
+             s.title_translations,
+             s.specialty,
+             coalesce(
+               nullif(s.profile_image_url, ''),
+               (
+                 select nullif(sgi.url, '')
+                 from category.staff_gallery_items sgi
+                 where sgi.staff_id = s.id
+                 order by sgi.is_primary desc, sgi.display_order asc, sgi.create_date desc
+                 limit 1
+               )
+             ) as profile_image_url,
+             s.rating,
+             s.review_count,
+             s.experience,
+             s.patients,
+             s.next_available_label,
+             s.success_rate,
+             concat_ws(' ',
+               common.get_translation_t(s.name_translations, ${locale}, 'fa-IR'),
+               common.get_translation_t(s.title_translations, ${locale}, 'fa-IR'),
+               s.name_translations::text,
+               s.title_translations::text,
+               s.specialty,
+               s.experience,
+               s.next_available_label
+             ) as search_blob,
+             regexp_replace(
+               replace(replace(replace(replace(concat_ws(' ',
+                 common.get_translation_t(s.name_translations, ${locale}, 'fa-IR'),
+                 common.get_translation_t(s.title_translations, ${locale}, 'fa-IR'),
+                 s.name_translations::text,
+                 s.title_translations::text,
+                 s.specialty,
+                 s.experience,
+                 s.next_available_label
+               ), 'ي', 'ی'), 'ى', 'ی'), 'ك', 'ک'), chr(8204), ' '),
+               '\\s+',
+               ' ',
+               'g'
+             ) as normalized_search_blob
+      from category.provider_staffs ps
+      join category.staff s on s.id = ps.staff_id and s.is_active = true
+      where ps.is_active = true
+        and (${providerId ?? null}::uuid is null or ps.service_provider_id = ${providerId ?? null}::uuid)
+        and (${specialistId ?? null}::uuid is null or s.id = ${specialistId ?? null}::uuid)
+        and (
+          ${serviceId ?? null}::uuid is null
+          or exists (
+            select 1
+            from category.provider_services selected_ps
+            join category.staff_services ss on ss.service_definition_id = selected_ps.service_definition_id
+              and ss.staff_id = s.id
+              and ss.is_active = true
+            where selected_ps.id = ${serviceId ?? null}::uuid
+              and selected_ps.is_active = true
+          )
+        )
+    )
+    select id,
+           specialist_name,
+           specialist_title,
+           specialty,
+           profile_image_url,
+           rating,
+           review_count,
+           experience,
+           patients,
+           next_available_label,
+           success_rate
+    from specialists s
+    where (
+      ${searchText}::text = ''
+      or s.specialist_name ilike ${like}
+      or s.specialist_title ilike ${like}
+      or coalesce(s.specialty, '') ilike ${like}
+      or replace(replace(replace(s.specialist_name, 'ي', 'ی'), 'ك', 'ک'), chr(8204), ' ') ilike ${normalizedLike}
+      or replace(replace(replace(s.specialist_title, 'ي', 'ی'), 'ك', 'ک'), chr(8204), ' ') ilike ${normalizedLike}
+      or exists (
+        select 1
+        from jsonb_each_text(coalesce(s.name_translations, '{}'::jsonb) || coalesce(s.title_translations, '{}'::jsonb)) tr
+        where tr.value ilike ${like}
+           or replace(replace(replace(tr.value, 'ي', 'ی'), 'ك', 'ک'), chr(8204), ' ') ilike ${normalizedLike}
       )
-    order by s.rating desc nulls last, s.review_count desc nulls last, s.create_date desc
+      or (
+        ${normalizedSearchText}::text <> ''
+        and not exists (
+          select 1
+          from unnest(regexp_split_to_array(${normalizedSearchText}::text, '\\s+')) as term
+          where nullif(btrim(term), '') is not null
+            and s.normalized_search_blob not ilike ('%' || term || '%')
+        )
+      )
+    )
+    order by
+      case
+        when ${searchText}::text = '' then 10
+        when s.specialist_name ilike ${like} then 0
+        when replace(replace(replace(s.specialist_name, 'ي', 'ی'), 'ك', 'ک'), chr(8204), ' ') ilike ${normalizedLike} then 1
+        else 5
+      end,
+      s.rating desc nulls last,
+      s.review_count desc nulls last
     limit ${take} offset ${offset}
   `;
 
   const items: SpecialistCardItem[] = rows.map((row: any) => ({
     id: row.id,
-    name: pickTranslation(row.name_translations, locale),
-    title: pickTranslation(row.title_translations, locale),
+    name: row.specialist_name || '',
+    title: row.specialist_title || '',
     specialty: row.specialty,
     imageUrl: row.profile_image_url,
     rating: row.rating,
@@ -732,7 +1151,7 @@ export async function getServiceMode(providerServiceId: string) {
   return rows[0] ?? null;
 }
 
-export async function listAddonProviderTypes(providerServiceId: string, locale = 'en-US') {
+export async function listAddonProviderTypes(providerServiceId: string, locale = 'fa-IR') {
   const rows = await db`
     select sapt.provider_type_id,
            sapt.icon,
@@ -759,7 +1178,7 @@ export async function listAddonProviderTypes(providerServiceId: string, locale =
   return { items };
 }
 
-export async function listUploadRequirements(providerServiceId: string, locale = 'en-US') {
+export async function listUploadRequirements(providerServiceId: string, locale = 'fa-IR') {
   const rows = await db`
     select sufr.id,
            sufr.title_translations,
@@ -1204,7 +1623,7 @@ export async function checkoutDraft(
       returning id
     `;
 
-    const allowedScheduleLineTypes = await listAllowedScheduleLineTypes(tx);
+    const allowedScheduleLineTypes = (await listAllowedScheduleLineTypes(tx)) as string[];
     for (const line of scheduleLines) {
       const semanticLineType = normalizePaymentScheduleLineType(line.lineType);
       const persistedLineType = choosePersistedScheduleLineType(semanticLineType, allowedScheduleLineTypes);

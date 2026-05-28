@@ -2,18 +2,22 @@
 import {MessageCircle,  Home, Search, Calendar, User, ChevronLeft, Bell, Heart, MapPin, Star, CheckCircle, Shield } from 'lucide-react';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { Link, usePathname } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 
 // Bottom Tab Bar
 export function BottomTabBar() {
   const pathname =usePathname();// useLocation();
   const { isRTL } ={isRTL:false} // useLocalization();
+    const t = useTranslations("BottomTabBar");
   
+
+
   const tabs = [
-    { icon: Home, label: 'Home', path: '/n/app/mobile/home' },
-    { icon: Search, label: 'Explore', path: '/n/app/mobile/explore' },
-    { icon: Calendar, label: 'Bookings', path: '/n/app/mobile/bookings' },
+    { icon: Home, label: t('Home'), path: '/n/app/mobile/home' },
+    { icon: Search, label: t('Explore'), path: '/n/app/mobile/explore' },
+    { icon: Calendar, label: t('Bookings'), path: '/n/app/mobile/bookings' },
     { icon: MessageCircle, label: 'Support', path: '/n/app/mobile/support' },
-    { icon: User, label: 'Profile', path: '/n/app/mobile/profile' },
+    { icon: User, label: t('Profile'), path: '/n/app/mobile/profile' },
   ];
   
   return (

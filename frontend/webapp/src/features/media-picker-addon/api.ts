@@ -126,7 +126,7 @@ export async function getMediaByIds(ids: string[]): Promise<MediaItem[]> {
     .map((result) => result.value);
 }
 
-// Supports new fields that store media ids and older fields that may still contain file URLs.
+// Supports target fields that store URLs while still resolving legacy media ids.
 export async function getMediaByReferences(references: string[]): Promise<MediaItem[]> {
   const uniqueReferences = Array.from(
     new Set(references.map((reference) => reference.trim()).filter(Boolean))

@@ -13,6 +13,7 @@ export const addProviderServiceSchema = z.object({
   price: z.number().min(0).optional(),
   currency: z.string().min(3).max(3).optional(),
   durationMinutes: z.number().min(0).optional(),
+  trendingScore: z.number().min(0).optional(),
   isActive: z.boolean().default(true),
   notes: OptionalLocalizedContentSchema.optional(),
 });

@@ -13,6 +13,7 @@ export type ExploreFiltersInput = {
   cityCode: string | null;
   minPrice: number;
   maxPrice: number;
+  currencyCode: string | null;
   minRating: number;
   verifiedOnly: boolean;
   languages: string[];
@@ -57,6 +58,7 @@ export type ExploreTrendingService = {
   provider: string;
   image: string;
   price: number;
+  currency: string;
   originalPrice: number | null;
   rating: number;
   reviews: number;
@@ -75,6 +77,19 @@ export type ExploreSponsoredProvider = {
   tag: string;
 };
 
+export type ExploreLanguageOption = {
+  value: string;
+  label: string;
+  count: number;
+};
+
+export type ExploreCurrencyOption = {
+  code: string;
+  label: string;
+  symbol: string;
+  count: number;
+};
+
 export type ExplorePageData = {
   customerId: string | null;
   categories: ExploreCategory[];
@@ -82,7 +97,8 @@ export type ExplorePageData = {
   featuredProviders: ExploreFeaturedProvider[];
   trendingServices: ExploreTrendingService[];
   sponsoredProviders: ExploreSponsoredProvider[];
-  availableLanguages: string[];
+  availableLanguages: ExploreLanguageOption[];
+  availableCurrencies: ExploreCurrencyOption[];
 };
 
 function toSingleString(value: string | string[] | undefined): string {
@@ -102,10 +118,15 @@ export function parseExploreFilters(
   const responseTime = toSingleString(params.responseTime).trim().toLowerCase();
   const sort = toSingleString(params.sort).trim().toLowerCase();
   const languagesRaw = toSingleString(params.languages).trim();
+  const currencyCode = toSingleString(params.currencyCode || params.currency).trim().toUpperCase();
   const categoryId = toSingleString(params.categoryId).trim();
   const providerTypeId = toSingleString(params.providerTypeId).trim();
   const countryCode = toSingleString(params.countryCode || params.country).trim();
   const cityCode = toSingleString(params.cityCode || params.city).trim();
+  const rawMinPrice = Math.max(0, toFiniteNumber(params.minPrice, 0));
+  const rawMaxPrice = Math.max(0, toFiniteNumber(params.maxPrice, 0));
+  const minPrice = rawMaxPrice > 0 && rawMinPrice > rawMaxPrice ? rawMaxPrice : rawMinPrice;
+  const maxPrice = rawMaxPrice > 0 && rawMinPrice > rawMaxPrice ? rawMinPrice : rawMaxPrice;
 
   return {
     q: toSingleString(params.q).trim(),
@@ -113,8 +134,9 @@ export function parseExploreFilters(
     providerTypeId: providerTypeId && providerTypeId !== "all" ? providerTypeId : null,
     countryCode: countryCode && countryCode !== "all" ? countryCode : null,
     cityCode: cityCode && cityCode !== "all" ? cityCode : null,
-    minPrice: Math.max(0, toFiniteNumber(params.minPrice, 0)),
-    maxPrice: Math.max(0, toFiniteNumber(params.maxPrice, 5000)),
+    minPrice,
+    maxPrice,
+    currencyCode: currencyCode && currencyCode !== "ALL" ? currencyCode : null,
     minRating: Math.max(0, toFiniteNumber(params.minRating, 0)),
     verifiedOnly: ["1", "true", "yes", "on"].includes(
       toSingleString(params.verifiedOnly || params.verified).trim().toLowerCase(),
@@ -140,22 +162,123 @@ function normalizeLocale(locale: string) {
   return locale?.trim() || "en";
 }
 
+const LANGUAGE_ALIASES: Record<string, string[]> = {
+  fa: ["fa", "fa-ir", "farsi", "persian", "فارسی", "پارسی"],
+  en: ["en", "en-us", "en-gb", "english", "انگلیسی"],
+  ar: ["ar", "ar-sa", "arabic", "عربی", "العربية"],
+  tr: ["tr", "tr-tr", "turkish", "ترکی", "türkçe"],
+  ku: ["ku", "ku-ku", "kurdish", "کردی"],
+  de: ["de", "de-de", "german", "آلمانی", "deutsch"],
+  fr: ["fr", "fr-fr", "french", "فرانسوی", "français"],
+  es: ["es", "es-es", "spanish", "اسپانیایی", "español"],
+};
+
+function normalizeLanguageValue(value: string): string {
+  const normalized = value.trim().toLowerCase().replace(/_/g, "-");
+
+  if (!normalized) return "";
+
+  for (const [code, aliases] of Object.entries(LANGUAGE_ALIASES)) {
+    if (aliases.includes(normalized)) return code;
+  }
+
+  return normalized.split("-")[0] || normalized;
+}
+
+function expandLanguageFilterValues(languages: string[]): string[] {
+  const values = new Set<string>();
+
+  for (const language of languages) {
+    const code = normalizeLanguageValue(language);
+    if (!code) continue;
+
+    values.add(code);
+    values.add(language.trim().toLowerCase().replace(/_/g, "-"));
+
+    for (const alias of LANGUAGE_ALIASES[code] ?? []) {
+      values.add(alias.toLowerCase());
+    }
+  }
+
+  return [...values].filter(Boolean);
+}
+
+function buildLanguageValueMatchSql(languageSql: any, languages: string[]) {
+  const normalized = [...new Set(languages.map((item) => item.trim().toLowerCase()).filter(Boolean))];
+
+  if (normalized.length === 0) return sql`false`;
+
+  return sql`(${joinSql(
+    normalized.map((language) => sql`${languageSql} = ${language}`),
+    sql` or `,
+  )})`;
+}
+
+function buildProviderLanguageFilterSql(languages: string[]) {
+  const languageFilter = expandLanguageFilterValues(languages);
+
+  if (languageFilter.length === 0) return null;
+
+  const providerLanguageTableMatch = buildLanguageValueMatchSql(
+    sql`lower(replace(pl.language, '_', '-'))`,
+    languageFilter,
+  );
+  const providerLanguageArrayMatch = buildLanguageValueMatchSql(
+    sql`lower(replace(provider_language.language, '_', '-'))`,
+    languageFilter,
+  );
+
+  return sql`
+    (
+      exists (
+        select 1
+        from category.provider_languages pl
+        where pl.service_provider_id = sp.id
+          and ${providerLanguageTableMatch}
+      )
+      or exists (
+        select 1
+        from unnest(coalesce(sp.languages, array[]::text[])) as provider_language(language)
+        where ${providerLanguageArrayMatch}
+      )
+    )
+  `;
+}
+
+function getLanguageLabel(value: string, locale: string): string {
+  const code = normalizeLanguageValue(value);
+
+  if (!code) return value;
+
+  try {
+    const displayNames = new Intl.DisplayNames([locale], { type: "language" });
+    return displayNames.of(code) || value;
+  } catch {
+    return value;
+  }
+}
+
+function normalizeCurrencyCode(value: string | null | undefined): string {
+  return value?.trim().toUpperCase() || "";
+}
+
 async function resolveCurrentCustomerId(): Promise<string | null> {
   return null;
 }
 
 
 
-function isRawUuid(value: string) {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
-}
-
 function coalesceImage(...candidates: Array<string | null | undefined>) {
   for (const candidate of candidates) {
-    const value = candidate?.trim();
-    if (value && !isRawUuid(value)) return value;
+    const value = candidate
+      ?.split(",")
+      .map((part) => part.trim().replace(/^['"]|['"]$/g, "").replace(/\\/g, "/"))
+      .find(Boolean);
+
+    if (value) return value;
   }
-  return "/placeholder.svg";
+
+  return "/placeholder-provider.svg";
 }
 function joinSql(parts: any[], separator: any) {
   return parts.slice(1).reduce(
@@ -201,25 +324,8 @@ function buildFeaturedProvidersWhere(filters: ExploreFiltersInput, lang: string)
   }
 
   if (filters.languages.length > 0) {
-    const languageFilter = filters.languages
-      .map((x) => x.trim().toLowerCase())
-      .filter(Boolean);
-
-    conditions.push(sql`
-      (
-        exists (
-          select 1
-          from category.provider_languages pl
-          where pl.service_provider_id = sp.id
-            and lower(pl.language) = any(${sql.array(languageFilter, "text")})
-        )
-        or exists (
-          select 1
-          from unnest(coalesce(sp.languages, array[]::text[])) as provider_language(language)
-          where lower(provider_language.language) = any(${sql.array(languageFilter, "text")})
-        )
-      )
-    `);
+    const languageSql = buildProviderLanguageFilterSql(filters.languages);
+    if (languageSql) conditions.push(languageSql);
   }
 
   if (filters.q.trim()) {
@@ -263,6 +369,22 @@ function buildFeaturedProvidersWhere(filters: ExploreFiltersInput, lang: string)
     conditions.push(sql`sp.city = ${filters.cityCode}`);
   }
 
+  if (filters.minPrice > 0 || filters.maxPrice > 0 || filters.currencyCode) {
+    const currencyCode = normalizeCurrencyCode(filters.currencyCode);
+
+    conditions.push(sql`
+      exists (
+        select 1
+        from category.provider_services ps_price
+        where ps_price.service_provider_id = sp.id
+          and ps_price.is_active = true
+          and (${filters.minPrice} = 0 or ps_price.value >= ${filters.minPrice})
+          and (${filters.maxPrice} = 0 or ps_price.value <= ${filters.maxPrice})
+          and (${currencyCode} = '' or upper(coalesce(ps_price.currency, '')) = ${currencyCode})
+      )
+    `);
+  }
+
   return conditions.length
     ? sql`where ${joinSql(conditions, sql` and `)}`
     : sql``;
@@ -295,6 +417,10 @@ function buildTrendingServicesWhere(filters: ExploreFiltersInput, lang: string) 
     conditions.push(sql`ps.value <= ${filters.maxPrice}`);
   }
 
+  if (filters.currencyCode) {
+    conditions.push(sql`upper(coalesce(ps.currency, '')) = ${normalizeCurrencyCode(filters.currencyCode)}`);
+  }
+
   if (filters.minRating > 0) {
     conditions.push(sql`coalesce(ps.rating, 0) >= ${filters.minRating}`);
   }
@@ -316,25 +442,8 @@ function buildTrendingServicesWhere(filters: ExploreFiltersInput, lang: string) 
   }
 
   if (filters.languages.length > 0) {
-    const languageFilter = filters.languages
-      .map((x) => x.trim().toLowerCase())
-      .filter(Boolean);
-
-    conditions.push(sql`
-      (
-        exists (
-          select 1
-          from category.provider_languages pl
-          where pl.service_provider_id = sp.id
-            and lower(pl.language) = any(${sql.array(languageFilter, "text")})
-        )
-        or exists (
-          select 1
-          from unnest(coalesce(sp.languages, array[]::text[])) as provider_language(language)
-          where lower(provider_language.language) = any(${sql.array(languageFilter, "text")})
-        )
-      )
-    `);
+    const languageSql = buildProviderLanguageFilterSql(filters.languages);
+    if (languageSql) conditions.push(languageSql);
   }
 
   if (filters.q.trim()) {
@@ -359,6 +468,60 @@ function buildTrendingServicesWhere(filters: ExploreFiltersInput, lang: string) 
     ? sql`where ${joinSql(conditions, sql` and `)}`
     : sql``;
 }
+
+function buildSponsoredProvidersWhere(
+  filters: ExploreFiltersInput,
+  lang: string,
+  languageFilter: string[],
+  currencyCode: string,
+) {
+  const conditions = [sql`sp.is_active = true`, sql`sp.is_sponsored = true`];
+
+  if (filters.providerTypeId) {
+    conditions.push(sql`sp.provider_type_id = ${filters.providerTypeId}::uuid`);
+  }
+
+  if (filters.countryCode) {
+    conditions.push(sql`sp.country = ${filters.countryCode}`);
+  }
+
+  if (filters.cityCode) {
+    conditions.push(sql`sp.city = ${filters.cityCode}`);
+  }
+
+  if (filters.verifiedOnly) {
+    conditions.push(sql`coalesce(sp.accredited, false) = true`);
+  }
+
+  if (filters.minRating > 0) {
+    conditions.push(sql`coalesce(sp.rating, 0) >= ${filters.minRating}`);
+  }
+
+  if (languageFilter.length > 0) {
+    const languageSql = buildProviderLanguageFilterSql(languageFilter);
+    if (languageSql) conditions.push(languageSql);
+  }
+
+  if (filters.minPrice > 0 || filters.maxPrice > 0 || currencyCode) {
+    conditions.push(sql`ps_pick.value is not null`);
+  }
+
+  if (filters.q.trim()) {
+    const term = filters.q.trim();
+
+    conditions.push(sql`
+      (
+        sp.search_vector @@ websearch_to_tsquery('simple', ${term})
+        or common.get_translation_t(sp.name_translations, ${lang}, 'en') ilike ${`%${term}%`}
+      )
+    `);
+  }
+
+  return conditions.length
+    ? sql`where ${joinSql(conditions, sql` and `)}`
+    : sql``;
+}
+
 export async function getExplorePageData({
   locale,
   filters,
@@ -408,17 +571,27 @@ export async function getExplorePageData({
       common.get_translation_t(pt.name_translations, ${lang}, 'en') as label,
       common.get_translation_t(pt.description_translations, ${lang}, 'en') as description,
       coalesce(
-        nullif(btrim(ml.file_url), ''),
-        nullif(btrim(ml.storage_path), ''),
-        nullif(btrim(ml.storage_key), ''),
-        (case when nullif(btrim(pt.image_url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then nullif(btrim(pt.image_url), '') end),
-        nullif(btrim(pt.icon_url), '')
+        nullif(btrim(image_media.file_url), ''),
+        nullif(btrim(image_media.storage_path), ''),
+        nullif(btrim(image_media.storage_key), ''),
+        nullif(btrim(split_part(coalesce(pt.image_url, ''), ',', 1)), ''),
+        nullif(btrim(icon_media.file_url), ''),
+        nullif(btrim(icon_media.storage_path), ''),
+        nullif(btrim(icon_media.storage_key), ''),
+        nullif(btrim(split_part(coalesce(pt.icon_url, ''), ',', 1)), '')
       ) as image,
-      coalesce(nullif(btrim(pt.icon_url), ''), '') as icon,
+      coalesce(
+        nullif(btrim(icon_media.file_url), ''),
+        nullif(btrim(icon_media.storage_path), ''),
+        nullif(btrim(icon_media.storage_key), ''),
+        nullif(btrim(split_part(coalesce(pt.icon_url, ''), ',', 1)), '')
+      ) as icon,
       count(distinct sp.id)::int as count
     from category.provider_types pt
-    left join media.media_library ml
-      on ml.id::text = nullif(btrim(pt.image_url), '')
+    left join media.media_library image_media
+      on image_media.id::text = nullif(btrim(split_part(coalesce(pt.image_url, ''), ',', 1)), '')
+    left join media.media_library icon_media
+      on icon_media.id::text = nullif(btrim(split_part(coalesce(pt.icon_url, ''), ',', 1)), '')
     left join category.service_providers sp
       on sp.provider_type_id = pt.id
      and sp.is_active = true
@@ -427,9 +600,12 @@ export async function getExplorePageData({
       pt.id,
       common.get_translation_t(pt.name_translations, ${lang}, 'en'),
       common.get_translation_t(pt.description_translations, ${lang}, 'en'),
-      ml.file_url,
-      ml.storage_path,
-      ml.storage_key,
+      image_media.file_url,
+      image_media.storage_path,
+      image_media.storage_key,
+      icon_media.file_url,
+      icon_media.storage_path,
+      icon_media.storage_key,
       pt.image_url,
       pt.icon_url
     order by count(distinct sp.id) desc, label asc
@@ -473,11 +649,11 @@ const featuredRows = await sql`
       nullif(btrim(pgi_media.file_url), ''),
       nullif(btrim(pgi_media.storage_path), ''),
       nullif(btrim(pgi_media.storage_key), ''),
-      (case when nullif(btrim(pgi.url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then nullif(btrim(pgi.url), '') end),
+      nullif(btrim(split_part(pgi.url, ',', 1)), ''),
       nullif(btrim(sp_media.file_url), ''),
       nullif(btrim(sp_media.storage_path), ''),
       nullif(btrim(sp_media.storage_key), ''),
-      (case when nullif(btrim(sp.image_url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then nullif(btrim(sp.image_url), '') end)
+      nullif(btrim(split_part(sp.image_url, ',', 1)), '')
     ) as image,
     coalesce(sp.rating, 0)::float as rating,
     coalesce(sp.review_count, 0)::int as reviews,
@@ -517,9 +693,9 @@ const featuredRows = await sql`
     limit 1
   ) pgi on true
   left join media.media_library pgi_media
-    on pgi_media.id::text = nullif(btrim(pgi.url), '')
+    on pgi_media.id::text = nullif(btrim(split_part(pgi.url, ',', 1)), '')
   left join media.media_library sp_media
-    on sp_media.id::text = nullif(btrim(sp.image_url), '')
+    on sp_media.id::text = nullif(btrim(split_part(sp.image_url, ',', 1)), '')
   ${featuredWhereSql}
   order by
     coalesce(sp.featured_score, 0) desc,
@@ -556,17 +732,18 @@ const featuredRows = await sql`
       nullif(btrim(ps_media.file_url), ''),
       nullif(btrim(ps_media.storage_path), ''),
       nullif(btrim(ps_media.storage_key), ''),
-      (case when nullif(btrim(ps.image_url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then nullif(btrim(ps.image_url), '') end),
+      nullif(btrim(split_part(ps.image_url, ',', 1)), ''),
       nullif(btrim(psgi_media.file_url), ''),
       nullif(btrim(psgi_media.storage_path), ''),
       nullif(btrim(psgi_media.storage_key), ''),
-      (case when nullif(btrim(psgi.url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then nullif(btrim(psgi.url), '') end),
+      nullif(btrim(split_part(psgi.url, ',', 1)), ''),
       nullif(btrim(pgi_media.file_url), ''),
       nullif(btrim(pgi_media.storage_path), ''),
       nullif(btrim(pgi_media.storage_key), ''),
-      (case when nullif(btrim(pgi.url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then nullif(btrim(pgi.url), '') end)
+      nullif(btrim(split_part(pgi.url, ',', 1)), '')
     ) as image,
     ps.value::float as price,
+    coalesce(ps.currency, 'USD') as currency,
     case
       when offer.discount_percent is not null and offer.discount_percent > 0
         then round(ps.value / (1 - (offer.discount_percent / 100.0)))::int
@@ -618,11 +795,11 @@ const featuredRows = await sql`
     limit 1
   ) pgi on true
   left join media.media_library ps_media
-    on ps_media.id::text = nullif(btrim(ps.image_url), '')
+    on ps_media.id::text = nullif(btrim(split_part(ps.image_url, ',', 1)), '')
   left join media.media_library psgi_media
-    on psgi_media.id::text = nullif(btrim(psgi.url), '')
+    on psgi_media.id::text = nullif(btrim(split_part(psgi.url, ',', 1)), '')
   left join media.media_library pgi_media
-    on pgi_media.id::text = nullif(btrim(pgi.url), '')
+    on pgi_media.id::text = nullif(btrim(split_part(pgi.url, ',', 1)), '')
   left join lateral (
     select o.discount_percent
     from marketing.offers o
@@ -647,6 +824,7 @@ const featuredRows = await sql`
     provider: row.provider,
     image: coalesceImage(row.image),
     price: Number(row.price ?? 0),
+    currency: row.currency || "USD",
     originalPrice: row.original_price == null ? null : Number(row.original_price),
     rating: Number(row.rating ?? 0),
     reviews: Number(row.reviews ?? 0),
@@ -654,6 +832,14 @@ const featuredRows = await sql`
     location: row.location || "",
     isFavorited: serviceFavoriteSet.has(row.id),
   }));
+
+  const sponsoredCurrencyCode = normalizeCurrencyCode(filters.currencyCode);
+  const sponsoredWhereSql = buildSponsoredProvidersWhere(
+    filters,
+    lang,
+    filters.languages,
+    sponsoredCurrencyCode,
+  );
 
   const sponsoredRows = await sql<any[]>`
     select
@@ -664,15 +850,15 @@ const featuredRows = await sql`
         nullif(btrim(ps_pick_media.file_url), ''),
         nullif(btrim(ps_pick_media.storage_path), ''),
         nullif(btrim(ps_pick_media.storage_key), ''),
-        (case when nullif(btrim(ps_pick.image_url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then nullif(btrim(ps_pick.image_url), '') end),
+        nullif(btrim(split_part(ps_pick.image_url, ',', 1)), ''),
         nullif(btrim(pgi_media.file_url), ''),
         nullif(btrim(pgi_media.storage_path), ''),
         nullif(btrim(pgi_media.storage_key), ''),
-        (case when nullif(btrim(pgi.url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then nullif(btrim(pgi.url), '') end),
+        nullif(btrim(split_part(pgi.url, ',', 1)), ''),
         nullif(btrim(sp_media.file_url), ''),
         nullif(btrim(sp_media.storage_path), ''),
         nullif(btrim(sp_media.storage_key), ''),
-        (case when nullif(btrim(sp.image_url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then nullif(btrim(sp.image_url), '') end)
+        nullif(btrim(split_part(sp.image_url, ',', 1)), '')
       ) as image,
       ps_pick.value::float as price,
       coalesce(ps_pick.currency, 'USD') as currency,
@@ -690,6 +876,7 @@ const featuredRows = await sql`
         )
         and (${filters.minPrice} = 0 or ps.value >= ${filters.minPrice})
         and (${filters.maxPrice} = 0 or ps.value <= ${filters.maxPrice})
+        and (${sponsoredCurrencyCode} = '' or upper(coalesce(ps.currency, '')) = ${sponsoredCurrencyCode})
       order by coalesce(ps.is_popular, false) desc,
                coalesce(ps.rating, 0) desc,
                coalesce(ps.review_count, 0) desc,
@@ -704,23 +891,12 @@ const featuredRows = await sql`
       limit 1
     ) pgi on true
     left join media.media_library ps_pick_media
-      on ps_pick_media.id::text = nullif(btrim(ps_pick.image_url), '')
+      on ps_pick_media.id::text = nullif(btrim(split_part(ps_pick.image_url, ',', 1)), '')
     left join media.media_library pgi_media
-      on pgi_media.id::text = nullif(btrim(pgi.url), '')
+      on pgi_media.id::text = nullif(btrim(split_part(pgi.url, ',', 1)), '')
     left join media.media_library sp_media
-      on sp_media.id::text = nullif(btrim(sp.image_url), '')
-    where sp.is_active = true
-      and sp.is_sponsored = true
-      and (${filters.providerTypeId === null} or sp.provider_type_id = ${filters.providerTypeId ?? null}::uuid)
-      and (${filters.countryCode === null} or sp.country = ${filters.countryCode ?? null})
-      and (${filters.cityCode === null} or sp.city = ${filters.cityCode ?? null})
-      and (${filters.verifiedOnly} = false or coalesce(sp.accredited, false) = true)
-      and (${filters.minRating} = 0 or coalesce(sp.rating, 0) >= ${filters.minRating})
-      and (
-        ${filters.q} = ''
-        or sp.search_vector @@ websearch_to_tsquery('simple', ${filters.q})
-        or common.get_translation_t(sp.name_translations, ${lang}, 'en') ilike ${`%${filters.q}%`}
-      )
+      on sp_media.id::text = nullif(btrim(split_part(sp.image_url, ',', 1)), '')
+    ${sponsoredWhereSql}
     order by coalesce(sp.featured_score, 0) desc,
              coalesce(sp.rating, 0) desc,
              sp.create_date desc
@@ -737,26 +913,67 @@ const featuredRows = await sql`
     tag: row.tag || "Sponsored",
   }));
 
-  const languageRows = await sql<{ language: string }[]>`
-    select distinct lower(language) as language
+  const languageRows = await sql<{ language: string; count: number }[]>`
+    select lower(replace(language, '_', '-')) as language, count(distinct service_provider_id)::int as count
     from (
-      select unnest(coalesce(sp.languages, array[]::text[])) as language
+      select sp.id as service_provider_id, unnest(coalesce(sp.languages, array[]::text[])) as language
       from category.service_providers sp
       where sp.is_active = true
-      union
-      select pl.language
+      union all
+      select pl.service_provider_id, pl.language
       from category.provider_languages pl
       join category.service_providers sp on sp.id = pl.service_provider_id
       where sp.is_active = true
     ) lang
     where nullif(btrim(language), '') is not null
-    order by language asc
+    group by lower(replace(language, '_', '-'))
+    order by count(distinct service_provider_id) desc, language asc
   `;
 
-  const availableLanguages = languageRows
-    .map((row) => row.language)
-    .filter(Boolean)
-    .map((value) => value.charAt(0).toUpperCase() + value.slice(1));
+  const languageCounts = new Map<string, number>();
+
+  for (const row of languageRows) {
+    const value = normalizeLanguageValue(row.language);
+    if (!value) continue;
+
+    languageCounts.set(value, (languageCounts.get(value) ?? 0) + Number(row.count ?? 0));
+  }
+
+  const availableLanguages = [...languageCounts.entries()]
+    .map(([value, count]) => ({
+      value,
+      label: getLanguageLabel(value, lang),
+      count,
+    }))
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+
+  const currencyRows = await sql<{ code: string; label: string; symbol: string; count: number }[]>`
+    with service_currency_counts as (
+      select upper(coalesce(nullif(btrim(ps.currency), ''), 'USD')) as code, count(*)::int as count
+      from category.provider_services ps
+      join category.service_providers sp on sp.id = ps.service_provider_id
+      where ps.is_active = true
+        and sp.is_active = true
+      group by upper(coalesce(nullif(btrim(ps.currency), ''), 'USD'))
+    )
+    select
+      coalesce(fc.code, service_currency_counts.code) as code,
+      coalesce(fc.name, service_currency_counts.code) as label,
+      coalesce(nullif(btrim(fc.symbol), ''), service_currency_counts.code) as symbol,
+      coalesce(service_currency_counts.count, 0)::int as count
+    from finance.currencies fc
+    full join service_currency_counts on service_currency_counts.code = fc.code
+    where coalesce(fc.is_display_enabled, true) = true
+       or service_currency_counts.count is not null
+    order by coalesce(service_currency_counts.count, 0) desc, coalesce(fc.sort_order, 100000), code asc
+  `;
+
+  const availableCurrencies = currencyRows.map((row) => ({
+    code: row.code,
+    label: row.label || row.code,
+    symbol: row.symbol || row.code,
+    count: Number(row.count ?? 0),
+  }));
 
   return {
     customerId,
@@ -766,5 +983,6 @@ const featuredRows = await sql`
     trendingServices,
     sponsoredProviders,
     availableLanguages,
+    availableCurrencies,
   };
 }

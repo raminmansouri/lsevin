@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import {
   Bell,
   ChevronRight,
@@ -22,6 +23,7 @@ type Props = {
 };
 
 export default function SettingsPageClient({ initialData }: Props) {
+  const t = useTranslations("MobileProfile.settings");
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -36,9 +38,9 @@ export default function SettingsPageClient({ initialData }: Props) {
   });
 
   const walletLabel = useMemo(() => {
-    if (!initialData.summary.hasWallet) return "Wallet not set up";
+    if (!initialData.summary.hasWallet) return t("walletNotSetUp");
     return formatCurrency(initialData.summary.availableWalletAmount, form.preferredCurrencyCode);
-  }, [form.preferredCurrencyCode, initialData.summary.availableWalletAmount, initialData.summary.hasWallet]);
+  }, [form.preferredCurrencyCode, initialData.summary.availableWalletAmount, initialData.summary.hasWallet, t]);
 
   function savePreferences() {
     setMessage(null);
@@ -46,27 +48,27 @@ export default function SettingsPageClient({ initialData }: Props) {
     startTransition(async () => {
       try {
         await updatePreferences(form);
-        setMessage("Preferences updated.");
+        setMessage(t("preferencesUpdated"));
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Could not save preferences.");
+        setError(err instanceof Error ? err.message : t("couldNotSavePreferences"));
       }
     });
   }
 
   const quickLinks = [
-    { label: "Privacy & Security", href: "/n/app/mobile/profile/privacy-security", icon: Shield, subtitle: "Password, sessions, deletion" },
-    { label: "Notifications", href: "/n/app/mobile/notifications", icon: Bell, subtitle: `${initialData.summary.unreadNotifications} unread` },
-    { label: "Wallet", href: "/n/app/mobile/profile/wallet", icon: Wallet, subtitle: walletLabel },
-    { label: "Rewards & Loyalty", href: "/n/app/mobile/profile/rewards", icon: Gift, subtitle: initialData.summary.referralCode ? `Referral code: ${initialData.summary.referralCode}` : "No referral code yet" },
-    { label: "Saved Favorites", href: "/n/app/mobile/profile/favorites", icon: Heart, subtitle: `${initialData.summary.favoritesCount} saved items` },
+    { label: t("quickLinks.privacySecurity"), href: "/n/app/mobile/profile/privacy-security", icon: Shield, subtitle: t("quickLinks.privacySecuritySubtitle") },
+    { label: t("quickLinks.notifications"), href: "/n/app/mobile/notifications", icon: Bell, subtitle: t("quickLinks.notificationsSubtitle", { count: initialData.summary.unreadNotifications }) },
+    { label: t("quickLinks.wallet"), href: "/n/app/mobile/profile/wallet", icon: Wallet, subtitle: walletLabel },
+    { label: t("quickLinks.rewards"), href: "/n/app/mobile/profile/rewards", icon: Gift, subtitle: initialData.summary.referralCode ? t("quickLinks.referralCode", { code: initialData.summary.referralCode }) : t("quickLinks.noReferralCode") },
+    { label: t("quickLinks.savedFavorites"), href: "/n/app/mobile/profile/favorites", icon: Heart, subtitle: t("quickLinks.savedItems", { count: initialData.summary.favoritesCount }) },
   ];
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
       <div className="sticky top-0 z-40 border-b border-gray-200 bg-white/95 backdrop-blur">
         <div className="px-6 py-4">
-          <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-          <p className="mt-1 text-sm text-gray-600">Manage your account, preferences, and app behavior.</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
+          <p className="mt-1 text-sm text-gray-600">{t("subtitle")}</p>
         </div>
       </div>
 
@@ -79,13 +81,13 @@ export default function SettingsPageClient({ initialData }: Props) {
               <p className="mt-1 text-sm text-gray-600">{initialData.user.phoneNumberCountryCode} {initialData.user.phoneNumber}</p>
             </div>
             <span className={`rounded-full px-3 py-1 text-xs font-semibold ${initialData.user.profileConfirmed ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
-              {initialData.user.profileConfirmed ? "Verified" : "Incomplete profile"}
+              {initialData.user.profileConfirmed ? t("verified") : t("incompleteProfile")}
             </span>
           </div>
         </section>
 
         <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-          <h3 className="mb-4 text-base font-bold text-gray-900">Quick access</h3>
+          <h3 className="mb-4 text-base font-bold text-gray-900">{t("quickAccess")}</h3>
           <div className="space-y-3">
             {quickLinks.map((item) => {
               const Icon = item.icon;
@@ -113,24 +115,24 @@ export default function SettingsPageClient({ initialData }: Props) {
               <Globe size={20} className="text-blue-600" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-gray-900">Preferences</h3>
-              <p className="text-sm text-gray-600">Stored in identity.user_preferences</p>
+              <h3 className="text-base font-bold text-gray-900">{t("preferences")}</h3>
+              <p className="text-sm text-gray-600">{t("storedPreferences")}</p>
             </div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="space-y-2">
-              <span className="text-sm font-semibold text-gray-900">Language</span>
+              <span className="text-sm font-semibold text-gray-900">{t("language")}</span>
               <select className="h-12 w-full rounded-xl border-2 border-gray-300 bg-white px-4 focus:border-[#083f30] focus:outline-none" value={form.preferredLocale} onChange={(e) => setForm((prev) => ({ ...prev, preferredLocale: e.target.value }))}>
-                <option value="en">English</option>
-                <option value="fa">فارسی</option>
-                <option value="ar">العربية</option>
-                <option value="tr">Türkçe</option>
+                <option value="en">{t("languages.english")}</option>
+                <option value="fa">{t("languages.persian")}</option>
+                <option value="ar">{t("languages.arabic")}</option>
+                <option value="tr">{t("languages.turkish")}</option>
               </select>
             </label>
 
             <label className="space-y-2">
-              <span className="text-sm font-semibold text-gray-900">Currency</span>
+              <span className="text-sm font-semibold text-gray-900">{t("currency")}</span>
               <select className="h-12 w-full rounded-xl border-2 border-gray-300 bg-white px-4 focus:border-[#083f30] focus:outline-none" value={form.preferredCurrencyCode} onChange={(e) => setForm((prev) => ({ ...prev, preferredCurrencyCode: e.target.value }))}>
                 <option value="USD">USD</option>
                 <option value="EUR">EUR</option>
@@ -140,22 +142,22 @@ export default function SettingsPageClient({ initialData }: Props) {
             </label>
 
             <label className="space-y-2">
-              <span className="text-sm font-semibold text-gray-900">Theme</span>
+              <span className="text-sm font-semibold text-gray-900">{t("theme")}</span>
               <div className="relative">
                 <Moon size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 <select className="h-12 w-full rounded-xl border-2 border-gray-300 bg-white pl-11 pr-4 focus:border-[#083f30] focus:outline-none" value={form.preferredTheme} onChange={(e) => setForm((prev) => ({ ...prev, preferredTheme: e.target.value as UpdatePreferencesInput['preferredTheme'] }))}>
-                  <option value="system">System</option>
-                  <option value="light">Light</option>
-                  <option value="dark">Dark</option>
+                  <option value="system">{t("themes.system")}</option>
+                  <option value="light">{t("themes.light")}</option>
+                  <option value="dark">{t("themes.dark")}</option>
                 </select>
               </div>
             </label>
 
             <label className="space-y-2">
-              <span className="text-sm font-semibold text-gray-900">Distance unit</span>
+              <span className="text-sm font-semibold text-gray-900">{t("distanceUnit")}</span>
               <select className="h-12 w-full rounded-xl border-2 border-gray-300 bg-white px-4 focus:border-[#083f30] focus:outline-none" value={form.distanceUnit} onChange={(e) => setForm((prev) => ({ ...prev, distanceUnit: e.target.value as UpdatePreferencesInput['distanceUnit'] }))}>
-                <option value="km">Kilometers</option>
-                <option value="mi">Miles</option>
+                <option value="km">{t("distance.km")}</option>
+                <option value="mi">{t("distance.mi")}</option>
               </select>
             </label>
           </div>
@@ -164,23 +166,23 @@ export default function SettingsPageClient({ initialData }: Props) {
             <div className="flex items-center gap-3">
               <MapPinned size={18} className="text-[#083f30]" />
               <div>
-                <p className="font-semibold text-gray-900">Location</p>
+                <p className="font-semibold text-gray-900">{t("location")}</p>
                 <p className="text-sm text-gray-600">{getLocationLabel(initialData.preferences.selectedCountryName, initialData.preferences.selectedCityName)}</p>
               </div>
             </div>
           </div>
 
           <div className="mt-4 space-y-3">
-            <ToggleRow label="Notifications" description="Booking, wallet, and system updates" checked={form.notificationsEnabled} onChange={(value) => setForm((prev) => ({ ...prev, notificationsEnabled: value }))} />
-            <ToggleRow label="Marketing notifications" description="Promotions and new offers" checked={form.marketingNotificationsEnabled} onChange={(value) => setForm((prev) => ({ ...prev, marketingNotificationsEnabled: value }))} />
-            <ToggleRow label="Use current location" description="Prefer GPS over manually selected country/city" checked={form.useCurrentLocation} onChange={(value) => setForm((prev) => ({ ...prev, useCurrentLocation: value }))} />
+            <ToggleRow label={t("notifications")} description={t("notificationsDescription")} checked={form.notificationsEnabled} onChange={(value) => setForm((prev) => ({ ...prev, notificationsEnabled: value }))} />
+            <ToggleRow label={t("marketingNotifications")} description={t("marketingNotificationsDescription")} checked={form.marketingNotificationsEnabled} onChange={(value) => setForm((prev) => ({ ...prev, marketingNotificationsEnabled: value }))} />
+            <ToggleRow label={t("useCurrentLocation")} description={t("useCurrentLocationDescription")} checked={form.useCurrentLocation} onChange={(value) => setForm((prev) => ({ ...prev, useCurrentLocation: value }))} />
           </div>
 
           {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
           {message ? <p className="mt-4 text-sm text-green-700">{message}</p> : null}
 
           <button type="button" onClick={savePreferences} disabled={isPending} className="mt-5 h-12 w-full rounded-xl bg-[#083f30] font-semibold text-white transition hover:bg-[#0a5a44] disabled:cursor-not-allowed disabled:bg-gray-300">
-            {isPending ? "Saving..." : "Save preferences"}
+            {isPending ? t("saving") : t("savePreferences")}
           </button>
         </section>
       </div>

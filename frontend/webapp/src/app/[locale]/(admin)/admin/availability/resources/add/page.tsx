@@ -13,7 +13,7 @@ function one(value: string | string[] | undefined) {
 export default async function AddBookableResourcePage({ params, searchParams }: Props) {
   const resolvedParams = await params;
   const resolvedSearch = await searchParams;
-  const locale = resolvedParams.locale || "en-US";
+  const locale = resolvedParams.locale || "fa-IR";
   const providerId = one(resolvedSearch?.providerId) || "";
   const providerServiceId = one(resolvedSearch?.providerServiceId) || null;
 
@@ -22,7 +22,7 @@ export default async function AddBookableResourcePage({ params, searchParams }: 
     providerServiceId,
     resourceType: "room",
     code: "",
-    nameTranslations: { "en-US": "", "fa-IR": "", "tr-TR": "", "ar-SA": "" },
+    nameTranslations: { "fa-IR": "", "en-US": "", "tr-TR": "", "ar-SA": "" },
     descriptionTranslations: {},
     totalCapacity: 1,
     isActive: true,

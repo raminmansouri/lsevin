@@ -15,5 +15,9 @@ export default async function ProviderWorkspaceLayout({
   const userId = await requireCurrentUserId();
   const workspace = await getProviderWorkspace(userId, providerId, locale);
 
-  return <ProviderPortalShell locale={locale} workspace={workspace}>{children}</ProviderPortalShell>;
+  return (
+    <ProviderPortalShell locale={locale} workspace={workspace}>
+      {children}
+    </ProviderPortalShell>
+  );
 }

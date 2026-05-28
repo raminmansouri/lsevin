@@ -13,7 +13,10 @@ import {
   X,
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { env } from "@/config/env/client";
 import { useFetchSearchResults } from "@/features/service-providers/api/client/fetch-search-results";
 import {
   SearchResultsCategory,
@@ -22,7 +25,21 @@ import {
 } from "@/features/service-providers/types";
 import { useNavigate } from "@/hooks/use-navigate";
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function resolveMediaUrl(value?: string | null) {
+  const cleaned = value?.trim();
+  if (!cleaned || UUID_RE.test(cleaned)) return "";
+  if (/^(https?:)?\/\//i.test(cleaned) || cleaned.startsWith("data:")) return cleaned;
+
+  const base = env.NEXT_PUBLIC_FILES_URL?.replace(/\/+$/, "") || "";
+  const path = cleaned.replace(/^\/+/, "");
+
+  return base ? `${base}/${path}` : `/${path}`;
+}
+
  export default function SearchResults() {
+  const t = useTranslations("SearchResults");
   const navigate = useNavigate();
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
@@ -51,11 +68,11 @@ import { useNavigate } from "@/hooks/use-navigate";
   ]);
 
   const sortOptions = [
-    { value: "relevance", label: "Most Relevant" },
-    { value: "rating", label: "Highest Rated" },
-    { value: "price-low", label: "Price: Low to High" },
-    { value: "price-high", label: "Price: High to Low" },
-    { value: "popular", label: "Most Popular" },
+    { value: "relevance", label: t("sort.mostRelevant") },
+    { value: "rating", label: t("sort.highestRated") },
+    { value: "price-low", label: t("sort.priceLowToHigh") },
+    { value: "price-high", label: t("sort.priceHighToLow") },
+    { value: "popular", label: t("sort.mostPopular") },
   ];
 
   /* const results = [
@@ -144,7 +161,7 @@ import { useNavigate } from "@/hooks/use-navigate";
                 "{query}"
               </h1>
               <p className="text-sm text-gray-600">
-                {results.length} results found
+                {t("resultsFound", { count: results.length })}
               </p>
             </div>
           </div>
@@ -173,7 +190,7 @@ import { useNavigate } from "@/hooks/use-navigate";
               className="flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 transition-colors hover:bg-gray-100"
             >
               <SlidersHorizontal size={18} className="text-gray-700" />
-              <span className="text-sm font-medium text-gray-700">Filters</span>
+              <span className="text-sm font-medium text-gray-700">{t("filters")}</span>
             </button>
 
             <div className="relative flex-1">
@@ -202,7 +219,7 @@ import { useNavigate } from "@/hooks/use-navigate";
 
             {filters?.map(filter=>{
 
-return  <div className="flex items-center gap-1.5 rounded-full bg-[#083f30] px-3 py-1.5 text-xs font-medium text-white">
+return  <div key={filter.id} className="flex items-center gap-1.5 rounded-full bg-[#083f30] px-3 py-1.5 text-xs font-medium text-white">
               <span>{filter.label}</span>
               <button className="rounded-full p-0.5 hover:bg-white/20">
                 <X size={12} />
@@ -231,21 +248,17 @@ return  <div className="flex items-center gap-1.5 rounded-full bg-[#083f30] px-3
         {results.map((result) => (
           <div
             key={result.id}
-            onClick={() =>
-              navigate(
-                result.type === "clinic"
-                  ? `/n/app/mobile/provider/${result.id}`
-                  : `/n/app/mobile/service/${result.id}`
-              )
-            }
+            onClick={() => navigate(result.href)}
             className="cursor-pointer overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-lg"
           >
             <div className="flex gap-4 p-4">
               {/* Image */}
               <div className="relative flex-shrink-0">
-                <img
-                  src={result.image}
+                <ImageWithFallback
+                  src={resolveMediaUrl(result.image)}
                   alt={result.name}
+                  width={112}
+                  height={112}
                   className="h-28 w-28 rounded-xl object-cover"
                 />
                 {result.verified && (
@@ -284,7 +297,7 @@ return  <div className="flex items-center gap-1.5 rounded-full bg-[#083f30] px-3
                     {result.rating}
                   </span>
                   <span className="text-xs text-gray-500">
-                    ({result.reviews.toLocaleString()} reviews)
+                    {t("reviewsCount", { count: result.reviews })}
                   </span>
                 </div>
 
@@ -328,8 +341,7 @@ return  <div className="flex items-center gap-1.5 rounded-full bg-[#083f30] px-3
                     </span>
                     {result.originalPrice && (
                       <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs font-bold text-green-600">
-                        Save $
-                        {(result.originalPrice - result.price).toLocaleString()}
+                        {t("saveAmount", { amount: (result.originalPrice - result.price).toLocaleString() })}
                       </span>
                     )}
                   </div>
@@ -346,15 +358,15 @@ return  <div className="flex items-center gap-1.5 rounded-full bg-[#083f30] px-3
           <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
             <Filter size={32} className="text-gray-400" />
           </div>
-          <h3 className="mb-2 font-bold text-gray-900">No results found</h3>
+          <h3 className="mb-2 font-bold text-gray-900">{t("noResultsFound")}</h3>
           <p className="mb-6 text-gray-600">
-            Try adjusting your filters or search terms
+            {t("tryAdjustingFilters")}
           </p>
           <button
-            onClick={() => navigate("/app/search")}
+            onClick={() => navigate("/n/app/mobile/search")}
             className="rounded-xl bg-[#083f30] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#0a5a44]"
           >
-            New Search
+            {t("newSearch")}
           </button>
         </div>
       )}
