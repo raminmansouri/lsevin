@@ -46,3 +46,7 @@ dynamic-admin-dashboard-scaffold/*
 
 **/.zip
 **/*.sql
+
+**/*.md
+**/*.txt
+
