@@ -1,1 +1,0 @@
->npx pg-to-ts generate -c postgres://postgres:S@vin4451@62.60.212.187:5432/lsevin -o dbschema.ts

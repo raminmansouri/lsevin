@@ -1,1 +1,0 @@
-node scripts/localize-with-ollama.mjs --src src --messages messages --model YOUR_OLLAMA_MODEL --limit 3 --dry-run
