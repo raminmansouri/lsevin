@@ -37,7 +37,10 @@ build/*
 #Ignore vscode AI rules
 .github\instructions\codacy.instructions.md
 
+frontend/webapp/public/unsplash_images/*.jpg
 
+dynamic-admin-dashboard-scaffold
+dynamic-admin-dashboard-scaffold/*
 
 *.zip
 

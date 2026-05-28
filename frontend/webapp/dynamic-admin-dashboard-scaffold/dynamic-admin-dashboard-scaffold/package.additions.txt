@@ -1,9 +1,0 @@
-Required packages for this scaffold:
-
-@tanstack/react-table
-react-hook-form
-zod
-@hookform/resolvers
-sonner
-lucide-react
-postgres
