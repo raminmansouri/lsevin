@@ -45,3 +45,4 @@ dynamic-admin-dashboard-scaffold/*
 *.zip
 
 **/.zip
+**/*.sql
