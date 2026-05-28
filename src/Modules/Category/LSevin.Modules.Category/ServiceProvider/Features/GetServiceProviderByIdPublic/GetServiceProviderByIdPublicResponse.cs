@@ -54,10 +54,7 @@ public sealed class ServiceProviderServiceDto
     public string DisplayName { get; init; } = null!;
     public string? Description { get; init; }
     public string? Url { get; init; }
-<<<<<<< HEAD
     public string? Image { get; init; }
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
     public string? ProviderName { get; init; }
     public string? Location { get; init; }
     public bool IsActive { get; init; }

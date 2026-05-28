@@ -266,7 +266,6 @@ export interface IFeaturedServiceResponse {
 }
 
 
-<<<<<<< HEAD
 export interface OfferCategory {
   id: string;
   label: string;
@@ -293,8 +292,6 @@ export interface OffersResponse {
 offers:Offer[];
 categories:OfferCategory[];
 }
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 export interface ExploreResponse {
 sponsoredProviders :ExploreSponsoredProvider[]
 trendingServices :ExploreTrendingService[]
@@ -308,21 +305,14 @@ export interface Booking {
     id: string;
     service: string;
     provider: string;
-<<<<<<< HEAD
     image?: string;
-=======
-    image?: string;  // Optional field
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
     date: string;
     time: string;
     location: string;
     status: string;
     paymentStatus: string;
     price: number;
-<<<<<<< HEAD
     currency?: string;
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
     verified: boolean;
 }
 
@@ -331,19 +321,14 @@ export interface BookingRecord {
     id: string;
     service: string;
     provider: string;
-<<<<<<< HEAD
     image?: string;
     providerImage?: string;
     providerDescription?: string;
     serviceDescription?: string;
-=======
-    providerImage?: string;  // Optional field
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
     date: string;
     time: string;
     duration?: string;
     location: string;
-<<<<<<< HEAD
     fullAddress?: string;
     status: string;
     paymentStatus: string;
@@ -410,42 +395,6 @@ export type Agent = {
     title: string;
     experience: string;
     image?: string;
-=======
-    fullAddress?: string;  // Optional field
-    status: string;
-    paymentStatus: string;
-    price: number;
-    deposit?: number;
-    remaining?: number;
-    verified?: boolean;
-    bookingDate?: string;  // Optional field
-    confirmationCode?: string;  // Optional field
-    included?: IncludedServicesType[];  // Optional array type
-    contact?: ContactType;  // Optional object type
-    agent?: Agent;  // Optional object type
-}
-
-// Define an interface for the included services
-interface IncludedServicesType {
-    name: string;
-    title: string;
-    experience: string;
-}
-
-// Define a type for the contact information
-type ContactType = {
-    phone: string;
-    email: string;
-    address?: string;  // Optional field
-};
-
-// Define a type for the doctor's information
-type Agent = {
-    name: string;
-    title: string;
-    experience: string;
-    image?: string;  // Optional field
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 };
 
 
@@ -472,7 +421,6 @@ pastBookings :Booking[]
       categories:CpCategory []
     }
 
-<<<<<<< HEAD
 // ----------  Basic building blocks ----------
 export interface Certification {
   name: string;
@@ -742,8 +690,6 @@ export interface ProviderResponse {
 
 
 
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 export interface ExploreCategory {
   id:string,
   label:string,
@@ -872,31 +818,19 @@ export interface TrendingService {
   reviews: number;
   rating?: number;
   location?: string;
-<<<<<<< HEAD
   image?: string;
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   providerName: string;
   id: string;
   serviceDefinitionId: string;
   durationMinutes: number;
-<<<<<<< HEAD
   displayName: string;
   description?: LocalizedContentResponse;
   url?: string;
-=======
-  displayName: LocalizedContentResponse;
-  description?: LocalizedContentResponse;
-  url?: LocalizedContentResponse;
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   isActive: boolean;
   currency: string;
   value: number;
   discount?: number;
-<<<<<<< HEAD
   trendingScore?: number;
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   // Additional fields for custom pricing and duration
   customPrice?: number;
   basePrice?: number;
@@ -1020,10 +954,7 @@ export interface ServiceFeature {
 export interface ServiceProviderService {
   reviews: number;
   rating?: number;
-<<<<<<< HEAD
   image?: string;
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   location?: string;
   providerName: string;
   id: string;
@@ -1036,10 +967,7 @@ export interface ServiceProviderService {
   currency: string;
   value: number;
   discount?: number;
-<<<<<<< HEAD
   trendingScore?: number;
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   // Additional fields for custom pricing and duration
   customPrice?: number;
   basePrice?: number;
@@ -1053,10 +981,7 @@ export interface ServiceProviderService {
 }
 
 export interface ServiceProviderService {
-<<<<<<< HEAD
   image?: string;
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   providerName: string;
   id: string;
   serviceDefinitionId: string;
@@ -1068,10 +993,7 @@ export interface ServiceProviderService {
   currency: string;
   value: number;
   discount?: number;
-<<<<<<< HEAD
   trendingScore?: number;
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   // Additional fields for custom pricing and duration
   customPrice?: number;
   basePrice?: number;

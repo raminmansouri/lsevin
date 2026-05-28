@@ -8,15 +8,11 @@ import { logout } from "@/features/auth/actions/logout";
 import { ApiError } from "@/types/error";
 
 import { errorHandler, networkErrorStrategy } from "./http-error-strategies";
-<<<<<<< HEAD
 import {
   logAxiosError,
   logAxiosRequest,
   logAxiosResponse,
 } from "./logAxios";
-=======
-import { logAxiosError, logAxiosRequest } from "./logAxios";
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 
 const httpService = axios.create({
   baseURL: "/api",
@@ -27,7 +23,6 @@ const httpService = axios.create({
 
 httpService.interceptors.request.use(
   (config) => {
-<<<<<<< HEAD
     try {
       logAxiosRequest(config, {
         enabled: true,
@@ -35,6 +30,7 @@ httpService.interceptors.request.use(
       });
     } catch {}
     return config;
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   },
   (error) => {
     logAxiosError(error);
@@ -50,24 +46,7 @@ httpService.interceptors.response.use(
       });
     } catch {}
     return response;
-=======
-    logAxiosRequest(config, {
-      enabled: true,
-      format: "curl", // "curl" | "node-fetch" | "both"
-      // If you want to replay with real tokens, remove "authorization" from redactHeaders
-      // redactHeaders: ["cookie", "set-cookie"],
-    });
-    return config;
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   },
-  (error) => {
-    logAxiosError(error);
-    return Promise.reject(error);
-  }
-);
-
-httpService.interceptors.response.use(
-  (response) => response,
   async (error) => {
     logAxiosError(error, { format: "curl" });
 
@@ -87,10 +66,6 @@ httpService.interceptors.response.use(
       networkErrorStrategy();
     }
 
-<<<<<<< HEAD
-=======
-    // ⚠️ don’t swallow errors, let callers handle them too
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
     return Promise.reject(error);
   }
 );
@@ -99,26 +74,19 @@ async function apiBase<T>(
   url: string,
   options?: AxiosRequestConfig
 ): Promise<T> {
-  console.log('urllll:',httpService.getUri())
-  ;
-
   const response: AxiosResponse = await httpService(url, options);
   return response.data as T;
 }
 
 async function readData<T>(
   url: string,
-  headers?: AxiosRequestHeaders 
+  headers?: AxiosRequestHeaders
 ): Promise<T> {
   const options: AxiosRequestConfig = {
     headers,
     method: "GET",
   };
-<<<<<<< HEAD
 
-=======
-  console.log('trying:....',url,options)
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   return await apiBase<T>(url, options);
 }
 

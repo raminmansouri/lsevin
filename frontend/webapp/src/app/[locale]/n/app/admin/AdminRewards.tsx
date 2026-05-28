@@ -1,10 +1,7 @@
 "use client"
 
-<<<<<<< HEAD
 
 import { useTranslations } from "next-intl";
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 import { useState } from 'react';
 import { 
   LayoutDashboard,
@@ -35,7 +32,6 @@ import {
 import { DashboardLayout } from '../design-system/dashboard-components';
 
 export default function AdminRewards() {
-<<<<<<< HEAD
   const tAdmin = useTranslations("AdminGenerated");
   const [activeTab, setActiveTab] = useState<'points' | 'campaigns' | 'tiers' | 'coupons'>('points');
   
@@ -53,24 +49,6 @@ export default function AdminRewards() {
     { label: tAdmin("localization"), icon: <Globe size={20} />, path: '/admin/localization' },
     { label: tAdmin("settings"), icon: <Settings size={20} />, path: '/admin/settings' },
     { label: tAdmin("auditLogs"), icon: <FileText size={20} />, path: '/admin/audit' },
-=======
-  const [activeTab, setActiveTab] = useState<'points' | 'campaigns' | 'tiers' | 'coupons'>('points');
-  
-  const navigation = [
-    { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
-    { label: 'Live Activity', icon: <Activity size={20} />, path: '/admin/activity' },
-    { label: 'Users', icon: <Users size={20} />, path: '/admin/users', badge: 12 },
-    { label: 'Providers', icon: <Building2 size={20} />, path: '/admin/providers', badge: 8 },
-    { label: 'Bookings', icon: <ShoppingBag size={20} />, path: '/admin/bookings' },
-    { label: 'Payments', icon: <Wallet size={20} />, path: '/admin/payments' },
-    { label: 'Campaigns', icon: <TrendingUp size={20} />, path: '/admin/campaigns' },
-    { label: 'Rewards', icon: <Gift size={20} />, path: '/admin/rewards' },
-    { label: 'Support', icon: <MessageSquare size={20} />, path: '/admin/support', badge: 23 },
-    { label: 'Reports', icon: <BarChart3 size={20} />, path: '/admin/reports' },
-    { label: 'Localization', icon: <Globe size={20} />, path: '/admin/localization' },
-    { label: 'Settings', icon: <Settings size={20} />, path: '/admin/settings' },
-    { label: 'Audit Logs', icon: <FileText size={20} />, path: '/admin/audit' },
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   ];
 
   const pointsRules = [
@@ -210,27 +188,16 @@ export default function AdminRewards() {
   return (
     <DashboardLayout 
       navigation={navigation} 
-<<<<<<< HEAD
       headerTitle={tAdmin("rewardsLoyalty")}
       userRole="admin"
       userName={tAdmin("systemAdmin")}
-=======
-      headerTitle="Rewards & Loyalty"
-      userRole="admin"
-      userName="System Admin"
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
     >
       <div className="p-8 space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-<<<<<<< HEAD
             <h1 className="text-2xl font-bold text-gray-900 mb-2">{tAdmin("rewardsLoyalty")}</h1>
             <p className="text-gray-600">{tAdmin("manageLoyaltyProgramsPointsAndRewardCampaigns")}</p>
-=======
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Rewards & Loyalty</h1>
-            <p className="text-gray-600">Manage loyalty programs, points, and reward campaigns</p>
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </div>
           <button className="px-4 py-2 bg-[#083f30] rounded-xl text-sm font-semibold text-white hover:bg-[#083f30]/90">
             <Plus size={16} className="inline mr-2" />
@@ -246,13 +213,8 @@ export default function AdminRewards() {
                 <Star className="text-purple-600" size={20} />
               </div>
             </div>
-<<<<<<< HEAD
             <div className="text-2xl font-bold text-gray-900 mb-1">{tAdmin("text24M")}</div>
             <div className="text-sm text-gray-600">{tAdmin("pointsIssued")}</div>
-=======
-            <div className="text-2xl font-bold text-gray-900 mb-1">2.4M</div>
-            <div className="text-sm text-gray-600">Points Issued</div>
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -262,11 +224,7 @@ export default function AdminRewards() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">8,954</div>
-<<<<<<< HEAD
             <div className="text-sm text-gray-600">{tAdmin("rewardsRedeemed")}</div>
-=======
-            <div className="text-sm text-gray-600">Rewards Redeemed</div>
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -276,11 +234,7 @@ export default function AdminRewards() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">48,392</div>
-<<<<<<< HEAD
             <div className="text-sm text-gray-600">{tAdmin("loyaltyMembers")}</div>
-=======
-            <div className="text-sm text-gray-600">Loyalty Members</div>
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -290,11 +244,7 @@ export default function AdminRewards() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">3,567</div>
-<<<<<<< HEAD
             <div className="text-sm text-gray-600">{tAdmin("referrals")}</div>
-=======
-            <div className="text-sm text-gray-600">Referrals</div>
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </div>
         </div>
 
@@ -387,7 +337,6 @@ export default function AdminRewards() {
                 <table className="w-full">
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
-<<<<<<< HEAD
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("campaign")}</th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("type")}</th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("value")}</th>
@@ -395,15 +344,6 @@ export default function AdminRewards() {
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("redeemed")}</th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("status")}</th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("actions")}</th>
-=======
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Campaign</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Type</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Value</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Issued</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Redeemed</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
@@ -468,11 +408,7 @@ export default function AdminRewards() {
                       </div>
                     </div>
                     <div className="space-y-2">
-<<<<<<< HEAD
                       <div className="text-xs font-semibold text-gray-700 mb-2">{tAdmin("benefits")}</div>
-=======
-                      <div className="text-xs font-semibold text-gray-700 mb-2">Benefits:</div>
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
                       {tier.benefits.map((benefit, idx) => (
                         <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
                           <CheckCircle2 size={14} className="text-green-600" />
@@ -493,7 +429,6 @@ export default function AdminRewards() {
                 <table className="w-full">
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
-<<<<<<< HEAD
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("code")}</th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("type")}</th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("value")}</th>
@@ -502,16 +437,6 @@ export default function AdminRewards() {
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("expiry")}</th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("status")}</th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("actions")}</th>
-=======
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Code</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Type</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Value</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Min Amount</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Usage</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Expiry</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">

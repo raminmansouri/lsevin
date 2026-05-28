@@ -9,7 +9,6 @@ import { getSearchHistory } from "@/features/service-providers/api/server/get-se
 import { getSearchResults } from "@/features/service-providers/api/server/get-search-results";
 import { getExplore } from "@/features/service-providers/api/server/get-explore";
 
-<<<<<<< HEAD
 function firstParam(searchParams: URLSearchParams, ...keys: string[]) {
   for (const key of keys) {
     const value = searchParams.get(key);
@@ -64,8 +63,6 @@ function parsePriceRange(searchParams: URLSearchParams) {
   return [min, max];
 }
 
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   console.log('explore called:',searchParams)
@@ -73,7 +70,6 @@ export async function GET(request: NextRequest) {
   const page = searchParams.get("PageNumber");
   const pageSize = searchParams.get("PageSize");
   const locale = searchParams.get("Locale");
-<<<<<<< HEAD
   const priceRange = parsePriceRange(searchParams);
   const distance = numericParam(searchParams, "distance") ?? 0;
   const minRating = numericParam(searchParams, "minRating") ?? 0;
@@ -81,14 +77,6 @@ export async function GET(request: NextRequest) {
   const languages = firstParam(searchParams, "languages") ?? "";
   const responseTime = firstParam(searchParams, "responseTime") ?? "any";
   const currencyCode = firstParam(searchParams, "currency", "currencyCode") ?? "";
-=======
-const priceRange:any= searchParams.get("priceRange[]");
-const distance:any= searchParams.get("distance");
-const minRating:any= searchParams.get("minRating");
-const verifiedOnly:any= searchParams.get("verifiedOnly");
-const languages:any= searchParams.get("languages");
-const responseTime:any= searchParams.get("responseTime");
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 
   const localeHeader = localeToHeader(locale as LocaleTypes);
   const session = await getSession();
@@ -103,7 +91,6 @@ const responseTime:any= searchParams.get("responseTime");
       pageNumber: page ? parseInt(page) : DEFAULT_PAGE_NUMBER,
       pageSize: pageSize ? parseInt(pageSize) : DEFAULT_PAGE_SIZE,
       sortOrder: "",
-<<<<<<< HEAD
       priceRange,
       distance,
       minRating,
@@ -111,14 +98,6 @@ const responseTime:any= searchParams.get("responseTime");
       languages,
       responseTime,
       currencyCode,
-=======
-priceRange,
-distance,
-minRating,
-verifiedOnly,
-languages,
-responseTime,
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
     }
   );
 

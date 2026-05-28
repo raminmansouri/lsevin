@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "BottomTabBar": {
     "Profile": "Profile",
     "Home": "Home",
@@ -3079,9 +3078,6 @@
     "uploadCardTitle": "Upload Documents",
     "uploadedBadge": "Uploaded"
   },
-=======
- 
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   "Manifest": {
     "name": "Name",
     "Bookings": "Bookings",
@@ -4577,9 +4573,6 @@
     }
   },
   "Consulting": {
-     "serviceProviders":{
-"viewAll":"view all"
-  },
     "page": {
       "title": "Page Title",
       "description": "Page Description",

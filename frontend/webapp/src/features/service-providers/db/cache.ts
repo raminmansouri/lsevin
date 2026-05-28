@@ -15,7 +15,6 @@ export function getServiceProviderIdTag(id: string) {
   return getIdTag("service-providers", id);
 }
 
-<<<<<<< HEAD
 export function getProviderPageDataTag(id: string) {
   return getIdTag("service-providers",'page-'+ id);
 }
@@ -25,8 +24,6 @@ export function getServicePageDataTag(id: string) {
   return getIdTag("service-providers",'service-'+ id);
 }
 
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 
 export function getFeaturedServicesTag() {
   return getIdTag("service-providers",'featured-services');
@@ -40,12 +37,9 @@ export function getCpCategoryGroupsTag() {
 export function getExploreTag() {
   return getIdTag("service-providers",'explore');
 }
-<<<<<<< HEAD
 export function getOffersTag() {
   return getIdTag("service-providers",'get-offers');
 }
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 
 export function getBookingsTag() {
   return getIdTag("service-providers",'bookings');

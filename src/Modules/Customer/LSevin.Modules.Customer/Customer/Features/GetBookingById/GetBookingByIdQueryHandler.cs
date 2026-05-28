@@ -7,10 +7,7 @@ using BuildingBlocks.Core.ResultPattern;
 using BuildingBlocks.Web.Services;
 using Dapper;
 using LSevin.Modules.Category.ServiceProvider.Features.GetServiceProviderByIdPublic;
-<<<<<<< HEAD
 using System.Data;
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 
 namespace LSevin.Modules.Category.ServiceProvider.Features.GetServiceProviderByIdPublic;
 
@@ -45,7 +42,6 @@ internal sealed class GetBookingByIdQueryHandler(
 
         return searchHistoryResponse;
     }
-<<<<<<< HEAD
 
     public static string DapperSQL = @"
 SELECT 
@@ -184,7 +180,5 @@ WHERE b.id = @BookingId;";
             Booking = booking
         };
     }
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 }
 

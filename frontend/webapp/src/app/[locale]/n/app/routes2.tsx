@@ -30,11 +30,7 @@ import Offers from "./mobile/offers/page";
 import Search from "./mobile/search/page";
 import SearchResults from "./mobile/search-results/page";
 import CategoryBrowser from "./mobile/categories/page";
-<<<<<<< HEAD
 import MapDiscovery from "./mobile/map-discovery/page";
-=======
-import MapDiscovery from "./mobile/search/map/page";
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 
 // Medical
 import ClinicListing from "./mobile/medical/clinics/page";
@@ -54,19 +50,11 @@ import SupportChat from "./mobile/care/SupportChat";
 import Wallet from "./mobile/profile/Wallet";
 import Rewards from "./mobile/profile/rewards/page";
 import Settings from "./mobile/profile/Settings";
-<<<<<<< HEAD
 import Favorites from "./mobile/profile/favorites/page";
 import MedicalProfile from "./mobile/profile/MedicalProfile";
 import Notifications from "./mobile/notifications/page";
 import PrivacySecurity from "./mobile/profile/PrivacySecurity";
 import EditProfile from "./mobile/profile/EditProfile/page";
-=======
-import Favorites from "./mobile/profile/Favorites";
-import MedicalProfile from "./mobile/profile/MedicalProfile";
-import Notifications from "./mobile/notifications/page";
-import PrivacySecurity from "./mobile/profile/PrivacySecurity";
-import EditProfile from "./mobile/profile/EditProfile";
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 import Transactions from "./mobile/profile/Transactions";
 import TransactionDetail from "./mobile/profile/TransactionDetail";
 import Coupon from "./mobile/profile/Coupon";

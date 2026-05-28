@@ -2,21 +2,13 @@
 import { useState } from 'react';
 import { useNavigate } from '@/hooks/use-navigate';
 import { ChevronLeft, Camera, User, Calendar, Globe, MapPin, DollarSign } from 'lucide-react';
-<<<<<<< HEAD
 import { useTranslations } from 'next-intl';
-=======
-import { useTranslation } from 'react-i18next';
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 import { useLocalization } from '../../contexts/LocalizationContext';
 import { Input, Button } from '../../design-system/components';
 
 export default function CompleteProfile() {
   const navigate = useNavigate();
-<<<<<<< HEAD
   const t = useTranslations('MobileProfile.completeProfile');
-=======
-  const { t } = useTranslation();
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   const { isRTL, supportedLanguages } = useLocalization();
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [firstName, setFirstName] = useState('');
@@ -54,17 +46,10 @@ export default function CompleteProfile() {
         </button>
         
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-<<<<<<< HEAD
           {t('title')}
         </h1>
         <p className="text-gray-500 text-lg">
           {t('subtitle')}
-=======
-          {t('profile.completeProfile')}
-        </h1>
-        <p className="text-gray-500 text-lg">
-          {t('profile.completeProfileSubtitle')}
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
         </p>
       </div>
       
@@ -77,11 +62,7 @@ export default function CompleteProfile() {
             className="relative w-24 h-24 rounded-full bg-gray-100 border-2 border-gray-200 overflow-hidden group"
           >
             {profilePhoto ? (
-<<<<<<< HEAD
               <img src={profilePhoto} alt={t('profileAlt')} className="w-full h-full object-cover" />
-=======
-              <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
             ) : (
               <div className="w-full h-full flex items-center justify-center text-gray-400">
                 <User size={32} />
@@ -92,39 +73,23 @@ export default function CompleteProfile() {
             </div>
           </button>
           <button onClick={handlePhotoUpload} className="mt-3 text-sm font-medium text-[#083f30] hover:underline">
-<<<<<<< HEAD
             {t('uploadPhoto')}
-=======
-            {t('profile.uploadPhoto')}
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </button>
         </div>
         
         {/* Name */}
         <div className="grid grid-cols-2 gap-4">
           <Input
-<<<<<<< HEAD
             label={t('firstNameLabel')}
             type="text"
             placeholder={t('firstNamePlaceholder')}
-=======
-            label="First Name"
-            type="text"
-            placeholder="First name"
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
           />
           <Input
-<<<<<<< HEAD
             label={t('lastNameLabel')}
             type="text"
             placeholder={t('lastNamePlaceholder')}
-=======
-            label="Last Name"
-            type="text"
-            placeholder="Last name"
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
           />
@@ -132,21 +97,12 @@ export default function CompleteProfile() {
         
         {/* Gender */}
         <div>
-<<<<<<< HEAD
           <label className="block text-sm font-medium text-gray-700 mb-2">{t('gender')}</label>
           <div className="grid grid-cols-3 gap-3">
             {[
               { value: 'male', label: t('male') },
               { value: 'female', label: t('female') },
               { value: 'other', label: t('other') }
-=======
-          <label className="block text-sm font-medium text-gray-700 mb-2">{t('profile.gender')}</label>
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { value: 'male', label: t('profile.male') },
-              { value: 'female', label: t('profile.female') },
-              { value: 'other', label: t('profile.other') }
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
             ].map((option) => (
               <button
                 key={option.value}
@@ -167,11 +123,7 @@ export default function CompleteProfile() {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             <Calendar size={16} className="inline mr-2" />
-<<<<<<< HEAD
             {t('dateOfBirth')}
-=======
-            {t('profile.dateOfBirth')}
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </label>
           <input
             type="date"
@@ -185,11 +137,7 @@ export default function CompleteProfile() {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             <Globe size={16} className="inline mr-2" />
-<<<<<<< HEAD
             {t('preferredLanguage')}
-=======
-            {t('profile.preferredLanguage')}
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </label>
           <select
             value={language}
@@ -209,18 +157,13 @@ export default function CompleteProfile() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               <MapPin size={16} className="inline mr-2" />
-<<<<<<< HEAD
               {t('country')}
-=======
-              {t('profile.country')}
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
             </label>
             <select
               value={country}
               onChange={(e) => setCountry(e.target.value)}
               className="w-full h-12 px-4 bg-white border-2 border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent"
             >
-<<<<<<< HEAD
               <option value="">{t('selectCountry')}</option>
               <option value="ae">🇦🇪 {t('countries.uae')}</option>
               <option value="sa">🇸🇦 {t('countries.saudiArabia')}</option>
@@ -232,19 +175,6 @@ export default function CompleteProfile() {
             label={t('city')}
             type="text"
             placeholder={t('enterCity')}
-=======
-              <option value="">{t('profile.selectCountry')}</option>
-              <option value="ae">🇦🇪 UAE</option>
-              <option value="sa">🇸🇦 Saudi Arabia</option>
-              <option value="tr">🇹🇷 Turkey</option>
-              <option value="ir">🇮🇷 Iran</option>
-            </select>
-          </div>
-          <Input
-            label={t('profile.city')}
-            type="text"
-            placeholder={t('profile.enterCity')}
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
             value={city}
             onChange={(e) => setCity(e.target.value)}
           />
@@ -260,21 +190,13 @@ export default function CompleteProfile() {
           onClick={handleContinue}
           isLoading={isLoading}
         >
-<<<<<<< HEAD
           {t('continue')}
-=======
-          {t('common.continue')}
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
         </Button>
         <button 
           onClick={() => navigate('/location-permission')}
           className="w-full text-gray-600 hover:text-gray-900 font-medium"
         >
-<<<<<<< HEAD
           {t('skipForNow')}
-=======
-          {t('profile.skipForNow')}
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
         </button>
       </div>
     </div>

@@ -19,12 +19,9 @@ using BuildingBlocks.Web.OpenApi;
 using BuildingBlocks.Web.ProblemDetail.Extensions;
 using BuildingBlocks.Web.RateLimit;
 using LSevin.Api.Hubs;
-<<<<<<< HEAD
 using LSevinModels.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 using Serilog;
 using Serilog.Events;
 using CategoryModule = LSevin.Modules.Category.CategoryReference;
@@ -87,6 +84,13 @@ try
     });
 =======
 >>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
+
+
+
+    builder.Services.AddDbContextFactory<LsevinContext>((sp, options) =>
+    {
+        options.UseNpgsql(databaseConnectionString);
+    });
 
 
 

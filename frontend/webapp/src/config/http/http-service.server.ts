@@ -14,11 +14,7 @@ import {
   localeToHeader,
 } from "../locales";
 import { errorHandler } from "./http-error-strategies";
-<<<<<<< HEAD
 import { logRequest, logResponse } from "./logger";
-=======
-import { logRequest } from "./logger";
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 
 type KeyValue = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -117,19 +113,10 @@ const customFetch = async <TResult extends ApiDataValue>(
   try {
     const fetchOptions = await prepareRequest(finalUrl, options);
 
-<<<<<<< HEAD
     logRequest(finalUrl.toString(), fetchOptions, fetchOptions.body as any, {
       enabled: true,
       format: "both",
       // redactHeaders: ["cookie", "set-cookie"],
-=======
-    // 🔥 LOG IT (copy/paste runnable)
-    logRequest(finalUrl.toString(), fetchOptions, fetchOptions.body as any, {
-      enabled: true,
-      format: "both", // "curl" | "node-fetch" | "both"
-      // If you want to see the real token, remove "authorization" from redactHeaders
-      // redactHeaders: ["cookie", "set-cookie"], 
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
     });
 
     const response = await fetch(finalUrl, fetchOptions);

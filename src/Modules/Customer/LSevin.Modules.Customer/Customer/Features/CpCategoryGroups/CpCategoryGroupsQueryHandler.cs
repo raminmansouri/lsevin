@@ -8,10 +8,7 @@ using BuildingBlocks.Web.Services;
 using Dapper;
 using LSevin.Modules.Category.ServiceProvider.Features.GetServiceProviderByIdPublic;
 using LSevin.Modules.Customer.Customer.Features.Explore;
-<<<<<<< HEAD
 using System.Data;
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 
 namespace LSevin.Modules.Category.ServiceProvider.Features.GetServiceProviderByIdPublic;
 
@@ -220,7 +217,6 @@ internal sealed class CpCategoryGroupsQueryHandler(
 
         return response;
     }
-<<<<<<< HEAD
 
 
     public static string DapperSQL = @"
@@ -284,7 +280,5 @@ ORDER BY cg.title;";
             CategoryGroups = groupDict.Values.ToList()
         };
     }
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 }
 

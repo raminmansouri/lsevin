@@ -13,14 +13,10 @@ import {
   X,
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-<<<<<<< HEAD
 import { useTranslations } from "next-intl";
 
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { env } from "@/config/env/client";
-=======
-
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 import { useFetchSearchResults } from "@/features/service-providers/api/client/fetch-search-results";
 import {
   SearchResultsCategory,
@@ -29,7 +25,6 @@ import {
 } from "@/features/service-providers/types";
 import { useNavigate } from "@/hooks/use-navigate";
 
-<<<<<<< HEAD
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function resolveMediaUrl(value?: string | null) {
@@ -45,9 +40,6 @@ function resolveMediaUrl(value?: string | null) {
 
  export default function SearchResults() {
   const t = useTranslations("SearchResults");
-=======
-export default function SearchResults() {
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   const navigate = useNavigate();
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
@@ -55,11 +47,7 @@ export default function SearchResults() {
   const [sortBy, setSortBy] = useState("relevance");
   const [showFilters, setShowFilters] = useState(false);
 
-<<<<<<< HEAD
   const { data } = useFetchSearchResults(query);
-=======
-  const { data } = useFetchSearchResults();
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 
   useEffect(() => {
     // Auto-focus on mount
@@ -80,19 +68,11 @@ export default function SearchResults() {
   ]);
 
   const sortOptions = [
-<<<<<<< HEAD
     { value: "relevance", label: t("sort.mostRelevant") },
     { value: "rating", label: t("sort.highestRated") },
     { value: "price-low", label: t("sort.priceLowToHigh") },
     { value: "price-high", label: t("sort.priceHighToLow") },
     { value: "popular", label: t("sort.mostPopular") },
-=======
-    { value: "relevance", label: "Most Relevant" },
-    { value: "rating", label: "Highest Rated" },
-    { value: "price-low", label: "Price: Low to High" },
-    { value: "price-high", label: "Price: High to Low" },
-    { value: "popular", label: "Most Popular" },
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   ];
 
   /* const results = [
@@ -181,11 +161,7 @@ export default function SearchResults() {
                 "{query}"
               </h1>
               <p className="text-sm text-gray-600">
-<<<<<<< HEAD
                 {t("resultsFound", { count: results.length })}
-=======
-                {results.length} results found
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
               </p>
             </div>
           </div>
@@ -214,11 +190,7 @@ export default function SearchResults() {
               className="flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 transition-colors hover:bg-gray-100"
             >
               <SlidersHorizontal size={18} className="text-gray-700" />
-<<<<<<< HEAD
               <span className="text-sm font-medium text-gray-700">{t("filters")}</span>
-=======
-              <span className="text-sm font-medium text-gray-700">Filters</span>
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
             </button>
 
             <div className="relative flex-1">
@@ -247,11 +219,7 @@ export default function SearchResults() {
 
             {filters?.map(filter=>{
 
-<<<<<<< HEAD
 return  <div key={filter.id} className="flex items-center gap-1.5 rounded-full bg-[#083f30] px-3 py-1.5 text-xs font-medium text-white">
-=======
-return  <div className="flex items-center gap-1.5 rounded-full bg-[#083f30] px-3 py-1.5 text-xs font-medium text-white">
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
               <span>{filter.label}</span>
               <button className="rounded-full p-0.5 hover:bg-white/20">
                 <X size={12} />
@@ -280,33 +248,17 @@ return  <div className="flex items-center gap-1.5 rounded-full bg-[#083f30] px-3
         {results.map((result) => (
           <div
             key={result.id}
-<<<<<<< HEAD
             onClick={() => navigate(result.href)}
-=======
-            onClick={() =>
-              navigate(
-                result.type === "clinic"
-                  ? `/app/clinic/${result.id}`
-                  : `/app/treatment/${result.id}`
-              )
-            }
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
             className="cursor-pointer overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-lg"
           >
             <div className="flex gap-4 p-4">
               {/* Image */}
               <div className="relative flex-shrink-0">
-<<<<<<< HEAD
                 <ImageWithFallback
                   src={resolveMediaUrl(result.image)}
                   alt={result.name}
                   width={112}
                   height={112}
-=======
-                <img
-                  src={result.image}
-                  alt={result.name}
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
                   className="h-28 w-28 rounded-xl object-cover"
                 />
                 {result.verified && (
@@ -345,11 +297,7 @@ return  <div className="flex items-center gap-1.5 rounded-full bg-[#083f30] px-3
                     {result.rating}
                   </span>
                   <span className="text-xs text-gray-500">
-<<<<<<< HEAD
                     {t("reviewsCount", { count: result.reviews })}
-=======
-                    ({result.reviews.toLocaleString()} reviews)
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
                   </span>
                 </div>
 
@@ -393,12 +341,7 @@ return  <div className="flex items-center gap-1.5 rounded-full bg-[#083f30] px-3
                     </span>
                     {result.originalPrice && (
                       <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs font-bold text-green-600">
-<<<<<<< HEAD
                         {t("saveAmount", { amount: (result.originalPrice - result.price).toLocaleString() })}
-=======
-                        Save $
-                        {(result.originalPrice - result.price).toLocaleString()}
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
                       </span>
                     )}
                   </div>
@@ -415,7 +358,6 @@ return  <div className="flex items-center gap-1.5 rounded-full bg-[#083f30] px-3
           <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
             <Filter size={32} className="text-gray-400" />
           </div>
-<<<<<<< HEAD
           <h3 className="mb-2 font-bold text-gray-900">{t("noResultsFound")}</h3>
           <p className="mb-6 text-gray-600">
             {t("tryAdjustingFilters")}
@@ -425,17 +367,6 @@ return  <div className="flex items-center gap-1.5 rounded-full bg-[#083f30] px-3
             className="rounded-xl bg-[#083f30] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#0a5a44]"
           >
             {t("newSearch")}
-=======
-          <h3 className="mb-2 font-bold text-gray-900">No results found</h3>
-          <p className="mb-6 text-gray-600">
-            Try adjusting your filters or search terms
-          </p>
-          <button
-            onClick={() => navigate("/app/search")}
-            className="rounded-xl bg-[#083f30] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#0a5a44]"
-          >
-            New Search
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </button>
         </div>
       )}

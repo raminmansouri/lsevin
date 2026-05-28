@@ -27,7 +27,6 @@ internal sealed class GetFeaturedServicesQueryHandler(
         var parameters = new DynamicParameters();
         //parameters.Add("ServiceProviderId", request.ServiceProviderId);
 
-<<<<<<< HEAD
         var currentLocale = localeAccessor.CurrentLocale;
         var defaultLocale = localeAccessor.DefaultLocale;
 
@@ -126,51 +125,6 @@ internal sealed class GetFeaturedServicesQueryHandler(
                 },
                 cancellationToken: cancellationToken
             )
-=======
-        // Query service provider basic info
-        var currentLocale = localeAccessor.CurrentLocale;
-        var defaultLocale = localeAccessor.DefaultLocale;
-
-
-
-        var serviceProvider = new GetFeaturedServicesResponse
-        {
-           
-        };
-
-
-
-        
-
-        // Query services
-        var servicesSql =
-            $@"
-            SELECT
-                id AS Id,
-                service_definition_id AS ServiceDefinitionId,
-                duration_minutes AS DurationMinutes,
-                COALESCE(
-                    display_name_translations ->> '{currentLocale}',
-                    display_name_translations ->> '{defaultLocale}',
-                    (display_name_translations ->> (SELECT jsonb_object_keys(display_name_translations) LIMIT 1))
-                ) AS DisplayName,
-                COALESCE(
-                    description_translations ->> '{currentLocale}',
-                    description_translations ->> '{defaultLocale}',
-                    (description_translations ->> (SELECT jsonb_object_keys(description_translations) LIMIT 1))
-                ) AS Description,
-                is_active AS IsActive,
-                currency AS Currency,
-                value AS Value
-            FROM category.provider_services
-            WHERE is_active = true
-            ORDER BY display_name_translations ->> '{currentLocale}', display_name_translations ->> '{defaultLocale}'
- limit 10
-        ";
-
-        var services = await connection.QueryAsync<ServiceProviderServiceDto>(
-            new CommandDefinition(servicesSql, new {  }, cancellationToken: cancellationToken)
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
         );
 
         if (services != null)
@@ -178,7 +132,6 @@ internal sealed class GetFeaturedServicesQueryHandler(
             foreach (var serviceProviderServiceDto in services)
             {
                 serviceProviderServiceDto.Value =
-<<<<<<< HEAD
                     currencyService.ConvertPrice(
                         serviceProviderServiceDto.Value,
                         serviceProviderServiceDto.Currency
@@ -189,30 +142,16 @@ internal sealed class GetFeaturedServicesQueryHandler(
                         serviceProviderServiceDto.Currency
                     );
             }
-=======
-                    currencyService.ConvertPrice(serviceProviderServiceDto.Value, serviceProviderServiceDto?.Currency);
-
-                serviceProviderServiceDto.Currency =
-                    currencyService.ConvertCurrencySymbol(serviceProviderServiceDto?.Currency);
-
-           }
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 
             serviceProvider.Services = services.AsList();
         }
 
-<<<<<<< HEAD
         return serviceProvider;
 
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 
         return serviceProvider;
     }
 }
 
-<<<<<<< HEAD
 
 
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965

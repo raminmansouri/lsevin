@@ -12,11 +12,7 @@ public sealed record ExploreResponse
 }
 public sealed record ExploreTrendingService
 {
-<<<<<<< HEAD
     public Guid Id { get; internal set; }
-=======
-    public int Id { get; internal set; }
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
     public string Name { get; internal set; }
     public string Provider { get; internal set; }
     public string Image { get; internal set; }
@@ -29,11 +25,7 @@ public sealed record ExploreTrendingService
 }
 public sealed record ExploreSponsoredProvider
 {
-<<<<<<< HEAD
     public Guid Id { get; internal set; }
-=======
-    public int Id { get; internal set; }
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
     public string Name { get; internal set; }
     public string Subtitle { get; internal set; }
     public string Image { get; internal set; }
@@ -42,11 +34,7 @@ public sealed record ExploreSponsoredProvider
 }
 public sealed record ExploreFeaturedProvider
 {
-<<<<<<< HEAD
     public Guid Id { get; internal set; }
-=======
-    public int Id { get; internal set; }
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
     public string Name { get; internal set; }
     public string Image { get; internal set; }
     public double Rating { get; internal set; }
@@ -59,11 +47,7 @@ public sealed record ExploreFeaturedProvider
     public string Badge { get; internal set; }
 }
 public sealed record ExploreCategory { 
-<<<<<<< HEAD
     public Guid Id { get; set; } 
-=======
-    public string Id { get; set; } 
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
     public string Label { get; set; }
     public int Count { get; internal set; }
 }

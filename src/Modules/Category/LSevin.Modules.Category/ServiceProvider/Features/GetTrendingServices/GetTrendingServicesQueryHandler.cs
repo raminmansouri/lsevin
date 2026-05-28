@@ -10,11 +10,8 @@ using LSevin.Modules.Category.Currency.Services;
 
 namespace LSevin.Modules.Category.ServiceProvider.Features.GetServiceProviderByIdPublic;
 
-<<<<<<< HEAD
 using Dapper;
 
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 internal sealed class GetTrendingServicesQueryHandler(
     IDbConnectionFactory dbConnectionFactory,
     ICurrencyService currencyService,
@@ -29,7 +26,6 @@ internal sealed class GetTrendingServicesQueryHandler(
         Guard.Against.Null(request, nameof(request));
 
         await using var connection = await dbConnectionFactory.GetOrCreateConnectionAsync(cancellationToken);
-<<<<<<< HEAD
 
         var currentLocale = localeAccessor.CurrentLocale;
         var defaultLocale = localeAccessor.DefaultLocale;
@@ -232,72 +228,3 @@ LIMIT @Take;
         public string? StayRequired { get; init; }
     }
 }
-=======
-        var parameters = new DynamicParameters();
-        //parameters.Add("ServiceProviderId", request.ServiceProviderId);
-
-        // Query service provider basic info
-        var currentLocale = localeAccessor.CurrentLocale;
-        var defaultLocale = localeAccessor.DefaultLocale;
-
-
-
-        var serviceProvider = new GetTrendingServicesResponse
-        {
-           Title=""
-        };
-
-
-        
-
-        // Query services
-        var servicesSql =
-            $@"
-            SELECT
-                id AS Id,
-                service_definition_id AS ServiceDefinitionId,
-                duration_minutes AS DurationMinutes,
-                COALESCE(
-                    display_name_translations ->> '{currentLocale}',
-                    display_name_translations ->> '{defaultLocale}',
-                    (display_name_translations ->> (SELECT jsonb_object_keys(display_name_translations) LIMIT 1))
-                ) AS DisplayName,
-                COALESCE(
-                    description_translations ->> '{currentLocale}',
-                    description_translations ->> '{defaultLocale}',
-                    (description_translations ->> (SELECT jsonb_object_keys(description_translations) LIMIT 1))
-                ) AS Description,
-                is_active AS IsActive,
-                currency AS Currency,
-                value AS Value
-            FROM category.provider_services
-            WHERE is_active = true
-            ORDER BY display_name_translations ->> '{currentLocale}', display_name_translations ->> '{defaultLocale}'
- limit 10
-        ";
-
-        var services = await connection.QueryAsync<TrendingServiceDto>(
-            new CommandDefinition(servicesSql, new {  }, cancellationToken: cancellationToken)
-        );
-
-        if (services != null)
-        {
-            foreach (var serviceProviderServiceDto in services)
-            {
-                serviceProviderServiceDto.Value =
-                    currencyService.ConvertPrice(serviceProviderServiceDto.Value, serviceProviderServiceDto?.Currency);
-
-                serviceProviderServiceDto.Currency =
-                    currencyService.ConvertCurrencySymbol(serviceProviderServiceDto?.Currency);
-
-           }
-
-            serviceProvider.Services = services.AsList();
-        }
-
-
-        return serviceProvider;
-    }
-}
-
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
