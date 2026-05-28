@@ -52,10 +52,17 @@ export interface AttributeOption {
   additionalPrice?: number;
 }
 
+<<<<<<< HEAD
 export interface NotificationCountResponse {
   count: number;
 }
 
+=======
+// API response type
+export interface NotificationCountResponse {
+count:number;
+}
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 export interface ProviderTypeResponse {
   id: string;
   name: LocalizedContentResponse;

@@ -7,7 +7,10 @@ using BuildingBlocks.Core.ResultPattern;
 using BuildingBlocks.Web.Services;
 using Dapper;
 using LSevin.Modules.Category.ServiceProvider.Features.GetServiceProviderByIdPublic;
+<<<<<<< HEAD
 using System.Threading;
+=======
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 
 namespace LSevin.Modules.Category.ServiceProvider.Features.GetServiceProviderByIdPublic;
 
@@ -33,17 +36,27 @@ internal sealed class BookingsQueryHandler(
         var currentLocale = localeAccessor.CurrentLocale;
         var defaultLocale = localeAccessor.DefaultLocale;
 
+<<<<<<< HEAD
 
         var searchHistoryResponse = await GetBookingsAsync(cancellationToken);/*new BookingsResponse
+=======
+   
+        var searchHistoryResponse = new BookingsResponse
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
         {
             CancelledBookings = Bookings.CancelledBookings().ToList(),
             UpcomingBookings = Bookings.UpcomingBookings().ToList(),
             PastBookings = Bookings.PastBookings().ToList(),
+<<<<<<< HEAD
         };*/
+=======
+        };
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 
 
         return searchHistoryResponse;
     }
+<<<<<<< HEAD
 
     public async Task<BookingsResponse> GetBookingsAsync(CancellationToken cancellationToken)
     {
@@ -90,5 +103,7 @@ internal sealed class BookingsQueryHandler(
             CancelledBookings = cancelledBookings
         };
     }
+=======
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 }
 

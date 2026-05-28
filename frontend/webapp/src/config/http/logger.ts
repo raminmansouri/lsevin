@@ -172,6 +172,7 @@ export function logRequest(
   if (o.format === "node-fetch" || o.format === "both") {
     console.log(`\n[HTTP LOG ${stamp}] Node fetch:\n${nodeFetch}\n`);
   }
+<<<<<<< HEAD
 }
 
 function tryFormatResponseBody(
@@ -249,4 +250,6 @@ export async function logResponse(
     headers: safeHeaders,
     body: safeBody,
   });
+=======
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 }

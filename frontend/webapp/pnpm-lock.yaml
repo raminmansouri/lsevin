@@ -218,9 +218,12 @@ importers:
       nuqs:
         specifier: 2.7.2
         version: 2.7.2(next@15.6.0-canary.41(@babel/core@7.28.4)(babel-plugin-react-compiler@19.1.0-rc.3)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-router@7.13.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
+<<<<<<< HEAD
       postgres:
         specifier: ^3.4.9
         version: 3.4.9
+=======
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
       query-string:
         specifier: 9.3.1
         version: 9.3.1

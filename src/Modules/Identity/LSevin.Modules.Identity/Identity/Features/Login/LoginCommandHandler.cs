@@ -118,7 +118,13 @@ internal sealed class LoginCommandHandler(
         };
 
         await context.PhoneLoginCodes.AddAsync(phoneLoginCode, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await context.SaveChangesAsync(cancellationToken);
+        }catch(Exception e)
+        {
+            throw e;
+        }
 
         // 5. Send OTP via SMS/WhatsApp
         var sendResult = await otpSender.SendOtpCodeAsync(phoneNumber, otpCode, cancellationToken);

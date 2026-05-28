@@ -50,10 +50,17 @@ public class Contact
 
 public class Agent
 {
+<<<<<<< HEAD
     public string name { get; set; }
     public string title { get; set; }
     public string experience { get; set; }
     public string? image { get; set; }
+=======
+    public string name;
+    public string title;
+    public string experience;
+    public string? image;
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 }
 
 // Example usage:

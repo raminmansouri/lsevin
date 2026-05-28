@@ -1,7 +1,10 @@
 "use client"
 
+<<<<<<< HEAD
 
 import { useTranslations } from "next-intl";
+=======
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 import { useState } from 'react';
 import { 
   LayoutDashboard,
@@ -33,7 +36,10 @@ import {
 import { DashboardLayout } from '../design-system/dashboard-components';
 
 export default function AdminBookings() {
+<<<<<<< HEAD
   const tAdmin = useTranslations("AdminGenerated");
+=======
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [serviceFilter, setServiceFilter] = useState('all');
@@ -41,6 +47,7 @@ export default function AdminBookings() {
   const [countryFilter, setCountryFilter] = useState('all');
   
   const navigation = [
+<<<<<<< HEAD
     { label: tAdmin("dashboard"), icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
     { label: tAdmin("liveActivity"), icon: <Activity size={20} />, path: '/admin/activity' },
     { label: tAdmin("users"), icon: <Users size={20} />, path: '/admin/users', badge: 12 },
@@ -54,6 +61,21 @@ export default function AdminBookings() {
     { label: tAdmin("localization"), icon: <Globe size={20} />, path: '/admin/localization' },
     { label: tAdmin("settings"), icon: <Settings size={20} />, path: '/admin/settings' },
     { label: tAdmin("auditLogs"), icon: <FileText size={20} />, path: '/admin/audit' },
+=======
+    { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
+    { label: 'Live Activity', icon: <Activity size={20} />, path: '/admin/activity' },
+    { label: 'Users', icon: <Users size={20} />, path: '/admin/users', badge: 12 },
+    { label: 'Providers', icon: <Building2 size={20} />, path: '/admin/providers', badge: 8 },
+    { label: 'Bookings', icon: <ShoppingBag size={20} />, path: '/admin/bookings' },
+    { label: 'Payments', icon: <Wallet size={20} />, path: '/admin/payments' },
+    { label: 'Campaigns', icon: <TrendingUp size={20} />, path: '/admin/campaigns' },
+    { label: 'Rewards', icon: <Gift size={20} />, path: '/admin/rewards' },
+    { label: 'Support', icon: <MessageSquare size={20} />, path: '/admin/support', badge: 23 },
+    { label: 'Reports', icon: <BarChart3 size={20} />, path: '/admin/reports' },
+    { label: 'Localization', icon: <Globe size={20} />, path: '/admin/localization' },
+    { label: 'Settings', icon: <Settings size={20} />, path: '/admin/settings' },
+    { label: 'Audit Logs', icon: <FileText size={20} />, path: '/admin/audit' },
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   ];
 
   const bookings = [
@@ -222,6 +244,7 @@ export default function AdminBookings() {
   const getBookingStatusBadge = (status: string) => {
     switch(status) {
       case 'Confirmed':
+<<<<<<< HEAD
         return <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><CheckCircle2 size={12} />{tAdmin("confirmed")}</span>;
       case 'Pending Confirmation':
         return <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Clock size={12} />{tAdmin("pending")}</span>;
@@ -231,6 +254,17 @@ export default function AdminBookings() {
         return <span className="px-2.5 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><XCircle size={12} />{tAdmin("cancelled")}</span>;
       case 'In Progress':
         return <span className="px-2.5 py-1 bg-purple-50 text-purple-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Activity size={12} />{tAdmin("inProgress")}</span>;
+=======
+        return <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><CheckCircle2 size={12} />Confirmed</span>;
+      case 'Pending Confirmation':
+        return <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Clock size={12} />Pending</span>;
+      case 'Completed':
+        return <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><CheckCheck size={12} />Completed</span>;
+      case 'Cancelled':
+        return <span className="px-2.5 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><XCircle size={12} />Cancelled</span>;
+      case 'In Progress':
+        return <span className="px-2.5 py-1 bg-purple-50 text-purple-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Activity size={12} />In Progress</span>;
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
       default:
         return <span className="px-2.5 py-1 bg-gray-50 text-gray-700 text-xs font-semibold rounded-lg">{status}</span>;
     }
@@ -239,6 +273,7 @@ export default function AdminBookings() {
   const getPaymentStatusBadge = (status: string) => {
     switch(status) {
       case 'Paid':
+<<<<<<< HEAD
         return <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-lg">{tAdmin("paid")}</span>;
       case 'Pending':
         return <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-lg">{tAdmin("pending")}</span>;
@@ -246,6 +281,15 @@ export default function AdminBookings() {
         return <span className="px-2.5 py-1 bg-gray-50 text-gray-700 text-xs font-semibold rounded-lg">{tAdmin("refunded")}</span>;
       case 'Failed':
         return <span className="px-2.5 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded-lg">{tAdmin("failed")}</span>;
+=======
+        return <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-lg">Paid</span>;
+      case 'Pending':
+        return <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-lg">Pending</span>;
+      case 'Refunded':
+        return <span className="px-2.5 py-1 bg-gray-50 text-gray-700 text-xs font-semibold rounded-lg">Refunded</span>;
+      case 'Failed':
+        return <span className="px-2.5 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded-lg">Failed</span>;
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
       default:
         return <span className="px-2.5 py-1 bg-gray-50 text-gray-700 text-xs font-semibold rounded-lg">{status}</span>;
     }
@@ -273,16 +317,27 @@ export default function AdminBookings() {
   return (
     <DashboardLayout 
       navigation={navigation} 
+<<<<<<< HEAD
       headerTitle={tAdmin("bookingOperations")}
       userRole="admin"
       userName={tAdmin("systemAdmin")}
+=======
+      headerTitle="Booking Operations"
+      userRole="admin"
+      userName="System Admin"
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
     >
       <div className="p-8 space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
+<<<<<<< HEAD
             <h1 className="text-2xl font-bold text-gray-900 mb-2">{tAdmin("bookingOperations")}</h1>
             <p className="text-gray-600">{tAdmin("manageAndMonitorAllPlatformBookings")}</p>
+=======
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Booking Operations</h1>
+            <p className="text-gray-600">Manage and monitor all platform bookings</p>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </div>
           <div className="flex items-center gap-3">
             <button className="px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50">
@@ -305,7 +360,11 @@ export default function AdminBookings() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">{bookings.length}</div>
+<<<<<<< HEAD
             <div className="text-sm text-gray-600">{tAdmin("totalBookings")}</div>
+=======
+            <div className="text-sm text-gray-600">Total Bookings</div>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -317,7 +376,11 @@ export default function AdminBookings() {
             <div className="text-2xl font-bold text-gray-900 mb-1">
               {bookings.filter(b => b.bookingStatus === 'Confirmed').length}
             </div>
+<<<<<<< HEAD
             <div className="text-sm text-gray-600">{tAdmin("confirmed")}</div>
+=======
+            <div className="text-sm text-gray-600">Confirmed</div>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -329,7 +392,11 @@ export default function AdminBookings() {
             <div className="text-2xl font-bold text-gray-900 mb-1">
               {bookings.filter(b => b.paymentStatus === 'Pending').length}
             </div>
+<<<<<<< HEAD
             <div className="text-sm text-gray-600">{tAdmin("pendingPayment")}</div>
+=======
+            <div className="text-sm text-gray-600">Pending Payment</div>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -339,7 +406,11 @@ export default function AdminBookings() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">${totalRevenue.toLocaleString()}</div>
+<<<<<<< HEAD
             <div className="text-sm text-gray-600">{tAdmin("totalRevenue")}</div>
+=======
+            <div className="text-sm text-gray-600">Total Revenue</div>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </div>
         </div>
 
@@ -347,61 +418,105 @@ export default function AdminBookings() {
         <div className="bg-white rounded-2xl border border-gray-200 p-5">
           <div className="grid grid-cols-5 gap-4">
             <div className="col-span-2">
+<<<<<<< HEAD
               <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("searchBookings")}</label>
+=======
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Search Bookings</label>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+<<<<<<< HEAD
                   placeholder={tAdmin("bookingIDUserProviderOrService")}
+=======
+                  placeholder="Booking ID, user, provider, or service..."
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
                   className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent"
                 />
               </div>
             </div>
             
             <div>
+<<<<<<< HEAD
               <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("bookingStatus2")}</label>
+=======
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Booking Status</label>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
               >
+<<<<<<< HEAD
                 <option value="all">{tAdmin("allStatus")}</option>
                 <option value="Confirmed">{tAdmin("confirmed")}</option>
                 <option value="Pending Confirmation">{tAdmin("pending")}</option>
                 <option value="Completed">{tAdmin("completed")}</option>
                 <option value="Cancelled">{tAdmin("cancelled")}</option>
                 <option value="In Progress">{tAdmin("inProgress")}</option>
+=======
+                <option value="all">All Status</option>
+                <option value="Confirmed">Confirmed</option>
+                <option value="Pending Confirmation">Pending</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+                <option value="In Progress">In Progress</option>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
               </select>
             </div>
 
             <div>
+<<<<<<< HEAD
               <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("serviceType")}</label>
+=======
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Service Type</label>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
               <select
                 value={serviceFilter}
                 onChange={(e) => setServiceFilter(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
               >
+<<<<<<< HEAD
                 <option value="all">{tAdmin("allServices")}</option>
                 <option value="Medical">{tAdmin("medical")}</option>
                 <option value="Beauty & Spa">{tAdmin("beautySpa")}</option>
                 <option value="Fitness">{tAdmin("fitness")}</option>
                 <option value="Pharmacy">{tAdmin("pharmacy")}</option>
+=======
+                <option value="all">All Services</option>
+                <option value="Medical">Medical</option>
+                <option value="Beauty & Spa">Beauty & Spa</option>
+                <option value="Fitness">Fitness</option>
+                <option value="Pharmacy">Pharmacy</option>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
               </select>
             </div>
 
             <div>
+<<<<<<< HEAD
               <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("payment")}</label>
+=======
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Payment</label>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
               <select
                 value={paymentFilter}
                 onChange={(e) => setPaymentFilter(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
               >
+<<<<<<< HEAD
                 <option value="all">{tAdmin("allPayments")}</option>
                 <option value="Paid">{tAdmin("paid")}</option>
                 <option value="Pending">{tAdmin("pending")}</option>
                 <option value="Refunded">{tAdmin("refunded")}</option>
+=======
+                <option value="all">All Payments</option>
+                <option value="Paid">Paid</option>
+                <option value="Pending">Pending</option>
+                <option value="Refunded">Refunded</option>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
               </select>
             </div>
           </div>
@@ -419,6 +534,7 @@ export default function AdminBookings() {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
+<<<<<<< HEAD
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("bookingID")}</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("user")}</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("provider")}</th>
@@ -428,6 +544,17 @@ export default function AdminBookings() {
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("payment")}</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("status")}</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("actions")}</th>
+=======
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Booking ID</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">User</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Provider</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Service</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Date & Time</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Amount</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Payment</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">

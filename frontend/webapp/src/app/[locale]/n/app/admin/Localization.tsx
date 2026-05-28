@@ -1,7 +1,10 @@
 "use client"
 
+<<<<<<< HEAD
 
 import { useTranslations } from "next-intl";
+=======
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 import { useState } from 'react';
 import { 
   LayoutDashboard,
@@ -31,12 +34,16 @@ import {
 import { DashboardLayout } from '../design-system/dashboard-components';
 
 export default function Localization() {
+<<<<<<< HEAD
   const tAdmin = useTranslations("AdminGenerated");
+=======
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [moduleFilter, setModuleFilter] = useState('all');
   
   const navigation = [
+<<<<<<< HEAD
     { label: tAdmin("dashboard"), icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
     { label: tAdmin("liveActivity"), icon: <Activity size={20} />, path: '/admin/activity' },
     { label: tAdmin("users"), icon: <Users size={20} />, path: '/admin/users', badge: 12 },
@@ -50,6 +57,21 @@ export default function Localization() {
     { label: tAdmin("localization"), icon: <Globe size={20} />, path: '/admin/localization' },
     { label: tAdmin("settings"), icon: <Settings size={20} />, path: '/admin/settings' },
     { label: tAdmin("auditLogs"), icon: <FileText size={20} />, path: '/admin/audit' },
+=======
+    { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
+    { label: 'Live Activity', icon: <Activity size={20} />, path: '/admin/activity' },
+    { label: 'Users', icon: <Users size={20} />, path: '/admin/users', badge: 12 },
+    { label: 'Providers', icon: <Building2 size={20} />, path: '/admin/providers', badge: 8 },
+    { label: 'Bookings', icon: <ShoppingBag size={20} />, path: '/admin/bookings' },
+    { label: 'Payments', icon: <Wallet size={20} />, path: '/admin/payments' },
+    { label: 'Campaigns', icon: <TrendingUp size={20} />, path: '/admin/campaigns' },
+    { label: 'Rewards', icon: <Gift size={20} />, path: '/admin/rewards' },
+    { label: 'Support', icon: <MessageSquare size={20} />, path: '/admin/support', badge: 23 },
+    { label: 'Reports', icon: <BarChart3 size={20} />, path: '/admin/reports' },
+    { label: 'Localization', icon: <Globe size={20} />, path: '/admin/localization' },
+    { label: 'Settings', icon: <Settings size={20} />, path: '/admin/settings' },
+    { label: 'Audit Logs', icon: <FileText size={20} />, path: '/admin/audit' },
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   ];
 
   const languages = [
@@ -258,11 +280,19 @@ export default function Localization() {
   const getStatusBadge = (status: string) => {
     switch(status) {
       case 'Complete':
+<<<<<<< HEAD
         return <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><CheckCircle2 size={12} />{tAdmin("complete")}</span>;
       case 'In Progress':
         return <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Clock size={12} />{tAdmin("inProgress")}</span>;
       case 'Pending':
         return <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><AlertTriangle size={12} />{tAdmin("pending")}</span>;
+=======
+        return <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><CheckCircle2 size={12} />Complete</span>;
+      case 'In Progress':
+        return <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><Clock size={12} />In Progress</span>;
+      case 'Pending':
+        return <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-lg flex items-center gap-1 w-fit"><AlertTriangle size={12} />Pending</span>;
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
       default:
         return null;
     }
@@ -281,16 +311,27 @@ export default function Localization() {
   return (
     <DashboardLayout 
       navigation={navigation} 
+<<<<<<< HEAD
       headerTitle={tAdmin("localizationLanguages")}
       userRole="admin"
       userName={tAdmin("systemAdmin")}
+=======
+      headerTitle="Localization & Languages"
+      userRole="admin"
+      userName="System Admin"
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
     >
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
+<<<<<<< HEAD
             <h1 className="text-2xl font-bold text-gray-900 mb-2">{tAdmin("localizationManagement")}</h1>
             <p className="text-gray-600">{tAdmin("manageLanguagesTranslationsAndLocalizedContent")}</p>
+=======
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Localization Management</h1>
+            <p className="text-gray-600">Manage languages, translations, and localized content</p>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </div>
           <div className="flex items-center gap-3">
             <button className="px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50">
@@ -317,7 +358,11 @@ export default function Localization() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">9</div>
+<<<<<<< HEAD
             <div className="text-sm text-gray-600">{tAdmin("totalLanguages")}</div>
+=======
+            <div className="text-sm text-gray-600">Total Languages</div>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -327,7 +372,11 @@ export default function Localization() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">3</div>
+<<<<<<< HEAD
             <div className="text-sm text-gray-600">{tAdmin("complete")}</div>
+=======
+            <div className="text-sm text-gray-600">Complete</div>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -337,7 +386,11 @@ export default function Localization() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">2,847</div>
+<<<<<<< HEAD
             <div className="text-sm text-gray-600">{tAdmin("translationKeys")}</div>
+=======
+            <div className="text-sm text-gray-600">Translation Keys</div>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -347,7 +400,11 @@ export default function Localization() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">12</div>
+<<<<<<< HEAD
             <div className="text-sm text-gray-600">{tAdmin("countriesCovered")}</div>
+=======
+            <div className="text-sm text-gray-600">Countries Covered</div>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </div>
           
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -357,7 +414,11 @@ export default function Localization() {
               </div>
             </div>
             <div className="text-2xl font-bold text-gray-900 mb-1">6,645</div>
+<<<<<<< HEAD
             <div className="text-sm text-gray-600">{tAdmin("missingTranslations")}</div>
+=======
+            <div className="text-sm text-gray-600">Missing Translations</div>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </div>
         </div>
 
@@ -365,30 +426,49 @@ export default function Localization() {
         <div className="bg-white rounded-2xl border border-gray-200 p-5">
           <div className="grid grid-cols-2 gap-4">
             <div>
+<<<<<<< HEAD
               <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("searchLanguages")}</label>
+=======
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Search Languages</label>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+<<<<<<< HEAD
                   placeholder={tAdmin("languageNameOrCode")}
+=======
+                  placeholder="Language name or code..."
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
                   className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent"
                 />
               </div>
             </div>
             
             <div>
+<<<<<<< HEAD
               <label className="block text-sm font-semibold text-gray-700 mb-2">{tAdmin("translationStatus")}</label>
+=======
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Translation Status</label>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent appearance-none bg-white"
               >
+<<<<<<< HEAD
                 <option value="all">{tAdmin("allStatus")}</option>
                 <option value="Complete">{tAdmin("complete")}</option>
                 <option value="In Progress">{tAdmin("inProgress")}</option>
                 <option value="Pending">{tAdmin("pending")}</option>
+=======
+                <option value="all">All Status</option>
+                <option value="Complete">Complete</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Pending">Pending</option>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
               </select>
             </div>
           </div>
@@ -410,6 +490,7 @@ export default function Localization() {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
+<<<<<<< HEAD
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("language")}</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("code")}</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("countries")}</th>
@@ -419,6 +500,17 @@ export default function Localization() {
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("status")}</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("lastUpdated")}</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{tAdmin("actions")}</th>
+=======
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Language</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Code</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Countries</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Progress</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Translations</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Missing Keys</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Last Updated</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -433,7 +525,11 @@ export default function Localization() {
                           <div className="font-semibold text-gray-900 flex items-center gap-2">
                             {lang.name}
                             {lang.isDefault && (
+<<<<<<< HEAD
                               <span className="px-2 py-0.5 bg-[#eacb7f] text-[#083f30] text-xs font-semibold rounded">{tAdmin("default")}</span>
+=======
+                              <span className="px-2 py-0.5 bg-[#eacb7f] text-[#083f30] text-xs font-semibold rounded">Default</span>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
                             )}
                           </div>
                           <div className="text-sm text-gray-600">{lang.nativeName}</div>
@@ -503,7 +599,11 @@ export default function Localization() {
         {/* Content Modules */}
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
           <div className="p-5 border-b border-gray-200">
+<<<<<<< HEAD
             <h2 className="font-bold text-gray-900">{tAdmin("localizedContentModules")}</h2>
+=======
+            <h2 className="font-bold text-gray-900">Localized Content Modules</h2>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </div>
           
           <div className="p-5">
@@ -523,11 +623,19 @@ export default function Localization() {
                   
                   <div className="grid grid-cols-2 gap-3 mb-3">
                     <div className="p-2 bg-green-50 rounded-lg">
+<<<<<<< HEAD
                       <div className="text-xs text-gray-600 mb-1">{tAdmin("translated")}</div>
                       <div className="text-lg font-bold text-green-700">{module.translatedInAll}</div>
                     </div>
                     <div className="p-2 bg-amber-50 rounded-lg">
                       <div className="text-xs text-gray-600 mb-1">{tAdmin("pending")}</div>
+=======
+                      <div className="text-xs text-gray-600 mb-1">Translated</div>
+                      <div className="text-lg font-bold text-green-700">{module.translatedInAll}</div>
+                    </div>
+                    <div className="p-2 bg-amber-50 rounded-lg">
+                      <div className="text-xs text-gray-600 mb-1">Pending</div>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
                       <div className="text-lg font-bold text-amber-700">{module.pendingTranslations}</div>
                     </div>
                   </div>

@@ -4,16 +4,24 @@ using BuildingBlocks.Core.Messaging.Queries;
 using BuildingBlocks.Core.Models;
 using BuildingBlocks.Core.Persistence.Connection;
 using BuildingBlocks.Core.ResultPattern;
+<<<<<<< HEAD
 using BuildingBlocks.Security.Jwt.Services;
 using BuildingBlocks.Web.Services;
 using Dapper;
 using System.Data;
+=======
+using BuildingBlocks.Web.Services;
+using Dapper;
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 
 namespace LSevin.Modules.Category.ServiceProvider.Features.GetServiceProviderByIdPublic;
 
 internal sealed class GetSearchHistoryQueryHandler(
     IDbConnectionFactory dbConnectionFactory,
+<<<<<<< HEAD
     IUserAccessor userAccessor,
+=======
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
     ILocaleAccessor localeAccessor
 ) : IQueryHandler<GetSearchHistoryQuery, GetSearchHistoryResponse>
 {
@@ -33,6 +41,7 @@ internal sealed class GetSearchHistoryQueryHandler(
         var defaultLocale = localeAccessor.DefaultLocale;
 
 
+<<<<<<< HEAD
         /*
                 var trendingSearches = new List<SearchHistoryTrendingSearchesVm>() {
             new SearchHistoryTrendingSearchesVm { Query= "Hair Transplant", Trend= "+45%" },
@@ -154,6 +163,43 @@ LIMIT 5;";
             TrendingSearches = trending,
             PopularCategories = categories
         };
+=======
+
+        var trendingSearches = new List<SearchHistoryTrendingSearchesVm>() {
+    new SearchHistoryTrendingSearchesVm { Query= "Hair Transplant", Trend= "+45%" },
+    new SearchHistoryTrendingSearchesVm { Query= "Dental Veneers", Trend= "+38%" },
+    new SearchHistoryTrendingSearchesVm { Query= "IVF Treatment", Trend= "+32%" },
+    new SearchHistoryTrendingSearchesVm { Query= "Rhinoplasty", Trend= "+28%" },
+    new SearchHistoryTrendingSearchesVm { Query= "Laser Eye Surgery", Trend= "+25%" },
+    new SearchHistoryTrendingSearchesVm { Query= "Weight Loss Surgery", Trend= "+22%" },
+  };
+
+        var popularCategories = new List<SearchHistoryPopularCategoryVm>()
+        {
+    new SearchHistoryPopularCategoryVm{ Label= "Medical Tourism", Icon = "🏥" },
+    new SearchHistoryPopularCategoryVm { Label= "Dental Care", Icon = "🦷" },
+    new SearchHistoryPopularCategoryVm { Label= "Cosmetic Surgery", Icon = "💉" },
+    new  SearchHistoryPopularCategoryVm{ Label= "Wellness & Spa", Icon = "🧘" },
+    new SearchHistoryPopularCategoryVm{ Label= "Fertility", Icon = "👶" },
+    new  SearchHistoryPopularCategoryVm{ Label = "Fitness", Icon = "💪" }
+  };
+        var searchHistoryResponse = new GetSearchHistoryResponse
+        {
+            RecentSearches = new string[]
+           {
+                 "Hair Transplant in Istanbul",
+    "Dental Veneers Dubai",
+    "IVF Cyprus",
+    "Spa Bali"
+           },
+            PopularCategories = popularCategories,
+            TrendingSearches = trendingSearches,
+        };
+
+
+
+        return searchHistoryResponse;
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
     }
 }
 

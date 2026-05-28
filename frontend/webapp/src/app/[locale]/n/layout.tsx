@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { setRequestLocale } from "next-intl/server";
 import Navbar from "@/components/navbar";
 import Shell from "@/components/shell";
@@ -30,3 +31,39 @@ export default async function MainLayout({
     </Shell>
   );
 }
+=======
+import { Suspense } from "react";
+import { setRequestLocale } from "next-intl/server";
+
+import Navbar from "@/components/navbar";
+import Shell from "@/components/shell";
+import { LocalePageProps } from "@/types/next";
+import { BottomTabBar } from "./app/design-system/mobile-components";
+
+const MainLayout = ({ children, params }: LocalePageProps) => {
+  return (
+    <Shell>
+      <Suspense>
+        <SuspenseBoundary params={params}>
+          <div className="flex flex-col gap-4">
+            <Navbar />
+            {children}
+
+            <BottomTabBar />
+            
+          </div>
+        </SuspenseBoundary>
+      </Suspense>
+    </Shell>
+  );
+};
+
+const SuspenseBoundary = async ({ children, params }: LocalePageProps) => {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
+  return <div>{children}</div>;
+};
+
+export default MainLayout;
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965

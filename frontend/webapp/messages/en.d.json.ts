@@ -2,6 +2,7 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+<<<<<<< HEAD
   "BottomTabBar": {
     "Profile": "Profile",
     "Home": "Home",
@@ -3081,6 +3082,9 @@ declare const messages: {
     "uploadCardTitle": "Upload Documents",
     "uploadedBadge": "Uploaded"
   },
+=======
+ 
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   "Manifest": {
     "name": "Name",
     "Bookings": "Bookings",
@@ -4576,6 +4580,9 @@ declare const messages: {
     }
   },
   "Consulting": {
+     "serviceProviders":{
+"viewAll":"view all"
+  },
     "page": {
       "title": "Page Title",
       "description": "Page Description",

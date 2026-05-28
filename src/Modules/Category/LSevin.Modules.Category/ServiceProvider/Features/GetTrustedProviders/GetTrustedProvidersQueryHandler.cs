@@ -36,6 +36,7 @@ internal sealed class GetTrustedProvidersQueryHandler(
         await using var connection = await dbConnectionFactory.GetOrCreateConnectionAsync(cancellationToken);
         var parameters = new DynamicParameters();
 
+<<<<<<< HEAD
 
         var currentLocale = localeAccessor.CurrentLocale;
         var defaultLocale = localeAccessor.DefaultLocale;
@@ -156,6 +157,42 @@ limit 10 ;
             request.PageNumber,
             request.PageSize,
             totalItems: 0
+=======
+        var baseFromBuilder = BuildBaseFromClause();
+        ApplyFilters(baseFromBuilder, request, parameters);
+
+        // Count Query
+        var countParameters = new DynamicParameters(parameters);
+        var countSql = $"SELECT COUNT(sp.id) {baseFromBuilder}";
+        var totalCount = await connection.ExecuteScalarAsync<int>(
+            new CommandDefinition(countSql, countParameters, cancellationToken: cancellationToken)
+        );
+
+        if (totalCount == 0)
+        {
+            return PageList<GetTrustedProvidersResponse>.Empty;
+        }
+
+        // Data Query
+        var dataQueryBuilder = DapperExtensions.CreateSqlBuilder($"SELECT {GetSelectClause()} {baseFromBuilder}");
+
+        dataQueryBuilder.AppendSorting(request, _allowedSortColumns, "sp.id", ensureDeterministicOrder: true);
+
+        dataQueryBuilder.AppendPaging(request, parameters);
+
+        var serviceProviders = await connection.QueryAsync<GetTrustedProvidersResponse>(
+            new CommandDefinition(dataQueryBuilder.ToString(), parameters, cancellationToken: cancellationToken)
+        );
+
+
+   
+
+        return PageList<GetTrustedProvidersResponse>.Create(
+            serviceProviders.AsList(),
+            request.PageNumber,
+            request.PageSize,
+            totalItems: totalCount
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
         );
     }
 
@@ -165,6 +202,7 @@ limit 10 ;
         var defaultLocale = localeAccessor.DefaultLocale;
 
         return $"""
+<<<<<<< HEAD
             sp.id AS {nameof(GetTrustedProvidersResponse.Id)},
             COALESCE(
                 sp.name_translations ->> '{currentLocale}',
@@ -216,11 +254,73 @@ limit 10 ;
             sp.last_modified_date AS {nameof(GetTrustedProvidersResponse.LastModifiedDate)}
         """;
     }
+=======
+                sp.id AS {nameof(GetTrustedProvidersResponse.Id)},
+                COALESCE(
+                    sp.name_translations ->> '{currentLocale}',
+                    sp.name_translations ->> '{defaultLocale}',
+                    (sp.name_translations ->> (SELECT jsonb_object_keys(sp.name_translations) LIMIT 1))
+                ) AS {nameof(GetTrustedProvidersResponse.Name)},
+                COALESCE(
+                    sp.description_translations ->> '{currentLocale}',
+                    sp.description_translations ->> '{defaultLocale}',
+                    (sp.description_translations ->> (SELECT jsonb_object_keys(sp.description_translations) LIMIT 1))
+                ) AS {nameof(GetTrustedProvidersResponse.Description)},
+                sp.email AS {nameof(GetTrustedProvidersResponse.ContactEmail)},
+                sp.phone_number_country_code AS {nameof(GetTrustedProvidersResponse.PhoneNumberCountryCode)},
+                sp.phone_number AS {nameof(GetTrustedProvidersResponse.PhoneNumber)},
+                CONCAT(
+                    COALESCE(
+                        sp.street_translations ->> '{currentLocale}',
+                        sp.street_translations ->> '{defaultLocale}',
+                        (sp.street_translations ->> (SELECT jsonb_object_keys(sp.street_translations) LIMIT 1)),
+                        ''
+                    ),
+                    ', ',
+                    sp.city,
+                    ', ',
+                    sp.country,
+                    ' ',
+                    sp.zip_code,
+                    ', ',
+                    COALESCE(
+                        sp.detail_translations ->> '{currentLocale}',
+                        sp.detail_translations ->> '{defaultLocale}',
+                        (sp.detail_translations ->> (SELECT jsonb_object_keys(sp.detail_translations) LIMIT 1)),
+                        ''
+                    )
+                ) AS {nameof(GetTrustedProvidersResponse.Address)},
+                sp.is_active AS {nameof(GetTrustedProvidersResponse.IsActive)},
+                sp.provider_type_id AS {nameof(GetTrustedProvidersResponse.ProviderTypeId)},
+                COALESCE(
+                    pt.name_translations ->> '{currentLocale}',
+                    pt.name_translations ->> '{defaultLocale}',
+                    (pt.name_translations ->> (SELECT jsonb_object_keys(pt.name_translations) LIMIT 1))
+                ) AS {nameof(GetTrustedProvidersResponse.ProviderTypeName)},
+                (SELECT COUNT(*)::int FROM category.provider_services WHERE service_provider_id = sp.id) AS {nameof(
+                GetTrustedProvidersResponse.ServiceCount
+            )},
+                (SELECT COUNT(*)::int FROM category.provider_gallery_items WHERE service_provider_id = sp.id) AS {nameof(
+                GetTrustedProvidersResponse.GalleryItemCount
+            )},
+                (SELECT COUNT(*)::int FROM category.provider_policies WHERE service_provider_id = sp.id) AS {nameof(
+                GetTrustedProvidersResponse.PolicyCount
+            )},
+                (SELECT COUNT(*)::int FROM category.provider_staffs WHERE service_provider_id = sp.id) AS {nameof(
+                GetTrustedProvidersResponse.StaffCount
+            )},
+                sp.create_date AS {nameof(GetTrustedProvidersResponse.CreateDate)},
+                sp.last_modified_date AS {nameof(GetTrustedProvidersResponse.LastModifiedDate)}
+            """;
+    }
+
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
     private static StringBuilder BuildBaseFromClause()
     {
         return DapperExtensions.CreateSqlBuilder(
             """
             FROM category.service_providers sp
+<<<<<<< HEAD
             LEFT JOIN category.provider_types pt
                 ON pt.id = sp.provider_type_id
             LEFT JOIN LATERAL (
@@ -230,6 +330,9 @@ limit 10 ;
                 ORDER BY gi.display_order ASC, gi.create_date ASC
                 LIMIT 1
             ) pgi ON TRUE
+=======
+            JOIN category.provider_types pt ON sp.provider_type_id = pt.id
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
             """
         );
     }

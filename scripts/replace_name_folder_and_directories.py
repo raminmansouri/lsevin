@@ -51,6 +51,10 @@ if __name__ == "__main__":
 
 
 # rep.py F:/workplace/lsevin/src/Modules/Customer/LSevin.Modules.Customer/Customer/Features/Bookings Explore Bookings
+<<<<<<< HEAD
 # py replace_name_folder_and_directories.py F:/workplace/lsevin/src/Modules/Customer/LSevin.Modules.Customer/Customer/Features/GetNotificationCount Bookings GetNotificationCount
 # py replace_name_folder_and_directories.py F:\workplace\lsevin\src\Modules\Category\LSevin.Modules.Category\ServiceProvider\Features\GetServicePageById GetServiceProviderByIdPublic  GetProviderPageData
 #F:\workplace\lsevin\src\Modules\Customer\LSevin.Modules.Customer\Customer\Features\GetNotificationCount
+=======
+# py replace_name_folder_and_directories.py F:/workplace/lsevin/src/Modules/Customer/LSevin.Modules.Customer/Customer/Features/Bookings Explore Bookings
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965

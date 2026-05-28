@@ -1,6 +1,7 @@
 namespace LSevin.Modules.Category.ServiceProvider.Features.GetServiceProviders;
 
 public sealed record GetTrustedProvidersResponse(
+<<<<<<< HEAD
 
 )
 {
@@ -20,6 +21,26 @@ public sealed record GetTrustedProvidersResponse(
     public int StaffCount { get; set; }
     public DateTime CreateDate { get; set; }
     public DateTime? LastModifiedDate { get; set; }
+=======
+    Guid Id,
+    string Name,
+    string Description,
+    string ContactEmail,
+    string? PhoneNumberCountryCode,
+    string? PhoneNumber,
+    string Address,
+    bool IsActive,
+    Guid ProviderTypeId,
+    string ProviderTypeName,
+    int ServiceCount,
+    int GalleryItemCount,
+    int PolicyCount,
+    int StaffCount,
+    DateTime CreateDate,
+    DateTime? LastModifiedDate
+)
+{
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
     public bool? Verified { get; set; }
     public int? Rating { get; set; }
     public int? Bookings { get; set; }

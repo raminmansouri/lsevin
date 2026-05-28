@@ -116,6 +116,7 @@ export default function EditProfile() {
             <input
               type="tel"
               value={formData.phone}
+<<<<<<< HEAD
               readOnly
               disabled
               className="w-full h-12 px-4 border border-gray-200 rounded-xl bg-gray-100 text-gray-500 cursor-not-allowed"
@@ -123,6 +124,11 @@ export default function EditProfile() {
             <p className="mt-2 text-xs text-gray-500">
               Mobile number is the base account identity and cannot be changed from profile.
             </p>
+=======
+              onChange={(e) => handleInputChange('phone', e.target.value)}
+              className="w-full h-12 px-4 border border-gray-300 rounded-xl focus:border-[#083f30] focus:outline-none transition-colors"
+            />
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
           </div>
 
           {/* Date of Birth */}

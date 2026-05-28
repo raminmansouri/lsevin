@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<Target Name="DisableAppleSdks" BeforeTargets="PrepareForBuild">
@@ -15,3 +16,22 @@
     <None Remove="obj\**" />
   </ItemGroup>
 </Project>
+=======
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<Target Name="DisableAppleSdks" BeforeTargets="PrepareForBuild">
+		<PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+			<UseMaui>false</UseMaui>
+			<EnableIos>false</EnableIos>
+			<EnableMacCatalyst>false</EnableMacCatalyst>
+			<EnableTvOS>false</EnableTvOS>
+			<EnableWatchOS>false</EnableWatchOS>
+		</PropertyGroup>
+	</Target>
+  <ItemGroup>
+    <None Include="**\*.sql" CopyToOutputDirectory="PreserveNewest" />
+    <None Remove="bin\**" />
+    <None Remove="obj\**" />
+  </ItemGroup>
+</Project>
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965

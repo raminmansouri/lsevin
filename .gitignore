@@ -11,9 +11,12 @@
 **/bin/
 **/obj/
 
+<<<<<<< HEAD
 **/UploadFiles/*
 
 
+=======
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 **/bin/*
 **/obj/*
 
@@ -36,6 +39,7 @@ build/*
 
 #Ignore vscode AI rules
 .github\instructions\codacy.instructions.md
+<<<<<<< HEAD
 
 frontend/webapp/public/unsplash_images/*.jpg
 
@@ -52,3 +56,5 @@ dynamic-admin-dashboard-scaffold/*
 
 *.zip
 *.zip
+=======
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965

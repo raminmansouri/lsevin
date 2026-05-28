@@ -53,8 +53,12 @@ export function addSearchParam(
 }
 export function addAllParams(
   searchParams: URLSearchParams,
+<<<<<<< HEAD
   params: any,
   dontAddNulls=false
+=======
+  params: any
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 ) {
   const excludeNames = [
     "filters",
@@ -65,14 +69,21 @@ export function addAllParams(
     "sortOrder",
   ]
   console.log('searchParams changed', params)
+<<<<<<< HEAD
   console.log('searchParams before', searchParams.toString(), params)
   if (Object.keys(params).length > 0) {
     for (let key in params) {
+=======
+  console.log('searchParams before', searchParams.toString(),params)
+  if (Object.keys(params).length > 0) {
+    for ( let key in params){
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
       if (
         searchParams.has(key) == false &&
         excludeNames.indexOf(key) < 0) {
 
         if (Array.isArray(params[key])) { // Check if the value is an array
+<<<<<<< HEAD
           console.log('searchParams arr', key, params[key], 'ex:' + excludeNames[key])
           params[key].forEach((value, index) => {
 
@@ -83,6 +94,15 @@ export function addAllParams(
           console.log('searchParams add', key, params[key], 'ex:' + excludeNames[key])
           if (!dontAddNulls)
             searchParams.set(key, params[key] ?? '')
+=======
+         console.log('searchParams arr', key, params[key], 'ex:' + excludeNames[key])
+  params[key].forEach((value, index) => {
+            searchParams.set(`${key}[]`,value)
+          });
+        } else {
+            console.log('searchParams add', key, params[key], 'ex:' + excludeNames[key])
+          searchParams.set(key, params[key])
+>>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 
         }
 
