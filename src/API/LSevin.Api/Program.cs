@@ -18,14 +18,16 @@ using BuildingBlocks.Web.Modules.Extensions;
 using BuildingBlocks.Web.OpenApi;
 using BuildingBlocks.Web.ProblemDetail.Extensions;
 using BuildingBlocks.Web.RateLimit;
-using Microsoft.Extensions.Hosting;
+using LSevin.Api.Hubs;
+using LSevinModels.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
 using CategoryModule = LSevin.Modules.Category.CategoryReference;
 using CustomerModule = LSevin.Modules.Customer.CustomerReference;
 using Environments = BuildingBlocks.Core.Web.Environments;
 using IdentityModule = LSevin.Modules.Identity.IdentityReference;
-using Microsoft.AspNetCore.HttpOverrides;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -68,14 +70,23 @@ try
 
     configuration.AddModulesSettingsFile(env.ContentRootPath);
 
+    builder.Services.AddMemoryCache();
+
+    //builder.Services.AddSignalR();
+    builder.Services.AddAuthentication(); // whatever you us
+
     builder.Services.AddHttpContextAccessor();
-    builder.Services.Configure<HostOptions>(options =>
+
+    builder.Services.AddDbContextFactory<LsevinContext>((sp, options) =>
     {
-        options.ServicesStartConcurrently = false;
-        options.ServicesStopConcurrently = false;
+        options.UseNpgsql(databaseConnectionString);
     });
 
+
+
     builder.AddCustomObservability();
+
+
 
     builder.Services.AddBaseHealthCheck(databaseConnectionString, redisConnectionString, eventStoreConnectionString);
 
@@ -85,6 +96,7 @@ try
     }
 
     var modulesAssemblies = new[] { IdentityModule.Assembly, CustomerModule.Assembly, CategoryModule.Assembly };
+
 
     /*----------------- Module Services Setup ------------------*/
     builder.AddModulesServices(env, useCompositionRootForModules: true, modulesAssemblies);
@@ -114,14 +126,6 @@ try
 
     var app = builder.Build();
 
-    var forwardedHeadersOptions = new ForwardedHeadersOptions
-    {
-        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-    };
-    forwardedHeadersOptions.KnownNetworks.Clear();
-    forwardedHeadersOptions.KnownProxies.Clear();
-    app.UseForwardedHeaders(forwardedHeadersOptions);
-
     if (isDev && isTest)
     {
         app.UseDeveloperExceptionPage();
@@ -140,6 +144,12 @@ try
     app.UseFileUploadService(configuration, env);
 
     app.UseAuthentication().UseAuthorization();
+
+    //app.UseEndpoints(endpoints =>
+    //{
+    //    endpoints.MapHub<ClientHub>("/clientHub");
+    //    // other endpoints
+    //});
 
     /*----------------- Module Middleware Setup ------------------*/
     await app.ConfigureModules();
@@ -193,4 +203,3 @@ finally
 {
     await Log.CloseAndFlushAsync();
 }
-

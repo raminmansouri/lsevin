@@ -4,12 +4,11 @@ import { getTranslations } from "next-intl/server";
 import { SearchParams } from "nuqs";
 
 import ServerFetchResult from "@/components/fetcher/fetch.server";
-import { withBaseHeaders } from "@/config/http/http-service.server";
-import { getServiceProviders } from "@/features/service-providers/api/server/get-service-providers";
-import ServiceProvidersListTable, {
-  ServiceProvidersListTableSkeleton,
-} from "@/features/service-providers/components/service-providers-list/service-providers-list-table";
-import { ServiceProvider } from "@/features/service-providers/types";
+import { getAdminServiceProviders } from "@/features/service-providers/db/admin-service-providers.queries";
+import {
+  ServiceProvidersAdminList,
+  ServiceProvidersAdminListSkeleton,
+} from "@/features/service-providers/components/admin/service-providers-admin-list";
 import { TRANSLATION_KEY } from "@/features/service-providers/types/constants";
 import { providerTypeSearchParamsCache } from "@/features/service-providers/types/filters";
 import {
@@ -17,17 +16,13 @@ import {
   transformSearchParamsToFilterParams,
 } from "@/lib/filter-params";
 import { FilterParams } from "@/types/filter";
-import { PaginatedResult } from "@/types/network";
 import { PageProps } from "@/types/next";
 
 export async function generateMetadata(
   props: Omit<PageProps, "children">
 ): Promise<Metadata> {
   const { locale } = await props.params;
-  const t = await getTranslations({
-    locale,
-    namespace: TRANSLATION_KEY,
-  });
+  const t = await getTranslations({ locale, namespace: TRANSLATION_KEY });
 
   return {
     title: t("page.title"),
@@ -35,51 +30,54 @@ export async function generateMetadata(
   };
 }
 
-const ServiceProvidersPage = ({ searchParams }: PageProps) => {
+interface ServiceProvidersPageProps extends PageProps {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<SearchParams>;
+}
+
+const ServiceProvidersPage = ({ params, searchParams }: ServiceProvidersPageProps) => {
   return (
-    <Suspense fallback={<ServiceProvidersListTableSkeleton />}>
-      <SuspenseBoundary searchParams={searchParams} />
+    <Suspense fallback={<ServiceProvidersAdminListSkeleton />}>
+      <SuspenseBoundary params={params} searchParams={searchParams} />
     </Suspense>
   );
 };
 
 const SuspenseBoundary = async ({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<SearchParams>;
 }) => {
-  const searchParamsData = await searchParams;
-  const filterParams: FilterParams =
-    transformSearchParamsToFilterParams(searchParamsData);
+  const [{ locale }, searchParamsData] = await Promise.all([params, searchParams]);
+  const filterParams: FilterParams = transformSearchParamsToFilterParams(searchParamsData);
+  const { providerTypeIds } = providerTypeSearchParamsCache.parse(searchParamsData);
+  const searchText =
+    typeof searchParamsData.filters === "string"
+      ? searchParamsData.filters
+      : typeof searchParamsData.search === "string"
+        ? searchParamsData.search
+        : typeof searchParamsData.q === "string"
+          ? searchParamsData.q
+          : typeof searchParamsData.query === "string"
+            ? searchParamsData.query
+            : undefined;
 
-  const { providerTypeIds } =
-    providerTypeSearchParamsCache.parse(searchParamsData);
-
-  const result = await withBaseHeaders(
-    async (locale, token) => {
-      return getServiceProviders(
-        { locale, token },
-        {
-          ...filterParams,
-          providerTypeIds,
-        }
-      );
-    },
-    {
-      adminRequired: true,
-    }
-  );
+  const result = await getAdminServiceProviders(locale, {
+    ...filterParams,
+    filters: searchText ?? filterParams.filters,
+    providerTypeIds,
+  });
 
   return (
-    <ServerFetchResult<PaginatedResult<ServiceProvider>> result={result}>
-      {(serviceProviders) => {
-        return (
-          <ServiceProvidersListTable
-            items={serviceProviders.items}
-            pagination={transformPaginatedResultToPagination(serviceProviders)}
-          />
-        );
-      }}
+    <ServerFetchResult result={result}>
+      {(serviceProviders) => (
+        <ServiceProvidersAdminList
+          items={serviceProviders.items}
+          pagination={transformPaginatedResultToPagination(serviceProviders)}
+        />
+      )}
     </ServerFetchResult>
   );
 };

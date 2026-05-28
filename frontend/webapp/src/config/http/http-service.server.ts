@@ -14,6 +14,7 @@ import {
   localeToHeader,
 } from "../locales";
 import { errorHandler } from "./http-error-strategies";
+import { logRequest, logResponse } from "./logger";
 
 type KeyValue = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -107,23 +108,41 @@ const customFetch = async <TResult extends ApiDataValue>(
   url: string,
   options: FetcherOptions
 ): Promise<ApiReturnType<TResult>> => {
+  const finalUrl = new URL(`${env.NEXT_PUBLIC_API_URL}/${url}`);
+
   try {
-    const finalUrl = new URL(`${env.NEXT_PUBLIC_API_URL}/${url}`);
     const fetchOptions = await prepareRequest(finalUrl, options);
+
+    logRequest(finalUrl.toString(), fetchOptions, fetchOptions.body as any, {
+      enabled: true,
+      format: "both",
+      // redactHeaders: ["cookie", "set-cookie"],
+    });
+
     const response = await fetch(finalUrl, fetchOptions);
-    return await handleFetchApiResponse<TResult>(response);
+
+    await logResponse(finalUrl.toString(), response.clone(), {
+      enabled: true,
+      format: "both",
+    });
+
+    return await handleFetchApiResponse<TResult>(finalUrl.toString(), response);
   } catch (error: unknown) {
-    console.log(error);
+    console.log(finalUrl.toString(), error);
+
     const err = error as IProblem;
     if (err) {
       const problem: IProblem = {
+        url: finalUrl.toString(),
         title: err?.title ?? "مشکلی رخ داده است",
         status: err?.status ?? 500,
         detail: err?.detail ?? "مشکلی رخ داده است",
+        err: err,
         errors: err?.errors,
       };
       return { error: problem };
     }
+
     throw new Error("مشکلی رخ داده است");
   }
 };
@@ -193,7 +212,7 @@ export const patchData = <TPayload, TResult extends ApiDataValue>(
 };
 
 async function handleFetchApiResponse<TSuccess>(
-  response: Response
+  finalUrl:string,response: Response
 ): Promise<ApiReturnType<TSuccess>> {
   // Handle successful responses
   if (response.ok) {
@@ -225,6 +244,7 @@ async function handleFetchApiResponse<TSuccess>(
   }
 
   const problem: IProblem = {
+    url:finalUrl,
     title: error.title || "Error",
     status: response.status,
     detail: error.detail || error.message || "An error occurred",
@@ -259,3 +279,6 @@ export const withBaseHeaders = async <T>(
 
   return apiCallFn(lang, user?.accessToken, user?.id);
 };
+
+
+

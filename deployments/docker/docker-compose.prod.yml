@@ -13,6 +13,7 @@ services:
       - lsevin-network
     depends_on:
       - lsevin-webapp
+      - lsevin-booking-webapp
       - lsevin-apigateway
 
   lsevin-webapp:
@@ -30,6 +31,7 @@ services:
       NODE_ENV: production
       AUTH_URL: ${AUTH_URL}
       AUTH_SECRET: ${AUTH_SECRET}
+      INTERNAL_API_URL: ${INTERNAL_API_URL}
       AUTH_TRUST_HOST: "true"
       WEBHOOK_KEY: ${WEBHOOK_KEY}
       NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
@@ -37,12 +39,25 @@ services:
       NEXT_PUBLIC_FILES_URL: ${NEXT_PUBLIC_FILES_URL}
       NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL}
       NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN}
+    restart: unless-stopped
     expose:
       - "3000"
     networks:
       - lsevin-network
-    depends_on:
-      - lsevin-apigateway
+
+  lsevin-booking-webapp:
+    build:
+      context: ../../frontend/booking-webapp
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    restart: unless-stopped
+    expose:
+      - "4173"
+    networks:
+      - lsevin-network
 
   lsevin-apigateway:
     build:
@@ -64,11 +79,11 @@ services:
     build:
       context: ../../
       dockerfile: src/API/LSevin.Api/Dockerfile
+    restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
-      Services__lsevin-api__http: http://lsevin-api:8080
       ConnectionStrings__database: Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Include Error Detail=true;
       ConnectionStrings__cache: redis:6379
       ConnectionStrings__eventstore: esdb://eventstore:2113?tls=false
@@ -87,10 +102,7 @@ services:
       - uploads:/app/UploadFiles
     networks:
       - lsevin-network
-    depends_on:
-      - postgres
-      - redis
-      - eventstore
+
 
   postgres:
     image: postgres:16-alpine
@@ -103,6 +115,8 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - lsevin-network
+    ports:
+      - 5432:5432
 
   redis:
     image: redis:7-alpine

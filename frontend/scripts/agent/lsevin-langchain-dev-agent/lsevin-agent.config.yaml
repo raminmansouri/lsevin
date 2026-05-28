@@ -1,0 +1,66 @@
+# LSevin LangChain Dev Agent config
+
+project_root: "F:/workplace/lsevin/frontend/webapp"
+
+ollama:
+  base_url: "http://localhost:11434"
+  model: "qwen2.5-coder:14b-instruct"
+  temperature: 0
+
+agent:
+  recursion_limit: 80
+  max_file_chars: 60000
+  max_search_results: 80
+  auto_task_history_limit: 30
+
+safety:
+  allow_writes: true
+  allow_command_execution: true
+  require_exact_patch: true
+
+snapshots:
+  enabled: true
+  prefer_winrar: true
+  # Your original command makes .rar. Set archive_format to "rar" to use it.
+  # Use "zip" if you want a real .zip from WinRAR using -afzip.
+  archive_format: "zip"
+  winrar_path: "C:/Program Files/WinRAR/WinRAR.exe"
+  archive_name: "ts-tsx-source"
+
+project:
+  database_schema_path: "database-schema.sql"
+  source_extensions:
+    - ".ts"
+    - ".tsx"
+    - ".sql"
+    - ".json"
+    - ".css"
+    - ".md"
+  pack_extensions:
+    - ".ts"
+    - ".tsx"
+  excluded_dirs:
+    - "node_modules"
+    - ".next"
+    - "dist"
+    - "build"
+    - ".git"
+    - ".turbo"
+    - "coverage"
+    - ".lsevin-agent"
+  excluded_file_patterns:
+    - "pnpm-lock.yaml"
+    - "package-lock.json"
+    - "yarn.lock"
+
+checks:
+  commands:
+    - "pnpm lint"
+    - "pnpm typecheck"
+
+allowed_command_prefixes:
+  - "pnpm "
+  - "npm "
+  - "npx "
+  - "git status"
+  - "git diff"

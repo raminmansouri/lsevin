@@ -27,7 +27,8 @@ internal sealed class GetCategoryByIdQueryHandler(IDbConnectionFactory dbConnect
         // SQL query to get category by ID with JSONB translations
         var sql = """
             SELECT
-                c.id,
+               c.image_url,
+               c.id,
                 c.name_translations,
                 c.description_translations,
                 c.parent_id,
@@ -75,6 +76,7 @@ internal sealed class GetCategoryByIdQueryHandler(IDbConnectionFactory dbConnect
             ParentName: parentName,
             DisplayOrder: (int)result.display_order,
             IsActive: (bool)result.is_active,
+            ImageUrl: (string)result.image_url,
             IconUrl: (string?)result.icon_url,
             CreateDate: (DateTime)result.create_date,
             LastModifiedDate: (DateTime?)result.last_modified_date

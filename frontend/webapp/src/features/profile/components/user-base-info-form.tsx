@@ -2,13 +2,11 @@
 
 import { useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CountryCode, getCountryCallingCode } from "libphonenumber-js";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { PhoneInput } from "@/components/form/phone-input";
 import { ZodErrorProvider } from "@/components/providers/zod-error-provider";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,6 +39,16 @@ type Props = Pick<
   "firstName" | "lastName" | "email" | "phoneNumber" | "phoneNumberCountryCode"
 >;
 
+function formatLockedPhoneNumber(countryCode?: string | null, phone?: string | null) {
+  const cleanCountryCode = (countryCode ?? "").trim();
+  const cleanPhone = (phone ?? "").trim();
+  const displayCountryCode = /^\d+$/.test(cleanCountryCode)
+    ? `+${cleanCountryCode}`
+    : cleanCountryCode;
+
+  return [displayCountryCode, cleanPhone].filter(Boolean).join(" ");
+}
+
 export const UserBaseInfoForm = ({
   firstName,
   lastName,
@@ -52,11 +60,10 @@ export const UserBaseInfoForm = ({
   const { update: updateSession } = useSession();
 
   const t = useTranslations(TRANSLATION_KEY);
-
-  const countryCallingCode = getCountryCallingCode(
-    phoneNumberCountryCode as CountryCode
+  const lockedPhoneNumber = formatLockedPhoneNumber(
+    phoneNumberCountryCode,
+    phoneNumber
   );
-  const formattedPhoneNumber = `+${countryCallingCode}${phoneNumber}`;
 
   const form = useForm<InputType>({
     resolver: zodResolver(UpdateBaseInfoSchema),
@@ -65,7 +72,6 @@ export const UserBaseInfoForm = ({
       firstName: firstName || "",
       lastName: lastName || "",
       email: email || "",
-      phoneNumber: formattedPhoneNumber,
     },
   });
 
@@ -139,25 +145,20 @@ export const UserBaseInfoForm = ({
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="phoneNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("form.phoneNumber.label")}</FormLabel>
-                      <FormControl>
-                        <PhoneInput
-                          disabled={isPending}
-                          defaultCountry={
-                            (phoneNumberCountryCode as CountryCode) || "IR"
-                          }
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormItem>
+                  <FormLabel>{t("form.phoneNumber.label")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      value={lockedPhoneNumber}
+                      readOnly
+                      disabled
+                      className="cursor-not-allowed bg-muted text-muted-foreground"
+                    />
+                  </FormControl>
+                  <p className="text-xs text-muted-foreground">
+                    Mobile number is the account identity and cannot be changed from profile.
+                  </p>
+                </FormItem>
               </div>
             </CardContent>
             <CardFooter>

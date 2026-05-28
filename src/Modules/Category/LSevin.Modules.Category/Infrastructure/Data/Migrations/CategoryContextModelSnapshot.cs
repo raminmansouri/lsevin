@@ -297,6 +297,44 @@ namespace LSevin.Modules.Category.Infrastructure.Data.Migrations
                     b.ToTable("categories", "category");
                 });
 
+            modelBuilder.Entity("LSevin.Modules.Category.Category.Entities.Currency", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreateDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_date")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_modified_date")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric")
+                        .HasColumnName("price");
+
+                    b.Property<string>("Symbol")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("symbol");
+
+                    b.HasKey("Id")
+                        .HasName("pk_currencies");
+
+                    b.ToTable("currencies", "category");
+                });
+
             modelBuilder.Entity("LSevin.Modules.Category.Location.Entities.Location", b =>
                 {
                     b.Property<Guid>("Id")

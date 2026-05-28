@@ -17,11 +17,12 @@ const ServerFetchResult = async <T extends unknown>({
   const t = await getTranslations("Common.Fetcher");
   const { data, error } = result;
 
+  //console.log("Fetcher Result:", { data, error });
   if (error) {
     switch (error.status) {
       case 404:
         if (singleData) return notFound();
-        else return null;
+        else return null; 
       default:
         throw new Error(error.detail);
     }

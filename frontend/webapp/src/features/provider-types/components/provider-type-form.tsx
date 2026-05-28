@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useTransition } from "react";
@@ -10,9 +11,11 @@ import { ZodErrorProvider } from "@/components/providers/zod-error-provider";
 import { IconSelector } from "@/components/selectors/icon-selector";
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
+import { RHFSingleMediaPickerField } from "@/features/media-picker-addon";
 import { LocalizedInput } from "@/features/shared/components/LocalizedInput";
 import {
   createEmptyLocalizedContent,
@@ -55,7 +58,8 @@ export function ProviderTypeForm({ providerType }: ProviderTypeFormProps) {
         ? { translations: providerType.description.translations }
         : createEmptyLocalizedContent(),
       isActive: providerType?.isActive ?? true,
-      iconUrl: providerType?.iconUrl,
+      iconUrl: providerType?.iconUrl ?? "",
+      imageUrl: providerType?.imageUrl ?? "",
     },
     resolver: zodResolver(ProviderTypeFormSchema),
   });
@@ -75,7 +79,6 @@ export function ProviderTypeForm({ providerType }: ProviderTypeFormProps) {
   });
 
   const onSubmit = async (values: ProviderTypeFormInput) => {
-    // Normalize localized content by removing empty translations
     const normalizedFields = normalizeLocalizedFields({
       name: values.name,
       description: values.description,
@@ -84,6 +87,8 @@ export function ProviderTypeForm({ providerType }: ProviderTypeFormProps) {
     const payload = {
       ...values,
       ...normalizedFields,
+      iconUrl: values.iconUrl || undefined,
+      imageUrl: values.imageUrl || undefined,
     };
 
     startTransition(async () => {
@@ -95,116 +100,109 @@ export function ProviderTypeForm({ providerType }: ProviderTypeFormProps) {
     <CardContent>
       <ZodErrorProvider componentNamespace={PROVIDER_TYPE_TRANSLATION_KEY}>
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="form-container space-y-6"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="form-container space-y-6">
             {isEdit && (
               <FormField
                 control={form.control}
                 name="providerTypeId"
-                render={({ field }) => (
-                  <Input {...field} type="hidden" disabled />
-                )}
+                render={({ field }) => <Input {...field} type="hidden" disabled />}
               />
             )}
-            {/* Name Field */}
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <LocalizedInput
-                      label={componentT("form.name.label")}
-                      value={field.value}
-                      onChange={field.onChange}
-                      required
-                      maxLength={100}
-                      error={form.formState.errors.name?.message}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            {/* Description Field */}
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <LocalizedInput
-                      label={componentT("form.description.label")}
-                      value={field.value}
-                      onChange={field.onChange}
-                      richText
-                      rows={3}
-                      maxLength={2000}
-                      error={form.formState.errors.description?.message}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
 
-            {/* Icon Field */}
-            <FormField
-              control={form.control}
-              name="iconUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">
-                        {componentT("form.iconUrl.label")}
-                      </label>
-                      <IconSelector
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        placeholder={componentT("form.iconUrl.placeholder")}
-                      />
-                    </div>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            {/* Active Field
-            <FormField
-              control={form.control}
-              name="isActive"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">
-                      {componentT("form.isActive")}
-                    </FormLabel>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      disabled={isPending}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            /> */}
-            {/* {isEdit && providerType?.attributeDefinitions && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">
-                  {componentT("form.attributes")}
-                </h3>
-                <div className="rounded border p-4">
-                  <p className="text-muted-foreground text-sm">
-                    {componentT("form.attributesPlaceholder", {
-                      count: providerType.attributeDefinitions.length,
-                    })}
-                  </p>
-                </div>
+            <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+              <div className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <LocalizedInput
+                          label={componentT("form.name.label")}
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                          maxLength={100}
+                          error={form.formState.errors.name?.message}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <LocalizedInput
+                          label={componentT("form.description.label")}
+                          value={field.value}
+                          onChange={field.onChange}
+                          richText
+                          rows={4}
+                          maxLength={2000}
+                          error={form.formState.errors.description?.message}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
               </div>
-            )} */}
-            {/* Submit Buttons */}
+
+              <div className="space-y-6 rounded-2xl border bg-muted/20 p-4">
+                <RHFSingleMediaPickerField
+                  control={form.control}
+                  name="imageUrl"
+                  label="Provider type image"
+                  placeholder="Pick image"
+                  mediaType="image"
+                  helperText="Stores one media id; list/detail resolve it through media.media_library."
+                  modalTitle="Pick provider type image"
+                />
+
+                <FormField
+                  control={form.control}
+                  name="iconUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">
+                            {componentT("form.iconUrl.label")}
+                          </label>
+                          <IconSelector
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder={componentT("form.iconUrl.placeholder")}
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            Kept for the legacy small icon. Use the image field for visual cards.
+                          </p>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="isActive"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-xl border bg-background p-4">
+                      <FormLabel className="text-sm font-medium">
+                        {componentT("form.isActive")}
+                      </FormLabel>
+                      <FormControl>
+                        <Switch checked={field.value} onCheckedChange={field.onChange} disabled={isPending} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
             <div className="flex gap-4 pt-4">
               <Button type="submit" disabled={isPending}>
                 {isPending
@@ -235,26 +233,16 @@ export function ProviderTypeFormSkeleton() {
   return (
     <CardContent>
       <ZodErrorProvider componentNamespace={PROVIDER_TYPE_TRANSLATION_KEY}>
-        <div className="space-y-6">
-          {/* Name Field */}
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-9 w-full rounded-md" />
+        <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+          <div className="space-y-6">
+            <Skeleton className="h-16 w-full rounded-md" />
+            <Skeleton className="h-28 w-full rounded-md" />
           </div>
-
-          {/* Description Field */}
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-20 w-full rounded-md" />
+          <div className="space-y-6 rounded-2xl border p-4">
+            <Skeleton className="h-44 w-full rounded-xl" />
+            <Skeleton className="h-11 w-full rounded-md" />
+            <Skeleton className="h-16 w-full rounded-xl" />
           </div>
-
-          {/* Active Field */}
-          <div className="flex items-center justify-between rounded-lg border p-4">
-            <Skeleton className="h-4 w-16" />
-            <Skeleton className="h-6 w-11 rounded-full" />
-          </div>
-
-          {/* Submit Buttons */}
           <div className="flex gap-4 pt-4">
             <Skeleton className="h-9 w-32 rounded-md" />
             <Skeleton className="h-9 w-20 rounded-md" />

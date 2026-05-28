@@ -26,6 +26,9 @@ internal static class Routes
         internal const string ChangeActivation = $"{AdminUrl}/{{categoryId:guid}}/activation";
 
         internal const string GetCategoryTree = $"{AdminUrl}/tree";
+
+        internal const string UpdateImage = $"{AdminUrl}/UpdateImage/{{categoryId:guid}}";
+        internal const string UploadAnyFile = $"File/UploadAnyFile";
     }
 
     internal static class Location
@@ -82,6 +85,28 @@ internal static class Routes
         internal const string ChangeActivation = $"{AdminUrl}/{{serviceDefinitionId:guid}}/activation";
     }
 
+    internal static class Booking
+    {
+        internal const string Group = "Booking";
+
+        internal const string MainUrl = $"{AppBaseUrl}/service-providers";
+        internal const string AdminUrl = $"{AppBaseUrl}/admin/booking";
+
+        internal const string GetBookingServiceSelectionData = $"{AdminUrl}/{{serviceProviderId:guid}}/staff";
+        internal const string GetBookingAvailableDateTimes = $"{AdminUrl}/{{serviceProviderId:guid}}/staff";
+        
+        internal const string GetBookingGetProvidersByServiceAndSpecialist = $"{AdminUrl}/GetBookingGetProvidersByServiceAndSpecialist";
+        internal const string GetBookingGetServicesByProviderAndSpecialist = $"{AdminUrl}/GetBookingGetServicesByProviderAndSpecialist";
+        internal const string GetBookingSpecialistByProviderAndService = $"{AdminUrl}/GetBookingSpecialistByProviderAndService";
+        internal const string GetAddOns = $"{AdminUrl}/GetAddOns";
+        
+        internal const string GetBookingSteps = $"{AdminUrl}/GetBookingSteps";
+        internal const string GetBookingAvailableTimes = $"{AdminUrl}/GetBookingAvailableTimes";
+        internal const string GetBookingAvailableDates = $"{AdminUrl}/GetBookingAvailableDates";
+        internal const string GetUploadFiles = $"{AdminUrl}/GetUploadFiles";
+        internal const string BookingCheckout = $"{AdminUrl}/BookingCheckout";
+
+    }
     internal static class ServiceProvider
     {
         internal const string Group = "ServiceProvider";
@@ -93,7 +118,13 @@ internal static class Routes
         internal const string GetAll = $"{AdminUrl}";
 
         internal const string GetPublicById = $"{MainUrl}/{{serviceProviderId:guid}}";
+        internal const string GetTrustedProviders = $"{MainUrl}/trusted-providers";
+        internal const string GetFeaturedServices = $"{MainUrl}/featured-services";
+        internal const string GetTrendingServices = $"{MainUrl}/trending-services";
         internal const string GetById = $"{AdminUrl}/{{serviceProviderId:guid}}";
+        internal const string GetProviderById = $"{AdminUrl}/GetProviderById/{{serviceProviderId:guid}}";
+        internal const string GetSpecializedById = $"{AdminUrl}/GetSpecializedById/{{serviceProviderId:guid}}";
+        internal const string GetServiceById = $"{AdminUrl}/GetServiceById/{{serviceProviderId:guid}}";
 
         internal const string GetByProviderType = $"{MainUrl}/by-provider-type/{{providerTypeId:guid}}";
 
@@ -161,6 +192,10 @@ internal static class Routes
         internal const string AddComment = $"{MainUrl}/{{serviceProviderId:guid}}/comments";
         internal const string GetComments = $"{MainUrl}/{{serviceProviderId:guid}}/comments";
         internal const string RemoveComment = $"{MainUrl}/{{serviceProviderId:guid}}/comments/{{commentId:guid}}";
+
+        public const string GetSpecialistPage = $"{MainUrl}/GetSpecialistPage/{{id:guid}}";
+        public const string GetServicePageById = $"{MainUrl}/GetServicePageById/{{id:guid}}";
+        public const string GetProviderPageData = $"{MainUrl}/GetProviderPageData/{{id:guid}}";
     }
 
     internal static class Staff

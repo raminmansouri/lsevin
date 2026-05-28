@@ -1,46 +1,20 @@
 "use server";
 
-import { deleteData } from "@/config/http/http-service.server";
-import {
-  ADMIN_BASE_PATH,
-  CATEGORY_MODULE_BASE_PATH,
-} from "@/features/shared/types/constants";
 import { createAuthenticatedSafeAction } from "@/lib/safe-action";
-import { LocaleHeaderTypes } from "@/types/common";
 
+import { actionFail, deleteServiceDefinitionInDb } from "../../db/service-definition-repository";
 import { revalidateServiceDefinitionCache } from "../../db/cache";
 import { DeleteServiceDefinitionSchema } from "./schema";
-import { InputType } from "./types";
+import { InputType, ReturnType } from "./types";
 
-const handler = async (
-  input: InputType,
-  token: string,
-  userId: string,
-  locale: LocaleHeaderTypes
-) => {
-  const { serviceDefinitionId } = input;
-
-  const { data, error } = await deleteData(
-    `${CATEGORY_MODULE_BASE_PATH}/${ADMIN_BASE_PATH}/service-definitions/${serviceDefinitionId}`,
-    undefined,
-    {
-      token,
-      locale,
-    }
-  );
-
-  if (data) {
+const handler = async (input: InputType, _token: string, userId: string): Promise<ReturnType> => {
+  try {
+    const deleted = await deleteServiceDefinitionInDb(input.serviceDefinitionId);
     revalidateServiceDefinitionCache({ id: input.serviceDefinitionId, userId });
-    return {
-      data: data,
-      error: error,
-    };
+    return { data: deleted, error: undefined };
+  } catch (error) {
+    return actionFail(error, "Failed to delete service definition.") as ReturnType;
   }
-
-  return {
-    data: undefined,
-    error: error,
-  };
 };
 
 export const deleteServiceDefinitionAction = createAuthenticatedSafeAction(

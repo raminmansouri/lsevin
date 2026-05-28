@@ -43,7 +43,7 @@ internal sealed class RemoveProviderGalleryItemCommandHandler(
         var deleteResult = fileService.DeleteFile(galleryItem.Url);
         if (deleteResult.IsFailure)
         {
-            return AppError.ApplicationErrorMessage(CategoryResource.Service_Provider_Gallery);
+            //return AppError.ApplicationErrorMessage(CategoryResource.Service_Provider_Gallery);
         }
 
         // Remove the gallery item from the service provider

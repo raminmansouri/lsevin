@@ -4,24 +4,18 @@ import { getTranslations } from "next-intl/server";
 
 import ServerFetchResult from "@/components/fetcher/fetch.server";
 import { PageHeader } from "@/components/page/page-header";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { withBaseHeaders } from "@/config/http/http-service.server";
-import ServiceProviderForm, {
-  ServiceProviderFormSkeleton,
-} from "@/features/service-providers/components/service-provider-data-entry/service-provider-form";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ServiceProviderAdminForm } from "@/features/service-providers/components/admin/service-provider-admin-form";
+import { getAdminProviderLookupData } from "@/features/service-providers/db/admin-service-providers.queries";
 import { TRANSLATION_KEY } from "@/features/service-providers/types/constants";
-import { getAllCountries } from "@/features/shared/api/server/get-all-countries";
-import { ILocationCountry } from "@/features/shared/types/location";
 import { PageProps } from "@/types/next";
 
 export async function generateMetadata(
   props: Omit<PageProps, "children">
 ): Promise<Metadata> {
   const { locale } = await props.params;
-  const t = await getTranslations({
-    locale,
-    namespace: TRANSLATION_KEY,
-  });
+  const t = await getTranslations({ locale, namespace: TRANSLATION_KEY });
 
   return {
     title: t("add.page.title"),
@@ -31,53 +25,36 @@ export async function generateMetadata(
 
 const AddServiceProviderPage = ({ params }: PageProps) => {
   return (
-    <Suspense
-      fallback={
-        <Card>
-          <CardHeader className="flex-between border-b">
-            <CardTitle>
-              <PageHeader title="" />
-            </CardTitle>
-          </CardHeader>
-          <ServiceProviderFormSkeleton />
-        </Card>
-      }
-    >
+    <Suspense fallback={<ServiceProviderFormSkeleton />}>
       <SuspenseBoundary params={params} />
     </Suspense>
   );
 };
 
-const SuspenseBoundary = async ({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) => {
+const SuspenseBoundary = async ({ params }: { params: Promise<{ locale: string }> }) => {
   const { locale } = await params;
-  const t = await getTranslations({
-    locale,
-    namespace: TRANSLATION_KEY,
-  });
-
-  const countriesResult = await withBaseHeaders(
-    (locale, token) => getAllCountries({ locale, token }),
-    {
-      adminRequired: true,
-    }
-  );
+  const t = await getTranslations({ locale, namespace: TRANSLATION_KEY });
+  const lookupsResult = await getAdminProviderLookupData(locale);
 
   return (
-    <Card>
-      <CardHeader className="flex-between border-b">
-        <CardTitle>
-          <PageHeader title={t("add.title")} />
-        </CardTitle>
-      </CardHeader>
-      <ServerFetchResult<ILocationCountry[]> result={countriesResult}>
-        {(countries) => <ServiceProviderForm countries={countries} />}
+    <div className="space-y-6">
+      <PageHeader title={t("add.title")} />
+      <ServerFetchResult result={lookupsResult}>
+        {(lookups) => <ServiceProviderAdminForm lookups={lookups} locale={locale} />}
       </ServerFetchResult>
-    </Card>
+    </div>
   );
 };
+
+function ServiceProviderFormSkeleton() {
+  return (
+    <Card>
+      <CardHeader className="border-b"><CardTitle><Skeleton className="h-8 w-64" /></CardTitle></CardHeader>
+      <CardContent className="space-y-4 pt-6">
+        {Array.from({ length: 10 }).map((_, i) => <Skeleton key={i} className="h-11 w-full" />)}
+      </CardContent>
+    </Card>
+  );
+}
 
 export default AddServiceProviderPage;

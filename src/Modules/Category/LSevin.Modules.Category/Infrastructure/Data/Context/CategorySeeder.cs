@@ -1,5 +1,6 @@
 using BuildingBlocks.Core.Domain.Primitives;
 using BuildingBlocks.Core.Persistence.Context;
+using LSevin.Modules.Category.Category.Entities;
 using LSevin.Modules.Category.ServiceProvider.Enumerations;
 using LSevin.Modules.Category.ServiceRequest.Enumerations;
 using LSevin.Modules.Category.SharedKernel.Enumerations;
@@ -35,6 +36,11 @@ internal sealed class CategorySeeder(CategoryContext context) : IDbSeeder
         if (!context.ServiceProviderGrades.Any())
         {
             context.ServiceProviderGrades.AddRange(Enumeration.GetAll<ServiceProviderGrade>());
+        }
+
+        if (!context.Currencies.Any())
+        {
+            context.Currencies.AddRange(Currency.Entities.Currency.Seed());
         }
 
         return context.SaveChangesAsync(cancellationToken);

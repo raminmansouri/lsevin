@@ -11,9 +11,9 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import { useCarouselNavigation } from "@/components/ui/use-carousel-navigation";
-import { env } from "@/config/env/client";
 import { IGallery } from "@/features/shared/types/common";
 import { cn } from "@/lib/utils";
+import { isVideoMedia, resolveMediaUrl } from "../../lib/media-url";
 
 import { useServiceProviderGalleryModal } from "../../hooks/use-service-provider-gallery-modal";
 import { TRANSLATION_KEY } from "../../types/constants";
@@ -58,35 +58,50 @@ export const ServiceProviderGalleryModal = ({
           }}
         >
           <CarouselContent>
-            {sortedGallery.map((image, index) => (
-              <CarouselItem key={image.id}>
-                <div className="relative">
-                  {/* Image Container */}
-                  <div className="relative aspect-video w-full overflow-hidden rounded-lg md:aspect-[16/10]">
-                    <Image
-                      src={`${env.NEXT_PUBLIC_FILES_URL}/${image.url}`}
-                      alt={
-                        image.title ||
-                        `${providerName} - ${t("images")} ${index + 1}`
-                      }
-                      fill
-                      className="object-contain"
-                      sizes="(max-width: 768px) 100vw, 90vw"
-                      priority={index === imageIndex}
-                    />
-                  </div>
+            {sortedGallery.map((image, index) => {
+              const src = resolveMediaUrl(image.url);
+              const isVideo = isVideoMedia(image.mediaType, image.url);
 
-                  {/* Image Title */}
-                  {image.title && (
-                    <div className="mt-3">
-                      <p className="text-center text-sm font-medium">
-                        {image.title}
-                      </p>
+              return (
+                <CarouselItem key={image.id}>
+                  <div className="relative">
+                    {/* Media Container */}
+                    <div className="relative aspect-video w-full overflow-hidden rounded-lg md:aspect-[16/10]">
+                      {isVideo ? (
+                        <video
+                          src={src}
+                          className="h-full w-full object-contain"
+                          controls
+                          playsInline
+                          preload="metadata"
+                        />
+                      ) : (
+                        <Image
+                          src={src}
+                          alt={
+                            image.title ||
+                            `${providerName} - ${t("images")} ${index + 1}`
+                          }
+                          fill
+                          className="object-contain"
+                          sizes="(max-width: 768px) 100vw, 90vw"
+                          priority={index === imageIndex}
+                        />
+                      )}
                     </div>
-                  )}
-                </div>
-              </CarouselItem>
-            ))}
+
+                    {/* Media Title */}
+                    {image.title && (
+                      <div className="mt-3">
+                        <p className="text-center text-sm font-medium">
+                          {image.title}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </CarouselItem>
+              );
+            })}
           </CarouselContent>
 
           {/* Navigation Arrows for Desktop */}

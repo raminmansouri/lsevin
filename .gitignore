@@ -1,0 +1,54 @@
+# Node
+**/node_modules/
+
+# IDEs
+**/.vs/
+**/.idea/
+
+**/.next/
+
+# .NET build outputs
+**/bin/
+**/obj/
+
+**/UploadFiles/*
+
+
+**/bin/*
+**/obj/*
+
+build/*
+
+
+
+**/bin/**
+**/obj/**
+
+
+
+**/node_modules
+**/.vs
+**/.idea
+**/bin
+**/obj
+**/.git
+
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md
+
+frontend/webapp/public/unsplash_images/*.jpg
+
+dynamic-admin-dashboard-scaffold
+dynamic-admin-dashboard-scaffold/*
+
+*.zip
+
+**/.zip
+**/*.sql
+
+**/*.md
+**/*.txt
+
+*.zip
+*.zip

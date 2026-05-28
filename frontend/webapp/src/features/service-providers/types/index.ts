@@ -260,6 +260,589 @@ export interface IServiceProvider {
   attributes: IAttribute[];
 }
 
+
+export interface IFeaturedServiceResponse {
+  services: ServiceProviderService[];
+}
+
+
+export interface OfferCategory {
+  id: string;
+  label: string;
+  count: number;
+}
+export interface Offer {
+  id: number;
+  title: string;
+  subtitle: string;
+  provider: string;
+  category: string;
+  image: string;
+  discount: string;
+  validUntil: string;
+  code: string;
+  verified: boolean;
+  location: string;
+  rating: number;
+  originalPrice: number;
+  discountedPrice: number;
+}
+
+export interface OffersResponse {
+offers:Offer[];
+categories:OfferCategory[];
+}
+export interface ExploreResponse {
+sponsoredProviders :ExploreSponsoredProvider[]
+trendingServices :ExploreTrendingService[]
+featuredProviders :ExploreFeaturedProvider[]
+categories :ExploreCategory[]
+
+}
+
+
+export interface Booking {
+    id: string;
+    service: string;
+    provider: string;
+    image?: string;
+    date: string;
+    time: string;
+    location: string;
+    status: string;
+    paymentStatus: string;
+    price: number;
+    currency?: string;
+    verified: boolean;
+}
+
+
+export interface BookingRecord {
+    id: string;
+    service: string;
+    provider: string;
+    image?: string;
+    providerImage?: string;
+    providerDescription?: string;
+    serviceDescription?: string;
+    date: string;
+    time: string;
+    duration?: string;
+    location: string;
+    fullAddress?: string;
+    status: string;
+    paymentStatus: string;
+    price: number;
+    currency?: string;
+    deposit?: number;
+    remaining?: number;
+    verified?: boolean;
+    bookingDate?: string;
+    confirmationCode?: string;
+    paymentMethod?: string;
+    notes?: string;
+    included?: IncludedServicesType[];
+    addons?: BookingAddonSummary[];
+    documents?: BookingDocumentSummary[];
+    childBookings?: BookingChildSummary[];
+    contact?: ContactType;
+    agent?: Agent;
+}
+
+export interface IncludedServicesType {
+    name: string;
+    title: string;
+    experience?: string;
+}
+
+export interface BookingAddonSummary {
+    id: string;
+    name: string;
+    quantity: number;
+    unitPrice: number;
+    currency: string;
+    kind?: string;
+}
+
+export interface BookingDocumentSummary {
+    id: string;
+    title: string;
+    fileName: string;
+    fileUrl: string;
+    mimeType?: string | null;
+    sizeBytes?: number | null;
+}
+
+export interface BookingChildSummary {
+    id: string;
+    status: string;
+    provider: string;
+    service: string;
+    date: string;
+    time: string;
+    subtotal: number;
+    currency: string;
+}
+
+export type ContactType = {
+    phone: string;
+    email: string;
+    address?: string;
+};
+
+export type Agent = {
+    name: string;
+    title: string;
+    experience: string;
+    image?: string;
+};
+
+
+
+export interface BookingsResponse {
+cancelledBookings :Booking[]
+upcomingBookings   :Booking[]
+pastBookings :Booking[]
+
+}
+
+    export interface CpCategoryGroupsResponse{
+      categoryGroups:CpCategoryGroup[]
+    }
+
+   export interface CpCategory{
+          count: number,
+          name:string,
+          image:string,
+          gradient:string,
+    }
+    export interface CpCategoryGroup{
+       title: string,
+      categories:CpCategory []
+    }
+
+// ----------  Basic building blocks ----------
+export interface Certification {
+  name: string;
+  verified: boolean;
+  imageUrl?: string | null;
+  secondaryImageUrl?: string | null;
+}
+
+export interface Provider {
+  id: string;
+  name: string;
+  tagline: string;
+  location: string;
+  rating: number;
+  reviews: number;
+  verified: boolean;
+  accredited: boolean;
+  responseTime: string;
+  images: string[];
+  certifications: Certification[];
+  languages: string[];
+  established: number;
+  totalPatients: string;
+  successRate: string;
+}
+
+export interface Service {
+  id: number;
+  name: string;
+  price: number;
+  currency: string;
+  duration: string;
+  recovery: string;
+  rating: number;
+  reviews: number;
+  popular?: boolean;          // only the first service has this flag
+  image: string;
+}
+
+export interface Specialist {
+  id: number;
+  name: string;
+  specialty: string;
+  experience: string;
+  patients: string;
+  rating: number;
+  image: string;
+  verified: boolean;
+}
+
+export interface Review {
+  id: number;
+  name: string;
+  country: string;
+  date: string;
+  rating: number;
+  treatment: string;
+  review: string;
+  verified: boolean;
+  helpful: number;
+  images?: string[];
+}
+
+export interface Recommendation {
+  id: string;
+  image: string;
+  title: string;
+  rating: number;
+  reviewCount: number;
+  city: string;
+  country: string;
+  verified: boolean;
+  link: string;
+
+
+}
+
+// --------------------
+// 1️⃣  GetServiceBydResponse
+// --------------------
+export interface GetServiceBydResponse {
+  service: GetServiceBydService;
+  included: string[];
+  process: GetServiceBydProcessStep[];
+  faqs: GetServiceBydFaq[];
+  topReviews: GetServiceBydTopReview[];
+  localRecommendations: GetServiceBydRecommendation[];
+  internationalRecommendations: GetServiceBydRecommendation[];
+}
+
+// --------------------
+// 2️⃣  Service + related objects
+// --------------------
+export interface GetServiceBydService {
+  id: string;
+  name: string;
+  subtitle: string;
+  clinic: string;
+  clinicId: string;
+  location: string;
+  price: number;
+  originalPrice: number;
+  currency: string;
+  otherCurrencies: GetServiceBydOtherCurrency[];
+  rating: number;
+  reviews: number;
+  images: string[];
+  duration: string;
+  recovery: string;
+  anesthesia: string;
+  stayRequired: string;
+  verified: boolean;
+  popular: boolean;
+  successRate: string;
+  satisfaction: string;
+}
+
+export interface GetServiceBydOtherCurrency {
+  code: string;
+  amount: number;
+}
+
+// --------------------
+// 3️⃣  Process steps
+// --------------------
+export interface GetServiceBydProcessStep {
+  step: number;
+  title: string;
+  description: string;
+  duration: string;
+}
+
+// --------------------
+// 4️⃣  FAQ
+// --------------------
+export interface GetServiceBydFaq {
+  q: string;
+  a: string;
+}
+
+// --------------------
+// 5️⃣  Top review
+// --------------------
+export interface GetServiceBydTopReview {
+  id: number;
+  name: string;
+  country: string;
+  date: string;
+  rating: number;
+  review: string;
+  verified: boolean;
+  helpful: number;
+  images?: string[];
+}
+
+// --------------------
+// 6️⃣  Recommendation
+// --------------------
+export interface GetServiceBydRecommendation {
+  id: string;
+  image: string;
+  title: string;
+  provider: string;
+  rating: number;
+  reviewCount: number;
+  city: string;
+  country: string;
+  price: number;
+  currency: string;
+  verified: boolean;
+  link: string;
+}
+
+
+/*  ────────────────────────────────────────────────────────────────────────  */
+/*  1️⃣  Types that start with **GetBySpecialistId**                         */
+/*  ────────────────────────────────────────────────────────────────────────  */
+
+export interface GetBySpecialistIdSpecialist {
+  id: string;
+  name: string;
+  title: string;
+  specialty: string;
+  image: string;
+  rating: number;
+  reviews: number;
+  experience: number;
+  patients: string;
+  successRate: string;
+  verified: boolean;
+  languages: string[];
+  clinic: string;
+  clinicId: string;
+  location: string;
+  responseTime: string;
+  consultationFee: number;
+}
+
+export interface GetBySpecialistIdEducation {
+  degree: string;
+  institution: string;
+  year: string;
+  imageUrl?: string;
+}
+
+export interface GetBySpecialistIdCertification {
+  name: string;
+  issuer: string;
+  verified: boolean;
+  imageUrl?: string;
+}
+
+export interface GetBySpecialistIdAchievement {
+  /** The icon is a React component in the original source.
+   *  In a plain‑JSON world we just keep a string placeholder. */
+  icon: string;
+  title: string;
+  organization: string;
+}
+
+export interface GetBySpecialistIdReview {
+  id: number;
+  name: string;
+  country: string;
+  date: string;                     // e.g. "2 weeks ago"
+  rating: number;
+  treatment: string;
+  review: string;
+  verified: boolean;
+  helpful: number;
+  images?: string[];
+}
+
+export interface GetBySpecialistIdBeforeAfter {
+  before: string;
+  after: string;
+  procedure: string;
+  months: string;
+}
+
+
+/*  ────────────────────────────────────────────────────────────────────────  */
+/*  2️⃣  Root response object                                              */
+/*  ────────────────────────────────────────────────────────────────────────  */
+
+export interface GetSpecialistByIdResponse {
+  specialist: GetBySpecialistIdSpecialist;
+  education: GetBySpecialistIdEducation[];
+  certifications: GetBySpecialistIdCertification[];
+  specializations: string[];
+  achievements: GetBySpecialistIdAchievement[];
+  recentReviews: GetBySpecialistIdReview[];
+  beforeAfter: GetBySpecialistIdBeforeAfter[];
+}
+
+
+// ----------  Full provider payload ----------
+export interface ProviderResponse {
+  provider: Provider;
+  services: Service[];
+  specialists: Specialist[];
+  recentReviews: Review[];
+  localRecommendations: Recommendation[];
+  internationalRecommendations: Recommendation[];
+}
+
+
+
+
+export interface ExploreCategory {
+  id:string,
+  label:string,
+  count: number
+}
+
+export interface ExploreFeaturedProvider {
+  id: number,
+  rating: number,
+  reviews: number,
+  name: string,
+  image: string,
+  location: string,
+  responseTime: string,
+  bookings: string,
+  badge: string,
+  specialties: string[],
+  verified: true,
+}
+
+export interface ExploreTrendingService {
+  name: string,
+  provider: string,
+  image: string,
+  growth: string,
+  location: string,
+  id: number,
+  price: number,
+  originalPrice: number,
+  rating: number,
+  reviews: number,
+
+}
+
+export interface ExploreSponsoredProvider {
+  id: number,
+  name: string,
+  subtitle: string,
+  image: string,
+  price: number,
+  tag: string
+};
+
+export interface SearchResultsResponse {
+  results: SearchResultsItem[];
+  categories: SearchResultsCategory[];
+  filters: SearchResultsFilter[];
+}
+
+export interface SearchResultsFilter {
+  id: string;
+  label: string;
+}
+
+export interface SearchResultsCategory {
+  id: string;
+  label: string;
+}
+export interface SearchResultsItem {
+  specialties:string[],
+  id: number,
+  type: string,
+  name: string,
+  provider: string,
+  image: string
+  location: string,
+  rating: number,
+  reviews: number,
+  price: number,
+  originalPrice: number,
+  verified: boolean,
+  tags: string[]
+}
+export interface SearchHistoryTrendingSearchVm {
+  query: string;
+  trend: string;
+}
+export interface SearchHistoryPopularCategoryVm {
+  label: string;
+  icon: string;
+}
+
+export interface SearchHistoryResponse {
+  recentSearches: string[];
+  popularCategories: SearchHistoryPopularCategoryVm[];
+  trendingSearches: SearchHistoryTrendingSearchVm[];
+}
+
+export interface TrustedProvider {
+  rating: number;
+  verified: boolean;
+  bookings: number;
+  growth: number;
+  image: string;
+  id: string;
+  name: string;
+  description: string;
+  contactEmail: string;
+  phoneNumberCountryCode?: string;
+  phoneNumber?: string;
+  address: string; // Formatted address string
+  isActive: boolean;
+  providerTypeId: string;
+  providerTypeName: string;
+  grade: string;
+  serviceCount: number;
+  galleryItemCount: number;
+  policyCount: number;
+  staffCount: number;
+  createDate: string;
+  lastModifiedDate?: string;
+}
+
+export interface ITrendingServiceResponse {
+  services: TrendingService[];
+}
+
+export interface GetBookingByIdResponse {
+  booking: BookingRecord;
+}
+
+
+export interface TrendingService {
+  growth: number;
+  bookings: number;
+  reviews: number;
+  rating?: number;
+  location?: string;
+  image?: string;
+  providerName: string;
+  id: string;
+  serviceDefinitionId: string;
+  durationMinutes: number;
+  displayName: string;
+  description?: LocalizedContentResponse;
+  url?: string;
+  isActive: boolean;
+  currency: string;
+  value: number;
+  discount?: number;
+  trendingScore?: number;
+  // Additional fields for custom pricing and duration
+  customPrice?: number;
+  basePrice?: number;
+  customDuration?: number;
+  baseDuration?: number;
+  categoryName?: string;
+  notes?: LocalizedContentResponse;
+  attributeValues?: ServiceProviderAttributeItem[];
+  badges?: ServiceBadge[];
+  features?: ServiceFeature[];
+}
+
 export interface IServiceProviderDetails {
   id: string;
   name: string;
@@ -272,6 +855,7 @@ export interface IServiceProviderDetails {
   providerTypeName: string;
   attributes: IAttribute[];
   policies: IPolicy[];
+  certifications?: Certification[];
   gallery: IGallery[];
   services: (Omit<ServiceProviderService, "description" | "displayName"> & {
     description: string;
@@ -343,8 +927,8 @@ export interface AvailableCity {
 }
 
 // Legacy aliases for backward compatibility
-export interface IAvailableCountry extends AvailableCountry {}
-export interface IAvailableCity extends AvailableCity {}
+export interface IAvailableCountry extends AvailableCountry { }
+export interface IAvailableCity extends AvailableCity { }
 
 // ============ Sub-Entity Interfaces (for details management) ============
 
@@ -359,15 +943,31 @@ export interface ServiceProviderStaff {
 }
 
 // Service interfaces
+export interface ServiceBadge {
+  name: string;
+}
+
+export interface ServiceFeature {
+  name: string;
+}
+
 export interface ServiceProviderService {
+  reviews: number;
+  rating?: number;
+  image?: string;
+  location?: string;
+  providerName: string;
   id: string;
   serviceDefinitionId: string;
   durationMinutes: number;
   displayName: LocalizedContentResponse;
   description?: LocalizedContentResponse;
+  url?: LocalizedContentResponse;
   isActive: boolean;
   currency: string;
   value: number;
+  discount?: number;
+  trendingScore?: number;
   // Additional fields for custom pricing and duration
   customPrice?: number;
   basePrice?: number;
@@ -376,6 +976,34 @@ export interface ServiceProviderService {
   categoryName?: string;
   notes?: LocalizedContentResponse;
   attributeValues?: ServiceProviderAttributeItem[];
+  badges?: ServiceBadge[];
+  features?: ServiceFeature[];
+}
+
+export interface ServiceProviderService {
+  image?: string;
+  providerName: string;
+  id: string;
+  serviceDefinitionId: string;
+  durationMinutes: number;
+  displayName: LocalizedContentResponse;
+  description?: LocalizedContentResponse;
+  url?: LocalizedContentResponse;
+  isActive: boolean;
+  currency: string;
+  value: number;
+  discount?: number;
+  trendingScore?: number;
+  // Additional fields for custom pricing and duration
+  customPrice?: number;
+  basePrice?: number;
+  customDuration?: number;
+  baseDuration?: number;
+  categoryName?: string;
+  notes?: LocalizedContentResponse;
+  attributeValues?: ServiceProviderAttributeItem[];
+  badges?: ServiceBadge[];
+  features?: ServiceFeature[];
 }
 
 export interface ServiceProviderAttributeItem {
@@ -430,3 +1058,118 @@ export interface IServiceProviderComment {
   isMine: boolean; // CRITICAL: For delete button visibility
   createDate: string;
 }
+
+
+
+
+
+
+
+
+/* ------------- TypeScript ---------- */
+
+/** ---------- Service ---------- */
+export interface GetBookingServiceSelectionDataService {
+  depositAmount: any;
+  rating: number;
+  accreditation: number;
+  provider: string;
+  id: string;
+  name: string;
+  description: string;
+  duration: string;
+  price: number;
+  category: string;
+  popular: boolean;
+  image: string;
+}
+
+/** ---------- Provider ---------- */
+export interface GetBookingServiceSelectionDataProvider {
+  id: string;
+  name: string;
+  description: string;
+  rating: number;
+  verified: boolean;
+  popular: boolean;
+  image: string;
+}
+
+/** ---------- Specialist ---------- */
+export interface GetBookingServiceSelectionDataSpecialist {
+  id: string;
+  name: string;
+  specialty: string;
+  experience: string;
+  rating: number;
+  reviews: number;
+  patients: string;
+  languages: string[];
+  credentials: string[];
+  verified: boolean;
+  consultation: number;
+  image: string;
+  nextAvailable: string;
+}
+
+/** ---------- Response ---------- */
+export interface GetBookingGetServicesByProviderAndSpecialistResponse {
+  services: GetBookingServiceSelectionDataService[];
+}
+export interface GetBookingGetProvidersByServiceAndSpecialistResponse {
+  providers: GetBookingServiceSelectionDataProvider[];
+}
+export interface GetBookingSpecialistByProviderAndServiceResponse {
+  specialist: GetBookingServiceSelectionDataSpecialist[];
+}
+
+
+
+/* --------------------------------------------------- */
+/* 1️⃣ TypeScript – Type definitions & sample data    */
+/* --------------------------------------------------- */
+
+/* ────────────────────────────────────────────────── */
+/* 1. Date entry -------------------------------------- */
+export interface GetBookingAvailableDateTimesDate {
+  date: string;   // “YYYY-MM-DD”
+  day:  string;   // “Mon”, “Tue”, …
+  available: boolean;
+}
+
+/* ────────────────────────────────────────────────── */
+/* 2. Time‑slot entry --------------------------------- */
+export interface GetBookingAvailableDateTimesTimeSlot {
+  time:      string;   // e.g. “09:00 AM”
+  available: boolean;
+}
+
+/* ────────────────────────────────────────────────── */
+/* 3. Response container -------------------------------- */
+export interface GetBookingAvailableDateTimesResponse {
+  dates:      GetBookingAvailableDateTimesDate[];
+  timeSlots:  GetBookingAvailableDateTimesTimeSlot[];
+}
+
+/* --------------------------------------------------- */
+/* 2️⃣ Sample data (the “mock backend”)                */
+/* --------------------------------------------------- */
+export const GetBookingAvailableDateTimesSample: GetBookingAvailableDateTimesResponse = {
+  dates: [
+    { date: '2026-03-15', day: 'Mon', available: true  },
+    { date: '2026-03-16', day: 'Tue', available: true  },
+    { date: '2026-03-17', day: 'Wed', available: false },
+    { date: '2026-03-18', day: 'Thu', available: true  },
+    { date: '2026-03-19', day: 'Fri', available: true  },
+    { date: '2026-03-20', day: 'Sat', available: false },
+    { date: '2026-03-21', day: 'Sun', available: false },
+  ] as GetBookingAvailableDateTimesDate[],
+
+  timeSlots: [
+    { time: '09:00 AM', available: true  },
+    { time: '10:00 AM', available: true  },
+    { time: '11:00 AM', available: false },
+    { time: '02:00 PM', available: true  },
+    { time: '03:00 PM', available: true  },
+  ] as GetBookingAvailableDateTimesTimeSlot[],
+};

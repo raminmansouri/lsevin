@@ -10,5 +10,6 @@ internal sealed record GetCategoriesResponse(
     bool IsActive,
     string? IconUrl,
     DateTime CreateDate,
-    DateTime? LastModifiedDate
+    DateTime? LastModifiedDate,
+        string? ImageUrl
 );

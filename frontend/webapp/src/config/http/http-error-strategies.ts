@@ -45,7 +45,7 @@ export const conflictErrorStrategy: ApiErrorHandler = (errorData) => {
 };
 
 export const unhandledExceptionStrategy: ApiErrorHandler = (errorData) => {
-  throw { ...errorData, detail: "خطای سرور!" } as IUnhandledException;
+  throw { ...errorData, details: "خطای سرور!" } as IUnhandledException;
 };
 
 export const networkErrorStrategy = () => {

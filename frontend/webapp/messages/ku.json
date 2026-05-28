@@ -1,4 +1,42 @@
 {
+   "UploadFiles": {
+    "title": "Upload documents",
+    "subtitle": "Please upload the requested files for your booking",
+    "description": "Supported formats: PNG, JPG, JPEG, PDF",
+    "requiredBadge": "Required",
+    "optionalBadge": "Optional",
+    "chooseFile": "Choose file",
+    "continueBtn": "Continue",
+    "changeFile": "Change file",
+    "uploadRequiredHint": "Required files must be uploaded before continuing.",
+    "acceptedFilesDesc": "PNG, JPG, JPEG, PDF — maximum file size: 10 MB.",
+    "acceptedFilesTitle": "Accepted files",
+    "replaceFile": "Replace file",
+        "uploadBtn": "Choose file",
+    "uploadCardTitle": "Upload Documents",
+    "uploadCardDesc": "Attach the required documents for this booking.",
+    "filesUploaded": "uploaded",
+    "requiredFilesPending": "Some required files still need to be uploaded before you continue.",
+    "removeFile": "Remove file",
+    "uploadFile": "Upload file",
+    "uploaded": "Uploaded",
+    "notUploaded": "Not uploaded",
+    "fileSelected": "File selected",
+    "noFileSelected": "No file selected",
+    "continue": "Continue",
+    "back": "Back",
+    "skip": "Skip",
+    "uploadHint": "PNG, JPG or PDF",
+    "uploadHelp": "Please upload a clear and readable file",
+    "requiredFilesMessage": "Please upload all required documents before continuing",
+    "successMessage": "Files uploaded successfully",
+    "errorMessage": "Failed to upload file",
+    "invalidFileType": "Invalid file type",
+    "fileTooLarge": "File size is too large",
+    "selectDocument": "Select a document",
+    "document": "Document",
+    "documents": "Documents"
+  },
   "Manifest": {
     "name": "L Sevin"
   },
@@ -665,6 +703,11 @@
       "description": {
         "label": "پەسناس",
         "translations": "پەسناسی هاوپۆل لانی کەم بە یەک زمان پێویستە"
+      },
+       "image": {
+        "label": "Category image",
+        "hint": "Upload an image for this category",
+        "remove": "Remove image"
       },
       "descriptionPlaceholder": "پەسناسی هاوپۆل بنووسە",
       "parentId": "هاوپۆلی باوان",

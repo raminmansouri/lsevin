@@ -4,75 +4,169 @@ import { LocalizedContentSchema } from "@/features/shared/schemas/localization";
 
 import { DayOfWeek } from "../types";
 
-// Base Staff schema with localized fields
-export const StaffSchema = z.object({
-  staffId: z.guid().optional(),
-  name: LocalizedContentSchema, // Changed from z.string()
-  biography: LocalizedContentSchema, // Changed from z.string()
-  title: LocalizedContentSchema, // Changed from z.string()
-  profileImageUrl: z.string().optional(),
-  isActive: z.boolean(),
+
+const OptionalStaffLocalizedContentSchema = z
+  .object({
+    translations: z.record(z.string(), z.string()).default({}),
+  })
+  .refine(
+    (data) => Object.keys(data.translations).every((locale) => /^[a-z]{2}(-[A-Z]{2})?$/.test(locale)),
+    { params: { code: "invalid" } }
+  );
+
+const optionalGuid = z.preprocess(
+  (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+  z.guid().optional()
+);
+
+const optionalTrimmedString = z.preprocess(
+  (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+  z.string().trim().optional()
+);
+
+const nullablePositiveYear = z.preprocess(
+  (value) => (value === "" || value === null ? undefined : value),
+  z.coerce.number().int().min(1900).max(2200).optional()
+);
+
+export const DayOfWeekSchema = z.enum(DayOfWeek);
+
+export const StaffProviderAssignmentSchema = z.object({
+  id: z.guid().optional(),
+  serviceProviderId: optionalGuid,
+  notes: OptionalStaffLocalizedContentSchema,
+  isActive: z.boolean().default(true),
 });
 
-export const StaffFormSchema = StaffSchema;
-
-// Staff Availability schema for adding/updating
-export const StaffAvailabilityCreateSchema = z.object({
-  dayOfWeek: z.enum(DayOfWeek),
-  startTime: z
-    .string()
-    .regex(/^\d{2}:\d{2}:\d{2}$/, "Time must be in HH:mm:ss format"),
-  endTime: z
-    .string()
-    .regex(/^\d{2}:\d{2}:\d{2}$/, "Time must be in HH:mm:ss format"),
-  isRecurring: z.boolean().default(true),
-  specificDate: z.string().optional(),
-  availabilityStatusId: z.number().int().min(1),
-  notes: z.string().optional(),
+export const StaffServiceSchema = z.object({
+  id: z.guid().optional(),
+  serviceDefinitionId: optionalGuid,
+  isActive: z.boolean().default(true),
+  notes: OptionalStaffLocalizedContentSchema,
 });
 
-export const StaffAvailabilityUpdateSchema =
-  StaffAvailabilityCreateSchema.extend({
-    availabilityId: z.guid(),
+export const StaffAvailabilitySchema = z
+  .object({
+    id: z.guid().optional(),
+    dayOfWeek: DayOfWeekSchema,
+    startTime: z
+      .string()
+      .regex(/^\d{2}:\d{2}:\d{2}$/, "Use HH:mm:ss format."),
+    endTime: z
+      .string()
+      .regex(/^\d{2}:\d{2}:\d{2}$/, "Use HH:mm:ss format."),
+    isRecurring: z.boolean().default(true),
+    specificDate: optionalTrimmedString,
+    availabilityStatusId: z.coerce.number().int().min(1),
+  })
+  .refine((value) => value.startTime < value.endTime, {
+    message: "End time must be after start time.",
+    path: ["endTime"],
+  })
+  .refine((value) => value.isRecurring || !!value.specificDate, {
+    message: "Specific date is required for non-recurring availability.",
+    path: ["specificDate"],
   });
 
-// Staff Availability removal schema
-export const StaffAvailabilityDeleteSchema = z.object({
+export const StaffEducationSchema = z.object({
+  id: z.guid().optional(),
+  degree: z.string().trim().min(1).max(200),
+  institution: z.string().trim().min(1).max(250),
+  year: nullablePositiveYear,
+  imageUrl: optionalTrimmedString,
+});
+
+export const StaffCertificationSchema = z.object({
+  id: z.guid().optional(),
+  name: z.string().trim().min(1).max(200),
+  issuer: optionalTrimmedString,
+  isVerified: z.boolean().default(false),
+  imageUrl: optionalTrimmedString,
+});
+
+export const StaffCredentialSchema = z.object({
+  id: z.guid().optional(),
+  credential: z.string().trim().min(1),
+  isVerified: z.boolean().default(false),
+  imageUrl: optionalTrimmedString,
+});
+
+export const StaffAchievementSchema = z.object({
+  id: z.guid().optional(),
+  icon: optionalTrimmedString,
+  title: z.string().trim().min(1).max(200),
+  organization: optionalTrimmedString,
+  displayOrder: z.coerce.number().int().min(0).default(0),
+});
+
+export const StaffGalleryItemSchema = z.object({
+  id: z.guid().optional(),
+  title: OptionalStaffLocalizedContentSchema,
+  description: OptionalStaffLocalizedContentSchema,
+  url: z.string().trim().min(1).max(500),
+  mediaType: z.string().trim().min(1).max(50).default("image"),
+  displayOrder: z.coerce.number().int().min(0).default(0),
+  isPrimary: z.boolean().default(false),
+});
+
+export const StaffBeforeAfterSchema = z.object({
+  id: z.guid().optional(),
+  beforeImage: z.string().trim().min(1).max(500),
+  afterImage: z.string().trim().min(1).max(500),
+  procedure: optionalTrimmedString,
+  months: z.preprocess(
+    (value) => (value === "" || value === null ? undefined : value),
+    z.coerce.number().int().min(0).max(600).optional()
+  ),
+  displayOrder: z.coerce.number().int().min(0).default(0),
+});
+
+export const StaffSchema = z.object({
+  staffId: z.guid().optional(),
+  name: LocalizedContentSchema,
+  biography: LocalizedContentSchema,
+  title: LocalizedContentSchema,
+  profileImageUrl: optionalTrimmedString,
+  isActive: z.boolean().default(true),
+  experience: optionalTrimmedString,
+  patients: optionalTrimmedString,
+  rating: z.coerce.number().min(0).max(5).default(0),
+  specialty: optionalTrimmedString,
+  consultationFee: z.coerce.number().min(0).default(0),
+  nextAvailableLabel: optionalTrimmedString,
+  reviewCount: z.coerce.number().int().min(0).default(0),
+  specialtyTranslations: OptionalStaffLocalizedContentSchema.optional(),
+  experienceYears: z.preprocess(
+    (value) => (value === "" || value === null ? undefined : value),
+    z.coerce.number().int().min(0).max(100).optional()
+  ),
+  successRate: optionalTrimmedString,
+  providerAssignments: z.array(StaffProviderAssignmentSchema).default([]),
+  services: z.array(StaffServiceSchema).default([]),
+  availabilities: z.array(StaffAvailabilitySchema).default([]),
+  languages: z.array(z.string().trim().min(1).max(50)).default([]),
+  specializations: z.array(z.string().trim().min(1).max(150)).default([]),
+  education: z.array(StaffEducationSchema).default([]),
+  certifications: z.array(StaffCertificationSchema).default([]),
+  credentials: z.array(StaffCredentialSchema).default([]),
+  achievements: z.array(StaffAchievementSchema).default([]),
+  galleryItems: z.array(StaffGalleryItemSchema).default([]),
+  galleryBulkMediaIds: optionalTrimmedString,
+  beforeAfterItems: z.array(StaffBeforeAfterSchema).default([]),
+});
+
+export const CreateStaffSchema = StaffSchema.omit({ staffId: true }).extend({
+  staffId: z.undefined().optional(),
+});
+export const UpdateStaffSchema = StaffSchema.extend({ staffId: z.guid() });
+export const DeleteStaffSchema = z.object({ staffId: z.guid() });
+export const ChangeStaffActivationSchema = z.object({
   staffId: z.guid(),
-  availabilityId: z.guid(),
-});
-
-// Staff Service schema with localized notes
-export const StaffServiceCreateSchema = z.object({
-  serviceDefinitionId: z.guid(),
-  notes: LocalizedContentSchema, // Changed from z.string()
-});
-
-export const StaffServiceUpdateSchema = z.object({
-  serviceId: z.guid(),
   isActive: z.boolean(),
-  notes: LocalizedContentSchema,
-  serviceDefinitionId: z.guid().optional(),
 });
 
-// Staff Service removal schema
-export const StaffServiceDeleteSchema = z.object({
-  staffId: z.guid(),
-  serviceId: z.guid(),
-});
-
-// Type exports
-export type StaffInput = z.infer<typeof StaffSchema>;
-export type StaffFormInput = z.infer<typeof StaffFormSchema>;
-export type StaffAvailabilityCreateInput = z.infer<
-  typeof StaffAvailabilityCreateSchema
->;
-export type StaffAvailabilityUpdateInput = z.infer<
-  typeof StaffAvailabilityUpdateSchema
->;
-export type StaffAvailabilityDeleteInput = z.infer<
-  typeof StaffAvailabilityDeleteSchema
->;
-export type StaffServiceCreateInput = z.infer<typeof StaffServiceCreateSchema>;
-export type StaffServiceUpdateInput = z.infer<typeof StaffServiceUpdateSchema>;
-export type StaffServiceDeleteInput = z.infer<typeof StaffServiceDeleteSchema>;
+export type StaffFormInput = z.infer<typeof StaffSchema>;
+export type CreateStaffInput = z.infer<typeof CreateStaffSchema>;
+export type UpdateStaffInput = z.infer<typeof UpdateStaffSchema>;
+export type DeleteStaffInput = z.infer<typeof DeleteStaffSchema>;
+export type ChangeStaffActivationInput = z.infer<typeof ChangeStaffActivationSchema>;

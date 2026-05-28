@@ -3,6 +3,7 @@
 import { Coordinates } from "@/features/shared/types/coordinates";
 
 import { MapComponent } from "./map-component";
+import type { SupportedMapProvider } from "./map-provider";
 
 export interface MapViewerProps {
   coordinates: Coordinates;
@@ -10,6 +11,7 @@ export interface MapViewerProps {
   className?: string;
   height?: string;
   showAddress?: boolean;
+  mapProvider?: SupportedMapProvider;
 }
 
 export function MapViewer({
@@ -18,6 +20,7 @@ export function MapViewer({
   className = "",
   height = "300px",
   showAddress = false,
+  mapProvider,
 }: MapViewerProps) {
   return (
     <div className={`space-y-2 ${className}`}>
@@ -26,6 +29,7 @@ export function MapViewer({
         interactive={false}
         height={height}
         zoom={14}
+        provider={mapProvider}
       />
 
       {showAddress && address && (

@@ -26,6 +26,7 @@ const handler = async (
     price,
     currency,
     durationMinutes,
+    trendingScore,
     isActive,
     notes,
   } = input;
@@ -37,6 +38,7 @@ const handler = async (
     price,
     currency,
     durationMinutes,
+    trendingScore,
     isActive,
     notes,
   };

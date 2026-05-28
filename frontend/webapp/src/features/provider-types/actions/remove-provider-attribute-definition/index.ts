@@ -1,50 +1,26 @@
+
 "use server";
 
-import { deleteData } from "@/config/http/http-service.server";
-import {
-  ADMIN_BASE_PATH,
-  CATEGORY_MODULE_BASE_PATH,
-} from "@/features/shared/types/constants";
 import { createAuthenticatedSafeAction } from "@/lib/safe-action";
-import { LocaleHeaderTypes } from "@/types/common";
 
 import { revalidateProviderTypeCache } from "../../db/cache";
+import { providerTypeProblem, removeProviderAttributeDefinition } from "../../db/provider-types.repository";
 import { RemoveProviderAttributeDefinitionSchema } from "./schema";
 import { InputType, ReturnType } from "./types";
 
 const handler = async (
   input: InputType,
-  token: string,
-  userId: string,
-  locale: LocaleHeaderTypes
+  _token: string,
+  userId: string
 ): Promise<ReturnType> => {
-  const { providerTypeId, attributeDefinitionId } = input;
-
-  const { data, error } = await deleteData(
-    `${CATEGORY_MODULE_BASE_PATH}/${ADMIN_BASE_PATH}/provider-types/${providerTypeId}/attributes/${attributeDefinitionId}`,
-    undefined,
-    {
-      token,
-      locale,
-    }
-  );
-
-  if (data) {
-    revalidateProviderTypeCache({ id: providerTypeId, userId });
-    return {
-      data: data.toString(),
-      error: undefined,
-    };
+  try {
+    const data = await removeProviderAttributeDefinition(input.providerTypeId, input.attributeDefinitionId);
+    revalidateProviderTypeCache({ id: input.providerTypeId, userId });
+    return { data: data.toString(), error: undefined };
+  } catch (error) {
+    return { data: undefined, error: providerTypeProblem(error) as any };
   }
-
-  return {
-    data: undefined,
-    error: error,
-  };
 };
 
 export const removeProviderAttributeDefinitionAction =
-  createAuthenticatedSafeAction(
-    RemoveProviderAttributeDefinitionSchema,
-    handler
-  );
+  createAuthenticatedSafeAction(RemoveProviderAttributeDefinitionSchema, handler);

@@ -7,11 +7,13 @@ using BuildingBlocks.Core.Persistence.Extensions;
 using BuildingBlocks.Core.ResultPattern;
 using BuildingBlocks.Web.Services;
 using Dapper;
+using LSevin.Modules.Category.Currency.Services;
 
 namespace LSevin.Modules.Category.ServiceProvider.Features.GetServiceProviders;
 
 internal sealed class GetServiceProvidersQueryHandler(
     IDbConnectionFactory dbConnectionFactory,
+    ICurrencyService currencyService,
     ILocaleAccessor localeAccessor
 ) : IQueryHandler<GetServiceProvidersQuery, IPageList<GetServiceProvidersResponse>>
 {
@@ -59,6 +61,9 @@ internal sealed class GetServiceProvidersQueryHandler(
         var serviceProviders = await connection.QueryAsync<GetServiceProvidersResponse>(
             new CommandDefinition(dataQueryBuilder.ToString(), parameters, cancellationToken: cancellationToken)
         );
+
+
+   
 
         return PageList<GetServiceProvidersResponse>.Create(
             serviceProviders.AsList(),

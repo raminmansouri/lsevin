@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 
 import LocaleBoundary from "@/components/locale/locale-boundary";
 import { TRANSLATION_KEY } from "@/features/auth/actions/forgot-password/types";
+import { getAuthPageContent } from "@/features/auth/db/auth-content.queries";
 import ForgotPasswordForm, {
   ForgotPasswordFormSkeleton,
 } from "@/features/auth/components/forgot-password/forgot-password-form";
@@ -16,8 +17,14 @@ export async function generateMetadata(
 ) {
   const { locale } = await props.params;
   const t = await getTranslations({ locale, namespace: TRANSLATION_KEY });
-  return {
+  const content = await getAuthPageContent(locale, "forgot-password", {
     title: t("page.title"),
+    description: t("page.description"),
+  });
+
+  return {
+    title: content.title,
+    description: content.description,
   };
 }
 
@@ -25,25 +32,36 @@ const ForgotPasswordPage = ({ params }: { params: Promise<LocaleParams> }) => {
   return (
     <Suspense fallback={<ForgotPasswordFormSkeleton />}>
       <LocaleBoundary params={params} tanslationNameSpace={TRANSLATION_KEY}>
-        {(t) => (
-          <div>
-            <AuthPageHeader
-              title={t("page.title")}
-              description={t("page.description")}
-            />
-            <Suspense fallback={<ForgotPasswordFormSkeleton />}>
-              <ForgotPasswordForm />
-            </Suspense>
-            <AuthLinksContainer>
-              <span className="text-xs">
-                {t("page.rememberPassword")}
-                <Link className="text-primary mx-1" href="/sign-in">
-                  {t("page.login")}
-                </Link>
-              </span>
-            </AuthLinksContainer>
-          </div>
-        )}
+        {async (t) => {
+          const { locale } = await params;
+          const content = await getAuthPageContent(locale, "forgot-password", {
+            title: t("page.title"),
+            description: t("page.description"),
+          });
+
+          return (
+            <div>
+              <AuthPageHeader
+                eyebrow={content.eyebrow}
+                title={content.title}
+                description={content.description}
+                imageUrl={content.mediaUrl}
+                imageAlt={content.alt}
+              />
+              <Suspense fallback={<ForgotPasswordFormSkeleton />}>
+                <ForgotPasswordForm />
+              </Suspense>
+              <AuthLinksContainer>
+                <span className="text-xs">
+                  {t("page.rememberPassword")}
+                  <Link className="text-primary mx-1" href="/sign-in">
+                    {t("page.login")}
+                  </Link>
+                </span>
+              </AuthLinksContainer>
+            </div>
+          );
+        }}
       </LocaleBoundary>
     </Suspense>
   );

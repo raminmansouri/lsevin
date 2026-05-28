@@ -11,6 +11,7 @@ internal sealed record GetCategoryByIdResponse(
     LocalizedContentResponseDto Description,
     Guid? ParentId,
     string? ParentName,
+    string? ImageUrl,
     int DisplayOrder,
     bool IsActive,
     string? IconUrl,

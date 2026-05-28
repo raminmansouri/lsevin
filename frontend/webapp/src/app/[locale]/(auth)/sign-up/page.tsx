@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 
 import LocaleBoundary from "@/components/locale/locale-boundary";
 import { TRANSLATION_KEY } from "@/features/auth/actions/sign-up/types";
+import { getAuthPageContent } from "@/features/auth/db/auth-content.queries";
 import AuthLinksContainer from "@/features/auth/components/shared/auth-links-container";
 import AuthPageHeader from "@/features/auth/components/shared/auth-page-header";
 import SignUpForm, {
@@ -16,8 +17,14 @@ export async function generateMetadata(
 ) {
   const { locale } = await props.params;
   const t = await getTranslations({ locale, namespace: TRANSLATION_KEY });
-  return {
+  const content = await getAuthPageContent(locale, "sign-up", {
     title: t("page.title"),
+    description: t("page.description"),
+  });
+
+  return {
+    title: content.title,
+    description: content.description,
   };
 }
 
@@ -25,25 +32,36 @@ const SignUpPage = ({ params }: { params: Promise<LocaleParams> }) => {
   return (
     <Suspense fallback={<SignUpFormSkeleton />}>
       <LocaleBoundary params={params} tanslationNameSpace={TRANSLATION_KEY}>
-        {(t) => (
-          <div>
-            <AuthPageHeader
-              title={t("page.title")}
-              description={t("page.description")}
-            />
-            <Suspense fallback={<SignUpFormSkeleton />}>
-              <SignUpForm />
-            </Suspense>
-            <AuthLinksContainer className="justify-center">
-              <span className="text-xs">
-                {t("page.alreadyHaveAccount")}
-                <Link className="text-primary mx-1" href="/sign-in">
-                  {t("page.login")}
-                </Link>
-              </span>
-            </AuthLinksContainer>
-          </div>
-        )}
+        {async (t) => {
+          const { locale } = await params;
+          const content = await getAuthPageContent(locale, "sign-up", {
+            title: t("page.title"),
+            description: t("page.description"),
+          });
+
+          return (
+            <div>
+              <AuthPageHeader
+                eyebrow={content.eyebrow}
+                title={content.title}
+                description={content.description}
+                imageUrl={content.mediaUrl}
+                imageAlt={content.alt}
+              />
+              <Suspense fallback={<SignUpFormSkeleton />}>
+                <SignUpForm />
+              </Suspense>
+              <AuthLinksContainer className="justify-center">
+                <span className="text-xs">
+                  {t("page.alreadyHaveAccount")}
+                  <Link className="text-primary mx-1" href="/sign-in">
+                    {t("page.login")}
+                  </Link>
+                </span>
+              </AuthLinksContainer>
+            </div>
+          );
+        }}
       </LocaleBoundary>
     </Suspense>
   );

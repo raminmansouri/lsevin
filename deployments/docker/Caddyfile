@@ -4,7 +4,39 @@
 
 appmain.lsevin.com {
   encode zstd gzip
-  reverse_proxy lsevin-webapp:3000
+
+  # --- redirect exact paths to trailing slash (done at the edge, never leaks port) ---
+  @booking_exact path /booking
+  redir @booking_exact /booking/ 308
+
+  @booking_locale_exact path_regexp bookingLocaleExact ^/(en|fa|tr|ar|es|ku|de|fr)/booking$
+  redir @booking_locale_exact /{re.bookingLocaleExact.1}/booking/ 308
+
+  # --- booking (no locale) ---
+  @booking path /booking/*
+  handle @booking {
+    reverse_proxy lsevin-booking-webapp:4002 {
+      header_up Host {host}
+      header_up X-Forwarded-Host {host}
+      header_up X-Forwarded-Proto {scheme}
+    }
+  }
+
+  # --- booking (locale-prefixed): strip /en and proxy to booking ---
+  @booking_locale path_regexp bookingLocale ^/(en|fa|tr|ar|es|ku|de|fr)/booking(/.*)?$
+  handle @booking_locale {
+    uri strip_prefix /{re.bookingLocale.1}
+    reverse_proxy lsevin-booking-webapp:4002 {
+      header_up Host {host}
+      header_up X-Forwarded-Host {host}
+      header_up X-Forwarded-Proto {scheme}
+    }
+  }
+
+  # --- everything else -> Next ---
+  handle {
+    reverse_proxy lsevin-webapp:3000
+  }
 }
 
 api.lsevin.com {

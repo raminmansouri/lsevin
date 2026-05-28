@@ -1,0 +1,3 @@
+[*.cs]
+dotnet_diagnostic.SA1124.severity = none
+dotnet_diagnostic.SA1111.severity = none

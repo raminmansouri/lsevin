@@ -8,6 +8,7 @@ using BuildingBlocks.Core.Persistence.Connection;
 using BuildingBlocks.Core.ResultPattern;
 using BuildingBlocks.Web.Services;
 using Dapper;
+using LSevin.Modules.Category.Currency.Services;
 using LSevin.Modules.Category.Resources;
 using LSevin.Modules.Category.ServiceProvider.Dtos;
 
@@ -15,6 +16,7 @@ namespace LSevin.Modules.Category.ServiceProvider.Features.GetServiceProviderByI
 
 internal sealed class GetServiceProviderByIdQueryHandler(
     IDbConnectionFactory dbConnectionFactory,
+    ICurrencyService currencyService,
     ILocaleAccessor localeAccessor
 ) : IQueryHandler<GetServiceProviderByIdQuery, GetServiceProviderByIdResponse>
 {
@@ -251,7 +253,7 @@ internal sealed class GetServiceProviderByIdQueryHandler(
                     LocalizedContentResponseDto.FromTranslations(descTranslations ?? new()),
                     svc.IsActive,
                     svc.Currency,
-                    svc.Value
+                    currencyService.ConvertPrice( svc.Value,svc.Currency)
                 );
             })
             .ToList()

@@ -6,11 +6,13 @@ using BuildingBlocks.Core.Persistence.Connection;
 using BuildingBlocks.Core.ResultPattern;
 using BuildingBlocks.Web.Services;
 using Dapper;
+using LSevin.Modules.Category.Currency.Services;
 
 namespace LSevin.Modules.Category.ServiceProvider.Features.GetServiceProviderByIdPublic;
 
 internal sealed class GetServiceProviderByIdPublicQueryHandler(
     IDbConnectionFactory dbConnectionFactory,
+    ICurrencyService currencyService,
     ILocaleAccessor localeAccessor
 ) : IQueryHandler<GetServiceProviderByIdPublicQuery, GetServiceProviderByIdPublicResponse>
 {
@@ -232,7 +234,20 @@ internal sealed class GetServiceProviderByIdPublicQueryHandler(
             new CommandDefinition(servicesSql, new { request.ServiceProviderId }, cancellationToken: cancellationToken)
         );
 
-        serviceProvider.Services = services.AsList();
+        if (services != null)
+        {
+            foreach (var serviceProviderServiceDto in services)
+            {
+                serviceProviderServiceDto.Value =
+                    currencyService.ConvertPrice(serviceProviderServiceDto.Value, serviceProviderServiceDto?.Currency);
+
+                serviceProviderServiceDto.Currency =
+                    currencyService.ConvertCurrencySymbol(serviceProviderServiceDto?.Currency);
+
+           }
+
+            serviceProvider.Services = services.AsList();
+        }
 
         // Query staff
         var staffSql =

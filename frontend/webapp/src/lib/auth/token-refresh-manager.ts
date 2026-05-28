@@ -95,7 +95,7 @@ const performTokenRefresh = async (
 
     // Handle rate limiting WITHOUT reading the body
     if (response.status === 429) {
-      if (attemptNumber < 3) {
+      if (attemptNumber < 3000000) {
         const retryAfter = response.headers.get("Retry-After");
         const delay = retryAfter
           ? parseInt(retryAfter) * 1000

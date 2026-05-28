@@ -15,8 +15,57 @@ export function getServiceProviderIdTag(id: string) {
   return getIdTag("service-providers", id);
 }
 
+export function getProviderPageDataTag(id: string) {
+  return getIdTag("service-providers",'page-'+ id);
+}
+
+
+export function getServicePageDataTag(id: string) {
+  return getIdTag("service-providers",'service-'+ id);
+}
+
+
+export function getFeaturedServicesTag() {
+  return getIdTag("service-providers",'featured-services');
+}
+export function getGetBookingByIdTag() {
+  return getIdTag("service-providers",'get-booking-by-id');
+}
+export function getCpCategoryGroupsTag() {
+  return getIdTag("service-providers",'cp-category-groups');
+}
+export function getExploreTag() {
+  return getIdTag("service-providers",'explore');
+}
+export function getOffersTag() {
+  return getIdTag("service-providers",'get-offers');
+}
+
+export function getBookingsTag() {
+  return getIdTag("service-providers",'bookings');
+}
+export function getSearchResultsTag() {
+  return getIdTag("service-providers",'search-results');
+}
+
+export function getTrendingServicesTag() {
+  return getIdTag("service-providers",'trending-services');
+}
+
+
+export function getTrustedProvidersTag() {
+  return getIdTag("service-providers",'trusted-providers');
+}
+export function getSearchHistoryTag() {
+  return getIdTag("service-providers",'search-history');
+}
+
 export function getUserServiceProviderTag(userId: string) {
   return getUserTag("service-providers", userId);
+}
+
+export function getSpecialistPageByIdTag(id: string) {
+  return getUserTag("service-providers", 'spec-'+id);
 }
 
 export function revalidateServiceProviderCache(id: string, userId: string) {

@@ -48,6 +48,113 @@ const data: AdminSidebarItemType[] = [
     title: "serviceProviders",
     url: "/admin/service-providers",
   },
+    {
+    title: "availability",
+    url: "/admin/availability",
+  },
+  {
+  title: "notifications",
+  url: "/admin/notification-templates",
+  items: [
+    {
+      title: "templates",
+      url: "/admin/notification-templates",
+    },
+  ],
+},
+  {
+    title: "bookings",
+    url: "/admin/bookings",
+    items: [
+      { title: "bookings", url: "/admin/bookings" },
+      { title: "bookingdrafts", url: "/admin/booking-drafts" },
+      {
+        title: "payments",
+        url: "/admin/payments",
+      }, {
+        title: "commercial",
+        url: "/admin/commercial",
+      },
+      {
+        title: "walletpaymentintents",
+        url: "/admin/wallet-payment-intents",
+      }, 
+      {
+        title: "wallettransactions",
+        url: "/admin/wallet-transactions",
+      },   {
+        title: "refunds",
+        url: "/admin/refunds",
+      }, {
+        title: "booking-calendar",
+        url: "/admin/booking-calendar",
+      },
+       {
+        title: "payment-gateways",
+        url: "/admin/payment-gateways",
+      },
+    ],
+  },
+
+  {
+    title: "customers",
+    url: "/admin/customers",
+    items: [
+      { title: "users", url: "/admin/identity-users" },
+      { title: "picked-locations", url: "/admin/picked-locations" },
+      { title: "customers", url: "/admin/customers" },
+      { title: "provider-policy-types", url: "/admin/provider-policy-types" },
+      
+    ],
+  },
+  {
+    title: "loyalty",
+    url: "/admin/loyalty",
+  },
+  {
+    title: "form-builder",
+    url: "/admin/form-builder",
+  },
+  {
+    title: "platformdata",
+    url: "/admin/platform-data",
+  },
+  {
+    title: "home-sections",
+    url: "/admin/home-sections/",
+    items: [
+      {
+        title: "sponsered-slider",
+        url: "/admin/sponsered-slider",
+      } ,{
+        title: "auth-content",
+        url: "/admin/auth-content",
+      }
+    ]
+  }, {
+    title: "currencies",
+    url: "/admin/finance/currencies",
+    items: [
+      {
+        title: "currencies",
+        url: "/admin/finance/currencies",
+      },
+      {
+        title: "exchange-rates",
+        url: "/admin/finance/exchange-rates",
+      },   
+    ]
+  },
+  {
+    title: "support",
+    url: "/admin/support",
+    items: [
+      { title: "inbox", url: "/admin/support" },
+      { title: "settings", url: "/admin/support/settings" },
+      { title: "cannedReplies", url: "/admin/support/canned-replies" },
+      { title: "tags", url: "/admin/support/tags" },
+    ],
+  }
 ];
 
 export function AdminSidebar({

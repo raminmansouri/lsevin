@@ -17,8 +17,12 @@ import {
   AdminSidebarSkeleton,
 } from "@/features/shared/components/admin-sidebar";
 import { LocalePageProps } from "@/types/next";
+import { getProfileForEdit } from "@/features/profile/actions/profile.actions";
 
-export default function AdminLayout({ children, params }: LocalePageProps) {
+export default async function AdminLayout({ children, params }: LocalePageProps) {
+
+      const profile = await getProfileForEdit("en-US");
+  
   return (
     <Suspense fallback={<AdminLayoutSkeleton />}>
       <SuspenseBoundary params={params}>
@@ -30,7 +34,7 @@ export default function AdminLayout({ children, params }: LocalePageProps) {
               <Separator orientation="vertical" className="ms-2" />
               <div className="ms-auto flex items-center gap-4">
                 <LocaleSwitcher />
-                <UserInfo />
+                <UserInfo profile={profile} />
               </div>
             </header>
             <Shell className="container">{children}</Shell>

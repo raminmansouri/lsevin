@@ -1,1 +1,1 @@
-export const TRANSLATION_KEY = "Consulting";
+export const TRANSLATION_KEY = "HomePage";

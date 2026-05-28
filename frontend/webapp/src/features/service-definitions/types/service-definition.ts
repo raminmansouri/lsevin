@@ -1,5 +1,3 @@
-// ServiceDefinition interfaces based on OpenAPI schemas
-
 import { LocalizedContentResponse } from "@/features/shared/types/localization";
 
 export interface ServiceDefinition {
@@ -8,6 +6,8 @@ export interface ServiceDefinition {
   description: string;
   categoryId: string;
   categoryName: string;
+  mediaUrl?: string | null;
+  mediaType?: "image" | "video" | "gif";
   durationMinutes: number;
   basePrice: number;
   currency: string;
@@ -15,6 +15,17 @@ export interface ServiceDefinition {
   isActive: boolean;
   attributeCount: number;
   requirementCount: number;
+  uploadRequirementCount: number;
+  providerServiceCount: number;
+  staffServiceCount: number;
+}
+
+export interface ServiceDefinitionUsageSummary {
+  providerServiceCount: number;
+  activeProviderServiceCount: number;
+  staffServiceCount: number;
+  activeStaffServiceCount: number;
+  bookingDraftCount: number;
 }
 
 export interface ServiceDefinitionDetails {
@@ -23,6 +34,8 @@ export interface ServiceDefinitionDetails {
   description: LocalizedContentResponse;
   categoryId: string;
   categoryName: string;
+  mediaUrl?: string | null;
+  mediaType?: "image" | "video" | "gif";
   durationMinutes: number;
   currency: string;
   basePrice: number;
@@ -30,6 +43,8 @@ export interface ServiceDefinitionDetails {
   isActive: boolean;
   attributeDefinitions: ServiceAttributeDefinition[];
   requirements: ServiceRequirement[];
+  uploadRequirements: ServiceDefinitionUploadRequirement[];
+  usage: ServiceDefinitionUsageSummary;
 }
 
 export interface ServiceAttributeDefinition {
@@ -37,6 +52,7 @@ export interface ServiceAttributeDefinition {
   name: LocalizedContentResponse;
   description: LocalizedContentResponse;
   attributeType: string;
+  attributeTypeId?: number;
   isRequired: boolean;
   affectsPricing: boolean;
   displayOrder: number;
@@ -44,23 +60,39 @@ export interface ServiceAttributeDefinition {
 }
 
 export interface AttributeOption {
+  id?: number;
   displayName: LocalizedContentResponse;
   value: LocalizedContentResponse;
   additionalPrice?: number;
 }
 
 export interface ServiceRequirement {
+  id: number;
   description: LocalizedContentResponse;
   isMandatory: boolean;
 }
 
-// Service definition with all locales for selector
+export interface ServiceDefinitionUploadRequirement {
+  id: string;
+  title: LocalizedContentResponse;
+  description: LocalizedContentResponse;
+  isRequired: boolean;
+  maxFileSizeBytes: number;
+  allowedExtensions: string[];
+  allowedMimeTypes: string[];
+  maxFiles: number;
+  displayOrder: number;
+  exampleFileUrl?: string | null;
+}
+
 export interface ServiceDefinitionWithAllLocales {
   id: string;
   name: LocalizedContentResponse;
   description: LocalizedContentResponse;
   categoryId: string;
   categoryName: string;
+  mediaUrl?: string | null;
+  mediaType?: "image" | "video" | "gif";
   durationMinutes: number;
   basePrice: number;
   currency: string;
@@ -68,7 +100,6 @@ export interface ServiceDefinitionWithAllLocales {
   isActive: boolean;
 }
 
-// Option interface for selector component
 export interface ServiceDefinitionOptionWithAllLocales {
   id: string;
   name: LocalizedContentResponse;

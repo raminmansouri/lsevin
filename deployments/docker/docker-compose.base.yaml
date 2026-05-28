@@ -1,0 +1,5 @@
+# docker-compose.base.yaml (owns the network, run this first)
+networks:
+  lsevin-network:
+    name: lsevin-network
+    driver: bridge

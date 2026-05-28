@@ -1,30 +1,24 @@
-import { readData } from "@/config/http/http-service.client";
+import { Locale } from "next-intl";
+
 import { ApiReturnType } from "@/types/network";
 
+import { getServiceDefinitionDetailsForClient } from "../../actions/get-service-definition-details";
 import { ServiceDefinitionDetails } from "../../types/service-definition";
 
 export const getServiceDefinitionDetailsClient = async (
-  serviceDefinitionId: string
+  serviceDefinitionId: string,
+  locale: Locale = "en" as Locale
 ) => {
   try {
-    const result = await readData<ServiceDefinitionDetails>(
-      `/service-definitions/${serviceDefinitionId}/details`
-    );
-
-    const response: ApiReturnType<ServiceDefinitionDetails> = { data: result };
-    return response;
+    const result = await getServiceDefinitionDetailsForClient(serviceDefinitionId, locale);
+    return { data: result } as ApiReturnType<ServiceDefinitionDetails>;
   } catch (error: unknown) {
-    const response: ApiReturnType<ServiceDefinitionDetails> = {
+    return {
       error: {
-        title:
-          (error as Error)?.message ||
-          "Failed to fetch service definition details",
+        title: (error as Error)?.message || "Failed to fetch service definition details",
         status: (error as { status?: number })?.status || 500,
-        detail:
-          (error as { detail?: string })?.detail ||
-          "An error occurred while fetching data",
+        detail: (error as { detail?: string })?.detail || "An error occurred while fetching data",
       },
-    };
-    return response;
+    } as ApiReturnType<ServiceDefinitionDetails>;
   }
 };

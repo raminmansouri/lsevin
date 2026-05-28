@@ -1,0 +1,36 @@
+"use server";
+
+import { createAuthenticatedSafeAction } from "@/lib/safe-action";
+import type { LocaleHeaderTypes } from "@/types/common";
+
+import { getMyBookingsFromDb } from "../../server/my-bookings.repository";
+import { GetMyBookingsSchema } from "./schema";
+import type { InputType, ReturnType } from "./types";
+
+const handler = async (
+  _input: InputType,
+  _token: string,
+  userId: string,
+  locale: LocaleHeaderTypes
+): Promise<ReturnType> => {
+  try {
+    const data = await getMyBookingsFromDb({ userId, locale });
+    return { data, error: undefined, payload: _input };
+  } catch (error) {
+    return {
+      data: undefined,
+      payload: _input,
+      error: {
+        title: "Unable to load bookings",
+        status: 500,
+        detail: error instanceof Error ? error.message : "Please try again.",
+      },
+    };
+  }
+};
+
+export const getMyBookingsAction = createAuthenticatedSafeAction(
+  GetMyBookingsSchema,
+  handler,
+  { adminRequired: false }
+);

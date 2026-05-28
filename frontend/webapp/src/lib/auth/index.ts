@@ -2,7 +2,7 @@ import { jwtDecode } from "jwt-decode";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
-import { env } from "@/config/env/client";
+import { env } from "@/config/env/server";
 import { IDENTITY_MODULE_BASE_PATH } from "@/features/shared/types/constants";
 
 import { authConfig } from "./auth.config";
@@ -12,24 +12,32 @@ const verifyOtp = async (
   credentials: Partial<Record<"code" | "phoneNumber", unknown>>
 ): Promise<Response | null> => {
   if (!credentials.code || typeof credentials.code !== "string") {
+    console.log("=== OTP FAILED: code missing or not string ===", credentials.code);
     return null;
   }
 
   if (!credentials.phoneNumber || typeof credentials.phoneNumber !== "string") {
+    console.log("=== OTP FAILED: phoneNumber missing or not string ===", credentials.phoneNumber);
     return null;
   }
 
-  return fetch(
-    `${env.NEXT_PUBLIC_API_URL}/${IDENTITY_MODULE_BASE_PATH}/identity/otp/verify`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        code: credentials.code,
-        phoneNumber: credentials.phoneNumber,
-      }),
-    }
-  );
+  const url = `${env.INTERNAL_API_URL}/${IDENTITY_MODULE_BASE_PATH}/identity/otp/verify`;
+  console.log("=== OTP FETCH URL ===", url);
+  console.log("=== OTP FETCH BODY ===", JSON.stringify({ code: credentials.code, phoneNumber: credentials.phoneNumber }));
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      code: credentials.code,
+      phoneNumber: credentials.phoneNumber,
+    }),
+  });
+
+  console.log("=== OTP RESPONSE STATUS ===", response.status);
+  console.log("=== OTP RESPONSE BODY ===", await response.clone().text());
+
+  return response;
 };
 
 // Token refresh logic has been moved to token-refresh-manager.ts for deduplication

@@ -1,47 +1,31 @@
 "use server";
 
-import { postData } from "@/config/http/http-service.server";
-import {
-  ADMIN_BASE_PATH,
-  CATEGORY_MODULE_BASE_PATH,
-} from "@/features/shared/types/constants";
 import { createAuthenticatedSafeAction } from "@/lib/safe-action";
-import { LocaleHeaderTypes } from "@/types/common";
 
 import { revalidateStaffCache } from "../../db/cache";
+import { createStaff } from "../../lib/staff-db";
 import { CreateStaffSchema } from "./schema";
-import { InputType, ReturnType } from "./types";
+import type { InputType, ReturnType } from "./types";
 
 const handler = async (
   input: InputType,
-  token: string,
-  userId: string,
-  locale: LocaleHeaderTypes
+  _token: string,
+  userId: string
 ): Promise<ReturnType> => {
-  const { data, error } = await postData<InputType, string>(
-    `${CATEGORY_MODULE_BASE_PATH}/${ADMIN_BASE_PATH}/staff`,
-    input,
-    {
-      token,
-      locale,
-    }
-  );
-
-  if (data) {
-    revalidateStaffCache({ id: data, userId });
+  try {
+    const id = await createStaff(input);
+    revalidateStaffCache({ id, userId });
+    return { data: id, error: undefined };
+  } catch (error) {
     return {
-      data: data,
-      error: error,
+      data: undefined,
+      error: {
+        title: "Create staff failed",
+        detail: error instanceof Error ? error.message : "Could not create staff.",
+        status: 500,
+      } as any,
     };
   }
-
-  return {
-    data: undefined,
-    error: error,
-  };
 };
 
-export const createStaffAction = createAuthenticatedSafeAction(
-  CreateStaffSchema,
-  handler
-);
+export const createStaffAction = createAuthenticatedSafeAction(CreateStaffSchema, handler);

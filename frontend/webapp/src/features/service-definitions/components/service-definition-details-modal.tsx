@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Eye } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
-import { LexicalRenderer } from "@/components/editor/lexical-renderer";
+import { SafeLexicalRenderer } from "./safe-lexical-renderer";
 import { ResponsiveModal } from "@/components/responsive-modal";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,6 +18,7 @@ import { SERVICE_DEFINITION_TRANSLATION_KEY } from "../constants";
 import { ServiceDefinition } from "../types/service-definition";
 import { ServiceAttributeDefinitionManager } from "./service-attribute-definition-manager";
 import { ServiceRequirementManager } from "./service-requirement-manager";
+import { ServiceUploadFileRequirementManager } from "./service-upload-file-requirement-manager";
 
 interface ServiceDefinitionDetailsModalProps {
   serviceDefinition: ServiceDefinition;
@@ -41,7 +42,7 @@ export function ServiceDefinitionDetailsModal({
     error,
     isFetching: isLoading,
     refetch,
-  } = useServiceDefinitionDetails(open ? serviceDefinition.id : "");
+  } = useServiceDefinitionDetails(open ? serviceDefinition.id : "", locale);
 
   const handleUpdate = () => {
     // Refresh the details
@@ -97,13 +98,16 @@ export function ServiceDefinitionDetailsModal({
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="overview">{t("tabs.overview")}</TabsTrigger>
               <TabsTrigger value="attributes">
                 {t("tabs.attributes")} ({details.attributeDefinitions.length})
               </TabsTrigger>
               <TabsTrigger value="requirements">
                 {t("tabs.requirements")} ({details.requirements.length})
+              </TabsTrigger>
+              <TabsTrigger value="uploads">
+                Uploads ({details.uploadRequirements.length})
               </TabsTrigger>
             </TabsList>
 
@@ -118,7 +122,7 @@ export function ServiceDefinitionDetailsModal({
                     </p>
                     <div>
                       <strong>{t("form.description.label")}:</strong>{" "}
-                      <LexicalRenderer
+                      <SafeLexicalRenderer
                         content={getLocalizedValue(
                           details.description,
                           localeHeader
@@ -167,6 +171,13 @@ export function ServiceDefinitionDetailsModal({
 
             <TabsContent value="requirements">
               <ServiceRequirementManager
+                serviceDefinition={details}
+                onUpdate={handleUpdate}
+              />
+            </TabsContent>
+
+            <TabsContent value="uploads">
+              <ServiceUploadFileRequirementManager
                 serviceDefinition={details}
                 onUpdate={handleUpdate}
               />

@@ -8,6 +8,11 @@ import { logout } from "@/features/auth/actions/logout";
 import { ApiError } from "@/types/error";
 
 import { errorHandler, networkErrorStrategy } from "./http-error-strategies";
+import {
+  logAxiosError,
+  logAxiosRequest,
+  logAxiosResponse,
+} from "./logAxios";
 
 const httpService = axios.create({
   baseURL: "/api",
@@ -16,29 +21,51 @@ const httpService = axios.create({
   },
 });
 
+httpService.interceptors.request.use(
+  (config) => {
+    try {
+      logAxiosRequest(config, {
+        enabled: true,
+        format: "curl",
+      });
+    } catch {}
+    return config;
+  },
+  (error) => {
+    logAxiosError(error);
+    return Promise.reject(error);
+  }
+);
+
 httpService.interceptors.response.use(
   (response) => {
+    try {
+      logAxiosResponse(response, {
+        enabled: true,
+      });
+    } catch {}
     return response;
   },
   async (error) => {
+    logAxiosError(error, { format: "curl" });
+
     if (error?.response) {
-      const statusCode = error?.response?.status;
+      const statusCode = error.response.status;
 
       if (statusCode >= 400) {
         if (statusCode === 401) {
           await logout();
         } else {
-          const errorData: ApiError = error.response?.data;
+          const errorData: ApiError = error.response.data;
           const handler = errorHandler[statusCode];
-
-          if (handler) {
-            handler(errorData);
-          }
+          if (handler) handler(errorData);
         }
       }
     } else {
       networkErrorStrategy();
     }
+
+    return Promise.reject(error);
   }
 );
 
@@ -55,9 +82,10 @@ async function readData<T>(
   headers?: AxiosRequestHeaders
 ): Promise<T> {
   const options: AxiosRequestConfig = {
-    headers: headers,
+    headers,
     method: "GET",
   };
+
   return await apiBase<T>(url, options);
 }
 
@@ -68,7 +96,7 @@ async function postData<TModel, TResult>(
 ): Promise<TResult> {
   const options: AxiosRequestConfig = {
     method: "POST",
-    headers: headers,
+    headers,
     data: JSON.stringify(data),
   };
 
@@ -82,7 +110,7 @@ async function putData<TModel, TResult>(
 ): Promise<TResult> {
   const options: AxiosRequestConfig = {
     method: "PUT",
-    headers: headers,
+    headers,
     data: JSON.stringify(data),
   };
 
@@ -95,7 +123,7 @@ async function deleteData(
 ): Promise<void> {
   const options: AxiosRequestConfig = {
     method: "DELETE",
-    headers: headers,
+    headers,
   };
 
   return await apiBase(url, options);

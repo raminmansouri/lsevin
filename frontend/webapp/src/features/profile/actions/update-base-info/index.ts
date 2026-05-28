@@ -6,7 +6,6 @@ import { putData, withBaseHeaders } from "@/config/http/http-service.server";
 import { IDENTITY_MODULE_BASE_PATH } from "@/features/shared/types/constants";
 import { unstable_update } from "@/lib/auth";
 import { getUser } from "@/lib/auth/session";
-import { parsePhone } from "@/lib/formatters";
 import { createSafeAction } from "@/lib/safe-action";
 
 import { UpdateBaseInfoSchema } from "./schema";
@@ -20,11 +19,13 @@ import {
 
 const handler = async (input: InputType): Promise<ReturnType> => {
   const t = await getTranslations(TRANSLATION_KEY);
-  const parsedPhone = parsePhone(input.phoneNumber);
-  if (!parsedPhone) {
+
+  const user = await getUser();
+
+  if (!user) {
     return {
       data: undefined,
-      error: { title: t("errors.invalidPhone"), status: 400 },
+      error: { title: "Unauthorized", status: 401 },
       payload: input,
     };
   }
@@ -34,9 +35,12 @@ const handler = async (input: InputType): Promise<ReturnType> => {
     lastName: input.lastName,
     userName: input.email,
     email: input.email,
-    phoneNumber: parsedPhone.value,
-    phoneNumberCountryCode: parsedPhone.country,
+    // Mobile is immutable. It is copied only from the trusted current session
+    // so profile forms cannot submit a changed mobile number/country code.
+    phoneNumber: user.phoneNumber ?? "",
+    phoneNumberCountryCode: user.phoneNumberCountryCode ?? "",
   };
+
   const { data, error } = await withBaseHeaders((locale, token) =>
     putData<ApiInputType, OutputType>(
       `${IDENTITY_MODULE_BASE_PATH}/users`,
@@ -44,8 +48,8 @@ const handler = async (input: InputType): Promise<ReturnType> => {
       { locale, token }
     )
   );
+
   if (data) {
-    const user = await getUser();
     const updatedUser = {
       ...user,
       ...apiPayload,

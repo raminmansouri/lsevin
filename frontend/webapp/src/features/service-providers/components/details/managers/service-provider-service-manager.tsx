@@ -69,6 +69,7 @@ import { removeProviderService } from "../../../actions/remove-provider-service"
 import { updateProviderService } from "../../../actions/update-provider-service";
 import { ServiceProviderService } from "../../../types";
 import { TRANSLATION_KEY } from "../../../types/constants";
+import ImageGalleryManager from "./image-gallery-manager";
 
 interface ServiceProviderServiceManagerProps {
   serviceProviderId: string;
@@ -274,6 +275,7 @@ export default function ServiceProviderServiceManager({
     price: 0,
     currency: "",
     durationMinutes: 0,
+    trendingScore: 0,
     isActive: true,
   });
 
@@ -301,6 +303,7 @@ export default function ServiceProviderServiceManager({
     price: 0,
     currency: "",
     durationMinutes: 0,
+    trendingScore: 0,
     notes: createEmptyLocalizedContent(),
   });
 
@@ -316,6 +319,7 @@ export default function ServiceProviderServiceManager({
         price: 0,
         currency: "",
         durationMinutes: 0,
+        trendingScore: 0,
         notes: createEmptyLocalizedContent(),
       });
       invalidateServiceProviderDetailsCache();
@@ -350,6 +354,7 @@ export default function ServiceProviderServiceManager({
         price: 0,
         currency: "",
         durationMinutes: 0,
+        trendingScore: 0,
         isActive: true,
       });
       invalidateServiceProviderDetailsCache();
@@ -384,6 +389,7 @@ export default function ServiceProviderServiceManager({
         price: selectedData.price || 0,
         currency: selectedData.currency || "USD",
         durationMinutes: selectedData.durationMinutes || 0,
+        trendingScore: 0,
       }));
     } else {
       // Clear selection
@@ -395,6 +401,7 @@ export default function ServiceProviderServiceManager({
         price: 0,
         currency: "",
         durationMinutes: 0,
+        trendingScore: 0,
       }));
     }
   };
@@ -437,6 +444,7 @@ export default function ServiceProviderServiceManager({
       price: newService.price,
       currency: newService.currency,
       durationMinutes: newService.durationMinutes,
+      trendingScore: newService.trendingScore,
       isActive: true,
       notes: normalizedFields.notes,
     });
@@ -461,6 +469,7 @@ export default function ServiceProviderServiceManager({
       price: service.value,
       currency: service.currency,
       durationMinutes: service.durationMinutes,
+      trendingScore: service.trendingScore ?? 0,
       isActive: service.isActive ?? true,
     });
   };
@@ -474,6 +483,7 @@ export default function ServiceProviderServiceManager({
       price: 0,
       currency: "",
       durationMinutes: 0,
+      trendingScore: 0,
       isActive: true,
     });
   };
@@ -510,6 +520,7 @@ export default function ServiceProviderServiceManager({
       price: editFormData.price,
       currency: editFormData.currency,
       durationMinutes: editFormData.durationMinutes,
+      trendingScore: editFormData.trendingScore,
       isActive: editFormData.isActive,
     });
   };
@@ -659,6 +670,27 @@ export default function ServiceProviderServiceManager({
                           </span>
                         </div>
                       </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor={`edit-trending-score-${service.id}`}>
+                          Trending score
+                        </Label>
+                        <Input
+                          id={`edit-trending-score-${service.id}`}
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={editFormData.trendingScore}
+                          onChange={(e) =>
+                            setEditFormData((prev) => ({
+                              ...prev,
+                              trendingScore: parseFloat(e.target.value) || 0,
+                            }))
+                          }
+                          placeholder="0"
+                          disabled={isPending}
+                        />
+                      </div>
                     </div>
 
                     <div className="flex justify-end space-x-2">
@@ -719,6 +751,7 @@ export default function ServiceProviderServiceManager({
                             {t("services.units.minutesShort")}
                           </span>
                         </div>
+                        <span>Trending: {service.trendingScore ?? 0}</span>
                       </div>
 
                       {service.notes && (
@@ -729,6 +762,21 @@ export default function ServiceProviderServiceManager({
                           </p>
                         </div>
                       )}
+
+
+                      <div className="mt-4">
+  <ImageGalleryManager
+    title="Service image gallery"
+    description="Add or remove service gallery images."
+    listUrl={`/api/v1/service-providers/${serviceProviderId}/services/${service.id}/gallery`}
+    uploadUrl={`/api/v1/service-providers/${serviceProviderId}/services/${service.id}/gallery`}
+    deleteUrl={(imageId) =>
+      `/api/v1/service-providers/${serviceProviderId}/services/${service.id}/gallery/${imageId}`
+    }
+    disabled={isPending || editingId !== null}
+    onUpdate={onUpdate}
+  />
+</div>
                     </div>
 
                     <div className="flex gap-1">
@@ -890,6 +938,25 @@ export default function ServiceProviderServiceManager({
                         {t("services.units.minutesShort")}
                       </span>
                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="trendingScore">Trending score</Label>
+                    <Input
+                      id="trendingScore"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={newService.trendingScore}
+                      onChange={(e) =>
+                        setNewService((prev) => ({
+                          ...prev,
+                          trendingScore: parseFloat(e.target.value) || 0,
+                        }))
+                      }
+                      placeholder="0"
+                      disabled={isPending}
+                    />
                   </div>
                 </div>
               </div>

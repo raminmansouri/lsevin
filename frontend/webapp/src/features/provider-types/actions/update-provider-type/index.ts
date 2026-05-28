@@ -1,34 +1,31 @@
+
 "use server";
 
-import { putData } from "@/config/http/http-service.server";
-import {
-  ADMIN_BASE_PATH,
-  CATEGORY_MODULE_BASE_PATH,
-} from "@/features/shared/types/constants";
 import { createAuthenticatedSafeAction } from "@/lib/safe-action";
-import { LocaleHeaderTypes } from "@/types/common";
 
 import { revalidateProviderTypeCache } from "../../db/cache";
+import { providerTypeProblem, updateProviderType } from "../../db/provider-types.repository";
 import { UpdateProviderTypeSchema } from "./schema";
-import { InputType, RequestOutputType, ReturnType } from "./types";
+import { InputType, ReturnType } from "./types";
 
 const handler = async (
   input: InputType,
-  token: string,
-  userId: string,
-  locale: LocaleHeaderTypes
+  _token: string,
+  userId: string
 ): Promise<ReturnType> => {
-  const { data, error } = await putData<InputType, RequestOutputType>(
-    `${CATEGORY_MODULE_BASE_PATH}/${ADMIN_BASE_PATH}/provider-types/${input.providerTypeId}`,
-    input,
-    { locale, token }
-  );
-
-  if (data) {
+  try {
+    const updated = await updateProviderType(input);
+    if (!updated) {
+      return {
+        data: undefined,
+        error: { title: "Not found", detail: "Provider type was not found.", status: 404 } as any,
+      };
+    }
     revalidateProviderTypeCache({ id: input.providerTypeId, userId });
     return { data: input.providerTypeId!, error: undefined };
+  } catch (error) {
+    return { data: undefined, error: providerTypeProblem(error) as any };
   }
-  return { data: undefined, error };
 };
 
 export const updateProviderTypeAction = createAuthenticatedSafeAction(

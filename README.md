@@ -521,7 +521,7 @@ Module/
 ### 1. Clone and Setup
 ```bash
 # Clone repository
-git clone https://github.com/raminmansouri/lsevin.git
+git clone https://github.com/pouryanoufallah96/LSevin.git
 cd LSevin
 
 # Install development certificates
@@ -703,3 +703,5 @@ pm2 start deployments/pm2/pm2.yaml --env production
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
+
+Made with ❤️ by [Pourya Nofallah](https://github.com/pouryanoufallah96)

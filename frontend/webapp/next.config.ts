@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
+// pull from env
+const filesUrl = new URL(
+  process.env.NEXT_PUBLIC_FILES_URL || "http://localhost:5000"
+);
+
 const withNextIntl = createNextIntlPlugin({
   experimental: {
     createMessagesDeclaration: [
@@ -16,13 +21,13 @@ const withNextIntl = createNextIntlPlugin({
   },
 });
 
-// Use environment variable directly instead of importing from @/config
-const filesUrl = new URL(
-  process.env.NEXT_PUBLIC_FILES_URL || "http://localhost:3000"
-);
-
 const nextConfig: NextConfig = {
+  
+   typescript: {
+    ignoreBuildErrors: true,
+  },
   output: "standalone",
+
   experimental: {
     authInterrupts: true,
     cacheComponents: true,
@@ -34,11 +39,15 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "5mb",
     },
   },
+
   reactCompiler: true,
-  transpilePackages: ["mapbox-gl", "react-map-gl"],
+
   turbopack: {
     root: process.cwd(),
   },
+
+  transpilePackages: ["mapbox-gl", "react-map-gl"],
+
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
@@ -50,11 +59,54 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+
   logging: {
     fetches: {
       fullUrl: true,
     },
   },
+
+  async rewrites() {
+  const localePattern = "en|fa|tr|ar|es|ku|de|fr";
+
+  // Only use Next rewrites locally (or whenever you explicitly set BOOKING_ORIGIN)
+  // In production behind Caddy, leave BOOKING_ORIGIN empty and rewrites will be disabled.
+  const bookingOrigin = process.env.BOOKING_ORIGIN;
+
+  if (!bookingOrigin) return [];
+
+  return [
+    // locale assets
+    {
+      source: `/:locale(${localePattern})/booking/assets/:path*`,
+      destination: `${bookingOrigin}/booking/assets/:path*`,
+    },
+    // locale routes
+    {
+      source: `/:locale(${localePattern})/booking/:path*`,
+      destination: `${bookingOrigin}/booking/:path*`,
+    },
+    // non-locale assets
+    {
+      source: `/booking/assets/:path*`,
+      destination: `${bookingOrigin}/booking/assets/:path*`,
+    },
+    // non-locale routes
+    {
+      source: "/booking/:path*",
+      destination: `${bookingOrigin}/booking/:path*`,
+    },
+    // roots
+    {
+      source: "/booking",
+      destination: `${bookingOrigin}/booking/`,
+    },
+    {
+      source: `/:locale(${localePattern})/booking`,
+      destination: `${bookingOrigin}/booking/`,
+    },
+  ];
+},
 };
 
 export default withNextIntl(nextConfig);

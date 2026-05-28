@@ -11,6 +11,14 @@ internal static class Routes
         internal const string MainUrl = $"{AppBaseUrl}/customer";
 
         internal const string GetCurrent = $"{MainUrl}/current";
+        internal const string GetSearchHistory = $"{MainUrl}/GetSearchHistory";
+        internal const string GetSearchResults = $"{MainUrl}/GetSearchResults";
+        internal const string Explore = $"{MainUrl}/Explore";
+        internal const string GetNotificationCount = $"{MainUrl}/GetNotificationCount";
+        internal const string Bookings = $"{MainUrl}/Bookings";
+        internal const string Offers = $"{MainUrl}/Offers";
+        internal const string GetBookingById = $"{MainUrl}/GetBookingById";
+        internal const string CpCategoryGroups = $"{MainUrl}/CpCategoryGroups";
 
         internal const string Update = $"{MainUrl}";
 
@@ -19,6 +27,11 @@ internal static class Routes
         internal const string GetDocuments = $"{MainUrl}/documents";
 
         internal const string DeleteDocument = $"{MainUrl}/document/{{documentId:guid}}";
+
+        public static string GetFavorites= $"{MainUrl}/GetFavorites";
+        public static string GetRewardsPage = $"{MainUrl}/GetRewardsPage";
+        public static string GetHomePage = $"{MainUrl}/GetHomePage";
+
     }
 
     internal static class Consulting

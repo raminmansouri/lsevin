@@ -1,9 +1,4 @@
-import { z } from "zod/v4";
-
-import type { ActionState } from "@/lib/safe-action";
-
-import { CreateStaffSchema } from "./schema";
-
-export type OutputType = string;
-export type InputType = z.infer<typeof CreateStaffSchema>;
-export type ReturnType = ActionState<InputType, OutputType>;
+import type { IProblem } from "@/types/error";
+import type { CreateStaffFormData } from "./schema";
+export type InputType = CreateStaffFormData;
+export type ReturnType = { data?: string; error?: IProblem };

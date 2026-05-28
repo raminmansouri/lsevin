@@ -14,6 +14,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { CategoryListItem } from "../../types/category";
+import Image from "next/image";
+import { env } from "@/config/env/client";
+import { getCategoryOverlayClassName, getCategoryOverlayStyle } from "../../utils/category-overlay";
 
 export const getCategoryListColumns = (
   t: ReturnType<typeof useTranslations>,
@@ -54,6 +57,35 @@ export const getCategoryListColumns = (
     },
     enableSorting: false,
   },
+  
+  {
+    accessorKey: "gradient",
+    header: "Overlay",
+    cell: ({ row }) => {
+      const gradient = row.original.gradient;
+      const overlayClassName = getCategoryOverlayClassName(gradient);
+      const overlayStyle = getCategoryOverlayStyle(gradient);
+
+      return (
+        <div className="flex items-center gap-2">
+          <span
+            className={[
+              "inline-flex h-7 w-14 rounded-md",
+              overlayClassName ? `bg-gradient-to-t ${overlayClassName}` : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+            style={overlayStyle}
+          />
+          <span className="text-xs text-muted-foreground">
+            {gradient ? "Custom" : "Default"}
+          </span>
+        </div>
+      );
+    },
+    enableSorting: false,
+  },
+  
   {
     id: "actions",
     header: t("table.actions"),
@@ -85,5 +117,28 @@ export const getCategoryListColumns = (
         </DropdownMenu>
       );
     },
+    
   },
+  {
+    accessorKey: "imageUrl",
+    header: 'image',
+    cell: ({ row }) => {
+      const imageUrl = row.original.imageUrl;
+      const description = row.original.description;
+      return (
+          <div style={{width:'100%',height:'100%'}}>
+{imageUrl && <Image
+                                src={`${env.NEXT_PUBLIC_FILES_URL}/${imageUrl}`}
+                                 alt={description}
+                                className="object-cover"
+                                
+                                width="50"
+                                height="50"
+                              />
+                              }
+          </div>
+      );
+    },
+    enableSorting: false,
+  }
 ];

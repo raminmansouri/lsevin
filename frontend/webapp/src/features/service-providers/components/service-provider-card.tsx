@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
-import { env } from "@/config/env/client";
 import {
   DEFAULT_LOCALE_HEADER,
   getNumberFormatLocale,
@@ -21,6 +20,7 @@ import { TRANSLATION_KEY } from "@/features/home/types/constants";
 import { Link } from "@/i18n/navigation";
 
 import { IServiceProvider } from "../types";
+import { resolveMediaUrl } from "../lib/media-url";
 
 interface ServiceProviderCardProps {
   provider: IServiceProvider;
@@ -55,7 +55,7 @@ export const ServiceProviderCard = ({ provider }: ServiceProviderCardProps) => {
           <div className="p-2 md:w-full md:p-0">
             <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl md:h-48 md:w-full md:rounded-none">
               <ImageWithFallback
-                src={`${env.NEXT_PUBLIC_FILES_URL}/${provider.thumbnailUrl}`}
+                src={resolveMediaUrl(provider.thumbnailUrl)}
                 alt={provider.name}
                 fill
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -99,7 +99,7 @@ export const ServiceProviderCard = ({ provider }: ServiceProviderCardProps) => {
                       {hasLexicalContent(attribute.value) ? (
                         <LexicalRenderer content={attribute.value} />
                       ) : (
-                        <p>{attribute.value}</p>
+                        <span>{attribute.value}</span>
                       )}
                     </Badge>
                   ))}
@@ -119,7 +119,7 @@ export const ServiceProviderCard = ({ provider }: ServiceProviderCardProps) => {
                       {hasLexicalContent(attribute.value) ? (
                         <LexicalRenderer content={attribute.value} />
                       ) : (
-                        <p>{attribute.value}</p>
+                        <span>{attribute.value}</span>
                       )}
                     </Badge>
                   ))}

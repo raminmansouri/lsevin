@@ -1,9 +1,4 @@
-import { z } from "zod/v4";
-
-import type { ActionState } from "@/lib/safe-action";
-
-import { ChangeStaffActivationSchema } from "./schema";
-
-export type OutputType = boolean;
-export type InputType = z.infer<typeof ChangeStaffActivationSchema>;
-export type ReturnType = ActionState<InputType, OutputType>;
+import type { IProblem } from "@/types/error";
+import type { ChangeStaffActivationInput } from "./schema";
+export type InputType = ChangeStaffActivationInput;
+export type ReturnType = { data?: boolean; error?: IProblem };

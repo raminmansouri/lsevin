@@ -1,0 +1,5 @@
+import { z } from "zod/v4";
+
+export const GetMyBookingByIdSchema = z.object({
+  id: z.string().trim().min(1, "Booking id is required"),
+});

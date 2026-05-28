@@ -4,6 +4,8 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
+import { useLocale } from "next-intl";
+
 import { readData } from "@/config/http/http-service.client";
 import { IProblem } from "@/types/error";
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from "@/types/filter";
@@ -21,10 +23,14 @@ export interface StaffOption {
   isActive?: boolean;
 }
 
-export const getStaffBySearchClient = async (search: string, page: number) => {
+export const getStaffBySearchClient = async (search: string, page: number, locale?: string) => {
   const searchParams = new URLSearchParams();
   if (search) {
     searchParams.set("Search", search);
+    searchParams.set("q", search);
+  }
+  if (locale) {
+    searchParams.set("Locale", locale);
   }
   searchParams.set("PageNumber", (page || DEFAULT_PAGE_NUMBER).toString());
   searchParams.set("PageSize", DEFAULT_PAGE_SIZE.toString());
@@ -35,14 +41,15 @@ export const getStaffBySearchClient = async (search: string, page: number) => {
 };
 
 const STAFF_BY_SEARCH_CACHE_TAG = "staff-by-search";
-const queryStaffBySearchKey = (search: string) =>
-  [STAFF_BY_SEARCH_CACHE_TAG, search] as const;
+const queryStaffBySearchKey = (search: string, locale: string) =>
+  [STAFF_BY_SEARCH_CACHE_TAG, search, locale] as const;
 
 export const useStaffBySearch = (search: string) => {
+  const locale = useLocale();
   const options = infiniteQueryOptions<PaginatedResult<Staff>, IProblem>({
-    queryKey: queryStaffBySearchKey(search),
+    queryKey: queryStaffBySearchKey(search, locale),
     queryFn: ({ pageParam }) =>
-      getStaffBySearchClient(search, pageParam as number),
+      getStaffBySearchClient(search, pageParam as number, locale),
     initialPageParam: DEFAULT_PAGE_NUMBER,
     getNextPageParam: (lastPage, allPages) => {
       const currentPage = allPages.length;

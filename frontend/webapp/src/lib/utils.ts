@@ -6,11 +6,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+
+
 export function ensureLocalePrefix(path: string, locale: string): string {
   if (
-    path.startsWith("http") ||
-    path.startsWith("/api") ||
-    path.match(/^\/[a-z]{2}(\/|$)/)
+      path.startsWith("http") ||
+      path.startsWith("/api") ||
+      path.match(/^\/[a-z]{2}(\/|$)/)
   ) {
     return path;
   }
@@ -44,3 +46,4 @@ export function getSchemaFields<T extends z.ZodType>(schema: T): string[] {
 
   return [];
 }
+

@@ -10,5 +10,6 @@ export const UpdateProviderServiceSchema = z.object({
   price: z.number().min(0),
   currency: z.string().min(3).max(3),
   durationMinutes: z.number().min(0),
+  trendingScore: z.number().min(0).optional(),
   isActive: z.boolean(),
 });

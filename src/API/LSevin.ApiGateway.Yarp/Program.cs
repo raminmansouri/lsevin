@@ -13,7 +13,6 @@ using Serilog;
 using Serilog.Events;
 using Yarp.ReverseProxy.Transforms;
 using Environments = BuildingBlocks.Core.Web.Environments;
-using Microsoft.AspNetCore.HttpOverrides;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
@@ -64,14 +63,6 @@ try
         );
 
     var app = builder.Build();
-
-    var forwardedHeadersOptions = new ForwardedHeadersOptions
-    {
-        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-    };
-    forwardedHeadersOptions.KnownNetworks.Clear();
-    forwardedHeadersOptions.KnownProxies.Clear();
-    app.UseForwardedHeaders(forwardedHeadersOptions);
 
     if (isDev)
     {
