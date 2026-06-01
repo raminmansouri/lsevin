@@ -1,11 +1,21 @@
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import { MarketingLoyaltyListPage } from "@/features/marketing-loyalty/components/page-shell";
 
-export const metadata: Metadata = {
-  title: "Marketing offers",
-  description: "Manage marketing offers.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "MarketingOffersAdmin" });
+
+  return {
+    title: t("listTitle"),
+    description: t("listDescription"),
+  };
+}
 
 export default async function MarketingOffersPage({
   params,

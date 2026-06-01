@@ -7,9 +7,11 @@ import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
+import { useTranslations } from 'next-intl';
 
 export default function FetchDisplayProfileInfo({profile}:{profile:EditProfileInitialData}) {
   const navigate = useNavigate();
+  const t = useTranslations("User.Profile");
   const resolvedImageUrl = useMemo(
     () => resolveHomeMediaUrl(profile?.profileImageUrl),
     [profile?.profileImageUrl]
@@ -61,7 +63,7 @@ export default function FetchDisplayProfileInfo({profile}:{profile:EditProfileIn
               onClick={() => navigate('/n/app/mobile/profile/EditProfile')}
               className="mt-2 text-sm font-semibold text-[#083f30] hover:underline"
             >
-              Edit Profile
+              {t("edit.title")}
             </button>
           </div>
         </div>

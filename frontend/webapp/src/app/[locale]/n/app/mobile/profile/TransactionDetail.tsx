@@ -1,18 +1,21 @@
 "use client"
 
+import { useLocale, useTranslations } from 'next-intl';
 import { useNavigate, useParams } from 'react-router';
 import { ArrowLeft, Download, Share2, CheckCircle2, XCircle, AlertCircle, Clock, CreditCard, MapPin, FileText } from 'lucide-react';
 
 export default function TransactionDetail() {
   const navigate = useNavigate();
+  const locale = useLocale();
+  const t = useTranslations("MobileProfile.transactionDetail");
   const { id } = useParams();
 
   // Mock transaction data - in real app, fetch based on id
   const transaction = {
     id: id || '1',
     type: 'debit',
-    title: 'Hair Transplant Payment',
-    subtitle: 'Istanbul Medical Center',
+    title: t('sample.title'),
+    subtitle: t('sample.subtitle'),
     amount: -2499.00,
     currency: 'USD',
     date: '2026-03-05T14:30:00',
@@ -20,16 +23,16 @@ export default function TransactionDetail() {
     paymentMethod: 'Visa ****4532',
     transactionId: 'TXN-2026-03-05-4827',
     bookingId: 'BK-18294',
-    providerName: 'Istanbul Medical Center',
-    providerAddress: 'Nisantasi, Istanbul, Turkey',
-    description: 'FUE Hair Transplant - 4000 Grafts',
+    providerName: t('sample.providerName'),
+    providerAddress: t('sample.providerAddress'),
+    description: t('sample.description'),
     fee: 0.00,
     subtotal: 2499.00,
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
+    return date.toLocaleDateString(locale, { 
       month: 'long', 
       day: 'numeric', 
       year: 'numeric',
@@ -76,7 +79,7 @@ export default function TransactionDetail() {
             >
               <ArrowLeft size={20} className="text-gray-900" />
             </button>
-            <h1 className="text-lg font-bold text-gray-900">Transaction Details</h1>
+            <h1 className="text-lg font-bold text-gray-900">{t("title")}</h1>
           </div>
 
           <div className="flex gap-2">
@@ -106,7 +109,7 @@ export default function TransactionDetail() {
           }`}>
             {transaction.type === 'credit' ? '+' : ''}
             {transaction.currency === 'USD' ? '$' : ''}
-            {Math.abs(transaction.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            {Math.abs(transaction.amount).toLocaleString(locale, { minimumFractionDigits: 2 })}
           </div>
 
           <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${getStatusColor()}`}>
@@ -116,63 +119,63 @@ export default function TransactionDetail() {
           <p className="text-sm text-gray-600 mt-4">{formatDate(transaction.date)}</p>
         </div>
 
-        {/* Transaction Information */}
+        {/* {t("transactionInformation")} */}
         <div className="bg-white rounded-2xl p-5 space-y-4">
-          <h2 className="font-bold text-gray-900">Transaction Information</h2>
+          <h2 className="font-bold text-gray-900">{t("transactionInformation")}</h2>
 
           <div className="space-y-3">
-            {/* Transaction ID */}
+            {/* {t("transactionId")} */}
             <div className="flex items-start justify-between py-3 border-b border-gray-100">
               <div className="flex items-start gap-3">
                 <FileText size={20} className="text-gray-400 mt-0.5" />
                 <div>
-                  <p className="text-sm text-gray-600 mb-0.5">Transaction ID</p>
+                  <p className="text-sm text-gray-600 mb-0.5">{t("transactionId")}</p>
                   <p className="font-semibold text-gray-900">{transaction.transactionId}</p>
                 </div>
               </div>
             </div>
 
-            {/* Payment Method */}
+            {/* {t("paymentMethod")} */}
             <div className="flex items-start justify-between py-3 border-b border-gray-100">
               <div className="flex items-start gap-3">
                 <CreditCard size={20} className="text-gray-400 mt-0.5" />
                 <div>
-                  <p className="text-sm text-gray-600 mb-0.5">Payment Method</p>
+                  <p className="text-sm text-gray-600 mb-0.5">{t("paymentMethod")}</p>
                   <p className="font-semibold text-gray-900">{transaction.paymentMethod}</p>
                 </div>
               </div>
             </div>
 
-            {/* Booking Reference */}
+            {/* {t("bookingReference")} */}
             {transaction.bookingId && (
               <div className="flex items-start justify-between py-3 border-b border-gray-100">
                 <div className="flex items-start gap-3">
                   <FileText size={20} className="text-gray-400 mt-0.5" />
                   <div>
-                    <p className="text-sm text-gray-600 mb-0.5">Booking Reference</p>
+                    <p className="text-sm text-gray-600 mb-0.5">{t("bookingReference")}</p>
                     <p className="font-semibold text-gray-900">{transaction.bookingId}</p>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Description */}
+            {/* {t("description")} */}
             <div className="flex items-start justify-between py-3 border-b border-gray-100">
               <div className="flex items-start gap-3">
                 <FileText size={20} className="text-gray-400 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm text-gray-600 mb-0.5">Description</p>
+                  <p className="text-sm text-gray-600 mb-0.5">{t("description")}</p>
                   <p className="font-semibold text-gray-900">{transaction.description}</p>
                 </div>
               </div>
             </div>
 
-            {/* Provider */}
+            {/* {t("provider")} */}
             <div className="flex items-start justify-between py-3">
               <div className="flex items-start gap-3">
                 <MapPin size={20} className="text-gray-400 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm text-gray-600 mb-0.5">Provider</p>
+                  <p className="text-sm text-gray-600 mb-0.5">{t("provider")}</p>
                   <p className="font-semibold text-gray-900 mb-1">{transaction.providerName}</p>
                   <p className="text-sm text-gray-600">{transaction.providerAddress}</p>
                 </div>
@@ -181,29 +184,29 @@ export default function TransactionDetail() {
           </div>
         </div>
 
-        {/* Payment Breakdown */}
+        {/* {t("paymentBreakdown")} */}
         <div className="bg-white rounded-2xl p-5 space-y-4">
-          <h2 className="font-bold text-gray-900">Payment Breakdown</h2>
+          <h2 className="font-bold text-gray-900">{t("paymentBreakdown")}</h2>
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-gray-600">Subtotal</span>
+              <span className="text-gray-600">{t("subtotal")}</span>
               <span className="font-semibold text-gray-900">
-                ${transaction.subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                ${transaction.subtotal.toLocaleString(locale, { minimumFractionDigits: 2 })}
               </span>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-gray-600">Service Fee</span>
+              <span className="text-gray-600">{t("serviceFee")}</span>
               <span className="font-semibold text-gray-900">
-                ${transaction.fee.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                ${transaction.fee.toLocaleString(locale, { minimumFractionDigits: 2 })}
               </span>
             </div>
 
             <div className="pt-3 border-t border-gray-200 flex items-center justify-between">
-              <span className="font-bold text-gray-900">Total</span>
+              <span className="font-bold text-gray-900">{t("total")}</span>
               <span className="text-xl font-bold text-gray-900">
-                ${Math.abs(transaction.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                ${Math.abs(transaction.amount).toLocaleString(locale, { minimumFractionDigits: 2 })}
               </span>
             </div>
           </div>
@@ -214,7 +217,7 @@ export default function TransactionDetail() {
           <div className="space-y-2">
             <button className="w-full h-14 bg-white border-2 border-gray-300 rounded-xl font-semibold text-gray-900 hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
               <Download size={20} />
-              Download Receipt
+              {t("downloadReceipt")}
             </button>
 
             {transaction.bookingId && (
@@ -222,7 +225,7 @@ export default function TransactionDetail() {
                 onClick={() => navigate(`/app/booking-detail/${transaction.bookingId}`)}
                 className="w-full h-14 bg-[#083f30] text-white rounded-xl font-semibold hover:bg-[#0a5a44] transition-all"
               >
-                View Booking Details
+                {t("viewBookingDetails")}
               </button>
             )}
           </div>
@@ -233,12 +236,12 @@ export default function TransactionDetail() {
             <div className="flex items-start gap-3">
               <XCircle size={20} className="text-red-600 mt-0.5" />
               <div>
-                <h3 className="font-bold text-red-900 mb-1">Payment Failed</h3>
+                <h3 className="font-bold text-red-900 mb-1">{t("paymentFailed")}</h3>
                 <p className="text-sm text-red-700 mb-4">
-                  This payment could not be processed. Please try again or use a different payment method.
+                  {t("paymentFailedDescription")}
                 </p>
                 <button className="px-6 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors">
-                  Retry Payment
+                  {t("retryPayment")}
                 </button>
               </div>
             </div>
@@ -250,9 +253,9 @@ export default function TransactionDetail() {
             <div className="flex items-start gap-3">
               <AlertCircle size={20} className="text-orange-600 mt-0.5" />
               <div>
-                <h3 className="font-bold text-orange-900 mb-1">Payment Pending</h3>
+                <h3 className="font-bold text-orange-900 mb-1">{t("paymentPending")}</h3>
                 <p className="text-sm text-orange-700">
-                  This transaction is being processed. It may take up to 24 hours to complete.
+                  {t("paymentPendingDescription")}
                 </p>
               </div>
             </div>
@@ -262,13 +265,13 @@ export default function TransactionDetail() {
         {/* Support */}
         <div className="bg-gray-100 rounded-2xl p-5 text-center">
           <p className="text-sm text-gray-600 mb-3">
-            Need help with this transaction?
+            {t("needHelp")}
           </p>
           <button 
             onClick={() => navigate('/app/support')}
             className="px-6 py-3 bg-white text-[#083f30] font-semibold rounded-xl hover:shadow-md transition-all"
           >
-            Contact Support
+            {t("contactSupport")}
           </button>
         </div>
       </div>

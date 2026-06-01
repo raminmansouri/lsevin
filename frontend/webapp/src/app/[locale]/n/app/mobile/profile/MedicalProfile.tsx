@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useNavigate } from '@/hooks/use-navigate';
 import { 
   ArrowLeft, 
@@ -23,6 +24,7 @@ type ModalType = 'allergy' | 'medication' | 'condition' | 'document' | 'emergenc
 
 export default function MedicalProfile() {
   const navigate = useNavigate();
+  const t = useTranslations("MobileProfile.medicalProfileLegacy");
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [allergies, setAllergies] = useState(['Penicillin', 'Shellfish']);
   const [medications, setMedications] = useState([
@@ -129,7 +131,7 @@ export default function MedicalProfile() {
           >
             <ArrowLeft size={20} className="text-gray-900" />
           </button>
-          <h1 className="text-lg font-bold text-gray-900 ml-3">Medical Profile</h1>
+          <h1 className="text-lg font-bold text-gray-900 ml-3">{t("title")}</h1>
         </div>
       </div>
       
@@ -141,9 +143,9 @@ export default function MedicalProfile() {
               <Lock size={20} className="text-white" />
             </div>
             <div>
-              <h3 className="font-bold mb-1">Your Privacy is Protected</h3>
+              <h3 className="font-bold mb-1">{t("privacyTitle")}</h3>
               <p className="text-sm text-white/90">
-                All medical information is encrypted, HIPAA-compliant, and only shared with your authorized healthcare providers.
+                {t("privacyDescription")}
               </p>
             </div>
           </div>
@@ -159,7 +161,7 @@ export default function MedicalProfile() {
               <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center">
                 <AlertCircle size={20} className="text-red-600" />
               </div>
-              <h3 className="font-bold text-gray-900">Allergies</h3>
+              <h3 className="font-bold text-gray-900">{t("sections.allergies")}</h3>
             </div>
             <button 
               onClick={() => setActiveModal('allergy')}
@@ -184,12 +186,12 @@ export default function MedicalProfile() {
             </div>
           ) : (
             <div className="text-center py-6">
-              <p className="text-gray-500 text-sm mb-3">No allergies recorded</p>
+              <p className="text-gray-500 text-sm mb-3">{t("empty.noAllergies")}</p>
               <button 
                 onClick={() => setActiveModal('allergy')}
                 className="text-sm font-semibold text-[#083f30] hover:underline"
               >
-                Add your first allergy
+                {t("empty.addFirstAllergy")}
               </button>
             </div>
           )}
@@ -202,7 +204,7 @@ export default function MedicalProfile() {
               <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
                 <Pill size={20} className="text-purple-600" />
               </div>
-              <h3 className="font-bold text-gray-900">Current Medications</h3>
+              <h3 className="font-bold text-gray-900">{t("sections.currentMedications")}</h3>
             </div>
             <button 
               onClick={() => setActiveModal('medication')}
@@ -227,12 +229,12 @@ export default function MedicalProfile() {
             </div>
           ) : (
             <div className="text-center py-6">
-              <p className="text-gray-500 text-sm mb-3">No medications recorded</p>
+              <p className="text-gray-500 text-sm mb-3">{t("empty.noMedications")}</p>
               <button 
                 onClick={() => setActiveModal('medication')}
                 className="text-sm font-semibold text-[#083f30] hover:underline"
               >
-                Add your first medication
+                {t("empty.addFirstMedication")}
               </button>
             </div>
           )}
@@ -245,7 +247,7 @@ export default function MedicalProfile() {
               <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
                 <FileText size={20} className="text-blue-600" />
               </div>
-              <h3 className="font-bold text-gray-900">Medical History</h3>
+              <h3 className="font-bold text-gray-900">{t("sections.medicalHistory")}</h3>
             </div>
             <button 
               onClick={() => setActiveModal('condition')}
@@ -270,7 +272,7 @@ export default function MedicalProfile() {
             </div>
           ) : (
             <div className="text-center py-6">
-              <p className="text-gray-500 text-sm mb-3">No conditions recorded</p>
+              <p className="text-gray-500 text-sm mb-3">{t("empty.noConditions")}</p>
               <button 
                 onClick={() => setActiveModal('condition')}
                 className="text-sm font-semibold text-[#083f30] hover:underline"
@@ -288,7 +290,7 @@ export default function MedicalProfile() {
               <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
                 <FileText size={20} className="text-green-600" />
               </div>
-              <h3 className="font-bold text-gray-900">Medical Documents</h3>
+              <h3 className="font-bold text-gray-900">{t("sections.medicalDocuments")}</h3>
             </div>
             <button 
               onClick={() => setActiveModal('document')}
@@ -313,7 +315,7 @@ export default function MedicalProfile() {
             </div>
           ) : (
             <div className="text-center py-6">
-              <p className="text-gray-500 text-sm mb-3">No documents uploaded</p>
+              <p className="text-gray-500 text-sm mb-3">{t("empty.noDocuments")}</p>
               <button 
                 onClick={() => setActiveModal('document')}
                 className="text-sm font-semibold text-[#083f30] hover:underline"
@@ -331,7 +333,7 @@ export default function MedicalProfile() {
               <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center">
                 <Phone size={20} className="text-orange-600" />
               </div>
-              <h3 className="font-bold text-gray-900">Emergency Contact</h3>
+              <h3 className="font-bold text-gray-900">{t("sections.emergencyContact")}</h3>
             </div>
             <button 
               onClick={() => {
@@ -367,7 +369,7 @@ export default function MedicalProfile() {
               <>
                 <div className="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-gray-900">Add Allergy</h2>
+                    <h2 className="text-xl font-bold text-gray-900">{t("modals.addAllergy")}</h2>
                     <button 
                       onClick={() => setActiveModal(null)}
                       className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
@@ -380,13 +382,13 @@ export default function MedicalProfile() {
                 <div className="p-6 space-y-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Allergy Name <span className="text-red-500">*</span>
+                      {t("fields.allergyName")} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       value={allergyForm.name}
                       onChange={(e) => setAllergyForm({ ...allergyForm, name: e.target.value })}
-                      placeholder="e.g., Penicillin"
+                      placeholder={t("placeholders.allergyName")}
                       className="w-full h-12 px-4 border-2 border-gray-300 rounded-xl focus:border-[#083f30] focus:outline-none transition-colors"
                     />
                   </div>
@@ -400,9 +402,9 @@ export default function MedicalProfile() {
                       onChange={(e) => setAllergyForm({ ...allergyForm, severity: e.target.value })}
                       className="w-full h-12 px-4 border-2 border-gray-300 rounded-xl focus:border-[#083f30] focus:outline-none transition-colors bg-white"
                     >
-                      <option value="mild">Mild</option>
-                      <option value="moderate">Moderate</option>
-                      <option value="severe">Severe</option>
+                      <option value="mild">{t("severity.mild")}</option>
+                      <option value="moderate">{t("severity.moderate")}</option>
+                      <option value="severe">{t("severity.severe")}</option>
                     </select>
                   </div>
 
@@ -413,7 +415,7 @@ export default function MedicalProfile() {
                     <textarea
                       value={allergyForm.notes}
                       onChange={(e) => setAllergyForm({ ...allergyForm, notes: e.target.value })}
-                      placeholder="Additional information about reactions..."
+                      placeholder={t("placeholders.reactionNotes")}
                       rows={3}
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-[#083f30] focus:outline-none transition-colors resize-none"
                     />
@@ -426,7 +428,7 @@ export default function MedicalProfile() {
                     disabled={!allergyForm.name.trim()}
                     className="w-full h-14 bg-[#083f30] text-white rounded-xl font-bold hover:bg-[#0a5a44] transition-all active:scale-95 disabled:bg-gray-300 disabled:cursor-not-allowed"
                   >
-                    Add Allergy
+                    {t("modals.addAllergy")}
                   </button>
                 </div>
               </>
@@ -437,7 +439,7 @@ export default function MedicalProfile() {
               <>
                 <div className="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-gray-900">Add Medication</h2>
+                    <h2 className="text-xl font-bold text-gray-900">{t("modals.addMedication")}</h2>
                     <button 
                       onClick={() => setActiveModal(null)}
                       className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
@@ -450,45 +452,45 @@ export default function MedicalProfile() {
                 <div className="p-6 space-y-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Medication Name <span className="text-red-500">*</span>
+                      {t("fields.medicationName")} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       value={medicationForm.name}
                       onChange={(e) => setMedicationForm({ ...medicationForm, name: e.target.value })}
-                      placeholder="e.g., Lisinopril"
+                      placeholder={t("placeholders.medicationName")}
                       className="w-full h-12 px-4 border-2 border-gray-300 rounded-xl focus:border-[#083f30] focus:outline-none transition-colors"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Dosage <span className="text-red-500">*</span>
+                      {t("fields.dosage")} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       value={medicationForm.dosage}
                       onChange={(e) => setMedicationForm({ ...medicationForm, dosage: e.target.value })}
-                      placeholder="e.g., 10mg"
+                      placeholder={t("placeholders.dosage")}
                       className="w-full h-12 px-4 border-2 border-gray-300 rounded-xl focus:border-[#083f30] focus:outline-none transition-colors"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Frequency <span className="text-red-500">*</span>
+                      {t("fields.frequency")} <span className="text-red-500">*</span>
                     </label>
                     <select
                       value={medicationForm.frequency}
                       onChange={(e) => setMedicationForm({ ...medicationForm, frequency: e.target.value })}
                       className="w-full h-12 px-4 border-2 border-gray-300 rounded-xl focus:border-[#083f30] focus:outline-none transition-colors bg-white"
                     >
-                      <option value="">Select frequency</option>
-                      <option value="Once daily">Once daily</option>
-                      <option value="Twice daily">Twice daily</option>
-                      <option value="Three times daily">Three times daily</option>
-                      <option value="As needed">As needed</option>
-                      <option value="Weekly">Weekly</option>
+                      <option value="">{t("frequency.select")}</option>
+                      <option value="Once daily">{t("frequency.onceDaily")}</option>
+                      <option value="Twice daily">{t("frequency.twiceDaily")}</option>
+                      <option value="Three times daily">{t("frequency.threeTimesDaily")}</option>
+                      <option value="As needed">{t("frequency.asNeeded")}</option>
+                      <option value="Weekly">{t("frequency.weekly")}</option>
                     </select>
                   </div>
 
@@ -499,7 +501,7 @@ export default function MedicalProfile() {
                     <textarea
                       value={medicationForm.notes}
                       onChange={(e) => setMedicationForm({ ...medicationForm, notes: e.target.value })}
-                      placeholder="Special instructions, side effects..."
+                      placeholder={t("placeholders.medicationNotes")}
                       rows={3}
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-[#083f30] focus:outline-none transition-colors resize-none"
                     />
@@ -523,7 +525,7 @@ export default function MedicalProfile() {
               <>
                 <div className="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-gray-900">Add Medical Condition</h2>
+                    <h2 className="text-xl font-bold text-gray-900">{t("modals.addCondition")}</h2>
                     <button 
                       onClick={() => setActiveModal(null)}
                       className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
@@ -536,13 +538,13 @@ export default function MedicalProfile() {
                 <div className="p-6 space-y-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Condition Name <span className="text-red-500">*</span>
+                      {t("fields.conditionName")} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       value={conditionForm.name}
                       onChange={(e) => setConditionForm({ ...conditionForm, name: e.target.value })}
-                      placeholder="e.g., Type 2 Diabetes"
+                      placeholder={t("placeholders.conditionName")}
                       className="w-full h-12 px-4 border-2 border-gray-300 rounded-xl focus:border-[#083f30] focus:outline-none transition-colors"
                     />
                   </div>
@@ -566,7 +568,7 @@ export default function MedicalProfile() {
                     <textarea
                       value={conditionForm.notes}
                       onChange={(e) => setConditionForm({ ...conditionForm, notes: e.target.value })}
-                      placeholder="Treatment history, symptoms..."
+                      placeholder={t("placeholders.conditionNotes")}
                       rows={3}
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-[#083f30] focus:outline-none transition-colors resize-none"
                     />
@@ -590,7 +592,7 @@ export default function MedicalProfile() {
               <>
                 <div className="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-gray-900">Upload Document</h2>
+                    <h2 className="text-xl font-bold text-gray-900">{t("modals.uploadDocument")}</h2>
                     <button 
                       onClick={() => {
                         setActiveModal(null);
@@ -614,7 +616,7 @@ export default function MedicalProfile() {
                           type="text"
                           value={documentForm.name}
                           onChange={(e) => setDocumentForm({ ...documentForm, name: e.target.value })}
-                          placeholder="e.g., Blood Test Results"
+                          placeholder={t("placeholders.documentName")}
                           className="w-full h-12 px-4 border-2 border-gray-300 rounded-xl focus:border-[#083f30] focus:outline-none transition-colors"
                         />
                       </div>
@@ -642,8 +644,8 @@ export default function MedicalProfile() {
                           >
                             <Upload size={24} className="text-gray-400" />
                             <div className="text-center">
-                              <p className="font-semibold text-gray-900">Click to upload</p>
-                              <p className="text-sm text-gray-500 mt-1">PDF, JPG, PNG (Max 10MB)</p>
+                              <p className="font-semibold text-gray-900">{t("upload.clickToUpload")}</p>
+                              <p className="text-sm text-gray-500 mt-1">{t("upload.formatsShort")}</p>
                             </div>
                           </label>
                         </div>
@@ -659,9 +661,9 @@ export default function MedicalProfile() {
 
                       <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                         <p className="text-sm text-blue-900">
-                          <strong>Accepted formats:</strong> PDF, JPG, PNG<br />
-                          <strong>Maximum size:</strong> 10 MB per file<br />
-                          <strong>Examples:</strong> Lab results, X-rays, prescriptions, medical reports
+                          <strong>{t("upload.acceptedFormatsLabel")}</strong> {t("upload.acceptedFormats")}<br />
+                          <strong>{t("upload.maximumSizeLabel")}</strong> {t("upload.maximumSize")}<br />
+                          <strong>{t("upload.examplesLabel")}</strong> {t("upload.examples")}
                         </p>
                       </div>
                     </>
@@ -673,8 +675,8 @@ export default function MedicalProfile() {
                         <div className="w-16 h-16 bg-[#083f30] rounded-full flex items-center justify-center mx-auto mb-4">
                           <Upload size={28} className="text-white animate-pulse" />
                         </div>
-                        <h3 className="font-bold text-gray-900 mb-1">Uploading Document...</h3>
-                        <p className="text-sm text-gray-600">{documentForm.uploadProgress}% complete</p>
+                        <h3 className="font-bold text-gray-900 mb-1">{t("upload.uploadingTitle")}</h3>
+                        <p className="text-sm text-gray-600">{t("upload.progress", { progress: documentForm.uploadProgress })}</p>
                       </div>
                       <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div 
@@ -690,8 +692,8 @@ export default function MedicalProfile() {
                       <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Check size={32} className="text-white" />
                       </div>
-                      <h3 className="font-bold text-gray-900 mb-1">Upload Successful!</h3>
-                      <p className="text-sm text-gray-600">Your document has been securely saved</p>
+                      <h3 className="font-bold text-gray-900 mb-1">{t("upload.successTitle")}</h3>
+                      <p className="text-sm text-gray-600">{t("upload.successDescription")}</p>
                     </div>
                   )}
 
@@ -700,8 +702,8 @@ export default function MedicalProfile() {
                       <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
                         <X size={32} className="text-white" />
                       </div>
-                      <h3 className="font-bold text-gray-900 mb-1">Upload Failed</h3>
-                      <p className="text-sm text-gray-600 mb-4">Please try again or choose a different file</p>
+                      <h3 className="font-bold text-gray-900 mb-1">{t("upload.failedTitle")}</h3>
+                      <p className="text-sm text-gray-600 mb-4">{t("upload.failedDescription")}</p>
                       <button
                         onClick={() => setDocumentForm({ ...documentForm, uploadStatus: 'idle', uploadProgress: 0 })}
                         className="px-6 py-3 bg-[#083f30] text-white rounded-xl font-semibold hover:bg-[#0a5a44] transition-colors"
@@ -720,7 +722,7 @@ export default function MedicalProfile() {
                       className="w-full h-14 bg-[#083f30] text-white rounded-xl font-bold hover:bg-[#0a5a44] transition-all active:scale-95 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       <Upload size={20} />
-                      Upload Document
+                      {t("modals.uploadDocument")}
                     </button>
                   </div>
                 )}
@@ -732,7 +734,7 @@ export default function MedicalProfile() {
               <>
                 <div className="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-gray-900">Emergency Contact</h2>
+                    <h2 className="text-xl font-bold text-gray-900">{t("sections.emergencyContact")}</h2>
                     <button 
                       onClick={() => setActiveModal(null)}
                       className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
@@ -745,33 +747,33 @@ export default function MedicalProfile() {
                 <div className="p-6 space-y-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Full Name <span className="text-red-500">*</span>
+                      {t("fields.fullName")} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       value={emergencyForm.name}
                       onChange={(e) => setEmergencyForm({ ...emergencyForm, name: e.target.value })}
-                      placeholder="e.g., John Rodriguez"
+                      placeholder={t("placeholders.fullName")}
                       className="w-full h-12 px-4 border-2 border-gray-300 rounded-xl focus:border-[#083f30] focus:outline-none transition-colors"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Phone Number <span className="text-red-500">*</span>
+                      {t("fields.phoneNumber")} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="tel"
                       value={emergencyForm.phone}
                       onChange={(e) => setEmergencyForm({ ...emergencyForm, phone: e.target.value })}
-                      placeholder="e.g., +971 50 987 6543"
+                      placeholder={t("placeholders.phoneNumber")}
                       className="w-full h-12 px-4 border-2 border-gray-300 rounded-xl focus:border-[#083f30] focus:outline-none transition-colors"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Relationship <span className="text-red-500">*</span>
+                      {t("fields.relationship")} <span className="text-red-500">*</span>
                     </label>
                     <select
                       value={emergencyForm.relationship}
@@ -783,7 +785,7 @@ export default function MedicalProfile() {
                       <option value="Sibling">Sibling</option>
                       <option value="Child">Child</option>
                       <option value="Friend">Friend</option>
-                      <option value="Other">Other</option>
+                      <option value="Other">{t("relationship.other")}</option>
                     </select>
                   </div>
                 </div>
@@ -795,7 +797,7 @@ export default function MedicalProfile() {
                     className="w-full h-14 bg-[#083f30] text-white rounded-xl font-bold hover:bg-[#0a5a44] transition-all active:scale-95 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     <Save size={20} />
-                    Save Contact
+                    {t("buttons.saveContact")}
                   </button>
                 </div>
               </>

@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowLeft, Headphones, Loader2, MessageCircle, ShieldCheck } from "lucide-react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -33,6 +33,7 @@ type Props = {
 
 export function SupportPageClient({ bootstrap, source = "support_page", sourceUrl }: Props) {
   const locale = useLocale();
+  const t = useTranslations("SupportPages.customer");
   const navigate = useNavigate();
   const { data: session } = useSession();
   const user = session?.user;
@@ -94,7 +95,7 @@ export function SupportPageClient({ bootstrap, source = "support_page", sourceUr
       }
       if (result.fieldErrors) {
         const first = Object.values(result.fieldErrors)[0]?.[0];
-        toast.error(first || "Please check the form.");
+        toast.error(first || t("pleaseCheckForm"));
       }
       if (result.error) toast.error(result.error.detail || result.error.title);
     });
@@ -116,8 +117,8 @@ export function SupportPageClient({ bootstrap, source = "support_page", sourceUr
         <Card className="mx-auto max-w-xl rounded-3xl">
           <CardContent className="p-8 text-center">
             <Headphones className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
-            <h1 className="text-xl font-bold">Support is unavailable</h1>
-            <p className="mt-2 text-sm text-muted-foreground">The support page is currently disabled by admin settings.</p>
+            <h1 className="text-xl font-bold">{t("supportUnavailable")}</h1>
+            <p className="mt-2 text-sm text-muted-foreground">{t("supportUnavailableDescription")}</p>
           </CardContent>
         </Card>
       </main>
@@ -148,7 +149,7 @@ export function SupportPageClient({ bootstrap, source = "support_page", sourceUr
         <div className="overflow-hidden rounded-[2rem] border bg-white shadow-sm">
           <div className="p-6 text-white" style={{ background: `linear-gradient(135deg, ${bootstrap.settings.primaryColor}, ${bootstrap.settings.accentColor})` }}>
             <Badge className="mb-4 border-white/30 bg-white/15 text-white hover:bg-white/15">
-              <ShieldCheck className="mr-1 h-3.5 w-3.5" /> Secure support
+              <ShieldCheck className="mr-1 h-3.5 w-3.5" /> {t("secureSupport")}
             </Badge>
             <h2 className="text-2xl font-bold tracking-tight">{labels.welcomeTitle}</h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-white/85">{labels.welcomeMessage}</p>
@@ -165,24 +166,24 @@ export function SupportPageClient({ bootstrap, source = "support_page", sourceUr
                 <div className="space-y-4">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
-                      <Label>Name</Label>
-                      <Input value={guestName} onChange={(event) => setGuestName(event.target.value)} placeholder="Your name" />
+                      <Label>{t("nameLabel")}</Label>
+                      <Input value={guestName} onChange={(event) => setGuestName(event.target.value)} placeholder={t("namePlaceholder")} />
                     </div>
                     <div className="space-y-2">
-                      <Label>Email</Label>
-                      <Input value={guestEmail} onChange={(event) => setGuestEmail(event.target.value)} placeholder="you@example.com" />
+                      <Label>{t("emailLabel")}</Label>
+                      <Input value={guestEmail} onChange={(event) => setGuestEmail(event.target.value)} placeholder={t("emailPlaceholder")} />
                     </div>
                     <div className="space-y-2">
-                      <Label>Country code</Label>
+                      <Label>{t("countryCodeLabel")}</Label>
                       <Input value={guestPhoneCountryCode} onChange={(event) => setGuestPhoneCountryCode(event.target.value)} placeholder="98" />
                     </div>
                     <div className="space-y-2">
-                      <Label>Phone</Label>
+                      <Label>{t("phoneLabel")}</Label>
                       <Input value={guestPhone} onChange={(event) => setGuestPhone(event.target.value)} placeholder="9120000000" />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Message</Label>
+                    <Label>{t("messageLabel")}</Label>
                     <Textarea value={firstMessage} onChange={(event) => setFirstMessage(event.target.value)} placeholder={labels.inputPlaceholder} className="min-h-[120px]" />
                   </div>
                   <Button type="button" disabled={isPending} onClick={startGuestConversation} className="h-12 w-full rounded-2xl text-base">
@@ -191,7 +192,7 @@ export function SupportPageClient({ bootstrap, source = "support_page", sourceUr
                   </Button>
                 </div>
               ) : (
-                <div className="rounded-3xl border bg-slate-50 p-5 text-sm text-muted-foreground">Please login to contact support.</div>
+                <div className="rounded-3xl border bg-slate-50 p-5 text-sm text-muted-foreground">{t("loginRequired")}</div>
               )}
             </div>
           ) : (
@@ -199,14 +200,14 @@ export function SupportPageClient({ bootstrap, source = "support_page", sourceUr
               <div className="flex flex-wrap items-center justify-between gap-2 rounded-3xl border bg-white p-3">
                 <div>
                   <p className="text-sm font-semibold">{conversation.conversationNumber}</p>
-                  <p className="text-xs text-muted-foreground">Status: {conversation.status}</p>
+                  <p className="text-xs text-muted-foreground">{t("statusLabel")}: {conversation.status}</p>
                 </div>
                 <Badge variant="secondary" className="rounded-full">{conversation.priority}</Badge>
               </div>
               <div className="max-h-[56vh] overflow-y-auto rounded-3xl bg-slate-50 p-1">
                 <SupportThread messages={conversation.messages} />
               </div>
-              <SupportMessageComposer placeholder={labels.inputPlaceholder || "Write your message..."} sendLabel={labels.sendButton || "Send"} onSend={sendMessage} />
+              <SupportMessageComposer placeholder={labels.inputPlaceholder || t("writeMessageFallback")} sendLabel={labels.sendButton || t("sendFallback")} onSend={sendMessage} />
             </div>
           )}
         </div>

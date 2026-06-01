@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { ProviderRecordForm } from "@/features/provider-portal/components/provider-record-form";
@@ -19,6 +20,7 @@ export default async function EditProviderOfferPage({
   params: Promise<{ locale: string; providerId: string; offerId: string }>;
 }) {
   const { locale, providerId, offerId } = await params;
+  const t = await getTranslations({ locale, namespace: "ProviderPortal" });
   const userId = await requireCurrentUserId();
   await getProviderWorkspace(userId, providerId, locale);
   const [offers, services] = await Promise.all([
@@ -33,17 +35,17 @@ export default async function EditProviderOfferPage({
     { name: "offerId", type: "hidden" as const },
     {
       name: "providerServiceId",
-      label: "Service",
+      label: t("offerForm.service"),
       type: "select" as const,
       required: true,
       options: providerServiceOptions(services),
       fullWidth: true,
     },
-    { name: "title", label: "Title", type: "text" as const, required: true },
-    { name: "subtitle", label: "Subtitle", type: "text" as const },
+    { name: "title", label: t("offerForm.title"), type: "text" as const, required: true },
+    { name: "subtitle", label: t("offerForm.subtitle"), type: "text" as const },
     {
       name: "discountPercent",
-      label: "Discount percent",
+      label: t("offerForm.discountPercent"),
       type: "number" as const,
       step: "0.01",
       min: 0,
@@ -51,38 +53,38 @@ export default async function EditProviderOfferPage({
     },
     {
       name: "validUntil",
-      label: "Valid until",
+      label: t("offerForm.validUntil"),
       type: "datetime-local" as const,
       required: true,
     },
-    { name: "code", label: "Coupon code", type: "text" as const },
+    { name: "code", label: t("offerForm.couponCode"), type: "text" as const },
     {
       name: "usageLimit",
-      label: "Usage limit",
+      label: t("offerForm.usageLimit"),
       type: "number" as const,
       min: 0,
     },
     {
       name: "descriptionEn",
-      label: "Description English",
+      label: t("offerForm.descriptionEn"),
       type: "textarea" as const,
       rows: 4,
     },
     {
       name: "descriptionFa",
-      label: "Description Persian",
+      label: t("offerForm.descriptionFa"),
       type: "textarea" as const,
       rows: 4,
     },
-    { name: "isActive", label: "Active", type: "checkbox" as const },
-    { name: "isFeatured", label: "Featured", type: "checkbox" as const },
+    { name: "isActive", label: t("status.active"), type: "checkbox" as const },
+    { name: "isFeatured", label: t("status.featured"), type: "checkbox" as const },
   ];
 
   return (
     <ProviderRecordForm
       operation="saveOffer"
-      title="Edit offer"
-      description="Update this service offer."
+      title={t("offerForm.editTitle")}
+      description={t("offerForm.updateDescription")}
       fields={fields}
       initialValues={{
         providerId,
@@ -100,8 +102,8 @@ export default async function EditProviderOfferPage({
         descriptionFa: "",
       }}
       backHref={providerPortalBack(providerId, "/offers")}
-      submitLabel="Save offer"
-      successMessage="Offer updated."
+      submitLabel={t("offerForm.saveOffer")}
+      successMessage={t("offersManager.offerUpdated")}
     />
   );
 }

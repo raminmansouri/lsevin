@@ -3,6 +3,9 @@
 import { Star, MapPin, BadgeCheck, ChevronRight } from "lucide-react";
 import { useNavigate } from "@/hooks/use-navigate";
 import { useLocaleAndDirection } from "@/hooks/use-localeAndDirection";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
+import { useLocale, useTranslations } from "next-intl";
 
 interface RecommendationCard {
   id: string;
@@ -33,23 +36,28 @@ function getMobilePath(link: string) {
 export default function RecommendationSection({
   localRecommendations,
   internationalRecommendations,
-  userCountry = "Turkey",
+  userCountry,
 }: RecommendationSectionProps) {
+  const t = useTranslations("RecommendationSection");
+  const locale = useLocale();
   const { dir } = useLocaleAndDirection();
   const navigate = useNavigate();
   const isRTL = dir === "rtl";
+  const displayUserCountry = userCountry?.trim() || t("defaultUserCountry");
+
 
   const RecommendationCard = ({ card }: { card: RecommendationCard }) => (
     <button
       type="button"
       onClick={() => navigate(getMobilePath(card.link))}
+      aria-label={t("openRecommendation", { title: card.title })}
       className={`flex w-full gap-3 rounded-2xl border border-gray-200 bg-white p-3 transition-all hover:border-[#083f30] hover:shadow-md active:scale-[0.98] ${
         isRTL ? "flex-row-reverse" : "flex-row"
       }`}
     >
       <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100">
         {card.image ? (
-          <img src={card.image} alt={card.title} className="h-full w-full object-cover" />
+          <ImageWithFallback width={100} height={100} src={resolveHomeMediaUrl(card.image)} alt={card.title} className="h-full w-full object-cover" />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-gray-400">
             <MapPin size={22} />
@@ -86,7 +94,7 @@ export default function RecommendationSection({
           {card.price !== undefined && (
             <div className={`whitespace-nowrap text-sm font-bold text-[#083f30] ${isRTL ? "ml-auto" : "mr-auto"}`}>
               {card.currency}
-              {card.price.toLocaleString()}
+              {card.price.toLocaleString(locale)}
             </div>
           )}
         </div>
@@ -101,8 +109,8 @@ export default function RecommendationSection({
       {localRecommendations.length > 0 && (
         <div>
           <div className="mb-4">
-            <h2 className={`mb-1 text-xl font-bold text-gray-900 ${isRTL ? "text-right" : "text-left"}`}>Similar services near you</h2>
-            <p className={`text-sm text-gray-600 ${isRTL ? "text-right" : "text-left"}`}>Compare trusted alternatives in {userCountry}</p>
+            <h2 className={`mb-1 text-xl font-bold text-gray-900 ${isRTL ? "text-right" : "text-left"}`}>{t("localTitle")}</h2>
+            <p className={`text-sm text-gray-600 ${isRTL ? "text-right" : "text-left"}`}>{t("localDescription", { country: displayUserCountry })}</p>
           </div>
 
           <div className="space-y-3">
@@ -116,8 +124,8 @@ export default function RecommendationSection({
       {internationalRecommendations.length > 0 && (
         <div>
           <div className="mb-4">
-            <h2 className={`mb-1 text-xl font-bold text-gray-900 ${isRTL ? "text-right" : "text-left"}`}>Also available in Iran, Turkey, and UAE</h2>
-            <p className={`text-sm text-gray-600 ${isRTL ? "text-right" : "text-left"}`}>Explore similar options across key destinations</p>
+            <h2 className={`mb-1 text-xl font-bold text-gray-900 ${isRTL ? "text-right" : "text-left"}`}>{t("internationalTitle")}</h2>
+            <p className={`text-sm text-gray-600 ${isRTL ? "text-right" : "text-left"}`}>{t("internationalDescription")}</p>
           </div>
 
           <div className="space-y-3">

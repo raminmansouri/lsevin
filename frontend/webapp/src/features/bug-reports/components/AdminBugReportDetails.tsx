@@ -182,21 +182,36 @@ export function AdminBugReportDetails({ report, agents }: Props) {
             <div className="rounded-[32px] border border-slate-200 bg-white p-5 shadow-sm">
               <h2 className="mb-4 flex items-center gap-2 text-lg font-black"><MessageCircle className="h-5 w-5 text-emerald-700" /> Conversation</h2>
               <div className="space-y-4">
-                {report.messages.map((msg) => (
-                  <div key={msg.id} className={`rounded-3xl border p-4 ${msg.isInternalNote ? "border-amber-200 bg-amber-50" : msg.senderType === "agent" ? "border-emerald-100 bg-emerald-50/60" : "border-slate-200 bg-slate-50"}`}>
-                    <div className="mb-2 flex items-center justify-between gap-3 text-xs font-semibold text-slate-500">
-                      <span className="inline-flex flex-wrap items-center gap-1">
-                        {msg.isInternalNote ? <Lock className="h-3.5 w-3.5" /> : null}
-                        <span>{msg.isInternalNote ? "Internal note" : msg.sender.displayName}</span>
-                        <span className="rounded-full bg-white px-2 py-0.5 text-[11px] text-slate-500">{msg.sender.role}</span>
-                        {msg.sender.email ? <span className="text-slate-400">{msg.sender.email}</span> : null}
-                      </span>
-                      <span>{formatDate(msg.createDate)}</span>
+                {report.messages.map((msg) => {
+                  const isMine = Boolean(report.currentViewerUserId && msg.senderUserId === report.currentViewerUserId);
+                  const isCustomer = msg.senderType === "customer";
+                  const bubbleClass = msg.isInternalNote
+                    ? "ml-0 mr-0 border-amber-200 bg-amber-50 text-slate-900"
+                    : isMine
+                      ? "ml-auto border-[#083f30] bg-[#083f30] text-white"
+                      : isCustomer
+                        ? "mr-auto border-slate-200 bg-slate-50 text-slate-900"
+                        : "mr-auto border-sky-100 bg-sky-50 text-slate-900";
+                  const metaClass = isMine && !msg.isInternalNote ? "text-white/75" : "text-slate-500";
+                  const bodyClass = isMine && !msg.isInternalNote ? "text-white" : "text-slate-800";
+                  const senderLabel = msg.isInternalNote ? "Internal note" : isMine ? "You" : msg.sender.displayName;
+
+                  return (
+                    <div key={msg.id} className={`max-w-[88%] rounded-3xl border p-4 ${bubbleClass}`}>
+                      <div className={`mb-2 flex items-center justify-between gap-3 text-xs font-semibold ${metaClass}`}>
+                        <span className="inline-flex flex-wrap items-center gap-1">
+                          {msg.isInternalNote ? <Lock className="h-3.5 w-3.5" /> : null}
+                          <span>{senderLabel}</span>
+                          <span className={`rounded-full px-2 py-0.5 text-[11px] ${isMine && !msg.isInternalNote ? "bg-white/15 text-white/80" : "bg-white text-slate-500"}`}>{msg.sender.role}</span>
+                          {!isMine && msg.sender.email ? <span className="text-slate-400">{msg.sender.email}</span> : null}
+                        </span>
+                        <span>{formatDate(msg.createDate)}</span>
+                      </div>
+                      <p className={`whitespace-pre-wrap text-sm leading-6 ${bodyClass}`}>{msg.body}</p>
+                      <BugReportAttachmentGrid attachments={msg.attachments} />
                     </div>
-                    <p className="whitespace-pre-wrap text-sm leading-6 text-slate-800">{msg.body}</p>
-                    <BugReportAttachmentGrid attachments={msg.attachments} />
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 

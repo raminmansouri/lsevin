@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { DataTable, DataTableSkeleton } from "@/components/data-table";
 import { useRouter } from "@/i18n/navigation";
 
@@ -8,7 +10,9 @@ import { getBookingColumns } from "./booking-list-columns";
 
 export default function BookingsListTable({ items }: { items: BookingListItem[] }) {
   const router = useRouter();
+  const tAdmin = useTranslations("AdminGenerated");
   const columns = getBookingColumns(
+    tAdmin,
     (item) => router.push(`/admin/bookings/${item.id}/update`),
     (item) => router.push(`/admin/bookings/${item.id}/update`),
     (item) => router.push(`/admin/bookings/${item.id}/financial`),

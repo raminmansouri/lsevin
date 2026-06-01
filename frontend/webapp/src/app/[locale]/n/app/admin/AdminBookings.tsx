@@ -287,11 +287,11 @@ export default function AdminBookings() {
           <div className="flex items-center gap-3">
             <button className="px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50">
               <Download size={16} className="inline mr-2" />
-              Export Bookings
+              {tAdmin("exportBookings")}
             </button>
             <button className="px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50">
               <Filter size={16} className="inline mr-2" />
-              Bulk Actions
+              {tAdmin("bulkActions")}
             </button>
           </div>
         </div>
@@ -411,7 +411,7 @@ export default function AdminBookings() {
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
           <div className="p-5 border-b border-gray-200">
             <div className="flex items-center justify-between">
-              <h2 className="font-bold text-gray-900">All Bookings ({filteredBookings.length})</h2>
+              <h2 className="font-bold text-gray-900">{tAdmin("allBookingsWithCount", { count: filteredBookings.length })}</h2>
             </div>
           </div>
           

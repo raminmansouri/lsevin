@@ -1,5 +1,7 @@
 
 "use client"
+
+import { useTranslations } from "next-intl";
 import { useState } from 'react';
 import { DashboardLayout } from '../../../design-system/dashboard-components';
 import { 
@@ -19,60 +21,61 @@ interface Ticket {
 }
 
 export default function ClinicSupport() {
+  const t = useTranslations("SupportPages.providerGenerated");
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [statusFilter, setStatusFilter] = useState<'all' | 'open' | 'in-progress' | 'resolved'>('all');
 
   const navigation = [
-    { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/provider/clinic/dashboard' },
-    { label: 'Bookings', icon: <Calendar size={20} />, path: '/provider/clinic/bookings', badge: 5 },
-    { label: 'Doctors', icon: <Users size={20} />, path: '/provider/clinic/doctors' },
-    { label: 'Treatments', icon: <Stethoscope size={20} />, path: '/provider/clinic/treatments' },
-    { label: 'Pricing', icon: <DollarSign size={20} />, path: '/provider/clinic/pricing' },
-    { label: 'Availability', icon: <Calendar size={20} />, path: '/provider/clinic/availability' },
-    { label: 'Media Gallery', icon: <Image size={20} />, path: '/provider/clinic/media' },
-    { label: 'Reviews', icon: <Star size={20} />, path: '/provider/clinic/reviews' },
-    { label: 'Promotions', icon: <TrendingUp size={20} />, path: '/provider/clinic/promotions' },
-    { label: 'Analytics', icon: <BarChart3 size={20} />, path: '/provider/clinic/analytics' },
-    { label: 'Billing', icon: <CreditCard size={20} />, path: '/provider/clinic/billing' },
-    { label: 'Support', icon: <MessageSquare size={20} />, path: '/provider/clinic/support' },
-    { label: 'Settings', icon: <Settings size={20} />, path: '/provider/clinic/settings' },
+    { label: t("navigation.dashboard"), icon: <LayoutDashboard size={20} />, path: '/provider/clinic/dashboard' },
+    { label: t("navigation.bookings"), icon: <Calendar size={20} />, path: '/provider/clinic/bookings', badge: 5 },
+    { label: t("navigation.doctors"), icon: <Users size={20} />, path: '/provider/clinic/doctors' },
+    { label: t("navigation.treatments"), icon: <Stethoscope size={20} />, path: '/provider/clinic/treatments' },
+    { label: t("navigation.pricing"), icon: <DollarSign size={20} />, path: '/provider/clinic/pricing' },
+    { label: t("navigation.availability"), icon: <Calendar size={20} />, path: '/provider/clinic/availability' },
+    { label: t("navigation.mediaGallery"), icon: <Image size={20} />, path: '/provider/clinic/media' },
+    { label: t("navigation.reviews"), icon: <Star size={20} />, path: '/provider/clinic/reviews' },
+    { label: t("navigation.promotions"), icon: <TrendingUp size={20} />, path: '/provider/clinic/promotions' },
+    { label: t("navigation.analytics"), icon: <BarChart3 size={20} />, path: '/provider/clinic/analytics' },
+    { label: t("navigation.billing"), icon: <CreditCard size={20} />, path: '/provider/clinic/billing' },
+    { label: t("navigation.support"), icon: <MessageSquare size={20} />, path: '/provider/clinic/support' },
+    { label: t("navigation.settings"), icon: <Settings size={20} />, path: '/provider/clinic/settings' },
   ];
 
   const tickets: Ticket[] = [
     {
       id: 'TKT-1234',
-      subject: 'Issue with booking calendar sync',
-      category: 'Technical',
+      subject: t("tickets.issueWithBookingCalendarSync"),
+      category: t("categories.technical"),
       status: 'in-progress',
       priority: 'high',
       created: '2024-03-10 09:30',
-      lastReply: '2 hours ago'
+      lastReply: t("relativeTime.twoHoursAgo")
     },
     {
       id: 'TKT-1233',
-      subject: 'Question about premium features',
-      category: 'Billing',
+      subject: t("tickets.questionAboutPremiumFeatures"),
+      category: t("categories.billing"),
       status: 'resolved',
       priority: 'medium',
       created: '2024-03-09 14:20',
-      lastReply: '1 day ago'
+      lastReply: t("relativeTime.oneDayAgo")
     },
     {
       id: 'TKT-1232',
-      subject: 'Need help with doctor profile setup',
-      category: 'Account',
+      subject: t("tickets.needHelpWithDoctorProfileSetup"),
+      category: t("categories.account"),
       status: 'open',
       priority: 'low',
       created: '2024-03-08 11:15',
-      lastReply: '2 days ago'
+      lastReply: t("relativeTime.twoDaysAgo")
     },
   ];
 
   const helpResources = [
-    { icon: FileText, title: 'Documentation', desc: 'Detailed guides and tutorials', link: '#' },
-    { icon: Video, title: 'Video Tutorials', desc: 'Step-by-step video guides', link: '#' },
-    { icon: HelpCircle, title: 'FAQ', desc: 'Frequently asked questions', link: '#' },
-    { icon: MessageSquare, title: 'Community Forum', desc: 'Connect with other providers', link: '#' },
+    { icon: FileText, title: t("documentation"), desc: t("detailedGuidesAndTutorials"), link: '#' },
+    { icon: Video, title: t("videoTutorials"), desc: t("stepByStepVideoGuides"), link: '#' },
+    { icon: HelpCircle, title: t("faq"), desc: t("frequentlyAskedQuestions"), link: '#' },
+    { icon: MessageSquare, title: t("communityForum"), desc: t("connectWithOtherProviders"), link: '#' },
   ];
 
   const filteredTickets = tickets.filter(ticket => 
@@ -80,21 +83,21 @@ export default function ClinicSupport() {
   );
 
   const statusConfig = {
-    open: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Open' },
-    'in-progress': { bg: 'bg-blue-100', text: 'text-blue-700', label: 'In Progress' },
-    resolved: { bg: 'bg-green-100', text: 'text-green-700', label: 'Resolved' },
+    open: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: t("open") },
+    'in-progress': { bg: 'bg-blue-100', text: 'text-blue-700', label: t("inProgress") },
+    resolved: { bg: 'bg-green-100', text: 'text-green-700', label: t("resolved") },
   };
 
   const priorityConfig = {
-    low: { bg: 'bg-gray-100', text: 'text-gray-700', label: 'Low' },
-    medium: { bg: 'bg-orange-100', text: 'text-orange-700', label: 'Medium' },
-    high: { bg: 'bg-red-100', text: 'text-red-700', label: 'High' },
+    low: { bg: 'bg-gray-100', text: 'text-gray-700', label: t("priority.low") },
+    medium: { bg: 'bg-orange-100', text: 'text-orange-700', label: t("priority.medium") },
+    high: { bg: 'bg-red-100', text: 'text-red-700', label: t("priority.high") },
   };
 
   return (
     <DashboardLayout 
       navigation={navigation} 
-      headerTitle="Support Center"
+      headerTitle={t("supportCenter")}
       userRole="provider"
       userName="Dr. Michael Johnson"
       providerName="Elite Medical Center"
@@ -103,13 +106,11 @@ export default function ClinicSupport() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Support Center</h1>
-            <p className="text-gray-600 mt-1">Get help and manage support tickets</p>
+            <h1 className="text-2xl font-bold text-gray-900">{t("supportCenter")}</h1>
+            <p className="text-gray-600 mt-1">{t("supportCenterDescription")}</p>
           </div>
           <button className="px-4 py-2.5 bg-[#083f30] text-white rounded-lg font-medium hover:bg-[#0a5a44] transition flex items-center gap-2">
-            <Plus size={18} />
-            New Support Ticket
-          </button>
+            <Plus size={18} />{t("newSupportTicket")}</button>
         </div>
 
         {/* Quick Contact */}
@@ -118,8 +119,8 @@ export default function ClinicSupport() {
             <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mb-4">
               <Mail size={24} className="text-blue-600" />
             </div>
-            <h3 className="font-semibold text-gray-900 mb-1">Email Support</h3>
-            <p className="text-sm text-gray-600 mb-3">We typically respond within 24 hours</p>
+            <h3 className="font-semibold text-gray-900 mb-1">{t("emailSupport")}</h3>
+            <p className="text-sm text-gray-600 mb-3">{t("respondWithin24Hours")}</p>
             <a href="mailto:support@lsevin.com" className="text-sm font-medium text-[#083f30] hover:underline">
               support@lsevin.com
             </a>
@@ -129,8 +130,8 @@ export default function ClinicSupport() {
             <div className="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center mb-4">
               <Phone size={24} className="text-green-600" />
             </div>
-            <h3 className="font-semibold text-gray-900 mb-1">Phone Support</h3>
-            <p className="text-sm text-gray-600 mb-3">Mon-Fri, 9:00 AM - 6:00 PM GST</p>
+            <h3 className="font-semibold text-gray-900 mb-1">{t("phoneSupport")}</h3>
+            <p className="text-sm text-gray-600 mb-3">{t("phoneHours")}</p>
             <a href="tel:+97144567890" className="text-sm font-medium text-[#083f30] hover:underline">
               +971 4 456 7890
             </a>
@@ -140,15 +141,15 @@ export default function ClinicSupport() {
             <div className="w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center mb-4">
               <Clock size={24} className="text-purple-600" />
             </div>
-            <h3 className="font-semibold text-gray-900 mb-1">Response Time</h3>
-            <p className="text-sm text-gray-600 mb-3">Average response time</p>
-            <p className="text-sm font-medium text-[#083f30]">2-4 hours</p>
+            <h3 className="font-semibold text-gray-900 mb-1">{t("responseTime")}</h3>
+            <p className="text-sm text-gray-600 mb-3">{t("averageResponseTime")}</p>
+            <p className="text-sm font-medium text-[#083f30]">{t("twoToFourHours")}</p>
           </div>
         </div>
 
         {/* Help Resources */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-          <h3 className="font-semibold text-gray-900 mb-4">Help Resources</h3>
+          <h3 className="font-semibold text-gray-900 mb-4">{t("helpResources")}</h3>
           <div className="grid grid-cols-4 gap-4">
             {helpResources.map((resource, idx) => {
               const Icon = resource.icon;
@@ -174,7 +175,7 @@ export default function ClinicSupport() {
               <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search tickets..."
+                placeholder={t("searchTickets")}
                 className="w-full h-10 pl-10 pr-4 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent"
               />
             </div>
@@ -183,22 +184,22 @@ export default function ClinicSupport() {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
             >
-              <option value="all">All Status</option>
-              <option value="open">Open</option>
-              <option value="in-progress">In Progress</option>
-              <option value="resolved">Resolved</option>
+              <option value="all">{t("allStatus")}</option>
+              <option value="open">{t("open")}</option>
+              <option value="in-progress">{t("inProgress")}</option>
+              <option value="resolved">{t("resolved")}</option>
             </select>
             <select className="h-10 px-3 pr-8 border border-gray-200 rounded-lg text-sm">
-              <option>All Categories</option>
-              <option>Technical</option>
-              <option>Billing</option>
-              <option>Account</option>
+              <option>{t("allCategories")}</option>
+              <option>{t("categories.technical")}</option>
+              <option>{t("categories.billing")}</option>
+              <option>{t("categories.account")}</option>
             </select>
             <select className="h-10 px-3 pr-8 border border-gray-200 rounded-lg text-sm">
-              <option>All Priority</option>
-              <option>High</option>
-              <option>Medium</option>
-              <option>Low</option>
+              <option>{t("allPriority")}</option>
+              <option>{t("priority.high")}</option>
+              <option>{t("priority.medium")}</option>
+              <option>{t("priority.low")}</option>
             </select>
           </div>
         </div>
@@ -210,14 +211,14 @@ export default function ClinicSupport() {
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Ticket ID</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Subject</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Category</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Priority</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Created</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Last Reply</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{t("ticketId")}</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{t("subject")}</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{t("categoryLabel")}</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{t("priorityLabel")}</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{t("statusLabel")}</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{t("created")}</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{t("lastReply")}</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{t("actionsLabel")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -261,9 +262,7 @@ export default function ClinicSupport() {
                         setSelectedTicket(ticket);
                       }}
                       className="text-sm font-medium text-[#083f30] hover:underline"
-                    >
-                      View
-                    </button>
+                    >{t("view")}</button>
                   </td>
                 </tr>
               ))}
@@ -279,7 +278,7 @@ export default function ClinicSupport() {
             {/* Header */}
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
               <div>
-                <h3 className="font-bold text-gray-900">Ticket Details</h3>
+                <h3 className="font-bold text-gray-900">{t("ticketDetails")}</h3>
                 <p className="text-sm text-gray-500 font-mono">{selectedTicket.id}</p>
               </div>
               <button 
@@ -298,30 +297,30 @@ export default function ClinicSupport() {
                   {statusConfig[selectedTicket.status].label}
                 </span>
                 <span className={`px-3 py-1.5 rounded-full text-sm font-semibold ${priorityConfig[selectedTicket.priority].bg} ${priorityConfig[selectedTicket.priority].text}`}>
-                  {priorityConfig[selectedTicket.priority].label} Priority
+                  {priorityConfig[selectedTicket.priority].label} {t("priorityLabel")}
                 </span>
               </div>
 
               {/* Subject */}
               <div>
-                <h4 className="font-semibold text-gray-900 mb-2">Subject</h4>
+                <h4 className="font-semibold text-gray-900 mb-2">{t("subject")}</h4>
                 <p className="text-gray-700">{selectedTicket.subject}</p>
               </div>
 
               {/* Details */}
               <div>
-                <h4 className="font-semibold text-gray-900 mb-3">Details</h4>
+                <h4 className="font-semibold text-gray-900 mb-3">{t("details")}</h4>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Category</span>
+                    <span className="text-gray-600">{t("categoryLabel")}</span>
                     <span className="font-medium text-gray-900">{selectedTicket.category}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Created</span>
+                    <span className="text-gray-600">{t("created")}</span>
                     <span className="font-medium text-gray-900">{selectedTicket.created}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Last Reply</span>
+                    <span className="text-gray-600">{t("lastReply")}</span>
                     <span className="font-medium text-gray-900">{selectedTicket.lastReply}</span>
                   </div>
                 </div>
@@ -329,20 +328,18 @@ export default function ClinicSupport() {
 
               {/* Conversation */}
               <div>
-                <h4 className="font-semibold text-gray-900 mb-3">Conversation</h4>
+                <h4 className="font-semibold text-gray-900 mb-3">{t("conversation")}</h4>
                 <div className="space-y-4">
                   <div className="p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 bg-[#083f30] rounded-full flex items-center justify-center text-white text-sm font-semibold">
-                        You
-                      </div>
+                      <div className="w-8 h-8 bg-[#083f30] rounded-full flex items-center justify-center text-white text-sm font-semibold">{t("you")}</div>
                       <div>
-                        <div className="font-medium text-gray-900">You</div>
+                        <div className="font-medium text-gray-900">{t("you")}</div>
                         <div className="text-xs text-gray-500">{selectedTicket.created}</div>
                       </div>
                     </div>
                     <p className="text-sm text-gray-700">
-                      I'm experiencing issues with the booking calendar sync. The appointments are not showing up correctly...
+                      {t("mockConversation.customerBookingCalendarIssue")}
                     </p>
                   </div>
 
@@ -352,12 +349,12 @@ export default function ClinicSupport() {
                         S
                       </div>
                       <div>
-                        <div className="font-medium text-gray-900">Support Team</div>
-                        <div className="text-xs text-gray-500">2 hours ago</div>
+                        <div className="font-medium text-gray-900">{t("supportTeam")}</div>
+                        <div className="text-xs text-gray-500">{t("relativeTime.twoHoursAgo")}</div>
                       </div>
                     </div>
                     <p className="text-sm text-gray-700">
-                      Thank you for reaching out. We're looking into this issue and will get back to you shortly with a solution.
+                      {t("mockConversation.supportLookingIntoIssue")}
                     </p>
                   </div>
                 </div>
@@ -365,22 +362,18 @@ export default function ClinicSupport() {
 
               {/* Reply Box */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Add Reply</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t("addReply")}</label>
                 <textarea
                   className="w-full h-32 px-4 py-3 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#083f30] focus:border-transparent"
-                  placeholder="Type your message..."
+                  placeholder={t("typeYourMessage")}
                 />
-                <button className="w-full h-10 bg-[#083f30] text-white rounded-lg font-medium hover:bg-[#0a5a44] transition mt-3">
-                  Send Reply
-                </button>
+                <button className="w-full h-10 bg-[#083f30] text-white rounded-lg font-medium hover:bg-[#0a5a44] transition mt-3">{t("sendReply")}</button>
               </div>
 
               {/* Actions */}
               <div className="pt-4 border-t border-gray-200">
                 <button className="w-full h-10 border border-green-200 text-green-600 rounded-lg font-medium hover:bg-green-50 transition flex items-center justify-center gap-2">
-                  <CheckCircle size={16} />
-                  Mark as Resolved
-                </button>
+                  <CheckCircle size={16} />{t("markAsResolved")}</button>
               </div>
             </div>
           </div>

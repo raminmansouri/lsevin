@@ -7,25 +7,25 @@ export default function GymBookings() {
     const tBooking = useTranslations("Booking");
     const [selectedBooking, setSelectedBooking] = useState<any>(null);
     const navigation = [
-        { label: 'Dashboard', icon: <LayoutDashboard size={20}/>, path: '/provider/gym/dashboard' },
-        { label: 'Class Schedule', icon: <Calendar size={20}/>, path: '/provider/gym/schedule' },
-        { label: 'Trainers', icon: <Users size={20}/>, path: '/provider/gym/trainers' },
-        { label: 'Memberships', icon: <Package size={20}/>, path: '/provider/gym/memberships' },
-        { label: 'Services', icon: <Dumbbell size={20}/>, path: '/provider/gym/services' },
-        { label: 'Bookings', icon: <Calendar size={20}/>, path: '/provider/gym/bookings', badge: 8 },
-        { label: 'Live Status', icon: <Activity size={20}/>, path: '/provider/gym/live-status' },
-        { label: 'Offers', icon: <TrendingUp size={20}/>, path: '/provider/gym/offers' },
-        { label: 'Analytics', icon: <BarChart3 size={20}/>, path: '/provider/gym/analytics' },
-        { label: 'Billing', icon: <CreditCard size={20}/>, path: '/provider/gym/billing' },
-        { label: 'Support', icon: <MessageSquare size={20}/>, path: '/provider/gym/support' },
-        { label: 'Settings', icon: <Settings size={20}/>, path: '/provider/gym/settings' },
+        { label: tBooking("dashboard"), icon: <LayoutDashboard size={20}/>, path: '/provider/gym/dashboard' },
+        { label: tBooking("classSchedule"), icon: <Calendar size={20}/>, path: '/provider/gym/schedule' },
+        { label: tBooking("trainers"), icon: <Users size={20}/>, path: '/provider/gym/trainers' },
+        { label: tBooking("memberships"), icon: <Package size={20}/>, path: '/provider/gym/memberships' },
+        { label: tBooking("services"), icon: <Dumbbell size={20}/>, path: '/provider/gym/services' },
+        { label: tBooking("bookings"), icon: <Calendar size={20}/>, path: '/provider/gym/bookings', badge: 8 },
+        { label: tBooking("liveStatus"), icon: <Activity size={20}/>, path: '/provider/gym/live-status' },
+        { label: tBooking("offers"), icon: <TrendingUp size={20}/>, path: '/provider/gym/offers' },
+        { label: tBooking("analytics"), icon: <BarChart3 size={20}/>, path: '/provider/gym/analytics' },
+        { label: tBooking("billing"), icon: <CreditCard size={20}/>, path: '/provider/gym/billing' },
+        { label: tBooking("support"), icon: <MessageSquare size={20}/>, path: '/provider/gym/support' },
+        { label: tBooking("settings"), icon: <Settings size={20}/>, path: '/provider/gym/settings' },
     ];
     const bookings = [
         { id: 'BK-1847', customer: 'David Miller', service: 'Personal Training', trainer: 'Sarah Johnson', date: '2026-03-10', time: '09:00', status: 'confirmed', payment: 'paid' },
         { id: 'BK-1848', customer: 'Jessica Brown', service: 'HIIT Bootcamp', trainer: 'Sarah Johnson', date: '2026-03-10', time: '10:00', status: 'confirmed', payment: 'paid' },
         { id: 'BK-1849', customer: 'Tom Wilson', service: 'Yoga Flow', trainer: 'Emma Chen', date: '2026-03-10', time: '11:00', status: 'pending', payment: 'pending' },
     ];
-    return (<DashboardLayout navigation={navigation} headerTitle="Bookings" userRole="provider" userName="Mike Patterson" providerName="PowerFit Gym">
+    return (<DashboardLayout navigation={navigation} headerTitle={tBooking("bookings")} userRole="provider" userName="Mike Patterson" providerName="PowerFit Gym">
       <div className="grid grid-cols-4 gap-6 mb-6">
         <div className="bg-white rounded-xl border border-gray-200 p-5">
           <div className="text-sm font-medium text-gray-600 mb-2">{tBooking("todaySBookings")}</div>
@@ -86,12 +86,12 @@ export default function GymBookings() {
                 <td className="px-6 py-4 text-sm text-gray-900">{booking.date} {booking.time}</td>
                 <td className="px-6 py-4">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${booking.status === 'confirmed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                    {booking.status.toUpperCase()}
+                    {tBooking(booking.status as any)}
                   </span>
                 </td>
                 <td className="px-6 py-4">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${booking.payment === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                    {booking.payment.toUpperCase()}
+                    {tBooking(booking.payment as any)}
                   </span>
                 </td>
                 <td className="px-6 py-4">

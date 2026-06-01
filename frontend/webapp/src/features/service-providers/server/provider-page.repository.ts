@@ -76,7 +76,7 @@ type ProviderRow = {
   accredited: boolean | null;
   responseTime: string | null;
   images: string[] | null;
-  certifications: { name: string; verified: boolean; imageUrl?: string | null; secondaryImageUrl?: string | null }[] | null;
+  certifications: { name: string; verified: boolean }[] | null;
   languages: string[] | null;
   established: number | null;
   totalPatients: string | null;
@@ -394,15 +394,7 @@ export async function getProviderPageDataFromDb(
         where resolved_url is not null
       ) gallery on true
       left join lateral (
-        select jsonb_agg(
-          jsonb_build_object(
-            'name', pc.name,
-            'verified', coalesce(pc.is_verified, false),
-            'imageUrl', nullif(pc.image_url, ''),
-            'secondaryImageUrl', nullif(pc.secondary_image_url, '')
-          )
-          order by pc.name
-        ) as certifications
+        select jsonb_agg(jsonb_build_object('name', pc.name, 'verified', coalesce(pc.is_verified, false)) order by pc.name) as certifications
         from category.provider_certifications pc
         where pc.service_provider_id = sp.id
       ) cert on true
@@ -482,7 +474,7 @@ export async function getProviderPageDataFromDb(
         responseTime: row.responseTime || "Usually responds fast",
         image: providerImages[0] || "",
         images: providerImages,
-        certifications: toObjectArray<{ name: string; verified: boolean; imageUrl?: string | null; secondaryImageUrl?: string | null }>(
+        certifications: toObjectArray<{ name: string; verified: boolean }>(
           row.certifications,
         ),
         languages: toStringArray(row.languages),
@@ -566,7 +558,10 @@ async function getServiceRows(
     select
       ps.id::text,
       coalesce(nullif(common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US'), ''), common.get_translation_t(sd.name_translations, ${locale}, 'en-US')) as name,
-      nullif(common.get_translation_t(ps.description_translations, ${locale}, 'en-US'), '') as description,
+      coalesce(
+        nullif(common.get_translation_t(ps.description_translations, ${locale}, 'en-US'), ''),
+        nullif(common.get_translation_t(sd.description_translations, ${locale}, 'en-US'), '')
+      ) as description,
       coalesce(ps.value, sd.value, 0)::float8 as price,
       upper(coalesce(nullif(ps.currency, ''), nullif(sd.currency, ''), 'USD')) as currency,
       coalesce(nullif(ps.duration_minutes, 0), sd.duration_minutes, 0)::int as "durationMinutes",
@@ -574,14 +569,39 @@ async function getServiceRows(
       coalesce(ps.rating, 0)::float8 as rating,
       coalesce(ps.review_count, 0)::int as reviews,
       coalesce(ps.is_popular, false) as popular,
-      coalesce(ps_media.file_url, nullif(ps.image_url, ''), primary_gallery.url) as image,
-      coalesce(primary_gallery.images, array_remove(array[coalesce(ps_media.file_url, nullif(ps.image_url, ''))], null), array[]::text[]) as images,
+      coalesce(
+        ps_media.file_url,
+        nullif(btrim(ps.image_url), ''),
+        primary_gallery.url,
+        sd_image_media.file_url,
+        nullif(btrim(sd.image_url), ''),
+        sd_media.file_url,
+        nullif(btrim(sd.media_url), '')
+      ) as image,
+      coalesce(
+        primary_gallery.images,
+        array_remove(array[
+          coalesce(
+            ps_media.file_url,
+            nullif(btrim(ps.image_url), ''),
+            sd_image_media.file_url,
+            nullif(btrim(sd.image_url), ''),
+            sd_media.file_url,
+            nullif(btrim(sd.media_url), '')
+          )
+        ], null),
+        array[]::text[]
+      ) as images,
       coalesce(attrs.attributes, '[]'::jsonb) as attributes,
       coalesce(sd.booking_ui_mode, 'default_slot') as "bookingUiMode"
     from category.provider_services ps
     join category.service_definitions sd on sd.id = ps.service_definition_id
     left join media.media_library ps_media
       on ps_media.id = case when ps.image_url ~* ${UUID_PATTERN} then ps.image_url::uuid else null end
+    left join media.media_library sd_image_media
+      on sd_image_media.id = case when sd.image_url ~* ${UUID_PATTERN} then sd.image_url::uuid else null end
+    left join media.media_library sd_media
+      on sd_media.id = case when sd.media_url ~* ${UUID_PATTERN} then sd.media_url::uuid else null end
     left join lateral (
       select
         min(resolved_url) as url,

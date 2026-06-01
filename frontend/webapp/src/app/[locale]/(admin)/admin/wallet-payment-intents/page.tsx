@@ -1,9 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/page/page-header";
 import db from "@/config/database/db";
+import { getTranslations } from "next-intl/server";
 import { approveWalletPaymentIntentAction, rejectWalletPaymentIntentAction } from "./actions";
 
 export default async function WalletPaymentIntentsPage() {
+  const t = await getTranslations("Admin.walletPaymentIntents");
   const items = await db<any[]>`
     select
       wpi.*,
@@ -20,8 +22,8 @@ export default async function WalletPaymentIntentsPage() {
       <CardHeader className="flex-between border-b">
         <CardTitle>
           <PageHeader
-            title="Wallet payment intents"
-            description="Production wallet deposits. Bank/manual deposits stay pending until admin confirms; online card deposits are completed only after gateway callback verification."
+            title={t("title")}
+            description={t("description")}
           />
         </CardTitle>
       </CardHeader>
@@ -37,17 +39,17 @@ export default async function WalletPaymentIntentsPage() {
                   <div className="font-medium">{item.customer_name || item.user_id}</div>
                   {item.customer_email ? <div className="text-muted-foreground">{item.customer_email}</div> : null}
                   <div className="text-muted-foreground">
-                    {item.intent_type} · {item.payment_method} · {item.gateway_name || 'manual'} · {item.status}
+                    {item.intent_type} · {item.payment_method} · {item.gateway_name || t("manual")} · {item.status}
                   </div>
                   <div className="font-semibold">{item.amount} {item.currency_code}</div>
-                  {item.gateway_reference ? <div className="text-xs text-muted-foreground">Reference: {item.gateway_reference}</div> : null}
+                  {item.gateway_reference ? <div className="text-xs text-muted-foreground">{t("reference")}: {item.gateway_reference}</div> : null}
                 </div>
 
                 {canReview ? (
                   <div className="grid gap-2 sm:min-w-[420px] sm:grid-cols-2">
                     <form action={approveWalletPaymentIntentAction} className="rounded-md border border-green-200 bg-green-50 p-3">
                       <input type="hidden" name="intentId" value={item.id} />
-                      <label className="text-xs font-medium text-green-900">Confirmed amount</label>
+                      <label className="text-xs font-medium text-green-900">{t("confirmedAmount")}</label>
                       <input
                         name="amount"
                         type="number"
@@ -56,21 +58,21 @@ export default async function WalletPaymentIntentsPage() {
                         className="mt-1 h-9 w-full rounded border px-2"
                       />
                       <button className="mt-2 w-full rounded bg-green-700 px-3 py-2 text-xs font-semibold text-white">
-                        Confirm deposit
+                        {t("confirmDeposit")}
                       </button>
                     </form>
 
                     <form action={rejectWalletPaymentIntentAction} className="rounded-md border border-red-200 bg-red-50 p-3">
                       <input type="hidden" name="intentId" value={item.id} />
-                      <label className="text-xs font-medium text-red-900">Reject reason</label>
+                      <label className="text-xs font-medium text-red-900">{t("rejectReason")}</label>
                       <input
                         name="reason"
                         type="text"
-                        defaultValue="Payment was not received"
+                        defaultValue={t("defaultRejectReason")}
                         className="mt-1 h-9 w-full rounded border px-2"
                       />
                       <button className="mt-2 w-full rounded bg-red-700 px-3 py-2 text-xs font-semibold text-white">
-                        Reject
+                        {t("reject")}
                       </button>
                     </form>
                   </div>

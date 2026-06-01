@@ -61,10 +61,10 @@ export function SupportSettingsForm({ settings }: Props) {
   const parseJson = (value: string, label: string) => {
     try {
       const parsed = JSON.parse(value || "{}");
-      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("Must be a JSON object.");
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error(tAdmin("mustBeJsonObject"));
       return parsed;
     } catch (error) {
-      throw new Error(`${label}: ${error instanceof Error ? error.message : "Invalid JSON"}`);
+      throw new Error(`${label}: ${error instanceof Error ? error.message : tAdmin("invalidJson")}`);
     }
   };
 
@@ -73,19 +73,19 @@ export function SupportSettingsForm({ settings }: Props) {
       try {
         const payload = {
           ...form,
-          officeHours: parseJson(officeHoursText, "Office hours"),
-          offlineSettings: parseJson(offlineText, "Offline settings"),
-          autoReplySettings: parseJson(autoReplyText, "Auto-reply settings"),
+          officeHours: parseJson(officeHoursText, tAdmin("officeHours")),
+          offlineSettings: parseJson(offlineText, tAdmin("offlineSettings")),
+          autoReplySettings: parseJson(autoReplyText, tAdmin("autoReplySettings")),
         };
         const result = await updateSupportSettingsAction(payload);
         if (result.data) {
           setForm(result.data);
           toast.success(tAdmin("supportSettingsSaved"));
         }
-        if (result.fieldErrors) toast.error(Object.values(result.fieldErrors)[0]?.[0] || "Please check settings.");
+        if (result.fieldErrors) toast.error(Object.values(result.fieldErrors)[0]?.[0] || tAdmin("pleaseCheckSettings"));
         if (result.error) toast.error(result.error.detail || result.error.title);
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Invalid settings JSON.");
+        toast.error(error instanceof Error ? error.message : tAdmin("invalidSettingsJson"));
       }
     });
   };
@@ -100,17 +100,17 @@ export function SupportSettingsForm({ settings }: Props) {
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
             {[
-              ["floatingChatEnabled", "Enable floating chat"],
-              ["supportPageEnabled", "Enable /n/app/mobile/support"],
-              ["requireLogin", "Require login"],
-              ["allowGuestConversation", "Allow guest chat"],
-              ["showOnAppPages", "Show on app pages"],
-              ["showOnBookingPages", "Show on booking pages"],
-              ["showOnProviderPages", "Show on provider/service pages"],
-              ["showOnAdminPages", "Show on admin pages"],
+              ["floatingChatEnabled", "floatingChatEnabled"],
+              ["supportPageEnabled", "supportPageEnabled"],
+              ["requireLogin", "requireLogin"],
+              ["allowGuestConversation", "allowGuestConversation"],
+              ["showOnAppPages", "showOnAppPages"],
+              ["showOnBookingPages", "showOnBookingPages"],
+              ["showOnProviderPages", "showOnProviderPages"],
+              ["showOnAdminPages", "showOnAdminPages"],
             ].map(([key, label]) => (
               <div key={key} className="flex items-center justify-between rounded-2xl border bg-slate-50 p-4">
-                <Label>{label}</Label>
+                <Label>{tAdmin(label)}</Label>
                 <Switch checked={Boolean(form[key as keyof SupportSettings])} onCheckedChange={(checked) => setValue(key as keyof SupportSettings, checked as any)} />
               </div>
             ))}
@@ -141,13 +141,13 @@ export function SupportSettingsForm({ settings }: Props) {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-2">
-              <Button type="button" variant={activeLocale === "en-US" ? "default" : "outline"} onClick={() => setActiveLocale("en-US")} className="rounded-2xl">English</Button>
-              <Button type="button" variant={activeLocale === "fa-IR" ? "default" : "outline"} onClick={() => setActiveLocale("fa-IR")} className="rounded-2xl">Persian</Button>
+              <Button type="button" variant={activeLocale === "en-US" ? "default" : "outline"} onClick={() => setActiveLocale("en-US")} className="rounded-2xl">{tAdmin("english")}</Button>
+              <Button type="button" variant={activeLocale === "fa-IR" ? "default" : "outline"} onClick={() => setActiveLocale("fa-IR")} className="rounded-2xl">{tAdmin("persian")}</Button>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               {labelKeys.map((key) => (
                 <div key={key} className="space-y-2">
-                  <Label>{key}</Label>
+                  <Label>{tAdmin(`supportLabelKeys.${key}`)}</Label>
                   {key.toLowerCase().includes("message") || key.toLowerCase().includes("subtitle") ? (
                     <Textarea value={form.labels[activeLocale]?.[key] || ""} onChange={(event) => setLabel(activeLocale, key, event.target.value)} className="min-h-[88px]" />
                   ) : (
@@ -198,7 +198,7 @@ export function SupportSettingsForm({ settings }: Props) {
         </Card>
 
         <Button type="button" disabled={isPending} onClick={save} className="h-12 w-full rounded-2xl">
-          <Save className="mr-2 h-4 w-4" /> Save support settings
+          <Save className="mr-2 h-4 w-4" /> {tAdmin("saveSupportSettings")}
         </Button>
       </aside>
     </div>

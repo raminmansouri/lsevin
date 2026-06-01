@@ -8,21 +8,24 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 import type { BookingListItem } from "../../types";
 
+type BookingColumnTranslator = (key: string) => string;
+
 export const getBookingColumns = (
+  tAdmin: BookingColumnTranslator,
   onEdit: (item: BookingListItem) => void,
   onView: (item: BookingListItem) => void,
   onFinancial: (item: BookingListItem) => void,
   onPaymentTerms: (item: BookingListItem) => void,
 ): ColumnDef<BookingListItem>[] => [
-  { accessorKey: 'providerName', header: 'Provider' },
-  { accessorKey: 'serviceName', header: 'Service' },
-  { accessorKey: 'customerName', header: 'Customer' },
-  { accessorKey: 'bookingStatus', header: 'Booking status' },
-  { accessorKey: 'paymentStatus', header: 'Payment status' },
-  { accessorKey: 'totalAmount', header: 'Total' },
+  { accessorKey: 'providerName', header: tAdmin('provider') },
+  { accessorKey: 'serviceName', header: tAdmin('service') },
+  { accessorKey: 'customerName', header: tAdmin('customer') },
+  { accessorKey: 'bookingStatus', header: tAdmin('bookingStatus') },
+  { accessorKey: 'paymentStatus', header: tAdmin('paymentStatus') },
+  { accessorKey: 'totalAmount', header: tAdmin('total') },
   {
     id: 'actions',
-    header: 'Actions',
+    header: tAdmin('actions'),
     cell: ({ row }) => {
       const item = row.original;
       return (
@@ -31,10 +34,10 @@ export const getBookingColumns = (
             <Button variant="ghost" className="h-8 w-8 p-0"><MoreHorizontal className="h-4 w-4" /></Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onView(item)}>Details</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onEdit(item)}>Edit</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onFinancial(item)}>Financial</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onPaymentTerms(item)}>Payment terms</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onView(item)}>{tAdmin('details')}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onEdit(item)}>{tAdmin('edit')}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onFinancial(item)}>{tAdmin('financial')}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onPaymentTerms(item)}>{tAdmin('paymentTerms')}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

@@ -150,6 +150,8 @@ function templateKeyForEvent(input: { eventType: string; recipient: "customer" |
       return `bug_report.internal_note.${suffix}`;
     case "assignee_changed":
       return `bug_report.assignee_changed.${suffix}`;
+    case "priority_changed":
+      return `bug_report.priority_changed.${suffix}`;
     case "bug_archived":
       return `bug_report.archived.${suffix}`;
     default:

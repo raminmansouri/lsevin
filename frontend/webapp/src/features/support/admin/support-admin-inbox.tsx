@@ -39,6 +39,8 @@ type Props = {
 const statuses: Array<SupportStatus | "all" | "unassigned" | "assigned_to_me"> = ["all", "open", "pending", "resolved", "closed", "unassigned", "assigned_to_me"];
 const priorities: Array<SupportPriority | "all"> = ["all", "low", "normal", "high", "urgent"];
 
+const supportOptionKey = (value: string) => value.replaceAll("-", "_").replaceAll(" ", "_");
+
 export function SupportAdminInbox({ initialConversations, initialSelectedConversation, tags, cannedReplies }: Props) {
   const tAdmin = useTranslations("AdminGenerated");
   const { data: session } = useSession();
@@ -146,6 +148,21 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
     });
   };
 
+
+  const getEventLabel = (eventType: string) => {
+    const labels: Record<string, string> = {
+      conversation_created: tAdmin("supportEvent.conversationCreated"),
+      message_sent: tAdmin("supportEvent.messageSent"),
+      status_changed: tAdmin("supportEvent.statusChanged"),
+      priority_changed: tAdmin("supportEvent.priorityChanged"),
+      assigned: tAdmin("supportEvent.assigned"),
+      tag_added: tAdmin("supportEvent.tagAdded"),
+      tag_removed: tAdmin("supportEvent.tagRemoved"),
+      internal_note_added: tAdmin("supportEvent.internalNoteAdded"),
+    };
+    return labels[eventType] || eventType.replaceAll("_", " ");
+  };
+
   const toggleTag = (tag: SupportTag) => {
     if (!selected?.id) return;
     startTransition(async () => {
@@ -175,10 +192,10 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
             </div>
             <div className="mt-3 grid grid-cols-2 gap-2">
               <select value={status} onChange={(event) => setStatus(event.target.value as any)} className="h-10 rounded-2xl border bg-white px-3 text-sm">
-                {statuses.map((option) => <option key={option} value={option}>{option.replaceAll("_", " ")}</option>)}
+                {statuses.map((option) => <option key={option} value={option}>{tAdmin(`supportStatus.${supportOptionKey(option)}`)}</option>)}
               </select>
               <select value={priority} onChange={(event) => setPriority(event.target.value as any)} className="h-10 rounded-2xl border bg-white px-3 text-sm">
-                {priorities.map((option) => <option key={option} value={option}>{option}</option>)}
+                {priorities.map((option) => <option key={option} value={option}>{tAdmin(`supportPriority.${supportOptionKey(option)}`)}</option>)}
               </select>
               <select value={tagId} onChange={(event) => setTagId(event.target.value)} className="col-span-2 h-10 rounded-2xl border bg-white px-3 text-sm">
                 <option value="">{tAdmin("allTags")}</option>
@@ -201,8 +218,8 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
                     </div>
                     <p className="mt-1 truncate text-xs text-muted-foreground">{item.lastMessagePreview || item.displayContact || item.conversationNumber}</p>
                     <div className="mt-2 flex flex-wrap items-center gap-1">
-                      <Badge variant="outline" className="rounded-full text-[10px]">{item.status}</Badge>
-                      <Badge variant="secondary" className="rounded-full text-[10px]">{item.priority}</Badge>
+                      <Badge variant="outline" className="rounded-full text-[10px]">{tAdmin(`supportStatus.${supportOptionKey(item.status)}`)}</Badge>
+                      <Badge variant="secondary" className="rounded-full text-[10px]">{tAdmin(`supportPriority.${supportOptionKey(item.priority)}`)}</Badge>
                       {item.unreadForAdminCount > 0 && <Badge className="rounded-full bg-red-600 text-[10px]">{item.unreadForAdminCount}</Badge>}
                     </div>
                   </div>
@@ -220,12 +237,12 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#083f30] font-bold text-white">{getInitials(selected.displayName)}</div>
                   <div className="min-w-0">
                     <h2 className="truncate text-base font-bold">{selected.displayName}</h2>
-                    <p className="truncate text-xs text-muted-foreground">{selected.conversationNumber} · {selected.displayContact || "No contact"}</p>
+                    <p className="truncate text-xs text-muted-foreground">{selected.conversationNumber} · {selected.displayContact || tAdmin("noContact")}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <select value={selected.status} onChange={(event) => updateStatus(event.target.value as SupportStatus)} className="h-10 rounded-2xl border bg-white px-3 text-sm">
-                    {statuses.filter((x) => !["all", "unassigned", "assigned_to_me"].includes(x)).map((option) => <option key={option} value={option}>{option}</option>)}
+                    {statuses.filter((x) => !["all", "unassigned", "assigned_to_me"].includes(x)).map((option) => <option key={option} value={option}>{tAdmin(`supportStatus.${supportOptionKey(option)}`)}</option>)}
                   </select>
                   <Button variant="outline" className="rounded-2xl" onClick={assignToMe}>{tAdmin("assignToMe")}</Button>
                 </div>
@@ -267,7 +284,7 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100"><UserRound className="h-5 w-5" /></div>
                     <div className="min-w-0">
                       <p className="truncate font-semibold">{selected.displayName}</p>
-                      <p className="truncate text-xs text-muted-foreground">{selected.displayContact || "No contact"}</p>
+                      <p className="truncate text-xs text-muted-foreground">{selected.displayContact || tAdmin("noContact")}</p>
                     </div>
                   </div>
                   <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
@@ -281,7 +298,7 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
                 <CardContent className="space-y-3 p-4">
                   <div className="flex items-center justify-between"><h3 className="font-semibold">{tAdmin("priority")}</h3><Clock3 className="h-4 w-4 text-muted-foreground" /></div>
                   <select value={selected.priority} onChange={(event) => updatePriority(event.target.value as SupportPriority)} className="h-10 w-full rounded-2xl border bg-white px-3 text-sm">
-                    {priorities.filter((x) => x !== "all").map((option) => <option key={option} value={option}>{option}</option>)}
+                    {priorities.filter((x) => x !== "all").map((option) => <option key={option} value={option}>{tAdmin(`supportPriority.${supportOptionKey(option)}`)}</option>)}
                   </select>
                 </CardContent>
               </Card>
@@ -292,7 +309,7 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
                   <div className="flex flex-wrap gap-2">
                     {tags.map((tag) => (
                       <button key={tag.id} type="button" onClick={() => toggleTag(tag)} className={`rounded-full border px-3 py-1 text-xs ${selectedTagIds.has(tag.id) ? "bg-slate-900 text-white" : "bg-white text-slate-700"}`}>
-                        {selectedTagIds.has(tag.id) ? "✓ " : "+ "}{tag.name}
+                        {selectedTagIds.has(tag.id) ? tAdmin("tagSelectedPrefix") : tAdmin("tagAddPrefix")}{tag.name}
                       </button>
                     ))}
                   </div>
@@ -312,7 +329,7 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
                   <div className="flex items-center justify-between"><h3 className="font-semibold">{tAdmin("timeline")}</h3><CheckCircle2 className="h-4 w-4 text-muted-foreground" /></div>
                   {selected.events.length === 0 ? <p className="text-xs text-muted-foreground">{tAdmin("noEventsYet")}</p> : selected.events.slice(-8).reverse().map((event) => (
                     <div key={event.id} className="rounded-2xl bg-slate-50 p-3 text-xs">
-                      <p className="font-semibold">{event.eventType.replaceAll("_", " ")}</p>
+                      <p className="font-semibold">{getEventLabel(event.eventType)}</p>
                       <p className="text-muted-foreground">{formatSupportTime(event.createDate)}</p>
                     </div>
                   ))}

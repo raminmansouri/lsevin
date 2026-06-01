@@ -130,10 +130,10 @@ export function parseExploreFilters(
 
   return {
     q: toSingleString(params.q).trim(),
-    categoryId: categoryId && categoryId !== "all" ? categoryId : null,
-    providerTypeId: providerTypeId && providerTypeId !== "all" ? providerTypeId : null,
-    countryCode: countryCode && countryCode !== "all" ? countryCode : null,
-    cityCode: cityCode && cityCode !== "all" ? cityCode : null,
+    categoryId: normalizeNullableFilter(categoryId),
+    providerTypeId: normalizeNullableFilter(providerTypeId),
+    countryCode: normalizeNullableFilter(countryCode),
+    cityCode: normalizeNullableFilter(cityCode),
     minPrice,
     maxPrice,
     currencyCode: currencyCode && currencyCode !== "ALL" ? currencyCode : null,
@@ -262,6 +262,11 @@ function normalizeCurrencyCode(value: string | null | undefined): string {
   return value?.trim().toUpperCase() || "";
 }
 
+function normalizeNullableFilter(value: string): string | null {
+  const normalized = value.trim();
+  return normalized && normalized.toLowerCase() !== "all" ? normalized : null;
+}
+
 async function resolveCurrentCustomerId(): Promise<string | null> {
   return null;
 }
@@ -300,6 +305,66 @@ function uniqueById<T extends { id: string }>(rows: T[]): T[] {
   return uniqueRows;
 }
 
+
+function buildLocationCodeMatchSql(columnSql: any, value: string) {
+  const normalized = value.trim();
+  return sql`lower(btrim(${columnSql}::text)) = lower(btrim(${normalized}::text))`;
+}
+
+function buildProviderSpecialistSearchSql(term: string, lang: string) {
+  return sql`exists (
+    select 1
+    from category.provider_staffs pst
+    join category.staff st on st.id = pst.staff_id
+    where pst.service_provider_id = sp.id
+      and pst.is_active = true
+      and st.is_active = true
+      and (
+        common.get_translation_t(st.name_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(st.title_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(st.biography_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(st.specialty_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or coalesce(st.specialty, '') ilike ${`%${term}%`}
+      )
+  )`;
+}
+
+function buildProviderServiceSearchSql(term: string, lang: string) {
+  return sql`exists (
+    select 1
+    from category.provider_services pss
+    join category.service_definitions sds on sds.id = pss.service_definition_id
+    where pss.service_provider_id = sp.id
+      and pss.is_active = true
+      and sds.is_active = true
+      and (
+        pss.search_vector @@ websearch_to_tsquery('simple', ${term})
+        or common.get_translation_t(pss.display_name_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(pss.description_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(sds.name_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(sds.description_translations, ${lang}, 'en') ilike ${`%${term}%`}
+      )
+  )`;
+}
+
+function buildServiceSpecialistSearchSql(term: string, lang: string) {
+  return sql`exists (
+    select 1
+    from category.staff_services ss
+    join category.provider_staffs pst on pst.staff_id = ss.staff_id and pst.service_provider_id = sp.id
+    join category.staff st on st.id = ss.staff_id
+    where ss.is_active = true
+      and pst.is_active = true
+      and st.is_active = true
+      and (
+        common.get_translation_t(st.name_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(st.title_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(st.specialty_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or coalesce(st.specialty, '') ilike ${`%${term}%`}
+      )
+  )`;
+}
+
 function buildFeaturedProvidersWhere(filters: ExploreFiltersInput, lang: string) {
   const conditions = [sql`sp.is_active = true`];
 
@@ -335,11 +400,15 @@ function buildFeaturedProvidersWhere(filters: ExploreFiltersInput, lang: string)
       (
         sp.search_vector @@ websearch_to_tsquery('simple', ${term})
         or common.get_translation_t(sp.name_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(sp.description_translations, ${lang}, 'en') ilike ${`%${term}%`}
         or exists (
           select 1
           from unnest(coalesce(sp.specialties, array[]::text[])) as specialty
           where specialty ilike ${`%${term}%`}
         )
+        or ${buildProviderServiceSearchSql(term, lang)}
+        or ${buildProviderSpecialistSearchSql(term, lang)}
+        or ${buildServiceSpecialistSearchSql(term, lang)}
       )
     `);
   }
@@ -352,6 +421,7 @@ function buildFeaturedProvidersWhere(filters: ExploreFiltersInput, lang: string)
         join category.service_definitions sd on sd.id = ps.service_definition_id
         where ps.service_provider_id = sp.id
           and ps.is_active = true
+          and sd.is_active = true
           and sd.category_id = ${filters.categoryId}::uuid
       )
     `);
@@ -362,11 +432,11 @@ function buildFeaturedProvidersWhere(filters: ExploreFiltersInput, lang: string)
   }
 
   if (filters.countryCode) {
-    conditions.push(sql`sp.country = ${filters.countryCode}`);
+    conditions.push(buildLocationCodeMatchSql(sql`sp.country`, filters.countryCode));
   }
 
   if (filters.cityCode) {
-    conditions.push(sql`sp.city = ${filters.cityCode}`);
+    conditions.push(buildLocationCodeMatchSql(sql`sp.city`, filters.cityCode));
   }
 
   if (filters.minPrice > 0 || filters.maxPrice > 0 || filters.currencyCode) {
@@ -402,11 +472,11 @@ function buildTrendingServicesWhere(filters: ExploreFiltersInput, lang: string) 
   }
 
   if (filters.countryCode) {
-    conditions.push(sql`sp.country = ${filters.countryCode}`);
+    conditions.push(buildLocationCodeMatchSql(sql`sp.country`, filters.countryCode));
   }
 
   if (filters.cityCode) {
-    conditions.push(sql`sp.city = ${filters.cityCode}`);
+    conditions.push(buildLocationCodeMatchSql(sql`sp.city`, filters.cityCode));
   }
 
   if (filters.minPrice > 0) {
@@ -454,12 +524,18 @@ function buildTrendingServicesWhere(filters: ExploreFiltersInput, lang: string) 
         ps.search_vector @@ websearch_to_tsquery('simple', ${term})
         or sp.search_vector @@ websearch_to_tsquery('simple', ${term})
         or common.get_translation_t(ps.display_name_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(ps.description_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(sd.name_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(sd.description_translations, ${lang}, 'en') ilike ${`%${term}%`}
         or common.get_translation_t(sp.name_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(sp.description_translations, ${lang}, 'en') ilike ${`%${term}%`}
         or exists (
           select 1
           from unnest(coalesce(sp.specialties, array[]::text[])) as specialty
           where specialty ilike ${`%${term}%`}
         )
+        or ${buildProviderSpecialistSearchSql(term, lang)}
+        or ${buildServiceSpecialistSearchSql(term, lang)}
       )
     `);
   }
@@ -482,11 +558,11 @@ function buildSponsoredProvidersWhere(
   }
 
   if (filters.countryCode) {
-    conditions.push(sql`sp.country = ${filters.countryCode}`);
+    conditions.push(buildLocationCodeMatchSql(sql`sp.country`, filters.countryCode));
   }
 
   if (filters.cityCode) {
-    conditions.push(sql`sp.city = ${filters.cityCode}`);
+    conditions.push(buildLocationCodeMatchSql(sql`sp.city`, filters.cityCode));
   }
 
   if (filters.verifiedOnly) {
@@ -513,6 +589,10 @@ function buildSponsoredProvidersWhere(
       (
         sp.search_vector @@ websearch_to_tsquery('simple', ${term})
         or common.get_translation_t(sp.name_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(sp.description_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or ${buildProviderServiceSearchSql(term, lang)}
+        or ${buildProviderSpecialistSearchSql(term, lang)}
+        or ${buildServiceSpecialistSearchSql(term, lang)}
       )
     `);
   }

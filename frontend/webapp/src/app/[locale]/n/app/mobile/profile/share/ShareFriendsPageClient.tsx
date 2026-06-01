@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -27,6 +28,7 @@ export function ShareFriendsPageClient({
   initialData,
 }: ShareFriendsPageClientProps) {
   const router = useRouter();
+  const t = useTranslations("MobileProfile.shareFriends");
   const [copied, setCopied] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
@@ -55,7 +57,7 @@ export function ShareFriendsPageClient({
         window.location.href = `sms:?&body=${encodedText}`;
         return;
       case "email":
-        window.location.href = `mailto:?subject=${encodeShareText("Join LSevin")}&body=${encodedText}`;
+        window.location.href = `mailto:?subject=${encodeShareText(t("shareSubject"))}&body=${encodedText}`;
         return;
       case "facebook":
         window.open(
@@ -82,7 +84,7 @@ export function ShareFriendsPageClient({
 
     try {
       await navigator.share({
-        title: "Join LSevin",
+        title: t("shareSubject"),
         text: initialData.shareMessage,
         url: initialData.referralLink,
       });
@@ -101,7 +103,7 @@ export function ShareFriendsPageClient({
           >
             <ArrowLeft size={20} className="text-gray-900" />
           </button>
-          <h1 className="text-lg font-bold text-gray-900 ml-3">Share with Friends</h1>
+          <h1 className="text-lg font-bold text-gray-900 ml-3">{t("title")}</h1>
         </div>
       </div>
 
@@ -110,7 +112,7 @@ export function ShareFriendsPageClient({
           <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <Gift size={32} className="text-white" />
           </div>
-          <h2 className="text-2xl font-bold mb-2">Invite Friends, Earn Rewards</h2>
+          <h2 className="text-2xl font-bold mb-2">{t("heroTitle")}</h2>
           <p className="text-white/90 mb-2">{initialData.heroSubtitle}</p>
           {initialData.programDescription ? (
             <p className="text-white/75 text-sm mb-6">{initialData.programDescription}</p>
@@ -121,21 +123,21 @@ export function ShareFriendsPageClient({
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
               <div className="text-2xl font-bold mb-1">{initialData.stats.totalReferrals}</div>
-              <div className="text-xs text-white/80">Friends Joined</div>
+              <div className="text-xs text-white/80">{t("stats.friendsJoined")}</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
               <div className="text-2xl font-bold mb-1">{pendingLabel}</div>
-              <div className="text-xs text-white/80">Pending</div>
+              <div className="text-xs text-white/80">{t("stats.pending")}</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
               <div className="text-2xl font-bold mb-1">{earnedLabel}</div>
-              <div className="text-xs text-white/80">Used</div>
+              <div className="text-xs text-white/80">{t("stats.used")}</div>
             </div>
           </div>
         </div>
 
         <div className="bg-white rounded-2xl p-5">
-          <h3 className="font-bold text-gray-900 mb-4">Your Referral Code</h3>
+          <h3 className="font-bold text-gray-900 mb-4">{t("referralCode")}</h3>
 
           <div className="space-y-3">
             <div className="flex items-center gap-3">
@@ -155,18 +157,18 @@ export function ShareFriendsPageClient({
                 {copied ? (
                   <>
                     <Check size={20} />
-                    Copied!
+                    {t("copiedBang")}
                   </>
                 ) : (
                   <>
                     <Copy size={20} />
-                    Copy
+                    {t("copy")}
                   </>
                 )}
               </button>
             </div>
 
-            <div className="text-center text-sm text-gray-600">or share your referral link</div>
+            <div className="text-center text-sm text-gray-600">{t("shareReferralLink")}</div>
 
             <div className="flex items-center gap-3">
               <div className="flex-1 h-12 bg-gray-50 border border-gray-200 rounded-xl px-4 flex items-center overflow-hidden">
@@ -183,12 +185,12 @@ export function ShareFriendsPageClient({
                 {copiedLink ? (
                   <>
                     <Check size={16} />
-                    Copied
+                    {t("copied")}
                   </>
                 ) : (
                   <>
                     <Copy size={16} />
-                    Copy
+                    {t("copy")}
                   </>
                 )}
               </button>
@@ -200,7 +202,7 @@ export function ShareFriendsPageClient({
           <div className="bg-white rounded-2xl p-5">
             <div className="flex items-center gap-2 mb-4">
               <TicketPercent size={20} className="text-[#083f30]" />
-              <h3 className="font-bold text-gray-900">Your Discount Queue</h3>
+              <h3 className="font-bold text-gray-900">{t("discountQueue")}</h3>
             </div>
 
             <div className="space-y-3">
@@ -226,14 +228,14 @@ export function ShareFriendsPageClient({
         )}
 
         <div className="bg-white rounded-2xl p-5">
-          <h3 className="font-bold text-gray-900 mb-4">Share via</h3>
+          <h3 className="font-bold text-gray-900 mb-4">{t("shareVia")}</h3>
 
           <div className="grid grid-cols-4 gap-3">
             {[
-              { id: "sms", name: "Message", icon: MessageSquare, color: "bg-green-600" },
-              { id: "email", name: "Email", icon: Mail, color: "bg-blue-600" },
-              { id: "facebook", name: "Facebook", icon: Facebook, color: "bg-blue-700" },
-              { id: "instagram", name: "Instagram", icon: Instagram, color: "bg-pink-600" },
+              { id: "sms", name: t("methods.message"), icon: MessageSquare, color: "bg-green-600" },
+              { id: "email", name: t("methods.email"), icon: Mail, color: "bg-blue-600" },
+              { id: "facebook", name: t("methods.facebook"), icon: Facebook, color: "bg-blue-700" },
+              { id: "instagram", name: t("methods.instagram"), icon: Instagram, color: "bg-pink-600" },
             ].map((method) => {
               const Icon = method.icon;
               return (
@@ -256,12 +258,12 @@ export function ShareFriendsPageClient({
             className="w-full mt-4 h-12 bg-gray-100 text-gray-900 rounded-xl font-semibold hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
           >
             <Share2 size={18} />
-            More Options
+            {t("moreOptions")}
           </button>
         </div>
 
         <div className="bg-white rounded-2xl p-5">
-          <h3 className="font-bold text-gray-900 mb-4">How it Works</h3>
+          <h3 className="font-bold text-gray-900 mb-4">{t("howItWorks")}</h3>
 
           <div className="space-y-4">
             <div className="flex gap-4">
@@ -269,9 +271,9 @@ export function ShareFriendsPageClient({
                 1
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900 mb-1">Share Your Code</h4>
+                <h4 className="font-semibold text-gray-900 mb-1">{t("steps.shareCode.title")}</h4>
                 <p className="text-sm text-gray-600">
-                  Send your unique referral code or referral link to friends and family.
+                  {t("steps.shareCode.descriptionLink")}
                 </p>
               </div>
             </div>
@@ -281,9 +283,9 @@ export function ShareFriendsPageClient({
                 2
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900 mb-1">They Trigger the Active Program</h4>
+                <h4 className="font-semibold text-gray-900 mb-1">{t("steps.activeProgram.title")}</h4>
                 <p className="text-sm text-gray-600">
-                  Rewards are created from the live referral policy, not from hard-coded app text.
+                  {t("steps.activeProgram.description")}
                 </p>
               </div>
             </div>
@@ -293,9 +295,9 @@ export function ShareFriendsPageClient({
                 3
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900 mb-1">Coupons Unlock in Order</h4>
+                <h4 className="font-semibold text-gray-900 mb-1">{t("steps.unlock.title")}</h4>
                 <p className="text-sm text-gray-600">
-                  New discounts stay queued until the previous discount is used, based on your current policy.
+                  {t("steps.unlock.description")}
                 </p>
               </div>
             </div>
@@ -305,7 +307,7 @@ export function ShareFriendsPageClient({
         {initialData.referralHistory.length > 0 && (
           <div className="bg-white rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-gray-900">Referral History</h3>
+              <h3 className="font-bold text-gray-900">{t("referralHistory")}</h3>
               <span className="text-sm text-gray-600">
                 {initialData.referralHistory.length} referrals
               </span>
@@ -339,10 +341,10 @@ export function ShareFriendsPageClient({
                       }`}
                     >
                       {referral.status === "completed"
-                        ? "Earned"
+                        ? t("stats.earned")
                         : referral.status === "pending"
-                        ? "Pending"
-                        : "Invited"}
+                        ? t("stats.pending")
+                        : t("stats.invited")}
                     </div>
                   </div>
                 </div>
@@ -352,7 +354,7 @@ export function ShareFriendsPageClient({
         )}
 
         <div className="bg-gray-100 rounded-2xl p-5">
-          <h4 className="font-bold text-gray-900 mb-2">Terms & Conditions</h4>
+          <h4 className="font-bold text-gray-900 mb-2">{t("termsTitle")}</h4>
           <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
             {initialData.terms.map((term) => (
               <li key={term}>{term}</li>

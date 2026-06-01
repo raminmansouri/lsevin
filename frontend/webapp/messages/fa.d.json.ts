@@ -104,10 +104,10 @@ declare const messages: {
   },
   "AdminGenerated": {
     "aRIALabel": "RIA Label",
-    "accentColor": "accent Color",
+    "accentColor": "رنگ تأکیدی",
     "accessControl": "access Control",
     "accountStatus": "account وضعیت",
-    "accountVerification": "account Verification",
+    "accountVerification": "تأیید حساب",
     "accredited": "Accredited",
     "action": "Action",
     "actionType": "action نوع",
@@ -125,7 +125,7 @@ declare const messages: {
     "addAdminSEOReview": "افزودن مدیریت SEO بررسی",
     "addNewUser": "افزودن جدید کاربر",
     "addNote": "افزودن یادداشت",
-    "addOns": "افزودن Ons",
+    "addOns": "افزودنی‌ها",
     "addUser": "افزودن کاربر",
     "address": "Address",
     "addressDetails": "address جزئیات",
@@ -134,24 +134,24 @@ declare const messages: {
     "adminDataControl": "مدیریت داده Control",
     "adminLsevinCom": "مدیریت Lsevin Com",
     "adminNote": "مدیریت یادداشت",
-    "adults": "Adults",
+    "adults": "بزرگسالان",
     "advancedJSON": "advanced JSON",
-    "advancedJSONSettings": "advanced JSON تنظیمات",
+    "advancedJSONSettings": "تنظیمات پیشرفته JSON",
     "allActions": "همه Actions",
-    "allCategories": "همه دسته‌بندی‌ها",
+    "allCategories": "همه دسته‌ها",
     "allChannels": "همه Channels",
     "allCountries": "همه کشورها",
     "allModules": "همه Modules",
     "allPayments": "همه پرداخت‌ها",
-    "allPriorities": "همه Priorities",
+    "allPriorities": "همه اولویت‌ها",
     "allRoles": "همه نقش‌ها",
     "allServices": "همه خدمات",
     "allSeverity": "همه Severity",
-    "allStatus": "همه وضعیت",
+    "allStatus": "همه وضعیت‌ها",
     "allStatuses": "همه Statuses",
     "allTags": "همه برچسب‌ها",
     "allTypes": "همه Types",
-    "allTypes2": "همه Types 2",
+    "allTypes2": "همه نوع‌ها",
     "amount": "مبلغ",
     "analyticsDashboard": "داشبورد تحلیل‌ها",
     "answerThisReviewAsAdmin": "answer This بررسی As مدیریت",
@@ -165,25 +165,25 @@ declare const messages: {
     "approvedPublic": "تأییدشده Public",
     "areYouAProvider": "are You ارائه‌دهنده",
     "asiaTehranEuropeIstanbulUTC": "asia Tehran Europe Istanbul UTC",
-    "assignToMe": "assign To Me",
-    "assignedTo": "assigned To",
+    "assignToMe": "اختصاص به من",
+    "assignedTo": "اختصاص داده شده به",
     "attributeDeleted": "attribute Deleted",
     "attributeSaved": "attribute Saved",
-    "auditLogs": "گزارش‌های ممیزی",
+    "auditLogs": "لاگ‌های حسابرسی",
     "authContent": "احراز هویت محتوا",
-    "autoReplySettings": "auto پاسخ تنظیمات",
+    "autoReplySettings": "تنظیمات پاسخ خودکار",
     "availabilityForProvidersServicesStaffAndResources": "دسترس‌پذیری For ارائه‌دهندگان خدمات کارکنان And منابع",
     "availabilityRule": "دسترس‌پذیری قانون",
     "availabilityRuleSaved": "دسترس‌پذیری قانون Saved",
     "avgBookingValue": "میانگین ارزش رزرو",
-    "avgResponseTime": "avg Response Time",
+    "avgResponseTime": "میانگین پاسخ",
     "avgTransaction": "میانگین تراکنش",
     "badgeEyebrowText": "badge Eyebrow Text",
     "badgeText": "badge Text",
     "balanceDueTrigger": "balance Due Trigger",
     "base": "Base",
     "beautySpa": "زیبایی و اسپا",
-    "behavior": "Behavior",
+    "behavior": "رفتار",
     "benefits": "Benefits",
     "blankResourceTotalOr1": "blank منبع کل Or 1",
     "body": "Body",
@@ -192,22 +192,22 @@ declare const messages: {
     "booking": "رزرو",
     "bookingCalendarSettingsSaved": "رزرو تقویم تنظیمات Saved",
     "bookingFinancialSummary": "رزرو Financial خلاصه",
-    "bookingID": "رزرو ID",
-    "bookingIDUserProviderOrService": "رزرو ID کاربر ارائه‌دهنده Or خدمت",
+    "bookingID": "شناسه رزرو",
+    "bookingIDUserProviderOrService": "شناسه رزرو، کاربر، ارائه‌دهنده یا خدمت",
     "bookingIdentityCustomer": "رزرو Identity مشتری",
-    "bookingManagement": "رزرو Management",
-    "bookingOperations": "رزرو عملیات",
+    "bookingManagement": "مدیریت رزرو",
+    "bookingOperations": "عملیات رزرو",
     "bookingPaymentPolicyDeleted": "رزرو پرداخت سیاست Deleted",
     "bookingPaymentPolicySaved": "رزرو پرداخت سیاست Saved",
     "bookingPaymentTerms": "رزرو پرداخت Terms",
-    "bookingSaved": "رزرو Saved",
-    "bookingStatus": "رزرو وضعیت",
-    "bookingStatus2": "رزرو وضعیت 2",
+    "bookingSaved": "رزرو ذخیره شد.",
+    "bookingStatus": "وضعیت رزرو",
+    "bookingStatus2": "وضعیت رزرو",
     "bookings": "رزروها",
     "bookingsAndDrafts": "رزروها And Drafts",
-    "borderRadius": "border Radius",
-    "bottomLeft": "bottom Left",
-    "bottomRight": "bottom Right",
+    "borderRadius": "گردی گوشه‌ها",
+    "bottomLeft": "پایین چپ",
+    "bottomRight": "پایین راست",
     "brochures": "Brochures",
     "budget": "Budget",
     "buttonLabel": "button Label",
@@ -218,11 +218,11 @@ declare const messages: {
     "campaign": "کمپین",
     "campaignManagement": "کمپین Management",
     "campaigns": "کمپین‌ها",
-    "cancel": "انصراف",
+    "cancel": "لغو",
     "cancelled": "لغوشده",
-    "cannedReplies": "canned پاسخ‌ها",
-    "cannedReplyDeleted": "canned پاسخ Deleted",
-    "cannedReplySaved": "canned پاسخ Saved",
+    "cannedReplies": "پاسخ‌های آماده",
+    "cannedReplyDeleted": "پاسخ آماده حذف شد.",
+    "cannedReplySaved": "پاسخ آماده ذخیره شد.",
     "capDueNow": "cap Due Now",
     "category": "دسته‌بندی",
     "categoryPerformance": "عملکرد دسته‌بندی",
@@ -233,10 +233,10 @@ declare const messages: {
     "channel": "Channel",
     "chargeLine": "charge Line",
     "chargeLines": "charge Lines",
-    "childBookingUpdated": "child رزرو به‌روزشده",
-    "childSubBookings": "child Sub رزروها",
-    "children": "Children",
-    "chooseAnItemFromTheInboxToStartReplying": "choose An Item From The Inbox To Start Replying",
+    "childBookingUpdated": "زیررزرو به‌روزرسانی شد.",
+    "childSubBookings": "زیررزروهای فرزند",
+    "children": "کودکان",
+    "chooseAnItemFromTheInboxToStartReplying": "برای شروع پاسخ‌گویی یک مورد از صندوق انتخاب کنید.",
     "city": "شهر",
     "clearSearch": "clear جستجو",
     "clicks": "Clicks",
@@ -245,20 +245,20 @@ declare const messages: {
     "collection": "Collection",
     "collectionMode": "collection Mode",
     "commaSeparatedTags": "comma Separated برچسب‌ها",
-    "compactLauncher": "compact Launcher",
+    "compactLauncher": "لانچر فشرده",
     "compensationPolicySaved": "compensation سیاست Saved",
     "complete": "Complete",
     "completed": "تکمیل‌شده",
     "complianceTrackingAndSystemActivityAuditTrail": "compliance Tracking And سیستم فعالیت ممیزی Trail",
     "configuredItems": "configured Items",
-    "confirmed": "Confirmed",
+    "confirmed": "تأییدشده",
     "cons": "Cons",
     "consOnePerLineOrCommaSeparated": "cons One Per Line Or Comma Separated",
     "contact": "Contact",
     "content": "محتوا",
     "contentAlignment": "محتوا Alignment",
     "contentType": "محتوا نوع",
-    "controlWhereSupportAppearsAndWhoCanStartAConversation": "control Where پشتیبانی Appears And Who Can Start گفتگو",
+    "controlWhereSupportAppearsAndWhoCanStartAConversation": "محل نمایش پشتیبانی و نحوه شروع گفتگو را کنترل کنید.",
     "convRate": "conv نرخ",
     "conversionRate": "نرخ تبدیل",
     "coordinates": "Coordinates",
@@ -278,7 +278,7 @@ declare const messages: {
     "createRefundRequest": "ایجاد بازپرداخت درخواست",
     "createUser": "ایجاد کاربر",
     "creating": "Creating",
-    "crispLikeConversations": "crisp Like گفتگوها",
+    "crispLikeConversations": "صندوق پشتیبانی گفتگو محور",
     "critical": "بحرانی",
     "criticalEvents": "بحرانی Events",
     "currency": "ارز",
@@ -289,19 +289,19 @@ declare const messages: {
     "customRange2": "custom Range 2",
     "customer": "مشتری",
     "customerCancelledBeforeConfirmation": "مشتری Cancelled Before Confirmation",
-    "customerContextAppearsHere": "مشتری Context Appears Here",
+    "customerContextAppearsHere": "اطلاعات مشتری اینجا نمایش داده می‌شود.",
     "customerDocuments": "مشتری Documents",
     "customerNote": "مشتری یادداشت",
     "customerSatisfaction": "رضایت مشتری",
     "customerSaved": "مشتری Saved",
-    "customizeLauncherColorRadiusIconAndPosition": "customize Launcher Color Radius Icon And Position",
+    "customizeLauncherColorRadiusIconAndPosition": "رنگ، شعاع، آیکن و موقعیت لانچر را تنظیم کنید.",
     "cyprus": "قبرس",
     "dBLSTDROOM101CAR01": "d BLSTDROOM 101 CAR 01",
-    "dark": "Dark",
+    "dark": "تیره",
     "dashboard": "داشبورد",
     "date": "تاریخ",
     "dateRange": "تاریخ Range",
-    "dateTime": "تاریخ Time",
+    "dateTime": "تاریخ و زمان",
     "decimalDigits": "decimal Digits",
     "default": "Default",
     "defaultCalendar": "default تقویم",
@@ -323,7 +323,7 @@ declare const messages: {
     "displayName": "display نام",
     "displayOrder": "ترتیب نمایش",
     "distributionByPaymentType": "توزیع بر اساس نوع پرداخت",
-    "documents": "Documents",
+    "documents": "مدارک",
     "draftChildBookings": "draft Child رزروها",
     "draftDocuments": "draft Documents",
     "draftSummary": "draft خلاصه",
@@ -341,8 +341,8 @@ declare const messages: {
     "emailAddress": "ایمیل Address",
     "enFaArTr": "en Fa Ar Tr",
     "enabledCalendars": "فعال Calendars",
-    "englishAndPersianLabelsAreStoredAsJSONBObjectsNotStringifiedJSON": "english And Persian Labels Are Stored As JSONB Objects Not Stringified JSON",
-    "englishReply": "english پاسخ",
+    "englishAndPersianLabelsAreStoredAsJSONBObjectsNotStringifiedJSON": "برچسب‌های انگلیسی و فارسی به صورت JSONB ذخیره می‌شوند، نه رشته JSON.",
+    "englishReply": "پاسخ انگلیسی",
     "enterAnyAdditionalNotes": "enter هر Additional یادداشت‌ها",
     "enterCity": "enter شهر",
     "enterEmail": "enter ایمیل",
@@ -350,7 +350,7 @@ declare const messages: {
     "enterLastName": "enter Last نام",
     "enterYourPassword": "enter Your رمز عبور",
     "entryType": "entry نوع",
-    "escalated": "Escalated",
+    "escalated": "ارجاع‌شده",
     "established": "Established",
     "establishedYear": "established Year",
     "eventType": "event نوع",
@@ -374,14 +374,14 @@ declare const messages: {
     "fitness": "تناسب اندام",
     "forHotelsDefineRoomInventoryPerProviderServiceForOtherServic29372b28": "for Hotels Define Room موجودی Per ارائه‌دهنده خدمت For Other Servic 29372 b 28",
     "format": "Format",
-    "from": "From",
+    "from": "از",
     "frontendTexts": "frontend Texts",
     "frozenPricingCompensationAndRefundStateForThisBooking": "frozen Pricing Compensation And بازپرداخت State For This رزرو",
     "fullRefund": "full بازپرداخت",
     "gateway": "Gateway",
     "gatewayFee": "gateway Fee",
     "gatewayFeeMode": "gateway Fee Mode",
-    "generalInquiry": "عمومی Inquiry",
+    "generalInquiry": "درخواست عمومی",
     "generateExportAndSchedulePlatformReports": "generate خروجی And Schedule پلتفرم گزارش‌ها",
     "googleMapsCoordinates": "google Maps Coordinates",
     "grade": "Grade",
@@ -404,21 +404,21 @@ declare const messages: {
     "imageAltText": "تصویر Alt Text",
     "imageMediaURL": "تصویر رسانه URL",
     "impressions": "Impressions",
-    "inProgress": "در حال انجام",
+    "inProgress": "در حال بررسی",
     "inactive": "غیرفعال",
     "inactiveSlidesAreHiddenFromFrontend": "غیرفعال Slides Are Hidden From Frontend",
     "indonesia": "اندونزی",
-    "internalNote": "internal یادداشت",
+    "internalNote": "یادداشت داخلی",
     "issued": "Issued",
     "itemKey": "item Key",
-    "jalaliDateEG14050210": "jalali تاریخ EG 14050210",
+    "jalaliDateEG14050210": "تاریخ جلالی، مثلا ۱۴۰۵/۰۲/۱۰",
     "jalaliPersian": "jalali Persian",
-    "keepTheseAsValidJSONObjects": "keep These As Valid JSON Objects",
+    "keepTheseAsValidJSONObjects": "این موارد را به صورت شیء JSON معتبر نگه دارید.",
     "key": "Key",
     "l7": "l 7",
     "lSevinAdmin": "l Sevin مدیریت",
     "label": "Label",
-    "labels": "Labels",
+    "labels": "برچسب‌ها",
     "language": "زبان",
     "languageNameOrCode": "زبان نام Or Code",
     "languages": "زبان‌ها",
@@ -434,15 +434,15 @@ declare const messages: {
     "lastName": "last نام",
     "lastName2": "last نام 2",
     "lastUpdated": "last به‌روزشده",
-    "launcherIcon": "launcher Icon",
+    "launcherIcon": "آیکن لانچر",
     "legalName": "legal نام",
-    "light": "Light",
+    "light": "روشن",
     "line": "Line",
     "live": "زنده",
     "liveActivity": "فعالیت زنده",
     "liveActivityMonitor": "زنده فعالیت Monitor",
-    "livePreview": "زنده Preview",
-    "locale": "Locale",
+    "livePreview": "پیش‌نمایش زنده",
+    "locale": "زبان",
     "localization": "بومی‌سازی",
     "localizationLanguages": "بومی‌سازی زبان‌ها",
     "localizationManagement": "بومی‌سازی Management",
@@ -456,9 +456,9 @@ declare const messages: {
     "mainButtonLabel": "main Button Label",
     "mainCTALink": "main CTA Link",
     "mainServiceChildBookingsAndAddOnsAsSeparateCommercialLines": "main خدمت Child رزروها And افزودن Ons As Separate تجاری Lines",
-    "manageAndMonitorAllPlatformBookings": "manage And Monitor همه پلتفرم رزروها",
+    "manageAndMonitorAllPlatformBookings": "همه رزروهای پلتفرم را مدیریت و پایش کنید.",
     "manageAndMonitorAllPlatformUsers": "manage And Monitor همه پلتفرم کاربران",
-    "manageCustomerSupportTicketsAndInquiries": "manage مشتری پشتیبانی Tickets And Inquiries",
+    "manageCustomerSupportTicketsAndInquiries": "مدیریت تیکت‌ها و درخواست‌های پشتیبانی مشتریان",
     "manageLanguagesTranslationsAndLocalizedContent": "manage زبان‌ها Translations And Localized محتوا",
     "manageLoyaltyProgramsPointsAndRewardCampaigns": "manage Loyalty Programs Points And پاداش کمپین‌ها",
     "marketingCampaignsAndPromotionalContent": "marketing کمپین‌ها And Promotional محتوا",
@@ -491,22 +491,22 @@ declare const messages: {
     "net": "Net",
     "new": "جدید",
     "nextRun": "next Run",
-    "noAddOns": "no افزودن Ons",
+    "noAddOns": "افزودنی وجود ندارد.",
     "noAttributesYet": "no Attributes Yet",
     "noBookingPaymentPoliciesFound": "no رزرو پرداخت سیاست‌ها Found",
     "noBookingsLoaded": "no رزروها Loaded",
     "noCertificationsYet": "no Certifications Yet",
-    "noChildBookings": "no Child رزروها",
+    "noChildBookings": "زیررزروی وجود ندارد.",
     "noChildDraftBookings": "no Child Draft رزروها",
-    "noConversationsFound": "no گفتگوها Found",
-    "noDocuments": "no Documents",
+    "noConversationsFound": "گفتگویی یافت نشد.",
+    "noDocuments": "مدرکی وجود ندارد.",
     "noDraftDocuments": "no Draft Documents",
     "noDraftsLoaded": "no Drafts Loaded",
-    "noEventsYet": "no Events Yet",
+    "noEventsYet": "هنوز رویدادی ثبت نشده است.",
     "noFrozenBookingPaymentTermsWereFoundForThisBookingYet": "no Frozen رزرو پرداخت Terms Were Found For This رزرو Yet",
     "noGalleryItemsYet": "no گالری Items Yet",
     "noPaymentIntents": "no پرداخت نیت‌ها",
-    "noPayments": "no پرداخت‌ها",
+    "noPayments": "پرداختی وجود ندارد.",
     "noPoliciesYet": "no سیاست‌ها Yet",
     "noProviderLedgerEntriesYet": "no ارائه‌دهنده دفتر حساب Entries Yet",
     "noProviderRequests": "no ارائه‌دهنده درخواست‌ها",
@@ -530,24 +530,24 @@ declare const messages: {
     "notificationTemplates": "اعلان قالب‌ها",
     "notifications": "اعلان‌ها",
     "offer": "Offer",
-    "officeHours": "office Hours",
-    "offlineSettings": "offline تنظیمات",
-    "onlyAdminsCanSeeThisNote": "only Admins Can See This یادداشت",
+    "officeHours": "ساعات کاری",
+    "offlineSettings": "تنظیمات آفلاین",
+    "onlyAdminsCanSeeThisNote": "فقط مدیران این یادداشت را می‌بینند.",
     "open": "باز",
     "openAllRefundRequests": "باز همه بازپرداخت درخواست‌ها",
     "openButtonInNewTab": "باز Button In جدید Tab",
-    "openFile": "باز File",
+    "openFile": "باز کردن فایل",
     "openFinancials": "باز Financials",
     "openLink": "باز Link",
     "openLinksInNewTab": "باز Links In جدید Tab",
     "openMedia": "باز رسانه",
-    "openTickets": "باز Tickets",
+    "openTickets": "تیکت‌های باز",
     "optional": "اختیاری",
     "optionalButRecommended": "اختیاری But Recommended",
     "optionalJSONForCampaignIdTrackingTagsProviderIdsOrCustomFlags": "اختیاری JSON For کمپین Id Tracking برچسب‌ها ارائه‌دهنده Ids Or Custom Flags",
     "order": "ترتیب",
     "overlayVariant": "overlay Variant",
-    "paid": "Paid",
+    "paid": "پرداخت‌شده",
     "partialRefund": "partial بازپرداخت",
     "party": "Party",
     "password": "رمز عبور",
@@ -557,17 +557,17 @@ declare const messages: {
     "payment": "پرداخت",
     "paymentCurrency": "پرداخت ارز",
     "paymentGross": "پرداخت Gross",
-    "paymentIssue": "پرداخت Issue",
-    "paymentMethod": "پرداخت Method",
+    "paymentIssue": "مشکل پرداخت",
+    "paymentMethod": "روش پرداخت",
     "paymentMethods": "روش‌های پرداخت",
     "paymentOperations": "پرداخت عملیات",
     "paymentRefund": "پرداخت بازپرداخت",
-    "paymentStatus": "پرداخت وضعیت",
+    "paymentStatus": "وضعیت پرداخت",
     "paymentSuccess": "موفقیت پرداخت",
     "payments": "پرداخت‌ها",
     "payout": "Payout",
     "pending": "در انتظار",
-    "pendingPayment": "در انتظار پرداخت",
+    "pendingPayment": "پرداخت در انتظار",
     "pendingReview": "در انتظار بررسی",
     "pendingSettlement": "در انتظار Settlement",
     "pendingUser": "در انتظار کاربر",
@@ -594,14 +594,14 @@ declare const messages: {
     "policyDeleted": "سیاست Deleted",
     "policySaved": "سیاست Saved",
     "popular": "Popular",
-    "position": "Position",
+    "position": "موقعیت",
     "preferences": "Preferences",
     "preferredCurrency": "preferred ارز",
     "preferredLocale": "preferred Locale",
     "price": "Price",
     "primaryButtonTitle": "primary Button عنوان",
     "primaryButtonURL": "primary Button URL",
-    "primaryColor": "primary Color",
+    "primaryColor": "رنگ اصلی",
     "priority": "اولویت",
     "processed": "Processed",
     "processing": "Processing",
@@ -617,7 +617,7 @@ declare const messages: {
     "providerImage": "ارائه‌دهنده تصویر",
     "providerLedgerEntries": "ارائه‌دهنده دفتر حساب Entries",
     "providerManagement": "ارائه‌دهنده Management",
-    "providerNotes": "ارائه‌دهنده یادداشت‌ها",
+    "providerNotes": "یادداشت‌های ارائه‌دهنده",
     "providerPayable": "ارائه‌دهنده Payable",
     "providerPercentOverride": "ارائه‌دهنده Percent Override",
     "providerRequests": "ارائه‌دهنده درخواست‌ها",
@@ -651,7 +651,7 @@ declare const messages: {
     "refundMode": "بازپرداخت Mode",
     "refundRate": "نرخ بازپرداخت",
     "refundRequest": "بازپرداخت درخواست",
-    "refundRequest2": "بازپرداخت درخواست 2",
+    "refundRequest2": "درخواست بازپرداخت",
     "refundRequestCreated": "بازپرداخت درخواست ایجادشده",
     "refundRequests": "درخواست‌های بازپرداخت",
     "refundScope": "بازپرداخت محدوده",
@@ -661,7 +661,7 @@ declare const messages: {
     "relatedRecords": "related Records",
     "remainingNet": "remaining Net",
     "rememberMe": "remember Me",
-    "replyToCustomer": "پاسخ To مشتری",
+    "replyToCustomer": "پاسخ به مشتری",
     "reportID": "گزارش ID",
     "reportName": "گزارش نام",
     "reports": "گزارش‌ها",
@@ -670,14 +670,14 @@ declare const messages: {
     "requestStatusUpdated": "درخواست وضعیت به‌روزشده",
     "resolved": "حل‌شده",
     "responseTime": "response Time",
-    "responseTime2": "response Time 2",
+    "responseTime2": "زمان پاسخ",
     "revenue": "درآمد",
     "revenueByServiceCategory": "درآمد بر اساس دسته خدمت",
     "revenueOverview": "نمای کلی درآمد",
     "reviewAndApproveNewProviderRegistrations": "بررسی And Approve جدید ارائه‌دهنده Registrations",
     "reviewDecision": "بررسی Decision",
     "reviewDeleted": "بررسی Deleted",
-    "reviewNote": "بررسی یادداشت",
+    "reviewNote": "یادداشت بررسی",
     "reviewReplyAdded": "بررسی پاسخ Added",
     "reviewReplyDeleted": "بررسی پاسخ Deleted",
     "reviewReplyUpdated": "بررسی پاسخ به‌روزشده",
@@ -693,7 +693,7 @@ declare const messages: {
     "roleStatus": "نقش وضعیت",
     "roles": "نقش‌ها",
     "roomTypeServiceUUID": "room نوع خدمت UUID",
-    "rooms": "Rooms",
+    "rooms": "اتاق‌ها",
     "roundingMode": "rounding Mode",
     "sEOAdminReviewAdded": "s EO مدیریت بررسی Added",
     "save": "ذخیره",
@@ -708,13 +708,13 @@ declare const messages: {
     "scopeType": "محدوده نوع",
     "search": "جستجو",
     "searchAndSelectServiceDefinition": "جستجو And انتخاب خدمت تعریف",
-    "searchBookings": "جستجو رزروها",
-    "searchConversations": "جستجو گفتگوها",
+    "searchBookings": "جستجوی رزروها",
+    "searchConversations": "جستجوی گفتگوها...",
     "searchKeysNamesContentVariables": "جستجو Keys Names محتوا Variables",
     "searchLanguages": "جستجو زبان‌ها",
     "searchLogs": "جستجو لاگ‌ها",
     "searchRecords": "جستجو Records",
-    "searchTickets": "جستجو Tickets",
+    "searchTickets": "جستجوی تیکت‌ها...",
     "searchTransactions": "جستجو تراکنش‌ها",
     "searchUsers": "جستجو کاربران",
     "secondaryButtonLabel": "secondary Button Label",
@@ -728,7 +728,7 @@ declare const messages: {
     "securityNotice": "امنیت Notice",
     "securityScore": "امنیت Score",
     "select": "انتخاب",
-    "selectAConversation": "انتخاب گفتگو",
+    "selectAConversation": "یک گفتگو انتخاب کنید",
     "selectAddon": "انتخاب Addon",
     "selectAttribute": "انتخاب Attribute",
     "selectChargeLinesToRefund": "انتخاب Charge Lines To بازپرداخت",
@@ -736,7 +736,7 @@ declare const messages: {
     "selectCountry": "انتخاب کشور",
     "selectCurrency": "انتخاب ارز",
     "selectGrade": "انتخاب Grade",
-    "selectPaymentMethod": "انتخاب پرداخت Method",
+    "selectPaymentMethod": "انتخاب روش پرداخت",
     "selectPlacement": "انتخاب Placement",
     "selectPolicyType": "انتخاب سیاست نوع",
     "selectProvider": "انتخاب ارائه‌دهنده",
@@ -755,7 +755,7 @@ declare const messages: {
     "serviceImage": "خدمت تصویر",
     "serviceProviderDeleted": "خدمت ارائه‌دهنده Deleted",
     "serviceRoomTypeUUID": "خدمت Room نوع UUID",
-    "serviceType": "خدمت نوع",
+    "serviceType": "نوع خدمت",
     "services": "خدمات",
     "settings": "تنظیمات",
     "settled": "Settled",
@@ -765,11 +765,11 @@ declare const messages: {
     "severity": "Severity",
     "signIn": "sign In",
     "signInToAccessTheAdminPanel": "sign In To Access The مدیریت Panel",
-    "skin": "Skin",
+    "skin": "ظاهر",
     "slides": "Slides",
     "slotIntervalMinutes": "slot Interval Minutes",
     "sortOrder": "sort سفارش",
-    "source": "Source",
+    "source": "منبع",
     "sourceCurrency": "source ارز",
     "sparklesGiftMap": "sparkles Gift Map",
     "specialist": "متخصص",
@@ -784,56 +784,56 @@ declare const messages: {
     "status": "وضعیت",
     "street": "Street",
     "styleJSON": "style JSON",
-    "subject": "Subject",
+    "subject": "موضوع",
     "subtitle": "Subtitle",
     "subtitleDescription": "subtitle توضیحات",
     "successRate": "success نرخ",
     "successRate2": "نرخ موفقیت",
     "summary": "خلاصه",
     "support": "پشتیبانی",
-    "supportInbox": "پشتیبانی Inbox",
-    "supportSettingsSaved": "پشتیبانی تنظیمات Saved",
-    "supportTags": "پشتیبانی برچسب‌ها",
-    "supportTickets": "پشتیبانی Tickets",
+    "supportInbox": "صندوق پشتیبانی",
+    "supportSettingsSaved": "تنظیمات پشتیبانی ذخیره شد.",
+    "supportTags": "برچسب‌های پشتیبانی",
+    "supportTickets": "تیکت‌های پشتیبانی",
     "suspend": "Suspend",
     "suspended": "Suspended",
     "symbol": "Symbol",
     "system": "سیستم",
-    "systemAdmin": "مدیر سیستم",
+    "systemAdmin": "مدیریت سیستم",
     "systemSettings": "تنظیمات سیستم",
-    "tagDeleted": "برچسب Deleted",
-    "tagName": "برچسب نام",
-    "tagSaved": "برچسب Saved",
+    "tagDeleted": "برچسب حذف شد.",
+    "tagName": "نام برچسب",
+    "tagSaved": "برچسب ذخیره شد.",
     "tags": "برچسب‌ها",
     "target": "Target",
     "targetCountry": "target کشور",
     "targetProvider": "target ارائه‌دهنده",
-    "technicalIssue": "technical Issue",
+    "technicalIssue": "مشکل فنی",
     "templates": "قالب‌ها",
     "text": "Text",
-    "text1h45m": "text 1 h 45 m",
+    "text1h45m": "۱ ساعت و ۴۵ دقیقه",
     "text24M": "text 24 M",
     "text6MonthTrend": "روند ۶ ماهه",
-    "textColor": "text Color",
+    "textColor": "رنگ متن",
     "thailand": "تایلند",
     "theme": "Theme",
-    "themeMode": "theme Mode",
+    "themeMode": "حالت قالب",
     "theseFieldsReplaceHardcodedTextsLikePremiumPlacementAndDiscob5a31e64": "these Fields Replace Hardcoded Texts Like Premium Placement And Discob 5 31 64",
     "thisMonth": "this Month",
     "thisQuarter": "this Quarter",
     "thisYear": "this Year",
     "thumbnail": "Thumbnail",
-    "ticketID": "ticket ID",
-    "ticketIDSubjectUser": "ticket ID Subject کاربر",
-    "time": "Time",
-    "timeline": "Timeline",
+    "ticketID": "شناسه تیکت",
+    "ticketIDSubjectUser": "شناسه، موضوع، کاربر",
+    "time": "زمان",
+    "timeline": "خط زمانی",
     "timestamp": "Timestamp",
     "timezone": "منطقه زمانی",
     "title": "عنوان",
-    "to": "to",
+    "to": "تا",
     "topMarketsByRevenue": "بازارهای برتر بر اساس درآمد",
     "topPerformingProviders": "برترین ارائه‌دهندگان",
-    "total": "کل",
+    "total": "جمع کل",
     "totalApplications": "کل Applications",
     "totalBookings": "کل رزروها",
     "totalBudget": "کل Budget",
@@ -844,9 +844,9 @@ declare const messages: {
     "totalLogs7Days": "کل لاگ‌ها 7 Days",
     "totalOutgoing": "کل Outgoing",
     "totalPatients": "کل Patients",
-    "totalRevenue": "کل درآمد",
+    "totalRevenue": "درآمد کل",
     "totalSpent": "کل Spent",
-    "totalTickets": "کل Tickets",
+    "totalTickets": "کل تیکت‌ها",
     "totalUsers": "کل کاربران",
     "tourism": "گردشگری",
     "trackingRevenueAndBookingTrends": "رصد روند درآمد و رزرو",
@@ -878,7 +878,7 @@ declare const messages: {
     "userIDOrDetails": "کاربر ID Or جزئیات",
     "userManagement": "کاربر Management",
     "userName": "کاربر نام",
-    "userProvider": "کاربر ارائه‌دهنده",
+    "userProvider": "کاربر / ارائه‌دهنده",
     "users": "کاربران",
     "usuallyRepliesIn1Hour": "usually پاسخ‌ها In 1 Hour",
     "value": "Value",
@@ -909,7 +909,7 @@ declare const messages: {
     "adminAnswer": "مدیریت Answer",
     "adminRoleGranted": "مدیریت نقش Granted",
     "advanceBookingLimitDays": "advance رزرو Limit Days",
-    "advancedFilters": "advanced Filters",
+    "advancedFilters": "فیلترهای پیشرفته",
     "allAppliesToTargets": "همه Applies To Targets",
     "allScopeTypes": "همه محدوده Types",
     "allowNewUserRegistrations": "allow جدید کاربر Registrations",
@@ -967,7 +967,7 @@ declare const messages: {
     "bookingFlow": "رزرو Flow",
     "bookingId": "رزرو Id",
     "bookingIdentityAndCustomerDirectDatabaseAdminPanel": "رزرو Identity And مشتری Direct Database مدیریت Panel",
-    "bookingModification": "رزرو Modification",
+    "bookingModification": "تغییر رزرو",
     "bookingModifications": "رزرو Modifications",
     "bookingPaymentPolicies": "رزرو پرداخت سیاست‌ها",
     "bookingReminders": "رزرو Reminders",
@@ -978,7 +978,7 @@ declare const messages: {
     "bookingVolumeByCategory": "رزرو Volume By دسته‌بندی",
     "bookingsLower": "رزرو",
     "bronze": "Bronze",
-    "bulkActions": "bulk Actions",
+    "bulkActions": "اقدامات گروهی",
     "businessLicense": "business License",
     "cRUD": "c RUD",
     "cairoEgypt": "cairo Egypt",
@@ -1057,7 +1057,7 @@ declare const messages: {
     "enableNotifications": "فعال‌سازی اعلان‌ها",
     "enableWallet": "فعال‌سازی کیف پول",
     "endsAt": "ends At",
-    "english": "English",
+    "english": "انگلیسی",
     "englishName": "english نام",
     "exchangeRates": "تبادل نرخ‌ها",
     "execute": "Execute",
@@ -1165,7 +1165,7 @@ declare const messages: {
     "newRecord": "جدید Record",
     "newSchedule": "جدید Schedule",
     "newTemplate": "جدید قالب",
-    "newTicket": "جدید Ticket",
+    "newTicket": "تیکت جدید",
     "newUserRegistration": "جدید کاربر Registration",
     "next": "Next",
     "nicosiaCY": "nicosia CY",
@@ -1212,7 +1212,7 @@ declare const messages: {
     "pendingLedgers": "دفاتر در انتظار",
     "performanceReviewPeriodMonths": "performance بررسی Period Months",
     "permissionRowsAggregated": "مجوز Rows Aggregated",
-    "persian": "Persian",
+    "persian": "فارسی",
     "pharmacyDeliveryIndonesia": "داروخانه Delivery اندونزی",
     "pickCertificateImage": "pick Certificate تصویر",
     "pickOneProviderToOverrideDefaults": "pick One ارائه‌دهنده To Override Defaults",
@@ -1303,9 +1303,9 @@ declare const messages: {
     "saturday": "Saturday",
     "saveAllChanges": "ذخیره همه Changes",
     "saveChanges": "ذخیره تغییرات",
-    "saveChildReview": "ذخیره Child بررسی",
+    "saveChildReview": "ذخیره بررسی زیررزرو",
     "saveSlider": "ذخیره Slider",
-    "saveSupportSettings": "ذخیره پشتیبانی تنظیمات",
+    "saveSupportSettings": "ذخیره تنظیمات پشتیبانی",
     "scheduleReport": "schedule گزارش",
     "scopeTypeAddon": "محدوده نوع Addon",
     "scopeTypeProvider": "محدوده نوع ارائه‌دهنده",
@@ -1322,7 +1322,7 @@ declare const messages: {
     "serviceDeactivated": "خدمت Deactivated",
     "serviceDefinitions": "خدمت تعاریف",
     "serviceFee": "کارمزد خدمت",
-    "serviceManagement": "خدمت Management",
+    "serviceManagement": "مدیریت خدمات",
     "serviceUpdated": "خدمت به‌روزشده",
     "serviceUtilizationReport": "خدمت Utilization گزارش",
     "sessionTimeout": "مهلت نشست",
@@ -1404,7 +1404,7 @@ declare const messages: {
     "usersWillSeeAMaintenancePageWhenEnabled": "کاربران Will See Maintenance Page When فعال",
     "variables": "Variables",
     "verifiedBadge": "verified Badge",
-    "view": "View",
+    "view": "مشاهده",
     "viewAndManageOneToManyChildRecordsWithoutLeavingTheParentEditPage": "view And Manage One To Many Child Records Without Leaving The Parent ویرایش Page",
     "viewDetails": "view جزئیات",
     "viewEdit": "view ویرایش",
@@ -1489,13 +1489,117 @@ declare const messages: {
     "storesTheSelectedMediaURLInServiceProvidersImageUrl": "ذخیره می‌کند The انتخاب‌شده رسانه URL در خدمت ارائه‌دهندگان تصویر URL",
     "supportedLanguages": "Supported Languages (",
     "templateKeyCopied": "Template key copied.",
-    "ticketQueue": "Ticket Queue (",
+    "ticketQueue": "صف تیکت‌ها",
     "totalPage": "کل صفحه",
     "trending": "trending",
     "updated": "updated",
     "updated2": "updated 2",
     "useTheServiceDefinitionSelectorLocalizedRichTextFieldsCurrencyListAndMediaPicker": "Use the service definition selector, localized rich text fields, currency list, and media picker. Prices are formatted with thousands separators.",
-    "useThisOnlyForCuratedEditorialCommentsOrImportedReviewsCustomerReviewsShouldCome": "Use this only for curated editorial comments or imported reviews. Customer reviews should come from booked customers."
+    "useThisOnlyForCuratedEditorialCommentsOrImportedReviewsCustomerReviewsShouldCome": "Use this only for curated editorial comments or imported reviews. Customer reviews should come from booked customers.",
+    "allBookingsWithCount": "همه رزروها ({count})",
+    "bookingReview": "بررسی رزرو",
+    "bookingReviewSaved": "بررسی رزرو ذخیره شد.",
+    "bookingsReview": "بررسی رزروها",
+    "childProvider": "ارائه‌دهنده زیررزرو",
+    "childService": "خدمت زیررزرو",
+    "childStatus": "وضعیت زیررزرو",
+    "createBooking": "ایجاد رزرو",
+    "displayDate": "نمایش: {date}",
+    "embeddedAddOnSubBookings": "زیررزروهای افزودنی داخلی",
+    "failedToSaveBooking": "ذخیره رزرو ناموفق بود.",
+    "failedToUpdateChildBooking": "به‌روزرسانی زیررزرو ناموفق بود.",
+    "financial": "مالی",
+    "inspectParentBookingEmbeddedAddOnChildBookingsDocumentsAndPayments": "رزرو اصلی، زیررزروهای افزودنی، مدارک و پرداخت‌ها را بررسی کنید.",
+    "loadingBooking": "در حال بارگذاری رزرو…",
+    "notRequired": "لازم نیست",
+    "notesForThisSubBooking": "یادداشت برای این زیررزرو",
+    "parentBookingsChildBookingsDocumentsAddOnsAndPayments": "رزروهای اصلی، زیررزروها، مدارک، افزودنی‌ها و پرداخت‌ها",
+    "paymentTerms": "شرایط پرداخت",
+    "providerAdminNotes": "یادداشت ارائه‌دهنده/ادمین",
+    "quantityShort": "تعداد",
+    "reviewParentBookingsEmbeddedAddOnChildBookingsPaymentsAndProviderNotes": "رزروهای اصلی، زیررزروهای افزودنی، پرداخت‌ها و یادداشت‌های ارائه‌دهنده را بررسی کنید.",
+    "saveBooking": "ذخیره رزرو",
+    "saveReviewDecision": "ذخیره تصمیم بررسی",
+    "saving": "در حال ذخیره...",
+    "updateBookingId": "به‌روزرسانی رزرو {id}",
+    "noContact": "بدون اطلاعات تماس",
+    "tagAddPrefix": "افزودن برچسب",
+    "tagSelectedPrefix": "انتخاب‌شده",
+    "editCannedReply": "ویرایش پاسخ آماده",
+    "newCannedReply": "پاسخ آماده جدید",
+    "noBody": "بدون متن",
+    "persianReply": "پاسخ فارسی",
+    "pleaseCheckCannedReply": "لطفاً فرم پاسخ آماده را بررسی کنید.",
+    "pleaseCheckSettings": "لطفاً تنظیمات پشتیبانی را بررسی کنید.",
+    "mustBeJsonObject": "باید یک شیء JSON باشد",
+    "invalidJson": "JSON نامعتبر است",
+    "invalidSettingsJson": "JSON تنظیمات نامعتبر است",
+    "editTag": "ویرایش برچسب",
+    "newTag": "برچسب جدید",
+    "pleaseCheckTag": "لطفاً فرم برچسب را بررسی کنید.",
+    "messages": "پیام‌ها",
+    "supportStatus": {
+      "all": "همه",
+      "open": "باز",
+      "pending": "در انتظار",
+      "resolved": "حل‌شده",
+      "closed": "بسته‌شده",
+      "unassigned": "اختصاص‌نیافته",
+      "assigned_to_me": "اختصاص به من"
+    },
+    "supportPriority": {
+      "all": "همه",
+      "low": "کم",
+      "normal": "معمولی",
+      "high": "زیاد",
+      "urgent": "فوری"
+    },
+    "supportEvent": {
+      "conversationCreated": "گفتگو ایجاد شد",
+      "messageSent": "پیام ارسال شد",
+      "statusChanged": "وضعیت تغییر کرد",
+      "priorityChanged": "اولویت تغییر کرد",
+      "assigned": "اختصاص داده شد",
+      "tagAdded": "برچسب اضافه شد",
+      "tagRemoved": "برچسب حذف شد",
+      "internalNoteAdded": "یادداشت داخلی اضافه شد"
+    },
+    "supportLabelKeys": {
+      "launcherLabel": "برچسب لانچر",
+      "headerTitle": "عنوان سربرگ",
+      "headerSubtitle": "زیرعنوان سربرگ",
+      "welcomeTitle": "عنوان خوش‌آمدگویی",
+      "welcomeMessage": "پیام خوش‌آمدگویی",
+      "inputPlaceholder": "متن راهنمای ورودی",
+      "startConversationLabel": "برچسب شروع گفتگو",
+      "offlineLabel": "برچسب آفلاین",
+      "onlineLabel": "برچسب آنلاین",
+      "sendButton": "دکمه ارسال",
+      "attachmentLabel": "برچسب پیوست"
+    },
+    "relativeTime": {
+      "fiveMinutesAgo": "۵ دقیقه پیش",
+      "oneHourAgo": "۱ ساعت پیش",
+      "twoHoursAgo": "۲ ساعت پیش",
+      "threeHoursAgo": "۳ ساعت پیش",
+      "fourHoursAgo": "۴ ساعت پیش",
+      "sixHoursAgo": "۶ ساعت پیش",
+      "sevenHoursAgo": "۷ ساعت پیش",
+      "eightHoursAgo": "۸ ساعت پیش",
+      "oneDayAgo": "۱ روز پیش"
+    },
+    "ticketSubjects": {
+      "paymentNotReflectedInWallet": "پرداخت در کیف پول ثبت نشده است",
+      "unableToConfirmBooking": "امکان تأیید رزرو وجود ندارد",
+      "refundRequestForCancelledService": "درخواست بازپرداخت برای خدمت لغوشده",
+      "accountVerificationDocuments": "مدارک تأیید حساب",
+      "cannotUploadServiceImages": "امکان بارگذاری تصاویر خدمت وجود ندارد",
+      "bookingModificationRequested": "درخواست تغییر رزرو",
+      "servicePricingUpdateNotShowing": "به‌روزرسانی قیمت خدمت نمایش داده نمی‌شود",
+      "payoutDelayComplaint": "شکایت درباره تأخیر پرداخت",
+      "incorrectServiceCategoryAssigned": "دسته‌بندی اشتباه برای خدمت",
+      "howToUseLoyaltyPoints": "نحوه استفاده از امتیازهای وفاداری"
+    }
   },
   "Home": {
     "common": {
@@ -1505,7 +1609,7 @@ declare const messages: {
       "loading": "در حال بارگذاری..."
     },
     "userInfo": {
-      "goodMorning": "صبح بخیر",
+      "goodMorning": "وقت بخیر",
       "profileAlt": "پروفایل"
     },
     "quickSearches": {
@@ -2758,8 +2862,142 @@ declare const messages: {
   },
   "SpecialistPage": {
     "metadata": {
-      "title": "پروفایل متخصص | LSEVIN",
-      "description": "پروفایل متخصص، خدمات، زمان‌های در دسترس، نظرات و جزئیات رزرو را در LSEVIN مشاهده کنید."
+      "title": "پروفایل متخصص",
+      "description": "مشاهده پروفایل متخصص، خدمات، محل‌های فعالیت، دیدگاه‌ها، مدارک و گزینه‌های رزرو."
+    },
+    "actions": {
+      "back": "بازگشت",
+      "favorite": "افزودن به علاقه‌مندی‌ها",
+      "share": "اشتراک‌گذاری",
+      "viewAll": "مشاهده همه",
+      "bookNow": "رزرو کنید"
+    },
+    "tabs": {
+      "about": "درباره",
+      "places": "محل‌ها ({count})",
+      "services": "خدمات ({count})",
+      "reviews": "دیدگاه‌ها ({count})",
+      "credentials": "مدارک"
+    },
+    "share": {
+      "text": "پروفایل {name} را ببینید",
+      "textWithSpecialty": "پروفایل {name} - {specialty} را ببینید"
+    },
+    "gallery": {
+      "fullGallery": "گالری کامل",
+      "description": "رسانه‌های متخصص و نتایج قبل و بعد",
+      "close": "بستن گالری",
+      "imageAlt": "تصویر گالری",
+      "beforeAfterTitle": "قبل / بعد",
+      "beforeAlt": "قبل از {procedure}",
+      "afterAlt": "بعد از {procedure}",
+      "procedureFallback": "فرآیند درمان",
+      "before": "قبل",
+      "after": "بعد",
+      "resultFallback": "نتیجه",
+      "afterMonths": "پس از {months}",
+      "mediaCount": "{count} رسانه",
+      "gallery": "گالری",
+      "resultsGallery": "گالری نتایج",
+      "viewFullGallery": "مشاهده گالری کامل"
+    },
+    "empty": {
+      "gallery": {
+        "title": "هنوز گالری ثبت نشده است",
+        "description": "پس از افزودن آیتم‌ها در پنل مدیریت، گالری اینجا نمایش داده می‌شود."
+      },
+      "workplaces": {
+        "title": "محل فعالیتی متصل نشده است",
+        "description": "این متخصص هنوز به هیچ ارائه‌دهنده فعالی متصل نشده است."
+      },
+      "services": {
+        "title": "خدمتی متصل نشده است",
+        "description": "پس از اتصال خدمات کارکنان و خدمات ارائه‌دهنده در پنل مدیریت، خدمات اینجا نمایش داده می‌شود."
+      },
+      "reviews": {
+        "title": "هنوز دیدگاهی ثبت نشده است",
+        "description": "دیدگاه‌های عمومی ارائه‌دهندگان متصل به این متخصص اینجا نمایش داده می‌شود."
+      },
+      "education": {
+        "title": "سوابق تحصیلی ثبت نشده است",
+        "description": "هنوز سوابق تحصیلی برای این متخصص اضافه نشده است."
+      },
+      "certifications": {
+        "title": "گواهی‌نامه‌ای ثبت نشده است",
+        "description": "هنوز گواهی‌نامه‌ها و عضویت‌ها اضافه نشده‌اند."
+      },
+      "credentials": {
+        "title": "مدرکی ثبت نشده است",
+        "description": "هنوز مدارک این متخصص اضافه نشده است."
+      },
+      "specializations": {
+        "title": "تخصصی ثبت نشده است",
+        "description": "هنوز سوابق تخصصی اضافه نشده‌اند."
+      }
+    },
+    "common": {
+      "locationOnRequest": "موقعیت مکانی در صورت درخواست",
+      "reviewCount": "{count} دیدگاه",
+      "minutes": "{count} دقیقه",
+      "providerOnRequest": "ارائه‌دهنده در صورت درخواست"
+    },
+    "badges": {
+      "popular": "محبوب"
+    },
+    "reviews": {
+      "sort": {
+        "newest": "جدیدترین",
+        "buyers": "مشتریان رزروکننده",
+        "helpful": "مفیدترین"
+      },
+      "showMore": "مشاهده بیشتر",
+      "writeReview": "ثبت دیدگاه",
+      "basedOnReviews": "بر اساس {count} دیدگاه"
+    },
+    "credentials": {
+      "education": "تحصیلات",
+      "certifications": "گواهی‌نامه‌ها و عضویت‌ها",
+      "credentials": "مدارک"
+    },
+    "days": {
+      "day": "روز",
+      "monday": "دوشنبه",
+      "tuesday": "سه‌شنبه",
+      "wednesday": "چهارشنبه",
+      "thursday": "پنجشنبه",
+      "friday": "جمعه",
+      "saturday": "شنبه",
+      "sunday": "یکشنبه"
+    },
+    "availability": {
+      "title": "زمان‌های در دسترس"
+    },
+    "achievements": {
+      "title": "دستاوردها و افتخارات"
+    },
+    "stats": {
+      "experience": "سابقه",
+      "patients": "بیماران",
+      "successRate": "نرخ موفقیت",
+      "connectedPlaces": "محل‌های متصل"
+    },
+    "about": {
+      "title": "درباره {name}",
+      "specializations": "تخصص‌ها",
+      "languages": "زبان‌ها"
+    },
+    "sections": {
+      "placesThisSpecialistWorks": "محل‌های فعالیت این متخصص",
+      "servicesProvided": "خدمات قابل ارائه"
+    },
+    "consultation": {
+      "fallbackTreatment": "مشاوره با متخصص",
+      "title": "مشاوره",
+      "free": "رایگان"
+    },
+    "errors": {
+      "noActiveProvider": "این متخصص هنوز به ارائه‌دهنده فعالی متصل نشده است.",
+      "submitReview": "امکان ثبت دیدگاه وجود ندارد."
     }
   },
   "Error": {
@@ -3102,27 +3340,144 @@ declare const messages: {
   },
   "ServicePage": {
     "metadata": {
-      "title": "جزئیات خدمت | LSEVIN",
-      "description": "جزئیات خدمت، قیمت، اطلاعات ارائه‌دهنده، گالری، نظرات و گزینه‌های رزرو را در LSEVIN مشاهده کنید."
+      "title": "جزئیات خدمت",
+      "description": "جزئیات خدمت، ارائه‌دهندگان، متخصصان، پیشنهادها، الزامات و گزینه‌های رزرو را بررسی کنید."
+    },
+    "actions": {
+      "back": "بازگشت",
+      "share": "اشتراک‌گذاری خدمت",
+      "saveService": "ذخیره خدمت",
+      "bookNow": "رزرو کنید"
+    },
+    "badges": {
+      "selected": "انتخاب‌شده",
+      "verified": "تأییدشده",
+      "sponsored": "اسپانسرشده",
+      "required": "الزامی",
+      "pricing": "قیمت‌گذاری",
+      "popular": "محبوب",
+      "featured": "ویژه"
+    },
+    "providers": {
+      "title": "ارائه‌دهندگان این خدمت",
+      "description": "کلینیک‌ها و ارائه‌دهندگانی را که امکان انجام این درمان را دارند مقایسه کنید.",
+      "showMore": "نمایش {count} ارائه‌دهنده دیگر",
+      "available": "{count} ارائه‌دهنده موجود"
+    },
+    "serviceAttributes": {
+      "title": "جزئیات و گزینه‌های خدمت"
+    },
+    "addons": {
+      "title": "افزودنی‌های قابل انتخاب"
+    },
+    "offers": {
+      "title": "پیشنهادهای فعال",
+      "code": "کد: {code}",
+      "validUntil": "معتبر تا {date}"
+    },
+    "requirements": {
+      "title": "الزامات قبل از رزرو",
+      "mandatory": "الزام اجباری",
+      "requirement": "الزام",
+      "maxFiles": "حداکثر فایل‌ها: {count}",
+      "maxSize": "حداکثر حجم: {size}",
+      "noLimit": "بدون محدودیت"
+    },
+    "providerProfile": {
+      "providerFallback": "ارائه‌دهنده",
+      "rating": "امتیاز",
+      "response": "پاسخ‌گویی",
+      "onRequest": "بر اساس درخواست",
+      "established": "سال تأسیس",
+      "patients": "مراجعان",
+      "locationOnRequest": "موقعیت مکانی بر اساس درخواست"
+    },
+    "specialists": {
+      "title": "متخصصان",
+      "thisService": "این خدمت",
+      "consultation": "مشاوره"
+    },
+    "policies": {
+      "title": "سیاست‌های ارائه‌دهنده"
+    },
+    "reviews": {
+      "title": "نظرات بیماران",
+      "count": "{count} نظر",
+      "viewAll": "مشاهده همه",
+      "writeReview": "ثبت نظر",
+      "empty": "هنوز نظر عمومی برای این خدمت ثبت نشده است. مشتریانی که رزرو انجام داده‌اند می‌توانند برای این خدمت نظر ثبت کنند.",
+      "more": "مشاهده بیشتر",
+      "loading": "در حال بارگذاری نظرات...",
+      "sort": {
+        "newest": "جدیدترین",
+        "buyers": "مشتریان رزروکننده",
+        "helpful": "مفیدترین"
+      }
+    },
+    "price": {
+      "packagePrice": "قیمت پکیج",
+      "providerPackagePrice": "قیمت پکیج ارائه‌دهنده",
+      "totalPackagePrice": "قیمت کل پکیج"
+    },
+    "stats": {
+      "duration": "مدت زمان",
+      "recovery": "دوره بهبودی",
+      "successRate": "نرخ موفقیت",
+      "satisfaction": "رضایت"
+    },
+    "included": {
+      "title": "موارد شامل‌شده"
+    },
+    "process": {
+      "title": "فرآیند درمان"
+    },
+    "importantInfo": {
+      "title": "اطلاعات مهم",
+      "specialistRequired": "ممکن است در فرآیند رزرو انتخاب متخصص الزامی باشد",
+      "specialistOptional": "این خدمت بدون انتخاب اولیه متخصص نیز قابل رزرو است",
+      "dateRange": "این خدمت از دسترسی مبتنی بر بازه تاریخی استفاده می‌کند",
+      "availabilityConfirmed": "دسترسی در جریان رزرو تأیید می‌شود",
+      "documentsMayBeRequested": "ممکن است مدارک پزشکی یا هویتی درخواست شود",
+      "noUploadRequirement": "برای این خدمت هنوز الزام بارگذاری فایل تعریف نشده است",
+      "finalPlanAssessment": "برنامه نهایی درمان و قیمت می‌تواند به ارزیابی ارائه‌دهنده وابسته باشد"
+    },
+    "faq": {
+      "title": "سؤالات متداول",
+      "showMore": "نمایش {count} سؤال دیگر"
+    },
+    "share": {
+      "text": "مشاهده {service}",
+      "textWithClinic": "مشاهده {service} در {clinic}"
+    },
+    "errors": {
+      "submitReview": "ثبت نظر امکان‌پذیر نبود.",
+      "loadReviews": "بارگذاری نظرات امکان‌پذیر نبود."
+    },
+    "gallery": {
+      "selectImage": "انتخاب تصویر {number}",
+      "openGallery": "باز کردن گالری خدمت"
+    },
+    "recommendations": {
+      "yourCountry": "کشور شما"
     }
   },
   "ServiceGalleryPage": {
     "metadata": {
-      "title": "گالری خدمت | LSEVIN",
-      "description": "تصاویر و ویدیوهای منتشرشده برای این خدمت را در LSEVIN مشاهده کنید."
+      "title": "گالری خدمت",
+      "description": "همه تصاویر و ویدئوهای این خدمت را مشاهده کنید."
     },
     "actions": {
-      "backToService": "بازگشت به جزئیات خدمت"
+      "backToService": "بازگشت به خدمت"
     },
     "header": {
-      "title": "گالری خدمت"
+      "title": "گالری"
     },
     "empty": {
-      "title": "هنوز آیتمی در گالری وجود ندارد",
-      "description": "این ارائه‌دهنده هنوز تصویر یا ویدیویی برای این خدمت منتشر نکرده است."
+      "title": "هنوز موردی در گالری وجود ندارد",
+      "description": "در حال حاضر برای این خدمت رسانه‌ای در گالری ثبت نشده است."
     },
     "gallery": {
-      "fallbackCaption": "{name} {number}"
+      "fallbackCaption": "تصویر {number} از {name}"
     }
   },
   "Admin": {
@@ -3157,7 +3512,22 @@ declare const messages: {
     "users": "کاربران",
     "customers": "مشتریان",
     "payments": "پرداخت ها",
-    "walletpaymentintents": "لاگ تراکنش ها"
+    "walletpaymentintents": "لاگ تراکنش ها",
+    "walletPaymentIntents": {
+      "title": "درخواست‌های پرداخت کیف پول",
+      "description": "واریزهای واقعی کیف پول. واریزهای بانکی/دستی تا تأیید مدیر در حالت انتظار می‌مانند؛ واریزهای کارت آنلاین فقط پس از تأیید callback درگاه تکمیل می‌شوند.",
+      "manual": "دستی",
+      "reference": "مرجع",
+      "confirmedAmount": "مبلغ تأییدشده",
+      "confirmDeposit": "تأیید واریز",
+      "rejectReason": "دلیل رد",
+      "defaultRejectReason": "پرداخت دریافت نشد",
+      "reject": "رد کردن"
+    },
+    "walletTransactions": {
+      "title": "تراکنش‌های کیف پول",
+      "description": "دفتر تراکنش‌های کیف پول مرتبط با رزرو و ثبت دستی"
+    }
   },
   "HomePage": {
     "title": "ال سوین - سلامت هوشمند",
@@ -3443,6 +3813,25 @@ declare const messages: {
         "Beauty": "زیبایی",
         "BankStatement": "گردش حساب",
         "Other": "سایر"
+      },
+      "edit": {
+        "title": "ویرایش پروفایل"
+      },
+      "profileImage": {
+        "close": "بستن",
+        "errors": {
+          "chooseImageFile": "لطفاً یک فایل تصویری انتخاب کنید.",
+          "imageTooLarge": "حجم تصویر باید کمتر از ۵ مگابایت باشد.",
+          "mediaMissing": "رسانه آپلودشده برگردانده نشد.",
+          "uploadFailed": "آپلود عکس پروفایل انجام نشد."
+        },
+        "removeCurrentPhoto": "حذف عکس فعلی",
+        "removing": "در حال حذف...",
+        "title": "عکس پروفایل",
+        "uploadNewPhoto": "آپلود عکس جدید",
+        "uploadPhoto": "آپلود عکس",
+        "uploading": "در حال آپلود...",
+        "viewPhoto": "مشاهده عکس"
       }
     }
   },
@@ -3458,12 +3847,12 @@ declare const messages: {
       "Passport": "گذرنامه",
       "Visa": "ویزا",
       "DriverLicense": "گواهینامه رانندگی",
-      "BankStatement": "گردش حساب",
+      "BankStatement": "صورت‌حساب بانکی",
       "IdCard": "کارت شناسایی",
-      "Medical": "پزشکی",
-      "Beauty": "زیبایی",
-      "Tourism": "گردشگری",
-      "Other": "سایر"
+      "Medical": "مدرک پزشکی",
+      "Beauty": "مدرک زیبایی",
+      "Tourism": "مدرک گردشگری",
+      "Other": "سایر مدارک"
     },
     "FileUpload": {
       "errors": {
@@ -5349,9 +5738,9 @@ declare const messages: {
   "Booking": {
     "aDedicatedCoordinatorWillBeAssignedAfterBookingConfirmation": "A dedicated coordinator will be assigned after رزرو confirmation.",
     "aDedicatedMedicalCoordinatorWillBeAssignedToYou": "A dedicated پزشکی coordinator will be assigned to you immediately after رزرو confirmation.",
-    "aED1240": "AED 1,240",
-    "abuDhabi": "Abu Dhabi",
-    "actions": "عملیات",
+    "aED1240": "۱٬۲۴۰ درهم",
+    "abuDhabi": "ابوظبی",
+    "actions": "اقدامات",
     "active": "فعال",
     "activityLog": "گزارش فعالیت",
     "add2OrMorePremiumServicesForTheUltimate": "برای تجربه لوکس کامل، ۲ خدمت ویژه یا بیشتر اضافه کنید",
@@ -5374,7 +5763,7 @@ declare const messages: {
     "additionalServices": "خدمات تکمیلی",
     "additionalServices2": "خدمات تکمیلی",
     "adults": "بزرگسالان",
-    "allBookings": "همه رزروها (",
+    "allBookings": "همه رزروها",
     "allClinics": "همه کلینیک‌ها",
     "allDoctors": "همه پزشکان",
     "allDocumentsAreEncryptedEndToEndAndOnly": "همه مدارک به‌صورت سرتاسری رمزنگاری می‌شوند و فقط تیم پزشکی اختصاص‌یافته به شما به آن‌ها دسترسی دارد.",
@@ -5385,7 +5774,7 @@ declare const messages: {
     "allStatus": "همه وضعیت‌ها",
     "allTimesShownAreInIstanbulTimeGMTPlus": "همه زمان‌ها بر اساس ساعت استانبول (GMT+3) نمایش داده می‌شوند. تأییدیه را با ساعت محلی شما ارسال می‌کنیم.",
     "and": "، و",
-    "annaMartinez": "Anna Martinez",
+    "annaMartinez": "آنا مارتینز",
     "anyAllergiesCurrentMedicationsOrSpecialRequirements": "Any allergies, current medications, or special requirements...",
     "applied": "اعمال‌شده:",
     "apply": "اعمال",
@@ -5393,7 +5782,7 @@ declare const messages: {
     "appointmentDetails": "جزئیات نوبت",
     "appointmentSchedule": "زمان‌بندی نوبت",
     "appointmentTime": "زمان نوبت",
-    "areYouSureYouWantToCancelThisBooking": "آیا مطمئن هستید که می‌خواهید این رزرو را لغو کنید؟",
+    "areYouSureYouWantToCancelThisBooking": "آیا مطمئن هستید می‌خواهید این رزرو را لغو کنید؟",
     "assignedDoctor": "پزشک اختصاص‌یافته",
     "available": "موجود",
     "availableDates": "تاریخ‌های آزاد",
@@ -5412,19 +5801,19 @@ declare const messages: {
     "bookYourStay": "رزرو اقامت شما",
     "bookYourWorkout": "رزرو تمرین شما",
     "booking": "رزرو",
-    "bookingActions": "عملیات رزرو",
+    "bookingActions": "اقدامات رزرو",
     "bookingCalendar": "تقویم رزرو",
     "bookingCancelledSuccessfully": "رزرو با موفقیت لغو شد.",
     "bookingCheckout": "تسویه رزرو",
     "bookingConfirmed": "رزرو تأیید شد!",
     "bookingConfirmed2": "رزرو تأیید شد",
-    "bookingCouldNotBeCancelled": "رزرو قابل لغو نبود.",
-    "bookingCouldNotBeLoaded": "رزرو بارگذاری نشد",
+    "bookingCouldNotBeCancelled": "امکان لغو رزرو وجود نداشت.",
+    "bookingCouldNotBeLoaded": "رزرو بارگذاری نشد.",
     "bookingCreated": "رزرو ایجاد شد",
     "bookingDetails": "جزئیات رزرو",
     "bookingDrafts": "پیش‌نویس‌های رزرو",
     "bookingFee": "هزینه رزرو",
-    "bookingFinancials": "مالی رزرو",
+    "bookingFinancials": "اطلاعات مالی رزرو",
     "bookingID": "شناسه رزرو",
     "bookingID2": "شناسه رزرو:",
     "bookingInformation": "اطلاعات رزرو",
@@ -5439,19 +5828,19 @@ declare const messages: {
     "bookingUpdated": "رزرو به‌روزرسانی شد.",
     "bookings": "رزروها",
     "bookings2": "رزروها",
-    "bookingsCouldNotBeLoaded": "رزروها بارگذاری نشدند",
+    "bookingsCouldNotBeLoaded": "رزروها بارگذاری نشدند.",
     "bookingsReview": "بررسی رزروها",
     "bulkActions": "عملیات گروهی",
     "bundleDiscountApplied": "تخفیف پکیج اعمال شد!",
     "calendar": "تقویم",
     "cancel": "لغو",
     "cancelBooking": "لغو رزرو",
-    "cancelBooking2": "لغو رزرو؟",
+    "cancelBooking2": "لغو رزرو",
     "cancelFreeOfChargeUpTo24HoursBefore": "تا ۲۴ ساعت قبل از حرکت، لغو رایگان با بازپرداخت کامل امکان‌پذیر است.",
     "cancelFreeOfChargeUpTo48HoursBefore": "تا ۴۸ ساعت قبل از ورود، لغو رایگان با تضمین بازپرداخت کامل امکان‌پذیر است.",
     "cancelOrRescheduleUpTo2HoursBeforeYour": "تا ۲ ساعت قبل از جلسه می‌توانید بدون جریمه لغو یا زمان‌بندی مجدد کنید.",
     "cancellationPolicy": "سیاست لغو",
-    "cancellationPolicy2": "سیاست لغو:",
+    "cancellationPolicy2": "سیاست لغو: ",
     "cancellationReason": "دلیل لغو",
     "cancelled": "لغوشده",
     "capacity": "ظرفیت",
@@ -5461,7 +5850,7 @@ declare const messages: {
     "checkIn": "ورود",
     "checkInAndCheckOut": "ورود و خروج",
     "checkInDate": "تاریخ ورود",
-    "checkInsToday": "ورودی‌های امروز",
+    "checkInsToday": "ورودهای امروز",
     "checkOut": "خروج",
     "checkOutDate": "تاریخ خروج",
     "checkingServiceResourceAvailability": "Checking خدمت/منبع دسترسی…",
@@ -5481,7 +5870,7 @@ declare const messages: {
     "chooseYourSpecialist": "انتخاب متخصص",
     "chooseYourTrainer": "انتخاب مربی",
     "chooseYourWorkout": "انتخاب تمرین",
-    "cityHospital": "City Hospital",
+    "cityHospital": "بیمارستان شهر",
     "clickToUploadADocument": "برای بارگذاری مدرک کلیک کنید",
     "clients": "مشتریان",
     "clinic": "کلینیک",
@@ -5515,11 +5904,11 @@ declare const messages: {
     "currentDraft": "پیش‌نویس فعلی",
     "currentDraftStep": "مرحله پیش‌نویس فعلی:",
     "customer": "مشتری",
-    "customer2": "مشتری:",
+    "customer2": "مشتری: ",
     "customerInformation": "اطلاعات مشتری",
     "date": "تاریخ:",
-    "date2": "تاریخ",
-    "dateAndTime": "تاریخ و زمان",
+    "date2": "Date",
+    "dateAndTime": "Date & time",
     "dateOfBirth": "تاریخ تولد",
     "depositToSecureYourBooking": "بیعانه برای قطعی کردن رزرو شما",
     "destination": "مقصد",
@@ -5533,9 +5922,9 @@ declare const messages: {
     "documents": "مدارک",
     "download": "دانلود",
     "downloadConfirmation": "دانلود تأییدیه",
-    "drAhmedHassan": "Dr. Ahmed Hassan",
-    "drFatimaAlRashid": "Dr. Fatima Al-Rashid",
-    "drMariaSantos": "Dr. Maria Santos",
+    "drAhmedHassan": "دکتر احمد حسن",
+    "drFatimaAlRashid": "دکتر فاطمه الراشد",
+    "drMariaSantos": "دکتر ماریا سانتوس",
     "draftBookingCouldNotBeSavedBeforeCheckout": "پیش‌نویس رزرو قبل از تسویه ذخیره نشد.",
     "draftFirstBookingWithChildAddOnSubBookings": "رزرو مبتنی بر پیش‌نویس با زیررزروهای افزودنی و یک تسویه ترکیبی.",
     "draftNumber": "پیش‌نویس #",
@@ -5560,8 +5949,8 @@ declare const messages: {
     "existingResource": "منبع موجود",
     "existingRule": "قانون موجود",
     "experience": "تجربه",
-    "experience2": "تجربه",
-    "exploreServices": "کاوش خدمات",
+    "experience2": " تجربه",
+    "exploreServices": "مشاهده خدمات",
     "exportBookings": "خروجی گرفتن از رزروها",
     "extraLSevinSupportServicesWereNotRequestedForThis": "خدمات پشتیبانی تکمیلی LSevin برای این رزرو درخواست نشده است.",
     "failedToLoadOptions": "بارگذاری گزینه‌ها ناموفق بود",
@@ -5609,20 +5998,20 @@ declare const messages: {
     "mainBookingsAndChildBookingsAssignedToThisProvider": "رزروهای اصلی و زیررزروهای اختصاص‌یافته به این ارائه‌دهنده.",
     "mainSubtotal": "جمع جزء اصلی",
     "male": "مرد",
-    "manageAndTrackAllClinicAppointments": "مدیریت و پیگیری همه نوبت‌های کلینیک",
-    "manageYourAppointmentsAndBookingRequests": "نوبت‌ها و درخواست‌های رزرو خود را مدیریت کنید",
+    "manageAndTrackAllClinicAppointments": "همه نوبت‌های کلینیک را مدیریت و پیگیری کنید.",
+    "manageYourAppointmentsAndBookingRequests": "نوبت‌ها و درخواست‌های رزرو خود را مدیریت کنید.",
     "manualTransfer": "انتقال دستی",
     "march2026": "مارس ۲۰۲۶",
-    "mariaSantos": "Maria Santos",
+    "mariaSantos": "ماریا سانتوس",
     "maximizeYourResults": "نتایج خود را به حداکثر برسانید",
     "medicalDocumentation": "مستندات پزشکی",
     "medicalDocuments": "مدارک پزشکی",
     "medicalNotesOrConcerns": "یادداشت‌ها یا نگرانی‌های پزشکی",
     "membersWhoCombineTrainingPlusNutritionSee3xBetter": "اعضایی که تمرین و تغذیه را ترکیب می‌کنند، ۳ برابر نتیجه بهتر می‌گیرند",
     "method": "روش:",
-    "minutes": "دقیقه",
+    "minutes": " دقیقه",
     "mode": "حالت:",
-    "modify": "ویرایش",
+    "modify": "تغییر",
     "more": "مورد دیگر)",
     "moreFilters": "فیلترهای بیشتر",
     "myBookings": "رزروهای من",
@@ -5663,9 +6052,9 @@ declare const messages: {
     "pDFJPGPNGUpTo10MBEach": "PDF، JPG، PNG تا ۱۰ مگابایت برای هر فایل",
     "pDFJPGPNGUpTo10MBPerFile": "PDF، JPG، PNG • تا ۱۰ مگابایت برای هر فایل",
     "pOPULAR": "محبوب",
-    "packageIncludes": "موارد شامل پکیج",
+    "packageIncludes": "شامل موارد زیر",
     "paidAmount": "مبلغ پرداخت‌شده",
-    "paidAmountsMayBeRefundableDependingOnTheProvider": "مبالغ پرداخت‌شده بسته به سیاست ارائه‌دهنده و وضعیت پرداخت ممکن است قابل بازپرداخت باشند.",
+    "paidAmountsMayBeRefundableDependingOnTheProvider": "مبالغ پرداخت‌شده ممکن است بر اساس سیاست ارائه‌دهنده قابل بازپرداخت باشند.",
     "parentBookingsChildBookingsDocumentsAddOnsAndPayments": "رزروهای اصلی، زیررزروها، مدارک، افزودنی‌ها و پرداخت‌ها",
     "passportNumber": "شماره پاسپورت",
     "patient": "بیمار",
@@ -5681,12 +6070,12 @@ declare const messages: {
     "paymentAction": "عملیات پرداخت",
     "paymentConfirmed": "پرداخت تأیید شد",
     "paymentCouldNotBeStarted": "پرداخت شروع نشد.",
-    "paymentGatewayDidNotReturnARedirectURL": "درگاه پرداخت آدرس هدایت را برنگرداند.",
+    "paymentGatewayDidNotReturnARedirectURL": "درگاه پرداخت آدرس انتقالی برنگرداند.",
     "paymentMethod": "روش پرداخت",
     "paymentMethod2": "روش پرداخت",
     "paymentReceived": "پرداخت دریافت شد",
-    "paymentStatus": "وضعیت پرداخت:",
-    "paymentStatus2": "وضعیت پرداخت",
+    "paymentStatus": "وضعیت پرداخت",
+    "paymentStatus2": "Payment status",
     "paymentSummary": "خلاصه پرداخت",
     "paymentTerms": "شرایط پرداخت",
     "paymentVerificationFailed": "تأیید پرداخت ناموفق بود.",
@@ -5704,14 +6093,14 @@ declare const messages: {
     "pleaseEnterYourNameAndEmailToContinue": "برای ادامه، نام و ایمیل خود را وارد کنید",
     "pleaseSelectANode": "لطفاً یک مورد را انتخاب کنید",
     "pleaseVerifyAllDetailsBeforePayment": "لطفاً قبل از پرداخت همه جزئیات را بررسی کنید",
-    "plus12PercentThisMonth": "۱۲٪+ در این ماه",
-    "plus3FromYesterday": "۳ مورد بیشتر از دیروز",
+    "plus12PercentThisMonth": "٪۱۲+ این ماه",
+    "plus3FromYesterday": "۳+ نسبت به دیروز",
     "plusNewBooking": "رزرو جدید +",
     "premiumAddOns": "افزودنی‌های ویژه",
     "premiumAddOns2": "افزودنی‌های ویژه",
     "premiumOptions": "گزینه‌های ویژه",
     "premiumOptions2": "گزینه‌های ویژه",
-    "primeMedicalCenter": "Prime پزشکی Center",
+    "primeMedicalCenter": "مرکز پزشکی پرایم",
     "priority": "اولویت",
     "privacyPolicy": "سیاست حریم خصوصی",
     "provideYourPersonalAndContactDetails": "Provide your personal and contact جزئیات",
@@ -5719,15 +6108,15 @@ declare const messages: {
     "provider2": "ارائه‌دهنده:",
     "providerAddOnsAlwaysAppearTurnOnLSevinAdd": "افزودنی‌های ارائه‌دهنده همیشه نمایش داده می‌شوند. برای نمایش هتل، ترانسفر و سایر کمک‌های سفر، افزودنی‌های LSevin را فعال کنید.",
     "providerAdminNotes": "یادداشت‌های ارائه‌دهنده/ادمین",
-    "providerDescription": "توضیح ارائه‌دهنده",
-    "providerFacingViewOfReservationDueNowAndBalance": "نمای ویژه ارائه‌دهنده از مبلغ قابل پرداخت اکنون و مانده قابل پرداخت بعداً.",
+    "providerDescription": "توضیحات ارائه‌دهنده",
+    "providerFacingViewOfReservationDueNowAndBalance": "نمای ارائه‌دهنده از مبلغ قابل پرداخت اکنون و مانده بعدی.",
     "providerID": "شناسه ارائه‌دهنده",
     "providerNotes": "یادداشت‌های ارائه‌دهنده",
-    "providerOnlyViewOfChargeLinesLedgerRowsAnd": "نمای مخصوص ارائه‌دهنده از ردیف‌های هزینه، دفتر حساب و تاریخچه بازپرداخت.",
+    "providerOnlyViewOfChargeLinesLedgerRowsAnd": "نمای مخصوص ارائه‌دهنده از ردیف‌های هزینه، ردیف‌های دفترکل و درخواست‌های بازپرداخت.",
     "providerServiceID": "شناسه خدمت ارائه‌دهنده",
     "providers": "ارائه‌دهندگان",
     "qty": "· تعداد",
-    "quantity": "تعداد:",
+    "quantity": "تعداد: ",
     "rECOMMENDED": "پیشنهادی",
     "rEQUIRED": "الزامی",
     "readyForAdventure": "آماده ماجراجویی!",
@@ -5735,8 +6124,8 @@ declare const messages: {
     "records": "پرونده‌ها",
     "recovery": "دوره نقاهت",
     "recurringDay": "روز تکرارشونده",
-    "refreshBooking": "به‌روزرسانی رزرو",
-    "refreshBookings": "به‌روزرسانی رزروها",
+    "refreshBooking": "تازه‌سازی رزرو",
+    "refreshBookings": "تازه‌سازی رزروها",
     "rejected": "ردشده",
     "relatedBookings": "رزروهای مرتبط",
     "remaining": "باقی‌مانده",
@@ -5764,7 +6153,7 @@ declare const messages: {
     "reviewYourMedicalBookingDetails": "جزئیات رزرو پزشکی خود را بررسی کنید",
     "reviewYourSelectedTreatmentDetails": "جزئیات درمان انتخابی خود را بررسی کنید",
     "reviewYourTourDetails": "جزئیات تور خود را بررسی کنید",
-    "reviews": "نظر)",
+    "reviews": "نظرات",
     "room": "اتاق:",
     "room2": "اتاق (",
     "roomCategory": "دسته اتاق",
@@ -5782,12 +6171,12 @@ declare const messages: {
     "scheduleAndBookingDetails": "زمان‌بندی و جزئیات رزرو",
     "scheduleAppointment": "زمان‌بندی نوبت",
     "search": "جستجو",
-    "searchBookings": "جستجوی رزروها...",
-    "searchByCustomerNameBookingIDOrService": "جستجو با نام مشتری، شناسه رزرو یا خدمت...",
-    "searchByCustomerNameOrBookingID": "جستجو با نام مشتری یا شناسه رزرو...",
-    "searchByGuestNameOrBookingID": "جستجو با نام مهمان یا شناسه رزرو...",
-    "searchByPatientNameBookingIDOrService": "جستجو با نام بیمار، شناسه رزرو یا خدمت...",
-    "searchByPatientNameBookingIDOrTreatment": "جستجو با نام بیمار، شناسه رزرو یا درمان...",
+    "searchBookings": "جستجوی رزروها",
+    "searchByCustomerNameBookingIDOrService": "جستجو بر اساس نام مشتری، شناسه رزرو یا خدمت",
+    "searchByCustomerNameOrBookingID": "جستجو بر اساس نام مشتری یا شناسه رزرو",
+    "searchByGuestNameOrBookingID": "جستجو بر اساس نام مهمان یا شناسه رزرو",
+    "searchByPatientNameBookingIDOrService": "جستجو بر اساس نام بیمار، شناسه رزرو یا خدمت",
+    "searchByPatientNameBookingIDOrTreatment": "جستجو بر اساس نام بیمار، شناسه رزرو یا درمان",
     "searchProviders": "جستجوی ارائه‌دهندگان...",
     "searchServices": "جستجوی خدمات...",
     "searchSpecialists": "جستجوی متخصصان...",
@@ -5818,8 +6207,8 @@ declare const messages: {
     "service": "خدمت",
     "service2": "خدمت:",
     "service3": "· خدمت:",
-    "serviceClass": "خدمت/کلاس",
-    "serviceDescription": "توضیح خدمت",
+    "serviceClass": "خدمت / کلاس",
+    "serviceDescription": "توضیحات خدمت",
     "serviceFee": "هزینه خدمت",
     "serviceFee3Percent": "هزینه خدمت (۳٪)",
     "services": "خدمات",
@@ -5829,7 +6218,7 @@ declare const messages: {
     "shareYourMedicalHistoryToHelpUsPrepare": "سوابق پزشکی خود را برای کمک به آماده‌سازی ما به اشتراک بگذارید",
     "sharjah": "شارجه",
     "slotInterval": "فاصله زمانی اسلات",
-    "sofiaRodriguez": "Sofia Rodriguez",
+    "sofiaRodriguez": "سوفیا رودریگز",
     "source": "منبع",
     "specialNotes": "یادداشت‌های ویژه",
     "specialist": "متخصص",
@@ -5838,7 +6227,7 @@ declare const messages: {
     "specificDate": "تاریخ مشخص",
     "spotConfirmedReadyToTrain": "جای شما تأیید شد؛ آماده تمرین!",
     "staff": "کارکنان",
-    "staffMember": "عضو کارکنان",
+    "staffMember": "عضو کادر",
     "standaloneBookingProcessWithDraftPersistenceAndCheckout": "فرآیند رزرو مستقل با ذخیره پیش‌نویس و تسویه.",
     "startService": "شروع خدمت",
     "startingFrom": "شروع از",
@@ -5877,8 +6266,8 @@ declare const messages: {
     "today": "امروز",
     "todaySBookings": "رزروهای امروز",
     "todaySTours": "تورهای امروز",
-    "total": "مجموع",
-    "total2": "مجموع:",
+    "total": "جمع کل",
+    "total2": "جمع کل: ",
     "totalAfterDiscounts": "مجموع پس از تخفیف‌ها",
     "totalAmount": "مبلغ کل",
     "totalBookings": "کل رزروها",
@@ -5981,7 +6370,71 @@ declare const messages: {
     "onlineCardPayment": "پرداخت آنلاین با کارت",
     "chooseEnabledGatewaySuchAsZarinpal": "یک درگاه فعال مانند زرین‌پال را انتخاب کنید",
     "bankTransfer": "انتقال بانکی",
-    "wallet": "کیف پول"
+    "wallet": "کیف پول",
+    "addressWillBeSharedByProvider": "آدرس توسط ارائه‌دهنده اعلام می‌شود.",
+    "amenities": "امکانات",
+    "analytics": "تحلیل‌ها",
+    "availability": "دسترسی‌پذیری",
+    "beforeAfter": "قبل/بعد",
+    "billing": "صورتحساب",
+    "bookedOn": "رزرو شده در",
+    "bookingConfirmedByTheProvider": "رزرو توسط ارائه‌دهنده تأیید شد.",
+    "bookingCouldNotBeUpdated": "رزرو به‌روزرسانی نشد.",
+    "bookingOperations": "عملیات رزرو",
+    "bookingSummaryDateTime": "{service} • {date} ساعت {time}",
+    "bookingsManagement": "مدیریت رزروها",
+    "cancelledBookingsWillAppearHere": "رزروهای لغوشده بعد از لغو رزرو اینجا نمایش داده می‌شوند.",
+    "classSchedule": "برنامه کلاس‌ها",
+    "commercialSnapshotFrozenChargeLinesProviderLedgerAndRefundHistoryForThisBooking": "اسنپ‌شات تجاری، ردیف‌های هزینه ثابت‌شده، دفترکل ارائه‌دهنده و سوابق بازپرداخت این رزرو.",
+    "completedBookingsWillAppearHere": "رزروهای تکمیل‌شده پس از پایان نوبت‌ها اینجا نمایش داده می‌شوند.",
+    "confirmationCode": "کد تأیید",
+    "consultations": "مشاوره‌ها",
+    "dashboard": "داشبورد",
+    "destinations": "مقصدها",
+    "doctors": "پزشکان",
+    "earnings": "درآمدها",
+    "failed": "ناموفق",
+    "gallery": "گالری",
+    "liveStatus": "وضعیت زنده",
+    "media": "رسانه",
+    "mediaGallery": "گالری رسانه",
+    "memberships": "عضویت‌ها",
+    "mySchedule": "برنامه من",
+    "myServices": "خدمات من",
+    "noCancelledBookings": "رزرو لغوشده‌ای وجود ندارد",
+    "noPastBookings": "رزرو گذشته‌ای وجود ندارد",
+    "noUpcomingAppointmentsExploreServices": "نوبت پیش‌رو ندارید. از بخش خدمات، گزینه‌های موجود را بررسی کنید.",
+    "noUpcomingBookings": "رزرو پیش‌رو وجود ندارد",
+    "offers": "پیشنهادها",
+    "paid": "پرداخت‌شده",
+    "partial": "جزئی",
+    "payWithGateway": "پرداخت با {gateway}",
+    "paymentDue": "پرداخت لازم",
+    "paymentUnavailable": "پرداخت در دسترس نیست",
+    "pendingConfirmation": "در انتظار تأیید",
+    "pleaseRefreshAndTryAgain": "لطفاً صفحه را تازه‌سازی کرده و دوباره تلاش کنید.",
+    "pricing": "قیمت‌گذاری",
+    "profile": "پروفایل",
+    "promotions": "پروموشن‌ها",
+    "providerReviewingYourAppointmentRequest": "ارائه‌دهنده در حال بررسی درخواست نوبت شماست.",
+    "refunded": "بازپرداخت‌شده",
+    "reservationManagement": "مدیریت رزروها",
+    "reviewCustomerRequiredPayReserveBalanceDueLater": "بررسی کنید مشتری برای رزرو چه مبلغی باید پرداخت می‌کرده و چه مانده‌ای بعداً سررسید می‌شود.",
+    "roomCategories": "دسته‌بندی اتاق‌ها",
+    "roomInventory": "موجودی اتاق",
+    "saveBooking": "ذخیره رزرو",
+    "saving": "در حال ذخیره...",
+    "schedule": "برنامه",
+    "settings": "تنظیمات",
+    "support": "پشتیبانی",
+    "thisAppointmentHasBeenCompleted": "این نوبت تکمیل شده است.",
+    "thisBookingHasBeenCancelled": "این رزرو لغو شده است.",
+    "timeSlots": "بازه‌های زمانی",
+    "tourPackages": "پکیج‌های تور",
+    "trainers": "مربیان",
+    "transferServices": "خدمات ترانسفر",
+    "treatments": "درمان‌ها",
+    "yesCancel": "بله، لغو شود"
   },
   "MobileProfile": {
     "common": {
@@ -5989,13 +6442,13 @@ declare const messages: {
     },
     "completeProfile": {
       "title": "تکمیل پروفایل",
-      "subtitle": "برای شخصی‌سازی تجربه‌تان کمی بیشتر به ما بگویید.",
-      "profileAlt": "پروفایل",
+      "subtitle": "اطلاعات خود را اضافه کنید تا تجربه السوین برای شما شخصی‌سازی شود.",
+      "profileAlt": "عکس پروفایل",
       "uploadPhoto": "آپلود عکس",
       "firstNameLabel": "نام",
-      "firstNamePlaceholder": "نام",
+      "firstNamePlaceholder": "نام را وارد کنید",
       "lastNameLabel": "نام خانوادگی",
-      "lastNamePlaceholder": "نام خانوادگی",
+      "lastNamePlaceholder": "نام خانوادگی را وارد کنید",
       "gender": "جنسیت",
       "male": "مرد",
       "female": "زن",
@@ -6005,7 +6458,7 @@ declare const messages: {
       "country": "کشور",
       "selectCountry": "انتخاب کشور",
       "countries": {
-        "uae": "امارات",
+        "uae": "امارات متحده عربی",
         "saudiArabia": "عربستان سعودی",
         "turkey": "ترکیه",
         "iran": "ایران"
@@ -6029,10 +6482,10 @@ declare const messages: {
     "stats": {
       "bookings": "رزروها",
       "points": "امتیازها",
-      "saved": "صرفه‌جویی"
+      "saved": "ذخیره‌شده"
     },
     "favorites": {
-      "title": "علاقه‌مندی‌های ذخیره‌شده",
+      "title": "علاقه‌مندی‌ها",
       "tabs": {
         "all": "همه",
         "clinics": "کلینیک‌ها",
@@ -6040,22 +6493,22 @@ declare const messages: {
         "salons": "سالن‌ها",
         "gyms": "باشگاه‌ها"
       },
-      "removeFavoriteAria": "حذف {name} از علاقه‌مندی‌ها",
-      "emptyTitle": "هنوز علاقه‌مندی ندارید",
-      "emptyDescription": "ارائه‌دهندگان مورد علاقه خود را ذخیره کنید",
+      "removeFavoriteAria": "حذف از علاقه‌مندی‌ها",
+      "emptyTitle": "هنوز موردی ذخیره نشده است",
+      "emptyDescription": "ارائه‌دهندگان، متخصصان و خدمات را ذخیره کنید تا بعداً سریع‌تر پیدایشان کنید.",
       "exploreServices": "مشاهده خدمات"
     },
     "settings": {
       "title": "تنظیمات",
-      "subtitle": "حساب کاربری، ترجیحات و رفتار برنامه را مدیریت کنید.",
-      "walletNotSetUp": "کیف پول فعال نشده است",
+      "subtitle": "ترجیحات و تنظیمات حساب خود را مدیریت کنید.",
+      "walletNotSetUp": "کیف پول راه‌اندازی نشده است",
       "preferencesUpdated": "ترجیحات به‌روزرسانی شد.",
       "couldNotSavePreferences": "ذخیره ترجیحات انجام نشد.",
-      "verified": "تأیید شده",
+      "verified": "تأییدشده",
       "incompleteProfile": "پروفایل ناقص",
       "quickAccess": "دسترسی سریع",
       "preferences": "ترجیحات",
-      "storedPreferences": "در identity.user_preferences ذخیره می‌شود",
+      "storedPreferences": "ترجیحات ذخیره‌شده",
       "language": "زبان",
       "languages": {
         "english": "انگلیسی",
@@ -6077,24 +6530,24 @@ declare const messages: {
       },
       "location": "موقعیت",
       "notifications": "اعلان‌ها",
-      "notificationsDescription": "به‌روزرسانی‌های رزرو، کیف پول و سیستم",
+      "notificationsDescription": "اعلان‌های مهم اپ و رزرو را دریافت کنید.",
       "marketingNotifications": "اعلان‌های بازاریابی",
-      "marketingNotificationsDescription": "پیشنهادها و تخفیف‌های جدید",
+      "marketingNotificationsDescription": "پیشنهادها، کمپین‌ها و اخبار تبلیغاتی را دریافت کنید.",
       "useCurrentLocation": "استفاده از موقعیت فعلی",
-      "useCurrentLocationDescription": "GPS نسبت به کشور/شهر انتخاب‌شده ترجیح داده شود",
+      "useCurrentLocationDescription": "برای نمایش ارائه‌دهندگان نزدیک از موقعیت دستگاه استفاده کنید.",
       "saving": "در حال ذخیره...",
       "savePreferences": "ذخیره ترجیحات",
       "quickLinks": {
         "privacySecurity": "حریم خصوصی و امنیت",
-        "privacySecuritySubtitle": "رمز عبور، نشست‌ها، حذف حساب",
+        "privacySecuritySubtitle": "رمز عبور، نشست‌ها و مجوزها",
         "notifications": "اعلان‌ها",
-        "notificationsSubtitle": "{count} خوانده‌نشده",
+        "notificationsSubtitle": "مدیریت تنظیمات اعلان",
         "wallet": "کیف پول",
-        "rewards": "پاداش‌ها و وفاداری",
-        "referralCode": "کد معرف: {code}",
-        "noReferralCode": "هنوز کد معرف ندارید",
-        "savedFavorites": "علاقه‌مندی‌های ذخیره‌شده",
-        "savedItems": "{count} مورد ذخیره‌شده"
+        "rewards": "پاداش‌ها",
+        "referralCode": "کد دعوت",
+        "noReferralCode": "کد دعوتی وجود ندارد",
+        "savedFavorites": "علاقه‌مندی‌ها",
+        "savedItems": "موارد ذخیره‌شده"
       }
     },
     "wallet": {
@@ -6109,67 +6562,160 @@ declare const messages: {
         "credits": "واریزی‌ها",
         "debits": "برداشت‌ها"
       },
-      "lsevinWallet": "کیف پول LSevin",
-      "noTransactionsYet": "هنوز تراکنشی ندارید",
-      "emptyDescription": "برای مشاهده تراکنش‌ها، از کیف پول خود استفاده کنید",
+      "lsevinWallet": "کیف پول السوین",
+      "noTransactionsYet": "هنوز تراکنشی وجود ندارد",
+      "emptyDescription": "فعالیت کیف پول شما اینجا نمایش داده می‌شود.",
       "selectAmount": "انتخاب مبلغ",
       "enterCustomAmount": "مبلغ دلخواه را وارد کنید",
       "paymentMethod": "روش پرداخت",
       "paymentMethods": {
-        "onlineCard": "پرداخت آنلاین کارت",
-        "cardDetails": "معادل مبلغ به ریال/تومان ایران دریافت می‌شود",
-        "noGateway": "درگاه کارت فعال نیست",
+        "onlineCard": "کارت آنلاین",
+        "cardDetails": "با کارت خود امن پرداخت کنید.",
+        "noGateway": "درگاهی موجود نیست",
         "bankTransfer": "انتقال بانکی",
-        "bankDetails": "انتقال مستقیم بانکی"
+        "bankDetails": "به‌صورت دستی انتقال دهید و رسید را آپلود کنید.",
+        "creditDebitCard": "کارت اعتباری / نقدی",
+        "cardNetworkDetails": "ویزا، مسترکارت، امکس",
+        "applePay": "اپل‌پی",
+        "quickSecure": "سریع و امن",
+        "applePayDetails": "پرداخت سریع با اپل‌پی."
       },
       "gateway": "درگاه",
-      "noOnlineGateway": "هیچ درگاه پرداخت آنلاین فعالی وجود ندارد. زرین‌پال را از پنل مدیریت ← درگاه‌های پرداخت فعال کنید.",
-      "gatewayCurrencyNote": "معادل {currency} دریافت می‌شود؛ کیف پول با {selectedCurrency} شارژ می‌شود",
+      "noOnlineGateway": "درگاه آنلاین تنظیم نشده است.",
+      "gatewayCurrencyNote": "ارز درگاه پرداخت ممکن است با ارز نمایشی شما متفاوت باشد.",
       "processing": "در حال پردازش...",
-      "topUpAmount": "شارژ {amount}",
-      "todayAt": "امروز، {time}",
-      "yesterdayAt": "دیروز، {time}",
+      "topUpAmount": "مبلغ شارژ",
+      "todayAt": "Today at {time}",
+      "yesterdayAt": "Yesterday at {time}",
       "statuses": {
         "completed": "تکمیل‌شده",
         "pending": "در انتظار",
         "processing": "در حال پردازش",
         "failed": "ناموفق",
         "cancelled": "لغوشده"
+      },
+      "demoTransactions": {
+        "hairTransplantPayment": "پرداخت کاشت مو",
+        "istanbulMedicalCenter": "مرکز پزشکی استانبول",
+        "walletTopUp": "شارژ کیف پول",
+        "creditCardMasked": "کارت اعتباری ****4532",
+        "referralBonus": "پاداش معرفی",
+        "friendJoined": "دوست شما به السوین پیوست",
+        "spaPackage": "پکیج اسپا",
+        "luxuryBeautySpa": "زیبایی و اسپای لوکس",
+        "cashbackReward": "پاداش بازگشت وجه",
+        "bookingCompletionBonus": "پاداش تکمیل رزرو",
+        "dentalCleaning": "جرم‌گیری دندان",
+        "smileCareDental": "کلینیک دندانپزشکی SmileCare"
+      },
+      "sample": {
+        "cashback": {
+          "subtitle": "پاداش واریز شد",
+          "title": "بازگشت وجه"
+        },
+        "dental": {
+          "subtitle": "پرداخت کلینیک",
+          "title": "مشاوره دندان‌پزشکی"
+        },
+        "hairTransplant": {
+          "subtitle": "مرکز پزشکی استانبول",
+          "title": "رزرو کاشت مو"
+        },
+        "referral": {
+          "subtitle": "دوست شما به السوین پیوست",
+          "title": "پاداش دعوت"
+        },
+        "spa": {
+          "subtitle": "رزرو سلامتی",
+          "title": "پکیج اسپا"
+        },
+        "topup": {
+          "subtitle": "افزایش موجودی کیف پول",
+          "title": "شارژ کیف پول"
+        }
       }
     },
     "transactions": {
-      "title": "همه تراکنش‌ها",
+      "title": "تراکنش‌ها",
       "filter": "فیلتر",
-      "summary": "نمایش {count} تراکنش • خالص به {currency}",
+      "summary": "خلاصه",
       "total": "مجموع",
-      "lsevinWallet": "کیف پول LSevin",
-      "noTransactionsFound": "تراکنشی پیدا نشد",
-      "tryAdjustingFilters": "فیلترها را تغییر دهید",
+      "lsevinWallet": "کیف پول السوین",
+      "noTransactionsFound": "تراکنشی یافت نشد",
+      "tryAdjustingFilters": "فیلترها را تغییر دهید.",
       "clearFilters": "پاک کردن فیلترها",
       "filterTransactions": "فیلتر تراکنش‌ها",
       "transactionType": "نوع تراکنش",
       "types": {
         "all": "همه انواع",
-        "credit": "ورودی پول",
-        "debit": "خروجی پول"
+        "credit": "واریزی‌ها",
+        "debit": "برداشت‌ها"
       },
       "status": "وضعیت",
       "statuses": {
         "all": "همه وضعیت‌ها",
         "completed": "تکمیل‌شده",
         "pending": "در انتظار",
-        "failed": "ناموفق"
+        "failed": "ناموفق",
+        "refunded": "Refunded",
+        "processing": "در حال پردازش",
+        "cancelled": "لغوشده"
       },
       "timePeriod": "بازه زمانی",
       "periods": {
         "all": "همه زمان‌ها",
         "today": "امروز",
-        "week": "۷ روز گذشته",
-        "month": "۳۰ روز گذشته",
-        "threeMonths": "۳ ماه گذشته"
+        "week": "این هفته",
+        "month": "این ماه",
+        "threeMonths": "۳ ماه اخیر",
+        "yesterday": "دیروز"
       },
       "clearAll": "پاک کردن همه",
-      "applyFilters": "اعمال فیلترها"
+      "applyFilters": "اعمال فیلترها",
+      "paymentMethods": {
+        "applePay": "اپل‌پی",
+        "bankTransfer": "انتقال بانکی"
+      },
+      "sample": {
+        "botox": {
+          "subtitle": "پرداخت ناموفق",
+          "title": "نوبت بوتاکس"
+        },
+        "cashback": {
+          "subtitle": "پاداش واریز شد",
+          "title": "بازگشت وجه"
+        },
+        "dental": {
+          "subtitle": "پرداخت کلینیک",
+          "title": "مشاوره دندان‌پزشکی"
+        },
+        "gym": {
+          "subtitle": "عضویت ماهانه",
+          "title": "عضویت باشگاه"
+        },
+        "hairTransplant": {
+          "subtitle": "مرکز پزشکی استانبول",
+          "title": "رزرو کاشت مو"
+        },
+        "referral": {
+          "subtitle": "دوست شما به السوین پیوست",
+          "title": "پاداش دعوت"
+        },
+        "refund": {
+          "subtitle": "بازپرداخت رزرو",
+          "title": "بازپرداخت"
+        },
+        "spa": {
+          "subtitle": "رزرو سلامتی",
+          "title": "پکیج اسپا"
+        },
+        "topup": {
+          "subtitle": "افزایش موجودی کیف پول",
+          "title": "شارژ کیف پول"
+        }
+      },
+      "todayAt": "Today at {time}",
+      "yesterdayAt": "Yesterday at {time}"
     },
     "transactionDetail": {
       "title": "جزئیات تراکنش",
@@ -6178,29 +6724,58 @@ declare const messages: {
       "transactionId": "شناسه تراکنش",
       "paymentMethod": "روش پرداخت",
       "bookingReference": "مرجع رزرو",
-      "description": "توضیحات",
+      "description": "جزئیات پرداخت و اطلاعات رزرو را بررسی کنید.",
       "provider": "ارائه‌دهنده",
-      "lsevinWallet": "کیف پول LSevin",
+      "lsevinWallet": "کیف پول السوین",
       "paymentBreakdown": "جزئیات پرداخت",
       "subtotal": "جمع جزء",
       "serviceFee": "کارمزد خدمت",
       "total": "مجموع",
       "downloadReceipt": "دانلود رسید",
       "viewBookingDetails": "مشاهده جزئیات رزرو",
-      "paymentFailed": "پرداخت ناموفق بود",
-      "paymentFailedDescription": "پرداخت پردازش نشد. دوباره تلاش کنید یا روش پرداخت دیگری انتخاب کنید.",
-      "retryPayment": "تلاش دوباره برای پرداخت",
-      "paymentPending": "پرداخت در انتظار است",
-      "paymentPendingDescription": "این تراکنش هنوز در حال پردازش است. کیف پول را تازه‌سازی کنید یا کمی بعد وضعیت نهایی را بررسی کنید.",
-      "needHelp": "برای این تراکنش کمک می‌خواهید؟",
-      "contactSupport": "تماس با پشتیبانی"
+      "paymentFailed": "پرداخت ناموفق",
+      "paymentFailedDescription": "این تراکنش ناموفق بود. دوباره تلاش کنید یا روش پرداخت دیگری انتخاب کنید.",
+      "retryPayment": "تلاش مجدد پرداخت",
+      "paymentPending": "پرداخت در انتظار",
+      "paymentPendingDescription": "پرداخت شما هنوز در انتظار است.",
+      "needHelp": "نیاز به کمک دارید؟",
+      "contactSupport": "تماس با پشتیبانی",
+      "receipt": "رسید",
+      "statuses": {
+        "completed": "تکمیل‌شده",
+        "refunded": "مستردشده",
+        "pending": "در انتظار",
+        "processing": "در حال پردازش",
+        "failed": "ناموفق",
+        "cancelled": "لغوشده"
+      },
+      "paymentMethods": {
+        "card": "کارت بانکی",
+        "bank": "انتقال بانکی",
+        "apple": "Apple Pay",
+        "wallet": "کیف پول السوین"
+      },
+      "share": {
+        "reference": "مرجع",
+        "amount": "مبلغ",
+        "status": "وضعیت",
+        "date": "تاریخ"
+      },
+      "paymentProcessingDescription": "پرداخت شما در حال پردازش است.",
+      "sample": {
+        "description": "پرداخت برای خدمت پزشکی انتخاب‌شده شما.",
+        "providerAddress": "Istanbul, Turkey",
+        "providerName": "مرکز پزشکی استانبول",
+        "subtitle": "پرداخت رزرو",
+        "title": "رزرو کاشت مو"
+      }
     },
     "receipt": {
-      "title": "رسید تراکنش",
+      "title": "رسید",
       "reference": "مرجع",
-      "transaction": "تراکنش",
+      "transaction": "Transaction",
       "provider": "ارائه‌دهنده",
-      "lsevinWallet": "کیف پول LSevin",
+      "lsevinWallet": "کیف پول السوین",
       "paymentBreakdown": "جزئیات پرداخت",
       "subtotal": "جمع جزء",
       "serviceFee": "کارمزد خدمت",
@@ -6208,25 +6783,39 @@ declare const messages: {
       "status": "وضعیت",
       "paymentMethod": "روش پرداخت",
       "bookingReference": "مرجع رزرو",
-      "saveAsPdf": "برای نگهداری رسید، این صفحه را از مرورگر به‌صورت PDF ذخیره کنید."
+      "saveAsPdf": "ذخیره به PDF",
+      "statuses": {
+        "completed": "تکمیل‌شده",
+        "refunded": "مستردشده",
+        "pending": "در انتظار",
+        "processing": "در حال پردازش",
+        "failed": "ناموفق",
+        "cancelled": "لغوشده"
+      },
+      "paymentMethods": {
+        "card": "کارت بانکی",
+        "bank": "انتقال بانکی",
+        "apple": "Apple Pay",
+        "wallet": "کیف پول السوین"
+      }
     },
     "medicalProfile": {
       "title": "پروفایل پزشکی",
-      "privacyTitle": "حریم خصوصی شما محافظت می‌شود",
+      "privacyTitle": "خصوصی و امن",
       "privacyDescription": "تمام اطلاعات پزشکی رمزگذاری شده و فقط با ارائه‌دهندگان مجاز سلامت شما به اشتراک گذاشته می‌شود.",
       "sections": {
-        "allergies": "آلرژی‌ها",
+        "allergies": "حساسیت‌ها",
         "currentMedications": "داروهای فعلی",
         "medicalHistory": "سوابق پزشکی",
         "medicalDocuments": "مدارک پزشکی",
         "emergencyContact": "تماس اضطراری"
       },
       "empty": {
-        "noAllergies": "آلرژی ثبت نشده است",
-        "noMedications": "دارویی ثبت نشده است",
-        "noConditions": "سابقه‌ای ثبت نشده است",
-        "noDocuments": "مدرکی آپلود نشده است",
-        "noContactSaved": "تماسی ذخیره نشده است"
+        "noAllergies": "هنوز حساسیتی اضافه نشده است.",
+        "noMedications": "هنوز دارویی اضافه نشده است.",
+        "noConditions": "هنوز بیماری یا وضعیت پزشکی اضافه نشده است.",
+        "noDocuments": "هنوز مدرکی آپلود نشده است.",
+        "noContactSaved": "تماس اضطراری ذخیره نشده است."
       },
       "actions": {
         "addFirstAllergy": "اولین آلرژی را اضافه کنید",
@@ -6237,16 +6826,16 @@ declare const messages: {
         "edit": "ویرایش"
       },
       "modals": {
-        "addAllergy": "افزودن آلرژی"
+        "addAllergy": "افزودن حساسیت"
       },
       "fields": {
-        "allergyName": "نام آلرژی",
+        "allergyName": "نام حساسیت",
         "severityLevel": "سطح شدت",
         "notesOptional": "یادداشت‌ها (اختیاری)"
       },
       "placeholders": {
-        "allergyName": "مثلاً پنی‌سیلین",
-        "reactionNotes": "اطلاعات بیشتر درباره واکنش‌ها..."
+        "allergyName": "مثلاً: پنی‌سیلین",
+        "reactionNotes": "توضیحات واکنش"
       },
       "severity": {
         "mild": "خفیف",
@@ -6254,59 +6843,348 @@ declare const messages: {
         "severe": "شدید"
       },
       "errors": {
-        "addAllergy": "افزودن آلرژی ناموفق بود.",
-        "addMedication": "افزودن دارو ناموفق بود.",
-        "addCondition": "افزودن سابقه ناموفق بود.",
-        "uploadDocument": "آپلود مدرک ناموفق بود.",
-        "saveEmergencyContact": "ذخیره تماس اضطراری ناموفق بود."
+        "addAllergy": "افزودن حساسیت انجام نشد.",
+        "addMedication": "افزودن دارو انجام نشد.",
+        "addCondition": "افزودن وضعیت پزشکی انجام نشد.",
+        "uploadDocument": "آپلود مدرک انجام نشد.",
+        "saveEmergencyContact": "ذخیره تماس اضطراری انجام نشد."
       }
     },
     "privacySecurity": {
       "title": "حریم خصوصی و امنیت",
       "changePassword": "تغییر رمز عبور",
       "currentPassword": "رمز عبور فعلی",
-      "enterCurrentPassword": "رمز عبور فعلی را وارد کنید",
+      "enterCurrentPassword": "رمز فعلی را وارد کنید",
       "newPassword": "رمز عبور جدید",
-      "enterNewPassword": "رمز عبور جدید را وارد کنید",
+      "enterNewPassword": "رمز جدید را وارد کنید",
       "confirmNewPassword": "تأیید رمز عبور جدید",
-      "reenterNewPassword": "رمز عبور جدید را دوباره وارد کنید",
+      "reenterNewPassword": "رمز جدید را دوباره وارد کنید",
       "updatePassword": "به‌روزرسانی رمز عبور",
       "biometricLogin": "ورود بیومتریک",
-      "biometricDescription": "ترجیح کاربر برای ورود با Face ID / اثر انگشت ذخیره می‌شود.",
+      "biometricDescription": "برای ورود سریع‌تر از Face ID، Touch ID یا بیومتریک دستگاه استفاده کنید.",
       "activeSessions": "نشست‌های فعال",
-      "refresh": "تازه‌سازی",
-      "noTrackedSessions": "هنوز نشستی ثبت نشده است.",
+      "refresh": "به‌روزرسانی",
+      "noTrackedSessions": "نشست ثبت‌شده‌ای وجود ندارد.",
       "current": "فعلی",
       "revoke": "لغو دسترسی",
       "privacyControls": "کنترل‌های حریم خصوصی",
-      "locationPermissions": "مجوزهای موقعیت",
-      "notificationPermissions": "مجوزهای اعلان",
+      "locationPermissions": "مجوز موقعیت مکانی",
+      "notificationPermissions": "مجوز اعلان‌ها",
       "checkAgain": "بررسی دوباره",
       "requestAccess": "درخواست دسترسی",
       "deleteAccount": "حذف حساب",
-      "deleteDescription": "یک درخواست کنترل‌شده برای حذف حساب ایجاد می‌شود. حذف نهایی باید در گردش‌کار بک‌اند انجام شود، نه مستقیماً از کلاینت.",
+      "deleteDescription": "درخواست حذف حساب و بررسی داده‌ها.",
       "optionalReason": "دلیل اختیاری",
-      "deletionRequestOpen": "درخواست حذف حساب از قبل باز است",
+      "deletionRequestOpen": "یک درخواست حذف حساب از قبل باز است.",
       "requestAccountDeletion": "درخواست حذف حساب",
       "working": "در حال انجام...",
-      "notSupported": "در این مرورگر پشتیبانی نمی‌شود",
+      "notSupported": "پشتیبانی نمی‌شود",
       "messages": {
-        "somethingWentWrong": "مشکلی پیش آمد.",
-        "permissionStateRefreshed": "وضعیت مجوزها تازه‌سازی شد.",
-        "couldNotRefreshPermission": "تازه‌سازی وضعیت مجوزها انجام نشد.",
-        "couldNotReadLocation": "خواندن موقعیت فعلی انجام نشد.",
-        "locationGranted": "مجوز موقعیت داده شد.",
-        "locationUpdated": "وضعیت مجوز موقعیت به‌روزرسانی شد.",
-        "couldNotRequestLocation": "درخواست مجوز موقعیت انجام نشد.",
-        "notificationGranted": "مجوز اعلان داده شد.",
-        "notificationUpdated": "وضعیت مجوز اعلان به‌روزرسانی شد.",
-        "couldNotRequestNotification": "درخواست مجوز اعلان انجام نشد.",
-        "permissionsBlocked": "یک یا چند مجوز مرورگر مسدود شده است. ممکن است کاربر لازم باشد آن‌ها را در تنظیمات مرورگر یا سیستم‌عامل دوباره فعال کند.",
-        "passwordUpdated": "رمز عبور به‌روزرسانی شد.",
-        "biometricUpdated": "ترجیح بیومتریک به‌روزرسانی شد.",
+        "somethingWentWrong": "خطایی رخ داد.",
+        "permissionStateRefreshed": "وضعیت مجوز به‌روزرسانی شد.",
+        "couldNotRefreshPermission": "Could not refresh permission status.",
+        "couldNotReadLocation": "Could not read location permission.",
+        "locationGranted": "مجوز موقعیت مکانی داده شد.",
+        "locationUpdated": "تنظیمات موقعیت به‌روزرسانی شد.",
+        "couldNotRequestLocation": "Could not request location permission.",
+        "notificationGranted": "مجوز اعلان‌ها داده شد.",
+        "notificationUpdated": "تنظیمات اعلان به‌روزرسانی شد.",
+        "couldNotRequestNotification": "Could not request notification permission.",
+        "permissionsBlocked": "این مجوز در مرورگر یا تنظیمات دستگاه مسدود شده است.",
+        "passwordUpdated": "رمز عبور با موفقیت به‌روزرسانی شد.",
+        "biometricUpdated": "تنظیمات بیومتریک به‌روزرسانی شد.",
         "sessionRevoked": "نشست لغو شد.",
         "accountDeletionRequested": "درخواست حذف حساب ثبت شد."
+      },
+      "manage": "مدیریت"
+    },
+    "coupons": {
+      "apply": "اعمال",
+      "applyCoupon": "اعمال کوپن",
+      "availableCoupons": "کوپن‌های فعال",
+      "enterCode": "کد کوپن را وارد کنید",
+      "enterCodePlaceholder": "کد کوپن",
+      "expires": "Expires {date}",
+      "expiringSoon": "در حال انقضا",
+      "getMoreCoupons": "دریافت کوپن‌های بیشتر",
+      "getMoreDescription": "دوستانتان را دعوت کنید و با تکمیل رزروها پاداش‌های بیشتری بگیرید.",
+      "hurryExpiresSoon": "عجله کنید، این کوپن به‌زودی منقضی می‌شود.",
+      "invalidDescription": "این کوپن معتبر نیست یا منقضی شده است.",
+      "invalidTitle": "کوپن نامعتبر",
+      "maxDiscount": "Max discount: {amount}",
+      "minAmount": "Min. amount: {amount}",
+      "previouslyUsed": "استفاده‌شده‌های قبلی",
+      "referFriends": "دعوت دوستان",
+      "sampleCoupons": {
+        "beauty": {
+          "description": "صرفه‌جویی در خدمات زیبایی و آرایشی",
+          "title": "پیشنهاد زیبایی"
+        },
+        "first": {
+          "description": "برای اولین رزرو تکمیل‌شده شما",
+          "title": "ویژه اولین رزرو"
+        },
+        "medical": {
+          "description": "قابل استفاده برای برخی خدمات پزشکی",
+          "title": "تخفیف خدمات پزشکی"
+        },
+        "welcome": {
+          "title": "پاداش خوش‌آمدگویی"
+        },
+        "wellness": {
+          "description": "قابل استفاده برای رزروهای اسپا و سلامتی",
+          "title": "پکیج سلامتی"
+        }
+      },
+      "savedAmount": "Saved {amount}",
+      "title": "کوپن‌ها",
+      "usedOn": "Used on {date}",
+      "validateCoupon": "اعتبارسنجی کوپن",
+      "validating": "در حال بررسی..."
+    },
+    "editProfile": {
+      "changeProfilePhoto": "تغییر عکس پروفایل",
+      "fields": {
+        "address": "آدرس",
+        "city": "شهر",
+        "country": "کشور",
+        "dateOfBirth": "تاریخ تولد",
+        "email": "ایمیل",
+        "firstName": "نام",
+        "gender": "جنسیت",
+        "lastName": "نام خانوادگی",
+        "phone": "شماره موبایل"
+      },
+      "gender": {
+        "female": "زن",
+        "male": "مرد",
+        "other": "سایر",
+        "preferNotToSay": "ترجیح می‌دهم نگویم"
+      },
+      "phoneLockedDescription": "شماره موبایل شما قفل است، چون شناسه اصلی حساب شماست.",
+      "saveChanges": "ذخیره تغییرات",
+      "saving": "در حال ذخیره...",
+      "title": "ویرایش پروفایل",
+      "profileAlt": "عکس پروفایل"
+    },
+    "medicalProfileLegacy": {
+      "buttons": {
+        "saveContact": "ذخیره تماس"
+      },
+      "empty": {
+        "addFirstAllergy": "اولین حساسیت را اضافه کنید",
+        "addFirstMedication": "اولین دارو را اضافه کنید",
+        "noAllergies": "هنوز حساسیتی اضافه نشده است.",
+        "noConditions": "هنوز وضعیتی اضافه نشده است.",
+        "noDocuments": "هنوز مدرکی آپلود نشده است.",
+        "noMedications": "هنوز دارویی اضافه نشده است."
+      },
+      "fields": {
+        "allergyName": "نام حساسیت",
+        "conditionName": "نام بیماری/وضعیت",
+        "dosage": "دوز مصرف",
+        "frequency": "تکرار مصرف",
+        "fullName": "نام کامل",
+        "medicationName": "نام دارو",
+        "phoneNumber": "شماره موبایل",
+        "relationship": "نسبت"
+      },
+      "frequency": {
+        "asNeeded": "در صورت نیاز",
+        "onceDaily": "روزی یک‌بار",
+        "select": "انتخاب تکرار",
+        "threeTimesDaily": "روزی سه‌بار",
+        "twiceDaily": "روزی دوبار",
+        "weekly": "هفتگی"
+      },
+      "modals": {
+        "addAllergy": "افزودن حساسیت",
+        "addCondition": "افزودن وضعیت",
+        "addMedication": "افزودن دارو",
+        "uploadDocument": "آپلود مدرک"
+      },
+      "placeholders": {
+        "allergyName": "مثلاً: پنی‌سیلین",
+        "conditionName": "نام بیماری/وضعیت",
+        "conditionNotes": "توضیحات وضعیت",
+        "documentName": "نام مدرک",
+        "dosage": "دوز مصرف",
+        "fullName": "نام تماس اضطراری",
+        "medicationName": "نام دارو",
+        "medicationNotes": "توضیحات دارو",
+        "phoneNumber": "شماره تماس اضطراری",
+        "reactionNotes": "توضیحات واکنش"
+      },
+      "privacyDescription": "اطلاعات پزشکی شما رمزنگاری می‌شود و فقط با ارائه‌دهندگانی که اجازه می‌دهید به اشتراک گذاشته می‌شود.",
+      "privacyTitle": "خصوصی و امن",
+      "relationship": {
+        "other": "سایر"
+      },
+      "sections": {
+        "allergies": "حساسیت‌ها",
+        "currentMedications": "داروهای فعلی",
+        "emergencyContact": "تماس اضطراری",
+        "medicalDocuments": "مدارک پزشکی",
+        "medicalHistory": "سوابق پزشکی"
+      },
+      "severity": {
+        "mild": "خفیف",
+        "moderate": "متوسط",
+        "severe": "شدید"
+      },
+      "title": "پروفایل پزشکی",
+      "upload": {
+        "acceptedFormats": "PDF، JPG، PNG",
+        "acceptedFormatsLabel": "فرمت‌های قابل قبول",
+        "clickToUpload": "برای آپلود کلیک کنید",
+        "examples": "نتایج آزمایش، نسخه‌ها، گزارش‌ها",
+        "examplesLabel": "مثال‌ها",
+        "failedDescription": "آپلود این مدرک انجام نشد.",
+        "failedTitle": "آپلود ناموفق بود",
+        "formatsShort": "PDF، JPG، PNG",
+        "maximumSize": "۱۰ مگابایت",
+        "maximumSizeLabel": "حداکثر حجم",
+        "progress": "پیشرفت آپلود",
+        "successDescription": "مدرک شما آپلود شد.",
+        "successTitle": "آپلود کامل شد",
+        "uploadingTitle": "در حال آپلود..."
       }
+    },
+    "shareFriends": {
+      "copied": "کپی شد",
+      "copiedBang": "کپی شد!",
+      "copy": "کپی",
+      "discountQueue": "صف تخفیف",
+      "heroSubtitle": "السوین را با دوستانتان به اشتراک بگذارید و مزایای دعوت را آزاد کنید.",
+      "heroTitle": "دوستانتان را دعوت کنید و پاداش بگیرید",
+      "howItWorks": "نحوه کار",
+      "methods": {
+        "email": "ایمیل",
+        "facebook": "فیسبوک",
+        "instagram": "اینستاگرام",
+        "message": "پیام"
+      },
+      "moreOptions": "گزینه‌های بیشتر",
+      "referralCode": "کد دعوت",
+      "referralHistory": "سابقه دعوت",
+      "shareMessage": "برای عضویت در السوین از کد دعوت من استفاده کنید.",
+      "shareReferralLink": "لینک دعوت خود را به اشتراک بگذارید",
+      "shareSubject": "به السوین بپیوندید",
+      "shareVia": "اشتراک‌گذاری از طریق",
+      "stats": {
+        "earned": "دریافت‌شده",
+        "friendsJoined": "دوستان عضو شده",
+        "invited": "دعوت‌شده",
+        "pending": "در انتظار",
+        "used": "استفاده‌شده"
+      },
+      "steps": {
+        "activeProgram": {
+          "description": "پاداش‌های دعوت به قوانین کمپین فعال بستگی دارد.",
+          "title": "برنامه فعال"
+        },
+        "shareCode": {
+          "description": "کد دعوت اختصاصی خود را برای دوستان بفرستید.",
+          "descriptionLink": "لینک دعوت خود را هر جا خواستید به اشتراک بگذارید.",
+          "title": "کد خود را به اشتراک بگذارید"
+        },
+        "theyGet": {
+          "description": "دوست شما مزیت خوش‌آمدگویی تنظیم‌شده را دریافت می‌کند.",
+          "title": "آن‌ها مزیت می‌گیرند"
+        },
+        "unlock": {
+          "description": "پاداش‌ها پس از رزرو یا مرحله پروفایل موردنیاز فعال می‌شوند.",
+          "title": "آزادسازی پاداش‌ها"
+        },
+        "youEarn": {
+          "description": "پس از تأیید دعوت، پاداش دریافت می‌کنید.",
+          "title": "شما پاداش می‌گیرید"
+        }
+      },
+      "terms": {
+        "expire": "پاداش‌ها و کوپن‌ها ممکن است منقضی شوند.",
+        "minimumBooking": "ممکن است حداقل رزرو اعمال شود.",
+        "newUsers": "فقط برای کاربران جدید معتبر است.",
+        "rewardAfterBooking": "پاداش‌ها پس از رزروهای واجد شرایط صادر می‌شوند.",
+        "rights": "السوین ممکن است قوانین دعوت را به‌روزرسانی کند."
+      },
+      "termsTitle": "شرایط",
+      "title": "اشتراک‌گذاری با دوستان"
+    },
+    "rewards": {
+      "actions": {
+        "copied": "کپی شد",
+        "copiedBang": "کپی شد!",
+        "copy": "کپی",
+        "shareWithFriends": "اشتراک‌گذاری با دوستان",
+        "useCoupon": "Use Coupon"
+      },
+      "coupons": {
+        "available": "کوپن‌های فعال",
+        "code": "Code: {code}",
+        "daysLeft": " ({days} days left)",
+        "emptyAvailable": "در حال حاضر کوپن فعالی وجود ندارد.",
+        "emptyUsed": "Coupon redemption history cannot be shown until a customer coupon ledger exists in the database.",
+        "expires": "Expires {date}",
+        "minPurchase": "Min ${amount}",
+        "saved": "Saved {amount}",
+        "used": "کوپن‌های استفاده‌شده",
+        "usedOn": "Used on {date}"
+      },
+      "overview": {
+        "current": "فعلی",
+        "earned": "دریافت‌شده",
+        "emptyActivity": "هنوز فعالیت پاداشی ثبت نشده است.",
+        "highestTierReached": "به بالاترین سطح رسیده‌اید",
+        "member": "{tier} Member",
+        "membershipTiers": "سطوح عضویت",
+        "points": "امتیاز",
+        "pointsAbbr": "امتیاز",
+        "pointsToNext": "{points} more points to {tier}",
+        "recentActivity": "فعالیت اخیر",
+        "referrals": "دعوت‌ها",
+        "totalSpent": "کل هزینه‌کرد",
+        "yourPoints": "امتیازهای شما"
+      },
+      "referrals": {
+        "howItWorks": "دعوت‌ها چگونه کار می‌کنند",
+        "inviteFriends": "دعوت دوستان",
+        "schemaReady": "ساختار برنامه دعوت آماده اضافه شدن است",
+        "shareText": "Use my code {code} when you join LSevin.",
+        "shareTitle": "به السوین بپیوندید",
+        "steps": {
+          "book": {
+            "description": "دوست شما اولین رزرو خود را تکمیل می‌کند",
+            "title": "آن‌ها رزرو می‌کنند"
+          },
+          "earn": {
+            "description": "Reward logic becomes live once referral tables and payout rules are added",
+            "title": "هر دو پاداش می‌گیرید"
+          },
+          "share": {
+            "description": "Send your unique referral code to friends",
+            "title": "کد خود را به اشتراک بگذارید"
+          },
+          "signup": {
+            "description": "دوست شما با کد شما حساب می‌سازد",
+            "title": "آن‌ها ثبت‌نام می‌کنند"
+          }
+        },
+        "successful": "دعوت‌های موفق",
+        "totalEarned": "کل درآمد",
+        "yourCode": "کد دعوت شما",
+        "yourStats": "آمار دعوت شما"
+      },
+      "schemaNotice": {
+        "description": "This page is production-structured and uses live offers plus derived spending, but loyalty points, coupon redemption history, referrals, and tier persistence need dedicated tables and APIs.",
+        "title": "اسکیمای پاداش هنوز در دیتابیس نیست"
+      },
+      "tabs": {
+        "coupons": "کوپن‌ها",
+        "overview": "نمای کلی",
+        "referrals": "دعوت‌ها"
+      },
+      "title": "پاداش‌ها و وفاداری"
     }
   },
   "LazySelect": {
@@ -8445,7 +9323,8 @@ declare const messages: {
       "verifiedRecordsLocked": "Verified records cannot be changed by provider users.",
       "years": "سال",
       "yes": "بله",
-      "yourProviders": "Your providers"
+      "yourProviders": "Your providers",
+      "optional": "اختیاری"
     },
     "labels": {
       "accountHolder": "Account holder",
@@ -8682,7 +9561,10 @@ declare const messages: {
       "vipDentalPopular": "VIP, Dental, Popular",
       "website": "وب‌سایت",
       "wednesday": "چهارشنبه",
-      "year": "سال"
+      "year": "سال",
+      "Subject": "موضوع",
+      "Priority": "اولویت",
+      "Message": "پیام"
     },
     "messages": {
       "98": "98%",
@@ -9069,6 +9951,1110 @@ declare const messages: {
       "urgent": "فوری",
       "verified": "تأیید شده",
       "viewer": "مشاهده‌گر"
+    },
+    "status": {
+      "active": "فعال",
+      "inactive": "غیرفعال",
+      "featured": "ویژه",
+      "low": "کم",
+      "normal": "معمولی",
+      "high": "زیاد",
+      "urgent": "فوری",
+      "open": "باز",
+      "in_progress": "در حال بررسی",
+      "resolved": "حل‌شده",
+      "closed": "بسته‌شده"
+    },
+    "offersManager": {
+      "title": "پیشنهادها",
+      "description": "پیشنهادهای بازاریابی متصل به خدمات ارائه‌دهنده.",
+      "used": "استفاده‌شده",
+      "noOffersYet": "هنوز پیشنهادی ثبت نشده است.",
+      "offerCouldNotBeSaved": "پیشنهاد ذخیره نشد.",
+      "offerUpdated": "پیشنهاد به‌روزرسانی شد.",
+      "offerCreated": "پیشنهاد ایجاد شد.",
+      "createServiceFirstThenOffers": "ابتدا یک خدمت ایجاد کنید، سپس پیشنهاد اضافه کنید.",
+      "deleteThisOffer": "این پیشنهاد حذف شود؟",
+      "offerCouldNotBeDeleted": "پیشنهاد حذف نشد.",
+      "offerDeleted": "پیشنهاد حذف شد."
+    },
+    "offerForm": {
+      "createTitle": "ایجاد پیشنهاد",
+      "editTitle": "ویرایش پیشنهاد",
+      "requiresService": "پیشنهادها حداقل به یک خدمت ارائه‌دهنده نیاز دارند.",
+      "updateDescription": "این پیشنهاد خدمت را به‌روزرسانی کنید.",
+      "service": "خدمت",
+      "code": "کد",
+      "couponCode": "کد کوپن",
+      "title": "عنوان",
+      "subtitle": "زیرعنوان",
+      "discountPercent": "درصد تخفیف",
+      "validUntil": "اعتبار تا",
+      "usageLimit": "محدودیت استفاده",
+      "descriptionEn": "توضیحات انگلیسی",
+      "descriptionFa": "توضیحات فارسی",
+      "cancelEdit": "لغو ویرایش",
+      "saveOffer": "ذخیره پیشنهاد"
+    },
+    "supportTickets": "تیکت‌های پشتیبانی",
+    "supportChannelDescription": "کانال پشتیبانی ارائه‌دهنده با مدیر.",
+    "noSupportTicketsYet": "هنوز تیکت پشتیبانی وجود ندارد.",
+    "ticketCouldNotBeCreated": "تیکت ایجاد نشد.",
+    "supportTicketCreated": "تیکت پشتیبانی ایجاد شد.",
+    "createSupportTicket": "ایجاد تیکت پشتیبانی",
+    "sending": "در حال ارسال...",
+    "createTicket": "ایجاد تیکت",
+    "ticketCouldNotBeUpdated": "تیکت به‌روزرسانی نشد.",
+    "ticketStatusUpdated": "وضعیت تیکت به‌روزرسانی شد.",
+    "Subject": "موضوع",
+    "Priority": "اولویت",
+    "Message": "پیام",
+    "low": "کم",
+    "normal": "معمولی",
+    "high": "زیاد",
+    "urgent": "فوری",
+    "open": "باز",
+    "in_progress": "در حال بررسی",
+    "resolved": "حل‌شده",
+    "closed": "بسته‌شده",
+    "profile": {
+      "buttons": {
+        "save": "ذخیره پروفایل",
+        "saving": "در حال ذخیره..."
+      },
+      "description": "Manage provider public profile, contact details, and presentation fields.",
+      "fields": {
+        "code": "Code",
+        "descriptionEn": "Description (English)",
+        "descriptionFa": "Description (Persian)",
+        "detailEn": "Detail (English)",
+        "detailFa": "Detail (Persian)",
+        "email": "ایمیل",
+        "establishedYear": "Established year",
+        "imageUrl": "Image URL",
+        "languagesCsv": "زبان‌ها",
+        "nameEn": "Name (English)",
+        "nameFa": "Name (Persian)",
+        "phone": "Phone",
+        "responseTime": "زمان پاسخ‌گویی",
+        "specialtiesCsv": "Specialties",
+        "streetEn": "Street (English)",
+        "streetFa": "Street (Persian)",
+        "successRate": "Success rate",
+        "timezone": "Timezone",
+        "totalPatients": "کل بیماران",
+        "zipCode": "Zip code"
+      },
+      "messages": {
+        "saveFailed": "ذخیره پروفایل انجام نشد.",
+        "saveSuccess": "پروفایل ارائه‌دهنده ذخیره شد."
+      },
+      "permissionDenied": "You do not have permission to edit this provider profile.",
+      "placeholders": {
+        "languagesCsv": "English, Persian, Arabic",
+        "mediaIdOrUrl": "Media ID or URL",
+        "responseTime": "Example: < 1 hour",
+        "specialtiesCsv": "Hair transplant, Dental, Beauty",
+        "successRate": "Example: 98%",
+        "timezone": "Asia/Tehran",
+        "totalPatients": "Example: 10,000+"
+      },
+      "title": "پروفایل ارائه‌دهنده",
+      "related": {
+        "buttons": {
+          "add": "افزودن",
+          "addPolicy": "Add policy",
+          "cancel": "لغو",
+          "delete": "حذف",
+          "edit": "ویرایش",
+          "saving": "در حال ذخیره...",
+          "update": "به‌روزرسانی",
+          "updatePolicy": "Update policy"
+        },
+        "certifications": {
+          "description": "Manage provider certificates and verification records.",
+          "editTitle": "Edit certification",
+          "empty": "No certifications added yet.",
+          "fields": {
+            "image": "Image",
+            "name": "Name",
+            "secondImage": "Second image"
+          },
+          "helpers": {
+            "image": "Attach the main certificate image.",
+            "secondImage": "Optional second page or attachment."
+          },
+          "image1Attached": "Main image attached",
+          "image2Attached": "Second image attached",
+          "modalTitle": {
+            "image": "Select certificate image",
+            "secondImage": "Select second certificate image"
+          },
+          "placeholders": {
+            "image": "Media ID or URL",
+            "name": "Certificate name",
+            "secondImage": "Second media ID or URL"
+          },
+          "providerAdded": "Added by provider",
+          "saveButton": "ذخیره گواهی",
+          "saveFailed": "Could not save certification.",
+          "saveSuccess": "گواهی ذخیره شد.",
+          "title": "گواهی‌ها",
+          "updateDescription": "Update certification details and images.",
+          "updated": "Updated",
+          "verified": "تأییدشده",
+          "verifiedCannotChange": "Verification status cannot be changed here.",
+          "verifiedLocked": "Verified certificates are locked."
+        },
+        "delete": {
+          "confirm": "Are you sure you want to delete this item?",
+          "failed": "Could not delete item.",
+          "success": "Deleted successfully."
+        },
+        "policies": {
+          "customPolicy": "Custom policy",
+          "description": "Manage provider policies shown to customers.",
+          "editTitle": "Edit policy",
+          "empty": "No policies added yet.",
+          "fallbackType": "Policy",
+          "fields": {
+            "descriptionEn": "Description (English)",
+            "descriptionFa": "Description (Persian)",
+            "policyType": "Policy type",
+            "typeEn": "Type (English)",
+            "typeFa": "Type (Persian)"
+          },
+          "saveButton": "Save policy",
+          "saveFailed": "Could not save policy.",
+          "saveSuccess": "سیاست ذخیره شد.",
+          "title": "سیاست‌ها",
+          "updateDescription": "Update policy text and type.",
+          "updated": "Updated"
+        }
+      }
+    }
+  },
+  "components": {
+    "countryCodeSelector": {
+      "searchPlaceholder": "جستجو",
+      "noCountriesFound": "کشوری پیدا نشد",
+      "selectedCountry": "کشور انتخاب‌شده: {country} ({dial})",
+      "countries": {
+        "AE": "امارات متحده عربی",
+        "SA": "عربستان سعودی",
+        "TR": "ترکیه",
+        "US": "ایالات متحده آمریکا",
+        "GB": "بریتانیا",
+        "IR": "ایران",
+        "DE": "آلمان",
+        "FR": "فرانسه",
+        "RU": "روسیه",
+        "EG": "مصر",
+        "JO": "اردن",
+        "LB": "لبنان",
+        "KW": "کویت",
+        "QA": "قطر",
+        "OM": "عمان",
+        "BH": "بحرین",
+        "IQ": "عراق",
+        "IN": "هند",
+        "PK": "پاکستان",
+        "CN": "چین"
+      }
+    },
+    "digikalaReviewCard": {
+      "showMore": "مشاهده بیشتر",
+      "showLess": "بستن",
+      "pros": "نقاط قوت",
+      "cons": "نقاط ضعف",
+      "helpfulPrompt": "آیا این نظر برایتان مفید بود؟",
+      "like": "پسندیدم",
+      "dislike": "نپسندیدم",
+      "verifiedBuyer": "کاربر رزروکننده",
+      "adminReview": "دیدگاه تحریریه",
+      "replies": "پاسخ‌ها",
+      "adminAnswer": "پاسخ ادمین",
+      "customerAnswer": "پاسخ کاربر رزروکننده",
+      "writeReply": "پاسخ به این دیدگاه",
+      "replyPlaceholder": "پاسخ خود را بنویسید...",
+      "submitReply": "ارسال پاسخ",
+      "pendingReply": "پاسخ شما پس از تأیید ادمین نمایش داده می‌شود.",
+      "replyError": "فقط کاربرانی که این مورد را رزرو کرده‌اند می‌توانند پاسخ ثبت کنند.",
+      "voteError": "امکان ذخیره رأی وجود نداشت.",
+      "lsevinCustomer": "مشتری LSevin",
+      "reviewImageAlt": "تصویر نظر"
+    },
+    "fileUploadField": {
+      "clickToUpload": "برای آپلود کلیک کنید",
+      "formatAndMax": "{formats} (حداکثر {maxSize} مگابایت)",
+      "uploading": "در حال آپلود... {progress}%",
+      "uploadSuccessful": "آپلود با موفقیت انجام شد • {size} مگابایت",
+      "removeFile": "حذف فایل",
+      "uploadFailed": "آپلود ناموفق بود",
+      "genericError": "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
+      "retryUpload": "تلاش مجدد برای آپلود",
+      "cancel": "لغو",
+      "requirementsTitle": "الزامات فایل:",
+      "acceptedFormats": "فرمت‌های مجاز: {formats}",
+      "maximumFileSize": "حداکثر حجم فایل: {maxSize} مگابایت",
+      "secureUpload": "فایل‌ها هنگام آپلود به‌صورت امن رمزنگاری می‌شوند",
+      "fileSizeError": "حجم فایل باید کمتر از {maxSize} مگابایت باشد"
+    },
+    "imageWithFallback": {
+      "errorAlt": "خطا در بارگذاری تصویر"
+    },
+    "projectInfo": {
+      "project": "پروژه: LSevin",
+      "userRoles": "۹ نقش کاربری",
+      "coreStages": "۶ مرحله اصلی",
+      "screens": "بیش از ۱۰۰ صفحه",
+      "brandLabel": "برند:"
+    },
+    "recommendationsSection": {
+      "verified": "تأییدشده",
+      "from": "از",
+      "similarProviders": "ارائه‌دهندگان مشابه",
+      "similarProvidersInCountry": "ارائه‌دهندگان مشابه در {country}",
+      "localSubtitle": "گزینه‌های بیشتری را نزدیک این موقعیت بررسی کنید",
+      "viewAll": "مشاهده همه",
+      "topInternationalProviders": "برترین ارائه‌دهندگان بین‌المللی",
+      "internationalSubtitle": "مقاصد پیشرو در گردشگری سلامت",
+      "consultationTitle": "نمی‌دانید کدام ارائه‌دهنده را انتخاب کنید؟",
+      "consultationDescription": "مشاوران متخصص ما می‌توانند به شما کمک کنند ارائه‌دهندگان را مقایسه کنید، قیمت‌ها را بهتر بفهمید و بهترین گزینه را برای نیازتان پیدا کنید.",
+      "getFreeConsultation": "دریافت مشاوره رایگان"
+    },
+    "reviewForm": {
+      "checking": "در حال بررسی امکان ثبت نظر برای این رزرو...",
+      "submit": "ثبت نظر",
+      "submitting": "در حال ثبت...",
+      "prosTitle": "نقاط قوت",
+      "consTitle": "نقاط ضعف",
+      "prosPlaceholder": "یک نقطه قوت بنویسید و Enter بزنید",
+      "consPlaceholder": "یک نقطه ضعف بنویسید و Enter بزنید",
+      "addPros": "افزودن نقطه قوت",
+      "addCons": "افزودن نقطه ضعف",
+      "prosHelp": "اختیاری است، اما به تصمیم‌گیری سریع‌تر کاربران کمک می‌کند.",
+      "successTitle": "نظر ثبت شد!",
+      "successDescription": "از اینکه تجربه خود را به اشتراک گذاشتید متشکریم. نظر شما پس از تأیید ادمین عمومی می‌شود.",
+      "title": "ثبت نظر",
+      "close": "بستن",
+      "overallRating": "امتیاز کلی",
+      "selectRating": "انتخاب {rating} ستاره",
+      "treatmentTitleLabel": "درمان / عنوان (اختیاری)",
+      "treatmentTitlePlaceholder": "مثال: کاشت مو، خدمات دندان‌پزشکی، روز اسپا",
+      "characters": "{current}/{max} نویسه",
+      "reviewLabel": "نظر شما",
+      "reviewPlaceholder": "جزئیات تجربه خودتان از این محل را بنویسید",
+      "addPhotosLabel": "افزودن عکس (اختیاری)",
+      "uploadedImageAlt": "آپلود {index}",
+      "removePhoto": "حذف عکس",
+      "attachPhotos": "پیوست عکس‌ها",
+      "photoPreviewHint": "فقط پیش‌نمایش است تا زمانی که endpoint آپلود رسانه متصل شود",
+      "guidelinesTitle": "راهنمای ثبت نظر",
+      "cancel": "لغو",
+      "submitError": "امکان ثبت نظر وجود نداشت. لطفاً دوباره تلاش کنید.",
+      "ratingLabels": {
+        "1": "ضعیف",
+        "2": "متوسط",
+        "3": "خوب",
+        "4": "خیلی خوب",
+        "5": "عالی"
+      },
+      "validation": {
+        "ratingRequired": "لطفاً یک امتیاز انتخاب کنید",
+        "reviewMinLength": "نظر باید حداقل {min} نویسه باشد"
+      },
+      "eligibility": {
+        "notSignedIn": "لطفاً ابتدا وارد حساب کاربری شوید. فقط کاربرانی که رزرو داشته‌اند می‌توانند نظر ثبت کنند.",
+        "notBooked": "فقط کاربرانی که این مورد را رزرو کرده‌اند می‌توانند نظر ثبت کنند.",
+        "alreadyReviewed": "شما قبلاً برای این مورد رزروشده نظر ثبت کرده‌اید.",
+        "invalidTarget": "امکان ثبت نظر برای این مورد در حال حاضر وجود ندارد."
+      },
+      "guidelines": {
+        "honest": "صادق و منصف باشید",
+        "personalExperience": "تجربه شخصی خود را به اشتراک بگذارید",
+        "noOffensiveLanguage": "از ادبیات توهین‌آمیز خودداری کنید",
+        "specificDetails": "جزئیات مشخصی درباره خدمت بنویسید"
+      }
+    },
+    "ui": {
+      "breadcrumb": {
+        "ariaLabel": "مسیر راهنما",
+        "more": "موارد بیشتر"
+      },
+      "carousel": {
+        "roleDescription": "اسلایدر",
+        "slideRoleDescription": "اسلاید",
+        "previousSlide": "اسلاید قبلی",
+        "nextSlide": "اسلاید بعدی"
+      },
+      "command": {
+        "title": "پالت فرمان",
+        "description": "برای اجرای فرمان جستجو کنید..."
+      },
+      "dialog": {
+        "close": "بستن"
+      },
+      "pagination": {
+        "pagination": "صفحه‌بندی",
+        "previousPage": "رفتن به صفحه قبلی",
+        "previous": "قبلی",
+        "nextPage": "رفتن به صفحه بعدی",
+        "next": "بعدی",
+        "morePages": "صفحات بیشتر"
+      },
+      "sheet": {
+        "close": "بستن"
+      },
+      "sidebar": {
+        "title": "نوار کناری",
+        "description": "نوار کناری موبایل را نمایش می‌دهد.",
+        "toggle": "باز/بسته کردن نوار کناری"
+      }
+    }
+  },
+  "RecommendationSection": {
+    "defaultUserCountry": "ترکیه",
+    "localTitle": "خدمات مشابه نزدیک شما",
+    "localDescription": "گزینه‌های معتبر مشابه را در {country} مقایسه کنید",
+    "internationalTitle": "در ایران، ترکیه و امارات نیز در دسترس است",
+    "internationalDescription": "گزینه‌های مشابه را در مقصدهای کلیدی بررسی کنید",
+    "openRecommendation": "مشاهده {title}"
+  },
+  "ProviderPage": {
+    "actions": {
+      "back": "بازگشت",
+      "share": "اشتراک‌گذاری ارائه‌دهنده",
+      "addFavorite": "افزودن ارائه‌دهنده به علاقه‌مندی‌ها",
+      "removeFavorite": "حذف ارائه‌دهنده از علاقه‌مندی‌ها",
+      "contact": "تماس",
+      "viewServices": "مشاهده خدمات"
+    },
+    "errors": {
+      "providerCouldNotBeLoaded": "اطلاعات ارائه‌دهنده بارگذاری نشد",
+      "tryAgainLater": "لطفاً بعداً دوباره تلاش کنید.",
+      "couldNotUpdateFavorite": "امکان به‌روزرسانی وضعیت علاقه‌مندی وجود ندارد.",
+      "signInToReview": "برای ثبت نظر، لطفاً وارد شوید و پروفایل خود را تکمیل کنید.",
+      "couldNotSubmitReview": "امکان ثبت نظر وجود ندارد.",
+      "couldNotLoadReviews": "امکان بارگذاری نظرها وجود ندارد."
+    },
+    "share": {
+      "text": "{name} را در السوین ببینید"
+    },
+    "badges": {
+      "verified": "تأییدشده",
+      "accredited": "دارای اعتبارنامه",
+      "topRated": "برترین امتیاز"
+    },
+    "stats": {
+      "reviews": "({count} نظر)",
+      "patients": "مراجعان",
+      "success": "موفقیت",
+      "since": "از سال"
+    },
+    "sections": {
+      "languages": "زبان‌ها",
+      "about": "درباره",
+      "gallery": "گالری",
+      "providerDetails": "جزئیات ارائه‌دهنده",
+      "certifications": "گواهی‌ها",
+      "policies": "سیاست‌ها",
+      "contact": "تماس"
+    },
+    "tabs": {
+      "overview": "نمای کلی",
+      "services": "خدمات",
+      "specialists": "متخصصان",
+      "reviews": "نظرها"
+    },
+    "services": {
+      "popular": "محبوب",
+      "recovery": "دوره نقاهت: {value}",
+      "from": "از"
+    },
+    "specialists": {
+      "experience": "{value} سابقه",
+      "patients": "{value} مراجعه‌کننده"
+    },
+    "reviews": {
+      "writeReview": "ثبت نظر",
+      "showMore": "مشاهده بیشتر",
+      "loading": "در حال بارگذاری نظرها...",
+      "providerExperience": "تجربه با ارائه‌دهنده",
+      "sort": {
+        "newest": "جدیدترین",
+        "buyers": "مشتریان رزرو کرده",
+        "helpful": "مفیدترین"
+      }
+    },
+    "empty": {
+      "services": {
+        "title": "خدمت فعالی وجود ندارد",
+        "text": "این ارائه‌دهنده هنوز خدمت فعالی منتشر نکرده است."
+      },
+      "specialists": {
+        "title": "متخصصی ثبت نشده است",
+        "text": "پس از انتشار متخصصان توسط ارائه‌دهنده، اینجا نمایش داده می‌شوند."
+      },
+      "reviews": {
+        "title": "هنوز نظر عمومی ثبت نشده است",
+        "text": "پس از انتشار نظرها توسط مشتریان، اینجا نمایش داده می‌شوند."
+      }
+    },
+    "gallery": {
+      "goToImage": "رفتن به تصویر {number}",
+      "imageAlt": "تصویر {number} از {name}"
+    },
+    "certifications": {
+      "certificateImage": "تصویر گواهی {number}"
+    }
+  },
+  "MobileOffers": {
+    "title": "پیشنهادهای ویژه",
+    "subtitle": "تخفیف‌ها و پروموشن‌های محدود",
+    "actions": {
+      "back": "بازگشت",
+      "close": "بستن"
+    },
+    "search": {
+      "placeholder": "جستجوی پیشنهادها، ارائه‌دهندگان و خدمات...",
+      "button": "جستجو"
+    },
+    "tabs": {
+      "allOffers": "همه پیشنهادها",
+      "medical": "پزشکی",
+      "beautySpa": "زیبایی و اسپا",
+      "fitness": "تناسب اندام",
+      "countLabel": "{label} ({count})"
+    },
+    "featured": {
+      "badge": "پیشنهاد منتخب",
+      "useCode": "کد تخفیف:"
+    },
+    "discount": {
+      "off": "{discount} تخفیف"
+    },
+    "pricing": {
+      "save": "صرفه‌جویی {amount}"
+    },
+    "code": {
+      "copy": "کپی",
+      "noCode": "بدون کد"
+    },
+    "validity": {
+      "until": "تا {date}"
+    },
+    "cta": {
+      "bookNow": "رزرو کن"
+    },
+    "empty": {
+      "title": "پیشنهادی پیدا نشد",
+      "description": "چند فیلتر را حذف کنید یا با عبارت کلی‌تری جستجو کنید.",
+      "clearFilters": "حذف فیلترها"
+    },
+    "filters": {
+      "title": "فیلترهای پیشرفته",
+      "description": "دقیقاً همان چیزی را پیدا کنید که نیاز دارید",
+      "maxPrice": "حداکثر قیمت",
+      "priceRange": "{min} - {max}",
+      "minimumRating": "حداقل امتیاز",
+      "any": "همه",
+      "verifiedOnly": "فقط ارائه‌دهندگان تأییدشده",
+      "verifiedOnlyDescription": "فقط کلینیک‌های معتبر را نمایش بده",
+      "languagesSpoken": "زبان‌های قابل پشتیبانی",
+      "clearAll": "حذف همه",
+      "applyFilters": "اعمال فیلترها"
+    },
+    "fallback": {
+      "offers": "پیشنهادها"
+    },
+    "demoOffers": {
+      "premiumPackages": {
+        "title": "۲۰٪ تخفیف پکیج‌های پریمیوم",
+        "subtitle": "فقط برای اولین رزرو",
+        "provider": "مرکز پزشکی استانبول",
+        "validUntil": "۱۵ مارس ۲۰۲۶",
+        "location": "استانبول، ترکیه"
+      },
+      "laserSessions": {
+        "title": "با خرید ۲ جلسه لیزر، ۱ جلسه رایگان بگیرید",
+        "subtitle": "پیشنهاد محدود",
+        "provider": "کلینیک زیبایی الیت دبی",
+        "validUntil": "۲۰ مارس ۲۰۲۶",
+        "location": "دبی، امارات"
+      },
+      "gymMembership": {
+        "title": "۳۰٪ تخفیف عضویت سالانه باشگاه",
+        "subtitle": "فقط اعضای جدید",
+        "provider": "باشگاه پریمیوم فیت‌زون",
+        "validUntil": "۲۵ مارس ۲۰۲۶",
+        "location": "دبی، امارات"
+      },
+      "dental": {
+        "title": "مشاوره رایگان + ۱۵٪ تخفیف",
+        "subtitle": "درمان‌های دندانپزشکی",
+        "provider": "کلینیک دندانپزشکی اسمایل‌کر",
+        "validUntil": "۱۸ مارس ۲۰۲۶",
+        "location": "استانبول، ترکیه"
+      },
+      "spa": {
+        "title": "پکیج روز اسپا با ۲۵٪ تخفیف",
+        "subtitle": "شامل ماساژ، فیشیال و خدمات بیشتر",
+        "provider": "اسپای سلامتی سرنیتی",
+        "validUntil": "۲۲ مارس ۲۰۲۶",
+        "location": "دبی، امارات"
+      },
+      "personalTraining": {
+        "title": "۴۰٪ تخفیف اولین جلسه مربی خصوصی",
+        "subtitle": "مربیان حرفه‌ای",
+        "provider": "تمرین خصوصی پاورفیت",
+        "validUntil": "۳۰ مارس ۲۰۲۶",
+        "location": "دبی، امارات"
+      }
+    }
+  },
+  "ProviderDashboardOffers": {
+    "common": {
+      "headerTitle": "پیشنهادها و پروموشن‌ها",
+      "createOffer": "ایجاد پیشنهاد",
+      "createNewOffer": "ایجاد پیشنهاد جدید",
+      "editOffer": "ویرایش پیشنهاد"
+    },
+    "navigation": {
+      "dashboard": "داشبورد",
+      "classSchedule": "برنامه کلاس‌ها",
+      "trainers": "مربیان",
+      "memberships": "عضویت‌ها",
+      "services": "خدمات",
+      "bookings": "رزروها",
+      "liveStatus": "وضعیت زنده",
+      "offers": "پیشنهادها",
+      "analytics": "تحلیل‌ها",
+      "billing": "صورتحساب",
+      "support": "پشتیبانی",
+      "settings": "تنظیمات",
+      "staff": "کارکنان",
+      "timeSlots": "بازه‌های زمانی",
+      "pricing": "قیمت‌گذاری",
+      "beforeAfter": "قبل/بعد",
+      "reviews": "نظرات"
+    },
+    "status": {
+      "active": "فعال"
+    },
+    "metrics": {
+      "activeOffers": "پیشنهادهای فعال",
+      "totalSignups": "کل ثبت‌نام‌ها",
+      "totalBookings": "کل رزروها",
+      "revenueImpact": "اثر درآمدی"
+    },
+    "details": {
+      "discountLabel": "تخفیف:",
+      "discountOff": "{discount} تخفیف",
+      "period": "دوره: از {start} تا {end}",
+      "signupsLabel": "ثبت‌نام‌ها:",
+      "bookingsLabel": "رزروها:"
+    },
+    "gym": {
+      "activePromotions": "پروموشن‌های فعال",
+      "offers": {
+        "summerFitnessPackage": {
+          "name": "پکیج تناسب اندام تابستانی",
+          "type": "پکیج ویژه"
+        },
+        "premiumMembershipDiscount": {
+          "name": "تخفیف عضویت پریمیوم",
+          "type": "عضویت"
+        },
+        "personalTrainingBundle": {
+          "name": "باندل تمرین خصوصی",
+          "type": "خدمت"
+        }
+      }
+    },
+    "salon": {
+      "promotionalOffers": "پیشنهادهای تبلیغاتی",
+      "offers": {
+        "springBeautyPackage": {
+          "name": "پکیج زیبایی بهاری",
+          "type": "پکیج"
+        },
+        "bridalSpecial": {
+          "name": "پیشنهاد ویژه عروس",
+          "type": "محدود زمانی"
+        },
+        "loyaltyReward": {
+          "name": "پاداش وفاداری ۱۰٪",
+          "type": "دائمی"
+        }
+      }
+    }
+  },
+  "MarketingOffersAdmin": {
+    "listTitle": "پیشنهادهای بازاریابی",
+    "listDescription": "مدیریت پیشنهادهای بازاریابی.",
+    "createTitle": "ایجاد پیشنهاد بازاریابی",
+    "updateTitle": "به‌روزرسانی پیشنهاد بازاریابی"
+  },
+  "SupportPages": {
+    "admin": {
+      "inbox": {
+        "metadataTitle": "صندوق پشتیبانی",
+        "metadataDescription": "مدیریت گفتگوهای پشتیبانی و پاسخ به کاربران."
+      },
+      "conversation": {
+        "metadataTitle": "گفتگوی پشتیبانی",
+        "metadataDescription": "بررسی و پاسخ به گفتگوی پشتیبانی."
+      },
+      "cannedReplies": {
+        "metadataTitle": "پاسخ‌های آماده",
+        "metadataDescription": "مدیریت پاسخ‌های آماده پشتیبانی.",
+        "pageTitle": "پاسخ‌های آماده",
+        "pageDescription": "ایجاد و مدیریت پاسخ‌های قابل استفاده مجدد برای صندوق پشتیبانی."
+      },
+      "settings": {
+        "metadataTitle": "تنظیمات پشتیبانی",
+        "metadataDescription": "تنظیم برچسب‌ها، ظاهر و رفتار ویجت پشتیبانی.",
+        "pageTitle": "تنظیمات پشتیبانی",
+        "pageDescription": "کنترل محل نمایش پشتیبانی و نحوه شروع گفتگو توسط کاربران."
+      },
+      "tags": {
+        "metadataTitle": "برچسب‌های پشتیبانی",
+        "metadataDescription": "مدیریت برچسب‌های گفتگوهای پشتیبانی.",
+        "pageTitle": "برچسب‌های پشتیبانی",
+        "pageDescription": "ایجاد برچسب برای دسته‌بندی گفتگوهای پشتیبانی."
+      }
+    },
+    "mobileSupport": {
+      "metadataTitle": "پشتیبانی",
+      "metadataDescription": "ارتباط با تیم پشتیبانی و مدیریت گفتگوهای شما.",
+      "chatTitle": "گفتگوی پشتیبانی"
+    },
+    "customer": {
+      "emailPlaceholder": "آدرس ایمیل",
+      "loginRequired": "برای ادامه گفتگوی پشتیبانی وارد حساب کاربری شوید.",
+      "namePlaceholder": "نام و نام خانوادگی",
+      "openFullPage": "باز کردن صفحه کامل پشتیبانی",
+      "pleaseCheckForm": "لطفاً فرم پشتیبانی را بررسی کنید و دوباره تلاش کنید.",
+      "countryCodeLabel": "کد کشور",
+      "emailLabel": "ایمیل",
+      "messageLabel": "پیام",
+      "nameLabel": "نام",
+      "phoneLabel": "تلفن",
+      "secureSupport": "پشتیبانی امن",
+      "sendFallback": "ارسال پیام",
+      "statusLabel": "وضعیت",
+      "supportUnavailable": "پشتیبانی در دسترس نیست",
+      "supportUnavailableDescription": "کانال پشتیبانی موقتاً در دسترس نیست. لطفاً بعداً دوباره تلاش کنید.",
+      "writeMessageFallback": "پیام خود را بنویسید...",
+      "internalNote": "یادداشت داخلی",
+      "noMessagesYet": "هنوز پیامی وجود ندارد."
+    },
+    "providerPortalStatus": {
+      "status": "وضعیت",
+      "open": "باز",
+      "inProgress": "در حال بررسی",
+      "resolved": "حل‌شده",
+      "closed": "بسته‌شده",
+      "title": "به‌روزرسانی وضعیت تیکت پشتیبانی",
+      "saveStatus": "ذخیره وضعیت",
+      "successMessage": "وضعیت تیکت پشتیبانی به‌روزرسانی شد."
+    },
+    "providerGenerated": {
+      "supportCenter": "مرکز پشتیبانی",
+      "supportCenterDescription": "برای رزروها، پروفایل، صورتحساب و عملیات پلتفرم راهنمایی دریافت کنید.",
+      "educationHelpCenterDescription": "برای دوره‌ها، اساتید، گواهی‌ها، دانشجویان و ثبت‌نام‌ها راهنمایی دریافت کنید.",
+      "gymHelpCenterDescription": "برای عضویت‌ها، رزروها، مربیان، خدمات و پرداخت‌ها راهنمایی دریافت کنید.",
+      "hotelHelpCenterDescription": "برای اتاق‌ها، رزروها، ظرفیت، قیمت‌گذاری و تسویه‌ها راهنمایی دریافت کنید.",
+      "pharmacyHelpCenterDescription": "برای نسخه‌ها، سفارش‌ها، موجودی، ارسال و صورتحساب راهنمایی دریافت کنید.",
+      "genericHelpCenterDescription": "برای خدمات، پرسنل، رزروها، قیمت‌گذاری و پیشنهادها راهنمایی دریافت کنید.",
+      "tourismHelpCenterDescription": "برای پکیج‌های سفر، ترنسفر، مقصدها، رزروها و صورتحساب راهنمایی دریافت کنید.",
+      "supportTickets": "تیکت‌های پشتیبانی",
+      "newSupportTicket": "تیکت پشتیبانی جدید",
+      "newTicket": "تیکت جدید",
+      "createNewTicket": "ایجاد تیکت جدید",
+      "needHelp": "نیاز به کمک دارید؟",
+      "visitHelpCenter": "مشاهده مرکز راهنما",
+      "viewDetails": "مشاهده جزئیات",
+      "view": "مشاهده",
+      "openTickets": "تیکت‌های باز",
+      "averageResponseTime": "میانگین زمان پاسخ",
+      "responseTime": "زمان پاسخ",
+      "respondWithin24Hours": "معمولاً ظرف ۲۴ ساعت پاسخ می‌دهیم.",
+      "twoToFourHours": "۲ تا ۴ ساعت",
+      "searchTickets": "جستجوی تیکت‌ها...",
+      "allCategories": "همه دسته‌ها",
+      "allPriority": "همه اولویت‌ها",
+      "allStatus": "همه وضعیت‌ها",
+      "subject": "موضوع",
+      "categoryLabel": "دسته‌بندی",
+      "priorityLabel": "اولویت",
+      "statusLabel": "وضعیت",
+      "created": "ایجاد شده",
+      "lastReply": "آخرین پاسخ",
+      "actionsLabel": "اقدامات",
+      "ticketDetails": "جزئیات تیکت",
+      "ticketId": "شناسه تیکت",
+      "details": "جزئیات",
+      "conversation": "گفتگو",
+      "you": "شما",
+      "supportTeam": "تیم پشتیبانی",
+      "addReply": "افزودن پاسخ",
+      "typeYourMessage": "پیام خود را بنویسید...",
+      "sendReply": "ارسال پاسخ",
+      "markAsResolved": "علامت‌گذاری به عنوان حل‌شده",
+      "helpResources": "منابع راهنما",
+      "documentation": "مستندات",
+      "detailedGuidesAndTutorials": "راهنماها و آموزش‌های کامل",
+      "videoTutorials": "آموزش‌های ویدیویی",
+      "stepByStepVideoGuides": "راهنمای ویدیویی مرحله‌به‌مرحله",
+      "faq": "سؤالات متداول",
+      "frequentlyAskedQuestions": "پرسش‌های پرتکرار",
+      "communityForum": "انجمن کاربران",
+      "connectWithOtherProviders": "ارتباط با سایر ارائه‌دهندگان",
+      "emailSupport": "پشتیبانی ایمیلی",
+      "phoneSupport": "پشتیبانی تلفنی",
+      "phoneHours": "شنبه تا پنجشنبه، ۹ تا ۱۸",
+      "open": "باز",
+      "inProgress": "در حال بررسی",
+      "resolved": "حل‌شده",
+      "priority": {
+        "low": "کم",
+        "medium": "متوسط",
+        "high": "زیاد"
+      },
+      "status": {
+        "open": "باز",
+        "in_progress": "در حال بررسی",
+        "resolved": "حل‌شده"
+      },
+      "categories": {
+        "technical": "فنی",
+        "account": "حساب کاربری",
+        "billing": "صورتحساب",
+        "bookings": "رزروها",
+        "system": "سیستم",
+        "general": "عمومی"
+      },
+      "relativeTime": {
+        "fortyFiveMinAgo": "۴۵ دقیقه پیش",
+        "oneHourAgo": "۱ ساعت پیش",
+        "twoHoursAgo": "۲ ساعت پیش",
+        "threeHoursAgo": "۳ ساعت پیش",
+        "fiveHoursAgo": "۵ ساعت پیش",
+        "oneDayAgo": "۱ روز پیش",
+        "twoDaysAgo": "۲ روز پیش",
+        "threeDaysAgo": "۳ روز پیش"
+      },
+      "tickets": {
+        "issueWithBookingCalendarSync": "مشکل در همگام‌سازی تقویم رزرو",
+        "needHelpWithDoctorProfileSetup": "نیاز به راهنمایی برای تنظیم پروفایل پزشک",
+        "questionAboutPremiumFeatures": "سؤال درباره امکانات ویژه",
+        "studentEnrollmentError": "خطای ثبت‌نام دانشجو",
+        "courseUploadIssue": "مشکل در بارگذاری دوره",
+        "billingInquiry": "سؤال درباره صورتحساب",
+        "membershipSyncIssue": "مشکل همگام‌سازی عضویت",
+        "classBookingProblem": "مشکل رزرو کلاس",
+        "paymentQuestion": "سؤال درباره پرداخت",
+        "roomSyncIssue": "مشکل همگام‌سازی اتاق",
+        "bookingConfirmationProblem": "مشکل تأیید رزرو",
+        "paymentSettlementQuestion": "سؤال درباره تسویه پرداخت",
+        "prescriptionUploadIssue": "مشکل بارگذاری نسخه",
+        "inventorySyncError": "خطای همگام‌سازی موجودی",
+        "calendarSyncProblem": "مشکل همگام‌سازی تقویم",
+        "paymentProcessingIssue": "مشکل پردازش پرداخت",
+        "questionAboutPromotions": "سؤال درباره پروموشن‌ها",
+        "packageSyncIssue": "مشکل همگام‌سازی پکیج",
+        "transferBookingError": "خطای رزرو ترنسفر"
+      },
+      "mockConversation": {
+        "customerBookingCalendarIssue": "بین زمان‌های قابل رزرو و ظرفیت‌های نمایش‌داده‌شده اختلاف دیده می‌شود.",
+        "supportLookingIntoIssue": "از توضیحات شما ممنونیم. تیم پشتیبانی لاگ‌های همگام‌سازی تقویم را بررسی می‌کند و به‌زودی اطلاع می‌دهد."
+      },
+      "navigation": {
+        "dashboard": "داشبورد",
+        "bookings": "رزروها",
+        "doctors": "پزشکان",
+        "treatments": "خدمات درمانی",
+        "mediaGallery": "گالری رسانه",
+        "reviews": "نظرات",
+        "analytics": "تحلیل‌ها",
+        "promotions": "پروموشن‌ها",
+        "pricing": "قیمت‌گذاری",
+        "availability": "دسترسی زمانی",
+        "billing": "صورتحساب",
+        "settings": "تنظیمات",
+        "support": "پشتیبانی",
+        "courseCatalog": "کاتالوگ دوره‌ها",
+        "instructors": "اساتید",
+        "students": "دانشجویان",
+        "registrations": "ثبت‌نام‌ها",
+        "classSchedule": "برنامه کلاس",
+        "certificates": "گواهی‌ها",
+        "memberships": "عضویت‌ها",
+        "services": "خدمات",
+        "trainers": "مربیان",
+        "offers": "پیشنهادها",
+        "liveStatus": "وضعیت زنده",
+        "roomCategories": "دسته‌بندی اتاق‌ها",
+        "roomInventory": "موجودی اتاق‌ها",
+        "gallery": "گالری",
+        "amenities": "امکانات",
+        "prescriptionInbox": "صندوق نسخه‌ها",
+        "orders": "سفارش‌ها",
+        "inventory": "موجودی",
+        "medicineRequests": "درخواست دارو",
+        "deliveryTracking": "پیگیری ارسال",
+        "operatingHours": "ساعات کاری",
+        "staff": "پرسنل",
+        "timeSlots": "بازه‌های زمانی",
+        "beforeAfter": "قبل و بعد",
+        "tourPackages": "پکیج‌های سفر",
+        "destinations": "مقصدها",
+        "schedule": "برنامه زمانی",
+        "transferServices": "خدمات ترنسفر",
+        "media": "رسانه"
+      }
+    }
+  },
+  "ProviderDoctorProfile": {
+    "basicInformation": {
+      "title": "اطلاعات پایه"
+    },
+    "biography": {
+      "placeholder": "یک بیوگرافی حرفه‌ای بنویسید...",
+      "title": "بیوگرافی",
+      "visibilityNote": "This biography appears on your public doctor profile."
+    },
+    "buttons": {
+      "cancel": "لغو",
+      "saveChanges": "ذخیره تغییرات"
+    },
+    "certifications": {
+      "addNew": "Add new",
+      "sample": {
+        "acls": {
+          "issuer": "American Heart Association",
+          "name": "ACLS Certification"
+        },
+        "cardiology": {
+          "issuer": "Medical Board",
+          "name": "Board Certification in Cardiology"
+        },
+        "uaeLicense": {
+          "issuer": "Dubai Health Authority",
+          "name": "UAE Medical License"
+        }
+      },
+      "title": "گواهی‌ها",
+      "uploadCertificate": "Upload certificate"
+    },
+    "completion": {
+      "addBiography": "Add biography",
+      "basicInfoComplete": "Basic info complete",
+      "certificationsUploaded": "Certifications uploaded",
+      "description": "Complete your profile to improve trust and visibility.",
+      "title": "تکمیل پروفایل"
+    },
+    "experienceEducation": {
+      "title": "تجربه و تحصیلات"
+    },
+    "fields": {
+      "affiliatedClinics": "کلینیک‌های همکار",
+      "firstName": "نام",
+      "languagesSpoken": "زبان‌های قابل صحبت",
+      "lastName": "نام خانوادگی",
+      "medicalSchool": "دانشکده پزشکی",
+      "primarySpecialty": "تخصص اصلی",
+      "professionalTitle": "عنوان حرفه‌ای",
+      "subSpecialty": "فوق تخصص",
+      "yearsOfExperience": "سال‌های تجربه"
+    },
+    "headerTitle": "پروفایل پزشک",
+    "navigation": {
+      "bookings": "رزروها",
+      "consultations": "مشاوره‌ها",
+      "dashboard": "داشبورد",
+      "earnings": "درآمدها",
+      "mySchedule": "برنامه من",
+      "myServices": "خدمات من",
+      "profile": "پروفایل",
+      "reviews": "نظرات",
+      "settings": "تنظیمات"
+    },
+    "providerName": "Doctor Portal",
+    "specialties": {
+      "cardiology": "قلب و عروق",
+      "generalMedicine": "پزشکی عمومی",
+      "internalMedicine": "داخلی",
+      "interventionalCardiology": "قلب و عروق مداخله‌ای"
+    },
+    "stats": {
+      "averageRating": "میانگین امتیاز",
+      "profileViews": "بازدیدهای پروفایل",
+      "responseTime": "زمان پاسخ‌گویی",
+      "responseTimeValue": "< 1 hour",
+      "title": "آمار پروفایل",
+      "totalPatients": "کل بیماران"
+    },
+    "verification": {
+      "description": "Verified profiles receive stronger placement and customer trust.",
+      "subtitle": "Your credentials are under review.",
+      "title": "تأیید"
+    }
+  },
+  "MobileDoctorProfile": {
+    "about": {
+      "body": "{name} is one of the world’s leading hair transplant surgeons with over 18 years of experience. He has performed more than 12,000 successful hair restoration procedures for patients from 65+ countries. His expertise in advanced FUE techniques, combined with an artistic eye for natural hairline design, has earned him international recognition.",
+      "title": "About Dr. {name}"
+    },
+    "achievements": {
+      "bestSurgeon": {
+        "organization": "Turkish Medical Excellence",
+        "title": "Best Hair Surgeon 2023"
+      },
+      "patients": {
+        "organization": "From 65+ Countries",
+        "title": "12,000+ Patients"
+      },
+      "success": {
+        "organization": "Verified Patient Outcomes",
+        "title": "98.5% Success Rate"
+      },
+      "title": "دستاوردها و افتخارات",
+      "topPercent": {
+        "organization": "Hair Transplant Surgeons",
+        "title": "Top 1% Worldwide"
+      }
+    },
+    "actions": {
+      "back": "Back",
+      "bookNow": "رزرو کنید",
+      "share": "Share"
+    },
+    "certifications": {
+      "board": {
+        "issuer": "Turkish Medical Board",
+        "name": "Board Certified Surgeon"
+      },
+      "fue": {
+        "issuer": "European Hair Institute",
+        "name": "FUE Master Certificate"
+      },
+      "ishrs": {
+        "issuer": "International Society of Hair Restoration Surgery",
+        "name": "Fellow of ISHRS"
+      },
+      "sapphire": {
+        "issuer": "World Hair Academy",
+        "name": "Advanced Sapphire FUE"
+      }
+    },
+    "consultation": {
+      "free": "رایگان",
+      "title": "مشاوره"
+    },
+    "countries": {
+      "saudiArabia": "عربستان سعودی",
+      "uk": "انگلستان",
+      "usa": "آمریکا"
+    },
+    "dates": {
+      "oneMonthAgo": "۱ ماه پیش",
+      "twoWeeksAgo": "۲ هفته پیش"
+    },
+    "education": {
+      "fellowship": {
+        "degree": "Hair Transplant Surgery Fellowship",
+        "institution": "American Academy of Cosmetic Surgery"
+      },
+      "fue": {
+        "degree": "Advanced FUE Training",
+        "institution": "International Society of Hair Restoration Surgery"
+      },
+      "md": {
+        "degree": "دکترای پزشکی (MD)",
+        "institution": "Istanbul University Medical School"
+      }
+    },
+    "languages": {
+      "arabic": "عربی",
+      "english": "انگلیسی",
+      "turkish": "ترکی"
+    },
+    "results": {
+      "after": "بعد",
+      "before": "قبل",
+      "cases": {
+        "case1": {
+          "months": "12 months post-op",
+          "procedure": "Hair Transplant - 4500 Grafts"
+        },
+        "case2": {
+          "months": "10 months post-op",
+          "procedure": "Hair Transplant - 3800 Grafts"
+        }
+      },
+      "title": "گالری نتایج",
+      "viewFullGallery": "مشاهده گالری کامل"
+    },
+    "reviews": {
+      "basedOn": "Based on {count} reviews",
+      "helpful": "👍 Helpful ({count})",
+      "reviewImage": "تصویر نظر",
+      "sample": {
+        "first": "Dr. Yavuz is an absolute master of his craft. The results are beyond my expectations - natural hairline, dense coverage, minimal scarring. His attention to detail and artistic approach are exceptional. The entire team was professional and caring throughout the journey.",
+        "second": "Flew from Riyadh specifically for Dr. Yavuz and it was worth every mile. His expertise is unmatched. He took time to explain every step, designed a perfect hairline, and the procedure was painless. 6 months post-op and growth is fantastic!",
+        "third": "After researching 20+ surgeons worldwide, I chose Dr. Yavuz and couldn't be happier. His technique is flawless, results look completely natural, and his team provided excellent care. Highly recommend!"
+      }
+    },
+    "sample": {
+      "clinic": "مرکز پزشکی استانبول",
+      "location": "Istanbul, Turkey",
+      "name": "Dr. Mehmet Yavuz",
+      "responseTime": "< 1 hour",
+      "specialty": "Hair Transplant & Restoration Surgeon",
+      "title": "MD, FISHRS"
+    },
+    "sections": {
+      "certifications": "گواهی‌ها و عضویت‌ها",
+      "education": "تحصیلات",
+      "languages": "زبان‌ها",
+      "specializations": "تخصص‌ها"
+    },
+    "share": {
+      "linkCopied": "Link copied to clipboard!",
+      "text": "Check out {name} - {specialty}"
+    },
+    "specializations": {
+      "beardEyebrow": "Beard & Eyebrow Transplant",
+      "dhi": "DHI (Direct Hair Implantation)",
+      "fue": "FUE Hair Transplant",
+      "prp": "PRP Therapy for Hair Loss",
+      "revision": "Revision Hair Transplant",
+      "sapphireFue": "Sapphire FUE Technique"
+    },
+    "stats": {
+      "patients": "بیماران",
+      "reviews": "{count} reviews",
+      "successRate": "نرخ موفقیت",
+      "wouldRecommend": "پیشنهاد می‌کنند",
+      "yearsExperience": "سال تجربه"
+    },
+    "status": {
+      "available": "در دسترس"
+    },
+    "tabs": {
+      "about": "درباره",
+      "credentials": "اعتبارنامه‌ها",
+      "reviews": "نظرات"
+    },
+    "treatments": {
+      "hairTransplant": "کاشت مو"
+    },
+    "verification": {
+      "description": "All credentials have been verified by our medical board. Dr. {name} meets the highest standards of medical excellence.",
+      "title": "تأییدشده توسط السوین"
     }
   }
 };

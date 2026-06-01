@@ -1,12 +1,14 @@
 "use client"
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useNavigate } from '@/hooks/use-navigate';
 import { ChevronLeft, Lock, Eye, EyeOff, Fingerprint, Smartphone, MapPin, Bell, Trash2 } from 'lucide-react';
 import { Input, Button } from '../../design-system/components';
 
 export default function PrivacySecurity() {
   const navigate = useNavigate();
+  const t = useTranslations("MobileProfile.privacySecurity");
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -31,20 +33,20 @@ export default function PrivacySecurity() {
           >
             <ChevronLeft size={24} />
           </button>
-          <h1 className="text-xl font-bold text-gray-900">Privacy & Security</h1>
+          <h1 className="text-xl font-bold text-gray-900">{t("title")}</h1>
         </div>
       </div>
       
       {/* Content */}
       <div className="p-6 space-y-6">
-        {/* Change Password */}
+        {/* {t("changePassword")} */}
         <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <h3 className="font-bold text-gray-900 mb-4">Change Password</h3>
+          <h3 className="font-bold text-gray-900 mb-4">{t("changePassword")}</h3>
           <div className="space-y-4">
             <Input
-              label="Current Password"
+              label={t("currentPassword")}
               type={showCurrentPassword ? 'text' : 'password'}
-              placeholder="Enter current password"
+              placeholder={t("enterCurrentPassword")}
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               leftIcon={<Lock size={20} />}
@@ -55,9 +57,9 @@ export default function PrivacySecurity() {
               }
             />
             <Input
-              label="New Password"
+              label={t("newPassword")}
               type={showNewPassword ? 'text' : 'password'}
-              placeholder="Enter new password"
+              placeholder={t("enterNewPassword")}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               leftIcon={<Lock size={20} />}
@@ -68,9 +70,9 @@ export default function PrivacySecurity() {
               }
             />
             <Input
-              label="Confirm New Password"
+              label={t("confirmNewPassword")}
               type={showConfirmPassword ? 'text' : 'password'}
-              placeholder="Re-enter new password"
+              placeholder={t("reenterNewPassword")}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               leftIcon={<Lock size={20} />}
@@ -81,12 +83,12 @@ export default function PrivacySecurity() {
               }
             />
             <Button variant="primary" size="lg" className="w-full">
-              Update Password
+              {t("updatePassword")}
             </Button>
           </div>
         </div>
         
-        {/* Biometric Login */}
+        {/* {t("biometricLogin")} */}
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -94,8 +96,8 @@ export default function PrivacySecurity() {
                 <Fingerprint size={20} className="text-purple-600" />
               </div>
               <div>
-                <h3 className="font-bold text-gray-900">Biometric Login</h3>
-                <p className="text-sm text-gray-600">Use Face ID or fingerprint</p>
+                <h3 className="font-bold text-gray-900">{t("biometricLogin")}</h3>
+                <p className="text-sm text-gray-600">{t("biometricDescription")}</p>
               </div>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
@@ -110,9 +112,9 @@ export default function PrivacySecurity() {
           </div>
         </div>
         
-        {/* Active Sessions */}
+        {/* {t("activeSessions")} */}
         <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <h3 className="font-bold text-gray-900 mb-4">Active Sessions</h3>
+          <h3 className="font-bold text-gray-900 mb-4">{t("activeSessions")}</h3>
           <div className="space-y-3">
             {activeSessions.map((session) => (
               <div key={session.id} className="flex items-start justify-between p-3 bg-gray-50 rounded-lg">
@@ -124,7 +126,7 @@ export default function PrivacySecurity() {
                     <div className="flex items-center gap-2">
                       <p className="font-medium text-gray-900">{session.device}</p>
                       {session.current && (
-                        <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded">Current</span>
+                        <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded">{t("current")}</span>
                       )}
                     </div>
                     <p className="text-sm text-gray-600">{session.location}</p>
@@ -132,47 +134,47 @@ export default function PrivacySecurity() {
                   </div>
                 </div>
                 {!session.current && (
-                  <button className="text-red-600 text-sm font-medium">Revoke</button>
+                  <button className="text-red-600 text-sm font-medium">{t("revoke")}</button>
                 )}
               </div>
             ))}
           </div>
         </div>
         
-        {/* Privacy Controls */}
+        {/* {t("privacyControls")} */}
         <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <h3 className="font-bold text-gray-900 mb-4">Privacy Controls</h3>
+          <h3 className="font-bold text-gray-900 mb-4">{t("privacyControls")}</h3>
           <div className="space-y-3">
             <button className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <div className="flex items-center gap-3">
                 <MapPin size={20} className="text-gray-600" />
-                <span className="text-gray-900">Location Permissions</span>
+                <span className="text-gray-900">{t("locationPermissions")}</span>
               </div>
-              <span className="text-sm text-gray-600">Manage</span>
+              <span className="text-sm text-gray-600">{t("manage")}</span>
             </button>
             <button className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <div className="flex items-center gap-3">
                 <Bell size={20} className="text-gray-600" />
-                <span className="text-gray-900">Notification Permissions</span>
+                <span className="text-gray-900">{t("notificationPermissions")}</span>
               </div>
-              <span className="text-sm text-gray-600">Manage</span>
+              <span className="text-sm text-gray-600">{t("manage")}</span>
             </button>
           </div>
         </div>
         
-        {/* Delete Account */}
+        {/* {t("deleteAccount")} */}
         <div className="bg-white rounded-xl border-2 border-red-200 p-4">
           <div className="flex items-start gap-3 mb-4">
             <div className="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
               <Trash2 size={20} className="text-red-600" />
             </div>
             <div>
-              <h3 className="font-bold text-gray-900 mb-1">Delete Account</h3>
-              <p className="text-sm text-gray-600">Permanently delete your LSevin account and all data. This action cannot be undone.</p>
+              <h3 className="font-bold text-gray-900 mb-1">{t("deleteAccount")}</h3>
+              <p className="text-sm text-gray-600">{t("deleteDescription")}</p>
             </div>
           </div>
           <button className="w-full h-12 border-2 border-red-600 text-red-600 rounded-xl font-medium hover:bg-red-50 transition">
-            Request Account Deletion
+            {t("requestAccountDeletion")}
           </button>
         </div>
       </div>

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useMemo, useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Edit, ShieldCheck, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -53,13 +54,14 @@ export function ProfileRelatedManager({
 }
 
 function ProviderCertificationsCard({ providerId, certifications }: { providerId: string; certifications: ProviderCertificationRow[] }) {
+  const t = useTranslations("ProviderPortal.profile.related");
   const [editing, setEditing] = useState<ProviderCertificationRow | null>(null);
 
   return (
     <Card className="rounded-3xl border-slate-200 shadow-sm">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" /> Provider certifications</CardTitle>
-        <CardDescription>Providers can add unverified certifications. Verified certifications stay locked for admin trust control.</CardDescription>
+        <CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" /> {t("certifications.title")}</CardTitle>
+        <CardDescription>{t("certifications.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
         <CertificationForm providerId={providerId} editing={editing} onDone={() => setEditing(null)} />
@@ -69,24 +71,24 @@ function ProviderCertificationsCard({ providerId, certifications }: { providerId
               <div>
                 <div className="flex items-center gap-2">
                   <p className="font-medium text-slate-950">{item.name}</p>
-                  <Badge variant={item.isVerified ? "default" : "secondary"}>{item.isVerified ? "Verified" : "Provider added"}</Badge>
+                  <Badge variant={item.isVerified ? "default" : "secondary"}>{item.isVerified ? t("certifications.verified") : t("certifications.providerAdded")}</Badge>
                 </div>
-                {item.isVerified ? <p className="mt-1 text-xs text-slate-500">Verified records cannot be changed by provider users.</p> : null}
+                {item.isVerified ? <p className="mt-1 text-xs text-slate-500">{t("certifications.verifiedLocked")}</p> : null}
                 {(item.imageUrl || item.secondaryImageUrl) ? (
                   <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-500">
-                    {item.imageUrl ? <span className="rounded-full bg-slate-100 px-2 py-1">Image 1 attached</span> : null}
-                    {item.secondaryImageUrl ? <span className="rounded-full bg-slate-100 px-2 py-1">Image 2 attached</span> : null}
+                    {item.imageUrl ? <span className="rounded-full bg-slate-100 px-2 py-1">{t("certifications.image1Attached")}</span> : null}
+                    {item.secondaryImageUrl ? <span className="rounded-full bg-slate-100 px-2 py-1">{t("certifications.image2Attached")}</span> : null}
                   </div>
                 ) : null}
               </div>
               {!item.isVerified ? (
                 <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => setEditing(item)}><Edit className="mr-2 h-4 w-4" /> Edit</Button>
-                  <DeleteButton label="Delete" onDelete={async () => deleteProviderCertificationAction({ providerId, certificationId: item.id })} />
+                  <Button size="sm" variant="outline" onClick={() => setEditing(item)}><Edit className="mr-2 h-4 w-4" /> {t("buttons.edit")}</Button>
+                  <DeleteButton label={t("buttons.delete")} onDelete={async () => deleteProviderCertificationAction({ providerId, certificationId: item.id })} />
                 </div>
               ) : null}
             </div>
-          )) : <Empty text="No certifications yet." />}
+          )) : <Empty text={t("certifications.empty")} />}
         </div>
       </CardContent>
     </Card>
@@ -95,6 +97,7 @@ function ProviderCertificationsCard({ providerId, certifications }: { providerId
 
 function CertificationForm({ providerId, editing, onDone }: { providerId: string; editing: ProviderCertificationRow | null; onDone: () => void }) {
   const router = useRouter();
+  const t = useTranslations("ProviderPortal.profile.related");
   const [isPending, startTransition] = useTransition();
   const form = useForm<CertificationFormValues>({
     resolver: zodResolver(saveProviderCertificationSchema),
@@ -110,8 +113,8 @@ function CertificationForm({ providerId, editing, onDone }: { providerId: string
   const onSubmit = (values: CertificationFormValues) => {
     startTransition(async () => {
       const response = await saveProviderCertificationAction(values);
-      if (!response.ok) return toast.error(response.error || "Certification could not be saved.");
-      toast.success("Certification saved.");
+      if (!response.ok) return toast.error(response.error || t("certifications.saveFailed"));
+      toast.success(t("certifications.saveSuccess"));
       form.reset({ providerId, certificationId: null, name: "", imageUrl: null, secondaryImageUrl: null });
       onDone();
       router.refresh();
@@ -122,35 +125,35 @@ function CertificationForm({ providerId, editing, onDone }: { providerId: string
     <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
       <input type="hidden" {...form.register("providerId")} />
       <input type="hidden" {...form.register("certificationId")} />
-      <Field label="Certification name" error={form.formState.errors.name?.message}>
-        <Input {...form.register("name")} placeholder="ISO, Ministry license, Medical board..." disabled={isPending} />
+      <Field label={t("certifications.fields.name")} error={form.formState.errors.name?.message}>
+        <Input {...form.register("name")} placeholder={t("certifications.placeholders.name")} disabled={isPending} />
       </Field>
       <div className="flex gap-2">
-        {editing ? <Button type="button" variant="outline" onClick={onDone}>Cancel</Button> : null}
-        <Button type="submit" disabled={isPending}>{isPending ? "Saving..." : editing ? "Update" : "Add"}</Button>
+        {editing ? <Button type="button" variant="outline" onClick={onDone}>{t("buttons.cancel")}</Button> : null}
+        <Button type="submit" disabled={isPending}>{isPending ? t("buttons.saving") : editing ? t("buttons.update") : t("buttons.add")}</Button>
       </div>
       <div className="md:col-span-2 grid gap-3 md:grid-cols-2">
         <SingleMediaPickerInput
           name="imageUrl"
-          label="Certificate image"
-          placeholder="Pick certificate image"
+          label={t("certifications.fields.image")}
+          placeholder={t("certifications.placeholders.image")}
           mediaType="image"
           value={form.watch("imageUrl") || ""}
           onValueChange={(value) => form.setValue("imageUrl", value || null, { shouldDirty: true })}
           disabled={isPending}
-          helperText="Optional certificate image."
-          modalTitle="Pick certificate image"
+          helperText={t("certifications.helpers.image")}
+          modalTitle={t("certifications.modalTitle.image")}
         />
         <SingleMediaPickerInput
           name="secondaryImageUrl"
-          label="Second image"
-          placeholder="Pick second image"
+          label={t("certifications.fields.secondImage")}
+          placeholder={t("certifications.placeholders.secondImage")}
           mediaType="image"
           value={form.watch("secondaryImageUrl") || ""}
           onValueChange={(value) => form.setValue("secondaryImageUrl", value || null, { shouldDirty: true })}
           disabled={isPending}
-          helperText="Optional second page/image."
-          modalTitle="Pick second certificate image"
+          helperText={t("certifications.helpers.secondImage")}
+          modalTitle={t("certifications.modalTitle.secondImage")}
         />
       </div>
     </form>
@@ -158,13 +161,14 @@ function CertificationForm({ providerId, editing, onDone }: { providerId: string
 }
 
 function ProviderPoliciesCard({ providerId, related }: { providerId: string; related: ProviderProfileRelatedRecords }) {
+  const t = useTranslations("ProviderPortal.profile.related");
   const [editing, setEditing] = useState<ProviderPolicyRow | null>(null);
 
   return (
     <Card className="rounded-3xl border-slate-200 shadow-sm">
       <CardHeader>
-        <CardTitle>Provider policies</CardTitle>
-        <CardDescription>Cancellation, refund, privacy, visit rules, hotel rules, gym rules, and similar provider-facing policies.</CardDescription>
+        <CardTitle>{t("policies.title")}</CardTitle>
+        <CardDescription>{t("policies.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
         <PolicyForm providerId={providerId} policyTypes={related.policyTypes} editing={editing} onDone={() => setEditing(null)} />
@@ -173,16 +177,16 @@ function ProviderPoliciesCard({ providerId, related }: { providerId: string; rel
             <div key={item.id} className="rounded-2xl border border-slate-200 p-4">
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div className="min-w-0">
-                  <p className="font-semibold text-slate-950">{item.displayType || "Policy"}</p>
+                  <p className="font-semibold text-slate-950">{item.displayType || t("policies.fallbackType")}</p>
                   <div className="mt-2 text-sm text-slate-600"><LocalizedRichPreview translations={item.description} /></div>
                 </div>
                 <div className="flex shrink-0 gap-2">
-                  <Button size="sm" variant="outline" onClick={() => setEditing(item)}><Edit className="mr-2 h-4 w-4" /> Edit</Button>
-                  <DeleteButton label="Delete" onDelete={async () => deleteProviderPolicyAction({ providerId, policyId: item.id })} />
+                  <Button size="sm" variant="outline" onClick={() => setEditing(item)}><Edit className="mr-2 h-4 w-4" /> {t("buttons.edit")}</Button>
+                  <DeleteButton label={t("buttons.delete")} onDelete={async () => deleteProviderPolicyAction({ providerId, policyId: item.id })} />
                 </div>
               </div>
             </div>
-          )) : <Empty text="No policies yet." />}
+          )) : <Empty text={t("policies.empty")} />}
         </div>
       </CardContent>
     </Card>
@@ -201,6 +205,7 @@ function PolicyForm({
   onDone: () => void;
 }) {
   const router = useRouter();
+  const t = useTranslations("ProviderPortal.profile.related");
   const [isPending, startTransition] = useTransition();
   const defaultTypeId = policyTypes[0]?.id || null;
 
@@ -219,8 +224,8 @@ function PolicyForm({
   const onSubmit = (formValues: PolicyFormValues) => {
     startTransition(async () => {
       const response = await saveProviderPolicyAction(formValues);
-      if (!response.ok) return toast.error(response.error || "Policy could not be saved.");
-      toast.success("Policy saved.");
+      if (!response.ok) return toast.error(response.error || t("policies.saveFailed"));
+      toast.success(t("policies.saveSuccess"));
       onDone();
       router.refresh();
     });
@@ -230,21 +235,21 @@ function PolicyForm({
     <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
       <input type="hidden" {...form.register("providerId")} />
       <input type="hidden" {...form.register("policyId")} />
-      <Field label="Policy type">
+      <Field label={t("policies.fields.policyType")}>
         <select {...form.register("providerPolicyTypeId")} className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm" disabled={isPending}>
-          <option value="">Custom policy</option>
+          <option value="">{t("policies.customPolicy")}</option>
           {policyTypes.map((item) => <option key={item.id} value={item.id}>{item.label || item.code}</option>)}
         </select>
       </Field>
       <div className="grid gap-4 md:grid-cols-2">
-        <Field label="Custom type English"><Input {...form.register("typeEn")} disabled={isPending} /></Field>
-        <Field label="Custom type Persian"><Input {...form.register("typeFa")} disabled={isPending} /></Field>
+        <Field label={t("policies.fields.typeEn")}><Input {...form.register("typeEn")} disabled={isPending} /></Field>
+        <Field label={t("policies.fields.typeFa")}><Input {...form.register("typeFa")} disabled={isPending} /></Field>
       </div>
-      <Field label="Description English"><Textarea {...form.register("descriptionEn")} rows={3} disabled={isPending} /></Field>
-      <Field label="Description Persian"><Textarea {...form.register("descriptionFa")} rows={3} disabled={isPending} /></Field>
+      <Field label={t("policies.fields.descriptionEn")}><Textarea {...form.register("descriptionEn")} rows={3} disabled={isPending} /></Field>
+      <Field label={t("policies.fields.descriptionFa")}><Textarea {...form.register("descriptionFa")} rows={3} disabled={isPending} /></Field>
       <div className="flex justify-end gap-2">
-        {editing ? <Button type="button" variant="outline" onClick={onDone}>Cancel</Button> : null}
-        <Button type="submit" disabled={isPending}>{isPending ? "Saving..." : editing ? "Update policy" : "Add policy"}</Button>
+        {editing ? <Button type="button" variant="outline" onClick={onDone}>{t("buttons.cancel")}</Button> : null}
+        <Button type="submit" disabled={isPending}>{isPending ? t("buttons.saving") : editing ? t("buttons.updatePolicy") : t("buttons.addPolicy")}</Button>
       </div>
     </form>
   );
@@ -252,6 +257,7 @@ function PolicyForm({
 
 function DeleteButton({ label, onDelete }: { label: string; onDelete: () => Promise<{ ok: boolean; error?: string }> }) {
   const router = useRouter();
+  const t = useTranslations("ProviderPortal.profile.related");
   const [isPending, startTransition] = useTransition();
   return (
     <Button
@@ -260,11 +266,11 @@ function DeleteButton({ label, onDelete }: { label: string; onDelete: () => Prom
       variant="destructive"
       disabled={isPending}
       onClick={() => {
-        if (!confirm("Delete this record?")) return;
+        if (!confirm(t("delete.confirm"))) return;
         startTransition(async () => {
           const response = await onDelete();
-          if (!response.ok) return toast.error(response.error || "Record could not be deleted.");
-          toast.success("Record deleted.");
+          if (!response.ok) return toast.error(response.error || t("delete.failed"));
+          toast.success(t("delete.success"));
           router.refresh();
         });
       }}

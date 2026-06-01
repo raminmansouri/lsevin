@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import {
   Camera,
@@ -59,6 +60,7 @@ export default function ProfileImagePicker({
   isLocked,
   bottomBarHeight = 76,
 }: Props) {
+  const t = useTranslations("User.Profile.profileImage");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -118,12 +120,12 @@ export default function ProfileImagePicker({
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Please choose an image file.");
+      toast.error(t("errors.chooseImageFile"));
       return;
     }
 
     if (file.size > MAX_IMAGE_SIZE) {
-      toast.error("Image must be 5MB or smaller.");
+      toast.error(t("errors.imageTooLarge"));
       return;
     }
 
@@ -149,7 +151,7 @@ export default function ProfileImagePicker({
         created?.fileUrl ?? created?.url ?? (uploaded as { fileUrl?: string; url?: string })?.fileUrl ?? (uploaded as { url?: string })?.url;
 
       if (!createdFileUrl) {
-        throw new Error("Media record was created but id or fileUrl is missing.");
+        throw new Error(t("errors.mediaMissing"));
       }
 
       const result = await setProfileImageAction({
@@ -167,7 +169,7 @@ export default function ProfileImagePicker({
       toast.success(result.message);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Profile image upload failed."
+        error instanceof Error ? error.message : t("errors.uploadFailed")
       );
     } finally {
       setIsUploading(false);
@@ -221,7 +223,6 @@ export default function ProfileImagePicker({
             isLocked ? "text-gray-400" : "text-[#083f30]"
           }`}
         >
-          {/* {isLocked ? "Profile photo locked" : "Change profile photo"} */}
           {fullName}
         </button>
 
@@ -234,7 +235,7 @@ export default function ProfileImagePicker({
               />
             </div>
             <p className="mt-1 text-center text-xs text-gray-500">
-              Uploading {uploadProgress}%
+              {t("uploading", { progress: uploadProgress })}
             </p>
           </div>
         ) : null}
@@ -255,7 +256,7 @@ export default function ProfileImagePicker({
       type="button"
       className="absolute inset-0 bg-black/40"
       onClick={() => setIsSheetOpen(false)}
-      aria-label="Close"
+      aria-label={t("close")}
     />
 
     <div
@@ -267,7 +268,7 @@ export default function ProfileImagePicker({
       <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-gray-300" />
 
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-lg font-bold text-gray-900">Profile photo</h3>
+        <h3 className="text-lg font-bold text-gray-900">{t("title")}</h3>
         <button
           type="button"
           onClick={() => setIsSheetOpen(false)}
@@ -288,7 +289,7 @@ export default function ProfileImagePicker({
             className="flex h-14 w-full items-center gap-3 rounded-2xl px-4 text-left hover:bg-gray-50"
           >
             <Eye size={20} className="text-gray-700" />
-            <span className="font-medium text-gray-900">View photo</span>
+            <span className="font-medium text-gray-900">{t("viewPhoto")}</span>
           </button>
         ) : null}
 
@@ -300,7 +301,7 @@ export default function ProfileImagePicker({
         >
           <ImagePlus size={20} className="text-gray-700" />
           <span className="font-medium text-gray-900">
-            {resolvedImageUrl ? "Upload new photo" : "Upload photo"}
+            {resolvedImageUrl ? t("uploadNewPhoto") : t("uploadPhoto")}
           </span>
         </button>
 
@@ -313,7 +314,7 @@ export default function ProfileImagePicker({
           >
             <Trash2 size={20} className="text-red-600" />
             <span className="font-medium text-red-600">
-              {isRemoving ? "Removing..." : "Remove current photo"}
+              {isRemoving ? t("removing") : t("removeCurrentPhoto")}
             </span>
           </button>
         ) : null}

@@ -82,16 +82,25 @@ export function CustomerBugReportDetails({ report }: Props) {
         <section className="rounded-[32px] border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="mb-4 flex items-center gap-2 text-lg font-black"><MessageCircle className="h-5 w-5 text-emerald-700" /> Conversation</h2>
           <div className="space-y-4">
-            {report.messages.map((msg) => (
-              <div key={msg.id} className={`rounded-3xl border p-4 ${msg.senderType === "agent" ? "border-emerald-100 bg-emerald-50/70" : "border-slate-200 bg-slate-50"}`}>
-                <div className="mb-2 flex items-center justify-between gap-3 text-xs font-semibold text-slate-500">
-                  <span>{msg.senderType === "agent" ? msg.sender.displayName || "LSevin support" : "You"}</span>
-                  <span>{formatDate(msg.createDate)}</span>
+            {report.messages.map((msg) => {
+              const isMine = msg.senderType === "customer" && (!report.currentViewerUserId || !msg.senderUserId || msg.senderUserId === report.currentViewerUserId);
+              const bubbleClass = isMine
+                ? "ml-auto border-[#083f30] bg-[#083f30] text-white"
+                : "mr-auto border-emerald-100 bg-emerald-50/70 text-slate-900";
+              const metaClass = isMine ? "text-white/75" : "text-slate-500";
+              const bodyClass = isMine ? "text-white" : "text-slate-800";
+
+              return (
+                <div key={msg.id} className={`max-w-[88%] rounded-3xl border p-4 ${bubbleClass}`}>
+                  <div className={`mb-2 flex items-center justify-between gap-3 text-xs font-semibold ${metaClass}`}>
+                    <span>{isMine ? "You" : msg.sender.displayName || "LSevin support"}</span>
+                    <span>{formatDate(msg.createDate)}</span>
+                  </div>
+                  <p className={`whitespace-pre-wrap text-sm leading-6 ${bodyClass}`}>{msg.body}</p>
+                  <BugReportAttachmentGrid attachments={msg.attachments} imageClassName="h-32" />
                 </div>
-                <p className="whitespace-pre-wrap text-sm leading-6 text-slate-800">{msg.body}</p>
-                <BugReportAttachmentGrid attachments={msg.attachments} imageClassName="h-32" />
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 

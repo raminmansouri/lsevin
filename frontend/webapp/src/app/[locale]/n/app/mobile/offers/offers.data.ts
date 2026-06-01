@@ -1,5 +1,6 @@
 import sql from "@/config/database/db";
 import { unstable_noStore as noStore } from "next/cache";
+import { getTranslations } from "next-intl/server";
 
 export type OffersResponseTime = "any" | "fast" | "instant";
 
@@ -90,9 +91,9 @@ function normalizeLocale(locale: string) {
   return locale?.trim() || "en";
 }
 
-function formatDateLabel(value: string) {
+function formatDateLabel(value: string, locale: string) {
   try {
-    return new Intl.DateTimeFormat("en", {
+    return new Intl.DateTimeFormat(locale, {
       month: "short",
       day: "numeric",
       year: "numeric",
@@ -211,6 +212,7 @@ export async function getOffersPageData({
   noStore();
 
   const lang = normalizeLocale(locale);
+  const t = await getTranslations({ locale: lang, namespace: "MobileOffers" });
   const whereSql = buildOffersWhere(filters, lang);
 
   const rows = await sql<any[]>`
@@ -277,14 +279,14 @@ export async function getOffersPageData({
     providerServiceId: row.provider_service_id,
     providerId: row.provider_id,
     categoryId: row.category_id,
-    categoryLabel: row.category_label || "Offers",
+    categoryLabel: row.category_label || t("fallback.offers"),
     title: row.title || "",
     subtitle: row.subtitle || "",
     provider: row.provider || "",
     image: coalesceImage(row.image),
     discount: row.discount_label || `${Number(row.discount_percent ?? 0)}%`,
     discountPercent: Number(row.discount_percent ?? 0),
-    validUntil: formatDateLabel(row.valid_until_iso),
+    validUntil: formatDateLabel(row.valid_until_iso, lang),
     validUntilIso: row.valid_until_iso,
     code: row.code || "",
     verified: Boolean(row.verified),
@@ -300,13 +302,13 @@ export async function getOffersPageData({
     const key = offer.categoryId || "uncategorized";
     const current = tabCounts.get(key);
     tabCounts.set(key, {
-      label: offer.categoryLabel || "Offers",
+      label: offer.categoryLabel || t("fallback.offers"),
       count: (current?.count ?? 0) + 1,
     });
   }
 
   const tabs: OfferTab[] = [
-    { id: "all", label: "All Offers", count: offers.length },
+    { id: "all", label: t("tabs.allOffers"), count: offers.length },
     ...Array.from(tabCounts.entries()).map(([id, value]) => ({
       id,
       label: value.label,

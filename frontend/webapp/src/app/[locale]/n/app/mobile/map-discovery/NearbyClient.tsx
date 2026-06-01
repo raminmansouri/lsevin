@@ -60,6 +60,7 @@ type FilterFormValues = {
 
 type UiFilters = {
   categoryId: string;
+  providerTypeId: string;
   countryCode: string | null;
   cityCode: string | null;
   maxPrice: number;
@@ -77,6 +78,8 @@ function buildNearbyQuery(next: NearbyFiltersInput) {
   if (next.q) params.set("q", next.q);
   if (next.categoryId && next.categoryId !== "all")
     params.set("categoryId", next.categoryId);
+  if (next.providerTypeId && next.providerTypeId !== "all")
+    params.set("providerTypeId", next.providerTypeId);
   if (next.countryCode) params.set("countryCode", next.countryCode);
   if (next.cityCode) params.set("cityCode", next.cityCode);
   if (next.minPrice > 0) params.set("minPrice", String(next.minPrice));
@@ -192,6 +195,7 @@ export default function NearbyClient({
   const initialUiFilters = useMemo<UiFilters>(
     () => ({
       categoryId: initialFilters.categoryId ?? "all",
+      providerTypeId: initialFilters.providerTypeId ?? "all",
       countryCode: initialFilters.countryCode,
       cityCode: initialFilters.cityCode,
       maxPrice: initialFilters.maxPrice || 5000,
@@ -307,6 +311,7 @@ export default function NearbyClient({
       buildNearbyQuery({
         ...initialFilters,
         categoryId: nextCategoryId === "all" ? null : nextCategoryId,
+        providerTypeId: uiFilters.providerTypeId === "all" ? null : uiFilters.providerTypeId,
         countryCode: uiFilters.countryCode,
         cityCode: uiFilters.cityCode,
         minPrice: 0,
@@ -324,6 +329,7 @@ export default function NearbyClient({
   const applyFilters = form.handleSubmit((values) => {
     const nextUi: UiFilters = {
       categoryId: uiFilters.categoryId,
+      providerTypeId: uiFilters.providerTypeId,
       countryCode: values.countryCode,
       cityCode: values.cityCode,
       maxPrice: values.maxPrice,
@@ -342,6 +348,7 @@ export default function NearbyClient({
       buildNearbyQuery({
         ...initialFilters,
         categoryId: nextUi.categoryId === "all" ? null : nextUi.categoryId,
+        providerTypeId: nextUi.providerTypeId === "all" ? null : nextUi.providerTypeId,
         countryCode: nextUi.countryCode,
         cityCode: nextUi.cityCode,
         minPrice: 0,
@@ -358,7 +365,8 @@ export default function NearbyClient({
 
   const clearFilters = () => {
     const cleared: UiFilters = {
-      categoryId: uiFilters.categoryId,
+      categoryId: "all",
+      providerTypeId: "all",
       countryCode: null,
       cityCode: null,
       maxPrice: 5000,
@@ -387,6 +395,7 @@ export default function NearbyClient({
       buildNearbyQuery({
         ...initialFilters,
         categoryId: cleared.categoryId === "all" ? null : cleared.categoryId,
+        providerTypeId: cleared.providerTypeId === "all" ? null : cleared.providerTypeId,
         countryCode: null,
         cityCode: null,
         minPrice: 0,
@@ -411,6 +420,7 @@ export default function NearbyClient({
           ...initialFilters,
           categoryId:
             uiFilters.categoryId === "all" ? null : uiFilters.categoryId,
+          providerTypeId: uiFilters.providerTypeId === "all" ? null : uiFilters.providerTypeId,
           countryCode: uiFilters.countryCode,
           cityCode: uiFilters.cityCode,
           minPrice: 0,
@@ -441,6 +451,8 @@ export default function NearbyClient({
   };
 
   const hasActiveFilters =
+    uiFilters.categoryId !== "all" ||
+    uiFilters.providerTypeId !== "all" ||
     uiFilters.countryCode != null ||
     uiFilters.cityCode != null ||
     uiFilters.currencyCode != null ||

@@ -59,7 +59,7 @@ export default function Support() {
   const tickets = [
     {
       id: 'TKT-8472',
-      subject: 'Payment not reflected in wallet',
+      subject: tAdmin("ticketSubjects.paymentNotReflectedInWallet"),
       user: 'Sarah Mitchell',
       userId: 'USR-28471',
       type: 'User',
@@ -68,13 +68,13 @@ export default function Support() {
       status: 'Open',
       assignedTo: 'Ahmed Hassan',
       createdAt: '2025-03-10 14:24:18',
-      lastUpdate: '5 minutes ago',
+      lastUpdate: tAdmin("relativeTime.fiveMinutesAgo"),
       messages: 3,
       responseTime: '2h 15m'
     },
     {
       id: 'TKT-8471',
-      subject: 'Unable to confirm booking',
+      subject: tAdmin("ticketSubjects.unableToConfirmBooking"),
       user: 'Istanbul Medical Center',
       userId: 'PRV-1245',
       type: 'Provider',
@@ -83,13 +83,13 @@ export default function Support() {
       status: 'In Progress',
       assignedTo: 'Fatima Al-Mansoori',
       createdAt: '2025-03-10 13:45:22',
-      lastUpdate: '1 hour ago',
+      lastUpdate: tAdmin("relativeTime.oneHourAgo"),
       messages: 7,
       responseTime: '45m'
     },
     {
       id: 'TKT-8470',
-      subject: 'Refund request for cancelled service',
+      subject: tAdmin("ticketSubjects.refundRequestForCancelledService"),
       user: 'Michael Chen',
       userId: 'USR-28472',
       type: 'User',
@@ -98,13 +98,13 @@ export default function Support() {
       status: 'Escalated',
       assignedTo: 'Support Manager',
       createdAt: '2025-03-10 12:18:45',
-      lastUpdate: '3 hours ago',
+      lastUpdate: tAdmin("relativeTime.threeHoursAgo"),
       messages: 12,
       responseTime: '4h 20m'
     },
     {
       id: 'TKT-8469',
-      subject: 'Account verification documents',
+      subject: tAdmin("ticketSubjects.accountVerificationDocuments"),
       user: 'Dubai Smile Clinic',
       userId: 'PRV-1287',
       type: 'Provider',
@@ -113,13 +113,13 @@ export default function Support() {
       status: 'Pending User',
       assignedTo: 'Layla Ibrahim',
       createdAt: '2025-03-10 11:32:10',
-      lastUpdate: '4 hours ago',
+      lastUpdate: tAdmin("relativeTime.fourHoursAgo"),
       messages: 4,
       responseTime: '1h 30m'
     },
     {
       id: 'TKT-8468',
-      subject: 'Service pricing update not showing',
+      subject: tAdmin("ticketSubjects.servicePricingUpdateNotShowing"),
       user: 'Bali Wellness Resort',
       userId: 'PRV-1312',
       type: 'Provider',
@@ -128,13 +128,13 @@ export default function Support() {
       status: 'Open',
       assignedTo: 'Omar Khalid',
       createdAt: '2025-03-10 10:55:33',
-      lastUpdate: '2 hours ago',
+      lastUpdate: tAdmin("relativeTime.twoHoursAgo"),
       messages: 5,
       responseTime: '1h 10m'
     },
     {
       id: 'TKT-8467',
-      subject: 'How to use loyalty points?',
+      subject: tAdmin("ticketSubjects.howToUseLoyaltyPoints"),
       user: 'Emma Williams',
       userId: 'USR-28469',
       type: 'User',
@@ -143,13 +143,13 @@ export default function Support() {
       status: 'Resolved',
       assignedTo: 'Ahmed Hassan',
       createdAt: '2025-03-10 09:20:15',
-      lastUpdate: '6 hours ago',
+      lastUpdate: tAdmin("relativeTime.sixHoursAgo"),
       messages: 2,
       responseTime: '25m'
     },
     {
       id: 'TKT-8466',
-      subject: 'Booking modification requested',
+      subject: tAdmin("ticketSubjects.bookingModificationRequested"),
       user: 'James Sullivan',
       userId: 'USR-28465',
       type: 'User',
@@ -158,13 +158,13 @@ export default function Support() {
       status: 'In Progress',
       assignedTo: 'Fatima Al-Mansoori',
       createdAt: '2025-03-10 08:47:52',
-      lastUpdate: '7 hours ago',
+      lastUpdate: tAdmin("relativeTime.sevenHoursAgo"),
       messages: 8,
       responseTime: '2h 5m'
     },
     {
       id: 'TKT-8465',
-      subject: 'Payout delay complaint',
+      subject: tAdmin("ticketSubjects.payoutDelayComplaint"),
       user: 'Bangkok FitZone',
       userId: 'PRV-1289',
       type: 'Provider',
@@ -173,13 +173,13 @@ export default function Support() {
       status: 'Escalated',
       assignedTo: 'Support Manager',
       createdAt: '2025-03-10 07:15:28',
-      lastUpdate: '8 hours ago',
+      lastUpdate: tAdmin("relativeTime.eightHoursAgo"),
       messages: 15,
       responseTime: '5h 45m'
     },
     {
       id: 'TKT-8464',
-      subject: 'Cannot upload service images',
+      subject: tAdmin("ticketSubjects.cannotUploadServiceImages"),
       user: 'Cyprus Beauty Lounge',
       userId: 'PRV-1334',
       type: 'Provider',
@@ -188,13 +188,13 @@ export default function Support() {
       status: 'Resolved',
       assignedTo: 'Omar Khalid',
       createdAt: '2025-03-09 18:22:41',
-      lastUpdate: '1 day ago',
+      lastUpdate: tAdmin("relativeTime.oneDayAgo"),
       messages: 3,
       responseTime: '40m'
     },
     {
       id: 'TKT-8463',
-      subject: 'Incorrect service category assigned',
+      subject: tAdmin("ticketSubjects.incorrectServiceCategoryAssigned"),
       user: 'Thai Wellness Center',
       userId: 'PRV-1298',
       type: 'Provider',
@@ -203,7 +203,7 @@ export default function Support() {
       status: 'Resolved',
       assignedTo: 'Layla Ibrahim',
       createdAt: '2025-03-09 16:45:19',
-      lastUpdate: '1 day ago',
+      lastUpdate: tAdmin("relativeTime.oneDayAgo"),
       messages: 6,
       responseTime: '1h 20m'
     }
@@ -239,6 +239,21 @@ export default function Support() {
     }
   };
 
+
+  const getCategoryLabel = (category: string) => {
+    const labels: Record<string, string> = {
+      "Payment Issue": tAdmin("paymentIssue"),
+      "Booking Management": tAdmin("bookingManagement"),
+      "Refund Request": tAdmin("refundRequest2"),
+      "Account Verification": tAdmin("accountVerification"),
+      "Technical Issue": tAdmin("technicalIssue"),
+      "General Inquiry": tAdmin("generalInquiry"),
+      "Booking Modification": tAdmin("bookingModification"),
+      "Service Management": tAdmin("serviceManagement"),
+    };
+    return labels[category] || category;
+  };
+
   const filteredTickets = tickets.filter(ticket => {
     const matchesPriority = priorityFilter === 'all' || ticket.priority === priorityFilter;
     const matchesStatus = statusFilter === 'all' || ticket.status === statusFilter;
@@ -268,13 +283,9 @@ export default function Support() {
           </div>
           <div className="flex items-center gap-3">
             <button className="px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50">
-              <Filter size={16} className="inline mr-2" />
-              Advanced Filters
-            </button>
+              <Filter size={16} className="inline mr-2" />{tAdmin("advancedFilters")}</button>
             <button className="px-4 py-2 bg-[#083f30] rounded-xl text-sm font-semibold text-white hover:bg-[#083f30]/90">
-              <MessageSquare size={16} className="inline mr-2" />
-              New Ticket
-            </button>
+              <MessageSquare size={16} className="inline mr-2" />{tAdmin("newTicket")}</button>
           </div>
         </div>
 
@@ -414,7 +425,7 @@ export default function Support() {
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
           <div className="p-5 border-b border-gray-200">
             <div className="flex items-center justify-between">
-              <h2 className="font-bold text-gray-900">Ticket Queue ({filteredTickets.length})</h2>
+              <h2 className="font-bold text-gray-900">{tAdmin("ticketQueue")} ({filteredTickets.length})</h2>
             </div>
           </div>
           
@@ -444,7 +455,7 @@ export default function Support() {
                       <div className="font-semibold text-gray-900 max-w-xs truncate">{ticket.subject}</div>
                       <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
                         <MessageCircle size={12} />
-                        {ticket.messages} messages
+                        {ticket.messages} {tAdmin("messages")}
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -460,7 +471,7 @@ export default function Support() {
                     </td>
                     <td className="px-6 py-4">
                       <span className="px-2.5 py-1 bg-purple-50 text-purple-700 text-xs font-semibold rounded-lg">
-                        {ticket.category}
+                        {getCategoryLabel(ticket.category)}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -476,8 +487,7 @@ export default function Support() {
                       <div className="text-sm font-semibold text-gray-900">{ticket.responseTime}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <button className="px-3 py-1.5 bg-[#083f30] text-white rounded-lg text-sm font-semibold hover:bg-[#083f30]/90 flex items-center gap-1">
-                        View <ArrowRight size={14} />
+                      <button className="px-3 py-1.5 bg-[#083f30] text-white rounded-lg text-sm font-semibold hover:bg-[#083f30]/90 flex items-center gap-1">{tAdmin("view")}<ArrowRight size={14} />
                       </button>
                     </td>
                   </tr>

@@ -1,6 +1,7 @@
 "use client";
 
 import { Bot, FileText, Headphones, Lock, UserRound } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Badge } from "@/components/ui/badge";
 import type { SupportMessage } from "../types";
@@ -12,10 +13,12 @@ type Props = {
 };
 
 export function SupportThread({ messages, customerSide = true }: Props) {
+  const t = useTranslations("SupportPages.customer");
+
   if (!messages.length) {
     return (
       <div className="flex min-h-[240px] items-center justify-center rounded-3xl border border-dashed bg-white/70 p-8 text-center text-sm text-muted-foreground">
-        No messages yet. Start the conversation below.
+        {t("noMessagesYet")}
       </div>
     );
   }
@@ -35,7 +38,7 @@ export function SupportThread({ messages, customerSide = true }: Props) {
                 {isNote ? <Lock className="h-4 w-4" /> : isSystem ? <Bot className="h-4 w-4" /> : isCustomer ? <UserRound className="h-4 w-4" /> : <Headphones className="h-4 w-4" />}
               </div>
               <div className={`rounded-3xl px-4 py-3 text-sm shadow-sm ${isNote ? "border border-amber-200 bg-amber-50 text-amber-950" : isOwn ? "bg-[#083f30] text-white" : "border bg-white text-slate-900"}`}>
-                {isNote && <Badge variant="outline" className="mb-2 border-amber-300 bg-amber-100 text-amber-900">Internal note</Badge>}
+                {isNote && <Badge variant="outline" className="mb-2 border-amber-300 bg-amber-100 text-amber-900">{t("internalNote")}</Badge>}
                 {message.body && <p className="whitespace-pre-wrap leading-6">{message.body}</p>}
                 {!!message.attachments?.length && (
                   <div className="mt-3 space-y-2">

@@ -2,7 +2,7 @@
 
 import { Headphones, Loader2, MessageCircle, Minus, SendHorizonal, X } from "lucide-react";
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -30,6 +30,7 @@ type Props = {
 
 export function SupportFloatingWidget({ bootstrap, disabledOnCurrentRoute }: Props) {
   const locale = useLocale();
+  const t = useTranslations("SupportPages.customer");
   const { data: session } = useSession();
   const user = session?.user;
   const [data, setData] = useState(bootstrap);
@@ -109,7 +110,7 @@ export function SupportFloatingWidget({ bootstrap, disabledOnCurrentRoute }: Pro
         setConversation(result.data);
         setFirstMessage("");
       }
-      if (result.fieldErrors) toast.error(Object.values(result.fieldErrors)[0]?.[0] || "Please check the form.");
+      if (result.fieldErrors) toast.error(Object.values(result.fieldErrors)[0]?.[0] || t("pleaseCheckForm"));
       if (result.error) toast.error(result.error.detail || result.error.title);
     });
   };
@@ -165,8 +166,8 @@ export function SupportFloatingWidget({ bootstrap, disabledOnCurrentRoute }: Pro
                   </Button>
                 ) : data.settings.allowGuestConversation ? (
                   <>
-                    <Input value={guestName} onChange={(event) => setGuestName(event.target.value)} placeholder="Name" className="rounded-2xl bg-white" />
-                    <Input value={guestEmail} onChange={(event) => setGuestEmail(event.target.value)} placeholder="Email" className="rounded-2xl bg-white" />
+                    <Input value={guestName} onChange={(event) => setGuestName(event.target.value)} placeholder={t("namePlaceholder")} className="rounded-2xl bg-white" />
+                    <Input value={guestEmail} onChange={(event) => setGuestEmail(event.target.value)} placeholder={t("emailPlaceholder")} className="rounded-2xl bg-white" />
                     <Textarea value={firstMessage} onChange={(event) => setFirstMessage(event.target.value)} placeholder={labels.inputPlaceholder} className="min-h-[92px] rounded-2xl bg-white" />
                     <Button disabled={isPending} onClick={startConversation} className="h-11 w-full rounded-2xl">
                       {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -174,7 +175,7 @@ export function SupportFloatingWidget({ bootstrap, disabledOnCurrentRoute }: Pro
                     </Button>
                   </>
                 ) : (
-                  <div className="rounded-2xl border bg-white p-4 text-sm text-muted-foreground">Please login to contact support.</div>
+                  <div className="rounded-2xl border bg-white p-4 text-sm text-muted-foreground">{t("loginRequired")}</div>
                 )}
               </div>
             ) : (
@@ -184,7 +185,7 @@ export function SupportFloatingWidget({ bootstrap, disabledOnCurrentRoute }: Pro
                     <p className="text-xs font-semibold">{conversation.conversationNumber}</p>
                     <p className="text-[11px] text-muted-foreground">{conversation.status}</p>
                   </div>
-                  <Link href="/n/app/mobile/support" className="text-xs font-semibold underline-offset-4 hover:underline">Open full page</Link>
+                  <Link href="/n/app/mobile/support" className="text-xs font-semibold underline-offset-4 hover:underline">{t("openFullPage")}</Link>
                 </div>
                 <SupportThread messages={conversation.messages.slice(-8)} />
               </div>

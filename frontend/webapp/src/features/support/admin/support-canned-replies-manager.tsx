@@ -52,7 +52,7 @@ export function SupportCannedRepliesManager({ replies }: Props) {
         reset();
         toast.success(tAdmin("cannedReplySaved"));
       }
-      if (result.fieldErrors) toast.error(Object.values(result.fieldErrors)[0]?.[0] || "Please check canned reply.");
+      if (result.fieldErrors) toast.error(Object.values(result.fieldErrors)[0]?.[0] || tAdmin("pleaseCheckCannedReply"));
       if (result.error) toast.error(result.error.detail || result.error.title);
     });
   };
@@ -72,7 +72,7 @@ export function SupportCannedRepliesManager({ replies }: Props) {
   return (
     <div className="grid gap-5 lg:grid-cols-[430px_minmax(0,1fr)]">
       <Card className="rounded-3xl">
-        <CardHeader><CardTitle>{draft.id ? "Edit canned reply" : "New canned reply"}</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{draft.id ? tAdmin("editCannedReply") : tAdmin("newCannedReply")}</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <Input value={draft.title} onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))} placeholder={tAdmin("title")} />
           <div className="grid gap-3 sm:grid-cols-2">
@@ -80,7 +80,7 @@ export function SupportCannedRepliesManager({ replies }: Props) {
             <Input type="number" value={draft.displayOrder} onChange={(event) => setDraft((current) => ({ ...current, displayOrder: Number(event.target.value || 0) }))} placeholder={tAdmin("displayOrder")} />
           </div>
           <Textarea value={draft.bodyEn} onChange={(event) => setDraft((current) => ({ ...current, bodyEn: event.target.value }))} placeholder={tAdmin("englishReply")} className="min-h-[120px]" />
-          <Textarea dir="rtl" value={draft.bodyFa} onChange={(event) => setDraft((current) => ({ ...current, bodyFa: event.target.value }))} placeholder="متن فارسی" className="min-h-[120px]" />
+          <Textarea dir="rtl" value={draft.bodyFa} onChange={(event) => setDraft((current) => ({ ...current, bodyFa: event.target.value }))} placeholder={tAdmin("persianReply")} className="min-h-[120px]" />
           <div className="flex items-center justify-between rounded-2xl border bg-slate-50 p-4">
             <span className="text-sm font-medium">{tAdmin("active")}</span>
             <Switch checked={draft.isActive} onCheckedChange={(checked) => setDraft((current) => ({ ...current, isActive: checked }))} />
@@ -102,7 +102,7 @@ export function SupportCannedRepliesManager({ replies }: Props) {
                   <p className="truncate text-sm font-semibold">{reply.title}</p>
                   {reply.shortcut && <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">{reply.shortcut}</span>}
                 </div>
-                <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{reply.bodyTranslations["en-US"] || Object.values(reply.bodyTranslations)[0] || "No body"}</p>
+                <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{reply.bodyTranslations["en-US"] || Object.values(reply.bodyTranslations)[0] || tAdmin("noBody")}</p>
               </button>
               <Button type="button" variant="ghost" size="icon" onClick={() => remove(reply)} className="rounded-xl text-destructive"><Trash2 className="h-4 w-4" /></Button>
             </div>

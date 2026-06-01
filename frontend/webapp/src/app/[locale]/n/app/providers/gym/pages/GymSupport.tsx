@@ -1,5 +1,7 @@
 "use client"
 
+import { useTranslations } from "next-intl";
+
 import { DashboardLayout } from '../../../design-system/dashboard-components';
 import { 
   LayoutDashboard, Calendar, Users, Dumbbell, DollarSign, TrendingUp, BarChart3, CreditCard, MessageSquare, Settings, Package, Activity,
@@ -7,54 +9,53 @@ import {
 } from 'lucide-react';
 
 export default function GymSupport() {
+  const t = useTranslations("SupportPages.providerGenerated");
   const navigation = [
-    { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/provider/gym/dashboard' },
-    { label: 'Class Schedule', icon: <Calendar size={20} />, path: '/provider/gym/schedule' },
-    { label: 'Trainers', icon: <Users size={20} />, path: '/provider/gym/trainers' },
-    { label: 'Memberships', icon: <Package size={20} />, path: '/provider/gym/memberships' },
-    { label: 'Services', icon: <Dumbbell size={20} />, path: '/provider/gym/services' },
-    { label: 'Bookings', icon: <Calendar size={20} />, path: '/provider/gym/bookings', badge: 8 },
-    { label: 'Live Status', icon: <Activity size={20} />, path: '/provider/gym/live-status' },
-    { label: 'Offers', icon: <TrendingUp size={20} />, path: '/provider/gym/offers' },
-    { label: 'Analytics', icon: <BarChart3 size={20} />, path: '/provider/gym/analytics' },
-    { label: 'Billing', icon: <CreditCard size={20} />, path: '/provider/gym/billing' },
-    { label: 'Support', icon: <MessageSquare size={20} />, path: '/provider/gym/support' },
-    { label: 'Settings', icon: <Settings size={20} />, path: '/provider/gym/settings' },
+    { label: t("navigation.dashboard"), icon: <LayoutDashboard size={20} />, path: '/provider/gym/dashboard' },
+    { label: t("navigation.classSchedule"), icon: <Calendar size={20} />, path: '/provider/gym/schedule' },
+    { label: t("navigation.trainers"), icon: <Users size={20} />, path: '/provider/gym/trainers' },
+    { label: t("navigation.memberships"), icon: <Package size={20} />, path: '/provider/gym/memberships' },
+    { label: t("navigation.services"), icon: <Dumbbell size={20} />, path: '/provider/gym/services' },
+    { label: t("navigation.bookings"), icon: <Calendar size={20} />, path: '/provider/gym/bookings', badge: 8 },
+    { label: t("navigation.liveStatus"), icon: <Activity size={20} />, path: '/provider/gym/live-status' },
+    { label: t("navigation.offers"), icon: <TrendingUp size={20} />, path: '/provider/gym/offers' },
+    { label: t("navigation.analytics"), icon: <BarChart3 size={20} />, path: '/provider/gym/analytics' },
+    { label: t("navigation.billing"), icon: <CreditCard size={20} />, path: '/provider/gym/billing' },
+    { label: t("navigation.support"), icon: <MessageSquare size={20} />, path: '/provider/gym/support' },
+    { label: t("navigation.settings"), icon: <Settings size={20} />, path: '/provider/gym/settings' },
   ];
 
   const tickets = [
-    { id: 'TKT-2847', subject: 'Membership sync issue', category: 'Technical', priority: 'high', status: 'open', lastReply: '1 hour ago' },
-    { id: 'TKT-2846', subject: 'Class booking problem', category: 'Bookings', priority: 'medium', status: 'in-progress', lastReply: '3 hours ago' },
-    { id: 'TKT-2845', subject: 'Payment question', category: 'Billing', priority: 'low', status: 'resolved', lastReply: '1 day ago' },
+    { id: 'TKT-2847', subject: t("tickets.membershipSyncIssue"), category: t("categories.technical"), priority: 'high', status: 'open', lastReply: t("relativeTime.oneHourAgo") },
+    { id: 'TKT-2846', subject: t("tickets.classBookingProblem"), category: t("categories.bookings"), priority: 'medium', status: 'in-progress', lastReply: t("relativeTime.threeHoursAgo") },
+    { id: 'TKT-2845', subject: t("tickets.paymentQuestion"), category: t("categories.billing"), priority: 'low', status: 'resolved', lastReply: t("relativeTime.oneDayAgo") },
   ];
 
   return (
     <DashboardLayout 
       navigation={navigation} 
-      headerTitle="Support Center"
+      headerTitle={t("supportCenter")}
       userRole="provider"
       userName="Mike Patterson"
       providerName="PowerFit Gym"
     >
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-2xl font-bold text-gray-900">Support Tickets</h3>
+        <h3 className="text-2xl font-bold text-gray-900">{t("supportTickets")}</h3>
         <button className="h-10 px-4 bg-[#083f30] text-white rounded-lg font-medium hover:bg-[#0a5a44] flex items-center gap-2">
-          <Plus size={18} />
-          New Ticket
-        </button>
+          <Plus size={18} />{t("newTicket")}</button>
       </div>
 
       <div className="grid grid-cols-3 gap-6 mb-6">
         <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <div className="text-sm font-medium text-gray-600 mb-2">Open</div>
+          <div className="text-sm font-medium text-gray-600 mb-2">{t("open")}</div>
           <div className="text-2xl font-bold text-gray-900">1</div>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <div className="text-sm font-medium text-gray-600 mb-2">In Progress</div>
+          <div className="text-sm font-medium text-gray-600 mb-2">{t("inProgress")}</div>
           <div className="text-2xl font-bold text-blue-900">1</div>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <div className="text-sm font-medium text-gray-600 mb-2">Resolved</div>
+          <div className="text-sm font-medium text-gray-600 mb-2">{t("resolved")}</div>
           <div className="text-2xl font-bold text-green-900">1</div>
         </div>
       </div>
@@ -71,25 +72,23 @@ export default function GymSupport() {
                     ticket.status === 'in-progress' ? 'bg-blue-100 text-blue-700' :
                     'bg-green-100 text-green-700'
                   }`}>
-                    {ticket.status.toUpperCase()}
+                    {t(`status.${ticket.status.replaceAll("-", "_")}`).toUpperCase()}
                   </span>
                   <span className={`px-2 py-1 text-xs font-semibold rounded ${
                     ticket.priority === 'high' ? 'bg-red-50 text-red-700' :
                     ticket.priority === 'medium' ? 'bg-yellow-50 text-yellow-700' :
                     'bg-gray-100 text-gray-700'
                   }`}>
-                    {ticket.priority.toUpperCase()}
+                    {t(`priority.${ticket.priority}`).toUpperCase()}
                   </span>
                   <span className="px-2 py-1 bg-purple-50 text-purple-700 text-xs font-semibold rounded">
                     {ticket.category}
                   </span>
                 </div>
                 <h4 className="font-semibold text-gray-900 mb-1">{ticket.subject}</h4>
-                <p className="text-sm text-gray-600">Last reply: {ticket.lastReply}</p>
+                <p className="text-sm text-gray-600">{t("lastReply")}: {ticket.lastReply}</p>
               </div>
-              <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">
-                View Details
-              </button>
+              <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">{t("viewDetails")}</button>
             </div>
           </div>
         ))}
@@ -101,11 +100,9 @@ export default function GymSupport() {
             <HelpCircle size={24} className="text-white" />
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 mb-2">Need Help?</h3>
-            <p className="text-sm text-gray-700 mb-4">Browse our help center for answers to common questions.</p>
-            <button className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">
-              Visit Help Center
-            </button>
+            <h3 className="font-semibold text-gray-900 mb-2">{t("needHelp")}</h3>
+            <p className="text-sm text-gray-700 mb-4">{t("gymHelpCenterDescription")}</p>
+            <button className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">{t("visitHelpCenter")}</button>
           </div>
         </div>
       </div>

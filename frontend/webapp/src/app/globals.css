@@ -206,3 +206,8 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+html[lang="fa"] * {
+  font-family: 'vazir';
+}

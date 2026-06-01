@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { SupportAdminInbox } from "@/features/support/admin/support-admin-inbox";
 import { getAdminConversationDetail, listAdminConversations, listCannedReplies, listSupportTags } from "@/features/support/server/repository";
 
-type Props = { params: Promise<{ conversationId: string }> };
+type Props = { params: Promise<{ locale: string; conversationId: string }> };
 
-export const metadata: Metadata = {
-  title: "Support Conversation",
-  description: "Review and reply to a support conversation.",
-};
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "SupportPages.admin.conversation" });
+  return { title: t("metadataTitle"), description: t("metadataDescription") };
+}
 
 export default async function AdminSupportConversationPage({ params }: Props) {
   const { conversationId } = await params;

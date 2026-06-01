@@ -12,7 +12,7 @@ declare const messages: {
   "Booking": {
     "aDedicatedCoordinatorWillBeAssignedAfterBookingConfirmation": "dedicated منسق will be مُعيّن بعد تأكيد الحجز.",
     "aDedicatedMedicalCoordinatorWillBeAssignedToYou": "dedicated المنسق الطبي will be مُعيّن إلى أنت immediately بعد تأكيد الحجز.",
-    "aED1240": "1,240 درهم إماراتي",
+    "aED1240": "1,240 درهم",
     "abuDhabi": "أبوظبي",
     "actions": "الإجراءات",
     "active": "نشط",
@@ -37,7 +37,7 @@ declare const messages: {
     "additionalServices": "إضافي الخدمات",
     "additionalServices2": "إضافي الخدمات",
     "adults": "البالغون",
-    "allBookings": "كل الحجوزات (",
+    "allBookings": "كل الحجوزات",
     "allClinics": "كل العيادات",
     "allDoctors": "كل الأطباء",
     "allDocumentsAreEncryptedEndToEndAndOnly": "كل المستندات are مشفر end-إلى-end و only قابلة للوصول بواسطة الخاص بك مُعيّن طبي team.",
@@ -48,7 +48,7 @@ declare const messages: {
     "allStatus": "كل الحالات",
     "allTimesShownAreInIstanbulTimeGMTPlus": "كل times shown are في Istanbul الوقت (GMT+3). نحن'll إرسال أنت التأكيد مع الخاص بك local الوقت.",
     "and": "، و",
-    "annaMartinez": "Anna Martinez",
+    "annaMartinez": "آنا مارتينيز",
     "anyAllergiesCurrentMedicationsOrSpecialRequirements": "Any allergies، الحالي الأدوية، أو خاص المتطلبات...",
     "applied": "تم التطبيق:",
     "apply": "تطبيق",
@@ -56,7 +56,7 @@ declare const messages: {
     "appointmentDetails": "تفاصيل الموعد",
     "appointmentSchedule": "جدول الموعد",
     "appointmentTime": "وقت الموعد",
-    "areYouSureYouWantToCancelThisBooking": "Are أنت sure أنت want إلى إلغاء هذا الحجز?",
+    "areYouSureYouWantToCancelThisBooking": "هل أنت متأكد من إلغاء هذا الحجز؟",
     "assignedDoctor": "الطبيب المعيّن",
     "available": "متاح",
     "availableDates": "التواريخ المتاحة",
@@ -77,13 +77,13 @@ declare const messages: {
     "booking": "الحجز",
     "bookingActions": "إجراءات الحجز",
     "bookingCalendar": "تقويم الحجز",
-    "bookingCancelledSuccessfully": "الحجز ملغى successfully.",
+    "bookingCancelledSuccessfully": "تم إلغاء الحجز بنجاح.",
     "bookingCheckout": "الحجز checkout",
     "bookingConfirmed": "تم تأكيد الحجز!",
-    "bookingConfirmed2": "الحجز مؤكد",
-    "bookingCouldNotBeCancelled": "الحجز could not be ملغى.",
-    "bookingCouldNotBeLoaded": "الحجز could not be loaded",
-    "bookingCreated": "الحجز تم الإنشاء",
+    "bookingConfirmed2": "تم تأكيد الحجز",
+    "bookingCouldNotBeCancelled": "تعذر إلغاء الحجز.",
+    "bookingCouldNotBeLoaded": "تعذر تحميل الحجز.",
+    "bookingCreated": "تم إنشاء الحجز",
     "bookingDetails": "تفاصيل الحجز",
     "bookingDrafts": "مسودات الحجوزات",
     "bookingFee": "رسوم الحجز",
@@ -91,7 +91,7 @@ declare const messages: {
     "bookingID": "معرّف الحجز",
     "bookingID2": "معرّف الحجز:",
     "bookingInformation": "معلومات الحجز",
-    "bookingPaymentTerms": "الحجز شروط الدفع",
+    "bookingPaymentTerms": "شروط دفع الحجز",
     "bookingReview": "مراجعة الحجز",
     "bookingReviewSaved": "مراجعة الحجز تم الحفظ",
     "bookingStatus": "حالة الحجز",
@@ -99,33 +99,33 @@ declare const messages: {
     "bookingSteps": "خطوات الحجز",
     "bookingSubmitted": "الحجز تم الإرسال",
     "bookingSummary": "ملخص الحجز",
-    "bookingUpdated": "الحجز تم التحديث.",
+    "bookingUpdated": "تم تحديث الحجز.",
     "bookings": "الحجوزات",
     "bookings2": "الحجوزات",
-    "bookingsCouldNotBeLoaded": "الحجوزات could not be loaded",
+    "bookingsCouldNotBeLoaded": "تعذر تحميل الحجوزات.",
     "bookingsReview": "الحجوزات مراجعة",
     "bulkActions": "إجراءات جماعية",
     "bundleDiscountApplied": "خصم الحزمة Applied!",
     "calendar": "التقويم",
     "cancel": "إلغاء",
     "cancelBooking": "إلغاء الحجز",
-    "cancelBooking2": "إلغاء الحجز?",
+    "cancelBooking2": "إلغاء الحجز",
     "cancelFreeOfChargeUpTo24HoursBefore": "إلغاء مجاني من رسوم up إلى 24 ساعات قبل departure لـ كامل استرداد.",
     "cancelFreeOfChargeUpTo48HoursBefore": "إلغاء مجاني من رسوم up إلى 48 ساعات قبل فحص-في. كامل استرداد guaranteed.",
     "cancelOrRescheduleUpTo2HoursBeforeYour": "إلغاء أو إعادة الجدولة up إلى 2 ساعات قبل الخاص بك الجلسة مع لا يوجد penalty.",
     "cancellationPolicy": "سياسة الإلغاء",
-    "cancellationPolicy2": "سياسة الإلغاء:",
+    "cancellationPolicy2": "سياسة الإلغاء: ",
     "cancellationReason": "سبب الإلغاء",
     "cancelled": "ملغى",
     "capacity": "السعة",
     "capacity2": "• السعة",
     "capacityLeft": "السعة يسار",
     "certs": "الشهادات",
-    "checkIn": "فحص-في",
+    "checkIn": "تسجيل الوصول",
     "checkInAndCheckOut": "فحص-في & فحص-out",
     "checkInDate": "فحص-في التاريخ",
-    "checkInsToday": "فحص-ins اليوم",
-    "checkOut": "فحص-out",
+    "checkInsToday": "تسجيلات وصول اليوم",
+    "checkOut": "تسجيل المغادرة",
     "checkOutDate": "فحص-out التاريخ",
     "checkingServiceResourceAvailability": "Checking service/resource التوفر…",
     "childProvider": "فرعي المزوّد",
@@ -144,7 +144,7 @@ declare const messages: {
     "chooseYourSpecialist": "اختر الخاص بك المختص",
     "chooseYourTrainer": "اختر الخاص بك Trainer",
     "chooseYourWorkout": "اختر الخاص بك التمرين",
-    "cityHospital": "City Hospital",
+    "cityHospital": "مستشفى المدينة",
     "clickToUploadADocument": "Click إلى رفع مستند",
     "clients": "عملاء",
     "clinic": "عيادة",
@@ -160,8 +160,8 @@ declare const messages: {
     "confirmationNumber": "التأكيد #",
     "confirmed": "مؤكد",
     "confirmedAvailability": "مؤكد التوفر",
-    "contactProvider": "التواصل المزوّد",
-    "contactSupport": "التواصل الدعم",
+    "contactProvider": "التواصل مع المزوّد",
+    "contactSupport": "التواصل مع الدعم",
     "continue": "متابعة",
     "continueInspectOrRepairPendingUserDraftFlows": "متابعة، inspect أو repair معلّق المستخدم مسودة flows",
     "continuePendingBooking": "متابعة معلّق الحجز",
@@ -178,11 +178,11 @@ declare const messages: {
     "currentDraft": "الحالي مسودة",
     "currentDraftStep": "الحالي مسودة خطوة:",
     "customer": "العميل",
-    "customer2": "العميل:",
+    "customer2": "العميل: ",
     "customerInformation": "معلومات العميل",
     "date": "التاريخ:",
-    "date2": "التاريخ",
-    "dateAndTime": "التاريخ & الوقت",
+    "date2": "Date",
+    "dateAndTime": "Date & time",
     "dateOfBirth": "تاريخ الميلاد",
     "depositToSecureYourBooking": "عربون لتأمين الخاص بك الحجز",
     "destination": "الوجهة",
@@ -196,9 +196,9 @@ declare const messages: {
     "documents": "المستندات",
     "download": "تنزيل",
     "downloadConfirmation": "تنزيل التأكيد",
-    "drAhmedHassan": "Dr. Ahmed Hassan",
-    "drFatimaAlRashid": "Dr. Fatima Al-Rashid",
-    "drMariaSantos": "Dr. Maria Santos",
+    "drAhmedHassan": "د. أحمد حسن",
+    "drFatimaAlRashid": "د. فاطمة الراشد",
+    "drMariaSantos": "د. ماريا سانتوس",
     "draftBookingCouldNotBeSavedBeforeCheckout": "مسودة الحجز could not be تم الحفظ قبل checkout.",
     "draftFirstBookingWithChildAddOnSubBookings": "مسودة-first الحجز مع فرعي إضافة حجوزات فرعية و one combined checkout.",
     "draftNumber": "مسودة #",
@@ -223,8 +223,8 @@ declare const messages: {
     "existingResource": "موجود مورد",
     "existingRule": "موجود قاعدة",
     "experience": "التجربة",
-    "experience2": "التجربة",
-    "exploreServices": "Explore الخدمات",
+    "experience2": " خبرة",
+    "exploreServices": "استكشاف الخدمات",
     "exportBookings": "تصدير الحجوزات",
     "extraLSevinSupportServicesWereNotRequestedForThis": "إضافي LSevin الدعم الخدمات were not requested لـ هذا الحجز.",
     "failedToLoadOptions": "فشل إلى تحميل options",
@@ -252,14 +252,14 @@ declare const messages: {
     "iAgreeToThe": "I agree إلى",
     "iWantLSevinToArrangeExtraSupportServicesFor": "I want LSevin إلى arrange إضافي الدعم الخدمات لـ هذا الحجز.",
     "iWantToUseLSevin": "I want إلى استخدم LSevin",
-    "inProgress": "في التقدم",
+    "inProgress": "قيد التنفيذ",
     "includedServices": "الخدمات المشمولة",
     "includes": "يشمل:",
     "inspectTheParentBookingEmbeddedAddOnChildBookings": "Inspect parent الحجز، embedded إضافة حجوزات فرعية، المستندات، و المدفوعات.",
     "internationalPatients": "دولي المرضى",
     "johnDoe": "John Doe",
     "johnDoeExampleCom": "john.doe@example.com",
-    "keepBooking": "Keep الحجز",
+    "keepBooking": "الإبقاء على الحجز",
     "leadTraveler": "المسافر الرئيسي",
     "load3More": "تحميل 3 المزيد",
     "loadMore": "تحميل المزيد (",
@@ -269,26 +269,26 @@ declare const messages: {
     "luxuryExperience": "فاخر التجربة",
     "mOSTPOPULAR": "الأكثر شيوعاً",
     "mainBooking": "رئيسي الحجز",
-    "mainBookingsAndChildBookingsAssignedToThisProvider": "رئيسي الحجوزات و حجوزات فرعية مُعيّن إلى هذا المزوّد.",
+    "mainBookingsAndChildBookingsAssignedToThisProvider": "الحجوزات الرئيسية والفرعية المعينة لهذا المزوّد.",
     "mainSubtotal": "رئيسي المجموع الفرعي",
     "male": "ذكر",
-    "manageAndTrackAllClinicAppointments": "إدارة و track كل عيادة appointments",
-    "manageYourAppointmentsAndBookingRequests": "إدارة الخاص بك appointments و الحجز الطلبات",
+    "manageAndTrackAllClinicAppointments": "إدارة وتتبع كل مواعيد العيادة.",
+    "manageYourAppointmentsAndBookingRequests": "إدارة مواعيدك وطلبات الحجز الخاصة بك.",
     "manualTransfer": "يدوي تحويل",
     "march2026": "مارس 2026",
-    "mariaSantos": "Maria Santos",
+    "mariaSantos": "ماريا سانتوس",
     "maximizeYourResults": "Maximize الخاص بك النتائج",
     "medicalDocumentation": "الوثائق الطبية",
     "medicalDocuments": "المستندات الطبية",
     "medicalNotesOrConcerns": "ملاحظات طبية أو Concerns",
     "membersWhoCombineTrainingPlusNutritionSee3xBetter": "الأعضاء who combine training + nutrition عرض 3x better النتائج",
     "method": "الطريقة:",
-    "minutes": "دقائق",
+    "minutes": " دقيقة",
     "mode": "الوضع:",
     "modify": "تعديل",
     "more": "المزيد)",
-    "moreFilters": "المزيد الفلاتر",
-    "myBookings": "My الحجوزات",
+    "moreFilters": "المزيد من الفلاتر",
+    "myBookings": "حجوزاتي",
     "name": "الاسم",
     "nationality": "الجنسية",
     "needHelp": "Need مساعدة?",
@@ -298,26 +298,26 @@ declare const messages: {
     "nights2": "ليالٍ)",
     "noAddOnsSelected": "لا يوجد الإضافات محدد.",
     "noAvailableDatesFoundForThisProviderServiceSpecialist": "لا يوجد التواريخ المتاحة found لـ هذا provider/service/specialist. فحص توفر عام، المزوّد operating ساعات، الخدمة التوفر، الموارد، و توفر الموظف في مشرف.",
-    "noBookingsYet": "لا يوجد الحجوزات yet.",
+    "noBookingsYet": "لا توجد حجوزات بعد.",
     "noDocumentsUploadedYet": "لا يوجد المستندات تم الرفع yet",
     "noOnlineGatewayIsEnabledFromAdmin": "لا يوجد بوابة إلكترونية is مفعّل من مشرف.",
     "noProvider": "لا يوجد المزوّد",
     "noResultsFound": "لم يتم العثور على results",
     "noService": "لا يوجد الخدمة",
     "notRequired": "غير مطلوب",
-    "notes": "الملاحظات",
+    "notes": "ملاحظات",
     "notesForThisSubBooking": "ملاحظات لـ هذا حجز فرعي",
-    "numberOfGuests": "رقم من الضيوف",
+    "numberOfGuests": "عدد الضيوف",
     "numberOfTravelers": "رقم من المسافرون",
     "onlineGateway": "بوابة إلكترونية",
     "onlyOneActiveBookingDraftExistsPerUserYou": "Only one نشط مسودة الحجز exists per المستخدم. أنت can متابعة where أنت يسار off أو discard it و بدء fresh الحجز.",
     "onlyOneActivePendingBookingIsKeptForThis": "Only one نشط معلّق الحجز is kept لـ هذا المستخدم.",
     "open": "مفتوح",
-    "openDirections": "فتح directions",
+    "openDirections": "فتح الاتجاهات",
     "openGatewayAction": "فتح البوابة إجراء",
     "optional": "اختياري",
     "optionalAddOnsToMakeYourMedicalJourneySeamless": "اختياري الإضافات إلى make الخاص بك طبي journey seamless",
-    "optionalNoteForTheProvider": "اختياري ملاحظة لـ المزوّد",
+    "optionalNoteForTheProvider": "ملاحظة اختيارية للمزوّد",
     "optionalPremiumServicesYouCanSkipThis": "اختياري مميز الخدمات (أنت can skip هذا)",
     "optionalServicesToMakeYourExperienceSeamless": "اختياري الخدمات إلى make الخاص بك التجربة seamless",
     "optionalServicesToMakeYourExperienceUnforgettable": "اختياري الخدمات إلى make الخاص بك التجربة unforgettable",
@@ -326,9 +326,9 @@ declare const messages: {
     "pDFJPGPNGUpTo10MBEach": "PDF، JPG، PNG up إلى 10MB each",
     "pDFJPGPNGUpTo10MBPerFile": "PDF، JPG، PNG • Up إلى 10MB per ملف",
     "pOPULAR": "شائع",
-    "packageIncludes": "Package يشمل",
-    "paidAmount": "مدفوع المبلغ",
-    "paidAmountsMayBeRefundableDependingOnTheProvider": "مدفوع amounts may be refundable depending على المزوّد السياسة و حالة الدفع.",
+    "packageIncludes": "تشمل الباقة",
+    "paidAmount": "المبلغ المدفوع",
+    "paidAmountsMayBeRefundableDependingOnTheProvider": "قد تكون المبالغ المدفوعة قابلة للاسترداد حسب سياسة المزوّد.",
     "parentBookingsChildBookingsDocumentsAddOnsAndPayments": "Parent الحجوزات، حجوزات فرعية، المستندات، الإضافات و المدفوعات",
     "passportNumber": "رقم جواز السفر",
     "patient": "المريض",
@@ -343,20 +343,20 @@ declare const messages: {
     "payment": "الدفع",
     "paymentAction": "إجراء الدفع",
     "paymentConfirmed": "الدفع مؤكد",
-    "paymentCouldNotBeStarted": "الدفع could not be started.",
-    "paymentGatewayDidNotReturnARedirectURL": "بوابة الدفع did not عودة redirect URL.",
+    "paymentCouldNotBeStarted": "تعذر بدء الدفع.",
+    "paymentGatewayDidNotReturnARedirectURL": "لم تُرجع بوابة الدفع رابط تحويل.",
     "paymentMethod": "طريقة الدفع",
     "paymentMethod2": "طريقة الدفع",
-    "paymentReceived": "الدفع مستلم",
-    "paymentStatus": "حالة الدفع:",
-    "paymentStatus2": "حالة الدفع",
+    "paymentReceived": "تم استلام الدفع",
+    "paymentStatus": "حالة الدفع",
+    "paymentStatus2": "Payment status",
     "paymentSummary": "ملخص الدفع",
     "paymentTerms": "شروط الدفع",
-    "paymentVerificationFailed": "الدفع التحقق فشل.",
-    "paymentVerifiedSuccessfully": "الدفع موثق successfully.",
-    "paymentWasCancelled": "الدفع was ملغى.",
+    "paymentVerificationFailed": "فشل التحقق من الدفع.",
+    "paymentVerifiedSuccessfully": "تم التحقق من الدفع بنجاح.",
+    "paymentWasCancelled": "تم إلغاء الدفع.",
     "payments": "المدفوعات",
-    "pending": "معلق",
+    "pending": "قيد الانتظار",
     "pendingBookings": "معلّق الحجوزات",
     "perNight": "per ليلة",
     "perSession": "per الجلسة",
@@ -368,13 +368,13 @@ declare const messages: {
     "pleaseSelectANode": "يرجى اختيار node",
     "pleaseVerifyAllDetailsBeforePayment": "يرجى verify كل التفاصيل قبل الدفع",
     "plus12PercentThisMonth": "+12% هذا الشهر",
-    "plus3FromYesterday": "+3 منذ أمس",
+    "plus3FromYesterday": "+3 عن أمس",
     "plusNewBooking": "+ حجز جديد",
     "premiumAddOns": "إضافات مميزة",
     "premiumAddOns2": "إضافات مميزة",
     "premiumOptions": "خيارات مميزة",
     "premiumOptions2": "خيارات مميزة",
-    "primeMedicalCenter": "Prime Medical Center",
+    "primeMedicalCenter": "مركز برايم الطبي",
     "priority": "الأولوية",
     "privacyPolicy": "سياسة الخصوصية",
     "provideYourPersonalAndContactDetails": "Provide الخاص بك شخصي و التواصل التفاصيل",
@@ -382,15 +382,15 @@ declare const messages: {
     "provider2": "المزوّد:",
     "providerAddOnsAlwaysAppearTurnOnLSevinAdd": "المزوّد الإضافات always appear. Turn على LSevin الإضافات إلى عرض فندق، pickup، و other travel مساعدة.",
     "providerAdminNotes": "ملاحظات المزوّد/الإدارة",
-    "providerDescription": "المزوّد الوصف",
-    "providerFacingViewOfReservationDueNowAndBalance": "المزوّد-facing عرض من reservation due-now و الرصيد-due-لاحقاً الشروط.",
+    "providerDescription": "وصف المزوّد",
+    "providerFacingViewOfReservationDueNowAndBalance": "عرض المزوّد للمبلغ المستحق الآن والرصيد المتبقي لاحقاً.",
     "providerID": "المزوّد ID",
     "providerNotes": "ملاحظات المزوّد",
-    "providerOnlyViewOfChargeLinesLedgerRowsAnd": "المزوّد-only عرض من بنود الرسوم، دفتر الأستاذ rows، و استرداد history.",
+    "providerOnlyViewOfChargeLinesLedgerRowsAnd": "عرض خاص بالمزوّد لبنود الرسوم، وسطور الدفتر، وطلبات الاسترداد.",
     "providerServiceID": "خدمة المزوّد ID",
     "providers": "المزوّدون",
     "qty": "· qty",
-    "quantity": "الكمية:",
+    "quantity": "الكمية: ",
     "rECOMMENDED": "موصى به",
     "rEQUIRED": "مطلوب",
     "readyForAdventure": "جاهز لـ Adventure!",
@@ -401,7 +401,7 @@ declare const messages: {
     "refreshBooking": "تحديث الحجز",
     "refreshBookings": "تحديث الحجوزات",
     "rejected": "مرفوض",
-    "relatedBookings": "مرتبط الحجوزات",
+    "relatedBookings": "حجوزات مرتبطة",
     "remaining": "المتبقي",
     "remainingDollar": "المتبقي $",
     "remove": "إزالة",
@@ -415,7 +415,7 @@ declare const messages: {
     "resourceType": "مورد النوع",
     "returnToHome": "عودة إلى الرئيسية",
     "revenue": "الإيرادات",
-    "revenueToday": "الإيرادات اليوم",
+    "revenueToday": "إيرادات اليوم",
     "reviewAndPay": "المراجعة والدفع",
     "reviewAndPayment": "مراجعة & الدفع",
     "reviewHowMuchTheCustomerWasRequiredToPay": "مراجعة how much العميل was مطلوب إلى الدفع إلى reserve هذا الحجز و what الرصيد remains مستحق لاحقاً.",
@@ -427,7 +427,7 @@ declare const messages: {
     "reviewYourMedicalBookingDetails": "مراجعة الخاص بك طبي الحجز التفاصيل",
     "reviewYourSelectedTreatmentDetails": "مراجعة الخاص بك محدد تفاصيل العلاج",
     "reviewYourTourDetails": "مراجعة الخاص بك جولة التفاصيل",
-    "reviews": "المراجعات)",
+    "reviews": "المراجعات",
     "room": "غرفة:",
     "room2": "غرفة (",
     "roomCategory": "فئة الغرفة",
@@ -445,12 +445,12 @@ declare const messages: {
     "scheduleAndBookingDetails": "جدول و الحجز التفاصيل",
     "scheduleAppointment": "جدولة موعد",
     "search": "بحث",
-    "searchBookings": "بحث الحجوزات...",
-    "searchByCustomerNameBookingIDOrService": "بحث بواسطة اسم العميل، الحجز ID، أو الخدمة...",
-    "searchByCustomerNameOrBookingID": "بحث بواسطة اسم العميل أو الحجز ID...",
-    "searchByGuestNameOrBookingID": "بحث بواسطة اسم الضيف أو الحجز ID...",
-    "searchByPatientNameBookingIDOrService": "بحث بواسطة اسم المريض، الحجز ID، أو الخدمة...",
-    "searchByPatientNameBookingIDOrTreatment": "بحث بواسطة اسم المريض، الحجز ID، أو العلاج...",
+    "searchBookings": "البحث في الحجوزات",
+    "searchByCustomerNameBookingIDOrService": "البحث باسم العميل أو معرّف الحجز أو الخدمة",
+    "searchByCustomerNameOrBookingID": "البحث باسم العميل أو معرّف الحجز",
+    "searchByGuestNameOrBookingID": "البحث باسم الضيف أو معرّف الحجز",
+    "searchByPatientNameBookingIDOrService": "البحث باسم المريض أو معرّف الحجز أو الخدمة",
+    "searchByPatientNameBookingIDOrTreatment": "البحث باسم المريض أو معرّف الحجز أو العلاج",
     "searchProviders": "بحث المزوّدون...",
     "searchServices": "بحث الخدمات...",
     "searchSpecialists": "بحث المختصين...",
@@ -470,7 +470,7 @@ declare const messages: {
     "selectTime2": "اختر الوقت",
     "selectYourRoom": "اختيار الخاص بك غرفة",
     "selected": "المحدد",
-    "selectedAddOns": "الإضافات المحددة",
+    "selectedAddOns": "الإضافات المختارة",
     "selectedAddOns2": "الإضافات المحددة",
     "selectedExperience": "محدد التجربة",
     "selectedProvider": "المزوّد المحدد",
@@ -481,8 +481,8 @@ declare const messages: {
     "service": "الخدمة",
     "service2": "الخدمة:",
     "service3": "· الخدمة:",
-    "serviceClass": "الخدمة/الفئة",
-    "serviceDescription": "الخدمة الوصف",
+    "serviceClass": "الخدمة / الحصة",
+    "serviceDescription": "وصف الخدمة",
     "serviceFee": "رسوم الخدمة",
     "serviceFee3Percent": "رسوم الخدمة (3%)",
     "services": "الخدمات",
@@ -492,7 +492,7 @@ declare const messages: {
     "shareYourMedicalHistoryToHelpUsPrepare": "مشاركة الخاص بك التاريخ الطبي إلى مساعدة us prepare",
     "sharjah": "الشارقة",
     "slotInterval": "فترة interval",
-    "sofiaRodriguez": "Sofia Rodriguez",
+    "sofiaRodriguez": "صوفيا رودريغيز",
     "source": "المصدر",
     "specialNotes": "ملاحظات خاصة",
     "specialist": "المختص",
@@ -501,7 +501,7 @@ declare const messages: {
     "specificDate": "تاريخ محدد",
     "spotConfirmedReadyToTrain": "Spot مؤكد - جاهز إلى train!",
     "staff": "الموظفون",
-    "staffMember": "الموظفين Member",
+    "staffMember": "عضو الفريق",
     "standaloneBookingProcessWithDraftPersistenceAndCheckout": "Standalone الحجز عملية مع مسودة persistence و checkout.",
     "startService": "بدء الخدمة",
     "startingFrom": "ابتداءً من",
@@ -522,9 +522,9 @@ declare const messages: {
     "targetType": "الهدف النوع",
     "termsAndConditions": "الشروط & Conditions",
     "text256BitSSLEncryption": "تشفير SSL بمستوى 256 بت",
-    "text2HoursAgo": "قبل ساعتين",
-    "text3HoursAgo": "قبل 3 ساعات",
-    "text5HoursAgo": "قبل 5 ساعات",
+    "text2HoursAgo": "منذ ساعتين",
+    "text3HoursAgo": "منذ 3 ساعات",
+    "text5HoursAgo": "منذ 5 ساعات",
     "theseRequirementsComeFromTheSelectedServiceDefinitionUse": "هذه المتطلبات come من محدد تعريف الخدمة. استخدم الخاص بك الوسائط picker و تخزين ids/urls في الحقول below.",
     "thisDraftContainsAnOldInvalidConvertedDatePlease": "هذا مسودة contains old invalid converted التاريخ. يرجى reselect التاريخ.",
     "thisMonth": "هذا الشهر",
@@ -538,10 +538,10 @@ declare const messages: {
     "timezoneNotice": "تنبيه المنطقة الزمنية",
     "toDate": "إلى تاريخ",
     "today": "اليوم",
-    "todaySBookings": "اليوم's الحجوزات",
-    "todaySTours": "اليوم's Tours",
+    "todaySBookings": "حجوزات اليوم",
+    "todaySTours": "جولات اليوم",
     "total": "الإجمالي",
-    "total2": "الإجمالي:",
+    "total2": "الإجمالي: ",
     "totalAfterDiscounts": "الإجمالي بعد discounts",
     "totalAmount": "المبلغ الإجمالي",
     "totalBookings": "إجمالي الحجوزات",
@@ -549,7 +549,7 @@ declare const messages: {
     "totalDuration": "المدة الإجمالية",
     "totalNights": "الإجمالي ليالٍ:",
     "totalPaid": "إجمالي المدفوع",
-    "totalToday": "الإجمالي اليوم",
+    "totalToday": "إجمالي اليوم",
     "tour": "جولة:",
     "tourSchedule": "جولة جدول",
     "trained": "متدرب",
@@ -564,7 +564,7 @@ declare const messages: {
     "treatmentFee": "رسوم العلاج",
     "treatmentFee2": "رسوم العلاج",
     "treatmentOverview": "نظرة عامة على العلاج",
-    "tryAgain": "حاول Again",
+    "tryAgain": "حاول مرة أخرى",
     "twentyFourSevenMedicalCoordinatorSupport": "دعم منسق طبي على مدار الساعة",
     "twentyFourSevenMedicalSupport": "دعم طبي على مدار الساعة",
     "twentyFourSevenSupport": "دعم على مدار الساعة",
@@ -605,7 +605,7 @@ declare const messages: {
     "yourPaymentIsProtectedWith256BitSSLEncryption": "الخاص بك الدفع is protected مع 256-bit SSL encryption و instant التأكيد.",
     "yourPaymentIsSecuredByBankGradeEncryptionWe": "الخاص بك الدفع is secured بواسطة البنك-الدرجة encryption. نحن never تخزين الخاص بك card التفاصيل.",
     "yourReservationIsProtectedWith256BitSSLEncryption": "الخاص بك reservation is protected مع 256-bit SSL encryption و instant التأكيد.",
-    "yourSpecialist": "الخاص بك المختص",
+    "yourSpecialist": "مختصك",
     "yourStayIsReady": "الخاص بك Stay is جاهز!",
     "stepService": "الخدمة",
     "stepSchedule": "الجدولة",
@@ -644,7 +644,71 @@ declare const messages: {
     "onlineCardPayment": "الدفع الإلكتروني بالبطاقة",
     "chooseEnabledGatewaySuchAsZarinpal": "اختر بوابة دفع مفعّلة مثل Zarinpal",
     "bankTransfer": "تحويل بنكي",
-    "wallet": "المحفظة"
+    "wallet": "المحفظة",
+    "addressWillBeSharedByProvider": "سيتم مشاركة العنوان من قبل المزوّد.",
+    "amenities": "المرافق",
+    "analytics": "التحليلات",
+    "availability": "التوفر",
+    "beforeAfter": "قبل/بعد",
+    "billing": "الفوترة",
+    "bookedOn": "تاريخ الحجز",
+    "bookingConfirmedByTheProvider": "تم تأكيد الحجز من قبل المزوّد.",
+    "bookingCouldNotBeUpdated": "تعذر تحديث الحجز.",
+    "bookingOperations": "عمليات الحجز",
+    "bookingSummaryDateTime": "{service} • {date} في {time}",
+    "bookingsManagement": "إدارة الحجوزات",
+    "cancelledBookingsWillAppearHere": "ستظهر الحجوزات الملغاة هنا عند إلغاء أي حجز.",
+    "classSchedule": "جدول الحصص",
+    "commercialSnapshotFrozenChargeLinesProviderLedgerAndRefundHistoryForThisBooking": "لقطة تجارية، وبنود رسوم مجمّدة، ودفتر حسابات المزوّد، وسجل الاستردادات لهذا الحجز.",
+    "completedBookingsWillAppearHere": "ستظهر الحجوزات المكتملة هنا بعد انتهاء المواعيد.",
+    "confirmationCode": "رمز التأكيد",
+    "consultations": "الاستشارات",
+    "dashboard": "لوحة التحكم",
+    "destinations": "الوجهات",
+    "doctors": "الأطباء",
+    "earnings": "الأرباح",
+    "failed": "فشل",
+    "gallery": "المعرض",
+    "liveStatus": "الحالة المباشرة",
+    "media": "الوسائط",
+    "mediaGallery": "معرض الوسائط",
+    "memberships": "العضويات",
+    "mySchedule": "جدولي",
+    "myServices": "خدماتي",
+    "noCancelledBookings": "لا توجد حجوزات ملغاة",
+    "noPastBookings": "لا توجد حجوزات سابقة",
+    "noUpcomingAppointmentsExploreServices": "ليست لديك مواعيد قادمة. ابدأ باستكشاف الخدمات المتاحة.",
+    "noUpcomingBookings": "لا توجد حجوزات قادمة",
+    "offers": "العروض",
+    "paid": "مدفوع",
+    "partial": "جزئي",
+    "payWithGateway": "الدفع عبر {gateway}",
+    "paymentDue": "الدفع مستحق",
+    "paymentUnavailable": "الدفع غير متاح",
+    "pendingConfirmation": "بانتظار التأكيد",
+    "pleaseRefreshAndTryAgain": "يرجى التحديث والمحاولة مرة أخرى.",
+    "pricing": "التسعير",
+    "profile": "الملف الشخصي",
+    "promotions": "العروض الترويجية",
+    "providerReviewingYourAppointmentRequest": "يقوم المزوّد بمراجعة طلب موعدك.",
+    "refunded": "تم ردّه",
+    "reservationManagement": "إدارة الحجوزات",
+    "reviewCustomerRequiredPayReserveBalanceDueLater": "راجع المبلغ المطلوب من العميل لحجز هذا الموعد وما تبقى مستحقاً لاحقاً.",
+    "roomCategories": "فئات الغرف",
+    "roomInventory": "مخزون الغرف",
+    "saveBooking": "حفظ الحجز",
+    "saving": "جارٍ الحفظ...",
+    "schedule": "الجدول",
+    "settings": "الإعدادات",
+    "support": "الدعم",
+    "thisAppointmentHasBeenCompleted": "تم إكمال هذا الموعد.",
+    "thisBookingHasBeenCancelled": "تم إلغاء هذا الحجز.",
+    "timeSlots": "الفترات الزمنية",
+    "tourPackages": "باقات الجولات",
+    "trainers": "المدربون",
+    "transferServices": "خدمات النقل",
+    "treatments": "العلاجات",
+    "yesCancel": "نعم، إلغاء"
   },
   "Explore": {
     "header": {
@@ -744,7 +808,7 @@ declare const messages: {
     "accentColor": "لون التمييز",
     "accessControl": "التحكم في الوصول",
     "accountStatus": "حالة الحساب",
-    "accountVerification": "التحقق من الحساب",
+    "accountVerification": "تأكيد الحساب",
     "accredited": "معتمد",
     "action": "إجراء",
     "actionType": "نوع الإجراء",
@@ -802,8 +866,8 @@ declare const messages: {
     "approvedPublic": "موافق عليه / عام",
     "areYouAProvider": "هل أنت مزوّد خدمة؟",
     "asiaTehranEuropeIstanbulUTC": "آسيا/طهران، أوروبا/إسطنبول، UTC",
-    "assignToMe": "تعيين لي",
-    "assignedTo": "مُعيّن إلى",
+    "assignToMe": "إسناد إليّ",
+    "assignedTo": "مسند إلى",
     "attributeDeleted": "تم حذف السمة.",
     "attributeSaved": "تم حفظ السمة.",
     "auditLogs": "سجلات التدقيق",
@@ -813,7 +877,7 @@ declare const messages: {
     "availabilityRule": "قاعدة التوفر",
     "availabilityRuleSaved": "تم حفظ قاعدة التوفر.",
     "avgBookingValue": "متوسط قيمة الحجز",
-    "avgResponseTime": "متوسط وقت الاستجابة",
+    "avgResponseTime": "متوسط الرد",
     "avgTransaction": "متوسط المعاملة",
     "badgeEyebrowText": "نص الشارة / النص العلوي الصغير",
     "badgeText": "نص الشارة",
@@ -830,21 +894,21 @@ declare const messages: {
     "bookingCalendarSettingsSaved": "تم حفظ إعدادات تقويم الحجز.",
     "bookingFinancialSummary": "ملخص الحجز المالي",
     "bookingID": "معرّف الحجز",
-    "bookingIDUserProviderOrService": "معرّف الحجز أو المستخدم أو المزوّد أو الخدمة...",
+    "bookingIDUserProviderOrService": "معرّف الحجز أو المستخدم أو المزوّد أو الخدمة",
     "bookingIdentityCustomer": "الحجز، الهوية و العميل",
-    "bookingManagement": "إدارة الحجوزات",
+    "bookingManagement": "إدارة الحجز",
     "bookingOperations": "عمليات الحجز",
     "bookingPaymentPolicyDeleted": "تم حذف سياسة دفع الحجز.",
     "bookingPaymentPolicySaved": "تم حفظ سياسة دفع الحجز.",
     "bookingPaymentTerms": "شروط دفع الحجز",
-    "bookingSaved": "تم حفظ الحجز",
+    "bookingSaved": "تم حفظ الحجز.",
     "bookingStatus": "حالة الحجز",
     "bookingStatus2": "حالة الحجز",
     "bookings": "الحجوزات",
     "bookingsAndDrafts": "الحجوزات والمسودات",
-    "borderRadius": "الحدود الاستدارة",
-    "bottomLeft": "أسفل الأيسر",
-    "bottomRight": "أسفل يمين",
+    "borderRadius": "استدارة الزوايا",
+    "bottomLeft": "أسفل اليسار",
+    "bottomRight": "أسفل اليمين",
     "brochures": "الكتيبات",
     "budget": "الميزانية",
     "buttonLabel": "تسمية الزر",
@@ -870,10 +934,10 @@ declare const messages: {
     "channel": "القناة",
     "chargeLine": "بند الرسوم",
     "chargeLines": "بنود الرسوم",
-    "childBookingUpdated": "تم تحديث الحجز الفرعي",
+    "childBookingUpdated": "تم تحديث الحجز الفرعي.",
     "childSubBookings": "الحجوزات الفرعية",
     "children": "الأطفال",
-    "chooseAnItemFromTheInboxToStartReplying": "اختر عنصراً من صندوق الوارد لبدء الرد.",
+    "chooseAnItemFromTheInboxToStartReplying": "اختر عنصرًا من الصندوق لبدء الرد.",
     "city": "المدينة",
     "clearSearch": "مسح البحث",
     "clicks": "النقرات",
@@ -882,7 +946,7 @@ declare const messages: {
     "collection": "التحصيل",
     "collectionMode": "وضع التحصيل",
     "commaSeparatedTags": "وسوم مفصولة بفواصل",
-    "compactLauncher": "مشغّل مضغوط",
+    "compactLauncher": "مشغل مدمج",
     "compensationPolicySaved": "تم حفظ التعويض السياسة.",
     "complete": "إكمال",
     "completed": "مكتمل",
@@ -895,7 +959,7 @@ declare const messages: {
     "content": "المحتوى",
     "contentAlignment": "محاذاة المحتوى",
     "contentType": "نوع المحتوى",
-    "controlWhereSupportAppearsAndWhoCanStartAConversation": "تحكم في مكان ظهور الدعم ومن يمكنه بدء محادثة.",
+    "controlWhereSupportAppearsAndWhoCanStartAConversation": "تحكم في مكان ظهور الدعم وكيف يبدأ المستخدمون المحادثة.",
     "convRate": "معدل التحويل",
     "conversionRate": "معدل التحويل",
     "coordinates": "الإحداثيات",
@@ -915,7 +979,7 @@ declare const messages: {
     "createRefundRequest": "إنشاء الاسترداد الطلب",
     "createUser": "إنشاء مستخدم",
     "creating": "جارٍ الإنشاء...",
-    "crispLikeConversations": "محادثات شبيهة بـ Crisp",
+    "crispLikeConversations": "صندوق دعم قائم على المحادثات",
     "critical": "حرج",
     "criticalEvents": "أحداث حرجة",
     "currency": "العملة",
@@ -926,12 +990,12 @@ declare const messages: {
     "customRange2": "نطاق مخصص",
     "customer": "العميل",
     "customerCancelledBeforeConfirmation": "ألغى العميل قبل التأكيد",
-    "customerContextAppearsHere": "يظهر سياق العميل هنا.",
+    "customerContextAppearsHere": "تظهر معلومات العميل هنا.",
     "customerDocuments": "مستندات العميل",
     "customerNote": "ملاحظة العميل",
     "customerSatisfaction": "رضا العملاء",
     "customerSaved": "تم حفظ العميل",
-    "customizeLauncherColorRadiusIconAndPosition": "خصص لون المشغّل واستدارته وأيقونته وموضعه.",
+    "customizeLauncherColorRadiusIconAndPosition": "خصّص لون المشغل وحوافه وأيقونته وموقعه.",
     "cyprus": "قبرص",
     "dBLSTDROOM101CAR01": "DBL-STD, ROOM-101, CAR-01",
     "dark": "داكن",
@@ -978,8 +1042,8 @@ declare const messages: {
     "emailAddress": "عنوان البريد الإلكتروني",
     "enFaArTr": "en, fa, ar, tr",
     "enabledCalendars": "التقاويم المفعلة",
-    "englishAndPersianLabelsAreStoredAsJSONBObjectsNotStringifiedJSON": "تُخزن التسميات الإنجليزية والفارسية ككائنات JSONB، وليس كـ JSON نصي.",
-    "englishReply": "الإنجليزية الرد",
+    "englishAndPersianLabelsAreStoredAsJSONBObjectsNotStringifiedJSON": "يتم تخزين التسميات الإنجليزية والفارسية ككائنات JSONB وليس كسلاسل JSON.",
+    "englishReply": "الرد الإنجليزي",
     "enterAnyAdditionalNotes": "أدخل أي ملاحظات إضافية",
     "enterCity": "أدخل المدينة",
     "enterEmail": "أدخل البريد الإلكتروني",
@@ -987,7 +1051,7 @@ declare const messages: {
     "enterLastName": "أدخل اسم العائلة",
     "enterYourPassword": "أدخل كلمة المرور",
     "entryType": "نوع القيد",
-    "escalated": "مصعّد",
+    "escalated": "مصعّدة",
     "established": "تأسس",
     "establishedYear": "سنة التأسيس",
     "eventType": "نوع الحدث",
@@ -1008,7 +1072,7 @@ declare const messages: {
     "fineTuneOrderingOverlayStyleAndActivation": "اضبط الترتيب ونمط التراكب والتفعيل بدقة.",
     "firstName": "الاسم الأول",
     "firstName2": "الاسم الأول",
-    "fitness": "اللياقة البدنية",
+    "fitness": "اللياقة",
     "forHotelsDefineRoomInventoryPerProviderServiceForOtherServic29372b28": "للفنادق: عرّف مخزون الغرف لكل خدمة مزوّد. وللخدمات الأخرى: المقاعد والسيارات والمعدات وما إلى ذلك.",
     "format": "الصيغة",
     "from": "من",
@@ -1041,7 +1105,7 @@ declare const messages: {
     "imageAltText": "النص البديل للصورة",
     "imageMediaURL": "رابط الصورة / الوسائط",
     "impressions": "مرات الظهور",
-    "inProgress": "قيد التنفيذ",
+    "inProgress": "قيد المعالجة",
     "inactive": "غير نشط",
     "inactiveSlidesAreHiddenFromFrontend": "غير نشط الشرائح هي المخفي من الواجهة الأمامية.",
     "indonesia": "إندونيسيا",
@@ -1050,7 +1114,7 @@ declare const messages: {
     "itemKey": "مفتاح العنصر",
     "jalaliDateEG14050210": "تاريخ جلالي، مثال 1405/02/10",
     "jalaliPersian": "جلالي / فارسي",
-    "keepTheseAsValidJSONObjects": "احتفظ بها ككائنات JSON صالحة.",
+    "keepTheseAsValidJSONObjects": "احتفظ بهذه القيم ككائنات JSON صالحة.",
     "key": "المفتاح",
     "l7": "L7",
     "lSevinAdmin": "LSevin مشرف",
@@ -1071,15 +1135,15 @@ declare const messages: {
     "lastName": "آخر الاسم",
     "lastName2": "آخر الاسم",
     "lastUpdated": "آخر تحديث",
-    "launcherIcon": "المشغّل الأيقونة",
+    "launcherIcon": "أيقونة المشغل",
     "legalName": "الاسم القانوني",
     "light": "فاتح",
     "line": "البند",
     "live": "مباشر",
-    "liveActivity": "مباشر النشاط",
+    "liveActivity": "النشاط المباشر",
     "liveActivityMonitor": "مراقبة النشاط المباشر",
     "livePreview": "معاينة مباشرة",
-    "locale": "اللغة المحلية",
+    "locale": "اللغة",
     "localization": "التوطين",
     "localizationLanguages": "التوطين واللغات",
     "localizationManagement": "إدارة التوطين",
@@ -1093,7 +1157,7 @@ declare const messages: {
     "mainButtonLabel": "رئيسي زر تسمية",
     "mainCTALink": "رئيسي CTA رابط",
     "mainServiceChildBookingsAndAddOnsAsSeparateCommercialLines": "الخدمة الرئيسية والحجوزات الفرعية والإضافات كبنود تجارية منفصلة.",
-    "manageAndMonitorAllPlatformBookings": "إدارة ومراقبة جميع حجوزات المنصة",
+    "manageAndMonitorAllPlatformBookings": "إدارة ومراقبة كل حجوزات المنصة.",
     "manageAndMonitorAllPlatformUsers": "إدارة ومراقبة جميع مستخدمي المنصة",
     "manageCustomerSupportTicketsAndInquiries": "إدارة تذاكر واستفسارات دعم العملاء",
     "manageLanguagesTranslationsAndLocalizedContent": "إدارة اللغات والترجمات والمحتوى المحلي",
@@ -1128,22 +1192,22 @@ declare const messages: {
     "net": "الصافي",
     "new": "جديد",
     "nextRun": "التشغيل التالي",
-    "noAddOns": "No إضافة-على.",
+    "noAddOns": "لا توجد إضافات.",
     "noAttributesYet": "لا توجد السمات بعد.",
     "noBookingPaymentPoliciesFound": "لم يتم العثور على الحجز الدفع السياسات.",
     "noBookingsLoaded": "لم يتم تحميل الحجوزات.",
     "noCertificationsYet": "لا توجد الشهادات بعد.",
-    "noChildBookings": "No فرعي الحجوزات.",
+    "noChildBookings": "لا توجد حجوزات فرعية.",
     "noChildDraftBookings": "No فرعي مسودة الحجوزات.",
-    "noConversationsFound": "لم يتم العثور على محادثة.",
-    "noDocuments": "No المستندات.",
+    "noConversationsFound": "لم يتم العثور على محادثات.",
+    "noDocuments": "لا توجد مستندات.",
     "noDraftDocuments": "No مسودة المستندات.",
     "noDraftsLoaded": "لم يتم تحميل المسودات.",
-    "noEventsYet": "لا توجد الأحداث بعد.",
+    "noEventsYet": "لا توجد أحداث بعد.",
     "noFrozenBookingPaymentTermsWereFoundForThisBookingYet": "لا توجد مثبت الحجز الدفع الشروط كانت موجودة لـ هذا الحجز بعد.",
     "noGalleryItemsYet": "لا توجد المعرض العناصر بعد.",
     "noPaymentIntents": "No الدفع نوايا.",
-    "noPayments": "No المدفوعات.",
+    "noPayments": "لا توجد مدفوعات.",
     "noPoliciesYet": "لا توجد السياسات بعد.",
     "noProviderLedgerEntriesYet": "لا توجد المزوّد دفتر الأستاذ القيود بعد.",
     "noProviderRequests": "No المزوّد الطلبات.",
@@ -1168,8 +1232,8 @@ declare const messages: {
     "notifications": "الإشعارات",
     "offer": "العرض",
     "officeHours": "ساعات العمل",
-    "offlineSettings": "غير متصل الإعدادات",
-    "onlyAdminsCanSeeThisNote": "يمكن للمشرفين فقط رؤية هذه الملاحظة...",
+    "offlineSettings": "إعدادات عدم الاتصال",
+    "onlyAdminsCanSeeThisNote": "هذه الملاحظة تظهر للمشرفين فقط.",
     "open": "مفتوح",
     "openAllRefundRequests": "فتح كل طلبات الاسترداد",
     "openButtonInNewTab": "فتح الزر في تبويب جديد",
@@ -1178,7 +1242,7 @@ declare const messages: {
     "openLink": "فتح الرابط",
     "openLinksInNewTab": "فتح الروابط في تبويب جديد",
     "openMedia": "فتح الوسائط",
-    "openTickets": "فتح التذاكر",
+    "openTickets": "التذاكر المفتوحة",
     "optional": "اختياري",
     "optionalButRecommended": "اختياري لكنه موصى به",
     "optionalJSONForCampaignIdTrackingTagsProviderIdsOrCustomFlags": "JSON اختياري لمعرّف الحملة أو وسوم التتبع أو معرّفات المزوّدين أو العلامات المخصصة.",
@@ -1194,7 +1258,7 @@ declare const messages: {
     "payment": "الدفع",
     "paymentCurrency": "الدفع العملة",
     "paymentGross": "الدفع الإجمالي",
-    "paymentIssue": "مشكلة في الدفع",
+    "paymentIssue": "مشكلة دفع",
     "paymentMethod": "طريقة الدفع",
     "paymentMethods": "طرق الدفع",
     "paymentOperations": "الدفع العمليات",
@@ -1203,11 +1267,11 @@ declare const messages: {
     "paymentSuccess": "نجاح الدفع",
     "payments": "المدفوعات",
     "payout": "الدفع للمزوّد",
-    "pending": "معلق",
-    "pendingPayment": "دفع معلق",
+    "pending": "قيد الانتظار",
+    "pendingPayment": "دفع معلّق",
     "pendingReview": "بانتظار المراجعة",
     "pendingSettlement": "تسوية معلقة",
-    "pendingUser": "معلق مستخدم",
+    "pendingUser": "بانتظار المستخدم",
     "pendingVerification": "بانتظار التحقق",
     "pharmacy": "صيدلية",
     "phone": "الهاتف",
@@ -1247,7 +1311,7 @@ declare const messages: {
     "progress": "التقدم",
     "pros": "الإيجابيات",
     "prosOnePerLineOrCommaSeparated": "الإيجابيات، كل عنصر في سطر أو مفصولة بفواصل",
-    "provider": "المزوّد",
+    "provider": "المزود",
     "providerApplications": "طلبات المزوّدين",
     "providerApprovalQueue": "قائمة انتظار موافقة المزوّدين",
     "providerAttributes": "المزوّد السمات",
@@ -1263,7 +1327,7 @@ declare const messages: {
     "providerStaff": "موظفو المزوّد",
     "providerType": "نوع المزوّد",
     "providerType2": "نوع المزوّد",
-    "providers": "المزوّدون",
+    "providers": "المزودون",
     "publishing": "النشر",
     "quote": "العرض السعري",
     "rank": "الترتيب",
@@ -1288,17 +1352,17 @@ declare const messages: {
     "refundMode": "الاسترداد الوضع",
     "refundRate": "الاسترداد المعدل",
     "refundRequest": "طلب الاسترداد",
-    "refundRequest2": "طلب الاسترداد",
+    "refundRequest2": "طلب استرداد",
     "refundRequestCreated": "تم إنشاء طلب الاسترداد.",
     "refundRequests": "طلبات الاسترداد",
     "refundScope": "الاسترداد النطاق",
-    "refunded": "تم الاسترداد",
+    "refunded": "تم ردّه",
     "rejected": "مرفوض",
     "rejectedHidden": "مرفوض / مخفي",
     "relatedRecords": "السجلات ذات الصلة",
     "remainingNet": "المتبقي الصافي",
     "rememberMe": "تذكرني",
-    "replyToCustomer": "الرد إلى العميل...",
+    "replyToCustomer": "الرد على العميل",
     "reportID": "معرّف التقرير",
     "reportName": "اسم التقرير",
     "reports": "التقارير",
@@ -1307,14 +1371,14 @@ declare const messages: {
     "requestStatusUpdated": "تم تحديث الطلب الحالة.",
     "resolved": "تم الحل",
     "responseTime": "وقت الاستجابة",
-    "responseTime2": "وقت الاستجابة",
+    "responseTime2": "وقت الرد",
     "revenue": "الإيرادات",
     "revenueByServiceCategory": "الإيرادات حسب الخدمة الفئة",
     "revenueOverview": "الإيرادات نظرة عامة",
     "reviewAndApproveNewProviderRegistrations": "مراجعة والموافقة على تسجيلات المزوّدين الجدد",
     "reviewDecision": "المراجعة القرار",
     "reviewDeleted": "تم حذف المراجعة.",
-    "reviewNote": "المراجعة ملاحظة",
+    "reviewNote": "ملاحظة المراجعة",
     "reviewReplyAdded": "تمت إضافة رد المراجعة.",
     "reviewReplyDeleted": "تم حذف المراجعة الرد.",
     "reviewReplyUpdated": "تم تحديث المراجعة الرد.",
@@ -1345,13 +1409,13 @@ declare const messages: {
     "scopeType": "نوع النطاق",
     "search": "بحث",
     "searchAndSelectServiceDefinition": "بحث و اختيار الخدمة التعريف",
-    "searchBookings": "بحث الحجوزات",
-    "searchConversations": "بحث محادثة",
+    "searchBookings": "البحث في الحجوزات",
+    "searchConversations": "البحث في المحادثات...",
     "searchKeysNamesContentVariables": "بحث في المفاتيح والأسماء والمحتوى والمتغيرات...",
     "searchLanguages": "بحث اللغات",
     "searchLogs": "بحث السجلات",
     "searchRecords": "بحث السجلات...",
-    "searchTickets": "بحث التذاكر",
+    "searchTickets": "البحث في التذاكر...",
     "searchTransactions": "بحث المعاملات",
     "searchUsers": "بحث المستخدمين",
     "secondaryButtonLabel": "تسمية الزر الثانوي",
@@ -1365,7 +1429,7 @@ declare const messages: {
     "securityNotice": "تنبيه أمني:",
     "securityScore": "درجة الأمان",
     "select": "اختر...",
-    "selectAConversation": "اختر  محادثة",
+    "selectAConversation": "اختر محادثة",
     "selectAddon": "اختر إضافة",
     "selectAttribute": "اختر السمة",
     "selectChargeLinesToRefund": "اختر الرسوم البنود إلى الاسترداد",
@@ -1373,7 +1437,7 @@ declare const messages: {
     "selectCountry": "اختر الدولة",
     "selectCurrency": "اختر العملة",
     "selectGrade": "اختر الدرجة",
-    "selectPaymentMethod": "اختر الدفع الطريقة",
+    "selectPaymentMethod": "اختر طريقة الدفع",
     "selectPlacement": "اختر الموضع",
     "selectPolicyType": "اختر السياسة النوع",
     "selectProvider": "اختر المزوّد",
@@ -1428,15 +1492,15 @@ declare const messages: {
     "successRate2": "معدل النجاح",
     "summary": "الملخص",
     "support": "الدعم",
-    "supportInbox": "صندوق وارد الدعم",
+    "supportInbox": "صندوق الدعم",
     "supportSettingsSaved": "تم حفظ إعدادات الدعم.",
     "supportTags": "وسوم الدعم",
-    "supportTickets": "الدعم والتذاكر",
+    "supportTickets": "تذاكر الدعم",
     "suspend": "تعليق",
     "suspended": "معلّق",
     "symbol": "الرمز",
     "system": "النظام",
-    "systemAdmin": "مشرف النظام",
+    "systemAdmin": "إدارة النظام",
     "systemSettings": "إعدادات النظام",
     "tagDeleted": "تم حذف الوسم.",
     "tagName": "اسم الوسم",
@@ -1448,7 +1512,7 @@ declare const messages: {
     "technicalIssue": "مشكلة تقنية",
     "templates": "القوالب",
     "text": "النص",
-    "text1h45m": "1h 45m",
+    "text1h45m": "1س 45د",
     "text24M": "2.4M",
     "text6MonthTrend": "اتجاه 6 أشهر",
     "textColor": "لون النص",
@@ -1461,9 +1525,9 @@ declare const messages: {
     "thisYear": "هذه السنة",
     "thumbnail": "الصورة المصغرة",
     "ticketID": "معرّف التذكرة",
-    "ticketIDSubjectUser": "معرّف التذكرة، الموضوع، مستخدم...",
+    "ticketIDSubjectUser": "المعرّف، الموضوع، المستخدم",
     "time": "الوقت",
-    "timeline": "الجدول الزمني",
+    "timeline": "الخط الزمني",
     "timestamp": "الطابع الزمني",
     "timezone": "المنطقة الزمنية",
     "title": "العنوان",
@@ -1515,7 +1579,7 @@ declare const messages: {
     "userIDOrDetails": "المستخدم، ID، أو التفاصيل...",
     "userManagement": "إدارة المستخدمين",
     "userName": "اسم المستخدم",
-    "userProvider": "المستخدم/المزوّد",
+    "userProvider": "مستخدم / مزود",
     "users": "المستخدمون",
     "usuallyRepliesIn1Hour": "يرد عادة خلال ساعة واحدة",
     "value": "القيمة",
@@ -1604,7 +1668,7 @@ declare const messages: {
     "bookingFlow": "مسار الحجز",
     "bookingId": "الحجز المعرّف",
     "bookingIdentityAndCustomerDirectDatabaseAdminPanel": "لوحة إدارة مباشرة لقاعدة بيانات الحجز والهوية والعميل.",
-    "bookingModification": "الحجز Modification",
+    "bookingModification": "تعديل الحجز",
     "bookingModifications": "الحجز Modifications",
     "bookingPaymentPolicies": "الحجز سياسات الدفع",
     "bookingReminders": "تذكيرات الحجز",
@@ -1802,7 +1866,7 @@ declare const messages: {
     "newRecord": "جديد record",
     "newSchedule": "جديد جدول",
     "newTemplate": "جديد قالب",
-    "newTicket": "جديد تذكرة",
+    "newTicket": "تذكرة جديدة",
     "newUserRegistration": "جديد المستخدم Registration",
     "next": "التالي",
     "nicosiaCY": "Nicosia، CY",
@@ -1940,9 +2004,9 @@ declare const messages: {
     "saturday": "السبت",
     "saveAllChanges": "حفظ كل Changes",
     "saveChanges": "حفظ Changes",
-    "saveChildReview": "حفظ فرعي مراجعة",
+    "saveChildReview": "حفظ مراجعة الحجز الفرعي",
     "saveSlider": "حفظ slider",
-    "saveSupportSettings": "حفظ الدعم الإعدادات",
+    "saveSupportSettings": "حفظ إعدادات الدعم",
     "scheduleReport": "جدول تقرير",
     "scopeTypeAddon": ") : scopeType === 'addon' ? (",
     "scopeTypeProvider": ") : scopeType === 'provider' ? (",
@@ -1959,7 +2023,7 @@ declare const messages: {
     "serviceDeactivated": "الخدمة Deactivated",
     "serviceDefinitions": "الخدمة التعريفات",
     "serviceFee": "رسوم الخدمة",
-    "serviceManagement": "الخدمة إدارة",
+    "serviceManagement": "إدارة الخدمات",
     "serviceUpdated": "الخدمة تم التحديث",
     "serviceUtilizationReport": "الخدمة Utilization تقرير",
     "sessionTimeout": "الجلسة Timeout",
@@ -2126,13 +2190,117 @@ declare const messages: {
     "storesTheSelectedMediaURLInServiceProvidersImageUrl": "يخزن رابط الوسائط المحدد في service_providers.image_url.",
     "supportedLanguages": "Supported اللغات (",
     "templateKeyCopied": "قالب المفتاح copied.",
-    "ticketQueue": "تذكرة Queue (",
+    "ticketQueue": "قائمة التذاكر",
     "totalPage": "الإجمالي · الصفحة",
     "trending": "رائج:",
     "updated": "تم التحديث",
     "updated2": "· تم التحديث",
     "useTheServiceDefinitionSelectorLocalizedRichTextFieldsCurrencyListAndMediaPicker": "استخدم تعريف الخدمة selector، محلي rich النص الحقول، العملة list، و الوسائط picker. Prices are formatted مع thousands separators.",
-    "useThisOnlyForCuratedEditorialCommentsOrImportedReviewsCustomerReviewsShouldCome": "استخدم هذا only لـ curated editorial comments أو imported المراجعات. العميل المراجعات should come من booked العملاء."
+    "useThisOnlyForCuratedEditorialCommentsOrImportedReviewsCustomerReviewsShouldCome": "استخدم هذا only لـ curated editorial comments أو imported المراجعات. العميل المراجعات should come من booked العملاء.",
+    "allBookingsWithCount": "كل الحجوزات ({count})",
+    "bookingReview": "مراجعة الحجز",
+    "bookingReviewSaved": "تم حفظ مراجعة الحجز.",
+    "bookingsReview": "مراجعة الحجوزات",
+    "childProvider": "مزود الحجز الفرعي",
+    "childService": "خدمة الحجز الفرعي",
+    "childStatus": "حالة الحجز الفرعي",
+    "createBooking": "إنشاء حجز",
+    "displayDate": "العرض: {date}",
+    "embeddedAddOnSubBookings": "حجوزات الإضافات الفرعية المضمنة",
+    "failedToSaveBooking": "فشل حفظ الحجز.",
+    "failedToUpdateChildBooking": "فشل تحديث الحجز الفرعي.",
+    "financial": "المالية",
+    "inspectParentBookingEmbeddedAddOnChildBookingsDocumentsAndPayments": "راجع الحجز الرئيسي، والحجوزات الفرعية للإضافات، والمستندات، والمدفوعات.",
+    "loadingBooking": "جارٍ تحميل الحجز…",
+    "notRequired": "غير مطلوب",
+    "notesForThisSubBooking": "ملاحظات لهذا الحجز الفرعي",
+    "parentBookingsChildBookingsDocumentsAddOnsAndPayments": "الحجوزات الرئيسية والفرعية والمستندات والإضافات والمدفوعات",
+    "paymentTerms": "شروط الدفع",
+    "providerAdminNotes": "ملاحظات المزوّد/الإدارة",
+    "quantityShort": "الكمية",
+    "reviewParentBookingsEmbeddedAddOnChildBookingsPaymentsAndProviderNotes": "راجع الحجوزات الرئيسية، والحجوزات الفرعية للإضافات، والمدفوعات، وملاحظات المزوّد.",
+    "saveBooking": "حفظ الحجز",
+    "saveReviewDecision": "حفظ قرار المراجعة",
+    "saving": "جارٍ الحفظ...",
+    "updateBookingId": "تحديث الحجز {id}",
+    "noContact": "لا توجد معلومات اتصال",
+    "tagAddPrefix": "إضافة وسم",
+    "tagSelectedPrefix": "محدد",
+    "editCannedReply": "تعديل الرد الجاهز",
+    "newCannedReply": "رد جاهز جديد",
+    "noBody": "لا يوجد نص",
+    "persianReply": "الرد الفارسي",
+    "pleaseCheckCannedReply": "يرجى مراجعة نموذج الرد الجاهز.",
+    "pleaseCheckSettings": "يرجى مراجعة إعدادات الدعم.",
+    "mustBeJsonObject": "يجب أن يكون كائن JSON",
+    "invalidJson": "JSON غير صالح",
+    "invalidSettingsJson": "إعدادات JSON غير صالحة",
+    "editTag": "تعديل الوسم",
+    "newTag": "وسم جديد",
+    "pleaseCheckTag": "يرجى مراجعة نموذج الوسم.",
+    "messages": "الرسائل",
+    "supportStatus": {
+      "all": "الكل",
+      "open": "مفتوح",
+      "pending": "بانتظار",
+      "resolved": "تم الحل",
+      "closed": "مغلق",
+      "unassigned": "غير مسند",
+      "assigned_to_me": "مسند إليّ"
+    },
+    "supportPriority": {
+      "all": "الكل",
+      "low": "منخفضة",
+      "normal": "عادية",
+      "high": "عالية",
+      "urgent": "عاجلة"
+    },
+    "supportEvent": {
+      "conversationCreated": "تم إنشاء المحادثة",
+      "messageSent": "تم إرسال الرسالة",
+      "statusChanged": "تم تغيير الحالة",
+      "priorityChanged": "تم تغيير الأولوية",
+      "assigned": "تم الإسناد",
+      "tagAdded": "تمت إضافة وسم",
+      "tagRemoved": "تمت إزالة الوسم",
+      "internalNoteAdded": "تمت إضافة ملاحظة داخلية"
+    },
+    "supportLabelKeys": {
+      "launcherLabel": "تسمية المشغل",
+      "headerTitle": "عنوان الترويسة",
+      "headerSubtitle": "العنوان الفرعي",
+      "welcomeTitle": "عنوان الترحيب",
+      "welcomeMessage": "رسالة الترحيب",
+      "inputPlaceholder": "النص الإرشادي للإدخال",
+      "startConversationLabel": "تسمية بدء المحادثة",
+      "offlineLabel": "تسمية عدم الاتصال",
+      "onlineLabel": "تسمية الاتصال",
+      "sendButton": "زر الإرسال",
+      "attachmentLabel": "تسمية المرفق"
+    },
+    "relativeTime": {
+      "fiveMinutesAgo": "منذ 5 دقائق",
+      "oneHourAgo": "منذ ساعة",
+      "twoHoursAgo": "منذ ساعتين",
+      "threeHoursAgo": "منذ 3 ساعات",
+      "fourHoursAgo": "منذ 4 ساعات",
+      "sixHoursAgo": "منذ 6 ساعات",
+      "sevenHoursAgo": "منذ 7 ساعات",
+      "eightHoursAgo": "منذ 8 ساعات",
+      "oneDayAgo": "منذ يوم"
+    },
+    "ticketSubjects": {
+      "paymentNotReflectedInWallet": "الدفع غير ظاهر في المحفظة",
+      "unableToConfirmBooking": "تعذر تأكيد الحجز",
+      "refundRequestForCancelledService": "طلب استرداد لخدمة ملغاة",
+      "accountVerificationDocuments": "مستندات تأكيد الحساب",
+      "cannotUploadServiceImages": "تعذر رفع صور الخدمة",
+      "bookingModificationRequested": "طلب تعديل الحجز",
+      "servicePricingUpdateNotShowing": "تحديث سعر الخدمة لا يظهر",
+      "payoutDelayComplaint": "شكوى تأخر الدفع",
+      "incorrectServiceCategoryAssigned": "تم تعيين فئة خدمة غير صحيحة",
+      "howToUseLoyaltyPoints": "كيفية استخدام نقاط الولاء"
+    }
   },
   "Home": {
     "common": {
@@ -2142,7 +2310,7 @@ declare const messages: {
       "loading": "جارٍ التحميل..."
     },
     "userInfo": {
-      "goodMorning": "صباح الخير",
+      "goodMorning": "اتمنى لك يوم جيد",
       "profileAlt": "الملف الشخصي"
     },
     "quickSearches": {
@@ -3396,8 +3564,142 @@ declare const messages: {
   },
   "SpecialistPage": {
     "metadata": {
-      "title": "المختص الملف الشخصي | LSEVIN",
-      "description": "عرض المختص الملف الشخصي، الخدمات، التوفر، المراجعات، و الحجز التفاصيل على LSEVIN."
+      "title": "ملف الأخصائي",
+      "description": "عرض ملف الأخصائي والخدمات وأماكن العمل والتقييمات والشهادات وخيارات الحجز."
+    },
+    "actions": {
+      "back": "رجوع",
+      "favorite": "إضافة إلى المفضلة",
+      "share": "مشاركة",
+      "viewAll": "عرض الكل",
+      "bookNow": "احجز الآن"
+    },
+    "tabs": {
+      "about": "نبذة",
+      "places": "الأماكن ({count})",
+      "services": "الخدمات ({count})",
+      "reviews": "التقييمات ({count})",
+      "credentials": "المؤهلات"
+    },
+    "share": {
+      "text": "اطلع على ملف {name}",
+      "textWithSpecialty": "اطلع على ملف {name} - {specialty}"
+    },
+    "gallery": {
+      "fullGallery": "المعرض الكامل",
+      "description": "وسائط الأخصائي ونتائج قبل وبعد",
+      "close": "إغلاق المعرض",
+      "imageAlt": "صورة من المعرض",
+      "beforeAfterTitle": "قبل / بعد",
+      "beforeAlt": "قبل {procedure}",
+      "afterAlt": "بعد {procedure}",
+      "procedureFallback": "الإجراء",
+      "before": "قبل",
+      "after": "بعد",
+      "resultFallback": "النتيجة",
+      "afterMonths": "بعد {months}",
+      "mediaCount": "{count} وسائط",
+      "gallery": "المعرض",
+      "resultsGallery": "معرض النتائج",
+      "viewFullGallery": "عرض المعرض الكامل"
+    },
+    "empty": {
+      "gallery": {
+        "title": "لا يوجد معرض بعد",
+        "description": "ستظهر عناصر المعرض هنا بعد إضافتها من لوحة الإدارة."
+      },
+      "workplaces": {
+        "title": "لا توجد أماكن عمل مرتبطة",
+        "description": "هذا الأخصائي غير مرتبط بأي مقدم خدمة نشط بعد."
+      },
+      "services": {
+        "title": "لا توجد خدمات مرتبطة",
+        "description": "ستظهر الخدمات بعد ربط خدمات الموظفين وخدمات مقدم الخدمة من لوحة الإدارة."
+      },
+      "reviews": {
+        "title": "لا توجد تقييمات بعد",
+        "description": "ستظهر هنا التقييمات العامة من مقدمي الخدمة المرتبطين بهذا الأخصائي."
+      },
+      "education": {
+        "title": "لا توجد سجلات تعليمية",
+        "description": "لم تتم إضافة السجلات التعليمية لهذا الأخصائي بعد."
+      },
+      "certifications": {
+        "title": "لا توجد شهادات",
+        "description": "لم تتم إضافة الشهادات والعضويات بعد."
+      },
+      "credentials": {
+        "title": "لا توجد مؤهلات",
+        "description": "لم تتم إضافة مؤهلات هذا الأخصائي بعد."
+      },
+      "specializations": {
+        "title": "لا توجد تخصصات",
+        "description": "لم تتم إضافة سجلات التخصص بعد."
+      }
+    },
+    "common": {
+      "locationOnRequest": "الموقع عند الطلب",
+      "reviewCount": "{count} تقييم",
+      "minutes": "{count} دقيقة",
+      "providerOnRequest": "مقدم الخدمة عند الطلب"
+    },
+    "badges": {
+      "popular": "شائع"
+    },
+    "reviews": {
+      "sort": {
+        "newest": "الأحدث",
+        "buyers": "العملاء الذين حجزوا",
+        "helpful": "الأكثر إفادة"
+      },
+      "showMore": "عرض المزيد",
+      "writeReview": "اكتب تقييماً",
+      "basedOnReviews": "بناءً على {count} تقييم"
+    },
+    "credentials": {
+      "education": "التعليم",
+      "certifications": "الشهادات والعضويات",
+      "credentials": "المؤهلات"
+    },
+    "days": {
+      "day": "اليوم",
+      "monday": "الاثنين",
+      "tuesday": "الثلاثاء",
+      "wednesday": "الأربعاء",
+      "thursday": "الخميس",
+      "friday": "الجمعة",
+      "saturday": "السبت",
+      "sunday": "الأحد"
+    },
+    "availability": {
+      "title": "الأوقات المتاحة"
+    },
+    "achievements": {
+      "title": "الإنجازات والتقدير"
+    },
+    "stats": {
+      "experience": "الخبرة",
+      "patients": "المرضى",
+      "successRate": "نسبة النجاح",
+      "connectedPlaces": "الأماكن المرتبطة"
+    },
+    "about": {
+      "title": "نبذة عن {name}",
+      "specializations": "التخصصات",
+      "languages": "اللغات"
+    },
+    "sections": {
+      "placesThisSpecialistWorks": "الأماكن التي يعمل بها هذا الأخصائي",
+      "servicesProvided": "الخدمات المقدمة"
+    },
+    "consultation": {
+      "fallbackTreatment": "استشارة الأخصائي",
+      "title": "الاستشارة",
+      "free": "مجاني"
+    },
+    "errors": {
+      "noActiveProvider": "هذا الأخصائي غير مرتبط بأي مقدم خدمة نشط بعد.",
+      "submitReview": "تعذر إرسال التقييم."
     }
   },
   "Error": {
@@ -3410,27 +3712,144 @@ declare const messages: {
   },
   "ServicePage": {
     "metadata": {
-      "title": "الخدمة التفاصيل | LSEVIN",
-      "description": "عرض الخدمة التفاصيل، التسعير، المزوّد المعلومات، المعرض، المراجعات، و الحجز الخيارات على LSEVIN."
+      "title": "تفاصيل الخدمة",
+      "description": "راجع تفاصيل الخدمة ومقدميها والمتخصصين والعروض والمتطلبات وخيارات الحجز."
+    },
+    "actions": {
+      "back": "رجوع",
+      "share": "مشاركة الخدمة",
+      "saveService": "حفظ الخدمة",
+      "bookNow": "احجز الآن"
+    },
+    "badges": {
+      "selected": "محدد",
+      "verified": "موثّق",
+      "sponsored": "برعاية",
+      "required": "مطلوب",
+      "pricing": "التسعير",
+      "popular": "شائع",
+      "featured": "مميز"
+    },
+    "providers": {
+      "title": "مقدمو هذه الخدمة",
+      "description": "قارن بين العيادات ومقدمي الخدمة القادرين على تقديم هذا العلاج.",
+      "showMore": "عرض {count} مقدمي خدمة آخرين",
+      "available": "{count} مقدمي خدمة متاحين"
+    },
+    "serviceAttributes": {
+      "title": "تفاصيل الخدمة وخياراتها"
+    },
+    "addons": {
+      "title": "الإضافات المتاحة"
+    },
+    "offers": {
+      "title": "العروض النشطة",
+      "code": "الكود: {code}",
+      "validUntil": "صالح حتى {date}"
+    },
+    "requirements": {
+      "title": "المتطلبات قبل الحجز",
+      "mandatory": "متطلب إلزامي",
+      "requirement": "متطلب",
+      "maxFiles": "الحد الأقصى للملفات: {count}",
+      "maxSize": "الحد الأقصى للحجم: {size}",
+      "noLimit": "بدون حد"
+    },
+    "providerProfile": {
+      "providerFallback": "مقدم الخدمة",
+      "rating": "التقييم",
+      "response": "الاستجابة",
+      "onRequest": "حسب الطلب",
+      "established": "سنة التأسيس",
+      "patients": "المرضى",
+      "locationOnRequest": "الموقع حسب الطلب"
+    },
+    "specialists": {
+      "title": "المتخصصون",
+      "thisService": "هذه الخدمة",
+      "consultation": "استشارة"
+    },
+    "policies": {
+      "title": "سياسات مقدم الخدمة"
+    },
+    "reviews": {
+      "title": "آراء المرضى",
+      "count": "{count} مراجعات",
+      "viewAll": "عرض الكل",
+      "writeReview": "اكتب مراجعة",
+      "empty": "لا توجد مراجعات عامة بعد. يمكن للعملاء الذين أجروا حجزاً إرسال مراجعة لهذه الخدمة.",
+      "more": "عرض المزيد",
+      "loading": "جاري تحميل المراجعات...",
+      "sort": {
+        "newest": "الأحدث",
+        "buyers": "العملاء الذين حجزوا",
+        "helpful": "الأكثر فائدة"
+      }
+    },
+    "price": {
+      "packagePrice": "سعر الباقة",
+      "providerPackagePrice": "سعر باقة مقدم الخدمة",
+      "totalPackagePrice": "إجمالي سعر الباقة"
+    },
+    "stats": {
+      "duration": "المدة",
+      "recovery": "التعافي",
+      "successRate": "معدل النجاح",
+      "satisfaction": "الرضا"
+    },
+    "included": {
+      "title": "ما الذي يشمله السعر"
+    },
+    "process": {
+      "title": "مسار العلاج"
+    },
+    "importantInfo": {
+      "title": "معلومات مهمة",
+      "specialistRequired": "قد يكون اختيار المتخصص مطلوباً أثناء الحجز",
+      "specialistOptional": "يمكن حجز هذه الخدمة دون اختيار متخصص مسبقاً",
+      "dateRange": "تستخدم هذه الخدمة توفر المواعيد حسب نطاق التاريخ",
+      "availabilityConfirmed": "يتم تأكيد التوفر أثناء مسار الحجز",
+      "documentsMayBeRequested": "قد تُطلب مستندات طبية أو هويات",
+      "noUploadRequirement": "لم يتم إعداد متطلبات رفع ملفات لهذه الخدمة بعد",
+      "finalPlanAssessment": "قد تعتمد خطة العلاج النهائية والسعر على تقييم مقدم الخدمة"
+    },
+    "faq": {
+      "title": "الأسئلة الشائعة",
+      "showMore": "عرض {count} أسئلة أخرى"
+    },
+    "share": {
+      "text": "اطّلع على {service}",
+      "textWithClinic": "اطّلع على {service} لدى {clinic}"
+    },
+    "errors": {
+      "submitReview": "تعذر إرسال المراجعة.",
+      "loadReviews": "تعذر تحميل المراجعات."
+    },
+    "gallery": {
+      "selectImage": "تحديد الصورة {number}",
+      "openGallery": "فتح معرض الخدمة"
+    },
+    "recommendations": {
+      "yourCountry": "بلدك"
     }
   },
   "ServiceGalleryPage": {
     "metadata": {
-      "title": "الخدمة المعرض | LSEVIN",
-      "description": "تصفح الصور و فيديو منشور لـ هذا الخدمة على LSEVIN."
+      "title": "معرض الخدمة",
+      "description": "تصفح جميع الصور ومقاطع الفيديو الخاصة بهذه الخدمة."
     },
     "actions": {
-      "backToService": "العودة إلى الخدمة التفاصيل"
+      "backToService": "العودة إلى الخدمة"
     },
     "header": {
-      "title": "الخدمة المعرض"
+      "title": "المعرض"
     },
     "empty": {
-      "title": "لا توجد المعرض العناصر بعد",
-      "description": "لم ينشر هذا المزوّد صوراً أو فيديوهات لهذه الخدمة."
+      "title": "لا توجد عناصر في المعرض بعد",
+      "description": "لا تحتوي هذه الخدمة على وسائط في المعرض حالياً."
     },
     "gallery": {
-      "fallbackCaption": "{name} {number}"
+      "fallbackCaption": "صورة {number} لـ {name}"
     }
   },
   "AvailabilityAdmin": {
@@ -3791,7 +4210,22 @@ declare const messages: {
     "customers": "العميل",
     "payments": "المدفوعات",
     "walletpaymentintents": "المحفظة الدفع نوايا",
-    "serviceProviders": "الخدمة المزوّدون"
+    "serviceProviders": "الخدمة المزوّدون",
+    "walletPaymentIntents": {
+      "title": "طلبات دفع المحفظة",
+      "description": "إيداعات المحفظة في الإنتاج. تبقى الإيداعات البنكية/اليدوية قيد الانتظار حتى يؤكدها المدير؛ ولا تكتمل إيداعات البطاقة الإلكترونية إلا بعد تحقق callback من بوابة الدفع.",
+      "manual": "يدوي",
+      "reference": "المرجع",
+      "confirmedAmount": "المبلغ المؤكد",
+      "confirmDeposit": "تأكيد الإيداع",
+      "rejectReason": "سبب الرفض",
+      "defaultRejectReason": "لم يتم استلام الدفع",
+      "reject": "رفض"
+    },
+    "walletTransactions": {
+      "title": "معاملات المحفظة",
+      "description": "سجل معاملات المحفظة المرتبطة بالحجوزات والمدخلات اليدوية"
+    }
   },
   "HomePage": {
     "title": "L Sevin - رعاية صحية آلية",
@@ -3987,8 +4421,8 @@ declare const messages: {
         "documents": "المستندات"
       },
       "tabs": {
-        "basic": "الأساسية المعلومات",
-        "additional": "إضافية المعلومات",
+        "basic": "المعلومات الأساسية",
+        "additional": "معلومات إضافية",
         "documents": "المستندات"
       },
       "form": {
@@ -4081,6 +4515,25 @@ declare const messages: {
         "Beauty": "الجمال",
         "BankStatement": "كشف حساب بنكي",
         "Other": "آخر"
+      },
+      "edit": {
+        "title": "تعديل الملف الشخصي"
+      },
+      "profileImage": {
+        "close": "إغلاق",
+        "errors": {
+          "chooseImageFile": "يرجى اختيار ملف صورة.",
+          "imageTooLarge": "يجب أن يكون حجم الصورة أقل من 5 ميجابايت.",
+          "mediaMissing": "لم يتم إرجاع الوسائط المرفوعة.",
+          "uploadFailed": "تعذر رفع صورة الملف الشخصي."
+        },
+        "removeCurrentPhoto": "إزالة الصورة الحالية",
+        "removing": "جارٍ الإزالة...",
+        "title": "صورة الملف الشخصي",
+        "uploadNewPhoto": "رفع صورة جديدة",
+        "uploadPhoto": "رفع صورة",
+        "uploading": "جارٍ الرفع...",
+        "viewPhoto": "عرض الصورة"
       }
     }
   },
@@ -4092,16 +4545,16 @@ declare const messages: {
       "other": "أخرى"
     },
     "DocumentType": {
-      "title": "المستند النوع",
+      "title": "نوع المستند",
       "Passport": "جواز السفر",
-      "Visa": "التأشيرة",
+      "Visa": "تأشيرة",
       "DriverLicense": "رخصة قيادة",
       "BankStatement": "كشف حساب بنكي",
       "IdCard": "بطاقة هوية",
-      "Medical": "سجل طبي",
-      "Beauty": "إجراء تجميلي",
-      "Tourism": "السياحة المستند",
-      "Other": "أخرى"
+      "Medical": "مستند طبي",
+      "Beauty": "مستند تجميلي",
+      "Tourism": "مستند سياحي",
+      "Other": "مستند آخر"
     },
     "FileUpload": {
       "errors": {
@@ -4121,9 +4574,9 @@ declare const messages: {
       "title": "الموقع",
       "country": "الدولة",
       "city": "المدينة",
-      "selectCountry": "اختر  الدولة",
-      "selectCity": "اختر  المدينة",
-      "noCountrySelected": "No الدولة المحدد",
+      "selectCountry": "اختر الدولة",
+      "selectCity": "اختر المدينة",
+      "noCountrySelected": "اختر الدولة أولاً",
       "noCitiesAvailable": "لا توجد مدن متاحة",
       "loading": "جارٍ التحميل..."
     },
@@ -5978,83 +6431,83 @@ declare const messages: {
       "logOut": "تسجيل الخروج"
     },
     "completeProfile": {
-      "title": "إكمال الملف الشخصي",
-      "subtitle": "أخبرنا ببعض التفاصيل الإضافية لنخصص تجربتك.",
-      "profileAlt": "الملف الشخصي",
+      "title": "أكمل ملفك الشخصي",
+      "subtitle": "أضف بياناتك لتخصيص تجربتك في LSevin.",
+      "profileAlt": "صورة الملف الشخصي",
       "uploadPhoto": "رفع صورة",
       "firstNameLabel": "الاسم الأول",
-      "firstNamePlaceholder": "الاسم الأول",
+      "firstNamePlaceholder": "أدخل الاسم الأول",
       "lastNameLabel": "اسم العائلة",
-      "lastNamePlaceholder": "اسم العائلة",
+      "lastNamePlaceholder": "أدخل اسم العائلة",
       "gender": "الجنس",
       "male": "ذكر",
       "female": "أنثى",
-      "other": "آخر",
+      "other": "أخرى",
       "dateOfBirth": "تاريخ الميلاد",
       "preferredLanguage": "اللغة المفضلة",
       "country": "الدولة",
       "selectCountry": "اختر الدولة",
       "countries": {
-        "uae": "الإمارات",
-        "saudiArabia": "السعودية",
+        "uae": "الإمارات العربية المتحدة",
+        "saudiArabia": "المملكة العربية السعودية",
         "turkey": "تركيا",
         "iran": "إيران"
       },
       "city": "المدينة",
-      "enterCity": "Enter المدينة",
+      "enterCity": "أدخل المدينة",
       "continue": "متابعة",
-      "skipForNow": "Skip لـ now"
+      "skipForNow": "تخطي الآن"
     },
     "main": {
       "menu": {
         "walletPayments": "المحفظة والمدفوعات",
-        "rewardsLoyalty": "المكافآت & الولاء",
-        "shareWithFriends": "مشاركة مع Friends",
-        "savedFavorites": "تم الحفظ المفضلة",
-        "medicalProfile": "طبي الملف الشخصي",
+        "rewardsLoyalty": "المكافآت والولاء",
+        "shareWithFriends": "المشاركة مع الأصدقاء",
+        "savedFavorites": "المفضلة المحفوظة",
+        "medicalProfile": "الملف الطبي",
         "notifications": "الإشعارات",
-        "privacySecurity": "الخصوصية & الأمان"
+        "privacySecurity": "الخصوصية والأمان"
       }
     },
     "stats": {
       "bookings": "الحجوزات",
-      "points": "Points",
-      "saved": "تم الحفظ"
+      "points": "النقاط",
+      "saved": "المحفوظات"
     },
     "favorites": {
-      "title": "تم الحفظ المفضلة",
+      "title": "المفضلة",
       "tabs": {
         "all": "الكل",
-        "clinics": "عيادات",
+        "clinics": "العيادات",
         "doctors": "الأطباء",
-        "salons": "Salons",
-        "gyms": "Gyms"
+        "salons": "الصالونات",
+        "gyms": "النوادي الرياضية"
       },
-      "removeFavoriteAria": "إزالة {name} من المفضلة",
-      "emptyTitle": "لا يوجد المفضلة Yet",
-      "emptyDescription": "بدء saving الخاص بك مفضلة المزوّدون",
-      "exploreServices": "Explore الخدمات"
+      "removeFavoriteAria": "إزالة من المفضلة",
+      "emptyTitle": "لا توجد مفضلات بعد",
+      "emptyDescription": "احفظ مقدمي الخدمة والأخصائيين والخدمات للوصول إليها بسرعة لاحقاً.",
+      "exploreServices": "استكشف الخدمات"
     },
     "settings": {
       "title": "الإعدادات",
-      "subtitle": "إدارة الخاص بك الحساب، التفضيلات، و app السلوك.",
+      "subtitle": "إدارة تفضيلاتك وإعدادات حسابك.",
       "walletNotSetUp": "لم يتم إعداد المحفظة",
-      "preferencesUpdated": "التفضيلات تم التحديث.",
-      "couldNotSavePreferences": "Could not حفظ التفضيلات.",
+      "preferencesUpdated": "تم تحديث التفضيلات.",
+      "couldNotSavePreferences": "تعذر حفظ التفضيلات.",
       "verified": "موثق",
-      "incompleteProfile": "Incomplete الملف الشخصي",
-      "quickAccess": "Quick الوصول",
+      "incompleteProfile": "ملف غير مكتمل",
+      "quickAccess": "وصول سريع",
       "preferences": "التفضيلات",
-      "storedPreferences": "مخزن في identity.user_preferences",
+      "storedPreferences": "التفضيلات المحفوظة",
       "language": "اللغة",
       "languages": {
         "english": "الإنجليزية",
-        "persian": "فارسی",
+        "persian": "الفارسية",
         "arabic": "العربية",
-        "turkish": "Türkçe"
+        "turkish": "التركية"
       },
       "currency": "العملة",
-      "theme": "السمة",
+      "theme": "المظهر",
       "themes": {
         "system": "النظام",
         "light": "فاتح",
@@ -6067,156 +6520,292 @@ declare const messages: {
       },
       "location": "الموقع",
       "notifications": "الإشعارات",
-      "notificationsDescription": "تحديثات الحجز والمحفظة والنظام",
+      "notificationsDescription": "استلم إشعارات التطبيق والحجوزات المهمة.",
       "marketingNotifications": "إشعارات التسويق",
-      "marketingNotificationsDescription": "Promotions و جديد العروض",
-      "useCurrentLocation": "استخدم الموقع الحالي",
-      "useCurrentLocationDescription": "Prefer GPS over manually محدد country/city",
+      "marketingNotificationsDescription": "استلم العروض والحملات والتحديثات الترويجية.",
+      "useCurrentLocation": "استخدام الموقع الحالي",
+      "useCurrentLocationDescription": "استخدم موقع جهازك لعرض مقدمي الخدمة القريبين.",
       "saving": "جارٍ الحفظ...",
       "savePreferences": "حفظ التفضيلات",
       "quickLinks": {
-        "privacySecurity": "الخصوصية & الأمان",
-        "privacySecuritySubtitle": "كلمة المرور، الجلسات، deletion",
+        "privacySecurity": "الخصوصية والأمان",
+        "privacySecuritySubtitle": "كلمة المرور والجلسات والأذونات",
         "notifications": "الإشعارات",
-        "notificationsSubtitle": "{count} غير مقروء",
+        "notificationsSubtitle": "إدارة إعدادات الإشعارات",
         "wallet": "المحفظة",
-        "rewards": "المكافآت & الولاء",
-        "referralCode": "Referral الكود: {code}",
-        "noReferralCode": "لا يوجد referral الكود yet",
-        "savedFavorites": "تم الحفظ المفضلة",
-        "savedItems": "{count} تم الحفظ عناصر"
+        "rewards": "المكافآت",
+        "referralCode": "رمز الدعوة",
+        "noReferralCode": "لا يوجد رمز دعوة",
+        "savedFavorites": "المفضلة المحفوظة",
+        "savedItems": "العناصر المحفوظة"
       }
     },
     "wallet": {
       "title": "المحفظة",
       "viewAll": "عرض الكل",
-      "totalBalance": "الإجمالي الرصيد",
-      "topUpWallet": "أفضل Up المحفظة",
-      "applyCoupon": "تطبيق القسيمة",
-      "recentTransactions": "Recent المعاملات",
+      "totalBalance": "الرصيد الكلي",
+      "topUpWallet": "شحن المحفظة",
+      "applyCoupon": "تطبيق قسيمة",
+      "recentTransactions": "المعاملات الأخيرة",
       "filters": {
         "filter": "تصفية",
-        "credits": "الأرصدة",
-        "debits": "الخصومات"
+        "credits": "إيداعات",
+        "debits": "مدفوعات"
       },
-      "lsevinWallet": "LSevin المحفظة",
-      "noTransactionsYet": "لا يوجد المعاملات Yet",
-      "emptyDescription": "ابدأ باستخدام محفظتك لرؤية المعاملات هنا",
-      "selectAmount": "اختيار المبلغ",
-      "enterCustomAmount": "Enter مخصص المبلغ",
+      "lsevinWallet": "محفظة LSevin",
+      "noTransactionsYet": "لا توجد معاملات بعد",
+      "emptyDescription": "سيظهر نشاط محفظتك هنا.",
+      "selectAmount": "اختر المبلغ",
+      "enterCustomAmount": "أدخل مبلغاً مخصصاً",
       "paymentMethod": "طريقة الدفع",
       "paymentMethods": {
-        "onlineCard": "إلكتروني Card الدفع",
-        "cardDetails": "رسوم equivalent Iranian Rial/Toman المبلغ",
-        "noGateway": "لا يوجد مفعّل card البوابة",
+        "onlineCard": "بطاقة إلكترونية",
+        "cardDetails": "ادفع بأمان باستخدام بطاقتك.",
+        "noGateway": "لا توجد بوابة دفع متاحة",
         "bankTransfer": "تحويل بنكي",
-        "bankDetails": "Direct البنك تحويل"
+        "bankDetails": "حوّل يدوياً وارفع الإثبات.",
+        "creditDebitCard": "بطاقة ائتمان / خصم",
+        "cardNetworkDetails": "فيزا، ماستركارد، أمريكان إكسبريس",
+        "applePay": "Apple Pay",
+        "quickSecure": "سريع وآمن",
+        "applePayDetails": "دفع سريع عبر Apple Pay."
       },
       "gateway": "بوابة الدفع",
-      "noOnlineGateway": "لا يوجد إلكتروني card البوابة is مفعّل. تفعيل Zarinpal من مشرف → الدفع Gateways.",
-      "gatewayCurrencyNote": "تُحصّل الرسوم بما يعادل {currency}؛ وتُضاف أرصدة المحفظة بـ {selectedCurrency}",
-      "processing": "قيد المعالجة...",
-      "topUpAmount": "أفضل Up {amount}",
-      "todayAt": "اليوم، {time}",
-      "yesterdayAt": "Yesterday، {time}",
+      "noOnlineGateway": "لم يتم تكوين بوابة دفع إلكترونية.",
+      "gatewayCurrencyNote": "قد تختلف عملة بوابة الدفع عن عملة العرض.",
+      "processing": "جارٍ المعالجة...",
+      "topUpAmount": "مبلغ الشحن",
+      "todayAt": "Today at {time}",
+      "yesterdayAt": "Yesterday at {time}",
       "statuses": {
-        "completed": "مكتمل",
-        "pending": "معلق",
-        "processing": "در حال پردازش",
-        "failed": "فشل",
-        "cancelled": "ملغى"
+        "completed": "مكتملة",
+        "pending": "قيد الانتظار",
+        "processing": "قيد المعالجة",
+        "failed": "فشلت",
+        "cancelled": "ملغاة"
+      },
+      "demoTransactions": {
+        "hairTransplantPayment": "دفع زراعة الشعر",
+        "istanbulMedicalCenter": "مركز إسطنبول الطبي",
+        "walletTopUp": "شحن المحفظة",
+        "creditCardMasked": "بطاقة ائتمان ****4532",
+        "referralBonus": "مكافأة الإحالة",
+        "friendJoined": "انضم صديقك إلى السوین",
+        "spaPackage": "باقة سبا",
+        "luxuryBeautySpa": "تجميل وسبا فاخر",
+        "cashbackReward": "مكافأة استرداد نقدي",
+        "bookingCompletionBonus": "مكافأة إكمال الحجز",
+        "dentalCleaning": "تنظيف الأسنان",
+        "smileCareDental": "عيادة SmileCare للأسنان"
+      },
+      "sample": {
+        "cashback": {
+          "subtitle": "تمت إضافة المكافأة",
+          "title": "استرداد نقدي"
+        },
+        "dental": {
+          "subtitle": "دفع العيادة",
+          "title": "استشارة أسنان"
+        },
+        "hairTransplant": {
+          "subtitle": "مركز إسطنبول الطبي",
+          "title": "حجز زراعة شعر"
+        },
+        "referral": {
+          "subtitle": "انضم صديق إلى LSevin",
+          "title": "مكافأة دعوة"
+        },
+        "spa": {
+          "subtitle": "حجز عافية",
+          "title": "باقة سبا"
+        },
+        "topup": {
+          "subtitle": "تمت إضافة رصيد للمحفظة",
+          "title": "شحن المحفظة"
+        }
       }
     },
     "transactions": {
-      "title": "كل المعاملات",
+      "title": "المعاملات",
       "filter": "تصفية",
-      "summary": "Showing {count} المعاملات • الصافي في {currency}",
+      "summary": "الملخص",
       "total": "الإجمالي",
-      "lsevinWallet": "LSevin المحفظة",
-      "noTransactionsFound": "لا يوجد المعاملات Found",
-      "tryAdjustingFilters": "حاول adjusting الخاص بك الفلاتر",
+      "lsevinWallet": "محفظة LSevin",
+      "noTransactionsFound": "لم يتم العثور على معاملات",
+      "tryAdjustingFilters": "جرّب تعديل الفلاتر.",
       "clearFilters": "مسح الفلاتر",
       "filterTransactions": "تصفية المعاملات",
-      "transactionType": "المعاملة النوع",
+      "transactionType": "نوع المعاملة",
       "types": {
         "all": "كل الأنواع",
-        "credit": "Money في",
-        "debit": "أموال صادرة"
+        "credit": "إيداعات",
+        "debit": "مدفوعات"
       },
       "status": "الحالة",
       "statuses": {
         "all": "كل الحالات",
-        "completed": "مكتمل",
-        "pending": "معلق",
-        "failed": "فشل"
+        "completed": "مكتملة",
+        "pending": "قيد الانتظار",
+        "failed": "فشلت",
+        "refunded": "Refunded",
+        "processing": "قيد المعالجة",
+        "cancelled": "ملغاة"
       },
-      "timePeriod": "الوقت الفترة",
+      "timePeriod": "الفترة الزمنية",
       "periods": {
         "all": "كل الوقت",
         "today": "اليوم",
-        "week": "آخر 7 أيام",
-        "month": "آخر 30 أيام",
-        "threeMonths": "آخر 3 Months"
+        "week": "هذا الأسبوع",
+        "month": "هذا الشهر",
+        "threeMonths": "آخر 3 أشهر",
+        "yesterday": "أمس"
       },
-      "clearAll": "مسح كل",
-      "applyFilters": "تطبيق الفلاتر"
+      "clearAll": "مسح الكل",
+      "applyFilters": "تطبيق الفلاتر",
+      "paymentMethods": {
+        "applePay": "Apple Pay",
+        "bankTransfer": "تحويل بنكي"
+      },
+      "sample": {
+        "botox": {
+          "subtitle": "فشل الدفع",
+          "title": "موعد بوتوكس"
+        },
+        "cashback": {
+          "subtitle": "تمت إضافة المكافأة",
+          "title": "استرداد نقدي"
+        },
+        "dental": {
+          "subtitle": "دفع العيادة",
+          "title": "استشارة أسنان"
+        },
+        "gym": {
+          "subtitle": "اشتراك شهري",
+          "title": "اشتراك نادي"
+        },
+        "hairTransplant": {
+          "subtitle": "مركز إسطنبول الطبي",
+          "title": "حجز زراعة شعر"
+        },
+        "referral": {
+          "subtitle": "انضم صديق إلى LSevin",
+          "title": "مكافأة دعوة"
+        },
+        "refund": {
+          "subtitle": "استرداد حجز",
+          "title": "استرداد"
+        },
+        "spa": {
+          "subtitle": "حجز عافية",
+          "title": "باقة سبا"
+        },
+        "topup": {
+          "subtitle": "تمت إضافة رصيد للمحفظة",
+          "title": "شحن المحفظة"
+        }
+      },
+      "todayAt": "Today at {time}",
+      "yesterdayAt": "Yesterday at {time}"
     },
     "transactionDetail": {
-      "title": "المعاملة التفاصيل",
-      "transactionLinkCopied": "المعاملة رابط copied.",
-      "transactionInformation": "المعاملة معلومات",
+      "title": "تفاصيل المعاملة",
+      "transactionLinkCopied": "تم نسخ رابط المعاملة.",
+      "transactionInformation": "معلومات المعاملة",
       "transactionId": "معرّف المعاملة",
       "paymentMethod": "طريقة الدفع",
       "bookingReference": "مرجع الحجز",
-      "description": "الوصف",
-      "provider": "المزوّد",
-      "lsevinWallet": "LSevin المحفظة",
-      "paymentBreakdown": "الدفع Breakdown",
+      "description": "راجع تفاصيل الدفع ومعلومات الحجز.",
+      "provider": "مقدم الخدمة",
+      "lsevinWallet": "محفظة LSevin",
+      "paymentBreakdown": "تفصيل الدفع",
       "subtotal": "المجموع الفرعي",
       "serviceFee": "رسوم الخدمة",
       "total": "الإجمالي",
-      "downloadReceipt": "تنزيل Receipt",
-      "viewBookingDetails": "عرض الحجز التفاصيل",
-      "paymentFailed": "الدفع فشل",
-      "paymentFailedDescription": "هذا الدفع could not be تمت المعالجة. يرجى حاول again أو استخدم different طريقة الدفع.",
-      "retryPayment": "Retry الدفع",
-      "paymentPending": "الدفع معلّق",
-      "paymentPendingDescription": "لا تزال هذه المعاملة قيد المعالجة. حدّث المحفظة أو تحقق لاحقاً من الحالة النهائية.",
-      "needHelp": "Need مساعدة مع هذا المعاملة?",
-      "contactSupport": "التواصل الدعم"
+      "downloadReceipt": "تنزيل الإيصال",
+      "viewBookingDetails": "عرض تفاصيل الحجز",
+      "paymentFailed": "فشل الدفع",
+      "paymentFailedDescription": "فشلت هذه المعاملة. يرجى المحاولة مرة أخرى أو استخدام طريقة دفع أخرى.",
+      "retryPayment": "إعادة محاولة الدفع",
+      "paymentPending": "الدفع قيد الانتظار",
+      "paymentPendingDescription": "ما زال الدفع قيد الانتظار.",
+      "needHelp": "هل تحتاج مساعدة؟",
+      "contactSupport": "تواصل مع الدعم",
+      "receipt": "إيصال",
+      "statuses": {
+        "completed": "مكتمل",
+        "refunded": "مسترد",
+        "pending": "قيد الانتظار",
+        "processing": "قيد المعالجة",
+        "failed": "فشل",
+        "cancelled": "ملغى"
+      },
+      "paymentMethods": {
+        "card": "بطاقة",
+        "bank": "تحويل بنكي",
+        "apple": "Apple Pay",
+        "wallet": "محفظة السوین"
+      },
+      "share": {
+        "reference": "المرجع",
+        "amount": "المبلغ",
+        "status": "الحالة",
+        "date": "التاريخ"
+      },
+      "paymentProcessingDescription": "تتم معالجة الدفع.",
+      "sample": {
+        "description": "دفع الخدمة الطبية المختارة.",
+        "providerAddress": "Istanbul, Turkey",
+        "providerName": "مركز إسطنبول الطبي",
+        "subtitle": "دفع الحجز",
+        "title": "حجز زراعة شعر"
+      }
     },
     "receipt": {
-      "title": "المعاملة Receipt",
+      "title": "الإيصال",
       "reference": "المرجع",
-      "transaction": "المعاملة",
-      "provider": "المزوّد",
-      "lsevinWallet": "LSevin المحفظة",
-      "paymentBreakdown": "الدفع breakdown",
+      "transaction": "Transaction",
+      "provider": "مقدم الخدمة",
+      "lsevinWallet": "محفظة LSevin",
+      "paymentBreakdown": "تفصيل الدفع",
       "subtotal": "المجموع الفرعي",
       "serviceFee": "رسوم الخدمة",
       "total": "الإجمالي",
       "status": "الحالة",
       "paymentMethod": "طريقة الدفع",
       "bookingReference": "مرجع الحجز",
-      "saveAsPdf": "حفظ هذا الصفحة as PDF من الخاص بك browser إلى keep copy من receipt."
+      "saveAsPdf": "حفظ كملف PDF",
+      "statuses": {
+        "completed": "مكتمل",
+        "refunded": "مسترد",
+        "pending": "قيد الانتظار",
+        "processing": "قيد المعالجة",
+        "failed": "فشل",
+        "cancelled": "ملغى"
+      },
+      "paymentMethods": {
+        "card": "بطاقة",
+        "bank": "تحويل بنكي",
+        "apple": "Apple Pay",
+        "wallet": "محفظة السوین"
+      }
     },
     "medicalProfile": {
-      "title": "طبي الملف الشخصي",
-      "privacyTitle": "الخاص بك الخصوصية is Protected",
+      "title": "الملف الطبي",
+      "privacyTitle": "خاص وآمن",
       "privacyDescription": "كل المعلومات الطبية مشفرة ومتوافقة مع HIPAA ولا تُشارك إلا مع مزوّدي الرعاية الصحية المصرح لهم.",
       "sections": {
         "allergies": "الحساسيات",
-        "currentMedications": "الحالي الأدوية",
+        "currentMedications": "الأدوية الحالية",
         "medicalHistory": "التاريخ الطبي",
         "medicalDocuments": "المستندات الطبية",
-        "emergencyContact": "Emergency التواصل"
+        "emergencyContact": "جهة اتصال الطوارئ"
       },
       "empty": {
-        "noAllergies": "لا يوجد allergies recorded",
-        "noMedications": "لا يوجد الأدوية recorded",
-        "noConditions": "لا يوجد conditions recorded",
-        "noDocuments": "لا يوجد المستندات تم الرفع",
-        "noContactSaved": "لا يوجد التواصل تم الحفظ"
+        "noAllergies": "لم تتم إضافة أي حساسية بعد.",
+        "noMedications": "لم تتم إضافة أدوية بعد.",
+        "noConditions": "لم تتم إضافة حالات طبية بعد.",
+        "noDocuments": "لم يتم رفع مستندات بعد.",
+        "noContactSaved": "لم يتم حفظ جهة اتصال للطوارئ."
       },
       "actions": {
         "addFirstAllergy": "أضف أول حساسية",
@@ -6235,68 +6824,357 @@ declare const messages: {
         "notesOptional": "ملاحظات (اختياري)"
       },
       "placeholders": {
-        "allergyName": "مثلاً: بنسلين",
-        "reactionNotes": "معلومات إضافية عن التفاعلات..."
+        "allergyName": "مثال: بنسلين",
+        "reactionNotes": "ملاحظات التفاعل"
       },
       "severity": {
-        "mild": "خفيف",
-        "moderate": "متوسط",
-        "severe": "شديد"
+        "mild": "خفيفة",
+        "moderate": "متوسطة",
+        "severe": "شديدة"
       },
       "errors": {
-        "addAllergy": "فشل إلى إضافة allergy.",
-        "addMedication": "فشل إلى إضافة دواء.",
-        "addCondition": "فشل إلى إضافة condition.",
-        "uploadDocument": "فشل إلى رفع مستند.",
-        "saveEmergencyContact": "فشل إلى حفظ emergency التواصل."
+        "addAllergy": "تعذرت إضافة الحساسية.",
+        "addMedication": "تعذرت إضافة الدواء.",
+        "addCondition": "تعذرت إضافة الحالة.",
+        "uploadDocument": "تعذر رفع المستند.",
+        "saveEmergencyContact": "تعذر حفظ جهة اتصال الطوارئ."
       }
     },
     "privacySecurity": {
-      "title": "الخصوصية & الأمان",
-      "changePassword": "Change كلمة المرور",
-      "currentPassword": "الحالي كلمة المرور",
-      "enterCurrentPassword": "Enter الحالي كلمة المرور",
-      "newPassword": "جديد كلمة المرور",
-      "enterNewPassword": "Enter جديد كلمة المرور",
-      "confirmNewPassword": "تأكيد جديد كلمة المرور",
-      "reenterNewPassword": "Re-enter جديد كلمة المرور",
+      "title": "الخصوصية والأمان",
+      "changePassword": "تغيير كلمة المرور",
+      "currentPassword": "كلمة المرور الحالية",
+      "enterCurrentPassword": "أدخل كلمة المرور الحالية",
+      "newPassword": "كلمة المرور الجديدة",
+      "enterNewPassword": "أدخل كلمة المرور الجديدة",
+      "confirmNewPassword": "تأكيد كلمة المرور الجديدة",
+      "reenterNewPassword": "أعد إدخال كلمة المرور الجديدة",
       "updatePassword": "تحديث كلمة المرور",
-      "biometricLogin": "تسجيل الدخول بالبصمة",
-      "biometricDescription": "تخزين المستخدم preference لـ Face ID/ fingerprint تسجيل الدخول.",
+      "biometricLogin": "تسجيل الدخول الحيوي",
+      "biometricDescription": "استخدم Face ID أو Touch ID أو القياسات الحيوية للدخول بسرعة.",
       "activeSessions": "الجلسات النشطة",
       "refresh": "تحديث",
-      "noTrackedSessions": "لا يوجد tracked الجلسات yet.",
-      "current": "الحالي",
+      "noTrackedSessions": "لا توجد جلسات مسجلة.",
+      "current": "الحالية",
       "revoke": "إلغاء",
-      "privacyControls": "الخصوصية Controls",
-      "locationPermissions": "الموقع Permissions",
-      "notificationPermissions": "إشعار Permissions",
-      "checkAgain": "فحص Again",
+      "privacyControls": "عناصر التحكم بالخصوصية",
+      "locationPermissions": "أذونات الموقع",
+      "notificationPermissions": "أذونات الإشعارات",
+      "checkAgain": "تحقق مرة أخرى",
       "requestAccess": "طلب الوصول",
       "deleteAccount": "حذف الحساب",
-      "deleteDescription": "إنشاء controlled deletion طلب لـ مراجعة. destructive حذف should happen في الخاص بك backend workflow، not directly من عميل.",
-      "optionalReason": "اختياري السبب",
-      "deletionRequestOpen": "Deletion طلب already فتح",
-      "requestAccountDeletion": "طلب الحساب Deletion",
+      "deleteDescription": "طلب حذف الحساب ومراجعة البيانات.",
+      "optionalReason": "سبب اختياري",
+      "deletionRequestOpen": "يوجد طلب حذف مفتوح بالفعل.",
+      "requestAccountDeletion": "طلب حذف الحساب",
       "working": "جارٍ العمل...",
-      "notSupported": "Not supported على هذا browser",
+      "notSupported": "غير مدعوم",
       "messages": {
         "somethingWentWrong": "حدث خطأ ما.",
-        "permissionStateRefreshed": "تم تحديث حالة الصلاحية.",
-        "couldNotRefreshPermission": "Could not تحديث permission state.",
-        "couldNotReadLocation": "Could not قراءة الحالي الموقع.",
-        "locationGranted": "الموقع permission granted.",
-        "locationUpdated": "الموقع permission الحالة تم التحديث.",
-        "couldNotRequestLocation": "Could not طلب الموقع permission.",
-        "notificationGranted": "إشعار permission granted.",
-        "notificationUpdated": "إشعار permission الحالة تم التحديث.",
-        "couldNotRequestNotification": "Could not طلب إشعار permission.",
-        "permissionsBlocked": "One أو المزيد browser permissions are محظور. المستخدم may need إلى re-تفعيل them في browser أو OS الإعدادات.",
-        "passwordUpdated": "كلمة المرور تم التحديث.",
-        "biometricUpdated": "تم تحديث تفضيل البصمة.",
-        "sessionRevoked": "الجلسة revoked.",
-        "accountDeletionRequested": "الحساب deletion requested."
+        "permissionStateRefreshed": "تم تحديث حالة الإذن.",
+        "couldNotRefreshPermission": "Could not refresh permission status.",
+        "couldNotReadLocation": "Could not read location permission.",
+        "locationGranted": "تم منح إذن الموقع.",
+        "locationUpdated": "تم تحديث إعداد الموقع.",
+        "couldNotRequestLocation": "Could not request location permission.",
+        "notificationGranted": "تم منح إذن الإشعارات.",
+        "notificationUpdated": "تم تحديث إعداد الإشعارات.",
+        "couldNotRequestNotification": "Could not request notification permission.",
+        "permissionsBlocked": "الإذن محظور في المتصفح أو إعدادات الجهاز.",
+        "passwordUpdated": "تم تحديث كلمة المرور بنجاح.",
+        "biometricUpdated": "تم تحديث إعداد القياسات الحيوية.",
+        "sessionRevoked": "تم إلغاء الجلسة.",
+        "accountDeletionRequested": "تم إرسال طلب حذف الحساب."
+      },
+      "manage": "إدارة"
+    },
+    "coupons": {
+      "apply": "تطبيق",
+      "applyCoupon": "تطبيق القسيمة",
+      "availableCoupons": "القسائم المتاحة",
+      "enterCode": "أدخل رمز القسيمة",
+      "enterCodePlaceholder": "رمز القسيمة",
+      "expires": "Expires {date}",
+      "expiringSoon": "تنتهي قريباً",
+      "getMoreCoupons": "احصل على المزيد من القسائم",
+      "getMoreDescription": "ادعُ أصدقاءك وأكمل الحجوزات لفتح المزيد من المكافآت.",
+      "hurryExpiresSoon": "أسرع، هذه القسيمة ستنتهي قريباً.",
+      "invalidDescription": "هذه القسيمة غير صالحة أو منتهية.",
+      "invalidTitle": "قسيمة غير صالحة",
+      "maxDiscount": "Max discount: {amount}",
+      "minAmount": "Min. amount: {amount}",
+      "previouslyUsed": "المستخدمة سابقاً",
+      "referFriends": "دعوة الأصدقاء",
+      "sampleCoupons": {
+        "beauty": {
+          "description": "وفّر على خدمات التجميل",
+          "title": "عرض التجميل"
+        },
+        "first": {
+          "description": "لحجزك الأول المكتمل",
+          "title": "عرض الحجز الأول"
+        },
+        "medical": {
+          "description": "تستخدم على خدمات طبية محددة",
+          "title": "خصم الرعاية الطبية"
+        },
+        "welcome": {
+          "title": "مكافأة ترحيبية"
+        },
+        "wellness": {
+          "description": "صالحة لحجوزات السبا والعافية",
+          "title": "باقة العافية"
+        }
+      },
+      "savedAmount": "Saved {amount}",
+      "title": "القسائم",
+      "usedOn": "Used on {date}",
+      "validateCoupon": "التحقق من القسيمة",
+      "validating": "جارٍ التحقق..."
+    },
+    "editProfile": {
+      "changeProfilePhoto": "تغيير صورة الملف الشخصي",
+      "fields": {
+        "address": "العنوان",
+        "city": "المدينة",
+        "country": "الدولة",
+        "dateOfBirth": "تاريخ الميلاد",
+        "email": "البريد الإلكتروني",
+        "firstName": "الاسم الأول",
+        "gender": "الجنس",
+        "lastName": "اسم العائلة",
+        "phone": "رقم الهاتف"
+      },
+      "gender": {
+        "female": "أنثى",
+        "male": "ذكر",
+        "other": "أخرى",
+        "preferNotToSay": "أفضل عدم الإفصاح"
+      },
+      "phoneLockedDescription": "رقم هاتفك مقفل لأنه المعرّف الأساسي لحسابك.",
+      "saveChanges": "حفظ التغييرات",
+      "saving": "جارٍ الحفظ...",
+      "title": "تعديل الملف الشخصي",
+      "profileAlt": "صورة الملف الشخصي"
+    },
+    "medicalProfileLegacy": {
+      "buttons": {
+        "saveContact": "حفظ جهة الاتصال"
+      },
+      "empty": {
+        "addFirstAllergy": "أضف أول حساسية",
+        "addFirstMedication": "أضف أول دواء",
+        "noAllergies": "لم تتم إضافة أي حساسية بعد.",
+        "noConditions": "لم تتم إضافة حالات بعد.",
+        "noDocuments": "لم يتم رفع مستندات بعد.",
+        "noMedications": "لم تتم إضافة أدوية بعد."
+      },
+      "fields": {
+        "allergyName": "اسم الحساسية",
+        "conditionName": "اسم الحالة",
+        "dosage": "الجرعة",
+        "frequency": "التكرار",
+        "fullName": "الاسم الكامل",
+        "medicationName": "اسم الدواء",
+        "phoneNumber": "رقم الهاتف",
+        "relationship": "صلة القرابة"
+      },
+      "frequency": {
+        "asNeeded": "عند الحاجة",
+        "onceDaily": "مرة يومياً",
+        "select": "اختر التكرار",
+        "threeTimesDaily": "ثلاث مرات يومياً",
+        "twiceDaily": "مرتان يومياً",
+        "weekly": "أسبوعياً"
+      },
+      "modals": {
+        "addAllergy": "إضافة حساسية",
+        "addCondition": "إضافة حالة",
+        "addMedication": "إضافة دواء",
+        "uploadDocument": "رفع مستند"
+      },
+      "placeholders": {
+        "allergyName": "مثال: بنسلين",
+        "conditionName": "اسم الحالة",
+        "conditionNotes": "ملاحظات الحالة",
+        "documentName": "اسم المستند",
+        "dosage": "الجرعة",
+        "fullName": "اسم جهة اتصال الطوارئ",
+        "medicationName": "اسم الدواء",
+        "medicationNotes": "ملاحظات الدواء",
+        "phoneNumber": "هاتف جهة اتصال الطوارئ",
+        "reactionNotes": "ملاحظات التفاعل"
+      },
+      "privacyDescription": "معلوماتك الطبية مشفرة ولا تتم مشاركتها إلا مع مقدمي الخدمة الذين تصرح لهم.",
+      "privacyTitle": "خاص وآمن",
+      "relationship": {
+        "other": "أخرى"
+      },
+      "sections": {
+        "allergies": "الحساسيات",
+        "currentMedications": "الأدوية الحالية",
+        "emergencyContact": "جهة اتصال الطوارئ",
+        "medicalDocuments": "المستندات الطبية",
+        "medicalHistory": "التاريخ الطبي"
+      },
+      "severity": {
+        "mild": "خفيفة",
+        "moderate": "متوسطة",
+        "severe": "شديدة"
+      },
+      "title": "الملف الطبي",
+      "upload": {
+        "acceptedFormats": "PDF، JPG، PNG",
+        "acceptedFormatsLabel": "الصيغ المقبولة",
+        "clickToUpload": "انقر للرفع",
+        "examples": "نتائج مختبر، وصفات، تقارير",
+        "examplesLabel": "أمثلة",
+        "failedDescription": "تعذر رفع هذا المستند.",
+        "failedTitle": "فشل الرفع",
+        "formatsShort": "PDF، JPG، PNG",
+        "maximumSize": "10 ميجابايت",
+        "maximumSizeLabel": "الحجم الأقصى",
+        "progress": "تقدم الرفع",
+        "successDescription": "تم رفع المستند.",
+        "successTitle": "اكتمل الرفع",
+        "uploadingTitle": "جارٍ الرفع..."
       }
+    },
+    "shareFriends": {
+      "copied": "تم النسخ",
+      "copiedBang": "تم النسخ!",
+      "copy": "نسخ",
+      "discountQueue": "قائمة الخصومات",
+      "heroSubtitle": "شارك LSevin مع أصدقائك وافتح مزايا الدعوة.",
+      "heroTitle": "ادعُ أصدقاءك واكسب مكافآت",
+      "howItWorks": "طريقة العمل",
+      "methods": {
+        "email": "البريد الإلكتروني",
+        "facebook": "فيسبوك",
+        "instagram": "إنستغرام",
+        "message": "رسالة"
+      },
+      "moreOptions": "خيارات إضافية",
+      "referralCode": "رمز الدعوة",
+      "referralHistory": "سجل الدعوات",
+      "shareMessage": "استخدم رمز دعوتي للانضمام إلى LSevin.",
+      "shareReferralLink": "شارك رابط الدعوة",
+      "shareSubject": "انضم إلى LSevin",
+      "shareVia": "المشاركة عبر",
+      "stats": {
+        "earned": "المكتسبة",
+        "friendsJoined": "الأصدقاء المنضمون",
+        "invited": "مدعو",
+        "pending": "قيد الانتظار",
+        "used": "المستخدمة"
+      },
+      "steps": {
+        "activeProgram": {
+          "description": "تعتمد مكافآت الدعوة على قواعد الحملة النشطة.",
+          "title": "برنامج نشط"
+        },
+        "shareCode": {
+          "description": "أرسل رمز الدعوة الخاص بك إلى الأصدقاء.",
+          "descriptionLink": "شارك رابط الدعوة في أي مكان.",
+          "title": "شارك رمزك"
+        },
+        "theyGet": {
+          "description": "يحصل صديقك على ميزة الترحيب المحددة.",
+          "title": "هم يحصلون على ميزة"
+        },
+        "unlock": {
+          "description": "تُفتح المكافآت بعد خطوة الحجز أو الملف المطلوبة.",
+          "title": "فتح المكافآت"
+        },
+        "youEarn": {
+          "description": "تكسب عند تأهل الدعوة.",
+          "title": "أنت تكسب مكافآت"
+        }
+      },
+      "terms": {
+        "expire": "قد تنتهي المكافآت والقسائم.",
+        "minimumBooking": "قد تطبق قواعد الحد الأدنى للحجز.",
+        "newUsers": "صالحة للمستخدمين الجدد فقط.",
+        "rewardAfterBooking": "تصدر المكافآت بعد الحجوزات المؤهلة.",
+        "rights": "قد تقوم LSevin بتحديث قواعد الدعوة."
+      },
+      "termsTitle": "الشروط",
+      "title": "المشاركة مع الأصدقاء"
+    },
+    "rewards": {
+      "actions": {
+        "copied": "تم النسخ",
+        "copiedBang": "تم النسخ!",
+        "copy": "نسخ",
+        "shareWithFriends": "المشاركة مع الأصدقاء",
+        "useCoupon": "Use Coupon"
+      },
+      "coupons": {
+        "available": "القسائم المتاحة",
+        "code": "Code: {code}",
+        "daysLeft": " ({days} days left)",
+        "emptyAvailable": "لا توجد قسائم عروض نشطة حالياً.",
+        "emptyUsed": "Coupon redemption history cannot be shown until a customer coupon ledger exists in the database.",
+        "expires": "Expires {date}",
+        "minPurchase": "Min ${amount}",
+        "saved": "Saved {amount}",
+        "used": "القسائم المستخدمة",
+        "usedOn": "Used on {date}"
+      },
+      "overview": {
+        "current": "الحالي",
+        "earned": "المكتسبة",
+        "emptyActivity": "لم يتم تسجيل أي نشاط مكافآت بعد.",
+        "highestTierReached": "تم الوصول إلى أعلى مستوى",
+        "member": "{tier} Member",
+        "membershipTiers": "مستويات العضوية",
+        "points": "نقاط",
+        "pointsAbbr": "نقطة",
+        "pointsToNext": "{points} more points to {tier}",
+        "recentActivity": "النشاط الأخير",
+        "referrals": "الدعوات",
+        "totalSpent": "إجمالي الإنفاق",
+        "yourPoints": "نقاطك"
+      },
+      "referrals": {
+        "howItWorks": "كيف تعمل الدعوات",
+        "inviteFriends": "دعوة الأصدقاء",
+        "schemaReady": "مخطط برنامج الدعوة جاهز للإضافة",
+        "shareText": "Use my code {code} when you join LSevin.",
+        "shareTitle": "انضم إلى LSevin",
+        "steps": {
+          "book": {
+            "description": "يكمل صديقك حجزه الأول",
+            "title": "يقومون بالحجز"
+          },
+          "earn": {
+            "description": "Reward logic becomes live once referral tables and payout rules are added",
+            "title": "يكسب كلاكما"
+          },
+          "share": {
+            "description": "Send your unique referral code to friends",
+            "title": "شارك رمزك"
+          },
+          "signup": {
+            "description": "ينشئ صديقك حساباً باستخدام رمزك",
+            "title": "يقومون بالتسجيل"
+          }
+        },
+        "successful": "دعوات ناجحة",
+        "totalEarned": "إجمالي المكتسب",
+        "yourCode": "رمز دعوتك",
+        "yourStats": "إحصاءات دعوتك"
+      },
+      "schemaNotice": {
+        "description": "This page is production-structured and uses live offers plus derived spending, but loyalty points, coupon redemption history, referrals, and tier persistence need dedicated tables and APIs.",
+        "title": "مخطط المكافآت غير موجود في قاعدة البيانات بعد"
+      },
+      "tabs": {
+        "coupons": "القسائم",
+        "overview": "نظرة عامة",
+        "referrals": "الدعوات"
+      },
+      "title": "المكافآت والولاء"
     }
   },
   "LazySelect": {
@@ -8435,7 +9313,8 @@ declare const messages: {
       "verifiedRecordsLocked": "موثق السجلات cannot be changed بواسطة المزوّد المستخدمون.",
       "years": "سنوات",
       "yes": "نعم",
-      "yourProviders": "الخاص بك المزوّدون"
+      "yourProviders": "الخاص بك المزوّدون",
+      "optional": "اختياري"
     },
     "labels": {
       "accountHolder": "صاحب الحساب",
@@ -8672,7 +9551,10 @@ declare const messages: {
       "vipDentalPopular": "VIP، Dental، شائع",
       "website": "الموقع الإلكتروني",
       "wednesday": "الأربعاء",
-      "year": "السنة"
+      "year": "السنة",
+      "Subject": "الموضوع",
+      "Priority": "الأولوية",
+      "Message": "الرسالة"
     },
     "messages": {
       "98": "98%",
@@ -9059,6 +9941,1110 @@ declare const messages: {
       "urgent": "عاجل",
       "verified": "موثق",
       "viewer": "مشاهد"
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "featured": "مميز",
+      "low": "منخفضة",
+      "normal": "عادية",
+      "high": "عالية",
+      "urgent": "عاجلة",
+      "open": "مفتوح",
+      "in_progress": "قيد المعالجة",
+      "resolved": "تم الحل",
+      "closed": "مغلق"
+    },
+    "offersManager": {
+      "title": "العروض",
+      "description": "عروض تسويقية مرتبطة بخدمات مقدم الخدمة.",
+      "used": "مستخدم",
+      "noOffersYet": "لا توجد عروض حتى الآن.",
+      "offerCouldNotBeSaved": "تعذر حفظ العرض.",
+      "offerUpdated": "تم تحديث العرض.",
+      "offerCreated": "تم إنشاء العرض.",
+      "createServiceFirstThenOffers": "أنشئ خدمة أولاً، ثم أضف العروض.",
+      "deleteThisOffer": "هل تريد حذف هذا العرض؟",
+      "offerCouldNotBeDeleted": "تعذر حذف العرض.",
+      "offerDeleted": "تم حذف العرض."
+    },
+    "offerForm": {
+      "createTitle": "إنشاء عرض",
+      "editTitle": "تعديل العرض",
+      "requiresService": "تحتاج العروض إلى خدمة واحدة على الأقل من خدمات مقدم الخدمة.",
+      "updateDescription": "حدّث عرض هذه الخدمة.",
+      "service": "الخدمة",
+      "code": "الرمز",
+      "couponCode": "رمز القسيمة",
+      "title": "العنوان",
+      "subtitle": "العنوان الفرعي",
+      "discountPercent": "نسبة الخصم",
+      "validUntil": "صالح حتى",
+      "usageLimit": "حد الاستخدام",
+      "descriptionEn": "الوصف بالإنجليزية",
+      "descriptionFa": "الوصف بالفارسية",
+      "cancelEdit": "إلغاء التعديل",
+      "saveOffer": "حفظ العرض"
+    },
+    "supportTickets": "تذاكر الدعم",
+    "supportChannelDescription": "قناة دعم بين المزود والإدارة.",
+    "noSupportTicketsYet": "لا توجد تذاكر دعم بعد.",
+    "ticketCouldNotBeCreated": "تعذر إنشاء التذكرة.",
+    "supportTicketCreated": "تم إنشاء تذكرة الدعم.",
+    "createSupportTicket": "إنشاء تذكرة دعم",
+    "sending": "جارٍ الإرسال...",
+    "createTicket": "إنشاء تذكرة",
+    "ticketCouldNotBeUpdated": "تعذر تحديث التذكرة.",
+    "ticketStatusUpdated": "تم تحديث حالة التذكرة.",
+    "Subject": "الموضوع",
+    "Priority": "الأولوية",
+    "Message": "الرسالة",
+    "low": "منخفضة",
+    "normal": "عادية",
+    "high": "عالية",
+    "urgent": "عاجلة",
+    "open": "مفتوح",
+    "in_progress": "قيد المعالجة",
+    "resolved": "تم الحل",
+    "closed": "مغلق",
+    "profile": {
+      "buttons": {
+        "save": "حفظ الملف",
+        "saving": "جارٍ الحفظ..."
+      },
+      "description": "Manage provider public profile, contact details, and presentation fields.",
+      "fields": {
+        "code": "Code",
+        "descriptionEn": "Description (English)",
+        "descriptionFa": "Description (Persian)",
+        "detailEn": "Detail (English)",
+        "detailFa": "Detail (Persian)",
+        "email": "البريد الإلكتروني",
+        "establishedYear": "Established year",
+        "imageUrl": "Image URL",
+        "languagesCsv": "اللغات",
+        "nameEn": "Name (English)",
+        "nameFa": "Name (Persian)",
+        "phone": "Phone",
+        "responseTime": "وقت الاستجابة",
+        "specialtiesCsv": "Specialties",
+        "streetEn": "Street (English)",
+        "streetFa": "Street (Persian)",
+        "successRate": "Success rate",
+        "timezone": "Timezone",
+        "totalPatients": "إجمالي المرضى",
+        "zipCode": "Zip code"
+      },
+      "messages": {
+        "saveFailed": "تعذر حفظ ملف مقدم الخدمة.",
+        "saveSuccess": "تم حفظ ملف مقدم الخدمة بنجاح."
+      },
+      "permissionDenied": "You do not have permission to edit this provider profile.",
+      "placeholders": {
+        "languagesCsv": "English, Persian, Arabic",
+        "mediaIdOrUrl": "Media ID or URL",
+        "responseTime": "Example: < 1 hour",
+        "specialtiesCsv": "Hair transplant, Dental, Beauty",
+        "successRate": "Example: 98%",
+        "timezone": "Asia/Tehran",
+        "totalPatients": "Example: 10,000+"
+      },
+      "title": "ملف مقدم الخدمة",
+      "related": {
+        "buttons": {
+          "add": "إضافة",
+          "addPolicy": "Add policy",
+          "cancel": "إلغاء",
+          "delete": "حذف",
+          "edit": "تعديل",
+          "saving": "جارٍ الحفظ...",
+          "update": "تحديث",
+          "updatePolicy": "Update policy"
+        },
+        "certifications": {
+          "description": "Manage provider certificates and verification records.",
+          "editTitle": "Edit certification",
+          "empty": "No certifications added yet.",
+          "fields": {
+            "image": "Image",
+            "name": "Name",
+            "secondImage": "Second image"
+          },
+          "helpers": {
+            "image": "Attach the main certificate image.",
+            "secondImage": "Optional second page or attachment."
+          },
+          "image1Attached": "Main image attached",
+          "image2Attached": "Second image attached",
+          "modalTitle": {
+            "image": "Select certificate image",
+            "secondImage": "Select second certificate image"
+          },
+          "placeholders": {
+            "image": "Media ID or URL",
+            "name": "Certificate name",
+            "secondImage": "Second media ID or URL"
+          },
+          "providerAdded": "Added by provider",
+          "saveButton": "حفظ الشهادة",
+          "saveFailed": "Could not save certification.",
+          "saveSuccess": "تم حفظ الشهادة بنجاح.",
+          "title": "الشهادات",
+          "updateDescription": "Update certification details and images.",
+          "updated": "Updated",
+          "verified": "موثق",
+          "verifiedCannotChange": "Verification status cannot be changed here.",
+          "verifiedLocked": "Verified certificates are locked."
+        },
+        "delete": {
+          "confirm": "Are you sure you want to delete this item?",
+          "failed": "Could not delete item.",
+          "success": "Deleted successfully."
+        },
+        "policies": {
+          "customPolicy": "Custom policy",
+          "description": "Manage provider policies shown to customers.",
+          "editTitle": "Edit policy",
+          "empty": "No policies added yet.",
+          "fallbackType": "Policy",
+          "fields": {
+            "descriptionEn": "Description (English)",
+            "descriptionFa": "Description (Persian)",
+            "policyType": "Policy type",
+            "typeEn": "Type (English)",
+            "typeFa": "Type (Persian)"
+          },
+          "saveButton": "Save policy",
+          "saveFailed": "Could not save policy.",
+          "saveSuccess": "تم حفظ السياسة بنجاح.",
+          "title": "السياسات",
+          "updateDescription": "Update policy text and type.",
+          "updated": "Updated"
+        }
+      }
+    }
+  },
+  "components": {
+    "countryCodeSelector": {
+      "searchPlaceholder": "بحث",
+      "noCountriesFound": "لم يتم العثور على دول",
+      "selectedCountry": "الدولة المحددة: {country} ({dial})",
+      "countries": {
+        "AE": "الإمارات العربية المتحدة",
+        "SA": "المملكة العربية السعودية",
+        "TR": "تركيا",
+        "US": "الولايات المتحدة",
+        "GB": "المملكة المتحدة",
+        "IR": "إيران",
+        "DE": "ألمانيا",
+        "FR": "فرنسا",
+        "RU": "روسيا",
+        "EG": "مصر",
+        "JO": "الأردن",
+        "LB": "لبنان",
+        "KW": "الكويت",
+        "QA": "قطر",
+        "OM": "عُمان",
+        "BH": "البحرين",
+        "IQ": "العراق",
+        "IN": "الهند",
+        "PK": "باكستان",
+        "CN": "الصين"
+      }
+    },
+    "digikalaReviewCard": {
+      "showMore": "عرض المزيد",
+      "showLess": "عرض أقل",
+      "pros": "الإيجابيات",
+      "cons": "السلبيات",
+      "helpfulPrompt": "هل كان هذا التقييم مفيداً لك؟",
+      "like": "إعجاب",
+      "dislike": "عدم إعجاب",
+      "verifiedBuyer": "عميل حجز",
+      "adminReview": "مراجعة تحريرية",
+      "replies": "الردود",
+      "adminAnswer": "رد الإدارة",
+      "customerAnswer": "رد عميل حجز",
+      "writeReply": "الرد على هذا التقييم",
+      "replyPlaceholder": "اكتب ردك...",
+      "submitReply": "إرسال الرد",
+      "pendingReply": "سيظهر ردك بعد موافقة الإدارة.",
+      "replyError": "يمكن للمستخدمين الذين حجزوا هذا العنصر فقط الرد على التقييمات.",
+      "voteError": "تعذر حفظ التصويت.",
+      "lsevinCustomer": "عميل LSevin",
+      "reviewImageAlt": "صورة التقييم"
+    },
+    "fileUploadField": {
+      "clickToUpload": "انقر للتحميل",
+      "formatAndMax": "{formats} (الحد الأقصى {maxSize} ميغابايت)",
+      "uploading": "جارٍ التحميل... {progress}%",
+      "uploadSuccessful": "تم التحميل بنجاح • {size} ميغابايت",
+      "removeFile": "إزالة الملف",
+      "uploadFailed": "فشل التحميل",
+      "genericError": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+      "retryUpload": "إعادة محاولة التحميل",
+      "cancel": "إلغاء",
+      "requirementsTitle": "متطلبات الملف:",
+      "acceptedFormats": "الصيغ المقبولة: {formats}",
+      "maximumFileSize": "الحد الأقصى لحجم الملف: {maxSize} ميغابايت",
+      "secureUpload": "يتم تشفير الملفات بأمان أثناء التحميل",
+      "fileSizeError": "يجب أن يكون حجم الملف أقل من {maxSize} ميغابايت"
+    },
+    "imageWithFallback": {
+      "errorAlt": "خطأ في تحميل الصورة"
+    },
+    "projectInfo": {
+      "project": "المشروع: LSevin",
+      "userRoles": "9 أدوار للمستخدمين",
+      "coreStages": "6 مراحل رئيسية",
+      "screens": "+100 شاشة",
+      "brandLabel": "العلامة التجارية:"
+    },
+    "recommendationsSection": {
+      "verified": "موثّق",
+      "from": "ابتداءً من",
+      "similarProviders": "مقدمو خدمات مشابهون",
+      "similarProvidersInCountry": "مقدمو خدمات مشابهون في {country}",
+      "localSubtitle": "استكشف المزيد من الخيارات بالقرب من هذا الموقع",
+      "viewAll": "عرض الكل",
+      "topInternationalProviders": "أفضل مقدمي الخدمات الدوليين",
+      "internationalSubtitle": "وجهات رائدة في السياحة العلاجية",
+      "consultationTitle": "لا تعرف أي مقدم خدمة تختار؟",
+      "consultationDescription": "يمكن لمستشارينا المتخصصين مساعدتك في مقارنة مقدمي الخدمات، وفهم الأسعار، والعثور على الخيار الأنسب لاحتياجاتك.",
+      "getFreeConsultation": "احصل على استشارة مجانية"
+    },
+    "reviewForm": {
+      "checking": "جارٍ التحقق من إمكانية تقييم هذا الحجز...",
+      "submit": "إرسال التقييم",
+      "submitting": "جارٍ الإرسال...",
+      "prosTitle": "الإيجابيات",
+      "consTitle": "السلبيات",
+      "prosPlaceholder": "أضف نقطة إيجابية ثم اضغط Enter",
+      "consPlaceholder": "أضف نقطة سلبية ثم اضغط Enter",
+      "addPros": "إضافة إيجابية",
+      "addCons": "إضافة سلبية",
+      "prosHelp": "اختياري، لكنه يساعد العملاء الآخرين على اتخاذ القرار بسرعة أكبر.",
+      "successTitle": "تم إرسال التقييم!",
+      "successDescription": "شكراً لمشاركة تجربتك. سيبقى تقييمك بانتظار موافقة الإدارة قبل نشره.",
+      "title": "اكتب تقييماً",
+      "close": "إغلاق",
+      "overallRating": "التقييم العام",
+      "selectRating": "اختيار {rating} نجوم",
+      "treatmentTitleLabel": "العلاج / العنوان (اختياري)",
+      "treatmentTitlePlaceholder": "مثال: زراعة الشعر، علاج الأسنان، يوم سبا",
+      "characters": "{current}/{max} حرفاً",
+      "reviewLabel": "تقييمك",
+      "reviewPlaceholder": "شارك تفاصيل تجربتك الشخصية في هذا المكان",
+      "addPhotosLabel": "إضافة صور (اختياري)",
+      "uploadedImageAlt": "تحميل {index}",
+      "removePhoto": "إزالة الصورة",
+      "attachPhotos": "إرفاق الصور",
+      "photoPreviewHint": "معاينة فقط إلى أن يتم ربط واجهة تحميل الوسائط",
+      "guidelinesTitle": "إرشادات التقييم",
+      "cancel": "إلغاء",
+      "submitError": "تعذر إرسال التقييم. يرجى المحاولة مرة أخرى.",
+      "ratingLabels": {
+        "1": "ضعيف",
+        "2": "مقبول",
+        "3": "جيد",
+        "4": "جيد جداً",
+        "5": "ممتاز"
+      },
+      "validation": {
+        "ratingRequired": "يرجى اختيار تقييم",
+        "reviewMinLength": "يجب أن يتكون التقييم من {min} أحرف على الأقل"
+      },
+      "eligibility": {
+        "notSignedIn": "يرجى تسجيل الدخول أولاً. يمكن للمستخدمين الذين لديهم حجز فقط إرسال تقييم.",
+        "notBooked": "يمكن للمستخدمين الذين حجزوا هذا العنصر فقط إرسال تقييم.",
+        "alreadyReviewed": "لقد أرسلت تقييماً لهذا العنصر المحجوز من قبل.",
+        "invalidTarget": "هدف التقييم هذا غير متاح حالياً."
+      },
+      "guidelines": {
+        "honest": "كن صادقاً ومنصفاً",
+        "personalExperience": "شارك تجربتك الشخصية",
+        "noOffensiveLanguage": "تجنب اللغة المسيئة",
+        "specificDetails": "اذكر تفاصيل محددة حول الخدمة"
+      }
+    },
+    "ui": {
+      "breadcrumb": {
+        "ariaLabel": "مسار التنقل",
+        "more": "المزيد"
+      },
+      "carousel": {
+        "roleDescription": "عارض شرائح",
+        "slideRoleDescription": "شريحة",
+        "previousSlide": "الشريحة السابقة",
+        "nextSlide": "الشريحة التالية"
+      },
+      "command": {
+        "title": "لوحة الأوامر",
+        "description": "ابحث عن أمر لتشغيله..."
+      },
+      "dialog": {
+        "close": "إغلاق"
+      },
+      "pagination": {
+        "pagination": "ترقيم الصفحات",
+        "previousPage": "الانتقال إلى الصفحة السابقة",
+        "previous": "السابق",
+        "nextPage": "الانتقال إلى الصفحة التالية",
+        "next": "التالي",
+        "morePages": "صفحات أخرى"
+      },
+      "sheet": {
+        "close": "إغلاق"
+      },
+      "sidebar": {
+        "title": "الشريط الجانبي",
+        "description": "يعرض الشريط الجانبي على الجوال.",
+        "toggle": "تبديل الشريط الجانبي"
+      }
+    }
+  },
+  "RecommendationSection": {
+    "defaultUserCountry": "تركيا",
+    "localTitle": "خدمات مشابهة بالقرب منك",
+    "localDescription": "قارن البدائل الموثوقة في {country}",
+    "internationalTitle": "متوفر أيضًا في إيران وتركيا والإمارات",
+    "internationalDescription": "استكشف خيارات مشابهة عبر الوجهات الرئيسية",
+    "openRecommendation": "فتح {title}"
+  },
+  "ProviderPage": {
+    "actions": {
+      "back": "رجوع",
+      "share": "مشاركة مقدم الخدمة",
+      "addFavorite": "إضافة مقدم الخدمة إلى المفضلة",
+      "removeFavorite": "إزالة مقدم الخدمة من المفضلة",
+      "contact": "تواصل",
+      "viewServices": "عرض الخدمات"
+    },
+    "errors": {
+      "providerCouldNotBeLoaded": "تعذر تحميل مقدم الخدمة",
+      "tryAgainLater": "يرجى المحاولة مرة أخرى لاحقاً.",
+      "couldNotUpdateFavorite": "تعذر تحديث حالة المفضلة.",
+      "signInToReview": "يرجى تسجيل الدخول وإكمال ملفك الشخصي قبل كتابة تقييم.",
+      "couldNotSubmitReview": "تعذر إرسال التقييم.",
+      "couldNotLoadReviews": "تعذر تحميل التقييمات."
+    },
+    "share": {
+      "text": "اطّلع على {name} في LSevin"
+    },
+    "badges": {
+      "verified": "موثّق",
+      "accredited": "معتمد",
+      "topRated": "الأعلى تقييماً"
+    },
+    "stats": {
+      "reviews": "({count} تقييم)",
+      "patients": "المرضى",
+      "success": "النجاح",
+      "since": "منذ"
+    },
+    "sections": {
+      "languages": "اللغات",
+      "about": "نبذة",
+      "gallery": "المعرض",
+      "providerDetails": "تفاصيل مقدم الخدمة",
+      "certifications": "الشهادات",
+      "policies": "السياسات",
+      "contact": "التواصل"
+    },
+    "tabs": {
+      "overview": "نظرة عامة",
+      "services": "الخدمات",
+      "specialists": "الأخصائيون",
+      "reviews": "التقييمات"
+    },
+    "services": {
+      "popular": "شائع",
+      "recovery": "فترة التعافي: {value}",
+      "from": "من"
+    },
+    "specialists": {
+      "experience": "خبرة {value}",
+      "patients": "{value} مريض"
+    },
+    "reviews": {
+      "writeReview": "اكتب تقييماً",
+      "showMore": "عرض المزيد",
+      "loading": "جارٍ تحميل التقييمات...",
+      "providerExperience": "تجربة مقدم الخدمة",
+      "sort": {
+        "newest": "الأحدث",
+        "buyers": "عملاء حجزوا",
+        "helpful": "الأكثر فائدة"
+      }
+    },
+    "empty": {
+      "services": {
+        "title": "لا توجد خدمات نشطة",
+        "text": "لم ينشر مقدم الخدمة أي خدمات نشطة بعد."
+      },
+      "specialists": {
+        "title": "لا يوجد أخصائيون مدرجون",
+        "text": "سيظهر الأخصائيون هنا عندما ينشرهم مقدم الخدمة."
+      },
+      "reviews": {
+        "title": "لا توجد تقييمات عامة بعد",
+        "text": "ستظهر التقييمات هنا بعد أن ينشرها العملاء."
+      }
+    },
+    "gallery": {
+      "goToImage": "الانتقال إلى الصورة {number}",
+      "imageAlt": "صورة {number} لـ {name}"
+    },
+    "certifications": {
+      "certificateImage": "صورة الشهادة {number}"
+    }
+  },
+  "MobileOffers": {
+    "title": "العروض الخاصة",
+    "subtitle": "خصومات وعروض ترويجية لفترة محدودة",
+    "actions": {
+      "back": "رجوع",
+      "close": "إغلاق"
+    },
+    "search": {
+      "placeholder": "ابحث في العروض ومقدمي الخدمة والخدمات...",
+      "button": "بحث"
+    },
+    "tabs": {
+      "allOffers": "كل العروض",
+      "medical": "طبي",
+      "beautySpa": "الجمال والسبا",
+      "fitness": "اللياقة",
+      "countLabel": "{label} ({count})"
+    },
+    "featured": {
+      "badge": "عرض مميز",
+      "useCode": "استخدم الرمز:"
+    },
+    "discount": {
+      "off": "خصم {discount}"
+    },
+    "pricing": {
+      "save": "وفّر {amount}"
+    },
+    "code": {
+      "copy": "نسخ",
+      "noCode": "بدون رمز"
+    },
+    "validity": {
+      "until": "حتى {date}"
+    },
+    "cta": {
+      "bookNow": "احجز الآن"
+    },
+    "empty": {
+      "title": "لم يتم العثور على عروض",
+      "description": "جرّب إزالة بعض الفلاتر أو البحث بكلمة أوسع.",
+      "clearFilters": "مسح الفلاتر"
+    },
+    "filters": {
+      "title": "فلاتر متقدمة",
+      "description": "اعثر بالضبط على ما تبحث عنه",
+      "maxPrice": "الحد الأقصى للسعر",
+      "priceRange": "{min} - {max}",
+      "minimumRating": "الحد الأدنى للتقييم",
+      "any": "أي",
+      "verifiedOnly": "مقدمو خدمة موثقون فقط",
+      "verifiedOnlyDescription": "اعرض العيادات المعتمدة فقط",
+      "languagesSpoken": "اللغات المتاحة",
+      "clearAll": "مسح الكل",
+      "applyFilters": "تطبيق الفلاتر"
+    },
+    "fallback": {
+      "offers": "العروض"
+    },
+    "demoOffers": {
+      "premiumPackages": {
+        "title": "خصم 20% على الباقات المميزة",
+        "subtitle": "للحجوزات الأولى فقط",
+        "provider": "مركز إسطنبول الطبي",
+        "validUntil": "15 مارس 2026",
+        "location": "إسطنبول، تركيا"
+      },
+      "laserSessions": {
+        "title": "اشتر جلستين ليزر واحصل على الثالثة مجاناً",
+        "subtitle": "عرض لفترة محدودة",
+        "provider": "عيادة إيليت بيوتي دبي",
+        "validUntil": "20 مارس 2026",
+        "location": "دبي، الإمارات"
+      },
+      "gymMembership": {
+        "title": "خصم 30% على العضوية السنوية للنادي",
+        "subtitle": "للأعضاء الجدد فقط",
+        "provider": "نادي فيت زون المميز",
+        "validUntil": "25 مارس 2026",
+        "location": "دبي، الإمارات"
+      },
+      "dental": {
+        "title": "استشارة مجانية + خصم 15%",
+        "subtitle": "علاجات الأسنان",
+        "provider": "عيادة سمايل كير للأسنان",
+        "validUntil": "18 مارس 2026",
+        "location": "إسطنبول، تركيا"
+      },
+      "spa": {
+        "title": "باقة يوم السبا بخصم 25%",
+        "subtitle": "تشمل المساج والعناية بالوجه والمزيد",
+        "provider": "سبا سيرينيتي للعافية",
+        "validUntil": "22 مارس 2026",
+        "location": "دبي، الإمارات"
+      },
+      "personalTraining": {
+        "title": "خصم 40% على أول جلسة تدريب شخصي",
+        "subtitle": "مدربون محترفون",
+        "provider": "باور فيت للتدريب الشخصي",
+        "validUntil": "30 مارس 2026",
+        "location": "دبي، الإمارات"
+      }
+    }
+  },
+  "ProviderDashboardOffers": {
+    "common": {
+      "headerTitle": "العروض والترويج",
+      "createOffer": "إنشاء عرض",
+      "createNewOffer": "إنشاء عرض جديد",
+      "editOffer": "تعديل العرض"
+    },
+    "navigation": {
+      "dashboard": "لوحة التحكم",
+      "classSchedule": "جدول الحصص",
+      "trainers": "المدربون",
+      "memberships": "العضويات",
+      "services": "الخدمات",
+      "bookings": "الحجوزات",
+      "liveStatus": "الحالة المباشرة",
+      "offers": "العروض",
+      "analytics": "التحليلات",
+      "billing": "الفوترة",
+      "support": "الدعم",
+      "settings": "الإعدادات",
+      "staff": "الموظفون",
+      "timeSlots": "الفترات الزمنية",
+      "pricing": "التسعير",
+      "beforeAfter": "قبل/بعد",
+      "reviews": "المراجعات"
+    },
+    "status": {
+      "active": "نشط"
+    },
+    "metrics": {
+      "activeOffers": "العروض النشطة",
+      "totalSignups": "إجمالي التسجيلات",
+      "totalBookings": "إجمالي الحجوزات",
+      "revenueImpact": "الأثر على الإيرادات"
+    },
+    "details": {
+      "discountLabel": "الخصم:",
+      "discountOff": "خصم {discount}",
+      "period": "الفترة: من {start} إلى {end}",
+      "signupsLabel": "التسجيلات:",
+      "bookingsLabel": "الحجوزات:"
+    },
+    "gym": {
+      "activePromotions": "العروض الترويجية النشطة",
+      "offers": {
+        "summerFitnessPackage": {
+          "name": "باقة اللياقة الصيفية",
+          "type": "صفقة باقة"
+        },
+        "premiumMembershipDiscount": {
+          "name": "خصم العضوية المميزة",
+          "type": "عضوية"
+        },
+        "personalTrainingBundle": {
+          "name": "حزمة التدريب الشخصي",
+          "type": "خدمة"
+        }
+      }
+    },
+    "salon": {
+      "promotionalOffers": "العروض الترويجية",
+      "offers": {
+        "springBeautyPackage": {
+          "name": "باقة جمال الربيع",
+          "type": "باقة"
+        },
+        "bridalSpecial": {
+          "name": "عرض خاص للعرائس",
+          "type": "لفترة محدودة"
+        },
+        "loyaltyReward": {
+          "name": "مكافأة الولاء 10%",
+          "type": "مستمر"
+        }
+      }
+    }
+  },
+  "MarketingOffersAdmin": {
+    "listTitle": "العروض التسويقية",
+    "listDescription": "إدارة العروض التسويقية.",
+    "createTitle": "إنشاء عرض تسويقي",
+    "updateTitle": "تحديث عرض تسويقي"
+  },
+  "SupportPages": {
+    "admin": {
+      "inbox": {
+        "metadataTitle": "صندوق الدعم",
+        "metadataDescription": "إدارة محادثات الدعم والردود على العملاء."
+      },
+      "conversation": {
+        "metadataTitle": "محادثة الدعم",
+        "metadataDescription": "مراجعة محادثة دعم والرد عليها."
+      },
+      "cannedReplies": {
+        "metadataTitle": "الردود الجاهزة",
+        "metadataDescription": "إدارة ردود الدعم القابلة لإعادة الاستخدام.",
+        "pageTitle": "الردود الجاهزة",
+        "pageDescription": "إنشاء وإدارة ردود قابلة لإعادة الاستخدام لصندوق الدعم."
+      },
+      "settings": {
+        "metadataTitle": "إعدادات الدعم",
+        "metadataDescription": "تكوين تسميات أداة الدعم ومظهرها وسلوكها.",
+        "pageTitle": "إعدادات الدعم",
+        "pageDescription": "التحكم في مكان ظهور الدعم وكيف يبدأ المستخدمون المحادثات."
+      },
+      "tags": {
+        "metadataTitle": "وسوم الدعم",
+        "metadataDescription": "إدارة وسوم محادثات الدعم.",
+        "pageTitle": "وسوم الدعم",
+        "pageDescription": "إنشاء وسوم لتنظيم محادثات الدعم."
+      }
+    },
+    "mobileSupport": {
+      "metadataTitle": "الدعم",
+      "metadataDescription": "تواصل مع فريق الدعم وقم بإدارة محادثاتك.",
+      "chatTitle": "دردشة الدعم"
+    },
+    "customer": {
+      "emailPlaceholder": "عنوان البريد الإلكتروني",
+      "loginRequired": "يرجى تسجيل الدخول لمتابعة محادثة الدعم.",
+      "namePlaceholder": "الاسم الكامل",
+      "openFullPage": "فتح صفحة الدعم الكاملة",
+      "pleaseCheckForm": "يرجى مراجعة نموذج الدعم والمحاولة مرة أخرى.",
+      "countryCodeLabel": "رمز الدولة",
+      "emailLabel": "البريد الإلكتروني",
+      "messageLabel": "الرسالة",
+      "nameLabel": "الاسم",
+      "phoneLabel": "الهاتف",
+      "secureSupport": "دعم آمن",
+      "sendFallback": "إرسال الرسالة",
+      "statusLabel": "الحالة",
+      "supportUnavailable": "الدعم غير متاح",
+      "supportUnavailableDescription": "قناة الدعم غير متاحة مؤقتًا. يرجى المحاولة لاحقًا.",
+      "writeMessageFallback": "اكتب رسالتك...",
+      "internalNote": "ملاحظة داخلية",
+      "noMessagesYet": "لا توجد رسائل بعد."
+    },
+    "providerPortalStatus": {
+      "status": "الحالة",
+      "open": "مفتوح",
+      "inProgress": "قيد المعالجة",
+      "resolved": "تم الحل",
+      "closed": "مغلق",
+      "title": "تحديث حالة تذكرة الدعم",
+      "saveStatus": "حفظ الحالة",
+      "successMessage": "تم تحديث حالة تذكرة الدعم."
+    },
+    "providerGenerated": {
+      "supportCenter": "مركز الدعم",
+      "supportCenterDescription": "احصل على مساعدة في الحجوزات والملفات والفوترة وعمليات المنصة.",
+      "educationHelpCenterDescription": "احصل على مساعدة في الدورات والمدربين والشهادات والطلاب والتسجيلات.",
+      "gymHelpCenterDescription": "احصل على مساعدة في الاشتراكات والحجوزات والمدربين والخدمات والمدفوعات.",
+      "hotelHelpCenterDescription": "احصل على مساعدة في الغرف والحجوزات والتوفر والتسعير والتسويات.",
+      "pharmacyHelpCenterDescription": "احصل على مساعدة في الوصفات والطلبات والمخزون والتوصيل والفوترة.",
+      "genericHelpCenterDescription": "احصل على مساعدة في الخدمات والموظفين والحجوزات والتسعير والعروض.",
+      "tourismHelpCenterDescription": "احصل على مساعدة في باقات السفر والتنقلات والوجهات والحجوزات والفوترة.",
+      "supportTickets": "تذاكر الدعم",
+      "newSupportTicket": "تذكرة دعم جديدة",
+      "newTicket": "تذكرة جديدة",
+      "createNewTicket": "إنشاء تذكرة جديدة",
+      "needHelp": "هل تحتاج إلى مساعدة؟",
+      "visitHelpCenter": "زيارة مركز المساعدة",
+      "viewDetails": "عرض التفاصيل",
+      "view": "عرض",
+      "openTickets": "التذاكر المفتوحة",
+      "averageResponseTime": "متوسط وقت الرد",
+      "responseTime": "وقت الرد",
+      "respondWithin24Hours": "نرد عادة خلال 24 ساعة.",
+      "twoToFourHours": "2–4 ساعات",
+      "searchTickets": "ابحث في التذاكر...",
+      "allCategories": "كل الفئات",
+      "allPriority": "كل الأولويات",
+      "allStatus": "كل الحالات",
+      "subject": "الموضوع",
+      "categoryLabel": "الفئة",
+      "priorityLabel": "الأولوية",
+      "statusLabel": "الحالة",
+      "created": "تاريخ الإنشاء",
+      "lastReply": "آخر رد",
+      "actionsLabel": "الإجراءات",
+      "ticketDetails": "تفاصيل التذكرة",
+      "ticketId": "معرّف التذكرة",
+      "details": "التفاصيل",
+      "conversation": "المحادثة",
+      "you": "أنت",
+      "supportTeam": "فريق الدعم",
+      "addReply": "إضافة رد",
+      "typeYourMessage": "اكتب رسالتك...",
+      "sendReply": "إرسال الرد",
+      "markAsResolved": "وضع علامة تم الحل",
+      "helpResources": "موارد المساعدة",
+      "documentation": "التوثيق",
+      "detailedGuidesAndTutorials": "أدلة وشروحات تفصيلية",
+      "videoTutorials": "دروس فيديو",
+      "stepByStepVideoGuides": "أدلة فيديو خطوة بخطوة",
+      "faq": "الأسئلة الشائعة",
+      "frequentlyAskedQuestions": "الأسئلة المتكررة",
+      "communityForum": "منتدى المجتمع",
+      "connectWithOtherProviders": "تواصل مع مزودين آخرين",
+      "emailSupport": "الدعم عبر البريد",
+      "phoneSupport": "الدعم الهاتفي",
+      "phoneHours": "من السبت إلى الخميس، 9:00–18:00",
+      "open": "مفتوح",
+      "inProgress": "قيد المعالجة",
+      "resolved": "تم الحل",
+      "priority": {
+        "low": "منخفضة",
+        "medium": "متوسطة",
+        "high": "عالية"
+      },
+      "status": {
+        "open": "مفتوح",
+        "in_progress": "قيد المعالجة",
+        "resolved": "تم الحل"
+      },
+      "categories": {
+        "technical": "تقني",
+        "account": "الحساب",
+        "billing": "الفوترة",
+        "bookings": "الحجوزات",
+        "system": "النظام",
+        "general": "عام"
+      },
+      "relativeTime": {
+        "fortyFiveMinAgo": "منذ 45 دقيقة",
+        "oneHourAgo": "منذ ساعة",
+        "twoHoursAgo": "منذ ساعتين",
+        "threeHoursAgo": "منذ 3 ساعات",
+        "fiveHoursAgo": "منذ 5 ساعات",
+        "oneDayAgo": "منذ يوم",
+        "twoDaysAgo": "منذ يومين",
+        "threeDaysAgo": "منذ 3 أيام"
+      },
+      "tickets": {
+        "issueWithBookingCalendarSync": "مشكلة في مزامنة تقويم الحجز",
+        "needHelpWithDoctorProfileSetup": "بحاجة إلى مساعدة في إعداد ملف الطبيب",
+        "questionAboutPremiumFeatures": "سؤال حول الميزات المميزة",
+        "studentEnrollmentError": "خطأ في تسجيل الطالب",
+        "courseUploadIssue": "مشكلة في رفع الدورة",
+        "billingInquiry": "استفسار عن الفوترة",
+        "membershipSyncIssue": "مشكلة في مزامنة الاشتراك",
+        "classBookingProblem": "مشكلة في حجز الحصة",
+        "paymentQuestion": "سؤال حول الدفع",
+        "roomSyncIssue": "مشكلة في مزامنة الغرف",
+        "bookingConfirmationProblem": "مشكلة في تأكيد الحجز",
+        "paymentSettlementQuestion": "سؤال حول تسوية المدفوعات",
+        "prescriptionUploadIssue": "مشكلة في رفع الوصفة",
+        "inventorySyncError": "خطأ في مزامنة المخزون",
+        "calendarSyncProblem": "مشكلة في مزامنة التقويم",
+        "paymentProcessingIssue": "مشكلة في معالجة الدفع",
+        "questionAboutPromotions": "سؤال حول العروض الترويجية",
+        "packageSyncIssue": "مشكلة في مزامنة الباقة",
+        "transferBookingError": "خطأ في حجز النقل"
+      },
+      "mockConversation": {
+        "customerBookingCalendarIssue": "نلاحظ اختلافًا بين الأوقات المتاحة وما يمكن للعملاء حجزه.",
+        "supportLookingIntoIssue": "شكرًا على التفاصيل. يقوم فريق الدعم بفحص سجلات مزامنة التقويم وسنوافيك بالتحديث قريبًا."
+      },
+      "navigation": {
+        "dashboard": "لوحة التحكم",
+        "bookings": "الحجوزات",
+        "doctors": "الأطباء",
+        "treatments": "العلاجات",
+        "mediaGallery": "معرض الوسائط",
+        "reviews": "المراجعات",
+        "analytics": "التحليلات",
+        "promotions": "العروض الترويجية",
+        "pricing": "التسعير",
+        "availability": "التوفر",
+        "billing": "الفوترة",
+        "settings": "الإعدادات",
+        "support": "الدعم",
+        "courseCatalog": "كتالوج الدورات",
+        "instructors": "المدربون",
+        "students": "الطلاب",
+        "registrations": "التسجيلات",
+        "classSchedule": "جدول الحصص",
+        "certificates": "الشهادات",
+        "memberships": "الاشتراكات",
+        "services": "الخدمات",
+        "trainers": "المدربون",
+        "offers": "العروض",
+        "liveStatus": "الحالة المباشرة",
+        "roomCategories": "فئات الغرف",
+        "roomInventory": "مخزون الغرف",
+        "gallery": "المعرض",
+        "amenities": "المرافق",
+        "prescriptionInbox": "صندوق الوصفات",
+        "orders": "الطلبات",
+        "inventory": "المخزون",
+        "medicineRequests": "طلبات الدواء",
+        "deliveryTracking": "تتبع التوصيل",
+        "operatingHours": "ساعات العمل",
+        "staff": "الموظفون",
+        "timeSlots": "الفترات الزمنية",
+        "beforeAfter": "قبل وبعد",
+        "tourPackages": "باقات السفر",
+        "destinations": "الوجهات",
+        "schedule": "الجدول",
+        "transferServices": "خدمات النقل",
+        "media": "الوسائط"
+      }
+    }
+  },
+  "ProviderDoctorProfile": {
+    "basicInformation": {
+      "title": "المعلومات الأساسية"
+    },
+    "biography": {
+      "placeholder": "اكتب سيرة مهنية...",
+      "title": "السيرة المهنية",
+      "visibilityNote": "This biography appears on your public doctor profile."
+    },
+    "buttons": {
+      "cancel": "إلغاء",
+      "saveChanges": "حفظ التغييرات"
+    },
+    "certifications": {
+      "addNew": "Add new",
+      "sample": {
+        "acls": {
+          "issuer": "American Heart Association",
+          "name": "ACLS Certification"
+        },
+        "cardiology": {
+          "issuer": "Medical Board",
+          "name": "Board Certification in Cardiology"
+        },
+        "uaeLicense": {
+          "issuer": "Dubai Health Authority",
+          "name": "UAE Medical License"
+        }
+      },
+      "title": "الشهادات",
+      "uploadCertificate": "Upload certificate"
+    },
+    "completion": {
+      "addBiography": "Add biography",
+      "basicInfoComplete": "Basic info complete",
+      "certificationsUploaded": "Certifications uploaded",
+      "description": "Complete your profile to improve trust and visibility.",
+      "title": "اكتمال الملف"
+    },
+    "experienceEducation": {
+      "title": "الخبرة والتعليم"
+    },
+    "fields": {
+      "affiliatedClinics": "العيادات التابعة",
+      "firstName": "الاسم الأول",
+      "languagesSpoken": "اللغات المتحدث بها",
+      "lastName": "اسم العائلة",
+      "medicalSchool": "كلية الطب",
+      "primarySpecialty": "التخصص الأساسي",
+      "professionalTitle": "المسمى المهني",
+      "subSpecialty": "التخصص الفرعي",
+      "yearsOfExperience": "سنوات الخبرة"
+    },
+    "headerTitle": "ملف الطبيب",
+    "navigation": {
+      "bookings": "الحجوزات",
+      "consultations": "الاستشارات",
+      "dashboard": "لوحة التحكم",
+      "earnings": "الأرباح",
+      "mySchedule": "جدولي",
+      "myServices": "خدماتي",
+      "profile": "الملف الشخصي",
+      "reviews": "المراجعات",
+      "settings": "الإعدادات"
+    },
+    "providerName": "Doctor Portal",
+    "specialties": {
+      "cardiology": "أمراض القلب",
+      "generalMedicine": "الطب العام",
+      "internalMedicine": "الطب الباطني",
+      "interventionalCardiology": "أمراض القلب التداخلية"
+    },
+    "stats": {
+      "averageRating": "متوسط التقييم",
+      "profileViews": "مشاهدات الملف",
+      "responseTime": "وقت الاستجابة",
+      "responseTimeValue": "< 1 hour",
+      "title": "إحصاءات الملف",
+      "totalPatients": "إجمالي المرضى"
+    },
+    "verification": {
+      "description": "Verified profiles receive stronger placement and customer trust.",
+      "subtitle": "Your credentials are under review.",
+      "title": "التحقق"
+    }
+  },
+  "MobileDoctorProfile": {
+    "about": {
+      "body": "{name} is one of the world’s leading hair transplant surgeons with over 18 years of experience. He has performed more than 12,000 successful hair restoration procedures for patients from 65+ countries. His expertise in advanced FUE techniques, combined with an artistic eye for natural hairline design, has earned him international recognition.",
+      "title": "About Dr. {name}"
+    },
+    "achievements": {
+      "bestSurgeon": {
+        "organization": "Turkish Medical Excellence",
+        "title": "Best Hair Surgeon 2023"
+      },
+      "patients": {
+        "organization": "From 65+ Countries",
+        "title": "12,000+ Patients"
+      },
+      "success": {
+        "organization": "Verified Patient Outcomes",
+        "title": "98.5% Success Rate"
+      },
+      "title": "الإنجازات والتقدير",
+      "topPercent": {
+        "organization": "Hair Transplant Surgeons",
+        "title": "Top 1% Worldwide"
+      }
+    },
+    "actions": {
+      "back": "Back",
+      "bookNow": "احجز الآن",
+      "share": "Share"
+    },
+    "certifications": {
+      "board": {
+        "issuer": "Turkish Medical Board",
+        "name": "Board Certified Surgeon"
+      },
+      "fue": {
+        "issuer": "European Hair Institute",
+        "name": "FUE Master Certificate"
+      },
+      "ishrs": {
+        "issuer": "International Society of Hair Restoration Surgery",
+        "name": "Fellow of ISHRS"
+      },
+      "sapphire": {
+        "issuer": "World Hair Academy",
+        "name": "Advanced Sapphire FUE"
+      }
+    },
+    "consultation": {
+      "free": "مجاني",
+      "title": "استشارة"
+    },
+    "countries": {
+      "saudiArabia": "المملكة العربية السعودية",
+      "uk": "المملكة المتحدة",
+      "usa": "الولايات المتحدة"
+    },
+    "dates": {
+      "oneMonthAgo": "منذ شهر",
+      "twoWeeksAgo": "منذ أسبوعين"
+    },
+    "education": {
+      "fellowship": {
+        "degree": "Hair Transplant Surgery Fellowship",
+        "institution": "American Academy of Cosmetic Surgery"
+      },
+      "fue": {
+        "degree": "Advanced FUE Training",
+        "institution": "International Society of Hair Restoration Surgery"
+      },
+      "md": {
+        "degree": "دكتور في الطب (MD)",
+        "institution": "Istanbul University Medical School"
+      }
+    },
+    "languages": {
+      "arabic": "العربية",
+      "english": "الإنجليزية",
+      "turkish": "التركية"
+    },
+    "results": {
+      "after": "بعد",
+      "before": "قبل",
+      "cases": {
+        "case1": {
+          "months": "12 months post-op",
+          "procedure": "Hair Transplant - 4500 Grafts"
+        },
+        "case2": {
+          "months": "10 months post-op",
+          "procedure": "Hair Transplant - 3800 Grafts"
+        }
+      },
+      "title": "معرض النتائج",
+      "viewFullGallery": "عرض المعرض الكامل"
+    },
+    "reviews": {
+      "basedOn": "Based on {count} reviews",
+      "helpful": "👍 Helpful ({count})",
+      "reviewImage": "صورة المراجعة",
+      "sample": {
+        "first": "Dr. Yavuz is an absolute master of his craft. The results are beyond my expectations - natural hairline, dense coverage, minimal scarring. His attention to detail and artistic approach are exceptional. The entire team was professional and caring throughout the journey.",
+        "second": "Flew from Riyadh specifically for Dr. Yavuz and it was worth every mile. His expertise is unmatched. He took time to explain every step, designed a perfect hairline, and the procedure was painless. 6 months post-op and growth is fantastic!",
+        "third": "After researching 20+ surgeons worldwide, I chose Dr. Yavuz and couldn't be happier. His technique is flawless, results look completely natural, and his team provided excellent care. Highly recommend!"
+      }
+    },
+    "sample": {
+      "clinic": "مركز إسطنبول الطبي",
+      "location": "Istanbul, Turkey",
+      "name": "Dr. Mehmet Yavuz",
+      "responseTime": "< 1 hour",
+      "specialty": "Hair Transplant & Restoration Surgeon",
+      "title": "MD, FISHRS"
+    },
+    "sections": {
+      "certifications": "الشهادات والعضويات",
+      "education": "التعليم",
+      "languages": "اللغات",
+      "specializations": "التخصصات"
+    },
+    "share": {
+      "linkCopied": "Link copied to clipboard!",
+      "text": "Check out {name} - {specialty}"
+    },
+    "specializations": {
+      "beardEyebrow": "Beard & Eyebrow Transplant",
+      "dhi": "DHI (Direct Hair Implantation)",
+      "fue": "FUE Hair Transplant",
+      "prp": "PRP Therapy for Hair Loss",
+      "revision": "Revision Hair Transplant",
+      "sapphireFue": "Sapphire FUE Technique"
+    },
+    "stats": {
+      "patients": "المرضى",
+      "reviews": "{count} reviews",
+      "successRate": "نسبة النجاح",
+      "wouldRecommend": "يوصي به",
+      "yearsExperience": "سنوات الخبرة"
+    },
+    "status": {
+      "available": "متاح"
+    },
+    "tabs": {
+      "about": "حول",
+      "credentials": "الاعتمادات",
+      "reviews": "المراجعات"
+    },
+    "treatments": {
+      "hairTransplant": "زراعة الشعر"
+    },
+    "verification": {
+      "description": "All credentials have been verified by our medical board. Dr. {name} meets the highest standards of medical excellence.",
+      "title": "موثق من LSevin"
     }
   }
 };

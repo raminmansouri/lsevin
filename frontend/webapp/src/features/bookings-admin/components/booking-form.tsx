@@ -66,7 +66,7 @@ export function BookingForm({ booking, locale, lookups }: Props) {
         toast.success(tAdmin("bookingSaved"));
         router.push('/admin/bookings');
       } catch (error: any) {
-        toast.error(error?.message ?? 'Failed to save booking');
+        toast.error(error?.message ?? tAdmin("failedToSaveBooking"));
       }
     });
   };
@@ -187,7 +187,7 @@ export function BookingForm({ booking, locale, lookups }: Props) {
                       ) : null}
                       {field.value ? (
                         <p className="text-xs text-muted-foreground">
-                          Display: {formatBookingDate(field.value, { locale, calendar: adminCalendar })}
+                          {tAdmin("displayDate", { date: formatBookingDate(field.value, { locale, calendar: adminCalendar }) })}
                         </p>
                       ) : null}
                     </div>
@@ -230,8 +230,8 @@ export function BookingForm({ booking, locale, lookups }: Props) {
           />
 
           <div className="flex gap-3">
-            <Button type="submit" disabled={isPending}>{isPending ? 'Saving...' : 'Save booking'}</Button>
-            <Button type="button" variant="outline" onClick={() => router.push('/admin/bookings')} disabled={isPending}>Cancel</Button>
+            <Button type="submit" disabled={isPending}>{isPending ? tAdmin("saving") : tAdmin("saveBooking")}</Button>
+            <Button type="button" variant="outline" onClick={() => router.push('/admin/bookings')} disabled={isPending}>{tAdmin("cancel")}</Button>
           </div>
         </form>
       </Form>

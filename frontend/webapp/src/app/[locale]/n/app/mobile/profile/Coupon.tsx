@@ -1,11 +1,14 @@
 "use client"
 
 import { useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { useNavigate } from '@/hooks/use-navigate';
 import { ArrowLeft, Tag, CheckCircle2, XCircle, Clock, ChevronRight, Percent, DollarSign, Gift } from 'lucide-react';
 
 export default function Coupon() {
   const navigate = useNavigate();
+  const t = useTranslations("MobileProfile.coupons");
+  const locale = useLocale();
   const [couponCode, setCouponCode] = useState('');
   const [validationState, setValidationState] = useState<'idle' | 'validating' | 'valid' | 'invalid'>('idle');
   const [validatedCoupon, setValidatedCoupon] = useState<any>(null);
@@ -14,8 +17,8 @@ export default function Coupon() {
     {
       id: 1,
       code: 'FIRST50',
-      title: '50% Off First Booking',
-      description: 'Get 50% off on your first booking',
+      title: t('sampleCoupons.first.title'),
+      description: t('sampleCoupons.first.description'),
       discount: 50,
       type: 'percentage',
       minAmount: 100,
@@ -26,8 +29,8 @@ export default function Coupon() {
     {
       id: 2,
       code: 'HEALTH100',
-      title: '$100 Off Medical Services',
-      description: 'Save $100 on medical treatments',
+      title: t('sampleCoupons.medical.title'),
+      description: t('sampleCoupons.medical.description'),
       discount: 100,
       type: 'fixed',
       minAmount: 500,
@@ -37,8 +40,8 @@ export default function Coupon() {
     {
       id: 3,
       code: 'BEAUTY25',
-      title: '25% Off Beauty Services',
-      description: 'Get 25% off on all beauty treatments',
+      title: t('sampleCoupons.beauty.title'),
+      description: t('sampleCoupons.beauty.description'),
       discount: 25,
       type: 'percentage',
       minAmount: 50,
@@ -49,8 +52,8 @@ export default function Coupon() {
     {
       id: 4,
       code: 'WELLNESS15',
-      title: '15% Off Wellness',
-      description: 'Save on fitness and wellness services',
+      title: t('sampleCoupons.wellness.title'),
+      description: t('sampleCoupons.wellness.description'),
       discount: 15,
       type: 'percentage',
       minAmount: 75,
@@ -64,7 +67,7 @@ export default function Coupon() {
     {
       id: 5,
       code: 'WELCOME20',
-      title: '20% Welcome Discount',
+      title: t('sampleCoupons.welcome.title'),
       discount: 20,
       type: 'percentage',
       usedDate: '2026-02-15',
@@ -102,7 +105,7 @@ export default function Coupon() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString(locale, {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
@@ -127,14 +130,14 @@ export default function Coupon() {
           >
             <ArrowLeft size={20} className="text-gray-900" />
           </button>
-          <h1 className="text-lg font-bold text-gray-900 ml-3">Coupons</h1>
+          <h1 className="text-lg font-bold text-gray-900 ml-3">{t("title")}</h1>
         </div>
       </div>
 
       <div className="px-5 py-6 space-y-6">
         {/* Coupon Input */}
         <div className="bg-white rounded-2xl p-5">
-          <h2 className="font-bold text-gray-900 mb-4">Enter Coupon Code</h2>
+          <h2 className="font-bold text-gray-900 mb-4">{t("enterCode")}</h2>
           
           <div className="space-y-3">
             <div className="relative">
@@ -145,7 +148,7 @@ export default function Coupon() {
                   setCouponCode(e.target.value.toUpperCase());
                   setValidationState('idle');
                 }}
-                placeholder="Enter code (e.g., FIRST50)"
+                placeholder={t("enterCodePlaceholder")}
                 className="w-full h-14 pl-4 pr-14 border-2 border-gray-300 rounded-xl font-semibold uppercase focus:border-[#083f30] focus:outline-none transition-colors"
               />
               <div className="absolute right-4 top-1/2 -translate-y-1/2">
@@ -161,10 +164,10 @@ export default function Coupon() {
               {validationState === 'validating' ? (
                 <div className="flex items-center justify-center gap-2">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Validating...</span>
+                  <span>{t("validating")}</span>
                 </div>
               ) : (
-                'Validate Coupon'
+                t("validateCoupon")
               )}
             </button>
 
@@ -180,7 +183,7 @@ export default function Coupon() {
                       onClick={applyCoupon}
                       className="px-6 py-2.5 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
                     >
-                      Apply Coupon
+                      {t("applyCoupon")}
                     </button>
                   </div>
                 </div>
@@ -192,9 +195,9 @@ export default function Coupon() {
                 <div className="flex items-start gap-3">
                   <XCircle size={24} className="text-red-600 mt-0.5" />
                   <div>
-                    <h3 className="font-bold text-red-900 mb-1">Invalid Coupon Code</h3>
+                    <h3 className="font-bold text-red-900 mb-1">{t("invalidTitle")}</h3>
                     <p className="text-sm text-red-700">
-                      This coupon code is invalid, expired, or already used. Please try another code.
+                      {t("invalidDescription")}
                     </p>
                   </div>
                 </div>
@@ -205,7 +208,7 @@ export default function Coupon() {
 
         {/* Available Coupons */}
         <div>
-          <h2 className="font-bold text-gray-900 mb-4">Available Coupons</h2>
+          <h2 className="font-bold text-gray-900 mb-4">{t("availableCoupons")}</h2>
           <div className="space-y-3">
             {availableCoupons.filter(c => c.status === 'available').map(coupon => {
               const expiringSoon = isExpiringSoon(coupon.expiryDate);
@@ -233,11 +236,11 @@ export default function Coupon() {
                             {coupon.code}
                           </span>
                           <span>•</span>
-                          <span>Min: ${coupon.minAmount}</span>
+                          <span>{t("minAmount", { amount: coupon.minAmount })}</span>
                           {coupon.maxDiscount && (
                             <>
                               <span>•</span>
-                              <span>Max: ${coupon.maxDiscount}</span>
+                              <span>{t("maxDiscount", { amount: coupon.maxDiscount })}</span>
                             </>
                           )}
                         </div>
@@ -245,8 +248,8 @@ export default function Coupon() {
                         <div className="flex items-center gap-2 mt-2">
                           <Clock size={14} className="text-gray-400" />
                           <span className={`text-xs ${expiringSoon ? 'text-orange-600 font-semibold' : 'text-gray-500'}`}>
-                            Expires {formatDate(coupon.expiryDate)}
-                            {expiringSoon && ' - Expiring Soon!'}
+                            {t("expires", { date: formatDate(coupon.expiryDate) })}
+                            {expiringSoon && t("expiringSoon")}
                           </span>
                         </div>
                       </div>
@@ -259,7 +262,7 @@ export default function Coupon() {
                         }}
                         className="px-4 py-2 bg-[#083f30] text-white rounded-lg font-semibold text-sm hover:bg-[#0a5a44] transition-colors flex-shrink-0"
                       >
-                        Apply
+                        {t("apply")}
                       </button>
                     </div>
                   </div>
@@ -267,7 +270,7 @@ export default function Coupon() {
                   {expiringSoon && (
                     <div className="px-5 py-2 bg-orange-50 border-t border-orange-200">
                       <p className="text-xs text-orange-700 font-semibold">
-                        ⚠️ Hurry! This coupon expires soon
+                        {t("hurryExpiresSoon")}
                       </p>
                     </div>
                   )}
@@ -280,7 +283,7 @@ export default function Coupon() {
         {/* Used Coupons */}
         {usedCoupons.length > 0 && (
           <div>
-            <h2 className="font-bold text-gray-900 mb-4">Previously Used</h2>
+            <h2 className="font-bold text-gray-900 mb-4">{t("previouslyUsed")}</h2>
             <div className="space-y-3">
               {usedCoupons.map(coupon => (
                 <div key={coupon.id} className="bg-white rounded-2xl p-5 border border-gray-200 opacity-60">
@@ -292,14 +295,14 @@ export default function Coupon() {
                     <div className="flex-1">
                       <h3 className="font-bold text-gray-900 mb-1">{coupon.title}</h3>
                       <p className="text-sm text-gray-600 mb-2">
-                        Used on {formatDate(coupon.usedDate)}
+                        {t("usedOn", { date: formatDate(coupon.usedDate) })}
                       </p>
                       <div className="flex items-center gap-2">
                         <span className="text-xs px-2 py-1 bg-gray-100 rounded-md font-mono font-bold text-gray-600">
                           {coupon.code}
                         </span>
                         <span className="text-xs text-green-600 font-semibold">
-                          Saved ${coupon.savedAmount.toFixed(2)}
+                          {t("savedAmount", { amount: coupon.savedAmount.toFixed(2) })}
                         </span>
                       </div>
                     </div>
@@ -317,15 +320,15 @@ export default function Coupon() {
               <Gift size={24} className="text-white" />
             </div>
             <div>
-              <h3 className="font-bold mb-2">Get More Coupons</h3>
+              <h3 className="font-bold mb-2">{t("getMoreCoupons")}</h3>
               <p className="text-sm text-white/90 mb-4">
-                Refer friends, complete bookings, and participate in promotions to earn exclusive coupon codes.
+                {t("getMoreDescription")}
               </p>
               <button 
                 onClick={() => navigate('/app/share')}
                 className="px-6 py-2.5 bg-[#eacb7f] text-[#083f30] rounded-lg font-semibold hover:bg-[#d4b76c] transition-colors"
               >
-                Refer Friends
+                {t("referFriends")}
               </button>
             </div>
           </div>

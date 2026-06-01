@@ -24,19 +24,19 @@ export default function ClinicBookings() {
     const [activeTab, setActiveTab] = useState<'all' | 'confirmed' | 'pending' | 'completed' | 'cancelled'>('all');
     const [searchQuery, setSearchQuery] = useState('');
     const navigation = [
-        { label: 'Dashboard', icon: <LayoutDashboard size={20}/>, path: '/provider/clinic/dashboard' },
-        { label: 'Bookings', icon: <Calendar size={20}/>, path: '/provider/clinic/bookings', badge: 5 },
-        { label: 'Doctors', icon: <Users size={20}/>, path: '/provider/clinic/doctors' },
-        { label: 'Treatments', icon: <Stethoscope size={20}/>, path: '/provider/clinic/treatments' },
-        { label: 'Pricing', icon: <DollarSign size={20}/>, path: '/provider/clinic/pricing' },
-        { label: 'Availability', icon: <Calendar size={20}/>, path: '/provider/clinic/availability' },
-        { label: 'Media Gallery', icon: <Image size={20}/>, path: '/provider/clinic/media' },
-        { label: 'Reviews', icon: <Star size={20}/>, path: '/provider/clinic/reviews' },
-        { label: 'Promotions', icon: <TrendingUp size={20}/>, path: '/provider/clinic/promotions' },
-        { label: 'Analytics', icon: <BarChart3 size={20}/>, path: '/provider/clinic/analytics' },
-        { label: 'Billing', icon: <CreditCard size={20}/>, path: '/provider/clinic/billing' },
-        { label: 'Support', icon: <MessageSquare size={20}/>, path: '/provider/clinic/support' },
-        { label: 'Settings', icon: <Settings size={20}/>, path: '/provider/clinic/settings' },
+        { label: tBooking("dashboard"), icon: <LayoutDashboard size={20}/>, path: '/provider/clinic/dashboard' },
+        { label: tBooking("bookings"), icon: <Calendar size={20}/>, path: '/provider/clinic/bookings', badge: 5 },
+        { label: tBooking("doctors"), icon: <Users size={20}/>, path: '/provider/clinic/doctors' },
+        { label: tBooking("treatments"), icon: <Stethoscope size={20}/>, path: '/provider/clinic/treatments' },
+        { label: tBooking("pricing"), icon: <DollarSign size={20}/>, path: '/provider/clinic/pricing' },
+        { label: tBooking("availability"), icon: <Calendar size={20}/>, path: '/provider/clinic/availability' },
+        { label: tBooking("mediaGallery"), icon: <Image size={20}/>, path: '/provider/clinic/media' },
+        { label: tBooking("reviews"), icon: <Star size={20}/>, path: '/provider/clinic/reviews' },
+        { label: tBooking("promotions"), icon: <TrendingUp size={20}/>, path: '/provider/clinic/promotions' },
+        { label: tBooking("analytics"), icon: <BarChart3 size={20}/>, path: '/provider/clinic/analytics' },
+        { label: tBooking("billing"), icon: <CreditCard size={20}/>, path: '/provider/clinic/billing' },
+        { label: tBooking("support"), icon: <MessageSquare size={20}/>, path: '/provider/clinic/support' },
+        { label: tBooking("settings"), icon: <Settings size={20}/>, path: '/provider/clinic/settings' },
     ];
     const bookings: Booking[] = [
         {
@@ -120,24 +120,24 @@ export default function ClinicBookings() {
         return matchesTab && matchesSearch;
     });
     const statusConfig = {
-        confirmed: { bg: 'bg-green-100', text: 'text-green-700', label: 'Confirmed' },
-        pending: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Pending' },
-        completed: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Completed' },
-        cancelled: { bg: 'bg-gray-100', text: 'text-gray-700', label: 'Cancelled' },
+        confirmed: { bg: 'bg-green-100', text: 'text-green-700', label: tBooking("confirmed") },
+        pending: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: tBooking("pending") },
+        completed: { bg: 'bg-blue-100', text: 'text-blue-700', label: tBooking("completed") },
+        cancelled: { bg: 'bg-gray-100', text: 'text-gray-700', label: tBooking("cancelled") },
     };
     const paymentConfig = {
-        paid: { bg: 'bg-green-100', text: 'text-green-700', label: 'Paid' },
-        pending: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Pending' },
-        refunded: { bg: 'bg-orange-100', text: 'text-orange-700', label: 'Refunded' },
+        paid: { bg: 'bg-green-100', text: 'text-green-700', label: tBooking("paid") },
+        pending: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: tBooking("pending") },
+        refunded: { bg: 'bg-orange-100', text: 'text-orange-700', label: tBooking("refunded") },
     };
     const tabs = [
-        { value: 'all', label: 'All Bookings', count: bookings.length },
-        { value: 'confirmed', label: 'Confirmed', count: bookings.filter(b => b.status === 'confirmed').length },
-        { value: 'pending', label: 'Pending', count: bookings.filter(b => b.status === 'pending').length },
-        { value: 'completed', label: 'Completed', count: bookings.filter(b => b.status === 'completed').length },
-        { value: 'cancelled', label: 'Cancelled', count: bookings.filter(b => b.status === 'cancelled').length },
+        { value: 'all', label: tBooking("allBookings"), count: bookings.length },
+        { value: 'confirmed', label: tBooking("confirmed"), count: bookings.filter(b => b.status === 'confirmed').length },
+        { value: 'pending', label: tBooking("pending"), count: bookings.filter(b => b.status === 'pending').length },
+        { value: 'completed', label: tBooking("completed"), count: bookings.filter(b => b.status === 'completed').length },
+        { value: 'cancelled', label: tBooking("cancelled"), count: bookings.filter(b => b.status === 'cancelled').length },
     ];
-    return (<DashboardLayout navigation={navigation} headerTitle="Bookings Management" userRole="provider" userName="Dr. Michael Johnson" providerName="Elite Medical Center">
+    return (<DashboardLayout navigation={navigation} headerTitle={tBooking("bookingsManagement")} userRole="provider" userName="Dr. Michael Johnson" providerName="Elite Medical Center">
       {/* Header Section */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-6">

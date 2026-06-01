@@ -47,6 +47,15 @@ export type BugReportPerson = {
   role: "customer" | "agent" | "admin" | "system" | "guest";
 };
 
+export type BugReportBoardColumn = {
+  key: string;
+  statuses: BugReportStatus[];
+  title: string;
+  labelTranslations: Record<string, string>;
+  displayOrder: number;
+  isEnabled: boolean;
+};
+
 export type BugReportCard = {
   id: string;
   reportNumber: string;
@@ -126,6 +135,7 @@ export type BugReportAssignableAgent = {
 };
 
 export type BugReportDetails = BugReportCard & {
+  currentViewerUserId: string | null;
   expectedBehavior: string | null;
   actualBehavior: string | null;
   reproductionSteps: string[];
@@ -165,6 +175,7 @@ export type CustomerBugReportListItem = Pick<
 };
 
 export type AdminBugReportView = "board" | "list";
+export type AdminBugReportOwnershipFilter = "all" | "assigned_to_me" | "unassigned";
 
 export type AdminBugReportFilters = {
   q: string;
@@ -175,6 +186,7 @@ export type AdminBugReportFilters = {
   page: number;
   pageSize: number;
   view: AdminBugReportView;
+  ownership: AdminBugReportOwnershipFilter;
 };
 
 export type AdminBugReportPageInfo = {

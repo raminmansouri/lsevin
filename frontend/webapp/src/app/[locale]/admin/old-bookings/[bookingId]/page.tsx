@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 async function getBooking(bookingId: string) {
   const res = await fetch(`/api/admin/bookings/${bookingId}`, { cache: 'no-store' });
@@ -10,6 +11,7 @@ async function getBooking(bookingId: string) {
 }
 
 export default function AdminBookingDetailPage({ params }: { params: Promise<{ bookingId: string }> }) {
+  const tAdmin = useTranslations('AdminGenerated');
   const [item, setItem] = useState<any>(null);
   const [bookingId, setBookingId] = useState<string>('');
   const [providerNotes, setProviderNotes] = useState('');
@@ -35,76 +37,76 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ b
     });
   }, [params]);
 
-  if (!item) return <div className="p-8 text-sm text-slate-500">Loading booking…</div>;
+  if (!item) return <div className="p-8 text-sm text-slate-500">{tAdmin("loadingBooking")}</div>;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Booking review</h1>
-        <p className="mt-1 text-sm text-slate-500">Inspect the parent booking, embedded add-on child bookings, documents, and payments.</p>
+        <h1 className="text-3xl font-bold text-slate-900">{tAdmin("bookingReview")}</h1>
+        <p className="mt-1 text-sm text-slate-500">{tAdmin("inspectParentBookingEmbeddedAddOnChildBookingsDocumentsAndPayments")}</p>
       </div>
 
       <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <div className="text-sm text-slate-500">Provider</div>
+            <div className="text-sm text-slate-500">{tAdmin("provider")}</div>
             <div className="font-semibold text-slate-900">{item.providerName ?? '-'}</div>
           </div>
           <div>
-            <div className="text-sm text-slate-500">Service</div>
+            <div className="text-sm text-slate-500">{tAdmin("service")}</div>
             <div className="font-semibold text-slate-900">{item.serviceName ?? '-'}</div>
           </div>
           <div>
-            <div className="text-sm text-slate-500">Specialist</div>
-            <div className="font-semibold text-slate-900">{item.specialistName ?? 'Not required'}</div>
+            <div className="text-sm text-slate-500">{tAdmin("specialist")}</div>
+            <div className="font-semibold text-slate-900">{item.specialistName ?? tAdmin('notRequired')}</div>
           </div>
           <div>
-            <div className="text-sm text-slate-500">Payment</div>
+            <div className="text-sm text-slate-500">{tAdmin("payment")}</div>
             <div className="font-semibold text-slate-900">{item.paymentStatus} · {item.paymentMethod}</div>
           </div>
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-[200px_1fr]">
           <label className="text-sm font-semibold text-slate-700">
-            Booking status
+            {tAdmin("bookingStatus")}
             <select value={bookingStatus} onChange={(e) => setBookingStatus(e.target.value)} className="mt-2 h-12 w-full rounded-2xl border border-slate-200 px-4">
-              <option value="Pending">Pending</option>
-              <option value="Confirmed">Confirmed</option>
-              <option value="Rejected">Rejected</option>
-              <option value="Cancelled">Cancelled</option>
+              <option value="Pending">{tAdmin("pending")}</option>
+              <option value="Confirmed">{tAdmin("confirmed")}</option>
+              <option value="Rejected">{tAdmin("rejected")}</option>
+              <option value="Cancelled">{tAdmin("cancelled")}</option>
             </select>
           </label>
           <label className="text-sm font-semibold text-slate-700">
-            Provider/admin notes
+            {tAdmin("providerAdminNotes")}
             <textarea value={providerNotes} onChange={(e) => setProviderNotes(e.target.value)} className="mt-2 min-h-[96px] w-full rounded-2xl border border-slate-200 px-4 py-3" />
           </label>
         </div>
       </section>
 
       <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-bold text-slate-900">Embedded add-on sub-bookings</h2>
+        <h2 className="text-xl font-bold text-slate-900">{tAdmin("embeddedAddOnSubBookings")}</h2>
         <div className="mt-4 space-y-4">
           {(item.childBookings ?? []).map((child: any) => (
             <div key={child.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <div className="font-semibold text-slate-900">{child.providerName ?? 'Child provider'}</div>
-                  <div className="text-sm text-slate-500">{child.serviceName ?? 'Child service'}</div>
+                  <div className="font-semibold text-slate-900">{child.providerName ?? tAdmin('childProvider')}</div>
+                  <div className="text-sm text-slate-500">{child.serviceName ?? tAdmin('childService')}</div>
                 </div>
                 <label className="text-sm font-semibold text-slate-700">
-                  Child status
+                  {tAdmin("childStatus")}
                   <select value={childStatuses[child.id] ?? child.status ?? 'Confirmed'} onChange={(e) => setChildStatuses((prev) => ({ ...prev, [child.id]: e.target.value }))} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-4">
-                    <option value="Pending">Pending</option>
-                    <option value="Confirmed">Confirmed</option>
-                    <option value="Rejected">Rejected</option>
-                    <option value="Cancelled">Cancelled</option>
+                    <option value="Pending">{tAdmin("pending")}</option>
+                    <option value="Confirmed">{tAdmin("confirmed")}</option>
+                    <option value="Rejected">{tAdmin("rejected")}</option>
+                    <option value="Cancelled">{tAdmin("cancelled")}</option>
                   </select>
                 </label>
               </div>
               <textarea
                 value={childNotes[child.id] ?? ''}
                 onChange={(e) => setChildNotes((prev) => ({ ...prev, [child.id]: e.target.value }))}
-                placeholder="Notes for this sub-booking"
+                placeholder={tAdmin("notesForThisSubBooking")}
                 className="mt-3 min-h-[88px] w-full rounded-2xl border border-slate-200 px-4 py-3"
               />
             </div>
@@ -113,7 +115,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ b
       </section>
 
       <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-bold text-slate-900">Documents</h2>
+        <h2 className="text-xl font-bold text-slate-900">{tAdmin("documents")}</h2>
         <div className="mt-4 space-y-2">
           {(item.documents ?? []).map((doc: any) => (
             <div key={doc.id} className="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3">
@@ -121,14 +123,14 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ b
                 <div className="font-medium text-slate-900">{doc.title}</div>
                 <div className="text-xs text-slate-500">{doc.fileName}</div>
               </div>
-              <a href={doc.fileUrl} target="_blank" className="text-sm font-medium text-[#083f30]">Open</a>
+              <a href={doc.fileUrl} target="_blank" className="text-sm font-medium text-[#083f30]">{tAdmin("open")}</a>
             </div>
           ))}
         </div>
       </section>
 
       <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-bold text-slate-900">Payments</h2>
+        <h2 className="text-xl font-bold text-slate-900">{tAdmin("payments")}</h2>
         <div className="mt-4 space-y-3">
           {(item.payments ?? []).map((payment: any) => (
             <div key={payment.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -159,11 +161,11 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ b
               })),
             }),
           });
-          alert('Booking review saved');
+          alert(tAdmin('bookingReviewSaved'));
         }}
         className="rounded-2xl bg-[#083f30] px-5 py-3 text-sm font-semibold text-white"
       >
-        Save review decision
+        {tAdmin("saveReviewDecision")}
       </button>
     </div>
   );

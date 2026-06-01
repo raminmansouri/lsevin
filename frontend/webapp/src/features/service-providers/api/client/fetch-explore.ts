@@ -15,6 +15,11 @@ type ExploreClientFilters = {
   languages: string[];
   responseTime: "any" | "fast" | "instant";
   currencyCode?: string | null;
+  q?: string;
+  categoryId?: string | null;
+  providerTypeId?: string | null;
+  countryCode?: string | null;
+  cityCode?: string | null;
 };
 
 function normalizeRange(range?: number[]) {
@@ -46,6 +51,11 @@ function normalizeFilters(filters?: ExploreClientFilters): ExploreClientFilters 
     languages: Array.isArray(filters.languages) ? filters.languages.filter(Boolean) : [],
     responseTime: filters.responseTime || "any",
     currencyCode: filters.currencyCode?.trim().toUpperCase() || null,
+    q: filters.q?.trim() || "",
+    categoryId: filters.categoryId?.trim() || null,
+    providerTypeId: filters.providerTypeId?.trim() || null,
+    countryCode: filters.countryCode?.trim() || null,
+    cityCode: filters.cityCode?.trim() || null,
   };
 }
 

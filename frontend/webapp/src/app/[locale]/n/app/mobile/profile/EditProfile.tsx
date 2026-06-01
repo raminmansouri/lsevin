@@ -1,11 +1,13 @@
 "use client"
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useNavigate } from '@/hooks/use-navigate';
 import { ArrowLeft, Camera, Save } from 'lucide-react';
 
 export default function EditProfile() {
   const navigate = useNavigate();
+  const t = useTranslations("MobileProfile.editProfile");
   const [formData, setFormData] = useState({
     firstName: 'Sarah',
     lastName: 'Anderson',
@@ -44,7 +46,7 @@ export default function EditProfile() {
             >
               <ArrowLeft size={20} className="text-gray-900" />
             </button>
-            <h1 className="text-lg font-bold text-gray-900">Edit Profile</h1>
+            <h1 className="text-lg font-bold text-gray-900">{t("title")}</h1>
           </div>
         </div>
       </div>
@@ -56,7 +58,7 @@ export default function EditProfile() {
             <div className="w-24 h-24 rounded-full overflow-hidden">
               <img 
                 src="/unsplash_images/photo-1494790108377-be9c29b29330__w=200&h=200&fit=crop.jpg" 
-                alt="Profile"
+                alt={t("profileAlt")}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -64,15 +66,15 @@ export default function EditProfile() {
               <Camera size={16} className="text-white" />
             </button>
           </div>
-          <p className="text-sm text-gray-600 mt-2">Change profile photo</p>
+          <p className="text-sm text-gray-600 mt-2">{t("changeProfilePhoto")}</p>
         </div>
 
         {/* Form */}
         <div className="bg-white rounded-2xl p-5 space-y-5">
-          {/* First Name */}
+          {/* {t("fields.firstName")} */}
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
-              First Name
+              {t("fields.firstName")}
             </label>
             <input
               type="text"
@@ -82,10 +84,10 @@ export default function EditProfile() {
             />
           </div>
 
-          {/* Last Name */}
+          {/* {t("fields.lastName")} */}
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Last Name
+              {t("fields.lastName")}
             </label>
             <input
               type="text"
@@ -98,7 +100,7 @@ export default function EditProfile() {
           {/* Email */}
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Email Address
+              {t("fields.email")}
             </label>
             <input
               type="email"
@@ -111,7 +113,7 @@ export default function EditProfile() {
           {/* Phone */}
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Phone Number
+              {t("fields.phone")}
             </label>
             <input
               type="tel"
@@ -121,14 +123,14 @@ export default function EditProfile() {
               className="w-full h-12 px-4 border border-gray-200 rounded-xl bg-gray-100 text-gray-500 cursor-not-allowed"
             />
             <p className="mt-2 text-xs text-gray-500">
-              Mobile number is the base account identity and cannot be changed from profile.
+              {t("phoneLockedDescription")}
             </p>
           </div>
 
-          {/* Date of Birth */}
+          {/* {t("fields.dateOfBirth")} */}
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Date of Birth
+              {t("fields.dateOfBirth")}
             </label>
             <input
               type="date"
@@ -138,27 +140,27 @@ export default function EditProfile() {
             />
           </div>
 
-          {/* Gender */}
+          {/* {t("fields.gender")} */}
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Gender
+              {t("fields.gender")}
             </label>
             <select
               value={formData.gender}
               onChange={(e) => handleInputChange('gender', e.target.value)}
               className="w-full h-12 px-4 border border-gray-300 rounded-xl focus:border-[#083f30] focus:outline-none transition-colors bg-white"
             >
-              <option value="female">Female</option>
-              <option value="male">Male</option>
-              <option value="other">Other</option>
-              <option value="prefer-not-to-say">Prefer not to say</option>
+              <option value="female">{t("gender.female")}</option>
+              <option value="male">{t("gender.male")}</option>
+              <option value="other">{t("gender.other")}</option>
+              <option value="prefer-not-to-say">{t("gender.preferNotToSay")}</option>
             </select>
           </div>
 
-          {/* Address */}
+          {/* {t("fields.address")} */}
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Address
+              {t("fields.address")}
             </label>
             <input
               type="text"
@@ -168,10 +170,10 @@ export default function EditProfile() {
             />
           </div>
 
-          {/* City */}
+          {/* {t("fields.city")} */}
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
-              City
+              {t("fields.city")}
             </label>
             <input
               type="text"
@@ -181,10 +183,10 @@ export default function EditProfile() {
             />
           </div>
 
-          {/* Country */}
+          {/* {t("fields.country")} */}
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Country
+              {t("fields.country")}
             </label>
             <input
               type="text"
@@ -206,12 +208,12 @@ export default function EditProfile() {
           {isSaving ? (
             <>
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              <span>Saving...</span>
+              <span>{t("saving")}</span>
             </>
           ) : (
             <>
               <Save size={20} />
-              <span>Save Changes</span>
+              <span>{t("saveChanges")}</span>
             </>
           )}
         </button>

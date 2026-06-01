@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { ProviderRecordForm } from "@/features/provider-portal/components/provider-record-form";
 import {
@@ -14,6 +15,7 @@ export default async function UpdateSupportTicketStatusPage({
   params: Promise<{ locale: string; providerId: string; ticketId: string }>;
 }) {
   const { locale, providerId, ticketId } = await params;
+  const t = await getTranslations({ locale, namespace: "SupportPages.providerPortalStatus" });
   const userId = await requireCurrentUserId();
   await getProviderWorkspace(userId, providerId, locale);
   const ticket = (await listSupportTickets(userId, providerId)).find(
@@ -25,14 +27,14 @@ export default async function UpdateSupportTicketStatusPage({
     { name: "ticketId", type: "hidden" as const },
     {
       name: "status",
-      label: "Status",
+      label: t("status"),
       type: "select" as const,
       required: true,
       options: [
-        { value: "open", label: "Open" },
-        { value: "in_progress", label: "In progress" },
-        { value: "resolved", label: "Resolved" },
-        { value: "closed", label: "Closed" },
+        { value: "open", label: t("open") },
+        { value: "in_progress", label: t("inProgress") },
+        { value: "resolved", label: t("resolved") },
+        { value: "closed", label: t("closed") },
       ],
     },
   ];
@@ -40,13 +42,13 @@ export default async function UpdateSupportTicketStatusPage({
   return (
     <ProviderRecordForm
       operation="updateSupportTicket"
-      title="Update support ticket status"
+      title={t("title")}
       description={ticket.subject}
       fields={fields}
       initialValues={{ providerId, ticketId: ticket.id, status: ticket.status }}
       backHref={providerPortalBack(providerId, "/support")}
-      submitLabel="Save status"
-      successMessage="Ticket status updated."
+      submitLabel={t("saveStatus")}
+      successMessage={t("successMessage")}
     />
   );
 }

@@ -9,6 +9,7 @@ import {
   AdminBugReportFilters,
   BugReportAssignableAgent,
   BugReportAttachment,
+  BugReportBoardColumn,
   BugReportCard,
   BugReportDetails,
   BugReportMessage,
@@ -35,6 +36,7 @@ export function parseAdminBugReportFilters(
     page: toSingleString(params.page) || undefined,
     pageSize: toSingleString(params.pageSize) || undefined,
     view: toSingleString(params.view) || "board",
+    ownership: toSingleString(params.ownership) || "all",
   });
 }
 
@@ -52,6 +54,25 @@ async function resolveCurrentCustomerId(): Promise<string | null> {
   } catch {
     return null;
   }
+}
+
+const DEFAULT_BOARD_COLUMNS: BugReportBoardColumn[] = [
+  { key: "open", statuses: ["open"], title: "open", labelTranslations: { en: "Open", fa: "باز", ar: "مفتوح" }, displayOrder: 10, isEnabled: true },
+  { key: "triaged", statuses: ["triaged"], title: "triaged", labelTranslations: { en: "Triaged", fa: "بررسی اولیه", ar: "تم الفرز" }, displayOrder: 20, isEnabled: true },
+  { key: "in_progress", statuses: ["in_progress"], title: "in_progress", labelTranslations: { en: "In progress", fa: "در حال انجام", ar: "قيد التنفيذ" }, displayOrder: 30, isEnabled: true },
+  { key: "need_info", statuses: ["need_info"], title: "need_info", labelTranslations: { en: "Need info", fa: "نیازمند اطلاعات", ar: "بحاجة إلى معلومات" }, displayOrder: 40, isEnabled: true },
+  { key: "done", statuses: ["resolved", "closed", "duplicate", "wont_fix"], title: "resolved", labelTranslations: { en: "Done", fa: "انجام‌شده", ar: "منجز" }, displayOrder: 50, isEnabled: true },
+];
+
+function normalizeColumnStatuses(value: unknown, fallback: string[]): BugReportBoardColumn["statuses"] {
+  const rawValues = Array.isArray(value) ? value : fallback;
+  const valid = new Set(["open", "triaged", "in_progress", "need_info", "resolved", "closed", "duplicate", "wont_fix"]);
+  const statuses = rawValues.filter((item): item is BugReportBoardColumn["statuses"][number] => typeof item === "string" && valid.has(item));
+  return statuses.length > 0 ? statuses : (fallback as BugReportBoardColumn["statuses"]);
+}
+
+function normalizeTranslations(value: unknown, fallback: Record<string, string>) {
+  return value && typeof value === "object" && !Array.isArray(value) ? { ...fallback, ...(value as Record<string, string>) } : fallback;
 }
 
 
@@ -104,12 +125,13 @@ function safeAttachments(value: unknown): BugReportAttachment[] {
           : typeof item.mime_type === "string"
             ? item.mime_type
             : null,
-      mediaType:
+      mediaType: (
         item.mediaType === "video" || item.media_type === "video"
           ? "video"
           : item.mediaType === "file" || item.media_type === "file"
             ? "file"
-            : "image",
+            : "image"
+      ) as BugReportAttachment["mediaType"],
       fileSize:
         typeof item.fileSize === "number"
           ? item.fileSize
@@ -237,6 +259,8 @@ function describeEvent(row: any) {
       return { title: "Status changed", body: fromValue ? `Changed from ${fromValue} to ${toValue}.` : `Changed to ${toValue}.` };
     case "assignee_changed":
       return { title: "Assignment changed", body: toValue ? "Assigned to an agent." : "Unassigned." };
+    case "priority_changed":
+      return { title: "Priority changed", body: fromValue ? `Changed from ${fromValue} to ${toValue}.` : `Changed to ${toValue}.` };
     case "bug_archived":
       return { title: "Bug archived", body: "This bug report was archived." };
     default:
@@ -395,6 +419,50 @@ export async function getCustomerBugReportPageData() {
   };
 }
 
+export async function getBugReportBoardColumnSettings(): Promise<BugReportBoardColumn[]> {
+  noStore();
+
+  try {
+    const existsRows = await sql<{ exists: boolean }[]>`
+      select to_regclass('support.bug_report_board_column_settings') is not null as exists
+    `;
+    if (!existsRows[0]?.exists) return DEFAULT_BOARD_COLUMNS;
+
+    const rows = await sql<any[]>`
+      select column_key, status_values, label_translations, display_order, is_enabled
+      from support.bug_report_board_column_settings
+      where is_enabled = true
+      order by display_order asc, column_key asc
+    `;
+
+    if (rows.length === 0) return DEFAULT_BOARD_COLUMNS;
+    const fallbackByKey = new Map(DEFAULT_BOARD_COLUMNS.map((column) => [column.key, column]));
+
+    return rows.map((row) => {
+      const fallback = fallbackByKey.get(row.column_key) ?? {
+        key: row.column_key,
+        statuses: [] as BugReportBoardColumn["statuses"],
+        title: row.column_key,
+        labelTranslations: { en: String(row.column_key).replace(/_/g, " ") },
+        displayOrder: Number(row.display_order || 100),
+        isEnabled: true,
+      };
+
+      return {
+        key: row.column_key,
+        statuses: normalizeColumnStatuses(row.status_values, fallback.statuses),
+        title: fallback.title,
+        labelTranslations: normalizeTranslations(row.label_translations, fallback.labelTranslations),
+        displayOrder: Number(row.display_order ?? fallback.displayOrder),
+        isEnabled: Boolean(row.is_enabled),
+      };
+    });
+  } catch (error) {
+    console.error("getBugReportBoardColumnSettings failed", error);
+    return DEFAULT_BOARD_COLUMNS;
+  }
+}
+
 export async function getAdminBugReports(filters: AdminBugReportFilters) {
   noStore();
 
@@ -404,6 +472,11 @@ export async function getAdminBugReports(filters: AdminBugReportFilters) {
   const offset = (page - 1) * pageSize;
 
   const whereParts = [sql`true`];
+  if (filters.ownership === "assigned_to_me") {
+    whereParts.push(currentUserId ? sql`br.assigned_to_user_id = ${currentUserId}::uuid` : sql`false`);
+  } else if (filters.ownership === "unassigned") {
+    whereParts.push(sql`br.assigned_to_user_id is null`);
+  }
   if (filters.status !== "all") whereParts.push(sql`br.status = ${filters.status}::text`);
   if (filters.severity !== "all") whereParts.push(sql`br.severity = ${filters.severity}::text`);
   if (filters.priority !== "all") whereParts.push(sql`br.priority = ${filters.priority}::text`);
@@ -425,9 +498,20 @@ export async function getAdminBugReports(filters: AdminBugReportFilters) {
   }
 
   const whereSql = whereParts.reduce((acc, part) => sql`${acc} and ${part}`);
-  const updatedByOtherWhere = currentUserId
-    ? sql`e.actor_user_id is distinct from ${currentUserId}::uuid`
-    : sql`e.actor_user_id is not null`;
+  const latestUpdateByOtherCondition = currentUserId
+    ? sql`latest_update.actor_user_id is distinct from ${currentUserId}::uuid`
+    : sql`false`;
+  const recentChangeByOtherWhere = currentUserId
+    ? sql`e.actor_user_id is distinct from ${currentUserId}::uuid
+          and not exists (
+            select 1
+            from support.conversation_events own_event
+            where own_event.conversation_id = e.conversation_id
+              and own_event.event_type <> 'bug_created'
+              and own_event.actor_user_id = ${currentUserId}::uuid
+              and own_event.create_date >= e.create_date
+          )`
+    : sql`false`;
 
   const [cards, totalRows, stats, recentChanges] = await Promise.all([
     sql<any[]>`
@@ -438,9 +522,9 @@ export async function getAdminBugReports(filters: AdminBugReportFilters) {
         coalesce(nullif(ast.display_name, ''), nullif(trim(concat_ws(' ', au.first_name, au.last_name)), ''), nullif(au.email, '')) as assigned_to_display_name,
         last_msg.sender_display_name as last_message_author_name,
         last_msg.sender_role as last_message_author_role,
-        updated_by_other.updated_by_other_at,
-        updated_by_other.updated_by_other_by,
-        updated_by_other.updated_by_other_event_type
+        case when ${latestUpdateByOtherCondition} then latest_update.updated_by_other_at else null end as updated_by_other_at,
+        case when ${latestUpdateByOtherCondition} then latest_update.updated_by_other_by else null end as updated_by_other_by,
+        case when ${latestUpdateByOtherCondition} then latest_update.updated_by_other_event_type else null end as updated_by_other_event_type
       from support.bug_report_admin_cards br
       left join identity.asp_net_users cu on cu.id = br.customer_user_id
       left join identity.asp_net_users au on au.id = br.assigned_to_user_id
@@ -465,6 +549,7 @@ export async function getAdminBugReports(filters: AdminBugReportFilters) {
       left join lateral (
         select
           e.create_date as updated_by_other_at,
+          e.actor_user_id,
           coalesce(
             nullif(east.display_name, ''),
             nullif(trim(concat_ws(' ', eu.first_name, eu.last_name)), ''),
@@ -477,13 +562,12 @@ export async function getAdminBugReports(filters: AdminBugReportFilters) {
         left join support.agent_statuses east on east.user_id = e.actor_user_id
         where e.conversation_id = br.conversation_id
           and e.event_type <> 'bug_created'
-          and ${updatedByOtherWhere}
         order by e.create_date desc
         limit 1
-      ) updated_by_other on true
+      ) latest_update on true
       where ${whereSql}
       order by
-        case when updated_by_other.updated_by_other_at >= now() - interval '24 hours' then 0 else 1 end,
+        case when (${latestUpdateByOtherCondition}) and latest_update.updated_by_other_at >= now() - interval '24 hours' then 0 else 1 end,
         case br.priority when 'urgent' then 1 when 'high' then 2 when 'normal' then 3 else 4 end,
         coalesce(br.last_message_at, br.last_modified_date, br.create_date) desc
       limit ${pageSize}::int
@@ -500,7 +584,8 @@ export async function getAdminBugReports(filters: AdminBugReportFilters) {
         count(*) filter (where status in ('open','triaged','in_progress','need_info'))::int as active,
         count(*) filter (where status = 'need_info')::int as need_info,
         count(*) filter (where status in ('resolved','closed'))::int as resolved,
-        count(*) filter (where severity = 'critical')::int as critical
+        count(*) filter (where severity = 'critical')::int as critical,
+        count(*) filter (where assigned_to_user_id is null and status in ('open','triaged','in_progress','need_info'))::int as unassigned
       from support.bug_reports
       where deleted_at is null
     `,
@@ -526,6 +611,7 @@ export async function getAdminBugReports(filters: AdminBugReportFilters) {
       left join support.agent_statuses east on east.user_id = e.actor_user_id
       where ${whereSql}
         and e.event_type <> 'bug_created'
+        and ${recentChangeByOtherWhere}
       order by e.create_date desc
       limit 7
     `,
@@ -543,6 +629,7 @@ export async function getAdminBugReports(filters: AdminBugReportFilters) {
       needInfo: Number(stats[0]?.need_info || 0),
       resolved: Number(stats[0]?.resolved || 0),
       critical: Number(stats[0]?.critical || 0),
+      unassigned: Number(stats[0]?.unassigned || 0),
     },
     pageInfo: {
       page,
@@ -652,6 +739,7 @@ export async function getAdminBugReportDetails(id: string): Promise<BugReportDet
 
   return {
     ...mapBugReportCard(row),
+    currentViewerUserId: userId,
     expectedBehavior: row.expected_behavior,
     actualBehavior: row.actual_behavior,
     reproductionSteps: safeJsonArray(row.reproduction_steps),
@@ -741,6 +829,7 @@ export async function getCustomerBugReportDetails(id: string): Promise<BugReport
 
   return {
     ...mapBugReportCard(row),
+    currentViewerUserId: userId,
     expectedBehavior: row.expected_behavior,
     actualBehavior: row.actual_behavior,
     reproductionSteps: safeJsonArray(row.reproduction_steps),

@@ -54,12 +54,19 @@ export const adminBugReportFiltersSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(10).max(100).default(40),
   view: z.enum(["board", "list"]).default("board"),
+  ownership: z.enum(["all", "assigned_to_me", "unassigned"]).default("all"),
 });
 
 export const updateBugReportStatusSchema = z.object({
   bugReportId: z.guid(),
   status: z.enum(BUG_REPORT_STATUSES),
   resolutionNote: optionalText(3000),
+  path: z.string().trim().optional(),
+});
+
+export const updateBugReportPrioritySchema = z.object({
+  bugReportId: z.guid(),
+  priority: z.enum(BUG_REPORT_PRIORITIES),
   path: z.string().trim().optional(),
 });
 
@@ -75,6 +82,13 @@ export const customerBugReportReplySchema = z.object({
   bugReportId: z.guid(),
   body: z.string().trim().min(1).max(5000),
   path: z.string().trim().optional(),
+});
+
+
+export const updateBugReportBoardColumnsSchema = z.object({
+  locale: z.string().trim().min(2).max(12).default("en"),
+  path: z.string().trim().optional(),
+  labels: z.record(z.string(), z.string().trim().min(1).max(80)).default({}),
 });
 
 export const assignBugReportSchema = z.object({

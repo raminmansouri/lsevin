@@ -1,43 +1,1104 @@
 {
-  "Booking": {
-    "stepService": "Service",
-    "stepSchedule": "Schedule",
-    "stepAddOns": "Add-ons",
-    "stepFiles": "Files",
-    "stepReviewPay": "Review & Pay",
-    "failedToLoadBookingDraft": "Failed to load booking draft",
-    "failedToApplyCoupon": "Failed to apply coupon",
-    "failedToRemoveCoupon": "Failed to remove coupon",
-    "checkoutFailed": "Checkout failed",
-    "failedToStartPayment": "Failed to start payment",
-    "notSelected": "Not selected",
-    "notRequired": "Not required",
-    "noProvidersFound": "No providers found",
-    "noServicesFound": "No services found",
-    "noSpecialistsFound": "No specialists found",
-    "gregorian": "Gregorian",
-    "jalaliPersian": "Jalali / Persian",
-    "selectJalaliDate": "Select Jalali date",
-    "selectGregorianDate": "Select Gregorian date",
-    "pleaseSelectAValidBookingDate": "Please select a valid booking date.",
-    "toTime": "to {time}",
-    "availableMinimumRemainingCapacity": "Available. Minimum remaining capacity: {capacity}.",
-    "thisDateRangeIsNotAvailable": "This date range is not available.",
-    "saveFormAndContinue": "Save form and continue",
-    "submitCombinedCheckout": "Submit combined checkout",
-    "searchList": "Search {title}...",
-    "starsValue": "{rating} stars",
-    "starsWithReviewCount": "{rating} stars · {count}",
-    "successRateValue": "{value} success",
-    "patientsValue": "{value} patients",
-    "durationMinutesValue": "{minutes} min",
-    "addonProvidersTitle": "{addon} providers",
-    "addonServicesTitle": "{addon} services",
-    "saveAddOnForm": "Save add-on form",
-    "saveAddonSubBooking": "Save {addon} sub-booking",
-    "onlineCardPayment": "Online Card Payment",
-    "chooseEnabledGatewaySuchAsZarinpal": "Choose an enabled gateway such as Zarinpal",
-    "bankTransfer": "Bank transfer",
-    "wallet": "Wallet"
+  "ProviderPortal": {
+    "profile": {
+      "buttons": {
+        "save": "Save profile",
+        "saving": "Saving..."
+      },
+      "description": "Manage provider public profile, contact details, and presentation fields.",
+      "fields": {
+        "code": "Code",
+        "descriptionEn": "Description (English)",
+        "descriptionFa": "Description (Persian)",
+        "detailEn": "Detail (English)",
+        "detailFa": "Detail (Persian)",
+        "email": "Email",
+        "establishedYear": "Established year",
+        "imageUrl": "Image URL",
+        "languagesCsv": "Languages",
+        "nameEn": "Name (English)",
+        "nameFa": "Name (Persian)",
+        "phone": "Phone",
+        "responseTime": "Response time",
+        "specialtiesCsv": "Specialties",
+        "streetEn": "Street (English)",
+        "streetFa": "Street (Persian)",
+        "successRate": "Success rate",
+        "timezone": "Timezone",
+        "totalPatients": "Total patients",
+        "zipCode": "Zip code"
+      },
+      "messages": {
+        "saveFailed": "Could not save provider profile.",
+        "saveSuccess": "Provider profile saved successfully."
+      },
+      "permissionDenied": "You do not have permission to edit this provider profile.",
+      "placeholders": {
+        "languagesCsv": "English, Persian, Arabic",
+        "mediaIdOrUrl": "Media ID or URL",
+        "responseTime": "Example: < 1 hour",
+        "specialtiesCsv": "Hair transplant, Dental, Beauty",
+        "successRate": "Example: 98%",
+        "timezone": "Asia/Tehran",
+        "totalPatients": "Example: 10,000+"
+      },
+      "title": "Provider Profile",
+      "related": {
+        "buttons": {
+          "add": "Add",
+          "addPolicy": "Add policy",
+          "cancel": "Cancel",
+          "delete": "Delete",
+          "edit": "Edit",
+          "saving": "Saving...",
+          "update": "Update",
+          "updatePolicy": "Update policy"
+        },
+        "certifications": {
+          "description": "Manage provider certificates and verification records.",
+          "editTitle": "Edit certification",
+          "empty": "No certifications added yet.",
+          "fields": {
+            "image": "Image",
+            "name": "Name",
+            "secondImage": "Second image"
+          },
+          "helpers": {
+            "image": "Attach the main certificate image.",
+            "secondImage": "Optional second page or attachment."
+          },
+          "image1Attached": "Main image attached",
+          "image2Attached": "Second image attached",
+          "modalTitle": {
+            "image": "Select certificate image",
+            "secondImage": "Select second certificate image"
+          },
+          "placeholders": {
+            "image": "Media ID or URL",
+            "name": "Certificate name",
+            "secondImage": "Second media ID or URL"
+          },
+          "providerAdded": "Added by provider",
+          "saveButton": "Save certification",
+          "saveFailed": "Could not save certification.",
+          "saveSuccess": "Certification saved successfully.",
+          "title": "Certifications",
+          "updateDescription": "Update certification details and images.",
+          "updated": "Updated",
+          "verified": "Verified",
+          "verifiedCannotChange": "Verification status cannot be changed here.",
+          "verifiedLocked": "Verified certificates are locked."
+        },
+        "delete": {
+          "confirm": "Are you sure you want to delete this item?",
+          "failed": "Could not delete item.",
+          "success": "Deleted successfully."
+        },
+        "policies": {
+          "customPolicy": "Custom policy",
+          "description": "Manage provider policies shown to customers.",
+          "editTitle": "Edit policy",
+          "empty": "No policies added yet.",
+          "fallbackType": "Policy",
+          "fields": {
+            "descriptionEn": "Description (English)",
+            "descriptionFa": "Description (Persian)",
+            "policyType": "Policy type",
+            "typeEn": "Type (English)",
+            "typeFa": "Type (Persian)"
+          },
+          "saveButton": "Save policy",
+          "saveFailed": "Could not save policy.",
+          "saveSuccess": "Policy saved successfully.",
+          "title": "Policies",
+          "updateDescription": "Update policy text and type.",
+          "updated": "Updated"
+        }
+      }
+    }
+  },
+  "User": {
+    "Profile": {
+      "edit": {
+        "title": "Edit Profile"
+      },
+      "tabs": {
+        "additional": "Additional Info",
+        "basic": "Basic Info",
+        "documents": "Documents"
+      },
+      "profileImage": {
+        "close": "Close",
+        "errors": {
+          "chooseImageFile": "Please choose an image file.",
+          "imageTooLarge": "Image size must be less than 5 MB.",
+          "mediaMissing": "Uploaded media was not returned.",
+          "uploadFailed": "Could not upload profile photo."
+        },
+        "removeCurrentPhoto": "Remove current photo",
+        "removing": "Removing...",
+        "title": "Profile photo",
+        "uploadNewPhoto": "Upload new photo",
+        "uploadPhoto": "Upload photo",
+        "uploading": "Uploading...",
+        "viewPhoto": "View photo"
+      }
+    }
+  },
+  "Common": {
+    "Address": {
+      "title": "Address"
+    },
+    "DocumentType": {
+      "BankStatement": "Bank statement",
+      "Beauty": "Beauty document",
+      "DriverLicense": "Driver license",
+      "IdCard": "ID card",
+      "Medical": "Medical document",
+      "Other": "Other document",
+      "Passport": "Passport",
+      "Tourism": "Tourism document",
+      "Visa": "Visa",
+      "title": "Document type"
+    },
+    "Gender": {
+      "female": "Female",
+      "male": "Male",
+      "other": "Other",
+      "title": "Gender"
+    },
+    "Location": {
+      "noCitiesAvailable": "No cities available",
+      "noCountrySelected": "Select a country first",
+      "selectCity": "Select city",
+      "selectCountry": "Select country"
+    }
+  },
+  "ProviderDoctorProfile": {
+    "basicInformation": {
+      "title": "Basic information"
+    },
+    "biography": {
+      "placeholder": "Write a professional biography...",
+      "title": "Biography",
+      "visibilityNote": "This biography appears on your public doctor profile."
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "saveChanges": "Save changes"
+    },
+    "certifications": {
+      "addNew": "Add new",
+      "sample": {
+        "acls": {
+          "issuer": "American Heart Association",
+          "name": "ACLS Certification"
+        },
+        "cardiology": {
+          "issuer": "Medical Board",
+          "name": "Board Certification in Cardiology"
+        },
+        "uaeLicense": {
+          "issuer": "Dubai Health Authority",
+          "name": "UAE Medical License"
+        }
+      },
+      "title": "Certifications",
+      "uploadCertificate": "Upload certificate"
+    },
+    "completion": {
+      "addBiography": "Add biography",
+      "basicInfoComplete": "Basic info complete",
+      "certificationsUploaded": "Certifications uploaded",
+      "description": "Complete your profile to improve trust and visibility.",
+      "title": "Profile completion"
+    },
+    "experienceEducation": {
+      "title": "Experience & Education"
+    },
+    "fields": {
+      "affiliatedClinics": "Affiliated clinics",
+      "firstName": "First name",
+      "languagesSpoken": "Languages spoken",
+      "lastName": "Last name",
+      "medicalSchool": "Medical school",
+      "primarySpecialty": "Primary specialty",
+      "professionalTitle": "Professional title",
+      "subSpecialty": "Sub-specialty",
+      "yearsOfExperience": "Years of experience"
+    },
+    "headerTitle": "Doctor Profile",
+    "navigation": {
+      "bookings": "Bookings",
+      "consultations": "Consultations",
+      "dashboard": "Dashboard",
+      "earnings": "Earnings",
+      "mySchedule": "My Schedule",
+      "myServices": "My Services",
+      "profile": "Profile",
+      "reviews": "Reviews",
+      "settings": "Settings"
+    },
+    "providerName": "Doctor Portal",
+    "specialties": {
+      "cardiology": "Cardiology",
+      "generalMedicine": "General medicine",
+      "internalMedicine": "Internal medicine",
+      "interventionalCardiology": "Interventional cardiology"
+    },
+    "stats": {
+      "averageRating": "Average rating",
+      "profileViews": "Profile views",
+      "responseTime": "Response time",
+      "responseTimeValue": "< 1 hour",
+      "title": "Profile stats",
+      "totalPatients": "Total patients"
+    },
+    "verification": {
+      "description": "Verified profiles receive stronger placement and customer trust.",
+      "subtitle": "Your credentials are under review.",
+      "title": "Verification"
+    }
+  },
+  "MobileProfile": {
+    "completeProfile": {
+      "city": "City",
+      "continue": "Continue",
+      "countries": {
+        "iran": "Iran",
+        "saudiArabia": "Saudi Arabia",
+        "turkey": "Turkey",
+        "uae": "United Arab Emirates"
+      },
+      "country": "Country",
+      "dateOfBirth": "Date of birth",
+      "enterCity": "Enter city",
+      "female": "Female",
+      "firstNameLabel": "First name",
+      "firstNamePlaceholder": "Enter first name",
+      "gender": "Gender",
+      "lastNameLabel": "Last name",
+      "lastNamePlaceholder": "Enter last name",
+      "male": "Male",
+      "other": "Other",
+      "preferredLanguage": "Preferred language",
+      "profileAlt": "Profile photo",
+      "selectCountry": "Select country",
+      "skipForNow": "Skip for now",
+      "subtitle": "Add your details to personalize your LSevin experience.",
+      "title": "Complete Your Profile",
+      "uploadPhoto": "Upload photo"
+    },
+    "coupons": {
+      "apply": "Apply",
+      "applyCoupon": "Apply Coupon",
+      "availableCoupons": "Available Coupons",
+      "enterCode": "Enter coupon code",
+      "enterCodePlaceholder": "Coupon code",
+      "expires": "Expires {date}",
+      "expiringSoon": "Expiring soon",
+      "getMoreCoupons": "Get more coupons",
+      "getMoreDescription": "Invite friends and complete bookings to unlock more rewards.",
+      "hurryExpiresSoon": "Hurry, this coupon expires soon.",
+      "invalidDescription": "This coupon is not valid or has expired.",
+      "invalidTitle": "Invalid coupon",
+      "maxDiscount": "Max discount: {amount}",
+      "minAmount": "Min. amount: {amount}",
+      "previouslyUsed": "Previously Used",
+      "referFriends": "Refer friends",
+      "sampleCoupons": {
+        "beauty": {
+          "description": "Save on beauty and cosmetic services",
+          "title": "Beauty Offer"
+        },
+        "first": {
+          "description": "For your first completed booking",
+          "title": "First Booking Special"
+        },
+        "medical": {
+          "description": "Use on selected medical services",
+          "title": "Medical Care Discount"
+        },
+        "welcome": {
+          "title": "Welcome Bonus"
+        },
+        "wellness": {
+          "description": "Valid on spa and wellness bookings",
+          "title": "Wellness Package"
+        }
+      },
+      "savedAmount": "Saved {amount}",
+      "title": "Coupons",
+      "usedOn": "Used on {date}",
+      "validateCoupon": "Validate coupon",
+      "validating": "Validating..."
+    },
+    "editProfile": {
+      "changeProfilePhoto": "Change profile photo",
+      "fields": {
+        "address": "Address",
+        "city": "City",
+        "country": "Country",
+        "dateOfBirth": "Date of birth",
+        "email": "Email",
+        "firstName": "First name",
+        "gender": "Gender",
+        "lastName": "Last name",
+        "phone": "Phone number"
+      },
+      "gender": {
+        "female": "Female",
+        "male": "Male",
+        "other": "Other",
+        "preferNotToSay": "Prefer not to say"
+      },
+      "phoneLockedDescription": "Your phone number is locked because it is the base identifier for your account.",
+      "saveChanges": "Save changes",
+      "saving": "Saving...",
+      "title": "Edit Profile",
+      "profileAlt": "Profile photo"
+    },
+    "favorites": {
+      "emptyDescription": "Save providers, specialists, and services to quickly find them later.",
+      "emptyTitle": "No favorites yet",
+      "exploreServices": "Explore services",
+      "removeFavoriteAria": "Remove from favorites",
+      "tabs": {
+        "all": "All",
+        "clinics": "Clinics",
+        "doctors": "Doctors",
+        "gyms": "Gyms",
+        "salons": "Salons"
+      },
+      "title": "Favorites"
+    },
+    "medicalProfileLegacy": {
+      "buttons": {
+        "saveContact": "Save contact"
+      },
+      "empty": {
+        "addFirstAllergy": "Add your first allergy",
+        "addFirstMedication": "Add your first medication",
+        "noAllergies": "No allergies added yet.",
+        "noConditions": "No conditions added yet.",
+        "noDocuments": "No documents uploaded yet.",
+        "noMedications": "No medications added yet."
+      },
+      "fields": {
+        "allergyName": "Allergy name",
+        "conditionName": "Condition name",
+        "dosage": "Dosage",
+        "frequency": "Frequency",
+        "fullName": "Full name",
+        "medicationName": "Medication name",
+        "phoneNumber": "Phone number",
+        "relationship": "Relationship"
+      },
+      "frequency": {
+        "asNeeded": "As needed",
+        "onceDaily": "Once daily",
+        "select": "Select frequency",
+        "threeTimesDaily": "Three times daily",
+        "twiceDaily": "Twice daily",
+        "weekly": "Weekly"
+      },
+      "modals": {
+        "addAllergy": "Add allergy",
+        "addCondition": "Add condition",
+        "addMedication": "Add medication",
+        "uploadDocument": "Upload document"
+      },
+      "placeholders": {
+        "allergyName": "Example: Penicillin",
+        "conditionName": "Condition name",
+        "conditionNotes": "Condition notes",
+        "documentName": "Document name",
+        "dosage": "Dosage",
+        "fullName": "Emergency contact name",
+        "medicationName": "Medication name",
+        "medicationNotes": "Medication notes",
+        "phoneNumber": "Emergency contact phone",
+        "reactionNotes": "Reaction notes"
+      },
+      "privacyDescription": "Your medical information is encrypted and only shared with providers you authorize.",
+      "privacyTitle": "Private and secure",
+      "relationship": {
+        "other": "Other"
+      },
+      "sections": {
+        "allergies": "Allergies",
+        "currentMedications": "Current medications",
+        "emergencyContact": "Emergency contact",
+        "medicalDocuments": "Medical documents",
+        "medicalHistory": "Medical history"
+      },
+      "severity": {
+        "mild": "Mild",
+        "moderate": "Moderate",
+        "severe": "Severe"
+      },
+      "title": "Medical Profile",
+      "upload": {
+        "acceptedFormats": "PDF, JPG, PNG",
+        "acceptedFormatsLabel": "Accepted formats",
+        "clickToUpload": "Click to upload",
+        "examples": "Lab results, prescriptions, reports",
+        "examplesLabel": "Examples",
+        "failedDescription": "Could not upload this document.",
+        "failedTitle": "Upload failed",
+        "formatsShort": "PDF, JPG, PNG",
+        "maximumSize": "10 MB",
+        "maximumSizeLabel": "Maximum size",
+        "progress": "Upload progress",
+        "successDescription": "Your document was uploaded.",
+        "successTitle": "Upload complete",
+        "uploadingTitle": "Uploading..."
+      }
+    },
+    "privacySecurity": {
+      "activeSessions": "Active sessions",
+      "biometricDescription": "Use Face ID, Touch ID, or device biometrics to sign in faster.",
+      "biometricLogin": "Biometric login",
+      "changePassword": "Change Password",
+      "checkAgain": "Check again",
+      "confirmNewPassword": "Confirm new password",
+      "current": "Current",
+      "currentPassword": "Current password",
+      "deleteAccount": "Delete account",
+      "deleteDescription": "Request account deletion and data review.",
+      "deletionRequestOpen": "A deletion request is already open.",
+      "enterCurrentPassword": "Enter current password",
+      "enterNewPassword": "Enter new password",
+      "locationPermissions": "Location permissions",
+      "manage": "Manage",
+      "messages": {
+        "accountDeletionRequested": "Account deletion request submitted.",
+        "biometricUpdated": "Biometric preference updated.",
+        "couldNotReadLocation": "Could not read location permission.",
+        "couldNotRefreshPermission": "Could not refresh permission status.",
+        "couldNotRequestLocation": "Could not request location permission.",
+        "couldNotRequestNotification": "Could not request notification permission.",
+        "locationGranted": "Location permission granted.",
+        "locationUpdated": "Location preference updated.",
+        "notificationGranted": "Notification permission granted.",
+        "notificationUpdated": "Notification preference updated.",
+        "passwordUpdated": "Password updated successfully.",
+        "permissionStateRefreshed": "Permission status refreshed.",
+        "permissionsBlocked": "Permission is blocked in your browser or device settings.",
+        "sessionRevoked": "Session revoked.",
+        "somethingWentWrong": "Something went wrong."
+      },
+      "newPassword": "New password",
+      "noTrackedSessions": "No tracked sessions.",
+      "notSupported": "Not supported",
+      "notificationPermissions": "Notification permissions",
+      "optionalReason": "Optional reason",
+      "privacyControls": "Privacy controls",
+      "reenterNewPassword": "Re-enter new password",
+      "refresh": "Refresh",
+      "requestAccess": "Request access",
+      "requestAccountDeletion": "Request account deletion",
+      "revoke": "Revoke",
+      "title": "Privacy & Security",
+      "updatePassword": "Update password",
+      "working": "Working..."
+    },
+    "settings": {
+      "couldNotSavePreferences": "Could not save preferences.",
+      "currency": "Currency",
+      "distance": {
+        "km": "Kilometers",
+        "mi": "Miles"
+      },
+      "distanceUnit": "Distance unit",
+      "incompleteProfile": "Incomplete profile",
+      "language": "Language",
+      "languages": {
+        "arabic": "Arabic",
+        "english": "English",
+        "persian": "Persian",
+        "turkish": "Turkish"
+      },
+      "location": "Location",
+      "marketingNotifications": "Marketing notifications",
+      "marketingNotificationsDescription": "Receive offers, campaigns, and promotional updates.",
+      "notifications": "Notifications",
+      "notificationsDescription": "Receive important app and booking notifications.",
+      "preferences": "Preferences",
+      "preferencesUpdated": "Preferences updated.",
+      "quickAccess": "Quick access",
+      "quickLinks": {
+        "noReferralCode": "No referral code",
+        "notifications": "Notifications",
+        "notificationsSubtitle": "Manage notification settings",
+        "privacySecurity": "Privacy & Security",
+        "privacySecuritySubtitle": "Password, sessions, and permissions",
+        "referralCode": "Referral code",
+        "rewards": "Rewards",
+        "savedFavorites": "Saved favorites",
+        "savedItems": "Saved items",
+        "wallet": "Wallet"
+      },
+      "savePreferences": "Save preferences",
+      "saving": "Saving...",
+      "storedPreferences": "Stored preferences",
+      "subtitle": "Manage your preferences and account settings.",
+      "theme": "Theme",
+      "themes": {
+        "dark": "Dark",
+        "light": "Light",
+        "system": "System"
+      },
+      "title": "Settings",
+      "useCurrentLocation": "Use current location",
+      "useCurrentLocationDescription": "Use your device location for nearby providers.",
+      "verified": "Verified",
+      "walletNotSetUp": "Wallet not set up"
+    },
+    "shareFriends": {
+      "copied": "Copied",
+      "copiedBang": "Copied!",
+      "copy": "Copy",
+      "discountQueue": "Discount queue",
+      "heroSubtitle": "Share LSevin with friends and unlock referral benefits.",
+      "heroTitle": "Invite friends, earn rewards",
+      "howItWorks": "How it works",
+      "methods": {
+        "email": "Email",
+        "facebook": "Facebook",
+        "instagram": "Instagram",
+        "message": "Message"
+      },
+      "moreOptions": "More options",
+      "referralCode": "Referral code",
+      "referralHistory": "Referral history",
+      "shareMessage": "Use my referral code to join LSevin.",
+      "shareReferralLink": "Share your referral link",
+      "shareSubject": "Join LSevin",
+      "shareVia": "Share via",
+      "stats": {
+        "earned": "Earned",
+        "friendsJoined": "Friends joined",
+        "invited": "Invited",
+        "pending": "Pending",
+        "used": "Used"
+      },
+      "steps": {
+        "activeProgram": {
+          "description": "Referral rewards depend on the active campaign rules.",
+          "title": "Active program"
+        },
+        "shareCode": {
+          "description": "Send your unique referral code to friends.",
+          "descriptionLink": "Share your referral link anywhere.",
+          "title": "Share your code"
+        },
+        "theyGet": {
+          "description": "Your friend receives the configured welcome benefit.",
+          "title": "They get a benefit"
+        },
+        "unlock": {
+          "description": "Rewards unlock after the required booking or profile step.",
+          "title": "Unlock rewards"
+        },
+        "youEarn": {
+          "description": "You earn once the referral is qualified.",
+          "title": "You earn rewards"
+        }
+      },
+      "terms": {
+        "expire": "Rewards and coupons may expire.",
+        "minimumBooking": "Minimum booking rules may apply.",
+        "newUsers": "Valid for new users only.",
+        "rewardAfterBooking": "Rewards are issued after eligible bookings.",
+        "rights": "LSevin may update referral rules."
+      },
+      "termsTitle": "Terms",
+      "title": "Share with Friends"
+    },
+    "transactionDetail": {
+      "bookingReference": "Booking reference",
+      "contactSupport": "Contact support",
+      "description": "Review payment details and booking information.",
+      "downloadReceipt": "Download receipt",
+      "lsevinWallet": "LSevin Wallet",
+      "needHelp": "Need help?",
+      "paymentBreakdown": "Payment breakdown",
+      "paymentFailed": "Payment failed",
+      "paymentFailedDescription": "This transaction failed. Please try again or use another payment method.",
+      "paymentMethod": "Payment method",
+      "paymentPending": "Payment pending",
+      "paymentPendingDescription": "Your payment is still pending.",
+      "paymentProcessingDescription": "Your payment is being processed.",
+      "provider": "Provider",
+      "retryPayment": "Retry payment",
+      "sample": {
+        "description": "Payment for your selected medical service.",
+        "providerAddress": "Istanbul, Turkey",
+        "providerName": "Istanbul Medical Center",
+        "subtitle": "Booking payment",
+        "title": "Hair transplant booking"
+      },
+      "serviceFee": "Service fee",
+      "subtotal": "Subtotal",
+      "title": "Transaction Detail",
+      "total": "Total",
+      "transactionId": "Transaction ID",
+      "transactionInformation": "Transaction information",
+      "transactionLinkCopied": "Transaction link copied.",
+      "viewBookingDetails": "View booking details"
+    },
+    "transactions": {
+      "applyFilters": "Apply filters",
+      "clearAll": "Clear all",
+      "clearFilters": "Clear filters",
+      "filter": "Filter",
+      "filterTransactions": "Filter transactions",
+      "lsevinWallet": "LSevin Wallet",
+      "noTransactionsFound": "No transactions found",
+      "paymentMethods": {
+        "applePay": "Apple Pay",
+        "bankTransfer": "Bank transfer"
+      },
+      "periods": {
+        "all": "All time",
+        "month": "This month",
+        "threeMonths": "Last 3 months",
+        "today": "Today",
+        "week": "This week"
+      },
+      "sample": {
+        "botox": {
+          "subtitle": "Payment failed",
+          "title": "Botox appointment"
+        },
+        "cashback": {
+          "subtitle": "Reward credited",
+          "title": "Cashback"
+        },
+        "dental": {
+          "subtitle": "Clinic payment",
+          "title": "Dental consultation"
+        },
+        "gym": {
+          "subtitle": "Monthly membership",
+          "title": "Gym membership"
+        },
+        "hairTransplant": {
+          "subtitle": "Istanbul Medical Center",
+          "title": "Hair transplant booking"
+        },
+        "referral": {
+          "subtitle": "Friend joined LSevin",
+          "title": "Referral reward"
+        },
+        "refund": {
+          "subtitle": "Booking refund",
+          "title": "Refund"
+        },
+        "spa": {
+          "subtitle": "Wellness booking",
+          "title": "Spa package"
+        },
+        "topup": {
+          "subtitle": "Added funds to wallet",
+          "title": "Wallet top-up"
+        }
+      },
+      "status": "Status",
+      "statuses": {
+        "all": "All statuses",
+        "cancelled": "Cancelled",
+        "completed": "Completed",
+        "failed": "Failed",
+        "pending": "Pending",
+        "processing": "Processing",
+        "refunded": "Refunded"
+      },
+      "summary": "Summary",
+      "timePeriod": "Time period",
+      "title": "Transactions",
+      "todayAt": "Today at {time}",
+      "total": "Total",
+      "transactionType": "Transaction type",
+      "tryAdjustingFilters": "Try adjusting your filters.",
+      "types": {
+        "all": "All types",
+        "credit": "Credits",
+        "debit": "Debits"
+      },
+      "yesterdayAt": "Yesterday at {time}"
+    },
+    "wallet": {
+      "applyCoupon": "Apply coupon",
+      "emptyDescription": "Your wallet activity will appear here.",
+      "enterCustomAmount": "Enter custom amount",
+      "filters": {
+        "credits": "Credits",
+        "debits": "Debits",
+        "filter": "Filter"
+      },
+      "gateway": "Gateway",
+      "gatewayCurrencyNote": "Payment gateway currency may differ from your display currency.",
+      "lsevinWallet": "LSevin Wallet",
+      "noOnlineGateway": "No online gateway is configured.",
+      "noTransactionsYet": "No transactions yet",
+      "paymentMethod": "Payment method",
+      "paymentMethods": {
+        "applePay": "Apple Pay",
+        "applePayDetails": "Fast payment with Apple Pay.",
+        "bankDetails": "Transfer manually and upload proof.",
+        "bankTransfer": "Bank transfer",
+        "cardDetails": "Pay securely with your card.",
+        "noGateway": "No gateway available",
+        "onlineCard": "Online card"
+      },
+      "processing": "Processing...",
+      "recentTransactions": "Recent transactions",
+      "sample": {
+        "cashback": {
+          "subtitle": "Reward credited",
+          "title": "Cashback"
+        },
+        "dental": {
+          "subtitle": "Clinic payment",
+          "title": "Dental consultation"
+        },
+        "hairTransplant": {
+          "subtitle": "Istanbul Medical Center",
+          "title": "Hair transplant booking"
+        },
+        "referral": {
+          "subtitle": "Friend joined LSevin",
+          "title": "Referral reward"
+        },
+        "spa": {
+          "subtitle": "Wellness booking",
+          "title": "Spa package"
+        },
+        "topup": {
+          "subtitle": "Added funds to wallet",
+          "title": "Wallet top-up"
+        }
+      },
+      "selectAmount": "Select amount",
+      "statuses": {
+        "cancelled": "Cancelled",
+        "completed": "Completed",
+        "failed": "Failed",
+        "pending": "Pending",
+        "processing": "Processing"
+      },
+      "title": "Wallet",
+      "todayAt": "Today at {time}",
+      "topUpAmount": "Top-up amount",
+      "topUpWallet": "Top up wallet",
+      "totalBalance": "Total balance",
+      "viewAll": "View all",
+      "yesterdayAt": "Yesterday at {time}"
+    },
+    "main": {
+      "menu": {
+        "medicalProfile": "Medical Profile",
+        "notifications": "Notifications",
+        "privacySecurity": "Privacy & Security",
+        "rewardsLoyalty": "Rewards & Loyalty",
+        "savedFavorites": "Saved Favorites",
+        "shareWithFriends": "Share with Friends",
+        "walletPayments": "Wallet & Payments"
+      }
+    },
+    "stats": {
+      "bookings": "Bookings",
+      "points": "Points",
+      "saved": "Saved"
+    },
+    "common": {
+      "logOut": "Log out"
+    },
+    "medicalProfile": {
+      "empty": {
+        "noAllergies": "No allergies added yet.",
+        "noConditions": "No medical conditions added yet.",
+        "noContactSaved": "No emergency contact saved.",
+        "noDocuments": "No documents uploaded yet.",
+        "noMedications": "No medications added yet."
+      },
+      "errors": {
+        "addAllergy": "Could not add allergy.",
+        "addCondition": "Could not add condition.",
+        "addMedication": "Could not add medication.",
+        "saveEmergencyContact": "Could not save emergency contact.",
+        "uploadDocument": "Could not upload document."
+      },
+      "fields": {
+        "allergyName": "Allergy name"
+      },
+      "modals": {
+        "addAllergy": "Add allergy"
+      },
+      "placeholders": {
+        "allergyName": "Example: Penicillin",
+        "reactionNotes": "Reaction notes"
+      },
+      "privacyTitle": "Private and secure",
+      "sections": {
+        "allergies": "Allergies",
+        "currentMedications": "Current medications",
+        "emergencyContact": "Emergency contact",
+        "medicalDocuments": "Medical documents",
+        "medicalHistory": "Medical history"
+      },
+      "severity": {
+        "mild": "Mild",
+        "moderate": "Moderate",
+        "severe": "Severe"
+      },
+      "title": "Medical Profile"
+    },
+    "rewards": {
+      "actions": {
+        "copied": "Copied",
+        "copiedBang": "Copied!",
+        "copy": "Copy",
+        "shareWithFriends": "Share with Friends",
+        "useCoupon": "Use Coupon"
+      },
+      "coupons": {
+        "available": "Available Coupons",
+        "code": "Code: {code}",
+        "daysLeft": " ({days} days left)",
+        "emptyAvailable": "No active offer-based coupons are available right now.",
+        "emptyUsed": "Coupon redemption history cannot be shown until a customer coupon ledger exists in the database.",
+        "expires": "Expires {date}",
+        "minPurchase": "Min ${amount}",
+        "saved": "Saved {amount}",
+        "used": "Used Coupons",
+        "usedOn": "Used on {date}"
+      },
+      "overview": {
+        "current": "CURRENT",
+        "earned": "Earned",
+        "emptyActivity": "No reward activity has been recorded yet.",
+        "highestTierReached": "Highest tier reached",
+        "member": "{tier} Member",
+        "membershipTiers": "Membership Tiers",
+        "points": "points",
+        "pointsAbbr": "pts",
+        "pointsToNext": "{points} more points to {tier}",
+        "recentActivity": "Recent Activity",
+        "referrals": "Referrals",
+        "totalSpent": "Total Spent",
+        "yourPoints": "Your Points"
+      },
+      "referrals": {
+        "howItWorks": "How Referrals Work",
+        "inviteFriends": "Invite Friends",
+        "schemaReady": "Referral program schema ready to add",
+        "shareText": "Use my code {code} when you join LSevin.",
+        "shareTitle": "Join LSevin",
+        "steps": {
+          "book": {
+            "description": "Your friend completes their first booking",
+            "title": "They book"
+          },
+          "earn": {
+            "description": "Reward logic becomes live once referral tables and payout rules are added",
+            "title": "You both earn"
+          },
+          "share": {
+            "description": "Send your unique referral code to friends",
+            "title": "Share your code"
+          },
+          "signup": {
+            "description": "Your friend creates an account using your code",
+            "title": "They sign up"
+          }
+        },
+        "successful": "Successful Referrals",
+        "totalEarned": "Total Earned",
+        "yourCode": "Your Referral Code",
+        "yourStats": "Your Referral Stats"
+      },
+      "schemaNotice": {
+        "description": "This page is production-structured and uses live offers plus derived spending, but loyalty points, coupon redemption history, referrals, and tier persistence need dedicated tables and APIs.",
+        "title": "Rewards schema is not in the database yet"
+      },
+      "tabs": {
+        "coupons": "Coupons",
+        "overview": "Overview",
+        "referrals": "Referrals"
+      },
+      "title": "Rewards & Loyalty"
+    },
+    "receipt": {
+      "bookingReference": "Booking reference",
+      "lsevinWallet": "LSevin Wallet",
+      "paymentBreakdown": "Payment breakdown",
+      "paymentMethod": "Payment method",
+      "provider": "Provider",
+      "reference": "Reference",
+      "saveAsPdf": "Save as PDF",
+      "serviceFee": "Service fee",
+      "status": "Status",
+      "subtotal": "Subtotal",
+      "title": "Receipt",
+      "total": "Total",
+      "transaction": "Transaction"
+    }
+  },
+  "MobileDoctorProfile": {
+    "about": {
+      "body": "{name} is one of the world’s leading hair transplant surgeons with over 18 years of experience. He has performed more than 12,000 successful hair restoration procedures for patients from 65+ countries. His expertise in advanced FUE techniques, combined with an artistic eye for natural hairline design, has earned him international recognition.",
+      "title": "About Dr. {name}"
+    },
+    "achievements": {
+      "bestSurgeon": {
+        "organization": "Turkish Medical Excellence",
+        "title": "Best Hair Surgeon 2023"
+      },
+      "patients": {
+        "organization": "From 65+ Countries",
+        "title": "12,000+ Patients"
+      },
+      "success": {
+        "organization": "Verified Patient Outcomes",
+        "title": "98.5% Success Rate"
+      },
+      "title": "Achievements & Recognition",
+      "topPercent": {
+        "organization": "Hair Transplant Surgeons",
+        "title": "Top 1% Worldwide"
+      }
+    },
+    "actions": {
+      "back": "Back",
+      "bookNow": "Book Now",
+      "share": "Share"
+    },
+    "certifications": {
+      "board": {
+        "issuer": "Turkish Medical Board",
+        "name": "Board Certified Surgeon"
+      },
+      "fue": {
+        "issuer": "European Hair Institute",
+        "name": "FUE Master Certificate"
+      },
+      "ishrs": {
+        "issuer": "International Society of Hair Restoration Surgery",
+        "name": "Fellow of ISHRS"
+      },
+      "sapphire": {
+        "issuer": "World Hair Academy",
+        "name": "Advanced Sapphire FUE"
+      }
+    },
+    "consultation": {
+      "free": "Free",
+      "title": "Consultation"
+    },
+    "countries": {
+      "saudiArabia": "Saudi Arabia",
+      "uk": "UK",
+      "usa": "USA"
+    },
+    "dates": {
+      "oneMonthAgo": "1 month ago",
+      "twoWeeksAgo": "2 weeks ago"
+    },
+    "education": {
+      "fellowship": {
+        "degree": "Hair Transplant Surgery Fellowship",
+        "institution": "American Academy of Cosmetic Surgery"
+      },
+      "fue": {
+        "degree": "Advanced FUE Training",
+        "institution": "International Society of Hair Restoration Surgery"
+      },
+      "md": {
+        "degree": "Doctor of Medicine (MD)",
+        "institution": "Istanbul University Medical School"
+      }
+    },
+    "languages": {
+      "arabic": "Arabic",
+      "english": "English",
+      "turkish": "Turkish"
+    },
+    "results": {
+      "after": "After",
+      "before": "Before",
+      "cases": {
+        "case1": {
+          "months": "12 months post-op",
+          "procedure": "Hair Transplant - 4500 Grafts"
+        },
+        "case2": {
+          "months": "10 months post-op",
+          "procedure": "Hair Transplant - 3800 Grafts"
+        }
+      },
+      "title": "Results Gallery",
+      "viewFullGallery": "View Full Gallery"
+    },
+    "reviews": {
+      "basedOn": "Based on {count} reviews",
+      "helpful": "👍 Helpful ({count})",
+      "reviewImage": "Review image",
+      "sample": {
+        "first": "Dr. Yavuz is an absolute master of his craft. The results are beyond my expectations - natural hairline, dense coverage, minimal scarring. His attention to detail and artistic approach are exceptional. The entire team was professional and caring throughout the journey.",
+        "second": "Flew from Riyadh specifically for Dr. Yavuz and it was worth every mile. His expertise is unmatched. He took time to explain every step, designed a perfect hairline, and the procedure was painless. 6 months post-op and growth is fantastic!",
+        "third": "After researching 20+ surgeons worldwide, I chose Dr. Yavuz and couldn't be happier. His technique is flawless, results look completely natural, and his team provided excellent care. Highly recommend!"
+      }
+    },
+    "sample": {
+      "clinic": "Istanbul Medical Center",
+      "location": "Istanbul, Turkey",
+      "name": "Dr. Mehmet Yavuz",
+      "responseTime": "< 1 hour",
+      "specialty": "Hair Transplant & Restoration Surgeon",
+      "title": "MD, FISHRS"
+    },
+    "sections": {
+      "certifications": "Certifications & Memberships",
+      "education": "Education",
+      "languages": "Languages",
+      "specializations": "Specializations"
+    },
+    "share": {
+      "linkCopied": "Link copied to clipboard!",
+      "text": "Check out {name} - {specialty}"
+    },
+    "specializations": {
+      "beardEyebrow": "Beard & Eyebrow Transplant",
+      "dhi": "DHI (Direct Hair Implantation)",
+      "fue": "FUE Hair Transplant",
+      "prp": "PRP Therapy for Hair Loss",
+      "revision": "Revision Hair Transplant",
+      "sapphireFue": "Sapphire FUE Technique"
+    },
+    "stats": {
+      "patients": "Patients",
+      "reviews": "{count} reviews",
+      "successRate": "Success Rate",
+      "wouldRecommend": "Would Recommend",
+      "yearsExperience": "Years Exp."
+    },
+    "status": {
+      "available": "Available"
+    },
+    "tabs": {
+      "about": "About",
+      "credentials": "Credentials",
+      "reviews": "Reviews"
+    },
+    "treatments": {
+      "hairTransplant": "Hair Transplant"
+    },
+    "verification": {
+      "description": "All credentials have been verified by our medical board. Dr. {name} meets the highest standards of medical excellence.",
+      "title": "Verified by LSevin"
+    }
   }
 }

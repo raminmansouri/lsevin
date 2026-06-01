@@ -1,6 +1,7 @@
- "use client";
+"use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import {
@@ -53,15 +54,15 @@ function navigateSmooth(
   });
 }
 
-function formatPrice(value: number, currency: string = "USD") {
+function formatPrice(value: number, currency: string = "USD", locale: string = "en") {
   try {
-    return new Intl.NumberFormat("en", {
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency,
       maximumFractionDigits: 0,
     }).format(value);
   } catch {
-    return `$${value.toLocaleString("en")}`;
+    return `$${value.toLocaleString(locale)}`;
   }
 }
 
@@ -99,6 +100,8 @@ export default function OffersClient({
   filters: OffersFiltersInput;
 }) {
   const router = useRouter();
+  const t = useTranslations("MobileOffers");
+  const locale = useLocale();
   const [isPending, startTransition] = useTransition();
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -255,6 +258,12 @@ export default function OffersClient({
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
+  const renderTabLabel = (tab: OfferTab) =>
+    t("tabs.countLabel", {
+      label: tab.id === "all" ? t("tabs.allOffers") : tab.label,
+      count: tab.count,
+    });
+
   return (
     <div className="relative min-h-screen bg-gray-50 pb-24">
       {isPending && <PendingOverlay />}
@@ -265,13 +274,14 @@ export default function OffersClient({
             <button
               onClick={() => router.back()}
               className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+              aria-label={t("actions.back")}
             >
               <ChevronLeft size={24} className="text-gray-700" />
             </button>
 
             <div className="flex-1">
-              <h1 className="text-xl font-bold text-gray-900">Special Offers</h1>
-              <p className="text-sm text-gray-600">Limited time deals & promotions</p>
+              <h1 className="text-xl font-bold text-gray-900">{t("title")}</h1>
+              <p className="text-sm text-gray-600">{t("subtitle")}</p>
             </div>
 
             <div className="w-10 h-10 bg-[#eacb7f] rounded-full flex items-center justify-center">
@@ -290,7 +300,7 @@ export default function OffersClient({
                     applySearch();
                   }
                 }}
-                placeholder="Search offers, providers, services..."
+                placeholder={t("search.placeholder")}
                 className="w-full bg-transparent outline-none text-sm text-gray-900 placeholder:text-gray-500"
               />
             </div>
@@ -300,13 +310,14 @@ export default function OffersClient({
               onClick={applySearch}
               className="h-11 px-4 rounded-xl bg-[#083f30] text-white font-semibold hover:bg-[#0a5a44] transition-colors"
             >
-              Search
+              {t("search.button")}
             </button>
 
             <button
               type="button"
               onClick={() => setShowFilters(true)}
               className="w-11 h-11 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center relative"
+              aria-label={t("filters.title")}
             >
               <SlidersHorizontal size={18} className="text-[#083f30]" />
               {hasActiveFilters && (
@@ -326,7 +337,7 @@ export default function OffersClient({
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
-                {tab.label} ({tab.count})
+                {renderTabLabel(tab)}
               </button>
             ))}
           </div>
@@ -345,16 +356,20 @@ export default function OffersClient({
             <div className="absolute inset-0 flex flex-col justify-center px-6">
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles size={16} className="text-[#eacb7f]" />
-                <span className="text-xs font-bold text-[#eacb7f] uppercase tracking-wide">Featured Deal</span>
+                <span className="text-xs font-bold text-[#eacb7f] uppercase tracking-wide">
+                  {t("featured.badge")}
+                </span>
               </div>
               <h2 className="text-xl font-bold text-white mb-1">{featuredOffer.title}</h2>
               <p className="text-white/90 text-sm">
-                Use code: <span className="font-bold text-[#eacb7f]">{featuredOffer.code || "NO-CODE"}</span>
+                {t("featured.useCode")} <span className="font-bold text-[#eacb7f]">{featuredOffer.code || t("code.noCode")}</span>
               </p>
             </div>
 
             <div className="absolute top-3 right-3 bg-[#eacb7f] px-3 py-1.5 rounded-full">
-              <span className="text-sm font-bold text-[#083f30]">{featuredOffer.discount} OFF</span>
+              <span className="text-sm font-bold text-[#083f30]">
+                {t("discount.off", { discount: featuredOffer.discount })}
+              </span>
             </div>
           </div>
         </div>
@@ -363,101 +378,109 @@ export default function OffersClient({
       <div className="px-5 py-4 space-y-3">
         {offers.length === 0 && (
           <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center">
-            <h3 className="text-lg font-bold text-gray-900 mb-1">No offers found</h3>
-            <p className="text-sm text-gray-600 mb-4">Try clearing some filters or searching with a broader term.</p>
+            <h3 className="text-lg font-bold text-gray-900 mb-1">{t("empty.title")}</h3>
+            <p className="text-sm text-gray-600 mb-4">{t("empty.description")}</p>
             <button
               type="button"
               onClick={clearFilters}
               className="h-11 px-5 rounded-xl bg-[#083f30] text-white font-semibold hover:bg-[#0a5a44] transition-colors"
             >
-              Clear filters
+              {t("empty.clearFilters")}
             </button>
           </div>
         )}
 
-        {offers.map((offer) => (
-          <div
-            key={offer.id}
-            onClick={() => router.push(`/app/treatment/${offer.providerServiceId}`)}
-            className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all active:scale-[0.98] cursor-pointer"
-          >
-            <div className="relative h-48">
-              <img src={offer.image} alt={offer.title} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+        {offers.map((offer) => {
+          const offerCode = offer.code || t("code.noCode");
 
-              <div className="absolute top-3 right-3 bg-[#eacb7f] px-3 py-1.5 rounded-full shadow-lg">
-                <span className="text-sm font-bold text-[#083f30]">{offer.discount} OFF</span>
-              </div>
+          return (
+            <div
+              key={offer.id}
+              onClick={() => router.push(`/app/treatment/${offer.providerServiceId}`)}
+              className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all active:scale-[0.98] cursor-pointer"
+            >
+              <div className="relative h-48">
+                <img src={offer.image} alt={offer.title} className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
-              <div className="absolute bottom-3 left-3 right-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-white font-semibold">{offer.provider}</span>
-                  {offer.verified && (
-                    <div className="w-5 h-5 bg-[#083f30] rounded-full flex items-center justify-center">
-                      <BadgeCheck size={14} className="text-[#eacb7f]" />
+                <div className="absolute top-3 right-3 bg-[#eacb7f] px-3 py-1.5 rounded-full shadow-lg">
+                  <span className="text-sm font-bold text-[#083f30]">
+                    {t("discount.off", { discount: offer.discount })}
+                  </span>
+                </div>
+
+                <div className="absolute bottom-3 left-3 right-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-white font-semibold">{offer.provider}</span>
+                    {offer.verified && (
+                      <div className="w-5 h-5 bg-[#083f30] rounded-full flex items-center justify-center">
+                        <BadgeCheck size={14} className="text-[#eacb7f]" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 text-white/90 text-xs">
+                    <div className="flex items-center gap-1">
+                      <Star size={12} className="fill-[#eacb7f] text-[#eacb7f]" />
+                      <span>{offer.rating}</span>
                     </div>
-                  )}
-                </div>
-                <div className="flex items-center gap-3 text-white/90 text-xs">
-                  <div className="flex items-center gap-1">
-                    <Star size={12} className="fill-[#eacb7f] text-[#eacb7f]" />
-                    <span>{offer.rating}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <MapPin size={12} />
-                    <span>{offer.location}</span>
+                    <div className="flex items-center gap-1">
+                      <MapPin size={12} />
+                      <span>{offer.location}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="p-4">
-              <h3 className="font-bold text-gray-900 mb-1">{offer.title}</h3>
-              <p className="text-sm text-gray-600 mb-3">{offer.subtitle}</p>
+              <div className="p-4">
+                <h3 className="font-bold text-gray-900 mb-1">{offer.title}</h3>
+                <p className="text-sm text-gray-600 mb-3">{offer.subtitle}</p>
 
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-2xl font-bold text-[#083f30]">
-                  {formatPrice(offer.discountedPrice, offer.currency)}
-                </span>
-                <span className="text-sm text-gray-500 line-through">
-                  {formatPrice(offer.originalPrice, offer.currency)}
-                </span>
-                <span className="text-sm font-semibold text-green-600">
-                  Save {formatPrice(offer.originalPrice - offer.discountedPrice, offer.currency)}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between gap-3 mb-4">
-                <div className="flex items-center gap-2 flex-1 bg-gray-50 rounded-xl px-3 py-2">
-                  <Tag size={16} className="text-[#083f30]" />
-                  <span className="font-bold text-gray-900 text-sm">{offer.code || "NO-CODE"}</span>
-                  <button
-                    type="button"
-                    className="ml-auto text-xs text-[#083f30] font-semibold hover:underline"
-                    onClick={(e) => handleCopyCode(offer.code || "NO-CODE", e)}
-                  >
-                    {copiedCode === (offer.code || "NO-CODE") ? <Check size={14} /> : "Copy"}
-                  </button>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-2xl font-bold text-[#083f30]">
+                    {formatPrice(offer.discountedPrice, offer.currency, locale)}
+                  </span>
+                  <span className="text-sm text-gray-500 line-through">
+                    {formatPrice(offer.originalPrice, offer.currency, locale)}
+                  </span>
+                  <span className="text-sm font-semibold text-green-600">
+                    {t("pricing.save", {
+                      amount: formatPrice(offer.originalPrice - offer.discountedPrice, offer.currency, locale),
+                    })}
+                  </span>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-gray-600">
-                  <Clock size={14} />
-                  <span>Until {offer.validUntil}</span>
-                </div>
-              </div>
 
-              <button
-                type="button"
-                className="w-full h-11 bg-[#083f30] text-white rounded-xl font-semibold hover:bg-[#0a5a44] transition-colors active:scale-[0.98]"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  router.push(`/app/booking/${offer.providerServiceId}`);
-                }}
-              >
-                Book Now
-              </button>
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <div className="flex items-center gap-2 flex-1 bg-gray-50 rounded-xl px-3 py-2">
+                    <Tag size={16} className="text-[#083f30]" />
+                    <span className="font-bold text-gray-900 text-sm">{offerCode}</span>
+                    <button
+                      type="button"
+                      className="ml-auto text-xs text-[#083f30] font-semibold hover:underline"
+                      onClick={(e) => handleCopyCode(offerCode, e)}
+                    >
+                      {copiedCode === offerCode ? <Check size={14} /> : t("code.copy")}
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                    <Clock size={14} />
+                    <span>{t("validity.until", { date: offer.validUntil })}</span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="w-full h-11 bg-[#083f30] text-white rounded-xl font-semibold hover:bg-[#0a5a44] transition-colors active:scale-[0.98]"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    router.push(`/app/booking/${offer.providerServiceId}`);
+                  }}
+                >
+                  {t("cta.bookNow")}
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {showFilters && (
@@ -468,16 +491,17 @@ export default function OffersClient({
           >
             <div className="sticky top-0 bg-white border-b border-gray-200 px-5 py-4 z-10">
               <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xl font-bold text-gray-900">Advanced Filters</h2>
+                <h2 className="text-xl font-bold text-gray-900">{t("filters.title")}</h2>
                 <button
                   type="button"
                   onClick={() => setShowFilters(false)}
                   className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                  aria-label={t("actions.close")}
                 >
                   <X size={20} className="text-gray-600" />
                 </button>
               </div>
-              <p className="text-sm text-gray-600">Find exactly what you're looking for</p>
+              <p className="text-sm text-gray-600">{t("filters.description")}</p>
             </div>
 
             <div className="px-5 py-6 space-y-6">
@@ -485,10 +509,13 @@ export default function OffersClient({
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <DollarSign size={20} className="text-[#083f30]" />
-                    <h3 className="font-bold text-gray-900">Max Price</h3>
+                    <h3 className="font-bold text-gray-900">{t("filters.maxPrice")}</h3>
                   </div>
                   <span className="text-sm font-semibold text-[#083f30]">
-                    $0 - ${watched.maxPrice ?? 5000}
+                    {t("filters.priceRange", {
+                      min: formatPrice(0, "USD", locale),
+                      max: formatPrice(watched.maxPrice ?? 5000, "USD", locale),
+                    })}
                   </span>
                 </div>
                 <input
@@ -505,7 +532,7 @@ export default function OffersClient({
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Star size={20} className="text-[#083f30]" />
-                  <h3 className="font-bold text-gray-900">Minimum Rating</h3>
+                  <h3 className="font-bold text-gray-900">{t("filters.minimumRating")}</h3>
                 </div>
                 <div className="grid grid-cols-5 gap-2">
                   {[0, 3.0, 3.5, 4.0, 4.5].map((rating) => (
@@ -519,7 +546,7 @@ export default function OffersClient({
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                       }`}
                     >
-                      <span className="text-sm">{rating === 0 ? "Any" : `${rating}+`}</span>
+                      <span className="text-sm">{rating === 0 ? t("filters.any") : `${rating}+`}</span>
                       {rating > 0 && <Star size={12} className="fill-current" />}
                     </button>
                   ))}
@@ -543,8 +570,8 @@ export default function OffersClient({
                       <BadgeCheck size={24} className={watched.verifiedOnly ? "text-white" : "text-gray-400"} />
                     </div>
                     <div className="text-left">
-                      <h3 className="font-bold text-gray-900">Verified Providers Only</h3>
-                      <p className="text-sm text-gray-600">Show only accredited clinics</p>
+                      <h3 className="font-bold text-gray-900">{t("filters.verifiedOnly")}</h3>
+                      <p className="text-sm text-gray-600">{t("filters.verifiedOnlyDescription")}</p>
                     </div>
                   </div>
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${
@@ -558,7 +585,7 @@ export default function OffersClient({
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Globe size={20} className="text-[#083f30]" />
-                  <h3 className="font-bold text-gray-900">Languages Spoken</h3>
+                  <h3 className="font-bold text-gray-900">{t("filters.languagesSpoken")}</h3>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {availableLanguages.map((lang) => (
@@ -592,13 +619,13 @@ export default function OffersClient({
                   onClick={clearFilters}
                   className="flex-1 h-12 rounded-xl bg-gray-100 text-gray-900 font-bold hover:bg-gray-200 transition-colors"
                 >
-                  Clear All
+                  {t("filters.clearAll")}
                 </button>
                 <button
                   type="submit"
                   className="flex-1 h-12 rounded-xl bg-gradient-to-r from-[#083f30] to-[#0a5a44] text-white font-bold hover:shadow-lg transition-all"
                 >
-                  Apply Filters
+                  {t("filters.applyFilters")}
                 </button>
               </div>
             </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useForm, type FieldError } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Lock, Save, ShieldCheck } from "lucide-react";
@@ -18,6 +19,7 @@ import {
 } from "../schemas/profile.schema";
 import { useEditProfileStore } from "../stores/edit-profile.store";
 import ProfileImagePicker from "./profile-image-picker";
+import { TRANSLATION_KEY } from "../actions/update-base-info/types";
 
 type Props = {
     initialData: EditProfileInitialData;
@@ -53,6 +55,7 @@ function formatLockedPhonePart(value: string) {
 
 export default function EditProfileForm({ initialData }: Props) {
     const navigate = useNavigate();
+    const t = useTranslations(TRANSLATION_KEY);
     const [isPending, startTransition] = useTransition();
 
     const isLocked = initialData.isProfileConfirmed;
@@ -129,7 +132,7 @@ export default function EditProfileForm({ initialData }: Props) {
                         >
                             <ArrowLeft size={20} className="text-gray-900" />
                         </button>
-                        <h1 className="text-lg font-bold text-gray-900">Edit Profile</h1>
+                        <h1 className="text-lg font-bold text-gray-900">{t("edit.title")}</h1>
                     </div>
                 </div>
             </div>
@@ -139,9 +142,9 @@ export default function EditProfileForm({ initialData }: Props) {
                     <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 flex items-start gap-3">
                         <Lock className="text-emerald-700 mt-0.5" size={18} />
                         <div>
-                            <p className="font-semibold text-emerald-900">Profile locked</p>
+                            <p className="font-semibold text-emerald-900">{t("edit.lockedTitle")}</p>
                             <p className="text-sm text-emerald-800">
-                                Your profile has been confirmed and can no longer be changed.
+                                {t("edit.lockedDescription")}
                             </p>
                         </div>
                     </div>
@@ -149,9 +152,9 @@ export default function EditProfileForm({ initialData }: Props) {
                     <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 flex items-start gap-3">
                         <ShieldCheck className="text-amber-700 mt-0.5" size={18} />
                         <div>
-                            <p className="font-semibold text-amber-900">Confirm carefully</p>
+                            <p className="font-semibold text-amber-900">{t("edit.confirmCarefullyTitle")}</p>
                             <p className="text-sm text-amber-800">
-                                After confirmation, profile information becomes read-only.
+                                {t("edit.confirmCarefullyDescription")}
                             </p>
                         </div>
                     </div>
@@ -170,7 +173,7 @@ export default function EditProfileForm({ initialData }: Props) {
                 </div>
 
                 <div className="bg-white rounded-2xl p-5 space-y-5">
-                    <Field label="First Name" error={errors.firstName}>
+                    <Field label={t("form.firstName.label")} error={errors.firstName}>
                         <input
                             type="text"
                             {...register("firstName")}
@@ -179,7 +182,7 @@ export default function EditProfileForm({ initialData }: Props) {
                         />
                     </Field>
 
-                    <Field label="Last Name" error={errors.lastName}>
+                    <Field label={t("form.lastName.label")} error={errors.lastName}>
                         <input
                             type="text"
                             {...register("lastName")}
@@ -188,7 +191,7 @@ export default function EditProfileForm({ initialData }: Props) {
                         />
                     </Field>
 
-                    <Field label="Email Address" error={errors.email}>
+                    <Field label={t("form.email.label")} error={errors.email}>
                         <input
                             type="email"
                             {...register("email")}
@@ -222,10 +225,10 @@ export default function EditProfileForm({ initialData }: Props) {
                     </div> */}
 
                     <p className="-mt-2 text-xs text-gray-500">
-                        Mobile number is the base account identity and cannot be changed from profile.
+                        {t("edit.phoneLockedDescription")}
                     </p>
 
-                    <Field label="Date of Birth" error={errors.dateOfBirth}>
+                    <Field label={t("form.birthDate.label")} error={errors.dateOfBirth}>
                         <input
                             type="date"
                             {...register("dateOfBirth")}
@@ -234,21 +237,21 @@ export default function EditProfileForm({ initialData }: Props) {
                         />
                     </Field>
 
-                    <Field label="Gender" error={errors.gender}>
+                    <Field label={t("form.gender.label")} error={errors.gender}>
                         <select
                             {...register("gender")}
                             disabled={isLocked || isPending}
                             className={`${inputClass} bg-white`}
                         >
-                            <option value="">Select gender</option>
-                            <option value="female">Female</option>
-                            <option value="male">Male</option>
-                            <option value="other">Other</option>
-                            <option value="prefer-not-to-say">Prefer not to say</option>
+                            <option value="">{t("edit.gender.select")}</option>
+                            <option value="female">{t("edit.gender.female")}</option>
+                            <option value="male">{t("edit.gender.male")}</option>
+                            <option value="other">{t("edit.gender.other")}</option>
+                            <option value="prefer-not-to-say">{t("edit.gender.preferNotToSay")}</option>
                         </select>
                     </Field>
 
-                    <Field label="Address" error={errors.address}>
+                    <Field label={t("form.address.street")} error={errors.address}>
                         <input
                             type="text"
                             {...register("address")}
@@ -257,7 +260,7 @@ export default function EditProfileForm({ initialData }: Props) {
                         />
                     </Field>
 
-                    <Field label="City" error={errors.city}>
+                    <Field label={t("edit.fields.city")} error={errors.city}>
                         <input
                             type="text"
                             {...register("city")}
@@ -266,7 +269,7 @@ export default function EditProfileForm({ initialData }: Props) {
                         />
                     </Field>
 
-                    <Field label="Country" error={errors.country}>
+                    <Field label={t("edit.fields.country")} error={errors.country}>
                         <input
                             type="text"
                             {...register("country")}
@@ -284,7 +287,7 @@ export default function EditProfileForm({ initialData }: Props) {
                         className="w-full h-14 bg-gray-300 text-white rounded-xl font-bold flex items-center justify-center gap-2 cursor-not-allowed"
                     >
                         <Lock size={20} />
-                        <span>Profile Confirmed</span>
+                        <span>{t("edit.profileConfirmed")}</span>
                     </button>
                 ) : (
                     <div className="space-y-3">
@@ -297,12 +300,12 @@ export default function EditProfileForm({ initialData }: Props) {
                             {isPending ? (
                                 <>
                                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                    <span>Saving...</span>
+                                    <span>{t("buttons.saving")}</span>
                                 </>
                             ) : (
                                 <>
                                     <Save size={20} />
-                                    <span>Save Changes</span>
+                                    <span>{t("buttons.saveChanges")}</span>
                                 </>
                             )}
                         </button>
@@ -320,10 +323,10 @@ export default function EditProfileForm({ initialData }: Props) {
 
                             <div>
                                 <h3 className="text-lg font-bold text-gray-900">
-                                    Confirm and lock profile?
+                                    {t("edit.confirmDialog.title")}
                                 </h3>
                                 <p className="text-sm text-gray-600 mt-1">
-                                    After confirmation, the user can no longer edit profile information.
+                                    {t("edit.confirmDialog.description")}
                                 </p>
                             </div>
                         </div>
@@ -333,9 +336,7 @@ export default function EditProfileForm({ initialData }: Props) {
                                 type="button"
                                 onClick={closeConfirmDialog}
                                 className="h-12 rounded-xl border border-gray-300 font-semibold text-gray-700 hover:bg-gray-50"
-                            >
-                                Cancel
-                            </button>
+                            >{t("buttons.cancel")}</button>
 
                             <button
                                 type="button"
@@ -343,7 +344,7 @@ export default function EditProfileForm({ initialData }: Props) {
                                 disabled={isPending}
                                 className="h-12 rounded-xl bg-[#083f30] text-white font-semibold hover:bg-[#0a5a44] disabled:bg-gray-300"
                             >
-                                {isPending ? "Please wait..." : "Yes, Confirm"}
+                                {isPending ? t("buttons.pleaseWait") : t("edit.confirmDialog.confirm")}
                             </button>
                         </div>
                     </div>

@@ -23,15 +23,15 @@ export default function DoctorBookings() {
     const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
     const [filterStatus, setFilterStatus] = useState<string>('all');
     const navigation = [
-        { label: 'Dashboard', icon: <LayoutDashboard size={20}/>, path: '/provider/doctor/dashboard' },
-        { label: 'My Schedule', icon: <Calendar size={20}/>, path: '/provider/doctor/schedule', badge: 3 },
-        { label: 'Consultations', icon: <MessageSquare size={20}/>, path: '/provider/doctor/consultations' },
-        { label: 'Bookings', icon: <Calendar size={20}/>, path: '/provider/doctor/bookings' },
-        { label: 'My Services', icon: <Stethoscope size={20}/>, path: '/provider/doctor/services' },
-        { label: 'Profile', icon: <User size={20}/>, path: '/provider/doctor/profile' },
-        { label: 'Earnings', icon: <DollarSign size={20}/>, path: '/provider/doctor/earnings' },
-        { label: 'Reviews', icon: <Star size={20}/>, path: '/provider/doctor/reviews' },
-        { label: 'Settings', icon: <Settings size={20}/>, path: '/provider/doctor/settings' },
+        { label: tBooking("dashboard"), icon: <LayoutDashboard size={20}/>, path: '/provider/doctor/dashboard' },
+        { label: tBooking("mySchedule"), icon: <Calendar size={20}/>, path: '/provider/doctor/schedule', badge: 3 },
+        { label: tBooking("consultations"), icon: <MessageSquare size={20}/>, path: '/provider/doctor/consultations' },
+        { label: tBooking("bookings"), icon: <Calendar size={20}/>, path: '/provider/doctor/bookings' },
+        { label: tBooking("myServices"), icon: <Stethoscope size={20}/>, path: '/provider/doctor/services' },
+        { label: tBooking("profile"), icon: <User size={20}/>, path: '/provider/doctor/profile' },
+        { label: tBooking("earnings"), icon: <DollarSign size={20}/>, path: '/provider/doctor/earnings' },
+        { label: tBooking("reviews"), icon: <Star size={20}/>, path: '/provider/doctor/reviews' },
+        { label: tBooking("settings"), icon: <Settings size={20}/>, path: '/provider/doctor/settings' },
     ];
     const bookings: Booking[] = [
         {
@@ -118,13 +118,13 @@ export default function DoctorBookings() {
     };
     const getPaymentBadge = (status: string) => {
         switch (status) {
-            case 'paid': return { bg: 'bg-green-100', text: 'text-green-700', label: 'Paid' };
-            case 'pending': return { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Pending' };
-            case 'failed': return { bg: 'bg-red-100', text: 'text-red-700', label: 'Failed' };
+            case 'paid': return { bg: 'bg-green-100', text: 'text-green-700', label: tBooking("paid") };
+            case 'pending': return { bg: 'bg-yellow-100', text: 'text-yellow-700', label: tBooking("pending") };
+            case 'failed': return { bg: 'bg-red-100', text: 'text-red-700', label: tBooking("failed") };
             default: return { bg: 'bg-gray-100', text: 'text-gray-700', label: status };
         }
     };
-    return (<DashboardLayout navigation={navigation} headerTitle="Bookings" userRole="provider" userName="Dr. Sarah Williams" providerName="Specialist - Cardiology">
+    return (<DashboardLayout navigation={navigation} headerTitle={tBooking("bookings")} userRole="provider" userName="Dr. Sarah Williams" providerName="Specialist - Cardiology">
       {/* Stats Cards */}
       <div className="grid grid-cols-4 gap-6 mb-6">
         <div className="bg-white rounded-xl border border-gray-200 p-5">
@@ -248,7 +248,7 @@ export default function DoctorBookings() {
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${status.bg} ${status.text}`}>
                       {status.icon}
-                      {booking.status.toUpperCase()}
+                      {tBooking(booking.status as any)}
                     </span>
                   </td>
                   <td className="px-6 py-4">

@@ -156,7 +156,7 @@ export const UserBaseInfoForm = ({
                     />
                   </FormControl>
                   <p className="text-xs text-muted-foreground">
-                    Mobile number is the account identity and cannot be changed from profile.
+                    {t("edit.phoneLockedDescription")}
                   </p>
                 </FormItem>
               </div>

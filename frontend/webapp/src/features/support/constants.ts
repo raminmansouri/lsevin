@@ -27,6 +27,19 @@ export const DEFAULT_SUPPORT_LABELS = {
     sendButton: "ارسال",
     attachmentLabel: "پیوست فایل",
   },
+  "ar-SA": {
+    launcherLabel: "تحدث معنا",
+    headerTitle: "دعم LSevin",
+    headerSubtitle: "نرد عادة خلال بضع دقائق.",
+    welcomeTitle: "كيف يمكننا مساعدتك؟",
+    welcomeMessage: "أرسل لنا رسالة حول الحجوزات أو مقدمي الخدمة أو المدفوعات أو حسابك.",
+    inputPlaceholder: "اكتب رسالتك...",
+    startConversationLabel: "ابدأ المحادثة",
+    offlineLabel: "غير متصل",
+    onlineLabel: "متصل",
+    sendButton: "إرسال",
+    attachmentLabel: "إرفاق ملف",
+  },
 } as const;
 
 export const SUPPORT_STATUS_OPTIONS = ["open", "pending", "resolved", "closed", "archived"] as const;

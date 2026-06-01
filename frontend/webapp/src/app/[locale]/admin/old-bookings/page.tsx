@@ -3,8 +3,10 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 export default function AdminBookingsPage() {
+  const tAdmin = useTranslations('AdminGenerated');
   const [items, setItems] = useState<any[]>([]);
 
   useEffect(() => {
@@ -17,20 +19,20 @@ export default function AdminBookingsPage() {
   return (
     <div className="mx-auto max-w-7xl px-6 py-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-slate-900">Bookings review</h1>
-        <p className="mt-1 text-sm text-slate-500">Review parent bookings, embedded add-on child bookings, payments, and provider notes.</p>
+        <h1 className="text-3xl font-bold text-slate-900">{tAdmin("bookingsReview")}</h1>
+        <p className="mt-1 text-sm text-slate-500">{tAdmin("reviewParentBookingsEmbeddedAddOnChildBookingsPaymentsAndProviderNotes")}</p>
       </div>
 
       <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
         <table className="min-w-full text-sm">
           <thead className="bg-slate-50 text-left text-slate-600">
             <tr>
-              <th className="px-5 py-4">Booking</th>
-              <th className="px-5 py-4">Provider</th>
-              <th className="px-5 py-4">Service</th>
-              <th className="px-5 py-4">Payment</th>
-              <th className="px-5 py-4">Children</th>
-              <th className="px-5 py-4">Total</th>
+              <th className="px-5 py-4">{tAdmin("booking")}</th>
+              <th className="px-5 py-4">{tAdmin("provider")}</th>
+              <th className="px-5 py-4">{tAdmin("service")}</th>
+              <th className="px-5 py-4">{tAdmin("payment")}</th>
+              <th className="px-5 py-4">{tAdmin("children")}</th>
+              <th className="px-5 py-4">{tAdmin("total")}</th>
             </tr>
           </thead>
           <tbody>

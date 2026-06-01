@@ -210,7 +210,7 @@ export function UserDocumentsForm() {
                               </span>
                             </p>
                             <p className="text-xs text-gray-500 dark:text-gray-400">
-                              Images (all formats), PDF, ZIP
+                              {t("placeholders.supportedDocumentFormatsShort")}
                             </p>
                           </div>
                         </FileInput>
@@ -233,10 +233,7 @@ export function UserDocumentsForm() {
                       </FileUploader>
                     </FormControl>
                     <FormDescription>
-                      {t("errors.supportedFormats", {
-                        defaultValue:
-                          "Supported formats: Images (all formats), PDF, ZIP (max 5MB)",
-                      })}
+                      {t("errors.supportedFormats")}
                     </FormDescription>
                     {/* <FormMessage /> */}
                   </FormItem>

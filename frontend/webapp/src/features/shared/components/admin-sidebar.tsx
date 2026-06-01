@@ -130,6 +130,10 @@ const data: AdminSidebarItemType[] = [
         title: "auth-content",
         url: "/admin/auth-content",
       }
+      ,{
+        title: "home-sections",
+        url: "/admin/home-sections/",
+      }
     ]
   }, {
     title: "currencies",

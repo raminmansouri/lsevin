@@ -47,7 +47,7 @@ export function BookingDetailCard({ booking }: { booking: BookingDetail }) {
           {booking.addOns?.length ? booking.addOns.map((item: any) => (
             <div key={item.id} className="rounded-md border p-3 text-sm">
               <div className="font-medium">{item.addonId}</div>
-              <div className="text-muted-foreground">{item.sourceType} · {item.addonKind} · qty {item.quantity}</div>
+              <div className="text-muted-foreground">{item.sourceType} · {item.addonKind} · {tAdmin("quantityShort")} {item.quantity}</div>
             </div>
           )) : <p className="text-sm text-muted-foreground">{tAdmin("noAddOns")}</p>}
         </CardContent>
@@ -108,9 +108,9 @@ function ChildBookingCard({ item, parentBookingId }: { item: any; parentBookingI
             await reviewChildBookingAction({ childBookingId: item.id, parentBookingId, status, adminNote: note });
             toast.success(tAdmin("childBookingUpdated"));
           } catch (error: any) {
-            toast.error(error?.message ?? 'Failed to update child booking');
+            toast.error(error?.message ?? tAdmin("failedToUpdateChildBooking"));
           }
-        })}>Save child review</Button>
+        })}>{tAdmin("saveChildReview")}</Button>
       </div>
     </div>
   );

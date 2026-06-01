@@ -16,7 +16,7 @@ export function BottomTabBar() {
     { icon: Home, label: t('Home'), path: '/n/app/mobile/home' },
     { icon: Search, label: t('Explore'), path: '/n/app/mobile/explore' },
     { icon: Calendar, label: t('Bookings'), path: '/n/app/mobile/bookings' },
-    { icon: MessageCircle, label: 'Support', path: '/n/app/mobile/support' },
+    { icon: MessageCircle, label: t('Support'), path: '/n/app/mobile/support' },
     { icon: User, label: t('Profile'), path: '/n/app/mobile/profile' },
   ];
   

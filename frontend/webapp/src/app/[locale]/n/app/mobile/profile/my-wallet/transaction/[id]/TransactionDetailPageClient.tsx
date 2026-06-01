@@ -254,7 +254,7 @@ export default function TransactionDetailPageClient({
               className="w-full h-14 bg-white border-2 border-gray-300 rounded-xl font-semibold text-gray-900 hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
             >
               <Download size={20} />
-              Download Receipt
+              {t("downloadReceipt")}
             </button>
 
             {transaction.bookingId && (
@@ -262,7 +262,7 @@ export default function TransactionDetailPageClient({
                 onClick={() => navigate(`/app/booking-detail/${transaction.bookingId}`)}
                 className="w-full h-14 bg-[#083f30] text-white rounded-xl font-semibold hover:bg-[#0a5a44] transition-all"
               >
-                View Booking Details
+                {t("viewBookingDetails")}
               </button>
             )}
           </div>
@@ -275,7 +275,7 @@ export default function TransactionDetailPageClient({
               <div>
                 <h3 className="font-bold text-red-900 mb-1">{t("paymentFailed")}</h3>
                 <p className="text-sm text-red-700 mb-4">
-                  This payment could not be processed. Please try again or use a different payment method.
+                  {t("paymentFailedDescription")}
                 </p>
                 <button
                   onClick={() =>
@@ -287,7 +287,7 @@ export default function TransactionDetailPageClient({
                   }
                   className="px-6 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors"
                 >
-                  Retry Payment
+                  {t("retryPayment")}
                 </button>
               </div>
             </div>
@@ -301,7 +301,7 @@ export default function TransactionDetailPageClient({
               <div>
                 <h3 className="font-bold text-orange-900 mb-1">{t("paymentPending")}</h3>
                 <p className="text-sm text-orange-700">
-                  This transaction is still being processed. Refresh the wallet or check back shortly for the final status.
+                  {t("paymentProcessingDescription")}
                 </p>
               </div>
             </div>
@@ -314,7 +314,7 @@ export default function TransactionDetailPageClient({
             onClick={() => navigate("/app/support")}
             className="px-6 py-3 bg-white text-[#083f30] font-semibold rounded-xl hover:shadow-md transition-all"
           >
-            Contact Support
+            {t("contactSupport")}
           </button>
         </div>
       </div>

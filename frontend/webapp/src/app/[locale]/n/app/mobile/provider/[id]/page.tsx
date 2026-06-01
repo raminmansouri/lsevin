@@ -20,7 +20,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useParams, useSearchParams } from "next/navigation";
 
 import ReviewForm, { type ReviewFormSubmitValue } from "../../../components/ReviewForm";
@@ -41,14 +41,6 @@ import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 const FALLBACK_IMAGE = "/placeholder-provider.svg";
 
 type ReviewSort = "newest" | "buyers" | "helpful";
-
-function reviewSortLabels(locale?: string | null) {
-  const key = String(locale || "en").split("-")[0]?.toLowerCase();
-  if (key === "fa") {
-    return { newest: "جدیدترین", buyers: "دیدگاه خریداران", helpful: "مفیدترین", more: "مشاهده بیشتر", loading: "در حال بارگذاری..." };
-  }
-  return { newest: "Newest", buyers: "Booked customers", helpful: "Most helpful", more: "Show more", loading: "Loading reviews..." };
-}
 
 function firstParam(value: string | string[] | undefined): string {
   return Array.isArray(value) ? value[0] || "" : value || "";
@@ -81,10 +73,11 @@ export default function ProviderDetailPage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const locale = useLocale();
+  const t = useTranslations("ProviderPage");
   const { user } = useCurrentSession(false);
   const providerId = firstParam(params.id as string | string[] | undefined);
 
-  const [selectedTab, setSelectedTab] = useState<"overview" | "treatments" | "doctors" | "reviews">("overview");
+  const [selectedTab, setSelectedTab] = useState<"overview" | "services" | "specialists" | "reviews">("overview");
   const [isFavorited, setIsFavorited] = useState(false);
   const [isFavoriteSaving, setIsFavoriteSaving] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -106,7 +99,13 @@ export default function ProviderDetailPage() {
 
   const { data, error, isFetching, refetch } = useFetchProviderPageData(providerId, locale, currencyOptions);
   const reviewEligibility = useReviewEligibility({ open: showReviewForm, providerId, targetType: "provider", locale });
-  const sortText = reviewSortLabels(locale);
+  const sortText: Record<ReviewSort | "more" | "loading", string> = {
+    newest: t("reviews.sort.newest"),
+    buyers: t("reviews.sort.buyers"),
+    helpful: t("reviews.sort.helpful"),
+    more: t("reviews.showMore"),
+    loading: t("reviews.loading"),
+  };
 
   useEffect(() => {
     if (!data?.provider) return;
@@ -129,13 +128,14 @@ export default function ProviderDetailPage() {
           onClick={() => navigate(-1)}
           className="mb-6 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100"
           type="button"
+          aria-label={t("actions.back")}
         >
           <ArrowLeft size={20} />
         </button>
         <div className="rounded-3xl border border-red-100 bg-red-50 p-6">
-          <h1 className="mb-2 text-xl font-bold text-red-900">Provider could not be loaded</h1>
+          <h1 className="mb-2 text-xl font-bold text-red-900">{t("errors.providerCouldNotBeLoaded")}</h1>
           <p className="text-sm leading-6 text-red-700">
-            {error instanceof Error ? error.message : "Please try again later."}
+            {error instanceof Error ? error.message : t("errors.tryAgainLater")}
           </p>
         </div>
       </div>
@@ -151,7 +151,7 @@ export default function ProviderDetailPage() {
   const handleShare = async () => {
     const shareData = {
       title: provider.name,
-      text: `Check out ${provider.name} on LSevin`,
+      text: t("share.text", { name: provider.name }),
       url: window.location.href,
     };
 
@@ -188,7 +188,7 @@ export default function ProviderDetailPage() {
 
       if (!response.ok) {
         const problem = await response.json().catch(() => null);
-        throw new Error(problem?.title || "Could not update favorite status.");
+        throw new Error(problem?.title || t("errors.couldNotUpdateFavorite"));
       }
 
       const payload = await response.json();
@@ -202,7 +202,7 @@ export default function ProviderDetailPage() {
 
   const handleReviewSubmit = async (review: ReviewFormSubmitValue) => {
     if (!user?.id) {
-      throw new Error("Please sign in and complete your profile before writing a review.");
+      throw new Error(t("errors.signInToReview"));
     }
 
     const response = await fetch(`/api/service-providers/${provider.id}/reviews`, {
@@ -212,7 +212,7 @@ export default function ProviderDetailPage() {
         userId: user.id,
         rating: review.rating,
         title: review.title,
-        treatment: review.title || "Provider experience",
+        treatment: review.title || t("reviews.providerExperience"),
         comment: review.comment,
         pros: review.pros,
         cons: review.cons,
@@ -223,7 +223,7 @@ export default function ProviderDetailPage() {
 
     if (!response.ok) {
       const problem = await response.json().catch(() => null);
-      throw new Error(problem?.title || "Could not submit review.");
+      throw new Error(problem?.title || t("errors.couldNotSubmitReview"));
     }
 
     const payload = await response.json();
@@ -236,7 +236,7 @@ export default function ProviderDetailPage() {
   const fetchReviewsPage = async (options: { offset: number; sort: ReviewSort }) => {
     const params = new URLSearchParams({ offset: String(options.offset), limit: "3", sort: options.sort });
     const response = await fetch(`/api/service-providers/${provider.id}/reviews?${params.toString()}`);
-    if (!response.ok) throw new Error("Could not load reviews.");
+    if (!response.ok) throw new Error(t("errors.couldNotLoadReviews"));
     return response.json() as Promise<{ reviews: Review[]; hasMore: boolean }>;
   };
 
@@ -281,6 +281,7 @@ export default function ProviderDetailPage() {
               onClick={() => navigate(-1)}
               className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow-lg backdrop-blur-sm transition-transform active:scale-95"
               type="button"
+              aria-label={t("actions.back")}
             >
               <ArrowLeft size={20} className="text-gray-900" />
             </button>
@@ -290,6 +291,7 @@ export default function ProviderDetailPage() {
                 onClick={handleShare}
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow-lg backdrop-blur-sm transition-transform active:scale-95"
                 type="button"
+                aria-label={t("actions.share")}
               >
                 <Share2 size={20} className="text-gray-900" />
               </button>
@@ -298,6 +300,7 @@ export default function ProviderDetailPage() {
                 disabled={isFavoriteSaving}
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow-lg backdrop-blur-sm transition-transform active:scale-95 disabled:opacity-60"
                 type="button"
+                aria-label={isFavorited ? t("actions.removeFavorite") : t("actions.addFavorite")}
               >
                 <Heart size={20} className={isFavorited ? "fill-[#083f30] text-[#083f30]" : "text-gray-900"} />
               </button>
@@ -318,6 +321,7 @@ export default function ProviderDetailPage() {
                     type="button"
                     onClick={() => setCurrentImageIndex(index)}
                     className={`h-2 rounded-full transition-all ${index === currentImageIndex ? "w-6 bg-white" : "w-2 bg-white/50"}`}
+                    aria-label={t("gallery.goToImage", { number: index + 1 })}
                   />
                 ))}
               </div>
@@ -331,19 +335,19 @@ export default function ProviderDetailPage() {
           <div className="mb-3 flex flex-wrap items-center gap-2">
             {provider.verified ? (
               <span className="flex items-center gap-1 rounded-full bg-[#083f30] px-3 py-1 text-xs font-bold text-white">
-                <BadgeCheck size={14} /> Verified
+                <BadgeCheck size={14} /> {t("badges.verified")}
               </span>
             ) : null}
             {provider.accredited ? (
               <span className="flex items-center gap-1 rounded-full bg-blue-600 px-3 py-1 text-xs font-bold text-white">
-                <Award size={14} /> Accredited
+                <Award size={14} /> {t("badges.accredited")}
               </span>
             ) : null}
             {provider.providerType ? (
               <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-bold text-gray-700">{provider.providerType}</span>
             ) : null}
             <span className="flex items-center gap-1 rounded-full bg-orange-500 px-3 py-1 text-xs font-bold text-white">
-              <TrendingUp size={14} /> Top Rated
+              <TrendingUp size={14} /> {t("badges.topRated")}
             </span>
           </div>
 
@@ -361,7 +365,7 @@ export default function ProviderDetailPage() {
                 <Star size={20} className="fill-yellow-400 text-yellow-400" />
                 <span className="text-xl font-bold text-gray-900">{provider.rating.toFixed(1)}</span>
               </div>
-              <span className="text-sm text-gray-600">({provider.reviews.toLocaleString()} reviews)</span>
+              <span className="text-sm text-gray-600">{t("stats.reviews", { count: provider.reviews.toLocaleString(locale) })}</span>
             </div>
 
             <div className="h-4 w-px bg-gray-300" />
@@ -376,15 +380,15 @@ export default function ProviderDetailPage() {
         <div className="mb-6 grid grid-cols-3 gap-3">
           <div className="rounded-xl bg-gray-50 p-3 text-center">
             <div className="mb-0.5 text-lg font-bold text-gray-900">{provider.totalPatients}</div>
-            <div className="text-xs text-gray-600">Patients</div>
+            <div className="text-xs text-gray-600">{t("stats.patients")}</div>
           </div>
           <div className="rounded-xl bg-gray-50 p-3 text-center">
             <div className="mb-0.5 text-lg font-bold text-gray-900">{provider.successRate}</div>
-            <div className="text-xs text-gray-600">Success</div>
+            <div className="text-xs text-gray-600">{t("stats.success")}</div>
           </div>
           <div className="rounded-xl bg-gray-50 p-3 text-center">
             <div className="mb-0.5 text-lg font-bold text-gray-900">{provider.established}</div>
-            <div className="text-xs text-gray-600">Since</div>
+            <div className="text-xs text-gray-600">{t("stats.since")}</div>
           </div>
         </div>
 
@@ -392,7 +396,7 @@ export default function ProviderDetailPage() {
           <div className="mb-6 rounded-2xl bg-[#083f30]/5 p-4">
             <div className="mb-3 flex items-center gap-2">
               <Users size={18} className="text-[#083f30]" />
-              <h3 className="font-bold text-gray-900">Languages</h3>
+              <h3 className="font-bold text-gray-900">{t("sections.languages")}</h3>
             </div>
             <div className="flex flex-wrap gap-2">
               {provider.languages.map((language) => (
@@ -407,10 +411,10 @@ export default function ProviderDetailPage() {
         <div className="-mx-5 mb-6 border-b border-gray-200 px-5">
           <div className="flex gap-6 overflow-x-auto hide-scrollbar">
             {[
-              { id: "overview", label: "Overview" },
-              { id: "treatments", label: "Treatments" },
-              { id: "doctors", label: "Doctors" },
-              { id: "reviews", label: "Reviews" },
+              { id: "overview", label: t("tabs.overview") },
+              { id: "services", label: t("tabs.services") },
+              { id: "specialists", label: t("tabs.specialists") },
+              { id: "reviews", label: t("tabs.reviews") },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -427,13 +431,13 @@ export default function ProviderDetailPage() {
           </div>
         </div>
 
-        {selectedTab === "treatments" ? (
+        {selectedTab === "services" ? (
           <div className="space-y-4">
             {services.length ? services.map((treatment) => (
               <button
                 key={treatment.id}
                 onClick={() => navigate(`/n/app/mobile/service/${treatment.id}`)}
-                className="w-full overflow-hidden rounded-2xl border border-gray-200 bg-white text-left transition-all hover:shadow-lg"
+                className="w-full overflow-hidden rounded-2xl border border-gray-200 bg-white text-start transition-all hover:shadow-lg"
                 type="button"
               >
                 <div className="flex gap-4 p-4 lg:gap-5 lg:p-5">
@@ -444,7 +448,7 @@ export default function ProviderDetailPage() {
                   <div className="min-w-0 flex-1">
                     {treatment.popular ? (
                       <span className="mb-2 inline-block rounded-md bg-orange-100 px-2 py-0.5 text-xs font-bold text-orange-700">
-                        POPULAR
+                        {t("services.popular")}
                       </span>
                     ) : null}
                     <h3 className="mb-1 line-clamp-1 font-bold text-gray-900">{treatment.name}</h3>
@@ -453,7 +457,7 @@ export default function ProviderDetailPage() {
                     <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-gray-600">
                       <span>{treatment.duration}</span>
                       <span>•</span>
-                      <span>{treatment.recovery} recovery</span>
+                      <span>{t("services.recovery", { value: treatment.recovery })}</span>
                       {treatment.attributes?.slice(0, 2).map((attribute) => (
                         <span key={`${treatment.id}-${attribute.name}`} className="rounded-md bg-gray-100 px-2 py-0.5 text-gray-700">
                           {attribute.name}: {attribute.value}
@@ -468,7 +472,7 @@ export default function ProviderDetailPage() {
                         <span className="text-xs text-gray-500">({treatment.reviews})</span>
                       </div>
 
-                      <div className="text-right">
+                      <div className="text-end">
                         <PriceTextClient
                           amount={treatment.price}
                           currencyCode={treatment.currency}
@@ -478,7 +482,7 @@ export default function ProviderDetailPage() {
                         />
                         {treatment.sourceCurrency && treatment.sourceCurrency !== treatment.currency ? (
                           <div className="text-[11px] text-gray-500">
-                            from <PriceTextClient amount={treatment.sourcePrice || 0} currencyCode={treatment.sourceCurrency} locale={locale} showCode />
+                            {t("services.from")} <PriceTextClient amount={treatment.sourcePrice || 0} currencyCode={treatment.sourceCurrency} locale={locale} showCode />
                           </div>
                         ) : null}
                       </div>
@@ -486,17 +490,17 @@ export default function ProviderDetailPage() {
                   </div>
                 </div>
               </button>
-            )) : <EmptyState title="No active treatments" text="This provider has not published active services yet." />}
+            )) : <EmptyState title={t("empty.services.title")} text={t("empty.services.text")} />}
           </div>
         ) : null}
 
-        {selectedTab === "doctors" ? (
+        {selectedTab === "specialists" ? (
           <div className="space-y-4">
             {specialists.length ? specialists.map((doctor) => (
               <button
                 key={doctor.id}
                 onClick={() => navigate(`/n/app/mobile/specialist/${doctor.id}`)}
-                className="w-full rounded-2xl border border-gray-200 bg-white p-4 text-left transition-all hover:shadow-lg lg:p-5"
+                className="w-full rounded-2xl border border-gray-200 bg-white p-4 text-start transition-all hover:shadow-lg lg:p-5"
                 type="button"
               >
                 <div className="flex gap-4">
@@ -515,9 +519,9 @@ export default function ProviderDetailPage() {
                     <h3 className="mb-1 font-bold text-gray-900">{doctor.name}</h3>
                     <p className="mb-2 text-sm text-gray-600">{doctor.specialty}</p>
                     <div className="mb-2 flex items-center gap-3 text-xs text-gray-600">
-                      <span>{doctor.experience} exp</span>
+                      <span>{t("specialists.experience", { value: doctor.experience })}</span>
                       <span>•</span>
-                      <span>{doctor.patients} patients</span>
+                      <span>{t("specialists.patients", { value: doctor.patients })}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Star size={14} className="fill-yellow-400 text-yellow-400" />
@@ -526,7 +530,7 @@ export default function ProviderDetailPage() {
                   </div>
                 </div>
               </button>
-            )) : <EmptyState title="No doctors listed" text="Specialists will appear here when the provider publishes them." />}
+            )) : <EmptyState title={t("empty.specialists.title")} text={t("empty.specialists.text")} />}
           </div>
         ) : null}
 
@@ -537,7 +541,7 @@ export default function ProviderDetailPage() {
               className="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#083f30] font-bold text-white transition-all hover:bg-[#0a5a44] active:scale-95"
               type="button"
             >
-              <MessageSquare size={20} /> Write a Review
+              <MessageSquare size={20} /> {t("reviews.writeReview")}
             </button>
 
             <div className="flex flex-wrap gap-2">
@@ -556,7 +560,7 @@ export default function ProviderDetailPage() {
 
             {visibleReviews.length ? visibleReviews.map((review) => (
               <DigikalaReviewCard key={review.id} review={review} locale={locale} providerId={provider.id} />
-            )) : <EmptyState title="No public reviews yet" text="Reviews will appear here after customers publish them." />}
+            )) : <EmptyState title={t("empty.reviews.title")} text={t("empty.reviews.text")} />}
 
             {hasMoreReviews ? (
               <button
@@ -586,17 +590,17 @@ export default function ProviderDetailPage() {
         {selectedTab === "overview" ? (
           <div className="space-y-6">
             <div>
-              <h3 className="mb-3 text-lg font-bold text-gray-900">About</h3>
+              <h3 className="mb-3 text-lg font-bold text-gray-900">{t("sections.about")}</h3>
               <LexicalDescription content={provider.about || provider.description || provider.tagline} className="text-sm leading-relaxed text-gray-700" />
             </div>
 
             {images.length > 1 ? (
               <div>
-                <h3 className="mb-3 text-lg font-bold text-gray-900">Gallery</h3>
+                <h3 className="mb-3 text-lg font-bold text-gray-900">{t("sections.gallery")}</h3>
                 <div className="flex gap-3 overflow-x-auto pb-1 lg:grid lg:grid-cols-4 lg:overflow-visible">
                   {images.map((image, index) => (
                     <button key={`${image}-${index}`} type="button" onClick={() => setCurrentImageIndex(index)} className="relative h-24 w-28 flex-shrink-0 overflow-hidden rounded-xl border border-gray-200 lg:h-36 lg:w-full lg:flex-shrink lg:rounded-2xl">
-                      <ImageWithFallback fill src={mediaUrl(image)} alt={`${provider.name} ${index + 1}`} sizes="(min-width: 1024px) 25vw, 112px" className="object-cover" fallbackClassName="h-full w-full" />
+                      <ImageWithFallback fill src={mediaUrl(image)} alt={t("gallery.imageAlt", { name: provider.name, number: index + 1 })} sizes="(min-width: 1024px) 25vw, 112px" className="object-cover" fallbackClassName="h-full w-full" />
                     </button>
                   ))}
                 </div>
@@ -605,7 +609,7 @@ export default function ProviderDetailPage() {
 
             {provider.attributes.length ? (
               <div>
-                <h3 className="mb-3 text-lg font-bold text-gray-900">Provider Details</h3>
+                <h3 className="mb-3 text-lg font-bold text-gray-900">{t("sections.providerDetails")}</h3>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {provider.attributes.map((item) => (
                     <div key={item.id} className="rounded-xl border border-gray-100 bg-gray-50 p-3">
@@ -619,7 +623,7 @@ export default function ProviderDetailPage() {
 
             {provider.certifications.length ? (
               <div>
-                <h3 className="mb-3 text-lg font-bold text-gray-900">Certifications</h3>
+                <h3 className="mb-3 text-lg font-bold text-gray-900">{t("sections.certifications")}</h3>
                 <div className="space-y-3">
                   {provider.certifications.map((item) => (
                     <div key={item.name} className="rounded-xl border border-gray-100 bg-white p-3">
@@ -629,8 +633,8 @@ export default function ProviderDetailPage() {
                       </div>
                       {(item.imageUrl || item.secondaryImageUrl) ? (
                         <div className="mt-3 flex flex-wrap gap-2 text-xs text-gray-500">
-                          {item.imageUrl ? <span className="rounded-full bg-gray-100 px-2 py-1">Certificate image 1</span> : null}
-                          {item.secondaryImageUrl ? <span className="rounded-full bg-gray-100 px-2 py-1">Certificate image 2</span> : null}
+                          {item.imageUrl ? <span className="rounded-full bg-gray-100 px-2 py-1">{t("certifications.certificateImage", { number: 1 })}</span> : null}
+                          {item.secondaryImageUrl ? <span className="rounded-full bg-gray-100 px-2 py-1">{t("certifications.certificateImage", { number: 2 })}</span> : null}
                         </div>
                       ) : null}
                     </div>
@@ -641,7 +645,7 @@ export default function ProviderDetailPage() {
 
             {provider.policies.length ? (
               <div>
-                <h3 className="mb-3 text-lg font-bold text-gray-900">Policies</h3>
+                <h3 className="mb-3 text-lg font-bold text-gray-900">{t("sections.policies")}</h3>
                 <div className="space-y-3">
                   {provider.policies.map((policy) => (
                     <div key={policy.id} className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
@@ -654,7 +658,7 @@ export default function ProviderDetailPage() {
             ) : null}
 
             <div>
-              <h3 className="mb-3 text-lg font-bold text-gray-900">Contact</h3>
+              <h3 className="mb-3 text-lg font-bold text-gray-900">{t("sections.contact")}</h3>
               <div className="space-y-3">
                 {provider.phone ? (
                   <a href={`tel:${provider.phone.replace(/\s/g, "")}`} className="flex items-center gap-3 text-sm text-gray-700 transition-colors hover:text-[#083f30]">
@@ -692,14 +696,14 @@ export default function ProviderDetailPage() {
             className="flex h-14 flex-1 items-center justify-center gap-2 rounded-2xl bg-gray-100 font-bold text-gray-900 transition-all hover:bg-gray-200 active:scale-95"
             type="button"
           >
-            <Phone size={18} /> Contact
+            <Phone size={18} /> {t("actions.contact")}
           </button>
           <button
-            onClick={() => setSelectedTab("treatments")}
+            onClick={() => setSelectedTab("services")}
             className="h-14 flex-[2] rounded-2xl bg-gradient-to-r from-[#083f30] to-[#0a5a44] font-bold text-white transition-all hover:shadow-xl active:scale-95"
             type="button"
           >
-            View Treatments
+            {t("actions.viewServices")}
           </button>
         </div>
       </div>

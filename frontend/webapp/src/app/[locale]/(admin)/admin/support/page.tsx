@@ -1,16 +1,19 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import { SupportAdminInbox } from "@/features/support/admin/support-admin-inbox";
 import { getAdminConversationDetail, listAdminConversations, listCannedReplies, listSupportTags } from "@/features/support/server/repository";
 
 type Props = {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ q?: string; status?: string; priority?: string; tagId?: string }>;
 };
 
-export const metadata: Metadata = {
-  title: "Support Inbox",
-  description: "Crisp-like online support inbox.",
-};
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "SupportPages.admin.inbox" });
+  return { title: t("metadataTitle"), description: t("metadataDescription") };
+}
 
 export default async function AdminSupportPage({ searchParams }: Props) {
   const query = await searchParams;

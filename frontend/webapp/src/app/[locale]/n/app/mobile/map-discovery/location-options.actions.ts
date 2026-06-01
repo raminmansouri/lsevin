@@ -94,8 +94,6 @@ export async function loadMapDiscoveryLocationOptions({
             count(*)::int as provider_count
           from category.service_providers sp
           where sp.is_active = true
-            and sp.latitude is not null
-            and sp.longitude is not null
             and nullif(btrim(sp.country), '') is not null
           group by btrim(sp.country)
         )
@@ -122,8 +120,6 @@ export async function loadMapDiscoveryLocationOptions({
             count(*)::int as provider_count
           from category.service_providers sp
           where sp.is_active = true
-            and sp.latitude is not null
-            and sp.longitude is not null
             and nullif(btrim(sp.city), '') is not null
             and sp.country = ${country}::text
           group by btrim(sp.city), btrim(sp.country)

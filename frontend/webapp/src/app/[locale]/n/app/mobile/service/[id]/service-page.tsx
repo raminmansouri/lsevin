@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import RecommendationSection from "../../components/RecommendationSection";
 import ReviewForm, { type ReviewFormSubmitValue } from "../../../components/ReviewForm";
@@ -62,14 +63,6 @@ type ServicePageProps = {
 
 type ReviewSort = "newest" | "buyers" | "helpful";
 
-function reviewSortLabels(locale?: string | null) {
-  const key = String(locale || "en").split("-")[0]?.toLowerCase();
-  if (key === "fa") {
-    return { newest: "جدیدترین", buyers: "دیدگاه خریداران", helpful: "مفیدترین", more: "مشاهده بیشتر", loading: "در حال بارگذاری..." };
-  }
-  return { newest: "Newest", buyers: "Booked customers", helpful: "Most helpful", more: "Show more", loading: "Loading reviews..." };
-}
-
 function formatNumber(value: number, locale: string) {
   return new Intl.NumberFormat(locale || "en-US").format(value || 0);
 }
@@ -86,8 +79,8 @@ function formatDate(value: string, locale: string) {
   return new Intl.DateTimeFormat(locale || "en-US", { month: "short", day: "numeric", year: "numeric" }).format(date);
 }
 
-function formatBytes(bytes: number) {
-  if (!bytes) return "No limit";
+function formatBytes(bytes: number, noLimitLabel: string) {
+  if (!bytes) return noLimitLabel;
   const units = ["B", "KB", "MB", "GB"];
   let value = bytes;
   let unit = 0;
@@ -171,6 +164,7 @@ function ThumbImage({ src, alt, className }: { src?: string | null; alt: string;
 }
 
 function ProviderOfferingCard({ provider, currentProviderServiceId, locale }: { provider: ServiceProviderOffering; currentProviderServiceId: string; locale: string }) {
+  const t = useTranslations("ServicePage");
   const navigate = useNavigate();
   const isCurrent = provider.providerServiceId === currentProviderServiceId;
 
@@ -191,7 +185,7 @@ function ProviderOfferingCard({ provider, currentProviderServiceId, locale }: { 
               <h3 className="line-clamp-1 text-sm font-bold text-gray-900">{provider.provider}</h3>
               <p className="line-clamp-1 text-xs text-gray-600">{provider.title}</p>
             </div>
-            {isCurrent && <span className="rounded-full bg-[#083f30] px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">Selected</span>}
+            {isCurrent && <span className="rounded-full bg-[#083f30] px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">{t("badges.selected")}</span>}
           </div>
 
           <div className="mb-2 flex items-center gap-2 text-xs text-gray-600">
@@ -208,8 +202,8 @@ function ProviderOfferingCard({ provider, currentProviderServiceId, locale }: { 
 
           <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 gap-1 overflow-hidden">
-              {provider.verified && <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-[10px] font-semibold text-green-700"><BadgeCheck size={11} /> Verified</span>}
-              {provider.sponsored && <span className="rounded-full bg-amber-50 px-2 py-1 text-[10px] font-semibold text-amber-700">Sponsored</span>}
+              {provider.verified && <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-[10px] font-semibold text-green-700"><BadgeCheck size={11} /> {t("badges.verified")}</span>}
+              {provider.sponsored && <span className="rounded-full bg-amber-50 px-2 py-1 text-[10px] font-semibold text-amber-700">{t("badges.sponsored")}</span>}
             </div>
             <PriceTextClient amount={provider.displayPrice.amount} currencyCode={provider.displayPrice.code} locale={locale} className="whitespace-nowrap text-sm font-bold text-[#083f30]" />
           </div>
@@ -222,6 +216,7 @@ function ProviderOfferingCard({ provider, currentProviderServiceId, locale }: { 
 }
 
 function ProvidersForServiceSection({ providers, currentProviderServiceId, locale }: { providers: ServiceProviderOffering[]; currentProviderServiceId: string; locale: string }) {
+  const t = useTranslations("ServicePage");
   const [showAllProviders, setShowAllProviders] = useState(false);
   const visibleProviders = showAllProviders ? providers : providers.slice(0, 4);
   if (!providers.length) return null;
@@ -230,8 +225,8 @@ function ProvidersForServiceSection({ providers, currentProviderServiceId, local
     <section className="mb-8">
       <div className="mb-4 flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Providers offering this service</h2>
-          <p className="mt-1 text-sm text-gray-600">Compare clinics and providers that can deliver this treatment.</p>
+          <h2 className="text-xl font-bold text-gray-900">{t("providers.title")}</h2>
+          <p className="mt-1 text-sm text-gray-600">{t("providers.description")}</p>
         </div>
         <span className="rounded-full bg-[#083f30]/10 px-3 py-1 text-xs font-bold text-[#083f30]">{providers.length}</span>
       </div>
@@ -242,7 +237,7 @@ function ProvidersForServiceSection({ providers, currentProviderServiceId, local
 
       {!showAllProviders && providers.length > visibleProviders.length && (
         <button type="button" onClick={() => setShowAllProviders(true)} className="mt-3 text-sm font-semibold text-[#083f30] hover:underline">
-          Show {providers.length - visibleProviders.length} more providers
+          {t("providers.showMore", { count: providers.length - visibleProviders.length })}
         </button>
       )}
     </section>
@@ -250,10 +245,11 @@ function ProvidersForServiceSection({ providers, currentProviderServiceId, local
 }
 
 function ServiceAttributesSection({ attributes }: { attributes: ServiceAttribute[] }) {
+  const t = useTranslations("ServicePage");
   if (!attributes.length) return null;
   return (
     <section className="mb-8">
-      <h2 className="mb-4 text-xl font-bold text-gray-900">Service details and options</h2>
+      <h2 className="mb-4 text-xl font-bold text-gray-900">{t("serviceAttributes.title")}</h2>
       <div className="space-y-3">
         {attributes.map((attribute) => (
           <div key={attribute.id} className="rounded-2xl border border-gray-200 bg-white p-4">
@@ -263,8 +259,8 @@ function ServiceAttributesSection({ attributes }: { attributes: ServiceAttribute
                 {attribute.description && <LexicalDescription content={attribute.description} className="mt-1 text-sm text-gray-600" />}
               </div>
               <div className="flex flex-shrink-0 gap-1">
-                {attribute.isRequired && <span className="rounded-full bg-red-50 px-2 py-1 text-[10px] font-bold text-red-700">Required</span>}
-                {attribute.affectsPricing && <span className="rounded-full bg-amber-50 px-2 py-1 text-[10px] font-bold text-amber-700">Pricing</span>}
+                {attribute.isRequired && <span className="rounded-full bg-red-50 px-2 py-1 text-[10px] font-bold text-red-700">{t("badges.required")}</span>}
+                {attribute.affectsPricing && <span className="rounded-full bg-amber-50 px-2 py-1 text-[10px] font-bold text-amber-700">{t("badges.pricing")}</span>}
               </div>
             </div>
             {attribute.value && <p className="rounded-xl bg-gray-50 px-3 py-2 text-sm font-medium text-gray-800">{attribute.value}</p>}
@@ -283,10 +279,11 @@ function ServiceAttributesSection({ attributes }: { attributes: ServiceAttribute
 }
 
 function AddonsSection({ addOns, locale }: { addOns: ServiceAddon[]; locale: string }) {
+  const t = useTranslations("ServicePage");
   if (!addOns.length) return null;
   return (
     <section className="mb-8">
-      <h2 className="mb-4 text-xl font-bold text-gray-900">Available add-ons</h2>
+      <h2 className="mb-4 text-xl font-bold text-gray-900">{t("addons.title")}</h2>
       <div className="space-y-3">
         {addOns.map((addon) => (
           <div key={addon.id} className="rounded-2xl border border-gray-200 bg-white p-4">
@@ -295,8 +292,8 @@ function AddonsSection({ addOns, locale }: { addOns: ServiceAddon[]; locale: str
                 <div className="mb-1 flex items-center gap-2">
                   <PlusCircle size={18} className="text-[#083f30]" />
                   <h3 className="font-bold text-gray-900">{addon.name}</h3>
-                  {addon.popular && <span className="rounded-full bg-orange-50 px-2 py-1 text-[10px] font-bold text-orange-700">Popular</span>}
-                  {addon.isRequired && <span className="rounded-full bg-red-50 px-2 py-1 text-[10px] font-bold text-red-700">Required</span>}
+                  {addon.popular && <span className="rounded-full bg-orange-50 px-2 py-1 text-[10px] font-bold text-orange-700">{t("badges.popular")}</span>}
+                  {addon.isRequired && <span className="rounded-full bg-red-50 px-2 py-1 text-[10px] font-bold text-red-700">{t("badges.required")}</span>}
                 </div>
                 {addon.description && <LexicalDescription content={addon.description} className="text-sm leading-relaxed text-gray-600" />}
               </div>
@@ -315,10 +312,11 @@ function AddonsSection({ addOns, locale }: { addOns: ServiceAddon[]; locale: str
 }
 
 function OffersSection({ offers, locale }: { offers: ServiceOffer[]; locale: string }) {
+  const t = useTranslations("ServicePage");
   if (!offers.length) return null;
   return (
     <section className="mb-8">
-      <h2 className="mb-4 text-xl font-bold text-gray-900">Active offers</h2>
+      <h2 className="mb-4 text-xl font-bold text-gray-900">{t("offers.title")}</h2>
       <div className="space-y-3">
         {offers.map((offer) => (
           <div key={offer.id} className="rounded-2xl border border-amber-100 bg-amber-50 p-4">
@@ -331,8 +329,8 @@ function OffersSection({ offers, locale }: { offers: ServiceOffer[]; locale: str
             </div>
             {offer.description && <LexicalDescription content={offer.description} className="text-sm leading-relaxed text-amber-900" />}
             <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-amber-900">
-              {offer.code && <span className="rounded-full bg-white px-2 py-1 font-bold">Code: {offer.code}</span>}
-              <span>Valid until {formatDate(offer.validUntil, locale)}</span>
+              {offer.code && <span className="rounded-full bg-white px-2 py-1 font-bold">{t("offers.code", { code: offer.code })}</span>}
+              <span>{t("offers.validUntil", { date: formatDate(offer.validUntil, locale) })}</span>
             </div>
           </div>
         ))}
@@ -342,17 +340,18 @@ function OffersSection({ offers, locale }: { offers: ServiceOffer[]; locale: str
 }
 
 function RequirementsSection({ uploadRequirements, domainRequirements }: { uploadRequirements: ServiceUploadRequirement[]; domainRequirements: ServiceDomainRequirement[] }) {
+  const t = useTranslations("ServicePage");
   if (!uploadRequirements.length && !domainRequirements.length) return null;
   return (
     <section className="mb-8">
-      <h2 className="mb-4 text-xl font-bold text-gray-900">Requirements before booking</h2>
+      <h2 className="mb-4 text-xl font-bold text-gray-900">{t("requirements.title")}</h2>
       <div className="space-y-3">
         {domainRequirements.map((requirement) => (
           <div key={`domain-${requirement.id}`} className="rounded-2xl border border-gray-200 bg-white p-4">
             <div className="flex gap-3">
               <AlertCircle size={20} className="mt-0.5 flex-shrink-0 text-blue-600" />
               <div>
-                <h3 className="font-bold text-gray-900">{requirement.isMandatory ? "Mandatory requirement" : "Requirement"}</h3>
+                <h3 className="font-bold text-gray-900">{requirement.isMandatory ? t("requirements.mandatory") : t("requirements.requirement")}</h3>
                 <LexicalDescription content={requirement.description} className="mt-1 text-sm text-gray-600" />
               </div>
             </div>
@@ -365,11 +364,11 @@ function RequirementsSection({ uploadRequirements, domainRequirements }: { uploa
                 <h3 className="flex items-center gap-2 font-bold text-gray-900"><FileText size={18} />{requirement.title}</h3>
                 {requirement.description && <LexicalDescription content={requirement.description} className="mt-1 text-sm text-gray-600" />}
               </div>
-              {requirement.isRequired && <span className="rounded-full bg-red-50 px-2 py-1 text-[10px] font-bold text-red-700">Required</span>}
+              {requirement.isRequired && <span className="rounded-full bg-red-50 px-2 py-1 text-[10px] font-bold text-red-700">{t("badges.required")}</span>}
             </div>
             <div className="flex flex-wrap gap-2 text-xs text-gray-600">
-              <Chip>Max files: {requirement.maxFiles}</Chip>
-              <Chip>Max size: {formatBytes(requirement.maxFileSizeBytes)}</Chip>
+              <Chip>{t("requirements.maxFiles", { count: requirement.maxFiles })}</Chip>
+              <Chip>{t("requirements.maxSize", { size: formatBytes(requirement.maxFileSizeBytes, t("requirements.noLimit")) })}</Chip>
               {requirement.allowedExtensions.map((ext) => <Chip key={ext}>{ext}</Chip>)}
             </div>
           </div>
@@ -380,6 +379,7 @@ function RequirementsSection({ uploadRequirements, domainRequirements }: { uploa
 }
 
 function ProviderProfileSection({ data }: { data: GetServicePageByIdResponse }) {
+  const t = useTranslations("ServicePage");
   const provider = data.service.providerProfile;
   return (
     <section className="mb-8 rounded-3xl border border-gray-200 bg-white p-4 shadow-sm">
@@ -390,20 +390,20 @@ function ProviderProfileSection({ data }: { data: GetServicePageByIdResponse }) 
             <h2 className="line-clamp-1 text-xl font-bold text-gray-900">{provider.name}</h2>
             {provider.accredited && <BadgeCheck size={18} className="text-[#083f30]" />}
           </div>
-          <p className="text-sm font-semibold text-[#083f30]">{provider.providerTypeName || "Provider"}</p>
+          <p className="text-sm font-semibold text-[#083f30]">{provider.providerTypeName || t("providerProfile.providerFallback")}</p>
           <LexicalDescription content={provider.description || data.service.providerDescription} className="mt-1 line-clamp-2 text-sm text-gray-600" fallback="-" />
         </div>
       </div>
 
       <div className="mb-4 grid grid-cols-2 gap-3">
-        <div className="rounded-xl bg-gray-50 p-3"><div className="text-xs text-gray-500">Rating</div><div className="font-bold text-gray-900">{provider.rating || "—"} ({provider.reviewCount})</div></div>
-        <div className="rounded-xl bg-gray-50 p-3"><div className="text-xs text-gray-500">Response</div><div className="font-bold text-gray-900">{provider.responseTime || "On request"}</div></div>
-        <div className="rounded-xl bg-gray-50 p-3"><div className="text-xs text-gray-500">Established</div><div className="font-bold text-gray-900">{provider.establishedYear || "—"}</div></div>
-        <div className="rounded-xl bg-gray-50 p-3"><div className="text-xs text-gray-500">Patients</div><div className="font-bold text-gray-900">{provider.totalPatients || "—"}</div></div>
+        <div className="rounded-xl bg-gray-50 p-3"><div className="text-xs text-gray-500">{t("providerProfile.rating")}</div><div className="font-bold text-gray-900">{provider.rating || "—"} ({provider.reviewCount})</div></div>
+        <div className="rounded-xl bg-gray-50 p-3"><div className="text-xs text-gray-500">{t("providerProfile.response")}</div><div className="font-bold text-gray-900">{provider.responseTime || t("providerProfile.onRequest")}</div></div>
+        <div className="rounded-xl bg-gray-50 p-3"><div className="text-xs text-gray-500">{t("providerProfile.established")}</div><div className="font-bold text-gray-900">{provider.establishedYear || "—"}</div></div>
+        <div className="rounded-xl bg-gray-50 p-3"><div className="text-xs text-gray-500">{t("providerProfile.patients")}</div><div className="font-bold text-gray-900">{provider.totalPatients || "—"}</div></div>
       </div>
 
       <div className="space-y-2 text-sm text-gray-700">
-        <div className="flex gap-2"><MapPin size={16} className="mt-0.5 flex-shrink-0 text-gray-500" /><span>{[provider.street, provider.city, provider.country].filter(Boolean).join(", ") || "Location on request"}</span></div>
+        <div className="flex gap-2"><MapPin size={16} className="mt-0.5 flex-shrink-0 text-gray-500" /><span>{[provider.street, provider.city, provider.country].filter(Boolean).join(", ") || t("providerProfile.locationOnRequest")}</span></div>
         {provider.languages.length > 0 && <div className="flex gap-2"><Languages size={16} className="mt-0.5 flex-shrink-0 text-gray-500" /><span>{provider.languages.join(", ")}</span></div>}
         {provider.specialties.length > 0 && <div className="flex gap-2"><Sparkles size={16} className="mt-0.5 flex-shrink-0 text-gray-500" /><span>{provider.specialties.join(", ")}</span></div>}
       </div>
@@ -418,18 +418,19 @@ function ProviderProfileSection({ data }: { data: GetServicePageByIdResponse }) 
 }
 
 function SpecialistsSection({ specialists, locale }: { specialists: ServiceSpecialist[]; locale: string }) {
+  const t = useTranslations("ServicePage");
   const navigate = useNavigate();
 
   if (!specialists.length) return null;
   return (
     <section className="mb-8">
-      <h2 className="mb-4 text-xl font-bold text-gray-900">Specialists</h2>
+      <h2 className="mb-4 text-xl font-bold text-gray-900">{t("specialists.title")}</h2>
       <div className="space-y-3">
         {specialists.map((specialist) => (
           <button
-            key={specialist.id}
+            key={specialist.staffId}
             type="button"
-            onClick={() => navigate(`/n/app/mobile/specialist/${specialist.id}`)}
+            onClick={() => navigate(`/n/app/mobile/specialist/${specialist.staffId}`)}
             className="w-full rounded-2xl border border-gray-200 bg-white p-4 text-left transition-all hover:border-[#083f30] hover:shadow-md active:scale-[0.99] lg:p-5"
           >
             <div className="flex gap-3">
@@ -440,7 +441,7 @@ function SpecialistsSection({ specialists, locale }: { specialists: ServiceSpeci
                     <h3 className="font-bold text-gray-900">{specialist.name}</h3>
                     <p className="text-sm text-gray-600">{specialist.title || specialist.specialty}</p>
                   </div>
-                  {specialist.canProvideThisService && <span className="rounded-full bg-green-50 px-2 py-1 text-[10px] font-bold text-green-700">This service</span>}
+                  {specialist.canProvideThisService && <span className="rounded-full bg-green-50 px-2 py-1 text-[10px] font-bold text-green-700">{t("specialists.thisService")}</span>}
                 </div>
                 <div className="mb-2 flex items-center gap-2 text-xs text-gray-600"><Star size={13} className="fill-yellow-400 text-yellow-400" />{specialist.rating || "—"} ({specialist.reviewCount})</div>
                 {specialist.nextAvailableLabel && <p className="text-xs font-semibold text-[#083f30]">{specialist.nextAvailableLabel}</p>}
@@ -450,7 +451,7 @@ function SpecialistsSection({ specialists, locale }: { specialists: ServiceSpeci
             <div className="mt-3 flex flex-wrap gap-2">
               {specialist.experience && <Chip>{specialist.experience}</Chip>}
               {specialist.languages.slice(0, 4).map((language) => <Chip key={language}>{language}</Chip>)}
-              {specialist.consultationFee > 0 && <Chip>Consultation: <PriceTextClient amount={specialist.consultationDisplayPrice.amount} currencyCode={specialist.consultationDisplayPrice.code} locale={locale} /></Chip>}
+              {specialist.consultationFee > 0 && <Chip>{t("specialists.consultation")}: <PriceTextClient amount={specialist.consultationDisplayPrice.amount} currencyCode={specialist.consultationDisplayPrice.code} locale={locale} /></Chip>}
             </div>
             {specialist.certifications.length > 0 && (
               <div className="mt-3 space-y-1 text-xs text-gray-600">
@@ -465,10 +466,11 @@ function SpecialistsSection({ specialists, locale }: { specialists: ServiceSpeci
 }
 
 function PoliciesSection({ policies }: { policies: ProviderPolicy[] }) {
+  const t = useTranslations("ServicePage");
   if (!policies.length) return null;
   return (
     <section className="mb-8">
-      <h2 className="mb-4 text-xl font-bold text-gray-900">Provider policies</h2>
+      <h2 className="mb-4 text-xl font-bold text-gray-900">{t("policies.title")}</h2>
       <div className="space-y-3">
         {policies.map((policy) => (
           <div key={policy.id} className="rounded-2xl border border-gray-200 bg-white p-4">
@@ -482,6 +484,7 @@ function PoliciesSection({ policies }: { policies: ProviderPolicy[] }) {
 }
 
 export default function ServicePage({ data, serviceId, locale }: ServicePageProps) {
+  const t = useTranslations("ServicePage");
   const navigate = useNavigate();
   const service = data.service;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -505,7 +508,13 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
     providerServiceId: service.providerServiceId,
     locale,
   });
-  const sortText = reviewSortLabels(locale);
+  const sortText: Record<ReviewSort | "more" | "loading", string> = {
+    newest: t("reviews.sort.newest"),
+    buyers: t("reviews.sort.buyers"),
+    helpful: t("reviews.sort.helpful"),
+    more: t("reviews.more"),
+    loading: t("reviews.loading"),
+  };
 
   const galleryItems = service.galleryItems || [];
   const currentGalleryItem = galleryItems[currentImageIndex];
@@ -517,16 +526,16 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
   const hasDiscount = displayOriginalPrice > displayPrice;
   const importantInfo = useMemo(() => {
     const items = [
-      service.requiresSpecialist ? "Specialist selection may be required during booking" : "This service can be booked without choosing a specialist first",
-      service.bookingUiMode === "date_range" ? "This service uses date-range availability" : "Availability is confirmed during the booking flow",
-      data.uploadRequirements.length ? "Medical or identity documents may be requested" : "No upload requirement is configured for this service yet",
-      "Final treatment plan and price can depend on provider assessment",
+      service.requiresSpecialist ? t("importantInfo.specialistRequired") : t("importantInfo.specialistOptional"),
+      service.bookingUiMode === "date_range" ? t("importantInfo.dateRange") : t("importantInfo.availabilityConfirmed"),
+      data.uploadRequirements.length ? t("importantInfo.documentsMayBeRequested") : t("importantInfo.noUploadRequirement"),
+      t("importantInfo.finalPlanAssessment"),
     ];
     return items;
-  }, [data.uploadRequirements.length, service.bookingUiMode, service.requiresSpecialist]);
+  }, [data.uploadRequirements.length, service.bookingUiMode, service.requiresSpecialist, t]);
 
   const handleShare = async () => {
-    const shareText = service.clinic ? `Check out ${service.name} at ${service.clinic}` : `Check out ${service.name}`;
+    const shareText = service.clinic ? t("share.textWithClinic", { service: service.name, clinic: service.clinic }) : t("share.text", { service: service.name });
     if (navigator.share) {
       try {
         await navigator.share({ title: service.name, text: shareText, url: window.location.href });
@@ -557,7 +566,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
 
     if (!response.ok) {
       const problem = await response.json().catch(() => null);
-      throw new Error(problem?.title || "Could not submit review.");
+      throw new Error(problem?.title || t("errors.submitReview"));
     }
   };
 
@@ -571,7 +580,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
       providerServiceId: service.providerServiceId,
     });
     const response = await fetch(`/api/service-providers/${service.clinicId}/reviews?${params.toString()}`);
-    if (!response.ok) throw new Error("Could not load reviews.");
+    if (!response.ok) throw new Error(t("errors.loadReviews"));
     return response.json() as Promise<{ reviews: TopReview[]; hasMore: boolean }>;
   };
 
@@ -611,11 +620,11 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
           <div className="absolute left-0 right-0 top-0 flex items-center justify-between p-4">
-            <button type="button" onClick={() => navigate(-1)} className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow-lg backdrop-blur-sm transition-transform hover:scale-105 active:scale-95">
+            <button type="button" onClick={() => navigate(-1)} aria-label={t("actions.back")} className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow-lg backdrop-blur-sm transition-transform hover:scale-105 active:scale-95">
               <ArrowLeft size={20} className="text-gray-900" />
             </button>
             <div className="flex items-center gap-2">
-              <button type="button" onClick={handleShare} className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow-lg backdrop-blur-sm transition-transform hover:scale-105 active:scale-95">
+              <button type="button" onClick={handleShare} aria-label={t("actions.share")} className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow-lg backdrop-blur-sm transition-transform hover:scale-105 active:scale-95">
                 <Share2 size={18} className="text-gray-900" />
               </button>
               <FavoriteButton
@@ -624,7 +633,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
                 initialIsFavorite={service.isFavorite}
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow-lg backdrop-blur-sm transition-transform hover:scale-105 active:scale-95"
                 iconClassName="h-[18px] w-[18px]"
-                ariaLabel="Save service"
+                ariaLabel={t("actions.saveService")}
               />
             </div>
           </div>
@@ -632,14 +641,14 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
           {galleryItems.length > 1 && (
             <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 px-5">
               {galleryItems.slice(0, 6).map((item, index) => (
-                <button key={item.id} type="button" onClick={() => setCurrentImageIndex(index)} className={`h-14 w-14 overflow-hidden rounded-xl border-2 transition-all ${index === currentImageIndex ? "border-white shadow-lg" : "border-white/30 opacity-70"}`}>
+                <button key={item.id} type="button" onClick={() => setCurrentImageIndex(index)} aria-label={t("gallery.selectImage", { number: index + 1 })} className={`h-14 w-14 overflow-hidden rounded-xl border-2 transition-all ${index === currentImageIndex ? "border-white shadow-lg" : "border-white/30 opacity-70"}`}>
                   <div className="relative h-full w-full">
                     <MediaPreview item={item} alt={`${service.name} ${index + 1}`} className="h-full w-full object-cover" sizes="56px" />
                   </div>
                 </button>
               ))}
               {galleryItems.length > 6 && (
-                <button type="button" onClick={() => navigate(`/n/app/mobile/service/${serviceId}/gallery`)} className="flex h-14 w-14 items-center justify-center rounded-xl bg-black/50 text-xs font-bold text-white backdrop-blur-sm">+{galleryItems.length - 6}</button>
+                <button type="button" onClick={() => navigate(`/n/app/mobile/service/${serviceId}/gallery`)} aria-label={t("gallery.openGallery")} className="flex h-14 w-14 items-center justify-center rounded-xl bg-black/50 text-xs font-bold text-white backdrop-blur-sm">+{galleryItems.length - 6}</button>
               )}
             </div>
           )}
@@ -648,8 +657,8 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
 
       <div className="px-5 py-6 lg:px-8">
         <div className="mb-3 flex flex-wrap gap-2">
-          {service.verified && <span className="flex items-center gap-1 rounded-full bg-[#083f30] px-3 py-1 text-xs font-bold text-white"><BadgeCheck size={14} />Verified</span>}
-          {service.popular && <span className="flex items-center gap-1 rounded-full bg-orange-500 px-3 py-1 text-xs font-bold text-white"><TrendingUp size={14} />Featured</span>}
+          {service.verified && <span className="flex items-center gap-1 rounded-full bg-[#083f30] px-3 py-1 text-xs font-bold text-white"><BadgeCheck size={14} />{t("badges.verified")}</span>}
+          {service.popular && <span className="flex items-center gap-1 rounded-full bg-orange-500 px-3 py-1 text-xs font-bold text-white"><TrendingUp size={14} />{t("badges.featured")}</span>}
           {service.categoryName && <span className="flex items-center gap-1 rounded-full bg-blue-600 px-3 py-1 text-xs font-bold text-white"><Award size={14} />{service.categoryName}</span>}
           {service.tags.slice(0, 3).map((tag) => <span key={tag} className="flex items-center gap-1 rounded-full bg-gray-900 px-3 py-1 text-xs font-bold text-white"><Tag size={13} />{tag}</span>)}
         </div>
@@ -666,23 +675,23 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
               <h3 className="truncate font-bold text-gray-900">{service.clinic}</h3>
               {service.verified && <BadgeCheck size={16} className="text-[#083f30]" />}
             </div>
-            <p className="truncate text-sm text-gray-600">{service.location || "Location on request"}</p>
+            <p className="truncate text-sm text-gray-600">{service.location || t("providerProfile.locationOnRequest")}</p>
           </div>
           <ChevronRight size={20} className="text-gray-400" />
         </button>
 
         <div className="mb-6 flex items-center gap-4 border-b border-gray-200 pb-6">
-          <div className="flex items-center gap-2"><Star size={20} className="fill-yellow-400 text-yellow-400" /><span className="text-xl font-bold text-gray-900">{service.rating || "—"}</span><span className="text-sm text-gray-600">({formatNumber(service.reviews, locale)} reviews)</span></div>
-          {service.providerCount > 1 && <span className="text-sm font-semibold text-[#083f30]">{service.providerCount} providers available</span>}
+          <div className="flex items-center gap-2"><Star size={20} className="fill-yellow-400 text-yellow-400" /><span className="text-xl font-bold text-gray-900">{service.rating || "—"}</span><span className="text-sm text-gray-600">({t("reviews.count", { count: formatNumber(service.reviews, locale) })})</span></div>
+          {service.providerCount > 1 && <span className="text-sm font-semibold text-[#083f30]">{t("providers.available", { count: service.providerCount })}</span>}
         </div>
 
-        <PriceConverterCardClient label="Package Price" convertedPrices={service.priceOptions} convertedOriginalPrices={service.originalPriceOptions} selectedCurrencyCode={selectedCurrency} onCurrencyChange={setSelectedCurrency} badgeText="Provider package price" locale={locale} />
+        <PriceConverterCardClient label={t("price.packagePrice")} convertedPrices={service.priceOptions} convertedOriginalPrices={service.originalPriceOptions} selectedCurrencyCode={selectedCurrency} onCurrencyChange={setSelectedCurrency} badgeText={t("price.providerPackagePrice")} locale={locale} />
 
         <div className="mb-6 grid grid-cols-2 gap-3">
-          <div className="rounded-xl bg-gray-50 p-4"><Clock size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">Duration</div><div className="font-bold text-gray-900">{service.duration}</div></div>
-          <div className="rounded-xl bg-gray-50 p-4"><Calendar size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">Recovery</div><div className="font-bold text-gray-900">{service.recovery}</div></div>
-          <div className="rounded-xl bg-gray-50 p-4"><Shield size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">Success Rate</div><div className="font-bold text-gray-900">{service.successRate}</div></div>
-          <div className="rounded-xl bg-gray-50 p-4"><Users size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">Satisfaction</div><div className="font-bold text-gray-900">{service.satisfaction}</div></div>
+          <div className="rounded-xl bg-gray-50 p-4"><Clock size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">{t("stats.duration")}</div><div className="font-bold text-gray-900">{service.duration}</div></div>
+          <div className="rounded-xl bg-gray-50 p-4"><Calendar size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">{t("stats.recovery")}</div><div className="font-bold text-gray-900">{service.recovery}</div></div>
+          <div className="rounded-xl bg-gray-50 p-4"><Shield size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">{t("stats.successRate")}</div><div className="font-bold text-gray-900">{service.successRate}</div></div>
+          <div className="rounded-xl bg-gray-50 p-4"><Users size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">{t("stats.satisfaction")}</div><div className="font-bold text-gray-900">{service.satisfaction}</div></div>
         </div>
 
         <ProviderProfileSection data={data} />
@@ -694,7 +703,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
 
         {data.included.length > 0 && (
           <section className="mb-6">
-            <h2 className="mb-4 text-xl font-bold text-gray-900">What's Included</h2>
+            <h2 className="mb-4 text-xl font-bold text-gray-900">{t("included.title")}</h2>
             <div className="space-y-3">
               {data.included.map((item, idx) => <div key={`${item}-${idx}`} className="flex items-start gap-3"><CheckCircle2 size={20} className="mt-0.5 flex-shrink-0 text-green-600" /><span className="text-sm leading-relaxed text-gray-700">{item}</span></div>)}
             </div>
@@ -703,7 +712,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
 
         {data.process.length > 0 && (
           <section className="mb-6">
-            <h2 className="mb-4 text-xl font-bold text-gray-900">Treatment Process</h2>
+            <h2 className="mb-4 text-xl font-bold text-gray-900">{t("process.title")}</h2>
             <div className="space-y-4">
               {data.process.map((step, idx) => (
                 <div key={`${step.step}-${idx}`} className="flex gap-4">
@@ -719,23 +728,23 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
           <div className="flex items-start gap-3">
             <AlertCircle size={20} className="mt-0.5 flex-shrink-0 text-blue-600" />
             <div>
-              <h3 className="mb-2 font-bold text-blue-900">Important Information</h3>
+              <h3 className="mb-2 font-bold text-blue-900">{t("importantInfo.title")}</h3>
               <ul className="space-y-1.5 text-sm text-blue-800">{importantInfo.map((item) => <li key={item}>• {item}</li>)}</ul>
             </div>
           </div>
         </div>
 
         <ProvidersForServiceSection providers={data.providers} currentProviderServiceId={service.providerServiceId} locale={locale} />
-        {(data.localRecommendations.length > 0 || data.internationalRecommendations.length > 0) && <RecommendationSection localRecommendations={data.localRecommendations} internationalRecommendations={data.internationalRecommendations} userCountry={service.country || "your country"} />}
+        {(data.localRecommendations.length > 0 || data.internationalRecommendations.length > 0) && <RecommendationSection localRecommendations={data.localRecommendations} internationalRecommendations={data.internationalRecommendations} userCountry={service.country || t("recommendations.yourCountry")} />}
 
         <section className="mb-6">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-xl font-bold text-gray-900">Patient Reviews</h2>
+            <h2 className="text-xl font-bold text-gray-900">{t("reviews.title")}</h2>
             <div className="flex items-center gap-3">
               {hasMoreReviews ? (
-                <button type="button" onClick={loadMoreReviews} className="text-sm font-semibold text-[#083f30] hover:underline">View All</button>
+                <button type="button" onClick={loadMoreReviews} className="text-sm font-semibold text-[#083f30] hover:underline">{t("reviews.viewAll")}</button>
               ) : null}
-              <button type="button" onClick={() => setShowReviewForm(true)} className="rounded-xl bg-[#083f30] px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-[#0a5a44]">Write Review</button>
+              <button type="button" onClick={() => setShowReviewForm(true)} className="rounded-xl bg-[#083f30] px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-[#0a5a44]">{t("reviews.writeReview")}</button>
             </div>
           </div>
           <div className="mb-4 flex flex-wrap gap-2">
@@ -763,7 +772,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
               ) : null}
             </div>
           ) : (
-            <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-5 text-sm text-gray-600">No public reviews yet. Booked customers can submit a review for this service.</div>
+            <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-5 text-sm text-gray-600">{t("reviews.empty")}</div>
           )}
         </section>
 
@@ -783,9 +792,9 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
 
         {data.faqs.length > 0 && (
           <section className="mb-6">
-            <h2 className="mb-4 text-xl font-bold text-gray-900">Frequently Asked Questions</h2>
+            <h2 className="mb-4 text-xl font-bold text-gray-900">{t("faq.title")}</h2>
             <div className="space-y-3">{data.faqs.slice(0, showAllFAQs ? data.faqs.length : 2).map((faq, idx) => <div key={`${faq.q}-${idx}`} className="rounded-xl bg-gray-50 p-4"><h3 className="mb-2 font-bold text-gray-900">{faq.q}</h3><p className="text-sm leading-relaxed text-gray-700">{faq.a}</p></div>)}</div>
-            {!showAllFAQs && data.faqs.length > 2 && <button type="button" onClick={() => setShowAllFAQs(true)} className="mt-3 text-sm font-semibold text-[#083f30] hover:underline">Show {data.faqs.length - 2} more questions</button>}
+            {!showAllFAQs && data.faqs.length > 2 && <button type="button" onClick={() => setShowAllFAQs(true)} className="mt-3 text-sm font-semibold text-[#083f30] hover:underline">{t("faq.showMore", { count: data.faqs.length - 2 })}</button>}
           </section>
         )}
       </div>
@@ -793,10 +802,10 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
       <div className="safe-area-bottom fixed bottom-20 left-0 right-0 z-40 rounded-t-3xl border-t border-gray-200 bg-white px-5 py-4 shadow-2xl">
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
-            <div className="mb-0.5 text-xs text-gray-600">Total Package Price</div>
+            <div className="mb-0.5 text-xs text-gray-600">{t("price.totalPackagePrice")}</div>
             <div className="flex items-baseline gap-2"><PriceTextClient amount={displayPrice} currencyCode={displayCurrencyCode} locale={locale} className="text-2xl font-bold text-[#083f30]" />{hasDiscount && <PriceTextClient amount={displayOriginalPrice} currencyCode={displayCurrencyCode} locale={locale} className="text-sm text-gray-500 line-through" />}</div>
           </div>
-          <button type="button" onClick={() => navigate(`/n/app/mobile/booking?serviceId=${service.providerServiceId}`)} className="flex h-14 items-center gap-2 rounded-2xl bg-gradient-to-r from-[#083f30] to-[#0a5a44] px-8 font-bold text-white transition-all hover:shadow-xl active:scale-95">Book Now</button>
+          <button type="button" onClick={() => navigate(`/n/app/mobile/booking?serviceId=${service.providerServiceId}`)} className="flex h-14 items-center gap-2 rounded-2xl bg-gradient-to-r from-[#083f30] to-[#0a5a44] px-8 font-bold text-white transition-all hover:shadow-xl active:scale-95">{t("actions.bookNow")}</button>
         </div>
       </div>
     </div>

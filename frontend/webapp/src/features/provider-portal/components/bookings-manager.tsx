@@ -80,7 +80,7 @@ function BookingUpdateForm({ providerId, booking, onDone }: {
         startTransition(async () => {
             const response = await updateProviderBookingAction(values);
             if (!response.ok) {
-                toast.error(response.error || "Booking could not be updated.");
+                toast.error(response.error || tBooking("bookingCouldNotBeUpdated"));
                 return;
             }
             toast.success(tBooking("bookingUpdated"));
@@ -102,7 +102,7 @@ function BookingUpdateForm({ providerId, booking, onDone }: {
           <label className="space-y-2">
             <span className="text-sm font-medium">{tBooking("status")}</span>
             <select {...form.register("status")} className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm">
-              {["Pending", "Confirmed", "Cancelled", "Completed"].map((status) => <option key={status} value={status}>{status}</option>)}
+              {["Pending", "Confirmed", "Cancelled", "Completed"].map((status) => <option key={status} value={status}>{tBooking(status.toLowerCase() as any)}</option>)}
             </select>
           </label>
 
@@ -113,7 +113,7 @@ function BookingUpdateForm({ providerId, booking, onDone }: {
 
           <div className="flex justify-end gap-3 border-t pt-5">
             <Button type="button" variant="outline" onClick={onDone} disabled={isPending}>{tBooking("cancel")}</Button>
-            <Button type="submit" disabled={isPending}>{isPending ? "Saving..." : "Save booking"}</Button>
+            <Button type="submit" disabled={isPending}>{isPending ? tBooking("saving") : tBooking("saveBooking")}</Button>
           </div>
         </form>
       </CardContent>

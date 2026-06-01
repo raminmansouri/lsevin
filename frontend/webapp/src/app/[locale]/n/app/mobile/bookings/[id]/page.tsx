@@ -36,29 +36,29 @@ function formatMoney(amount?: number | null, currency?: string | null) {
         return `${value.toLocaleString()} ${code}`;
     }
 }
-function getStatusBadge(status?: string | null) {
+function getStatusBadge(status: string | null | undefined, tBooking: ReturnType<typeof useTranslations>) {
     const normalized = normalizeStatus(status);
     if (["confirmed", "completed", "done"].includes(normalized)) {
         return {
             icon: CheckCircle,
-            text: normalized === "completed" || normalized === "done" ? "Completed" : "Confirmed",
+            text: normalized === "completed" || normalized === "done" ? tBooking("completed") : tBooking("confirmed"),
             color: "bg-green-50 text-green-700 border-green-200",
-            helper: normalized === "completed" || normalized === "done" ? "This appointment has been completed." : "Booking confirmed by the provider.",
+            helper: normalized === "completed" || normalized === "done" ? tBooking("thisAppointmentHasBeenCompleted") : tBooking("bookingConfirmedByTheProvider"),
         };
     }
     if (["cancelled", "canceled"].includes(normalized)) {
         return {
             icon: XCircle,
-            text: "Cancelled",
+            text: tBooking("cancelled"),
             color: "bg-red-50 text-red-700 border-red-200",
-            helper: "This booking has been cancelled.",
+            helper: tBooking("thisBookingHasBeenCancelled"),
         };
     }
     return {
         icon: AlertCircle,
-        text: "Pending Confirmation",
+        text: tBooking("pendingConfirmation"),
         color: "bg-yellow-50 text-yellow-700 border-yellow-200",
-        helper: "The provider is reviewing your appointment request.",
+        helper: tBooking("providerReviewingYourAppointmentRequest"),
     };
 }
 function DescriptionBlock({ title, content }: {
@@ -172,7 +172,7 @@ function BookingDetailContent({ booking, onCancel, onPay, isPaying, paymentGatew
     const navigate = useNavigate();
     const imageSrc = buildFileUrl(booking.providerImage || booking.image);
     const agentImageSrc = buildFileUrl(booking.agent?.image);
-    const statusBadge = getStatusBadge(booking.status);
+    const statusBadge = getStatusBadge(booking.status, tBooking);
     const StatusIcon = statusBadge.icon;
     const normalizedBookingStatus = normalizeStatus(booking.status);
     const normalizedPaymentStatus = normalizeStatus(booking.paymentStatus);
@@ -239,7 +239,7 @@ function BookingDetailContent({ booking, onCancel, onPay, isPaying, paymentGatew
             <div className="min-w-0 flex-1">
               <p className="mb-0.5 text-xs text-gray-600">{tBooking("location")}</p>
               <p className="mb-0.5 font-semibold text-gray-900">{booking.location}</p>
-              <p className="line-clamp-2 text-xs text-gray-600">{booking.fullAddress || "Address will be shared by the provider."}</p>
+              <p className="line-clamp-2 text-xs text-gray-600">{booking.fullAddress || tBooking("addressWillBeSharedByProvider")}</p>
             </div>
             {directionsHref && (<a href={directionsHref} target="_blank" rel="noreferrer" className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-[#083f30]" aria-label={tBooking("openDirections")}>
                 <Navigation size={16} className="text-white"/>
@@ -305,7 +305,7 @@ function BookingDetailContent({ booking, onCancel, onPay, isPaying, paymentGatew
 
         <div className="rounded-xl border border-green-200 bg-green-50 px-3 py-2">
           <p className="text-xs text-green-700">
-            <span className="font-semibold">{tBooking("paymentStatus")}</span> {booking.paymentStatus || "pending"}
+            <span className="font-semibold">{tBooking("paymentStatus")}</span> {booking.paymentStatus || tBooking("pending")}
             {booking.paymentMethod ? ` • ${booking.paymentMethod}` : ""}
           </p>
         </div>
@@ -339,17 +339,17 @@ function BookingDetailContent({ booking, onCancel, onPay, isPaying, paymentGatew
       <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
         <h3 className="mb-3 font-bold text-gray-900">{tBooking("bookingInformation")}</h3>
         <div className="space-y-2">
-          <DetailRow label="Booking ID" value={booking.id}/>
-          <DetailRow label="Confirmation Code" value={booking.confirmationCode}/>
-          <DetailRow label="Booked On" value={booking.bookingDate}/>
-          <DetailRow label="Status" value={booking.status}/>
+          <DetailRow label={tBooking("bookingID")} value={booking.id}/>
+          <DetailRow label={tBooking("confirmationCode")} value={booking.confirmationCode}/>
+          <DetailRow label={tBooking("bookedOn")} value={booking.bookingDate}/>
+          <DetailRow label={tBooking("status")} value={booking.status}/>
         </div>
       </div>
 
       <div className="space-y-2">
         {canPay && (<button type="button" disabled={isPaying} onClick={() => paymentGateway && onPay(paymentGateway)} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#083f30] font-semibold text-white transition-colors hover:bg-[#0a5a44] disabled:cursor-not-allowed disabled:opacity-70">
             {isPaying ? <Loader2 size={18} className="animate-spin"/> : <CreditCard size={20}/>}
-            {paymentGateway ? `Pay with ${paymentGateway.displayName}` : "Payment unavailable"}
+            {paymentGateway ? tBooking("payWithGateway", { gateway: paymentGateway.displayName }) : tBooking("paymentUnavailable")}
           </button>)}
 
         <button type="button" onClick={() => window.print()} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gray-900 font-semibold text-white transition-colors hover:bg-black">
@@ -431,8 +431,8 @@ export default function BookingDetail() {
     const cancelSummary = useMemo(() => {
         if (!booking)
             return "";
-        return `${booking.service} • ${booking.date} at ${booking.time}`;
-    }, [booking]);
+        return tBooking("bookingSummaryDateTime", { service: booking.service, date: booking.date, time: booking.time });
+    }, [booking, tBooking]);
     return (<div className="min-h-screen bg-gray-50 pb-24">
       <div className="sticky top-0 z-40 border-b border-gray-100 bg-white">
         <div className="px-5 pb-4 pt-3">
@@ -458,7 +458,7 @@ export default function BookingDetail() {
             <AlertCircle size={32} className="text-red-500"/>
           </div>
           <h3 className="mb-2 font-bold text-gray-900">{tBooking("bookingCouldNotBeLoaded")}</h3>
-          <p className="mx-auto mb-6 max-w-sm text-sm text-gray-600">{error.detail || error.title || "Please refresh and try again."}</p>
+          <p className="mx-auto mb-6 max-w-sm text-sm text-gray-600">{error.detail || error.title || tBooking("pleaseRefreshAndTryAgain")}</p>
           <button type="button" onClick={() => refetch()} className="rounded-xl bg-[#083f30] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#0a5a44]">{tBooking("tryAgain")}</button>
         </div>) : isFetching && !booking ? (<div className="space-y-4 px-5 py-4">
           <div className="h-20 animate-pulse rounded-2xl bg-white"/>
@@ -505,7 +505,7 @@ export default function BookingDetail() {
             <div className="flex gap-3 border-t border-gray-200 p-6">
               <button type="button" onClick={() => setShowCancelModal(false)} className="h-12 flex-1 rounded-xl bg-gray-100 font-semibold text-gray-900 transition-colors hover:bg-gray-200">{tBooking("keepBooking")}</button>
               <button type="button" disabled={isPending} onClick={() => executeCancelBooking({ bookingId: booking.id, reason: cancelReason })} className="flex h-12 flex-1 items-center justify-center rounded-xl bg-red-600 font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-70">
-                {isPending ? <Loader2 size={18} className="animate-spin"/> : "Yes, Cancel"}
+                {isPending ? <Loader2 size={18} className="animate-spin"/> : tBooking("yesCancel")}
               </button>
             </div>
           </div>

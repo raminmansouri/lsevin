@@ -11,11 +11,11 @@ const BRAND_GREEN = "#083f30";
 type BookingTab = "upcoming" | "past" | "cancelled";
 const TABS: Array<{
     id: BookingTab;
-    label: string;
+    labelKey: "upcoming" | "past" | "cancelled";
 }> = [
-    { id: "upcoming", label: "Upcoming" },
-    { id: "past", label: "Past" },
-    { id: "cancelled", label: "Cancelled" },
+    { id: "upcoming", labelKey: "upcoming" },
+    { id: "past", labelKey: "past" },
+    { id: "cancelled", labelKey: "cancelled" },
 ];
 function normalizeStatus(value?: string | null) {
     return String(value || "pending").trim().toLowerCase();
@@ -36,35 +36,35 @@ function formatMoney(amount: number, currency?: string | null) {
         return `${(amount || 0).toLocaleString()} ${code}`;
     }
 }
-function getStatusBadge(status: string) {
+function getStatusBadge(status: string, tBooking: ReturnType<typeof useTranslations>) {
     const normalized = normalizeStatus(status);
     if (["confirmed", "completed", "done"].includes(normalized)) {
         return {
             icon: CheckCircle,
-            text: normalized === "completed" || normalized === "done" ? "Completed" : "Confirmed",
+            text: normalized === "completed" || normalized === "done" ? tBooking("completed") : tBooking("confirmed"),
             color: "bg-green-50 text-green-700",
         };
     }
     if (["cancelled", "canceled"].includes(normalized)) {
-        return { icon: XCircle, text: "Cancelled", color: "bg-red-50 text-red-700" };
+        return { icon: XCircle, text: tBooking("cancelled"), color: "bg-red-50 text-red-700" };
     }
-    return { icon: AlertCircle, text: "Pending", color: "bg-yellow-50 text-yellow-700" };
+    return { icon: AlertCircle, text: tBooking("pending"), color: "bg-yellow-50 text-yellow-700" };
 }
-function getPaymentBadge(status: string) {
+function getPaymentBadge(status: string, tBooking: ReturnType<typeof useTranslations>) {
     const normalized = normalizeStatus(status);
     if (normalized === "paid")
-        return { text: "Paid", color: "bg-green-600" };
+        return { text: tBooking("paid"), color: "bg-green-600" };
     if (normalized === "refunded")
-        return { text: "Refunded", color: "bg-gray-600" };
-    return { text: "Payment Due", color: "bg-yellow-600" };
+        return { text: tBooking("refunded"), color: "bg-gray-600" };
+    return { text: tBooking("paymentDue"), color: "bg-yellow-600" };
 }
 function BookingCard({ booking, onOpen }: {
     booking: Booking;
     onOpen: () => void;
 }) {
     const tBooking = useTranslations("Booking");
-    const statusBadge = getStatusBadge(booking.status);
-    const paymentBadge = getPaymentBadge(booking.paymentStatus);
+    const statusBadge = getStatusBadge(booking.status, tBooking);
+    const paymentBadge = getPaymentBadge(booking.paymentStatus, tBooking);
     const StatusIcon = statusBadge.icon;
     const imageSrc = buildFileUrl(booking.image);
     return (<button type="button" onClick={onOpen} className="w-full cursor-pointer overflow-hidden rounded-2xl border border-gray-100 bg-white text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#083f30]/20">
@@ -159,7 +159,7 @@ export default function Bookings() {
           {TABS.map((tab) => (<button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)} className={`flex-1 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all ${activeTab === tab.id
                 ? "bg-[#083f30] text-white shadow-sm"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}>
-              {tab.label}
+              {tBooking(tab.labelKey)}
               <span className={`ms-1.5 ${activeTab === tab.id ? "opacity-80" : "opacity-60"}`}>({counts[tab.id]})</span>
             </button>))}
         </div>
@@ -170,7 +170,7 @@ export default function Bookings() {
             <AlertCircle size={32} className="text-red-500"/>
           </div>
           <h3 className="mb-2 font-bold text-gray-900">{tBooking("bookingsCouldNotBeLoaded")}</h3>
-          <p className="mx-auto mb-6 max-w-sm text-sm text-gray-600">{error.detail || error.title || "Please refresh and try again."}</p>
+          <p className="mx-auto mb-6 max-w-sm text-sm text-gray-600">{error.detail || error.title || tBooking("pleaseRefreshAndTryAgain")}</p>
           <button type="button" onClick={() => refetch()} className="rounded-xl bg-[#083f30] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#0a5a44]">{tBooking("tryAgain")}</button>
         </div>) : isFetching && !data ? (<div className="space-y-3 px-5 py-4">
           {[1, 2, 3].map((item) => (<div key={item} className="h-44 animate-pulse rounded-2xl border border-gray-100 bg-white shadow-sm"/>))}
@@ -180,13 +180,13 @@ export default function Bookings() {
           <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
             <CalendarX size={32} className="text-gray-400"/>
           </div>
-          <h3 className="mb-2 font-bold text-gray-900">No {activeTab}{tBooking("bookings2")}</h3>
+          <h3 className="mb-2 font-bold text-gray-900">{activeTab === "upcoming" ? tBooking("noUpcomingBookings") : activeTab === "past" ? tBooking("noPastBookings") : tBooking("noCancelledBookings")}</h3>
           <p className="mx-auto mb-6 max-w-sm text-gray-600">
             {activeTab === "upcoming"
-                ? "You do not have any upcoming appointments. Start exploring available services."
+                ? tBooking("noUpcomingAppointmentsExploreServices")
                 : activeTab === "past"
-                    ? "Completed bookings will appear here after your appointments are finished."
-                    : "Cancelled bookings will appear here when a booking is cancelled."}
+                    ? tBooking("completedBookingsWillAppearHere")
+                    : tBooking("cancelledBookingsWillAppearHere")}
           </p>
           {activeTab === "upcoming" && (<button type="button" onClick={() => navigate("/n/app/mobile/explore")} className="rounded-xl bg-[#083f30] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#0a5a44]" style={{ backgroundColor: BRAND_GREEN }}>{tBooking("exploreServices")}</button>)}
         </div>)}

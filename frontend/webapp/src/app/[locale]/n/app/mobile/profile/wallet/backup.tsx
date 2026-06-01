@@ -20,9 +20,12 @@ import {
   Tag
 } from 'lucide-react';
 import { useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 
 export default function Wallet() {
   const navigate = useNavigate();
+  const locale = useLocale();
+  const t = useTranslations("MobileProfile.wallet");
   const [showBalance, setShowBalance] = useState(true);
   const [selectedCurrency, setSelectedCurrency] = useState('USD');
   const [showTopUpModal, setShowTopUpModal] = useState(false);
@@ -40,8 +43,8 @@ export default function Wallet() {
     {
       id: 1,
       type: 'debit',
-      title: 'Hair Transplant Payment',
-      subtitle: 'Istanbul Medical Center',
+      title: t('sample.hairTransplant.title'),
+      subtitle: t('sample.hairTransplant.subtitle'),
       amount: -2499.00,
       currency: 'USD',
       date: '2026-03-05T14:30:00',
@@ -51,8 +54,8 @@ export default function Wallet() {
     {
       id: 2,
       type: 'credit',
-      title: 'Wallet Top-up',
-      subtitle: 'Credit Card ****4532',
+      title: t('sample.topup.title'),
+      subtitle: t('sample.topup.subtitle'),
       amount: 5000.00,
       currency: 'USD',
       date: '2026-03-05T10:15:00',
@@ -62,8 +65,8 @@ export default function Wallet() {
     {
       id: 3,
       type: 'credit',
-      title: 'Referral Bonus',
-      subtitle: 'Friend joined LSevin',
+      title: t('sample.referral.title'),
+      subtitle: t('sample.referral.subtitle'),
       amount: 50.00,
       currency: 'USD',
       date: '2026-03-04T16:20:00',
@@ -73,8 +76,8 @@ export default function Wallet() {
     {
       id: 4,
       type: 'debit',
-      title: 'Spa Package',
-      subtitle: 'Luxury Beauty & Spa',
+      title: t('sample.spa.title'),
+      subtitle: t('sample.spa.subtitle'),
       amount: -350.00,
       currency: 'USD',
       date: '2026-03-03T11:45:00',
@@ -84,8 +87,8 @@ export default function Wallet() {
     {
       id: 5,
       type: 'credit',
-      title: 'Cashback Reward',
-      subtitle: 'Booking completion bonus',
+      title: t('sample.cashback.title'),
+      subtitle: t('sample.cashback.subtitle'),
       amount: 125.00,
       currency: 'USD',
       date: '2026-03-02T09:30:00',
@@ -95,8 +98,8 @@ export default function Wallet() {
     {
       id: 6,
       type: 'debit',
-      title: 'Dental Cleaning',
-      subtitle: 'SmileCare Dental',
+      title: t('sample.dental.title'),
+      subtitle: t('sample.dental.subtitle'),
       amount: -180.00,
       currency: 'USD',
       date: '2026-03-01T15:00:00',
@@ -114,11 +117,11 @@ export default function Wallet() {
     yesterday.setDate(yesterday.getDate() - 1);
     
     if (date.toDateString() === today.toDateString()) {
-      return `Today, ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+      return t("todayAt", { time: date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }) });
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return `Yesterday, ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+      return t("yesterdayAt", { time: date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }) });
     } else {
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      return date.toLocaleDateString(locale, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     }
   };
   
@@ -144,14 +147,14 @@ export default function Wallet() {
             >
               <ArrowLeft size={20} className="text-gray-900" />
             </button>
-            <h1 className="text-lg font-bold text-gray-900">Wallet</h1>
+            <h1 className="text-lg font-bold text-gray-900">{t("title")}</h1>
           </div>
           
           <button 
             onClick={() => navigate('/app/wallet/history')}
             className="h-10 px-4 text-sm font-semibold text-[#083f30] hover:underline"
           >
-            View All
+            {t("viewAll")}
           </button>
         </div>
       </div>
@@ -161,13 +164,13 @@ export default function Wallet() {
         <div className="bg-gradient-to-br from-[#083f30] to-[#0a5a44] rounded-3xl p-6 shadow-xl">
           <div className="flex items-start justify-between mb-6">
             <div>
-              <p className="text-white/80 text-sm mb-2">Total Balance</p>
+              <p className="text-white/80 text-sm mb-2">{t("totalBalance")}</p>
               <div className="flex items-baseline gap-3">
                 {showBalance ? (
                   <>
                     <span className="text-4xl font-bold text-white">
                       {selectedCurrency === 'USD' ? '$' : selectedCurrency === 'EUR' ? '€' : selectedCurrency === 'GBP' ? '£' : 'AED '}
-                      {balances[selectedCurrency as keyof typeof balances].toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      {balances[selectedCurrency as keyof typeof balances].toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                     <span className="text-white/60 text-lg">{selectedCurrency}</span>
                   </>
@@ -215,7 +218,7 @@ export default function Wallet() {
               <div className="w-10 h-10 bg-[#083f30] rounded-full flex items-center justify-center">
                 <Plus size={20} className="text-white" />
               </div>
-              <span className="text-[#083f30] font-bold">Top Up Wallet</span>
+              <span className="text-[#083f30] font-bold">{t("topUpWallet")}</span>
             </button>
           </div>
         </div>
@@ -230,15 +233,15 @@ export default function Wallet() {
             className="flex-1 h-12 bg-white border-2 border-gray-200 rounded-xl font-semibold text-gray-900 hover:border-[#083f30] transition-all flex items-center justify-center gap-2"
           >
             <Tag size={18} />
-            Apply Coupon
+            {t("applyCoupon")}
           </button>
         </div>
 
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-900">Recent Transactions</h2>
+          <h2 className="text-lg font-bold text-gray-900">{t("recentTransactions")}</h2>
           <button className="text-sm font-semibold text-[#083f30] hover:underline">
             <Filter size={16} className="inline-block mr-1" />
-            Filter
+            {t("filters.filter")}
           </button>
         </div>
         
@@ -284,12 +287,12 @@ export default function Wallet() {
                   }`}>
                     {transaction.type === 'credit' ? '+' : ''}
                     {transaction.currency === 'USD' ? '$' : transaction.currency === 'EUR' ? '€' : transaction.currency === 'GBP' ? '£' : 'AED '}
-                    {Math.abs(transaction.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    {Math.abs(transaction.amount).toLocaleString(locale, { minimumFractionDigits: 2 })}
                   </div>
                   {transaction.status === 'completed' && (
                     <div className="flex items-center gap-1 text-xs text-green-600">
                       <CheckCircle2 size={12} />
-                      <span>Completed</span>
+                      <span>{t("statuses.completed")}</span>
                     </div>
                   )}
                 </div>
@@ -303,15 +306,15 @@ export default function Wallet() {
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Clock size={28} className="text-gray-400" />
             </div>
-            <h3 className="font-bold text-gray-900 mb-2">No Transactions Yet</h3>
+            <h3 className="font-bold text-gray-900 mb-2">{t("noTransactionsYet")}</h3>
             <p className="text-sm text-gray-600 mb-6">
-              Start using your wallet to see transactions here
+              {t("emptyDescription")}
             </p>
             <button 
               onClick={() => setShowTopUpModal(true)}
               className="px-6 py-3 bg-[#083f30] text-white rounded-xl font-semibold hover:bg-[#0a5a44] transition-colors"
             >
-              Top Up Wallet
+              {t("topUpWallet")}
             </button>
           </div>
         )}
@@ -323,7 +326,7 @@ export default function Wallet() {
           <div className="bg-white rounded-t-3xl w-full max-w-lg animate-slide-up">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Top Up Wallet</h2>
+                <h2 className="text-xl font-bold text-gray-900">{t("topUpWallet")}</h2>
                 <button 
                   onClick={() => {
                     setShowTopUpModal(false);
@@ -341,7 +344,7 @@ export default function Wallet() {
               {/* Amount Selection */}
               <div className="mb-6">
                 <label className="block text-sm font-semibold text-gray-900 mb-3">
-                  Select Amount
+                  {t("selectAmount")}
                 </label>
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   {quickAmounts.map(amount => (
@@ -367,22 +370,22 @@ export default function Wallet() {
                     type="number"
                     value={topUpAmount || ''}
                     onChange={(e) => setTopUpAmount(Number(e.target.value))}
-                    placeholder="Enter custom amount"
+                    placeholder={t("enterCustomAmount")}
                     className="w-full h-14 pl-8 pr-4 border-2 border-gray-200 rounded-xl font-semibold focus:border-[#083f30] focus:outline-none transition-colors"
                   />
                 </div>
               </div>
               
-              {/* Payment Method */}
+              {/* {t("paymentMethod")} */}
               <div className="mb-6">
                 <label className="block text-sm font-semibold text-gray-900 mb-3">
-                  Payment Method
+                  {t("paymentMethod")}
                 </label>
                 <div className="space-y-2">
                   {[
-                    { id: 'card', name: 'Credit / Debit Card', icon: <CreditCard size={24} />, details: 'Visa, Mastercard, Amex' },
-                    { id: 'bank', name: 'Bank Transfer', icon: <Building2 size={24} />, details: 'Direct bank transfer' },
-                    { id: 'apple', name: 'Apple Pay', icon: <Smartphone size={24} />, details: 'Quick & secure' },
+                    { id: 'card', name: t('paymentMethods.onlineCard'), icon: <CreditCard size={24} />, details: t('paymentMethods.cardDetails') },
+                    { id: 'bank', name: t('paymentMethods.bankTransfer'), icon: <Building2 size={24} />, details: t('paymentMethods.bankDetails') },
+                    { id: 'apple', name: t('paymentMethods.applePay'), icon: <Smartphone size={24} />, details: t('paymentMethods.applePayDetails') },
                   ].map(method => (
                     <button
                       key={method.id}
@@ -426,7 +429,7 @@ export default function Wallet() {
                     : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                 }`}
               >
-                Top Up ${topUpAmount?.toLocaleString() || '0'}
+                {t('topUpAmount', { amount: topUpAmount?.toLocaleString(locale) || '0' })}
               </button>
             </div>
           </div>

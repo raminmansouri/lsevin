@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -24,6 +25,7 @@ type FormValues = z.infer<typeof updateProviderProfileSchema>;
 
 export function ProviderProfileForm({ workspace }: { workspace: ProviderWorkspace }) {
   const router = useRouter();
+  const t = useTranslations("ProviderPortal.profile");
   const [isPending, startTransition] = useTransition();
   const provider = workspace.provider;
 
@@ -60,10 +62,10 @@ export function ProviderProfileForm({ workspace }: { workspace: ProviderWorkspac
     startTransition(async () => {
       const response = await updateProviderProfileAction(values);
       if (!response.ok) {
-        toast.error(response.error || "Profile could not be saved.");
+        toast.error(response.error || t("messages.saveFailed"));
         return;
       }
-      toast.success("Provider profile saved.");
+      toast.success(t("messages.saveSuccess"));
       router.refresh();
     });
   };
@@ -71,7 +73,7 @@ export function ProviderProfileForm({ workspace }: { workspace: ProviderWorkspac
   if (!workspace.permissions.manageProfile) {
     return (
       <Card className="rounded-3xl">
-        <CardContent className="p-8 text-sm text-slate-500">You do not have permission to edit this profile.</CardContent>
+        <CardContent className="p-8 text-sm text-slate-500">{t("permissionDenied")}</CardContent>
       </Card>
     );
   }
@@ -79,96 +81,96 @@ export function ProviderProfileForm({ workspace }: { workspace: ProviderWorkspac
   return (
     <Card className="rounded-3xl border-slate-200 shadow-sm">
       <CardHeader>
-        <CardTitle>Provider profile</CardTitle>
+        <CardTitle>{t("title")}</CardTitle>
         <CardDescription>
-          Providers can update user-facing content. Provider type, country/city, sponsorship and verification stay admin-controlled.
+          {t("description")}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-5 md:grid-cols-2">
           <input type="hidden" {...form.register("providerId")} />
 
-          <Field label="Name English" error={form.formState.errors.nameEn?.message}>
+          <Field label={t("fields.nameEn")} error={form.formState.errors.nameEn?.message}>
             <Input {...form.register("nameEn")} disabled={isPending} />
           </Field>
-          <Field label="Name Persian">
+          <Field label={t("fields.nameFa")}>
             <Input {...form.register("nameFa")} disabled={isPending} />
           </Field>
 
-          <Field label="Description English" className="md:col-span-2">
+          <Field label={t("fields.descriptionEn")} className="md:col-span-2">
             <Textarea {...form.register("descriptionEn")} rows={5} disabled={isPending} />
           </Field>
-          <Field label="Description Persian" className="md:col-span-2">
+          <Field label={t("fields.descriptionFa")} className="md:col-span-2">
             <Textarea {...form.register("descriptionFa")} rows={5} disabled={isPending} />
           </Field>
 
-          <Field label="Detail English">
+          <Field label={t("fields.detailEn")}>
             <Textarea {...form.register("detailEn")} disabled={isPending} />
           </Field>
-          <Field label="Detail Persian">
+          <Field label={t("fields.detailFa")}>
             <Textarea {...form.register("detailFa")} disabled={isPending} />
           </Field>
 
-          <Field label="Street English">
+          <Field label={t("fields.streetEn")}>
             <Input {...form.register("streetEn")} disabled={isPending} />
           </Field>
-          <Field label="Street Persian">
+          <Field label={t("fields.streetFa")}>
             <Input {...form.register("streetFa")} disabled={isPending} />
           </Field>
 
-          <Field label="Email" error={form.formState.errors.email?.message}>
+          <Field label={t("fields.email")} error={form.formState.errors.email?.message}>
             <Input {...form.register("email")} type="email" disabled={isPending} />
           </Field>
 
           <div className="grid grid-cols-[90px_1fr] gap-3">
-            <Field label="Code" error={form.formState.errors.phoneNumberCountryCode?.message}>
+            <Field label={t("fields.code")} error={form.formState.errors.phoneNumberCountryCode?.message}>
               <Input {...form.register("phoneNumberCountryCode")} disabled={isPending} />
             </Field>
-            <Field label="Phone" error={form.formState.errors.phoneNumber?.message}>
+            <Field label={t("fields.phone")} error={form.formState.errors.phoneNumber?.message}>
               <Input {...form.register("phoneNumber")} disabled={isPending} />
             </Field>
           </div>
 
-          <Field label="Zip code">
+          <Field label={t("fields.zipCode")}>
             <Input {...form.register("zipCode")} disabled={isPending} />
           </Field>
-          <Field label="Image URL / media id">
-            <Input {...form.register("imageUrl")} placeholder="media id or URL" disabled={isPending} />
+          <Field label={t("fields.imageUrl")}>
+            <Input {...form.register("imageUrl")} placeholder={t("placeholders.mediaIdOrUrl")} disabled={isPending} />
           </Field>
 
           <div className="relative h-32 overflow-hidden rounded-2xl border border-slate-200 md:col-span-2">
             <PortalImage src={form.watch("imageUrl")} alt={provider.displayName} className="object-cover" />
           </div>
 
-          <Field label="Response time">
-            <Input {...form.register("responseTime")} placeholder="Usually responds in 1 hour" disabled={isPending} />
+          <Field label={t("fields.responseTime")}>
+            <Input {...form.register("responseTime")} placeholder={t("placeholders.responseTime")} disabled={isPending} />
           </Field>
-          <Field label="Established year">
+          <Field label={t("fields.establishedYear")}>
             <Input {...form.register("establishedYear")} type="number" disabled={isPending} />
           </Field>
 
-          <Field label="Total patients">
-            <Input {...form.register("totalPatients")} placeholder="10k+" disabled={isPending} />
+          <Field label={t("fields.totalPatients")}>
+            <Input {...form.register("totalPatients")} placeholder={t("placeholders.totalPatients")} disabled={isPending} />
           </Field>
-          <Field label="Success rate">
-            <Input {...form.register("successRate")} placeholder="98%" disabled={isPending} />
-          </Field>
-
-          <Field label="Languages CSV">
-            <Input {...form.register("languagesCsv")} placeholder="English, Persian, Arabic" disabled={isPending} />
-          </Field>
-          <Field label="Specialties CSV">
-            <Input {...form.register("specialtiesCsv")} placeholder="Hair transplant, Dental..." disabled={isPending} />
+          <Field label={t("fields.successRate")}>
+            <Input {...form.register("successRate")} placeholder={t("placeholders.successRate")} disabled={isPending} />
           </Field>
 
-          <Field label="Timezone">
-            <Input {...form.register("timezoneId")} placeholder="Asia/Tehran" disabled={isPending} />
+          <Field label={t("fields.languagesCsv")}>
+            <Input {...form.register("languagesCsv")} placeholder={t("placeholders.languagesCsv")} disabled={isPending} />
+          </Field>
+          <Field label={t("fields.specialtiesCsv")}>
+            <Input {...form.register("specialtiesCsv")} placeholder={t("placeholders.specialtiesCsv")} disabled={isPending} />
+          </Field>
+
+          <Field label={t("fields.timezone")}>
+            <Input {...form.register("timezoneId")} placeholder={t("placeholders.timezone")} disabled={isPending} />
           </Field>
 
           <div className="flex justify-end border-t pt-5 md:col-span-2">
             <Button type="submit" disabled={isPending}>
               <Save className="mr-2 h-4 w-4" />
-              {isPending ? "Saving..." : "Save profile"}
+              {isPending ? t("buttons.saving") : t("buttons.save")}
             </Button>
           </div>
         </form>

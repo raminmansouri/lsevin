@@ -16,7 +16,7 @@ declare const messages: {
     "abuDhabi": "Abu Dhabi",
     "actions": "Actions",
     "active": "Active",
-    "activityLog": "Activity Log",
+    "activityLog": "Activity log",
     "add2OrMorePremiumServicesForTheUltimate": "Add 2 or more premium services for the ultimate luxury experience",
     "add3OrMoreServicesAndGet10Percent": "Add 3 or more services and get 10% off all add-ons",
     "addAPrivateGuidePlusPhotographerForATruly": "Add a private guide + photographer for a truly personalized experience",
@@ -37,27 +37,27 @@ declare const messages: {
     "additionalServices": "Additional Services",
     "additionalServices2": "Additional services",
     "adults": "Adults",
-    "allBookings": "All Bookings (",
-    "allClinics": "All Clinics",
-    "allDoctors": "All Doctors",
+    "allBookings": "All bookings",
+    "allClinics": "All clinics",
+    "allDoctors": "All doctors",
     "allDocumentsAreEncryptedEndToEndAndOnly": "All documents are encrypted end-to-end and only accessible by your assigned medical team.",
     "allInclusivePackage": "All-inclusive package",
-    "allLocations": "All Locations",
+    "allLocations": "All locations",
     "allSetLetSGo": "All Set! Let's Go!",
-    "allStaff": "All Staff",
-    "allStatus": "All Status",
+    "allStaff": "All staff",
+    "allStatus": "All status",
     "allTimesShownAreInIstanbulTimeGMTPlus": "All times shown are in Istanbul Time (GMT+3). We'll send you a confirmation with your local time.",
     "and": ", and",
     "annaMartinez": "Anna Martinez",
     "anyAllergiesCurrentMedicationsOrSpecialRequirements": "Any allergies, current medications, or special requirements...",
     "applied": "Applied:",
     "apply": "Apply",
-    "appointmentBookings": "Appointment Bookings",
-    "appointmentDetails": "Appointment Details",
+    "appointmentBookings": "Appointment bookings",
+    "appointmentDetails": "Appointment details",
     "appointmentSchedule": "Appointment Schedule",
     "appointmentTime": "Appointment Time",
     "areYouSureYouWantToCancelThisBooking": "Are you sure you want to cancel this booking?",
-    "assignedDoctor": "Assigned Doctor",
+    "assignedDoctor": "Assigned doctor",
     "available": "Available",
     "availableDates": "Available dates",
     "availableDatesAndTimesComeFromStaffAvailabilityAnd": "Available dates and times come from staff availability and existing bookings.",
@@ -75,46 +75,46 @@ declare const messages: {
     "bookYourStay": "Book Your Stay",
     "bookYourWorkout": "Book Your Workout",
     "booking": "Booking",
-    "bookingActions": "Booking Actions",
+    "bookingActions": "Booking actions",
     "bookingCalendar": "Booking calendar",
     "bookingCancelledSuccessfully": "Booking cancelled successfully.",
     "bookingCheckout": "Booking checkout",
     "bookingConfirmed": "Booking Confirmed!",
     "bookingConfirmed2": "Booking confirmed",
     "bookingCouldNotBeCancelled": "Booking could not be cancelled.",
-    "bookingCouldNotBeLoaded": "Booking could not be loaded",
+    "bookingCouldNotBeLoaded": "Booking could not be loaded.",
     "bookingCreated": "Booking created",
-    "bookingDetails": "Booking Details",
+    "bookingDetails": "Booking details",
     "bookingDrafts": "Booking drafts",
     "bookingFee": "Booking fee",
     "bookingFinancials": "Booking financials",
     "bookingID": "Booking ID",
     "bookingID2": "Booking ID:",
-    "bookingInformation": "Booking Information",
+    "bookingInformation": "Booking information",
     "bookingPaymentTerms": "Booking payment terms",
     "bookingReview": "Booking review",
     "bookingReviewSaved": "Booking review saved",
     "bookingStatus": "Booking status",
-    "bookingStatus2": "Booking Status",
-    "bookingSteps": "BookingSteps",
+    "bookingStatus2": "Booking status",
+    "bookingSteps": "Booking steps",
     "bookingSubmitted": "Booking submitted",
     "bookingSummary": "Booking Summary",
     "bookingUpdated": "Booking updated.",
     "bookings": "Bookings",
     "bookings2": "bookings",
-    "bookingsCouldNotBeLoaded": "Bookings could not be loaded",
+    "bookingsCouldNotBeLoaded": "Bookings could not be loaded.",
     "bookingsReview": "Bookings review",
     "bulkActions": "Bulk Actions",
     "bundleDiscountApplied": "Bundle Discount Applied!",
     "calendar": "Calendar",
     "cancel": "Cancel",
-    "cancelBooking": "Cancel Booking",
-    "cancelBooking2": "Cancel Booking?",
+    "cancelBooking": "Cancel booking",
+    "cancelBooking2": "Cancel booking",
     "cancelFreeOfChargeUpTo24HoursBefore": "Cancel free of charge up to 24 hours before departure for a full refund.",
     "cancelFreeOfChargeUpTo48HoursBefore": "Cancel free of charge up to 48 hours before check-in. Full refund guaranteed.",
     "cancelOrRescheduleUpTo2HoursBeforeYour": "Cancel or reschedule up to 2 hours before your session with no penalty.",
     "cancellationPolicy": "Cancellation Policy",
-    "cancellationPolicy2": "Cancellation Policy:",
+    "cancellationPolicy2": "Cancellation policy: ",
     "cancellationReason": "Cancellation reason",
     "cancelled": "Cancelled",
     "capacity": "Capacity",
@@ -124,7 +124,7 @@ declare const messages: {
     "checkIn": "Check-in",
     "checkInAndCheckOut": "Check-in & Check-out",
     "checkInDate": "Check-in Date",
-    "checkInsToday": "Check-ins Today",
+    "checkInsToday": "Check-ins today",
     "checkOut": "Check-out",
     "checkOutDate": "Check-out Date",
     "checkingServiceResourceAvailability": "Checking service/resource availability…",
@@ -151,17 +151,17 @@ declare const messages: {
     "code": "Code",
     "commercialSnapshotFrozenChargeLinesProviderLedgerAndRefund": "Commercial snapshot, frozen charge lines, provider ledger, and refund history for this booking.",
     "completePayment": "Complete Payment",
-    "completeService": "Complete Service",
+    "completeService": "Complete service",
     "completeYourBooking": "Complete Your Booking",
     "completed": "Completed",
     "confirm": "Confirm",
     "confirmAndPayDollar": "Confirm & Pay $",
-    "confirmBooking": "Confirm Booking",
+    "confirmBooking": "Confirm booking",
     "confirmationNumber": "Confirmation #",
     "confirmed": "Confirmed",
     "confirmedAvailability": "Confirmed availability",
-    "contactProvider": "Contact Provider",
-    "contactSupport": "Contact Support",
+    "contactProvider": "Contact provider",
+    "contactSupport": "Contact support",
     "continue": "Continue",
     "continueInspectOrRepairPendingUserDraftFlows": "Continue, inspect or repair pending user draft flows",
     "continuePendingBooking": "Continue pending booking",
@@ -178,11 +178,11 @@ declare const messages: {
     "currentDraft": "Current draft",
     "currentDraftStep": "Current draft step:",
     "customer": "Customer",
-    "customer2": "Customer:",
-    "customerInformation": "Customer Information",
+    "customer2": "Customer: ",
+    "customerInformation": "Customer information",
     "date": "Date:",
     "date2": "Date",
-    "dateAndTime": "Date & Time",
+    "dateAndTime": "Date & time",
     "dateOfBirth": "Date of Birth",
     "depositToSecureYourBooking": "deposit to secure your booking",
     "destination": "Destination",
@@ -195,7 +195,7 @@ declare const messages: {
     "documentChecklist": "Document Checklist",
     "documents": "Documents",
     "download": "Download",
-    "downloadConfirmation": "Download Confirmation",
+    "downloadConfirmation": "Download confirmation",
     "drAhmedHassan": "Dr. Ahmed Hassan",
     "drFatimaAlRashid": "Dr. Fatima Al-Rashid",
     "drMariaSantos": "Dr. Maria Santos",
@@ -223,8 +223,8 @@ declare const messages: {
     "existingResource": "Existing resource",
     "existingRule": "Existing rule",
     "experience": "Experience",
-    "experience2": "experience",
-    "exploreServices": "Explore Services",
+    "experience2": " experience",
+    "exploreServices": "Explore services",
     "exportBookings": "Export Bookings",
     "extraLSevinSupportServicesWereNotRequestedForThis": "Extra LSevin support services were not requested for this booking.",
     "failedToLoadOptions": "Failed to load options",
@@ -246,20 +246,20 @@ declare const messages: {
     "gatewayChargeCurrency": "Gateway charge currency:",
     "gender": "Gender",
     "genericAvailability": "Generic availability",
-    "guestName": "Guest Name",
+    "guestName": "Guest name",
     "guests": "Guests",
     "hIPAACompliantAndEncrypted": "HIPAA Compliant & Encrypted",
     "iAgreeToThe": "I agree to the",
     "iWantLSevinToArrangeExtraSupportServicesFor": "I want LSevin to arrange extra support services for this booking.",
     "iWantToUseLSevin": "I want to use LSevin",
-    "inProgress": "In Progress",
+    "inProgress": "In progress",
     "includedServices": "Included Services",
     "includes": "Includes:",
     "inspectTheParentBookingEmbeddedAddOnChildBookings": "Inspect the parent booking, embedded add-on child bookings, documents, and payments.",
     "internationalPatients": "International Patients",
     "johnDoe": "John Doe",
     "johnDoeExampleCom": "john.doe@example.com",
-    "keepBooking": "Keep Booking",
+    "keepBooking": "Keep booking",
     "leadTraveler": "Lead Traveler",
     "load3More": "Load 3 more",
     "loadMore": "Load more (",
@@ -272,8 +272,8 @@ declare const messages: {
     "mainBookingsAndChildBookingsAssignedToThisProvider": "Main bookings and child bookings assigned to this provider.",
     "mainSubtotal": "Main subtotal",
     "male": "Male",
-    "manageAndTrackAllClinicAppointments": "Manage and track all clinic appointments",
-    "manageYourAppointmentsAndBookingRequests": "Manage your appointments and booking requests",
+    "manageAndTrackAllClinicAppointments": "Manage and track all clinic appointments.",
+    "manageYourAppointmentsAndBookingRequests": "Manage your appointments and booking requests.",
     "manualTransfer": "Manual transfer",
     "march2026": "March 2026",
     "mariaSantos": "Maria Santos",
@@ -283,12 +283,12 @@ declare const messages: {
     "medicalNotesOrConcerns": "Medical Notes or Concerns",
     "membersWhoCombineTrainingPlusNutritionSee3xBetter": "Members who combine training + nutrition see 3x better results",
     "method": "Method:",
-    "minutes": "minutes",
+    "minutes": " minutes",
     "mode": "Mode:",
     "modify": "Modify",
     "more": "more)",
-    "moreFilters": "More Filters",
-    "myBookings": "My Bookings",
+    "moreFilters": "More filters",
+    "myBookings": "My bookings",
     "name": "Name",
     "nationality": "Nationality",
     "needHelp": "Need Help?",
@@ -307,7 +307,7 @@ declare const messages: {
     "notRequired": "Not required",
     "notes": "Notes",
     "notesForThisSubBooking": "Notes for this sub-booking",
-    "numberOfGuests": "Number of Guests",
+    "numberOfGuests": "Number of guests",
     "numberOfTravelers": "Number of Travelers",
     "onlineGateway": "Online gateway",
     "onlyOneActiveBookingDraftExistsPerUserYou": "Only one active booking draft exists per user. You can continue where you left off or discard it and start a fresh booking.",
@@ -326,14 +326,14 @@ declare const messages: {
     "pDFJPGPNGUpTo10MBEach": "PDF, JPG, PNG up to 10MB each",
     "pDFJPGPNGUpTo10MBPerFile": "PDF, JPG, PNG • Up to 10MB per file",
     "pOPULAR": "POPULAR",
-    "packageIncludes": "Package Includes",
-    "paidAmount": "Paid Amount",
-    "paidAmountsMayBeRefundableDependingOnTheProvider": "Paid amounts may be refundable depending on the provider policy and payment status.",
+    "packageIncludes": "Package includes",
+    "paidAmount": "Paid amount",
+    "paidAmountsMayBeRefundableDependingOnTheProvider": "Paid amounts may be refundable depending on the provider policy.",
     "parentBookingsChildBookingsDocumentsAddOnsAndPayments": "Parent bookings, child bookings, documents, add-ons and payments",
     "passportNumber": "Passport Number",
     "patient": "Patient",
-    "patientInformation": "Patient Information",
-    "patientName": "Patient Name",
+    "patientInformation": "Patient information",
+    "patientName": "Patient name",
     "patients": "patients",
     "patients2": "Patients",
     "payDepositDollar": "Pay Deposit ($",
@@ -349,8 +349,8 @@ declare const messages: {
     "paymentMethod2": "Payment method",
     "paymentReceived": "Payment received",
     "paymentStatus": "Payment status:",
-    "paymentStatus2": "Payment Status",
-    "paymentSummary": "Payment Summary",
+    "paymentStatus2": "Payment status",
+    "paymentSummary": "Payment summary",
     "paymentTerms": "Payment terms",
     "paymentVerificationFailed": "Payment verification failed.",
     "paymentVerifiedSuccessfully": "Payment verified successfully.",
@@ -369,7 +369,7 @@ declare const messages: {
     "pleaseVerifyAllDetailsBeforePayment": "Please verify all details before payment",
     "plus12PercentThisMonth": "+12% this month",
     "plus3FromYesterday": "+3 from yesterday",
-    "plusNewBooking": "+ New Booking",
+    "plusNewBooking": "+ New booking",
     "premiumAddOns": "Premium Add-ons",
     "premiumAddOns2": "Premium add-ons",
     "premiumOptions": "Premium Options",
@@ -382,15 +382,15 @@ declare const messages: {
     "provider2": "Provider:",
     "providerAddOnsAlwaysAppearTurnOnLSevinAdd": "Provider add-ons always appear. Turn on LSevin add-ons to show hotel, pickup, and other travel help.",
     "providerAdminNotes": "Provider/admin notes",
-    "providerDescription": "Provider Description",
-    "providerFacingViewOfReservationDueNowAndBalance": "Provider-facing view of reservation due-now and balance-due-later terms.",
+    "providerDescription": "Provider description",
+    "providerFacingViewOfReservationDueNowAndBalance": "Provider-facing view of reservation due now and balance due later.",
     "providerID": "Provider ID",
     "providerNotes": "Provider notes",
-    "providerOnlyViewOfChargeLinesLedgerRowsAnd": "Provider-only view of charge lines, ledger rows, and refund history.",
+    "providerOnlyViewOfChargeLinesLedgerRowsAnd": "Provider-only view of charge lines, ledger rows, and refund requests.",
     "providerServiceID": "Provider service ID",
     "providers": "Providers",
     "qty": "· qty",
-    "quantity": "Quantity:",
+    "quantity": "Quantity: ",
     "rECOMMENDED": "RECOMMENDED",
     "rEQUIRED": "REQUIRED",
     "readyForAdventure": "Ready for Adventure!",
@@ -401,7 +401,7 @@ declare const messages: {
     "refreshBooking": "Refresh booking",
     "refreshBookings": "Refresh bookings",
     "rejected": "Rejected",
-    "relatedBookings": "Related Bookings",
+    "relatedBookings": "Related bookings",
     "remaining": "Remaining",
     "remainingDollar": "Remaining $",
     "remove": "Remove",
@@ -415,7 +415,7 @@ declare const messages: {
     "resourceType": "Resource type",
     "returnToHome": "Return to Home",
     "revenue": "Revenue",
-    "revenueToday": "Revenue Today",
+    "revenueToday": "Revenue today",
     "reviewAndPay": "Review and pay",
     "reviewAndPayment": "Review & payment",
     "reviewHowMuchTheCustomerWasRequiredToPay": "Review how much the customer was required to pay to reserve this booking and what balance remains due later.",
@@ -427,10 +427,10 @@ declare const messages: {
     "reviewYourMedicalBookingDetails": "Review your medical booking details",
     "reviewYourSelectedTreatmentDetails": "Review your selected treatment details",
     "reviewYourTourDetails": "Review your tour details",
-    "reviews": "reviews)",
+    "reviews": "Reviews",
     "room": "Room:",
     "room2": "Room (",
-    "roomCategory": "Room Category",
+    "roomCategory": "Room category",
     "rooms": "Rooms",
     "sELECTEDDOCTOR": "SELECTED DOCTOR",
     "save": "Save",
@@ -445,12 +445,12 @@ declare const messages: {
     "scheduleAndBookingDetails": "Schedule and booking details",
     "scheduleAppointment": "Schedule appointment",
     "search": "Search",
-    "searchBookings": "Search bookings...",
-    "searchByCustomerNameBookingIDOrService": "Search by customer name, booking ID, or service...",
-    "searchByCustomerNameOrBookingID": "Search by customer name or booking ID...",
-    "searchByGuestNameOrBookingID": "Search by guest name or booking ID...",
-    "searchByPatientNameBookingIDOrService": "Search by patient name, booking ID, or service...",
-    "searchByPatientNameBookingIDOrTreatment": "Search by patient name, booking ID, or treatment...",
+    "searchBookings": "Search bookings",
+    "searchByCustomerNameBookingIDOrService": "Search by customer name, booking ID, or service",
+    "searchByCustomerNameOrBookingID": "Search by customer name or booking ID",
+    "searchByGuestNameOrBookingID": "Search by guest name or booking ID",
+    "searchByPatientNameBookingIDOrService": "Search by patient name, booking ID, or service",
+    "searchByPatientNameBookingIDOrTreatment": "Search by patient name, booking ID, or treatment",
     "searchProviders": "Search providers...",
     "searchServices": "Search services...",
     "searchSpecialists": "Search specialists...",
@@ -470,7 +470,7 @@ declare const messages: {
     "selectTime2": "Select time",
     "selectYourRoom": "Select Your Room",
     "selected": "Selected",
-    "selectedAddOns": "Selected Add-ons",
+    "selectedAddOns": "Selected add-ons",
     "selectedAddOns2": "Selected add-ons",
     "selectedExperience": "Selected Experience",
     "selectedProvider": "Selected Provider",
@@ -481,8 +481,8 @@ declare const messages: {
     "service": "Service",
     "service2": "Service:",
     "service3": "· Service:",
-    "serviceClass": "Service/Class",
-    "serviceDescription": "Service Description",
+    "serviceClass": "Service / class",
+    "serviceDescription": "Service description",
     "serviceFee": "Service fee",
     "serviceFee3Percent": "Service Fee (3%)",
     "services": "Services",
@@ -494,16 +494,16 @@ declare const messages: {
     "slotInterval": "Slot interval",
     "sofiaRodriguez": "Sofia Rodriguez",
     "source": "Source",
-    "specialNotes": "Special Notes",
+    "specialNotes": "Special notes",
     "specialist": "Specialist",
     "specialist2": "Specialist:",
     "specialists": "Specialists",
     "specificDate": "Specific date",
     "spotConfirmedReadyToTrain": "Spot confirmed - ready to train!",
     "staff": "Staff",
-    "staffMember": "Staff Member",
+    "staffMember": "Staff member",
     "standaloneBookingProcessWithDraftPersistenceAndCheckout": "Standalone booking process with draft persistence and checkout.",
-    "startService": "Start Service",
+    "startService": "Start service",
     "startingFrom": "Starting from",
     "startsAt": "Starts at",
     "status": "Status",
@@ -538,18 +538,18 @@ declare const messages: {
     "timezoneNotice": "Timezone Notice",
     "toDate": "To date",
     "today": "Today",
-    "todaySBookings": "Today's Bookings",
-    "todaySTours": "Today's Tours",
+    "todaySBookings": "Today's bookings",
+    "todaySTours": "Today's tours",
     "total": "Total",
-    "total2": "Total:",
+    "total2": "Total: ",
     "totalAfterDiscounts": "Total after discounts",
-    "totalAmount": "Total Amount",
-    "totalBookings": "Total Bookings",
+    "totalAmount": "Total amount",
+    "totalBookings": "Total bookings",
     "totalCapacity": "Total capacity",
     "totalDuration": "Total Duration",
     "totalNights": "Total Nights:",
     "totalPaid": "Total Paid",
-    "totalToday": "Total Today",
+    "totalToday": "Total today",
     "tour": "Tour:",
     "tourSchedule": "Tour Schedule",
     "trained": "trained",
@@ -564,7 +564,7 @@ declare const messages: {
     "treatmentFee": "Treatment fee",
     "treatmentFee2": "Treatment Fee",
     "treatmentOverview": "Treatment Overview",
-    "tryAgain": "Try Again",
+    "tryAgain": "Try again",
     "twentyFourSevenMedicalCoordinatorSupport": "24/7 Medical Coordinator Support",
     "twentyFourSevenMedicalSupport": "24/7 Medical Support",
     "twentyFourSevenSupport": "24/7 Support",
@@ -582,13 +582,13 @@ declare const messages: {
     "uploadOrDragFiles": "Upload or Drag Files",
     "uploadYourMedicalRecordsToHelpOurSpecialistsPrepare": "Upload your medical records to help our specialists prepare the best treatment plan for you",
     "uploaded": "uploaded",
-    "uploadedDocuments": "Uploaded Documents",
+    "uploadedDocuments": "Uploaded documents",
     "uploadedFiles": "Uploaded Files (",
     "useProviderServiceRulesForServiceLevelSchedulesAnd": "Use provider-service rules for service-level schedules, and bookable resources for capacity-based inventory like hotel rooms, beds, cars, seats, or equipment. Existing staff availability still works as a fallback.",
     "useRHFSingleMediaPickerFieldRHFMultiMediaPickerFieldHiddenValueHere": "Use RHFSingleMediaPickerField / RHFMultiMediaPickerField hidden value here",
     "vIPTreatment": "VIP Treatment",
     "verifiedProvider": "Verified Provider",
-    "viewDetails": "View Details",
+    "viewDetails": "View details",
     "viewMyBookings": "View My Bookings",
     "whatHappensNext": "What Happens Next",
     "whatSIncluded": "What's Included",
@@ -605,7 +605,7 @@ declare const messages: {
     "yourPaymentIsProtectedWith256BitSSLEncryption": "Your payment is protected with 256-bit SSL encryption and instant confirmation.",
     "yourPaymentIsSecuredByBankGradeEncryptionWe": "Your payment is secured by bank-grade encryption. We never store your card details.",
     "yourReservationIsProtectedWith256BitSSLEncryption": "Your reservation is protected with 256-bit SSL encryption and instant confirmation.",
-    "yourSpecialist": "Your Specialist",
+    "yourSpecialist": "Your specialist",
     "yourStayIsReady": "Your Stay is Ready!",
     "stepService": "Service",
     "stepSchedule": "Schedule",
@@ -644,7 +644,71 @@ declare const messages: {
     "onlineCardPayment": "Online Card Payment",
     "chooseEnabledGatewaySuchAsZarinpal": "Choose an enabled gateway such as Zarinpal",
     "bankTransfer": "Bank transfer",
-    "wallet": "Wallet"
+    "wallet": "Wallet",
+    "addressWillBeSharedByProvider": "Address will be shared by the provider.",
+    "amenities": "Amenities",
+    "analytics": "Analytics",
+    "availability": "Availability",
+    "beforeAfter": "Before/After",
+    "billing": "Billing",
+    "bookedOn": "Booked on",
+    "bookingConfirmedByTheProvider": "Booking confirmed by the provider.",
+    "bookingCouldNotBeUpdated": "Booking could not be updated.",
+    "bookingOperations": "Booking operations",
+    "bookingSummaryDateTime": "{service} • {date} at {time}",
+    "bookingsManagement": "Bookings management",
+    "cancelledBookingsWillAppearHere": "Cancelled bookings will appear here when a booking is cancelled.",
+    "classSchedule": "Class schedule",
+    "commercialSnapshotFrozenChargeLinesProviderLedgerAndRefundHistoryForThisBooking": "Commercial snapshot, frozen charge lines, provider ledger, and refund history for this booking.",
+    "completedBookingsWillAppearHere": "Completed bookings will appear here after your appointments are finished.",
+    "confirmationCode": "Confirmation code",
+    "consultations": "Consultations",
+    "dashboard": "Dashboard",
+    "destinations": "Destinations",
+    "doctors": "Doctors",
+    "earnings": "Earnings",
+    "failed": "Failed",
+    "gallery": "Gallery",
+    "liveStatus": "Live status",
+    "media": "Media",
+    "mediaGallery": "Media gallery",
+    "memberships": "Memberships",
+    "mySchedule": "My schedule",
+    "myServices": "My services",
+    "noCancelledBookings": "No cancelled bookings",
+    "noPastBookings": "No past bookings",
+    "noUpcomingAppointmentsExploreServices": "You do not have any upcoming appointments. Start exploring available services.",
+    "noUpcomingBookings": "No upcoming bookings",
+    "offers": "Offers",
+    "paid": "Paid",
+    "partial": "Partial",
+    "payWithGateway": "Pay with {gateway}",
+    "paymentDue": "Payment due",
+    "paymentUnavailable": "Payment unavailable",
+    "pendingConfirmation": "Pending confirmation",
+    "pleaseRefreshAndTryAgain": "Please refresh and try again.",
+    "pricing": "Pricing",
+    "profile": "Profile",
+    "promotions": "Promotions",
+    "providerReviewingYourAppointmentRequest": "The provider is reviewing your appointment request.",
+    "refunded": "Refunded",
+    "reservationManagement": "Reservation management",
+    "reviewCustomerRequiredPayReserveBalanceDueLater": "Review how much the customer was required to pay to reserve this booking and what balance remains due later.",
+    "roomCategories": "Room categories",
+    "roomInventory": "Room inventory",
+    "saveBooking": "Save booking",
+    "saving": "Saving...",
+    "schedule": "Schedule",
+    "settings": "Settings",
+    "support": "Support",
+    "thisAppointmentHasBeenCompleted": "This appointment has been completed.",
+    "thisBookingHasBeenCancelled": "This booking has been cancelled.",
+    "timeSlots": "Time slots",
+    "tourPackages": "Tour packages",
+    "trainers": "Trainers",
+    "transferServices": "Transfer services",
+    "treatments": "Treatments",
+    "yesCancel": "Yes, cancel"
   },
   "Explore": {
     "header": {
@@ -741,10 +805,10 @@ declare const messages: {
   },
   "AdminGenerated": {
     "aRIALabel": "A Ria Label",
-    "accentColor": "Accent Color",
+    "accentColor": "Accent color",
     "accessControl": "Access Control",
     "accountStatus": "Account Status",
-    "accountVerification": "Account Verification",
+    "accountVerification": "Account verification",
     "accredited": "Accredited",
     "action": "Action",
     "actionType": "Action Type",
@@ -761,8 +825,8 @@ declare const messages: {
     "add": "Add",
     "addAdminSEOReview": "Add Admin SEO Review",
     "addNewUser": "Add New User",
-    "addNote": "Add Note",
-    "addOns": "Add Ons",
+    "addNote": "Add note",
+    "addOns": "Add-ons",
     "addUser": "Add User",
     "address": "Address",
     "addressDetails": "Address Details",
@@ -773,22 +837,22 @@ declare const messages: {
     "adminNote": "Admin Note",
     "adults": "Adults",
     "advancedJSON": "Advanced JSON",
-    "advancedJSONSettings": "Advanced JSON Settings",
+    "advancedJSONSettings": "Advanced JSON settings",
     "allActions": "All Actions",
     "allCategories": "All categories",
     "allChannels": "All Channels",
     "allCountries": "All countries",
     "allModules": "All Modules",
-    "allPayments": "All Payments",
-    "allPriorities": "All Priorities",
+    "allPayments": "All payments",
+    "allPriorities": "All priorities",
     "allRoles": "All Roles",
-    "allServices": "All Services",
+    "allServices": "All services",
     "allSeverity": "All Severity",
-    "allStatus": "All Status",
+    "allStatus": "All status",
     "allStatuses": "All Statuses",
-    "allTags": "All Tags",
+    "allTags": "All tags",
     "allTypes": "All Types",
-    "allTypes2": "All Types 2",
+    "allTypes2": "All types",
     "amount": "Amount",
     "analyticsDashboard": "Analytics Dashboard",
     "answerThisReviewAsAdmin": "Answer This Review As Admin",
@@ -802,18 +866,18 @@ declare const messages: {
     "approvedPublic": "Approved Public",
     "areYouAProvider": "Are You A Provider",
     "asiaTehranEuropeIstanbulUTC": "Asia Tehran Europe Istanbul Utc",
-    "assignToMe": "Assign to Me",
+    "assignToMe": "Assign to me",
     "assignedTo": "Assigned to",
     "attributeDeleted": "Attribute Deleted",
     "attributeSaved": "Attribute Saved",
-    "auditLogs": "Audit Logs",
+    "auditLogs": "Audit logs",
     "authContent": "Auth Content",
-    "autoReplySettings": "Auto Reply Settings",
+    "autoReplySettings": "Auto-reply settings",
     "availabilityForProvidersServicesStaffAndResources": "Availability for Providers Services Staff and Resources",
     "availabilityRule": "Availability Rule",
     "availabilityRuleSaved": "Availability Rule Saved",
     "avgBookingValue": "Avg. booking value",
-    "avgResponseTime": "Avg. Response Time",
+    "avgResponseTime": "Avg Response Time",
     "avgTransaction": "Avg. transaction",
     "badgeEyebrowText": "Badge Eyebrow Text",
     "badgeText": "Badge Text",
@@ -830,21 +894,21 @@ declare const messages: {
     "bookingCalendarSettingsSaved": "Booking Calendar Settings Saved",
     "bookingFinancialSummary": "Booking Financial Summary",
     "bookingID": "Booking ID",
-    "bookingIDUserProviderOrService": "Booking ID User Provider or Service",
+    "bookingIDUserProviderOrService": "Booking ID, user, provider, or service",
     "bookingIdentityCustomer": "Booking Identity Customer",
-    "bookingManagement": "Booking Management",
-    "bookingOperations": "Booking Operations",
+    "bookingManagement": "Booking management",
+    "bookingOperations": "Booking operations",
     "bookingPaymentPolicyDeleted": "Booking Payment Policy Deleted",
     "bookingPaymentPolicySaved": "Booking Payment Policy Saved",
     "bookingPaymentTerms": "Booking Payment Terms",
-    "bookingSaved": "Booking Saved",
-    "bookingStatus": "Booking Status",
-    "bookingStatus2": "Booking Status 2",
+    "bookingSaved": "Booking saved.",
+    "bookingStatus": "Booking status",
+    "bookingStatus2": "Booking status",
     "bookings": "Bookings",
     "bookingsAndDrafts": "Bookings and Drafts",
-    "borderRadius": "Border Radius",
-    "bottomLeft": "Bottom Left",
-    "bottomRight": "Bottom Right",
+    "borderRadius": "Border radius",
+    "bottomLeft": "Bottom left",
+    "bottomRight": "Bottom right",
     "brochures": "Brochures",
     "budget": "Budget",
     "buttonLabel": "Button Label",
@@ -857,9 +921,9 @@ declare const messages: {
     "campaigns": "Campaigns",
     "cancel": "Cancel",
     "cancelled": "Cancelled",
-    "cannedReplies": "Canned Replies",
-    "cannedReplyDeleted": "Canned Reply Deleted",
-    "cannedReplySaved": "Canned Reply Saved",
+    "cannedReplies": "Canned replies",
+    "cannedReplyDeleted": "Canned reply deleted.",
+    "cannedReplySaved": "Canned reply saved.",
     "capDueNow": "Cap Due Now",
     "category": "Category",
     "categoryPerformance": "Category performance",
@@ -870,10 +934,10 @@ declare const messages: {
     "channel": "Channel",
     "chargeLine": "Charge Line",
     "chargeLines": "Charge Lines",
-    "childBookingUpdated": "Child Booking Updated",
-    "childSubBookings": "Child Sub Bookings",
+    "childBookingUpdated": "Child booking updated.",
+    "childSubBookings": "Child sub-bookings",
     "children": "Children",
-    "chooseAnItemFromTheInboxToStartReplying": "Choose An Item From The Inbox to Start Replying",
+    "chooseAnItemFromTheInboxToStartReplying": "Choose an item from the inbox to start replying.",
     "city": "City",
     "clearSearch": "Clear Search",
     "clicks": "Clicks",
@@ -882,7 +946,7 @@ declare const messages: {
     "collection": "Collection",
     "collectionMode": "Collection Mode",
     "commaSeparatedTags": "Comma Separated Tags",
-    "compactLauncher": "Compact Launcher",
+    "compactLauncher": "Compact launcher",
     "compensationPolicySaved": "Compensation Policy Saved",
     "complete": "Complete",
     "completed": "Completed",
@@ -895,7 +959,7 @@ declare const messages: {
     "content": "Content",
     "contentAlignment": "Content Alignment",
     "contentType": "Content Type",
-    "controlWhereSupportAppearsAndWhoCanStartAConversation": "Control Where Support Appears and Who Can Start A Conversation",
+    "controlWhereSupportAppearsAndWhoCanStartAConversation": "Control where support appears and who can start a conversation.",
     "convRate": "Conv Rate",
     "conversionRate": "Conversion rate",
     "coordinates": "Coordinates",
@@ -915,7 +979,7 @@ declare const messages: {
     "createRefundRequest": "Create Refund Request",
     "createUser": "Create User",
     "creating": "Creating",
-    "crispLikeConversations": "Crisp Like Conversations",
+    "crispLikeConversations": "Conversation-based support inbox",
     "critical": "Critical",
     "criticalEvents": "Critical Events",
     "currency": "Currency",
@@ -926,19 +990,19 @@ declare const messages: {
     "customRange2": "Custom Range 2",
     "customer": "Customer",
     "customerCancelledBeforeConfirmation": "Customer Cancelled Before Confirmation",
-    "customerContextAppearsHere": "Customer Context Appears Here",
+    "customerContextAppearsHere": "Customer context appears here.",
     "customerDocuments": "Customer Documents",
     "customerNote": "Customer Note",
     "customerSatisfaction": "Customer satisfaction",
     "customerSaved": "Customer Saved",
-    "customizeLauncherColorRadiusIconAndPosition": "Customize Launcher Color Radius Icon and Position",
+    "customizeLauncherColorRadiusIconAndPosition": "Customize launcher color, radius, icon, and position.",
     "cyprus": "Cyprus",
     "dBLSTDROOM101CAR01": "D Blstdroom 101 Car 01",
     "dark": "Dark",
     "dashboard": "Dashboard",
     "date": "Date",
     "dateRange": "Date Range",
-    "dateTime": "Date Time",
+    "dateTime": "Date & time",
     "decimalDigits": "Decimal Digits",
     "default": "Default",
     "defaultCalendar": "Default Calendar",
@@ -978,8 +1042,8 @@ declare const messages: {
     "emailAddress": "Email Address",
     "enFaArTr": "En Fa Ar Tr",
     "enabledCalendars": "Enabled Calendars",
-    "englishAndPersianLabelsAreStoredAsJSONBObjectsNotStringifiedJSON": "English and Persian Labels Are Stored As Jsonb Objects Not Stringified JSON",
-    "englishReply": "English Reply",
+    "englishAndPersianLabelsAreStoredAsJSONBObjectsNotStringifiedJSON": "English and Persian labels are stored as JSONB objects, not stringified JSON.",
+    "englishReply": "English reply",
     "enterAnyAdditionalNotes": "Enter Any Additional Notes",
     "enterCity": "Enter City",
     "enterEmail": "Enter Email",
@@ -1018,7 +1082,7 @@ declare const messages: {
     "gateway": "Gateway",
     "gatewayFee": "Gateway Fee",
     "gatewayFeeMode": "Gateway Fee Mode",
-    "generalInquiry": "General Inquiry",
+    "generalInquiry": "General inquiry",
     "generateExportAndSchedulePlatformReports": "Generate Export and Schedule Platform Reports",
     "googleMapsCoordinates": "Google Maps Coordinates",
     "grade": "Grade",
@@ -1041,16 +1105,16 @@ declare const messages: {
     "imageAltText": "Image Alt Text",
     "imageMediaURL": "Image Media URL",
     "impressions": "Impressions",
-    "inProgress": "In progress",
+    "inProgress": "In Progress",
     "inactive": "Inactive",
     "inactiveSlidesAreHiddenFromFrontend": "Inactive Slides Are Hidden From Frontend",
     "indonesia": "Indonesia",
-    "internalNote": "Internal Note",
+    "internalNote": "Internal note",
     "issued": "Issued",
     "itemKey": "Item Key",
-    "jalaliDateEG14050210": "Jalali Date Eg 14050210",
+    "jalaliDateEG14050210": "Jalali date, e.g. 1405/02/10",
     "jalaliPersian": "Jalali Persian",
-    "keepTheseAsValidJSONObjects": "Keep These As Valid JSON Objects",
+    "keepTheseAsValidJSONObjects": "Keep these as valid JSON objects.",
     "key": "Key",
     "l7": "L 7",
     "lSevinAdmin": "L Sevin Admin",
@@ -1071,12 +1135,12 @@ declare const messages: {
     "lastName": "Last Name",
     "lastName2": "Last Name 2",
     "lastUpdated": "Last Updated",
-    "launcherIcon": "Launcher Icon",
+    "launcherIcon": "Launcher icon",
     "legalName": "Legal Name",
     "light": "Light",
     "line": "Line",
     "live": "Live",
-    "liveActivity": "Live Activity",
+    "liveActivity": "Live activity",
     "liveActivityMonitor": "Live Activity Monitor",
     "livePreview": "Live preview",
     "locale": "Locale",
@@ -1093,9 +1157,9 @@ declare const messages: {
     "mainButtonLabel": "Main Button Label",
     "mainCTALink": "Main Cta Link",
     "mainServiceChildBookingsAndAddOnsAsSeparateCommercialLines": "Main Service Child Bookings and Add Ons As Separate Commercial Lines",
-    "manageAndMonitorAllPlatformBookings": "Manage and Monitor All Platform Bookings",
+    "manageAndMonitorAllPlatformBookings": "Manage and monitor all platform bookings.",
     "manageAndMonitorAllPlatformUsers": "Manage and Monitor All Platform Users",
-    "manageCustomerSupportTicketsAndInquiries": "Manage Customer Support Tickets and Inquiries",
+    "manageCustomerSupportTicketsAndInquiries": "Manage customer support tickets and inquiries",
     "manageLanguagesTranslationsAndLocalizedContent": "Manage Languages Translations and Localized Content",
     "manageLoyaltyProgramsPointsAndRewardCampaigns": "Manage Loyalty Programs Points and Reward Campaigns",
     "marketingCampaignsAndPromotionalContent": "Marketing Campaigns and Promotional Content",
@@ -1128,22 +1192,22 @@ declare const messages: {
     "net": "Net",
     "new": "New",
     "nextRun": "Next Run",
-    "noAddOns": "No Add Ons",
+    "noAddOns": "No add-ons.",
     "noAttributesYet": "No Attributes Yet",
     "noBookingPaymentPoliciesFound": "No Booking Payment Policies Found",
     "noBookingsLoaded": "No Bookings Loaded",
     "noCertificationsYet": "No Certifications Yet",
-    "noChildBookings": "No Child Bookings",
+    "noChildBookings": "No child bookings.",
     "noChildDraftBookings": "No Child Draft Bookings",
-    "noConversationsFound": "No Conversations Found",
-    "noDocuments": "No Documents",
+    "noConversationsFound": "No conversations found.",
+    "noDocuments": "No documents.",
     "noDraftDocuments": "No Draft Documents",
     "noDraftsLoaded": "No Drafts Loaded",
-    "noEventsYet": "No Events Yet",
+    "noEventsYet": "No events yet.",
     "noFrozenBookingPaymentTermsWereFoundForThisBookingYet": "No Frozen Booking Payment Terms Were Found for This Booking Yet",
     "noGalleryItemsYet": "No Gallery Items Yet",
     "noPaymentIntents": "No Payment Intents",
-    "noPayments": "No Payments",
+    "noPayments": "No payments.",
     "noPoliciesYet": "No Policies Yet",
     "noProviderLedgerEntriesYet": "No Provider Ledger Entries Yet",
     "noProviderRequests": "No Provider Requests",
@@ -1167,13 +1231,13 @@ declare const messages: {
     "notificationTemplates": "Notification Templates",
     "notifications": "Notifications",
     "offer": "Offer",
-    "officeHours": "Office Hours",
-    "offlineSettings": "Offline Settings",
-    "onlyAdminsCanSeeThisNote": "Only Admins Can See This Note",
+    "officeHours": "Office hours",
+    "offlineSettings": "Offline settings",
+    "onlyAdminsCanSeeThisNote": "Only admins can see this note.",
     "open": "Open",
     "openAllRefundRequests": "Open All Refund Requests",
     "openButtonInNewTab": "Open Button in New Tab",
-    "openFile": "Open File",
+    "openFile": "Open file",
     "openFinancials": "Open Financials",
     "openLink": "Open Link",
     "openLinksInNewTab": "Open Links in New Tab",
@@ -1194,20 +1258,20 @@ declare const messages: {
     "payment": "Payment",
     "paymentCurrency": "Payment Currency",
     "paymentGross": "Payment Gross",
-    "paymentIssue": "Payment Issue",
-    "paymentMethod": "Payment Method",
+    "paymentIssue": "Payment issue",
+    "paymentMethod": "Payment method",
     "paymentMethods": "Payment methods",
     "paymentOperations": "Payment Operations",
     "paymentRefund": "Payment Refund",
-    "paymentStatus": "Payment Status",
+    "paymentStatus": "Payment status",
     "paymentSuccess": "Payment success",
     "payments": "Payments",
     "payout": "Payout",
     "pending": "Pending",
-    "pendingPayment": "Pending Payment",
+    "pendingPayment": "Pending payment",
     "pendingReview": "Pending Review",
     "pendingSettlement": "Pending Settlement",
-    "pendingUser": "Pending User",
+    "pendingUser": "Pending user",
     "pendingVerification": "Pending Verification",
     "pharmacy": "Pharmacy",
     "phone": "Phone",
@@ -1238,7 +1302,7 @@ declare const messages: {
     "price": "Price",
     "primaryButtonTitle": "Primary Button Title",
     "primaryButtonURL": "Primary Button URL",
-    "primaryColor": "Primary Color",
+    "primaryColor": "Primary color",
     "priority": "Priority",
     "processed": "Processed",
     "processing": "Processing",
@@ -1254,7 +1318,7 @@ declare const messages: {
     "providerImage": "Provider Image",
     "providerLedgerEntries": "Provider Ledger Entries",
     "providerManagement": "Provider Management",
-    "providerNotes": "Provider Notes",
+    "providerNotes": "Provider notes",
     "providerPayable": "Provider Payable",
     "providerPercentOverride": "Provider Percent Override",
     "providerRequests": "Provider Requests",
@@ -1288,7 +1352,7 @@ declare const messages: {
     "refundMode": "Refund Mode",
     "refundRate": "Refund rate",
     "refundRequest": "Refund Request",
-    "refundRequest2": "Refund Request 2",
+    "refundRequest2": "Refund request",
     "refundRequestCreated": "Refund Request Created",
     "refundRequests": "Refund requests",
     "refundScope": "Refund Scope",
@@ -1298,7 +1362,7 @@ declare const messages: {
     "relatedRecords": "Related Records",
     "remainingNet": "Remaining Net",
     "rememberMe": "Remember Me",
-    "replyToCustomer": "Reply to Customer",
+    "replyToCustomer": "Reply to customer",
     "reportID": "Report ID",
     "reportName": "Report Name",
     "reports": "Reports",
@@ -1307,14 +1371,14 @@ declare const messages: {
     "requestStatusUpdated": "Request Status Updated",
     "resolved": "Resolved",
     "responseTime": "Response Time",
-    "responseTime2": "Response Time 2",
+    "responseTime2": "Response time",
     "revenue": "Revenue",
     "revenueByServiceCategory": "Revenue by service category",
     "revenueOverview": "Revenue overview",
     "reviewAndApproveNewProviderRegistrations": "Review and Approve New Provider Registrations",
     "reviewDecision": "Review Decision",
     "reviewDeleted": "Review Deleted",
-    "reviewNote": "Review Note",
+    "reviewNote": "Review note",
     "reviewReplyAdded": "Review Reply Added",
     "reviewReplyDeleted": "Review Reply Deleted",
     "reviewReplyUpdated": "Review Reply Updated",
@@ -1345,13 +1409,13 @@ declare const messages: {
     "scopeType": "Scope Type",
     "search": "Search",
     "searchAndSelectServiceDefinition": "Search and Select Service Definition",
-    "searchBookings": "Search Bookings",
-    "searchConversations": "Search Conversations",
+    "searchBookings": "Search bookings",
+    "searchConversations": "Search conversations...",
     "searchKeysNamesContentVariables": "Search Keys Names Content Variables",
     "searchLanguages": "Search Languages",
     "searchLogs": "Search Logs",
     "searchRecords": "Search Records",
-    "searchTickets": "Search Tickets",
+    "searchTickets": "Search tickets...",
     "searchTransactions": "Search Transactions",
     "searchUsers": "Search Users",
     "secondaryButtonLabel": "Secondary Button Label",
@@ -1365,7 +1429,7 @@ declare const messages: {
     "securityNotice": "Security Notice",
     "securityScore": "Security Score",
     "select": "Select",
-    "selectAConversation": "Select A Conversation",
+    "selectAConversation": "Select a conversation",
     "selectAddon": "Select Addon",
     "selectAttribute": "Select Attribute",
     "selectChargeLinesToRefund": "Select Charge Lines to Refund",
@@ -1373,15 +1437,15 @@ declare const messages: {
     "selectCountry": "Select Country",
     "selectCurrency": "Select currency",
     "selectGrade": "Select Grade",
-    "selectPaymentMethod": "Select Payment Method",
+    "selectPaymentMethod": "Select payment method",
     "selectPlacement": "Select Placement",
     "selectPolicyType": "Select Policy Type",
     "selectProvider": "Select provider",
     "selectProviderService": "Select provider service",
     "selectProviderType": "Select provider type",
-    "selectService": "Select Service",
+    "selectService": "Select service",
     "selectServiceDefinition": "Select service definition",
-    "selectSpecialist": "Select Specialist",
+    "selectSpecialist": "Select specialist",
     "selectStaff": "Select Staff",
     "selectWhereThisSlideAppearsAndAttachItsImageGIFOrVideo": "Select Where This Slide Appears and Attach Its Image Gif or Video",
     "selectedAmount": "Selected Amount",
@@ -1392,7 +1456,7 @@ declare const messages: {
     "serviceImage": "Service Image",
     "serviceProviderDeleted": "Service Provider Deleted",
     "serviceRoomTypeUUID": "Service Room Type Uuid",
-    "serviceType": "Service Type",
+    "serviceType": "Service type",
     "services": "Services",
     "settings": "Settings",
     "settled": "Settled",
@@ -1429,8 +1493,8 @@ declare const messages: {
     "summary": "Summary",
     "support": "Support",
     "supportInbox": "Support Inbox",
-    "supportSettingsSaved": "Support Settings Saved",
-    "supportTags": "Support Tags",
+    "supportSettingsSaved": "Support settings saved.",
+    "supportTags": "Support tags",
     "supportTickets": "Support Tickets",
     "suspend": "Suspend",
     "suspended": "Suspended",
@@ -1438,36 +1502,36 @@ declare const messages: {
     "system": "System",
     "systemAdmin": "System Admin",
     "systemSettings": "System Settings",
-    "tagDeleted": "Tag Deleted",
-    "tagName": "Tag Name",
-    "tagSaved": "Tag Saved",
+    "tagDeleted": "Tag deleted.",
+    "tagName": "Tag name",
+    "tagSaved": "Tag saved.",
     "tags": "Tags",
     "target": "Target",
     "targetCountry": "Target Country",
     "targetProvider": "Target Provider",
-    "technicalIssue": "Technical Issue",
+    "technicalIssue": "Technical issue",
     "templates": "Templates",
     "text": "Text",
-    "text1h45m": "Text 1 H 45 M",
+    "text1h45m": "1h 45m",
     "text24M": "Text 24 M",
     "text6MonthTrend": "6-month trend",
-    "textColor": "Text Color",
+    "textColor": "Text color",
     "thailand": "Thailand",
     "theme": "Theme",
-    "themeMode": "Theme Mode",
+    "themeMode": "Theme mode",
     "theseFieldsReplaceHardcodedTextsLikePremiumPlacementAndDiscob5a31e64": "These Fields Replace Hardcoded Texts Like Premium Placement and Discob 5 A 31 E 64",
     "thisMonth": "This Month",
     "thisQuarter": "This Quarter",
     "thisYear": "This Year",
     "thumbnail": "Thumbnail",
     "ticketID": "Ticket ID",
-    "ticketIDSubjectUser": "Ticket ID Subject User",
+    "ticketIDSubjectUser": "Ticket ID, subject, user",
     "time": "Time",
     "timeline": "Timeline",
     "timestamp": "Timestamp",
     "timezone": "Timezone",
     "title": "Title",
-    "to": "To:",
+    "to": "To",
     "topMarketsByRevenue": "Top markets by revenue",
     "topPerformingProviders": "Top performing providers",
     "total": "Total",
@@ -1515,8 +1579,8 @@ declare const messages: {
     "userIDOrDetails": "User ID or Details",
     "userManagement": "User Management",
     "userName": "User Name",
-    "userProvider": "User Provider",
-    "users": "Users (",
+    "userProvider": "User / Provider",
+    "users": "Users",
     "usuallyRepliesIn1Hour": "Usually Replies in 1 Hour",
     "value": "Value",
     "verificationStatus": "Verification Status",
@@ -1604,7 +1668,7 @@ declare const messages: {
     "bookingFlow": "Booking Flow",
     "bookingId": "Booking id",
     "bookingIdentityAndCustomerDirectDatabaseAdminPanel": "Booking, identity, and customer direct database admin panel.",
-    "bookingModification": "Booking Modification",
+    "bookingModification": "Booking modification",
     "bookingModifications": "Booking Modifications",
     "bookingPaymentPolicies": "Booking payment policies",
     "bookingReminders": "Booking reminders",
@@ -1615,7 +1679,7 @@ declare const messages: {
     "bookingVolumeByCategory": "Booking Volume by Category",
     "bookingsLower": "bookings",
     "bronze": "Bronze",
-    "bulkActions": "Bulk Actions",
+    "bulkActions": "Bulk actions",
     "businessLicense": "Business License",
     "cRUD": "CRUD",
     "cairoEgypt": "Cairo, Egypt",
@@ -1703,7 +1767,7 @@ declare const messages: {
     "expires": "Expires",
     "explainWhenThisTemplateIsUsed": "Explain when this template is used.",
     "exportAll": "Export All",
-    "exportBookings": "Export Bookings",
+    "exportBookings": "Export bookings",
     "exportCustomReport": "Export Custom Report",
     "exportData": "Export Data",
     "exportList": "Export List",
@@ -1959,7 +2023,7 @@ declare const messages: {
     "serviceDeactivated": "Service Deactivated",
     "serviceDefinitions": "Service Definitions",
     "serviceFee": "Service Fee",
-    "serviceManagement": "Service Management",
+    "serviceManagement": "Service management",
     "serviceUpdated": "Service updated",
     "serviceUtilizationReport": "Service Utilization Report",
     "sessionTimeout": "Session Timeout",
@@ -2126,13 +2190,117 @@ declare const messages: {
     "storesTheSelectedMediaURLInServiceProvidersImageUrl": "Stores the selected media URL in service_providers.image_url.",
     "supportedLanguages": "Supported Languages (",
     "templateKeyCopied": "Template key copied.",
-    "ticketQueue": "Ticket Queue (",
+    "ticketQueue": "Ticket Queue",
     "totalPage": "total · Page",
     "trending": "Trending:",
     "updated": "Updated",
     "updated2": "· updated",
     "useTheServiceDefinitionSelectorLocalizedRichTextFieldsCurrencyListAndMediaPicker": "Use the service definition selector, localized rich text fields, currency list, and media picker. Prices are formatted with thousands separators.",
-    "useThisOnlyForCuratedEditorialCommentsOrImportedReviewsCustomerReviewsShouldCome": "Use this only for curated editorial comments or imported reviews. Customer reviews should come from booked customers."
+    "useThisOnlyForCuratedEditorialCommentsOrImportedReviewsCustomerReviewsShouldCome": "Use this only for curated editorial comments or imported reviews. Customer reviews should come from booked customers.",
+    "allBookingsWithCount": "All bookings ({count})",
+    "bookingReview": "Booking review",
+    "bookingReviewSaved": "Booking review saved.",
+    "bookingsReview": "Bookings review",
+    "childProvider": "Child provider",
+    "childService": "Child service",
+    "childStatus": "Child status",
+    "createBooking": "Create booking",
+    "displayDate": "Display: {date}",
+    "embeddedAddOnSubBookings": "Embedded add-on sub-bookings",
+    "failedToSaveBooking": "Failed to save booking.",
+    "failedToUpdateChildBooking": "Failed to update child booking.",
+    "financial": "Financial",
+    "inspectParentBookingEmbeddedAddOnChildBookingsDocumentsAndPayments": "Inspect the parent booking, embedded add-on child bookings, documents, and payments.",
+    "loadingBooking": "Loading booking…",
+    "notRequired": "Not required",
+    "notesForThisSubBooking": "Notes for this sub-booking",
+    "parentBookingsChildBookingsDocumentsAddOnsAndPayments": "Parent bookings, child bookings, documents, add-ons, and payments",
+    "paymentTerms": "Payment terms",
+    "providerAdminNotes": "Provider/admin notes",
+    "quantityShort": "Qty",
+    "reviewParentBookingsEmbeddedAddOnChildBookingsPaymentsAndProviderNotes": "Review parent bookings, embedded add-on child bookings, payments, and provider notes.",
+    "saveBooking": "Save booking",
+    "saveReviewDecision": "Save review decision",
+    "saving": "Saving...",
+    "updateBookingId": "Update booking {id}",
+    "noContact": "No contact",
+    "tagAddPrefix": "Add tag",
+    "tagSelectedPrefix": "Selected",
+    "editCannedReply": "Edit canned reply",
+    "newCannedReply": "New canned reply",
+    "noBody": "No body",
+    "persianReply": "Persian reply",
+    "pleaseCheckCannedReply": "Please check the canned reply form.",
+    "pleaseCheckSettings": "Please check the support settings.",
+    "mustBeJsonObject": "Must be a JSON object",
+    "invalidJson": "Invalid JSON",
+    "invalidSettingsJson": "Invalid settings JSON",
+    "editTag": "Edit tag",
+    "newTag": "New tag",
+    "pleaseCheckTag": "Please check the tag form.",
+    "messages": "Messages",
+    "supportStatus": {
+      "all": "All",
+      "open": "Open",
+      "pending": "Pending",
+      "resolved": "Resolved",
+      "closed": "Closed",
+      "unassigned": "Unassigned",
+      "assigned_to_me": "Assigned to me"
+    },
+    "supportPriority": {
+      "all": "All",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "supportEvent": {
+      "conversationCreated": "Conversation created",
+      "messageSent": "Message sent",
+      "statusChanged": "Status changed",
+      "priorityChanged": "Priority changed",
+      "assigned": "Assigned",
+      "tagAdded": "Tag added",
+      "tagRemoved": "Tag removed",
+      "internalNoteAdded": "Internal note added"
+    },
+    "supportLabelKeys": {
+      "launcherLabel": "Launcher label",
+      "headerTitle": "Header title",
+      "headerSubtitle": "Header subtitle",
+      "welcomeTitle": "Welcome title",
+      "welcomeMessage": "Welcome message",
+      "inputPlaceholder": "Input placeholder",
+      "startConversationLabel": "Start conversation label",
+      "offlineLabel": "Offline label",
+      "onlineLabel": "Online label",
+      "sendButton": "Send button",
+      "attachmentLabel": "Attachment label"
+    },
+    "relativeTime": {
+      "fiveMinutesAgo": "5 minutes ago",
+      "oneHourAgo": "1 hour ago",
+      "twoHoursAgo": "2 hours ago",
+      "threeHoursAgo": "3 hours ago",
+      "fourHoursAgo": "4 hours ago",
+      "sixHoursAgo": "6 hours ago",
+      "sevenHoursAgo": "7 hours ago",
+      "eightHoursAgo": "8 hours ago",
+      "oneDayAgo": "1 day ago"
+    },
+    "ticketSubjects": {
+      "paymentNotReflectedInWallet": "Payment not reflected in wallet",
+      "unableToConfirmBooking": "Unable to confirm booking",
+      "refundRequestForCancelledService": "Refund request for cancelled service",
+      "accountVerificationDocuments": "Account verification documents",
+      "cannotUploadServiceImages": "Cannot upload service images",
+      "bookingModificationRequested": "Booking modification requested",
+      "servicePricingUpdateNotShowing": "Service pricing update not showing",
+      "payoutDelayComplaint": "Payout delay complaint",
+      "incorrectServiceCategoryAssigned": "Incorrect service category assigned",
+      "howToUseLoyaltyPoints": "How to use loyalty points"
+    }
   },
   "Home": {
     "common": {
@@ -2142,7 +2310,7 @@ declare const messages: {
       "loading": "Loading..."
     },
     "userInfo": {
-      "goodMorning": "Good Morning",
+      "goodMorning": "Have a good day",
       "profileAlt": "Profile"
     },
     "quickSearches": {
@@ -3367,8 +3535,142 @@ declare const messages: {
   },
   "SpecialistPage": {
     "metadata": {
-      "title": "Specialist profile | LSEVIN",
-      "description": "View specialist profile, services, availability, reviews, and booking details on LSEVIN."
+      "title": "Specialist profile",
+      "description": "View specialist profile, services, workplaces, reviews, credentials, and booking options."
+    },
+    "actions": {
+      "back": "Back",
+      "favorite": "Favorite",
+      "share": "Share",
+      "viewAll": "View all",
+      "bookNow": "Book Now"
+    },
+    "tabs": {
+      "about": "About",
+      "places": "Places ({count})",
+      "services": "Services ({count})",
+      "reviews": "Reviews ({count})",
+      "credentials": "Credentials"
+    },
+    "share": {
+      "text": "Check out {name}",
+      "textWithSpecialty": "Check out {name} - {specialty}"
+    },
+    "gallery": {
+      "fullGallery": "Full gallery",
+      "description": "Specialist media and before/after results",
+      "close": "Close gallery",
+      "imageAlt": "Gallery image",
+      "beforeAfterTitle": "Before / after",
+      "beforeAlt": "{procedure} before",
+      "afterAlt": "{procedure} after",
+      "procedureFallback": "Procedure",
+      "before": "Before",
+      "after": "After",
+      "resultFallback": "Result",
+      "afterMonths": "After {months}",
+      "mediaCount": "{count, plural, one {# media} other {# media}}",
+      "gallery": "Gallery",
+      "resultsGallery": "Results gallery",
+      "viewFullGallery": "View Full Gallery"
+    },
+    "empty": {
+      "gallery": {
+        "title": "No gallery yet",
+        "description": "Gallery items will appear here after they are added in admin."
+      },
+      "workplaces": {
+        "title": "No workplaces connected",
+        "description": "This specialist is not connected to any active provider yet."
+      },
+      "services": {
+        "title": "No services connected",
+        "description": "Services will appear after staff services and provider services are connected in admin."
+      },
+      "reviews": {
+        "title": "No reviews yet",
+        "description": "Public reviews from the specialist’s connected providers will appear here."
+      },
+      "education": {
+        "title": "No education records",
+        "description": "Education records are not added for this specialist yet."
+      },
+      "certifications": {
+        "title": "No certifications",
+        "description": "Certifications and memberships are not added yet."
+      },
+      "credentials": {
+        "title": "No credentials",
+        "description": "Credentials are not added for this specialist yet."
+      },
+      "specializations": {
+        "title": "No specializations",
+        "description": "Specialization records are not added yet."
+      }
+    },
+    "common": {
+      "locationOnRequest": "Location on request",
+      "reviewCount": "{count, plural, one {# review} other {# reviews}}",
+      "minutes": "{count, plural, one {# min} other {# min}}",
+      "providerOnRequest": "Provider on request"
+    },
+    "badges": {
+      "popular": "Popular"
+    },
+    "reviews": {
+      "sort": {
+        "newest": "Newest",
+        "buyers": "Booked customers",
+        "helpful": "Most helpful"
+      },
+      "showMore": "Show more",
+      "writeReview": "Write a Review",
+      "basedOnReviews": "Based on {count, plural, one {# review} other {# reviews}}"
+    },
+    "credentials": {
+      "education": "Education",
+      "certifications": "Certifications & memberships",
+      "credentials": "Credentials"
+    },
+    "days": {
+      "day": "Day",
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    },
+    "availability": {
+      "title": "Availability"
+    },
+    "achievements": {
+      "title": "Achievements & recognition"
+    },
+    "stats": {
+      "experience": "Experience",
+      "patients": "Patients",
+      "successRate": "Success rate",
+      "connectedPlaces": "Connected places"
+    },
+    "about": {
+      "title": "About {name}",
+      "specializations": "Specializations",
+      "languages": "Languages"
+    },
+    "sections": {
+      "placesThisSpecialistWorks": "Places this specialist works",
+      "servicesProvided": "Services provided"
+    },
+    "consultation": {
+      "fallbackTreatment": "Specialist consultation",
+      "title": "Consultation",
+      "free": "Free"
+    },
+    "errors": {
+      "noActiveProvider": "This specialist is not linked to an active provider yet.",
+      "submitReview": "Could not submit review."
     }
   },
   "Error": {
@@ -3381,27 +3683,144 @@ declare const messages: {
   },
   "ServicePage": {
     "metadata": {
-      "title": "Service details | LSEVIN",
-      "description": "View service details, pricing, provider information, gallery, reviews, and booking options on LSEVIN."
+      "title": "Service details",
+      "description": "Review service details, providers, specialists, offers, requirements, and booking options."
+    },
+    "actions": {
+      "back": "Go back",
+      "share": "Share service",
+      "saveService": "Save service",
+      "bookNow": "Book Now"
+    },
+    "badges": {
+      "selected": "Selected",
+      "verified": "Verified",
+      "sponsored": "Sponsored",
+      "required": "Required",
+      "pricing": "Pricing",
+      "popular": "Popular",
+      "featured": "Featured"
+    },
+    "providers": {
+      "title": "Providers offering this service",
+      "description": "Compare clinics and providers that can deliver this treatment.",
+      "showMore": "Show {count} more providers",
+      "available": "{count} providers available"
+    },
+    "serviceAttributes": {
+      "title": "Service details and options"
+    },
+    "addons": {
+      "title": "Available add-ons"
+    },
+    "offers": {
+      "title": "Active offers",
+      "code": "Code: {code}",
+      "validUntil": "Valid until {date}"
+    },
+    "requirements": {
+      "title": "Requirements before booking",
+      "mandatory": "Mandatory requirement",
+      "requirement": "Requirement",
+      "maxFiles": "Max files: {count}",
+      "maxSize": "Max size: {size}",
+      "noLimit": "No limit"
+    },
+    "providerProfile": {
+      "providerFallback": "Provider",
+      "rating": "Rating",
+      "response": "Response",
+      "onRequest": "On request",
+      "established": "Established",
+      "patients": "Patients",
+      "locationOnRequest": "Location on request"
+    },
+    "specialists": {
+      "title": "Specialists",
+      "thisService": "This service",
+      "consultation": "Consultation"
+    },
+    "policies": {
+      "title": "Provider policies"
+    },
+    "reviews": {
+      "title": "Patient Reviews",
+      "count": "{count} reviews",
+      "viewAll": "View All",
+      "writeReview": "Write Review",
+      "empty": "No public reviews yet. Booked customers can submit a review for this service.",
+      "more": "Show more",
+      "loading": "Loading reviews...",
+      "sort": {
+        "newest": "Newest",
+        "buyers": "Booked customers",
+        "helpful": "Most helpful"
+      }
+    },
+    "price": {
+      "packagePrice": "Package Price",
+      "providerPackagePrice": "Provider package price",
+      "totalPackagePrice": "Total Package Price"
+    },
+    "stats": {
+      "duration": "Duration",
+      "recovery": "Recovery",
+      "successRate": "Success Rate",
+      "satisfaction": "Satisfaction"
+    },
+    "included": {
+      "title": "What's Included"
+    },
+    "process": {
+      "title": "Treatment Process"
+    },
+    "importantInfo": {
+      "title": "Important Information",
+      "specialistRequired": "Specialist selection may be required during booking",
+      "specialistOptional": "This service can be booked without choosing a specialist first",
+      "dateRange": "This service uses date-range availability",
+      "availabilityConfirmed": "Availability is confirmed during the booking flow",
+      "documentsMayBeRequested": "Medical or identity documents may be requested",
+      "noUploadRequirement": "No upload requirement is configured for this service yet",
+      "finalPlanAssessment": "Final treatment plan and price can depend on provider assessment"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "showMore": "Show {count} more questions"
+    },
+    "share": {
+      "text": "Check out {service}",
+      "textWithClinic": "Check out {service} at {clinic}"
+    },
+    "errors": {
+      "submitReview": "Could not submit review.",
+      "loadReviews": "Could not load reviews."
+    },
+    "gallery": {
+      "selectImage": "Select image {number}",
+      "openGallery": "Open service gallery"
+    },
+    "recommendations": {
+      "yourCountry": "your country"
     }
   },
   "ServiceGalleryPage": {
     "metadata": {
-      "title": "Service gallery | LSEVIN",
-      "description": "Browse images and videos published for this service on LSEVIN."
+      "title": "Service gallery",
+      "description": "Browse all photos and videos for this service."
     },
     "actions": {
-      "backToService": "Back to service details"
+      "backToService": "Back to service"
     },
     "header": {
-      "title": "Service gallery"
+      "title": "Gallery"
     },
     "empty": {
       "title": "No gallery items yet",
-      "description": "This provider has not published images or videos for this service."
+      "description": "This service does not have gallery media right now."
     },
     "gallery": {
-      "fallbackCaption": "{name} {number}"
+      "fallbackCaption": "{name} image {number}"
     }
   },
   "AvailabilityAdmin": {
@@ -3712,7 +4131,22 @@ declare const messages: {
     "customers": "customers",
     "payments": "payments",
     "walletpaymentintents": "wallet payment intents",
-    "serviceProviders": "Service Providers"
+    "serviceProviders": "Service Providers",
+    "walletPaymentIntents": {
+      "title": "Wallet payment intents",
+      "description": "Production wallet deposits. Bank/manual deposits stay pending until admin confirms; online card deposits are completed only after gateway callback verification.",
+      "manual": "Manual",
+      "reference": "Reference",
+      "confirmedAmount": "Confirmed amount",
+      "confirmDeposit": "Confirm deposit",
+      "rejectReason": "Reject reason",
+      "defaultRejectReason": "Payment was not received",
+      "reject": "Reject"
+    },
+    "walletTransactions": {
+      "title": "Wallet transactions",
+      "description": "Booking-linked and manual wallet ledger entries"
+    }
   },
   "HomePage": {
     "title": "L Sevin - Automated Healthcare",
@@ -3907,8 +4341,8 @@ declare const messages: {
         "documents": "Documents"
       },
       "tabs": {
-        "basic": "Basic information",
-        "additional": "Additional information",
+        "basic": "Basic Info",
+        "additional": "Additional Info",
         "documents": "Documents"
       },
       "form": {
@@ -4001,6 +4435,25 @@ declare const messages: {
         "Beauty": "Beauty",
         "BankStatement": "Bank statement",
         "Other": "Other"
+      },
+      "edit": {
+        "title": "Edit Profile"
+      },
+      "profileImage": {
+        "close": "Close",
+        "errors": {
+          "chooseImageFile": "Please choose an image file.",
+          "imageTooLarge": "Image size must be less than 5 MB.",
+          "mediaMissing": "Uploaded media was not returned.",
+          "uploadFailed": "Could not upload profile photo."
+        },
+        "removeCurrentPhoto": "Remove current photo",
+        "removing": "Removing...",
+        "title": "Profile photo",
+        "uploadNewPhoto": "Upload new photo",
+        "uploadPhoto": "Upload photo",
+        "uploading": "Uploading...",
+        "viewPhoto": "View photo"
       }
     }
   },
@@ -4018,10 +4471,10 @@ declare const messages: {
       "DriverLicense": "Driver license",
       "BankStatement": "Bank statement",
       "IdCard": "ID card",
-      "Medical": "Medical",
-      "Beauty": "Beauty",
-      "Tourism": "Tourism",
-      "Other": "Other"
+      "Medical": "Medical document",
+      "Beauty": "Beauty document",
+      "Tourism": "Tourism document",
+      "Other": "Other document"
     },
     "FileUpload": {
       "errors": {
@@ -5895,27 +6348,27 @@ declare const messages: {
   },
   "MobileProfile": {
     "common": {
-      "logOut": "Log Out"
+      "logOut": "Log out"
     },
     "completeProfile": {
-      "title": "Complete Profile",
-      "subtitle": "Tell us a little more so we can personalize your experience.",
-      "profileAlt": "Profile",
+      "title": "Complete Your Profile",
+      "subtitle": "Add your details to personalize your LSevin experience.",
+      "profileAlt": "Profile photo",
       "uploadPhoto": "Upload photo",
-      "firstNameLabel": "First Name",
-      "firstNamePlaceholder": "First name",
-      "lastNameLabel": "Last Name",
-      "lastNamePlaceholder": "Last name",
+      "firstNameLabel": "First name",
+      "firstNamePlaceholder": "Enter first name",
+      "lastNameLabel": "Last name",
+      "lastNamePlaceholder": "Enter last name",
       "gender": "Gender",
       "male": "Male",
       "female": "Female",
       "other": "Other",
-      "dateOfBirth": "Date of Birth",
-      "preferredLanguage": "Preferred Language",
+      "dateOfBirth": "Date of birth",
+      "preferredLanguage": "Preferred language",
       "country": "Country",
       "selectCountry": "Select country",
       "countries": {
-        "uae": "UAE",
+        "uae": "United Arab Emirates",
         "saudiArabia": "Saudi Arabia",
         "turkey": "Turkey",
         "iran": "Iran"
@@ -5942,7 +6395,7 @@ declare const messages: {
       "saved": "Saved"
     },
     "favorites": {
-      "title": "Saved Favorites",
+      "title": "Favorites",
       "tabs": {
         "all": "All",
         "clinics": "Clinics",
@@ -5950,14 +6403,14 @@ declare const messages: {
         "salons": "Salons",
         "gyms": "Gyms"
       },
-      "removeFavoriteAria": "Remove {name} from favorites",
-      "emptyTitle": "No Favorites Yet",
-      "emptyDescription": "Start saving your favorite providers",
-      "exploreServices": "Explore Services"
+      "removeFavoriteAria": "Remove from favorites",
+      "emptyTitle": "No favorites yet",
+      "emptyDescription": "Save providers, specialists, and services to quickly find them later.",
+      "exploreServices": "Explore services"
     },
     "settings": {
       "title": "Settings",
-      "subtitle": "Manage your account, preferences, and app behavior.",
+      "subtitle": "Manage your preferences and account settings.",
       "walletNotSetUp": "Wallet not set up",
       "preferencesUpdated": "Preferences updated.",
       "couldNotSavePreferences": "Could not save preferences.",
@@ -5965,13 +6418,13 @@ declare const messages: {
       "incompleteProfile": "Incomplete profile",
       "quickAccess": "Quick access",
       "preferences": "Preferences",
-      "storedPreferences": "Stored in identity.user_preferences",
+      "storedPreferences": "Stored preferences",
       "language": "Language",
       "languages": {
         "english": "English",
-        "persian": "فارسی",
-        "arabic": "العربية",
-        "turkish": "Türkçe"
+        "persian": "Persian",
+        "arabic": "Arabic",
+        "turkish": "Turkish"
       },
       "currency": "Currency",
       "theme": "Theme",
@@ -5987,156 +6440,292 @@ declare const messages: {
       },
       "location": "Location",
       "notifications": "Notifications",
-      "notificationsDescription": "Booking, wallet, and system updates",
+      "notificationsDescription": "Receive important app and booking notifications.",
       "marketingNotifications": "Marketing notifications",
-      "marketingNotificationsDescription": "Promotions and new offers",
+      "marketingNotificationsDescription": "Receive offers, campaigns, and promotional updates.",
       "useCurrentLocation": "Use current location",
-      "useCurrentLocationDescription": "Prefer GPS over manually selected country/city",
+      "useCurrentLocationDescription": "Use your device location for nearby providers.",
       "saving": "Saving...",
       "savePreferences": "Save preferences",
       "quickLinks": {
         "privacySecurity": "Privacy & Security",
-        "privacySecuritySubtitle": "Password, sessions, deletion",
+        "privacySecuritySubtitle": "Password, sessions, and permissions",
         "notifications": "Notifications",
-        "notificationsSubtitle": "{count} unread",
+        "notificationsSubtitle": "Manage notification settings",
         "wallet": "Wallet",
-        "rewards": "Rewards & Loyalty",
-        "referralCode": "Referral code: {code}",
-        "noReferralCode": "No referral code yet",
-        "savedFavorites": "Saved Favorites",
-        "savedItems": "{count} saved items"
+        "rewards": "Rewards",
+        "referralCode": "Referral code",
+        "noReferralCode": "No referral code",
+        "savedFavorites": "Saved favorites",
+        "savedItems": "Saved items"
       }
     },
     "wallet": {
       "title": "Wallet",
-      "viewAll": "View All",
-      "totalBalance": "Total Balance",
-      "topUpWallet": "Top Up Wallet",
-      "applyCoupon": "Apply Coupon",
-      "recentTransactions": "Recent Transactions",
+      "viewAll": "View all",
+      "totalBalance": "Total balance",
+      "topUpWallet": "Top up wallet",
+      "applyCoupon": "Apply coupon",
+      "recentTransactions": "Recent transactions",
       "filters": {
         "filter": "Filter",
         "credits": "Credits",
         "debits": "Debits"
       },
       "lsevinWallet": "LSevin Wallet",
-      "noTransactionsYet": "No Transactions Yet",
-      "emptyDescription": "Start using your wallet to see transactions here",
-      "selectAmount": "Select Amount",
+      "noTransactionsYet": "No transactions yet",
+      "emptyDescription": "Your wallet activity will appear here.",
+      "selectAmount": "Select amount",
       "enterCustomAmount": "Enter custom amount",
-      "paymentMethod": "Payment Method",
+      "paymentMethod": "Payment method",
       "paymentMethods": {
-        "onlineCard": "Online Card Payment",
-        "cardDetails": "Charges the equivalent Iranian Rial/Toman amount",
-        "noGateway": "No enabled card gateway",
-        "bankTransfer": "Bank Transfer",
-        "bankDetails": "Direct bank transfer"
+        "onlineCard": "Online card",
+        "cardDetails": "Pay securely with your card.",
+        "noGateway": "No gateway available",
+        "bankTransfer": "Bank transfer",
+        "bankDetails": "Transfer manually and upload proof.",
+        "creditDebitCard": "Credit / Debit Card",
+        "cardNetworkDetails": "Visa, Mastercard, Amex",
+        "applePay": "Apple Pay",
+        "quickSecure": "Quick & secure",
+        "applePayDetails": "Fast payment with Apple Pay."
       },
       "gateway": "Gateway",
-      "noOnlineGateway": "No online card gateway is enabled. Enable Zarinpal from Admin → Payment Gateways.",
-      "gatewayCurrencyNote": "Charges equivalent {currency}; wallet credits {selectedCurrency}",
+      "noOnlineGateway": "No online gateway is configured.",
+      "gatewayCurrencyNote": "Payment gateway currency may differ from your display currency.",
       "processing": "Processing...",
-      "topUpAmount": "Top Up {amount}",
-      "todayAt": "Today, {time}",
-      "yesterdayAt": "Yesterday, {time}",
+      "topUpAmount": "Top-up amount",
+      "todayAt": "Today at {time}",
+      "yesterdayAt": "Yesterday at {time}",
       "statuses": {
         "completed": "Completed",
         "pending": "Pending",
-        "processing": "در حال پردازش",
+        "processing": "Processing",
         "failed": "Failed",
         "cancelled": "Cancelled"
+      },
+      "demoTransactions": {
+        "hairTransplantPayment": "Hair Transplant Payment",
+        "istanbulMedicalCenter": "Istanbul Medical Center",
+        "walletTopUp": "Wallet Top-up",
+        "creditCardMasked": "Credit Card ****4532",
+        "referralBonus": "Referral Bonus",
+        "friendJoined": "Friend joined LSevin",
+        "spaPackage": "Spa Package",
+        "luxuryBeautySpa": "Luxury Beauty & Spa",
+        "cashbackReward": "Cashback Reward",
+        "bookingCompletionBonus": "Booking completion bonus",
+        "dentalCleaning": "Dental Cleaning",
+        "smileCareDental": "SmileCare Dental"
+      },
+      "sample": {
+        "cashback": {
+          "subtitle": "Reward credited",
+          "title": "Cashback"
+        },
+        "dental": {
+          "subtitle": "Clinic payment",
+          "title": "Dental consultation"
+        },
+        "hairTransplant": {
+          "subtitle": "Istanbul Medical Center",
+          "title": "Hair transplant booking"
+        },
+        "referral": {
+          "subtitle": "Friend joined LSevin",
+          "title": "Referral reward"
+        },
+        "spa": {
+          "subtitle": "Wellness booking",
+          "title": "Spa package"
+        },
+        "topup": {
+          "subtitle": "Added funds to wallet",
+          "title": "Wallet top-up"
+        }
       }
     },
     "transactions": {
-      "title": "All Transactions",
+      "title": "Transactions",
       "filter": "Filter",
-      "summary": "Showing {count} transactions • Net in {currency}",
-      "total": "total",
+      "summary": "Summary",
+      "total": "Total",
       "lsevinWallet": "LSevin Wallet",
-      "noTransactionsFound": "No Transactions Found",
-      "tryAdjustingFilters": "Try adjusting your filters",
-      "clearFilters": "Clear Filters",
-      "filterTransactions": "Filter Transactions",
-      "transactionType": "Transaction Type",
+      "noTransactionsFound": "No transactions found",
+      "tryAdjustingFilters": "Try adjusting your filters.",
+      "clearFilters": "Clear filters",
+      "filterTransactions": "Filter transactions",
+      "transactionType": "Transaction type",
       "types": {
-        "all": "All Types",
-        "credit": "Money In",
-        "debit": "Money Out"
+        "all": "All types",
+        "credit": "Credits",
+        "debit": "Debits"
       },
       "status": "Status",
       "statuses": {
-        "all": "All Statuses",
+        "all": "All statuses",
         "completed": "Completed",
         "pending": "Pending",
-        "failed": "Failed"
+        "failed": "Failed",
+        "refunded": "Refunded",
+        "processing": "Processing",
+        "cancelled": "Cancelled"
       },
-      "timePeriod": "Time Period",
+      "timePeriod": "Time period",
       "periods": {
-        "all": "All Time",
+        "all": "All time",
         "today": "Today",
-        "week": "Last 7 Days",
-        "month": "Last 30 Days",
-        "threeMonths": "Last 3 Months"
+        "week": "This week",
+        "month": "This month",
+        "threeMonths": "Last 3 months",
+        "yesterday": "Yesterday"
       },
-      "clearAll": "Clear All",
-      "applyFilters": "Apply Filters"
+      "clearAll": "Clear all",
+      "applyFilters": "Apply filters",
+      "paymentMethods": {
+        "applePay": "Apple Pay",
+        "bankTransfer": "Bank transfer"
+      },
+      "sample": {
+        "botox": {
+          "subtitle": "Payment failed",
+          "title": "Botox appointment"
+        },
+        "cashback": {
+          "subtitle": "Reward credited",
+          "title": "Cashback"
+        },
+        "dental": {
+          "subtitle": "Clinic payment",
+          "title": "Dental consultation"
+        },
+        "gym": {
+          "subtitle": "Monthly membership",
+          "title": "Gym membership"
+        },
+        "hairTransplant": {
+          "subtitle": "Istanbul Medical Center",
+          "title": "Hair transplant booking"
+        },
+        "referral": {
+          "subtitle": "Friend joined LSevin",
+          "title": "Referral reward"
+        },
+        "refund": {
+          "subtitle": "Booking refund",
+          "title": "Refund"
+        },
+        "spa": {
+          "subtitle": "Wellness booking",
+          "title": "Spa package"
+        },
+        "topup": {
+          "subtitle": "Added funds to wallet",
+          "title": "Wallet top-up"
+        }
+      },
+      "todayAt": "Today at {time}",
+      "yesterdayAt": "Yesterday at {time}"
     },
     "transactionDetail": {
-      "title": "Transaction Details",
+      "title": "Transaction Detail",
       "transactionLinkCopied": "Transaction link copied.",
-      "transactionInformation": "Transaction Information",
+      "transactionInformation": "Transaction information",
       "transactionId": "Transaction ID",
-      "paymentMethod": "Payment Method",
-      "bookingReference": "Booking Reference",
-      "description": "Description",
+      "paymentMethod": "Payment method",
+      "bookingReference": "Booking reference",
+      "description": "Review payment details and booking information.",
       "provider": "Provider",
       "lsevinWallet": "LSevin Wallet",
-      "paymentBreakdown": "Payment Breakdown",
+      "paymentBreakdown": "Payment breakdown",
       "subtotal": "Subtotal",
-      "serviceFee": "Service Fee",
+      "serviceFee": "Service fee",
       "total": "Total",
-      "downloadReceipt": "Download Receipt",
-      "viewBookingDetails": "View Booking Details",
-      "paymentFailed": "Payment Failed",
-      "paymentFailedDescription": "This payment could not be processed. Please try again or use a different payment method.",
-      "retryPayment": "Retry Payment",
-      "paymentPending": "Payment Pending",
-      "paymentPendingDescription": "This transaction is still being processed. Refresh the wallet or check back shortly for the final status.",
-      "needHelp": "Need help with this transaction?",
-      "contactSupport": "Contact Support"
+      "downloadReceipt": "Download receipt",
+      "viewBookingDetails": "View booking details",
+      "paymentFailed": "Payment failed",
+      "paymentFailedDescription": "This transaction failed. Please try again or use another payment method.",
+      "retryPayment": "Retry payment",
+      "paymentPending": "Payment pending",
+      "paymentPendingDescription": "Your payment is still pending.",
+      "needHelp": "Need help?",
+      "contactSupport": "Contact support",
+      "receipt": "Receipt",
+      "statuses": {
+        "completed": "Completed",
+        "refunded": "Refunded",
+        "pending": "Pending",
+        "processing": "Processing",
+        "failed": "Failed",
+        "cancelled": "Cancelled"
+      },
+      "paymentMethods": {
+        "card": "Card",
+        "bank": "Bank Transfer",
+        "apple": "Apple Pay",
+        "wallet": "LSevin Wallet"
+      },
+      "share": {
+        "reference": "Reference",
+        "amount": "Amount",
+        "status": "Status",
+        "date": "Date"
+      },
+      "paymentProcessingDescription": "Your payment is being processed.",
+      "sample": {
+        "description": "Payment for your selected medical service.",
+        "providerAddress": "Istanbul, Turkey",
+        "providerName": "Istanbul Medical Center",
+        "subtitle": "Booking payment",
+        "title": "Hair transplant booking"
+      }
     },
     "receipt": {
-      "title": "Transaction Receipt",
+      "title": "Receipt",
       "reference": "Reference",
       "transaction": "Transaction",
       "provider": "Provider",
       "lsevinWallet": "LSevin Wallet",
       "paymentBreakdown": "Payment breakdown",
       "subtotal": "Subtotal",
-      "serviceFee": "Service Fee",
+      "serviceFee": "Service fee",
       "total": "Total",
       "status": "Status",
-      "paymentMethod": "Payment Method",
-      "bookingReference": "Booking Reference",
-      "saveAsPdf": "Save this page as PDF from your browser to keep a copy of the receipt."
+      "paymentMethod": "Payment method",
+      "bookingReference": "Booking reference",
+      "saveAsPdf": "Save as PDF",
+      "statuses": {
+        "completed": "Completed",
+        "refunded": "Refunded",
+        "pending": "Pending",
+        "processing": "Processing",
+        "failed": "Failed",
+        "cancelled": "Cancelled"
+      },
+      "paymentMethods": {
+        "card": "Card",
+        "bank": "Bank Transfer",
+        "apple": "Apple Pay",
+        "wallet": "LSevin Wallet"
+      }
     },
     "medicalProfile": {
       "title": "Medical Profile",
-      "privacyTitle": "Your Privacy is Protected",
+      "privacyTitle": "Private and secure",
       "privacyDescription": "All medical information is encrypted, HIPAA-compliant, and only shared with your authorized healthcare providers.",
       "sections": {
         "allergies": "Allergies",
-        "currentMedications": "Current Medications",
-        "medicalHistory": "Medical History",
-        "medicalDocuments": "Medical Documents",
-        "emergencyContact": "Emergency Contact"
+        "currentMedications": "Current medications",
+        "medicalHistory": "Medical history",
+        "medicalDocuments": "Medical documents",
+        "emergencyContact": "Emergency contact"
       },
       "empty": {
-        "noAllergies": "No allergies recorded",
-        "noMedications": "No medications recorded",
-        "noConditions": "No conditions recorded",
-        "noDocuments": "No documents uploaded",
-        "noContactSaved": "No contact saved"
+        "noAllergies": "No allergies added yet.",
+        "noMedications": "No medications added yet.",
+        "noConditions": "No medical conditions added yet.",
+        "noDocuments": "No documents uploaded yet.",
+        "noContactSaved": "No emergency contact saved."
       },
       "actions": {
         "addFirstAllergy": "Add your first allergy",
@@ -6147,16 +6736,16 @@ declare const messages: {
         "edit": "Edit"
       },
       "modals": {
-        "addAllergy": "Add Allergy"
+        "addAllergy": "Add allergy"
       },
       "fields": {
-        "allergyName": "Allergy Name",
+        "allergyName": "Allergy name",
         "severityLevel": "Severity Level",
         "notesOptional": "Notes (Optional)"
       },
       "placeholders": {
-        "allergyName": "e.g., Penicillin",
-        "reactionNotes": "Additional information about reactions..."
+        "allergyName": "Example: Penicillin",
+        "reactionNotes": "Reaction notes"
       },
       "severity": {
         "mild": "Mild",
@@ -6164,59 +6753,348 @@ declare const messages: {
         "severe": "Severe"
       },
       "errors": {
-        "addAllergy": "Failed to add allergy.",
-        "addMedication": "Failed to add medication.",
-        "addCondition": "Failed to add condition.",
-        "uploadDocument": "Failed to upload document.",
-        "saveEmergencyContact": "Failed to save emergency contact."
+        "addAllergy": "Could not add allergy.",
+        "addMedication": "Could not add medication.",
+        "addCondition": "Could not add condition.",
+        "uploadDocument": "Could not upload document.",
+        "saveEmergencyContact": "Could not save emergency contact."
       }
     },
     "privacySecurity": {
       "title": "Privacy & Security",
       "changePassword": "Change Password",
-      "currentPassword": "Current Password",
+      "currentPassword": "Current password",
       "enterCurrentPassword": "Enter current password",
-      "newPassword": "New Password",
+      "newPassword": "New password",
       "enterNewPassword": "Enter new password",
-      "confirmNewPassword": "Confirm New Password",
+      "confirmNewPassword": "Confirm new password",
       "reenterNewPassword": "Re-enter new password",
-      "updatePassword": "Update Password",
-      "biometricLogin": "Biometric Login",
-      "biometricDescription": "Store the user preference for Face ID / fingerprint login.",
-      "activeSessions": "Active Sessions",
+      "updatePassword": "Update password",
+      "biometricLogin": "Biometric login",
+      "biometricDescription": "Use Face ID, Touch ID, or device biometrics to sign in faster.",
+      "activeSessions": "Active sessions",
       "refresh": "Refresh",
-      "noTrackedSessions": "No tracked sessions yet.",
+      "noTrackedSessions": "No tracked sessions.",
       "current": "Current",
       "revoke": "Revoke",
-      "privacyControls": "Privacy Controls",
-      "locationPermissions": "Location Permissions",
-      "notificationPermissions": "Notification Permissions",
-      "checkAgain": "Check Again",
-      "requestAccess": "Request Access",
-      "deleteAccount": "Delete Account",
-      "deleteDescription": "Create a controlled deletion request for review. The destructive delete should happen in your backend workflow, not directly from the client.",
+      "privacyControls": "Privacy controls",
+      "locationPermissions": "Location permissions",
+      "notificationPermissions": "Notification permissions",
+      "checkAgain": "Check again",
+      "requestAccess": "Request access",
+      "deleteAccount": "Delete account",
+      "deleteDescription": "Request account deletion and data review.",
       "optionalReason": "Optional reason",
-      "deletionRequestOpen": "Deletion request already open",
-      "requestAccountDeletion": "Request Account Deletion",
+      "deletionRequestOpen": "A deletion request is already open.",
+      "requestAccountDeletion": "Request account deletion",
       "working": "Working...",
-      "notSupported": "Not supported on this browser",
+      "notSupported": "Not supported",
       "messages": {
         "somethingWentWrong": "Something went wrong.",
-        "permissionStateRefreshed": "Permission state refreshed.",
-        "couldNotRefreshPermission": "Could not refresh permission state.",
-        "couldNotReadLocation": "Could not read current location.",
+        "permissionStateRefreshed": "Permission status refreshed.",
+        "couldNotRefreshPermission": "Could not refresh permission status.",
+        "couldNotReadLocation": "Could not read location permission.",
         "locationGranted": "Location permission granted.",
-        "locationUpdated": "Location permission status updated.",
+        "locationUpdated": "Location preference updated.",
         "couldNotRequestLocation": "Could not request location permission.",
         "notificationGranted": "Notification permission granted.",
-        "notificationUpdated": "Notification permission status updated.",
+        "notificationUpdated": "Notification preference updated.",
         "couldNotRequestNotification": "Could not request notification permission.",
-        "permissionsBlocked": "One or more browser permissions are blocked. The user may need to re-enable them in browser or OS settings.",
-        "passwordUpdated": "Password updated.",
+        "permissionsBlocked": "Permission is blocked in your browser or device settings.",
+        "passwordUpdated": "Password updated successfully.",
         "biometricUpdated": "Biometric preference updated.",
         "sessionRevoked": "Session revoked.",
-        "accountDeletionRequested": "Account deletion requested."
+        "accountDeletionRequested": "Account deletion request submitted."
+      },
+      "manage": "Manage"
+    },
+    "coupons": {
+      "apply": "Apply",
+      "applyCoupon": "Apply Coupon",
+      "availableCoupons": "Available Coupons",
+      "enterCode": "Enter coupon code",
+      "enterCodePlaceholder": "Coupon code",
+      "expires": "Expires {date}",
+      "expiringSoon": "Expiring soon",
+      "getMoreCoupons": "Get more coupons",
+      "getMoreDescription": "Invite friends and complete bookings to unlock more rewards.",
+      "hurryExpiresSoon": "Hurry, this coupon expires soon.",
+      "invalidDescription": "This coupon is not valid or has expired.",
+      "invalidTitle": "Invalid coupon",
+      "maxDiscount": "Max discount: {amount}",
+      "minAmount": "Min. amount: {amount}",
+      "previouslyUsed": "Previously Used",
+      "referFriends": "Refer friends",
+      "sampleCoupons": {
+        "beauty": {
+          "description": "Save on beauty and cosmetic services",
+          "title": "Beauty Offer"
+        },
+        "first": {
+          "description": "For your first completed booking",
+          "title": "First Booking Special"
+        },
+        "medical": {
+          "description": "Use on selected medical services",
+          "title": "Medical Care Discount"
+        },
+        "welcome": {
+          "title": "Welcome Bonus"
+        },
+        "wellness": {
+          "description": "Valid on spa and wellness bookings",
+          "title": "Wellness Package"
+        }
+      },
+      "savedAmount": "Saved {amount}",
+      "title": "Coupons",
+      "usedOn": "Used on {date}",
+      "validateCoupon": "Validate coupon",
+      "validating": "Validating..."
+    },
+    "editProfile": {
+      "changeProfilePhoto": "Change profile photo",
+      "fields": {
+        "address": "Address",
+        "city": "City",
+        "country": "Country",
+        "dateOfBirth": "Date of birth",
+        "email": "Email",
+        "firstName": "First name",
+        "gender": "Gender",
+        "lastName": "Last name",
+        "phone": "Phone number"
+      },
+      "gender": {
+        "female": "Female",
+        "male": "Male",
+        "other": "Other",
+        "preferNotToSay": "Prefer not to say"
+      },
+      "phoneLockedDescription": "Your phone number is locked because it is the base identifier for your account.",
+      "saveChanges": "Save changes",
+      "saving": "Saving...",
+      "title": "Edit Profile",
+      "profileAlt": "Profile photo"
+    },
+    "medicalProfileLegacy": {
+      "buttons": {
+        "saveContact": "Save contact"
+      },
+      "empty": {
+        "addFirstAllergy": "Add your first allergy",
+        "addFirstMedication": "Add your first medication",
+        "noAllergies": "No allergies added yet.",
+        "noConditions": "No conditions added yet.",
+        "noDocuments": "No documents uploaded yet.",
+        "noMedications": "No medications added yet."
+      },
+      "fields": {
+        "allergyName": "Allergy name",
+        "conditionName": "Condition name",
+        "dosage": "Dosage",
+        "frequency": "Frequency",
+        "fullName": "Full name",
+        "medicationName": "Medication name",
+        "phoneNumber": "Phone number",
+        "relationship": "Relationship"
+      },
+      "frequency": {
+        "asNeeded": "As needed",
+        "onceDaily": "Once daily",
+        "select": "Select frequency",
+        "threeTimesDaily": "Three times daily",
+        "twiceDaily": "Twice daily",
+        "weekly": "Weekly"
+      },
+      "modals": {
+        "addAllergy": "Add allergy",
+        "addCondition": "Add condition",
+        "addMedication": "Add medication",
+        "uploadDocument": "Upload document"
+      },
+      "placeholders": {
+        "allergyName": "Example: Penicillin",
+        "conditionName": "Condition name",
+        "conditionNotes": "Condition notes",
+        "documentName": "Document name",
+        "dosage": "Dosage",
+        "fullName": "Emergency contact name",
+        "medicationName": "Medication name",
+        "medicationNotes": "Medication notes",
+        "phoneNumber": "Emergency contact phone",
+        "reactionNotes": "Reaction notes"
+      },
+      "privacyDescription": "Your medical information is encrypted and only shared with providers you authorize.",
+      "privacyTitle": "Private and secure",
+      "relationship": {
+        "other": "Other"
+      },
+      "sections": {
+        "allergies": "Allergies",
+        "currentMedications": "Current medications",
+        "emergencyContact": "Emergency contact",
+        "medicalDocuments": "Medical documents",
+        "medicalHistory": "Medical history"
+      },
+      "severity": {
+        "mild": "Mild",
+        "moderate": "Moderate",
+        "severe": "Severe"
+      },
+      "title": "Medical Profile",
+      "upload": {
+        "acceptedFormats": "PDF, JPG, PNG",
+        "acceptedFormatsLabel": "Accepted formats",
+        "clickToUpload": "Click to upload",
+        "examples": "Lab results, prescriptions, reports",
+        "examplesLabel": "Examples",
+        "failedDescription": "Could not upload this document.",
+        "failedTitle": "Upload failed",
+        "formatsShort": "PDF, JPG, PNG",
+        "maximumSize": "10 MB",
+        "maximumSizeLabel": "Maximum size",
+        "progress": "Upload progress",
+        "successDescription": "Your document was uploaded.",
+        "successTitle": "Upload complete",
+        "uploadingTitle": "Uploading..."
       }
+    },
+    "shareFriends": {
+      "copied": "Copied",
+      "copiedBang": "Copied!",
+      "copy": "Copy",
+      "discountQueue": "Discount queue",
+      "heroSubtitle": "Share LSevin with friends and unlock referral benefits.",
+      "heroTitle": "Invite friends, earn rewards",
+      "howItWorks": "How it works",
+      "methods": {
+        "email": "Email",
+        "facebook": "Facebook",
+        "instagram": "Instagram",
+        "message": "Message"
+      },
+      "moreOptions": "More options",
+      "referralCode": "Referral code",
+      "referralHistory": "Referral history",
+      "shareMessage": "Use my referral code to join LSevin.",
+      "shareReferralLink": "Share your referral link",
+      "shareSubject": "Join LSevin",
+      "shareVia": "Share via",
+      "stats": {
+        "earned": "Earned",
+        "friendsJoined": "Friends joined",
+        "invited": "Invited",
+        "pending": "Pending",
+        "used": "Used"
+      },
+      "steps": {
+        "activeProgram": {
+          "description": "Referral rewards depend on the active campaign rules.",
+          "title": "Active program"
+        },
+        "shareCode": {
+          "description": "Send your unique referral code to friends.",
+          "descriptionLink": "Share your referral link anywhere.",
+          "title": "Share your code"
+        },
+        "theyGet": {
+          "description": "Your friend receives the configured welcome benefit.",
+          "title": "They get a benefit"
+        },
+        "unlock": {
+          "description": "Rewards unlock after the required booking or profile step.",
+          "title": "Unlock rewards"
+        },
+        "youEarn": {
+          "description": "You earn once the referral is qualified.",
+          "title": "You earn rewards"
+        }
+      },
+      "terms": {
+        "expire": "Rewards and coupons may expire.",
+        "minimumBooking": "Minimum booking rules may apply.",
+        "newUsers": "Valid for new users only.",
+        "rewardAfterBooking": "Rewards are issued after eligible bookings.",
+        "rights": "LSevin may update referral rules."
+      },
+      "termsTitle": "Terms",
+      "title": "Share with Friends"
+    },
+    "rewards": {
+      "actions": {
+        "copied": "Copied",
+        "copiedBang": "Copied!",
+        "copy": "Copy",
+        "shareWithFriends": "Share with Friends",
+        "useCoupon": "Use Coupon"
+      },
+      "coupons": {
+        "available": "Available Coupons",
+        "code": "Code: {code}",
+        "daysLeft": " ({days} days left)",
+        "emptyAvailable": "No active offer-based coupons are available right now.",
+        "emptyUsed": "Coupon redemption history cannot be shown until a customer coupon ledger exists in the database.",
+        "expires": "Expires {date}",
+        "minPurchase": "Min ${amount}",
+        "saved": "Saved {amount}",
+        "used": "Used Coupons",
+        "usedOn": "Used on {date}"
+      },
+      "overview": {
+        "current": "CURRENT",
+        "earned": "Earned",
+        "emptyActivity": "No reward activity has been recorded yet.",
+        "highestTierReached": "Highest tier reached",
+        "member": "{tier} Member",
+        "membershipTiers": "Membership Tiers",
+        "points": "points",
+        "pointsAbbr": "pts",
+        "pointsToNext": "{points} more points to {tier}",
+        "recentActivity": "Recent Activity",
+        "referrals": "Referrals",
+        "totalSpent": "Total Spent",
+        "yourPoints": "Your Points"
+      },
+      "referrals": {
+        "howItWorks": "How Referrals Work",
+        "inviteFriends": "Invite Friends",
+        "schemaReady": "Referral program schema ready to add",
+        "shareText": "Use my code {code} when you join LSevin.",
+        "shareTitle": "Join LSevin",
+        "steps": {
+          "book": {
+            "description": "Your friend completes their first booking",
+            "title": "They book"
+          },
+          "earn": {
+            "description": "Reward logic becomes live once referral tables and payout rules are added",
+            "title": "You both earn"
+          },
+          "share": {
+            "description": "Send your unique referral code to friends",
+            "title": "Share your code"
+          },
+          "signup": {
+            "description": "Your friend creates an account using your code",
+            "title": "They sign up"
+          }
+        },
+        "successful": "Successful Referrals",
+        "totalEarned": "Total Earned",
+        "yourCode": "Your Referral Code",
+        "yourStats": "Your Referral Stats"
+      },
+      "schemaNotice": {
+        "description": "This page is production-structured and uses live offers plus derived spending, but loyalty points, coupon redemption history, referrals, and tier persistence need dedicated tables and APIs.",
+        "title": "Rewards schema is not in the database yet"
+      },
+      "tabs": {
+        "coupons": "Coupons",
+        "overview": "Overview",
+        "referrals": "Referrals"
+      },
+      "title": "Rewards & Loyalty"
     }
   },
   "LazySelect": {
@@ -8355,7 +9233,8 @@ declare const messages: {
       "verifiedRecordsLocked": "Verified records cannot be changed by provider users.",
       "years": "years",
       "yes": "Yes",
-      "yourProviders": "Your providers"
+      "yourProviders": "Your providers",
+      "optional": "Optional"
     },
     "labels": {
       "accountHolder": "Account holder",
@@ -8592,7 +9471,10 @@ declare const messages: {
       "vipDentalPopular": "VIP, Dental, Popular",
       "website": "Website",
       "wednesday": "Wednesday",
-      "year": "Year"
+      "year": "Year",
+      "Subject": "Subject",
+      "Priority": "Priority",
+      "Message": "Message"
     },
     "messages": {
       "98": "98%",
@@ -8979,6 +9861,1110 @@ declare const messages: {
       "urgent": "Urgent",
       "verified": "Verified",
       "viewer": "Viewer"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "featured": "Featured",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "urgent": "Urgent",
+      "open": "Open",
+      "in_progress": "In progress",
+      "resolved": "Resolved",
+      "closed": "Closed"
+    },
+    "offersManager": {
+      "title": "Offers",
+      "description": "Marketing offers linked to provider services.",
+      "used": "Used",
+      "noOffersYet": "No offers yet.",
+      "offerCouldNotBeSaved": "Offer could not be saved.",
+      "offerUpdated": "Offer updated.",
+      "offerCreated": "Offer created.",
+      "createServiceFirstThenOffers": "Create a service first, then add offers.",
+      "deleteThisOffer": "Delete this offer?",
+      "offerCouldNotBeDeleted": "Offer could not be deleted.",
+      "offerDeleted": "Offer deleted."
+    },
+    "offerForm": {
+      "createTitle": "Create offer",
+      "editTitle": "Edit offer",
+      "requiresService": "Offers require at least one provider service.",
+      "updateDescription": "Update this service offer.",
+      "service": "Service",
+      "code": "Code",
+      "couponCode": "Coupon code",
+      "title": "Title",
+      "subtitle": "Subtitle",
+      "discountPercent": "Discount percent",
+      "validUntil": "Valid until",
+      "usageLimit": "Usage limit",
+      "descriptionEn": "Description English",
+      "descriptionFa": "Description Persian",
+      "cancelEdit": "Cancel edit",
+      "saveOffer": "Save offer"
+    },
+    "supportTickets": "Support tickets",
+    "supportChannelDescription": "Provider-to-admin support channel.",
+    "noSupportTicketsYet": "No support tickets yet.",
+    "ticketCouldNotBeCreated": "Ticket could not be created.",
+    "supportTicketCreated": "Support ticket created.",
+    "createSupportTicket": "Create support ticket",
+    "sending": "Sending...",
+    "createTicket": "Create ticket",
+    "ticketCouldNotBeUpdated": "Ticket could not be updated.",
+    "ticketStatusUpdated": "Ticket status updated.",
+    "Subject": "Subject",
+    "Priority": "Priority",
+    "Message": "Message",
+    "low": "Low",
+    "normal": "Normal",
+    "high": "High",
+    "urgent": "Urgent",
+    "open": "Open",
+    "in_progress": "In progress",
+    "resolved": "Resolved",
+    "closed": "Closed",
+    "profile": {
+      "buttons": {
+        "save": "Save profile",
+        "saving": "Saving..."
+      },
+      "description": "Manage provider public profile, contact details, and presentation fields.",
+      "fields": {
+        "code": "Code",
+        "descriptionEn": "Description (English)",
+        "descriptionFa": "Description (Persian)",
+        "detailEn": "Detail (English)",
+        "detailFa": "Detail (Persian)",
+        "email": "Email",
+        "establishedYear": "Established year",
+        "imageUrl": "Image URL",
+        "languagesCsv": "Languages",
+        "nameEn": "Name (English)",
+        "nameFa": "Name (Persian)",
+        "phone": "Phone",
+        "responseTime": "Response time",
+        "specialtiesCsv": "Specialties",
+        "streetEn": "Street (English)",
+        "streetFa": "Street (Persian)",
+        "successRate": "Success rate",
+        "timezone": "Timezone",
+        "totalPatients": "Total patients",
+        "zipCode": "Zip code"
+      },
+      "messages": {
+        "saveFailed": "Could not save provider profile.",
+        "saveSuccess": "Provider profile saved successfully."
+      },
+      "permissionDenied": "You do not have permission to edit this provider profile.",
+      "placeholders": {
+        "languagesCsv": "English, Persian, Arabic",
+        "mediaIdOrUrl": "Media ID or URL",
+        "responseTime": "Example: < 1 hour",
+        "specialtiesCsv": "Hair transplant, Dental, Beauty",
+        "successRate": "Example: 98%",
+        "timezone": "Asia/Tehran",
+        "totalPatients": "Example: 10,000+"
+      },
+      "title": "Provider Profile",
+      "related": {
+        "buttons": {
+          "add": "Add",
+          "addPolicy": "Add policy",
+          "cancel": "Cancel",
+          "delete": "Delete",
+          "edit": "Edit",
+          "saving": "Saving...",
+          "update": "Update",
+          "updatePolicy": "Update policy"
+        },
+        "certifications": {
+          "description": "Manage provider certificates and verification records.",
+          "editTitle": "Edit certification",
+          "empty": "No certifications added yet.",
+          "fields": {
+            "image": "Image",
+            "name": "Name",
+            "secondImage": "Second image"
+          },
+          "helpers": {
+            "image": "Attach the main certificate image.",
+            "secondImage": "Optional second page or attachment."
+          },
+          "image1Attached": "Main image attached",
+          "image2Attached": "Second image attached",
+          "modalTitle": {
+            "image": "Select certificate image",
+            "secondImage": "Select second certificate image"
+          },
+          "placeholders": {
+            "image": "Media ID or URL",
+            "name": "Certificate name",
+            "secondImage": "Second media ID or URL"
+          },
+          "providerAdded": "Added by provider",
+          "saveButton": "Save certification",
+          "saveFailed": "Could not save certification.",
+          "saveSuccess": "Certification saved successfully.",
+          "title": "Certifications",
+          "updateDescription": "Update certification details and images.",
+          "updated": "Updated",
+          "verified": "Verified",
+          "verifiedCannotChange": "Verification status cannot be changed here.",
+          "verifiedLocked": "Verified certificates are locked."
+        },
+        "delete": {
+          "confirm": "Are you sure you want to delete this item?",
+          "failed": "Could not delete item.",
+          "success": "Deleted successfully."
+        },
+        "policies": {
+          "customPolicy": "Custom policy",
+          "description": "Manage provider policies shown to customers.",
+          "editTitle": "Edit policy",
+          "empty": "No policies added yet.",
+          "fallbackType": "Policy",
+          "fields": {
+            "descriptionEn": "Description (English)",
+            "descriptionFa": "Description (Persian)",
+            "policyType": "Policy type",
+            "typeEn": "Type (English)",
+            "typeFa": "Type (Persian)"
+          },
+          "saveButton": "Save policy",
+          "saveFailed": "Could not save policy.",
+          "saveSuccess": "Policy saved successfully.",
+          "title": "Policies",
+          "updateDescription": "Update policy text and type.",
+          "updated": "Updated"
+        }
+      }
+    }
+  },
+  "components": {
+    "countryCodeSelector": {
+      "searchPlaceholder": "Search",
+      "noCountriesFound": "No countries found",
+      "selectedCountry": "Selected country: {country} ({dial})",
+      "countries": {
+        "AE": "United Arab Emirates",
+        "SA": "Saudi Arabia",
+        "TR": "Turkey",
+        "US": "United States",
+        "GB": "United Kingdom",
+        "IR": "Iran",
+        "DE": "Germany",
+        "FR": "France",
+        "RU": "Russia",
+        "EG": "Egypt",
+        "JO": "Jordan",
+        "LB": "Lebanon",
+        "KW": "Kuwait",
+        "QA": "Qatar",
+        "OM": "Oman",
+        "BH": "Bahrain",
+        "IQ": "Iraq",
+        "IN": "India",
+        "PK": "Pakistan",
+        "CN": "China"
+      }
+    },
+    "digikalaReviewCard": {
+      "showMore": "Show more",
+      "showLess": "Show less",
+      "pros": "Pros",
+      "cons": "Cons",
+      "helpfulPrompt": "Was this review helpful?",
+      "like": "Like",
+      "dislike": "Dislike",
+      "verifiedBuyer": "Booked customer",
+      "adminReview": "Editorial review",
+      "replies": "Answers",
+      "adminAnswer": "Admin answer",
+      "customerAnswer": "Booked customer answer",
+      "writeReply": "Answer this review",
+      "replyPlaceholder": "Write your answer...",
+      "submitReply": "Send answer",
+      "pendingReply": "Your answer is pending admin approval.",
+      "replyError": "Only booked users can answer reviews for this item.",
+      "voteError": "Could not save vote.",
+      "lsevinCustomer": "LSevin customer",
+      "reviewImageAlt": "Review image"
+    },
+    "fileUploadField": {
+      "clickToUpload": "Click to upload",
+      "formatAndMax": "{formats} (Max {maxSize}MB)",
+      "uploading": "Uploading... {progress}%",
+      "uploadSuccessful": "Upload successful • {size} MB",
+      "removeFile": "Remove file",
+      "uploadFailed": "Upload failed",
+      "genericError": "Something went wrong. Please try again.",
+      "retryUpload": "Retry upload",
+      "cancel": "Cancel",
+      "requirementsTitle": "File requirements:",
+      "acceptedFormats": "Accepted formats: {formats}",
+      "maximumFileSize": "Maximum file size: {maxSize}MB",
+      "secureUpload": "Files are securely encrypted during upload",
+      "fileSizeError": "File size must be less than {maxSize}MB"
+    },
+    "imageWithFallback": {
+      "errorAlt": "Error loading image"
+    },
+    "projectInfo": {
+      "project": "Project: LSevin",
+      "userRoles": "9 User Roles",
+      "coreStages": "6 Core Stages",
+      "screens": "100+ Screens",
+      "brandLabel": "Brand:"
+    },
+    "recommendationsSection": {
+      "verified": "Verified",
+      "from": "From",
+      "similarProviders": "Similar Providers",
+      "similarProvidersInCountry": "Similar Providers in {country}",
+      "localSubtitle": "Explore more options near this location",
+      "viewAll": "View All",
+      "topInternationalProviders": "Top International Providers",
+      "internationalSubtitle": "Leading medical tourism destinations",
+      "consultationTitle": "Can’t decide which provider to choose?",
+      "consultationDescription": "Our expert consultants can help you compare providers, understand pricing, and find the perfect match for your needs.",
+      "getFreeConsultation": "Get Free Consultation"
+    },
+    "reviewForm": {
+      "checking": "Checking whether this booking can be reviewed...",
+      "submit": "Submit Review",
+      "submitting": "Submitting...",
+      "prosTitle": "Pros",
+      "consTitle": "Cons",
+      "prosPlaceholder": "Add a positive point, then press Enter",
+      "consPlaceholder": "Add a negative point, then press Enter",
+      "addPros": "Add pro",
+      "addCons": "Add con",
+      "prosHelp": "Optional, but helps other customers decide faster.",
+      "successTitle": "Review Submitted!",
+      "successDescription": "Thank you for sharing your experience. Your review is pending admin approval before it becomes public.",
+      "title": "Write a Review",
+      "close": "Close",
+      "overallRating": "Overall Rating",
+      "selectRating": "Select {rating} stars",
+      "treatmentTitleLabel": "Treatment / Title (Optional)",
+      "treatmentTitlePlaceholder": "Example: Hair transplant, dental care, spa day",
+      "characters": "{current}/{max} characters",
+      "reviewLabel": "Your Review",
+      "reviewPlaceholder": "Share details of your own experience at this place",
+      "addPhotosLabel": "Add Photos (Optional)",
+      "uploadedImageAlt": "Upload {index}",
+      "removePhoto": "Remove photo",
+      "attachPhotos": "Attach Photos",
+      "photoPreviewHint": "Preview only until your media upload endpoint is connected",
+      "guidelinesTitle": "Review Guidelines",
+      "cancel": "Cancel",
+      "submitError": "Could not submit review. Please try again.",
+      "ratingLabels": {
+        "1": "Poor",
+        "2": "Fair",
+        "3": "Good",
+        "4": "Very Good",
+        "5": "Excellent"
+      },
+      "validation": {
+        "ratingRequired": "Please select a rating",
+        "reviewMinLength": "Review must be at least {min} characters"
+      },
+      "eligibility": {
+        "notSignedIn": "Please sign in first. Only booked users can submit a review.",
+        "notBooked": "Only booked users can submit a review for this item.",
+        "alreadyReviewed": "You have already submitted a review for this booked item.",
+        "invalidTarget": "This review target is not available right now."
+      },
+      "guidelines": {
+        "honest": "Be honest and fair",
+        "personalExperience": "Share your personal experience",
+        "noOffensiveLanguage": "Avoid offensive language",
+        "specificDetails": "Include specific details about the service"
+      }
+    },
+    "ui": {
+      "breadcrumb": {
+        "ariaLabel": "Breadcrumb",
+        "more": "More"
+      },
+      "carousel": {
+        "roleDescription": "carousel",
+        "slideRoleDescription": "slide",
+        "previousSlide": "Previous slide",
+        "nextSlide": "Next slide"
+      },
+      "command": {
+        "title": "Command Palette",
+        "description": "Search for a command to run..."
+      },
+      "dialog": {
+        "close": "Close"
+      },
+      "pagination": {
+        "pagination": "Pagination",
+        "previousPage": "Go to previous page",
+        "previous": "Previous",
+        "nextPage": "Go to next page",
+        "next": "Next",
+        "morePages": "More pages"
+      },
+      "sheet": {
+        "close": "Close"
+      },
+      "sidebar": {
+        "title": "Sidebar",
+        "description": "Displays the mobile sidebar.",
+        "toggle": "Toggle Sidebar"
+      }
+    }
+  },
+  "RecommendationSection": {
+    "defaultUserCountry": "Turkey",
+    "localTitle": "Similar services near you",
+    "localDescription": "Compare trusted alternatives in {country}",
+    "internationalTitle": "Also available in Iran, Turkey, and UAE",
+    "internationalDescription": "Explore similar options across key destinations",
+    "openRecommendation": "Open {title}"
+  },
+  "ProviderPage": {
+    "actions": {
+      "back": "Go back",
+      "share": "Share provider",
+      "addFavorite": "Add provider to favorites",
+      "removeFavorite": "Remove provider from favorites",
+      "contact": "Contact",
+      "viewServices": "View services"
+    },
+    "errors": {
+      "providerCouldNotBeLoaded": "Provider could not be loaded",
+      "tryAgainLater": "Please try again later.",
+      "couldNotUpdateFavorite": "Could not update favorite status.",
+      "signInToReview": "Please sign in and complete your profile before writing a review.",
+      "couldNotSubmitReview": "Could not submit review.",
+      "couldNotLoadReviews": "Could not load reviews."
+    },
+    "share": {
+      "text": "Check out {name} on LSevin"
+    },
+    "badges": {
+      "verified": "Verified",
+      "accredited": "Accredited",
+      "topRated": "Top rated"
+    },
+    "stats": {
+      "reviews": "({count} reviews)",
+      "patients": "Patients",
+      "success": "Success",
+      "since": "Since"
+    },
+    "sections": {
+      "languages": "Languages",
+      "about": "About",
+      "gallery": "Gallery",
+      "providerDetails": "Provider details",
+      "certifications": "Certifications",
+      "policies": "Policies",
+      "contact": "Contact"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "services": "Services",
+      "specialists": "Specialists",
+      "reviews": "Reviews"
+    },
+    "services": {
+      "popular": "Popular",
+      "recovery": "{value} recovery",
+      "from": "from"
+    },
+    "specialists": {
+      "experience": "{value} exp",
+      "patients": "{value} patients"
+    },
+    "reviews": {
+      "writeReview": "Write a review",
+      "showMore": "Show more",
+      "loading": "Loading reviews...",
+      "providerExperience": "Provider experience",
+      "sort": {
+        "newest": "Newest",
+        "buyers": "Booked customers",
+        "helpful": "Most helpful"
+      }
+    },
+    "empty": {
+      "services": {
+        "title": "No active services",
+        "text": "This provider has not published active services yet."
+      },
+      "specialists": {
+        "title": "No specialists listed",
+        "text": "Specialists will appear here when the provider publishes them."
+      },
+      "reviews": {
+        "title": "No public reviews yet",
+        "text": "Reviews will appear here after customers publish them."
+      }
+    },
+    "gallery": {
+      "goToImage": "Go to image {number}",
+      "imageAlt": "{name} image {number}"
+    },
+    "certifications": {
+      "certificateImage": "Certificate image {number}"
+    }
+  },
+  "MobileOffers": {
+    "title": "Special Offers",
+    "subtitle": "Limited-time deals and promotions",
+    "actions": {
+      "back": "Go back",
+      "close": "Close"
+    },
+    "search": {
+      "placeholder": "Search offers, providers, services...",
+      "button": "Search"
+    },
+    "tabs": {
+      "allOffers": "All Offers",
+      "medical": "Medical",
+      "beautySpa": "Beauty & Spa",
+      "fitness": "Fitness",
+      "countLabel": "{label} ({count})"
+    },
+    "featured": {
+      "badge": "Featured Deal",
+      "useCode": "Use code:"
+    },
+    "discount": {
+      "off": "{discount} OFF"
+    },
+    "pricing": {
+      "save": "Save {amount}"
+    },
+    "code": {
+      "copy": "Copy",
+      "noCode": "NO-CODE"
+    },
+    "validity": {
+      "until": "Until {date}"
+    },
+    "cta": {
+      "bookNow": "Book Now"
+    },
+    "empty": {
+      "title": "No offers found",
+      "description": "Try clearing some filters or searching with a broader term.",
+      "clearFilters": "Clear filters"
+    },
+    "filters": {
+      "title": "Advanced Filters",
+      "description": "Find exactly what you are looking for",
+      "maxPrice": "Max Price",
+      "priceRange": "{min} - {max}",
+      "minimumRating": "Minimum Rating",
+      "any": "Any",
+      "verifiedOnly": "Verified Providers Only",
+      "verifiedOnlyDescription": "Show only accredited clinics",
+      "languagesSpoken": "Languages Spoken",
+      "clearAll": "Clear All",
+      "applyFilters": "Apply Filters"
+    },
+    "fallback": {
+      "offers": "Offers"
+    },
+    "demoOffers": {
+      "premiumPackages": {
+        "title": "20% Off Premium Packages",
+        "subtitle": "First-time bookings only",
+        "provider": "Istanbul Medical Center",
+        "validUntil": "Mar 15, 2026",
+        "location": "Istanbul, Turkey"
+      },
+      "laserSessions": {
+        "title": "Buy 2 Get 1 Free Laser Sessions",
+        "subtitle": "Limited-time offer",
+        "provider": "Elite Beauty Clinic Dubai",
+        "validUntil": "Mar 20, 2026",
+        "location": "Dubai, UAE"
+      },
+      "gymMembership": {
+        "title": "30% Off Annual Gym Membership",
+        "subtitle": "New members only",
+        "provider": "FitZone Premium Gym",
+        "validUntil": "Mar 25, 2026",
+        "location": "Dubai, UAE"
+      },
+      "dental": {
+        "title": "Free Consultation + 15% Off",
+        "subtitle": "Dental treatments",
+        "provider": "SmileCare Dental Clinic",
+        "validUntil": "Mar 18, 2026",
+        "location": "Istanbul, Turkey"
+      },
+      "spa": {
+        "title": "Spa Day Package - 25% Off",
+        "subtitle": "Includes massage, facial and more",
+        "provider": "Serenity Wellness Spa",
+        "validUntil": "Mar 22, 2026",
+        "location": "Dubai, UAE"
+      },
+      "personalTraining": {
+        "title": "40% Off First Personal Training Session",
+        "subtitle": "Professional trainers",
+        "provider": "PowerFit Personal Training",
+        "validUntil": "Mar 30, 2026",
+        "location": "Dubai, UAE"
+      }
+    }
+  },
+  "ProviderDashboardOffers": {
+    "common": {
+      "headerTitle": "Offers & Promotions",
+      "createOffer": "Create Offer",
+      "createNewOffer": "Create New Offer",
+      "editOffer": "Edit Offer"
+    },
+    "navigation": {
+      "dashboard": "Dashboard",
+      "classSchedule": "Class Schedule",
+      "trainers": "Trainers",
+      "memberships": "Memberships",
+      "services": "Services",
+      "bookings": "Bookings",
+      "liveStatus": "Live Status",
+      "offers": "Offers",
+      "analytics": "Analytics",
+      "billing": "Billing",
+      "support": "Support",
+      "settings": "Settings",
+      "staff": "Staff",
+      "timeSlots": "Time Slots",
+      "pricing": "Pricing",
+      "beforeAfter": "Before/After",
+      "reviews": "Reviews"
+    },
+    "status": {
+      "active": "ACTIVE"
+    },
+    "metrics": {
+      "activeOffers": "Active Offers",
+      "totalSignups": "Total Sign-ups",
+      "totalBookings": "Total Bookings",
+      "revenueImpact": "Revenue Impact"
+    },
+    "details": {
+      "discountLabel": "Discount:",
+      "discountOff": "{discount} OFF",
+      "period": "Period: {start} to {end}",
+      "signupsLabel": "Sign-ups:",
+      "bookingsLabel": "Bookings:"
+    },
+    "gym": {
+      "activePromotions": "Active Promotions",
+      "offers": {
+        "summerFitnessPackage": {
+          "name": "Summer Fitness Package",
+          "type": "Package Deal"
+        },
+        "premiumMembershipDiscount": {
+          "name": "Premium Membership Discount",
+          "type": "Membership"
+        },
+        "personalTrainingBundle": {
+          "name": "Personal Training Bundle",
+          "type": "Service"
+        }
+      }
+    },
+    "salon": {
+      "promotionalOffers": "Promotional Offers",
+      "offers": {
+        "springBeautyPackage": {
+          "name": "Spring Beauty Package",
+          "type": "Package"
+        },
+        "bridalSpecial": {
+          "name": "Bridal Special",
+          "type": "Limited Time"
+        },
+        "loyaltyReward": {
+          "name": "Loyalty Reward 10%",
+          "type": "Ongoing"
+        }
+      }
+    }
+  },
+  "MarketingOffersAdmin": {
+    "listTitle": "Marketing offers",
+    "listDescription": "Manage marketing offers.",
+    "createTitle": "Create marketing offer",
+    "updateTitle": "Update marketing offer"
+  },
+  "SupportPages": {
+    "admin": {
+      "inbox": {
+        "metadataTitle": "Support inbox",
+        "metadataDescription": "Manage support conversations and customer replies."
+      },
+      "conversation": {
+        "metadataTitle": "Support conversation",
+        "metadataDescription": "Review and reply to a support conversation."
+      },
+      "cannedReplies": {
+        "metadataTitle": "Canned replies",
+        "metadataDescription": "Manage reusable support replies.",
+        "pageTitle": "Canned replies",
+        "pageDescription": "Create and maintain reusable replies for the support inbox."
+      },
+      "settings": {
+        "metadataTitle": "Support settings",
+        "metadataDescription": "Configure support widget labels, appearance, and behavior.",
+        "pageTitle": "Support settings",
+        "pageDescription": "Control where support appears and how users start conversations."
+      },
+      "tags": {
+        "metadataTitle": "Support tags",
+        "metadataDescription": "Manage support conversation tags.",
+        "pageTitle": "Support tags",
+        "pageDescription": "Create tags used to organize support conversations."
+      }
+    },
+    "mobileSupport": {
+      "metadataTitle": "Support",
+      "metadataDescription": "Contact the support team and manage your conversations.",
+      "chatTitle": "Support chat"
+    },
+    "customer": {
+      "emailPlaceholder": "Email address",
+      "loginRequired": "Please log in to continue this support conversation.",
+      "namePlaceholder": "Full name",
+      "openFullPage": "Open full support page",
+      "pleaseCheckForm": "Please check the support form and try again.",
+      "countryCodeLabel": "Country code",
+      "emailLabel": "Email",
+      "messageLabel": "Message",
+      "nameLabel": "Name",
+      "phoneLabel": "Phone",
+      "secureSupport": "Secure support",
+      "sendFallback": "Send message",
+      "statusLabel": "Status",
+      "supportUnavailable": "Support is unavailable",
+      "supportUnavailableDescription": "The support channel is temporarily unavailable. Please try again later.",
+      "writeMessageFallback": "Write your message...",
+      "internalNote": "Internal note",
+      "noMessagesYet": "No messages yet."
+    },
+    "providerPortalStatus": {
+      "status": "Status",
+      "open": "Open",
+      "inProgress": "In progress",
+      "resolved": "Resolved",
+      "closed": "Closed",
+      "title": "Update support ticket status",
+      "saveStatus": "Save status",
+      "successMessage": "Support ticket status updated."
+    },
+    "providerGenerated": {
+      "supportCenter": "Support Center",
+      "supportCenterDescription": "Get help with bookings, profiles, billing, and platform operations.",
+      "educationHelpCenterDescription": "Get help with courses, instructors, certificates, students, and registrations.",
+      "gymHelpCenterDescription": "Get help with memberships, bookings, trainers, services, and payments.",
+      "hotelHelpCenterDescription": "Get help with rooms, bookings, availability, pricing, and settlements.",
+      "pharmacyHelpCenterDescription": "Get help with prescription requests, orders, inventory, delivery, and billing.",
+      "genericHelpCenterDescription": "Get help with services, staff, bookings, pricing, and promotions.",
+      "tourismHelpCenterDescription": "Get help with tour packages, transfers, destinations, bookings, and billing.",
+      "supportTickets": "Support Tickets",
+      "newSupportTicket": "New Support Ticket",
+      "newTicket": "New Ticket",
+      "createNewTicket": "Create New Ticket",
+      "needHelp": "Need help?",
+      "visitHelpCenter": "Visit Help Center",
+      "viewDetails": "View Details",
+      "view": "View",
+      "openTickets": "Open tickets",
+      "averageResponseTime": "Average response time",
+      "responseTime": "Response time",
+      "respondWithin24Hours": "We usually respond within 24 hours.",
+      "twoToFourHours": "2–4 hours",
+      "searchTickets": "Search tickets...",
+      "allCategories": "All categories",
+      "allPriority": "All priorities",
+      "allStatus": "All statuses",
+      "subject": "Subject",
+      "categoryLabel": "Category",
+      "priorityLabel": "Priority",
+      "statusLabel": "Status",
+      "created": "Created",
+      "lastReply": "Last reply",
+      "actionsLabel": "Actions",
+      "ticketDetails": "Ticket Details",
+      "ticketId": "Ticket ID",
+      "details": "Details",
+      "conversation": "Conversation",
+      "you": "You",
+      "supportTeam": "Support Team",
+      "addReply": "Add Reply",
+      "typeYourMessage": "Type your message...",
+      "sendReply": "Send Reply",
+      "markAsResolved": "Mark as Resolved",
+      "helpResources": "Help Resources",
+      "documentation": "Documentation",
+      "detailedGuidesAndTutorials": "Detailed guides and tutorials",
+      "videoTutorials": "Video Tutorials",
+      "stepByStepVideoGuides": "Step-by-step video guides",
+      "faq": "FAQ",
+      "frequentlyAskedQuestions": "Frequently asked questions",
+      "communityForum": "Community Forum",
+      "connectWithOtherProviders": "Connect with other providers",
+      "emailSupport": "Email Support",
+      "phoneSupport": "Phone Support",
+      "phoneHours": "Saturday to Thursday, 9:00–18:00",
+      "open": "Open",
+      "inProgress": "In Progress",
+      "resolved": "Resolved",
+      "priority": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      },
+      "status": {
+        "open": "Open",
+        "in_progress": "In Progress",
+        "resolved": "Resolved"
+      },
+      "categories": {
+        "technical": "Technical",
+        "account": "Account",
+        "billing": "Billing",
+        "bookings": "Bookings",
+        "system": "System",
+        "general": "General"
+      },
+      "relativeTime": {
+        "fortyFiveMinAgo": "45 minutes ago",
+        "oneHourAgo": "1 hour ago",
+        "twoHoursAgo": "2 hours ago",
+        "threeHoursAgo": "3 hours ago",
+        "fiveHoursAgo": "5 hours ago",
+        "oneDayAgo": "1 day ago",
+        "twoDaysAgo": "2 days ago",
+        "threeDaysAgo": "3 days ago"
+      },
+      "tickets": {
+        "issueWithBookingCalendarSync": "Issue with booking calendar sync",
+        "needHelpWithDoctorProfileSetup": "Need help with doctor profile setup",
+        "questionAboutPremiumFeatures": "Question about premium features",
+        "studentEnrollmentError": "Student enrollment error",
+        "courseUploadIssue": "Course upload issue",
+        "billingInquiry": "Billing inquiry",
+        "membershipSyncIssue": "Membership sync issue",
+        "classBookingProblem": "Class booking problem",
+        "paymentQuestion": "Payment question",
+        "roomSyncIssue": "Room sync issue",
+        "bookingConfirmationProblem": "Booking confirmation problem",
+        "paymentSettlementQuestion": "Payment settlement question",
+        "prescriptionUploadIssue": "Prescription upload issue",
+        "inventorySyncError": "Inventory sync error",
+        "calendarSyncProblem": "Calendar sync problem",
+        "paymentProcessingIssue": "Payment processing issue",
+        "questionAboutPromotions": "Question about promotions",
+        "packageSyncIssue": "Package sync issue",
+        "transferBookingError": "Transfer booking error"
+      },
+      "mockConversation": {
+        "customerBookingCalendarIssue": "We are seeing a mismatch between available slots and what customers can book.",
+        "supportLookingIntoIssue": "Thanks for the details. Our support team is checking the calendar sync logs and will update you soon."
+      },
+      "navigation": {
+        "dashboard": "Dashboard",
+        "bookings": "Bookings",
+        "doctors": "Doctors",
+        "treatments": "Treatments",
+        "mediaGallery": "Media Gallery",
+        "reviews": "Reviews",
+        "analytics": "Analytics",
+        "promotions": "Promotions",
+        "pricing": "Pricing",
+        "availability": "Availability",
+        "billing": "Billing",
+        "settings": "Settings",
+        "support": "Support",
+        "courseCatalog": "Course Catalog",
+        "instructors": "Instructors",
+        "students": "Students",
+        "registrations": "Registrations",
+        "classSchedule": "Class Schedule",
+        "certificates": "Certificates",
+        "memberships": "Memberships",
+        "services": "Services",
+        "trainers": "Trainers",
+        "offers": "Offers",
+        "liveStatus": "Live Status",
+        "roomCategories": "Room Categories",
+        "roomInventory": "Room Inventory",
+        "gallery": "Gallery",
+        "amenities": "Amenities",
+        "prescriptionInbox": "Prescription Inbox",
+        "orders": "Orders",
+        "inventory": "Inventory",
+        "medicineRequests": "Medicine Requests",
+        "deliveryTracking": "Delivery Tracking",
+        "operatingHours": "Operating Hours",
+        "staff": "Staff",
+        "timeSlots": "Time Slots",
+        "beforeAfter": "Before & After",
+        "tourPackages": "Tour Packages",
+        "destinations": "Destinations",
+        "schedule": "Schedule",
+        "transferServices": "Transfer Services",
+        "media": "Media"
+      }
+    }
+  },
+  "ProviderDoctorProfile": {
+    "basicInformation": {
+      "title": "Basic information"
+    },
+    "biography": {
+      "placeholder": "Write a professional biography...",
+      "title": "Biography",
+      "visibilityNote": "This biography appears on your public doctor profile."
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "saveChanges": "Save changes"
+    },
+    "certifications": {
+      "addNew": "Add new",
+      "sample": {
+        "acls": {
+          "issuer": "American Heart Association",
+          "name": "ACLS Certification"
+        },
+        "cardiology": {
+          "issuer": "Medical Board",
+          "name": "Board Certification in Cardiology"
+        },
+        "uaeLicense": {
+          "issuer": "Dubai Health Authority",
+          "name": "UAE Medical License"
+        }
+      },
+      "title": "Certifications",
+      "uploadCertificate": "Upload certificate"
+    },
+    "completion": {
+      "addBiography": "Add biography",
+      "basicInfoComplete": "Basic info complete",
+      "certificationsUploaded": "Certifications uploaded",
+      "description": "Complete your profile to improve trust and visibility.",
+      "title": "Profile completion"
+    },
+    "experienceEducation": {
+      "title": "Experience & Education"
+    },
+    "fields": {
+      "affiliatedClinics": "Affiliated clinics",
+      "firstName": "First name",
+      "languagesSpoken": "Languages spoken",
+      "lastName": "Last name",
+      "medicalSchool": "Medical school",
+      "primarySpecialty": "Primary specialty",
+      "professionalTitle": "Professional title",
+      "subSpecialty": "Sub-specialty",
+      "yearsOfExperience": "Years of experience"
+    },
+    "headerTitle": "Doctor Profile",
+    "navigation": {
+      "bookings": "Bookings",
+      "consultations": "Consultations",
+      "dashboard": "Dashboard",
+      "earnings": "Earnings",
+      "mySchedule": "My Schedule",
+      "myServices": "My Services",
+      "profile": "Profile",
+      "reviews": "Reviews",
+      "settings": "Settings"
+    },
+    "providerName": "Doctor Portal",
+    "specialties": {
+      "cardiology": "Cardiology",
+      "generalMedicine": "General medicine",
+      "internalMedicine": "Internal medicine",
+      "interventionalCardiology": "Interventional cardiology"
+    },
+    "stats": {
+      "averageRating": "Average rating",
+      "profileViews": "Profile views",
+      "responseTime": "Response time",
+      "responseTimeValue": "< 1 hour",
+      "title": "Profile stats",
+      "totalPatients": "Total patients"
+    },
+    "verification": {
+      "description": "Verified profiles receive stronger placement and customer trust.",
+      "subtitle": "Your credentials are under review.",
+      "title": "Verification"
+    }
+  },
+  "MobileDoctorProfile": {
+    "about": {
+      "body": "{name} is one of the world’s leading hair transplant surgeons with over 18 years of experience. He has performed more than 12,000 successful hair restoration procedures for patients from 65+ countries. His expertise in advanced FUE techniques, combined with an artistic eye for natural hairline design, has earned him international recognition.",
+      "title": "About Dr. {name}"
+    },
+    "achievements": {
+      "bestSurgeon": {
+        "organization": "Turkish Medical Excellence",
+        "title": "Best Hair Surgeon 2023"
+      },
+      "patients": {
+        "organization": "From 65+ Countries",
+        "title": "12,000+ Patients"
+      },
+      "success": {
+        "organization": "Verified Patient Outcomes",
+        "title": "98.5% Success Rate"
+      },
+      "title": "Achievements & Recognition",
+      "topPercent": {
+        "organization": "Hair Transplant Surgeons",
+        "title": "Top 1% Worldwide"
+      }
+    },
+    "actions": {
+      "back": "Back",
+      "bookNow": "Book Now",
+      "share": "Share"
+    },
+    "certifications": {
+      "board": {
+        "issuer": "Turkish Medical Board",
+        "name": "Board Certified Surgeon"
+      },
+      "fue": {
+        "issuer": "European Hair Institute",
+        "name": "FUE Master Certificate"
+      },
+      "ishrs": {
+        "issuer": "International Society of Hair Restoration Surgery",
+        "name": "Fellow of ISHRS"
+      },
+      "sapphire": {
+        "issuer": "World Hair Academy",
+        "name": "Advanced Sapphire FUE"
+      }
+    },
+    "consultation": {
+      "free": "Free",
+      "title": "Consultation"
+    },
+    "countries": {
+      "saudiArabia": "Saudi Arabia",
+      "uk": "UK",
+      "usa": "USA"
+    },
+    "dates": {
+      "oneMonthAgo": "1 month ago",
+      "twoWeeksAgo": "2 weeks ago"
+    },
+    "education": {
+      "fellowship": {
+        "degree": "Hair Transplant Surgery Fellowship",
+        "institution": "American Academy of Cosmetic Surgery"
+      },
+      "fue": {
+        "degree": "Advanced FUE Training",
+        "institution": "International Society of Hair Restoration Surgery"
+      },
+      "md": {
+        "degree": "Doctor of Medicine (MD)",
+        "institution": "Istanbul University Medical School"
+      }
+    },
+    "languages": {
+      "arabic": "Arabic",
+      "english": "English",
+      "turkish": "Turkish"
+    },
+    "results": {
+      "after": "After",
+      "before": "Before",
+      "cases": {
+        "case1": {
+          "months": "12 months post-op",
+          "procedure": "Hair Transplant - 4500 Grafts"
+        },
+        "case2": {
+          "months": "10 months post-op",
+          "procedure": "Hair Transplant - 3800 Grafts"
+        }
+      },
+      "title": "Results Gallery",
+      "viewFullGallery": "View Full Gallery"
+    },
+    "reviews": {
+      "basedOn": "Based on {count} reviews",
+      "helpful": "👍 Helpful ({count})",
+      "reviewImage": "Review image",
+      "sample": {
+        "first": "Dr. Yavuz is an absolute master of his craft. The results are beyond my expectations - natural hairline, dense coverage, minimal scarring. His attention to detail and artistic approach are exceptional. The entire team was professional and caring throughout the journey.",
+        "second": "Flew from Riyadh specifically for Dr. Yavuz and it was worth every mile. His expertise is unmatched. He took time to explain every step, designed a perfect hairline, and the procedure was painless. 6 months post-op and growth is fantastic!",
+        "third": "After researching 20+ surgeons worldwide, I chose Dr. Yavuz and couldn't be happier. His technique is flawless, results look completely natural, and his team provided excellent care. Highly recommend!"
+      }
+    },
+    "sample": {
+      "clinic": "Istanbul Medical Center",
+      "location": "Istanbul, Turkey",
+      "name": "Dr. Mehmet Yavuz",
+      "responseTime": "< 1 hour",
+      "specialty": "Hair Transplant & Restoration Surgeon",
+      "title": "MD, FISHRS"
+    },
+    "sections": {
+      "certifications": "Certifications & Memberships",
+      "education": "Education",
+      "languages": "Languages",
+      "specializations": "Specializations"
+    },
+    "share": {
+      "linkCopied": "Link copied to clipboard!",
+      "text": "Check out {name} - {specialty}"
+    },
+    "specializations": {
+      "beardEyebrow": "Beard & Eyebrow Transplant",
+      "dhi": "DHI (Direct Hair Implantation)",
+      "fue": "FUE Hair Transplant",
+      "prp": "PRP Therapy for Hair Loss",
+      "revision": "Revision Hair Transplant",
+      "sapphireFue": "Sapphire FUE Technique"
+    },
+    "stats": {
+      "patients": "Patients",
+      "reviews": "{count} reviews",
+      "successRate": "Success Rate",
+      "wouldRecommend": "Would Recommend",
+      "yearsExperience": "Years Exp."
+    },
+    "status": {
+      "available": "Available"
+    },
+    "tabs": {
+      "about": "About",
+      "credentials": "Credentials",
+      "reviews": "Reviews"
+    },
+    "treatments": {
+      "hairTransplant": "Hair Transplant"
+    },
+    "verification": {
+      "description": "All credentials have been verified by our medical board. Dr. {name} meets the highest standards of medical excellence.",
+      "title": "Verified by LSevin"
     }
   }
 };

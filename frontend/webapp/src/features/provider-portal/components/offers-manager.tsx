@@ -26,7 +26,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "@/i18n/navigation";
 
-import { tCommon, tLabel, tMessage, tStatus } from "../lib/i18n";
 import type { OfferRow, ProviderServiceRow, ProviderWorkspace } from "../types";
 
 type FormValues = z.infer<typeof saveOfferSchema>;
@@ -66,14 +65,10 @@ export function OffersManager({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Percent className="h-5 w-5" />
-            {tCommon(t, "offers", "Offers")}
+            {t("offersManager.title")}
           </CardTitle>
           <CardDescription>
-            {tCommon(
-              t,
-              "marketingOffersLinkedToProviderServices",
-              "Marketing offers linked to provider services.",
-            )}
+            {t("offersManager.description")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -90,12 +85,12 @@ export function OffersManager({
                       <Badge>{offer.discountPercent}%</Badge>
                       <Badge variant={offer.isActive ? "default" : "secondary"}>
                         {offer.isActive
-                          ? tStatus(t, "active")
-                          : tStatus(t, "inactive")}
+                          ? t("status.active")
+                          : t("status.inactive")}
                       </Badge>
                       {offer.isFeatured ? (
                         <Badge variant="outline">
-                          {tCommon(t, "featured", "Featured")}
+                          {t("status.featured")}
                         </Badge>
                       ) : null}
                     </div>
@@ -108,9 +103,9 @@ export function OffersManager({
                       </p>
                     ) : null}
                     <p className="mt-2 text-xs text-slate-500">
-                      {tCommon(t, "validUntil", "Valid until")}{" "}
+                      {t("offerForm.validUntil")}{" "}
                       {new Date(offer.validUntil).toLocaleString()} ·{" "}
-                      {tCommon(t, "used", "Used")} {offer.usedCount}
+                      {t("offersManager.used")} {offer.usedCount}
                       {offer.usageLimit ? `/${offer.usageLimit}` : ""}
                     </p>
                   </div>
@@ -122,7 +117,7 @@ export function OffersManager({
                         onClick={() => setEditing(offer)}
                       >
                         <Edit className="mr-2 h-4 w-4" />{" "}
-                        {tCommon(t, "edit", "Edit")}
+                        {t("common.edit")}
                       </Button>
                       <DeleteOfferButton
                         providerId={workspace.provider.id}
@@ -135,7 +130,7 @@ export function OffersManager({
             ))
           ) : (
             <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-slate-500">
-              {tCommon(t, "noOffersYet", "No offers yet.")}
+              {t("offersManager.noOffersYet")}
             </div>
           )}
         </CardContent>
@@ -189,14 +184,14 @@ function OfferForm({
       if (!response.ok) {
         toast.error(
           response.error ||
-            tCommon(t, "offerCouldNotBeSaved", "Offer could not be saved."),
+            t("offersManager.offerCouldNotBeSaved"),
         );
         return;
       }
       toast.success(
         editing
-          ? tCommon(t, "offerUpdated", "Offer updated.")
-          : tCommon(t, "offerCreated", "Offer created."),
+          ? t("offersManager.offerUpdated")
+          : t("offersManager.offerCreated"),
       );
       onDone();
       router.refresh();
@@ -208,15 +203,11 @@ function OfferForm({
       <CardHeader>
         <CardTitle>
           {editing
-            ? tCommon(t, "editOffer", "Edit offer")
-            : tCommon(t, "createOffer", "Create offer")}
+            ? t("offerForm.editTitle")
+            : t("offerForm.createTitle")}
         </CardTitle>
         <CardDescription>
-          {tCommon(
-            t,
-            "offersRequireService",
-            "Offers require at least one provider service.",
-          )}
+          {t("offerForm.requiresService")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -230,7 +221,7 @@ function OfferForm({
 
             <label className="space-y-2">
               <span className="text-sm font-medium">
-                {tLabel(t, "Service")}
+                {t("offerForm.service")}
               </span>
               <select
                 {...form.register("providerServiceId")}
@@ -245,16 +236,16 @@ function OfferForm({
             </label>
 
             <label className="space-y-2">
-              <span className="text-sm font-medium">{tLabel(t, "Code")}</span>
+              <span className="text-sm font-medium">{t("offerForm.code")}</span>
               <Input
                 {...form.register("code")}
-                placeholder={tMessage(t, "OPTIONAL")}
+                placeholder={t("common.optional")}
                 disabled={isPending}
               />
             </label>
 
             <label className="space-y-2">
-              <span className="text-sm font-medium">{tLabel(t, "Title")}</span>
+              <span className="text-sm font-medium">{t("offerForm.title")}</span>
               <Input {...form.register("title")} disabled={isPending} />
               {form.formState.errors.title ? (
                 <p className="text-xs text-red-600">
@@ -265,14 +256,14 @@ function OfferForm({
 
             <label className="space-y-2">
               <span className="text-sm font-medium">
-                {tLabel(t, "Subtitle")}
+                {t("offerForm.subtitle")}
               </span>
               <Input {...form.register("subtitle")} disabled={isPending} />
             </label>
 
             <label className="space-y-2">
               <span className="text-sm font-medium">
-                {tLabel(t, "Discount percent")}
+                {t("offerForm.discountPercent")}
               </span>
               <Input
                 type="number"
@@ -284,7 +275,7 @@ function OfferForm({
 
             <label className="space-y-2">
               <span className="text-sm font-medium">
-                {tLabel(t, "Valid until")}
+                {t("offerForm.validUntil")}
               </span>
               <Input
                 type="datetime-local"
@@ -300,7 +291,7 @@ function OfferForm({
 
             <label className="space-y-2">
               <span className="text-sm font-medium">
-                {tLabel(t, "Usage limit")}
+                {t("offerForm.usageLimit")}
               </span>
               <Input
                 type="number"
@@ -316,7 +307,7 @@ function OfferForm({
                   {...form.register("isActive")}
                   className="h-4 w-4 rounded border-slate-300"
                 />
-                {tStatus(t, "active")}
+                {t("status.active")}
               </label>
               <label className="flex items-center gap-2 text-sm">
                 <input
@@ -324,13 +315,13 @@ function OfferForm({
                   {...form.register("isFeatured")}
                   className="h-4 w-4 rounded border-slate-300"
                 />
-                {tCommon(t, "featured", "Featured")}
+                {t("status.featured")}
               </label>
             </div>
 
             <label className="space-y-2 md:col-span-2">
               <span className="text-sm font-medium">
-                {tLabel(t, "Description English")}
+                {t("offerForm.descriptionEn")}
               </span>
               <Textarea
                 {...form.register("descriptionEn")}
@@ -340,7 +331,7 @@ function OfferForm({
 
             <label className="space-y-2 md:col-span-2">
               <span className="text-sm font-medium">
-                {tLabel(t, "Description Persian")}
+                {t("offerForm.descriptionFa")}
               </span>
               <Textarea
                 {...form.register("descriptionFa")}
@@ -351,23 +342,19 @@ function OfferForm({
             <div className="flex justify-end gap-3 border-t pt-5 md:col-span-2">
               {editing ? (
                 <Button type="button" variant="outline" onClick={onDone}>
-                  {tCommon(t, "cancelEdit", "Cancel edit")}
+                  {t("offerForm.cancelEdit")}
                 </Button>
               ) : null}
               <Button type="submit" disabled={isPending}>
                 {isPending
-                  ? tCommon(t, "saving", "Saving...")
-                  : tCommon(t, "saveOffer", "Save offer")}
+                  ? t("common.saving")
+                  : t("offerForm.saveOffer")}
               </Button>
             </div>
           </form>
         ) : (
           <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-slate-500">
-            {tCommon(
-              t,
-              "createServiceFirstThenOffers",
-              "Create a service first, then add offers.",
-            )}
+            {t("offersManager.createServiceFirstThenOffers")}
           </div>
         )}
       </CardContent>
@@ -393,27 +380,23 @@ function DeleteOfferButton({
       size="sm"
       disabled={isPending}
       onClick={() => {
-        if (!confirm(tCommon(t, "deleteThisOffer", "Delete this offer?")))
+        if (!confirm(t("offersManager.deleteThisOffer")))
           return;
         startTransition(async () => {
           const response = await deleteOfferAction({ providerId, offerId });
           if (!response.ok) {
             toast.error(
               response.error ||
-                tCommon(
-                  t,
-                  "offerCouldNotBeDeleted",
-                  "Offer could not be deleted.",
-                ),
+                t("offersManager.offerCouldNotBeDeleted"),
             );
             return;
           }
-          toast.success(tCommon(t, "offerDeleted", "Offer deleted."));
+          toast.success(t("offersManager.offerDeleted"));
           router.refresh();
         });
       }}
     >
-      <Trash2 className="mr-2 h-4 w-4" /> {tCommon(t, "delete", "Delete")}
+      <Trash2 className="mr-2 h-4 w-4" /> {t("common.delete")}
     </Button>
   );
 }

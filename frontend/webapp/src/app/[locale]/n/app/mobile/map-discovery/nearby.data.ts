@@ -4,6 +4,7 @@ import { unstable_noStore as noStore } from "next/cache";
 export type NearbyFiltersInput = {
   q: string;
   categoryId: string | null;
+  providerTypeId: string | null;
   minPrice: number;
   maxPrice: number;
   currencyCode: string | null;
@@ -160,6 +161,73 @@ function buildTextOrFilterSql(valueSql: any, values: string[]) {
   )})`;
 }
 
+function normalizeIdFilter(value?: string | null): string | null {
+  const normalized = String(value || "").trim();
+  return normalized && normalized.toLowerCase() !== "all" ? normalized : null;
+}
+
+function buildLocationCodeMatchSql(columnSql: any, value: string) {
+  const normalized = value.trim();
+  return sql`lower(btrim(${columnSql}::text)) = lower(btrim(${normalized}::text))`;
+}
+
+function buildProviderSpecialistSearchSql(term: string, lang: string) {
+  return sql`exists (
+    select 1
+    from category.provider_staffs pst
+    join category.staff st on st.id = pst.staff_id
+    where pst.service_provider_id = sp.id
+      and pst.is_active = true
+      and st.is_active = true
+      and (
+        common.get_translation_t(st.name_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(st.title_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(st.biography_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(st.specialty_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or coalesce(st.specialty, '') ilike ${`%${term}%`}
+      )
+  )`;
+}
+
+function buildProviderServiceSearchSql(term: string, lang: string) {
+  return sql`exists (
+    select 1
+    from category.provider_services pss
+    join category.service_definitions sds on sds.id = pss.service_definition_id
+    where pss.service_provider_id = sp.id
+      and pss.is_active = true
+      and sds.is_active = true
+      and (
+        pss.search_vector @@ websearch_to_tsquery('simple', ${term})
+        or common.get_translation_t(pss.display_name_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(pss.description_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(sds.name_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(sds.description_translations, ${lang}, 'en') ilike ${`%${term}%`}
+      )
+  )`;
+}
+
+function buildServiceSpecialistSearchSql(term: string, lang: string) {
+  return sql`exists (
+    select 1
+    from category.provider_services pss
+    join category.staff_services ss on ss.service_definition_id = pss.service_definition_id
+    join category.provider_staffs pst on pst.staff_id = ss.staff_id and pst.service_provider_id = sp.id
+    join category.staff st on st.id = ss.staff_id
+    where pss.service_provider_id = sp.id
+      and pss.is_active = true
+      and ss.is_active = true
+      and pst.is_active = true
+      and st.is_active = true
+      and (
+        common.get_translation_t(st.name_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(st.title_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or common.get_translation_t(st.specialty_translations, ${lang}, 'en') ilike ${`%${term}%`}
+        or coalesce(st.specialty, '') ilike ${`%${term}%`}
+      )
+  )`;
+}
+
 export function parseNearbyFilters(
   params: Record<string, string | string[] | undefined>,
 ): NearbyFiltersInput {
@@ -168,16 +236,14 @@ export function parseNearbyFilters(
   const currencyCode = normalizeCurrencyCode(
     toSingleString(params.currencyCode || params.currency),
   );
-  const countryCode =
-    (
-      toSingleString(params.countryCode) || toSingleString(params.country)
-    ).trim() || null;
+  const countryCode = normalizeIdFilter(
+    toSingleString(params.countryCode) || toSingleString(params.country),
+  );
   const cityCode = countryCode
-    ? (toSingleString(params.cityCode) || toSingleString(params.city)).trim() ||
-      null
+    ? normalizeIdFilter(toSingleString(params.cityCode) || toSingleString(params.city))
     : null;
   const requestedMinPrice = Math.max(0, toFiniteNumber(params.minPrice, 0));
-  const requestedMaxPrice = Math.max(0, toFiniteNumber(params.maxPrice, 5000));
+  const requestedMaxPrice = Math.max(0, toFiniteNumber(params.maxPrice, 0));
   const minPrice = Math.min(
     requestedMinPrice,
     requestedMaxPrice || requestedMinPrice,
@@ -190,7 +256,8 @@ export function parseNearbyFilters(
 
   return {
     q: toSingleString(params.q).trim(),
-    categoryId: toSingleString(params.categoryId).trim() || null,
+    categoryId: normalizeIdFilter(toSingleString(params.categoryId)),
+    providerTypeId: normalizeIdFilter(toSingleString(params.providerTypeId)),
     countryCode,
     cityCode,
     minPrice,
@@ -243,11 +310,7 @@ function coalesceImage(...candidates: Array<string | null | undefined>) {
 }
 
 function buildNearbyWhere(filters: NearbyFiltersInput, lang: string) {
-  const conditions = [
-    sql`sp.is_active = true`,
-    sql`sp.latitude is not null`,
-    sql`sp.longitude is not null`,
-  ];
+  const conditions = [sql`sp.is_active = true`];
 
   if (filters.categoryId) {
     conditions.push(sql`exists (
@@ -256,16 +319,21 @@ function buildNearbyWhere(filters: NearbyFiltersInput, lang: string) {
       join category.service_definitions csd on csd.id = cps.service_definition_id
       where cps.service_provider_id = sp.id
         and cps.is_active = true
+        and csd.is_active = true
         and csd.category_id = ${filters.categoryId}::uuid
     )`);
   }
 
+  if (filters.providerTypeId) {
+    conditions.push(sql`sp.provider_type_id = ${filters.providerTypeId}::uuid`);
+  }
+
   if (filters.countryCode) {
-    conditions.push(sql`sp.country = ${filters.countryCode}`);
+    conditions.push(buildLocationCodeMatchSql(sql`sp.country`, filters.countryCode));
   }
 
   if (filters.cityCode) {
-    conditions.push(sql`sp.city = ${filters.cityCode}`);
+    conditions.push(buildLocationCodeMatchSql(sql`sp.city`, filters.cityCode));
   }
 
   if (filters.minPrice > 0 || filters.maxPrice > 0 || filters.currencyCode) {
@@ -343,21 +411,15 @@ function buildNearbyWhere(filters: NearbyFiltersInput, lang: string) {
     conditions.push(sql`(
       sp.search_vector @@ websearch_to_tsquery('simple', ${term})
       or common.get_translation_t(sp.name_translations, ${lang}, 'en') ilike ${`%${term}%`}
+      or common.get_translation_t(sp.description_translations, ${lang}, 'en') ilike ${`%${term}%`}
       or exists (
         select 1
         from unnest(coalesce(sp.specialties, array[]::text[])) as specialty
         where specialty ilike ${`%${term}%`}
       )
-      or exists (
-        select 1
-        from category.provider_services pss
-        where pss.service_provider_id = sp.id
-          and pss.is_active = true
-          and (
-            pss.search_vector @@ websearch_to_tsquery('simple', ${term})
-            or common.get_translation_t(pss.display_name_translations, ${lang}, 'en') ilike ${`%${term}%`}
-          )
-      )
+      or ${buildProviderServiceSearchSql(term, lang)}
+      or ${buildProviderSpecialistSearchSql(term, lang)}
+      or ${buildServiceSpecialistSearchSql(term, lang)}
     )`);
   }
 
@@ -608,8 +670,6 @@ export async function getNearbyPageData({
       join category.service_providers sp on sp.id = ps.service_provider_id
       where ps.is_active = true
         and sp.is_active = true
-        and sp.latitude is not null
-        and sp.longitude is not null
       group by upper(coalesce(nullif(btrim(ps.currency), ''), 'USD'))
     )
     select

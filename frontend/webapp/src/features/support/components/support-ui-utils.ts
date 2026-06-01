@@ -2,12 +2,16 @@ import { DEFAULT_SUPPORT_LABELS } from "../constants";
 import type { SupportSettings } from "../types";
 
 export function getSupportLabels(settings: SupportSettings, locale?: string) {
-  const normalized = locale || "en-US";
-  const candidates = [normalized, normalized.replace("_", "-"), normalized.split("-")[0], "en-US", "fa-IR"];
+  const normalized = (locale || "en-US").replace("_", "-");
+  const baseLocale = normalized.split("-")[0];
+  const regionalFallback = baseLocale === "fa" ? "fa-IR" : baseLocale === "ar" ? "ar-SA" : undefined;
+  const defaultKey = regionalFallback && regionalFallback in DEFAULT_SUPPORT_LABELS ? regionalFallback : "en-US";
+  const defaults = DEFAULT_SUPPORT_LABELS[defaultKey as keyof typeof DEFAULT_SUPPORT_LABELS] || DEFAULT_SUPPORT_LABELS["en-US"];
+  const candidates = [normalized, baseLocale, regionalFallback, "en-US", "fa-IR", "ar-SA"].filter(Boolean) as string[];
   for (const key of candidates) {
-    if (settings.labels?.[key]) return { ...DEFAULT_SUPPORT_LABELS["en-US"], ...settings.labels[key] };
+    if (settings.labels?.[key]) return { ...defaults, ...settings.labels[key] };
   }
-  return DEFAULT_SUPPORT_LABELS["en-US"];
+  return defaults;
 }
 
 export function isRtlLocale(locale?: string) {

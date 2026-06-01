@@ -1,11 +1,13 @@
 "use client"
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useNavigate } from '@/hooks/use-navigate';
 import { ArrowLeft, Copy, Share2, Check, Gift, Users, DollarSign, Mail, MessageSquare, Facebook, Instagram } from 'lucide-react';
 
 export default function ShareFriends() {
   const navigate = useNavigate();
+  const t = useTranslations("MobileProfile.shareFriends");
   const [copied, setCopied] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
@@ -54,7 +56,7 @@ export default function ShareFriends() {
           >
             <ArrowLeft size={20} className="text-gray-900" />
           </button>
-          <h1 className="text-lg font-bold text-gray-900 ml-3">Share with Friends</h1>
+          <h1 className="text-lg font-bold text-gray-900 ml-3">{t("title")}</h1>
         </div>
       </div>
 
@@ -64,31 +66,31 @@ export default function ShareFriends() {
           <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <Gift size={32} className="text-white" />
           </div>
-          <h2 className="text-2xl font-bold mb-2">Invite Friends, Earn Rewards</h2>
+          <h2 className="text-2xl font-bold mb-2">{t("heroTitle")}</h2>
           <p className="text-white/90 mb-6">
-            Give your friends $50 off their first booking and earn $50 when they complete it!
+            {t("heroSubtitle")}
           </p>
           
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
               <div className="text-2xl font-bold mb-1">{stats.totalReferrals}</div>
-              <div className="text-xs text-white/80">Friends Joined</div>
+              <div className="text-xs text-white/80">{t("stats.friendsJoined")}</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
               <div className="text-2xl font-bold mb-1">${stats.pendingRewards}</div>
-              <div className="text-xs text-white/80">Pending</div>
+              <div className="text-xs text-white/80">{t("stats.pending")}</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
               <div className="text-2xl font-bold mb-1">${stats.earnedRewards}</div>
-              <div className="text-xs text-white/80">Earned</div>
+              <div className="text-xs text-white/80">{t("stats.earned")}</div>
             </div>
           </div>
         </div>
 
         {/* Referral Code */}
         <div className="bg-white rounded-2xl p-5">
-          <h3 className="font-bold text-gray-900 mb-4">Your Referral Code</h3>
+          <h3 className="font-bold text-gray-900 mb-4">{t("referralCode")}</h3>
           
           <div className="space-y-3">
             <div className="flex items-center gap-3">
@@ -108,19 +110,19 @@ export default function ShareFriends() {
                 {copied ? (
                   <>
                     <Check size={20} />
-                    Copied!
+                    {t("copiedBang")}
                   </>
                 ) : (
                   <>
                     <Copy size={20} />
-                    Copy
+                    {t("copy")}
                   </>
                 )}
               </button>
             </div>
 
             <div className="text-center text-sm text-gray-600">
-              or share your referral link
+              {t("shareReferralLink")}
             </div>
 
             <div className="flex items-center gap-3">
@@ -140,12 +142,12 @@ export default function ShareFriends() {
                 {copiedLink ? (
                   <>
                     <Check size={16} />
-                    Copied
+                    {t("copied")}
                   </>
                 ) : (
                   <>
                     <Copy size={16} />
-                    Copy
+                    {t("copy")}
                   </>
                 )}
               </button>
@@ -155,14 +157,14 @@ export default function ShareFriends() {
 
         {/* Share Options */}
         <div className="bg-white rounded-2xl p-5">
-          <h3 className="font-bold text-gray-900 mb-4">Share via</h3>
+          <h3 className="font-bold text-gray-900 mb-4">{t("shareVia")}</h3>
           
           <div className="grid grid-cols-4 gap-3">
             {[
-              { id: 'sms', name: 'Message', icon: MessageSquare, color: 'bg-green-600' },
-              { id: 'email', name: 'Email', icon: Mail, color: 'bg-blue-600' },
-              { id: 'facebook', name: 'Facebook', icon: Facebook, color: 'bg-blue-700' },
-              { id: 'instagram', name: 'Instagram', icon: Instagram, color: 'bg-pink-600' },
+              { id: 'sms', name: t('methods.message'), icon: MessageSquare, color: 'bg-green-600' },
+              { id: 'email', name: t('methods.email'), icon: Mail, color: 'bg-blue-600' },
+              { id: 'facebook', name: t('methods.facebook'), icon: Facebook, color: 'bg-blue-700' },
+              { id: 'instagram', name: t('methods.instagram'), icon: Instagram, color: 'bg-pink-600' },
             ].map(method => {
               const Icon = method.icon;
               return (
@@ -184,8 +186,8 @@ export default function ShareFriends() {
             onClick={() => {
               if (navigator.share) {
                 navigator.share({
-                  title: 'Join LSevin',
-                  text: `Use my code ${referralCode} to get $50 off your first booking on LSevin!`,
+                  title: t('shareSubject'),
+                  text: t("shareMessage", { code: referralCode }),
                   url: referralLink,
                 });
               }
@@ -193,13 +195,13 @@ export default function ShareFriends() {
             className="w-full mt-4 h-12 bg-gray-100 text-gray-900 rounded-xl font-semibold hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
           >
             <Share2 size={18} />
-            More Options
+            {t("moreOptions")}
           </button>
         </div>
 
-        {/* How it Works */}
+        {/* {t("howItWorks")} */}
         <div className="bg-white rounded-2xl p-5">
-          <h3 className="font-bold text-gray-900 mb-4">How it Works</h3>
+          <h3 className="font-bold text-gray-900 mb-4">{t("howItWorks")}</h3>
           
           <div className="space-y-4">
             <div className="flex gap-4">
@@ -207,9 +209,9 @@ export default function ShareFriends() {
                 1
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900 mb-1">Share Your Code</h4>
+                <h4 className="font-semibold text-gray-900 mb-1">{t("steps.shareCode.title")}</h4>
                 <p className="text-sm text-gray-600">
-                  Send your unique referral code to friends and family.
+                  {t("steps.shareCode.description")}
                 </p>
               </div>
             </div>
@@ -219,9 +221,9 @@ export default function ShareFriends() {
                 2
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900 mb-1">They Get $50 Off</h4>
+                <h4 className="font-semibold text-gray-900 mb-1">{t("steps.theyGet.title")}</h4>
                 <p className="text-sm text-gray-600">
-                  Your friend gets $50 off their first booking when they sign up with your code.
+                  {t("steps.theyGet.description")}
                 </p>
               </div>
             </div>
@@ -231,20 +233,20 @@ export default function ShareFriends() {
                 3
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900 mb-1">You Earn $50</h4>
+                <h4 className="font-semibold text-gray-900 mb-1">{t("steps.youEarn.title")}</h4>
                 <p className="text-sm text-gray-600">
-                  When they complete their first booking, you'll receive $50 in your wallet!
+                  {t("steps.youEarn.description")}
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Referral History */}
+        {/* {t("referralHistory")} */}
         {referralHistory.length > 0 && (
           <div className="bg-white rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-gray-900">Referral History</h3>
+              <h3 className="font-bold text-gray-900">{t("referralHistory")}</h3>
               <span className="text-sm text-gray-600">{referralHistory.length} referrals</span>
             </div>
             
@@ -274,7 +276,7 @@ export default function ShareFriends() {
                         ? 'text-green-600' 
                         : 'text-orange-600'
                     }`}>
-                      {referral.status === 'completed' ? 'Earned' : 'Pending'}
+                      {referral.status === 'completed' ? '{t("stats.earned")}' : '{t("stats.pending")}'}
                     </div>
                   </div>
                 </div>
@@ -285,13 +287,13 @@ export default function ShareFriends() {
 
         {/* Terms */}
         <div className="bg-gray-100 rounded-2xl p-5">
-          <h4 className="font-bold text-gray-900 mb-2">Terms & Conditions</h4>
+          <h4 className="font-bold text-gray-900 mb-2">{t("termsTitle")}</h4>
           <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
-            <li>Rewards are credited after friend's first completed booking</li>
-            <li>Minimum booking value of $100 required</li>
-            <li>Both parties must be new LSevin users</li>
-            <li>Rewards expire 90 days after being earned</li>
-            <li>LSevin reserves the right to modify or cancel this program</li>
+            <li>{t("terms.rewardAfterBooking")}</li>
+            <li>{t("terms.minimumBooking")}</li>
+            <li>{t("terms.newUsers")}</li>
+            <li>{t("terms.expire")}</li>
+            <li>{t("terms.rights")}</li>
           </ul>
         </div>
       </div>

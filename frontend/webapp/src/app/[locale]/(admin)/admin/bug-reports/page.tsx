@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { getLocale } from "next-intl/server";
 
 import { AdminBugReportsBoard } from "@/features/bug-reports/components/AdminBugReportsBoard";
-import { getAdminBugReports, parseAdminBugReportFilters } from "@/features/bug-reports/data";
+import { getAdminBugReports, getBugReportAssignableAgents, getBugReportBoardColumnSettings, parseAdminBugReportFilters } from "@/features/bug-reports/data";
 
 export const metadata: Metadata = {
   title: "Bug reports",
@@ -17,7 +17,22 @@ export default async function AdminBugReportsPage({ searchParams }: { searchPara
   const locale = await getLocale().catch(() => "en");
   const params = await Promise.resolve(searchParams ?? {});
   const filters = parseAdminBugReportFilters(params);
-  const data = await getAdminBugReports(filters);
+  const [data, agents, boardColumns] = await Promise.all([
+    getAdminBugReports(filters),
+    getBugReportAssignableAgents().catch(() => []),
+    getBugReportBoardColumnSettings().catch(() => []),
+  ]);
 
-  return <AdminBugReportsBoard locale={locale} items={data.items} stats={data.stats} filters={filters} />;
+  return (
+    <AdminBugReportsBoard
+      locale={locale}
+      items={data.items}
+      stats={data.stats}
+      filters={filters}
+      pageInfo={data.pageInfo}
+      recentChanges={data.recentChanges}
+      agents={agents}
+      boardColumns={boardColumns}
+    />
+  );
 }

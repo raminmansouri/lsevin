@@ -23,18 +23,18 @@ export default function SalonBookings() {
     const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
     const [filterStatus, setFilterStatus] = useState<string>('all');
     const navigation = [
-        { label: 'Dashboard', icon: <LayoutDashboard size={20}/>, path: '/provider/salon/dashboard' },
-        { label: 'Bookings', icon: <Calendar size={20}/>, path: '/provider/salon/bookings', badge: 12 },
-        { label: 'Staff', icon: <Users size={20}/>, path: '/provider/salon/staff' },
-        { label: 'Services', icon: <Scissors size={20}/>, path: '/provider/salon/services' },
-        { label: 'Time Slots', icon: <Clock size={20}/>, path: '/provider/salon/timeslots' },
-        { label: 'Pricing', icon: <DollarSign size={20}/>, path: '/provider/salon/pricing' },
-        { label: 'Offers', icon: <Gift size={20}/>, path: '/provider/salon/offers' },
-        { label: 'Before/After', icon: <Image size={20}/>, path: '/provider/salon/gallery' },
-        { label: 'Reviews', icon: <Star size={20}/>, path: '/provider/salon/reviews' },
-        { label: 'Analytics', icon: <TrendingUp size={20}/>, path: '/provider/salon/analytics' },
-        { label: 'Support', icon: <MessageSquare size={20}/>, path: '/provider/salon/support' },
-        { label: 'Settings', icon: <Settings size={20}/>, path: '/provider/salon/settings' },
+        { label: tBooking("dashboard"), icon: <LayoutDashboard size={20}/>, path: '/provider/salon/dashboard' },
+        { label: tBooking("bookings"), icon: <Calendar size={20}/>, path: '/provider/salon/bookings', badge: 12 },
+        { label: tBooking("staff"), icon: <Users size={20}/>, path: '/provider/salon/staff' },
+        { label: tBooking("services"), icon: <Scissors size={20}/>, path: '/provider/salon/services' },
+        { label: tBooking("timeSlots"), icon: <Clock size={20}/>, path: '/provider/salon/timeslots' },
+        { label: tBooking("pricing"), icon: <DollarSign size={20}/>, path: '/provider/salon/pricing' },
+        { label: tBooking("offers"), icon: <Gift size={20}/>, path: '/provider/salon/offers' },
+        { label: tBooking("beforeAfter"), icon: <Image size={20}/>, path: '/provider/salon/gallery' },
+        { label: tBooking("reviews"), icon: <Star size={20}/>, path: '/provider/salon/reviews' },
+        { label: tBooking("analytics"), icon: <TrendingUp size={20}/>, path: '/provider/salon/analytics' },
+        { label: tBooking("support"), icon: <MessageSquare size={20}/>, path: '/provider/salon/support' },
+        { label: tBooking("settings"), icon: <Settings size={20}/>, path: '/provider/salon/settings' },
     ];
     const bookings: Booking[] = [
         {
@@ -122,13 +122,13 @@ export default function SalonBookings() {
     };
     const getPaymentBadge = (status: string) => {
         switch (status) {
-            case 'paid': return { bg: 'bg-green-100', text: 'text-green-700', label: 'Paid' };
-            case 'pending': return { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Pending' };
-            case 'partial': return { bg: 'bg-orange-100', text: 'text-orange-700', label: 'Partial' };
+            case 'paid': return { bg: 'bg-green-100', text: 'text-green-700', label: tBooking("paid") };
+            case 'pending': return { bg: 'bg-yellow-100', text: 'text-yellow-700', label: tBooking("pending") };
+            case 'partial': return { bg: 'bg-orange-100', text: 'text-orange-700', label: tBooking("partial") };
             default: return { bg: 'bg-gray-100', text: 'text-gray-700', label: status };
         }
     };
-    return (<DashboardLayout navigation={navigation} headerTitle="Bookings" userRole="provider" userName="Maria Santos" providerName="Luxury Beauty & Spa">
+    return (<DashboardLayout navigation={navigation} headerTitle={tBooking("bookings")} userRole="provider" userName="Maria Santos" providerName="Luxury Beauty & Spa">
       {/* Stats Cards */}
       <div className="grid grid-cols-4 gap-6 mb-6">
         <div className="bg-white rounded-xl border border-gray-200 p-5">
@@ -251,7 +251,7 @@ export default function SalonBookings() {
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${status.bg} ${status.text}`}>
                       {status.icon}
-                      {booking.status.toUpperCase()}
+                      {tBooking(booking.status as any)}
                     </span>
                   </td>
                   <td className="px-6 py-4">

@@ -7,25 +7,25 @@ export default function TourismBookings() {
     const tBooking = useTranslations("Booking");
     const [selectedBooking, setSelectedBooking] = useState<any>(null);
     const navigation = [
-        { label: 'Dashboard', icon: <LayoutDashboard size={20}/>, path: '/provider/tourism/dashboard' },
-        { label: 'Bookings', icon: <Calendar size={20}/>, path: '/provider/tourism/bookings', badge: 15 },
-        { label: 'Tour Packages', icon: <Package size={20}/>, path: '/provider/tourism/packages' },
-        { label: 'Destinations', icon: <MapPin size={20}/>, path: '/provider/tourism/destinations' },
-        { label: 'Transfer Services', icon: <Plane size={20}/>, path: '/provider/tourism/transfers' },
-        { label: 'Schedule', icon: <Calendar size={20}/>, path: '/provider/tourism/schedule' },
-        { label: 'Pricing', icon: <DollarSign size={20}/>, path: '/provider/tourism/pricing' },
-        { label: 'Media', icon: <Image size={20}/>, path: '/provider/tourism/media' },
-        { label: 'Analytics', icon: <BarChart3 size={20}/>, path: '/provider/tourism/analytics' },
-        { label: 'Billing', icon: <CreditCard size={20}/>, path: '/provider/tourism/billing' },
-        { label: 'Support', icon: <MessageSquare size={20}/>, path: '/provider/tourism/support' },
-        { label: 'Settings', icon: <Settings size={20}/>, path: '/provider/tourism/settings' },
+        { label: tBooking("dashboard"), icon: <LayoutDashboard size={20}/>, path: '/provider/tourism/dashboard' },
+        { label: tBooking("bookings"), icon: <Calendar size={20}/>, path: '/provider/tourism/bookings', badge: 15 },
+        { label: tBooking("tourPackages"), icon: <Package size={20}/>, path: '/provider/tourism/packages' },
+        { label: tBooking("destinations"), icon: <MapPin size={20}/>, path: '/provider/tourism/destinations' },
+        { label: tBooking("transferServices"), icon: <Plane size={20}/>, path: '/provider/tourism/transfers' },
+        { label: tBooking("schedule"), icon: <Calendar size={20}/>, path: '/provider/tourism/schedule' },
+        { label: tBooking("pricing"), icon: <DollarSign size={20}/>, path: '/provider/tourism/pricing' },
+        { label: tBooking("media"), icon: <Image size={20}/>, path: '/provider/tourism/media' },
+        { label: tBooking("analytics"), icon: <BarChart3 size={20}/>, path: '/provider/tourism/analytics' },
+        { label: tBooking("billing"), icon: <CreditCard size={20}/>, path: '/provider/tourism/billing' },
+        { label: tBooking("support"), icon: <MessageSquare size={20}/>, path: '/provider/tourism/support' },
+        { label: tBooking("settings"), icon: <Settings size={20}/>, path: '/provider/tourism/settings' },
     ];
     const bookings = [
         { id: 'TB-8923', customer: 'Emma Johnson', service: 'Volcano Sunrise Trek', destination: 'Mount Batur', date: '2026-03-15', time: '06:00', travelers: 2, status: 'confirmed', payment: 'paid' },
         { id: 'TB-8924', customer: 'Carlos Rodriguez', service: 'Beach Hopping Adventure', destination: 'Seminyak', date: '2026-03-16', time: '09:00', travelers: 4, status: 'confirmed', payment: 'paid' },
         { id: 'TB-8925', customer: 'Yuki Tanaka', service: 'Airport Transfer', destination: 'Denpasar Airport', date: '2026-03-17', time: '14:30', travelers: 2, status: 'pending', payment: 'pending' },
     ];
-    return (<DashboardLayout navigation={navigation} headerTitle="Booking Operations" userRole="provider" userName="Marco Santini" providerName="Bali Adventures Tours">
+    return (<DashboardLayout navigation={navigation} headerTitle={tBooking("bookingOperations")} userRole="provider" userName="Marco Santini" providerName="Bali Adventures Tours">
       <div className="grid grid-cols-4 gap-6 mb-6">
         <div className="bg-white rounded-xl border border-gray-200 p-5">
           <div className="text-sm font-medium text-gray-600 mb-2">{tBooking("totalBookings")}</div>
@@ -100,7 +100,7 @@ export default function TourismBookings() {
                 </td>
                 <td className="px-6 py-4">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${booking.status === 'confirmed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                    {booking.status.toUpperCase()}
+                    {tBooking(booking.status as any)}
                   </span>
                 </td>
                 <td className="px-6 py-4">

@@ -7,26 +7,26 @@ export default function HotelBookings() {
     const tBooking = useTranslations("Booking");
     const [selectedBooking, setSelectedBooking] = useState<any>(null);
     const navigation = [
-        { label: 'Dashboard', icon: <LayoutDashboard size={20}/>, path: '/provider/hotel/dashboard' },
-        { label: 'Bookings', icon: <Calendar size={20}/>, path: '/provider/hotel/bookings', badge: 12 },
-        { label: 'Room Inventory', icon: <Bed size={20}/>, path: '/provider/hotel/rooms' },
-        { label: 'Room Categories', icon: <Hotel size={20}/>, path: '/provider/hotel/categories' },
-        { label: 'Amenities', icon: <Sparkles size={20}/>, path: '/provider/hotel/amenities' },
-        { label: 'Pricing', icon: <DollarSign size={20}/>, path: '/provider/hotel/pricing' },
-        { label: 'Availability', icon: <Calendar size={20}/>, path: '/provider/hotel/availability' },
-        { label: 'Gallery', icon: <Image size={20}/>, path: '/provider/hotel/gallery' },
-        { label: 'Reviews', icon: <Star size={20}/>, path: '/provider/hotel/reviews' },
-        { label: 'Analytics', icon: <BarChart3 size={20}/>, path: '/provider/hotel/analytics' },
-        { label: 'Billing', icon: <CreditCard size={20}/>, path: '/provider/hotel/billing' },
-        { label: 'Support', icon: <MessageSquare size={20}/>, path: '/provider/hotel/support' },
-        { label: 'Settings', icon: <Settings size={20}/>, path: '/provider/hotel/settings' },
+        { label: tBooking("dashboard"), icon: <LayoutDashboard size={20}/>, path: '/provider/hotel/dashboard' },
+        { label: tBooking("bookings"), icon: <Calendar size={20}/>, path: '/provider/hotel/bookings', badge: 12 },
+        { label: tBooking("roomInventory"), icon: <Bed size={20}/>, path: '/provider/hotel/rooms' },
+        { label: tBooking("roomCategories"), icon: <Hotel size={20}/>, path: '/provider/hotel/categories' },
+        { label: tBooking("amenities"), icon: <Sparkles size={20}/>, path: '/provider/hotel/amenities' },
+        { label: tBooking("pricing"), icon: <DollarSign size={20}/>, path: '/provider/hotel/pricing' },
+        { label: tBooking("availability"), icon: <Calendar size={20}/>, path: '/provider/hotel/availability' },
+        { label: tBooking("gallery"), icon: <Image size={20}/>, path: '/provider/hotel/gallery' },
+        { label: tBooking("reviews"), icon: <Star size={20}/>, path: '/provider/hotel/reviews' },
+        { label: tBooking("analytics"), icon: <BarChart3 size={20}/>, path: '/provider/hotel/analytics' },
+        { label: tBooking("billing"), icon: <CreditCard size={20}/>, path: '/provider/hotel/billing' },
+        { label: tBooking("support"), icon: <MessageSquare size={20}/>, path: '/provider/hotel/support' },
+        { label: tBooking("settings"), icon: <Settings size={20}/>, path: '/provider/hotel/settings' },
     ];
     const bookings = [
         { id: 'BK-8472', guest: 'Robert Johnson', room: 'Deluxe Suite', checkin: '2026-03-12', checkout: '2026-03-15', guests: 2, status: 'confirmed', payment: 'paid', source: 'Direct' },
         { id: 'BK-8473', guest: 'Maria Garcia', room: 'Executive Room', checkin: '2026-03-13', checkout: '2026-03-17', guests: 1, status: 'confirmed', payment: 'paid', source: 'Booking.com' },
         { id: 'BK-8474', guest: 'David Chen', room: 'Family Suite', checkin: '2026-03-14', checkout: '2026-03-18', guests: 4, status: 'pending', payment: 'pending', source: 'Expedia' },
     ];
-    return (<DashboardLayout navigation={navigation} headerTitle="Reservation Management" userRole="provider" userName="Amanda Rodriguez" providerName="Grand Palace Hotel">
+    return (<DashboardLayout navigation={navigation} headerTitle={tBooking("reservationManagement")} userRole="provider" userName="Amanda Rodriguez" providerName="Grand Palace Hotel">
       <div className="grid grid-cols-4 gap-6 mb-6">
         <div className="bg-white rounded-xl border border-gray-200 p-5">
           <div className="text-sm font-medium text-gray-600 mb-2">{tBooking("totalBookings")}</div>
@@ -94,7 +94,7 @@ export default function HotelBookings() {
                 </td>
                 <td className="px-6 py-4">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${booking.status === 'confirmed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                    {booking.status.toUpperCase()}
+                    {tBooking(booking.status as any)}
                   </span>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-900">{booking.source}</td>

@@ -22,6 +22,12 @@ export interface ExploreFilterParams extends FilterParams {
   languages?: string[] | string;
   responseTime?: string;
   currencyCode?: string;
+  q?: string;
+  search?: string;
+  categoryId?: string;
+  providerTypeId?: string;
+  countryCode?: string;
+  cityCode?: string;
 }
 
 function normalizeRange(range?: number[]) {
@@ -59,8 +65,6 @@ export const getExplore = async (
   params?: ExploreFilterParams,
 ): Promise<ApiReturnType<ExploreResponse>> => {
   "use cache: remote";
-  console.log("server explore called:");
-
   cacheTag(getExploreTag());
   cacheLife("default");
 

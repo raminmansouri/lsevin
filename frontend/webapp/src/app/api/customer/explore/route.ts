@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { localeToHeader } from "@/config/locales";
-import { getServiceDefinitions } from "@/features/service-definitions/api/server/get-service-definitions";
 import { getSession } from "@/lib/auth/session";
 import { LocaleTypes } from "@/types/common";
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from "@/types/filter";
-import { getSearchHistory } from "@/features/service-providers/api/server/get-search-history";
-import { getSearchResults } from "@/features/service-providers/api/server/get-search-results";
 import { getExplore } from "@/features/service-providers/api/server/get-explore";
 
 function firstParam(searchParams: URLSearchParams, ...keys: string[]) {
@@ -65,11 +62,10 @@ function parsePriceRange(searchParams: URLSearchParams) {
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  console.log('explore called:',searchParams)
-  const search = searchParams.get("Search");
-  const page = searchParams.get("PageNumber");
-  const pageSize = searchParams.get("PageSize");
-  const locale = searchParams.get("Locale");
+  const search = firstParam(searchParams, "Search", "search", "q", "filters") ?? "";
+  const page = firstParam(searchParams, "PageNumber", "pageNumber", "page");
+  const pageSize = firstParam(searchParams, "PageSize", "pageSize");
+  const locale = firstParam(searchParams, "Locale", "locale");
   const priceRange = parsePriceRange(searchParams);
   const distance = numericParam(searchParams, "distance") ?? 0;
   const minRating = numericParam(searchParams, "minRating") ?? 0;
@@ -77,6 +73,10 @@ export async function GET(request: NextRequest) {
   const languages = firstParam(searchParams, "languages") ?? "";
   const responseTime = firstParam(searchParams, "responseTime") ?? "any";
   const currencyCode = firstParam(searchParams, "currency", "currencyCode") ?? "";
+  const categoryId = firstParam(searchParams, "categoryId");
+  const providerTypeId = firstParam(searchParams, "providerTypeId");
+  const countryCode = firstParam(searchParams, "countryCode", "country");
+  const cityCode = firstParam(searchParams, "cityCode", "city");
 
   const localeHeader = localeToHeader(locale as LocaleTypes);
   const session = await getSession();
@@ -85,7 +85,13 @@ export async function GET(request: NextRequest) {
   const { data, error } = await getExplore(
     { locale: localeHeader, token },
     {
-      filters: search || "",
+      filters: search,
+      q: search,
+      search,
+      categoryId: categoryId && categoryId.toLowerCase() !== "all" ? categoryId : undefined,
+      providerTypeId: providerTypeId && providerTypeId.toLowerCase() !== "all" ? providerTypeId : undefined,
+      countryCode: countryCode && countryCode.toLowerCase() !== "all" ? countryCode : undefined,
+      cityCode: cityCode && cityCode.toLowerCase() !== "all" ? cityCode : undefined,
       startDate: "",
       endDate: "",
       pageNumber: page ? parseInt(page) : DEFAULT_PAGE_NUMBER,

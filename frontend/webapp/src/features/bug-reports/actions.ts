@@ -14,11 +14,13 @@ import {
   formDataBoolean,
   formDataJson,
   formDataString,
+  updateBugReportBoardColumnsSchema,
+  updateBugReportPrioritySchema,
   updateBugReportStatusSchema,
 } from "./schemas";
 import { queueBugReportUpdateNotifications } from "./server/notifications";
 import { getBugReportFilesFromFormData, storeBugReportFiles } from "./server/upload";
-import { ActionResult, BugReportAttachment, BugReportStatus } from "./types";
+import { ActionResult, BugReportAttachment, BugReportPriority, BugReportStatus } from "./types";
 
 async function resolveCurrentUserId(): Promise<string | null> {
   try {
@@ -36,6 +38,22 @@ async function resolveCurrentCustomerId(): Promise<string | null> {
   }
 }
 
+
+
+const DEFAULT_BOARD_COLUMN_CONFIGS: Record<string, { statuses: string[]; displayOrder: number; labelTranslations: Record<string, string> }> = {
+  open: { statuses: ["open"], displayOrder: 10, labelTranslations: { en: "Open", fa: "باز", ar: "مفتوح" } },
+  triaged: { statuses: ["triaged"], displayOrder: 20, labelTranslations: { en: "Triaged", fa: "بررسی اولیه", ar: "تم الفرز" } },
+  in_progress: { statuses: ["in_progress"], displayOrder: 30, labelTranslations: { en: "In progress", fa: "در حال انجام", ar: "قيد التنفيذ" } },
+  need_info: { statuses: ["need_info"], displayOrder: 40, labelTranslations: { en: "Need info", fa: "نیازمند اطلاعات", ar: "بحاجة إلى معلومات" } },
+  done: { statuses: ["resolved", "closed", "duplicate", "wont_fix"], displayOrder: 50, labelTranslations: { en: "Done", fa: "انجام‌شده", ar: "منجز" } },
+};
+
+function normalizedBoardLocale(value: string) {
+  const normalized = value.trim().replace("_", "-").toLowerCase();
+  if (normalized === "fa" || normalized.startsWith("fa-")) return "fa";
+  if (normalized === "ar" || normalized.startsWith("ar-")) return "ar";
+  return "en";
+}
 
 function buildCustomerBugReportOwnershipWhere(tag: any, input: { userId: string | null; customerId: string | null }) {
   if (input.userId && input.customerId) {
@@ -57,6 +75,18 @@ function fieldErrors(error: any) {
   const flattened = typeof error?.flatten === "function" ? error.flatten() : null;
   return flattened?.fieldErrors as Record<string, string[]> | undefined;
 }
+function formDataLabelMap(formData: FormData) {
+  const labels: Record<string, string> = {};
+  for (const [key, value] of formData.entries()) {
+    if (!key.startsWith("columnLabel:")) continue;
+    if (typeof value !== "string") continue;
+    const columnKey = key.slice("columnLabel:".length).trim();
+    const label = value.trim();
+    if (columnKey && label) labels[columnKey] = label;
+  }
+  return labels;
+}
+
 
 function supportConversationSource(sourceArea: string) {
   if (sourceArea === "booking" || sourceArea === "payment") return "booking";
@@ -395,7 +425,8 @@ export async function addAdminBugReportMessageAction(formData: FormData): Promis
         await tx`
           update support.bug_reports
           set status = ${parsed.data.nextStatus},
-              resolved_by_user_id = case when ${parsed.data.nextStatus} in ('resolved','closed','duplicate','wont_fix') then ${userId}::uuid else resolved_by_user_id end
+              resolved_by_user_id = case when ${parsed.data.nextStatus} in ('resolved','closed','duplicate','wont_fix') then ${userId}::uuid else null end,
+              resolved_at = case when ${parsed.data.nextStatus} in ('resolved','closed','duplicate','wont_fix') then coalesce(resolved_at, now()) else null end
           where id = ${bug[0].id}::uuid
         `;
         await tx`
@@ -489,7 +520,9 @@ export async function addCustomerBugReportReplyAction(formData: FormData): Promi
       await insertBugReportMedia({ tx, bugReportId: bug[0].id, messageId: rows[0].id, attachments });
       await tx`
         update support.bug_reports
-        set status = case when status in ('resolved','closed','duplicate','wont_fix') then 'open' else status end
+        set status = case when status in ('resolved','closed','duplicate','wont_fix') then 'open' else status end,
+            resolved_by_user_id = case when status in ('resolved','closed','duplicate','wont_fix') then null else resolved_by_user_id end,
+            resolved_at = case when status in ('resolved','closed','duplicate','wont_fix') then null else resolved_at end
         where id = ${bug[0].id}::uuid
       `;
       await tx`
@@ -559,7 +592,8 @@ export async function updateBugReportStatusAction(formData: FormData): Promise<A
         update support.bug_reports
         set status = ${parsed.data.status},
             resolution_note = coalesce(${parsed.data.resolutionNote}, resolution_note),
-            resolved_by_user_id = case when ${parsed.data.status} in ('resolved','closed','duplicate','wont_fix') then ${userId}::uuid else resolved_by_user_id end
+            resolved_by_user_id = case when ${parsed.data.status} in ('resolved','closed','duplicate','wont_fix') then ${userId}::uuid else null end,
+            resolved_at = case when ${parsed.data.status} in ('resolved','closed','duplicate','wont_fix') then coalesce(resolved_at, now()) else null end
         where id = ${parsed.data.bugReportId}::uuid
       `;
       await tx`
@@ -592,6 +626,156 @@ export async function updateBugReportStatusAction(formData: FormData): Promise<A
   } catch (error) {
     console.error("updateBugReportStatusAction failed", error);
     return { ok: false, message: error instanceof Error ? error.message : "Could not update status." };
+  }
+}
+
+
+export async function updateBugReportPriorityAction(formData: FormData): Promise<ActionResult<{ priority: BugReportPriority }>> {
+  const userId = await resolveCurrentUserId();
+  if (!userId) return { ok: false, message: "Authentication required." };
+
+  const parsed = updateBugReportPrioritySchema.safeParse({
+    bugReportId: formDataString(formData, "bugReportId"),
+    priority: formDataString(formData, "priority"),
+    path: formDataString(formData, "path"),
+  });
+
+  if (!parsed.success) return { ok: false, message: "Invalid priority.", fieldErrors: fieldErrors(parsed.error) };
+
+  try {
+    await sql.begin(async (tx) => {
+      const rows = await tx<{ conversation_id: string; priority: BugReportPriority; report_number: string }[]>`
+        select conversation_id, priority, report_number
+        from support.bug_reports
+        where id = ${parsed.data.bugReportId}::uuid
+          and deleted_at is null
+        limit 1
+      `;
+      if (!rows[0]) throw new Error("Bug report not found.");
+      if (rows[0].priority === parsed.data.priority) return;
+
+      await tx`
+        update support.bug_reports
+        set priority = ${parsed.data.priority}
+        where id = ${parsed.data.bugReportId}::uuid
+      `;
+      await tx`
+        update support.conversations
+        set priority = ${parsed.data.priority}
+        where id = ${rows[0].conversation_id}::uuid
+      `;
+      await tx`
+        insert into support.conversation_events (conversation_id, actor_user_id, event_type, from_value, to_value, metadata)
+        values (${rows[0].conversation_id}::uuid, ${userId}::uuid, 'priority_changed', ${rows[0].priority}, ${parsed.data.priority}, ${tx.json({ bugReportId: parsed.data.bugReportId, public: false })}::jsonb)
+      `;
+      await queueBugReportUpdateNotifications({
+        tx,
+        bugReportId: parsed.data.bugReportId,
+        conversationId: rows[0].conversation_id,
+        eventType: 'priority_changed',
+        actorUserId: userId,
+        title: `Bug priority changed: ${rows[0].report_number}`,
+        body: `Priority changed from ${rows[0].priority.replace(/_/g, ' ')} to ${parsed.data.priority.replace(/_/g, ' ')}.`,
+        internalOnly: true,
+        notifyCustomer: false,
+        notifyAdmins: true,
+      });
+    });
+
+    revalidatePath(parsed.data.path || `/admin/bug-reports/${parsed.data.bugReportId}`);
+    revalidatePath("/admin/bug-reports");
+    return { ok: true, data: { priority: parsed.data.priority }, message: "Priority updated." };
+  } catch (error) {
+    console.error("updateBugReportPriorityAction failed", error);
+    return { ok: false, message: error instanceof Error ? error.message : "Could not update priority." };
+  }
+}
+
+export async function updateBugReportBoardColumnsAction(formData: FormData): Promise<ActionResult<{ updated: number }>> {
+  const userId = await resolveCurrentUserId();
+  if (!userId) return { ok: false, message: "Authentication required." };
+
+  const parsed = updateBugReportBoardColumnsSchema.safeParse({
+    locale: formDataString(formData, "locale") || "en",
+    path: formDataString(formData, "path"),
+    labels: formDataLabelMap(formData),
+  });
+
+  if (!parsed.success) {
+    return { ok: false, message: "Invalid column labels.", fieldErrors: fieldErrors(parsed.error) };
+  }
+
+  const locale = normalizedBoardLocale(parsed.data.locale);
+  const labels = parsed.data.labels;
+  const entries = Object.entries(labels)
+    .map(([columnKey, value]) => [columnKey.trim(), value.trim()] as const)
+    .filter(([columnKey, value]) => columnKey.length > 0 && value.length > 0);
+  if (entries.length === 0) return { ok: false, message: "Please enter at least one column label." };
+
+  try {
+    const existsRows = await sql<{ exists: boolean }[]>`
+      select to_regclass('support.bug_report_board_column_settings') is not null as exists
+    `;
+    if (!existsRows[0]?.exists) {
+      return { ok: false, message: "Board column settings table is missing. Run the bug-report SQL migration first." };
+    }
+
+    let updated = 0;
+    await sql.begin(async (tx) => {
+      for (const [columnKey, label] of entries) {
+        const fallback = DEFAULT_BOARD_COLUMN_CONFIGS[columnKey] ?? {
+          statuses: [columnKey],
+          displayOrder: 100,
+          labelTranslations: { en: columnKey.replace(/_/g, " ") },
+        };
+        const mergedTranslations = { ...fallback.labelTranslations, [locale]: label };
+
+        const rows = await tx<{ affected: number }[]>`
+          insert into support.bug_report_board_column_settings (
+            column_key,
+            status_values,
+            label_translations,
+            display_order,
+            is_enabled,
+            updated_by_user_id,
+            last_modified_date
+          ) values (
+            ${columnKey},
+            ${fallback.statuses},
+            ${tx.json(mergedTranslations)}::jsonb,
+            ${fallback.displayOrder},
+            true,
+            ${userId}::uuid,
+            now()
+          )
+          on conflict (column_key) do update
+          set label_translations = jsonb_set(
+                coalesce(support.bug_report_board_column_settings.label_translations, '{}'::jsonb),
+                array[${locale}],
+                to_jsonb(${label}::text),
+                true
+              ),
+              status_values = case
+                when cardinality(coalesce(support.bug_report_board_column_settings.status_values, array[]::text[])) = 0
+                  then excluded.status_values
+                else support.bug_report_board_column_settings.status_values
+              end,
+              display_order = coalesce(support.bug_report_board_column_settings.display_order, excluded.display_order),
+              is_enabled = true,
+              updated_by_user_id = ${userId}::uuid,
+              last_modified_date = now()
+          returning 1 as affected
+        `;
+        updated += rows.length;
+      }
+    });
+
+    revalidatePath(parsed.data.path || "/admin/bug-reports");
+    revalidatePath("/admin/bug-reports");
+    return { ok: true, data: { updated }, message: `${updated} board column name${updated === 1 ? "" : "s"} updated.` };
+  } catch (error) {
+    console.error("updateBugReportBoardColumnsAction failed", error);
+    return { ok: false, message: error instanceof Error ? error.message : "Could not update board column names." };
   }
 }
 

@@ -1,20 +1,26 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import { SupportSettingsForm } from "@/features/support/admin/support-settings-form";
 import { getSupportSettings } from "@/features/support/server/repository";
 
-export const metadata: Metadata = {
-  title: "Support Settings",
-  description: "Configure floating support chat and support labels.",
-};
+type Props = { params: Promise<{ locale: string }> };
 
-export default async function AdminSupportSettingsPage() {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "SupportPages.admin.settings" });
+  return { title: t("metadataTitle"), description: t("metadataDescription") };
+}
+
+export default async function AdminSupportSettingsPage({ params }: Props) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "SupportPages.admin.settings" });
   const settings = await getSupportSettings();
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Support settings</h1>
-        <p className="text-sm text-muted-foreground">Enable chat, configure labels, and customize the floating widget skin.</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t("pageTitle")}</h1>
+        <p className="text-sm text-muted-foreground">{t("pageDescription")}</p>
       </div>
       <SupportSettingsForm settings={settings} />
     </div>

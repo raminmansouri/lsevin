@@ -1,11 +1,14 @@
 "use client"
 
 import { useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { useNavigate } from '@/hooks/use-navigate';
 import { ArrowLeft, Filter, X, ArrowUpRight, ArrowDownLeft, Clock, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 
 export default function Transactions() {
   const navigate = useNavigate();
+  const locale = useLocale();
+  const t = useTranslations("MobileProfile.transactions");
   const [showFilters, setShowFilters] = useState(false);
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -15,8 +18,8 @@ export default function Transactions() {
     {
       id: 1,
       type: 'debit',
-      title: 'Hair Transplant Payment',
-      subtitle: 'Istanbul Medical Center',
+      title: t('sample.hairTransplant.title'),
+      subtitle: t('sample.hairTransplant.subtitle'),
       amount: -2499.00,
       currency: 'USD',
       date: '2026-03-05T14:30:00',
@@ -26,8 +29,8 @@ export default function Transactions() {
     {
       id: 2,
       type: 'credit',
-      title: 'Wallet Top-up',
-      subtitle: 'Credit Card ****4532',
+      title: t('sample.topup.title'),
+      subtitle: t('sample.topup.subtitle'),
       amount: 5000.00,
       currency: 'USD',
       date: '2026-03-05T10:15:00',
@@ -37,41 +40,41 @@ export default function Transactions() {
     {
       id: 3,
       type: 'credit',
-      title: 'Referral Bonus',
-      subtitle: 'Friend joined LSevin',
+      title: t('sample.referral.title'),
+      subtitle: t('sample.referral.subtitle'),
       amount: 50.00,
       currency: 'USD',
       date: '2026-03-04T16:20:00',
       status: 'completed',
-      paymentMethod: 'LSevin Wallet',
+      paymentMethod: t('lsevinWallet'),
     },
     {
       id: 4,
       type: 'debit',
-      title: 'Spa Package',
-      subtitle: 'Luxury Beauty & Spa',
+      title: t('sample.spa.title'),
+      subtitle: t('sample.spa.subtitle'),
       amount: -350.00,
       currency: 'USD',
       date: '2026-03-03T11:45:00',
       status: 'completed',
-      paymentMethod: 'Apple Pay',
+      paymentMethod: t('paymentMethods.applePay'),
     },
     {
       id: 5,
       type: 'credit',
-      title: 'Cashback Reward',
-      subtitle: 'Booking completion bonus',
+      title: t('sample.cashback.title'),
+      subtitle: t('sample.cashback.subtitle'),
       amount: 125.00,
       currency: 'USD',
       date: '2026-03-02T09:30:00',
       status: 'completed',
-      paymentMethod: 'LSevin Wallet',
+      paymentMethod: t('lsevinWallet'),
     },
     {
       id: 6,
       type: 'debit',
-      title: 'Dental Cleaning',
-      subtitle: 'SmileCare Dental',
+      title: t('sample.dental.title'),
+      subtitle: t('sample.dental.subtitle'),
       amount: -180.00,
       currency: 'USD',
       date: '2026-03-01T15:00:00',
@@ -81,19 +84,19 @@ export default function Transactions() {
     {
       id: 7,
       type: 'debit',
-      title: 'Gym Membership',
-      subtitle: 'PowerFit Gym',
+      title: t('sample.gym.title'),
+      subtitle: t('sample.gym.subtitle'),
       amount: -89.00,
       currency: 'USD',
       date: '2026-02-28T08:20:00',
       status: 'pending',
-      paymentMethod: 'Bank Transfer',
+      paymentMethod: t('paymentMethods.bankTransfer'),
     },
     {
       id: 8,
       type: 'debit',
-      title: 'Botox Treatment',
-      subtitle: 'Elite Aesthetics Clinic',
+      title: t('sample.botox.title'),
+      subtitle: t('sample.botox.subtitle'),
       amount: -450.00,
       currency: 'USD',
       date: '2026-02-25T13:00:00',
@@ -103,13 +106,13 @@ export default function Transactions() {
     {
       id: 9,
       type: 'credit',
-      title: 'Refund',
-      subtitle: 'Cancelled booking refund',
+      title: t('sample.refund.title'),
+      subtitle: t('sample.refund.subtitle'),
       amount: 250.00,
       currency: 'USD',
       date: '2026-02-24T16:45:00',
       status: 'completed',
-      paymentMethod: 'LSevin Wallet',
+      paymentMethod: t('lsevinWallet'),
     },
   ];
 
@@ -120,11 +123,11 @@ export default function Transactions() {
     yesterday.setDate(yesterday.getDate() - 1);
     
     if (date.toDateString() === today.toDateString()) {
-      return `Today, ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+      return t("todayAt", { time: date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }) });
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return `Yesterday, ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+      return t("yesterdayAt", { time: date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }) });
     } else {
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      return date.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     }
   };
 
@@ -158,7 +161,7 @@ export default function Transactions() {
             >
               <ArrowLeft size={20} className="text-gray-900" />
             </button>
-            <h1 className="text-lg font-bold text-gray-900">All Transactions</h1>
+            <h1 className="text-lg font-bold text-gray-900">{t("title")}</h1>
           </div>
           
           <button 
@@ -166,7 +169,7 @@ export default function Transactions() {
             className="relative h-10 px-4 text-sm font-semibold text-[#083f30] hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-1"
           >
             <Filter size={16} />
-            <span>Filter</span>
+            <span>{t("filter")}</span>
             {activeFiltersCount > 0 && (
               <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#083f30] text-white text-xs rounded-full flex items-center justify-center">
                 {activeFiltersCount}
@@ -179,12 +182,12 @@ export default function Transactions() {
       {/* Summary */}
       <div className="px-5 py-4">
         <div className="bg-white rounded-2xl p-4">
-          <p className="text-sm text-gray-600 mb-1">Showing {filteredTransactions.length} transactions</p>
+          <p className="text-sm text-gray-600 mb-1">{t("summary", { count: filteredTransactions.length })}</p>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-bold text-gray-900">
-              ${filteredTransactions.reduce((sum, t) => sum + t.amount, 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              ${filteredTransactions.reduce((sum, t) => sum + t.amount, 0).toLocaleString(locale, { minimumFractionDigits: 2 })}
             </span>
-            <span className="text-sm text-gray-500">total</span>
+            <span className="text-sm text-gray-500">{t("total")}</span>
           </div>
         </div>
       </div>
@@ -235,7 +238,7 @@ export default function Transactions() {
                 </div>
               </div>
               
-              {/* Amount & Status */}
+              {/* Amount & {t("status")} */}
               <div className="text-right flex-shrink-0">
                 <div className={`font-bold mb-1 ${
                   transaction.type === 'credit'
@@ -245,7 +248,7 @@ export default function Transactions() {
                     : 'text-gray-900'
                 }`}>
                   {transaction.type === 'credit' ? '+' : ''}
-                  ${Math.abs(transaction.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  ${Math.abs(transaction.amount).toLocaleString(locale, { minimumFractionDigits: 2 })}
                 </div>
                 <div className={`flex items-center gap-1 text-xs ${
                   transaction.status === 'completed'
@@ -257,7 +260,7 @@ export default function Transactions() {
                   {transaction.status === 'completed' && <CheckCircle2 size={12} />}
                   {transaction.status === 'pending' && <AlertCircle size={12} />}
                   {transaction.status === 'failed' && <XCircle size={12} />}
-                  <span className="capitalize">{transaction.status}</span>
+                  <span className="capitalize">{t(`statuses.${transaction.status}`)}</span>
                 </div>
               </div>
             </div>
@@ -269,15 +272,15 @@ export default function Transactions() {
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Clock size={28} className="text-gray-400" />
             </div>
-            <h3 className="font-bold text-gray-900 mb-2">No Transactions Found</h3>
+            <h3 className="font-bold text-gray-900 mb-2">{t("noTransactionsFound")}</h3>
             <p className="text-sm text-gray-600 mb-6">
-              Try adjusting your filters
+              {t("tryAdjustingFilters")}
             </p>
             <button 
               onClick={clearFilters}
               className="px-6 py-3 bg-[#083f30] text-white rounded-xl font-semibold hover:bg-[#0a5a44] transition-colors"
             >
-              Clear Filters
+              {t("clearFilters")}
             </button>
           </div>
         )}
@@ -289,7 +292,7 @@ export default function Transactions() {
           <div className="bg-white rounded-t-3xl w-full max-w-lg animate-slide-up">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Filter Transactions</h2>
+                <h2 className="text-xl font-bold text-gray-900">{t("filterTransactions")}</h2>
                 <button 
                   onClick={() => setShowFilters(false)}
                   className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
@@ -300,16 +303,16 @@ export default function Transactions() {
             </div>
             
             <div className="p-6 space-y-6 max-h-[60vh] overflow-y-auto">
-              {/* Transaction Type */}
+              {/* {t("transactionType")} */}
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-3">
-                  Transaction Type
+                  {t("transactionType")}
                 </label>
                 <div className="space-y-2">
                   {[
-                    { value: 'all', label: 'All Types' },
-                    { value: 'credit', label: 'Money In' },
-                    { value: 'debit', label: 'Money Out' },
+                    { value: 'all', label: t('types.all') },
+                    { value: 'credit', label: t('types.credit') },
+                    { value: 'debit', label: t('types.debit') },
                   ].map(option => (
                     <button
                       key={option.value}
@@ -335,17 +338,17 @@ export default function Transactions() {
                 </div>
               </div>
 
-              {/* Status */}
+              {/* {t("status")} */}
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-3">
-                  Status
+                  {t("status")}
                 </label>
                 <div className="space-y-2">
                   {[
-                    { value: 'all', label: 'All Statuses' },
-                    { value: 'completed', label: 'Completed' },
-                    { value: 'pending', label: 'Pending' },
-                    { value: 'failed', label: 'Failed' },
+                    { value: 'all', label: t('statuses.all') },
+                    { value: 'completed', label: t('statuses.completed') },
+                    { value: 'pending', label: t('statuses.pending') },
+                    { value: 'failed', label: t('statuses.failed') },
                   ].map(option => (
                     <button
                       key={option.value}
@@ -371,18 +374,18 @@ export default function Transactions() {
                 </div>
               </div>
 
-              {/* Time Period */}
+              {/* {t("timePeriod")} */}
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-3">
-                  Time Period
+                  {t("timePeriod")}
                 </label>
                 <div className="space-y-2">
                   {[
-                    { value: 'all', label: 'All Time' },
-                    { value: 'today', label: 'Today' },
-                    { value: 'week', label: 'Last 7 Days' },
-                    { value: 'month', label: 'Last 30 Days' },
-                    { value: '3months', label: 'Last 3 Months' },
+                    { value: 'all', label: t('periods.all') },
+                    { value: 'today', label: t('periods.today') },
+                    { value: 'week', label: t('periods.week') },
+                    { value: 'month', label: t('periods.month') },
+                    { value: '3months', label: t('periods.threeMonths') },
                   ].map(option => (
                     <button
                       key={option.value}
@@ -415,13 +418,13 @@ export default function Transactions() {
                 onClick={clearFilters}
                 className="flex-1 h-14 rounded-xl border-2 border-gray-300 font-bold text-gray-900 hover:bg-gray-50 transition-all active:scale-95"
               >
-                Clear All
+                {t("clearAll")}
               </button>
               <button
                 onClick={applyFilters}
                 className="flex-1 h-14 rounded-xl bg-[#083f30] text-white font-bold hover:bg-[#0a5a44] transition-all active:scale-95"
               >
-                Apply Filters
+                {t("applyFilters")}
               </button>
             </div>
           </div>

@@ -36,7 +36,7 @@ export function SupportTagsManager({ tags }: Props) {
         reset();
         toast.success(tAdmin("tagSaved"));
       }
-      if (result.fieldErrors) toast.error(Object.values(result.fieldErrors)[0]?.[0] || "Please check tag.");
+      if (result.fieldErrors) toast.error(Object.values(result.fieldErrors)[0]?.[0] || tAdmin("pleaseCheckTag"));
       if (result.error) toast.error(result.error.detail || result.error.title);
     });
   };
@@ -56,7 +56,7 @@ export function SupportTagsManager({ tags }: Props) {
   return (
     <div className="grid gap-5 lg:grid-cols-[380px_minmax(0,1fr)]">
       <Card className="rounded-3xl">
-        <CardHeader><CardTitle>{draft.id ? "Edit tag" : "New tag"}</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{draft.id ? tAdmin("editTag") : tAdmin("newTag")}</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <Input value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} placeholder={tAdmin("tagName")} />
           <Input value={draft.color} onChange={(event) => setDraft((current) => ({ ...current, color: event.target.value }))} placeholder="#083f30" />
@@ -80,7 +80,7 @@ export function SupportTagsManager({ tags }: Props) {
                 <span className="h-4 w-4 rounded-full" style={{ backgroundColor: tag.color }} />
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-semibold">{tag.name}</span>
-                  <span className="block text-xs text-muted-foreground">{tag.isActive ? "Active" : "Inactive"}</span>
+                  <span className="block text-xs text-muted-foreground">{tag.isActive ? tAdmin("active") : tAdmin("inactive")}</span>
                 </span>
               </button>
               <Button type="button" variant="ghost" size="icon" onClick={() => remove(tag)} className="rounded-xl text-destructive"><Trash2 className="h-4 w-4" /></Button>

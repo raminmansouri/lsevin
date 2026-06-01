@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   ArrowLeft,
   Award,
@@ -44,14 +45,6 @@ import { DigikalaReviewCard } from "../../../components/DigikalaReviewCard";
 import { useReviewEligibility } from "../../../components/useReviewEligibility";
 
 type ReviewSort = "newest" | "buyers" | "helpful";
-
-function reviewSortLabels(locale?: string | null) {
-  const key = String(locale || "en").split("-")[0]?.toLowerCase();
-  if (key === "fa") {
-    return { newest: "جدیدترین", buyers: "دیدگاه خریداران", helpful: "مفیدترین", more: "مشاهده بیشتر" };
-  }
-  return { newest: "Newest", buyers: "Booked customers", helpful: "Most helpful", more: "Show more" };
-}
 
 function reviewSortValue(review: SpecialistReview, sort: ReviewSort) {
   if (sort === "helpful") return Number(review.helpful || 0) - Number(review.notHelpful || 0);
@@ -141,8 +134,8 @@ function DescriptionBlock({ content, className }: { content?: string | null; cla
   return <p className={className || "text-sm leading-relaxed text-gray-500"}>-</p>;
 }
 
-function dayName(dayOfWeek: number) {
-  return ["", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"][dayOfWeek] || "Day";
+function dayName(dayOfWeek: number, labels: string[]) {
+  return labels[dayOfWeek] || labels[0] || "";
 }
 
 function formatDate(value: string, locale: string) {
@@ -191,6 +184,8 @@ function GalleryModal({
   gallery: SpecialistGalleryItem[];
   beforeAfter: SpecialistBeforeAfter[];
 }) {
+  const t = useTranslations("SpecialistPage");
+
   if (!open) return null;
 
   const allGallery = gallery.filter((item) => item.mediaType !== "video");
@@ -200,14 +195,14 @@ function GalleryModal({
       <div className="mx-auto flex h-full max-w-3xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
         <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
           <div>
-            <h3 className="text-lg font-bold text-gray-900">Full gallery</h3>
-            <p className="text-sm text-gray-500">Specialist media and before/after results</p>
+            <h3 className="text-lg font-bold text-gray-900">{t("gallery.fullGallery")}</h3>
+            <p className="text-sm text-gray-500">{t("gallery.description")}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-700 active:scale-95"
-            aria-label="Close gallery"
+            aria-label={t("gallery.close")}
           >
             <X size={20} />
           </button>
@@ -219,7 +214,7 @@ function GalleryModal({
               {allGallery.map((item) => (
                 <div key={item.id} className="overflow-hidden rounded-2xl border border-gray-100 bg-gray-50">
                   <div className="relative aspect-square">
-                    <MediaImage src={item.url} alt={item.title || "Gallery image"} className="object-cover" />
+                    <MediaImage src={item.url} alt={item.title || t("gallery.imageAlt")} className="object-cover" />
                   </div>
                   {item.title || item.description ? (
                     <div className="p-3">
@@ -234,22 +229,22 @@ function GalleryModal({
 
           {beforeAfter.length ? (
             <div className="space-y-4">
-              <h4 className="font-bold text-gray-900">Before / after</h4>
+              <h4 className="font-bold text-gray-900">{t("gallery.beforeAfterTitle")}</h4>
               {beforeAfter.map((item) => (
                 <div key={item.id} className="overflow-hidden rounded-2xl border border-gray-100 bg-white">
                   <div className="grid grid-cols-2 gap-px bg-gray-200">
                     <div className="relative aspect-[4/3]">
-                      <MediaImage src={item.before} alt={`${item.procedure || "Procedure"} before`} className="object-cover" />
-                      <span className="absolute left-2 top-2 rounded-lg bg-red-500 px-2 py-1 text-xs font-bold text-white">Before</span>
+                      <MediaImage src={item.before} alt={t("gallery.beforeAlt", { procedure: item.procedure || t("gallery.procedureFallback") })} className="object-cover" />
+                      <span className="absolute left-2 top-2 rounded-lg bg-red-500 px-2 py-1 text-xs font-bold text-white">{t("gallery.before")}</span>
                     </div>
                     <div className="relative aspect-[4/3]">
-                      <MediaImage src={item.after} alt={`${item.procedure || "Procedure"} after`} className="object-cover" />
-                      <span className="absolute right-2 top-2 rounded-lg bg-green-500 px-2 py-1 text-xs font-bold text-white">After</span>
+                      <MediaImage src={item.after} alt={t("gallery.afterAlt", { procedure: item.procedure || t("gallery.procedureFallback") })} className="object-cover" />
+                      <span className="absolute right-2 top-2 rounded-lg bg-green-500 px-2 py-1 text-xs font-bold text-white">{t("gallery.after")}</span>
                     </div>
                   </div>
                   <div className="p-3">
-                    <p className="font-semibold text-gray-900">{item.procedure || "Result"}</p>
-                    {item.months ? <p className="text-sm text-gray-500">After {item.months} months</p> : null}
+                    <p className="font-semibold text-gray-900">{item.procedure || t("gallery.resultFallback")}</p>
+                    {item.months ? <p className="text-sm text-gray-500">{t("gallery.afterMonths", { months: item.months })}</p> : null}
                   </div>
                 </div>
               ))}
@@ -257,7 +252,7 @@ function GalleryModal({
           ) : null}
 
           {!allGallery.length && !beforeAfter.length ? (
-            <EmptyState title="No gallery yet" description="Gallery items will appear here after they are added in admin." />
+            <EmptyState title={t("empty.gallery.title")} description={t("empty.gallery.description")} />
           ) : null}
         </div>
       </div>
@@ -266,8 +261,10 @@ function GalleryModal({
 }
 
 function ProvidersSection({ providers, navigate }: { providers: SpecialistProvider[]; navigate: ReturnType<typeof useNavigate> }) {
+  const t = useTranslations("SpecialistPage");
+
   if (!providers.length) {
-    return <EmptyState title="No workplaces connected" description="This specialist is not connected to any active provider yet." />;
+    return <EmptyState title={t("empty.workplaces.title")} description={t("empty.workplaces.description")} />;
   }
 
   return (
@@ -290,13 +287,13 @@ function ProvidersSection({ providers, navigate }: { providers: SpecialistProvid
             {provider.providerTypeName ? <p className="text-xs font-semibold text-[#083f30]">{provider.providerTypeName}</p> : null}
             <p className="mt-1 flex items-center gap-1 text-xs text-gray-500">
               <MapPin size={13} />
-              <span className="truncate">{provider.location || "Location on request"}</span>
+              <span className="truncate">{provider.location || t("common.locationOnRequest")}</span>
             </p>
             <div className="mt-2 flex items-center gap-3 text-xs text-gray-600">
               <span className="flex items-center gap-1 font-semibold text-gray-800">
                 <Star size={13} className="fill-yellow-400 text-yellow-400" /> {provider.rating || "-"}
               </span>
-              <span>{provider.reviewCount} reviews</span>
+              <span>{t("common.reviewCount", { count: provider.reviewCount })}</span>
             </div>
           </div>
         </button>
@@ -306,8 +303,10 @@ function ProvidersSection({ providers, navigate }: { providers: SpecialistProvid
 }
 
 function ServicesSection({ services, navigate }: { services: SpecialistService[]; navigate: ReturnType<typeof useNavigate> }) {
+  const t = useTranslations("SpecialistPage");
+
   if (!services.length) {
-    return <EmptyState title="No services connected" description="Services will appear after staff services and provider services are connected in admin." />;
+    return <EmptyState title={t("empty.services.title")} description={t("empty.services.description")} />;
   }
 
   return (
@@ -330,14 +329,14 @@ function ServicesSection({ services, navigate }: { services: SpecialistService[]
                   <p className="mt-1 line-clamp-1 text-xs text-gray-500">{service.providerName}</p>
                 </div>
                 {service.isPopular ? (
-                  <span className="rounded-full bg-orange-100 px-2 py-1 text-[10px] font-bold text-orange-700">Popular</span>
+                  <span className="rounded-full bg-orange-100 px-2 py-1 text-[10px] font-bold text-orange-700">{t("badges.popular")}</span>
                 ) : null}
               </div>
 
               <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-gray-600">
                 {service.durationMinutes > 0 ? (
                   <span className="flex items-center gap-1">
-                    <Clock size={13} /> {service.durationMinutes} min
+                    <Clock size={13} /> {t("common.minutes", { count: service.durationMinutes })}
                   </span>
                 ) : null}
                 <span className="flex items-center gap-1">
@@ -356,9 +355,9 @@ function ServicesSection({ services, navigate }: { services: SpecialistService[]
 }
 
 function ReviewsSection({ reviews, locale }: { reviews: SpecialistReview[]; locale: string }) {
+  const t = useTranslations("SpecialistPage");
   const [sort, setSort] = useState<ReviewSort>("newest");
   const [visibleCount, setVisibleCount] = useState(3);
-  const text = reviewSortLabels(locale);
   const sortedReviews = useMemo(
     () => [...reviews].sort((a, b) => reviewSortValue(b, sort) - reviewSortValue(a, sort)),
     [reviews, sort],
@@ -366,7 +365,7 @@ function ReviewsSection({ reviews, locale }: { reviews: SpecialistReview[]; loca
   const visibleReviews = sortedReviews.slice(0, visibleCount);
 
   if (!reviews.length) {
-    return <EmptyState title="No reviews yet" description="Public reviews from the specialist’s connected providers will appear here." />;
+    return <EmptyState title={t("empty.reviews.title")} description={t("empty.reviews.description")} />;
   }
 
   return (
@@ -379,7 +378,7 @@ function ReviewsSection({ reviews, locale }: { reviews: SpecialistReview[]; loca
             onClick={() => { setSort(item); setVisibleCount(3); }}
             className={`rounded-full border px-3 py-1.5 text-xs font-bold transition-colors ${sort === item ? "border-[#083f30] bg-[#083f30] text-white" : "border-gray-200 bg-white text-gray-700"}`}
           >
-            {text[item]}
+            {t(`reviews.sort.${item}`)}
           </button>
         ))}
       </div>
@@ -388,7 +387,7 @@ function ReviewsSection({ reviews, locale }: { reviews: SpecialistReview[]; loca
       ))}
       {visibleReviews.length < sortedReviews.length ? (
         <button type="button" onClick={() => setVisibleCount((value) => value + 3)} className="flex h-11 w-full items-center justify-center rounded-xl border border-gray-200 bg-white text-sm font-bold text-[#083f30]">
-          {text.more}
+          {t("reviews.showMore")}
         </button>
       ) : null}
     </div>
@@ -396,12 +395,14 @@ function ReviewsSection({ reviews, locale }: { reviews: SpecialistReview[]; loca
 }
 
 function CredentialsSection({ data }: { data: SpecialistPageResponse }) {
+  const t = useTranslations("SpecialistPage");
+
   return (
     <div className="space-y-6">
       <div>
         <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-gray-900">
           <GraduationCap size={22} className="text-[#083f30]" />
-          Education
+          {t("credentials.education")}
         </h3>
         {data.education.length ? (
           <div className="space-y-3">
@@ -416,14 +417,14 @@ function CredentialsSection({ data }: { data: SpecialistPageResponse }) {
             ))}
           </div>
         ) : (
-          <EmptyState title="No education records" description="Education records are not added for this specialist yet." />
+          <EmptyState title={t("empty.education.title")} description={t("empty.education.description")} />
         )}
       </div>
 
       <div>
         <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-gray-900">
           <Award size={22} className="text-[#083f30]" />
-          Certifications & memberships
+          {t("credentials.certifications")}
         </h3>
         {data.certifications.length ? (
           <div className="space-y-2">
@@ -438,14 +439,14 @@ function CredentialsSection({ data }: { data: SpecialistPageResponse }) {
             ))}
           </div>
         ) : (
-          <EmptyState title="No certifications" description="Certifications and memberships are not added yet." />
+          <EmptyState title={t("empty.certifications.title")} description={t("empty.certifications.description")} />
         )}
       </div>
 
       <div>
         <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-gray-900">
           <UserRoundCheck size={22} className="text-[#083f30]" />
-          Credentials
+          {t("credentials.credentials")}
         </h3>
         {data.credentials.length ? (
           <div className="space-y-2">
@@ -457,7 +458,7 @@ function CredentialsSection({ data }: { data: SpecialistPageResponse }) {
             ))}
           </div>
         ) : (
-          <EmptyState title="No credentials" description="Credentials are not added for this specialist yet." />
+          <EmptyState title={t("empty.credentials.title")} description={t("empty.credentials.description")} />
         )}
       </div>
     </div>
@@ -465,16 +466,28 @@ function CredentialsSection({ data }: { data: SpecialistPageResponse }) {
 }
 
 function AvailabilitySection({ items }: { items: SpecialistAvailability[] }) {
+  const t = useTranslations("SpecialistPage");
+  const dayLabels = [
+    t("days.day"),
+    t("days.monday"),
+    t("days.tuesday"),
+    t("days.wednesday"),
+    t("days.thursday"),
+    t("days.friday"),
+    t("days.saturday"),
+    t("days.sunday"),
+  ];
+
   if (!items.length) return null;
 
   return (
     <div>
-      <h3 className="mb-3 text-lg font-bold text-gray-900">Availability</h3>
+      <h3 className="mb-3 text-lg font-bold text-gray-900">{t("availability.title")}</h3>
       <div className="space-y-2">
         {items.map((item) => (
           <div key={item.id} className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-3 text-sm">
             <div>
-              <p className="font-bold text-gray-900">{item.isRecurring ? dayName(item.dayOfWeek) : item.specificDate || dayName(item.dayOfWeek)}</p>
+              <p className="font-bold text-gray-900">{item.isRecurring ? dayName(item.dayOfWeek, dayLabels) : item.specificDate || dayName(item.dayOfWeek, dayLabels)}</p>
               <p className="text-gray-500">{item.status}</p>
             </div>
             <div className="font-semibold text-[#083f30]">
@@ -488,11 +501,13 @@ function AvailabilitySection({ items }: { items: SpecialistAvailability[] }) {
 }
 
 function AchievementsSection({ achievements }: { achievements: SpecialistAchievement[] }) {
+  const t = useTranslations("SpecialistPage");
+
   if (!achievements.length) return null;
 
   return (
     <div>
-      <h3 className="mb-4 text-lg font-bold text-gray-900">Achievements & recognition</h3>
+      <h3 className="mb-4 text-lg font-bold text-gray-900">{t("achievements.title")}</h3>
       <div className="space-y-3">
         {achievements.map((achievement) => (
           <div key={achievement.id} className="flex gap-4 rounded-xl bg-gray-50 p-4">
@@ -519,6 +534,7 @@ export default function SpecialistProfileClient({
   specialistId: string;
   locale: string;
 }) {
+  const t = useTranslations("SpecialistPage");
   const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState<"about" | "providers" | "services" | "reviews" | "credentials">("about");
   const [isFavorited, setIsFavorited] = useState(false);
@@ -539,19 +555,21 @@ export default function SpecialistProfileClient({
 
   const tabs = useMemo(
     () => [
-      { id: "about" as const, label: "About" },
-      { id: "providers" as const, label: `Places (${data.providers.length})` },
-      { id: "services" as const, label: `Services (${data.services.length})` },
-      { id: "reviews" as const, label: `Reviews (${data.recentReviews.length})` },
-      { id: "credentials" as const, label: "Credentials" },
+      { id: "about" as const, label: t("tabs.about") },
+      { id: "providers" as const, label: t("tabs.places", { count: data.providers.length }) },
+      { id: "services" as const, label: t("tabs.services", { count: data.services.length }) },
+      { id: "reviews" as const, label: t("tabs.reviews", { count: data.recentReviews.length }) },
+      { id: "credentials" as const, label: t("tabs.credentials") },
     ],
-    [data.providers.length, data.recentReviews.length, data.services.length]
+    [data.providers.length, data.recentReviews.length, data.services.length, t]
   );
 
   const handleShare = async () => {
     const shareData = {
       title: specialist.name,
-      text: `Check out ${specialist.name}${specialist.specialty ? ` - ${specialist.specialty}` : ""}`,
+      text: specialist.specialty
+        ? t("share.textWithSpecialty", { name: specialist.name, specialty: specialist.specialty })
+        : t("share.text", { name: specialist.name }),
       url: window.location.href,
     };
 
@@ -570,7 +588,7 @@ export default function SpecialistProfileClient({
   const handleReviewSubmit = async (review: ReviewFormSubmitValue) => {
     const providerId = primaryProviderId;
     if (!providerId) {
-      throw new Error("This specialist is not linked to an active provider yet.");
+      throw new Error(t("errors.noActiveProvider"));
     }
 
     const response = await fetch(`/api/service-providers/${providerId}/reviews`, {
@@ -591,7 +609,7 @@ export default function SpecialistProfileClient({
 
     if (!response.ok) {
       const problem = await response.json().catch(() => null);
-      throw new Error(problem?.title || "Could not submit review.");
+      throw new Error(problem?.title || t("errors.submitReview"));
     }
   };
 
@@ -612,7 +630,7 @@ export default function SpecialistProfileClient({
             type="button"
             onClick={() => navigate(-1)}
             className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow-lg backdrop-blur-sm transition-transform active:scale-95"
-            aria-label="Back"
+            aria-label={t("actions.back")}
           >
             <ArrowLeft size={20} className="text-gray-900" />
           </button>
@@ -622,7 +640,7 @@ export default function SpecialistProfileClient({
               type="button"
               onClick={() => setIsFavorited((value) => !value)}
               className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow-lg backdrop-blur-sm transition-transform active:scale-95"
-              aria-label="Favorite"
+              aria-label={t("actions.favorite")}
             >
               <Heart size={20} className={isFavorited ? "fill-red-500 text-red-500" : "text-gray-900"} />
             </button>
@@ -630,7 +648,7 @@ export default function SpecialistProfileClient({
               type="button"
               onClick={handleShare}
               className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow-lg backdrop-blur-sm transition-transform active:scale-95"
-              aria-label="Share"
+              aria-label={t("actions.share")}
             >
               <Share2 size={20} className="text-gray-900" />
             </button>
@@ -648,7 +666,7 @@ export default function SpecialistProfileClient({
                 className="absolute bottom-3 right-3 flex items-center gap-2 rounded-xl bg-black/70 px-3 py-2 text-sm font-semibold text-white backdrop-blur-sm"
               >
                 <GalleryHorizontalEnd size={16} />
-                {galleryCount ? `${galleryCount} media` : "Gallery"}
+                {galleryCount ? t("gallery.mediaCount", { count: galleryCount }) : t("gallery.gallery")}
               </button>
             </div>
 
@@ -674,22 +692,22 @@ export default function SpecialistProfileClient({
                 <div className="rounded-xl bg-gray-50 p-3 text-center">
                   <div className="text-lg font-bold text-gray-900">{specialist.rating || "-"}</div>
                   <div className="mb-1 flex justify-center"><Stars rating={specialist.rating} size={10} /></div>
-                  <div className="text-xs text-gray-600">{specialist.reviews} reviews</div>
+                  <div className="text-xs text-gray-600">{t("common.reviewCount", { count: specialist.reviews })}</div>
                 </div>
                 <div className="rounded-xl bg-gray-50 p-3 text-center">
                   <div className="text-lg font-bold text-gray-900">{specialist.experience}</div>
-                  <div className="text-xs text-gray-600">Experience</div>
+                  <div className="text-xs text-gray-600">{t("stats.experience")}</div>
                 </div>
                 <div className="rounded-xl bg-gray-50 p-3 text-center">
                   <div className="text-lg font-bold text-gray-900">{specialist.patients}</div>
-                  <div className="text-xs text-gray-600">Patients</div>
+                  <div className="text-xs text-gray-600">{t("stats.patients")}</div>
                 </div>
               </div>
 
               <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 pt-4 text-sm">
                 <div className="flex items-center gap-2 text-gray-700">
                   <Building size={16} className="text-[#083f30]" />
-                  <span className="font-semibold">{data.providers[0]?.name || "Provider on request"}</span>
+                  <span className="font-semibold">{data.providers[0]?.name || t("common.providerOnRequest")}</span>
                 </div>
                 <div className="flex items-center gap-1 text-gray-600">
                   <span className="h-2 w-2 rounded-full bg-green-500" />
@@ -721,14 +739,14 @@ export default function SpecialistProfileClient({
         {selectedTab === "about" ? (
           <div className="space-y-6">
             <div>
-              <h2 className="mb-3 text-lg font-bold text-gray-900">About {specialist.name}</h2>
+              <h2 className="mb-3 text-lg font-bold text-gray-900">{t("about.title", { name: specialist.name })}</h2>
               <DescriptionBlock content={specialist.biography} />
             </div>
 
             <AchievementsSection achievements={data.achievements} />
 
             <div>
-              <h3 className="mb-3 text-lg font-bold text-gray-900">Specializations</h3>
+              <h3 className="mb-3 text-lg font-bold text-gray-900">{t("about.specializations")}</h3>
               {specialist.specializations.length ? (
                 <div className="flex flex-wrap gap-2">
                   {specialist.specializations.map((spec) => (
@@ -738,13 +756,13 @@ export default function SpecialistProfileClient({
                   ))}
                 </div>
               ) : (
-                <EmptyState title="No specializations" description="Specialization records are not added yet." />
+                <EmptyState title={t("empty.specializations.title")} description={t("empty.specializations.description")} />
               )}
             </div>
 
             {specialist.languages.length ? (
               <div>
-                <h3 className="mb-3 text-lg font-bold text-gray-900">Languages</h3>
+                <h3 className="mb-3 text-lg font-bold text-gray-900">{t("about.languages")}</h3>
                 <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white p-4">
                   <Globe size={20} className="text-[#083f30]" />
                   <span className="text-sm text-gray-700">{specialist.languages.join(", ")}</span>
@@ -757,9 +775,9 @@ export default function SpecialistProfileClient({
             {data.beforeAfter.length ? (
               <div>
                 <div className="mb-4 flex items-center justify-between gap-3">
-                  <h3 className="text-lg font-bold text-gray-900">Results gallery</h3>
+                  <h3 className="text-lg font-bold text-gray-900">{t("gallery.resultsGallery")}</h3>
                   <button type="button" onClick={() => setIsGalleryOpen(true)} className="text-sm font-bold text-[#083f30]">
-                    View all
+                    {t("actions.viewAll")}
                   </button>
                 </div>
                 <div className="space-y-4">
@@ -767,17 +785,17 @@ export default function SpecialistProfileClient({
                     <div key={item.id} className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
                       <div className="grid grid-cols-2 gap-px bg-gray-200">
                         <div className="relative aspect-[4/3]">
-                          <MediaImage src={item.before} alt="Before" className="object-cover" />
-                          <span className="absolute left-2 top-2 rounded-lg bg-red-500 px-2 py-1 text-xs font-bold text-white">Before</span>
+                          <MediaImage src={item.before} alt={t("gallery.before")} className="object-cover" />
+                          <span className="absolute left-2 top-2 rounded-lg bg-red-500 px-2 py-1 text-xs font-bold text-white">{t("gallery.before")}</span>
                         </div>
                         <div className="relative aspect-[4/3]">
-                          <MediaImage src={item.after} alt="After" className="object-cover" />
-                          <span className="absolute right-2 top-2 rounded-lg bg-green-500 px-2 py-1 text-xs font-bold text-white">After</span>
+                          <MediaImage src={item.after} alt={t("gallery.after")} className="object-cover" />
+                          <span className="absolute right-2 top-2 rounded-lg bg-green-500 px-2 py-1 text-xs font-bold text-white">{t("gallery.after")}</span>
                         </div>
                       </div>
                       <div className="p-3">
-                        <p className="font-semibold text-gray-900">{item.procedure || "Result"}</p>
-                        {item.months ? <p className="text-sm text-gray-500">After {item.months} months</p> : null}
+                        <p className="font-semibold text-gray-900">{item.procedure || t("gallery.resultFallback")}</p>
+                        {item.months ? <p className="text-sm text-gray-500">{t("gallery.afterMonths", { months: item.months })}</p> : null}
                       </div>
                     </div>
                   ))}
@@ -788,7 +806,7 @@ export default function SpecialistProfileClient({
                   onClick={() => setIsGalleryOpen(true)}
                   className="mt-3 h-11 w-full rounded-xl bg-gray-100 font-semibold text-gray-900 transition-colors hover:bg-gray-200"
                 >
-                  View Full Gallery
+                  {t("gallery.viewFullGallery")}
                 </button>
               </div>
             ) : null}
@@ -799,7 +817,7 @@ export default function SpecialistProfileClient({
           <div>
             <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-gray-900">
               <Building size={21} className="text-[#083f30]" />
-              Places this specialist works
+              {t("sections.placesThisSpecialistWorks")}
             </h2>
             <ProvidersSection providers={data.providers} navigate={navigate} />
           </div>
@@ -809,7 +827,7 @@ export default function SpecialistProfileClient({
           <div>
             <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-gray-900">
               <Stethoscope size={21} className="text-[#083f30]" />
-              Services provided
+              {t("sections.servicesProvided")}
             </h2>
             <ServicesSection services={data.services} navigate={navigate} />
           </div>
@@ -822,22 +840,22 @@ export default function SpecialistProfileClient({
               onClick={() => setShowReviewForm(true)}
               className="flex h-12 w-full items-center justify-center rounded-xl bg-[#083f30] font-bold text-white transition-all active:scale-95"
             >
-              Write a Review
+              {t("reviews.writeReview")}
             </button>
             <div className="rounded-2xl bg-gradient-to-br from-[#083f30] to-[#0a5a44] p-6 text-white">
               <div className="text-center">
                 <div className="mb-2 text-5xl font-bold">{specialist.rating || "-"}</div>
                 <div className="mb-2 flex justify-center"><Stars rating={specialist.rating} size={18} /></div>
-                <div className="text-white/90">Based on {specialist.reviews} reviews</div>
+                <div className="text-white/90">{t("reviews.basedOnReviews", { count: specialist.reviews })}</div>
               </div>
               <div className="mt-4 grid grid-cols-2 gap-4 border-t border-white/20 pt-4 text-center">
                 <div>
                   <div className="mb-1 text-2xl font-bold text-[#eacb7f]">{specialist.successRate}</div>
-                  <div className="text-sm text-white/80">Success rate</div>
+                  <div className="text-sm text-white/80">{t("stats.successRate")}</div>
                 </div>
                 <div>
                   <div className="mb-1 text-2xl font-bold text-[#eacb7f]">{data.providers.length}</div>
-                  <div className="text-sm text-white/80">Connected places</div>
+                  <div className="text-sm text-white/80">{t("stats.connectedPlaces")}</div>
                 </div>
               </div>
             </div>
@@ -851,7 +869,7 @@ export default function SpecialistProfileClient({
       {showReviewForm ? (
         <ReviewForm
           providerName={specialist.name}
-          treatmentName={specialist.specialty || "Specialist consultation"}
+          treatmentName={specialist.specialty || t("consultation.fallbackTreatment")}
           onClose={() => setShowReviewForm(false)}
           onSubmit={handleReviewSubmit}
           locale={locale}
@@ -864,10 +882,10 @@ export default function SpecialistProfileClient({
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
             <div className="mb-0.5 flex items-center gap-1 text-xs text-gray-600">
-              <Sparkles size={13} /> Consultation
+              <Sparkles size={13} /> {t("consultation.title")}
             </div>
             {specialist.consultationPrice.sourceAmount === 0 ? (
-              <div className="text-lg font-bold text-[#083f30]">Free</div>
+              <div className="text-lg font-bold text-[#083f30]">{t("consultation.free")}</div>
             ) : (
               <div>
                 <PriceTextClient
@@ -891,7 +909,7 @@ export default function SpecialistProfileClient({
             className="flex h-14 items-center gap-2 rounded-2xl bg-gradient-to-r from-[#083f30] to-[#0a5a44] px-8 font-bold text-white transition-all active:scale-95"
           >
             <Calendar size={20} />
-            Book Now
+            {t("actions.bookNow")}
           </button>
         </div>
       </div>

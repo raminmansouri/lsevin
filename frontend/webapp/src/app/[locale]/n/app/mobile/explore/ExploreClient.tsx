@@ -70,7 +70,6 @@ type OptimisticUiFilters = {
 
 const MOBILE_BASE_PATH = "/n/app/mobile";
 const EXPLORE_PATH = `${MOBILE_BASE_PATH}/explore`;
-const MAP_DISCOVERY_PATH = `${MOBILE_BASE_PATH}/map-discovery`;
 
 function buildMobilePath(path: string) {
   return `${MOBILE_BASE_PATH}${path.startsWith("/") ? path : `/${path}`}`;
@@ -106,6 +105,10 @@ function buildExploreQuery(next: ExploreFiltersInput) {
 
 function buildMapDiscoveryQuery(next: ExploreFiltersInput) {
   return buildFilteredMobilePath("/map-discovery", next);
+}
+
+function buildSearchQuery(next: ExploreFiltersInput) {
+  return buildFilteredMobilePath("/search", next);
 }
 
 function formatPrice(value: number | null, currency: string = "USD") {
@@ -365,11 +368,12 @@ export default function ExploreClient({
   const activeUiFilters = uiFilters;
 
   const hasActiveFilters =
+    activeUiFilters.categoryId !== "all" ||
+    activeUiFilters.providerTypeId !== "all" ||
     activeUiFilters.verifiedOnly ||
     activeUiFilters.minRating > 0 ||
     activeUiFilters.languages.length > 0 ||
     activeUiFilters.responseTime !== "any" ||
-    activeUiFilters.providerTypeId !== "all" ||
     Boolean(activeUiFilters.countryCode) ||
     Boolean(activeUiFilters.cityCode) ||
     Boolean(activeUiFilters.currencyCode) ||
@@ -472,8 +476,8 @@ export default function ExploreClient({
 
   const clearFilters = () => {
     const cleared: OptimisticUiFilters = {
-      categoryId: activeUiFilters.categoryId,
-      providerTypeId: activeUiFilters.providerTypeId,
+      categoryId: "all",
+      providerTypeId: "all",
       countryCode: null,
       cityCode: null,
       maxPrice: 5000,
@@ -553,7 +557,7 @@ export default function ExploreClient({
           </div>
 
           <button
-            onClick={() => router.push(MAP_DISCOVERY_PATH)}
+            onClick={() => router.push(buildMapDiscoveryQuery(currentFilters))}
             className="w-11 h-11 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
           >
             <MapPin size={22} className="text-[#083f30]" />
@@ -562,7 +566,7 @@ export default function ExploreClient({
 
         <div className="flex gap-2">
           <button
-            onClick={() => router.push(buildMapDiscoveryQuery(currentFilters))}
+            onClick={() => router.push(buildSearchQuery(currentFilters))}
             className="flex-1 h-12 bg-gray-50 rounded-xl px-4 flex items-center gap-3 border border-gray-100 hover:border-[#083f30] transition-colors"
           >
             <Search size={20} className="text-gray-400" />

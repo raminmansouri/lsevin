@@ -315,7 +315,7 @@ export default function WalletPageClient({
           {transactions.map((transaction) => (
             <button
               key={transaction.id}
-              onClick={() => navigate(`/app/wallet/transaction/${transaction.id}`)}
+              onClick={() => navigate(`/n/app/mobile/profile/my-wallet/transaction/${transaction.id}`)}
               className="w-full bg-white rounded-2xl p-4 border border-gray-200 hover:border-[#083f30] hover:shadow-md transition-all"
             >
               <div className="flex items-start gap-4">
