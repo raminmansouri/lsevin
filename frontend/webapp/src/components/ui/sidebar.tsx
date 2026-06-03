@@ -25,6 +25,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./tooltip";
+import useDirection from "@/hooks/use-direction";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -153,7 +154,7 @@ function SidebarProvider({
 }
 
 function Sidebar({
-  side = "left",
+  side ,
   variant = "sidebar",
   collapsible = "offcanvas",
   className,
@@ -166,6 +167,10 @@ function Sidebar({
 }) {
   const t = useTranslations("components.ui.sidebar");
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+
+   const { isRtl } = useDirection();
+  side = side || (isRtl ? "right" : "left");
+
 
   if (collapsible === "none") {
     return (

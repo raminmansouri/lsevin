@@ -24,6 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./tooltip";
+import useDirection from "@/hooks/use-direction";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -165,6 +166,11 @@ function Sidebar({
 }) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
 
+   const { isRtl } = useDirection();
+  // Default side should respect RTL direction
+  side = side || (isRtl ? "right" : "left");
+
+ 
   if (collapsible === "none") {
     return (
       <div
@@ -226,7 +232,7 @@ function Sidebar({
             : "group-data-[collapsible=icon]:w-(--sidebar-width-icon)",
         )}
       />
-      <div
+      <div 
         data-slot="sidebar-container"
         className={cn(
           "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex",
