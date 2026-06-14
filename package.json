@@ -1,0 +1,42 @@
+{
+    "name": "lsevin",
+    "version": "1.0.0",
+    "scripts": {
+        "prepare": "husky && dotnet tool restore",
+        "install-dev-cert-bash": "curl -sSL https://aka.ms/getvsdbgsh | bash /dev/stdin -v vs2019 -l ~/vsdbg",
+        "upgrade-packages": "dotnet outdated LSevin.sln -u",
+        "format": "dotnet csharpier check .",
+        "style": "dotnet format style LSevin.sln --verify-no-changes --severity error --verbosity diagnostic",
+        "analyzers": "dotnet format analyzers LSevin.sln --verify-no-changes --severity error --verbosity diagnostic",
+        "fix-csharpier-format": "dotnet csharpier format .",
+        "fix-style": "dotnet format style LSevin.sln --severity error --verbosity diagnostic",
+        "fix-warn-style": "dotnet format style LSevin.sln --severity warn --verbosity diagnostic",
+        "fix-info-style": "dotnet format style LSevin.sln --severity info --verbosity diagnostic",
+        "fix-analyzers": "dotnet format analyzers LSevin.sln --severity error --verbosity diagnostic",
+        "fix-warn-analyzers": "dotnet format analyzers LSevin.sln --severity warn --verbosity diagnostic",
+        "fix-info-analyzers": "dotnet format analyzers LSevin.sln --severity info --verbosity diagnostic",
+        "commit": "./node_modules/cz-customizable/standalone.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/PouryaNoufallah96/l-sevin.git"
+    },
+    "author": "",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/PouryaNoufallah96/l-sevin/issues"
+    },
+    "homepage": "https://github.com/PouryaNoufallah96/l-sevin#readme",
+    "devDependencies": {
+        "@commitlint/cli": "^20.1.0",
+        "@commitlint/config-conventional": "^20.0.0",
+        "cspell": "^9.2.1",
+        "cz-customizable": "^7.5.1",
+        "husky": "^9.1.7"
+    },
+    "config": {
+        "cz-customizable": {
+            "config": "cz-config.js"
+        }
+    }
+}

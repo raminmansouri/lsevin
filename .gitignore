@@ -1,0 +1,70 @@
+# Node
+**/node_modules/
+
+# IDEs
+**/.vs/
+**/.idea/
+
+**/.next/
+
+# .NET build outputs
+**/bin/
+**/obj/
+
+**/UploadFiles/*
+
+
+**/bin/*
+**/obj/*
+
+build/*
+
+
+
+**/bin/**
+**/obj/**
+
+
+
+**/node_modules
+**/.vs
+**/.idea
+**/bin
+**/obj
+**/.git
+
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md
+
+frontend/webapp/public/unsplash_images/*.jpg
+
+dynamic-admin-dashboard-scaffold
+dynamic-admin-dashboard-scaffold/*
+
+*.zip
+
+**/.zip
+**/*.sql
+
+**/*.md
+**/*.txt
+
+# Secrets — never publish real env files (keep .env.example templates)
+**/.env
+**/.env.*
+**/.env copy*
+!**/.env.example
+!**/.env.example.*
+
+# Local container data dirs (live databases / caches with real data)
+deployments/docker/postgres-data/
+deployments/docker/redis-data/
+deployments/docker/eventstore-data/
+**/postgres-data/
+**/redis-data/
+**/eventstore-data/
+
+# OS cruft
+**/.DS_Store
+

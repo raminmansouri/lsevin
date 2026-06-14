@@ -1,0 +1,1006 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { Edit, Plus, Trash2, X } from "lucide-react";
+import { toast } from "sonner";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { hasLexicalContent, LexicalRenderer } from "@/components/editor/lexical-renderer";
+import { LocalizedInput } from "@/features/shared/components/LocalizedInput";
+import { createEmptyLocalizedContent } from "@/features/shared/utils/localization";
+import useAction from "@/hooks/use-action";
+import { Link } from "@/i18n/navigation";
+
+import {
+  deleteProviderAttributeAction,
+  deleteProviderCertificationAction,
+  deleteProviderCommentAction,
+  deleteProviderGalleryItemAction,
+  deleteProviderPolicyAction,
+  deleteProviderRecommendationAction,
+  deleteProviderServiceAction,
+  deleteProviderStaffAction,
+  saveProviderAttributeAction,
+  saveProviderCertificationAction,
+  saveProviderGalleryItemAction,
+  saveProviderPolicyAction,
+  saveProviderRecommendationAction,
+  saveProviderServiceAction,
+  saveProviderStaffAction,
+  updateProviderCommentModerationAction,
+  updateProviderRequestStatusAction,
+} from "../../actions/admin";
+import {
+  AdminProviderLookupData,
+  AdminServiceProviderDetails,
+} from "../../db/admin-service-providers.queries";
+import {
+  normalizeLocalizedContentForDatabase,
+  normalizeMediaPickerValue,
+  toLocalizedInputValue,
+  toLocalizedInputValue,
+} from "../../lib/admin-form-normalizers";
+import { RHFSingleMediaPickerField } from "../service-provider-data-entry/media-picker-adapter";
+import { LazyAdminLookupSelect } from "./lazy-admin-lookup-select";
+
+type Props = {
+  provider: AdminServiceProviderDetails;
+  lookups: AdminProviderLookupData;
+  locale: string;
+};
+
+function text(value?: string | null) {
+  return value && value.trim() ? value : "-";
+}
+
+function translationText(value?: Record<string, string> | null, fallback = "-") {
+  if (!value || typeof value !== "object") return fallback;
+
+  const preferredLocales = ["en-US", "en", "fa-IR", "fa"];
+  for (const key of preferredLocales) {
+    const exact = value[key]?.trim();
+    if (exact) return exact;
+  }
+
+  const enRegionalKey = Object.keys(value).find((key) =>
+    key.toLowerCase().replace("_", "-").startsWith("en-")
+  );
+  if (enRegionalKey && value[enRegionalKey]?.trim()) return value[enRegionalKey].trim();
+
+  const firstNonEmpty = Object.values(value).find(
+    (item) => typeof item === "string" && item.trim().length > 0
+  );
+  return firstNonEmpty?.trim() || fallback;
+}
+
+function dateText(value?: string | null) {
+  if (!value) return "-";
+  try {
+    return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+  } catch {
+    return value;
+  }
+}
+
+function RichTranslation({
+  value,
+  fallback = "No description.",
+  className = "text-sm text-muted-foreground leading-relaxed",
+}: {
+  value?: Record<string, string> | null;
+  fallback?: string;
+  className?: string;
+}) {
+  const content = translationText(value, "");
+
+  if (content && hasLexicalContent(content)) {
+    return <LexicalRenderer content={content} className={className} />;
+  }
+
+  return <p className={className}>{content || fallback}</p>;
+}
+
+function MetricCard({ title, value, hint }: { title: string; value: string | number; hint?: string }) {
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardDescription>{title}</CardDescription>
+        <CardTitle className="text-2xl">{value}</CardTitle>
+      </CardHeader>
+      {hint ? <CardContent className="text-sm text-muted-foreground">{hint}</CardContent> : null}
+    </Card>
+  );
+}
+
+function EmptyState({ title }: { title: string }) {
+  return <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">{title}</div>;
+}
+
+function formatMoney(value: number | string | null | undefined, currency?: string | null, locale = "en-US") {
+  const numericValue = Number(value || 0);
+  const formatter = new Intl.NumberFormat(locale || "en-US", {
+    minimumFractionDigits: numericValue % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  });
+  return `${currency || ""} ${formatter.format(Number.isFinite(numericValue) ? numericValue : 0)}`.trim();
+}
+
+function parseFormattedNumber(value: string | number | null | undefined) {
+  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+  const raw = String(value || "").trim();
+  if (!raw) return 0;
+
+  const sanitized = raw.replace(/[^0-9.,-]/g, "");
+  const lastComma = sanitized.lastIndexOf(",");
+  const lastDot = sanitized.lastIndexOf(".");
+  const decimalSeparator = lastComma > lastDot ? "," : lastDot > -1 ? "." : "";
+
+  let normalized = sanitized;
+  if (decimalSeparator) {
+    const decimalIndex = normalized.lastIndexOf(decimalSeparator);
+    const integerPart = normalized.slice(0, decimalIndex).replace(/[.,]/g, "");
+    const decimalPart = normalized.slice(decimalIndex + 1).replace(/[.,]/g, "");
+    normalized = `${integerPart}.${decimalPart}`;
+  } else {
+    normalized = normalized.replace(/[.,]/g, "");
+  }
+
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function formatNumberInput(value: string | number | null | undefined, locale = "en-US") {
+  const parsed = parseFormattedNumber(value);
+  return new Intl.NumberFormat(locale || "en-US", { maximumFractionDigits: 2 }).format(parsed);
+}
+
+function ActionErrorToast(error: any) {
+  toast.error(error?.detail || error?.title || "Action failed.");
+}
+
+export function ServiceProviderAdminDashboard({ provider, lookups, locale }: Props) {
+  const tabs = [
+    ["overview", "Overview"],
+    ["services", "Services"],
+    ["staff", "Staff"],
+    ["media", "Media"],
+    ["policies", "Policies"],
+    ["attributes", "Attributes"],
+    ["certifications", "Certifications"],
+    ["reviews", "Reviews"],
+    ["requests", "Requests"],
+    ["bookings", "Bookings"],
+    ["recommendations", "Recommendations"],
+  ];
+
+  return (
+    <div className="space-y-6">
+      <Card className="overflow-hidden">
+        <CardHeader className="border-b bg-muted/30">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <CardTitle className="text-2xl">{translationText(provider.name)}</CardTitle>
+                <Badge variant={provider.isActive ? "default" : "secondary"}>{provider.isActive ? "Active" : "Inactive"}</Badge>
+                {provider.accredited ? <Badge variant="outline">Accredited</Badge> : null}
+                {provider.isSponsored ? <Badge>{provider.sponsoredTag || "Sponsored"}</Badge> : null}
+              </div>
+              <CardDescription>{provider.providerTypeName} · {provider.city}, {provider.country}</CardDescription>
+            </div>
+            <Button asChild>
+              <Link href={`/admin/service-providers/${provider.id}/update`}>
+                <Edit className="mr-2 h-4 w-4" /> Edit profile
+              </Link>
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Tabs defaultValue="overview" className="w-full">
+            <div className="overflow-x-auto border-b px-4 py-3">
+              <TabsList className="w-max">
+                {tabs.map(([value, label]) => (
+                  <TabsTrigger key={value} value={value}>{label}</TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
+
+            <TabsContent value="overview" className="m-0 p-6">
+              <OverviewTab provider={provider} />
+            </TabsContent>
+            <TabsContent value="services" className="m-0 p-6">
+              <ServicesManager provider={provider} lookups={lookups} locale={locale} />
+            </TabsContent>
+            <TabsContent value="staff" className="m-0 p-6">
+              <StaffManager provider={provider} lookups={lookups} locale={locale} />
+            </TabsContent>
+            <TabsContent value="media" className="m-0 p-6">
+              <GalleryManager provider={provider} />
+            </TabsContent>
+            <TabsContent value="policies" className="m-0 p-6">
+              <PoliciesManager provider={provider} lookups={lookups} locale={locale} />
+            </TabsContent>
+            <TabsContent value="attributes" className="m-0 p-6">
+              <AttributesManager provider={provider} lookups={lookups} locale={locale} />
+            </TabsContent>
+            <TabsContent value="certifications" className="m-0 p-6">
+              <CertificationsManager provider={provider} />
+            </TabsContent>
+            <TabsContent value="reviews" className="m-0 p-6">
+              <ReviewsManager provider={provider} />
+            </TabsContent>
+            <TabsContent value="requests" className="m-0 p-6">
+              <RequestsManager provider={provider} lookups={lookups} locale={locale} />
+            </TabsContent>
+            <TabsContent value="bookings" className="m-0 p-6">
+              <BookingsTab provider={provider} />
+            </TabsContent>
+            <TabsContent value="recommendations" className="m-0 p-6">
+              <RecommendationsManager provider={provider} lookups={lookups} locale={locale} />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function OverviewTab({ provider }: { provider: AdminServiceProviderDetails }) {
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <MetricCard title="Services" value={provider.services.length} hint="Provider-service rows" />
+        <MetricCard title="Staff" value={provider.staff.length} hint="Linked specialists/staff" />
+        <MetricCard title="Rating" value={`${provider.rating.toFixed(2)} / 5`} hint={`${provider.reviewCount} public review counter`} />
+        <MetricCard title="Bookings" value={provider.bookings.length} hint="Latest loaded bookings" />
+      </div>
+      <Card>
+        <CardHeader><CardTitle>Description</CardTitle></CardHeader>
+        <CardContent>
+          <RichTranslation value={provider.description} fallback="No provider description." className="text-muted-foreground leading-relaxed" />
+        </CardContent>
+      </Card>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader><CardTitle>Profile summary</CardTitle></CardHeader>
+          <CardContent className="grid gap-3 text-sm md:grid-cols-2">
+            <Info label="Email" value={provider.email} />
+            <Info label="Phone" value={`${provider.phoneNumberCountryCode} ${provider.phoneNumber}`} />
+            <Info label="Address" value={[provider.city, provider.country, provider.zipCode].filter(Boolean).join(", ")} />
+            <Info label="Timezone" value={provider.timezoneId} />
+            <Info label="Established" value={text(provider.establishedYear?.toString())} />
+            <Info label="Response time" value={text(provider.responseTime)} />
+            <Info label="Success rate" value={text(provider.successRate)} />
+            <Info label="Total patients" value={text(provider.totalPatients)} />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader><CardTitle>Discovery</CardTitle></CardHeader>
+          <CardContent className="space-y-4 text-sm">
+            <Info label="Languages" value={provider.languages.length ? provider.languages.join(", ") : "-"} />
+            <Info label="Specialties" value={provider.specialties.length ? provider.specialties.join(", ") : "-"} />
+            <Info label="Featured score" value={provider.featuredScore.toString()} />
+            <Info label="Coordinates" value={provider.coordinates ? `${provider.coordinates.latitude}, ${provider.coordinates.longitude}` : "-"} />
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function Info({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="mt-1 break-words">{value}</div>
+    </div>
+  );
+}
+
+function CertificationsManager({ provider }: { provider: AdminServiceProviderDetails }) {
+  const [isPending, startTransition] = useTransition();
+  const [name, setName] = useState("");
+  const [isVerified, setIsVerified] = useState(false);
+  const save = useAction(saveProviderCertificationAction, { startTransition, onSuccess: () => { toast.success("Certification saved."); setName(""); }, onError: ActionErrorToast });
+  const del = useAction(deleteProviderCertificationAction, { startTransition, onSuccess: () => toast.success("Certification deleted."), onError: ActionErrorToast });
+
+  return (
+    <RelationCard title="Certifications" description="Manages category.provider_certifications.">
+      <div className="grid gap-3 md:grid-cols-[1fr_auto_auto]">
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Certification name" disabled={isPending} />
+        <label className="flex items-center gap-2 rounded-md border px-3 text-sm"><Checkbox checked={isVerified} onCheckedChange={(v) => setIsVerified(Boolean(v))} /> Verified</label>
+        <Button onClick={() => save.execute({ serviceProviderId: provider.id, name, isVerified })} disabled={isPending || !name.trim()}><Plus className="mr-2 h-4 w-4" /> Add</Button>
+      </div>
+      <div className="space-y-2">
+        {provider.certifications.length ? provider.certifications.map((item) => (
+          <div key={item.id} className="flex items-center justify-between rounded-xl border p-3">
+            <div><div className="font-medium">{item.name}</div>{item.isVerified ? <Badge variant="outline">Verified</Badge> : null}</div>
+            <Button variant="ghost" size="sm" onClick={() => del.execute({ serviceProviderId: provider.id, id: item.id })}><Trash2 className="h-4 w-4" /></Button>
+          </div>
+        )) : <EmptyState title="No certifications yet." />}
+      </div>
+    </RelationCard>
+  );
+}
+
+type ProviderGalleryDraftForm = {
+  title: Record<string, unknown>;
+  description: Record<string, unknown>;
+  url: unknown;
+  mediaType: string;
+  displayOrder: number;
+};
+
+function GalleryManager({ provider }: { provider: AdminServiceProviderDetails }) {
+  const [isPending, startTransition] = useTransition();
+  const galleryForm = useForm<ProviderGalleryDraftForm>({
+    defaultValues: {
+      title: createEmptyLocalizedContent(),
+      description: createEmptyLocalizedContent(),
+      url: "",
+      mediaType: "image",
+      displayOrder: 0,
+    },
+  });
+
+  const save = useAction(saveProviderGalleryItemAction, { startTransition, onSuccess: () => { toast.success("Media item saved."); galleryForm.reset({ title: createEmptyLocalizedContent(), description: createEmptyLocalizedContent(), url: "", mediaType: "image", displayOrder: 0 }); }, onError: ActionErrorToast });
+  const del = useAction(deleteProviderGalleryItemAction, { startTransition, onSuccess: () => toast.success("Media item deleted."), onError: ActionErrorToast });
+
+  const onAddGalleryItem = galleryForm.handleSubmit((values) => {
+    const normalizedUrl = normalizeMediaPickerValue(values.url);
+
+    if (!normalizedUrl) {
+      toast.error("Please pick a media item before adding it to the gallery.");
+      return;
+    }
+
+    save.execute({
+      serviceProviderId: provider.id,
+      title: normalizeLocalizedContentForDatabase(values.title),
+      description: normalizeLocalizedContentForDatabase(values.description),
+      url: normalizedUrl,
+      mediaType: values.mediaType || "image",
+      displayOrder: Number(values.displayOrder || 0),
+    });
+  });
+
+  return (
+    <RelationCard title="Media gallery" description="Manages category.provider_gallery_items. The media field uses the central media picker and stores one media id or URL.">
+      <Form {...galleryForm}>
+        <div className="grid gap-4 xl:grid-cols-[1fr_1fr_180px_140px_auto]">
+          <FormField
+            control={galleryForm.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <LocalizedInput label="Title" value={field.value} onChange={field.onChange} maxLength={250} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={galleryForm.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <LocalizedInput label="Description" value={field.value} onChange={field.onChange} richText rows={4} maxLength={2000} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <RHFSingleMediaPickerField
+            control={galleryForm.control}
+            name="url"
+            label="Media"
+            placeholder="Pick media"
+            mediaType="all"
+            helperText="Stores one media id in provider_gallery_items.url."
+            modalTitle="Pick gallery media"
+          />
+          <div className="grid gap-3">
+            <FormField
+              control={galleryForm.control}
+              name="mediaType"
+              render={({ field }) => (
+                <FormItem>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger><SelectValue placeholder="Media type" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="image">Image</SelectItem>
+                      <SelectItem value="video">Video</SelectItem>
+                      <SelectItem value="file">File</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={galleryForm.control}
+              name="displayOrder"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl><Input type="number" value={field.value} onChange={(e) => field.onChange(Number(e.target.value))} placeholder="Order" /></FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+          <Button type="button" onClick={() => onAddGalleryItem()} disabled={isPending} className="self-start">
+            <Plus className="mr-2 h-4 w-4" /> Add
+          </Button>
+        </div>
+      </Form>
+      <div className="space-y-2">
+        {provider.galleryItems.length ? provider.galleryItems.map((item) => (
+          <div key={item.id} className="grid items-start gap-3 rounded-xl border p-3 md:grid-cols-[1fr_1fr_auto_auto]">
+            <div>
+              <div className="font-medium">{translationText(item.title, "Untitled")}</div>
+              <RichTranslation value={item.description} fallback="No media description." />
+              <div className="mt-1 text-sm text-muted-foreground">{item.mediaType} · order {item.displayOrder}</div>
+            </div>
+            <code className="truncate rounded bg-muted px-2 py-1 text-xs">{item.url}</code>
+            <Badge variant="outline">{item.mediaType}</Badge>
+            <Button variant="ghost" size="sm" onClick={() => del.execute({ serviceProviderId: provider.id, id: item.id })}><Trash2 className="h-4 w-4" /></Button>
+          </div>
+        )) : <EmptyState title="No gallery items yet." />}
+      </div>
+    </RelationCard>
+  );
+}
+
+type ProviderPolicyDraftForm = {
+  policyTypeId: string;
+  description: Record<string, unknown>;
+};
+
+function PoliciesManager({ provider, lookups, locale }: Props) {
+  const [isPending, startTransition] = useTransition();
+  const policyForm = useForm<ProviderPolicyDraftForm>({
+    defaultValues: {
+      policyTypeId: "",
+      description: createEmptyLocalizedContent(),
+    },
+  });
+  const save = useAction(saveProviderPolicyAction, { startTransition, onSuccess: () => { toast.success("Policy saved."); policyForm.reset({ policyTypeId: "", description: createEmptyLocalizedContent() }); }, onError: ActionErrorToast });
+  const del = useAction(deleteProviderPolicyAction, { startTransition, onSuccess: () => toast.success("Policy deleted."), onError: ActionErrorToast });
+
+  const onAddPolicy = policyForm.handleSubmit((values) => {
+    const selectedPolicyType = lookups.policyTypes.find((item) => String(item.id) === values.policyTypeId);
+
+    save.execute({
+      serviceProviderId: provider.id,
+      policyTypeId: values.policyTypeId,
+      type: { "en-US": selectedPolicyType?.label || "Policy" },
+      description: normalizeLocalizedContentForDatabase(values.description),
+    });
+  });
+
+  return (
+    <RelationCard title="Policies" description="Cancellation, refund, admission, age, document, and house rules.">
+      <Form {...policyForm}>
+        <div className="grid gap-4 md:grid-cols-[320px_1fr_auto]">
+          <FormField
+            control={policyForm.control}
+            name="policyTypeId"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <LazyAdminLookupSelect
+                    lookupType="policyTypes"
+                    locale={locale}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    placeholder="Select policy type"
+                    initialOptions={lookups.policyTypes}
+                    disabled={isPending}
+                    contentClassName="w-[420px]"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={policyForm.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <LocalizedInput label="Description" value={field.value} onChange={field.onChange} richText rows={4} maxLength={2000} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="button" onClick={() => onAddPolicy()} disabled={isPending || !policyForm.watch("policyTypeId")} className="self-start">
+            <Plus className="mr-2 h-4 w-4" /> Add
+          </Button>
+        </div>
+      </Form>
+      <div className="space-y-2">
+        {provider.policies.length ? provider.policies.map((item) => (
+          <div key={item.id} className="flex items-start justify-between gap-3 rounded-xl border p-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="font-medium">{translationText(item.type)}</div>
+                {item.policyTypeCode ? <Badge variant="outline">{item.policyTypeCode}</Badge> : null}
+              </div>
+              <RichTranslation value={item.description} fallback="No policy description." />
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => del.execute({ serviceProviderId: provider.id, id: item.id })}><Trash2 className="h-4 w-4" /></Button>
+          </div>
+        )) : <EmptyState title="No policies yet." />}
+      </div>
+    </RelationCard>
+  );
+}
+
+function AttributesManager({ provider, lookups, locale }: Props) {
+  const [isPending, startTransition] = useTransition();
+  const [attributeDefinitionId, setAttributeDefinitionId] = useState("");
+  const [value, setValue] = useState("");
+  const save = useAction(saveProviderAttributeAction, { startTransition, onSuccess: () => { toast.success("Attribute saved."); setValue(""); }, onError: ActionErrorToast });
+  const del = useAction(deleteProviderAttributeAction, { startTransition, onSuccess: () => toast.success("Attribute deleted."), onError: ActionErrorToast });
+
+  return (
+    <RelationCard title="Provider attributes" description="Dynamic attributes configured per provider type.">
+      <div className="grid gap-3 md:grid-cols-[320px_1fr_auto]">
+        <LazyAdminLookupSelect
+          lookupType="attributeDefinitions"
+          locale={locale}
+          value={attributeDefinitionId}
+          onValueChange={setAttributeDefinitionId}
+          placeholder="Select attribute"
+          initialOptions={lookups.attributeDefinitions.filter((item) => item.providerTypeId === provider.providerTypeId)}
+          queryParams={{ providerTypeId: provider.providerTypeId }}
+          disabled={isPending}
+          contentClassName="w-[420px]"
+        />
+        <Input value={value} onChange={(e) => setValue(e.target.value)} placeholder="Value" disabled={isPending} />
+        <Button onClick={() => save.execute({ serviceProviderId: provider.id, attributeDefinitionId, value: { "en-US": value } })} disabled={isPending || !attributeDefinitionId || !value.trim()}><Plus className="mr-2 h-4 w-4" /> Save</Button>
+      </div>
+      <div className="space-y-2">
+        {provider.attributes.length ? provider.attributes.map((item) => (
+          <div key={item.id} className="flex items-start justify-between gap-3 rounded-xl border p-3">
+            <div><div className="font-medium">{item.attributeName}</div><p className="text-sm text-muted-foreground">{translationText(item.value)}</p></div>
+            <Button variant="ghost" size="sm" onClick={() => del.execute({ serviceProviderId: provider.id, id: item.id })}><Trash2 className="h-4 w-4" /></Button>
+          </div>
+        )) : <EmptyState title="No attributes yet." />}
+      </div>
+    </RelationCard>
+  );
+}
+
+type ServiceManagerFormValues = {
+  serviceDefinitionId: string;
+  displayName: Record<string, unknown>;
+  description: Record<string, unknown>;
+  currency: string;
+  priceText: string;
+  durationMinutes: string;
+  imageUrl: unknown;
+  isActive: boolean;
+  isPopular: boolean;
+  slotIntervalMinutes: string;
+  tagsText: string;
+};
+
+function emptyServiceFormValues(defaultCurrency = "USD"): ServiceManagerFormValues {
+  return {
+    serviceDefinitionId: "",
+    displayName: createEmptyLocalizedContent(),
+    description: createEmptyLocalizedContent(),
+    currency: defaultCurrency,
+    priceText: "0",
+    durationMinutes: "0",
+    imageUrl: "",
+    isActive: true,
+    isPopular: false,
+    slotIntervalMinutes: "15",
+    tagsText: "",
+  };
+}
+
+function ServicesManager({ provider, lookups, locale }: Props) {
+  const [isPending, startTransition] = useTransition();
+  const [showForm, setShowForm] = useState(false);
+  const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
+  const serviceForm = useForm<ServiceManagerFormValues>({
+    defaultValues: emptyServiceFormValues(lookups.currencies[0]?.code || "USD"),
+  });
+
+  const resetServiceForm = () => {
+    setEditingServiceId(null);
+    serviceForm.reset(emptyServiceFormValues(lookups.currencies[0]?.code || "USD"));
+  };
+
+  const save = useAction(saveProviderServiceAction, {
+    startTransition,
+    onSuccess: () => {
+      toast.success(editingServiceId ? "Service updated." : "Service saved.");
+      resetServiceForm();
+      setShowForm(false);
+    },
+    onError: ActionErrorToast,
+  });
+  const del = useAction(deleteProviderServiceAction, { startTransition, onSuccess: () => toast.success("Service deleted."), onError: ActionErrorToast });
+
+  const startCreate = () => {
+    resetServiceForm();
+    setShowForm(true);
+  };
+
+  const startEdit = (item: AdminServiceProviderDetails["services"][number]) => {
+    setEditingServiceId(item.id);
+    serviceForm.reset({
+      serviceDefinitionId: item.serviceDefinitionId,
+      displayName: Object.keys(toLocalizedInputValue(item.displayName, locale)).length ? toLocalizedInputValue(item.displayName, locale) : createEmptyLocalizedContent(),
+      description: Object.keys(toLocalizedInputValue(item.description, locale)).length ? toLocalizedInputValue(item.description, locale) : createEmptyLocalizedContent(),
+      currency: item.currency || lookups.currencies[0]?.code || "USD",
+      priceText: formatNumberInput(item.value, locale),
+      durationMinutes: String(item.durationMinutes ?? 0),
+      imageUrl: item.imageUrl || "",
+      isActive: item.isActive,
+      isPopular: item.isPopular,
+      slotIntervalMinutes: String(item.slotIntervalMinutes || 15),
+      tagsText: item.tags.join(", "),
+    });
+    setShowForm(true);
+  };
+
+  const onSubmitService = serviceForm.handleSubmit((values) => {
+    const displayName = normalizeLocalizedContentForDatabase(values.displayName);
+    const description = normalizeLocalizedContentForDatabase(values.description);
+
+    save.execute({
+      serviceProviderId: provider.id,
+      id: editingServiceId,
+      serviceDefinitionId: values.serviceDefinitionId,
+      displayName,
+      description,
+      isActive: values.isActive,
+      currency: values.currency,
+      value: parseFormattedNumber(values.priceText),
+      durationMinutes: Number(values.durationMinutes || 0),
+      imageUrl: normalizeMediaPickerValue(values.imageUrl) || null,
+      isPopular: values.isPopular,
+      tagsText: values.tagsText,
+      slotIntervalMinutes: Number(values.slotIntervalMinutes || 15),
+      addonIds: provider.services.find((item) => item.id === editingServiceId)?.addonIds || [],
+    });
+  });
+
+  const excludedServiceDefinitionIds = provider.services
+    .filter((item) => item.id !== editingServiceId)
+    .map((item) => item.serviceDefinitionId);
+
+  return (
+    <RelationCard title="Provider services" description="Manages category.provider_services, provider_service_addons, and service image references.">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-sm text-muted-foreground">
+          Use the service definition selector, localized rich text fields, currency list, and media picker. Prices are formatted with thousands separators.
+        </div>
+        <Button type="button" onClick={startCreate} disabled={isPending} className="self-start sm:self-auto">
+          <Plus className="mr-2 h-4 w-4" /> Add provider service
+        </Button>
+      </div>
+
+      {showForm ? (
+        <Card className="border-dashed bg-muted/20">
+          <CardHeader className="pb-4">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <CardTitle className="text-base">{editingServiceId ? "Edit provider service" : "Add provider service"}</CardTitle>
+                <CardDescription>
+                  Name and description keep the full localized JSON object, including Lexical rich-text values.
+                </CardDescription>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  resetServiceForm();
+                  setShowForm(false);
+                }}
+                disabled={isPending}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Form {...serviceForm}>
+              <div className="space-y-5">
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <FormField
+                    control={serviceForm.control}
+                    name="serviceDefinitionId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Service definition</FormLabel>
+                        <FormControl>
+                          <LazyAdminLookupSelect
+                            lookupType="serviceDefinitions"
+                            locale={locale}
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Search and select service definition"
+                            searchPlaceholder="Search service definitions..."
+                            initialOptions={lookups.serviceDefinitions}
+                            excludeIds={excludedServiceDefinitionIds}
+                            disabled={isPending}
+                            contentClassName="w-[520px]"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={serviceForm.control}
+                    name="currency"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Currency</FormLabel>
+                        <FormControl>
+                          <LazyAdminLookupSelect
+                            lookupType="currencies"
+                            locale={locale}
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Select currency"
+                            searchPlaceholder="Search currency..."
+                            initialOptions={lookups.currencies}
+                            valueField="code"
+                            clearable={false}
+                            disabled={isPending}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={serviceForm.control}
+                  name="displayName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <LocalizedInput label="Display name" value={field.value} onChange={field.onChange} required maxLength={250} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={serviceForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <LocalizedInput label="Description" value={field.value} onChange={field.onChange} richText rows={5} maxLength={3000} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid gap-4 md:grid-cols-3">
+                  <FormField
+                    control={serviceForm.control}
+                    name="priceText"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Price</FormLabel>
+                        <FormControl>
+                          <Input
+                            dir="ltr"
+                            inputMode="decimal"
+                            value={field.value}
+                            onChange={(event) => field.onChange(event.target.value)}
+                            onBlur={() => field.onChange(formatNumberInput(field.value, locale))}
+                            placeholder="0"
+                            disabled={isPending}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={serviceForm.control}
+                    name="durationMinutes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Duration minutes</FormLabel>
+                        <FormControl><Input type="number" min="0" {...field} disabled={isPending} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={serviceForm.control}
+                    name="slotIntervalMinutes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Slot interval minutes</FormLabel>
+                        <FormControl><Input type="number" min="1" {...field} disabled={isPending} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+                  <FormField
+                    control={serviceForm.control}
+                    name="tagsText"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tags</FormLabel>
+                        <FormControl><Input {...field} value={field.value || ""} placeholder="Comma separated tags" disabled={isPending} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <RHFSingleMediaPickerField
+                    control={serviceForm.control}
+                    name="imageUrl"
+                    label="Service image"
+                    placeholder="Pick image"
+                    mediaType="image"
+                    helperText="Stores one media id in provider_services.image_url."
+                    modalTitle="Pick service image"
+                    key="provider-service-image-url"
+                  />
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <FormField
+                    control={serviceForm.control}
+                    name="isActive"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center gap-2 rounded-xl border px-3 py-2">
+                        <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                        <FormLabel className="m-0">Active</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={serviceForm.control}
+                    name="isPopular"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center gap-2 rounded-xl border px-3 py-2">
+                        <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                        <FormLabel className="m-0">Popular</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="flex flex-wrap justify-end gap-2 border-t pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      resetServiceForm();
+                      setShowForm(false);
+                    }}
+                    disabled={isPending}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="button" onClick={() => onSubmitService()} disabled={isPending || !serviceForm.watch("serviceDefinitionId")}>
+                    <Plus className="mr-2 h-4 w-4" /> {editingServiceId ? "Save service" : "Add service"}
+                  </Button>
+                </div>
+              </div>
+            </Form>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      <div className="space-y-3">
+        {provider.services.length ? provider.services.map((item) => (
+          <div key={item.id} className="rounded-2xl border p-4 transition-colors hover:bg-muted/20" dir="auto">
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+              <div className="min-w-0 space-y-2 text-start">
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="truncate text-base font-semibold">{translationText(item.displayName, item.serviceDefinitionName)}</div>
+                  {item.isPopular ? <Badge>Popular</Badge> : null}
+                  <Badge variant={item.isActive ? "default" : "secondary"}>{item.isActive ? "Active" : "Inactive"}</Badge>
+                </div>
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                  <span>{item.serviceDefinitionName}</span>
+                  {item.categoryName ? <span>{item.categoryName}</span> : null}
+                  <span>{item.durationMinutes} min</span>
+                  <span className="font-medium text-foreground">{formatMoney(item.value, item.currency, locale)}</span>
+                  <span>{item.rating} ★ / {item.reviewCount} reviews</span>
+                </div>
+                <RichTranslation value={item.description} fallback="No service description." />
+                {item.tags.length ? <div className="flex flex-wrap gap-1">{item.tags.map((tag) => <Badge key={tag} variant="outline">{tag}</Badge>)}</div> : null}
+              </div>
+              <div className="flex flex-wrap justify-end gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={() => startEdit(item)} disabled={isPending}>
+                  <Edit className="mr-2 h-4 w-4" /> Edit
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => del.execute({ serviceProviderId: provider.id, id: item.id })} disabled={isPending}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        )) : <EmptyState title="No provider services yet." />}
+      </div>
+    </RelationCard>
+  );
+}
+
+function StaffManager({ provider, lookups, locale }: Props) {
+  const [isPending, startTransition] = useTransition();
+  const [staffId, setStaffId] = useState("");
+  const [notes, setNotes] = useState("");
+  const [isActive, setIsActive] = useState(true);
+  const save = useAction(saveProviderStaffAction, { startTransition, onSuccess: () => { toast.success("Staff linked."); setNotes(""); }, onError: ActionErrorToast });
+  const del = useAction(deleteProviderStaffAction, { startTransition, onSuccess: () => toast.success("Staff unlinked."), onError: ActionErrorToast });
+
+  return (
+    <RelationCard title="Provider staff" description="Links specialists/staff to this provider.">
+      <div className="grid gap-3 md:grid-cols-[320px_1fr_auto]">
+        <LazyAdminLookupSelect
+          lookupType="staff"
+          locale={locale}
+          value={staffId}
+          onValueChange={setStaffId}
+          placeholder="Select staff"
+          initialOptions={lookups.staff}
+          excludeIds={provider.staff.map((item) => item.staffId)}
+          disabled={isPending}
+          contentClassName="w-[420px]"
+        />
+        <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notes" disabled={isPending} />
+        <Button onClick={() => save.execute({ serviceProviderId: provider.id, staffId, notes: { "en-US": notes }, isActive })} disabled={isPending || !staffId}><Plus className="mr-2 h-4 w-4" /> Link</Button>
+      </div>
+      <label className="flex items-center gap-2 text-sm"><Checkbox checked={isActive} onCheckedChange={(v) => setIsActive(Boolean(v))} /> New link active</label>
+      <div className="space-y-2">
+        {provider.staff.length ? provider.staff.map((item) => (
+          <div key={item.id} className="flex items-start justify-between gap-3 rounded-xl border p-3">
+            <div><div className="font-medium">{item.staffName}</div><div className="text-sm text-muted-foreground">{text(item.staffTitle)} · {item.isActive ? "Active" : "Inactive"}</div></div>
+            <Button variant="ghost" size="sm" onClick={() => del.execute({ serviceProviderId: provider.id, id: item.id })}><Trash2 className="h-4 w-4" /></Button>
+          </div>
+        )) : <EmptyState title="No staff linked yet." />}
+      </div>
+    </RelationCard>
+  );
+}
+
+function ReviewsManager({ provider }: { provider: AdminServiceProviderDetails }) {
+  const [isPending, startTransition] = useTransition();
+  const update = useAction(updateProviderCommentModerationAction, { startTransition, onSuccess: () => toast.success("Review updated."), onError: ActionErrorToast });
+  const del = useAction(deleteProviderCommentAction, { startTransition, onSuccess: () => toast.success("Review deleted."), onError: ActionErrorToast });
+  return (
+    <Relatio

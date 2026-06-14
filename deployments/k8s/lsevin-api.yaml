@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lsevin-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lsevin-api
+  template:
+    metadata:
+      labels:
+        app: lsevin-api
+    spec:
+      containers:
+        - name: lsevin-api
+          image: pouryanf/lsevin-api:latest
+          ports:
+            - containerPort: 80
+            - containerPort: 443
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Production"
+            - name: ASPNETCORE_URLS
+              value: "https://+:443;http://+:80"
+            - name: ConnectionStrings__database
+              value: "Host=postgres;Port=5432;Database=lsevin;Username=postgres;Password=postgres;Include Error Detail=true;"
+            - name: ConnectionStrings__cache
+              value: "redis:6379"
+            - name: ConnectionStrings__eventstore
+              value: "esdb://eventstore:2113?tls=false"
+            - name: SerilogOptions__SeqUrl
+              value: "http://seq:5341"
+            - name: CorsOptions__AllowedUrls
+              value: "http://localhost:3000"
+            - name: ObservabilityOptions__JaegerOptions__OTLPGrpcExporterEndpoint
+              value: "http://jaeger:4317"
+            - name: ObservabilityOptions__JaegerOptions__HttpExporterEndpoint
+              value: "http://jaeger:14268/api/traces"
+            - name: ObservabilityOptions__UseAspireOTLPExporter
+              value: "false"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lsevin-api
+spec:
+  selector:
+    app: lsevin-api
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 443
+  type: ClusterIP

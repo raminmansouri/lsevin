@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>1.3</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0,
+      Culture=neutral,
+      PublicKeyToken=b77a5c561934e089
+    </value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0,
+      Culture=neutral,
+      PublicKeyToken=b77a5c561934e089
+    </value>
+  </resheader>
+  <data name="Email_Uniqueness_Error_Message" xml:space="preserve">
+        <value>L'e-mail n'est pas unique</value>
+    </data>
+  <data name="Not_Found" xml:space="preserve">
+        <value>Non trouvé</value>
+    </data>
+  <data name="Not_Found_Error_Message" xml:space="preserve">
+        <value>Le {0} n'a pas été trouvé</value>
+    </data>
+  <data name="Application_Error" xml:space="preserve">
+        <value>Erreur d'application</value>
+    </data>
+  <data name="Required_Error_Message" xml:space="preserve">
+        <value>Le {0} est requis</value>
+    </data>
+  <data name="Greater_Than_Zero_Error_Message" xml:space="preserve">
+        <value>{0} doit être supérieur à zéro</value>
+    </data>
+  <data name="Greater_Or_Equal_Error_Message" xml:space="preserve">
+        <value>{0} doit être égal ou supérieur à {1}</value>
+    </data>
+  <data name="Less_Or_Equal_Error_Message" xml:space="preserve">
+        <value>{0} doit être égal ou inférieur à {1}</value>
+    </data>
+  <data name="Validation_Error_Message" xml:space="preserve">
+        <value>{0} n'est pas valide</value>
+    </data>
+  <data name="Greater_Length_Error_Message" xml:space="preserve">
+        <value>La longueur de {0} doit être supérieure à {1} caractères</value>
+    </data>
+  <data name="Less_Length_Error_Message" xml:space="preserve">
+        <value>La longueur de {0} ne peut pas dépasser {1} caractères</value>
+    </data>
+  <data name="First_Name" xml:space="preserve">
+        <value>Prénom</value>
+    </data>
+  <data name="Last Name" xml:space="preserve">
+        <value>Nom de famille</value>
+    </data>
+  <data name="Phone_Number" xml:space="preserve">
+        <value>Numéro de téléphone</value>
+    </data>
+  <data name="Email" xml:space="preserve">
+        <value>E-mail</value>
+    </data>
+  <data name="Access_Denied_Error" xml:space="preserve">
+        <value>Accès refusé</value>
+    </data>
+  <data name="Access_Denied_Message" xml:space="preserve">
+        <value>Vous n'avez pas accès à cette section</value>
+    </data>
+  <data name="Business_Rule_Error" xml:space="preserve">
+        <value>Erreur de règle métier</value>
+    </data>
+  <data name="Unknown_Error" xml:space="preserve">
+        <value>Erreur inconnue</value>
+    </data>
+  <data name="Validation_Error" xml:space="preserve">
+        <value>Erreur de validation</value>
+    </data>
+  <data name="Authentication_Error" xml:space="preserve">
+        <value>Erreur d'authentification</value>
+    </data>
+  <data name="Invalid_Credentials_Message" xml:space="preserve">
+        <value>Vos informations d'identification sont invalides</value>
+    </data>
+  <data name="Page_Size" xml:space="preserve">
+        <value>Taille de page</value>
+    </data>
+  <data name="Page" xml:space="preserve">
+        <value>Page</value>
+    </data>
+  <data name="User" xml:space="preserve">
+    <value>Utilisateur</value>
+  </data>
+  <data name="Username" xml:space="preserve">
+    <value>Nom d'utilisateur</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Mot de passe</value>
+  </data>
+  <data name="Code" xml:space="preserve">
+    <value>Code</value>
+  </data>
+  <data name="Birth_Date" xml:space="preserve">
+    <value>Date de naissance</value>
+  </data>
+  <data name="Phone_Number_Uniqueness_Error_Message" xml:space="preserve">
+    <value>Le numéro de téléphone est déjà utilisé par un autre utilisateur</value>
+  </data>
+  <data name="Country" xml:space="preserve">
+    <value>Pays</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>Adresse</value>
+  </data>
+  <data name="City" xml:space="preserve">
+    <value>Ville</value>
+  </data>
+  <data name="State" xml:space="preserve">
+    <value>État</value>
+  </data>
+  <data name="Street" xml:space="preserve">
+    <value>Rue</value>
+  </data>
+  <data name="Zip_Code" xml:space="preserve">
+    <value>Code postal</value>
+  </data>
+  <data name="Today" xml:space="preserve">
+    <value>Aujourd'hui</value>
+  </data>
+  <data name="Invalid_Data_Error_Message" xml:space="preserve">
+    <value>Les données ne sont pas valides</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>Genre</value>
+  </data>
+  <data name="Document" xml:space="preserve">
+    <value>Document</value>
+  </data>
+  <data name="File_Upload_Error_Message" xml:space="preserve">
+    <value>Une erreur s'est produite lors du téléchargement des fichiers</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Start_Date" xml:space="preserve">
+    <value>Date de début</value>
+  </data>
+  <data name="End_Date" xml:space="preserve">
+    <value>Date de fin</value>
+  </data>
+  <data name="Localized_String_Must_Have_Translations_Error_Message" xml:space="preserve">
+    <value>La chaîne localisée doit avoir au moins une traduction</value>
+  </data>
+  <data name="Localized_String_Translations_Must_Not_Be_Empty_Error_Message" xml:space="preserve">
+    <value>Toutes les valeurs de traduction ne doivent pas être nulles ou vides</value>
+  </data>
+</root>

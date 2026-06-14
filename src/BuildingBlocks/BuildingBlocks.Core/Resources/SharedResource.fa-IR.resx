@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>1.3</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0,
+      Culture=neutral,
+      PublicKeyToken=b77a5c561934e089
+    </value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0,
+      Culture=neutral,
+      PublicKeyToken=b77a5c561934e089
+    </value>
+  </resheader>
+  <data name="Application_Error" xml:space="preserve">
+        <value>خطای سیستم</value>
+    </data>
+  <data name="Email_Uniqueness_Error_Message" xml:space="preserve">
+        <value>ایمیل تکراری است</value>
+    </data>
+  <data name="Email" xml:space="preserve">
+        <value>ایمیل</value>
+    </data>
+  <data name="First_Name" xml:space="preserve">
+        <value>نام</value>
+    </data>
+  <data name="Last Name" xml:space="preserve">
+        <value>نام خانوادگی</value>
+    </data>
+  <data name="Greater_Than_Zero_Error_Message" xml:space="preserve">
+        <value>{0} باید بزرگتر از صفر باشد</value>
+    </data>
+  <data name="Greater_Length_Error_Message" xml:space="preserve">
+        <value>طول {0} باید بیشتر از {1} کاراکتر باشد</value>
+    </data>
+  <data name="Greater_Or_Equal_Error_Message" xml:space="preserve">
+    <value>{0} باید بزرگتر یا مساوی {1} باشد</value>
+  </data>
+  <data name="Required_Error_Message" xml:space="preserve">
+        <value>{0} الزامی است</value>
+    </data>
+  <data name="Phone_Number" xml:space="preserve">
+        <value>شماره تلفن</value>
+    </data>
+  <data name="Not_Found" xml:space="preserve">
+        <value>یافت نشد</value>
+    </data>
+  <data name="Validation_Error_Message" xml:space="preserve">
+        <value>{0} معتبر نیست</value>
+    </data>
+  <data name="Less_Length_Error_Message" xml:space="preserve">
+        <value>طول {0} نمی‌تواند بیشتر از {1} کاراکتر باشد</value>
+    </data>
+  <data name="Less_Or_Equal_Error_Message" xml:space="preserve">
+        <value>{0} باید کوچکتر یا مساوی {1} باشد</value>
+    </data>
+  <data name="Not_Found_Error_Message" xml:space="preserve">
+        <value>{0} یافت نشد</value>
+    </data>
+  <data name="Access_Denied_Error" xml:space="preserve">
+        <value>خطای عدم دسترسی</value>
+    </data>
+  <data name="Access_Denied_Message" xml:space="preserve">
+        <value>شما به این بخش دسترسی ندارید</value>
+    </data>
+  <data name="Business_Rule_Error" xml:space="preserve">
+        <value>خطای قوانین برنامه</value>
+    </data>
+  <data name="Unknown_Error" xml:space="preserve">
+        <value>خطای ناشناخته</value>
+    </data>
+  <data name="Validation_Error" xml:space="preserve">
+        <value>خطای اعتبار سنجی</value>
+    </data>
+  <data name="Authentication_Error" xml:space="preserve">
+        <value>خطای احراز هویت</value>
+    </data>
+  <data name="Invalid_Credentials_Message" xml:space="preserve">
+        <value>اطلاعات اعتبار سنجی شما نا معتبر است</value>
+    </data>
+  <data name="Page" xml:space="preserve">
+        <value>صفحه</value>
+    </data>
+  <data name="Page_Size" xml:space="preserve">
+        <value>سایز صفحه</value>
+    </data>
+  <data name="User" xml:space="preserve">
+    <value>کاربر</value>
+  </data>
+  <data name="Username" xml:space="preserve">
+    <value>نام کاربری</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>کلمه عبور</value>
+  </data>
+  <data name="Code" xml:space="preserve">
+    <value>کد</value>
+  </data>
+  <data name="Birth_Date" xml:space="preserve">
+    <value>تاریخ تولد</value>
+  </data>
+  <data name="Phone_Number_Uniqueness_Error_Message" xml:space="preserve">
+    <value>شماره مورد نظر قبلا توسط کاربر دیگری مورد استفاده قرار گرفته است</value>
+  </data>
+  <data name="Street" xml:space="preserve">
+    <value>خیابان</value>
+  </data>
+  <data name="State" xml:space="preserve">
+    <value>استان</value>
+  </data>
+  <data name="Country" xml:space="preserve">
+    <value>کشور</value>
+  </data>
+  <data name="City" xml:space="preserve">
+    <value>شهر</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>آدرس</value>
+  </data>
+  <data name="Zip_Code" xml:space="preserve">
+    <value>کد پستی</value>
+  </data>
+  <data name="Today" xml:space="preserve">
+    <value>امروز</value>
+  </data>
+  <data name="Invalid_Data_Error_Message" xml:space="preserve">
+    <value>اطلاعات معتبر نیست</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>جنسیت</value>
+  </data>
+  <data name="Document" xml:space="preserve">
+    <value>فایل</value>
+  </data>
+  <data name="File_Upload_Error_Message" xml:space="preserve">
+    <value>خطایی هنگام بارگزاری فایل ها اتفاق افتاده است</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>توضیحات</value>
+  </data>
+  <data name="Start_Date" xml:space="preserve">
+    <value>تاریخ شروع</value>
+  </data>
+  <data name="End_Date" xml:space="preserve">
+    <value>تاریخ پایان</value>
+  </data>
+  <data name="Localized_String_Must_Have_Translations_Error_Message" xml:space="preserve">
+    <value>متن محلی شده باید حداقل یک ترجمه داشته باشد</value>
+  </data>
+  <data name="Localized_String_Translations_Must_Not_Be_Empty_Error_Message" xml:space="preserve">
+    <value>تمام ترجمات باید غیر خالی باشد</value>
+  </data>
+</root>

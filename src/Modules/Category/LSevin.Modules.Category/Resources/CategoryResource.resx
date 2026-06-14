@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>1.3</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Category" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="Category_Cannot_Be_Its_Own_Parent_Error_Message" xml:space="preserve">
+    <value>A category cannot be its own parent</value>
+  </data>
+  <data name="Category_Child_Must_Exist_Error_Message" xml:space="preserve">
+    <value>The specified child category does not exist in this category</value>
+  </data>
+  <data name="Category_Must_Have_This_Parent_Error_Message" xml:space="preserve">
+    <value>Child category must have this category as its parent</value>
+  </data>
+  <data name="Category_Must_Not_Have_Duplicate_Child_Error_Message" xml:space="preserve">
+    <value>This child category is already part of this category</value>
+  </data>
+  <data name="Category_Name_Must_Be_Unique_Error_Message" xml:space="preserve">
+    <value>A category with this name already exists at this level</value>
+  </data>
+  <data name="Service_Requirement_Description_Cannot_Be_Empty_Error_Message" xml:space="preserve">
+    <value>Service requirement description cannot be empty</value>
+  </data>
+  <data name="Service_Attribute_Name_Cannot_Be_Empty_Error_Message" xml:space="preserve">
+    <value>Service attribute name cannot be empty</value>
+  </data>
+  <data name="Service_Attribute_Type_Invalid_Error_Message" xml:space="preserve">
+    <value>Service attribute type is not valid</value>
+  </data>
+  <data name="Service_Attribute_Option_Already_Exists_Error_Message" xml:space="preserve">
+    <value>Service attribute option with this value already exists</value>
+  </data>
+  <data name="Service_Name_Cannot_Be_Empty_Error_Message" xml:space="preserve">
+    <value>Service name cannot be empty</value>
+  </data>
+  <data name="Service_Duration_Must_Be_Positive_Error_Message" xml:space="preserve">
+    <value>Service duration must be greater than zero minutes</value>
+  </data>
+  <data name="Service_Price_Must_Be_Valid_Error_Message" xml:space="preserve">
+    <value>Service price must be a valid amount</value>
+  </data>
+  <data name="Service_Attribute_Name_Must_Be_Unique_Error_Message" xml:space="preserve">
+    <value>Service attribute name must be unique</value>
+  </data>
+  <data name="Service_Requirement_Must_Be_Unique_Error_Message" xml:space="preserve">
+    <value>Service requirement with this description already exists</value>
+  </data>
+  <data name="Provider_Attribute_Definition_Must_Belong_To_Provider_Type_Error_Message" xml:space="preserve">
+    <value>Provider attribute definition must belong to the specified provider type</value>
+  </data>
+  <data name="Provider_Attribute_Definition_Already_Exists_Error_Message" xml:space="preserve">
+    <value>Provider attribute with this name already exists</value>
+  </data>
+  <data name="Provider_Attribute_Option_Already_Exists_Error_Message" xml:space="preserve">
+    <value>Provider attribute option with this value already exists</value>
+  </data>
+  <data name="Provider_Option_Only_For_Enum_Error_Message" xml:space="preserve">
+    <value>Options can only be added to attributes of type {0}</value>
+  </data>
+  <data name="Staff_Name_Cannot_Be_Empty_Error_Message" xml:space="preserve">
+    <value>Staff name cannot be empty</value>
+  </data>
+  <data name="Staff_Availability_End_Time_Must_Be_After_Start_Time_Error_Message" xml:space="preserve">
+    <value>End time must be after start time</value>
+  </data>
+  <data name="Staff_NonRecurring_Availability_Requires_Date_Error_Message" xml:space="preserve">
+    <value>Non-recurring availability must have a specific date</value>
+  </data>
+  <data name="Category_DisplayOrder_Must_Be_NonNegative_Error_Message" xml:space="preserve">
+    <value>Display order must be greater than or equal to 0</value>
+  </data>
+  <data name="Category_With_Children_Cannot_Be_Deleted_Error_Message" xml:space="preserve">
+    <value>Cannot delete a category that has child categories</value>
+  </data>
+  <data name="Category_ParentId" xml:space="preserve">
+    <value>Parent Category</value>
+  </data>
+  <data name="Category_Circular_Reference_Error_Message" xml:space="preserve">
+    <value>Circular reference detected in category hierarchy</value>
+  </data>
+  <data name="Service_Name" xml:space="preserve">
+    <value>Service Name</value>
+  </data>
+  <data name="Service_Description" xml:space="preserve">
+    <value>Service Description</value>
+  </data>
+  <data name="Service_Currency" xml:space="preserve">
+    <value>Currency</value>
+  </data>
+  <data name="Service_PricingModel" xml:space="preserve">
+    <value>Pricing Model</value>
+  </data>
+  <data name="Service_Definition" xml:space="preserve">
+    <value>Service Definition</value>
+  </data>
+  <data name="Service_Attribute_Name" xml:space="preserve">
+    <value>Attribute Name</value>
+  </data>
+  <data name="Service_Attribute_Type" xml:space="preserve">
+    <value>Attribute Type</value>
+  </data>
+  <data name="Service_Attribute_Description" xml:space="preserve">
+    <value>Attribute Description</value>
+  </data>
+  <data name="Service_Attribute_Option_DisplayName" xml:space="preserve">
+    <value>Option Display Name</value>
+  </data>
+  <data name="Service_Attribute_Option_Value" xml:space="preserve">
+    <value>Option Value</value>
+  </data>
+  <data name="Service_Attribute_Option_AdditionalPrice_Must_Be_Positive_Error_Message" xml:space="preserve">
+    <value>Additional price must be a positive value</value>
+  </data>
+  <data name="Service_Attribute_Definition" xml:space="preserve">
+    <value>Service Attribute Definition</value>
+  </data>
+  <data name="Service_Requirement_Description" xml:space="preserve">
+    <value>Requirement Description</value>
+  </data>
+  <data name="Provider_Type" xml:space="preserve">
+    <value>Provider Type</value>
+  </data>
+  <data name="Provider_Type_Description" xml:space="preserve">
+    <value>Provider Type Description</value>
+  </data>
+
+  <data name="Staff_Name" xml:space="preserve">
+    <value>Staff Name</value>
+  </data>
+
+  <data name="Staff_Biography" xml:space="preserve">
+    <value>Staff Biography</value>
+  </data>
+
+  <data name="Staff_Title" xml:space="preserve">
+    <value>Staff Title</value>
+  </data>
+
+  <data name="Staff_ProfileImageUrl" xml:space="preserve">
+    <value>Staff Profile Image URL</value>
+  </data>
+
+  <data name="Staff" xml:space="preserve">
+    <value>Staff</value>
+  </data>
+
+  <data name="Staff_Service_Notes" xml:space="preserve">
+    <value>Staff Service Notes</value>
+  </data>
+
+  <data name="Staff_Availability_Status" xml:space="preserve">
+    <value>Availability Status</value>
+  </data>
+  <data name="Service_Provider" xml:space="preserve">
+    <value>Service Provider</value>
+  </data>
+
+  <data name="Service_Provider_Name" xml:space="preserve">
+    <value>Provider Name</value>
+  </data>
+
+  <data name="Service_Provider_Description" xml:space="preserve">
+    <value>Provider Description</value>
+  </data>
+
+  <data name="Service_Provider_Provider_Type" xml:space="preserve">
+    <value>Provider Type</value>
+  </data>
+
+  <data name="Service_Provider_Services" xml:space="preserve">
+    <value>Services</value>
+  </data>
+
+  <data name="Service_Provider_Gallery" xml:space="preserve">
+    <value>Gallery</value>
+  </data>
+
+  <data name="Service_Provider_Policies" xml:space="preserve">
+    <value>Policies</value>
+  </data>
+
+  <data name="Service_Provider_Staff" xml:space="preserve">
+    <value>Staff</value>
+  </data>
+  <data name="Provider_Attribute_Id" xml:space="preserve">
+    <value>Provider Attribute Id</value>
+  </data>
+  <data name="Attribute_Value" xml:space="preserve">
+    <value>Attribute Value</value>
+  </data>
+
+  <data name="Provider_Attribute_Definition" xml:space="preserve">
+    <value>Provider attribute Definition</value>
+  </data>
+
+  <data name="Provider_Attribute_Value" xml:space="preserve">
+    <value>Provider Attribute Value</value>
+  </data>
+
+  <data name="Provider_Service_Name" xml:space="preserve">
+    <value>Provider Service Name</value>
+  </data>
+
+  <data name="Provider_Service_Description" xml:space="preserve">
+    <value>Provider Service Description</value>
+  </data>
+
+  <data name="Price" xml:space="preserve">
+    <value>Price</value>
+  </data>
+
+  <data name="Price_Must_Be_Positive" xml:space="preserve">
+    <value>Price must be greater than zero</value>
+  </data>
+
+  <data name="Currency" xml:space="preserve">
+    <value>Currency</value>
+  </data>
+
+  <data name="Duration" xml:space="preserve">
+    <value>Duration</value>
+  </data>
+
+  <data name="Duration_Must_Be_Positive" xml:space="preserve">
+    <value>Duration must be greater than zero</value>
+  </data>
+
+  <data name="Service_Provider_Policy" xml:space="preserve">
+    <value>Policy</value>
+  </data>
+  <data name="Service_Provider_Policy_Type" xml:space="preserve">
+    <value>Policy Type</value>
+  </data>
+  <data name="Service_Provider_Policy_Description" xml:space="preserve">
+    <value>Policy Description</value>
+  </data>
+  <data name="Service_Provider_Attributes" xml:space="preserve">
+    <value>Service provider attributes</value>
+  </data>
+  <data name="Service_Provider_Grade" xml:space="preserve">
+    <value>Grade</value>
+  </data>
+  <data name="Service_Provider_Grade_Invalid" xml:space="preserve">
+    <value>Grade must be between 1 (A) and 5 (E)</value>
+  </data>
+  <data name="Service_Provider_Grade_Uniqueness_Error" xml:space="preserve">
+    <value>A service provider with this grade already exists for this provider type in this location</value>
+  </data>
+  <data name="Comment" xml:space="preserve">
+    <value>Comment</value>
+  </data>
+</root>

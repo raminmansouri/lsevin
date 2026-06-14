@@ -1,0 +1,10 @@
+{
+  "name": "lsevin-dev",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "lsevin-api",
+  "workspaceFolder": "/app",
+  "features": {
+    "ghcr.io/devcontainers/features/dotnet:2": {},
+    "ghcr.io/devcontainers/features/node:1": {}
+  }
+}

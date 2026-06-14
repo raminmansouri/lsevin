@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: dev
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  eventstore:
+    image: eventstore/eventstore:latest
+    ports:
+      - "2113:2113"
+    environment:
+      EVENTSTORE_INSECURE: "True"

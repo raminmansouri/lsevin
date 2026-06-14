@@ -1,0 +1,24 @@
+<Project>
+  <PropertyGroup>
+    <AspNetCoreVersion>9.0.9</AspNetCoreVersion>
+    <EntityFrameworkCoreVersion>9.0.9</EntityFrameworkCoreVersion>
+    <MicrosoftExtensionsVersion>9.0.9</MicrosoftExtensionsVersion>
+    <ServiceDiscoveryVersion>9.5.0</ServiceDiscoveryVersion>
+    <NpgsqlVersion>9.0.4</NpgsqlVersion>
+    <OpenTelemetryVersion>1.13.0</OpenTelemetryVersion>
+    <OpenTelemetryInstrumentationVersion>1.12.0</OpenTelemetryInstrumentationVersion>
+    <OpenTelemetryBetaVersion>1.12.0-beta.1</OpenTelemetryBetaVersion>
+    <HealthChecksVersion>9.0.0</HealthChecksVersion>
+    <VersioningVersion>8.1.0</VersioningVersion>
+    <ArdalisVersion>9.3.1</ArdalisVersion>
+    <ValidationVersion>12.0.0</ValidationVersion>
+    <QuartzVersion>3.15.0</QuartzVersion>
+    <EventStoreVersion>23.3.9</EventStoreVersion>
+    <RoslynatorVersion>4.14.0</RoslynatorVersion>
+    <NitoAsyncVersion>5.1.2</NitoAsyncVersion>
+    <SerilogExceptions>8.4.0</SerilogExceptions>
+    <Humanizer>2.14.1</Humanizer>
+    <DuendeIdentityServerVersion>7.3.2</DuendeIdentityServerVersion>
+    <LinkAsyncVersion>6.0.3</LinkAsyncVersion>
+  </PropertyGroup>
+</Project>

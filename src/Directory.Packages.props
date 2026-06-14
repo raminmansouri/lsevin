@@ -1,0 +1,153 @@
+<Project>
+  <Import Project=".\Packages.props" />
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <EnablePackageVersionOverride>true</EnablePackageVersionOverride>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Web -->
+    <PackageVersion Include="Microsoft.AspNetCore.HeaderPropagation" Version="$(AspNetCoreVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="$(AspNetCoreVersion)" />
+    <PackageVersion Include="IdentityModel" Version="7.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="$(AspNetCoreVersion)" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.8.10" />
+    <PackageVersion Include="Asp.Versioning.Http" Version="$(VersioningVersion)" />
+    <PackageVersion Include="Asp.Versioning.Mvc" Version="$(VersioningVersion)" />
+    <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Version="$(VersioningVersion)" />
+    <!-- Entity Framework Core And DB-->
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="$(EntityFrameworkCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="$(EntityFrameworkCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="$(EntityFrameworkCoreVersion)" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="$(NpgsqlVersion)" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime" Version="$(NpgsqlVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(EntityFrameworkCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="$(EntityFrameworkCoreVersion)" />
+    <PackageVersion
+      Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore"
+      Version="$(EntityFrameworkCoreVersion)"
+    />
+    <PackageVersion Include="EFCore.NamingConventions" Version="9.0.0" />
+    <PackageVersion Include="Dapper" Version="2.1.66" />
+    <PackageVersion Include="System.Data.SqlClient" Version="4.9.0" />
+    <!-- Ardalis -->
+    <PackageVersion Include="Ardalis.Specification" Version="$(ArdalisVersion)" />
+    <PackageVersion Include="Ardalis.Specification.EntityFrameworkCore" Version="$(ArdalisVersion)" />
+    <PackageVersion Include="Ardalis.GuardClauses" Version="5.0.0" />
+    <!-- Microsoft Extensions And Resiliency-->
+    <PackageVersion Include="Polly" Version="8.6.4" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Polly" Version="$(MicrosoftExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.9.0" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="$(ServiceDiscoveryVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="$(MicrosoftExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
+    <!-- Yarp-->
+    <PackageVersion Include="Duende.BFF.Yarp" Version="3.0.0" />
+    <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="$(ServiceDiscoveryVersion)" />
+    <!-- OpenTelemetry -->
+    <PackageVersion Include="OpenTelemetry" Version="$(OpenTelemetryVersion)" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="$(OpenTelemetryVersion)" />
+    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="$(OpenTelemetryVersion)" />
+    <PackageVersion Include="OpenTelemetry.Api" Version="$(OpenTelemetryVersion)" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="$(OpenTelemetryVersion)" />
+    <PackageVersion
+      Include="OpenTelemetry.Instrumentation.AspNetCore"
+      Version="$(OpenTelemetryInstrumentationVersion)"
+    />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="$(OpenTelemetryInstrumentationVersion)" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="$(OpenTelemetryInstrumentationVersion)" />
+    <PackageVersion Include="SharpAbp.Abp.OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="4.1.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.13.0-beta.1" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.SqlClient" Version="$(OpenTelemetryBetaVersion)" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="$(OpenTelemetryBetaVersion)" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="$(OpenTelemetryBetaVersion)" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Quartz" Version="$(OpenTelemetryBetaVersion)" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Process" Version="$(OpenTelemetryBetaVersion)" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.GrpcNetClient" Version="$(OpenTelemetryBetaVersion)" />
+    <PackageVersion Include="EventStore.Client.Extensions.OpenTelemetry" Version="$(EventStoreVersion)" />
+    <PackageVersion Include="Npgsql.OpenTelemetry" Version="9.0.3" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.EventCounters" Version="1.5.1-alpha.1" />
+    <!-- Serilog -->
+    <PackageVersion Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageVersion Include="Serilog.Exceptions" Version="$(SerilogExceptions)" />
+    <PackageVersion Include="Serilog.Exceptions.EntityFrameworkCore" Version="$(SerilogExceptions)" />
+    <PackageVersion Include="Serilog.Sinks.Seq" Version="9.0.0" />
+    <PackageVersion Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageVersion Include="Serilog.Sinks.Async" Version="2.1.0" />
+    <PackageVersion Include="Serilog.Enrichers.Environment" Version="3.0.1" />
+    <PackageVersion Include="Serilog.Enrichers.Thread" Version="4.0.0" />
+    <PackageVersion Include="Serilog.Enrichers.Process" Version="3.0.0" />
+    <PackageVersion Include="Serilog.Enrichers.Span" Version="3.1.0" />
+    <PackageVersion Include="Serilog.Enrichers.CorrelationId" Version="3.0.1" />
+    <PackageVersion Include="SerilogAnalyzer" Version="0.15.0" />
+    <!-- Health Checks -->
+    <PackageVersion Include="AspNetCore.HealthChecks.Network" Version="$(HealthChecksVersion)" />
+    <PackageVersion Include="AspNetCore.HealthChecks.System" Version="$(HealthChecksVersion)" />
+    <PackageVersion Include="AspNetCore.HealthChecks.UI" Version="$(HealthChecksVersion)" />
+    <PackageVersion Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="$(HealthChecksVersion)" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Uris" Version="$(HealthChecksVersion)" />
+    <PackageVersion Include="AspNetCore.HealthChecks.UI.Client" Version="$(HealthChecksVersion)" />
+    <PackageVersion Include="AspNetCore.HealthChecks.NpgSql" Version="$(HealthChecksVersion)" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Redis" Version="$(HealthChecksVersion)" />
+    <PackageVersion Include="AspNetCore.HealthChecks.EventStore.gRPC" Version="$(HealthChecksVersion)" />
+    <PackageVersion
+      Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore"
+      Version="$(MicrosoftExtensionsVersion)"
+    />
+    <!-- Caching -->
+    <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="$(MicrosoftExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="9.9.0" />
+    <PackageVersion Include="MessagePack" Version="3.1.4" />
+    <!-- Validation -->
+    <PackageVersion Include="FluentValidation" Version="$(ValidationVersion)" />
+    <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="$(ValidationVersion)" />
+    <!-- Event Driven -->
+    <PackageVersion Include="MediatR" Version="13.0.0" />
+    <PackageVersion Include="EventStore.Client.Grpc.Streams" Version="$(EventStoreVersion)" />
+    <PackageVersion Include="AutoMapper" Version="15.0.1" />
+    <PackageVersion Include="Quartz" Version="$(QuartzVersion)" />
+    <PackageVersion Include="Quartz.Extensions.Hosting" Version="$(QuartzVersion)" />
+    <PackageVersion Include="Nerdbank.GitVersioning" Version="3.8.118" />
+    <!-- Utilities -->
+    <PackageVersion Include="Ulid" Version="1.4.1" />
+    <PackageVersion Include="MailKit" Version="4.9.0" />
+    <PackageVersion Include="HtmlSanitizer" Version="9.0.886" />
+    <PackageVersion Include="Scrutor" Version="6.1.0" />
+    <PackageVersion Include="Sieve" Version="2.5.5" />
+    <PackageVersion Include="Humanizer" Version="$(Humanizer)" />
+    <PackageVersion Include="Humanizer.Core" Version="$(Humanizer)" />
+    <PackageVersion Include="libphonenumber-csharp" Version="9.0.15" />
+    <!-- Analyzers -->
+    <PackageVersion Include="Meziantou.Analyzer" Version="2.0.222" />
+    <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" PrivateAssets="All" />
+    <PackageVersion Include="AsyncFixer" Version="1.6.0" />
+    <PackageVersion Include="NetFabric.Hyperlinq.Analyzer" Version="2.3.0" />
+    <PackageVersion Include="Roslynator.Analyzers" Version="$(RoslynatorVersion)" />
+    <PackageVersion Include="Roslynator.CodeAnalysis.Analyzers" Version="$(RoslynatorVersion)" />
+    <PackageVersion Include="Roslynator.Formatting.Analyzers" Version="$(RoslynatorVersion)" />
+    <PackageVersion Include="Nito.AsyncEx" Version="$(NitoAsyncVersion)" />
+    <PackageVersion Include="Nito.AsyncEx.Context" Version="$(NitoAsyncVersion)" />
+    <PackageVersion Include="Nito.AsyncEx.Tasks" Version="$(NitoAsyncVersion)" />
+    <PackageVersion Include="AsyncAwaitBestPractices" Version="9.0.0" />
+    <PackageVersion Include="ErrorProne.NET.CoreAnalyzers" Version="0.8.2-beta.1" />
+    <PackageVersion Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.14.15" />
+  </ItemGroup>
+  <!-- Identity -->
+  <ItemGroup>
+    <PackageVersion Include="Duende.IdentityServer" Version="$(DuendeIdentityServerVersion)" />
+    <PackageVersion Include="Duende.IdentityServer.Storage" Version="$(DuendeIdentityServerVersion)" />
+    <PackageVersion Include="Duende.IdentityServer.AspNetIdentity" Version="$(DuendeIdentityServerVersion)" />
+    <PackageVersion Include="Duende.IdentityServer.EntityFramework" Version="$(DuendeIdentityServerVersion)" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageVersion Include="System.Linq.Async" Version="$(LinkAsyncVersion)" />
+    <PackageVersion Include="System.Linq.Async.Queryable" Version="$(LinkAsyncVersion)" />
+    <!-- Force consistent versions -->
+    <PackageVersion Include="System.Text.Encodings.Web" Version="$(AspNetCoreVersion)" />
+    <PackageVersion Include="System.Text.Json" Version="$(AspNetCoreVersion)" />
+    <PackageVersion Include="System.Formats.Asn1" Version="$(AspNetCoreVersion)" />
+    <PackageVersion Include="Azure.Identity" Version="1.13.1" />
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+  </ItemGroup>
+</Project>

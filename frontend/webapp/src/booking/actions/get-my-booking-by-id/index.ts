@@ -1,0 +1,53 @@
+"use server";
+
+import { createAuthenticatedSafeAction } from "@/lib/safe-action";
+import type { LocaleHeaderTypes } from "@/types/common";
+
+import { getMyBookingByIdFromDb } from "../../server/my-bookings.repository";
+import { GetMyBookingByIdSchema } from "./schema";
+import type { InputType, ReturnType } from "./types";
+
+const handler = async (
+  input: InputType,
+  _token: string,
+  userId: string,
+  locale: LocaleHeaderTypes
+): Promise<ReturnType> => {
+  try {
+    const booking = await getMyBookingByIdFromDb({
+      bookingId: input.id,
+      userId,
+      locale,
+    });
+
+    if (!booking) {
+      return {
+        data: undefined,
+        payload: input,
+        error: {
+          title: "Booking not found",
+          status: 404,
+          detail: "This booking does not exist or does not belong to your account.",
+        },
+      };
+    }
+
+    return { data: { booking }, error: undefined, payload: input };
+  } catch (error) {
+    return {
+      data: undefined,
+      payload: input,
+      error: {
+        title: "Unable to load booking",
+        status: 500,
+        detail: error instanceof Error ? error.message : "Please try again.",
+      },
+    };
+  }
+};
+
+export const getMyBookingByIdAction = createAuthenticatedSafeAction(
+  GetMyBookingByIdSchema,
+  handler,
+  { adminRequired: false }
+);

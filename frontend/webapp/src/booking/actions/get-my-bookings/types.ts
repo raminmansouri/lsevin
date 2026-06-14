@@ -1,0 +1,10 @@
+import * as z from "zod/v4";
+
+import type { ActionState } from "@/lib/safe-action";
+import type { BookingsResponse } from "@/features/service-providers/types";
+
+import { GetMyBookingsSchema } from "./schema";
+
+export type InputType = z.infer<typeof GetMyBookingsSchema>;
+export type OutputType = BookingsResponse;
+export type ReturnType = ActionState<InputType, OutputType>;

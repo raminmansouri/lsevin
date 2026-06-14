@@ -1,0 +1,71 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - lsevin-network
+    ports:
+      - 5432:5432
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - lsevin-network
+
+  eventstore:
+    image: eventstore/eventstore:latest
+    restart: unless-stopped
+    environment:
+      EVENTSTORE_CLUSTER_SIZE: "1"
+      EVENTSTORE_RUN_PROJECTIONS: "All"
+      EVENTSTORE_START_STANDARD_PROJECTIONS: "True"
+      EVENTSTORE_HTTP_PORT: "2113"
+      EVENTSTORE_INSECURE: "True"
+      EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP: "True"
+    volumes:
+      - eventstore_data:/var/lib/eventstore
+    networks:
+      - lsevin-network
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    restart: unless-stopped
+    profiles:
+      - observability
+    ports:
+      - "16686:16686"
+    networks:
+      - lsevin-network
+
+  seq:
+    image: datalust/seq:latest
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+    profiles:
+      - observability
+    ports:
+      - "5341:5341"
+    networks:
+      - lsevin-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  eventstore_data:
+  uploads:
+  caddy_data:
+  caddy_config:
+
+networks:
+  lsevin-network:
+    external: true

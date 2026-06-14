@@ -1,0 +1,41 @@
+{
+  "stryker-config": {
+    "solution": "../../../LSevin.sln",
+    "thresholds": {
+      "high": 90,
+      "low": 60
+    },
+    "mutate": [
+      "**/Entities/**/*.cs",
+      "**/StronglyTypedIds/**/*.cs",
+      "**/ValueObjects/**/*.cs",
+      "**/Specifications/**/*.cs",
+      "**/Enumerations/**/*.cs",
+      "**/Rules/**/*.cs",
+      "**/Features/**/*.cs",
+      "**/*Service.cs",
+      "**/*Handler.cs",
+      "**/*Validator.cs",
+      "**/*MappingProfile.cs",
+      "**/*Consumer.cs",
+      "**/*Endpoints.cs",
+      "**/*Middleware.cs",
+      "**/*Accessor.cs",
+      "**/*Behavior.cs",
+      "**/*Factory.cs"
+    ],
+    "reporters": [
+      "html",
+      "progress"
+    ],
+    "project-info": {
+      "module": "LSevin.Api",
+      "name": "https://github.com/PouryaNoufallah96/l-sevin",
+      "version": "development"
+    },
+    "since": {
+      "target": "main",
+      "enabled": false
+    }
+  }
+}

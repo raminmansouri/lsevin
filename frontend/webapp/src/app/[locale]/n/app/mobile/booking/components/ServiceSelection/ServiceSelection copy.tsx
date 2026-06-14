@@ -1,0 +1,588 @@
+"use client";
+import React, { useEffect, useState } from "react";
+import { useFormContext } from "react-hook-form";
+import z from "zod/v3";
+import { nodes } from "../../../../../../../../components/blocks/editor-00/nodes";
+import { BadgeCheck, Clock, Star, List, ChevronRight, CheckCircle2, Calendar } from 'lucide-react';
+import { BookingFormValues } from "../../types";
+/* const services = [
+  {
+    id: "hair-treatment",
+    name: "Keratin Hair Treatment",
+    description: "Professional smoothing treatment",
+    duration: "2.5 hours",
+    price: 180,
+    category: "Hair Care",
+    popular: true,
+    image:
+      "/unsplash_images/photo-1560066984-138dadb4c035__w=400&h=300&fit=crop.jpg",
+  },
+  {
+    id: "spa-facial",
+    name: "Luxury Facial Spa",
+    description: "Deep cleansing and rejuvenation",
+    duration: "90 min",
+    price: 120,
+    category: "Facial",
+    popular: true,
+    image:
+      "/unsplash_images/photo-1570172619644-dfd03ed5d881__w=400&h=300&fit=crop.jpg",
+  },
+  {
+    id: "manicure-pedicure",
+    name: "Premium Manicure & Pedicure",
+    description: "Complete nail care package",
+    duration: "60 min",
+    price: 85,
+    category: "Nails",
+    image:
+      "/unsplash_images/photo-1604654894610-df63bc536371__w=400&h=300&fit=crop.jpg",
+  },
+];
+
+const providers = [
+  {
+    id: "1",
+    name: "Istanbul Medical Center",
+    description: "Istanbul Medical Center",
+    rating: 4.9,
+    verified: true,
+    popular: true,
+    image:
+      "/unsplash_images/photo-1519494026892-80bbd2d6fd0d__w=200&h=200&fit=crop.jpg",
+  },
+  {
+    id: "2",
+
+    name: "Dubai Smile Clinic",
+    description: "Dubai Smile Clinic",
+    rating: 4.9,
+    popular: true,
+    verified: true,
+    image:
+      "/unsplash_images/photo-1629909613654-28e377c37b09__w=200&h=200&fit=crop.jpg",
+  },
+  {
+    id: "3",
+
+    popular: true,
+    name: "Bali Wellness Resort",
+    description: "Bali Wellness Resort",
+    rating: 5.0,
+    verified: true,
+    image:
+      "/unsplash_images/photo-1540555700478-4be289fbecef__w=200&h=200&fit=crop.jpg",
+  },
+  {
+    id: "4",
+
+    name: "Cyprus Fertility Center",
+    description: "Cyprus Fertility Center",
+    rating: 4.8,
+    popular: true,
+    verified: true,
+    image:
+      "/unsplash_images/photo-1551190822-a9333d879b1f__w=200&h=200&fit=crop.jpg",
+  },
+];
+
+const doctors = [
+  {
+    id: '1',
+    name: 'Dr. Mehmet Yavuz',
+    specialty: 'Hair Transplant Surgeon',
+    experience: '18 years',
+    rating: 4.9,
+    reviews: 1247,
+    patients: '12,000+',
+    languages: ['English', 'Turkish', 'Arabic'],
+    credentials: ['MD', 'ISHRS Member', 'Board Certified'],
+    verified: true,
+    consultation: 0,
+    image: '/unsplash_images/photo-1612349317150-e413f6a5b16d__w=400&h=400&fit=crop.jpg',
+    nextAvailable: 'Mar 15, 2026'
+  },
+  {
+    id: '2',
+    name: 'Dr. Can Ozturk',
+    specialty: 'Hair Restoration Expert',
+    experience: '15 years',
+    rating: 4.8,
+    reviews: 892,
+    patients: '10,500+',
+    languages: ['English', 'Turkish', 'German'],
+    credentials: ['MD', 'FUE Specialist', 'ABHRS'],
+    verified: true,
+    consultation: 0,
+    image: '/unsplash_images/photo-1622253692010-333f2da6031d__w=400&h=400&fit=crop.jpg',
+    nextAvailable: 'Mar 12, 2026'
+  },
+];
+ */
+import { useWatch } from 'react-hook-form';
+import { useMemo } from 'react';
+import { useGetProvidersByServiceAndSpecialist } from "@/features/booking/api/client/fetch-providers-by-service-and-specialist";
+import { useLocale, useTranslations } from "next-intl";
+import { useGetServicesByProviderAndSpecialist } from "@/features/booking/api/client/fetch-services-by-provider-and-specialist";
+import { useGetSpecialistByProviderAndService } from "@/features/booking/api/client/fetch-specialist-by-provider-and-service";
+import { useBooking } from "../../hooks/use-booking";
+import { TRANSLATION_KEY } from "@/features/home/types/constants";
+import { hasLexicalContent, LexicalRenderer } from "@/components/editor/lexical-renderer";
+/* ----- Types & Enums ----- */
+interface INode {
+    name: NodeType;
+    edges: NodeType[];
+    isSelected: boolean; // we only need a boolean in the UI
+}
+enum NodeType {
+    Provider,
+    Service,
+    Specialist
+}
+/* ----- Main component ----- */
+export default function ServiceSelection() {
+    const tBooking = useTranslations("Booking");
+    /* 1️⃣  Grab the form context */
+    const { setValue, getButtonLabel, canProceed, calculateTotal, addons, selectedAddons, selectedDate, selectedTime, uploadedFiles, service, provider, selectedSpecialist, providerId, serviceId, specialistId, paymentMethod, handleNext, handleBack, setData, navigate, step, setStep, locale } = useBooking();
+    const { data: providersResponse, refetch } = useGetProvidersByServiceAndSpecialist(providerId, serviceId, specialistId, '', locale);
+    const providers = providersResponse?.providers;
+    const { data: servicesResponse, refetch: refetchServices } = useGetServicesByProviderAndSpecialist(providerId, serviceId, specialistId, '', locale);
+    const services = servicesResponse?.services;
+    const { data: specialistsResponose, refetch: refetchSpecialist } = useGetSpecialistByProviderAndService(providerId, serviceId, specialistId, '', locale);
+    const specialists = specialistsResponose?.specialist;
+    useEffect(() => {
+        /*  If you expect numeric IDs, cast them. */
+        if (providerId && providers)
+            setData('providers', providers);
+        if (serviceId)
+            setData('services', services);
+        if (specialistId)
+            setData('specialists', specialists);
+        /*  If the IDs are strings, just pass the string directly: */
+        // if (providerId)   methods.setValue('providerId', providerId);
+        // …etc.
+    }, [services, serviceId, specialistId, specialists, providers, providerId]);
+    /* 3️⃣  Build the node graph each time a watched value changes */
+    const nodes = useMemo<INode[]>(() => [
+        {
+            name: NodeType.Provider,
+            edges: [NodeType.Service, NodeType.Specialist],
+            isSelected: !!providerId,
+        },
+        {
+            name: NodeType.Service,
+            edges: [NodeType.Provider, NodeType.Specialist],
+            isSelected: !!serviceId,
+        },
+        {
+            name: NodeType.Specialist,
+            edges: [NodeType.Service, NodeType.Provider],
+            isSelected: !!specialistId,
+        },
+    ], [providerId, serviceId, specialistId]);
+    /* 4️⃣  Pick the node that is currently selected (or first one if none) */
+    const selectedNode = useMemo(() => nodes.find(n => n.isSelected) ?? nodes[0], [nodes]);
+    const ChooseYourServiceCanProceed = () => {
+        const tBooking = useTranslations("Booking");
+        return (<>
+        {/* Selection Summary - Step 1 */}
+        {canProceed() && (<div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <CheckCircle2 size={20} className="text-white"/>
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-green-900 mb-2">{tBooking("readyToContinue")}</h3>
+                <div className="space-y-1.5 text-sm text-green-800">
+                  <div className="flex items-center gap-2">
+                    <BadgeCheck size={14} className="flex-shrink-0"/>
+                    <span>{tBooking("doctor")}{specialists.find(d => d.id === specialistId)?.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar size={14} className="flex-shrink-0"/>
+                    <span>{tBooking("date")}{selectedDate}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock size={14} className="flex-shrink-0"/>
+                    <span>{tBooking("time2")}{selectedTime}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+  
+            {/* Continue Button - Directly in Summary */}
+            <button onClick={handleNext} className="w-full h-14 bg-gradient-to-r from-[#083f30] to-[#0a5a44] text-white rounded-xl font-bold hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg">{tBooking("continueToAddOns")}<ChevronRight size={20}/>
+            </button>
+          </div>)}</>);
+    };
+    const refetchData = () => {
+    };
+    const onServiceSelection = (service) => {
+        if (serviceId === service.id) {
+            setValue('serviceId', undefined);
+            // setValue('providerId',undefined)
+            setValue('specialistId', undefined);
+        }
+        else {
+            setValue('serviceId', service.id);
+        }
+        refetchData();
+    };
+    const onProviderSelection = (provider) => {
+        if (providerId === provider.id) {
+            setValue('providerId', undefined);
+            setValue('serviceId', undefined);
+            setValue('specialistId', undefined);
+        }
+        else {
+            setValue('providerId', provider.id);
+        }
+        refetchData();
+    };
+    const onSpecialistSelection = (doctor) => {
+        if (specialistId === doctor.id) {
+            setValue('specialistId', undefined);
+        }
+        else {
+            setValue('specialistId', doctor.id);
+        }
+        refetchData();
+    };
+    const t = useTranslations(TRANSLATION_KEY);
+    /* ----- Component maps ----- */
+    const ChooseYourProvider = () => {
+        const tBooking = useTranslations("Booking");
+        return (<>
+        {/* Select Service */}
+        <div>
+          <h2 className="mb-4 text-xl font-bold text-gray-900">{tBooking("chooseYourProvider")}</h2>
+          <div className="space-y-3">
+            {providers?.map((provider) => (<button key={provider.id} onClick={() => {
+                    onProviderSelection(provider);
+                }} className={`w-full overflow-hidden rounded-2xl border-2 bg-white transition-all ${providerId === provider.id
+                    ? "scale-[1.02] border-[#083f30] shadow-lg"
+                    : "border-gray-200 hover:border-gray-300"}`}>
+                <div className="flex gap-4 p-4">
+                  <div className="relative flex-shrink-0">
+                    <img src={provider.image} alt={provider.name} className="h-24 w-24 rounded-xl object-cover"/>
+                    {provider.popular && (<div className="absolute -top-2 -right-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">{tBooking("pOPULAR")}</div>)}
+                  </div>
+
+                  <div className="flex-1 text-left">
+                    <div className="mb-1 flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="mb-1 font-bold text-gray-900">
+                          {provider.name}
+                        </h3>
+                        <p className="mb-2 text-sm text-gray-600">
+                          {/* {provider.description} */}
+
+                           {provider.description && hasLexicalContent(provider.description) ? (<LexicalRenderer content={provider.description} className="text-muted-foreground leading-relaxed"/>) : (<p className="text-muted-foreground leading-relaxed">
+                            {t("noDescription")}
+                          </p>)}
+                        </p>
+                        <div className="flex items-center gap-3 text-xs text-gray-600">
+                          {/* <div className="flex items-center gap-1">
+                        <Clock size={14} />
+                        <span>{provider.duration}</span>
+                      </div> */}
+                          <span>•</span>
+                          {/* <span className="px-2 py-0.5 bg-gray-100 rounded-md font-semibold">
+                        {provider.category}
+                      </span> */}
+                        </div>
+                      </div>
+
+                      <div className="ml-3 text-right">
+                        {/* <div className="text-lg font-bold text-[#083f30]">
+                        ${service.price}
+                      </div> */}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </button>))}
+          </div>
+        </div>
+      </>);
+    };
+    const SelectedProvider = () => {
+        const tBooking = useTranslations("Booking");
+        return (<>
+        {/* Select Service */}
+        <div>
+          <h2 className="mb-4 text-xl font-bold text-gray-900">{tBooking("selectedProvider")}</h2>
+          <div className="space-y-3">
+            {providers?.filter(f => providerId === f.id).map((provider) => (<button key={provider.id} onClick={() => {
+                    onProviderSelection(provider);
+                }} className={`w-full overflow-hidden rounded-2xl border-2 bg-white transition-all ${providerId === provider.id
+                    ? "scale-[1.02] border-[#083f30] shadow-lg"
+                    : "border-gray-200 hover:border-gray-300"}`}>
+                <div className="flex gap-4 p-4">
+                  <div className="relative flex-shrink-0">
+                    <img src={provider.image} alt={provider.name} className="h-24 w-24 rounded-xl object-cover"/>
+                    {provider.popular && (<div className="absolute -top-2 -right-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">{tBooking("pOPULAR")}</div>)}
+                  </div>
+
+                  <div className="flex-1 text-left">
+                    <div className="mb-1 flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="mb-1 font-bold text-gray-900">
+                          {provider.name}
+                        </h3>
+                        <p className="mb-2 text-sm text-gray-600">
+                          {provider.description}
+                        </p>
+                        <div className="flex items-center gap-3 text-xs text-gray-600">
+                          {/* <div className="flex items-center gap-1">
+                        <Clock size={14} />
+                        <span>{provider.duration}</span>
+                      </div> */}
+                          <span>•</span>
+                          {/* <span className="px-2 py-0.5 bg-gray-100 rounded-md font-semibold">
+                        {provider.category}
+                      </span> */}
+                        </div>
+                      </div>
+
+                      <div className="ml-3 text-right">
+                        {/* <div className="text-lg font-bold text-[#083f30]">
+                        <List onClick={()=>setShowAllProviders(!showAllProviders)}/>
+                      </div>  */}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </button>))}
+
+          </div>
+        </div>
+      </>);
+    };
+    const ChooseYourService = () => {
+        const tBooking = useTranslations("Booking");
+        return (<>
+        {/* Select Service */}
+        <div>
+          <h2 className="mb-4 text-xl font-bold text-gray-900">{tBooking("chooseYourService")}</h2>
+          <div className="space-y-3">
+            {services?.map((service) => (<button key={service.id} onClick={() => onServiceSelection(service)} className={`w-full overflow-hidden rounded-2xl border-2 bg-white transition-all ${serviceId === service.id
+                    ? "scale-[1.02] border-[#083f30] shadow-lg"
+                    : "border-gray-200 hover:border-gray-300"}`}>
+                <div className="flex gap-4 p-4">
+                  <div className="relative flex-shrink-0">
+                    <img src={service.image} alt={service.name} className="h-24 w-24 rounded-xl object-cover"/>
+                    {service.popular && (<div className="absolute -top-2 -right-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">{tBooking("pOPULAR")}</div>)}
+                  </div>
+
+                  <div className="flex-1 text-left">
+                    <div className="mb-1 flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="mb-1 font-bold text-gray-900">
+                          {service.name}
+                        </h3>
+                        <p className="mb-2 text-sm text-gray-600">
+                          {service.description}
+                        </p>
+                        <div className="flex items-center gap-3 text-xs text-gray-600">
+                          <div className="flex items-center gap-1">
+                            <Clock size={14}/>
+                            <span>{service.duration}</span>
+                          </div>
+                          <span>•</span>
+                          <span className="rounded-md bg-gray-100 px-2 py-0.5 font-semibold">
+                            {service.category}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="ml-3 text-right">
+                        <div className="text-lg font-bold text-[#083f30]">
+                          ${service.price}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </button>))}
+          </div>
+        </div>
+      </>);
+    };
+    const SelectedService = () => {
+        const tBooking = useTranslations("Booking");
+        return (<>
+        {/* Select Service */}
+        <div>
+          <h2 className="mb-4 text-xl font-bold text-gray-900">{tBooking("selectedService")}</h2>
+          <div className="space-y-3">
+            {services?.filter(f => serviceId === f.id).map((service) => (<button key={service.id} onClick={() => onServiceSelection(service)} className={`w-full overflow-hidden rounded-2xl border-2 bg-white transition-all ${serviceId === service.id
+                    ? "scale-[1.02] border-[#083f30] shadow-lg"
+                    : "border-gray-200 hover:border-gray-300"}`}>
+                <div className="flex gap-4 p-4">
+                  <div className="relative flex-shrink-0">
+                    <img src={service.image} alt={service.name} className="h-24 w-24 rounded-xl object-cover"/>
+                    {service.popular && (<div className="absolute -top-2 -right-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">{tBooking("pOPULAR")}</div>)}
+                  </div>
+
+                  <div className="flex-1 text-left">
+                    <div className="mb-1 flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="mb-1 font-bold text-gray-900">
+                          {service.name}
+                        </h3>
+                        <p className="mb-2 text-sm text-gray-600">
+                          {service.description}
+                        </p>
+                        <div className="flex items-center gap-3 text-xs text-gray-600">
+                          <div className="flex items-center gap-1">
+                            <Clock size={14}/>
+                            <span>{service.duration}</span>
+                          </div>
+                          <span>•</span>
+                          <span className="rounded-md bg-gray-100 px-2 py-0.5 font-semibold">
+                            {service.category}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="ml-3 text-right">
+                        <div className="text-lg font-bold text-[#083f30]">
+                          ${service.price}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </button>))}
+          </div>
+        </div>
+      </>);
+    };
+    const ChooseYourSpecialist = () => {
+        const tBooking = useTranslations("Booking");
+        return (<>
+        {/* Select Doctor */}
+        <div>
+          <h2 className="mb-4 text-xl font-bold text-gray-900">{tBooking("chooseYourSpecialist")}</h2>
+          <div className="space-y-3">
+            {specialists?.map((doctor) => (<button key={doctor.id} onClick={() => onSpecialistSelection(doctor)} className={`w-full rounded-2xl border-2 bg-white p-4 transition-all ${specialistId === doctor.id
+                    ? "border-[#083f30] shadow-md"
+                    : "border-gray-200 hover:border-gray-300"}`}>
+                <div className="flex gap-4">
+                  <div className="relative flex-shrink-0">
+                    <img src={doctor.image} alt={doctor.name} className="h-20 w-20 rounded-xl object-cover"/>
+                    <div className="absolute -right-1 -bottom-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#083f30]">
+                      <BadgeCheck size={14} className="text-[#eacb7f]"/>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 text-left">
+                    <h3 className="mb-1 font-bold text-gray-900">
+                      {doctor.name}
+                    </h3>
+                    <p className="mb-2 text-sm text-gray-600">
+                      {doctor.specialty}
+                    </p>
+
+                    <div className="mb-2 flex items-center gap-3 text-xs text-gray-600">
+                      <span>{doctor.experience}</span>
+                      <span>•</span>
+                      <span>{doctor.patients}{tBooking("patients")}</span>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1">
+                        <Star size={14} className="fill-yellow-400 text-yellow-400"/>
+                        <span className="text-sm font-bold text-gray-900">
+                          {doctor.rating}
+                        </span>
+                      </div>
+
+                      <span className="text-xs font-semibold text-[#083f30]">{tBooking("next")}{doctor.nextAvailable}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </button>))}
+          </div>
+        </div>
+      </>);
+    };
+    const SelectedSpecialist = () => {
+        const tBooking = useTranslations("Booking");
+        return (<>
+        {/* Select Doctor */}
+        <div>
+          <h2 className="mb-4 text-xl font-bold text-gray-900">{tBooking("selectedSpecialist")}</h2>
+          <div className="space-y-3">
+            {specialists?.filter(f => specialistId === f.id).map((doctor) => (<button key={doctor.id} onClick={() => onSpecialistSelection(doctor.id)} className={`w-full rounded-2xl border-2 bg-white p-4 transition-all ${specialistId === doctor.id
+                    ? "border-[#083f30] shadow-md"
+                    : "border-gray-200 hover:border-gray-300"}`}>
+                <div className="flex gap-4">
+                  <div className="relative flex-shrink-0">
+                    <img src={doctor.image} alt={doctor.name} className="h-20 w-20 rounded-xl object-cover"/>
+                    <div className="absolute -right-1 -bottom-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#083f30]">
+                      <BadgeCheck size={14} className="text-[#eacb7f]"/>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 text-left">
+                    <h3 className="mb-1 font-bold text-gray-900">
+                      {doctor.name}
+                    </h3>
+                    <p className="mb-2 text-sm text-gray-600">
+                      {doctor.specialty}
+                    </p>
+
+                    <div className="mb-2 flex items-center gap-3 text-xs text-gray-600">
+                      <span>{doctor.experience}</span>
+                      <span>•</span>
+                      <span>{doctor.patients}{tBooking("patients")}</span>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1">
+                        <Star size={14} className="fill-yellow-400 text-yellow-400"/>
+                        <span className="text-sm font-bold text-gray-900">
+                          {doctor.rating}
+                        </span>
+                      </div>
+
+                      <span className="text-xs font-semibold text-[#083f30]">{tBooking("next")}{doctor.nextAvailable}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </button>))}
+          </div>
+        </div>
+      </>);
+    };
+    const edgeComponentMap = {
+        [NodeType.Provider]: <ChooseYourProvider />,
+        [NodeType.Service]: <ChooseYourService />,
+        [NodeType.Specialist]: <ChooseYourSpecialist />,
+    };
+    const edgeComponentSelectedMap = {
+        [NodeType.Provider]: <SelectedProvider />,
+        [NodeType.Service]: <SelectedService />,
+        [NodeType.Specialist]: <SelectedSpecialist />,
+    };
+    /* ----- Render ----- */
+    if (!selectedNode)
+        return <>{tBooking("pleaseSelectANode")}</>;
+    return (<div>
+
+      {/* The selected node’s own component */}
+      {/* {edgeComponentMap[selectedNode.name]} */}
+
+      {/* All other nodes that are *not* selected */}
+
+      {nodes
+            .map(n => (<div key={n.name}>
+            {n.isSelected && <>{edgeComponentSelectedMap[n.name]}</>}
+            {!n.isSelected && <>{edgeComponentMap[n.name]}</>}
+          </div>))}
+    </div>);
+}

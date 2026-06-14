@@ -1,0 +1,1680 @@
+{
+   "UploadFiles": {
+    "title": "Upload documents",
+    "subtitle": "Please upload the requested files for your booking",
+    "description": "Supported formats: PNG, JPG, JPEG, PDF",
+    "requiredBadge": "Required",
+    "optionalBadge": "Optional",
+    "chooseFile": "Choose file",
+    "continueBtn": "Continue",
+    "changeFile": "Change file",
+    "uploadRequiredHint": "Required files must be uploaded before continuing.",
+    "acceptedFilesDesc": "PNG, JPG, JPEG, PDF — maximum file size: 10 MB.",
+    "acceptedFilesTitle": "Accepted files",
+    "replaceFile": "Replace file",
+        "uploadBtn": "Choose file",
+    "uploadCardTitle": "Upload Documents",
+    "uploadCardDesc": "Attach the required documents for this booking.",
+    "filesUploaded": "uploaded",
+    "requiredFilesPending": "Some required files still need to be uploaded before you continue.",
+    "removeFile": "Remove file",
+    "uploadFile": "Upload file",
+    "uploaded": "Uploaded",
+    "notUploaded": "Not uploaded",
+    "fileSelected": "File selected",
+    "noFileSelected": "No file selected",
+    "continue": "Continue",
+    "back": "Back",
+    "skip": "Skip",
+    "uploadHint": "PNG, JPG or PDF",
+    "uploadHelp": "Please upload a clear and readable file",
+    "requiredFilesMessage": "Please upload all required documents before continuing",
+    "successMessage": "Files uploaded successfully",
+    "errorMessage": "Failed to upload file",
+    "invalidFileType": "Invalid file type",
+    "fileTooLarge": "File size is too large",
+    "selectDocument": "Select a document",
+    "document": "Document",
+    "documents": "Documents"
+  },
+  "Manifest": {
+    "name": "L Sevin"
+  },
+  "LocaleLayout": {
+    "title": "L Sevin",
+    "description": "Otel konaklamasından tıbbi randevulara kadar hasta planlamasını kolaylaştıran otomatikleştirilmiş sağlık platformu"
+  },
+  "Error": {
+    "title": "Bir şeyler ters gitti",
+    "description": "Lütfen sistem yöneticisiyle iletişime geçin."
+  },
+  "NotFoundPage": {
+    "title": "Sayfa bulunamadı",
+    "description": "Lütfen web sitesinin ana sayfasını kullanın."
+  },
+  "Admin": {
+    "dashboard": "Kontrol Paneli",
+    "consultings": "Danışmanlıklar",
+    "serviceProvidersRequest": "Hizmet Sağlayıcı Talepleri",
+    "categories": "Kategoriler",
+    "serviceDefinitions": "Hizmet Tanımları",
+    "providerTypes": "Sağlayıcı Türleri",
+    "staff": "Personel",
+    "serviceProviders": "Hizmet Sağlayıcıları"
+  },
+  "HomePage": {
+    "title": "L Sevin - Otomatikleştirilmiş Sağlık",
+    "description": "Otel konaklamasından tıbbi randevulara kadar hasta planlamasını kolaylaştırma",
+    "keywords": "otomasyon sağlık,sağlık otomasyonu,medikal turizm,tıbbi rezervasyon",
+    "heroTitle": "En İyi Tıbbi Hizmetleri Bizimle Deneyimleyin",
+    "heroDescription": "Sağlığa giden yolda, seçkin uzmanlar, ileri ekipman ve güvenli, dinlendirici bir ortamla yüksek kaliteli tedavi ve üstün bakıma odaklanan en iyi sağlık hizmetlerini size sunuyoruz.",
+    "heroSubtext": "Sağlığınızı birlikte yeni bir seviyeye taşıyalım...",
+    "registerRequest": "Talep Gönder",
+    "consultationRequest": "Danışmanlık Talebi",
+    "category": "Kategori",
+    "providerTypes": "Sağlayıcı türleri",
+    "serviceProviders": {
+      "title": "Hizmet Sağlayıcıları",
+      "noProviders": "Şu anda hizmet sağlayıcısı yok",
+      "priceStartsFrom": "Başlangıç",
+      "view": "Görüntüle",
+      "viewAll": "Tümünü Görüntüle",
+      "grade": {
+        "label": "Derece"
+      }
+    },
+    "ByType": {
+      "title": "Hizmet Sağlayıcıları Gözat",
+      "description": "İhtiyaçlarınız için en iyi hizmet sağlayıcıları bulun",
+      "noResults": "Hizmet sağlayıcı bulunamadı",
+      "loading": "Yükleniyor...",
+      "error": "Hizmet sağlayıcılar yüklenemedi. Lütfen tekrar deneyin.",
+      "filters": {
+        "title": "Filtreler",
+        "search": "Ara",
+        "searchPlaceholder": "Sağlayıcıları ara...",
+        "location": "Konum",
+        "attributes": "Özellikler",
+        "country": "Ülke",
+        "city": "Şehir",
+        "clearAll": "Tümünü Temizle",
+        "selectCountry": "Bir ülke seçin",
+        "selectCity": "Bir şehir seçin",
+        "allCountries": "Tüm Ülkeler",
+        "allCities": "Tüm Şehirler",
+        "selectCountryFirst": "Önce bir ülke seçin",
+        "loadingCities": "Şehirler yükleniyor...",
+        "noFilters": "Filtre yok",
+        "activeFilters": "Aktif Filtreler",
+        "any": "Herhangi",
+        "yes": "Evet",
+        "no": "Hayır",
+        "booleanTrue": "Evet",
+        "booleanFalse": "Hayır"
+      }
+    },
+    "locationSwitcher": {
+      "countries": "Ülkeler",
+      "cities": "Şehirler",
+      "allCountries": "Tüm Ülkeler",
+      "allCities": "Tüm Şehirler",
+      "loading": "Yükleniyor..."
+    }
+  },
+  "ServiceProviderPage": {
+    "title": "Hizmet Sağlayıcı",
+    "description": "Hizmet Sağlayıcı Detayları",
+    "keywords": "hizmet sağlayıcı,hizmet sağlayıcı detayları,hizmet sağlayıcı sayfası",
+    "contactProvider": "Sağlayıcıyla İletişim",
+    "aboutProvider": "Bu Sağlayıcı Hakkında",
+    "availableServices": "Mevcut Hizmetler",
+    "policies": "Politikalar",
+    "viewGallery": "Galeriyi Görüntüle",
+    "images": "Görseller",
+    "imagesCount": "{count} Görsel",
+    "noDescription": "Açıklama mevcut değil",
+    "address": "Adres",
+    "location": "Konum",
+    "ourStaff": "Personel",
+    "noServices": "Hizmet mevcut değil",
+    "noPolicies": "Politika mevcut değil",
+    "noImages": "Görsel mevcut değil",
+    "close": "Kapat",
+    "attributes": "Öznitelikler",
+    "requests": {
+      "title": "Hizmet Sağlayıcı Talepleri",
+      "description": "Müşterilerden gelen tüm hizmet sağlayıcı taleplerini yönetin.",
+      "provider": "Sağlayıcı",
+      "customer": "Müşteri",
+      "email": "E-posta",
+      "message": "Mesaj",
+      "form": {
+        "message": {
+          "label": "Mesaj",
+          "placeholder": "Mesajınızı yazın..."
+        }
+      },
+      "status": {
+        "title": "Durum",
+        "Pending": "Beklemede",
+        "Approved": "Onaylandı",
+        "Rejected": "Reddedildi"
+      },
+      "date": "Tarih",
+      "actions": "İşlemler",
+      "approve": "Onayla",
+      "reject": "Reddet",
+      "viewAddRequest": "Görüntüle / Talep Ekle",
+      "myRequests": "Taleplerim",
+      "formTitle": "Sağlayıcıyla İletişim",
+      "formMessage": "Mesaj",
+      "submit": "Gönder",
+      "openRequests": "Açık Talepler"
+    },
+    "Comments": {
+      "title": "Yorumlar ve Değerlendirmeler",
+      "allComments": "Tüm Yorumlar",
+      "yourComment": "Yorumunuz",
+      "noComments": "Henüz yorum yok. İlk yorumu siz yapın!",
+      "loading": "Yorumlar yükleniyor...",
+      "loadError": "Yorumlar yüklenemedi",
+      "rating": "Değerlendirme",
+      "comment": "Yorumunuz",
+      "commentPlaceholder": "Deneyiminizi paylaşın...",
+      "submit": "Yorum Gönder",
+      "submitting": "Gönderiliyor...",
+      "addSuccess": "Yorum Eklendi",
+      "addSuccessMessage": "Yorumunuz başarıyla yayınlandı.",
+      "addFailed": "Yorum Eklenemedi",
+      "deleteConfirmTitle": "Yorumu Sil",
+      "deleteConfirm": "Bu yorumu silmek istediğinizden emin misiniz?",
+      "deleteSuccess": "Yorum Silindi",
+      "deleteSuccessMessage": "Yorumunuz başarıyla silindi.",
+      "deleteFailed": "Yorum Silinemedi",
+      "form": {
+        "commentText": {
+          "label": "Yorumunuz"
+        }
+      }
+    }
+  },
+  "LocaleSwitcher": {
+    "label": "Dili değiştir",
+    "fa": "Farsça",
+    "en": "İngilizce",
+    "tr": "Türkçe",
+    "ar": "Arapça",
+    "es": "İspanyolca",
+    "ku": "Kurmanca",
+    "de": "Almanca",
+    "fr": "Fransızca"
+  },
+  "Logo": {
+    "medical": "Tıp",
+    "tourism": "Turizm",
+    "beauty": "Güzellik"
+  },
+  "UserInfo": {
+    "profile": "Profil",
+    "settings": "Ayarlar",
+    "signOut": "Çıkış yap",
+    "adminPanel": "Yönetim Paneli"
+  },
+  "FormErrors": {
+    "required": "{field} zorunludur",
+    "tooShort": "{field} en az {length} karakter olmalıdır",
+    "invalid": "{field} geçersiz",
+    "invalidEmail": "Geçersiz e-posta adresi",
+    "invalidPhoneNumber": "Lütfen geçerli bir telefon numarası girin",
+    "passwordTooShort": "Şifre en az {length} karakter olmalıdır",
+    "passwordsDoNotMatch": "Şifreler uyuşmuyor",
+    "invalidCode": "Doğrulama kodu 6 haneli olmalıdır",
+    "invalidFile": "Lütfen geçerli bir dosya yükleyin",
+    "invalidFileType": "Dosya türü desteklenmiyor",
+    "fileTooLarge": "Dosya boyutu sınırı aşıldı (maks 5MB)",
+    "notMatch": "Şifreler uyuşmuyor",
+    "invalidPhone": "Lütfen geçerli bir telefon numarası girin"
+  },
+  "User": {
+    "Information": {
+      "incompleteProfileTitle": "Profil Eksik",
+      "completeProfileWarning": "Lütfen bilgilerinizi tamamlayın",
+      "goToProfile": "Profile git"
+    },
+    "Profile": {
+      "page": {
+        "title": "Profil Bilgileri",
+        "description": "Profil bilgilerinizi güncellemek için lütfen aşağıdaki bilgileri dikkatle girin."
+      },
+      "personalInfo": {
+        "title": "Kişisel Bilgiler",
+        "base": "Temel Bilgiler",
+        "documents": "Belgeler"
+      },
+      "tabs": {
+        "basic": "Temel Bilgiler",
+        "additional": "Ek Bilgiler",
+        "documents": "Belgeler"
+      },
+      "form": {
+        "firstName": {
+          "label": "Ad"
+        },
+        "lastName": {
+          "label": "Soyad"
+        },
+        "email": {
+          "label": "E-posta"
+        },
+        "phoneNumber": {
+          "label": "Telefon Numarası"
+        },
+        "birthDate": {
+          "label": "Doğum Tarihi"
+        },
+        "gender": {
+          "label": "Cinsiyet"
+        },
+        "country": "Ülke",
+        "city": "Şehir",
+        "street": "Sokak",
+        "detail": "Ek Detaylar",
+        "zipCode": "Posta Kodu",
+        "documentType": {
+          "label": "Belge Türü"
+        },
+        "documentFile": {
+          "label": "Belge Dosyası"
+        },
+        "existingDocuments": "Yüklediğiniz Belgeler",
+        "viewDocument": "Belgeyi Görüntüle",
+        "address": {
+          "countryCode": "Ülke Kodu",
+          "cityCode": "Şehir Kodu",
+          "street": "Sokak",
+          "detail": "Ek Detaylar",
+          "zipCode": "Posta Kodu"
+        }
+      },
+      "placeholders": {
+        "birthDate": "Doğum tarihi seçin",
+        "documentType": "Belge türü seçin",
+        "documentFile": "Yüklemek için tıklayın veya sürükleyip bırakın"
+      },
+      "messages": {
+        "updateSuccess": "Profil başarıyla güncellendi",
+        "documentUploadSuccess": "Belge başarıyla yüklendi",
+        "deleteDocumentConfirmationTitle": "Belgeyi Sil",
+        "deleteDocumentConfirmationMessage": "Bu belgeyi silmek istediğinize emin misiniz?",
+        "deleteDocumentSuccess": "Belge başarıyla silindi",
+        "deleteDocumentError": "Belge silinemedi"
+      },
+      "validation": {
+        "countryRequired": "Lütfen bir ülke seçin",
+        "cityRequired": "Lütfen bir şehir seçin"
+      },
+      "errors": {
+        "updateFailed": "Profil güncellenemedi",
+        "documentUploadFailed": "Belge yüklenemedi",
+        "documentDeleteFailed": "Belge silinemedi",
+        "invalidFileType": "Geçersiz dosya türü",
+        "fileTooLarge": "Dosya çok büyük",
+        "supportedFormats": "Desteklenen formatlar: .zip, .pdf, tüm resim formatları (maks 5MB)"
+      },
+      "buttons": {
+        "save": "Değişiklikleri Kaydet",
+        "upload": "Belge Yükle",
+        "delete": "Belgeyi Sil"
+      }
+    }
+  },
+  "Common": {
+    "Gender": {
+      "title": "Cinsiyet",
+      "male": "Erkek",
+      "female": "Kadın",
+      "other": "Diğer"
+    },
+    "DocumentType": {
+      "title": "Belge Türü",
+      "Passport": "Pasaport",
+      "Visa": "Vize",
+      "DriverLicense": "Sürücü Belgesi",
+      "BankStatement": "Banka Hesap Dökümü",
+      "IdCard": "Kimlik Kartı",
+      "Medical": "Tıbbi Kayıt",
+      "Beauty": "Güzellik İşlemi",
+      "Tourism": "Turizm Belgesi",
+      "Other": "Diğer"
+    },
+    "FileUpload": {
+      "errors": {
+        "fileError": "Dosya hatası, lütfen dosya gereksinimlerini kontrol edin",
+        "fileTooLarge": "Dosya çok büyük. Maksimum boyut {size}MB"
+      }
+    },
+    "Address": {
+      "title": "Adres",
+      "country": "Ülke",
+      "city": "Şehir",
+      "street": "Sokak",
+      "detail": "Ek Detaylar",
+      "zipCode": "Posta Kodu"
+    },
+    "Location": {
+      "title": "Konum",
+      "country": "Ülke",
+      "city": "Şehir",
+      "selectCountry": "Bir ülke seçin",
+      "selectCity": "Bir şehir seçin",
+      "noCountrySelected": "Ülke seçilmedi",
+      "noCitiesAvailable": "Uygun şehir yok",
+      "loading": "Yükleniyor..."
+    },
+    "DatePicker": {
+      "placeholder": "Tarih Seçin",
+      "range": "Tarih Aralığı",
+      "multiple": "Birden Fazla Tarih",
+      "single": "Tek Tarih"
+    },
+    "DataTable": {
+      "search": "Ara...",
+      "reset": "Sıfırla",
+      "noResults": "Sonuç yok.",
+      "rowsSelected": "{total} satırdan {count} seçildi.",
+      "page": "Sayfa {current} / {total}",
+      "clearFilters": "Filtreleri temizle",
+      "sortAscending": "Artan sırala",
+      "sortDescending": "Azalan sırala",
+      "hideColumn": "Sütunu gizle"
+    },
+    "Input": {
+      "search": "Ara..."
+    },
+    "Fetcher": {
+      "noData": "Veri bulunamadı",
+      "error": "Bir hata oluştu: {detail}"
+    },
+    "Confirm": {
+      "title": "Dikkat",
+      "cancel": "İptal",
+      "confirm": "Onayla"
+    }
+  },
+  "Auth": {
+    "SignUp": {
+      "page": {
+        "title": "Kayıt Ol",
+        "description": "Kayıt olmak için lütfen aşağıdaki bilgileri dikkatle girin.",
+        "alreadyHaveAccount": "Zaten bir hesabınız var mı?",
+        "login": "Giriş yap"
+      },
+      "form": {
+        "firstName": {
+          "label": "Ad"
+        },
+        "lastName": {
+          "label": "Soyad"
+        },
+        "email": {
+          "label": "E-posta"
+        },
+        "phoneNumber": {
+          "label": "Telefon Numarası"
+        },
+        "password": {
+          "label": "Şifre"
+        },
+        "signUp": "Kod Gönder"
+      },
+      "placeholders": {
+        "firstName": "Ahmet",
+        "lastName": "Yılmaz",
+        "email": "ornek@gmail.com",
+        "password": "*******"
+      },
+      "errors": {
+        "invalidPhone": "Geçersiz telefon numarası"
+      },
+      "messages": {
+        "signUpSuccess": "Kayıt başarıyla tamamlandı",
+        "signUpError": "Kod gönderilirken hata oluştu. Lütfen tekrar deneyin."
+      }
+    },
+    "SignIn": {
+      "page": {
+        "title": "Giriş Yap",
+        "description": "Giriş yapmak için lütfen kayıt bilgilerinizi girin.",
+        "noAccount": "Hesabınız yok mu?",
+        "signUp": "Kayıt ol",
+        "forgotPassword": "Şifreni mi unuttun?"
+      },
+      "form": {
+        "userNameOrEmail": {
+          "label": "E-posta veya telefon numarası"
+        },
+        "password": {
+          "label": "Şifre"
+        },
+        "remember": "Beni hatırla",
+        "login": "Giriş yap"
+      },
+      "errors": {
+        "invalidCredentials": "Geçersiz bilgiler",
+        "authError": "Kimlik doğrulama hatası"
+      },
+      "messages": {
+        "loginSuccess": "Giriş başarılı",
+        "loginError": "Giriş yapılırken hata oluştu. Lütfen tekrar deneyin."
+      }
+    },
+    "ForgotPassword": {
+      "page": {
+        "title": "Şifremi Unuttum",
+        "description": "Şifrenizi kurtarmak için lütfen telefon numaranızı girin.",
+        "rememberPassword": "Şifrenizi hatırladınız mı?",
+        "login": "Giriş yap"
+      },
+      "form": {
+        "phoneNumber": "Telefon Numarası",
+        "submit": "Kurtarma Bağlantısı Gönder",
+        "userNameOrEmail": {
+          "label": "E-posta veya telefon numarası"
+        }
+      },
+      "messages": {
+        "success": "Kurtarma bağlantısı gönderildi.",
+        "error": "Kurtarma bağlantısı gönderilirken hata oluştu. Lütfen tekrar deneyin."
+      }
+    },
+    "Otp": {
+      "page": {
+        "title": "Doğrulama Kodu",
+        "description": "{mobile} numarasına gönderilen doğrulama kodunu girin.",
+        "wrongNumber": "Numara yanlış mı?",
+        "changeNumber": "Numarayı değiştir"
+      },
+      "form": {
+        "verify": "Doğrula",
+        "resendCode": "Kodu yeniden gönder",
+        "resendCodeTimer": "Kodu yeniden gönder ({time})",
+        "code": {
+          "label": "Doğrulama Kodu"
+        },
+        "phoneNumber": {
+          "label": "Telefon Numarası"
+        }
+      },
+      "messages": {
+        "success": "Kod başarıyla doğrulandı.",
+        "error": "Kod doğrulanırken hata oluştu. Lütfen tekrar deneyin.",
+        "resendSuccess": "Doğrulama kodu başarıyla gönderildi.",
+        "resendError": "Doğrulama kodu gönderilirken hata oluştu. Lütfen tekrar deneyin."
+      }
+    },
+    "VerifyEmail": {
+      "form": {
+        "email": "E-posta",
+        "code": "Doğrulama Kodu"
+      },
+      "messages": {
+        "success": "E-posta başarıyla doğrulandı.",
+        "error": "E-posta doğrulanırken hata oluştu. Lütfen tekrar deneyin."
+      }
+    },
+    "OnBoarding": {
+      "step1": {
+        "title": "Sağlığınız Önceliğimizdir",
+        "description": "İleri düzey tıbbi hizmetlerin, tam imkanların ve kolay, keyifli bir yolculuğun benzersiz deneyimi; ihtiyaçlarınıza özel tasarlanmış ve önemli seyahat detaylarına özen gösterilmiştir.",
+        "primaryButton": "İleri",
+        "secondaryButton": "Atla"
+      },
+      "step2": {
+        "title": "Konaklama, Tedavi, Dinlenme",
+        "description": "Uzmanlaşmış ve ileri tıbbi hizmetlerden en iyi otellerde konaklamaya kadar; ihtiyaçlarınıza cevap veren benzersiz ve konforlu, endişesiz bir yolculuk sunuyoruz.",
+        "primaryButton": "Giriş/Kayıt",
+        "secondaryButton": "Atla"
+      },
+      "step3": {
+        "title": "Sağlık Yolculuğunuz Burada Başlıyor",
+        "description": "Kişiselleştirilmiş sağlık yolculuğunuza bugün bizimle başlayın. Uzman ekibimiz size en iyi bakımı ve deneyimi sağlamaya hazır.",
+        "primaryButton": "Başla",
+        "secondaryButton": "Giriş Yap"
+      }
+    }
+  },
+  "Dashboard": {
+    "page": {
+      "title": "Kontrol Paneli Genel Bakış",
+      "description": "Sistem istatistikleri ve son aktivitelerin yönetim panosu"
+    },
+    "stats": {
+      "totalConsultings": {
+        "title": "Toplam Danışmanlık",
+        "description": "Aktif danışmanlık talepleri"
+      },
+      "pendingServiceProviderRequests": {
+        "title": "Bekleyen Talepler",
+        "description": "Onay bekliyor"
+      },
+      "totalServiceProviders": {
+        "title": "Hizmet Sağlayıcıları",
+        "description": "Kayıtlı sağlayıcılar"
+      },
+      "totalStaff": {
+        "title": "Personel Üyeleri",
+        "description": "Aktif personel"
+      }
+    },
+    "recentConsultings": {
+      "title": "Son Danışmanlıklar",
+      "viewAll": "Tümünü Gör",
+      "empty": "Son danışmanlık talebi yok",
+      "table": {
+        "customer": "Müşteri",
+        "category": "Kategori",
+        "description": "Açıklama",
+        "date": "Tarih"
+      }
+    },
+    "recentRequests": {
+      "title": "Son Hizmet Sağlayıcı Talepleri",
+      "viewAll": "Tümünü Gör",
+      "empty": "Son hizmet sağlayıcı talebi yok",
+      "table": {
+        "customer": "Müşteri",
+        "serviceProvider": "Hizmet Sağlayıcı",
+        "message": "Mesaj",
+        "status": {
+          "title": "Durum",
+          "Pending": "Beklemede",
+          "Approved": "Onaylandı",
+          "Rejected": "Reddedildi"
+        },
+        "date": "Tarih"
+      }
+    },
+    "quickActions": {
+      "title": "Hızlı İşlemler",
+      "totalConsultings": {
+        "title": "Danışmanlıklar",
+        "description": "Danışmanlık taleplerini yönet"
+      },
+      "totalServiceProviders": {
+        "title": "Hizmet Sağlayıcıları",
+        "description": "Hizmet sağlayıcıları yönet"
+      },
+      "totalCategories": {
+        "title": "Kategoriler",
+        "description": "Hizmet kategorilerini yönet"
+      },
+      "totalStaff": {
+        "title": "Personel",
+        "description": "Personel üyelerini yönet"
+      },
+      "totalProviderTypes": {
+        "title": "Sağlayıcı Türleri",
+        "description": "Sağlayıcı türlerini yönet"
+      },
+      "totalServiceDefinitions": {
+        "title": "Hizmet Tanımları",
+        "description": "Hizmet tanımlarını yönet"
+      }
+    }
+  },
+  "Consulting": {
+    "page": {
+      "title": "Danışmanlık Talep Et",
+      "description": "Tıbbi veya güzellik ihtiyaçlarınız için danışmanlık talep edin.",
+      "adminTitle": "Danışmanlık Talepleri",
+      "adminDescription": "Müşterilerden gelen tüm danışmanlık taleplerini yönetin."
+    },
+    "table": {
+      "customer": "Müşteri",
+      "email": "E-posta",
+      "description": "Açıklama",
+      "category": "Kategori"
+    },
+    "form": {
+      "formTitle": "Danışmanlık Talebi",
+      "formDescription": "Lütfen danışmanlık talebinizin detaylarını belirtin.",
+      "categoryId": {
+        "label": "Kategori"
+      },
+      "categoryName": {
+        "label": "Kategori Adı"
+      },
+      "description": {
+        "label": "Açıklama"
+      },
+      "documentIds": {
+        "label": "İlgili Belgeler"
+      }
+    },
+    "placeholders": {
+      "category": "Bir kategori seçin",
+      "searchCategory": "Kategorilerde ara...",
+      "description": "Lütfen ihtiyaçlarınızı ve gereksinimlerinizi ayrıntılı şekilde açıklayın..."
+    },
+    "descriptions": {
+      "description": "İhtiyaçlarınız ve ilgili tıbbi geçmiş veya endişeler hakkında mümkün olduğunca fazla detay verin.",
+      "documents": "Danışmanlık talebinizle ilgili belgeleri seçin."
+    },
+    "messages": {
+      "createSuccess": "Danışmanlık talebi başarıyla gönderildi",
+      "noDocuments": "Henüz herhangi bir belge yüklemediniz. Lütfen önce ilgili belgeleri yükleyin.",
+      "noCategories": "Kategori bulunamadı."
+    },
+    "errors": {
+      "createFailed": "Danışmanlık talebi gönderilemedi"
+    },
+    "buttons": {
+      "submit": "Talebi Gönder",
+      "uploadDocuments": "Belge Yükle"
+    }
+  },
+  "Category": {
+    "name": "Kategori",
+    "page": {
+      "title": "Kategoriler",
+      "description": "Kategorileri ve hiyerarşilerini yönetin"
+    },
+    "add": {
+      "page": {
+        "title": "Kategori Ekle",
+        "description": "Yeni kategori oluştur"
+      },
+      "title": "Yeni Kategori Ekle",
+      "childTitle": "Alt Kategori Ekle"
+    },
+    "update": {
+      "page": {
+        "title": "Kategori Güncelle",
+        "description": "Kategori bilgilerini düzenle"
+      },
+      "title": "Kategori Güncelle"
+    },
+    "form": {
+      "name": {
+        "label": "Ad",
+        "translations": "Kategori adı en az bir dilde zorunludur"
+      },
+      "namePlaceholder": "Kategori adını girin",
+      "description": {
+        "label": "Açıklama",
+        "translations": "Kategori açıklaması en az bir dilde zorunludur"
+      },
+       "image": {
+        "label": "Category image",
+        "hint": "Upload an image for this category",
+        "remove": "Remove image"
+      },
+      "descriptionPlaceholder": "Kategori açıklamasını girin",
+      "parentId": "Üst Kategori",
+      "parentIdPlaceholder": "Üst kategori seçin",
+      "displayOrder": "Görüntüleme Sırası",
+      "displayOrderPlaceholder": "Sıra numarası girin",
+      "isActive": "Aktif",
+      "create": "Kategori Oluştur",
+      "update": "Kategoriyi Güncelle",
+      "creating": "Oluşturuluyor...",
+      "updating": "Güncelleniyor...",
+      "cancel": "İptal"
+    },
+    "table": {
+      "name": "Ad",
+      "description": "Açıklama",
+      "parent": "Üst",
+      "displayOrder": "Sıra",
+      "status": "Durum",
+      "actions": "İşlemler"
+    },
+    "actions": {
+      "addCategory": "Kategori Ekle",
+      "addChildCategory": "Alt Kategori Ekle",
+      "editCategory": "Kategoriyi Düzenle",
+      "deleteCategory": "Kategoriyi Sil",
+      "deleteCategoryDescription": "Bu kategoriyi silmek istediğinize emin misiniz?",
+      "toggleActivation": "Aktif/Pasif"
+    },
+    "status": {
+      "active": "Aktif",
+      "inactive": "Pasif"
+    },
+    "messages": {
+      "success": "Kategori işlemi başarıyla tamamlandı",
+      "error": "Kategori işlemi başarısız oldu",
+      "deleteConfirmation": "\"{name}\" kategorisini silmek istediğinize emin misiniz?",
+      "deleteSuccess": "Kategori başarıyla silindi",
+      "deleteError": "Kategori silinemedi",
+      "deleteErrorLog": "Kategori silme hatası:"
+    }
+  },
+  "ServiceDefinition": {
+    "name": "Hizmet Tanımı",
+    "page": {
+      "title": "Hizmet Tanımları",
+      "description": "Hizmet tanımlarını ve yapılandırmalarını yönetin"
+    },
+    "add": {
+      "page": {
+        "title": "Hizmet Tanımı Ekle",
+        "description": "Yeni hizmet tanımı oluştur"
+      },
+      "title": "Yeni Hizmet Tanımı Ekle"
+    },
+    "update": {
+      "page": {
+        "title": "Hizmet Tanımını Güncelle",
+        "description": "Hizmet tanımı bilgilerini düzenle"
+      },
+      "title": "Hizmet Tanımını Güncelle"
+    },
+    "form": {
+      "name": {
+        "label": "Ad"
+      },
+      "description": {
+        "label": "Açıklama"
+      },
+      "categoryId": {
+        "label": "Kategori",
+        "placeholder": "Kategori seçin"
+      },
+      "durationMinutes": {
+        "label": "Süre (Dakika)",
+        "placeholder": "Süreyi dakika cinsinden girin"
+      },
+      "currency": {
+        "label": "Para Birimi",
+        "placeholder": "Para birimi girin"
+      },
+      "value": {
+        "label": "Fiyat",
+        "placeholder": "Fiyat değerini girin"
+      },
+      "pricingModel": {
+        "label": "Fiyatlandırma Modeli",
+        "placeholder": "Fiyatlandırma modeli seçin"
+      },
+      "isActive": {
+        "label": "Aktif"
+      },
+      "attributeDefinitions": "Öznitelik Tanımları",
+      "requirements": "Gereklilikler",
+      "create": "Hizmet Tanımı Oluştur",
+      "update": "Hizmet Tanımını Güncelle",
+      "creating": "Oluşturuluyor...",
+      "updating": "Güncelleniyor...",
+      "cancel": "İptal"
+    },
+    "table": {
+      "name": "Ad",
+      "category": "Kategori",
+      "description": "Açıklama",
+      "duration": "Süre",
+      "price": "Fiyat",
+      "status": "Durum",
+      "actions": "İşlemler"
+    },
+    "actions": {
+      "addServiceDefinition": "Hizmet Tanımı Ekle",
+      "editServiceDefinition": "Hizmet Tanımını Düzenle",
+      "deleteServiceDefinition": "Hizmet Tanımını Sil",
+      "deleteServiceDefinitionDescription": "Bu hizmet tanımını silmek istediğinize emin misiniz?",
+      "toggleActivation": "Aktif/Pasif",
+      "viewDetails": "Detayları Gör",
+      "removeAttribute": "Özniteliği Kaldır",
+      "removeAttributeDescription": "Bu öznitelik tanımını kaldırmak istediğinize emin misiniz?",
+      "removeRequirement": "Gerekliliği Kaldır",
+      "removeRequirementDescription": "Bu gerekliliği kaldırmak istediğinize emin misiniz?",
+      "retry": "Yeniden Dene",
+      "cancel": "İptal",
+      "save": "Kaydet",
+      "saving": "Kaydediliyor..."
+    },
+    "status": {
+      "active": "Aktif",
+      "inactive": "Pasif"
+    },
+    "messages": {
+      "success": "Hizmet tanımı işlemi başarıyla tamamlandı",
+      "error": "Hizmet tanımı işlemi başarısız oldu",
+      "updated": "Hizmet tanımı başarıyla güncellendi",
+      "attributeAddSuccess": "Öznitelik tanımı başarıyla eklendi",
+      "attributeRemoveSuccess": "Öznitelik tanımı başarıyla kaldırıldı",
+      "requirementAddSuccess": "Gereklilik başarıyla eklendi",
+      "requirementRemoveSuccess": "Gereklilik başarıyla kaldırıldı",
+      "attributeUpdateSuccess": "Öznitelik tanımı başarıyla güncellendi",
+      "requirementUpdateSuccess": "Gereklilik başarıyla güncellendi",
+      "fetchError": "Hizmet tanımı detayları alınamadı"
+    },
+    "pricingModels": {
+      "Fixed": "Sabit Fiyat",
+      "Variable": "Değişken Fiyat",
+      "Hourly": "Saatlik Ücret",
+      "Package": "Paket Fiyatı"
+    },
+    "attributes": {
+      "title": "Öznitelik Tanımları",
+      "description": "Hizmet öznitelik tanımlarını ve seçeneklerini yönetin",
+      "addAttribute": "Öznitelik Ekle",
+      "addNew": "Yeni Öznitelik Ekle",
+      "noAttributes": "Henüz öznitelik tanımlanmadı",
+      "form": {
+        "name": {
+          "label": "Öznitelik Adı",
+          "placeholder": "Öznitelik adını girin"
+        },
+        "description": {
+          "label": "Açıklama",
+          "placeholder": "Öznitelik açıklamasını girin"
+        },
+        "attributeType": "Öznitelik Türü",
+        "attributeTypePlaceholder": "Öznitelik türü seçin",
+        "isRequired": "Zorunlu",
+        "affectsPricing": "Fiyatı Etkiler",
+        "displayOrder": "Görüntüleme Sırası",
+        "options": "Seçenekler",
+        "addOption": "Seçenek Ekle",
+        "noOptions": "Seçim seçenekleri oluşturmak için 'Seçenek Ekle'ye tıklayın",
+        "add": "Öznitelik Ekle",
+        "adding": "Ekleniyor...",
+        "displayName": {
+          "label": "Görünen Ad",
+          "placeholder": "Görünen adı girin"
+        },
+        "value": "Değer",
+        "extraPrice": "Ek Fiyat",
+        "type": "Tür",
+        "required": "Zorunlu",
+        "affectsPricingLabel": "Fiyatı Etkiler",
+        "yes": "Evet",
+        "no": "Hayır"
+      }
+    },
+    "requirements": {
+      "title": "Gereklilikler",
+      "description": "Hizmet gerekliliklerini ve koşullarını yönetin",
+      "addRequirement": "Gereklilik Ekle",
+      "addNew": "Yeni Gereklilik Ekle",
+      "noRequirements": "Henüz gereklilik tanımlanmadı",
+      "mandatory": "Zorunlu",
+      "optional": "İsteğe Bağlı",
+      "form": {
+        "description": {
+          "label": "Gereklilik Açıklaması",
+          "placeholder": "Gereklilik açıklamasını girin"
+        },
+        "isMandatory": "Zorunlu Gereklilik",
+        "isMandatoryDescription": "Bu gerekliliğin hizmet için zorunlu olup olmadığı",
+        "add": "Gereklilik Ekle",
+        "adding": "Ekleniyor...",
+        "update": "Gerekliliği Güncelle",
+        "updating": "Güncelleniyor...",
+        "cancel": "İptal"
+      }
+    },
+    "details": {
+      "title": "Hizmet Tanımı Detayları",
+      "description": "{name} için öznitelik ve gereklilik yönetimi ile detaylı görünüm",
+      "basicInfo": "Temel Bilgiler",
+      "pricingInfo": "Fiyatlandırma Bilgileri"
+    },
+    "tabs": {
+      "overview": "Genel Bakış",
+      "attributes": "Öznitelikler",
+      "requirements": "Gereklilikler"
+    },
+    "search": {
+      "placeholder": "Hizmet tanımlarında ara...",
+      "noResults": "Hizmet tanımı bulunamadı."
+    },
+    "units": {
+      "minutes": "dk",
+      "minutesShort": "dk"
+    }
+  },
+  "Staff": {
+    "name": "Personel",
+    "page": {
+      "title": "Personel",
+      "description": "Personel üyelerini ve programlarını yönetin"
+    },
+    "add": {
+      "page": {
+        "title": "Personel Ekle",
+        "description": "Yeni personel oluştur"
+      },
+      "title": "Yeni Personel Üyesi Ekle"
+    },
+    "update": {
+      "page": {
+        "title": "Personeli Güncelle",
+        "description": "Personel bilgilerini düzenle"
+      },
+      "title": "Personel Üyesini Güncelle"
+    },
+    "form": {
+      "name": {
+        "label": "Ad Soyad",
+        "placeholder": "Personelin tam adını girin"
+      },
+      "biography": {
+        "label": "Biyografi",
+        "placeholder": "Personelin biyografisini girin"
+      },
+      "title": {
+        "label": "Unvan",
+        "placeholder": "Personelin unvanını girin"
+      },
+      "profileImageUrl": "Profil Görseli URL'si",
+      "profileImageUrlPlaceholder": "Profil görseli URL'si girin",
+      "isActive": "Aktif",
+      "availabilities": "Uygunluk Programı",
+      "serviceAssignments": "Hizmet Atamaları",
+      "create": "Personel Oluştur",
+      "update": "Personeli Güncelle",
+      "creating": "Oluşturuluyor...",
+      "updating": "Güncelleniyor...",
+      "cancel": "İptal"
+    },
+    "table": {
+      "name": "Ad",
+      "title": "Unvan",
+      "status": "Durum",
+      "services": "Hizmetler",
+      "biography": "Biyografi",
+      "actions": "İşlemler"
+    },
+    "actions": {
+      "addStaff": "Personel Ekle",
+      "editStaff": "Personeli Düzenle",
+      "deleteStaff": "Personeli Sil",
+      "deleteStaffDescription": "Bu personeli silmek istediğinize emin misiniz?",
+      "viewDetails": "Detayları Gör",
+      "toggleActivation": "Aktif/Pasif",
+      "retry": "Yeniden Dene",
+      "cancel": "İptal",
+      "save": "Kaydet",
+      "saving": "Kaydediliyor..."
+    },
+    "status": {
+      "active": "Aktif",
+      "inactive": "Pasif"
+    },
+    "messages": {
+      "success": "Personel işlemi başarıyla tamamlandı",
+      "error": "Personel işlemi başarısız oldu",
+      "fetchError": "Personel detayları yüklenemedi",
+      "availabilityAddSuccess": "Uygunluk başarıyla eklendi",
+      "availabilityAddError": "Uygunluk eklenemedi",
+      "availabilityUpdateSuccess": "Uygunluk başarıyla güncellendi",
+      "availabilityUpdateError": "Uygunluk güncellenemedi",
+      "availabilityRemoveSuccess": "Uygunluk başarıyla kaldırıldı",
+      "availabilityRemoveError": "Uygunluk kaldırılamadı",
+      "serviceAddSuccess": "Hizmet başarıyla atandı",
+      "serviceAddError": "Hizmet atanamadı",
+      "serviceUpdateSuccess": "Hizmet başarıyla güncellendi",
+      "serviceUpdateError": "Hizmet güncellenemedi",
+      "serviceRemoveSuccess": "Hizmet ataması kaldırıldı",
+      "serviceRemoveError": "Hizmet ataması kaldırılamadı",
+      "serviceSelectionRequired": "Lütfen atanacak bir hizmet seçin"
+    },
+    "details": {
+      "title": "Personel Detayları",
+      "description": "{name} için detaylar görüntüleniyor",
+      "basicInfo": "Temel Bilgiler",
+      "statsInfo": "İstatistikler",
+      "totalAvailabilities": "Toplam Uygunluk",
+      "totalServices": "Toplam Hizmet",
+      "activeServices": "Aktif Hizmetler"
+    },
+    "tabs": {
+      "overview": "Genel Bakış",
+      "availabilities": "Uygunluklar",
+      "services": "Hizmetler"
+    },
+    "availability": {
+      "title": "Personel Uygunluğu",
+      "description": "Personelin uygunluk programını yönetin",
+      "noAvailabilities": "Uygunluk programı yapılandırılmamış",
+      "recurring": "Tekrarlı",
+      "specific": "Belirli Tarih",
+      "specificDate": "Belirli Tarih",
+      "add": {
+        "title": "Yeni Uygunluk Ekle",
+        "description": "Bu personel için yeni bir uygunluk programı yapılandırın"
+      },
+      "form": {
+        "dayOfWeek": "Haftanın Günü",
+        "startTime": "Başlangıç Saati",
+        "endTime": "Bitiş Saati",
+        "isRecurring": "Haftalık Tekrar",
+        "specificDate": "Belirli Tarih",
+        "status": "Durum",
+        "selectStartTime": "Başlangıç saatini seçin",
+        "selectEndTime": "Bitiş saatini seçin"
+      },
+      "timePicker": {
+        "selectTime": "Saat seçin",
+        "hour": "Saat",
+        "minute": "Dakika",
+        "selected": "Seçildi"
+      },
+      "validation": {
+        "startTimeAfterEnd": "Başlangıç saati bitiş saatinden önce olmalıdır",
+        "endTimeBeforeStart": "Bitiş saati başlangıç saatinden sonra olmalıdır",
+        "endTimeMustBeAfterStartTime": "Bitiş saati başlangıç saatinden sonra olmalıdır",
+        "timeAutoAdjusted": "Bitiş saati otomatik olarak ayarlandı"
+      },
+      "days": {
+        "Sunday": "Pazar",
+        "Monday": "Pazartesi",
+        "Tuesday": "Salı",
+        "Wednesday": "Çarşamba",
+        "Thursday": "Perşembe",
+        "Friday": "Cuma",
+        "Saturday": "Cumartesi"
+      },
+      "status": {
+        "available": "Müsait",
+        "busy": "Meşgul",
+        "onLeave": "İzinli",
+        "inactive": "Pasif"
+      },
+      "actions": {
+        "add": "Uygunluk Ekle"
+      },
+      "removeDialog": {
+        "title": "Uygunluğu Kaldır",
+        "description": "Bu uygunluğu kaldırmak istediğinize emin misiniz? Bu işlem geri alınamaz."
+      },
+      "badges": {
+        "available": "Müsait",
+        "busy": "Meşgul",
+        "onLeave": "İzinli",
+        "inactive": "Pasif"
+      }
+    },
+    "services": {
+      "title": "Atanmış Hizmetler",
+      "description": "Bu personelin sağlayabileceği hizmetleri yönetin",
+      "noServices": "Bu personele atanmış hizmet yok",
+      "allServicesAssigned": "Tüm mevcut hizmetler bu personele atanmış",
+      "add": {
+        "title": "Yeni Hizmet Ata",
+        "description": "Bu personele bir hizmet tanımı ata"
+      },
+      "form": {
+        "serviceDefinition": "Hizmet",
+        "selectService": "Atanacak hizmeti seçin",
+        "notes": "Notlar",
+        "notesPlaceholder": "Bu hizmet ataması için özel notları girin"
+      },
+      "actions": {
+        "add": "Hizmet Ata"
+      },
+      "removeDialog": {
+        "title": "Hizmet Atamasını Kaldır",
+        "description": "Bu hizmet atamasını kaldırmak istediğinize emin misiniz? Bu işlem geri alınamaz."
+      }
+    },
+    "units": {
+      "minutes": "dk",
+      "minutesShort": "dk"
+    }
+  },
+  "ServiceProvider": {
+    "name": "Hizmet Sağlayıcı",
+    "contactProvider": "Sağlayıcıyla İletişim",
+    "aboutProvider": "Bu Sağlayıcı Hakkında",
+    "availableServices": "Mevcut Hizmetler",
+    "viewGallery": "Galeriyi Görüntüle",
+    "images": "Görseller",
+    "imagesCount": "{count} Görsel",
+    "noDescription": "Açıklama mevcut değil",
+    "noServices": "Hizmet mevcut değil",
+    "noPolicies": "Politika mevcut değil",
+    "noImages": "Görsel mevcut değil",
+    "page": {
+      "title": "Hizmet Sağlayıcıları",
+      "description": "Hizmet sağlayıcıları ve tam profillerini yönetin"
+    },
+    "add": {
+      "page": {
+        "title": "Hizmet Sağlayıcı Ekle",
+        "description": "Yeni hizmet sağlayıcı oluştur"
+      },
+      "title": "Yeni Hizmet Sağlayıcı Ekle"
+    },
+    "update": {
+      "page": {
+        "title": "Hizmet Sağlayıcıyı Güncelle",
+        "description": "Hizmet sağlayıcı bilgilerini düzenle"
+      },
+      "title": "Hizmet Sağlayıcıyı Güncelle"
+    },
+    "details": {
+      "page": {
+        "title": "Hizmet Sağlayıcı Detayları",
+        "description": "Hizmet sağlayıcı yönetiminin kapsamlı görünümü"
+      },
+      "title": "Hizmet Sağlayıcı Detayları",
+      "basicInfo": "Temel Bilgiler",
+      "statsInfo": "İstatistikler",
+      "totalStaff": "Toplam Personel",
+      "totalServices": "Toplam Hizmet",
+      "totalPolicies": "Toplam Politika",
+      "totalGalleryItems": "Toplam Galeri Ögesi",
+      "totalAttributes": "Toplam Öznitelik",
+      "tabs": {
+        "info": "Bilgi",
+        "staff": "Personel",
+        "services": "Hizmetler",
+        "policies": "Politikalar",
+        "gallery": "Galeri",
+        "attributes": "Öznitelikler"
+      }
+    },
+    "form": {
+      "name": {
+        "label": "Sağlayıcı Adı",
+        "placeholder": "Sağlayıcı adını girin"
+      },
+      "description": {
+        "label": "Açıklama",
+        "placeholder": "Sağlayıcı açıklamasını girin"
+      },
+      "providerTypeId": {
+        "label": "Sağlayıcı Türü",
+        "placeholder": "Sağlayıcı türü seçin"
+      },
+      "grade": {
+        "label": "Derece (İsteğe Bağlı)",
+        "placeholder": "Derece seçin",
+        "none": "Derece yok"
+      },
+      "country": {
+        "label": "Ülke",
+        "placeholder": "Ülke seçin"
+      },
+      "city": {
+        "label": "Şehir",
+        "placeholder": "Şehir seçin"
+      },
+      "coordinates": {
+        "label": "Koordinatlar",
+        "description": "Koordinatları girin"
+      },
+      "location": {
+        "label": "Konum",
+        "placeholder": "Konum adresini girin"
+      },
+      "email": {
+        "label": "E-posta",
+        "placeholder": "Sağlayıcı e-postasını girin"
+      },
+      "phoneNumber": {
+        "label": "Telefon Numarası",
+        "placeholder": "Telefon numarasını girin"
+      },
+      "sections": {
+        "basicInfo": "Temel Bilgiler",
+        "addressInfo": "Adres Bilgileri",
+        "contactInfo": "İletişim Bilgileri"
+      },
+      "street": {
+        "label": "Sokak",
+        "placeholder": "Sokak adresini girin"
+      },
+      "detail": {
+        "label": "Adres Detayları",
+        "placeholder": "Ek adres detaylarını girin"
+      },
+      "zipCode": {
+        "label": "Posta Kodu",
+        "placeholder": "Posta kodunu girin"
+      },
+      "selectCountryFirst": "Lütfen önce bir ülke seçin",
+      "noCitiesAvailable": "Seçilen ülke için şehir bulunmuyor",
+      "actions": {
+        "save": "Değişiklikleri Kaydet",
+        "saving": "Kaydediliyor...",
+        "cancel": "İptal"
+      },
+      "website": "Web Sitesi",
+      "websitePlaceholder": "Web sitesi URL'si girin",
+      "address": "Adres Bilgileri",
+      "isActive": "Aktif",
+      "staffAssignments": "Personel Atamaları",
+      "serviceOfferings": "Hizmet Sunumları",
+      "create": "Hizmet Sağlayıcı Oluştur",
+      "update": "Hizmet Sağlayıcıyı Güncelle",
+      "creating": "Oluşturuluyor...",
+      "updating": "Güncelleniyor...",
+      "cancel": "İptal"
+    },
+    "table": {
+      "headers": {
+        "name": "Ad",
+        "description": "Açıklama",
+        "providerType": "Sağlayıcı Türü",
+        "contactEmail": "E-posta",
+        "contactPhone": "Telefon",
+        "address": "Adres",
+        "serviceCount": "Hizmet",
+        "staffCount": "Personel",
+        "status": "Durum",
+        "createDate": "Oluşturulma",
+        "actions": "İşlemler"
+      },
+      "filters": {
+        "searchPlaceholder": "Hizmet sağlayıcılarda ara...",
+        "providerType": "Sağlayıcı Türü",
+        "status": "Durum",
+        "active": "Aktif",
+        "inactive": "Pasif",
+        "reset": "Filtreleri sıfırla"
+      },
+      "actions": {
+        "title": "İşlemler",
+        "edit": "Düzenle",
+        "delete": "Sil",
+        "add": "Hizmet Sağlayıcı Ekle"
+      }
+    },
+    "actions": {
+      "addServiceProvider": "Hizmet Sağlayıcı Ekle",
+      "editServiceProvider": "Hizmet Sağlayıcıyı Düzenle",
+      "deleteServiceProvider": "Hizmet Sağlayıcıyı Sil",
+      "deleteServiceProviderDescription": "Bu hizmet sağlayıcıyı silmek istediğinize emin misiniz?",
+      "viewDetails": "Detayları Gör",
+      "toggleActivation": "Aktif/Pasif",
+      "add": "Ekle",
+      "cancel": "İptal"
+    },
+    "status": {
+      "label": "Durum",
+      "active": "Aktif",
+      "inactive": "Pasif"
+    },
+    "staff": {
+      "title": "Personel Yönetimi",
+      "description": "Bu hizmet sağlayıcı için personel atamalarını yönetin",
+      "noStaff": "Bu hizmet sağlayıcıya atanmış personel yok",
+      "add": {
+        "title": "Personel Ata",
+        "description": "Bu hizmet sağlayıcıya bir personel atayın"
+      },
+      "form": {
+        "staffMember": "Personel Üyesi",
+        "selectStaff": "Atanacak personeli seçin",
+        "notes": "Atama Notları",
+        "notesPlaceholder": "Bu personel ataması için özel notları girin (isteğe bağlı)"
+      },
+      "actions": {
+        "add": "Personel Ata",
+        "save": "Değişiklikleri Kaydet",
+        "cancel": "İptal"
+      },
+      "messages": {
+        "addSuccess": "Personel başarıyla atandı",
+        "addError": "Personel atanamadı",
+        "updateSuccess": "Personel ataması başarıyla güncellendi",
+        "updateError": "Personel ataması güncellenemedi",
+        "removeSuccess": "Personel ataması kaldırıldı",
+        "removeError": "Personel ataması kaldırılamadı",
+        "staffSelectionRequired": "Lütfen atanacak bir personel seçin"
+      },
+      "removeDialog": {
+        "title": "Personel Atamasını Kaldır",
+        "description": "Bu atamayı kaldırmak istediğinize emin misiniz? Bu işlem geri alınamaz."
+      }
+    },
+    "gallery": {
+      "title": "Galeri Yönetimi",
+      "description": "Bu hizmet sağlayıcı için görselleri ve medyayı yönetin",
+      "noItems": "Henüz galeri ögesi eklenmedi",
+      "add": {
+        "title": "Galeri Ögesi Yükle",
+        "description": "Yeni bir görsel veya medya ögesi yükleyin"
+      },
+      "form": {
+        "title": "Başlık",
+        "titlePlaceholder": "Görsel başlığını girin",
+        "description": "Açıklama",
+        "descriptionPlaceholder": "Görsel açıklamasını girin (isteğe bağlı)",
+        "file": "Dosya Seç",
+        "filePlaceholder": "Yüklemek için tıklayın veya sürükleyip bırakın",
+        "fileHint": "PNG, JPG, WEBP veya GIF (maks 10MB)",
+        "displayOrder": "Görüntüleme Sırası"
+      },
+      "actions": {
+        "add": "Öge Yükle",
+        "save": "Değişiklikleri Kaydet",
+        "cancel": "İptal",
+        "remove": "Ögeyi Kaldır",
+        "edit": "Ögeyi Düzenle"
+      },
+      "messages": {
+        "addSuccess": "Galeri ögesi başarıyla yüklendi",
+        "addError": "Galeri ögesi yüklenemedi",
+        "updateSuccess": "Galeri ögesi başarıyla güncellendi",
+        "updateError": "Galeri ögesi güncellenemedi",
+        "removeSuccess": "Galeri ögesi kaldırıldı",
+        "removeError": "Galeri ögesi kaldırılamadı",
+        "titleRequired": "Lütfen görsel için bir başlık girin",
+        "descriptionRequired": "Lütfen görsel için bir açıklama girin"
+      },
+      "errors": {
+        "fileRequired": "Lütfen yüklenecek bir dosya seçin",
+        "invalidFileType": "Geçersiz dosya türü. Yalnızca görseller desteklenir",
+        "fileTooLarge": "Dosya çok büyük. Maksimum boyut 10MB",
+        "addFailed": "Galeri ögesi yüklenemedi",
+        "removeFailed": "Galeri ögesi kaldırılamadı"
+      },
+      "removeDialog": {
+        "title": "Galeri Ögesini Kaldır",
+        "description": "Bu ögeyi kaldırmak istediğinize emin misiniz? Bu işlem geri alınamaz."
+      }
+    },
+    "services": {
+      "title": "Hizmet Yönetimi",
+      "description": "Bu sağlayıcının sunduğu hizmetleri yönetin",
+      "noServices": "Bu sağlayıcıya atanmış hizmet yok",
+      "add": {
+        "title": "Hizmet Ata",
+        "description": "Bu sağlayıcıya bir hizmet tanımı atayın"
+      },
+      "form": {
+        "serviceDefinition": "Hizmet",
+        "selectService": "Atanacak hizmeti seçin",
+        "notes": "Atama Notları",
+        "notesPlaceholder": "Bu hizmet ataması için özel notları girin (isteğe bağlı)",
+        "selectedService": "Seçilen Hizmet Detayları",
+        "serviceName": "Hizmet Adı",
+        "serviceDescription": "Hizmet Açıklaması",
+        "description": "Açıklama",
+        "price": "Fiyat",
+        "duration": "Süre"
+      },
+      "actions": {
+        "add": "Hizmet Ata",
+        "save": "Değişiklikleri Kaydet",
+        "cancel": "İptal"
+      },
+      "messages": {
+        "addSuccess": "Hizmet başarıyla atandı",
+        "addError": "Hizmet atanamadı",
+        "updateSuccess": "Hizmet başarıyla güncellendi",
+        "updateError": "Hizmet güncellenemedi",
+        "removeSuccess": "Hizmet ataması kaldırıldı",
+        "removeError": "Hizmet ataması kaldırılamadı",
+        "serviceSelectionRequired": "Lütfen atanacak bir hizmet seçin",
+        "priceRequired": "Lütfen bir fiyat girin",
+        "currencyRequired": "Lütfen bir para birimi seçin",
+        "durationRequired": "Lütfen bir süre girin"
+      },
+      "removeDialog": {
+        "title": "Hizmet Atamasını Kaldır",
+        "description": "Bu hizmet atamasını kaldırmak istediğinize emin misiniz? Bu işlem geri alınamaz."
+      },
+      "units": {
+        "minutesShort": "dk"
+      }
+    },
+    "policies": {
+      "title": "Politika Yönetimi",
+      "description": "Bu hizmet sağlayıcı için politikaları yönetin",
+      "noPolicies": "Bu sağlayıcı için yapılandırılmış politika yok",
+      "add": {
+        "title": "Politika Ekle",
+        "description": "Bu hizmet sağlayıcı için yeni bir politika tanımlayın"
+      },
+      "form": {
+        "type": "Politika Türü",
+        "typePlaceholder": "Politika türü girin (örn. İptal Politikası, İade Politikası)",
+        "description": "Politika Açıklaması",
+        "descriptionPlaceholder": "Detaylı politika açıklaması girin..."
+      },
+      "actions": {
+        "add": "Politika Ekle",
+        "save": "Değişiklikleri Kaydet",
+        "cancel": "İptal"
+      },
+      "messages": {
+        "addSuccess": "Politika başarıyla eklendi",
+        "addError": "Politika eklenemedi",
+        "updateSuccess": "Politika başarıyla güncellendi",
+        "updateError": "Politika güncellenemedi",
+        "removeSuccess": "Politika kaldırıldı",
+        "removeError": "Politika kaldırılamadı",
+        "typeRequired": "Lütfen bir politika türü girin",
+        "descriptionRequired": "Lütfen bir politika açıklaması girin",
+        "duplicateType": "Bu türde bir politika zaten mevcut"
+      },
+      "removeDialog": {
+        "title": "Politikayı Kaldır",
+        "description": "Bu politikayı kaldırmak istediğinize emin misiniz? Bu işlem geri alınamaz."
+      }
+    },
+    "attributes": {
+      "title": "Öznitelik Yönetimi",
+      "description": "Sağlayıcı türü tanımlarına göre özel öznitelikleri yönetin",
+      "noAttributes": "Bu sağlayıcı için yapılandırılmış öznitelik yok",
+      "availableDefinitions": "Mevcut Tanımlar",
+      "noAvailableDefinitions": "Bu sağlayıcı türü için mevcut tüm öznitelikler yapılandırıldı",
+      "add": {
+        "title": "Öznitelik Ekle",
+        "description": "Bu hizmet sağlayıcı için yeni bir öznitelik değeri yapılandırın"
+      },
+      "form": {
+        "attributeDefinition": "Öznitelik Tanımı",
+        "selectAttribute": "Yapılandırılacak özniteliği seçin",
+        "selectedAttribute": "Seçilen Öznitelik Detayları",
+        "name": "Ad",
+        "type": "Tür",
+        "required": "Zorunlu",
+        "value": "Öznitelik Değeri",
+        "valuePlaceholder": "Bu öznitelik için değeri girin...",
+        "selectValue": "Değer Seç",
+        "yes": "Evet",
+        "no": "Hayır"
+      },
+      "actions": {
+        "add": "Öznitelik Ekle",
+        "save": "Değişiklikleri Kaydet",
+        "cancel": "İptal",
+        "retry": "Yeniden Dene"
+      },
+      "messages": {
+        "addSuccess": "Öznitelik başarıyla eklendi",
+        "addError": "Öznitelik eklenemedi",
+        "updateSuccess": "Öznitelik başarıyla güncellendi",
+        "updateError": "Öznitelik güncellenemedi",
+        "removeSuccess": "Öznitelik kaldırıldı",
+        "removeError": "Öznitelik kaldırılamadı",
+        "attributeRequired": "Lütfen bir öznitelik tanımı seçin",
+        "valueRequired": "Lütfen öznitelik için bir değer girin",
+        "fetchError": "Öznitelik tanımları yüklenemedi"
+      },
+      "removeDialog": {
+        "title": "Özniteliği Kaldır",
+        "description": "Bu özniteliği kaldırmak istediğinize emin misiniz? Bu işlem geri alınamaz."
+      }
+    },
+    "search": {
+      "placeholder": "Personel üyelerinde ara...",
+      "noResults": "Personel bulunamadı."
+    },
+    "messages": {
+      "success": "Hizmet sağlayıcı işlemi başarıyla tamamlandı",
+      "error": "Hizmet sağlayıcı işlemi başarısız oldu",
+      "deleteSuccess": "Hizmet sağlayıcı başarıyla silindi",
+      "deleteError": "Hizmet sağlayıcı silinemedi",
+      "statusChanged": "Hizmet sağlayıcı durumu başarıyla değiştirildi",
+      "statusChangeError": "Hizmet sağlayıcı durumu değiştirilemedi"
+    },
+    "errors": {
+      "invalidPhone": "Lütfen geçerli bir telefon numarası girin",
+      "createFailed": "Hizmet sağlayıcı oluşturulamadı",
+      "updateFailed": "Hizmet sağlayıcı güncellenemedi",
+      "gradeRequired": "Derece gereklidir",
+      "gradeInvalid": "Derece A ile E arasında olmalıdır",
+      "gradeNotUnique": "Bu derecede bir hizmet sağlayıcı bu tür ve konumda zaten mevcut"
+    },
+    "delete": {
+      "dialog": {
+        "title": "Hizmet Sağlayıcıyı Sil",
+        "description": "Bu hizmet sağlayıcıyı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
+        "cancel": "İptal",
+        "confirm": "Sil"
+      }
+    }
+  },
+  "ProviderType": {
+    "name": "Sağlayıcı Türü",
+    "page": {
+      "title": "Sağlayıcı Türleri",
+      "description": "Sağlayıcı türlerini ve öznitelik tanımlarını yönetin"
+    },
+    "add": {
+      "page": {
+        "title": "Sağlayıcı Türü Ekle",
+        "description": "Yeni sağlayıcı türü oluştur"
+      },
+      "title": "Yeni Sağlayıcı Türü Ekle"
+    },
+    "update": {
+      "page": {
+        "title": "Sağlayıcı Türünü Güncelle",
+        "description": "Sağlayıcı türü bilgilerini düzenle"
+      },
+      "title": "Sağlayıcı Türünü Güncelle"
+    },
+    "form": {
+      "name": {
+        "label": "Ad"
+      },
+      "description": {
+        "label": "Açıklama"
+      },
+      "isActive": "Aktif",
+      "attributes": "Öznitelik Tanımları",
+      "attributesPlaceholder": "Öznitelikler ({count} tanımlı)",
+      "create": "Sağlayıcı Türü Oluştur",
+      "update": "Sağlayıcı Türünü Güncelle",
+      "creating": "Oluşturuluyor...",
+      "updating": "Güncelleniyor...",
+      "cancel": "İptal",
+      "selectProviderType": "Sağlayıcı türü seçin",
+      "iconUrl": {
+        "label": "Simge",
+        "placeholder": "Simge seçin"
+      }
+    },
+    "table": {
+      "name": "Ad",
+      "description": "Açıklama",
+      "icon": "Simge",
+      "attributes": "Öznitelikler",
+      "status": "Durum",
+      "actions": "İşlemler"
+    },
+    "actions": {
+      "addProviderType": "Sağlayıcı Türü Ekle",
+      "editProviderType": "Sağlayıcı Türünü Düzenle",
+      "deleteProviderType": "Sağlayıcı Türünü Sil",
+      "deleteProviderTypeDescription": "Bu sağlayıcı türünü silmek istediğinize emin misiniz?",
+      "activate": "Aktifleştir",
+      "deactivate": "Pasifleştir",
+      "toggleActivation": "Aktif/Pasif",
+      "viewDetails": "Detayları Gör",
+      "removeAttribute": "Özniteliği Kaldır",
+      "removeAttributeDescription": "Bu öznitelik tanımını kaldırmak istediğinize emin misiniz?",
+      "retry": "Yeniden Dene",
+      "cancel": "İptal",
+      "save": "Kaydet",
+      "saving": "Kaydediliyor..."
+    },
+    "status": {
+      "active": "Aktif",
+      "inactive": "Pasif"
+    },
+    "messages": {
+      "success": "Sağlayıcı türü işlemi başarıyla tamamlandı",
+      "error": "Sağlayıcı türü işlemi başarısız oldu",
+      "updated": "Sağlayıcı türü başarıyla güncellendi",
+      "attributeAddSuccess": "Öznitelik tanımı başarıyla eklendi",
+      "attributeRemoveSuccess": "Öznitelik tanımı başarıyla kaldırıldı",
+      "attributeUpdateSuccess": "Öznitelik tanımı başarıyla güncellendi"
+    },
+    "attributes": {
+      "title": "Öznitelik Tanımları",
+      "description": "Sağlayıcı türü öznitelik tanımlarını ve seçeneklerini yönetin",
+      "addAttribute": "Öznitelik Ekle",
+      "addNew": "Yeni Öznitelik Ekle",
+      "noAttributes": "Henüz öznitelik tanımlanmadı",
+      "form": {
+        "name": {
+          "label": "Öznitelik Adı"
+        },
+        "description": {
+          "label": "Açıklama"
+        },
+        "attributeType": "Öznitelik Türü",
+        "attributeTypePlaceholder": "Öznitelik türü seçin",
+        "isRequired": "Zorunlu",
+        "validationRules": "Doğrulama Kuralları",
+        "validationRulesPlaceholder": "Doğrulama kuralları girin (isteğe bağlı)",
+        "options": "Seçenekler",
+        "addOption": "Seçenek Ekle",
+        "noOptions": "Seçim seçenekleri oluşturmak için 'Seçenek Ekle'ye tıklayın",
+        "add": "Öznitelik Ekle",
+        "adding": "Ekleniyor...",
+        "displayName": {
+          "label": "Görünen Ad"
+        },
+        "value": {
+          "label": "Değer"
+        },
+        "type": "Tür",
+        "required": "Zorunlu",
+        "rules": "Kurallar",
+        "optionsCount": "Seçenekler",
+        "yes": "Evet",
+        "no": "Hayır"
+      }
+    },
+    "details": {
+      "title": "Sağlayıcı Türü Detayları",
+      "description": "Öznitelik yönetimi ile {name} için detaylı görünüm",
+      "basicInfo": "Temel Bilgiler",
+      "statistics": "İstatistikler",
+      "created": "Oluşturulma",
+      "modified": "Değiştirilme",
+      "attributeDefinitionsCount": "Öznitelik Tanımı"
+    },
+    "tabs": {
+      "overview": "Genel Bakış",
+      "attributes": "Öznitelikler"
+    },
+    "search": {
+      "placeholder": "Sağlayıcı türlerinde ara...",
+      "noResults": "Sağlayıcı türü bulunamadı."
+    }
+  },
+  "shared": {
+    "selectOption": "Seçenek seçin",
+    "searchPlaceholder": "Ara...",
+    "noResults": "Sonuç bulunamadı"
+  },
+  "LocalizedInput": {
+    "placeholder": "{language} dilinde {field} girin"
+  },
+  "List": {
+    "loading": "Yükleniyor...",
+    "loadMore": "Daha Fazla Yükle"
+  }
+}

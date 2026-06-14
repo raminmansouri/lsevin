@@ -1,0 +1,1104 @@
+{
+  "ProviderPortal": {
+    "profile": {
+      "buttons": {
+        "save": "ذخیره پروفایل",
+        "saving": "در حال ذخیره..."
+      },
+      "description": "Manage provider public profile, contact details, and presentation fields.",
+      "fields": {
+        "code": "Code",
+        "descriptionEn": "Description (English)",
+        "descriptionFa": "Description (Persian)",
+        "detailEn": "Detail (English)",
+        "detailFa": "Detail (Persian)",
+        "email": "ایمیل",
+        "establishedYear": "Established year",
+        "imageUrl": "Image URL",
+        "languagesCsv": "زبان‌ها",
+        "nameEn": "Name (English)",
+        "nameFa": "Name (Persian)",
+        "phone": "Phone",
+        "responseTime": "زمان پاسخ‌گویی",
+        "specialtiesCsv": "Specialties",
+        "streetEn": "Street (English)",
+        "streetFa": "Street (Persian)",
+        "successRate": "Success rate",
+        "timezone": "Timezone",
+        "totalPatients": "کل بیماران",
+        "zipCode": "Zip code"
+      },
+      "messages": {
+        "saveFailed": "ذخیره پروفایل انجام نشد.",
+        "saveSuccess": "پروفایل ارائه‌دهنده ذخیره شد."
+      },
+      "permissionDenied": "You do not have permission to edit this provider profile.",
+      "placeholders": {
+        "languagesCsv": "English, Persian, Arabic",
+        "mediaIdOrUrl": "Media ID or URL",
+        "responseTime": "Example: < 1 hour",
+        "specialtiesCsv": "Hair transplant, Dental, Beauty",
+        "successRate": "Example: 98%",
+        "timezone": "Asia/Tehran",
+        "totalPatients": "Example: 10,000+"
+      },
+      "title": "پروفایل ارائه‌دهنده",
+      "related": {
+        "buttons": {
+          "add": "افزودن",
+          "addPolicy": "Add policy",
+          "cancel": "لغو",
+          "delete": "حذف",
+          "edit": "ویرایش",
+          "saving": "در حال ذخیره...",
+          "update": "به‌روزرسانی",
+          "updatePolicy": "Update policy"
+        },
+        "certifications": {
+          "description": "Manage provider certificates and verification records.",
+          "editTitle": "Edit certification",
+          "empty": "No certifications added yet.",
+          "fields": {
+            "image": "Image",
+            "name": "Name",
+            "secondImage": "Second image"
+          },
+          "helpers": {
+            "image": "Attach the main certificate image.",
+            "secondImage": "Optional second page or attachment."
+          },
+          "image1Attached": "Main image attached",
+          "image2Attached": "Second image attached",
+          "modalTitle": {
+            "image": "Select certificate image",
+            "secondImage": "Select second certificate image"
+          },
+          "placeholders": {
+            "image": "Media ID or URL",
+            "name": "Certificate name",
+            "secondImage": "Second media ID or URL"
+          },
+          "providerAdded": "Added by provider",
+          "saveButton": "ذخیره گواهی",
+          "saveFailed": "Could not save certification.",
+          "saveSuccess": "گواهی ذخیره شد.",
+          "title": "گواهی‌ها",
+          "updateDescription": "Update certification details and images.",
+          "updated": "Updated",
+          "verified": "تأییدشده",
+          "verifiedCannotChange": "Verification status cannot be changed here.",
+          "verifiedLocked": "Verified certificates are locked."
+        },
+        "delete": {
+          "confirm": "Are you sure you want to delete this item?",
+          "failed": "Could not delete item.",
+          "success": "Deleted successfully."
+        },
+        "policies": {
+          "customPolicy": "Custom policy",
+          "description": "Manage provider policies shown to customers.",
+          "editTitle": "Edit policy",
+          "empty": "No policies added yet.",
+          "fallbackType": "Policy",
+          "fields": {
+            "descriptionEn": "Description (English)",
+            "descriptionFa": "Description (Persian)",
+            "policyType": "Policy type",
+            "typeEn": "Type (English)",
+            "typeFa": "Type (Persian)"
+          },
+          "saveButton": "Save policy",
+          "saveFailed": "Could not save policy.",
+          "saveSuccess": "سیاست ذخیره شد.",
+          "title": "سیاست‌ها",
+          "updateDescription": "Update policy text and type.",
+          "updated": "Updated"
+        }
+      }
+    }
+  },
+  "User": {
+    "Profile": {
+      "edit": {
+        "title": "ویرایش پروفایل"
+      },
+      "tabs": {
+        "additional": "اطلاعات تکمیلی",
+        "basic": "اطلاعات پایه",
+        "documents": "مدارک"
+      },
+      "profileImage": {
+        "close": "بستن",
+        "errors": {
+          "chooseImageFile": "لطفاً یک فایل تصویری انتخاب کنید.",
+          "imageTooLarge": "حجم تصویر باید کمتر از ۵ مگابایت باشد.",
+          "mediaMissing": "رسانه آپلودشده برگردانده نشد.",
+          "uploadFailed": "آپلود عکس پروفایل انجام نشد."
+        },
+        "removeCurrentPhoto": "حذف عکس فعلی",
+        "removing": "در حال حذف...",
+        "title": "عکس پروفایل",
+        "uploadNewPhoto": "آپلود عکس جدید",
+        "uploadPhoto": "آپلود عکس",
+        "uploading": "در حال آپلود...",
+        "viewPhoto": "مشاهده عکس"
+      }
+    }
+  },
+  "Common": {
+    "Address": {
+      "title": "آدرس"
+    },
+    "DocumentType": {
+      "BankStatement": "صورت‌حساب بانکی",
+      "Beauty": "مدرک زیبایی",
+      "DriverLicense": "گواهینامه رانندگی",
+      "IdCard": "کارت شناسایی",
+      "Medical": "مدرک پزشکی",
+      "Other": "سایر مدارک",
+      "Passport": "گذرنامه",
+      "Tourism": "مدرک گردشگری",
+      "Visa": "ویزا",
+      "title": "نوع مدرک"
+    },
+    "Gender": {
+      "female": "زن",
+      "male": "مرد",
+      "other": "سایر",
+      "title": "جنسیت"
+    },
+    "Location": {
+      "noCitiesAvailable": "شهری موجود نیست",
+      "noCountrySelected": "ابتدا کشور را انتخاب کنید",
+      "selectCity": "انتخاب شهر",
+      "selectCountry": "انتخاب کشور"
+    }
+  },
+  "ProviderDoctorProfile": {
+    "basicInformation": {
+      "title": "اطلاعات پایه"
+    },
+    "biography": {
+      "placeholder": "یک بیوگرافی حرفه‌ای بنویسید...",
+      "title": "بیوگرافی",
+      "visibilityNote": "This biography appears on your public doctor profile."
+    },
+    "buttons": {
+      "cancel": "لغو",
+      "saveChanges": "ذخیره تغییرات"
+    },
+    "certifications": {
+      "addNew": "Add new",
+      "sample": {
+        "acls": {
+          "issuer": "American Heart Association",
+          "name": "ACLS Certification"
+        },
+        "cardiology": {
+          "issuer": "Medical Board",
+          "name": "Board Certification in Cardiology"
+        },
+        "uaeLicense": {
+          "issuer": "Dubai Health Authority",
+          "name": "UAE Medical License"
+        }
+      },
+      "title": "گواهی‌ها",
+      "uploadCertificate": "Upload certificate"
+    },
+    "completion": {
+      "addBiography": "Add biography",
+      "basicInfoComplete": "Basic info complete",
+      "certificationsUploaded": "Certifications uploaded",
+      "description": "Complete your profile to improve trust and visibility.",
+      "title": "تکمیل پروفایل"
+    },
+    "experienceEducation": {
+      "title": "تجربه و تحصیلات"
+    },
+    "fields": {
+      "affiliatedClinics": "کلینیک‌های همکار",
+      "firstName": "نام",
+      "languagesSpoken": "زبان‌های قابل صحبت",
+      "lastName": "نام خانوادگی",
+      "medicalSchool": "دانشکده پزشکی",
+      "primarySpecialty": "تخصص اصلی",
+      "professionalTitle": "عنوان حرفه‌ای",
+      "subSpecialty": "فوق تخصص",
+      "yearsOfExperience": "سال‌های تجربه"
+    },
+    "headerTitle": "پروفایل پزشک",
+    "navigation": {
+      "bookings": "رزروها",
+      "consultations": "مشاوره‌ها",
+      "dashboard": "داشبورد",
+      "earnings": "درآمدها",
+      "mySchedule": "برنامه من",
+      "myServices": "خدمات من",
+      "profile": "پروفایل",
+      "reviews": "نظرات",
+      "settings": "تنظیمات"
+    },
+    "providerName": "Doctor Portal",
+    "specialties": {
+      "cardiology": "قلب و عروق",
+      "generalMedicine": "پزشکی عمومی",
+      "internalMedicine": "داخلی",
+      "interventionalCardiology": "قلب و عروق مداخله‌ای"
+    },
+    "stats": {
+      "averageRating": "میانگین امتیاز",
+      "profileViews": "بازدیدهای پروفایل",
+      "responseTime": "زمان پاسخ‌گویی",
+      "responseTimeValue": "< 1 hour",
+      "title": "آمار پروفایل",
+      "totalPatients": "کل بیماران"
+    },
+    "verification": {
+      "description": "Verified profiles receive stronger placement and customer trust.",
+      "subtitle": "Your credentials are under review.",
+      "title": "تأیید"
+    }
+  },
+  "MobileProfile": {
+    "completeProfile": {
+      "city": "شهر",
+      "continue": "ادامه",
+      "countries": {
+        "iran": "ایران",
+        "saudiArabia": "عربستان سعودی",
+        "turkey": "ترکیه",
+        "uae": "امارات متحده عربی"
+      },
+      "country": "کشور",
+      "dateOfBirth": "تاریخ تولد",
+      "enterCity": "شهر را وارد کنید",
+      "female": "زن",
+      "firstNameLabel": "نام",
+      "firstNamePlaceholder": "نام را وارد کنید",
+      "gender": "جنسیت",
+      "lastNameLabel": "نام خانوادگی",
+      "lastNamePlaceholder": "نام خانوادگی را وارد کنید",
+      "male": "مرد",
+      "other": "سایر",
+      "preferredLanguage": "زبان ترجیحی",
+      "profileAlt": "عکس پروفایل",
+      "selectCountry": "انتخاب کشور",
+      "skipForNow": "فعلاً رد شود",
+      "subtitle": "اطلاعات خود را اضافه کنید تا تجربه السوین برای شما شخصی‌سازی شود.",
+      "title": "تکمیل پروفایل",
+      "uploadPhoto": "آپلود عکس"
+    },
+    "coupons": {
+      "apply": "اعمال",
+      "applyCoupon": "اعمال کوپن",
+      "availableCoupons": "کوپن‌های فعال",
+      "enterCode": "کد کوپن را وارد کنید",
+      "enterCodePlaceholder": "کد کوپن",
+      "expires": "Expires {date}",
+      "expiringSoon": "در حال انقضا",
+      "getMoreCoupons": "دریافت کوپن‌های بیشتر",
+      "getMoreDescription": "دوستانتان را دعوت کنید و با تکمیل رزروها پاداش‌های بیشتری بگیرید.",
+      "hurryExpiresSoon": "عجله کنید، این کوپن به‌زودی منقضی می‌شود.",
+      "invalidDescription": "این کوپن معتبر نیست یا منقضی شده است.",
+      "invalidTitle": "کوپن نامعتبر",
+      "maxDiscount": "Max discount: {amount}",
+      "minAmount": "Min. amount: {amount}",
+      "previouslyUsed": "استفاده‌شده‌های قبلی",
+      "referFriends": "دعوت دوستان",
+      "sampleCoupons": {
+        "beauty": {
+          "description": "صرفه‌جویی در خدمات زیبایی و آرایشی",
+          "title": "پیشنهاد زیبایی"
+        },
+        "first": {
+          "description": "برای اولین رزرو تکمیل‌شده شما",
+          "title": "ویژه اولین رزرو"
+        },
+        "medical": {
+          "description": "قابل استفاده برای برخی خدمات پزشکی",
+          "title": "تخفیف خدمات پزشکی"
+        },
+        "welcome": {
+          "title": "پاداش خوش‌آمدگویی"
+        },
+        "wellness": {
+          "description": "قابل استفاده برای رزروهای اسپا و سلامتی",
+          "title": "پکیج سلامتی"
+        }
+      },
+      "savedAmount": "Saved {amount}",
+      "title": "کوپن‌ها",
+      "usedOn": "Used on {date}",
+      "validateCoupon": "اعتبارسنجی کوپن",
+      "validating": "در حال بررسی..."
+    },
+    "editProfile": {
+      "changeProfilePhoto": "تغییر عکس پروفایل",
+      "fields": {
+        "address": "آدرس",
+        "city": "شهر",
+        "country": "کشور",
+        "dateOfBirth": "تاریخ تولد",
+        "email": "ایمیل",
+        "firstName": "نام",
+        "gender": "جنسیت",
+        "lastName": "نام خانوادگی",
+        "phone": "شماره موبایل"
+      },
+      "gender": {
+        "female": "زن",
+        "male": "مرد",
+        "other": "سایر",
+        "preferNotToSay": "ترجیح می‌دهم نگویم"
+      },
+      "phoneLockedDescription": "شماره موبایل شما قفل است، چون شناسه اصلی حساب شماست.",
+      "saveChanges": "ذخیره تغییرات",
+      "saving": "در حال ذخیره...",
+      "title": "ویرایش پروفایل",
+      "profileAlt": "عکس پروفایل"
+    },
+    "favorites": {
+      "emptyDescription": "ارائه‌دهندگان، متخصصان و خدمات را ذخیره کنید تا بعداً سریع‌تر پیدایشان کنید.",
+      "emptyTitle": "هنوز موردی ذخیره نشده است",
+      "exploreServices": "مشاهده خدمات",
+      "removeFavoriteAria": "حذف از علاقه‌مندی‌ها",
+      "tabs": {
+        "all": "همه",
+        "clinics": "کلینیک‌ها",
+        "doctors": "پزشکان",
+        "gyms": "باشگاه‌ها",
+        "salons": "سالن‌ها"
+      },
+      "title": "علاقه‌مندی‌ها"
+    },
+    "medicalProfileLegacy": {
+      "buttons": {
+        "saveContact": "ذخیره تماس"
+      },
+      "empty": {
+        "addFirstAllergy": "اولین حساسیت را اضافه کنید",
+        "addFirstMedication": "اولین دارو را اضافه کنید",
+        "noAllergies": "هنوز حساسیتی اضافه نشده است.",
+        "noConditions": "هنوز وضعیتی اضافه نشده است.",
+        "noDocuments": "هنوز مدرکی آپلود نشده است.",
+        "noMedications": "هنوز دارویی اضافه نشده است."
+      },
+      "fields": {
+        "allergyName": "نام حساسیت",
+        "conditionName": "نام بیماری/وضعیت",
+        "dosage": "دوز مصرف",
+        "frequency": "تکرار مصرف",
+        "fullName": "نام کامل",
+        "medicationName": "نام دارو",
+        "phoneNumber": "شماره موبایل",
+        "relationship": "نسبت"
+      },
+      "frequency": {
+        "asNeeded": "در صورت نیاز",
+        "onceDaily": "روزی یک‌بار",
+        "select": "انتخاب تکرار",
+        "threeTimesDaily": "روزی سه‌بار",
+        "twiceDaily": "روزی دوبار",
+        "weekly": "هفتگی"
+      },
+      "modals": {
+        "addAllergy": "افزودن حساسیت",
+        "addCondition": "افزودن وضعیت",
+        "addMedication": "افزودن دارو",
+        "uploadDocument": "آپلود مدرک"
+      },
+      "placeholders": {
+        "allergyName": "مثلاً: پنی‌سیلین",
+        "conditionName": "نام بیماری/وضعیت",
+        "conditionNotes": "توضیحات وضعیت",
+        "documentName": "نام مدرک",
+        "dosage": "دوز مصرف",
+        "fullName": "نام تماس اضطراری",
+        "medicationName": "نام دارو",
+        "medicationNotes": "توضیحات دارو",
+        "phoneNumber": "شماره تماس اضطراری",
+        "reactionNotes": "توضیحات واکنش"
+      },
+      "privacyDescription": "اطلاعات پزشکی شما رمزنگاری می‌شود و فقط با ارائه‌دهندگانی که اجازه می‌دهید به اشتراک گذاشته می‌شود.",
+      "privacyTitle": "خصوصی و امن",
+      "relationship": {
+        "other": "سایر"
+      },
+      "sections": {
+        "allergies": "حساسیت‌ها",
+        "currentMedications": "داروهای فعلی",
+        "emergencyContact": "تماس اضطراری",
+        "medicalDocuments": "مدارک پزشکی",
+        "medicalHistory": "سوابق پزشکی"
+      },
+      "severity": {
+        "mild": "خفیف",
+        "moderate": "متوسط",
+        "severe": "شدید"
+      },
+      "title": "پروفایل پزشکی",
+      "upload": {
+        "acceptedFormats": "PDF، JPG، PNG",
+        "acceptedFormatsLabel": "فرمت‌های قابل قبول",
+        "clickToUpload": "برای آپلود کلیک کنید",
+        "examples": "نتایج آزمایش، نسخه‌ها، گزارش‌ها",
+        "examplesLabel": "مثال‌ها",
+        "failedDescription": "آپلود این مدرک انجام نشد.",
+        "failedTitle": "آپلود ناموفق بود",
+        "formatsShort": "PDF، JPG، PNG",
+        "maximumSize": "۱۰ مگابایت",
+        "maximumSizeLabel": "حداکثر حجم",
+        "progress": "پیشرفت آپلود",
+        "successDescription": "مدرک شما آپلود شد.",
+        "successTitle": "آپلود کامل شد",
+        "uploadingTitle": "در حال آپلود..."
+      }
+    },
+    "privacySecurity": {
+      "activeSessions": "نشست‌های فعال",
+      "biometricDescription": "برای ورود سریع‌تر از Face ID، Touch ID یا بیومتریک دستگاه استفاده کنید.",
+      "biometricLogin": "ورود بیومتریک",
+      "changePassword": "تغییر رمز عبور",
+      "checkAgain": "بررسی دوباره",
+      "confirmNewPassword": "تأیید رمز عبور جدید",
+      "current": "فعلی",
+      "currentPassword": "رمز عبور فعلی",
+      "deleteAccount": "حذف حساب",
+      "deleteDescription": "درخواست حذف حساب و بررسی داده‌ها.",
+      "deletionRequestOpen": "یک درخواست حذف حساب از قبل باز است.",
+      "enterCurrentPassword": "رمز فعلی را وارد کنید",
+      "enterNewPassword": "رمز جدید را وارد کنید",
+      "locationPermissions": "مجوز موقعیت مکانی",
+      "manage": "مدیریت",
+      "messages": {
+        "accountDeletionRequested": "درخواست حذف حساب ثبت شد.",
+        "biometricUpdated": "تنظیمات بیومتریک به‌روزرسانی شد.",
+        "couldNotReadLocation": "Could not read location permission.",
+        "couldNotRefreshPermission": "Could not refresh permission status.",
+        "couldNotRequestLocation": "Could not request location permission.",
+        "couldNotRequestNotification": "Could not request notification permission.",
+        "locationGranted": "مجوز موقعیت مکانی داده شد.",
+        "locationUpdated": "تنظیمات موقعیت به‌روزرسانی شد.",
+        "notificationGranted": "مجوز اعلان‌ها داده شد.",
+        "notificationUpdated": "تنظیمات اعلان به‌روزرسانی شد.",
+        "passwordUpdated": "رمز عبور با موفقیت به‌روزرسانی شد.",
+        "permissionStateRefreshed": "وضعیت مجوز به‌روزرسانی شد.",
+        "permissionsBlocked": "این مجوز در مرورگر یا تنظیمات دستگاه مسدود شده است.",
+        "sessionRevoked": "نشست لغو شد.",
+        "somethingWentWrong": "خطایی رخ داد."
+      },
+      "newPassword": "رمز عبور جدید",
+      "noTrackedSessions": "نشست ثبت‌شده‌ای وجود ندارد.",
+      "notSupported": "پشتیبانی نمی‌شود",
+      "notificationPermissions": "مجوز اعلان‌ها",
+      "optionalReason": "دلیل اختیاری",
+      "privacyControls": "کنترل‌های حریم خصوصی",
+      "reenterNewPassword": "رمز جدید را دوباره وارد کنید",
+      "refresh": "به‌روزرسانی",
+      "requestAccess": "درخواست دسترسی",
+      "requestAccountDeletion": "درخواست حذف حساب",
+      "revoke": "لغو دسترسی",
+      "title": "حریم خصوصی و امنیت",
+      "updatePassword": "به‌روزرسانی رمز عبور",
+      "working": "در حال انجام..."
+    },
+    "settings": {
+      "couldNotSavePreferences": "ذخیره ترجیحات انجام نشد.",
+      "currency": "ارز",
+      "distance": {
+        "km": "کیلومتر",
+        "mi": "مایل"
+      },
+      "distanceUnit": "واحد فاصله",
+      "incompleteProfile": "پروفایل ناقص",
+      "language": "زبان",
+      "languages": {
+        "arabic": "عربی",
+        "english": "انگلیسی",
+        "persian": "فارسی",
+        "turkish": "ترکی"
+      },
+      "location": "موقعیت",
+      "marketingNotifications": "اعلان‌های بازاریابی",
+      "marketingNotificationsDescription": "پیشنهادها، کمپین‌ها و اخبار تبلیغاتی را دریافت کنید.",
+      "notifications": "اعلان‌ها",
+      "notificationsDescription": "اعلان‌های مهم اپ و رزرو را دریافت کنید.",
+      "preferences": "ترجیحات",
+      "preferencesUpdated": "ترجیحات به‌روزرسانی شد.",
+      "quickAccess": "دسترسی سریع",
+      "quickLinks": {
+        "noReferralCode": "کد دعوتی وجود ندارد",
+        "notifications": "اعلان‌ها",
+        "notificationsSubtitle": "مدیریت تنظیمات اعلان",
+        "privacySecurity": "حریم خصوصی و امنیت",
+        "privacySecuritySubtitle": "رمز عبور، نشست‌ها و مجوزها",
+        "referralCode": "کد دعوت",
+        "rewards": "پاداش‌ها",
+        "savedFavorites": "علاقه‌مندی‌ها",
+        "savedItems": "موارد ذخیره‌شده",
+        "wallet": "کیف پول"
+      },
+      "savePreferences": "ذخیره ترجیحات",
+      "saving": "در حال ذخیره...",
+      "storedPreferences": "ترجیحات ذخیره‌شده",
+      "subtitle": "ترجیحات و تنظیمات حساب خود را مدیریت کنید.",
+      "theme": "پوسته",
+      "themes": {
+        "dark": "تیره",
+        "light": "روشن",
+        "system": "سیستم"
+      },
+      "title": "تنظیمات",
+      "useCurrentLocation": "استفاده از موقعیت فعلی",
+      "useCurrentLocationDescription": "برای نمایش ارائه‌دهندگان نزدیک از موقعیت دستگاه استفاده کنید.",
+      "verified": "تأییدشده",
+      "walletNotSetUp": "کیف پول راه‌اندازی نشده است"
+    },
+    "shareFriends": {
+      "copied": "کپی شد",
+      "copiedBang": "کپی شد!",
+      "copy": "کپی",
+      "discountQueue": "صف تخفیف",
+      "heroSubtitle": "السوین را با دوستانتان به اشتراک بگذارید و مزایای دعوت را آزاد کنید.",
+      "heroTitle": "دوستانتان را دعوت کنید و پاداش بگیرید",
+      "howItWorks": "نحوه کار",
+      "methods": {
+        "email": "ایمیل",
+        "facebook": "فیسبوک",
+        "instagram": "اینستاگرام",
+        "message": "پیام"
+      },
+      "moreOptions": "گزینه‌های بیشتر",
+      "referralCode": "کد دعوت",
+      "referralHistory": "سابقه دعوت",
+      "shareMessage": "برای عضویت در السوین از کد دعوت من استفاده کنید.",
+      "shareReferralLink": "لینک دعوت خود را به اشتراک بگذارید",
+      "shareSubject": "به السوین بپیوندید",
+      "shareVia": "اشتراک‌گذاری از طریق",
+      "stats": {
+        "earned": "دریافت‌شده",
+        "friendsJoined": "دوستان عضو شده",
+        "invited": "دعوت‌شده",
+        "pending": "در انتظار",
+        "used": "استفاده‌شده"
+      },
+      "steps": {
+        "activeProgram": {
+          "description": "پاداش‌های دعوت به قوانین کمپین فعال بستگی دارد.",
+          "title": "برنامه فعال"
+        },
+        "shareCode": {
+          "description": "کد دعوت اختصاصی خود را برای دوستان بفرستید.",
+          "descriptionLink": "لینک دعوت خود را هر جا خواستید به اشتراک بگذارید.",
+          "title": "کد خود را به اشتراک بگذارید"
+        },
+        "theyGet": {
+          "description": "دوست شما مزیت خوش‌آمدگویی تنظیم‌شده را دریافت می‌کند.",
+          "title": "آن‌ها مزیت می‌گیرند"
+        },
+        "unlock": {
+          "description": "پاداش‌ها پس از رزرو یا مرحله پروفایل موردنیاز فعال می‌شوند.",
+          "title": "آزادسازی پاداش‌ها"
+        },
+        "youEarn": {
+          "description": "پس از تأیید دعوت، پاداش دریافت می‌کنید.",
+          "title": "شما پاداش می‌گیرید"
+        }
+      },
+      "terms": {
+        "expire": "پاداش‌ها و کوپن‌ها ممکن است منقضی شوند.",
+        "minimumBooking": "ممکن است حداقل رزرو اعمال شود.",
+        "newUsers": "فقط برای کاربران جدید معتبر است.",
+        "rewardAfterBooking": "پاداش‌ها پس از رزروهای واجد شرایط صادر می‌شوند.",
+        "rights": "السوین ممکن است قوانین دعوت را به‌روزرسانی کند."
+      },
+      "termsTitle": "شرایط",
+      "title": "اشتراک‌گذاری با دوستان"
+    },
+    "transactionDetail": {
+      "bookingReference": "مرجع رزرو",
+      "contactSupport": "تماس با پشتیبانی",
+      "description": "جزئیات پرداخت و اطلاعات رزرو را بررسی کنید.",
+      "downloadReceipt": "دانلود رسید",
+      "lsevinWallet": "کیف پول السوین",
+      "needHelp": "نیاز به کمک دارید؟",
+      "paymentBreakdown": "جزئیات پرداخت",
+      "paymentFailed": "پرداخت ناموفق",
+      "paymentFailedDescription": "این تراکنش ناموفق بود. دوباره تلاش کنید یا روش پرداخت دیگری انتخاب کنید.",
+      "paymentMethod": "روش پرداخت",
+      "paymentPending": "پرداخت در انتظار",
+      "paymentPendingDescription": "پرداخت شما هنوز در انتظار است.",
+      "paymentProcessingDescription": "پرداخت شما در حال پردازش است.",
+      "provider": "ارائه‌دهنده",
+      "retryPayment": "تلاش مجدد پرداخت",
+      "sample": {
+        "description": "پرداخت برای خدمت پزشکی انتخاب‌شده شما.",
+        "providerAddress": "Istanbul, Turkey",
+        "providerName": "مرکز پزشکی استانبول",
+        "subtitle": "پرداخت رزرو",
+        "title": "رزرو کاشت مو"
+      },
+      "serviceFee": "کارمزد خدمت",
+      "subtotal": "جمع جزء",
+      "title": "جزئیات تراکنش",
+      "total": "مجموع",
+      "transactionId": "شناسه تراکنش",
+      "transactionInformation": "اطلاعات تراکنش",
+      "transactionLinkCopied": "لینک تراکنش کپی شد.",
+      "viewBookingDetails": "مشاهده جزئیات رزرو"
+    },
+    "transactions": {
+      "applyFilters": "اعمال فیلترها",
+      "clearAll": "پاک کردن همه",
+      "clearFilters": "پاک کردن فیلترها",
+      "filter": "فیلتر",
+      "filterTransactions": "فیلتر تراکنش‌ها",
+      "lsevinWallet": "کیف پول السوین",
+      "noTransactionsFound": "تراکنشی یافت نشد",
+      "paymentMethods": {
+        "applePay": "اپل‌پی",
+        "bankTransfer": "انتقال بانکی"
+      },
+      "periods": {
+        "all": "همه زمان‌ها",
+        "month": "این ماه",
+        "threeMonths": "۳ ماه اخیر",
+        "today": "امروز",
+        "week": "این هفته"
+      },
+      "sample": {
+        "botox": {
+          "subtitle": "پرداخت ناموفق",
+          "title": "نوبت بوتاکس"
+        },
+        "cashback": {
+          "subtitle": "پاداش واریز شد",
+          "title": "بازگشت وجه"
+        },
+        "dental": {
+          "subtitle": "پرداخت کلینیک",
+          "title": "مشاوره دندان‌پزشکی"
+        },
+        "gym": {
+          "subtitle": "عضویت ماهانه",
+          "title": "عضویت باشگاه"
+        },
+        "hairTransplant": {
+          "subtitle": "مرکز پزشکی استانبول",
+          "title": "رزرو کاشت مو"
+        },
+        "referral": {
+          "subtitle": "دوست شما به السوین پیوست",
+          "title": "پاداش دعوت"
+        },
+        "refund": {
+          "subtitle": "بازپرداخت رزرو",
+          "title": "بازپرداخت"
+        },
+        "spa": {
+          "subtitle": "رزرو سلامتی",
+          "title": "پکیج اسپا"
+        },
+        "topup": {
+          "subtitle": "افزایش موجودی کیف پول",
+          "title": "شارژ کیف پول"
+        }
+      },
+      "status": "وضعیت",
+      "statuses": {
+        "all": "همه وضعیت‌ها",
+        "cancelled": "لغوشده",
+        "completed": "تکمیل‌شده",
+        "failed": "ناموفق",
+        "pending": "در انتظار",
+        "processing": "در حال پردازش",
+        "refunded": "Refunded"
+      },
+      "summary": "خلاصه",
+      "timePeriod": "بازه زمانی",
+      "title": "تراکنش‌ها",
+      "todayAt": "Today at {time}",
+      "total": "مجموع",
+      "transactionType": "نوع تراکنش",
+      "tryAdjustingFilters": "فیلترها را تغییر دهید.",
+      "types": {
+        "all": "همه انواع",
+        "credit": "واریزی‌ها",
+        "debit": "برداشت‌ها"
+      },
+      "yesterdayAt": "Yesterday at {time}"
+    },
+    "wallet": {
+      "applyCoupon": "اعمال کوپن",
+      "emptyDescription": "فعالیت کیف پول شما اینجا نمایش داده می‌شود.",
+      "enterCustomAmount": "مبلغ دلخواه را وارد کنید",
+      "filters": {
+        "credits": "واریزی‌ها",
+        "debits": "برداشت‌ها",
+        "filter": "فیلتر"
+      },
+      "gateway": "درگاه",
+      "gatewayCurrencyNote": "ارز درگاه پرداخت ممکن است با ارز نمایشی شما متفاوت باشد.",
+      "lsevinWallet": "کیف پول السوین",
+      "noOnlineGateway": "درگاه آنلاین تنظیم نشده است.",
+      "noTransactionsYet": "هنوز تراکنشی وجود ندارد",
+      "paymentMethod": "روش پرداخت",
+      "paymentMethods": {
+        "applePay": "اپل‌پی",
+        "applePayDetails": "پرداخت سریع با اپل‌پی.",
+        "bankDetails": "به‌صورت دستی انتقال دهید و رسید را آپلود کنید.",
+        "bankTransfer": "انتقال بانکی",
+        "cardDetails": "با کارت خود امن پرداخت کنید.",
+        "noGateway": "درگاهی موجود نیست",
+        "onlineCard": "کارت آنلاین"
+      },
+      "processing": "در حال پردازش...",
+      "recentTransactions": "تراکنش‌های اخیر",
+      "sample": {
+        "cashback": {
+          "subtitle": "پاداش واریز شد",
+          "title": "بازگشت وجه"
+        },
+        "dental": {
+          "subtitle": "پرداخت کلینیک",
+          "title": "مشاوره دندان‌پزشکی"
+        },
+        "hairTransplant": {
+          "subtitle": "مرکز پزشکی استانبول",
+          "title": "رزرو کاشت مو"
+        },
+        "referral": {
+          "subtitle": "دوست شما به السوین پیوست",
+          "title": "پاداش دعوت"
+        },
+        "spa": {
+          "subtitle": "رزرو سلامتی",
+          "title": "پکیج اسپا"
+        },
+        "topup": {
+          "subtitle": "افزایش موجودی کیف پول",
+          "title": "شارژ کیف پول"
+        }
+      },
+      "selectAmount": "انتخاب مبلغ",
+      "statuses": {
+        "cancelled": "لغوشده",
+        "completed": "تکمیل‌شده",
+        "failed": "ناموفق",
+        "pending": "در انتظار",
+        "processing": "در حال پردازش"
+      },
+      "title": "کیف پول",
+      "todayAt": "Today at {time}",
+      "topUpAmount": "مبلغ شارژ",
+      "topUpWallet": "شارژ کیف پول",
+      "totalBalance": "موجودی کل",
+      "viewAll": "مشاهده همه",
+      "yesterdayAt": "Yesterday at {time}"
+    },
+    "main": {
+      "menu": {
+        "medicalProfile": "پروفایل پزشکی",
+        "notifications": "اعلان‌ها",
+        "privacySecurity": "حریم خصوصی و امنیت",
+        "rewardsLoyalty": "پاداش‌ها و وفاداری",
+        "savedFavorites": "علاقه‌مندی‌های ذخیره‌شده",
+        "shareWithFriends": "اشتراک‌گذاری با دوستان",
+        "walletPayments": "کیف پول و پرداخت‌ها"
+      }
+    },
+    "stats": {
+      "bookings": "رزروها",
+      "points": "امتیازها",
+      "saved": "ذخیره‌شده"
+    },
+    "common": {
+      "logOut": "خروج"
+    },
+    "medicalProfile": {
+      "empty": {
+        "noAllergies": "هنوز حساسیتی اضافه نشده است.",
+        "noConditions": "هنوز بیماری یا وضعیت پزشکی اضافه نشده است.",
+        "noContactSaved": "تماس اضطراری ذخیره نشده است.",
+        "noDocuments": "هنوز مدرکی آپلود نشده است.",
+        "noMedications": "هنوز دارویی اضافه نشده است."
+      },
+      "errors": {
+        "addAllergy": "افزودن حساسیت انجام نشد.",
+        "addCondition": "افزودن وضعیت پزشکی انجام نشد.",
+        "addMedication": "افزودن دارو انجام نشد.",
+        "saveEmergencyContact": "ذخیره تماس اضطراری انجام نشد.",
+        "uploadDocument": "آپلود مدرک انجام نشد."
+      },
+      "fields": {
+        "allergyName": "نام حساسیت"
+      },
+      "modals": {
+        "addAllergy": "افزودن حساسیت"
+      },
+      "placeholders": {
+        "allergyName": "مثلاً: پنی‌سیلین",
+        "reactionNotes": "توضیحات واکنش"
+      },
+      "privacyTitle": "خصوصی و امن",
+      "sections": {
+        "allergies": "حساسیت‌ها",
+        "currentMedications": "داروهای فعلی",
+        "emergencyContact": "تماس اضطراری",
+        "medicalDocuments": "مدارک پزشکی",
+        "medicalHistory": "سوابق پزشکی"
+      },
+      "severity": {
+        "mild": "خفیف",
+        "moderate": "متوسط",
+        "severe": "شدید"
+      },
+      "title": "پروفایل پزشکی"
+    },
+    "rewards": {
+      "actions": {
+        "copied": "کپی شد",
+        "copiedBang": "کپی شد!",
+        "copy": "کپی",
+        "shareWithFriends": "اشتراک‌گذاری با دوستان",
+        "useCoupon": "Use Coupon"
+      },
+      "coupons": {
+        "available": "کوپن‌های فعال",
+        "code": "Code: {code}",
+        "daysLeft": " ({days} days left)",
+        "emptyAvailable": "در حال حاضر کوپن فعالی وجود ندارد.",
+        "emptyUsed": "Coupon redemption history cannot be shown until a customer coupon ledger exists in the database.",
+        "expires": "Expires {date}",
+        "minPurchase": "Min ${amount}",
+        "saved": "Saved {amount}",
+        "used": "کوپن‌های استفاده‌شده",
+        "usedOn": "Used on {date}"
+      },
+      "overview": {
+        "current": "فعلی",
+        "earned": "دریافت‌شده",
+        "emptyActivity": "هنوز فعالیت پاداشی ثبت نشده است.",
+        "highestTierReached": "به بالاترین سطح رسیده‌اید",
+        "member": "{tier} Member",
+        "membershipTiers": "سطوح عضویت",
+        "points": "امتیاز",
+        "pointsAbbr": "امتیاز",
+        "pointsToNext": "{points} more points to {tier}",
+        "recentActivity": "فعالیت اخیر",
+        "referrals": "دعوت‌ها",
+        "totalSpent": "کل هزینه‌کرد",
+        "yourPoints": "امتیازهای شما"
+      },
+      "referrals": {
+        "howItWorks": "دعوت‌ها چگونه کار می‌کنند",
+        "inviteFriends": "دعوت دوستان",
+        "schemaReady": "ساختار برنامه دعوت آماده اضافه شدن است",
+        "shareText": "Use my code {code} when you join LSevin.",
+        "shareTitle": "به السوین بپیوندید",
+        "steps": {
+          "book": {
+            "description": "دوست شما اولین رزرو خود را تکمیل می‌کند",
+            "title": "آن‌ها رزرو می‌کنند"
+          },
+          "earn": {
+            "description": "Reward logic becomes live once referral tables and payout rules are added",
+            "title": "هر دو پاداش می‌گیرید"
+          },
+          "share": {
+            "description": "Send your unique referral code to friends",
+            "title": "کد خود را به اشتراک بگذارید"
+          },
+          "signup": {
+            "description": "دوست شما با کد شما حساب می‌سازد",
+            "title": "آن‌ها ثبت‌نام می‌کنند"
+          }
+        },
+        "successful": "دعوت‌های موفق",
+        "totalEarned": "کل درآمد",
+        "yourCode": "کد دعوت شما",
+        "yourStats": "آمار دعوت شما"
+      },
+      "schemaNotice": {
+        "description": "This page is production-structured and uses live offers plus derived spending, but loyalty points, coupon redemption history, referrals, and tier persistence need dedicated tables and APIs.",
+        "title": "اسکیمای پاداش هنوز در دیتابیس نیست"
+      },
+      "tabs": {
+        "coupons": "کوپن‌ها",
+        "overview": "نمای کلی",
+        "referrals": "دعوت‌ها"
+      },
+      "title": "پاداش‌ها و وفاداری"
+    },
+    "receipt": {
+      "bookingReference": "مرجع رزرو",
+      "lsevinWallet": "کیف پول السوین",
+      "paymentBreakdown": "جزئیات پرداخت",
+      "paymentMethod": "روش پرداخت",
+      "provider": "ارائه‌دهنده",
+      "reference": "مرجع",
+      "saveAsPdf": "ذخیره به PDF",
+      "serviceFee": "کارمزد خدمت",
+      "status": "وضعیت",
+      "subtotal": "جمع جزء",
+      "title": "رسید",
+      "total": "مجموع",
+      "transaction": "Transaction"
+    }
+  },
+  "MobileDoctorProfile": {
+    "about": {
+      "body": "{name} is one of the world’s leading hair transplant surgeons with over 18 years of experience. He has performed more than 12,000 successful hair restoration procedures for patients from 65+ countries. His expertise in advanced FUE techniques, combined with an artistic eye for natural hairline design, has earned him international recognition.",
+      "title": "About Dr. {name}"
+    },
+    "achievements": {
+      "bestSurgeon": {
+        "organization": "Turkish Medical Excellence",
+        "title": "Best Hair Surgeon 2023"
+      },
+      "patients": {
+        "organization": "From 65+ Countries",
+        "title": "12,000+ Patients"
+      },
+      "success": {
+        "organization": "Verified Patient Outcomes",
+        "title": "98.5% Success Rate"
+      },
+      "title": "دستاوردها و افتخارات",
+      "topPercent": {
+        "organization": "Hair Transplant Surgeons",
+        "title": "Top 1% Worldwide"
+      }
+    },
+    "actions": {
+      "back": "Back",
+      "bookNow": "رزرو کنید",
+      "share": "Share"
+    },
+    "certifications": {
+      "board": {
+        "issuer": "Turkish Medical Board",
+        "name": "Board Certified Surgeon"
+      },
+      "fue": {
+        "issuer": "European Hair Institute",
+        "name": "FUE Master Certificate"
+      },
+      "ishrs": {
+        "issuer": "International Society of Hair Restoration Surgery",
+        "name": "Fellow of ISHRS"
+      },
+      "sapphire": {
+        "issuer": "World Hair Academy",
+        "name": "Advanced Sapphire FUE"
+      }
+    },
+    "consultation": {
+      "free": "رایگان",
+      "title": "مشاوره"
+    },
+    "countries": {
+      "saudiArabia": "عربستان سعودی",
+      "uk": "انگلستان",
+      "usa": "آمریکا"
+    },
+    "dates": {
+      "oneMonthAgo": "۱ ماه پیش",
+      "twoWeeksAgo": "۲ هفته پیش"
+    },
+    "education": {
+      "fellowship": {
+        "degree": "Hair Transplant Surgery Fellowship",
+        "institution": "American Academy of Cosmetic Surgery"
+      },
+      "fue": {
+        "degree": "Advanced FUE Training",
+        "institution": "International Society of Hair Restoration Surgery"
+      },
+      "md": {
+        "degree": "دکترای پزشکی (MD)",
+        "institution": "Istanbul University Medical School"
+      }
+    },
+    "languages": {
+      "arabic": "عربی",
+      "english": "انگلیسی",
+      "turkish": "ترکی"
+    },
+    "results": {
+      "after": "بعد",
+      "before": "قبل",
+      "cases": {
+        "case1": {
+          "months": "12 months post-op",
+          "procedure": "Hair Transplant - 4500 Grafts"
+        },
+        "case2": {
+          "months": "10 months post-op",
+          "procedure": "Hair Transplant - 3800 Grafts"
+        }
+      },
+      "title": "گالری نتایج",
+      "viewFullGallery": "مشاهده گالری کامل"
+    },
+    "reviews": {
+      "basedOn": "Based on {count} reviews",
+      "helpful": "👍 Helpful ({count})",
+      "reviewImage": "تصویر نظر",
+      "sample": {
+        "first": "Dr. Yavuz is an absolute master of his craft. The results are beyond my expectations - natural hairline, dense coverage, minimal scarring. His attention to detail and artistic approach are exceptional. The entire team was professional and caring throughout the journey.",
+        "second": "Flew from Riyadh specifically for Dr. Yavuz and it was worth every mile. His expertise is unmatched. He took time to explain every step, designed a perfect hairline, and the procedure was painless. 6 months post-op and growth is fantastic!",
+        "third": "After researching 20+ surgeons worldwide, I chose Dr. Yavuz and couldn't be happier. His technique is flawless, results look completely natural, and his team provided excellent care. Highly recommend!"
+      }
+    },
+    "sample": {
+      "clinic": "مرکز پزشکی استانبول",
+      "location": "Istanbul, Turkey",
+      "name": "Dr. Mehmet Yavuz",
+      "responseTime": "< 1 hour",
+      "specialty": "Hair Transplant & Restoration Surgeon",
+      "title": "MD, FISHRS"
+    },
+    "sections": {
+      "certifications": "گواهی‌ها و عضویت‌ها",
+      "education": "تحصیلات",
+      "languages": "زبان‌ها",
+      "specializations": "تخصص‌ها"
+    },
+    "share": {
+      "linkCopied": "Link copied to clipboard!",
+      "text": "Check out {name} - {specialty}"
+    },
+    "specializations": {
+      "beardEyebrow": "Beard & Eyebrow Transplant",
+      "dhi": "DHI (Direct Hair Implantation)",
+      "fue": "FUE Hair Transplant",
+      "prp": "PRP Therapy for Hair Loss",
+      "revision": "Revision Hair Transplant",
+      "sapphireFue": "Sapphire FUE Technique"
+    },
+    "stats": {
+      "patients": "بیماران",
+      "reviews": "{count} reviews",
+      "successRate": "نرخ موفقیت",
+      "wouldRecommend": "پیشنهاد می‌کنند",
+      "yearsExperience": "سال تجربه"
+    },
+    "status": {
+      "available": "در دسترس"
+    },
+    "tabs": {
+      "about": "درباره",
+      "credentials": "اعتبارنامه‌ها",
+      "reviews": "نظرات"
+    },
+    "treatments": {
+      "hairTransplant": "کاشت مو"
+    },
+    "verification": {
+      "description": "All credentials have been verified by our medical board. Dr. {name} meets the highest standards of medical excellence.",
+      "title": "تأییدشده توسط السوین"
+    }
+  }
+}

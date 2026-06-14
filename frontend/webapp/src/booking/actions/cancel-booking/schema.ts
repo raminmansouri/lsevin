@@ -1,0 +1,6 @@
+import { z } from "zod/v4";
+
+export const CancelBookingSchema = z.object({
+  bookingId: z.string().trim().min(1, "Booking id is required"),
+  reason: z.string().trim().max(1000).optional(),
+});

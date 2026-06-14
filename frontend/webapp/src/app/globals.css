@@ -1,0 +1,264 @@
+@import "tailwindcss";
+
+@plugin "tailwindcss-animate";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme init {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-ring: var(--ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+@utility container {
+  padding-inline: 1rem;
+  margin-inline: auto;
+  width: 100%;
+  @media (width >= 40rem) {
+    max-width: 40rem;
+  }
+  @media (width >= 48rem) {
+    max-width: 48rem;
+  }
+  @media (width >= 64rem) {
+    max-width: 64rem;
+  }
+  @media (width >= 80rem) {
+    max-width: 80rem;
+    padding-inline: 1.5rem;
+  }
+  @media (width >= 96rem) {
+    max-width: 96rem;
+    padding-inline: 2rem;
+  }
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+@layer utilities {
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+  }
+}
+
+:root {
+  --background: hsl(0 0% 100%); /* #ffffff */
+  --foreground: hsl(0 0% 0%); /* #000000 */
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(0 0% 0%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(0 0% 0%);
+  --primary: hsl(162 94% 24%); /* #047857 */
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(156 32% 35%); /* #3a765f */
+  --secondary-foreground: hsl(0 0% 100%);
+  --muted: hsl(240 3% 48%); /* #71717a */
+  --muted-foreground: hsl(240 4% 65%);
+  --accent: hsl(240 29% 45%); /* #5453a0 */
+  --accent-foreground: hsl(0 0% 100%);
+  --destructive: hsl(0 84% 60%); /* #ef4444 */
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: hsl(240 6% 90%);
+  --input: hsl(240 6% 90%);
+  --input-background: hsl(240 11% 96%); /* #f3f3f5 */
+  --ring: hsl(162 94% 24%);
+  --gold: hsl(40 55% 47%);
+  --gold-foreground: hsl(0 0% 100%);
+  --radius: 0.5rem;
+  --sidebar: hsl(0 0% 98%);
+  --sidebar-foreground: hsl(240 5.3% 26.1%);
+  --sidebar-primary: hsl(240 5.9% 10%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(240 4.8% 95.9%);
+  --sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+
+  --spacing: 0.25rem;
+}
+
+.dark {
+  --background: hsl(0 0% 10%);
+  --foreground: hsl(0 0% 98%);
+  --card: hsl(0 0% 15%);
+  --card-foreground: hsl(0 0% 98%);
+  --popover: hsl(0 0% 15%);
+  --popover-foreground: hsl(0 0% 98%);
+  --primary: hsl(162 94% 24%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(156 32% 35%);
+  --secondary-foreground: hsl(0 0% 100%);
+  --muted: hsl(240 5% 64%);
+  --muted-foreground: hsl(240 5% 80%);
+  --accent: hsl(240 29% 33%);
+  --accent-foreground: hsl(0 0% 100%);
+  --destructive: hsl(0 84% 60%);
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: hsl(240 4% 25%);
+  --input: hsl(240 4% 25%);
+  --input-background: hsl(240 4% 16%);
+  --ring: hsl(162 94% 24%);
+  --gold: hsla(42, 59%, 59%) --gold-foreground: hsl(0 0% 100%);
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+
+  --spacing: 0.25rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  .skeleton *:not(:has(*)):not(.target),
+  .skeleton .target {
+    @apply bg-primary/10! text-primary/0! animate-pulse! rounded-md;
+  }
+}
+
+/*
+  ---break---
+*/
+
+@theme inline {
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --spacing: var(--spacing);
+  --spacing-header: 4rem;
+  --spacing-screen-header: calc(100vh - var(--spacing-header));
+}
+
+/*
+  ---break---
+*/
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* RTL: mirror direction-bearing icons (chevrons / arrows / carets).          */
+/* In a right-to-left layout a "next/forward" affordance must point left and  */
+/* "previous/back" must point right, so we horizontally flip the lucide icons */
+/* whose meaning depends on horizontal direction. Add the `no-flip` class (or */
+/* data-no-flip) to an icon that is decorative and should NOT be mirrored.    */
+/* -------------------------------------------------------------------------- */
+[dir="rtl"] .lucide-chevron-right,
+[dir="rtl"] .lucide-chevron-left,
+[dir="rtl"] .lucide-chevrons-right,
+[dir="rtl"] .lucide-chevrons-left,
+[dir="rtl"] .lucide-arrow-right,
+[dir="rtl"] .lucide-arrow-left,
+[dir="rtl"] .lucide-arrow-big-right,
+[dir="rtl"] .lucide-arrow-big-left,
+[dir="rtl"] .lucide-arrow-right-circle,
+[dir="rtl"] .lucide-arrow-left-circle,
+[dir="rtl"] .lucide-circle-arrow-right,
+[dir="rtl"] .lucide-circle-arrow-left,
+[dir="rtl"] .lucide-arrow-up-right,
+[dir="rtl"] .lucide-arrow-up-left,
+[dir="rtl"] .lucide-arrow-down-right,
+[dir="rtl"] .lucide-arrow-down-left,
+[dir="rtl"] .lucide-corner-down-right,
+[dir="rtl"] .lucide-corner-down-left,
+[dir="rtl"] .lucide-square-chevron-right,
+[dir="rtl"] .lucide-square-chevron-left,
+[dir="rtl"] .lucide-move-right,
+[dir="rtl"] .lucide-move-left,
+[dir="rtl"] .lucide-undo-2,
+[dir="rtl"] .lucide-redo-2,
+[dir="rtl"] .lucide-reply,
+[dir="rtl"] .lucide-log-in,
+[dir="rtl"] .lucide-log-out,
+[dir="rtl"] .lucide-send,
+[dir="rtl"] .lucide-send-horizontal,
+[dir="rtl"] .lucide-panel-left,
+[dir="rtl"] .lucide-panel-right {
+  transform: scaleX(-1);
+}
+
+/* Escape hatch: never mirror an icon explicitly opted out. */
+[dir="rtl"] .no-flip,
+[dir="rtl"] [data-no-flip] {
+  transform: none !important;
+}
+
+html[lang="fa"],
+html[lang="fa"] * {
+  font-family: var(--font-vazirmatn), Tahoma, sans-serif;
+}

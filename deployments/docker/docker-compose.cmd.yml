@@ -1,0 +1,29 @@
+services:
+  lsevin-webapp:
+    # Bypass `pnpm dev` (pnpm 11.5 supply-chain verification hammers the slow npm
+    # registry on every run). node_modules is fully baked into the image, so run
+    # the Next dev server binary directly — no network needed.
+    command: ["node_modules/.bin/next", "dev", "--turbopack"]
+    environment:
+      # The image's .env.development points DATABASE_URL at the remote prod DB
+      # (62.60.212.187), which is unreachable from here. The webapp queries
+      # Postgres directly for some pages, so repoint it at the local container.
+      # (Next.js prioritizes real env vars over .env files.)
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/lsevin
+      # The API force-redirects http -> https on its advertised port 8080 (a host
+      # port that nothing listens on inside the docker network). Call the API over
+      # https on the internal 443 port instead, and accept its self-signed dev cert.
+      - NEXT_PUBLIC_API_URL=https://lsevin-api/api/v1
+      - INTERNAL_API_URL=https://lsevin-api/api/v1
+      - NEXT_PUBLIC_FILES_URL=https://lsevin-api/files
+      - NEXT_PUBLIC_SOCKET_URL=https://lsevin-api/hubs
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+    volumes:
+      # Mount the host source over the image's baked copy so `next dev` serves
+      # (and hot-reloads) local edits. node_modules / .next stay in the image.
+      # public is mounted too: the host tree references public/fonts/Vazir.woff2
+      # which the baked image's public dir is missing, so the root layout's
+      # next/font/local declaration needs the host fonts to compile.
+      - ../../frontend/webapp/src:/app/src
+      - ../../frontend/webapp/messages:/app/messages
+      - ../../frontend/webapp/public:/app/public
