@@ -1,3 +1,5 @@
+import { compressImageToWebp } from "@/lib/image/compress-image";
+
 import type {
   MediaItem,
   MediaListResponse,
@@ -167,8 +169,12 @@ export const uploadViaStorageRoute: UploadWithProgress = async ({
   file,
   onProgress,
 }): Promise<UploadMediaResult> => {
+  // Bandwidth layer: convert raster images to WebP under budget before upload.
+  // Non-images / already-optimized files are returned unchanged.
+  const uploadFile = await compressImageToWebp(file);
+
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append("file", uploadFile);
 
   return new Promise<UploadMediaResult>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
@@ -193,7 +199,7 @@ export const uploadViaStorageRoute: UploadWithProgress = async ({
 
       try {
         const payload = JSON.parse(xhr.responseText);
-        resolve(normalizeUploadResponse(file, payload));
+        resolve(normalizeUploadResponse(uploadFile, payload));
       } catch (error) {
         reject(error instanceof Error ? error : new Error("Invalid upload response."));
       }

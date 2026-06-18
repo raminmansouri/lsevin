@@ -1,5 +1,7 @@
 "use client";
 
+import { compressImageToWebp } from "@/lib/image/compress-image";
+
 import { createMediaRecord } from "../client/api";
 import {
   extractClientMediaMetadata,
@@ -29,8 +31,12 @@ export const defaultUploadHandler: UploadMediaHandler = async ({
   file,
   onProgress,
 }: UploadHandlerInput): Promise<UploadHandlerResult> => {
+  // Convert raster images to WebP under the size budget before upload (bandwidth
+  // layer). Non-images / already-optimized files pass through untouched.
+  const uploadFile = await compressImageToWebp(file);
+
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append("file", uploadFile);
 
   return new Promise<UploadHandlerResult>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
