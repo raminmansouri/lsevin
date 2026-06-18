@@ -29,6 +29,8 @@
     />
     <PackageVersion Include="EFCore.NamingConventions" Version="9.0.0" />
     <PackageVersion Include="Dapper" Version="2.1.66" />
+    <!-- Imaging (image optimization pipeline) -->
+    <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.11" />
     <PackageVersion Include="System.Data.SqlClient" Version="4.9.0" />
     <!-- Ardalis -->
     <PackageVersion Include="Ardalis.Specification" Version="$(ArdalisVersion)" />

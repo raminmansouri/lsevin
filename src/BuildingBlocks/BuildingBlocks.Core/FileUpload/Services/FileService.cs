@@ -17,10 +17,18 @@ namespace BuildingBlocks.Core.FileUpload.Services;
 /// <remarks>
 /// Initializes a new instance of the <see cref="FileService"/> class.
 /// </remarks>
-/// <param name="options">The options.</param>
-internal sealed class FileService(IOptions<FileUploadOptions> options) : IFileService
+/// <param name="options">The file upload options.</param>
+/// <param name="imageOptimizer">The image optimizer (enforced server-side layer).</param>
+/// <param name="imageOptions">The image optimization options.</param>
+internal sealed class FileService(
+    IOptions<FileUploadOptions> options,
+    IImageOptimizer imageOptimizer,
+    IOptions<ImageOptimizationOptions> imageOptions
+) : IFileService
 {
     private readonly FileUploadOptions _options = options.Value;
+    private readonly IImageOptimizer _imageOptimizer = imageOptimizer;
+    private readonly ImageOptimizationOptions _imageOptions = imageOptions.Value;
 
     /// <inheritdoc />
     public async Task<Result<FileUploadSummary>> UploadFileAsync(
@@ -44,21 +52,33 @@ internal sealed class FileService(IOptions<FileUploadOptions> options) : IFileSe
         {
             var fileSection = section.AsFileSection();
 
-            if (fileSection is not null)
+            if (fileSection?.FileStream is not null)
             {
-                var result = await SaveFileAsync(
-                    fileSection,
-                    allowedExtensions: _options.AllowedFileExtensions,
-                    directory,
-                    filePaths,
-                    notUploadedFiles,
-                    cancellationToken
-                );
+                var extension = Path.GetExtension(fileSection.FileName);
 
-                if (result > 0)
+                if (!_options.AllowedFileExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
                 {
-                    totalSizeInBytes += result;
-                    fileCount++;
+                    notUploadedFiles.Add(fileSection.FileName);
+                }
+                else
+                {
+                    var saved = await ProcessAndSaveAsync(
+                        fileSection.FileStream,
+                        fileSection.FileName,
+                        directory,
+                        cancellationToken
+                    );
+
+                    if (saved is { } file)
+                    {
+                        filePaths.Add(file.RelativePath);
+                        totalSizeInBytes += file.Bytes;
+                        fileCount++;
+                    }
+                    else
+                    {
+                        notUploadedFiles.Add(fileSection.FileName);
+                    }
                 }
             }
 
@@ -89,29 +109,19 @@ internal sealed class FileService(IOptions<FileUploadOptions> options) : IFileSe
             );
         }
 
-        var savingPath = Path.Combine(_options.UploadDirectory, directory);
-        Directory.CreateDirectory(savingPath);
+        await using var input = file.OpenReadStream();
+        var saved = await ProcessAndSaveAsync(input, file.FileName, directory, cancellationToken);
 
-        var fileName = IdGenerator.NewId().ToString() + extension;
-        var filePath = Path.Combine(savingPath, fileName);
-        var relativeFilePath = Path.Combine(directory, fileName);
+        if (saved is not { } result)
+        {
+            return Result.Error<FileUploadSummary>(
+                AppError.ApplicationErrorMessage("File is empty or exceeds the maximum upload size")
+            );
+        }
 
-        await using var stream = new FileStream(
-            filePath,
-            FileMode.Create,
-            FileAccess.Write,
-            FileShare.None,
-            bufferSize: 1024,
-            useAsync: true
+        return Result.Success(
+            new FileUploadSummary(1, ConvertSizeToString(result.Bytes), [result.RelativePath], [])
         );
-
-        await using var fileStream = file.OpenReadStream();
-        await fileStream.CopyToAsync(stream, cancellationToken);
-
-        var filePaths = new List<string> { relativeFilePath };
-        var fileSize = ConvertSizeToString(file.Length);
-
-        return Result.Success(new FileUploadSummary(1, fileSize, filePaths, new List<string>()));
     }
 
     /// <inheritdoc />
@@ -126,9 +136,6 @@ internal sealed class FileService(IOptions<FileUploadOptions> options) : IFileSe
         {
             return Result.Error<FileUploadSummary>(AppError.ApplicationErrorMessage("No files provided for upload"));
         }
-
-        var savingPath = Path.Combine(_options.UploadDirectory, directory);
-        Directory.CreateDirectory(savingPath);
 
         var uploadedFilePaths = new List<string>();
         var notUploadedFiles = new List<string>();
@@ -151,25 +158,19 @@ internal sealed class FileService(IOptions<FileUploadOptions> options) : IFileSe
                 continue;
             }
 
-            var fileName = IdGenerator.NewId().ToString() + extension;
-            var filePath = Path.Combine(savingPath, fileName);
-            var relativeFilePath = Path.Combine(directory, fileName);
+            await using var input = file.OpenReadStream();
+            var saved = await ProcessAndSaveAsync(input, file.FileName, directory, cancellationToken);
 
-            await using var stream = new FileStream(
-                filePath,
-                FileMode.Create,
-                FileAccess.Write,
-                FileShare.None,
-                bufferSize: 1024,
-                useAsync: true
-            );
-
-            await using var fileStream = file.OpenReadStream();
-            await fileStream.CopyToAsync(stream, cancellationToken);
-
-            uploadedFilePaths.Add(relativeFilePath);
-            totalSizeInBytes += file.Length;
-            fileCount++;
+            if (saved is { } result)
+            {
+                uploadedFilePaths.Add(result.RelativePath);
+                totalSizeInBytes += result.Bytes;
+                fileCount++;
+            }
+            else
+            {
+                notUploadedFiles.Add(file.FileName);
+            }
         }
 
         var totalFileSize = ConvertSizeToString(totalSizeInBytes);
@@ -199,6 +200,85 @@ internal sealed class FileService(IOptions<FileUploadOptions> options) : IFileSe
     }
 
     /// <summary>
+    /// Buffers the incoming stream, runs the image-optimization pipeline when applicable,
+    /// then writes the (optimized) bytes to disk under a generated, traversal-safe filename.
+    /// </summary>
+    /// <returns>The stored relative path and byte length, or <c>null</c> if rejected (empty / too large).</returns>
+    private async Task<SavedFile?> ProcessAndSaveAsync(
+        Stream content,
+        string originalFileName,
+        string directory,
+        CancellationToken cancellationToken
+    )
+    {
+        var savingPath = Path.Combine(_options.UploadDirectory, directory);
+        Directory.CreateDirectory(savingPath);
+
+        using var buffer = new MemoryStream();
+        await content.CopyToAsync(buffer, cancellationToken);
+
+        if (buffer.Length == 0)
+        {
+            return null;
+        }
+
+        if (_imageOptions.MaxUploadBytes > 0 && buffer.Length > _imageOptions.MaxUploadBytes)
+        {
+            return null;
+        }
+
+        var extension = Path.GetExtension(originalFileName);
+        byte[] outputBytes;
+        var outputExtension = extension;
+
+        if (_imageOptions.Enabled && _imageOptimizer.IsOptimizableExtension(extension))
+        {
+            buffer.Position = 0;
+            var inspect = await _imageOptimizer.InspectAsync(buffer, cancellationToken);
+
+            if (inspect.IsImage && !IsAlreadyOptimized(inspect))
+            {
+                buffer.Position = 0;
+                var optimized = await _imageOptimizer.OptimizeAsync(
+                    buffer,
+                    ImageOutputFormat.Webp,
+                    cancellationToken
+                );
+                outputBytes = optimized.Bytes;
+                outputExtension = ".webp";
+            }
+            else
+            {
+                // Already WebP within budget (optimize-once guard) or undecodable — store as-is.
+                outputBytes = buffer.ToArray();
+            }
+        }
+        else
+        {
+            outputBytes = buffer.ToArray();
+        }
+
+        var fileName = IdGenerator.NewId().ToString() + outputExtension;
+        var filePath = Path.Combine(savingPath, fileName);
+        var relativeFilePath = Path.Combine(directory, fileName);
+
+        await File.WriteAllBytesAsync(filePath, outputBytes, cancellationToken);
+
+        return new SavedFile(relativeFilePath, outputBytes.LongLength);
+    }
+
+    /// <summary>
+    /// Phase 2 defensive guard: a file that is already WebP, already within the size budget,
+    /// and within the max dimension must not be re-encoded.
+    /// </summary>
+    private bool IsAlreadyOptimized(ImageInspectResult inspect) =>
+        inspect.IsWebp
+        && inspect.Bytes <= _imageOptions.MaxBytes
+        && Math.Max(inspect.Width, inspect.Height) <= _imageOptions.MaxDimension;
+
+    private sealed record SavedFile(string RelativePath, long Bytes);
+
+    /// <summary>
     /// Gets the boundary.
     /// </summary>
     /// <param name="contentType">The content type.</param>
@@ -209,77 +289,6 @@ internal sealed class FileService(IOptions<FileUploadOptions> options) : IFileSe
         Guard.Against.NullOrEmpty(boundary, nameof(boundary));
 
         return boundary;
-    }
-
-    /// <summary>
-    /// Gets the full file path.
-    /// </summary>
-    /// <param name="fileSection">The file section.</param>
-    /// <param name="uploadDirectory">The upload directory.</param>
-    /// <returns>The full file path.</returns>
-    private static string GetFullFilePath(FileMultipartSection fileSection, string uploadDirectory)
-    {
-        return !string.IsNullOrEmpty(fileSection.FileName)
-            ? Path.Combine(
-                // Directory.GetCurrentDirectory(),
-                uploadDirectory,
-                fileSection.FileName
-            )
-            : string.Empty;
-    }
-
-    /// <summary>
-    /// Saves the file asynchronously.
-    /// </summary>
-    /// <param name="fileSection">The file section.</param>
-    /// <param name="allowedExtensions">The allowed extensions.</param>
-    /// <param name="directory">The directory.</param>
-    /// <param name="filePaths">The file paths.</param>
-    /// <param name="notUploadedFiles">The not uploaded files.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The file upload summary.</returns>
-    private async Task<long> SaveFileAsync(
-        FileMultipartSection fileSection,
-        IList<string> allowedExtensions,
-        string directory,
-        IList<string> filePaths,
-        IList<string> notUploadedFiles,
-        CancellationToken cancellationToken = default
-    )
-    {
-        var extension = Path.GetExtension(fileSection.FileName);
-
-        if (!allowedExtensions.Contains(extension, StringComparer.Ordinal))
-        {
-            notUploadedFiles.Add(fileSection.FileName);
-            return 0;
-        }
-
-        var savingPath = Path.Combine(_options.UploadDirectory, directory);
-
-        Directory.CreateDirectory(savingPath);
-
-        var filePath = Path.Combine(savingPath, fileSection.FileName);
-
-        await using var stream = new FileStream(
-            filePath,
-            FileMode.Create,
-            FileAccess.Write,
-            FileShare.None,
-            bufferSize: 1024,
-            useAsync: true
-        );
-
-        if (fileSection.FileStream is null)
-        {
-            return 0;
-        }
-
-        await fileSection.FileStream.CopyToAsync(stream, cancellationToken);
-
-        filePaths.Add(GetFullFilePath(fileSection, directory));
-
-        return fileSection.FileStream.Length;
     }
 
     /// <summary>

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Net.Http.Headers;
 
 namespace BuildingBlocks.Core.FileUpload.Extensions;
 
@@ -24,6 +25,14 @@ public static class FileExtensions
     public static IServiceCollection AddFileUploadService(this IServiceCollection services)
     {
         services.AddValidatedOptions<FileUploadOptions>();
+
+        // Image optimization (enforced server-side layer + disk backfill). Options bind
+        // from the optional "ImageOptimizationOptions" section; defaults apply if absent.
+        services.AddOptions<ImageOptimizationOptions>().BindConfiguration(nameof(ImageOptimizationOptions));
+        services.AddSingleton<IImageOptimizer, ImageSharpImageOptimizer>();
+        services.AddSingleton<ImageBackfillRunner>();
+        services.AddHostedService<ImageBackfillHostedService>();
+
         services.AddScoped<IFileService, FileService>();
 
         return services;
@@ -58,6 +67,14 @@ public static class FileExtensions
             {
                 FileProvider = new PhysicalFileProvider(uploadPath),
                 RequestPath = FileConstants.FileRoute,
+
+                // Stored filenames are content-unique (IdGenerator), so optimized assets
+                // can be cached aggressively and immutably by browsers/CDNs.
+                OnPrepareResponse = context =>
+                {
+                    context.Context.Response.Headers[HeaderNames.CacheControl] =
+                        "public,max-age=31536000,immutable";
+                },
             }
         );
 
