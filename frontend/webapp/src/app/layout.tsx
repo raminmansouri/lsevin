@@ -2,6 +2,7 @@ import { getLocale } from "next-intl/server";
 import localFont from "next/font/local";
 
 import { getDirection } from "@/config/locales";
+import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 import { LocaleTypes } from "@/types/common";
 
 import "./globals.css";
@@ -41,6 +42,7 @@ export default async function RootLayout({
     >
       <body className="antialiased" suppressHydrationWarning>
         {children}
+        <ServiceWorkerRegister />
       </body>
     </html>
   );
