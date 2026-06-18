@@ -34,6 +34,14 @@ public sealed class ImageOptimizationOptions
     /// <summary>Gets the delay in milliseconds between backfill batches (throttling).</summary>
     public int BackfillBatchDelayMs { get; init; } = 250;
 
+    /// <summary>Gets the delay in milliseconds after each backfilled file, so the
+    /// CPU-bound encoder yields and the API stays responsive during a backfill.</summary>
+    public int BackfillPerFileDelayMs { get; init; } = 250;
+
+    /// <summary>Gets the max CPU cores ImageSharp may use per operation. Kept low (1)
+    /// so a backfill doesn't saturate every core and starve request handling.</summary>
+    public int EncodeMaxDegreeOfParallelism { get; init; } = 1;
+
     /// <summary>Gets the sub-directory (under the upload root) where originals are archived before being overwritten.</summary>
     public string ArchiveDirectoryName { get; init; } = "_archive";
 }

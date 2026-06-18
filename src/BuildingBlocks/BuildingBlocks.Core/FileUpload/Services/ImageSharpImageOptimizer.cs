@@ -32,6 +32,19 @@ internal sealed class ImageSharpImageOptimizer(IOptions<ImageOptimizationOptions
 
     private readonly ImageOptimizationOptions _options = options.Value;
 
+    // Cap ImageSharp's per-operation parallelism (it defaults to all cores) so a
+    // backfill or burst of uploads can't saturate every core and starve the API.
+    private readonly bool _configured = ConfigureParallelism(options.Value);
+
+    private static bool ConfigureParallelism(ImageOptimizationOptions options)
+    {
+        SixLabors.ImageSharp.Configuration.Default.MaxDegreeOfParallelism = Math.Max(
+            1,
+            options.EncodeMaxDegreeOfParallelism
+        );
+        return true;
+    }
+
     /// <inheritdoc />
     public bool IsOptimizableExtension(string fileNameOrExtension)
     {

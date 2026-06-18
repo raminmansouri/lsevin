@@ -122,6 +122,12 @@ public sealed class ImageBackfillRunner(
                 logger.LogError(ex, "Image backfill: failed to optimize '{Path}'; left untouched.", path);
             }
 
+            // Yield after every file so the CPU-bound encoder doesn't starve the API.
+            if (_imageOptions.BackfillPerFileDelayMs > 0)
+            {
+                await Task.Delay(_imageOptions.BackfillPerFileDelayMs, cancellationToken);
+            }
+
             if (++inBatch >= Math.Max(1, _imageOptions.BackfillBatchSize))
             {
                 inBatch = 0;
