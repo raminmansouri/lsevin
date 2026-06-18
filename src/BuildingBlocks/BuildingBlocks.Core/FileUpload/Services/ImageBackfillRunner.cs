@@ -47,8 +47,31 @@ public sealed class ImageBackfillRunner(
     private readonly FileUploadOptions _fileOptions = fileOptions.Value;
     private readonly ImageOptimizationOptions _imageOptions = imageOptions.Value;
 
-    /// <summary>Runs the backfill over the upload directory.</summary>
+    // Process-wide guard. The upload service is registered per module, so this hosted
+    // job can be instantiated and invoked multiple times concurrently; only one pass
+    // may run at a time or concurrent passes would race on the same files.
+    private static int _running;
+
+    /// <summary>Runs the backfill over the upload directory (single concurrent pass).</summary>
     public async Task<BackfillSummary> RunAsync(CancellationToken cancellationToken = default)
+    {
+        if (Interlocked.CompareExchange(ref _running, 1, 0) != 0)
+        {
+            logger.LogInformation("Image backfill already running; skipping duplicate invocation.");
+            return new BackfillSummary(0, 0, 0);
+        }
+
+        try
+        {
+            return await RunCoreAsync(cancellationToken);
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _running, 0);
+        }
+    }
+
+    private async Task<BackfillSummary> RunCoreAsync(CancellationToken cancellationToken)
     {
         var root = Path.Combine(environment.ContentRootPath, _fileOptions.UploadDirectory);
 
