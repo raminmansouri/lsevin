@@ -233,15 +233,13 @@ async function fetchJsonWithTimeout(url: string, timeoutMs = 2000) {
 async function lookupIpGeoWithoutGps(): Promise<DetectedIpGeoLocation | null> {
   if (typeof window === 'undefined') return null;
 
+  // IP geolocation is done server-side via the same-origin route (which reads the
+  // forwarded client IP and calls the geo provider). We must NOT call an external
+  // geo API directly from the browser — it's always cross-origin (CORS-blocked) and
+  // rate-limited (429), which spams the console and provides no value. If the
+  // same-origin lookup yields nothing, fall back to the manual location picker.
   const sameOriginPayload = await fetchJsonWithTimeout('/api/location/client-ip-geo');
-  const sameOriginLocation = normalizeIpGeoPayload(sameOriginPayload);
-  if (sameOriginLocation) return sameOriginLocation;
-
-  const browserEndpoint = process.env.NEXT_PUBLIC_IP_GEOLOCATION_ENDPOINT?.trim() || 'https://ipapi.co/json/';
-  if (!browserEndpoint) return null;
-
-  const browserPayload = await fetchJsonWithTimeout(browserEndpoint);
-  return normalizeIpGeoPayload(browserPayload);
+  return normalizeIpGeoPayload(sameOriginPayload);
 }
 
 export default function LocationPicker({ locale = 'fa-IR' }: Props) {
