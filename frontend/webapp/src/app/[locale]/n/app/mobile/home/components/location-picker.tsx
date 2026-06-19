@@ -217,8 +217,12 @@ async function fetchJsonWithTimeout(url: string, timeoutMs = 2000) {
       signal: controller.signal,
     });
 
-    if (!response.ok) return null;
-    return response.json();
+    // 204 (no resolvable public IP behind the proxy) and any empty body are
+    // "ok" responses with no JSON — guard them so response.json() can't throw
+    // "Unexpected end of JSON input" and crash the page.
+    if (!response.ok || response.status === 204) return null;
+    const text = await response.text();
+    return text ? JSON.parse(text) : null;
   } catch {
     return null;
   } finally {
