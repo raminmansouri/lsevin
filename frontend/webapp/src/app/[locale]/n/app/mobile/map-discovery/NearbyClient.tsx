@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 
 import NearbyMap from "./NearbyMap";
+import { resolveMapProvider } from "@/components/map/map-provider";
 import { AsyncSearchableSingleSelect } from "@/components/admin/forms/extensions/async-searchable-single-select";
 import {
   loadMapDiscoveryLocationByValue,
@@ -739,7 +740,14 @@ export default function NearbyClient({
           </button>
 
           <div className="absolute bottom-[calc(env(safe-area-inset-bottom)_+_5.5rem)] left-2 text-xs text-gray-500 bg-white/80 px-2 py-1 rounded z-20">
-            {t("mapProviders.neshanMap")}
+            {t(
+              resolveMapProvider({
+                countryCode: uiFilters.countryCode ?? detectedCountry,
+                coordinates: { latitude: center.lat, longitude: center.lng },
+              }) === "mapbox"
+                ? "mapProviders.mapboxMap"
+                : "mapProviders.neshanMap",
+            )}
           </div>
 
           {selectedProvider && (
