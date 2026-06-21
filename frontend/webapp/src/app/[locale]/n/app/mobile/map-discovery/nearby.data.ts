@@ -1,6 +1,8 @@
 import sql from "@/config/database/db";
 import { unstable_noStore as noStore } from "next/cache";
 
+import { normalizeDigits, parseCoordinate } from "./nearby.geo";
+
 export type NearbyFiltersInput = {
   q: string;
   categoryId: string | null;
@@ -56,6 +58,9 @@ export type NearbyPageData = {
   availableSpecialties: string[];
   availableCurrencies: NearbyCurrencyOption[];
   mapCenter: { lat: number; lng: number; zoom: number };
+  // True when the visitor's chosen area/radius had no services and results were
+  // expanded to the nearest available providers (possibly in other countries).
+  expandedBeyondFilters: boolean;
 };
 
 function getNearbyStaticLabels(locale: string) {
@@ -76,11 +81,15 @@ function toSingleString(value: string | string[] | undefined): string {
   return value ?? "";
 }
 
+// Coordinates normally arrive as ASCII (from String(Number)); normalizeDigits +
+// parseCoordinate (from ./nearby.geo) defend against Persian/Arabic digits reaching
+// here, where Number() would turn them into NaN and lose the location.
 function toFiniteNumber(
   value: string | string[] | undefined,
   fallback: number,
 ): number {
-  const raw = toSingleString(value).trim();
+  const raw = normalizeDigits(toSingleString(value).trim());
+  if (!raw) return fallback;
   const parsed = Number(raw);
   return Number.isFinite(parsed) ? parsed : fallback;
 }
@@ -272,18 +281,8 @@ export function parseNearbyFilters(
     ),
     languages: splitFilterValues(languagesRaw),
     specialties: splitFilterValues(specialtiesRaw),
-    lat: (() => {
-      const value = toSingleString(params.lat).trim();
-      if (!value) return null;
-      const parsed = Number(value);
-      return Number.isFinite(parsed) ? parsed : null;
-    })(),
-    lng: (() => {
-      const value = toSingleString(params.lng).trim();
-      if (!value) return null;
-      const parsed = Number(value);
-      return Number.isFinite(parsed) ? parsed : null;
-    })(),
+    lat: parseCoordinate(toSingleString(params.lat), -90, 90),
+    lng: parseCoordinate(toSingleString(params.lng), -180, 180),
   };
 }
 
@@ -309,8 +308,26 @@ function coalesceImage(...candidates: Array<string | null | undefined>) {
   return "/placeholder-provider.svg";
 }
 
-function buildNearbyWhere(filters: NearbyFiltersInput, lang: string) {
-  const conditions = [sql`sp.is_active = true`];
+// Great-circle distance (km) from the visitor to a provider, as a SQL fragment.
+// Haversine via the spherical law of cosines, clamped to [-1, 1] for float safety.
+// This is the single source of truth used for the distance column, the ORDER BY,
+// and the (soft) radius filter — so all three always agree.
+function haversineKmSql(lat: number, lng: number) {
+  return sql`(
+    6371 * acos(
+      least(1, greatest(-1,
+        cos(radians(${lat})) * cos(radians(sp.latitude::float))
+        * cos(radians(sp.longitude::float) - radians(${lng}))
+        + sin(radians(${lat})) * sin(radians(sp.latitude::float))
+      ))
+    )
+  )`;
+}
+
+// "Content" filters — what the provider IS (category, type, price, rating,
+// language, specialty, free text). These always apply; expansion never drops them.
+function buildContentConditions(filters: NearbyFiltersInput, lang: string) {
+  const conditions: any[] = [];
 
   if (filters.categoryId) {
     conditions.push(sql`exists (
@@ -326,14 +343,6 @@ function buildNearbyWhere(filters: NearbyFiltersInput, lang: string) {
 
   if (filters.providerTypeId) {
     conditions.push(sql`sp.provider_type_id = ${filters.providerTypeId}::uuid`);
-  }
-
-  if (filters.countryCode) {
-    conditions.push(buildLocationCodeMatchSql(sql`sp.country`, filters.countryCode));
-  }
-
-  if (filters.cityCode) {
-    conditions.push(buildLocationCodeMatchSql(sql`sp.city`, filters.cityCode));
   }
 
   if (filters.minPrice > 0 || filters.maxPrice > 0 || filters.currencyCode) {
@@ -423,19 +432,33 @@ function buildNearbyWhere(filters: NearbyFiltersInput, lang: string) {
     )`);
   }
 
-  if (filters.lat != null && filters.lng != null && filters.distanceKm > 0) {
-    conditions.push(sql`(
-      6371 * acos(
-        least(1, greatest(-1,
-          cos(radians(${filters.lat})) * cos(radians(sp.latitude::float))
-          * cos(radians(sp.longitude::float) - radians(${filters.lng}))
-          + sin(radians(${filters.lat})) * sin(radians(sp.latitude::float))
-        ))
-      )
-    ) <= ${filters.distanceKm}`);
+  return conditions;
+}
+
+// "Geo" filters — WHERE the provider is (country, city, radius). These are SOFT:
+// applied as a first pass, then dropped entirely if that pass returns nothing, so
+// the visitor always sees the nearest providers (even abroad) instead of an empty
+// list. The radius is the visitor's preferred range, not a hard wall.
+function buildGeoConditions(filters: NearbyFiltersInput) {
+  const conditions: any[] = [];
+
+  if (filters.countryCode) {
+    conditions.push(buildLocationCodeMatchSql(sql`sp.country`, filters.countryCode));
   }
 
-  return sql`where ${joinSql(conditions, sql` and `)}`;
+  if (filters.cityCode) {
+    conditions.push(buildLocationCodeMatchSql(sql`sp.city`, filters.cityCode));
+  }
+
+  if (filters.lat != null && filters.lng != null && filters.distanceKm > 0) {
+    conditions.push(sql`${haversineKmSql(filters.lat, filters.lng)} <= ${filters.distanceKm}`);
+  }
+
+  return conditions;
+}
+
+function composeWhere(conditions: any[]) {
+  return sql`where ${joinSql([sql`sp.is_active = true`, ...conditions], sql` and `)}`;
 }
 
 export async function getNearbyPageData({
@@ -450,7 +473,8 @@ export async function getNearbyPageData({
   const lang = normalizeLocale(locale);
   const labels = getNearbyStaticLabels(lang);
   const customerId = await resolveCurrentCustomerId();
-  const whereSql = buildNearbyWhere(filters, lang);
+  const contentConditions = buildContentConditions(filters, lang);
+  const geoConditions = buildGeoConditions(filters);
   const selectedCurrencyCode = normalizeCurrencyCode(filters.currencyCode);
 
   const favoriteProviderIds = customerId
@@ -498,7 +522,8 @@ export async function getNearbyPageData({
     })),
   ];
 
-  const rows = await sql<any[]>`
+  const fetchProviders = (whereSql: any) =>
+    sql<any[]>`
     select
       sp.id::text as id,
       common.get_translation_t(sp.name_translations, ${lang}, 'en') as name,
@@ -593,6 +618,38 @@ export async function getNearbyPageData({
       sp.create_date desc
     limit 100
   `;
+
+  // First pass honours the visitor's chosen area/radius (soft geo filters).
+  let rows = await fetchProviders(
+    composeWhere([...contentConditions, ...geoConditions]),
+  );
+  let expandedBeyondFilters = false;
+
+  // Expansion: if the area/radius matched nothing, keep the content filters but
+  // drop the geo box, so the nearest available providers surface — even in other
+  // countries — still ordered by real distance to the visitor. Never returns empty
+  // just because the visitor's own city/country has no services.
+  if (rows.length === 0 && geoConditions.length > 0) {
+    rows = await fetchProviders(composeWhere(contentConditions));
+    expandedBeyondFilters = rows.length > 0;
+  }
+
+  if (process.env.NODE_ENV !== "production") {
+    // eslint-disable-next-line no-console
+    console.info("[geo] nearby.query", {
+      userLat: filters.lat,
+      userLng: filters.lng,
+      radiusKm: filters.distanceKm,
+      geoFilterCount: geoConditions.length,
+      resultCount: rows.length,
+      expandedBeyondFilters,
+      nearestKm: rows
+        .slice(0, 5)
+        .map((r) =>
+          r.distance_km == null ? null : Number(Number(r.distance_km).toFixed(2)),
+        ),
+    });
+  }
 
   const providers: NearbyProvider[] = rows.map((row) => {
     const distanceKm = row.distance_km == null ? null : Number(row.distance_km);
@@ -715,5 +772,6 @@ export async function getNearbyPageData({
     availableSpecialties,
     availableCurrencies,
     mapCenter,
+    expandedBeyondFilters,
   };
 }

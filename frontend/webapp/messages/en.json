@@ -7180,7 +7180,10 @@
         "implants": "Implants",
         "veneers": "Veneers"
       }
-    }
+    },
+    "useMyLocation": "Use my location",
+    "expandedNote": "No services in your selected area — showing the nearest available, sorted by distance.",
+    "noResults": "No services found. Try widening your filters."
   },
   "NearbyMap": {
     "mapboxNotConfiguredTitle": "Mapbox is not configured",
@@ -7190,7 +7193,9 @@
     "neshanCouldNotLoad": "Neshan map could not load",
     "neshanCouldNotLoadBody": "The map could not load. Check your Neshan SDK configuration.",
     "selectedProvider": "Selected provider",
-    "selectProvider": "Select provider"
+    "selectProvider": "Select provider",
+    "mapboxCouldNotLoad": "Mapbox map could not load",
+    "mapboxCouldNotLoadBody": "The map could not load. Check your Mapbox configuration."
   },
   "MapShared": {
     "mapboxConfigurationMissing": "Mapbox configuration missing. Set NEXT_PUBLIC_MAPBOX_TOKEN or switch NEXT_PUBLIC_MAP_PROVIDER to neshan.",
@@ -7200,7 +7205,8 @@
     "locationDescription": "Click on the map, drag the marker, or enter coordinates manually",
     "reset": "Reset",
     "latitude": "Latitude",
-    "longitude": "Longitude"
+    "longitude": "Longitude",
+    "mapboxMapLoadError": "Mapbox map could not load."
   },
   "SearchResults": {
     "resultsFound": "{count, plural, =0 {No results found} one {# result found} other {# results found}}",

@@ -7258,7 +7258,10 @@
         "implants": "الزراعات",
         "veneers": "القشور"
       }
-    }
+    },
+    "useMyLocation": "استخدام موقعي",
+    "expandedNote": "لا توجد خدمات في نطاقك المحدد — نعرض أقرب الخدمات المتاحة مرتبة حسب المسافة.",
+    "noResults": "لم يتم العثور على خدمات. جرّب توسيع عوامل التصفية."
   },
   "NearbyMap": {
     "mapboxNotConfiguredTitle": "Mapbox is not مكوّن",
@@ -7268,7 +7271,9 @@
     "neshanCouldNotLoad": "Neshan الخريطة could not تحميل",
     "neshanCouldNotLoadBody": "الخريطة could not تحميل. فحص الخاص بك Neshan SDK configuration.",
     "selectedProvider": "المزوّد المحدد",
-    "selectProvider": "اختر المزوّد"
+    "selectProvider": "اختر المزوّد",
+    "mapboxCouldNotLoad": "تعذّر تحميل خريطة Mapbox",
+    "mapboxCouldNotLoadBody": "تعذّر تحميل الخريطة. تحقّق من إعدادات Mapbox."
   },
   "MapShared": {
     "mapboxConfigurationMissing": "إعدادات Mapbox مفقودة. عيّن NEXT_PUBLIC_MAPBOX_TOKEN أو بدّل NEXT_PUBLIC_MAP_PROVIDER إلى neshan.",
@@ -7278,7 +7283,8 @@
     "locationDescription": "Click على الخريطة، drag marker، أو enter الإحداثيات manually",
     "reset": "إعادة تعيين",
     "latitude": "خط العرض",
-    "longitude": "خط الطول"
+    "longitude": "خط الطول",
+    "mapboxMapLoadError": "تعذّر تحميل خريطة Mapbox."
   },
   "SearchResults": {
     "resultsFound": "{count, plural, =0 {لا توجد نتائج} one {# نتيجة} other {# نتائج}}",

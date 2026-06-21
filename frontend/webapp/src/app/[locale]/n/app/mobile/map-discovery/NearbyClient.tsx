@@ -24,6 +24,7 @@ import {
   DollarSign,
   Award,
   Globe,
+  Loader2,
 } from "lucide-react";
 
 import NearbyMap from "./NearbyMap";
@@ -155,6 +156,32 @@ function fallbackCurrencyOption(): NearbyCurrencyOption {
   return { code: "USD", label: "US Dollar", symbol: "$", count: 0 };
 }
 
+// High-accuracy device GPS. enableHighAccuracy asks for the GPS chip (not just
+// WiFi/cell triangulation); maximumAge:0 forbids a stale cached fix; a generous
+// timeout lets the first GPS lock settle.
+const GEO_OPTIONS: PositionOptions = {
+  enableHighAccuracy: true,
+  timeout: 15000,
+  maximumAge: 0,
+};
+
+// Structured, greppable geolocation logging so raw vs parsed coordinates and the
+// resulting accuracy are comparable before/after. Dev-only to avoid prod noise.
+function logGeo(event: string, data: Record<string, unknown>) {
+  if (process.env.NODE_ENV === "production") return;
+  // eslint-disable-next-line no-console
+  console.info(`[geo] ${event}`, data);
+}
+
+// A raw IP lookup only pinpoints the ISP/datacenter (tens of km off), so it is
+// trustworthy enough to center the map and pick a country, but NOT to compute a
+// "X km away" distance. Only these sources give a position we trust for distance.
+const COARSE_LOCATION_SOURCES = new Set(["ip"]);
+
+function isPreciseLocationSource(source?: string | null): boolean {
+  return !COARSE_LOCATION_SOURCES.has(String(source || "").toLowerCase());
+}
+
 // The location the visitor already chose on the home page, persisted there.
 // Keeping map + home in agreement avoids a second, divergent IP lookup.
 const HOME_LOCATION_STORAGE_KEY = "lsevin.home.selected-location.v1";
@@ -163,6 +190,7 @@ function readStoredHomeLocation(): {
   lat: number | null;
   lng: number | null;
   countryCode: string | null;
+  source: string | null;
 } | null {
   if (typeof window === "undefined") return null;
   try {
@@ -182,7 +210,9 @@ function readStoredHomeLocation(): {
       typeof parsed.countryCode === "string" && parsed.countryCode
         ? parsed.countryCode
         : null;
-    return { lat, lng, countryCode };
+    const source =
+      typeof parsed.source === "string" && parsed.source ? parsed.source : null;
+    return { lat, lng, countryCode, source };
   } catch {
     return null;
   }
@@ -198,6 +228,7 @@ export default function NearbyClient({
   availableCurrencies,
   filters: initialFilters,
   mapCenter,
+  expandedBeyondFilters = false,
 }: {
   locale: string;
   customerId: string | null;
@@ -208,6 +239,7 @@ export default function NearbyClient({
   availableCurrencies: NearbyCurrencyOption[];
   filters: NearbyFiltersInput;
   mapCenter: { lat: number; lng: number; zoom: number };
+  expandedBeyondFilters?: boolean;
 }) {
   const t = useTranslations("MapDiscovery");
   const router = useRouter();
@@ -233,19 +265,36 @@ export default function NearbyClient({
   useEffect(() => setCenter(mapCenter), [mapCenter]);
 
   useEffect(() => {
-    // 1) Prefer the precise location the visitor already chose on the home page.
-    //    Pin + center on it, and (when the URL has no coords yet) adopt them so the
-    //    server returns providers sorted by distance.
+    // 1) Prefer the location the visitor already chose on the home page.
     const stored = readStoredHomeLocation();
     if (stored && stored.lat != null && stored.lng != null) {
-      setUserLocation({ lat: stored.lat, lng: stored.lng });
-      setCenter({ lat: stored.lat, lng: stored.lng, zoom: 12 });
+      const precise = isPreciseLocationSource(stored.source);
+      logGeo("nearby.stored", {
+        lat: stored.lat,
+        lng: stored.lng,
+        source: stored.source,
+        precise,
+      });
+      setCenter({ lat: stored.lat, lng: stored.lng, zoom: precise ? 12 : 10 });
       if (stored.countryCode) setDetectedCountry(stored.countryCode);
-      if (initialFilters.lat == null && initialFilters.lng == null) {
+
+      if (precise) {
+        // A trustworthy position (GPS / chosen city): pin it and sort by distance.
+        setUserLocation({ lat: stored.lat, lng: stored.lng });
+        if (initialFilters.lat == null && initialFilters.lng == null) {
+          navigateSmooth(
+            startTransition,
+            router,
+            buildNearbyQuery({ ...initialFilters, lat: stored.lat, lng: stored.lng, distanceKm: 50 }),
+          );
+        }
+      } else if (initialFilters.lat != null || initialFilters.lng != null) {
+        // Coarse IP origin leaked into the URL — strip the coords so the server
+        // doesn't compute misleading distances; the map still centers via state.
         navigateSmooth(
           startTransition,
           router,
-          buildNearbyQuery({ ...initialFilters, lat: stored.lat, lng: stored.lng, distanceKm: 50 }),
+          buildNearbyQuery({ ...initialFilters, lat: null, lng: null }),
         );
       }
       return;
@@ -258,7 +307,9 @@ export default function NearbyClient({
       initialFilters.cityCode != null;
     if (hasExplicitLocation) return;
 
-    // 2) Fall back to a best-effort IP lookup (no GPS prompt).
+    // 2) Fall back to a best-effort IP lookup (no GPS prompt). IP is only accurate
+    //    enough to CENTER the map and pick a country — never to pin the user or
+    //    compute distance — so we set neither userLocation nor query coords here.
     let cancelled = false;
     (async () => {
       try {
@@ -267,8 +318,8 @@ export default function NearbyClient({
         const geo = await res.json();
         if (cancelled || !geo) return;
         if (typeof geo.latitude === "number" && typeof geo.longitude === "number") {
+          logGeo("nearby.ip", { lat: geo.latitude, lng: geo.longitude, countryCode: geo.countryCode });
           setCenter({ lat: geo.latitude, lng: geo.longitude, zoom: 10 });
-          setUserLocation({ lat: geo.latitude, lng: geo.longitude });
         }
         if (geo.countryCode) setDetectedCountry(String(geo.countryCode));
       } catch {
@@ -500,34 +551,58 @@ export default function NearbyClient({
     );
   };
 
+  const [isLocating, setIsLocating] = useState(false);
+
   const requestCurrentLocation = () => {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition((position) => {
-      setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
-      setCenter({ lat: position.coords.latitude, lng: position.coords.longitude, zoom: 13 });
-      navigateSmooth(
-        startTransition,
-        router,
-        buildNearbyQuery({
-          ...initialFilters,
-          categoryId:
-            uiFilters.categoryId === "all" ? null : uiFilters.categoryId,
-          providerTypeId: uiFilters.providerTypeId === "all" ? null : uiFilters.providerTypeId,
-          countryCode: uiFilters.countryCode,
-          cityCode: uiFilters.cityCode,
-          minPrice: 0,
-          maxPrice: uiFilters.maxPrice,
-          currencyCode: uiFilters.currencyCode,
-          distanceKm: uiFilters.distanceKm,
-          minRating: uiFilters.minRating,
-          verifiedOnly: uiFilters.verifiedOnly,
-          languages: uiFilters.languages,
-          specialties: uiFilters.specialties,
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        }),
-      );
-    });
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      logGeo("nearby.gps.unsupported", {});
+      return;
+    }
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setIsLocating(false);
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        logGeo("nearby.gps.success", {
+          lat,
+          lng,
+          accuracyM: Math.round(position.coords.accuracy),
+        });
+        // A real GPS fix supersedes any coarse IP center and drives distance sort.
+        setUserLocation({ lat, lng });
+        setCenter({ lat, lng, zoom: 14 });
+        navigateSmooth(
+          startTransition,
+          router,
+          buildNearbyQuery({
+            ...initialFilters,
+            categoryId:
+              uiFilters.categoryId === "all" ? null : uiFilters.categoryId,
+            providerTypeId: uiFilters.providerTypeId === "all" ? null : uiFilters.providerTypeId,
+            countryCode: uiFilters.countryCode,
+            cityCode: uiFilters.cityCode,
+            minPrice: 0,
+            maxPrice: uiFilters.maxPrice,
+            currencyCode: uiFilters.currencyCode,
+            distanceKm: uiFilters.distanceKm,
+            minRating: uiFilters.minRating,
+            verifiedOnly: uiFilters.verifiedOnly,
+            languages: uiFilters.languages,
+            specialties: uiFilters.specialties,
+            lat,
+            lng,
+          }),
+        );
+      },
+      (error) => {
+        setIsLocating(false);
+        // Permission denied / unavailable / timeout: keep the current view rather
+        // than snapping the user to a wrong fallback point.
+        logGeo("nearby.gps.error", { code: error.code, message: error.message });
+      },
+      GEO_OPTIONS,
+    );
   };
 
   const activeFilters = {
@@ -648,13 +723,19 @@ export default function NearbyClient({
 
           <button
             onClick={requestCurrentLocation}
-            className={`absolute right-4 z-30 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all border border-gray-200 hover:bg-gray-50 ${
+            disabled={isLocating}
+            aria-label={t("useMyLocation")}
+            className={`absolute right-4 z-30 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all border border-gray-200 hover:bg-gray-50 disabled:opacity-70 ${
               selectedProvider
                 ? "bottom-56"
                 : "bottom-[calc(env(safe-area-inset-bottom)_+_5.5rem)]"
             }`}
           >
-            <Navigation size={20} className="text-[#083f30]" />
+            {isLocating ? (
+              <Loader2 size={20} className="text-[#083f30] animate-spin" />
+            ) : (
+              <Navigation size={20} className="text-[#083f30]" />
+            )}
           </button>
 
           <div className="absolute bottom-[calc(env(safe-area-inset-bottom)_+_5.5rem)] left-2 text-xs text-gray-500 bg-white/80 px-2 py-1 rounded z-20">
@@ -736,6 +817,16 @@ export default function NearbyClient({
         </>
       ) : (
         <div className="px-5 py-4 space-y-3 pb-28">
+          {expandedBeyondFilters && providers.length > 0 && (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              {t("expandedNote")}
+            </div>
+          )}
+          {providers.length === 0 && (
+            <div className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-8 text-center text-sm text-gray-600">
+              {t("noResults")}
+            </div>
+          )}
           {providers.map((provider) => (
             <div
               key={provider.id}

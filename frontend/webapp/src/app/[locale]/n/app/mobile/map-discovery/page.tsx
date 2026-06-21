@@ -26,6 +26,7 @@ export default async function MapDiscoveryPage({
       availableCurrencies={data.availableCurrencies}
       filters={filters}
       mapCenter={data.mapCenter}
+      expandedBeyondFilters={data.expandedBeyondFilters}
     />
   );
 }

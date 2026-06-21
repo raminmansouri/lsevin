@@ -529,6 +529,14 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
       (position) => {
         const userLatitude = position.coords.latitude;
         const userLongitude = position.coords.longitude;
+        if (process.env.NODE_ENV !== 'production') {
+          // eslint-disable-next-line no-console
+          console.info('[geo] home.gps.success', {
+            lat: userLatitude,
+            lng: userLongitude,
+            accuracyM: Math.round(position.coords.accuracy),
+          });
+        }
 
         startTransition(async () => {
           try {
@@ -576,15 +584,22 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
           }
         });
       },
-      () => {
+      (error) => {
+        if (process.env.NODE_ENV !== 'production') {
+          // eslint-disable-next-line no-console
+          console.info('[geo] home.gps.error', { code: error.code, message: error.message });
+        }
         setIsDetecting(false);
         setLocationMessage(t('messages.permissionDenied'));
         detectFromAccountPhoneOrIp('replace');
       },
       {
+        // Ask for the GPS chip, never accept a stale cached fix, and give the
+        // first lock enough time. maximumAge:0 was previously 5 min, which could
+        // hand back an old position from a different place.
         enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 5 * 60 * 1000,
+        timeout: 15000,
+        maximumAge: 0,
       }
     );
   }, [applyLocation, detectFromAccountPhoneOrIp, localeForQueries, locationTitleFallback, startTransition, t]);

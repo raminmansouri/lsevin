@@ -7270,7 +7270,10 @@
         "implants": "ایمپلنت",
         "veneers": "ونیر"
       }
-    }
+    },
+    "useMyLocation": "استفاده از موقعیت من",
+    "expandedNote": "در محدودهٔ انتخابی شما خدمتی نبود — نزدیک‌ترین خدمات موجود بر اساس فاصله نشان داده می‌شود.",
+    "noResults": "خدمتی پیدا نشد. فیلترها را بازتر کنید."
   },
   "NearbyMap": {
     "mapboxNotConfiguredTitle": "Mapbox پیکربندی نشده است",
@@ -7280,7 +7283,9 @@
     "neshanCouldNotLoad": "نقشه نشان بارگذاری نشد",
     "neshanCouldNotLoadBody": "نقشه بارگذاری نشد. تنظیمات SDK نشان را بررسی کنید.",
     "selectedProvider": "ارائه‌دهنده انتخاب‌شده",
-    "selectProvider": "انتخاب ارائه‌دهنده"
+    "selectProvider": "انتخاب ارائه‌دهنده",
+    "mapboxCouldNotLoad": "نقشه Mapbox بارگذاری نشد",
+    "mapboxCouldNotLoadBody": "نقشه بارگذاری نشد. پیکربندی Mapbox را بررسی کنید."
   },
   "MapShared": {
     "mapboxConfigurationMissing": "پیکربندی Mapbox کامل نیست. متغیر NEXT_PUBLIC_MAPBOX_TOKEN را تنظیم کنید یا NEXT_PUBLIC_MAP_PROVIDER را روی neshan بگذارید.",
@@ -7290,7 +7295,8 @@
     "locationDescription": "روی نقشه کلیک کنید، نشانگر را جابه‌جا کنید یا مختصات را دستی وارد کنید",
     "reset": "بازنشانی",
     "latitude": "عرض جغرافیایی",
-    "longitude": "طول جغرافیایی"
+    "longitude": "طول جغرافیایی",
+    "mapboxMapLoadError": "نقشه Mapbox بارگذاری نشد."
   },
   "SearchResults": {
     "resultsFound": "{count, plural, =0 {نتیجه‌ای پیدا نشد} one {# نتیجه پیدا شد} other {# نتیجه پیدا شد}}",
