@@ -761,39 +761,84 @@ export async function resolveActiveLocationFromCoordinates(input: {
   const fromPicked = mapLocationRow(pickedRows[0], source);
   if (fromPicked?.cityCode || fromPicked?.countryCode) return fromPicked;
 
+  // Resolve coordinates to the city/country that the *cluster* of nearby providers
+  // agrees on, not the single closest provider. Provider city/country are free-text
+  // and occasionally mislabeled (e.g. a Tehran clinic tagged city=istanbul/country=TR
+  // while sitting at Tehran coordinates). Trusting the lone nearest row let tiny GPS
+  // jitter flip the resolved location to a wrong city. Instead we take the nearest
+  // providers, keep those within a metro-scale radius, and pick the dominant
+  // (country, city) — which outvotes mislabeled outliers and is stable across
+  // repeated GPS reads — falling back to the single nearest provider only when
+  // nothing is within range (far-away visitors), so "nearest destination" still works.
   const providerRows = await sql<LocationRow[]>`
+    with nearby as (
+      select
+        upper(btrim(sp.country)) as country_code,
+        upper(btrim(sp.city)) as city_code,
+        (
+          6371 * acos(
+            least(1, greatest(-1,
+              cos(radians(${latitude}::double precision)) * cos(radians(sp.latitude::double precision)) *
+              cos(radians(sp.longitude::double precision) - radians(${longitude}::double precision)) +
+              sin(radians(${latitude}::double precision)) * sin(radians(sp.latitude::double precision))
+            ))
+          )
+        ) as km
+      from category.service_providers sp
+      where sp.is_active = true
+        and sp.latitude is not null
+        and sp.longitude is not null
+        and nullif(btrim(sp.country), '') is not null
+        and nullif(btrim(sp.city), '') is not null
+      order by km asc
+      limit 60
+    ),
+    winner as (
+      -- Dominant city among providers within ~100km (same metro); ties → closest.
+      select country_code, city_code, min(km) as km
+      from nearby
+      where km <= 100
+      group by country_code, city_code
+      order by count(*) desc, min(km) asc
+      limit 1
+    ),
+    nearest_single as (
+      -- Fallback for visitors with no provider within range.
+      select country_code, city_code, km
+      from nearby
+      order by km asc
+      limit 1
+    ),
+    resolved as (
+      select * from winner
+      union all
+      select * from nearest_single where not exists (select 1 from winner)
+      limit 1
+    )
     select
-      concat_ws(':', 'provider-location', sp.id::text) as id,
+      concat_ws(':', 'provider-location', r.country_code, r.city_code) as id,
       coalesce(
         common.get_translation_t(city_loc.value_translations, ${lang}::text, ${FALLBACK_LOCALE}::text),
-        nullif(sp.city, '')
+        initcap(lower(r.city_code))
       ) as city,
       coalesce(
         common.get_translation_t(country_loc.value_translations, ${lang}::text, ${FALLBACK_LOCALE}::text),
-        nullif(sp.country, '')
+        r.country_code
       ) as country,
-      nullif(sp.image_url, '') as image,
+      null::text as image,
       city_loc.id::text as "cityId",
       country_loc.id::text as "countryId",
-      nullif(sp.city, '') as "cityCode",
-      nullif(sp.country, '') as "countryCode",
-      sp.latitude,
-      sp.longitude,
-      (
-        6371 * acos(
-          least(1, greatest(-1,
-            cos(radians(${latitude}::double precision)) * cos(radians(sp.latitude::double precision)) *
-            cos(radians(sp.longitude::double precision) - radians(${longitude}::double precision)) +
-            sin(radians(${latitude}::double precision)) * sin(radians(sp.latitude::double precision))
-          ))
-        )
-      ) as "accuracyKm"
-    from category.service_providers sp
+      r.city_code as "cityCode",
+      r.country_code as "countryCode",
+      ${latitude}::numeric as latitude,
+      ${longitude}::numeric as longitude,
+      r.km as "accuracyKm"
+    from resolved r
     left join lateral (
       select l.id, l.value_translations
       from category.locations l
       where l.location_type_id = 1
-        and upper(l.code) = upper(sp.country)
+        and upper(l.code) = r.country_code
       order by coalesce(l.display_order, 0), l.create_date desc
       limit 1
     ) country_loc on true
@@ -801,15 +846,10 @@ export async function resolveActiveLocationFromCoordinates(input: {
       select l.id, l.value_translations
       from category.locations l
       where l.location_type_id = 2
-        and upper(l.code) = upper(sp.city)
+        and upper(l.code) = r.city_code
       order by coalesce(l.display_order, 0), l.create_date desc
       limit 1
     ) city_loc on true
-    where sp.is_active = true
-      and sp.latitude is not null
-      and sp.longitude is not null
-      and nullif(btrim(sp.country), '') is not null
-    order by "accuracyKm" asc nulls last
     limit 1
   `;
 

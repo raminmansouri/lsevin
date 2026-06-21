@@ -23,6 +23,7 @@ import {
 } from '../actions/resolve-home-location';
 import { saveCurrentLocationToProfileAction } from '../actions/save-profile-location';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
+import { hasExplicitLocaleChoice, localeForCountry } from '@/i18n/locale-by-country';
 
 const formSchema = z.object({
   countryId: z.string().uuid().nullable().optional(),
@@ -36,6 +37,15 @@ type NavigationMode = 'push' | 'replace' | false;
 type ApplyLocationOptions = {
   navigation?: NavigationMode;
   persist?: boolean;
+  // When true, switch the app language to the detected country's language (if we
+  // have a full translation for it, else English) — unless the visitor already
+  // picked a language explicitly. Only the "where am I" detection flows set this.
+  adoptLocale?: boolean;
+  // Overrides which country drives the language decision. The resolved location's
+  // countryCode is the nearest *destination* (a provider's country), which for a
+  // far-away visitor isn't their real country — so the IP flow passes the true
+  // country from IP geo here while still showing nearby providers for the location.
+  localeCountryCode?: string | null;
 };
 
 type DetectedIpGeoLocation = {
@@ -103,10 +113,22 @@ function toResolvedLocation(location: HomePickedLocation): HomeResolvedLocation 
   };
 }
 
+function hasUsableCoordinates(value: Partial<HomeResolvedLocation>): boolean {
+  return (
+    typeof value.latitude === 'number' &&
+    Number.isFinite(value.latitude) &&
+    typeof value.longitude === 'number' &&
+    Number.isFinite(value.longitude)
+  );
+}
+
 function isPersistableLocation(value: unknown): value is HomeResolvedLocation {
   if (!value || typeof value !== 'object') return false;
   const record = value as Partial<HomeResolvedLocation>;
-  return Boolean(record.id && (record.countryCode || record.cityCode || record.country || record.city));
+  return Boolean(
+    record.id &&
+      (record.countryCode || record.cityCode || record.country || record.city || hasUsableCoordinates(record))
+  );
 }
 
 function parseStoredLocation() {
@@ -131,6 +153,49 @@ function persistLocation(location: HomeResolvedLocation) {
   } catch {
     // Local storage may be blocked by the browser; location still works through query params.
   }
+}
+
+// Remembers that we already asked this browser for its location once. After the
+// first attempt we never auto-detect or auto-open the picker again on return
+// visits — the visitor can still open it manually from the location button.
+const ASKED_KEY = 'lsevin.home.location-asked.v1';
+
+function hasAskedForLocation() {
+  if (typeof window === 'undefined') return false;
+  try {
+    return window.localStorage.getItem(ASKED_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function markLocationAsked() {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(ASKED_KEY, '1');
+  } catch {
+    // Best-effort; if storage is blocked the picker still works, just less sticky.
+  }
+}
+
+// A coordinate-only location used when GPS succeeds but the visitor isn't near
+// any supported destination — we still keep their real position so providers
+// sort by distance and the map can pin them.
+function makeCoordinateLocation(latitude: number, longitude: number): HomeResolvedLocation {
+  return {
+    ...INITIAL_LOCATION,
+    id: 'gps-coordinates',
+    city: null,
+    country: null,
+    image: null,
+    cityId: null,
+    countryId: null,
+    cityCode: null,
+    countryCode: null,
+    latitude,
+    longitude,
+    source: 'gps',
+  };
 }
 
 function getLocationTitle(location: HomeResolvedLocation, fallback: string) {
@@ -230,16 +295,24 @@ async function fetchJsonWithTimeout(url: string, timeoutMs = 2000) {
   }
 }
 
+// CORS-enabled, key-less geo provider for the browser fallback below. geojs.io
+// sends `Access-Control-Allow-Origin: *` AND does not block browser-origin
+// requests, unlike ipwho.is / ipapi.co (which return 403 / CORS errors from a
+// page). The leading slash-less https URL is reached cross-origin by the browser.
+const BROWSER_IP_GEO_URL = 'https://get.geojs.io/v1/ip/geo.json';
+
 async function lookupIpGeoWithoutGps(): Promise<DetectedIpGeoLocation | null> {
   if (typeof window === 'undefined') return null;
 
-  // IP geolocation is done server-side via the same-origin route (which reads the
-  // forwarded client IP and calls the geo provider). We must NOT call an external
-  // geo API directly from the browser — it's always cross-origin (CORS-blocked) and
-  // rate-limited (429), which spams the console and provides no value. If the
-  // same-origin lookup yields nothing, fall back to the manual location picker.
-  const sameOriginPayload = await fetchJsonWithTimeout('/api/location/client-ip-geo');
-  return normalizeIpGeoPayload(sameOriginPayload);
+  // 1) Same-origin server route first — works when the host forwards the real
+  //    client IP (X-Forwarded-For). Behind a proxy that strips it, this 204s.
+  const sameOrigin = normalizeIpGeoPayload(await fetchJsonWithTimeout('/api/location/client-ip-geo'));
+  if (sameOrigin) return sameOrigin;
+
+  // 2) Browser fallback: call the geo provider directly. The visitor's browser
+  //    always reaches it with its own public IP, so this works even when the
+  //    server never sees the real client IP (the cause of the 204 above).
+  return normalizeIpGeoPayload(await fetchJsonWithTimeout(BROWSER_IP_GEO_URL, 3500));
 }
 
 export default function LocationPicker({ locale = 'fa-IR' }: Props) {
@@ -292,6 +365,7 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
     (location: HomeResolvedLocation, options: ApplyLocationOptions = {}) => {
       const navigation = options.navigation ?? 'push';
       const persist = options.persist ?? true;
+      const adoptLocale = options.adoptLocale ?? false;
 
       setSelectedLocation(location);
       setLocationMessage(null);
@@ -299,8 +373,12 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
       form.setValue('countryId', location.countryId, { shouldDirty: false });
       form.setValue('cityId', location.cityId, { shouldDirty: false });
 
-      if (persist && (location.countryCode || location.cityCode)) {
+      const hasCoordinates = location.latitude != null && location.longitude != null;
+
+      if (persist && (location.countryCode || location.cityCode || hasCoordinates)) {
         persistLocation(location);
+        // A real location is on file — never auto-nag for it again.
+        markLocationAsked();
       }
 
       if (!navigation) return;
@@ -313,7 +391,51 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
       if (location.cityCode) nextSearchParams.set('cityCode', location.cityCode);
       else nextSearchParams.delete('cityCode');
 
+      // Carry the visitor's real coordinates so server-side home queries can sort
+      // providers nearest-first and the map can pin them.
+      if (hasCoordinates) {
+        nextSearchParams.set('lat', String(location.latitude));
+        nextSearchParams.set('lng', String(location.longitude));
+      } else {
+        nextSearchParams.delete('lat');
+        nextSearchParams.delete('lng');
+      }
+
       const query = nextSearchParams.toString();
+
+      // Adopt the visitor's language from their detected country (using a full
+      // translation where we have one, otherwise English) — but never override an
+      // explicit language choice. Switches the /[locale] segment + NEXT_LOCALE
+      // cookie and carries the location params across in a single navigation.
+      const localeCountryCode = options.localeCountryCode ?? location.countryCode;
+      if (adoptLocale && localeCountryCode && !hasExplicitLocaleChoice()) {
+        const segments = pathname.split('/');
+        const currentUrlLocale = segments[1] || '';
+        const targetLocale = localeForCountry(localeCountryCode);
+
+        if (targetLocale && targetLocale !== currentUrlLocale) {
+          const restPath = segments.slice(2).join('/');
+          const localizedPath = restPath ? `/${targetLocale}/${restPath}` : `/${targetLocale}`;
+          const localizedUrl = query ? `${localizedPath}?${query}` : localizedPath;
+
+          try {
+            document.cookie = `NEXT_LOCALE=${targetLocale};path=/;max-age=31536000;samesite=lax`;
+          } catch {
+            // Cookie blocked — the locale still switches for this navigation.
+          }
+
+          // Hard navigation: a language change must reload the message bundle and
+          // flip text direction, and this runs inside an async geolocation/transition
+          // callback where the soft router can no-op. window.location is reliable.
+          if (typeof window !== 'undefined') {
+            window.location.assign(localizedUrl);
+            return;
+          }
+          router.replace(localizedUrl);
+          return;
+        }
+      }
+
       const nextUrl = query ? `${pathname}?${query}` : pathname;
       const currentUrl = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
 
@@ -335,7 +457,7 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
           const resolved = await getInitialHomeLocationAction({ locale: localeForQueries });
 
           if (resolved?.countryCode || resolved?.cityCode) {
-            applyLocation(resolved, { navigation });
+            applyLocation(resolved, { navigation, adoptLocale: true });
             setLocationMessage(
               t('messages.detectedFromSource', {
                 source: getLocationSourceLabel(resolved, sourceLabels),
@@ -354,7 +476,23 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
             });
 
             if (resolvedFromIp?.countryCode || resolvedFromIp?.cityCode) {
-              applyLocation(resolvedFromIp, { navigation });
+              // Keep the IP-detected coordinates (approximate, city-level) so home
+              // can sort providers by distance and the map can center on the visitor.
+              const withCoords =
+                detectedIpLocation.latitude != null && detectedIpLocation.longitude != null
+                  ? {
+                      ...resolvedFromIp,
+                      latitude: detectedIpLocation.latitude,
+                      longitude: detectedIpLocation.longitude,
+                    }
+                  : resolvedFromIp;
+              applyLocation(withCoords, {
+                navigation,
+                adoptLocale: true,
+                // Language follows the visitor's REAL country (from IP geo), not the
+                // nearest provider's country that `resolvedFromIp` may carry.
+                localeCountryCode: detectedIpLocation.countryCode,
+              });
               setLocationMessage(
                 t('messages.detectedFromSource', {
                   source: getLocationSourceLabel(resolvedFromIp, sourceLabels),
@@ -384,20 +522,30 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
 
     setIsDetecting(true);
     setLocationMessage(t('messages.requestingPermission'));
+    // Any GPS attempt counts as "asked" so we don't auto-prompt again next time.
+    markLocationAsked();
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        const userLatitude = position.coords.latitude;
+        const userLongitude = position.coords.longitude;
+
         startTransition(async () => {
           try {
             const resolved = await resolveHomeLocationFromCoordinatesAction({
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
+              latitude: userLatitude,
+              longitude: userLongitude,
               locale: localeForQueries,
               source: 'gps',
             });
 
             if (resolved?.countryCode || resolved?.cityCode) {
-              applyLocation(resolved, { navigation: 'replace' });
+              // Keep the visitor's REAL coordinates (not the matched city centroid)
+              // so home + map reflect what's actually closest to them.
+              applyLocation(
+                { ...resolved, latitude: userLatitude, longitude: userLongitude },
+                { navigation: 'replace', adoptLocale: true }
+              );
               setShowLocationPicker(false);
               setLocationMessage(
                 t('messages.usingNearestDestination', {
@@ -410,15 +558,19 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
               await saveCurrentLocationToProfileAction({
                 countryId: resolved.countryId,
                 cityId: resolved.cityId,
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude,
+                latitude: userLatitude,
+                longitude: userLongitude,
               }).catch(() => null);
 
               return;
             }
 
-            setLocationMessage(t('messages.noSupportedDestination'));
-            setShowLocationPicker(true);
+            // No supported destination matched, but we still have the visitor's
+            // position — remember it so providers sort by distance and the map can
+            // pin them. Don't keep the picker open.
+            applyLocation(makeCoordinateLocation(userLatitude, userLongitude), { navigation: 'replace' });
+            setShowLocationPicker(false);
+            setLocationMessage(null);
           } finally {
             setIsDetecting(false);
           }
@@ -447,6 +599,9 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
 
     const countryCode = searchParams.get('countryCode');
     const cityCode = searchParams.get('cityCode');
+    const latParam = numberOrNull(searchParams.get('lat'));
+    const lngParam = numberOrNull(searchParams.get('lng'));
+    const hasCoordParams = latParam != null && lngParam != null;
 
     if (countryCode || cityCode) {
       startTransition(async () => {
@@ -456,17 +611,46 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
           locale: localeForQueries,
         });
 
-        if (resolved) applyLocation(resolved, { navigation: false, persist: true });
+        if (resolved) {
+          const withCoords = hasCoordParams
+            ? { ...resolved, latitude: latParam, longitude: lngParam }
+            : resolved;
+          applyLocation(withCoords, { navigation: false, persist: true });
+        }
+      });
+      return;
+    }
+
+    if (hasCoordParams && latParam != null && lngParam != null) {
+      // URL carries raw coordinates (our own GPS replace, or a shared deep link).
+      startTransition(async () => {
+        const resolved = await resolveHomeLocationFromCoordinatesAction({
+          latitude: latParam,
+          longitude: lngParam,
+          locale: localeForQueries,
+          source: 'gps',
+        });
+
+        const base =
+          resolved?.countryCode || resolved?.cityCode
+            ? { ...resolved, latitude: latParam, longitude: lngParam }
+            : makeCoordinateLocation(latParam, lngParam);
+
+        applyLocation(base, { navigation: false, persist: true });
       });
       return;
     }
 
     const stored = parseStoredLocation();
-    if (stored?.countryCode || stored?.cityCode) {
+    if (stored && (stored.countryCode || stored.cityCode || hasUsableCoordinates(stored))) {
       applyLocation(stored, { navigation: 'replace', persist: false });
       return;
     }
 
+    // Nothing on file anywhere. Auto-detect (and maybe open the picker) exactly
+    // once per browser; after that we never nag again on return visits.
+    if (hasAskedForLocation()) return;
+    markLocationAsked();
     detectFromAccountPhoneOrIp('replace');
   }, [applyLocation, detectFromAccountPhoneOrIp, localeForQueries, searchParams, startTransition]);
 

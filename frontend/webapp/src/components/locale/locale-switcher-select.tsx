@@ -6,6 +6,7 @@ import { Locale } from "next-intl";
 import { useParams } from "next/navigation";
 
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { markLocaleChosenExplicitly } from "@/i18n/locale-by-country";
 
 type Props = {
   children: ReactNode;
@@ -25,6 +26,9 @@ export default function LocaleSwitcherSelect({
 
   function onSelectChange(event: ChangeEvent<HTMLSelectElement>) {
     const nextLocale = event.target.value as Locale;
+    document.cookie = `NEXT_LOCALE=${nextLocale};path=/;max-age=31536000;samesite=lax`;
+    // Lock in the explicit choice so location-based auto-switching won't override it.
+    markLocaleChosenExplicitly();
     startTransition(() => {
       router.replace(
         // @ts-expect-error -- TypeScript will validate that only known `params`
