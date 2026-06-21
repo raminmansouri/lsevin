@@ -155,6 +155,39 @@ function fallbackCurrencyOption(): NearbyCurrencyOption {
   return { code: "USD", label: "US Dollar", symbol: "$", count: 0 };
 }
 
+// The location the visitor already chose on the home page, persisted there.
+// Keeping map + home in agreement avoids a second, divergent IP lookup.
+const HOME_LOCATION_STORAGE_KEY = "lsevin.home.selected-location.v1";
+
+function readStoredHomeLocation(): {
+  lat: number | null;
+  lng: number | null;
+  countryCode: string | null;
+} | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(HOME_LOCATION_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    if (!parsed || typeof parsed !== "object") return null;
+    const lat =
+      typeof parsed.latitude === "number" && Number.isFinite(parsed.latitude)
+        ? parsed.latitude
+        : null;
+    const lng =
+      typeof parsed.longitude === "number" && Number.isFinite(parsed.longitude)
+        ? parsed.longitude
+        : null;
+    const countryCode =
+      typeof parsed.countryCode === "string" && parsed.countryCode
+        ? parsed.countryCode
+        : null;
+    return { lat, lng, countryCode };
+  } catch {
+    return null;
+  }
+}
+
 export default function NearbyClient({
   locale,
   customerId,
@@ -184,6 +217,70 @@ export default function NearbyClient({
     providers[0]?.id ?? null,
   );
   const [showFilters, setShowFilters] = useState(false);
+
+  // Map center + the user's detected country. The server provides an initial
+  // center; when the visitor hasn't picked a location we auto-detect theirs
+  // (IP-based, no GPS prompt) so the map centers on them and the provider
+  // switches automatically: Neshan inside Iran, Mapbox internationally.
+  const [center, setCenter] = useState(mapCenter);
+  const [detectedCountry, setDetectedCountry] = useState<string | null>(null);
+  // The visitor's own position, rendered as a distinct pin on the map.
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(
+    initialFilters.lat != null && initialFilters.lng != null
+      ? { lat: initialFilters.lat, lng: initialFilters.lng }
+      : null,
+  );
+  useEffect(() => setCenter(mapCenter), [mapCenter]);
+
+  useEffect(() => {
+    // 1) Prefer the precise location the visitor already chose on the home page.
+    //    Pin + center on it, and (when the URL has no coords yet) adopt them so the
+    //    server returns providers sorted by distance.
+    const stored = readStoredHomeLocation();
+    if (stored && stored.lat != null && stored.lng != null) {
+      setUserLocation({ lat: stored.lat, lng: stored.lng });
+      setCenter({ lat: stored.lat, lng: stored.lng, zoom: 12 });
+      if (stored.countryCode) setDetectedCountry(stored.countryCode);
+      if (initialFilters.lat == null && initialFilters.lng == null) {
+        navigateSmooth(
+          startTransition,
+          router,
+          buildNearbyQuery({ ...initialFilters, lat: stored.lat, lng: stored.lng, distanceKm: 50 }),
+        );
+      }
+      return;
+    }
+
+    const hasExplicitLocation =
+      initialFilters.lat != null ||
+      initialFilters.lng != null ||
+      initialFilters.countryCode != null ||
+      initialFilters.cityCode != null;
+    if (hasExplicitLocation) return;
+
+    // 2) Fall back to a best-effort IP lookup (no GPS prompt).
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/location/client-ip-geo", { cache: "no-store" });
+        if (res.status === 204 || !res.ok) return;
+        const geo = await res.json();
+        if (cancelled || !geo) return;
+        if (typeof geo.latitude === "number" && typeof geo.longitude === "number") {
+          setCenter({ lat: geo.latitude, lng: geo.longitude, zoom: 10 });
+          setUserLocation({ lat: geo.latitude, lng: geo.longitude });
+        }
+        if (geo.countryCode) setDetectedCountry(String(geo.countryCode));
+      } catch {
+        // best-effort; fall back to the server-provided center
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const initialUiFilters = useMemo<UiFilters>(
     () => ({
@@ -406,6 +503,8 @@ export default function NearbyClient({
   const requestCurrentLocation = () => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition((position) => {
+      setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
+      setCenter({ lat: position.coords.latitude, lng: position.coords.longitude, zoom: 13 });
       navigateSmooth(
         startTransition,
         router,
@@ -542,17 +641,23 @@ export default function NearbyClient({
             providers={providers}
             selectedProvider={selectedProvider}
             onSelectProvider={setSelectedProviderId}
-            center={mapCenter}
+            center={center}
+            userLocation={userLocation}
+            countryCode={uiFilters.countryCode ?? detectedCountry}
           />
 
           <button
             onClick={requestCurrentLocation}
-            className="absolute bottom-4 right-4 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all border border-gray-200 hover:bg-gray-50 z-20"
+            className={`absolute right-4 z-30 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all border border-gray-200 hover:bg-gray-50 ${
+              selectedProvider
+                ? "bottom-56"
+                : "bottom-[calc(env(safe-area-inset-bottom)_+_5.5rem)]"
+            }`}
           >
             <Navigation size={20} className="text-[#083f30]" />
           </button>
 
-          <div className="absolute bottom-2 left-2 text-xs text-gray-500 bg-white/80 px-2 py-1 rounded z-20">
+          <div className="absolute bottom-[calc(env(safe-area-inset-bottom)_+_5.5rem)] left-2 text-xs text-gray-500 bg-white/80 px-2 py-1 rounded z-20">
             {t("mapProviders.neshanMap")}
           </div>
 
