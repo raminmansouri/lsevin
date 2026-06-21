@@ -1,14 +1,18 @@
 "use client";
 
+import "mapbox-gl/dist/mapbox-gl.css";
+
 import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 
 import type { NearbyProvider } from "./nearby.data";
 import {
-  getConfiguredNeshanMapType,
-  NESHAN_MAP_KEY,
+  createMapInstance,
+  isProviderConfigured,
+  resolveMapProvider,
+  type MapProvider,
 } from "@/components/map/map-provider";
-import { useNeshanSdk } from "@/components/map/use-neshan-sdk";
+import { useMapEngine } from "@/components/map/use-map-engine";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 
 const BARE_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -35,6 +39,12 @@ type NearbyMapProps = {
   selectedProvider: NearbyProvider | null;
   onSelectProvider: (id: string | null) => void;
   center: { lat: number; lng: number; zoom: number };
+  /** The visitor's own position. When set, a distinct pulsing pin marks them on
+   *  the map so they can see where they are relative to nearby providers. */
+  userLocation?: { lat: number; lng: number } | null;
+  /** Optional region hint (e.g. selected filter country or the user's detected
+   *  country). When set, it decides Neshan (IR) vs Mapbox over the bbox. */
+  countryCode?: string | null;
 };
 
 function MissingMap({ title, body }: { title: string; body: string }) {
@@ -57,11 +67,12 @@ function escapeHtml(value: string) {
     .replace(/'/g, "&#039;");
 }
 
-function createNeshanMarkerElement(
+function createProviderMarkerElement(
   isSelected: boolean,
   imageUrl: string,
   name: string,
   labels: { selectedProvider: string; selectProvider: string },
+  provider: MapProvider,
 ) {
   const element = document.createElement("button");
   element.type = "button";
@@ -69,12 +80,14 @@ function createNeshanMarkerElement(
   element.setAttribute("aria-label", isSelected ? labels.selectedProvider : labels.selectProvider);
 
   // MapboxGL/Neshan positions markers by applying its own absolute positioning
-  // and transform to the marker root. Do not put Tailwind `relative`, `absolute`,
-  // or `transform` utilities on this root, otherwise app CSS can override the SDK
-  // marker positioning and all pins appear in the wrong visual place.
-  element.style.position = "absolute";
-  element.style.top = "0";
-  element.style.left = "0";
+  // and transform to the marker root. For Neshan we pin the root absolutely so
+  // app CSS can't override the SDK placement. Mapbox GL wraps the element in its
+  // own positioned container, so the root must stay in normal flow there.
+  if (provider === "neshan") {
+    element.style.position = "absolute";
+    element.style.top = "0";
+    element.style.left = "0";
+  }
   element.style.border = "0";
   element.style.padding = "0";
   element.style.margin = "0";
@@ -129,42 +142,63 @@ function createNeshanMarkerElement(
   return element;
 }
 
+// A distinct, non-interactive pin marking the visitor's own location (blue dot
+// with a pulse) so it reads differently from the green provider markers.
+function createUserMarkerElement(provider: MapProvider) {
+  const element = document.createElement("div");
+  element.className = "map-discovery-user-marker";
+
+  if (provider === "neshan") {
+    element.style.position = "absolute";
+    element.style.top = "0";
+    element.style.left = "0";
+  }
+  element.style.pointerEvents = "none";
+  element.style.zIndex = "5";
+
+  element.innerHTML = `
+    <span class="relative flex h-5 w-5 items-center justify-center">
+      <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-500 opacity-40"></span>
+      <span class="relative inline-flex h-4 w-4 rounded-full border-2 border-white bg-blue-600 shadow-md"></span>
+    </span>
+  `;
+
+  return element;
+}
+
 export default function NearbyMap({
   providers,
   selectedProvider,
   onSelectProvider,
   center,
+  userLocation,
+  countryCode,
 }: NearbyMapProps) {
   const t = useTranslations("NearbyMap");
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
   const popupRef = useRef<any>(null);
-  const { neshan, isLoaded, error } = useNeshanSdk(true);
+
+  // Neshan for Iran, Mapbox when international. A known country code (selected
+  // filter or the user's detected location) wins; otherwise the map center bbox.
+  const provider = resolveMapProvider({
+    countryCode,
+    coordinates: { latitude: center.lat, longitude: center.lng },
+  });
+  const { sdk, isLoaded, error } = useMapEngine(provider);
+  const configured = isProviderConfigured(provider);
 
   useEffect(() => {
-    if (!isLoaded || !neshan || !containerRef.current || mapRef.current || !NESHAN_MAP_KEY) return;
+    if (!isLoaded || !sdk || !containerRef.current || mapRef.current || !configured) return;
 
-    const mapTypeName = getConfiguredNeshanMapType();
-    const mapType = neshan.Map.mapTypes?.[mapTypeName] ?? neshan.Map.mapTypes?.neshanVector;
-
-    mapRef.current = new neshan.Map({
-      mapType,
+    // Create the map ONCE (per sdk/provider). Center/zoom changes are handled by
+    // the easeTo effect below — recreating the map on every center change caused
+    // flicker and dropped markers. `center` here is only the initial view.
+    mapRef.current = createMapInstance(sdk, provider, {
       container: containerRef.current,
-      zoom: center.zoom,
-      pitch: 0,
       center: [center.lng, center.lat],
-      minZoom: 2,
-      maxZoom: 21,
-      trackResize: true,
-      mapKey: NESHAN_MAP_KEY,
-      poi: false,
-      traffic: false,
-      isTouchPlatform: true,
-      mapTypeControllerOptions: {
-        show: true,
-        position: "bottom-left",
-      },
+      zoom: center.zoom,
     });
 
     const resizeMap = () => mapRef.current?.resize?.();
@@ -180,7 +214,9 @@ export default function NearbyMap({
       mapRef.current = null;
       popupRef.current = null;
     };
-  }, [center.lat, center.lng, center.zoom, isLoaded, neshan]);
+    // center is intentionally excluded — initial view only; updates go through easeTo.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded, sdk, provider, configured]);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -193,7 +229,7 @@ export default function NearbyMap({
   }, [center.lat, center.lng, center.zoom]);
 
   useEffect(() => {
-    if (!mapRef.current || !neshan) return;
+    if (!mapRef.current || !sdk) return;
 
     markersRef.current.forEach((marker) => marker.remove());
     markersRef.current = [];
@@ -202,7 +238,7 @@ export default function NearbyMap({
       .filter((providerItem) => providerItem.coordinates)
       .forEach((providerItem) => {
         const isSelected = selectedProvider?.id === providerItem.id;
-        const element = createNeshanMarkerElement(
+        const element = createProviderMarkerElement(
           isSelected,
           resolveMarkerImage(providerItem.image),
           providerItem.name,
@@ -210,31 +246,50 @@ export default function NearbyMap({
             selectedProvider: t("selectedProvider"),
             selectProvider: t("selectProvider"),
           },
+          provider,
         );
         element.addEventListener("click", (event) => {
           event.stopPropagation();
           onSelectProvider(providerItem.id);
         });
 
-        const marker = new neshan.Marker({ element, anchor: "bottom" })
+        const marker = new sdk.Marker({ element, anchor: "bottom" })
           .setLngLat([providerItem.coordinates!.lng, providerItem.coordinates!.lat])
           .addTo(mapRef.current);
 
-        marker.getElement?.().style?.setProperty("position", "absolute", "important");
+        if (provider === "neshan") {
+          marker.getElement?.().style?.setProperty("position", "absolute", "important");
+        }
 
         markersRef.current.push(marker);
       });
-  }, [neshan, onSelectProvider, providers, selectedProvider?.id, t]);
+  }, [sdk, provider, onSelectProvider, providers, selectedProvider?.id, t]);
+
+  // Render the visitor's own location pin (separate from provider markers).
+  useEffect(() => {
+    if (!mapRef.current || !sdk || !userLocation) return;
+
+    const element = createUserMarkerElement(provider);
+    const marker = new sdk.Marker({ element, anchor: "center" })
+      .setLngLat([userLocation.lng, userLocation.lat])
+      .addTo(mapRef.current);
+
+    if (provider === "neshan") {
+      marker.getElement?.().style?.setProperty("position", "absolute", "important");
+    }
+
+    return () => marker.remove();
+  }, [sdk, provider, userLocation?.lat, userLocation?.lng]);
 
   useEffect(() => {
-    if (!mapRef.current || !neshan) return;
+    if (!mapRef.current || !sdk) return;
 
     popupRef.current?.remove?.();
     popupRef.current = null;
 
     if (!selectedProvider?.coordinates) return;
 
-    popupRef.current = new neshan.Popup({
+    popupRef.current = new sdk.Popup({
       closeButton: false,
       closeOnClick: false,
       offset: 20,
@@ -242,19 +297,24 @@ export default function NearbyMap({
       .setLngLat([selectedProvider.coordinates.lng, selectedProvider.coordinates.lat])
       .setHTML(`<div class="text-sm font-medium">${escapeHtml(selectedProvider.name)}</div>`)
       .addTo(mapRef.current);
-  }, [neshan, selectedProvider]);
+  }, [sdk, selectedProvider]);
 
-  if (!NESHAN_MAP_KEY) {
+  if (!configured) {
     return (
       <MissingMap
-        title={t("neshanNotConfiguredTitle")}
-        body={t("neshanNotConfiguredBody")}
+        title={t(provider === "mapbox" ? "mapboxNotConfiguredTitle" : "neshanNotConfiguredTitle")}
+        body={t(provider === "mapbox" ? "mapboxNotConfiguredBody" : "neshanNotConfiguredBody")}
       />
     );
   }
 
   if (error) {
-    return <MissingMap title={t("neshanCouldNotLoad")} body={t("neshanCouldNotLoadBody")} />;
+    return (
+      <MissingMap
+        title={t(provider === "mapbox" ? "mapboxCouldNotLoad" : "neshanCouldNotLoad")}
+        body={t(provider === "mapbox" ? "mapboxCouldNotLoadBody" : "neshanCouldNotLoadBody")}
+      />
+    );
   }
 
   return (

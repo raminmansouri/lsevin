@@ -74,10 +74,14 @@ type LocationSourceLabels = {
 };
 
 const STORAGE_KEY = 'lsevin.home.selected-location.v1';
+// Neutral placeholder shown before detection resolves. It deliberately carries NO
+// city/country so the picker reads "select location" (via getLocationTitle's
+// fallback) instead of flashing a hardcoded "Dubai, UAE" that then jumps to the
+// visitor's real location — which looked like a detection bug.
 const INITIAL_LOCATION: HomeResolvedLocation = {
-  id: 'fallback-dubai',
-  city: 'Dubai',
-  country: 'UAE',
+  id: 'initial-unset',
+  city: null,
+  country: null,
   image: null,
   cityId: null,
   countryId: null,

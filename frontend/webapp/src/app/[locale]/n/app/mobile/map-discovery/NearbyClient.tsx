@@ -8,7 +8,11 @@ import {
   useTransition,
   type TransitionStartFunction,
 } from "react";
-import { useRouter } from "next/navigation";
+// Locale-aware router: keeps the active /[locale] prefix on every navigation.
+// The plain next/navigation router would push locale-less paths (e.g.
+// /n/app/mobile/...), which the middleware then resolves to the default locale,
+// silently switching the app to Farsi whenever the map navigates.
+import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import {
@@ -263,7 +267,18 @@ export default function NearbyClient({
       ? { lat: initialFilters.lat, lng: initialFilters.lng }
       : null,
   );
-  useEffect(() => setCenter(mapCenter), [mapCenter]);
+  // Re-center when the server returns a genuinely new location (e.g. a filter
+  // change), but keep the closer zoom the user just got from "locate me": after a
+  // GPS navigation the server's mapCenter is the SAME point at a wider zoom, which
+  // used to snap the map back out to city level a second after locating.
+  useEffect(() => {
+    setCenter((prev) =>
+      Math.abs(prev.lat - mapCenter.lat) < 1e-4 &&
+      Math.abs(prev.lng - mapCenter.lng) < 1e-4
+        ? prev
+        : mapCenter,
+    );
+  }, [mapCenter]);
 
   useEffect(() => {
     // 1) Prefer the location the visitor already chose on the home page.

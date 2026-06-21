@@ -120,19 +120,12 @@ export async function resolveHomeLocationFromCoordinatesAction(rawInput: z.input
 export async function resolveHomeLocationFromDetectedIpAction(rawInput: z.input<typeof detectedIpSchema>) {
   const input = detectedIpSchema.parse(rawInput);
 
-  if (input.latitude != null && input.longitude != null) {
-    const byCoordinates = await resolveActiveLocationFromCoordinates({
-      latitude: input.latitude,
-      longitude: input.longitude,
-      locale: input.locale,
-      source: 'ip',
-    }).catch(() => null);
-
-    if (byCoordinates?.countryCode || byCoordinates?.cityCode) {
-      return toHomeResolvedLocation(byCoordinates);
-    }
-  }
-
+  // The IP's country/city is its actual geolocation and is far more reliable than
+  // its coordinates, which frequently point at the ISP/datacenter — sometimes in
+  // another country. Resolving "nearest supported destination" from those stray
+  // coordinates is exactly what flipped a UAE visitor to Istanbul. So resolve by
+  // country/city text FIRST, then the country code, and only fall back to the
+  // (approximate) coordinates when we have no usable place name at all.
   const byText = await resolveActiveLocationFromText({
     country: input.countryCode ?? input.country,
     city: input.city,
@@ -150,7 +143,22 @@ export async function resolveHomeLocationFromDetectedIpAction(rawInput: z.input<
       locale: input.locale,
     }).catch(() => null);
 
-    return toHomeResolvedLocation(byCountry);
+    if (byCountry?.countryCode || byCountry?.cityCode) {
+      return toHomeResolvedLocation(byCountry);
+    }
+  }
+
+  if (input.latitude != null && input.longitude != null) {
+    const byCoordinates = await resolveActiveLocationFromCoordinates({
+      latitude: input.latitude,
+      longitude: input.longitude,
+      locale: input.locale,
+      source: 'ip',
+    }).catch(() => null);
+
+    if (byCoordinates?.countryCode || byCoordinates?.cityCode) {
+      return toHomeResolvedLocation(byCoordinates);
+    }
   }
 
   return null;
