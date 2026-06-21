@@ -6,6 +6,10 @@ export type HomeQueryInput = {
   locale: string;
   countryCode?: string | null;
   cityCode?: string | null;
+  /** Visitor coordinates (GPS/profile/IP). When present, provider lists are
+   *  ordered nearest-first so the home page shows what's actually around them. */
+  latitude?: number | null;
+  longitude?: number | null;
 };
 
 export type HomeCategory = {
@@ -88,6 +92,31 @@ function normalizeFilter(value?: string | null) {
   return normalized.length ? normalized : null;
 }
 
+function coordOrNull(value?: number | null): number | null {
+  if (value == null) return null;
+  const num = Number(value);
+  return Number.isFinite(num) ? num : null;
+}
+
+// Haversine distance (km) from the visitor to a provider (sp.latitude/sp.longitude),
+// returned as a SQL fragment to prepend to ORDER BY so nearer providers rank first.
+// Returns null when we don't have the visitor's coordinates (then ordering is unchanged).
+function nearbyDistanceFragment(latitude?: number | null, longitude?: number | null) {
+  const lat = coordOrNull(latitude);
+  const lng = coordOrNull(longitude);
+  if (lat == null || lng == null) return null;
+
+  return sql`(
+    6371 * acos(
+      least(1, greatest(-1,
+        cos(radians(${lat}::double precision)) * cos(radians(sp.latitude::double precision)) *
+        cos(radians(sp.longitude::double precision) - radians(${lng}::double precision)) +
+        sin(radians(${lat}::double precision)) * sin(radians(sp.latitude::double precision))
+      ))
+    )
+  )`;
+}
+
 function numberValue(value: unknown): number {
   if (typeof value === 'number') return value;
   if (typeof value === 'string') return Number(value) || 0;
@@ -151,17 +180,24 @@ export async function getHomeCategories(input: HomeQueryInput, limit = 6): Promi
       common.get_translation_t(c.name_translations, ${locale}::text, 'en-US') as label,
       nullif(coalesce(cm.file_url, c.image_url, c.icon_url, ''), '') as "imageUrl",
       nullif(c.gradient, '') as gradient,
-      count(distinct sd.id)::int as "serviceCount"
+      coalesce(sc.service_count, 0) as "serviceCount"
     from category.categories c
-    left join category.service_definitions sd
-      on sd.category_id = c.id
-     and sd.is_active = true
+    -- Count active service definitions in a lateral subquery instead of a
+    -- LEFT JOIN + GROUP BY. The join form fanned each category out to one row
+    -- per definition (thousands) *before* aggregating, so the expensive
+    -- get_translation_t() label was evaluated once per fanned-out row. The
+    -- lateral keeps one row per category, so the function runs once each.
+    left join lateral (
+      select count(*)::int as service_count
+      from category.service_definitions sd
+      where sd.category_id = c.id
+        and sd.is_active = true
+    ) sc on true
     left join media.media_library cm
       on cm.id::text = coalesce(nullif(c.image_url, ''), nullif(c.icon_url, ''))
     where c.is_active = true
       and coalesce(c.display_in_home_page, true) = true
-    group by c.id, label, "imageUrl", gradient, c.display_order
-    order by coalesce(c.display_order, 0) asc, count(distinct sd.id) desc, label asc
+    order by coalesce(c.display_order, 0) asc, sc.service_count desc, label asc
     limit ${limit}
   `;
 
@@ -178,6 +214,7 @@ export async function getFeaturedHomeServices(input: HomeQueryInput, limit = 8):
   const locale = normalizeLocale(input.locale);
   const countryCode = normalizeFilter(input.countryCode);
   const cityCode = normalizeFilter(input.cityCode);
+  const nearby = nearbyDistanceFragment(input.latitude, input.longitude);
 
   const rows = await sql<{
     id: string;
@@ -289,6 +326,7 @@ export async function getFeaturedHomeServices(input: HomeQueryInput, limit = 8):
       and (${countryCode}::text is null or upper(sp.country) = upper(${countryCode}::text))
       and (${cityCode}::text is null or upper(sp.city) = upper(${cityCode}::text))
     order by
+      ${nearby ? sql`${nearby} asc nulls last,` : sql``}
       coalesce(ps.is_popular, false) desc,
       coalesce(active_offer.discount_percent, 0) desc,
       coalesce(ps.trending_score, 0) desc,
@@ -404,6 +442,7 @@ export async function getTrustedHomeProviders(input: HomeQueryInput, limit = 8):
   const locale = normalizeLocale(input.locale);
   const countryCode = normalizeFilter(input.countryCode);
   const cityCode = normalizeFilter(input.cityCode);
+  const nearby = nearbyDistanceFragment(input.latitude, input.longitude);
 
   const rows = await sql<{
     id: string;
@@ -442,6 +481,7 @@ export async function getTrustedHomeProviders(input: HomeQueryInput, limit = 8):
       and (${countryCode}::text is null or upper(sp.country) = upper(${countryCode}::text))
       and (${cityCode}::text is null or upper(sp.city) = upper(${cityCode}::text))
     order by
+      ${nearby ? sql`${nearby} asc nulls last,` : sql``}
       coalesce(sp.accredited, false) desc,
       coalesce(sp.featured_score, 0) desc,
       coalesce(sp.rating, 0) desc,
