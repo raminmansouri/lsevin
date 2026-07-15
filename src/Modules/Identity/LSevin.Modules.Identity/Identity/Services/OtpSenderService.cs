@@ -1,8 +1,11 @@
 using BuildingBlocks.Core.Domain.ValueObjects;
 using BuildingBlocks.Core.ErrorHandling;
+using BuildingBlocks.Core.Extensions;
 using BuildingBlocks.Core.ResultPattern;
+using LSevin.Modules.Identity.Constants;
 using LSevin.Modules.Identity.Infrastructure.HttpClients.MeliPayamak;
 using LSevin.Modules.Identity.Infrastructure.HttpClients.Whatsiplus;
+using LSevin.Modules.Identity.Resources;
 using Microsoft.Extensions.Logging;
 
 namespace LSevin.Modules.Identity.Identity.Services;
@@ -24,13 +27,15 @@ internal sealed class OtpSenderService(
         // Format phone number to E.164 format (e.g., +989123456789 or +12345678901)
         var formattedPhoneNumber = phoneNumber.ToE164Format();
 
-        // Route based on country code
+        // Route based on country code.
+        // Iranian numbers keep using MeliPayamak (do not change this path);
+        // all international numbers use Whatsiplus (WhatsApp).
         if (phoneNumber.CountryCode.Equals("IR", StringComparison.OrdinalIgnoreCase))
         {
             return SendViaMeliPayamakAsync(formattedPhoneNumber, otpCode, cancellationToken);
         }
 
-        return SendViaWhatsAppAsync(formattedPhoneNumber, otpCode, cancellationToken);
+        return SendViaWhatsplusAsync(formattedPhoneNumber, otpCode, cancellationToken);
     }
 
     private async Task<Result> SendViaMeliPayamakAsync(
@@ -59,11 +64,20 @@ internal sealed class OtpSenderService(
         return Result.Success();
     }
 
-    private Task<Result> SendViaWhatsAppAsync(string phoneNumber, string otpCode, CancellationToken cancellationToken)
+    private Task<Result> SendViaWhatsplusAsync(string phoneNumber, string otpCode, CancellationToken cancellationToken)
     {
-        logger.LogInformation("[OtpSender] - Using WhatsApp for international number");
+        logger.LogInformation("[OtpSender] - Using Whatsiplus for international number");
 
-        var message = $"Your verification code: {otpCode}\nValid for 1 minutes";
-        return whatsplusClient.SendWhatsAppMessageAsync(phoneNumber, message, cancellationToken);
+        // Whatsiplus expects the phone number without a leading '+' (e.g. 447400733413),
+        // whereas ToE164Format() produces a '+'-prefixed value.
+        var whatsiplusNumber = phoneNumber.TrimStart('+');
+
+        // Localized per the request culture (Accept-Language), with the real code validity window.
+        var message = IdentityResource.Otp_Verification_Message.FormatWithStr(
+            otpCode,
+            DomainConstValues.PhoneLoginCodeExpirationMinutes
+        );
+
+        return whatsplusClient.SendWhatsAppMessageAsync(whatsiplusNumber, message, cancellationToken);
     }
 }

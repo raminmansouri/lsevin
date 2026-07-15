@@ -8,7 +8,7 @@ builder.AddForwardedHeaders();
 var postgres = builder
     .AddPostgres(name: "postgres")
     .WithImage("postgres")
-    .WithImageTag("latest")
+    .WithImageTag("17")
     // .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent)
     .WithPgAdmin();
@@ -45,14 +45,14 @@ var api = builder
     .WaitFor(redis)
     .WithReference(eventstore)
     .WaitFor(eventstore)
-    .WithHttpHealthCheck(path: "/hc");
+    .WithHttpHealthCheck(path: "/hc", endpointName: "http");
 
 var apigateway = builder
     .AddProject<LSevin_ApiGateway_Yarp>(name: "lsevin-apigateway")
     .WithExternalHttpEndpoints()
     .WithReference(api)
     .WaitFor(api)
-    .WithHttpHealthCheck(path: "/hc");
+    .WithHttpHealthCheck(path: "/hc", endpointName: "http");
 
 // Add Next.js webapp
 var webapp = builder
@@ -60,11 +60,26 @@ var webapp = builder
     .WithPnpmPackageInstallation()
     .WaitFor(apigateway)
     .WithReference(apigateway)
-    .WithHttpEndpoint(env: "PORT")
+    // Pin the webapp to a fixed host port so the local URL is stable across restarts.
+    .WithHttpEndpoint(port: 3000, env: "PORT")
     .WithExternalHttpEndpoints();
 
 webapp.WithEnvironment("AUTH_URL", () => webapp.GetEndpoint("http").Url);
 webapp.WithEnvironment("NEXT_PUBLIC_API_URL", () => $"{apigateway.GetEndpoint("http").Url}/api/v1");
 webapp.WithEnvironment("NEXT_PUBLIC_SOCKET_URL", () => $"{apigateway.GetEndpoint("http").Url}/api/v1/hubs");
+
+// Server-to-server calls from the webapp (postData/readData) use INTERNAL_API_URL.
+// Must be http (the dev HTTPS cert is untrusted, which makes Node's fetch fail);
+// route it through the gateway over http like the public URL.
+webapp.WithEnvironment("INTERNAL_API_URL", () => $"{apigateway.GetEndpoint("http").Url}/api/v1");
+
+// The Next.js webapp queries Postgres directly (postgres.js) for some server components,
+// so it needs a postgres:// URL pointing at the same Aspire-managed database the API uses.
+webapp.WithEnvironment(
+    "DATABASE_URL",
+    ReferenceExpression.Create(
+        $"postgres://postgres:{postgres.Resource.PasswordParameter}@{postgres.Resource.PrimaryEndpoint.Property(EndpointProperty.Host)}:{postgres.Resource.PrimaryEndpoint.Property(EndpointProperty.Port)}/lsevin"
+    )
+);
 
 builder.Build().Run();

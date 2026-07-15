@@ -7,17 +7,35 @@ import { getUserId } from '@/lib/auth/session';
 import {
   isValidFavoriteEntityId,
   isValidFavoriteEntityType,
+  resolveFavoritesCustomerId,
   setFavoriteState,
   toggleFavoriteState,
 } from '../server/favorites.repository';
 import type { FavoriteEntityType, FavoriteToggleResult } from '../types';
 
-async function getOptionalCustomerId() {
+/**
+ * Resolves the session's identity id to the matching customer id (FK target of
+ * customer.favorites). Returns { requiresAuth } when there's no session, and
+ * { unresolved } when there is a session but no linked customer record yet.
+ */
+type ResolvedFavoritesCustomer =
+  | { customerId: string; requiresAuth: false }
+  | { customerId: null; requiresAuth: boolean };
+
+async function getFavoritesCustomerId(): Promise<ResolvedFavoritesCustomer> {
+  let userId: string | null = null;
   try {
-    return (await getUserId()) || null;
+    userId = (await getUserId()) || null;
   } catch {
-    return null;
+    userId = null;
   }
+
+  if (!userId) return { customerId: null, requiresAuth: true };
+
+  const customerId = await resolveFavoritesCustomerId(userId);
+  if (!customerId) return { customerId: null, requiresAuth: false };
+
+  return { customerId, requiresAuth: false };
 }
 
 function validateFavoriteInput(input: { entityType: FavoriteEntityType; entityId: string }) {
@@ -38,18 +56,20 @@ export async function toggleFavoriteAction(input: {
   try {
     validateFavoriteInput(input);
 
-    const customerId = await getOptionalCustomerId();
-    if (!customerId) {
+    const resolved = await getFavoritesCustomerId();
+    if (!resolved.customerId) {
       return {
         ok: false,
         isFavorite: false,
-        requiresAuth: true,
-        message: 'Please sign in to save favorites.',
+        requiresAuth: resolved.requiresAuth,
+        message: resolved.requiresAuth
+          ? 'Please sign in to save favorites.'
+          : 'No customer profile is linked to your account yet.',
       };
     }
 
     const isFavorite = await toggleFavoriteState({
-      customerId,
+      customerId: resolved.customerId,
       favoriteType: input.entityType,
       entityId: input.entityId,
     });
@@ -75,18 +95,20 @@ export async function setFavoriteAction(input: {
   try {
     validateFavoriteInput(input);
 
-    const customerId = await getOptionalCustomerId();
-    if (!customerId) {
+    const resolved = await getFavoritesCustomerId();
+    if (!resolved.customerId) {
       return {
         ok: false,
         isFavorite: false,
-        requiresAuth: true,
-        message: 'Please sign in to save favorites.',
+        requiresAuth: resolved.requiresAuth,
+        message: resolved.requiresAuth
+          ? 'Please sign in to save favorites.'
+          : 'No customer profile is linked to your account yet.',
       };
     }
 
     const isFavorite = await setFavoriteState({
-      customerId,
+      customerId: resolved.customerId,
       favoriteType: input.entityType,
       entityId: input.entityId,
       isFavorite: input.isFavorite,

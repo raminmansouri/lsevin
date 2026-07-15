@@ -17,6 +17,8 @@ interface SharedProps<TFieldValues extends FieldValues> {
   modalTitle?: string;
   mediaType?: "all" | "image" | "video" | "file";
   uploadWith?: UploadWithProgress;
+  /** Store the media_library "id" (for media_id FK columns) or the "fileUrl". Defaults to "fileUrl". */
+  valueField?: "id" | "fileUrl";
 }
 
 export function RHFSingleMediaPickerField<TFieldValues extends FieldValues>({
@@ -29,6 +31,7 @@ export function RHFSingleMediaPickerField<TFieldValues extends FieldValues>({
   modalTitle,
   mediaType = "all",
   uploadWith,
+  valueField,
 }: SharedProps<TFieldValues>) {
   return (
     <Controller
@@ -46,6 +49,7 @@ export function RHFSingleMediaPickerField<TFieldValues extends FieldValues>({
           modalTitle={modalTitle}
           mediaType={mediaType}
           uploadWith={uploadWith}
+          valueField={valueField}
         />
       )}
     />

@@ -127,6 +127,9 @@ const data: AdminSidebarItemType[] = [
         title: "sponsered-slider",
         url: "/admin/sponsered-slider",
       } ,{
+        title: "special-packages",
+        url: "/admin/special-packages",
+      } ,{
         title: "auth-content",
         url: "/admin/auth-content",
       }

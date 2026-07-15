@@ -3,13 +3,13 @@
 ############################
 # Stage 1: Dependencies
 ############################
-FROM node:20-alpine AS deps
+FROM node:24-alpine AS deps
 
 RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@11.5.1 --activate
 
 COPY package.json pnpm-lock.yaml* ./
 
@@ -18,11 +18,11 @@ RUN pnpm install --no-frozen-lockfile --ignore-scripts
 ############################
 # Stage 2: Build Application
 ############################
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@11.5.1 --activate
 
 COPY --from=deps /app/node_modules ./node_modules
 
@@ -34,8 +34,10 @@ ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_FILES_URL
 ARG NEXT_PUBLIC_SOCKET_URL
 ARG NEXT_PUBLIC_MAPBOX_TOKEN
+ARG NEXT_PUBLIC_NESHAN_MAP_KEY
 ARG AUTH_SECRET
 ARG WEBHOOK_KEY
+ARG DATABASE_URL
 
 # Convert ARGs to ENVs so Next.js can inline them at build time
 ENV NODE_ENV=production \
@@ -45,15 +47,17 @@ ENV NODE_ENV=production \
     NEXT_PUBLIC_FILES_URL=${NEXT_PUBLIC_FILES_URL} \
     NEXT_PUBLIC_SOCKET_URL=${NEXT_PUBLIC_SOCKET_URL} \
     NEXT_PUBLIC_MAPBOX_TOKEN=${NEXT_PUBLIC_MAPBOX_TOKEN} \
+    NEXT_PUBLIC_NESHAN_MAP_KEY=${NEXT_PUBLIC_NESHAN_MAP_KEY} \
     AUTH_SECRET=${AUTH_SECRET} \
-    WEBHOOK_KEY=${WEBHOOK_KEY}
+    WEBHOOK_KEY=${WEBHOOK_KEY} \
+    DATABASE_URL=${DATABASE_URL}
 
 RUN pnpm build
 
 ############################
 # Stage 3: Runner (Production)
 ############################
-FROM node:20-alpine AS runner
+FROM node:24-alpine AS runner
 
 WORKDIR /app
 

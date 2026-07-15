@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/page/page-header";
 import db from "@/config/database/db";
 import { getTranslations } from "next-intl/server";
+import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import { approveWalletPaymentIntentAction, rejectWalletPaymentIntentAction } from "./actions";
 
 export default async function WalletPaymentIntentsPage() {
@@ -31,6 +32,13 @@ export default async function WalletPaymentIntentsPage() {
         {items.map((item) => {
           const status = String(item.status || '').toLowerCase();
           const canReview = ['pending', 'processing', 'requires_action'].includes(status);
+          const metadata = (item.metadata && typeof item.metadata === 'object') ? item.metadata : {};
+          const isCrypto = String(item.payment_method || '').toLowerCase() === 'crypto';
+          const receiptUrl = metadata?.receipt?.fileUrl ? resolveHomeMediaUrl(metadata.receipt.fileUrl) : null;
+          const txHash = metadata?.txHash ? String(metadata.txHash) : null;
+          const network = metadata?.network ? String(metadata.network) : null;
+          const approvedByUserId = metadata?.approvedByUserId ? String(metadata.approvedByUserId) : null;
+          const rejectedByUserId = metadata?.rejectedByUserId ? String(metadata.rejectedByUserId) : null;
 
           return (
             <div key={item.id} className="rounded-md border p-4 text-sm">
@@ -42,7 +50,38 @@ export default async function WalletPaymentIntentsPage() {
                     {item.intent_type} · {item.payment_method} · {item.gateway_name || t("manual")} · {item.status}
                   </div>
                   <div className="font-semibold">{item.amount} {item.currency_code}</div>
-                  {item.gateway_reference ? <div className="text-xs text-muted-foreground">{t("reference")}: {item.gateway_reference}</div> : null}
+                  {item.gateway_reference ? <div className="text-xs text-muted-foreground">{t("reference")}: <span dir="ltr">{item.gateway_reference}</span></div> : null}
+
+                  {isCrypto ? (
+                    <span className="inline-block rounded bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">crypto</span>
+                  ) : null}
+
+                  {network ? (
+                    <div className="text-xs text-muted-foreground">{t("network")}: {network}</div>
+                  ) : null}
+
+                  {txHash ? (
+                    <div className="text-xs text-muted-foreground">
+                      {t("txHash")}: <span dir="ltr" className="break-all font-mono">{txHash}</span>
+                    </div>
+                  ) : null}
+
+                  {receiptUrl ? (
+                    <div className="pt-1">
+                      <div className="mb-1 text-xs font-medium text-muted-foreground">{t("receipt")}</div>
+                      <a href={receiptUrl} target="_blank" rel="noreferrer" className="inline-block">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={receiptUrl} alt={t("receipt")} className="h-28 w-auto rounded-md border object-cover" />
+                      </a>
+                    </div>
+                  ) : null}
+
+                  {approvedByUserId ? (
+                    <div className="text-xs text-muted-foreground">{t("approvedBy")}: <span dir="ltr">{approvedByUserId}</span></div>
+                  ) : null}
+                  {rejectedByUserId ? (
+                    <div className="text-xs text-muted-foreground">{t("approvedBy")}: <span dir="ltr">{rejectedByUserId}</span></div>
+                  ) : null}
                 </div>
 
                 {canReview ? (

@@ -51,4 +51,7 @@
   <data name="Password_Match_Error_Message" xml:space="preserve">
     <value>كلمة المرور وتأكيد كلمة المرور غير متطابقين</value>
   </data>
+  <data name="Otp_Verification_Message" xml:space="preserve">
+    <value>رمز التحقق الخاص بك هو {0} وهو صالح لمدة {1} دقيقة.</value>
+  </data>
 </root>

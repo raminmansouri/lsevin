@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { getCurrentUserIdOrThrow } from "./auth";
 import { listEnabledPaymentGatewayOptions } from "@/payment/server/payment-gateway.repository";
+import { storeBugReportFiles } from "@/features/bug-reports/server/upload";
 import { walletPaymentGateway } from "./payment-gateway";
 import {
   createWalletSqlClient,
@@ -17,10 +18,13 @@ import type {
   WalletPageData,
 } from "./types";
 
-function assertValidTopUpInput(input: CreateTopUpIntentInput) {
-  const currencyCode = String(input.currencyCode || "").trim().toUpperCase();
+// Receipt image cap kept in line with the shared bug-reports upload pipeline.
+const MAX_RECEIPT_BYTES = 15 * 1024 * 1024;
 
-  if (!Number.isFinite(input.amount) || input.amount <= 0) {
+function assertValidTopUpAmount(amount: number, currencyRaw: string): string {
+  const currencyCode = String(currencyRaw || "").trim().toUpperCase();
+
+  if (!Number.isFinite(amount) || amount <= 0) {
     throw new Error("Top-up amount must be greater than zero.");
   }
 
@@ -37,9 +41,15 @@ function assertValidTopUpInput(input: CreateTopUpIntentInput) {
     AED: 500_000,
   };
 
-  if (input.amount > (maxAmountByCurrency[currencyCode] ?? 100_000)) {
+  if (amount > (maxAmountByCurrency[currencyCode] ?? 100_000)) {
     throw new Error("Top-up amount is too large.");
   }
+
+  return currencyCode;
+}
+
+function assertValidTopUpInput(input: CreateTopUpIntentInput) {
+  assertValidTopUpAmount(input.amount, input.currencyCode);
 
   if (!["card", "bank"].includes(input.paymentMethod)) {
     throw new Error("Unsupported payment method.");
@@ -120,6 +130,110 @@ export async function createWalletTopUpIntentAction(
       ok: false,
       message:
         error instanceof Error ? error.message : "Unable to create top-up intent.",
+    };
+  }
+}
+
+/**
+ * Crypto wallet top-up with a manual receipt. The receipt image travels as
+ * multipart FormData (JSON server actions cannot carry a File). This NEVER
+ * credits the wallet: it only inserts a pending intent + a pending
+ * `status = 'pending'` credit transaction. The balance is credited later, when
+ * an admin approves the intent (which flips the transaction to 'completed').
+ */
+export async function createWalletCryptoTopUpAction(
+  formData: FormData
+): Promise<CreateTopUpIntentResult> {
+  try {
+    const amount = Number(formData.get("amount"));
+    const currencyCode = assertValidTopUpAmount(
+      amount,
+      String(formData.get("currencyCode") || "")
+    );
+
+    const network = String(formData.get("network") || "").trim().slice(0, 60) || null;
+    const txHashRaw = String(formData.get("txHash") || "").trim();
+    const txHash = txHashRaw ? txHashRaw.slice(0, 200) : null;
+
+    const receipt = formData.get("receipt");
+    if (!(receipt instanceof File) || receipt.size === 0) {
+      throw new Error("A payment receipt image is required.");
+    }
+    const mimeType = receipt.type || "application/octet-stream";
+    if (!mimeType.startsWith("image/")) {
+      throw new Error("The receipt must be an image file.");
+    }
+    if (receipt.size > MAX_RECEIPT_BYTES) {
+      throw new Error("The receipt image must be 15MB or smaller.");
+    }
+
+    const userId = await getCurrentUserIdOrThrow();
+
+    // Reuse the proven bug-reports/media upload pipeline to store the receipt.
+    const [attachment] = await storeBugReportFiles({
+      files: [receipt],
+      createdByUserId: userId,
+    });
+
+    if (!attachment?.fileUrl) {
+      throw new Error("Unable to store the payment receipt.");
+    }
+
+    const cryptoMetadata = {
+      source: "crypto" as const,
+      topUpMethod: "crypto" as const,
+      network,
+      txHash,
+      receipt: {
+        fileUrl: attachment.fileUrl,
+        fileName: attachment.fileName ?? null,
+        mimeType: attachment.mimeType ?? null,
+        fileSize: attachment.fileSize ?? null,
+        mediaId: attachment.mediaId ?? null,
+      },
+    };
+
+    const sql = createWalletSqlClient();
+
+    try {
+      const wallet = await ensureWalletAccount(sql, userId);
+
+      await insertTopUpIntentAndMaybePendingTransaction(sql, {
+        userId,
+        walletAccountId: wallet.walletAccountId,
+        input: {
+          amount,
+          currencyCode,
+          paymentMethod: "crypto",
+          txHash,
+          network,
+        },
+        gateway: {
+          gatewayName: "crypto-manual",
+          gatewayReference: txHash,
+          status: "pending",
+          raw: cryptoMetadata,
+        },
+      });
+
+      revalidatePath("/app/wallet");
+
+      return {
+        ok: true,
+        status: "pending",
+        message:
+          "Crypto deposit submitted. It will be credited after admin approval.",
+      };
+    } finally {
+      await sql.end({ timeout: 5 });
+    }
+  } catch (error) {
+    return {
+      ok: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Unable to submit the crypto top-up.",
     };
   }
 }

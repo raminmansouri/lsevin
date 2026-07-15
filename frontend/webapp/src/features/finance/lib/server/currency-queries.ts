@@ -3,7 +3,31 @@ import 'server-only';
 import sql from '@/config/database/db';
 
 import { normalizeCurrencyCode, roundMoney } from '../money';
+import { getDefaultInternationalMultiplier } from '../../server/pricing-settings.repository';
 import type { ConvertedMoney, Currency, FxQuote, PreferredCurrencyInput } from '../../types';
+
+/** Iranian domestic currencies — international markup never applies to these. */
+const DOMESTIC_CURRENCY_CODES = new Set(['IRR', 'IRT']);
+
+/**
+ * True when the target currency is an international (non-Iranian) display currency,
+ * i.e. the per-provider international multiplier should be applied.
+ */
+export function isInternationalDisplayCurrency(currencyCode: string): boolean {
+  return !DOMESTIC_CURRENCY_CODES.has(normalizeCurrencyCode(currencyCode));
+}
+
+/**
+ * The multiplier to charge international patients: the provider's own coefficient
+ * when set to a positive number, otherwise the admin-configurable global default
+ * (finance.settings). Never hardcoded.
+ */
+export async function resolveProviderMultiplier(providerMultiplier?: number | null): Promise<number> {
+  if (typeof providerMultiplier === 'number' && Number.isFinite(providerMultiplier) && providerMultiplier > 0) {
+    return providerMultiplier;
+  }
+  return getDefaultInternationalMultiplier();
+}
 
 function numberValue(value: unknown): number {
   if (typeof value === 'number') return value;
@@ -196,6 +220,68 @@ export async function convertMoney(input: {
     asOf: row.asOf,
     expiresAt: row.expiresAt,
   };
+}
+
+/**
+ * The single source of truth for PROVIDER-facing prices. Converts the domestic
+ * amount through finance.convert_money (the same daily-rate engine as convertMoney),
+ * then, for international display currencies only, multiplies by the provider's
+ * international coefficient:
+ *
+ *   international_price = convert_money(amount, source -> target) * provider_multiplier
+ *
+ * For domestic currencies (IRR/IRT) the multiplier is 1 (never marked up). Every
+ * provider/service/package/reservation render path should route through here so the
+ * markup is applied exactly once and consistently.
+ */
+export async function convertProviderPrice(input: {
+  amount: number;
+  sourceCurrencyCode: string;
+  targetCurrencyCode: string;
+  providerMultiplier?: number | null;
+  marginProfile?: string;
+}): Promise<ConvertedMoney> {
+  const converted = await convertMoney({
+    amount: input.amount,
+    sourceCurrencyCode: input.sourceCurrencyCode,
+    targetCurrencyCode: input.targetCurrencyCode,
+    marginProfile: input.marginProfile,
+  });
+
+  if (!isInternationalDisplayCurrency(converted.targetCurrencyCode)) {
+    return converted;
+  }
+
+  const multiplier = await resolveProviderMultiplier(input.providerMultiplier);
+  if (multiplier === 1) return converted;
+
+  const markedUp = converted.targetAmount * multiplier;
+  return {
+    ...converted,
+    targetAmount: roundMoney(markedUp, converted.targetCurrencyCode),
+  };
+}
+
+/** Batch variant of {@link convertProviderPrice} for a set of target currencies. */
+export async function getConvertedProviderPriceOptions(input: {
+  amount: number;
+  sourceCurrencyCode: string;
+  targetCurrencyCodes: string[];
+  providerMultiplier?: number | null;
+  marginProfile?: string;
+}): Promise<ConvertedMoney[]> {
+  const uniqueTargets = Array.from(new Set(input.targetCurrencyCodes.map(normalizeCurrencyCode)));
+  return Promise.all(
+    uniqueTargets.map((targetCurrencyCode) =>
+      convertProviderPrice({
+        amount: input.amount,
+        sourceCurrencyCode: input.sourceCurrencyCode,
+        targetCurrencyCode,
+        providerMultiplier: input.providerMultiplier,
+        marginProfile: input.marginProfile,
+      })
+    )
+  );
 }
 
 export async function createFxQuote(input: {

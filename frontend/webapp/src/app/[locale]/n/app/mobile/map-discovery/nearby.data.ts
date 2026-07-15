@@ -3,6 +3,12 @@ import { unstable_noStore as noStore } from "next/cache";
 
 import { normalizeDigits, parseCoordinate } from "./nearby.geo";
 
+// Distance filter bounds (km). Keep these in sync with the slider in NearbyClient.
+// The slider's far end (UNLIMITED_DISTANCE_KM) means "no radius cap": at that value
+// we drop the great-circle constraint entirely and show every matching provider.
+export const DEFAULT_DISTANCE_KM = 20;
+export const UNLIMITED_DISTANCE_KM = 100;
+
 export type NearbyFiltersInput = {
   q: string;
   categoryId: string | null;
@@ -260,7 +266,7 @@ export function parseNearbyFilters(
   const maxPrice = Math.max(requestedMinPrice, requestedMaxPrice);
   const requestedDistanceKm = toFiniteNumber(
     params.distanceKm ?? params.distance,
-    10,
+    DEFAULT_DISTANCE_KM,
   );
 
   return {
@@ -272,7 +278,7 @@ export function parseNearbyFilters(
     minPrice,
     maxPrice,
     currencyCode: currencyCode && currencyCode !== "ALL" ? currencyCode : null,
-    distanceKm: Math.min(200, Math.max(1, requestedDistanceKm)),
+    distanceKm: Math.min(UNLIMITED_DISTANCE_KM, Math.max(1, requestedDistanceKm)),
     minRating: Math.max(0, toFiniteNumber(params.minRating, 0)),
     verifiedOnly: ["1", "true", "yes", "on"].includes(
       toSingleString(params.verifiedOnly || params.verified)
@@ -450,7 +456,14 @@ function buildGeoConditions(filters: NearbyFiltersInput) {
     conditions.push(buildLocationCodeMatchSql(sql`sp.city`, filters.cityCode));
   }
 
-  if (filters.lat != null && filters.lng != null && filters.distanceKm > 0) {
+  // At the slider's far end the radius is "unlimited" — skip the great-circle cap
+  // so providers of any distance pass through (still ordered nearest-first below).
+  if (
+    filters.lat != null &&
+    filters.lng != null &&
+    filters.distanceKm > 0 &&
+    filters.distanceKm < UNLIMITED_DISTANCE_KM
+  ) {
     conditions.push(sql`${haversineKmSql(filters.lat, filters.lng)} <= ${filters.distanceKm}`);
   }
 
@@ -707,7 +720,6 @@ export async function getNearbyPageData({
     ) data
     where nullif(btrim(specialty), '') is not null
     order by specialty asc
-    limit 40
   `;
 
   const availableLanguages = normalizeLanguageOptions(

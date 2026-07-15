@@ -4,6 +4,7 @@ import { BadgePercent, Gift, Medal, ReceiptText, TicketCheck, Trophy, Users } fr
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import type { AdminDashboardStats } from "../types";
+import { EarnRateSettingsCard } from "./earn-rate-settings-card";
 
 const tiles = [
   { href: "/admin/marketing/offers", title: "Marketing offers", description: "Featured campaigns and provider-service offers", icon: BadgePercent },
@@ -15,7 +16,13 @@ const tiles = [
   { href: "/admin/loyalty/referrals", title: "Referrals", description: "Invite status, rewards and qualification tracking", icon: Medal },
 ];
 
-export function MarketingLoyaltyDashboard({ stats }: { stats: AdminDashboardStats }) {
+export function MarketingLoyaltyDashboard({
+  stats,
+  earnRateDivisor,
+}: {
+  stats: AdminDashboardStats;
+  earnRateDivisor: number;
+}) {
   return (
     <div className="space-y-6">
       <div>
@@ -31,6 +38,8 @@ export function MarketingLoyaltyDashboard({ stats }: { stats: AdminDashboardStat
         <StatCard label="Loyalty accounts" value={stats.totalAccounts} helper={`${stats.totalPoints.toLocaleString()} total active points`} />
         <StatCard label="Pending referrals" value={stats.pendingReferrals} helper={`${stats.ledgerEntries.toLocaleString()} ledger entries`} />
       </div>
+
+      <EarnRateSettingsCard divisor={earnRateDivisor} />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {tiles.map((tile) => {

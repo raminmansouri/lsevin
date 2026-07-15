@@ -15,10 +15,6 @@ export function IdentityUserDetailCard({ user }: { user: any }) {
           <Info label={tAdmin("marketingNotifications")} value={String(user.marketing_notifications_enabled)} />
         </CardContent>
       </Card>
-      <Card>
-        <CardHeader><CardTitle>{tAdmin("roles")}</CardTitle></CardHeader>
-        <CardContent className="space-y-2">{user.roles?.length ? user.roles.map((item: any) => <div key={item.roleId} className="rounded-md border px-3 py-2 text-sm">{item.name}</div>) : <p className="text-sm text-muted-foreground">{tAdmin("noRoles")}</p>}</CardContent>
-      </Card>
     </div>
   );
 }

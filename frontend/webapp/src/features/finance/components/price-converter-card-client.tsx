@@ -12,6 +12,11 @@ export function PriceConverterCardClient({
   convertedPrices,
   convertedOriginalPrices = [],
   initialCurrencyCode,
+  selectedCurrencyCode,
+  onCurrencyChange,
+  locale,
+  saveLabel,
+  convertedFromLabel,
   badgeText = 'All-inclusive package',
   className,
 }: {
@@ -19,6 +24,15 @@ export function PriceConverterCardClient({
   convertedPrices: ConvertedMoney[];
   convertedOriginalPrices?: ConvertedMoney[];
   initialCurrencyCode?: string;
+  /** When provided, the card is controlled by the parent (keeps it in sync with the reservation bar). */
+  selectedCurrencyCode?: string;
+  onCurrencyChange?: (currencyCode: string) => void;
+  /** Active locale for number/currency formatting (defaults to fa-IR inside formatMoney). */
+  locale?: string;
+  /** Translated "Save {percent}%" template ({percent} placeholder). Falls back to English. */
+  saveLabel?: (percent: number) => string;
+  /** Translated "Converted from {value}" template ({value} placeholder). Falls back to English. */
+  convertedFromLabel?: (value: string) => string;
   badgeText?: string;
   className?: string;
 }) {
@@ -26,7 +40,14 @@ export function PriceConverterCardClient({
     () => convertedPrices.map((price) => price.targetCurrencyCode),
     [convertedPrices]
   );
-  const [selectedCurrency, setSelectedCurrency] = useState(initialCurrencyCode || currencyCodes[0] || 'USD');
+  const [internalCurrency, setInternalCurrency] = useState(initialCurrencyCode || currencyCodes[0] || 'USD');
+  // Controlled when the parent passes selectedCurrencyCode; otherwise uses local state.
+  const selectedCurrency = selectedCurrencyCode ?? internalCurrency;
+
+  const selectCurrency = (currencyCode: string) => {
+    setInternalCurrency(currencyCode);
+    onCurrencyChange?.(currencyCode);
+  };
 
   const price = convertedPrices.find((item) => item.targetCurrencyCode === selectedCurrency) || convertedPrices[0];
   const originalPrice = convertedOriginalPrices.find((item) => item.targetCurrencyCode === selectedCurrency) || null;
@@ -42,24 +63,30 @@ export function PriceConverterCardClient({
           <p className="mb-1 text-sm text-white/80">{label}</p>
           <div className="flex flex-wrap items-baseline gap-3">
             <div className="text-3xl font-bold text-white">
-              {formatMoney({ amount: price.targetAmount, currencyCode: price.targetCurrencyCode })}
+              {formatMoney({ amount: price.targetAmount, currencyCode: price.targetCurrencyCode }, { locale })}
             </div>
             {originalPrice && originalPrice.targetAmount > price.targetAmount ? (
               <div className="text-lg text-white/60 line-through">
-                {formatMoney({ amount: originalPrice.targetAmount, currencyCode: originalPrice.targetCurrencyCode })}
+                {formatMoney({ amount: originalPrice.targetAmount, currencyCode: originalPrice.targetCurrencyCode }, { locale })}
               </div>
             ) : null}
           </div>
           {discountPercent ? (
             <p className="mt-1 text-sm font-semibold text-[#eacb7f]">
-              Save {discountPercent}% • {badgeText}
+              {saveLabel ? saveLabel(discountPercent) : `Save ${discountPercent}%`} • {badgeText}
             </p>
           ) : (
             <p className="mt-1 text-sm font-semibold text-[#eacb7f]">{badgeText}</p>
           )}
           {price.sourceCurrencyCode !== price.targetCurrencyCode ? (
             <p className="mt-1 text-xs text-white/55">
-              Converted from {formatMoney({ amount: price.sourceAmount, currencyCode: price.sourceCurrencyCode }, { showCode: true })}
+              {(() => {
+                const value = formatMoney(
+                  { amount: price.sourceAmount, currencyCode: price.sourceCurrencyCode },
+                  { showCode: true, locale }
+                );
+                return convertedFromLabel ? convertedFromLabel(value) : `Converted from ${value}`;
+              })()}
             </p>
           ) : null}
         </div>
@@ -70,7 +97,7 @@ export function PriceConverterCardClient({
           <button
             key={currency}
             type="button"
-            onClick={() => setSelectedCurrency(currency)}
+            onClick={() => selectCurrency(currency)}
             className={cn(
               'rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors',
               selectedCurrency === currency

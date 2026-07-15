@@ -16,7 +16,8 @@ internal sealed class GetServiceProviderByIdPublicEndpoint : EndpointResponseHan
     public void ConfigureEndpoints(IEndpointRouteBuilder app)
     {
         app.MapGet(Routes.ServiceProvider.GetPublicById, Handle)
-            .RequireAuthorization()
+            // Public provider details page is anonymous-accessible (no user context used).
+            .AllowAnonymous()
             .Produces<GetServiceProviderByIdPublicResponse>()
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status400BadRequest)

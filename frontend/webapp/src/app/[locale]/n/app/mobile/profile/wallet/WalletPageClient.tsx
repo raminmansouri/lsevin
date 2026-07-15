@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import {
@@ -8,6 +8,7 @@ import {
   Plus,
   CreditCard,
   Building2,
+  Bitcoin,
   ArrowUpRight,
   ArrowDownLeft,
   Clock,
@@ -22,7 +23,7 @@ import {
 } from "lucide-react";
 
 import { useNavigate } from "@/hooks/use-navigate";
-import { createWalletTopUpIntentAction } from "./actions";
+import { createWalletCryptoTopUpAction, createWalletTopUpIntentAction } from "./actions";
 import type {
   CreateTopUpIntentInput,
   WalletPageData,
@@ -147,6 +148,14 @@ export default function WalletPageClient({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, startSubmitting] = useTransition();
 
+  // Crypto top-up state (receipt travels as multipart FormData).
+  const [cryptoNetwork, setCryptoNetwork] = useState("");
+  const [cryptoTxHash, setCryptoTxHash] = useState("");
+  const [cryptoReceipt, setCryptoReceipt] = useState<File | null>(null);
+  const [cryptoReceiptPreview, setCryptoReceiptPreview] = useState<string | null>(null);
+  const [cryptoReceiptError, setCryptoReceiptError] = useState<string | null>(null);
+  const [cryptoSubmitted, setCryptoSubmitted] = useState(false);
+
   const balances = initialData.balances;
   const transactions = useMemo(() => {
     return initialData.transactions.filter((transaction) => {
@@ -158,12 +167,80 @@ export default function WalletPageClient({
   const quickAmounts = getQuickAmounts(selectedCurrency);
   const onlineCardGateways = initialData.paymentGateways ?? [];
 
+  const closeTopUpModal = () => {
+    setShowTopUpModal(false);
+    setTopUpAmount(null);
+    setTopUpMethod(null);
+    setSubmitError(null);
+    setCryptoNetwork("");
+    setCryptoTxHash("");
+    setCryptoReceipt(null);
+    setCryptoReceiptPreview(null);
+    setCryptoReceiptError(null);
+    setCryptoSubmitted(false);
+  };
+
+  const handleReceiptChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setCryptoReceiptError(null);
+    const file = event.target.files?.[0] ?? null;
+
+    if (!file) {
+      setCryptoReceipt(null);
+      setCryptoReceiptPreview(null);
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setCryptoReceipt(null);
+      setCryptoReceiptPreview(null);
+      setCryptoReceiptError(t("crypto.receiptWrongType"));
+      return;
+    }
+
+    if (file.size > 15 * 1024 * 1024) {
+      setCryptoReceipt(null);
+      setCryptoReceiptPreview(null);
+      setCryptoReceiptError(t("crypto.receiptTooLarge"));
+      return;
+    }
+
+    setCryptoReceipt(file);
+    setCryptoReceiptPreview(URL.createObjectURL(file));
+  };
+
   const handleTopUp = () => {
     if (!topUpAmount || !topUpMethod) {
       return;
     }
 
     setSubmitError(null);
+
+    if (topUpMethod === "crypto") {
+      if (!cryptoReceipt) {
+        setSubmitError(t("crypto.receiptRequired"));
+        return;
+      }
+
+      startSubmitting(async () => {
+        const formData = new FormData();
+        formData.append("amount", String(topUpAmount));
+        formData.append("currencyCode", selectedCurrency);
+        formData.append("network", cryptoNetwork.trim());
+        formData.append("txHash", cryptoTxHash.trim());
+        formData.append("receipt", cryptoReceipt);
+
+        const result = await createWalletCryptoTopUpAction(formData);
+
+        if (!result.ok) {
+          setSubmitError(result.message);
+          return;
+        }
+
+        setCryptoSubmitted(true);
+        router.refresh();
+      });
+      return;
+    }
 
     startSubmitting(async () => {
       const payload: CreateTopUpIntentInput = {
@@ -180,9 +257,7 @@ export default function WalletPageClient({
         return;
       }
 
-      setShowTopUpModal(false);
-      setTopUpAmount(null);
-      setTopUpMethod(null);
+      closeTopUpModal();
 
       if (result.redirectUrl) {
         router.push(result.redirectUrl);
@@ -397,12 +472,7 @@ export default function WalletPageClient({
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-gray-900">{t("topUpWallet")}</h2>
                 <button
-                  onClick={() => {
-                    setShowTopUpModal(false);
-                    setTopUpAmount(null);
-                    setTopUpMethod(null);
-                    setSubmitError(null);
-                  }}
+                  onClick={closeTopUpModal}
                   className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
                 >
                   <XCircle size={24} className="text-gray-500" />
@@ -410,167 +480,264 @@ export default function WalletPageClient({
               </div>
             </div>
 
-            <div className="p-6 max-h-[70vh] overflow-y-auto">
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-900 mb-3">
-                  {t("selectAmount")}
-                </label>
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  {quickAmounts.map((amount) => (
-                    <button
-                      key={amount}
-                      onClick={() => setTopUpAmount(amount)}
-                      className={`h-14 rounded-xl border-2 font-bold transition-all ${
-                        topUpAmount === amount
-                          ? "border-[#083f30] bg-[#083f30]/5 text-[#083f30]"
-                          : "border-gray-200 hover:border-gray-300 text-gray-900"
-                      }`}
-                    >
-                      {currencySymbol(selectedCurrency)}
-                      {amount.toLocaleString(locale)}
-                    </button>
-                  ))}
+            {cryptoSubmitted ? (
+              <div className="p-6 pb-24 text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-50">
+                  <Clock size={30} className="text-amber-600" />
                 </div>
-
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">
-                    {currencySymbol(selectedCurrency)}
-                  </span>
-                  <input
-                    type="number"
-                    min={1}
-                    step="0.01"
-                    value={topUpAmount ?? ""}
-                    onChange={(e) => {
-                      const parsed = Number(e.target.value);
-                      setTopUpAmount(Number.isFinite(parsed) && parsed > 0 ? parsed : null);
-                    }}
-                    placeholder={t("enterCustomAmount")}
-                    className="w-full h-14 pl-14 pr-4 border-2 border-gray-200 rounded-xl font-semibold focus:border-[#083f30] focus:outline-none transition-colors"
-                  />
+                <h3 className="mb-2 text-lg font-bold text-gray-900">{t("crypto.submitted")}</h3>
+                <div className="mb-6 inline-flex items-center gap-1 text-sm text-amber-600">
+                  <Clock size={14} />
+                  <span>{t("statuses.pending")}</span>
                 </div>
+                <button
+                  onClick={closeTopUpModal}
+                  className="w-full h-14 rounded-xl bg-[#083f30] font-bold text-white transition-colors hover:bg-[#0a5a44]"
+                >
+                  {t("crypto.done")}
+                </button>
               </div>
+            ) : (
+              <>
+                <div className="p-6 max-h-[70vh] overflow-y-auto">
+                  <div className="mb-6">
+                    <label className="block text-sm font-semibold text-gray-900 mb-3">
+                      {t("selectAmount")}
+                    </label>
+                    <div className="grid grid-cols-2 gap-3 mb-4">
+                      {quickAmounts.map((amount) => (
+                        <button
+                          key={amount}
+                          onClick={() => setTopUpAmount(amount)}
+                          className={`h-14 rounded-xl border-2 font-bold transition-all ${
+                            topUpAmount === amount
+                              ? "border-[#083f30] bg-[#083f30]/5 text-[#083f30]"
+                              : "border-gray-200 hover:border-gray-300 text-gray-900"
+                          }`}
+                        >
+                          {currencySymbol(selectedCurrency)}
+                          {amount.toLocaleString(locale)}
+                        </button>
+                      ))}
+                    </div>
 
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-900 mb-3">
-                  {t("paymentMethod")}
-                </label>
-                <div className="space-y-2">
-                  {[
-                    {
-                      id: "card",
-                      name: t("paymentMethods.onlineCard"),
-                      icon: <CreditCard size={24} />,
-                      details: onlineCardGateways.length ? t("paymentMethods.cardDetails") : t("paymentMethods.noGateway"),
-                    },
-                    {
-                      id: "bank",
-                      name: t("paymentMethods.bankTransfer"),
-                      icon: <Building2 size={24} />,
-                      details: t("paymentMethods.bankDetails"),
-                    },
-                  ].map((method) => (
-                    <button
-                      key={method.id}
-                      onClick={() =>
-                        setTopUpMethod(method.id as Exclude<WalletPaymentMethod, "wallet">)
-                      }
-                      className={`w-full flex items-center gap-4 p-4 border-2 rounded-xl transition-all ${
-                        topUpMethod === method.id
-                          ? "border-[#083f30] bg-[#083f30]/5"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
-                      <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-[#083f30]">
-                        {method.icon}
-                      </div>
-                      <div className="flex-1 text-left">
-                        <div className="font-semibold text-gray-900">{method.name}</div>
-                        <div className="text-sm text-gray-600">{method.details}</div>
-                      </div>
-                      <div
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                          topUpMethod === method.id
-                            ? "border-[#083f30]"
-                            : "border-gray-300"
-                        }`}
-                      >
-                        {topUpMethod === method.id && (
-                          <div className="w-3 h-3 bg-[#083f30] rounded-full" />
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
+                    <div className="relative">
+                      <span className="absolute start-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">
+                        {currencySymbol(selectedCurrency)}
+                      </span>
+                      <input
+                        type="number"
+                        min={1}
+                        step="0.01"
+                        value={topUpAmount ?? ""}
+                        onChange={(e) => {
+                          const parsed = Number(e.target.value);
+                          setTopUpAmount(Number.isFinite(parsed) && parsed > 0 ? parsed : null);
+                        }}
+                        placeholder={t("enterCustomAmount")}
+                        className="w-full h-14 ps-14 pe-4 border-2 border-gray-200 rounded-xl font-semibold focus:border-[#083f30] focus:outline-none transition-colors"
+                      />
+                    </div>
+                  </div>
 
-                {topUpMethod === "card" ? (
-                  <div className="mt-4 space-y-2 rounded-2xl border border-gray-200 bg-gray-50 p-3">
-                    <div className="text-xs font-bold uppercase tracking-wide text-gray-500">{t("gateway")}</div>
-                    {onlineCardGateways.length === 0 ? (
-                      <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-                        {t("noOnlineGateway")}
-                      </div>
-                    ) : null}
-                    {onlineCardGateways.map((gateway) => (
-                      <button
-                        key={gateway.code}
-                        type="button"
-                        onClick={() => setSelectedGateway(gateway.code)}
-                        className={`w-full rounded-xl border-2 p-3 text-left transition-all ${
-                          selectedGateway === gateway.code
-                            ? "border-[#083f30] bg-white"
-                            : "border-gray-200 bg-white hover:border-gray-300"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          <div>
-                            <div className="font-semibold text-gray-900">{gateway.displayName}</div>
-                            <div className="text-xs text-gray-600">{t("gatewayCurrencyNote", { currency: gateway.currency, selectedCurrency })}</div>
+                  <div className="mb-6">
+                    <label className="block text-sm font-semibold text-gray-900 mb-3">
+                      {t("paymentMethod")}
+                    </label>
+                    <div className="space-y-2">
+                      {[
+                        {
+                          id: "card",
+                          name: t("paymentMethods.onlineCard"),
+                          icon: <CreditCard size={24} />,
+                          details: onlineCardGateways.length ? t("paymentMethods.cardDetails") : t("paymentMethods.noGateway"),
+                        },
+                        {
+                          id: "bank",
+                          name: t("paymentMethods.bankTransfer"),
+                          icon: <Building2 size={24} />,
+                          details: t("paymentMethods.bankDetails"),
+                        },
+                        {
+                          id: "crypto",
+                          name: t("paymentMethods.crypto"),
+                          icon: <Bitcoin size={24} />,
+                          details: t("paymentMethods.cryptoDetails"),
+                        },
+                      ].map((method) => (
+                        <button
+                          key={method.id}
+                          onClick={() =>
+                            setTopUpMethod(method.id as Exclude<WalletPaymentMethod, "wallet">)
+                          }
+                          className={`w-full flex items-center gap-4 p-4 border-2 rounded-xl transition-all ${
+                            topUpMethod === method.id
+                              ? "border-[#083f30] bg-[#083f30]/5"
+                              : "border-gray-200 hover:border-gray-300"
+                          }`}
+                        >
+                          <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-[#083f30]">
+                            {method.icon}
+                          </div>
+                          <div className="flex-1 text-start">
+                            <div className="font-semibold text-gray-900">{method.name}</div>
+                            <div className="text-sm text-gray-600">{method.details}</div>
                           </div>
                           <div
-                            className={`h-5 w-5 rounded-full border-2 ${
-                              selectedGateway === gateway.code
-                                ? "border-[#083f30] bg-[#083f30]"
+                            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                              topUpMethod === method.id
+                                ? "border-[#083f30]"
                                 : "border-gray-300"
                             }`}
+                          >
+                            {topUpMethod === method.id && (
+                              <div className="w-3 h-3 bg-[#083f30] rounded-full" />
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+
+                    {topUpMethod === "card" ? (
+                      <div className="mt-4 space-y-2 rounded-2xl border border-gray-200 bg-gray-50 p-3">
+                        <div className="text-xs font-bold uppercase tracking-wide text-gray-500">{t("gateway")}</div>
+                        {onlineCardGateways.length === 0 ? (
+                          <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                            {t("noOnlineGateway")}
+                          </div>
+                        ) : null}
+                        {onlineCardGateways.map((gateway) => (
+                          <button
+                            key={gateway.code}
+                            type="button"
+                            onClick={() => setSelectedGateway(gateway.code)}
+                            className={`w-full rounded-xl border-2 p-3 text-start transition-all ${
+                              selectedGateway === gateway.code
+                                ? "border-[#083f30] bg-white"
+                                : "border-gray-200 bg-white hover:border-gray-300"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-3">
+                              <div>
+                                <div className="font-semibold text-gray-900">{gateway.displayName}</div>
+                                <div className="text-xs text-gray-600">{t("gatewayCurrencyNote", { currency: gateway.currency, selectedCurrency })}</div>
+                              </div>
+                              <div
+                                className={`h-5 w-5 rounded-full border-2 ${
+                                  selectedGateway === gateway.code
+                                    ? "border-[#083f30] bg-[#083f30]"
+                                    : "border-gray-300"
+                                }`}
+                              />
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+
+                    {topUpMethod === "crypto" ? (
+                      <div className="mt-4 space-y-3 rounded-2xl border border-gray-200 bg-gray-50 p-3">
+                        <div>
+                          <div className="mb-1 text-xs font-bold uppercase tracking-wide text-gray-500">{t("crypto.depositAddress")}</div>
+                          <div
+                            dir="ltr"
+                            style={{ direction: "ltr", unicodeBidi: "isolate" }}
+                            className="break-all rounded-xl border border-dashed border-gray-300 bg-white p-3 text-start font-mono text-sm text-gray-800"
+                          >
+                            {t("crypto.depositAddressValue")}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-gray-500">{t("crypto.network")}</label>
+                          <input
+                            type="text"
+                            value={cryptoNetwork}
+                            onChange={(e) => setCryptoNetwork(e.target.value)}
+                            placeholder="USDT TRC20"
+                            className="h-12 w-full rounded-xl border-2 border-gray-200 bg-white px-3 text-start focus:border-[#083f30] focus:outline-none"
                           />
                         </div>
-                      </button>
-                    ))}
+
+                        <div>
+                          <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-gray-500">
+                            {t("crypto.receiptImage")} <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleReceiptChange}
+                            className="block w-full text-sm text-gray-600 file:me-3 file:rounded-lg file:border-0 file:bg-[#083f30] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-[#0a5a44]"
+                          />
+                          {cryptoReceiptError ? (
+                            <p className="mt-1 text-xs text-red-600">{cryptoReceiptError}</p>
+                          ) : null}
+                          {cryptoReceiptPreview ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={cryptoReceiptPreview}
+                              alt={t("crypto.receiptImage")}
+                              className="mt-2 max-h-40 w-auto rounded-lg border border-gray-200 object-contain"
+                            />
+                          ) : null}
+                        </div>
+
+                        <div>
+                          <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-gray-500">{t("crypto.txHash")}</label>
+                          <input
+                            type="text"
+                            dir="ltr"
+                            style={{ direction: "ltr", unicodeBidi: "isolate" }}
+                            value={cryptoTxHash}
+                            onChange={(e) => setCryptoTxHash(e.target.value)}
+                            className="h-12 w-full rounded-xl border-2 border-gray-200 bg-white px-3 text-start font-mono text-sm focus:border-[#083f30] focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
-                ) : null}
-              </div>
 
-              {submitError && (
-                <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                  {submitError}
+                  {submitError && (
+                    <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                      {submitError}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            <div className="sticky bottom-0 bg-white p-6 pb-24 border-t border-gray-200">
-              <button
-                onClick={handleTopUp}
-                disabled={!topUpAmount || !topUpMethod || (topUpMethod === "card" && !selectedGateway) || isSubmitting}
-                className={`w-full h-14 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
-                  topUpAmount && topUpMethod && !(topUpMethod === "card" && !selectedGateway) && !isSubmitting
-                    ? "bg-[#083f30] text-white hover:bg-[#0a5a44] shadow-lg active:scale-95"
-                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                }`}
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 size={18} className="animate-spin" />
-                    {t("processing")}
-                  </>
-                ) : (
-                  <>
-                    {t("topUpAmount", { amount: `${currencySymbol(selectedCurrency)}${topUpAmount?.toLocaleString(locale) ?? "0"}` })}
-                    
-                  </>
-                )}
-              </button>
-            </div>
+                <div className="sticky bottom-0 bg-white p-6 pb-24 border-t border-gray-200">
+                  <button
+                    onClick={handleTopUp}
+                    disabled={
+                      !topUpAmount ||
+                      !topUpMethod ||
+                      (topUpMethod === "card" && !selectedGateway) ||
+                      (topUpMethod === "crypto" && !cryptoReceipt) ||
+                      isSubmitting
+                    }
+                    className={`w-full h-14 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
+                      topUpAmount &&
+                      topUpMethod &&
+                      !(topUpMethod === "card" && !selectedGateway) &&
+                      !(topUpMethod === "crypto" && !cryptoReceipt) &&
+                      !isSubmitting
+                        ? "bg-[#083f30] text-white hover:bg-[#0a5a44] shadow-lg active:scale-95"
+                        : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    }`}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 size={18} className="animate-spin" />
+                        {t("processing")}
+                      </>
+                    ) : (
+                      <>
+                        {t("topUpAmount", { amount: `${currencySymbol(selectedCurrency)}${topUpAmount?.toLocaleString(locale) ?? "0"}` })}
+                      </>
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

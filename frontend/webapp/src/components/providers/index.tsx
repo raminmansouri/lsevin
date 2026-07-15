@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 
 import useDirection from "@/hooks/use-direction";
 
+import { LocaleSync } from "@/components/locale/locale-sync";
 import PersianDigits from "@/components/persian-digits";
 
 import AuthProvider from "./auth-provider";
@@ -21,6 +22,7 @@ export function Providers({ children }: ProvidersProps) {
     <AuthProvider>
       <NuqsAdapter>
         <ThemeProvider>
+          <LocaleSync />
           <PersianDigits />
           <QueryProvider>{children}</QueryProvider>
           <Toaster

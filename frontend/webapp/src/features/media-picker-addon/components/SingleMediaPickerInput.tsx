@@ -16,6 +16,8 @@ export interface SingleMediaPickerInputProps extends BaseMediaPickerInputProps {
   value?: string;
   onValueChange?: (value: string) => void;
   onItemsChange?: (items: MediaItem[]) => void;
+  /** Which media field to store: the media_library "id" (for media_id FK columns) or the "fileUrl". Defaults to "fileUrl". */
+  valueField?: "id" | "fileUrl";
 }
 
 export default function SingleMediaPickerInput({
@@ -33,6 +35,7 @@ export default function SingleMediaPickerInput({
   value,
   onValueChange,
   onItemsChange,
+  valueField = "fileUrl",
 }: SingleMediaPickerInputProps) {
   const [open, setOpen] = useState(false);
   const [internalValue, setInternalValue] = useState(defaultValue ?? "");
@@ -54,7 +57,7 @@ export default function SingleMediaPickerInput({
   }, [currentValue, selectedIds]);
 
   function update(nextItems: MediaItem[]) {
-    const nextValue = toCommaSeparatedIds(nextItems.slice(0, 1));
+    const nextValue = toCommaSeparatedIds(nextItems.slice(0, 1), valueField);
     if (value === undefined) {
       setInternalValue(nextValue);
     }

@@ -1,0 +1,163 @@
+# Self-contained IP/HTTP-only deployment for 202.133.90.50.
+# Differences vs docker-compose.prod.yml:
+#   - drops lsevin-booking-webapp (not present in repo)
+#   - drops lsevin-apigateway (Yarp routes are Dev-only; Caddy talks to the API directly)
+#   - postgres pinned to 17-alpine to match the source dump; bound to 127.0.0.1 only
+#   - webapp gets DATABASE_URL (queries Postgres directly) + Neshan map key
+#   - uploads bind-mounted from /opt/lsevin/uploads (populated by rsync)
+services:
+  caddy:
+    # Custom Caddy built with the GeoIP plugin (see caddy.Dockerfile) so it can
+    # resolve visitor country and forward it as X-Country for language detection.
+    build:
+      context: .
+      dockerfile: caddy.Dockerfile
+    image: lsevin-caddy:geoip
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile.http:/etc/caddy/Caddyfile:ro
+      - ./geoip:/etc/caddy/geoip:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - lsevin-network
+    depends_on:
+      - lsevin-webapp
+      - lsevin-api
+
+  lsevin-webapp:
+    build:
+      context: ../../frontend/webapp
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        NEXT_PUBLIC_FILES_URL: ${NEXT_PUBLIC_FILES_URL}
+        NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL}
+        NEXT_PUBLIC_NESHAN_MAP_KEY: ${NEXT_PUBLIC_NESHAN_MAP_KEY}
+        NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN}
+        AUTH_SECRET: ${AUTH_SECRET}
+        WEBHOOK_KEY: ${WEBHOOK_KEY}
+        DATABASE_URL: ${DATABASE_URL}
+    image: lsevin-webapp:server
+    environment:
+      NODE_ENV: production
+      AUTH_URL: ${AUTH_URL}
+      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_TRUST_HOST: "true"
+      INTERNAL_API_URL: ${INTERNAL_API_URL}
+      WEBHOOK_KEY: ${WEBHOOK_KEY}
+      WEBAPP_API_KEY: ${WEBAPP_API_KEY}
+      NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_FILES_URL: ${NEXT_PUBLIC_FILES_URL}
+      NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL}
+      NEXT_PUBLIC_NESHAN_MAP_KEY: ${NEXT_PUBLIC_NESHAN_MAP_KEY}
+      NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN}
+      DATABASE_URL: ${DATABASE_URL}
+      POSTGRES_PREPARE: "false"
+    restart: unless-stopped
+    expose:
+      - "3000"
+    networks:
+      - lsevin-network
+    depends_on:
+      - lsevin-api
+
+  lsevin-api:
+    build:
+      context: ../../
+      dockerfile: src/API/LSevin.Api/Dockerfile
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      ConnectionStrings__database: Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Include Error Detail=true;
+      ConnectionStrings__cache: redis:6379
+      ConnectionStrings__eventstore: esdb://eventstore:2113?tls=false
+      CorsOptions__AllowedUrls__0: ${CORS_ORIGIN_1}
+      JwtOptions__Issuer: ${JWT_ISSUER}
+      JwtOptions__Audience: ${JWT_AUDIENCE}
+      JwtOptions__SecretKey: ${JWT_SECRET}
+      WebApplicationClientOptions__ApiKey: ${WEBAPP_API_KEY}
+      WebApplicationClientOptions__BaseAddress: http://lsevin-webapp:3000/api/
+      ObservabilityOptions__UseAspireOTLPExporter: "false"
+      ObservabilityOptions__UseJaegerExporter: "false"
+      SerilogOptions__SeqUrl: ""
+      # OTP delivery: international numbers use Whatsiplus (WhatsApp), Iran uses MeliPayamak.
+      # The WhatsiPlus API key is a secret and is NO LONGER stored in appsettings — it is
+      # supplied here from .env. The API's PostConfigure only overrides when a non-empty
+      # value is present, so a blank/unset WHATSIPLUS_API_KEY leaves the key unconfigured
+      # (and international OTP sends are logged as "API key is not configured").
+      WHATSIPLUS_API_KEY: ${WHATSIPLUS_API_KEY}
+    expose:
+      - "8080"
+    volumes:
+      - /opt/lsevin/uploads:/app/UploadFiles
+    networks:
+      - lsevin-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      eventstore:
+        condition: service_started
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - lsevin-network
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - lsevin-network
+
+  eventstore:
+    image: eventstore/eventstore:24.10.0-bookworm-slim
+    restart: unless-stopped
+    environment:
+      EVENTSTORE_CLUSTER_SIZE: "1"
+      EVENTSTORE_RUN_PROJECTIONS: "All"
+      EVENTSTORE_START_STANDARD_PROJECTIONS: "True"
+      EVENTSTORE_HTTP_PORT: "2113"
+      EVENTSTORE_INSECURE: "True"
+      EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP: "True"
+    volumes:
+      - eventstore_data:/var/lib/eventstore
+    networks:
+      - lsevin-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  eventstore_data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  lsevin-network:
+    name: lsevin-network
+    driver: bridge

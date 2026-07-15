@@ -1599,7 +1599,10 @@ declare const messages: {
       "payoutDelayComplaint": "شکایت درباره تأخیر پرداخت",
       "incorrectServiceCategoryAssigned": "دسته‌بندی اشتباه برای خدمت",
       "howToUseLoyaltyPoints": "نحوه استفاده از امتیازهای وفاداری"
-    }
+    },
+    "internationalPriceMultiplier": "ضریب قیمت بین‌المللی",
+    "internationalPriceMultiplierPlaceholder": "مثلاً ۳",
+    "internationalPriceMultiplierHint": "قیمت بیماران بین‌المللی = قیمت ارزی × این ضریب. خالی بگذارید تا از مقدار پیش‌فرض استفاده شود."
   },
   "Home": {
     "common": {
@@ -1760,6 +1763,18 @@ declare const messages: {
       "ctaTitle": "چیزی که دنبالش هستید را پیدا نکردید؟",
       "ctaDescription": "از جستجوی هوشمند ما استفاده کنید تا دقیقاً همان چیزی را پیدا کنید که نیاز دارید.",
       "ctaButton": "جستجو کنید"
+    },
+    "trustedPage": {
+      "backAria": "بازگشت به خانه",
+      "title": "ارائه‌دهندگان معتبر",
+      "subtitle": "مرور همه ارائه‌دهندگان"
+    },
+    "packagesPage": {
+      "title": "پکیج‌های ویژه",
+      "subtitle": "پیشنهادها و بسته‌های منتخب",
+      "backAria": "بازگشت به خانه",
+      "emptyTitle": "هنوز پکیجی وجود ندارد",
+      "emptyDescription": "پکیج‌های ویژه به‌محض انتشار در اینجا نمایش داده می‌شوند."
     }
   },
   "Support": {
@@ -3417,7 +3432,9 @@ declare const messages: {
     "price": {
       "packagePrice": "قیمت پکیج",
       "providerPackagePrice": "قیمت پکیج ارائه‌دهنده",
-      "totalPackagePrice": "قیمت کل پکیج"
+      "totalPackagePrice": "قیمت کل پکیج",
+      "save": "صرفه‌جویی {percent}٪",
+      "convertedFrom": "تبدیل‌شده از {value}"
     },
     "stats": {
       "duration": "مدت زمان",
@@ -3447,7 +3464,9 @@ declare const messages: {
     },
     "share": {
       "text": "مشاهده {service}",
-      "textWithClinic": "مشاهده {service} در {clinic}"
+      "textWithClinic": "مشاهده {service} در {clinic}",
+      "linkCopied": "لینک کپی شد",
+      "unavailable": "اشتراک‌گذاری در این مرورگر پشتیبانی نمی‌شود"
     },
     "errors": {
       "submitReview": "ثبت نظر امکان‌پذیر نبود.",
@@ -3522,12 +3541,17 @@ declare const messages: {
       "confirmDeposit": "تأیید واریز",
       "rejectReason": "دلیل رد",
       "defaultRejectReason": "پرداخت دریافت نشد",
-      "reject": "رد کردن"
+      "reject": "رد کردن",
+      "receipt": "رسید",
+      "txHash": "هش تراکنش",
+      "network": "شبکه",
+      "approvedBy": "بررسی‌شده توسط"
     },
     "walletTransactions": {
       "title": "تراکنش‌های کیف پول",
       "description": "دفتر تراکنش‌های کیف پول مرتبط با رزرو و ثبت دستی"
-    }
+    },
+    "special-packages": "پکیج‌های ویژه"
   },
   "HomePage": {
     "title": "ال سوین - سلامت هوشمند",
@@ -3999,6 +4023,30 @@ declare const messages: {
       "messages": {
         "success": "لینک بازیابی رمز عبور ارسال شد.",
         "error": "خطا در ارسال لینک بازیابی رمز عبور. لطفاً دوباره تلاش کنید."
+      }
+    },
+    "ResetPassword": {
+      "page": {
+        "title": "بازنشانی رمز عبور",
+        "description": "کدی که به تلفن شما ارسال شد را وارد کنید و رمز عبور جدید انتخاب کنید.",
+        "rememberPassword": "رمز عبور خود را به خاطر دارید؟",
+        "login": "ورود"
+      },
+      "form": {
+        "code": {
+          "label": "کد تأیید"
+        },
+        "newPassword": {
+          "label": "رمز عبور جدید"
+        },
+        "confirmPassword": {
+          "label": "تکرار رمز عبور جدید"
+        },
+        "submit": "بازنشانی رمز عبور"
+      },
+      "messages": {
+        "success": "رمز عبور شما بازنشانی شد. لطفاً وارد شوید.",
+        "error": "بازنشانی رمز عبور ناموفق بود. لطفاً دوباره تلاش کنید."
       }
     },
     "Otp": {
@@ -6580,7 +6628,9 @@ declare const messages: {
         "cardNetworkDetails": "ویزا، مسترکارت، امکس",
         "applePay": "اپل‌پی",
         "quickSecure": "سریع و امن",
-        "applePayDetails": "پرداخت سریع با اپل‌پی."
+        "applePayDetails": "پرداخت سریع با اپل‌پی.",
+        "crypto": "رمزارز",
+        "cryptoDetails": "واریز رمزارز؛ رسید تراکنش را آپلود کنید."
       },
       "gateway": "درگاه",
       "noOnlineGateway": "درگاه آنلاین تنظیم نشده است.",
@@ -6635,6 +6685,18 @@ declare const messages: {
           "subtitle": "افزایش موجودی کیف پول",
           "title": "شارژ کیف پول"
         }
+      },
+      "crypto": {
+        "network": "شبکه",
+        "depositAddress": "آدرس واریز",
+        "depositAddressValue": "TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+        "txHash": "هش تراکنش",
+        "receiptImage": "تصویر رسید",
+        "receiptRequired": "بارگذاری تصویر رسید الزامی است.",
+        "receiptTooLarge": "حجم تصویر رسید باید کمتر از ۱۵ مگابایت باشد.",
+        "receiptWrongType": "فقط فایل تصویری مجاز است.",
+        "submitted": "درخواست واریز رمزارز ثبت شد و پس از تأیید مدیر به کیف پول اضافه می‌شود.",
+        "done": "باشه"
       }
     },
     "transactions": {
@@ -7215,6 +7277,7 @@ declare const messages: {
     "title": "کشف روی نقشه",
     "providersNearby": "{count, plural, =0 {هیچ ارائه‌دهنده‌ای در نزدیکی شما نیست} one {# ارائه‌دهنده نزدیک شما} other {# ارائه‌دهنده نزدیک شما}}",
     "advancedFilters": "فیلترهای پیشرفته",
+    "distanceHint": "نمایش خدمات تا {distance} — برای تغییر فاصله، از «فیلترهای پیشرفته» استفاده کنید.",
     "refineSearchResults": "نتایج جستجو را دقیق‌تر کنید",
     "reviewsCount": "({count, plural, one {# نظر} other {# نظر}})",
     "clearAll": "پاک کردن همه",
@@ -7243,7 +7306,13 @@ declare const messages: {
       "languagesSpoken": "زبان‌های قابل مکالمه",
       "specialties": "تخصص‌ها",
       "oneKm": "۱ کیلومتر",
-      "fiftyKm": "۵۰ کیلومتر"
+      "fiftyKm": "۵۰ کیلومتر",
+      "unlimited": "نامحدود",
+      "distanceCaption": "هرچه محدوده گسترده‌تر باشد، خدمات بیشتری نمایش داده می‌شود.",
+      "selectSpecialties": "انتخاب تخصص‌ها",
+      "searchSpecialties": "جستجوی تخصص‌ها...",
+      "noSpecialtiesFound": "تخصصی پیدا نشد.",
+      "specialtiesSelected": "{count} تخصص انتخاب شد"
     },
     "backup": {
       "mapAlt": "نقشه",
@@ -7273,7 +7342,10 @@ declare const messages: {
         "implants": "ایمپلنت",
         "veneers": "ونیر"
       }
-    }
+    },
+    "useMyLocation": "استفاده از موقعیت من",
+    "expandedNote": "در محدودهٔ انتخابی شما خدمتی نبود — نزدیک‌ترین خدمات موجود بر اساس فاصله نشان داده می‌شود.",
+    "noResults": "خدمتی پیدا نشد. فیلترها را بازتر کنید."
   },
   "NearbyMap": {
     "mapboxNotConfiguredTitle": "Mapbox پیکربندی نشده است",
@@ -7283,7 +7355,9 @@ declare const messages: {
     "neshanCouldNotLoad": "نقشه نشان بارگذاری نشد",
     "neshanCouldNotLoadBody": "نقشه بارگذاری نشد. تنظیمات SDK نشان را بررسی کنید.",
     "selectedProvider": "ارائه‌دهنده انتخاب‌شده",
-    "selectProvider": "انتخاب ارائه‌دهنده"
+    "selectProvider": "انتخاب ارائه‌دهنده",
+    "mapboxCouldNotLoad": "نقشه Mapbox بارگذاری نشد",
+    "mapboxCouldNotLoadBody": "نقشه بارگذاری نشد. پیکربندی Mapbox را بررسی کنید."
   },
   "MapShared": {
     "mapboxConfigurationMissing": "پیکربندی Mapbox کامل نیست. متغیر NEXT_PUBLIC_MAPBOX_TOKEN را تنظیم کنید یا NEXT_PUBLIC_MAP_PROVIDER را روی neshan بگذارید.",
@@ -7293,7 +7367,8 @@ declare const messages: {
     "locationDescription": "روی نقشه کلیک کنید، نشانگر را جابه‌جا کنید یا مختصات را دستی وارد کنید",
     "reset": "بازنشانی",
     "latitude": "عرض جغرافیایی",
-    "longitude": "طول جغرافیایی"
+    "longitude": "طول جغرافیایی",
+    "mapboxMapLoadError": "نقشه Mapbox بارگذاری نشد."
   },
   "SearchResults": {
     "resultsFound": "{count, plural, =0 {نتیجه‌ای پیدا نشد} one {# نتیجه پیدا شد} other {# نتیجه پیدا شد}}",
@@ -11059,6 +11134,50 @@ declare const messages: {
       "description": "All credentials have been verified by our medical board. Dr. {name} meets the highest standards of medical excellence.",
       "title": "تأییدشده توسط السوین"
     }
+  },
+  "SpecialPackagesAdmin": {
+    "listTitle": "پکیج‌های ویژه",
+    "listDescription": "پکیج‌های ویژه‌ای که در صفحه اصلی موبایل نمایش داده می‌شوند را ایجاد و مدیریت کنید.",
+    "createTitle": "ایجاد پکیج ویژه",
+    "updateTitle": "ویرایش پکیج ویژه",
+    "addButton": "افزودن پکیج",
+    "countLabel": "{count} پکیج ثبت شده است.",
+    "columnOrder": "ترتیب",
+    "columnTitle": "عنوان",
+    "columnPrice": "قیمت",
+    "columnStatus": "وضعیت",
+    "columnActions": "عملیات",
+    "statusActive": "فعال",
+    "statusHidden": "مخفی",
+    "edit": "ویرایش",
+    "delete": "حذف",
+    "emptyList": "هنوز پکیج ویژه‌ای ثبت نشده است.",
+    "backToList": "بازگشت به پکیج‌ها",
+    "formDescription": "متن‌های چندزبانه، تصویر، قیمت و نمایش این پکیج را مدیریت کنید.",
+    "contentTitle": "محتوا",
+    "contentDescription": "عنوان، زیرعنوان، توضیحات و تصویر چندزبانه.",
+    "fieldTitle": "عنوان",
+    "fieldSubtitle": "زیرعنوان",
+    "fieldDescription": "توضیحات",
+    "fieldImage": "تصویر کاور",
+    "fieldImagePlaceholder": "انتخاب تصویر",
+    "fieldImageHelper": "در کارت پکیج و صفحه جزئیات نمایش داده می‌شود.",
+    "pricingTitle": "قیمت‌گذاری",
+    "pricingDescription": "قیمت اختیاری که با موتور ارز پلتفرم نمایش داده می‌شود.",
+    "fieldPriceAmount": "مبلغ قیمت",
+    "fieldCurrencyCode": "کد ارز",
+    "fieldCurrencyCodeHelper": "کد ارز مانند IRR یا USD.",
+    "fieldOriginalPriceAmount": "قیمت اصلی",
+    "fieldOriginalPriceAmountHelper": "اختیاری. در صورت بالاتر بودن از قیمت، خط‌خورده نمایش داده می‌شود.",
+    "displayTitle": "نمایش",
+    "displayDescription": "کنترل ترتیب و نمایش.",
+    "fieldDisplayOrder": "ترتیب نمایش",
+    "fieldIsActive": "فعال",
+    "fieldIsActiveHelper": "پکیج‌های غیرفعال در برنامه نمایش داده نمی‌شوند.",
+    "cancel": "انصراف",
+    "save": "ذخیره پکیج",
+    "toastError": "ذخیره پکیج ناموفق بود.",
+    "reviewFields": "لطفاً فیلدهای مشخص‌شده را بررسی کنید."
   }
 };
 export default messages;

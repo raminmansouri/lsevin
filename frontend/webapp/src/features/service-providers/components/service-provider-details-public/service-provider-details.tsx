@@ -46,8 +46,12 @@ export const ServiceProviderDetails = async ({ serviceProvider, t }: Props) => {
   const heroImageSrc = resolveMediaUrl(heroImage?.url);
   const heroIsVideo = isVideoMedia(heroImage?.mediaType, heroImage?.url);
 
+  // "My requests" is per-user data behind auth. Anonymous visitors have no token,
+  // so calling it would 401 and crash this public page — skip it and show none.
   const myRequestsResult = await withBaseHeaders((locale, token, userId) =>
-    getMyServiceProviderRequests({ locale, token, userId }, serviceProvider.id)
+    token
+      ? getMyServiceProviderRequests({ locale, token, userId }, serviceProvider.id)
+      : Promise.resolve({ data: [] as IServiceProviderRequest[] })
   );
 
   return (

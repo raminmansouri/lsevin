@@ -30,7 +30,12 @@ const nextConfig: NextConfig = {
 
   experimental: {
     authInterrupts: true,
-    cacheComponents: true,
+    // NOTE: switched from `cacheComponents` to `useCache` for the production build.
+    // cacheComponents (PPR) makes static prerender strict — any request-data access
+    // without a Suspense boundary is a fatal build error (e.g. next-intl getLocale in
+    // the root layout, and most [locale] pages). `useCache` keeps every `"use cache"`
+    // directive working while letting request-driven pages render dynamically.
+    useCache: true,
     staleTimes: {
       dynamic: 30,
       static: 180,

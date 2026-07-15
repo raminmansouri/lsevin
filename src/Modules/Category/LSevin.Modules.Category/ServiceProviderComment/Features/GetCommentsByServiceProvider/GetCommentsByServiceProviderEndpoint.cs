@@ -18,7 +18,9 @@ internal sealed class GetCommentsByServiceProviderEndpoint : EndpointResponseHan
     public void ConfigureEndpoints(IEndpointRouteBuilder app)
     {
         app.MapGet(Routes.ServiceProvider.GetComments, Handle)
-            .RequireAuthorization()
+            // Public reviews list. Anonymous-safe: GetUserIdentity returns EmptyId
+            // when unauthenticated, so the "IsMine" flag is simply false.
+            .AllowAnonymous()
             .Produces<IPageList<GetCommentsByServiceProviderResponse>>()
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status401Unauthorized)

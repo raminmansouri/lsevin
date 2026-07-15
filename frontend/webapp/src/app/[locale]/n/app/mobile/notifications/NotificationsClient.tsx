@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import {
   ChevronLeft,
   Calendar,
@@ -27,7 +27,32 @@ function buildQuery(next: NotificationsFiltersInput) {
   const params = new URLSearchParams();
   if (next.tab && next.tab !== "all") params.set("tab", next.tab);
   const query = params.toString();
-  return query ? `/n/app/notifications?${query}` : "/n/app/notifications";
+  return query
+    ? `/n/app/mobile/notifications?${query}`
+    : "/n/app/mobile/notifications";
+}
+
+function hrefForNotification(item: NotificationItem): string {
+  switch (item.type) {
+    case "booking":
+      return item.entityType === "booking" && item.entityId
+        ? `/n/app/mobile/bookings/${item.entityId}`
+        : "/n/app/mobile/bookings";
+    case "offer":
+      if (item.entityType === "service" && item.entityId) {
+        return `/n/app/mobile/service/${item.entityId}`;
+      }
+      if (item.entityType === "provider" && item.entityId) {
+        return `/n/app/mobile/provider/${item.entityId}`;
+      }
+      return "/n/app/mobile/offers";
+    case "system":
+      return item.entityType === "bug_report" && item.entityId
+        ? `/n/app/mobile/bug-reports/${item.entityId}`
+        : "/n/app/mobile/support";
+    default:
+      return "/n/app/mobile/notifications";
+  }
 }
 
 function navigateSmooth(
@@ -124,6 +149,11 @@ export default function NotificationsClient({
     }
   };
 
+  const openNotification = (notification: NotificationItem) => {
+    void markOneRead(notification.id);
+    router.push(hrefForNotification(notification));
+  };
+
   const markAllRead = async () => {
     if (!customerId || optimisticUnread === 0) return;
     const previous = items;
@@ -148,9 +178,9 @@ export default function NotificationsClient({
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push("/n/app/mobile/profile")}
-              className="w-10 h-10 -ml-2 flex items-center justify-center text-gray-600"
+              className="w-10 h-10 -ms-2 flex items-center justify-center text-gray-600"
             >
-              <ChevronLeft size={24} />
+              <ChevronLeft size={24} className="rtl:rotate-180" />
             </button>
             <div>
               <h1 className="text-xl font-bold text-gray-900">Notifications</h1>
@@ -199,8 +229,8 @@ export default function NotificationsClient({
                 <button
                   key={notification.id}
                   type="button"
-                  onClick={() => markOneRead(notification.id)}
-                  className={`w-full text-left bg-white rounded-xl border p-4 ${
+                  onClick={() => openNotification(notification)}
+                  className={`w-full text-start bg-white rounded-xl border p-4 ${
                     notification.read
                       ? "border-gray-200"
                       : "border-[#083f30] bg-[#083f30]/5"

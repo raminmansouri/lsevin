@@ -110,5 +110,11 @@ namespace LSevin.Modules.Identity.Resources {
                 return ResourceManager.GetString("Password_Match_Error_Message", resourceCulture);
             }
         }
+
+        public static string Otp_Verification_Message {
+            get {
+                return ResourceManager.GetString("Otp_Verification_Message", resourceCulture);
+            }
+        }
     }
 }

@@ -55,6 +55,9 @@ export const saveServiceProviderProfileSchema = z.object({
   sponsoredTag: z.string().max(50).optional().nullable(),
   specialtiesText: z.string().optional().nullable(),
   featuredScore: z.coerce.number().min(0).default(0),
+  // International price coefficient (Prompt 2). Free positive number; null/empty =>
+  // the provider uses the global finance.settings default.
+  internationalPriceMultiplier: z.coerce.number().positive().optional().nullable(),
   imageUrl: adminNullableMediaValueSchema,
   timezoneId: z.string().min(1).default("UTC"),
 });

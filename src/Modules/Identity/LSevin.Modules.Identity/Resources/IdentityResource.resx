@@ -51,4 +51,7 @@
   <data name="Password_Match_Error_Message" xml:space="preserve">
     <value>The password and confirmation password do not match</value>
   </data>
+  <data name="Otp_Verification_Message" xml:space="preserve">
+    <value>Your verification code is {0}. It is valid for {1} minutes.</value>
+  </data>
 </root>

@@ -22,11 +22,15 @@ function normalizeLocale(locale?: string | null) {
   return value;
 }
 
-function normalizeMediaType(value: string | null | undefined): SponsoredSlide['mediaType'] {
+function normalizeMediaType(
+  value: string | null | undefined,
+  url?: string | null
+): SponsoredSlide['mediaType'] {
   const v = (value ?? '').trim().toLowerCase();
+  const u = (url ?? '').trim().toLowerCase();
 
-  if (v.includes('video')) return 'video';
-  if (v.includes('gif')) return 'gif';
+  if (v.includes('video') || /\.(mp4|webm|mov|m4v|ogg)(\?|#|$)/.test(u)) return 'video';
+  if (v.includes('gif') || /\.gif(\?|#|$)/.test(u)) return 'gif';
   return 'image';
 }
 
@@ -44,6 +48,7 @@ export async function getSponsoredSlides(locale?: string | null, limit = 8): Pro
     link: string | null;
     url: string;
     media_type: string | null;
+    lib_media_type: string | null;
     mime_type: string | null;
     title: string | null;
     subtitle: string | null;
@@ -55,6 +60,7 @@ export async function getSponsoredSlides(locale?: string | null, limit = 8): Pro
       nullif(btrim(coalesce(s.link, s.secondary_link, '')), '') as link,
       coalesce(nullif(ml.file_url, ''), s.url) as url,
       mt.name as media_type,
+      ml.media_type as lib_media_type,
       ml.mime_type,
       coalesce(nullif(common.get_translation_t(s.title_translations, ${normalizedLocale}::text, 'en-US'), ''), nullif(btrim(s.title), '')) as title,
       coalesce(nullif(common.get_translation_t(s.subtitle_translations, ${normalizedLocale}::text, 'en-US'), ''), nullif(common.get_translation_t(s.description_translations, ${normalizedLocale}::text, 'en-US'), ''), nullif(btrim(s.subtitle), '')) as subtitle,
@@ -75,7 +81,9 @@ export async function getSponsoredSlides(locale?: string | null, limit = 8): Pro
     id: row.id,
     link: row.link,
     url: row.url,
-    mediaType: normalizeMediaType(row.media_type || row.mime_type),
+    // Prefer the media_library row's actual type (source of truth) over the slide's
+    // separately-managed media_type_id, which can be stale after swapping the media.
+    mediaType: normalizeMediaType(row.lib_media_type || row.mime_type || row.media_type, row.url),
     title: row.title,
     subtitle: row.subtitle,
     buttonLabel: row.buttonLabel,

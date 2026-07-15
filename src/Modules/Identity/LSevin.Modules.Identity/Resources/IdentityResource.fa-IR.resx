@@ -44,4 +44,7 @@
   <data name="Password_Match_Error_Message" xml:space="preserve">
     <value>رمز عبور با مقدار تایید آن باید یکی باشد</value>
   </data>
+  <data name="Otp_Verification_Message" xml:space="preserve">
+    <value>کد تأیید شما {0} است و به مدت {1} دقیقه معتبر است.</value>
+  </data>
 </root>

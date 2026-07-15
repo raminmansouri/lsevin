@@ -2,6 +2,26 @@
 
 import { revalidatePath } from "next/cache";
 import db from "@/config/database/db";
+import { getSession } from "@/lib/auth/session";
+import { UserRole } from "@/types/common";
+
+/**
+ * Enforce that the caller is an admin and return their user id. Server actions are
+ * public POST endpoints and the middleware only gates the admin area by URL, so a
+ * non-admin could otherwise invoke these money-crediting actions directly (e.g.
+ * self-approve their own pending crypto top-up). This is the authorization boundary
+ * for wallet approval — do NOT weaken it.
+ */
+async function assertAdminUserId(): Promise<string> {
+  const session = await getSession().catch(() => null);
+  const userId = session?.user?.id;
+  const roles = session?.user?.roles;
+  const isAdmin = roles?.includes(UserRole.Admin) || roles?.includes(UserRole.SuperAdmin);
+  if (!userId || !isAdmin) {
+    throw new Error("Not authorized: admin role required.");
+  }
+  return userId;
+}
 
 function jsonb(value: unknown) {
   return JSON.stringify(value ?? {});
@@ -12,7 +32,11 @@ function decimalFromForm(value: FormDataEntryValue | null) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }
 
-async function completeWalletIntent(intentId: string, amountOverride?: number | null) {
+async function completeWalletIntent(
+  intentId: string,
+  amountOverride?: number | null,
+  approvedByUserId?: string | null
+) {
   await db.begin(async (tx) => {
     const [intent] = await tx<any[]>`
       select
@@ -46,6 +70,7 @@ async function completeWalletIntent(intentId: string, amountOverride?: number | 
                adminConfirmed: true,
                adminConfirmedAt: new Date().toISOString(),
                amountConfirmed: amount,
+               approvedByUserId: approvedByUserId ?? null,
              })}::jsonb,
              last_modified_date = now()
        where id = ${intent.id}
@@ -68,7 +93,10 @@ async function completeWalletIntent(intentId: string, amountOverride?: number | 
                amount = ${Math.abs(amount)},
                currency_code = ${intent.currency_code},
                subtitle = 'Confirmed by admin',
-               metadata = coalesce(metadata, '{}'::jsonb) || ${jsonb({ adminConfirmedAt: new Date().toISOString() })}::jsonb,
+               metadata = coalesce(metadata, '{}'::jsonb) || ${jsonb({
+                 adminConfirmedAt: new Date().toISOString(),
+                 approvedByUserId: approvedByUserId ?? null,
+               })}::jsonb,
                last_modified_date = now()
          where id = ${existingTransaction.id}
       `;
@@ -109,14 +137,16 @@ async function completeWalletIntent(intentId: string, amountOverride?: number | 
 }
 
 export async function approveWalletPaymentIntentAction(formData: FormData) {
+  const approvedByUserId = await assertAdminUserId();
   const intentId = String(formData.get("intentId") || "").trim();
   if (!intentId) throw new Error("intentId is required.");
-  await completeWalletIntent(intentId, decimalFromForm(formData.get("amount")));
+  await completeWalletIntent(intentId, decimalFromForm(formData.get("amount")), approvedByUserId);
   revalidatePath("/admin/wallet-payment-intents");
   revalidatePath("/admin/wallet-transactions");
 }
 
 export async function rejectWalletPaymentIntentAction(formData: FormData) {
+  const rejectedByUserId = await assertAdminUserId();
   const intentId = String(formData.get("intentId") || "").trim();
   const reason = String(formData.get("reason") || "Rejected by admin").trim();
   if (!intentId) throw new Error("intentId is required.");
@@ -128,6 +158,7 @@ export async function rejectWalletPaymentIntentAction(formData: FormData) {
              metadata = coalesce(metadata, '{}'::jsonb) || ${jsonb({
                adminRejected: true,
                adminRejectedAt: new Date().toISOString(),
+               rejectedByUserId: rejectedByUserId ?? null,
                reason,
              })}::jsonb,
              last_modified_date = now()
@@ -139,7 +170,11 @@ export async function rejectWalletPaymentIntentAction(formData: FormData) {
       update customer.wallet_transactions
          set status = 'cancelled',
              subtitle = ${reason},
-             metadata = coalesce(metadata, '{}'::jsonb) || ${jsonb({ adminRejectedAt: new Date().toISOString(), reason })}::jsonb,
+             metadata = coalesce(metadata, '{}'::jsonb) || ${jsonb({
+               adminRejectedAt: new Date().toISOString(),
+               rejectedByUserId: rejectedByUserId ?? null,
+               reason,
+             })}::jsonb,
              last_modified_date = now()
        where payment_intent_id = ${intentId}::uuid
          and status in ('pending', 'processing')

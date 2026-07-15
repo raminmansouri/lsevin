@@ -243,6 +243,7 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
                 label={tAdmin("mediaLibraryItem")}
                 placeholder={tAdmin("pickImageGIFOrVideo")}
                 mediaType="all"
+                valueField="id"
                 helperText="Preferred. The frontend resolves the file URL from media.media_library."
                 modalTitle="Pick slider media"
               />

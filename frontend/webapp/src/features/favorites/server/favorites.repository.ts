@@ -15,6 +15,48 @@ export function isValidFavoriteEntityId(value: unknown): value is string {
   return typeof value === 'string' && UUID_RE.test(value);
 }
 
+/**
+ * Maps a signed-in user's IDENTITY id (identity.asp_net_users.id, what the session
+ * stores) to their CUSTOMER id (customer.customers.id, the FK target of
+ * customer.favorites.customer_id). These two ids differ in general, so writing the
+ * raw identity id as customer_id violates the FK and the favorite never persists.
+ *
+ * Same resolution the profile favorites/provider pages use: try an exact id match
+ * first (some flows already hold a customer id), then fall back to matching the
+ * identity user to a customer by email or phone. Returns null when unresolved.
+ */
+export async function resolveFavoritesCustomerId(userId?: string | null): Promise<string | null> {
+  const rawUserId = String(userId || '').trim();
+  if (!UUID_RE.test(rawUserId)) return null;
+
+  const exact = await sql<{ id: string }[]>`
+    select id::text as id
+    from customer.customers
+    where id = ${rawUserId}::uuid
+    limit 1
+  `;
+  if (exact[0]?.id) return exact[0].id;
+
+  const matched = await sql<{ id: string }[]>`
+    select c.id::text as id
+    from identity.asp_net_users u
+    join customer.customers c
+      on (
+        (nullif(c.email, '') is not null and lower(c.email) = lower(u.email))
+        or (
+          nullif(c.phone_number, '') is not null
+          and c.phone_number = u.phone_number
+          and c.phone_number_country_code = u.phone_number_country_code
+        )
+      )
+    where u.id = ${rawUserId}::uuid
+    order by case when lower(c.email) = lower(u.email) then 0 else 1 end
+    limit 1
+  `;
+
+  return matched[0]?.id || null;
+}
+
 export async function getIsFavorite(input: {
   customerId?: string | null;
   favoriteType: FavoriteEntityType;

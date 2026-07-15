@@ -1,0 +1,38 @@
+{
+	email raminmansouripouya@gmail.com
+
+	# GeoIP (zhangjiayin/caddy-geoip2). `order geoip2_vars first` is mandatory —
+	# otherwise {geoip2.country_code} is empty when reverse_proxy's header_up runs.
+	order geoip2_vars first
+	geoip2 {
+		databaseDirectory "/etc/caddy/geoip"
+		# Opens <databaseDirectory>/<editionID>.mmdb. No accountId/licenseKey => fully
+		# offline: reads the pre-provisioned DB-IP Lite file, never phones MaxMind.
+		editionID "dbip-country-lite"
+		updateFrequency 0
+	}
+}
+
+appmain.lsevin.com {
+	encode zstd gzip
+
+	# Resolve the visitor's country from their real IP. `strict` ignores
+	# X-Forwarded-For and uses the TCP peer, which is correct because Caddy is the
+	# edge (clients connect to it directly). Populates {geoip2.country_code}.
+	geoip2_vars strict
+
+	# API, uploaded files, and SignalR hubs -> .NET API; everything else -> Next webapp.
+	# (/api/auth/* stays on the webapp for next-auth.)
+	@backend path /api/v1/* /files/* /files /hubs/* /hubs
+	handle @backend {
+		reverse_proxy lsevin-api:8080
+	}
+
+	handle {
+		# Forward the detected ISO country code so the Next middleware can pick the
+		# language before the first render. Empty when the IP can't be resolved.
+		reverse_proxy lsevin-webapp:3000 {
+			header_up X-Country {geoip2.country_code}
+		}
+	}
+}

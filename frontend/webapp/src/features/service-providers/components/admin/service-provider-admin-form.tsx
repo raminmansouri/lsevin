@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -99,6 +100,7 @@ function buildServiceProviderDefaultValues(
     sponsoredTag: provider?.sponsoredTag ?? "",
     specialtiesText: provider?.specialties?.join(", ") ?? "",
     featuredScore: provider?.featuredScore ?? 0,
+    internationalPriceMultiplier: provider?.internationalPriceMultiplier ?? null,
     imageUrl: provider?.imageUrl ?? "",
     timezoneId: provider?.timezoneId ?? "UTC",
   };
@@ -601,6 +603,28 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
                     )} />
                     <FormField control={form.control} name="featuredScore" render={({ field }) => (
                       <FormItem><FormLabel>{tAdmin("featuredScore")}</FormLabel><FormControl><Input type="number" step="0.01" {...field} disabled={isPending} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="internationalPriceMultiplier" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{tAdmin("internationalPriceMultiplier")}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            inputMode="decimal"
+                            placeholder={tAdmin("internationalPriceMultiplierPlaceholder")}
+                            disabled={isPending}
+                            value={field.value ?? ""}
+                            onChange={(event) => field.onChange(event.target.value === "" ? null : event.target.value)}
+                            onBlur={field.onBlur}
+                            name={field.name}
+                            ref={field.ref}
+                          />
+                        </FormControl>
+                        <FormDescription>{tAdmin("internationalPriceMultiplierHint")}</FormDescription>
+                        <FormMessage />
+                      </FormItem>
                     )} />
                   </CardContent>
                 </Card>

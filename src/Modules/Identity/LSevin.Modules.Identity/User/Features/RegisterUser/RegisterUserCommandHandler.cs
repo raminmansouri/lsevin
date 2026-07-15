@@ -1,4 +1,7 @@
+using BuildingBlocks.Core.Clock;
+using BuildingBlocks.Core.Domain.ValueObjects;
 using BuildingBlocks.Core.ErrorHandling;
+using BuildingBlocks.Core.Generators;
 using BuildingBlocks.Core.Messaging.Commands;
 using BuildingBlocks.Core.Messaging.EventBus;
 using BuildingBlocks.Core.Resources;
@@ -6,15 +9,24 @@ using BuildingBlocks.Core.ResultPattern;
 using LSevin.Modules.Common.IntegrationEvents.User;
 using LSevin.Modules.Identity.Identity.Entities;
 using LSevin.Modules.Identity.Identity.Enums;
+using LSevin.Modules.Identity.Identity.Services;
+using LSevin.Modules.Identity.Infrastructure.Data.Context;
 using LSevin.Modules.Identity.User.Dtos;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using IdentityConstants = LSevin.Modules.Identity.Constants.IdentityConstants;
 
 namespace LSevin.Modules.Identity.User.Features.RegisterUser;
 
-internal sealed class RegisterUserCommandHandler(UserManager<ApplicationUser> userManager, IEventBus bus)
-    : CommandHandler<RegisterUserCommand, RegisterUserResponse>
+internal sealed class RegisterUserCommandHandler(
+    UserManager<ApplicationUser> userManager,
+    IEventBus bus,
+    IdentityContext context,
+    IOtpCodeGeneratorService otpGenerator,
+    IOtpSenderService otpSender,
+    ILogger<RegisterUserCommandHandler> logger
+) : CommandHandler<RegisterUserCommand, RegisterUserResponse>
 {
     public override async Task<Result<RegisterUserResponse>> Handle(
         RegisterUserCommand request,
@@ -60,6 +72,9 @@ internal sealed class RegisterUserCommandHandler(UserManager<ApplicationUser> us
             return AppError.ApplicationErrorMessage(roleResult.Errors.First().Description);
         }
 
+        // Send an OTP code so the user can verify their phone number right after signing up.
+        await SendPhoneVerificationOtpAsync(applicationUser, cancellationToken);
+
         var userRegistered = new UserRegisteredIntegrationEvent(
             applicationUser.Id,
             applicationUser.Email,
@@ -90,5 +105,44 @@ internal sealed class RegisterUserCommandHandler(UserManager<ApplicationUser> us
                 UserState: UserState.Active
             )
         );
+    }
+
+    /// <summary>
+    /// Generates and persists a phone-login OTP code for the newly registered user and dispatches it
+    /// through <see cref="IOtpSenderService"/> (routed to MeliPayamak for Iranian numbers, Whatsiplus otherwise).
+    /// Delivery failures are logged rather than thrown: the account already exists, so the user can
+    /// simply request a new code via the resend endpoint instead of the whole signup failing.
+    /// </summary>
+    private async Task SendPhoneVerificationOtpAsync(ApplicationUser user, CancellationToken cancellationToken)
+    {
+        var phoneNumber = PhoneNumber.Create(user.PhoneNumber!, user.PhoneNumberCountryCode);
+
+        var code = otpGenerator.GenerateCode();
+        var sentAt = SystemClock.Now;
+        var expiresAt = otpGenerator.CalculateExpiration(sentAt);
+
+        var phoneLoginCode = new PhoneLoginCode
+        {
+            Id = IdGenerator.NewId(),
+            UserId = user.Id,
+            PhoneNumber = phoneNumber,
+            Code = code,
+            SentAt = sentAt,
+            ExpiresAt = expiresAt,
+            AttemptCount = 0,
+            IsInvalidated = false,
+        };
+
+        await context.PhoneLoginCodes.AddAsync(phoneLoginCode, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+
+        var sendResult = await otpSender.SendOtpCodeAsync(phoneNumber, code, cancellationToken);
+        if (!sendResult.IsSuccess)
+        {
+            logger.LogWarning(
+                "[Register] - User {UserId} was created but the phone verification OTP could not be delivered.",
+                user.Id
+            );
+        }
     }
 }

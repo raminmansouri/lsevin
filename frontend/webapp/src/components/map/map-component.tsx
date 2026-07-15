@@ -1,5 +1,9 @@
 "use client";
 
+// mapbox-gl needs its stylesheet for the canvas, controls and markers. Importing
+// it here is a no-op for the Neshan path (which injects its own CSS).
+import "mapbox-gl/dist/mapbox-gl.css";
+
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
@@ -9,10 +13,11 @@ import {
 } from "@/features/shared/types/coordinates";
 
 import {
-  getConfiguredNeshanMapType,
-  NESHAN_MAP_KEY,
+  createMapInstance,
+  isProviderConfigured,
+  resolveMapProvider,
 } from "./map-provider";
-import { useNeshanSdk } from "./use-neshan-sdk";
+import { useMapEngine } from "./use-map-engine";
 
 export interface MapComponentProps {
   coordinates?: Coordinates | null;
@@ -21,6 +26,11 @@ export interface MapComponentProps {
   className?: string;
   zoom?: number;
   height?: string;
+  /**
+   * Optional country code (e.g. "IR"). When provided it takes precedence over
+   * the coordinate bounding box for choosing Neshan (Iran) vs Mapbox (intl).
+   */
+  countryCode?: string | null;
 }
 
 function MissingMapConfiguration({
@@ -72,6 +82,7 @@ export function MapComponent({
   className = "",
   zoom = 13,
   height = "400px",
+  countryCode,
 }: MapComponentProps) {
   const t = useTranslations("MapShared");
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -79,7 +90,12 @@ export function MapComponent({
   const markerRef = useRef<any>(null);
   const initialCoords = coordinates || DEFAULT_COORDINATES;
   const [markerCoords, setMarkerCoords] = useState<Coordinates>(initialCoords);
-  const { neshan, isLoaded, error } = useNeshanSdk(true);
+
+  // Neshan for Iran, Mapbox for international. Provider only changes value when
+  // the point crosses the Iran border, so the init effect re-runs rarely.
+  const provider = resolveMapProvider({ countryCode, coordinates: coordinates ?? initialCoords });
+  const { sdk, isLoaded, error } = useMapEngine(provider);
+  const configured = isProviderConfigured(provider);
 
   useEffect(() => {
     if (coordinates) {
@@ -88,30 +104,14 @@ export function MapComponent({
   }, [coordinates]);
 
   useEffect(() => {
-    if (!isLoaded || !neshan || !containerRef.current || mapRef.current || !NESHAN_MAP_KEY) {
+    if (!isLoaded || !sdk || !containerRef.current || mapRef.current || !configured) {
       return;
     }
 
-    const mapTypeName = getConfiguredNeshanMapType();
-    const mapType = neshan.Map.mapTypes?.[mapTypeName] ?? neshan.Map.mapTypes?.neshanVector;
-
-    const map = new neshan.Map({
-      mapType,
+    const map = createMapInstance(sdk, provider, {
       container: containerRef.current,
-      zoom,
-      pitch: 0,
       center: [initialCoords.longitude, initialCoords.latitude],
-      minZoom: 2,
-      maxZoom: 21,
-      trackResize: true,
-      mapKey: NESHAN_MAP_KEY,
-      poi: false,
-      traffic: false,
-      isTouchPlatform: true,
-      mapTypeControllerOptions: {
-        show: true,
-        position: "bottom-left",
-      },
+      zoom,
     });
 
     const resizeMap = () => map.resize?.();
@@ -119,15 +119,21 @@ export function MapComponent({
     requestAnimationFrame(resizeMap);
     window.setTimeout(resizeMap, 250);
 
-    const marker = new neshan.Marker({
-      element: createNeshanPinElement(),
-      draggable: interactive,
-      anchor: "bottom",
-    })
-      .setLngLat([markerCoords.longitude, markerCoords.latitude])
-      .addTo(map);
-
-    marker.getElement?.().style?.setProperty("position", "absolute", "important");
+    let marker: any;
+    if (provider === "mapbox") {
+      marker = new sdk.Marker({ color: "#083f30", draggable: interactive, anchor: "bottom" })
+        .setLngLat([markerCoords.longitude, markerCoords.latitude])
+        .addTo(map);
+    } else {
+      marker = new sdk.Marker({
+        element: createNeshanPinElement(),
+        draggable: interactive,
+        anchor: "bottom",
+      })
+        .setLngLat([markerCoords.longitude, markerCoords.latitude])
+        .addTo(map);
+      marker.getElement?.().style?.setProperty("position", "absolute", "important");
+    }
 
     if (interactive && onCoordinatesChange) {
       map.on("click", (event: any) => {
@@ -160,9 +166,10 @@ export function MapComponent({
       markerRef.current = null;
       mapRef.current = null;
     };
-    // We intentionally initialize the Neshan map once per mount. Coordinate updates are handled below.
+    // Initialize once per (provider, sdk, interactivity). Coordinate updates are
+    // handled by the effect below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded, neshan, interactive, onCoordinatesChange]);
+  }, [isLoaded, sdk, provider, configured, interactive, onCoordinatesChange]);
 
   useEffect(() => {
     if (!mapRef.current || !markerRef.current || !coordinates) return;
@@ -175,12 +182,16 @@ export function MapComponent({
     });
   }, [coordinates, zoom]);
 
-  if (!NESHAN_MAP_KEY) {
+  if (!configured) {
     return (
       <MissingMapConfiguration
         className={className}
         height={height}
-        message={t("neshanConfigurationMissing")}
+        message={t(
+          provider === "mapbox"
+            ? "mapboxConfigurationMissing"
+            : "neshanConfigurationMissing",
+        )}
       />
     );
   }
@@ -190,7 +201,7 @@ export function MapComponent({
       <MissingMapConfiguration
         className={className}
         height={height}
-        message={t("neshanMapLoadError")}
+        message={t(provider === "mapbox" ? "mapboxMapLoadError" : "neshanMapLoadError")}
       />
     );
   }

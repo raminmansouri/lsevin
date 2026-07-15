@@ -15,6 +15,7 @@ internal static class DomainConstValues
 
     public const int EmailVerificationCodeMaxLength = 6;
     public const int PasswordResetCodeMaxLength = 6;
+    public const int PasswordResetCodeExpirationMinutes = 15;
 
     public const int PhoneLoginCodeMaxLength = 6;
     public const int PhoneLoginCodeExpirationMinutes = 5;

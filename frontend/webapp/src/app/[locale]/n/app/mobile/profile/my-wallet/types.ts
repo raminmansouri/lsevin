@@ -10,7 +10,7 @@ export type WalletTransactionStatus =
   | "cancelled"
   | "refunded";
 
-export type WalletPaymentMethod = "card" | "bank" | "apple" | "wallet";
+export type WalletPaymentMethod = "card" | "bank" | "crypto" | "apple" | "wallet";
 
 export interface WalletBalanceRow {
   currencyCode: WalletCurrency;

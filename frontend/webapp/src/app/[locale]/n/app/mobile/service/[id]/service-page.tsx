@@ -27,6 +27,7 @@ import {
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 import RecommendationSection from "../../components/RecommendationSection";
 import ReviewForm, { type ReviewFormSubmitValue } from "../../../components/ReviewForm";
@@ -536,7 +537,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
 
   const handleShare = async () => {
     const shareText = service.clinic ? t("share.textWithClinic", { service: service.name, clinic: service.clinic }) : t("share.text", { service: service.name });
-    if (navigator.share) {
+    if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({ title: service.name, text: shareText, url: window.location.href });
       } catch {
@@ -544,7 +545,17 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
       }
       return;
     }
-    await navigator.clipboard.writeText(window.location.href);
+    // Fallback for browsers without the Web Share API: copy the link and confirm.
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success(t("share.linkCopied"));
+      } else {
+        toast.error(t("share.unavailable"));
+      }
+    } catch {
+      toast.error(t("share.unavailable"));
+    }
   };
 
   const handleReviewSubmit = async (review: ReviewFormSubmitValue) => {
@@ -696,7 +707,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
           {service.providerCount > 1 && <span className="text-sm font-semibold text-[#083f30]">{t("providers.available", { count: service.providerCount })}</span>}
         </div>
 
-        <PriceConverterCardClient label={t("price.packagePrice")} convertedPrices={service.priceOptions} convertedOriginalPrices={service.originalPriceOptions} selectedCurrencyCode={selectedCurrency} onCurrencyChange={setSelectedCurrency} badgeText={t("price.providerPackagePrice")} locale={locale} />
+        <PriceConverterCardClient label={t("price.packagePrice")} convertedPrices={service.priceOptions} convertedOriginalPrices={service.originalPriceOptions} selectedCurrencyCode={selectedCurrency} onCurrencyChange={setSelectedCurrency} saveLabel={(percent) => t("price.save", { percent })} convertedFromLabel={(value) => t("price.convertedFrom", { value })} badgeText={t("price.providerPackagePrice")} locale={locale} />
 
         <div className="mb-6 grid grid-cols-2 gap-3">
           <div className="rounded-xl bg-gray-50 p-4"><Clock size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">{t("stats.duration")}</div><div className="font-bold text-gray-900">{service.duration}</div></div>

@@ -24,6 +24,10 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
+    // The gateway receives and proxies media uploads, so its request-body limit must match the
+    // API's (100 MB). Kestrel's ~28.6 MB default otherwise rejects videos before they reach the API.
+    builder.WebHost.ConfigureKestrel(o => o.Limits.MaxRequestBodySize = 104_857_600);
+
     var configuration = builder.Configuration;
     var isDev = builder.Environment.IsDevelopment() || builder.Environment.IsEnvironment(Environments.Test);
     if (isDev)
@@ -57,7 +61,7 @@ try
             tags: [WebConstants.HealthChecks.HealthCheckLiveTag]
         )
         .AddUrlGroup(
-            new Uri($"https+http://lsevin-api{WebConstants.OpenApi.ScalarRoute}/{WebConstants.OpenApi.DefaultVersion}"),
+            new Uri($"http://lsevin-api{WebConstants.OpenApi.ScalarRoute}/{WebConstants.OpenApi.DefaultVersion}"),
             "LSevin.Api",
             HealthStatus.Degraded
         );

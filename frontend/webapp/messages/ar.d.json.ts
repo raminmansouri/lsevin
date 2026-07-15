@@ -2300,7 +2300,10 @@ declare const messages: {
       "payoutDelayComplaint": "شكوى تأخر الدفع",
       "incorrectServiceCategoryAssigned": "تم تعيين فئة خدمة غير صحيحة",
       "howToUseLoyaltyPoints": "كيفية استخدام نقاط الولاء"
-    }
+    },
+    "internationalPriceMultiplier": "معامل السعر الدولي",
+    "internationalPriceMultiplierPlaceholder": "مثلاً ٣",
+    "internationalPriceMultiplierHint": "السعر الدولي = السعر المحوّل × هذا المعامل. اتركه فارغًا لاستخدام القيمة الافتراضية."
   },
   "Home": {
     "common": {
@@ -2461,6 +2464,18 @@ declare const messages: {
       "ctaTitle": "لا تجد ما تبحث عنه؟",
       "ctaDescription": "استخدم البحث الذكي للعثور على ما تحتاجه بالضبط.",
       "ctaButton": "ابحث الآن"
+    },
+    "trustedPage": {
+      "backAria": "العودة إلى الرئيسية",
+      "title": "مزودون موثوقون",
+      "subtitle": "تصفح جميع المزودين"
+    },
+    "packagesPage": {
+      "title": "الباقات المميزة",
+      "subtitle": "عروض وباقات مختارة",
+      "backAria": "العودة إلى الرئيسية",
+      "emptyTitle": "لا توجد باقات بعد",
+      "emptyDescription": "ستظهر الباقات المميزة هنا فور نشرها."
     }
   },
   "Support": {
@@ -3789,7 +3804,9 @@ declare const messages: {
     "price": {
       "packagePrice": "سعر الباقة",
       "providerPackagePrice": "سعر باقة مقدم الخدمة",
-      "totalPackagePrice": "إجمالي سعر الباقة"
+      "totalPackagePrice": "إجمالي سعر الباقة",
+      "save": "وفّر {percent}٪",
+      "convertedFrom": "محوّل من {value}"
     },
     "stats": {
       "duration": "المدة",
@@ -3819,7 +3836,9 @@ declare const messages: {
     },
     "share": {
       "text": "اطّلع على {service}",
-      "textWithClinic": "اطّلع على {service} لدى {clinic}"
+      "textWithClinic": "اطّلع على {service} لدى {clinic}",
+      "linkCopied": "تم نسخ الرابط",
+      "unavailable": "المشاركة غير مدعومة في هذا المتصفح"
     },
     "errors": {
       "submitReview": "تعذر إرسال المراجعة.",
@@ -4220,12 +4239,17 @@ declare const messages: {
       "confirmDeposit": "تأكيد الإيداع",
       "rejectReason": "سبب الرفض",
       "defaultRejectReason": "لم يتم استلام الدفع",
-      "reject": "رفض"
+      "reject": "رفض",
+      "receipt": "الإيصال",
+      "txHash": "معرّف المعاملة",
+      "network": "الشبكة",
+      "approvedBy": "تمت المراجعة بواسطة"
     },
     "walletTransactions": {
       "title": "معاملات المحفظة",
       "description": "سجل معاملات المحفظة المرتبطة بالحجوزات والمدخلات اليدوية"
-    }
+    },
+    "special-packages": "الباقات المميزة"
   },
   "HomePage": {
     "title": "L Sevin - رعاية صحية آلية",
@@ -4699,6 +4723,30 @@ declare const messages: {
       "messages": {
         "success": "تم إرسال رابط الاستعادة.",
         "error": "حدث خطأ أثناء إرسال رابط الاستعادة. يرجى المحاولة مرة أخرى."
+      }
+    },
+    "ResetPassword": {
+      "page": {
+        "title": "إعادة تعيين كلمة المرور",
+        "description": "أدخل الرمز الذي أرسلناه إلى هاتفك واختر كلمة مرور جديدة.",
+        "rememberPassword": "هل تتذكر كلمة المرور؟",
+        "login": "تسجيل الدخول"
+      },
+      "form": {
+        "code": {
+          "label": "رمز التحقق"
+        },
+        "newPassword": {
+          "label": "كلمة المرور الجديدة"
+        },
+        "confirmPassword": {
+          "label": "تأكيد كلمة المرور الجديدة"
+        },
+        "submit": "إعادة تعيين كلمة المرور"
+      },
+      "messages": {
+        "success": "تمت إعادة تعيين كلمة المرور. الرجاء تسجيل الدخول.",
+        "error": "تعذّرت إعادة تعيين كلمة المرور. حاول مرة أخرى."
       }
     },
     "Otp": {
@@ -6568,7 +6616,9 @@ declare const messages: {
         "cardNetworkDetails": "فيزا، ماستركارد، أمريكان إكسبريس",
         "applePay": "Apple Pay",
         "quickSecure": "سريع وآمن",
-        "applePayDetails": "دفع سريع عبر Apple Pay."
+        "applePayDetails": "دفع سريع عبر Apple Pay.",
+        "crypto": "عملة رقمية",
+        "cryptoDetails": "أودِع عملة رقمية وارفع إيصال المعاملة."
       },
       "gateway": "بوابة الدفع",
       "noOnlineGateway": "لم يتم تكوين بوابة دفع إلكترونية.",
@@ -6623,6 +6673,18 @@ declare const messages: {
           "subtitle": "تمت إضافة رصيد للمحفظة",
           "title": "شحن المحفظة"
         }
+      },
+      "crypto": {
+        "network": "الشبكة",
+        "depositAddress": "عنوان الإيداع",
+        "depositAddressValue": "TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+        "txHash": "معرّف المعاملة",
+        "receiptImage": "إيصال الدفع",
+        "receiptRequired": "صورة الإيصال مطلوبة.",
+        "receiptTooLarge": "يجب أن يكون حجم صورة الإيصال أقل من 15 ميغابايت.",
+        "receiptWrongType": "يُسمح بملفات الصور فقط.",
+        "submitted": "تم إرسال إيداع العملة الرقمية وسيُضاف إلى المحفظة بعد موافقة المدير.",
+        "done": "تم"
       }
     },
     "transactions": {
@@ -7203,6 +7265,7 @@ declare const messages: {
     "title": "الخريطة الاكتشاف",
     "providersNearby": "{count, plural, =0 {لا يوجد مزوّدون بالقرب منك} one {# مزوّد بالقرب منك} other {# مزوّدون بالقرب منك}}",
     "advancedFilters": "فلاتر متقدمة",
+    "distanceHint": "عرض مزوّدي الخدمات ضمن {distance} — اضغط لتغيير المسافة من الفلاتر المتقدمة.",
     "refineSearchResults": "Refine الخاص بك بحث النتائج",
     "reviewsCount": "({count, plural, one {# مراجعة} other {# مراجعةs}})",
     "clearAll": "مسح كل",
@@ -7231,7 +7294,13 @@ declare const messages: {
       "languagesSpoken": "اللغات Spoken",
       "specialties": "التخصصات",
       "oneKm": "1 كم",
-      "fiftyKm": "50 كم"
+      "fiftyKm": "50 كم",
+      "unlimited": "غير محدود",
+      "distanceCaption": "كلما اتسع النطاق، ظهر عدد أكبر من مزوّدي الخدمات.",
+      "selectSpecialties": "اختر التخصصات",
+      "searchSpecialties": "ابحث عن التخصصات...",
+      "noSpecialtiesFound": "لم يتم العثور على تخصصات.",
+      "specialtiesSelected": "{count} محدد"
     },
     "backup": {
       "mapAlt": "الخريطة",
@@ -7261,7 +7330,10 @@ declare const messages: {
         "implants": "الزراعات",
         "veneers": "القشور"
       }
-    }
+    },
+    "useMyLocation": "استخدام موقعي",
+    "expandedNote": "لا توجد خدمات في نطاقك المحدد — نعرض أقرب الخدمات المتاحة مرتبة حسب المسافة.",
+    "noResults": "لم يتم العثور على خدمات. جرّب توسيع عوامل التصفية."
   },
   "NearbyMap": {
     "mapboxNotConfiguredTitle": "Mapbox is not مكوّن",
@@ -7271,7 +7343,9 @@ declare const messages: {
     "neshanCouldNotLoad": "Neshan الخريطة could not تحميل",
     "neshanCouldNotLoadBody": "الخريطة could not تحميل. فحص الخاص بك Neshan SDK configuration.",
     "selectedProvider": "المزوّد المحدد",
-    "selectProvider": "اختر المزوّد"
+    "selectProvider": "اختر المزوّد",
+    "mapboxCouldNotLoad": "تعذّر تحميل خريطة Mapbox",
+    "mapboxCouldNotLoadBody": "تعذّر تحميل الخريطة. تحقّق من إعدادات Mapbox."
   },
   "MapShared": {
     "mapboxConfigurationMissing": "إعدادات Mapbox مفقودة. عيّن NEXT_PUBLIC_MAPBOX_TOKEN أو بدّل NEXT_PUBLIC_MAP_PROVIDER إلى neshan.",
@@ -7281,7 +7355,8 @@ declare const messages: {
     "locationDescription": "Click على الخريطة، drag marker، أو enter الإحداثيات manually",
     "reset": "إعادة تعيين",
     "latitude": "خط العرض",
-    "longitude": "خط الطول"
+    "longitude": "خط الطول",
+    "mapboxMapLoadError": "تعذّر تحميل خريطة Mapbox."
   },
   "SearchResults": {
     "resultsFound": "{count, plural, =0 {لا توجد نتائج} one {# نتيجة} other {# نتائج}}",
@@ -11047,6 +11122,50 @@ declare const messages: {
       "description": "All credentials have been verified by our medical board. Dr. {name} meets the highest standards of medical excellence.",
       "title": "موثق من LSevin"
     }
+  },
+  "SpecialPackagesAdmin": {
+    "listTitle": "الباقات المميزة",
+    "listDescription": "أنشئ وأدر الباقات المميزة التي تظهر في الصفحة الرئيسية للتطبيق.",
+    "createTitle": "إنشاء باقة مميزة",
+    "updateTitle": "تحديث باقة مميزة",
+    "addButton": "إضافة باقة",
+    "countLabel": "{count} باقة مُهيأة.",
+    "columnOrder": "الترتيب",
+    "columnTitle": "العنوان",
+    "columnPrice": "السعر",
+    "columnStatus": "الحالة",
+    "columnActions": "إجراءات",
+    "statusActive": "نشط",
+    "statusHidden": "مخفي",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "emptyList": "لا توجد باقات مميزة بعد.",
+    "backToList": "العودة إلى الباقات",
+    "formDescription": "أدر النصوص متعددة اللغات والصورة والسعر والظهور لهذه الباقة.",
+    "contentTitle": "المحتوى",
+    "contentDescription": "العنوان والعنوان الفرعي والوصف والصورة متعددة اللغات.",
+    "fieldTitle": "العنوان",
+    "fieldSubtitle": "العنوان الفرعي",
+    "fieldDescription": "الوصف",
+    "fieldImage": "صورة الغلاف",
+    "fieldImagePlaceholder": "اختر صورة",
+    "fieldImageHelper": "تظهر في بطاقة الباقة وصفحة التفاصيل.",
+    "pricingTitle": "التسعير",
+    "pricingDescription": "سعر اختياري يُعرض عبر محرك العملات في المنصة.",
+    "fieldPriceAmount": "قيمة السعر",
+    "fieldCurrencyCode": "رمز العملة",
+    "fieldCurrencyCodeHelper": "رمز العملة مثل IRR أو USD.",
+    "fieldOriginalPriceAmount": "السعر الأصلي",
+    "fieldOriginalPriceAmountHelper": "اختياري. يُعرض مشطوباً عندما يكون أعلى من السعر.",
+    "displayTitle": "العرض",
+    "displayDescription": "التحكم في الترتيب والظهور.",
+    "fieldDisplayOrder": "ترتيب العرض",
+    "fieldIsActive": "نشط",
+    "fieldIsActiveHelper": "الباقات غير النشطة مخفية من التطبيق.",
+    "cancel": "إلغاء",
+    "save": "حفظ الباقة",
+    "toastError": "فشل حفظ الباقة.",
+    "reviewFields": "يرجى مراجعة الحقول المميزة."
   }
 };
 export default messages;

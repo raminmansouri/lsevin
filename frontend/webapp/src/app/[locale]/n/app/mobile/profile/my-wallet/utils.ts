@@ -93,6 +93,8 @@ export function getPaymentMethodLabel(method: WalletPaymentMethod | null) {
       return "Card";
     case "bank":
       return "Bank Transfer";
+    case "crypto":
+      return "Crypto";
     case "apple":
       return "Apple Pay";
     case "wallet":

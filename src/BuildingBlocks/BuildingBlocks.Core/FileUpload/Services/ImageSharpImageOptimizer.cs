@@ -108,6 +108,11 @@ internal sealed class ImageSharpImageOptimizer(IOptions<ImageOptimizationOptions
 
         using var img = await Image.LoadAsync(image, cancellationToken);
 
+        // Bake the EXIF orientation into the pixels BEFORE stripping metadata. ImageSharp does not
+        // auto-orient on load, so removing the EXIF profile (below) without this would leave photos
+        // that relied on an orientation tag (e.g. phone uploads) visually rotated/upside-down.
+        img.Mutate(x => x.AutoOrient());
+
         // Strip EXIF/IPTC/XMP metadata.
         img.Metadata.ExifProfile = null;
         img.Metadata.IptcProfile = null;

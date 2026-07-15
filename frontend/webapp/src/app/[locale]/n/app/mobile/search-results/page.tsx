@@ -245,7 +245,13 @@ return  <div key={filter.id} className="flex items-center gap-1.5 rounded-full b
 
       {/* Results */}
       <div className="space-y-4 px-5 py-4">
-        {results.map((result) => (
+        {results.map((result) => {
+          // Never hand next/image an empty src: fall back to the neutral
+          // placeholder when the server could not resolve an image.
+          const mediaUrl =
+            resolveMediaUrl(result.image) || "/placeholder-provider.svg";
+
+          return (
           <div
             key={result.id}
             onClick={() => navigate(result.href)}
@@ -255,7 +261,7 @@ return  <div key={filter.id} className="flex items-center gap-1.5 rounded-full b
               {/* Image */}
               <div className="relative flex-shrink-0">
                 <ImageWithFallback
-                  src={resolveMediaUrl(result.image)}
+                  src={mediaUrl}
                   alt={result.name}
                   width={112}
                   height={112}
@@ -349,7 +355,8 @@ return  <div key={filter.id} className="flex items-center gap-1.5 rounded-full b
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* No Results State */}

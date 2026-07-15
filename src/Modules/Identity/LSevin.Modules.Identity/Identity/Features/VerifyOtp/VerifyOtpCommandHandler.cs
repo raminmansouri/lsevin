@@ -30,11 +30,15 @@ internal sealed class VerifyOtpCommandHandler(
         // 1. Parse the E.164 formatted phone number from command to PhoneNumber value object
         var commandPhoneNumber = PhoneNumberExtensions.ParseFromE164(command.PhoneNumber);
 
+        // Normalize Persian/Arabic-Indic digits to ASCII so a code typed on a localized
+        // keyboard (e.g. "۳۵۴۲۲۷") matches the ASCII code stored at send time ("354227").
+        var code = NormalizeDigits(command.Code);
+
         // 2. Find active code by OTP code AND phone number (both value and country code)
         // Both the OTP code and phone number serve as proof of identity
         var phoneLoginCode = await context
             .PhoneLoginCodes.Where(c =>
-                c.Code == command.Code
+                c.Code == code
                 && c.PhoneNumber.Value == commandPhoneNumber.Value
                 && c.PhoneNumber.CountryCode == commandPhoneNumber.CountryCode
                 && !c.IsInvalidated
@@ -78,6 +82,14 @@ internal sealed class VerifyOtpCommandHandler(
             return AppError.NotFoundErrorMessage(SharedResource.User);
         }
 
+        // Mark the phone number as verified now that the user has proven ownership via the OTP code.
+        // Login requires a confirmed phone number, so this closes the signup verification loop.
+        if (!identityUser.PhoneNumberConfirmed)
+        {
+            identityUser.PhoneNumberConfirmed = true;
+            await userManager.UpdateAsync(identityUser);
+        }
+
         // 6. Generate refresh token using the user ID from the OTP code
         var refreshTokenResult = await commandBus.SendAsync(
             new GenerateRefreshTokenCommand(phoneLoginCode.UserId),
@@ -113,4 +125,18 @@ internal sealed class VerifyOtpCommandHandler(
             RefreshToken: refreshTokenResult.Value.Token
         );
     }
+
+    // Converts Persian (U+06F0–U+06F9) and Arabic-Indic (U+0660–U+0669) digits to ASCII 0–9.
+    private static string NormalizeDigits(string input) =>
+        string.IsNullOrEmpty(input)
+            ? input
+            : new string(
+                input
+                    .Select(ch =>
+                        ch is >= '۰' and <= '۹' ? (char)('0' + (ch - '۰'))
+                        : ch is >= '٠' and <= '٩' ? (char)('0' + (ch - '٠'))
+                        : ch
+                    )
+                    .ToArray()
+            );
 }

@@ -10,7 +10,7 @@ export type WalletTransactionStatus =
   | "cancelled"
   | "refunded";
 
-export type WalletPaymentMethod = "card" | "bank" | "apple" | "wallet";
+export type WalletPaymentMethod = "card" | "bank" | "crypto" | "apple" | "wallet";
 
 export interface WalletBalanceRow {
   currencyCode: WalletCurrency;
@@ -62,6 +62,10 @@ export interface CreateTopUpIntentInput {
   paymentMethod: Exclude<WalletPaymentMethod, "wallet">;
   /** Required when paymentMethod is "card". */
   gateway?: "zarinpal" | (string & {}) | null;
+  /** Optional for crypto top-ups: the on-chain transaction hash. */
+  txHash?: string | null;
+  /** Optional for crypto top-ups: the network/chain (e.g. "USDT TRC20"). */
+  network?: string | null;
 }
 
 export type CreateTopUpIntentResult =

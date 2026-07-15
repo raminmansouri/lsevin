@@ -1,6 +1,16 @@
 import "server-only";
 import { db } from "@/features/booking-admin-shared/server/db";
 
+export type IdentityRole = { id: string; name: string };
+
+export async function getAllRoles() {
+  return db<IdentityRole[]>`
+    select id, name
+    from identity.asp_net_roles
+    order by name asc
+  `;
+}
+
 export async function getIdentityUsers() {
   return db<any[]>`
     select u.*, c.id as "customerId"

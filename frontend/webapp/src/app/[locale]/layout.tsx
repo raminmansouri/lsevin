@@ -6,6 +6,12 @@ import { Providers } from "@/components/providers";
 import { routing } from "@/i18n/routing";
 import { LocalePageProps } from "@/types/next";
 
+// Render localized pages dynamically (per request) instead of statically
+// prerendering them at build time. Many pages fetch from the API / Postgres,
+// which aren't reachable during `next build`, so prerendering them would time
+// out. This matches how the app runs under `next dev`.
+export const dynamic = "force-dynamic";
+
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }

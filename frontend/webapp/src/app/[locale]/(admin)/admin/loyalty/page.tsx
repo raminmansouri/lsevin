@@ -2,6 +2,7 @@ import { Metadata } from "next";
 
 import { MarketingLoyaltyDashboard } from "@/features/marketing-loyalty/components/dashboard";
 import { getMarketingLoyaltyDashboardStats } from "@/features/marketing-loyalty/db/queries";
+import { getPointsEarnDivisor } from "@/features/marketing-loyalty/server/loyalty-settings.repository";
 
 export const metadata: Metadata = {
   title: "Marketing & Loyalty",
@@ -9,6 +10,9 @@ export const metadata: Metadata = {
 };
 
 export default async function LoyaltyAdminPage() {
-  const stats = await getMarketingLoyaltyDashboardStats();
-  return <MarketingLoyaltyDashboard stats={stats} />;
+  const [stats, earnRateDivisor] = await Promise.all([
+    getMarketingLoyaltyDashboardStats(),
+    getPointsEarnDivisor(),
+  ]);
+  return <MarketingLoyaltyDashboard stats={stats} earnRateDivisor={earnRateDivisor} />;
 }

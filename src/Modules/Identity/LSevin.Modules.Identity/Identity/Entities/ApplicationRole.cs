@@ -20,4 +20,11 @@ public class ApplicationRole : IdentityRole<Guid>
             Name = IdentityConstants.Role.Admin,
             NormalizedName = nameof(Admin).ToUpper(CultureInfo.InvariantCulture),
         };
+
+    public static ApplicationRole SuperAdmin =>
+        new()
+        {
+            Name = IdentityConstants.Role.SuperAdmin,
+            NormalizedName = nameof(SuperAdmin).ToUpper(CultureInfo.InvariantCulture),
+        };
 }

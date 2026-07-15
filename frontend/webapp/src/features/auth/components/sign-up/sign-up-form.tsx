@@ -50,10 +50,16 @@ export default function SignUpForm() {
 
   const { execute } = useAction(signUp, {
     startTransition,
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success(t("messages.signUpSuccess"));
-      // const otpPath = `/otp/${data}`;
-      router.push("/sign-in");
+      // Registration triggers a phone-verification OTP on the backend. Send the
+      // user to the OTP screen (keyed by their E.164 phone number) to confirm
+      // their number, mirroring the sign-in verification flow.
+      if (data) {
+        router.push(`/otp/${encodeURIComponent(data)}`);
+      } else {
+        router.push("/sign-in");
+      }
     },
     onError: (error) => {
       toast.error(error.detail || t("messages.signUpError"));

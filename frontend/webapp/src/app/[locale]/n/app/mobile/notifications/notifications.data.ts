@@ -16,6 +16,8 @@ export type NotificationItem = {
   read: boolean;
   createdAt: string;
   timeLabel: string;
+  entityType: string | null;
+  entityId: string | null;
 };
 
 export type NotificationTabItem = {
@@ -104,6 +106,8 @@ export async function getNotificationsPageData({
     body: string;
     read_at: string | null;
     created_at: string;
+    entity_type: string | null;
+    entity_id: string | null;
   }[]>`
     select
       n.id::text as id,
@@ -111,7 +115,9 @@ export async function getNotificationsPageData({
       n.title,
       n.body,
       n.read_at::text as read_at,
-      n.created_at::text as created_at
+      n.created_at::text as created_at,
+      n.entity_type,
+      n.entity_id::text as entity_id
     from notify.notifications n
     where n.customer_id = ${customerId}::uuid
       and (${filters.tab} = 'all' or n.notification_type = ${filters.tab})
@@ -149,6 +155,8 @@ export async function getNotificationsPageData({
     read: row.read_at != null,
     createdAt: row.created_at,
     timeLabel: humanizeDistance(new Date(row.created_at)),
+    entityType: row.entity_type,
+    entityId: row.entity_id,
   }));
 
   return {

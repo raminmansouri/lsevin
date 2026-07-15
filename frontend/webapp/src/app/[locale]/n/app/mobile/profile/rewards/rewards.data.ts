@@ -1,4 +1,8 @@
 import sql from "@/config/database/db";
+import {
+  computeEarnedPoints,
+  getPointsEarnDivisor,
+} from "@/features/marketing-loyalty/server/loyalty-settings.repository";
 import { getSession } from "@/lib/auth/session";
 import { unstable_noStore as noStore } from "next/cache";
 
@@ -196,7 +200,12 @@ const capabilities: RewardsCapabilities = {
 
   const totalSpent = Number(spendingRows[0]?.total_spent ?? 0);
   const bookingsCount = Number(spendingRows[0]?.bookings_count ?? 0);
-  const points = Math.round(totalSpent / 10);
+  // Earn rate is admin-configurable (loyalty.settings, /admin/loyalty):
+  // points = floor(spend_in_rial / divisor). Because the balance is derived
+  // here at read time (never persisted per booking), changing the divisor
+  // rescales displayed balances at the new rate without touching stored data.
+  const earnRateDivisor = await getPointsEarnDivisor();
+  const points = computeEarnedPoints(totalSpent, earnRateDivisor);
   const tierState = getTier(points);
 
   const tiers: RewardsTier[] = TIER_DEFS.map((tier) => ({

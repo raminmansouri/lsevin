@@ -313,6 +313,7 @@ export type AdminServiceProviderDetails = {
   sponsoredTag: string | null;
   specialties: string[];
   featuredScore: number;
+  internationalPriceMultiplier: number | null;
   imageUrl: string | null;
   timezoneId: string;
   createDate: string;
@@ -741,6 +742,7 @@ type ProviderRow = {
   sponsoredTag: string | null;
   specialties: string[] | null;
   featuredScore: number | string | null;
+  internationalPriceMultiplier: number | string | null;
   imageUrl: string | null;
   timezoneId: string;
   createDate: string;
@@ -783,6 +785,7 @@ export async function getAdminServiceProviderById(
         sp.sponsored_tag as "sponsoredTag",
         coalesce(sp.specialties, array[]::text[]) as specialties,
         coalesce(sp.featured_score, 0)::float8 as "featuredScore",
+        sp.international_price_multiplier::float8 as "internationalPriceMultiplier",
         sp.image_url as "imageUrl",
         sp.timezone_id as "timezoneId",
         sp.create_date::text as "createDate",
@@ -839,6 +842,7 @@ export async function getAdminServiceProviderById(
           : null,
       rating: asNumber(provider.rating),
       featuredScore: asNumber(provider.featuredScore),
+      internationalPriceMultiplier: asNullableNumber(provider.internationalPriceMultiplier),
       languages: normalizeStringArray(provider.languages),
       specialties: normalizeStringArray(provider.specialties),
       attributes,

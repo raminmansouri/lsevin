@@ -1,66 +1,41 @@
 using BuildingBlocks.Core.Persistence.Context;
 using LSevin.Modules.Identity.Identity.Entities;
 using Microsoft.AspNetCore.Identity;
+using IdentityConstants = LSevin.Modules.Identity.Constants.IdentityConstants;
 
 namespace LSevin.Modules.Identity.Infrastructure.Data.Context;
 
 internal sealed class IdentitySeeder(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
     : IDbSeeder
 {
+    // The account promoted to SuperAdmin on startup (idempotent).
+    private const string SuperAdminEmail = "raminmansouripouya@gmail.com";
+
     public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
         await SeedRoles();
-        await SeedUsers();
+        await EnsureSuperAdmin();
     }
 
     private async Task SeedRoles()
     {
-        if (!await roleManager.RoleExistsAsync(ApplicationRole.User.Name ?? ""))
-            await roleManager.CreateAsync(ApplicationRole.Admin);
-
-        if (!await roleManager.RoleExistsAsync(ApplicationRole.User.Name ?? ""))
-            await roleManager.CreateAsync(ApplicationRole.User);
+        foreach (var role in new[] { ApplicationRole.User, ApplicationRole.Admin, ApplicationRole.SuperAdmin })
+        {
+            if (!await roleManager.RoleExistsAsync(role.Name ?? ""))
+                await roleManager.CreateAsync(role);
+        }
     }
 
-    private async Task SeedUsers()
+    // NOTE: the demo pourya-admin/pourya-user accounts are intentionally NOT seeded anymore.
+    // Instead, the real operator account is promoted to SuperAdmin if it already exists.
+    // This is idempotent and safe to run on every startup.
+    private async Task EnsureSuperAdmin()
     {
-        if (await userManager.FindByEmailAsync("pouryanoufallah@gmail.com") == null)
-        {
-            var user = new ApplicationUser
-            {
-                UserName = "pourya-admin",
-                FirstName = "Pourya",
-                LastName = "nofallah",
-                Email = "pouryanoufallah@gmail.com",
-                EmailConfirmed = true,
-                PhoneNumberCountryCode = "US",
-                PhoneNumber = "4065349951",
-                PhoneNumberConfirmed = true,
-            };
+        var superAdmin = await userManager.FindByEmailAsync(SuperAdminEmail);
+        if (superAdmin is null)
+            return;
 
-            var result = await userManager.CreateAsync(user, "123456");
-
-            if (result.Succeeded)
-                await userManager.AddToRoleAsync(user, ApplicationRole.Admin.Name ?? "");
-        }
-
-        if (await userManager.FindByEmailAsync("pouryanoufallah@yahoo.com") == null)
-        {
-            var user = new ApplicationUser
-            {
-                UserName = "pourya-user",
-                FirstName = "Pourya",
-                LastName = "Nofallah",
-                Email = "pouryanoufallah@yahoo.com",
-                PhoneNumberCountryCode = "IR",
-                PhoneNumber = "9126108806",
-                PhoneNumberConfirmed = true,
-            };
-
-            var result = await userManager.CreateAsync(user, "123456");
-
-            if (result.Succeeded)
-                await userManager.AddToRoleAsync(user, ApplicationRole.User.Name ?? "");
-        }
+        if (!await userManager.IsInRoleAsync(superAdmin, IdentityConstants.Role.SuperAdmin))
+            await userManager.AddToRoleAsync(superAdmin, IdentityConstants.Role.SuperAdmin);
     }
 }

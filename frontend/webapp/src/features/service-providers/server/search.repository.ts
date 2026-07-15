@@ -20,6 +20,12 @@ const SEARCH_GUEST_COOKIE = "lsevin_search_guest_id";
 const SEARCH_TERM_MAX_LENGTH = 120;
 const DEFAULT_LOCALE = "en-US";
 
+// Anchored UUID regex used inside SQL: image/url columns frequently store
+// media.media_library ids, which must be resolved to file_url before the
+// client can render them.
+const uuidPattern =
+  "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
+
 type SearchIdentity = {
   userId: string;
   isGuest: boolean;
@@ -215,7 +221,6 @@ export async function getTrendingSearches(
   limit = 6
 ): Promise<SearchHistoryTrendingSearchVm[]> {
   const normalizedLocale = normalizeLocale(locale);
-  const uuidPattern = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
 
   // "Trending Now" is driven by the most-booked services. Bookings for the same
   // service (offered by different providers) are summed under one searchable name,
@@ -428,10 +433,22 @@ export async function getSearchResults(params?: {
           ) AS name,
           common.get_translation_t(sp.name_translations, params.locale, 'en-US') AS provider,
           COALESCE(
-            NULLIF(BTRIM(ps.image_url), ''),
+            CASE
+              WHEN BTRIM(split_part(ps.image_url, ',', 1)) ~* ${uuidPattern}
+              THEN ps_media.file_url
+              ELSE NULLIF(BTRIM(split_part(ps.image_url, ',', 1)), '')
+            END,
             NULLIF(BTRIM(primary_gallery.url), ''),
-            NULLIF(BTRIM(sp.image_url), ''),
-            NULLIF(BTRIM(c.image_url), '')
+            CASE
+              WHEN BTRIM(split_part(sp.image_url, ',', 1)) ~* ${uuidPattern}
+              THEN sp_media.file_url
+              ELSE NULLIF(BTRIM(split_part(sp.image_url, ',', 1)), '')
+            END,
+            CASE
+              WHEN BTRIM(split_part(c.image_url, ',', 1)) ~* ${uuidPattern}
+              THEN c_media.file_url
+              ELSE NULLIF(BTRIM(split_part(c.image_url, ',', 1)), '')
+            END
           ) AS image,
           CONCAT_WS(', ', NULLIF(BTRIM(sp.city), ''), NULLIF(BTRIM(sp.country), '')) AS location,
           COALESCE(ps.rating, sp.rating, 0)::float8 AS rating,
@@ -464,9 +481,39 @@ export async function getSearchResults(params?: {
         JOIN category.service_providers sp ON sp.id = ps.service_provider_id
         JOIN category.provider_types pt ON pt.id = sp.provider_type_id
         CROSS JOIN params
+        LEFT JOIN media.media_library ps_media
+          ON ps_media.id = CASE
+            WHEN BTRIM(split_part(ps.image_url, ',', 1)) ~* ${uuidPattern}
+            THEN BTRIM(split_part(ps.image_url, ',', 1))::uuid
+            ELSE NULL
+          END
+        LEFT JOIN media.media_library sp_media
+          ON sp_media.id = CASE
+            WHEN BTRIM(split_part(sp.image_url, ',', 1)) ~* ${uuidPattern}
+            THEN BTRIM(split_part(sp.image_url, ',', 1))::uuid
+            ELSE NULL
+          END
+        LEFT JOIN media.media_library c_media
+          ON c_media.id = CASE
+            WHEN BTRIM(split_part(c.image_url, ',', 1)) ~* ${uuidPattern}
+            THEN BTRIM(split_part(c.image_url, ',', 1))::uuid
+            ELSE NULL
+          END
         LEFT JOIN LATERAL (
-          SELECT psgi.url
+          SELECT COALESCE(
+            gml.file_url,
+            CASE
+              WHEN BTRIM(split_part(psgi.url, ',', 1)) ~* ${uuidPattern} THEN NULL
+              ELSE NULLIF(BTRIM(split_part(psgi.url, ',', 1)), '')
+            END
+          ) AS url
           FROM category.provider_service_gallery_items psgi
+          LEFT JOIN media.media_library gml
+            ON gml.id = CASE
+              WHEN BTRIM(split_part(psgi.url, ',', 1)) ~* ${uuidPattern}
+              THEN BTRIM(split_part(psgi.url, ',', 1))::uuid
+              ELSE NULL
+            END
           WHERE psgi.provider_service_id = ps.id
           ORDER BY psgi.is_primary DESC, psgi.display_order ASC, psgi.create_date DESC
           LIMIT 1
@@ -543,7 +590,14 @@ export async function getSearchResults(params?: {
           'provider'::text AS type,
           common.get_translation_t(sp.name_translations, params.locale, 'en-US') AS name,
           common.get_translation_t(pt.name_translations, params.locale, 'en-US') AS provider,
-          COALESCE(NULLIF(BTRIM(sp.image_url), ''), NULLIF(BTRIM(provider_gallery.url), '')) AS image,
+          COALESCE(
+            CASE
+              WHEN BTRIM(split_part(sp.image_url, ',', 1)) ~* ${uuidPattern}
+              THEN sp_media.file_url
+              ELSE NULLIF(BTRIM(split_part(sp.image_url, ',', 1)), '')
+            END,
+            NULLIF(BTRIM(provider_gallery.url), '')
+          ) AS image,
           CONCAT_WS(', ', NULLIF(BTRIM(sp.city), ''), NULLIF(BTRIM(sp.country), '')) AS location,
           COALESCE(sp.rating, 0)::float8 AS rating,
           COALESCE(sp.review_count, 0)::int AS reviews,
@@ -571,6 +625,12 @@ export async function getSearchResults(params?: {
         FROM category.service_providers sp
         JOIN category.provider_types pt ON pt.id = sp.provider_type_id
         CROSS JOIN params
+        LEFT JOIN media.media_library sp_media
+          ON sp_media.id = CASE
+            WHEN BTRIM(split_part(sp.image_url, ',', 1)) ~* ${uuidPattern}
+            THEN BTRIM(split_part(sp.image_url, ',', 1))::uuid
+            ELSE NULL
+          END
         LEFT JOIN LATERAL (
           SELECT ps.value AS minimum_price, ps.currency
           FROM category.provider_services ps
@@ -583,8 +643,20 @@ export async function getSearchResults(params?: {
           LIMIT 1
         ) min_service ON true
         LEFT JOIN LATERAL (
-          SELECT pgi.url
+          SELECT COALESCE(
+            pgml.file_url,
+            CASE
+              WHEN BTRIM(split_part(pgi.url, ',', 1)) ~* ${uuidPattern} THEN NULL
+              ELSE NULLIF(BTRIM(split_part(pgi.url, ',', 1)), '')
+            END
+          ) AS url
           FROM category.provider_gallery_items pgi
+          LEFT JOIN media.media_library pgml
+            ON pgml.id = CASE
+              WHEN BTRIM(split_part(pgi.url, ',', 1)) ~* ${uuidPattern}
+              THEN BTRIM(split_part(pgi.url, ',', 1))::uuid
+              ELSE NULL
+            END
           WHERE pgi.service_provider_id = sp.id
           ORDER BY pgi.display_order ASC, pgi.create_date DESC
           LIMIT 1

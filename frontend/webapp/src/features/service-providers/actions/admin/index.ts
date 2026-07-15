@@ -244,6 +244,9 @@ const saveServiceProviderProfileSchema = z.object({
   sponsoredTag: z.string().max(50).optional().nullable(),
   specialtiesText: z.string().optional().nullable(),
   featuredScore: z.coerce.number().min(0).default(0),
+  // International price coefficient (Prompt 2). Free positive number (1 / 1.5 / 2 / 3 / 4…);
+  // null/empty => the provider uses the global finance.settings default.
+  internationalPriceMultiplier: z.coerce.number().positive().optional().nullable(),
   imageUrl: nullableMediaValueSchema,
   timezoneId: z.string().min(1).default("UTC"),
 });
@@ -294,6 +297,7 @@ const saveServiceProviderProfileHandler = async (
             sponsored_tag = ${nullableString(input.sponsoredTag)},
             specialties = ${specialties},
             featured_score = ${toNumber(input.featuredScore)},
+            international_price_multiplier = ${input.internationalPriceMultiplier ?? null},
             image_url = ${nullableString(input.imageUrl)},
             timezone_id = ${input.timezoneId || "UTC"},
             search_vector = to_tsvector('simple', coalesce(${getTranslationForSearchVector(input.name)}, '') || ' ' || coalesce(${input.email}, '')),
@@ -334,6 +338,7 @@ const saveServiceProviderProfileHandler = async (
           sponsored_tag,
           specialties,
           featured_score,
+          international_price_multiplier,
           image_url,
           timezone_id,
           search_vector
@@ -366,6 +371,7 @@ const saveServiceProviderProfileHandler = async (
           ${nullableString(input.sponsoredTag)},
           ${specialties},
           ${toNumber(input.featuredScore)},
+          ${input.internationalPriceMultiplier ?? null},
           ${nullableString(input.imageUrl)},
           ${input.timezoneId || "UTC"},
           to_tsvector('simple', coalesce(${getTranslationForSearchVector(input.name)}, '') || ' ' || coalesce(${input.email}, ''))

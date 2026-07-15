@@ -1,0 +1,18 @@
+# Keep the .NET API build context lean
+.git
+.vs
+.vscode
+frontend
+tests
+docs
+DataEntry
+auto_backups
+deployments
+**/bin
+**/obj
+**/node_modules
+**/.next
+**/UploadFiles
+*.sql
+**/.DS_Store
+**/*.user

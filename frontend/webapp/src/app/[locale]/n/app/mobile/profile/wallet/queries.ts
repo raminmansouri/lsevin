@@ -209,7 +209,16 @@ export async function insertTopUpIntentAndMaybePendingTransaction(
       RETURNING id
     `;
 
-    if (input.paymentMethod === "bank") {
+    if (input.paymentMethod === "bank" || input.paymentMethod === "crypto") {
+      const isCrypto = input.paymentMethod === "crypto";
+
+      // For crypto the receipt/txHash/network live in gateway.raw (built by the
+      // crypto top-up action) and are mirrored onto the intent metadata above,
+      // so both rows carry the same audit payload.
+      const transactionMetadata = isCrypto
+        ? gateway.raw ?? { source: "crypto" }
+        : { source: "wallet-topup", topUpMethod: "bank" };
+
       await tx`
         INSERT INTO customer.wallet_transactions (
           wallet_account_id,
@@ -232,15 +241,12 @@ export async function insertTopUpIntentAndMaybePendingTransaction(
           'topup',
           'credit',
           'pending',
-          'bank',
+          ${input.paymentMethod},
           'Wallet Top-up',
-          'Bank transfer pending confirmation',
+          ${isCrypto ? "Crypto deposit pending review" : "Bank transfer pending confirmation"},
           ${input.currencyCode},
           ${input.amount},
-          ${JSON.stringify({
-            source: "wallet-topup",
-            topUpMethod: "bank",
-          })}::jsonb
+          ${JSON.stringify(transactionMetadata)}::jsonb
         )
       `;
     }

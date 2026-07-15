@@ -23,6 +23,10 @@ internal static class Routes
         internal const string VerifyOtp = $"{MainUrl}/otp/verify";
 
         internal const string ResendOtp = $"{MainUrl}/otp/resend";
+
+        internal const string ForgotPassword = $"{MainUrl}/forgot-password";
+
+        internal const string ResetPassword = $"{MainUrl}/reset-password";
     }
 
     internal static class User

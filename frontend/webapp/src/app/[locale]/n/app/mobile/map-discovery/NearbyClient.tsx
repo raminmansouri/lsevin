@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 
 import NearbyMap from "./NearbyMap";
+import { SpecialtyMultiSelect } from "./SpecialtyMultiSelect";
 import { resolveMapProvider } from "@/components/map/map-provider";
 import { AsyncSearchableSingleSelect } from "@/components/admin/forms/extensions/async-searchable-single-select";
 import {
@@ -47,6 +48,14 @@ import type {
 import FavoriteButton from "../explore/FavoriteButton";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
+
+// Distance filter bounds (km). The slider runs from MIN to MAX; the far end (MAX)
+// means "unlimited" — see UNLIMITED_DISTANCE_KM on the server, which drops the
+// radius cap at that value. Keep these aligned with nearby.data.ts.
+const MIN_DISTANCE_KM = 1;
+const MAX_DISTANCE_KM = 100;
+const DEFAULT_DISTANCE_KM = 20;
+const isUnlimitedDistance = (km: number) => km >= MAX_DISTANCE_KM;
 
 type FilterFormValues = {
   countryCode: string | null;
@@ -88,7 +97,7 @@ function buildNearbyQuery(next: NearbyFiltersInput) {
   if (next.maxPrice > 0 && next.maxPrice !== 5000)
     params.set("maxPrice", String(next.maxPrice));
   if (next.currencyCode) params.set("currency", next.currencyCode);
-  if (next.distanceKm > 0 && next.distanceKm !== 10)
+  if (next.distanceKm > 0 && next.distanceKm !== DEFAULT_DISTANCE_KM)
     params.set("distanceKm", String(next.distanceKm));
   if (next.minRating > 0) params.set("minRating", String(next.minRating));
   if (next.verifiedOnly) params.set("verifiedOnly", "1");
@@ -301,7 +310,7 @@ export default function NearbyClient({
           navigateSmooth(
             startTransition,
             router,
-            buildNearbyQuery({ ...initialFilters, lat: stored.lat, lng: stored.lng, distanceKm: 50 }),
+            buildNearbyQuery({ ...initialFilters, lat: stored.lat, lng: stored.lng, distanceKm: DEFAULT_DISTANCE_KM }),
           );
         }
       } else if (initialFilters.lat != null || initialFilters.lng != null) {
@@ -357,7 +366,7 @@ export default function NearbyClient({
       cityCode: initialFilters.cityCode,
       maxPrice: initialFilters.maxPrice || 5000,
       currencyCode: initialFilters.currencyCode,
-      distanceKm: initialFilters.distanceKm || 10,
+      distanceKm: initialFilters.distanceKm || DEFAULT_DISTANCE_KM,
       minRating: initialFilters.minRating || 0,
       verifiedOnly: initialFilters.verifiedOnly,
       languages: initialFilters.languages,
@@ -528,7 +537,7 @@ export default function NearbyClient({
       cityCode: null,
       maxPrice: 5000,
       currencyCode: null,
-      distanceKm: 10,
+      distanceKm: DEFAULT_DISTANCE_KM,
       minRating: 0,
       verifiedOnly: false,
       languages: [],
@@ -539,7 +548,7 @@ export default function NearbyClient({
       cityCode: null,
       maxPrice: 5000,
       currencyCode: null,
-      distanceKm: 10,
+      distanceKm: DEFAULT_DISTANCE_KM,
       minRating: 0,
       verifiedOnly: false,
       languages: [],
@@ -558,7 +567,7 @@ export default function NearbyClient({
         minPrice: 0,
         maxPrice: 5000,
         currencyCode: null,
-        distanceKm: 10,
+        distanceKm: DEFAULT_DISTANCE_KM,
         minRating: 0,
         verifiedOnly: false,
         languages: [],
@@ -626,7 +635,7 @@ export default function NearbyClient({
     cityCode: watched.cityCode ?? null,
     priceRange: [0, watched.maxPrice ?? 5000] as [number, number],
     currencyCode: watched.currencyCode ?? null,
-    distanceKm: watched.distanceKm ?? 10,
+    distanceKm: watched.distanceKm ?? DEFAULT_DISTANCE_KM,
     minRating: watched.minRating ?? 0,
     verifiedOnly: watched.verifiedOnly ?? false,
     languages: watched.languages ?? [],
@@ -644,7 +653,13 @@ export default function NearbyClient({
     uiFilters.languages.length > 0 ||
     uiFilters.specialties.length > 0 ||
     uiFilters.maxPrice !== 5000 ||
-    uiFilters.distanceKm !== 10;
+    uiFilters.distanceKm !== DEFAULT_DISTANCE_KM;
+
+  // The currently-applied display radius, shown in the hint below the filter
+  // button so visitors know where the radius is set and that they can change it.
+  const appliedDistanceLabel = isUnlimitedDistance(uiFilters.distanceKm)
+    ? t("filters.unlimited")
+    : `${uiFilters.distanceKm} km`;
 
   return (
     <div className="relative min-h-screen bg-white">
@@ -723,6 +738,17 @@ export default function NearbyClient({
               )}
             </button>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setShowFilters(true)}
+            className="mt-2 flex w-full items-center gap-2 rounded-xl bg-[#083f30]/5 px-3 py-2 text-start transition-colors hover:bg-[#083f30]/10"
+          >
+            <MapPin size={16} className="shrink-0 text-[#083f30]" />
+            <span className="text-xs leading-snug text-[#083f30]">
+              {t("distanceHint", { distance: appliedDistanceLabel })}
+            </span>
+          </button>
         </div>
       </div>
 
@@ -1065,15 +1091,21 @@ export default function NearbyClient({
                     </h3>
                   </div>
                   <span className="text-sm font-semibold text-[#083f30]">
-                    {activeFilters.distanceKm} km
+                    {isUnlimitedDistance(activeFilters.distanceKm)
+                      ? t("filters.unlimited")
+                      : `${activeFilters.distanceKm} km`}
                   </span>
                 </div>
-                <div className="space-y-2">
+                {/* Force LTR on the track + labels so the thumb, the filled
+                    gradient and the min/max captions stay aligned on RTL locales.
+                    Without this the labels flip and the slider feels reversed —
+                    dragging toward the "near" end appeared to reveal providers. */}
+                <div dir="ltr" className="space-y-2">
                   <input
                     dir="ltr"
                     type="range"
-                    min="1"
-                    max="50"
+                    min={MIN_DISTANCE_KM}
+                    max={MAX_DISTANCE_KM}
                     value={activeFilters.distanceKm}
                     onChange={(e) =>
                       form.setValue("distanceKm", Number(e.target.value), {
@@ -1083,14 +1115,17 @@ export default function NearbyClient({
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                     style={{
                       direction: "ltr",
-                      background: `linear-gradient(to right, #083f30 0%, #083f30 ${(activeFilters.distanceKm / 50) * 100}%, #e5e7eb ${(activeFilters.distanceKm / 50) * 100}%, #e5e7eb 100%)`,
+                      background: `linear-gradient(to right, #083f30 0%, #083f30 ${(activeFilters.distanceKm / MAX_DISTANCE_KM) * 100}%, #e5e7eb ${(activeFilters.distanceKm / MAX_DISTANCE_KM) * 100}%, #e5e7eb 100%)`,
                     }}
                   />
                   <div className="flex justify-between text-xs text-gray-500">
                     <span>{t("filters.oneKm")}</span>
-                    <span>{t("filters.fiftyKm")}</span>
+                    <span>{t("filters.unlimited")}</span>
                   </div>
                 </div>
+                <p className="mt-2 text-xs text-gray-500">
+                  {t("filters.distanceCaption")}
+                </p>
               </div>
 
               <div>
@@ -1199,26 +1234,19 @@ export default function NearbyClient({
                     {t("filters.specialties")}
                   </h3>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {availableSpecialties.slice(0, 24).map((spec) => (
-                    <button
-                      type="button"
-                      key={spec}
-                      onClick={() => {
-                        const current = activeFilters.specialties;
-                        const next = current.includes(spec)
-                          ? current.filter((item) => item !== spec)
-                          : [...current, spec];
-                        form.setValue("specialties", next, {
-                          shouldDirty: true,
-                        });
-                      }}
-                      className={`px-4 py-2 rounded-xl font-medium transition-all ${activeFilters.specialties.includes(spec) ? "bg-[#083f30] text-white shadow-md" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
-                    >
-                      {spec}
-                    </button>
-                  ))}
-                </div>
+                <SpecialtyMultiSelect
+                  values={activeFilters.specialties}
+                  options={availableSpecialties}
+                  onChange={(next) =>
+                    form.setValue("specialties", next, { shouldDirty: true })
+                  }
+                  placeholder={t("filters.selectSpecialties")}
+                  searchPlaceholder={t("filters.searchSpecialties")}
+                  emptyText={t("filters.noSpecialtiesFound")}
+                  selectedCountLabel={(count) =>
+                    t("filters.specialtiesSelected", { count })
+                  }
+                />
               </div>
             </div>
 

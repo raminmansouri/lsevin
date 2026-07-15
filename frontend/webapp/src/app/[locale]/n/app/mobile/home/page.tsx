@@ -33,10 +33,18 @@ import { SponsoredMediaCarouselSection } from '@/features/home/components/sponso
 import { homeSearchParamsCache } from '@/features/home/types';
 import { getActiveLocationQueryScope } from '@/features/locations/server/active-location';
 import { getProfileForEdit } from '@/features/profile/actions/profile.actions';
+import { countActiveSpecialPackages } from '@/features/special-packages/server/repository';
 
 async function getLocaleFromParams(params: PageProps['params']) {
   const resolved = await params;
   return String((resolved as { locale?: string } | undefined)?.locale || 'fa-IR');
+}
+
+function parseCoordParam(value: unknown): number | null {
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (typeof raw !== 'string' || !raw.trim()) return null;
+  const num = Number(raw);
+  return Number.isFinite(num) ? num : null;
 }
 
 function normalizeLocale(locale?: string | null) {
@@ -227,14 +235,24 @@ async function Home({ params, searchParams }: PageProps) {
 
   const searchParamsData = await searchParams;
   const { countryCode, cityCode } = homeSearchParamsCache.parse(searchParamsData);
+  const userLat = parseCoordParam(searchParamsData.lat);
+  const userLng = parseCoordParam(searchParamsData.lng);
 
-  const queryInput = await getActiveLocationQueryScope({
+  const queryScope = await getActiveLocationQueryScope({
     locale,
     countryCode,
     cityCode,
+    latitude: userLat,
+    longitude: userLng,
     includeProfile: true,
     includeIp: true,
   });
+
+  // Prefer the visitor's real coordinates (from the URL) over the matched city
+  // centroid so provider lists sort by what's truly closest to them.
+  const nearbyLat = userLat ?? queryScope.latitude;
+  const nearbyLng = userLng ?? queryScope.longitude;
+  const queryInput = { ...queryScope, latitude: nearbyLat, longitude: nearbyLng };
 
   const [
     dbQuickSearches,
@@ -246,6 +264,7 @@ async function Home({ params, searchParams }: PageProps) {
     nearbyProviderCount,
     homeSections,
     profile,
+    specialPackagesCount,
   ] = await Promise.all([
     getQuickSearches(sql, 8),
     getHomeCategories(queryInput, 6),
@@ -257,6 +276,7 @@ async function Home({ params, searchParams }: PageProps) {
     getHomeManagedSections(locale),
     // Guests can browse the home page; their profile lookup is optional.
     getProfileForEdit('en-US').catch(() => null),
+    countActiveSpecialPackages(),
   ]);
 
   const quickSearches = dbQuickSearches.length > 0 ? dbQuickSearches : labels.quickSearches;
@@ -376,17 +396,31 @@ async function Home({ params, searchParams }: PageProps) {
         nearbyProviderCount={nearbyProviderCount}
         countryCode={queryInput.countryCode}
         cityCode={queryInput.cityCode}
+        latitude={nearbyLat}
+        longitude={nearbyLng}
         locale={locale}
         labels={labels.exploreNearby}
       />
 
       <section className="pb-8">
-        <div className="mb-5 px-5">
-          <div className="mb-1 flex items-center gap-2">
-            <Award size={22} className="text-[#083f30]" />
-            <h2 className="text-xl font-bold text-gray-900">{labels.trusted.title}</h2>
+        <div className="mb-5 flex items-center justify-between px-5">
+          <div>
+            <div className="mb-1 flex items-center gap-2">
+              <Award size={22} className="text-[#083f30]" />
+              <h2 className="text-xl font-bold text-gray-900">{labels.trusted.title}</h2>
+            </div>
+            <p className="text-sm text-gray-600">{labels.trusted.subtitle}</p>
           </div>
-          <p className="text-sm text-gray-600">{labels.trusted.subtitle}</p>
+          <Link
+            href={`/n/app/mobile/providers?${new URLSearchParams({
+              ...(queryInput.countryCode ? { countryCode: queryInput.countryCode } : {}),
+              ...(queryInput.cityCode ? { cityCode: queryInput.cityCode } : {}),
+            }).toString()}`}
+            className="flex flex-shrink-0 items-center gap-1 text-sm font-semibold text-[#083f30] hover:underline"
+          >
+            {labels.common.seeAll}
+            <ChevronRight size={16} />
+          </Link>
         </div>
 
         <div className="hide-scrollbar flex gap-4 overflow-x-auto px-5 pb-2">
@@ -402,7 +436,11 @@ async function Home({ params, searchParams }: PageProps) {
         </div>
       </section>
 
-      <PremiumPackagesSection section={homeSections.premium_packages} labels={labels.premiumPackages} />
+      <PremiumPackagesSection
+        section={homeSections.premium_packages}
+        labels={labels.premiumPackages}
+        activePackagesCount={specialPackagesCount}
+      />
       <LoyaltyClubSection section={homeSections.loyalty_club} locale={locale} labels={labels.loyaltyClub} />
     </div>
   );
@@ -476,6 +514,8 @@ function ExploreNearbySection({
   nearbyProviderCount,
   countryCode,
   cityCode,
+  latitude,
+  longitude,
   locale,
   labels,
 }: {
@@ -483,6 +523,8 @@ function ExploreNearbySection({
   nearbyProviderCount: number;
   countryCode?: string | null;
   cityCode?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   locale: string;
   labels: HomePageLabels['exploreNearby'];
 }) {
@@ -491,10 +533,18 @@ function ExploreNearbySection({
   const count = nearbyProviderCount.toLocaleString(locale);
   const subtitle = formatHomeSectionText(section.subtitle, { count, scope }) || formatLabel(labels.subtitle, { count, scope });
 
+  // Carry the visitor's coordinates into the map so it opens centered on them
+  // with nearby providers already loaded (50 km radius).
+  const baseHref = section.buttonHref || '/n/app/mobile/map-discovery';
+  const href =
+    latitude != null && longitude != null && !baseHref.includes('?')
+      ? `${baseHref}?lat=${latitude}&lng=${longitude}&distanceKm=50`
+      : baseHref;
+
   return (
     <section className="px-5 pb-8">
       <Link
-        href={section.buttonHref || '/n/app/mobile/map-discovery'}
+        href={href}
         className="relative block h-48 w-full overflow-hidden rounded-2xl shadow-lg transition-all hover:shadow-xl active:scale-[0.98]"
       >
         {mediaUrl ? (
@@ -525,8 +575,24 @@ function ExploreNearbySection({
   );
 }
 
-function PremiumPackagesSection({ section, labels }: { section: HomeManagedSection; labels: HomePageLabels['premiumPackages'] }) {
+function PremiumPackagesSection({
+  section,
+  labels,
+  activePackagesCount,
+}: {
+  section: HomeManagedSection;
+  labels: HomePageLabels['premiumPackages'];
+  activePackagesCount: number;
+}) {
   const mediaUrl = resolveHomeMediaUrl(section.imageUrl);
+
+  // Avoid a dead link: when the CTA still points at the default packages route
+  // and there are no active special packages, hide the whole section. If an
+  // admin set a custom buttonHref, keep rendering (they own that destination).
+  const usesDefaultHref = !section.buttonHref || section.buttonHref === '/n/app/mobile/packages';
+  if (activePackagesCount <= 0 && usesDefaultHref) {
+    return null;
+  }
 
   return (
     <section className="px-5 pb-8">

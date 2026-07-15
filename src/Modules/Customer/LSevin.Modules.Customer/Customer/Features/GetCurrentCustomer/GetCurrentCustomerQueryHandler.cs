@@ -65,12 +65,8 @@ internal sealed class GetCurrentCustomerQueryHandler(
         }
 
         // Deserialize JSONB translations
-        var streetTranslations = !string.IsNullOrEmpty(customerRow.StreetTranslations)
-            ? JsonSerializer.Deserialize<Dictionary<string, string>>(customerRow.StreetTranslations)
-            : null;
-        var detailTranslations = !string.IsNullOrEmpty(customerRow.DetailTranslations)
-            ? JsonSerializer.Deserialize<Dictionary<string, string>>(customerRow.DetailTranslations)
-            : null;
+        var streetTranslations = ParseTranslations(customerRow.StreetTranslations);
+        var detailTranslations = ParseTranslations(customerRow.DetailTranslations);
 
         // Build address DTO
         AddressDto? address = null;
@@ -97,6 +93,27 @@ internal sealed class GetCurrentCustomerQueryHandler(
             customerRow.Gender,
             address
         );
+    }
+
+    // Translations are stored as a JSONB object ({"en":"..."}), but some legacy
+    // rows are double-encoded — the column holds a JSON *string* that contains the
+    // object ("{\"en\":\"...\"}"). Deserializing those directly to a Dictionary
+    // throws and 500s the endpoint, so unwrap the string form first.
+    private static Dictionary<string, string>? ParseTranslations(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return null;
+        try
+        {
+            return JsonSerializer.Deserialize<Dictionary<string, string>>(value);
+        }
+        catch (JsonException)
+        {
+            var inner = JsonSerializer.Deserialize<string>(value);
+            return string.IsNullOrEmpty(inner)
+                ? null
+                : JsonSerializer.Deserialize<Dictionary<string, string>>(inner);
+        }
     }
 }
 

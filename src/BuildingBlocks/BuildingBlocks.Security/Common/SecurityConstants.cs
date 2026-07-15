@@ -68,5 +68,10 @@ public static class SecurityConstants
         /// The admin role.
         /// </summary>
         public const string Admin = "admin";
+
+        /// <summary>
+        /// The super admin role. Highest privilege level; superset of admin.
+        /// </summary>
+        public const string SuperAdmin = "superadmin";
     }
 }

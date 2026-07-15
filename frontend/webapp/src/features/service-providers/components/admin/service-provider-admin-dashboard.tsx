@@ -397,7 +397,7 @@ export function ServiceProviderAdminDashboard({
             </div>
             <Button asChild>
               <Link href={`/admin/service-providers/${provider.id}/update`}>
-                <Edit className="mr-2 h-4 w-4" /> Edit profile
+                <Edit className="me-2 h-4 w-4" /> Edit profile
               </Link>
             </Button>
           </div>
@@ -764,7 +764,7 @@ function CertificationsManager({
             }
             disabled={isPending || !name.trim()}
           >
-            <Plus className="mr-2 h-4 w-4" /> Add
+            <Plus className="me-2 h-4 w-4" /> Add
           </Button>
         </div>
       </div>
@@ -990,7 +990,7 @@ function GalleryManager({
             disabled={isPending}
             className="self-start"
           >
-            <Plus className="mr-2 h-4 w-4" /> Add
+            <Plus className="me-2 h-4 w-4" /> Add
           </Button>
         </div>
       </Form>
@@ -1174,7 +1174,7 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
             disabled={isPending}
             className="self-start"
           >
-            <Plus className="mr-2 h-4 w-4" /> Add
+            <Plus className="me-2 h-4 w-4" /> Add
           </Button>
         </div>
       </Form>
@@ -1272,7 +1272,7 @@ function AttributesManager({ provider, lookups, locale }: Props) {
           }
           disabled={isPending || !attributeDefinitionId || !value.trim()}
         >
-          <Plus className="mr-2 h-4 w-4" /> Save
+          <Plus className="me-2 h-4 w-4" /> Save
         </Button>
       </div>
       <div className="space-y-2">
@@ -1458,7 +1458,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
           disabled={isPending}
           className="self-start sm:self-auto"
         >
-          <Plus className="mr-2 h-4 w-4" /> Add provider service
+          <Plus className="me-2 h-4 w-4" /> Add provider service
         </Button>
       </div>
 
@@ -1761,7 +1761,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                       isPending || !serviceForm.watch("serviceDefinitionId")
                     }
                   >
-                    <Plus className="mr-2 h-4 w-4" />{" "}
+                    <Plus className="me-2 h-4 w-4" />{" "}
                     {editingServiceId ? "Save service" : "Add service"}
                   </Button>
                 </div>
@@ -1829,7 +1829,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                     onClick={() => startEdit(item)}
                     disabled={isPending}
                   >
-                    <Edit className="mr-2 h-4 w-4" /> Edit
+                    <Edit className="me-2 h-4 w-4" /> Edit
                   </Button>
                   <Button
                     variant="ghost"
@@ -1910,7 +1910,7 @@ function StaffManager({ provider, lookups, locale }: Props) {
           }
           disabled={isPending || !staffId}
         >
-          <Plus className="mr-2 h-4 w-4" /> Link
+          <Plus className="me-2 h-4 w-4" /> Link
         </Button>
       </div>
       <label className="flex items-center gap-2 text-sm">
@@ -2291,7 +2291,7 @@ function ReviewsManager({
               !draft.customerName.trim()
             }
           >
-            <Plus className="mr-2 h-4 w-4" /> Add review
+            <Plus className="me-2 h-4 w-4" /> Add review
           </Button>
         </div>
       </div>
@@ -2475,7 +2475,7 @@ function ReviewsManager({
                         onClick={() => submitAdminReply(item.id)}
                         disabled={isPending || String(replyDrafts[item.id] || "").trim().length < 2}
                       >
-                        <Plus className="mr-2 h-4 w-4" /> Add reply
+                        <Plus className="me-2 h-4 w-4" /> Add reply
                       </Button>
                     </div>
                   </div>
@@ -2727,7 +2727,7 @@ function RecommendationsManager({ provider, lookups, locale }: Props) {
           }
           disabled={isPending || !targetProviderId || !type.trim()}
         >
-          <Plus className="mr-2 h-4 w-4" /> Add
+          <Plus className="me-2 h-4 w-4" /> Add
         </Button>
       </div>
       <div className="space-y-2">

@@ -26,7 +26,7 @@
             "MaxRetryAttempts": 3
         },
         "WhatsplusClientOptions": {
-            "ApiKey": "pacxwsr-w98p3cb-ddsj9qu-qop9tsx-xp73p8c",
+            "ApiKey": "",
             "BaseAddress": "https://api.whatsiplus.com/",
             "TimeoutSeconds": 30,
             "MaxRetryAttempts": 3

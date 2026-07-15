@@ -566,8 +566,11 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
               );
 
               // Remember the real device location on the signed-in user's profile so
-              // it persists across sessions and devices. No-op for guests.
-              await saveCurrentLocationToProfileAction({
+              // it persists across sessions and devices. No-op for guests. Fire-and-forget
+              // on purpose: the location is already applied and the UI must not keep the
+              // detection spinner (isBusy) alive waiting on this best-effort profile write,
+              // which would hang if the API stalls.
+              void saveCurrentLocationToProfileAction({
                 countryId: resolved.countryId,
                 cityId: resolved.cityId,
                 latitude: userLatitude,

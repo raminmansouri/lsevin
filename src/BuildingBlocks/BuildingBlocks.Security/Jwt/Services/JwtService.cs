@@ -151,6 +151,16 @@ internal static class JwtHelper
     /// <returns>The dictionary.</returns>
     public static IDictionary<string, object> ConvertClaimsToDictionary(this IList<Claim> claims)
     {
-        return claims.ToDictionary(claim => claim.Type, claim => (object)claim.Value);
+        // A claim type can legitimately repeat (e.g. a user with multiple roles). Group by type
+        // so duplicates become a JSON array value instead of throwing "same key already added".
+        return claims
+            .GroupBy(claim => claim.Type)
+            .ToDictionary(
+                group => group.Key,
+                group =>
+                    group.Count() == 1
+                        ? (object)group.First().Value
+                        : group.Select(claim => claim.Value).ToArray()
+            );
     }
 }

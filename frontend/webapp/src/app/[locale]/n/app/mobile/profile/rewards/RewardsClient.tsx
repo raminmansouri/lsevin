@@ -115,7 +115,7 @@ export default function RewardsClient({ data }: { data: RewardsPageData }) {
               <div>
                 <p className="text-white/90 text-sm mb-2">{t("overview.yourPoints")}</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-5xl font-bold">{data.user.points.toLocaleString()}</span>
+                  <span className="text-5xl font-bold">{data.user.points.toLocaleString(locale)}</span>
                   <span className="text-white/80">{t("overview.pointsAbbr")}</span>
                 </div>
               </div>
@@ -140,7 +140,7 @@ export default function RewardsClient({ data }: { data: RewardsPageData }) {
 
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-white rounded-2xl p-4 border border-gray-200 text-center">
-              <div className="text-2xl font-bold text-gray-900 mb-1">${data.user.totalSpent.toLocaleString()}</div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">${data.user.totalSpent.toLocaleString(locale)}</div>
               <div className="text-xs text-gray-600">{t("overview.totalSpent")}</div>
             </div>
             <div className="bg-white rounded-2xl p-4 border border-gray-200 text-center">
@@ -172,7 +172,7 @@ export default function RewardsClient({ data }: { data: RewardsPageData }) {
                             <h3 className="font-bold text-gray-900">{tier.name}</h3>
                             {tier.current && <span className="px-2 py-0.5 bg-[#083f30] text-white text-xs font-bold rounded-full">{t("overview.current")}</span>}
                           </div>
-                          <p className="text-sm text-gray-600">{tier.minPoints.toLocaleString()}+ {t("overview.points")}</p>
+                          <p className="text-sm text-gray-600">{tier.minPoints.toLocaleString(locale)}+ {t("overview.points")}</p>
                         </div>
                       </div>
 
@@ -217,7 +217,7 @@ export default function RewardsClient({ data }: { data: RewardsPageData }) {
                         <div className="text-xs text-gray-600">{new Date(activity.date).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" })}</div>
                       </div>
                     </div>
-                    <div className={`font-bold ${activity.type === "earned" ? "text-green-600" : "text-orange-600"}`}>{activity.points > 0 ? "+" : ""}{activity.points} {t("overview.pointsAbbr")}</div>
+                    <div className={`font-bold ${activity.type === "earned" ? "text-green-600" : "text-orange-600"}`}>{activity.points > 0 ? "+" : ""}{activity.points.toLocaleString(locale)} {t("overview.pointsAbbr")}</div>
                   </div>
                 ))
               )}

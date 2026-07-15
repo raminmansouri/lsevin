@@ -47,7 +47,12 @@ const ForgotPasswordForm = () => {
     startTransition,
     onSuccess: () => {
       toast.success(t("messages.success"));
-      router.push("/sign-in");
+      const identifier = form.getValues("userNameOrEmail")?.trim();
+      router.push(
+        identifier
+          ? `/reset-password?u=${encodeURIComponent(identifier)}`
+          : "/reset-password"
+      );
     },
   });
 

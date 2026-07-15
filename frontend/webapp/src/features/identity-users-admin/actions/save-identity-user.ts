@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod/v4";
 import { db } from "@/features/booking-admin-shared/server/db";
+import { assertAdmin } from "../server/guard";
 
 const schema = z.object({
   userId: z.guid().optional(),
@@ -24,6 +25,7 @@ const schema = z.object({
 });
 
 export async function saveIdentityUserAction(input: unknown) {
+  await assertAdmin();
   const values = schema.parse(input);
   const normalizedUserName = values.userName.toUpperCase();
   const normalizedEmail = values.email.toUpperCase();

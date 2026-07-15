@@ -2297,7 +2297,10 @@
       "payoutDelayComplaint": "Payout delay complaint",
       "incorrectServiceCategoryAssigned": "Incorrect service category assigned",
       "howToUseLoyaltyPoints": "How to use loyalty points"
-    }
+    },
+    "internationalPriceMultiplier": "International price multiplier",
+    "internationalPriceMultiplierPlaceholder": "e.g. 3",
+    "internationalPriceMultiplierHint": "International price = converted price × this coefficient. Leave blank to use the global default."
   },
   "Home": {
     "common": {
@@ -2458,6 +2461,18 @@
       "ctaTitle": "Can't find what you're looking for?",
       "ctaDescription": "Use our smart search to find exactly what you need.",
       "ctaButton": "Search Now"
+    },
+    "trustedPage": {
+      "backAria": "Back to home",
+      "title": "Trusted Providers",
+      "subtitle": "Browse all providers"
+    },
+    "packagesPage": {
+      "title": "Special Packages",
+      "subtitle": "Curated deals and bundles",
+      "backAria": "Back to home",
+      "emptyTitle": "No packages yet",
+      "emptyDescription": "Special packages will appear here as soon as they are published."
     }
   },
   "Support": {
@@ -3757,7 +3772,9 @@
     "price": {
       "packagePrice": "Package Price",
       "providerPackagePrice": "Provider package price",
-      "totalPackagePrice": "Total Package Price"
+      "totalPackagePrice": "Total Package Price",
+      "save": "Save {percent}%",
+      "convertedFrom": "Converted from {value}"
     },
     "stats": {
       "duration": "Duration",
@@ -3787,7 +3804,9 @@
     },
     "share": {
       "text": "Check out {service}",
-      "textWithClinic": "Check out {service} at {clinic}"
+      "textWithClinic": "Check out {service} at {clinic}",
+      "linkCopied": "Link copied",
+      "unavailable": "Sharing is not supported in this browser"
     },
     "errors": {
       "submitReview": "Could not submit review.",
@@ -4138,12 +4157,17 @@
       "confirmDeposit": "Confirm deposit",
       "rejectReason": "Reject reason",
       "defaultRejectReason": "Payment was not received",
-      "reject": "Reject"
+      "reject": "Reject",
+      "receipt": "Receipt",
+      "txHash": "Transaction hash",
+      "network": "Network",
+      "approvedBy": "Reviewed by"
     },
     "walletTransactions": {
       "title": "Wallet transactions",
       "description": "Booking-linked and manual wallet ledger entries"
-    }
+    },
+    "special-packages": "special packages"
   },
   "HomePage": {
     "title": "L Sevin - Automated Healthcare",
@@ -4618,6 +4642,30 @@
       "messages": {
         "success": "Recovery link sent.",
         "error": "Error sending recovery link. Please try again."
+      }
+    },
+    "ResetPassword": {
+      "page": {
+        "title": "Reset Password",
+        "description": "Enter the code we sent to your phone and choose a new password.",
+        "rememberPassword": "Remember your password?",
+        "login": "Login"
+      },
+      "form": {
+        "code": {
+          "label": "Verification code"
+        },
+        "newPassword": {
+          "label": "New password"
+        },
+        "confirmPassword": {
+          "label": "Confirm new password"
+        },
+        "submit": "Reset Password"
+      },
+      "messages": {
+        "success": "Your password has been reset. Please sign in.",
+        "error": "Could not reset your password. Please try again."
       }
     },
     "Otp": {
@@ -6487,7 +6535,9 @@
         "cardNetworkDetails": "Visa, Mastercard, Amex",
         "applePay": "Apple Pay",
         "quickSecure": "Quick & secure",
-        "applePayDetails": "Fast payment with Apple Pay."
+        "applePayDetails": "Fast payment with Apple Pay.",
+        "crypto": "Crypto",
+        "cryptoDetails": "Deposit crypto and upload your transaction receipt."
       },
       "gateway": "Gateway",
       "noOnlineGateway": "No online gateway is configured.",
@@ -6542,6 +6592,18 @@
           "subtitle": "Added funds to wallet",
           "title": "Wallet top-up"
         }
+      },
+      "crypto": {
+        "network": "Network",
+        "depositAddress": "Deposit address",
+        "depositAddressValue": "TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+        "txHash": "Transaction hash",
+        "receiptImage": "Payment receipt",
+        "receiptRequired": "A receipt image is required.",
+        "receiptTooLarge": "The receipt image must be smaller than 15MB.",
+        "receiptWrongType": "Only image files are allowed.",
+        "submitted": "Your crypto deposit was submitted and will be credited after admin approval.",
+        "done": "Done"
       }
     },
     "transactions": {
@@ -7122,6 +7184,7 @@
     "title": "Map Discovery",
     "providersNearby": "{count, plural, =0 {No providers nearby} one {# provider nearby} other {# providers nearby}}",
     "advancedFilters": "Advanced Filters",
+    "distanceHint": "Showing providers within {distance} — tap to change the distance in Advanced Filters.",
     "refineSearchResults": "Refine your search results",
     "reviewsCount": "({count, plural, one {# review} other {# reviews}})",
     "clearAll": "Clear All",
@@ -7150,7 +7213,13 @@
       "languagesSpoken": "Languages Spoken",
       "specialties": "Specialties",
       "oneKm": "1 km",
-      "fiftyKm": "50 km"
+      "fiftyKm": "50 km",
+      "unlimited": "Unlimited",
+      "distanceCaption": "The wider the range, the more providers you'll see.",
+      "selectSpecialties": "Select specialties",
+      "searchSpecialties": "Search specialties...",
+      "noSpecialtiesFound": "No specialties found.",
+      "specialtiesSelected": "{count} selected"
     },
     "backup": {
       "mapAlt": "Map",
@@ -10972,5 +11041,49 @@
       "description": "All credentials have been verified by our medical board. Dr. {name} meets the highest standards of medical excellence.",
       "title": "Verified by LSevin"
     }
+  },
+  "SpecialPackagesAdmin": {
+    "listTitle": "Special packages",
+    "listDescription": "Create and manage special packages shown on the mobile home page.",
+    "createTitle": "Create special package",
+    "updateTitle": "Update special package",
+    "addButton": "Add package",
+    "countLabel": "{count} packages configured.",
+    "columnOrder": "Order",
+    "columnTitle": "Title",
+    "columnPrice": "Price",
+    "columnStatus": "Status",
+    "columnActions": "Actions",
+    "statusActive": "Active",
+    "statusHidden": "Hidden",
+    "edit": "Edit",
+    "delete": "Delete",
+    "emptyList": "No special packages yet.",
+    "backToList": "Back to packages",
+    "formDescription": "Manage localized copy, image, pricing and visibility for this package.",
+    "contentTitle": "Content",
+    "contentDescription": "Localized title, subtitle, description and cover image.",
+    "fieldTitle": "Title",
+    "fieldSubtitle": "Subtitle",
+    "fieldDescription": "Description",
+    "fieldImage": "Cover image",
+    "fieldImagePlaceholder": "Pick an image",
+    "fieldImageHelper": "Shown on the package card and detail page.",
+    "pricingTitle": "Pricing",
+    "pricingDescription": "Optional price shown with the platform currency engine.",
+    "fieldPriceAmount": "Price amount",
+    "fieldCurrencyCode": "Currency code",
+    "fieldCurrencyCodeHelper": "ISO currency code, e.g. IRR or USD.",
+    "fieldOriginalPriceAmount": "Original price",
+    "fieldOriginalPriceAmountHelper": "Optional. Shown struck-through when higher than the price.",
+    "displayTitle": "Display",
+    "displayDescription": "Control ordering and visibility.",
+    "fieldDisplayOrder": "Display order",
+    "fieldIsActive": "Active",
+    "fieldIsActiveHelper": "Inactive packages are hidden from the app.",
+    "cancel": "Cancel",
+    "save": "Save package",
+    "toastError": "Failed to save package.",
+    "reviewFields": "Please review the highlighted fields."
   }
 }

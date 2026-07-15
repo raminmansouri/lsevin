@@ -44,6 +44,10 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
+    // Allow large media uploads (videos/GIFs) up to 100 MB. Kestrel's default is ~28.6 MB,
+    // which rejected videos on the media upload endpoints.
+    builder.WebHost.ConfigureKestrel(o => o.Limits.MaxRequestBodySize = 104_857_600);
+
     builder.Host.UseDefaultServiceProvider(
         (context, options) =>
         {
@@ -118,7 +122,12 @@ try
         .AddBaseAuthorizationService(
             rolePolicies:
             [
-                new RolePolicy(SecurityConstants.Role.Admin, [SecurityConstants.Role.Admin]),
+                // SuperAdmin is a superset of Admin: it satisfies admin-gated endpoints too.
+                new RolePolicy(
+                    SecurityConstants.Role.Admin,
+                    [SecurityConstants.Role.Admin, SecurityConstants.Role.SuperAdmin]
+                ),
+                new RolePolicy(SecurityConstants.Role.SuperAdmin, [SecurityConstants.Role.SuperAdmin]),
                 new RolePolicy(SecurityConstants.Role.User, [SecurityConstants.Role.User]),
             ]
         )
@@ -139,7 +148,10 @@ try
     app.UseAspnetOpenApi();
 
     app.UseRouting();
-    app.UseHttpsRedirection();
+    if (!isDev)
+    {
+        app.UseHttpsRedirection();
+    }
 
     app.UseFileUploadService(configuration, env);
 

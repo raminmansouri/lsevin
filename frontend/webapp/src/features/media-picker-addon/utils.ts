@@ -8,10 +8,17 @@ export function parseCommaSeparatedIds(value?: string | null): string[] {
     .filter(Boolean);
 }
 
-// Target CRUD forms store resolved media URLs, not media_library ids.
-// Keep the historical function name so existing inputs do not need a refactor.
-export function toCommaSeparatedIds(items: Array<Pick<MediaItem, "id" | "fileUrl">>): string {
-  return items.map((item) => item.fileUrl || item.id).filter(Boolean).join(",");
+// Most CRUD forms store resolved media URLs, but some (e.g. forms with a media_id FK column)
+// need the media_library id instead. `valueField` selects which; it defaults to "fileUrl" so
+// existing inputs keep their behavior. References resolve back via getMediaByReferences either way.
+export function toCommaSeparatedIds(
+  items: Array<Pick<MediaItem, "id" | "fileUrl">>,
+  valueField: "id" | "fileUrl" = "fileUrl"
+): string {
+  return items
+    .map((item) => (valueField === "id" ? item.id || item.fileUrl : item.fileUrl || item.id))
+    .filter(Boolean)
+    .join(",");
 }
 
 export function isLikelyUuid(value: string): boolean {

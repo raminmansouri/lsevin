@@ -1,10 +1,10 @@
 import 'server-only';
 
 import sql from '@/config/database/db';
-import { convertMoney, resolvePreferredCurrencyCode } from '@/features/finance/lib/server/currency-queries';
+import { convertProviderPrice, resolvePreferredCurrencyCode } from '@/features/finance/lib/server/currency-queries';
 import { getCurrencySymbol, normalizeCurrencyCode } from '@/features/finance/lib/money';
 import type { ConvertedMoney } from '@/features/finance/types';
-import { getIsFavorite } from '@/features/favorites/server/favorites.repository';
+import { getIsFavorite, resolveFavoritesCustomerId } from '@/features/favorites/server/favorites.repository';
 
 import type {
   GetServicePageByIdResponse,
@@ -138,16 +138,18 @@ async function safeConvertMoney(input: {
   sourceCurrencyCode: string;
   targetCurrencyCode: string;
   marginProfile?: string;
+  providerMultiplier?: number | null;
 }): Promise<ConvertedMoney> {
   const sourceCurrencyCode = normalizeCurrencyCode(input.sourceCurrencyCode);
   const targetCurrencyCode = normalizeCurrencyCode(input.targetCurrencyCode);
 
   try {
-    return await convertMoney({
+    return await convertProviderPrice({
       amount: input.amount,
       sourceCurrencyCode,
       targetCurrencyCode,
       marginProfile: input.marginProfile,
+      providerMultiplier: input.providerMultiplier,
     });
   } catch {
     return {
@@ -171,6 +173,7 @@ async function safeGetConvertedPriceOptions(input: {
   sourceCurrencyCode: string;
   targetCurrencyCodes: string[];
   marginProfile?: string;
+  providerMultiplier?: number | null;
 }): Promise<ConvertedMoney[]> {
   const sourceCurrencyCode = normalizeCurrencyCode(input.sourceCurrencyCode);
   const targets = uniqueCurrencyCodes([sourceCurrencyCode, ...input.targetCurrencyCodes]);
@@ -182,6 +185,7 @@ async function safeGetConvertedPriceOptions(input: {
       sourceCurrencyCode,
       targetCurrencyCode,
       marginProfile: input.marginProfile,
+      providerMultiplier: input.providerMultiplier,
     });
 
     if (!results.some((item) => item.targetCurrencyCode === converted.targetCurrencyCode)) {
@@ -240,6 +244,7 @@ type PrimaryServiceRow = {
   service_definition_description: string;
   currency: string;
   value: number | string;
+  international_price_multiplier: number | string | null;
   duration_minutes: number | string | null;
   rating: number | string | null;
   review_count: number | string | null;
@@ -282,6 +287,7 @@ type ProviderOfferingRow = {
   response_time: string | null;
   price: number | string;
   currency: string;
+  international_price_multiplier: number | string | null;
   rating: number | string | null;
   review_count: number | string | null;
   provider_rating: number | string | null;
@@ -419,6 +425,7 @@ async function mapOffering(row: ProviderOfferingRow, options: { preferredCurrenc
     amount: price,
     sourceCurrencyCode: currency,
     targetCurrencyCodes: [options.preferredCurrencyCode, currency],
+    providerMultiplier: asNullableNumber(row.international_price_multiplier),
   });
   const displayPrice = pickConvertedPrice(priceOptions, options.preferredCurrencyCode);
   const isFavorite = await getIsFavorite({
@@ -573,6 +580,7 @@ async function getPrimaryServiceRow(serviceId: string, locale: string) {
       common.get_translation_t(sd.description_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as service_definition_description,
       ps.currency,
       ps.value,
+      sp.international_price_multiplier as international_price_multiplier,
       coalesce(nullif(ps.duration_minutes, 0), sd.duration_minutes) as duration_minutes,
       coalesce(ps.rating, sp.rating, 0) as rating,
       coalesce(ps.review_count, sp.review_count, 0) as review_count,
@@ -819,6 +827,7 @@ async function getProvidersForService(serviceDefinitionId: string, locale: strin
       sp.response_time,
       ps.value as price,
       ps.currency,
+      sp.international_price_multiplier as international_price_multiplier,
       ps.rating,
       ps.review_count,
       sp.rating as provider_rating,
@@ -1056,7 +1065,7 @@ async function getDomainRequirements(serviceDefinitionId: string, locale: string
   }));
 }
 
-async function getAddons(providerServiceId: string, serviceDefinitionId: string, providerTypeId: string, locale: string, preferredCurrencyCode: string): Promise<ServiceAddon[]> {
+async function getAddons(providerServiceId: string, serviceDefinitionId: string, providerTypeId: string, locale: string, preferredCurrencyCode: string, providerMultiplier: number | null): Promise<ServiceAddon[]> {
   const rows = await sql<AddonRow[]>`
     select
       a.id,
@@ -1089,6 +1098,7 @@ async function getAddons(providerServiceId: string, serviceDefinitionId: string,
       amount: price,
       sourceCurrencyCode: currency,
       targetCurrencyCodes: [preferredCurrencyCode, currency],
+      providerMultiplier,
     });
     return {
       id: row.id,
@@ -1167,7 +1177,7 @@ async function getPolicies(providerId: string, locale: string): Promise<Provider
   }));
 }
 
-async function getSpecialists(providerId: string, serviceDefinitionId: string, locale: string, preferredCurrencyCode: string, serviceCurrencyCode: string): Promise<ServiceSpecialist[]> {
+async function getSpecialists(providerId: string, serviceDefinitionId: string, locale: string, preferredCurrencyCode: string, serviceCurrencyCode: string, providerMultiplier: number | null): Promise<ServiceSpecialist[]> {
   const rows = await sql<SpecialistRow[]>`
     select
       ps.id::text as id,
@@ -1243,6 +1253,7 @@ async function getSpecialists(providerId: string, serviceDefinitionId: string, l
       amount: consultationFee,
       sourceCurrencyCode: consultationCurrency,
       targetCurrencyCodes: [preferredCurrencyCode, consultationCurrency],
+      providerMultiplier,
     });
     const galleryItems = normalizeJsonArray<any>(row.gallery_items).map((item): ServiceGalleryItem => ({
       id: asString(item.id),
@@ -1315,6 +1326,16 @@ export async function getServicePageByIdFromDb({
   const row = await getPrimaryServiceRow(serviceId, normalizedLocale);
   if (!row) return null;
 
+  // The session carries the identity id; customer.favorites keys on the customer id.
+  // Resolve once here and reuse for the service favorite + every provider offering
+  // (getProvidersForService fans getIsFavorite out per offering — avoid an N+1 resolve).
+  const favoritesCustomerId = await resolveFavoritesCustomerId(userId);
+
+  // This provider's international price coefficient (Prompt 2). Passed to every price
+  // path on the page (main service, addons, specialists) so the markup is consistent;
+  // null => the shared utility falls back to the global finance.settings default.
+  const providerMultiplier = asNullableNumber(row.international_price_multiplier);
+
   const sourceCurrencyCode = normalizeCurrencyCode(row.currency);
   const resolvedDisplayCurrencyCode = await safeResolvePreferredCurrencyCode({
     userId,
@@ -1347,19 +1368,19 @@ export async function getServicePageByIdFromDb({
     getIncludedItems(row.service_definition_id, row.provider_service_id),
     getProcessItems(row.service_definition_id, row.provider_service_id),
     getFaqs(row.service_definition_id, row.provider_service_id),
-    getProvidersForService(row.service_definition_id, normalizedLocale, { preferredCurrencyCode: resolvedDisplayCurrencyCode, customerId: userId }),
+    getProvidersForService(row.service_definition_id, normalizedLocale, { preferredCurrencyCode: resolvedDisplayCurrencyCode, customerId: favoritesCustomerId }),
     getTopReviews(row.provider_id, row.provider_service_id),
     getGalleryItems(row.service_definition_id, row.provider_service_id, normalizedLocale, fallbackImages),
     getProviderGalleryItems(row.provider_id, normalizedLocale),
-    getIsFavorite({ customerId: userId, favoriteType: 'service', entityId: row.provider_service_id }),
+    getIsFavorite({ customerId: favoritesCustomerId, favoriteType: 'service', entityId: row.provider_service_id }),
     getServiceAttributes(row.provider_service_id, row.service_definition_id, normalizedLocale),
     getProviderAttributes(row.provider_id, normalizedLocale),
     getUploadRequirements(row.service_definition_id, normalizedLocale),
     getDomainRequirements(row.service_definition_id, normalizedLocale),
-    getAddons(row.provider_service_id, row.service_definition_id, row.provider_type_id, normalizedLocale, resolvedDisplayCurrencyCode),
+    getAddons(row.provider_service_id, row.service_definition_id, row.provider_type_id, normalizedLocale, resolvedDisplayCurrencyCode, providerMultiplier),
     getOffers(row.provider_service_id, normalizedLocale),
     getPolicies(row.provider_id, normalizedLocale),
-    getSpecialists(row.provider_id, row.service_definition_id, normalizedLocale, resolvedDisplayCurrencyCode, sourceCurrencyCode),
+    getSpecialists(row.provider_id, row.service_definition_id, normalizedLocale, resolvedDisplayCurrencyCode, sourceCurrencyCode, providerMultiplier),
   ]);
 
   const images = uniqueNonEmpty(galleryItems.map((item) => normalizeStoredMediaUrl(item.url)));
@@ -1371,8 +1392,8 @@ export async function getServicePageByIdFromDb({
   const allowedDisplayCurrencies = uniqueCurrencyCodes([sourceCurrencyCode, resolvedDisplayCurrencyCode, ...DEFAULT_DISPLAY_CURRENCIES]);
 
   const [priceOptions, originalPriceOptions] = await Promise.all([
-    safeGetConvertedPriceOptions({ amount: price, sourceCurrencyCode, targetCurrencyCodes: allowedDisplayCurrencies }),
-    safeGetConvertedPriceOptions({ amount: price, sourceCurrencyCode, targetCurrencyCodes: allowedDisplayCurrencies }),
+    safeGetConvertedPriceOptions({ amount: price, sourceCurrencyCode, targetCurrencyCodes: allowedDisplayCurrencies, providerMultiplier }),
+    safeGetConvertedPriceOptions({ amount: price, sourceCurrencyCode, targetCurrencyCodes: allowedDisplayCurrencies, providerMultiplier }),
   ]);
 
   const displayPrice = pickConvertedPrice(priceOptions, resolvedDisplayCurrencyCode);

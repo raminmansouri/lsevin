@@ -1,4 +1,3 @@
-using System.Data;
 using System.Data.Common;
 using BuildingBlocks.Core.Persistence.Connection;
 using Npgsql;
@@ -6,98 +5,98 @@ using Npgsql;
 namespace BuildingBlocks.Persistence.EfCore.Postgres;
 
 /// <summary>
-/// Factory for creating and managing SQL connections.
+/// Factory for creating SQL connections.
 /// </summary>
 /// <remarks>
-/// Initializes a new instance of the <see cref="DbConnectionFactory"/> class.
+/// Each call returns a FRESH connection (Npgsql connection pooling makes this
+/// cheap). Returning a single shared/cached connection is unsafe: NpgsqlConnection
+/// is not thread-safe, and a nested caller that does <c>await using</c> on the
+/// shared connection (e.g. CurrencyService inside a provider query) would dispose
+/// it out from under the outer handler -> "Cannot access a disposed object:
+/// NpgsqlConnection". Connections handed out are tracked and disposed when this
+/// (scoped) factory is disposed, so callers that don't dispose their own do not leak.
 /// </remarks>
 /// <param name="connectionString">The connection string.</param>
 internal sealed class DbConnectionFactory(string connectionString) : IDbConnectionFactory, IDisposable, IAsyncDisposable
 {
-    private volatile bool _disposedValue;
-    private NpgsqlConnection? _connection;
+    private readonly List<NpgsqlConnection> _connections = [];
+    private bool _disposed;
 
     /// <inheritdoc />
     public DbConnection GetOrCreateConnection()
     {
-        if (_connection is { State: ConnectionState.Open })
-        {
-            return _connection;
-        }
-
-        _connection = new NpgsqlConnection(connectionString);
-        _connection.Open();
-
-        return _connection;
+        var connection = new NpgsqlConnection(connectionString);
+        connection.Open();
+        Track(connection);
+        return connection;
     }
 
     /// <inheritdoc />
     public async ValueTask<DbConnection> GetOrCreateConnectionAsync(CancellationToken cancellationToken = default)
     {
-        if (_connection is { State: ConnectionState.Open })
+        var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync(cancellationToken);
+        Track(connection);
+        return connection;
+    }
+
+    private void Track(NpgsqlConnection connection)
+    {
+        lock (_connections)
         {
-            return _connection;
+            _connections.Add(connection);
         }
-
-        _connection = new NpgsqlConnection(connectionString);
-        await _connection.OpenAsync(cancellationToken);
-
-        return _connection;
     }
 
     #region Dispose
 
-    /// <summary>
-    /// Disposes the resources used by the <see cref="DbConnectionFactory"/> class.
-    /// </summary>
-    /// <param name="disposing">A value indicating whether the object is being disposed.</param>
-    private void Dispose(bool disposing)
-    {
-        if (!_disposedValue)
-        {
-            if (disposing)
-            {
-                if (_connection is { State: ConnectionState.Open })
-                {
-                    _connection.Dispose();
-                }
-            }
-
-            _disposedValue = true;
-        }
-    }
-
-    /// <summary>
-    /// Disposes the resources used by the <see cref="DbConnectionFactory"/> class.
-    /// </summary>
-    /// <param name="disposing">A value indicating whether the object is being disposed.</param>
-    private async Task DisposeAsync(bool disposing)
-    {
-        if (!_disposedValue)
-        {
-            if (disposing)
-            {
-                if (_connection is { State: ConnectionState.Open })
-                {
-                    await _connection.DisposeAsync();
-                }
-            }
-
-            _disposedValue = true;
-        }
-    }
-
     /// <inheritdoc />
     public void Dispose()
     {
-        Dispose(disposing: true);
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+
+        NpgsqlConnection[] toDispose;
+        lock (_connections)
+        {
+            toDispose = [.. _connections];
+            _connections.Clear();
+        }
+
+        foreach (var connection in toDispose)
+        {
+            connection.Dispose();
+        }
+
         GC.SuppressFinalize(this);
     }
 
     /// <inheritdoc />
     public async ValueTask DisposeAsync()
     {
-        await DisposeAsync(disposing: true);
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+
+        NpgsqlConnection[] toDispose;
+        lock (_connections)
+        {
+            toDispose = [.. _connections];
+            _connections.Clear();
+        }
+
+        foreach (var connection in toDispose)
+        {
+            await connection.DisposeAsync();
+        }
+
         GC.SuppressFinalize(this);
     }
 
