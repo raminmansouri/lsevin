@@ -72,21 +72,11 @@ export async function listPaymentMethodsForUser(userId: string): Promise<Payment
     });
   }
 
-  if (!methods.some((x) => x.code === 'bank')) {
-    methods.push({
-      code: 'bank',
-      name: 'Bank transfer',
-      description: 'Manual bank transfer / card-to-card confirmation flow',
-      provider: 'manual',
-      supportsAuthorize: false,
-      supportsCapture: false,
-      supportsRefund: false,
-      configuration: {
-        instructions: 'Replace this with your real bank or card-to-card instructions.',
-      },
-    });
-  }
-
+  // No hardcoded "bank transfer" fallback. It used to be appended unconditionally, so a
+  // method nobody had configured always appeared at checkout — carrying the literal
+  // placeholder "Replace this with your real bank or card-to-card instructions." Which
+  // methods exist is shop.payment_methods' job; the wallet above is the only exception,
+  // because it is derived from the user's own account rather than configured.
   return methods;
 }
 
@@ -245,19 +235,6 @@ export async function createBookingPaymentIntent(params: {
     });
 
     return { paymentId, bookingId: params.bookingId, method: 'wallet', status: 'succeeded', completed: true, amount, currency, externalReference: intent.id };
-  }
-
-  if (params.paymentMethodCode === 'bank') {
-    const instructions = String((method.configuration ?? {}).instructions ?? 'Replace this with your bank details.');
-    const externalReference = `BANK-${Date.now()}`;
-    await db`
-      update booking.payments
-      set payment_method = 'bank', gateway = 'manual', status = 'Pending',
-          external_reference = ${externalReference},
-          gateway_payload = coalesce(gateway_payload, '{}'::jsonb) || ${ { instructions, returnUrl: params.returnUrl ?? null, method: 'bank' } as any }
-      where id = ${paymentId}
-    `;
-    return { paymentId, bookingId: params.bookingId, method: 'bank', status: 'pending_manual_confirmation', completed: false, amount, currency, externalReference, instructions };
   }
 
   const externalReference = `PAY-${Date.now()}`;

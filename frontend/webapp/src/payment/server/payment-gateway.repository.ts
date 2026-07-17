@@ -64,8 +64,17 @@ type PaymentGatewayRow = {
 
 const SUPPORTED_GATEWAYS = ["zarinpal"] as const;
 
+/**
+ * Hand the value to postgres.js as jsonb.
+ *
+ * NOT `JSON.stringify(...)::jsonb`: postgres.js infers the parameter type from the
+ * cast and then serialises the value itself, so a pre-stringified string is encoded
+ * a second time and lands as a jsonb *string* scalar rather than an object. Every
+ * read then hits `typeof settings !== "object"` in normalizeSettings() and silently
+ * falls back to defaults — merchantId null ("not configured") and sandbox true.
+ */
 function jsonb(value: unknown) {
-  return JSON.stringify(value ?? {});
+  return sql.json((value ?? {}) as never);
 }
 
 function toBoolean(value: unknown, fallback = false): boolean {
@@ -93,8 +102,26 @@ function normalizeGatewayCode(value: string): PaymentGatewayCode {
   return code as PaymentGatewayCode;
 }
 
+/**
+ * Rows written before the jsonb() fix hold a double-encoded JSON *string* instead of an
+ * object. Reading one used to fall through to defaults, which quietly meant "no merchant
+ * id" and "sandbox on" — i.e. a configured gateway reporting itself unconfigured, and
+ * live payments routed to the sandbox. Unwrap instead of silently defaulting.
+ */
+function coerceSettings(value: unknown): PaymentGatewayAdminSettings {
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+      return parsed && typeof parsed === "object" ? (parsed as PaymentGatewayAdminSettings) : {};
+    } catch {
+      return {};
+    }
+  }
+  return value && typeof value === "object" ? (value as PaymentGatewayAdminSettings) : {};
+}
+
 function normalizeSettings(value: PaymentGatewayAdminSettings | null | undefined): PaymentGatewayAdminSettings {
-  const settings = value && typeof value === "object" ? value : {};
+  const settings = coerceSettings(value);
   const currency = String(settings.currency || "IRR").trim().toUpperCase();
 
   return {
@@ -194,7 +221,7 @@ export async function ensurePaymentGatewayTable(): Promise<void> {
         minimumAmount: 10000,
         descriptionTemplate: "LSevin booking {{bookingId}}",
         enabledContexts: ["booking_online_card", "wallet_topup"],
-      })}::jsonb
+      })}
     )
     on conflict (code) do nothing
   `;
@@ -351,7 +378,7 @@ export async function savePaymentGatewayConfig(input: {
       ${input.isEnabled},
       ${Boolean(input.supportsRefund)},
       ${Number.isFinite(input.sortOrder) ? Number(input.sortOrder) : existing?.sortOrder ?? 100},
-      ${jsonb(settings)}::jsonb,
+      ${jsonb(settings)},
       ${input.updatedBy || null}::uuid
     )
     on conflict (code) do update set

@@ -516,7 +516,7 @@ export async function upsertMainDraftSelection(
         addons_amount = case when ${hasInput(input, 'addonsAmount')} then coalesce(${input.addonsAmount ?? null}, 0) else addons_amount end,
         total_amount = case when ${hasInput(input, 'totalAmount')} then coalesce(${input.totalAmount ?? null}, 0) else total_amount end,
         notes = case when ${hasInput(input, 'notes')} then ${input.notes ?? null} else notes end,
-        metadata = coalesce(metadata, '{}'::jsonb) || ${JSON.stringify(metadataPatch)}::jsonb
+        metadata = coalesce(metadata, '{}'::jsonb) || ${db.json(metadataPatch as Record<string, never>)}
     where id = ${draft.id}
   `;
 
@@ -524,7 +524,7 @@ export async function upsertMainDraftSelection(
   if (Object.keys(safeClientMetadataPatch).length > 0) {
     await db`
       update booking.booking_drafts
-      set metadata = coalesce(metadata, '{}'::jsonb) || ${JSON.stringify(safeClientMetadataPatch)}::jsonb
+      set metadata = coalesce(metadata, '{}'::jsonb) || ${db.json(safeClientMetadataPatch as Record<string, never>)}
       where id = ${draft.id}
     `;
   }
@@ -1339,7 +1339,7 @@ export async function applyDraftCoupon(userId: string, draftId: string, couponCo
 
   await db`
     update booking.booking_drafts
-    set metadata = coalesce(metadata, '{}'::jsonb) || ${JSON.stringify({ couponCode: code })}::jsonb,
+    set metadata = coalesce(metadata, '{}'::jsonb) || ${db.json({ couponCode: code })},
         updated_at = now()
     where id = ${draftId}
   `;

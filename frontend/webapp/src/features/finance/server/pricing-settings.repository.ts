@@ -31,7 +31,10 @@ export async function ensurePricingSettingsTable(): Promise<void> {
     insert into finance.settings (key, value)
     values (
       ${INTERNATIONAL_MULTIPLIER_KEY},
-      ${JSON.stringify({ value: DEFAULT_INTERNATIONAL_MULTIPLIER })}::jsonb
+      -- sql.json, not JSON.stringify(...) plus a jsonb cast: the latter double-encodes
+      -- into a jsonb string scalar, so the value reads back null and the multiplier
+      -- silently pins to the default. (Seed rows came from raw SQL, so they escaped it.)
+      ${sql.json({ value: DEFAULT_INTERNATIONAL_MULTIPLIER })}
     )
     on conflict (key) do nothing
   `;
@@ -68,7 +71,7 @@ export async function updateDefaultInternationalMultiplier(value: number): Promi
     insert into finance.settings (key, value)
     values (
       ${INTERNATIONAL_MULTIPLIER_KEY},
-      ${JSON.stringify({ value })}::jsonb
+      ${sql.json({ value })}
     )
     on conflict (key) do update set
       value = excluded.value,

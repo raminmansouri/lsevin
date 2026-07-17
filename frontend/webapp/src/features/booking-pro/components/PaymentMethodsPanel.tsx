@@ -29,9 +29,11 @@ export function PaymentMethodsPanel(props: {
             .then((data) => setGateways(data.items ?? []))
             .catch(() => { });
     }, []);
+    // Fallback only when the methods fetch fails. Mirrors what the server now offers —
+    // the online card gateway (Zarinpal) plus wallet. No 'bank': it was a placeholder
+    // method that no longer exists server-side.
     const list = items.length ? items : [
         { code: 'gateway_card', name: tBooking('onlineCardPayment'), description: tBooking('chooseEnabledGatewaySuchAsZarinpal') },
-        { code: 'bank', name: tBooking('bankTransfer') },
         { code: 'wallet', name: tBooking('wallet') },
     ];
     const selectedIsGateway = gateways.some((gateway) => gateway.code === props.selected);

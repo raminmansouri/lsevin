@@ -36,7 +36,9 @@ export async function ensureLoyaltySettingsTable(): Promise<void> {
     insert into loyalty.settings (key, value)
     values (
       ${POINTS_EARN_RATE_KEY},
-      ${JSON.stringify({ divisor: DEFAULT_EARN_RATE_DIVISOR })}::jsonb
+      -- sql.json, not JSON.stringify(...) plus a jsonb cast — the latter double-encodes to
+      -- a jsonb string scalar, so the divisor reads back null and the rate silently defaults.
+      ${sql.json({ divisor: DEFAULT_EARN_RATE_DIVISOR })}
     )
     on conflict (key) do nothing
   `;
@@ -73,7 +75,7 @@ export async function updatePointsEarnDivisor(divisor: number): Promise<void> {
     insert into loyalty.settings (key, value)
     values (
       ${POINTS_EARN_RATE_KEY},
-      ${JSON.stringify({ divisor })}::jsonb
+      ${sql.json({ divisor })}
     )
     on conflict (key) do update set
       value = excluded.value,
