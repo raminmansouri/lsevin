@@ -650,8 +650,8 @@ function normalizeCatalogSearch(search?: string) {
     .trim();
 }
 
-export async function listProviders(params: { locale?: Locale; search?: string; providerTypeId?: string; providerId?: string; serviceId?: string; specialistId?: string; take?: number; offset?: number; }) {
-  const { locale = 'fa-IR', search = '', providerTypeId, providerId, serviceId, specialistId, take = 3, offset = 0 } = params;
+export async function listProviders(params: { locale?: Locale; search?: string; providerTypeId?: string; providerId?: string; serviceId?: string; serviceDefinitionId?: string; specialistId?: string; take?: number; offset?: number; }) {
+  const { locale = 'fa-IR', search = '', providerTypeId, providerId, serviceId, serviceDefinitionId, specialistId, take = 8, offset = 0 } = params;
   const searchText = normalizeCatalogSearch(search);
   const normalizedSearchText = searchText.replace(/[يى]/g, 'ی').replace(/ك/g, 'ک');
   const like = `%${searchText}%`;
@@ -726,6 +726,16 @@ export async function listProviders(params: { locale?: Locale; search?: string; 
           )
         )
         and (
+          ${serviceDefinitionId ?? null}::uuid is null
+          or exists (
+            select 1
+            from category.provider_services fpsd
+            where fpsd.service_definition_id = ${serviceDefinitionId ?? null}::uuid
+              and fpsd.service_provider_id = sp.id
+              and fpsd.is_active = true
+          )
+        )
+        and (
           ${specialistId ?? null}::uuid is null
           or exists (
             select 1
@@ -750,7 +760,18 @@ export async function listProviders(params: { locale?: Locale; search?: string; 
            specialties,
            response_time,
            success_rate,
-           total_patients
+           total_patients,
+           (
+             select ps_match.id::text
+             from category.provider_services ps_match
+             where ps_match.service_provider_id = p.id
+               and ps_match.is_active = true
+               and ${serviceDefinitionId ?? null}::uuid is not null
+               and ps_match.service_definition_id = ${serviceDefinitionId ?? null}::uuid
+             order by ps_match.create_date asc
+             limit 1
+           ) as matching_service_id,
+           count(*) over() as total_count
     from providers p
     where (
       ${searchText}::text = ''
@@ -814,13 +835,15 @@ export async function listProviders(params: { locale?: Locale; search?: string; 
     responseTime: row.response_time,
     successRate: row.success_rate,
     totalPatients: row.total_patients,
+    matchingServiceId: row.matching_service_id ?? null,
   }));
 
-  return { items, hasMore: items.length === take };
+  const total = Number(rows[0]?.total_count ?? 0);
+  return { items, total, hasMore: offset + items.length < total };
 }
 
 export async function listServices(params: { providerId?: string; serviceId?: string; specialistId?: string; locale?: Locale; search?: string; take?: number; offset?: number; }) {
-  const { providerId, serviceId, specialistId, locale = 'fa-IR', search = '', take = 3, offset = 0 } = params;
+  const { providerId, serviceId, specialistId, locale = 'fa-IR', search = '', take = 8, offset = 0 } = params;
   const searchText = normalizeCatalogSearch(search);
   const normalizedSearchText = searchText.replace(/[يى]/g, 'ی').replace(/ك/g, 'ک');
   const like = `%${searchText}%`;
@@ -930,7 +953,8 @@ export async function listServices(params: { providerId?: string; serviceId?: st
            growth,
            is_popular,
            requires_specialist,
-           booking_ui_mode
+           booking_ui_mode,
+           count(*) over() as total_count
     from services s
     where (
       ${searchText}::text = ''
@@ -994,11 +1018,12 @@ export async function listServices(params: { providerId?: string; serviceId?: st
     bookingUiMode: row.booking_ui_mode,
   }));
 
-  return { items, hasMore: items.length === take };
+  const total = Number(rows[0]?.total_count ?? 0);
+  return { items, total, hasMore: offset + items.length < total };
 }
 
 export async function listSpecialists(params: { providerId?: string; serviceId?: string; specialistId?: string; locale?: Locale; search?: string; take?: number; offset?: number; }) {
-  const { providerId, serviceId, specialistId, locale = 'fa-IR', search = '', take = 3, offset = 0 } = params;
+  const { providerId, serviceId, specialistId, locale = 'fa-IR', search = '', take = 8, offset = 0 } = params;
   const searchText = normalizeCatalogSearch(search);
   const normalizedSearchText = searchText.replace(/[يى]/g, 'ی').replace(/ك/g, 'ک');
   const like = `%${searchText}%`;
@@ -1078,7 +1103,8 @@ export async function listSpecialists(params: { providerId?: string; serviceId?:
            experience,
            patients,
            next_available_label,
-           success_rate
+           success_rate,
+           count(*) over() as total_count
     from specialists s
     where (
       ${searchText}::text = ''
@@ -1129,7 +1155,8 @@ export async function listSpecialists(params: { providerId?: string; serviceId?:
     successRate: row.success_rate,
   }));
 
-  return { items, hasMore: items.length === take };
+  const total = Number(rows[0]?.total_count ?? 0);
+  return { items, total, hasMore: offset + items.length < total };
 }
 
 export async function getServiceMode(providerServiceId: string) {

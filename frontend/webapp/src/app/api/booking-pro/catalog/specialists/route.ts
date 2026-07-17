@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     specialistId,
     locale: s.get('locale') ?? 'fa-IR',
     search: s.get('search') ?? '',
-    take: Number(s.get('take') ?? 3),
+    take: Number(s.get('take') ?? 8),
     offset: Number(s.get('offset') ?? 0),
   });
   return NextResponse.json(data);

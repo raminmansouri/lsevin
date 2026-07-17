@@ -16,6 +16,20 @@ export interface ProviderCardItem {
   responseTime?: string | null;
   successRate?: string | null;
   totalPatients?: string | null;
+  /**
+   * The provider_services row at THIS provider matching the caller's
+   * serviceDefinitionId. Lets "same service, different clinic" keep the service
+   * instead of cascading it away. Null when no serviceDefinitionId was queried.
+   */
+  matchingServiceId?: string | null;
+}
+
+/** Catalog list responses carry an exact `total` so callers can distinguish
+ *  "the only option" from "the first page of many". */
+export interface CatalogPage<T> {
+  items: T[];
+  total: number;
+  hasMore: boolean;
 }
 
 export interface ServiceCardItem {

@@ -7,8 +7,9 @@ import { DynamicServiceForm } from '@/features/form-builder/components/DynamicSe
 import type { BookingDraftState, ChildBookingDraft, ProviderCardItem, ProviderTypeAddonItem, ServiceCardItem, SpecialistCardItem, UploadRequirementItem } from '../types';
 import { ChildAddonBookingCard } from './ChildAddonBookingCard';
 import { PaymentMethodsPanel } from './PaymentMethodsPanel';
-import { EntityCard, providerMeta, serviceMeta } from './EntityCard';
-import { SearchLoadMoreList } from './SearchLoadMoreList';
+import { DecisionStack } from './step-service/DecisionStack';
+import { autoSelectId, canContinueService, type SlotKey } from '../lib/decision-stack';
+import { cascadeFor } from '../lib/cascade';
 import { PersianDateTimePicker } from '@/components/date-time/PersianDateTimePicker';
 import { formatBookingDate, isReasonableBookingIsoDate, normalizeBookingCalendar, toIsoDate } from '../lib/calendar';
 import { RichTextPreview } from '@/features/booking/components/rich-text-preview';
@@ -108,6 +109,25 @@ function addMinutes(time: string, minutes: number) {
     const next = ((total % 1440) + 1440) % 1440;
     return `${String(Math.floor(next / 60)).padStart(2, '0')}:${String(next % 60).padStart(2, '0')}`;
 }
+/**
+ * Groups digits and localises the currency. The collapsed step-1 row makes this the only
+ * price on screen, so "IRR 500000000" is no longer good enough to read at a glance.
+ */
+function useMoneyFormatter(locale: string) {
+    return useMemo(() => (value?: number | null, currency?: string | null) => {
+        const amount = Number(value ?? 0);
+        const code = String(currency || '').trim().toUpperCase();
+        if (!Number.isFinite(amount))
+            return '';
+        try {
+            return new Intl.NumberFormat(locale, { style: 'currency', currency: code || 'USD', maximumFractionDigits: 0 }).format(amount);
+        }
+        catch {
+            // Unknown/invalid ISO code — still group the digits rather than dumping them raw.
+            return `${code} ${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(amount)}`.trim();
+        }
+    }, [locale]);
+}
 function useDebouncedValue<T>(value: T, delayMs = 350) {
     const [debounced, setDebounced] = useState(value);
     useEffect(() => {
@@ -206,6 +226,7 @@ export function BookingWizard() {
     const seededSpecialistId = searchParams.get('specialistId') ?? undefined;
     const hasSeedSelection = Boolean(seededProviderId || seededServiceId || seededSpecialistId);
     const defaultCalendar = localeToCalendar(locale);
+    const formatMoney = useMoneyFormatter(locale);
     const [draft, setDraft] = useState<BookingDraftState | null>(null);
     const [resumeChoiceRequired, setResumeChoiceRequired] = useState(false);
     const [loadingDraft, setLoadingDraft] = useState(true);
@@ -228,6 +249,21 @@ export function BookingWizard() {
     const [providersLoading, setProvidersLoading] = useState(false);
     const [servicesLoading, setServicesLoading] = useState(false);
     const [specialistsLoading, setSpecialistsLoading] = useState(false);
+    // Exact server-side counts. `items.length` cannot stand in for these: it is capped by
+    // `take` and narrowed by search, so it can neither prove "only option" nor size the
+    // search threshold honestly.
+    const [providerTotal, setProviderTotal] = useState(0);
+    const [serviceTotal, setServiceTotal] = useState(0);
+    const [specialistTotal, setSpecialistTotal] = useState(0);
+    // The chosen entity, kept independently of whichever page the list happens to show —
+    // a seeded provider outside the first page would otherwise render as "not selected".
+    const [resolvedProvider, setResolvedProvider] = useState<ProviderCardItem | null>(null);
+    const [resolvedService, setResolvedService] = useState<ServiceCardItem | null>(null);
+    const [resolvedSpecialist, setResolvedSpecialist] = useState<SpecialistCardItem | null>(null);
+    // Once a user opens a picker, that slot is theirs: never auto-select into it.
+    const [touchedSlots, setTouchedSlots] = useState<Record<SlotKey, boolean>>({ provider: false, service: false, specialist: false });
+    const [entryFailed, setEntryFailed] = useState(false);
+    const [entryAttempt, setEntryAttempt] = useState(0);
     const [addonProviderTypes, setAddonProviderTypes] = useState<ProviderTypeAddonItem[]>([]);
     const [uploadRequirements, setUploadRequirements] = useState<UploadRequirementItem[]>([]);
     const [availableDates, setAvailableDates] = useState<AvailableDateItem[]>([]);
@@ -302,6 +338,7 @@ export function BookingWizard() {
         }
         let cancelled = false;
         setSeedEntryResolved(false);
+        setEntryFailed(false);
         getJson<BookingEntryResolution>(`/api/booking-pro/entry?locale=${locale}&providerId=${encodeURIComponent(seededProviderId ?? '')}&serviceId=${encodeURIComponent(seededServiceId ?? '')}&specialistId=${encodeURIComponent(seededSpecialistId ?? '')}`)
             .then((entry) => {
             if (cancelled)
@@ -338,10 +375,20 @@ export function BookingWizard() {
             setServices(mappedServices);
             setSpecialists(mappedSpecialists);
             const selectedService = mappedServices.find((item) => item.id === entry.selectedServiceId);
+            const selectedProvider = mappedProviders.find((item) => item.id === entry.selectedProviderId);
+            // A seeded specialist is only trustworthy if entry — which filters staff by the
+            // resolved provider and service definition — actually returned them. Otherwise the
+            // link pairs a specialist with a service they do not perform, and confirming it
+            // would strand the user on a schedule step whose availability is always empty.
+            const seededSpecialistIsValid = Boolean(entry.selectedSpecialistId && mappedSpecialists.some((item) => item.id === entry.selectedSpecialistId));
+            const selectedSpecialist = seededSpecialistIsValid ? mappedSpecialists.find((item) => item.id === entry.selectedSpecialistId) : undefined;
+            setResolvedProvider(selectedProvider ?? null);
+            setResolvedService(selectedService ?? null);
+            setResolvedSpecialist(selectedSpecialist ?? null);
             const patch: Partial<BookingDraftState> = {
                 providerId: entry.selectedProviderId ?? null as any,
                 serviceId: entry.selectedServiceId ?? null as any,
-                specialistId: entry.selectedSpecialistId ?? null as any,
+                specialistId: selectedSpecialist?.id ?? null as any,
                 serviceDefinitionId: selectedService?.serviceDefinitionId ?? null as any,
                 currency: selectedService?.currency,
                 subtotalAmount: selectedService?.value,
@@ -350,13 +397,20 @@ export function BookingWizard() {
             setDraft((prev) => ({ ...(prev as BookingDraftState), ...patch }));
             patchDraft(patch).catch((e) => setError(e.message));
         })
-            .catch((e) => setError(e.message))
+            .catch((e) => {
+            if (cancelled)
+                return;
+            // Do not silently drop the seed into a cold-start picker: the link's whole intent
+            // is the service it names. Surface the failure and offer a retry.
+            setEntryFailed(true);
+            setError(e.message);
+        })
             .finally(() => {
             if (!cancelled)
                 setSeedEntryResolved(true);
         });
         return () => { cancelled = true; };
-    }, [draft?.id, hasSeedSelection, seededProviderId, seededServiceId, seededSpecialistId, locale, resumeChoiceRequired]);
+    }, [draft?.id, hasSeedSelection, seededProviderId, seededServiceId, seededSpecialistId, locale, resumeChoiceRequired, entryAttempt]);
     useEffect(() => {
         if (!draft || currentStep !== 1 || resumeChoiceRequired || !seedEntryResolved) {
             return;
@@ -370,10 +424,15 @@ export function BookingWizard() {
             offset: String(providerOffset),
             take: '3',
         });
-        if (draft.serviceId) params.set('serviceId', draft.serviceId);
+        // Never pass providerId — a list filtered by its own selection can only return the
+        // item you are trying to replace. Filter by the service *definition* rather than the
+        // provider_services row, which belongs to exactly one provider and would collapse
+        // this list to a single option by construction.
+        if (draft.serviceDefinitionId) params.set('serviceDefinitionId', draft.serviceDefinitionId);
         if (draft.specialistId) params.set('specialistId', draft.specialistId);
         getJson<{
             items: ProviderCardItem[];
+            total: number;
             hasMore: boolean;
         }>(`/api/booking-pro/catalog/providers?${params.toString()}`)
             .then((data) => {
@@ -381,11 +440,12 @@ export function BookingWizard() {
                 return;
             setProviders((prev) => (providerOffset === 0 ? data.items : [...prev, ...data.items]));
             setProviderHasMore(data.hasMore);
+            setProviderTotal(data.total);
         })
             .catch((e) => { if (!cancelled && providerRequestSeq.current === requestId) setError(e.message); })
             .finally(() => { if (!cancelled && providerRequestSeq.current === requestId) setProvidersLoading(false); });
         return () => { cancelled = true; };
-    }, [draft?.id, draft?.providerId, draft?.serviceId, draft?.specialistId, currentStep, providerSearchQuery, providerOffset, locale, resumeChoiceRequired, seedEntryResolved]);
+    }, [draft?.id, draft?.serviceDefinitionId, draft?.specialistId, currentStep, providerSearchQuery, providerOffset, locale, resumeChoiceRequired, seedEntryResolved]);
     useEffect(() => {
         if ((!draft?.providerId && !draft?.serviceId && !draft?.specialistId) || currentStep !== 1 || resumeChoiceRequired || !seedEntryResolved) {
             return;
@@ -400,10 +460,12 @@ export function BookingWizard() {
             take: '3',
         });
         if (draft.providerId) params.set('providerId', draft.providerId);
-        if (draft.serviceId) params.set('serviceId', draft.serviceId);
+        // Never pass serviceId: repository.listServices filters `ps.id = serviceId`, which
+        // would return only the service the user is trying to change away from.
         if (draft.specialistId) params.set('specialistId', draft.specialistId);
         getJson<{
             items: ServiceCardItem[];
+            total: number;
             hasMore: boolean;
         }>(`/api/booking-pro/catalog/services?${params.toString()}`)
             .then((data) => {
@@ -411,11 +473,12 @@ export function BookingWizard() {
                 return;
             setServices((prev) => (serviceOffset === 0 ? data.items : [...prev, ...data.items]));
             setServiceHasMore(data.hasMore);
+            setServiceTotal(data.total);
         })
             .catch((e) => { if (!cancelled && serviceRequestSeq.current === requestId) setError(e.message); })
             .finally(() => { if (!cancelled && serviceRequestSeq.current === requestId) setServicesLoading(false); });
         return () => { cancelled = true; };
-    }, [draft?.providerId, draft?.serviceId, draft?.specialistId, currentStep, serviceSearchQuery, serviceOffset, locale, resumeChoiceRequired, seedEntryResolved]);
+    }, [draft?.providerId, draft?.specialistId, currentStep, serviceSearchQuery, serviceOffset, locale, resumeChoiceRequired, seedEntryResolved]);
     useEffect(() => {
         if ((!draft?.providerId && !draft?.serviceId && !draft?.specialistId) || !draft?.requiresSpecialist || currentStep !== 1 || resumeChoiceRequired || !seedEntryResolved) {
             return;
@@ -431,9 +494,10 @@ export function BookingWizard() {
         });
         if (draft.providerId) params.set('providerId', draft.providerId);
         if (draft.serviceId) params.set('serviceId', draft.serviceId);
-        if (draft.specialistId) params.set('specialistId', draft.specialistId);
+        // Never pass specialistId: listSpecialists filters `s.id = specialistId`.
         getJson<{
             items: SpecialistCardItem[];
+            total: number;
             hasMore: boolean;
         }>(`/api/booking-pro/catalog/specialists?${params.toString()}`)
             .then((data) => {
@@ -441,11 +505,12 @@ export function BookingWizard() {
                 return;
             setSpecialists((prev) => (specialistOffset === 0 ? data.items : [...prev, ...data.items]));
             setSpecialistHasMore(data.hasMore);
+            setSpecialistTotal(data.total);
         })
             .catch((e) => { if (!cancelled && specialistRequestSeq.current === requestId) setError(e.message); })
             .finally(() => { if (!cancelled && specialistRequestSeq.current === requestId) setSpecialistsLoading(false); });
         return () => { cancelled = true; };
-    }, [draft?.providerId, draft?.serviceId, draft?.specialistId, draft?.requiresSpecialist, currentStep, specialistSearchQuery, specialistOffset, locale, resumeChoiceRequired, seedEntryResolved]);
+    }, [draft?.providerId, draft?.serviceId, draft?.requiresSpecialist, currentStep, specialistSearchQuery, specialistOffset, locale, resumeChoiceRequired, seedEntryResolved]);
     useEffect(() => {
         if (!draft?.serviceId || resumeChoiceRequired)
             return;
@@ -604,9 +669,25 @@ export function BookingWizard() {
         });
         setDraft((prev) => ({ ...(prev as BookingDraftState), ...patch, ...(response.totals ?? {}) }));
     }
-    const chosenProvider = useMemo(() => providers.find((p) => p.id === draft?.providerId), [providers, draft?.providerId]);
-    const chosenService = useMemo(() => services.find((p) => p.id === draft?.serviceId), [services, draft?.serviceId]);
-    const chosenSpecialist = useMemo(() => specialists.find((p) => p.id === draft?.specialistId), [specialists, draft?.specialistId]);
+    // Prefer the resolved entity over the current list page: the list is paginated and
+    // cross-filtered, so a valid selection is routinely absent from it.
+    const chosenProvider = useMemo(() => (resolvedProvider?.id === draft?.providerId ? resolvedProvider : undefined) ?? providers.find((p) => p.id === draft?.providerId), [resolvedProvider, providers, draft?.providerId]);
+    const chosenService = useMemo(() => (resolvedService?.id === draft?.serviceId ? resolvedService : undefined) ?? services.find((p) => p.id === draft?.serviceId), [resolvedService, services, draft?.serviceId]);
+    const chosenSpecialist = useMemo(() => (resolvedSpecialist?.id === draft?.specialistId ? resolvedSpecialist : undefined) ?? specialists.find((p) => p.id === draft?.specialistId), [resolvedSpecialist, specialists, draft?.specialistId]);
+    // Keep the resolved cache in step with whatever the lists learn, so a selection made
+    // from a picker survives the list moving on to another page.
+    useEffect(() => {
+        const found = providers.find((p) => p.id === draft?.providerId);
+        if (found && found.id !== resolvedProvider?.id) setResolvedProvider(found);
+    }, [providers, draft?.providerId, resolvedProvider?.id]);
+    useEffect(() => {
+        const found = services.find((p) => p.id === draft?.serviceId);
+        if (found && found.id !== resolvedService?.id) setResolvedService(found);
+    }, [services, draft?.serviceId, resolvedService?.id]);
+    useEffect(() => {
+        const found = specialists.find((p) => p.id === draft?.specialistId);
+        if (found && found.id !== resolvedSpecialist?.id) setResolvedSpecialist(found);
+    }, [specialists, draft?.specialistId, resolvedSpecialist?.id]);
     const childMap = useMemo(() => Object.fromEntries((draft?.childBookings ?? []).map((child) => [child.providerTypeId, child])), [draft?.childBookings]);
     const allRequiredUploadsPresent = useMemo(() => {
         const requiredIds = uploadRequirements.filter((x) => x.isRequired).map((x) => x.id);
@@ -614,7 +695,96 @@ export function BookingWizard() {
         return requiredIds.every((id) => uploadedIds.has(id));
     }, [uploadRequirements, draft?.uploadFiles]);
     const allChildBookingsCompleted = useMemo(() => addonProviderTypes.every((addon) => !addon.isRequired || childMap[addon.providerTypeId]), [addonProviderTypes, childMap]);
-    const canContinueServiceStep = Boolean(draft?.providerId && draft?.serviceId && (!draft?.requiresSpecialist || draft?.specialistId));
+    function handlePick(slot: SlotKey, patch: Partial<BookingDraftState>) {
+        if (!draft)
+            return;
+        if (slot === 'provider') {
+            setServiceOffset(0);
+            setSpecialistOffset(0);
+            setServiceSearch('');
+            setSpecialistSearch('');
+            setServices([]);
+            setSpecialists([]);
+            setResolvedSpecialist(null);
+            // Always stale: even when the service is carried across, it is a different
+            // provider_services row at the new provider.
+            setResolvedService(null);
+        }
+        if (slot === 'service') {
+            setSpecialistOffset(0);
+            setSpecialistSearch('');
+            setSpecialists([]);
+            setResolvedSpecialist(null);
+            setAvailableDates([]);
+            setTimeSlots([]);
+        }
+        setDraft((prev) => ({ ...(prev as BookingDraftState), ...patch }));
+        patchDraft(patch).catch((e) => setError(e.message));
+    }
+    // Auto-confirm only what is provably the single option. Anything looser — a search that
+    // narrowed to one, a first page of many, a slot the user opened — would be a silent guess
+    // about money.
+    useEffect(() => {
+        if (!draft || currentStep !== 1 || resumeChoiceRequired || !seedEntryResolved)
+            return;
+        const pick = autoSelectId({
+            ready: seedEntryResolved && !providersLoading,
+            loading: providersLoading,
+            search: providerSearchQuery,
+            offset: providerOffset,
+            touched: touchedSlots.provider,
+            options: providers,
+            total: providerTotal,
+            hasMore: providerHasMore,
+            selectedId: draft.providerId,
+        });
+        if (pick) {
+            const item = providers.find((p) => p.id === pick)!;
+            handlePick('provider', cascadeFor('provider', item, draft));
+        }
+    }, [draft?.providerId, draft?.serviceDefinitionId, providers, providerTotal, providerHasMore, providersLoading, providerSearchQuery, providerOffset, touchedSlots.provider, currentStep, resumeChoiceRequired, seedEntryResolved]);
+    useEffect(() => {
+        if (!draft || currentStep !== 1 || resumeChoiceRequired || !seedEntryResolved || !draft.providerId)
+            return;
+        const pick = autoSelectId({
+            ready: seedEntryResolved && !servicesLoading,
+            loading: servicesLoading,
+            search: serviceSearchQuery,
+            offset: serviceOffset,
+            touched: touchedSlots.service,
+            options: services,
+            total: serviceTotal,
+            hasMore: serviceHasMore,
+            selectedId: draft.serviceId,
+        });
+        if (pick) {
+            const item = services.find((p) => p.id === pick)!;
+            handlePick('service', cascadeFor('service', item, draft));
+        }
+    }, [draft?.providerId, draft?.serviceId, services, serviceTotal, serviceHasMore, servicesLoading, serviceSearchQuery, serviceOffset, touchedSlots.service, currentStep, resumeChoiceRequired, seedEntryResolved]);
+    useEffect(() => {
+        // `requiresSpecialist === true`, not truthiness: it is undefined until /service-mode
+        // lands, and auto-selecting then would set a specialistId that the service-mode
+        // handler immediately clears for a service that never needed one.
+        if (!draft || currentStep !== 1 || resumeChoiceRequired || !seedEntryResolved || draft.requiresSpecialist !== true)
+            return;
+        const pick = autoSelectId({
+            ready: seedEntryResolved && !specialistsLoading,
+            loading: specialistsLoading,
+            search: specialistSearchQuery,
+            offset: specialistOffset,
+            touched: touchedSlots.specialist,
+            options: specialists,
+            total: specialistTotal,
+            hasMore: specialistHasMore,
+            selectedId: draft.specialistId,
+        });
+        if (pick) {
+            const item = specialists.find((p) => p.id === pick)!;
+            handlePick('specialist', cascadeFor('specialist', item, draft));
+        }
+    }, [draft?.serviceId, draft?.specialistId, draft?.requiresSpecialist, specialists, specialistTotal, specialistHasMore, specialistsLoading, specialistSearchQuery, specialistOffset, touchedSlots.specialist, currentStep, resumeChoiceRequired, seedEntryResolved]);
+    const canContinueServiceStep = canContinueService({ draft: draft ?? { providerId: null, serviceId: null, specialistId: null, requiresSpecialist: undefined } as any });
     const canContinueScheduleStep = Boolean(draft && (draft.bookingUiMode === 'custom_form'
         ? draft.formSubmissionId
         : draft.bookingUiMode === 'date_range'
@@ -739,6 +909,21 @@ export function BookingWizard() {
             setSubmitting(false);
         }
     }
+    const continueDisabled = (currentStep === 1 && !canContinueServiceStep) ||
+        (currentStep === 2 && !canContinueScheduleStep) ||
+        (currentStep === 3 && !canContinueAddonsStep) ||
+        (currentStep === 4 && !canContinueFilesStep) ||
+        (currentStep === 5 && submitting);
+    function handlePrimaryAction() {
+        if (currentStep === 5) {
+            if (checkoutResult?.bookingId)
+                handleCreatePaymentIntent();
+            else
+                handleCheckout();
+            return;
+        }
+        goNext();
+    }
     if (loadingDraft || !draft) {
         return <div className="min-h-screen bg-slate-50 p-6 text-sm text-slate-500">{tBooking("loadingBooking")}</div>;
     }
@@ -785,36 +970,34 @@ export function BookingWizard() {
         <div className="space-y-6">
           {error ? <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div> : null}
 
-          {currentStep === 1 ? (<div className="space-y-6">
-              <SearchLoadMoreList title={tBooking("providers")} search={providerSearch} onSearchChange={(v) => { setProviderOffset(0); setProviders([]); setProviderHasMore(false); setProviderSearch(v); }} items={providers} hasMore={providerHasMore} emptyText={tBooking("noProvidersFound")} loading={providersLoading} onLoadMore={() => setProviderOffset((x) => x + 3)} renderItem={(item) => (<EntityCard title={item.name} subtitle={[item.city, item.country].filter(Boolean).join(', ')} description={item.description} imageUrl={item.imageUrl} selected={draft.providerId === item.id} featured={Boolean(item.featuredScore || item.isSponsored)} meta={providerMeta(item, tBooking)} onClick={() => {
-                    setServiceOffset(0);
-                    setSpecialistOffset(0);
-                    setServiceSearch('');
-                    setSpecialistSearch('');
-                    setServices([]);
-                    setSpecialists([]);
-                    const patch: Partial<BookingDraftState> = { providerId: item.id, serviceId: null as any, serviceDefinitionId: null as any, specialistId: null as any, selectedDate: null as any, selectedDateFrom: null as any, selectedDateTo: null as any, selectedTime: null as any, selectedTimeFrom: null as any, selectedTimeTo: null as any, currentStep: 1 };
-                    setDraft((prev) => ({ ...(prev as BookingDraftState), ...patch }));
-                    patchDraft(patch).catch((e) => setError(e.message));
-                }}/>)}/>
-
-              {(draft.providerId || draft.serviceId || draft.specialistId) ? (<SearchLoadMoreList title={tBooking("services")} search={serviceSearch} onSearchChange={(v) => { setServiceOffset(0); setServices([]); setServiceHasMore(false); setServiceSearch(v); }} items={services} hasMore={serviceHasMore} emptyText={tBooking("noServicesFound")} loading={servicesLoading} onLoadMore={() => setServiceOffset((x) => x + 3)} renderItem={(item) => (<EntityCard title={item.name} subtitle={`${item.currency} ${item.value}`} description={item.description} imageUrl={item.imageUrl} selected={draft.serviceId === item.id} featured={Boolean(item.isPopular)} meta={serviceMeta(item, tBooking)} onClick={() => {
-                        setSpecialistOffset(0);
-                        setSpecialistSearch('');
-                        setSpecialists([]);
-                        setAvailableDates([]);
-                        setTimeSlots([]);
-                        const patch: Partial<BookingDraftState> = { serviceId: item.id, serviceDefinitionId: item.serviceDefinitionId, specialistId: null as any, requiresSpecialist: item.requiresSpecialist, bookingUiMode: item.bookingUiMode, subtotalAmount: item.value, currency: item.currency, selectedDate: null as any, selectedDateFrom: null as any, selectedDateTo: null as any, selectedTime: null as any, selectedTimeFrom: null as any, selectedTimeTo: null as any };
-                        setDraft((prev) => ({ ...(prev as BookingDraftState), ...patch }));
-                        patchDraft(patch).catch((e) => setError(e.message));
-                    }}/>)}/>) : null}
-
-              {(draft.providerId || draft.serviceId || draft.specialistId) && draft.requiresSpecialist ? (<SearchLoadMoreList title={tBooking("specialists")} search={specialistSearch} onSearchChange={(v) => { setSpecialistOffset(0); setSpecialists([]); setSpecialistHasMore(false); setSpecialistSearch(v); }} items={specialists} hasMore={specialistHasMore} emptyText={tBooking("noSpecialistsFound")} loading={specialistsLoading} onLoadMore={() => setSpecialistOffset((x) => x + 3)} renderItem={(item) => (<EntityCard title={item.name} subtitle={item.title || item.specialty || undefined} description={item.nextAvailableLabel || item.experience || undefined} imageUrl={item.imageUrl} selected={draft.specialistId === item.id} meta={serviceMeta({ rating: item.rating, reviewCount: item.reviewCount, successRate: item.successRate }, tBooking)} onClick={() => {
-                        const patch: Partial<BookingDraftState> = { specialistId: item.id, selectedDate: null as any, selectedDateFrom: null as any, selectedDateTo: null as any, selectedTime: null as any, selectedTimeFrom: null as any, selectedTimeTo: null as any };
-                        setDraft((prev) => ({ ...(prev as BookingDraftState), ...patch }));
-                        patchDraft(patch).catch((e) => setError(e.message));
-                    }}/>)}/>) : null}
-            </div>) : null}
+          {currentStep === 1 ? (<DecisionStack draft={draft} entryResolved={seedEntryResolved} entryFailed={entryFailed} onRetryEntry={() => { setEntryFailed(false); setEntryAttempt((x) => x + 1); }} seeded={{ providerId: seededProviderId, serviceId: seededServiceId, specialistId: seededSpecialistId }} onPick={handlePick} onSlotTouched={(slot) => setTouchedSlots((prev) => ({ ...prev, [slot]: true }))} formatMoney={formatMoney} formatDate={(iso) => formatBookingDate(iso, { locale, calendar })} provider={{
+                items: providers,
+                total: providerTotal,
+                hasMore: providerHasMore,
+                loading: providersLoading || !seedEntryResolved,
+                search: providerSearch,
+                onSearchChange: (v) => { setProviderOffset(0); setProviders([]); setProviderHasMore(false); setProviderSearch(v); },
+                onLoadMore: () => setProviderOffset((x) => x + 8),
+                resolved: chosenProvider ?? null,
+            }} service={{
+                items: services,
+                total: serviceTotal,
+                hasMore: serviceHasMore,
+                loading: servicesLoading || !seedEntryResolved,
+                search: serviceSearch,
+                onSearchChange: (v) => { setServiceOffset(0); setServices([]); setServiceHasMore(false); setServiceSearch(v); },
+                onLoadMore: () => setServiceOffset((x) => x + 8),
+                resolved: chosenService ?? null,
+            }} specialist={{
+                items: specialists,
+                total: specialistTotal,
+                hasMore: specialistHasMore,
+                loading: specialistsLoading || !seedEntryResolved,
+                search: specialistSearch,
+                onSearchChange: (v) => { setSpecialistOffset(0); setSpecialists([]); setSpecialistHasMore(false); setSpecialistSearch(v); },
+                onLoadMore: () => setSpecialistOffset((x) => x + 8),
+                resolved: chosenSpecialist ?? null,
+            }}/>) : null}
 
           {currentStep === 2 ? (<div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-lg">
               <h2 className="mb-4 text-xl font-bold text-slate-900">{tBooking("scheduleAndBookingDetails")}</h2>
@@ -1057,19 +1240,31 @@ export function BookingWizard() {
             </div>
           </div>
 
-          <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg">
+          {/* Desktop keeps the CTA in the rail; mobile gets the sticky bar below. */}
+          <div className="hidden rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg lg:block">
             <div className="mb-4 text-sm font-bold uppercase tracking-wide text-slate-500">{tBooking("continue")}</div>
-            <button type="button" disabled={(currentStep === 1 && !canContinueServiceStep) ||
-            (currentStep === 2 && !canContinueScheduleStep) ||
-            (currentStep === 3 && !canContinueAddonsStep) ||
-            (currentStep === 4 && !canContinueFilesStep) ||
-            (currentStep === 5 && submitting)} onClick={() => currentStep === 5 ? (checkoutResult?.bookingId ? handleCreatePaymentIntent() : handleCheckout()) : goNext()} className={`flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm font-bold shadow-lg ${((currentStep === 1 && !canContinueServiceStep) || (currentStep === 2 && !canContinueScheduleStep) || (currentStep === 3 && !canContinueAddonsStep) || (currentStep === 4 && !canContinueFilesStep) || (currentStep === 5 && submitting)) ? 'bg-slate-200 text-slate-500' : 'bg-[#083f30] text-white'}`}>
+            <button type="button" disabled={continueDisabled} onClick={handlePrimaryAction} className={`flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm font-bold shadow-lg ${continueDisabled ? 'bg-slate-200 text-slate-500' : 'bg-[#083f30] text-white'}`}>
               {currentStep === 5 ? <CreditCard className="h-4 w-4"/> : <ChevronRight className="h-4 w-4"/>}
               {currentStep === 5 ? tBooking('submitCombinedCheckout') : tBooking('continue')}
             </button>
             {currentStep === 3 ? <div className="mt-3 text-xs text-slate-500">{tBooking("requiredAddOnProviderTypesMustBeCompletedBefore")}</div> : null}
           </div>
         </aside>
+      </div>
+
+      {/* The primary action was stranded at the bottom of the page on the very viewport this
+          route is named for. `pb-28` on the page container already reserved the space. */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-5 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-xl lg:hidden">
+        <div className="mx-auto flex max-w-6xl items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] text-slate-500">{tBooking('total')}</div>
+            <div className="truncate text-sm font-bold text-slate-900">{formatMoney(draft.totalAmount ?? ((draft.subtotalAmount ?? 0) + (draft.addonsAmount ?? 0)), draft.currency)}</div>
+          </div>
+          <button type="button" disabled={continueDisabled} onClick={handlePrimaryAction} className={`flex shrink-0 items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-bold shadow-lg ${continueDisabled ? 'bg-slate-200 text-slate-500' : 'bg-[#083f30] text-white'}`}>
+            {currentStep === 5 ? <CreditCard className="h-4 w-4"/> : <ChevronRight className="h-4 w-4"/>}
+            {currentStep === 5 ? tBooking('submitCombinedCheckout') : tBooking('continue')}
+          </button>
+        </div>
       </div>
     </div>);
 }
