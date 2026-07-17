@@ -6484,7 +6484,27 @@ declare const messages: {
     "trainers": "مربیان",
     "transferServices": "خدمات ترانسفر",
     "treatments": "درمان‌ها",
-    "yesCancel": "بله، لغو شود"
+    "yesCancel": "بله، لغو شود",
+    "changeSelection": "تغییر",
+    "onlyOption": "تنها گزینه",
+    "chooseProvider": "ارائه‌دهنده را انتخاب کنید",
+    "chooseService": "خدمت را انتخاب کنید",
+    "chooseSpecialist": "متخصص را انتخاب کنید",
+    "providersOfferingThisService": "ارائه‌دهندگانی که همین خدمت را ارائه می‌دهند",
+    "optionCount": "{count} گزینه",
+    "searchAmong": "جستجو میان {count} گزینه...",
+    "clearSearch": "پاک کردن جستجو",
+    "noSearchResults": "نتیجه‌ای برای «{query}» پیدا نشد",
+    "showMoreCount": "نمایش {count} مورد دیگر",
+    "changeWillResetTitle": "این تغییر انتخاب‌های بعدی را پاک می‌کند",
+    "changeWillResetSubtitle": "موارد زیر باید دوباره انتخاب شوند.",
+    "changeAnyway": "به هر حال تغییر بده",
+    "keepCurrent": "همین بماند",
+    "formAnswers": "پاسخ‌های فرم",
+    "entryResolveFailedTitle": "این خدمت بارگذاری نشد",
+    "entryResolveFailedSubtitle": "لینکی که باز کردید خدمت مشخصی را نشان می‌داد، اما نتوانستیم آن را بخوانیم. دوباره تلاش کنید.",
+    "retry": "تلاش دوباره",
+    "close": "بستن"
   },
   "MobileProfile": {
     "common": {

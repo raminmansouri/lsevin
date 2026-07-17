@@ -708,7 +708,27 @@ declare const messages: {
     "trainers": "Trainers",
     "transferServices": "Transfer services",
     "treatments": "Treatments",
-    "yesCancel": "Yes, cancel"
+    "yesCancel": "Yes, cancel",
+    "changeSelection": "Change",
+    "onlyOption": "Only option",
+    "chooseProvider": "Choose a provider",
+    "chooseService": "Choose a service",
+    "chooseSpecialist": "Choose a specialist",
+    "providersOfferingThisService": "Providers offering this same service",
+    "optionCount": "{count} options",
+    "searchAmong": "Search {count} options...",
+    "clearSearch": "Clear search",
+    "noSearchResults": "No results for “{query}”",
+    "showMoreCount": "Show {count} more",
+    "changeWillResetTitle": "This change clears later choices",
+    "changeWillResetSubtitle": "You will need to pick these again.",
+    "changeAnyway": "Change anyway",
+    "keepCurrent": "Keep current",
+    "formAnswers": "Form answers",
+    "entryResolveFailedTitle": "Could not load this service",
+    "entryResolveFailedSubtitle": "The link you opened pointed at a specific service, but we could not read it. Please try again.",
+    "retry": "Try again",
+    "close": "Close"
   },
   "Explore": {
     "header": {

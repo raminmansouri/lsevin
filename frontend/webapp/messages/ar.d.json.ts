@@ -708,7 +708,27 @@ declare const messages: {
     "trainers": "المدربون",
     "transferServices": "خدمات النقل",
     "treatments": "العلاجات",
-    "yesCancel": "نعم، إلغاء"
+    "yesCancel": "نعم، إلغاء",
+    "changeSelection": "تغيير",
+    "onlyOption": "الخيار الوحيد",
+    "chooseProvider": "اختر مقدّم الخدمة",
+    "chooseService": "اختر الخدمة",
+    "chooseSpecialist": "اختر الأخصائي",
+    "providersOfferingThisService": "مقدّمو الخدمة الذين يقدّمون الخدمة نفسها",
+    "optionCount": "{count} خيارات",
+    "searchAmong": "ابحث بين {count} خيارًا...",
+    "clearSearch": "مسح البحث",
+    "noSearchResults": "لا توجد نتائج لـ «{query}»",
+    "showMoreCount": "عرض {count} إضافية",
+    "changeWillResetTitle": "هذا التغيير يمسح الاختيارات اللاحقة",
+    "changeWillResetSubtitle": "ستحتاج إلى اختيارها من جديد.",
+    "changeAnyway": "غيّر على أي حال",
+    "keepCurrent": "أبقِ الحالي",
+    "formAnswers": "إجابات النموذج",
+    "entryResolveFailedTitle": "تعذّر تحميل هذه الخدمة",
+    "entryResolveFailedSubtitle": "الرابط الذي فتحته يشير إلى خدمة محدّدة، لكن تعذّرت قراءتها. حاول مرة أخرى.",
+    "retry": "أعد المحاولة",
+    "close": "إغلاق"
   },
   "Explore": {
     "header": {

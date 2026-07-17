@@ -422,14 +422,18 @@ export function BookingWizard() {
             locale,
             search: providerSearchQuery,
             offset: String(providerOffset),
-            take: '3',
+            take: '8',
         });
         // Never pass providerId — a list filtered by its own selection can only return the
         // item you are trying to replace. Filter by the service *definition* rather than the
         // provider_services row, which belongs to exactly one provider and would collapse
         // this list to a single option by construction.
         if (draft.serviceDefinitionId) params.set('serviceDefinitionId', draft.serviceDefinitionId);
-        if (draft.specialistId) params.set('specialistId', draft.specialistId);
+        // Only a *seeded* specialist narrows the providers: the cascade runs
+        // provider -> service -> specialist, so filtering this list by a specialist chosen
+        // downstream would let an auto-selected staff member silently lock out every other
+        // clinic. A seeded one is the visitor's stated intent, so it counts.
+        if (seededSpecialistId) params.set('specialistId', seededSpecialistId);
         getJson<{
             items: ProviderCardItem[];
             total: number;
@@ -445,7 +449,7 @@ export function BookingWizard() {
             .catch((e) => { if (!cancelled && providerRequestSeq.current === requestId) setError(e.message); })
             .finally(() => { if (!cancelled && providerRequestSeq.current === requestId) setProvidersLoading(false); });
         return () => { cancelled = true; };
-    }, [draft?.id, draft?.serviceDefinitionId, draft?.specialistId, currentStep, providerSearchQuery, providerOffset, locale, resumeChoiceRequired, seedEntryResolved]);
+    }, [draft?.id, draft?.serviceDefinitionId, seededSpecialistId, currentStep, providerSearchQuery, providerOffset, locale, resumeChoiceRequired, seedEntryResolved]);
     useEffect(() => {
         if ((!draft?.providerId && !draft?.serviceId && !draft?.specialistId) || currentStep !== 1 || resumeChoiceRequired || !seedEntryResolved) {
             return;
@@ -457,12 +461,13 @@ export function BookingWizard() {
             locale,
             search: serviceSearchQuery,
             offset: String(serviceOffset),
-            take: '3',
+            take: '8',
         });
         if (draft.providerId) params.set('providerId', draft.providerId);
         // Never pass serviceId: repository.listServices filters `ps.id = serviceId`, which
         // would return only the service the user is trying to change away from.
-        if (draft.specialistId) params.set('specialistId', draft.specialistId);
+        // Specialist is downstream of service — only a seeded one narrows this list.
+        if (seededSpecialistId) params.set('specialistId', seededSpecialistId);
         getJson<{
             items: ServiceCardItem[];
             total: number;
@@ -478,7 +483,7 @@ export function BookingWizard() {
             .catch((e) => { if (!cancelled && serviceRequestSeq.current === requestId) setError(e.message); })
             .finally(() => { if (!cancelled && serviceRequestSeq.current === requestId) setServicesLoading(false); });
         return () => { cancelled = true; };
-    }, [draft?.providerId, draft?.specialistId, currentStep, serviceSearchQuery, serviceOffset, locale, resumeChoiceRequired, seedEntryResolved]);
+    }, [draft?.providerId, seededSpecialistId, currentStep, serviceSearchQuery, serviceOffset, locale, resumeChoiceRequired, seedEntryResolved]);
     useEffect(() => {
         if ((!draft?.providerId && !draft?.serviceId && !draft?.specialistId) || !draft?.requiresSpecialist || currentStep !== 1 || resumeChoiceRequired || !seedEntryResolved) {
             return;
@@ -490,7 +495,7 @@ export function BookingWizard() {
             locale,
             search: specialistSearchQuery,
             offset: String(specialistOffset),
-            take: '3',
+            take: '8',
         });
         if (draft.providerId) params.set('providerId', draft.providerId);
         if (draft.serviceId) params.set('serviceId', draft.serviceId);
@@ -946,7 +951,8 @@ export function BookingWizard() {
         </div>
       </div>);
     }
-    return (<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 pb-28">
+    // pb clears the sticky action bar *and* the global BottomTabBar stacked beneath it.
+    return (<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 pb-44 lg:pb-10">
       <div className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
         <div className="mx-auto max-w-6xl px-5 py-4">
           <div className="mb-4 flex items-center gap-3">
@@ -967,7 +973,9 @@ export function BookingWizard() {
       </div>
 
       <div className="mx-auto grid max-w-6xl gap-6 px-5 py-6 lg:grid-cols-[1fr_360px]">
-        <div className="space-y-6">
+        {/* min-w-0: grid items default to min-width:auto, so a single unshrinkable descendant
+            widens the whole column and scrolls the page sideways. */}
+        <div className="min-w-0 space-y-6">
           {error ? <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div> : null}
 
           {currentStep === 1 ? (<DecisionStack draft={draft} entryResolved={seedEntryResolved} entryFailed={entryFailed} onRetryEntry={() => { setEntryFailed(false); setEntryAttempt((x) => x + 1); }} seeded={{ providerId: seededProviderId, serviceId: seededServiceId, specialistId: seededSpecialistId }} onPick={handlePick} onSlotTouched={(slot) => setTouchedSlots((prev) => ({ ...prev, [slot]: true }))} formatMoney={formatMoney} formatDate={(iso) => formatBookingDate(iso, { locale, calendar })} provider={{
@@ -1218,8 +1226,10 @@ export function BookingWizard() {
             </div>) : null}
         </div>
 
-        <aside className="space-y-4">
-          <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg">
+        <aside className="min-w-0 space-y-4">
+          {/* On mobile the decision rows already state the selections and the sticky bar
+              carries the total, so this rail would only repeat them below the fold. */}
+          <div className="hidden rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg lg:block">
             <div className="mb-4 flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#eacb7f] text-[#083f30]"><ShieldCheck className="h-5 w-5"/></div>
               <div>
@@ -1253,8 +1263,10 @@ export function BookingWizard() {
       </div>
 
       {/* The primary action was stranded at the bottom of the page on the very viewport this
-          route is named for. `pb-28` on the page container already reserved the space. */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-5 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-xl lg:hidden">
+          route is named for. Sits at bottom-20 to clear the global BottomTabBar
+          (mobile-components.tsx:24 — fixed bottom-0, 77px tall, z-50), which would otherwise
+          cover it exactly. */}
+      <div className="fixed inset-x-0 bottom-20 z-40 border-y border-slate-200 bg-white/95 px-5 py-3 backdrop-blur-xl lg:hidden">
         <div className="mx-auto flex max-w-6xl items-center gap-3">
           <div className="min-w-0 flex-1">
             <div className="text-[11px] text-slate-500">{tBooking('total')}</div>

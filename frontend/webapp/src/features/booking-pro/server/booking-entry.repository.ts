@@ -157,11 +157,19 @@ export async function resolveBookingEntry(input: {
       coalesce(nullif(ps.currency, ''), nullif(sd.currency, ''), 'USD') as currency
     from category.provider_services ps
     left join category.service_definitions sd on sd.id = ps.service_definition_id
-    left join category.staff_services ss on ss.service_definition_id = ps.service_definition_id
     where ps.is_active = true
       and (${providerId}::uuid is null or ps.service_provider_id = ${providerId}::uuid)
       and (${serviceId}::uuid is null or ps.id = ${serviceId}::uuid)
-      and (${specialistId}::uuid is null or ss.staff_id = ${specialistId}::uuid)
+      and (
+        ${specialistId}::uuid is null
+        or exists (
+          select 1
+          from category.staff_services ss
+          where ss.service_definition_id = ps.service_definition_id
+            and ss.staff_id = ${specialistId}::uuid
+            and ss.is_active = true
+        )
+      )
     order by ps.is_popular desc nulls last, ps.rating desc nulls last, ps.create_date desc
     limit 50
   `;
