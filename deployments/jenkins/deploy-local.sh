@@ -6,74 +6,119 @@ set -Eeuo pipefail
 
 SOURCE_DIR="${WORKSPACE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 APP_DIR="${APP_DIR:-/opt/lsevin/app}"
-DOCKER_DIR="${APP_DIR}/deployments/docker"
-ENV_FILE="${DOCKER_DIR}/.env"
-COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-docker}"
+PROD_ENV_FILE="${PROD_ENV_FILE:-/etc/lsevin/projects/lsevin-main.env}"
+COMPOSE_FILE="${COMPOSE_FILE:-deployments/docker/docker-compose.server.yml}"
+COMPOSE_PROJECT="${COMPOSE_PROJECT:-docker}"
+DEPLOY_BRANCH="${DEPLOY_BRANCH:-Lsevin-New}"
+
+SOURCE_COMPOSE_FILE="${SOURCE_DIR}/${COMPOSE_FILE}"
+LIVE_COMPOSE_FILE="${APP_DIR}/${COMPOSE_FILE}"
+ENV_FILE="${PROD_ENV_FILE}"
+COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT}"
+
 BACKUP_DIR="${LSEVIN_BACKUP_DIR:-/opt/lsevin/backups}/predeploy"
 LOCK_FILE="${LSEVIN_DEPLOY_LOCK:-/opt/lsevin/jenkins/deploy.lock}"
-DEPLOY_BRANCH="${DEPLOY_BRANCH:-Lsevin-New}"
-TIMESTAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 RELEASE_ROOT="${LSEVIN_RELEASE_ROOT:-/opt/lsevin/releases}"
+TIMESTAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 
-say() { printf '\n=== %s ===\n' "$*"; }
-fail() { echo "ERROR: $*" >&2; exit 1; }
-
-command -v git >/dev/null || fail 'git is required.'
-command -v rsync >/dev/null || fail 'rsync is required.'
-command -v docker >/dev/null || fail 'docker is required.'
-command -v flock >/dev/null || fail 'flock is required.'
-command -v curl >/dev/null || fail 'curl is required.'
-docker compose version >/dev/null || fail 'Docker Compose plugin is required.'
-
-CURRENT_BRANCH="${BRANCH_NAME:-${GIT_BRANCH:-}}"
-CURRENT_BRANCH="${CURRENT_BRANCH#origin/}"
-CURRENT_BRANCH="${CURRENT_BRANCH#remotes/origin/}"
-if [[ -z "${CURRENT_BRANCH}" || "${CURRENT_BRANCH}" == "HEAD" ]]; then
-  CURRENT_BRANCH="$(git -C "${SOURCE_DIR}" branch --show-current)"
-fi
-[[ "${CURRENT_BRANCH}" == "${DEPLOY_BRANCH}" ]] || fail "Refusing deployment from ${CURRENT_BRANCH:-unknown}; expected ${DEPLOY_BRANCH}."
-
-mkdir -p "$(dirname "${LOCK_FILE}")" "${APP_DIR}" "${BACKUP_DIR}"
-exec 9>"${LOCK_FILE}"
-flock -n 9 || fail 'Another LSevin deployment is already running.'
-
-# The live secret file is never copied from Git/Jenkins workspace.
-[[ -f "${ENV_FILE}" ]] || fail "Missing production secrets file: ${ENV_FILE}. Copy .env.example once and fill it manually."
-
-env_value() {
-  local key="$1"
-  awk -F= -v key="${key}" '$1 == key {sub(/^[^=]*=/, ""); value=$0} END {print value}' "${ENV_FILE}"
+say() {
+  printf '\n=== %s ===\n' "$*"
 }
+
+fail() {
+  echo "ERROR: $*" >&2
+  exit 1
+}
+
+for required_command in git rsync docker flock curl realpath gzip stat awk; do
+  command -v "${required_command}" >/dev/null \
+    || fail "${required_command} is required."
+done
+
+docker compose version >/dev/null \
+  || fail 'Docker Compose plugin is required.'
+
+[[ -d "${SOURCE_DIR}/.git" ]] \
+  || fail "Jenkins checkout is missing: ${SOURCE_DIR}"
+
+[[ -r "${ENV_FILE}" ]] \
+  || fail "Production environment file is missing or unreadable: ${ENV_FILE}"
+
+[[ -f "${SOURCE_COMPOSE_FILE}" ]] \
+  || fail "Compose file is missing from Jenkins checkout: ${SOURCE_COMPOSE_FILE}"
 
 GIT_SHA="$(git -C "${SOURCE_DIR}" rev-parse HEAD)"
 SHORT_SHA="$(git -C "${SOURCE_DIR}" rev-parse --short=12 HEAD)"
+EXPECTED_SHA="$(git -C "${SOURCE_DIR}" rev-parse "origin/${DEPLOY_BRANCH}")"
+
+printf 'Checked-out commit: %s\n' "${GIT_SHA}"
+printf 'Expected commit:    %s\n' "${EXPECTED_SHA}"
+printf 'Deployment branch:  %s\n' "${DEPLOY_BRANCH}"
+
+[[ "${GIT_SHA}" == "${EXPECTED_SHA}" ]] \
+  || fail "HEAD does not match origin/${DEPLOY_BRANCH}."
+
+mkdir -p "$(dirname "${LOCK_FILE}")" "${APP_DIR}" "${BACKUP_DIR}" "${RELEASE_ROOT}"
+exec 9>"${LOCK_FILE}"
+flock -n 9 || fail 'Another LSevin deployment is already running.'
+
+env_value() {
+  local key="$1"
+
+  awk -F= -v key="${key}" '
+    $1 == key {
+      sub(/^[^=]*=/, "")
+      value=$0
+    }
+    END {
+      print value
+    }
+  ' "${ENV_FILE}"
+}
+
 UPLOADS_DIR="${LSEVIN_UPLOADS_DIR:-$(env_value LSEVIN_UPLOADS_DIR)}"
 UPLOADS_DIR="${UPLOADS_DIR:-/var/lib/lsevin/uploads}"
 UPLOAD_BACKUP_DIR="${LSEVIN_UPLOAD_BACKUP_DIR:-$(env_value LSEVIN_UPLOAD_BACKUP_DIR)}"
 UPLOAD_BACKUP_DIR="${UPLOAD_BACKUP_DIR:-/var/backups/lsevin/uploads}"
+
 UPLOADS_REAL="$(realpath -m "${UPLOADS_DIR}")"
 APP_REAL="$(realpath -m "${APP_DIR}")"
 SOURCE_REAL="$(realpath -m "${SOURCE_DIR}")"
+
 case "${UPLOADS_REAL}/" in
-  "${APP_REAL}/"*|"${SOURCE_REAL}/"*|/var/lib/jenkins/*)
+  "${APP_REAL}/"*|"${SOURCE_REAL}/"*|/var/lib/jenkins/*|/var/jenkins_home/*)
     fail "LSEVIN_UPLOADS_DIR must be outside all Git/Jenkins directories: ${UPLOADS_REAL}"
     ;;
 esac
-[[ -d "${UPLOADS_REAL}" ]] || fail "Stable upload directory is missing: ${UPLOADS_REAL}. Run migrate-upload-storage.sh first."
-mkdir -p "${RELEASE_ROOT}"
+
+[[ -d "${UPLOADS_REAL}" ]] \
+  || fail "Stable upload directory is missing: ${UPLOADS_REAL}. Run migrate-upload-storage.sh first."
+
+source_compose() {
+  docker compose \
+    --project-name "${COMPOSE_PROJECT_NAME}" \
+    --env-file "${ENV_FILE}" \
+    --file "${SOURCE_COMPOSE_FILE}" \
+    "$@"
+}
 
 compose() {
   docker compose \
     --project-name "${COMPOSE_PROJECT_NAME}" \
     --env-file "${ENV_FILE}" \
-    -f "${DOCKER_DIR}/docker-compose.server.yml" \
+    --file "${LIVE_COMPOSE_FILE}" \
     "$@"
 }
 
 rollback_tag() {
-  local service="$1" image_name="$2" container_id image_id
+  local service="$1"
+  local image_name="$2"
+  local container_id
+  local image_id
+
   container_id="$(compose ps -q "${service}" 2>/dev/null || true)"
   [[ -n "${container_id}" ]] || return 0
+
   image_id="$(docker inspect --format '{{.Image}}' "${container_id}")"
   docker image tag "${image_id}" "${image_name}:rollback-${TIMESTAMP}"
   echo "Saved rollback image ${image_name}:rollback-${TIMESTAMP}"
@@ -81,23 +126,33 @@ rollback_tag() {
 
 say 'Preflight'
 docker info >/dev/null
-compose config --quiet
+source_compose config --quiet
 printf 'Commit: %s\n' "${GIT_SHA}"
-printf 'Branch: %s\n' "${CURRENT_BRANCH}"
+printf 'Branch: %s\n' "${DEPLOY_BRANCH}"
+printf 'Environment file: %s\n' "${ENV_FILE}"
+printf 'Compose file: %s\n' "${SOURCE_COMPOSE_FILE}"
 printf 'Stable uploads: %s\n' "${UPLOADS_REAL}"
+printf 'Upload backups: %s\n' "${UPLOAD_BACKUP_DIR}"
 
 say 'Snapshot uploaded media before deployment'
 [[ -x /usr/local/sbin/lsevin-upload-backup ]] \
   || fail 'Upload backup command is missing. Run the Ansible media playbook first.'
-MEDIA_BACKUP_OUTPUT="$(sudo -n /usr/local/sbin/lsevin-upload-backup "predeploy-${SHORT_SHA}")"
+
+MEDIA_BACKUP_OUTPUT="$(
+  sudo -n /usr/local/sbin/lsevin-upload-backup "predeploy-${SHORT_SHA}"
+)"
 printf '%s\n' "${MEDIA_BACKUP_OUTPUT}"
-MEDIA_SNAPSHOT="$(awk -F= '$1 == "SNAPSHOT" {print $2}' <<<"${MEDIA_BACKUP_OUTPUT}" | tail -1)"
+
+MEDIA_SNAPSHOT="$(
+  awk -F= '$1 == "SNAPSHOT" {print $2}' <<<"${MEDIA_BACKUP_OUTPUT}" | tail -1
+)"
+
 [[ -n "${MEDIA_SNAPSHOT}" && -d "${MEDIA_SNAPSHOT}" ]] \
   || fail 'Media backup did not return a verified snapshot path.'
 
 say 'Synchronize repository to the stable production directory'
 # Running containers continue using their current images during this file sync.
-# The live .env and GeoIP database are intentionally preserved on the server.
+# Production secrets and GeoIP data are intentionally kept outside Git changes.
 rsync -a --delete \
   --exclude='.git/' \
   --exclude='node_modules/' \
@@ -116,12 +171,17 @@ rsync -a --delete \
   --exclude='.env.*.local' \
   "${SOURCE_DIR}/" "${APP_DIR}/"
 
-[[ -f "${ENV_FILE}" ]] || fail 'Production .env disappeared after synchronization; deployment stopped.'
+[[ -r "${ENV_FILE}" ]] \
+  || fail "Production environment file disappeared or became unreadable: ${ENV_FILE}"
+
+[[ -f "${LIVE_COMPOSE_FILE}" ]] \
+  || fail "Live Compose file was not synchronized: ${LIVE_COMPOSE_FILE}"
+
 compose config --quiet
 
 say 'Build production images while current containers continue serving traffic'
-# A failed build stops here before any database migration or container replacement.
-compose build --pull lsevin-api lsevin-webapp caddy
+# Do not use --pull or --no-cache here. Normal source changes should reuse Docker cache.
+compose build lsevin-api lsevin-webapp caddy
 
 say 'Tag immutable images for commit rollback'
 docker image tag lsevin-api:server "lsevin-api:release-${SHORT_SHA}"
@@ -129,22 +189,32 @@ docker image tag lsevin-webapp:server "lsevin-webapp:release-${SHORT_SHA}"
 docker image tag lsevin-caddy:geoip "lsevin-caddy:release-${SHORT_SHA}"
 
 say 'Verify Ansible-managed stateful dependencies'
-# Never let an application commit recreate PostgreSQL/PgBouncer. Ansible owns
-# their image, config, host tuning, and backup lifecycle. --no-recreate starts a
-# missing service but leaves a running stateful container unchanged.
-compose up -d --no-recreate postgres pgbouncer redis eventstore postgres-exporter pgbouncer-exporter
+# Application deployments must not recreate PostgreSQL or PgBouncer.
+compose up -d --no-recreate \
+  postgres \
+  pgbouncer \
+  redis \
+  eventstore \
+  postgres-exporter \
+  pgbouncer-exporter
+
 for service in postgres pgbouncer; do
   container_id="$(compose ps -q "${service}")"
-  [[ -n "${container_id}" ]] || fail "${service} is not running. Run the Ansible database playbook first."
+  [[ -n "${container_id}" ]] \
+    || fail "${service} is not running. Run the Ansible database playbook first."
 done
 
 say 'Database backup before migration/deployment'
 BACKUP_FILE="${BACKUP_DIR}/predeploy-${TIMESTAMP}.sql.gz"
+
 compose exec -T postgres sh -lc \
   'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner --no-privileges' \
   | gzip -9 > "${BACKUP_FILE}"
+
 BACKUP_SIZE="$(stat -c '%s' "${BACKUP_FILE}")"
-[[ "${BACKUP_SIZE}" -ge 10240 ]] || fail "Database backup is unexpectedly small (${BACKUP_SIZE} bytes): ${BACKUP_FILE}"
+[[ "${BACKUP_SIZE}" -ge 10240 ]] \
+  || fail "Database backup is unexpectedly small (${BACKUP_SIZE} bytes): ${BACKUP_FILE}"
+
 gzip -t "${BACKUP_FILE}"
 echo "Backup created: ${BACKUP_FILE} (${BACKUP_SIZE} bytes)"
 
@@ -157,6 +227,7 @@ say 'Apply idempotent SQL migrations'
 if compgen -G "${SOURCE_DIR}/scripts/sql/*.sql" >/dev/null; then
   for migration in "${SOURCE_DIR}"/scripts/sql/*.sql; do
     echo "Applying $(basename "${migration}")"
+
     compose exec -T postgres sh -lc \
       'psql -q -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"' \
       < "${migration}"
@@ -172,29 +243,46 @@ compose up -d --no-deps caddy
 
 say 'Wait for backend readiness'
 for attempt in $(seq 1 30); do
-  if compose exec -T caddy wget -qO- http://lsevin-api:8080/readiness >/dev/null 2>&1; then
+  if compose exec -T caddy \
+    wget -qO- http://lsevin-api:8080/readiness >/dev/null 2>&1; then
     echo 'API is ready.'
     break
   fi
+
   if [[ "${attempt}" -eq 30 ]]; then
     compose ps
     compose logs --tail=150 lsevin-api
     fail 'API readiness check did not pass.'
   fi
+
   sleep 2
 done
 
 say 'Public health checks'
-APP_DOMAIN="$(grep -E '^APP_DOMAIN=' "${ENV_FILE}" | tail -1 | cut -d= -f2- || true)"
-API_DOMAIN="$(grep -E '^API_DOMAIN=' "${ENV_FILE}" | tail -1 | cut -d= -f2- || true)"
+APP_DOMAIN="$(env_value APP_DOMAIN)"
+API_DOMAIN="$(env_value API_DOMAIN)"
 APP_DOMAIN="${APP_DOMAIN:-appmain.lsevin.com}"
 API_DOMAIN="${API_DOMAIN:-api.lsevin.com}"
 
 check_url() {
-  local url="$1" expected_pattern="$2" code
-  code="$(curl --silent --show-error --location --max-time 30 --output /dev/null --write-out '%{http_code}' "${url}")"
+  local url="$1"
+  local expected_pattern="$2"
+  local code
+
+  code="$(
+    curl \
+      --silent \
+      --show-error \
+      --location \
+      --max-time 30 \
+      --output /dev/null \
+      --write-out '%{http_code}' \
+      "${url}"
+  )"
+
   echo "${code}  ${url}"
-  [[ "${code}" =~ ${expected_pattern} ]] || fail "Unexpected HTTP status ${code} for ${url}"
+  [[ "${code}" =~ ${expected_pattern} ]] \
+    || fail "Unexpected HTTP status ${code} for ${url}"
 }
 
 check_url "https://${API_DOMAIN}/readiness" '^(200)$'
@@ -203,12 +291,15 @@ check_url "https://${APP_DOMAIN}/fa" '^(200|301|302|307|308)$'
 say 'Record stable release'
 RELEASE_DIR="${RELEASE_ROOT}/${TIMESTAMP}-${SHORT_SHA}"
 install -d -m 2775 "${RELEASE_DIR}"
-git -C "${SOURCE_DIR}" archive --format=tar "${GIT_SHA}" | gzip -9 > "${RELEASE_DIR}/source.tar.gz"
+
+git -C "${SOURCE_DIR}" archive --format=tar "${GIT_SHA}" \
+  | gzip -9 > "${RELEASE_DIR}/source.tar.gz"
+
 cat > "${RELEASE_DIR}/release.env" <<RELEASE
 STATUS=stable
 COMMIT=${GIT_SHA}
 SHORT_COMMIT=${SHORT_SHA}
-BRANCH=${CURRENT_BRANCH}
+BRANCH=${DEPLOY_BRANCH}
 DEPLOYED_UTC=${TIMESTAMP}
 API_IMAGE=lsevin-api:release-${SHORT_SHA}
 WEBAPP_IMAGE=lsevin-webapp:release-${SHORT_SHA}
@@ -216,6 +307,7 @@ CADDY_IMAGE=lsevin-caddy:release-${SHORT_SHA}
 DATABASE_BACKUP=${BACKUP_FILE}
 MEDIA_SNAPSHOT=${MEDIA_SNAPSHOT}
 RELEASE
+
 ln -sfn "$(basename "${RELEASE_DIR}")" "${RELEASE_ROOT}/current"
 
 say 'Deployment complete'
@@ -225,5 +317,10 @@ printf 'Database backup: %s\n' "${BACKUP_FILE}"
 printf 'Media snapshot: %s\n' "${MEDIA_SNAPSHOT}"
 printf 'Stable release: %s\n' "${RELEASE_DIR}"
 
-# Keep a practical rolling history without allowing unattended backups to fill disk.
-find "${BACKUP_DIR}" -maxdepth 1 -type f -name 'predeploy-*.sql.gz' -mtime +30 -delete
+# Keep a practical rolling history without allowing backups to fill the disk.
+find "${BACKUP_DIR}" \
+  -maxdepth 1 \
+  -type f \
+  -name 'predeploy-*.sql.gz' \
+  -mtime +30 \
+  -delete
