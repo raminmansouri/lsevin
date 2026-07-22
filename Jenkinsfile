@@ -2,6 +2,7 @@ pipeline {
   agent any
 
   options {
+    skipDefaultCheckout(true)
     disableConcurrentBuilds()
     timestamps()
     buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '10'))
@@ -28,7 +29,7 @@ pipeline {
 
     stage('Validate') {
       steps {
-        sh './deployments/jenkins/validate.sh'
+        sh 'bash  ./deployments/jenkins/validate.sh'
       }
     }
 
