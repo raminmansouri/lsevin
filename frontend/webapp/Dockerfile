@@ -26,6 +26,14 @@ FROM base AS dependencies
 # layer, so Docker can reuse node_modules when package files did not change.
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
+
+# Print the actual pnpm version and workspace configuration in Jenkins.
+# This prevents us from guessing which file Docker received.
+RUN pnpm --version && \
+    echo "----- pnpm-workspace.yaml -----" && \
+    cat pnpm-workspace.yaml && \
+    echo "-------------------------------"
+    
 # The cache mount preserves downloaded pnpm packages even if this RUN layer must
 # execute again. --frozen-lockfile prevents Docker from silently changing the
 # dependency graph during a production build.
