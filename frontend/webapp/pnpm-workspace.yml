@@ -1,0 +1,10 @@
+# pnpm 11 blocks dependency install scripts unless they are explicitly reviewed.
+#
+# These packages are required by the current Next.js build and are intentionally
+# permitted to execute their install/build scripts.
+
+allowBuilds:
+  "@tailwindcss/oxide": true
+  esbuild: true
+  sharp: true
+  unrs-resolver: true

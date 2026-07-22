@@ -24,7 +24,7 @@ FROM base AS dependencies
 
 # Copy only dependency files first. Source-code changes do not invalidate this
 # layer, so Docker can reuse node_modules when package files did not change.
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # The cache mount preserves downloaded pnpm packages even if this RUN layer must
 # execute again. --frozen-lockfile prevents Docker from silently changing the
