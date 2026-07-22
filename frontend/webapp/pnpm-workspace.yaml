@@ -1,5 +1,16 @@
+# pnpm 11 project configuration.
+
+# Fail the build if a new dependency introduces an unreviewed install script.
+strictDepBuilds: true
+
+# Preserve the Vite override that was previously stored in package.json.
+overrides:
+  vite: 6.3.5
+
+# These dependencies are reviewed and permitted to run their native
+# install/postinstall build scripts.
 allowBuilds:
-  '@tailwindcss/oxide': set this to true or false
-  esbuild: set this to true or false
-  sharp: set this to true or false
-  unrs-resolver: set this to true or false
+  "@tailwindcss/oxide": true
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
