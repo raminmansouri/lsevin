@@ -1,0 +1,127 @@
+---
+- name: Detect an existing Docker CLI
+  ansible.builtin.shell: command -v docker
+  args:
+    executable: /bin/bash
+  register: existing_docker_cli
+  changed_when: false
+  failed_when: false
+
+- name: Verify the existing Docker daemon is healthy
+  ansible.builtin.command: docker info
+  register: existing_docker_engine
+  changed_when: false
+  failed_when: false
+  when: existing_docker_cli.rc == 0
+
+- name: Stop when an installed Docker daemon is not healthy
+  ansible.builtin.assert:
+    that:
+      - existing_docker_engine.rc == 0
+    fail_msg: >-
+      Docker is installed but its daemon is not healthy. Start or repair Docker
+      before rerunning Ansible. The playbook refuses to replace a live installation.
+  when: existing_docker_cli.rc == 0
+
+- name: Detect the Docker Compose v2 plugin
+  ansible.builtin.command: docker compose version --short
+  register: existing_docker_compose
+  changed_when: false
+  failed_when: false
+  when: existing_docker_cli.rc == 0
+
+- name: Stop when Docker exists without Compose v2
+  ansible.builtin.assert:
+    that:
+      - existing_docker_compose.rc == 0
+    fail_msg: >-
+      Docker Engine is already installed, but `docker compose` is unavailable.
+      Install the Compose v2 plugin for the existing Docker installation before
+      rerunning Ansible. The playbook refuses to replace a live Docker installation.
+  when: existing_docker_cli.rc == 0
+
+- name: Remove packages that conflict with Docker CE on a fresh Docker installation
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - docker-compose
+      - docker-compose-v2
+      - docker-doc
+      - podman-docker
+      - containerd
+      - runc
+    state: absent
+  when: existing_docker_cli.rc != 0
+
+- name: Create apt keyring directory
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+  when: existing_docker_cli.rc != 0
+
+- name: Install Docker repository key
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: "0644"
+  when: existing_docker_cli.rc != 0
+
+- name: Read dpkg architecture
+  ansible.builtin.command: dpkg --print-architecture
+  changed_when: false
+  register: docker_dpkg_arch
+  when: existing_docker_cli.rc != 0
+
+- name: Configure Docker apt repository
+  ansible.builtin.apt_repository:
+    repo: >-
+      deb [arch={{ docker_dpkg_arch.stdout }}
+      signed-by=/etc/apt/keyrings/docker.asc]
+      https://download.docker.com/linux/ubuntu
+      {{ ansible_distribution_release }} stable
+    filename: docker
+    state: present
+    update_cache: true
+  when: existing_docker_cli.rc != 0
+
+- name: Install Docker Engine and Compose plugin
+  ansible.builtin.apt:
+    name:
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-ce
+      - docker-ce-cli
+      - docker-compose-plugin
+    state: present
+  when: existing_docker_cli.rc != 0
+
+- name: Configure Docker daemon
+  ansible.builtin.template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    mode: "0644"
+    backup: true
+  notify: Restart docker
+
+- name: Ensure Docker service is enabled
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Check requested Docker users
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ item }}"
+    fail_key: false
+  loop: "{{ lsevin_docker_users }}"
+  register: docker_user_checks
+
+- name: Add existing users to Docker group
+  ansible.builtin.user:
+    name: "{{ item.item }}"
+    groups: docker
+    append: true
+  loop: "{{ docker_user_checks.results }}"
+  when: item.ansible_facts.getent_passwd[item.item] is defined

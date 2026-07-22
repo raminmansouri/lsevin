@@ -18,7 +18,9 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./Caddyfile.http:/etc/caddy/Caddyfile:ro
+      # Caddy reads one production configuration file. Mounting two files to the
+      # same container path is ambiguous, so only Caddyfile.server is used.
+      - ./Caddyfile.server:/etc/caddy/Caddyfile:ro
       - ./geoip:/etc/caddy/geoip:ro
       - caddy_data:/data
       - caddy_config:/config
@@ -39,10 +41,11 @@ services:
         NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL}
         NEXT_PUBLIC_NESHAN_MAP_KEY: ${NEXT_PUBLIC_NESHAN_MAP_KEY}
         NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN}
-        AUTH_SECRET: ${AUTH_SECRET}
-        WEBHOOK_KEY: ${WEBHOOK_KEY}
-        DATABASE_URL: ${DATABASE_URL}
-    image: lsevin-webapp:server
+      secrets:
+        - database_url
+        - auth_secret
+        - webhook_key
+    image: lsevin-webapp:${LSEVIN_WEBAPP_IMAGE_TAG:-server}
     environment:
       NODE_ENV: production
       AUTH_URL: ${AUTH_URL}
@@ -71,6 +74,7 @@ services:
     build:
       context: ../../
       dockerfile: src/API/LSevin.Api/Dockerfile
+    image: lsevin-api:${LSEVIN_API_IMAGE_TAG:-server}
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: Production
@@ -97,7 +101,11 @@ services:
     expose:
       - "8080"
     volumes:
-      - /opt/lsevin/uploads:/app/UploadFiles
+      # Keep uploaded media outside every Git checkout. Both paths are mounted
+      # because older modules use /app/uploads while newer modules use
+      # /app/UploadFiles; they now point to the same durable host directory.
+      - ${LSEVIN_UPLOADS_DIR:-/var/lib/lsevin/uploads}:/app/uploads
+      - ${LSEVIN_UPLOADS_DIR:-/var/lib/lsevin/uploads}:/app/UploadFiles
     networks:
       - lsevin-network
     depends_on:
@@ -156,6 +164,15 @@ volumes:
   eventstore_data:
   caddy_data:
   caddy_config:
+
+
+secrets:
+  database_url:
+    environment: DATABASE_URL
+  auth_secret:
+    environment: AUTH_SECRET
+  webhook_key:
+    environment: WEBHOOK_KEY
 
 networks:
   lsevin-network:

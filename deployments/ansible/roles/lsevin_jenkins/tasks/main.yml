@@ -1,0 +1,417 @@
+---
+- name: Install Jenkins host prerequisites
+  ansible.builtin.apt:
+    name:
+      - openssl
+      - python3
+    state: present
+    update_cache: true
+
+- name: Verify Docker Compose is available
+  ansible.builtin.command: docker compose version
+  changed_when: false
+
+- name: Gather service facts for legacy Jenkins detection
+  ansible.builtin.service_facts:
+
+- name: Stop and disable legacy host Jenkins before container migration
+  ansible.builtin.systemd:
+    name: jenkins.service
+    state: stopped
+    enabled: false
+  when: "'jenkins.service' in ansible_facts.services"
+
+- name: Read the current repository origin for automatic Jenkins configuration
+  ansible.builtin.command:
+    argv:
+      - git
+      - -C
+      - "{{ lsevin_jenkins_repository_source_dir }}"
+      - remote
+      - get-url
+      - origin
+  register: lsevin_jenkins_detected_repository
+  changed_when: false
+  failed_when: false
+
+- name: Select the effective Jenkins repository URL
+  ansible.builtin.set_fact:
+    lsevin_jenkins_effective_repository_url: >-
+      {{ (lsevin_jenkins_repository_url | trim)
+         if (lsevin_jenkins_repository_url | trim | length > 0)
+         else (lsevin_jenkins_detected_repository.stdout | trim) }}
+
+- name: Verify the Jenkins repository URL is a full GitHub repository URL
+  ansible.builtin.assert:
+    that:
+      - >-
+        lsevin_jenkins_effective_repository_url is
+        regex('^(https://github\.com/[^/]+/[^/]+(?:\.git)?|git@github\.com:[^/]+/[^/]+(?:\.git)?)$')
+    fail_msg: >-
+      Ansible could not detect a complete GitHub repository URL from
+      {{ lsevin_jenkins_repository_source_dir }}. Set lsevin_jenkins_repository_url
+      to the exact clone URL; a profile URL such as https://github.com/raminmansouri
+      is not a repository.
+
+- name: Create persistent Jenkins directories
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: "{{ lsevin_jenkins_controller_dir }}", mode: "0750" }
+    - { path: "{{ lsevin_jenkins_controller_dir }}/casc", mode: "0750" }
+    - { path: "{{ lsevin_jenkins_controller_dir }}/init.groovy.d", mode: "0750" }
+    - { path: "{{ lsevin_jenkins_home_dir }}", mode: "0700" }
+    - { path: "{{ lsevin_jenkins_secret_dir }}", mode: "0700" }
+    - { path: "{{ lsevin_jenkins_backup_dir }}", mode: "0700" }
+    - { path: /etc/lsevin/projects, mode: "0700" }
+    - { path: /opt/lsevin/app, mode: "0750" }
+    - { path: /opt/lsevin/releases, mode: "0750" }
+    - { path: /opt/lsevin/jenkins, mode: "0750" }
+    - { path: /var/lib/lsevin/uploads, mode: "0750" }
+    - { path: /var/backups/lsevin/uploads, mode: "0700" }
+
+- name: Check required Jenkins pipeline scripts in the repository
+  ansible.builtin.stat:
+    path: "{{ lsevin_jenkins_repository_source_dir }}/deployments/jenkins/{{ item }}"
+  loop:
+    - validate.sh
+    - deploy-local.sh
+    - rollback.sh
+  register: lsevin_jenkins_pipeline_scripts
+
+- name: Require production deployment and rollback scripts
+  ansible.builtin.assert:
+    that:
+      - item.stat.exists
+      - item.stat.isreg
+    fail_msg: >-
+      Missing {{ item.item }} under
+      {{ lsevin_jenkins_repository_source_dir }}/deployments/jenkins.
+  loop: "{{ lsevin_jenkins_pipeline_scripts.results }}"
+
+- name: Create stable application Docker directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+  loop:
+    - /opt/lsevin/app/deployments
+    - /opt/lsevin/app/deployments/docker
+    - /opt/lsevin/app/deployments/docker/geoip
+
+- name: Check stable production environment file
+  ansible.builtin.stat:
+    path: /opt/lsevin/app/deployments/docker/.env
+  register: lsevin_jenkins_stable_app_env
+
+- name: Seed the stable production environment from the current deployment
+  ansible.builtin.copy:
+    src: "{{ lsevin_jenkins_docker_env }}"
+    dest: /opt/lsevin/app/deployments/docker/.env
+    remote_src: true
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+  when: not lsevin_jenkins_stable_app_env.stat.exists
+
+- name: Find current GeoIP databases
+  ansible.builtin.find:
+    paths: "{{ lsevin_jenkins_docker_dir }}/geoip"
+    patterns: "*.mmdb"
+    file_type: file
+  register: lsevin_jenkins_current_geoip
+
+- name: Check stable GeoIP database directory
+  ansible.builtin.find:
+    paths: /opt/lsevin/app/deployments/docker/geoip
+    patterns: "*.mmdb"
+    file_type: file
+  register: lsevin_jenkins_stable_geoip
+
+- name: Seed stable GeoIP databases from the current deployment
+  ansible.builtin.copy:
+    src: "{{ item.path }}"
+    dest: "/opt/lsevin/app/deployments/docker/geoip/{{ item.path | basename }}"
+    remote_src: true
+    owner: root
+    group: root
+    mode: "0644"
+  loop: "{{ lsevin_jenkins_current_geoip.files }}"
+  when: lsevin_jenkins_stable_geoip.matched | int == 0
+
+- name: Check required deployment helper commands
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - /usr/local/sbin/lsevin-upload-backup
+    - /usr/local/sbin/lsevin-upload-restore
+  register: lsevin_jenkins_helpers
+
+- name: Require Ansible-managed backup and verification helpers
+  ansible.builtin.assert:
+    that:
+      - item.stat.exists
+      - item.stat.isreg
+      - item.stat.executable
+    fail_msg: "Required helper is missing or not executable: {{ item.item }}"
+  loop: "{{ lsevin_jenkins_helpers.results }}"
+
+- name: Check for existing Jenkins administrator password
+  ansible.builtin.stat:
+    path: "{{ lsevin_jenkins_secret_dir }}/admin-password"
+  register: lsevin_jenkins_admin_password_file
+
+- name: Generate initial Jenkins administrator password
+  ansible.builtin.command: openssl rand -base64 36
+  register: lsevin_jenkins_generated_password
+  changed_when: true
+  no_log: true
+  when: not lsevin_jenkins_admin_password_file.stat.exists
+
+- name: Save initial Jenkins administrator password
+  ansible.builtin.copy:
+    content: "{{ lsevin_jenkins_generated_password.stdout }}\n"
+    dest: "{{ lsevin_jenkins_secret_dir }}/admin-password"
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+  when: not lsevin_jenkins_admin_password_file.stat.exists
+
+- name: Copy Jenkins controller files to stable host location
+  ansible.builtin.copy:
+    src: "{{ lsevin_jenkins_source_dir }}/{{ item.src }}"
+    dest: "{{ lsevin_jenkins_controller_dir }}/{{ item.dest | default(item.src) }}"
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+  loop:
+    - { src: Dockerfile, mode: "0644" }
+    - { src: plugins.txt, mode: "0644" }
+    - { src: docker-compose.yml, mode: "0644" }
+    - { src: lsevin-db-verify-container.sh, mode: "0755" }
+    - { src: casc/jenkins.yaml, mode: "0644" }
+    - { src: casc/jobs.groovy, mode: "0644" }
+    - { src: init.groovy.d/01-security.groovy, mode: "0644" }
+  notify: Restart Jenkins controller
+
+- name: Write Jenkins controller environment
+  ansible.builtin.copy:
+    dest: "{{ lsevin_jenkins_controller_dir }}/controller.env"
+    owner: root
+    group: root
+    mode: "0600"
+    content: |
+      JENKINS_HOME_DIR={{ lsevin_jenkins_home_dir }}
+      JENKINS_SECRET_DIR={{ lsevin_jenkins_secret_dir }}
+      JENKINS_ADMIN_USER={{ lsevin_jenkins_admin_user }}
+      JENKINS_ADMIN_EMAIL={{ lsevin_jenkins_admin_email }}
+      JENKINS_DOMAIN={{ lsevin_jenkins_domain }}
+      JENKINS_REPOSITORY_URL={{ lsevin_jenkins_effective_repository_url }}
+      JENKINS_DEPLOY_BRANCH={{ lsevin_jenkins_deploy_branch }}
+      JENKINS_GITHUB_CREDENTIALS_ID={{ lsevin_jenkins_github_credentials_id }}
+      JENKINS_PROVIDERS_BRANCH={{ lsevin_jenkins_portal_branch }}
+      JENKINS_SHOP_BRANCH={{ lsevin_jenkins_shop_branch }}
+      JENKINS_CRM_BRANCH={{ lsevin_jenkins_crm_branch }}
+      LSEVIN_DOCKER_NETWORK={{ lsevin_jenkins_network }}
+  notify: Restart Jenkins controller
+
+- name: Ensure the shared Docker network exists
+  ansible.builtin.shell: |
+    set -Eeuo pipefail
+    docker network inspect {{ lsevin_jenkins_network | quote }} >/dev/null 2>&1 \
+      || docker network create --attachable {{ lsevin_jenkins_network | quote }}
+  args:
+    executable: /bin/bash
+  register: lsevin_jenkins_network_result
+  changed_when: "'docker network create' not in lsevin_jenkins_network_result.stderr and lsevin_jenkins_network_result.stdout | length > 0"
+
+- name: Install Jenkins backup command
+  ansible.builtin.copy:
+    src: "{{ lsevin_jenkins_source_dir }}/backup-jenkins-home.sh"
+    dest: /usr/local/sbin/lsevin-jenkins-backup
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Install Jenkins backup systemd units
+  ansible.builtin.copy:
+    src: "{{ lsevin_jenkins_source_dir }}/{{ item }}"
+    dest: "/etc/systemd/system/{{ item }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop:
+    - lsevin-jenkins-backup.service
+    - lsevin-jenkins-backup.timer
+  register: lsevin_jenkins_systemd_units
+
+- name: Reload systemd for Jenkins backup units
+  ansible.builtin.systemd:
+    daemon_reload: true
+  changed_when: false
+
+- name: Enable the Jenkins backup timer
+  ansible.builtin.systemd:
+    name: lsevin-jenkins-backup.timer
+    state: started
+    enabled: true
+
+- name: Set the Jenkins public domain in the production Docker environment
+  ansible.builtin.lineinfile:
+    path: "{{ lsevin_jenkins_docker_env }}"
+    regexp: '^JENKINS_DOMAIN='
+    line: "JENKINS_DOMAIN={{ lsevin_jenkins_domain }}"
+    create: false
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+
+- name: Patch repository Caddyfiles for Docker Jenkins
+  ansible.builtin.command:
+    argv:
+      - "{{ lsevin_jenkins_source_dir }}/configure-caddy-for-docker-jenkins.py"
+      - "{{ item }}"
+  loop: "{{ lsevin_jenkins_caddy_paths }}"
+  register: lsevin_jenkins_caddy_patch
+  changed_when: "'Updated:' in lsevin_jenkins_caddy_patch.stdout"
+
+- name: Flush Jenkins restart handler
+  ansible.builtin.meta: flush_handlers
+
+- name: Wait for Jenkins controller health
+  block:
+    - name: Wait until the Jenkins container reports healthy
+      ansible.builtin.command:
+        argv:
+          - docker
+          - inspect
+          - --format
+          - "{{ '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' }}"
+          - lsevin-jenkins
+      register: lsevin_jenkins_health
+      changed_when: false
+      failed_when: false
+      retries: 120
+      delay: 5
+      until:
+        - lsevin_jenkins_health.rc == 0
+        - lsevin_jenkins_health.stdout == 'healthy'
+
+    - name: Confirm Jenkins became healthy
+      ansible.builtin.assert:
+        that:
+          - lsevin_jenkins_health.rc == 0
+          - lsevin_jenkins_health.stdout == 'healthy'
+        fail_msg: >-
+          Jenkins did not become healthy within 10 minutes. The diagnostic
+          container state and logs are shown below.
+  rescue:
+    - name: Read Jenkins container state for startup diagnostics
+      ansible.builtin.command:
+        argv:
+          - docker
+          - inspect
+          - --format
+          - >-
+            {{ '{{json .State}}' }}
+          - lsevin-jenkins
+      register: lsevin_jenkins_state_diagnostic
+      changed_when: false
+      failed_when: false
+
+    - name: Read recent Jenkins startup logs
+      ansible.builtin.command:
+        argv:
+          - docker
+          - logs
+          - --tail
+          - '300'
+          - lsevin-jenkins
+      register: lsevin_jenkins_log_diagnostic
+      changed_when: false
+      failed_when: false
+
+    - name: Stop with Jenkins startup diagnostics
+      ansible.builtin.fail:
+        msg: |-
+          Jenkins did not become healthy.
+
+          Container state:
+          {{ lsevin_jenkins_state_diagnostic.stdout | default('unavailable') }}
+          {{ lsevin_jenkins_state_diagnostic.stderr | default('') }}
+
+          Recent Jenkins logs:
+          {{ lsevin_jenkins_log_diagnostic.stdout | default('') }}
+          {{ lsevin_jenkins_log_diagnostic.stderr | default('') }}
+
+- name: Build Caddy with the Docker Jenkins proxy configuration
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_jenkins_compose_project }}"
+      - --env-file
+      - "{{ lsevin_jenkins_docker_env }}"
+      - -f
+      - "{{ lsevin_jenkins_docker_dir }}/docker-compose.server.yml"
+      - build
+      - caddy
+  changed_when: true
+
+- name: Validate the rebuilt production Caddy configuration
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_jenkins_compose_project }}"
+      - --env-file
+      - "{{ lsevin_jenkins_docker_env }}"
+      - -f
+      - "{{ lsevin_jenkins_docker_dir }}/docker-compose.server.yml"
+      - run
+      - --rm
+      - --no-deps
+      - caddy
+      - caddy
+      - validate
+      - --config
+      - /etc/caddy/Caddyfile
+  changed_when: false
+
+- name: Recreate Caddy with Jenkins proxy configuration
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_jenkins_compose_project }}"
+      - --env-file
+      - "{{ lsevin_jenkins_docker_env }}"
+      - -f
+      - "{{ lsevin_jenkins_docker_dir }}/docker-compose.server.yml"
+      - up
+      - -d
+      - --no-deps
+      - --build
+      - --force-recreate
+      - caddy
+  changed_when: true
+
+- name: Show Jenkins access details
+  ansible.builtin.debug:
+    msg:
+      - "Jenkins URL: https://{{ lsevin_jenkins_domain }}"
+      - "Administrator user: {{ lsevin_jenkins_admin_user }}"
+      - "Read initial password as root: cat {{ lsevin_jenkins_secret_dir }}/admin-password"
+      - "GitHub webhook: https://{{ lsevin_jenkins_domain }}/github-webhook/"

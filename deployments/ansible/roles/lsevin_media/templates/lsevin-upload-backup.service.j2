@@ -1,0 +1,17 @@
+[Unit]
+Description=LSevin uploaded-media snapshot backup
+After=local-fs.target
+ConditionPathIsDirectory={{ lsevin_uploads_dir }}
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/usr/local/sbin/lsevin-upload-backup scheduled
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths={{ lsevin_uploads_dir }} {{ lsevin_upload_backup_dir }}

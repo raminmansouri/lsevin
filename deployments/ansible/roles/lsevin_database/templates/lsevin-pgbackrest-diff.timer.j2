@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily LSevin differential PostgreSQL backup
+[Timer]
+OnCalendar=Mon..Sat *-*-* 02:15:00
+Persistent=true
+RandomizedDelaySec=300
+Unit=lsevin-pgbackrest@diff.service
+[Install]
+WantedBy=timers.target

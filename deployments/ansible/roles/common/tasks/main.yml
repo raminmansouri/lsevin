@@ -1,0 +1,95 @@
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install production host packages
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - chrony
+      - curl
+      - fail2ban
+      - git
+      - jq
+      - python3
+      - python3-apt
+      - rsync
+      - ufw
+      - unattended-upgrades
+      - util-linux
+    state: present
+
+- name: Enable time synchronization
+  ansible.builtin.service:
+    name: chrony
+    state: started
+    enabled: true
+
+- name: Configure automatic security updates
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    mode: "0644"
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+  when: lsevin_enable_unattended_upgrades | bool
+
+- name: Allow SSH before enabling firewall
+  ansible.builtin.command:
+    argv: [ufw, allow, "{{ lsevin_ssh_port }}/tcp"]
+  register: ufw_allow_ssh
+  changed_when: "'Rule added' in ufw_allow_ssh.stdout or 'Rules updated' in ufw_allow_ssh.stdout"
+  when: lsevin_enable_ufw | bool
+
+- name: Allow public HTTP and HTTPS over TCP
+  ansible.builtin.command:
+    argv: [ufw, allow, "{{ item }}/tcp"]
+  loop:
+    - "80"
+    - "443"
+  register: ufw_allow_web
+  changed_when: "'Rule added' in ufw_allow_web.stdout or 'Rules updated' in ufw_allow_web.stdout"
+  when: lsevin_enable_ufw | bool
+
+- name: Allow HTTPS over UDP for HTTP/3
+  ansible.builtin.command:
+    argv: [ufw, allow, "443/udp"]
+  register: ufw_allow_http3
+  changed_when: "'Rule added' in ufw_allow_http3.stdout or 'Rules updated' in ufw_allow_http3.stdout"
+  when: lsevin_enable_ufw | bool
+
+- name: Set UFW default incoming policy
+  ansible.builtin.command:
+    argv: [ufw, --force, default, deny, incoming]
+  register: ufw_default_incoming
+  changed_when: "'Default incoming policy changed' in ufw_default_incoming.stdout"
+  when: lsevin_enable_ufw | bool
+
+- name: Set UFW default outgoing policy
+  ansible.builtin.command:
+    argv: [ufw, --force, default, allow, outgoing]
+  register: ufw_default_outgoing
+  changed_when: "'Default outgoing policy changed' in ufw_default_outgoing.stdout"
+  when: lsevin_enable_ufw | bool
+
+- name: Enable UFW
+  ansible.builtin.command:
+    argv: [ufw, --force, enable]
+  register: ufw_enable
+  changed_when: "'Firewall is active' not in ufw_enable.stdout"
+  when: lsevin_enable_ufw | bool
+
+- name: Configure Fail2ban for SSH
+  ansible.builtin.template:
+    src: lsevin-sshd.local.j2
+    dest: /etc/fail2ban/jail.d/lsevin-sshd.local
+    mode: "0644"
+  notify: Restart fail2ban
+
+- name: Ensure fail2ban is running
+  ansible.builtin.service:
+    name: fail2ban
+    state: started
+    enabled: true

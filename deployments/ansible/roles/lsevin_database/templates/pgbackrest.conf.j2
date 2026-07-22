@@ -1,0 +1,31 @@
+[global]
+repo1-type={{ pgbackrest_repo_type }}
+{% if pgbackrest_repo_type == 'posix' %}
+repo1-path=/var/lib/pgbackrest
+{% else %}
+repo1-path=/lsevin
+repo1-s3-bucket={{ vault_pgbackrest_s3_bucket }}
+repo1-s3-endpoint={{ vault_pgbackrest_s3_endpoint }}
+repo1-s3-region={{ vault_pgbackrest_s3_region }}
+repo1-s3-key={{ vault_pgbackrest_s3_key }}
+repo1-s3-key-secret={{ vault_pgbackrest_s3_key_secret }}
+repo1-s3-uri-style={{ vault_pgbackrest_s3_uri_style | default('host') }}
+repo1-storage-verify-tls=y
+{% endif %}
+repo1-retention-full={{ pgbackrest_retention_full }}
+repo1-retention-diff={{ pgbackrest_retention_diff }}
+repo1-bundle=y
+compress-type=zst
+compress-level=3
+archive-async=y
+spool-path=/var/spool/pgbackrest
+process-max={{ pgbackrest_process_max }}
+start-fast=y
+stop-auto=y
+log-level-console=info
+
+[lsevin]
+pg1-path=/var/lib/postgresql/data
+pg1-port=5432
+pg1-socket-path=/var/run/postgresql
+pg1-user={{ vault_postgres_user }}

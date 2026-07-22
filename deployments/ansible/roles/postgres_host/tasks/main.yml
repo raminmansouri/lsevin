@@ -1,0 +1,33 @@
+---
+- name: Install PostgreSQL host sysctl tuning
+  ansible.builtin.template:
+    src: 99-lsevin-postgres.conf.j2
+    dest: /etc/sysctl.d/99-lsevin-postgres.conf
+    mode: "0644"
+  notify: Apply sysctl tuning
+
+- name: Install Transparent Huge Pages disable unit
+  ansible.builtin.template:
+    src: disable-transparent-hugepages.service.j2
+    dest: /etc/systemd/system/disable-transparent-hugepages.service
+    mode: "0644"
+  when: lsevin_disable_transparent_hugepages | bool
+  notify:
+    - Reload systemd
+    - Enable Transparent Huge Pages disable unit
+
+- name: Ensure LSevin directories exist
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner | default(omit) }}"
+    group: "{{ item.group | default(omit) }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: "{{ lsevin_app_dir }}", mode: "2775" }
+    - { path: "{{ lsevin_config_dir }}/postgres", owner: "root", group: "root", mode: "0750" }
+    - { path: "{{ lsevin_backup_dir }}", owner: "root", group: "docker", mode: "2775" }
+    - { path: "{{ lsevin_backup_dir }}/predeploy", owner: "root", group: "docker", mode: "2775" }
+    - { path: "{{ lsevin_backup_dir }}/pgbackrest", owner: "70", group: "70", mode: "0750" }
+    - { path: "{{ lsevin_backup_dir }}/spool", owner: "70", group: "70", mode: "0750" }
+    - { path: "{{ lsevin_backup_dir }}/logical", owner: "root", group: "root", mode: "0750" }

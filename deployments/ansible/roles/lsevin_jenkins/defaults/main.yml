@@ -1,0 +1,24 @@
+---
+lsevin_jenkins_source_dir: "{{ playbook_dir }}/../../jenkins"
+lsevin_jenkins_controller_dir: /opt/lsevin/jenkins-controller
+lsevin_jenkins_home_dir: /var/lib/lsevin/jenkins
+lsevin_jenkins_secret_dir: /etc/lsevin/jenkins
+lsevin_jenkins_backup_dir: /var/backups/lsevin/jenkins
+lsevin_jenkins_network: lsevin-network
+lsevin_jenkins_admin_user: admin
+lsevin_jenkins_admin_email: admin@lsevin.com
+lsevin_jenkins_domain: devops.lsevin.com
+# Leave empty to detect the origin URL from /opt/lsevin-new.
+lsevin_jenkins_repository_url: ""
+lsevin_jenkins_repository_source_dir: /opt/lsevin-new
+lsevin_jenkins_deploy_branch: Lsevin-New
+lsevin_jenkins_github_credentials_id: github-lsevin
+lsevin_jenkins_portal_branch: main
+lsevin_jenkins_shop_branch: main
+lsevin_jenkins_crm_branch: main
+lsevin_jenkins_caddy_paths:
+  - /opt/lsevin-new/deployments/docker/Caddyfile.server
+  - /opt/lsevin/app/deployments/docker/Caddyfile.server
+lsevin_jenkins_docker_dir: /opt/lsevin-new/deployments/docker
+lsevin_jenkins_docker_env: /opt/lsevin-new/deployments/docker/.env
+lsevin_jenkins_compose_project: docker

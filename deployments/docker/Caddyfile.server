@@ -1,0 +1,116 @@
+{
+	email {$CADDY_ACME_EMAIL:admin@lsevin.com}
+
+	# Custom GeoIP plugin included by caddy.Dockerfile.
+	order geoip2_vars first
+	geoip2 {
+		databaseDirectory "/etc/caddy/geoip"
+		editionID "dbip-country-lite"
+		updateFrequency 0
+	}
+}
+
+(common_headers) {
+	encode zstd gzip
+	header {
+		-X-Powered-By
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		X-Frame-Options "SAMEORIGIN"
+	}
+	log {
+		output stdout
+		format console
+	}
+}
+
+# Main Next.js application. API/file/hub traffic on the same host is sent to .NET.
+{$APP_DOMAIN:appmain.lsevin.com} {
+	import common_headers
+	geoip2_vars strict
+
+	@backend path /api/v1/* /files/* /files /hubs/* /hubs /hc /liveness /readiness
+	handle @backend {
+		reverse_proxy lsevin-api:8080
+	}
+
+	handle {
+		reverse_proxy lsevin-webapp:3000 {
+			header_up X-Country {geoip2.country_code}
+		}
+	}
+}
+
+# Public API hostname used by NEXT_PUBLIC_API_URL and mobile clients.
+{$API_DOMAIN:api.lsevin.com} {
+	import common_headers
+	reverse_proxy lsevin-api:8080 {
+		lb_try_duration 5s
+		fail_duration 30s
+	}
+}
+
+# CRM, Providers, and Shop each run two replicas.
+{$CRM_DOMAIN:crm.lsevin.com} {
+    import common_headers
+
+    reverse_proxy lsevin-crm-1:3000 lsevin-crm-2:3000 {
+        # Share requests across both healthy replicas.
+        lb_policy round_robin
+
+        # Test each replica directly every five seconds.
+        health_uri /api/health
+        health_interval 5s
+        health_timeout 3s
+
+        # Stop using a replica quickly after connection failures.
+        fail_duration 10s
+        max_fails 1
+
+        # Retry another healthy replica before returning an error to the visitor.
+        lb_try_duration 5s
+    }
+}
+
+{$PROVIDERS_DOMAIN:providers.lsevin.com} {
+    import common_headers
+
+    reverse_proxy lsevin-providers-1:3000 lsevin-providers-2:3000 {
+        lb_policy round_robin
+        health_uri /api/health
+        health_interval 5s
+        health_timeout 3s
+        fail_duration 10s
+        max_fails 1
+        lb_try_duration 5s
+    }
+}
+
+{$SHOP_DOMAIN:shop.lsevin.com} {
+    import common_headers
+
+    reverse_proxy lsevin-shop-1:3000 lsevin-shop-2:3000 {
+        lb_policy round_robin
+        health_uri /api/health
+        health_interval 5s
+        health_timeout 3s
+        fail_duration 10s
+        max_fails 1
+        lb_try_duration 5s
+    }
+}
+
+# Jenkins administration website.
+#
+# Caddy automatically forwards:
+# - Host
+# - X-Forwarded-Host
+# - X-Forwarded-Proto
+# - X-Forwarded-For
+#
+# Therefore, manually adding these headers is unnecessary.
+{$JENKINS_DOMAIN:devops.lsevin.com} {
+	import common_headers
+
+	reverse_proxy lsevin-jenkins:8080
+}

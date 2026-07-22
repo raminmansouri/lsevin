@@ -1,0 +1,10 @@
+---
+# Persistent media must live outside the application checkout and Jenkins workspace.
+lsevin_uploads_dir: /var/lib/lsevin/uploads
+# Mount /var/backups from another disk or remote filesystem for host-loss protection.
+lsevin_upload_backup_dir: /var/backups/lsevin/uploads
+lsevin_upload_backup_retention_days: 30
+lsevin_upload_backup_calendar: "*-*-* 02:30:00"
+lsevin_upload_backup_randomized_delay_seconds: 900
+lsevin_upload_backup_allow_empty: false
+lsevin_media_jenkins_user: jenkins

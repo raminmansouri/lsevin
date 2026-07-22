@@ -1,0 +1,174 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PROJECT_ROOT="$(cd "$ROOT_DIR/../.." && pwd)"
+TARGET="$ROOT_DIR/inventory/production"
+ENV_FILE="${LSEVIN_ENV_FILE:-$PROJECT_ROOT/deployments/docker/.env}"
+VAULT_PASSWORD_FILE="/root/.config/lsevin/ansible-vault-password"
+
+cd "$ROOT_DIR"
+
+if [[ ${EUID} -ne 0 ]]; then
+  echo "ERROR: run as root: sudo -i" >&2
+  exit 1
+fi
+if ! command -v ansible-vault >/dev/null 2>&1; then
+  echo "ERROR: Ansible is not installed. Run scripts/install-ansible-system.sh first." >&2
+  exit 1
+fi
+if [[ ! -f "$ENV_FILE" ]]; then
+  echo "ERROR: production environment file not found: $ENV_FILE" >&2
+  echo "Preserve your existing production .env at that path, then rerun this script." >&2
+  exit 1
+fi
+
+mkdir -p "$TARGET/group_vars" "$(dirname "$VAULT_PASSWORD_FILE")"
+chmod 0700 "$(dirname "$VAULT_PASSWORD_FILE")"
+
+cat > "$TARGET/hosts.yml" <<'YAML'
+all:
+  children:
+    lsevin_production:
+      hosts:
+        localhost:
+          ansible_connection: local
+          ansible_python_interpreter: /usr/bin/python3
+YAML
+chmod 0600 "$TARGET/hosts.yml"
+
+if [[ ! -f "$TARGET/group_vars/all.yml" ]]; then
+  cp "$ROOT_DIR/inventory/example/group_vars/all.yml" "$TARGET/group_vars/all.yml"
+fi
+
+ssh_port="22"
+if command -v sshd >/dev/null 2>&1; then
+  detected_port="$(sshd -T 2>/dev/null | awk '$1 == "port" {print $2; exit}')"
+  if [[ "$detected_port" =~ ^[0-9]+$ ]]; then
+    ssh_port="$detected_port"
+  fi
+fi
+python3 - "$TARGET/group_vars/all.yml" "$ssh_port" "$PROJECT_ROOT" <<'PY'
+from pathlib import Path
+import re
+import sys
+path = Path(sys.argv[1])
+port = sys.argv[2]
+project_root = sys.argv[3]
+text = path.read_text()
+text = re.sub(r"(?m)^lsevin_ssh_port:\s*.*$", f"lsevin_ssh_port: {port}", text)
+text = re.sub(r"(?m)^lsevin_app_dir:\s*.*$", f"lsevin_app_dir: {project_root}", text)
+path.write_text(text)
+PY
+
+if [[ ! -f "$VAULT_PASSWORD_FILE" ]]; then
+  umask 077
+  openssl rand -hex 32 > "$VAULT_PASSWORD_FILE"
+fi
+chmod 0600 "$VAULT_PASSWORD_FILE"
+
+plain_vault="$(mktemp)"
+trap 'rm -f "$plain_vault"' EXIT
+python3 - "$ENV_FILE" "$plain_vault" <<'PY'
+from pathlib import Path
+import re
+import secrets
+import string
+import sys
+
+env_path = Path(sys.argv[1])
+out_path = Path(sys.argv[2])
+
+def parse_env(path: Path) -> dict[str, str]:
+    values: dict[str, str] = {}
+    for raw in path.read_text().splitlines():
+        line = raw.strip()
+        if not line or line.startswith('#') or '=' not in line:
+            continue
+        key, value = line.split('=', 1)
+        key = key.strip()
+        value = value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
+            value = value[1:-1]
+        values[key] = value
+    return values
+
+def generated_password(length: int = 40) -> str:
+    alphabet = string.ascii_letters + string.digits + '._~-'
+    return ''.join(secrets.choice(alphabet) for _ in range(length))
+
+values = parse_env(env_path)
+required = ['POSTGRES_DB', 'POSTGRES_USER', 'POSTGRES_PASSWORD']
+missing = [key for key in required if not values.get(key)]
+if missing:
+    raise SystemExit(f"ERROR: missing values in {env_path}: {', '.join(missing)}")
+for key in required:
+    if 'CHANGE_ME' in values[key]:
+        raise SystemExit(f"ERROR: {key} still contains CHANGE_ME in {env_path}")
+identifier = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*$')
+if not identifier.fullmatch(values['POSTGRES_DB']):
+    raise SystemExit('ERROR: POSTGRES_DB must be a simple PostgreSQL identifier.')
+if not identifier.fullmatch(values['POSTGRES_USER']):
+    raise SystemExit('ERROR: POSTGRES_USER must be a simple PostgreSQL identifier.')
+password = values['POSTGRES_PASSWORD']
+if not re.fullmatch(r'[A-Za-z0-9._~@%+=,:!?-]+', password):
+    raise SystemExit('ERROR: POSTGRES_PASSWORD contains unsupported .env characters. Use letters, numbers, dot, underscore, tilde, @, %, +, =, comma, colon, !, ?, or hyphen.')
+if len(password) < 12:
+    raise SystemExit('ERROR: POSTGRES_PASSWORD must be at least 12 characters. Rotate it safely before continuing.')
+monitor_user = values.get('POSTGRES_MONITOR_USER') or 'lsevin_monitor'
+monitor_password = values.get('POSTGRES_MONITOR_PASSWORD', '')
+if not monitor_password or 'CHANGE_ME' in monitor_password:
+    monitor_password = generated_password()
+if not identifier.fullmatch(monitor_user):
+    raise SystemExit('ERROR: POSTGRES_MONITOR_USER must be a simple PostgreSQL identifier.')
+if not re.fullmatch(r'[A-Za-z0-9._~@%+=,:!?-]+', monitor_password) or len(monitor_password) < 24:
+    monitor_password = generated_password()
+
+def yaml_quote(value: str) -> str:
+    return "'" + value.replace("'", "''") + "'"
+
+content = f"""---
+vault_postgres_db: {yaml_quote(values['POSTGRES_DB'])}
+vault_postgres_user: {yaml_quote(values['POSTGRES_USER'])}
+vault_postgres_password: {yaml_quote(password)}
+vault_postgres_monitor_user: {yaml_quote(monitor_user)}
+vault_postgres_monitor_password: {yaml_quote(monitor_password)}
+vault_pgbackrest_s3_bucket: ''
+vault_pgbackrest_s3_endpoint: ''
+vault_pgbackrest_s3_region: ''
+vault_pgbackrest_s3_key: ''
+vault_pgbackrest_s3_key_secret: ''
+vault_pgbackrest_s3_uri_style: 'host'
+"""
+out_path.write_text(content)
+PY
+
+vault_file="$TARGET/group_vars/vault.yml"
+if [[ -f "$vault_file" ]] && head -n1 "$vault_file" | grep -q '^\$ANSIBLE_VAULT'; then
+  echo "Existing encrypted Vault retained: $vault_file"
+else
+  install -m 0600 "$plain_vault" "$vault_file"
+  ansible-vault encrypt --vault-password-file "$VAULT_PASSWORD_FILE" "$vault_file" >/dev/null
+  echo "Encrypted Vault created from the current production .env."
+fi
+
+# Keep the absolute password-file path so normal ansible-playbook commands do not prompt.
+python3 - "$ROOT_DIR/ansible.cfg" "$VAULT_PASSWORD_FILE" <<'PY'
+from pathlib import Path
+import re
+import sys
+path = Path(sys.argv[1])
+password_file = sys.argv[2]
+text = path.read_text()
+line = f"vault_password_file = {password_file}"
+if re.search(r"(?m)^vault_password_file\s*=", text):
+    text = re.sub(r"(?m)^vault_password_file\s*=.*$", line, text)
+else:
+    text = text.replace('[defaults]\n', f'[defaults]\n{line}\n', 1)
+path.write_text(text)
+PY
+
+echo "Local production inventory is ready. Project root: $PROJECT_ROOT; SSH port: $ssh_port"
+echo "Vault password file: $VAULT_PASSWORD_FILE"
+ansible-inventory --graph
+ansible lsevin_production -m ansible.builtin.ping

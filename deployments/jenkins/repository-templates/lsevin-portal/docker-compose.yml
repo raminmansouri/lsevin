@@ -1,0 +1,94 @@
+# Two replicas serve providers.lsevin.com.
+# Jenkins updates one replica at a time so the other remains available.
+name: lsevin-providers
+
+# Settings used by both web replicas and the one-off migration container.
+x-runtime-common: &runtime-common
+  image: lsevin-providers:${IMAGE_TAG:-latest}
+  pull_policy: never
+
+  # Runtime secrets stay outside Git and outside the Docker image.
+  env_file:
+    - /etc/lsevin/projects/providers.env
+
+  environment:
+    NODE_ENV: production
+
+  networks:
+    - lsevin-network
+
+  logging:
+    driver: json-file
+    options:
+      max-size: "20m"
+      max-file: "5"
+
+# Extra settings needed only by the long-running web replicas.
+x-web-common: &web-common
+  <<: *runtime-common
+
+  build:
+    context: .
+    dockerfile: Dockerfile
+    args:
+      NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_FILES_URL: ${NEXT_PUBLIC_FILES_URL}
+
+  restart: unless-stopped
+  init: true
+
+  environment:
+    NODE_ENV: production
+    PORT: "3000"
+    HOSTNAME: "0.0.0.0"
+
+  expose:
+    - "3000"
+
+  healthcheck:
+    test:
+      - CMD
+      - node
+      - -e
+      - >-
+        fetch('http://127.0.0.1:3000/api/health')
+        .then(response => process.exit(response.ok ? 0 : 1))
+        .catch(() => process.exit(1))
+    interval: 10s
+    timeout: 5s
+    retries: 12
+    start_period: 30s
+
+  stop_grace_period: 30s
+
+services:
+  # First production replica.
+  web-1:
+    <<: *web-common
+    container_name: lsevin-providers-1
+
+  # Second production replica.
+  web-2:
+    <<: *web-common
+    container_name: lsevin-providers-2
+
+  # One-off service used only by Jenkins or a manual migration command.
+  # It does not start during normal `docker compose up` because it is in the tools profile.
+  migrate:
+    <<: *runtime-common
+    profiles:
+      - tools
+    restart: "no"
+    command:
+      - sh
+      - -c
+      - |
+        echo "Running database migration: pnpm run $$MIGRATION_SCRIPT"
+        pnpm run "$$MIGRATION_SCRIPT"
+
+networks:
+  # Caddy, PostgreSQL, Jenkins, and these applications share this existing network.
+  lsevin-network:
+    external: true
+    name: lsevin-network

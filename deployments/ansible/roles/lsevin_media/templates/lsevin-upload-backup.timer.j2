@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily LSevin uploaded-media backup
+
+[Timer]
+OnCalendar={{ lsevin_upload_backup_calendar }}
+RandomizedDelaySec={{ lsevin_upload_backup_randomized_delay_seconds }}
+Persistent=true
+Unit=lsevin-upload-backup.service
+
+[Install]
+WantedBy=timers.target

@@ -76,7 +76,7 @@ const OtpPage = ({
               <AuthLinksContainer>
                 <span className="text-xs">
                   {t("page.wrongNumber")}
-                  <Link className="text-primary mx-1" href="/sign-in">
+                  <Link className="text-primary mx-1" href={redirectTo ? `/sign-in?redirectTo=${encodeURIComponent(redirectTo)}` : "/sign-in"}>
                     {t("page.changeNumber")}
                   </Link>
                 </span>

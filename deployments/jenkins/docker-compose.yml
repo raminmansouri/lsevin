@@ -1,0 +1,57 @@
+services:
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: lsevin-jenkins:lts-jdk21
+    container_name: lsevin-jenkins
+    restart: unless-stopped
+    user: 0:0
+    environment:
+      JAVA_OPTS: -Djenkins.install.runSetupWizard=false -Duser.timezone=Europe/London
+      CASC_JENKINS_CONFIG: /usr/share/jenkins/ref/casc/jenkins.yaml
+      JENKINS_ADMIN_USER: ${JENKINS_ADMIN_USER:-admin}
+      JENKINS_ADMIN_EMAIL: ${JENKINS_ADMIN_EMAIL:-admin@lsevin.com}
+      JENKINS_DOMAIN: ${JENKINS_DOMAIN:-devops.lsevin.com}
+      JENKINS_GITHUB_CREDENTIALS_ID: ${JENKINS_GITHUB_CREDENTIALS_ID:-}
+      JENKINS_MAIN_REPOSITORY_URL: ${JENKINS_MAIN_REPOSITORY_URL:-https://github.com/raminmansouri/lsevin.git}
+      JENKINS_MAIN_BRANCH: ${JENKINS_MAIN_BRANCH:-Lsevin-New}
+      JENKINS_PROVIDERS_REPOSITORY_URL: ${JENKINS_PROVIDERS_REPOSITORY_URL:-https://github.com/Mohammadjafariyan/lsevin-portal.git}
+      JENKINS_PROVIDERS_BRANCH: ${JENKINS_PROVIDERS_BRANCH:-main}
+      JENKINS_SHOP_REPOSITORY_URL: ${JENKINS_SHOP_REPOSITORY_URL:-https://github.com/Mohammadjafariyan/lsevin-shop.git}
+      JENKINS_SHOP_BRANCH: ${JENKINS_SHOP_BRANCH:-main}
+      JENKINS_CRM_REPOSITORY_URL: ${JENKINS_CRM_REPOSITORY_URL:-https://github.com/Mohammadjafariyan/CRM_New.git}
+      JENKINS_CRM_BRANCH: ${JENKINS_CRM_BRANCH:-main}
+    expose:
+    - '8080'
+    volumes:
+    - ${JENKINS_HOME_DIR:-/var/lib/lsevin/jenkins}:/var/jenkins_home
+    - ${JENKINS_SECRET_DIR:-/etc/lsevin/jenkins}/admin-password:/run/secrets/jenkins-admin-password:ro
+    - /var/run/docker.sock:/var/run/docker.sock
+    - /opt/lsevin:/opt/lsevin
+    - /opt/lsevin-main:/opt/lsevin-main
+    - /opt/lsevin-new:/opt/lsevin-new:ro
+    - /var/lib/lsevin:/var/lib/lsevin
+    - /var/backups/lsevin:/var/backups/lsevin
+    - /etc/lsevin/projects:/etc/lsevin/projects:ro
+    - /usr/local/sbin/lsevin-upload-backup:/usr/local/sbin/lsevin-upload-backup:ro
+    - /usr/local/sbin/lsevin-upload-restore:/usr/local/sbin/lsevin-upload-restore:ro
+    - /opt/lsevin-crm:/opt/lsevin-crm
+    - /opt/lsevin-providers:/opt/lsevin-providers
+    - /opt/lsevin-shop:/opt/lsevin-shop
+    networks:
+      lsevin-network:
+        aliases:
+        - jenkins
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - curl --fail --silent --show-error --max-time 10 http://127.0.0.1:8080/login >/dev/null
+      interval: 10s
+      timeout: 12s
+      retries: 40
+      start_period: 120s
+networks:
+  lsevin-network:
+    external: true
+    name: ${LSEVIN_DOCKER_NETWORK:-lsevin-network}

@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily LSevin Jenkins configuration backup
+
+[Timer]
+OnCalendar=*-*-* 03:35:00
+Persistent=true
+RandomizedDelaySec=20m
+Unit=lsevin-jenkins-backup.service
+
+[Install]
+WantedBy=timers.target

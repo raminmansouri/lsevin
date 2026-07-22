@@ -1,0 +1,2 @@
+---
+lsevin_disable_transparent_hugepages: true

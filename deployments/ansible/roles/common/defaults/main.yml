@@ -1,0 +1,4 @@
+---
+lsevin_enable_ufw: true
+lsevin_enable_unattended_upgrades: true
+lsevin_ssh_port: 22

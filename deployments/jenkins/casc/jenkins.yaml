@@ -1,0 +1,14 @@
+jenkins:
+  systemMessage: "LSevin production CI/CD \u2014 three readable repository Jenkinsfiles and two-replica Docker Compose deployments.\n"
+  numExecutors: 1
+  mode: NORMAL
+  scmCheckoutRetryCount: 2
+  disableRememberMe: true
+  remotingSecurity:
+    enabled: true
+unclassified:
+  location:
+    adminAddress: ${JENKINS_ADMIN_EMAIL}
+    url: https://${JENKINS_DOMAIN}/
+jobs:
+- file: /usr/share/jenkins/ref/casc/jobs.groovy

@@ -1,0 +1,14 @@
+---
+- name: Verify LSevin production database
+  hosts: lsevin_production
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Run database verification script
+      ansible.builtin.command: /usr/local/sbin/lsevin-db-verify
+      changed_when: false
+      register: database_verify
+
+    - name: Print verification output
+      ansible.builtin.debug:
+        var: database_verify.stdout_lines

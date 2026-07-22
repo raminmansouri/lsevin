@@ -1,0 +1,42 @@
+# Copy inventory/example to inventory/production and edit it.
+lsevin_app_dir: /opt/lsevin/app
+lsevin_config_dir: /opt/lsevin/config
+lsevin_backup_dir: /opt/lsevin/backups
+lsevin_compose_project: docker
+lsevin_ssh_port: 22
+
+# This server also runs the API/frontends, so PostgreSQL receives 20% of host RAM.
+# Use 0.25 only when the machine is primarily a database server.
+postgres_shared_buffers_fraction: 0.20
+postgres_effective_cache_fraction: 0.60
+postgres_max_connections: 120
+postgres_storage_type: ssd
+postgres_log_slow_query_ms: 1000
+postgres_autovacuum_max_workers: 5
+postgres_max_wal_size_gb: 4
+postgres_min_wal_size_gb: 1
+postgres_image_tag: 17.10-alpine
+
+pgbouncer_version: 1.25.2
+pgbouncer_max_client_conn: 1000
+pgbouncer_default_pool_size: 50
+pgbouncer_min_pool_size: 5
+pgbouncer_reserve_pool_size: 10
+pgbouncer_max_db_connections: 90
+pgbouncer_max_user_connections: 90
+pgbouncer_max_prepared_statements: 200
+
+# posix stores pgBackRest backups under /opt/lsevin/backups. For disaster
+# recovery, change this to s3 and fill the encrypted Vault values.
+pgbackrest_repo_type: posix
+pgbackrest_retention_full: 4
+pgbackrest_retention_diff: 14
+pgbackrest_process_max: 2
+logical_backup_retention_days: 14
+
+# Host hardening. SSH is allowed before UFW is enabled.
+lsevin_enable_ufw: true
+lsevin_enable_unattended_upgrades: true
+lsevin_disable_transparent_hugepages: true
+lsevin_docker_users:
+  - jenkins

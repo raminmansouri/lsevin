@@ -1,0 +1,1205 @@
+---
+- name: Validate required encrypted database variables
+  ansible.builtin.assert:
+    that:
+      - vault_postgres_db is defined
+      - vault_postgres_user is defined
+      - vault_postgres_password is defined
+      - vault_postgres_monitor_user is defined
+      - vault_postgres_monitor_password is defined
+      - (vault_postgres_password | default('')) not in ['CHANGE_ME', 'CHANGE_ME_EXISTING_DATABASE_PASSWORD', '']
+      - (vault_postgres_monitor_password | default('')) not in ['CHANGE_ME', 'CHANGE_ME_LONG_RANDOM_MONITOR_PASSWORD', '']
+      - (vault_postgres_db | default('')) is match('^[A-Za-z_][A-Za-z0-9_]*$')
+      - (vault_postgres_user | default('')) is match('^[A-Za-z_][A-Za-z0-9_]*$')
+      - (vault_postgres_monitor_user | default('')) is match('^[A-Za-z_][A-Za-z0-9_]*$')
+      - (vault_postgres_password | default('')) is match('^[A-Za-z0-9._~@%+=,:!?-]+$')
+      - (vault_postgres_monitor_password | default('')) is match('^[A-Za-z0-9._~@%+=,:!?-]+$')
+      - (vault_postgres_password | default('') | length) >= 12
+      - (vault_postgres_monitor_password | default('') | length) >= 24
+    fail_msg: >-
+      Create inventory/production/group_vars/all/vault.yml with ansible-vault.
+      Database/user names must be SQL identifiers. The application password must be at
+      least 12 characters; the monitoring password must be at
+      least 24 characters. Both must use .env-safe characters: A-Z, a-z, 0-9, dot, underscore,
+      tilde, @, %, +, =, comma, colon, !, ?, and hyphen.
+
+
+- name: Warn when the existing application database password is shorter than 24 characters
+  ansible.builtin.debug:
+    msg: >-
+      WARNING: the existing PostgreSQL password is valid for migration but is
+      shorter than the recommended 24 characters. Rotate it after this migration
+      is stable and all database clients are known.
+  when: (vault_postgres_password | length) < 24
+
+- name: Validate PgBouncer backend connection budget
+  ansible.builtin.assert:
+    that:
+      - pgbouncer_max_db_connections | int < postgres_max_connections | int
+      - pgbouncer_default_pool_size | int <= pgbouncer_max_db_connections | int
+      - pgbouncer_max_user_connections | int <= pgbouncer_max_db_connections | int
+    fail_msg: PgBouncer backend limits must remain below PostgreSQL max_connections.
+
+- name: Validate minimum host resources for the combined production stack
+  ansible.builtin.assert:
+    that:
+      - (ansible_memtotal_mb | int) >= 3072
+      - (ansible_processor_vcpus | int) >= 2
+    fail_msg: >-
+      This combined application/database host needs at least 3 GB RAM and 2
+      vCPUs. For production traffic, 8 GB RAM or more is strongly recommended.
+
+- name: Warn when the combined production host has less than 8 GB RAM
+  ansible.builtin.debug:
+    msg: >-
+      WARNING: only {{ ansible_memtotal_mb }} MB RAM detected. PostgreSQL is
+      tuned conservatively, but API, web, Jenkins, Redis, EventStore, and builds
+      may compete for memory. Upgrade or separate the database before load grows.
+  when: (ansible_memtotal_mb | int) < 8192
+
+- name: Calculate host-specific PostgreSQL tuning
+  ansible.builtin.set_fact:
+    postgres_shared_buffers_mb: "{{ [((ansible_memtotal_mb | int) * (postgres_shared_buffers_fraction | float)) | int, 8192] | min }}"
+    postgres_effective_cache_size_mb: "{{ [((ansible_memtotal_mb | int) * (postgres_effective_cache_fraction | float)) | int, 32768] | min }}"
+    postgres_maintenance_work_mem_mb: "{{ [[((ansible_memtotal_mb | int) * 0.05) | int, 256] | max, 2048] | min }}"
+    postgres_autovacuum_work_mem_mb: "{{ [[((ansible_memtotal_mb | int) * 0.02) | int, 128] | max, 1024] | min }}"
+    postgres_max_worker_processes: "{{ [[(ansible_processor_vcpus | int) * 2, 8] | max, 32] | min }}"
+    postgres_max_parallel_workers: "{{ [[ansible_processor_vcpus | int, 2] | max, 16] | min }}"
+    postgres_max_parallel_workers_per_gather: "{{ [[((ansible_processor_vcpus | int) // 2), 1] | max, 4] | min }}"
+    postgres_max_parallel_maintenance_workers: "{{ [[((ansible_processor_vcpus | int) // 2), 1] | max, 4] | min }}"
+
+- name: Calculate safe work_mem and shared memory size
+  ansible.builtin.set_fact:
+    postgres_work_mem_mb: >-
+      {{ [[(((ansible_memtotal_mb | int) - (postgres_shared_buffers_mb | int))
+      // ((postgres_max_connections | int) * 3)), 4] | max, 32] | min }}
+    postgres_shm_size_mb: "{{ (((postgres_shared_buffers_mb | int) * 1.25) | int) + 256 }}"
+
+- name: Ensure server-managed configuration and backup directories exist
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: "{{ lsevin_config_dir }}/postgres", owner: "70", group: "70", mode: "0750" }
+    - { path: "{{ lsevin_backup_dir }}/pgbackrest", owner: "70", group: "70", mode: "0750" }
+    - { path: "{{ lsevin_backup_dir }}/spool", owner: "70", group: "70", mode: "0750" }
+    - { path: "{{ lsevin_backup_dir }}/logical", owner: "root", group: "root", mode: "0750" }
+
+- name: Render tuned PostgreSQL configuration
+  ansible.builtin.template:
+    src: postgresql.conf.j2
+    dest: "{{ lsevin_config_dir }}/postgres/postgresql.conf"
+    owner: "70"
+    group: "70"
+    mode: "0640"
+
+- name: Render PostgreSQL client authentication configuration
+  ansible.builtin.template:
+    src: pg_hba.conf.j2
+    dest: "{{ lsevin_config_dir }}/postgres/pg_hba.conf"
+    owner: "70"
+    group: "70"
+    mode: "0640"
+
+- name: Validate S3 backup settings when selected
+  ansible.builtin.assert:
+    that:
+      - vault_pgbackrest_s3_bucket | length > 0
+      - vault_pgbackrest_s3_endpoint | length > 0
+      - vault_pgbackrest_s3_region | length > 0
+      - vault_pgbackrest_s3_key | length > 0
+      - vault_pgbackrest_s3_key_secret | length > 0
+    fail_msg: Fill the encrypted pgBackRest S3 values or use pgbackrest_repo_type=posix.
+  when: pgbackrest_repo_type == 's3'
+  no_log: true
+
+- name: Render pgBackRest configuration
+  ansible.builtin.template:
+    src: pgbackrest.conf.j2
+    dest: "{{ lsevin_config_dir }}/postgres/pgbackrest.conf"
+    owner: "70"
+    group: "70"
+    mode: "0600"
+  no_log: "{{ pgbackrest_repo_type == 's3' }}"
+
+- name: Ensure production environment file exists
+  ansible.builtin.stat:
+    path: "{{ lsevin_app_dir }}/deployments/docker/.env"
+  register: production_env
+
+- name: Stop if the application environment has not been prepared
+  ansible.builtin.assert:
+    that: production_env.stat.exists
+    fail_msg: >-
+      Copy deployments/docker/.env.example to .env and preserve existing
+      application secrets before running Ansible.
+
+- name: Validate production Compose configuration
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - config
+      - --quiet
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  changed_when: false
+
+- name: Build PostgreSQL and PgBouncer images before the maintenance window
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - build
+      - postgres
+      - pgbouncer
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  changed_when: true
+
+- name: Pull database exporter images before the maintenance window
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - pull
+      - postgres-exporter
+      - pgbouncer-exporter
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  changed_when: true
+
+- name: Detect an existing API container
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - ps
+      - --all
+      - --quiet
+      - lsevin-api
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  register: existing_api_container
+  changed_when: false
+
+- name: Detect an existing web application container
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - ps
+      - --all
+      - --quiet
+      - lsevin-webapp
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  register: existing_webapp_container
+  changed_when: false
+
+- name: Restore the local API image tag from the existing container when missing
+  ansible.builtin.shell: |
+    set -euo pipefail
+
+    target_image='lsevin-api:server'
+    container_id="${LSEVIN_CONTAINER_ID}"
+
+    if docker image inspect "${target_image}" >/dev/null 2>&1; then
+      echo 'image-tag-present'
+      exit 0
+    fi
+
+    image_id="$(
+      docker container inspect "${container_id}" |
+        python3 -c 'import json, sys; print(json.load(sys.stdin)[0]["Image"])'
+    )"
+
+    if ! docker image inspect "${image_id}" >/dev/null 2>&1; then
+      echo "The image object ${image_id} used by container ${container_id} is unavailable." >&2
+      echo "Refusing to commit the container because that would store runtime secrets in image metadata." >&2
+      exit 1
+    fi
+
+    docker image tag "${image_id}" "${target_image}"
+    echo 'image-tag-restored-from-container-image'
+
+    docker image inspect "${target_image}" >/dev/null
+  args:
+    executable: /bin/bash
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  environment:
+    LSEVIN_CONTAINER_ID: "{{ existing_api_container.stdout | trim }}"
+  when: (existing_api_container.stdout | trim | length) > 0
+  register: api_image_tag_recovery
+  changed_when: "'image-tag-present' not in api_image_tag_recovery.stdout"
+
+- name: Restore the local web application image tag from the existing container when missing
+  ansible.builtin.shell: |
+    set -euo pipefail
+
+    target_image='lsevin-webapp:server'
+    container_id="${LSEVIN_CONTAINER_ID}"
+
+    if docker image inspect "${target_image}" >/dev/null 2>&1; then
+      echo 'image-tag-present'
+      exit 0
+    fi
+
+    image_id="$(
+      docker container inspect "${container_id}" |
+        python3 -c 'import json, sys; print(json.load(sys.stdin)[0]["Image"])'
+    )"
+
+    if ! docker image inspect "${image_id}" >/dev/null 2>&1; then
+      echo "The image object ${image_id} used by container ${container_id} is unavailable." >&2
+      echo "Rebuild the web application image through Jenkins before continuing." >&2
+      exit 1
+    fi
+
+    docker image tag "${image_id}" "${target_image}"
+    echo 'image-tag-restored-from-container-image'
+
+    docker image inspect "${target_image}" >/dev/null
+  args:
+    executable: /bin/bash
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  environment:
+    LSEVIN_CONTAINER_ID: "{{ existing_webapp_container.stdout | trim }}"
+  when: (existing_webapp_container.stdout | trim | length) > 0
+  register: webapp_image_tag_recovery
+  changed_when: "'image-tag-present' not in webapp_image_tag_recovery.stdout"
+
+- name: Detect an existing PostgreSQL container
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - ps
+      - --all
+      - --quiet
+      - postgres
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  register: existing_postgres_container
+  changed_when: false
+
+- name: Detect an existing PostgreSQL data volume
+  ansible.builtin.command:
+    argv:
+      - docker
+      - volume
+      - inspect
+      - "{{ lsevin_compose_project }}_postgres_data"
+  register: existing_postgres_volume
+  changed_when: false
+  failed_when: false
+
+- name: Stop when a database volume exists without its Compose container
+  ansible.builtin.assert:
+    that:
+      - existing_postgres_volume.rc != 0
+    fail_msg: >-
+      The {{ lsevin_compose_project }}_postgres_data volume exists, but no
+      PostgreSQL Compose container was found. This may contain production data.
+      Restore or recreate the old postgres service container and take a verified
+      backup before running this migration.
+  when: (existing_postgres_container.stdout | trim | length) == 0
+
+- name: Start the existing PostgreSQL container for backup and migration
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - start
+      - postgres
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  when: (existing_postgres_container.stdout | trim | length) > 0
+  changed_when: true
+
+- name: Wait for the existing PostgreSQL container to accept local connections
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - exec
+      - -T
+      - postgres
+      - pg_isready
+      - -U
+      - "{{ vault_postgres_user }}"
+      - -d
+      - "{{ vault_postgres_db }}"
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  register: existing_postgres_ready
+  retries: 30
+  delay: 2
+  until: existing_postgres_ready.rc == 0
+  changed_when: false
+  when: (existing_postgres_container.stdout | trim | length) > 0
+
+- name: Reload PostgreSQL configuration before pre-change backup
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - exec
+      - -T
+      - postgres
+      - psql
+      - -v
+      - ON_ERROR_STOP=1
+      - -U
+      - "{{ vault_postgres_user }}"
+      - -d
+      - "{{ vault_postgres_db }}"
+      - -Atqc
+      - SELECT pg_reload_conf();
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  register: existing_postgres_reload
+  retries: 15
+  delay: 2
+  until:
+    - existing_postgres_reload.rc == 0
+    - (existing_postgres_reload.stdout | trim) == 't'
+  changed_when: false
+  when: (existing_postgres_container.stdout | trim | length) > 0
+
+- name: Detect pgBackRest in the existing PostgreSQL container
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - exec
+      - -T
+      - postgres
+      - sh
+      - -ec
+      - command -v pgbackrest >/dev/null 2>&1
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  register: existing_postgres_has_pgbackrest
+  changed_when: false
+  failed_when: false
+  when: (existing_postgres_container.stdout | trim | length) > 0
+
+- name: Repair pgBackRest bootstrap state on a partially migrated database
+  when:
+    - (existing_postgres_container.stdout | trim | length) > 0
+    - (existing_postgres_has_pgbackrest.rc | default(1) | int) == 0
+  block:
+    - name: Reset stale asynchronous pgBackRest spool state
+      ansible.builtin.command:
+        argv:
+          - docker
+          - compose
+          - --project-name
+          - "{{ lsevin_compose_project }}"
+          - --env-file
+          - .env
+          - -f
+          - docker-compose.server.yml
+          - exec
+          - -T
+          - --user
+          - postgres
+          - postgres
+          - sh
+          - -ec
+          - find /var/spool/pgbackrest -mindepth 1 -depth -delete
+        chdir: "{{ lsevin_app_dir }}/deployments/docker"
+      changed_when: true
+
+    - name: Build a normalized pgBackRest bootstrap config in the existing container
+      ansible.builtin.command:
+        argv:
+          - docker
+          - compose
+          - --project-name
+          - "{{ lsevin_compose_project }}"
+          - --env-file
+          - .env
+          - -f
+          - docker-compose.server.yml
+          - exec
+          - -T
+          - --user
+          - postgres
+          - postgres
+          - sh
+          - -ec
+          - |
+            umask 077
+            sed \
+              -e 's/^repo1-compress-type=/compress-type=/' \
+              -e 's/^repo1-compress-level=/compress-level=/' \
+              /etc/pgbackrest/pgbackrest.conf \
+              > /tmp/lsevin-pgbackrest-bootstrap.conf
+            ! grep -Eq '^repo[0-9]+-compress-(type|level)=' \
+              /tmp/lsevin-pgbackrest-bootstrap.conf
+        chdir: "{{ lsevin_app_dir }}/deployments/docker"
+      changed_when: true
+
+    - name: Initialize pgBackRest repository before logical backup
+      ansible.builtin.command:
+        argv:
+          - docker
+          - compose
+          - --project-name
+          - "{{ lsevin_compose_project }}"
+          - --env-file
+          - .env
+          - -f
+          - docker-compose.server.yml
+          - exec
+          - -T
+          - --user
+          - postgres
+          - postgres
+          - pgbackrest
+          - --config=/tmp/lsevin-pgbackrest-bootstrap.conf
+          - --stanza=lsevin
+          - stanza-create
+        chdir: "{{ lsevin_app_dir }}/deployments/docker"
+      register: bootstrap_stanza_create
+      retries: 15
+      delay: 2
+      until: bootstrap_stanza_create.rc == 0
+      changed_when: >-
+        'already exists' not in
+        ((bootstrap_stanza_create.stdout | default(''))
+        ~ (bootstrap_stanza_create.stderr | default('')))
+      failed_when: >-
+        bootstrap_stanza_create.rc != 0
+        or 'invalid option' in
+        (((bootstrap_stanza_create.stdout | default(''))
+        ~ (bootstrap_stanza_create.stderr | default(''))) | lower)
+
+    - name: Clear pgBackRest spool errors after stanza initialization
+      ansible.builtin.command:
+        argv:
+          - docker
+          - compose
+          - --project-name
+          - "{{ lsevin_compose_project }}"
+          - --env-file
+          - .env
+          - -f
+          - docker-compose.server.yml
+          - exec
+          - -T
+          - --user
+          - postgres
+          - postgres
+          - sh
+          - -ec
+          - find /var/spool/pgbackrest -mindepth 1 -depth -delete
+        chdir: "{{ lsevin_app_dir }}/deployments/docker"
+      changed_when: true
+
+    - name: Verify pgBackRest archiving before logical backup
+      ansible.builtin.command:
+        argv:
+          - docker
+          - compose
+          - --project-name
+          - "{{ lsevin_compose_project }}"
+          - --env-file
+          - .env
+          - -f
+          - docker-compose.server.yml
+          - exec
+          - -T
+          - --user
+          - postgres
+          - postgres
+          - pgbackrest
+          - --config=/tmp/lsevin-pgbackrest-bootstrap.conf
+          - --stanza=lsevin
+          - check
+        chdir: "{{ lsevin_app_dir }}/deployments/docker"
+      register: bootstrap_pgbackrest_check
+      retries: 10
+      delay: 3
+      until: bootstrap_pgbackrest_check.rc == 0
+      changed_when: false
+      failed_when: >-
+        bootstrap_pgbackrest_check.rc != 0
+        or 'invalid option' in
+        (((bootstrap_pgbackrest_check.stdout | default(''))
+        ~ (bootstrap_pgbackrest_check.stderr | default(''))) | lower)
+
+    - name: Remove temporary pgBackRest bootstrap configuration
+      ansible.builtin.command:
+        argv:
+          - docker
+          - compose
+          - --project-name
+          - "{{ lsevin_compose_project }}"
+          - --env-file
+          - .env
+          - -f
+          - docker-compose.server.yml
+          - exec
+          - -T
+          - --user
+          - postgres
+          - postgres
+          - rm
+          - -f
+          - /tmp/lsevin-pgbackrest-bootstrap.conf
+        chdir: "{{ lsevin_app_dir }}/deployments/docker"
+      changed_when: true
+
+- name: Create and validate a portable pre-change backup
+  when: (existing_postgres_container.stdout | trim | length) > 0
+  block:
+    - name: Count PostgreSQL large objects before logical backup
+      ansible.builtin.command:
+        argv:
+          - docker
+          - compose
+          - --project-name
+          - "{{ lsevin_compose_project }}"
+          - --env-file
+          - .env
+          - -f
+          - docker-compose.server.yml
+          - exec
+          - -T
+          - postgres
+          - psql
+          - -v
+          - ON_ERROR_STOP=1
+          - -U
+          - "{{ vault_postgres_user }}"
+          - -d
+          - "{{ vault_postgres_db }}"
+          - -Atqc
+          - SELECT count(*) FROM pg_catalog.pg_largeobject_metadata;
+        chdir: "{{ lsevin_app_dir }}/deployments/docker"
+      register: postgres_large_object_count
+      changed_when: false
+
+    - name: Validate PostgreSQL large-object count
+      ansible.builtin.assert:
+        that:
+          - (postgres_large_object_count.stdout | trim) is match('^[0-9]+$')
+        fail_msg: PostgreSQL returned an invalid large-object count; refusing to create an incomplete backup.
+
+    - name: Create portable pre-change backup from PostgreSQL
+      ansible.builtin.shell: |
+        set -Eeuo pipefail
+
+        timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+        backup_dir={{ (lsevin_backup_dir ~ '/logical') | quote }}
+        output="${backup_dir}/pre-ansible-${timestamp}.dump"
+        partial="${output}.partial"
+        large_object_count={{ (postgres_large_object_count.stdout | trim) | quote }}
+
+        cd {{ (lsevin_app_dir ~ '/deployments/docker') | quote }}
+
+        compose=(
+          docker compose
+          --project-name {{ lsevin_compose_project | quote }}
+          --env-file .env
+          -f docker-compose.server.yml
+        )
+
+        mkdir -p "$backup_dir"
+        chmod 0750 "$backup_dir"
+        rm -f "$partial"
+
+        dump_args=(
+          --format=custom
+          --compress=6
+          --no-owner
+          --no-privileges
+        )
+
+        if [[ "$large_object_count" == "0" ]]; then
+          dump_args+=(--no-large-objects)
+        fi
+
+        "${compose[@]}" exec -T \
+          -e 'PGOPTIONS=-c jit=off -c max_parallel_workers_per_gather=0' \
+          postgres \
+          pg_dump \
+            -U {{ vault_postgres_user | quote }} \
+            -d {{ vault_postgres_db | quote }} \
+            "${dump_args[@]}" \
+          > "$partial"
+
+        test -s "$partial"
+
+        "${compose[@]}" exec -T postgres \
+          pg_restore --list \
+          < "$partial" \
+          > /dev/null
+
+        mv "$partial" "$output"
+        chmod 0600 "$output"
+        sha256sum "$output" > "${output}.sha256"
+        chmod 0600 "${output}.sha256"
+
+        printf '%s\n' "$output"
+      args:
+        executable: /bin/bash
+      register: pre_ansible_backup
+      changed_when: true
+
+  rescue:
+    - name: Remove incomplete pre-change backup files
+      ansible.builtin.shell: |
+        set -Eeuo pipefail
+        find {{ (lsevin_backup_dir ~ '/logical') | quote }} \
+          -maxdepth 1 \
+          -type f \
+          -name 'pre-ansible-*.dump.partial' \
+          -mmin -30 \
+          -delete
+      args:
+        executable: /bin/bash
+      changed_when: false
+      failed_when: false
+
+    - name: Capture recent PostgreSQL container logs after backup failure
+      ansible.builtin.command:
+        argv:
+          - docker
+          - compose
+          - --project-name
+          - "{{ lsevin_compose_project }}"
+          - --env-file
+          - .env
+          - -f
+          - docker-compose.server.yml
+          - logs
+          - --no-color
+          - --tail=250
+          - postgres
+        chdir: "{{ lsevin_app_dir }}/deployments/docker"
+      register: postgres_backup_failure_logs
+      changed_when: false
+      failed_when: false
+
+    - name: Capture recent kernel memory failures
+      ansible.builtin.shell: |
+        set -o pipefail
+        journalctl --kernel --since '-15 minutes' --no-pager 2>/dev/null \
+          | grep -Ei 'out of memory|oom-kill|killed process|memory cgroup' \
+          || true
+      args:
+        executable: /bin/bash
+      register: postgres_backup_oom_logs
+      changed_when: false
+      failed_when: false
+
+    - name: Stop after portable backup failure with diagnostics
+      ansible.builtin.fail:
+        msg: |-
+          PostgreSQL portable backup failed. No database volume was deleted.
+
+          Recent PostgreSQL logs:
+          {{ postgres_backup_failure_logs.stdout | default('No PostgreSQL logs were captured.') }}
+
+          Recent kernel memory messages:
+          {{ postgres_backup_oom_logs.stdout | default('No kernel OOM messages were captured.') }}
+
+- name: Normalize the existing application role password to SCRAM
+  ansible.builtin.shell: |
+    set -Eeuo pipefail
+    cd {{ lsevin_app_dir }}/deployments/docker
+    docker compose --project-name {{ lsevin_compose_project }} --env-file .env -f docker-compose.server.yml \
+      exec -T postgres psql -v ON_ERROR_STOP=1 \
+      -U {{ vault_postgres_user | quote }} -d postgres \
+      --set=app_user={{ vault_postgres_user | quote }} \
+      --set=app_password={{ vault_postgres_password | quote }} <<'SQL'
+    SET password_encryption = 'scram-sha-256';
+    SELECT format('ALTER ROLE %I LOGIN PASSWORD %L', :'app_user', :'app_password')\gexec
+    SQL
+  args:
+    executable: /bin/bash
+  changed_when: true
+  no_log: true
+  when: (existing_postgres_container.stdout | trim | length) > 0
+
+- name: Back up the production environment file before changing database values
+  ansible.builtin.copy:
+    src: "{{ lsevin_app_dir }}/deployments/docker/.env"
+    dest: "{{ lsevin_app_dir }}/deployments/docker/.env.pre-ansible-{{ ansible_date_time.iso8601_basic_short }}"
+    remote_src: true
+    mode: "0600"
+    force: false
+
+- name: Ensure database and pooling values in production environment
+  ansible.builtin.lineinfile:
+    path: "{{ lsevin_app_dir }}/deployments/docker/.env"
+    regexp: "^{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+    create: false
+    mode: "0600"
+  loop:
+    - { key: POSTGRES_DB, value: "{{ vault_postgres_db }}" }
+    - { key: POSTGRES_USER, value: "{{ vault_postgres_user }}" }
+    - { key: POSTGRES_PASSWORD, value: "{{ vault_postgres_password }}" }
+    - { key: POSTGRES_MONITOR_USER, value: "{{ vault_postgres_monitor_user }}" }
+    - { key: POSTGRES_MONITOR_PASSWORD, value: "{{ vault_postgres_monitor_password }}" }
+    - { key: POSTGRES_IMAGE_TAG, value: "{{ postgres_image_tag }}" }
+    - { key: POSTGRES_SHM_SIZE, value: "{{ postgres_shm_size_mb }}m" }
+    - { key: PGBOUNCER_VERSION, value: "{{ pgbouncer_version }}" }
+    - { key: PGBOUNCER_MAX_CLIENT_CONN, value: "{{ pgbouncer_max_client_conn }}" }
+    - { key: PGBOUNCER_DEFAULT_POOL_SIZE, value: "{{ pgbouncer_default_pool_size }}" }
+    - { key: PGBOUNCER_MIN_POOL_SIZE, value: "{{ pgbouncer_min_pool_size }}" }
+    - { key: PGBOUNCER_RESERVE_POOL_SIZE, value: "{{ pgbouncer_reserve_pool_size }}" }
+    - { key: PGBOUNCER_MAX_DB_CONNECTIONS, value: "{{ pgbouncer_max_db_connections }}" }
+    - { key: PGBOUNCER_MAX_USER_CONNECTIONS, value: "{{ pgbouncer_max_user_connections }}" }
+    - { key: PGBOUNCER_MAX_PREPARED_STATEMENTS, value: "{{ pgbouncer_max_prepared_statements }}" }
+    - { key: LSEVIN_CONFIG_DIR, value: "{{ lsevin_config_dir }}" }
+    - { key: LSEVIN_BACKUP_DIR, value: "{{ lsevin_backup_dir }}" }
+    - key: DATABASE_URL
+      value: >-
+        {{ 'postgresql://' ~ (vault_postgres_user | urlencode)
+        ~ ':' ~ (vault_postgres_password | urlencode)
+        ~ '@pgbouncer:6432/' ~ (vault_postgres_db | urlencode) }}
+    - key: DATABASE_URL_DIRECT
+      value: >-
+        {{ 'postgresql://' ~ (vault_postgres_user | urlencode)
+        ~ ':' ~ (vault_postgres_password | urlencode)
+        ~ '@postgres:5432/' ~ (vault_postgres_db | urlencode) }}
+  no_log: true
+
+- name: Build and deploy database services
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - up
+      - -d
+      - --no-build
+      - --force-recreate
+      - --wait
+      - --wait-timeout
+      - "180"
+      - postgres
+      - pgbouncer
+      - postgres-exporter
+      - pgbouncer-exporter
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  changed_when: true
+
+- name: Wait for deployed PostgreSQL to accept connections
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - exec
+      - -T
+      - postgres
+      - pg_isready
+      - -U
+      - "{{ vault_postgres_user }}"
+      - -d
+      - "{{ vault_postgres_db }}"
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  register: deployed_postgres_ready
+  retries: 30
+  delay: 2
+  until: deployed_postgres_ready.rc == 0
+  changed_when: false
+
+- name: Check PostgreSQL administrator role capabilities
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - exec
+      - -T
+      - postgres
+      - psql
+      - -v
+      - ON_ERROR_STOP=1
+      - -U
+      - "{{ vault_postgres_user }}"
+      - -d
+      - "{{ vault_postgres_db }}"
+      - -Atqc
+      - SELECT (rolsuper OR rolcreaterole) FROM pg_catalog.pg_roles WHERE rolname = current_user;
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  register: postgres_admin_capability
+  changed_when: false
+
+- name: Assert PostgreSQL administrator can manage monitoring role
+  ansible.builtin.assert:
+    that:
+      - (postgres_admin_capability.stdout | trim) == 't'
+    fail_msg: >-
+      The configured POSTGRES_USER cannot create or alter roles. Use the PostgreSQL
+      cluster administrator created when this production volume was initialized.
+
+- name: Configure PostgreSQL monitoring role and extension
+  block:
+    - name: Write temporary PostgreSQL monitoring SQL
+      ansible.builtin.copy:
+        dest: /run/lsevin-monitoring-role.sql
+        owner: root
+        group: root
+        mode: "0600"
+        content: |
+          DO $lsevin$
+          BEGIN
+            IF NOT EXISTS (
+              SELECT 1
+              FROM pg_catalog.pg_roles
+              WHERE rolname = '{{ vault_postgres_monitor_user }}'
+            ) THEN
+              CREATE ROLE "{{ vault_postgres_monitor_user }}"
+                WITH LOGIN
+                PASSWORD '{{ vault_postgres_monitor_password }}';
+            ELSE
+              ALTER ROLE "{{ vault_postgres_monitor_user }}"
+                WITH LOGIN
+                PASSWORD '{{ vault_postgres_monitor_password }}';
+            END IF;
+          END
+          $lsevin$;
+
+          GRANT pg_monitor TO "{{ vault_postgres_monitor_user }}";
+          GRANT pg_read_all_stats TO "{{ vault_postgres_monitor_user }}";
+          CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+      no_log: true
+
+    - name: Apply PostgreSQL monitoring SQL
+      ansible.builtin.shell: |
+        set -Eeuo pipefail
+        cd {{ (lsevin_app_dir ~ '/deployments/docker') | quote }}
+
+        docker compose \
+          --project-name {{ lsevin_compose_project | quote }} \
+          --env-file .env \
+          -f docker-compose.server.yml \
+          exec -T postgres \
+          psql \
+            -v ON_ERROR_STOP=1 \
+            -U {{ vault_postgres_user | quote }} \
+            -d {{ vault_postgres_db | quote }} \
+          < /run/lsevin-monitoring-role.sql
+      args:
+        executable: /bin/bash
+      register: monitoring_sql_result
+      changed_when: true
+
+  always:
+    - name: Remove temporary PostgreSQL monitoring SQL
+      ansible.builtin.file:
+        path: /run/lsevin-monitoring-role.sql
+        state: absent
+
+- name: Verify PostgreSQL monitoring role
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - exec
+      - -T
+      - postgres
+      - psql
+      - -v
+      - ON_ERROR_STOP=1
+      - -U
+      - "{{ vault_postgres_user }}"
+      - -d
+      - "{{ vault_postgres_db }}"
+      - -Atqc
+      - >-
+        SELECT EXISTS (
+          SELECT 1
+          FROM pg_catalog.pg_roles
+          WHERE rolname = '{{ vault_postgres_monitor_user }}'
+            AND rolcanlogin
+        ) AND EXISTS (
+          SELECT 1
+          FROM pg_catalog.pg_extension
+          WHERE extname = 'pg_stat_statements'
+        );
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  register: monitoring_configuration_check
+  changed_when: false
+  failed_when: >-
+    monitoring_configuration_check.rc != 0
+    or (monitoring_configuration_check.stdout | trim) != 't'
+
+- name: Initialize pgBackRest stanza
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - exec
+      - -T
+      - --user
+      - postgres
+      - postgres
+      - pgbackrest
+      - --stanza=lsevin
+      - stanza-create
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  register: stanza_create
+  changed_when: >-
+    'already exists' not in
+    ((stanza_create.stdout | default('')) ~ (stanza_create.stderr | default('')))
+  failed_when: >-
+    stanza_create.rc != 0
+    or 'invalid option' in
+    (((stanza_create.stdout | default(''))
+    ~ (stanza_create.stderr | default(''))) | lower)
+
+- name: Verify pgBackRest archive and database access
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - exec
+      - -T
+      - --user
+      - postgres
+      - postgres
+      - pgbackrest
+      - --stanza=lsevin
+      - check
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  register: pgbackrest_check_result
+  changed_when: false
+  failed_when: >-
+    pgbackrest_check_result.rc != 0
+    or 'invalid option' in
+    (((pgbackrest_check_result.stdout | default(''))
+    ~ (pgbackrest_check_result.stderr | default(''))) | lower)
+
+- name: Read pgBackRest repository metadata
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - exec
+      - -T
+      - --user
+      - postgres
+      - postgres
+      - pgbackrest
+      - --stanza=lsevin
+      - --output=json
+      - info
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  register: pgbackrest_repository_info
+  changed_when: false
+
+- name: Create the initial full physical backup
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - exec
+      - -T
+      - --user
+      - postgres
+      - postgres
+      - pgbackrest
+      - --stanza=lsevin
+      - --type=full
+      - backup
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  when: >-
+    ((pgbackrest_repository_info.stdout | from_json | first).backup
+    | default([]) | length) == 0
+  changed_when: true
+
+- name: Install database maintenance scripts
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "0750"
+  loop:
+    - { src: lsevin-pgbackrest-backup.sh.j2, dest: /usr/local/sbin/lsevin-pgbackrest-backup }
+    - { src: lsevin-pgbackrest-check.sh.j2, dest: /usr/local/sbin/lsevin-pgbackrest-check }
+    - { src: lsevin-logical-backup.sh.j2, dest: /usr/local/sbin/lsevin-logical-backup }
+    - { src: lsevin-db-verify.sh.j2, dest: /usr/local/sbin/lsevin-db-verify }
+
+- name: Install backup service and timers
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ item }}"
+    mode: "0644"
+  loop:
+    - lsevin-pgbackrest@.service
+    - lsevin-pgbackrest-full.timer
+    - lsevin-pgbackrest-diff.timer
+    - lsevin-pgbackrest-incr.timer
+    - lsevin-pgbackrest-check.service
+    - lsevin-pgbackrest-check.timer
+    - lsevin-logical-backup.service
+    - lsevin-logical-backup.timer
+  notify: Reload systemd timers
+
+- name: Flush systemd handler before enabling timers
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable database backup timers
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  loop:
+    - lsevin-pgbackrest-full.timer
+    - lsevin-pgbackrest-diff.timer
+    - lsevin-pgbackrest-incr.timer
+    - lsevin-pgbackrest-check.timer
+    - lsevin-logical-backup.timer
+
+- name: Recreate the existing API container so it uses PgBouncer
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - up
+      - -d
+      - --no-deps
+      - --no-build
+      - --force-recreate
+      - lsevin-api
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  when: (existing_api_container.stdout | trim | length) > 0
+  changed_when: true
+
+- name: Recreate the existing web application container so it uses PgBouncer
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - up
+      - -d
+      - --no-deps
+      - --no-build
+      - --force-recreate
+      - lsevin-webapp
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  when: (existing_webapp_container.stdout | trim | length) > 0
+  changed_when: true
+
+- name: Run final database verification
+  ansible.builtin.command: /usr/local/sbin/lsevin-db-verify
+  changed_when: false

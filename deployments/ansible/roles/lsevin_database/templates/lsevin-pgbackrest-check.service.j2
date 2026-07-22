@@ -1,0 +1,8 @@
+[Unit]
+Description=Verify LSevin pgBackRest repository
+Requires=docker.service
+After=docker.service
+[Service]
+Type=oneshot
+TimeoutStartSec=3h
+ExecStart=/usr/local/sbin/lsevin-pgbackrest-check

@@ -1,0 +1,12 @@
+[Unit]
+Description=LSevin pgBackRest %i backup
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+TimeoutStartSec=4h
+ExecStart=/usr/local/sbin/lsevin-pgbackrest-backup %i
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7

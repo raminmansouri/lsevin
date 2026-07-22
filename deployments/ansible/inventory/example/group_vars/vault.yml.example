@@ -1,0 +1,16 @@
+# Create inventory/production/group_vars/vault.yml with ansible-vault and use
+# the SAME existing production database password during migration.
+vault_postgres_db: lsevin
+vault_postgres_user: lsevin
+vault_postgres_password: CHANGE_ME_EXISTING_DATABASE_PASSWORD
+vault_postgres_monitor_user: lsevin_monitor
+vault_postgres_monitor_password: CHANGE_ME_LONG_RANDOM_MONITOR_PASSWORD
+
+# Optional S3-compatible pgBackRest repository values. They are only used when
+# pgbackrest_repo_type is "s3".
+vault_pgbackrest_s3_bucket: ""
+vault_pgbackrest_s3_endpoint: ""
+vault_pgbackrest_s3_region: ""
+vault_pgbackrest_s3_key: ""
+vault_pgbackrest_s3_key_secret: ""
+vault_pgbackrest_s3_uri_style: host

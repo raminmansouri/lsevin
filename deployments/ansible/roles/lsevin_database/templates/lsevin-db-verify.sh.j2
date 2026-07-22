@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+cd {{ lsevin_app_dir }}/deployments/docker
+compose=(
+  docker compose
+  --project-name {{ lsevin_compose_project }}
+  --env-file .env
+  -f docker-compose.server.yml
+)
+
+"${compose[@]}" ps postgres pgbouncer postgres-exporter pgbouncer-exporter
+
+# Use the credentials already injected into the PostgreSQL container. The local
+# socket is trusted, so no password is needed or exposed by this check.
+"${compose[@]}" exec -T postgres sh -ec '
+  : "${POSTGRES_USER:?POSTGRES_USER is required}"
+  : "${POSTGRES_DB:?POSTGRES_DB is required}"
+  exec psql \
+    -U "$POSTGRES_USER" \
+    -d "$POSTGRES_DB" \
+    -v ON_ERROR_STOP=1 \
+    -c "SELECT version(), current_setting('"'"'shared_buffers'"'"'), current_setting('"'"'max_connections'"'"'), current_setting('"'"'archive_mode'"'"'), current_setting('"'"'data_checksums'"'"'), pg_is_in_recovery();"
+'
+
+# Use the monitor credentials already injected into the PgBouncer container.
+# The password never appears in this host script, Ansible output, or argv.
+"${compose[@]}" exec -T pgbouncer sh -ec '
+  : "${PGBOUNCER_MONITOR_USER:?PGBOUNCER_MONITOR_USER is required}"
+  : "${PGBOUNCER_MONITOR_PASSWORD:?PGBOUNCER_MONITOR_PASSWORD is required}"
+  export PGPASSWORD="$PGBOUNCER_MONITOR_PASSWORD"
+  exec psql \
+    -h 127.0.0.1 \
+    -p 6432 \
+    -U "$PGBOUNCER_MONITOR_USER" \
+    -d pgbouncer \
+    -v ON_ERROR_STOP=1 \
+    -c "SHOW POOLS;"
+'
+
+"${compose[@]}" exec -T --user postgres postgres \
+  pgbackrest --stanza=lsevin info
+
+curl --fail --silent --show-error http://127.0.0.1:9187/metrics >/dev/null
+curl --fail --silent --show-error http://127.0.0.1:9127/metrics >/dev/null
+
+echo 'Database, PgBouncer, pgBackRest, and metric exporters are healthy.'

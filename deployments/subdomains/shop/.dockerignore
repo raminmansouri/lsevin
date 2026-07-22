@@ -1,0 +1,25 @@
+# Git history is not needed inside the image.
+.git
+.gitignore
+
+# Local dependencies and build output are recreated inside Docker.
+node_modules
+.next
+out
+coverage
+
+# Never copy runtime secrets into a Docker image.
+.env
+.env.*
+!.env.example
+
+# Local editor and operating-system files.
+.vscode
+.idea
+.DS_Store
+*.log
+
+# Deployment files do not need to be copied into the application runtime.
+Jenkinsfile
+docker-compose.yml
+README.md

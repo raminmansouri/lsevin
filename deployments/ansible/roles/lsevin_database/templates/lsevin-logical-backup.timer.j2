@@ -1,0 +1,8 @@
+[Unit]
+Description=Nightly LSevin portable PostgreSQL logical backup
+[Timer]
+OnCalendar=*-*-* 05:30:00
+Persistent=true
+RandomizedDelaySec=300
+[Install]
+WantedBy=timers.target

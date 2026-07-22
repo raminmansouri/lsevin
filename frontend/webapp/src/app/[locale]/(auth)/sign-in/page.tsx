@@ -28,12 +28,13 @@ export async function generateMetadata(
   };
 }
 
-const SignInPage = ({ params }: { params: Promise<LocaleParams> }) => {
+const SignInPage = ({ params, searchParams }: { params: Promise<LocaleParams>; searchParams: Promise<{ redirectTo?: string }> }) => {
   return (
     <Suspense fallback={<SignInFormSkeleton />}>
       <LocaleBoundary params={params} tanslationNameSpace={TRANSLATION_KEY}>
         {async (t) => {
           const { locale } = await params;
+          const { redirectTo } = await searchParams;
           const content = await getAuthPageContent(locale, "sign-in", {
             title: t("page.title"),
             description: t("page.description"),
@@ -54,7 +55,7 @@ const SignInPage = ({ params }: { params: Promise<LocaleParams> }) => {
               <AuthLinksContainer>
                 <span className="text-xs">
                   {t("page.noAccount")}
-                  <Link className="text-primary mx-1" href="/sign-up">
+                  <Link className="text-primary mx-1" href={redirectTo ? `/sign-up?redirectTo=${encodeURIComponent(redirectTo)}` : "/sign-up"}>
                     {t("page.signUp")}
                   </Link>
                 </span>

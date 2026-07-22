@@ -1,0 +1,130 @@
+// This Jenkinsfile belongs in the root of the Shop repository.
+// It builds one image, applies migrations once, and updates two replicas one at a time.
+
+pipeline {
+  agent {
+    node {
+      customWorkspace '/opt/lsevin-shop'
+    }
+  }
+
+  options {
+    disableConcurrentBuilds()
+    timestamps()
+    timeout(time: 40, unit: 'MINUTES')
+    buildDiscarder(logRotator(numToKeepStr: '30'))
+    skipDefaultCheckout(true)
+  }
+
+  triggers {
+    githubPush()
+    pollSCM('H/5 * * * *')
+  }
+
+  environment {
+    IMAGE_NAME = 'lsevin-shop'
+    ENV_FILE = '/etc/lsevin/projects/shop.env'
+    PUBLIC_URL = 'https://shop.lsevin.com/api/health'
+  }
+
+  stages {
+    stage('1. Checkout') {
+      steps {
+        deleteDir()
+        checkout scm
+      }
+    }
+
+    stage('2. Choose image tag') {
+      steps {
+        script {
+          env.IMAGE_TAG = sh(
+            returnStdout: true,
+            script: 'git rev-parse --short=12 HEAD'
+          ).trim()
+
+          currentBuild.displayName = "#${BUILD_NUMBER} ${env.IMAGE_TAG}"
+        }
+      }
+    }
+
+    stage('3. Build image') {
+      steps {
+        // Do not use --no-cache here.
+        // Do not use --pull on every commit because a changed base image invalidates all later layers.
+        sh 'IMAGE_TAG=$IMAGE_TAG docker compose --env-file $ENV_FILE build web-1'
+      }
+    }
+
+    stage('4. Apply database migrations') {
+      steps {
+        // MIGRATION_SCRIPT in the env file must be either migrate or migrate:all.
+        // A failed migration stops deployment before either running replica is changed.
+        sh 'IMAGE_TAG=$IMAGE_TAG docker compose --env-file $ENV_FILE --profile tools run --rm --no-deps migrate'
+      }
+    }
+
+    stage('5. Update replica 1') {
+      steps {
+        script {
+          try {
+            sh 'IMAGE_TAG=$IMAGE_TAG docker compose --env-file $ENV_FILE up -d --no-deps --force-recreate web-1'
+
+            timeout(time: 3, unit: 'MINUTES') {
+              waitUntil {
+                sleep time: 5, unit: 'SECONDS'
+                return sh(
+                  returnStatus: true,
+                  script: 'curl --fail --silent --max-time 5 http://lsevin-shop-1:3000/api/health >/dev/null'
+                ) == 0
+              }
+            }
+          } catch (error) {
+            sh 'docker compose --env-file $ENV_FILE stop web-1 || true'
+            throw error
+          }
+        }
+      }
+    }
+
+    stage('6. Update replica 2') {
+      steps {
+        script {
+          try {
+            sh 'IMAGE_TAG=$IMAGE_TAG docker compose --env-file $ENV_FILE up -d --no-deps --force-recreate web-2'
+
+            timeout(time: 3, unit: 'MINUTES') {
+              waitUntil {
+                sleep time: 5, unit: 'SECONDS'
+                return sh(
+                  returnStatus: true,
+                  script: 'curl --fail --silent --max-time 5 http://lsevin-shop-2:3000/api/health >/dev/null'
+                ) == 0
+              }
+            }
+          } catch (error) {
+            sh 'docker compose --env-file $ENV_FILE stop web-2 || true'
+            throw error
+          }
+        }
+      }
+    }
+
+    stage('7. Verify public domain') {
+      steps {
+        sh 'curl --fail --silent --show-error --max-time 20 $PUBLIC_URL >/dev/null'
+        sh 'docker image tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:stable'
+      }
+    }
+  }
+
+  post {
+    success {
+      echo 'shop.lsevin.com is healthy and both replicas use the new image.'
+    }
+
+    failure {
+      echo 'Deployment stopped. Any replica that was not replaced remains available.'
+    }
+  }
+}

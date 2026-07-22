@@ -1,0 +1,8 @@
+[Unit]
+Description=Weekly verification of LSevin PostgreSQL backups
+[Timer]
+OnCalendar=Sun *-*-* 07:30:00
+Persistent=true
+RandomizedDelaySec=300
+[Install]
+WantedBy=timers.target

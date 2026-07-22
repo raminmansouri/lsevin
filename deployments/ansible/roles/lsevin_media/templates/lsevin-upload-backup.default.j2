@@ -1,0 +1,6 @@
+LSEVIN_UPLOADS_DIR={{ lsevin_uploads_dir | quote }}
+LSEVIN_UPLOAD_BACKUP_DIR={{ lsevin_upload_backup_dir | quote }}
+LSEVIN_UPLOAD_BACKUP_RETENTION_DAYS={{ lsevin_upload_backup_retention_days }}
+LSEVIN_UPLOAD_BACKUP_ALLOW_EMPTY={{ 'true' if lsevin_upload_backup_allow_empty | bool else 'false' }}
+LSEVIN_APP_DIR={{ lsevin_app_dir | default('/opt/lsevin/app') | quote }}
+LSEVIN_COMPOSE_PROJECT={{ lsevin_compose_project | default('docker') | quote }}

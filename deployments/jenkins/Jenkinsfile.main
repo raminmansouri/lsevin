@@ -1,0 +1,237 @@
+pipeline {
+  agent {
+    node {
+      customWorkspace '/opt/lsevin-main'
+    }
+  }
+
+  options {
+    // Jenkins performs the checkout explicitly into /opt/lsevin-main.
+    skipDefaultCheckout(true)
+
+    // A second commit waits until the current production deployment finishes.
+    disableConcurrentBuilds()
+
+    timestamps()
+    timeout(time: 60, unit: 'MINUTES')
+  }
+
+  environment {
+    // Dedicated checkout directory on the VPS.
+    SOURCE_DIR = '/opt/lsevin-main'
+
+    // The Compose file that already defines API, webapp, PostgreSQL, Redis,
+    // EventStore, and Caddy.
+    COMPOSE_FILE = '/opt/lsevin-main/deployments/docker/docker-compose.server.yml'
+
+    // Production secrets stay outside Git and outside the Jenkins workspace.
+    ENV_FILE = '/etc/lsevin/projects/lsevin-main.env'
+
+    // Keep the existing Compose project name so Jenkins manages the current
+    // docker-lsevin-api-1 and docker-lsevin-webapp-1 containers.
+    COMPOSE_PROJECT_NAME = 'docker'
+
+    API_HEALTH_URL = 'https://api.lsevin.com/hc'
+    WEBAPP_HEALTH_URL = 'https://appmain.lsevin.com/'
+  }
+
+  stages {
+    stage('1. Checkout') {
+      steps {
+        // /opt/lsevin-main is dedicated to this repository, so cleaning it is
+        // safe and prevents deleted Git files from remaining on the server.
+        deleteDir()
+        checkout scm
+      }
+    }
+
+    stage('2. Prepare release') {
+      steps {
+        script {
+          env.RELEASE_TAG = sh(
+            script: "git -C '${env.SOURCE_DIR}' rev-parse --short=12 HEAD",
+            returnStdout: true
+          ).trim()
+        }
+
+        sh '''
+          set -eu
+
+          test -f "$ENV_FILE"
+          test -f "$COMPOSE_FILE"
+
+          # Validate all environment substitutions and Compose syntax before any
+          # image is built or production container is changed.
+          docker compose \
+            --project-name "$COMPOSE_PROJECT_NAME" \
+            --env-file "$ENV_FILE" \
+            --file "$COMPOSE_FILE" \
+            config --quiet
+        '''
+      }
+    }
+
+    stage('3. Save rollback images') {
+      steps {
+        script {
+          // Tag the exact images used by the currently running containers.
+          // These tags make rollback independent of mutable image names.
+          env.OLD_API_TAG = "rollback-${env.BUILD_NUMBER}"
+          env.OLD_WEBAPP_TAG = "rollback-${env.BUILD_NUMBER}"
+        }
+
+        sh '''
+          set -eu
+
+          api_container="$(docker compose \
+            --project-name "$COMPOSE_PROJECT_NAME" \
+            --env-file "$ENV_FILE" \
+            --file "$COMPOSE_FILE" \
+            ps --quiet lsevin-api 2>/dev/null || true)"
+
+          webapp_container="$(docker compose \
+            --project-name "$COMPOSE_PROJECT_NAME" \
+            --env-file "$ENV_FILE" \
+            --file "$COMPOSE_FILE" \
+            ps --quiet lsevin-webapp 2>/dev/null || true)"
+
+          if [ -n "$api_container" ]; then
+            api_image_id="$(docker inspect --format '{{.Image}}' "$api_container")"
+            docker image tag "$api_image_id" "lsevin-api:$OLD_API_TAG"
+          else
+            OLD_API_TAG=""
+          fi
+
+          if [ -n "$webapp_container" ]; then
+            webapp_image_id="$(docker inspect --format '{{.Image}}' "$webapp_container")"
+            docker image tag "$webapp_image_id" "lsevin-webapp:$OLD_WEBAPP_TAG"
+          else
+            OLD_WEBAPP_TAG=""
+          fi
+
+          printf '%s' "$OLD_API_TAG" > "$SOURCE_DIR/.jenkins-old-api-tag"
+          printf '%s' "$OLD_WEBAPP_TAG" > "$SOURCE_DIR/.jenkins-old-webapp-tag"
+        '''
+      }
+    }
+
+    stage('4. Build API and webapp') {
+      steps {
+        dir(env.SOURCE_DIR) {
+          sh '''
+            set -eu
+
+            # Do not add --pull or --no-cache here. The host Docker daemon keeps
+            # dependency and compiler layers between Jenkins builds.
+            DOCKER_BUILDKIT=1 \
+            LSEVIN_API_IMAGE_TAG="$RELEASE_TAG" \
+            LSEVIN_WEBAPP_IMAGE_TAG="$RELEASE_TAG" \
+            docker compose \
+              --project-name "$COMPOSE_PROJECT_NAME" \
+              --env-file "$ENV_FILE" \
+              --file "$COMPOSE_FILE" \
+              build lsevin-api lsevin-webapp
+          '''
+        }
+      }
+    }
+
+    stage('5. Deploy API') {
+      steps {
+        sh '''
+          set -eu
+
+          old_webapp_tag="$(cat "$SOURCE_DIR/.jenkins-old-webapp-tag")"
+          [ -n "$old_webapp_tag" ] || old_webapp_tag="$RELEASE_TAG"
+
+          LSEVIN_API_IMAGE_TAG="$RELEASE_TAG" \
+          LSEVIN_WEBAPP_IMAGE_TAG="$old_webapp_tag" \
+          docker compose \
+            --project-name "$COMPOSE_PROJECT_NAME" \
+            --env-file "$ENV_FILE" \
+            --file "$COMPOSE_FILE" \
+            up --detach --no-deps lsevin-api
+
+          attempt=1
+          until curl --fail --silent --show-error --max-time 10 "$API_HEALTH_URL" >/dev/null; do
+            if [ "$attempt" -ge 30 ]; then
+              echo "API did not become healthy after 30 attempts" >&2
+              exit 1
+            fi
+            attempt=$((attempt + 1))
+            sleep 2
+          done
+        '''
+      }
+    }
+
+    stage('6. Deploy webapp') {
+      steps {
+        sh '''
+          set -eu
+
+          LSEVIN_API_IMAGE_TAG="$RELEASE_TAG" \
+          LSEVIN_WEBAPP_IMAGE_TAG="$RELEASE_TAG" \
+          docker compose \
+            --project-name "$COMPOSE_PROJECT_NAME" \
+            --env-file "$ENV_FILE" \
+            --file "$COMPOSE_FILE" \
+            up --detach --no-deps lsevin-webapp
+
+          attempt=1
+          until curl --fail --silent --show-error --location --max-time 15 "$WEBAPP_HEALTH_URL" >/dev/null; do
+            if [ "$attempt" -ge 30 ]; then
+              echo "Webapp did not become healthy after 30 attempts" >&2
+              exit 1
+            fi
+            attempt=$((attempt + 1))
+            sleep 2
+          done
+        '''
+      }
+    }
+
+    stage('7. Mark stable release') {
+      steps {
+        sh '''
+          set -eu
+          docker image tag "lsevin-api:$RELEASE_TAG" lsevin-api:stable
+          docker image tag "lsevin-webapp:$RELEASE_TAG" lsevin-webapp:stable
+        '''
+      }
+    }
+  }
+
+  post {
+    failure {
+      sh '''
+        set +e
+
+        old_api_tag="$(cat "$SOURCE_DIR/.jenkins-old-api-tag" 2>/dev/null)"
+        old_webapp_tag="$(cat "$SOURCE_DIR/.jenkins-old-webapp-tag" 2>/dev/null)"
+
+        if [ -n "$old_api_tag" ] && [ -n "$old_webapp_tag" ]; then
+          echo "Deployment failed; restoring the previous API and webapp images."
+
+          LSEVIN_API_IMAGE_TAG="$old_api_tag" \
+          LSEVIN_WEBAPP_IMAGE_TAG="$old_webapp_tag" \
+          docker compose \
+            --project-name "$COMPOSE_PROJECT_NAME" \
+            --env-file "$ENV_FILE" \
+            --file "$COMPOSE_FILE" \
+            up --detach --no-deps lsevin-api lsevin-webapp
+        else
+          echo "No previous images were available for automatic rollback."
+        fi
+      '''
+    }
+
+    always {
+      sh '''
+        rm -f \
+          "$SOURCE_DIR/.jenkins-old-api-tag" \
+          "$SOURCE_DIR/.jenkins-old-webapp-tag"
+      '''
+    }
+  }
+}

@@ -1,0 +1,9 @@
+[Unit]
+Description=Six-hourly LSevin incremental PostgreSQL backup
+[Timer]
+OnCalendar=*-*-* 00,06,12,18:15:00
+Persistent=true
+RandomizedDelaySec=180
+Unit=lsevin-pgbackrest@incr.service
+[Install]
+WantedBy=timers.target

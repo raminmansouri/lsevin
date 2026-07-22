@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+umask 027
+
+CONFIG_FILE="${LSEVIN_UPLOAD_BACKUP_CONFIG:-/etc/default/lsevin-upload-backup}"
+[[ -r "${CONFIG_FILE}" ]] && source "${CONFIG_FILE}"
+
+SOURCE_DIR="${LSEVIN_UPLOADS_DIR:-{{ lsevin_uploads_dir }}}"
+BACKUP_DIR="${LSEVIN_UPLOAD_BACKUP_DIR:-{{ lsevin_upload_backup_dir }}}"
+APP_DIR="${LSEVIN_APP_DIR:-/opt/lsevin/app}"
+PROJECT="${LSEVIN_COMPOSE_PROJECT:-docker}"
+SELECTION="${1:-}"
+CONFIRM="${2:-}"
+
+fail() { echo "ERROR: $*" >&2; exit 1; }
+[[ "${EUID}" -eq 0 ]] || fail 'run restore as root'
+[[ -n "${SELECTION}" ]] || fail "usage: $0 <latest|snapshot-name|snapshot-path> --confirm"
+[[ "${CONFIRM}" == '--confirm' ]] || fail 'restore requires --confirm'
+
+case "${SELECTION}" in
+  latest) SNAPSHOT="$(readlink -f "${BACKUP_DIR}/latest")" ;;
+  /*) SNAPSHOT="$(realpath "${SELECTION}")" ;;
+  *) SNAPSHOT="$(realpath "${BACKUP_DIR}/snapshots/${SELECTION}")" ;;
+esac
+SNAPSHOT_ROOT="$(realpath "${BACKUP_DIR}/snapshots")"
+case "${SNAPSHOT}/" in
+  "${SNAPSHOT_ROOT}/"*) ;;
+  *) fail "snapshot is outside ${SNAPSHOT_ROOT}" ;;
+esac
+[[ -d "${SNAPSHOT}" && -f "${SNAPSHOT}/.lsevin-backup-meta" ]] \
+  || fail "invalid or incomplete snapshot: ${SNAPSHOT}"
+
+/usr/local/sbin/lsevin-upload-backup pre-restore
+
+DOCKER_DIR="${APP_DIR}/deployments/docker"
+ENV_FILE="${DOCKER_DIR}/.env"
+COMPOSE_FILE="${DOCKER_DIR}/docker-compose.server.yml"
+was_running=false
+if command -v docker >/dev/null 2>&1 && [[ -f "${ENV_FILE}" && -f "${COMPOSE_FILE}" ]]; then
+  compose=(docker compose --project-name "${PROJECT}" --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}")
+  if [[ -n "$("${compose[@]}" ps -q lsevin-api 2>/dev/null || true)" ]]; then
+    was_running=true
+    "${compose[@]}" stop -t 30 lsevin-api
+  fi
+fi
+
+restart_api() {
+  if [[ "${was_running}" == true ]]; then
+    "${compose[@]}" up -d --no-deps --no-build lsevin-api || true
+  fi
+}
+trap restart_api EXIT
+
+install -d -m 0775 "${SOURCE_DIR}"
+rsync -aHAX --numeric-ids --delete --exclude='/.lsevin-backup-meta' \
+  "${SNAPSHOT}/" "${SOURCE_DIR}/"
+sync
+
+echo "Upload restore completed from ${SNAPSHOT}."

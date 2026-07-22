@@ -1,0 +1,9 @@
+[Unit]
+Description=Weekly LSevin full PostgreSQL backup
+[Timer]
+OnCalendar=Sun *-*-* 02:15:00
+Persistent=true
+RandomizedDelaySec=300
+Unit=lsevin-pgbackrest@full.service
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,11 @@
+[Unit]
+Description=LSevin portable PostgreSQL logical backup
+Requires=docker.service
+After=docker.service
+[Service]
+Type=oneshot
+TimeoutStartSec=4h
+ExecStart=/usr/local/sbin/lsevin-logical-backup
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7

@@ -1,0 +1,16 @@
+---
+- name: Restart Jenkins controller
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --env-file
+      - "{{ lsevin_jenkins_controller_dir }}/controller.env"
+      - -f
+      - "{{ lsevin_jenkins_controller_dir }}/docker-compose.yml"
+      - up
+      - -d
+      - --build
+      - --force-recreate
+      - jenkins
+  changed_when: true

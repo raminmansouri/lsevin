@@ -1,0 +1,24 @@
+---
+lsevin_compose_project: docker
+postgres_shared_buffers_fraction: 0.20
+postgres_effective_cache_fraction: 0.60
+postgres_max_connections: 120
+postgres_storage_type: ssd
+postgres_log_slow_query_ms: 1000
+postgres_autovacuum_max_workers: 5
+postgres_max_wal_size_gb: 4
+postgres_min_wal_size_gb: 1
+postgres_image_tag: 17.10-alpine
+pgbouncer_version: 1.25.2
+pgbouncer_max_client_conn: 1000
+pgbouncer_default_pool_size: 50
+pgbouncer_min_pool_size: 5
+pgbouncer_reserve_pool_size: 10
+pgbouncer_max_db_connections: 90
+pgbouncer_max_user_connections: 90
+pgbouncer_max_prepared_statements: 200
+pgbackrest_repo_type: posix
+pgbackrest_retention_full: 4
+pgbackrest_retention_diff: 14
+pgbackrest_process_max: 2
+logical_backup_retention_days: 14

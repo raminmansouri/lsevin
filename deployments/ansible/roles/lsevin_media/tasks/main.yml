@@ -1,0 +1,93 @@
+---
+- name: Install media backup dependencies
+  ansible.builtin.apt:
+    name:
+      - acl
+      - rsync
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Ensure persistent upload directory exists outside application releases
+  ansible.builtin.file:
+    path: "{{ lsevin_uploads_dir }}"
+    state: directory
+    mode: "0775"
+
+- name: Ensure upload backup repository exists outside application releases
+  ansible.builtin.file:
+    path: "{{ lsevin_upload_backup_dir }}"
+    state: directory
+    owner: root
+    group: docker
+    mode: "2770"
+
+- name: Ensure upload snapshot directory exists
+  ansible.builtin.file:
+    path: "{{ lsevin_upload_backup_dir }}/snapshots"
+    state: directory
+    owner: root
+    group: docker
+    mode: "2770"
+
+- name: Install upload backup configuration
+  ansible.builtin.template:
+    src: lsevin-upload-backup.default.j2
+    dest: /etc/default/lsevin-upload-backup
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Install upload backup command
+  ansible.builtin.template:
+    src: lsevin-upload-backup.sh.j2
+    dest: /usr/local/sbin/lsevin-upload-backup
+    owner: root
+    group: docker
+    mode: "0750"
+
+- name: Install upload restore command
+  ansible.builtin.template:
+    src: lsevin-upload-restore.sh.j2
+    dest: /usr/local/sbin/lsevin-upload-restore
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Allow Jenkins to create a predeploy media backup only
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/lsevin-jenkins-media-backup
+    owner: root
+    group: root
+    mode: "0440"
+    validate: /usr/sbin/visudo -cf %s
+    content: |
+      {{ lsevin_media_jenkins_user }} ALL=(root) NOPASSWD: /usr/local/sbin/lsevin-upload-backup *
+
+- name: Install upload backup systemd service
+  ansible.builtin.template:
+    src: lsevin-upload-backup.service.j2
+    dest: /etc/systemd/system/lsevin-upload-backup.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd
+
+- name: Install upload backup systemd timer
+  ansible.builtin.template:
+    src: lsevin-upload-backup.timer.j2
+    dest: /etc/systemd/system/lsevin-upload-backup.timer
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd
+
+- name: Flush systemd handlers before enabling media backup timer
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable scheduled upload backups
+  ansible.builtin.systemd:
+    name: lsevin-upload-backup.timer
+    enabled: true
+    state: started
+    daemon_reload: true

@@ -7,11 +7,13 @@ export const env = createEnv({
     NEXT_PUBLIC_API_URL: z.string().min(1),
     NEXT_PUBLIC_FILES_URL: z.string().min(1),
     NEXT_PUBLIC_SOCKET_URL: z.string().min(1),
+    NEXT_PUBLIC_LSEVIN_COOKIE_DOMAIN: z.string().optional(),
   },
   experimental__runtimeEnv: {
     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_FILES_URL: process.env.NEXT_PUBLIC_FILES_URL,
     NEXT_PUBLIC_SOCKET_URL: process.env.NEXT_PUBLIC_SOCKET_URL,
+    NEXT_PUBLIC_LSEVIN_COOKIE_DOMAIN: process.env.NEXT_PUBLIC_LSEVIN_COOKIE_DOMAIN,
   },
 });

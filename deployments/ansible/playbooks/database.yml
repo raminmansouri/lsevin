@@ -1,0 +1,8 @@
+---
+- name: Configure and deploy LSevin production database services
+  hosts: lsevin_production
+  become: true
+  gather_facts: true
+  serial: 1
+  roles:
+    - role: lsevin_database

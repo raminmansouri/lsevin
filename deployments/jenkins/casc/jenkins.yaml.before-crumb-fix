@@ -1,0 +1,28 @@
+jenkins:
+  systemMessage: "LSevin production CI/CD — managed by Docker, Ansible, JCasC, and Pipeline as Code.\n"
+  numExecutors: 1
+  mode: NORMAL
+  scmCheckoutRetryCount: 2
+  disableRememberMe: true
+  crumbIssuer:
+    standard:
+      excludeClientIPFromCrumb: true
+  remotingSecurity:
+    enabled: true
+  globalNodeProperties:
+    - envVars:
+        env:
+          - key: DEPLOY_BRANCH
+            value: "${JENKINS_DEPLOY_BRANCH}"
+          - key: APP_DIR
+            value: "/opt/lsevin/app"
+          - key: LSEVIN_RELEASE_ROOT
+            value: "/opt/lsevin/releases"
+
+unclassified:
+  location:
+    adminAddress: "${JENKINS_ADMIN_EMAIL}"
+    url: "https://${JENKINS_DOMAIN}/"
+
+jobs:
+  - file: /usr/share/jenkins/ref/casc/jobs.groovy

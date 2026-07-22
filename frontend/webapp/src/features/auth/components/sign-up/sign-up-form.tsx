@@ -2,7 +2,8 @@
 
 import { useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -22,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import useAction from "@/hooks/use-action";
 import { useRouter } from "@/i18n/navigation";
+import { ensureLocalePrefix } from "@/lib/utils";
 
 import { signUp } from "../../actions/sign-up";
 import { SignUpSchema } from "../../actions/sign-up/schema";
@@ -30,6 +32,9 @@ import AuthFormContainer from "../shared/auth-form-container";
 
 export default function SignUpForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const locale = useLocale();
+  const redirectTo = ensureLocalePrefix(searchParams.get("redirectTo") || "/", locale);
   const [isPending, startTransition] = useTransition();
 
   const t = useTranslations(TRANSLATION_KEY);
@@ -56,9 +61,9 @@ export default function SignUpForm() {
       // user to the OTP screen (keyed by their E.164 phone number) to confirm
       // their number, mirroring the sign-in verification flow.
       if (data) {
-        router.push(`/otp/${encodeURIComponent(data)}`);
+        router.push(`/otp/${encodeURIComponent(data)}?redirectTo=${encodeURIComponent(redirectTo)}`);
       } else {
-        router.push("/sign-in");
+        router.push(`/sign-in?redirectTo=${encodeURIComponent(redirectTo)}`);
       }
     },
     onError: (error) => {

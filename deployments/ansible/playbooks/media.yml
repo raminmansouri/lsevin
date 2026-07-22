@@ -1,0 +1,7 @@
+---
+- name: Configure persistent uploaded-media storage and backups
+  hosts: lsevin_production
+  become: true
+  gather_facts: true
+  roles:
+    - role: lsevin_media

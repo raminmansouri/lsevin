@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+umask 027
+
+CONFIG_FILE="${LSEVIN_UPLOAD_BACKUP_CONFIG:-/etc/default/lsevin-upload-backup}"
+[[ -r "${CONFIG_FILE}" ]] && source "${CONFIG_FILE}"
+
+SOURCE_DIR="${LSEVIN_UPLOADS_DIR:-{{ lsevin_uploads_dir }}}"
+BACKUP_DIR="${LSEVIN_UPLOAD_BACKUP_DIR:-{{ lsevin_upload_backup_dir }}}"
+RETENTION_DAYS="${LSEVIN_UPLOAD_BACKUP_RETENTION_DAYS:-{{ lsevin_upload_backup_retention_days }}}"
+ALLOW_EMPTY="${LSEVIN_UPLOAD_BACKUP_ALLOW_EMPTY:-false}"
+LABEL="${1:-scheduled}"
+LABEL="$(printf '%s' "${LABEL}" | tr -cs 'A-Za-z0-9._-' '-')"
+TIMESTAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+SNAPSHOT_ROOT="${BACKUP_DIR}/snapshots"
+FINAL_DIR="${SNAPSHOT_ROOT}/${TIMESTAMP}-${LABEL}"
+TEMP_DIR="${FINAL_DIR}.partial.$$"
+LOCK_FILE="${BACKUP_DIR}/backup.lock"
+
+fail() { echo "ERROR: $*" >&2; exit 1; }
+for command_name in rsync find awk flock realpath; do
+  command -v "${command_name}" >/dev/null 2>&1 || fail "${command_name} is required"
+done
+
+[[ -d "${SOURCE_DIR}" ]] || fail "upload source does not exist: ${SOURCE_DIR}"
+install -d -m 2770 "${BACKUP_DIR}" "${SNAPSHOT_ROOT}"
+exec 9>"${LOCK_FILE}"
+flock -n 9 || fail 'another upload backup is already running'
+
+SOURCE_REAL="$(realpath "${SOURCE_DIR}")"
+BACKUP_REAL="$(realpath "${BACKUP_DIR}")"
+case "${BACKUP_REAL}/" in
+  "${SOURCE_REAL}/"*) fail 'backup directory cannot be inside upload source' ;;
+esac
+case "${SOURCE_REAL}/" in
+  "${BACKUP_REAL}/"*) fail 'upload source cannot be inside backup directory' ;;
+esac
+
+stats() {
+  local directory="$1"
+  find "${directory}" -xdev -type f ! -name '.lsevin-backup-meta' -printf '%s\n' \
+    | awk '{count += 1; bytes += $1} END {printf "%d %d\n", count + 0, bytes + 0}'
+}
+
+read -r source_count source_bytes < <(stats "${SOURCE_DIR}")
+if [[ "${source_count}" -eq 0 && "${ALLOW_EMPTY}" != "true" ]]; then
+  fail "upload source is empty; refusing to create and rotate backups: ${SOURCE_DIR}"
+fi
+
+cleanup() { rm -rf -- "${TEMP_DIR}"; }
+trap cleanup ERR INT TERM
+mkdir -p "${TEMP_DIR}"
+
+RSYNC_ARGS=(-aHAX --numeric-ids --delete --delete-delay)
+LATEST_TARGET="$(readlink -f "${BACKUP_DIR}/latest" 2>/dev/null || true)"
+if [[ -n "${LATEST_TARGET}" && -d "${LATEST_TARGET}" ]]; then
+  RSYNC_ARGS+=(--link-dest="${LATEST_TARGET}")
+fi
+
+rsync "${RSYNC_ARGS[@]}" "${SOURCE_DIR}/" "${TEMP_DIR}/"
+rsync "${RSYNC_ARGS[@]}" "${SOURCE_DIR}/" "${TEMP_DIR}/"
+
+read -r source_count source_bytes < <(stats "${SOURCE_DIR}")
+read -r backup_count backup_bytes < <(stats "${TEMP_DIR}")
+[[ "${backup_count}" -eq "${source_count}" ]] \
+  || fail "file-count verification failed: source=${source_count}, backup=${backup_count}"
+[[ "${backup_bytes}" -eq "${source_bytes}" ]] \
+  || fail "byte-count verification failed: source=${source_bytes}, backup=${backup_bytes}"
+
+cat > "${TEMP_DIR}/.lsevin-backup-meta" <<META
+created_utc=${TIMESTAMP}
+label=${LABEL}
+source=${SOURCE_REAL}
+files=${backup_count}
+bytes=${backup_bytes}
+META
+sync
+mv "${TEMP_DIR}" "${FINAL_DIR}"
+ln -sfn "snapshots/$(basename "${FINAL_DIR}")" "${BACKUP_DIR}/latest"
+trap - ERR INT TERM
+
+find "${SNAPSHOT_ROOT}" -mindepth 1 -maxdepth 1 -type d \
+  -name '????????T??????Z-*' -mtime "+${RETENTION_DAYS}" \
+  ! -samefile "${FINAL_DIR}" -exec rm -rf -- {} +
+
+echo "Upload backup completed."
+echo "SNAPSHOT=${FINAL_DIR}"
+echo "FILES=${backup_count}"
+echo "BYTES=${backup_bytes}"

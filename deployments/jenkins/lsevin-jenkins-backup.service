@@ -1,0 +1,11 @@
+[Unit]
+Description=Back up the persistent LSevin Jenkins home
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/lsevin-jenkins-backup
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
