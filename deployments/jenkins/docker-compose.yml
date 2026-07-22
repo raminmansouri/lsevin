@@ -39,6 +39,30 @@ services:
     - /opt/lsevin-crm:/opt/lsevin-crm
     - /opt/lsevin-providers:/opt/lsevin-providers
     - /opt/lsevin-shop:/opt/lsevin-shop
+
+          # Persistent Jenkins users, jobs, plugins and settings.
+    - /var/lib/lsevin/jenkins:/var/jenkins_home
+
+    # Allows Jenkins to control the host Docker daemon.
+    - /var/run/docker.sock:/var/run/docker.sock
+
+    # Jenkins must update the stable production source.
+    - /opt/lsevin/app:/opt/lsevin/app:rw
+
+    # Jenkins writes release records here.
+    - /opt/lsevin/releases:/opt/lsevin/releases:rw
+
+    # Jenkins creates pre-deployment database backups here.
+    - /opt/lsevin/backups:/opt/lsevin/backups:rw
+
+    # Jenkins creates the deployment lock file here.
+    - /opt/lsevin/jenkins:/opt/lsevin/jenkins:rw
+
+    # Production secrets are readable but must not be modified.
+    - /etc/lsevin/projects:/etc/lsevin/projects:ro
+
+    # Required by deploy-local.sh for uploaded-media backups.
+    - /usr/local/sbin/lsevin-upload-backup:/usr/local/sbin/lsevin-upload-backup:ro
     networks:
       lsevin-network:
         aliases:
