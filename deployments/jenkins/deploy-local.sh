@@ -167,6 +167,7 @@ rsync -a --delete \
   --exclude='auto_backups/' \
   --exclude='deployments/docker/.env' \
   --exclude='deployments/docker/geoip/' \
+  --exclude='deployments.before-*' \
   --exclude='.env.local' \
   --exclude='.env.*.local' \
   "${SOURCE_DIR}/" "${APP_DIR}/"
@@ -188,26 +189,80 @@ docker image tag lsevin-api:server "lsevin-api:release-${SHORT_SHA}"
 docker image tag lsevin-webapp:server "lsevin-webapp:release-${SHORT_SHA}"
 docker image tag lsevin-caddy:geoip "lsevin-caddy:release-${SHORT_SHA}"
 
-say 'Verify Ansible-managed stateful dependencies'
-# Application deployments must not recreate PostgreSQL or PgBouncer.
-compose up -d --no-recreate \
-  postgres \
-  pgbouncer \
-  redis \
-  eventstore \
-  postgres-exporter \
-  pgbouncer-exporter
+say 'Verify externally managed stateful dependencies'
+# PostgreSQL, PgBouncer, Redis, and EventStore may be defined by a different
+# Compose file, but they share the same production Compose project. Jenkins must
+# verify them without trying to recreate or manage them through this app file.
+find_service_container() {
+  local service="$1"
+  local container_id
 
-for service in postgres pgbouncer; do
-  container_id="$(compose ps -q "${service}")"
+  container_id="$(
+    docker ps -q \
+      --filter "label=com.docker.compose.project=${COMPOSE_PROJECT_NAME}" \
+      --filter "label=com.docker.compose.service=${service}" \
+      | head -n 1
+  )"
+
+  # Fallback for the standard Compose-generated container name.
+  if [[ -z "${container_id}" ]] \
+    && docker container inspect "${COMPOSE_PROJECT_NAME}-${service}-1" >/dev/null 2>&1; then
+    container_id="${COMPOSE_PROJECT_NAME}-${service}-1"
+  fi
+
+  printf '%s' "${container_id}"
+}
+
+wait_for_service_container() {
+  local service="$1"
+  local container_id="$2"
+  local status
+  local health
+
   [[ -n "${container_id}" ]] \
-    || fail "${service} is not running. Run the Ansible database playbook first."
-done
+    || fail "Required external service is missing: ${service}"
+
+  for _ in $(seq 1 30); do
+    status="$(docker inspect --format '{{.State.Status}}' "${container_id}")"
+    health="$(
+      docker inspect \
+        --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' \
+        "${container_id}"
+    )"
+
+    echo "${service}: status=${status}, health=${health}, container=${container_id}"
+
+    if [[ "${status}" == 'running' ]] \
+      && [[ "${health}" == 'healthy' || "${health}" == 'none' ]]; then
+      return 0
+    fi
+
+    if [[ "${status}" == 'exited' || "${status}" == 'dead' || "${health}" == 'unhealthy' ]]; then
+      docker logs --tail=100 "${container_id}" || true
+      fail "Required external service is not healthy: ${service}"
+    fi
+
+    sleep 2
+  done
+
+  docker logs --tail=100 "${container_id}" || true
+  fail "Timed out waiting for external service: ${service}"
+}
+
+POSTGRES_CONTAINER_ID="$(find_service_container postgres)"
+PGBOUNCER_CONTAINER_ID="$(find_service_container pgbouncer)"
+REDIS_CONTAINER_ID="$(find_service_container redis)"
+EVENTSTORE_CONTAINER_ID="$(find_service_container eventstore)"
+
+wait_for_service_container postgres "${POSTGRES_CONTAINER_ID}"
+wait_for_service_container pgbouncer "${PGBOUNCER_CONTAINER_ID}"
+wait_for_service_container redis "${REDIS_CONTAINER_ID}"
+wait_for_service_container eventstore "${EVENTSTORE_CONTAINER_ID}"
 
 say 'Database backup before migration/deployment'
 BACKUP_FILE="${BACKUP_DIR}/predeploy-${TIMESTAMP}.sql.gz"
 
-compose exec -T postgres sh -lc \
+docker exec -i "${POSTGRES_CONTAINER_ID}" sh -lc \
   'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner --no-privileges' \
   | gzip -9 > "${BACKUP_FILE}"
 
@@ -228,7 +283,7 @@ if compgen -G "${SOURCE_DIR}/scripts/sql/*.sql" >/dev/null; then
   for migration in "${SOURCE_DIR}"/scripts/sql/*.sql; do
     echo "Applying $(basename "${migration}")"
 
-    compose exec -T postgres sh -lc \
+    docker exec -i "${POSTGRES_CONTAINER_ID}" sh -lc \
       'psql -q -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"' \
       < "${migration}"
   done
