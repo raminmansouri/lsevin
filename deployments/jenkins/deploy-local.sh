@@ -116,6 +116,13 @@ save_rollback_image() {
   local container_id
   local image_id
   local rollback_image="${image_name}:rollback-${TIMESTAMP}"
+  local entrypoint_json
+  local cmd_json
+  local container_user
+  local working_dir
+  local stop_signal
+  local exposed_port
+  local -a import_args
 
   container_id="$(compose ps -q "${service}" 2>/dev/null || true)"
 
@@ -126,17 +133,74 @@ save_rollback_image() {
 
   image_id="$(docker inspect --format '{{.Image}}' "${container_id}")"
 
-  # Prefer a zero-copy tag while Docker still has the running image metadata.
-  # Some BuildKit/containerd configurations retain the running root filesystem
-  # but no longer expose the old image ID after a mutable tag is rebuilt. In
-  # that case, commit the running container to create a reliable rollback image.
-  if docker image inspect "${image_id}" >/dev/null 2>&1; then
-    docker image tag "${image_id}" "${rollback_image}"
+  # First try the normal zero-copy image tag. Test the tag operation itself;
+  # docker image inspect can succeed even when BuildKit/containerd metadata
+  # references a missing content digest.
+  if docker image tag "${image_id}" "${rollback_image}"; then
     echo "Saved rollback image ${rollback_image} from image ${image_id}"
-  else
-    docker commit --pause=true "${container_id}" "${rollback_image}" >/dev/null
-    echo "Saved rollback image ${rollback_image} from running container ${container_id}"
+    return 0
   fi
+
+  echo "WARNING: Direct rollback tag failed for ${service}; trying docker commit." >&2
+  docker image rm -f "${rollback_image}" >/dev/null 2>&1 || true
+
+  # docker commit preserves the current container configuration and writable
+  # layer, and normally succeeds when only the original image metadata is stale.
+  if docker commit --pause=true "${container_id}" "${rollback_image}" >/dev/null; then
+    echo "Saved rollback image ${rollback_image} from running container ${container_id}"
+    return 0
+  fi
+
+  echo "WARNING: docker commit failed for ${service}; exporting the running root filesystem." >&2
+  docker image rm -f "${rollback_image}" >/dev/null 2>&1 || true
+
+  # Last-resort recovery for a running container whose backing image content
+  # store is incomplete. docker export reads the mounted container filesystem;
+  # docker import creates a fresh image and restores the runtime command fields
+  # needed when Compose recreates the service with the production environment.
+  entrypoint_json="$(docker inspect --format '{{json .Config.Entrypoint}}' "${container_id}")"
+  cmd_json="$(docker inspect --format '{{json .Config.Cmd}}' "${container_id}")"
+  container_user="$(docker inspect --format '{{.Config.User}}' "${container_id}")"
+  working_dir="$(docker inspect --format '{{.Config.WorkingDir}}' "${container_id}")"
+  stop_signal="$(docker inspect --format '{{.Config.StopSignal}}' "${container_id}")"
+
+  import_args=(image import)
+
+  if [[ -n "${entrypoint_json}" && "${entrypoint_json}" != 'null' && "${entrypoint_json}" != '[]' ]]; then
+    import_args+=(--change "ENTRYPOINT ${entrypoint_json}")
+  fi
+
+  if [[ -n "${cmd_json}" && "${cmd_json}" != 'null' && "${cmd_json}" != '[]' ]]; then
+    import_args+=(--change "CMD ${cmd_json}")
+  fi
+
+  if [[ -n "${container_user}" ]]; then
+    import_args+=(--change "USER ${container_user}")
+  fi
+
+  if [[ -n "${working_dir}" ]]; then
+    import_args+=(--change "WORKDIR ${working_dir}")
+  fi
+
+  if [[ -n "${stop_signal}" && "${stop_signal}" != '<no value>' ]]; then
+    import_args+=(--change "STOPSIGNAL ${stop_signal}")
+  fi
+
+  while IFS= read -r exposed_port; do
+    [[ -n "${exposed_port}" ]] && import_args+=(--change "EXPOSE ${exposed_port}")
+  done < <(
+    docker inspect \
+      --format '{{range $port, $_ := .Config.ExposedPorts}}{{println $port}}{{end}}' \
+      "${container_id}"
+  )
+
+  if docker container export "${container_id}" \
+    | docker "${import_args[@]}" - "${rollback_image}" >/dev/null; then
+    echo "Saved rollback image ${rollback_image} by exporting container ${container_id}"
+    return 0
+  fi
+
+  fail "Unable to preserve rollback image for ${service}. The running container was left unchanged."
 }
 
 say 'Preflight'
