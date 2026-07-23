@@ -442,6 +442,11 @@ async function Home({ params, searchParams }: PageProps) {
         activePackagesCount={specialPackagesCount}
       />
       <LoyaltyClubSection section={homeSections.loyalty_club} locale={locale} labels={labels.loyaltyClub} />
+
+
+<div className="container">
+      <a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=760932&Code=Q4tmSTcTQFTGWWFLYCxWTvO5hIsgD7Hr'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=760932&Code=Q4tmSTcTQFTGWWFLYCxWTvO5hIsgD7Hr' alt='' style='cursor:pointer' code='Q4tmSTcTQFTGWWFLYCxWTvO5hIsgD7Hr'></a>
+   </div>
     </div>
   );
 }
