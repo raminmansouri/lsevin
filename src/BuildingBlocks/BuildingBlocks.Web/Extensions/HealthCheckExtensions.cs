@@ -1,6 +1,9 @@
 using Ardalis.GuardClauses;
+
 using BuildingBlocks.Web.Constants;
+
 using HealthChecks.UI.Client;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,10 +41,14 @@ public static class HealthCheckExtensions
         );
 
         services.AddOutputCache(configureOptions: static caching =>
-            caching.AddPolicy(nameof(HealthChecks), build: static policy => policy.Expire(TimeSpan.FromSeconds(10)))
+            caching.AddPolicy(
+                nameof(HealthChecks),
+                build: static policy => policy.Expire(TimeSpan.FromSeconds(10))
+            )
         );
 
         services.AddHealthChecksUI().AddInMemoryStorage();
+
         services
             .AddHealthChecks()
             .AddNpgSql(databaseConnectionString)
@@ -54,19 +61,35 @@ public static class HealthCheckExtensions
             )
             .AddPingHealthCheck(
                 _ => { },
-                tags: [WebConstants.HealthChecks.HealthCheckLiveTag, WebConstants.HealthChecks.HealthCheckReadyTag]
+                tags:
+                [
+                    WebConstants.HealthChecks.HealthCheckLiveTag,
+                    WebConstants.HealthChecks.HealthCheckReadyTag,
+                ]
             )
             .AddPrivateMemoryHealthCheck(
                 512 * 1024 * 1024,
-                tags: [WebConstants.HealthChecks.HealthCheckLiveTag, WebConstants.HealthChecks.HealthCheckReadyTag]
+                tags:
+                [
+                    WebConstants.HealthChecks.HealthCheckLiveTag,
+                    WebConstants.HealthChecks.HealthCheckReadyTag,
+                ]
             )
             .AddDnsResolveHealthCheck(
                 _ => { },
-                tags: [WebConstants.HealthChecks.HealthCheckLiveTag, WebConstants.HealthChecks.HealthCheckReadyTag]
+                tags:
+                [
+                    WebConstants.HealthChecks.HealthCheckLiveTag,
+                    WebConstants.HealthChecks.HealthCheckReadyTag,
+                ]
             )
             .AddDiskStorageHealthCheck(
                 _ => { },
-                tags: [WebConstants.HealthChecks.HealthCheckLiveTag, WebConstants.HealthChecks.HealthCheckReadyTag]
+                tags:
+                [
+                    WebConstants.HealthChecks.HealthCheckLiveTag,
+                    WebConstants.HealthChecks.HealthCheckReadyTag,
+                ]
             );
 
         return services;
@@ -74,45 +97,55 @@ public static class HealthCheckExtensions
 
     /// <summary>
     /// Maps health check endpoints.
+    /// Liveness and readiness probes are always available, including Production.
+    /// Detailed health output remains Development-only.
     /// </summary>
     /// <param name="app">The <see cref="WebApplication"/> instance to configure.</param>
     public static void MapHealthCheckEndPoints(this WebApplication app)
     {
-        if (app.Environment.IsDevelopment())
+        app.MapHealthChecks(
+                WebConstants.HealthChecks.HealthCheckLive,
+                new HealthCheckOptions
+                {
+                    Predicate = registration =>
+                        registration.Tags.Contains(WebConstants.HealthChecks.HealthCheckLiveTag),
+                }
+            )
+            .WithRequestTimeout(nameof(HealthChecks));
+
+        app.MapHealthChecks(
+                WebConstants.HealthChecks.HealthCheckReady,
+                new HealthCheckOptions
+                {
+                    Predicate = registration =>
+                        registration.Tags.Contains(WebConstants.HealthChecks.HealthCheckReadyTag),
+                }
+            )
+            .WithRequestTimeout(nameof(HealthChecks));
+
+        if (!app.Environment.IsDevelopment())
         {
-            var healthChecks = app.MapGroup("");
+            return;
+        }
 
-            healthChecks.CacheOutput(nameof(healthChecks)).WithRequestTimeout(nameof(healthChecks));
-
-            healthChecks.MapHealthChecks(
+        app.MapHealthChecks(
                 WebConstants.HealthChecks.HealthCheck,
-                new HealthCheckOptions()
+                new HealthCheckOptions
                 {
                     Predicate = _ => true,
                     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
                 }
-            );
+            )
+            .WithRequestTimeout(nameof(HealthChecks));
 
-            healthChecks.MapHealthChecks(
-                WebConstants.HealthChecks.HealthCheckLive,
-                new HealthCheckOptions
-                {
-                    Predicate = r => r.Tags.Contains(WebConstants.HealthChecks.HealthCheckLiveTag),
-                }
-            );
-
-            healthChecks.MapHealthChecks(
-                WebConstants.HealthChecks.HealthCheckReady,
-                new HealthCheckOptions
-                {
-                    Predicate = r => r.Tags.Contains(WebConstants.HealthChecks.HealthCheckReadyTag),
-                }
-            );
-
-            healthChecks.MapHealthChecks(
+        app.MapHealthChecks(
                 WebConstants.HealthChecks.HealthCheckUI,
-                new HealthCheckOptions { ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse }
-            );
-        }
+                new HealthCheckOptions
+                {
+                    Predicate = _ => true,
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
+                }
+            )
+            .WithRequestTimeout(nameof(HealthChecks));
     }
 }
