@@ -110,18 +110,33 @@ compose() {
     "$@"
 }
 
-rollback_tag() {
+save_rollback_image() {
   local service="$1"
   local image_name="$2"
   local container_id
   local image_id
+  local rollback_image="${image_name}:rollback-${TIMESTAMP}"
 
   container_id="$(compose ps -q "${service}" 2>/dev/null || true)"
-  [[ -n "${container_id}" ]] || return 0
+
+  if [[ -z "${container_id}" ]]; then
+    echo "No running ${service} container exists; rollback image not created."
+    return 0
+  fi
 
   image_id="$(docker inspect --format '{{.Image}}' "${container_id}")"
-  docker image tag "${image_id}" "${image_name}:rollback-${TIMESTAMP}"
-  echo "Saved rollback image ${image_name}:rollback-${TIMESTAMP}"
+
+  # Prefer a zero-copy tag while Docker still has the running image metadata.
+  # Some BuildKit/containerd configurations retain the running root filesystem
+  # but no longer expose the old image ID after a mutable tag is rebuilt. In
+  # that case, commit the running container to create a reliable rollback image.
+  if docker image inspect "${image_id}" >/dev/null 2>&1; then
+    docker image tag "${image_id}" "${rollback_image}"
+    echo "Saved rollback image ${rollback_image} from image ${image_id}"
+  else
+    docker commit --pause=true "${container_id}" "${rollback_image}" >/dev/null
+    echo "Saved rollback image ${rollback_image} from running container ${container_id}"
+  fi
 }
 
 say 'Preflight'
@@ -179,6 +194,11 @@ rsync -a --delete \
   || fail "Live Compose file was not synchronized: ${LIVE_COMPOSE_FILE}"
 
 compose config --quiet
+
+say 'Save rollback images from currently running application containers'
+save_rollback_image lsevin-api lsevin-api
+save_rollback_image lsevin-webapp lsevin-webapp
+save_rollback_image caddy lsevin-caddy
 
 say 'Build production images while current containers continue serving traffic'
 # Do not use --pull or --no-cache here. Normal source changes should reuse Docker cache.
@@ -272,11 +292,6 @@ BACKUP_SIZE="$(stat -c '%s' "${BACKUP_FILE}")"
 
 gzip -t "${BACKUP_FILE}"
 echo "Backup created: ${BACKUP_FILE} (${BACKUP_SIZE} bytes)"
-
-say 'Save rollback image tags'
-rollback_tag lsevin-api lsevin-api
-rollback_tag lsevin-webapp lsevin-webapp
-rollback_tag caddy lsevin-caddy
 
 say 'Apply idempotent SQL migrations'
 if compgen -G "${SOURCE_DIR}/scripts/sql/*.sql" >/dev/null; then
