@@ -1,5 +1,6 @@
 import postgres from "postgres";
 
+import { mirrorWalletCredit } from "@/accounting/server/legacy-bridge";
 import { getPaymentProvider } from "@/payment/providers";
 import { getPaymentGatewayConfig } from "@/payment/server/payment-gateway.repository";
 import type { PaymentGatewayCode } from "@/payment/types";
@@ -204,6 +205,25 @@ export async function verifyWalletTopUpPayment(input: {
           )
         `;
       }
+
+      // Dual-write to the accounting ledger, in this same transaction. Keyed on the
+      // gateway authority, so the browser return and a replayed webhook both resolve to
+      // one entry — the legacy dedupe above only guards the legacy row.
+      //
+      // No-ops until the accounting migrations are applied.
+      await mirrorWalletCredit(
+        {
+          userId: intent.userId,
+          currencyCode: intent.currencyCode,
+          amount: String(intent.amount),
+          idempotencyKey: `deposit:${gateway}:${authority}`,
+          sourceType: "deposit",
+          counterpartAccountKey: gateway === "btcpay" ? "clearing_btcpay" : "clearing_zarinpal",
+          description: `شارژ کیف پول از ${gatewayConfig.displayName}`,
+          actorUserId: intent.userId,
+        },
+        tx as never
+      );
     });
 
     return {
