@@ -10,7 +10,6 @@ import {
 } from "@/lib/auth/routes";
 
 import { routing } from "./i18n/routing";
-import { localeForCountry } from "./i18n/locale-by-country";
 import { getSession } from "./lib/auth/session";
 import { UserRole } from "./types/common";
 
@@ -19,61 +18,6 @@ type Locale = (typeof routing.locales)[number];
 const intlMiddleware = createIntlMiddleware(routing);
 
 export default async function middleware(request: NextRequest) {
-  // The visitor's explicit language choice (cookie written by the locale switcher).
-  // next-intl never writes it (localeCookie:false), so it's a pure record of intent.
-  const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
-  const cookieLocaleIsValid = !!cookieLocale && routing.locales.includes(cookieLocale as Locale);
-
-  // Handle UNPREFIXED requests (raw next/link hrefs, "/"): with localeDetection off,
-  // next-intl ignores the cookie and redirects them to the defaultLocale, which would
-  // silently reset a visitor who has chosen another language. Intercept first and send
-  // them to their chosen locale in a single hop. Must run BEFORE the intl redirect below.
-  const rawSegments = request.nextUrl.pathname.split("/").filter(Boolean);
-  const rawFirst = rawSegments[0];
-  const rawIsPrefixed = routing.locales.includes(rawFirst as Locale);
-  if (
-    cookieLocaleIsValid &&
-    !rawIsPrefixed &&
-    cookieLocale !== routing.defaultLocale &&
-    !request.nextUrl.pathname.startsWith(apiAuthPrefix)
-  ) {
-    const redirectUrl = new URL(
-      `/${cookieLocale}${request.nextUrl.pathname === "/" ? "" : request.nextUrl.pathname}`,
-      request.url,
-    );
-    redirectUrl.search = request.nextUrl.search;
-    return NextResponse.redirect(redirectUrl);
-  }
-
-  // Geo-based first-paint language for NEW visitors (no explicit language cookie):
-  // redirect an unprefixed request to the language of their detected country. The
-  // country comes from Caddy's `X-Country` header (MaxMind GeoIP at the edge), so
-  // the very first render is already localized — no flash of the default language.
-  // We never write NEXT_LOCALE here: the cookie stays an exclusive record of an
-  // explicit user choice, and this runs only while the visitor hasn't made one.
-  // Falls through to the defaultLocale whenever there's no usable geo signal
-  // (localhost, VPN, private IP, lookup miss) or the country maps to the default.
-  const detectedCountry = request.headers.get("x-country");
-  if (
-    !cookieLocaleIsValid &&
-    !rawIsPrefixed &&
-    detectedCountry &&
-    !request.nextUrl.pathname.startsWith(apiAuthPrefix)
-  ) {
-    const geoLocale = localeForCountry(detectedCountry);
-    if (
-      geoLocale !== routing.defaultLocale &&
-      routing.locales.includes(geoLocale as Locale)
-    ) {
-      const redirectUrl = new URL(
-        `/${geoLocale}${request.nextUrl.pathname === "/" ? "" : request.nextUrl.pathname}`,
-        request.url,
-      );
-      redirectUrl.search = request.nextUrl.search;
-      return NextResponse.redirect(redirectUrl);
-    }
-  }
-
   const intlResponse = intlMiddleware(request);
 
   if (intlResponse && !intlResponse.ok) {
@@ -97,13 +41,16 @@ export default async function middleware(request: NextRequest) {
     ? pathname.slice(localePrefix.length) || "/"
     : pathname;
 
-  // Prefixed URL whose locale differs from the chosen one (e.g. browser Back lands
-  // on a pre-switch /fa/... entry that hits the server) → redirect to the chosen one.
+  // Once a visitor has explicitly chosen a language (cookie written by the locale
+  // switcher), keep them on it — even when the browser Back button lands on a URL
+  // whose locale prefix differs. New visitors (no cookie) keep the fa default.
+  const cookieLocale = request.cookies.get("LSEVIN_LOCALE")?.value || request.cookies.get("NEXT_LOCALE")?.value;
   if (
     isValidLocale &&
     !pathname.startsWith(apiAuthPrefix) &&
-    cookieLocaleIsValid &&
-    cookieLocale !== locale
+    cookieLocale &&
+    cookieLocale !== locale &&
+    routing.locales.includes(cookieLocale as Locale)
   ) {
     const redirectUrl = new URL(
       `/${cookieLocale}${pathnameWithoutLocale === "/" ? "" : pathnameWithoutLocale}`,
