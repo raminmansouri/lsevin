@@ -18,6 +18,11 @@ import { PanelShell } from "./shell";
  * The gate is here rather than only in middleware because middleware sees the request,
  * not the database — a session that was revoked a second ago must stop working on the
  * very next page render, and only a lookup can know that.
+ *
+ * This layout covers the `(protected)` group and nothing else. `sign-in` deliberately
+ * sits outside it: a layout wraps its own segment's pages, so putting the sign-in page
+ * under this gate makes it redirect to itself forever and locks everyone out of the
+ * panel. The group keeps the URLs unchanged (`/financial`, `/financial/deposits`, …).
  */
 export default async function FinancialLayout({ children }: PropsWithChildren) {
   const user = await getPanelUser();

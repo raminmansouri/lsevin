@@ -4,7 +4,7 @@ import type { PropsWithChildren } from "react";
 
 import type { PanelUser } from "@/accounting/server/panel-auth";
 
-import { signOutAction } from "./auth-actions";
+import { signOutAction } from "../auth-actions";
 
 const NAV = [
   { href: "/financial", key: "title" },
