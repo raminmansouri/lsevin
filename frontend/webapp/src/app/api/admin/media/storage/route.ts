@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { putData } from "@/config/http/http-service.server";
+import { requireApiUser } from "@/lib/auth/api-guard";
 import { getSession } from "../../../../../lib/auth/session";
 
 function resolveMediaType(mimeType?: string | null): "image" | "video" | "file" {
@@ -36,6 +37,14 @@ function firstString(value: unknown): string | null {
 
 export async function POST(request: NextRequest) {
   try {
+    // Signed-in rather than admin: despite the /api/admin prefix this is the upload
+    // endpoint behind the customer avatar picker and the booking flow's file fields
+    // (form-builder's default file upload endpoint), plus the provider portal.
+    // It was previously anonymous, and forwarded `token: undefined` to the .NET
+    // File/UploadAnyFile endpoint — which accepted it. That backend needs its own fix.
+    const auth = await requireApiUser();
+    if (auth instanceof NextResponse) return auth;
+
     const formData = await request.formData();
     const file = formData.get("file");
 

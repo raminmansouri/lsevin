@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { assertAdminPermission } from "@/lib/admin/guard";
 import { getAdminDependentRelationConfigByKey } from "@/lib/admin/extensions/dependent-relations";
 import sql from "@/config/database/db";
+import { requireApiAdmin } from "@/lib/auth/api-guard";
 
 function ident(name: string) {
   return '"' + name.replaceAll('"', '""') + '"';
@@ -48,6 +49,9 @@ function getAdminDependentRelationConfigFromKey(key: string) {
 }
 
 export async function GET(req: NextRequest) {
+  const auth = await requireApiAdmin();
+  if (auth instanceof NextResponse) return auth;
+
   const key = req.nextUrl.searchParams.get("key");
   const locale = req.nextUrl.searchParams.get("locale") || "fa";
   const fallbackLocale = req.nextUrl.searchParams.get("fallbackLocale") || locale;

@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { assertAdminPermission } from "@/lib/admin/guard";
 import { getDirectTableOptions, getRelationOptions } from "@/lib/admin/list-query";
 import { getResolvedTableDefinition } from "@/lib/admin/metadata";
+import { requireApiAdmin } from "@/lib/auth/api-guard";
 
 export async function GET(req: NextRequest) {
+  const auth = await requireApiAdmin();
+  if (auth instanceof NextResponse) return auth;
+
   const schema = req.nextUrl.searchParams.get("schema");
   const table = req.nextUrl.searchParams.get("table");
   const column = req.nextUrl.searchParams.get("column");

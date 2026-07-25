@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { bulkDeleteMedia, createMedia, listMedia } from "@/components/media/server/repository";
 import { CreateMediaInput, MediaListParams } from "@/components/media";
+import { requireApiAdmin, requireApiUser } from "@/lib/auth/api-guard";
 
 
 function toNumber(value: string | null, fallback: number) {
@@ -11,6 +12,9 @@ function toNumber(value: string | null, fallback: number) {
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = await requireApiUser();
+    if (auth instanceof NextResponse) return auth;
+
     const searchParams = request.nextUrl.searchParams;
 
     const params: MediaListParams = {
@@ -37,6 +41,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireApiUser();
+    if (auth instanceof NextResponse) return auth;
+
     const body = (await request.json()) as CreateMediaInput;
     const created = await createMedia(body);
     return NextResponse.json(created, { status: 201 });
@@ -52,6 +59,10 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    // Destructive: drops media.media_library rows and the files behind them.
+    const auth = await requireApiAdmin();
+    if (auth instanceof NextResponse) return auth;
+
     const body = (await request.json()) as { ids?: string[] };
     const ids = Array.isArray(body.ids) ? body.ids : [];
     const deleted = await bulkDeleteMedia(ids, { deleteLocalFile: true });
