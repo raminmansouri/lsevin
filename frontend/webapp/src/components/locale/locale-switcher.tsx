@@ -15,7 +15,6 @@ import {
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { markLocaleChosenExplicitly } from "@/i18n/locale-by-country";
-import { writeSharedLocaleCookie } from "@/i18n/shared-locale-cookie";
 
 export default function LocaleSwitcher() {
   const t = useTranslations("LocaleSwitcher");
@@ -30,7 +29,10 @@ export default function LocaleSwitcher() {
     // this language across navigation (including the browser Back button). Setting
     // it synchronously here also ensures the switch navigation itself isn't bounced
     // back by the cookie-vs-URL guard in middleware.
-    writeSharedLocaleCookie(nextLocale);
+    document.cookie = `NEXT_LOCALE=${nextLocale};path=/;max-age=31536000;samesite=lax`;
+    const sharedDomain = window.location.hostname === "lsevin.com" || window.location.hostname.endsWith(".lsevin.com") ? ";domain=.lsevin.com" : "";
+    const secure = window.location.protocol === "https:" ? ";secure" : "";
+    document.cookie = `LSEVIN_LOCALE=${nextLocale};path=/;max-age=31536000;samesite=lax${sharedDomain}${secure}`;
     // Lock in the explicit choice so location-based auto-switching won't override it.
     markLocaleChosenExplicitly();
     startTransition(() => {

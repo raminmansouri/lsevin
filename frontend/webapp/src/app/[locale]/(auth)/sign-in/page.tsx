@@ -34,11 +34,11 @@ const SignInPage = ({ params, searchParams }: { params: Promise<LocaleParams>; s
       <LocaleBoundary params={params} tanslationNameSpace={TRANSLATION_KEY}>
         {async (t) => {
           const { locale } = await params;
-          const { redirectTo } = await searchParams;
           const content = await getAuthPageContent(locale, "sign-in", {
             title: t("page.title"),
             description: t("page.description"),
           });
+          const { redirectTo } = await searchParams;
 
           return (
             <div>
