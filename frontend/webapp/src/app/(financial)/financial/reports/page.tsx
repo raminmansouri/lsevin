@@ -1,19 +1,20 @@
 import { getTranslations } from "next-intl/server";
 
+import { PANEL_LOCALE } from "@/accounting/lib/panel-locale";
+
 import { formatAmount } from "@/accounting/lib/format";
 import { getTrialBalance } from "@/accounting/server/admin-queries";
 import { ExportButtons } from "@/accounting/components/export-buttons";
 import { PageHeader } from "@/components/page/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LocalePageProps } from "@/types/next";
 
 function pickName(name: Record<string, string> | null, locale: string): string {
   if (!name) return "—";
   return name[locale.startsWith("fa") ? "fa-IR" : "en-US"] ?? Object.values(name)[0] ?? "—";
 }
 
-export default async function TrialBalancePage({ params }: LocalePageProps) {
-  const { locale } = await params;
+export default async function TrialBalancePage() {
+  const locale = PANEL_LOCALE;
   const t = await getTranslations("Admin.accounting");
   const rows = await getTrialBalance();
 

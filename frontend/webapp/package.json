@@ -19,7 +19,8 @@
     "compiler-health": "pnpm dlx react-compiler-healthcheck@latest",
     "locations:seed": "node scripts/generate-locations-seed.mjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "financial:user": "node scripts/financial-user.mjs"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",

@@ -1,14 +1,15 @@
 import { getTranslations } from "next-intl/server";
 
+import { PANEL_LOCALE } from "@/accounting/lib/panel-locale";
+
 import { formatAmount, formatDateTime } from "@/accounting/lib/format";
 import { listJournalEntries } from "@/accounting/server/admin-queries";
 import { ExportButtons } from "@/accounting/components/export-buttons";
 import { PageHeader } from "@/components/page/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LocalePageProps } from "@/types/next";
 
-export default async function JournalPage({ params }: LocalePageProps) {
-  const { locale } = await params;
+export default async function JournalPage() {
+  const locale = PANEL_LOCALE;
   const t = await getTranslations("Admin.accounting");
   const entries = await listJournalEntries();
 

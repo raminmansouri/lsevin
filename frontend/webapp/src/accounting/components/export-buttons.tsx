@@ -15,7 +15,7 @@ export async function ExportButtons({ report, locale }: { report: string; locale
   return (
     <div className="flex items-center gap-2 print:hidden">
       <a
-        href={`/api/admin/accounting/export?report=${report}&locale=${locale}`}
+        href={`/api/financial/export?report=${report}&locale=${locale}`}
         className="rounded border px-3 py-1.5 text-xs font-medium"
         download
       >

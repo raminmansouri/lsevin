@@ -1,47 +1,47 @@
 import "server-only";
 
-import { getAdminContext } from "@/lib/auth/admin-guard";
-import { UserRole } from "@/types/common";
+import { getPanelUser } from "./panel-auth";
 
 /**
- * Who may do what in the accounting area.
+ * Who may do what inside the financial panel.
  *
- * Split from the general admin guard on purpose: reading the books and working the
- * approval queues is a different job from running the platform, and the person doing it
- * should not need — or get — the rest of the admin panel. Equally, an accountant who can
- * approve a deposit should not silently also be able to change the platform fee.
+ * Authorisation is against accounting.panel_users — the panel's own credentials — not
+ * the platform's admin session. That is the point of moving it off the admin panel: an
+ * admin account grants nothing here, and a panel account grants nothing there.
  *
- *   read     — dashboard, journal, reports, audit log
- *   operate  — approve/reject deposits and withdrawals (moves money)
- *   configure— settings and the chart of accounts (decides how much money moves)
+ *   read      — dashboard, journal, reports, audit log
+ *   operate   — approve/reject deposits and withdrawals (moves money)
+ *   configure — settings and the chart of accounts (decides how much money moves)
  */
 export type AccountingCapability = "read" | "operate" | "configure";
 
-const CAPABILITY_ROLES: Record<AccountingCapability, UserRole[]> = {
-  read: [UserRole.SuperAdmin, UserRole.Admin, UserRole.FinanceAdmin, UserRole.Accountant],
-  operate: [UserRole.SuperAdmin, UserRole.Admin, UserRole.FinanceAdmin, UserRole.Accountant],
-  configure: [UserRole.SuperAdmin, UserRole.Admin, UserRole.FinanceAdmin],
+type PanelRole = "accountant" | "finance_admin";
+
+const CAPABILITY_ROLES: Record<AccountingCapability, PanelRole[]> = {
+  read: ["accountant", "finance_admin"],
+  operate: ["accountant", "finance_admin"],
+  // Changing the platform fee is a different job from approving a deposit.
+  configure: ["finance_admin"],
 };
 
 export class AccountingAccessError extends Error {
   constructor(readonly capability: AccountingCapability) {
-    super(`Forbidden: this action requires accounting '${capability}' access.`);
+    super(`Forbidden: this action requires financial '${capability}' access.`);
     this.name = "AccountingAccessError";
   }
 }
 
-export async function assertAccounting(capability: AccountingCapability): Promise<{ userId: string }> {
-  const ctx = await getAdminContext();
-  const allowed = CAPABILITY_ROLES[capability];
-
-  if (!ctx.userId || !ctx.roles.some((role) => allowed.includes(role as UserRole))) {
+export async function assertAccounting(
+  capability: AccountingCapability
+): Promise<{ userId: string }> {
+  const user = await getPanelUser();
+  if (!user || !CAPABILITY_ROLES[capability].includes(user.role)) {
     throw new AccountingAccessError(capability);
   }
-  return { userId: ctx.userId };
+  return { userId: user.id };
 }
 
 export async function canAccounting(capability: AccountingCapability): Promise<boolean> {
-  const ctx = await getAdminContext();
-  const allowed = CAPABILITY_ROLES[capability];
-  return Boolean(ctx.userId && ctx.roles.some((role) => allowed.includes(role as UserRole)));
+  const user = await getPanelUser();
+  return Boolean(user && CAPABILITY_ROLES[capability].includes(user.role));
 }

@@ -97,22 +97,6 @@ const data: AdminSidebarItemType[] = [
   },
 
   {
-    title: "accounting",
-    url: "/admin/accounting",
-    items: [
-      { title: "accounting-dashboard", url: "/admin/accounting" },
-      { title: "accounting-deposits", url: "/admin/accounting/deposits" },
-      { title: "accounting-withdrawals", url: "/admin/accounting/withdrawals" },
-      { title: "accounting-journal", url: "/admin/accounting/journal" },
-      { title: "accounting-reports", url: "/admin/accounting/reports" },
-      { title: "accounting-statements", url: "/admin/accounting/statements" },
-      { title: "accounting-ledger", url: "/admin/accounting/ledger" },
-      { title: "accounting-accounts", url: "/admin/accounting/accounts" },
-      { title: "accounting-audit", url: "/admin/accounting/audit" },
-      { title: "accounting-settings", url: "/admin/accounting/settings" },
-    ],
-  },
-  {
     title: "customers",
     url: "/admin/customers",
     items: [

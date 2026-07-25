@@ -1,5 +1,7 @@
 import { getTranslations } from "next-intl/server";
 
+import { PANEL_LOCALE } from "@/accounting/lib/panel-locale";
+
 import { formatAmount, formatDateTime } from "@/accounting/lib/format";
 import { getLedgerLines } from "@/accounting/server/admin-queries";
 import { listAccounts } from "@/accounting/server/accounts-admin";
@@ -25,7 +27,7 @@ export default async function LedgerPage({
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ account?: string }>;
 }) {
-  const { locale } = await params;
+  const locale = PANEL_LOCALE;
   const { account } = await searchParams;
   const t = await getTranslations("Admin.accounting");
 

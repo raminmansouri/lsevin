@@ -1,4 +1,6 @@
 import { getTranslations } from "next-intl/server";
+
+import { PANEL_LOCALE } from "@/accounting/lib/panel-locale";
 import Link from "next/link";
 
 import { formatForDisplay } from "@/accounting/lib/format";
@@ -11,10 +13,9 @@ import {
 } from "@/accounting/server/admin-queries";
 import { PageHeader } from "@/components/page/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LocalePageProps } from "@/types/next";
 
-export default async function AccountingDashboardPage({ params }: LocalePageProps) {
-  const { locale } = await params;
+export default async function AccountingDashboardPage() {
+  const locale = PANEL_LOCALE;
   const t = await getTranslations("Admin.accounting");
 
   if (!(await isAccountingInstalled())) {

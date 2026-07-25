@@ -1,11 +1,12 @@
 import { getTranslations } from "next-intl/server";
 
+import { PANEL_LOCALE } from "@/accounting/lib/panel-locale";
+
 import { formatDateTime, formatForDisplay } from "@/accounting/lib/format";
 import { listPendingWithdrawals } from "@/accounting/server/admin-queries";
 import { ExportButtons } from "@/accounting/components/export-buttons";
 import { PageHeader } from "@/components/page/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LocalePageProps } from "@/types/next";
 
 import {
   approveWithdrawalAction,
@@ -14,8 +15,8 @@ import {
   rejectWithdrawalAction,
 } from "../actions";
 
-export default async function WithdrawalQueuePage({ params }: LocalePageProps) {
-  const { locale } = await params;
+export default async function WithdrawalQueuePage() {
+  const locale = PANEL_LOCALE;
   const t = await getTranslations("Admin.accounting");
   const withdrawals = await listPendingWithdrawals();
 

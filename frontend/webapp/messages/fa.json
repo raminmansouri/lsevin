@@ -3679,7 +3679,28 @@
       "ledgerDescription": "یک گزارش در سه عمق. با انتخاب حساب، سطح آن مشخص می‌شود: گروه، معین، یا تفصیلی.",
       "filterByAccount": "فیلتر بر اساس حساب",
       "allAccounts": "همهٔ حساب‌ها",
-      "applyFilter": "اعمال"
+      "applyFilter": "اعمال",
+      "panelName": "سیستم حسابداری السوین",
+      "signInHint": "ورود با حساب کاربری مخصوص حسابداری",
+      "username": "نام کاربری",
+      "password": "رمز عبور",
+      "signIn": "ورود",
+      "signOut": "خروج",
+      "signInInvalid": "نام کاربری یا رمز عبور نادرست است",
+      "signInLocked": "به دلیل تلاش‌های ناموفق، حساب موقتاً قفل شده است. ۱۵ دقیقه دیگر تلاش کنید.",
+      "signInInactive": "این حساب غیرفعال است",
+      "signInMissing": "نام کاربری و رمز عبور را وارد کنید",
+      "mustChangePassword": "رمز عبور اولیه هنوز تغییر نکرده است. لطفاً آن را عوض کنید.",
+      "changePassword": "تغییر رمز عبور",
+      "currentPassword": "رمز فعلی",
+      "newPassword": "رمز جدید",
+      "passwordChanged": "رمز عبور تغییر کرد",
+      "passwordTooShort": "رمز عبور باید حداقل ۱۰ کاراکتر باشد",
+      "passwordWrong": "رمز فعلی نادرست است",
+      "panelRoles": {
+        "accountant": "حسابدار",
+        "finance_admin": "مدیر مالی"
+      }
     }
   },
   "HomePage": {

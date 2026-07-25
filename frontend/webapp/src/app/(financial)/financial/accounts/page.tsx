@@ -1,10 +1,11 @@
 import { getTranslations } from "next-intl/server";
 
+import { PANEL_LOCALE } from "@/accounting/lib/panel-locale";
+
 import { listAccounts, listPostableParents } from "@/accounting/server/accounts-admin";
 import { listActiveCurrencies } from "@/accounting/server/settings-admin";
 import { PageHeader } from "@/components/page/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LocalePageProps } from "@/types/next";
 
 import { createAccountAction, renameAccountAction, toggleAccountActiveAction } from "../config-actions";
 
@@ -13,8 +14,8 @@ function pickName(name: Record<string, string> | null, locale: string): string {
   return name[locale.startsWith("fa") ? "fa-IR" : "en-US"] ?? Object.values(name)[0] ?? "—";
 }
 
-export default async function ChartOfAccountsPage({ params }: LocalePageProps) {
-  const { locale } = await params;
+export default async function ChartOfAccountsPage() {
+  const locale = PANEL_LOCALE;
   const t = await getTranslations("Admin.accounting");
   const [accounts, parents, currencies] = await Promise.all([
     listAccounts(),

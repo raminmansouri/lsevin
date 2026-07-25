@@ -18,6 +18,28 @@ type Locale = (typeof routing.locales)[number];
 const intlMiddleware = createIntlMiddleware(routing);
 
 export default async function middleware(request: NextRequest) {
+  // The financial panel is a separate product on its own host with its own credentials.
+  // It shares this Next.js process, so the host is what separates them: everything on
+  // financial.lsevin.com is served from /financial and nothing else, and no locale
+  // prefix, admin gate or customer session logic below applies to it. Its own layout
+  // does the auth check, because only a database lookup can see a revoked session.
+  const host = request.headers.get("host")?.split(":")[0]?.toLowerCase() ?? "";
+  if (host.startsWith("financial.")) {
+    const path = request.nextUrl.pathname;
+    if (path.startsWith("/financial") || path.startsWith("/_next") || path.startsWith("/api/")) {
+      return NextResponse.next();
+    }
+    const url = request.nextUrl.clone();
+    url.pathname = `/financial${path === "/" ? "" : path}`;
+    return NextResponse.rewrite(url);
+  }
+
+  // The panel must not be reachable from the main host — otherwise "separate" is only
+  // a URL, and appmain.lsevin.com/financial would be a second door to the books.
+  if (request.nextUrl.pathname.startsWith("/financial")) {
+    return new NextResponse(null, { status: 404 });
+  }
+
   const intlResponse = intlMiddleware(request);
 
   if (intlResponse && !intlResponse.ok) {

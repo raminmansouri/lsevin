@@ -4319,7 +4319,28 @@
       "ledgerDescription": "One report at three depths. Choosing an account selects the level: group, subsidiary or detail.",
       "filterByAccount": "Filter by account",
       "allAccounts": "All accounts",
-      "applyFilter": "Apply"
+      "applyFilter": "Apply",
+      "panelName": "LSevin Accounting",
+      "signInHint": "Sign in with your accounting account",
+      "username": "Username",
+      "password": "Password",
+      "signIn": "Sign in",
+      "signOut": "Sign out",
+      "signInInvalid": "Incorrect username or password",
+      "signInLocked": "Locked after repeated failed attempts. Try again in 15 minutes.",
+      "signInInactive": "This account is disabled",
+      "signInMissing": "Enter a username and password",
+      "mustChangePassword": "The initial password has not been changed yet. Please change it.",
+      "changePassword": "Change password",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "passwordChanged": "Password changed",
+      "passwordTooShort": "The password must be at least 10 characters",
+      "passwordWrong": "The current password is incorrect",
+      "panelRoles": {
+        "accountant": "Accountant",
+        "finance_admin": "Finance admin"
+      }
     }
   },
   "HomePage": {

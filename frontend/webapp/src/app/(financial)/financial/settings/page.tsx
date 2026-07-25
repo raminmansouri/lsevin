@@ -7,14 +7,12 @@ import {
 } from "@/accounting/server/settings-admin";
 import { PageHeader } from "@/components/page/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LocalePageProps } from "@/types/next";
 
 import { updateSettingAction } from "../config-actions";
 
 const GROUP_ORDER = ["core", "fees", "withdrawal", "deposit", "crypto", "limits"] as const;
 
-export default async function AccountingSettingsPage({ params }: LocalePageProps) {
-  await params;
+export default async function AccountingSettingsPage() {
   const t = await getTranslations("Admin.accounting");
   const [settings, currencies] = await Promise.all([listSettings(), listActiveCurrencies()]);
 

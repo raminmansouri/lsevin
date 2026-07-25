@@ -16,7 +16,8 @@ import {
  * A route handler rather than a server action because a download needs a real HTTP
  * response with Content-Disposition. `/api/**` gets no middleware, so the capability
  * check here is the only thing between this and the open internet — these files contain
- * customer names, emails, IBANs and every amount the platform holds.
+ * customer names, emails, IBANs and every amount the platform holds. It authorises
+ * against the financial panel session, so an admin cookie does not open it.
  */
 
 function pickName(name: Record<string, string> | null, locale: string): string {

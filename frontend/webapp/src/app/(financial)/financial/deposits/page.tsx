@@ -1,16 +1,17 @@
 import { getTranslations } from "next-intl/server";
 
+import { PANEL_LOCALE } from "@/accounting/lib/panel-locale";
+
 import { formatDateTime, formatForDisplay } from "@/accounting/lib/format";
 import { listPendingDeposits } from "@/accounting/server/admin-queries";
 import { ExportButtons } from "@/accounting/components/export-buttons";
 import { PageHeader } from "@/components/page/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LocalePageProps } from "@/types/next";
 
 import { approveDepositAction, rejectDepositAction } from "../actions";
 
-export default async function DepositQueuePage({ params }: LocalePageProps) {
-  const { locale } = await params;
+export default async function DepositQueuePage() {
+  const locale = PANEL_LOCALE;
   const t = await getTranslations("Admin.accounting");
   const deposits = await listPendingDeposits();
 
