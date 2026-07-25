@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, CheckCircle2, ChevronRight, CreditCard, FileStack, Layers3, RefreshCcw, ShieldCheck } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 import { DynamicServiceForm } from '@/features/form-builder/components/DynamicServiceForm';
 import type { BookingDraftState, ChildBookingDraft, ProviderCardItem, ProviderTypeAddonItem, ServiceCardItem, SpecialistCardItem, UploadRequirementItem } from '../types';
 import { ChildAddonBookingCard } from './ChildAddonBookingCard';
@@ -224,6 +225,26 @@ export function BookingWizard() {
     const seededProviderId = searchParams.get('providerId') ?? searchParams.get('id') ?? undefined;
     const seededServiceId = searchParams.get('serviceId') ?? undefined;
     const seededSpecialistId = searchParams.get('specialistId') ?? undefined;
+
+    // Gateways redirect back to this page with the outcome in the query string.
+    // 'pending' is the normal crypto case — BTCPay's return fires before the
+    // network confirms — so it must read as "on its way", never as a failure.
+    // The InvoiceSettled webhook is what actually credits the booking.
+    const paymentReturnStatus = searchParams.get('paymentStatus');
+    useEffect(() => {
+        if (!paymentReturnStatus) return;
+
+        const status = paymentReturnStatus.trim().toLowerCase();
+        if (status === 'succeeded') {
+            toast.success(tBooking('paymentVerifiedSuccessfully'));
+        } else if (status === 'pending') {
+            toast.info(tBooking('paymentPendingConfirmation'), { duration: 10000 });
+        } else if (status === 'cancelled') {
+            toast.info(tBooking('paymentWasCancelled'));
+        } else if (status === 'failed') {
+            toast.error(searchParams.get('message') || tBooking('paymentVerificationFailed'));
+        }
+    }, [paymentReturnStatus, searchParams, tBooking]);
     const hasSeedSelection = Boolean(seededProviderId || seededServiceId || seededSpecialistId);
     const defaultCalendar = localeToCalendar(locale);
     const formatMoney = useMoneyFormatter(locale);

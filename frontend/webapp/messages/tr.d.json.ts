@@ -2,7 +2,7 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
-   "UploadFiles": {
+  "UploadFiles": {
     "title": "Upload documents",
     "subtitle": "Please upload the requested files for your booking",
     "description": "Supported formats: PNG, JPG, JPEG, PDF",
@@ -15,7 +15,7 @@ declare const messages: {
     "acceptedFilesDesc": "PNG, JPG, JPEG, PDF — maximum file size: 10 MB.",
     "acceptedFilesTitle": "Accepted files",
     "replaceFile": "Replace file",
-        "uploadBtn": "Choose file",
+    "uploadBtn": "Choose file",
     "uploadCardTitle": "Upload Documents",
     "uploadCardDesc": "Attach the required documents for this booking.",
     "filesUploaded": "uploaded",
@@ -368,11 +368,20 @@ declare const messages: {
       "title": "Konum",
       "country": "Ülke",
       "city": "Şehir",
-      "selectCountry": "Bir ülke seçin",
-      "selectCity": "Bir şehir seçin",
-      "noCountrySelected": "Ülke seçilmedi",
-      "noCitiesAvailable": "Uygun şehir yok",
-      "loading": "Yükleniyor..."
+      "selectCountry": "Ülke seçin",
+      "selectCity": "Şehir seçin",
+      "noCountrySelected": "Önce bir ülke seçin",
+      "noCitiesAvailable": "Şehir bulunamadı",
+      "loading": "Yükleniyor…",
+      "province": "İl",
+      "selectProvince": "İl seçin",
+      "searchCountries": "Ülke ara…",
+      "searchCities": "Şehir ara…",
+      "searchProvinces": "İl ara…",
+      "noProvinceSelected": "Önce bir ülke seçin",
+      "noCitySelectable": "Önce bir il seçin",
+      "noProvincesAvailable": "İl bulunamadı",
+      "clear": "Seçimi temizle"
     },
     "DatePicker": {
       "placeholder": "Tarih Seçin",
@@ -707,7 +716,7 @@ declare const messages: {
         "label": "Açıklama",
         "translations": "Kategori açıklaması en az bir dilde zorunludur"
       },
-       "image": {
+      "image": {
         "label": "Category image",
         "hint": "Upload an image for this category",
         "remove": "Remove image"
@@ -1679,6 +1688,69 @@ declare const messages: {
   "List": {
     "loading": "Yükleniyor...",
     "loadMore": "Daha Fazla Yükle"
+  },
+  "Home": {
+    "location": {
+      "currentDestination": "Hedef",
+      "selectLocation": "Konum seçin",
+      "useMyCurrentLocation": "Mevcut konumumu kullan",
+      "source": {
+        "chooseOrDetect": "Hedefinizi seçin veya algılayın",
+        "gps": "Cihazınızın konumundan algılandı",
+        "profile": "Profilinizden algılandı",
+        "phone": "Telefon numaranızdan algılandı",
+        "ip": "Ağınıza göre yaklaşık",
+        "saved": "Kayıtlı tercihlerinizden yüklendi",
+        "picked": "Seçilen öne çıkan hedef",
+        "manual": "Elle seçim",
+        "url": "Seçilen hedef",
+        "current": "Mevcut hedef"
+      },
+      "messages": {
+        "detectingAutomatic": "Kayıtlı profilinizden, telefon numaranızdan veya ağınızdan algılanıyor…",
+        "detectedFromSource": "{source}: {location}",
+        "autoDetectFailed": "Konumunuz otomatik olarak algılanamadı. Lütfen elle seçin.",
+        "browserUnsupported": "Tarayıcınız konum algılamayı desteklemiyor. Lütfen konumunuzu elle seçin.",
+        "requestingPermission": "Mevcut konumunuz için izin isteniyor…",
+        "usingNearestDestination": "En yakın desteklenen hedef kullanılıyor: {location}",
+        "noSupportedDestination": "Cihazınızın konumu algılandı, ancak yakınında desteklenen bir hedef bulunamadı.",
+        "permissionDenied": "Konum izni verilmedi. Hedefinizi yine de elle seçebilirsiniz.",
+        "selectCountryOrCity": "Lütfen önce bir ülke veya şehir seçin.",
+        "applyingSelected": "Seçilen hedef uygulanıyor…",
+        "resolveFailed": "Seçilen konum çözümlenemedi. Lütfen başka bir ülke veya şehir deneyin.",
+        "locationUnavailable": "Konum bu cihazda şu anda kullanılamıyor. Lütfen hedefinizi elle seçin.",
+        "locationTimedOut": "Konumunuzu almak çok uzun sürdü. Tekrar deneyin veya hedefinizi elle seçin.",
+        "linkLocationNotFound": "Bu hedef bağlantısı artık geçerli değil. Lütfen konumunuzu seçin.",
+        "loadFailed": "Konumunuz algılanırken bir sorun oluştu. Lütfen tekrar deneyin."
+      },
+      "modal": {
+        "eyebrow": "Hedef",
+        "title": "Konum seçin",
+        "description": "Konumunuzu algılayın, hesap bilgilerinizi kullanın veya ülke ve şehri elle seçin.",
+        "closeAria": "Konum seçiciyi kapat"
+      },
+      "currentLocation": {
+        "title": "Mevcut konumu kullan",
+        "description": "Tarayıcı izin ister, ardından LSevin en yakın desteklenen hedefi seçer."
+      },
+      "manual": {
+        "title": "Elle seçim",
+        "description": "Hedefiniz öne çıkan konumlar arasında yoksa aşağıdaki adım adım seçicileri kullanın.",
+        "country": "Ülke",
+        "province": "İl / Eyalet",
+        "city": "Şehir",
+        "applying": "Uygulanıyor…",
+        "apply": "Konumu uygula"
+      }
+    }
+  },
+  "AsyncSelect": {
+    "placeholder": "Seçin…",
+    "searchPlaceholder": "Ara…",
+    "emptyText": "Sonuç bulunamadı.",
+    "loading": "Yükleniyor…",
+    "loadMore": "Daha fazla göster",
+    "clear": "Seçimi temizle"
   }
 };
 export default messages;

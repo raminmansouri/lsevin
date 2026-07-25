@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { createPortal } from 'react-dom';
-import { Check, ChevronRight, Loader2, LocateFixed, MapPin, Navigation, X } from 'lucide-react';
+import { Check, ChevronRight, Loader2, LocateFixed, MapPin, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
@@ -27,6 +27,7 @@ import { hasExplicitLocaleChoice, localeForCountry } from '@/i18n/locale-by-coun
 
 const formSchema = z.object({
   countryId: z.string().uuid().nullable().optional(),
+  provinceId: z.string().uuid().nullable().optional(),
   cityId: z.string().uuid().nullable().optional(),
 });
 
@@ -47,6 +48,16 @@ type ApplyLocationOptions = {
   // country from IP geo here while still showing nearby providers for the location.
   localeCountryCode?: string | null;
 };
+
+// Language may only be adopted from signals that describe where the VISITOR is,
+// never from a destination they (or a past session) chose. getInitialHomeLocationAction
+// cascades through saved preferences and picked destinations too, and those carry a
+// country that says nothing about the language the visitor reads.
+const LOCALE_ADOPTING_SOURCES = new Set(['gps', 'ip', 'phone', 'profile']);
+
+// A resolved destination further away than this is a "nearest supported destination"
+// fallback, not the visitor's own country — so it must not drive the UI language.
+const LOCALE_ADOPTION_MAX_KM = 150;
 
 type DetectedIpGeoLocation = {
   countryCode: string | null;
@@ -202,6 +213,26 @@ function makeCoordinateLocation(latitude: number, longitude: number): HomeResolv
   };
 }
 
+// Whether a featured-destination card points at the same place as the currently
+// selected location. Ids are useless here — cards carry a category.picked_locations
+// id while resolved locations carry a category.locations id — so compare the city
+// the two rows resolve to, falling back to the city/country codes.
+function isSameDestination(selected: HomeResolvedLocation, candidate: HomePickedLocation) {
+  if (selected.id === candidate.id) return true;
+  if (selected.cityId && candidate.cityId && selected.cityId === candidate.cityId) return true;
+
+  const selectedCity = selected.cityCode?.toUpperCase();
+  const candidateCity = candidate.cityCode?.toUpperCase();
+  if (!selectedCity || !candidateCity || selectedCity !== candidateCity) return false;
+
+  const selectedCountry = selected.countryCode?.toUpperCase();
+  const candidateCountry = candidate.countryCode?.toUpperCase();
+  // Same city code under different countries is a coincidence, not a match.
+  if (selectedCountry && candidateCountry) return selectedCountry === candidateCountry;
+
+  return true;
+}
+
 function getLocationTitle(location: HomeResolvedLocation, fallback: string) {
   const city = location.city?.trim();
   const country = location.country?.trim();
@@ -305,12 +336,18 @@ async function fetchJsonWithTimeout(url: string, timeoutMs = 2000) {
 // page). The leading slash-less https URL is reached cross-origin by the browser.
 const BROWSER_IP_GEO_URL = 'https://get.geojs.io/v1/ip/geo.json';
 
+// The same-origin route gives its own upstream provider 2500ms before giving up, so
+// aborting at the 2000ms default threw away answers the server was about to return.
+const SAME_ORIGIN_IP_GEO_TIMEOUT_MS = 3200;
+
 async function lookupIpGeoWithoutGps(): Promise<DetectedIpGeoLocation | null> {
   if (typeof window === 'undefined') return null;
 
   // 1) Same-origin server route first — works when the host forwards the real
   //    client IP (X-Forwarded-For). Behind a proxy that strips it, this 204s.
-  const sameOrigin = normalizeIpGeoPayload(await fetchJsonWithTimeout('/api/location/client-ip-geo'));
+  const sameOrigin = normalizeIpGeoPayload(
+    await fetchJsonWithTimeout('/api/location/client-ip-geo', SAME_ORIGIN_IP_GEO_TIMEOUT_MS)
+  );
   if (sameOrigin) return sameOrigin;
 
   // 2) Browser fallback: call the geo provider directly. The visitor's browser
@@ -346,18 +383,26 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       countryId: null,
+      provinceId: null,
       cityId: null,
     },
   });
 
   const watchedCountryId = form.watch('countryId');
+  const watchedProvinceId = form.watch('provinceId');
   const watchedCityId = form.watch('cityId');
 
   const initializedRef = useRef(false);
+  // Guards every state write that can arrive from an async callback (geolocation
+  // fires up to 15s after the click, and the component may be gone by then).
+  const isMountedRef = useRef(true);
+  const locationsRequestedRef = useRef(false);
+  const geolocationWatchdogRef = useRef<number | null>(null);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [isDetecting, setIsDetecting] = useState(false);
+  const [isLoadingLocations, setIsLoadingLocations] = useState(false);
   const [locations, setLocations] = useState<HomePickedLocation[]>([]);
   const [hasLoadedLocations, setHasLoadedLocations] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<HomeResolvedLocation>(INITIAL_LOCATION);
@@ -371,10 +416,16 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
       const persist = options.persist ?? true;
       const adoptLocale = options.adoptLocale ?? false;
 
+      if (!isMountedRef.current) return;
+
       setSelectedLocation(location);
       setLocationMessage(null);
 
       form.setValue('countryId', location.countryId, { shouldDirty: false });
+      // The resolver returns country + city only; the province select re-derives
+      // itself from the city, so clear a stale one rather than leaving a province
+      // from a previous country attached to the new selection.
+      form.setValue('provinceId', null, { shouldDirty: false });
       form.setValue('cityId', location.cityId, { shouldDirty: false });
 
       const hasCoordinates = location.latitude != null && location.longitude != null;
@@ -452,16 +503,22 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
   );
 
   const detectFromAccountPhoneOrIp = useCallback(
-    (navigation: NavigationMode = 'replace') => {
+    (navigation: NavigationMode = 'replace', pendingMessage?: string) => {
       setIsDetecting(true);
-      setLocationMessage(t('messages.detectingAutomatic'));
+      setLocationMessage(pendingMessage ?? t('messages.detectingAutomatic'));
 
       startTransition(async () => {
         try {
           const resolved = await getInitialHomeLocationAction({ locale: localeForQueries });
 
           if (resolved?.countryCode || resolved?.cityCode) {
-            applyLocation(resolved, { navigation, adoptLocale: true });
+            applyLocation(resolved, {
+              navigation,
+              // Only a source that describes where the visitor actually is may switch
+              // the language — a 'saved'/'picked' destination must not.
+              adoptLocale: LOCALE_ADOPTING_SOURCES.has(resolved.source),
+            });
+            if (!isMountedRef.current) return;
             setLocationMessage(
               t('messages.detectedFromSource', {
                 source: getLocationSourceLabel(resolved, sourceLabels),
@@ -497,6 +554,7 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
                 // nearest provider's country that `resolvedFromIp` may carry.
                 localeCountryCode: detectedIpLocation.countryCode,
               });
+              if (!isMountedRef.current) return;
               setLocationMessage(
                 t('messages.detectedFromSource', {
                   source: getLocationSourceLabel(resolvedFromIp, sourceLabels),
@@ -507,10 +565,18 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
             }
           }
 
+          if (!isMountedRef.current) return;
+          setLocationMessage(t('messages.autoDetectFailed'));
+          setShowLocationPicker(true);
+        } catch {
+          // A rejected server action inside startTransition is re-thrown to the
+          // nearest error boundary on React 19, which would tear down the whole home
+          // view over a failed location lookup. Degrade to the manual picker instead.
+          if (!isMountedRef.current) return;
           setLocationMessage(t('messages.autoDetectFailed'));
           setShowLocationPicker(true);
         } finally {
-          setIsDetecting(false);
+          if (isMountedRef.current) setIsDetecting(false);
         }
       });
     },
@@ -529,8 +595,31 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
     // Any GPS attempt counts as "asked" so we don't auto-prompt again next time.
     markLocationAsked();
 
+    // The `timeout` option below does not cover the time the permission prompt sits
+    // unanswered, so neither callback ever fires if the visitor ignores it — which
+    // used to leave every control in the picker spinning and disabled forever.
+    if (geolocationWatchdogRef.current != null) window.clearTimeout(geolocationWatchdogRef.current);
+    geolocationWatchdogRef.current = window.setTimeout(() => {
+      geolocationWatchdogRef.current = null;
+      if (!isMountedRef.current) return;
+      setIsDetecting(false);
+      setLocationMessage(t('messages.locationTimedOut'));
+      setShowLocationPicker(true);
+    }, 30000);
+
+    const clearGeolocationWatchdog = () => {
+      if (geolocationWatchdogRef.current == null) return false;
+      window.clearTimeout(geolocationWatchdogRef.current);
+      geolocationWatchdogRef.current = null;
+      return true;
+    };
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        // The watchdog already gave up and told the visitor so — don't yank the UI
+        // out from under them with a late fix.
+        if (!clearGeolocationWatchdog() || !isMountedRef.current) return;
+
         const userLatitude = position.coords.latitude;
         const userLongitude = position.coords.longitude;
         if (process.env.NODE_ENV !== 'production') {
@@ -552,30 +641,43 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
             });
 
             if (resolved?.countryCode || resolved?.cityCode) {
-              // Keep the visitor's REAL coordinates (not the matched city centroid)
-              // so home + map reflect what's actually closest to them.
-              applyLocation(
-                { ...resolved, latitude: userLatitude, longitude: userLongitude },
-                { navigation: 'replace', adoptLocale: true }
-              );
-              setShowLocationPicker(false);
-              setLocationMessage(
-                t('messages.usingNearestDestination', {
-                  location: getLocationTitle(resolved, locationTitleFallback),
-                })
-              );
-
               // Remember the real device location on the signed-in user's profile so
               // it persists across sessions and devices. No-op for guests. Fire-and-forget
               // on purpose: the location is already applied and the UI must not keep the
               // detection spinner (isBusy) alive waiting on this best-effort profile write,
-              // which would hang if the API stalls.
+              // which would hang if the API stalls. Issued BEFORE applyLocation because a
+              // locale switch there navigates with window.location.assign, and a request
+              // started after that races the document unload and is usually dropped.
               void saveCurrentLocationToProfileAction({
                 countryId: resolved.countryId,
                 cityId: resolved.cityId,
                 latitude: userLatitude,
                 longitude: userLongitude,
               }).catch(() => null);
+
+              // The resolver answers with the NEAREST supported destination, which for a
+              // visitor far from any provider can be a different country entirely. Adopt
+              // its language only when that destination is genuinely near them.
+              const destinationDistanceKm = resolved.accuracyKm;
+              const isNearbyDestination =
+                typeof destinationDistanceKm === 'number' &&
+                Number.isFinite(destinationDistanceKm) &&
+                destinationDistanceKm <= LOCALE_ADOPTION_MAX_KM;
+
+              // Keep the visitor's REAL coordinates (not the matched city centroid)
+              // so home + map reflect what's actually closest to them.
+              applyLocation(
+                { ...resolved, latitude: userLatitude, longitude: userLongitude },
+                { navigation: 'replace', adoptLocale: isNearbyDestination }
+              );
+
+              if (!isMountedRef.current) return;
+              setShowLocationPicker(false);
+              setLocationMessage(
+                t('messages.usingNearestDestination', {
+                  location: getLocationTitle(resolved, locationTitleFallback),
+                })
+              );
 
               return;
             }
@@ -584,10 +686,15 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
             // position — remember it so providers sort by distance and the map can
             // pin them. Don't keep the picker open.
             applyLocation(makeCoordinateLocation(userLatitude, userLongitude), { navigation: 'replace' });
+            if (!isMountedRef.current) return;
             setShowLocationPicker(false);
             setLocationMessage(null);
+          } catch {
+            if (!isMountedRef.current) return;
+            setLocationMessage(t('messages.loadFailed'));
+            setShowLocationPicker(true);
           } finally {
-            setIsDetecting(false);
+            if (isMountedRef.current) setIsDetecting(false);
           }
         });
       },
@@ -596,9 +703,21 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
           // eslint-disable-next-line no-console
           console.info('[geo] home.gps.error', { code: error.code, message: error.message });
         }
+        if (!clearGeolocationWatchdog() || !isMountedRef.current) return;
         setIsDetecting(false);
-        setLocationMessage(t('messages.permissionDenied'));
-        detectFromAccountPhoneOrIp('replace');
+
+        // All three failures used to report "permission denied", and the message was
+        // then overwritten in the same batch by the fallback's own "detecting…" text,
+        // so the visitor never learned why GPS failed. Carry the real reason into the
+        // fallback instead of setting a message that is immediately replaced.
+        const reason =
+          error.code === error.PERMISSION_DENIED
+            ? t('messages.permissionDenied')
+            : error.code === error.TIMEOUT
+              ? t('messages.locationTimedOut')
+              : t('messages.locationUnavailable');
+
+        detectFromAccountPhoneOrIp('replace', reason);
       },
       {
         // Ask for the GPS chip, never accept a stale cached fix, and give the
@@ -612,7 +731,16 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
   }, [applyLocation, detectFromAccountPhoneOrIp, localeForQueries, locationTitleFallback, startTransition, t]);
 
   useEffect(() => {
+    isMountedRef.current = true;
     setMounted(true);
+
+    return () => {
+      isMountedRef.current = false;
+      if (geolocationWatchdogRef.current != null) {
+        window.clearTimeout(geolocationWatchdogRef.current);
+        geolocationWatchdogRef.current = null;
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -627,17 +755,30 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
 
     if (countryCode || cityCode) {
       startTransition(async () => {
-        const resolved = await resolveHomeLocationFromCodesAction({
-          countryCode,
-          cityCode,
-          locale: localeForQueries,
-        });
+        try {
+          const resolved = await resolveHomeLocationFromCodesAction({
+            countryCode,
+            cityCode,
+            locale: localeForQueries,
+          });
 
-        if (resolved) {
-          const withCoords = hasCoordParams
-            ? { ...resolved, latitude: latParam, longitude: lngParam }
-            : resolved;
-          applyLocation(withCoords, { navigation: false, persist: true });
+          if (resolved) {
+            const withCoords = hasCoordParams
+              ? { ...resolved, latitude: latParam, longitude: lngParam }
+              : resolved;
+            applyLocation(withCoords, { navigation: false, persist: true });
+            return;
+          }
+
+          // A stale or mistyped deep link (a destination that no longer exists).
+          // Previously this branch did nothing at all: the bad params stayed in the
+          // URL, no detection ran, and the picker showed no location and no reason.
+          if (!isMountedRef.current) return;
+          setLocationMessage(t('messages.linkLocationNotFound'));
+          detectFromAccountPhoneOrIp('replace', t('messages.linkLocationNotFound'));
+        } catch {
+          if (!isMountedRef.current) return;
+          setLocationMessage(t('messages.loadFailed'));
         }
       });
       return;
@@ -646,19 +787,27 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
     if (hasCoordParams && latParam != null && lngParam != null) {
       // URL carries raw coordinates (our own GPS replace, or a shared deep link).
       startTransition(async () => {
-        const resolved = await resolveHomeLocationFromCoordinatesAction({
-          latitude: latParam,
-          longitude: lngParam,
-          locale: localeForQueries,
-          source: 'gps',
-        });
+        try {
+          const resolved = await resolveHomeLocationFromCoordinatesAction({
+            latitude: latParam,
+            longitude: lngParam,
+            locale: localeForQueries,
+            source: 'gps',
+          });
 
-        const base =
-          resolved?.countryCode || resolved?.cityCode
-            ? { ...resolved, latitude: latParam, longitude: lngParam }
-            : makeCoordinateLocation(latParam, lngParam);
+          const base =
+            resolved?.countryCode || resolved?.cityCode
+              ? { ...resolved, latitude: latParam, longitude: lngParam }
+              : makeCoordinateLocation(latParam, lngParam);
 
-        applyLocation(base, { navigation: false, persist: true });
+          applyLocation(base, { navigation: false, persist: true });
+        } catch {
+          // Still honour the coordinates the link carried, so home can sort by distance.
+          applyLocation(makeCoordinateLocation(latParam, lngParam), {
+            navigation: false,
+            persist: true,
+          });
+        }
       });
       return;
     }
@@ -674,7 +823,9 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
     if (hasAskedForLocation()) return;
     markLocationAsked();
     detectFromAccountPhoneOrIp('replace');
-  }, [applyLocation, detectFromAccountPhoneOrIp, localeForQueries, searchParams, startTransition]);
+    // Runs once per mount (guarded by initializedRef); `t` is included because the
+    // unresolvable-deep-link branch above renders a message.
+  }, [applyLocation, detectFromAccountPhoneOrIp, localeForQueries, searchParams, startTransition, t]);
 
   useEffect(() => {
     if (!showLocationPicker) return;
@@ -687,19 +838,43 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
     };
   }, [showLocationPicker]);
 
-  const loadLocations = () => {
-    if (hasLoadedLocations) return;
+  // Deliberately outside the shared `startTransition`: this query used to raise the
+  // global `isPending`, which disabled and spun both detection buttons while the
+  // destination list loaded. The ref makes it race-safe (reopening the picker mid-flight
+  // no longer fires a second query), and the catch lets a failed load retry on the next
+  // open instead of pinning an empty list forever.
+  const loadLocations = useCallback(() => {
+    if (locationsRequestedRef.current) return;
+    locationsRequestedRef.current = true;
+    setIsLoadingLocations(true);
 
-    startTransition(async () => {
-      const rows = await getPickedLocations();
-      setLocations(rows);
-      setHasLoadedLocations(true);
-    });
-  };
+    void (async () => {
+      try {
+        const rows = await getPickedLocations();
+        if (!isMountedRef.current) return;
+        setLocations(rows);
+        setHasLoadedLocations(true);
+      } catch {
+        locationsRequestedRef.current = false;
+      } finally {
+        if (isMountedRef.current) setIsLoadingLocations(false);
+      }
+    })();
+  }, []);
+
+  // Driven by the open state rather than the click handler, because the picker also
+  // opens on its own (auto-detect failed, or the browser has no geolocation) — those
+  // paths never loaded the list, so the grid stayed empty for the whole session.
+  useEffect(() => {
+    if (!showLocationPicker) return;
+    loadLocations();
+  }, [showLocationPicker, loadLocations]);
 
   const openLocationPicker = () => {
+    // A message about a detection that already finished (often while the modal was
+    // closed) otherwise greets the visitor as a stale amber warning on the next open.
+    setLocationMessage(null);
     setShowLocationPicker(true);
-    loadLocations();
   };
 
   const handleSelectLocation = (location: HomePickedLocation) => {
@@ -727,19 +902,24 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
 
         if (resolved?.countryCode || resolved?.cityCode) {
           applyLocation(resolved, { navigation: 'push' });
+          if (!isMountedRef.current) return;
           setShowLocationPicker(false);
           return;
         }
 
+        if (!isMountedRef.current) return;
+        setLocationMessage(t('messages.resolveFailed'));
+      } catch {
+        if (!isMountedRef.current) return;
         setLocationMessage(t('messages.resolveFailed'));
       } finally {
-        setIsDetecting(false);
+        if (isMountedRef.current) setIsDetecting(false);
       }
     });
   };
 
   const availableLocations = useMemo(() => locations.filter((item) => item.city && item.country), [locations]);
-  const canApplyManualSelection = Boolean(watchedCountryId || watchedCityId);
+  const canApplyManualSelection = Boolean(watchedCountryId || watchedProvinceId || watchedCityId);
   const isBusy = isPending || isDetecting;
 
   const modal =
@@ -766,37 +946,20 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
                 </div>
 
                 <div className="space-y-5 p-5 sm:p-6">
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <button
-                      type="button"
-                      onClick={requestBrowserLocation}
-                      disabled={isBusy}
-                      className="flex items-center gap-3 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-left transition hover:border-emerald-300 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-emerald-700 shadow-sm">
-                        {isBusy ? <Loader2 className="animate-spin" size={20} /> : <LocateFixed size={20} />}
-                      </div>
-                      <div>
-                        <div className="text-sm font-bold text-emerald-950">{t('currentLocation.title')}</div>
-                        <p className="mt-0.5 text-xs leading-5 text-emerald-800/80">{t('currentLocation.description')}</p>
-                      </div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => detectFromAccountPhoneOrIp('replace')}
-                      disabled={isBusy}
-                      className="flex items-center gap-3 rounded-3xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
-                        {isBusy ? <Loader2 className="animate-spin" size={20} /> : <Navigation size={20} />}
-                      </div>
-                      <div>
-                        <div className="text-sm font-bold text-slate-950">{t('detectWithoutGps.title')}</div>
-                        <p className="mt-0.5 text-xs leading-5 text-slate-500">{t('detectWithoutGps.description')}</p>
-                      </div>
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={requestBrowserLocation}
+                    disabled={isBusy}
+                    className="flex w-full items-center gap-3 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-left transition hover:border-emerald-300 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-emerald-700 shadow-sm">
+                      {isBusy ? <Loader2 className="animate-spin" size={20} /> : <LocateFixed size={20} />}
+                    </div>
+                    <div>
+                      <div className="text-sm font-bold text-emerald-950">{t('currentLocation.title')}</div>
+                      <p className="mt-0.5 text-xs leading-5 text-emerald-800/80">{t('currentLocation.description')}</p>
+                    </div>
+                  </button>
 
                   {locationMessage ? (
                     <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
@@ -813,10 +976,13 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
                     <RHFCountryCitySelect
                       control={form.control}
                       countryName="countryId"
+                      provinceName="provinceId"
                       cityName="cityId"
+                      showProvince
                       locale={localeForQueries}
                       fallbackLocale="en-US"
                       countryLabel={t('manual.country')}
+                      provinceLabel={t('manual.province')}
                       cityLabel={t('manual.city')}
                     />
 
@@ -832,18 +998,7 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
                     </div>
                   </div>
 
-                  <div className="mb-3 flex items-center justify-between">
-                    <div>
-                      <h4 className="text-base font-bold text-slate-900">{t('featuredDestinations.title')}</h4>
-                      <p className="text-sm text-slate-500">{t('featuredDestinations.description')}</p>
-                    </div>
-
-                    <div className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                      {t('featuredDestinations.available', { count: availableLocations.length })}
-                    </div>
-                  </div>
-
-                  {isPending && !hasLoadedLocations ? (
+                  {isLoadingLocations && !hasLoadedLocations ? (
                     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                       {Array.from({ length: 6 }).map((_, index) => (
                         <div key={index} className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-3">
@@ -856,7 +1011,11 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
                   ) : availableLocations.length > 0 ? (
                     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                       {availableLocations.map((location) => {
-                        const isSelected = selectedLocation.id === location.id;
+                        // Card ids come from category.picked_locations, while a detected
+                        // location's id comes from category.locations — the two uuid spaces
+                        // never intersect, so comparing ids alone never highlighted a
+                        // detected destination. Match on the underlying city instead.
+                        const isSelected = isSameDestination(selectedLocation, location);
                         const mediaUrl = resolveHomeMediaUrl(location.image);
 
                         return (
@@ -902,15 +1061,7 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
                         );
                       })}
                     </div>
-                  ) : (
-                    <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
-                      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-200">
-                        <MapPin className="text-slate-500" size={20} />
-                      </div>
-                      <h4 className="text-sm font-semibold text-slate-900">{t('featuredDestinations.emptyTitle')}</h4>
-                      <p className="mt-1 text-sm text-slate-500">{t('featuredDestinations.emptyDescription')}</p>
-                    </div>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </div>

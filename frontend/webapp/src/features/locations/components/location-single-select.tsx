@@ -1,18 +1,16 @@
 "use client";
 
 import { MapPin } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { AsyncSingleSelect } from "./async-single-select";
 import { getLocationByIdAction, searchLocationsAction } from "../actions/location-select.actions";
-// import {
-//   getLocationByIdAction,
-//   searchLocationsAction,
-// } from "@/features/locations/location-select.actions";
+import type { LocationTypeId } from "../location-select.types";
 
 type Props = {
   value: string | null | undefined;
   onChange: (value: string | null) => void;
 
-  locationTypeId: 1 | 2;
+  locationTypeId: LocationTypeId;
   parentId?: string | null;
 
   locale?: string;
@@ -42,7 +40,22 @@ export function LocationSingleSelect({
   clearable = true,
   className,
 }: Props) {
+  const t = useTranslations("Common.Location");
   const cacheKey = `locations|type:${locationTypeId}|parent:${parentId ?? "root"}|locale:${locale}|fallback:${fallbackLocale}`;
+
+  const defaultPlaceholder =
+    locationTypeId === 1
+      ? t("selectCountry")
+      : locationTypeId === 3
+        ? t("selectProvince")
+        : t("selectCity");
+
+  const defaultSearchPlaceholder =
+    locationTypeId === 1
+      ? t("searchCountries")
+      : locationTypeId === 3
+        ? t("searchProvinces")
+        : t("searchCities");
 
   return (
     <div className={className}>
@@ -62,14 +75,8 @@ export function LocationSingleSelect({
         disabled={disabled}
         pageSize={pageSize}
         clearable={clearable}
-        placeholder={
-          placeholder ??
-          (locationTypeId === 1 ? "Select country" : "Select city")
-        }
-        searchPlaceholder={
-          searchPlaceholder ??
-          (locationTypeId === 1 ? "Search countries..." : "Search cities...")
-        }
+        placeholder={placeholder ?? defaultPlaceholder}
+        searchPlaceholder={searchPlaceholder ?? defaultSearchPlaceholder}
         loadOptions={(params) =>
           searchLocationsAction({
             locationTypeId,

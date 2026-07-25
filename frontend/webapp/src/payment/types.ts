@@ -1,15 +1,23 @@
-export type PaymentGatewayCode = "zarinpal";
+export type PaymentGatewayCode = "zarinpal" | "btcpay";
 
 export type PaymentGatewaySettings = {
   merchantId?: string | null;
   sandbox?: boolean;
-  currency?: "IRR" | "IRT";
+  // Zarinpal uses IRR/IRT; crypto gateways (BTCPay) price invoices in a stable
+  // fiat unit such as USD/EUR and convert to BTC/USDT at payment time.
+  currency?: string;
   minimumAmount?: number | null;
   requestEndpoint?: string | null;
   verificationEndpoint?: string | null;
   descriptionTemplate?: string | null;
   enabledContexts?: Array<"booking_online_card" | "wallet_topup">;
   metadata?: Record<string, unknown>;
+  // BTCPay Server connection (secrets normally supplied via env, not the DB).
+  serverUrl?: string | null;
+  storeId?: string | null;
+  apiKey?: string | null;
+  webhookSecret?: string | null;
+  expirationMinutes?: number | null;
 };
 
 export type PaymentGatewayRuntimeConfig = {

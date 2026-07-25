@@ -2,6 +2,7 @@
 
 import { createAuthenticatedSafeAction } from "@/lib/safe-action";
 import type { LocaleHeaderTypes } from "@/types/common";
+import { filterGatewaysForRegion, resolveUserPaymentRegion } from "@/payment/server/gateway-eligibility";
 import { listEnabledPaymentGatewayOptions } from "@/payment/server/payment-gateway.repository";
 
 import { GetEnabledPaymentGatewaysSchema } from "./schema";
@@ -10,7 +11,7 @@ import type { InputType, ReturnType } from "./types";
 const handler = async (
   input: InputType,
   _token: string,
-  _userId: string,
+  userId: string,
   _locale: LocaleHeaderTypes
 ): Promise<ReturnType> => {
   try {
@@ -18,7 +19,11 @@ const handler = async (
       context: input.context || "booking_online_card",
     });
 
-    return { data: gateways, error: undefined, payload: input };
+    // Iranian accounts never see crypto, and non-Iranian accounts never see
+    // Zarinpal — the customer is shown only the rail they can actually pay with.
+    const region = await resolveUserPaymentRegion(userId);
+
+    return { data: filterGatewaysForRegion(gateways, region), error: undefined, payload: input };
   } catch (error) {
     return {
       data: undefined,

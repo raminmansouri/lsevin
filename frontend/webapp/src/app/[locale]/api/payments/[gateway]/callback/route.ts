@@ -6,6 +6,17 @@ export async function GET(
   { params }: { params: Promise<{ locale: string; gateway: string }> }
 ) {
   const { locale, gateway } = await params;
+
+  // BTCPay must never come through here. This handler marks the attempt Failed
+  // whenever verification is not an immediate success, which for an async crypto
+  // invoice means "not confirmed yet" — it would kill payments still in flight.
+  // BTCPay redirects to /api/payments/btcpay/return, which is settle-only.
+  if (String(gateway).trim().toLowerCase() === 'btcpay') {
+    const returnUrl = new URL(`/${locale}/api/payments/btcpay/return`, request.nextUrl.origin);
+    returnUrl.search = request.nextUrl.search;
+    return NextResponse.redirect(returnUrl);
+  }
+
   const authority = request.nextUrl.searchParams.get('Authority') ?? request.nextUrl.searchParams.get('authority') ?? '';
   const status = request.nextUrl.searchParams.get('Status') ?? request.nextUrl.searchParams.get('status') ?? '';
 

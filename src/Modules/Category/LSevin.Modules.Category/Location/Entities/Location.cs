@@ -56,13 +56,26 @@ public sealed class Location : AggregateRoot<LocationId>
         return new Location(code, value, LocationType.Country);
     }
 
-    public static Location CreateCity(string code, LocalizedString value, LocationId countryId)
+    public static Location CreateProvince(string code, LocalizedString value, LocationId countryId)
     {
         Guard.Against.NullOrEmpty(code, nameof(code));
         Guard.Against.Null(value, nameof(value));
         Guard.Against.Null(countryId, nameof(countryId));
 
-        return new Location(code, value, LocationType.City, countryId);
+        return new Location(code, value, LocationType.Province, countryId);
+    }
+
+    /// <param name="parentId">
+    /// The province the city belongs to, or the country itself for countries with no
+    /// subdivisions in the catalogue.
+    /// </param>
+    public static Location CreateCity(string code, LocalizedString value, LocationId parentId)
+    {
+        Guard.Against.NullOrEmpty(code, nameof(code));
+        Guard.Against.Null(value, nameof(value));
+        Guard.Against.Null(parentId, nameof(parentId));
+
+        return new Location(code, value, LocationType.City, parentId);
     }
 
     public int GetLocationTypeId() => _locationTypeId;

@@ -1,7 +1,7 @@
 import * as z from "zod/v4";
 
 export const SavePaymentGatewaySchema = z.object({
-  code: z.enum(["zarinpal"]),
+  code: z.enum(["zarinpal", "btcpay"]),
   displayName: z.string().trim().min(1, "Display name is required.").max(100),
   description: z.string().trim().max(500).optional().nullable(),
   isEnabled: z.boolean().default(false),
@@ -10,7 +10,7 @@ export const SavePaymentGatewaySchema = z.object({
   settings: z.object({
     merchantId: z.string().trim().optional().nullable(),
     sandbox: z.boolean().default(true),
-    currency: z.enum(["IRR", "IRT"]).default("IRR"),
+    currency: z.enum(["IRR", "IRT", "USD", "EUR"]).default("IRR"),
     minimumAmount: z.coerce.number().int().positive().default(10000),
     requestEndpoint: z.string().trim().optional().nullable(),
     verificationEndpoint: z.string().trim().optional().nullable(),
@@ -18,5 +18,11 @@ export const SavePaymentGatewaySchema = z.object({
     enabledContexts: z
       .array(z.enum(["booking_online_card", "wallet_topup"]))
       .default(["booking_online_card", "wallet_topup"]),
+    // BTCPay Server connection (optional; secrets normally provided via env).
+    serverUrl: z.string().trim().optional().nullable(),
+    storeId: z.string().trim().optional().nullable(),
+    apiKey: z.string().trim().optional().nullable(),
+    webhookSecret: z.string().trim().optional().nullable(),
+    expirationMinutes: z.coerce.number().int().positive().max(1440).optional().nullable(),
   }),
 });
