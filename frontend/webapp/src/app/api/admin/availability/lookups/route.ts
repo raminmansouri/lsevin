@@ -5,6 +5,7 @@ import {
   searchAvailabilityLookupOptions,
   type AvailabilityLookupType,
 } from "@/features/booking-pro/server/generic-availability-admin.repository";
+import { requireApiAdmin } from "@/lib/auth/api-guard";
 
 function intParam(value: string | null, fallback: number) {
   const parsed = Number(value);
@@ -27,6 +28,9 @@ const LOOKUP_TYPES = new Set<AvailabilityLookupType>([
 ]);
 
 export async function GET(request: NextRequest) {
+  const auth = await requireApiAdmin();
+  if (auth instanceof NextResponse) return auth;
+
   const params = request.nextUrl.searchParams;
   const lookupType = clean(params.get("lookupType")) as AvailabilityLookupType | null;
 

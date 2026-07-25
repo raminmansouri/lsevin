@@ -6,7 +6,7 @@ import type { PaymentGatewayCode } from "../types";
 export type PaymentGatewayAdminSettings = {
   merchantId?: string | null;
   sandbox?: boolean;
-  currency?: "IRR" | "IRT";
+  currency?: string;
   minimumAmount?: number | null;
   requestEndpoint?: string | null;
   verificationEndpoint?: string | null;
@@ -17,6 +17,13 @@ export type PaymentGatewayAdminSettings = {
    */
   enabledContexts?: Array<"booking_online_card" | "wallet_topup">;
   metadata?: Record<string, unknown>;
+  // BTCPay Server connection. Secrets (apiKey/webhookSecret) are normally kept
+  // out of the DB and supplied via env; kept here for completeness + masking.
+  serverUrl?: string | null;
+  storeId?: string | null;
+  apiKey?: string | null;
+  webhookSecret?: string | null;
+  expirationMinutes?: number | null;
 };
 
 export type PaymentGatewayConfig = {
@@ -43,7 +50,7 @@ export type PublicPaymentGatewayOption = {
   code: PaymentGatewayCode;
   displayName: string;
   provider: string;
-  currency: "IRR" | "IRT";
+  currency: string;
   sortOrder: number;
 };
 
@@ -62,7 +69,10 @@ type PaymentGatewayRow = {
   updatedBy: string | null;
 };
 
-const SUPPORTED_GATEWAYS = ["zarinpal"] as const;
+const SUPPORTED_GATEWAYS = ["zarinpal", "btcpay"] as const;
+
+// Fiat units a gateway may bill in. Zarinpal is IRR/IRT; BTCPay prices in USD/EUR.
+const SUPPORTED_CURRENCIES = new Set(["IRR", "IRT", "USD", "EUR"]);
 
 /**
  * Hand the value to postgres.js as jsonb.
@@ -120,15 +130,20 @@ function coerceSettings(value: unknown): PaymentGatewayAdminSettings {
   return value && typeof value === "object" ? (value as PaymentGatewayAdminSettings) : {};
 }
 
+function trimOrNull(value: unknown): string | null {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
 function normalizeSettings(value: PaymentGatewayAdminSettings | null | undefined): PaymentGatewayAdminSettings {
   const settings = coerceSettings(value);
   const currency = String(settings.currency || "IRR").trim().toUpperCase();
+  const normalizedCurrency = SUPPORTED_CURRENCIES.has(currency) ? currency : "IRR";
 
   return {
     merchantId: typeof settings.merchantId === "string" ? settings.merchantId.trim() : null,
     sandbox: toBoolean(settings.sandbox, true),
-    currency: currency === "IRT" ? "IRT" : "IRR",
-    minimumAmount: toNumber(settings.minimumAmount, currency === "IRT" ? 1000 : 10000),
+    currency: normalizedCurrency,
+    minimumAmount: toNumber(settings.minimumAmount, normalizedCurrency === "IRT" ? 1000 : 10000),
     requestEndpoint: typeof settings.requestEndpoint === "string" ? settings.requestEndpoint.trim() : null,
     verificationEndpoint: typeof settings.verificationEndpoint === "string" ? settings.verificationEndpoint.trim() : null,
     descriptionTemplate:
@@ -141,6 +156,12 @@ function normalizeSettings(value: PaymentGatewayAdminSettings | null | undefined
         )
       : ["booking_online_card", "wallet_topup"],
     metadata: settings.metadata && typeof settings.metadata === "object" ? settings.metadata : {},
+    // BTCPay connection fields (only meaningful for the btcpay gateway row).
+    serverUrl: trimOrNull(settings.serverUrl),
+    storeId: trimOrNull(settings.storeId),
+    apiKey: trimOrNull(settings.apiKey),
+    webhookSecret: trimOrNull(settings.webhookSecret),
+    expirationMinutes: settings.expirationMinutes != null ? toNumber(settings.expirationMinutes, 30) : null,
   };
 }
 
@@ -174,6 +195,10 @@ export function maskGatewaySecrets<T extends PaymentGatewayConfig>(gateway: T): 
     settings: {
       ...gateway.settings,
       merchantId: maskSecret(gateway.settings.merchantId),
+      apiKey: gateway.settings.apiKey ? maskSecret(gateway.settings.apiKey) : gateway.settings.apiKey,
+      webhookSecret: gateway.settings.webhookSecret
+        ? maskSecret(gateway.settings.webhookSecret)
+        : gateway.settings.webhookSecret,
     },
   };
 }
@@ -221,6 +246,34 @@ export async function ensurePaymentGatewayTable(): Promise<void> {
         minimumAmount: 10000,
         descriptionTemplate: "LSevin booking {{bookingId}}",
         enabledContexts: ["booking_online_card", "wallet_topup"],
+      })}
+    )
+    on conflict (code) do nothing
+  `;
+
+  await sql`
+    insert into booking.payment_gateways (
+      code,
+      provider,
+      display_name,
+      description,
+      is_enabled,
+      supports_refund,
+      sort_order,
+      settings
+    ) values (
+      'btcpay',
+      'btcpay',
+      'Crypto (BTC / Lightning / USDT)',
+      'Pay with Bitcoin, Lightning or USDT via BTCPay Server (self-hosted, non-custodial). For customers outside Iran.',
+      false,
+      false,
+      20,
+      ${jsonb({
+        currency: "USD",
+        descriptionTemplate: "LSevin booking {{bookingId}}",
+        enabledContexts: ["booking_online_card"],
+        serverUrl: "https://pay.lsevin.com",
       })}
     )
     on conflict (code) do nothing
@@ -356,8 +409,21 @@ export async function savePaymentGatewayConfig(input: {
   const existing = await getPaymentGatewayConfig({ code, includeSecrets: true });
   const existingSettings = existing?.settings ?? {};
   const incomingSettings = normalizeSettings(input.settings);
-  const merchantId = String(incomingSettings.merchantId || "").trim() || existingSettings.merchantId || "";
-  const settings = normalizeSettings({ ...existingSettings, ...incomingSettings, merchantId });
+
+  // Secrets reach the form masked, so the admin submits them blank unless they
+  // are deliberately rotating one. A blank field therefore has to mean "keep the
+  // stored value" — without this the plain spread below would null them out on
+  // every unrelated save (toggling `isEnabled` would wipe the BTCPay API key).
+  const keepSecret = (incoming: unknown, existing: unknown) =>
+    String(incoming || "").trim() || String(existing || "").trim() || null;
+
+  const settings = normalizeSettings({
+    ...existingSettings,
+    ...incomingSettings,
+    merchantId: keepSecret(incomingSettings.merchantId, existingSettings.merchantId) || "",
+    apiKey: keepSecret(incomingSettings.apiKey, existingSettings.apiKey),
+    webhookSecret: keepSecret(incomingSettings.webhookSecret, existingSettings.webhookSecret),
+  });
 
   const rows = await sql<PaymentGatewayRow[]>`
     insert into booking.payment_gateways (

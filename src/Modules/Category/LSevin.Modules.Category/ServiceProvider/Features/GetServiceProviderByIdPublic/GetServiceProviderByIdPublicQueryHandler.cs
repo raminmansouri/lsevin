@@ -87,8 +87,13 @@ internal sealed class GetServiceProviderByIdPublicQueryHandler(
                 ) AS ProviderTypeName
             FROM category.service_providers sp
             JOIN category.provider_types pt ON sp.provider_type_id = pt.id
-            LEFT JOIN category.locations country_loc ON country_loc.code = sp.country
-            LEFT JOIN category.locations city_loc ON city_loc.code = sp.city
+            -- Without the tier filter these join every location sharing the code (a
+            -- country and a province can both be 'TR'), fanning the single provider row
+            -- out to several and making QuerySingleOrDefaultAsync below throw.
+            LEFT JOIN category.locations country_loc
+                ON country_loc.code = sp.country AND country_loc.location_type_id = 1
+            LEFT JOIN category.locations city_loc
+                ON city_loc.code = sp.city AND city_loc.location_type_id = 2
             WHERE sp.id = @ServiceProviderId AND sp.is_active = true
         ";
 

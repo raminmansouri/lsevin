@@ -6,7 +6,8 @@ import { GetLocationByIdInput, LazyOption, LazyOptionsResult, SearchLocationsInp
 
 
 const searchLocationsSchema = z.object({
-  locationTypeId: z.union([z.literal(1), z.literal(2)]),
+  // 1 = Country, 2 = City, 3 = Province (category."LocationType").
+  locationTypeId: z.union([z.literal(1), z.literal(2), z.literal(3)]),
   parentId: z.string().uuid().nullable().optional(),
   search: z.string().trim().max(100).optional().default(""),
   page: z.coerce.number().int().min(1).optional().default(1),
@@ -22,7 +23,7 @@ const getLocationByIdSchema = z.object({
 });
 
 function localizedExpr(
-  tableAlias: "l" | "p",
+  tableAlias: "l" | "p" | "gp",
   locale: string,
   fallbackLocale: string,
   fallbackColumn: "code" = "code"
@@ -47,6 +48,20 @@ export async function searchLocationsAction(
 
   const labelExpr = localizedExpr("l", input.locale, input.fallbackLocale);
   const parentLabelExpr = localizedExpr("p", input.locale, input.fallbackLocale);
+  const grandParentLabelExpr = localizedExpr("gp", input.locale, input.fallbackLocale);
+
+  // Cities may hang off a province (the full hierarchy) or directly off a country
+  // (countries with no subdivisions, and any row seeded before the province tier
+  // existed). Accepting both shapes keeps "pick a country, then a city" working
+  // without a province, and keeps every legacy row reachable.
+  const parentFilter = input.parentId
+    ? input.locationTypeId === 2
+      ? sql`and (l.parent_id = ${input.parentId} or p.parent_id = ${input.parentId})`
+      : sql`and l.parent_id = ${input.parentId}`
+    : input.locationTypeId === 1
+      ? sql``
+      : // A child tier with no parent selected has nothing sensible to list.
+        sql`and 1 = 0`;
 
   const rows = await sql<{
     id: string;
@@ -60,20 +75,17 @@ export async function searchLocationsAction(
       l.code,
       case
         when l.parent_id is null then null
-        else ${parentLabelExpr}
+        when gp.id is null then ${parentLabelExpr}
+        else concat_ws(', ', ${parentLabelExpr}, ${grandParentLabelExpr})
       end as parent_label
     from category.locations as l
     left join category.locations as p
       on p.id = l.parent_id
+    left join category.locations as gp
+      on gp.id = p.parent_id
     where
       l.location_type_id = ${input.locationTypeId}
-      ${
-        input.locationTypeId === 2 && input.parentId
-          ? sql`and l.parent_id = ${input.parentId}`
-          : input.locationTypeId === 2
-            ? sql`and 1 = 0`
-            : sql``
-      }
+      ${parentFilter}
       ${
         input.search
           ? sql`and (
@@ -109,6 +121,7 @@ export async function getLocationByIdAction(
 
   const labelExpr = localizedExpr("l", input.locale, input.fallbackLocale);
   const parentLabelExpr = localizedExpr("p", input.locale, input.fallbackLocale);
+  const grandParentLabelExpr = localizedExpr("gp", input.locale, input.fallbackLocale);
 
   const rows = await sql<{
     id: string;
@@ -122,11 +135,14 @@ export async function getLocationByIdAction(
       l.code,
       case
         when l.parent_id is null then null
-        else ${parentLabelExpr}
+        when gp.id is null then ${parentLabelExpr}
+        else concat_ws(', ', ${parentLabelExpr}, ${grandParentLabelExpr})
       end as parent_label
     from category.locations as l
     left join category.locations as p
       on p.id = l.parent_id
+    left join category.locations as gp
+      on gp.id = p.parent_id
     where l.id = ${input.id}
     limit 1
   `;

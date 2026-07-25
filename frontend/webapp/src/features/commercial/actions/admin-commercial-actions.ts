@@ -2,10 +2,16 @@
 
 import { revalidatePath } from 'next/cache';
 import sql from '@/config/database/db';
+import { assertAdmin } from '@/lib/auth/admin-guard';
 import { approveRefundRequest, createRefundRequest, executeRefundRequest, rejectRefundRequest } from '../lib/server/refund-engine';
 import { CompensationPolicyFormInput, CompensationPolicyFormSchema, RefundRequestInput, RefundRequestSchema } from '../schemas';
 
 export async function upsertCompensationPolicyAction(payload: CompensationPolicyFormInput) {
+  // Every export of a 'use server' module is a public POST endpoint. Without this
+  // guard an anonymous caller could rewrite the platform fee, approve refunds and
+  // move provider ledger entries.
+  await assertAdmin();
+
   const input = CompensationPolicyFormSchema.parse(payload);
   const rows = input.policyId
     ? await sql<any[]>`
@@ -51,12 +57,16 @@ export async function upsertCompensationPolicyAction(payload: CompensationPolicy
 }
 
 export async function deleteCompensationPolicyAction(policyId: string) {
+  await assertAdmin();
+
   await sql`delete from commercial.compensation_policies where id = ${policyId}`;
   revalidatePath('/admin/commercial/policies');
   return { ok: true };
 }
 
 export async function createRefundRequestAction(payload: RefundRequestInput) {
+  await assertAdmin();
+
   const input = RefundRequestSchema.parse(payload);
   const created = await createRefundRequest(input);
   revalidatePath('/admin/commercial/refund-requests');
@@ -65,6 +75,8 @@ export async function createRefundRequestAction(payload: RefundRequestInput) {
 }
 
 export async function approveRefundRequestAction(refundRequestId: string, adminUserId?: string | null, adminNote?: string | null) {
+  await assertAdmin();
+
   const result = await approveRefundRequest(refundRequestId, adminUserId, adminNote);
   revalidatePath('/admin/commercial/refund-requests');
   revalidatePath(`/admin/commercial/refund-requests/${refundRequestId}`);
@@ -72,6 +84,8 @@ export async function approveRefundRequestAction(refundRequestId: string, adminU
 }
 
 export async function rejectRefundRequestAction(refundRequestId: string, adminUserId?: string | null, adminNote?: string | null) {
+  await assertAdmin();
+
   const result = await rejectRefundRequest(refundRequestId, adminUserId, adminNote);
   revalidatePath('/admin/commercial/refund-requests');
   revalidatePath(`/admin/commercial/refund-requests/${refundRequestId}`);
@@ -79,6 +93,8 @@ export async function rejectRefundRequestAction(refundRequestId: string, adminUs
 }
 
 export async function executeRefundRequestAction(refundRequestId: string, adminUserId?: string | null) {
+  await assertAdmin();
+
   const result = await executeRefundRequest(refundRequestId, adminUserId);
   revalidatePath('/admin/commercial/refund-requests');
   revalidatePath(`/admin/commercial/refund-requests/${refundRequestId}`);
@@ -86,6 +102,8 @@ export async function executeRefundRequestAction(refundRequestId: string, adminU
 }
 
 export async function updateProviderLedgerStatusAction(input: { ledgerId: string; status: 'pending' | 'approved' | 'paid' | 'cancelled'; notes?: string | null; }) {
+  await assertAdmin();
+
   const rows = await sql<any[]>`
     update commercial.provider_ledgers
        set status = ${input.status},

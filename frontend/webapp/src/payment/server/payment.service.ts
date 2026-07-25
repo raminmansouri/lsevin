@@ -8,6 +8,7 @@ import type {
   VerifyGatewayPaymentInput,
   VerifyGatewayPaymentOutput,
 } from "../types";
+import { gatewayForRegion, isGatewayAllowedForRegion, resolveUserPaymentRegion } from "./gateway-eligibility";
 import { getEnabledPaymentGatewayConfig, getPaymentGatewayConfig } from "./payment-gateway.repository";
 import {
   getGatewayPaymentByAuthority,
@@ -19,10 +20,10 @@ import {
 
 function normalizeGateway(value?: string | null): PaymentGatewayCode {
   const gateway = String(value || "zarinpal").trim().toLowerCase();
-  if (gateway !== "zarinpal") {
+  if (gateway !== "zarinpal" && gateway !== "btcpay") {
     throw new Error(`Unsupported payment gateway: ${gateway}`);
   }
-  return gateway;
+  return gateway as PaymentGatewayCode;
 }
 
 function getAppBaseUrl(): string {
@@ -42,6 +43,15 @@ function getGatewayCurrency(settings?: { currency?: string | null }): "IRR" | "I
   return currency;
 }
 
+/**
+ * Crypto gateways bill in a stable fiat unit; BTCPay converts to BTC/USDT at
+ * checkout. Never IRR/IRT (no BTC<->IRR rate provider exists).
+ */
+function getCryptoInvoiceCurrency(settings?: { currency?: string | null }): string {
+  const currency = String(settings?.currency || process.env.BTCPAY_INVOICE_CURRENCY || "USD").trim().toUpperCase();
+  return currency || "USD";
+}
+
 function buildCallbackUrl(gateway: PaymentGatewayCode, locale?: string | null): string {
   const safeLocale = String(locale || "fa").trim() || "fa";
   return `${getAppBaseUrl()}/${safeLocale}/api/payments/${gateway}/callback`;
@@ -55,16 +65,36 @@ function renderDescription(template: string | null | undefined, values: Record<s
 }
 
 export async function initiateBookingPayment(input: InitiateBookingPaymentInput & { userId: string; locale?: string | null }): Promise<InitiateBookingPaymentOutput> {
-  const gateway = normalizeGateway(input.gateway);
+  // Region is enforced here, not only in the UI: this function is reachable with
+  // a client-supplied gateway code, so hiding the option would not stop a
+  // crafted request from routing an Iranian customer to crypto (or the reverse).
+  const region = await resolveUserPaymentRegion(input.userId);
+
+  // An omitted gateway is not an error — the region decides. Only an explicit
+  // request for the wrong rail is rejected.
+  if (input.gateway && !isGatewayAllowedForRegion(normalizeGateway(input.gateway), region)) {
+    throw new Error(
+      region === "iran"
+        ? "Crypto payment is not available for Iranian accounts. Please pay with Zarinpal."
+        : "Zarinpal is only available for Iranian accounts. Please pay with crypto."
+    );
+  }
+
+  const gateway = gatewayForRegion(region);
   const gatewayConfig = await getEnabledPaymentGatewayConfig({ code: gateway });
   const provider = getPaymentProvider(gateway);
+
+  const targetCurrency =
+    gateway === "btcpay"
+      ? getCryptoInvoiceCurrency(gatewayConfig.settings)
+      : getGatewayCurrency(gatewayConfig.settings);
 
   const payment = await prepareBookingPaymentAttempt({
     bookingId: input.bookingId,
     userId: input.userId,
     gateway,
     locale: input.locale,
-    targetCurrency: getGatewayCurrency(gatewayConfig.settings),
+    targetCurrency,
   });
 
   payment.description = renderDescription(gatewayConfig.settings.descriptionTemplate, {

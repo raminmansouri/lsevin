@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { assertAdminPermission } from "@/lib/admin/guard";
 import { assertChildRecordBelongsToParent } from "@/lib/admin/child-relations";
+import { requireApiAdmin } from "@/lib/auth/api-guard";
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = await requireApiAdmin();
+    if (auth instanceof NextResponse) return auth;
+
     const { searchParams } = new URL(request.url);
     const parentSchema = searchParams.get("parentSchema");
     const parentTable = searchParams.get("parentTable");

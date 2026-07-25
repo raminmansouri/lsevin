@@ -1,7 +1,9 @@
 
 import 'server-only';
 
+import { mirrorBookingWalletPayment } from '@/accounting/server/legacy-bridge';
 import db from '@/config/database/db';
+import { filterGatewaysForRegion, resolveUserPaymentRegion } from '@/payment/server/gateway-eligibility';
 import { listEnabledPaymentGatewayOptions } from '@/payment/server/payment-gateway.repository';
 import { initiateBookingPayment } from '@/payment/server/payment.service';
 
@@ -122,16 +124,30 @@ export async function createBookingPaymentIntent(params: {
     };
   }
 
-  const enabledGateways = await listEnabledPaymentGatewayOptions({ context: 'booking_online_card' });
+  // Only the rail this customer's region allows is ever a candidate, so a
+  // generic method code ('card', 'gateway_card') resolves to Zarinpal for an
+  // Iranian account and to BTCPay for everyone else.
+  const region = await resolveUserPaymentRegion(params.userId);
+  const enabledGateways = filterGatewaysForRegion(
+    await listEnabledPaymentGatewayOptions({ context: 'booking_online_card' }),
+    region
+  );
   const selectedEnabledGateway = enabledGateways.find((item) => item.code.toLowerCase() === normalizedMethodCode);
-  const shouldUseOnlineGateway = ['card', 'gateway_card', 'online_card', 'zarinpal'].includes(normalizedMethodCode) || Boolean(selectedEnabledGateway);
+  const shouldUseOnlineGateway =
+    ['card', 'gateway_card', 'online_card', 'zarinpal', 'btcpay', 'crypto'].includes(normalizedMethodCode) ||
+    Boolean(selectedEnabledGateway);
 
   if (shouldUseOnlineGateway) {
-    const requestedGateway = selectedEnabledGateway?.code ?? (normalizedMethodCode === 'zarinpal' ? 'zarinpal' : enabledGateways[0]?.code);
-    const gateway = enabledGateways.find((item) => item.code === requestedGateway);
+    const gateway = selectedEnabledGateway ?? enabledGateways[0];
 
+    // No cross-region fallback: an Iranian customer is never handed crypto
+    // because Zarinpal is down, and vice versa. Surface the outage instead.
     if (!gateway) {
-      throw new Error('No online card payment gateway is enabled. Enable Zarinpal from Admin > Payment Gateways.');
+      throw new Error(
+        region === 'iran'
+          ? 'Online payment is temporarily unavailable. Enable Zarinpal from Admin > Payment Gateways.'
+          : 'Online payment is temporarily unavailable. Enable the crypto gateway from Admin > Payment Gateways.'
+      );
     }
 
     const gatewayResult = await initiateBookingPayment({
@@ -166,29 +182,121 @@ export async function createBookingPaymentIntent(params: {
   `)[0].id;
 
   if (params.paymentMethodCode === 'wallet') {
-    const [wallet] = await db<any[]>`
-      select wb.wallet_account_id, wb.available_amount
-      from customer.wallet_balances wb
-      join customer.wallet_accounts wa on wa.id = wb.wallet_account_id and wa.is_active = true
-      where wb.user_id = ${params.userId} and wb.currency_code = ${currency}
-      limit 1
-    `;
+    // The balance check and the debit used to be two separate round trips with the
+    // debit in its own transaction, so two concurrent checkouts both read the same
+    // funds and both spent them — the wallet went negative and both bookings were
+    // confirmed. They are one transaction now.
+    //
+    // Lock order is booking.payments -> booking.bookings -> customer.wallet_accounts,
+    // which is the order the rest of the money code already implies (confirmBookingPayment
+    // below locks payments then bookings; approveRefundToWallet locks bookings and then
+    // reaches wallet_accounts through the wallet_transactions FK). Taking the wallet
+    // first would close a cycle with the refund flow and deadlock a money path.
+    const settlement = await db.begin(async (tx) => {
+      await tx`
+        select id
+        from booking.payments
+        where id = ${paymentId}
+        limit 1
+        for no key update
+      `;
 
-    if (!wallet || Number(wallet.available_amount ?? 0) < amount) {
-      return { paymentId, bookingId: params.bookingId, method: 'wallet', status: 'insufficient_balance', availableAmount: Number(wallet?.available_amount ?? 0), amount, currency };
-    }
+      // `of b` is required: pt is the nullable side of an outer join and Postgres refuses
+      // to lock it. `no key update` rather than `for update` so this never blocks the key
+      // share locks other writers take on this row through their foreign keys.
+      const [current] = await tx<any[]>`
+        select b.total_amount,
+               coalesce(b.paid_amount,0) as paid_amount,
+               b.payment_status,
+               coalesce(pt.due_now_amount, b.total_amount, 0) as lsevin_due_now_amount
+        from booking.bookings b
+        left join commercial.booking_payment_terms pt on pt.booking_id = b.id
+        where b.id = ${params.bookingId}
+        limit 1
+        for no key update of b
+      `;
 
-    const [intent] = await db<any[]>`
-      insert into customer.wallet_payment_intents (
-        wallet_account_id, user_id, booking_id, intent_type, payment_method,
-        currency_code, amount, status, metadata
-      ) values (
-        ${wallet.wallet_account_id}, ${params.userId}, ${params.bookingId}, 'booking_payment', 'wallet',
-        ${currency}, ${amount}, 'succeeded', ${ { source: 'booking-payment', bookingId: params.bookingId, paymentId } as any }
-      ) returning id
-    `;
+      // Serialising the debits is not the same as making them idempotent, so both
+      // guards below run under the booking row lock. Keyed on the booking rather than
+      // on booking.payments.status because two simultaneous submits get two different
+      // payments rows and neither can see the other's.
+      if (String(current?.payment_status ?? '') === 'Paid') {
+        return { status: 'already_paid' as const, availableAmount: 0, externalReference: null };
+      }
 
-    await db.begin(async (tx) => {
+      const [settled] = await tx<any[]>`
+        select payment_intent_id
+        from customer.wallet_transactions
+        where booking_id = ${params.bookingId}
+          and transaction_type = 'booking_payment'
+          and status = 'completed'
+        limit 1
+      `;
+
+      if (settled) {
+        return {
+          status: 'already_paid' as const,
+          availableAmount: 0,
+          externalReference: (settled.payment_intent_id ?? null) as string | null,
+        };
+      }
+
+      // Lock this user's active wallet accounts, then compute the balance under that
+      // lock. Every wallet debit in the codebase is the insert below and every other
+      // writer of customer.wallet_transactions only ever credits, so the lock is what
+      // makes the sum that follows exact.
+      //
+      // The balance is summed from the ledger rather than read from the
+      // customer.wallet_balances view on purpose: that view CROSS JOINs a hardcoded
+      // (USD, EUR, GBP, AED) currency list, so it has no row at all for IRR or IRT.
+      // Reading it meant a Rial booking always resolved to "no wallet" and could never
+      // be paid from a funded wallet — while the wallet screen, which does its own sum
+      // over six currencies, cheerfully displayed that unusable balance. Summing here
+      // matches what the customer is shown.
+      // Two statements because Postgres rejects a locking clause on an aggregate query.
+      // `order by id` makes the choice deterministic; the other wallet code paths pick
+      // an account with an unordered LIMIT 1, so a user with two accounts can otherwise
+      // be credited on one and debited from the other.
+      const [walletAccount] = await tx<any[]>`
+        select id
+        from customer.wallet_accounts
+        where user_id = ${params.userId}
+          and is_active = true
+        order by id
+        limit 1
+        for no key update
+      `;
+
+      const [wallet] = walletAccount
+        ? await tx<any[]>`
+            select ${walletAccount.id}::uuid as wallet_account_id,
+                   coalesce(sum(amount) filter (where status = 'completed'), 0) as available_amount
+            from customer.wallet_transactions
+            where wallet_account_id = ${walletAccount.id}
+              and currency_code = ${currency}
+          `
+        : [];
+
+      if (!wallet || Number(wallet.available_amount ?? 0) < amount) {
+        return {
+          status: 'insufficient_balance' as const,
+          availableAmount: Number(wallet?.available_amount ?? 0),
+          externalReference: null as string | null,
+        };
+      }
+
+      // Moved inside the transaction: this used to be written as 'succeeded' before any
+      // money moved, so a failed debit left a phantom intent in /admin/wallet-payment-intents.
+      const [intent] = await tx<any[]>`
+        insert into customer.wallet_payment_intents (
+          wallet_account_id, user_id, booking_id, intent_type, payment_method,
+          currency_code, amount, status, metadata
+        ) values (
+          ${wallet.wallet_account_id}, ${params.userId}, ${params.bookingId}, 'booking_payment', 'wallet',
+          ${currency}, ${amount}, 'succeeded', ${ { source: 'booking-payment', bookingId: params.bookingId, paymentId } as any }
+        ) returning id
+      `;
+
       await tx`
         insert into customer.wallet_transactions (
           wallet_account_id, user_id, booking_id, payment_intent_id,
@@ -201,15 +309,6 @@ export async function createBookingPaymentIntent(params: {
         )
       `;
 
-      const [current] = await tx<any[]>`
-        select b.total_amount,
-               coalesce(b.paid_amount,0) as paid_amount,
-               coalesce(pt.due_now_amount, b.total_amount, 0) as lsevin_due_now_amount
-        from booking.bookings b
-        left join commercial.booking_payment_terms pt on pt.booking_id = b.id
-        where b.id = ${params.bookingId}
-        limit 1
-      `;
       const newPaid = Number(current?.paid_amount ?? 0) + amount;
       const requiredByLsevin = Number(current?.lsevin_due_now_amount ?? current?.total_amount ?? 0);
       const lsevinPaid = newPaid >= requiredByLsevin;
@@ -232,9 +331,37 @@ export async function createBookingPaymentIntent(params: {
             gateway_payload = coalesce(gateway_payload, '{}'::jsonb) || ${ { flow: 'wallet', settled: true } as any }
         where id = ${paymentId}
       `;
+
+      // Dual-write to the accounting ledger, in this same transaction. The legacy rows
+      // above stay because other screens still read them; the ledger is what actually
+      // enforces the balance (its non-negative CHECK) and splits out the platform fee.
+      // If the ledger refuses the entry, this whole checkout rolls back — a booking must
+      // never be marked paid on the strength of the legacy write alone.
+      //
+      // No-ops until the accounting migrations are applied, so this can ship first.
+      await mirrorBookingWalletPayment(
+        {
+          userId: params.userId,
+          currencyCode: currency,
+          amount: String(amount),
+          bookingId: params.bookingId,
+          paymentId,
+        },
+        tx as never
+      );
+
+      return {
+        status: 'succeeded' as const,
+        availableAmount: Number(wallet.available_amount ?? 0),
+        externalReference: String(intent.id),
+      };
     });
 
-    return { paymentId, bookingId: params.bookingId, method: 'wallet', status: 'succeeded', completed: true, amount, currency, externalReference: intent.id };
+    if (settlement.status === 'insufficient_balance') {
+      return { paymentId, bookingId: params.bookingId, method: 'wallet', status: 'insufficient_balance', availableAmount: settlement.availableAmount, amount, currency };
+    }
+
+    return { paymentId, bookingId: params.bookingId, method: 'wallet', status: 'succeeded', completed: true, amount, currency, externalReference: settlement.externalReference };
   }
 
   const externalReference = `PAY-${Date.now()}`;
@@ -253,6 +380,7 @@ export async function createBookingPaymentIntent(params: {
 export async function confirmBookingPayment(params: {
   bookingId: string;
   paymentId: string;
+  userId: string;
   status: string;
   externalReference?: string | null;
   payload?: Record<string, unknown>;
@@ -260,15 +388,37 @@ export async function confirmBookingPayment(params: {
   const normalized = normalizePaymentStatus(params.status);
 
   await db.begin(async (tx) => {
+    // Scoped to the booking's owner. The payment id alone used to be the only thing
+    // standing between a caller and someone else's booking, and both ids are
+    // guessable/enumerable. `of p` keeps the lock off booking.bookings so this keeps
+    // the same lock order as the wallet path above.
     const [payment] = await tx<any[]>`
-      select id, amount, status
-      from booking.payments
-      where id = ${params.paymentId} and booking_id = ${params.bookingId}
+      select p.id, p.amount, p.status
+      from booking.payments p
+      join booking.bookings b on b.id = p.booking_id
+      where p.id = ${params.paymentId}
+        and p.booking_id = ${params.bookingId}
+        and b.user_id = ${params.userId}
       limit 1
-      for update
+      for no key update of p
     `;
 
     if (!payment) throw new Error('Payment not found');
+
+    // A settled attempt is never re-opened from here. This runs off a request body,
+    // so without the guard a status:'failed' confirm walks a gateway-credited row
+    // back to Failed — after which a replayed gateway callback passes the
+    // settled-state check in markGatewayPaymentVerified and credits paid_amount a
+    // second time. Returning before the UPDATE also skips the caller-supplied
+    // `payload` merge, which would otherwise let the body poison gateway_payload.
+    // A re-confirm of 'Succeeded' still falls through: it is a no-op, and the
+    // `payment.status !== 'Succeeded'` check below already stops the re-credit.
+    if (
+      normalized !== 'Succeeded' &&
+      ['succeeded', 'paid', 'captured', 'completed'].includes(String(payment.status ?? '').trim().toLowerCase())
+    ) {
+      return;
+    }
 
     await tx`
       update booking.payments

@@ -2,7 +2,7 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
-   "UploadFiles": {
+  "UploadFiles": {
     "title": "Upload documents",
     "subtitle": "Please upload the requested files for your booking",
     "description": "Supported formats: PNG, JPG, JPEG, PDF",
@@ -15,7 +15,7 @@ declare const messages: {
     "acceptedFilesDesc": "PNG, JPG, JPEG, PDF — maximum file size: 10 MB.",
     "acceptedFilesTitle": "Accepted files",
     "replaceFile": "Replace file",
-        "uploadBtn": "Choose file",
+    "uploadBtn": "Choose file",
     "uploadCardTitle": "Upload Documents",
     "uploadCardDesc": "Attach the required documents for this booking.",
     "filesUploaded": "uploaded",
@@ -367,11 +367,20 @@ declare const messages: {
       "title": "Standort",
       "country": "Land",
       "city": "Stadt",
-      "selectCountry": "Land auswählen",
-      "selectCity": "Stadt auswählen",
-      "noCountrySelected": "Kein Land ausgewählt",
+      "selectCountry": "Land wählen",
+      "selectCity": "Stadt wählen",
+      "noCountrySelected": "Wählen Sie zuerst ein Land",
       "noCitiesAvailable": "Keine Städte verfügbar",
-      "loading": "Wird geladen..."
+      "loading": "Wird geladen…",
+      "province": "Bundesland",
+      "selectProvince": "Bundesland wählen",
+      "searchCountries": "Länder suchen…",
+      "searchCities": "Städte suchen…",
+      "searchProvinces": "Bundesländer suchen…",
+      "noProvinceSelected": "Wählen Sie zuerst ein Land",
+      "noCitySelectable": "Wählen Sie zuerst ein Bundesland",
+      "noProvincesAvailable": "Keine Bundesländer verfügbar",
+      "clear": "Auswahl löschen"
     },
     "DatePicker": {
       "placeholder": "Datum auswählen",
@@ -706,7 +715,7 @@ declare const messages: {
         "label": "Beschreibung",
         "translations": "Die Kategoriebeschreibung wird in mindestens einer Sprache benötigt"
       },
-       "image": {
+      "image": {
         "label": "Category image",
         "hint": "Upload an image for this category",
         "remove": "Remove image"
@@ -1678,6 +1687,69 @@ declare const messages: {
   "List": {
     "loading": "Wird geladen...",
     "loadMore": "Mehr laden"
+  },
+  "Home": {
+    "location": {
+      "currentDestination": "Reiseziel",
+      "selectLocation": "Standort wählen",
+      "useMyCurrentLocation": "Meinen aktuellen Standort verwenden",
+      "source": {
+        "chooseOrDetect": "Wählen oder erkennen Sie Ihr Reiseziel",
+        "gps": "Über den Standort Ihres Geräts erkannt",
+        "profile": "Aus Ihrem Profil erkannt",
+        "phone": "Anhand Ihrer Telefonnummer erkannt",
+        "ip": "Ungefähr, basierend auf Ihrem Netzwerk",
+        "saved": "Aus Ihren gespeicherten Einstellungen geladen",
+        "picked": "Ausgewähltes Top-Reiseziel",
+        "manual": "Manuelle Auswahl",
+        "url": "Ausgewähltes Reiseziel",
+        "current": "Aktuelles Reiseziel"
+      },
+      "messages": {
+        "detectingAutomatic": "Erkennung über gespeichertes Profil, Telefonnummer oder Netzwerk…",
+        "detectedFromSource": "{source}: {location}",
+        "autoDetectFailed": "Ihr Standort konnte nicht automatisch erkannt werden. Bitte wählen Sie ihn manuell.",
+        "browserUnsupported": "Ihr Browser unterstützt keine Standorterkennung. Bitte wählen Sie Ihren Standort manuell.",
+        "requestingPermission": "Berechtigung für Ihren aktuellen Standort wird angefragt…",
+        "usingNearestDestination": "Nächstgelegenes unterstütztes Reiseziel wird verwendet: {location}",
+        "noSupportedDestination": "Ihr Gerätestandort wurde erkannt, aber in der Nähe gibt es kein unterstütztes Reiseziel.",
+        "permissionDenied": "Standortberechtigung wurde nicht erteilt. Sie können Ihr Reiseziel weiterhin manuell wählen.",
+        "selectCountryOrCity": "Bitte wählen Sie zuerst ein Land oder eine Stadt.",
+        "applyingSelected": "Ausgewähltes Reiseziel wird übernommen…",
+        "resolveFailed": "Der gewählte Standort konnte nicht aufgelöst werden. Bitte versuchen Sie ein anderes Land oder eine andere Stadt.",
+        "locationUnavailable": "Der Standort ist auf diesem Gerät derzeit nicht verfügbar. Bitte wählen Sie Ihr Reiseziel manuell.",
+        "locationTimedOut": "Die Standortermittlung hat zu lange gedauert. Bitte erneut versuchen oder das Reiseziel manuell wählen.",
+        "linkLocationNotFound": "Dieser Reiseziel-Link ist nicht mehr verfügbar. Bitte wählen Sie Ihren Standort.",
+        "loadFailed": "Bei der Standorterkennung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+      },
+      "modal": {
+        "eyebrow": "Reiseziel",
+        "title": "Standort wählen",
+        "description": "Erkennen Sie Ihren Standort, nutzen Sie Ihre Kontodaten oder wählen Sie Land und Stadt manuell.",
+        "closeAria": "Standortauswahl schließen"
+      },
+      "currentLocation": {
+        "title": "Aktuellen Standort verwenden",
+        "description": "Der Browser fragt nach Erlaubnis, danach wählt LSevin das nächstgelegene unterstützte Reiseziel."
+      },
+      "manual": {
+        "title": "Manuelle Auswahl",
+        "description": "Wenn Ihr Reiseziel nicht unter den Top-Standorten ist, nutzen Sie die Auswahl unten.",
+        "country": "Land",
+        "province": "Bundesland / Provinz",
+        "city": "Stadt",
+        "applying": "Wird übernommen…",
+        "apply": "Standort übernehmen"
+      }
+    }
+  },
+  "AsyncSelect": {
+    "placeholder": "Auswählen…",
+    "searchPlaceholder": "Suchen…",
+    "emptyText": "Keine Ergebnisse gefunden.",
+    "loading": "Wird geladen…",
+    "loadMore": "Mehr laden",
+    "clear": "Auswahl löschen"
   }
 };
 export default messages;

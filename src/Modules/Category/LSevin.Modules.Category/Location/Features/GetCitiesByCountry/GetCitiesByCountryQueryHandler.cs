@@ -55,8 +55,11 @@ internal sealed class GetCitiesByCountryQueryHandler(
                 ) AS {nameof(GetCitiesByCountryResponse.Value)},
                 l.parent_id AS {nameof(GetCitiesByCountryResponse.ParentId)}
             FROM category.locations l
-            JOIN category.location_types lt ON l.location_type_id = lt.id
-            WHERE l.parent_id = @CountryId AND lt.id = {LocationType.City.Id}
+            LEFT JOIN category.locations parent ON parent.id = l.parent_id
+            -- Cities hang off a province where the country has one, and off the country
+            -- directly where it does not, so accept either shape.
+            WHERE l.location_type_id = {LocationType.City.Id}
+              AND (l.parent_id = @CountryId OR parent.parent_id = @CountryId)
             ORDER BY l.display_order NULLS LAST, COALESCE(
                 l.value_translations ->> '{currentLocale}',
                 l.value_translations ->> '{defaultLocale}',

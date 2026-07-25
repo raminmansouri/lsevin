@@ -30,8 +30,7 @@ internal sealed class GetCountriesQueryHandler(IDbConnectionFactory dbConnection
                     (l.value_translations ->> (SELECT jsonb_object_keys(l.value_translations) LIMIT 1))
                 ) AS {nameof(GetCountriesResponse.Value)}
             FROM category.locations l
-            JOIN category.location_types lt ON l.location_type_id = lt.id
-            WHERE lt.id = {LocationType.Country.Id}
+            WHERE l.location_type_id = {LocationType.Country.Id}
             ORDER BY l.display_order NULLS LAST, COALESCE(
                 l.value_translations ->> '{currentLocale}',
                 l.value_translations ->> '{defaultLocale}',

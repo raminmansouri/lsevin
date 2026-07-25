@@ -114,7 +114,18 @@ export default async function middleware(request: NextRequest) {
   }
 
   const isAdminRoute = pathname.includes(adminPrefix);
-  const isProtectedRoute = isProtectedPath(pathnameWithoutLocale);
+
+  // Locale-prefixed API routes are machine endpoints and must never be sent to
+  // sign-in. Every one of them is a payment gateway callback, and `isProtectedPath`
+  // matches by segment — so "wallet" in protectedSegments was gating
+  // /{locale}/api/wallet/payments/{gateway}/callback. A customer whose session had
+  // expired during checkout, or who paid in a different browser, was redirected to
+  // sign-in instead of being verified: the money left their account and the top-up
+  // was never credited. These routes authenticate themselves against the gateway
+  // (they re-read the invoice before crediting), which is the only trustworthy
+  // signal here anyway — the visitor's cookie is not.
+  const isApiRoute = pathnameWithoutLocale.startsWith("/api/");
+  const isProtectedRoute = !isApiRoute && isProtectedPath(pathnameWithoutLocale);
 
   const isAuthRoute = authRoutes.some((route) => {
     const pattern = route.replace(/:[^/]+/g, "[^/]+").replace(/\//g, "\\/");

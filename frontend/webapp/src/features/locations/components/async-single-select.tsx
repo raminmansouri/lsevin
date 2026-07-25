@@ -13,6 +13,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useTranslations } from "next-intl";
 import type { LazyOption, LazyOptionsResult } from "@/features/locations/location-select.types";
 import { useLocationSelectStore } from "../stores/location-select.store";
 
@@ -51,6 +52,7 @@ type Props = {
   placeholder?: string;
   searchPlaceholder?: string;
   emptyText?: string;
+  clearLabel?: string;
   disabled?: boolean;
   pageSize?: number;
   clearable?: boolean;
@@ -64,14 +66,23 @@ export function AsyncSingleSelect({
   loadByValue,
   cacheKey,
   label,
-  placeholder = "Select...",
-  searchPlaceholder = "Search...",
-  emptyText = "No results found.",
+  placeholder,
+  searchPlaceholder,
+  emptyText,
+  clearLabel,
   disabled = false,
   pageSize = 20,
   clearable = true,
   className,
 }: Props) {
+  // Defaults come from the AsyncSelect message bundle rather than English literals,
+  // so every consumer of this select renders in the active locale even when it does
+  // not pass its own strings.
+  const t = useTranslations("AsyncSelect");
+  const placeholderText = placeholder ?? t("placeholder");
+  const searchPlaceholderText = searchPlaceholder ?? t("searchPlaceholder");
+  const emptyTextValue = emptyText ?? t("emptyText");
+
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -220,14 +231,23 @@ export function AsyncSingleSelect({
                 ) : null}
               </div>
             ) : (
-              <span className="text-sm text-zinc-500">{placeholder}</span>
+              <span className="text-sm text-zinc-500">{placeholderText}</span>
             )}
           </div>
 
           <div className="ml-2 flex items-center gap-1">
             {clearable && value && !disabled ? (
               <span
+                role="button"
+                tabIndex={0}
+                aria-label={clearLabel ?? t("clear")}
                 onClick={(e) => {
+                  e.stopPropagation();
+                  onChange(null, null);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key !== "Enter" && e.key !== " ") return;
+                  e.preventDefault();
                   e.stopPropagation();
                   onChange(null, null);
                 }}
@@ -248,7 +268,8 @@ export function AsyncSingleSelect({
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder={searchPlaceholder}
+                  placeholder={searchPlaceholderText}
+                  aria-label={searchPlaceholderText}
                   className="w-full bg-transparent text-sm outline-none"
                 />
                 {isLoading ? <Loader2 className="h-4 w-4 animate-spin text-zinc-500" /> : null}
@@ -258,7 +279,7 @@ export function AsyncSingleSelect({
             <div className="max-h-72 overflow-auto p-2">
               {items.length === 0 && !isLoading ? (
                 <div className="px-3 py-8 text-center text-sm text-zinc-500">
-                  {emptyText}
+                  {emptyTextValue}
                 </div>
               ) : (
                 <div className="space-y-1">
@@ -303,7 +324,7 @@ export function AsyncSingleSelect({
                       disabled={isLoading}
                       className="mt-2 w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-50 disabled:opacity-60 dark:border-zinc-800 dark:hover:bg-zinc-900"
                     >
-                      {isLoading ? "Loading..." : "Load more"}
+                      {isLoading ? t("loading") : t("loadMore")}
                     </button>
                   ) : null}
                 </div>

@@ -4,6 +4,7 @@ import {
   searchAdminProviderLookupOptions,
 } from "@/features/service-providers/db/admin-service-providers.queries";
 import type { AdminLookupType } from "@/features/service-providers/db/admin-service-providers.queries";
+import { requireApiAdmin } from "@/lib/auth/api-guard";
 
 
 const VALID_TYPES = new Set<AdminLookupType>([
@@ -29,6 +30,9 @@ function toPositiveInt(value: string | null, fallback: number) {
 }
 
 export async function GET(request: NextRequest) {
+  const auth = await requireApiAdmin();
+  if (auth instanceof NextResponse) return auth;
+
   const searchParams = request.nextUrl.searchParams;
   const type = searchParams.get("type") as AdminLookupType | null;
 

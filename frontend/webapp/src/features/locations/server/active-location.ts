@@ -69,6 +69,27 @@ type ProfileLocationRow = {
 
 const FALLBACK_LOCALE = 'en-US';
 
+/**
+ * category."LocationType": 1 = Country, 2 = City, 3 = Province.
+ *
+ * The hierarchy is country → province → city, but countries without subdivisions
+ * (and any row seeded before the province tier existed) parent their cities straight
+ * to the country. So a city's country is either its parent or its grandparent, and
+ * every query below resolves it as "the nearest ancestor of type Country" rather
+ * than assuming a single hop.
+ */
+export const LOCATION_TYPE_COUNTRY = 1;
+export const LOCATION_TYPE_CITY = 2;
+export const LOCATION_TYPE_PROVINCE = 3;
+
+/**
+ * A picked destination further away than this is not where the visitor is — it is
+ * just the only pin in the table. Without the cap the nearest-picked-location branch
+ * matched unconditionally, so a single row anywhere in the world hijacked every GPS
+ * lookup and the provider-cluster fallback below could never run.
+ */
+const MAX_PICKED_LOCATION_MATCH_KM = 250;
+
 export function normalizeActiveLocationLocale(locale?: string | null) {
   const value = (locale || FALLBACK_LOCALE).trim();
   if (value.toLowerCase() === 'en') return 'en-US';
@@ -76,6 +97,40 @@ export function normalizeActiveLocationLocale(locale?: string | null) {
   if (value.toLowerCase() === 'ar') return 'ar-SA';
   if (value.toLowerCase() === 'tr') return 'tr-TR';
   return value;
+}
+
+/**
+ * A lateral join that yields the country row for a location, however deep it sits.
+ *
+ * Use instead of `join category.locations country on country.id = city.parent_id`:
+ * with the province tier a city's parent is usually a province, so the single-hop
+ * join silently returns a province row (or nothing) where a country was expected.
+ *
+ * ```ts
+ * sql`
+ *   from category.locations city
+ *   ${countryOfLocation('city')} country on true
+ * `
+ * ```
+ *
+ * @param alias  SQL alias of the location whose country is wanted.
+ * @param join   `left join` keeps rows whose country is missing; `join` drops them.
+ */
+export function countryOfLocation(alias: string, join: 'join' | 'left join' = 'left join') {
+  const child = sql(alias);
+
+  return sql`
+    ${join === 'join' ? sql`join lateral` : sql`left join lateral`} (
+      select anc.id, anc.code, anc.value_translations
+      from category.locations anc
+      where anc.location_type_id = ${LOCATION_TYPE_COUNTRY}
+        and (
+          anc.id = ${child}.parent_id
+          or anc.id = (select mid.parent_id from category.locations mid where mid.id = ${child}.parent_id)
+        )
+      limit 1
+    )
+  `;
 }
 
 function trimOrNull(value?: string | null) {
@@ -173,29 +228,39 @@ async function resolveLocationFromCodesInternal({
   if (!normalizedCountry && !normalizedCity) return null;
 
   const rows = await sql<LocationRow[]>`
-    with requested_city as (
+    with requested_country as (
+      select
+        country.id,
+        country.code,
+        country.value_translations
+      from category.locations country
+      where country.location_type_id = ${LOCATION_TYPE_COUNTRY}
+        and ${normalizedCountry}::text is not null
+        and upper(country.code) = ${normalizedCountry}::text
+      order by coalesce(country.display_order, 0), country.create_date desc
+      limit 1
+    ),
+    requested_city as (
+      -- City codes are only unique within a country, so when a country was asked for
+      -- the city must actually belong to it. Without this, a mismatched pair such as
+      -- ?countryCode=AE&cityCode=IST resolved to "Istanbul, United Arab Emirates" and
+      -- every downstream query was scoped to a place that does not exist.
       select
         city.id,
         city.code,
         city.value_translations,
         city.parent_id
       from category.locations city
-      where city.location_type_id = 2
+      left join category.locations city_parent on city_parent.id = city.parent_id
+      where city.location_type_id = ${LOCATION_TYPE_CITY}
         and ${normalizedCity}::text is not null
         and upper(city.code) = ${normalizedCity}::text
+        and (
+          not exists (select 1 from requested_country)
+          or city.parent_id in (select id from requested_country)
+          or city_parent.parent_id in (select id from requested_country)
+        )
       order by coalesce(city.display_order, 0), city.create_date desc
-      limit 1
-    ),
-    requested_country as (
-      select
-        country.id,
-        country.code,
-        country.value_translations
-      from category.locations country
-      where country.location_type_id = 1
-        and ${normalizedCountry}::text is not null
-        and upper(country.code) = ${normalizedCountry}::text
-      order by coalesce(country.display_order, 0), country.create_date desc
       limit 1
     ),
     resolved_country as (
@@ -204,7 +269,16 @@ async function resolveLocationFromCodesInternal({
       union all
       select parent.id, parent.code, parent.value_translations
       from requested_city city
-      join category.locations parent on parent.id = city.parent_id
+      join lateral (
+        select anc.id, anc.code, anc.value_translations
+        from category.locations anc
+        where anc.location_type_id = ${LOCATION_TYPE_COUNTRY}
+          and (
+            anc.id = city.parent_id
+            or anc.id = (select mid.parent_id from category.locations mid where mid.id = city.parent_id)
+          )
+        limit 1
+      ) parent on true
       where not exists (select 1 from requested_country)
       limit 1
     )
@@ -311,10 +385,16 @@ async function resolveLocationFromTextInternal({
     matched_city as (
       select city.*
       from category.locations city
+      left join category.locations city_parent on city_parent.id = city.parent_id
       left join matched_country country on true
-      where city.location_type_id = 2
+      where city.location_type_id = ${LOCATION_TYPE_CITY}
         and ${cityValue}::text is not null
-        and (country.id is null or city.parent_id = country.id)
+        and (
+          country.id is null
+          or city.parent_id = country.id
+          -- The city may sit under a province, in which case the country is its grandparent.
+          or city_parent.parent_id = country.id
+        )
         and (
           upper(city.code) = upper(${cityValue}::text)
           or exists (
@@ -334,7 +414,16 @@ async function resolveLocationFromTextInternal({
       union all
       select parent.*
       from matched_city city
-      join category.locations parent on parent.id = city.parent_id
+      join lateral (
+        select anc.*
+        from category.locations anc
+        where anc.location_type_id = ${LOCATION_TYPE_COUNTRY}
+          and (
+            anc.id = city.parent_id
+            or anc.id = (select mid.parent_id from category.locations mid where mid.id = city.parent_id)
+          )
+        limit 1
+      ) parent on true
       where not exists (select 1 from matched_country)
       limit 1
     )
@@ -509,9 +598,14 @@ function isPublicIpAddress(ip: string) {
   }
 
   const [a, b] = parts;
-  if (a === 10 || a === 127 || a === 0 || a === 169) return false;
+  if (a === 10 || a === 127 || a === 0) return false;
+  // Only 169.254.0.0/16 is link-local; the rest of 169.0.0.0/8 is routable and was
+  // being discarded, which silently disabled IP geolocation for those visitors.
+  if (a === 169 && b === 254) return false;
   if (a === 172 && b >= 16 && b <= 31) return false;
   if (a === 192 && b === 168) return false;
+  // Carrier-grade NAT: never the visitor's own public address.
+  if (a === 100 && b >= 64 && b <= 127) return false;
 
   return true;
 }
@@ -672,7 +766,7 @@ export async function resolveActiveLocationFromIds(input: {
     with requested_city as (
       select city.*
       from category.locations city
-      where city.location_type_id = 2
+      where city.location_type_id = ${LOCATION_TYPE_CITY}
         and ${cityId}::uuid is not null
         and city.id = ${cityId}::uuid
       limit 1
@@ -680,7 +774,7 @@ export async function resolveActiveLocationFromIds(input: {
     requested_country as (
       select country.*
       from category.locations country
-      where country.location_type_id = 1
+      where country.location_type_id = ${LOCATION_TYPE_COUNTRY}
         and ${countryId}::uuid is not null
         and country.id = ${countryId}::uuid
       limit 1
@@ -691,7 +785,16 @@ export async function resolveActiveLocationFromIds(input: {
       union all
       select parent.*
       from requested_city city
-      join category.locations parent on parent.id = city.parent_id
+      join lateral (
+        select anc.*
+        from category.locations anc
+        where anc.location_type_id = ${LOCATION_TYPE_COUNTRY}
+          and (
+            anc.id = city.parent_id
+            or anc.id = (select mid.parent_id from category.locations mid where mid.id = city.parent_id)
+          )
+        limit 1
+      ) parent on true
       where not exists (select 1 from requested_country)
       limit 1
     )
@@ -728,33 +831,53 @@ export async function resolveActiveLocationFromCoordinates(input: {
   if (!isValidCoordinate(latitude, longitude)) return null;
 
   const pickedRows = await sql<LocationRow[]>`
+    with scored as (
+      select
+        pl.id,
+        pl.locationid,
+        pl.image,
+        pl.latitude,
+        pl.longitude,
+        (
+          6371 * acos(
+            least(1, greatest(-1,
+              cos(radians(${latitude}::double precision)) * cos(radians(pl.latitude::double precision)) *
+              cos(radians(pl.longitude::double precision) - radians(${longitude}::double precision)) +
+              sin(radians(${latitude}::double precision)) * sin(radians(pl.latitude::double precision))
+            ))
+          )
+        ) as distance_km
+      from category.picked_locations pl
+      where pl.latitude is not null
+        and pl.longitude is not null
+    )
     select
-      pl.id::text as id,
+      s.id::text as id,
       common.get_translation_t(city.value_translations, ${lang}::text, ${FALLBACK_LOCALE}::text) as city,
       common.get_translation_t(country.value_translations, ${lang}::text, ${FALLBACK_LOCALE}::text) as country,
-      nullif(coalesce(ml.file_url, pl.image, ''), '') as image,
+      nullif(coalesce(ml.file_url, s.image, ''), '') as image,
       city.id::text as "cityId",
       country.id::text as "countryId",
       city.code as "cityCode",
       country.code as "countryCode",
-      pl.latitude,
-      pl.longitude,
-      (
-        6371 * acos(
-          least(1, greatest(-1,
-            cos(radians(${latitude}::double precision)) * cos(radians(pl.latitude::double precision)) *
-            cos(radians(pl.longitude::double precision) - radians(${longitude}::double precision)) +
-            sin(radians(${latitude}::double precision)) * sin(radians(pl.latitude::double precision))
-          ))
+      s.latitude,
+      s.longitude,
+      s.distance_km as "accuracyKm"
+    from scored s
+    join category.locations city on city.id = s.locationid
+    left join lateral (
+      select anc.id, anc.code, anc.value_translations
+      from category.locations anc
+      where anc.location_type_id = ${LOCATION_TYPE_COUNTRY}
+        and (
+          anc.id = city.parent_id
+          or anc.id = (select mid.parent_id from category.locations mid where mid.id = city.parent_id)
         )
-      ) as "accuracyKm"
-    from category.picked_locations pl
-    join category.locations city on city.id = pl.locationid
-    left join category.locations country on country.id = city.parent_id
-    left join media.media_library ml on ml.id::text = pl.image
-    where pl.latitude is not null
-      and pl.longitude is not null
-    order by "accuracyKm" asc nulls last
+      limit 1
+    ) country on true
+    left join media.media_library ml on ml.id::text = s.image
+    where s.distance_km <= ${MAX_PICKED_LOCATION_MATCH_KM}
+    order by s.distance_km asc
     limit 1
   `.catch(() => []);
 

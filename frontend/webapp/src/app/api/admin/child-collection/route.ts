@@ -3,6 +3,7 @@ import { assertAdminPermission } from "@/lib/admin/guard";
 import { getLocaleConfig } from "@/lib/admin/metadata";
 import { getParentLinkValue, resolveChildCollection } from "@/lib/admin/child-relations";
 import { runListQuery } from "@/lib/admin/list-query";
+import { requireApiAdmin } from "@/lib/auth/api-guard";
 
 function parsePositiveInt(value: string | null, fallback: number) {
   const parsed = Number(value);
@@ -11,6 +12,9 @@ function parsePositiveInt(value: string | null, fallback: number) {
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = await requireApiAdmin();
+    if (auth instanceof NextResponse) return auth;
+
     const { searchParams } = new URL(request.url);
     const parentSchema = searchParams.get("parentSchema");
     const parentTable = searchParams.get("parentTable");

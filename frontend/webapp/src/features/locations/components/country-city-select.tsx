@@ -1,14 +1,21 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { LocationSingleSelect } from "./location-single-select";
-// import { LocationSingleSelect } from "./location-single-select";
+import {
+  LOCATION_TYPE_CITY,
+  LOCATION_TYPE_COUNTRY,
+  LOCATION_TYPE_PROVINCE,
+} from "../location-select.types";
 
 type Props = {
   countryId: string | null | undefined;
+  provinceId?: string | null | undefined;
   cityId: string | null | undefined;
 
   onCountryChange: (value: string | null) => void;
+  onProvinceChange?: (value: string | null) => void;
   onCityChange: (value: string | null) => void;
 
   locale?: string;
@@ -17,29 +24,59 @@ type Props = {
   className?: string;
 
   countryLabel?: string;
+  provinceLabel?: string;
   cityLabel?: string;
+
+  /**
+   * Render the province tier between country and city. Off by default so the
+   * existing two-field callers keep their layout; the home location picker and
+   * the admin forms opt in.
+   */
+  showProvince?: boolean;
 };
 
 export function CountryCitySelect({
   countryId,
+  provinceId,
   cityId,
   onCountryChange,
+  onProvinceChange,
   onCityChange,
   locale = "en",
   fallbackLocale = "en",
   disabled = false,
   className,
-  countryLabel = "Country",
-  cityLabel = "City",
+  countryLabel,
+  provinceLabel,
+  cityLabel,
+  showProvince = false,
 }: Props) {
+  const t = useTranslations("Common.Location");
+
   useEffect(() => {
     if (!countryId && cityId) {
       onCityChange(null);
     }
   }, [countryId, cityId, onCityChange]);
 
+  useEffect(() => {
+    if (!countryId && provinceId) {
+      onProvinceChange?.(null);
+    }
+  }, [countryId, provinceId, onProvinceChange]);
+
+  // With the province tier shown, the city list is scoped to the province once one
+  // is picked; before that it stays scoped to the country, so countries without
+  // subdivisions (and any city still parented directly to a country) remain
+  // reachable without forcing a province choice.
+  const cityParentId = (showProvince ? provinceId : null) ?? countryId ?? null;
+
+  const gridClassName =
+    className ??
+    (showProvince ? "grid gap-4 md:grid-cols-3" : "grid gap-4 md:grid-cols-2");
+
   return (
-    <div className={className ?? "grid gap-4 md:grid-cols-2"}>
+    <div className={gridClassName}>
       <LocationSingleSelect
         value={countryId}
         onChange={(nextCountryId) => {
@@ -47,29 +84,49 @@ export function CountryCitySelect({
           onCountryChange(nextCountryId);
 
           if (changed) {
+            onProvinceChange?.(null);
             onCityChange(null);
           }
         }}
-        locationTypeId={1}
+        locationTypeId={LOCATION_TYPE_COUNTRY}
         locale={locale}
         fallbackLocale={fallbackLocale}
-        label={countryLabel}
-        placeholder="Select country"
-        searchPlaceholder="Search countries..."
+        label={countryLabel ?? t("country")}
         disabled={disabled}
       />
 
+      {showProvince ? (
+        <LocationSingleSelect
+          key={`province-${countryId ?? "no-country"}`}
+          value={provinceId}
+          onChange={(nextProvinceId) => {
+            const changed = nextProvinceId !== (provinceId ?? null);
+            onProvinceChange?.(nextProvinceId);
+
+            if (changed) {
+              onCityChange(null);
+            }
+          }}
+          locationTypeId={LOCATION_TYPE_PROVINCE}
+          parentId={countryId ?? null}
+          locale={locale}
+          fallbackLocale={fallbackLocale}
+          label={provinceLabel ?? t("province")}
+          placeholder={countryId ? undefined : t("noProvinceSelected")}
+          disabled={disabled || !countryId}
+        />
+      ) : null}
+
       <LocationSingleSelect
-        key={countryId ?? "no-country"}
+        key={`city-${cityParentId ?? "no-parent"}`}
         value={cityId}
         onChange={onCityChange}
-        locationTypeId={2}
-        parentId={countryId ?? null}
+        locationTypeId={LOCATION_TYPE_CITY}
+        parentId={cityParentId}
         locale={locale}
         fallbackLocale={fallbackLocale}
-        label={cityLabel}
-        placeholder={countryId ? "Select city" : "Select country first"}
-        searchPlaceholder="Search cities..."
+        label={cityLabel ?? t("city")}
+        placeholder={countryId ? undefined : t("noCountrySelected")}
         disabled={disabled || !countryId}
       />
     </div>

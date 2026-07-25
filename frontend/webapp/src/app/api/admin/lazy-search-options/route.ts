@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import db from "@/config/database/db";
+import { requireApiAdmin } from "@/lib/auth/api-guard";
 
 type LazyResourceConfig = {
   from: string;
@@ -103,6 +104,9 @@ const RESOURCES: Record<string, LazyResourceConfig> = {
 };
 
 export async function GET(request: Request) {
+  const auth = await requireApiAdmin();
+  if (auth instanceof NextResponse) return auth;
+
   const { searchParams } = new URL(request.url);
   const resource = searchParams.get("resource") || "";
   const config = RESOURCES[resource];
