@@ -2335,14 +2335,10 @@ declare const messages: {
     },
     "userInfo": {
       "goodMorning": "Have a good day",
-      "profileAlt": "Profile"
-    },
-    "quickSearches": {
-      "hairTransplant": "Hair Transplant",
-      "dentalVeneers": "Dental Veneers",
-      "spaDay": "Spa Day",
-      "ivfTreatment": "IVF Treatment",
-      "gymMembership": "Gym Membership"
+      "profileAlt": "Profile",
+      "guestEyebrow": "Welcome",
+      "guestTitle": "Find your care",
+      "signIn": "Sign in"
     },
     "search": {
       "placeholder": "Search treatments, clinics..."
@@ -2458,6 +2454,11 @@ declare const messages: {
         "applying": "Applying...",
         "apply": "Apply location",
         "province": "Province / State"
+      },
+      "permission": {
+        "title": "Turn on location",
+        "dismiss": "Not now",
+        "enable": "Turn on"
       }
     },
     "sponsoredCarousel": {
@@ -2491,6 +2492,9 @@ declare const messages: {
       "backAria": "Back to home",
       "emptyTitle": "No packages yet",
       "emptyDescription": "Special packages will appear here as soon as they are published."
+    },
+    "appBar": {
+      "notifications": "Notifications"
     }
   },
   "Support": {

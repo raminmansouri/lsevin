@@ -1613,14 +1613,10 @@ declare const messages: {
     },
     "userInfo": {
       "goodMorning": "وقت بخیر",
-      "profileAlt": "پروفایل"
-    },
-    "quickSearches": {
-      "hairTransplant": "کاشت مو",
-      "dentalVeneers": "لمینت دندان",
-      "spaDay": "خدمات اسپا",
-      "ivfTreatment": "درمان IVF",
-      "gymMembership": "عضویت باشگاه"
+      "profileAlt": "پروفایل",
+      "guestEyebrow": "خوش آمدید",
+      "guestTitle": "درمان خود را پیدا کنید",
+      "signIn": "ورود"
     },
     "search": {
       "placeholder": "جستجوی درمان، کلینیک..."
@@ -1736,6 +1732,11 @@ declare const messages: {
         "applying": "در حال اعمال...",
         "apply": "اعمال موقعیت",
         "province": "استان"
+      },
+      "permission": {
+        "title": "فعال کردن موقعیت مکانی",
+        "dismiss": "انصراف",
+        "enable": "فعال‌سازی"
       }
     },
     "sponsoredCarousel": {
@@ -1769,6 +1770,9 @@ declare const messages: {
       "backAria": "بازگشت به خانه",
       "emptyTitle": "هنوز پکیجی وجود ندارد",
       "emptyDescription": "پکیج‌های ویژه به‌محض انتشار در اینجا نمایش داده می‌شوند."
+    },
+    "appBar": {
+      "notifications": "اعلان‌ها"
     }
   },
   "Support": {

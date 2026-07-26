@@ -290,15 +290,20 @@ function build() {
       : MAX_CITIES_PER_COUNTRY;
 
     const taken = new Set();
+    const ranked = list.sort((a, b) => b.population - a.population).slice(0, limit);
 
-    for (const city of list.sort((a, b) => b.population - a.population).slice(0, limit)) {
+    for (const [index, city] of ranked.entries()) {
       const province = provinceByAdmin1Key.get(city.admin1Key);
 
       cities.push({
         countryCode,
         provinceCode: province?.code ?? null,
         code: makeCode(city.name, taken),
-        population: city.population,
+        // display_order is an ascending "manual ordering" column everywhere else in
+        // the app, so store a POPULATION RANK (1 = largest in the country), not the
+        // population itself. Writing the raw population inverted the list and buried
+        // capitals under every small town.
+        displayOrder: index + 1,
         translations: translationsFor(city.geonameId, city.name, alternateNames),
       });
     }
@@ -350,6 +355,23 @@ function build() {
     const countryCode = quote(city.countryCode);
     const translations = jsonLiteral(city.translations);
 
+    // Cities that already existed keep their row (the insert below skips them), which
+    // means they never receive the localized names this seed carries — a picker full
+    // of raw codes like "tehran" next to properly named neighbours. Merge the seed's
+    // names into them, with the existing value winning on every key it already has so
+    // nothing edited by hand is overwritten.
+    out.push(
+      `update category.locations city`,
+      `set value_translations = ${translations} || city.value_translations, last_modified_date = now()`,
+      `from category.locations c`,
+      `left join category.locations mid on mid.parent_id = c.id and mid.location_type_id = ${TYPE_PROVINCE}`,
+      `where city.location_type_id = ${TYPE_CITY} and upper(city.code) = ${code}`,
+      `  and c.location_type_id = ${TYPE_COUNTRY} and upper(c.code) = ${countryCode}`,
+      `  and (city.parent_id = c.id or city.parent_id = mid.id)`,
+      `  and not (city.value_translations ?& array['en-US','fa-IR','ar-SA','tr-TR']);`,
+      ``
+    );
+
     // "Already present" means anywhere under this country — directly, or under one of
     // its provinces — so a city seeded before the province tier is never duplicated.
     const existsUnderCountry = `
@@ -367,7 +389,7 @@ function build() {
 
       out.push(
         `insert into category.locations (id, code, value_translations, location_type_id, parent_id, create_date, display_order)`,
-        `select gen_random_uuid(), ${code}, ${translations}, ${TYPE_CITY}, p.id, now(), ${city.population}`,
+        `select gen_random_uuid(), ${code}, ${translations}, ${TYPE_CITY}, p.id, now(), ${city.displayOrder}`,
         `from category.locations c`,
         `join category.locations p on p.location_type_id = ${TYPE_PROVINCE} and p.parent_id = c.id and upper(p.code) = ${provinceCode}`,
         `where c.location_type_id = ${TYPE_COUNTRY} and upper(c.code) = ${countryCode}${existsUnderCountry};`,
@@ -384,7 +406,7 @@ function build() {
     } else {
       out.push(
         `insert into category.locations (id, code, value_translations, location_type_id, parent_id, create_date, display_order)`,
-        `select gen_random_uuid(), ${code}, ${translations}, ${TYPE_CITY}, c.id, now(), ${city.population}`,
+        `select gen_random_uuid(), ${code}, ${translations}, ${TYPE_CITY}, c.id, now(), ${city.displayOrder}`,
         `from category.locations c`,
         `where c.location_type_id = ${TYPE_COUNTRY} and upper(c.code) = ${countryCode}${existsUnderCountry};`,
         ``

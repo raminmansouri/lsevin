@@ -1741,7 +1741,22 @@ declare const messages: {
         "city": "Ciudad",
         "applying": "Aplicando…",
         "apply": "Aplicar ubicación"
+      },
+      "permission": {
+        "title": "Activar la ubicación",
+        "dismiss": "Ahora no",
+        "enable": "Activar"
       }
+    },
+    "appBar": {
+      "notifications": "Notificaciones"
+    },
+    "userInfo": {
+      "guestEyebrow": "Bienvenido",
+      "guestTitle": "Encuentra tu tratamiento",
+      "signIn": "Iniciar sesión",
+      "goodMorning": "Que tengas un buen día",
+      "profileAlt": "Perfil"
     }
   },
   "AsyncSelect": {

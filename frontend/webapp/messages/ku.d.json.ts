@@ -1741,7 +1741,22 @@ declare const messages: {
         "city": "شار",
         "applying": "جێبەجێ دەکرێت…",
         "apply": "شوێن جێبەجێ بکە"
+      },
+      "permission": {
+        "title": "چالاککردنی شوێن",
+        "dismiss": "ئێستا نا",
+        "enable": "چالاککردن"
       }
+    },
+    "appBar": {
+      "notifications": "ئاگادارکردنەوەکان"
+    },
+    "userInfo": {
+      "guestEyebrow": "بەخێربێیت",
+      "guestTitle": "چارەسەرەکەت بدۆزەوە",
+      "signIn": "چوونەژوورەوە",
+      "goodMorning": "ڕۆژتان باش",
+      "profileAlt": "پرۆفایل"
     }
   },
   "AsyncSelect": {

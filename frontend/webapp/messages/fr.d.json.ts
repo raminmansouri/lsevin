@@ -1741,7 +1741,22 @@ declare const messages: {
         "city": "Ville",
         "applying": "Application…",
         "apply": "Appliquer le lieu"
+      },
+      "permission": {
+        "title": "Activer la localisation",
+        "dismiss": "Plus tard",
+        "enable": "Activer"
       }
+    },
+    "appBar": {
+      "notifications": "Notifications"
+    },
+    "userInfo": {
+      "guestEyebrow": "Bienvenue",
+      "guestTitle": "Trouvez votre traitement",
+      "signIn": "Se connecter",
+      "goodMorning": "Bonne journée",
+      "profileAlt": "Profil"
     }
   },
   "AsyncSelect": {

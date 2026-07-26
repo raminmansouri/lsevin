@@ -399,6 +399,8 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
   const locationsRequestedRef = useRef(false);
   const geolocationWatchdogRef = useRef<number | null>(null);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
+  // 'permission' asks before the browser does; 'choose' is the full picker.
+  const [pickerStep, setPickerStep] = useState<'permission' | 'choose'>('permission');
   const [mounted, setMounted] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [isDetecting, setIsDetecting] = useState(false);
@@ -567,6 +569,7 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
 
           if (!isMountedRef.current) return;
           setLocationMessage(t('messages.autoDetectFailed'));
+          setPickerStep("choose");
           setShowLocationPicker(true);
         } catch {
           // A rejected server action inside startTransition is re-thrown to the
@@ -574,6 +577,7 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
           // view over a failed location lookup. Degrade to the manual picker instead.
           if (!isMountedRef.current) return;
           setLocationMessage(t('messages.autoDetectFailed'));
+          setPickerStep("choose");
           setShowLocationPicker(true);
         } finally {
           if (isMountedRef.current) setIsDetecting(false);
@@ -586,6 +590,7 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
   const requestBrowserLocation = useCallback(() => {
     if (typeof window === 'undefined' || !navigator.geolocation) {
       setLocationMessage(t('messages.browserUnsupported'));
+      setPickerStep("choose");
       setShowLocationPicker(true);
       return;
     }
@@ -604,6 +609,7 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
       if (!isMountedRef.current) return;
       setIsDetecting(false);
       setLocationMessage(t('messages.locationTimedOut'));
+      setPickerStep("choose");
       setShowLocationPicker(true);
     }, 30000);
 
@@ -692,6 +698,7 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
           } catch {
             if (!isMountedRef.current) return;
             setLocationMessage(t('messages.loadFailed'));
+            setPickerStep("choose");
             setShowLocationPicker(true);
           } finally {
             if (isMountedRef.current) setIsDetecting(false);
@@ -874,6 +881,9 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
     // A message about a detection that already finished (often while the modal was
     // closed) otherwise greets the visitor as a stale amber warning on the next open.
     setLocationMessage(null);
+    // Tapping the pill when a destination is already set means "change it", so skip
+    // the permission pitch and go straight to the choices.
+    setPickerStep(selectedLocation.id === INITIAL_LOCATION.id ? 'permission' : 'choose');
     setShowLocationPicker(true);
   };
 
@@ -922,52 +932,66 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
   const canApplyManualSelection = Boolean(watchedCountryId || watchedProvinceId || watchedCityId);
   const isBusy = isPending || isDetecting;
 
-  const modal =
-    mounted && showLocationPicker
-      ? createPortal(
-          <div className="fixed inset-0 z-[9999] overflow-y-auto bg-slate-950/45 backdrop-blur-[3px]">
-            <div className="flex min-h-screen items-start justify-center p-4 sm:p-6">
-              <div className="mt-2 w-full max-w-3xl overflow-hidden rounded-[28px] border border-white/60 bg-white shadow-[0_25px_80px_rgba(0,0,0,0.25)]">
-                <div className="flex items-start justify-between gap-4 border-b border-slate-100 bg-gradient-to-r from-[#083f30] via-[#0b4c3d] to-[#0f6b56] px-5 py-5 text-white sm:px-6">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70">{t('modal.eyebrow')}</p>
-                    <h3 className="mt-1 text-xl font-bold sm:text-2xl">{t('modal.title')}</h3>
-                    <p className="mt-1 text-sm text-white/80">{t('modal.description')}</p>
-                  </div>
+  // The permission step mirrors the native prompt-before-the-prompt pattern: explain
+  // why the app wants the location, then hand off to the browser. It is the sheet's
+  // first screen only while nothing is on file — once a destination is known, opening
+  // the picker means "change it", so the sheet goes straight to the choices.
+  const permissionStep = (
+    <div className="px-5 pb-6">
+      <div className="mx-auto mb-5 flex h-36 w-full max-w-xs items-center justify-center">
+        <LocationPermissionArt />
+      </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setShowLocationPicker(false)}
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
-                    aria-label={t('modal.closeAria')}
-                  >
-                    <X size={18} />
-                  </button>
-                </div>
+      <p className="whitespace-pre-line text-center text-sm leading-6 text-gray-500">
+        {t('currentLocation.description')}
+      </p>
 
-                <div className="space-y-5 p-5 sm:p-6">
-                  <button
-                    type="button"
-                    onClick={requestBrowserLocation}
-                    disabled={isBusy}
-                    className="flex w-full items-center gap-3 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-left transition hover:border-emerald-300 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-emerald-700 shadow-sm">
-                      {isBusy ? <Loader2 className="animate-spin" size={20} /> : <LocateFixed size={20} />}
-                    </div>
-                    <div>
-                      <div className="text-sm font-bold text-emerald-950">{t('currentLocation.title')}</div>
-                      <p className="mt-0.5 text-xs leading-5 text-emerald-800/80">{t('currentLocation.description')}</p>
-                    </div>
-                  </button>
+      <div className="mt-6 flex gap-3">
+        <button
+          type="button"
+          onClick={() => setPickerStep('choose')}
+          disabled={isBusy}
+          className="h-12 flex-1 rounded-xl border border-gray-200 bg-white text-sm font-bold text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
+        >
+          {t('permission.dismiss')}
+        </button>
+        <button
+          type="button"
+          onClick={requestBrowserLocation}
+          disabled={isBusy}
+          className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-[#083f30] text-sm font-bold text-white transition hover:bg-[#0a513f] disabled:opacity-50"
+        >
+          {isBusy ? <Loader2 className="animate-spin" size={18} /> : null}
+          {t('permission.enable')}
+        </button>
+      </div>
+    </div>
+  );
 
-                  {locationMessage ? (
-                    <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                      {locationMessage}
-                    </div>
-                  ) : null}
+  const chooseStep = (
+    <div className="space-y-4 px-5 pb-6">
+      <button
+        type="button"
+        onClick={requestBrowserLocation}
+        disabled={isBusy}
+        className="flex w-full items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4 text-start transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-[#083f30] shadow-sm">
+          {isBusy ? <Loader2 className="animate-spin" size={20} /> : <LocateFixed size={20} />}
+        </div>
+        <div className="min-w-0">
+          <div className="text-sm font-bold text-emerald-950">{t('currentLocation.title')}</div>
+          <p className="mt-0.5 text-xs leading-5 text-emerald-800/70">{t('currentLocation.description')}</p>
+        </div>
+      </button>
 
-                  <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
+      {locationMessage ? (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          {locationMessage}
+        </div>
+      ) : null}
+
+                  <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
                     <div className="mb-3">
                       <h4 className="text-sm font-semibold text-slate-900">{t('manual.title')}</h4>
                       <p className="mt-1 text-xs text-slate-500">{t('manual.description')}</p>
@@ -986,30 +1010,28 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
                       cityLabel={t('manual.city')}
                     />
 
-                    <div className="mt-4 flex justify-end">
-                      <button
-                        type="button"
-                        onClick={handleApplyManualSelection}
-                        disabled={!canApplyManualSelection || isBusy}
-                        className="rounded-2xl bg-[#083f30] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0a513f] disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        {isBusy ? t('manual.applying') : t('manual.apply')}
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={handleApplyManualSelection}
+                      disabled={!canApplyManualSelection || isBusy}
+                      className="mt-4 h-12 w-full rounded-xl bg-[#083f30] text-sm font-bold text-white transition hover:bg-[#0a513f] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {isBusy ? t('manual.applying') : t('manual.apply')}
+                    </button>
                   </div>
 
                   {isLoadingLocations && !hasLoadedLocations ? (
-                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-                      {Array.from({ length: 6 }).map((_, index) => (
-                        <div key={index} className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-3">
-                          <div className="mb-3 aspect-[4/3] animate-pulse rounded-2xl bg-slate-200" />
-                          <div className="h-4 w-2/3 animate-pulse rounded bg-slate-200" />
-                          <div className="mt-2 h-3 w-1/2 animate-pulse rounded bg-slate-100" />
+                    <div className="grid grid-cols-2 gap-3">
+                      {Array.from({ length: 4 }).map((_, index) => (
+                        <div key={index} className="overflow-hidden rounded-2xl border border-gray-100 bg-white p-3">
+                          <div className="mb-3 aspect-[4/3] animate-pulse rounded-xl bg-gray-200" />
+                          <div className="h-4 w-2/3 animate-pulse rounded bg-gray-200" />
+                          <div className="mt-2 h-3 w-1/2 animate-pulse rounded bg-gray-100" />
                         </div>
                       ))}
                     </div>
                   ) : availableLocations.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                    <div className="grid grid-cols-2 gap-3">
                       {availableLocations.map((location) => {
                         // Card ids come from category.picked_locations, while a detected
                         // location's id comes from category.locations — the two uuid spaces
@@ -1062,7 +1084,51 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
                       })}
                     </div>
                   ) : null}
-                </div>
+    </div>
+  );
+
+  const showPermissionStep = pickerStep === 'permission';
+
+  const sheet =
+    mounted && showLocationPicker
+      ? createPortal(
+          <div className="fixed inset-0 z-[9999]">
+            <button
+              type="button"
+              aria-label={t('modal.closeAria')}
+              onClick={() => setShowLocationPicker(false)}
+              className="sheet-scrim absolute inset-0 h-full w-full cursor-default bg-slate-950/40 backdrop-blur-[2px]"
+            />
+
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="location-sheet-title"
+              className="sheet-panel absolute inset-x-0 bottom-0 flex max-h-[92dvh] flex-col overflow-hidden rounded-t-[20px] bg-white shadow-[0_-4px_12px_rgba(0,0,0,0.06)]"
+            >
+              {/* Grab handle — the affordance that says "this came up from the bottom
+                  and goes back down", even though dismissal is by tap. */}
+              <div className="flex justify-center pt-2.5">
+                <span className="h-1 w-9 rounded-full bg-gray-200" />
+              </div>
+
+              <div className="flex items-start justify-between gap-3 px-5 pb-3 pt-3">
+                <h2 id="location-sheet-title" className="text-base font-bold text-gray-900">
+                  {showPermissionStep ? t('permission.title') : t('modal.title')}
+                </h2>
+
+                <button
+                  type="button"
+                  onClick={() => setShowLocationPicker(false)}
+                  className="-me-1 -mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                  aria-label={t('modal.closeAria')}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="hide-scrollbar min-h-0 flex-1 overflow-y-auto">
+                {showPermissionStep ? permissionStep : chooseStep}
               </div>
             </div>
           </div>,
@@ -1072,37 +1138,55 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
 
   return (
     <>
-      <div className="space-y-2">
-        <button
-          type="button"
-          onClick={openLocationPicker}
-          className="flex w-full items-center gap-3 rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-left transition hover:border-[#083f30]/20 hover:bg-white hover:shadow-sm"
-        >
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#083f30]/10 text-[#083f30]">
-            <MapPin size={20} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium uppercase tracking-[0.16em] text-gray-500">{t('currentDestination')}</p>
-            <p className="truncate text-sm font-bold text-gray-900">{getLocationTitle(selectedLocation, locationTitleFallback)}</p>
-            <p className="truncate text-[11px] font-medium text-gray-500">{getLocationSourceLabel(selectedLocation, sourceLabels)}</p>
-          </div>
-          {isBusy ? <Loader2 size={18} className="animate-spin text-gray-400" /> : <ChevronRight size={18} className="text-gray-400" />}
-        </button>
+      {/* Frosted pill on the pine canopy. One line, tap to change — the destination
+          is context for everything below it, not a form field. */}
+      <button
+        type="button"
+        onClick={openLocationPicker}
+        className="flex w-full items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-start backdrop-blur-sm transition hover:bg-white/15"
+      >
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#eacb7f]/20 text-[#eacb7f]">
+          <MapPin size={18} />
+        </span>
 
-        {selectedLocation.id === INITIAL_LOCATION.id ? (
-          <button
-            type="button"
-            onClick={requestBrowserLocation}
-            disabled={isBusy}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-2 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isBusy ? <Loader2 size={14} className="animate-spin" /> : <LocateFixed size={14} />}
-            {t('useMyCurrentLocation')}
-          </button>
-        ) : null}
-      </div>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[11px] font-medium text-white/60">{t('currentDestination')}</span>
+          <span className="block truncate text-sm font-bold text-white">
+            {getLocationTitle(selectedLocation, locationTitleFallback)}
+          </span>
+        </span>
 
-      {modal}
+        {isBusy ? (
+          <Loader2 size={18} className="shrink-0 animate-spin text-white/60" />
+        ) : (
+          // styles/rtl.css already flips every chevron with scaleX(-1); adding a
+          // rotate here flipped it a second time and pointed it back into the row.
+          <ChevronRight size={18} className="shrink-0 text-white/50" />
+        )}
+      </button>
+
+      {sheet}
     </>
+  );
+}
+
+/**
+ * Inline illustration for the permission step. Drawn rather than fetched so the
+ * sheet has nothing to wait on and nothing to 404 — it appears the instant the
+ * sheet does.
+ */
+function LocationPermissionArt() {
+  return (
+    <svg viewBox="0 0 200 140" fill="none" className="h-full w-auto" aria-hidden="true">
+      <ellipse cx="100" cy="120" rx="58" ry="9" fill="#083f30" opacity="0.08" />
+      <circle cx="100" cy="62" r="52" fill="#083f30" opacity="0.06" />
+      <circle cx="100" cy="62" r="36" fill="#083f30" opacity="0.08" />
+      <path
+        d="M100 22c-15.5 0-28 12.5-28 28 0 20 22.6 38.3 26.6 41.4a2.2 2.2 0 0 0 2.8 0C105.4 88.3 128 70 128 50c0-15.5-12.5-28-28-28Z"
+        fill="#083f30"
+      />
+      <circle cx="100" cy="49" r="11" fill="#eacb7f" />
+      <path d="M100 4v9M100 111v9M42 62h9M149 62h9" stroke="#083f30" strokeWidth="3" strokeLinecap="round" opacity="0.35" />
+    </svg>
   );
 }

@@ -2335,14 +2335,10 @@ declare const messages: {
     },
     "userInfo": {
       "goodMorning": "اتمنى لك يوم جيد",
-      "profileAlt": "الملف الشخصي"
-    },
-    "quickSearches": {
-      "hairTransplant": "زراعة الشعر",
-      "dentalVeneers": "قشور الأسنان",
-      "spaDay": "يوم سبا",
-      "ivfTreatment": "علاج أطفال الأنابيب",
-      "gymMembership": "عضوية النادي الرياضي"
+      "profileAlt": "الملف الشخصي",
+      "guestEyebrow": "أهلاً بك",
+      "guestTitle": "اعثر على علاجك",
+      "signIn": "تسجيل الدخول"
     },
     "search": {
       "placeholder": "ابحث عن العلاجات والعيادات..."
@@ -2458,6 +2454,11 @@ declare const messages: {
         "applying": "تطبيق...",
         "apply": "تطبيق الموقع",
         "province": "المحافظة"
+      },
+      "permission": {
+        "title": "تفعيل الموقع",
+        "dismiss": "إلغاء",
+        "enable": "تفعيل"
       }
     },
     "sponsoredCarousel": {
@@ -2491,6 +2492,9 @@ declare const messages: {
       "backAria": "العودة إلى الرئيسية",
       "emptyTitle": "لا توجد باقات بعد",
       "emptyDescription": "ستظهر الباقات المميزة هنا فور نشرها."
+    },
+    "appBar": {
+      "notifications": "الإشعارات"
     }
   },
   "Support": {

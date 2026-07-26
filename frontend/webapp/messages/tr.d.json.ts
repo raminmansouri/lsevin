@@ -1741,7 +1741,22 @@ declare const messages: {
         "city": "Şehir",
         "applying": "Uygulanıyor…",
         "apply": "Konumu uygula"
+      },
+      "permission": {
+        "title": "Konumu aç",
+        "dismiss": "Şimdi değil",
+        "enable": "Aç"
       }
+    },
+    "appBar": {
+      "notifications": "Bildirimler"
+    },
+    "userInfo": {
+      "guestEyebrow": "Hoş geldiniz",
+      "guestTitle": "Tedavinizi bulun",
+      "signIn": "Giriş yap",
+      "goodMorning": "İyi günler",
+      "profileAlt": "Profil"
     }
   },
   "AsyncSelect": {

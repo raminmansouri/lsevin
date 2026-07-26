@@ -5,8 +5,6 @@ import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import { Skeleton } from '../../design-system/components';
 import { Link } from '@/i18n/navigation';
 import type { PageProps } from '@/types/next';
-import sql from '@/config/database/db';
-import { getQuickSearches } from './actions/get-quick-searches';
 import LocationPicker from './components/location-picker';
 import { ServiceProvidersCategoriesSuspenseBoundary } from './components/service-providers-category';
 import HomeFeaturedServicesSuspenseBoundary from './components/service-providers';
@@ -79,7 +77,6 @@ type HomePageLabels = {
     viewAll: string;
     seeAll: string;
   };
-  quickSearches: string[];
   search: {
     placeholder: string;
   };
@@ -161,13 +158,6 @@ async function Home({ params, searchParams }: PageProps) {
       viewAll: t('common.viewAll'),
       seeAll: t('common.seeAll'),
     },
-    quickSearches: [
-      t('quickSearches.hairTransplant'),
-      t('quickSearches.dentalVeneers'),
-      t('quickSearches.spaDay'),
-      t('quickSearches.ivfTreatment'),
-      t('quickSearches.gymMembership'),
-    ],
     search: {
       placeholder: t('search.placeholder'),
     },
@@ -255,7 +245,6 @@ async function Home({ params, searchParams }: PageProps) {
   const queryInput = { ...queryScope, latitude: nearbyLat, longitude: nearbyLng };
 
   const [
-    dbQuickSearches,
     categories,
     featuredServices,
     trendingServices,
@@ -266,7 +255,6 @@ async function Home({ params, searchParams }: PageProps) {
     profile,
     specialPackagesCount,
   ] = await Promise.all([
-    getQuickSearches(sql, 8),
     getHomeCategories(queryInput, 6),
     getFeaturedHomeServices(queryInput, 8),
     getTrendingHomeServices(queryInput, 8),
@@ -279,36 +267,32 @@ async function Home({ params, searchParams }: PageProps) {
     countActiveSpecialPackages(),
   ]);
 
-  const quickSearches = dbQuickSearches.length > 0 ? dbQuickSearches : labels.quickSearches;
-
   return (
     <div className="min-h-screen bg-white">
-      <div className="sticky top-0 z-40 border-b border-gray-100 bg-white/95 px-5 pb-4 pt-3 backdrop-blur-xl">
-        <UserInfoSubBar profile={profile} />
-        <LocationPicker locale={locale} />
-      </div>
+      {/* The canopy: greeting, destination and search live on one continuous pine
+          surface that runs up into the app bar, so the top of the app reads as a
+          single control area instead of two stacked website bars. The search field
+          straddles the canopy's lower edge — it is the seam between the app chrome
+          and the feed, and the first thing the eye lands on. */}
+      <div className="bg-gray-50">
+        <div className="rounded-b-[2rem] bg-gradient-to-b from-[#052a20] via-[#083f30] to-[#0f6b56] px-5 pb-12 pt-3">
+          <UserInfoSubBar profile={profile} />
 
-      <section className="bg-gray-50 px-5 py-4">
-        <Link
-          href="/n/app/mobile/search"
-          className="flex h-14 w-full items-center gap-3 rounded-2xl border border-gray-100 bg-white px-5 shadow-sm transition-all hover:shadow-md"
-        >
-          <Search size={22} className="text-[#083f30]" />
-          <span className="font-medium text-gray-500">{labels.search.placeholder}</span>
-        </Link>
-
-        <div className="hide-scrollbar mt-3 flex gap-2 overflow-x-auto pb-1">
-          {quickSearches.map((search) => (
-            <Link
-              href={`/n/app/mobile/search-results?q=${encodeURIComponent(search)}`}
-              key={search}
-              className="whitespace-nowrap rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-[#083f30] hover:text-[#083f30]"
-            >
-              {search}
-            </Link>
-          ))}
+          <div className="mt-4">
+            <LocationPicker locale={locale} />
+          </div>
         </div>
-      </section>
+
+        <div className="-mt-7 px-5 pb-5">
+          <Link
+            href="/n/app/mobile/search"
+            className="flex h-14 w-full items-center gap-3 rounded-2xl bg-white px-5 shadow-[0_10px_30px_rgba(8,63,48,0.16)] ring-1 ring-black/5 transition-shadow hover:shadow-[0_14px_36px_rgba(8,63,48,0.22)]"
+          >
+            <Search size={22} className="shrink-0 text-[#083f30]" />
+            <span className="truncate font-medium text-gray-500">{labels.search.placeholder}</span>
+          </Link>
+        </div>
+      </div>
 
       <HomeHeroBanner offer={heroOffer} section={homeSections.hero_featured} labels={labels.hero} noDescription={labels.common.noDescription} />
 

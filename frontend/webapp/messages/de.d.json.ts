@@ -1740,7 +1740,22 @@ declare const messages: {
         "city": "Stadt",
         "applying": "Wird übernommen…",
         "apply": "Standort übernehmen"
+      },
+      "permission": {
+        "title": "Standort aktivieren",
+        "dismiss": "Nicht jetzt",
+        "enable": "Aktivieren"
       }
+    },
+    "appBar": {
+      "notifications": "Benachrichtigungen"
+    },
+    "userInfo": {
+      "guestEyebrow": "Willkommen",
+      "guestTitle": "Finden Sie Ihre Behandlung",
+      "signIn": "Anmelden",
+      "goodMorning": "Einen schönen Tag",
+      "profileAlt": "Profil"
     }
   },
   "AsyncSelect": {
