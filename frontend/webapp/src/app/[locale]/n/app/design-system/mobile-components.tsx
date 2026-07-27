@@ -92,28 +92,33 @@ export function TopNavBar({ title, showBack = false, onBack, rightActions, trans
 interface IconButtonProps {
   icon: React.ReactNode;
   onClick?: () => void;
-  badge?: number | boolean;
-  variant?: 'default' | 'primary' | 'ghost';
+  badge?: number | string | boolean;
+  /** `glass` is for controls sitting on the dark pine app bar. */
+  variant?: 'default' | 'primary' | 'ghost' | 'glass';
+  'aria-label'?: string;
 }
 
-export function IconButton({ icon, onClick, badge, variant = 'default' }: IconButtonProps) {
+export function IconButton({ icon, onClick, badge, variant = 'default', ...rest }: IconButtonProps) {
   const variants = {
     default: 'bg-white border border-gray-200 hover:bg-gray-50',
     primary: 'bg-[#083f30] text-white hover:bg-[#0a5a44]',
     ghost: 'hover:bg-gray-100',
+    glass: 'bg-white/10 text-white border border-white/15 hover:bg-white/20 backdrop-blur-sm',
   };
-  
+
   return (
     <button
+      type="button"
       onClick={onClick}
+      aria-label={rest['aria-label']}
       className={`relative w-10 h-10 flex items-center justify-center rounded-full transition ${variants[variant]}`}
     >
       {icon}
-      {badge && (
-        <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center">
-          {typeof badge === 'number' ? badge : ''}
+      {badge ? (
+        <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-[#eacb7f] text-[#083f30] text-[11px] font-bold rounded-full flex items-center justify-center">
+          {typeof badge === 'boolean' ? '' : badge}
         </span>
-      )}
+      ) : null}
     </button>
   );
 }

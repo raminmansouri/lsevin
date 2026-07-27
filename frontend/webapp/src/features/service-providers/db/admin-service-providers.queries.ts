@@ -3,6 +3,7 @@ import "server-only";
 import { revalidateTag } from "next/cache";
 
 import sql from "@/config/database/db";
+import { countryOfLocation } from "@/features/locations/server";
 import {
   DEFAULT_PAGE_NUMBER,
   DEFAULT_PAGE_SIZE,
@@ -1321,27 +1322,29 @@ export async function searchAdminProviderLookupOptions(
       `;
     } else if (params.type === "cities") {
       const label = translated(sql`l.value_translations`, locale);
-      const countryLabel = translated(sql`country.value_translations`, locale);
+      const countryLabel = translated(sql`matched_country.value_translations`, locale);
       const parentId = params.parentId?.trim();
+      // The admin form thinks in country → city, so report the city's COUNTRY as its
+      // parentId even when a province sits between them; l.parent_id would hand the UI
+      // a province id it has no country selector for. The filter accepts either hop for
+      // the same reason.
       rows = await sql<AdminLookupOption[]>`
-        select l.id::text, l.code, ${label} as label, l.parent_id::text as "parentId"
+        select l.id::text, l.code, ${label} as label, l_country.id::text as "parentId"
         from category.locations l
+        ${countryOfLocation("l")} l_country on true
         where l.location_type_id = 2
           and ${
             parentId
-              ? sql`(
-            l.parent_id::text = ${parentId}
-            or l.parent_id in (
-              select country.id
-              from category.locations country
-              where country.location_type_id = 1
+              ? sql`l_country.id in (
+              select matched_country.id
+              from category.locations matched_country
+              where matched_country.location_type_id = 1
                 and (
-                  country.id::text = ${parentId}
-                  or lower(country.code) = lower(${parentId})
+                  matched_country.id::text = ${parentId}
+                  or lower(matched_country.code) = lower(${parentId})
                   or lower(${countryLabel}) = lower(${parentId})
                 )
-            )
-          )`
+            )`
               : sql`true`
           }
           and ${hasQuery ? sql`(${label} ilike ${like} or l.code ilike ${like})` : sql`true`}
@@ -1498,10 +1501,11 @@ export async function getAdminProviderLookupData(
         limit 75
       `,
       sql<AdminLookupOption[]>`
-        select id::text, code, ${translated(sql`value_translations`, locale)} as label, parent_id::text as "parentId"
-        from category.locations
-        where location_type_id = 2
-        order by display_order nulls last, label
+        select l.id::text, l.code, ${translated(sql`l.value_translations`, locale)} as label, l_country.id::text as "parentId"
+        from category.locations l
+        ${countryOfLocation("l")} l_country on true
+        where l.location_type_id = 2
+        order by l.display_order nulls last, label
         limit 50
       `,
       sql<AdminLookupOption[]>`

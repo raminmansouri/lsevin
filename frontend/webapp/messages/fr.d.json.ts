@@ -2,7 +2,7 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
-   "UploadFiles": {
+  "UploadFiles": {
     "title": "Upload documents",
     "subtitle": "Please upload the requested files for your booking",
     "description": "Supported formats: PNG, JPG, JPEG, PDF",
@@ -15,7 +15,7 @@ declare const messages: {
     "acceptedFilesDesc": "PNG, JPG, JPEG, PDF — maximum file size: 10 MB.",
     "acceptedFilesTitle": "Accepted files",
     "replaceFile": "Replace file",
-        "uploadBtn": "Choose file",
+    "uploadBtn": "Choose file",
     "uploadCardTitle": "Upload Documents",
     "uploadCardDesc": "Attach the required documents for this booking.",
     "filesUploaded": "uploaded",
@@ -365,14 +365,23 @@ declare const messages: {
       "zipCode": "Code postal"
     },
     "Location": {
-      "title": "Emplacement",
+      "title": "Lieu",
       "country": "Pays",
       "city": "Ville",
-      "selectCountry": "Sélectionner un pays",
-      "selectCity": "Sélectionner une ville",
-      "noCountrySelected": "Aucun pays sélectionné",
+      "selectCountry": "Choisir un pays",
+      "selectCity": "Choisir une ville",
+      "noCountrySelected": "Choisissez d’abord un pays",
       "noCitiesAvailable": "Aucune ville disponible",
-      "loading": "Chargement..."
+      "loading": "Chargement…",
+      "province": "Région",
+      "selectProvince": "Choisir une région",
+      "searchCountries": "Rechercher un pays…",
+      "searchCities": "Rechercher une ville…",
+      "searchProvinces": "Rechercher une région…",
+      "noProvinceSelected": "Choisissez d’abord un pays",
+      "noCitySelectable": "Choisissez d’abord une région",
+      "noProvincesAvailable": "Aucune région disponible",
+      "clear": "Effacer la sélection"
     },
     "DatePicker": {
       "placeholder": "Sélectionner une date",
@@ -707,7 +716,7 @@ declare const messages: {
         "label": "Description",
         "translations": "La description de la catégorie est requise dans au moins une langue"
       },
-       "image": {
+      "image": {
         "label": "Category image",
         "hint": "Upload an image for this category",
         "remove": "Remove image"
@@ -1679,6 +1688,84 @@ declare const messages: {
   "List": {
     "loading": "Chargement...",
     "loadMore": "Charger plus"
+  },
+  "Home": {
+    "location": {
+      "currentDestination": "Destination",
+      "selectLocation": "Choisir un lieu",
+      "useMyCurrentLocation": "Utiliser ma position actuelle",
+      "source": {
+        "chooseOrDetect": "Choisissez ou détectez votre destination",
+        "gps": "Détecté depuis la position de votre appareil",
+        "profile": "Détecté depuis votre profil",
+        "phone": "Détecté depuis votre numéro de téléphone",
+        "ip": "Approximatif, selon votre réseau",
+        "saved": "Chargé depuis vos préférences enregistrées",
+        "picked": "Destination phare sélectionnée",
+        "manual": "Sélection manuelle",
+        "url": "Destination sélectionnée",
+        "current": "Destination actuelle"
+      },
+      "messages": {
+        "detectingAutomatic": "Détection depuis votre profil enregistré, votre numéro ou votre réseau…",
+        "detectedFromSource": "{source} : {location}",
+        "autoDetectFailed": "Impossible de détecter votre position automatiquement. Veuillez la choisir manuellement.",
+        "browserUnsupported": "Votre navigateur ne prend pas en charge la détection de position. Veuillez choisir votre lieu manuellement.",
+        "requestingPermission": "Demande d’autorisation pour votre position actuelle…",
+        "usingNearestDestination": "Utilisation de la destination prise en charge la plus proche : {location}",
+        "noSupportedDestination": "Votre position a été détectée, mais aucune destination prise en charge ne se trouve à proximité.",
+        "permissionDenied": "Autorisation de localisation refusée. Vous pouvez toujours choisir votre destination manuellement.",
+        "selectCountryOrCity": "Veuillez d’abord choisir un pays ou une ville.",
+        "applyingSelected": "Application de la destination sélectionnée…",
+        "resolveFailed": "Le lieu sélectionné n’a pas pu être résolu. Essayez un autre pays ou une autre ville.",
+        "locationUnavailable": "La localisation n’est pas disponible sur cet appareil pour le moment. Veuillez choisir votre destination manuellement.",
+        "locationTimedOut": "La localisation a pris trop de temps. Réessayez ou choisissez votre destination manuellement.",
+        "linkLocationNotFound": "Ce lien de destination n’est plus valide. Veuillez choisir votre lieu.",
+        "loadFailed": "Une erreur est survenue lors de la détection de votre position. Veuillez réessayer."
+      },
+      "modal": {
+        "eyebrow": "Destination",
+        "title": "Choisir un lieu",
+        "description": "Détectez votre position, utilisez les informations de votre compte, ou choisissez le pays et la ville manuellement.",
+        "closeAria": "Fermer le sélecteur de lieu"
+      },
+      "currentLocation": {
+        "title": "Utiliser ma position actuelle",
+        "description": "Le navigateur demande votre autorisation, puis LSevin choisit la destination prise en charge la plus proche."
+      },
+      "manual": {
+        "title": "Sélection manuelle",
+        "description": "Si votre destination ne figure pas parmi les lieux phares, utilisez les sélecteurs ci-dessous.",
+        "country": "Pays",
+        "province": "Région / Province",
+        "city": "Ville",
+        "applying": "Application…",
+        "apply": "Appliquer le lieu"
+      },
+      "permission": {
+        "title": "Activer la localisation",
+        "dismiss": "Plus tard",
+        "enable": "Activer"
+      }
+    },
+    "appBar": {
+      "notifications": "Notifications"
+    },
+    "userInfo": {
+      "guestEyebrow": "Bienvenue",
+      "guestTitle": "Trouvez votre traitement",
+      "signIn": "Se connecter",
+      "goodMorning": "Bonne journée",
+      "profileAlt": "Profil"
+    }
+  },
+  "AsyncSelect": {
+    "placeholder": "Sélectionner…",
+    "searchPlaceholder": "Rechercher…",
+    "emptyText": "Aucun résultat trouvé.",
+    "loading": "Chargement…",
+    "loadMore": "Afficher plus",
+    "clear": "Effacer la sélection"
   }
 };
 export default messages;

@@ -16,7 +16,12 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { markLocaleChosenExplicitly } from "@/i18n/locale-by-country";
 
-export default function LocaleSwitcher() {
+type Props = {
+  /** `glass` when the switcher sits on the dark pine app bar. */
+  variant?: "default" | "glass";
+};
+
+export default function LocaleSwitcher({ variant = "default" }: Props) {
   const t = useTranslations("LocaleSwitcher");
   const locale = useLocale();
   const router = useRouter();
@@ -49,7 +54,16 @@ export default function LocaleSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" disabled={isPending}>
+        <Button
+          variant="outline"
+          size="icon"
+          disabled={isPending}
+          className={
+            variant === "glass"
+              ? "size-10 rounded-full border-white/15 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 hover:text-white"
+              : undefined
+          }
+        >
           <Globe className="h-[1.2rem] w-[1.2rem]" />
           <span className="sr-only">{t("label")}</span>
         </Button>

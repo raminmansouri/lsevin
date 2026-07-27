@@ -13,7 +13,14 @@
     "prettier:check": "prettier --check --ignore-unknown .",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "compiler-health": "pnpm dlx react-compiler-healthcheck@latest"
+    "migrate": "node scripts/migrate.mjs",
+    "migrate:status": "node scripts/migrate.mjs --status",
+    "migrate:dry-run": "node scripts/migrate.mjs --dry-run",
+    "compiler-health": "pnpm dlx react-compiler-healthcheck@latest",
+    "locations:seed": "node scripts/generate-locations-seed.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "financial:user": "node scripts/financial-user.mjs"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
@@ -146,7 +153,8 @@
     "prettier-plugin-tailwindcss": "0.7.1",
     "tailwindcss": "4.1.14",
     "typescript": "5.9.3",
-    "vite": "6.3.5"
+    "vite": "6.3.5",
+    "vitest": "2.1.9"
   },
   "peerDependencies": {
     "react": "18.3.1",

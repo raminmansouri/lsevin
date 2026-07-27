@@ -1,133 +1,87 @@
-"use client"
-import { useCurrentSession } from '@/hooks/use-current-session';
-import { UserRole } from '@/types/common';
-import { useTranslations } from 'next-intl';
-import Link from 'next/link'
-import React, { useMemo } from 'react'
-import { Button, Skeleton } from '../../../design-system/components';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
-import { LogOut, User } from 'lucide-react';
-import { signOut } from 'next-auth/react';
-import NotificationsBar from '@/features/shared/components/Notifications/notifications-bar';
-import LocaleSwitcher from '@/components/locale/locale-switcher';
-import UserInfo from '@/components/user-info';
-import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
-import { ImageWithFallback } from '@/components/ui/image-with-fallback';
+"use client";
 
-export default function UserInfoSubBar({profile}) {
-    // required:false — guests browse the home page; a missing session must not
-    // force a redirect. The component already renders nothing for guests below.
-    const { user, status } = useCurrentSession(false);
-      const isAdmin = user?.roles?.includes(UserRole.Admin);
-      const t = useTranslations("UserInfo");
-      const homeT = useTranslations("Home.userInfo");
-    
+import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 
-        const resolvedImageUrl = useMemo(
-          () => resolveHomeMediaUrl(profile?.profileImageUrl),
-          [profile?.profileImageUrl]
-        );
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { Link } from "@/i18n/navigation";
+import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
+import { Skeleton } from "../../../design-system/components";
+import { useCurrentSession } from "@/hooks/use-current-session";
 
+type Props = {
+  profile?: { profileImageUrl?: string | null } | null;
+};
 
-      if (status === "loading") {
-        return (
-          <div className="flex items-center gap-2">
-            <Skeleton className="size-8 rounded-full" />
-          </div>
-        );
-      }
-    
-      if (!user) return null;
-    
-      const initials = `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`;
+/**
+ * Greeting row at the top of the home canopy. Renders on the dark pine surface,
+ * so every colour here is a tint of white rather than a gray from the page scale.
+ */
+export default function UserInfoSubBar({ profile }: Props) {
+  // required:false — guests browse the home page; a missing session must not
+  // force a redirect. The component already renders nothing for guests below.
+  const { user, status } = useCurrentSession(false);
+  const homeT = useTranslations("Home.userInfo");
+
+  const resolvedImageUrl = useMemo(
+    () => resolveHomeMediaUrl(profile?.profileImageUrl),
+    [profile?.profileImageUrl]
+  );
+
+  if (status === "loading") {
+    return (
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-3 w-16 bg-white/15" />
+          <Skeleton className="h-5 w-36 bg-white/15" />
+        </div>
+        <Skeleton className="size-11 rounded-full bg-white/15" />
+      </div>
+    );
+  }
+
+  // Guests used to render nothing here, which left a band of empty pine between the
+  // app bar and the destination pill. Give them the same row shape with the one
+  // action they actually need.
+  if (!user) {
+    return (
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-medium text-white/60">{homeT("guestEyebrow")}</p>
+          <h1 className="truncate text-xl font-bold text-white">{homeT("guestTitle")}</h1>
+        </div>
+
+        <Link
+          href="/sign-in"
+          className="shrink-0 rounded-full bg-[#eacb7f] px-4 py-2 text-sm font-bold text-[#083f30] transition hover:bg-[#f0d795]"
+        >
+          {homeT("signIn")}
+        </Link>
+      </div>
+    );
+  }
+
+  const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ");
 
   return (
-    <>
-    
-      <div className="flex items-center justify-between mb-3">
-          <div className="flex-1">
-            <p className="text-xs font-medium text-gray-500 mb-0.5">{homeT("goodMorning")}</p>
-            <h1 className="text-lg font-bold text-gray-900">
-                            {user.firstName} {user.lastName}
+    <div className="flex items-center justify-between gap-3">
+      <div className="min-w-0 flex-1">
+        <p className="text-xs font-medium text-white/60">{homeT("goodMorning")}</p>
+        <h1 className="truncate text-xl font-bold text-white">{fullName}</h1>
+      </div>
 
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {/* <NotificationsBar/> */}
-            {/* <Link  
-            href='/n/app/mobile/notifications'
-            >
-             <IconButton 
-              icon={<Bell size={22} />} 
-              badge={3}
-              //onClick={() => navigate('/n/app/mobile/notifications')}
-            /> 
-            </Link> */}
-{/* 
- <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button className="relative size-8 rounded-full">
-          <Avatar>
-            <AvatarImage src="/unsplash_images/photo-1494790108377-be9c29b29330__w=100&h=100&fit=crop.jpg"
-             alt={user.firstName} />
-            <AvatarFallback className="bg-secondary">{initials}</AvatarFallback>
-          </Avatar>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuLabel className="mb-2 font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm leading-none font-medium">
-              {user.firstName} {user.lastName}
-            </p>
-            <p className="text-muted-foreground text-xs leading-none">
-              {user.email}
-            </p>
-          </div>
-        </DropdownMenuLabel>
-        <DropdownMenuGroup>
-          <DropdownMenuItem asChild>
-            {isAdmin ? (
-              <Link href="/admin/dashboard">
-                <User className="mr-2 h-4 w-4" />
-                <span>{t("adminPanel")}</span>
-              </Link>
-            ) : (
-              <Link href="/profile">
-                <User className="mr-2 h-4 w-4" />
-                <span>{t("profile")}</span>
-              </Link>
-            )}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => signOut()}>
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>{t("signOut")}</span>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu> */}
-            <Link
-              href='/n/app/mobile/profile'
-              className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-[#eacb7f]/30"
-            >
-              <ImageWithFallback
-               width={100}
-               height={100}
-                src={resolvedImageUrl}
-                alt={homeT("profileAlt")}
-                className="w-full h-full object-cover"
-              />
-            </Link>
-
-              {/*  <div className="flex items-center gap-4">
-          <NotificationsBar/>
-          <LocaleSwitcher />
-          <UserInfo />
-        </div> */}
-          </div>
-        </div>
-        </>
-  )
+      <Link
+        href="/n/app/mobile/profile"
+        className="size-11 shrink-0 overflow-hidden rounded-full ring-2 ring-[#eacb7f]/60 ring-offset-2 ring-offset-[#083f30]"
+      >
+        <ImageWithFallback
+          width={100}
+          height={100}
+          src={resolvedImageUrl}
+          alt={homeT("profileAlt")}
+          className="h-full w-full object-cover"
+        />
+      </Link>
+    </div>
+  );
 }

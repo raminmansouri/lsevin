@@ -1,6 +1,7 @@
 import { UpdateMediaInput } from "@/components/media";
 import { deleteMedia, getMediaById, updateMedia } from "@/components/media/server/repository";
 import { NextRequest, NextResponse } from "next/server";
+import { requireApiAdmin, requireApiUser } from "@/lib/auth/api-guard";
 
 
 
@@ -10,6 +11,9 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireApiUser();
+    if (auth instanceof NextResponse) return auth;
+
     const { id } = await context.params;
     const data = await getMediaById(id);
 
@@ -33,6 +37,9 @@ export async function PATCH(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireApiUser();
+    if (auth instanceof NextResponse) return auth;
+
     const { id } = await context.params;
     const body = (await request.json()) as UpdateMediaInput;
 
@@ -57,6 +64,9 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireApiAdmin();
+    if (auth instanceof NextResponse) return auth;
+
     const { id } = await context.params;
     const success = await deleteMedia(id, { deleteLocalFile: true });
 

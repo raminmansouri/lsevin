@@ -68,3 +68,9 @@ deployments/docker/eventstore-data/
 # OS cruft
 **/.DS_Store
 
+
+# Migrations are source code, not database dumps — the blanket *.sql rule above
+# would otherwise silently drop the entire accounting schema from every commit.
+!frontend/webapp/db/migrations/
+!frontend/webapp/db/migrations/*.sql
+!frontend/webapp/db/migrations/*.md

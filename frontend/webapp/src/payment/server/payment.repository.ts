@@ -20,6 +20,17 @@ function normalizeCurrency(value?: string | null, fallback = "USD") {
   return String(value || fallback).trim().toUpperCase();
 }
 
+// Currencies with no minor unit — round to whole units. Everything else keeps
+// two decimals (crypto invoices priced in USD/EUR need cent precision; Zarinpal
+// always passes IRR/IRT so its behaviour is unchanged).
+const ZERO_DECIMAL_CURRENCIES = new Set(["IRR", "IRT", "JPY", "KRW", "VND"]);
+
+function roundAmountForCurrency(amount: number, currency: string): number {
+  const code = String(currency || "").trim().toUpperCase();
+  if (ZERO_DECIMAL_CURRENCIES.has(code)) return Math.round(amount);
+  return Math.round(amount * 100) / 100;
+}
+
 function jsonb(value: unknown) {
   return JSON.stringify(value ?? {});
 }
@@ -63,7 +74,7 @@ export async function prepareBookingPaymentAttempt(input: {
   userId: string;
   gateway: PaymentGatewayCode;
   locale?: string | null;
-  targetCurrency: "IRR" | "IRT";
+  targetCurrency: string;
 }): Promise<PaymentAttempt> {
   if (!isUuid(input.bookingId) || !isUuid(input.userId)) {
     throw new Error("Invalid booking or user id.");
@@ -115,7 +126,7 @@ export async function prepareBookingPaymentAttempt(input: {
   }
 
   const sourceCurrency = normalizeCurrency(booking.sourceCurrency);
-  const targetCurrency = normalizeCurrency(input.targetCurrency) as "IRR" | "IRT";
+  const targetCurrency = normalizeCurrency(input.targetCurrency);
 
   let targetAmount = sourceAmount;
   let appliedRate: number | null = sourceCurrency === targetCurrency ? 1 : null;
@@ -139,7 +150,7 @@ export async function prepareBookingPaymentAttempt(input: {
     appliedRate = toNumber(conversion.appliedRate, 0);
   }
 
-  const roundedGatewayAmount = Math.round(targetAmount);
+  const roundedGatewayAmount = roundAmountForCurrency(targetAmount, targetCurrency);
   if (roundedGatewayAmount <= 0) {
     throw new Error("Converted payment amount is not valid.");
   }
@@ -239,6 +250,12 @@ export async function markPaymentFailed(input: {
 }): Promise<void> {
   if (!isUuid(input.paymentId)) return;
 
+  // A settled attempt is never re-opened. The gateway callback is a plain GET the
+  // customer can replay with any Status they like, and without this qualifier a
+  // ?Status=NOK replay flips a Succeeded row back to Failed — after which the next
+  // ?Status=OK replay passes the settled-state check in markGatewayPaymentVerified
+  // and credits paid_amount a second time. Zarinpal answers 101 ("already
+  // verified") on the second verify, so the gateway does not block it either.
   await sql`
     update booking.payments
        set status = 'Failed',
@@ -249,6 +266,7 @@ export async function markPaymentFailed(input: {
            })}::jsonb,
            updated_at = now()
      where id = ${input.paymentId}::uuid
+       and lower(coalesce(status, '')) not in ('succeeded', 'paid', 'captured', 'completed')
   `;
 }
 
@@ -282,32 +300,87 @@ export async function getGatewayPaymentByAuthority(input: {
   return rows[0] ?? null;
 }
 
+export async function getGatewayPaymentById(paymentId: string): Promise<GatewayPaymentRow | null> {
+  if (!isUuid(paymentId)) return null;
+
+  const rows = await sql<GatewayPaymentRow[]>`
+    select
+      p.id::text as "paymentId",
+      p.booking_id::text as "bookingId",
+      p.user_id::text as "userId",
+      p.amount::text as amount,
+      p.currency,
+      p.source_amount::text as "sourceAmount",
+      p.source_currency_code as "sourceCurrency",
+      p.status,
+      p.external_reference as "externalReference",
+      p.gateway,
+      p.gateway_payload as "gatewayPayload"
+    from booking.payments p
+    where p.id = ${paymentId}::uuid
+    limit 1
+  `;
+
+  return rows[0] ?? null;
+}
+
 export async function markGatewayPaymentVerified(input: {
   payment: GatewayPaymentRow;
   verification: PaymentVerificationResult;
 }): Promise<void> {
   if (!isUuid(input.payment.paymentId) || !isUuid(input.payment.bookingId)) return;
 
-  const currentStatus = String(input.payment.status || "").trim().toLowerCase();
-  const wasAlreadySucceeded = ["succeeded", "paid", "captured", "completed"].includes(currentStatus);
   const referenceId = input.verification.referenceId ? String(input.verification.referenceId) : null;
   const paymentAmount = toNumber(input.payment.amount);
   const sourcePaidAmount = toNumber(input.payment.sourceAmount, paymentAmount);
 
-  await sql`
-    update booking.payments
-       set status = 'Succeeded',
-           external_reference = external_reference,
-           gateway_payload = coalesce(gateway_payload, '{}'::jsonb) || ${jsonb({
-             stage: "verified",
-             verification: input.verification,
-           })}::jsonb,
-           updated_at = now()
-     where id = ${input.payment.paymentId}::uuid
-  `;
+  // BTCPay settles from two directions at once — the InvoiceSettled webhook and
+  // the customer's browser return — so this can run twice within milliseconds
+  // for the same invoice. Deciding on the caller's already-read `status` would
+  // let both racers see "RequiresAction" and each add to `paid_amount`, double
+  // crediting the booking. The transition is therefore the lock: only the
+  // statement that actually moves the row out of a non-settled state credits
+  // the booking, and it happens in one transaction with the credit.
+  //
+  // `status` alone is not enough to key that on, because it is mutable and other
+  // writers move it backwards (markPaymentFailed above, confirmBookingPayment in
+  // booking-pro) — each such write re-arms the credit. `creditedAt` is stamped by
+  // the crediting statement and never cleared: every write to gateway_payload in
+  // this codebase is a shallow `coalesce(...) || {...}` merge, and the only
+  // wholesale writes are inserts of brand-new rows. Keep the status qualifier too,
+  // since rows settled before this marker existed carry no `creditedAt`.
+  await sql.begin(async (tx) => {
+    const transitioned = await tx<{ id: string }[]>`
+      update booking.payments
+         set status = 'Succeeded',
+             gateway_payload = coalesce(gateway_payload, '{}'::jsonb) || ${jsonb({
+               stage: "verified",
+               verification: input.verification,
+               creditedAt: new Date().toISOString(),
+             })}::jsonb,
+             updated_at = now()
+       where id = ${input.payment.paymentId}::uuid
+         and lower(coalesce(status, '')) not in ('succeeded', 'paid', 'captured', 'completed')
+         and gateway_payload->>'creditedAt' is null
+      returning id::text as id
+    `;
 
-  if (!wasAlreadySucceeded) {
-    await sql`
+    if (transitioned.length === 0) {
+      // Lost the race (or a replayed webhook). Keep the verification payload for
+      // the audit trail, but never touch the booking's paid amount again.
+      await tx`
+        update booking.payments
+           set gateway_payload = coalesce(gateway_payload, '{}'::jsonb) || ${jsonb({
+                 stage: "verified_duplicate",
+                 verification: input.verification,
+               })}::jsonb,
+               updated_at = now()
+         where id = ${input.payment.paymentId}::uuid
+      `;
+      return;
+    }
+
+    await tx`
       update booking.bookings
          set payment_status = 'Paid',
              payment_method = ${input.payment.gateway || 'zarinpal'},
@@ -322,5 +395,22 @@ export async function markGatewayPaymentVerified(input: {
              })}::jsonb
        where id = ${input.payment.bookingId}::uuid
     `;
-  }
+
+    // Redeeming the reserved coupon belongs here, in the same transaction as the
+    // credit. It used to live only in booking-pro's confirmBookingPayment, which is
+    // reached from an endpoint nothing calls — so a coupon reserved at checkout and
+    // then paid through a gateway stayed 'reserved' forever: never redeemed, never
+    // released, and still counted against the customer's allowance. Checkout only
+    // ever moves a coupon 'issued' -> 'reserved', so this is the sole transition
+    // that closes it out.
+    await tx`
+      update marketing.user_discount_coupons udc
+         set status = 'redeemed',
+             redeemed_at = coalesce(redeemed_at, now())
+        from booking.bookings b
+       where b.id = ${input.payment.bookingId}::uuid
+         and b.applied_coupon_id = udc.id
+         and udc.status = 'reserved'
+    `;
+  });
 }

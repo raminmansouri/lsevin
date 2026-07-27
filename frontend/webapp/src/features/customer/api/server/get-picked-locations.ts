@@ -17,6 +17,7 @@ import { FilterParams } from "@/types/filter";
 import { ApiReturnType, PaginatedResult } from "@/types/network";
 import { getGetPickedLocationsTag } from "../../db/cache";
 import sql from "@/config/database/db";
+import { countryOfLocation } from "@/features/locations/server";
 
 
 export interface GetPickedLocationsResponse{
@@ -44,7 +45,7 @@ export const getGetPickedLocations = async (
    common.get_translation_t(parent.value_translations,${request?.locale ?? 'fa'},'en')   country
 	FROM category.picked_locations p
 	inner join category.locations l on p.locationid=l.id
-	inner join category.locations parent on l.parent_id=parent.id
+	${countryOfLocation('l', 'join')} parent on true
     `
 
   return pickedLocations;

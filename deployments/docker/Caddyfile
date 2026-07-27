@@ -43,3 +43,19 @@ api.lsevin.com {
   encode zstd gzip
   reverse_proxy lsevin-apigateway:8080
 }
+# The accounting panel. Same webapp process, but a separate product: the middleware
+# serves only /financial on this host and 404s that path everywhere else, and the panel
+# has its own credentials in accounting.panel_users. An admin cookie is worth nothing
+# here and a panel cookie is worth nothing on appmain.
+financial.lsevin.com {
+  encode zstd gzip
+
+  # The books should not be indexed or framed, wherever the app is deployed.
+  header {
+    X-Robots-Tag "noindex, nofollow"
+    X-Frame-Options "DENY"
+    Referrer-Policy "no-referrer"
+  }
+
+  reverse_proxy lsevin-webapp:3000
+}

@@ -1,8 +1,10 @@
+import { btcpayPaymentProvider } from "./btcpay";
 import { zarinpalPaymentProvider } from "./zarinpal";
 import type { PaymentGatewayCode, PaymentProvider } from "../types";
 
 const PAYMENT_PROVIDERS: Record<PaymentGatewayCode, PaymentProvider> = {
   zarinpal: zarinpalPaymentProvider,
+  btcpay: btcpayPaymentProvider,
 };
 
 export function getPaymentProvider(code: PaymentGatewayCode): PaymentProvider {

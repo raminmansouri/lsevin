@@ -55,9 +55,14 @@ internal sealed class GetAllAvailableCitiesByCountryQueryHandler(
                 ) AS {nameof(GetAllAvailableCitiesByCountryResponse.Value)},
                 l.parent_id AS {nameof(GetAllAvailableCitiesByCountryResponse.ParentId)}
             FROM category.locations l
-            INNER JOIN category.locations country_l ON country_l.code = @CountryCode
+            LEFT JOIN category.locations l_parent ON l_parent.id = l.parent_id
+            INNER JOIN category.locations country_l
+                ON country_l.code = @CountryCode
+                AND country_l.location_type_id = {LocationType.Country.Id}
             WHERE l.location_type_id = {LocationType.City.Id}
-                AND l.parent_id = country_l.id
+                -- A city hangs off a province where the country has one, and off the
+                -- country directly where it does not, so accept either hop.
+                AND (l.parent_id = country_l.id OR l_parent.parent_id = country_l.id)
             ORDER BY l.display_order NULLS LAST, COALESCE(
                 l.value_translations ->> '{currentLocale}',
                 l.value_translations ->> '{defaultLocale}',

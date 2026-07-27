@@ -2,7 +2,7 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
-   "UploadFiles": {
+  "UploadFiles": {
     "title": "Upload documents",
     "subtitle": "Please upload the requested files for your booking",
     "description": "Supported formats: PNG, JPG, JPEG, PDF",
@@ -15,7 +15,7 @@ declare const messages: {
     "acceptedFilesDesc": "PNG, JPG, JPEG, PDF — maximum file size: 10 MB.",
     "acceptedFilesTitle": "Accepted files",
     "replaceFile": "Replace file",
-        "uploadBtn": "Choose file",
+    "uploadBtn": "Choose file",
     "uploadCardTitle": "Upload Documents",
     "uploadCardDesc": "Attach the required documents for this booking.",
     "filesUploaded": "uploaded",
@@ -368,11 +368,20 @@ declare const messages: {
       "title": "شوێن",
       "country": "وڵات",
       "city": "شار",
-      "selectCountry": "وڵاتێك هەڵبژێرە",
-      "selectCity": "شارێك هەڵبژێرە",
-      "noCountrySelected": "هیچ وڵاتێك هەڵنەبژێردراوە",
-      "noCitiesAvailable": "هیچ شارێك بەردەست نییە",
-      "loading": "لە بارکردنەدایە..."
+      "selectCountry": "وڵات هەڵبژێرە",
+      "selectCity": "شار هەڵبژێرە",
+      "noCountrySelected": "سەرەتا وڵات هەڵبژێرە",
+      "noCitiesAvailable": "هیچ شارێک بەردەست نییە",
+      "loading": "بارکردن…",
+      "province": "پارێزگا",
+      "selectProvince": "پارێزگا هەڵبژێرە",
+      "searchCountries": "گەڕان بۆ وڵات…",
+      "searchCities": "گەڕان بۆ شار…",
+      "searchProvinces": "گەڕان بۆ پارێزگا…",
+      "noProvinceSelected": "سەرەتا وڵات هەڵبژێرە",
+      "noCitySelectable": "سەرەتا پارێزگا هەڵبژێرە",
+      "noProvincesAvailable": "هیچ پارێزگایەک بەردەست نییە",
+      "clear": "سڕینەوەی هەڵبژاردن"
     },
     "DatePicker": {
       "placeholder": "بەروار هەڵبژێرە",
@@ -707,7 +716,7 @@ declare const messages: {
         "label": "پەسناس",
         "translations": "پەسناسی هاوپۆل لانی کەم بە یەک زمان پێویستە"
       },
-       "image": {
+      "image": {
         "label": "Category image",
         "hint": "Upload an image for this category",
         "remove": "Remove image"
@@ -1679,6 +1688,84 @@ declare const messages: {
   "List": {
     "loading": "لە بارکردنەدایە...",
     "loadMore": "زیاتر باربکە"
+  },
+  "Home": {
+    "location": {
+      "currentDestination": "مەبەست",
+      "selectLocation": "شوێن هەڵبژێرە",
+      "useMyCurrentLocation": "شوێنی ئێستام بەکاربهێنە",
+      "source": {
+        "chooseOrDetect": "مەبەستەکەت هەڵبژێرە یان بیدۆزەوە",
+        "gps": "لە شوێنی ئامێرەکەتەوە دۆزرایەوە",
+        "profile": "لە پرۆفایلەکەتەوە دۆزرایەوە",
+        "phone": "لە ژمارەی مۆبایلەکەتەوە دۆزرایەوە",
+        "ip": "بە نزیکەیی بەپێی تۆڕەکەت",
+        "saved": "لە ڕێکخستنە پاشەکەوتکراوەکانتەوە بارکرا",
+        "picked": "مەبەستی تایبەتی هەڵبژێردراو",
+        "manual": "هەڵبژاردنی دەستی",
+        "url": "مەبەستی هەڵبژێردراو",
+        "current": "مەبەستی ئێستا"
+      },
+      "messages": {
+        "detectingAutomatic": "دۆزینەوە لە پرۆفایلی پاشەکەوتکراو، ژمارەی مۆبایل یان تۆڕەکەتەوە…",
+        "detectedFromSource": "{source}: {location}",
+        "autoDetectFailed": "نەتوانرا شوێنەکەت بە خۆکار بدۆزرێتەوە. تکایە بە دەستی هەڵیبژێرە.",
+        "browserUnsupported": "وێبگەڕەکەت پشتگیری دۆزینەوەی شوێن ناکات. تکایە شوێنەکەت بە دەستی هەڵبژێرە.",
+        "requestingPermission": "داوای مۆڵەت بۆ شوێنی ئێستات دەکرێت…",
+        "usingNearestDestination": "نزیکترین مەبەستی پشتگیریکراو بەکاردێت: {location}",
+        "noSupportedDestination": "شوێنی ئامێرەکەت دۆزرایەوە، بەڵام هیچ مەبەستێکی پشتگیریکراو لە نزیکەوە نییە.",
+        "permissionDenied": "مۆڵەتی شوێن نەدرا. هێشتا دەتوانیت مەبەستەکەت بە دەستی هەڵبژێریت.",
+        "selectCountryOrCity": "تکایە سەرەتا وڵات یان شار هەڵبژێرە.",
+        "applyingSelected": "مەبەستی هەڵبژێردراو جێبەجێ دەکرێت…",
+        "resolveFailed": "نەتوانرا شوێنی هەڵبژێردراو دیاری بکرێت. تکایە وڵات یان شارێکی تر تاقی بکەرەوە.",
+        "locationUnavailable": "شوێن لەم ئامێرەدا ئێستا بەردەست نییە. تکایە مەبەستەکەت بە دەستی هەڵبژێرە.",
+        "locationTimedOut": "وەرگرتنی شوێنەکەت زۆر خایاند. دووبارە هەوڵ بدە یان بە دەستی هەڵیبژێرە.",
+        "linkLocationNotFound": "ئەم بەستەری مەبەستە چیتر بەردەست نییە. تکایە شوێنەکەت هەڵبژێرە.",
+        "loadFailed": "هەڵەیەک ڕوویدا لە کاتی دۆزینەوەی شوێنەکەت. تکایە دووبارە هەوڵ بدە."
+      },
+      "modal": {
+        "eyebrow": "مەبەست",
+        "title": "شوێن هەڵبژێرە",
+        "description": "شوێنەکەت بدۆزەوە، زانیاری هەژمارەکەت بەکاربهێنە، یان وڵات و شار بە دەستی هەڵبژێرە.",
+        "closeAria": "داخستنی هەڵبژێری شوێن"
+      },
+      "currentLocation": {
+        "title": "شوێنی ئێستا بەکاربهێنە",
+        "description": "وێبگەڕ داوای مۆڵەت دەکات، پاشان LSevin نزیکترین مەبەستی پشتگیریکراو هەڵدەبژێرێت."
+      },
+      "manual": {
+        "title": "هەڵبژاردنی دەستی",
+        "description": "ئەگەر مەبەستەکەت لە شوێنە تایبەتەکاندا نییە، هەڵبژێرەکانی خوارەوە بەکاربهێنە.",
+        "country": "وڵات",
+        "province": "پارێزگا",
+        "city": "شار",
+        "applying": "جێبەجێ دەکرێت…",
+        "apply": "شوێن جێبەجێ بکە"
+      },
+      "permission": {
+        "title": "چالاککردنی شوێن",
+        "dismiss": "ئێستا نا",
+        "enable": "چالاککردن"
+      }
+    },
+    "appBar": {
+      "notifications": "ئاگادارکردنەوەکان"
+    },
+    "userInfo": {
+      "guestEyebrow": "بەخێربێیت",
+      "guestTitle": "چارەسەرەکەت بدۆزەوە",
+      "signIn": "چوونەژوورەوە",
+      "goodMorning": "ڕۆژتان باش",
+      "profileAlt": "پرۆفایل"
+    }
+  },
+  "AsyncSelect": {
+    "placeholder": "هەڵبژێرە…",
+    "searchPlaceholder": "گەڕان…",
+    "emptyText": "هیچ ئەنجامێک نەدۆزرایەوە.",
+    "loading": "بارکردن…",
+    "loadMore": "زیاتر پیشان بدە",
+    "clear": "سڕینەوەی هەڵبژاردن"
   }
 };
 export default messages;

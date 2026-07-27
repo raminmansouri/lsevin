@@ -355,6 +355,7 @@ declare const messages: {
     "paymentVerificationFailed": "Payment verification failed.",
     "paymentVerifiedSuccessfully": "Payment verified successfully.",
     "paymentWasCancelled": "Payment was cancelled.",
+    "paymentPendingConfirmation": "Your crypto payment is confirming on the network. This booking updates automatically once it settles — you can safely close this page.",
     "payments": "Payments",
     "pending": "Pending",
     "pendingBookings": "Pending bookings",
@@ -2334,14 +2335,10 @@ declare const messages: {
     },
     "userInfo": {
       "goodMorning": "Have a good day",
-      "profileAlt": "Profile"
-    },
-    "quickSearches": {
-      "hairTransplant": "Hair Transplant",
-      "dentalVeneers": "Dental Veneers",
-      "spaDay": "Spa Day",
-      "ivfTreatment": "IVF Treatment",
-      "gymMembership": "Gym Membership"
+      "profileAlt": "Profile",
+      "guestEyebrow": "Welcome",
+      "guestTitle": "Find your care",
+      "signIn": "Sign in"
     },
     "search": {
       "placeholder": "Search treatments, clinics..."
@@ -2433,7 +2430,11 @@ declare const messages: {
         "permissionDenied": "Location permission was not granted. You can still choose your destination manually.",
         "selectCountryOrCity": "Please select a country or city first.",
         "applyingSelected": "Applying selected destination...",
-        "resolveFailed": "Selected location could not be resolved. Please try another country or city."
+        "resolveFailed": "Selected location could not be resolved. Please try another country or city.",
+        "locationUnavailable": "Location is unavailable on this device right now. Please pick your destination manually.",
+        "locationTimedOut": "Getting your location took too long. Please try again or pick your destination manually.",
+        "linkLocationNotFound": "That destination link is no longer available. Please pick your location.",
+        "loadFailed": "Something went wrong while detecting your location. Please try again."
       },
       "modal": {
         "eyebrow": "Destination",
@@ -2445,24 +2446,19 @@ declare const messages: {
         "title": "Use current location",
         "description": "Browser asks for permission, then LSevin picks the nearest supported destination."
       },
-      "detectWithoutGps": {
-        "title": "Detect without GPS",
-        "description": "Uses saved profile, mobile country code, or geo headers from your hosting/proxy."
-      },
       "manual": {
         "title": "Manual selection",
         "description": "Use the lazy-loaded selectors below if your destination is not listed in featured locations.",
         "country": "Country",
         "city": "City",
         "applying": "Applying...",
-        "apply": "Apply location"
+        "apply": "Apply location",
+        "province": "Province / State"
       },
-      "featuredDestinations": {
-        "title": "Featured destinations",
-        "description": "Quick picks for popular locations",
-        "available": "{count} available",
-        "emptyTitle": "No featured locations found",
-        "emptyDescription": "Add picked locations in admin to show quick choices here."
+      "permission": {
+        "title": "Turn on location",
+        "dismiss": "Not now",
+        "enable": "Turn on"
       }
     },
     "sponsoredCarousel": {
@@ -2496,6 +2492,9 @@ declare const messages: {
       "backAria": "Back to home",
       "emptyTitle": "No packages yet",
       "emptyDescription": "Special packages will appear here as soon as they are published."
+    },
+    "appBar": {
+      "notifications": "Notifications"
     }
   },
   "Support": {
@@ -4190,7 +4189,166 @@ declare const messages: {
       "title": "Wallet transactions",
       "description": "Booking-linked and manual wallet ledger entries"
     },
-    "special-packages": "special packages"
+    "special-packages": "special packages",
+    "accounting": {
+      "title": "Accounting",
+      "description": "Double-entry ledger, customer wallets, deposits and withdrawals. Every figure is derived from the ledger; no total is stored anywhere else.",
+      "notInstalled": "The accounting tables have not been created yet. Run the migrations first.",
+      "driftAlertTitle": "Balance reconciliation alert",
+      "driftAlertBody": "These wallet balances disagree with the ledger. This list should always be empty — a row here means a balance changed outside a ledger transaction.",
+      "pendingDeposits": "Deposits awaiting review",
+      "pendingWithdrawals": "Withdrawals awaiting action",
+      "queueEmpty": "Nothing here",
+      "systemBalances": "System balances",
+      "noWallets": "No wallets yet.",
+      "currency": "Currency",
+      "userLiability": "Owed to customers",
+      "reserved": "Reserved",
+      "platformCash": "Platform assets",
+      "walletCount": "Wallets",
+      "balancesNote": "Platform assets should always exceed what is owed to customers. If they do not, customer money has been spent.",
+      "depositQueueTitle": "Deposit review queue",
+      "depositQueueDescription": "No money reaches a wallet until you approve it. The amount you confirm is what gets credited, not what the customer claimed.",
+      "withdrawalQueueTitle": "Withdrawal queue",
+      "withdrawalQueueDescription": "Requesting already moved the funds out of the customer's spendable balance into a reserve. Rejecting returns them.",
+      "reference": "Reference",
+      "receipt": "Receipt",
+      "confirmedAmount": "Confirmed amount",
+      "rawUnitHint": "Enter in {currency}",
+      "approveDeposit": "Approve deposit",
+      "reject": "Reject",
+      "rejectReason": "Rejection reason",
+      "defaultDepositRejectReason": "Receipt could not be verified",
+      "grossAmount": "Gross",
+      "feeAmount": "Fee",
+      "destinationBank": "Bank destination (IBAN)",
+      "destinationCrypto": "Crypto address",
+      "approveNote": "Approval note",
+      "approveWithdrawal": "Approve withdrawal",
+      "rejectWithdrawal": "Reject and return funds",
+      "defaultWithdrawalRejectReason": "Destination details are invalid",
+      "payoutReference": "Payout reference",
+      "markPaid": "Mark as paid",
+      "failReason": "Failure reason",
+      "markFailed": "Mark failed and return funds",
+      "defaultWithdrawalFailReason": "Bank transfer failed",
+      "journalTitle": "Journal entries",
+      "journalDescription": "Every entry is immutable. Corrections are made with a reversing entry.",
+      "entryNumber": "Entry no.",
+      "entryDate": "Date",
+      "entryDescription": "Description",
+      "sourceType": "Source",
+      "lineCount": "Lines",
+      "totalDebit": "Total debit",
+      "accountsTitle": "Chart of accounts",
+      "accountsDescription": "Four levels: group, general, subsidiary, detail. Only leaf accounts accept postings.",
+      "accountCode": "Code",
+      "accountName": "Account",
+      "accountType": "Type",
+      "normalBalance": "Normal side",
+      "postable": "Postable",
+      "reportsTitle": "Trial balance",
+      "reportsDescription": "Total debit and total credit must always be equal.",
+      "balance": "Balance",
+      "totalCredit": "Total credit",
+      "auditTitle": "Audit log",
+      "auditDescription": "An immutable record of every financial action: who, when, and to what.",
+      "actor": "User",
+      "action": "Action",
+      "entity": "Entity",
+      "occurredAt": "When",
+      "balanced": "Balanced",
+      "unbalanced": "Unbalanced",
+      "method": {
+        "gateway_zarinpal": "Zarinpal gateway",
+        "gateway_btcpay": "Crypto gateway",
+        "bank_transfer": "Bank transfer",
+        "crypto_manual": "Crypto with receipt",
+        "admin_credit": "Admin credit"
+      },
+      "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "processing": "Processing",
+        "paid": "Paid",
+        "rejected": "Rejected",
+        "failed": "Failed",
+        "cancelled": "Cancelled"
+      },
+      "settingsTitle": "Accounting settings",
+      "settingsDescription": "Your business numbers. Changed here, not in code — and every change is recorded in the audit log.",
+      "settingsGroup": {
+        "core": "Core",
+        "fees": "Fees",
+        "withdrawal": "Withdrawal",
+        "deposit": "Deposit",
+        "crypto": "Crypto",
+        "limits": "Rate limits"
+      },
+      "save": "Save",
+      "rateLimitCount": "Max requests",
+      "rateLimitWindow": "Window (seconds)",
+      "baseCurrencyLocked": "The base currency cannot be changed. Every entry posted so far stored its equivalent against this currency; changing it would not convert history, it would reinterpret it.",
+      "addAccount": "Add detail account",
+      "parentAccount": "Subsidiary account (parent)",
+      "nameFa": "Persian name",
+      "nameEn": "English name",
+      "currencyOptional": "Currency (optional)",
+      "anyCurrency": "Any currency",
+      "actions": "Actions",
+      "systemAccount": "System",
+      "systemAccountHint": "The posting rules depend on this account; deactivating it would make deposits, refunds or fees fail at the moment money moves.",
+      "hasPostings": "Has postings",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "accountTypes": {
+        "asset": "Asset",
+        "liability": "Liability",
+        "equity": "Equity",
+        "income": "Income",
+        "expense": "Expense"
+      },
+      "sides": {
+        "debit": "Debit",
+        "credit": "Credit"
+      },
+      "exportCsv": "Export to Excel",
+      "exportPdf": "Print / PDF",
+      "statementsTitle": "Financial statements",
+      "statementsDescription": "Balance sheet and income statement, straight from the ledger.",
+      "balanceSheet": "Balance sheet",
+      "incomeStatement": "Income statement",
+      "accountingEquation": "Assets = Liabilities + Equity",
+      "netProfit": "Net profit",
+      "netLoss": "Net loss",
+      "subtotal": "Subtotal",
+      "ledgerTitle": "General / subsidiary / detail ledger",
+      "ledgerDescription": "One report at three depths. Choosing an account selects the level: group, subsidiary or detail.",
+      "filterByAccount": "Filter by account",
+      "allAccounts": "All accounts",
+      "applyFilter": "Apply",
+      "panelName": "LSevin Accounting",
+      "signInHint": "Sign in with your accounting account",
+      "username": "Username",
+      "password": "Password",
+      "signIn": "Sign in",
+      "signOut": "Sign out",
+      "signInInvalid": "Incorrect username or password",
+      "signInLocked": "Locked after repeated failed attempts. Try again in 15 minutes.",
+      "signInInactive": "This account is disabled",
+      "signInMissing": "Enter a username and password",
+      "mustChangePassword": "The initial password has not been changed yet. Please change it.",
+      "changePassword": "Change password",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "passwordChanged": "Password changed",
+      "passwordTooShort": "The password must be at least 10 characters",
+      "passwordWrong": "The current password is incorrect",
+      "panelRoles": {
+        "accountant": "Accountant",
+        "finance_admin": "Finance admin"
+      }
+    }
   },
   "HomePage": {
     "title": "L Sevin - Automated Healthcare",
@@ -4544,7 +4702,16 @@ declare const messages: {
       "selectCity": "Select city",
       "noCountrySelected": "Select a country first",
       "noCitiesAvailable": "No cities available",
-      "loading": "Loading..."
+      "loading": "Loading...",
+      "province": "Province",
+      "selectProvince": "Select province",
+      "searchCountries": "Search countries...",
+      "searchProvinces": "Search provinces...",
+      "searchCities": "Search cities...",
+      "noProvinceSelected": "Select a country first",
+      "noCitySelectable": "Select a province first",
+      "noProvincesAvailable": "No provinces available",
+      "clear": "Clear selection"
     },
     "DatePicker": {
       "placeholder": "Select Date",
@@ -7191,7 +7358,8 @@ declare const messages: {
     "searchPlaceholder": "Search...",
     "emptyText": "No results found.",
     "loading": "Loading...",
-    "loadMore": "Load more"
+    "loadMore": "Load more",
+    "clear": "Clear selection"
   },
   "AdminLazySelect": {
     "placeholder": "Select option",

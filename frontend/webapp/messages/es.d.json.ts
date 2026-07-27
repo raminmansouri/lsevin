@@ -2,7 +2,7 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
-   "UploadFiles": {
+  "UploadFiles": {
     "title": "Upload documents",
     "subtitle": "Please upload the requested files for your booking",
     "description": "Supported formats: PNG, JPG, JPEG, PDF",
@@ -15,7 +15,7 @@ declare const messages: {
     "acceptedFilesDesc": "PNG, JPG, JPEG, PDF — maximum file size: 10 MB.",
     "acceptedFilesTitle": "Accepted files",
     "replaceFile": "Replace file",
-        "uploadBtn": "Choose file",
+    "uploadBtn": "Choose file",
     "uploadCardTitle": "Upload Documents",
     "uploadCardDesc": "Attach the required documents for this booking.",
     "filesUploaded": "uploaded",
@@ -368,11 +368,20 @@ declare const messages: {
       "title": "Ubicación",
       "country": "País",
       "city": "Ciudad",
-      "selectCountry": "Selecciona un país",
-      "selectCity": "Selecciona una ciudad",
-      "noCountrySelected": "Ningún país seleccionado",
+      "selectCountry": "Seleccionar país",
+      "selectCity": "Seleccionar ciudad",
+      "noCountrySelected": "Selecciona primero un país",
       "noCitiesAvailable": "No hay ciudades disponibles",
-      "loading": "Cargando..."
+      "loading": "Cargando…",
+      "province": "Provincia",
+      "selectProvince": "Seleccionar provincia",
+      "searchCountries": "Buscar países…",
+      "searchCities": "Buscar ciudades…",
+      "searchProvinces": "Buscar provincias…",
+      "noProvinceSelected": "Selecciona primero un país",
+      "noCitySelectable": "Selecciona primero una provincia",
+      "noProvincesAvailable": "No hay provincias disponibles",
+      "clear": "Borrar selección"
     },
     "DatePicker": {
       "placeholder": "Selecciona la fecha",
@@ -1679,6 +1688,84 @@ declare const messages: {
   "List": {
     "loading": "Cargando...",
     "loadMore": "Cargar más"
+  },
+  "Home": {
+    "location": {
+      "currentDestination": "Destino",
+      "selectLocation": "Seleccionar ubicación",
+      "useMyCurrentLocation": "Usar mi ubicación actual",
+      "source": {
+        "chooseOrDetect": "Elige o detecta tu destino",
+        "gps": "Detectado desde la ubicación de tu dispositivo",
+        "profile": "Detectado desde tu perfil",
+        "phone": "Detectado desde tu número de teléfono",
+        "ip": "Aproximado según tu red",
+        "saved": "Cargado desde tus preferencias guardadas",
+        "picked": "Destino destacado seleccionado",
+        "manual": "Selección manual",
+        "url": "Destino seleccionado",
+        "current": "Destino actual"
+      },
+      "messages": {
+        "detectingAutomatic": "Detectando desde tu perfil guardado, tu teléfono o tu red…",
+        "detectedFromSource": "{source}: {location}",
+        "autoDetectFailed": "No se pudo detectar tu ubicación automáticamente. Selecciónala manualmente.",
+        "browserUnsupported": "Tu navegador no admite la detección de ubicación. Selecciona tu ubicación manualmente.",
+        "requestingPermission": "Solicitando permiso para tu ubicación actual…",
+        "usingNearestDestination": "Usando el destino compatible más cercano: {location}",
+        "noSupportedDestination": "Se detectó la ubicación de tu dispositivo, pero no hay ningún destino compatible cerca.",
+        "permissionDenied": "No se concedió el permiso de ubicación. Aún puedes elegir tu destino manualmente.",
+        "selectCountryOrCity": "Selecciona primero un país o una ciudad.",
+        "applyingSelected": "Aplicando el destino seleccionado…",
+        "resolveFailed": "No se pudo resolver la ubicación seleccionada. Prueba con otro país o ciudad.",
+        "locationUnavailable": "La ubicación no está disponible en este dispositivo ahora mismo. Elige tu destino manualmente.",
+        "locationTimedOut": "Obtener tu ubicación tardó demasiado. Inténtalo de nuevo o elige tu destino manualmente.",
+        "linkLocationNotFound": "Ese enlace de destino ya no está disponible. Selecciona tu ubicación.",
+        "loadFailed": "Se produjo un error al detectar tu ubicación. Inténtalo de nuevo."
+      },
+      "modal": {
+        "eyebrow": "Destino",
+        "title": "Seleccionar ubicación",
+        "description": "Detecta tu ubicación, usa los datos de tu cuenta o elige país y ciudad manualmente.",
+        "closeAria": "Cerrar el selector de ubicación"
+      },
+      "currentLocation": {
+        "title": "Usar la ubicación actual",
+        "description": "El navegador pedirá permiso y luego LSevin elegirá el destino compatible más cercano."
+      },
+      "manual": {
+        "title": "Selección manual",
+        "description": "Si tu destino no está entre las ubicaciones destacadas, usa los selectores de abajo.",
+        "country": "País",
+        "province": "Provincia / Estado",
+        "city": "Ciudad",
+        "applying": "Aplicando…",
+        "apply": "Aplicar ubicación"
+      },
+      "permission": {
+        "title": "Activar la ubicación",
+        "dismiss": "Ahora no",
+        "enable": "Activar"
+      }
+    },
+    "appBar": {
+      "notifications": "Notificaciones"
+    },
+    "userInfo": {
+      "guestEyebrow": "Bienvenido",
+      "guestTitle": "Encuentra tu tratamiento",
+      "signIn": "Iniciar sesión",
+      "goodMorning": "Que tengas un buen día",
+      "profileAlt": "Perfil"
+    }
+  },
+  "AsyncSelect": {
+    "placeholder": "Seleccionar…",
+    "searchPlaceholder": "Buscar…",
+    "emptyText": "No se encontraron resultados.",
+    "loading": "Cargando…",
+    "loadMore": "Cargar más",
+    "clear": "Borrar selección"
   }
 };
 export default messages;

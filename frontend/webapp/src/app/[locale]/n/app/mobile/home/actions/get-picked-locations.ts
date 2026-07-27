@@ -3,6 +3,8 @@
 import sql from '@/config/database/db';
 import { getLocale } from 'next-intl/server';
 
+import { countryOfLocation } from '@/features/locations/server';
+
 export type HomePickedLocation = {
   id: string;
   city: string;
@@ -60,8 +62,7 @@ export async function getPickedLocations(): Promise<HomePickedLocation[]> {
     from category.picked_locations pl
     join category.locations city
       on city.id = pl.locationid
-    left join category.locations country
-      on country.id = city.parent_id
+    ${countryOfLocation('city')} country on true
     left join media.media_library ml
       on ml.id::text = pl.image
     order by coalesce(city.display_order, 0) asc, city.value_translations::text asc

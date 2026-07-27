@@ -1,5 +1,7 @@
 import 'server-only';
 
+import { mirrorWalletCredit } from '@/accounting/server/legacy-bridge';
+import { assertRefundable } from '@/accounting/server/refund-guard';
 import sql from '@/config/database/db';
 
 function round2(value: number) {
@@ -82,6 +84,13 @@ export async function executeRefundRequest(refundRequestId: string, adminUserId?
     const [payment] = request.payment_id ? await tx<any[]>`select * from booking.payments where id = ${request.payment_id} limit 1` : [];
     const refundCurrency = payment?.currency ?? lines[0]?.payment_currency_code ?? 'USD';
 
+    // Cross-engine guard. This engine previously summed only its OWN request's lines and
+    // refunded them, with no check against what features/refunds had already paid out on
+    // the same booking — so the same booking could be refunded from both admin screens.
+    // The guard also takes an advisory lock on the booking, which is what stops the two
+    // screens racing.
+    await assertRefundable({ bookingId: request.booking_id, amount: totalRefundAmount }, tx as never);
+
     const [refund] = await tx<any[]>`
       insert into commercial.refunds (
         refund_request_id, payment_id, gateway, gateway_reference, refund_amount, currency_code, status, payload, processed_at
@@ -108,6 +117,25 @@ export async function executeRefundRequest(refundRequestId: string, adminUserId?
               ${refundCurrency}, ${Number(line.payment_refund_amount ?? 0)}, ${line.snapshot_json as any}
             )
           `;
+
+          // Dual-write to the accounting ledger, in this same transaction. Keyed on the
+          // refund line, so each line posts exactly once even if execution is retried.
+          //
+          // No-ops until the accounting migrations are applied.
+          await mirrorWalletCredit(
+            {
+              userId: payment.user_id,
+              currencyCode: refundCurrency,
+              amount: String(Number(line.payment_refund_amount ?? 0)),
+              idempotencyKey: `refund:commercial_line:${line.id}`,
+              sourceType: 'refund',
+              sourceId: request.booking_id,
+              counterpartAccountKey: 'provider_payable',
+              description: 'بازگشت وجه به کیف پول',
+              actorUserId: adminUserId ?? undefined,
+            },
+            tx as never
+          );
         }
       }
 

@@ -355,6 +355,7 @@ declare const messages: {
     "paymentVerificationFailed": "فشل التحقق من الدفع.",
     "paymentVerifiedSuccessfully": "تم التحقق من الدفع بنجاح.",
     "paymentWasCancelled": "تم إلغاء الدفع.",
+    "paymentPendingConfirmation": "يجري تأكيد دفعتك بالعملة الرقمية على الشبكة. سيتم تحديث الحجز تلقائيًا عند اكتمالها — يمكنك إغلاق هذه الصفحة بأمان.",
     "payments": "المدفوعات",
     "pending": "قيد الانتظار",
     "pendingBookings": "معلّق الحجوزات",
@@ -2334,14 +2335,10 @@ declare const messages: {
     },
     "userInfo": {
       "goodMorning": "اتمنى لك يوم جيد",
-      "profileAlt": "الملف الشخصي"
-    },
-    "quickSearches": {
-      "hairTransplant": "زراعة الشعر",
-      "dentalVeneers": "قشور الأسنان",
-      "spaDay": "يوم سبا",
-      "ivfTreatment": "علاج أطفال الأنابيب",
-      "gymMembership": "عضوية النادي الرياضي"
+      "profileAlt": "الملف الشخصي",
+      "guestEyebrow": "أهلاً بك",
+      "guestTitle": "اعثر على علاجك",
+      "signIn": "تسجيل الدخول"
     },
     "search": {
       "placeholder": "ابحث عن العلاجات والعيادات..."
@@ -2433,7 +2430,11 @@ declare const messages: {
         "permissionDenied": "لم يتم منح إذن الموقع. يمكنك اختيار وجهتك يدوياً.",
         "selectCountryOrCity": "يرجى اختيار  الدولة أو المدينة الأول.",
         "applyingSelected": "تطبيق المحدد الوجهة...",
-        "resolveFailed": "تعذر تحديد الموقع المختار. يرجى تجربة دولة أو مدينة أخرى."
+        "resolveFailed": "تعذر تحديد الموقع المختار. يرجى تجربة دولة أو مدينة أخرى.",
+        "locationUnavailable": "خدمة تحديد الموقع غير متاحة على هذا الجهاز حالياً. يرجى اختيار وجهتك يدوياً.",
+        "locationTimedOut": "استغرق تحديد موقعك وقتاً طويلاً. حاول مرة أخرى أو اختر وجهتك يدوياً.",
+        "linkLocationNotFound": "رابط الوجهة هذا لم يعد متاحاً. يرجى اختيار موقعك.",
+        "loadFailed": "حدث خطأ أثناء تحديد موقعك. يرجى المحاولة مرة أخرى."
       },
       "modal": {
         "eyebrow": "الوجهة",
@@ -2445,24 +2446,19 @@ declare const messages: {
         "title": "استخدم الموقع الحالي",
         "description": "سيطلب المتصفح الإذن، ثم يختار LSevin أقرب وجهة مدعومة."
       },
-      "detectWithoutGps": {
-        "title": "الكشف بدون GPS",
-        "description": "يستخدم الملف الشخصي المحفوظ أو رمز دولة الهاتف أو رؤوس الموقع الجغرافي من الاستضافة/الوكيل."
-      },
       "manual": {
         "title": "اختيار يدوي",
         "description": "استخدم المحددات المحمّلة تدريجياً أدناه إذا لم تكن وجهتك ضمن المواقع المميزة.",
         "country": "الدولة",
         "city": "المدينة",
         "applying": "تطبيق...",
-        "apply": "تطبيق الموقع"
+        "apply": "تطبيق الموقع",
+        "province": "المحافظة"
       },
-      "featuredDestinations": {
-        "title": "الوجهات المميزة",
-        "description": "سريعة اختيارات لـ الشائعة المواقع",
-        "available": "{count} متاح",
-        "emptyTitle": "لم يتم العثور على مميزة المواقع",
-        "emptyDescription": "أضف المواقع المختارة في الإدارة لعرض اختيارات سريعة هنا."
+      "permission": {
+        "title": "تفعيل الموقع",
+        "dismiss": "إلغاء",
+        "enable": "تفعيل"
       }
     },
     "sponsoredCarousel": {
@@ -2496,6 +2492,9 @@ declare const messages: {
       "backAria": "العودة إلى الرئيسية",
       "emptyTitle": "لا توجد باقات بعد",
       "emptyDescription": "ستظهر الباقات المميزة هنا فور نشرها."
+    },
+    "appBar": {
+      "notifications": "الإشعارات"
     }
   },
   "Support": {
@@ -4269,7 +4268,166 @@ declare const messages: {
       "title": "معاملات المحفظة",
       "description": "سجل معاملات المحفظة المرتبطة بالحجوزات والمدخلات اليدوية"
     },
-    "special-packages": "الباقات المميزة"
+    "special-packages": "الباقات المميزة",
+    "accounting": {
+      "title": "Accounting",
+      "description": "Double-entry ledger, customer wallets, deposits and withdrawals. Every figure is derived from the ledger; no total is stored anywhere else.",
+      "notInstalled": "The accounting tables have not been created yet. Run the migrations first.",
+      "driftAlertTitle": "Balance reconciliation alert",
+      "driftAlertBody": "These wallet balances disagree with the ledger. This list should always be empty — a row here means a balance changed outside a ledger transaction.",
+      "pendingDeposits": "Deposits awaiting review",
+      "pendingWithdrawals": "Withdrawals awaiting action",
+      "queueEmpty": "Nothing here",
+      "systemBalances": "System balances",
+      "noWallets": "No wallets yet.",
+      "currency": "Currency",
+      "userLiability": "Owed to customers",
+      "reserved": "Reserved",
+      "platformCash": "Platform assets",
+      "walletCount": "Wallets",
+      "balancesNote": "Platform assets should always exceed what is owed to customers. If they do not, customer money has been spent.",
+      "depositQueueTitle": "Deposit review queue",
+      "depositQueueDescription": "No money reaches a wallet until you approve it. The amount you confirm is what gets credited, not what the customer claimed.",
+      "withdrawalQueueTitle": "Withdrawal queue",
+      "withdrawalQueueDescription": "Requesting already moved the funds out of the customer's spendable balance into a reserve. Rejecting returns them.",
+      "reference": "Reference",
+      "receipt": "Receipt",
+      "confirmedAmount": "Confirmed amount",
+      "rawUnitHint": "Enter in {currency}",
+      "approveDeposit": "Approve deposit",
+      "reject": "Reject",
+      "rejectReason": "Rejection reason",
+      "defaultDepositRejectReason": "Receipt could not be verified",
+      "grossAmount": "Gross",
+      "feeAmount": "Fee",
+      "destinationBank": "Bank destination (IBAN)",
+      "destinationCrypto": "Crypto address",
+      "approveNote": "Approval note",
+      "approveWithdrawal": "Approve withdrawal",
+      "rejectWithdrawal": "Reject and return funds",
+      "defaultWithdrawalRejectReason": "Destination details are invalid",
+      "payoutReference": "Payout reference",
+      "markPaid": "Mark as paid",
+      "failReason": "Failure reason",
+      "markFailed": "Mark failed and return funds",
+      "defaultWithdrawalFailReason": "Bank transfer failed",
+      "journalTitle": "Journal entries",
+      "journalDescription": "Every entry is immutable. Corrections are made with a reversing entry.",
+      "entryNumber": "Entry no.",
+      "entryDate": "Date",
+      "entryDescription": "Description",
+      "sourceType": "Source",
+      "lineCount": "Lines",
+      "totalDebit": "Total debit",
+      "accountsTitle": "Chart of accounts",
+      "accountsDescription": "Four levels: group, general, subsidiary, detail. Only leaf accounts accept postings.",
+      "accountCode": "Code",
+      "accountName": "Account",
+      "accountType": "Type",
+      "normalBalance": "Normal side",
+      "postable": "Postable",
+      "reportsTitle": "Trial balance",
+      "reportsDescription": "Total debit and total credit must always be equal.",
+      "balance": "Balance",
+      "totalCredit": "Total credit",
+      "auditTitle": "Audit log",
+      "auditDescription": "An immutable record of every financial action: who, when, and to what.",
+      "actor": "User",
+      "action": "Action",
+      "entity": "Entity",
+      "occurredAt": "When",
+      "balanced": "Balanced",
+      "unbalanced": "Unbalanced",
+      "method": {
+        "gateway_zarinpal": "Zarinpal gateway",
+        "gateway_btcpay": "Crypto gateway",
+        "bank_transfer": "Bank transfer",
+        "crypto_manual": "Crypto with receipt",
+        "admin_credit": "Admin credit"
+      },
+      "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "processing": "Processing",
+        "paid": "Paid",
+        "rejected": "Rejected",
+        "failed": "Failed",
+        "cancelled": "Cancelled"
+      },
+      "settingsTitle": "Accounting settings",
+      "settingsDescription": "Your business numbers. Changed here, not in code — and every change is recorded in the audit log.",
+      "settingsGroup": {
+        "core": "Core",
+        "fees": "Fees",
+        "withdrawal": "Withdrawal",
+        "deposit": "Deposit",
+        "crypto": "Crypto",
+        "limits": "Rate limits"
+      },
+      "save": "Save",
+      "rateLimitCount": "Max requests",
+      "rateLimitWindow": "Window (seconds)",
+      "baseCurrencyLocked": "The base currency cannot be changed. Every entry posted so far stored its equivalent against this currency; changing it would not convert history, it would reinterpret it.",
+      "addAccount": "Add detail account",
+      "parentAccount": "Subsidiary account (parent)",
+      "nameFa": "Persian name",
+      "nameEn": "English name",
+      "currencyOptional": "Currency (optional)",
+      "anyCurrency": "Any currency",
+      "actions": "Actions",
+      "systemAccount": "System",
+      "systemAccountHint": "The posting rules depend on this account; deactivating it would make deposits, refunds or fees fail at the moment money moves.",
+      "hasPostings": "Has postings",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "accountTypes": {
+        "asset": "Asset",
+        "liability": "Liability",
+        "equity": "Equity",
+        "income": "Income",
+        "expense": "Expense"
+      },
+      "sides": {
+        "debit": "Debit",
+        "credit": "Credit"
+      },
+      "exportCsv": "Export to Excel",
+      "exportPdf": "Print / PDF",
+      "statementsTitle": "Financial statements",
+      "statementsDescription": "Balance sheet and income statement, straight from the ledger.",
+      "balanceSheet": "Balance sheet",
+      "incomeStatement": "Income statement",
+      "accountingEquation": "Assets = Liabilities + Equity",
+      "netProfit": "Net profit",
+      "netLoss": "Net loss",
+      "subtotal": "Subtotal",
+      "ledgerTitle": "General / subsidiary / detail ledger",
+      "ledgerDescription": "One report at three depths. Choosing an account selects the level: group, subsidiary or detail.",
+      "filterByAccount": "Filter by account",
+      "allAccounts": "All accounts",
+      "applyFilter": "Apply",
+      "panelName": "LSevin Accounting",
+      "signInHint": "Sign in with your accounting account",
+      "username": "Username",
+      "password": "Password",
+      "signIn": "Sign in",
+      "signOut": "Sign out",
+      "signInInvalid": "Incorrect username or password",
+      "signInLocked": "Locked after repeated failed attempts. Try again in 15 minutes.",
+      "signInInactive": "This account is disabled",
+      "signInMissing": "Enter a username and password",
+      "mustChangePassword": "The initial password has not been changed yet. Please change it.",
+      "changePassword": "Change password",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "passwordChanged": "Password changed",
+      "passwordTooShort": "The password must be at least 10 characters",
+      "passwordWrong": "The current password is incorrect",
+      "panelRoles": {
+        "accountant": "Accountant",
+        "finance_admin": "Finance admin"
+      }
+    }
   },
   "HomePage": {
     "title": "L Sevin - رعاية صحية آلية",
@@ -4622,7 +4780,16 @@ declare const messages: {
       "selectCity": "اختر المدينة",
       "noCountrySelected": "اختر الدولة أولاً",
       "noCitiesAvailable": "لا توجد مدن متاحة",
-      "loading": "جارٍ التحميل..."
+      "loading": "جارٍ التحميل...",
+      "province": "المحافظة",
+      "selectProvince": "اختر المحافظة",
+      "searchCountries": "ابحث عن دولة...",
+      "searchProvinces": "ابحث عن محافظة...",
+      "searchCities": "ابحث عن مدينة...",
+      "noProvinceSelected": "اختر الدولة أولاً",
+      "noCitySelectable": "اختر المحافظة أولاً",
+      "noProvincesAvailable": "لا توجد محافظات متاحة",
+      "clear": "مسح الاختيار"
     },
     "DatePicker": {
       "placeholder": "اختر التاريخ",
@@ -7269,7 +7436,8 @@ declare const messages: {
     "searchPlaceholder": "بحث...",
     "emptyText": "لا يوجد النتائج found.",
     "loading": "جارٍ التحميل...",
-    "loadMore": "تحميل المزيد"
+    "loadMore": "تحميل المزيد",
+    "clear": "مسح الاختيار"
   },
   "AdminLazySelect": {
     "placeholder": "اختر خياراً",

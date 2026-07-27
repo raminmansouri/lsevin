@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { mirrorWalletCredit } from "@/accounting/server/legacy-bridge";
 import db from "@/config/database/db";
 import { getSession } from "@/lib/auth/session";
 import { UserRole } from "@/types/common";
@@ -133,6 +134,28 @@ async function completeWalletIntent(
         )
       `;
     }
+
+    // Dual-write to the accounting ledger, in this same transaction.
+    //
+    // The counterpart is the platform's own bank account or crypto wallet, because that
+    // is where a manually-confirmed deposit physically arrived — unlike a card top-up,
+    // which lands in the gateway's clearing account.
+    //
+    // No-ops until the accounting migrations are applied.
+    await mirrorWalletCredit(
+      {
+        userId: intent.user_id,
+        currencyCode: intent.currency_code,
+        amount: String(amount),
+        idempotencyKey: `deposit:manual-intent:${intent.id}`,
+        sourceType: 'deposit',
+        counterpartAccountKey:
+          String(intent.payment_method).toLowerCase() === 'crypto' ? 'crypto_cold' : 'bank_platform',
+        description: 'تأیید واریز دستی توسط مدیر',
+        actorUserId: approvedByUserId ?? undefined,
+      },
+      tx as never
+    );
   });
 }
 

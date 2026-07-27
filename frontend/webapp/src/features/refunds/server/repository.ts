@@ -1,5 +1,7 @@
 import "server-only";
 
+import { mirrorWalletCredit } from "@/accounting/server/legacy-bridge";
+import { assertRefundable } from "@/accounting/server/refund-guard";
 import db from "@/config/database/db";
 
 function jsonb(value: unknown) {
@@ -148,6 +150,14 @@ export async function approveRefundToWallet(input: {
     if (amount <= 0 || amount > remaining) throw new Error("Refund amount is invalid or greater than remaining refundable amount.");
 
     const currency = String(request.currency_code || request.payment_currency_code || 'USD').toUpperCase();
+
+    // Cross-engine guard. The remaining amount above is computed from refund_lines, which
+    // the commercial engine writes at request time rather than at execution — so it can
+    // both over- and under-count. This checks what has actually been paid out by EITHER
+    // engine, under an advisory lock on the booking so a concurrent approval from the
+    // other admin screen cannot slip past.
+    await assertRefundable({ bookingId: request.booking_id, amount: amount }, tx as never);
+
     const walletAccountId = await ensureWalletAccount(tx, request.user_id);
 
     const [refund] = await tx<any[]>`
@@ -232,6 +242,25 @@ export async function approveRefundToWallet(input: {
         ${jsonb({ refundRequestId: request.id, refundId: refund.id })}::jsonb
       )
     `;
+
+    // Dual-write to the accounting ledger, in this same transaction. The money comes
+    // back out of what the platform owes the provider and returns to the customer's
+    // wallet. Keyed on the refund record, so a retried approval posts once.
+    //
+    // No-ops until the accounting migrations are applied.
+    await mirrorWalletCredit(
+      {
+        userId: request.user_id,
+        currencyCode: currency,
+        amount: String(amount),
+        idempotencyKey: `refund:wallet_credit:${refund.id}`,
+        sourceType: 'refund',
+        sourceId: request.booking_id,
+        counterpartAccountKey: 'provider_payable',
+        description: 'بازگشت وجه به کیف پول',
+      },
+      tx as never
+    );
 
     const refundedAfter = Number(request.already_refunded_amount ?? 0) + amount;
     const fullyRefunded = refundedAfter >= Number(request.paid_amount ?? 0);

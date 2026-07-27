@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import sql from "@/config/database/db";
 import type { MediaItem } from "@/features/media-picker-addon";
+import { requireApiUser } from "@/lib/auth/api-guard";
 
 type MediaRow = {
   id: string;
@@ -81,6 +82,9 @@ function toMediaItem(row: MediaRow): MediaItem {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireApiUser();
+    if (auth instanceof NextResponse) return auth;
+
     const body = (await request.json()) as { fileUrls?: string[] };
     const references = Array.isArray(body.fileUrls) ? body.fileUrls : [];
     const candidates = Array.from(new Set(references.flatMap(expandReference)));

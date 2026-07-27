@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod/v4";
 import { ArrowLeft, Save } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -24,7 +25,21 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const form = useForm<InputType>({
+  // BTCPay is the crypto rail served to non-Iranian customers; it is configured
+  // with a server/store/API key rather than a merchant id, and prices invoices
+  // in a stable fiat unit because no BTC<->IRR rate exists.
+  const isBtcPay = gateway.code === "btcpay";
+  const defaultCurrency = (gateway.settings.currency || (isBtcPay ? "USD" : "IRR")) as
+    | "IRR"
+    | "IRT"
+    | "USD"
+    | "EUR";
+
+  // Three generics, not one: `z.coerce` fields (minimumAmount, expirationMinutes)
+  // accept unknown on the way in and produce a number on the way out, so the
+  // form's field type and the resolver's result type genuinely differ. Typing
+  // both ends separately is what lets `control` and `handleSubmit` line up.
+  const form = useForm<z.input<typeof SavePaymentGatewaySchema>, unknown, InputType>({
     resolver: zodResolver(SavePaymentGatewaySchema),
     defaultValues: {
       code: gateway.code,
@@ -36,14 +51,21 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
       settings: {
         merchantId: "",
         sandbox: gateway.settings.sandbox ?? true,
-        currency: gateway.settings.currency || "IRR",
-        minimumAmount: gateway.settings.minimumAmount || (gateway.settings.currency === "IRT" ? 1000 : 10000),
+        currency: defaultCurrency,
+        minimumAmount:
+          gateway.settings.minimumAmount || (isBtcPay ? 1 : gateway.settings.currency === "IRT" ? 1000 : 10000),
         requestEndpoint: gateway.settings.requestEndpoint || "",
         verificationEndpoint: gateway.settings.verificationEndpoint || "",
         descriptionTemplate: gateway.settings.descriptionTemplate || "LSevin booking {{bookingId}}",
         enabledContexts: gateway.settings.enabledContexts?.length
           ? gateway.settings.enabledContexts
           : ["booking_online_card", "wallet_topup"],
+        serverUrl: gateway.settings.serverUrl || "",
+        storeId: gateway.settings.storeId || "",
+        // Secrets arrive masked from the server; blank means "keep the current value".
+        apiKey: "",
+        webhookSecret: "",
+        expirationMinutes: gateway.settings.expirationMinutes ?? 30,
       },
     },
   });
@@ -149,7 +171,8 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                   <FormItem>
                     <FormLabel>Sort order</FormLabel>
                     <FormControl>
-                      <Input {...field} type="number" min={0} disabled={isPending} />
+                      {/* Coerced fields hold `unknown` until the resolver runs. */}
+                      <Input {...field} value={String(field.value ?? "")} type="number" min={0} disabled={isPending} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -236,33 +259,143 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
 
           <Card>
             <CardHeader>
-              <CardTitle>Zarinpal credentials</CardTitle>
+              <CardTitle>{isBtcPay ? "BTCPay Server connection" : "Zarinpal credentials"}</CardTitle>
               <CardDescription>
-                Merchant ID is stored server-side. Leave it blank to keep the existing value.
+                {isBtcPay
+                  ? "Secrets are stored server-side and masked on read. Leave a secret blank to keep the existing value. Environment variables (BTCPAY_API_KEY, BTCPAY_WEBHOOK_SECRET) take precedence over anything set here."
+                  : "Merchant ID is stored server-side. Leave it blank to keep the existing value."}
               </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-6 md:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="settings.merchantId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Merchant ID</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        value={field.value || ""}
-                        type="password"
-                        autoComplete="new-password"
-                        placeholder={gateway.settings.merchantId ? `Current: ${gateway.settings.merchantId}` : "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"}
-                        disabled={isPending}
-                      />
-                    </FormControl>
-                    <FormDescription>Leave blank to keep the current merchant id.</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {!isBtcPay && (
+                <FormField
+                  control={form.control}
+                  name="settings.merchantId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Merchant ID</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          value={field.value || ""}
+                          type="password"
+                          autoComplete="new-password"
+                          placeholder={gateway.settings.merchantId ? `Current: ${gateway.settings.merchantId}` : "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"}
+                          disabled={isPending}
+                        />
+                      </FormControl>
+                      <FormDescription>Leave blank to keep the current merchant id.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {isBtcPay && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="settings.serverUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Server URL</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={field.value || ""}
+                            placeholder="https://pay.lsevin.com"
+                            disabled={isPending}
+                          />
+                        </FormControl>
+                        <FormDescription>Base URL of your self-hosted BTCPay Server.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="settings.storeId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Store ID</FormLabel>
+                        <FormControl>
+                          <Input {...field} value={field.value || ""} placeholder="Greenfield store id" disabled={isPending} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="settings.apiKey"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Greenfield API key</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={field.value || ""}
+                            type="password"
+                            autoComplete="new-password"
+                            placeholder={gateway.settings.apiKey ? `Current: ${gateway.settings.apiKey}` : "Needs cancreateinvoice + canviewinvoices"}
+                            disabled={isPending}
+                          />
+                        </FormControl>
+                        <FormDescription>Leave blank to keep the current key.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="settings.webhookSecret"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Webhook secret</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={field.value || ""}
+                            type="password"
+                            autoComplete="new-password"
+                            placeholder={gateway.settings.webhookSecret ? `Current: ${gateway.settings.webhookSecret}` : "Shared secret from the BTCPay webhook"}
+                            disabled={isPending}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Must match the secret on the BTCPay webhook pointing at /api/payments/btcpay/webhook.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="settings.expirationMinutes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Invoice expiration (minutes)</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={String(field.value ?? 30)}
+                            type="number"
+                            min={1}
+                            max={1440}
+                            disabled={isPending}
+                          />
+                        </FormControl>
+                        <FormDescription>How long the customer has to pay before the rate is re-quoted.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
 
               <FormField
                 control={form.control}
@@ -277,11 +410,24 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="IRR">IRR - Rial</SelectItem>
-                        <SelectItem value="IRT">IRT - Toman</SelectItem>
+                        {isBtcPay ? (
+                          <>
+                            <SelectItem value="USD">USD - US Dollar</SelectItem>
+                            <SelectItem value="EUR">EUR - Euro</SelectItem>
+                          </>
+                        ) : (
+                          <>
+                            <SelectItem value="IRR">IRR - Rial</SelectItem>
+                            <SelectItem value="IRT">IRT - Toman</SelectItem>
+                          </>
+                        )}
                       </SelectContent>
                     </Select>
-                    <FormDescription>Bookings in other currencies are converted before payment initiation.</FormDescription>
+                    <FormDescription>
+                      {isBtcPay
+                        ? "Invoices are priced in this fiat unit; BTCPay converts to BTC/Lightning/USDT at checkout."
+                        : "Bookings in other currencies are converted before payment initiation."}
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -294,7 +440,7 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                   <FormItem>
                     <FormLabel>Minimum amount</FormLabel>
                     <FormControl>
-                      <Input {...field} type="number" min={1} disabled={isPending} />
+                      <Input {...field} value={String(field.value ?? "")} type="number" min={1} disabled={isPending} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

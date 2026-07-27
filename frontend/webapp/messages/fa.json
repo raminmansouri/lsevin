@@ -1610,14 +1610,10 @@
     },
     "userInfo": {
       "goodMorning": "وقت بخیر",
-      "profileAlt": "پروفایل"
-    },
-    "quickSearches": {
-      "hairTransplant": "کاشت مو",
-      "dentalVeneers": "لمینت دندان",
-      "spaDay": "خدمات اسپا",
-      "ivfTreatment": "درمان IVF",
-      "gymMembership": "عضویت باشگاه"
+      "profileAlt": "پروفایل",
+      "guestEyebrow": "خوش آمدید",
+      "guestTitle": "درمان خود را پیدا کنید",
+      "signIn": "ورود"
     },
     "search": {
       "placeholder": "جستجوی درمان، کلینیک..."
@@ -1709,7 +1705,11 @@
         "permissionDenied": "مجوز موقعیت مکانی داده نشد. همچنان می‌توانید مقصد خود را دستی انتخاب کنید.",
         "selectCountryOrCity": "لطفاً ابتدا کشور یا شهر را انتخاب کنید.",
         "applyingSelected": "در حال اعمال مقصد انتخاب‌شده...",
-        "resolveFailed": "موقعیت انتخاب‌شده قابل تشخیص نبود. لطفاً کشور یا شهر دیگری را امتحان کنید."
+        "resolveFailed": "موقعیت انتخاب‌شده قابل تشخیص نبود. لطفاً کشور یا شهر دیگری را امتحان کنید.",
+        "locationUnavailable": "موقعیت مکانی در این دستگاه در دسترس نیست. لطفاً مقصد خود را دستی انتخاب کنید.",
+        "locationTimedOut": "دریافت موقعیت مکانی بیش از حد طول کشید. دوباره تلاش کنید یا مقصد را دستی انتخاب کنید.",
+        "linkLocationNotFound": "این لینک مقصد دیگر معتبر نیست. لطفاً موقعیت خود را انتخاب کنید.",
+        "loadFailed": "در شناسایی موقعیت شما خطایی رخ داد. لطفاً دوباره تلاش کنید."
       },
       "modal": {
         "eyebrow": "مقصد",
@@ -1721,24 +1721,19 @@
         "title": "استفاده از موقعیت فعلی",
         "description": "مرورگر اجازه می‌گیرد و سپس LSevin نزدیک‌ترین مقصد پشتیبانی‌شده را انتخاب می‌کند."
       },
-      "detectWithoutGps": {
-        "title": "شناسایی بدون GPS",
-        "description": "از پروفایل ذخیره‌شده، کد کشور موبایل یا هدرهای جغرافیایی هاست/پروکسی استفاده می‌کند."
-      },
       "manual": {
         "title": "انتخاب دستی",
         "description": "اگر مقصد شما در موقعیت‌های ویژه نیست، از انتخاب‌گرهای مرحله‌ای زیر استفاده کنید.",
         "country": "کشور",
         "city": "شهر",
         "applying": "در حال اعمال...",
-        "apply": "اعمال موقعیت"
+        "apply": "اعمال موقعیت",
+        "province": "استان"
       },
-      "featuredDestinations": {
-        "title": "مقصدهای ویژه",
-        "description": "انتخاب سریع برای موقعیت‌های محبوب",
-        "available": "{count} مورد موجود",
-        "emptyTitle": "موقعیت ویژه‌ای پیدا نشد",
-        "emptyDescription": "برای نمایش انتخاب‌های سریع، موقعیت‌های منتخب را از پنل ادمین اضافه کنید."
+      "permission": {
+        "title": "فعال کردن موقعیت مکانی",
+        "dismiss": "انصراف",
+        "enable": "فعال‌سازی"
       }
     },
     "sponsoredCarousel": {
@@ -1772,6 +1767,9 @@
       "backAria": "بازگشت به خانه",
       "emptyTitle": "هنوز پکیجی وجود ندارد",
       "emptyDescription": "پکیج‌های ویژه به‌محض انتشار در اینجا نمایش داده می‌شوند."
+    },
+    "appBar": {
+      "notifications": "اعلان‌ها"
     }
   },
   "Support": {
@@ -3548,7 +3546,166 @@
       "title": "تراکنش‌های کیف پول",
       "description": "دفتر تراکنش‌های کیف پول مرتبط با رزرو و ثبت دستی"
     },
-    "special-packages": "پکیج‌های ویژه"
+    "special-packages": "پکیج‌های ویژه",
+    "accounting": {
+      "title": "حسابداری",
+      "description": "دفتر کل دوطرفه، کیف پول کاربران، واریز و برداشت. هر مبلغ از دفتر محاسبه می‌شود؛ هیچ عددی جای دیگری نگهداری نمی‌شود.",
+      "notInstalled": "جداول حسابداری هنوز ساخته نشده‌اند. ابتدا migrationها را اجرا کنید.",
+      "driftAlertTitle": "هشدار مغایرت موجودی",
+      "driftAlertBody": "موجودی این کیف پول‌ها با دفتر کل نمی‌خواند. این فهرست باید همیشه خالی باشد — هر ردیفی اینجا یعنی موجودی خارج از تراکنش دفتر تغییر کرده است.",
+      "pendingDeposits": "واریزهای در انتظار تأیید",
+      "pendingWithdrawals": "برداشت‌های در انتظار",
+      "queueEmpty": "موردی نیست",
+      "systemBalances": "موجودی کل سیستم",
+      "noWallets": "هنوز کیف پولی ساخته نشده است.",
+      "currency": "ارز",
+      "userLiability": "بدهی به کاربران",
+      "reserved": "رزرو شده",
+      "platformCash": "دارایی پلتفرم",
+      "walletCount": "تعداد کیف پول",
+      "balancesNote": "دارایی پلتفرم باید همیشه از بدهی به کاربران بیشتر باشد. اگر نبود، یعنی پول کاربران خرج شده است.",
+      "depositQueueTitle": "صف تأیید واریز",
+      "depositQueueDescription": "تا وقتی تأیید نکنید هیچ پولی به کیف پول کاربر اضافه نمی‌شود. مبلغی که شما تأیید می‌کنید ثبت می‌شود، نه مبلغی که کاربر ادعا کرده.",
+      "withdrawalQueueTitle": "صف تأیید برداشت",
+      "withdrawalQueueDescription": "با ثبت درخواست، مبلغ از موجودی قابل‌برداشت کاربر کسر و رزرو شده است. رد کردن، آن را برمی‌گرداند.",
+      "reference": "مرجع",
+      "receipt": "رسید",
+      "confirmedAmount": "مبلغ تأییدشده",
+      "rawUnitHint": "به واحد {currency} وارد کنید",
+      "approveDeposit": "تأیید واریز",
+      "reject": "رد",
+      "rejectReason": "دلیل رد",
+      "defaultDepositRejectReason": "رسید معتبر نبود",
+      "grossAmount": "مبلغ ناخالص",
+      "feeAmount": "کارمزد",
+      "destinationBank": "مقصد بانکی (شبا)",
+      "destinationCrypto": "آدرس کریپتو",
+      "approveNote": "یادداشت تأیید",
+      "approveWithdrawal": "تأیید برداشت",
+      "rejectWithdrawal": "رد و بازگشت وجه",
+      "defaultWithdrawalRejectReason": "اطلاعات مقصد نامعتبر است",
+      "payoutReference": "شماره پیگیری پرداخت",
+      "markPaid": "ثبت پرداخت شد",
+      "failReason": "دلیل ناموفق بودن",
+      "markFailed": "ثبت ناموفق و بازگشت وجه",
+      "defaultWithdrawalFailReason": "انتقال بانکی ناموفق بود",
+      "journalTitle": "اسناد حسابداری",
+      "journalDescription": "هر سند تغییرناپذیر است. اصلاح فقط با سند معکوس انجام می‌شود.",
+      "entryNumber": "شماره سند",
+      "entryDate": "تاریخ",
+      "entryDescription": "شرح",
+      "sourceType": "منشأ",
+      "lineCount": "تعداد سطر",
+      "totalDebit": "جمع بدهکار",
+      "accountsTitle": "کدینگ حساب‌ها",
+      "accountsDescription": "ساختار چهارسطحی: گروه، کل، معین، تفصیلی. فقط حساب‌های سطح آخر سنددار می‌شوند.",
+      "accountCode": "کد",
+      "accountName": "نام حساب",
+      "accountType": "نوع",
+      "normalBalance": "ماهیت",
+      "postable": "قابل ثبت سند",
+      "reportsTitle": "تراز آزمایشی",
+      "reportsDescription": "جمع ستون بدهکار و بستانکار باید همیشه برابر باشد.",
+      "balance": "مانده",
+      "totalCredit": "جمع بستانکار",
+      "auditTitle": "لاگ ممیزی",
+      "auditDescription": "ثبت تغییرناپذیر هر اقدام مالی: چه کسی، چه زمانی، روی چه چیزی.",
+      "actor": "کاربر",
+      "action": "اقدام",
+      "entity": "موضوع",
+      "occurredAt": "زمان",
+      "balanced": "متوازن",
+      "unbalanced": "نامتوازن",
+      "method": {
+        "gateway_zarinpal": "درگاه زرین‌پال",
+        "gateway_btcpay": "درگاه کریپتو",
+        "bank_transfer": "کارت به کارت / انتقال بانکی",
+        "crypto_manual": "واریز کریپتو با رسید",
+        "admin_credit": "شارژ توسط مدیر"
+      },
+      "status": {
+        "pending": "در انتظار",
+        "approved": "تأیید شده",
+        "processing": "در حال پردازش",
+        "paid": "پرداخت شده",
+        "rejected": "رد شده",
+        "failed": "ناموفق",
+        "cancelled": "لغو شده"
+      },
+      "settingsTitle": "تنظیمات حسابداری",
+      "settingsDescription": "اعداد کسب‌وکار شما. تغییرشان از اینجا انجام می‌شود، نه در کد — و هر تغییر در لاگ ممیزی ثبت می‌شود.",
+      "settingsGroup": {
+        "core": "پایه",
+        "fees": "کارمزدها",
+        "withdrawal": "برداشت",
+        "deposit": "واریز",
+        "crypto": "رمزارز",
+        "limits": "محدودیت درخواست"
+      },
+      "save": "ذخیره",
+      "rateLimitCount": "حداکثر تعداد",
+      "rateLimitWindow": "بازه (ثانیه)",
+      "baseCurrencyLocked": "ارز پایه قابل تغییر نیست. هر سندی که تا امروز ثبت شده، معادلش را بر اساس همین ارز ذخیره کرده؛ تغییر آن تاریخچه را تبدیل نمی‌کند، بلکه معنایش را عوض می‌کند.",
+      "addAccount": "افزودن حساب تفصیلی",
+      "parentAccount": "حساب معین (والد)",
+      "nameFa": "نام فارسی",
+      "nameEn": "نام انگلیسی",
+      "currencyOptional": "ارز (اختیاری)",
+      "anyCurrency": "همهٔ ارزها",
+      "actions": "عملیات",
+      "systemAccount": "سیستمی",
+      "systemAccountHint": "قوانین ثبت سند به این حساب وابسته‌اند؛ غیرفعال کردنش باعث می‌شود واریز، بازگشت وجه یا کارمزد در لحظهٔ جابه‌جایی پول شکست بخورد.",
+      "hasPostings": "دارای سند",
+      "activate": "فعال‌سازی",
+      "deactivate": "غیرفعال‌سازی",
+      "accountTypes": {
+        "asset": "دارایی",
+        "liability": "بدهی",
+        "equity": "سرمایه",
+        "income": "درآمد",
+        "expense": "هزینه"
+      },
+      "sides": {
+        "debit": "بدهکار",
+        "credit": "بستانکار"
+      },
+      "exportCsv": "خروجی Excel",
+      "exportPdf": "چاپ / PDF",
+      "statementsTitle": "صورت‌های مالی",
+      "statementsDescription": "ترازنامه و صورت سود و زیان، مستقیم از دفتر کل.",
+      "balanceSheet": "ترازنامه",
+      "incomeStatement": "صورت سود و زیان",
+      "accountingEquation": "دارایی = بدهی + سرمایه",
+      "netProfit": "سود خالص",
+      "netLoss": "زیان خالص",
+      "subtotal": "جمع",
+      "ledgerTitle": "دفتر کل / معین / تفصیلی",
+      "ledgerDescription": "یک گزارش در سه عمق. با انتخاب حساب، سطح آن مشخص می‌شود: گروه، معین، یا تفصیلی.",
+      "filterByAccount": "فیلتر بر اساس حساب",
+      "allAccounts": "همهٔ حساب‌ها",
+      "applyFilter": "اعمال",
+      "panelName": "سیستم حسابداری السوین",
+      "signInHint": "ورود با حساب کاربری مخصوص حسابداری",
+      "username": "نام کاربری",
+      "password": "رمز عبور",
+      "signIn": "ورود",
+      "signOut": "خروج",
+      "signInInvalid": "نام کاربری یا رمز عبور نادرست است",
+      "signInLocked": "به دلیل تلاش‌های ناموفق، حساب موقتاً قفل شده است. ۱۵ دقیقه دیگر تلاش کنید.",
+      "signInInactive": "این حساب غیرفعال است",
+      "signInMissing": "نام کاربری و رمز عبور را وارد کنید",
+      "mustChangePassword": "رمز عبور اولیه هنوز تغییر نکرده است. لطفاً آن را عوض کنید.",
+      "changePassword": "تغییر رمز عبور",
+      "currentPassword": "رمز فعلی",
+      "newPassword": "رمز جدید",
+      "passwordChanged": "رمز عبور تغییر کرد",
+      "passwordTooShort": "رمز عبور باید حداقل ۱۰ کاراکتر باشد",
+      "passwordWrong": "رمز فعلی نادرست است",
+      "panelRoles": {
+        "accountant": "حسابدار",
+        "finance_admin": "مدیر مالی"
+      }
+    }
   },
   "HomePage": {
     "title": "ال سوین - سلامت هوشمند",
@@ -3899,7 +4056,16 @@
       "selectCity": "انتخاب شهر",
       "noCountrySelected": "ابتدا کشور را انتخاب کنید",
       "noCitiesAvailable": "شهری موجود نیست",
-      "loading": "در حال بارگذاری..."
+      "loading": "در حال بارگذاری...",
+      "province": "استان",
+      "selectProvince": "انتخاب استان",
+      "searchCountries": "جستجوی کشور...",
+      "searchProvinces": "جستجوی استان...",
+      "searchCities": "جستجوی شهر...",
+      "noProvinceSelected": "ابتدا کشور را انتخاب کنید",
+      "noCitySelectable": "ابتدا استان را انتخاب کنید",
+      "noProvincesAvailable": "استانی موجود نیست",
+      "clear": "حذف انتخاب"
     },
     "DatePicker": {
       "placeholder": "تاریخ را انتخاب کنید",
@@ -6128,6 +6294,7 @@
     "paymentVerificationFailed": "تأیید پرداخت ناموفق بود.",
     "paymentVerifiedSuccessfully": "پرداخت با موفقیت تأیید شد.",
     "paymentWasCancelled": "پرداخت لغو شد.",
+    "paymentPendingConfirmation": "پرداخت رمزارزی شما در حال تأیید روی شبکه است. به‌محض نهایی‌شدن، وضعیت رزرو خودکار به‌روز می‌شود — می‌توانید این صفحه را ببندید.",
     "payments": "پرداخت‌ها",
     "pending": "در انتظار",
     "pendingBookings": "رزروهای ناتمام",
@@ -7278,7 +7445,8 @@
     "searchPlaceholder": "جستجو...",
     "emptyText": "نتیجه‌ای پیدا نشد.",
     "loading": "در حال بارگذاری...",
-    "loadMore": "نمایش موارد بیشتر"
+    "loadMore": "نمایش موارد بیشتر",
+    "clear": "حذف انتخاب"
   },
   "AdminLazySelect": {
     "placeholder": "یک گزینه انتخاب کنید",

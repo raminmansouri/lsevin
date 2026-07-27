@@ -262,3 +262,68 @@ html[lang="fa"],
 html[lang="fa"] * {
   font-family: var(--font-vazirmatn), Tahoma, sans-serif;
 }
+/* ---------------------------------------------------------------------------
+   Print / "Save as PDF" for the accounting reports.
+
+   PDFs are produced by the browser's print dialog rather than a server-side PDF
+   writer: generating a Persian PDF on the server means embedding a font and doing
+   RTL shaping inside the writer, which is where Persian output usually ends up with
+   disconnected or reversed letters. The browser already shapes it correctly.
+
+   What is left here is making the printed page look like a report instead of a
+   screenshot of an admin panel.
+   --------------------------------------------------------------------------- */
+@media print {
+  /* Chrome and Safari drop background colours by default, which turns the status
+     tints on the approval queues into invisible white blocks. */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Navigation, action forms and buttons are meaningless on paper. */
+  [data-slot="sidebar"],
+  [data-sidebar],
+  header,
+  nav,
+  button,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+    font-size: 11pt;
+  }
+
+  /* Cards become plain sections; a shadowed rounded box wastes a printed page. */
+  [data-slot="card"] {
+    border: none !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+
+  /* Repeat table headers across page breaks and keep rows whole. */
+  thead {
+    display: table-header-group;
+  }
+  tr,
+  img {
+    break-inside: avoid;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th,
+  td {
+    border-bottom: 1px solid #ddd;
+    padding: 4pt 6pt;
+  }
+
+  @page {
+    margin: 14mm;
+  }
+}

@@ -109,6 +109,24 @@
 # - X-Forwarded-For
 #
 # Therefore, manually adding these headers is unnecessary.
+# The accounting panel. Same webapp process as appmain, but a separate product: the
+# middleware serves only /financial on this host and 404s that path on every other one,
+# and the panel authenticates against accounting.panel_users rather than the platform's
+# admin session. An admin cookie is worth nothing here, and a panel cookie is worth
+# nothing on appmain.
+{$FINANCIAL_DOMAIN:financial.lsevin.com} {
+    import common_headers
+
+    # The books are not for search engines, and must never be framed.
+    header {
+        X-Robots-Tag "noindex, nofollow"
+        X-Frame-Options "DENY"
+        Referrer-Policy "no-referrer"
+    }
+
+    reverse_proxy lsevin-webapp:3000
+}
+
 {$JENKINS_DOMAIN:devops.lsevin.com} {
 	import common_headers
 
