@@ -12,6 +12,7 @@ import {
 import { routing } from "./i18n/routing";
 import { getSession } from "./lib/auth/session";
 import { UserRole } from "./types/common";
+import { publicAppOrigin, publicAppUrl } from "./lib/http/public-origin";
 
 type Locale = (typeof routing.locales)[number];
 
@@ -74,9 +75,9 @@ export default async function middleware(request: NextRequest) {
     cookieLocale !== locale &&
     routing.locales.includes(cookieLocale as Locale)
   ) {
-    const redirectUrl = new URL(
+    const redirectUrl = publicAppUrl(
+      request,
       `/${cookieLocale}${pathnameWithoutLocale === "/" ? "" : pathnameWithoutLocale}`,
-      request.url,
     );
     redirectUrl.search = request.nextUrl.search;
     return NextResponse.redirect(redirectUrl);
@@ -121,13 +122,13 @@ export default async function middleware(request: NextRequest) {
         requestedRedirect.startsWith("/") &&
         !requestedRedirect.startsWith("//")
       ) {
-        const target = new URL(requestedRedirect, request.url);
-        if (target.origin === request.nextUrl.origin) {
+        const target = publicAppUrl(request, requestedRedirect);
+        if (target.origin === publicAppOrigin(request)) {
           return NextResponse.redirect(target);
         }
       }
       return NextResponse.redirect(
-        new URL(`${localePrefix}${DEFAULT_SIGNIN_REDIRECT}`, request.url)
+        publicAppUrl(request, `${localePrefix}${DEFAULT_SIGNIN_REDIRECT}`)
       );
     }
     return intlResponse || NextResponse.next();
@@ -136,7 +137,7 @@ export default async function middleware(request: NextRequest) {
   // Protected area + guest → go sign in, remembering where they were headed.
   if (!isLoggedIn) {
     const target = `${pathname}${request.nextUrl.search}`;
-    const signInUrl = new URL(`${localePrefix}/sign-in`, request.url);
+    const signInUrl = publicAppUrl(request, `${localePrefix}/sign-in`);
     signInUrl.searchParams.set("redirectTo", target);
     return NextResponse.redirect(signInUrl);
   }
@@ -147,7 +148,7 @@ export default async function middleware(request: NextRequest) {
     const canAccessAdmin =
       roles?.includes(UserRole.Admin) || roles?.includes(UserRole.SuperAdmin);
     if (!canAccessAdmin) {
-      return NextResponse.redirect(new URL(`${localePrefix}/`, request.url));
+      return NextResponse.redirect(publicAppUrl(request, `${localePrefix}/`));
     }
   }
 

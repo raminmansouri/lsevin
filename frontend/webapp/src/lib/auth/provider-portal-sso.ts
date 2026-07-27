@@ -92,3 +92,9 @@ export function lsevinSharedCookieDomain(hostname: string) {
   if (host === "lsevin.com" || host.endsWith(".lsevin.com")) return ".lsevin.com";
   return undefined;
 }
+
+export function isProviderPortalSsoDebugEnabled() {
+  const value = (process.env.LSEVIN_SSO_DEBUG ?? "true").trim().toLowerCase();
+  return !["0", "false", "off", "no", "disabled"].includes(value);
+}
+
