@@ -110,9 +110,22 @@ export default async function middleware(request: NextRequest) {
   const session = await getSession({ redirectToLogin: false });
   const isLoggedIn = !!session?.user;
 
-  // Auth pages: send already-authenticated users back into the app.
+  // Auth pages: if another trusted in-app flow supplied a relative redirectTo
+  // (notably the provider-portal SSO bridge), honor it for an already logged-in
+  // user instead of dropping the callback and sending them to the home page.
   if (isAuthRoute) {
     if (isLoggedIn) {
+      const requestedRedirect = request.nextUrl.searchParams.get("redirectTo")?.trim();
+      if (
+        requestedRedirect &&
+        requestedRedirect.startsWith("/") &&
+        !requestedRedirect.startsWith("//")
+      ) {
+        const target = new URL(requestedRedirect, request.url);
+        if (target.origin === request.nextUrl.origin) {
+          return NextResponse.redirect(target);
+        }
+      }
       return NextResponse.redirect(
         new URL(`${localePrefix}${DEFAULT_SIGNIN_REDIRECT}`, request.url)
       );
