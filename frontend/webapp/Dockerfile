@@ -54,6 +54,20 @@ COPY --from=dependencies /app/node_modules ./node_modules
 # cache for ordinary TypeScript, CSS, image, and component changes.
 COPY . .
 
+# Legacy SSO overlays left a small root-level app/ directory in some deployments.
+# Next.js prefers /app/app over /app/src/app when both exist, which silently hides
+# the real LSevin application and produces a build containing only the legacy SSO
+# routes. Remove the copied legacy tree inside the Docker builder only; the source
+# checkout is not modified. The active SSO routes live under src/app.
+RUN if [ -d ./app ]; then \
+      echo "Removing legacy root app/ so Next.js builds src/app"; \
+      rm -rf ./app; \
+    fi && \
+    test -f './src/app/[locale]/layout.tsx' && \
+    test -f './src/app/[locale]/(main)/page.tsx' && \
+    test -f './src/app/api/provider-portal-sso/route.ts' && \
+    test -f './src/app/api/provider-portal-sso/verify/route.ts'
+
 # NEXT_PUBLIC_* values are compiled into browser JavaScript by Next.js, so they
 # must be available during the image build.
 ARG NEXT_PUBLIC_URL
