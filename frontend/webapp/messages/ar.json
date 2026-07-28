@@ -4424,7 +4424,11 @@
         "accountant": "Accountant",
         "finance_admin": "Finance admin"
       }
-    }
+    },
+    "commercial": "المالية",
+    "notifications": "الإشعارات",
+    "refunds": "المبالغ المستردة",
+    "templates": "القوالب"
   },
   "HomePage": {
     "title": "L Sevin - رعاية صحية آلية",
@@ -4563,7 +4567,9 @@
         "rating": {
           "label": "التقييم"
         }
-      }
+      },
+      "loginCta": "تسجيل الدخول",
+      "loginPrompt": "سجّل الدخول لكتابة تقييم."
     }
   },
   "LocaleSwitcher": {
@@ -5969,7 +5975,9 @@
       "viewDetails": "عرض التفاصيل",
       "toggleActivation": "Toggle التفعيل",
       "retry": "إعادة المحاولة",
-      "cancel": "إلغاء"
+      "cancel": "إلغاء",
+      "save": "حفظ",
+      "saving": "جارٍ الحفظ..."
     },
     "status": {
       "active": "نشط",
@@ -6026,7 +6034,17 @@
         "specificDate": "محدد التاريخ",
         "status": "الحالة",
         "selectStartTime": "اختر بدء الوقت",
-        "selectEndTime": "اختر النهاية الوقت"
+        "selectEndTime": "اختر النهاية الوقت",
+        "add": "إضافة جدول",
+        "addAnother": "إضافة جدول آخر",
+        "cancel": "إلغاء",
+        "notes": "ملاحظات",
+        "notesPlaceholder": "ملاحظات إضافية (اختياري)",
+        "recurringDescription": "تطبيق هذا الجدول على جميع الأسابيع",
+        "selectDate": "اختر التاريخ",
+        "selectDay": "اختر اليوم",
+        "specificDateDescription": "تطبيق هذا الجدول على هذا التاريخ فقط",
+        "update": "تحديث الجدول"
       },
       "timePicker": {
         "selectTime": "اختر الوقت",
@@ -6056,7 +6074,9 @@
         "inactive": "غير نشط"
       },
       "actions": {
-        "add": "إضافة التوفر"
+        "add": "إضافة التوفر",
+        "delete": "حذف",
+        "edit": "تعديل"
       },
       "removeDialog": {
         "title": "إزالة التوفر",
@@ -6067,7 +6087,12 @@
         "busy": "مشغول",
         "onLeave": "على إجازة",
         "inactive": "غير نشط"
-      }
+      },
+      "edit": {
+        "description": "تعديل فترة توفّر قائمة",
+        "title": "تعديل الجدول"
+      },
+      "noAvailability": "لم يتم تحديد أي جدول بعد"
     },
     "services": {
       "title": "معيّن الخدمات",

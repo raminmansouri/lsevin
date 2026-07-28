@@ -3278,7 +3278,35 @@
     "reuploadBtn": "Replace",
     "uploadBtn": "Upload",
     "uploadCardTitle": "Upload Documents",
-    "uploadedBadge": "Uploaded"
+    "uploadedBadge": "Uploaded",
+    "acceptedFilesDesc": "PNG, JPG, JPEG, PDF — maximum file size: 10 MB.",
+    "back": "Back",
+    "changeFile": "Change file",
+    "chooseFile": "Choose file",
+    "description": "Supported formats: PNG, JPG, JPEG, PDF",
+    "document": "Document",
+    "documents": "Documents",
+    "errorMessage": "Failed to upload file",
+    "fileSelected": "File selected",
+    "fileTooLarge": "File size is too large",
+    "invalidFileType": "Invalid file type",
+    "noFileSelected": "No file selected",
+    "notUploaded": "Not uploaded",
+    "removeFile": "Remove file",
+    "replaceFile": "Replace file",
+    "requiredFilesMessage": "Please upload all required documents before continuing",
+    "requiredFilesPending": "Some required files still need to be uploaded before you continue.",
+    "selectDocument": "Select a document",
+    "skip": "Skip",
+    "subtitle": "Please upload the requested files for your booking",
+    "successMessage": "Files uploaded successfully",
+    "title": "Upload documents",
+    "uploadCardDesc": "Attach the required documents for this booking.",
+    "uploaded": "Uploaded",
+    "uploadFile": "Upload file",
+    "uploadHelp": "Please upload a clear and readable file",
+    "uploadHint": "PNG, JPG or PDF",
+    "uploadRequiredHint": "Required files must be uploaded before continuing."
   },
   "Manifest": {
     "name": "Name",
@@ -3911,7 +3939,12 @@
       "target": "Fields Target",
       "targetType": "Fields Target Type",
       "timezone": "Fields Timezone",
-      "totalCapacity": "Fields Total Capacity"
+      "totalCapacity": "Fields Total Capacity",
+      "code": "Code",
+      "descriptionWithLocale": "Description {locale}",
+      "nameWithLocale": "Name {locale}",
+      "recurringWeekday": "Recurring weekday",
+      "specificDateOnly": "Specific date only"
     },
     "filters": {
       "allProviders": "Filters All Providers",
@@ -3957,7 +3990,8 @@
     "resourceForm": {
       "addTitle": "Resource Form Add Title",
       "description": "Resource Form Description",
-      "editTitle": "Resource Form Edit Title"
+      "editTitle": "Resource Form Edit Title",
+      "selectedServiceHelp": "Selected service: {service}. This resource will be tied to that service's inventory."
     },
     "resourceHelp": {
       "body": "Resource Help Body",
@@ -4136,7 +4170,51 @@
     "version": "Version",
     "viewSubmittedValues": "View Submitted Values",
     "walletpaymentintents": "Walletpaymentintents",
-    "wallettransactions": "Wallettransactions"
+    "wallettransactions": "Wallettransactions",
+    "days": {
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday",
+      "7": "Sunday"
+    },
+    "daysShort": {
+      "fri": "Fri",
+      "mon": "Mon",
+      "sat": "Sat",
+      "sun": "Sun",
+      "thu": "Thu",
+      "tue": "Tue",
+      "wed": "Wed"
+    },
+    "resourceTypes": {
+      "bed": "Bed",
+      "equipment": "Equipment",
+      "generic": "Generic",
+      "room": "Room",
+      "seat": "Seat",
+      "table": "Table",
+      "unit": "Unit",
+      "vehicle": "Vehicle"
+    },
+    "targetTypeHelp": {
+      "bookable_resource": "Applies to one specific resource with capacity — a room, bed, vehicle, seat or piece of equipment.",
+      "provider": "Applies to all of a provider's services, unless a more specific rule overrides it.",
+      "provider_service": "The best fit for service schedules and hotel room-type inventory.",
+      "provider_staff": "Applies to one staff member at one specific provider only.",
+      "service_definition": "Applies to every provider service built on this service definition.",
+      "staff": "Applies to one person across the board."
+    },
+    "targetTypes": {
+      "bookable_resource": "Bookable resource",
+      "provider": "Provider",
+      "provider_service": "Provider service / room type",
+      "provider_staff": "Staff-to-provider link",
+      "service_definition": "Service definition",
+      "staff": "Staff"
+    }
   },
   "Admin": {
     "availability": "availability",
@@ -4345,7 +4423,11 @@
         "accountant": "Accountant",
         "finance_admin": "Finance admin"
       }
-    }
+    },
+    "commercial": "Financials",
+    "notifications": "Notifications",
+    "refunds": "Refunds",
+    "templates": "Templates"
   },
   "HomePage": {
     "title": "L Sevin - Automated Healthcare",
@@ -5891,7 +5973,9 @@
       "viewDetails": "View Details",
       "toggleActivation": "Toggle Activation",
       "retry": "Retry",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving…"
     },
     "status": {
       "active": "Active",
@@ -5948,7 +6032,17 @@
         "specificDate": "Specific Date",
         "status": "Status",
         "selectStartTime": "Select start time",
-        "selectEndTime": "Select end time"
+        "selectEndTime": "Select end time",
+        "add": "Add schedule",
+        "addAnother": "Add another schedule",
+        "cancel": "Cancel",
+        "notes": "Notes",
+        "notesPlaceholder": "Additional notes (optional)",
+        "recurringDescription": "Apply this schedule to every week",
+        "selectDate": "Select a date",
+        "selectDay": "Select a day",
+        "specificDateDescription": "Apply this schedule to this date only",
+        "update": "Update schedule"
       },
       "timePicker": {
         "selectTime": "Select time",
@@ -5978,7 +6072,9 @@
         "inactive": "Inactive"
       },
       "actions": {
-        "add": "Add Availability"
+        "add": "Add Availability",
+        "delete": "Delete",
+        "edit": "Edit"
       },
       "removeDialog": {
         "title": "Remove Availability",
@@ -5989,7 +6085,12 @@
         "busy": "Busy",
         "onLeave": "On Leave",
         "inactive": "Inactive"
-      }
+      },
+      "edit": {
+        "description": "Edit an existing availability period",
+        "title": "Edit schedule"
+      },
+      "noAvailability": "No schedule has been set up yet"
     },
     "services": {
       "title": "Assigned Services",
