@@ -25,6 +25,8 @@ export const SUPPORTED_LOCALES: LocaleTypes[] = [
   "ku",
   "de",
   "fr",
+  "ru",
+  "tg",
 ] as const;
 
 /**
@@ -39,6 +41,8 @@ export const SUPPORTED_LOCALE_HEADERS: LocaleHeaderTypes[] = [
   "ku-KU",
   "de-DE",
   "fr-FR",
+  "ru-RU",
+  "tg-TJ",
 ] as const;
 
 /**
@@ -77,6 +81,8 @@ export const LOCALE_TO_HEADER_MAP: Record<LocaleTypes, LocaleHeaderTypes> = {
   ku: "ku-KU",
   de: "de-DE",
   fr: "fr-FR",
+  ru: "ru-RU",
+  tg: "tg-TJ",
 } as const;
 
 /**
@@ -91,6 +97,8 @@ export const HEADER_TO_LOCALE_MAP: Record<LocaleHeaderTypes, LocaleTypes> = {
   "ku-KU": "ku",
   "de-DE": "de",
   "fr-FR": "fr",
+  "ru-RU": "ru",
+  "tg-TJ": "tg",
 } as const;
 
 /**
@@ -105,6 +113,8 @@ export const LOCALE_DISPLAY_NAMES: Record<LocaleHeaderTypes, string> = {
   "ku-KU": "Kurdish",
   "de-DE": "Deutsch",
   "fr-FR": "Français",
+  "ru-RU": "Русский",
+  "tg-TJ": "Тоҷикӣ",
 } as const;
 
 /**
@@ -119,6 +129,8 @@ export const LOCALE_SHORT_NAMES: Record<LocaleHeaderTypes, string> = {
   "ku-KU": "KU",
   "de-DE": "DE",
   "fr-FR": "FR",
+  "ru-RU": "RU",
+  "tg-TJ": "TJ",
 } as const;
 
 /**
@@ -133,6 +145,8 @@ export const LOCALE_CURRENCY_MAP: Record<LocaleHeaderTypes, string> = {
   "ku-KU": "KWD",
   "de-DE": "EUR",
   "fr-FR": "EUR",
+  "ru-RU": "RUB",
+  "tg-TJ": "TJS",
 } as const;
 
 /**
@@ -147,6 +161,8 @@ export const LOCALE_NUMBER_FORMAT_MAP: Record<LocaleHeaderTypes, string> = {
   "ku-KU": "ku-KU",
   "de-DE": "de-DE",
   "fr-FR": "fr-FR",
+  "ru-RU": "ru-RU",
+  "tg-TJ": "tg-TJ",
 } as const;
 
 /**
@@ -161,6 +177,8 @@ export const LOCALE_DATE_FORMAT_MAP: Record<LocaleHeaderTypes, string> = {
   "ku-KU": "ku-KU",
   "de-DE": "de-DE",
   "fr-FR": "fr-FR",
+  "ru-RU": "ru-RU",
+  "tg-TJ": "tg-TJ",
 } as const;
 
 /**

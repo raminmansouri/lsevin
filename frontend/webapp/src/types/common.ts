@@ -24,7 +24,17 @@ export enum UserRole {
   User = "user",
 }
 
-export type LocaleTypes = "fa" | "en" | "tr" | "es" | "ar" | "ku" | "de" | "fr";
+export type LocaleTypes =
+  | "fa"
+  | "en"
+  | "tr"
+  | "es"
+  | "ar"
+  | "ku"
+  | "de"
+  | "fr"
+  | "ru"
+  | "tg";
 export type LocaleHeaderTypes =
   | "fa-IR"
   | "en-US"
@@ -33,4 +43,6 @@ export type LocaleHeaderTypes =
   | "ar-SA"
   | "ku-KU"
   | "de-DE"
-  | "fr-FR";
+  | "fr-FR"
+  | "ru-RU"
+  | "tg-TJ";

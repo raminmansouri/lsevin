@@ -1,7 +1,7 @@
 import { defineRouting } from "next-intl/routing";
 
 export const routing = defineRouting({
-  locales: ["en", "fa", "tr", "es", "ar", "ku", "de", "fr"],
+  locales: ["en", "fa", "tr", "es", "ar", "ku", "de", "fr", "ru", "tg"],
   defaultLocale: "fa",
   // Persian (fa) is the firm default for NEW visitors. Disable Accept-Language
   // detection so the browser can't override it — visiting "/" always lands on "/fa".
