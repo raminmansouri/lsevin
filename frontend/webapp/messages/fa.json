@@ -3853,11 +3853,14 @@
     "fa": "فارسی",
     "en": "English",
     "tr": "Türkçe",
-    "ar": "Arapça",
+    "ar": "العربية",
     "es": "Español",
-    "ku": "Kurdish",
+    "ku": "کوردی",
     "de": "Deutsch",
-    "fr": "Français"
+    "fr": "Français",
+    "ru": "Русский",
+    "tg": "Тоҷикӣ",
+    "zh": "中文"
   },
   "Logo": {
     "medical": "پزشکی",

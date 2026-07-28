@@ -4932,15 +4932,18 @@
     "title": "L Sevin"
   },
   "LocaleSwitcher": {
-    "ar": "Арабӣ",
-    "de": "Олмонӣ",
-    "en": "Англисӣ",
-    "es": "Испанӣ",
-    "fa": "Форсӣ",
-    "fr": "Фаронсавӣ",
-    "ku": "Курдӣ",
+    "ar": "العربية",
+    "de": "Deutsch",
+    "en": "English",
+    "es": "Español",
+    "fa": "فارسی",
+    "fr": "Français",
+    "ku": "کوردی",
     "label": "Тағйири забон",
-    "tr": "Туркӣ"
+    "tr": "Türkçe",
+    "ru": "Русский",
+    "tg": "Тоҷикӣ",
+    "zh": "中文"
   },
   "LocalizedInput": {
     "placeholder": "{field}-ро бо забони {language} ворид кунед"

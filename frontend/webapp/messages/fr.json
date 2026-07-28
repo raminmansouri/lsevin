@@ -693,14 +693,17 @@
   },
   "LocaleSwitcher": {
     "label": "Changer de langue",
-    "fa": "Persan",
-    "en": "Anglais",
-    "tr": "Turc",
-    "ar": "Arabe",
-    "es": "Espagnol",
-    "ku": "Kurde",
-    "de": "Allemand",
-    "fr": "Français"
+    "fa": "فارسی",
+    "en": "English",
+    "tr": "Türkçe",
+    "ar": "العربية",
+    "es": "Español",
+    "ku": "کوردی",
+    "de": "Deutsch",
+    "fr": "Français",
+    "ru": "Русский",
+    "tg": "Тоҷикӣ",
+    "zh": "中文"
   },
   "Logo": {
     "medical": "Médical",

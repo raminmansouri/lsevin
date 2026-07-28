@@ -693,14 +693,17 @@
   },
   "LocaleSwitcher": {
     "label": "Dili değiştir",
-    "fa": "Farsça",
-    "en": "İngilizce",
+    "fa": "فارسی",
+    "en": "English",
     "tr": "Türkçe",
-    "ar": "Arapça",
-    "es": "İspanyolca",
-    "ku": "Kurmanca",
-    "de": "Almanca",
-    "fr": "Fransızca"
+    "ar": "العربية",
+    "es": "Español",
+    "ku": "کوردی",
+    "de": "Deutsch",
+    "fr": "Français",
+    "ru": "Русский",
+    "tg": "Тоҷикӣ",
+    "zh": "中文"
   },
   "Logo": {
     "medical": "Tıp",

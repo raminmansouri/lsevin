@@ -5331,9 +5331,12 @@
     "es": "Español",
     "fa": "فارسی",
     "fr": "Français",
-    "ku": "Kurdî",
+    "ku": "کوردی",
     "label": "Изменить язык",
-    "tr": "Türkçe"
+    "tr": "Türkçe",
+    "ru": "Русский",
+    "tg": "Тоҷикӣ",
+    "zh": "中文"
   },
   "LocalizedInput": {
     "placeholder": "Введите {field} на языке {language}"

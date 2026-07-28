@@ -5325,15 +5325,18 @@
     "title": "L Sevin"
   },
   "LocaleSwitcher": {
-    "ar": "阿拉伯语",
-    "de": "德语",
-    "en": "英语",
-    "es": "西班牙语",
-    "fa": "波斯语",
-    "fr": "法语",
-    "ku": "库尔德语",
+    "ar": "العربية",
+    "de": "Deutsch",
+    "en": "English",
+    "es": "Español",
+    "fa": "فارسی",
+    "fr": "Français",
+    "ku": "کوردی",
     "label": "切换语言",
-    "tr": "土耳其语"
+    "tr": "Türkçe",
+    "ru": "Русский",
+    "tg": "Тоҷикӣ",
+    "zh": "中文"
   },
   "LocalizedInput": {
     "placeholder": "请用{language}输入{field}"
