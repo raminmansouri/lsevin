@@ -34,7 +34,8 @@ export type LocaleTypes =
   | "de"
   | "fr"
   | "ru"
-  | "tg";
+  | "tg"
+  | "zh";
 export type LocaleHeaderTypes =
   | "fa-IR"
   | "en-US"
@@ -45,4 +46,5 @@ export type LocaleHeaderTypes =
   | "de-DE"
   | "fr-FR"
   | "ru-RU"
-  | "tg-TJ";
+  | "tg-TJ"
+  | "zh-CN";

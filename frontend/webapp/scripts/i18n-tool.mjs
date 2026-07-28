@@ -25,7 +25,7 @@ const MESSAGES = path.join(ROOT, "messages");
 const WORK = path.join(ROOT, ".i18n-work");
 
 /** Every locale the app ships, including the two added for this pass. */
-export const LOCALES = ["en", "fa", "tr", "es", "ar", "ku", "de", "fr", "ru", "tg"];
+export const LOCALES = ["en", "fa", "tr", "es", "ar", "ku", "de", "fr", "ru", "tg", "zh"];
 
 /** Bundles complete enough to act as a translation source, best first. */
 const SOURCES = ["en", "fa"];
