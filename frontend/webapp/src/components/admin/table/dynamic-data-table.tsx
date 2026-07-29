@@ -1,7 +1,7 @@
 "use client";
 
 
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { resolveAdminTableCellExtension } from "@/lib/admin/extensions/form-and-table-renderers";
 import { localizeColumnLabel } from "@/lib/admin/label-localization";
 import Link from "next/link";
@@ -37,7 +37,8 @@ export function DynamicDataTable({
   total,
 }: Props) {
   const tAdmin = useTranslations("AdminGenerated");
-  const locale = useLocale();
+  const tColumn = useTranslations("AdminColumn");
+  const tTable = useTranslations("AdminTable");
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -47,7 +48,7 @@ export function DynamicDataTable({
   const columns = useMemo<ColumnDef<ListQueryResultRow>[]>(() => {
     const defs: ColumnDef<ListQueryResultRow>[] = definition.listFields.map((field) => ({
       accessorKey: field.columnName,
-      header: localizeColumnLabel(field.columnName, field.label, locale),
+      header: localizeColumnLabel(tColumn, tTable, field.columnName, field.label),
       cell: ({ row }) => {
 
 

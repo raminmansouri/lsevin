@@ -1,7 +1,7 @@
 "use client";
 
 
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useMemo, useState, useTransition, type ReactNode } from "react";
 import { Plus, Pencil, RefreshCw, Trash2, Search, X } from "lucide-react";
 import { toast } from "sonner";
@@ -92,7 +92,8 @@ function ChildCollectionCard({
   panel: ChildCollectionPanel;
 }) {
   const tAdmin = useTranslations("AdminGenerated");
-  const uiLocale = useLocale();
+  const tColumn = useTranslations("AdminColumn");
+  const tTable = useTranslations("AdminTable");
   const [result, setResult] = useState<ListQueryResult>(panel.initialResult);
   const [query, setQuery] = useState("");
   const [modal, setModal] = useState<ModalState>(null);
@@ -183,7 +184,7 @@ function ChildCollectionCard({
     <section className="rounded-3xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h3 className="text-lg font-semibold">{localizeTableLabel(panel.collection.table, panel.collection.label, uiLocale)}</h3>
+          <h3 className="text-lg font-semibold">{localizeTableLabel(tTable, panel.collection.table, panel.collection.label)}</h3>
           {panel.collection.description ? (
             <p className="mt-1 text-sm text-zinc-500">{panel.collection.description}</p>
           ) : null}
@@ -231,7 +232,7 @@ function ChildCollectionCard({
             <tr className="border-b border-zinc-200 dark:border-zinc-800">
               {listFields.map((field) => (
                 <th key={field.columnName} className="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-300">
-                  {localizeColumnLabel(field.columnName, field.label, uiLocale)}
+                  {localizeColumnLabel(tColumn, tTable, field.columnName, field.label)}
                 </th>
               ))}
               <th className="px-4 py-3 text-right font-medium text-zinc-600 dark:text-zinc-300">{tAdmin("actions")}</th>

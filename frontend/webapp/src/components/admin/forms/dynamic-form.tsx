@@ -1,7 +1,7 @@
 "use client";
 
 
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { normalizeAdminFormFieldExtension, resolveAdminFormFieldExtension } from "@/lib/admin/extensions/form-and-table-renderers";
 import { useEffect, useMemo, useTransition } from "react";
 import { useForm } from "react-hook-form";
@@ -71,7 +71,8 @@ export function DynamicForm({
   onSuccess,
 }: Props) {
   const tAdmin = useTranslations("AdminGenerated");
-  const uiLocale = useLocale();
+  const tColumn = useTranslations("AdminColumn");
+  const tTable = useTranslations("AdminTable");
   const [pending, startTransition] = useTransition();
   const hiddenFieldSet = useMemo(() => new Set(excludeFields), [excludeFields]);
   const renderedFields = useMemo(
@@ -80,9 +81,9 @@ export function DynamicForm({
         .filter((field) => !hiddenFieldSet.has(field.columnName))
         .map((field) => ({
           ...field,
-          label: localizeColumnLabel(field.columnName, field.label ?? "", uiLocale),
+          label: localizeColumnLabel(tColumn, tTable, field.columnName, field.label ?? ""),
         })),
-    [definition.formFields, hiddenFieldSet, uiLocale]
+    [definition.formFields, hiddenFieldSet, tColumn, tTable]
   );
   const schemaDefinition = useMemo(
     () => ({ ...definition, formFields: renderedFields }),

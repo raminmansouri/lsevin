@@ -79,17 +79,20 @@ function sourceFor(key, flats) {
 }
 
 /**
- * The parts of an ICU message a translation must not change: the argument names and
- * their types. A dropped `{count}` renders a broken string to a user.
+ * The one thing a translation must not change: which arguments the message consumes.
+ * A dropped `{count}` renders a broken string to a user.
  *
  * Deliberately NOT a naive `/\{[^}]*\}/` sweep — that also matches the *branches* of a
  * plural, `{# review}` / `{# reviews}`, which are exactly the text a translator is
  * supposed to rewrite. Comparing those rejects every correct translation of a plural.
  *
- * Branch sets are not compared either: plural categories are language-specific. English
- * needs one/other, Russian needs one/few/many, Turkish is happy with other. Requiring
- * the source's categories would force wrong grammar. We require only that each plural
- * still has the catch-all `other` branch ICU falls back to.
+ * Neither branch sets nor argument *types* are compared, because both are properties of
+ * the target language rather than of the message:
+ *   - categories differ (English one/other, Russian one/few/many, Chinese other alone)
+ *   - a language may not need the plural wrapper at all — Persian does not inflect after
+ *     a numeral, so "{count} دیدگاه" is the correct rendering of "{count, plural, ...}"
+ * Enforcing either would reject correct translations, which is how the first version of
+ * this check behaved.
  */
 function icuSignature(text) {
   const args = new Set();
@@ -97,12 +100,16 @@ function icuSignature(text) {
   let match;
 
   const argRe = /\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*,\s*(plural|selectordinal|select|number|date|time)\b/g;
-  while ((match = argRe.exec(text))) args.add(`${match[1]}:${match[2]}`);
+  while ((match = argRe.exec(text))) args.add(match[1]);
 
   const simpleRe = /\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*\}/g;
   while ((match = simpleRe.exec(text))) simple.add(match[1]);
 
-  return [...simple].sort().join(",") + "|" + [...args].sort().join(",");
+  // Names only, not types. Whether `count` is a bare placeholder or a plural
+  // wrapper is the translator's call: Persian does not inflect after a numeral,
+  // so "{count} دیدگاه" is correct where English needs one/other branching.
+  // What must never change is *which* arguments the message consumes.
+  return [...new Set([...simple, ...args])].sort().join(",");
 }
 
 /** True when `text` opens a plural/select but has no `other` branch to fall back to. */

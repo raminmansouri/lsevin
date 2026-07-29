@@ -1,8 +1,8 @@
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Database, TableProperties } from "lucide-react";
 import { ResolvedTableDefinition } from "@/lib/admin/types";
-import { localizeTableLabel } from "@/lib/admin/label-localization";
+import { localizeSchemaLabel, localizeTableLabel } from "@/lib/admin/label-localization";
 
 type Props = {
   navigation: ResolvedTableDefinition[];
@@ -10,7 +10,8 @@ type Props = {
 
 export function AdminSidebar({ navigation }: Props) {
   const tAdmin = useTranslations("AdminGenerated");
-  const locale = useLocale();
+  const tSchema = useTranslations("AdminSchema");
+  const tTable = useTranslations("AdminTable");
   const grouped = navigation.reduce<Record<string, ResolvedTableDefinition[]>>((acc, item) => {
     acc[item.schema] ||= [];
     acc[item.schema].push(item);
@@ -34,7 +35,7 @@ export function AdminSidebar({ navigation }: Props) {
           {Object.entries(grouped).map(([schema, items]) => (
             <div key={schema}>
               <div className="mb-2 px-2 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-                {schema}
+                {localizeSchemaLabel(tSchema, schema)}
               </div>
               <div className="space-y-1">
                 {items.map((item) => (
@@ -44,7 +45,7 @@ export function AdminSidebar({ navigation }: Props) {
                     className="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-900"
                   >
                     <TableProperties className="h-4 w-4 shrink-0 text-zinc-500" />
-                    <span className="truncate">{localizeTableLabel(item.table, item.label, locale)}</span>
+                    <span className="truncate">{localizeTableLabel(tTable, item.table, item.label)}</span>
                   </Link>
                 ))}
               </div>
