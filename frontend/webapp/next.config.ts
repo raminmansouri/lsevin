@@ -28,6 +28,14 @@ const nextConfig: NextConfig = {
   },
   output: "standalone",
 
+  // Next compresses with gzip by default. Caddy sits in front of it with
+  // `encode zstd gzip` (deployments/docker/Caddyfile.server) but will not
+  // re-compress a response that already carries a Content-Encoding, so every
+  // HTML, JS, CSS and RSC response was going out as gzip while only the .NET
+  // API's responses — which arrive uncompressed — got zstd. Handing Caddy the
+  // raw bytes lets it pick the best encoding the browser offers.
+  compress: false,
+
   experimental: {
     authInterrupts: true,
     // NOTE: switched from `cacheComponents` to `useCache` for the production build.

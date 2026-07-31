@@ -2,7 +2,6 @@
 
 import { useQuery, queryOptions } from "@tanstack/react-query";
 import axios from "axios";
-import { getSession } from "next-auth/react";
 
 import {
   EMPTY_NOTIFICATION_COUNT,
@@ -53,15 +52,21 @@ const queryNotificationCountKey = (locale: string) =>
 export const useNotificationCount = (locale: string) => {
   const options = queryOptions<NotificationCountResponse, IProblem>({
     queryKey: queryNotificationCountKey(locale),
-    queryFn: async () => {
-      const session = await getSession();
-      const token = session?.user?.accessToken ?? null;
-      return getNotificationCountClient(locale, token);
-    },
-    staleTime: 30 * 1000,
-    gcTime: 60 * 1000,
+    // No `getSession()` here. The route resolves the customer from the NextAuth
+    // cookie (resolveCurrentNotificationCustomerId -> getVerifiedNextAuthToken),
+    // and the bearer token it accepts as a fallback is one it derives from that
+    // same cookie — so fetching the session first only doubled the request count
+    // for a header the server does not need. `withCredentials` sends the cookie.
+    queryFn: () => getNotificationCountClient(locale),
+    // An unread badge is not worth a request every 30 seconds on a mobile
+    // connection. Five minutes keeps it current enough; a user who acts on a
+    // notification gets a fresh count from the invalidation that follows.
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: true,
-    refetchInterval: 30 * 1000,
+    refetchInterval: 5 * 60 * 1000,
+    // Don't keep polling a backgrounded tab — the phone is usually in a pocket.
+    refetchIntervalInBackground: false,
   });
 
   const { data, error, isFetching, refetch } = useQuery(options);

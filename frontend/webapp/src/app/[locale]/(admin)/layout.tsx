@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 
 import LocaleSwitcher from "@/components/locale/locale-switcher";
@@ -16,32 +17,40 @@ import {
   AdminSidebar,
   AdminSidebarSkeleton,
 } from "@/features/shared/components/admin-sidebar";
+import { getClientMessages } from "@/i18n/client-messages";
 import { LocalePageProps } from "@/types/next";
 import { getProfileForEdit } from "@/features/profile/actions/profile.actions";
 
 export default async function AdminLayout({ children, params }: LocalePageProps) {
 
       const profile = await getProfileForEdit("en-US");
-  
+
+  // The admin catalog is the heaviest in the app (AdminGenerated alone is ~76 KB).
+  // It is mounted here rather than in the root layout so it never reaches the
+  // customer-facing mobile app — see @/i18n/client-messages.
+  const messages = await getClientMessages("admin");
+
   return (
-    <Suspense fallback={<AdminLayoutSkeleton />}>
-      <SuspenseBoundary params={params}>
-        <SidebarProvider>
-          <AdminSidebar />
-          <SidebarInset>
-            <header className="bg-background h-header sticky top-0 flex shrink-0 items-center gap-2 border-b px-4">
-              <SidebarTrigger />
-              <Separator orientation="vertical" className="ms-2" />
-              <div className="ms-auto flex items-center gap-4">
-                <LocaleSwitcher />
-                <UserInfo profile={profile} />
-              </div>
-            </header>
-            <Shell className="container">{children}</Shell>
-          </SidebarInset>
-        </SidebarProvider>
-      </SuspenseBoundary>
-    </Suspense>
+    <NextIntlClientProvider messages={messages}>
+      <Suspense fallback={<AdminLayoutSkeleton />}>
+        <SuspenseBoundary params={params}>
+          <SidebarProvider>
+            <AdminSidebar />
+            <SidebarInset>
+              <header className="bg-background h-header sticky top-0 flex shrink-0 items-center gap-2 border-b px-4">
+                <SidebarTrigger />
+                <Separator orientation="vertical" className="ms-2" />
+                <div className="ms-auto flex items-center gap-4">
+                  <LocaleSwitcher />
+                  <UserInfo profile={profile} />
+                </div>
+              </header>
+              <Shell className="container">{children}</Shell>
+            </SidebarInset>
+          </SidebarProvider>
+        </SuspenseBoundary>
+      </Suspense>
+    </NextIntlClientProvider>
   );
 }
 

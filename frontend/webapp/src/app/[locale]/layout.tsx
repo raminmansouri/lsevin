@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { Providers } from "@/components/providers";
+import { getClientMessages } from "@/i18n/client-messages";
 import { routing } from "@/i18n/routing";
 import { LocalePageProps } from "@/types/next";
 
@@ -48,8 +49,15 @@ export default async function LocaleLayout({
 
   // <html>/<body>, lang and dir live in the root layout (src/app/layout.tsx).
   // This layout only wires up the locale providers for the segment.
+  //
+  // Only the core namespaces go in here. Each top-level segment mounts its own
+  // provider with the full set it needs, so a customer on the mobile app never
+  // downloads the admin or provider-portal catalogs. Omitting `messages` would
+  // send all ~66 namespaces to every page — see @/i18n/client-messages.
+  const messages = await getClientMessages();
+
   return (
-    <NextIntlClientProvider locale={locale}>
+    <NextIntlClientProvider locale={locale} messages={messages}>
       <Providers>{children}</Providers>
     </NextIntlClientProvider>
   );
