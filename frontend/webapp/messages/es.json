@@ -2958,7 +2958,8 @@
       "premiumPlacement": "Espacio premium",
       "previousSlideAria": "Diapositiva anterior",
       "resumeAria": "Reanudar el carrusel",
-      "sponsored": "Patrocinado"
+      "sponsored": "Patrocinado",
+      "playVideoAria": "Reproducir vídeo"
     },
     "trending": {
       "bookings": "{count} reservas",

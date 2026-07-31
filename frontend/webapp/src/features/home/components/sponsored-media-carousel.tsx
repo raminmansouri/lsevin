@@ -18,14 +18,102 @@ function isExternalLink(value: string) {
   return /^https?:\/\//i.test(value);
 }
 
+const VIDEO_MIME_TYPE_BY_EXTENSION: Record<string, string> = {
+  mp4: 'video/mp4',
+  m4v: 'video/mp4',
+  webm: 'video/webm',
+  ogv: 'video/ogg',
+  ogg: 'video/ogg',
+  mov: 'video/quicktime',
+  qt: 'video/quicktime',
+  avi: 'video/x-msvideo',
+  wmv: 'video/x-ms-wmv',
+  mkv: 'video/x-matroska',
+};
+
+/**
+ * Whether this browser will actually render the file, judged from the URL — the
+ * media library keeps an extension per row but the slide query does not carry
+ * it, and the URL is what actually gets requested.
+ *
+ * Chrome on Android answers "" for video/quicktime, and what it does with a
+ * `.mov` is worse than refusing it: the whole file downloads and nothing
+ * renders. An extension we do not recognize is treated as playable rather than
+ * hidden — better to let a tap find out than to silently drop a valid slide.
+ */
+function canBrowserPlay(src: string) {
+  if (typeof document === 'undefined') return false;
+
+  const extension = src.split(/[?#]/)[0]?.split('.').pop()?.toLowerCase() ?? '';
+  const mimeType = VIDEO_MIME_TYPE_BY_EXTENSION[extension];
+  if (!mimeType) return true;
+
+  return document.createElement('video').canPlayType(mimeType) !== '';
+}
+
+type NetworkInformation = {
+  saveData?: boolean;
+  effectiveType?: string;
+};
+
+/**
+ * Whether this visit should spend bandwidth on video before being asked to.
+ *
+ * A sponsored `.mov` on the home page was pulling 2.2 MB — 66% of the entire
+ * page weight — because the autoplay effect called play() on the active slide,
+ * which overrides `preload` and fetches the whole file. On the ~318 kbps links
+ * this app is actually used over, that stole bandwidth from the JS and images
+ * for the whole first minute.
+ *
+ * Starts false so the server-rendered markup and the first client render agree;
+ * only a connection that looks genuinely fast opts in.
+ */
+function useAutoplayAllowed() {
+  const [allowed, setAllowed] = useState(false);
+
+  useEffect(() => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+
+    const connection = (navigator as Navigator & { connection?: NetworkInformation }).connection;
+
+    if (connection?.saveData) return;
+    // Absent the API (Safari, Firefox) we stay conservative: a tap is cheap, a
+    // wasted multi-megabyte download on a phone is not.
+    if (connection?.effectiveType !== '4g') return;
+
+    setAllowed(true);
+  }, []);
+
+  return allowed;
+}
+
 export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredMediaCarouselProps) {
   const t = useTranslations('Home.sponsoredCarousel');
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  // Slides the visitor explicitly started. Once started, a slide keeps its video
+  // loaded so returning to it does not re-download.
+  const [startedSlideIds, setStartedSlideIds] = useState<ReadonlySet<string>>(new Set());
+  const [playableSlideIds, setPlayableSlideIds] = useState<ReadonlySet<string>>(new Set());
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const touchStartX = useRef<number | null>(null);
+  const autoplayAllowed = useAutoplayAllowed();
 
   const safeSlides = useMemo(() => slides.filter((item) => Boolean(item.url)), [slides]);
+
+  // `canPlayType` needs a DOM, so this settles after the first paint. Until it
+  // does, no video slide is treated as playable and nothing is requested.
+  useEffect(() => {
+    setPlayableSlideIds(
+      new Set(
+        safeSlides
+          .filter(
+            (slide) => slide.mediaType === 'video' && canBrowserPlay(resolveHomeMediaUrl(slide.url)),
+          )
+          .map((slide) => slide.id),
+      ),
+    );
+  }, [safeSlides]);
 
   useEffect(() => {
     if (safeSlides.length <= 1 || isPaused) return;
@@ -41,13 +129,24 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
     videoRefs.current.forEach((video, index) => {
       if (!video) return;
 
-      if (index === activeIndex && safeSlides[index]?.mediaType === 'video') {
+      const slide = safeSlides[index];
+      const shouldPlay =
+        index === activeIndex &&
+        slide?.mediaType === 'video' &&
+        playableSlideIds.has(slide.id) &&
+        (autoplayAllowed || startedSlideIds.has(slide.id));
+
+      if (shouldPlay) {
         void video.play().catch(() => undefined);
       } else {
         video.pause();
       }
     });
-  }, [activeIndex, safeSlides]);
+  }, [activeIndex, autoplayAllowed, playableSlideIds, safeSlides, startedSlideIds]);
+
+  const startSlideVideo = (slideId: string) => {
+    setStartedSlideIds((current) => new Set(current).add(slideId));
+  };
 
   if (safeSlides.length === 0) return null;
 
@@ -99,6 +198,11 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
             const title = slide.title || t('fallbackTitle');
             const subtitle = slide.subtitle || t('fallbackSubtitle');
             const buttonLabel = slide.buttonLabel || t('fallbackButton');
+            const isPlayableVideo = slide.mediaType === 'video' && playableSlideIds.has(slide.id);
+            // Only these two states fetch bytes. Everything else renders the card
+            // chrome over the dark backdrop and requests nothing.
+            const loadsVideo = isPlayableVideo && (autoplayAllowed || startedSlideIds.has(slide.id));
+            const showsPlayButton = isPlayableVideo && !loadsVideo && active;
 
             return (
               <div
@@ -117,12 +221,21 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
                     ref={(node) => {
                       videoRefs.current[index] = node;
                     }}
-                    className="h-full w-full object-cover"
-                    src={mediaSrc}
+                    // `absolute` matters: the image branch uses next/image's
+                    // `fill`, which takes the media out of flow. A static <video>
+                    // consumed the slide's full height and pushed the title,
+                    // subtitle and call-to-action below it, where overflow-hidden
+                    // clipped them — so video slides rendered no text at all.
+                    className="absolute inset-0 h-full w-full object-cover"
+                    // No `src` until the slide is cleared to load. Setting it with
+                    // preload="none" still lets a browser start buffering once
+                    // play() is called, and an unplayable format (a .mov on
+                    // Android) would download in full and render nothing.
+                    src={loadsVideo ? mediaSrc : undefined}
                     muted
                     loop
                     playsInline
-                    preload={active ? 'metadata' : 'none'}
+                    preload={loadsVideo ? 'metadata' : 'none'}
                   />
                 ) : (
                   <ImageWithFallback
@@ -137,6 +250,20 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
 
                 <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-black/10" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+
+                {showsPlayButton ? (
+                  <button
+                    type="button"
+                    onClick={() => startSlideVideo(slide.id)}
+                    aria-label={t('playVideoAria')}
+                    // Bottom inline-end: the copy and call-to-action sit at the
+                    // inline-start in both directions, so this corner is the one
+                    // place a play button does not land on the title.
+                    className="absolute bottom-5 end-5 z-20 inline-flex h-14 w-14 items-center justify-center rounded-full bg-white/90 text-gray-950 shadow-lg backdrop-blur-md transition hover:bg-white sm:bottom-6 sm:end-6"
+                  >
+                    <Play size={24} className="ms-1 fill-current" />
+                  </button>
+                ) : null}
 
                 <div className="relative z-10 flex h-full flex-col justify-between p-5 sm:p-6">
                   <div className="flex items-start justify-between gap-3">

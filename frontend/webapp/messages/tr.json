@@ -2958,7 +2958,8 @@
       "premiumPlacement": "Premium yerleşim",
       "previousSlideAria": "Önceki slayt",
       "resumeAria": "Karuseli devam ettir",
-      "sponsored": "Sponsorlu"
+      "sponsored": "Sponsorlu",
+      "playVideoAria": "Videoyu oynat"
     },
     "trending": {
       "bookings": "{count} rezervasyon",

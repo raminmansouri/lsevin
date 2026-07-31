@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { rejectUnplayableVideo } from "@/components/media/video-constraints";
 import { putData } from "@/config/http/http-service.server";
 import { requireApiUser } from "@/lib/auth/api-guard";
 import { getSession } from "../../../../../lib/auth/session";
@@ -50,6 +51,14 @@ export async function POST(request: NextRequest) {
 
     if (!(file instanceof File)) {
       return NextResponse.json({ error: "No file was provided." }, { status: 400 });
+    }
+
+    // Nothing downstream transcodes video, so a container browsers cannot decode
+    // would be stored and then served to every visitor as a download that renders
+    // nothing. Reject it here rather than at playback time.
+    const rejection = rejectUnplayableVideo({ name: file.name, type: file.type });
+    if (rejection) {
+      return NextResponse.json({ error: rejection.message }, { status: 415 });
     }
 
     const session = await getSession();

@@ -1746,7 +1746,8 @@
       "resumeAria": "ادامه اسلایدر",
       "previousSlideAria": "اسلاید قبلی",
       "nextSlideAria": "اسلاید بعدی",
-      "goToSlideAria": "رفتن به اسلاید {index}"
+      "goToSlideAria": "رفتن به اسلاید {index}",
+      "playVideoAria": "پخش ویدئو"
     },
     "featuredPage": {
       "backAria": "بازگشت به خانه",

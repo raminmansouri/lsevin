@@ -2468,7 +2468,8 @@
       "resumeAria": "استئناف السلايدر",
       "previousSlideAria": "الشريحة السابقة",
       "nextSlideAria": "الشريحة التالية",
-      "goToSlideAria": "Go إلى الشريحة {index}"
+      "goToSlideAria": "Go إلى الشريحة {index}",
+      "playVideoAria": "تشغيل الفيديو"
     },
     "featuredPage": {
       "backAria": "العودة إلى الرئيسية",

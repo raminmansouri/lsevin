@@ -5224,7 +5224,8 @@
       "premiumPlacement": "Премиум-размещение",
       "previousSlideAria": "Предыдущий слайд",
       "resumeAria": "Продолжить показ карусели",
-      "sponsored": "Реклама"
+      "sponsored": "Реклама",
+      "playVideoAria": "Воспроизвести видео"
     },
     "trending": {
       "bookings": "Бронирований: {count}",

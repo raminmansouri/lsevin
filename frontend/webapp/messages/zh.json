@@ -5224,7 +5224,8 @@
       "premiumPlacement": "尊享推广位",
       "previousSlideAria": "上一张",
       "resumeAria": "继续轮播",
-      "sponsored": "推广"
+      "sponsored": "推广",
+      "playVideoAria": "播放视频"
     },
     "trending": {
       "bookings": "{count}次预约",

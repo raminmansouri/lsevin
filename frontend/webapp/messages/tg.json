@@ -4831,7 +4831,8 @@
       "premiumPlacement": "Ҷойгиркунии премиум",
       "previousSlideAria": "Слайди қаблӣ",
       "resumeAria": "Идомаи карусел",
-      "sponsored": "Таблиғотӣ"
+      "sponsored": "Таблиғотӣ",
+      "playVideoAria": "Видеоро пахш кардан"
     },
     "trending": {
       "bookings": "{count} брон",

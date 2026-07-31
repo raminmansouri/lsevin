@@ -2955,7 +2955,8 @@
       "premiumPlacement": "Premium-Platzierung",
       "previousSlideAria": "Vorherige Folie",
       "resumeAria": "Karussell fortsetzen",
-      "sponsored": "Gesponsert"
+      "sponsored": "Gesponsert",
+      "playVideoAria": "Video abspielen"
     },
     "trending": {
       "bookings": "{count} Buchungen",

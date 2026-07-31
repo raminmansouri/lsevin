@@ -2468,7 +2468,8 @@
       "resumeAria": "Resume carousel",
       "previousSlideAria": "Previous slide",
       "nextSlideAria": "Next slide",
-      "goToSlideAria": "Go to slide {index}"
+      "goToSlideAria": "Go to slide {index}",
+      "playVideoAria": "Play video"
     },
     "featuredPage": {
       "backAria": "Back to home",

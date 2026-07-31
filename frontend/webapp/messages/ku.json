@@ -2955,7 +2955,8 @@
       "premiumPlacement": "شوێنی پرێمیۆم",
       "previousSlideAria": "سلایدی پێشوو",
       "resumeAria": "بەردەوامبوونی سلایدەر",
-      "sponsored": "پاڵپشتیکراو"
+      "sponsored": "پاڵپشتیکراو",
+      "playVideoAria": "ڤیدیۆ لێبدە"
     },
     "trending": {
       "bookings": "{count} حجز",

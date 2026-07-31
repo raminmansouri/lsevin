@@ -2955,7 +2955,8 @@
       "premiumPlacement": "Emplacement premium",
       "previousSlideAria": "Diapositive précédente",
       "resumeAria": "Reprendre le carrousel",
-      "sponsored": "Sponsorisé"
+      "sponsored": "Sponsorisé",
+      "playVideoAria": "Lire la vidéo"
     },
     "trending": {
       "bookings": "{count} réservations",

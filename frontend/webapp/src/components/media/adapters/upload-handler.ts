@@ -14,6 +14,7 @@ import {
   UploadHandlerResult,
   UploadMediaHandler,
 } from "../types";
+import { rejectUnplayableVideo } from "../video-constraints";
 
 /**
  * Default upload implementation.
@@ -31,6 +32,12 @@ export const defaultUploadHandler: UploadMediaHandler = async ({
   file,
   onProgress,
 }: UploadHandlerInput): Promise<UploadHandlerResult> => {
+  // Fail a browser-unplayable video here so the uploader finds out before the
+  // bytes go over the wire. The storage route repeats this check — this one is
+  // for the person, that one is the rule.
+  const rejection = rejectUnplayableVideo(file);
+  if (rejection) throw new Error(rejection.message);
+
   // Convert raster images to WebP under the size budget before upload (bandwidth
   // layer). Non-images / already-optimized files pass through untouched.
   const uploadFile = await compressImageToWebp(file);
