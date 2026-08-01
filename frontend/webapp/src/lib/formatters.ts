@@ -1,6 +1,3 @@
-import { CountryCode, parsePhoneNumberWithError } from "libphonenumber-js";
-
-import { ParsedPhone } from "@/features/shared/types/common";
 import { LocalizedContentResponse } from "@/features/shared/types/localization";
 import { LocaleHeaderTypes } from "@/types/common";
 import { IProblem } from "@/types/error";
@@ -60,18 +57,6 @@ export function truncateText(text: string, startLength = 10, endLength = 8) {
   return `${text.slice(0, startLength)}...${text.slice(-endLength)}`;
 }
 
-export function parsePhone(phoneNumber: string): ParsedPhone | null {
-  try {
-    const parsed = parsePhoneNumberWithError(phoneNumber);
-
-    return {
-      value: parsed.nationalNumber,
-      country: parsed.country as CountryCode,
-    };
-  } catch {
-    return null;
-  }
-}
 export function formatError(error: IProblem) {
   const errorMessage = error.errors
     ? Object.values(error.errors)[0]?.[0]

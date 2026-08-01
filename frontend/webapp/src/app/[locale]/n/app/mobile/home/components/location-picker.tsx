@@ -8,8 +8,6 @@ import { useTranslations } from 'next-intl';
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import { RHFCountryCitySelect } from '@/features/locations/components/rhf-country-city-select';
 import { getPickedLocations, type HomePickedLocation } from '../actions/get-picked-locations';
@@ -25,13 +23,18 @@ import { saveCurrentLocationToProfileAction } from '../actions/save-profile-loca
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { hasExplicitLocaleChoice, localeForCountry } from '@/i18n/locale-by-country';
 
-const formSchema = z.object({
-  countryId: z.string().uuid().nullable().optional(),
-  provinceId: z.string().uuid().nullable().optional(),
-  cityId: z.string().uuid().nullable().optional(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+/**
+ * This form holds three ids chosen from cascading selects — there is no free
+ * text to validate, and the component never calls `handleSubmit` or reads
+ * `formState.errors`, so the resolver's verdict was never consulted. Declaring
+ * the shape directly keeps `zod` and `@hookform/resolvers` (248 KB, 57 KB
+ * gzipped) out of the home page's bundle.
+ */
+type FormValues = {
+  countryId?: string | null;
+  provinceId?: string | null;
+  cityId?: string | null;
+};
 
 type NavigationMode = 'push' | 'replace' | false;
 
@@ -380,7 +383,6 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
   );
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
     defaultValues: {
       countryId: null,
       provinceId: null,

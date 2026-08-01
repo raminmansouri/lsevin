@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 
 import { postData, withBaseHeaders } from "@/config/http/http-service.server";
 import { IDENTITY_MODULE_BASE_PATH } from "@/features/shared/types/constants";
-import { parsePhone } from "@/lib/formatters";
+import { parsePhone } from "@/lib/parse-phone";
 import { createSafeAction } from "@/lib/safe-action";
 
 import { SignUpSchema } from "./schema";

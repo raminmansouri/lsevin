@@ -8,7 +8,7 @@ import {
   CATEGORY_MODULE_BASE_PATH,
 } from "@/features/shared/types/constants";
 import { optionalLocalizedContentOrNull } from "@/features/shared/utils/localization";
-import { parsePhone } from "@/lib/formatters";
+import { parsePhone } from "@/lib/parse-phone";
 import { createAuthenticatedSafeAction } from "@/lib/safe-action";
 import { LocaleHeaderTypes } from "@/types/common";
 
