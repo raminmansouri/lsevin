@@ -55,6 +55,9 @@ const MIGRATIONS = [
   "0009_accounting_reports.sql",
   "0010_accounting_legacy_reconciliation.sql",
   "0012_accounting_cutover_checks.sql",
+  // 0013 (panel auth) is applied by panel-auth.test.ts itself — it is the only
+  // suite that needs it, and it owns the fixture.
+  "0014_accounting_manual_entries.sql",
   // 0011 (the opening-balance import) is deliberately NOT here: it reads live legacy
   // wallet data and posts entries, which is the cut-over itself. cutover.test.ts applies
   // it explicitly against its own fixture.

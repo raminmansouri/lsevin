@@ -37,6 +37,10 @@ const ADVISORY_LOCK_ID = 8_142_337_015;
 const args = new Set(process.argv.slice(2));
 const isDryRun = args.has("--dry-run");
 const isStatus = args.has("--status");
+const baselineArg = process.argv.find((a) => a.startsWith("--baseline="));
+const baselineNames = baselineArg
+  ? baselineArg.slice("--baseline=".length).split(",").map((x) => x.trim()).filter(Boolean)
+  : [];
 
 function readDatabaseUrl() {
   if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
@@ -118,6 +122,33 @@ async function main() {
     }
 
     const pending = migrations.filter((m) => !appliedByName.has(m.name));
+
+    // Baseline: record a migration as applied without running it.
+    //
+    // Needed when a database already holds the objects a migration creates but has
+    // no ledger row for it — the state production was left in. Re-running those
+    // files is harmless for the `create ... if not exists` ones and actively wrong
+    // for 0011, which posts opening-balance journal entries and would post them a
+    // second time.
+    if (baselineNames.length) {
+      const unknown = baselineNames.filter((n) => !migrations.some((m) => m.name === n));
+      if (unknown.length) {
+        throw new Error(`Unknown migration(s): ${unknown.join(", ")}`);
+      }
+      for (const name of baselineNames) {
+        const migration = migrations.find((m) => m.name === name);
+        if (appliedByName.has(name)) {
+          console.log(`already recorded  ${name}`);
+          continue;
+        }
+        await sql`
+          insert into public.schema_migrations (name, checksum, duration_ms)
+          values (${migration.name}, ${migration.checksum}, 0)
+        `;
+        console.log(`baselined         ${name}`);
+      }
+      return;
+    }
 
     if (isStatus) {
       for (const migration of migrations) {
