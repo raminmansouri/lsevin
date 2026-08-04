@@ -4429,7 +4429,8 @@ declare const messages: {
         "finance_admin": "Finance admin"
       },
       "entriesTitle": "القيود ودفتر اليومية",
-      "analyticsTitle": "التقارير التحليلية"
+      "analyticsTitle": "التقارير التحليلية",
+      "dimensionsTitle": "مراكز التكلفة والأبعاد"
     },
     "commercial": "المالية",
     "notifications": "الإشعارات",

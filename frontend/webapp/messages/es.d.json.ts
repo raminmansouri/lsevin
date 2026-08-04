@@ -508,7 +508,8 @@ declare const messages: {
       "withdrawalQueueDescription": "Al hacer la solicitud, los fondos ya salieron del saldo disponible del cliente hacia una reserva. Rechazarla se los devuelve.",
       "withdrawalQueueTitle": "Cola de retiros",
       "entriesTitle": "Asientos contables",
-      "analyticsTitle": "Informes analíticos"
+      "analyticsTitle": "Informes analíticos",
+      "dimensionsTitle": "Centros de coste"
     },
     "availability": "disponibilidad",
     "bookingdrafts": "borradores de reservas",

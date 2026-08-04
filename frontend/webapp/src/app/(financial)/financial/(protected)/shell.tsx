@@ -17,6 +17,7 @@ const NAV = [
   { href: "/financial/statements", key: "statementsTitle" },
   { href: "/financial/ledger", key: "ledgerTitle" },
   { href: "/financial/accounts", key: "accountsTitle" },
+  { href: "/financial/dimensions", key: "dimensionsTitle", requires: "finance_admin" as const },
   { href: "/financial/audit", key: "auditTitle" },
   // Settings decide how much money moves, so only a finance admin sees the link.
   { href: "/financial/settings", key: "settingsTitle", requires: "finance_admin" as const },

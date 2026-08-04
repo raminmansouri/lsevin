@@ -4428,7 +4428,8 @@ declare const messages: {
         "finance_admin": "Finance admin"
       },
       "entriesTitle": "Journal entries",
-      "analyticsTitle": "Analytics"
+      "analyticsTitle": "Analytics",
+      "dimensionsTitle": "Cost centres & dimensions"
     },
     "commercial": "Financials",
     "notifications": "Notifications",

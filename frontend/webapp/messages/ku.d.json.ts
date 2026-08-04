@@ -508,7 +508,8 @@ declare const messages: {
       "withdrawalQueueDescription": "داواکردن پێشتر پارەکەی لە باڵانسی خەرجکراوی کڕیارەوە گواستووەتەوە بۆ پاشەکەوت. ڕەتکردنەوە دەیانگەڕێنێتەوە.",
       "withdrawalQueueTitle": "ڕیزی دەرهێنانی پارە",
       "entriesTitle": "تۆمارەکانی ڕۆژنامە",
-      "analyticsTitle": "ڕاپۆرتە شیکارییەکان"
+      "analyticsTitle": "ڕاپۆرتە شیکارییەکان",
+      "dimensionsTitle": "ناوەندەکانی تێچوو"
     },
     "availability": "بەردەستبوون",
     "bookingdrafts": "ڕەشنووسی حجزەکان",

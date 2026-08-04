@@ -8,6 +8,9 @@ import {
 } from "@/accounting/server/manual-entry.queries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+import { listAttachmentsForEntries } from "@/accounting/server/attachments.service";
+
+import { EntryAttachments } from "./attachments";
 import { EntryForm } from "./entry-form";
 import { EntryWorkflowButtons } from "./workflow-buttons";
 
@@ -41,6 +44,7 @@ export default async function EntriesPage() {
     getPeriodCoverage(),
   ]);
 
+  const attachmentsByEntry = await listAttachmentsForEntries(entries.map((e) => e.id));
   const today = new Date().toISOString().slice(0, 10);
 
   return (
@@ -86,13 +90,14 @@ export default async function EntriesPage() {
                   <th className="p-2 text-start">بستانکار</th>
                   <th className="p-2 text-start">وضعیت</th>
                   <th className="p-2 text-start">ثبت‌کننده</th>
+                  <th className="p-2 text-start">ضمائم</th>
                   <th className="p-2 text-start">عملیات</th>
                 </tr>
               </thead>
               <tbody>
                 {entries.length === 0 && (
                   <tr>
-                    <td colSpan={10} className="text-muted-foreground p-6 text-center">
+                    <td colSpan={11} className="text-muted-foreground p-6 text-center">
                       هنوز سندی ثبت نشده است.
                     </td>
                   </tr>
@@ -132,6 +137,13 @@ export default async function EntriesPage() {
                         )}
                       </td>
                       <td className="p-2 text-xs">{entry.createdBy ?? "سیستم"}</td>
+                      <td className="p-2">
+                        <EntryAttachments
+                          entryId={entry.id}
+                          attachments={attachmentsByEntry.get(entry.id) ?? []}
+                          editable={entry.status === "draft" || entry.status === "temporary"}
+                        />
+                      </td>
                       <td className="p-2">
                         {entry.isManual ? (
                           <EntryWorkflowButtons entryId={entry.id} status={entry.status} />

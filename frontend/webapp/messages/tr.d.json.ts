@@ -508,7 +508,8 @@ declare const messages: {
       "withdrawalQueueDescription": "Talep oluşturulduğunda tutar müşterinin harcanabilir bakiyesinden çıkarılıp bloke edilmiştir. Reddetmek tutarı geri verir.",
       "withdrawalQueueTitle": "Para çekme kuyruğu",
       "entriesTitle": "Yevmiye kayıtları",
-      "analyticsTitle": "Analitik raporlar"
+      "analyticsTitle": "Analitik raporlar",
+      "dimensionsTitle": "Masraf merkezleri"
     },
     "availability": "uygunluk",
     "bookingdrafts": "rezervasyon taslakları",

@@ -159,7 +159,8 @@
       "withdrawalQueueDescription": "При создании заявки средства уже переведены из доступного баланса клиента в резерв. Отклонение возвращает их обратно.",
       "withdrawalQueueTitle": "Очередь выводов средств",
       "entriesTitle": "Журнальные записи",
-      "analyticsTitle": "Аналитические отчёты"
+      "analyticsTitle": "Аналитические отчёты",
+      "dimensionsTitle": "Центры затрат"
     },
     "availability": "доступность",
     "bookingdrafts": "черновики бронирований",

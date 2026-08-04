@@ -3710,7 +3710,8 @@ declare const messages: {
         "finance_admin": "مدیر مالی"
       },
       "entriesTitle": "ثبت سند و دفتر روزنامه",
-      "analyticsTitle": "گزارش‌های تحلیلی"
+      "analyticsTitle": "گزارش‌های تحلیلی",
+      "dimensionsTitle": "مراکز هزینه و ابعاد"
     }
   },
   "HomePage": {

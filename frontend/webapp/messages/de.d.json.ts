@@ -508,7 +508,8 @@ declare const messages: {
       "withdrawalQueueDescription": "Mit der Anfrage wurde der Betrag bereits aus dem verfügbaren Guthaben des Kunden in eine Reserve gebucht. Eine Ablehnung gibt ihn zurück.",
       "withdrawalQueueTitle": "Auszahlungsanfragen",
       "entriesTitle": "Buchungsbelege",
-      "analyticsTitle": "Analyseberichte"
+      "analyticsTitle": "Analyseberichte",
+      "dimensionsTitle": "Kostenstellen"
     },
     "availability": "Verfügbarkeit",
     "bookingdrafts": "Buchungsentwürfe",
