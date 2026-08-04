@@ -10,6 +10,7 @@ const NAV = [
   { href: "/financial", key: "title" },
   { href: "/financial/deposits", key: "depositQueueTitle" },
   { href: "/financial/withdrawals", key: "withdrawalQueueTitle" },
+  { href: "/financial/entries", key: "entriesTitle" },
   { href: "/financial/journal", key: "journalTitle" },
   { href: "/financial/reports", key: "reportsTitle" },
   { href: "/financial/statements", key: "statementsTitle" },

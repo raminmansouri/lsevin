@@ -503,7 +503,8 @@
       "username": "Usuario",
       "walletCount": "Billeteras",
       "withdrawalQueueDescription": "Al hacer la solicitud, los fondos ya salieron del saldo disponible del cliente hacia una reserva. Rechazarla se los devuelve.",
-      "withdrawalQueueTitle": "Cola de retiros"
+      "withdrawalQueueTitle": "Cola de retiros",
+      "entriesTitle": "Asientos contables"
     },
     "availability": "disponibilidad",
     "bookingdrafts": "borradores de reservas",

@@ -503,7 +503,8 @@
       "username": "ناوی بەکارهێنەر",
       "walletCount": "جزدانەکان",
       "withdrawalQueueDescription": "داواکردن پێشتر پارەکەی لە باڵانسی خەرجکراوی کڕیارەوە گواستووەتەوە بۆ پاشەکەوت. ڕەتکردنەوە دەیانگەڕێنێتەوە.",
-      "withdrawalQueueTitle": "ڕیزی دەرهێنانی پارە"
+      "withdrawalQueueTitle": "ڕیزی دەرهێنانی پارە",
+      "entriesTitle": "تۆمارەکانی ڕۆژنامە"
     },
     "availability": "بەردەستبوون",
     "bookingdrafts": "ڕەشنووسی حجزەکان",

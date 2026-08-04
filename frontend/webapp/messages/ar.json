@@ -4424,7 +4424,8 @@
       "panelRoles": {
         "accountant": "Accountant",
         "finance_admin": "Finance admin"
-      }
+      },
+      "entriesTitle": "القيود ودفتر اليومية"
     },
     "commercial": "المالية",
     "notifications": "الإشعارات",

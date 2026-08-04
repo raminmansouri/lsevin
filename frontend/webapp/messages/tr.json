@@ -503,7 +503,8 @@
       "username": "Kullanıcı adı",
       "walletCount": "Cüzdanlar",
       "withdrawalQueueDescription": "Talep oluşturulduğunda tutar müşterinin harcanabilir bakiyesinden çıkarılıp bloke edilmiştir. Reddetmek tutarı geri verir.",
-      "withdrawalQueueTitle": "Para çekme kuyruğu"
+      "withdrawalQueueTitle": "Para çekme kuyruğu",
+      "entriesTitle": "Yevmiye kayıtları"
     },
     "availability": "uygunluk",
     "bookingdrafts": "rezervasyon taslakları",
