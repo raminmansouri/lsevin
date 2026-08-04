@@ -36,9 +36,51 @@ comment on function accounting.fn_status_is_in_books(text) is
   'Whether an entry counts towards the financial statements. Not the same as "not a draft".';
 
 /*
- * The three views are rewritten from their own definitions rather than
- * hand-copied, so nothing but the predicate can drift. Each is verified
- * afterwards and the migration aborts if a replacement did not take.
+ * v_trial_balance is rewritten in full rather than having its predicate swapped,
+ * because the predicate was in the wrong place to begin with:
+ *
+ *     LEFT JOIN journal_lines   l ON l.account_id = a.id
+ *     LEFT JOIN journal_entries e ON e.id = l.entry_id AND e.status <> 'draft'
+ *
+ * The status test sat on the LEFT JOIN to the *entry*. When it failed, `e` became
+ * NULL but the LINE stayed in the result, and sum(l.base_debit_amount) counted it
+ * anyway. Draft lines have therefore been inside the trial balance — and so the
+ * balance sheet and income statement built on it — since 0009. 0014 only widened
+ * the leak to temporary, approved and rejected documents.
+ *
+ * The fix filters the lines themselves, and keeps accounts LEFT JOINed so an
+ * account with no postings still appears with a zero balance.
+ */
+create or replace view accounting.v_trial_balance as
+select
+  a.id                  as account_id,
+  a.code                as account_code,
+  a.name_translations   as account_name,
+  a.account_type,
+  a.normal_balance,
+  l.base_currency_code  as currency_code,
+  coalesce(sum(l.base_debit_amount), 0::numeric)  as total_debit,
+  coalesce(sum(l.base_credit_amount), 0::numeric) as total_credit,
+  case a.normal_balance
+    when 'debit' then coalesce(sum(l.base_debit_amount), 0::numeric)
+                    - coalesce(sum(l.base_credit_amount), 0::numeric)
+    else              coalesce(sum(l.base_credit_amount), 0::numeric)
+                    - coalesce(sum(l.base_debit_amount), 0::numeric)
+  end                   as balance
+from accounting.accounts a
+left join (
+  select l.*
+    from accounting.journal_lines l
+    join accounting.journal_entries e on e.id = l.entry_id
+   where accounting.fn_status_is_in_books(e.status)
+) l on l.account_id = a.id
+group by a.id, a.code, a.name_translations, a.account_type, a.normal_balance,
+         l.base_currency_code;
+
+/*
+ * These two put the status test where it actually filters — an INNER JOIN and a
+ * WHERE respectively — so only the predicate needs updating. They are rewritten
+ * from their own definitions so nothing but the predicate can change.
  */
 do $$
 declare
@@ -47,7 +89,6 @@ declare
   v_new  text;
 begin
   foreach v_name in array array[
-    'v_trial_balance',
     'v_ledger_entries',
     'v_account_balances_by_currency'
   ] loop
@@ -69,8 +110,7 @@ begin
   end loop;
 end $$;
 
--- Prove the rewrite actually landed, in this transaction, before anything
--- depends on it.
+-- Prove no view still treats "not a draft" as "in the books".
 do $$
 declare
   v_name text;
@@ -110,9 +150,14 @@ select
     )
   end                                             as budget_used_percent
 from accounting.dimensions d
-left join accounting.journal_lines l on l.cost_center_id = d.id
-left join accounting.journal_entries e
-       on e.id = l.entry_id and accounting.fn_status_is_in_books(e.status)
+-- Same shape as v_trial_balance and for the same reason: filtering the entry on a
+-- LEFT JOIN leaves the line behind when the test fails, and sum() still counts it.
+left join (
+  select l.*
+    from accounting.journal_lines l
+    join accounting.journal_entries e on e.id = l.entry_id
+   where accounting.fn_status_is_in_books(e.status)
+) l on l.cost_center_id = d.id
 where d.kind = 'cost_center'
 group by d.id, d.code, d.name_translations, d.budget_amount, d.budget_currency;
 
@@ -132,9 +177,12 @@ select
   coalesce(sum(l.base_debit_amount - l.base_credit_amount), 0) as net_amount,
   count(distinct l.entry_id)                      as entry_count
 from accounting.dimensions d
-left join accounting.journal_lines l on l.project_id = d.id
-left join accounting.journal_entries e
-       on e.id = l.entry_id and accounting.fn_status_is_in_books(e.status)
+left join (
+  select l.*
+    from accounting.journal_lines l
+    join accounting.journal_entries e on e.id = l.entry_id
+   where accounting.fn_status_is_in_books(e.status)
+) l on l.project_id = d.id
 where d.kind = 'project'
 group by d.id, d.code, d.name_translations, d.budget_amount, d.starts_on, d.ends_on;
 
