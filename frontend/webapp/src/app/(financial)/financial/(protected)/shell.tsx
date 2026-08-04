@@ -13,6 +13,7 @@ const NAV = [
   { href: "/financial/entries", key: "entriesTitle" },
   { href: "/financial/journal", key: "journalTitle" },
   { href: "/financial/reports", key: "reportsTitle" },
+  { href: "/financial/analytics", key: "analyticsTitle" },
   { href: "/financial/statements", key: "statementsTitle" },
   { href: "/financial/ledger", key: "ledgerTitle" },
   { href: "/financial/accounts", key: "accountsTitle" },

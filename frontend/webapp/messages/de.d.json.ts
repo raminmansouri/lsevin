@@ -507,7 +507,8 @@ declare const messages: {
       "walletCount": "Wallets",
       "withdrawalQueueDescription": "Mit der Anfrage wurde der Betrag bereits aus dem verfügbaren Guthaben des Kunden in eine Reserve gebucht. Eine Ablehnung gibt ihn zurück.",
       "withdrawalQueueTitle": "Auszahlungsanfragen",
-      "entriesTitle": "Buchungsbelege"
+      "entriesTitle": "Buchungsbelege",
+      "analyticsTitle": "Analyseberichte"
     },
     "availability": "Verfügbarkeit",
     "bookingdrafts": "Buchungsentwürfe",

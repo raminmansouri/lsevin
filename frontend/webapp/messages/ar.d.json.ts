@@ -4428,7 +4428,8 @@ declare const messages: {
         "accountant": "Accountant",
         "finance_admin": "Finance admin"
       },
-      "entriesTitle": "القيود ودفتر اليومية"
+      "entriesTitle": "القيود ودفتر اليومية",
+      "analyticsTitle": "التقارير التحليلية"
     },
     "commercial": "المالية",
     "notifications": "الإشعارات",

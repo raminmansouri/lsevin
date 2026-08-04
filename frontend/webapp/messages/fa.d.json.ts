@@ -3709,7 +3709,8 @@ declare const messages: {
         "accountant": "حسابدار",
         "finance_admin": "مدیر مالی"
       },
-      "entriesTitle": "ثبت سند و دفتر روزنامه"
+      "entriesTitle": "ثبت سند و دفتر روزنامه",
+      "analyticsTitle": "گزارش‌های تحلیلی"
     }
   },
   "HomePage": {

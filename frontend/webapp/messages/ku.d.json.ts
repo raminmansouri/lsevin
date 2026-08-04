@@ -507,7 +507,8 @@ declare const messages: {
       "walletCount": "جزدانەکان",
       "withdrawalQueueDescription": "داواکردن پێشتر پارەکەی لە باڵانسی خەرجکراوی کڕیارەوە گواستووەتەوە بۆ پاشەکەوت. ڕەتکردنەوە دەیانگەڕێنێتەوە.",
       "withdrawalQueueTitle": "ڕیزی دەرهێنانی پارە",
-      "entriesTitle": "تۆمارەکانی ڕۆژنامە"
+      "entriesTitle": "تۆمارەکانی ڕۆژنامە",
+      "analyticsTitle": "ڕاپۆرتە شیکارییەکان"
     },
     "availability": "بەردەستبوون",
     "bookingdrafts": "ڕەشنووسی حجزەکان",

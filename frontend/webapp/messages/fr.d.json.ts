@@ -507,7 +507,8 @@ declare const messages: {
       "walletCount": "Portefeuilles",
       "withdrawalQueueDescription": "La demande a déjà sorti les fonds du solde disponible du client pour les placer en réserve. Le rejet les restitue.",
       "withdrawalQueueTitle": "File des retraits",
-      "entriesTitle": "Écritures comptables"
+      "entriesTitle": "Écritures comptables",
+      "analyticsTitle": "Rapports analytiques"
     },
     "availability": "disponibilités",
     "bookingdrafts": "brouillons de réservation",

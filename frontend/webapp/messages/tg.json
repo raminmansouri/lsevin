@@ -10287,7 +10287,8 @@
       "walletCount": "Ҳамёнҳо",
       "withdrawalQueueDescription": "Ҳангоми дархост маблағ аллакай аз бақияи дастраси муштарӣ ба захира гузашт. Рад кардан онро бармегардонад.",
       "withdrawalQueueTitle": "Навбати бардошти маблағ",
-      "entriesTitle": "Сабтҳои журнал"
+      "entriesTitle": "Сабтҳои журнал",
+      "analyticsTitle": "Ҳисоботҳои таҳлилӣ"
     },
     "availability": "дастрасӣ",
     "bookingdrafts": "лоиҳаҳои брон",

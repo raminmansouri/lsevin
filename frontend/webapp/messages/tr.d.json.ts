@@ -507,7 +507,8 @@ declare const messages: {
       "walletCount": "Cüzdanlar",
       "withdrawalQueueDescription": "Talep oluşturulduğunda tutar müşterinin harcanabilir bakiyesinden çıkarılıp bloke edilmiştir. Reddetmek tutarı geri verir.",
       "withdrawalQueueTitle": "Para çekme kuyruğu",
-      "entriesTitle": "Yevmiye kayıtları"
+      "entriesTitle": "Yevmiye kayıtları",
+      "analyticsTitle": "Analitik raporlar"
     },
     "availability": "uygunluk",
     "bookingdrafts": "rezervasyon taslakları",

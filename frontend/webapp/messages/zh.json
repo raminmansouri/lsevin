@@ -158,7 +158,8 @@
       "walletCount": "钱包数",
       "withdrawalQueueDescription": "客户提交申请时，资金已从可用余额转入冻结金额。拒绝申请会将其退回。",
       "withdrawalQueueTitle": "提现队列",
-      "entriesTitle": "记账凭证"
+      "entriesTitle": "记账凭证",
+      "analyticsTitle": "分析报表"
     },
     "availability": "可用时段",
     "bookingdrafts": "预约草稿",

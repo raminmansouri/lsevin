@@ -4427,7 +4427,8 @@ declare const messages: {
         "accountant": "Accountant",
         "finance_admin": "Finance admin"
       },
-      "entriesTitle": "Journal entries"
+      "entriesTitle": "Journal entries",
+      "analyticsTitle": "Analytics"
     },
     "commercial": "Financials",
     "notifications": "Notifications",
