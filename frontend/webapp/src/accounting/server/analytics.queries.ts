@@ -242,6 +242,47 @@ export async function getPendingDocuments(): Promise<PendingDocumentRow[]> {
   }));
 }
 
+export type MonthlyVolumeRow = { month: string; label: string; totalDebit: string };
+
+/**
+ * Posting volume for the last six months — the dashboard's bar chart.
+ *
+ * Months with no activity are still returned, at zero. A chart that silently
+ * drops empty months compresses the timeline and makes a quiet month look like
+ * it never happened.
+ */
+export async function getMonthlyVolume(): Promise<MonthlyVolumeRow[]> {
+  await assertAccounting("read");
+
+  const rows = await db<{ month: string; total_debit: string }[]>`
+    with months as (
+      select date_trunc('month', current_date) - (n || ' month')::interval as m
+        from generate_series(5, 0, -1) as n
+    )
+    select to_char(months.m, 'YYYY-MM') as month,
+           coalesce(sum(l.base_debit_amount), 0)::text as total_debit
+      from months
+      left join accounting.journal_entries e
+             on date_trunc('month', e.entry_date) = months.m
+            and accounting.fn_status_is_in_books(e.status)
+      left join accounting.journal_lines l on l.entry_id = e.id
+     group by months.m
+     order by months.m
+  `;
+
+  const FA_MONTH: Record<string, string> = {
+    "01": "ژانویه", "02": "فوریه", "03": "مارس", "04": "آوریل",
+    "05": "مه", "06": "ژوئن", "07": "ژوئیه", "08": "اوت",
+    "09": "سپتامبر", "10": "اکتبر", "11": "نوامبر", "12": "دسامبر",
+  };
+
+  return rows.map((r) => ({
+    month: r.month,
+    label: FA_MONTH[r.month.slice(5, 7)] ?? r.month,
+    totalDebit: r.total_debit,
+  }));
+}
+
 export type CurrencyExposureRow = {
   currencyCode: string;
   totalDebit: string;

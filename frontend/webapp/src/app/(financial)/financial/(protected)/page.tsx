@@ -11,7 +11,11 @@ import {
   listPendingDeposits,
   listPendingWithdrawals,
 } from "@/accounting/server/admin-queries";
+import { getMonthlyVolume, getPendingDocuments } from "@/accounting/server/analytics.queries";
+import { listEntries } from "@/accounting/server/manual-entry.queries";
 import { PageHeader } from "@/components/page/page-header";
+
+import { DashboardView } from "./dashboard-view";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function AccountingDashboardPage() {
@@ -36,25 +40,30 @@ export default async function AccountingDashboardPage() {
     );
   }
 
-  const [balances, drift, deposits, withdrawals] = await Promise.all([
+  const [balances, drift, deposits, withdrawals, monthly, pending, recent] = await Promise.all([
     getSystemBalances(),
     listBalanceDrift(),
     listPendingDeposits(),
     listPendingWithdrawals(),
+    getMonthlyVolume(),
+    getPendingDocuments(),
+    listEntries({ limit: 20 }),
   ]);
 
   return (
     <div className="space-y-4">
-      <Card>
-        <CardHeader className="border-b">
-          <CardTitle>
-            <PageHeader title={t("title")} />
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-4">
-          <p className="text-muted-foreground text-sm">{t("description")}</p>
-        </CardContent>
-      </Card>
+      <div className="rounded-2xl border border-[#dfe5eb] bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,.08)]">
+        <h2 className="text-xl font-semibold">{t("title")}</h2>
+        <p className="mt-0.5 text-xs text-[#6b7785]">{t("description")}</p>
+      </div>
+
+      <DashboardView
+        monthly={monthly}
+        pending={pending}
+        recent={recent}
+        systemBalanceLabel={`${balances.length} ارز در گردش`}
+        driftCount={drift.length}
+      />
 
       {/* The reconciliation alarm. It is supposed to be silent forever; if it is not,
           a wallet balance has drifted from the ledger and that is an incident. */}
