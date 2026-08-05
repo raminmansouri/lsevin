@@ -4430,7 +4430,8 @@ declare const messages: {
       },
       "entriesTitle": "القيود ودفتر اليومية",
       "analyticsTitle": "التقارير التحليلية",
-      "dimensionsTitle": "مراكز التكلفة والأبعاد"
+      "dimensionsTitle": "مراكز التكلفة والأبعاد",
+      "templatesTitle": "القوالب والقيود الدورية"
     },
     "commercial": "المالية",
     "notifications": "الإشعارات",

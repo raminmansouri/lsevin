@@ -509,7 +509,8 @@ declare const messages: {
       "withdrawalQueueTitle": "Auszahlungsanfragen",
       "entriesTitle": "Buchungsbelege",
       "analyticsTitle": "Analyseberichte",
-      "dimensionsTitle": "Kostenstellen"
+      "dimensionsTitle": "Kostenstellen",
+      "templatesTitle": "Vorlagen & Wiederkehrend"
     },
     "availability": "Verfügbarkeit",
     "bookingdrafts": "Buchungsentwürfe",

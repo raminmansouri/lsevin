@@ -3711,7 +3711,8 @@ declare const messages: {
       },
       "entriesTitle": "ثبت سند و دفتر روزنامه",
       "analyticsTitle": "گزارش‌های تحلیلی",
-      "dimensionsTitle": "مراکز هزینه و ابعاد"
+      "dimensionsTitle": "مراکز هزینه و ابعاد",
+      "templatesTitle": "الگوها و اسناد دوره‌ای"
     }
   },
   "HomePage": {

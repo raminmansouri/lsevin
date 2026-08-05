@@ -4429,7 +4429,8 @@ declare const messages: {
       },
       "entriesTitle": "Journal entries",
       "analyticsTitle": "Analytics",
-      "dimensionsTitle": "Cost centres & dimensions"
+      "dimensionsTitle": "Cost centres & dimensions",
+      "templatesTitle": "Templates & recurring"
     },
     "commercial": "Financials",
     "notifications": "Notifications",

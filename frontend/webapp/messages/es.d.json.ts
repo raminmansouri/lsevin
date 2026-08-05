@@ -509,7 +509,8 @@ declare const messages: {
       "withdrawalQueueTitle": "Cola de retiros",
       "entriesTitle": "Asientos contables",
       "analyticsTitle": "Informes analíticos",
-      "dimensionsTitle": "Centros de coste"
+      "dimensionsTitle": "Centros de coste",
+      "templatesTitle": "Plantillas y recurrentes"
     },
     "availability": "disponibilidad",
     "bookingdrafts": "borradores de reservas",

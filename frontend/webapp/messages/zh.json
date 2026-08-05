@@ -160,7 +160,8 @@
       "withdrawalQueueTitle": "提现队列",
       "entriesTitle": "记账凭证",
       "analyticsTitle": "分析报表",
-      "dimensionsTitle": "成本中心"
+      "dimensionsTitle": "成本中心",
+      "templatesTitle": "模板与定期凭证"
     },
     "availability": "可用时段",
     "bookingdrafts": "预约草稿",

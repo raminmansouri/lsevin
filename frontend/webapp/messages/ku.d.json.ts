@@ -509,7 +509,8 @@ declare const messages: {
       "withdrawalQueueTitle": "ڕیزی دەرهێنانی پارە",
       "entriesTitle": "تۆمارەکانی ڕۆژنامە",
       "analyticsTitle": "ڕاپۆرتە شیکارییەکان",
-      "dimensionsTitle": "ناوەندەکانی تێچوو"
+      "dimensionsTitle": "ناوەندەکانی تێچوو",
+      "templatesTitle": "ڕووکارەکان و دووبارەبووەکان"
     },
     "availability": "بەردەستبوون",
     "bookingdrafts": "ڕەشنووسی حجزەکان",

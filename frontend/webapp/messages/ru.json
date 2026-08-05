@@ -160,7 +160,8 @@
       "withdrawalQueueTitle": "Очередь выводов средств",
       "entriesTitle": "Журнальные записи",
       "analyticsTitle": "Аналитические отчёты",
-      "dimensionsTitle": "Центры затрат"
+      "dimensionsTitle": "Центры затрат",
+      "templatesTitle": "Шаблоны и повторяющиеся"
     },
     "availability": "доступность",
     "bookingdrafts": "черновики бронирований",

@@ -509,7 +509,8 @@ declare const messages: {
       "withdrawalQueueTitle": "Para çekme kuyruğu",
       "entriesTitle": "Yevmiye kayıtları",
       "analyticsTitle": "Analitik raporlar",
-      "dimensionsTitle": "Masraf merkezleri"
+      "dimensionsTitle": "Masraf merkezleri",
+      "templatesTitle": "Şablonlar ve tekrarlayanlar"
     },
     "availability": "uygunluk",
     "bookingdrafts": "rezervasyon taslakları",
