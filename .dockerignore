@@ -1,0 +1,42 @@
+# -----------------------------------------------------------------------------
+# LSevin Providers Portal - Docker build context exclusions
+# -----------------------------------------------------------------------------
+# Docker sends the build context to the Docker engine before the image is built.
+# Anything listed here stays OUT of that context and therefore OUT of the image.
+
+# Local dependency folders are rebuilt inside Docker and must never be copied.
+node_modules
+
+# Next.js output from your host is platform-specific and rebuilt inside Docker.
+.next
+out
+
+# Git history is not needed by the running application image.
+.git
+.gitignore
+
+# Local environment files may contain passwords/API keys. Never bake them in.
+.env
+.env.*
+!.env.example
+
+# The LSevin database backup can contain sensitive production data.
+# It is mounted/uploaded separately and MUST NOT become an image layer.
+database-backup.sql
+*.dump
+*.backup
+
+# Local private/media files are runtime data, not image source.
+.lsevin-private-files
+public/uploads
+
+# Logs and editor/OS noise.
+*.log
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+
+# Test/cache output.
+coverage
+.cache

@@ -1,0 +1,19 @@
+{
+  "id": "reviews",
+  "kind": "extended-module",
+  "dependsOn": [
+    "core"
+  ],
+  "moduleFolder": "src/modules/reviews",
+  "entry": "module.tsx",
+  "installationModel": "copy-one-folder-and-register-in-core-module-registry",
+  "containsRouteSegments": false,
+  "containsScripts": false,
+  "notes": [
+    "Self-contained module folder. Zip/unzip this folder only."
+  ],
+  "migrations": [
+    "migrations/001_provider_staff_review_workflow.sql",
+    "migrations/001_review_reply_roles.sql"
+  ]
+}

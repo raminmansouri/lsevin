@@ -1,0 +1,37 @@
+{
+  "code": "provider-portal",
+  "name": "Provider Portal",
+  "version": "3.2.0",
+  "type": "extended",
+  "dependsOn": [
+    "core"
+  ],
+  "databaseSchema": "provider_portal_ext",
+  "folder": "src/modules/provider-portal",
+  "routes": [
+    "providers/:providerId/portal",
+    "admin/provider-claims",
+    "admin/moderation"
+  ],
+  "permissions": [
+    "manageMembers",
+    "manageProfile",
+    "PROVIDER_ADMIN",
+    "CONTENT_ADMIN"
+  ],
+  "capabilities": [
+    "provider_portal.claim_profile",
+    "provider_portal.approve_claim",
+    "provider_portal.manage_profile",
+    "provider_portal.manage_staff_schedule",
+    "provider_portal.submit_content_draft",
+    "provider_portal.moderate_content"
+  ],
+  "i18n": [
+    "fa-IR",
+    "en-US",
+    "ar",
+    "tr-TR"
+  ],
+  "zipSafe": true
+}

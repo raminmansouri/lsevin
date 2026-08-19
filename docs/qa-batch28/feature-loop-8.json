@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "errors": [],
+  "module": "rebooking-studio",
+  "filesChecked": 14,
+  "security": {
+    "tokenHashAtRest": true,
+    "headerOnlyTokenTransport": true,
+    "internalNotesHidden": true,
+    "consentAndOptOut": true,
+    "outreachSafeguards": true
+  }
+}

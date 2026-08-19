@@ -1,0 +1,26 @@
+{
+  "ok": true,
+  "source": "database-backup.sql",
+  "sizeBytes": 38976689,
+  "requiredTablesChecked": 20,
+  "missingTables": [],
+  "missingColumns": [],
+  "requiredFunctionsChecked": 1,
+  "missingFunctions": [],
+  "dataEvidence": {
+    "activeUsers": 21,
+    "activeProviderTypes": 10,
+    "activeProviders": 100,
+    "activeServices": 557,
+    "activeStaff": 103,
+    "bookings": 3,
+    "chargeLines": 2,
+    "activeCompensationPolicies": 0,
+    "providerLedgerEntries": 1,
+    "paymentCurrencies": 9,
+    "settlementCurrencies": 14,
+    "mediaAssets": 1348,
+    "providerMembers": 7,
+    "onboardingApplications": 1
+  }
+}

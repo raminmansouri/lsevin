@@ -1,0 +1,138 @@
+{
+  "ok": true,
+  "generatedAt": "2026-07-16T20:28:04.571Z",
+  "checks": {
+    "faProviderLanding": true,
+    "faStaffLanding": true,
+    "faNoEnglishProviderFallback": true,
+    "faNoEnglishStaffFallback": true,
+    "enProviderLanding": true,
+    "enStaffLanding": true,
+    "arProviderLanding": true,
+    "arStaffLanding": true,
+    "arNoEnglishProviderFallback": true,
+    "arNoEnglishStaffFallback": true,
+    "trProviderLanding": true,
+    "trStaffLanding": true,
+    "trNoEnglishProviderFallback": true,
+    "trNoEnglishStaffFallback": true,
+    "esProviderLanding": true,
+    "esStaffLanding": true,
+    "esNoEnglishProviderFallback": true,
+    "esNoEnglishStaffFallback": true,
+    "kuProviderLanding": true,
+    "kuStaffLanding": true,
+    "kuNoEnglishProviderFallback": true,
+    "kuNoEnglishStaffFallback": true,
+    "deProviderLanding": true,
+    "deStaffLanding": true,
+    "deNoEnglishProviderFallback": true,
+    "deNoEnglishStaffFallback": true,
+    "frProviderLanding": true,
+    "frStaffLanding": true,
+    "frNoEnglishProviderFallback": true,
+    "frNoEnglishStaffFallback": true,
+    "localeSwitcherRendered": true,
+    "noAggregateError": true,
+    "noHydrationMismatch": true
+  },
+  "cases": [
+    {
+      "route": "/",
+      "locale": "fa",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precede"
+    },
+    {
+      "route": "/become-staff",
+      "locale": "fa",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precede"
+    },
+    {
+      "route": "/",
+      "locale": "en",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"en\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precede"
+    },
+    {
+      "route": "/become-staff",
+      "locale": "en",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"en\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precede"
+    },
+    {
+      "route": "/",
+      "locale": "ar",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"ar\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precede"
+    },
+    {
+      "route": "/become-staff",
+      "locale": "ar",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"ar\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precede"
+    },
+    {
+      "route": "/",
+      "locale": "tr",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"tr\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precede"
+    },
+    {
+      "route": "/become-staff",
+      "locale": "tr",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"tr\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precede"
+    },
+    {
+      "route": "/",
+      "locale": "es",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"es\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precede"
+    },
+    {
+      "route": "/become-staff",
+      "locale": "es",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"es\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precede"
+    },
+    {
+      "route": "/",
+      "locale": "ku",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"ku\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precede"
+    },
+    {
+      "route": "/become-staff",
+      "locale": "ku",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"ku\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precede"
+    },
+    {
+      "route": "/",
+      "locale": "de",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"de\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precede"
+    },
+    {
+      "route": "/become-staff",
+      "locale": "de",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"de\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precede"
+    },
+    {
+      "route": "/",
+      "locale": "fr",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fr\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precede"
+    },
+    {
+      "route": "/become-staff",
+      "locale": "fr",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fr\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precede"
+    }
+  ],
+  "serverLogTail": "   ▲ Next.js 15.5.20\n   - Local:        http://localhost:3407\n   - Network:      http://172.26.36.11:3407\n\n ✓ Starting...\n ✓ Ready in 919ms\n"
+}

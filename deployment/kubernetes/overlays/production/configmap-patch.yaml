@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: providers-portal-config
+  namespace: lsevin-providers
+data:
+  PGHOST: "CHANGE_ME_MANAGED_POSTGRES_HOST"
+  PGPORT: "5432"
+  PGDATABASE: "lsevin"
+  NEXT_PUBLIC_APP_URL: "https://providers.lsevin.com"
+  PROVIDER_MEDIA_PUBLIC_BASE_URL: "https://providers.lsevin.com"
+  NEXT_PUBLIC_LOCALE_COOKIE_DOMAIN: ".lsevin.com"
+  PROVIDER_PORTAL_LOCAL_AUTH: "false"
+  ALLOW_LEGACY_MEDIA_URLS: "false"

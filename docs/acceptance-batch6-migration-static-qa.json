@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "migrationCount": 87,
+  "baselineCount": 85,
+  "existingChanged": [],
+  "existingRemoved": [],
+  "newMigrations": [
+    "src/core/migrations/005_staff_shared_provider_media.sql",
+    "src/modules/notifications-module/migrations/031_reviews_workflow_templates.sql"
+  ],
+  "errors": []
+}

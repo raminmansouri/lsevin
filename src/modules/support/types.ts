@@ -1,0 +1,1 @@
+export type ProviderSupportTicket = { id: string; serviceProviderId: string; providerName: string | null; subject: string; message: string; status: string; priority: string; createdAt: string; lastModifiedDate: string };

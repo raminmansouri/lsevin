@@ -1,0 +1,7 @@
+{
+  "exitCode": 1,
+  "compiledSuccessfullyMentions": 1,
+  "classGroupStudioMentions": 0,
+  "blockingFile": "src/core/ui/PortalShell.tsx",
+  "blockingContract": "ModuleNavigationItem.moduleId"
+}

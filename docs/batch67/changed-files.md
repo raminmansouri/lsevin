@@ -1,0 +1,72 @@
+# RC15 → RC16 Changed Files
+
+- Added: **41**
+- Modified: **17**
+- Deleted: **0**
+
+## Added
+
+- `LSevin_Providers_Portal_vNext_Tracker_batch67.xlsx`
+- `README_RC16_RELEASE.md`
+- `continue_provider_portal_in_new_chat_prompt_batch67.md`
+- `docs/batch67/active-module-multilingual-worklist.csv`
+- `docs/batch67/active-module-multilingual-worklist.json`
+- `docs/batch67/active-module-multilingual-worklist.md`
+- `docs/batch67/admin-audit.log`
+- `docs/batch67/admin-catalog-qa.log`
+- `docs/batch67/admin-governance-qa.log`
+- `docs/batch67/admin-qa.log`
+- `docs/batch67/build.log`
+- `docs/batch67/changed-files.json`
+- `docs/batch67/changed-files.md`
+- `docs/batch67/clean-package-build.log`
+- `docs/batch67/clean-package-npm-ci.log`
+- `docs/batch67/clean-package-providers-qa.log`
+- `docs/batch67/clean-package-typecheck.log`
+- `docs/batch67/clean-package-verification-wrapper.log`
+- `docs/batch67/clean-package-verification.exit-code`
+- `docs/batch67/core-experience-qa.log`
+- `docs/batch67/lint.log`
+- `docs/batch67/migrate-verify.log`
+- `docs/batch67/multilingual-audit-rerun.log`
+- `docs/batch67/npm-audit.log`
+- `docs/batch67/npm-ci.log`
+- `docs/batch67/onboarding-approval-qa.log`
+- `docs/batch67/onboarding-multilingual-qa.log`
+- `docs/batch67/preflight.exit-code`
+- `docs/batch67/preflight.log`
+- `docs/batch67/provider-portal-multilingual-qa.log`
+- `docs/batch67/providers-multilingual-qa.log`
+- `docs/batch67/providers-portal-b67-tracker-preview.png`
+- `docs/batch67/routes-check.log`
+- `docs/batch67/static-qa.log`
+- `docs/batch67/typecheck-final.log`
+- `docs/batch67/typecheck.exit-code`
+- `docs/batch67/typecheck.log`
+- `docs/batch67/vnext-batch67-multilingual-report.md`
+- `docs/batch67/vnext-batch67-qa-report.md`
+- `scripts/providers-multilingual-qa.py`
+- `src/modules/providers/i18n/copy.ts`
+
+## Modified
+
+- `package-lock.json`
+- `package.json`
+- `scripts/admin-catalog-qa.py`
+- `scripts/admin-governance-qa.py`
+- `scripts/core-experience-qa.py`
+- `scripts/experience-surface-audit.py`
+- `scripts/multilingual-audit.py`
+- `scripts/onboarding-approval-qa.py`
+- `src/core/ui/MediaPicker.tsx`
+- `src/modules/dashboard/admin-surface-audit.json`
+- `src/modules/providers/MODULE_MANIFEST.json`
+- `src/modules/providers/actions.ts`
+- `src/modules/providers/components/ProfileForm.tsx`
+- `src/modules/providers/module.tsx`
+- `src/modules/providers/pages/AdminProvidersPage.tsx`
+- `src/modules/providers/pages/ProviderProfilePage.tsx`
+- `src/modules/providers/repository.ts`
+
+## Deleted
+

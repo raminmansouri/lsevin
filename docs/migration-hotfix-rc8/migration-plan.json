@@ -1,0 +1,509 @@
+{
+  "ok": true,
+  "migrationCount": 83,
+  "coreCount": 3,
+  "moduleCount": 80,
+  "duplicateKeys": [],
+  "invalidFiles": [],
+  "unsafeIndexExpressions": [],
+  "migrations": [
+    {
+      "key": "src/core/migrations/001_provider_portal_hardening.sql",
+      "path": "src/core/migrations/001_provider_portal_hardening.sql",
+      "checksum": "65089cd7335a53de173c9506e3b83d408211d5ba0897781fea660e4f62941fc9",
+      "bytes": 1120
+    },
+    {
+      "key": "src/core/migrations/002_provider_portal_management.sql",
+      "path": "src/core/migrations/002_provider_portal_management.sql",
+      "checksum": "c81fc6d73de24c9d054bbc743199454479c851fe83608e42b2073a6601450f88",
+      "bytes": 1431
+    },
+    {
+      "key": "src/core/migrations/003_admin_catalog_actions.sql",
+      "path": "src/core/migrations/003_admin_catalog_actions.sql",
+      "checksum": "7c98778fce3f939297dd370d4a23972e0b8c913ae0d2aec9a06e1a71db7ace20",
+      "bytes": 1423
+    },
+    {
+      "key": "src/modules/admin-governance/migrations/001_admin_governance.sql",
+      "path": "src/modules/admin-governance/migrations/001_admin_governance.sql",
+      "checksum": "4cce9588f4f9d8f03109a36ebda4bed32df1d23c2e6f6da68b3ac2743f34fdc7",
+      "bytes": 1109
+    },
+    {
+      "key": "src/modules/arrival-checkin-studio/migrations/001_arrival_checkin_studio.sql",
+      "path": "src/modules/arrival-checkin-studio/migrations/001_arrival_checkin_studio.sql",
+      "checksum": "5d8e2e6a15bc28ab7109855c5d237196d0c872412c79180e697ba7fd19fc70fb",
+      "bytes": 8545
+    },
+    {
+      "key": "src/modules/audience-growth/migrations/001_audience_growth.sql",
+      "path": "src/modules/audience-growth/migrations/001_audience_growth.sql",
+      "checksum": "5c0948e52ce6d243c303632dd1043c147fde9e1bbdf2ce3408a6446d3707c22a",
+      "bytes": 5307
+    },
+    {
+      "key": "src/modules/booking-management/migrations/001_booking_management.sql",
+      "path": "src/modules/booking-management/migrations/001_booking_management.sql",
+      "checksum": "302d66710cb0509ae86ea9d7603e3b4fe3d565059f585a28c544a9e4c91aaf49",
+      "bytes": 2062
+    },
+    {
+      "key": "src/modules/boost-studio/migrations/001_boost_studio.sql",
+      "path": "src/modules/boost-studio/migrations/001_boost_studio.sql",
+      "checksum": "bec618d1617aa5320cf17b901db1218a2fb5e4de05f601ff375ee93ea1a0d371",
+      "bytes": 4133
+    },
+    {
+      "key": "src/modules/business-growth/migrations/001_business_growth.sql",
+      "path": "src/modules/business-growth/migrations/001_business_growth.sql",
+      "checksum": "d77f0d242ba64abd118dd7c07b9b8ee4cd4623ad6b1e9fdc75616adec3a774e2",
+      "bytes": 5060
+    },
+    {
+      "key": "src/modules/care-journey/migrations/001_care_journey.sql",
+      "path": "src/modules/care-journey/migrations/001_care_journey.sql",
+      "checksum": "32133b49adf646c71e4eac1ec9a13a89abd85ed80a8e43e12ea471a99fd387fd",
+      "bytes": 5847
+    },
+    {
+      "key": "src/modules/challenge-studio/migrations/001_challenge_studio.sql",
+      "path": "src/modules/challenge-studio/migrations/001_challenge_studio.sql",
+      "checksum": "526ee1f246335770b312280c3c2a8a359f48cee31205b0fbb3d9428ecc2a7237",
+      "bytes": 5537
+    },
+    {
+      "key": "src/modules/class-group-studio/migrations/001_class_group_studio.sql",
+      "path": "src/modules/class-group-studio/migrations/001_class_group_studio.sql",
+      "checksum": "ce064c39821d58dbbb8ce0f4d94dd8e161e2bee398a90d0e25a4194d66c3212a",
+      "bytes": 9375
+    },
+    {
+      "key": "src/modules/community-studio/migrations/001_community_studio.sql",
+      "path": "src/modules/community-studio/migrations/001_community_studio.sql",
+      "checksum": "fbea7b2dc6a0c4d12dc4f0bd9cf19cceda96bf617421e618588dc448613a9403",
+      "bytes": 4834
+    },
+    {
+      "key": "src/modules/concierge-studio/migrations/001_concierge_studio.sql",
+      "path": "src/modules/concierge-studio/migrations/001_concierge_studio.sql",
+      "checksum": "cc5485b70787e4c74e4cd47eafe59f205c73eda9012e4be47b97caa6e819dad5",
+      "bytes": 5565
+    },
+    {
+      "key": "src/modules/consent-studio/migrations/001_consent_studio.sql",
+      "path": "src/modules/consent-studio/migrations/001_consent_studio.sql",
+      "checksum": "36f1fb2df9094afd0f091eb950c49d17ae675f2d736e737d03e652de00dada8c",
+      "bytes": 3528
+    },
+    {
+      "key": "src/modules/consultation-studio/migrations/001_consultation_studio.sql",
+      "path": "src/modules/consultation-studio/migrations/001_consultation_studio.sql",
+      "checksum": "659b3c6fdd88e8585677ef230ab5c4d56e582e072cbf2806c675218da68806db",
+      "bytes": 5178
+    },
+    {
+      "key": "src/modules/content-studio/migrations/001_content_studio.sql",
+      "path": "src/modules/content-studio/migrations/001_content_studio.sql",
+      "checksum": "2074507c1559e70a6687f094949d987ee6d842c36fa6d0f36d7d872887bb47bd",
+      "bytes": 5800
+    },
+    {
+      "key": "src/modules/conversation-studio/migrations/001_conversation_studio.sql",
+      "path": "src/modules/conversation-studio/migrations/001_conversation_studio.sql",
+      "checksum": "b193d1c2cf6474218cea9fbf76556cd2e5149f00d5938065adefcbe07fa6864d",
+      "bytes": 7151
+    },
+    {
+      "key": "src/modules/conversion-studio/migrations/001_conversion_studio.sql",
+      "path": "src/modules/conversion-studio/migrations/001_conversion_studio.sql",
+      "checksum": "acfeba96619a9efb70211d3e832f761da96490a64af6c93ede66972f6ffbf4e6",
+      "bytes": 5806
+    },
+    {
+      "key": "src/modules/customer-case-studio/migrations/001_customer_case_studio.sql",
+      "path": "src/modules/customer-case-studio/migrations/001_customer_case_studio.sql",
+      "checksum": "9b5ee78d8f30109c9a3e6859e0f2669b16e594af0b5a3c971a544cc77b0ecc08",
+      "bytes": 10689
+    },
+    {
+      "key": "src/modules/customer-decision/migrations/001_customer_decision.sql",
+      "path": "src/modules/customer-decision/migrations/001_customer_decision.sql",
+      "checksum": "fc8cc091d768f9a24975dac36eef8a19f263d7ee9d7fb3cea26bf8ff7bdaa4ee",
+      "bytes": 5008
+    },
+    {
+      "key": "src/modules/customer-engagement/migrations/001_customer_engagement.sql",
+      "path": "src/modules/customer-engagement/migrations/001_customer_engagement.sql",
+      "checksum": "e46ff32147a511a8fb22aeaa5d25eb0e92ba7498fc993962b7b8af77d0d72908",
+      "bytes": 4398
+    },
+    {
+      "key": "src/modules/customer-relationship-studio/migrations/001_customer_relationship_studio.sql",
+      "path": "src/modules/customer-relationship-studio/migrations/001_customer_relationship_studio.sql",
+      "checksum": "5cc0446371a9ced8fa3060c3aedadecb76f7f53322f5d0424a718c2ec4ef82ad",
+      "bytes": 10060
+    },
+    {
+      "key": "src/modules/document-intake-studio/migrations/001_document_intake_studio.sql",
+      "path": "src/modules/document-intake-studio/migrations/001_document_intake_studio.sql",
+      "checksum": "fa773b9420c1b6fb41ce80262326caadb42f4a1f0c149fd2ca1591caa4fd383d",
+      "bytes": 4414
+    },
+    {
+      "key": "src/modules/feedback-recovery-studio/migrations/001_feedback_recovery_studio.sql",
+      "path": "src/modules/feedback-recovery-studio/migrations/001_feedback_recovery_studio.sql",
+      "checksum": "2a9bd7640486a46d9b2803394a8e45d1c2b00cc5a85922cb49267a6c7ab66b6c",
+      "bytes": 7851
+    },
+    {
+      "key": "src/modules/field-dispatch-studio/migrations/001_field_dispatch_studio.sql",
+      "path": "src/modules/field-dispatch-studio/migrations/001_field_dispatch_studio.sql",
+      "checksum": "62fd425b832ef5facde9df20be15a9802071c630d26dceb9233a9118db074ee5",
+      "bytes": 10681
+    },
+    {
+      "key": "src/modules/gift-card-studio/migrations/001_gift_card_studio.sql",
+      "path": "src/modules/gift-card-studio/migrations/001_gift_card_studio.sql",
+      "checksum": "737d5c3e50ab6b0cc48648aace3d218c85b121027277955a59413b73b5914add",
+      "bytes": 8498
+    },
+    {
+      "key": "src/modules/household-caregiver-studio/migrations/001_household_caregiver_studio.sql",
+      "path": "src/modules/household-caregiver-studio/migrations/001_household_caregiver_studio.sql",
+      "checksum": "15de3e3381fcf0d472ac9a49601c9fa006ae3d3110a67376f840d5b55a74a082",
+      "bytes": 8048
+    },
+    {
+      "key": "src/modules/lead-pipeline-studio/migrations/001_lead_pipeline_studio.sql",
+      "path": "src/modules/lead-pipeline-studio/migrations/001_lead_pipeline_studio.sql",
+      "checksum": "e1c56a0ae69161a6bc73d1122ddd92496563e2bbb2f4de2141ad9ea2bcf6b658",
+      "bytes": 6316
+    },
+    {
+      "key": "src/modules/live-engagement/migrations/001_live_engagement.sql",
+      "path": "src/modules/live-engagement/migrations/001_live_engagement.sql",
+      "checksum": "c0ab3910d10800b0ba71844311c7f2909925418bad9baf493d13cd9a7799dc95",
+      "bytes": 4733
+    },
+    {
+      "key": "src/modules/loyalty-studio/migrations/001_loyalty_studio.sql",
+      "path": "src/modules/loyalty-studio/migrations/001_loyalty_studio.sql",
+      "checksum": "1767bcada23ec9fefc2f10d44c8db273efae38e7d55ec2310aebf0b038630982",
+      "bytes": 5219
+    },
+    {
+      "key": "src/modules/media-library/migrations/001_media_library.sql",
+      "path": "src/modules/media-library/migrations/001_media_library.sql",
+      "checksum": "97992bc67ff51f30fefca31c5d5f69c042d38b204c3cf479559ab936cd859ac7",
+      "bytes": 2472
+    },
+    {
+      "key": "src/modules/membership-studio/migrations/001_membership_studio.sql",
+      "path": "src/modules/membership-studio/migrations/001_membership_studio.sql",
+      "checksum": "e05ae54da78975b59c9049b7df741ee516bc761cedacd05a3574a792f0142bb8",
+      "bytes": 7717
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/001_notifications_module.sql",
+      "path": "src/modules/notifications-module/migrations/001_notifications_module.sql",
+      "checksum": "ca8174735bbe08060c55a9aedbf50f09e72c6c77e9da7e5cb3b041d67cf69c18",
+      "bytes": 5107
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/002_business_growth_templates.sql",
+      "path": "src/modules/notifications-module/migrations/002_business_growth_templates.sql",
+      "checksum": "29ad08906be0268454c37b2838d3e6f7dc1cb16faeea7a4ce76321e5363fe91a",
+      "bytes": 3576
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/002_notifications_bridge.sql",
+      "path": "src/modules/notifications-module/migrations/002_notifications_bridge.sql",
+      "checksum": "132ea342aa7014baf4c1bb28b0eccc7d8e37fc9e56e7efa65bf2e96db2605294",
+      "bytes": 4535
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/003_content_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/003_content_studio_templates.sql",
+      "checksum": "5478fe6927591e3b132078bcdf13112eaf405da0444facfcf81393785e56dc95",
+      "bytes": 2026
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/004_conversion_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/004_conversion_studio_templates.sql",
+      "checksum": "3fece91ac1d89ad12ce0c14a79be434368eeefc83cd7764b15a00a62719879fb",
+      "bytes": 2366
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/005_live_engagement_templates.sql",
+      "path": "src/modules/notifications-module/migrations/005_live_engagement_templates.sql",
+      "checksum": "17df59cc843489cc51f4c8a97ad01e41c14100d7e84449754bc10881226a4b1c",
+      "bytes": 2948
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/006_trust_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/006_trust_studio_templates.sql",
+      "checksum": "30faae1dd17163fabc2b892dbfd8310dcacb9aa1c1e3e53f83357cb2388a255c",
+      "bytes": 3080
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/007_care_journey_templates.sql",
+      "path": "src/modules/notifications-module/migrations/007_care_journey_templates.sql",
+      "checksum": "f73089c63bac7332a0caac9db92ddeaa71617ea6692f5ed09a06fb23b58a6d3e",
+      "bytes": 2751
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/007_slotdrop_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/007_slotdrop_studio_templates.sql",
+      "checksum": "484fe83403653eaed0e1a36dd833302d904b05f7a4d6183d7c3c09514c72d4bc",
+      "bytes": 2568
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/008_loyalty_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/008_loyalty_studio_templates.sql",
+      "checksum": "e5b0dd94c7a3e58239bac79a2350066c15add4d39f326face4c10e767c0f78ee",
+      "bytes": 2609
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/008_package_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/008_package_studio_templates.sql",
+      "checksum": "8155a71f266a35162fc3be8859b198f67a9bd1976674c8d5462e925f0d281b94",
+      "bytes": 1679
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/009_community_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/009_community_studio_templates.sql",
+      "checksum": "bca930c98ff1b886722fd482272fa56598d5809da0b28651ff2f7b140ee3abff",
+      "bytes": 2302
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/010_boost_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/010_boost_studio_templates.sql",
+      "checksum": "243fc346d550c254c4605e151d02342a2edc1ad0fad2ea9218943b64601d9aeb",
+      "bytes": 2330
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/011_challenge_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/011_challenge_studio_templates.sql",
+      "checksum": "af6e52ea2e9464894d4392be77186953b45d7c0ad187d344b9218879264791be",
+      "bytes": 2810
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/012_consultation_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/012_consultation_studio_templates.sql",
+      "checksum": "bc0f1ded46572f834ddc17b89ffcd3db0990720487090355f417214de95c4c89",
+      "bytes": 2617
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/013_proposal_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/013_proposal_studio_templates.sql",
+      "checksum": "c16cc1b929c9a1e6cd0a222b07009668ebc3b1f3ce557b194efdd41fcd09f570",
+      "bytes": 2455
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/014_concierge_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/014_concierge_studio_templates.sql",
+      "checksum": "a0eb2e95477f38f9281892da50579905ac6c5ee5cc6d2cef9f816be95035abb9",
+      "bytes": 940
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/015_partner_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/015_partner_studio_templates.sql",
+      "checksum": "c69bbaa6b2e58b01541d3040cfb533b93014fcde63dbb7dc09bc24196a61b093",
+      "bytes": 804
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/016_document_intake_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/016_document_intake_studio_templates.sql",
+      "checksum": "52af0fc6fc4421ac60aeeb73e4f82b2f78191c98276271ed6b2115c4ee139d0e",
+      "bytes": 1147
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/017_consent_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/017_consent_studio_templates.sql",
+      "checksum": "8f5a7275ddfbf9165386db23da03cd063304a31737cc6b8523702e6c2f7692b0",
+      "bytes": 1306
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/018_lead_pipeline_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/018_lead_pipeline_studio_templates.sql",
+      "checksum": "d2d847fb14108606835fac1c92653ce9a575a7032752371b09808fa6c0466d06",
+      "bytes": 1500
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/019_conversation_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/019_conversation_studio_templates.sql",
+      "checksum": "a7240ab96c59b30caa07d4b3156742f251eaa142772a6e00e3eeaebc6c3f69a4",
+      "bytes": 1994
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/020_customer_case_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/020_customer_case_studio_templates.sql",
+      "checksum": "459becc204a40b5478571a440d6a6af12d70777d5c07e57a11d4cf397fd28af4",
+      "bytes": 1846
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/021_rebooking_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/021_rebooking_studio_templates.sql",
+      "checksum": "b752c724cb0cf99f2ffaf96f0e13c7c3b824729ecd05a8e71d4211c0b9d8061d",
+      "bytes": 2123
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/022_membership_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/022_membership_studio_templates.sql",
+      "checksum": "aa08ddb48b3569496123a8cff8a46f72ff8a9df93d52b85def37a0e442cf0e2b",
+      "bytes": 2152
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/023_gift_card_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/023_gift_card_studio_templates.sql",
+      "checksum": "64f1be99a0938b085ca3846ca82b1f9b9393e7b99bcb6bd02833de60ed70239b",
+      "bytes": 2420
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/024_household_caregiver_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/024_household_caregiver_studio_templates.sql",
+      "checksum": "4f4472f04ca1a408b82b62ce8a9e927fa6e29561a1bee82ab530bc06b86c8c38",
+      "bytes": 2160
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/025_class_group_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/025_class_group_studio_templates.sql",
+      "checksum": "160533ae910750a9d86a33bfa2d247c9068511f2019cc4e5d0be3a715c2290b5",
+      "bytes": 2462
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/026_customer_relationship_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/026_customer_relationship_studio_templates.sql",
+      "checksum": "10931c47817be987d521032f34d97ac0631404dc37e5932d2ec08f352007d2af",
+      "bytes": 2496
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/027_feedback_recovery_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/027_feedback_recovery_studio_templates.sql",
+      "checksum": "12ab7a0a59d4dc13e108f873ff09d0a458d805e49b09f2a556190e9df5b87162",
+      "bytes": 2616
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/028_arrival_checkin_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/028_arrival_checkin_studio_templates.sql",
+      "checksum": "2284d01c9a9275bed24960123c32acdb4d6bb214b1ba47877f0d199baed78327",
+      "bytes": 2903
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/029_progress_outcomes_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/029_progress_outcomes_studio_templates.sql",
+      "checksum": "7dca555f81a7e3b8e7fdcad2456c1efba8e09b33a5ebda444c74803bef377547",
+      "bytes": 3438
+    },
+    {
+      "key": "src/modules/notifications-module/migrations/030_field_dispatch_studio_templates.sql",
+      "path": "src/modules/notifications-module/migrations/030_field_dispatch_studio_templates.sql",
+      "checksum": "1905ef42bf1ec834dc8875baaf5f1277b7f089a9ef06f314d5dd490a092c2eee",
+      "bytes": 3383
+    },
+    {
+      "key": "src/modules/onboarding/migrations/001_onboarding_admin.sql",
+      "path": "src/modules/onboarding/migrations/001_onboarding_admin.sql",
+      "checksum": "20ab8044490d06562012328a36eb828b46bbb76022ea6ecaa5e6b42813456cb7",
+      "bytes": 979
+    },
+    {
+      "key": "src/modules/package-studio/migrations/001_package_studio.sql",
+      "path": "src/modules/package-studio/migrations/001_package_studio.sql",
+      "checksum": "cc3ba9971886352250ad3973b55955188e79caf3f55460ac310f411f485f4561",
+      "bytes": 5202
+    },
+    {
+      "key": "src/modules/partner-studio/migrations/001_partner_studio.sql",
+      "path": "src/modules/partner-studio/migrations/001_partner_studio.sql",
+      "checksum": "32bc7342dc8228f0b6ad369192939db23ce1873adac1e929d25fbd7598a43326",
+      "bytes": 4301
+    },
+    {
+      "key": "src/modules/payment-billing/migrations/001_payment_billing.sql",
+      "path": "src/modules/payment-billing/migrations/001_payment_billing.sql",
+      "checksum": "802a3140b636620651aec01535fe6038e812610e577b91d2a5b97c7cf956af3a",
+      "bytes": 7246
+    },
+    {
+      "key": "src/modules/pricing-plans/migrations/001_pricing_plans.sql",
+      "path": "src/modules/pricing-plans/migrations/001_pricing_plans.sql",
+      "checksum": "c930ea3cbdba044fe9669f56185378bf5ef4e575f1a177bb63ab82c947bb9d16",
+      "bytes": 4942
+    },
+    {
+      "key": "src/modules/progress-outcomes-studio/migrations/001_progress_outcomes_studio.sql",
+      "path": "src/modules/progress-outcomes-studio/migrations/001_progress_outcomes_studio.sql",
+      "checksum": "ed81df022f41ba9efc150faf74f42d09aca8860f9294f67201a45000d0a0163f",
+      "bytes": 11195
+    },
+    {
+      "key": "src/modules/proposal-studio/migrations/001_proposal_studio.sql",
+      "path": "src/modules/proposal-studio/migrations/001_proposal_studio.sql",
+      "checksum": "21189150fc8d56472fe823bc14cc0fb6db951708356c441ae9a607bb3f231b63",
+      "bytes": 6435
+    },
+    {
+      "key": "src/modules/provider-finance-analytics/migrations/001_provider_finance_analytics.sql",
+      "path": "src/modules/provider-finance-analytics/migrations/001_provider_finance_analytics.sql",
+      "checksum": "3f429e6a87e39d1fa2b4981a2a80dc6881e867cc07f1e4cdfb653e52c3665f84",
+      "bytes": 14015
+    },
+    {
+      "key": "src/modules/provider-portal/migrations/001_provider_portal.sql",
+      "path": "src/modules/provider-portal/migrations/001_provider_portal.sql",
+      "checksum": "b05f7f5915c5ecc695666e3153b8f219ae859812f36ac9e74ae53d9c9dc5e3e1",
+      "bytes": 4766
+    },
+    {
+      "key": "src/modules/provider-portal/migrations/002_launch_readiness.sql",
+      "path": "src/modules/provider-portal/migrations/002_launch_readiness.sql",
+      "checksum": "66af68b21e48f917ab2abbf64d64b838ffd4c06dc56a333e289287615b836a2c",
+      "bytes": 1753
+    },
+    {
+      "key": "src/modules/rebooking-studio/migrations/001_rebooking_studio.sql",
+      "path": "src/modules/rebooking-studio/migrations/001_rebooking_studio.sql",
+      "checksum": "bed98a926702b220de77df3a0d4fff360079f83ce699b6ae16e9a770fc6a7416",
+      "bytes": 7475
+    },
+    {
+      "key": "src/modules/referral-growth/migrations/001_referral_growth.sql",
+      "path": "src/modules/referral-growth/migrations/001_referral_growth.sql",
+      "checksum": "5a2affd141f473883630f1b3671e40349b42600ed2c1d068fd62eece2518b4d0",
+      "bytes": 4002
+    },
+    {
+      "key": "src/modules/reporting-analytics/migrations/001_reporting_analytics.sql",
+      "path": "src/modules/reporting-analytics/migrations/001_reporting_analytics.sql",
+      "checksum": "642b3a85bdb125fd3745342af7f346ae0459fdb7a005023890c138d2ce814096",
+      "bytes": 1858
+    },
+    {
+      "key": "src/modules/reviews-standalone/migrations/001_reviews_standalone.sql",
+      "path": "src/modules/reviews-standalone/migrations/001_reviews_standalone.sql",
+      "checksum": "53ae33820749ceafa0b7b3c026b84ec1c461f0c12b1e7cd8a07525e280faa78c",
+      "bytes": 1986
+    },
+    {
+      "key": "src/modules/slotdrop-studio/migrations/001_slotdrop_studio.sql",
+      "path": "src/modules/slotdrop-studio/migrations/001_slotdrop_studio.sql",
+      "checksum": "9ebaa3f2945b315a127c1809d7de3711611ef5ed7d59eb4b571e88e1c2b9b6cb",
+      "bytes": 4615
+    },
+    {
+      "key": "src/modules/ticketing/migrations/001_ticketing.sql",
+      "path": "src/modules/ticketing/migrations/001_ticketing.sql",
+      "checksum": "d1cbe12505d5f057c3a6884212c82c0474d8e97a58465a3854df6f973d8e67f1",
+      "bytes": 2149
+    },
+    {
+      "key": "src/modules/trust-studio/migrations/001_trust_studio.sql",
+      "path": "src/modules/trust-studio/migrations/001_trust_studio.sql",
+      "checksum": "a57011e8d24ddd822bed99373179582cd9b0baa1593e168537b93e89cf19c9b1",
+      "bytes": 5563
+    }
+  ]
+}

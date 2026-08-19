@@ -1,0 +1,117 @@
+# Default developer stack.
+# Usage: docker compose up --build
+#
+# Docker/Compose owns startup ordering:
+# PostgreSQL health -> one-shot psql migration -> Next.js development server.
+name: lsevin-providers-dev
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: lsevin-local-postgres
+      POSTGRES_DB: lsevin
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      # v2 intentionally starts a new local DB lineage. Any old/broken volume is
+      # preserved on disk but is no longer reused by this release.
+      - providers_dev_postgres_native_v2:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "postgres", "-d", "lsevin"]
+      interval: 5s
+      timeout: 5s
+      retries: 120
+      start_period: 20s
+    restart: unless-stopped
+
+  migrate:
+    build:
+      context: .
+      dockerfile: deployment/database/Dockerfile
+    image: lsevin-providers-db:dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGDATABASE: lsevin
+      PGUSER: postgres
+      PGPASSWORD: lsevin-local-postgres
+    # Local-only recovery: if PostgreSQL exists but contains none of the LSevin
+    # baseline, psql may restore the supplied backup. A partial DB is rejected.
+    command: ["-v", "ON_ERROR_STOP=1", "-v", "allow_bootstrap=true", "-f", "/migrations/migrate.sql"]
+    volumes:
+      # Long bind syntax deliberately refuses to create a directory when the
+      # bootstrap SQL file is missing. The migration container, not PostgreSQL's
+      # entrypoint, owns local baseline restoration.
+      - type: bind
+        source: ./database-backup.sql
+        target: /bootstrap/database-backup.sql
+        read_only: true
+        bind:
+          create_host_path: false
+    restart: "no"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    image: lsevin-providers:dev
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    init: true
+    environment:
+      NODE_ENV: development
+      PROVIDER_PORTAL_DB_MODE: split
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGDATABASE: lsevin
+      PGUSER: postgres
+      PGPASSWORD: lsevin-local-postgres
+      POSTGRES_POOL_MAX: "5"
+      POSTGRES_CONNECT_TIMEOUT: "10"
+      NEXT_PUBLIC_APP_NAME: LSevin Providers Portal
+      NEXT_PUBLIC_APP_URL: http://localhost:${APP_PORT:-3000}
+      NEXT_PUBLIC_DEFAULT_LOCALE: fa-IR
+      NEXT_PUBLIC_DEFAULT_DIRECTION: rtl
+      NEXT_PUBLIC_DEFAULT_TIMEZONE: Asia/Tehran
+      PROVIDER_PORTAL_LOCAL_AUTH: "true"
+      PROVIDER_PORTAL_SESSION_SECRET: local-development-session-secret-change-me-123456
+      LSEVIN_USER_ID_COOKIE: lsevin_user_id
+      LSEVIN_USER_ID_HEADER: x-lsevin-user-id
+      ALLOW_TRUSTED_USER_HEADER: "false"
+      TRUSTED_PROXY_ENFORCED: "false"
+      PRIVATE_FILE_STORAGE_ROOT: /var/lib/lsevin/private-files
+      PROVIDER_MEDIA_STORAGE_ROOT: /app/public
+      PROVIDER_MEDIA_PUBLIC_BASE_URL: ""
+      ALLOW_LEGACY_MEDIA_URLS: "true"
+      PAYMENT_GATEWAYS_ENABLED: none
+    ports:
+      - "127.0.0.1:${APP_PORT:-3000}:3000"
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./next.config.ts:/app/next.config.ts:ro
+      - ./tsconfig.json:/app/tsconfig.json:ro
+      - ./postcss.config.mjs:/app/postcss.config.mjs:ro
+      - providers_dev_next:/app/.next
+      - providers_dev_private:/var/lib/lsevin/private-files
+      - providers_dev_media:/app/public/uploads
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/api/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  providers_dev_postgres_native_v2:
+  providers_dev_next:
+  providers_dev_private:
+  providers_dev_media:

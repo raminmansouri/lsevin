@@ -1,0 +1,14 @@
+{
+  "release": "1.0.0-rc.3",
+  "overlay_upgrade": {
+    "legacy_page_route_created": true,
+    "legacy_page_route_removed_by_predev": true,
+    "optional_api_route_preserved": true,
+    "next_dev_ready_seconds": 2.6,
+    "catch_all_conflict_detected": false
+  },
+  "routes": [
+    {"path": "/", "status": 200},
+    {"path": "/dashboard", "status": 307, "location": "/?auth=required"}
+  ]
+}

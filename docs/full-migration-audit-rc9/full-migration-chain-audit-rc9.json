@@ -1,0 +1,150 @@
+{
+  "release": "1.0.0-rc.9",
+  "reportedResumePoint": {
+    "appliedThroughOrder": 36,
+    "lastApplied": "src/modules/notifications-module/migrations/002_notifications_bridge.sql",
+    "nextPending": "src/modules/notifications-module/migrations/003_content_studio_templates.sql"
+  },
+  "appliedPrefixUnchanged": true,
+  "appliedPrefixCount": 36,
+  "changedMigrationCount": 30,
+  "changedMigrations": [
+    {
+      "order": 37,
+      "path": "src/modules/notifications-module/migrations/003_content_studio_templates.sql"
+    },
+    {
+      "order": 38,
+      "path": "src/modules/notifications-module/migrations/004_conversion_studio_templates.sql"
+    },
+    {
+      "order": 39,
+      "path": "src/modules/notifications-module/migrations/005_live_engagement_templates.sql"
+    },
+    {
+      "order": 40,
+      "path": "src/modules/notifications-module/migrations/006_trust_studio_templates.sql"
+    },
+    {
+      "order": 41,
+      "path": "src/modules/notifications-module/migrations/007_care_journey_templates.sql"
+    },
+    {
+      "order": 42,
+      "path": "src/modules/notifications-module/migrations/007_slotdrop_studio_templates.sql"
+    },
+    {
+      "order": 43,
+      "path": "src/modules/notifications-module/migrations/008_loyalty_studio_templates.sql"
+    },
+    {
+      "order": 44,
+      "path": "src/modules/notifications-module/migrations/008_package_studio_templates.sql"
+    },
+    {
+      "order": 45,
+      "path": "src/modules/notifications-module/migrations/009_community_studio_templates.sql"
+    },
+    {
+      "order": 46,
+      "path": "src/modules/notifications-module/migrations/010_boost_studio_templates.sql"
+    },
+    {
+      "order": 47,
+      "path": "src/modules/notifications-module/migrations/011_challenge_studio_templates.sql"
+    },
+    {
+      "order": 48,
+      "path": "src/modules/notifications-module/migrations/012_consultation_studio_templates.sql"
+    },
+    {
+      "order": 49,
+      "path": "src/modules/notifications-module/migrations/013_proposal_studio_templates.sql"
+    },
+    {
+      "order": 50,
+      "path": "src/modules/notifications-module/migrations/014_concierge_studio_templates.sql"
+    },
+    {
+      "order": 51,
+      "path": "src/modules/notifications-module/migrations/015_partner_studio_templates.sql"
+    },
+    {
+      "order": 52,
+      "path": "src/modules/notifications-module/migrations/016_document_intake_studio_templates.sql"
+    },
+    {
+      "order": 53,
+      "path": "src/modules/notifications-module/migrations/017_consent_studio_templates.sql"
+    },
+    {
+      "order": 54,
+      "path": "src/modules/notifications-module/migrations/018_lead_pipeline_studio_templates.sql"
+    },
+    {
+      "order": 55,
+      "path": "src/modules/notifications-module/migrations/019_conversation_studio_templates.sql"
+    },
+    {
+      "order": 56,
+      "path": "src/modules/notifications-module/migrations/020_customer_case_studio_templates.sql"
+    },
+    {
+      "order": 57,
+      "path": "src/modules/notifications-module/migrations/021_rebooking_studio_templates.sql"
+    },
+    {
+      "order": 58,
+      "path": "src/modules/notifications-module/migrations/022_membership_studio_templates.sql"
+    },
+    {
+      "order": 59,
+      "path": "src/modules/notifications-module/migrations/023_gift_card_studio_templates.sql"
+    },
+    {
+      "order": 60,
+      "path": "src/modules/notifications-module/migrations/024_household_caregiver_studio_templates.sql"
+    },
+    {
+      "order": 61,
+      "path": "src/modules/notifications-module/migrations/025_class_group_studio_templates.sql"
+    },
+    {
+      "order": 62,
+      "path": "src/modules/notifications-module/migrations/026_customer_relationship_studio_templates.sql"
+    },
+    {
+      "order": 63,
+      "path": "src/modules/notifications-module/migrations/027_feedback_recovery_studio_templates.sql"
+    },
+    {
+      "order": 64,
+      "path": "src/modules/notifications-module/migrations/028_arrival_checkin_studio_templates.sql"
+    },
+    {
+      "order": 65,
+      "path": "src/modules/notifications-module/migrations/029_progress_outcomes_studio_templates.sql"
+    },
+    {
+      "order": 66,
+      "path": "src/modules/notifications-module/migrations/030_field_dispatch_studio_templates.sql"
+    }
+  ],
+  "allChangesArePendingAfterResumePoint": true,
+  "fullSchemaExecution": {
+    "ok": true,
+    "migrationCount": 83,
+    "canonicalNotificationTemplates": 189
+  },
+  "verification": {
+    "ok": true,
+    "migrationCount": 83,
+    "coreCount": 3,
+    "moduleCount": 80,
+    "unsafeIndexExpressions": [],
+    "legacyNotificationTargets": [],
+    "transactionUnsafeStatements": [],
+    "unsafeJsonApostrophes": [],
+    "notificationSeedShapeIssues": []
+  }
+}

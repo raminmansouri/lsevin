@@ -1,5 +1,0 @@
-import { z } from "zod/v4";
-
-export const GetMyBookingsSchema = z.object({
-  status: z.enum(["upcoming", "past", "cancelled"]).optional(),
-});

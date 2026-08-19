@@ -1,0 +1,100 @@
+{
+  "ok": true,
+  "passed": 18,
+  "total": 18,
+  "disabledModuleCount": 36,
+  "placeholderAdminCount": 10,
+  "missingFrontendCount": 26,
+  "checks": [
+    {
+      "name": "release version is rc23 or later",
+      "passed": true,
+      "detail": "1.0.0-rc.26"
+    },
+    {
+      "name": "exact 36-module safety set",
+      "passed": true,
+      "detail": "expected=36 actual=36"
+    },
+    {
+      "name": "ten placeholder-admin modules classified",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "twenty-six frontend-missing modules classified",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "all safety modules are registered",
+      "passed": true,
+      "detail": "missing=[]"
+    },
+    {
+      "name": "missing rows resolve disabled",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "persisted SUPERADMIN override remains possible",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "migration 007 discovered",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "migration 007 covers all 36 modules",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "migration 007 disables state idempotently",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "migration preserves module schemas and business data",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "migration writes immutable state events",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "manager labels missing frontend accurately",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "safety messages have complete translations",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "runtime smoke contains all 36 module IDs",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "runtime smoke checks newly disabled customer surfaces",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "batch60 wired into release scripts",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "all modules remain installed and visible",
+      "passed": true,
+      "detail": ""
+    }
+  ]
+}

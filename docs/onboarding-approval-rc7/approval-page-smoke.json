@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "generatedAt": "2026-08-06T18:03:30.697Z",
+  "route": "/admin/applications/33333333-3333-4333-8333-333333333333?approvalError=Country%20and%20city%20are%20required%20when%20creating%20a%20provider.%20Use%20LSevin%20location%20codes%20such%20as%20IR%20and%20tehran.&approvalErrorCode=location_required",
+  "status": 200,
+  "checks": {
+    "pageRendered": true,
+    "friendlyErrorRendered": true,
+    "createFormRendered": true,
+    "attachFormRendered": true,
+    "noGenericError": true,
+    "noAggregateError": true
+  },
+  "serverLogTail": "   ▲ Next.js 15.5.21\n   - Local:        http://127.0.0.1:3408\n   - Network:      http://127.0.0.1:3408\n\n ✓ Starting...\n ✓ Ready in 799ms\n"
+}

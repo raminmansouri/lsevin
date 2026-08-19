@@ -1,0 +1,4316 @@
+{
+  "releaseProfile": "production-main-use-cases",
+  "enabledModules": 17,
+  "phrases": 737,
+  "translated": 51,
+  "missing": 686,
+  "coveragePercent": 6.92,
+  "missingPhrases": [
+    {
+      "phrase": "PROVIDER_PORTAL_DEV_USER_ID",
+      "locations": [
+        "src/app/error.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Bold",
+      "locations": [
+        "src/core/ui/RichTextEditor.tsx:35"
+      ]
+    },
+    {
+      "phrase": "Italic",
+      "locations": [
+        "src/core/ui/RichTextEditor.tsx:36"
+      ]
+    },
+    {
+      "phrase": "Underline",
+      "locations": [
+        "src/core/ui/RichTextEditor.tsx:37"
+      ]
+    },
+    {
+      "phrase": "Bulleted list",
+      "locations": [
+        "src/core/ui/RichTextEditor.tsx:38"
+      ]
+    },
+    {
+      "phrase": "Numbered list",
+      "locations": [
+        "src/core/ui/RichTextEditor.tsx:39"
+      ]
+    },
+    {
+      "phrase": "Undo",
+      "locations": [
+        "src/core/ui/RichTextEditor.tsx:40"
+      ]
+    },
+    {
+      "phrase": "Redo",
+      "locations": [
+        "src/core/ui/RichTextEditor.tsx:41"
+      ]
+    },
+    {
+      "phrase": "A unified read-only timeline for role governance, catalog moderation and onboarding decisions.",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminAuditPage.tsx:19"
+      ]
+    },
+    {
+      "phrase": "Governance",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminAuditPage.tsx:19",
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:23"
+      ]
+    },
+    {
+      "phrase": "Action, actor, entity or reason",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminAuditPage.tsx:20"
+      ]
+    },
+    {
+      "phrase": "All sources",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminAuditPage.tsx:20"
+      ]
+    },
+    {
+      "phrase": "Role governance",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminAuditPage.tsx:20"
+      ]
+    },
+    {
+      "phrase": "Catalog administration",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminAuditPage.tsx:20"
+      ]
+    },
+    {
+      "phrase": "Onboarding decisions",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminAuditPage.tsx:20",
+        "src/modules/admin-governance/pages/AdminGovernancePage.tsx:45"
+      ]
+    },
+    {
+      "phrase": "Filter",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminAuditPage.tsx:20",
+        "src/modules/admin-governance/pages/AdminGovernanceUsersPage.tsx:24",
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:65",
+        "src/modules/providers/pages/AdminProvidersPage.tsx:46",
+        "src/modules/services/pages/AdminServicesPage.tsx:41",
+        "src/modules/staff/pages/AdminStaffPage.tsx:37",
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:38"
+      ]
+    },
+    {
+      "phrase": "Time",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminAuditPage.tsx:21"
+      ]
+    },
+    {
+      "phrase": "Source",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminAuditPage.tsx:21",
+        "src/modules/payment-billing/pages/ProviderPage.tsx:40"
+      ]
+    },
+    {
+      "phrase": "Action",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminAuditPage.tsx:21",
+        "src/modules/admin-governance/pages/AdminGovernanceUsersPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Entity",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminAuditPage.tsx:21"
+      ]
+    },
+    {
+      "phrase": "Actor",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminAuditPage.tsx:21"
+      ]
+    },
+    {
+      "phrase": "Reason",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminAuditPage.tsx:21",
+        "src/modules/providers/pages/AdminProvidersPage.tsx:73",
+        "src/modules/services/pages/AdminServicesPage.tsx:60",
+        "src/modules/staff/pages/AdminStaffPage.tsx:56",
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:61",
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:57"
+      ]
+    },
+    {
+      "phrase": "Details",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminAuditPage.tsx:21"
+      ]
+    },
+    {
+      "phrase": "No matching administration events",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminAuditPage.tsx:21"
+      ]
+    },
+    {
+      "phrase": "Apply the migrations and perform an onboarding, catalog or role-governance action first.",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminAuditPage.tsx:21"
+      ]
+    },
+    {
+      "phrase": "Manage the LSevin administration model, inspect privileged-user coverage and review recent role changes.",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernancePage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Manage roles",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernancePage.tsx:26",
+        "src/modules/admin-governance/pages/AdminGovernanceUsersPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Audit center",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernancePage.tsx:26",
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:23"
+      ]
+    },
+    {
+      "phrase": "Active users",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernancePage.tsx:29"
+      ]
+    },
+    {
+      "phrase": "Scoped admins",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernancePage.tsx:33",
+        "src/modules/admin-governance/pages/AdminGovernanceUsersPage.tsx:23"
+      ]
+    },
+    {
+      "phrase": "Role changes · 30d",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernancePage.tsx:34"
+      ]
+    },
+    {
+      "phrase": "30-day administration evidence",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernancePage.tsx:42"
+      ]
+    },
+    {
+      "phrase": "Governance events",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernancePage.tsx:43"
+      ]
+    },
+    {
+      "phrase": "Catalog actions",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernancePage.tsx:44"
+      ]
+    },
+    {
+      "phrase": "Safety rules",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernancePage.tsx:46"
+      ]
+    },
+    {
+      "phrase": "Only SUPERADMIN can change administrative roles.",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernancePage.tsx:46"
+      ]
+    },
+    {
+      "phrase": "A reason is mandatory for every role change.",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernancePage.tsx:46"
+      ]
+    },
+    {
+      "phrase": "A superadmin cannot remove their own SUPERADMIN role.",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernancePage.tsx:46"
+      ]
+    },
+    {
+      "phrase": "The final active SUPERADMIN cannot be removed.",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernancePage.tsx:46"
+      ]
+    },
+    {
+      "phrase": "Recent role changes",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernancePage.tsx:50"
+      ]
+    },
+    {
+      "phrase": "No role changes have been recorded yet.",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernancePage.tsx:50"
+      ]
+    },
+    {
+      "phrase": "Back to users",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUserPage.tsx:24"
+      ]
+    },
+    {
+      "phrase": "User ID",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUserPage.tsx:26",
+        "src/modules/provider-access/pages/ProviderSettingsPage.tsx:14"
+      ]
+    },
+    {
+      "phrase": "State",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUserPage.tsx:26",
+        "src/modules/admin-governance/pages/AdminGovernanceUsersPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Last login",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUserPage.tsx:26",
+        "src/modules/admin-governance/pages/AdminGovernanceUsersPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Provider memberships",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUserPage.tsx:26",
+        "src/modules/admin-governance/pages/AdminGovernanceUsersPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "All current roles",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUserPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Assign administrative role",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUserPage.tsx:28"
+      ]
+    },
+    {
+      "phrase": "Select role",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUserPage.tsx:28"
+      ]
+    },
+    {
+      "phrase": "Why this access is needed",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUserPage.tsx:28"
+      ]
+    },
+    {
+      "phrase": "Assign",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUserPage.tsx:28"
+      ]
+    },
+    {
+      "phrase": "This user already has every assignable administration role.",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUserPage.tsx:28"
+      ]
+    },
+    {
+      "phrase": "Revoke administrative role",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUserPage.tsx:29"
+      ]
+    },
+    {
+      "phrase": "Why this access is being removed",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUserPage.tsx:29"
+      ]
+    },
+    {
+      "phrase": "Revoke",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUserPage.tsx:29"
+      ]
+    },
+    {
+      "phrase": "This user has no administrative roles.",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUserPage.tsx:29"
+      ]
+    },
+    {
+      "phrase": "Role history",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUserPage.tsx:32"
+      ]
+    },
+    {
+      "phrase": "Before:",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUserPage.tsx:32"
+      ]
+    },
+    {
+      "phrase": "· After:",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUserPage.tsx:32"
+      ]
+    },
+    {
+      "phrase": "No role-governance events for this user.",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUserPage.tsx:32"
+      ]
+    },
+    {
+      "phrase": "Search LSevin identities, inspect effective roles and open a user to assign or revoke scoped administration access.",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUsersPage.tsx:22"
+      ]
+    },
+    {
+      "phrase": "Governance overview",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUsersPage.tsx:22"
+      ]
+    },
+    {
+      "phrase": "Users",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUsersPage.tsx:23"
+      ]
+    },
+    {
+      "phrase": "Name, email, phone or user ID",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUsersPage.tsx:24"
+      ]
+    },
+    {
+      "phrase": "All roles",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUsersPage.tsx:24"
+      ]
+    },
+    {
+      "phrase": "All user states",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUsersPage.tsx:24"
+      ]
+    },
+    {
+      "phrase": "Disabled",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUsersPage.tsx:24",
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:63"
+      ]
+    },
+    {
+      "phrase": "User",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUsersPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Roles",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUsersPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "No roles",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUsersPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "No matching users",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUsersPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Change the filters or search by the exact LSevin user ID.",
+      "locations": [
+        "src/modules/admin-governance/pages/AdminGovernanceUsersPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "انتخاب نوع",
+      "locations": [
+        "src/modules/onboarding/components/ApplicationForm.tsx:21"
+      ]
+    },
+    {
+      "phrase": "عنوان حرفه‌ای",
+      "locations": [
+        "src/modules/onboarding/components/ApplicationForm.tsx:24",
+        "src/modules/staff/components/StaffForm.tsx:20",
+        "src/modules/staff/components/StaffManager.tsx:41"
+      ]
+    },
+    {
+      "phrase": "تخصص یا نقش",
+      "locations": [
+        "src/modules/onboarding/components/ApplicationForm.tsx:24"
+      ]
+    },
+    {
+      "phrase": "لینک یا شناسه پروفایل موجود",
+      "locations": [
+        "src/modules/onboarding/components/ApplicationForm.tsx:24"
+      ]
+    },
+    {
+      "phrase": "مسئول تماس مرکز",
+      "locations": [
+        "src/modules/onboarding/components/ApplicationForm.tsx:24"
+      ]
+    },
+    {
+      "phrase": "شخص رابط",
+      "locations": [
+        "src/modules/onboarding/components/ApplicationForm.tsx:24"
+      ]
+    },
+    {
+      "phrase": "ایمیل",
+      "locations": [
+        "src/modules/onboarding/components/ApplicationForm.tsx:25",
+        "src/modules/providers/components/ProfileForm.tsx:20"
+      ]
+    },
+    {
+      "phrase": "پیش‌شماره",
+      "locations": [
+        "src/modules/onboarding/components/ApplicationForm.tsx:26",
+        "src/modules/providers/components/ProfileForm.tsx:21"
+      ]
+    },
+    {
+      "phrase": "تلفن",
+      "locations": [
+        "src/modules/onboarding/components/ApplicationForm.tsx:26",
+        "src/modules/providers/components/ProfileForm.tsx:21"
+      ]
+    },
+    {
+      "phrase": "فعال‌سازی مالکیت پس از تأیید مرکز، بررسی السوین و در صورت نیاز پرداخت صورتحساب انجام می‌شود.",
+      "locations": [
+        "src/modules/onboarding/components/ApplicationForm.tsx:31"
+      ]
+    },
+    {
+      "phrase": "ثبت مرکز یا ارائه‌دهنده",
+      "locations": [
+        "src/modules/onboarding/components/ApplicationForm.tsx:32"
+      ]
+    },
+    {
+      "phrase": "درخواست مالکیت صفحه کارمند",
+      "locations": [
+        "src/modules/onboarding/components/ApplicationForm.tsx:32"
+      ]
+    },
+    {
+      "phrase": "Back to queue",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:53"
+      ]
+    },
+    {
+      "phrase": "Application approved. The provider owner workspace is ready.",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:56"
+      ]
+    },
+    {
+      "phrase": "Approval was not completed",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:59"
+      ]
+    },
+    {
+      "phrase": "npm run migrate &amp;&amp; npm run migrate:check",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:61"
+      ]
+    },
+    {
+      "phrase": "Application and applicant",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:68"
+      ]
+    },
+    {
+      "phrase": "Audience",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:71"
+      ]
+    },
+    {
+      "phrase": "Applicant",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:72",
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:77"
+      ]
+    },
+    {
+      "phrase": "Applicant email",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:73"
+      ]
+    },
+    {
+      "phrase": "Legal name",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:74"
+      ]
+    },
+    {
+      "phrase": "Display name",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:75",
+        "src/modules/payment-billing/pages/AdminPage.tsx:67"
+      ]
+    },
+    {
+      "phrase": "Provider type",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:76",
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:78",
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:43"
+      ]
+    },
+    {
+      "phrase": "Missing",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:76"
+      ]
+    },
+    {
+      "phrase": "Contact",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:77"
+      ]
+    },
+    {
+      "phrase": "Contact person",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:80"
+      ]
+    },
+    {
+      "phrase": "Existing profile reference",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:81"
+      ]
+    },
+    {
+      "phrase": "Staff title",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:82"
+      ]
+    },
+    {
+      "phrase": "Staff specialty",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:83"
+      ]
+    },
+    {
+      "phrase": "Customer-visible review reason",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:85"
+      ]
+    },
+    {
+      "phrase": "Internal note",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:86",
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:168",
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:174"
+      ]
+    },
+    {
+      "phrase": "Review history",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:91"
+      ]
+    },
+    {
+      "phrase": "No review events yet. Apply the onboarding migration to enable audit history.",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:100"
+      ]
+    },
+    {
+      "phrase": "Staff ownership request",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:108"
+      ]
+    },
+    {
+      "phrase": "Staff applications use the profile-claim workflow because clinic confirmation, LSevin review and payment or waiver may be required.",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:110"
+      ]
+    },
+    {
+      "phrase": "Open provider and staff claims",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:111"
+      ]
+    },
+    {
+      "phrase": "Create a new provider and approve",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:117"
+      ]
+    },
+    {
+      "phrase": "The provider is created inactive so the new owner can complete profile, services, staff, availability and payout readiness before publication.",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:122"
+      ]
+    },
+    {
+      "phrase": "Timezone",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:129"
+      ]
+    },
+    {
+      "phrase": "Internal approval note",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:130",
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:149"
+      ]
+    },
+    {
+      "phrase": "Create provider and approve",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:131"
+      ]
+    },
+    {
+      "phrase": "Approval is blocked until the missing provider type reference is repaired.",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:132"
+      ]
+    },
+    {
+      "phrase": "Attach an existing provider and approve",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:138"
+      ]
+    },
+    {
+      "phrase": "Existing provider",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:143"
+      ]
+    },
+    {
+      "phrase": "Only a provider with the same provider type can be attached.",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:143"
+      ]
+    },
+    {
+      "phrase": "Select provider",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:145"
+      ]
+    },
+    {
+      "phrase": "Attach provider and approve",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:150"
+      ]
+    },
+    {
+      "phrase": "Review decisions",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:158"
+      ]
+    },
+    {
+      "phrase": "Internal review note",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:162"
+      ]
+    },
+    {
+      "phrase": "Mark in review",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:163"
+      ]
+    },
+    {
+      "phrase": "Requested changes shown to applicant",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:167"
+      ]
+    },
+    {
+      "phrase": "Request changes",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:169"
+      ]
+    },
+    {
+      "phrase": "Rejection reason shown to applicant",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:173"
+      ]
+    },
+    {
+      "phrase": "Reject application",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationPage.tsx:175"
+      ]
+    },
+    {
+      "phrase": "Provider onboarding applications",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:35"
+      ]
+    },
+    {
+      "phrase": "Review LSevin user applications, request corrections, approve a new provider or attach an existing provider, and create the owner membership.",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:36"
+      ]
+    },
+    {
+      "phrase": "Total",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:41",
+        "src/modules/booking-management/pages/AdminPage.tsx:31",
+        "src/modules/booking-management/pages/ProviderPage.tsx:37",
+        "src/modules/payment-billing/pages/AdminPage.tsx:41",
+        "src/modules/payment-billing/pages/ProviderPage.tsx:40"
+      ]
+    },
+    {
+      "phrase": "Submitted",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:42",
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:58",
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:79"
+      ]
+    },
+    {
+      "phrase": "In review",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:43"
+      ]
+    },
+    {
+      "phrase": "Missing provider type",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:46"
+      ]
+    },
+    {
+      "phrase": "Application number, legal name, applicant or email",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:54"
+      ]
+    },
+    {
+      "phrase": "All statuses",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:57",
+        "src/modules/providers/pages/AdminProvidersPage.tsx:44",
+        "src/modules/services/pages/AdminServicesPage.tsx:39",
+        "src/modules/staff/pages/AdminStaffPage.tsx:35",
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:36"
+      ]
+    },
+    {
+      "phrase": "In review / changes requested",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:59"
+      ]
+    },
+    {
+      "phrase": "Draft",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:60"
+      ]
+    },
+    {
+      "phrase": "Application",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:76"
+      ]
+    },
+    {
+      "phrase": "Result",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:81"
+      ]
+    },
+    {
+      "phrase": "Orphaned reference",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:98"
+      ]
+    },
+    {
+      "phrase": "Review",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:105"
+      ]
+    },
+    {
+      "phrase": "No matching applications",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:113"
+      ]
+    },
+    {
+      "phrase": "Change the filters or wait for a LSevin user to submit a provider application.",
+      "locations": [
+        "src/modules/onboarding/pages/AdminApplicationsPage.tsx:113"
+      ]
+    },
+    {
+      "phrase": "Provider applications",
+      "locations": [
+        "src/modules/onboarding/pages/ApplicationsPage.tsx:13"
+      ]
+    },
+    {
+      "phrase": "Applications submitted by your account.",
+      "locations": [
+        "src/modules/onboarding/pages/ApplicationsPage.tsx:13"
+      ]
+    },
+    {
+      "phrase": "New application",
+      "locations": [
+        "src/modules/onboarding/pages/ApplicationsPage.tsx:13",
+        "src/modules/provider-access/pages/MyProvidersPage.tsx:11"
+      ]
+    },
+    {
+      "phrase": "Open",
+      "locations": [
+        "src/modules/onboarding/pages/ApplicationsPage.tsx:13",
+        "src/modules/ticketing/pages/AdminPage.tsx:22",
+        "src/modules/ticketing/pages/AdminPage.tsx:25",
+        "src/modules/ticketing/pages/ProviderPage.tsx:23"
+      ]
+    },
+    {
+      "phrase": "No applications",
+      "locations": [
+        "src/modules/onboarding/pages/ApplicationsPage.tsx:13"
+      ]
+    },
+    {
+      "phrase": "Start onboarding to create a new provider workspace.",
+      "locations": [
+        "src/modules/onboarding/pages/ApplicationsPage.tsx:13"
+      ]
+    },
+    {
+      "phrase": "Start",
+      "locations": [
+        "src/modules/onboarding/pages/ApplicationsPage.tsx:13"
+      ]
+    },
+    {
+      "phrase": "Become a provider",
+      "locations": [
+        "src/modules/onboarding/pages/NewApplicationPage.tsx:9",
+        "src/modules/dashboard/pages/UserDashboardPage.tsx:14"
+      ]
+    },
+    {
+      "phrase": "Submit your provider information. LSevin admins can approve it and create or attach a provider workspace.",
+      "locations": [
+        "src/modules/onboarding/pages/NewApplicationPage.tsx:9"
+      ]
+    },
+    {
+      "phrase": "Claim or create a staff profile",
+      "locations": [
+        "src/modules/onboarding/pages/NewStaffApplicationPage.tsx:9"
+      ]
+    },
+    {
+      "phrase": "Submit your staff profile ownership request. Clinic confirmation and LSevin approval are required before profile management is enabled.",
+      "locations": [
+        "src/modules/onboarding/pages/NewStaffApplicationPage.tsx:9"
+      ]
+    },
+    {
+      "phrase": "Bookings",
+      "locations": [
+        "src/modules/dashboard/components/DashboardProviderCards.tsx:8",
+        "src/modules/dashboard/pages/ProviderDashboardPage.tsx:10",
+        "src/modules/dashboard/pages/UserDashboardPage.tsx:14",
+        "src/modules/provider-access/components/ProviderCards.tsx:31",
+        "src/modules/staff/pages/SelfStaffProfilePage.tsx:28",
+        "src/modules/booking-management/pages/ProviderPage.tsx:24",
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:31",
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:50",
+        "src/modules/provider-finance-analytics/components/ReportsDashboard.tsx:71"
+      ]
+    },
+    {
+      "phrase": "Manage",
+      "locations": [
+        "src/modules/dashboard/components/DashboardProviderCards.tsx:8",
+        "src/modules/provider-access/components/ProviderCards.tsx:35",
+        "src/modules/manage/components/ManagementHub.tsx:58"
+      ]
+    },
+    {
+      "phrase": "Cross-module launch operations, onboarding review, admin-role evidence and the current admin-surface completeness inventory.",
+      "locations": [
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:22"
+      ]
+    },
+    {
+      "phrase": "Review applications",
+      "locations": [
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:23"
+      ]
+    },
+    {
+      "phrase": "Applications awaiting review",
+      "locations": [
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:27"
+      ]
+    },
+    {
+      "phrase": "Providers",
+      "locations": [
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:28",
+        "src/modules/dashboard/pages/UserDashboardPage.tsx:14",
+        "src/modules/providers/pages/AdminProvidersPage.tsx:34"
+      ]
+    },
+    {
+      "phrase": "How LSevin detects administrators",
+      "locations": [
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:36"
+      ]
+    },
+    {
+      "phrase": "OTP authentication returns",
+      "locations": [
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:40"
+      ]
+    },
+    {
+      "phrase": "roles",
+      "locations": [
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:40"
+      ]
+    },
+    {
+      "phrase": "in the NextAuth session. LSevin middleware permits admin routes when the session contains",
+      "locations": [
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:40"
+      ]
+    },
+    {
+      "phrase": "or",
+      "locations": [
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:40"
+      ]
+    },
+    {
+      "phrase": "Providers Portal",
+      "locations": [
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:43"
+      ]
+    },
+    {
+      "phrase": "The portal receives the same LSevin user ID, then joins",
+      "locations": [
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:44"
+      ]
+    },
+    {
+      "phrase": "with",
+      "locations": [
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:44"
+      ]
+    },
+    {
+      "phrase": ". Role names are normalized to uppercase.",
+      "locations": [
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:44"
+      ]
+    },
+    {
+      "phrase": "grants governance and every admin surface.",
+      "locations": [
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:44"
+      ]
+    },
+    {
+      "phrase": "grants all business administration pages except role governance; specialized roles grant scoped pages.",
+      "locations": [
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:44"
+      ]
+    },
+    {
+      "phrase": "Current user",
+      "locations": [
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:47"
+      ]
+    },
+    {
+      "phrase": "Development override / no DB admin role",
+      "locations": [
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:48"
+      ]
+    },
+    {
+      "phrase": "Production release boundary",
+      "locations": [
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:54"
+      ]
+    },
+    {
+      "phrase": "supported modules are enabled",
+      "locations": [
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:57"
+      ]
+    },
+    {
+      "phrase": "Only onboarding, provider/staff operations, bookings, finance, billing, reviews, media, notifications, support and governance are part of this release.",
+      "locations": [
+        "src/modules/dashboard/pages/AdminDashboardPage.tsx:58"
+      ]
+    },
+    {
+      "phrase": "Provider-specific operations overview.",
+      "locations": [
+        "src/modules/dashboard/pages/ProviderDashboardPage.tsx:10"
+      ]
+    },
+    {
+      "phrase": "Profile status",
+      "locations": [
+        "src/modules/dashboard/pages/ProviderDashboardPage.tsx:10"
+      ]
+    },
+    {
+      "phrase": "Your provider workspaces, onboarding status and core operational metrics.",
+      "locations": [
+        "src/modules/dashboard/pages/UserDashboardPage.tsx:14"
+      ]
+    },
+    {
+      "phrase": "Open applications",
+      "locations": [
+        "src/modules/dashboard/pages/UserDashboardPage.tsx:14"
+      ]
+    },
+    {
+      "phrase": "No provider workspace yet",
+      "locations": [
+        "src/modules/dashboard/pages/UserDashboardPage.tsx:14"
+      ]
+    },
+    {
+      "phrase": "Submit an application or ask an admin to assign an existing provider to your LSevin user account.",
+      "locations": [
+        "src/modules/dashboard/pages/UserDashboardPage.tsx:14"
+      ]
+    },
+    {
+      "phrase": "Start onboarding",
+      "locations": [
+        "src/modules/dashboard/pages/UserDashboardPage.tsx:14"
+      ]
+    },
+    {
+      "phrase": "My providers",
+      "locations": [
+        "src/modules/provider-access/pages/MyProvidersPage.tsx:11"
+      ]
+    },
+    {
+      "phrase": "Providers assigned to your LSevin user account.",
+      "locations": [
+        "src/modules/provider-access/pages/MyProvidersPage.tsx:11"
+      ]
+    },
+    {
+      "phrase": "No providers assigned",
+      "locations": [
+        "src/modules/provider-access/pages/MyProvidersPage.tsx:11"
+      ]
+    },
+    {
+      "phrase": "Your user is logged in, but no provider member row exists yet.",
+      "locations": [
+        "src/modules/provider-access/pages/MyProvidersPage.tsx:11"
+      ]
+    },
+    {
+      "phrase": "Assign existing LSevin users to this provider workspace and manage roles.",
+      "locations": [
+        "src/modules/provider-access/pages/ProviderSettingsPage.tsx:14"
+      ]
+    },
+    {
+      "phrase": "Members",
+      "locations": [
+        "src/modules/provider-access/pages/ProviderSettingsPage.tsx:14"
+      ]
+    },
+    {
+      "phrase": "Assign user",
+      "locations": [
+        "src/modules/provider-access/pages/ProviderSettingsPage.tsx:14",
+        "src/modules/provider-access/pages/ProviderSettingsPage.tsx:14"
+      ]
+    },
+    {
+      "phrase": "Use direct identity.asp_net_users.id when available.",
+      "locations": [
+        "src/modules/provider-access/pages/ProviderSettingsPage.tsx:14"
+      ]
+    },
+    {
+      "phrase": "Or exact email",
+      "locations": [
+        "src/modules/provider-access/pages/ProviderSettingsPage.tsx:14"
+      ]
+    },
+    {
+      "phrase": "The action resolves this email to an existing LSevin user.",
+      "locations": [
+        "src/modules/provider-access/pages/ProviderSettingsPage.tsx:14"
+      ]
+    },
+    {
+      "phrase": "Role",
+      "locations": [
+        "src/modules/provider-access/pages/ProviderSettingsPage.tsx:14"
+      ]
+    },
+    {
+      "phrase": "Owner",
+      "locations": [
+        "src/modules/provider-access/pages/ProviderSettingsPage.tsx:14"
+      ]
+    },
+    {
+      "phrase": "Manager",
+      "locations": [
+        "src/modules/provider-access/pages/ProviderSettingsPage.tsx:14"
+      ]
+    },
+    {
+      "phrase": "Editor",
+      "locations": [
+        "src/modules/provider-access/pages/ProviderSettingsPage.tsx:14"
+      ]
+    },
+    {
+      "phrase": "Viewer",
+      "locations": [
+        "src/modules/provider-access/pages/ProviderSettingsPage.tsx:14"
+      ]
+    },
+    {
+      "phrase": "Default provider",
+      "locations": [
+        "src/modules/provider-access/pages/ProviderSettingsPage.tsx:14"
+      ]
+    },
+    {
+      "phrase": "Provider readiness checklist",
+      "locations": [
+        "src/modules/manage/components/ManagementHub.tsx:32"
+      ]
+    },
+    {
+      "phrase": "Core marketplace readiness items completed.",
+      "locations": [
+        "src/modules/manage/components/ManagementHub.tsx:37"
+      ]
+    },
+    {
+      "phrase": "Self-service management",
+      "locations": [
+        "src/modules/manage/components/ManagementHub.tsx:39"
+      ]
+    },
+    {
+      "phrase": "Manage provider",
+      "locations": [
+        "src/modules/manage/pages/ProviderManagePage.tsx:9"
+      ]
+    },
+    {
+      "phrase": "One control surface for every provider data-entry and operations module.",
+      "locations": [
+        "src/modules/manage/pages/ProviderManagePage.tsx:9"
+      ]
+    },
+    {
+      "phrase": "پروفایل ارائه‌دهنده",
+      "locations": [
+        "src/modules/providers/components/ProfileForm.tsx:16"
+      ]
+    },
+    {
+      "phrase": "نام ارائه‌دهنده",
+      "locations": [
+        "src/modules/providers/components/ProfileForm.tsx:18"
+      ]
+    },
+    {
+      "phrase": "توضیحات",
+      "locations": [
+        "src/modules/providers/components/ProfileForm.tsx:19",
+        "src/modules/media/components/MediaManager.tsx:26"
+      ]
+    },
+    {
+      "phrase": "برای هر زبان محتوای مستقل و قالب‌بندی‌شده وارد کنید.",
+      "locations": [
+        "src/modules/providers/components/ProfileForm.tsx:19"
+      ]
+    },
+    {
+      "phrase": "کد پستی",
+      "locations": [
+        "src/modules/providers/components/ProfileForm.tsx:23"
+      ]
+    },
+    {
+      "phrase": "منطقه زمانی",
+      "locations": [
+        "src/modules/providers/components/ProfileForm.tsx:24"
+      ]
+    },
+    {
+      "phrase": "عرض جغرافیایی",
+      "locations": [
+        "src/modules/providers/components/ProfileForm.tsx:25"
+      ]
+    },
+    {
+      "phrase": "طول جغرافیایی",
+      "locations": [
+        "src/modules/providers/components/ProfileForm.tsx:26"
+      ]
+    },
+    {
+      "phrase": "تصویر اصلی پروفایل",
+      "locations": [
+        "src/modules/providers/components/ProfileForm.tsx:27"
+      ]
+    },
+    {
+      "phrase": "زبان‌های ارائه خدمت",
+      "locations": [
+        "src/modules/providers/components/ProfileForm.tsx:28"
+      ]
+    },
+    {
+      "phrase": "با کاما جدا کنید",
+      "locations": [
+        "src/modules/providers/components/ProfileForm.tsx:28",
+        "src/modules/providers/components/ProfileForm.tsx:29"
+      ]
+    },
+    {
+      "phrase": "تخصص‌ها",
+      "locations": [
+        "src/modules/providers/components/ProfileForm.tsx:29"
+      ]
+    },
+    {
+      "phrase": "ذخیره پروفایل",
+      "locations": [
+        "src/modules/providers/components/ProfileForm.tsx:30"
+      ]
+    },
+    {
+      "phrase": "Provider catalog administration",
+      "locations": [
+        "src/modules/providers/pages/AdminProvidersPage.tsx:31"
+      ]
+    },
+    {
+      "phrase": "Search every provider, inspect operational readiness and control publication, accreditation and sponsorship with an auditable reason.",
+      "locations": [
+        "src/modules/providers/pages/AdminProvidersPage.tsx:31"
+      ]
+    },
+    {
+      "phrase": "Accredited",
+      "locations": [
+        "src/modules/providers/pages/AdminProvidersPage.tsx:37",
+        "src/modules/providers/pages/AdminProvidersPage.tsx:44",
+        "src/modules/providers/pages/AdminProvidersPage.tsx:54"
+      ]
+    },
+    {
+      "phrase": "Sponsored",
+      "locations": [
+        "src/modules/providers/pages/AdminProvidersPage.tsx:38",
+        "src/modules/providers/pages/AdminProvidersPage.tsx:44",
+        "src/modules/providers/pages/AdminProvidersPage.tsx:54"
+      ]
+    },
+    {
+      "phrase": "Without owner",
+      "locations": [
+        "src/modules/providers/pages/AdminProvidersPage.tsx:39"
+      ]
+    },
+    {
+      "phrase": "Provider, email or phone",
+      "locations": [
+        "src/modules/providers/pages/AdminProvidersPage.tsx:43"
+      ]
+    },
+    {
+      "phrase": "All provider types",
+      "locations": [
+        "src/modules/providers/pages/AdminProvidersPage.tsx:45"
+      ]
+    },
+    {
+      "phrase": "Operations",
+      "locations": [
+        "src/modules/providers/pages/AdminProvidersPage.tsx:50",
+        "src/modules/booking-management/pages/ProviderPage.tsx:46"
+      ]
+    },
+    {
+      "phrase": "Reputation",
+      "locations": [
+        "src/modules/providers/pages/AdminProvidersPage.tsx:50",
+        "src/modules/services/pages/AdminServicesPage.tsx:44",
+        "src/modules/staff/pages/AdminStaffPage.tsx:40"
+      ]
+    },
+    {
+      "phrase": "Last update",
+      "locations": [
+        "src/modules/providers/pages/AdminProvidersPage.tsx:50"
+      ]
+    },
+    {
+      "phrase": "Controls",
+      "locations": [
+        "src/modules/providers/pages/AdminProvidersPage.tsx:50",
+        "src/modules/services/pages/AdminServicesPage.tsx:44",
+        "src/modules/staff/pages/AdminStaffPage.tsx:40"
+      ]
+    },
+    {
+      "phrase": "members",
+      "locations": [
+        "src/modules/providers/pages/AdminProvidersPage.tsx:55"
+      ]
+    },
+    {
+      "phrase": "services",
+      "locations": [
+        "src/modules/providers/pages/AdminProvidersPage.tsx:55"
+      ]
+    },
+    {
+      "phrase": "staff",
+      "locations": [
+        "src/modules/providers/pages/AdminProvidersPage.tsx:55"
+      ]
+    },
+    {
+      "phrase": "open bookings",
+      "locations": [
+        "src/modules/providers/pages/AdminProvidersPage.tsx:55"
+      ]
+    },
+    {
+      "phrase": "reviews",
+      "locations": [
+        "src/modules/providers/pages/AdminProvidersPage.tsx:56",
+        "src/modules/services/pages/AdminServicesPage.tsx:50",
+        "src/modules/staff/pages/AdminStaffPage.tsx:46"
+      ]
+    },
+    {
+      "phrase": "Workspace",
+      "locations": [
+        "src/modules/providers/pages/AdminProvidersPage.tsx:59"
+      ]
+    },
+    {
+      "phrase": "No matching providers",
+      "locations": [
+        "src/modules/providers/pages/AdminProvidersPage.tsx:65"
+      ]
+    },
+    {
+      "phrase": "Change the filters or approve a provider application first.",
+      "locations": [
+        "src/modules/providers/pages/AdminProvidersPage.tsx:65"
+      ]
+    },
+    {
+      "phrase": "Recent provider administration",
+      "locations": [
+        "src/modules/providers/pages/AdminProvidersPage.tsx:67"
+      ]
+    },
+    {
+      "phrase": "No provider administration actions have been recorded yet.",
+      "locations": [
+        "src/modules/providers/pages/AdminProvidersPage.tsx:67"
+      ]
+    },
+    {
+      "phrase": "Manage the provider data visible in LSevin marketplace.",
+      "locations": [
+        "src/modules/providers/pages/ProviderProfilePage.tsx:11"
+      ]
+    },
+    {
+      "phrase": "تعریف خدمت اصلی",
+      "locations": [
+        "src/modules/services/components/ServiceForm.tsx:19"
+      ]
+    },
+    {
+      "phrase": "انتخاب خدمت",
+      "locations": [
+        "src/modules/services/components/ServiceForm.tsx:21"
+      ]
+    },
+    {
+      "phrase": "ارز",
+      "locations": [
+        "src/modules/services/components/ServiceForm.tsx:25"
+      ]
+    },
+    {
+      "phrase": "نام نمایشی خدمت",
+      "locations": [
+        "src/modules/services/components/ServiceForm.tsx:26"
+      ]
+    },
+    {
+      "phrase": "توضیحات خدمت",
+      "locations": [
+        "src/modules/services/components/ServiceForm.tsx:27"
+      ]
+    },
+    {
+      "phrase": "قیمت",
+      "locations": [
+        "src/modules/services/components/ServiceForm.tsx:28"
+      ]
+    },
+    {
+      "phrase": "مدت زمان (دقیقه)",
+      "locations": [
+        "src/modules/services/components/ServiceForm.tsx:29"
+      ]
+    },
+    {
+      "phrase": "فاصله اسلات‌ها",
+      "locations": [
+        "src/modules/services/components/ServiceForm.tsx:30"
+      ]
+    },
+    {
+      "phrase": "تصویر خدمت",
+      "locations": [
+        "src/modules/services/components/ServiceForm.tsx:31"
+      ]
+    },
+    {
+      "phrase": "فعال",
+      "locations": [
+        "src/modules/services/components/ServiceForm.tsx:32"
+      ]
+    },
+    {
+      "phrase": "محبوب",
+      "locations": [
+        "src/modules/services/components/ServiceForm.tsx:33"
+      ]
+    },
+    {
+      "phrase": "ذخیره خدمت",
+      "locations": [
+        "src/modules/services/components/ServiceForm.tsx:34"
+      ]
+    },
+    {
+      "phrase": "Definition",
+      "locations": [
+        "src/modules/services/components/ServicesTable.tsx:19"
+      ]
+    },
+    {
+      "phrase": "Provider service catalog",
+      "locations": [
+        "src/modules/services/pages/AdminServicesPage.tsx:29"
+      ]
+    },
+    {
+      "phrase": "Moderate every provider service without changing provider ownership or the stable LSevin service-definition contract.",
+      "locations": [
+        "src/modules/services/pages/AdminServicesPage.tsx:29"
+      ]
+    },
+    {
+      "phrase": "Popular",
+      "locations": [
+        "src/modules/services/pages/AdminServicesPage.tsx:34",
+        "src/modules/services/pages/AdminServicesPage.tsx:39",
+        "src/modules/services/pages/AdminServicesPage.tsx:46"
+      ]
+    },
+    {
+      "phrase": "On inactive provider",
+      "locations": [
+        "src/modules/services/pages/AdminServicesPage.tsx:35"
+      ]
+    },
+    {
+      "phrase": "Service, definition or provider",
+      "locations": [
+        "src/modules/services/pages/AdminServicesPage.tsx:38"
+      ]
+    },
+    {
+      "phrase": "Inactive provider",
+      "locations": [
+        "src/modules/services/pages/AdminServicesPage.tsx:39"
+      ]
+    },
+    {
+      "phrase": "All providers",
+      "locations": [
+        "src/modules/services/pages/AdminServicesPage.tsx:40",
+        "src/modules/staff/pages/AdminStaffPage.tsx:36"
+      ]
+    },
+    {
+      "phrase": "Commercial",
+      "locations": [
+        "src/modules/services/pages/AdminServicesPage.tsx:44"
+      ]
+    },
+    {
+      "phrase": "Scheduling",
+      "locations": [
+        "src/modules/services/pages/AdminServicesPage.tsx:44"
+      ]
+    },
+    {
+      "phrase": "Updated",
+      "locations": [
+        "src/modules/services/pages/AdminServicesPage.tsx:44",
+        "src/modules/staff/pages/AdminStaffPage.tsx:40",
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:41"
+      ]
+    },
+    {
+      "phrase": "Provider inactive",
+      "locations": [
+        "src/modules/services/pages/AdminServicesPage.tsx:47",
+        "src/modules/staff/pages/AdminStaffPage.tsx:43",
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:42"
+      ]
+    },
+    {
+      "phrase": "minutes",
+      "locations": [
+        "src/modules/services/pages/AdminServicesPage.tsx:49"
+      ]
+    },
+    {
+      "phrase": "minute slots",
+      "locations": [
+        "src/modules/services/pages/AdminServicesPage.tsx:49"
+      ]
+    },
+    {
+      "phrase": "No matching services",
+      "locations": [
+        "src/modules/services/pages/AdminServicesPage.tsx:54"
+      ]
+    },
+    {
+      "phrase": "Change the filters or ask a provider to add a service.",
+      "locations": [
+        "src/modules/services/pages/AdminServicesPage.tsx:54"
+      ]
+    },
+    {
+      "phrase": "Recent service administration",
+      "locations": [
+        "src/modules/services/pages/AdminServicesPage.tsx:55"
+      ]
+    },
+    {
+      "phrase": "No service administration actions recorded yet.",
+      "locations": [
+        "src/modules/services/pages/AdminServicesPage.tsx:55"
+      ]
+    },
+    {
+      "phrase": "Edit service",
+      "locations": [
+        "src/modules/services/pages/EditServicePage.tsx:12"
+      ]
+    },
+    {
+      "phrase": "New service",
+      "locations": [
+        "src/modules/services/pages/NewServicePage.tsx:9",
+        "src/modules/services/pages/ServicesPage.tsx:11"
+      ]
+    },
+    {
+      "phrase": "Attach a global LSevin service definition to this provider.",
+      "locations": [
+        "src/modules/services/pages/NewServicePage.tsx:9"
+      ]
+    },
+    {
+      "phrase": "Provider-specific prices, names, durations and booking settings.",
+      "locations": [
+        "src/modules/services/pages/ServicesPage.tsx:11"
+      ]
+    },
+    {
+      "phrase": "No services yet",
+      "locations": [
+        "src/modules/services/pages/ServicesPage.tsx:11"
+      ]
+    },
+    {
+      "phrase": "Add service",
+      "locations": [
+        "src/modules/services/pages/ServicesPage.tsx:11"
+      ]
+    },
+    {
+      "phrase": "Edit staff",
+      "locations": [
+        "src/modules/staff/components/StaffForm.tsx:17",
+        "src/modules/staff/pages/EditStaffPage.tsx:12"
+      ]
+    },
+    {
+      "phrase": "نام کارمند",
+      "locations": [
+        "src/modules/staff/components/StaffForm.tsx:19",
+        "src/modules/staff/components/StaffManager.tsx:40"
+      ]
+    },
+    {
+      "phrase": "Specialty",
+      "locations": [
+        "src/modules/staff/components/StaffForm.tsx:21",
+        "src/modules/staff/components/StaffManager.tsx:42",
+        "src/modules/staff/pages/SelfStaffProfilePage.tsx:38"
+      ]
+    },
+    {
+      "phrase": "تصویر پروفایل",
+      "locations": [
+        "src/modules/staff/components/StaffForm.tsx:22",
+        "src/modules/staff/components/StaffManager.tsx:43"
+      ]
+    },
+    {
+      "phrase": "زندگینامه",
+      "locations": [
+        "src/modules/staff/components/StaffForm.tsx:23",
+        "src/modules/staff/components/StaffManager.tsx:44"
+      ]
+    },
+    {
+      "phrase": "Save staff",
+      "locations": [
+        "src/modules/staff/components/StaffForm.tsx:25"
+      ]
+    },
+    {
+      "phrase": "No staff linked yet.",
+      "locations": [
+        "src/modules/staff/components/StaffManager.tsx:32"
+      ]
+    },
+    {
+      "phrase": "Add staff",
+      "locations": [
+        "src/modules/staff/components/StaffManager.tsx:38"
+      ]
+    },
+    {
+      "phrase": "Create staff",
+      "locations": [
+        "src/modules/staff/components/StaffManager.tsx:45"
+      ]
+    },
+    {
+      "phrase": "Staff catalog administration",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:24"
+      ]
+    },
+    {
+      "phrase": "Inspect global staff identities and provider links without bypassing the separate staff ownership-claim workflow.",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:24"
+      ]
+    },
+    {
+      "phrase": "Open claims",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:24"
+      ]
+    },
+    {
+      "phrase": "Staff profiles",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Active profiles",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:27"
+      ]
+    },
+    {
+      "phrase": "Inactive profiles",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:28"
+      ]
+    },
+    {
+      "phrase": "Provider links",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:29"
+      ]
+    },
+    {
+      "phrase": "Inactive links",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:30"
+      ]
+    },
+    {
+      "phrase": "Approved claims",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:31"
+      ]
+    },
+    {
+      "phrase": "Staff, specialty or provider",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:34"
+      ]
+    },
+    {
+      "phrase": "Active profile and link",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:35"
+      ]
+    },
+    {
+      "phrase": "Staff inactive",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:35"
+      ]
+    },
+    {
+      "phrase": "Provider link inactive",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:35"
+      ]
+    },
+    {
+      "phrase": "Approved claim",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:35"
+      ]
+    },
+    {
+      "phrase": "Provider link",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:40"
+      ]
+    },
+    {
+      "phrase": "Claim",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:40"
+      ]
+    },
+    {
+      "phrase": "Link",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:44"
+      ]
+    },
+    {
+      "phrase": "Edit link",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:48"
+      ]
+    },
+    {
+      "phrase": "No matching staff",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:50"
+      ]
+    },
+    {
+      "phrase": "Change the filters or link staff from a provider workspace.",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:50"
+      ]
+    },
+    {
+      "phrase": "Recent staff administration",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:51"
+      ]
+    },
+    {
+      "phrase": "No staff administration actions recorded yet.",
+      "locations": [
+        "src/modules/staff/pages/AdminStaffPage.tsx:51"
+      ]
+    },
+    {
+      "phrase": "Update staff profile, title, specialty, image and active status.",
+      "locations": [
+        "src/modules/staff/pages/EditStaffPage.tsx:12"
+      ]
+    },
+    {
+      "phrase": "Staff profile not found",
+      "locations": [
+        "src/modules/staff/pages/SelfStaffProfilePage.tsx:19"
+      ]
+    },
+    {
+      "phrase": "The requested staff profile does not exist or is no longer active.",
+      "locations": [
+        "src/modules/staff/pages/SelfStaffProfilePage.tsx:19"
+      ]
+    },
+    {
+      "phrase": "Manage my LSevin staff profile",
+      "locations": [
+        "src/modules/staff/pages/SelfStaffProfilePage.tsx:24"
+      ]
+    },
+    {
+      "phrase": "This page is only available after clinic confirmation, LSevin approval, and payment/waiver completion.",
+      "locations": [
+        "src/modules/staff/pages/SelfStaffProfilePage.tsx:24"
+      ]
+    },
+    {
+      "phrase": "Service prices",
+      "locations": [
+        "src/modules/staff/pages/SelfStaffProfilePage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Reviews",
+      "locations": [
+        "src/modules/staff/pages/SelfStaffProfilePage.tsx:29",
+        "src/modules/reviews/pages/ReviewsPage.tsx:9"
+      ]
+    },
+    {
+      "phrase": "Public staff profile content",
+      "locations": [
+        "src/modules/staff/pages/SelfStaffProfilePage.tsx:32"
+      ]
+    },
+    {
+      "phrase": "Professional title",
+      "locations": [
+        "src/modules/staff/pages/SelfStaffProfilePage.tsx:37"
+      ]
+    },
+    {
+      "phrase": "Profile image",
+      "locations": [
+        "src/modules/staff/pages/SelfStaffProfilePage.tsx:39"
+      ]
+    },
+    {
+      "phrase": "Save my profile changes",
+      "locations": [
+        "src/modules/staff/pages/SelfStaffProfilePage.tsx:41"
+      ]
+    },
+    {
+      "phrase": "Create and link specialists, doctors, trainers or employees to this provider.",
+      "locations": [
+        "src/modules/staff/pages/StaffPage.tsx:10"
+      ]
+    },
+    {
+      "phrase": "ترتیب",
+      "locations": [
+        "src/modules/media/components/MediaManager.tsx:17"
+      ]
+    },
+    {
+      "phrase": "افزودن رسانه",
+      "locations": [
+        "src/modules/media/components/MediaManager.tsx:21",
+        "src/modules/media/components/MediaManager.tsx:27"
+      ]
+    },
+    {
+      "phrase": "عنوان رسانه",
+      "locations": [
+        "src/modules/media/components/MediaManager.tsx:22"
+      ]
+    },
+    {
+      "phrase": "انتخاب یا بارگذاری رسانه",
+      "locations": [
+        "src/modules/media/components/MediaManager.tsx:23"
+      ]
+    },
+    {
+      "phrase": "نوع رسانه",
+      "locations": [
+        "src/modules/media/components/MediaManager.tsx:24"
+      ]
+    },
+    {
+      "phrase": "تصویر",
+      "locations": [
+        "src/modules/media/components/MediaManager.tsx:24"
+      ]
+    },
+    {
+      "phrase": "ویدئو",
+      "locations": [
+        "src/modules/media/components/MediaManager.tsx:24"
+      ]
+    },
+    {
+      "phrase": "فایل",
+      "locations": [
+        "src/modules/media/components/MediaManager.tsx:24"
+      ]
+    },
+    {
+      "phrase": "ترتیب نمایش",
+      "locations": [
+        "src/modules/media/components/MediaManager.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Manage gallery photos and videos used in LSevin provider pages.",
+      "locations": [
+        "src/modules/media/pages/MediaPage.tsx:9"
+      ]
+    },
+    {
+      "phrase": "Room",
+      "locations": [
+        "src/modules/availability/components/AvailabilityManager.tsx:51"
+      ]
+    },
+    {
+      "phrase": "Bed",
+      "locations": [
+        "src/modules/availability/components/AvailabilityManager.tsx:51"
+      ]
+    },
+    {
+      "phrase": "Seat",
+      "locations": [
+        "src/modules/availability/components/AvailabilityManager.tsx:51"
+      ]
+    },
+    {
+      "phrase": "Vehicle",
+      "locations": [
+        "src/modules/availability/components/AvailabilityManager.tsx:51"
+      ]
+    },
+    {
+      "phrase": "Equipment",
+      "locations": [
+        "src/modules/availability/components/AvailabilityManager.tsx:51"
+      ]
+    },
+    {
+      "phrase": "Unit",
+      "locations": [
+        "src/modules/availability/components/AvailabilityManager.tsx:51"
+      ]
+    },
+    {
+      "phrase": "Availability administration",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Inspect and safely disable provider, service, staff and resource availability without rewriting provider schedules.",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Active rules",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:28"
+      ]
+    },
+    {
+      "phrase": "Inactive rules",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:29"
+      ]
+    },
+    {
+      "phrase": "Blocking rules",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:30"
+      ]
+    },
+    {
+      "phrase": "Active resources",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:31"
+      ]
+    },
+    {
+      "phrase": "Closed operating days",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:32"
+      ]
+    },
+    {
+      "phrase": "Provider or target",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:35"
+      ]
+    },
+    {
+      "phrase": "Active but unavailable",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:36"
+      ]
+    },
+    {
+      "phrase": "All target types",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:37"
+      ]
+    },
+    {
+      "phrase": "Provider service",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:37",
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:43"
+      ]
+    },
+    {
+      "phrase": "Schedule",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:41"
+      ]
+    },
+    {
+      "phrase": "Control",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:41",
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:52",
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:53"
+      ]
+    },
+    {
+      "phrase": "No matching rules",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:49"
+      ]
+    },
+    {
+      "phrase": "Change the filters or configure availability from a provider workspace.",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:49"
+      ]
+    },
+    {
+      "phrase": "Resource",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:52"
+      ]
+    },
+    {
+      "phrase": "Provider/service",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:52"
+      ]
+    },
+    {
+      "phrase": "No resources configured.",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:52"
+      ]
+    },
+    {
+      "phrase": "Provider operating hours",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:53"
+      ]
+    },
+    {
+      "phrase": "Day/hours",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:53"
+      ]
+    },
+    {
+      "phrase": "No operating hours configured.",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:53"
+      ]
+    },
+    {
+      "phrase": "Recent availability administration",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:56"
+      ]
+    },
+    {
+      "phrase": "No availability administration actions recorded yet.",
+      "locations": [
+        "src/modules/availability/pages/AdminAvailabilityPage.tsx:56"
+      ]
+    },
+    {
+      "phrase": "Booking Operations",
+      "locations": [
+        "src/modules/booking-management/pages/AdminPage.tsx:21"
+      ]
+    },
+    {
+      "phrase": "Bookings loaded",
+      "locations": [
+        "src/modules/booking-management/pages/AdminPage.tsx:23"
+      ]
+    },
+    {
+      "phrase": "Open/upcoming",
+      "locations": [
+        "src/modules/booking-management/pages/AdminPage.tsx:24"
+      ]
+    },
+    {
+      "phrase": "Assigned",
+      "locations": [
+        "src/modules/booking-management/pages/AdminPage.tsx:25",
+        "src/modules/booking-management/pages/ProviderPage.tsx:26",
+        "src/modules/booking-management/pages/ProviderPage.tsx:37"
+      ]
+    },
+    {
+      "phrase": "Payment attention",
+      "locations": [
+        "src/modules/booking-management/pages/AdminPage.tsx:26",
+        "src/modules/booking-management/pages/ProviderPage.tsx:27"
+      ]
+    },
+    {
+      "phrase": "Latest bookings",
+      "locations": [
+        "src/modules/booking-management/pages/AdminPage.tsx:30"
+      ]
+    },
+    {
+      "phrase": "Booking",
+      "locations": [
+        "src/modules/booking-management/pages/AdminPage.tsx:31",
+        "src/modules/booking-management/pages/ProviderPage.tsx:37",
+        "src/modules/ticketing/pages/ProviderPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "No bookings detected.",
+      "locations": [
+        "src/modules/booking-management/pages/AdminPage.tsx:31"
+      ]
+    },
+    {
+      "phrase": "Booking ID",
+      "locations": [
+        "src/modules/booking-management/pages/AdminPage.tsx:37",
+        "src/modules/booking-management/pages/ProviderPage.tsx:50",
+        "src/modules/booking-management/pages/ProviderPage.tsx:59",
+        "src/modules/booking-management/pages/ProviderPage.tsx:67",
+        "src/modules/booking-management/pages/StaffBookingsPage.tsx:23"
+      ]
+    },
+    {
+      "phrase": "Provider ID",
+      "locations": [
+        "src/modules/booking-management/pages/AdminPage.tsx:38",
+        "src/modules/booking-management/pages/StaffBookingsPage.tsx:23",
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:78",
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:92",
+        "src/modules/pricing-plans/pages/AdminPage.tsx:38"
+      ]
+    },
+    {
+      "phrase": "New status",
+      "locations": [
+        "src/modules/booking-management/pages/AdminPage.tsx:39",
+        "src/modules/booking-management/pages/ProviderPage.tsx:60"
+      ]
+    },
+    {
+      "phrase": "Provider review",
+      "locations": [
+        "src/modules/booking-management/pages/AdminPage.tsx:39",
+        "src/modules/booking-management/pages/ProviderPage.tsx:60"
+      ]
+    },
+    {
+      "phrase": "Confirmed",
+      "locations": [
+        "src/modules/booking-management/pages/AdminPage.tsx:39",
+        "src/modules/booking-management/pages/ProviderPage.tsx:60"
+      ]
+    },
+    {
+      "phrase": "Completed",
+      "locations": [
+        "src/modules/booking-management/pages/AdminPage.tsx:39",
+        "src/modules/booking-management/pages/ProviderPage.tsx:60"
+      ]
+    },
+    {
+      "phrase": "Cancelled",
+      "locations": [
+        "src/modules/booking-management/pages/AdminPage.tsx:39",
+        "src/modules/booking-management/pages/ProviderPage.tsx:60"
+      ]
+    },
+    {
+      "phrase": "Audit note",
+      "locations": [
+        "src/modules/booking-management/pages/AdminPage.tsx:40"
+      ]
+    },
+    {
+      "phrase": "Apply audited status",
+      "locations": [
+        "src/modules/booking-management/pages/AdminPage.tsx:41"
+      ]
+    },
+    {
+      "phrase": "Booking Management",
+      "locations": [
+        "src/modules/booking-management/pages/ProviderPage.tsx:22"
+      ]
+    },
+    {
+      "phrase": "Provider operational view for bookings: assignment, provider notes, safe status updates, and staff/resource ownership boundaries.",
+      "locations": [
+        "src/modules/booking-management/pages/ProviderPage.tsx:22"
+      ]
+    },
+    {
+      "phrase": "Upcoming/open",
+      "locations": [
+        "src/modules/booking-management/pages/ProviderPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Provider booking list",
+      "locations": [
+        "src/modules/booking-management/pages/ProviderPage.tsx:32"
+      ]
+    },
+    {
+      "phrase": "Date/time",
+      "locations": [
+        "src/modules/booking-management/pages/ProviderPage.tsx:37"
+      ]
+    },
+    {
+      "phrase": "notes",
+      "locations": [
+        "src/modules/booking-management/pages/ProviderPage.tsx:38"
+      ]
+    },
+    {
+      "phrase": "No bookings found for this provider.",
+      "locations": [
+        "src/modules/booking-management/pages/ProviderPage.tsx:41"
+      ]
+    },
+    {
+      "phrase": "Staff ID",
+      "locations": [
+        "src/modules/booking-management/pages/ProviderPage.tsx:51"
+      ]
+    },
+    {
+      "phrase": "Resource ID",
+      "locations": [
+        "src/modules/booking-management/pages/ProviderPage.tsx:52"
+      ]
+    },
+    {
+      "phrase": "optional bookable resource",
+      "locations": [
+        "src/modules/booking-management/pages/ProviderPage.tsx:52"
+      ]
+    },
+    {
+      "phrase": "Assignment note",
+      "locations": [
+        "src/modules/booking-management/pages/ProviderPage.tsx:53"
+      ]
+    },
+    {
+      "phrase": "Assign staff/resource",
+      "locations": [
+        "src/modules/booking-management/pages/ProviderPage.tsx:54"
+      ]
+    },
+    {
+      "phrase": "In progress",
+      "locations": [
+        "src/modules/booking-management/pages/ProviderPage.tsx:60",
+        "src/modules/ticketing/pages/AdminPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "No show",
+      "locations": [
+        "src/modules/booking-management/pages/ProviderPage.tsx:60"
+      ]
+    },
+    {
+      "phrase": "Provider note",
+      "locations": [
+        "src/modules/booking-management/pages/ProviderPage.tsx:61"
+      ]
+    },
+    {
+      "phrase": "Update safe status",
+      "locations": [
+        "src/modules/booking-management/pages/ProviderPage.tsx:62"
+      ]
+    },
+    {
+      "phrase": "Visibility",
+      "locations": [
+        "src/modules/booking-management/pages/ProviderPage.tsx:68"
+      ]
+    },
+    {
+      "phrase": "Internal",
+      "locations": [
+        "src/modules/booking-management/pages/ProviderPage.tsx:68"
+      ]
+    },
+    {
+      "phrase": "Customer visible",
+      "locations": [
+        "src/modules/booking-management/pages/ProviderPage.tsx:68"
+      ]
+    },
+    {
+      "phrase": "Note",
+      "locations": [
+        "src/modules/booking-management/pages/ProviderPage.tsx:69",
+        "src/modules/booking-management/pages/StaffBookingsPage.tsx:23",
+        "src/modules/payment-billing/pages/AdminPage.tsx:91",
+        "src/modules/payment-billing/pages/ProviderPage.tsx:76"
+      ]
+    },
+    {
+      "phrase": "Add note",
+      "locations": [
+        "src/modules/booking-management/pages/ProviderPage.tsx:70",
+        "src/modules/booking-management/pages/StaffBookingsPage.tsx:23"
+      ]
+    },
+    {
+      "phrase": "My Assigned Bookings",
+      "locations": [
+        "src/modules/booking-management/pages/StaffBookingsPage.tsx:20"
+      ]
+    },
+    {
+      "phrase": "Staff-scoped operational view. Staff can see only bookings assigned to their approved profile claim.",
+      "locations": [
+        "src/modules/booking-management/pages/StaffBookingsPage.tsx:20"
+      ]
+    },
+    {
+      "phrase": "Assigned bookings",
+      "locations": [
+        "src/modules/booking-management/pages/StaffBookingsPage.tsx:22"
+      ]
+    },
+    {
+      "phrase": "No assigned bookings yet.",
+      "locations": [
+        "src/modules/booking-management/pages/StaffBookingsPage.tsx:22"
+      ]
+    },
+    {
+      "phrase": "Add internal service note",
+      "locations": [
+        "src/modules/booking-management/pages/StaffBookingsPage.tsx:23"
+      ]
+    },
+    {
+      "phrase": "Verified",
+      "locations": [
+        "src/modules/reviews/components/ReviewsManager.tsx:20"
+      ]
+    },
+    {
+      "phrase": "· rating",
+      "locations": [
+        "src/modules/reviews/components/ReviewsManager.tsx:22"
+      ]
+    },
+    {
+      "phrase": "Replies:",
+      "locations": [
+        "src/modules/reviews/components/ReviewsManager.tsx:24"
+      ]
+    },
+    {
+      "phrase": "Write provider reply...",
+      "locations": [
+        "src/modules/reviews/components/ReviewsManager.tsx:29"
+      ]
+    },
+    {
+      "phrase": "Submitted to LSevin moderation before publication.",
+      "locations": [
+        "src/modules/reviews/components/ReviewsManager.tsx:31"
+      ]
+    },
+    {
+      "phrase": "Submit reply",
+      "locations": [
+        "src/modules/reviews/components/ReviewsManager.tsx:32"
+      ]
+    },
+    {
+      "phrase": "No reviews yet.",
+      "locations": [
+        "src/modules/reviews/components/ReviewsManager.tsx:36"
+      ]
+    },
+    {
+      "phrase": "Read customer reviews and submit provider replies.",
+      "locations": [
+        "src/modules/reviews/pages/ReviewsPage.tsx:9"
+      ]
+    },
+    {
+      "phrase": "Gross revenue",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:25",
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:43",
+        "src/modules/provider-finance-analytics/components/ReportsDashboard.tsx:70"
+      ]
+    },
+    {
+      "phrase": "Provider payable",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:27",
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:45",
+        "src/modules/provider-finance-analytics/components/SettlementManager.tsx:39"
+      ]
+    },
+    {
+      "phrase": "Paid out",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:28"
+      ]
+    },
+    {
+      "phrase": "Providers with balance",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:32"
+      ]
+    },
+    {
+      "phrase": "Pending withdrawals",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:33"
+      ]
+    },
+    {
+      "phrase": "Withdrawal approvals",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:38"
+      ]
+    },
+    {
+      "phrase": "Requested",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:45",
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:113"
+      ]
+    },
+    {
+      "phrase": "· provider",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:45"
+      ]
+    },
+    {
+      "phrase": "Gateway ref",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:63"
+      ]
+    },
+    {
+      "phrase": "Mark paid",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:64",
+        "src/modules/provider-finance-analytics/components/SettlementManager.tsx:58"
+      ]
+    },
+    {
+      "phrase": "No withdrawal requests need attention.",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:69"
+      ]
+    },
+    {
+      "phrase": "Manual provider wallet adjustment",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:76"
+      ]
+    },
+    {
+      "phrase": "Direction",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:80"
+      ]
+    },
+    {
+      "phrase": "Credit provider",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:80"
+      ]
+    },
+    {
+      "phrase": "Debit provider",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:80"
+      ]
+    },
+    {
+      "phrase": "Amount",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:81",
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:97",
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:94",
+        "src/modules/pricing-plans/pages/AdminPage.tsx:40",
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:49"
+      ]
+    },
+    {
+      "phrase": "Apply adjustment",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:83"
+      ]
+    },
+    {
+      "phrase": "Record money transfer",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:90"
+      ]
+    },
+    {
+      "phrase": "Source party",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:93"
+      ]
+    },
+    {
+      "phrase": "Gateway",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:93",
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:94"
+      ]
+    },
+    {
+      "phrase": "Bank",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:93",
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:94"
+      ]
+    },
+    {
+      "phrase": "Target party",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:94"
+      ]
+    },
+    {
+      "phrase": "Transfer type",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:95"
+      ]
+    },
+    {
+      "phrase": "Manual adjustment",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:95"
+      ]
+    },
+    {
+      "phrase": "Customer payment",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:95"
+      ]
+    },
+    {
+      "phrase": "Provider settlement",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:95"
+      ]
+    },
+    {
+      "phrase": "Customer refund",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:95"
+      ]
+    },
+    {
+      "phrase": "Provider deposit",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:95"
+      ]
+    },
+    {
+      "phrase": "Record transfer",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/AdminFinanceConsole.tsx:99"
+      ]
+    },
+    {
+      "phrase": "· applies to",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:22"
+      ]
+    },
+    {
+      "phrase": "Mode:",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Gateway fee:",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:27"
+      ]
+    },
+    {
+      "phrase": "Priority:",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:28"
+      ]
+    },
+    {
+      "phrase": "No compensation policies found.",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:37"
+      ]
+    },
+    {
+      "phrase": "Create compensation policy",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:40"
+      ]
+    },
+    {
+      "phrase": "Policy name",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:41"
+      ]
+    },
+    {
+      "phrase": "Scope",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:43"
+      ]
+    },
+    {
+      "phrase": "Global",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:43"
+      ]
+    },
+    {
+      "phrase": "Service definition",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:43"
+      ]
+    },
+    {
+      "phrase": "Add-on",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:43",
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:45"
+      ]
+    },
+    {
+      "phrase": "Scope ID",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:44"
+      ]
+    },
+    {
+      "phrase": "Leave empty only for a global policy.",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:44"
+      ]
+    },
+    {
+      "phrase": "Applies to",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:45"
+      ]
+    },
+    {
+      "phrase": "Main booking",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:45"
+      ]
+    },
+    {
+      "phrase": "Child booking",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:45"
+      ]
+    },
+    {
+      "phrase": "Fee mode",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:46"
+      ]
+    },
+    {
+      "phrase": "Percent",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:46"
+      ]
+    },
+    {
+      "phrase": "Fixed",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:46"
+      ]
+    },
+    {
+      "phrase": "Percent + fixed",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:46"
+      ]
+    },
+    {
+      "phrase": "Platform percent",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:47"
+      ]
+    },
+    {
+      "phrase": "Platform fixed amount",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:48"
+      ]
+    },
+    {
+      "phrase": "Minimum platform amount",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:49"
+      ]
+    },
+    {
+      "phrase": "Provider percent override",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:50"
+      ]
+    },
+    {
+      "phrase": "Gateway fee",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:51"
+      ]
+    },
+    {
+      "phrase": "Provider pays",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:51"
+      ]
+    },
+    {
+      "phrase": "Split",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:51"
+      ]
+    },
+    {
+      "phrase": "Priority",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:53",
+        "src/modules/ticketing/pages/AdminPage.tsx:25",
+        "src/modules/ticketing/pages/ProviderPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Effective from",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:54"
+      ]
+    },
+    {
+      "phrase": "Effective to",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:54"
+      ]
+    },
+    {
+      "phrase": "Create policy",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/CompensationPoliciesManager.tsx:55"
+      ]
+    },
+    {
+      "phrase": "Provider wallet transactions",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/MoneyMovementTable.tsx:17"
+      ]
+    },
+    {
+      "phrase": "No wallet movement has been recorded yet.",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/MoneyMovementTable.tsx:28"
+      ]
+    },
+    {
+      "phrase": "Money movement between LSevin, provider and customer",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/MoneyMovementTable.tsx:37"
+      ]
+    },
+    {
+      "phrase": "No transfers are available.",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/MoneyMovementTable.tsx:49"
+      ]
+    },
+    {
+      "phrase": "Wallet available",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:46"
+      ]
+    },
+    {
+      "phrase": "Paid bookings",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:51"
+      ]
+    },
+    {
+      "phrase": "Average order value",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:52"
+      ]
+    },
+    {
+      "phrase": "Pending withdrawal",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:53"
+      ]
+    },
+    {
+      "phrase": "Provider wallets",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:59"
+      ]
+    },
+    {
+      "phrase": "wallet",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:65"
+      ]
+    },
+    {
+      "phrase": "Pending:",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:67"
+      ]
+    },
+    {
+      "phrase": "· Locked:",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:67"
+      ]
+    },
+    {
+      "phrase": "No wallet exists for this provider yet.",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:72"
+      ]
+    },
+    {
+      "phrase": "Create wallet currency",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:77"
+      ]
+    },
+    {
+      "phrase": "Ensure wallet",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:78"
+      ]
+    },
+    {
+      "phrase": "Request تسویه مالی",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:91"
+      ]
+    },
+    {
+      "phrase": "Payout account",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:95"
+      ]
+    },
+    {
+      "phrase": "No payout account selected",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:97"
+      ]
+    },
+    {
+      "phrase": "The amount is locked until admin approves, rejects, or pays the withdrawal.",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:101"
+      ]
+    },
+    {
+      "phrase": "Request withdrawal",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:102"
+      ]
+    },
+    {
+      "phrase": "Recent withdrawals",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:108"
+      ]
+    },
+    {
+      "phrase": "No withdrawals yet.",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:116"
+      ]
+    },
+    {
+      "phrase": "Latest settlements",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:121"
+      ]
+    },
+    {
+      "phrase": "No settlement batch has been created.",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ProviderFinanceCommandCenter.tsx:129"
+      ]
+    },
+    {
+      "phrase": "reviews · rating",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ReportsDashboard.tsx:34",
+        "src/modules/provider-finance-analytics/components/ReportsDashboard.tsx:49"
+      ]
+    },
+    {
+      "phrase": "bookings",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ReportsDashboard.tsx:35",
+        "src/modules/provider-finance-analytics/components/ReportsDashboard.tsx:50"
+      ]
+    },
+    {
+      "phrase": "No service data for this period.",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ReportsDashboard.tsx:39"
+      ]
+    },
+    {
+      "phrase": "No staff data for this period.",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ReportsDashboard.tsx:53"
+      ]
+    },
+    {
+      "phrase": "From",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ReportsDashboard.tsx:63"
+      ]
+    },
+    {
+      "phrase": "To",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ReportsDashboard.tsx:64"
+      ]
+    },
+    {
+      "phrase": "Apply",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ReportsDashboard.tsx:66"
+      ]
+    },
+    {
+      "phrase": "Active services",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ReportsDashboard.tsx:72"
+      ]
+    },
+    {
+      "phrase": "Average rating",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ReportsDashboard.tsx:73"
+      ]
+    },
+    {
+      "phrase": "Revenue trend",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ReportsDashboard.tsx:78"
+      ]
+    },
+    {
+      "phrase": "Report snapshot",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ReportsDashboard.tsx:82"
+      ]
+    },
+    {
+      "phrase": "Save current report",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ReportsDashboard.tsx:90"
+      ]
+    },
+    {
+      "phrase": "No saved snapshots.",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ReportsDashboard.tsx:98"
+      ]
+    },
+    {
+      "phrase": "Service performance",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ReportsDashboard.tsx:105"
+      ]
+    },
+    {
+      "phrase": "Staff performance",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/ReportsDashboard.tsx:106"
+      ]
+    },
+    {
+      "phrase": "Settlement batches",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/SettlementManager.tsx:24"
+      ]
+    },
+    {
+      "phrase": "· created",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/SettlementManager.tsx:31"
+      ]
+    },
+    {
+      "phrase": "Gross",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/SettlementManager.tsx:37"
+      ]
+    },
+    {
+      "phrase": "Adjustment",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/SettlementManager.tsx:40"
+      ]
+    },
+    {
+      "phrase": "Approve + credit wallet",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/SettlementManager.tsx:47"
+      ]
+    },
+    {
+      "phrase": "Payment doc",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/SettlementManager.tsx:52"
+      ]
+    },
+    {
+      "phrase": "Bank/gateway ref",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/SettlementManager.tsx:57"
+      ]
+    },
+    {
+      "phrase": "No settlements found.",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/SettlementManager.tsx:63"
+      ]
+    },
+    {
+      "phrase": "Create settlement from approved ledger",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/SettlementManager.tsx:72"
+      ]
+    },
+    {
+      "phrase": "Period start",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/SettlementManager.tsx:74"
+      ]
+    },
+    {
+      "phrase": "Period end",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/SettlementManager.tsx:75"
+      ]
+    },
+    {
+      "phrase": "Only approved provider ledger rows that are not already attached to another settlement are included.",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/SettlementManager.tsx:78"
+      ]
+    },
+    {
+      "phrase": "Generate batch",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/SettlementManager.tsx:79"
+      ]
+    },
+    {
+      "phrase": "How settlements work",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/SettlementManager.tsx:85"
+      ]
+    },
+    {
+      "phrase": "1. LSevin calculates compensation from charge lines and provider ledgers.",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/SettlementManager.tsx:87"
+      ]
+    },
+    {
+      "phrase": "2. Admin creates and approves a settlement batch.",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/SettlementManager.tsx:88"
+      ]
+    },
+    {
+      "phrase": "3. Approved settlements credit the provider wallet.",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/SettlementManager.tsx:89"
+      ]
+    },
+    {
+      "phrase": "4. Provider can request تسویه مالی from wallet balance.",
+      "locations": [
+        "src/modules/provider-finance-analytics/components/SettlementManager.tsx:90"
+      ]
+    },
+    {
+      "phrase": "Reports",
+      "locations": [
+        "src/modules/provider-finance-analytics/pages/AdminReportsPage.tsx:17"
+      ]
+    },
+    {
+      "phrase": "Pass a providerId query string to open provider-level statistics. Recent saved snapshots are listed below.",
+      "locations": [
+        "src/modules/provider-finance-analytics/pages/AdminReportsPage.tsx:18"
+      ]
+    },
+    {
+      "phrase": "Recent report snapshots",
+      "locations": [
+        "src/modules/provider-finance-analytics/pages/AdminReportsPage.tsx:21"
+      ]
+    },
+    {
+      "phrase": "No snapshots yet.",
+      "locations": [
+        "src/modules/provider-finance-analytics/pages/AdminReportsPage.tsx:28"
+      ]
+    },
+    {
+      "phrase": "Settlement management",
+      "locations": [
+        "src/modules/provider-finance-analytics/pages/AdminSettlementsPage.tsx:12"
+      ]
+    },
+    {
+      "phrase": "Pass a providerId query string to review and create settlement batches.",
+      "locations": [
+        "src/modules/provider-finance-analytics/pages/AdminSettlementsPage.tsx:13"
+      ]
+    },
+    {
+      "phrase": "Pricing Plans & Entitlements",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:16"
+      ]
+    },
+    {
+      "phrase": "Standalone plan/entitlement module integrated with PaymentBilling for subscription, profile ownership, and plan invoices.",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:16"
+      ]
+    },
+    {
+      "phrase": "Free claim",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:18",
+        "src/modules/pricing-plans/pages/AdminPage.tsx:39",
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:27",
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:48"
+      ]
+    },
+    {
+      "phrase": "Own basic profile without charge",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:18",
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:27"
+      ]
+    },
+    {
+      "phrase": "Verified provider",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:19",
+        "src/modules/pricing-plans/pages/AdminPage.tsx:39",
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:28",
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:48"
+      ]
+    },
+    {
+      "phrase": "Full profile, reviews, booking dashboard",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:19"
+      ]
+    },
+    {
+      "phrase": "Premium provider",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:20"
+      ]
+    },
+    {
+      "phrase": "Sponsored profile and analytics",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:20"
+      ]
+    },
+    {
+      "phrase": "Payment",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:21"
+      ]
+    },
+    {
+      "phrase": "Invoices issued via PaymentBilling",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:21"
+      ]
+    },
+    {
+      "phrase": "Module status",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:26",
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:35"
+      ]
+    },
+    {
+      "phrase": "Module code",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:28",
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:37"
+      ]
+    },
+    {
+      "phrase": "Database schema",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:29",
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:38"
+      ]
+    },
+    {
+      "phrase": "Records detected",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:30",
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:39"
+      ]
+    },
+    {
+      "phrase": "Payment integration",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:31",
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:40"
+      ]
+    },
+    {
+      "phrase": "ModuleBus billing.issue_invoice",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:31"
+      ]
+    },
+    {
+      "phrase": "Issue provider plan invoice",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:35"
+      ]
+    },
+    {
+      "phrase": "Plan",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:39",
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:48"
+      ]
+    },
+    {
+      "phrase": "Staff verified",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:39",
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:48"
+      ]
+    },
+    {
+      "phrase": "Due date",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:42",
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:51",
+        "src/modules/payment-billing/pages/AdminPage.tsx:75"
+      ]
+    },
+    {
+      "phrase": "Issue via PaymentBilling",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:43",
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:52"
+      ]
+    },
+    {
+      "phrase": "Recent module records",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:50"
+      ]
+    },
+    {
+      "phrase": "ID",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:53",
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:62"
+      ]
+    },
+    {
+      "phrase": "Status / Type",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:53",
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:62"
+      ]
+    },
+    {
+      "phrase": "No records yet. Run this module&apos;s migration and start creating operational data.",
+      "locations": [
+        "src/modules/pricing-plans/pages/AdminPage.tsx:54"
+      ]
+    },
+    {
+      "phrase": "Current Provider Plan",
+      "locations": [
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "PricingPlans owns free/paid profile ownership, entitlements, limits, and plan pricing. It issues provider plan invoices through PaymentBilling via Core ModuleBus.",
+      "locations": [
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Calculated:",
+      "locations": [
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:28"
+      ]
+    },
+    {
+      "phrase": "Billing cycle",
+      "locations": [
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:29"
+      ]
+    },
+    {
+      "phrase": "Entitlements",
+      "locations": [
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:30"
+      ]
+    },
+    {
+      "phrase": "Feature-level module access",
+      "locations": [
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:30"
+      ]
+    },
+    {
+      "phrase": "PaymentBilling via ModuleBus",
+      "locations": [
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:40"
+      ]
+    },
+    {
+      "phrase": "Issue plan invoice",
+      "locations": [
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:44"
+      ]
+    },
+    {
+      "phrase": "Recent pricing records",
+      "locations": [
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:59"
+      ]
+    },
+    {
+      "phrase": "No pricing records yet.",
+      "locations": [
+        "src/modules/pricing-plans/pages/ProviderPage.tsx:63"
+      ]
+    },
+    {
+      "phrase": "Payment & Billing Control",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Central payment module used by Provider Portal, Pricing Plans, Finance/Settlements, Bookings, and any future module through Core ModuleBus capabilities.",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Issued invoices",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:28",
+        "src/modules/payment-billing/pages/ProviderPage.tsx:27"
+      ]
+    },
+    {
+      "phrase": "Open invoices",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:29",
+        "src/modules/payment-billing/pages/ProviderPage.tsx:28"
+      ]
+    },
+    {
+      "phrase": "Paid invoices",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:30",
+        "src/modules/payment-billing/pages/ProviderPage.tsx:29"
+      ]
+    },
+    {
+      "phrase": "Outstanding",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:31",
+        "src/modules/payment-billing/pages/ProviderPage.tsx:30"
+      ]
+    },
+    {
+      "phrase": "Invoices issued by integrated modules",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:36"
+      ]
+    },
+    {
+      "phrase": "Invoice",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:41",
+        "src/modules/payment-billing/pages/AdminPage.tsx:79",
+        "src/modules/payment-billing/pages/AdminPage.tsx:86",
+        "src/modules/payment-billing/pages/ProviderPage.tsx:40",
+        "src/modules/payment-billing/pages/ProviderPage.tsx:63",
+        "src/modules/payment-billing/pages/ProviderPage.tsx:71"
+      ]
+    },
+    {
+      "phrase": "Bill to",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:41"
+      ]
+    },
+    {
+      "phrase": "Source module",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:41"
+      ]
+    },
+    {
+      "phrase": "No invoices yet. Integrated modules will issue payment obligations here.",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:55"
+      ]
+    },
+    {
+      "phrase": "Issue invoice / payment operations",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:60"
+      ]
+    },
+    {
+      "phrase": "Invoice capability",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:63"
+      ]
+    },
+    {
+      "phrase": "Standard invoice",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:63"
+      ]
+    },
+    {
+      "phrase": "Iran tax invoice",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:63"
+      ]
+    },
+    {
+      "phrase": "International proforma",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:63"
+      ]
+    },
+    {
+      "phrase": "Invoice type",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:64"
+      ]
+    },
+    {
+      "phrase": "Standard",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:64"
+      ]
+    },
+    {
+      "phrase": "Iran tax",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:64"
+      ]
+    },
+    {
+      "phrase": "Proforma",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:64"
+      ]
+    },
+    {
+      "phrase": "International",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:64"
+      ]
+    },
+    {
+      "phrase": "Bill-to entity type",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:65"
+      ]
+    },
+    {
+      "phrase": "Company",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:65"
+      ]
+    },
+    {
+      "phrase": "Bill-to entity ID",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:66"
+      ]
+    },
+    {
+      "phrase": "Line description",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:69"
+      ]
+    },
+    {
+      "phrase": "Quantity",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:70"
+      ]
+    },
+    {
+      "phrase": "Unit amount",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:71"
+      ]
+    },
+    {
+      "phrase": "Tax percent",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:72"
+      ]
+    },
+    {
+      "phrase": "Locale",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:74"
+      ]
+    },
+    {
+      "phrase": "Issue invoice",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:76"
+      ]
+    },
+    {
+      "phrase": "Payment gateway",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:80",
+        "src/modules/payment-billing/pages/ProviderPage.tsx:64"
+      ]
+    },
+    {
+      "phrase": "Amount and currency are bound to the invoice outstanding balance.",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:81"
+      ]
+    },
+    {
+      "phrase": "Create payment intent",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:82",
+        "src/modules/payment-billing/pages/ProviderPage.tsx:66"
+      ]
+    },
+    {
+      "phrase": "Manual method",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:87",
+        "src/modules/payment-billing/pages/ProviderPage.tsx:72"
+      ]
+    },
+    {
+      "phrase": "Receipt amount and currency are bound to the selected invoice.",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:88"
+      ]
+    },
+    {
+      "phrase": "Tracking number",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:89",
+        "src/modules/payment-billing/pages/ProviderPage.tsx:74"
+      ]
+    },
+    {
+      "phrase": "Receipt file",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:90",
+        "src/modules/payment-billing/pages/ProviderPage.tsx:75"
+      ]
+    },
+    {
+      "phrase": "Upload receipt",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:92",
+        "src/modules/payment-billing/pages/ProviderPage.tsx:77"
+      ]
+    },
+    {
+      "phrase": "Receipt ID",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:96"
+      ]
+    },
+    {
+      "phrase": "Decision",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:97"
+      ]
+    },
+    {
+      "phrase": "Verify receipt",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:97"
+      ]
+    },
+    {
+      "phrase": "Reject receipt",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:97"
+      ]
+    },
+    {
+      "phrase": "Review note",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:98"
+      ]
+    },
+    {
+      "phrase": "Apply receipt decision",
+      "locations": [
+        "src/modules/payment-billing/pages/AdminPage.tsx:99"
+      ]
+    },
+    {
+      "phrase": "Provider Billing",
+      "locations": [
+        "src/modules/payment-billing/pages/ProviderPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Standalone PaymentBilling integration for provider profile ownership, pricing plans, invoices, gateway intents, manual receipt upload, and bank reconciliation.",
+      "locations": [
+        "src/modules/payment-billing/pages/ProviderPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Provider invoices from all payment-required modules",
+      "locations": [
+        "src/modules/payment-billing/pages/ProviderPage.tsx:35"
+      ]
+    },
+    {
+      "phrase": "Due",
+      "locations": [
+        "src/modules/payment-billing/pages/ProviderPage.tsx:40"
+      ]
+    },
+    {
+      "phrase": "No invoices yet. Profile claims, paid plan assignments, settlements, and other modules will issue invoices here through Core ModuleBus.",
+      "locations": [
+        "src/modules/payment-billing/pages/ProviderPage.tsx:54"
+      ]
+    },
+    {
+      "phrase": "Pay or upload receipt",
+      "locations": [
+        "src/modules/payment-billing/pages/ProviderPage.tsx:59"
+      ]
+    },
+    {
+      "phrase": "The server charges the selected invoice&apos;s exact outstanding amount and currency.",
+      "locations": [
+        "src/modules/payment-billing/pages/ProviderPage.tsx:65"
+      ]
+    },
+    {
+      "phrase": "Receipt amount and currency are taken from the invoice and cannot be edited.",
+      "locations": [
+        "src/modules/payment-billing/pages/ProviderPage.tsx:73"
+      ]
+    },
+    {
+      "phrase": "Ticketing Inbox",
+      "locations": [
+        "src/modules/ticketing/pages/AdminPage.tsx:21"
+      ]
+    },
+    {
+      "phrase": "Tickets",
+      "locations": [
+        "src/modules/ticketing/pages/AdminPage.tsx:22",
+        "src/modules/ticketing/pages/AdminPage.tsx:24",
+        "src/modules/ticketing/pages/ProviderPage.tsx:23"
+      ]
+    },
+    {
+      "phrase": "Urgent/high",
+      "locations": [
+        "src/modules/ticketing/pages/AdminPage.tsx:22",
+        "src/modules/ticketing/pages/ProviderPage.tsx:23"
+      ]
+    },
+    {
+      "phrase": "Unread admin",
+      "locations": [
+        "src/modules/ticketing/pages/AdminPage.tsx:22"
+      ]
+    },
+    {
+      "phrase": "Messages",
+      "locations": [
+        "src/modules/ticketing/pages/AdminPage.tsx:24",
+        "src/modules/ticketing/pages/ProviderPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "· unread",
+      "locations": [
+        "src/modules/ticketing/pages/AdminPage.tsx:24",
+        "src/modules/ticketing/pages/ProviderPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "· SLA",
+      "locations": [
+        "src/modules/ticketing/pages/AdminPage.tsx:24",
+        "src/modules/ticketing/pages/ProviderPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "No tickets yet.",
+      "locations": [
+        "src/modules/ticketing/pages/AdminPage.tsx:24",
+        "src/modules/ticketing/pages/ProviderPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Ticket ID",
+      "locations": [
+        "src/modules/ticketing/pages/AdminPage.tsx:25",
+        "src/modules/ticketing/pages/AdminPage.tsx:25",
+        "src/modules/ticketing/pages/ProviderPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Reply/internal note",
+      "locations": [
+        "src/modules/ticketing/pages/AdminPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Internal note only",
+      "locations": [
+        "src/modules/ticketing/pages/AdminPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Reply",
+      "locations": [
+        "src/modules/ticketing/pages/AdminPage.tsx:25",
+        "src/modules/ticketing/pages/ProviderPage.tsx:26",
+        "src/modules/ticketing/pages/ProviderPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Assignee user ID",
+      "locations": [
+        "src/modules/ticketing/pages/AdminPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Waiting provider",
+      "locations": [
+        "src/modules/ticketing/pages/AdminPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Waiting LSevin",
+      "locations": [
+        "src/modules/ticketing/pages/AdminPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Resolved",
+      "locations": [
+        "src/modules/ticketing/pages/AdminPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Low",
+      "locations": [
+        "src/modules/ticketing/pages/AdminPage.tsx:25",
+        "src/modules/ticketing/pages/ProviderPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Normal",
+      "locations": [
+        "src/modules/ticketing/pages/AdminPage.tsx:25",
+        "src/modules/ticketing/pages/ProviderPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "High",
+      "locations": [
+        "src/modules/ticketing/pages/AdminPage.tsx:25",
+        "src/modules/ticketing/pages/ProviderPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Urgent",
+      "locations": [
+        "src/modules/ticketing/pages/AdminPage.tsx:25",
+        "src/modules/ticketing/pages/ProviderPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Update ticket",
+      "locations": [
+        "src/modules/ticketing/pages/AdminPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Provider Tickets",
+      "locations": [
+        "src/modules/ticketing/pages/ProviderPage.tsx:22"
+      ]
+    },
+    {
+      "phrase": "Provider–LSevin support conversation trail with priority, attachments, unread counts, and SLA visibility.",
+      "locations": [
+        "src/modules/ticketing/pages/ProviderPage.tsx:22"
+      ]
+    },
+    {
+      "phrase": "Unread",
+      "locations": [
+        "src/modules/ticketing/pages/ProviderPage.tsx:23",
+        "src/modules/notifications-module/pages/ProviderPage.tsx:15"
+      ]
+    },
+    {
+      "phrase": "Ticket history",
+      "locations": [
+        "src/modules/ticketing/pages/ProviderPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Open / reply",
+      "locations": [
+        "src/modules/ticketing/pages/ProviderPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Subject",
+      "locations": [
+        "src/modules/ticketing/pages/ProviderPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Department",
+      "locations": [
+        "src/modules/ticketing/pages/ProviderPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Support",
+      "locations": [
+        "src/modules/ticketing/pages/ProviderPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Billing",
+      "locations": [
+        "src/modules/ticketing/pages/ProviderPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Content",
+      "locations": [
+        "src/modules/ticketing/pages/ProviderPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Attachment URL",
+      "locations": [
+        "src/modules/ticketing/pages/ProviderPage.tsx:26",
+        "src/modules/ticketing/pages/ProviderPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Open ticket",
+      "locations": [
+        "src/modules/ticketing/pages/ProviderPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Notification Templates",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:22"
+      ]
+    },
+    {
+      "phrase": "Configure templates for claim, payment, booking, review, ticket, and content events across fa/en/ar/tr with delivery logs.",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:22"
+      ]
+    },
+    {
+      "phrase": "Templates",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:23",
+        "src/modules/notifications-module/pages/AdminPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Delivery logs",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:23",
+        "src/modules/notifications-module/pages/AdminPage.tsx:28"
+      ]
+    },
+    {
+      "phrase": "Unread inbox",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:23"
+      ]
+    },
+    {
+      "phrase": "Channels:",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Variables:",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "No templates found. Run migrations.",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:25"
+      ]
+    },
+    {
+      "phrase": "Edit template / test send",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Template key",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:26",
+        "src/modules/notifications-module/pages/AdminPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Channels CSV",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Variables CSV",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Localized title",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Localized body",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Save template",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Recipient type",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Recipient ID",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Channel",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:26",
+        "src/modules/notifications-module/pages/AdminPage.tsx:28"
+      ]
+    },
+    {
+      "phrase": "In-app",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "SMS",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Push",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Body",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Create test notification",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:26"
+      ]
+    },
+    {
+      "phrase": "Template",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:28"
+      ]
+    },
+    {
+      "phrase": "Recipient",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:28"
+      ]
+    },
+    {
+      "phrase": "No delivery logs yet.",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:28"
+      ]
+    },
+    {
+      "phrase": "Bridge events",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:29"
+      ]
+    },
+    {
+      "phrase": "Processed",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:29"
+      ]
+    },
+    {
+      "phrase": "Subscriptions",
+      "locations": [
+        "src/modules/notifications-module/pages/AdminPage.tsx:29"
+      ]
+    },
+    {
+      "phrase": "Provider Notifications",
+      "locations": [
+        "src/modules/notifications-module/pages/ProviderPage.tsx:14"
+      ]
+    },
+    {
+      "phrase": "Operational inbox for claim, payment, booking, review, ticket, and content updates.",
+      "locations": [
+        "src/modules/notifications-module/pages/ProviderPage.tsx:14"
+      ]
+    },
+    {
+      "phrase": "Inbox items",
+      "locations": [
+        "src/modules/notifications-module/pages/ProviderPage.tsx:15"
+      ]
+    },
+    {
+      "phrase": "Templates active",
+      "locations": [
+        "src/modules/notifications-module/pages/ProviderPage.tsx:15"
+      ]
+    },
+    {
+      "phrase": "Inbox",
+      "locations": [
+        "src/modules/notifications-module/pages/ProviderPage.tsx:16"
+      ]
+    },
+    {
+      "phrase": "Mark read",
+      "locations": [
+        "src/modules/notifications-module/pages/ProviderPage.tsx:16"
+      ]
+    },
+    {
+      "phrase": "No notifications yet.",
+      "locations": [
+        "src/modules/notifications-module/pages/ProviderPage.tsx:16"
+      ]
+    }
+  ]
+}

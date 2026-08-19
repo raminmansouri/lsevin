@@ -1,0 +1,4 @@
+{
+  "moduleName": "Media Library",
+  "description": "Standalone media module for provider, service, staff, invoice, ticket and review files; upload, ordering, alt text, localized captions, usage references, and storage adapters."
+}

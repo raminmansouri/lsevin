@@ -1,0 +1,35 @@
+{
+  "code": "payment-billing",
+  "name": "Payment & Billing",
+  "version": "1.1.0",
+  "type": "extended",
+  "dependsOn": [
+    "core"
+  ],
+  "databaseSchema": "payment_billing",
+  "folder": "src/modules/payment-billing",
+  "routes": [
+    "providers/:providerId/billing",
+    "admin/billing"
+  ],
+  "permissions": [
+    "manageFinance",
+    "FINANCE_ADMIN"
+  ],
+  "capabilities": [
+    "billing.issue_invoice",
+    "billing.issue_proforma",
+    "billing.issue_tax_invoice",
+    "payment.create_payment_intent",
+    "payment.upload_manual_receipt",
+    "payment.verify_manual_receipt",
+    "payment.reconcile_bank_statement"
+  ],
+  "i18n": [
+    "fa-IR",
+    "en-US",
+    "ar",
+    "tr-TR"
+  ],
+  "zipSafe": true
+}

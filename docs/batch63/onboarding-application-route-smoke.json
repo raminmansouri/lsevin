@@ -1,0 +1,201 @@
+{
+  "ok": true,
+  "generatedAt": "2026-07-16T20:29:22.024Z",
+  "checks": {
+    "faList": true,
+    "faListNoEnglishFallback": true,
+    "faProviderForm": true,
+    "faProviderFormNoEnglishFallback": true,
+    "faStaffForm": true,
+    "faStaffFormNoEnglishFallback": true,
+    "enList": true,
+    "enProviderForm": true,
+    "enStaffForm": true,
+    "arList": true,
+    "arListNoEnglishFallback": true,
+    "arProviderForm": true,
+    "arProviderFormNoEnglishFallback": true,
+    "arStaffForm": true,
+    "arStaffFormNoEnglishFallback": true,
+    "trList": true,
+    "trListNoEnglishFallback": true,
+    "trProviderForm": true,
+    "trProviderFormNoEnglishFallback": true,
+    "trStaffForm": true,
+    "trStaffFormNoEnglishFallback": true,
+    "esList": true,
+    "esListNoEnglishFallback": true,
+    "esProviderForm": true,
+    "esProviderFormNoEnglishFallback": true,
+    "esStaffForm": true,
+    "esStaffFormNoEnglishFallback": true,
+    "kuList": true,
+    "kuListNoEnglishFallback": true,
+    "kuProviderForm": true,
+    "kuProviderFormNoEnglishFallback": true,
+    "kuStaffForm": true,
+    "kuStaffFormNoEnglishFallback": true,
+    "deList": true,
+    "deListNoEnglishFallback": true,
+    "deProviderForm": true,
+    "deProviderFormNoEnglishFallback": true,
+    "deStaffForm": true,
+    "deStaffFormNoEnglishFallback": true,
+    "frList": true,
+    "frListNoEnglishFallback": true,
+    "frProviderForm": true,
+    "frProviderFormNoEnglishFallback": true,
+    "frStaffForm": true,
+    "frStaffFormNoEnglishFallback": true,
+    "localizedFieldTabsRendered": true,
+    "noAggregateError": true,
+    "noHydrationMismatch": true
+  },
+  "cases": [
+    {
+      "route": "/applications",
+      "locale": "fa",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications/new",
+      "locale": "fa",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications/new/staff",
+      "locale": "fa",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications",
+      "locale": "en",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"en\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications/new",
+      "locale": "en",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"en\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications/new/staff",
+      "locale": "en",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"en\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications",
+      "locale": "ar",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"ar\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications/new",
+      "locale": "ar",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"ar\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications/new/staff",
+      "locale": "ar",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"ar\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications",
+      "locale": "tr",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"tr\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications/new",
+      "locale": "tr",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"tr\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications/new/staff",
+      "locale": "tr",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"tr\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications",
+      "locale": "es",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"es\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications/new",
+      "locale": "es",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"es\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications/new/staff",
+      "locale": "es",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"es\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications",
+      "locale": "ku",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"ku\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications/new",
+      "locale": "ku",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"ku\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications/new/staff",
+      "locale": "ku",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"ku\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications",
+      "locale": "de",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"de\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications/new",
+      "locale": "de",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"de\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications/new/staff",
+      "locale": "de",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"de\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications",
+      "locale": "fr",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fr\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications/new",
+      "locale": "fr",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fr\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications/new/staff",
+      "locale": "fr",
+      "status": 200,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fr\" dir=\"ltr\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link re"
+    }
+  ],
+  "serverLogTail": "   ▲ Next.js 15.5.20\n   - Local:        http://localhost:3409\n   - Network:      http://172.26.36.11:3409\n\n ✓ Starting...\n ✓ Ready in 895ms\n"
+}

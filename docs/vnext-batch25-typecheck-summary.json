@@ -1,0 +1,7 @@
+{
+  "command": "npm run typecheck",
+  "exitCode": 1,
+  "typescriptDiagnostics": 92,
+  "leadPipelineStudioDiagnostics": 0,
+  "status": "baseline_failed"
+}

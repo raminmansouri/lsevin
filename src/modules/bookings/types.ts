@@ -1,0 +1,1 @@
+export type ProviderBooking = { id: string; userId: string | null; serviceName: string; selectedDate: string | null; selectedTime: string | null; bookingStatus: string; paymentStatus: string | null; totalAmount: string | null; currencyCode: string | null; providerNotes: string | null; createdAt: string };

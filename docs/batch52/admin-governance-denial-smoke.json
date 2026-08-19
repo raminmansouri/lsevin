@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "generatedAt": "2026-07-12T16:40:03.544Z",
+  "checks": {
+    "adminDeniedGovernance": true,
+    "adminAllowedAudit": true,
+    "noAggregateError": true
+  },
+  "cases": [
+    {
+      "route": "/admin/governance",
+      "status": 307,
+      "location": "/dashboard?access=admin-denied&permission=SUPERADMIN"
+    },
+    {
+      "route": "/admin/audit",
+      "status": 200,
+      "location": null
+    }
+  ],
+  "serverLogTail": "   ▲ Next.js 15.5.20\n   - Local:        http://localhost:3407\n   - Network:      http://172.26.36.13:3407\n\n ✓ Starting...\n ✓ Ready in 1539ms\n"
+}

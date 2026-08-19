@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "errors": [],
+  "module": "household-caregiver-studio",
+  "filesChecked": 14,
+  "security": {
+    "tokenHashesAtRest": true,
+    "headerOnlySecretTransport": true,
+    "ownerOnlyPermissionControl": true,
+    "revocationClearsToken": true,
+    "internalNotesHidden": true,
+    "highPrivilegeVerification": true,
+    "minorGuardianSafeguard": true,
+    "moduleBusNotifications": true
+  }
+}

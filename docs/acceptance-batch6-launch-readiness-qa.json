@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "errors": [],
+  "warnings": [
+    "DATABASE_URL guard not detected"
+  ],
+  "modules_checked": 60,
+  "files_checked": 931
+}

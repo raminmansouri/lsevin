@@ -1,0 +1,75 @@
+{
+  "release": "v1.0.0-rc.19",
+  "batch": 56,
+  "generatedAt": "2026-07-13T07:40:00Z",
+  "source": {
+    "modules": 60,
+    "files": 605,
+    "migrations": 85,
+    "coreMigrations": 5,
+    "moduleMigrations": 80
+  },
+  "quality": {
+    "typecheck": "passed",
+    "eslint": "passed",
+    "routes": "passed",
+    "staticQa": "passed",
+    "adminAudit": "passed",
+    "adminCatalogQa": "passed",
+    "adminGovernanceQa": "passed (22 checks)",
+    "onboardingApprovalQa": "passed",
+    "coreExperienceQa": "passed (41 assertions)",
+    "batch56Qa": "passed (11/11)",
+    "dependencyVulnerabilities": 0
+  },
+  "translation": {
+    "uniqueFixedUiLiterals": 1712,
+    "hybridWordFallbacks": 0,
+    "partialReplacementRemoved": true,
+    "moduleManagerComplete": true,
+    "exactLSevinPhraseRowsReused": 382,
+    "completePhraseCoveragePercent": {
+      "fa-IR": 24.8,
+      "ar": 25.0,
+      "tr-TR": 22.8,
+      "es": 22.8,
+      "ku": 22.8,
+      "de": 22.8,
+      "fr": 22.8
+    },
+    "wholePhraseFallbackCount": {
+      "fa-IR": 1287,
+      "ar": 1284,
+      "tr-TR": 1321,
+      "es": 1321,
+      "ku": 1321,
+      "de": 1322,
+      "fr": 1322
+    }
+  },
+  "build": {
+    "framework": "Next.js 15.5.20",
+    "buildId": "03KAlA5HdS6YEbLE0Hq3u",
+    "compileSeconds": 15.1,
+    "staticPages": "3/3",
+    "optimization": "passed",
+    "traceCollection": "passed"
+  },
+  "runtime": {
+    "preflight": "passed",
+    "authenticatedRoutes": "passed",
+    "adminCatalogRoutes": "passed",
+    "adminGovernanceRoutes": "passed",
+    "adminGovernanceDenial": "passed",
+    "onboardingApprovalPage": "passed",
+    "moduleStateRoutes": "passed (9/9)",
+    "aggregateError": false,
+    "hydrationMismatch": false
+  },
+  "launch": {
+    "codeCandidate": true,
+    "publicMultinationalLaunchApproved": false,
+    "blockingGate": "LG62",
+    "reason": "Professional complete-phrase localization and real-environment UAT remain incomplete."
+  }
+}

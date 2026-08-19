@@ -1,0 +1,28 @@
+{
+  "release": "1.0.0-rc.13",
+  "batch": 50,
+  "generatedAt": "2026-07-12",
+  "status": "passed_individually",
+  "gates": {
+    "routes": "passed",
+    "migrationVerify": "passed_84",
+    "typecheck": "passed_0_errors",
+    "lint": "passed_0_errors",
+    "staticQa": "passed_60_modules_591_files",
+    "adminQa": "passed_53_direct_6_covered_1_not_required",
+    "adminCatalogQa": "passed",
+    "adminGovernanceQa": "passed_22",
+    "onboardingApprovalQa": "passed_18",
+    "coreExperienceQa": "passed_41_assertions",
+    "dependencyAudit": "passed_0_vulnerabilities",
+    "productionBuild": "passed_14.4_seconds_3_of_3_pages",
+    "preflightFixture": "passed_local_and_production",
+    "authenticatedRoutes": "passed_4_of_4",
+    "adminCatalogRoutes": "passed_6_of_6",
+    "adminGovernanceRoutes": "passed_4_of_4",
+    "adminGovernanceDenial": "passed_2_of_2",
+    "onboardingApprovalPage": "passed"
+  },
+  "aggregateWrapper": "executor_timeout_during_duplicate_build_after_static_gates",
+  "externalGate": "LG57 real LSevin workflow UAT"
+}

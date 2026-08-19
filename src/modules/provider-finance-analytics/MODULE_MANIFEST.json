@@ -1,0 +1,27 @@
+{
+  "id": "provider-finance-analytics",
+  "name": "Provider Finance & Analytics",
+  "version": "1.2.0",
+  "kind": "extended-module",
+  "dependsOn": [
+    "core"
+  ],
+  "moduleFolder": "src/modules/provider-finance-analytics",
+  "entry": "module.tsx",
+  "exportName": "providerFinanceAnalyticsModule",
+  "migrations": [
+    "migrations/001_provider_finance_analytics.sql",
+    "migrations/001a_prepare_finance_view_reconciliation.sql",
+    "migrations/002_finance_views_reconciliation.sql",
+    "migrations/002_staff_compensation.sql"
+  ],
+  "containsRouteSegments": false,
+  "containsScripts": false,
+  "installationModel": "copy-one-folder-and-register-in-core-module-registry",
+  "notes": [
+    "This module is self-contained inside one folder.",
+    "It does not copy files into src/app.",
+    "The CRM core module is responsible for hosting routes through a module registry and module route host.",
+    "To zip for future modification, compress only this folder."
+  ]
+}

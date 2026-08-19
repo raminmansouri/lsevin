@@ -1,0 +1,147 @@
+{
+  "ok": true,
+  "generatedAt": "2026-07-16T20:28:01.746Z",
+  "safetyDisabledModuleCount": 36,
+  "checks": {
+    "managerRendered": true,
+    "allSafetyModulesShownDisabled": true,
+    "exactSafetyWarningCount": true,
+    "disabledModuleNotInNavigation": true,
+    "modulePagesDisplayed": true,
+    "detailedOverviewDisplayed": true,
+    "noManualReasonField": true,
+    "missingFrontendWarningLocalized": true,
+    "curatedPersianDescriptionsRendered": true,
+    "genericDescriptionRemoved": true,
+    "disabledAdminPageBlocked": true,
+    "disabledPlaceholderAdminPageBlocked": true,
+    "disabledContentAdminPageBlocked": true,
+    "disabledNotificationAdminPageBlocked": true,
+    "disabledArrivalAdminPageBlocked": true,
+    "disabledChallengePublicPageBlocked": true,
+    "disabledNoBridgePublicPageBlocked": true,
+    "disabledPublicPageBlocked": true,
+    "disabledContentPublicPageBlocked": true,
+    "disabledCustomerCasePublicPageBlocked": true,
+    "disabledPublicApiBlocked": true,
+    "disabledDecisionApiBlocked": true,
+    "disabledAudienceApiBlocked": true,
+    "disabledContentApiBlocked": true,
+    "protectedModuleAvailable": true,
+    "bookingManagementProviderRouteAvailable": true,
+    "bookingManagementAdminRouteAvailable": true,
+    "noAggregateError": true,
+    "noHydrationMismatch": true
+  },
+  "cases": {
+    "manager": {
+      "route": "/admin/modules",
+      "status": 200,
+      "location": null,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link rel=\"preload\" as=\"scri"
+    },
+    "disabledAdminPage": {
+      "route": "/admin/business-growth",
+      "status": 404,
+      "location": null,
+      "bodyContains": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/webpack-2eb758dea75faf50.js\"/><script src="
+    },
+    "disabledPlaceholderAdminPage": {
+      "route": "/admin/boost-studio",
+      "status": 404,
+      "location": null,
+      "bodyContains": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/webpack-2eb758dea75faf50.js\"/><script src="
+    },
+    "disabledContentAdminPage": {
+      "route": "/admin/content-studio",
+      "status": 404,
+      "location": null,
+      "bodyContains": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/webpack-2eb758dea75faf50.js\"/><script src="
+    },
+    "disabledNotificationAdminPage": {
+      "route": "/admin/notifications",
+      "status": 404,
+      "location": null,
+      "bodyContains": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/webpack-2eb758dea75faf50.js\"/><script src="
+    },
+    "disabledArrivalAdminPage": {
+      "route": "/admin/arrival-checkin",
+      "status": 404,
+      "location": null,
+      "bodyContains": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/webpack-2eb758dea75faf50.js\"/><script src="
+    },
+    "disabledChallengePublicPage": {
+      "route": "/providers/44444444-4444-4444-8444-444444444444/challenges",
+      "status": 404,
+      "location": null,
+      "bodyContains": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/webpack-2eb758dea75faf50.js\"/><script src="
+    },
+    "disabledNoBridgePublicPage": {
+      "route": "/providers/44444444-4444-4444-8444-444444444444/ask",
+      "status": 404,
+      "location": null,
+      "bodyContains": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/webpack-2eb758dea75faf50.js\"/><script src="
+    },
+    "disabledPublicPage": {
+      "route": "/providers/44444444-4444-4444-8444-444444444444/updates",
+      "status": 404,
+      "location": null,
+      "bodyContains": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/webpack-2eb758dea75faf50.js\"/><script src="
+    },
+    "disabledContentPublicPage": {
+      "route": "/providers/44444444-4444-4444-8444-444444444444/stories",
+      "status": 404,
+      "location": null,
+      "bodyContains": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/webpack-2eb758dea75faf50.js\"/><script src="
+    },
+    "disabledCustomerCasePublicPage": {
+      "route": "/providers/44444444-4444-4444-8444-444444444444/my-case",
+      "status": 404,
+      "location": null,
+      "bodyContains": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/webpack-2eb758dea75faf50.js\"/><script src="
+    },
+    "disabledPublicApi": {
+      "route": "/api/public/providers/44444444-4444-4444-8444-444444444444/growth",
+      "status": 404,
+      "location": null,
+      "bodyContains": "{\"error\":\"API route not found\"}"
+    },
+    "disabledDecisionApi": {
+      "route": "/api/public/providers/44444444-4444-4444-8444-444444444444/decision-tools",
+      "status": 404,
+      "location": null,
+      "bodyContains": "{\"error\":\"API route not found\"}"
+    },
+    "disabledAudienceApi": {
+      "route": "/api/public/providers/44444444-4444-4444-8444-444444444444/audience-profile",
+      "status": 404,
+      "location": null,
+      "bodyContains": "{\"error\":\"API route not found\"}"
+    },
+    "disabledContentApi": {
+      "route": "/api/public/providers/44444444-4444-4444-8444-444444444444/content-feed",
+      "status": 404,
+      "location": null,
+      "bodyContains": "{\"error\":\"API route not found\"}"
+    },
+    "protectedManagerOwner": {
+      "route": "/admin/governance",
+      "status": 200,
+      "location": null,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link rel=\"preload\" as=\"scri"
+    },
+    "enabledBookingManagementProvider": {
+      "route": "/providers/44444444-4444-4444-8444-444444444444/booking-management",
+      "status": 200,
+      "location": null,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link rel=\"preload\" as=\"scri"
+    },
+    "enabledBookingManagementAdmin": {
+      "route": "/admin/booking-management",
+      "status": 200,
+      "location": null,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/ae2d5d6c3c374e7a.css\" data-precedence=\"next\"/><link rel=\"preload\" as=\"scri"
+    }
+  },
+  "serverLogTail": "   ▲ Next.js 15.5.20\n   - Local:        http://localhost:3408\n   - Network:      http://172.26.36.11:3408\n\n ✓ Starting...\n ✓ Ready in 908ms\n"
+}

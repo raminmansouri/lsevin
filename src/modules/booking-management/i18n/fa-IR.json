@@ -1,0 +1,4 @@
+{
+  "moduleName": "Booking Management",
+  "description": "Standalone operational booking module for provider booking list, staff/resource allocation, booking notes, status updates, calendar snapshots, and payment-state snapshots."
+}

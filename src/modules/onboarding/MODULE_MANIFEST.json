@@ -1,0 +1,21 @@
+{
+  "id": "onboarding",
+  "kind": "extended-module",
+  "dependsOn": [
+    "core"
+  ],
+  "moduleFolder": "src/modules/onboarding",
+  "entry": "module.tsx",
+  "installationModel": "copy-one-folder-and-register-in-core-module-registry",
+  "containsRouteSegments": false,
+  "containsScripts": false,
+  "databaseSchema": "provider_portal",
+  "migrations": [
+    "migrations/001_onboarding_admin.sql",
+    "migrations/002_application_draft_workflow.sql"
+  ],
+  "notes": [
+    "Self-contained module folder. Zip/unzip this folder only.",
+    "Includes provider application admin review, audit history, provider creation/attachment and owner membership creation."
+  ]
+}

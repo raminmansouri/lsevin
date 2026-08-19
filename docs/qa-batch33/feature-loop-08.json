@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "errors": [],
+  "module": "customer-relationship-studio",
+  "filesChecked": 14,
+  "security": {
+    "tokenHashAtRest": true,
+    "headerOnlySecretTransport": true,
+    "identityValuesHashed": true,
+    "sensitiveTimelineRedaction": true,
+    "nonDestructiveMerge": true,
+    "duplicateTokenInvalidated": true,
+    "customerCorrectionFlow": true,
+    "moduleBusNotifications": true,
+    "genericSourceReferences": true
+  }
+}

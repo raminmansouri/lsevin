@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "errors": [],
+  "module": "gift-card-studio",
+  "filesChecked": 14,
+  "security": {
+    "tokenHashesAtRest": true,
+    "headerOnlySecretTransport": true,
+    "atomicBalanceGuard": true,
+    "redemptionLimitGuard": true,
+    "internalNotesHidden": true,
+    "transferRotatesClaimCode": true,
+    "billingViaModuleBus": true
+  }
+}

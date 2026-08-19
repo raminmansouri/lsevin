@@ -1,3 +1,0 @@
-namespace LSevin.Modules.Category.ServiceDefinition.Features.ChangeServiceDefinitionActivation;
-
-internal sealed record ChangeServiceDefinitionActivationRequest(bool IsActive);

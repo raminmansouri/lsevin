@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "errors": [],
+  "module": "conversation-studio",
+  "security": {
+    "tokenProtectedThreads": true,
+    "internalNotesHidden": true,
+    "safetyReports": true,
+    "headerOnlyTokenTransport": true
+  }
+}

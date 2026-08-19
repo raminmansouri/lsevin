@@ -1,0 +1,277 @@
+{
+  "version": "1.0.0-rc.16",
+  "moduleCount": 24,
+  "summary": {
+    "main-use-case-complete": 24,
+    "reference_select": 0,
+    "localized_field": 0,
+    "media_picker": 0,
+    "locale_hardcode": 0
+  },
+  "modules": [
+    {
+      "module": "admin-governance",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "availability",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "booking-management",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "bookings",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "dashboard",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "finance",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "manage",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "media",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "media-library",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "notifications-module",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "offers",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "onboarding",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "payment-billing",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "provider-access",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "provider-finance-analytics",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "provider-portal",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "providers",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "reporting-analytics",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "reviews",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "reviews-standalone",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "services",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "staff",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "support",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    },
+    {
+      "module": "ticketing",
+      "phase": "main-use-case-complete",
+      "counts": {
+        "reference_select": 0,
+        "localized_field": 0,
+        "media_picker": 0,
+        "locale_hardcode": 0
+      },
+      "matches": []
+    }
+  ]
+}

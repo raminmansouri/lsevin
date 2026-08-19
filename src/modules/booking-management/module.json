@@ -1,0 +1,33 @@
+{
+  "code": "booking-management",
+  "name": "Booking Management",
+  "version": "1.0.0",
+  "type": "extended",
+  "dependsOn": [
+    "core"
+  ],
+  "databaseSchema": "booking_management",
+  "folder": "src/modules/booking-management",
+  "routes": [
+    "providers/:providerId/booking-management",
+    "admin/booking-management"
+  ],
+  "permissions": [
+    "manageBookings",
+    "PROVIDER_ADMIN"
+  ],
+  "capabilities": [
+    "booking.read_provider_bookings",
+    "booking.update_status",
+    "booking.assign_staff",
+    "booking.add_provider_note",
+    "booking.export_calendar"
+  ],
+  "i18n": [
+    "fa-IR",
+    "en-US",
+    "ar",
+    "tr-TR"
+  ],
+  "zipSafe": true
+}

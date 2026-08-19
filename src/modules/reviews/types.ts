@@ -1,0 +1,1 @@
+export type ProviderReview = { id: string; customerName: string; commentText: string; rating: number | null; isPublic: boolean; isVerified: boolean | null; moderationStatus: string; createdAt: string; treatment: string | null; providerServiceName: string | null; repliesCount: number };

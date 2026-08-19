@@ -1,0 +1,32 @@
+{
+  "code": "reporting-analytics",
+  "name": "Reporting & Analytics",
+  "version": "1.0.0",
+  "type": "extended",
+  "dependsOn": [
+    "core"
+  ],
+  "databaseSchema": "reporting_analytics",
+  "folder": "src/modules/reporting-analytics",
+  "routes": [
+    "providers/:providerId/analytics",
+    "admin/analytics"
+  ],
+  "permissions": [
+    "viewAnalytics",
+    "FINANCE_ADMIN"
+  ],
+  "capabilities": [
+    "reports.view_provider_dashboard",
+    "reports.create_snapshot",
+    "reports.export",
+    "reports.view_admin_analytics"
+  ],
+  "i18n": [
+    "fa-IR",
+    "en-US",
+    "ar",
+    "tr-TR"
+  ],
+  "zipSafe": true
+}

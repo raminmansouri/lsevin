@@ -1,0 +1,34 @@
+B75 Source Integrity + Compile Gate Static QA
+=============================================
+
+[1] JavaScript syntax
+PASS deployment/scripts/assert-pnpm-toolchain.mjs
+PASS deployment/scripts/normalize-package-manager.mjs
+PASS deployment/scripts/run-quality-gates.mjs
+PASS deployment/scripts/sync-pnpm-deps.mjs
+PASS deployment/scripts/validate-deployment-contract.mjs
+PASS deployment/scripts/validate-source-tree.mjs
+PASS deployment/docker/enable-next-standalone.mjs
+PASS deployment/docker/healthcheck.mjs
+
+[2] YAML parse
+PASS deployment/docker/compose.local.yml
+PASS deployment/docker/compose.production.yml
+PASS deployment/kubernetes/base/database-permissions-configmap.yaml
+PASS deployment/kubernetes/base/deployment.yaml
+PASS deployment/kubernetes/database/postgres.yaml
+
+[3] Source integrity gate behavior
+PASS [source] relative import integrity passed: 2 source files, 1 relative imports checked.
+PASS negative test reported both unresolved imports together (2/2)
+
+[4] B75 invariants
+PASS dashboard i18n required by deployment contract
+PASS sourcecheck service present
+PASS sourcecheck runs import + typecheck/lint gates
+PASS migration waits for sourcecheck
+PASS dashboard copy covers all eight portal locales
+PASS no executable npm/apk/apt/internal-registry dependency path
+
+[5] Package content
+PASS files: 22

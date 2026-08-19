@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "errors": [],
+  "module": "arrival-checkin-studio",
+  "filesChecked": 14,
+  "security": {
+    "tokenHashAtRest": true,
+    "headerOnlySecretTransport": true,
+    "customerPrivateTimeline": true,
+    "atomicQueueAllocation": true,
+    "blockingTaskEnforcement": true,
+    "genericExternalReferences": true,
+    "moduleBusNotifications": true
+  }
+}

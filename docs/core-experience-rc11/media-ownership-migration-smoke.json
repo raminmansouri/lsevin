@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "rows": [
+    {
+      "ownership_role": "admin",
+      "source": "provider_portal"
+    }
+  ]
+}

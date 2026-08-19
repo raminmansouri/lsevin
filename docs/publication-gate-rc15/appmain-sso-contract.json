@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "localesChecked": 8,
+  "checks": {
+    "canonicalNextAuthDetected": true,
+    "shortLivedSignedAssertion": true,
+    "safeReturnTo": true,
+    "sharedLocaleCookie": true,
+    "noCredentialExposure": true
+  },
+  "failures": []
+}

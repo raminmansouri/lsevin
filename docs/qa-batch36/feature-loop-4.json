@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "errors": [],
+  "module": "progress-outcomes-studio",
+  "filesChecked": 14,
+  "security": {
+    "tokenHashAtRest": true,
+    "headerOnlySecretTransport": true,
+    "customerPrivateTimeline": true,
+    "measurementConsentGate": true,
+    "mediaConsentGate": true,
+    "safetyEscalation": true,
+    "safeStoryHandoff": true,
+    "genericExternalReferences": true,
+    "moduleBusNotifications": true
+  }
+}

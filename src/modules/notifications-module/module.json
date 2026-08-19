@@ -1,0 +1,32 @@
+{
+  "code": "notifications-module",
+  "name": "Notifications",
+  "version": "1.0.1",
+  "type": "extended",
+  "dependsOn": [
+    "core"
+  ],
+  "databaseSchema": "notifications_ext",
+  "folder": "src/modules/notifications-module",
+  "routes": [
+    "providers/:providerId/notifications",
+    "admin/notifications"
+  ],
+  "permissions": [
+    "view",
+    "PROVIDER_ADMIN"
+  ],
+  "capabilities": [
+    "notifications.send",
+    "notifications.template.manage",
+    "notifications.subscribe_provider",
+    "notifications.read_inbox"
+  ],
+  "i18n": [
+    "fa-IR",
+    "en-US",
+    "ar",
+    "tr-TR"
+  ],
+  "zipSafe": true
+}

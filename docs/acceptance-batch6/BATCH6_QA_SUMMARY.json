@@ -1,0 +1,47 @@
+{
+  "batch": "Staff Reviews & Media Acceptance Batch 6",
+  "date": "2026-07-24",
+  "focusedQa": {
+    "passed": 98,
+    "total": 98
+  },
+  "batch5Regression": {
+    "passed": 68,
+    "total": 68
+  },
+  "staticArchitecture": {
+    "modules": 60,
+    "typescriptFiles": 598
+  },
+  "coreExperience": {
+    "coreFiles": 14,
+    "integrationAssertions": 24,
+    "passed": true
+  },
+  "routeArchitecture": {
+    "passed": true
+  },
+  "launchReadiness": {
+    "errors": 0,
+    "passed": true,
+    "warnings": [
+      "DATABASE_URL guard not detected"
+    ]
+  },
+  "changedTypeScriptSyntax": {
+    "files": 19,
+    "diagnostics": 0,
+    "passed": true,
+    "typescriptVersion": "5.8.3"
+  },
+  "migrations": {
+    "baseline": 85,
+    "current": 87,
+    "existingChanged": 0,
+    "additive": 2
+  },
+  "blocked": {
+    "authenticatedPostgresUat": "DATABASE_URL/.env.local unavailable",
+    "dependencyBackedBuild": "npm dependency registry returned HTTP 503"
+  }
+}

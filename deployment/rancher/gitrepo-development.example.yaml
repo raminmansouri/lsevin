@@ -1,0 +1,15 @@
+apiVersion: fleet.cattle.io/v1alpha1
+kind: GitRepo
+metadata:
+  namespace: fleet-local
+  name: lsevin-providers-development
+spec:
+  repo: https://github.com/YOUR_ORG/YOUR_REPO.git
+  branch: main
+  paths:
+    - deployment/kubernetes/overlays/development
+  targets:
+    - name: development
+      clusterSelector:
+        matchLabels:
+          environment: development

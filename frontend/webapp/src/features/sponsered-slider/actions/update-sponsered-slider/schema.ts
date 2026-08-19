@@ -1,1 +1,0 @@
-export { UpdateSponseredSliderSchema } from "../../schemas";

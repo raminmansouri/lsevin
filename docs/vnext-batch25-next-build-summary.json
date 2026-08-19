@@ -1,0 +1,6 @@
+{
+  "command": "npm run build",
+  "exitCode": 1,
+  "status": "baseline_failed",
+  "note": "Build uses repository-wide type validation and is blocked by the documented pre-existing TypeScript baseline; Batch 25 module has zero diagnostics."
+}

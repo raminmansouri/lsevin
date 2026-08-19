@@ -1,0 +1,6 @@
+{
+  "exitCode": 2,
+  "totalDiagnostics": 92,
+  "progressOutcomesDiagnostics": 0,
+  "firstDiagnostic": "src/core/ui/PortalShell.tsx(89,61): error TS2339: Property 'moduleId' does not exist on type 'ModuleNavigationItem'."
+}

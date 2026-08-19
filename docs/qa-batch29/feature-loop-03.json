@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "errors": [],
+  "module": "membership-studio",
+  "filesChecked": 14,
+  "security": {
+    "tokenHashAtRest": true,
+    "headerOnlyTokenTransport": true,
+    "autoRenewRequiresConsent": true,
+    "creditBalanceGuard": true,
+    "internalNotesHidden": true,
+    "billingViaModuleBus": true
+  }
+}

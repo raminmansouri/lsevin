@@ -1,0 +1,325 @@
+{
+  "generatedFrom": "production release profile",
+  "moduleCount": 24,
+  "counts": {
+    "direct": 18,
+    "covered": 5,
+    "not_required": 1,
+    "backlog": 0,
+    "unclassified": 0
+  },
+  "unclassified": [],
+  "modules": [
+    {
+      "module": "admin-governance",
+      "status": "direct",
+      "replacement": null,
+      "note": "4 direct admin route(s).",
+      "adminRoutes": [
+        {
+          "path": "/admin/governance",
+          "label": "Governance",
+          "permission": "SUPERADMIN"
+        },
+        {
+          "path": "/admin/governance/users",
+          "label": "Administrative users",
+          "permission": "SUPERADMIN"
+        },
+        {
+          "path": "/admin/governance/users/:userId",
+          "label": "Administrative user",
+          "permission": "SUPERADMIN"
+        },
+        {
+          "path": "/admin/audit",
+          "label": "Admin audit",
+          "permission": "ADMIN"
+        }
+      ]
+    },
+    {
+      "module": "availability",
+      "status": "direct",
+      "replacement": null,
+      "note": "1 direct admin route(s).",
+      "adminRoutes": [
+        {
+          "path": "/admin/availability",
+          "label": "Availability",
+          "permission": "PROVIDER_ADMIN"
+        }
+      ]
+    },
+    {
+      "module": "booking-management",
+      "status": "direct",
+      "replacement": null,
+      "note": "1 direct admin route(s).",
+      "adminRoutes": [
+        {
+          "path": "/admin/booking-management",
+          "label": "Booking Operations",
+          "permission": "PROVIDER_ADMIN"
+        }
+      ]
+    },
+    {
+      "module": "bookings",
+      "status": "covered",
+      "replacement": "Booking Management admin",
+      "note": "Provider booking visibility is provider-scoped; global operational administration is handled by Booking Management.",
+      "adminRoutes": []
+    },
+    {
+      "module": "dashboard",
+      "status": "direct",
+      "replacement": null,
+      "note": "1 direct admin route(s).",
+      "adminRoutes": [
+        {
+          "path": "/admin",
+          "label": "Admin Control Center",
+          "permission": "ADMIN_PORTAL"
+        }
+      ]
+    },
+    {
+      "module": "finance",
+      "status": "covered",
+      "replacement": "Provider Finance & Analytics admin",
+      "note": "The legacy provider finance view is retained for compatibility; global finance administration is handled by Provider Finance & Analytics.",
+      "adminRoutes": []
+    },
+    {
+      "module": "manage",
+      "status": "not_required",
+      "replacement": null,
+      "note": "Provider management is a provider workspace aggregator; global administration belongs to the underlying modules.",
+      "adminRoutes": []
+    },
+    {
+      "module": "media",
+      "status": "covered",
+      "replacement": "LSevin platform media moderation",
+      "note": "Provider media uses the canonical LSevin media library; global moderation stays in appmain.",
+      "adminRoutes": []
+    },
+    {
+      "module": "media-library",
+      "status": "direct",
+      "replacement": null,
+      "note": "1 direct admin route(s).",
+      "adminRoutes": [
+        {
+          "path": "/admin/media-library",
+          "label": "Global Media Library",
+          "permission": "PROVIDER_ADMIN"
+        }
+      ]
+    },
+    {
+      "module": "notifications-module",
+      "status": "direct",
+      "replacement": null,
+      "note": "1 direct admin route(s).",
+      "adminRoutes": [
+        {
+          "path": "/admin/notifications",
+          "label": "Notification Templates",
+          "permission": "PROVIDER_ADMIN"
+        }
+      ]
+    },
+    {
+      "module": "offers",
+      "status": "direct",
+      "replacement": null,
+      "note": "1 direct admin route(s).",
+      "adminRoutes": [
+        {
+          "path": "/admin/offers",
+          "label": "Offers",
+          "permission": "CONTENT_ADMIN"
+        }
+      ]
+    },
+    {
+      "module": "onboarding",
+      "status": "direct",
+      "replacement": null,
+      "note": "2 direct admin route(s).",
+      "adminRoutes": [
+        {
+          "path": "/admin/applications",
+          "label": "Provider Applications",
+          "permission": "PROVIDER_ADMIN"
+        },
+        {
+          "path": "/admin/applications/:applicationId",
+          "label": "Application Review",
+          "permission": "PROVIDER_ADMIN"
+        }
+      ]
+    },
+    {
+      "module": "payment-billing",
+      "status": "direct",
+      "replacement": null,
+      "note": "1 direct admin route(s).",
+      "adminRoutes": [
+        {
+          "path": "/admin/billing",
+          "label": "Payment & Billing Control",
+          "permission": "FINANCE_ADMIN"
+        }
+      ]
+    },
+    {
+      "module": "provider-access",
+      "status": "covered",
+      "replacement": "provider onboarding and governance",
+      "note": "Claims, membership and ownership administration are covered by onboarding and governance.",
+      "adminRoutes": []
+    },
+    {
+      "module": "provider-finance-analytics",
+      "status": "direct",
+      "replacement": null,
+      "note": "3 direct admin route(s).",
+      "adminRoutes": [
+        {
+          "path": "/admin/finance",
+          "label": "Finance Control",
+          "permission": "FINANCE_ADMIN"
+        },
+        {
+          "path": "/admin/finance/settlements",
+          "label": "Settlement Control",
+          "permission": "FINANCE_ADMIN"
+        },
+        {
+          "path": "/admin/reports",
+          "label": "Reports Control",
+          "permission": "FINANCE_ADMIN"
+        }
+      ]
+    },
+    {
+      "module": "provider-portal",
+      "status": "direct",
+      "replacement": null,
+      "note": "2 direct admin route(s).",
+      "adminRoutes": [
+        {
+          "path": "/admin/provider-claims",
+          "label": "Provider Claims & Ownership",
+          "permission": "PROVIDER_ADMIN"
+        },
+        {
+          "path": "/admin/moderation",
+          "label": "Content Moderation",
+          "permission": "CONTENT_ADMIN"
+        }
+      ]
+    },
+    {
+      "module": "providers",
+      "status": "direct",
+      "replacement": null,
+      "note": "1 direct admin route(s).",
+      "adminRoutes": [
+        {
+          "path": "/admin/providers",
+          "label": "Providers",
+          "permission": "PROVIDER_ADMIN"
+        }
+      ]
+    },
+    {
+      "module": "reporting-analytics",
+      "status": "direct",
+      "replacement": null,
+      "note": "1 direct admin route(s).",
+      "adminRoutes": [
+        {
+          "path": "/admin/analytics",
+          "label": "Analytics & Reports",
+          "permission": "FINANCE_ADMIN"
+        }
+      ]
+    },
+    {
+      "module": "reviews",
+      "status": "direct",
+      "replacement": null,
+      "note": "1 direct admin route(s).",
+      "adminRoutes": [
+        {
+          "path": "/admin/reviews",
+          "label": "Review moderation",
+          "permission": "REVIEW_ADMIN"
+        }
+      ]
+    },
+    {
+      "module": "reviews-standalone",
+      "status": "direct",
+      "replacement": null,
+      "note": "1 direct admin route(s).",
+      "adminRoutes": [
+        {
+          "path": "/admin/reviews",
+          "label": "Reviews Moderation",
+          "permission": "PROVIDER_ADMIN"
+        }
+      ]
+    },
+    {
+      "module": "services",
+      "status": "direct",
+      "replacement": null,
+      "note": "1 direct admin route(s).",
+      "adminRoutes": [
+        {
+          "path": "/admin/services",
+          "label": "Services",
+          "permission": "PROVIDER_ADMIN"
+        }
+      ]
+    },
+    {
+      "module": "staff",
+      "status": "direct",
+      "replacement": null,
+      "note": "1 direct admin route(s).",
+      "adminRoutes": [
+        {
+          "path": "/admin/staff",
+          "label": "Staff",
+          "permission": "PROVIDER_ADMIN"
+        }
+      ]
+    },
+    {
+      "module": "support",
+      "status": "covered",
+      "replacement": "Ticketing admin",
+      "note": "Provider/staff support requests are administered through the canonical Ticketing module.",
+      "adminRoutes": []
+    },
+    {
+      "module": "ticketing",
+      "status": "direct",
+      "replacement": null,
+      "note": "1 direct admin route(s).",
+      "adminRoutes": [
+        {
+          "path": "/admin/tickets",
+          "label": "Ticketing Inbox",
+          "permission": "PROVIDER_ADMIN"
+        }
+      ]
+    }
+  ]
+}

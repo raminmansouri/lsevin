@@ -1,0 +1,8 @@
+{
+  "builder": "webpack",
+  "exit_code": 1,
+  "compiled_application": true,
+  "conversation_studio_mentions_in_errors": 0,
+  "known_baseline_navigation_contract_failure": true,
+  "status": "repository_baseline_failed"
+}

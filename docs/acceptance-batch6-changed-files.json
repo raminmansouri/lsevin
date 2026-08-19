@@ -1,0 +1,51 @@
+{
+  "counts": {
+    "added": 18,
+    "changed": 19,
+    "removed": 0,
+    "total": 37,
+    "implementationAddedOrChanged": 25
+  },
+  "added": [
+    "docs/acceptance-batch6-batch5-regression-qa.json",
+    "docs/acceptance-batch6-changed-files.json",
+    "docs/acceptance-batch6-core-experience-qa.log",
+    "docs/acceptance-batch6-focused-qa.json",
+    "docs/acceptance-batch6-launch-readiness-qa.json",
+    "docs/acceptance-batch6-migration-static-qa.json",
+    "docs/acceptance-batch6-route-qa.log",
+    "docs/acceptance-batch6-static-qa.json",
+    "docs/acceptance-batch6-typescript-syntax-qa.json",
+    "docs/acceptance-batch6/BATCH6_QA_SUMMARY.json",
+    "docs/acceptance-batch6/BUILD_AND_UAT_LIMITATIONS.md",
+    "docs/acceptance-batch6/STAFF_REVIEWS_MEDIA_ACCEPTANCE_BATCH6.md",
+    "scripts/staff-reviews-media-acceptance-batch6-qa.py",
+    "src/core/migrations/005_staff_shared_provider_media.sql",
+    "src/core/notifications/capability.ts",
+    "src/core/notifications/types.ts",
+    "src/modules/media/pages/StaffMediaPage.tsx",
+    "src/modules/notifications-module/migrations/031_reviews_workflow_templates.sql"
+  ],
+  "changed": [
+    "src/core/api/handlers.ts",
+    "src/core/media/repository.ts",
+    "src/core/media/types.ts",
+    "src/core/ui/MediaPicker.tsx",
+    "src/modules/media/MODULE_MANIFEST.json",
+    "src/modules/media/actions.ts",
+    "src/modules/media/components/MediaManager.tsx",
+    "src/modules/media/module.tsx",
+    "src/modules/media/pages/MediaPage.tsx",
+    "src/modules/media/repository.ts",
+    "src/modules/notifications-module/MODULE_MANIFEST.json",
+    "src/modules/notifications-module/module.tsx",
+    "src/modules/notifications-module/repository.ts",
+    "src/modules/reviews/MODULE_MANIFEST.json",
+    "src/modules/reviews/actions.ts",
+    "src/modules/reviews/module.tsx",
+    "src/modules/reviews/repository.ts",
+    "src/modules/staff/i18n.ts",
+    "src/modules/staff/pages/SelfStaffProfilePage.tsx"
+  ],
+  "removed": []
+}

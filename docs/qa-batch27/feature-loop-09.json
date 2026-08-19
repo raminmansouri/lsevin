@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "errors": [],
+  "module": "customer-case-studio",
+  "filesChecked": 14,
+  "security": {
+    "tokenHashAtRest": true,
+    "headerOnlyTokenTransport": true,
+    "internalNotesHidden": true,
+    "publicSafeTimeline": true,
+    "blockerSupervision": true
+  }
+}

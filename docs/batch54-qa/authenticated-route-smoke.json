@@ -1,0 +1,43 @@
+{
+  "ok": true,
+  "generatedAt": "2026-07-12T20:44:24.859Z",
+  "checks": {
+    "anonymousDashboardRedirect": true,
+    "anonymousApplicationRedirect": true,
+    "authenticatedDashboardRendered": true,
+    "authenticatedApplicationRendered": true,
+    "noAggregateError": true,
+    "noHydrationMismatchText": true
+  },
+  "cases": [
+    {
+      "route": "/dashboard",
+      "authenticated": false,
+      "status": 307,
+      "location": "/?auth=required",
+      "bodyContains": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/webpack-2eb758dea75faf"
+    },
+    {
+      "route": "/applications/new",
+      "authenticated": false,
+      "status": 307,
+      "location": "/?auth=required",
+      "bodyContains": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/webpack-2eb758dea75faf"
+    },
+    {
+      "route": "/dashboard",
+      "authenticated": true,
+      "status": 200,
+      "location": null,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/aa50e7946e04a613.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/applications/new",
+      "authenticated": true,
+      "status": 200,
+      "location": null,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/aa50e7946e04a613.css\" data-precedence=\"next\"/><link re"
+    }
+  ],
+  "serverLogTail": "   ▲ Next.js 15.5.20\n   - Local:        http://localhost:3401\n   - Network:      http://172.26.36.12:3401\n\n ✓ Starting...\n ✓ Ready in 844ms\n"
+}

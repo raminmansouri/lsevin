@@ -1,0 +1,33 @@
+{
+  "code": "media-library",
+  "name": "Media Library",
+  "version": "1.0.0",
+  "type": "extended",
+  "dependsOn": [
+    "core"
+  ],
+  "databaseSchema": "media_library",
+  "folder": "src/modules/media-library",
+  "routes": [
+    "providers/:providerId/media-library",
+    "admin/media-library"
+  ],
+  "permissions": [
+    "manageMedia",
+    "PROVIDER_ADMIN"
+  ],
+  "capabilities": [
+    "media.upload",
+    "media.attach_to_entity",
+    "media.detach_from_entity",
+    "media.reorder",
+    "media.localize_alt_text"
+  ],
+  "i18n": [
+    "fa-IR",
+    "en-US",
+    "ar",
+    "tr-TR"
+  ],
+  "zipSafe": true
+}

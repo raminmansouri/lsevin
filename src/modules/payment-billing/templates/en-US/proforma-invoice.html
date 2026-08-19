@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Proforma Invoice</title></head>
+<body>
+  <header>
+    <img src="{{logoUrl}}" alt="LSevin" style="height:64px" />
+    <h1>Proforma Invoice</h1>
+    <p>Proforma No: {{invoiceNumber}}</p>
+    <p>Issue Date: {{issueDate}}</p>
+  </header>
+  <section>
+    <h2>Seller</h2><p>{{sellerLegalName}}</p>
+    <h2>Buyer</h2><p>{{buyerLegalName}}</p>
+  </section>
+  <table width="100%" border="1" cellspacing="0" cellpadding="6">
+    <thead><tr><th>#</th><th>Description</th><th>Qty</th><th>Unit</th><th>Tax</th><th>Total</th></tr></thead>
+    <tbody>{{lines}}</tbody>
+  </table>
+  <footer><strong>Total Due: {{totalAmount}} {{currencyCode}}</strong></footer>
+</body>
+</html>

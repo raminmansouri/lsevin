@@ -1,0 +1,103 @@
+{
+  "ok": true,
+  "typescriptVersion": "5.8.3",
+  "filesChecked": 19,
+  "diagnosticCount": 0,
+  "results": [
+    {
+      "file": "src/core/notifications/capability.ts",
+      "ok": true,
+      "diagnostics": []
+    },
+    {
+      "file": "src/core/notifications/types.ts",
+      "ok": true,
+      "diagnostics": []
+    },
+    {
+      "file": "src/modules/media/pages/StaffMediaPage.tsx",
+      "ok": true,
+      "diagnostics": []
+    },
+    {
+      "file": "src/core/api/handlers.ts",
+      "ok": true,
+      "diagnostics": []
+    },
+    {
+      "file": "src/core/media/repository.ts",
+      "ok": true,
+      "diagnostics": []
+    },
+    {
+      "file": "src/core/media/types.ts",
+      "ok": true,
+      "diagnostics": []
+    },
+    {
+      "file": "src/core/ui/MediaPicker.tsx",
+      "ok": true,
+      "diagnostics": []
+    },
+    {
+      "file": "src/modules/media/actions.ts",
+      "ok": true,
+      "diagnostics": []
+    },
+    {
+      "file": "src/modules/media/components/MediaManager.tsx",
+      "ok": true,
+      "diagnostics": []
+    },
+    {
+      "file": "src/modules/media/module.tsx",
+      "ok": true,
+      "diagnostics": []
+    },
+    {
+      "file": "src/modules/media/pages/MediaPage.tsx",
+      "ok": true,
+      "diagnostics": []
+    },
+    {
+      "file": "src/modules/media/repository.ts",
+      "ok": true,
+      "diagnostics": []
+    },
+    {
+      "file": "src/modules/notifications-module/module.tsx",
+      "ok": true,
+      "diagnostics": []
+    },
+    {
+      "file": "src/modules/notifications-module/repository.ts",
+      "ok": true,
+      "diagnostics": []
+    },
+    {
+      "file": "src/modules/reviews/actions.ts",
+      "ok": true,
+      "diagnostics": []
+    },
+    {
+      "file": "src/modules/reviews/module.tsx",
+      "ok": true,
+      "diagnostics": []
+    },
+    {
+      "file": "src/modules/reviews/repository.ts",
+      "ok": true,
+      "diagnostics": []
+    },
+    {
+      "file": "src/modules/staff/i18n.ts",
+      "ok": true,
+      "diagnostics": []
+    },
+    {
+      "file": "src/modules/staff/pages/SelfStaffProfilePage.tsx",
+      "ok": true,
+      "diagnostics": []
+    }
+  ]
+}

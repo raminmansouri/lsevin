@@ -1,0 +1,30 @@
+{
+  "profile": "rc16.2-platform-aligned",
+  "description": "Exact platform-aligned Providers Portal runtime: 24 LSevin-backed modules only. Unsupported historical studio modules are removed from source and cannot publish routes, APIs, navigation or migrations.",
+  "enabledModuleIds": [
+    "admin-governance",
+    "provider-availability",
+    "booking-management",
+    "provider-bookings",
+    "provider-dashboard",
+    "provider-finance-legacy",
+    "provider-management-hub",
+    "provider-media",
+    "media-library",
+    "notifications-module",
+    "provider-offers",
+    "provider-onboarding",
+    "payment-billing",
+    "provider-access",
+    "provider-finance-analytics",
+    "provider-portal",
+    "provider-profile",
+    "reporting-analytics",
+    "provider-reviews",
+    "reviews-standalone",
+    "provider-services",
+    "provider-staff",
+    "provider-support",
+    "ticketing"
+  ]
+}

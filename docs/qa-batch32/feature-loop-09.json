@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "errors": [],
+  "module": "class-group-studio",
+  "filesChecked": 14,
+  "security": {
+    "tokenHashAtRest": true,
+    "headerOnlySecretTransport": true,
+    "atomicCapacityGuard": true,
+    "boundedWaitlist": true,
+    "expiringPromotion": true,
+    "guardianSafeguard": true,
+    "internalNotesHidden": true,
+    "moduleBusNotifications": true,
+    "optionalBilling": true
+  }
+}

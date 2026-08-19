@@ -1,0 +1,61 @@
+{
+  "batch": "Staff Reviews & Media Acceptance Batch 5",
+  "date": "2026-07-24",
+  "baseline": "mounted rc12 fallback reconstructed against Staff Operations Batch 4 source evidence",
+  "focused_acceptance": {
+    "passed": 68,
+    "total": 68
+  },
+  "changed_typescript_syntax": {
+    "passed": 36,
+    "total": 36
+  },
+  "static_architecture": {
+    "modules": 60,
+    "ts_tsx_files": 595,
+    "ok": true
+  },
+  "core_experience": {
+    "core_files": 14,
+    "integration_assertions": 24,
+    "ok": true
+  },
+  "route_architecture": {
+    "ok": true
+  },
+  "launch_readiness": {
+    "ok": true,
+    "errors": 0,
+    "warnings": [
+      "DATABASE_URL guard not detected"
+    ],
+    "files_checked": 926
+  },
+  "migrations": {
+    "baseline": 84,
+    "current": 85,
+    "existing_unchanged": 84,
+    "modified_existing": 0,
+    "removed_existing": 0,
+    "added": [
+      "src/modules/reviews/migrations/001_provider_staff_review_workflow.sql"
+    ]
+  },
+  "semantic_build_gate": {
+    "status": "blocked",
+    "reason": "npm ci did not complete before the container execution wrapper terminated it; partial node_modules removed"
+  },
+  "source_parity": {
+    "status": "partial",
+    "latest_source_zip_available": false,
+    "latest_source_evidence_reported_migrations": 88
+  },
+  "clean_extraction_static_verification": {
+    "ok": true,
+    "focused_acceptance": "68/68",
+    "static_architecture": true,
+    "core_experience": true,
+    "routes": true,
+    "launch_readiness_errors": 0
+  }
+}

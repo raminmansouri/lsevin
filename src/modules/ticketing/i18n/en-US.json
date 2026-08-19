@@ -1,0 +1,4 @@
+{
+  "moduleName": "Ticketing",
+  "description": "Standalone LSevin ↔ provider/staff ticketing module with conversations, attachments, internal notes, SLA, assignment, priority, and module/entity references."
+}

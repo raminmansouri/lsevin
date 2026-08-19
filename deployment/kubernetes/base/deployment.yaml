@@ -1,0 +1,135 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: providers-portal
+  namespace: lsevin-providers
+spec:
+  replicas: 1
+  # The bundled file/media PVCs are ReadWriteOnce. Recreate avoids a
+  # multi-node rolling update trying to attach the same RWO volumes twice.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: lsevin-providers-portal
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: lsevin-providers-portal
+        app.kubernetes.io/part-of: lsevin-providers-portal
+    spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+
+      # Kubernetes itself retries a failed init container. psql is the process;
+      # there is no custom wait/migration script.
+      initContainers:
+        - name: migrate
+          image: lsevin-providers-db:latest
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: providers-portal-config
+          env:
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: providers-db-admin
+                  key: PGUSER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: providers-db-admin
+                  key: PGPASSWORD
+
+      containers:
+        - name: web
+          image: lsevin-providers:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: providers-portal-config
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: HOSTNAME
+              value: 0.0.0.0
+            - name: PORT
+              value: "3000"
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: providers-db-runtime
+                  key: PGUSER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: providers-db-runtime
+                  key: PGPASSWORD
+            - name: LSEVIN_SSO_URL
+              valueFrom:
+                secretKeyRef:
+                  name: providers-portal-secrets
+                  key: LSEVIN_SSO_URL
+            - name: PROVIDER_PORTAL_SSO_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: providers-portal-secrets
+                  key: PROVIDER_PORTAL_SSO_SECRET
+            - name: PROVIDER_PORTAL_SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: providers-portal-secrets
+                  key: PROVIDER_PORTAL_SESSION_SECRET
+          volumeMounts:
+            - name: private-files
+              mountPath: /var/lib/lsevin/private-files
+            - name: media-files
+              mountPath: /app/public/uploads
+          startupProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            periodSeconds: 5
+            failureThreshold: 36
+            timeoutSeconds: 4
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            periodSeconds: 20
+            failureThreshold: 3
+            timeoutSeconds: 4
+          readinessProbe:
+            httpGet:
+              path: /api/ready
+              port: http
+            periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+
+      volumes:
+        - name: private-files
+          persistentVolumeClaim:
+            claimName: providers-private-files
+        - name: media-files
+          persistentVolumeClaim:
+            claimName: providers-media-files

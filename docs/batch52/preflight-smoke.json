@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "checks": {
+    "localPassed": true,
+    "productionPassed": true
+  },
+  "local": {
+    "code": 0,
+    "stdout": "[preflight] Database schema contract: OK (8 tables)\n[preflight] Development user: OK\n[preflight] Providers Portal local environment is ready to start.\n",
+    "stderr": ""
+  },
+  "production": {
+    "code": 0,
+    "stdout": "[preflight] Database schema contract: OK (8 tables)\n[preflight] Development user is unset; protected routes will redirect to the LSevin login/public landing page.\n[preflight] Providers Portal production environment is ready to start.\n",
+    "stderr": ""
+  }
+}

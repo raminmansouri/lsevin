@@ -1,0 +1,10 @@
+Next.js 15.5.20
+Build ID: 9cRB7jeuB_O62yu5p8tGO
+Server ready: 1451ms
+GET /api/health: HTTP 200
+HEAD /api/health: HTTP 200
+GET /api/ready without production environment: HTTP 503 (expected)
+Health QA: 10/10
+Static QA: 60 modules / 601 files
+TypeScript: passed
+ESLint: passed

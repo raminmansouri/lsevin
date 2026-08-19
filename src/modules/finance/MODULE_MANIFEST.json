@@ -1,0 +1,15 @@
+{
+  "id": "finance",
+  "kind": "extended-module",
+  "dependsOn": [
+    "core"
+  ],
+  "moduleFolder": "src/modules/finance",
+  "entry": "module.tsx",
+  "installationModel": "copy-one-folder-and-register-in-core-module-registry",
+  "containsRouteSegments": false,
+  "containsScripts": false,
+  "notes": [
+    "Self-contained module folder. Zip/unzip this folder only."
+  ]
+}

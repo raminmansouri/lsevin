@@ -1,0 +1,73 @@
+# Production publication on the existing LSevin Docker host.
+# The database is external/shared and is NOT created or reset by this file.
+name: lsevin-providers
+
+x-web-common: &web-common
+  image: lsevin-providers:${IMAGE_TAG:-latest}
+  pull_policy: never
+  depends_on:
+    migrate:
+      condition: service_completed_successfully
+  env_file:
+    - ${PROVIDERS_RUNTIME_ENV_FILE:-/etc/lsevin/projects/providers.env}
+  environment:
+    NODE_ENV: production
+    HOSTNAME: 0.0.0.0
+    PORT: "3000"
+    IMAGE_TAG: ${IMAGE_TAG:-latest}
+  expose:
+    - "3000"
+  networks:
+    - lsevin-network
+  init: true
+  restart: unless-stopped
+  healthcheck:
+    test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/api/ready"]
+    interval: 10s
+    timeout: 5s
+    retries: 12
+    start_period: 30s
+  stop_grace_period: 30s
+  security_opt:
+    - no-new-privileges:true
+  logging:
+    driver: json-file
+    options:
+      max-size: "20m"
+      max-file: "5"
+
+services:
+  # One-shot database schema publication. It exits after psql succeeds.
+  migrate:
+    image: lsevin-providers-db:${IMAGE_TAG:-latest}
+    pull_policy: never
+    env_file:
+      - ${PROVIDERS_MIGRATION_ENV_FILE:-/etc/lsevin/projects/providers-migration.env}
+    networks:
+      - lsevin-network
+    restart: "no"
+
+  web-1:
+    <<: *web-common
+    container_name: lsevin-providers-1
+    volumes:
+      - providers_private:/var/lib/lsevin/private-files
+      - providers_media:/app/public/uploads
+
+  web-2:
+    <<: *web-common
+    container_name: lsevin-providers-2
+    volumes:
+      - providers_private:/var/lib/lsevin/private-files
+      - providers_media:/app/public/uploads
+
+volumes:
+  providers_private:
+    name: lsevin_providers_private_prod
+  providers_media:
+    name: lsevin_providers_media_prod
+
+networks:
+  lsevin-network:
+    external: true
+    name: lsevin-network

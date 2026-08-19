@@ -1,0 +1,9 @@
+package.json
+scripts/migrate.mjs
+scripts/migration-baseline-rc18.json
+scripts/migration-full-chain-qa.py
+src/core/migrations/000_00_provider_portal_types.sql
+src/core/migrations/000_01_provider_portal_foundation.sql
+docs/migration-hotfix/RC18_MIGRATION_HOTFIX_REPORT.md
+docs/migration-hotfix/JENKINS_RECOVERY_STEPS.md
+docs/migration-hotfix/changed-files.txt

@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "errors": [],
+  "module": "feedback-recovery-studio",
+  "filesChecked": 14,
+  "security": {
+    "tokenHashAtRest": true,
+    "headerOnlySecretTransport": true,
+    "customerPrivateTimeline": true,
+    "anonymousPolicy": true,
+    "automaticRiskTriage": true,
+    "slaSupervision": true,
+    "reviewConsentRequired": true,
+    "resolutionRequiredBeforeReview": true,
+    "noScoreBasedReviewGating": true,
+    "moduleBusNotifications": true,
+    "genericFinancialReferences": true
+  }
+}

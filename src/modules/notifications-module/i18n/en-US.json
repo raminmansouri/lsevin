@@ -1,0 +1,4 @@
+{
+  "moduleName": "Notifications",
+  "description": "Standalone notification template and delivery orchestration module for in-app, email, SMS, push and phone-call notifications with multilingual templates and provider events."
+}

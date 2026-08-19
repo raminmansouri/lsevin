@@ -1,0 +1,34 @@
+Added:
+- scripts/staff-operations-acceptance-qa.py
+- src/modules/availability/components/StaffAvailabilityManager.tsx
+- src/modules/availability/i18n/staffCopy.ts
+- src/modules/availability/pages/StaffAvailabilityPage.tsx
+- src/modules/booking-management/i18n/copy.ts
+- src/modules/booking-management/validation.ts
+- src/modules/staff/i18n/selfLinks.ts
+
+Modified:
+- scripts/availability-multilingual-qa.py
+- src/core/auth/permissions.ts
+- src/modules/availability/MODULE_MANIFEST.json
+- src/modules/availability/actions.ts
+- src/modules/availability/components/AvailabilityManager.tsx
+- src/modules/availability/module.tsx
+- src/modules/availability/pages/AvailabilityPage.tsx
+- src/modules/availability/repository.ts
+- src/modules/availability/types.ts
+- src/modules/availability/validation.ts
+- src/modules/booking-management/MODULE_MANIFEST.json
+- src/modules/booking-management/actions.ts
+- src/modules/booking-management/module.json
+- src/modules/booking-management/module.tsx
+- src/modules/booking-management/pages/ProviderPage.tsx
+- src/modules/booking-management/pages/StaffBookingsPage.tsx
+- src/modules/booking-management/repository.ts
+- src/modules/bookings/module.tsx
+- src/modules/bookings/pages/BookingsPage.tsx
+- src/modules/manage/components/ManagementHub.tsx
+- src/modules/staff/pages/SelfStaffProfilePage.tsx
+
+Removed: none.
+Migrations changed: none.

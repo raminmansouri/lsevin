@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head><meta charset="utf-8"><title>فاکتور رسمی</title></head>
+<body>
+  <header>
+    <img src="{{logoUrl}}" alt="LSevin" style="height:64px" />
+    <h1>فاکتور رسمی فروش کالا و خدمات</h1>
+    <p>شماره صورتحساب: {{invoiceNumber}}</p>
+    <p>شناسه یکتای مالیاتی: {{fiscalTaxUid}}</p>
+  </header>
+  <section>
+    <h2>مشخصات فروشنده</h2>
+    <p>{{sellerLegalName}} - شناسه ملی/کد اقتصادی: {{sellerTaxId}}</p>
+    <h2>مشخصات خریدار</h2>
+    <p>{{buyerLegalName}} - شناسه ملی/کد اقتصادی: {{buyerTaxId}}</p>
+  </section>
+  <table width="100%" border="1" cellspacing="0" cellpadding="6">
+    <thead><tr><th>ردیف</th><th>شرح</th><th>تعداد</th><th>مبلغ واحد</th><th>مالیات</th><th>جمع</th></tr></thead>
+    <tbody>{{lines}}</tbody>
+  </table>
+  <footer>
+    <strong>جمع کل قابل پرداخت: {{totalAmount}} {{currencyCode}}</strong>
+  </footer>
+</body>
+</html>

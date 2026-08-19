@@ -1,0 +1,90 @@
+{
+  "ok": true,
+  "passed": 16,
+  "total": 16,
+  "disabledModuleCount": 13,
+  "placeholderAdminCount": 10,
+  "missingBridgeCount": 3,
+  "checks": [
+    {
+      "name": "release version is rc22 or later",
+      "passed": true,
+      "detail": "1.0.0-rc.26"
+    },
+    {
+      "name": "original safety policy set remains included",
+      "passed": true,
+      "detail": "required=13 actual=36"
+    },
+    {
+      "name": "ten original placeholder-admin modules classified",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "three original no-bridge modules remain safety-disabled",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "all safety modules registered",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "missing rows default disabled",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "explicit persisted state can re-enable",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "state changes use safety default",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "migration discovered",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "migration covers all 13 modules",
+      "passed": true,
+      "detail": "covered=13"
+    },
+    {
+      "name": "migration forces disabled state",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "system release actions support null actor",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "migration preserves module data",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "manager explains safety disablement",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "superadmin can deliberately re-enable",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "batch59 wired into release scripts",
+      "passed": true,
+      "detail": ""
+    }
+  ]
+}

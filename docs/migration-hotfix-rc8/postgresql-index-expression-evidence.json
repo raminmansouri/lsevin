@@ -1,0 +1,16 @@
+{
+  "engine": "PGlite embedded PostgreSQL",
+  "original": {
+    "ok": false,
+    "message": "functions in index expression must be marked IMMUTABLE"
+  },
+  "corrected": {
+    "ok": true,
+    "index": [
+      {
+        "indexname": "ux_field_visits_provider_day_dispatch",
+        "indexdef": "CREATE UNIQUE INDEX ux_field_visits_provider_day_dispatch ON field_dispatch_studio.field_visits USING btree (service_provider_id, (((scheduled_window_start AT TIME ZONE 'UTC'::text))::date), dispatch_number) WHERE (dispatch_number IS NOT NULL)"
+      }
+    ]
+  }
+}

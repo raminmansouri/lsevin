@@ -1,0 +1,64 @@
+LSevin Providers Portal - B80 Persistent PostgreSQL Credential / DB Contract Audit
+Date: 2026-08-17
+
+AUTHORITATIVE TEST TARGET
+- Fresh extraction of user-provided providers-portal-current-source-audit.zip
+- B80 cumulative overlay applied without deleting source files before the reconciliation script
+- database-backup.sql supplied externally at repository root, matching real local deployment behavior
+
+ROOT CAUSE CONFIRMED
+- PostgreSQL server was healthy while TCP/SCRAM authentication for role postgres failed repeatedly.
+- Existing PGDATA may retain the role password set during its original initialization even if POSTGRES_PASSWORD is later changed in Compose.
+- Previous deployment had no credential-reconciliation gate before migrations.
+
+B80 BEHAVIOR
+- No PostgreSQL data-volume deletion/recreation.
+- Docker local/production self-hosted flow adds dbcredential before migrate.
+- dbcredential uses the PostgreSQL Unix socket, rotates the postgres role to configured POSTGRES_PASSWORD, then verifies TCP authentication before migration starts.
+- Migration/runtime clients support either legacy DATABASE_URL or discrete PGHOST/PGPORT/PGDATABASE/PGUSER/PGPASSWORD.
+- Self-hosted Docker/Kubernetes manifests use discrete PG fields to avoid raw URL password interpolation.
+- Runtime web uses providers_portal_app; production web is scrubbed of admin DB password variables.
+- Example env files contain placeholders only; credential-like examples are rejected fail-closed.
+
+FRESH-TREE POSITIVE TESTS
+PASS B80 deletion-aware reconciliation
+PASS exact 24 supported module folders/profile
+PASS exact 16 migrations: 4 Core + 12 module
+PASS relative import integrity: 373 source files / 468 relative imports
+PASS migration plan verification
+PASS local-preinstall deployment contract
+PASS postinstall deployment contract
+PASS production-preinstall deployment contract
+PASS deployment static QA
+PASS example-secret validation: 4 example files
+PASS JavaScript/MJS syntax for changed deployment/DB/runtime scripts
+PASS POSIX sh syntax for database reconciliation/provisioning scripts
+PASS Python validator compilation
+PASS YAML parsing: 22 YAML/YML files
+PASS isolated strict TypeScript check for changed core DB/config files
+PASS Postgres.js discrete-password reserved-character preservation
+PASS legacy DATABASE_URL compatibility
+PASS production web DB least privilege: runtime role only; admin DB secret variables explicitly scrubbed
+PASS functional package registry scan: no internal OpenAI registry URL in install/config artifacts
+PASS no raw PostgreSQL password-variable interpolation in Docker/Kubernetes connection URLs
+
+SECRET / PASSWORD-SAFETY TESTS
+PASS shell credential test with password containing @ : # % / ? & = + and spaces
+PASS password absent from psql argv
+PASS password absent from SQL stdin
+PASS password absent from command stdout
+PASS psql scripts use \getenv for sensitive ALTER ROLE / CREATE-ALTER runtime role values
+
+NEGATIVE REGRESSION TESTS
+PASS example-secret validator rejected a synthetic credential-like secret
+PASS local deployment contract rejected Compose with dbcredential removed
+PASS Kubernetes static QA rejected PostgreSQL StatefulSet with postStart credential reconciliation removed
+
+LIMITATIONS / NOT CLAIMED
+- Docker, kubectl, and helm binaries are not available in this creation environment.
+- Therefore this report does NOT claim an actual Docker container startup, PostgreSQL password rotation against the user's live volume, Kubernetes rollout, or Rancher deployment.
+- The user's next Docker Compose run is the real runtime verification of the in-place credential reconciliation.
+
+EXPECTED RUNTIME CHECKPOINT
+[database] PostgreSQL admin credential reconciled for the existing cluster; TCP authentication verified.
+Then: migrate -> permissions -> web.

@@ -1,0 +1,33 @@
+{
+  "code": "ticketing",
+  "name": "Ticketing",
+  "version": "1.0.0",
+  "type": "extended",
+  "dependsOn": [
+    "core"
+  ],
+  "databaseSchema": "ticketing",
+  "folder": "src/modules/ticketing",
+  "routes": [
+    "providers/:providerId/tickets",
+    "admin/tickets"
+  ],
+  "permissions": [
+    "view",
+    "PROVIDER_ADMIN"
+  ],
+  "capabilities": [
+    "ticketing.create_ticket",
+    "ticketing.reply",
+    "ticketing.assign",
+    "ticketing.close",
+    "ticketing.add_internal_note"
+  ],
+  "i18n": [
+    "fa-IR",
+    "en-US",
+    "ar",
+    "tr-TR"
+  ],
+  "zipSafe": true
+}

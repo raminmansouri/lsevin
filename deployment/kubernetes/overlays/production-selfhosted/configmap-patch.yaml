@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: providers-portal-config
+  namespace: lsevin-providers
+data:
+  PGHOST: "postgres"

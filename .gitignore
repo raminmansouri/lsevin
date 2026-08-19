@@ -1,52 +1,15 @@
-# Node
-**/node_modules/
+node_modules/
+.next/
+out/
+coverage/
 
-# IDEs
-**/.vs/
-**/.idea/
+.env
+.env.*
+!.env.example
 
-**/.next/
+database-backup.sql
+*.dump
+*.backup
 
-# .NET build outputs
-**/bin/
-**/obj/
-
-**/UploadFiles/*
-
-
-**/bin/*
-**/obj/*
-
-build/*
-
-
-
-**/bin/**
-**/obj/**
-
-
-
-**/node_modules
-**/.vs
-**/.idea
-**/bin
-**/obj
-**/.git
-
-
-#Ignore vscode AI rules
-.github\instructions\codacy.instructions.md
-
-frontend/webapp/public/unsplash_images/*.jpg
-
-dynamic-admin-dashboard-scaffold
-dynamic-admin-dashboard-scaffold/*
-
-*.zip
-
-**/.zip
-**/*.sql
-
-**/*.md
-**/*.txt
-
+.DS_Store
+Thumbs.db

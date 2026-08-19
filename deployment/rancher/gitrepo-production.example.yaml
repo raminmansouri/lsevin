@@ -1,0 +1,15 @@
+apiVersion: fleet.cattle.io/v1alpha1
+kind: GitRepo
+metadata:
+  namespace: fleet-default
+  name: lsevin-providers-production
+spec:
+  repo: https://github.com/YOUR_ORG/YOUR_REPO.git
+  branch: main
+  paths:
+    - deployment/kubernetes/overlays/production
+  targets:
+    - name: production
+      clusterSelector:
+        matchLabels:
+          environment: production

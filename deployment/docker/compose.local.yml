@@ -1,0 +1,112 @@
+# Production-like local publish.
+# Usage:
+#   docker compose -f deployment/docker/compose.local.yml up -d --build
+name: lsevin-providers-local
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lsevin-local-postgres}
+      POSTGRES_DB: lsevin
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      # Preserve earlier local DB volumes; use a clean lineage for this publisher.
+      - providers_local_postgres_native_v2:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "postgres", "-d", "lsevin"]
+      interval: 5s
+      timeout: 5s
+      retries: 120
+      start_period: 20s
+    restart: unless-stopped
+
+  migrate:
+    build:
+      context: ../..
+      dockerfile: deployment/database/Dockerfile
+    image: lsevin-providers-db:local
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGDATABASE: lsevin
+      PGUSER: postgres
+      PGPASSWORD: ${POSTGRES_PASSWORD:-lsevin-local-postgres}
+    command: ["-v", "ON_ERROR_STOP=1", "-v", "allow_bootstrap=true", "-f", "/migrations/migrate.sql"]
+    volumes:
+      # Fail immediately when the bootstrap SQL is missing; never let Docker
+      # create a directory named database-backup.sql.
+      - type: bind
+        source: ../../database-backup.sql
+        target: /bootstrap/database-backup.sql
+        read_only: true
+        bind:
+          create_host_path: false
+    restart: "no"
+
+  web:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+      target: production
+      args:
+        NEXT_PUBLIC_APP_URL: http://localhost:${APP_PORT:-3000}
+        NEXT_PUBLIC_DEFAULT_LOCALE: fa-IR
+        NEXT_PUBLIC_DEFAULT_TIMEZONE: Asia/Tehran
+        NEXT_PUBLIC_LOCALE_COOKIE_DOMAIN: ""
+    image: lsevin-providers:local
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    init: true
+    env_file:
+      - ../../.env.local
+    environment:
+      NODE_ENV: production
+      PROVIDER_PORTAL_DB_MODE: split
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGDATABASE: lsevin
+      PGUSER: postgres
+      PGPASSWORD: ${POSTGRES_PASSWORD:-lsevin-local-postgres}
+      POSTGRES_POOL_MAX: "5"
+      POSTGRES_CONNECT_TIMEOUT: "10"
+      NEXT_PUBLIC_APP_NAME: LSevin Providers Portal
+      NEXT_PUBLIC_APP_URL: http://localhost:${APP_PORT:-3000}
+      NEXT_PUBLIC_DEFAULT_LOCALE: fa-IR
+      NEXT_PUBLIC_DEFAULT_DIRECTION: rtl
+      NEXT_PUBLIC_DEFAULT_TIMEZONE: Asia/Tehran
+      PROVIDER_PORTAL_LOCAL_AUTH: "false"
+      LSEVIN_USER_ID_COOKIE: lsevin_user_id
+      LSEVIN_USER_ID_HEADER: x-lsevin-user-id
+      ALLOW_TRUSTED_USER_HEADER: "false"
+      TRUSTED_PROXY_ENFORCED: "false"
+      PRIVATE_FILE_STORAGE_ROOT: /var/lib/lsevin/private-files
+      PROVIDER_MEDIA_STORAGE_ROOT: /app/public
+      PROVIDER_MEDIA_PUBLIC_BASE_URL: ""
+      ALLOW_LEGACY_MEDIA_URLS: "false"
+      PAYMENT_GATEWAYS_ENABLED: none
+    ports:
+      - "127.0.0.1:${APP_PORT:-3000}:3000"
+    volumes:
+      - providers_local_private:/var/lib/lsevin/private-files
+      - providers_local_media:/app/public/uploads
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/api/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  providers_local_postgres_native_v2:
+  providers_local_private:
+  providers_local_media:

@@ -1,0 +1,75 @@
+B81 FULL RELEASE INTEGRITY AUDIT QA
+Date: 2026-08-17
+Target: lsevin-providers-portal / package 1.0.0-rc.16 / profile rc16.2-platform-aligned
+Basis: fresh extraction of the user-uploaded providers-portal-current-source-audit.zip, B81 overlay, database-backup.sql restored only as local runtime input.
+
+POSITIVE PACKAGE APPLICATION TEST
+- B81 ZIP extracted over exact uploaded source snapshot: PASS
+- APPLY_B81_RELEASE_INTEGRITY_AUDIT.mjs: PASS
+- Existing database content is not deleted by reconciler: PASS (static behavior)
+- Superseded B78/B79/B80 executable reconcilers removed: PASS
+
+RELEASE PROFILE
+- Supported module folders: 24 PASS
+- Enabled module IDs: 24 PASS
+- Profile: rc16.2-platform-aligned PASS
+- Unsupported historical studio modules in source boundary: 0 PASS
+
+IMMUTABLE MIGRATION LINEAGE
+- Active executable migrations: 31 PASS
+  - Core: 7
+  - Module: 24
+- Known historical identities: 104 PASS
+- Retired historical identities: 73 PASS
+- Nine previously rewritten published migration files restored to original checksums: PASS
+- src/core/migrations/002_provider_portal_management.sql restored checksum begins c81fc6d73de2: PASS
+- 15 separately published later migration identities restored instead of consolidated backward: PASS
+- node scripts/migrate.mjs --verify: PASS
+
+SOURCE / EXPERIENCE / ADMIN RELEASE QA
+- python scripts/static-qa.py: PASS (24 modules, 31 migrations, 373 files)
+- python scripts/release-boundary-qa.py: PASS (24 modules, 31 migrations, 7 Core, 24 module)
+- python scripts/admin-surface-audit.py --check: PASS
+  - direct 18 / covered 5 / not_required 1 / backlog 0 / unclassified 0
+- python scripts/admin-catalog-qa.py: PASS
+- python scripts/admin-governance-qa.py: PASS (22 checks)
+- python scripts/onboarding-approval-qa.py: PASS
+- python scripts/core-experience-qa.py: PASS (14 core files, 44 integration assertions)
+- experience-surface-audit: 24 main-use-case-complete; reference_select/localized_field/media_picker/locale_hardcode gaps all 0 PASS
+- node deployment/scripts/validate-release-hygiene.mjs .: PASS
+
+DEPLOYMENT CONTRACT
+- local preinstall contract: PASS
+- postinstall contract: PASS
+- production preinstall contract: PASS
+- deployment static QA: PASS
+- relative import audit: PASS (373 source files, 468 relative imports)
+- example secret placeholder audit: PASS (4 files)
+- local migrationaudit is required before migrate: PASS
+- production migrationaudit is required before migrate: PASS
+- Kubernetes audit-migration-lineage init stage is required before migrate: PASS
+
+TYPESCRIPT STATIC PARSE
+- TypeScript parser version used for syntax-only audit: 5.8.3
+- TS/TSX files parsed: 373
+- Syntax failures: 0 PASS
+
+ADVERSARIAL / FAIL-CLOSED TESTS
+- Mutate published migration 002 -> migrate --verify exits nonzero and reports published migration content changed: PASS
+- Add unregistered SQL migration -> migrate --verify exits nonzero: PASS
+- Remove local migrationaudit service -> deployment contract exits nonzero: PASS
+- Reintroduce Offers description_fa release regression -> release-hygiene exits nonzero: PASS
+
+STALE RELEASE-CONTRACT REMEDIATION
+- obsolete 16-migration release assumption removed from active release QA: PASS
+- obsolete 17-module admin/release assumption removed from active release QA: PASS
+- removed pricing-plans requirement removed from active core experience QA: PASS
+- old 17-enabled/43-disabled experience profile replaced with current 24-module profile: PASS
+
+REAL RUNTIME EVIDENCE ALREADY PROVIDED BY USER BEFORE B81
+- B80 sourcecheck pnpm typecheck: PASS
+- B80 sourcecheck pnpm lint: PASS
+- PostgreSQL reached migration execution after credential reconciliation path: PASS
+
+NOT CLAIMED YET
+B81 changes several TS/TSX files for current experience/localization repair, so dependency-backed pnpm typecheck, ESLint, Next production build, live PostgreSQL migration application, web health, and staging/Jenkins promotion are NOT claimed by this static package QA. The next Docker run is the authoritative runtime proof for those stages.

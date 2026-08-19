@@ -1,0 +1,20 @@
+{
+  "id": "admin-governance",
+  "kind": "extended-module",
+  "dependsOn": [
+    "core"
+  ],
+  "moduleFolder": "src/modules/admin-governance",
+  "entry": "module.tsx",
+  "installationModel": "copy-one-folder-and-register-in-core-module-registry",
+  "containsRouteSegments": false,
+  "containsScripts": false,
+  "notes": [
+    "Self-contained administration governance module.",
+    "SUPERADMIN role changes include mandatory reasons, self-removal protection and last-superadmin protection.",
+    "The unified audit page is read-only and combines Core/module audit sources without importing sibling modules."
+  ],
+  "migrations": [
+    "migrations/001_admin_governance.sql"
+  ]
+}

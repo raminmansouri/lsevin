@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "errors": [],
+  "module": "field-dispatch-studio",
+  "filesChecked": 14,
+  "security": {
+    "tokenHashAtRest": true,
+    "contactHashAtRest": true,
+    "headerOnlySecretTransport": true,
+    "customerPrivateTimeline": true,
+    "blockingTaskGate": true,
+    "atomicDispatchNumber": true,
+    "verifiedProofGate": true,
+    "genericExternalReferences": true,
+    "moduleBusNotifications": true
+  }
+}

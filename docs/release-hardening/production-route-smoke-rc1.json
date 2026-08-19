@@ -1,0 +1,23 @@
+{
+  "/": {
+    "status": 200,
+    "location": "",
+    "h1": "Turn a LSevin user into a trusted provider workspace."
+  },
+  "/dashboard": {
+    "status": 307,
+    "location": "/?auth=required",
+    "h1": ""
+  },
+  "/applications/new": {
+    "status": 307,
+    "location": "/?auth=required",
+    "h1": ""
+  },
+  "/does-not-exist": {
+    "status": 404,
+    "location": "",
+    "h1": ""
+  },
+  "auth_redirect_notice": true
+}

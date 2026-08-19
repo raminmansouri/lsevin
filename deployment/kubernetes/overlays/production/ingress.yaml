@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: providers-portal
+  namespace: lsevin-providers
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - providers.lsevin.com
+      secretName: providers-lsevin-com-tls
+  rules:
+    - host: providers.lsevin.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: providers-portal
+                port:
+                  name: http

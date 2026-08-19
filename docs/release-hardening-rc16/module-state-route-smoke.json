@@ -1,0 +1,47 @@
+{
+  "ok": true,
+  "generatedAt": "2026-07-13T06:26:20.183Z",
+  "checks": {
+    "managerRendered": true,
+    "disabledModuleNotInNavigation": true,
+    "disabledAdminPageBlocked": true,
+    "disabledPublicPageBlocked": true,
+    "disabledPublicApiBlocked": true,
+    "protectedModuleAvailable": true,
+    "noAggregateError": true,
+    "noHydrationMismatch": true
+  },
+  "cases": {
+    "manager": {
+      "route": "/admin/modules",
+      "status": 200,
+      "location": null,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/6b2ada294fb38e8e.css\" data-precedence=\"next\"/><link rel=\"preload\" as=\"scri"
+    },
+    "disabledAdminPage": {
+      "route": "/admin/business-growth",
+      "status": 404,
+      "location": null,
+      "bodyContains": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/webpack-2eb758dea75faf50.js\"/><script src="
+    },
+    "disabledPublicPage": {
+      "route": "/providers/44444444-4444-4444-8444-444444444444/updates",
+      "status": 404,
+      "location": null,
+      "bodyContains": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/webpack-2eb758dea75faf50.js\"/><script src="
+    },
+    "disabledPublicApi": {
+      "route": "/api/public/providers/44444444-4444-4444-8444-444444444444/growth",
+      "status": 404,
+      "location": null,
+      "bodyContains": "{\"error\":\"API route not found\"}"
+    },
+    "protectedManagerOwner": {
+      "route": "/admin/governance",
+      "status": 200,
+      "location": null,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/6b2ada294fb38e8e.css\" data-precedence=\"next\"/><link rel=\"preload\" as=\"scri"
+    }
+  },
+  "serverLogTail": "   ▲ Next.js 15.5.20\n   - Local:        http://localhost:3408\n   - Network:      http://172.26.36.39:3408\n\n ✓ Starting...\n ✓ Ready in 940ms\n"
+}

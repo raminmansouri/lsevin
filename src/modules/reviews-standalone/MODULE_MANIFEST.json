@@ -1,0 +1,36 @@
+{
+  "code": "reviews-standalone",
+  "name": "Reviews",
+  "version": "1.0.0",
+  "type": "extended",
+  "dependsOn": [
+    "core"
+  ],
+  "databaseSchema": "reviews",
+  "folder": "src/modules/reviews-standalone",
+  "routes": [
+    "providers/:providerId/reputation",
+    "admin/reviews"
+  ],
+  "permissions": [
+    "view",
+    "PROVIDER_ADMIN"
+  ],
+  "capabilities": [
+    "reviews.read",
+    "reviews.reply",
+    "reviews.moderate",
+    "reviews.vote",
+    "reviews.attach_image"
+  ],
+  "i18n": [
+    "fa-IR",
+    "en-US",
+    "ar",
+    "tr-TR"
+  ],
+  "zipSafe": true,
+  "migrations": [
+    "migrations/001_reviews_standalone.sql"
+  ]
+}

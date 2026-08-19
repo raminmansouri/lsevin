@@ -1,0 +1,20 @@
+{
+  "id": "dashboard",
+  "kind": "extended-module",
+  "dependsOn": [
+    "core"
+  ],
+  "moduleFolder": "src/modules/dashboard",
+  "entry": "module.tsx",
+  "installationModel": "copy-one-folder-and-register-in-core-module-registry",
+  "containsRouteSegments": false,
+  "containsScripts": false,
+  "notes": [
+    "Self-contained module folder. Zip/unzip this folder only.",
+    "Batch 18 localizes user, provider and admin dashboards across all eight portal locales and resolves provider-facing translations by the active locale.",
+    "Batch 60 adds a read-only market activation cockpit using only existing provider profile, services, availability, media, offers, bookings and review contracts; no new schema or sibling-module dependency."
+  ],
+  "releaseVersion": "2.3.0",
+  "auditClassification": "P0/P1 market activation cockpit over platform-backed provider operations",
+  "marketFocus": "time-to-first-booking"
+}

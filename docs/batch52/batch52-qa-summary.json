@@ -1,0 +1,53 @@
+{
+  "release": "1.0.0-rc.15",
+  "batch": 52,
+  "classification": "corrective completion release",
+  "implementation": {
+    "modules": 60,
+    "converted_form_modules": 50,
+    "reviewed_no_direct_form_gap_modules": 10,
+    "management_pages_audited": 91,
+    "localized_content_fields": 278,
+    "specialized_localized_fields": 55,
+    "localized_ui_usages": 2403,
+    "unique_fixed_ui_literals": 1722,
+    "locale_selects": 59,
+    "remaining_experience_gaps": 0,
+    "native_select_files": 0,
+    "binary_persian_english_branches": 0
+  },
+  "translationCoveragePercent": {
+    "fa-IR": 100,
+    "ar": 100,
+    "tr-TR": 100,
+    "es-ES": 100,
+    "ku": 100,
+    "de-DE": 100,
+    "fr-FR": 100
+  },
+  "database": {
+    "verified_migrations": 84,
+    "new_migrations_in_batch": 0
+  },
+  "quality": {
+    "typecheck": "passed",
+    "eslint": "passed",
+    "staticQa": "passed",
+    "completionQa": "passed",
+    "translationCoverageQa": "passed",
+    "adminQa": "passed",
+    "onboardingQa": "passed",
+    "productionBuild": "passed",
+    "runtimeFixtures": "passed",
+    "highSeverityVulnerabilities": 0
+  },
+  "tracker": {
+    "ep54": "Done",
+    "ep56": "Done",
+    "st251_st285": "Done",
+    "st292_st295": "Done",
+    "st240": "In Progress",
+    "lg58": "In Progress",
+    "implementationBacklog": 0
+  }
+}

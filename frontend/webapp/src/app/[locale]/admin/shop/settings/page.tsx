@@ -1,3 +1,0 @@
-export default function AdminShopSettingsPage() {
-  return <div className="min-h-screen bg-gray-50 px-6 py-6"><h1 className="mb-6 text-2xl font-bold text-gray-900">Shop settings</h1><div className="grid gap-6 lg:grid-cols-2">{["Tax","Shipping","Payments","Catalog","Checkout","Notifications"].map((section) => <section key={section} className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm"><h2 className="text-lg font-bold text-gray-900">{section}</h2><p className="mt-2 text-sm text-gray-600">Configure {section.toLowerCase()} rules and provider integrations using the `shop` tables and your environment configuration.</p></section>)}</div></div>;
-}

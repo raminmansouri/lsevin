@@ -1,0 +1,97 @@
+{
+  "ok": true,
+  "passed": 18,
+  "total": 18,
+  "checks": [
+    {
+      "name": "release version is rc26",
+      "passed": true,
+      "detail": "1.0.0-rc.26"
+    },
+    {
+      "name": "onboarding module upgraded to 2.5.0",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "onboarding manifest declares all eight locales",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "all onboarding locale metadata files exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "landing dictionary contains all eight locale objects",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "provider landing uses active locale dictionary",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "staff landing uses active locale dictionary",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "public landing pages no longer depend on generic UiText",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "public locale switcher is visible before authentication",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "landing navigation exposes provider staff and portal paths",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "rtl-aware action arrows are used",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "provider landing contains complete operational sections",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "staff landing contains complete verification sections",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "localized metadata uses active locale",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "enabled-module audit covers all 24 modules",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "runtime landing smoke is registered",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "batch62 is wired into release pipelines",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "no hard-coded English landing arrays remain in page files",
+      "passed": true,
+      "detail": ""
+    }
+  ]
+}

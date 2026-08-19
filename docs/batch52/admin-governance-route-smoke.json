@@ -1,0 +1,44 @@
+{
+  "ok": true,
+  "generatedAt": "2026-07-12T16:39:59.843Z",
+  "checks": {
+    "allGovernancePagesRendered": true,
+    "noAggregateError": true,
+    "noHydrationMismatchText": true
+  },
+  "cases": [
+    {
+      "route": "/admin/governance",
+      "status": 200,
+      "location": null,
+      "marker": "Administration governance",
+      "passed": true,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/620b33446fff3c9d.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/admin/governance/users",
+      "status": 200,
+      "location": null,
+      "marker": "Administrative users",
+      "passed": true,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/620b33446fff3c9d.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/admin/governance/users/11111111-1111-4111-8111-111111111111",
+      "status": 200,
+      "location": null,
+      "marker": "Manage Release Fixture User",
+      "passed": true,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/620b33446fff3c9d.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/admin/audit",
+      "status": 200,
+      "location": null,
+      "marker": "Administration audit center",
+      "passed": true,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/620b33446fff3c9d.css\" data-precedence=\"next\"/><link re"
+    }
+  ],
+  "serverLogTail": "   ▲ Next.js 15.5.20\n   - Local:        http://localhost:3406\n   - Network:      http://172.26.36.13:3406\n\n ✓ Starting...\n ✓ Ready in 1533ms\n"
+}

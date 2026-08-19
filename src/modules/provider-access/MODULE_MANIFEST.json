@@ -1,0 +1,18 @@
+{
+  "id": "provider-access",
+  "kind": "extended-module",
+  "dependsOn": [
+    "core"
+  ],
+  "moduleFolder": "src/modules/provider-access",
+  "entry": "module.tsx",
+  "installationModel": "copy-one-folder-and-register-in-core-module-registry",
+  "containsRouteSegments": false,
+  "containsScripts": false,
+  "notes": [
+    "Self-contained module folder. Zip/unzip this folder only."
+  ],
+  "migrations": [
+    "migrations/001_provider_membership_lifecycle.sql"
+  ]
+}

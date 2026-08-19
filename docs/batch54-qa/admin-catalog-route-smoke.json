@@ -1,0 +1,61 @@
+{
+  "ok": true,
+  "generatedAt": "2026-07-12T20:44:29.054Z",
+  "checks": {
+    "allAdminPagesRendered": true,
+    "noAggregateError": true,
+    "noHydrationMismatchText": true,
+    "adminRoleRecognized": true
+  },
+  "cases": [
+    {
+      "route": "/admin",
+      "status": 200,
+      "location": null,
+      "marker": "LSevin administration control center",
+      "passed": true,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/aa50e7946e04a613.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/admin/providers",
+      "status": 200,
+      "location": null,
+      "marker": "Provider catalog administration",
+      "passed": true,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/aa50e7946e04a613.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/admin/services",
+      "status": 200,
+      "location": null,
+      "marker": "Provider service catalog",
+      "passed": true,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/aa50e7946e04a613.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/admin/staff",
+      "status": 200,
+      "location": null,
+      "marker": "Staff catalog administration",
+      "passed": true,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/aa50e7946e04a613.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/admin/availability",
+      "status": 200,
+      "location": null,
+      "marker": "Availability administration",
+      "passed": true,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/aa50e7946e04a613.css\" data-precedence=\"next\"/><link re"
+    },
+    {
+      "route": "/admin/offers",
+      "status": 200,
+      "location": null,
+      "marker": "Offer administration",
+      "passed": true,
+      "bodyContains": "<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/aa50e7946e04a613.css\" data-precedence=\"next\"/><link re"
+    }
+  ],
+  "serverLogTail": "   ▲ Next.js 15.5.20\n   - Local:        http://localhost:3405\n   - Network:      http://172.26.36.12:3405\n\n ✓ Starting...\n ✓ Ready in 833ms\n"
+}

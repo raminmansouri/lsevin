@@ -1,0 +1,51 @@
+{
+  "release": "v1.0.0-rc.17",
+  "batch": 54,
+  "generatedAt": "2026-07-12T20:45:00Z",
+  "status": "code-and-fixture-launch-ready-real-environment-signoff-pending",
+  "counts": {
+    "modules": 60,
+    "files": 602,
+    "migrations": 85,
+    "mainModulesAudited": 9,
+    "batch54Assertions": 79,
+    "fixedUiLiterals": 1696,
+    "configuredLocales": 8,
+    "vulnerabilities": 0,
+    "staticPages": 3
+  },
+  "gates": {
+    "npmAudit": "pass",
+    "routes": "pass",
+    "migrationVerify": "pass",
+    "typecheck": "pass",
+    "eslint": "pass",
+    "staticQA": "pass",
+    "adminAudit": "pass",
+    "adminCatalogQA": "pass",
+    "adminGovernanceQA": "pass",
+    "onboardingApprovalQA": "pass",
+    "coreExperienceQA": "pass",
+    "batch51QA": "pass",
+    "batch52QA": "pass",
+    "batch53QA": "pass",
+    "batch54QA": "pass",
+    "translationCoverage": "pass",
+    "productionBuild": "pass",
+    "preflightFixture": "pass",
+    "authenticatedRoutes": "pass",
+    "adminCatalogRoutes": "pass",
+    "adminGovernanceRoutes": "pass",
+    "adminGovernanceDenial": "pass",
+    "onboardingApprovalPage": "pass",
+    "moduleStateRoutes": "pass"
+  },
+  "build": {
+    "nextVersion": "15.5.20",
+    "compileSeconds": 15.1,
+    "staticPages": "3/3",
+    "buildId": "iDLTV0ueEUKC5OhKv8uCa",
+    "tracing": "complete"
+  },
+  "remainingBlockingGate": "LG60 real-environment launch sign-off"
+}

@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "dumpPath": "/mnt/data/database-backup.sql",
+  "sizeBytes": 38976689,
+  "requiredTablesChecked": 8,
+  "missingTables": [],
+  "missingColumns": [],
+  "requiredFunctionsChecked": 1,
+  "missingFunctions": [],
+  "dataEvidence": {
+    "activeUsers": 21,
+    "activeProviderTypes": 10,
+    "onboardingApplications": 1
+  }
+}

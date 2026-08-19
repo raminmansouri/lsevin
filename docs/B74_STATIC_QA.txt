@@ -1,0 +1,16 @@
+B74 deployment stabilization static QA
+
+PASS - compose.local.yml parses as YAML
+PASS - compose.production.yml parses as YAML
+PASS - Kubernetes YAML included in cumulative overlay parses as YAML
+PASS - local web command is exactly: corepack pnpm@9.15.9 run dev
+PASS - local web restart policy is "no"
+PASS - production web restart policy remains unless-stopped
+PASS - bad `pnpm run dev -- -H ...` forwarding absent from deployment files
+PASS - bad `next dev -- -H ...` forwarding absent from deployment files
+PASS - deployment JS files pass node --check
+PASS - runtime-role shell helper passes POSIX sh syntax
+PASS - B72 PostgreSQL/Kubernetes corrections carried forward
+PASS - npm/OpenAI-registry/OS-package-install protections from B73 retained
+
+Runtime Docker/Kubernetes execution was not available in this environment; this report is static/config validation only.
