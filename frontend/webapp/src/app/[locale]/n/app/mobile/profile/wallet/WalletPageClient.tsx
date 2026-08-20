@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState, useTransition, type ChangeEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState, useTransition, type ChangeEvent } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   Plus,
@@ -20,6 +21,7 @@ import {
   Tag,
   AlertCircle,
   Loader2,
+  X,
 } from "lucide-react";
 
 import { useNavigate } from "@/hooks/use-navigate";
@@ -34,6 +36,20 @@ import type {
 interface WalletPageClientProps {
   initialData: WalletPageData;
 }
+
+/** The three outcomes verifyWalletTopUpPayment can report. */
+type TopUpStatus = "succeeded" | "cancelled" | "failed";
+
+type TopUpResult = {
+  status: TopUpStatus;
+  message: string | null;
+  referenceId: string | null;
+};
+
+const TOP_UP_STATUSES: TopUpStatus[] = ["succeeded", "cancelled", "failed"];
+
+const isTopUpStatus = (value: string | null): value is TopUpStatus =>
+  !!value && TOP_UP_STATUSES.includes(value as TopUpStatus);
 
 function getQuickAmounts(currency: string) {
   if (currency === "IRR") return [1000000, 2500000, 5000000, 10000000] as const;
@@ -129,8 +145,18 @@ export default function WalletPageClient({
 }: WalletPageClientProps) {
   const navigate = useNavigate();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const locale = useLocale();
   const t = useTranslations("MobileProfile.wallet");
+
+  // A gateway returns the customer to this page after a top-up, and the outcome
+  // exists only in the query string the callback route appends. Nothing read it,
+  // so someone who had just paid landed on their wallet with no confirmation at
+  // all — and, because the balance was rendered before the payment settled, often
+  // on a stale number too. Read it once, tell them, refresh the balance, then
+  // strip the params so a reload cannot resurrect an old verdict.
+  const [topUpResult, setTopUpResult] = useState<TopUpResult | null>(null);
 
   const [showBalance, setShowBalance] = useState(true);
   const [selectedCurrency, setSelectedCurrency] = useState(
@@ -155,6 +181,35 @@ export default function WalletPageClient({
   const [cryptoReceiptPreview, setCryptoReceiptPreview] = useState<string | null>(null);
   const [cryptoReceiptError, setCryptoReceiptError] = useState<string | null>(null);
   const [cryptoSubmitted, setCryptoSubmitted] = useState(false);
+
+  useEffect(() => {
+    // `payment` is what the booking flow already uses and what the callback keeps
+    // for compatibility; `walletPaymentStatus` is the wallet-specific name.
+    const raw =
+      searchParams.get("payment") ?? searchParams.get("walletPaymentStatus");
+    if (!raw) return;
+
+    const status: TopUpStatus = isTopUpStatus(raw) ? raw : "failed";
+    const message = searchParams.get("message");
+
+    setTopUpResult({
+      status,
+      message,
+      referenceId: searchParams.get("referenceId"),
+    });
+
+    if (status === "succeeded") {
+      toast.success(t("topUpResult.succeededToast"));
+      // The server component rendered the balance before the gateway settled.
+      router.refresh();
+    } else if (status === "cancelled") {
+      toast.info(t("topUpResult.cancelledToast"));
+    } else {
+      toast.error(message || t("topUpResult.failedToast"));
+    }
+
+    router.replace(pathname, { scroll: false });
+  }, [searchParams, pathname, router, t]);
 
   const balances = initialData.balances;
   const transactions = useMemo(() => {
@@ -290,6 +345,61 @@ export default function WalletPageClient({
           </button>
         </div>
       </div>
+
+      {topUpResult ? (
+        <div className="px-5 pt-5">
+          <div
+            role="status"
+            aria-live="polite"
+            className={`flex items-start gap-3 rounded-2xl border p-4 ${
+              topUpResult.status === "succeeded"
+                ? "border-emerald-200 bg-emerald-50"
+                : topUpResult.status === "cancelled"
+                  ? "border-amber-200 bg-amber-50"
+                  : "border-red-200 bg-red-50"
+            }`}
+          >
+            {topUpResult.status === "succeeded" ? (
+              <CheckCircle2 size={20} className="mt-0.5 shrink-0 text-emerald-600" />
+            ) : topUpResult.status === "cancelled" ? (
+              <AlertCircle size={20} className="mt-0.5 shrink-0 text-amber-600" />
+            ) : (
+              <XCircle size={20} className="mt-0.5 shrink-0 text-red-600" />
+            )}
+
+            <div className="min-w-0 flex-1">
+              <p
+                className={`text-sm font-semibold ${
+                  topUpResult.status === "succeeded"
+                    ? "text-emerald-900"
+                    : topUpResult.status === "cancelled"
+                      ? "text-amber-900"
+                      : "text-red-900"
+                }`}
+              >
+                {t(`topUpResult.${topUpResult.status}Title`)}
+              </p>
+              <p className="mt-1 text-sm text-gray-700">
+                {topUpResult.message || t(`topUpResult.${topUpResult.status}Body`)}
+              </p>
+              {topUpResult.referenceId ? (
+                <p className="mt-2 text-xs text-gray-500">
+                  {t("topUpResult.reference", { reference: topUpResult.referenceId })}
+                </p>
+              ) : null}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setTopUpResult(null)}
+              aria-label={t("topUpResult.dismiss")}
+              className="shrink-0 rounded-full p-1 text-gray-500 transition-colors hover:bg-black/5"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       <div className="px-5 py-6">
         <div className="bg-gradient-to-br from-[#083f30] to-[#0a5a44] rounded-3xl p-6 shadow-xl">

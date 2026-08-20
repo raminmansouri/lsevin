@@ -1,6 +1,7 @@
 import 'server-only';
 
 import sql from '@/config/database/db';
+import { categoryProviderCountsCte } from '@/features/categories/db/category-tree';
 
 export type HomeQueryInput = {
   locale: string;
@@ -17,7 +18,10 @@ export type HomeCategory = {
   label: string;
   imageUrl: string | null;
   gradient: string | null;
-  serviceCount: number;
+  /** Active providers filed under this category or anything beneath it. */
+  providerCount: number;
+  /** Active subcategories. Zero means the card opens providers, not another level. */
+  childCount: number;
 };
 
 export type HomeFeaturedService = {
@@ -173,31 +177,39 @@ export async function getHomeCategories(input: HomeQueryInput, limit = 6): Promi
     label: string;
     imageUrl: string | null;
     gradient: string | null;
-    serviceCount: string | number;
+    providerCount: string | number;
+    childCount: string | number;
   }[]>`
+    -- The top of the category tree, which is the same tree /n/app/mobile/categories
+    -- browses. That is the point: a card here is a node there, so tapping Clinic
+    -- descends into its subcategories exactly as it would from the browser, and a
+    -- subcategory added in the admin panel shows up on both without further work.
+    --
+    -- These cards used to come from category.provider_types, which is flat, so a tap
+    -- could only ever jump straight to a provider list — there was no level to
+    -- descend into. The reason for that detour was that category membership was
+    -- derived from the services a provider sells, which cross-listed clinics as
+    -- hospitals; service_providers.category_id (migration 0020) fixes the membership
+    -- itself, so the tree can be used directly again.
+    with recursive ${categoryProviderCountsCte()}
     select
       c.id::text as id,
       common.get_translation_t(c.name_translations, ${locale}::text, 'en-US') as label,
-      nullif(coalesce(cm.file_url, c.image_url, c.icon_url, ''), '') as "imageUrl",
-      nullif(c.gradient, '') as gradient,
-      coalesce(sc.service_count, 0) as "serviceCount"
+      -- icon_url may hold a lucide icon NAME rather than a path, so only image_url
+      -- is safe to use as an image source.
+      nullif(btrim(coalesce(c.image_url, '')), '') as "imageUrl",
+      nullif(btrim(coalesce(c.gradient, '')), '') as gradient,
+      coalesce(pc.provider_count, 0) as "providerCount",
+      coalesce(cc.child_count, 0) as "childCount"
     from category.categories c
-    -- Count active service definitions in a lateral subquery instead of a
-    -- LEFT JOIN + GROUP BY. The join form fanned each category out to one row
-    -- per definition (thousands) *before* aggregating, so the expensive
-    -- get_translation_t() label was evaluated once per fanned-out row. The
-    -- lateral keeps one row per category, so the function runs once each.
-    left join lateral (
-      select count(*)::int as service_count
-      from category.service_definitions sd
-      where sd.category_id = c.id
-        and sd.is_active = true
-    ) sc on true
-    left join media.media_library cm
-      on cm.id::text = coalesce(nullif(c.image_url, ''), nullif(c.icon_url, ''))
+    left join category_provider_counts pc on pc.category_id = c.id
+    left join category_child_counts cc on cc.category_id = c.id
     where c.is_active = true
-      and coalesce(c.display_in_home_page, true) = true
-    order by coalesce(c.display_order, 0) asc, sc.service_count desc, label asc
+      and c.parent_id is null
+      -- A root with nothing under it is a card that opens an empty page, which is
+      -- what made Beauty and Tourism dead ends before.
+      and coalesce(pc.provider_count, 0) > 0
+    order by coalesce(pc.provider_count, 0) desc, label asc
     limit ${limit}
   `;
 
@@ -206,7 +218,8 @@ export async function getHomeCategories(input: HomeQueryInput, limit = 6): Promi
     label: row.label,
     imageUrl: row.imageUrl,
     gradient: row.gradient || FALLBACK_GRADIENTS[index % FALLBACK_GRADIENTS.length],
-    serviceCount: integerValue(row.serviceCount),
+    providerCount: integerValue(row.providerCount),
+    childCount: integerValue(row.childCount),
   }));
 }
 
@@ -323,6 +336,12 @@ export async function getFeaturedHomeServices(input: HomeQueryInput, limit = 8):
     left join media.media_library psm on psm.id::text = ps.image_url
     left join media.media_library spm on spm.id::text = sp.image_url
     where ps.is_active = true
+      -- The featured shelf is editorial: a service is on it because an admin ticked
+      -- "Featured" on it, and for no other reason. This used to be missing entirely,
+      -- so the shelf listed the whole active catalogue and is_popular / discount /
+      -- trending_score below only decided the order. They still decide the order —
+      -- but only among services that were actually chosen.
+      and coalesce(ps.is_featured, false) = true
       and (${countryCode}::text is null or upper(sp.country) = upper(${countryCode}::text))
       and (${cityCode}::text is null or upper(sp.city) = upper(${cityCode}::text))
     order by

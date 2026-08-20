@@ -44,7 +44,7 @@ export function ReferralAdminDashboardClient({
           </div>
 
           <Link
-            href="/app/admin/referrals/policies"
+            href="/admin/referrals/policies"
             className="inline-flex items-center justify-center rounded-xl bg-[#083f30] px-4 py-2.5 text-white font-semibold hover:bg-[#0a5a44] transition-colors"
           >
             Manage Policy

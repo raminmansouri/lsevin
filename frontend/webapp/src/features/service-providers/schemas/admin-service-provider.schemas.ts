@@ -31,6 +31,10 @@ export const saveServiceProviderProfileSchema = z.object({
   name: adminTranslationsSchema,
   description: adminTranslationsSchema,
   providerTypeId: adminUuidSchema,
+  // Which node of the category tree this business sits under — what category
+  // browsing reads. Optional so an existing provider can be saved without one;
+  // until it is set the provider is only reachable through its services.
+  categoryId: adminOptionalUuidSchema,
   isActive: z.boolean().default(true),
   country: z.string().trim().min(1, "Please select a country.").max(15),
   city: z.string().trim().min(1, "Please select a city.").max(15),

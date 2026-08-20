@@ -11,8 +11,14 @@ type RequestLogOptions = {
 const DEFAULT_LOG_OPTIONS: Required<RequestLogOptions> = {
   enabled: true,
   format: "both",
-  //redactHeaders: ["authorization", "cookie", "set-cookie"],
-  redactHeaders: [],
+  // This list had been commented out and replaced with `[]`, which turned every
+  // logged request into a copy-pasteable snippet carrying the caller's real
+  // `Authorization: Bearer <access token>` and `Cookie` headers in clear text.
+  // logRequest/logResponse are wired into http-service.server.ts, so that was
+  // every authenticated server-side call to the backend, on by default, in every
+  // environment. Redacting the credential still leaves the snippet useful for
+  // reproducing a request — you just have to supply your own token.
+  redactHeaders: ["authorization", "cookie", "set-cookie"],
   redactBodyKeys: ["password", "token", "accessToken", "refreshToken"],
   maxBodyLength: 10_000,
 };

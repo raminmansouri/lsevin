@@ -32,6 +32,12 @@ type Messages = Record<string, unknown>;
 export const CORE_NAMESPACES = [
   "Common",
   "Error",
+  // Every form built on ZodErrorProvider calls useTranslations("FormErrors")
+  // unconditionally (src/components/providers/zod-error-provider.tsx), and that
+  // provider is mounted under several different segments. Listing it per-segment
+  // is how it came to be listed under none of them, so validation messages
+  // rendered as the raw key path "FormErrors.*" wherever a zod error fired.
+  "FormErrors",
   "LocaleSwitcher",
   "NotFoundPage",
   "User",
@@ -52,6 +58,7 @@ export const SEGMENT_NAMESPACES = {
     "AsyncSelect",
     "Booking",
     "BottomTabBar",
+    "Consultation",
     "Explore",
     "FormBuilder",
     "Home",
@@ -76,15 +83,42 @@ export const SEGMENT_NAMESPACES = {
     "AsyncSelect",
     "AvailabilityAdmin",
     "Category",
+    "Consultation",
+    // form-builder, shop and old-bookings used to live in a second `/admin` tree
+    // outside the (admin) group, with their own provider carrying this namespace.
+    // Both trees served the same URL prefix, so /admin/dashboard and /admin/shop
+    // rendered with different chrome. The trees are merged now and this is the
+    // only admin provider, so it has to carry FormBuilder too.
+    "FormBuilder",
     "List",
     "LocalizedInput",
+    // Reached through the service-provider and staff detail screens, all behind
+    // `"use client"` boundaries and all previously rendering their labels as
+    // literal "ProviderType.xxx" / "ServiceDefinition.xxx" key paths because the
+    // namespace was never handed to the provider:
+    //   ProviderType     -> provider-types/components/provider-type-selector-with-infinite-scroll.tsx
+    //   ServiceDefinition-> staff/components/staff-service-manager.tsx,
+    //                       service-providers/components/details/managers/service-provider-service-manager.tsx
+    //   ServiceProvider  -> service-providers/components/details/managers/staff-selector-with-infinite-scroll.tsx
+    // Strings extracted out of hardcoded English in the admin pages themselves.
+    // Client components read it (marketing/loyalty list + form + dashboard), so
+    // it has to be handed to the provider or those labels render as key paths.
+    "AdminPages",
+    "ProviderType",
+    "ServiceDefinition",
+    "ServiceProvider",
     "SpecialPackagesAdmin",
     "SupportPages",
     "UserInfo",
   ],
-  /** The older `/admin` tree, which is separate from the `(admin)` group. */
-  adminLegacy: ["AdminGenerated", "FormBuilder"],
-  auth: [],
+  // Every screen in the (auth) group — sign-in, sign-up, OTP, forgot-password,
+  // reset-password — is a client component calling `useTranslations("Auth.*")`,
+  // and each of them wraps its fields in ZodErrorProvider, which reads
+  // `FormErrors`. With this list empty the provider handed them nothing, so the
+  // sign-in page rendered the literal strings "Auth.SignIn.form.password.label",
+  // "Auth.SignIn.form.login" and so on — including for anyone on their way to
+  // the admin panel, since that is where the admin gate sends you.
+  auth: ["Auth", "FormErrors"],
   marketing: [
     "BottomTabBar",
     "Category",

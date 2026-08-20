@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { bulkDeleteMedia, createMedia, listMedia } from "@/components/media/server/repository";
+import {
+  bulkDeleteMedia,
+  createMedia,
+  getMediaFileUrls,
+  listMedia,
+} from "@/components/media/server/repository";
+import { deleteStoredObjects } from "@/components/media/server/storage-delete";
+import { getSession } from "@/lib/auth/session";
 import { CreateMediaInput, MediaListParams } from "@/components/media";
 import { requireApiAdmin, requireApiUser } from "@/lib/auth/api-guard";
 
@@ -59,15 +66,39 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    // Destructive: drops media.media_library rows and the files behind them.
+    // Destructive: drops media.media_library rows. The stored objects are NOT removed —
+    // see deleteMedia in components/media/server/repository.ts for why, and for where the
+    // fix belongs.
     const auth = await requireApiAdmin();
     if (auth instanceof NextResponse) return auth;
 
     const body = (await request.json()) as { ids?: string[] };
     const ids = Array.isArray(body.ids) ? body.ids : [];
-    const deleted = await bulkDeleteMedia(ids, { deleteLocalFile: true });
 
-    return NextResponse.json({ deleted });
+    // Objects first, rows second, and per item: a store failure on one item must not take the
+    // whole batch down, but the row for that item stays so it can be retried.
+    const rows = await getMediaFileUrls(ids);
+    const session = await getSession();
+    const outcomes = await deleteStoredObjects(
+      rows.map((row) => row.fileUrl),
+      session?.user?.accessToken
+    );
+
+    const removableIds = rows
+      .filter((_row, index) => {
+        const outcome = outcomes[index];
+        return !outcome?.error || outcome.skipped;
+      })
+      .map((row) => row.id);
+
+    const deleted = await bulkDeleteMedia(removableIds);
+
+    return NextResponse.json({
+      deleted,
+      objectsDeleted: outcomes.filter((outcome) => outcome.deleted).length,
+      objectsSkipped: outcomes.filter((outcome) => outcome.skipped).length,
+      failed: outcomes.filter((outcome) => outcome.error && !outcome.skipped).length,
+    });
   } catch (error) {
     return NextResponse.json(
       {

@@ -43,6 +43,7 @@
     <PackageReference Include="Quartz.Extensions.Hosting" />
     <PackageReference Include="Dapper" />
     <PackageReference Include="SixLabors.ImageSharp" />
+    <PackageReference Include="AWSSDK.S3" />
     <PackageReference Include="Sieve" />
     <PackageReference Include="System.Linq.Async" />
     <PackageReference Include="System.Linq.Async.Queryable" />

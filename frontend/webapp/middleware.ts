@@ -1,6 +1,7 @@
 import createIntlMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
 
+import { OTP_PHONE_COOKIE } from "@/features/auth/lib/otp-challenge.constants";
 import {
   adminPrefix,
   apiAuthPrefix,
@@ -106,6 +107,32 @@ export default async function middleware(request: NextRequest) {
   // actually depends on it (auth pages, protected/admin areas).
   if (!isAuthRoute && !isProtectedRoute) {
     return intlResponse || NextResponse.next();
+  }
+
+  // The OTP screen is a challenge in flight, not a page. The number being verified
+  // lives in an httpOnly cookie now rather than in the path (it used to be
+  // /{locale}/otp/{mobile}, which put a phone number into every proxy log and into
+  // the Referer of anything that page loaded). Without that cookie there is nothing
+  // to verify, so gate it here rather than in the page: this returns a real 307
+  // with no markup, where a redirect thrown while the page streams arrives as an
+  // instruction inside an HTTP 200 whose shell is already on the wire.
+  //
+  // Exact match is enough — /otp takes no parameter any more, so anything deeper
+  // matches no route and 404s before it ever reaches this far.
+  //
+  // Above the session fetch on purpose: this decision is about a cookie, and the
+  // visitor standing at the OTP screen is by definition not signed in yet.
+  if (pathnameWithoutLocale === "/otp" && !request.cookies.get(OTP_PHONE_COOKIE)?.value) {
+    const signInUrl = publicAppUrl(request, `${localePrefix}/sign-in`);
+    const requestedRedirect = request.nextUrl.searchParams.get("redirectTo")?.trim();
+    if (
+      requestedRedirect &&
+      requestedRedirect.startsWith("/") &&
+      !requestedRedirect.startsWith("//")
+    ) {
+      signInUrl.searchParams.set("redirectTo", requestedRedirect);
+    }
+    return NextResponse.redirect(signInUrl);
   }
 
   const session = await getSession({ redirectToLogin: false });

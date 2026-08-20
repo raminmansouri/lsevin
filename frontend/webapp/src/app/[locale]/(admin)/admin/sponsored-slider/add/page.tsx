@@ -1,4 +1,6 @@
-import { redirect } from "next/navigation";
+import { SponseredSliderAdminForm } from "@/features/sponsered-slider/components/sponsered-slider-admin-form";
 
-const SponsoredSliderAddAliasPage = () => redirect("/admin/sponsered-slider/add");
-export default SponsoredSliderAddAliasPage;
+
+export default function AddSponsoredSliderPage() {
+  return <SponseredSliderAdminForm />;
+}

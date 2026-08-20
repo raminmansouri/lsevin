@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { Providers } from "@/components/providers";
+import { env } from "@/config/env/client";
 import { getClientMessages } from "@/i18n/client-messages";
 import { routing } from "@/i18n/routing";
 import { LocalePageProps } from "@/types/next";
@@ -24,6 +25,10 @@ export async function generateMetadata(
   const t = await getTranslations({ locale, namespace: "LocaleLayout" });
 
   return {
+    // Without this every relative URL in an openGraph/twitter block resolves
+    // against localhost at build time and Next logs a warning per page. Pages
+    // that set `alternates` still supply their own absolute canonical.
+    metadataBase: new URL(env.NEXT_PUBLIC_URL),
     title: {
       default: t("title"),
       template: `${t("title")} | %s`,

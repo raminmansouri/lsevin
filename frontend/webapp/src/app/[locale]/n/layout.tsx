@@ -3,9 +3,7 @@ import { setRequestLocale } from "next-intl/server";
 import MobileAppBar from "@/components/mobile-app-bar";
 import Shell from "@/components/shell";
 import { BottomTabBar } from "./app/design-system/mobile-components";
-import { SupportFloatingWidgetServer } from "@/features/support";
 import { getClientMessages } from "@/i18n/client-messages";
-import { getSession } from "@/lib/auth/session";
 
 type LocalePageProps = {
   children: React.ReactNode;
@@ -18,8 +16,6 @@ export default async function MainLayout({
 }: LocalePageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
-
-  const session=await getSession()
 
   // The mobile app's own translation set. The root layout only provides the core
   // namespaces, so this provider carries the full list this tree needs — nothing
@@ -36,7 +32,6 @@ export default async function MainLayout({
         <div className="flex flex-col">
           <MobileAppBar />
           {children}
-          <SupportFloatingWidgetServer locale={locale} customerUserId={session?.user?.id} />
           <BottomTabBar />
         </div>
       </Shell>

@@ -10,6 +10,7 @@ import { withBaseHeaders } from "@/config/http/http-service.server";
 import { ProviderTypeLayout } from "@/features/home/components/by-type/provider-type-layout";
 import { byTypeSearchParamsCache } from "@/features/home/types";
 import { BY_TYPE_TRANSLATION_KEY } from "@/features/home/types/constants";
+import { alternatesFor } from "@/lib/seo/alternates";
 import { getProviderTypeAttributes } from "@/features/provider-types/api/server/get-provider-type-attributes";
 import type { ProviderTypeAttributesResponse } from "@/features/provider-types/types/provider-type";
 import { getAvailableCitiesByCountry } from "@/features/service-providers/api/server/get-available-cities-by-country";
@@ -17,10 +18,16 @@ import { getAvailableCountries } from "@/features/service-providers/api/server/g
 import type { AvailableCountry } from "@/features/service-providers/types";
 import { PageProps } from "@/types/next";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; id: string }>;
+}): Promise<Metadata> {
+  const { locale, id } = await params;
   const t = await getTranslations(BY_TYPE_TRANSLATION_KEY);
 
   return {
+    alternates: alternatesFor(locale, `/type/${id}`),
     title: t("title"),
     description: t("description"),
     keywords: t("title"),

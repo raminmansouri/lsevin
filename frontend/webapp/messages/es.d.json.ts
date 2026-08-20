@@ -555,7 +555,8 @@ declare const messages: {
     "walletTransactions": {
       "description": "Movimientos de billetera manuales y vinculados a reservas",
       "title": "Transacciones de billetera"
-    }
+    },
+    "consultationRequests": "Solicitudes de consulta"
   },
   "HomePage": {
     "title": "L Sevin - Salud Automatizada",
@@ -2888,7 +2889,9 @@ declare const messages: {
       "emptyDescription": "Añade categorías, servicios y proveedores activos para verlos aquí.",
       "emptyTitle": "No se encontraron categorías de servicios",
       "serviceCount": "{count} servicios",
-      "title": "Explora las categorías"
+      "title": "Explora las categorías",
+      "providerCount": "{count} proveedores",
+      "subcategoryCount": "{count} subcategorías"
     },
     "common": {
       "loading": "Cargando...",
@@ -2906,7 +2909,7 @@ declare const messages: {
     "featured": {
       "availableDestination": "Destino disponible",
       "discountOff": "{percent}% DE DESCUENTO",
-      "emptyDescription": "Marca servicios de proveedores como populares o añade ofertas para destacarlos aquí.",
+      "emptyDescription": "Marca «Destacado» en un servicio del proveedor desde el panel de administración para que aparezca aquí.",
       "emptyTitle": "Todavía no hay servicios destacados",
       "subtitle": "Seleccionados por nuestros expertos",
       "title": "Servicios destacados"
@@ -2916,7 +2919,7 @@ declare const messages: {
       "ctaButton": "Buscar ahora",
       "ctaDescription": "Usa nuestra búsqueda inteligente para encontrar justo lo que necesitas.",
       "ctaTitle": "¿No encuentras lo que buscas?",
-      "subtitle": "Explora todos los servicios",
+      "subtitle": "Todos los servicios destacados",
       "title": "Servicios destacados"
     },
     "hero": {
@@ -3220,6 +3223,8 @@ declare const messages: {
     "cappadociaTurkey": "Capadocia, Turquía",
     "cashOnArrival": "Pago en efectivo a la llegada",
     "category": "Categoría",
+    "providerCategoryHint": "La categoría en la que aparece este negocio al navegar. Déjalo vacío para clasificarlo por los servicios que ofrece.",
+    "selectCategory": "Seleccionar categoría",
     "categoryPerformance": "Rendimiento por categoría",
     "certificateImage": "Imagen del certificado",
     "certificationDeleted": "Certificación eliminada",
@@ -3462,6 +3467,7 @@ declare const messages: {
     "failedToSaveBooking": "No se pudo guardar la reserva.",
     "failedToUpdateChildBooking": "No se pudo actualizar la reserva secundaria.",
     "featured": "Destacado",
+    "featuredServiceHint": "En la sección Servicios destacados de la app solo aparecen los servicios marcados como Destacado. Popular y la puntuación de tendencia solo cambian el orden dentro de ella.",
     "featuredScore": "Puntuación de destacado",
     "fee": "Comisión: $",
     "feeAndCommissionAnalysis": "Análisis de tarifas y comisiones",
@@ -5553,7 +5559,8 @@ declare const messages: {
     "yourReservationIsProtectedWith256BitSSLEncryption": "Tu reserva está protegida con cifrado SSL de 256 bits y confirmación instantánea.",
     "yourSpecialist": "Tu especialista",
     "yourStayIsReady": "¡Tu estancia está lista!",
-    "youVeSaved10PercentOnAddOnsBy": "Has ahorrado un 10% en extras al seleccionar 3 o más servicios."
+    "youVeSaved10PercentOnAddOnsBy": "Has ahorrado un 10% en extras al seleccionar 3 o más servicios.",
+    "stepConsultation": "Consulta gratuita"
   },
   "BookingSearchLoadMoreList": {
     "loadMore": "Cargar {count} más",
@@ -6928,7 +6935,9 @@ declare const messages: {
     "refineSearchResults": "Afina los resultados de tu búsqueda",
     "reviewsCount": "({count, plural, one {# reseña} other {# reseñas}})",
     "title": "Explorar el mapa",
-    "useMyLocation": "Usar mi ubicación"
+    "useMyLocation": "Usar mi ubicación",
+    "showMap": "Mapa",
+    "showList": "Lista"
   },
   "MapShared": {
     "latitude": "Latitud",
@@ -12508,6 +12517,188 @@ declare const messages: {
     "wishlist_items": "Artículos de listas de deseos",
     "wishlists": "Listas de deseos",
     "withdrawal_requests": "Solicitudes de retiro"
+  },
+  "Consultation": {
+    "step": {
+      "label": "Consulta gratuita",
+      "title": "¿No sabes qué reservar? Habla primero con un asesor.",
+      "subtitle": "Déjanos tus datos y uno de nuestros asesores te llamará. Es gratis y no afecta a tu reserva.",
+      "optional": "Opcional",
+      "skipNote": "Puedes omitir este paso y seguir con la reserva."
+    },
+    "form": {
+      "firstName": {
+        "label": "Nombre",
+        "placeholder": "p. ej. Sara"
+      },
+      "lastName": {
+        "label": "Apellidos",
+        "placeholder": "p. ej. Ahmadi"
+      },
+      "phone": {
+        "label": "Número de teléfono",
+        "placeholder": "09xxxxxxxxx",
+        "hint": "Te llamaremos o te escribiremos a este número."
+      },
+      "email": {
+        "label": "Correo electrónico",
+        "placeholder": "you@example.com"
+      },
+      "category": {
+        "label": "¿En qué necesitas ayuda?",
+        "placeholder": "p. ej. tratamiento dental"
+      },
+      "description": {
+        "label": "Cuéntanos más",
+        "placeholder": "Describe lo que buscas…"
+      },
+      "preferredContactTime": {
+        "label": "Mejor hora para llamarte"
+      },
+      "urgency": {
+        "label": "¿Con cuánta urgencia lo necesitas?"
+      },
+      "optionalTag": "opcional",
+      "submit": "Solicitar consulta gratuita",
+      "submitting": "Enviando…"
+    },
+    "contactTime": {
+      "any": "Cualquier hora",
+      "morning": "Por la mañana",
+      "afternoon": "Por la tarde",
+      "evening": "Por la noche"
+    },
+    "urgency": {
+      "normal": "Sin prisa",
+      "soon": "En unos días",
+      "urgent": "Urgente"
+    },
+    "success": {
+      "title": "Solicitud recibida",
+      "body": "Nuestros asesores te contactarán en el {phone}.",
+      "continue": "Continuar con la reserva",
+      "sendAnother": "Enviar otra solicitud"
+    },
+    "errors": {
+      "signInRequired": "Inicia sesión antes de solicitar una consulta.",
+      "notAvailable": "Las solicitudes de consulta aún no están disponibles. Inténtalo más tarde.",
+      "invalidForm": "Revisa los campos marcados.",
+      "rateLimited": "Ya has enviado varias solicitudes. Inténtalo más tarde.",
+      "notFound": "Esa solicitud ya no existe.",
+      "generic": "Algo salió mal. Inténtalo de nuevo.",
+      "tooShort": "Esto es demasiado corto.",
+      "tooLong": "Esto es demasiado largo.",
+      "invalidPhone": "Introduce un número de teléfono válido.",
+      "digitsOnly": "Solo dígitos.",
+      "duplicatePhone": "Ese número de teléfono ya está en la lista."
+    },
+    "admin": {
+      "title": "Solicitudes de consulta",
+      "description": "Llamadas de consulta gratuita solicitadas desde el proceso de reserva.",
+      "empty": "Todavía no hay solicitudes de consulta.",
+      "schemaMissing": {
+        "title": "Migración de base de datos pendiente",
+        "body": "Aplica la migración 0022_consultation_requests.sql para activar esta sección."
+      },
+      "stats": {
+        "total": "Total",
+        "new": "Nuevas",
+        "inProgress": "En curso",
+        "contacted": "Contactadas",
+        "done": "Resueltas",
+        "rejected": "Rechazadas",
+        "failedNotifications": "SMS fallidos"
+      },
+      "filters": {
+        "search": "Buscar por nombre, teléfono o correo",
+        "status": "Estado",
+        "urgency": "Urgencia",
+        "all": "Todas",
+        "reset": "Restablecer",
+        "apply": "Aplicar"
+      },
+      "table": {
+        "name": "Nombre",
+        "phone": "Teléfono",
+        "topic": "Tema",
+        "urgency": "Urgencia",
+        "preferredTime": "Mejor hora",
+        "status": "Estado",
+        "sms": "SMS",
+        "createdAt": "Recibida",
+        "actions": "Acciones",
+        "view": "Ver"
+      },
+      "status": {
+        "new": "Nueva",
+        "in_progress": "En curso",
+        "contacted": "Contactada",
+        "done": "Resuelta",
+        "rejected": "Rechazada"
+      },
+      "detail": {
+        "title": "Solicitud de consulta",
+        "contact": "Contacto",
+        "message": "Mensaje",
+        "noMessage": "No se indicó ningún mensaje.",
+        "meta": "Detalles",
+        "locale": "Idioma",
+        "source": "Origen",
+        "bookingDraft": "Borrador de reserva",
+        "notifications": "Notificaciones",
+        "noNotifications": "No se envió nada para esta solicitud.",
+        "adminNote": "Nota interna",
+        "adminNotePlaceholder": "Notas para el equipo…",
+        "save": "Guardar cambios",
+        "saving": "Guardando…",
+        "saved": "Guardado",
+        "close": "Cerrar"
+      },
+      "notification": {
+        "customer": "Cliente",
+        "admin": "Administración",
+        "sent": "Enviado",
+        "failed": "Fallido",
+        "skipped": "Omitido",
+        "pending": "Pendiente",
+        "reason": {
+          "sms_disabled": "El envío de SMS está desactivado",
+          "no_credentials": "Faltan las credenciales del proveedor",
+          "no_body_id": "No hay ningún id de plantilla configurado",
+          "not_iranian_mobile": "No es un móvil iraní",
+          "no_recipients": "No hay destinatarios de administración configurados"
+        }
+      },
+      "settings": {
+        "title": "Ajustes de notificación",
+        "description": "Quién recibe el aviso cuando llega una solicitud y qué plantilla de MeliPayamak envía el mensaje.",
+        "enabled": "Enviar notificaciones por SMS",
+        "customerBodyId": "Id de plantilla del cliente (bodyId)",
+        "customerBodyIdHint": "Una variable: el nombre del cliente.",
+        "adminBodyId": "Id de plantilla de administración (bodyId)",
+        "adminBodyIdHint": "Tres variables, en orden: nombre completo, teléfono, urgencia.",
+        "rateLimit": "Máximo de solicitudes por usuario y hora",
+        "patternNotice": "Esta cuenta de MeliPayamak no tiene línea de texto libre, así que cada mensaje debe usar una plantilla aprobada en el panel de MeliPayamak. Mientras no se configuren estos id, las notificaciones se registran como omitidas y no se envía nada.",
+        "save": "Guardar ajustes",
+        "saved": "Ajustes guardados"
+      },
+      "recipients": {
+        "title": "Destinatarios de administración",
+        "description": "Se envía un SMS a todos los números activos cuando llega una solicitud.",
+        "label": "Nombre",
+        "labelPlaceholder": "p. ej. Mesa de soporte",
+        "phone": "Teléfono",
+        "phonePlaceholder": "09xxxxxxxxx",
+        "active": "Activo",
+        "add": "Añadir destinatario",
+        "update": "Actualizar destinatario",
+        "edit": "Editar",
+        "delete": "Eliminar",
+        "confirmDelete": "¿Quitar este destinatario?",
+        "empty": "Aún no hay destinatarios: nadie recibe avisos.",
+        "cancel": "Cancelar"
+      }
+    }
   }
 };
 export default messages;

@@ -175,7 +175,7 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
         }
         return;
       }
-      router.push("/admin/sponsered-slider");
+      router.push("/admin/sponsored-slider");
       router.refresh();
     });
   }
@@ -191,7 +191,7 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <Button asChild variant="ghost" className="mb-2 -ml-3 gap-2">
-            <Link href="/admin/sponsered-slider">
+            <Link href="/admin/sponsored-slider">
               <ArrowLeft className="h-4 w-4" />
               Back to sliders
             </Link>
@@ -484,7 +484,7 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
 
           <div className="flex justify-end gap-3">
             <Button asChild type="button" variant="outline">
-              <Link href="/admin/sponsered-slider">{tAdmin("cancel")}</Link>
+              <Link href="/admin/sponsored-slider">{tAdmin("cancel")}</Link>
             </Button>
             <Button type="submit" disabled={isPending} className="gap-2">
               <Save className="h-4 w-4" />

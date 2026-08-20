@@ -22,6 +22,7 @@ using LSevin.Api.Hubs;
 using LSevinModels.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Npgsql;
 using Serilog;
 using Serilog.Events;
 using CategoryModule = LSevin.Modules.Category.CategoryReference;
@@ -81,9 +82,25 @@ try
 
     builder.Services.AddHttpContextAccessor();
 
+    // LsevinContext is scaffolded from the live schema and its entities use NodaTime
+    // types, so the provider needs UseNodaTime() to map them. Until now that call —
+    // and an Asia/Tehran session timezone — lived in LsevinContext.OnConfiguring
+    // alongside a hardcoded production connection string that silently overrode
+    // whatever was configured here. OnConfiguring is empty now, so both settings
+    // have to be applied at the single place the context is registered.
+    //
+    // The timezone is preserved deliberately: this context reads and writes
+    // timestamp columns that were scaffolded against an Asia/Tehran session, and
+    // dropping it would reinterpret every one of them as UTC. It is also one of the
+    // few startup parameters PgBouncer forwards, so it survives the pooler.
     builder.Services.AddDbContextFactory<LsevinContext>((sp, options) =>
     {
-        options.UseNpgsql(databaseConnectionString);
+        var connection = new NpgsqlConnectionStringBuilder(databaseConnectionString)
+        {
+            Timezone = "Asia/Tehran",
+        };
+
+        options.UseNpgsql(connection.ConnectionString, npgsql => npgsql.UseNodaTime());
     });
 
 

@@ -18,6 +18,6 @@ export function revalidateSponseredSliderCache({ id, userId }: { id?: string; us
   revalidateTag(getSponseredSliderGlobalTag());
   if (id) revalidateTag(getSponseredSliderIdTag(id));
   revalidateTag(getSponseredSliderUserTag(userId));
-  revalidatePath("/admin/sponsered-slider");
+  revalidatePath("/admin/sponsored-slider");
   revalidatePath("/admin/sponsored-slider");
 }

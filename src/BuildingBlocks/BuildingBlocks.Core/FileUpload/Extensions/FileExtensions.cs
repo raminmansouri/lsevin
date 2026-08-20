@@ -1,3 +1,5 @@
+using Amazon.Runtime;
+using Amazon.S3;
 using BuildingBlocks.Core.Configuration;
 using BuildingBlocks.Core.FileUpload.Constants;
 using BuildingBlocks.Core.FileUpload.Options;
@@ -8,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 
 namespace BuildingBlocks.Core.FileUpload.Extensions;
@@ -32,6 +35,39 @@ public static class FileExtensions
         services.AddSingleton<IImageOptimizer, ImageSharpImageOptimizer>();
         services.AddSingleton<ImageBackfillRunner>();
         services.AddHostedService<ImageBackfillHostedService>();
+
+        // Where the bytes land is a configuration choice; how they are validated, optimized
+        // and named is not. Both backends therefore share one IFileService and differ only
+        // in the store behind it, so flipping FileUploadOptions:Backend — in either
+        // direction — cannot change upload behaviour, only its destination.
+        services.AddScoped<IFileObjectStore>(sp =>
+            sp.GetRequiredService<IOptions<FileUploadOptions>>().Value.Backend switch
+            {
+                FileStorageBackend.Minio => ActivatorUtilities.CreateInstance<MinioFileObjectStore>(sp),
+                _ => ActivatorUtilities.CreateInstance<LocalDiskFileObjectStore>(sp),
+            }
+        );
+
+        // Registered unconditionally: the client is cheap to construct, holds no connection
+        // until used, and registering it only for one backend would make the switch above
+        // able to resolve into a missing dependency at request time rather than at startup.
+        services.AddSingleton<IAmazonS3>(sp =>
+        {
+            var s3 = sp.GetRequiredService<IOptions<FileUploadOptions>>().Value.S3;
+
+            var config = new AmazonS3Config
+            {
+                ForcePathStyle = s3.ForcePathStyle,
+                AuthenticationRegion = s3.Region,
+            };
+
+            if (!string.IsNullOrWhiteSpace(s3.ServiceUrl))
+            {
+                config.ServiceURL = s3.ServiceUrl;
+            }
+
+            return new AmazonS3Client(new BasicAWSCredentials(s3.AccessKey, s3.SecretKey), config);
+        });
 
         services.AddScoped<IFileService, FileService>();
 

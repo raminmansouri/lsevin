@@ -68,7 +68,7 @@ export function SponseredSliderForm({ item, options }: Props) {
     onSuccess: () => {
       console.log("[sponsered-slider] server action success");
       toast.success(isEdit ? "Sponsored slider item updated." : "Sponsored slider item created.");
-      router.push("/admin/sponsered-slider");
+      router.push("/admin/sponsored-slider");
     },
     onError: (error) => {
       console.error("[sponsered-slider] server action error", error);
@@ -291,7 +291,7 @@ export function SponseredSliderForm({ item, options }: Props) {
                 <Sparkles className="h-4 w-4 text-[#eac074]" /> Sponsored home media will be saved directly to PostgreSQL with server actions.
               </div>
               <div className="flex gap-3">
-                <Button type="button" variant="outline" onClick={() => router.push("/admin/sponsered-slider")} disabled={isPending}>Cancel</Button>
+                <Button type="button" variant="outline" onClick={() => router.push("/admin/sponsored-slider")} disabled={isPending}>Cancel</Button>
                 <Button type="submit" disabled={isPending} className="bg-[#083f30] hover:bg-[#083f30]/90">
                   <Save className="mr-2 h-4 w-4" /> {isPending ? "Saving..." : isEdit ? "Update slider" : "Create slider"}
                 </Button>

@@ -100,14 +100,9 @@ export function SupportSettingsForm({ settings }: Props) {
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
             {[
-              ["floatingChatEnabled", "floatingChatEnabled"],
               ["supportPageEnabled", "supportPageEnabled"],
               ["requireLogin", "requireLogin"],
               ["allowGuestConversation", "allowGuestConversation"],
-              ["showOnAppPages", "showOnAppPages"],
-              ["showOnBookingPages", "showOnBookingPages"],
-              ["showOnProviderPages", "showOnProviderPages"],
-              ["showOnAdminPages", "showOnAdminPages"],
             ].map(([key, label]) => (
               <div key={key} className="flex items-center justify-between rounded-2xl border bg-slate-50 p-4">
                 <Label>{tAdmin(label)}</Label>
@@ -125,12 +120,8 @@ export function SupportSettingsForm({ settings }: Props) {
           <CardContent className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2"><Label>{tAdmin("primaryColor")}</Label><Input value={form.primaryColor} onChange={(event) => setValue("primaryColor", event.target.value)} /></div>
             <div className="space-y-2"><Label>{tAdmin("accentColor")}</Label><Input value={form.accentColor} onChange={(event) => setValue("accentColor", event.target.value)} /></div>
-            <div className="space-y-2"><Label>{tAdmin("textColor")}</Label><Input value={form.textColor} onChange={(event) => setValue("textColor", event.target.value)} /></div>
             <div className="space-y-2"><Label>{tAdmin("borderRadius")}</Label><Input value={form.borderRadius} onChange={(event) => setValue("borderRadius", event.target.value)} /></div>
-            <div className="space-y-2"><Label>{tAdmin("launcherIcon")}</Label><Input value={form.launcherIcon} onChange={(event) => setValue("launcherIcon", event.target.value)} /></div>
-            <div className="space-y-2"><Label>{tAdmin("position")}</Label><select className="h-10 w-full rounded-md border bg-background px-3 text-sm" value={form.launcherPosition} onChange={(event) => setValue("launcherPosition", event.target.value as any)}><option value="bottom-right">{tAdmin("bottomRight")}</option><option value="bottom-left">{tAdmin("bottomLeft")}</option></select></div>
             <div className="space-y-2"><Label>{tAdmin("themeMode")}</Label><select className="h-10 w-full rounded-md border bg-background px-3 text-sm" value={form.themeMode} onChange={(event) => setValue("themeMode", event.target.value as any)}><option value="system">{tAdmin("system")}</option><option value="light">{tAdmin("light")}</option><option value="dark">{tAdmin("dark")}</option></select></div>
-            <div className="flex items-center justify-between rounded-2xl border bg-slate-50 p-4"><Label>{tAdmin("compactLauncher")}</Label><Switch checked={form.compactMode} onCheckedChange={(checked) => setValue("compactMode", checked)} /></div>
           </CardContent>
         </Card>
 
@@ -191,9 +182,6 @@ export function SupportSettingsForm({ settings }: Props) {
                 <div className="rounded-2xl border bg-white p-3 text-sm text-muted-foreground">{previewLabels.inputPlaceholder}</div>
               </div>
             </div>
-            <button type="button" className="mt-5 flex items-center gap-3 rounded-full px-4 py-3 text-sm font-semibold text-white shadow-lg" style={{ backgroundColor: form.primaryColor, color: form.textColor, borderRadius: form.borderRadius }}>
-              <MessageCircle className="h-5 w-5" /> {!form.compactMode && previewLabels.launcherLabel}
-            </button>
           </CardContent>
         </Card>
 

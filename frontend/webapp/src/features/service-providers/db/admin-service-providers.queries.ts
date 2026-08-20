@@ -11,7 +11,11 @@ import {
 } from "@/types/filter";
 import { ApiReturnType, PaginatedResult } from "@/types/network";
 
-import { getServiceProviderGlobalTag, getServiceProviderIdTag } from "./cache";
+import {
+  getCpCategoryGroupsTag,
+  getServiceProviderGlobalTag,
+  getServiceProviderIdTag,
+} from "./cache";
 
 export type JsonTranslations = Record<string, string>;
 
@@ -165,6 +169,8 @@ export type AdminProviderService = {
   recovery: string | null;
   imageUrl: string | null;
   isPopular: boolean;
+  /** Editorial: puts the service on the Featured Services shelf. Admin-set only. */
+  isFeatured: boolean;
   anesthesia: string | null;
   stayRequired: string | null;
   successRate: string | null;
@@ -292,6 +298,8 @@ export type AdminServiceProviderDetails = {
   isActive: boolean;
   providerTypeId: string;
   providerTypeName: string;
+  /** Node of the category tree this business sits under. Null until an admin files it. */
+  categoryId: string | null;
   city: string;
   country: string;
   zipCode: string | null;
@@ -722,6 +730,7 @@ type ProviderRow = {
   isActive: boolean;
   providerTypeId: string;
   providerTypeName: string;
+  categoryId: string | null;
   city: string;
   country: string;
   zipCode: string | null;
@@ -765,6 +774,7 @@ export async function getAdminServiceProviderById(
         sp.is_active as "isActive",
         sp.provider_type_id::text as "providerTypeId",
         ${translated(sql`pt.name_translations`, locale)} as "providerTypeName",
+        sp.category_id::text as "categoryId",
         sp.city,
         sp.country,
         sp.zip_code as "zipCode",
@@ -983,6 +993,7 @@ async function getProviderServices(
       ps.recovery,
       ps.image_url as "imageUrl",
       coalesce(ps.is_popular, false) as "isPopular",
+      coalesce(ps.is_featured, false) as "isFeatured",
       ps.anesthesia,
       ps.stay_required as "stayRequired",
       ps.success_rate as "successRate",
@@ -1353,11 +1364,19 @@ export async function searchAdminProviderLookupOptions(
       `;
     } else if (params.type === "categories") {
       const label = translated(sql`c.name_translations`, locale);
+      // Labelled with the path, not the bare name. The tree repeats names across
+      // branches — Beauty is a root and Beauty Salons hangs under it, Clinic sits
+      // under Health — and picking the wrong one silently files a business in the
+      // wrong part of the app.
       rows = await sql<AdminLookupOption[]>`
-        select c.id::text, ${label} as label, c.parent_id::text as "parentId"
+        select
+          c.id::text,
+          concat_ws(' › ', nullif(${translated(sql`parent.name_translations`, locale)}, ''), ${label}) as label,
+          c.parent_id::text as "parentId"
         from category.categories c
+        left join category.categories parent on parent.id = c.parent_id
         where coalesce(c.is_active, true) = true
-          and ${hasQuery ? sql`(${label} ilike ${like})` : sql`true`}
+          and ${hasQuery ? sql`(${label} ilike ${like} or ${translated(sql`parent.name_translations`, locale)} ilike ${like})` : sql`true`}
         order by c.display_order nulls last, label
         limit ${limit} offset ${offset}
       `;
@@ -1509,8 +1528,12 @@ export async function getAdminProviderLookupData(
         limit 50
       `,
       sql<AdminLookupOption[]>`
-        select c.id::text, ${translated(sql`c.name_translations`, locale)} as label, c.parent_id::text as "parentId"
+        select
+          c.id::text,
+          concat_ws(' › ', nullif(${translated(sql`parent.name_translations`, locale)}, ''), ${translated(sql`c.name_translations`, locale)}) as label,
+          c.parent_id::text as "parentId"
         from category.categories c
+        left join category.categories parent on parent.id = c.parent_id
         where coalesce(c.is_active, true) = true
         order by c.display_order nulls last, label
         limit 100
@@ -1602,6 +1625,11 @@ export async function getAdminProviderLookupData(
 export function revalidateAdminServiceProvider(serviceProviderId?: string) {
   revalidateTag(getServiceProviderGlobalTag());
   revalidateTag("admin-service-provider-lookups");
+  // The category browser caches its rows for five minutes, and every count on it
+  // is now derived from service_providers.category_id. Without this, filing a
+  // provider under a category in the admin panel leaves the app showing the old
+  // count — including "0 providers" on the subcategory the admin just filled.
+  revalidateTag(getCpCategoryGroupsTag());
   if (serviceProviderId)
     revalidateTag(getServiceProviderIdTag(serviceProviderId));
 }

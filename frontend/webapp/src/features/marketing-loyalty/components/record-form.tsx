@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
@@ -17,6 +18,7 @@ import { createEmptyLocalizedContent } from "@/features/shared/utils/localizatio
 import { useRouter } from "@/i18n/navigation";
 
 import { upsertMarketingLoyaltyRecordAction } from "../actions/upsert-record";
+import { useLocalizedEntityConfig } from "../i18n";
 import { buildEntityFormSchema } from "../schemas";
 import type { AdminEntityConfig, AdminFieldConfig, AdminFormData, SelectOption } from "../types";
 
@@ -28,7 +30,9 @@ type Props = {
   locale?: string;
 };
 
-export function MarketingLoyaltyRecordForm({ config, formData, locale = "en" }: Props) {
+export function MarketingLoyaltyRecordForm({ config: rawConfig, formData, locale = "en" }: Props) {
+  const t = useTranslations("AdminPages.marketingLoyalty");
+  const config = useLocalizedEntityConfig(rawConfig);
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const isEdit = Boolean(formData.id);
@@ -58,7 +62,7 @@ export function MarketingLoyaltyRecordForm({ config, formData, locale = "en" }: 
         return;
       }
 
-      toast.success(isEdit ? "Record updated." : "Record created.");
+      toast.success(isEdit ? t("form.updated") : t("form.created"));
       router.push(config.routeBase);
       router.refresh();
     });
@@ -95,10 +99,10 @@ export function MarketingLoyaltyRecordForm({ config, formData, locale = "en" }: 
           <div className="flex gap-3 border-t pt-5 lg:col-span-2">
             <Button type="submit" disabled={isPending}>
               <Save className="mr-2 h-4 w-4" />
-              {isPending ? "Saving..." : "Save"}
+              {isPending ? t("form.saving") : t("form.save")}
             </Button>
             <Button type="button" variant="outline" disabled={isPending} onClick={() => router.push(config.routeBase)}>
-              Cancel
+              {t("form.cancel")}
             </Button>
           </div>
         </form>
@@ -120,6 +124,7 @@ function FieldControl({
   options: SelectOption[];
   locale: string;
 }) {
+  const t = useTranslations("AdminPages.marketingLoyalty");
   const error = form.formState.errors[field.name]?.message as string | undefined;
   const id = `field-${field.name}`;
   const commonClass = error ? "border-destructive focus-visible:ring-destructive" : "";
@@ -196,7 +201,7 @@ function FieldControl({
               locale={locale}
               value={String(controllerField.value || "")}
               onValueChange={controllerField.onChange}
-              placeholder={field.placeholder || `Select ${field.label.toLowerCase()}`}
+              placeholder={field.placeholder || t("form.selectField", { field: field.label })}
               initialOptions={options}
               disabled={disabled}
               contentClassName={field.lookupType === "providerServices" ? "w-[520px]" : "w-[420px]"}
@@ -246,10 +251,10 @@ function FieldControl({
           control={form.control as never}
           name={field.name}
           label={field.label}
-          placeholder={field.placeholder || "Pick media"}
+          placeholder={field.placeholder || t("form.pickMedia")}
           mediaType={field.mediaType || "image"}
           helperText={field.helperText}
-          modalTitle={`Pick ${field.label}`}
+          modalTitle={t("form.pickField", { field: field.label })}
         />
       )}
 
@@ -258,10 +263,10 @@ function FieldControl({
           control={form.control as never}
           name={field.name}
           label={field.label}
-          placeholder={field.placeholder || "Pick files"}
+          placeholder={field.placeholder || t("form.pickFiles")}
           mediaType={field.mediaType || "all"}
           helperText={field.helperText}
-          modalTitle={`Pick ${field.label}`}
+          modalTitle={t("form.pickField", { field: field.label })}
         />
       )}
 

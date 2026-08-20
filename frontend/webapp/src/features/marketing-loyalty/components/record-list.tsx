@@ -9,8 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { hasLexicalContent, LexicalRenderer } from "@/components/editor/lexical-renderer";
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "next-intl";
 
 import { deleteMarketingLoyaltyRecordAction } from "../actions/delete-record";
+import { useLocalizedEntityConfig } from "../i18n";
 import type { AdminEntityConfig, AdminListResult } from "../types";
 
 type Props = {
@@ -20,7 +22,9 @@ type Props = {
   locale?: string;
 };
 
-export function MarketingLoyaltyRecordList({ config, data, q = "", locale = "en" }: Props) {
+export function MarketingLoyaltyRecordList({ config: rawConfig, data, q = "", locale = "en" }: Props) {
+  const t = useTranslations("AdminPages.marketingLoyalty");
+  const config = useLocalizedEntityConfig(rawConfig);
   const [isPending, startTransition] = useTransition();
   const [items, setItems] = useState(data.items);
 
@@ -42,7 +46,7 @@ export function MarketingLoyaltyRecordList({ config, data, q = "", locale = "en"
   }, [config.routeBase, data.page, data.pageCount, q]);
 
   const handleDelete = (id: string) => {
-    const confirmed = window.confirm(`Delete this ${config.title.toLowerCase()} record?`);
+    const confirmed = window.confirm(t("list.confirmDelete", { entity: config.title }));
     if (!confirmed) return;
 
     startTransition(async () => {
@@ -54,7 +58,7 @@ export function MarketingLoyaltyRecordList({ config, data, q = "", locale = "en"
         toast.error(result.error.detail);
         return;
       }
-      toast.success("Record deleted.");
+      toast.success(t("list.deleted"));
     });
   };
 
@@ -70,7 +74,7 @@ export function MarketingLoyaltyRecordList({ config, data, q = "", locale = "en"
             <Button asChild>
               <Link href={`${config.routeBase}/add`}>
                 <Plus className="mr-2 h-4 w-4" />
-                Add new
+                {t("list.addNew")}
               </Link>
             </Button>
           )}
@@ -78,12 +82,12 @@ export function MarketingLoyaltyRecordList({ config, data, q = "", locale = "en"
         <form className="mt-5 flex flex-col gap-3 md:flex-row" action={config.routeBase}>
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input name="q" defaultValue={q} placeholder="Search by customer, code, title, status..." className="pl-9" />
+            <Input name="q" defaultValue={q} placeholder={t("list.searchPlaceholder")} className="pl-9" />
           </div>
-          <Button type="submit" variant="outline">Search</Button>
+          <Button type="submit" variant="outline">{t("list.search")}</Button>
           {q && (
             <Button asChild type="button" variant="ghost">
-              <Link href={config.routeBase}>Clear</Link>
+              <Link href={config.routeBase}>{t("list.clear")}</Link>
             </Button>
           )}
         </form>
@@ -96,14 +100,14 @@ export function MarketingLoyaltyRecordList({ config, data, q = "", locale = "en"
                 {config.listColumns.map((column) => (
                   <th key={column.key} className={`px-4 py-3 font-medium ${column.className || ""}`}>{column.label}</th>
                 ))}
-                <th className="px-4 py-3 text-right font-medium">Actions</th>
+                <th className="px-4 py-3 text-right font-medium">{t("list.actions")}</th>
               </tr>
             </thead>
             <tbody>
               {items.length === 0 ? (
                 <tr>
                   <td colSpan={config.listColumns.length + 1} className="px-4 py-16 text-center text-muted-foreground">
-                    No records found.
+                    {t("list.empty")}
                   </td>
                 </tr>
               ) : (
@@ -125,7 +129,7 @@ export function MarketingLoyaltyRecordList({ config, data, q = "", locale = "en"
                               </Link>
                             </Button>
                           ) : (
-                            <Button size="sm" variant="ghost" disabled title="Append-only record">
+                            <Button size="sm" variant="ghost" disabled title={t("list.appendOnly")}>
                               <Eye className="h-4 w-4" />
                             </Button>
                           )}
@@ -163,13 +167,14 @@ export function MarketingLoyaltyRecordList({ config, data, q = "", locale = "en"
 }
 
 function CellValue({ value, type, locale }: { value: unknown; type?: string; locale?: string }) {
+  const t = useTranslations("AdminPages.marketingLoyalty");
   if (value === undefined || value === null || value === "") return <span className="text-muted-foreground">—</span>;
 
   if (type === "boolean") {
     const active = Boolean(value);
     return (
       <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${active ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20" : "bg-gray-50 text-gray-600 ring-1 ring-gray-500/20"}`}>
-        {active ? "Yes" : "No"}
+        {active ? t("list.yes") : t("list.no")}
       </span>
     );
   }

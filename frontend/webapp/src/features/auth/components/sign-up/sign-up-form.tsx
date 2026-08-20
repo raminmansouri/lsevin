@@ -56,10 +56,12 @@ export default function SignUpForm() {
     onSuccess: (data) => {
       toast.success(t("messages.signUpSuccess"));
       // Registration triggers a phone-verification OTP on the backend. Send the
-      // user to the OTP screen (keyed by their E.164 phone number) to confirm
-      // their number, mirroring the sign-in verification flow.
+      // user to the OTP screen to confirm their number, mirroring the sign-in
+      // verification flow. The number itself is not in the URL — the signUp
+      // action parked it in an httpOnly cookie that the OTP page reads server
+      // side, so `data` here only tells us that registration succeeded.
       if (data) {
-        const otpPath = `/otp/${encodeURIComponent(data)}`;
+        const otpPath = "/otp";
         router.push(redirectTo ? `${otpPath}?redirectTo=${encodeURIComponent(redirectTo)}` : otpPath);
       } else {
         router.push(redirectTo ? `/sign-in?redirectTo=${encodeURIComponent(redirectTo)}` : "/sign-in");

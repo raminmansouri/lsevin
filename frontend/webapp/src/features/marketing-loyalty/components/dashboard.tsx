@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { BadgePercent, Gift, Medal, ReceiptText, TicketCheck, Trophy, Users } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,13 +10,13 @@ import type { AdminDashboardStats } from "../types";
 import { EarnRateSettingsCard } from "./earn-rate-settings-card";
 
 const tiles = [
-  { href: "/admin/marketing/offers", title: "Marketing offers", description: "Featured campaigns and provider-service offers", icon: BadgePercent },
-  { href: "/admin/loyalty/tiers", title: "Loyalty tiers", description: "Cashback levels, colors, benefits and icons", icon: Trophy },
-  { href: "/admin/loyalty/accounts", title: "Loyalty accounts", description: "Customer points, current tier and referral codes", icon: Users },
-  { href: "/admin/loyalty/coupons", title: "Loyalty coupons", description: "Codes, discount values and targeted services", icon: Gift },
-  { href: "/admin/loyalty/customer-coupons", title: "Customer coupons", description: "Assignments, redemptions and booking linkage", icon: TicketCheck },
-  { href: "/admin/loyalty/ledger", title: "Ledger", description: "Append-only loyalty points and money history", icon: ReceiptText },
-  { href: "/admin/loyalty/referrals", title: "Referrals", description: "Invite status, rewards and qualification tracking", icon: Medal },
+  { href: "/admin/marketing/offers", key: "offers", icon: BadgePercent },
+  { href: "/admin/loyalty/tiers", key: "tiers", icon: Trophy },
+  { href: "/admin/loyalty/accounts", key: "accounts", icon: Users },
+  { href: "/admin/loyalty/coupons", key: "coupons", icon: Gift },
+  { href: "/admin/loyalty/customer-coupons", key: "customerCoupons", icon: TicketCheck },
+  { href: "/admin/loyalty/ledger", key: "ledger", icon: ReceiptText },
+  { href: "/admin/loyalty/referrals", key: "referrals", icon: Medal },
 ];
 
 export function MarketingLoyaltyDashboard({
@@ -23,20 +26,22 @@ export function MarketingLoyaltyDashboard({
   stats: AdminDashboardStats;
   earnRateDivisor: number;
 }) {
+  const t = useTranslations("AdminPages.marketingLoyalty");
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight">Marketing & Loyalty</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">{t("dashboard.title")}</h1>
         <p className="mt-2 text-muted-foreground">
-          Full admin control for offer campaigns, loyalty tiers, accounts, coupons, referrals, and the points ledger.
+          {t("dashboard.description")}
         </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Active offers" value={stats.activeOffers} helper={`${stats.featuredOffers} featured`} />
-        <StatCard label="Active coupons" value={stats.activeCoupons} helper={`${stats.availableCustomerCoupons} assigned and available`} />
-        <StatCard label="Loyalty accounts" value={stats.totalAccounts} helper={`${stats.totalPoints.toLocaleString()} total active points`} />
-        <StatCard label="Pending referrals" value={stats.pendingReferrals} helper={`${stats.ledgerEntries.toLocaleString()} ledger entries`} />
+        <StatCard label={t("dashboard.stats.activeOffers")} value={stats.activeOffers} helper={t("dashboard.stats.featured", { count: stats.featuredOffers })} />
+        <StatCard label={t("dashboard.stats.activeCoupons")} value={stats.activeCoupons} helper={t("dashboard.stats.assignedAvailable", { count: stats.availableCustomerCoupons })} />
+        <StatCard label={t("dashboard.stats.accounts")} value={stats.totalAccounts} helper={t("dashboard.stats.totalPoints", { count: stats.totalPoints })} />
+        <StatCard label={t("dashboard.stats.pendingReferrals")} value={stats.pendingReferrals} helper={t("dashboard.stats.ledgerEntries", { count: stats.ledgerEntries })} />
       </div>
 
       <EarnRateSettingsCard divisor={earnRateDivisor} />
@@ -51,8 +56,8 @@ export function MarketingLoyaltyDashboard({
                   <Icon className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="font-semibold">{tile.title}</h2>
-                  <p className="mt-1 text-sm text-muted-foreground">{tile.description}</p>
+                  <h2 className="font-semibold">{t(`dashboard.tiles.${tile.key}.title`)}</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">{t(`dashboard.tiles.${tile.key}.description`)}</p>
                 </div>
               </div>
             </Link>

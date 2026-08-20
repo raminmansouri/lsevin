@@ -729,7 +729,8 @@ declare const messages: {
     "entryResolveFailedTitle": "Could not load this service",
     "entryResolveFailedSubtitle": "The link you opened pointed at a specific service, but we could not read it. Please try again.",
     "retry": "Try again",
-    "close": "Close"
+    "close": "Close",
+    "stepConsultation": "Free consultation"
   },
   "Explore": {
     "header": {
@@ -947,6 +948,8 @@ declare const messages: {
     "cannedReplySaved": "Canned reply saved.",
     "capDueNow": "Cap Due Now",
     "category": "Category",
+    "providerCategoryHint": "Where this business is listed when a visitor browses categories. Leave empty to fall back to the categories of the services it offers.",
+    "selectCategory": "Select category",
     "categoryPerformance": "Category performance",
     "certificationDeleted": "Certification Deleted",
     "certificationName": "Certification Name",
@@ -1085,6 +1088,7 @@ declare const messages: {
     "eyebrowSmallTopText": "Eyebrow Small Top Text",
     "failed": "Failed",
     "featured": "Featured",
+    "featuredServiceHint": "Only services ticked Featured appear on the app’s Featured Services shelf. Popular and the trending score only change the order within it.",
     "featuredScore": "Featured Score",
     "feeMode": "Fee Mode",
     "file": "File",
@@ -2347,13 +2351,15 @@ declare const messages: {
       "title": "Explore Categories",
       "emptyTitle": "No service categories found",
       "emptyDescription": "Add active categories, services, and providers to show them here.",
-      "serviceCount": "{count} services"
+      "serviceCount": "{count} services",
+      "providerCount": "{count} providers",
+      "subcategoryCount": "{count} subcategories"
     },
     "featured": {
       "title": "Featured Services",
       "subtitle": "Handpicked by our experts",
       "emptyTitle": "No featured services yet",
-      "emptyDescription": "Mark provider services as popular or add offers to feature them here.",
+      "emptyDescription": "Tick “Featured” on a provider service in the admin panel to show it here.",
       "discountOff": "{percent}% OFF",
       "availableDestination": "Available destination"
     },
@@ -2477,7 +2483,7 @@ declare const messages: {
     "featuredPage": {
       "backAria": "Back to home",
       "title": "Featured Services",
-      "subtitle": "Browse all services",
+      "subtitle": "All featured services",
       "ctaTitle": "Can't find what you're looking for?",
       "ctaDescription": "Use our smart search to find exactly what you need.",
       "ctaButton": "Search Now"
@@ -4243,7 +4249,6 @@ declare const messages: {
     "bookings": "bookings",
     "bookingdrafts": "booking drafts",
     "loyalty": "loyalty",
-    "sponsered-slider": "sponsered slider",
     "users": "users",
     "customers": "customers",
     "payments": "payments",
@@ -4435,7 +4440,106 @@ declare const messages: {
     "commercial": "Financials",
     "notifications": "Notifications",
     "refunds": "Refunds",
-    "templates": "Templates"
+    "templates": "Templates",
+    "consultationRequests": "Consultation requests",
+    "home": {
+      "title": "Table browser",
+      "description": "Every database table you have permission to read, grouped by schema.",
+      "empty": "You do not have read permission on any table yet.",
+      "stats": {
+        "tables": "Accessible tables",
+        "permissions": "Permission rows",
+        "schemas": "Schemas"
+      },
+      "cache": {
+        "title": "System cache",
+        "description": "Force-rebuild every cached page and data query across the app."
+      }
+    },
+    "actions": {
+      "create": "Create",
+      "refresh": "Refresh",
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "bookings": "Bookings",
+      "bookingsList": "All bookings",
+      "bookingDrafts": "Booking drafts",
+      "bookingCalendar": "Booking calendar",
+      "availability": "Availability",
+      "finance": "Finance",
+      "payments": "Payments",
+      "paymentGateways": "Payment gateways",
+      "walletTransactions": "Wallet transactions",
+      "walletPaymentIntents": "Wallet payment intents",
+      "refunds": "Refunds",
+      "currencies": "Currencies",
+      "exchangeRates": "Exchange rates",
+      "commercial": "Commercial",
+      "commercialOverview": "Overview",
+      "commercialPolicies": "Policies",
+      "commercialPaymentPolicies": "Payment policies",
+      "providerLedgers": "Provider ledgers",
+      "commercialRefundRequests": "Refund requests",
+      "providers": "Providers",
+      "serviceProviders": "Service providers",
+      "serviceProvidersRequest": "Provider requests",
+      "providerApplications": "Provider applications",
+      "providerTypes": "Provider types",
+      "providerPolicyTypes": "Provider policy types",
+      "staff": "Staff",
+      "categories": "Categories",
+      "serviceDefinitions": "Service definitions",
+      "customers": "Customers",
+      "customersList": "All customers",
+      "identityUsers": "Users",
+      "pickedLocations": "Locations",
+      "marketing": "Marketing",
+      "loyaltyOverview": "Loyalty overview",
+      "loyaltyTiers": "Loyalty tiers",
+      "loyaltyAccounts": "Loyalty accounts",
+      "loyaltyCoupons": "Coupons",
+      "loyaltyCustomerCoupons": "Customer coupons",
+      "loyaltyLedger": "Loyalty ledger",
+      "loyaltyReferrals": "Referrals",
+      "marketingOffers": "Offers",
+      "referralProgram": "Referral program",
+      "referralPolicies": "Referral policies",
+      "content": "Content",
+      "homeSections": "Home sections",
+      "sponsoredSlider": "Sponsored slider",
+      "specialPackages": "Special packages",
+      "authContent": "Auth content",
+      "mediaLibrary": "Media library",
+      "support": "Support",
+      "supportInbox": "Inbox",
+      "supportConversations": "Conversations",
+      "cannedReplies": "Canned replies",
+      "supportTags": "Tags",
+      "supportSettings": "Support settings",
+      "consultings": "Consultation requests",
+      "bugReports": "Bug reports",
+      "notificationTemplates": "Notification templates",
+      "shop": "Shop",
+      "shopOverview": "Overview",
+      "shopOrders": "Orders",
+      "shopProducts": "Products",
+      "shopInventory": "Inventory",
+      "shopCoupons": "Coupons",
+      "shopSettings": "Shop settings",
+      "platform": "Platform",
+      "platformData": "Platform data",
+      "formBuilder": "Form builder",
+      "formSubmissions": "Form submissions",
+      "tableBrowser": "Table browser",
+      "searchPlaceholder": "Search",
+      "noResults": "No matches",
+      "databaseTables": "Database tables"
+    }
   },
   "HomePage": {
     "title": "L Sevin - Automated Healthcare",
@@ -6903,6 +7007,19 @@ declare const messages: {
         "receiptWrongType": "Only image files are allowed.",
         "submitted": "Your crypto deposit was submitted and will be credited after admin approval.",
         "done": "Done"
+      },
+      "topUpResult": {
+        "succeededTitle": "Wallet topped up",
+        "succeededBody": "Your payment was verified and the amount has been added to your balance.",
+        "succeededToast": "Wallet topped up successfully",
+        "cancelledTitle": "Payment cancelled",
+        "cancelledBody": "You cancelled the payment, so nothing was charged and your balance is unchanged.",
+        "cancelledToast": "Payment was cancelled",
+        "failedTitle": "Top-up failed",
+        "failedBody": "We could not confirm this payment, so nothing was added to your balance. If an amount was deducted from your account, contact support before trying again.",
+        "failedToast": "Top-up could not be verified",
+        "reference": "Reference: {reference}",
+        "dismiss": "Dismiss"
       }
     },
     "transactions": {
@@ -7552,7 +7669,9 @@ declare const messages: {
     },
     "useMyLocation": "Use my location",
     "expandedNote": "No services in your selected area — showing the nearest available, sorted by distance.",
-    "noResults": "No services found. Try widening your filters."
+    "noResults": "No services found. Try widening your filters.",
+    "showMap": "Map",
+    "showList": "List"
   },
   "NearbyMap": {
     "mapboxNotConfiguredTitle": "Mapbox is not configured",
@@ -12505,6 +12624,582 @@ declare const messages: {
     "notification_status": "Notification Status",
     "notify_notification_id": "Notify Notification Id",
     "office_hours": "Office Hours"
+  },
+  "Consultation": {
+    "step": {
+      "label": "Free consultation",
+      "title": "Not sure what to book? Talk to an advisor first.",
+      "subtitle": "Leave your details and one of our advisors will call you back. It is free and it does not change your booking.",
+      "optional": "Optional",
+      "skipNote": "You can skip this step and carry on booking."
+    },
+    "form": {
+      "firstName": {
+        "label": "First name",
+        "placeholder": "e.g. Sara"
+      },
+      "lastName": {
+        "label": "Last name",
+        "placeholder": "e.g. Ahmadi"
+      },
+      "phone": {
+        "label": "Phone number",
+        "placeholder": "09xxxxxxxxx",
+        "hint": "We will call or text this number."
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "you@example.com"
+      },
+      "category": {
+        "label": "What do you need help with?",
+        "placeholder": "e.g. dental treatment"
+      },
+      "description": {
+        "label": "Tell us more",
+        "placeholder": "Describe what you are looking for…"
+      },
+      "preferredContactTime": {
+        "label": "Best time to call"
+      },
+      "urgency": {
+        "label": "How soon do you need this?"
+      },
+      "optionalTag": "optional",
+      "submit": "Request a free consultation",
+      "submitting": "Sending…"
+    },
+    "contactTime": {
+      "any": "Any time",
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening"
+    },
+    "urgency": {
+      "normal": "No rush",
+      "soon": "Within a few days",
+      "urgent": "Urgent"
+    },
+    "success": {
+      "title": "Request received",
+      "body": "Our advisors will contact you on {phone}.",
+      "continue": "Continue booking",
+      "sendAnother": "Send another request"
+    },
+    "errors": {
+      "signInRequired": "Please sign in before requesting a consultation.",
+      "notAvailable": "Consultation requests are not available yet. Please try again later.",
+      "invalidForm": "Please check the highlighted fields.",
+      "rateLimited": "You have sent several requests already. Please try again later.",
+      "notFound": "That request no longer exists.",
+      "generic": "Something went wrong. Please try again.",
+      "tooShort": "This is too short.",
+      "tooLong": "This is too long.",
+      "invalidPhone": "Enter a valid phone number.",
+      "digitsOnly": "Digits only.",
+      "duplicatePhone": "That phone number is already on the list."
+    },
+    "admin": {
+      "title": "Consultation requests",
+      "description": "Free-consultation callbacks raised from the booking flow.",
+      "empty": "No consultation requests yet.",
+      "schemaMissing": {
+        "title": "Database migration pending",
+        "body": "Apply migration 0022_consultation_requests.sql to enable this section."
+      },
+      "stats": {
+        "total": "Total",
+        "new": "New",
+        "inProgress": "In progress",
+        "contacted": "Contacted",
+        "done": "Done",
+        "rejected": "Rejected",
+        "failedNotifications": "Failed SMS"
+      },
+      "filters": {
+        "search": "Search name, phone or email",
+        "status": "Status",
+        "urgency": "Urgency",
+        "all": "All",
+        "reset": "Reset",
+        "apply": "Apply"
+      },
+      "table": {
+        "name": "Name",
+        "phone": "Phone",
+        "topic": "Topic",
+        "urgency": "Urgency",
+        "preferredTime": "Best time",
+        "status": "Status",
+        "sms": "SMS",
+        "createdAt": "Received",
+        "actions": "Actions",
+        "view": "View"
+      },
+      "status": {
+        "new": "New",
+        "in_progress": "In progress",
+        "contacted": "Contacted",
+        "done": "Done",
+        "rejected": "Rejected"
+      },
+      "detail": {
+        "title": "Consultation request",
+        "contact": "Contact",
+        "message": "Message",
+        "noMessage": "No message provided.",
+        "meta": "Details",
+        "locale": "Language",
+        "source": "Source",
+        "bookingDraft": "Booking draft",
+        "notifications": "Notifications",
+        "noNotifications": "Nothing was sent for this request.",
+        "adminNote": "Internal note",
+        "adminNotePlaceholder": "Notes for the team…",
+        "save": "Save changes",
+        "saving": "Saving…",
+        "saved": "Saved",
+        "close": "Close"
+      },
+      "notification": {
+        "customer": "Customer",
+        "admin": "Admin",
+        "sent": "Sent",
+        "failed": "Failed",
+        "skipped": "Skipped",
+        "pending": "Pending",
+        "reason": {
+          "sms_disabled": "SMS is switched off",
+          "no_credentials": "Provider credentials are missing",
+          "no_body_id": "No pattern id configured",
+          "not_iranian_mobile": "Not an Iranian mobile number",
+          "no_recipients": "No admin recipients configured"
+        }
+      },
+      "settings": {
+        "title": "Notification settings",
+        "description": "Who is told when a request arrives, and which MeliPayamak pattern carries the message.",
+        "enabled": "Send SMS notifications",
+        "customerBodyId": "Customer pattern id (bodyId)",
+        "customerBodyIdHint": "One variable: the customer's first name.",
+        "adminBodyId": "Admin pattern id (bodyId)",
+        "adminBodyIdHint": "Three variables, in order: full name, phone, urgency.",
+        "rateLimit": "Max requests per user per hour",
+        "patternNotice": "This MeliPayamak account has no free-text line, so every message must use a pattern approved in the MeliPayamak panel. Until these ids are set, notifications are recorded as skipped and nothing is sent.",
+        "save": "Save settings",
+        "saved": "Settings saved"
+      },
+      "recipients": {
+        "title": "Admin recipients",
+        "description": "Every active number is texted when a request arrives.",
+        "label": "Name",
+        "labelPlaceholder": "e.g. Support desk",
+        "phone": "Phone",
+        "phonePlaceholder": "09xxxxxxxxx",
+        "active": "Active",
+        "add": "Add recipient",
+        "update": "Update recipient",
+        "edit": "Edit",
+        "delete": "Delete",
+        "confirmDelete": "Remove this recipient?",
+        "empty": "No recipients yet — nobody is notified.",
+        "cancel": "Cancel"
+      }
+    }
+  },
+  "AdminPages": {
+    "bugReportsNotif": {
+      "meta": {
+        "bugReportsTitle": "Bug reports",
+        "bugReportsDescription": "Admin bug report board",
+        "notificationTemplatesTitle": "Notification templates",
+        "notificationTemplatesDescription": "Manage editable notification message templates."
+      }
+    },
+    "locationsPolicies": {
+      "pickedLocations": {
+        "addTitle": "Add picked location",
+        "addDescription": "Create a picked location for the mobile home location picker",
+        "updateTitle": "Update picked location"
+      }
+    },
+    "marketingLoyalty": {
+      "dashboard": {
+        "title": "Marketing & loyalty",
+        "description": "Full admin control for offer campaigns, loyalty tiers, accounts, coupons, referrals, and the points ledger.",
+        "stats": {
+          "activeOffers": "Active offers",
+          "activeCoupons": "Active coupons",
+          "accounts": "Loyalty accounts",
+          "pendingReferrals": "Pending referrals",
+          "featured": "{count} featured",
+          "assignedAvailable": "{count} assigned and available",
+          "totalPoints": "{count} total active points",
+          "ledgerEntries": "{count} ledger entries"
+        },
+        "tiles": {
+          "offers": {
+            "title": "Marketing offers",
+            "description": "Featured campaigns and provider-service offers"
+          },
+          "tiers": {
+            "title": "Loyalty tiers",
+            "description": "Cashback levels, colors, benefits and icons"
+          },
+          "accounts": {
+            "title": "Loyalty accounts",
+            "description": "Customer points, current tier and referral codes"
+          },
+          "coupons": {
+            "title": "Loyalty coupons",
+            "description": "Codes, discount values and targeted services"
+          },
+          "customerCoupons": {
+            "title": "Customer coupons",
+            "description": "Assignments, redemptions and booking linkage"
+          },
+          "ledger": {
+            "title": "Ledger",
+            "description": "Append-only loyalty points and money history"
+          },
+          "referrals": {
+            "title": "Referrals",
+            "description": "Invite status, rewards and qualification tracking"
+          }
+        }
+      },
+      "list": {
+        "addNew": "Add new",
+        "search": "Search",
+        "searchPlaceholder": "Search by customer, code, title, status…",
+        "clear": "Clear",
+        "actions": "Actions",
+        "empty": "No records found.",
+        "yes": "Yes",
+        "no": "No",
+        "deleted": "Record deleted.",
+        "confirmDelete": "Delete this {entity} record?",
+        "appendOnly": "Append-only record"
+      },
+      "form": {
+        "save": "Save",
+        "saving": "Saving…",
+        "cancel": "Cancel",
+        "created": "Record created.",
+        "updated": "Record updated.",
+        "selectField": "Select {field}",
+        "pickField": "Pick {field}",
+        "pickMedia": "Pick media",
+        "pickFiles": "Pick files"
+      },
+      "earnRate": {
+        "title": "Points earn rate",
+        "description": "Points on the customer rewards page are derived from booking spend: points = amount (Rial) ÷ divisor. Changing the divisor rescales displayed balances at the new rate; ledger entries and account balances are untouched.",
+        "divisorLabel": "Divisor (Rial per point)",
+        "save": "Save",
+        "saving": "Saving…",
+        "saved": "Points earn rate saved.",
+        "mustBePositive": "Earn-rate divisor must be greater than zero.",
+        "hint": "Enter a positive number, e.g. 1,000,000 Rial per point.",
+        "example": "Example: {spend} Rial ÷ {divisor} = {points} points"
+      },
+      "entities": {
+        "marketing-offers": {
+          "title": "Marketing offers",
+          "description": "Manage service-specific offers, featured campaigns, promo codes, usage limits, and expiry windows.",
+          "createTitle": "Create marketing offer",
+          "updateTitle": "Update marketing offer",
+          "columns": {
+            "title": "Offer",
+            "providerServiceLabel": "Service",
+            "discountPercent": "Discount",
+            "validUntil": "Valid until",
+            "code": "Code",
+            "usedCount": "Used",
+            "isFeatured": "Featured",
+            "isActive": "Active"
+          },
+          "fields": {
+            "providerServiceId": {
+              "label": "Provider service"
+            },
+            "title": {
+              "label": "Title",
+              "placeholder": "Summer beauty offer"
+            },
+            "subtitle": {
+              "label": "Subtitle",
+              "placeholder": "Short campaign message",
+              "helperText": "Stored as text. If the value is Lexical JSON, lists render it with LexicalRenderer."
+            },
+            "discountPercent": {
+              "label": "Discount percent"
+            },
+            "validUntil": {
+              "label": "Valid until"
+            },
+            "code": {
+              "label": "Promo code",
+              "placeholder": "LSEVIN20"
+            },
+            "usageLimit": {
+              "label": "Usage limit",
+              "placeholder": "Leave empty for unlimited"
+            },
+            "usedCount": {
+              "label": "Used count"
+            },
+            "isFeatured": {
+              "label": "Featured offer"
+            },
+            "isActive": {
+              "label": "Active"
+            }
+          }
+        },
+        "loyalty-tiers": {
+          "title": "Loyalty tiers",
+          "description": "Define member tiers, minimum points, cashback percent, colors, icons, and benefit JSON.",
+          "createTitle": "Create loyalty tier",
+          "updateTitle": "Update loyalty tier",
+          "columns": {
+            "name": "Tier",
+            "minPoints": "Min points",
+            "cashbackPercent": "Cashback",
+            "icon": "Icon",
+            "accountCount": "Accounts",
+            "lastModifiedDate": "Updated"
+          },
+          "fields": {
+            "name": {
+              "label": "Name",
+              "placeholder": "Gold"
+            },
+            "minPoints": {
+              "label": "Minimum points"
+            },
+            "cashbackPercent": {
+              "label": "Cashback percent"
+            },
+            "benefits": {
+              "label": "Benefits JSON",
+              "helperText": "JSON array. Example: [\\\"VIP support\\\", \\\"5% cashback\\\"]"
+            },
+            "colorFrom": {
+              "label": "Gradient color from",
+              "placeholder": "#084132"
+            },
+            "colorTo": {
+              "label": "Gradient color to",
+              "placeholder": "#eac074"
+            },
+            "icon": {
+              "label": "Icon",
+              "placeholder": "Crown"
+            }
+          }
+        },
+        "loyalty-accounts": {
+          "title": "Loyalty accounts",
+          "description": "Manage each customer’s point balance, lifetime points, current tier, and referral code.",
+          "createTitle": "Create loyalty account",
+          "updateTitle": "Update loyalty account",
+          "columns": {
+            "customerLabel": "Customer",
+            "pointsBalance": "Balance",
+            "lifetimePoints": "Lifetime",
+            "tierName": "Tier",
+            "referralCode": "Referral code",
+            "lastModifiedDate": "Updated"
+          },
+          "fields": {
+            "customerId": {
+              "label": "Customer"
+            },
+            "pointsBalance": {
+              "label": "Points balance"
+            },
+            "lifetimePoints": {
+              "label": "Lifetime points"
+            },
+            "currentTierId": {
+              "label": "Current tier"
+            },
+            "referralCode": {
+              "label": "Referral code",
+              "placeholder": "DANIAL2026"
+            }
+          }
+        },
+        "loyalty-coupons": {
+          "title": "Loyalty coupons",
+          "description": "Create loyalty coupons with discount rules, optional provider service targeting, and usage limits.",
+          "createTitle": "Create loyalty coupon",
+          "updateTitle": "Update loyalty coupon",
+          "columns": {
+            "code": "Code",
+            "title": "Title",
+            "discountType": "Type",
+            "discountValue": "Value",
+            "minPurchase": "Min purchase",
+            "providerServiceLabel": "Service",
+            "expiresAt": "Expires",
+            "isActive": "Active"
+          },
+          "fields": {
+            "code": {
+              "label": "Coupon code",
+              "placeholder": "LOYALTY25"
+            },
+            "title": {
+              "label": "Title"
+            },
+            "description": {
+              "label": "Description",
+              "helperText": "Stored as text. If the value is Lexical JSON, lists render it with LexicalRenderer."
+            },
+            "discountType": {
+              "label": "Discount type"
+            },
+            "discountValue": {
+              "label": "Discount value"
+            },
+            "minPurchase": {
+              "label": "Minimum purchase"
+            },
+            "startsAt": {
+              "label": "Starts at"
+            },
+            "expiresAt": {
+              "label": "Expires at"
+            },
+            "usageLimit": {
+              "label": "Usage limit"
+            },
+            "providerServiceId": {
+              "label": "Provider service",
+              "helperText": "Optional. Leave empty to make this coupon global."
+            },
+            "isActive": {
+              "label": "Active"
+            }
+          }
+        },
+        "loyalty-customer-coupons": {
+          "title": "Customer coupons",
+          "description": "Assign coupons to customers and track availability, redemption date, and booking linkage.",
+          "createTitle": "Assign coupon to customer",
+          "updateTitle": "Update assigned coupon",
+          "columns": {
+            "customerLabel": "Customer",
+            "couponLabel": "Coupon",
+            "status": "Status",
+            "assignedAt": "Assigned",
+            "redeemedAt": "Redeemed",
+            "bookingLabel": "Booking"
+          },
+          "fields": {
+            "customerId": {
+              "label": "Customer"
+            },
+            "couponId": {
+              "label": "Coupon"
+            },
+            "status": {
+              "label": "Status"
+            },
+            "assignedAt": {
+              "label": "Assigned at"
+            },
+            "redeemedAt": {
+              "label": "Redeemed at"
+            },
+            "bookingId": {
+              "label": "Booking"
+            }
+          }
+        },
+        "loyalty-ledger": {
+          "title": "Loyalty ledger",
+          "description": "Append-only points and reward-money history. New entries automatically update the account balance.",
+          "createTitle": "Create ledger entry",
+          "updateTitle": "Ledger entry",
+          "columns": {
+            "customerLabel": "Customer",
+            "entryType": "Type",
+            "pointsDelta": "Points",
+            "moneyDelta": "Money",
+            "description": "Description",
+            "bookingLabel": "Booking",
+            "createDate": "Created"
+          },
+          "fields": {
+            "customerId": {
+              "label": "Customer"
+            },
+            "bookingId": {
+              "label": "Booking"
+            },
+            "entryType": {
+              "label": "Entry type"
+            },
+            "pointsDelta": {
+              "label": "Points delta",
+              "helperText": "Use positive values to grant points and negative values to redeem/deduct."
+            },
+            "moneyDelta": {
+              "label": "Money delta"
+            },
+            "description": {
+              "label": "Description",
+              "helperText": "Stored as text. If the value is Lexical JSON, lists render it with LexicalRenderer."
+            },
+            "metadata": {
+              "label": "Metadata JSON"
+            }
+          }
+        },
+        "loyalty-referrals": {
+          "title": "Referrals",
+          "description": "Track referral invitations, referred customers, qualification status, and reward values.",
+          "createTitle": "Create referral",
+          "updateTitle": "Update referral",
+          "columns": {
+            "referrerLabel": "Referrer",
+            "referredLabel": "Referred",
+            "referralCode": "Code",
+            "status": "Status",
+            "rewardAmount": "Reward",
+            "rewardPoints": "Reward points",
+            "qualifiedAt": "Qualified",
+            "createDate": "Created"
+          },
+          "fields": {
+            "referrerCustomerId": {
+              "label": "Referrer customer"
+            },
+            "referredCustomerId": {
+              "label": "Referred customer"
+            },
+            "referralCode": {
+              "label": "Referral code"
+            },
+            "status": {
+              "label": "Status"
+            },
+            "rewardAmount": {
+              "label": "Reward amount"
+            },
+            "rewardPoints": {
+              "label": "Reward points"
+            },
+            "qualifiedAt": {
+              "label": "Qualified at"
+            }
+          }
+        }
+      }
+    }
   }
 };
 export default messages;

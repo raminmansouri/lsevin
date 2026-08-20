@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import type { SearchParams } from "nuqs";
 
 import ServerFetchResult from "@/components/fetcher/fetch.server";
@@ -11,10 +12,14 @@ import { getAdminNotificationTemplatesPageData } from "@/features/notification/d
 import type { AdminNotificationTemplateFilterParams } from "@/features/notification/types/notification-template-types";
 import type { PageProps } from "@/types/next";
 
-export const metadata: Metadata = {
-  title: "Notification templates",
-  description: "Manage editable notification message templates.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("AdminPages");
+
+  return {
+    title: t("bugReportsNotif.meta.notificationTemplatesTitle"),
+    description: t("bugReportsNotif.meta.notificationTemplatesDescription"),
+  };
+}
 
 interface NotificationTemplatesPageProps extends PageProps {
   params: Promise<{ locale: string }>;

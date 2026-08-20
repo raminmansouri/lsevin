@@ -1,10 +1,16 @@
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
-type Props = { params: Promise<{ sliderId: string }> };
+import { SponseredSliderAdminForm } from "@/features/sponsered-slider/components/sponsered-slider-admin-form";
+import { getSponseredSliderAdminRow } from "@/features/sponsered-slider/server/repository";
 
-const SponsoredSliderUpdateAliasPage = async ({ params }: Props) => {
+
+export default async function UpdateSponsoredSliderPage({
+  params,
+}: {
+  params: Promise<{ sliderId: string }>;
+}) {
   const { sliderId } = await params;
-  redirect(`/admin/sponsered-slider/${sliderId}/update`);
-};
-
-export default SponsoredSliderUpdateAliasPage;
+  const slider = await getSponseredSliderAdminRow(sliderId);
+  if (!slider) notFound();
+  return <SponseredSliderAdminForm slider={slider} />;
+}

@@ -34,14 +34,21 @@ import {
 import { getCurrentUser } from "@/features/shared/api/server/get-current-user";
 import { ICurrentUser } from "@/features/shared/types/user";
 import { getUserRoles } from "@/lib/auth/session";
+import { alternatesFor } from "@/lib/seo/alternates";
 import { UserRole } from "@/types/common";
 import { PageProps } from "@/types/next";
 import { redirect } from "next/navigation";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
   const t = await getTranslations(TRANSLATION_KEY);
 
   return {
+    alternates: alternatesFor(locale),
     title: t("title"),
     description: t("description"),
     keywords: t("keywords").split(","),

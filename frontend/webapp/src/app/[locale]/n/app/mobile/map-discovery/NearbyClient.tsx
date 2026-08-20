@@ -83,8 +83,14 @@ type UiFilters = {
   specialties: string[];
 };
 
-function buildNearbyQuery(next: NearbyFiltersInput) {
+function buildNearbyQuery(next: NearbyFiltersInput, view: "map" | "list" = "map") {
   const params = new URLSearchParams();
+
+  // Every filter change and the location auto-detect rewrite this URL, so the
+  // chosen view has to be carried along or the page would snap back to the map
+  // mid-browse. Only "list" is written — the map is the default, so its URLs
+  // stay clean.
+  if (view === "list") params.set("view", "list");
 
   if (next.q) params.set("q", next.q);
   if (next.categoryId && next.categoryId !== "all")
@@ -243,10 +249,14 @@ export default function NearbyClient({
   filters: initialFilters,
   mapCenter,
   expandedBeyondFilters = false,
+  initialView = "map",
+  activeCategoryLabel = null,
 }: {
   locale: string;
   customerId: string | null;
   categories: NearbyCategory[];
+  /** Name of the category being browsed; titles the page in place of "Map Discovery". */
+  activeCategoryLabel?: string | null;
   providers: NearbyProvider[];
   availableLanguages: string[];
   availableSpecialties: string[];
@@ -254,15 +264,39 @@ export default function NearbyClient({
   filters: NearbyFiltersInput;
   mapCenter: { lat: number; lng: number; zoom: number };
   expandedBeyondFilters?: boolean;
+  /**
+   * Which view to open on. Arriving from a category means "show me what is in
+   * this category", so those links ask for the list; the map is one tap away on
+   * the header toggle. Landing here directly still opens the map.
+   */
+  initialView?: "map" | "list";
 }) {
   const t = useTranslations("MapDiscovery");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [viewMode, setViewMode] = useState<"map" | "list">("map");
+  const [viewMode, setViewMode] = useState<"map" | "list">(initialView);
   const [selectedProviderId, setSelectedProviderId] = useState<string | null>(
     providers[0]?.id ?? null,
   );
   const [showFilters, setShowFilters] = useState(false);
+
+  // Switching view is instant client state — the providers are already loaded,
+  // so routing through the server just to re-render the same data would add a
+  // refetch and a flash. But the address bar still has to agree, or a refresh
+  // would drop the visitor back into the other view. history.replaceState is
+  // supported by the App Router for exactly this: it updates the URL without a
+  // server round-trip. replace (not push) so Back returns to where the visitor
+  // came from rather than undoing the toggle.
+  const toggleViewMode = useCallback(() => {
+    const next = viewMode === "map" ? "list" : "map";
+    setViewMode(next);
+
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (next === "list") url.searchParams.set("view", "list");
+    else url.searchParams.delete("view");
+    window.history.replaceState(null, "", `${url.pathname}${url.search}`);
+  }, [viewMode]);
 
   // Map center + the user's detected country. The server provides an initial
   // center; when the visitor hasn't picked a location we auto-detect theirs
@@ -310,7 +344,7 @@ export default function NearbyClient({
           navigateSmooth(
             startTransition,
             router,
-            buildNearbyQuery({ ...initialFilters, lat: stored.lat, lng: stored.lng, distanceKm: DEFAULT_DISTANCE_KM }),
+            buildNearbyQuery({ ...initialFilters, lat: stored.lat, lng: stored.lng, distanceKm: DEFAULT_DISTANCE_KM }, viewMode),
           );
         }
       } else if (initialFilters.lat != null || initialFilters.lng != null) {
@@ -319,7 +353,7 @@ export default function NearbyClient({
         navigateSmooth(
           startTransition,
           router,
-          buildNearbyQuery({ ...initialFilters, lat: null, lng: null }),
+          buildNearbyQuery({ ...initialFilters, lat: null, lng: null }, viewMode),
         );
       }
       return;
@@ -416,6 +450,16 @@ export default function NearbyClient({
   const selectedProvider =
     providers.find((provider) => provider.id === selectedProviderId) ?? null;
 
+  // Whether a single category is being browsed. "all" is the unfiltered state,
+  // not a category. Drives both the page title and whether the category picker
+  // is shown. Deliberately not a lookup in `categories`: that list omits parent
+  // categories that have no providers of their own (Beauty, Tourism), and those
+  // are reachable from the home page — the name comes from the server instead.
+  const isCategoryView = Boolean(
+    (uiFilters.categoryId && uiFilters.categoryId !== "all") ||
+      (uiFilters.providerTypeId && uiFilters.providerTypeId !== "all"),
+  );
+
   const selectedCurrency = useMemo(() => {
     const selected = availableCurrencies.find(
       (currency) => currency.code === (watched.currencyCode ?? null),
@@ -488,7 +532,7 @@ export default function NearbyClient({
         verifiedOnly: uiFilters.verifiedOnly,
         languages: uiFilters.languages,
         specialties: uiFilters.specialties,
-      }),
+      }, viewMode),
     );
   };
 
@@ -525,7 +569,7 @@ export default function NearbyClient({
         verifiedOnly: nextUi.verifiedOnly,
         languages: nextUi.languages,
         specialties: nextUi.specialties,
-      }),
+      }, viewMode),
     );
   });
 
@@ -572,7 +616,7 @@ export default function NearbyClient({
         verifiedOnly: false,
         languages: [],
         specialties: [],
-      }),
+      }, viewMode),
     );
   };
 
@@ -617,7 +661,7 @@ export default function NearbyClient({
             specialties: uiFilters.specialties,
             lat,
             lng,
-          }),
+          }, viewMode),
         );
       },
       (error) => {
@@ -676,24 +720,41 @@ export default function NearbyClient({
             </button>
 
             <div className="flex-1">
-              <h1 className="text-xl font-bold text-gray-900">{t("title")}</h1>
+              <h1 className="text-xl font-bold text-gray-900">
+                {(isCategoryView && activeCategoryLabel) || t("title")}
+              </h1>
               <p className="text-sm text-gray-600">
                 {t("providersNearby", { count: providers.length })}
               </p>
             </div>
 
+            {/* Arriving from a category lands on the list, so this is how the
+                visitor gets to the map. An icon alone did not say that — it
+                carries its destination as text. */}
             <button
-              onClick={() => setViewMode(viewMode === "map" ? "list" : "map")}
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-[#083f30] hover:bg-[#0a5a44] transition-colors"
+              onClick={toggleViewMode}
+              aria-label={viewMode === "map" ? t("showList") : t("showMap")}
+              className="flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-[#083f30] px-3.5 text-sm font-semibold text-white transition-colors hover:bg-[#0a5a44]"
             >
               {viewMode === "map" ? (
-                <List size={20} className="text-white" />
+                <>
+                  <List size={18} />
+                  {t("showList")}
+                </>
               ) : (
-                <MapPin size={20} className="text-white" />
+                <>
+                  <MapPin size={18} />
+                  {t("showMap")}
+                </>
               )}
             </button>
           </div>
 
+          {/* Hidden once a category is open: arriving from a category card is a
+              request for that category, and a row of every other category is an
+              invitation to leave it. The page title names the category instead.
+              Without one selected this is the only way to pick, so it stays. */}
+          {!isCategoryView && (
           <div className="flex gap-2 overflow-x-auto hide-scrollbar -mx-5 px-5 mb-3">
             {categories.map((cat) => (
               <button
@@ -723,6 +784,7 @@ export default function NearbyClient({
               </button>
             ))}
           </div>
+          )}
 
           <div className="grid grid-cols-[1fr_auto] gap-2">
             <button

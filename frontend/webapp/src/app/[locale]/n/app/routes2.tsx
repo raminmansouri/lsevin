@@ -51,7 +51,9 @@ import Wallet from "./mobile/profile/Wallet";
 import Rewards from "./mobile/profile/rewards/page";
 import Settings from "./mobile/profile/Settings";
 import Favorites from "./mobile/profile/favorites/page";
-import MedicalProfile from "./mobile/profile/MedicalProfile";
+// Medical profile is deactivated — see the commented route below and
+// mobile/profile/medical-profile/page.tsx.
+// import MedicalProfile from "./mobile/profile/MedicalProfile";
 import Notifications from "./mobile/notifications/page";
 import PrivacySecurity from "./mobile/profile/PrivacySecurity";
 import EditProfile from "./mobile/profile/EditProfile/page";
@@ -283,7 +285,10 @@ export const router = createBrowserRouter([
       { path: "rewards", Component: Rewards },
       { path: "settings", Component: Settings },
       { path: "favorites", Component: Favorites },
-      { path: "medical-profile", Component: MedicalProfile },
+      // Deactivated. This legacy client router still had its own entry pointing at the
+      // old MedicalProfile screen, so 404ing the App Router page alone would have left
+      // this second door open.
+      // { path: "medical-profile", Component: MedicalProfile },
       { path: "notifications", Component: Notifications },
       { path: "privacy-security", Component: PrivacySecurity },
       { path: "security", element: <Navigate to="/app/privacy-security" replace /> },

@@ -49,6 +49,7 @@ services:
     environment:
       NODE_ENV: production
       AUTH_URL: ${AUTH_URL}
+      APP_URL: ${APP_URL}
       AUTH_SECRET: ${AUTH_SECRET}
       AUTH_TRUST_HOST: "true"
       INTERNAL_API_URL: ${INTERNAL_API_URL}
@@ -80,7 +81,18 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
-      ConnectionStrings__database: Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Include Error Detail=true;
+      # Through PgBouncer, on the *session*-pooled alias. The API runs EF Core
+      # migrations at startup and Npgsql assumes a stable session, so it must not
+      # use the transaction-pooled default the webapp uses — see the comment on
+      # the pgbouncer service and pgbouncer/pgbouncer.ini.template.
+      #
+      # "No Reset On Close=true": PgBouncer already runs `DISCARD ALL` as its
+      # server_reset_query, so Npgsql's own reset on every close is a wasted
+      # round trip on a connection the pooler is about to reset anyway.
+      #
+      # Override API_DATABASE_HOST/PORT in .env to go straight to PostgreSQL
+      # (postgres / 5432) if PgBouncer ever has to be taken out of the path.
+      ConnectionStrings__database: Host=${API_DATABASE_HOST:-pgbouncer};Port=${API_DATABASE_PORT:-6432};Database=${API_DATABASE_NAME:-${POSTGRES_DB}_session};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Include Error Detail=true;No Reset On Close=true;Maximum Pool Size=${API_DATABASE_POOL_MAX:-40};
       ConnectionStrings__cache: redis:6379
       ConnectionStrings__eventstore: esdb://eventstore:2113?tls=false
       CorsOptions__AllowedUrls__0: ${CORS_ORIGIN_1}
@@ -98,17 +110,33 @@ services:
       # value is present, so a blank/unset WHATSIPLUS_API_KEY leaves the key unconfigured
       # (and international OTP sends are logged as "API key is not configured").
       WHATSIPLUS_API_KEY: ${WHATSIPLUS_API_KEY}
+      # Media storage backend. Left at FileSystem deliberately: deploying this file
+      # must not move writes to object storage as a side effect. Phase 5 of the media
+      # migration flips FILE_STORAGE_BACKEND to Minio once the bucket is mirrored, and
+      # flipping it back is the rollback while the disk files are still present.
+      FileUploadOptions__Backend: ${FILE_STORAGE_BACKEND:-FileSystem}
+      FileUploadOptions__S3__ServiceUrl: http://minio:9000
+      FileUploadOptions__S3__Bucket: ${MINIO_BUCKET:-lsevin-media}
+      # A scoped service account, never the MinIO root user.
+      FileUploadOptions__S3__AccessKey: ${MINIO_API_ACCESS_KEY}
+      FileUploadOptions__S3__SecretKey: ${MINIO_API_SECRET_KEY}
     expose:
       - "8080"
     volumes:
-      # Keep uploaded media outside every Git checkout. Both paths are mounted
-      # because older modules use /app/uploads while newer modules use
-      # /app/UploadFiles; they now point to the same durable host directory.
-      - ${LSEVIN_UPLOADS_DIR:-/var/lib/lsevin/uploads}:/app/uploads
+      # Keep uploaded media outside every Git checkout. Only /app/UploadFiles is mounted:
+      # the old second mount at /app/uploads was a leftover that no code reads or writes
+      # (FileUploadOptions:UploadDirectory is UploadFiles).
+      #
+      # This mount still matters even once media lives in MinIO — it is the pre-migration
+      # copy that keeps the backend switch reversible, and Caddy falls back to the .NET
+      # static handler for anything absent from the bucket. Drop it only after both of
+      # those needs are gone.
       - ${LSEVIN_UPLOADS_DIR:-/var/lib/lsevin/uploads}:/app/UploadFiles
     networks:
       - lsevin-network
     depends_on:
+      pgbouncer:
+        condition: service_healthy
       postgres:
         condition: service_healthy
       redis:
@@ -135,6 +163,49 @@ services:
       timeout: 5s
       retries: 30
 
+  # Connection pooler. The Ansible database role (deployments/ansible/roles/
+  # lsevin_database) has always built, pulled and started a `pgbouncer` service
+  # from this file and written a DATABASE_URL pointing at pgbouncer:6432 — but
+  # the service was never actually defined here, so those steps had nothing to
+  # act on and every client fell through to postgres:5432 directly.
+  #
+  # Two pools are exposed on the same listener (see pgbouncer.ini.template):
+  #   ${POSTGRES_DB}          transaction pooling — stateless request traffic
+  #   ${POSTGRES_DB}_session  session pooling     — migrations, advisory locks
+  pgbouncer:
+    build:
+      context: ./pgbouncer
+      dockerfile: Dockerfile
+      args:
+        PGBOUNCER_VERSION: ${PGBOUNCER_VERSION:-1.25.2}
+    image: lsevin-pgbouncer:${PGBOUNCER_VERSION:-1.25.2}
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGBOUNCER_ADMIN_USER: ${POSTGRES_USER}
+      PGBOUNCER_ADMIN_PASSWORD: ${POSTGRES_PASSWORD}
+      PGBOUNCER_MONITOR_USER: ${POSTGRES_MONITOR_USER:-${POSTGRES_USER}}
+      PGBOUNCER_MONITOR_PASSWORD: ${POSTGRES_MONITOR_PASSWORD:-${POSTGRES_PASSWORD}}
+      PGBOUNCER_MAX_CLIENT_CONN: ${PGBOUNCER_MAX_CLIENT_CONN:-1000}
+      PGBOUNCER_DEFAULT_POOL_SIZE: ${PGBOUNCER_DEFAULT_POOL_SIZE:-50}
+      PGBOUNCER_MIN_POOL_SIZE: ${PGBOUNCER_MIN_POOL_SIZE:-5}
+      PGBOUNCER_RESERVE_POOL_SIZE: ${PGBOUNCER_RESERVE_POOL_SIZE:-10}
+      PGBOUNCER_MAX_DB_CONNECTIONS: ${PGBOUNCER_MAX_DB_CONNECTIONS:-90}
+      PGBOUNCER_MAX_USER_CONNECTIONS: ${PGBOUNCER_MAX_USER_CONNECTIONS:-90}
+      PGBOUNCER_MAX_PREPARED_STATEMENTS: ${PGBOUNCER_MAX_PREPARED_STATEMENTS:-200}
+    expose:
+      - "6432"
+    networks:
+      - lsevin-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "PGPASSWORD=$${PGBOUNCER_ADMIN_PASSWORD} psql -h 127.0.0.1 -p 6432 -U $${PGBOUNCER_ADMIN_USER} -d pgbouncer -tAc 'SHOW LISTS' >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
   redis:
     image: redis:7-alpine
     restart: unless-stopped
@@ -155,6 +226,42 @@ services:
       EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP: "True"
     volumes:
       - eventstore_data:/var/lib/eventstore
+    networks:
+      - lsevin-network
+
+  # ---------------------------------------------------------------------------
+  # Object storage for uploaded media.
+  #
+  # Caddyfile.server proxies /files/* here, so this service has to exist for media
+  # to be served at all — it is not optional once that route is in place.
+  #
+  # No published ports: the only things that talk to it are Caddy (reads) and the
+  # API (writes), both on lsevin-network. Nothing about it is reachable from the
+  # internet, which is why the bucket policy only needs to grant anonymous reads
+  # on the two genuinely public prefixes.
+  #
+  # Before the first deploy that relies on this, the bucket must be prepared on the
+  # server: create lsevin-media, apply the anonymous read policy limited to
+  # Categories/* and ServiceProviders/*, create a scoped service account for the API,
+  # and mc mirror the existing uploads directory into it.
+  # ---------------------------------------------------------------------------
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - ${LSEVIN_MINIO_DIR:-/var/lib/lsevin/minio}:/data
+    # mc ships in the image; the image is minimal and has no curl or wget, so the
+    # HTTP health endpoint is not reachable from inside it.
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     networks:
       - lsevin-network
 

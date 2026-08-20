@@ -11,19 +11,24 @@ import { refreshAccessTokenWithDeduplication } from "./token-refresh-manager";
 const verifyOtp = async (
   credentials: Partial<Record<"code" | "phoneNumber", unknown>>
 ): Promise<Response | null> => {
+  // Nothing in here logs the code, the phone number or the response body. This
+  // used to print all three on every attempt, which put a one-time password, a
+  // customer's phone number and — on success — the freshly minted access token
+  // into stdout, and from there into the container logs. Moving the number out of
+  // the URL (see features/auth/lib/otp-challenge.ts) is pointless while the
+  // credentials are being written to the log by hand. Status and outcome are
+  // enough to debug this call.
   if (!credentials.code || typeof credentials.code !== "string") {
-    console.log("=== OTP FAILED: code missing or not string ===", credentials.code);
+    console.warn("[otp] verification rejected: code missing or not a string");
     return null;
   }
 
   if (!credentials.phoneNumber || typeof credentials.phoneNumber !== "string") {
-    console.log("=== OTP FAILED: phoneNumber missing or not string ===", credentials.phoneNumber);
+    console.warn("[otp] verification rejected: phoneNumber missing or not a string");
     return null;
   }
 
   const url = `${env.INTERNAL_API_URL}/${IDENTITY_MODULE_BASE_PATH}/identity/otp/verify`;
-  console.log("=== OTP FETCH URL ===", url);
-  console.log("=== OTP FETCH BODY ===", JSON.stringify({ code: credentials.code, phoneNumber: credentials.phoneNumber }));
 
   const response = await fetch(url, {
     method: "POST",
@@ -34,8 +39,9 @@ const verifyOtp = async (
     }),
   });
 
-  console.log("=== OTP RESPONSE STATUS ===", response.status);
-  console.log("=== OTP RESPONSE BODY ===", await response.clone().text());
+  if (!response.ok) {
+    console.warn(`[otp] verification failed upstream with status ${response.status}`);
+  }
 
   return response;
 };

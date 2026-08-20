@@ -278,7 +278,11 @@ export function BookingWizard({ initialProviderId, initialServiceId, initialSpec
                 selectedAddons: draft.selectedAddons || [],
                 documents: draft.documents || [],
             });
-            setStep(draft.currentStep || 1);
+            // booking-pro writes the same booking.booking_drafts row and now persists
+            // a step 6 (its free-consultation step) that this wizard has no section
+            // for. Unclamped, resuming such a draft here renders an empty body with a
+            // dead Continue button, recoverable only by pressing Back.
+            setStep(Math.min(draft.currentStep || 1, STEPS.length));
         }
         catch (err) {
             setError(err instanceof Error ? err.message : "Failed to continue draft.");

@@ -51,9 +51,14 @@ public interface IFileService
     );
 
     /// <summary>
-    /// Deletes a file asynchronously.
+    /// Deletes a stored file.
     /// </summary>
     /// <param name="filePath">The relative path of the file to delete.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A result indicating success or failure.</returns>
-    Result DeleteFile(string filePath);
+    /// <remarks>
+    /// Asynchronous because deleting from object storage is a network call. It used to be
+    /// synchronous, which forced the object-storage backend to block a thread on it.
+    /// </remarks>
+    Task<Result> DeleteFileAsync(string filePath, CancellationToken cancellationToken = default);
 }

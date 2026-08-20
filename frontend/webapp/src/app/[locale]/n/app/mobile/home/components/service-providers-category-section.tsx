@@ -4,17 +4,20 @@ import type { HomeCategory } from '@/features/home/api/server/get-home-page';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { Grid2X2 } from 'lucide-react';
 import { getCategoryOverlayClassName, getCategoryOverlayStyle } from '@/features/categories/utils/category-overlay';
+import { categoryCardHref } from '@/features/categories/utils/category-href';
 
 export type HomeCategoryLabels = {
   emptyTitle: string;
   emptyDescription: string;
-  serviceCount: string;
+  providerCount: string;
+  subcategoryCount: string;
 };
 
 const defaultLabels: HomeCategoryLabels = {
   emptyTitle: 'No service categories found',
   emptyDescription: 'Add active categories, services, and providers to show them here.',
-  serviceCount: '{count} services',
+  providerCount: '{count} providers',
+  subcategoryCount: '{count} subcategories',
 };
 
 function formatLabel(template: string, replacements: Record<string, string | number>) {
@@ -66,10 +69,19 @@ function ServiceProviderCategoryCard({
   const mediaUrl = resolveHomeMediaUrl(category.imageUrl);
   const overlayClassName = getCategoryOverlayClassName(category.gradient);
   const overlayStyle = getCategoryOverlayStyle(category.gradient);
+  // A category with children owes the visitor the level below it — Clinic should
+  // reach Beauty Clinic and Dental Clinic before it reaches a business. Only a
+  // node with nothing under it goes straight to providers.
+  const hasChildren = category.childCount > 0;
+  const meta = hasChildren
+    ? formatLabel(labels.subcategoryCount, { count: category.childCount.toLocaleString(locale) })
+    : category.providerCount > 0
+      ? formatLabel(labels.providerCount, { count: category.providerCount.toLocaleString(locale) })
+      : null;
 
   return (
     <Link
-      href={`/n/app/mobile/map-discovery?categoryId=${category.id}`}
+      href={categoryCardHref(category)}
       className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-gray-100 shadow-sm transition-all hover:shadow-xl active:scale-95"
     >
       {mediaUrl ? (
@@ -98,11 +110,7 @@ function ServiceProviderCategoryCard({
 
       <div className="relative z-10 flex h-full flex-col justify-end p-4">
         <h3 className="line-clamp-2 text-lg font-bold leading-tight text-white lg:text-base xl:text-lg">{category.label}</h3>
-        {category.serviceCount > 0 ? (
-          <p className="mt-1 text-xs font-semibold text-white/80">
-            {formatLabel(labels.serviceCount, { count: category.serviceCount.toLocaleString(locale) })}
-          </p>
-        ) : null}
+        {meta ? <p className="mt-1 text-xs font-semibold text-white/80">{meta}</p> : null}
       </div>
     </Link>
   );

@@ -1,4 +1,8 @@
-import { redirect } from "next/navigation";
+import { SponseredSliderAdminTable } from "@/features/sponsered-slider/components/sponsered-slider-admin-table";
+import { getSponseredSliderAdminRows } from "@/features/sponsered-slider/server/repository";
 
-const SponsoredSliderAliasPage = () => redirect("/admin/sponsered-slider");
-export default SponsoredSliderAliasPage;
+
+export default async function SponsoredSliderAdminPage() {
+  const rows = await getSponseredSliderAdminRows();
+  return <SponseredSliderAdminTable rows={rows} />;
+}

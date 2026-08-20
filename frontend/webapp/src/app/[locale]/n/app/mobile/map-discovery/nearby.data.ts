@@ -1,6 +1,10 @@
 import sql from "@/config/database/db";
 import { unstable_noStore as noStore } from "next/cache";
 
+import {
+  categoryProviderCountsCte,
+  providerInCategorySubtree,
+} from "@/features/categories/db/category-tree";
 import { normalizeDigits, parseCoordinate } from "./nearby.geo";
 
 // Distance filter bounds (km). Keep these in sync with the slider in NearbyClient.
@@ -59,6 +63,8 @@ export type NearbyProvider = {
 export type NearbyPageData = {
   customerId: string | null;
   categories: NearbyCategory[];
+  // Name of the category being browsed, null when browsing everything.
+  activeCategoryLabel: string | null;
   providers: NearbyProvider[];
   availableLanguages: string[];
   availableSpecialties: string[];
@@ -336,15 +342,11 @@ function buildContentConditions(filters: NearbyFiltersInput, lang: string) {
   const conditions: any[] = [];
 
   if (filters.categoryId) {
-    conditions.push(sql`exists (
-      select 1
-      from category.provider_services cps
-      join category.service_definitions csd on csd.id = cps.service_definition_id
-      where cps.service_provider_id = sp.id
-        and cps.is_active = true
-        and csd.is_active = true
-        and csd.category_id = ${filters.categoryId}::uuid
-    )`);
+    // The whole subtree, not the one row. This is where every category tap lands,
+    // including taps on a parent — "Accommodation" has to list the hotels and
+    // villas filed under its children, or the screen a visitor just navigated into
+    // comes up empty.
+    conditions.push(providerInCategorySubtree(filters.categoryId));
   }
 
   if (filters.providerTypeId) {
@@ -503,6 +505,7 @@ export async function getNearbyPageData({
   );
 
   const categoryRows = await sql<NearbyCategory[]>`
+    with recursive ${categoryProviderCountsCte()}
     select distinct
       c.id::text as id,
       common.get_translation_t(c.name_translations, ${lang}, 'en') as label,
@@ -521,9 +524,14 @@ export async function getNearbyPageData({
       on category_image_media.id::text = nullif(btrim(split_part(coalesce(c.image_url, ''), ',', 1)), '')
     left join media.media_library category_icon_media
       on category_icon_media.id::text = nullif(btrim(split_part(coalesce(c.icon_url, ''), ',', 1)), '')
-    join category.service_definitions sd on sd.category_id = c.id and sd.is_active = true
-    join category.provider_services ps on ps.service_definition_id = sd.id and ps.is_active = true
-    join category.service_providers sp on sp.id = ps.service_provider_id and sp.is_active = true
+    -- Only categories that actually hold businesses, so no chip opens an empty
+    -- list. Counted over the subtree, so a parent whose providers all sit on its
+    -- children still qualifies — the old join, straight through
+    -- service_definitions, dropped every parent category from this row of chips.
+    join category_provider_counts pc
+      on pc.category_id = c.id
+     and pc.provider_count > 0
+    where c.is_active = true
     order by label asc
   `;
 
@@ -534,6 +542,32 @@ export async function getNearbyPageData({
       image: row.image ? coalesceImage(row.image) : undefined,
     })),
   ];
+
+  // The name of whatever is being browsed, so the page can title itself after it
+  // instead of saying "Map Discovery". Looked up directly rather than read out of
+  // `categories` above, which only lists categories that hold providers — a
+  // category a visitor reached from a link but which has since emptied would
+  // otherwise leave the page untitled. Provider type still wins where it is set;
+  // nothing in the app links that way any more, but old links keep working.
+  const activeCategoryLabel = filters.providerTypeId
+    ? (
+        await sql<{ label: string }[]>`
+          select common.get_translation_t(t.name_translations, ${lang}, 'en') as label
+          from category.provider_types t
+          where t.id = ${filters.providerTypeId}::uuid
+          limit 1
+        `
+      )[0]?.label ?? null
+    : filters.categoryId
+      ? (
+          await sql<{ label: string }[]>`
+            select common.get_translation_t(c.name_translations, ${lang}, 'en') as label
+            from category.categories c
+            where c.id = ${filters.categoryId}::uuid
+            limit 1
+          `
+        )[0]?.label ?? null
+      : null;
 
   const fetchProviders = (whereSql: any) =>
     sql<any[]>`
@@ -587,12 +621,27 @@ export async function getNearbyPageData({
     from category.service_providers sp
     left join category.provider_types pt
       on pt.id = sp.provider_type_id
-    left join category.locations country_loc
-      on country_loc.code = sp.country
-     and country_loc.location_type_id = 1
-    left join category.locations city_loc
-      on city_loc.code = sp.city
-     and city_loc.location_type_id = 2
+    -- These resolve a display name from a location CODE, and codes are not
+    -- unique: service_providers.city stores a truncated code, so "mahmudaba"
+    -- and "abadan" each match two rows, and "san-pedro" matches fourteen. As
+    -- plain joins they multiplied the provider row once per match, so the same
+    -- provider appeared several times in the list and the map. Laterals capped
+    -- at one row keep it to one provider per provider; ordering by id makes the
+    -- pick stable rather than whatever the planner returns first.
+    left join lateral (
+      select l.value_translations
+      from category.locations l
+      where l.code = sp.country and l.location_type_id = 1
+      order by l.id
+      limit 1
+    ) country_loc on true
+    left join lateral (
+      select l.value_translations
+      from category.locations l
+      where l.code = sp.city and l.location_type_id = 2
+      order by l.id
+      limit 1
+    ) city_loc on true
     left join lateral (
       select g.url
       from category.provider_gallery_items g
@@ -779,6 +828,7 @@ export async function getNearbyPageData({
   return {
     customerId,
     categories,
+    activeCategoryLabel,
     providers,
     availableLanguages,
     availableSpecialties,

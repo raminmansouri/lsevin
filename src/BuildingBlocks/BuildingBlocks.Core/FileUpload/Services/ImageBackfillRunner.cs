@@ -27,6 +27,19 @@ public sealed record BackfillSummary(int Processed, int SkippedAlreadyOptimized,
 ///    dimension is skipped, so a crash-and-rerun continues cleanly and a second
 ///    full run processes zero files.
 ///  - <b>Throttled:</b> processes in batches with a delay to keep CPU/memory sane.
+///
+/// <para>
+/// <b>Filesystem backend only.</b> Every one of those properties is a property of a
+/// directory tree: it enumerates paths, archives originals beside them and overwrites in
+/// place. None of that describes object storage, and once
+/// <see cref="FileUploadOptions.Backend"/> is <c>Minio</c> the upload directory is no
+/// longer where served bytes live — it is only the pre-migration copy kept for rollback
+/// and for the reverse-proxy fallback. Rewriting files there would change bytes nobody
+/// reads while leaving every actual object untouched, so <see cref="RunAsync"/> refuses
+/// to run and says so. Porting it would mean paged <c>ListObjectsV2</c> plus
+/// read-modify-write per object; if the backfill has already served its one-time purpose,
+/// deleting this class is the more honest option.
+/// </para>
 /// </summary>
 public sealed class ImageBackfillRunner(
     IImageOptimizer imageOptimizer,
@@ -55,6 +68,18 @@ public sealed class ImageBackfillRunner(
     /// <summary>Runs the backfill over the upload directory (single concurrent pass).</summary>
     public async Task<BackfillSummary> RunAsync(CancellationToken cancellationToken = default)
     {
+        if (_fileOptions.Backend != FileStorageBackend.FileSystem)
+        {
+            logger.LogWarning(
+                "Image backfill skipped: the storage backend is {Backend}, and this backfill only "
+                    + "understands a directory tree. It would rewrite the rollback copy on disk and "
+                    + "leave every stored object untouched.",
+                _fileOptions.Backend
+            );
+
+            return new BackfillSummary(0, 0, 0);
+        }
+
         if (Interlocked.CompareExchange(ref _running, 1, 0) != 0)
         {
             logger.LogInformation("Image backfill already running; skipping duplicate invocation.");

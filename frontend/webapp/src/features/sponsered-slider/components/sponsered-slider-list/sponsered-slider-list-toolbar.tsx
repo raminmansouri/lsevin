@@ -22,7 +22,7 @@ export const SponseredSliderListToolbar = () => {
           className="pl-9"
         />
       </form>
-      <Button type="button" onClick={() => router.push("/admin/sponsered-slider/add")} className="bg-[#083f30] hover:bg-[#083f30]/90">
+      <Button type="button" onClick={() => router.push("/admin/sponsored-slider/add")} className="bg-[#083f30] hover:bg-[#083f30]/90">
         <Plus className="mr-2 h-4 w-4" /> Add sponsored media
       </Button>
     </div>

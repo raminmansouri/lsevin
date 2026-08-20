@@ -16,13 +16,20 @@ import {
   IServiceProviderDetails,
 } from "@/features/service-providers/types";
 import { SERVICE_PROVIDER_PAGE_TRANSLATION_KEY as TRANSLATION_KEY } from "@/features/service-providers/types/constants";
+import { alternatesFor } from "@/lib/seo/alternates";
 import { PaginatedResult } from "@/types/network";
 import { ComponentProps, TranslationType } from "@/types/next";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; id: string }>;
+}): Promise<Metadata> {
+  const { locale, id } = await params;
   const t = await getTranslations(TRANSLATION_KEY);
 
   return {
+    alternates: alternatesFor(locale, `/service-providers/${id}`),
     title: t("title"),
     description: t("description"),
     keywords: t("keywords").split(","),

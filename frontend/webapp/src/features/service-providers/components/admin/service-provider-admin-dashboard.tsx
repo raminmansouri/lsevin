@@ -1318,6 +1318,7 @@ type ServiceManagerFormValues = {
   imageUrl: unknown;
   isActive: boolean;
   isPopular: boolean;
+  isFeatured: boolean;
   slotIntervalMinutes: string;
   tagsText: string;
 };
@@ -1336,6 +1337,7 @@ function emptyServiceFormValues(
     imageUrl: "",
     isActive: true,
     isPopular: false,
+    isFeatured: false,
     slotIntervalMinutes: "15",
     tagsText: "",
   };
@@ -1398,6 +1400,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
       imageUrl: item.imageUrl || "",
       isActive: item.isActive,
       isPopular: item.isPopular,
+      isFeatured: item.isFeatured,
       slotIntervalMinutes: String(item.slotIntervalMinutes || 15),
       tagsText: item.tags.join(", "),
     });
@@ -1429,6 +1432,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
       trendingScore: parseFormattedNumber(values.trendingScoreText),
       imageUrl: normalizeMediaPickerValue(values.imageUrl) || null,
       isPopular: values.isPopular,
+      isFeatured: values.isFeatured,
       tagsText: values.tagsText,
       slotIntervalMinutes: Number(values.slotIntervalMinutes || 15),
       addonIds:
@@ -1740,7 +1744,30 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                       </FormItem>
                     )}
                   />
+                  {/* The single source of truth for the Featured Services shelf on the
+                      app home page and /n/app/mobile/featured. Nothing is featured
+                      unless it is ticked here. */}
+                  <FormField
+                    control={serviceForm.control}
+                    name="isFeatured"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center gap-2 rounded-xl border px-3 py-2">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormLabel className="m-0">
+                          {tAdmin("featured")}
+                        </FormLabel>
+                      </FormItem>
+                    )}
+                  />
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  {tAdmin("featuredServiceHint")}
+                </p>
 
                 <div className="flex flex-wrap justify-end gap-2 border-t pt-4">
                   <Button
@@ -1788,6 +1815,11 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                         item.serviceDefinitionName,
                       )}
                     </div>
+                    {item.isFeatured ? (
+                      <Badge className="bg-amber-500 text-white hover:bg-amber-500">
+                        {tAdmin("featured")}
+                      </Badge>
+                    ) : null}
                     {item.isPopular ? <Badge>{tAdmin("popular")}</Badge> : null}
                     <Badge variant={item.isActive ? "default" : "secondary"}>
                       {item.isActive ? "Active" : "Inactive"}

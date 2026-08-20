@@ -1,4 +1,6 @@
-import postgres, { type Sql } from "postgres";
+import { type Sql } from "postgres";
+
+import sharedSql from "@/config/database/db";
 
 import type {
   CouponQueueItem,
@@ -37,17 +39,14 @@ interface ReferralRuleRow {
   is_active: boolean;
 }
 
+// Every caller used to build its own `postgres()` client here — a fresh
+// connection pool per server action, none of which was ever `.end()`ed. Under
+// load that leaks pools until PgBouncer's max_client_conn is reached. The shared
+// client in @/config/database/db is the single pool for the whole process and
+// already reads DATABASE_URL (which points at PgBouncer in production), so it is
+// also the only place where pooling and prepare settings have to stay correct.
 export function createReferralSqlClient(): Sql {
-  const connectionString = process.env.DATABASE_URL;
-
-  if (!connectionString) {
-    throw new Error("DATABASE_URL is not configured.");
-  }
-
-  return postgres(connectionString, {
-    max: 1,
-    prepare: false,
-  });
+  return sharedSql;
 }
 
 export async function getShareFriendsPageData(

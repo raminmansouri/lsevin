@@ -39,8 +39,8 @@ internal sealed class RemoveProviderGalleryItemCommandHandler(
             return AppError.NotFoundErrorMessage(CategoryResource.Service_Provider_Gallery);
         }
 
-        // Delete the physical file
-        var deleteResult = fileService.DeleteFile(galleryItem.Url);
+        // Delete the stored object
+        var deleteResult = await fileService.DeleteFileAsync(galleryItem.Url, cancellationToken);
         if (deleteResult.IsFailure)
         {
             //return AppError.ApplicationErrorMessage(CategoryResource.Service_Provider_Gallery);

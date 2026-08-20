@@ -34,8 +34,20 @@ const createSqlClient = () =>
     // Use this if you are behind PgBouncer transaction pooling.
     prepare: process.env.POSTGRES_PREPARE === "false" ? false : true,
 
+    // Deliberately NOT setting `connection: { options: "-c ..." }` here. It is
+    // the obvious place to force `jit=off`, and it would break the moment the
+    // app is pointed at PgBouncer: an `options` startup packet is rejected
+    // unless PgBouncer is explicitly told to track it, and in transaction
+    // pooling mode the setting would leak between clients sharing a backend.
+    // JIT is turned off on the database instead — see the production
+    // postgresql.conf template and db/migrations/0024_query_planner_hygiene.sql.
+
+    // Printing every statement and its parameters is expensive (the catalogue
+    // pages issue a dozen multi-kilobyte queries per render) and puts customer
+    // data in stdout, so it is opt-in rather than "on in development". Set
+    // POSTGRES_DEBUG=true for a session when you actually want the firehose.
     debug:
-      process.env.NODE_ENV === "development"
+      process.env.POSTGRES_DEBUG === "true"
         ? (connection, query, params) => {
             console.log("SQL:", query);
             console.log("Params:", params);

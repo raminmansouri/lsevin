@@ -1,13 +1,17 @@
 import { Metadata } from "next";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { AdminBugReportsBoard } from "@/features/bug-reports/components/AdminBugReportsBoard";
 import { getAdminBugReports, getBugReportAssignableAgents, getBugReportBoardColumnSettings, parseAdminBugReportFilters } from "@/features/bug-reports/data";
 
-export const metadata: Metadata = {
-  title: "Bug reports",
-  description: "Admin bug report board",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("AdminPages");
+
+  return {
+    title: t("bugReportsNotif.meta.bugReportsTitle"),
+    description: t("bugReportsNotif.meta.bugReportsDescription"),
+  };
+}
 
 type SearchParams =
   | Promise<Record<string, string | string[] | undefined>>

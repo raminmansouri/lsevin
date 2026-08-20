@@ -31,6 +31,12 @@
     <PackageVersion Include="Dapper" Version="2.1.66" />
     <!-- Imaging (image optimization pipeline) -->
     <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.11" />
+    <!--
+      Object storage. The S3 SDK rather than the MinIO-specific client: the wire
+      protocol is S3 either way, so this keeps the door open to any S3-compatible
+      backend without a rewrite.
+    -->
+    <PackageVersion Include="AWSSDK.S3" Version="4.0.102.2" />
     <PackageVersion Include="System.Data.SqlClient" Version="4.9.0" />
     <!-- Ardalis -->
     <PackageVersion Include="Ardalis.Specification" Version="$(ArdalisVersion)" />

@@ -55,7 +55,9 @@ export const publicRoutes: string[] = [];
 export const authRoutes = [
   "sign-in",
   "sign-up",
-  "otp/:mobile",
+  // Was "otp/:mobile". The number being verified is an httpOnly cookie now, so
+  // the route carries no parameter — see features/auth/lib/otp-challenge.ts.
+  "otp",
   "forgot-password",
   "on-boarding",
 ];

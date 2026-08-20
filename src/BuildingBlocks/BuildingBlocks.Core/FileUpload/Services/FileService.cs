@@ -20,15 +20,18 @@ namespace BuildingBlocks.Core.FileUpload.Services;
 /// <param name="options">The file upload options.</param>
 /// <param name="imageOptimizer">The image optimizer (enforced server-side layer).</param>
 /// <param name="imageOptions">The image optimization options.</param>
+/// <param name="objectStore">The destination the final bytes are written to.</param>
 internal sealed class FileService(
     IOptions<FileUploadOptions> options,
     IImageOptimizer imageOptimizer,
-    IOptions<ImageOptimizationOptions> imageOptions
+    IOptions<ImageOptimizationOptions> imageOptions,
+    IFileObjectStore objectStore
 ) : IFileService
 {
     private readonly FileUploadOptions _options = options.Value;
     private readonly IImageOptimizer _imageOptimizer = imageOptimizer;
     private readonly ImageOptimizationOptions _imageOptions = imageOptions.Value;
+    private readonly IFileObjectStore _objectStore = objectStore;
 
     /// <inheritdoc />
     public async Task<Result<FileUploadSummary>> UploadFileAsync(
@@ -178,25 +181,11 @@ internal sealed class FileService(
     }
 
     /// <inheritdoc />
-    public Result DeleteFile(string filePath)
+    public Task<Result> DeleteFileAsync(string filePath, CancellationToken cancellationToken = default)
     {
         Guard.Against.NullOrEmpty(filePath, nameof(filePath));
 
-        var normalizedPath = Path.GetFullPath(Path.Combine(_options.UploadDirectory, filePath));
-
-        if (!normalizedPath.StartsWith(Path.GetFullPath(_options.UploadDirectory), StringComparison.OrdinalIgnoreCase))
-        {
-            return Result.Error(AppError.ForbiddenError(filePath));
-        }
-
-        if (!File.Exists(normalizedPath))
-        {
-            return Result.Error(AppError.NotFoundErrorMessage(filePath));
-        }
-
-        File.Delete(normalizedPath);
-
-        return Result.Success();
+        return _objectStore.DeleteAsync(filePath, cancellationToken);
     }
 
     /// <summary>
@@ -211,9 +200,6 @@ internal sealed class FileService(
         CancellationToken cancellationToken
     )
     {
-        var savingPath = Path.Combine(_options.UploadDirectory, directory);
-        Directory.CreateDirectory(savingPath);
-
         using var buffer = new MemoryStream();
         await content.CopyToAsync(buffer, cancellationToken);
 
@@ -259,13 +245,64 @@ internal sealed class FileService(
         }
 
         var fileName = IdGenerator.NewId().ToString() + outputExtension;
-        var filePath = Path.Combine(savingPath, fileName);
-        var relativeFilePath = Path.Combine(directory, fileName);
+        var relativeFilePath = CombineRelative(directory, fileName);
 
-        await File.WriteAllBytesAsync(filePath, outputBytes, cancellationToken);
+        await _objectStore.WriteAsync(
+            relativeFilePath,
+            outputBytes,
+            ResolveContentType(outputExtension),
+            cancellationToken
+        );
 
         return new SavedFile(relativeFilePath, outputBytes.LongLength);
     }
+
+    /// <summary>
+    /// Joins a directory and a filename into the relative path that is stored in the
+    /// database, served under <c>/files/</c> and used as the object key.
+    /// </summary>
+    /// <remarks>
+    /// Deliberately not <see cref="Path.Combine(string, string)"/>. Path.Combine uses the
+    /// separator of whatever machine happens to be running, which is how a large number of
+    /// rows ended up holding <c>Categories/services\019e….jpg</c>: written on Windows, then
+    /// read on Linux. Browsers hide that by folding backslashes in a URL path, but object
+    /// storage treats them as ordinary characters, so the same value would address a
+    /// different object. One separator, chosen here, regardless of host.
+    /// </remarks>
+    private static string CombineRelative(string directory, string fileName)
+    {
+        var prefix = directory.Replace('\\', '/').Trim('/');
+
+        return prefix.Length == 0 ? fileName : $"{prefix}/{fileName}";
+    }
+
+    /// <summary>
+    /// Maps the stored extension to a MIME type.
+    /// </summary>
+    /// <remarks>
+    /// Derived from the <em>output</em> extension rather than the uploaded file's declared
+    /// content type, because the optimization pass re-encodes images and a .jpg upload is
+    /// commonly stored as .webp. The filesystem backend ignores this; object storage
+    /// records it, and it becomes the Content-Type served to browsers.
+    /// </remarks>
+    private static string ResolveContentType(string extension) =>
+        extension.ToLowerInvariant() switch
+        {
+            ".webp" => "image/webp",
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".gif" => "image/gif",
+            ".bmp" => "image/bmp",
+            ".tif" or ".tiff" => "image/tiff",
+            ".svg" => "image/svg+xml",
+            ".pdf" => "application/pdf",
+            ".zip" => "application/zip",
+            ".mp4" => "video/mp4",
+            ".webm" => "video/webm",
+            ".mov" => "video/quicktime",
+            ".txt" => "text/plain",
+            _ => "application/octet-stream",
+        };
 
     /// <summary>
     /// Phase 2 defensive guard: a file that is already WebP, already within the size budget,

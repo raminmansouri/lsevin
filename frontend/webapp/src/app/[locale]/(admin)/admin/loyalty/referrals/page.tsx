@@ -1,6 +1,13 @@
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { MarketingLoyaltyListPage } from "@/features/marketing-loyalty/components/page-shell";
-export const metadata: Metadata = { title: "Referrals", description: "Manage loyalty referrals." };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("AdminPages.marketingLoyalty");
+  return {
+    title: t("entities.loyalty-referrals.title"),
+    description: t("entities.loyalty-referrals.description"),
+  };
+}
 export default async function LoyaltyReferralsPage({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
   const { locale } = await params;
   return <MarketingLoyaltyListPage entityKey="loyalty-referrals" searchParams={searchParams} locale={locale} />;

@@ -31,13 +31,11 @@ internal sealed class GetAddOnsQueryHandler(
         await using var connection = await dbConnectionFactory.GetOrCreateConnectionAsync(cancellationToken);
         var parameters = new DynamicParameters();
 
-        using(var context=new LsevinContext())
-        {
-            int maxImagesPerProvider = 5;   // e.g. most recent 5 images
-
-          
-
-        }
+        // Removed: `using (var context = new LsevinContext()) { ... }` whose body was
+        // a single unused local. A parameterless LsevinContext used to fall back to a
+        // hardcoded production connection string, so this dead block opened — and
+        // immediately closed — a real connection to that host on every add-ons
+        // request, bypassing the configured database entirely.
 
         // Build the query with optional filters
         var sql = new StringBuilder();

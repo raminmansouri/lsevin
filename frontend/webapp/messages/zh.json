@@ -214,7 +214,8 @@
     "walletTransactions": {
       "description": "与预约关联及手工登记的钱包流水",
       "title": "钱包交易"
-    }
+    },
+    "consultationRequests": "咨询申请"
   },
   "AdminGenerated": {
     "accentColor": "强调色",
@@ -441,6 +442,8 @@
     "cappadociaTurkey": "土耳其卡帕多西亚",
     "cashOnArrival": "到店付款",
     "category": "分类",
+    "providerCategoryHint": "访客浏览分类时，此机构所归属的分类。留空则按其提供的服务归类。",
+    "selectCategory": "选择分类",
     "categoryPerformance": "分类表现",
     "certificateImage": "证书图片",
     "certificationDeleted": "资质证书已删除",
@@ -683,6 +686,7 @@
     "failedToSaveBooking": "预约保存失败。",
     "failedToUpdateChildBooking": "子预约更新失败。",
     "featured": "推荐",
+    "featuredServiceHint": "应用的「推荐服务」板块只显示勾选了「推荐」的服务。「热门」和趋势分仅影响该板块内的排序。",
     "featuredScore": "推荐权重",
     "fee": "费用：$",
     "feeAndCommissionAnalysis": "费用与佣金分析",
@@ -2948,7 +2952,8 @@
     "yourReservationIsProtectedWith256BitSSLEncryption": "您的预订受 256 位 SSL 加密保护，并可即时确认。",
     "yourSpecialist": "您的专家",
     "yourStayIsReady": "您的住宿已安排妥当！",
-    "youVeSaved10PercentOnAddOnsBy": "选择 3 项及以上服务，附加项已为您节省 10%。"
+    "youVeSaved10PercentOnAddOnsBy": "选择 3 项及以上服务，附加项已为您节省 10%。",
+    "stepConsultation": "免费咨询"
   },
   "BookingSearchLoadMoreList": {
     "loadMore": "再加载{count}条",
@@ -5093,7 +5098,9 @@
       "emptyDescription": "添加已启用的分类、服务和服务商后，即可在此显示。",
       "emptyTitle": "暂无服务分类",
       "serviceCount": "{count}项服务",
-      "title": "探索分类"
+      "title": "探索分类",
+      "providerCount": "{count} 家机构",
+      "subcategoryCount": "{count} 个子分类"
     },
     "common": {
       "loading": "加载中…",
@@ -5111,7 +5118,7 @@
     "featured": {
       "availableDestination": "可预约目的地",
       "discountOff": "省{percent}%",
-      "emptyDescription": "把服务商的服务标为热门或添加优惠后，即可在此展示。",
+      "emptyDescription": "在管理后台为服务商的服务勾选「推荐」，即可在此展示。",
       "emptyTitle": "暂无精选服务",
       "subtitle": "由专家精心挑选",
       "title": "精选服务"
@@ -5121,7 +5128,7 @@
       "ctaButton": "立即搜索",
       "ctaDescription": "用智能搜索找到你需要的服务。",
       "ctaTitle": "没找到想要的？",
-      "subtitle": "浏览全部服务",
+      "subtitle": "全部推荐服务",
       "title": "精选服务"
     },
     "hero": {
@@ -5703,7 +5710,9 @@
     "refineSearchResults": "优化你的搜索结果",
     "reviewsCount": "（{count, plural, other {#条评价}}）",
     "title": "地图探索",
-    "useMyLocation": "使用我的位置"
+    "useMyLocation": "使用我的位置",
+    "showMap": "地图",
+    "showList": "列表"
   },
   "MapShared": {
     "latitude": "纬度",
@@ -12502,5 +12511,187 @@
     "wishlist_items": "心愿单商品",
     "wishlists": "心愿单",
     "withdrawal_requests": "提现申请"
+  },
+  "Consultation": {
+    "step": {
+      "label": "免费咨询",
+      "title": "不确定该预约什么？先和顾问聊一聊。",
+      "subtitle": "留下您的联系方式，我们的顾问会回电给您。咨询免费，也不会影响您的预约。",
+      "optional": "选填",
+      "skipNote": "您可以跳过此步骤，继续预约。"
+    },
+    "form": {
+      "firstName": {
+        "label": "名字",
+        "placeholder": "例如：莎拉"
+      },
+      "lastName": {
+        "label": "姓氏",
+        "placeholder": "例如：艾哈迈迪"
+      },
+      "phone": {
+        "label": "手机号码",
+        "placeholder": "09xxxxxxxxx",
+        "hint": "我们会通过此号码致电或发送短信。"
+      },
+      "email": {
+        "label": "电子邮箱",
+        "placeholder": "you@example.com"
+      },
+      "category": {
+        "label": "您需要哪方面的帮助？",
+        "placeholder": "例如：牙科治疗"
+      },
+      "description": {
+        "label": "详细说明",
+        "placeholder": "描述您想了解的内容…"
+      },
+      "preferredContactTime": {
+        "label": "方便接听的时间"
+      },
+      "urgency": {
+        "label": "您希望多快得到帮助？"
+      },
+      "optionalTag": "选填",
+      "submit": "申请免费咨询",
+      "submitting": "正在提交…"
+    },
+    "contactTime": {
+      "any": "任意时间",
+      "morning": "上午",
+      "afternoon": "下午",
+      "evening": "晚上"
+    },
+    "urgency": {
+      "normal": "不着急",
+      "soon": "几天之内",
+      "urgent": "紧急"
+    },
+    "success": {
+      "title": "已收到您的申请",
+      "body": "我们的顾问会拨打 {phone} 与您联系。",
+      "continue": "继续预约",
+      "sendAnother": "再提交一份申请"
+    },
+    "errors": {
+      "signInRequired": "请先登录后再申请咨询。",
+      "notAvailable": "咨询申请暂未开放，请稍后再试。",
+      "invalidForm": "请检查标记出的字段。",
+      "rateLimited": "您已提交多次申请，请稍后再试。",
+      "notFound": "该申请已不存在。",
+      "generic": "出了点问题，请重试。",
+      "tooShort": "内容太短。",
+      "tooLong": "内容太长。",
+      "invalidPhone": "请输入有效的手机号码。",
+      "digitsOnly": "只能输入数字。",
+      "duplicatePhone": "该电话号码已在列表中。"
+    },
+    "admin": {
+      "title": "咨询申请",
+      "description": "来自预约流程的免费咨询回电申请。",
+      "empty": "暂无咨询申请。",
+      "schemaMissing": {
+        "title": "数据库迁移尚未执行",
+        "body": "请执行迁移 0022_consultation_requests.sql 以启用此模块。"
+      },
+      "stats": {
+        "total": "总计",
+        "new": "新申请",
+        "inProgress": "处理中",
+        "contacted": "已联系",
+        "done": "已完成",
+        "rejected": "已拒绝",
+        "failedNotifications": "短信发送失败"
+      },
+      "filters": {
+        "search": "搜索姓名、电话或邮箱",
+        "status": "状态",
+        "urgency": "紧急程度",
+        "all": "全部",
+        "reset": "重置",
+        "apply": "应用"
+      },
+      "table": {
+        "name": "姓名",
+        "phone": "电话",
+        "topic": "主题",
+        "urgency": "紧急程度",
+        "preferredTime": "方便时间",
+        "status": "状态",
+        "sms": "短信",
+        "createdAt": "提交时间",
+        "actions": "操作",
+        "view": "查看"
+      },
+      "status": {
+        "new": "新申请",
+        "in_progress": "处理中",
+        "contacted": "已联系",
+        "done": "已完成",
+        "rejected": "已拒绝"
+      },
+      "detail": {
+        "title": "咨询申请详情",
+        "contact": "联系方式",
+        "message": "留言",
+        "noMessage": "未填写留言。",
+        "meta": "详细信息",
+        "locale": "语言",
+        "source": "来源",
+        "bookingDraft": "预约草稿",
+        "notifications": "通知记录",
+        "noNotifications": "此申请未发送任何通知。",
+        "adminNote": "内部备注",
+        "adminNotePlaceholder": "给团队的备注…",
+        "save": "保存修改",
+        "saving": "正在保存…",
+        "saved": "已保存",
+        "close": "关闭"
+      },
+      "notification": {
+        "customer": "客户",
+        "admin": "管理员",
+        "sent": "已发送",
+        "failed": "发送失败",
+        "skipped": "已跳过",
+        "pending": "等待中",
+        "reason": {
+          "sms_disabled": "短信通知已关闭",
+          "no_credentials": "缺少服务商凭据",
+          "no_body_id": "未配置模板 ID",
+          "not_iranian_mobile": "不是伊朗手机号码",
+          "no_recipients": "未配置管理员接收人"
+        }
+      },
+      "settings": {
+        "title": "通知设置",
+        "description": "有新申请时通知谁，以及使用哪个 MeliPayamak 模板发送短信。",
+        "enabled": "发送短信通知",
+        "customerBodyId": "客户模板 ID（bodyId）",
+        "customerBodyIdHint": "一个变量：客户的名字。",
+        "adminBodyId": "管理员模板 ID（bodyId）",
+        "adminBodyIdHint": "三个变量，依次为：全名、电话、紧急程度。",
+        "rateLimit": "每位用户每小时最多提交次数",
+        "patternNotice": "此 MeliPayamak 账号没有自由文本通道，因此每条短信都必须使用在 MeliPayamak 后台审核通过的模板。在填写这些模板 ID 之前，通知只会记录为已跳过，不会实际发送。",
+        "save": "保存设置",
+        "saved": "设置已保存"
+      },
+      "recipients": {
+        "title": "管理员接收人",
+        "description": "有新申请时，系统会向每个启用的号码发送短信。",
+        "label": "名称",
+        "labelPlaceholder": "例如：客服台",
+        "phone": "电话",
+        "phonePlaceholder": "09xxxxxxxxx",
+        "active": "启用",
+        "add": "添加接收人",
+        "update": "更新接收人",
+        "edit": "编辑",
+        "delete": "删除",
+        "confirmDelete": "要移除此接收人吗？",
+        "empty": "尚未添加接收人 —— 不会通知任何人。",
+        "cancel": "取消"
+      }
+    }
   }
 }

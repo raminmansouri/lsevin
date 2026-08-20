@@ -1,32 +1,18 @@
-import postgres from "postgres";
+import "server-only";
 
-declare global {
-  // eslint-disable-next-line no-var
-  var __mediaManagerSql: ReturnType<typeof postgres> | undefined;
-}
+import sharedSql from "@/config/database/db";
 
-const connectionString =
-  process.env.POSTGRES_URL ||
-  process.env.DATABASE_URL ||
-  process.env.POSTGRES_CONNECTION_STRING;
-
-if (!connectionString) {
-  throw new Error(
-    "Media manager database connection is not configured. Set POSTGRES_URL or DATABASE_URL."
-  );
-}
-
-export const mediaSql =
-  global.__mediaManagerSql ??
-  postgres(connectionString, {
-    max: 10,
-    idle_timeout: 20,
-    connect_timeout: 15,
-    prepare: false,
-  });
-
-if (process.env.NODE_ENV !== "production") {
-  global.__mediaManagerSql = mediaSql;
-}
+/**
+ * The media manager used to open a second `postgres()` pool of its own (max 10,
+ * on top of the main pool's max 5) and resolved its connection string from
+ * POSTGRES_URL / DATABASE_URL / POSTGRES_CONNECTION_STRING — whichever happened
+ * to be set first. That is one more place a deployment can end up talking
+ * straight to PostgreSQL while everything else goes through PgBouncer, and one
+ * more pool competing for the same backend budget.
+ *
+ * There is one connection pool in this process now, and DATABASE_URL is the only
+ * thing that decides where it points.
+ */
+export const mediaSql = sharedSql;
 
 export type MediaSqlClient = typeof mediaSql;

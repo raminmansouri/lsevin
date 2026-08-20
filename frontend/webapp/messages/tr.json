@@ -552,7 +552,8 @@
     "walletTransactions": {
       "description": "Rezervasyona bağlı ve manuel cüzdan defter kayıtları",
       "title": "Cüzdan işlemleri"
-    }
+    },
+    "consultationRequests": "Danışmanlık talepleri"
   },
   "HomePage": {
     "title": "L Sevin - Otomatikleştirilmiş Sağlık",
@@ -2885,7 +2886,9 @@
       "emptyDescription": "Burada görünmeleri için aktif kategoriler, hizmetler ve sağlayıcılar ekleyin.",
       "emptyTitle": "Hizmet kategorisi bulunamadı",
       "serviceCount": "{count} hizmet",
-      "title": "Kategorileri Keşfedin"
+      "title": "Kategorileri Keşfedin",
+      "providerCount": "{count} sağlayıcı",
+      "subcategoryCount": "{count} alt kategori"
     },
     "common": {
       "loading": "Yükleniyor...",
@@ -2903,7 +2906,7 @@
     "featured": {
       "availableDestination": "Uygun destinasyon",
       "discountOff": "%{percent} İNDİRİM",
-      "emptyDescription": "Burada öne çıkarmak için sağlayıcı hizmetlerini popüler olarak işaretleyin ya da kampanya ekleyin.",
+      "emptyDescription": "Burada görünmesi için yönetim panelinden sağlayıcı hizmetine “Öne çıkan” işaretini koyun.",
       "emptyTitle": "Henüz öne çıkan hizmet yok",
       "subtitle": "Uzmanlarımızın seçtikleri",
       "title": "Öne Çıkan Hizmetler"
@@ -2913,7 +2916,7 @@
       "ctaButton": "Hemen Ara",
       "ctaDescription": "Akıllı aramamızla tam olarak aradığınızı bulun.",
       "ctaTitle": "Aradığınızı bulamadınız mı?",
-      "subtitle": "Tüm hizmetlere göz atın",
+      "subtitle": "Tüm öne çıkan hizmetler",
       "title": "Öne Çıkan Hizmetler"
     },
     "hero": {
@@ -3217,6 +3220,8 @@
     "cappadociaTurkey": "Kapadokya, Türkiye",
     "cashOnArrival": "Girişte Nakit Ödeme",
     "category": "Kategori",
+    "providerCategoryHint": "Ziyaretçi kategorilere göz atarken bu işletmenin listelendiği kategori. Sunduğu hizmetlere göre sınıflandırmak için boş bırakın.",
+    "selectCategory": "Kategori seç",
     "categoryPerformance": "Kategori performansı",
     "certificateImage": "Sertifika görseli",
     "certificationDeleted": "Sertifika Silindi",
@@ -3459,6 +3464,7 @@
     "failedToSaveBooking": "Rezervasyon kaydedilemedi.",
     "failedToUpdateChildBooking": "Alt rezervasyon güncellenemedi.",
     "featured": "Öne çıkan",
+    "featuredServiceHint": "Uygulamanın Öne çıkan Hizmetler bölümünde yalnızca Öne çıkan işaretli hizmetler görünür. Popüler ve trend puanı yalnızca bölüm içindeki sıralamayı değiştirir.",
     "featuredScore": "Öne Çıkarma Puanı",
     "fee": "Ücret: $",
     "feeAndCommissionAnalysis": "Ücret ve Komisyon Analizi",
@@ -5550,7 +5556,8 @@
     "yourReservationIsProtectedWith256BitSSLEncryption": "Rezervasyonunuz 256 bit SSL şifrelemesiyle korunur ve anında onaylanır.",
     "yourSpecialist": "Uzmanınız",
     "yourStayIsReady": "Konaklamanız Hazır!",
-    "youVeSaved10PercentOnAddOnsBy": "3 veya daha fazla hizmet seçerek ek hizmetlerde %10 tasarruf ettiniz."
+    "youVeSaved10PercentOnAddOnsBy": "3 veya daha fazla hizmet seçerek ek hizmetlerde %10 tasarruf ettiniz.",
+    "stepConsultation": "Ücretsiz danışmanlık"
   },
   "BookingSearchLoadMoreList": {
     "loadMore": "{count} tane daha yükle",
@@ -6925,7 +6932,9 @@
     "refineSearchResults": "Arama sonuçlarınızı daraltın",
     "reviewsCount": "({count, plural, one {# değerlendirme} other {# değerlendirme}})",
     "title": "Haritada Keşfet",
-    "useMyLocation": "Konumumu kullan"
+    "useMyLocation": "Konumumu kullan",
+    "showMap": "Harita",
+    "showList": "Liste"
   },
   "MapShared": {
     "latitude": "Enlem",
@@ -12505,5 +12514,187 @@
     "wishlist_items": "İstek Listesi Ürünleri",
     "wishlists": "İstek Listeleri",
     "withdrawal_requests": "Para Çekme Talepleri"
+  },
+  "Consultation": {
+    "step": {
+      "label": "Ücretsiz danışmanlık",
+      "title": "Ne rezerve edeceğinizden emin değil misiniz? Önce bir danışmanla konuşun.",
+      "subtitle": "Bilgilerinizi bırakın, danışmanlarımızdan biri sizi arasın. Ücretsizdir ve rezervasyonunuzu etkilemez.",
+      "optional": "İsteğe bağlı",
+      "skipNote": "Bu adımı atlayıp rezervasyona devam edebilirsiniz."
+    },
+    "form": {
+      "firstName": {
+        "label": "Ad",
+        "placeholder": "örn. Sara"
+      },
+      "lastName": {
+        "label": "Soyad",
+        "placeholder": "örn. Ahmadi"
+      },
+      "phone": {
+        "label": "Telefon numarası",
+        "placeholder": "09xxxxxxxxx",
+        "hint": "Sizi bu numaradan arayacak veya mesaj göndereceğiz."
+      },
+      "email": {
+        "label": "E-posta",
+        "placeholder": "you@example.com"
+      },
+      "category": {
+        "label": "Hangi konuda yardıma ihtiyacınız var?",
+        "placeholder": "örn. diş tedavisi"
+      },
+      "description": {
+        "label": "Biraz daha anlatın",
+        "placeholder": "Ne aradığınızı yazın…"
+      },
+      "preferredContactTime": {
+        "label": "Aranmak için en uygun zaman"
+      },
+      "urgency": {
+        "label": "Ne kadar acil ihtiyacınız var?"
+      },
+      "optionalTag": "isteğe bağlı",
+      "submit": "Ücretsiz danışmanlık isteyin",
+      "submitting": "Gönderiliyor…"
+    },
+    "contactTime": {
+      "any": "Her zaman",
+      "morning": "Sabah",
+      "afternoon": "Öğleden sonra",
+      "evening": "Akşam"
+    },
+    "urgency": {
+      "normal": "Acelesi yok",
+      "soon": "Birkaç gün içinde",
+      "urgent": "Acil"
+    },
+    "success": {
+      "title": "Talebiniz alındı",
+      "body": "Danışmanlarımız sizi {phone} numarasından arayacak.",
+      "continue": "Rezervasyona devam et",
+      "sendAnother": "Yeni bir talep gönder"
+    },
+    "errors": {
+      "signInRequired": "Danışmanlık talebi için lütfen önce giriş yapın.",
+      "notAvailable": "Danışmanlık talepleri henüz kullanılamıyor. Lütfen daha sonra tekrar deneyin.",
+      "invalidForm": "Lütfen işaretlenen alanları kontrol edin.",
+      "rateLimited": "Zaten birkaç talep gönderdiniz. Lütfen daha sonra tekrar deneyin.",
+      "notFound": "Bu talep artık mevcut değil.",
+      "generic": "Bir sorun oluştu. Lütfen tekrar deneyin.",
+      "tooShort": "Bu çok kısa.",
+      "tooLong": "Bu çok uzun.",
+      "invalidPhone": "Geçerli bir telefon numarası girin.",
+      "digitsOnly": "Yalnızca rakam girin.",
+      "duplicatePhone": "Bu telefon numarası zaten listede."
+    },
+    "admin": {
+      "title": "Danışmanlık talepleri",
+      "description": "Rezervasyon akışından gelen ücretsiz danışmanlık geri arama talepleri.",
+      "empty": "Henüz danışmanlık talebi yok.",
+      "schemaMissing": {
+        "title": "Veritabanı geçişi bekliyor",
+        "body": "Bu bölümü etkinleştirmek için 0022_consultation_requests.sql geçişini uygulayın."
+      },
+      "stats": {
+        "total": "Toplam",
+        "new": "Yeni",
+        "inProgress": "İşlemde",
+        "contacted": "Arandı",
+        "done": "Tamamlandı",
+        "rejected": "Reddedildi",
+        "failedNotifications": "Başarısız SMS"
+      },
+      "filters": {
+        "search": "Ad, telefon veya e-posta ara",
+        "status": "Durum",
+        "urgency": "Aciliyet",
+        "all": "Tümü",
+        "reset": "Sıfırla",
+        "apply": "Uygula"
+      },
+      "table": {
+        "name": "Ad",
+        "phone": "Telefon",
+        "topic": "Konu",
+        "urgency": "Aciliyet",
+        "preferredTime": "Uygun zaman",
+        "status": "Durum",
+        "sms": "SMS",
+        "createdAt": "Alındı",
+        "actions": "İşlemler",
+        "view": "Görüntüle"
+      },
+      "status": {
+        "new": "Yeni",
+        "in_progress": "İşlemde",
+        "contacted": "Arandı",
+        "done": "Tamamlandı",
+        "rejected": "Reddedildi"
+      },
+      "detail": {
+        "title": "Danışmanlık talebi",
+        "contact": "İletişim",
+        "message": "Mesaj",
+        "noMessage": "Mesaj bırakılmamış.",
+        "meta": "Ayrıntılar",
+        "locale": "Dil",
+        "source": "Kaynak",
+        "bookingDraft": "Rezervasyon taslağı",
+        "notifications": "Bildirimler",
+        "noNotifications": "Bu talep için hiçbir şey gönderilmedi.",
+        "adminNote": "Dahili not",
+        "adminNotePlaceholder": "Ekip için notlar…",
+        "save": "Değişiklikleri kaydet",
+        "saving": "Kaydediliyor…",
+        "saved": "Kaydedildi",
+        "close": "Kapat"
+      },
+      "notification": {
+        "customer": "Müşteri",
+        "admin": "Yönetici",
+        "sent": "Gönderildi",
+        "failed": "Başarısız",
+        "skipped": "Atlandı",
+        "pending": "Beklemede",
+        "reason": {
+          "sms_disabled": "SMS gönderimi kapalı",
+          "no_credentials": "Sağlayıcı kimlik bilgileri eksik",
+          "no_body_id": "Şablon kimliği tanımlı değil",
+          "not_iranian_mobile": "İran cep telefonu numarası değil",
+          "no_recipients": "Tanımlı yönetici alıcısı yok"
+        }
+      },
+      "settings": {
+        "title": "Bildirim ayarları",
+        "description": "Bir talep geldiğinde kime haber verileceği ve mesajın hangi MeliPayamak şablonuyla gönderileceği.",
+        "enabled": "SMS bildirimleri gönder",
+        "customerBodyId": "Müşteri şablon kimliği (bodyId)",
+        "customerBodyIdHint": "Tek değişken: müşterinin adı.",
+        "adminBodyId": "Yönetici şablon kimliği (bodyId)",
+        "adminBodyIdHint": "Sırasıyla üç değişken: ad soyad, telefon, aciliyet.",
+        "rateLimit": "Kullanıcı başına saatlik en fazla talep",
+        "patternNotice": "Bu MeliPayamak hesabında serbest metin hattı yok; bu yüzden her mesaj MeliPayamak panelinde onaylanmış bir şablonla gönderilmelidir. Bu kimlikler girilene kadar bildirimler atlandı olarak kaydedilir ve hiçbir şey gönderilmez.",
+        "save": "Ayarları kaydet",
+        "saved": "Ayarlar kaydedildi"
+      },
+      "recipients": {
+        "title": "Yönetici alıcıları",
+        "description": "Bir talep geldiğinde etkin olan her numaraya SMS gönderilir.",
+        "label": "Ad",
+        "labelPlaceholder": "örn. Destek masası",
+        "phone": "Telefon",
+        "phonePlaceholder": "09xxxxxxxxx",
+        "active": "Etkin",
+        "add": "Alıcı ekle",
+        "update": "Alıcıyı güncelle",
+        "edit": "Düzenle",
+        "delete": "Sil",
+        "confirmDelete": "Bu alıcı kaldırılsın mı?",
+        "empty": "Henüz alıcı yok — kimseye bildirim gitmiyor.",
+        "cancel": "İptal"
+      }
+    }
   }
 }

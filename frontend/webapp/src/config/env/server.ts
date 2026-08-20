@@ -18,6 +18,14 @@ export const env = createEnv({
     BTCPAY_WEBHOOK_SECRET: z.string().min(1).optional(),
     BTCPAY_INVOICE_CURRENCY: z.string().min(3).max(3).optional(),
     BTCPAY_INVOICE_EXPIRATION_MINUTES: z.coerce.number().int().positive().max(1440).optional(),
+    // MeliPayamak, for the free-consultation notifications. Optional so the app
+    // still boots without them — the dispatcher records "skipped: no_credentials"
+    // against the request rather than failing the customer's submission. The same
+    // account backs OTP from the .NET Identity module
+    // (src/API/LSevin.Api/appsettings.json → MeliPayamakClientOptions).
+    MELIPAYAMAK_USERNAME: z.string().min(1).optional(),
+    MELIPAYAMAK_PASSWORD: z.string().min(1).optional(),
+    MELIPAYAMAK_BASE_URL: z.string().url().optional(),
   },
   experimental__runtimeEnv: {
     INTERNAL_API_URL: process.env.INTERNAL_API_URL,
@@ -31,6 +39,9 @@ export const env = createEnv({
     BTCPAY_WEBHOOK_SECRET: process.env.BTCPAY_WEBHOOK_SECRET,
     BTCPAY_INVOICE_CURRENCY: process.env.BTCPAY_INVOICE_CURRENCY,
     BTCPAY_INVOICE_EXPIRATION_MINUTES: process.env.BTCPAY_INVOICE_EXPIRATION_MINUTES,
+    MELIPAYAMAK_USERNAME: process.env.MELIPAYAMAK_USERNAME,
+    MELIPAYAMAK_PASSWORD: process.env.MELIPAYAMAK_PASSWORD,
+    MELIPAYAMAK_BASE_URL: process.env.MELIPAYAMAK_BASE_URL,
   },
   skipValidation: !!process.env.SKIP_ENV_VALIDATION || process.env.NODE_ENV === "test",
 });

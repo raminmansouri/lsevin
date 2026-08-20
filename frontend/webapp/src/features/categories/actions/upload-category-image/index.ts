@@ -85,17 +85,6 @@ export async function updateCategoryImageAction(
     const userId = session?.user?.id;
     const token = session?.user?.accessToken;
 
-
-    	  console.log('---------------------------------------------')
-  console.log('---------------------------------------------')
-  console.log('---------------------------------------------')
-  console.log('---------------------------------------------')
-  console.log('---------------------------------------------')
-  console.log('---------------------------------------------')
-  console.log('---------------------------------------------')
-  console.log('---------------------------------------------')
-  console.log('---------------------------------------------')
-  console.log(token,userId)
     // Change only this path if your backend route is different.
     const endpoint = `${CATEGORY_MODULE_BASE_PATH}/${ADMIN_BASE_PATH}/categories/UpdateImage/${categoryId}?categoryId=${categoryId}`;
 

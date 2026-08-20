@@ -57,7 +57,7 @@ const SponseredSliderListTable = ({ items, pagination }: Props) => {
     "destructive"
   );
 
-  const handleEdit = (item: SponseredSliderItem) => router.push(`/admin/sponsered-slider/${item.id}/update`);
+  const handleEdit = (item: SponseredSliderItem) => router.push(`/admin/sponsored-slider/${item.id}/update`);
 
   const handleDelete = async (item: SponseredSliderItem) => {
     const confirmed = await confirmDelete();

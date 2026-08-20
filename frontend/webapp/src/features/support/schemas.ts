@@ -19,22 +19,13 @@ const localizedLabels = z.record(
 );
 
 export const SupportSettingsInputSchema = z.object({
-  floatingChatEnabled: z.boolean(),
   supportPageEnabled: z.boolean(),
   requireLogin: z.boolean(),
   allowGuestConversation: z.boolean(),
-  showOnAppPages: z.boolean(),
-  showOnBookingPages: z.boolean(),
-  showOnProviderPages: z.boolean(),
-  showOnAdminPages: z.boolean(),
-  launcherPosition: z.enum(["bottom-right", "bottom-left"]),
-  launcherIcon: z.string().trim().min(1).max(80),
   primaryColor: z.string().trim().min(3).max(40),
   accentColor: z.string().trim().min(3).max(40),
-  textColor: z.string().trim().min(3).max(40),
   borderRadius: z.string().trim().min(1).max(40),
   themeMode: z.enum(["system", "light", "dark"]),
-  compactMode: z.boolean(),
   labels: localizedLabels,
   officeHours: jsonRecord,
   offlineSettings: jsonRecord,

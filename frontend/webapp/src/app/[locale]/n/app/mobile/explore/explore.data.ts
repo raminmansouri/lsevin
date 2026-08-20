@@ -1,6 +1,12 @@
 import sql from "@/config/database/db";
 import { unstable_noStore as noStore } from "next/cache";
 
+import {
+  categoryProviderCountsCte,
+  categoryTotalProviderCount,
+  providerInCategorySubtree,
+} from "@/features/categories/db/category-tree";
+
 
 export type ExploreResponseTime = "any" | "fast" | "instant";
 export type ExploreSort = "recommended" | "rating" | "price_low" | "price_high" | "newest";
@@ -414,17 +420,9 @@ function buildFeaturedProvidersWhere(filters: ExploreFiltersInput, lang: string)
   }
 
   if (filters.categoryId) {
-    conditions.push(sql`
-      exists (
-        select 1
-        from category.provider_services ps
-        join category.service_definitions sd on sd.id = ps.service_definition_id
-        where ps.service_provider_id = sp.id
-          and ps.is_active = true
-          and sd.is_active = true
-          and sd.category_id = ${filters.categoryId}::uuid
-      )
-    `);
+    // Subtree, so picking a parent category here means the same set of providers
+    // it means everywhere else in the app.
+    conditions.push(providerInCategorySubtree(filters.categoryId));
   }
 
   if (filters.providerTypeId) {
@@ -617,32 +615,34 @@ export async function getExplorePageData({
   const trendingWhereSql = buildTrendingServicesWhere(filters, lang);
 
 
-  const categoryRows = await sql<ExploreCategory[]>`
+  // The number on a chip is providers, rolled up over the category's subtree. It
+  // used to be a count of provider_services — so "Hospital (3303)" sat next to a
+  // list of six businesses, and picking a category told you nothing about how much
+  // you would get back.
+  const categoryRows = await sql<(ExploreCategory & { totalProviders: number })[]>`
+    with recursive ${categoryProviderCountsCte()}
     select
       c.id::text as id,
       common.get_translation_t(c.name_translations, ${lang}, 'en') as label,
-      count(distinct ps.id)::int as count
+      pc.provider_count as count,
+      ${categoryTotalProviderCount()} as "totalProviders"
     from category.categories c
-    left join category.service_definitions sd
-      on sd.category_id = c.id
-     and sd.is_active = true
-    left join category.provider_services ps
-      on ps.service_definition_id = sd.id
-     and ps.is_active = true
-    left join category.service_providers sp
-      on sp.id = ps.service_provider_id
-     and sp.is_active = true
-    group by c.id, common.get_translation_t(c.name_translations, ${lang}, 'en')
-    order by count(distinct ps.id) desc, label asc
+    join category_provider_counts pc
+      on pc.category_id = c.id
+     and pc.provider_count > 0
+    where c.is_active = true
+    order by pc.provider_count desc, label asc
   `;
 
   const categories: ExploreCategory[] = [
     {
       id: "all",
       label: "All Services",
-      count: categoryRows.reduce((sum, item) => sum + item.count, 0),
+      // Distinct providers, not the sum of the chips — a provider filed under
+      // Clinic is counted for Clinic and again for its parent.
+      count: Number(categoryRows[0]?.totalProviders || 0),
     },
-    ...categoryRows,
+    ...categoryRows.map(({ id, label, count }) => ({ id, label, count: Number(count) })),
   ];
 
   const providerTypeRows = await sql<ExploreProviderType[]>`

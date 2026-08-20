@@ -6,7 +6,6 @@ export type SupportSource = (typeof SUPPORT_SOURCE_OPTIONS)[number];
 export type SupportSenderType = "customer" | "agent" | "system";
 export type SupportMessageType = "text" | "image" | "file" | "system" | "note";
 export type SupportAgentStatus = "online" | "away" | "offline";
-export type SupportLauncherPosition = "bottom-right" | "bottom-left";
 export type SupportThemeMode = "system" | "light" | "dark";
 
 export type LocalizedSupportLabels = Record<
@@ -28,22 +27,13 @@ export type LocalizedSupportLabels = Record<
 
 export type SupportSettings = {
   id: number;
-  floatingChatEnabled: boolean;
   supportPageEnabled: boolean;
   requireLogin: boolean;
   allowGuestConversation: boolean;
-  showOnAppPages: boolean;
-  showOnBookingPages: boolean;
-  showOnProviderPages: boolean;
-  showOnAdminPages: boolean;
-  launcherPosition: SupportLauncherPosition;
-  launcherIcon: string;
   primaryColor: string;
   accentColor: string;
-  textColor: string;
   borderRadius: string;
   themeMode: SupportThemeMode;
-  compactMode: boolean;
   labels: LocalizedSupportLabels;
   officeHours: Record<string, unknown>;
   offlineSettings: Record<string, unknown>;

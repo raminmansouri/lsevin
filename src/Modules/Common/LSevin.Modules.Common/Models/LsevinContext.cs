@@ -191,9 +191,30 @@ public partial class LsevinContext : DbContext
 
     public virtual DbSet<UserSearchHistory> UserSearchHistories { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=62.60.212.187:5432;Database=lsevin;Username=postgres;Password=S@vin4451;Timezone=Asia/Tehran", x => x.UseNodaTime());
+    /// <summary>
+    /// Left deliberately empty.
+    /// </summary>
+    /// <remarks>
+    /// This is scaffolded code, and what the scaffolder left behind was a call to
+    /// <c>UseNpgsql</c> with a production host, the <c>postgres</c> superuser and its
+    /// password written into the source — with no <c>IsConfigured</c> guard. EF Core
+    /// runs <see cref="OnConfiguring"/> after the options supplied by dependency
+    /// injection, and a second <c>UseNpgsql</c> replaces the first, so that literal
+    /// won: every <c>LsevinContext</c> the container handed out ignored
+    /// <c>ConnectionStrings:database</c> and opened a direct connection to that host,
+    /// whatever the environment was configured to use. There was no way to point this
+    /// context at a local database, a staging database, or the connection pooler.
+    ///
+    /// The connection is configured once, in Program.cs, where the DbContext factory
+    /// is registered — including <c>UseNodaTime()</c> and the Asia/Tehran session
+    /// timezone this context's entities were scaffolded against, so behaviour is
+    /// unchanged.
+    ///
+    /// A parameterless <c>new LsevinContext()</c> is therefore no longer usable; that
+    /// is intentional. Resolve <c>IDbContextFactory&lt;LsevinContext&gt;</c> instead.
+    /// For design-time work (<c>dotnet ef</c>), pass <c>--connection</c>.
+    /// </remarks>
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

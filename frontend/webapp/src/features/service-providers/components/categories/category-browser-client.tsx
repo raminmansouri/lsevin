@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -13,6 +13,7 @@ import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { env } from "@/config/env/client";
 import { Link, useRouter } from "@/i18n/navigation";
 import { getCategoryOverlayClassName, getCategoryOverlayStyle } from "@/features/categories/utils/category-overlay";
+import { categoryProvidersHref } from "@/features/categories/utils/category-href";
 import type {
   CategoryBrowserCategory,
   CategoryBrowserGroup,
@@ -59,7 +60,10 @@ function buildCategoryImageSrc(value?: string | null) {
 }
 
 function getCategoryHref(category: CategoryBrowserCategory) {
-  return `/n/app/mobile/map-discovery?categoryId=${encodeURIComponent(category.id)}`;
+  // Reached only for a category with nothing under it — anything with children is
+  // a button that descends a level instead. Opens the list; the destination's own
+  // toggle switches to the map.
+  return categoryProvidersHref(category.id);
 }
 
 function getGradientClass(category: CategoryBrowserCategory, index: number) {
@@ -142,13 +146,12 @@ function CategoryCardContent({
   const gradientClass = getGradientClass(category, index);
   const gradientStyle = getGradientStyle(category);
   const childCount = Math.max(category.childCount, 0);
+  // Providers, never services. The old fallback swapped in a service count
+  // whenever the provider count was zero, so one shelf mixed "70 providers" with
+  // "121 services" and neither number could be read against the other.
   const metaLabel = hasChildren
     ? `${childCount.toLocaleString()} subcategories`
-    : category.count > 0
-      ? `${category.count.toLocaleString()} providers`
-      : category.serviceCount > 0
-        ? `${category.serviceCount.toLocaleString()} services`
-        : "Explore";
+    : `${Math.max(category.count, 0).toLocaleString()} providers`;
 
   return (
     <>
@@ -237,13 +240,18 @@ function EmptyState({ hasQuery }: { hasQuery: boolean }) {
 
 export function CategoryBrowserClient({
   categoryGroups,
+  totalCategories,
+  totalProviders,
+  initialParentId = null,
 }: {
   categoryGroups: CategoryBrowserGroup[];
+  totalCategories: number;
+  totalProviders: number;
+  /** Open straight onto this node's subcategories, for links from the home shelf. */
+  initialParentId?: string | null;
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [path, setPath] = useState<CategoryBrowserCategory[]>([]);
-  const currentParent = path.length > 0 ? path[path.length - 1] : null;
 
   const allCategories = useMemo(
     () => categoryGroups.flatMap((group) => group.categories),
@@ -273,17 +281,29 @@ export function CategoryBrowserClient({
     return map;
   }, [allCategories]);
 
-  const buildPathToCategory = (category: CategoryBrowserCategory) => {
-    const nextPath: CategoryBrowserCategory[] = [];
-    let current: CategoryBrowserCategory | undefined = category;
+  const buildPathToCategory = useCallback(
+    (category: CategoryBrowserCategory) => {
+      const nextPath: CategoryBrowserCategory[] = [];
+      let current: CategoryBrowserCategory | undefined = category;
 
-    while (current) {
-      nextPath.unshift(current);
-      current = current.parentId ? categoryById.get(current.parentId) : undefined;
-    }
+      while (current) {
+        nextPath.unshift(current);
+        current = current.parentId ? categoryById.get(current.parentId) : undefined;
+      }
 
-    return nextPath;
-  };
+      return nextPath;
+    },
+    [categoryById]
+  );
+
+  // A ?parent= link lands mid-tree, so the breadcrumb has to be reconstructed from
+  // the node up rather than started empty — otherwise "All categories" is the only
+  // way back out of a screen the visitor entered three levels down.
+  const [path, setPath] = useState<CategoryBrowserCategory[]>(() => {
+    const target = initialParentId ? categoryById.get(initialParentId) : undefined;
+    return target ? buildPathToCategory(target) : [];
+  });
+  const currentParent = path.length > 0 ? path[path.length - 1] : null;
 
   const hasQuery = query.trim().length > 0;
   const normalizedQuery = query.trim().toLowerCase();
@@ -324,9 +344,6 @@ export function CategoryBrowserClient({
       .filter((group) => group.categories.length > 0);
   }, [categoriesByParent, categoryGroups, currentParent, hasQuery, searchedCategories]);
 
-  const categoryCount = allCategories.length;
-  const providerCount = allCategories.reduce((sum, category) => sum + category.count, 0);
-
   function openCategory(category: CategoryBrowserCategory) {
     setQuery("");
     setPath(buildPathToCategory(category));
@@ -364,7 +381,7 @@ export function CategoryBrowserClient({
               {hasQuery ? "Search categories" : currentParent?.name || "Categories"}
             </h1>
             <p className="text-sm text-gray-600">
-              {categoryCount.toLocaleString()} categories • {providerCount.toLocaleString()} providers
+              {totalCategories.toLocaleString()} categories • {totalProviders.toLocaleString()} providers
             </p>
           </div>
         </div>
@@ -403,6 +420,25 @@ export function CategoryBrowserClient({
       </div>
 
       <main className="px-5 py-6">
+        {/*
+          Descending a level must never narrow the visitor to less than they could
+          already see. A parent holds providers of its own — everything filed on the
+          node itself rather than on one of its children — and without this they are
+          unreachable: the subcategory screen would list, say, six kinds of
+          accommodation with nothing in any of them while 35 hotels sit on the parent.
+        */}
+        {currentParent && !hasQuery && currentParent.count > 0 ? (
+          <Link
+            href={categoryProvidersHref(currentParent.id)}
+            className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 transition-colors hover:bg-gray-100"
+          >
+            <span className="min-w-0 text-sm font-semibold text-[#083f30]">
+              View all {currentParent.count.toLocaleString()} providers in {currentParent.name}
+            </span>
+            <ChevronRight size={18} className="shrink-0 text-[#083f30]" />
+          </Link>
+        ) : null}
+
         {filteredGroups.length === 0 ? (
           <EmptyState hasQuery={hasQuery} />
         ) : (

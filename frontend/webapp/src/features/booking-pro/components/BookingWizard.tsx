@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { DynamicServiceForm } from '@/features/form-builder/components/DynamicServiceForm';
+import { ConsultationStep } from '@/features/consultation/components/consultation-step';
 import type { BookingDraftState, ChildBookingDraft, ProviderCardItem, ProviderTypeAddonItem, ServiceCardItem, SpecialistCardItem, UploadRequirementItem } from '../types';
 import { ChildAddonBookingCard } from './ChildAddonBookingCard';
 import { PaymentMethodsPanel } from './PaymentMethodsPanel';
@@ -43,7 +44,47 @@ const steps = [
     { key: 3, labelKey: 'stepAddOns' },
     { key: 4, labelKey: 'stepFiles' },
     { key: 5, labelKey: 'stepReviewPay' },
+    // 6 rather than 3, even though it is shown third: `current_step` is a persisted
+    // column on booking.booking_drafts, so renumbering add-ons/files/checkout would
+    // drop every in-flight customer onto the wrong screen after a deploy. The keys
+    // are identifiers; STEP_ORDER below is what decides position.
+    { key: 6, labelKey: 'stepConsultation' },
 ] as const;
+type StepKey = (typeof steps)[number]['key'];
+/** The order steps are presented in — the only place display order is decided. */
+const STEP_ORDER = [1, 2, 6, 3, 4, 5] as const;
+/** Shown only when the customer asked L'Sevin to arrange extra support services. */
+const LSEVIN_ONLY_STEPS = new Set<number>([3, 4]);
+/** Checkout. Kept as its own constant so the submit branch is not a bare `=== 5`. */
+const CHECKOUT_STEP = 5;
+function visibleStepKeysFor(useLsevin: boolean): readonly StepKey[] {
+    return STEP_ORDER.filter((key) => useLsevin || !LSEVIN_ONLY_STEPS.has(key));
+}
+/**
+ * Maps a persisted `current_step` onto a step that is actually on screen.
+ *
+ * A draft can hold a step the current answers hide — unticking "extra support"
+ * strands 3 and 4 — and an older draft can hold a value this build no longer knows.
+ * Both resolve *forward* through STEP_ORDER to the next visible step, so a stale 3
+ * or 4 with `useLsevin === false` still lands on checkout, exactly as the previous
+ * hardcoded clamp did.
+ */
+function resolveVisibleStep(rawStep: number, visibleKeys: readonly number[]): number {
+    if (visibleKeys.includes(rawStep))
+        return rawStep;
+    const position = STEP_ORDER.indexOf(rawStep as StepKey);
+    if (position >= 0) {
+        for (let index = position + 1; index < STEP_ORDER.length; index += 1) {
+            if (visibleKeys.includes(STEP_ORDER[index]))
+                return STEP_ORDER[index];
+        }
+        for (let index = position - 1; index >= 0; index -= 1) {
+            if (visibleKeys.includes(STEP_ORDER[index]))
+                return STEP_ORDER[index];
+        }
+    }
+    return visibleKeys[0] ?? 1;
+}
 type AvailableDateItem = {
     date: string;
     day: string;
@@ -349,9 +390,13 @@ export function BookingWizard() {
         setCouponCode(code);
     }, [draft?.id, draft?.metadata?.couponCode, draft?.metadata?.appliedCouponCode]);
     const rawCurrentStep = draft?.currentStep ?? 1;
-    const currentStep = draft && !draft.useLsevin && (rawCurrentStep === 3 || rawCurrentStep === 4) ? 5 : rawCurrentStep;
     const wantsLsevinSupport = Boolean(draft?.useLsevin);
-    const visibleSteps = useMemo(() => wantsLsevinSupport ? steps : steps.filter((step) => step.key <= 2 || step.key === 5), [wantsLsevinSupport]);
+    // [1,2,6,5] without extra support, [1,2,6,3,4,5] with it — position comes from
+    // STEP_ORDER, never from the key, which is a stored identifier.
+    const visibleSteps = useMemo(() => visibleStepKeysFor(wantsLsevinSupport).map((key) => steps.find((step) => step.key === key)!), [wantsLsevinSupport]);
+    const visibleStepKeys = useMemo(() => visibleSteps.map((step) => step.key), [visibleSteps]);
+    const currentStep = draft ? resolveVisibleStep(rawCurrentStep, visibleStepKeys) : rawCurrentStep;
+    const currentStepIndex = visibleSteps.findIndex((step) => step.key === currentStep);
     useEffect(() => {
         if (!draft?.id || !hasSeedSelection || resumeChoiceRequired) {
             if (!hasSeedSelection) setSeedEntryResolved(true);
@@ -818,20 +863,28 @@ export function BookingWizard() {
             : draft.selectedDate && draft.selectedTimeFrom && draft.selectedTimeTo));
     const canContinueAddonsStep = allChildBookingsCompleted;
     const canContinueFilesStep = allRequiredUploadsPresent;
+    // Both directions walk `visibleSteps` by index rather than doing arithmetic on the
+    // key, so hiding a step (or inserting one out of numeric order, as step 6 is) needs
+    // no further special cases here.
     function goNext() {
         if (!draft)
             return;
-        const next = currentStep === 2 && !draft.useLsevin ? 5 : Math.min(currentStep + 1, 5);
+        const next = currentStepIndex < 0
+            ? visibleSteps[0]?.key
+            : visibleSteps[Math.min(currentStepIndex + 1, visibleSteps.length - 1)]?.key;
+        if (!next || next === currentStep)
+            return;
         patchDraft({ currentStep: next }).catch((e) => setError(e.message));
     }
     function goBack() {
         if (!draft)
             return;
-        if (currentStep === 1) {
+        // Index 0 is always step 1; leaving it leaves the wizard.
+        if (currentStepIndex <= 0) {
             router.back();
             return;
         }
-        const previous = currentStep === 5 && !draft.useLsevin ? 2 : currentStep - 1;
+        const previous = visibleSteps[currentStepIndex - 1].key;
         patchDraft({ currentStep: previous }).catch((e) => setError(e.message));
     }
     async function refreshDraftAfterPriceChange() {
@@ -935,13 +988,15 @@ export function BookingWizard() {
             setSubmitting(false);
         }
     }
+    // Step 6 (consultation) is deliberately absent: it is optional and must always be
+    // skippable, so it never gates the primary action.
     const continueDisabled = (currentStep === 1 && !canContinueServiceStep) ||
         (currentStep === 2 && !canContinueScheduleStep) ||
         (currentStep === 3 && !canContinueAddonsStep) ||
         (currentStep === 4 && !canContinueFilesStep) ||
-        (currentStep === 5 && submitting);
+        (currentStep === CHECKOUT_STEP && submitting);
     function handlePrimaryAction() {
-        if (currentStep === 5) {
+        if (currentStep === CHECKOUT_STEP) {
             if (checkoutResult?.bookingId)
                 handleCreatePaymentIntent();
             else
@@ -984,10 +1039,13 @@ export function BookingWizard() {
             </div>
           </div>
           <div className="flex items-center gap-2 overflow-x-auto">
+            {/* Progress is measured by position in visibleSteps, not by key: the keys are
+                stored ids and no longer ascend in display order (6 sits between 2 and 3),
+                so the badge shows the position and `>=` compares indices. */}
             {visibleSteps.map((step, index) => (<div key={step.key} className="flex items-center gap-2">
-                <div className={`flex h-9 min-w-9 items-center justify-center rounded-full text-sm font-bold ${currentStep >= step.key ? 'bg-[#083f30] text-white' : 'bg-slate-200 text-slate-500'}`}>{currentStep > step.key ? <CheckCircle2 className="h-4 w-4"/> : step.key}</div>
-                <div className={`text-sm font-medium ${currentStep >= step.key ? 'text-[#083f30]' : 'text-slate-500'}`}>{tBooking(step.labelKey)}</div>
-                {index < visibleSteps.length - 1 ? <div className={`mx-2 h-0.5 w-10 ${currentStep > step.key ? 'bg-[#083f30]' : 'bg-slate-200'}`}/> : null}
+                <div className={`flex h-9 min-w-9 items-center justify-center rounded-full text-sm font-bold ${currentStepIndex >= index ? 'bg-[#083f30] text-white' : 'bg-slate-200 text-slate-500'}`}>{currentStepIndex > index ? <CheckCircle2 className="h-4 w-4"/> : index + 1}</div>
+                <div className={`text-sm font-medium ${currentStepIndex >= index ? 'text-[#083f30]' : 'text-slate-500'}`}>{tBooking(step.labelKey)}</div>
+                {index < visibleSteps.length - 1 ? <div className={`mx-2 h-0.5 w-10 ${currentStepIndex > index ? 'bg-[#083f30]' : 'bg-slate-200'}`}/> : null}
               </div>))}
           </div>
         </div>
@@ -1158,6 +1216,10 @@ export function BookingWizard() {
                 </label>
               </div>
             </div>) : null}
+
+          {/* Shown between Schedule and the rest of the flow. Optional throughout: the
+              customer can submit nothing and press Continue. */}
+          {currentStep === 6 ? (<ConsultationStep bookingDraftId={draft.id} onContinue={goNext}/>) : null}
 
           {currentStep === 3 ? (<div className="space-y-4">
               <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-lg">

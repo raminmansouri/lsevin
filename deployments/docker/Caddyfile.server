@@ -29,9 +29,46 @@
 	import common_headers
 	geoip2_vars strict
 
-	@backend path /api/v1/* /files/* /files /hubs/* /hubs /hc /liveness /readiness
+	@backend path /api/v1/* /hubs/* /hubs /hc /liveness /readiness
 	handle @backend {
 		reverse_proxy lsevin-api:8080
+	}
+
+	# Media reads are served straight from object storage; the API is not in the read
+	# path. Caddy strips /files, prefixes the bucket name and proxies to MinIO.
+	#
+	# The immutable cache header MUST be set here. It previously came from
+	# UseFileUploadService's OnPrepareResponse inside .NET, and that code no longer runs
+	# for these requests — without this line browser and CDN caching would silently
+	# vanish. Stored filenames are content-unique, so immutable remains correct.
+	#
+	# Only Categories/* and ServiceProviders/* are anonymously readable in the bucket.
+	# Everything else — CustomerDocument/* above all — returns 403 instead of being
+	# handed to anyone who knows the path, which is stricter than the .NET static file
+	# handler ever was.
+	handle_path /files/* {
+		header Cache-Control "public,max-age=31536000,immutable"
+		header -Server
+		rewrite * /lsevin-media{uri}
+		reverse_proxy minio:9000 {
+			# Fall back to the .NET static handler when the object is not in the bucket.
+			# Without this there is a hole between Caddy reading from MinIO and the API
+			# still writing to disk: anything uploaded in between would 404 even though
+			# the file exists. It also covers the delta between the mirror and cutover.
+			#
+			# Deliberately 404 only, never 403. MinIO answers 403 for any prefix the
+			# anonymous policy does not cover — CustomerDocument/* above all — and falling
+			# back there would hand those files straight to the unauthenticated .NET static
+			# handler, undoing the one access-control gain of this change.
+			@absent status 404
+			handle_response @absent {
+				# A single directive rather than strip_prefix plus rewrite: Caddy applies its
+				# own directive order inside handle_response, where rewrite runs first and
+				# yields /files/lsevin-media/... instead of /files/...
+				uri replace /lsevin-media /files 1
+				reverse_proxy lsevin-api:8080
+			}
+		}
 	}
 
 	handle {
@@ -44,9 +81,49 @@
 # Public API hostname used by NEXT_PUBLIC_API_URL and mobile clients.
 {$API_DOMAIN:api.lsevin.com} {
 	import common_headers
-	reverse_proxy lsevin-api:8080 {
-		lb_try_duration 5s
-		fail_duration 30s
+
+	# Media reads are served straight from object storage; the API is not in the read
+	# path. Caddy strips /files, prefixes the bucket name and proxies to MinIO.
+	#
+	# The immutable cache header MUST be set here. It previously came from
+	# UseFileUploadService's OnPrepareResponse inside .NET, and that code no longer runs
+	# for these requests — without this line browser and CDN caching would silently
+	# vanish. Stored filenames are content-unique, so immutable remains correct.
+	#
+	# Only Categories/* and ServiceProviders/* are anonymously readable in the bucket.
+	# Everything else — CustomerDocument/* above all — returns 403 instead of being
+	# handed to anyone who knows the path, which is stricter than the .NET static file
+	# handler ever was.
+	handle_path /files/* {
+		header Cache-Control "public,max-age=31536000,immutable"
+		header -Server
+		rewrite * /lsevin-media{uri}
+		reverse_proxy minio:9000 {
+			# Fall back to the .NET static handler when the object is not in the bucket.
+			# Without this there is a hole between Caddy reading from MinIO and the API
+			# still writing to disk: anything uploaded in between would 404 even though
+			# the file exists. It also covers the delta between the mirror and cutover.
+			#
+			# Deliberately 404 only, never 403. MinIO answers 403 for any prefix the
+			# anonymous policy does not cover — CustomerDocument/* above all — and falling
+			# back there would hand those files straight to the unauthenticated .NET static
+			# handler, undoing the one access-control gain of this change.
+			@absent status 404
+			handle_response @absent {
+				# A single directive rather than strip_prefix plus rewrite: Caddy applies its
+				# own directive order inside handle_response, where rewrite runs first and
+				# yields /files/lsevin-media/... instead of /files/...
+				uri replace /lsevin-media /files 1
+				reverse_proxy lsevin-api:8080
+			}
+		}
+	}
+
+	handle {
+		reverse_proxy lsevin-api:8080 {
+			lb_try_duration 5s
+			fail_duration 30s
+		}
 	}
 }
 

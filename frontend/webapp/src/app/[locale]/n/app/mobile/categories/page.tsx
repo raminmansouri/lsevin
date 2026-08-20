@@ -10,8 +10,29 @@ export const metadata: Metadata = {
 
 // export const revalidate = 300;
 
-export default async function CategoryBrowserPage() {
-  const categoryGroups = await getCategoryBrowserGroups();
+function firstParam(value: string | string[] | undefined) {
+  const raw = Array.isArray(value) ? value[0] : value;
+  return raw?.trim() || null;
+}
 
-  return <CategoryBrowserClient categoryGroups={categoryGroups} />;
+export default async function CategoryBrowserPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const [data, resolvedSearchParams] = await Promise.all([
+    getCategoryBrowserGroups(),
+    searchParams,
+  ]);
+
+  return (
+    <CategoryBrowserClient
+      categoryGroups={data.groups}
+      totalCategories={data.totalCategories}
+      totalProviders={data.totalProviders}
+      // Home-page cards link straight to a node so the shelf and this screen are
+      // the same tree seen from two places, rather than two separate entry points.
+      initialParentId={firstParam(resolvedSearchParams.parent)}
+    />
+  );
 }

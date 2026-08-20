@@ -23,7 +23,7 @@ function flattenFieldErrors(error: unknown): Record<string, string[]> {
 }
 
 function revalidateSponseredSlider() {
-  revalidatePath("/admin/sponsered-slider");
+  revalidatePath("/admin/sponsored-slider");
   revalidatePath("/");
   revalidatePath("/n/app/mobile");
 }
@@ -59,5 +59,5 @@ export async function saveSponseredSliderAction(input: SponseredSliderFormValues
 export async function deleteSponseredSliderAction(id: string) {
   await deleteSponseredSlider(id);
   revalidateSponseredSlider();
-  redirect("/admin/sponsered-slider");
+  redirect("/admin/sponsored-slider");
 }

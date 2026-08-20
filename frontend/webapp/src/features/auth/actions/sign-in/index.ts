@@ -4,6 +4,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 
 import { env } from "@/config/env/client";
+import { setOtpChallengePhone } from "@/features/auth/lib/otp-challenge";
 import { IDENTITY_MODULE_BASE_PATH } from "@/features/shared/types/constants";
 import { createSafeAction } from "@/lib/safe-action";
 import { LocaleHeaderTypes } from "@/types/common";
@@ -51,9 +52,13 @@ const handler = async (
 
     // Check if OTP is required (should always be true with 2FA)
     if (data.requiresOtp) {
+      // The phone rides in an httpOnly cookie rather than the path, so it never
+      // reaches a proxy log or the visitor's history — see otp-challenge.ts.
+      await setOtpChallengePhone(data.phoneNumber);
+
       // Redirect to OTP page, carrying the post-login destination so the user
       // lands back on the page that sent them to sign in.
-      const otpUrl = `/otp/${encodeURIComponent(data.phoneNumber)}`;
+      const otpUrl = "/otp";
       const target = input.redirectTo?.trim();
       redirect(target ? `${otpUrl}?redirectTo=${encodeURIComponent(target)}` : otpUrl);
     }

@@ -214,6 +214,11 @@ const saveServiceProviderProfileSchema = z.object({
   name: translationsSchema,
   description: translationsSchema,
   providerTypeId: uuidSchema,
+  // Which node of the category tree this business sits under. Optional so an
+  // existing provider can be saved without one, but it is what category browsing
+  // reads — a provider with no category is only reachable through the services it
+  // sells. See migration 0020.
+  categoryId: optionalUuidSchema,
   isActive: z.boolean().default(true),
   country: z.string().trim().min(1, "Please select a country.").max(15),
   city: z.string().trim().min(1, "Please select a city.").max(15),
@@ -274,6 +279,7 @@ const saveServiceProviderProfileHandler = async (
             description_translations = ${jsonb(input.description)}::jsonb,
             is_active = ${input.isActive},
             provider_type_id = ${input.providerTypeId},
+            category_id = ${input.categoryId ?? null},
             city = ${input.city},
             country = ${input.country},
             detail_translations = ${nullableJsonb(input.detail) ?? sql.json({})}::jsonb,
@@ -315,6 +321,7 @@ const saveServiceProviderProfileHandler = async (
           description_translations,
           is_active,
           provider_type_id,
+          category_id,
           city,
           country,
           detail_translations,
@@ -348,6 +355,7 @@ const saveServiceProviderProfileHandler = async (
           ${jsonb(input.description)}::jsonb,
           ${input.isActive},
           ${input.providerTypeId},
+          ${input.categoryId ?? null},
           ${input.city},
           ${input.country},
           ${nullableJsonb(input.detail) ?? sql.json({})}::jsonb,
@@ -719,6 +727,9 @@ const providerServiceSchema = z.object({
   recovery: z.string().max(100).optional().nullable(),
   imageUrl: nullableMediaValueSchema,
   isPopular: z.boolean().default(false),
+  // The only writer of provider_services.is_featured. The Featured Services shelf
+  // reads nothing else, so this checkbox is the whole membership decision.
+  isFeatured: z.boolean().default(false),
   anesthesia: z.string().max(100).optional().nullable(),
   stayRequired: z.string().max(100).optional().nullable(),
   successRate: z.string().max(50).optional().nullable(),
@@ -748,6 +759,7 @@ export const saveProviderServiceAction = createAuthenticatedSafeAction(
                   recovery = ${nullableString(input.recovery)},
                   image_url = ${nullableString(input.imageUrl)},
                   is_popular = ${input.isPopular},
+                  is_featured = ${input.isFeatured},
                   anesthesia = ${nullableString(input.anesthesia)},
                   stay_required = ${nullableString(input.stayRequired)},
                   success_rate = ${nullableString(input.successRate)},
@@ -764,12 +776,12 @@ export const saveProviderServiceAction = createAuthenticatedSafeAction(
           : await tx<{ id: string }[]>`
               insert into category.provider_services (
                 id, service_definition_id, display_name_translations, description_translations, is_active,
-                service_provider_id, currency, value, duration_minutes, recovery, image_url, is_popular,
+                service_provider_id, currency, value, duration_minutes, recovery, image_url, is_popular, is_featured,
                 anesthesia, stay_required, success_rate, satisfaction, trending_score, growth, tags,
                 slot_interval_minutes, create_date, search_vector
               ) values (
                 public.uuid_generate_v4(), ${input.serviceDefinitionId}, ${jsonb(input.displayName)}::jsonb, ${jsonb(input.description)}::jsonb, ${input.isActive},
-                ${input.serviceProviderId}, ${input.currency}, ${input.value}, ${input.durationMinutes}, ${nullableString(input.recovery)}, ${nullableString(input.imageUrl)}, ${input.isPopular},
+                ${input.serviceProviderId}, ${input.currency}, ${input.value}, ${input.durationMinutes}, ${nullableString(input.recovery)}, ${nullableString(input.imageUrl)}, ${input.isPopular}, ${input.isFeatured},
                 ${nullableString(input.anesthesia)}, ${nullableString(input.stayRequired)}, ${nullableString(input.successRate)}, ${nullableString(input.satisfaction)}, ${input.trendingScore}, ${nullableString(input.growth)}, ${splitCsv(input.tagsText)},
                 ${input.slotIntervalMinutes}, now(), to_tsvector('simple', coalesce(${getTranslationForSearchVector(input.displayName)}, ''))
               ) returning id::text

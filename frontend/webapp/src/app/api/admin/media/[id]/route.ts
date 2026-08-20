@@ -2,6 +2,8 @@ import { UpdateMediaInput } from "@/components/media";
 import { deleteMedia, getMediaById, updateMedia } from "@/components/media/server/repository";
 import { NextRequest, NextResponse } from "next/server";
 import { requireApiAdmin, requireApiUser } from "@/lib/auth/api-guard";
+import { deleteStoredObject } from "@/components/media/server/storage-delete";
+import { getSession } from "@/lib/auth/session";
 
 
 
@@ -68,9 +70,32 @@ export async function DELETE(
     if (auth instanceof NextResponse) return auth;
 
     const { id } = await context.params;
-    const success = await deleteMedia(id, { deleteLocalFile: true });
 
-    return NextResponse.json({ success });
+    const existing = await getMediaById(id);
+    if (!existing) {
+      return NextResponse.json({ success: false }, { status: 404 });
+    }
+
+    // Remove the stored object before the row. The other order leaves a row pointing at
+    // bytes that no longer exist — a visible break — whereas failing here changes nothing
+    // and the caller can simply try again.
+    const session = await getSession();
+    const outcome = await deleteStoredObject(existing.fileUrl, session?.user?.accessToken);
+
+    if (outcome.error && !outcome.skipped) {
+      return NextResponse.json(
+        { error: `The stored file could not be deleted: ${outcome.error}` },
+        { status: 502 }
+      );
+    }
+
+    const success = await deleteMedia(id);
+
+    return NextResponse.json({
+      success,
+      objectDeleted: outcome.deleted,
+      objectSkipped: outcome.skipped,
+    });
   } catch (error) {
     return NextResponse.json(
       {

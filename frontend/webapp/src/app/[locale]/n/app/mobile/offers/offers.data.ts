@@ -246,12 +246,25 @@ export async function getOffersPageData({
     join category.service_providers sp on sp.id = ps.service_provider_id
     join category.service_definitions sd on sd.id = ps.service_definition_id
     join category.categories c on c.id = sd.category_id
-    left join category.locations country_loc
-      on country_loc.code = sp.country
-     and country_loc.location_type_id = 1
-    left join category.locations city_loc
-      on city_loc.code = sp.city
-     and city_loc.location_type_id = 2
+    -- Same fan-out as the map-discovery query: location codes are not unique
+    -- (service_providers.city holds a truncated code, so "abadan" matches two
+    -- rows and "san-pedro" fourteen), and a plain join repeated the row once per
+    -- match. Capped laterals keep one row per offer; ordering by id makes the
+    -- pick stable.
+    left join lateral (
+      select l.value_translations
+      from category.locations l
+      where l.code = sp.country and l.location_type_id = 1
+      order by l.id
+      limit 1
+    ) country_loc on true
+    left join lateral (
+      select l.value_translations
+      from category.locations l
+      where l.code = sp.city and l.location_type_id = 2
+      order by l.id
+      limit 1
+    ) city_loc on true
     left join lateral (
       select g.url
       from category.provider_service_gallery_items g

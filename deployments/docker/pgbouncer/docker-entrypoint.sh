@@ -30,6 +30,7 @@ monitor_password="$(escape_userlist "$PGBOUNCER_MONITOR_PASSWORD")"
 chmod 0600 /tmp/userlist.txt
 
 sed \
+  -e "s/__APP_DB__/${POSTGRES_DB:-lsevin}/g" \
   -e "s/__ADMIN_USER__/$admin_user/g" \
   -e "s/__STATS_USER__/$monitor_user/g" \
   -e "s/__MAX_CLIENT_CONN__/${PGBOUNCER_MAX_CLIENT_CONN:-1000}/g" \

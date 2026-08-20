@@ -15,7 +15,11 @@ type AxiosLogOptions = {
 const DEFAULT_AXIOS_LOG_OPTIONS: Required<AxiosLogOptions> = {
   enabled: true,
   format: "curl",
-  redactHeaders: [],
+  // Same reasoning as logger.ts: an empty list meant the logged curl carried a
+  // live bearer token. This is the client-side interceptor, so those landed in
+  // the browser console rather than the server log — still the user's own
+  // credential, printed where any extension or screen-share can read it.
+  redactHeaders: ["authorization", "cookie", "set-cookie"],
   redactBodyKeys: ["password", "token", "accessToken", "refreshToken"],
   maxBodyLength: 10_000,
 };

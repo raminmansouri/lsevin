@@ -114,7 +114,7 @@ export function ReferralPoliciesPageClient({
 
           <div className="flex items-center gap-3">
             <Link
-              href="/app/admin/referrals"
+              href="/admin/referrals"
               className="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-gray-900 font-semibold hover:bg-gray-100 transition-colors"
             >
               Back to dashboard

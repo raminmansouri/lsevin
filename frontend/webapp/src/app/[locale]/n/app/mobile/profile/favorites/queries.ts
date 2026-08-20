@@ -1,20 +1,16 @@
-import postgres from "postgres";
+import sharedSql from "@/config/database/db";
 
 import type { FavoriteCard, FavoritesPageData, FavoritesTabId } from "./types";
 import { buildFavoriteTabs, clampRating, normalizeImageUrl } from "./utils";
 
+// Every caller used to build its own `postgres()` client here — a fresh
+// connection pool per server action, none of which was ever `.end()`ed. Under
+// load that leaks pools until PgBouncer's max_client_conn is reached. The shared
+// client in @/config/database/db is the single pool for the whole process and
+// already reads DATABASE_URL (which points at PgBouncer in production), so it is
+// also the only place where pooling and prepare settings have to stay correct.
 export function createFavoritesSqlClient() {
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) {
-    throw new Error("DATABASE_URL is missing.");
-  }
-
-  return postgres(databaseUrl, {
-    prepare: false,
-    max: 10,
-    idle_timeout: 20,
-    connect_timeout: 15,
-  });
+  return sharedSql;
 }
 
 export async function resolveCustomerIdOrThrow(

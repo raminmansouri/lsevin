@@ -1,17 +1,23 @@
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { Database, ShieldCheck, TableProperties, Trash2 } from "lucide-react";
-import { getResolvedAdminNavigation } from "@/lib/admin/metadata";
-import { getAdminPermissions, permissionForTable } from "@/lib/admin/guard";
+
 import { PageHeader } from "@/components/admin/ui/page-header";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "@/i18n/navigation";
+import { getAdminPermissions } from "@/lib/admin/guard";
+import { getAdminTableGroups } from "@/lib/admin/table-groups";
 import { getSession } from "@/lib/auth/session";
 import { UserRole } from "@/types/common";
+
 import { PurgeCacheButton } from "./purge-cache-button";
 
 export default async function AdminHomePage() {
-  const [navigation, permissions, session] = await Promise.all([
-    getResolvedAdminNavigation(),
+  const [schemas, permissions, session, t] = await Promise.all([
+    getAdminTableGroups(),
     getAdminPermissions(),
     getSession().catch(() => null),
+    getTranslations("Admin"),
   ]);
 
   const roles = session?.user?.roles;
@@ -19,71 +25,92 @@ export default async function AdminHomePage() {
     roles?.includes(UserRole.SuperAdmin) || roles?.includes(UserRole.Admin)
   );
 
-  const allowed = navigation.filter((item) =>
-    permissionForTable(permissions, item.schema, item.table)?.canRead
-  );
+  const tableCount = schemas.reduce((sum, group) => sum + group.tables.length, 0);
+
+  const stats = [
+    { key: "tables", icon: Database, value: tableCount },
+    { key: "permissions", icon: ShieldCheck, value: permissions.length },
+    { key: "schemas", icon: TableProperties, value: schemas.length },
+  ] as const;
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Admin" description="Metadata-driven PostgreSQL dashboard" />
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-3xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-100 dark:bg-zinc-800">
-            <Database className="h-5 w-5" />
-          </div>
-          <div className="text-2xl font-semibold">{allowed.length}</div>
-          <p className="mt-1 text-sm text-zinc-500">Accessible tables</p>
-        </div>
-        <div className="rounded-3xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-100 dark:bg-zinc-800">
-            <ShieldCheck className="h-5 w-5" />
-          </div>
-          <div className="text-2xl font-semibold">{permissions.length}</div>
-          <p className="mt-1 text-sm text-zinc-500">Permission rows aggregated</p>
-        </div>
-        <div className="rounded-3xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-100 dark:bg-zinc-800">
-            <TableProperties className="h-5 w-5" />
-          </div>
-          <div className="text-2xl font-semibold">CRUD</div>
-          <p className="mt-1 text-sm text-zinc-500">Lists, create, edit, relations, locale-aware rendering</p>
-        </div>
+      <PageHeader
+        title={t("home.title")}
+        description={t("home.description")}
+      />
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {stats.map(({ key, icon: Icon, value }) => (
+          <Card key={key}>
+            <CardContent className="flex items-center gap-4 p-5">
+              <div className="bg-muted text-muted-foreground flex size-11 shrink-0 items-center justify-center rounded-xl">
+                <Icon className="size-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-2xl font-semibold tabular-nums">{value}</div>
+                <p className="text-muted-foreground truncate text-sm">
+                  {t(`home.stats.${key}`)}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {isPrivileged ? (
-        <div className="rounded-3xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="mb-3 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300">
-              <Trash2 className="h-5 w-5" />
+        <Card className="border-destructive/30">
+          <CardHeader className="flex flex-row items-start gap-3 space-y-0">
+            <div className="bg-destructive/10 text-destructive flex size-10 shrink-0 items-center justify-center rounded-xl">
+              <Trash2 className="size-5" />
             </div>
-            <div>
-              <h2 className="text-lg font-semibold">System cache</h2>
-              <p className="text-sm text-zinc-500">
-                Force-rebuild every cached page and data query across the app.
+            <div className="min-w-0 flex-1">
+              <CardTitle className="text-base">{t("home.cache.title")}</CardTitle>
+              <p className="text-muted-foreground mt-1 text-sm">
+                {t("home.cache.description")}
               </p>
             </div>
-          </div>
-          <PurgeCacheButton />
-        </div>
+          </CardHeader>
+          <CardContent>
+            <PurgeCacheButton />
+          </CardContent>
+        </Card>
       ) : null}
 
-      <div className="rounded-3xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-        <h2 className="mb-4 text-lg font-semibold">Tables</h2>
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {allowed.map((item) => (
-            <Link
-              key={item.key}
-              href={`/admin/${item.schema}/${item.table}`}
-              className="rounded-2xl border border-zinc-200 p-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-950"
-            >
-              <div className="text-sm font-medium">{item.label}</div>
-              <div className="mt-1 text-xs text-zinc-500">
-                {item.schema}.{item.table}
+      {schemas.length === 0 ? (
+        <Card>
+          <CardContent className="text-muted-foreground p-10 text-center text-sm">
+            {t("home.empty")}
+          </CardContent>
+        </Card>
+      ) : (
+        schemas.map((group) => (
+          <Card key={group.schema}>
+            <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
+              <CardTitle className="text-base">{group.label}</CardTitle>
+              <Badge variant="secondary" className="tabular-nums">
+                {group.tables.length}
+              </Badge>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                {group.tables.map((table) => (
+                  <Link
+                    key={table.key}
+                    href={table.href}
+                    className="hover:border-primary/40 hover:bg-accent focus-visible:ring-ring rounded-lg border p-3 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                  >
+                    <div className="truncate text-sm font-medium">{table.label}</div>
+                    <div className="text-muted-foreground truncate text-xs" dir="ltr">
+                      {table.qualified}
+                    </div>
+                  </Link>
+                ))}
               </div>
-            </Link>
-          ))}
-        </div>
-      </div>
+            </CardContent>
+          </Card>
+        ))
+      )}
     </div>
   );
 }

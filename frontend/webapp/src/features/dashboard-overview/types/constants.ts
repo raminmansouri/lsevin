@@ -10,7 +10,11 @@ export const QUICK_ACTIONS = [
   {
     title: "Consultings",
     description: "Manage consulting requests",
-    href: "/admin/consulting",
+    // /admin/consulting was removed along with the legacy .NET-backed consulting
+    // screen. The counts on this card still come from customer.consultings, which
+    // is a different dataset from consultation.consultation_requests — retiring or
+    // repointing that count is a separate decision.
+    href: "/admin/consultation-requests",
     icon: "MessageSquare",
     countKey: "totalConsultings" as const,
     hasAdd: false,
@@ -63,7 +67,11 @@ export const STATS_CARDS_CONFIG = [
     key: "totalConsultings" as const,
     title: "Total Consultings",
     icon: "MessageSquare",
-    href: "/admin/consulting",
+    // /admin/consulting was removed along with the legacy .NET-backed consulting
+    // screen. The counts on this card still come from customer.consultings, which
+    // is a different dataset from consultation.consultation_requests — retiring or
+    // repointing that count is a separate decision.
+    href: "/admin/consultation-requests",
     description: "Active consulting requests",
   },
   {

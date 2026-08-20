@@ -84,7 +84,8 @@ type HomePageLabels = {
     title: string;
     emptyTitle: string;
     emptyDescription: string;
-    serviceCount: string;
+    providerCount: string;
+    subcategoryCount: string;
   };
   featured: {
     title: string;
@@ -165,7 +166,8 @@ async function Home({ params, searchParams }: PageProps) {
       title: t('categories.title'),
       emptyTitle: t('categories.emptyTitle'),
       emptyDescription: t('categories.emptyDescription'),
-      serviceCount: t('categories.serviceCount', { count: '{count}' }),
+      providerCount: t('categories.providerCount', { count: '{count}' }),
+      subcategoryCount: t('categories.subcategoryCount', { count: '{count}' }),
     },
     featured: {
       title: t('featured.title'),
@@ -315,7 +317,8 @@ async function Home({ params, searchParams }: PageProps) {
             labels={{
               emptyTitle: labels.categories.emptyTitle,
               emptyDescription: labels.categories.emptyDescription,
-              serviceCount: labels.categories.serviceCount,
+              providerCount: labels.categories.providerCount,
+              subcategoryCount: labels.categories.subcategoryCount,
             }}
           />
         </div>

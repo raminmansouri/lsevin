@@ -26,7 +26,7 @@ export function SponseredSliderAdminTable({ rows }: { rows: SponseredSliderAdmin
           </p>
         </div>
         <Button asChild className="gap-2 rounded-2xl">
-          <Link href="/admin/sponsered-slider/add">
+          <Link href="/admin/sponsored-slider/add">
             <Plus className="h-4 w-4" />
             Add slide
           </Link>
@@ -95,7 +95,7 @@ export function SponseredSliderAdminTable({ rows }: { rows: SponseredSliderAdmin
                           </Button>
                         )}
                         <Button asChild size="icon" variant="ghost" title={tAdmin("edit")}>
-                          <Link href={`/admin/sponsered-slider/${row.id}/update`}>
+                          <Link href={`/admin/sponsored-slider/${row.id}/update`}>
                             <Edit className="h-4 w-4" />
                           </Link>
                         </Button>

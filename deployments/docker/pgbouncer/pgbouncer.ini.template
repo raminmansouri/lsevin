@@ -1,6 +1,26 @@
 [databases]
 * = host=postgres port=5432
 
+# Session-pooled alias for the .NET API.
+#
+# The API cannot use the transaction-pooled default: it runs EF Core migrations
+# on startup (BuildingBlocks.Core.Persistence.MigrationWorker, registered as a
+# hosted service for every module), and EF takes a session-scoped advisory lock
+# that it holds across several statements. Under pool_mode = transaction
+# PgBouncer is free to hand each of those statements a different backend, so the
+# lock is taken on one connection and released on another — at best the
+# migration lock does nothing, at worst two instances migrate concurrently.
+# Npgsql's own connection pool also assumes a stable session (DISCARD ALL on
+# close, SET statements, prepared statements).
+#
+# Session pooling still gives the API everything PgBouncer is here for — a
+# bounded, reusable set of backend connections in front of PostgreSQL — while
+# behaving exactly like a direct connection from the client's point of view.
+# Use this alias for anything that migrates, takes advisory locks, or issues
+# LISTEN/NOTIFY; use the transaction-pooled default for stateless request
+# traffic like the Next.js webapp.
+__APP_DB___session = host=postgres port=5432 dbname=__APP_DB__ pool_mode=session
+
 [pgbouncer]
 listen_addr = 0.0.0.0
 listen_port = 6432

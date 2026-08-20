@@ -1,4 +1,6 @@
-import postgres, { type Sql } from "postgres";
+import { type Sql } from "postgres";
+
+import sharedSql from "@/config/database/db";
 
 // import { getCurrentUserIdOrThrow } from "../../share/auth";
 import type {
@@ -6,23 +8,18 @@ import type {
   ReferralPoliciesData,
   SaveReferralPoliciesInput,
 } from "./types";
-import { getCurrentUserIdOrThrow } from "@/app/wallet/auth";
+import { getCurrentUserIdOrThrow } from "@/app/[locale]/n/app/mobile/profile/wallet/auth";
 
 function formatDiscount(discountType: "percent" | "fixed", discountValue: number): string {
   return discountType === "percent" ? `${discountValue}%` : `$${discountValue.toFixed(2)}`;
 }
 
+// This used to build a fresh `postgres()` client per call and nothing ever
+// `.end()`ed it, so every admin referral action leaked a pool. The shared client
+// in @/config/database/db is the single pool for the process and already reads
+// DATABASE_URL — which points at PgBouncer in production.
 export function createReferralAdminSqlClient(): Sql {
-  const connectionString = process.env.DATABASE_URL;
-
-  if (!connectionString) {
-    throw new Error("DATABASE_URL is not configured.");
-  }
-
-  return postgres(connectionString, {
-    max: 1,
-    prepare: false,
-  });
+  return sharedSql;
 }
 
 export async function requireReferralAdminAccess(sql: Sql): Promise<string> {

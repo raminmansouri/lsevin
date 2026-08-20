@@ -29,6 +29,11 @@ internal static class Routes
 
         internal const string UpdateImage = $"{AdminUrl}/UpdateImage/{{categoryId:guid}}";
         internal const string UploadAnyFile = $"File/UploadAnyFile";
+
+        // Deletes a stored object by its relative path. The path is passed as a query
+        // parameter rather than a route segment: the value contains slashes, and a catch-all
+        // segment would need every caller to get escaping exactly right.
+        internal const string DeleteAnyFile = $"File/DeleteAnyFile";
     }
 
     internal static class Location

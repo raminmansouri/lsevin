@@ -1,11 +1,15 @@
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import { MarketingLoyaltyListPage } from "@/features/marketing-loyalty/components/page-shell";
 
-export const metadata: Metadata = {
-  title: "Loyalty tiers",
-  description: "Manage loyalty tiers.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("AdminPages.marketingLoyalty");
+  return {
+    title: t("entities.loyalty-tiers.title"),
+    description: t("entities.loyalty-tiers.description"),
+  };
+}
 
 export default async function LoyaltyTiersPage({
   params,

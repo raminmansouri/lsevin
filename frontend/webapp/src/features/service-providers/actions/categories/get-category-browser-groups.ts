@@ -4,6 +4,10 @@ import { unstable_cache } from "next/cache";
 import { getLocale } from "next-intl/server";
 
 import sql from "@/config/database/db";
+import {
+  categoryProviderCountsCte,
+  categoryTotalProviderCount,
+} from "@/features/categories/db/category-tree";
 import { getCpCategoryGroupsTag } from "@/features/service-providers/db/cache";
 
 export type CategoryBrowserCategory = {
@@ -16,8 +20,8 @@ export type CategoryBrowserCategory = {
   gradient: string | null;
   parentId: string | null;
   childCount: number;
+  /** Active providers filed under this category or anything beneath it. */
   count: number;
-  serviceCount: number;
   displayOrder: number;
 };
 
@@ -25,6 +29,14 @@ export type CategoryBrowserGroup = {
   id: string;
   title: string;
   categories: CategoryBrowserCategory[];
+};
+
+export type CategoryBrowserData = {
+  groups: CategoryBrowserGroup[];
+  totalCategories: number;
+  /** Distinct providers reachable through the tree — not the sum of the counts
+   *  above, which counts a provider once per ancestor it rolls up into. */
+  totalProviders: number;
 };
 
 type CategoryBrowserRow = {
@@ -40,13 +52,21 @@ type CategoryBrowserRow = {
   parent_id: string | null;
   child_count: number;
   provider_count: number;
-  service_count: number;
+  total_providers: number;
   display_order: number;
 };
 
 const getCategoryBrowserRows = unstable_cache(
   async (locale: string): Promise<CategoryBrowserRow[]> => {
+    // Counts roll up over each subtree: a provider filed under Clinic counts for
+    // Clinic and for Health, treatment and beauty, once each. Without the roll-up a
+    // parent category reads as empty, since businesses hang off the leaves.
+    //
+    // They are provider counts, always — this used to fall back to a service count
+    // whenever the provider count came out zero, so the same shelf showed
+    // "70 providers" next to "121 services" and the two could not be compared.
     return sql<CategoryBrowserRow[]>`
+      with recursive ${categoryProviderCountsCte()}
       select
         c.group_id,
         nullif(btrim(cg.title), '') as group_title,
@@ -58,38 +78,18 @@ const getCategoryBrowserRows = unstable_cache(
         nullif(btrim(c.icon_url), '') as icon_url,
         nullif(btrim(c.gradient), '') as gradient,
         c.parent_id::text as parent_id,
-        count(distinct child.id)::int as child_count,
-        count(distinct sp.id)::int as provider_count,
-        count(distinct sd.id)::int as service_count,
+        coalesce(cc.child_count, 0) as child_count,
+        coalesce(pc.provider_count, 0) as provider_count,
+        ${categoryTotalProviderCount()} as total_providers,
         coalesce(c.display_order, 0)::int as display_order
       from category.categories c
       left join category.category_groups cg
         on cg.id = c.group_id
-      left join category.categories child
-        on child.parent_id = c.id
-       and child.is_active = true
-      left join category.service_definitions sd
-        on sd.category_id = c.id
-       and sd.is_active = true
-      left join category.provider_services ps
-        on ps.service_definition_id = sd.id
-       and ps.is_active = true
-      left join category.service_providers sp
-        on sp.id = ps.service_provider_id
-       and sp.is_active = true
+      left join category_child_counts cc
+        on cc.category_id = c.id
+      left join category_provider_counts pc
+        on pc.category_id = c.id
       where c.is_active = true
-      group by
-        c.group_id,
-        cg.title,
-        c.id,
-        c.parent_id,
-        c.name_translations,
-        c.description_translations,
-        c.image_url,
-        c.icon,
-        c.icon_url,
-        c.gradient,
-        c.display_order
       order by
         coalesce(c.group_id, 2147483647) asc,
         coalesce(c.display_order, 0) asc,
@@ -108,7 +108,7 @@ function normalizeLocale(locale: string | undefined | null) {
   return value && value.length > 0 ? value : "en-US";
 }
 
-export async function getCategoryBrowserGroups(): Promise<CategoryBrowserGroup[]> {
+export async function getCategoryBrowserGroups(): Promise<CategoryBrowserData> {
   const locale = normalizeLocale(await getLocale());
   const rows = await getCategoryBrowserRows(locale);
   const groups = new Map<string, CategoryBrowserGroup>();
@@ -136,10 +136,13 @@ export async function getCategoryBrowserGroups(): Promise<CategoryBrowserGroup[]
       parentId: row.parent_id,
       childCount: Number(row.child_count || 0),
       count: Number(row.provider_count || 0),
-      serviceCount: Number(row.service_count || 0),
       displayOrder: Number(row.display_order || 0),
     });
   }
 
-  return Array.from(groups.values()).filter((group) => group.categories.length > 0);
+  return {
+    groups: Array.from(groups.values()).filter((group) => group.categories.length > 0),
+    totalCategories: rows.length,
+    totalProviders: Number(rows[0]?.total_providers || 0),
+  };
 }

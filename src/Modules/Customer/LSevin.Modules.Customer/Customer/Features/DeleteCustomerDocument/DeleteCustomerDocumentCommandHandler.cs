@@ -37,7 +37,7 @@ internal sealed class DeleteCustomerDocumentCommandHandler(
             return AppError.NotFoundErrorMessage(SharedResource.Document);
 
         var document = customer.Documents.First();
-        var deleteResult = fileService.DeleteFile(document.DocumentUrl);
+        var deleteResult = await fileService.DeleteFileAsync(document.DocumentUrl, cancellationToken);
         if (deleteResult.IsFailure)
             return deleteResult.Errors!.FirstOrDefault()!;
 

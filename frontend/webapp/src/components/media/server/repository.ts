@@ -1,5 +1,3 @@
-import path from "node:path";
-import { promises as fs } from "node:fs";
 
 import { createEmptyLocalizedContent, normalizeLocalizedFields } from "../localized";
 import {
@@ -405,64 +403,65 @@ export async function updateMedia(
   return rows[0] ? mapRow(rows[0]) : null;
 }
 
-async function deleteLocalStorageFile(storagePath: string | null | undefined) {
-  if (!storagePath) return;
-  if (!storagePath.startsWith("/uploads/media/")) return;
-
-  const diskPath = path.join(process.cwd(), "public", storagePath.replace(/^\/+/, ""));
-  try {
-    await fs.unlink(diskPath);
-  } catch {
-    // Intentionally ignore missing files.
-  }
-}
-
+/**
+ * Removes the library row. **The stored bytes are left in place.**
+ *
+ * There used to be a `deleteLocalFile` option here that called an unlink helper, which
+ * made this look like it reclaimed storage. It never did, for two independent reasons:
+ * the helper returned early unless the path began with `/uploads/media/`, a prefix
+ * nothing in this system ever writes, and it read `storage_path`, which is null for
+ * effectively every row (the real path lives in `file_url`). Both the option and the
+ * helper are gone rather than left as decoration.
+ *
+ * Reclaiming the object is deliberately not done from here: the web app holds no
+ * credentials for the object store, so the API owns deletes. The route handlers call
+ * `deleteStoredObject` (which goes through the admin-only `File/DeleteAnyFile` endpoint)
+ * *before* dropping the row, so a row is never left pointing at bytes that are already
+ * gone. This function only removes the row.
+ */
 export async function deleteMedia(
   id: string,
-  options?: { deleteLocalFile?: boolean },
   sql: MediaSqlClient = mediaSql
 ): Promise<boolean> {
-  const existing = await getMediaById(id, sql);
-
   const rows = await sql`
     delete from media.media_library
     where id = ${id}
     returning id
   `;
 
-  if (rows.length > 0 && options?.deleteLocalFile) {
-    await deleteLocalStorageFile(existing?.storagePath);
-  }
-
   return rows.length > 0;
 }
 
+/**
+ * Returns the stored path for each id, so a caller can remove the objects before the rows.
+ */
+export async function getMediaFileUrls(
+  ids: string[],
+  sql: MediaSqlClient = mediaSql
+): Promise<Array<{ id: string; fileUrl: string }>> {
+  if (ids.length === 0) return [];
+
+  const rows = await sql`
+    select id, file_url as "fileUrl"
+    from media.media_library
+    where id in ${sql(ids)}
+  `;
+
+  return rows.map((row: any) => ({ id: row.id, fileUrl: row.fileUrl }));
+}
+
+/** Bulk counterpart of {@link deleteMedia}; the same caveat about stored bytes applies. */
 export async function bulkDeleteMedia(
   ids: string[],
-  options?: { deleteLocalFile?: boolean },
   sql: MediaSqlClient = mediaSql
 ): Promise<number> {
   if (ids.length === 0) return 0;
-
-  const existing = options?.deleteLocalFile
-    ? await sql`
-        select storage_path as "storagePath"
-        from media.media_library
-        where id in ${sql(ids)}
-      `
-    : [];
 
   const rows = await sql`
     delete from media.media_library
     where id in ${sql(ids)}
     returning id
   `;
-
-  if (options?.deleteLocalFile) {
-    await Promise.all(
-      existing.map((item: any) => deleteLocalStorageFile(item.storagePath))
-    );
-  }
 
   return rows.length;
 }

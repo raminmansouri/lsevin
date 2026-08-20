@@ -76,6 +76,7 @@ function buildServiceProviderDefaultValues(
     name: translationsOrEmpty(provider?.name, locale),
     description: translationsOrEmpty(provider?.description, locale),
     providerTypeId: provider?.providerTypeId ?? "",
+    categoryId: provider?.categoryId ?? "",
     isActive: provider?.isActive ?? true,
     country: provider?.country ?? "",
     city: provider?.city ?? "",
@@ -378,6 +379,29 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
                               disabled={isPending}
                             />
                           </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="categoryId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{tAdmin("category")}</FormLabel>
+                          <FormControl>
+                            <LazyAdminLookupSelect
+                              lookupType="categories"
+                              locale={locale}
+                              value={field.value ?? ""}
+                              onValueChange={(value) => field.onChange(value || null)}
+                              placeholder={tAdmin("selectCategory")}
+                              initialOptions={lookups.categories}
+                              disabled={isPending}
+                            />
+                          </FormControl>
+                          <FormDescription>{tAdmin("providerCategoryHint")}</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}

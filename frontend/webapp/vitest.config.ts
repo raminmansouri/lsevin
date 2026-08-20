@@ -33,7 +33,10 @@ export default defineConfig({
     // Scoped to the accounting module on purpose: src/app/.../nearby.geo.test.ts is a
     // standalone script that runs itself under `node`, not a Vitest suite, and sweeping
     // it in here only produces a spurious "no test suite found".
-    include: ["src/accounting/**/*.test.ts"],
+    // The consultation suite is listed explicitly for the same reason: it is a real
+    // Vitest suite (pure, no database), while a blanket "src/**" would still sweep in
+    // that standalone script.
+    include: ["src/accounting/**/*.test.ts", "src/features/consultation/**/*.test.ts"],
     // Postgres row locks are the point of several tests; running files in parallel
     // against one database makes those tests flaky for reasons unrelated to the code.
     fileParallelism: false,

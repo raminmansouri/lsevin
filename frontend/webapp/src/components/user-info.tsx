@@ -61,12 +61,10 @@ const UserInfo = ({profile}:{profile:EditProfileInitialData}) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="relative size-8 rounded-full">
-          {/* <Avatar>
-            <AvatarImage src={undefined} alt={user.firstName} />
-            <AvatarFallback className="bg-secondary">{initials}</AvatarFallback>
-          </Avatar> */}
-
+        {/* Without `variant`/`size` this fell through to the default filled
+            `bg-primary` button *and* kept its px-4 py-2 padding, so a green pill
+            showed around and behind the 32px avatar. */}
+        <Button variant="ghost" size="icon" className="relative size-8 rounded-full p-0">
               <Avatar>
             <AvatarImage src={resolvedImageUrl} alt={`${profile.firstName} ${profile.lastName}`} />
             <AvatarFallback className="bg-secondary">{initials}</AvatarFallback>

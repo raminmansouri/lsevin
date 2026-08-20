@@ -9,6 +9,7 @@ import {
   ConsultingFormSkeleton,
 } from "@/features/consulting/components/consulting-form";
 import { TRANSLATION_KEY } from "@/features/consulting/types/constants";
+import { alternatesFor } from "@/lib/seo/alternates";
 import { getUserDocuments } from "@/features/shared/api/server/get-user-documents";
 import { IUserDocuments } from "@/features/shared/types/user";
 import { LocalePageProps, LocaleParams } from "@/types/next";
@@ -19,6 +20,7 @@ export async function generateMetadata(
   const { locale } = await props.params;
   const t = await getTranslations({ locale, namespace: TRANSLATION_KEY });
   return {
+    alternates: alternatesFor(locale, "/consulting"),
     title: t("page.title"),
     description: t("page.description"),
   };

@@ -32,7 +32,7 @@ export function DashboardRecentConsultings({
           {t("recentConsultings.title")}
         </CardTitle>
         <Button variant="outline" size="sm" asChild>
-          <Link href="/admin/consulting">
+          <Link href="/admin/consultation-requests">
             {t("recentConsultings.viewAll")}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Link>

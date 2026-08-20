@@ -726,7 +726,8 @@
     "entryResolveFailedTitle": "تعذّر تحميل هذه الخدمة",
     "entryResolveFailedSubtitle": "الرابط الذي فتحته يشير إلى خدمة محدّدة، لكن تعذّرت قراءتها. حاول مرة أخرى.",
     "retry": "أعد المحاولة",
-    "close": "إغلاق"
+    "close": "إغلاق",
+    "stepConsultation": "استشارة مجانية"
   },
   "Explore": {
     "header": {
@@ -944,6 +945,8 @@
     "cannedReplySaved": "تم حفظ الرد الجاهز.",
     "capDueNow": "الحد الأعلى مستحق الآن",
     "category": "الفئة",
+    "providerCategoryHint": "الفئة التي تُدرج هذه المنشأة ضمنها عند التصفح. اتركها فارغة ليعتمد التصنيف على الخدمات المقدَّمة.",
+    "selectCategory": "اختر الفئة",
     "categoryPerformance": "أداء الفئة",
     "certificationDeleted": "تم حذف الشهادة.",
     "certificationName": "اسم الشهادة",
@@ -1082,6 +1085,7 @@
     "eyebrowSmallTopText": "النص العلوي الصغير",
     "failed": "فشل",
     "featured": "مميز",
+    "featuredServiceHint": "لا تظهر في قسم «الخدمات المميزة» بالتطبيق إلا الخدمات المؤشّر عليها كمميزة. أما «شائع» ودرجة الرواج فتغيّران الترتيب داخله فحسب.",
     "featuredScore": "درجة التمييز",
     "feeMode": "وضع الرسوم",
     "file": "ملف",
@@ -2344,13 +2348,15 @@
       "title": "استكشاف الفئات",
       "emptyTitle": "لم يتم العثور على فئات خدمات",
       "emptyDescription": "أضف فئات وخدمات ومزوّدين نشطين لعرضهم هنا.",
-      "serviceCount": "{count} الخدمات"
+      "serviceCount": "{count} الخدمات",
+      "providerCount": "{count} مزود",
+      "subcategoryCount": "{count} فئة فرعية"
     },
     "featured": {
       "title": "الخدمات المميزة",
       "subtitle": "مختارة بعناية من خبرائنا",
       "emptyTitle": "لا توجد خدمات مميزة بعد",
-      "emptyDescription": "علّم خدمات المزوّد كخدمات شائعة أو أضف عروضاً لإظهارها هنا.",
+      "emptyDescription": "فعّل خيار «مميز» لخدمة المزوّد من لوحة الإدارة لتظهر هنا.",
       "discountOff": "خصم {percent}%",
       "availableDestination": "وجهة متاحة"
     },
@@ -2474,7 +2480,7 @@
     "featuredPage": {
       "backAria": "العودة إلى الرئيسية",
       "title": "الخدمات المميزة",
-      "subtitle": "تصفح كل الخدمات",
+      "subtitle": "جميع الخدمات المميزة",
       "ctaTitle": "لا تجد ما تبحث عنه؟",
       "ctaDescription": "استخدم البحث الذكي للعثور على ما تحتاجه بالضبط.",
       "ctaButton": "ابحث الآن"
@@ -4433,7 +4439,8 @@
     "commercial": "المالية",
     "notifications": "الإشعارات",
     "refunds": "المبالغ المستردة",
-    "templates": "القوالب"
+    "templates": "القوالب",
+    "consultationRequests": "طلبات الاستشارة"
   },
   "HomePage": {
     "title": "L Sevin - رعاية صحية آلية",
@@ -7551,7 +7558,9 @@
     },
     "useMyLocation": "استخدام موقعي",
     "expandedNote": "لا توجد خدمات في نطاقك المحدد — نعرض أقرب الخدمات المتاحة مرتبة حسب المسافة.",
-    "noResults": "لم يتم العثور على خدمات. جرّب توسيع عوامل التصفية."
+    "noResults": "لم يتم العثور على خدمات. جرّب توسيع عوامل التصفية.",
+    "showMap": "الخريطة",
+    "showList": "القائمة"
   },
   "NearbyMap": {
     "mapboxNotConfiguredTitle": "Mapbox is not مكوّن",
@@ -12504,5 +12513,187 @@
     "wishlist_items": "عناصر قوائم الرغبات",
     "wishlists": "قوائم الرغبات",
     "withdrawal_requests": "طلبات السحب"
+  },
+  "Consultation": {
+    "step": {
+      "label": "استشارة مجانية",
+      "title": "لست متأكداً مما تحجزه؟ تحدث أولاً مع أحد المستشارين.",
+      "subtitle": "اترك بياناتك وسيتصل بك أحد مستشارينا. الاستشارة مجانية ولا تؤثر على حجزك.",
+      "optional": "اختياري",
+      "skipNote": "يمكنك تخطي هذه الخطوة ومتابعة الحجز."
+    },
+    "form": {
+      "firstName": {
+        "label": "الاسم الأول",
+        "placeholder": "مثال: سارة"
+      },
+      "lastName": {
+        "label": "اسم العائلة",
+        "placeholder": "مثال: أحمدي"
+      },
+      "phone": {
+        "label": "رقم الهاتف",
+        "placeholder": "09xxxxxxxxx",
+        "hint": "سنتصل بك أو نرسل رسالة إلى هذا الرقم."
+      },
+      "email": {
+        "label": "البريد الإلكتروني",
+        "placeholder": "you@example.com"
+      },
+      "category": {
+        "label": "في أي شيء تحتاج المساعدة؟",
+        "placeholder": "مثال: علاج الأسنان"
+      },
+      "description": {
+        "label": "أخبرنا المزيد",
+        "placeholder": "صف ما الذي تبحث عنه…"
+      },
+      "preferredContactTime": {
+        "label": "أفضل وقت للاتصال"
+      },
+      "urgency": {
+        "label": "ما مدى استعجالك؟"
+      },
+      "optionalTag": "اختياري",
+      "submit": "اطلب استشارة مجانية",
+      "submitting": "جارٍ الإرسال…"
+    },
+    "contactTime": {
+      "any": "أي وقت",
+      "morning": "صباحاً",
+      "afternoon": "بعد الظهر",
+      "evening": "مساءً"
+    },
+    "urgency": {
+      "normal": "لا يوجد استعجال",
+      "soon": "خلال أيام قليلة",
+      "urgent": "عاجل"
+    },
+    "success": {
+      "title": "تم استلام طلبك",
+      "body": "سيتواصل معك مستشارونا على الرقم {phone}.",
+      "continue": "متابعة الحجز",
+      "sendAnother": "إرسال طلب آخر"
+    },
+    "errors": {
+      "signInRequired": "يرجى تسجيل الدخول قبل طلب الاستشارة.",
+      "notAvailable": "طلبات الاستشارة غير متاحة بعد. يرجى المحاولة لاحقاً.",
+      "invalidForm": "يرجى مراجعة الحقول المحددة.",
+      "rateLimited": "لقد أرسلت عدة طلبات بالفعل. يرجى المحاولة لاحقاً.",
+      "notFound": "هذا الطلب لم يعد موجوداً.",
+      "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+      "tooShort": "هذا قصير جداً.",
+      "tooLong": "هذا طويل جداً.",
+      "invalidPhone": "أدخل رقم هاتف صالحاً.",
+      "digitsOnly": "أرقام فقط.",
+      "duplicatePhone": "رقم الهاتف هذا موجود بالفعل في القائمة."
+    },
+    "admin": {
+      "title": "طلبات الاستشارة",
+      "description": "طلبات معاودة الاتصال للاستشارة المجانية الواردة من مسار الحجز.",
+      "empty": "لا توجد طلبات استشارة بعد.",
+      "schemaMissing": {
+        "title": "ترحيل قاعدة البيانات قيد الانتظار",
+        "body": "طبّق الترحيل 0022_consultation_requests.sql لتفعيل هذا القسم."
+      },
+      "stats": {
+        "total": "الإجمالي",
+        "new": "جديد",
+        "inProgress": "قيد المعالجة",
+        "contacted": "تم الاتصال",
+        "done": "مكتمل",
+        "rejected": "مرفوض",
+        "failedNotifications": "رسائل فاشلة"
+      },
+      "filters": {
+        "search": "ابحث بالاسم أو الهاتف أو البريد",
+        "status": "الحالة",
+        "urgency": "الأولوية",
+        "all": "الكل",
+        "reset": "إعادة تعيين",
+        "apply": "تطبيق"
+      },
+      "table": {
+        "name": "الاسم",
+        "phone": "الهاتف",
+        "topic": "الموضوع",
+        "urgency": "الأولوية",
+        "preferredTime": "الوقت المفضل",
+        "status": "الحالة",
+        "sms": "رسالة نصية",
+        "createdAt": "تاريخ الاستلام",
+        "actions": "إجراءات",
+        "view": "عرض"
+      },
+      "status": {
+        "new": "جديد",
+        "in_progress": "قيد المعالجة",
+        "contacted": "تم الاتصال",
+        "done": "مكتمل",
+        "rejected": "مرفوض"
+      },
+      "detail": {
+        "title": "طلب استشارة",
+        "contact": "بيانات التواصل",
+        "message": "الرسالة",
+        "noMessage": "لم تُكتب أي رسالة.",
+        "meta": "التفاصيل",
+        "locale": "اللغة",
+        "source": "المصدر",
+        "bookingDraft": "مسودة الحجز",
+        "notifications": "الإشعارات",
+        "noNotifications": "لم يُرسل أي شيء لهذا الطلب.",
+        "adminNote": "ملاحظة داخلية",
+        "adminNotePlaceholder": "ملاحظات للفريق…",
+        "save": "حفظ التغييرات",
+        "saving": "جارٍ الحفظ…",
+        "saved": "تم الحفظ",
+        "close": "إغلاق"
+      },
+      "notification": {
+        "customer": "العميل",
+        "admin": "المشرف",
+        "sent": "أُرسلت",
+        "failed": "فشلت",
+        "skipped": "تم تخطيها",
+        "pending": "قيد الانتظار",
+        "reason": {
+          "sms_disabled": "إرسال الرسائل النصية متوقف",
+          "no_credentials": "بيانات اعتماد المزوّد غير متوفرة",
+          "no_body_id": "لم يُضبط معرّف القالب",
+          "not_iranian_mobile": "الرقم ليس رقم جوال إيراني",
+          "no_recipients": "لا يوجد مستلمون من المشرفين"
+        }
+      },
+      "settings": {
+        "title": "إعدادات الإشعارات",
+        "description": "من يتم إبلاغه عند وصول طلب، وأي قالب من MeliPayamak يحمل الرسالة.",
+        "enabled": "إرسال إشعارات الرسائل النصية",
+        "customerBodyId": "معرّف قالب العميل (bodyId)",
+        "customerBodyIdHint": "متغير واحد: الاسم الأول للعميل.",
+        "adminBodyId": "معرّف قالب المشرف (bodyId)",
+        "adminBodyIdHint": "ثلاثة متغيرات بالترتيب: الاسم الكامل، الهاتف، الأولوية.",
+        "rateLimit": "أقصى عدد طلبات لكل مستخدم في الساعة",
+        "patternNotice": "لا يملك حساب MeliPayamak هذا خط نص حر، لذلك يجب أن تُرسل كل رسالة عبر قالب معتمد في لوحة MeliPayamak. وإلى أن تُضبط هذه المعرّفات، تُسجَّل الإشعارات على أنها متخطاة ولا يُرسل شيء.",
+        "save": "حفظ الإعدادات",
+        "saved": "تم حفظ الإعدادات"
+      },
+      "recipients": {
+        "title": "مستلمو المشرفين",
+        "description": "تُرسل رسالة نصية إلى كل رقم مفعّل عند وصول طلب.",
+        "label": "الاسم",
+        "labelPlaceholder": "مثال: مكتب الدعم",
+        "phone": "الهاتف",
+        "phonePlaceholder": "09xxxxxxxxx",
+        "active": "مفعّل",
+        "add": "إضافة مستلم",
+        "update": "تحديث المستلم",
+        "edit": "تعديل",
+        "delete": "حذف",
+        "confirmDelete": "هل تريد إزالة هذا المستلم؟",
+        "empty": "لا يوجد مستلمون بعد — لن يُبلَّغ أحد.",
+        "cancel": "إلغاء"
+      }
+    }
   }
 }

@@ -79,6 +79,26 @@ const nextConfig: NextConfig = {
     },
   },
 
+  // "sponsered-slider" was the canonical admin URL for this section, spelled wrong.
+  // The correct spelling is canonical now; the old one is a permanent redirect so
+  // existing bookmarks and the browser history of anyone who used the admin keep
+  // working. Both the bare and the locale-prefixed form are covered, because the
+  // intl middleware only adds the prefix on a plain page request.
+  async redirects() {
+    return [
+      {
+        source: "/admin/sponsered-slider/:path*",
+        destination: "/admin/sponsored-slider/:path*",
+        permanent: true,
+      },
+      {
+        source: "/:locale/admin/sponsered-slider/:path*",
+        destination: "/:locale/admin/sponsored-slider/:path*",
+        permanent: true,
+      },
+    ];
+  },
+
   async rewrites() {
   const localePattern = "en|fa|tr|ar|es|ku|de|fr";
 

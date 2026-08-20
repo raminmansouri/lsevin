@@ -36,22 +36,13 @@ type JsonRecord = Record<string, unknown>;
 
 type DbSettingsRow = {
   id: number;
-  floatingChatEnabled: boolean;
   supportPageEnabled: boolean;
   requireLogin: boolean;
   allowGuestConversation: boolean;
-  showOnAppPages: boolean;
-  showOnBookingPages: boolean;
-  showOnProviderPages: boolean;
-  showOnAdminPages: boolean;
-  launcherPosition: "bottom-right" | "bottom-left";
-  launcherIcon: string;
   primaryColor: string;
   accentColor: string;
-  textColor: string;
   borderRadius: string;
   themeMode: "system" | "light" | "dark";
-  compactMode: boolean;
   labels: SupportSettings["labels"];
   officeHours: JsonRecord;
   offlineSettings: JsonRecord;
@@ -87,22 +78,13 @@ function normalizePhone(countryCode?: string | null, phone?: string | null) {
 function normalizeSettings(row: DbSettingsRow): SupportSettings {
   return {
     id: Number(row.id),
-    floatingChatEnabled: Boolean(row.floatingChatEnabled),
     supportPageEnabled: Boolean(row.supportPageEnabled),
     requireLogin: Boolean(row.requireLogin),
     allowGuestConversation: Boolean(row.allowGuestConversation),
-    showOnAppPages: Boolean(row.showOnAppPages),
-    showOnBookingPages: Boolean(row.showOnBookingPages),
-    showOnProviderPages: Boolean(row.showOnProviderPages),
-    showOnAdminPages: Boolean(row.showOnAdminPages),
-    launcherPosition: row.launcherPosition || "bottom-right",
-    launcherIcon: row.launcherIcon || "message-circle",
     primaryColor: row.primaryColor || "#083f30",
     accentColor: row.accentColor || "#eac074",
-    textColor: row.textColor || "#ffffff",
     borderRadius: row.borderRadius || "24px",
     themeMode: row.themeMode || "system",
-    compactMode: Boolean(row.compactMode),
     labels: { ...DEFAULT_SUPPORT_LABELS, ...(row.labels || {}) },
     officeHours: row.officeHours || {},
     offlineSettings: row.offlineSettings || {},
@@ -116,22 +98,13 @@ function normalizeSettings(row: DbSettingsRow): SupportSettings {
 const SETTINGS_SELECT = sql.unsafe(`
   select
     id::int as id,
-    floating_chat_enabled as "floatingChatEnabled",
     support_page_enabled as "supportPageEnabled",
     require_login as "requireLogin",
     allow_guest_conversation as "allowGuestConversation",
-    show_on_app_pages as "showOnAppPages",
-    show_on_booking_pages as "showOnBookingPages",
-    show_on_provider_pages as "showOnProviderPages",
-    show_on_admin_pages as "showOnAdminPages",
-    launcher_position as "launcherPosition",
-    launcher_icon as "launcherIcon",
     primary_color as "primaryColor",
     accent_color as "accentColor",
-    text_color as "textColor",
     border_radius as "borderRadius",
     theme_mode as "themeMode",
-    compact_mode as "compactMode",
     labels,
     office_hours as "officeHours",
     offline_settings as "offlineSettings",
@@ -228,22 +201,13 @@ export async function getSupportSettings(db: QueryLike = sql): Promise<SupportSe
     on conflict (id) do update set id = excluded.id
     returning
       id::int as id,
-      floating_chat_enabled as "floatingChatEnabled",
       support_page_enabled as "supportPageEnabled",
       require_login as "requireLogin",
       allow_guest_conversation as "allowGuestConversation",
-      show_on_app_pages as "showOnAppPages",
-      show_on_booking_pages as "showOnBookingPages",
-      show_on_provider_pages as "showOnProviderPages",
-      show_on_admin_pages as "showOnAdminPages",
-      launcher_position as "launcherPosition",
-      launcher_icon as "launcherIcon",
       primary_color as "primaryColor",
       accent_color as "accentColor",
-      text_color as "textColor",
       border_radius as "borderRadius",
       theme_mode as "themeMode",
-      compact_mode as "compactMode",
       labels,
       office_hours as "officeHours",
       offline_settings as "offlineSettings",
@@ -258,22 +222,13 @@ export async function getSupportSettings(db: QueryLike = sql): Promise<SupportSe
 export async function updateSupportSettings(input: SupportSettingsInput): Promise<SupportSettings> {
   const rows = await sql<DbSettingsRow[]>`
     update support.settings
-       set floating_chat_enabled = ${input.floatingChatEnabled},
-           support_page_enabled = ${input.supportPageEnabled},
+       set support_page_enabled = ${input.supportPageEnabled},
            require_login = ${input.requireLogin},
            allow_guest_conversation = ${input.allowGuestConversation},
-           show_on_app_pages = ${input.showOnAppPages},
-           show_on_booking_pages = ${input.showOnBookingPages},
-           show_on_provider_pages = ${input.showOnProviderPages},
-           show_on_admin_pages = ${input.showOnAdminPages},
-           launcher_position = ${input.launcherPosition},
-           launcher_icon = ${input.launcherIcon},
            primary_color = ${input.primaryColor},
            accent_color = ${input.accentColor},
-           text_color = ${input.textColor},
            border_radius = ${input.borderRadius},
            theme_mode = ${input.themeMode},
-           compact_mode = ${input.compactMode},
            labels = ${sql.json(input.labels)}::jsonb,
            office_hours = ${sql.json(input.officeHours)}::jsonb,
            offline_settings = ${sql.json(input.offlineSettings)}::jsonb,
@@ -282,22 +237,13 @@ export async function updateSupportSettings(input: SupportSettingsInput): Promis
      where id = 1
      returning
       id::int as id,
-      floating_chat_enabled as "floatingChatEnabled",
       support_page_enabled as "supportPageEnabled",
       require_login as "requireLogin",
       allow_guest_conversation as "allowGuestConversation",
-      show_on_app_pages as "showOnAppPages",
-      show_on_booking_pages as "showOnBookingPages",
-      show_on_provider_pages as "showOnProviderPages",
-      show_on_admin_pages as "showOnAdminPages",
-      launcher_position as "launcherPosition",
-      launcher_icon as "launcherIcon",
       primary_color as "primaryColor",
       accent_color as "accentColor",
-      text_color as "textColor",
       border_radius as "borderRadius",
       theme_mode as "themeMode",
-      compact_mode as "compactMode",
       labels,
       office_hours as "officeHours",
       offline_settings as "offlineSettings",
