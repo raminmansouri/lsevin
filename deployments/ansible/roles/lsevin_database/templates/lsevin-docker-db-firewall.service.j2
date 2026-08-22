@@ -1,0 +1,13 @@
+[Unit]
+Description=LSevin restricted Docker database firewall
+Requires=docker.service
+After=docker.service
+PartOf=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/lsevin-docker-db-firewall
+RemainAfterExit=yes
+
+[Install]
+WantedBy=docker.service

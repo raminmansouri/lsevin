@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+# Docker-published ports traverse FORWARD and can bypass ordinary UFW INPUT
+# rules. Enforce the same allow-list in Docker's supported user chain.
+docker_chain=DOCKER-USER
+policy_chain=LSEVIN-DB
+ports=( {% for port in lsevin_database_public_ports %}{{ port }} {% endfor %})
+sources=( {% for source in lsevin_database_allowed_sources %}{{ source | quote }} {% endfor %})
+docker_network={{ lsevin_database_docker_network | quote }}
+
+docker_network_id="$(
+  docker network inspect "$docker_network" --format '{% raw %}{{.Id}}{% endraw %}'
+)"
+docker_bridge="br-${docker_network_id:0:12}"
+
+if [[ -z "$docker_network_id" ]]; then
+  echo "ERROR: Docker network $docker_network has no usable network ID" >&2
+  exit 1
+fi
+
+if ! ip link show dev "$docker_bridge" >/dev/null 2>&1; then
+  echo "ERROR: Docker bridge $docker_bridge for network $docker_network does not exist" >&2
+  exit 1
+fi
+
+iptables -w -N "$docker_chain" 2>/dev/null || true
+iptables -w -N "$policy_chain" 2>/dev/null || true
+iptables -w -F "$policy_chain"
+iptables -w -C "$docker_chain" -j "$policy_chain" 2>/dev/null \
+  || iptables -w -I "$docker_chain" 1 -j "$policy_chain"
+
+# Never apply public ingress restrictions to service-to-service packets entering
+# from the Compose bridge. External DNAT traffic enters through the host's public
+# interface, so it continues to the exact-source allow and drop rules below.
+iptables -w -A "$policy_chain" -i "$docker_bridge" -j RETURN
+
+for port in "${ports[@]}"; do
+  for source in "${sources[@]}"; do
+    iptables -w -A "$policy_chain" -s "$source" -p tcp --dport "$port" -j ACCEPT
+  done
+  iptables -w -A "$policy_chain" -p tcp --dport "$port" -j DROP
+done
+
+iptables -w -A "$policy_chain" -j RETURN

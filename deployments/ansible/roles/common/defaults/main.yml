@@ -2,3 +2,11 @@
 lsevin_enable_ufw: true
 lsevin_enable_unattended_upgrades: true
 lsevin_ssh_port: 22
+
+# Database ports are public only for these exact source addresses. Keep these as
+# host addresses (/32); broad networks make direct database exposure unsafe.
+lsevin_database_allowed_sources:
+  - 2.186.15.252/32
+lsevin_database_public_ports:
+  - 5432
+  - 6432

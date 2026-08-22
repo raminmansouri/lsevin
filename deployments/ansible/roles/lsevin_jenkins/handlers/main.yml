@@ -11,6 +11,5 @@
       - up
       - -d
       - --build
-      - --force-recreate
       - jenkins
   changed_when: true

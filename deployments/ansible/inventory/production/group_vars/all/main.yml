@@ -40,3 +40,8 @@ lsevin_enable_unattended_upgrades: true
 lsevin_disable_transparent_hugepages: true
 lsevin_docker_users:
   - jenkins
+
+# pgAdmin access. Both the host firewall and Docker forwarding policy restrict
+# PostgreSQL/PgBouncer to this single public source address.
+lsevin_database_allowed_sources:
+  - 2.186.15.252/32

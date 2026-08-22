@@ -2,7 +2,7 @@
 # Differences vs docker-compose.prod.yml:
 #   - drops lsevin-booking-webapp (not present in repo)
 #   - drops lsevin-apigateway (Yarp routes are Dev-only; Caddy talks to the API directly)
-#   - postgres pinned to 17-alpine to match the source dump; bound to 127.0.0.1 only
+#   - database ports are published for firewall-restricted administration
 #   - webapp gets DATABASE_URL (queries Postgres directly) + Neshan map key
 #   - uploads bind-mounted from /opt/lsevin/uploads (populated by rsync)
 services:
@@ -145,7 +145,12 @@ services:
         condition: service_started
 
   postgres:
-    image: postgres:17-alpine
+    build:
+      context: ./postgres
+      dockerfile: Dockerfile
+      args:
+        POSTGRES_IMAGE_TAG: ${POSTGRES_IMAGE_TAG:-17.10-alpine}
+    image: lsevin-postgres:${POSTGRES_IMAGE_TAG:-17.10-alpine}
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -153,15 +158,29 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ${LSEVIN_CONFIG_DIR:-/opt/lsevin/config}/postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ${LSEVIN_CONFIG_DIR:-/opt/lsevin/config}/postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+      - ${LSEVIN_CONFIG_DIR:-/opt/lsevin/config}/postgres/pgbackrest.conf:/etc/pgbackrest/pgbackrest.conf:ro
+      - ${LSEVIN_BACKUP_DIR:-/opt/lsevin/backups}/pgbackrest:/var/lib/pgbackrest
+      - ${LSEVIN_BACKUP_DIR:-/opt/lsevin/backups}/spool:/var/spool/pgbackrest
+    command:
+      - postgres
+      - -c
+      - config_file=/etc/postgresql/postgresql.conf
+      - -c
+      - hba_file=/etc/postgresql/pg_hba.conf
+    shm_size: ${POSTGRES_SHM_SIZE:-512m}
     networks:
       - lsevin-network
     ports:
-      - "127.0.0.1:5432:5432"
+      - "0.0.0.0:5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      # pg_isready succeeds while crash/WAL recovery is still read-only. Require
+      # the primary to be writable before Compose releases dependent services.
+      test: ["CMD-SHELL", "psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} -tAc 'SELECT NOT pg_is_in_recovery()' | grep -qx t"]
       interval: 5s
       timeout: 5s
-      retries: 30
+      retries: 120
 
   # Connection pooler. The Ansible database role (deployments/ansible/roles/
   # lsevin_database) has always built, pulled and started a `pgbouncer` service
@@ -195,6 +214,8 @@ services:
       PGBOUNCER_MAX_PREPARED_STATEMENTS: ${PGBOUNCER_MAX_PREPARED_STATEMENTS:-200}
     expose:
       - "6432"
+    ports:
+      - "0.0.0.0:6432:6432"
     networks:
       - lsevin-network
     depends_on:
@@ -205,6 +226,32 @@ services:
       interval: 10s
       timeout: 5s
       retries: 12
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.17.1
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: postgresql://${POSTGRES_MONITOR_USER}:${POSTGRES_MONITOR_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
+    ports:
+      - "127.0.0.1:9187:9187"
+    networks:
+      - lsevin-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  pgbouncer-exporter:
+    image: prometheuscommunity/pgbouncer-exporter:v0.11.0
+    restart: unless-stopped
+    command:
+      - --pgBouncer.connectionString=postgresql://${POSTGRES_MONITOR_USER}:${POSTGRES_MONITOR_PASSWORD}@pgbouncer:6432/pgbouncer?sslmode=disable
+    ports:
+      - "127.0.0.1:9127:9127"
+    networks:
+      - lsevin-network
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
 
   redis:
     image: redis:7-alpine

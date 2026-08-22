@@ -99,9 +99,6 @@ if values['WEBAPP_API_KEY'] != values['WEBHOOK_KEY']:
 
 expected = {
     'NEXT_PUBLIC_URL': f"https://{values['APP_DOMAIN']}",
-    'NEXT_PUBLIC_API_URL': f"https://{values['API_DOMAIN']}/api/v1",
-    'NEXT_PUBLIC_FILES_URL': f"https://{values['API_DOMAIN']}/files",
-    'NEXT_PUBLIC_SOCKET_URL': f"https://{values['API_DOMAIN']}/hubs",
     'AUTH_URL': f"https://{values['APP_DOMAIN']}",
     'JWT_ISSUER': f"https://{values['API_DOMAIN']}",
     'CORS_ORIGIN_1': f"https://{values['APP_DOMAIN']}",
@@ -112,6 +109,26 @@ expected = {
 for key, expected_value in expected.items():
     if values[key] != expected_value:
         raise SystemExit(f'ERROR: {key} should be {expected_value!r}, found {values[key]!r}')
+
+# Caddy intentionally exposes API, file and hub routes on both APP_DOMAIN and
+# API_DOMAIN. Accept either supported public routing mode so preflight does not
+# force a working production webapp to change origin during a later rebuild.
+public_route_suffixes = {
+    'NEXT_PUBLIC_API_URL': '/api/v1',
+    'NEXT_PUBLIC_FILES_URL': '/files',
+    'NEXT_PUBLIC_SOCKET_URL': '/hubs',
+}
+for key, suffix in public_route_suffixes.items():
+    allowed_values = {
+        f"https://{values['APP_DOMAIN']}{suffix}",
+        f"https://{values['API_DOMAIN']}{suffix}",
+    }
+    if values[key] not in allowed_values:
+        allowed_display = ', '.join(repr(value) for value in sorted(allowed_values))
+        raise SystemExit(
+            f'ERROR: {key} must use a Caddy-supported public route '
+            f'({allowed_display}), found {values[key]!r}'
+        )
 
 encoded_user = quote(values['POSTGRES_USER'], safe='')
 encoded_password = quote(values['POSTGRES_PASSWORD'], safe='')

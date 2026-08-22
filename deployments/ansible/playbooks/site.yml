@@ -2,5 +2,8 @@
 - name: Provision LSevin production host
   ansible.builtin.import_playbook: provision.yml
 
+- name: Install Jenkins before application/database publication
+  ansible.builtin.import_playbook: jenkins.yml
+
 - name: Deploy LSevin database stack
   ansible.builtin.import_playbook: database.yml

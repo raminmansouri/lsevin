@@ -4,5 +4,9 @@
 local   all             all                                     trust
 host    all             all             127.0.0.1/32            scram-sha-256
 host    all             all             ::1/128                 scram-sha-256
-host    all             all             0.0.0.0/0               scram-sha-256
-host    all             all             ::/0                    scram-sha-256
+# Docker bridge clients. Host firewall rules independently protect published
+# ports, but PostgreSQL also rejects every non-approved external source.
+host    all             all             172.16.0.0/12           scram-sha-256
+{% for source in lsevin_database_allowed_sources %}
+host    all             all             {{ source }}            scram-sha-256
+{% endfor %}

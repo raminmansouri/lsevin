@@ -23,6 +23,61 @@
       least 24 characters. Both must use .env-safe characters: A-Z, a-z, 0-9, dot, underscore,
       tilde, @, %, +, =, comma, colon, !, ?, and hyphen.
 
+- name: Require an explicit database administration allow-list
+  ansible.builtin.assert:
+    that:
+      - lsevin_database_allowed_sources | length > 0
+      - item is match('^(?:[0-9]{1,3}\.){3}[0-9]{1,3}/32$')
+    fail_msg: Database ports require one or more explicit IPv4 /32 source addresses.
+  loop: "{{ lsevin_database_allowed_sources }}"
+
+- name: Install Docker database firewall policy
+  ansible.builtin.template:
+    src: lsevin-docker-db-firewall.sh.j2
+    dest: /usr/local/sbin/lsevin-docker-db-firewall
+    owner: root
+    group: root
+    mode: "0750"
+  register: lsevin_database_firewall_script
+
+- name: Install Docker database firewall service
+  ansible.builtin.template:
+    src: lsevin-docker-db-firewall.service.j2
+    dest: /etc/systemd/system/lsevin-docker-db-firewall.service
+    owner: root
+    group: root
+    mode: "0644"
+  register: lsevin_database_firewall_unit
+
+- name: Enable and apply Docker database firewall policy
+  block:
+    - name: Start Docker database firewall service
+      ansible.builtin.systemd:
+        name: lsevin-docker-db-firewall.service
+        state: "{{ 'restarted' if (lsevin_database_firewall_script.changed or lsevin_database_firewall_unit.changed) else 'started' }}"
+        enabled: true
+        daemon_reload: true
+
+  rescue:
+    - name: Read Docker database firewall service status
+      ansible.builtin.command:
+        argv:
+          - systemctl
+          - status
+          - --no-pager
+          - --full
+          - lsevin-docker-db-firewall.service
+      register: lsevin_database_firewall_status
+      changed_when: false
+      failed_when: false
+
+    - name: Stop with Docker database firewall diagnostics
+      ansible.builtin.fail:
+        msg: |-
+          Docker database firewall policy could not be applied.
+          {{ lsevin_database_firewall_status.stdout | default('No service status was available.') }}
+          {{ lsevin_database_firewall_status.stderr | default('') }}
+
 
 - name: Warn when the existing application database password is shorter than 24 characters
   ansible.builtin.debug:
@@ -838,10 +893,9 @@
       - up
       - -d
       - --no-build
-      - --force-recreate
       - --wait
       - --wait-timeout
-      - "180"
+      - "600"
       - postgres
       - pgbouncer
       - postgres-exporter
@@ -849,7 +903,7 @@
     chdir: "{{ lsevin_app_dir }}/deployments/docker"
   changed_when: true
 
-- name: Wait for deployed PostgreSQL to accept connections
+- name: Wait for deployed PostgreSQL to finish recovery and become writable
   ansible.builtin.command:
     argv:
       - docker
@@ -863,17 +917,66 @@
       - exec
       - -T
       - postgres
-      - pg_isready
+      - psql
+      - -v
+      - ON_ERROR_STOP=1
       - -U
       - "{{ vault_postgres_user }}"
       - -d
       - "{{ vault_postgres_db }}"
+      - -Atqc
+      - SELECT NOT pg_is_in_recovery();
     chdir: "{{ lsevin_app_dir }}/deployments/docker"
   register: deployed_postgres_ready
-  retries: 30
-  delay: 2
-  until: deployed_postgres_ready.rc == 0
+  retries: 120
+  delay: 3
+  until:
+    - deployed_postgres_ready.rc == 0
+    - (deployed_postgres_ready.stdout | trim) == 't'
   changed_when: false
+
+# Reconcile application credentials immediately after the database is writable.
+# Keeping this before monitoring/backup setup ensures a later non-critical
+# failure cannot leave running applications with the previous database password.
+- name: Reconcile the existing API container with database credentials
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - up
+      - -d
+      - --no-deps
+      - --no-build
+      - lsevin-api
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  when: (existing_api_container.stdout | trim | length) > 0
+  changed_when: true
+
+- name: Reconcile the existing web application container with database credentials
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-name
+      - "{{ lsevin_compose_project }}"
+      - --env-file
+      - .env
+      - -f
+      - docker-compose.server.yml
+      - up
+      - -d
+      - --no-deps
+      - --no-build
+      - lsevin-webapp
+    chdir: "{{ lsevin_app_dir }}/deployments/docker"
+  when: (existing_webapp_container.stdout | trim | length) > 0
+  changed_when: true
 
 - name: Check PostgreSQL administrator role capabilities
   ansible.builtin.command:
@@ -961,6 +1064,9 @@
         executable: /bin/bash
       register: monitoring_sql_result
       changed_when: true
+      retries: 60
+      delay: 3
+      until: monitoring_sql_result.rc == 0
 
   always:
     - name: Remove temporary PostgreSQL monitoring SQL
@@ -1157,48 +1263,6 @@
     - lsevin-pgbackrest-incr.timer
     - lsevin-pgbackrest-check.timer
     - lsevin-logical-backup.timer
-
-- name: Recreate the existing API container so it uses PgBouncer
-  ansible.builtin.command:
-    argv:
-      - docker
-      - compose
-      - --project-name
-      - "{{ lsevin_compose_project }}"
-      - --env-file
-      - .env
-      - -f
-      - docker-compose.server.yml
-      - up
-      - -d
-      - --no-deps
-      - --no-build
-      - --force-recreate
-      - lsevin-api
-    chdir: "{{ lsevin_app_dir }}/deployments/docker"
-  when: (existing_api_container.stdout | trim | length) > 0
-  changed_when: true
-
-- name: Recreate the existing web application container so it uses PgBouncer
-  ansible.builtin.command:
-    argv:
-      - docker
-      - compose
-      - --project-name
-      - "{{ lsevin_compose_project }}"
-      - --env-file
-      - .env
-      - -f
-      - docker-compose.server.yml
-      - up
-      - -d
-      - --no-deps
-      - --no-build
-      - --force-recreate
-      - lsevin-webapp
-    chdir: "{{ lsevin_app_dir }}/deployments/docker"
-  when: (existing_webapp_container.stdout | trim | length) > 0
-  changed_when: true
 
 - name: Run final database verification
   ansible.builtin.command: /usr/local/sbin/lsevin-db-verify
