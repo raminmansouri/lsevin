@@ -3,9 +3,6 @@ node_modules/
 out/
 coverage/
 
-.env
-.env.*
-!.env.example
 
 database-backup.sql
 *.dump
