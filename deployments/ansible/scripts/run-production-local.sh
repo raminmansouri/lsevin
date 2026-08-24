@@ -26,14 +26,11 @@ echo "Log: $log_file"
 "$ROOT_DIR/scripts/preflight-local.sh"
 
 ansible-playbook --syntax-check playbooks/provision.yml
-ansible-playbook --syntax-check playbooks/jenkins.yml
 ansible-playbook --syntax-check playbooks/database.yml
 ansible-playbook --syntax-check playbooks/verify.yml
 
 cat <<'NOTICE'
-This operation installs Jenkins first. It may restart Docker and will recreate
-PostgreSQL/PgBouncer only when their effective configuration changed, causing a
-short database maintenance window. Unchanged application containers are preserved.
+This operation can restart Docker and PostgreSQL and will cause a short maintenance window.
 It preserves the Compose project name "docker" and the existing docker_postgres_data volume.
 Type DEPLOY to continue.
 NOTICE
@@ -42,7 +39,6 @@ read -r confirmation
 
 ansible-playbook playbooks/provision.yml
 "$ROOT_DIR/scripts/preflight-local.sh"
-ansible-playbook playbooks/jenkins.yml
 ansible-playbook playbooks/database.yml
 ansible-playbook playbooks/verify.yml
 

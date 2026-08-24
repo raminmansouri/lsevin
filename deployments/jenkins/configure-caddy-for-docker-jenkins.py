@@ -8,11 +8,11 @@ import sys
 NEW_BLOCK = '''# Jenkins runs as a Docker service on the shared LSevin network.
 {$JENKINS_DOMAIN:devops.lsevin.com} {
 \timport common_headers
-\t# Caddy sets the standard forwarded headers. Explicitly remove any incoming
-\t# X-Forwarded-Port because malformed/duplicated values are rejected by
-\t# Jenkins/Jetty with HTTP 400.
 \treverse_proxy jenkins:8080 {
-\t\theader_up -X-Forwarded-Port
+\t\theader_up Host {host}
+\t\theader_up X-Forwarded-Host {host}
+\t\theader_up X-Forwarded-Proto {scheme}
+\t\theader_up X-Forwarded-Port {server_port}
 \t}
 }
 '''

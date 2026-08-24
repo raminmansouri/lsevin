@@ -22,8 +22,3 @@ pgbackrest_retention_full: 4
 pgbackrest_retention_diff: 14
 pgbackrest_process_max: 2
 logical_backup_retention_days: 14
-lsevin_database_allowed_sources: []
-lsevin_database_public_ports:
-  - 5432
-  - 6432
-lsevin_database_docker_network: lsevin-network

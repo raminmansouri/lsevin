@@ -41,9 +41,11 @@ services:
         NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL}
         NEXT_PUBLIC_NESHAN_MAP_KEY: ${NEXT_PUBLIC_NESHAN_MAP_KEY}
         NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN}
+        NEXT_DEPLOYMENT_ID: ${LSEVIN_WEBAPP_DEPLOYMENT_ID:-local}
       secrets:
         - database_url
         - auth_secret
+        - server_actions_encryption_key
         - webhook_key
     image: lsevin-webapp:${LSEVIN_WEBAPP_IMAGE_TAG:-server}
     environment:
@@ -51,6 +53,7 @@ services:
       AUTH_URL: ${AUTH_URL}
       APP_URL: ${APP_URL}
       AUTH_SECRET: ${AUTH_SECRET}
+      NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: ${NEXT_SERVER_ACTIONS_ENCRYPTION_KEY}
       AUTH_TRUST_HOST: "true"
       INTERNAL_API_URL: ${INTERNAL_API_URL}
       WEBHOOK_KEY: ${WEBHOOK_KEY}
@@ -110,6 +113,10 @@ services:
       # value is present, so a blank/unset WHATSIPLUS_API_KEY leaves the key unconfigured
       # (and international OTP sends are logged as "API key is not configured").
       WHATSIPLUS_API_KEY: ${WHATSIPLUS_API_KEY}
+      Identity__MeliPayamakClientOptions__Username: ${MELIPAYAMAK_USERNAME}
+      Identity__MeliPayamakClientOptions__Password: ${MELIPAYAMAK_PASSWORD}
+      Identity__MeliPayamakClientOptions__BodyId: ${MELIPAYAMAK_BODY_ID}
+      Identity__MeliPayamakClientOptions__BaseAddress: ${MELIPAYAMAK_BASE_URL:-https://rest.payamak-panel.com/api/}
       # Media storage backend. Left at FileSystem deliberately: deploying this file
       # must not move writes to object storage as a side effect. Phase 5 of the media
       # migration flips FILE_STORAGE_BACKEND to Minio once the bucket is mirrored, and
@@ -325,6 +332,8 @@ secrets:
     environment: DATABASE_URL
   auth_secret:
     environment: AUTH_SECRET
+  server_actions_encryption_key:
+    environment: NEXT_SERVER_ACTIONS_ENCRYPTION_KEY
   webhook_key:
     environment: WEBHOOK_KEY
 

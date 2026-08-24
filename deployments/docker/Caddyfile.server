@@ -207,8 +207,5 @@
 {$JENKINS_DOMAIN:devops.lsevin.com} {
 	import common_headers
 
-	reverse_proxy lsevin-jenkins:8080 {
-		# Jenkins rejects malformed or duplicated values from upstream proxies.
-		header_up -X-Forwarded-Port
-	}
+	reverse_proxy lsevin-jenkins:8080
 }

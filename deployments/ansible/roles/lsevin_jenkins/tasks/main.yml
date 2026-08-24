@@ -146,6 +146,23 @@
   loop: "{{ lsevin_jenkins_current_geoip.files }}"
   when: lsevin_jenkins_stable_geoip.matched | int == 0
 
+- name: Check required deployment helper commands
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - /usr/local/sbin/lsevin-upload-backup
+    - /usr/local/sbin/lsevin-upload-restore
+  register: lsevin_jenkins_helpers
+
+- name: Require Ansible-managed backup and verification helpers
+  ansible.builtin.assert:
+    that:
+      - item.stat.exists
+      - item.stat.isreg
+      - item.stat.executable
+    fail_msg: "Required helper is missing or not executable: {{ item.item }}"
+  loop: "{{ lsevin_jenkins_helpers.results }}"
+
 - name: Check for existing Jenkins administrator password
   ansible.builtin.stat:
     path: "{{ lsevin_jenkins_secret_dir }}/admin-password"
@@ -197,8 +214,8 @@
       JENKINS_ADMIN_USER={{ lsevin_jenkins_admin_user }}
       JENKINS_ADMIN_EMAIL={{ lsevin_jenkins_admin_email }}
       JENKINS_DOMAIN={{ lsevin_jenkins_domain }}
-      JENKINS_MAIN_REPOSITORY_URL={{ lsevin_jenkins_effective_repository_url }}
-      JENKINS_MAIN_BRANCH={{ lsevin_jenkins_deploy_branch }}
+      JENKINS_REPOSITORY_URL={{ lsevin_jenkins_effective_repository_url }}
+      JENKINS_DEPLOY_BRANCH={{ lsevin_jenkins_deploy_branch }}
       JENKINS_GITHUB_CREDENTIALS_ID={{ lsevin_jenkins_github_credentials_id }}
       JENKINS_PROVIDERS_BRANCH={{ lsevin_jenkins_portal_branch }}
       JENKINS_SHOP_BRANCH={{ lsevin_jenkins_shop_branch }}
@@ -269,25 +286,6 @@
 
 - name: Flush Jenkins restart handler
   ansible.builtin.meta: flush_handlers
-
-- name: Ensure Jenkins controller is running
-  ansible.builtin.command:
-    argv:
-      - docker
-      - compose
-      - --env-file
-      - "{{ lsevin_jenkins_controller_dir }}/controller.env"
-      - -f
-      - "{{ lsevin_jenkins_controller_dir }}/docker-compose.yml"
-      - up
-      - -d
-      - --build
-      - jenkins
-  register: lsevin_jenkins_compose_up
-  changed_when: >-
-    'Created' in lsevin_jenkins_compose_up.stderr
-    or 'Recreated' in lsevin_jenkins_compose_up.stderr
-    or 'Started' in lsevin_jenkins_compose_up.stderr
 
 - name: Wait for Jenkins controller health
   block:
@@ -406,6 +404,7 @@
       - -d
       - --no-deps
       - --build
+      - --force-recreate
       - caddy
   changed_when: true
 
