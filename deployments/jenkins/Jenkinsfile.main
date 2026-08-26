@@ -1,6 +1,12 @@
 pipeline {
   agent {
     node {
+      // Required by Declarative Pipeline's `node` agent type. This is a
+      // single-controller Jenkins with no separate registered agents (see
+      // casc/jenkins.yaml: numExecutors: 1, no nodes: block), so the
+      // built-in node — reserved automatically, always present — is the
+      // only valid target.
+      label 'built-in'
       customWorkspace '/opt/lsevin-main'
     }
   }

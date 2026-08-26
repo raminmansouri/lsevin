@@ -4,6 +4,7 @@
 pipeline {
   agent {
     node {
+      label 'built-in'
       customWorkspace '/opt/lsevin-providers'
     }
   }
