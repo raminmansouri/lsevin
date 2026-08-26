@@ -32,12 +32,17 @@ function safeReturnTo(request: NextRequest) {
   } catch { return { url: new URL("/dashboard", origin), warning: "returnTo is not a valid URL" }; }
 }
 
-function providerCallbackUrl(token: string) {
+function providerCallbackUrl(token: string, state?: string | null) {
   const callback = new URL("/api/lsevin-sso/callback", providerOrigin());
+
   callback.searchParams.set("token", token);
+
+  if (state) {
+    callback.searchParams.set("state", state);
+  }
+
   return callback;
 }
-
 function escapeHtml(value: unknown) {
   return String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
 }
@@ -60,6 +65,27 @@ function debugFailure(stage: string, code: string, traceId: string, details: Rec
 
 export async function GET(request: NextRequest) {
   const traceId = randomUUID();
+  const state = request.nextUrl.searchParams.get("state");
+
+if (
+  state &&
+  (
+    state.length < 32 ||
+    state.length > 256 ||
+    !/^[A-Za-z0-9_-]+$/.test(state)
+  )
+) {
+  return debugFailure(
+    "appmain-state",
+    "invalid-state",
+    traceId,
+    {
+      statePresent: true,
+      stateLength: state.length,
+    },
+    400,
+  );
+}
   if (!isProviderPortalSsoConfigured()) {
     return debugFailure("appmain-configuration", "sso-not-configured", traceId, {
       authSecretPresent: Boolean(process.env.AUTH_SECRET?.trim()),
@@ -83,11 +109,35 @@ export async function GET(request: NextRequest) {
   }
 
   if (!session?.user?.id) {
-    const bridgePath = `${request.nextUrl.pathname}?returnTo=${encodeURIComponent(returnToResult.url.toString())}`;
-    const signInUrl = publicAppUrl(request, `/${locale}/sign-in`);
-    signInUrl.searchParams.set("redirectTo", bridgePath);
-    return NextResponse.redirect(signInUrl);
+  const bridgeUrl = new URL(
+    request.nextUrl.pathname,
+    publicAppOrigin(request),
+  );
+
+  bridgeUrl.searchParams.set(
+    "returnTo",
+    returnToResult.url.toString(),
+  );
+
+  if (state) {
+    bridgeUrl.searchParams.set("state", state);
   }
+
+  const bridgePath =
+    `${bridgeUrl.pathname}${bridgeUrl.search}`;
+
+  const signInUrl = publicAppUrl(
+    request,
+    `/${locale}/sign-in`,
+  );
+
+  signInUrl.searchParams.set(
+    "redirectTo",
+    bridgePath,
+  );
+
+  return NextResponse.redirect(signInUrl);
+}
 
   let token: string;
   try { token = createProviderPortalBridgeToken(session.user.id, returnToResult.url.toString(), locale); }
@@ -95,7 +145,9 @@ export async function GET(request: NextRequest) {
     return debugFailure("appmain-assertion-create", "assertion-create-failed", traceId, { error: safeDebugText(error), sessionUserIdPresent: Boolean(session.user.id), locale, providerOrigin: providerOrigin() }, 500);
   }
 
-  const response = NextResponse.redirect(providerCallbackUrl(token));
+  const response = NextResponse.redirect(
+  providerCallbackUrl(token, state),
+);
   response.headers.set("X-LSevin-SSO-Trace", traceId);
   return response;
 }
