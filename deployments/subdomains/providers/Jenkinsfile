@@ -1,3 +1,6 @@
+// SUPERSEDED — see README.md in this folder. The real Providers Portal
+// repository now has its own working Jenkinsfile; do not use this one.
+//
 // This Jenkinsfile belongs in the root of the Providers repository.
 // It builds one image, applies migrations once, and updates two replicas one at a time.
 

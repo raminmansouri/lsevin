@@ -24,7 +24,16 @@ pipeline {
     // EventStore, and Caddy.
     COMPOSE_FILE = '/opt/lsevin-main/deployments/docker/docker-compose.server.yml'
 
-    // Production secrets stay outside Git and outside the Jenkins workspace.
+    // NOTE: this pipeline is a separate, alternate strategy from the root
+    // Jenkinsfile/deploy-local.sh (see deployments/jenkins/README.md). Stage 1
+    // below runs deleteDir() + checkout scm directly in this workspace, with no
+    // separate stable "live" directory — so, unlike deploy-local.sh's APP_DIR
+    // (which is rsynced into with .env deliberately excluded from the sync),
+    // anything under /opt/lsevin-main is wiped on every build. The env file
+    // MUST stay outside this tree, so this path is intentionally external.
+    // Create it once, out of band: sudo mkdir -p /etc/lsevin/projects &&
+    // sudo cp deployments/docker/.env.example /etc/lsevin/projects/lsevin-main.env
+    // then fill in real values and chmod 600 it.
     ENV_FILE = '/etc/lsevin/projects/lsevin-main.env'
 
     // Keep the existing Compose project name so Jenkins manages the current

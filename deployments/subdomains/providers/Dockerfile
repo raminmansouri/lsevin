@@ -1,3 +1,6 @@
+# SUPERSEDED — see README.md in this folder. The real Providers Portal
+# repository has its own Dockerfile; do not use this one.
+#
 # syntax=docker/dockerfile:1.7
 
 # This file builds a Next.js application with Node.js 24 on Alpine Linux.

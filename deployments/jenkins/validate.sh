@@ -17,10 +17,6 @@ required_files=(
   "${DOCKER_DIR}/postgres/Dockerfile"
   "${ROOT_DIR}/deployments/ansible/playbooks/site.yml"
   "${ROOT_DIR}/deployments/ansible/requirements.yml"
-  "${SUBDOMAIN_DIR}/providers/docker-compose.yml"
-  "${SUBDOMAIN_DIR}/providers/Dockerfile"
-  "${SUBDOMAIN_DIR}/providers/Jenkinsfile"
-  "${SUBDOMAIN_DIR}/providers/health-route.ts"
   "${SUBDOMAIN_DIR}/shop/docker-compose.yml"
   "${SUBDOMAIN_DIR}/shop/Dockerfile"
   "${SUBDOMAIN_DIR}/shop/Jenkinsfile"
@@ -47,8 +43,10 @@ docker compose \
   -f "${DOCKER_DIR}/docker-compose.server.yml" \
   config --quiet
 
-# Validate all three two-replica Compose files with harmless example values.
-for app in crm providers shop; do
+# Validate the two remaining contract-only two-replica Compose files (crm, shop)
+# with harmless example values. Providers is superseded — see
+# deployments/subdomains/providers/README.md — and validated by its own repo.
+for app in crm shop; do
   IMAGE_TAG="validation" \
   docker compose \
     --project-name "lsevin-${app}-validation" \
@@ -108,9 +106,9 @@ while IFS= read -r -d '' script; do
 done < <(find "${ROOT_DIR}/deployments" -type f -name '*.sh' -print0)
 
 # Production media must be on a stable host directory, never a named volume or a
-# path inside a Git checkout. Both application path variants must be mounted.
-grep -F '${LSEVIN_UPLOADS_DIR:-/var/lib/lsevin/uploads}:/app/uploads' \
-  "${DOCKER_DIR}/docker-compose.server.yml" >/dev/null
+# path inside a Git checkout. FileUploadOptions:UploadDirectory is UploadFiles, so
+# only that mount is expected; the old /app/uploads mount was dead weight and was
+# removed deliberately (see the comment above the lsevin-api volumes: key).
 grep -F '${LSEVIN_UPLOADS_DIR:-/var/lib/lsevin/uploads}:/app/UploadFiles' \
   "${DOCKER_DIR}/docker-compose.server.yml" >/dev/null
 if grep -Eq '(/opt/lsevin/(app|new).*(uploads|UploadFiles)|uploads:/app/UploadFiles)' \

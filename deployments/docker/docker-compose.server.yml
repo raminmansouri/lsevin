@@ -99,6 +99,9 @@ services:
       ConnectionStrings__cache: redis:6379
       ConnectionStrings__eventstore: esdb://eventstore:2113?tls=false
       CorsOptions__AllowedUrls__0: ${CORS_ORIGIN_1}
+      CorsOptions__AllowedUrls__1: ${CORS_ORIGIN_2}
+      CorsOptions__AllowedUrls__2: ${CORS_ORIGIN_3}
+      CorsOptions__AllowedUrls__3: ${CORS_ORIGIN_4}
       JwtOptions__Issuer: ${JWT_ISSUER}
       JwtOptions__Audience: ${JWT_AUDIENCE}
       JwtOptions__SecretKey: ${JWT_SECRET}
@@ -129,16 +132,20 @@ services:
       FileUploadOptions__S3__SecretKey: ${MINIO_API_SECRET_KEY}
     expose:
       - "8080"
-    volumes:
-      # Keep uploaded media outside every Git checkout. Only /app/UploadFiles is mounted:
-      # the old second mount at /app/uploads was a leftover that no code reads or writes
-      # (FileUploadOptions:UploadDirectory is UploadFiles).
-      #
-      # This mount still matters even once media lives in MinIO — it is the pre-migration
-      # copy that keeps the backend switch reversible, and Caddy falls back to the .NET
-      # static handler for anything absent from the bucket. Drop it only after both of
-      # those needs are gone.
-      - ${LSEVIN_UPLOADS_DIR:-/var/lib/lsevin/uploads}:/app/UploadFiles
+    # UPDATE 2026-08-26: confirmed with the team that MinIO is the active backend
+    # in production and the old FileSystem path (/var/lib/lsevin/uploads on the
+    # host) no longer exists — the pre-migration fallback described below was
+    # fully retired, not still pending. Leaving this uncommented would try to
+    # mount a host directory that isn't there. Left commented out on purpose;
+    # do not restore it without first confirming FILE_STORAGE_BACKEND=Minio is
+    # actually set (see the note on that var above — it isn't in the .env this
+    # audit was run against, so the API would default back to FileSystem).
+    #
+    # Keep uploaded media outside every Git checkout. Only /app/UploadFiles is mounted:
+    # the old second mount at /app/uploads was a leftover that no code reads or writes
+    # (FileUploadOptions:UploadDirectory is UploadFiles).
+    #
+    # - ${LSEVIN_UPLOADS_DIR:-/var/lib/lsevin/uploads}:/app/UploadFiles
     networks:
       - lsevin-network
     depends_on:
@@ -180,7 +187,7 @@ services:
     networks:
       - lsevin-network
     ports:
-      - "0.0.0.0:5432:5432"
+      - "0.0.0.0:${POSTGRES_HOST_PORT:-5432}:5432"
     healthcheck:
       # pg_isready succeeds while crash/WAL recovery is still read-only. Require
       # the primary to be writable before Compose releases dependent services.
@@ -222,7 +229,7 @@ services:
     expose:
       - "6432"
     ports:
-      - "0.0.0.0:6432:6432"
+      - "0.0.0.0:${PGBOUNCER_HOST_PORT:-6432}:6432"
     networks:
       - lsevin-network
     depends_on:
@@ -340,4 +347,11 @@ secrets:
 networks:
   lsevin-network:
     name: lsevin-network
-    driver: bridge
+    # External: this network is provisioned once, outside any single Compose
+    # project, by roles/lsevin_jenkins (docker network create --attachable
+    # lsevin-network) — see deployments/ansible. The Providers/Shop/CRM
+    # projects all join it as external too (compose.production.yml). This
+    # stack must not try to own/create it, or `docker compose up` fails with
+    # "network lsevin-network ... has incorrect label com.docker.compose.network"
+    # whenever the network already exists (which it always should).
+    external: true

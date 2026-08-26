@@ -1,0 +1,16 @@
+# LOCAL TESTING ONLY — publishes host ports that Caddy normally exclusively
+# fronts (80/443 -> internal expose-only 3000/8080).
+#
+# Do NOT add this file to the production command on the server. Going around
+# Caddy there means serving the app without TLS or Caddy's security headers,
+# directly on a publicly reachable IP.
+#
+# Usage (local only), from deployments/docker/:
+#   docker compose -f docker-compose.server.yml -f docker-compose.local-ports.yml --env-file .env up -d
+services:
+  lsevin-webapp:
+    ports:
+      - "127.0.0.1:${WEBAPP_HOST_PORT:-3000}:3000"
+  lsevin-api:
+    ports:
+      - "127.0.0.1:${API_HOST_PORT:-8080}:8080"

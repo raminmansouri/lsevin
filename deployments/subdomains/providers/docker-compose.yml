@@ -1,3 +1,7 @@
+# SUPERSEDED — see README.md in this folder. The real Providers Portal
+# repository now has its own working deployment/docker/compose.production.yml;
+# do not run this file.
+#
 # Two replicas serve providers.lsevin.com.
 # Jenkins updates one replica at a time so the other remains available.
 name: lsevin-providers

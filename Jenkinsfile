@@ -17,7 +17,10 @@ pipeline {
   environment {
     DEPLOY_BRANCH = 'Lsevin-New'
 
-    PROD_ENV_FILE = '/etc/lsevin/projects/lsevin-main.env'
+    // Matches rollback.sh's DOCKER_DIR/.env and DEVOPS_GUIDE.md/FIRST-RUN.md.
+    // Providers/shop/crm use /etc/lsevin/projects/*.env; the main app has always
+    // used the repo-relative .env under APP_DIR instead.
+    PROD_ENV_FILE = '/opt/lsevin/app/deployments/docker/.env'
 
     COMPOSE_FILE = 'deployments/docker/docker-compose.server.yml'
     COMPOSE_PROJECT = 'docker'

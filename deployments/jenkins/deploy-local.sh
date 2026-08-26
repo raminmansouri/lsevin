@@ -6,7 +6,10 @@ set -Eeuo pipefail
 
 SOURCE_DIR="${WORKSPACE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 APP_DIR="${APP_DIR:-/opt/lsevin/app}"
-PROD_ENV_FILE="${PROD_ENV_FILE:-/etc/lsevin/projects/lsevin-main.env}"
+# Matches rollback.sh's DOCKER_DIR/.env convention and DEVOPS_GUIDE.md/FIRST-RUN.md.
+# (Providers/shop/crm are separate deployments that use /etc/lsevin/projects/*.env;
+# the main platform app has always used the repo-relative .env instead.)
+PROD_ENV_FILE="${PROD_ENV_FILE:-${APP_DIR}/deployments/docker/.env}"
 COMPOSE_FILE="${COMPOSE_FILE:-deployments/docker/docker-compose.server.yml}"
 COMPOSE_PROJECT="${COMPOSE_PROJECT:-docker}"
 DEPLOY_BRANCH="${DEPLOY_BRANCH:-Lsevin-New}"
