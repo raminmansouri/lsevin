@@ -16,11 +16,7 @@ export async function getFavoritesPageDataAction(
   const userId = await getCurrentUserIdOrThrow();
   const sql = createFavoritesSqlClient();
 
-  try {
-    return await getFavoritesPageData(sql, userId, preferredLanguage);
-  } finally {
-    await sql.end({ timeout: 5 });
-  }
+  return await getFavoritesPageData(sql, userId, preferredLanguage);
 }
 
 export async function removeFavoriteAction(
@@ -62,7 +58,5 @@ export async function removeFavoriteAction(
       message:
         error instanceof Error ? error.message : "Unable to remove favorite.",
     };
-  } finally {
-    await sql.end({ timeout: 5 });
   }
 }

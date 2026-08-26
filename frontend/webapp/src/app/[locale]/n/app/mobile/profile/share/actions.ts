@@ -12,9 +12,5 @@ export async function getShareFriendsPageDataAction(): Promise<ShareFriendsPageD
     process.env.NEXT_PUBLIC_SITE_URL ||
     "https://lsevin.app";
 
-  try {
-    return await getShareFriendsPageData(sql, userId, appBaseUrl);
-  } finally {
-    await sql.end({ timeout: 5 });
-  }
+  return await getShareFriendsPageData(sql, userId, appBaseUrl);
 }

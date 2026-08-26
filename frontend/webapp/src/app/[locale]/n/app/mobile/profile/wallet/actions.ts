@@ -64,17 +64,13 @@ export async function getWalletPageDataAction(): Promise<WalletPageData> {
   const userId = await getCurrentUserIdOrThrow();
   const sql = createWalletSqlClient();
 
-  try {
-    const data = await getWalletPageData(sql, userId);
-    const paymentGateways = await listEnabledPaymentGatewayOptions({ context: "wallet_topup" });
+  const data = await getWalletPageData(sql, userId);
+  const paymentGateways = await listEnabledPaymentGatewayOptions({ context: "wallet_topup" });
 
-    return {
-      ...data,
-      paymentGateways,
-    };
-  } finally {
-    await sql.end({ timeout: 5 });
-  }
+  return {
+    ...data,
+    paymentGateways,
+  };
 }
 
 export async function createWalletTopUpIntentAction(
@@ -86,45 +82,41 @@ export async function createWalletTopUpIntentAction(
     const userId = await getCurrentUserIdOrThrow();
     const sql = createWalletSqlClient();
 
-    try {
-      const wallet = await ensureWalletAccount(sql, userId);
+    const wallet = await ensureWalletAccount(sql, userId);
 
-      const gateway = await walletPaymentGateway.createTopUpIntent({
-        ...input,
-        intentId: crypto.randomUUID(),
-        userId,
-      });
+    const gateway = await walletPaymentGateway.createTopUpIntent({
+      ...input,
+      intentId: crypto.randomUUID(),
+      userId,
+    });
 
-      await insertTopUpIntentAndMaybePendingTransaction(sql, {
-        userId,
-        walletAccountId: wallet.walletAccountId,
-        input,
-        gateway,
-      });
+    await insertTopUpIntentAndMaybePendingTransaction(sql, {
+      userId,
+      walletAccountId: wallet.walletAccountId,
+      input,
+      gateway,
+    });
 
-      revalidatePath("/app/wallet");
+    revalidatePath("/app/wallet");
 
-      if (gateway.status === "pending") {
-        return {
-          ok: true,
-          status: "pending",
-          message:
-            input.paymentMethod === "bank"
-              ? "Bank transfer top-up created. Keep the UI flow and show bank instructions or proof upload in your next step."
-              : "Payment intent created and is pending.",
-        };
-      }
-
+    if (gateway.status === "pending") {
       return {
         ok: true,
-        status: gateway.status,
-        redirectUrl: gateway.redirectUrl ?? null,
-        clientSecret: gateway.clientSecret ?? null,
-        message: "Continue with the payment provider.",
+        status: "pending",
+        message:
+          input.paymentMethod === "bank"
+            ? "Bank transfer top-up created. Keep the UI flow and show bank instructions or proof upload in your next step."
+            : "Payment intent created and is pending.",
       };
-    } finally {
-      await sql.end({ timeout: 5 });
     }
+
+    return {
+      ok: true,
+      status: gateway.status,
+      redirectUrl: gateway.redirectUrl ?? null,
+      clientSecret: gateway.clientSecret ?? null,
+      message: "Continue with the payment provider.",
+    };
   } catch (error) {
     return {
       ok: false,
@@ -195,38 +187,34 @@ export async function createWalletCryptoTopUpAction(
 
     const sql = createWalletSqlClient();
 
-    try {
-      const wallet = await ensureWalletAccount(sql, userId);
+    const wallet = await ensureWalletAccount(sql, userId);
 
-      await insertTopUpIntentAndMaybePendingTransaction(sql, {
-        userId,
-        walletAccountId: wallet.walletAccountId,
-        input: {
-          amount,
-          currencyCode,
-          paymentMethod: "crypto",
-          txHash,
-          network,
-        },
-        gateway: {
-          gatewayName: "crypto-manual",
-          gatewayReference: txHash,
-          status: "pending",
-          raw: cryptoMetadata,
-        },
-      });
-
-      revalidatePath("/app/wallet");
-
-      return {
-        ok: true,
+    await insertTopUpIntentAndMaybePendingTransaction(sql, {
+      userId,
+      walletAccountId: wallet.walletAccountId,
+      input: {
+        amount,
+        currencyCode,
+        paymentMethod: "crypto",
+        txHash,
+        network,
+      },
+      gateway: {
+        gatewayName: "crypto-manual",
+        gatewayReference: txHash,
         status: "pending",
-        message:
-          "Crypto deposit submitted. It will be credited after admin approval.",
-      };
-    } finally {
-      await sql.end({ timeout: 5 });
-    }
+        raw: cryptoMetadata,
+      },
+    });
+
+    revalidatePath("/app/wallet");
+
+    return {
+      ok: true,
+      status: "pending",
+      message:
+        "Crypto deposit submitted. It will be credited after admin approval.",
+    };
   } catch (error) {
     return {
       ok: false,

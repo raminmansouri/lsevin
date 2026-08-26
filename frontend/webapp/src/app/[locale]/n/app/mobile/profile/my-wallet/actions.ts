@@ -44,22 +44,14 @@ export async function getWalletPageDataAction(): Promise<WalletPageData> {
   const userId = await getCurrentUserIdOrThrow();
   const sql = createWalletSqlClient();
 
-  try {
-    return await getWalletPageData(sql, userId);
-  } finally {
-    await sql.end({ timeout: 5 });
-  }
+  return await getWalletPageData(sql, userId);
 }
 
 export async function getWalletHistoryPageDataAction(): Promise<WalletHistoryPageData> {
   const userId = await getCurrentUserIdOrThrow();
   const sql = createWalletSqlClient();
 
-  try {
-    return await getWalletHistoryPageData(sql, userId);
-  } finally {
-    await sql.end({ timeout: 5 });
-  }
+  return await getWalletHistoryPageData(sql, userId);
 }
 
 export async function getWalletTransactionDetailAction(
@@ -68,11 +60,7 @@ export async function getWalletTransactionDetailAction(
   const userId = await getCurrentUserIdOrThrow();
   const sql = createWalletSqlClient();
 
-  try {
-    return await getWalletTransactionDetail(sql, userId, transactionId);
-  } finally {
-    await sql.end({ timeout: 5 });
-  }
+  return await getWalletTransactionDetail(sql, userId, transactionId);
 }
 
 export async function createWalletTopUpIntentAction(
@@ -84,46 +72,42 @@ export async function createWalletTopUpIntentAction(
     const userId = await getCurrentUserIdOrThrow();
     const sql = createWalletSqlClient();
 
-    try {
-      const wallet = await ensureWalletAccount(sql, userId);
+    const wallet = await ensureWalletAccount(sql, userId);
 
-      const gateway = await walletPaymentGateway.createTopUpIntent({
-        ...input,
-        intentId: crypto.randomUUID(),
-        userId,
-      });
+    const gateway = await walletPaymentGateway.createTopUpIntent({
+      ...input,
+      intentId: crypto.randomUUID(),
+      userId,
+    });
 
-      await insertTopUpIntentAndMaybePendingTransaction(sql, {
-        userId,
-        walletAccountId: wallet.walletAccountId,
-        input,
-        gateway,
-      });
+    await insertTopUpIntentAndMaybePendingTransaction(sql, {
+      userId,
+      walletAccountId: wallet.walletAccountId,
+      input,
+      gateway,
+    });
 
-      revalidatePath("/app/wallet");
-      revalidatePath("/app/wallet/history");
+    revalidatePath("/app/wallet");
+    revalidatePath("/app/wallet/history");
 
-      if (gateway.status === "pending") {
-        return {
-          ok: true,
-          status: "pending",
-          message:
-            input.paymentMethod === "bank"
-              ? "Bank transfer top-up created. Keep the UI flow and show bank instructions or proof upload in your next step."
-              : "Payment intent created and is pending.",
-        };
-      }
-
+    if (gateway.status === "pending") {
       return {
         ok: true,
-        status: gateway.status,
-        redirectUrl: gateway.redirectUrl ?? null,
-        clientSecret: gateway.clientSecret ?? null,
-        message: "Continue with the payment provider.",
+        status: "pending",
+        message:
+          input.paymentMethod === "bank"
+            ? "Bank transfer top-up created. Keep the UI flow and show bank instructions or proof upload in your next step."
+            : "Payment intent created and is pending.",
       };
-    } finally {
-      await sql.end({ timeout: 5 });
     }
+
+    return {
+      ok: true,
+      status: gateway.status,
+      redirectUrl: gateway.redirectUrl ?? null,
+      clientSecret: gateway.clientSecret ?? null,
+      message: "Continue with the payment provider.",
+    };
   } catch (error) {
     return {
       ok: false,

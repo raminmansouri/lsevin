@@ -111,40 +111,36 @@ async function convertAmount(input: {
 
   const sql = createSqlClient();
 
-  try {
-    const [conversion] = await sql<{
-      targetAmount: string;
-      appliedRate: string | null;
-      ratePath: string[] | null;
-    }[]>`
-      select
-        target_amount::text as "targetAmount",
-        applied_rate::text as "appliedRate",
-        rate_path as "ratePath"
-      from finance.convert_money(${input.amount}, ${sourceCurrency}, ${targetCurrency}, 'standard')
-      limit 1
-    `;
+  const [conversion] = await sql<{
+    targetAmount: string;
+    appliedRate: string | null;
+    ratePath: string[] | null;
+  }[]>`
+    select
+      target_amount::text as "targetAmount",
+      applied_rate::text as "appliedRate",
+      rate_path as "ratePath"
+    from finance.convert_money(${input.amount}, ${sourceCurrency}, ${targetCurrency}, 'standard')
+    limit 1
+  `;
 
-    if (!conversion) {
-      throw new Error(`No exchange rate found from ${sourceCurrency} to ${targetCurrency}. Add it in Finance → Exchange Rates before enabling Zarinpal for this currency.`);
-    }
-
-    const gatewayAmount = Math.round(Number(conversion.targetAmount));
-    if (!Number.isFinite(gatewayAmount) || gatewayAmount <= 0) {
-      throw new Error("Converted wallet top-up amount is not valid.");
-    }
-
-    return {
-      walletAmount: input.amount,
-      walletCurrency: sourceCurrency,
-      gatewayAmount,
-      gatewayCurrency: targetCurrency,
-      exchangeRate: Number(conversion.appliedRate || 0),
-      ratePath: conversion.ratePath || [sourceCurrency, targetCurrency],
-    };
-  } finally {
-    await sql.end({ timeout: 5 });
+  if (!conversion) {
+    throw new Error(`No exchange rate found from ${sourceCurrency} to ${targetCurrency}. Add it in Finance → Exchange Rates before enabling Zarinpal for this currency.`);
   }
+
+  const gatewayAmount = Math.round(Number(conversion.targetAmount));
+  if (!Number.isFinite(gatewayAmount) || gatewayAmount <= 0) {
+    throw new Error("Converted wallet top-up amount is not valid.");
+  }
+
+  return {
+    walletAmount: input.amount,
+    walletCurrency: sourceCurrency,
+    gatewayAmount,
+    gatewayCurrency: targetCurrency,
+    exchangeRate: Number(conversion.appliedRate || 0),
+    ratePath: conversion.ratePath || [sourceCurrency, targetCurrency],
+  };
 }
 
 class ProductionWalletPaymentGateway implements WalletPaymentGateway {

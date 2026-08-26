@@ -16,21 +16,13 @@ import {
 export async function getReferralAdminDashboardDataAction(): Promise<ReferralAdminDashboardData> {
   const sql = createReferralAdminSqlClient();
 
-  try {
-    return await getReferralAdminDashboardData(sql);
-  } finally {
-    await sql.end({ timeout: 5 });
-  }
+  return await getReferralAdminDashboardData(sql);
 }
 
 export async function getReferralPoliciesDataAction(): Promise<ReferralPoliciesData> {
   const sql = createReferralAdminSqlClient();
 
-  try {
-    return await getReferralPoliciesData(sql);
-  } finally {
-    await sql.end({ timeout: 5 });
-  }
+  return await getReferralPoliciesData(sql);
 }
 
 export async function saveReferralPoliciesAction(
@@ -62,7 +54,5 @@ export async function saveReferralPoliciesAction(
       ok: false,
       message: error instanceof Error ? error.message : "Unable to save referral policy.",
     };
-  } finally {
-    await sql.end({ timeout: 5 });
   }
 }

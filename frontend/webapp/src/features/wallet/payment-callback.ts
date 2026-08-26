@@ -68,7 +68,7 @@ export async function verifyWalletTopUpPayment(input: {
 
   const sql = createSqlClient();
 
-  try {
+  {
     const [intent] = await sql<WalletIntentRow[]>`
       select
         id::text,
@@ -229,7 +229,5 @@ export async function verifyWalletTopUpPayment(input: {
       message: verification.alreadyVerified ? "Wallet top-up was already verified." : "Wallet top-up completed.",
       referenceId: verification.referenceId || null,
     };
-  } finally {
-    await sql.end({ timeout: 5 });
   }
 }
