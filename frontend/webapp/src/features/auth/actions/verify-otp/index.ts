@@ -2,7 +2,6 @@
 
 import { AuthError } from "next-auth";
 import { getTranslations } from "next-intl/server";
-import { redirect } from "next/navigation";
 
 import {
   clearOtpChallengePhone,
@@ -34,21 +33,11 @@ const handler = async (input: InputType): Promise<ReturnType> => {
     // The challenge is spent — drop it before leaving so a stale cookie cannot
     // resurrect this screen after the visitor is signed in.
     await clearOtpChallengePhone();
-    // If signIn succeeds, handle redirect manually using Next.js redirect()
-    // This is the correct way to handle redirects after authentication
-    const redirectPath = input.redirectTo || "/";
-    redirect(redirectPath);
+    // The client performs a full-page navigation after this action succeeds so
+    // the new session is picked up. Returning normally avoids treating Next.js'
+    // redirect control-flow exception as an authentication error.
+    return { error: undefined, payload: input };
   } catch (exception) {
-    console.error("sign in error::",exception)
-    // Handle redirect exception (thrown by Next.js redirect on successful auth)
-    if (
-      exception instanceof Error &&
-      exception.message === "NEXT_REDIRECT" &&
-      "digest" in exception
-    ) {
-      return { error: undefined, payload: input };
-    }
-
     // Handle auth errors
     if (exception instanceof AuthError) {
       return {
