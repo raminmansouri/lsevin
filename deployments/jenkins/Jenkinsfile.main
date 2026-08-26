@@ -43,7 +43,11 @@ pipeline {
     // docker-lsevin-api-1 and docker-lsevin-webapp-1 containers.
     COMPOSE_PROJECT_NAME = 'docker'
 
-    API_HEALTH_URL = 'https://api.lsevin.com/hc'
+    // /readiness (not /hc -- that route only exists when ASPNETCORE_ENVIRONMENT
+    // is Development; see BuildingBlocks.Web/Extensions/HealthCheckExtensions.cs
+    // and WebConstants.cs. Polling /hc here 404s every single time in
+    // production, no matter how long you wait.
+    API_HEALTH_URL = 'https://api.lsevin.com/readiness'
     WEBAPP_HEALTH_URL = 'https://appmain.lsevin.com/'
   }
 
@@ -257,10 +261,23 @@ pipeline {
         else
           echo "No previous images were available for automatic rollback."
         fi
+
+        # Cleanup happens here, in the same block, deliberately -- NOT in a
+        # separate `always` block. Jenkins runs post-condition blocks in a
+        # fixed order (always, ..., aborted, failure, success, ...)
+        # regardless of the order they're written in this file, so an
+        # `always` block unconditionally runs BEFORE `failure` every time.
+        # A prior version of this file deleted these two files in `always`,
+        # which silently deleted them before this block ever got to read
+        # them above -- old_api_tag/old_webapp_tag were empty on every
+        # single failure, so automatic rollback never actually triggered.
+        rm -f \
+          "$SOURCE_DIR/.jenkins-old-api-tag" \
+          "$SOURCE_DIR/.jenkins-old-webapp-tag"
       '''
     }
 
-    always {
+    success {
       sh '''
         rm -f \
           "$SOURCE_DIR/.jenkins-old-api-tag" \
