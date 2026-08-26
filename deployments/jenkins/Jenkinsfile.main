@@ -7,12 +7,12 @@ pipeline {
       // built-in node — reserved automatically, always present — is the
       // only valid target.
       label 'built-in'
-      customWorkspace '/opt/lsevin-platform'
+      customWorkspace '/opt/lsevin-main'
     }
   }
 
   options {
-    // Jenkins performs the checkout explicitly into /opt/lsevin-platform.
+    // Jenkins performs the checkout explicitly into /opt/lsevin-main.
     skipDefaultCheckout(true)
 
     // A second commit waits until the current production deployment finishes.
@@ -24,23 +24,23 @@ pipeline {
 
   environment {
     // Dedicated checkout directory on the VPS.
-    SOURCE_DIR = '/opt/lsevin-platform'
+    SOURCE_DIR = '/opt/lsevin-main'
 
     // The Compose file that already defines API, webapp, PostgreSQL, Redis,
     // EventStore, and Caddy.
-    COMPOSE_FILE = '/opt/lsevin-platform/deployments/docker/docker-compose.server.yml'
+    COMPOSE_FILE = '/opt/lsevin-main/deployments/docker/docker-compose.server.yml'
 
     // NOTE: this pipeline is a separate, alternate strategy from the root
     // Jenkinsfile/deploy-local.sh (see deployments/jenkins/README.md). Stage 1
     // below runs deleteDir() + checkout scm directly in this workspace, with no
     // separate stable "live" directory — so, unlike deploy-local.sh's APP_DIR
     // (which is rsynced into with .env deliberately excluded from the sync),
-    // anything under /opt/lsevin-platform is wiped on every build. The env file
+    // anything under /opt/lsevin-main is wiped on every build. The env file
     // MUST stay outside this tree, so this path is intentionally external.
     // Create it once, out of band: sudo mkdir -p /etc/lsevin/projects &&
-    // sudo cp deployments/docker/.env.example /etc/lsevin/projects/lsevin-platform.env
+    // sudo cp deployments/docker/.env.example /etc/lsevin/projects/lsevin-main.env
     // then fill in real values and chmod 600 it.
-    ENV_FILE = '/etc/lsevin/projects/lsevin-platform.env'
+    ENV_FILE = '/etc/lsevin/projects/lsevin-main.env'
 
     // Keep the existing Compose project name so Jenkins manages the current
     // docker-lsevin-api-1 and docker-lsevin-webapp-1 containers.
@@ -53,7 +53,7 @@ pipeline {
   stages {
     stage('1. Checkout') {
       steps {
-        // /opt/lsevin-platform is dedicated to this repository, so cleaning it is
+        // /opt/lsevin-main is dedicated to this repository, so cleaning it is
         // safe and prevents deleted Git files from remaining on the server.
         deleteDir()
         checkout scm
@@ -72,7 +72,18 @@ pipeline {
         sh '''
           set -eu
 
-          test -f "$ENV_FILE"
+          if [ ! -f "$ENV_FILE" ]; then
+            echo "Missing $ENV_FILE" >&2
+            echo "" >&2
+            echo "This is a one-time, per-server setup step (not something to redo on" >&2
+            echo "every build) -- it is deliberately outside Jenkins' control, since" >&2
+            echo "/etc/lsevin/projects is mounted read-only into this Jenkins container." >&2
+            echo "" >&2
+            echo "Fix it by (re-)running the lsevin_jenkins Ansible role on this server," >&2
+            echo "which seeds this file automatically from the already-working" >&2
+            echo "/opt/lsevin/app/deployments/docker/.env -- see deployments/ansible/." >&2
+            exit 1
+          fi
           test -f "$COMPOSE_FILE"
 
           # Validate all environment substitutions and Compose syntax before any

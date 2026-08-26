@@ -121,6 +121,38 @@
   no_log: true
   when: not lsevin_jenkins_stable_app_env.stat.exists
 
+- name: Ensure /etc/lsevin/projects exists
+  ansible.builtin.file:
+    path: /etc/lsevin/projects
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Check lsevin-main-production pipeline's environment file
+  ansible.builtin.stat:
+    path: /etc/lsevin/projects/lsevin-platform.env
+  register: lsevin_jenkins_platform_env
+
+# The lsevin-main-production job (deployments/jenkins/Jenkinsfile.main, run by
+# the CasC-based Jenkins in this same role) targets the exact same running
+# "docker" Compose project as the stable app above, so it needs the same
+# values. /etc/lsevin/projects is mounted read-only into the Jenkins
+# container ("Runtime application secrets must never be changed by Jenkins"
+# above) — Jenkins genuinely cannot create this file itself, by design, so
+# Ansible is what seeds it, exactly once, the same way it seeds the stable
+# .env just above.
+- name: Seed the lsevin-main-production pipeline's environment file
+  ansible.builtin.copy:
+    src: /opt/lsevin/app/deployments/docker/.env
+    dest: /etc/lsevin/projects/lsevin-platform.env
+    remote_src: true
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+  when: not lsevin_jenkins_platform_env.stat.exists
+
 - name: Find current GeoIP databases
   ansible.builtin.find:
     paths: "{{ lsevin_jenkins_docker_dir }}/geoip"
