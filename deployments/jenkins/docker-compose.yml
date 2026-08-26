@@ -54,8 +54,11 @@ services:
       - /opt/lsevin/backups:/opt/lsevin/backups:rw
       - /opt/lsevin/jenkins:/opt/lsevin/jenkins:rw
 
-      # Optional legacy/current source trees. The new tree is reference-only.
-      - /opt/lsevin-main:/opt/lsevin-main:rw
+      # Independent workspace for the lsevin-main-production pipeline.
+      - /opt/lsevin-platform:/opt/lsevin-platform:rw
+
+      # Reference-only checkout used to rebuild the Jenkins controller itself
+      # and as the seed source for the stable .env above (lsevin_jenkins_docker_env).
       - /opt/lsevin-new:/opt/lsevin-new:ro
 
       # Stable uploaded media and media-backup storage.

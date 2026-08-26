@@ -30,17 +30,14 @@ pipeline {
     // EventStore, and Caddy.
     COMPOSE_FILE = '/opt/lsevin-platform/deployments/docker/docker-compose.server.yml'
 
-    // NOTE: this pipeline is a separate, alternate strategy from the root
-    // Jenkinsfile/deploy-local.sh (see deployments/jenkins/README.md). Stage 1
-    // below runs deleteDir() + checkout scm directly in this workspace, with no
-    // separate stable "live" directory — so, unlike deploy-local.sh's APP_DIR
-    // (which is rsynced into with .env deliberately excluded from the sync),
-    // anything under /opt/lsevin-platform is wiped on every build. The env file
-    // MUST stay outside this tree, so this path is intentionally external.
-    // Create it once, out of band: sudo mkdir -p /etc/lsevin/projects &&
-    // sudo cp deployments/docker/.env.example /etc/lsevin/projects/lsevin-platform.env
-    // then fill in real values and chmod 600 it.
-    ENV_FILE = '/etc/lsevin/projects/lsevin-platform.env'
+    // Same production secrets Strategy A (root Jenkinsfile/deploy-local.sh)
+    // already maintains at this path -- not a separate file. This path is a
+    // completely different top-level directory from /opt/lsevin-platform
+    // (this pipeline's own workspace), so it was never at risk from stage 1's
+    // deleteDir() to begin with; deploy-local.sh's rsync also excludes it
+    // from ever being overwritten by a checkout. One shared file for both
+    // pipelines avoids the two ever drifting out of sync with each other.
+    ENV_FILE = '/opt/lsevin/app/deployments/docker/.env'
 
     // Keep the existing Compose project name so Jenkins manages the current
     // docker-lsevin-api-1 and docker-lsevin-webapp-1 containers.
@@ -75,13 +72,10 @@ pipeline {
           if [ ! -f "$ENV_FILE" ]; then
             echo "Missing $ENV_FILE" >&2
             echo "" >&2
-            echo "This is a one-time, per-server setup step (not something to redo on" >&2
-            echo "every build) -- it is deliberately outside Jenkins' control, since" >&2
-            echo "/etc/lsevin/projects is mounted read-only into this Jenkins container." >&2
-            echo "" >&2
-            echo "Fix it by (re-)running the lsevin_jenkins Ansible role on this server," >&2
-            echo "which seeds this file automatically from the already-working" >&2
-            echo "/opt/lsevin/app/deployments/docker/.env -- see deployments/ansible/." >&2
+            echo "This is the same production .env that Strategy A (root Jenkinsfile /" >&2
+            echo "deploy-local.sh) already maintains -- if it's missing, this server was" >&2
+            echo "never bootstrapped yet. Follow deployments/FIRST-RUN.md section 5" >&2
+            echo "(\"Create the production .env\") once, then re-run this job." >&2
             exit 1
           fi
           test -f "$COMPOSE_FILE"
@@ -123,14 +117,28 @@ pipeline {
 
           if [ -n "$api_container" ]; then
             api_image_id="$(docker inspect --format '{{.Image}}' "$api_container")"
-            docker image tag "$api_image_id" "lsevin-api:$OLD_API_TAG"
+            # A running container outlives its image entry being pruned from the
+            # local image list (docker image prune, or deploy-local.sh's own
+            # cleanup) -- it keeps running fine, but "docker image tag" on that
+            # now-delisted id fails with "No such image" even though the
+            # container plainly still exists. Fall back to snapshotting the live
+            # container directly (matching deploy-local.sh's save_rollback_image),
+            # so rollback safety survives that case instead of silently
+            # vanishing for this one deploy.
+            if ! docker image tag "$api_image_id" "lsevin-api:$OLD_API_TAG" 2>/dev/null; then
+              echo "lsevin-api's running image ($api_image_id) is no longer in the local image list (likely pruned) -- committing a live snapshot instead." >&2
+              docker commit --pause=true "$api_container" "lsevin-api:$OLD_API_TAG"
+            fi
           else
             OLD_API_TAG=""
           fi
 
           if [ -n "$webapp_container" ]; then
             webapp_image_id="$(docker inspect --format '{{.Image}}' "$webapp_container")"
-            docker image tag "$webapp_image_id" "lsevin-webapp:$OLD_WEBAPP_TAG"
+            if ! docker image tag "$webapp_image_id" "lsevin-webapp:$OLD_WEBAPP_TAG" 2>/dev/null; then
+              echo "lsevin-webapp's running image ($webapp_image_id) is no longer in the local image list (likely pruned) -- committing a live snapshot instead." >&2
+              docker commit --pause=true "$webapp_container" "lsevin-webapp:$OLD_WEBAPP_TAG"
+            fi
           else
             OLD_WEBAPP_TAG=""
           fi
