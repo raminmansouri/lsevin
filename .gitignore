@@ -51,11 +51,11 @@ dynamic-admin-dashboard-scaffold/*
 **/*.txt
 
 # Secrets — never publish real env files (keep .env.example templates)
-**/.env
-**/.env.*
-**/.env copy*
-!**/.env.example
-!**/.env.example.*
+# **/.env
+# **/.env.*
+# **/.env copy*
+# !**/.env.example
+# !**/.env.example.*
 
 # Local container data dirs (live databases / caches with real data)
 deployments/docker/postgres-data/
