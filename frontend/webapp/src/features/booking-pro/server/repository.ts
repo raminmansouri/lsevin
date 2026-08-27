@@ -4,6 +4,7 @@ import db from '@/config/database/db';
 import { calculateBookingPaymentTerms, resolveBookingPaymentPolicy } from '@/features/commercial/lib/server/payment-policy-engine';
 import { applyCommercialSnapshotAfterCheckout } from './commercial-integration';
 import { assertDraftAvailabilityBeforeCheckout } from './booking-availability.repository';
+import { notifyBookingCreated, notifyBookingStarted } from '@/features/notification/server/booking-notifications';
 import { pickTranslation } from '../utils/translation';
 import type {
   BookingDraftState,
@@ -39,6 +40,30 @@ const SAFE_DRAFT_METADATA_KEYS = new Set([
   'couponTitle',
   'customerCouponId',
 ]);
+
+let draftProviderNotifiedColumnEnsured = false;
+
+/**
+ * A dedicated column rather than the metadata jsonb: draft.metadata as read back by
+ * mapDraftRow is filtered through sanitizeDraftMetadataPatch's SAFE_DRAFT_METADATA_KEYS
+ * allowlist above, so an idempotency flag stored there would be silently stripped back
+ * out on every read -- this needs to survive a round trip untouched.
+ */
+async function ensureDraftProviderNotifiedColumn(): Promise<void> {
+  if (draftProviderNotifiedColumnEnsured) return;
+
+  const [row] = await db<{ exists: boolean }[]>`
+    select exists (
+      select 1 from information_schema.columns
+      where table_schema = 'booking' and table_name = 'booking_drafts' and column_name = 'provider_notified_at'
+    ) as exists
+  `;
+  if (!row?.exists) {
+    await db`alter table booking.booking_drafts add column if not exists provider_notified_at timestamp with time zone`;
+  }
+
+  draftProviderNotifiedColumnEnsured = true;
+}
 
 function sanitizeDraftMetadataPatch(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
@@ -388,6 +413,15 @@ export async function getOrCreateActiveDraft(userId: string): Promise<BookingDra
     returning *
   `;
 
+  // Fire-and-forget: this is the one INSERT for a fresh draft in the whole feature (the
+  // "one active Draft/InProgress draft per user" reuse above means this only runs once
+  // per booking attempt), so "customer started a booking" maps directly to this branch.
+  // provider_id is always null at this exact point (see upsertMainDraftSelection for the
+  // provider-known notification, fired once the customer's provider choice lands).
+  notifyBookingStarted({ draftId: inserted[0].id, audience: 'admin' }).catch((error) =>
+    console.error('notifyBookingStarted (admin) failed for draft', inserted[0].id, error)
+  );
+
   return mapDraftRow(inserted[0]);
 }
 
@@ -527,6 +561,27 @@ export async function upsertMainDraftSelection(
       set metadata = coalesce(metadata, '{}'::jsonb) || ${db.json(safeClientMetadataPatch as Record<string, never>)}
       where id = ${draft.id}
     `;
+  }
+
+  // Provider is unknown at draft-creation time (see getOrCreateActiveDraft), so "notify
+  // the provider a customer is booking with them" fires here instead, the first time a
+  // provider lands on this draft. draft.providerId above is the *pre*-update value, and
+  // provider_notified_at makes this a one-time thing per draft even though this
+  // function runs on every field the wizard patches, not just provider selection.
+  const nextProviderId = hasInput(input, 'providerId') ? (input.providerId ?? null) : (draft.providerId ?? null);
+  if (!draft.providerId && nextProviderId) {
+    await ensureDraftProviderNotifiedColumn();
+    const [marked] = await db<{ id: string }[]>`
+      update booking.booking_drafts
+      set provider_notified_at = now()
+      where id = ${draft.id} and provider_notified_at is null
+      returning id
+    `;
+    if (marked) {
+      notifyBookingStarted({ draftId: draft.id, providerId: nextProviderId, audience: 'provider' }).catch((error) =>
+        console.error('notifyBookingStarted (provider) failed for draft', draft.id, error)
+      );
+    }
   }
 
   return await getOrCreateActiveDraft(userId);
@@ -1737,6 +1792,15 @@ export async function checkoutDraft(
   });
 
   await applyCommercialSnapshotAfterCheckout({ bookingId: txResult.bookingId, paymentId: txResult.paymentId });
+
+  // Never allowed to fail the booking itself -- notifyBookingCreated already wraps
+  // each recipient group internally, this is the outer backstop in case the recipient
+  // lookups themselves (or the notify.* tables being absent) throw before that.
+  notifyBookingCreated({
+    bookingId: txResult.bookingId,
+    customerUserId: userId,
+    providerId: scope?.providerId,
+  }).catch((error) => console.error('notifyBookingCreated failed for booking', txResult.bookingId, error));
 
   return {
     bookingId: txResult.bookingId,

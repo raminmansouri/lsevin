@@ -5,12 +5,22 @@ export type NotificationChannel =
   | "email"
   | "sms"
   | "push"
-  | "phone_call";
+  | "phone_call"
+  | "whatsapp"
+  | "bale";
 
 export type NotificationType = "booking" | "offer" | "system";
 
 export type SendNotificationInput = {
-  customerId: string;
+  /**
+   * Exactly one of customerId/recipientUserId identifies the recipient.
+   * customerId is the legacy, customer-only path (FKs to customer.customers, which
+   * only exists for people who registered as customers). recipientUserId points at
+   * identity.asp_net_users directly, so admin staff and providers -- who have no
+   * customer.customers row -- can be notification recipients too.
+   */
+  customerId?: string | null;
+  recipientUserId?: string | null;
   notificationType: NotificationType;
   title: string;
   body: string;
@@ -31,7 +41,9 @@ export type TemplateVariables = Record<
 export type SendTemplateNotificationInput = {
   templateKey: string;
   locale?: string | null;
-  customerId: string;
+  /** Exactly one of customerId/recipientUserId is required -- see SendNotificationInput. */
+  customerId?: string | null;
+  recipientUserId?: string | null;
   variables?: TemplateVariables;
   channels?: NotificationChannel[] | null;
   entityType?: string | null;
@@ -140,9 +152,14 @@ export async function getNotificationTemplateByKey(
 }
 
 export async function createNotification(input: SendNotificationInput) {
+  if (!input.customerId && !input.recipientUserId) {
+    throw new Error("createNotification requires either customerId or recipientUserId.");
+  }
+
   const [notification] = await sql<{ id: string }[]>`
     insert into notify.notifications (
       customer_id,
+      recipient_user_id,
       notification_type,
       title,
       body,
@@ -152,7 +169,8 @@ export async function createNotification(input: SendNotificationInput) {
       status
     )
     values (
-      ${input.customerId}::uuid,
+      ${input.customerId ? sql`${input.customerId}::uuid` : null},
+      ${input.recipientUserId ? sql`${input.recipientUserId}::uuid` : null},
       ${input.notificationType},
       ${input.title},
       ${input.body},
@@ -185,7 +203,7 @@ export async function createNotification(input: SendNotificationInput) {
         ${notification.id}::uuid,
         ${channel},
         ${channel === "email" ? input.emailTo ?? null : null},
-        ${channel === "sms" || channel === "phone_call" ? input.phoneTo ?? null : null},
+        ${channel === "sms" || channel === "phone_call" || channel === "whatsapp" ? input.phoneTo ?? null : null},
         ${channel === "push" ? input.pushToken ?? null : null},
         ${deliveryStatus},
         ${channel === "in_app" ? sql`now()` : null}
@@ -265,6 +283,7 @@ export async function createNotificationFromTemplate(
 
   return createNotification({
     customerId: input.customerId,
+    recipientUserId: input.recipientUserId,
     notificationType: template?.notificationType || "system",
     title: title || pushTitle || emailSubject || input.fallbackTitle || "Notification",
     body: body || pushBody || smsBody || emailBody || input.fallbackBody || "",

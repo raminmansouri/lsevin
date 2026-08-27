@@ -185,3 +185,81 @@ export async function sendPatternSms({
     clearTimeout(timer);
   }
 }
+
+type SendSimpleSmsArgs = {
+  to: string;
+  text: string;
+  credentials: MeliPayamakCredentials;
+  timeoutMs?: number;
+};
+
+/**
+ * Free-text SMS via MeliPayamak's `SendSMS/SendSMS` endpoint -- a different call from
+ * `sendPatternSms` above, which sends only pre-approved template variables. This one
+ * requires the MeliPayamak account to have a purchased sender line ("from" number); the
+ * consultation module's account does not (see the file-level comment), so this only
+ * works with credentials that do have one -- e.g. a channel-specific override entered in
+ * /admin/notification-channels rather than the shared consultation credentials.
+ */
+export async function sendSimpleSms({
+  to,
+  text,
+  credentials,
+  timeoutMs = 15_000,
+}: SendSimpleSmsArgs): Promise<SmsSendResult> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(new URL("SendSMS/SendSMS", credentials.baseUrl), {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        username: credentials.username,
+        password: credentials.password,
+        to,
+        text,
+        isflash: "false",
+      }),
+      signal: controller.signal,
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      return { ok: false, error: `HTTP ${response.status}` };
+    }
+
+    const raw = await response.text();
+
+    let payload: unknown;
+    try {
+      payload = JSON.parse(raw);
+    } catch {
+      return { ok: false, error: `Unparsable response: ${raw.slice(0, 200)}` };
+    }
+
+    const body = payload as { Value?: unknown; value?: unknown; RetStatus?: unknown; retStatus?: unknown; StrRetStatus?: unknown; strRetStatus?: unknown };
+    const status = Number(body.RetStatus ?? body.retStatus ?? NaN);
+    const statusText = String(body.StrRetStatus ?? body.strRetStatus ?? "");
+    const value = String(body.Value ?? body.value ?? "");
+
+    const statusLooksOk = status === 0 || status === 1 || statusText.toLowerCase() === "ok";
+    const valueIsMessageId = /^\d+$/.test(value);
+
+    if (!statusLooksOk || !valueIsMessageId) {
+      return {
+        ok: false,
+        error: `Provider error ${Number.isNaN(status) ? "?" : status}${statusText ? `: ${statusText}` : ""}${value ? ` (${value})` : ""}`,
+      };
+    }
+
+    return { ok: true, messageId: value };
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      return { ok: false, error: `Timed out after ${timeoutMs}ms` };
+    }
+    return { ok: false, error: error instanceof Error ? error.message : "Unknown network error" };
+  } finally {
+    clearTimeout(timer);
+  }
+}

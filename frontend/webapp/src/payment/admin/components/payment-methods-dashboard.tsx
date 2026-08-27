@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Banknote, Edit, HandCoins, Power } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +19,7 @@ const ICONS: Record<string, typeof Banknote> = {
 };
 
 export function PaymentMethodsDashboard({ methods }: { methods: PaymentMethodConfig[] }) {
+  const t = useTranslations("AdminPages.paymentMethods.dashboard");
   const [items, setItems] = useState(methods);
   const [isPending, startTransition] = useTransition();
 
@@ -26,10 +28,10 @@ export function PaymentMethodsDashboard({ methods }: { methods: PaymentMethodCon
     onSuccess: (method) => {
       if (!method) return;
       setItems((current) => current.map((item) => (item.code === method.code ? method : item)));
-      toast.success(`${method.displayName} is now ${method.isActive ? "enabled" : "disabled"}.`);
+      toast.success(t(method.isActive ? "toastEnabled" : "toastDisabled", { name: method.displayName }));
     },
     onError: (error) => {
-      toast.error(error?.detail || error?.title || "Payment method could not be updated.");
+      toast.error(error?.detail || error?.title || t("toastError"));
     },
   });
 
@@ -39,13 +41,11 @@ export function PaymentMethodsDashboard({ methods }: { methods: PaymentMethodCon
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Payment methods</h1>
-          <p className="text-sm text-muted-foreground">
-            Manual payment options shown at checkout alongside the online gateways -- no external credentials required.
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("description")}</p>
         </div>
         <Badge variant="secondary" className="w-fit px-3 py-1 text-sm">
-          {enabledCount} enabled
+          {t("enabledBadge", { count: enabledCount })}
         </Badge>
       </div>
 
@@ -70,15 +70,13 @@ export function PaymentMethodsDashboard({ methods }: { methods: PaymentMethodCon
                     <div className="flex flex-wrap items-center gap-2">
                       <CardTitle>{method.displayName}</CardTitle>
                       <Badge variant={method.isActive ? "default" : "secondary"}>
-                        {method.isActive ? "Enabled" : "Disabled"}
+                        {method.isActive ? t("enabledStatus") : t("disabledStatus")}
                       </Badge>
                       {method.code === "bank_receipt" && (
-                        <Badge variant="outline">
-                          {bankAccountCount} bank account{bankAccountCount === 1 ? "" : "s"}
-                        </Badge>
+                        <Badge variant="outline">{t("bankAccountsCount", { count: bankAccountCount })}</Badge>
                       )}
                     </div>
-                    <CardDescription className="mt-1">{method.description || "No description."}</CardDescription>
+                    <CardDescription className="mt-1">{method.description || t("noDescription")}</CardDescription>
                   </div>
                 </div>
 
@@ -90,21 +88,19 @@ export function PaymentMethodsDashboard({ methods }: { methods: PaymentMethodCon
                     onClick={() => execute({ code: method.code as "pay_on_delivery" | "bank_receipt", isActive: !method.isActive })}
                   >
                     <Power className="mr-2 h-4 w-4" />
-                    {method.isActive ? "Disable" : "Enable"}
+                    {method.isActive ? t("disable") : t("enable")}
                   </Button>
                   <Button asChild variant="outline">
                     <Link href={`/admin/payment-methods/${method.code}`}>
                       <Edit className="mr-2 h-4 w-4" />
-                      Settings
+                      {t("settings")}
                     </Link>
                   </Button>
                 </div>
               </CardHeader>
 
               {method.code === "bank_receipt" && bankAccountCount === 0 && (
-                <CardContent className="p-4 text-sm text-amber-700">
-                  No bank account is configured yet -- add one from Settings before enabling this method.
-                </CardContent>
+                <CardContent className="p-4 text-sm text-amber-700">{t("noBankAccountWarning")}</CardContent>
               )}
             </Card>
           );

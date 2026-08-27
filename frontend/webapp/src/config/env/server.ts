@@ -26,6 +26,10 @@ export const env = createEnv({
     MELIPAYAMAK_USERNAME: z.string().min(1).optional(),
     MELIPAYAMAK_PASSWORD: z.string().min(1).optional(),
     MELIPAYAMAK_BASE_URL: z.string().url().optional(),
+    // Same account the .NET Identity module uses for international OTP (see
+    // docker-compose.server.yml) -- the notification WhatsApp channel falls back to
+    // this when no channel-specific override is set in /admin/notification-channels.
+    WHATSIPLUS_API_KEY: z.string().min(1).optional(),
   },
   experimental__runtimeEnv: {
     INTERNAL_API_URL: process.env.INTERNAL_API_URL,
@@ -42,6 +46,7 @@ export const env = createEnv({
     MELIPAYAMAK_USERNAME: process.env.MELIPAYAMAK_USERNAME,
     MELIPAYAMAK_PASSWORD: process.env.MELIPAYAMAK_PASSWORD,
     MELIPAYAMAK_BASE_URL: process.env.MELIPAYAMAK_BASE_URL,
+    WHATSIPLUS_API_KEY: process.env.WHATSIPLUS_API_KEY,
   },
   skipValidation: !!process.env.SKIP_ENV_VALIDATION || process.env.NODE_ENV === "test",
 });

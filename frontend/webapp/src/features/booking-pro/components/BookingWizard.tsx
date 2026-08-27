@@ -258,6 +258,45 @@ function getPaymentActionUrl(result: any) {
     const actionUrl = String(result?.actionUrl || result?.redirectUrl || '').trim();
     return actionUrl && !actionUrl.startsWith('javascript:') ? actionUrl : '';
 }
+
+// createBookingPaymentIntent returns raw codes ('pay_on_delivery', 'wallet', a gateway
+// code) and raw statuses ('pending_collection', 'succeeded', ...) meant for logic, not
+// display -- rendering them verbatim showed literal English snake_case to customers
+// regardless of locale. These map the codes this component actually produces to
+// translation keys; anything unmapped (an online gateway's own code/provider name)
+// falls back to the raw value since those are typically brand names (Zarinpal, BTCPay).
+const PAYMENT_METHOD_LABEL_KEYS: Record<string, string> = {
+    pay_on_delivery: 'paymentMethodPayOnDelivery',
+    bank_receipt: 'paymentMethodBankReceipt',
+    wallet: 'wallet',
+};
+const PAYMENT_STATUS_LABEL_KEYS: Record<string, string> = {
+    pending_review: 'paymentStatusPendingReview',
+    pending_collection: 'paymentStatusPendingCollection',
+    requires_action: 'paymentStatusRequiresAction',
+    succeeded: 'paymentStatusSucceeded',
+    already_paid: 'paymentStatusSucceeded',
+    insufficient_balance: 'paymentStatusInsufficientBalance',
+    not_required: 'paymentStatusNotRequired',
+};
+const BOOKING_PAYMENT_STATUS_LABEL_KEYS: Record<string, string> = {
+    pending: 'pending',
+    paid: 'paid',
+    partiallypaid: 'partial',
+    failed: 'failed',
+    notrequired: 'notRequired',
+};
+// Once the payment intent lands in one of these, there is nothing left for the
+// customer to do on this step -- re-showing an enabled "submit" button here is what
+// made the flow look re-triggerable/stuck after a pay-on-delivery or bank-receipt
+// checkout that had already completed.
+const PAYMENT_DONE_STATUSES = new Set(['succeeded', 'already_paid', 'pending_review', 'pending_collection', 'not_required']);
+
+function translateWithFallback(t: ReturnType<typeof useTranslations>, map: Record<string, string>, raw?: string) {
+    const key = map[String(raw || '').toLowerCase()];
+    return key ? t(key as never) : (raw || '');
+}
+
 export function BookingWizard() {
     const tBooking = useTranslations("Booking");
     const locale = useLocale();
@@ -1014,15 +1053,18 @@ export function BookingWizard() {
             setSubmitting(false);
         }
     }
+    const paymentIsDone = Boolean(paymentIntentResult) && PAYMENT_DONE_STATUSES.has(String(paymentIntentResult?.status || '').toLowerCase());
     // Step 6 (consultation) is deliberately absent: it is optional and must always be
     // skippable, so it never gates the primary action.
     const continueDisabled = (currentStep === 1 && !canContinueServiceStep) ||
         (currentStep === 2 && !canContinueScheduleStep) ||
         (currentStep === 3 && !canContinueAddonsStep) ||
         (currentStep === 4 && !canContinueFilesStep) ||
-        (currentStep === CHECKOUT_STEP && submitting);
+        (currentStep === CHECKOUT_STEP && (submitting || paymentIsDone));
     function handlePrimaryAction() {
         if (currentStep === CHECKOUT_STEP) {
+            if (paymentIsDone)
+                return;
             if (checkoutResult?.bookingId)
                 handleCreatePaymentIntent();
             else
@@ -1321,14 +1363,20 @@ export function BookingWizard() {
               {checkoutResult ? (<div className="rounded-[28px] border border-green-200 bg-green-50 p-6 text-green-800 shadow-lg">
                   <div className="text-lg font-bold">{tBooking("bookingSubmitted")}</div>
                   <div className="mt-2 text-sm">{tBooking("bookingID2")}{checkoutResult.bookingId}</div>
-                  <div className="text-sm">{tBooking("paymentStatus")}{checkoutResult.paymentStatus}</div>
-                  <button type="button" onClick={handleCreatePaymentIntent} className="mt-4 rounded-2xl bg-[#083f30] px-4 py-3 text-sm font-semibold text-white">{tBooking("continueToPayment")}</button>
+                  <div className="text-sm">{tBooking("paymentStatus")}{translateWithFallback(tBooking, BOOKING_PAYMENT_STATUS_LABEL_KEYS, checkoutResult.paymentStatus)}</div>
+                  {/* Once a payment intent already exists for this booking (including the
+                      pay-on-delivery/bank-receipt cases, which never redirect anywhere),
+                      there is nothing left to "continue" to -- this button re-triggering
+                      startPaymentForBooking is what read as the flow going nowhere. */}
+                  {!paymentIntentResult ? (
+                    <button type="button" onClick={handleCreatePaymentIntent} className="mt-4 rounded-2xl bg-[#083f30] px-4 py-3 text-sm font-semibold text-white">{tBooking("continueToPayment")}</button>
+                  ) : null}
                 </div>) : null}
 
               {paymentIntentResult ? (<div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-lg">
                   <div className="text-lg font-bold text-slate-900">{tBooking("paymentAction")}</div>
-                  <div className="mt-2 text-sm text-slate-600">{tBooking("method")}{paymentIntentResult.method}</div>
-                  <div className="text-sm text-slate-600">{tBooking("status2")}{paymentIntentResult.status}</div>
+                  <div className="mt-2 text-sm text-slate-600">{tBooking("method")}{translateWithFallback(tBooking, PAYMENT_METHOD_LABEL_KEYS, paymentIntentResult.method)}</div>
+                  <div className="text-sm text-slate-600">{tBooking("status2")}{translateWithFallback(tBooking, PAYMENT_STATUS_LABEL_KEYS, paymentIntentResult.status)}</div>
                   {paymentIntentResult.status === 'pending_review' ? (
                     <div className="mt-3 rounded-2xl bg-amber-50 p-4 text-sm text-amber-800">{tBooking("pendingReviewMessage")}</div>
                   ) : null}
@@ -1370,7 +1418,7 @@ export function BookingWizard() {
             <div className="mb-4 text-sm font-bold uppercase tracking-wide text-slate-500">{tBooking("continue")}</div>
             <button type="button" disabled={continueDisabled} onClick={handlePrimaryAction} className={`flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm font-bold shadow-lg ${continueDisabled ? 'bg-slate-200 text-slate-500' : 'bg-[#083f30] text-white'}`}>
               {currentStep === 5 ? <CreditCard className="h-4 w-4"/> : <ChevronRight className="h-4 w-4"/>}
-              {currentStep === 5 ? tBooking('submitCombinedCheckout') : tBooking('continue')}
+              {currentStep === 5 ? (paymentIsDone ? tBooking('bookingConfirmed2') : tBooking('submitCheckout')) : tBooking('continue')}
             </button>
             {currentStep === 3 ? <div className="mt-3 text-xs text-slate-500">{tBooking("requiredAddOnProviderTypesMustBeCompletedBefore")}</div> : null}
           </div>
@@ -1389,7 +1437,7 @@ export function BookingWizard() {
           </div>
           <button type="button" disabled={continueDisabled} onClick={handlePrimaryAction} className={`flex shrink-0 items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-bold shadow-lg ${continueDisabled ? 'bg-slate-200 text-slate-500' : 'bg-[#083f30] text-white'}`}>
             {currentStep === 5 ? <CreditCard className="h-4 w-4"/> : <ChevronRight className="h-4 w-4"/>}
-            {currentStep === 5 ? tBooking('submitCombinedCheckout') : tBooking('continue')}
+            {currentStep === 5 ? (paymentIsDone ? tBooking('bookingConfirmed2') : tBooking('submitCheckout')) : tBooking('continue')}
           </button>
         </div>
       </div>

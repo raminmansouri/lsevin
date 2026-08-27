@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/page/page-header";
 import db from "@/config/database/db";
@@ -34,6 +36,7 @@ async function listPendingBookingPayments(paymentMethod: string): Promise<Pendin
 }
 
 export default async function PaymentsPage() {
+  const t = await getTranslations("AdminPages.bookingPaymentReview");
   const [pendingReceipts, pendingCollections, items] = await Promise.all([
     listPendingBookingPayments("bank_receipt"),
     listPendingBookingPayments("pay_on_delivery"),
@@ -49,23 +52,23 @@ export default async function PaymentsPage() {
   return (
     <div className="space-y-6">
       <BookingPaymentReviewQueue
-        title="Pending bank receipts"
-        description="Approve or reject receipts customers uploaded for bank-transfer payments."
-        emptyLabel="No bank receipts are waiting for review."
+        title={t("pendingReceiptsTitle")}
+        description={t("pendingReceiptsDescription")}
+        emptyLabel={t("pendingReceiptsEmpty")}
         payments={pendingReceipts}
         showReceipt
       />
 
       <BookingPaymentReviewQueue
-        title="Pending cash collections"
-        description="Mark pay-on-delivery bookings as paid once the cash has been collected."
-        emptyLabel="No pay-on-delivery payments are waiting for collection."
+        title={t("pendingCollectionsTitle")}
+        description={t("pendingCollectionsDescription")}
+        emptyLabel={t("pendingCollectionsEmpty")}
         payments={pendingCollections}
         showReceipt={false}
       />
 
       <Card>
-        <CardHeader className="flex-between border-b"><CardTitle><PageHeader title="Booking payments" description="Normalized payment attempts and reconciliations" /></CardTitle></CardHeader>
+        <CardHeader className="flex-between border-b"><CardTitle><PageHeader title={t("legacyListTitle")} description={t("legacyListDescription")} /></CardTitle></CardHeader>
         <CardContent className="space-y-3">{items.map((item) => <div key={item.id} className="rounded-md border p-4 text-sm"><div className="font-medium">{item.customer_name || item.user_id}</div><div className="text-muted-foreground">{item.payment_method} · {item.status} · {item.gateway || 'manual'}</div><div>{item.amount} {item.currency}</div></div>)}</CardContent>
       </Card>
     </div>

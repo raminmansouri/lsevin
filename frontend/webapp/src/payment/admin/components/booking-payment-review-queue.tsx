@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Check, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ function formatDate(value: string | null) {
 }
 
 function PendingPaymentRow({ payment, showReceipt }: { payment: PendingBookingPayment; showReceipt: boolean }) {
+  const t = useTranslations("AdminPages.bookingPaymentReview");
   const [isPending, startTransition] = useTransition();
   const [reason, setReason] = useState("");
   const [resolved, setResolved] = useState(false);
@@ -39,19 +41,19 @@ function PendingPaymentRow({ payment, showReceipt }: { payment: PendingBookingPa
   const { execute: approve } = useAction(approveBookingPaymentAction, {
     startTransition,
     onSuccess: () => {
-      toast.success("Payment approved.");
+      toast.success(t("toastApproved"));
       setResolved(true);
     },
-    onError: (error) => toast.error(error?.detail || error?.title || "Could not approve."),
+    onError: (error) => toast.error(error?.detail || error?.title || t("toastApproveError")),
   });
 
   const { execute: reject } = useAction(rejectBookingPaymentAction, {
     startTransition,
     onSuccess: () => {
-      toast.success("Payment rejected.");
+      toast.success(t("toastRejected"));
       setResolved(true);
     },
-    onError: (error) => toast.error(error?.detail || error?.title || "Could not reject."),
+    onError: (error) => toast.error(error?.detail || error?.title || t("toastRejectError")),
   });
 
   if (resolved) return null;
@@ -62,22 +64,22 @@ function PendingPaymentRow({ payment, showReceipt }: { payment: PendingBookingPa
     <div className="rounded-md border p-4 text-sm">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="space-y-1">
-          <div className="font-medium">{payment.customerName || "Unknown customer"}</div>
+          <div className="font-medium">{payment.customerName || t("unknownCustomer")}</div>
           {payment.customerEmail && <div className="text-muted-foreground" dir="ltr">{payment.customerEmail}</div>}
           <div className="text-muted-foreground">{formatDate(payment.createdAt)}</div>
           <div className="text-base font-semibold">
             {payment.amount.toLocaleString()} <span className="text-muted-foreground text-sm">{payment.currency}</span>
           </div>
           <div className="text-muted-foreground text-xs">
-            Booking: <span dir="ltr" className="font-mono">{payment.bookingId}</span>
+            {t("booking")}: <span dir="ltr" className="font-mono">{payment.bookingId}</span>
           </div>
           {showReceipt && payment.receiptUrl && (
             <a href={payment.receiptUrl} target="_blank" rel="noreferrer" className="inline-block pt-1">
               {isImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={payment.receiptUrl} alt="Receipt" className="h-28 w-auto rounded-md border object-cover" />
+                <img src={payment.receiptUrl} alt={t("viewReceipt")} className="h-28 w-auto rounded-md border object-cover" />
               ) : (
-                <span className="text-sm font-medium text-primary underline">View receipt file</span>
+                <span className="text-sm font-medium text-primary underline">{t("viewReceipt")}</span>
               )}
             </a>
           )}
@@ -85,7 +87,7 @@ function PendingPaymentRow({ payment, showReceipt }: { payment: PendingBookingPa
 
         <div className="grid gap-2 sm:min-w-[360px] sm:grid-cols-2">
           <div className="rounded-md border border-green-200 bg-green-50 p-3 dark:bg-green-950/20">
-            <p className="text-xs font-medium text-green-900 dark:text-green-200">Approve</p>
+            <p className="text-xs font-medium text-green-900 dark:text-green-200">{t("approve")}</p>
             <Button
               type="button"
               size="sm"
@@ -94,16 +96,16 @@ function PendingPaymentRow({ payment, showReceipt }: { payment: PendingBookingPa
               onClick={() => approve({ paymentId: payment.id, bookingId: payment.bookingId })}
             >
               <Check className="mr-2 h-4 w-4" />
-              Approve
+              {t("approve")}
             </Button>
           </div>
 
           <div className="rounded-md border border-red-200 bg-red-50 p-3 dark:bg-red-950/20">
-            <p className="text-xs font-medium text-red-900 dark:text-red-200">Reject reason</p>
+            <p className="text-xs font-medium text-red-900 dark:text-red-200">{t("rejectReasonLabel")}</p>
             <Input
               value={reason}
               onChange={(event) => setReason(event.target.value)}
-              placeholder="Rejected by admin"
+              placeholder={t("rejectReasonPlaceholder")}
               disabled={isPending}
               className="mt-1 h-9"
             />
@@ -116,7 +118,7 @@ function PendingPaymentRow({ payment, showReceipt }: { payment: PendingBookingPa
               onClick={() => reject({ paymentId: payment.id, bookingId: payment.bookingId, reason: reason || undefined })}
             >
               <X className="mr-2 h-4 w-4" />
-              Reject
+              {t("reject")}
             </Button>
           </div>
         </div>

@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   ArrowLeftRight,
   Award,
+  Bell,
   BellRing,
   BookMarked,
   BookOpen,
@@ -215,6 +216,7 @@ export const ADMIN_NAV: AdminNavEntry[] = [
       { titleKey: "consultings", href: "/admin/consultation-requests", icon: MessageSquareQuote },
       { titleKey: "bugReports", href: "/admin/bug-reports", icon: Bug },
       { titleKey: "notificationTemplates", href: "/admin/notification-templates", icon: BellRing },
+      { titleKey: "notificationChannels", href: "/admin/notification-channels", icon: Bell },
     ],
   },
 
