@@ -50,6 +50,35 @@ function formatAmount(amount: number | string | null | undefined, currency: stri
   }
 }
 
+function formatTimestamp(iso: string | null | undefined) {
+  if (!iso) return "";
+  try {
+    return new Intl.DateTimeFormat("fa-IR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(iso));
+  } catch {
+    return iso;
+  }
+}
+
+const BOOKING_STATUS_FA: Record<string, string> = {
+  Confirmed: "تأیید شده",
+  Pending: "در انتظار",
+  Cancelled: "لغو شده",
+  Completed: "انجام‌شده",
+};
+
+const PAYMENT_STATUS_FA: Record<string, string> = {
+  pending: "در انتظار پرداخت",
+  pending_collection: "در انتظار دریافت",
+  paid: "پرداخت‌شده",
+  failed: "ناموفق",
+  refunded: "بازگردانده‌شده",
+};
+
+function translateStatus(map: Record<string, string>, value: string | null | undefined) {
+  if (!value) return "";
+  return map[value] || value;
+}
+
 /**
  * Same role join bug-reports/server/notifications.ts uses for its admin recipients
  * (getAdminRecipients) -- kept as a separate, simpler copy here rather than importing
@@ -122,7 +151,10 @@ async function notifyTablesExist() {
 async function getBookingSummaryForNotification(bookingId: string) {
   const [row] = await sql<{
     customerName: string | null;
+    customerEmail: string | null;
+    customerPhone: string | null;
     providerName: string | null;
+    providerPhone: string | null;
     serviceName: string | null;
     scheduledDate: string | null;
     scheduledTime: string | null;
@@ -130,10 +162,16 @@ async function getBookingSummaryForNotification(bookingId: string) {
     amount: string | null;
     currency: string | null;
     confirmationCode: string | null;
+    bookingStatus: string | null;
+    paymentStatus: string | null;
+    submittedAt: string | null;
   }[]>`
     select
       coalesce(nullif(trim(concat_ws(' ', cu.first_name, cu.last_name)), ''), iu.email, iu.phone_number, 'مشتری') as "customerName",
+      iu.email as "customerEmail",
+      iu.phone_number as "customerPhone",
       coalesce(nullif(common.get_translation_t(sp.name_translations, 'fa-IR', 'en-US'), ''), 'ارائه‌دهنده') as "providerName",
+      sp.phone_number as "providerPhone",
       coalesce(
         nullif(common.get_translation_t(ps.display_name_translations, 'fa-IR', 'en-US'), ''),
         nullif(common.get_translation_t(sd.name_translations, 'fa-IR', 'en-US'), ''),
@@ -149,7 +187,10 @@ async function getBookingSummaryForNotification(bookingId: string) {
       b.payment_method as "paymentMethod",
       coalesce(b.display_total_amount, b.total_amount, 0)::text as amount,
       coalesce(b.display_currency_code, b.currency_code, 'USD') as currency,
-      b.confirmation_code as "confirmationCode"
+      b.confirmation_code as "confirmationCode",
+      b.booking_status as "bookingStatus",
+      b.payment_status as "paymentStatus",
+      b.create_date::text as "submittedAt"
     from booking.bookings b
     left join category.service_providers sp on sp.id = b.provider_id
     left join category.provider_services ps on ps.id = b.service_id
@@ -162,13 +203,18 @@ async function getBookingSummaryForNotification(bookingId: string) {
 
   return {
     customerName: row?.customerName || "مشتری",
+    customerContact: row?.customerEmail || row?.customerPhone || "",
     providerName: row?.providerName || "",
+    providerContact: row?.providerPhone || "",
     serviceName: row?.serviceName || "",
     scheduledDate: row?.scheduledDate || "",
     scheduledTime: row?.scheduledTime || "",
     paymentMethod: row?.paymentMethod || "",
     amountFormatted: formatAmount(row?.amount, row?.currency),
     confirmationCode: row?.confirmationCode || "",
+    bookingStatus: translateStatus(BOOKING_STATUS_FA, row?.bookingStatus),
+    paymentStatus: translateStatus(PAYMENT_STATUS_FA, row?.paymentStatus),
+    submittedAt: formatTimestamp(row?.submittedAt),
   };
 }
 
@@ -180,13 +226,28 @@ async function getBookingSummaryForNotification(bookingId: string) {
 async function getDraftSummaryForNotification(draftId: string) {
   const [row] = await sql<{
     customerName: string | null;
+    customerEmail: string | null;
+    customerPhone: string | null;
     providerName: string | null;
     serviceName: string | null;
+    scheduledDate: string | null;
+    scheduledTime: string | null;
+    submittedAt: string | null;
   }[]>`
     select
       coalesce(nullif(trim(concat_ws(' ', cu.first_name, cu.last_name)), ''), iu.email, iu.phone_number, 'مشتری') as "customerName",
+      iu.email as "customerEmail",
+      iu.phone_number as "customerPhone",
       coalesce(nullif(common.get_translation_t(sp.name_translations, 'fa-IR', 'en-US'), ''), null) as "providerName",
-      coalesce(nullif(common.get_translation_t(ps.display_name_translations, 'fa-IR', 'en-US'), ''), null) as "serviceName"
+      coalesce(nullif(common.get_translation_t(ps.display_name_translations, 'fa-IR', 'en-US'), ''), null) as "serviceName",
+      to_char(d.selected_date, 'YYYY-MM-DD') as "scheduledDate",
+      case
+        when d.selected_time_from is not null and d.selected_time_to is not null
+          then concat(to_char(d.selected_time_from, 'HH24:MI'), ' - ', to_char(d.selected_time_to, 'HH24:MI'))
+        when d.selected_time is not null then to_char(d.selected_time, 'HH24:MI')
+        else null
+      end as "scheduledTime",
+      d.created_at::text as "submittedAt"
     from booking.booking_drafts d
     left join category.service_providers sp on sp.id = d.provider_id
     left join category.provider_services ps on ps.id = d.service_id
@@ -198,8 +259,12 @@ async function getDraftSummaryForNotification(draftId: string) {
 
   return {
     customerName: row?.customerName || "مشتری",
+    customerContact: row?.customerEmail || row?.customerPhone || "",
     providerName: row?.providerName || "",
     serviceName: row?.serviceName || "",
+    scheduledDate: row?.scheduledDate || "",
+    scheduledTime: row?.scheduledTime || "",
+    submittedAt: formatTimestamp(row?.submittedAt),
   };
 }
 
@@ -277,8 +342,8 @@ async function ensureBookingNotificationTemplates(): Promise<void> {
       channels: ["in_app", "email"],
       title: translations("رزرو جدید ثبت شد", "New booking received"),
       body: translations(
-        "مشتری {{customerName}} رزرو «{{serviceName}}» را نزد {{providerName}} در تاریخ {{scheduledDate}} ساعت {{scheduledTime}} با روش پرداخت «{{paymentMethod}}» به مبلغ {{amountFormatted}} ثبت کرد. کد پیگیری: {{confirmationCode}}\nمشاهده در پنل مدیریت: {{adminLink}}",
-        "{{customerName}} booked \"{{serviceName}}\" with {{providerName}} on {{scheduledDate}} at {{scheduledTime}}, paying via {{paymentMethod}} for {{amountFormatted}}. Tracking code: {{confirmationCode}}\nView in admin: {{adminLink}}"
+        "مشتری: {{customerName}} ({{customerContact}})\nخدمت: {{serviceName}} • ارائه‌دهنده: {{providerName}}\nزمان رزرو: {{scheduledDate}} ساعت {{scheduledTime}}\nپرداخت: {{paymentMethod}} • مبلغ: {{amountFormatted}} • وضعیت پرداخت: {{paymentStatus}}\nوضعیت رزرو: {{bookingStatus}} • کد پیگیری: {{confirmationCode}}\nثبت‌شده در: {{submittedAt}}\nمشاهده در پنل مدیریت: {{adminLink}}",
+        "Customer: {{customerName}} ({{customerContact}})\nService: {{serviceName}} • Provider: {{providerName}}\nScheduled: {{scheduledDate}} at {{scheduledTime}}\nPayment: {{paymentMethod}} • Amount: {{amountFormatted}} • Payment status: {{paymentStatus}}\nBooking status: {{bookingStatus}} • Tracking code: {{confirmationCode}}\nSubmitted: {{submittedAt}}\nView in admin: {{adminLink}}"
       ),
     },
     {
@@ -287,8 +352,8 @@ async function ensureBookingNotificationTemplates(): Promise<void> {
       channels: ["in_app", "sms", "email"],
       title: translations("رزرو جدید دریافت شد", "New booking received"),
       body: translations(
-        "مشتری {{customerName}} رزرو «{{serviceName}}» را برای تاریخ {{scheduledDate}} ساعت {{scheduledTime}} نزد شما ثبت کرد. مبلغ: {{amountFormatted}} • روش پرداخت: {{paymentMethod}} • کد پیگیری: {{confirmationCode}}",
-        "{{customerName}} booked \"{{serviceName}}\" with you for {{scheduledDate}} at {{scheduledTime}}. Amount: {{amountFormatted}} • Payment: {{paymentMethod}} • Tracking code: {{confirmationCode}}"
+        "مشتری: {{customerName}} ({{customerContact}})\nخدمت: {{serviceName}}\nزمان: {{scheduledDate}} ساعت {{scheduledTime}}\nمبلغ: {{amountFormatted}} • روش پرداخت: {{paymentMethod}} • وضعیت پرداخت: {{paymentStatus}}\nکد پیگیری: {{confirmationCode}} • ثبت‌شده در: {{submittedAt}}",
+        "Customer: {{customerName}} ({{customerContact}})\nService: {{serviceName}}\nScheduled: {{scheduledDate}} at {{scheduledTime}}\nAmount: {{amountFormatted}} • Payment: {{paymentMethod}} • Payment status: {{paymentStatus}}\nTracking code: {{confirmationCode}} • Submitted: {{submittedAt}}"
       ),
     },
     {
@@ -297,8 +362,8 @@ async function ensureBookingNotificationTemplates(): Promise<void> {
       channels: ["in_app"],
       title: translations("یک مشتری شروع به رزرو کرد", "A customer started a booking"),
       body: translations(
-        "مشتری {{customerName}} فرآیند رزرو جدیدی را آغاز کرده است.",
-        "{{customerName}} has started a new booking process."
+        "مشتری: {{customerName}} ({{customerContact}})\nخدمت مورد نظر: {{serviceName}} • ارائه‌دهنده: {{providerName}}\nتاریخ/ساعت انتخابی: {{scheduledDate}} {{scheduledTime}}\nشروع‌شده در: {{submittedAt}}",
+        "Customer: {{customerName}} ({{customerContact}})\nInterested in: {{serviceName}} • Provider: {{providerName}}\nSelected date/time: {{scheduledDate}} {{scheduledTime}}\nStarted at: {{submittedAt}}"
       ),
     },
     {
@@ -307,8 +372,8 @@ async function ensureBookingNotificationTemplates(): Promise<void> {
       channels: ["in_app"],
       title: translations("یک مشتری در حال رزرو با شماست", "A customer is booking with you"),
       body: translations(
-        "مشتری {{customerName}} در حال تکمیل یک رزرو نزد شماست.",
-        "{{customerName}} is currently booking with you."
+        "مشتری: {{customerName}} ({{customerContact}})\nخدمت مورد نظر: {{serviceName}}\nتاریخ/ساعت انتخابی: {{scheduledDate}} {{scheduledTime}}\nشروع‌شده در: {{submittedAt}}",
+        "Customer: {{customerName}} ({{customerContact}})\nInterested in: {{serviceName}}\nSelected date/time: {{scheduledDate}} {{scheduledTime}}\nStarted at: {{submittedAt}}"
       ),
     },
   ];
@@ -360,13 +425,18 @@ export async function notifyBookingCreated(input: BookingNotificationInput): Pro
     bookingId: input.bookingId,
     providerId: input.providerId,
     customerName: summary?.customerName || "",
+    customerContact: summary?.customerContact || "",
     providerName: summary?.providerName || "",
+    providerContact: summary?.providerContact || "",
     serviceName: summary?.serviceName || "",
     scheduledDate: summary?.scheduledDate || "",
     scheduledTime: summary?.scheduledTime || "",
     paymentMethod: summary?.paymentMethod || "",
     amountFormatted: summary?.amountFormatted || "",
     confirmationCode: summary?.confirmationCode || input.bookingId,
+    bookingStatus: summary?.bookingStatus || "",
+    paymentStatus: summary?.paymentStatus || "",
+    submittedAt: summary?.submittedAt || "",
     adminLink: buildAdminBookingLink(input.bookingId),
     ...(input.variables || {}),
   };
@@ -459,8 +529,12 @@ export async function notifyBookingStarted(input: BookingStartedNotificationInpu
     draftId: input.draftId,
     providerId: input.providerId ?? "",
     customerName: summary?.customerName || "",
+    customerContact: summary?.customerContact || "",
     providerName: summary?.providerName || "",
     serviceName: summary?.serviceName || "",
+    scheduledDate: summary?.scheduledDate || "",
+    scheduledTime: summary?.scheduledTime || "",
+    submittedAt: summary?.submittedAt || "",
   };
 
   try {

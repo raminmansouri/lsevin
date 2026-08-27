@@ -49,6 +49,19 @@ function formatTimestamp(iso: string) {
   }
 }
 
+const SOURCE_LABEL_FA: Record<string, string> = {
+  floating_widget: "ویجت شناور",
+  support_page: "صفحه پشتیبانی",
+  booking: "فرآیند رزرو",
+  provider_page: "صفحه ارائه‌دهنده",
+  service_page: "صفحه خدمت",
+  admin_created: "ایجادشده توسط ادمین",
+};
+
+function sourceLabel(source: string) {
+  return SOURCE_LABEL_FA[source] || source;
+}
+
 async function notifyTablesExist() {
   const [row] = await sql<{ exists: boolean }[]>`
     select to_regclass('notify.notifications') is not null as exists
@@ -185,8 +198,8 @@ async function ensureSupportNotificationTemplates(): Promise<void> {
       channels: ["in_app", "email"],
       title: translations("پیام جدید در گفتگوی پشتیبانی", "New support message"),
       body: translations(
-        "{{customerName}} در گفتگوی {{conversationNumber}} در تاریخ {{sentAt}} پیام داد: «{{messagePreview}}»\nمشاهده در پنل مدیریت: {{adminLink}}",
-        '{{customerName}} sent a message in conversation {{conversationNumber}} at {{sentAt}}: "{{messagePreview}}"\nView in admin: {{adminLink}}'
+        "فرستنده: {{customerName}} ({{customerContact}})\nگفتگو: {{conversationNumber}} • منبع: {{sourceLabel}}\nزمان ارسال: {{sentAt}}\nمتن پیام: «{{messagePreview}}»\nمشاهده در پنل مدیریت: {{adminLink}}",
+        'From: {{customerName}} ({{customerContact}})\nConversation: {{conversationNumber}} • Source: {{sourceLabel}}\nSent: {{sentAt}}\nMessage: "{{messagePreview}}"\nView in admin: {{adminLink}}'
       ),
     },
     {
@@ -195,8 +208,8 @@ async function ensureSupportNotificationTemplates(): Promise<void> {
       channels: ["in_app", "sms", "email"],
       title: translations("پاسخ جدید از پشتیبانی", "New support reply"),
       body: translations(
-        "{{agentName}} در تاریخ {{sentAt}} پاسخ داد: «{{messagePreview}}»",
-        '{{agentName}} replied at {{sentAt}}: "{{messagePreview}}"'
+        "{{agentName}} در گفتگوی {{conversationNumber}} در تاریخ {{sentAt}} پاسخ داد: «{{messagePreview}}»",
+        '{{agentName}} replied in conversation {{conversationNumber}} at {{sentAt}}: "{{messagePreview}}"'
       ),
     },
   ];
@@ -258,6 +271,7 @@ export async function notifySupportMessage(input: SupportMessageNotificationInpu
         messagePreview,
         sentAt,
         source: summary.source,
+        sourceLabel: sourceLabel(summary.source),
         adminLink: buildAdminConversationLink(input.conversationId),
       };
       for (const admin of admins) {
