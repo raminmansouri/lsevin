@@ -12722,5 +12722,18 @@
         "cancel": "取消"
       }
     }
+  },
+  "MobileNotifications": {
+    "title": "通知",
+    "unreadCount": "{count} 条未读",
+    "markAllRead": "全部标记为已读",
+    "emptyTitle": "暂无通知",
+    "emptyDescription": "已全部处理完毕！",
+    "tabs": {
+      "all": "全部",
+      "booking": "预订",
+      "offer": "优惠",
+      "system": "系统"
+    }
   }
 }

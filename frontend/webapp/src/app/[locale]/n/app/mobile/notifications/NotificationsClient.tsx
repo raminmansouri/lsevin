@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import {
   ChevronLeft,
@@ -108,6 +109,7 @@ export default function NotificationsClient({
   unreadCount,
   filters,
 }: NotificationsPageData & { filters: NotificationsFiltersInput }) {
+  const t = useTranslations("MobileNotifications");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [activeTab, setActiveTab] = useState<NotificationTab>(filters.tab);
@@ -183,9 +185,9 @@ export default function NotificationsClient({
               <ChevronLeft size={24} className="rtl:rotate-180" />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Notifications</h1>
+              <h1 className="text-xl font-bold text-gray-900">{t("title")}</h1>
               {optimisticUnread > 0 && (
-                <p className="text-sm text-gray-600">{optimisticUnread} unread</p>
+                <p className="text-sm text-gray-600">{t("unreadCount", { count: optimisticUnread })}</p>
               )}
             </div>
           </div>
@@ -194,7 +196,7 @@ export default function NotificationsClient({
               onClick={markAllRead}
               className="text-sm font-medium text-[#083f30]"
             >
-              Mark all read
+              {t("markAllRead")}
             </button>
           )}
         </div>
@@ -211,7 +213,7 @@ export default function NotificationsClient({
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                {tab.label}
+                {t(`tabs.${tab.id}`)}
                 {tab.unreadCount > 0 ? ` (${tab.unreadCount})` : ""}
               </button>
             ))}
@@ -264,8 +266,8 @@ export default function NotificationsClient({
             <div className="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
               <Bell size={32} className="text-gray-400" />
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">No Notifications</h3>
-            <p className="text-gray-600">You're all caught up!</p>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">{t("emptyTitle")}</h3>
+            <p className="text-gray-600">{t("emptyDescription")}</p>
           </div>
         )}
       </div>

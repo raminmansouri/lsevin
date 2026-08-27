@@ -64,6 +64,7 @@ export const SEGMENT_NAMESPACES = {
     "Home",
     "LazySelect",
     "MapDiscovery",
+    "MobileNotifications",
     "MobileOffers",
     "MobileProfile",
     "MobileSearch",

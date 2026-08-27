@@ -1,6 +1,7 @@
 import "server-only";
 
 import sql from "@/config/database/db";
+import { formatDate } from "@/lib/formatters";
 import type {
   Booking,
   BookingAddonSummary,
@@ -86,6 +87,9 @@ function normalizeLocale(locale?: string | null): string {
     fr: "fr-FR",
     es: "es-ES",
     ku: "ku-KU",
+    ru: "ru-RU",
+    tg: "tg-TJ",
+    zh: "zh-CN",
   };
 
   return map[raw.toLowerCase()] || raw || "fa-IR";
@@ -110,13 +114,22 @@ function toArray<T>(value: unknown): T[] {
   return [];
 }
 
-function toBooking(row: BookingListRow): Booking {
+// row.date/row.bookingDate arrive as raw ISO date text from SQL (see the "date"/
+// "bookingDate" select below) -- formatted here via Intl through the caller's resolved
+// locale so fa-IR renders the Jalali calendar with Persian month names and digits,
+// instead of a Postgres to_char() month abbreviation ("Aug") that can never localize.
+function formatBookingDate(raw: string | null | undefined, locale: string, fallback: string) {
+  if (!raw) return fallback;
+  return formatDate(raw, locale, { year: "numeric", month: "short", day: "2-digit" });
+}
+
+function toBooking(row: BookingListRow, locale: string): Booking {
   return {
     id: row.id,
     service: row.service || "Service",
     provider: row.provider || "Provider",
     image: row.image || undefined,
-    date: row.date || "Flexible date",
+    date: formatBookingDate(row.date, locale, "Flexible date"),
     time: row.time || "Flexible time",
     location: row.location || "Location not specified",
     status: row.status || "pending",
@@ -127,12 +140,12 @@ function toBooking(row: BookingListRow): Booking {
   };
 }
 
-function toBookingRecord(row: BookingDetailRow): BookingRecord {
+function toBookingRecord(row: BookingDetailRow, locale: string): BookingRecord {
   const image = row.serviceImage || row.providerImage || row.image || undefined;
   const providerImage = row.providerImage || row.serviceImage || row.image || undefined;
 
   return {
-    ...toBooking({ ...row, image: image ?? null }),
+    ...toBooking({ ...row, image: image ?? null }, locale),
     providerImage,
     providerDescription: row.providerDescription || undefined,
     serviceDescription: row.serviceDescription || undefined,
@@ -140,7 +153,7 @@ function toBookingRecord(row: BookingDetailRow): BookingRecord {
     fullAddress: row.fullAddress || undefined,
     deposit: toNumber(row.deposit),
     remaining: toNumber(row.remaining),
-    bookingDate: row.bookingDate || undefined,
+    bookingDate: row.bookingDate ? formatBookingDate(row.bookingDate, locale, "") : undefined,
     confirmationCode: row.confirmationCode || undefined,
     paymentMethod: row.paymentMethod || undefined,
     notes: row.notes || undefined,
@@ -192,7 +205,7 @@ export async function getMyBookingsFromDb(input: GetMyBookingsInput): Promise<Bo
         ) as service,
         coalesce(nullif(common.get_translation_t(sp.name_translations, ${locale}, 'en-US'), ''), 'Provider') as provider,
         coalesce(nullif(ps.image_url, ''), nullif(sp.image_url, '')) as image,
-        coalesce(to_char(b.selected_date, 'Mon DD, YYYY'), 'Flexible date') as date,
+        b.selected_date::text as date,
         case
           when b.selected_time_from is not null and b.selected_time_to is not null then concat(to_char(b.selected_time_from, 'HH24:MI'), ' - ', to_char(b.selected_time_to, 'HH24:MI'))
           when b.selected_time is not null then to_char(b.selected_time, 'HH24:MI')
@@ -234,7 +247,7 @@ export async function getMyBookingsFromDb(input: GetMyBookingsInput): Promise<Bo
 
   return rows.reduce<BookingsResponse>(
     (acc, row) => {
-      const booking = toBooking(row);
+      const booking = toBooking(row, locale);
       if (row.groupName === "cancelled") acc.cancelledBookings.push(booking);
       else if (row.groupName === "past") acc.pastBookings.push(booking);
       else acc.upcomingBookings.push(booking);
@@ -321,7 +334,7 @@ export async function getMyBookingByIdFromDb(input: GetMyBookingByIdInput): Prom
         nullif(common.get_translation_t(base.definition_description_translations, ${locale}, 'en-US'), ''),
         null
       ) as "serviceDescription",
-      coalesce(to_char(base.selected_date, 'Mon DD, YYYY'), 'Flexible date') as date,
+      base.selected_date::text as date,
       case
         when base.selected_time_from is not null and base.selected_time_to is not null then concat(to_char(base.selected_time_from, 'HH24:MI'), ' - ', to_char(base.selected_time_to, 'HH24:MI'))
         when base.selected_time is not null then to_char(base.selected_time, 'HH24:MI')
@@ -358,7 +371,7 @@ export async function getMyBookingByIdFromDb(input: GetMyBookingByIdInput): Prom
       coalesce(base.provider_accredited, false) as verified,
       base.create_date::text as "createDate",
       base.selected_date::text as "selectedDate",
-      to_char(base.create_date, 'Mon DD, YYYY') as "bookingDate",
+      base.create_date::text as "bookingDate",
       base.confirmation_code as "confirmationCode",
       coalesce(nullif(base.payment_method, ''), nullif(base.latest_payment_method, '')) as "paymentMethod",
       coalesce(
@@ -435,7 +448,7 @@ export async function getMyBookingByIdFromDb(input: GetMyBookingByIdInput): Prom
     from base
   `;
 
-  return rows[0] ? toBookingRecord(rows[0]) : null;
+  return rows[0] ? toBookingRecord(rows[0], locale) : null;
 }
 
 export async function cancelMyBookingInDb(input: CancelMyBookingInput): Promise<boolean> {

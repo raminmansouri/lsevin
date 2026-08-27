@@ -12725,5 +12725,18 @@
         "cancel": "Cancelar"
       }
     }
+  },
+  "MobileNotifications": {
+    "title": "Notificaciones",
+    "unreadCount": "{count} sin leer",
+    "markAllRead": "Marcar todo como leído",
+    "emptyTitle": "Sin notificaciones",
+    "emptyDescription": "¡Estás al día!",
+    "tabs": {
+      "all": "Todas",
+      "booking": "Reservas",
+      "offer": "Ofertas",
+      "system": "Sistema"
+    }
   }
 }

@@ -12724,5 +12724,18 @@
         "cancel": "إلغاء"
       }
     }
+  },
+  "MobileNotifications": {
+    "title": "الإشعارات",
+    "unreadCount": "{count} غير مقروءة",
+    "markAllRead": "تعليم الكل كمقروء",
+    "emptyTitle": "لا توجد إشعارات",
+    "emptyDescription": "لقد اطلعت على كل شيء!",
+    "tabs": {
+      "all": "الكل",
+      "booking": "الحجوزات",
+      "offer": "العروض",
+      "system": "النظام"
+    }
   }
 }

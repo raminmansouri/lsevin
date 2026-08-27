@@ -13438,5 +13438,18 @@
         }
       }
     }
+  },
+  "MobileNotifications": {
+    "title": "Notifications",
+    "unreadCount": "{count} unread",
+    "markAllRead": "Mark all read",
+    "emptyTitle": "No notifications",
+    "emptyDescription": "You're all caught up!",
+    "tabs": {
+      "all": "All",
+      "booking": "Bookings",
+      "offer": "Offers",
+      "system": "System"
+    }
   }
 }

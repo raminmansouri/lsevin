@@ -13438,5 +13438,18 @@
         }
       }
     }
+  },
+  "MobileNotifications": {
+    "title": "اعلان‌ها",
+    "unreadCount": "{count} اعلان خوانده‌نشده",
+    "markAllRead": "علامت‌گذاری همه به‌عنوان خوانده‌شده",
+    "emptyTitle": "اعلانی وجود ندارد",
+    "emptyDescription": "همه‌چیز به‌روز است!",
+    "tabs": {
+      "all": "همه",
+      "booking": "رزروها",
+      "offer": "پیشنهادها",
+      "system": "سیستم"
+    }
   }
 }

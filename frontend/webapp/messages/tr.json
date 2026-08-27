@@ -12725,5 +12725,18 @@
         "cancel": "İptal"
       }
     }
+  },
+  "MobileNotifications": {
+    "title": "Bildirimler",
+    "unreadCount": "{count} okunmamış",
+    "markAllRead": "Tümünü okundu olarak işaretle",
+    "emptyTitle": "Bildirim yok",
+    "emptyDescription": "Her şey güncel!",
+    "tabs": {
+      "all": "Tümü",
+      "booking": "Rezervasyonlar",
+      "offer": "Teklifler",
+      "system": "Sistem"
+    }
   }
 }

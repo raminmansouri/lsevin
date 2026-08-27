@@ -12722,5 +12722,18 @@
         "cancel": "Annuler"
       }
     }
+  },
+  "MobileNotifications": {
+    "title": "Notifications",
+    "unreadCount": "{count} non lues",
+    "markAllRead": "Tout marquer comme lu",
+    "emptyTitle": "Aucune notification",
+    "emptyDescription": "Vous êtes à jour !",
+    "tabs": {
+      "all": "Toutes",
+      "booking": "Réservations",
+      "offer": "Offres",
+      "system": "Système"
+    }
   }
 }

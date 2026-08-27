@@ -12722,5 +12722,18 @@
         "cancel": "Отмена"
       }
     }
+  },
+  "MobileNotifications": {
+    "title": "Уведомления",
+    "unreadCount": "{count} непрочитанных",
+    "markAllRead": "Отметить все как прочитанные",
+    "emptyTitle": "Нет уведомлений",
+    "emptyDescription": "Всё актуально!",
+    "tabs": {
+      "all": "Все",
+      "booking": "Бронирования",
+      "offer": "Предложения",
+      "system": "Система"
+    }
   }
 }

@@ -12722,5 +12722,18 @@
         "cancel": "Abbrechen"
       }
     }
+  },
+  "MobileNotifications": {
+    "title": "Benachrichtigungen",
+    "unreadCount": "{count} ungelesen",
+    "markAllRead": "Alle als gelesen markieren",
+    "emptyTitle": "Keine Benachrichtigungen",
+    "emptyDescription": "Du bist auf dem neuesten Stand!",
+    "tabs": {
+      "all": "Alle",
+      "booking": "Buchungen",
+      "offer": "Angebote",
+      "system": "System"
+    }
   }
 }

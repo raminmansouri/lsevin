@@ -15,26 +15,65 @@ import type { BookingAddonSummary, BookingChildSummary, BookingDocumentSummary, 
 import { useRouter } from "@/i18n/navigation";
 import useAction from "@/hooks/use-action";
 import { useNavigate } from "@/hooks/use-navigate";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 function normalizeStatus(value?: string | null) {
     return String(value || "pending").trim().toLowerCase();
 }
 function buildFileUrl(value?: string | null) {
     return resolveHomeMediaUrl(value);
 }
-function formatMoney(amount?: number | null, currency?: string | null) {
+function resolveIntlLocale(locale?: string | null) {
+    const normalized = (locale || "fa").trim().toLowerCase();
+    const map: Record<string, string> = {
+        fa: "fa-IR", en: "en-US", ar: "ar-SA", tr: "tr-TR", de: "de-DE",
+        fr: "fr-FR", es: "es-ES", ku: "ku-KU", ru: "ru-RU", tg: "tg-TJ", zh: "zh-CN",
+    };
+    return map[normalized] || normalized || "fa-IR";
+}
+// Intl's currency formatter has no reliable localized display name for IRR across
+// environments -- it falls back to printing the raw ISO code "IRR" instead of a real
+// unit name. Rial is the actual unit the stored amount is denominated in (no /10
+// conversion to Toman -- that would silently change the displayed number).
+function formatMoney(amount?: number | null, currency?: string | null, locale?: string | null) {
     const code = String(currency || "USD").trim().toUpperCase();
     const value = Number(amount || 0);
+    const localeTag = resolveIntlLocale(locale);
+    if (code === "IRR") {
+        const formattedNumber = new Intl.NumberFormat(localeTag).format(value);
+        return `${formattedNumber} ${localeTag.startsWith("fa") ? "ریال" : "Rial"}`;
+    }
     try {
-        return new Intl.NumberFormat(undefined, {
+        return new Intl.NumberFormat(localeTag, {
             style: "currency",
             currency: code,
             maximumFractionDigits: 2,
         }).format(value);
     }
     catch {
-        return `${value.toLocaleString()} ${code}`;
+        return `${value.toLocaleString(localeTag)} ${code}`;
     }
+}
+// createBookingPaymentIntent/booking.bookings.payment_method return raw codes
+// ('pay_on_delivery', 'bank_receipt', 'wallet', ...) meant for logic, not display --
+// same mapping BookingWizard.tsx uses for the checkout-step summary. Anything unmapped
+// (an online gateway's own code/provider name) falls back to the raw value since those
+// are typically brand names (Zarinpal, BTCPay).
+const PAYMENT_METHOD_LABEL_KEYS: Record<string, string> = {
+    pay_on_delivery: "paymentMethodPayOnDelivery",
+    bank_receipt: "paymentMethodBankReceipt",
+    wallet: "wallet",
+};
+const BOOKING_PAYMENT_STATUS_LABEL_KEYS: Record<string, string> = {
+    pending: "pending",
+    paid: "paid",
+    partiallypaid: "partial",
+    refunded: "refunded",
+    failed: "failed",
+    notrequired: "notRequired",
+};
+function translateWithFallback(t: ReturnType<typeof useTranslations>, map: Record<string, string>, raw?: string | null) {
+    const key = map[String(raw || "").toLowerCase()];
+    return key ? t(key as never) : (raw || "");
 }
 function getStatusBadge(status: string | null | undefined, tBooking: ReturnType<typeof useTranslations>) {
     const normalized = normalizeStatus(status);
@@ -86,6 +125,7 @@ function AddonsList({ addons, currency }: {
     currency?: string;
 }) {
     const tBooking = useTranslations("Booking");
+    const locale = useLocale();
     if (!addons?.length)
         return null;
     return (<div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
@@ -100,7 +140,7 @@ function AddonsList({ addons, currency }: {
               <p className="text-xs text-gray-500">{tBooking("quantity")}{addon.quantity}</p>
             </div>
             <span className="flex-shrink-0 font-bold text-[#083f30]">
-              {formatMoney(Number(addon.unitPrice || 0) * Number(addon.quantity || 1), addon.currency || currency)}
+              {formatMoney(Number(addon.unitPrice || 0) * Number(addon.quantity || 1), addon.currency || currency, locale)}
             </span>
           </div>))}
       </div>
@@ -169,6 +209,7 @@ function BookingDetailContent({ booking, onCancel, onPay, isPaying, paymentGatew
     paymentGateway?: AvailablePaymentGateway | null;
 }) {
     const tBooking = useTranslations("Booking");
+    const locale = useLocale();
     const navigate = useNavigate();
     const imageSrc = buildFileUrl(booking.providerImage || booking.image);
     const agentImageSrc = buildFileUrl(booking.agent?.image);
@@ -290,23 +331,23 @@ function BookingDetailContent({ booking, onCancel, onPay, isPaying, paymentGatew
         <div className="mb-3 space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-600">{tBooking("totalAmount")}</span>
-            <span className="font-semibold text-gray-900">{formatMoney(booking.price, booking.currency)}</span>
+            <span className="font-semibold text-gray-900">{formatMoney(booking.price, booking.currency, locale)}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-600">{tBooking("paidAmount")}</span>
-            <span className="font-semibold text-green-600">-{formatMoney(booking.deposit || 0, booking.currency)}</span>
+            <span className="font-semibold text-green-600">-{formatMoney(booking.deposit || 0, booking.currency, locale)}</span>
           </div>
           <div className="my-2 h-px bg-gray-200"/>
           <div className="flex items-center justify-between">
             <span className="font-semibold text-gray-900">{tBooking("remaining")}</span>
-            <span className="text-xl font-bold text-[#083f30]">{formatMoney(booking.remaining || 0, booking.currency)}</span>
+            <span className="text-xl font-bold text-[#083f30]">{formatMoney(booking.remaining || 0, booking.currency, locale)}</span>
           </div>
         </div>
 
         <div className="rounded-xl border border-green-200 bg-green-50 px-3 py-2">
           <p className="text-xs text-green-700">
-            <span className="font-semibold">{tBooking("paymentStatus")}</span> {booking.paymentStatus || tBooking("pending")}
-            {booking.paymentMethod ? ` • ${booking.paymentMethod}` : ""}
+            <span className="font-semibold">{tBooking("paymentStatus")}</span> {translateWithFallback(tBooking, BOOKING_PAYMENT_STATUS_LABEL_KEYS, booking.paymentStatus) || tBooking("pending")}
+            {booking.paymentMethod ? ` • ${translateWithFallback(tBooking, PAYMENT_METHOD_LABEL_KEYS, booking.paymentMethod)}` : ""}
           </p>
         </div>
       </div>

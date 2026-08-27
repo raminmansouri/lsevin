@@ -12722,5 +12722,18 @@
         "cancel": "Бекор кардан"
       }
     }
+  },
+  "MobileNotifications": {
+    "title": "Огоҳиномаҳо",
+    "unreadCount": "{count} нахонда",
+    "markAllRead": "Ҳамаро хондашуда қайд кунед",
+    "emptyTitle": "Огоҳинома нест",
+    "emptyDescription": "Шумо аз ҳама чиз огоҳед!",
+    "tabs": {
+      "all": "Ҳама",
+      "booking": "Захираҳо",
+      "offer": "Пешниҳодҳо",
+      "system": "Система"
+    }
   }
 }

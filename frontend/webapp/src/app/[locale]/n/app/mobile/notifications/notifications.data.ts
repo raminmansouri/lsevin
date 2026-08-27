@@ -22,7 +22,6 @@ export type NotificationItem = {
 
 export type NotificationTabItem = {
   id: NotificationTab;
-  label: string;
   unreadCount: number;
 };
 
@@ -58,15 +57,25 @@ async function resolveCurrentCustomerId(): Promise<string | null> {
   return resolveCurrentNotificationCustomerId();
 }
 
-function humanizeDistance(from: Date) {
-  const seconds = Math.max(1, Math.floor((Date.now() - from.getTime()) / 1000));
-  if (seconds < 60) return "Just now";
+const RELATIVE_TIME_LOCALE_MAP: Record<string, string> = {
+  fa: "fa-IR", en: "en-US", ar: "ar-SA", tr: "tr-TR", de: "de-DE",
+  fr: "fr-FR", es: "es-ES", ku: "ku-KU", ru: "ru-RU", tg: "tg-TJ", zh: "zh-CN",
+};
+
+/** Intl.RelativeTimeFormat renders "just now"/"5 minutes ago" natively translated for
+ *  whatever locale is passed -- fa-IR gives "اکنون"/"۵ دقیقه پیش" with Persian digits,
+ *  instead of the English-only string this used to hardcode regardless of locale. */
+function humanizeDistance(from: Date, locale: string) {
+  const localeTag = RELATIVE_TIME_LOCALE_MAP[normalizeLocale(locale).toLowerCase()] || "fa-IR";
+  const rtf = new Intl.RelativeTimeFormat(localeTag, { numeric: "auto" });
+  const seconds = Math.max(0, Math.floor((Date.now() - from.getTime()) / 1000));
+  if (seconds < 60) return rtf.format(0, "second");
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+  if (minutes < 60) return rtf.format(-minutes, "minute");
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  if (hours < 24) return rtf.format(-hours, "hour");
   const days = Math.floor(hours / 24);
-  return `${days} day${days === 1 ? "" : "s"} ago`;
+  return rtf.format(-days, "day");
 }
 
 export async function getNotificationsPageData({
@@ -91,10 +100,10 @@ export async function getNotificationsPageData({
       notifications: [],
       unreadCount: 0,
       tabs: [
-        { id: "all", label: "All", unreadCount: 0 },
-        { id: "booking", label: "Bookings", unreadCount: 0 },
-        { id: "offer", label: "Offers", unreadCount: 0 },
-        { id: "system", label: "System", unreadCount: 0 },
+        { id: "all", unreadCount: 0 },
+        { id: "booking", unreadCount: 0 },
+        { id: "offer", unreadCount: 0 },
+        { id: "system", unreadCount: 0 },
       ],
     };
   }
@@ -154,7 +163,7 @@ export async function getNotificationsPageData({
     message: row.body,
     read: row.read_at != null,
     createdAt: row.created_at,
-    timeLabel: humanizeDistance(new Date(row.created_at)),
+    timeLabel: humanizeDistance(new Date(row.created_at), locale),
     entityType: row.entity_type,
     entityId: row.entity_id,
   }));
@@ -164,10 +173,10 @@ export async function getNotificationsPageData({
     notifications,
     unreadCount,
     tabs: [
-      { id: "all", label: "All", unreadCount },
-      { id: "booking", label: "Bookings", unreadCount: byType.get("booking") ?? 0 },
-      { id: "offer", label: "Offers", unreadCount: byType.get("offer") ?? 0 },
-      { id: "system", label: "System", unreadCount: byType.get("system") ?? 0 },
+      { id: "all", unreadCount },
+      { id: "booking", unreadCount: byType.get("booking") ?? 0 },
+      { id: "offer", unreadCount: byType.get("offer") ?? 0 },
+      { id: "system", unreadCount: byType.get("system") ?? 0 },
     ],
   };
 }
