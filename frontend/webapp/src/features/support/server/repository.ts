@@ -1,6 +1,7 @@
 import "server-only";
 
 import sql from "@/config/database/db";
+import { notifySupportMessage } from "@/features/notification/server/support-notifications";
 import { DEFAULT_SUPPORT_LABELS } from "../constants";
 import type {
   SupportActionError,
@@ -441,7 +442,7 @@ export async function createGuestConversation(input: CreateGuestConversationInpu
   if (!settings.allowGuestConversation) throw new Error("Guest conversations are disabled.");
   if (settings.requireLogin) throw new Error("Login is required to start support conversation.");
 
-  return await sql.begin(async (db) => {
+  const detail = await sql.begin(async (db) => {
     const phone = normalizePhone(input.guestPhoneCountryCode, input.guestPhone);
     const rows = await db<{ id: string }[]>`
       insert into support.conversations (
@@ -471,10 +472,19 @@ export async function createGuestConversation(input: CreateGuestConversationInpu
     `;
     await insertSystemEvent(db, rows[0].id, "conversation_created", null, "open", input.metadata || {});
 
-    const detail = await getConversationDetail(rows[0].id, false, db);
-    if (!detail) throw new Error("Conversation was created but could not be loaded.");
-    return detail;
+    const created = await getConversationDetail(rows[0].id, false, db);
+    if (!created) throw new Error("Conversation was created but could not be loaded.");
+    return created;
   });
+
+  notifySupportMessage({
+    conversationId: detail.id,
+    senderType: "customer",
+    body: input.body,
+    createdAt: detail.createDate,
+  }).catch((error) => console.error("createGuestConversation: notification failed", error));
+
+  return detail;
 }
 
 async function insertMessage(db: QueryLike, input: {
@@ -527,29 +537,46 @@ async function insertMessage(db: QueryLike, input: {
 }
 
 export async function sendCustomerMessage(input: SendCustomerMessageInput): Promise<SupportMessage> {
-  return await sql.begin(async (db) => {
-    const message = await insertMessage(db, {
+  const message = await sql.begin(async (db) => {
+    return await insertMessage(db, {
       conversationId: input.conversationId,
       senderType: "customer",
       senderUserId: input.senderUserId,
       body: input.body,
       attachments: input.attachments,
     });
-    return message;
   });
+
+  // Fire-and-forget, after the message has committed: never allowed to fail the send.
+  notifySupportMessage({
+    conversationId: input.conversationId,
+    senderType: "customer",
+    body: message.body || "",
+    createdAt: message.createDate,
+  }).catch((error) => console.error("sendCustomerMessage: notification failed", error));
+
+  return message;
 }
 
 export async function sendAgentMessage(input: SendAgentMessageInput): Promise<SupportMessage> {
-  return await sql.begin(async (db) => {
-    const message = await insertMessage(db, {
+  const message = await sql.begin(async (db) => {
+    return await insertMessage(db, {
       conversationId: input.conversationId,
       senderType: "agent",
       senderUserId: input.agentUserId,
       body: input.body,
       attachments: input.attachments,
     });
-    return message;
   });
+
+  notifySupportMessage({
+    conversationId: input.conversationId,
+    senderType: "agent",
+    body: message.body || "",
+    createdAt: message.createDate,
+  }).catch((error) => console.error("sendAgentMessage: notification failed", error));
+
+  return message;
 }
 
 export async function addInternalNote(input: AddInternalNoteInput): Promise<SupportMessage> {

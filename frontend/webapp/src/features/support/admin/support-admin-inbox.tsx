@@ -175,9 +175,9 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
   };
 
   return (
-    <div className="min-h-[calc(100vh-5rem)] overflow-hidden rounded-3xl border bg-white shadow-sm">
-      <div className="grid h-[calc(100vh-7rem)] grid-cols-1 lg:grid-cols-[360px_minmax(0,1fr)_320px]">
-        <aside className="border-r bg-slate-50/70">
+    <div className="min-h-[calc(100vh-5rem)] rounded-3xl border bg-white shadow-sm lg:h-[calc(100vh-5rem)] lg:overflow-hidden">
+      <div className="grid grid-cols-1 lg:h-[calc(100vh-7rem)] lg:grid-cols-[360px_minmax(0,1fr)_320px]">
+        <aside className="border-b lg:min-h-0 lg:border-b-0 lg:border-r bg-slate-50/70">
           <div className="border-b bg-white p-4">
             <div className="mb-4 flex items-center justify-between">
               <div>
@@ -204,7 +204,7 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
             </div>
           </div>
 
-          <div className="h-[calc(100%-154px)] overflow-y-auto p-2">
+          <div className="max-h-[380px] overflow-y-auto p-2 lg:h-[calc(100%-154px)] lg:max-h-none">
             {list.items.length === 0 ? (
               <div className="m-3 rounded-3xl border border-dashed bg-white p-6 text-center text-sm text-muted-foreground">{tAdmin("noConversationsFound")}</div>
             ) : list.items.map((item) => (
@@ -229,7 +229,7 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
           </div>
         </aside>
 
-        <main className="flex min-h-0 flex-col bg-white">
+        <main className="flex flex-col bg-white lg:min-h-0">
           {selected ? (
             <>
               <div className="flex items-center justify-between gap-3 border-b p-4">
@@ -248,7 +248,7 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
                 </div>
               </div>
 
-              <div className="min-h-0 flex-1 overflow-y-auto bg-slate-50 p-5">
+              <div className="max-h-[50vh] overflow-y-auto bg-slate-50 p-5 lg:h-auto lg:max-h-none lg:min-h-0 lg:flex-1">
                 <SupportThread messages={selected.messages} customerSide={false} />
               </div>
 

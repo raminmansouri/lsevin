@@ -18,9 +18,10 @@ type NotificationItem = {
   readAt: string | null;
 };
 
-/** Only 'booking' has a real admin detail page today (/admin/bookings/[id]/update). */
+/** Only 'booking' and 'support_conversation' have real admin detail pages today. */
 function adminLinkFor(item: NotificationItem): string | null {
   if (item.entityType === "booking" && item.entityId) return `/admin/bookings/${item.entityId}/update`;
+  if (item.entityType === "support_conversation" && item.entityId) return `/admin/support/conversations/${item.entityId}`;
   return null;
 }
 
@@ -105,7 +106,7 @@ export function AdminNotificationsPageClient() {
                 <p className="mt-1 whitespace-pre-line text-muted-foreground">{item.body}</p>
                 <div className="mt-1 flex w-full items-center justify-between gap-2">
                   <span className="text-xs text-muted-foreground">{formatDateTime(item.createdAt)}</span>
-                  {link ? <span className="text-xs font-medium text-primary">{t("viewBooking")}</span> : null}
+                  {link ? <span className="text-xs font-medium text-primary">{t("viewDetails")}</span> : null}
                 </div>
               </button>
             );

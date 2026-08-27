@@ -12842,7 +12842,7 @@
       "loading": "در حال بارگذاری...",
       "empty": "اعلانی وجود ندارد.",
       "viewAll": "نمایش همه",
-      "viewBooking": "مشاهده رزرو"
+      "viewDetails": "مشاهده جزئیات"
     },
     "notificationsPage": {
       "title": "همه اعلان‌ها",
@@ -12850,7 +12850,7 @@
       "markAllRead": "علامت‌گذاری همه به‌عنوان خوانده‌شده",
       "loading": "در حال بارگذاری...",
       "empty": "اعلانی وجود ندارد.",
-      "viewBooking": "مشاهده رزرو"
+      "viewDetails": "مشاهده جزئیات"
     },
     "notificationChannels": {
       "preferences": {

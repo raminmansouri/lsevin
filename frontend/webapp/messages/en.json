@@ -12842,7 +12842,7 @@
       "loading": "Loading...",
       "empty": "No notifications.",
       "viewAll": "View all",
-      "viewBooking": "View booking"
+      "viewDetails": "View details"
     },
     "notificationsPage": {
       "title": "All notifications",
@@ -12850,7 +12850,7 @@
       "markAllRead": "Mark all read",
       "loading": "Loading...",
       "empty": "No notifications.",
-      "viewBooking": "View booking"
+      "viewDetails": "View details"
     },
     "notificationChannels": {
       "preferences": {

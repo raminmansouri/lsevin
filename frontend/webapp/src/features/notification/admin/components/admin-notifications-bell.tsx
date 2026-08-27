@@ -23,10 +23,11 @@ type NotificationItem = {
   readAt: string | null;
 };
 
-/** Only 'booking' has a real admin detail page today (/admin/bookings/[id]/update) --
+/** Only 'booking' and 'support_conversation' have real admin detail pages today --
  *  other entity types (e.g. booking_draft) have nothing to link to yet. */
 function adminLinkFor(item: NotificationItem): string | null {
   if (item.entityType === "booking" && item.entityId) return `/admin/bookings/${item.entityId}/update`;
+  if (item.entityType === "support_conversation" && item.entityId) return `/admin/support/conversations/${item.entityId}`;
   return null;
 }
 
@@ -142,7 +143,7 @@ export function AdminNotificationsBell() {
                     <p className="mt-1 line-clamp-2 whitespace-pre-line text-xs text-muted-foreground">{item.body}</p>
                     <div className="mt-1 flex items-center justify-between gap-2">
                       <span className="text-[11px] text-muted-foreground">{formatRelativeTime(item.createdAt)}</span>
-                      {link ? <span className="text-[11px] font-medium text-primary">{t("viewBooking")}</span> : null}
+                      {link ? <span className="text-[11px] font-medium text-primary">{t("viewDetails")}</span> : null}
                     </div>
                   </button>
                 );
