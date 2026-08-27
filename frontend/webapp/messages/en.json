@@ -12831,6 +12831,12 @@
     }
   },
   "AdminPages": {
+    "notificationBell": {
+      "title": "Notifications",
+      "markAllRead": "Mark all read",
+      "loading": "Loading...",
+      "empty": "No notifications."
+    },
     "notificationChannels": {
       "preferences": {
         "title": "My notification preferences",
@@ -12843,6 +12849,32 @@
         "linkBale": "Link Bale account",
         "openBaleLink": "Open the Bale bot to finish linking",
         "baleLinkError": "Could not create a Bale link code."
+      },
+      "test": {
+        "title": "Send a test notification",
+        "description": "Pick a user and a channel to send them a test notification immediately.",
+        "userLabel": "User",
+        "userPlaceholder": "Search a user by email, username, or phone",
+        "userSearchPlaceholder": "Search...",
+        "userEmpty": "No users found.",
+        "channelLabel": "Channel",
+        "channelNames": {
+          "in_app": "In-app",
+          "email": "Email",
+          "sms": "SMS",
+          "push": "Browser push",
+          "whatsapp": "WhatsApp",
+          "bale": "Bale"
+        },
+        "titleLabel": "Title",
+        "bodyLabel": "Message",
+        "send": "Send test",
+        "sending": "Sending...",
+        "toastSent": "Test notification sent.",
+        "toastFailed": "Test notification failed.",
+        "resultSent": "Sent successfully. {response}",
+        "resultFailed": "Sending failed.",
+        "resultCancelled": "This channel is disabled, or the recipient hasn't set up what this channel needs."
       },
       "dashboard": {
         "title": "Notification channels",

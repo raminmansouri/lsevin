@@ -1,5 +1,6 @@
 import { MyNotificationPreferences } from "@/features/notification/admin/components/my-notification-preferences";
 import { NotificationChannelsDashboard } from "@/features/notification/admin/components/notification-channels-dashboard";
+import { TestNotificationSender } from "@/features/notification/admin/components/test-notification-sender";
 import { listChannelConfigs } from "@/features/notification/server/channel.repository";
 
 export default async function NotificationChannelsPage() {
@@ -16,6 +17,7 @@ export default async function NotificationChannelsPage() {
         baleBotUsername={bale?.settings.baleBotUsername ?? null}
       />
       <NotificationChannelsDashboard channels={channels} />
+      <TestNotificationSender />
     </div>
   );
 }

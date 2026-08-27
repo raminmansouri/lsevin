@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import UserInfo from "@/components/user-info";
+import { AdminNotificationsBell } from "@/features/notification/admin/components/admin-notifications-bell";
 import { AdminBreadcrumbs } from "@/features/shared/components/admin-breadcrumbs";
 import { AdminCommandPalette } from "@/features/shared/components/admin-command-palette";
 import {
@@ -52,6 +53,7 @@ export default async function AdminLayout({ children, params }: LocalePageProps)
             <AdminBreadcrumbs />
             <div className="ms-auto flex items-center gap-2">
               <AdminCommandPalette tableGroups={tableGroups} />
+              <AdminNotificationsBell />
               <ThemeToggle />
               <LocaleSwitcher />
               {/* Suspended on its own: this is a network round trip to the
