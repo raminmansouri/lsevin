@@ -667,6 +667,11 @@
     "paymentStatusSucceeded": "Payment succeeded",
     "paymentStatusInsufficientBalance": "Insufficient wallet balance",
     "paymentStatusNotRequired": "No payment required",
+    "invoiceTitle": "Booking invoice",
+    "printDate": "Print date",
+    "trackingNumber": "Tracking number",
+    "invoiceFooterNote": "This document was issued as your booking receipt.",
+    "downloadInvoicePdf": "Download PDF",
     "addressWillBeSharedByProvider": "Address will be shared by the provider.",
     "amenities": "Amenities",
     "analytics": "Analytics",
@@ -12836,14 +12841,16 @@
       "markAllRead": "Mark all read",
       "loading": "Loading...",
       "empty": "No notifications.",
-      "viewAll": "View all"
+      "viewAll": "View all",
+      "viewBooking": "View booking"
     },
     "notificationsPage": {
       "title": "All notifications",
       "description": "Your notification history.",
       "markAllRead": "Mark all read",
       "loading": "Loading...",
-      "empty": "No notifications."
+      "empty": "No notifications.",
+      "viewBooking": "View booking"
     },
     "notificationChannels": {
       "preferences": {

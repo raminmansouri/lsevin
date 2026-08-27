@@ -6733,6 +6733,11 @@
     "paymentStatusSucceeded": "پرداخت با موفقیت انجام شد",
     "paymentStatusInsufficientBalance": "موجودی کیف پول کافی نیست",
     "paymentStatusNotRequired": "نیازی به پرداخت نیست",
+    "invoiceTitle": "فاکتور رزرو",
+    "printDate": "تاریخ چاپ",
+    "trackingNumber": "شماره پیگیری",
+    "invoiceFooterNote": "این سند به‌عنوان رسید رزرو شما صادر شده است.",
+    "downloadInvoicePdf": "دانلود PDF",
     "addressWillBeSharedByProvider": "آدرس توسط ارائه‌دهنده اعلام می‌شود.",
     "amenities": "امکانات",
     "analytics": "تحلیل‌ها",
@@ -12836,14 +12841,16 @@
       "markAllRead": "علامت‌گذاری همه به‌عنوان خوانده‌شده",
       "loading": "در حال بارگذاری...",
       "empty": "اعلانی وجود ندارد.",
-      "viewAll": "نمایش همه"
+      "viewAll": "نمایش همه",
+      "viewBooking": "مشاهده رزرو"
     },
     "notificationsPage": {
       "title": "همه اعلان‌ها",
       "description": "تاریخچه اعلان‌های شما.",
       "markAllRead": "علامت‌گذاری همه به‌عنوان خوانده‌شده",
       "loading": "در حال بارگذاری...",
-      "empty": "اعلانی وجود ندارد."
+      "empty": "اعلانی وجود ندارد.",
+      "viewBooking": "مشاهده رزرو"
     },
     "notificationChannels": {
       "preferences": {

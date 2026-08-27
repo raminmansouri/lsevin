@@ -5,15 +5,24 @@ import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useRouter } from "@/i18n/navigation";
 
 type NotificationItem = {
   id: string;
   title: string;
   body: string;
   notificationType: string;
+  entityType: string | null;
+  entityId: string | null;
   createdAt: string;
   readAt: string | null;
 };
+
+/** Only 'booking' has a real admin detail page today (/admin/bookings/[id]/update). */
+function adminLinkFor(item: NotificationItem): string | null {
+  if (item.entityType === "booking" && item.entityId) return `/admin/bookings/${item.entityId}/update`;
+  return null;
+}
 
 function formatDateTime(iso: string) {
   try {
@@ -25,6 +34,7 @@ function formatDateTime(iso: string) {
 
 export function AdminNotificationsPageClient() {
   const t = useTranslations("AdminPages.notificationsPage");
+  const router = useRouter();
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -76,21 +86,30 @@ export function AdminNotificationsPageClient() {
         ) : items.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">{t("empty")}</p>
         ) : (
-          items.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => !item.readAt && markRead(item.id)}
-              className={`flex w-full flex-col items-start rounded-md border p-3 text-left text-sm transition hover:bg-muted/50 ${!item.readAt ? "border-primary/30 bg-primary/5" : ""}`}
-            >
-              <div className="flex w-full items-center justify-between gap-2">
-                <span className="font-medium">{item.title}</span>
-                {!item.readAt ? <span className="h-2 w-2 shrink-0 rounded-full bg-primary" /> : null}
-              </div>
-              <p className="mt-1 text-muted-foreground">{item.body}</p>
-              <span className="mt-1 text-xs text-muted-foreground">{formatDateTime(item.createdAt)}</span>
-            </button>
-          ))
+          items.map((item) => {
+            const link = adminLinkFor(item);
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => {
+                  if (!item.readAt) markRead(item.id);
+                  if (link) router.push(link);
+                }}
+                className={`flex w-full flex-col items-start rounded-md border p-3 text-left text-sm transition hover:bg-muted/50 ${!item.readAt ? "border-primary/30 bg-primary/5" : ""}`}
+              >
+                <div className="flex w-full items-center justify-between gap-2">
+                  <span className="font-medium">{item.title}</span>
+                  {!item.readAt ? <span className="h-2 w-2 shrink-0 rounded-full bg-primary" /> : null}
+                </div>
+                <p className="mt-1 whitespace-pre-line text-muted-foreground">{item.body}</p>
+                <div className="mt-1 flex w-full items-center justify-between gap-2">
+                  <span className="text-xs text-muted-foreground">{formatDateTime(item.createdAt)}</span>
+                  {link ? <span className="text-xs font-medium text-primary">{t("viewBooking")}</span> : null}
+                </div>
+              </button>
+            );
+          })
         )}
       </CardContent>
     </Card>

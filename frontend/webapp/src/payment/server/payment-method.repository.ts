@@ -171,6 +171,12 @@ export async function ensurePaymentMethodsTable(): Promise<void> {
 export async function listPaymentMethodConfigs(): Promise<PaymentMethodConfig[]> {
   await ensurePaymentMethodsTable();
 
+  // shop.payment_methods is a pre-existing, shared table (also read by the shop
+  // checkout prototype and booking-admin lookups) -- it can carry rows this admin
+  // screen has no business managing. Without this filter, any legacy/unrelated code
+  // already sitting in that table renders here too, and clicking its toggle button
+  // sends a code MANUAL_PAYMENT_METHOD_CODES/the zod schema doesn't recognize, which
+  // fails validation with a raw "invalid option" error instead of doing anything.
   const rows = await sql<PaymentMethodRow[]>`
     select code, provider,
            name_translations as "nameTranslations",
@@ -183,6 +189,7 @@ export async function listPaymentMethodConfigs(): Promise<PaymentMethodConfig[]>
            configuration,
            create_date::text as "createDate"
     from shop.payment_methods
+    where code = any(${MANUAL_PAYMENT_METHOD_CODES as unknown as string[]})
     order by sort_order asc, code asc
   `;
 

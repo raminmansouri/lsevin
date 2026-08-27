@@ -4,7 +4,7 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 import type { IProblem } from "@/types/error";
 import type { FilterParams } from "@/types/filter";
 
-interface GetBookingByIdFilterParams extends FilterParams {
+interface GetBookingByIdFilterParams extends Partial<FilterParams> {
   id?: string;
 }
 

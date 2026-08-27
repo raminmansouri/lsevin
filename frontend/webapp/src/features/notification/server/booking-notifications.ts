@@ -32,6 +32,24 @@ function eligibleChannels(input: { email?: string | null; phone?: string | null 
   return uniqueChannels(channels);
 }
 
+const APP_BASE_URL = (process.env.NEXT_PUBLIC_URL || "").replace(/\/$/, "");
+
+/** /admin/bookings/[bookingId]/update is the only admin page that shows a single
+ *  booking's full detail today -- there is no dedicated read-only detail route. */
+function buildAdminBookingLink(bookingId: string) {
+  return `${APP_BASE_URL}/admin/bookings/${bookingId}/update`;
+}
+
+function formatAmount(amount: number | string | null | undefined, currency: string | null | undefined) {
+  const value = Number(amount ?? 0);
+  if (!Number.isFinite(value) || value <= 0) return "";
+  try {
+    return new Intl.NumberFormat("fa-IR").format(value) + " " + String(currency || "").toUpperCase();
+  } catch {
+    return `${value} ${currency || ""}`.trim();
+  }
+}
+
 /**
  * Same role join bug-reports/server/notifications.ts uses for its admin recipients
  * (getAdminRecipients) -- kept as a separate, simpler copy here rather than importing
@@ -95,6 +113,96 @@ async function notifyTablesExist() {
   return Boolean(row?.exists);
 }
 
+/**
+ * "Who / what / when / how" for a fully-created booking.bookings row -- the
+ * customer's name, the provider and service names, the scheduled date/time, and the
+ * payment method, all resolved server-side so templates interpolate real text instead
+ * of raw UUIDs.
+ */
+async function getBookingSummaryForNotification(bookingId: string) {
+  const [row] = await sql<{
+    customerName: string | null;
+    providerName: string | null;
+    serviceName: string | null;
+    scheduledDate: string | null;
+    scheduledTime: string | null;
+    paymentMethod: string | null;
+    amount: string | null;
+    currency: string | null;
+    confirmationCode: string | null;
+  }[]>`
+    select
+      coalesce(nullif(trim(concat_ws(' ', cu.first_name, cu.last_name)), ''), iu.email, iu.phone_number, 'مشتری') as "customerName",
+      coalesce(nullif(common.get_translation_t(sp.name_translations, 'fa-IR', 'en-US'), ''), 'ارائه‌دهنده') as "providerName",
+      coalesce(
+        nullif(common.get_translation_t(ps.display_name_translations, 'fa-IR', 'en-US'), ''),
+        nullif(common.get_translation_t(sd.name_translations, 'fa-IR', 'en-US'), ''),
+        'خدمت'
+      ) as "serviceName",
+      to_char(b.selected_date, 'YYYY-MM-DD') as "scheduledDate",
+      case
+        when b.selected_time_from is not null and b.selected_time_to is not null
+          then concat(to_char(b.selected_time_from, 'HH24:MI'), ' - ', to_char(b.selected_time_to, 'HH24:MI'))
+        when b.selected_time is not null then to_char(b.selected_time, 'HH24:MI')
+        else null
+      end as "scheduledTime",
+      b.payment_method as "paymentMethod",
+      coalesce(b.display_total_amount, b.total_amount, 0)::text as amount,
+      coalesce(b.display_currency_code, b.currency_code, 'USD') as currency,
+      b.confirmation_code as "confirmationCode"
+    from booking.bookings b
+    left join category.service_providers sp on sp.id = b.provider_id
+    left join category.provider_services ps on ps.id = b.service_id
+    left join category.service_definitions sd on sd.id = ps.service_definition_id
+    left join identity.asp_net_users iu on iu.id = b.user_id
+    left join customer.customers cu on cu.id = b.user_id
+    where b.id = ${bookingId}::uuid
+    limit 1
+  `;
+
+  return {
+    customerName: row?.customerName || "مشتری",
+    providerName: row?.providerName || "",
+    serviceName: row?.serviceName || "",
+    scheduledDate: row?.scheduledDate || "",
+    scheduledTime: row?.scheduledTime || "",
+    paymentMethod: row?.paymentMethod || "",
+    amountFormatted: formatAmount(row?.amount, row?.currency),
+    confirmationCode: row?.confirmationCode || "",
+  };
+}
+
+/**
+ * Same idea for a draft that hasn't become a booking.bookings row yet -- only the
+ * customer name is guaranteed; provider/service may still be unset depending on how
+ * far the customer has gotten in the wizard.
+ */
+async function getDraftSummaryForNotification(draftId: string) {
+  const [row] = await sql<{
+    customerName: string | null;
+    providerName: string | null;
+    serviceName: string | null;
+  }[]>`
+    select
+      coalesce(nullif(trim(concat_ws(' ', cu.first_name, cu.last_name)), ''), iu.email, iu.phone_number, 'مشتری') as "customerName",
+      coalesce(nullif(common.get_translation_t(sp.name_translations, 'fa-IR', 'en-US'), ''), null) as "providerName",
+      coalesce(nullif(common.get_translation_t(ps.display_name_translations, 'fa-IR', 'en-US'), ''), null) as "serviceName"
+    from booking.booking_drafts d
+    left join category.service_providers sp on sp.id = d.provider_id
+    left join category.provider_services ps on ps.id = d.service_id
+    left join identity.asp_net_users iu on iu.id = d.user_id
+    left join customer.customers cu on cu.id = d.user_id
+    where d.id = ${draftId}::uuid
+    limit 1
+  `;
+
+  return {
+    customerName: row?.customerName || "مشتری",
+    providerName: row?.providerName || "",
+    serviceName: row?.serviceName || "",
+  };
+}
+
 type Recipient = { userId: string; email: string | null; phone: string | null };
 
 /** Fans a templated notification out to a list of resolved recipients, one row each. */
@@ -131,10 +239,13 @@ async function notifyRecipients(
 let bookingTemplatesEnsured = false;
 
 /**
- * Seeds the three booking template keys so the first booking after this feature ships
- * gets real Persian/English content instead of the generic English fallback text --
- * on-conflict-do-nothing, so an admin who has already edited these via
- * /admin/notification-templates never has their changes overwritten.
+ * Seeds/refreshes the booking template keys so notifications carry real Persian/
+ * English content instead of the generic fallback text. Deliberately upserts
+ * (on conflict do update) rather than do-nothing: these five keys were only just
+ * introduced and nobody has customized them through /admin/notification-templates
+ * yet, so shipping a text improvement here should actually take effect. An admin who
+ * edits these afterward keeps their own wording -- this only runs once per process,
+ * not on every notification.
  */
 async function ensureBookingNotificationTemplates(): Promise<void> {
   if (bookingTemplatesEnsured) return;
@@ -156,8 +267,8 @@ async function ensureBookingNotificationTemplates(): Promise<void> {
       channels: ["in_app", "sms", "email"],
       title: translations("رزرو شما ثبت شد", "Your booking was received"),
       body: translations(
-        "درخواست رزرو شما با شناسه {{bookingId}} ثبت شد و در حال بررسی است.",
-        "Your booking request {{bookingId}} has been received and is being reviewed."
+        "رزرو {{serviceName}} نزد {{providerName}} در تاریخ {{scheduledDate}} ساعت {{scheduledTime}} ثبت شد و در حال بررسی است. کد پیگیری: {{confirmationCode}}",
+        "Your booking for {{serviceName}} with {{providerName}} on {{scheduledDate}} at {{scheduledTime}} has been received and is being reviewed. Tracking code: {{confirmationCode}}"
       ),
     },
     {
@@ -166,8 +277,8 @@ async function ensureBookingNotificationTemplates(): Promise<void> {
       channels: ["in_app", "email"],
       title: translations("رزرو جدید ثبت شد", "New booking received"),
       body: translations(
-        "یک رزرو جدید با شناسه {{bookingId}} برای ارائه‌دهنده {{providerId}} ثبت شد.",
-        "A new booking {{bookingId}} was submitted for provider {{providerId}}."
+        "مشتری {{customerName}} رزرو «{{serviceName}}» را نزد {{providerName}} در تاریخ {{scheduledDate}} ساعت {{scheduledTime}} با روش پرداخت «{{paymentMethod}}» به مبلغ {{amountFormatted}} ثبت کرد. کد پیگیری: {{confirmationCode}}\nمشاهده در پنل مدیریت: {{adminLink}}",
+        "{{customerName}} booked \"{{serviceName}}\" with {{providerName}} on {{scheduledDate}} at {{scheduledTime}}, paying via {{paymentMethod}} for {{amountFormatted}}. Tracking code: {{confirmationCode}}\nView in admin: {{adminLink}}"
       ),
     },
     {
@@ -176,8 +287,8 @@ async function ensureBookingNotificationTemplates(): Promise<void> {
       channels: ["in_app", "sms", "email"],
       title: translations("رزرو جدید دریافت شد", "New booking received"),
       body: translations(
-        "یک درخواست رزرو جدید با شناسه {{bookingId}} برای شما ثبت شد.",
-        "A new booking request {{bookingId}} was submitted to you."
+        "مشتری {{customerName}} رزرو «{{serviceName}}» را برای تاریخ {{scheduledDate}} ساعت {{scheduledTime}} نزد شما ثبت کرد. مبلغ: {{amountFormatted}} • روش پرداخت: {{paymentMethod}} • کد پیگیری: {{confirmationCode}}",
+        "{{customerName}} booked \"{{serviceName}}\" with you for {{scheduledDate}} at {{scheduledTime}}. Amount: {{amountFormatted}} • Payment: {{paymentMethod}} • Tracking code: {{confirmationCode}}"
       ),
     },
     {
@@ -186,8 +297,8 @@ async function ensureBookingNotificationTemplates(): Promise<void> {
       channels: ["in_app"],
       title: translations("یک مشتری شروع به رزرو کرد", "A customer started a booking"),
       body: translations(
-        "یک مشتری فرآیند رزرو (پیش‌نویس {{draftId}}) را آغاز کرده است.",
-        "A customer has started a booking process (draft {{draftId}})."
+        "مشتری {{customerName}} فرآیند رزرو جدیدی را آغاز کرده است.",
+        "{{customerName}} has started a new booking process."
       ),
     },
     {
@@ -196,8 +307,8 @@ async function ensureBookingNotificationTemplates(): Promise<void> {
       channels: ["in_app"],
       title: translations("یک مشتری در حال رزرو با شماست", "A customer is booking with you"),
       body: translations(
-        "یک مشتری فرآیند رزرو با شما را آغاز کرده است (پیش‌نویس {{draftId}}).",
-        "A customer has started booking with you (draft {{draftId}})."
+        "مشتری {{customerName}} در حال تکمیل یک رزرو نزد شماست.",
+        "{{customerName}} is currently booking with you."
       ),
     },
   ];
@@ -211,7 +322,10 @@ async function ensureBookingNotificationTemplates(): Promise<void> {
         ${template.key}, ${template.name}, 'booking', ${template.channels},
         ${template.title}, ${template.body}
       )
-      on conflict (template_key) do nothing
+      on conflict (template_key) do update set
+        title_translations = excluded.title_translations,
+        body_translations = excluded.body_translations,
+        default_channels = excluded.default_channels
     `;
   }
 
@@ -237,9 +351,23 @@ export async function notifyBookingCreated(input: BookingNotificationInput): Pro
   if (!(await notifyTablesExist())) return;
   await ensureBookingNotificationTemplates();
 
+  const summary = await getBookingSummaryForNotification(input.bookingId).catch((error) => {
+    console.error("notifyBookingCreated: booking summary lookup failed", error);
+    return null;
+  });
+
   const variables = {
     bookingId: input.bookingId,
     providerId: input.providerId,
+    customerName: summary?.customerName || "",
+    providerName: summary?.providerName || "",
+    serviceName: summary?.serviceName || "",
+    scheduledDate: summary?.scheduledDate || "",
+    scheduledTime: summary?.scheduledTime || "",
+    paymentMethod: summary?.paymentMethod || "",
+    amountFormatted: summary?.amountFormatted || "",
+    confirmationCode: summary?.confirmationCode || input.bookingId,
+    adminLink: buildAdminBookingLink(input.bookingId),
     ...(input.variables || {}),
   };
 
@@ -322,7 +450,18 @@ export async function notifyBookingStarted(input: BookingStartedNotificationInpu
   if (!(await notifyTablesExist())) return;
   await ensureBookingNotificationTemplates();
 
-  const variables = { draftId: input.draftId, providerId: input.providerId ?? "" };
+  const summary = await getDraftSummaryForNotification(input.draftId).catch((error) => {
+    console.error("notifyBookingStarted: draft summary lookup failed", error);
+    return null;
+  });
+
+  const variables = {
+    draftId: input.draftId,
+    providerId: input.providerId ?? "",
+    customerName: summary?.customerName || "",
+    providerName: summary?.providerName || "",
+    serviceName: summary?.serviceName || "",
+  };
 
   try {
     if (input.audience === "admin") {
