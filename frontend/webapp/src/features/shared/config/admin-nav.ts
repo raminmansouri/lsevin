@@ -126,6 +126,7 @@ export const ADMIN_NAV: AdminNavEntry[] = [
     items: [
       { titleKey: "payments", href: "/admin/payments", icon: CreditCard },
       { titleKey: "paymentGateways", href: "/admin/payment-gateways", icon: Plug },
+      { titleKey: "paymentMethods", href: "/admin/payment-methods", icon: Receipt },
       { titleKey: "walletTransactions", href: "/admin/wallet-transactions", icon: ArrowLeftRight },
       { titleKey: "walletPaymentIntents", href: "/admin/wallet-payment-intents", icon: WalletCards },
       { titleKey: "refunds", href: "/admin/refunds", icon: RotateCcw },

@@ -14,6 +14,7 @@ export async function POST(request: NextRequest) {
       userId,
       paymentMethodCode: body.paymentMethodCode,
       returnUrl: body.returnUrl ?? null,
+      receipt: body.receipt ?? null,
     });
 
     return NextResponse.json(result);

@@ -338,6 +338,7 @@ export function BookingWizard() {
     const [submitting, setSubmitting] = useState(false);
     const [checkoutResult, setCheckoutResult] = useState<any>(null);
     const [paymentIntentResult, setPaymentIntentResult] = useState<any>(null);
+    const [receiptFile, setReceiptFile] = useState<File | null>(null);
     const [couponCode, setCouponCode] = useState('');
     const [couponLoading, setCouponLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -934,12 +935,37 @@ export function BookingWizard() {
         }
     }
     async function startPaymentForBooking(bookingId: string) {
+        const paymentMethodCode = draft?.paymentMethod || 'gateway_card';
+        let receipt: any = null;
+
+        // Bank receipt travels as multipart FormData -- it can't ride in the JSON
+        // create-intent body -- so it uploads first and only the resulting media
+        // reference is sent along with the payment intent request.
+        if (paymentMethodCode === 'bank_receipt') {
+            if (!receiptFile) {
+                throw new Error(tBooking('receiptRequiredError'));
+            }
+            const formData = new FormData();
+            formData.append('bookingId', bookingId);
+            formData.append('receipt', receiptFile);
+            const uploadResponse = await fetch('/api/booking-pro/payments/receipt', {
+                method: 'POST',
+                body: formData,
+            });
+            const uploadJson = await uploadResponse.json().catch(() => ({}));
+            if (!uploadResponse.ok) {
+                throw new Error(uploadJson?.error || tBooking('receiptRequiredError'));
+            }
+            receipt = uploadJson;
+        }
+
         const result = await getJson('/api/booking-pro/payments/create-intent', {
             method: 'POST',
             body: JSON.stringify({
                 bookingId,
-                paymentMethodCode: draft?.paymentMethod || 'gateway_card',
+                paymentMethodCode,
                 returnUrl: typeof window !== 'undefined' ? window.location.href : undefined,
+                receipt,
             }),
         });
         setPaymentIntentResult(result);
@@ -1286,7 +1312,7 @@ export function BookingWizard() {
                 const next = { ...draft, paymentMethod: code };
                 setDraft(next);
                 patchDraft({ paymentMethod: code }).catch((er) => setError(er.message));
-            }}/>
+            }} receiptFile={receiptFile} onReceiptFileChange={setReceiptFile}/>
                       </div>
                     </div>
                   </div>
@@ -1303,6 +1329,12 @@ export function BookingWizard() {
                   <div className="text-lg font-bold text-slate-900">{tBooking("paymentAction")}</div>
                   <div className="mt-2 text-sm text-slate-600">{tBooking("method")}{paymentIntentResult.method}</div>
                   <div className="text-sm text-slate-600">{tBooking("status2")}{paymentIntentResult.status}</div>
+                  {paymentIntentResult.status === 'pending_review' ? (
+                    <div className="mt-3 rounded-2xl bg-amber-50 p-4 text-sm text-amber-800">{tBooking("pendingReviewMessage")}</div>
+                  ) : null}
+                  {paymentIntentResult.status === 'pending_collection' ? (
+                    <div className="mt-3 rounded-2xl bg-amber-50 p-4 text-sm text-amber-800">{tBooking("pendingCollectionMessage")}</div>
+                  ) : null}
                   {paymentIntentResult.instructions ? <div className="mt-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">{paymentIntentResult.instructions}</div> : null}
                   {paymentIntentResult.actionUrl ? <a href={paymentIntentResult.actionUrl} className="mt-4 inline-flex rounded-2xl bg-[#083f30] px-4 py-3 text-sm font-semibold text-white">{tBooking("openGatewayAction")}</a> : null}
                 </div>) : null}

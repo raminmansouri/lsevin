@@ -21,7 +21,13 @@ export interface PaymentMethodItem {
 
 function pickJsonTranslation(value: any, fallback: string) {
   if (!value) return fallback;
-  return value['en-US'] ?? value.en ?? Object.values(value)[0] ?? fallback;
+  // fa-IR first: this call site has no access to the request locale, and the
+  // platform's primary market is Persian (see booking-admin-shared/server/lookups.ts,
+  // which defaults its own locale-aware lookup to 'fa-IR'). Preferring en-US
+  // unconditionally meant every admin-configured payment method name -- including the
+  // pay-on-delivery/bank-receipt Persian labels seeded for this feature -- silently
+  // rendered in English for every customer regardless of the site's locale.
+  return value['fa-IR'] ?? value['en-US'] ?? value.en ?? Object.values(value)[0] ?? fallback;
 }
 
 function normalizePaymentStatus(status?: string | null) {
@@ -82,11 +88,20 @@ export async function listPaymentMethodsForUser(userId: string): Promise<Payment
   return methods;
 }
 
+export interface BookingPaymentReceiptInput {
+  fileUrl: string;
+  mediaId?: string | null;
+  fileName?: string | null;
+  mimeType?: string | null;
+  fileSize?: number | null;
+}
+
 export async function createBookingPaymentIntent(params: {
   bookingId: string;
   userId: string;
   paymentMethodCode: string;
   returnUrl?: string | null;
+  receipt?: BookingPaymentReceiptInput | null;
 }) {
   const [booking] = await db<any[]>`
     with latest_payment as (
@@ -180,6 +195,66 @@ export async function createBookingPaymentIntent(params: {
     values (${params.bookingId}, ${params.userId}, ${params.paymentMethodCode}, ${method.provider ?? null}, ${amount}, ${currency}, 'Pending')
     returning id
   `)[0].id;
+
+  // Pay on delivery: no money moves now. The booking is deliberately left in its
+  // current status rather than auto-confirmed -- staff review the pending queue at
+  // /admin/payments and mark it collected once the customer has actually paid at
+  // delivery, the same as they would for any other unpaid request.
+  if (params.paymentMethodCode === 'pay_on_delivery') {
+    await db`
+      update booking.payments
+      set payment_method = 'pay_on_delivery', gateway = 'pay_on_delivery', status = 'Pending',
+          gateway_payload = coalesce(gateway_payload, '{}'::jsonb) || ${ { flow: 'pay_on_delivery' } as any }
+      where id = ${paymentId}
+    `;
+
+    return {
+      paymentId,
+      bookingId: params.bookingId,
+      method: 'pay_on_delivery',
+      status: 'pending_collection',
+      completed: false,
+      amount,
+      currency,
+    };
+  }
+
+  // Bank receipt: an unverified claim, so this posts nothing to the booking either --
+  // same reasoning as accounting.deposit_requests for wallet top-ups. An admin has to
+  // look at the receipt and approve it (confirmBookingPayment with actingAsAdmin) before
+  // the booking is treated as paid.
+  if (params.paymentMethodCode === 'bank_receipt') {
+    if (!params.receipt?.fileUrl) {
+      throw new Error('A payment receipt is required.');
+    }
+
+    await db`
+      update booking.payments
+      set payment_method = 'bank_receipt', gateway = 'bank_receipt', status = 'Pending',
+          gateway_payload = coalesce(gateway_payload, '{}'::jsonb) || ${ {
+            flow: 'bank_receipt',
+            awaitingReview: true,
+            receipt: {
+              fileUrl: params.receipt.fileUrl,
+              mediaId: params.receipt.mediaId ?? null,
+              fileName: params.receipt.fileName ?? null,
+              mimeType: params.receipt.mimeType ?? null,
+              fileSize: params.receipt.fileSize ?? null,
+            },
+          } as any }
+      where id = ${paymentId}
+    `;
+
+    return {
+      paymentId,
+      bookingId: params.bookingId,
+      method: 'bank_receipt',
+      status: 'pending_review',
+      completed: false,
+      amount,
+      currency,
+    };
+  }
 
   if (params.paymentMethodCode === 'wallet') {
     // The balance check and the debit used to be two separate round trips with the
@@ -364,17 +439,12 @@ export async function createBookingPaymentIntent(params: {
     return { paymentId, bookingId: params.bookingId, method: 'wallet', status: 'succeeded', completed: true, amount, currency, externalReference: settlement.externalReference };
   }
 
-  const externalReference = `PAY-${Date.now()}`;
-  const actionUrl = params.returnUrl ?? `/payment/${externalReference}`;
-  await db`
-    update booking.payments
-    set payment_method = ${params.paymentMethodCode}, gateway = ${method.provider ?? params.paymentMethodCode}, status = 'Pending',
-        external_reference = ${externalReference},
-        gateway_payload = coalesce(gateway_payload, '{}'::jsonb) || ${ { actionUrl, returnUrl: params.returnUrl ?? null, method: params.paymentMethodCode } as any }
-    where id = ${paymentId}
-  `;
-
-  return { paymentId, bookingId: params.bookingId, method: params.paymentMethodCode, status: 'requires_action', completed: false, amount, currency, externalReference, actionUrl, note: 'Replace actionUrl creation with your real gateway implementation.' };
+  // Every method configured in shop.payment_methods is handled explicitly above
+  // (wallet, pay_on_delivery, bank_receipt) or routed to an online gateway earlier in
+  // this function. Reaching here means a method row exists that this function doesn't
+  // know how to settle -- silently faking a successful payment action for it (as the
+  // old stub did) is a worse failure mode than refusing the checkout outright.
+  throw new Error(`Payment method "${params.paymentMethodCode}" has no payment handler configured.`);
 }
 
 export async function confirmBookingPayment(params: {
@@ -384,24 +454,42 @@ export async function confirmBookingPayment(params: {
   status: string;
   externalReference?: string | null;
   payload?: Record<string, unknown>;
+  /**
+   * When true, `userId` is the reviewing admin rather than the paying customer: the
+   * ownership filter below is dropped (an admin approving a receipt legitimately acts on
+   * someone else's booking) and the admin's id is recorded on the payment instead, for
+   * audit. Only set this from an adminRequired safe action -- never from a value that
+   * traces back to request input.
+   */
+  actingAsAdmin?: boolean;
 }) {
   const normalized = normalizePaymentStatus(params.status);
 
   await db.begin(async (tx) => {
-    // Scoped to the booking's owner. The payment id alone used to be the only thing
-    // standing between a caller and someone else's booking, and both ids are
-    // guessable/enumerable. `of p` keeps the lock off booking.bookings so this keeps
-    // the same lock order as the wallet path above.
-    const [payment] = await tx<any[]>`
-      select p.id, p.amount, p.status
-      from booking.payments p
-      join booking.bookings b on b.id = p.booking_id
-      where p.id = ${params.paymentId}
-        and p.booking_id = ${params.bookingId}
-        and b.user_id = ${params.userId}
-      limit 1
-      for no key update of p
-    `;
+    // Scoped to the booking's owner unless an admin is reviewing it. The payment id
+    // alone used to be the only thing standing between a caller and someone else's
+    // booking, and both ids are guessable/enumerable. `of p` keeps the lock off
+    // booking.bookings so this keeps the same lock order as the wallet path above.
+    const [payment] = params.actingAsAdmin
+      ? await tx<any[]>`
+          select p.id, p.amount, p.status
+          from booking.payments p
+          join booking.bookings b on b.id = p.booking_id
+          where p.id = ${params.paymentId}
+            and p.booking_id = ${params.bookingId}
+          limit 1
+          for no key update of p
+        `
+      : await tx<any[]>`
+          select p.id, p.amount, p.status
+          from booking.payments p
+          join booking.bookings b on b.id = p.booking_id
+          where p.id = ${params.paymentId}
+            and p.booking_id = ${params.bookingId}
+            and b.user_id = ${params.userId}
+          limit 1
+          for no key update of p
+        `;
 
     if (!payment) throw new Error('Payment not found');
 
@@ -420,11 +508,15 @@ export async function confirmBookingPayment(params: {
       return;
     }
 
+    const mergedPayload = params.actingAsAdmin
+      ? { ...(params.payload ?? {}), awaitingReview: false, reviewedBy: params.userId, reviewedAt: new Date().toISOString() }
+      : (params.payload ?? {});
+
     await tx`
       update booking.payments
       set status = ${normalized},
           external_reference = coalesce(${params.externalReference ?? null}, external_reference),
-          gateway_payload = coalesce(gateway_payload, '{}'::jsonb) || ${params.payload ?? {} as any}
+          gateway_payload = coalesce(gateway_payload, '{}'::jsonb) || ${mergedPayload as any}
       where id = ${params.paymentId} and booking_id = ${params.bookingId}
     `;
 
