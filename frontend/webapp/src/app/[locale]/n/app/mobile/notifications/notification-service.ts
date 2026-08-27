@@ -82,7 +82,66 @@ function normalizeLocaleHeader(locale?: string | null) {
   if (normalized === "de" || normalized.startsWith("de-")) return "de-DE";
   if (normalized === "fr" || normalized.startsWith("fr-")) return "fr-FR";
   if (normalized === "es" || normalized.startsWith("es-")) return "es-ES";
+  if (normalized === "ru" || normalized.startsWith("ru-")) return "ru-RU";
+  if (normalized === "tg" || normalized.startsWith("tg-")) return "tg-TJ";
+  if (normalized === "zh" || normalized.startsWith("zh-")) return "zh-CN";
   return "en-US";
+}
+
+/** Public alias -- notification producers (booking-notifications.ts,
+ *  support-notifications.ts) resolve a raw app locale ("fa", "fa-IR", ...) to a
+ *  concrete Intl locale tag before formatting dates, without duplicating this map. */
+export function resolveNotificationLocale(locale?: string | null) {
+  return normalizeLocaleHeader(locale);
+}
+
+/**
+ * fa-IR's default Intl calendar is Jalali (Solar Hijri) -- Intl.DateTimeFormat("fa-IR")
+ * renders Jalali dates and Persian digits with no extra options needed. Every other
+ * supported locale defaults to Gregorian. This is the single place notification bodies
+ * should format a date so "selected language" -> "correct calendar" stays consistent
+ * everywhere a booking/support timestamp is interpolated into a template.
+ */
+export function formatLocalizedDate(value: string | Date | null | undefined, locale?: string | null) {
+  if (!value) return "";
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  try {
+    return new Intl.DateTimeFormat(normalizeLocaleHeader(locale), { dateStyle: "medium" }).format(date);
+  } catch {
+    return String(value);
+  }
+}
+
+export function formatLocalizedDateTime(value: string | Date | null | undefined, locale?: string | null) {
+  if (!value) return "";
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  try {
+    return new Intl.DateTimeFormat(normalizeLocaleHeader(locale), { dateStyle: "medium", timeStyle: "short" }).format(date);
+  } catch {
+    return String(value);
+  }
+}
+
+/** Formats a bare "HH:MM" or "HH:MM - HH:MM" clock-time string (no date component,
+ *  as booking.bookings.selected_time_from/to come back as) in the given locale's
+ *  numbering system -- e.g. Persian digits for fa-IR, matching the rest of that UI. */
+export function formatLocalizedTime(value: string | null | undefined, locale?: string | null) {
+  if (!value) return "";
+  const localeTag = normalizeLocaleHeader(locale);
+  const formatOne = (hhmm: string) => {
+    const [h, m] = hhmm.trim().split(":").map(Number);
+    if (!Number.isFinite(h) || !Number.isFinite(m)) return hhmm.trim();
+    try {
+      return new Intl.DateTimeFormat(localeTag, { hour: "2-digit", minute: "2-digit", timeZone: "UTC" }).format(
+        new Date(Date.UTC(1970, 0, 1, h, m)),
+      );
+    } catch {
+      return hhmm.trim();
+    }
+  };
+  return value.includes(" - ") ? value.split(" - ").map(formatOne).join(" - ") : formatOne(value);
 }
 
 function pickTranslation(value: TranslationRecord | null | undefined, locale?: string | null) {

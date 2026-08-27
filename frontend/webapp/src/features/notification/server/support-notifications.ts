@@ -1,7 +1,11 @@
 import "server-only";
 
 import sql from "@/config/database/db";
-import { createNotificationFromTemplate, type NotificationChannel } from "@/app/[locale]/n/app/mobile/notifications/notification-service";
+import {
+  createNotificationFromTemplate,
+  formatLocalizedDateTime,
+  type NotificationChannel,
+} from "@/app/[locale]/n/app/mobile/notifications/notification-service";
 
 function normalizePhone(countryCode?: string | null, phone?: string | null) {
   const rawPhone = phone?.trim();
@@ -39,14 +43,6 @@ function buildAdminConversationLink(conversationId: string) {
 function truncate(value: string, max = 200) {
   const trimmed = value.trim();
   return trimmed.length > max ? `${trimmed.slice(0, max - 1)}…` : trimmed;
-}
-
-function formatTimestamp(iso: string) {
-  try {
-    return new Intl.DateTimeFormat("fa-IR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
 }
 
 const SOURCE_LABEL_FA: Record<string, string> = {
@@ -106,6 +102,10 @@ type ConversationSummary = {
   customerPhone: string | null;
   assignedAgentName: string | null;
   source: string;
+  /** The conversation's own locale (set from whatever language the customer was using
+   *  when they started it) -- the best available "selected language" signal for a
+   *  customer notification, since identity.asp_net_users has no locale preference. */
+  locale: string | null;
 };
 
 /** "Who" for the admin notification and "how to reach them" for the customer one --
@@ -125,6 +125,7 @@ async function getConversationSummaryForNotification(conversationId: string): Pr
     userLastName: string | null;
     assignedAgentName: string | null;
     source: string;
+    locale: string | null;
   }[]>`
     select
       c.conversation_number as "conversationNumber",
@@ -139,7 +140,8 @@ async function getConversationSummaryForNotification(conversationId: string): Pr
       u.first_name as "userFirstName",
       u.last_name as "userLastName",
       nullif(btrim(concat_ws(' ', au.first_name, au.last_name)), '') as "assignedAgentName",
-      c.source
+      c.source,
+      c.locale
     from support.conversations c
     left join identity.asp_net_users u on u.id = c.customer_user_id
     left join identity.asp_net_users au on au.id = c.assigned_to_user_id
@@ -169,6 +171,7 @@ async function getConversationSummaryForNotification(conversationId: string): Pr
     customerPhone,
     assignedAgentName: row.assignedAgentName,
     source: row.source,
+    locale: row.locale,
   };
 }
 
@@ -257,7 +260,7 @@ export async function notifySupportMessage(input: SupportMessageNotificationInpu
   });
   if (!summary) return;
 
-  const sentAt = formatTimestamp(input.createdAt || new Date().toISOString());
+  const createdAt = input.createdAt || new Date().toISOString();
   const messagePreview = truncate(input.body);
 
   if (input.senderType === "customer") {
@@ -269,7 +272,9 @@ export async function notifySupportMessage(input: SupportMessageNotificationInpu
         customerName: summary.displayName,
         customerContact: summary.displayContact || "",
         messagePreview,
-        sentAt,
+        // Admin/support staff have no stored language preference -- rendered in
+        // "fa-IR" (the platform default), same locale their template text uses below.
+        sentAt: formatLocalizedDateTime(createdAt, "fa-IR"),
         source: summary.source,
         sourceLabel: sourceLabel(summary.source),
         adminLink: buildAdminConversationLink(input.conversationId),
@@ -306,11 +311,13 @@ export async function notifySupportMessage(input: SupportMessageNotificationInpu
       conversationNumber: summary.conversationNumber,
       agentName: summary.assignedAgentName || "پشتیبانی",
       messagePreview,
-      sentAt,
+      // The conversation's own locale is the best "selected language" signal available
+      // for this customer -- identity.asp_net_users carries no language preference.
+      sentAt: formatLocalizedDateTime(createdAt, summary.locale),
     };
     await createNotificationFromTemplate({
       templateKey: "support.message.customer",
-      locale: "fa-IR",
+      locale: summary.locale,
       customerId: summary.customerUserId,
       entityType: "support_conversation",
       entityId: input.conversationId,

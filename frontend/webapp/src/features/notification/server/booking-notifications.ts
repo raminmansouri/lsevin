@@ -1,7 +1,13 @@
 import "server-only";
 
 import sql from "@/config/database/db";
-import { createNotificationFromTemplate, type NotificationChannel } from "@/app/[locale]/n/app/mobile/notifications/notification-service";
+import {
+  createNotificationFromTemplate,
+  formatLocalizedDate,
+  formatLocalizedDateTime,
+  formatLocalizedTime,
+  type NotificationChannel,
+} from "@/app/[locale]/n/app/mobile/notifications/notification-service";
 
 function normalizePhone(countryCode?: string | null, phone?: string | null) {
   const rawPhone = phone?.trim();
@@ -50,13 +56,19 @@ function formatAmount(amount: number | string | null | undefined, currency: stri
   }
 }
 
-function formatTimestamp(iso: string | null | undefined) {
-  if (!iso) return "";
-  try {
-    return new Intl.DateTimeFormat("fa-IR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
+/** Formats the raw scheduledDate/scheduledTime/submittedAt a summary function returns
+ *  into display strings for one specific recipient locale -- Jalali digits/calendar for
+ *  fa, Gregorian otherwise, matching whatever language that recipient's notification is
+ *  rendered in (see formatLocalizedDate/-Time in notification-service.ts). */
+function localizeDateFields(
+  raw: { scheduledDateRaw?: string | null; scheduledTimeRaw?: string | null; submittedAtRaw?: string | null } | null | undefined,
+  locale: string | null | undefined
+) {
+  return {
+    scheduledDate: formatLocalizedDate(raw?.scheduledDateRaw, locale),
+    scheduledTime: formatLocalizedTime(raw?.scheduledTimeRaw, locale),
+    submittedAt: formatLocalizedDateTime(raw?.submittedAtRaw, locale),
+  };
 }
 
 const BOOKING_STATUS_FA: Record<string, string> = {
@@ -207,14 +219,14 @@ async function getBookingSummaryForNotification(bookingId: string) {
     providerName: row?.providerName || "",
     providerContact: row?.providerPhone || "",
     serviceName: row?.serviceName || "",
-    scheduledDate: row?.scheduledDate || "",
-    scheduledTime: row?.scheduledTime || "",
+    scheduledDateRaw: row?.scheduledDate || "",
+    scheduledTimeRaw: row?.scheduledTime || "",
     paymentMethod: row?.paymentMethod || "",
     amountFormatted: formatAmount(row?.amount, row?.currency),
     confirmationCode: row?.confirmationCode || "",
     bookingStatus: translateStatus(BOOKING_STATUS_FA, row?.bookingStatus),
     paymentStatus: translateStatus(PAYMENT_STATUS_FA, row?.paymentStatus),
-    submittedAt: formatTimestamp(row?.submittedAt),
+    submittedAtRaw: row?.submittedAt || "",
   };
 }
 
@@ -262,9 +274,9 @@ async function getDraftSummaryForNotification(draftId: string) {
     customerContact: row?.customerEmail || row?.customerPhone || "",
     providerName: row?.providerName || "",
     serviceName: row?.serviceName || "",
-    scheduledDate: row?.scheduledDate || "",
-    scheduledTime: row?.scheduledTime || "",
-    submittedAt: formatTimestamp(row?.submittedAt),
+    scheduledDateRaw: row?.scheduledDate || "",
+    scheduledTimeRaw: row?.scheduledTime || "",
+    submittedAtRaw: row?.submittedAt || "",
   };
 }
 
@@ -421,7 +433,7 @@ export async function notifyBookingCreated(input: BookingNotificationInput): Pro
     return null;
   });
 
-  const variables = {
+  const baseVariables = {
     bookingId: input.bookingId,
     providerId: input.providerId,
     customerName: summary?.customerName || "",
@@ -429,14 +441,11 @@ export async function notifyBookingCreated(input: BookingNotificationInput): Pro
     providerName: summary?.providerName || "",
     providerContact: summary?.providerContact || "",
     serviceName: summary?.serviceName || "",
-    scheduledDate: summary?.scheduledDate || "",
-    scheduledTime: summary?.scheduledTime || "",
     paymentMethod: summary?.paymentMethod || "",
     amountFormatted: summary?.amountFormatted || "",
     confirmationCode: summary?.confirmationCode || input.bookingId,
     bookingStatus: summary?.bookingStatus || "",
     paymentStatus: summary?.paymentStatus || "",
-    submittedAt: summary?.submittedAt || "",
     adminLink: buildAdminBookingLink(input.bookingId),
     ...(input.variables || {}),
   };
@@ -462,12 +471,17 @@ export async function notifyBookingCreated(input: BookingNotificationInput): Pro
       phoneTo: customerPhone,
       fallbackTitle: "Booking request received",
       fallbackBody: "Your booking request has been received.",
-      variables,
+      variables: { ...baseVariables, ...localizeDateFields(summary, input.locale) },
       data: { audience: "customer" },
     });
   } catch (error) {
     console.error("notifyBookingCreated: customer notification failed", error);
   }
+
+  // Admin/provider recipients have no stored language preference -- notifyRecipients
+  // renders their template text in "fa-IR" (the platform default), so their dates use
+  // that same locale to stay consistent (and correctly render Jalali).
+  const staffVariables = { ...baseVariables, ...localizeDateFields(summary, "fa-IR") };
 
   try {
     const admins = await getAdminRecipients();
@@ -475,7 +489,7 @@ export async function notifyBookingCreated(input: BookingNotificationInput): Pro
       templateKey: "booking.created.admin",
       entityType: "booking",
       entityId: input.bookingId,
-      variables,
+      variables: staffVariables,
       fallbackTitle: "New booking received",
       fallbackBody: "A new booking has been submitted and needs review.",
       audience: "admin",
@@ -490,7 +504,7 @@ export async function notifyBookingCreated(input: BookingNotificationInput): Pro
       templateKey: "booking.created.provider",
       entityType: "booking",
       entityId: input.bookingId,
-      variables,
+      variables: staffVariables,
       fallbackTitle: "New booking received",
       fallbackBody: "You have a new booking request.",
       audience: "provider",
@@ -525,6 +539,9 @@ export async function notifyBookingStarted(input: BookingStartedNotificationInpu
     return null;
   });
 
+  // No stored per-recipient language preference for admin/provider staff -- rendered in
+  // "fa-IR" (the platform default) just like notifyRecipients renders their template
+  // text, so the date fields come out Jalali-formatted to match.
   const variables = {
     draftId: input.draftId,
     providerId: input.providerId ?? "",
@@ -532,9 +549,7 @@ export async function notifyBookingStarted(input: BookingStartedNotificationInpu
     customerContact: summary?.customerContact || "",
     providerName: summary?.providerName || "",
     serviceName: summary?.serviceName || "",
-    scheduledDate: summary?.scheduledDate || "",
-    scheduledTime: summary?.scheduledTime || "",
-    submittedAt: summary?.submittedAt || "",
+    ...localizeDateFields(summary, "fa-IR"),
   };
 
   try {
