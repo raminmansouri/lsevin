@@ -8,6 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Link } from "@/i18n/navigation";
+
+const DROPDOWN_LIMIT = 10;
 
 type NotificationItem = {
   id: string;
@@ -55,7 +58,7 @@ export function AdminNotificationsBell() {
   useEffect(() => {
     if (!open) return;
     setLoading(true);
-    fetch("/api/admin/notifications/list", { cache: "no-store" })
+    fetch(`/api/admin/notifications/list?limit=${DROPDOWN_LIMIT}`, { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => setItems(data?.items ?? []))
       .catch(() => {})
@@ -125,6 +128,15 @@ export function AdminNotificationsBell() {
             </div>
           )}
         </ScrollArea>
+        <div className="border-t p-2">
+          <Link
+            href="/admin/notifications"
+            onClick={() => setOpen(false)}
+            className="block rounded-md px-2 py-1.5 text-center text-sm font-medium text-primary hover:bg-muted/50"
+          >
+            {t("viewAll")}
+          </Link>
+        </div>
       </PopoverContent>
     </Popover>
   );

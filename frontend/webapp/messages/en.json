@@ -12835,6 +12835,14 @@
       "title": "Notifications",
       "markAllRead": "Mark all read",
       "loading": "Loading...",
+      "empty": "No notifications.",
+      "viewAll": "View all"
+    },
+    "notificationsPage": {
+      "title": "All notifications",
+      "description": "Your notification history.",
+      "markAllRead": "Mark all read",
+      "loading": "Loading...",
       "empty": "No notifications."
     },
     "notificationChannels": {

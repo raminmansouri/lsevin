@@ -36,18 +36,21 @@ const handler = async (
     const email = user.email;
     const phone = normalizePhone(user.phoneCountryCode, user.phoneNumber);
 
-    // notify.notifications.customer_id FKs to customer.customers, which is keyed by
-    // the same id as identity.asp_net_users for anyone who has actually registered as
-    // a customer -- routing the in-app test through whichever id the target's real
-    // notification center reads is what makes "send test in-app" actually visible to
-    // them, instead of landing somewhere only the admin bell would ever show it.
+    // recipientUserId is always set -- it's what the admin bell reads (and what every
+    // real admin/provider booking notification already uses), so "send a test to
+    // myself" is always visible there regardless of who the target is. customerId is
+    // set *additionally* when the target also has a customer.customers row (same id
+    // as identity.asp_net_users for anyone who registered as a customer), so testing
+    // against an actual customer also shows up in their real mobile notification
+    // center, which reads by customer_id specifically. The two are not exclusive --
+    // the schema allows both on one row.
     const [customerRow] = await sql<{ id: string }[]>`
       select id::text as id from customer.customers where id = ${input.targetUserId}::uuid limit 1
     `;
 
     const notificationId = await createNotification({
+      recipientUserId: input.targetUserId,
       customerId: customerRow ? input.targetUserId : null,
-      recipientUserId: customerRow ? null : input.targetUserId,
       notificationType: "system",
       title: input.title,
       body: input.body,
