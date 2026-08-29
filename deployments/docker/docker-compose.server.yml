@@ -308,15 +308,20 @@ services:
   # Caddyfile.server proxies /files/* here, so this service has to exist for media
   # to be served at all — it is not optional once that route is in place.
   #
-  # No published ports: the only things that talk to it are Caddy (reads) and the
-  # API (writes), both on lsevin-network. Nothing about it is reachable from the
-  # internet, which is why the bucket policy only needs to grant anonymous reads
-  # on the two genuinely public prefixes.
+  # The S3 API port (9000) is never published: only Caddy (reads) and the API
+  # (writes) talk to it, both on lsevin-network, and the bucket policy only grants
+  # anonymous reads on the two genuinely public prefixes.
   #
-  # Before the first deploy that relies on this, the bucket must be prepared on the
-  # server: create lsevin-media, apply the anonymous read policy limited to
-  # Categories/* and ServiceProviders/*, create a scoped service account for the API,
-  # and mc mirror the existing uploads directory into it.
+  # The web Console (9001) IS published, but bound to loopback only — reach it with
+  # an SSH tunnel (`ssh -L 9001:localhost:9001 <server>`, then open
+  # http://localhost:9001) and sign in with MINIO_ROOT_USER / MINIO_ROOT_PASSWORD.
+  # It is never exposed to the internet. To serve it on a real hostname instead,
+  # add a Caddy site for it and set MINIO_BROWSER_REDIRECT_URL on this service.
+  #
+  # Bucket, anonymous read policy (Categories/*, ServiceProviders/*) and the scoped
+  # API service account are created by the minio-init service below. Existing
+  # on-disk media is mirrored in with deployments/ansible/scripts/mirror-uploads-to-minio.sh.
+  # Full procedure: deployments/docker/MEDIA_STORAGE_MIGRATION.md.
   # ---------------------------------------------------------------------------
   minio:
     image: minio/minio:RELEASE.2025-09-07T16-13-09Z
@@ -327,6 +332,9 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     volumes:
       - ${LSEVIN_MINIO_DIR:-/var/lib/lsevin/minio}:/data
+    ports:
+      # Console web UI only, loopback-bound. The S3 API on 9000 stays unpublished.
+      - "127.0.0.1:${MINIO_CONSOLE_HOST_PORT:-9001}:9001"
     # mc ships in the image; the image is minimal and has no curl or wget, so the
     # HTTP health endpoint is not reachable from inside it.
     healthcheck:
