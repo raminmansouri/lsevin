@@ -299,7 +299,12 @@ public static class ModuleExtensions
         string root
     )
     {
-        foreach (var file in Directory.GetFiles(root, "*.appsettings.json", SearchOption.AllDirectories))
+        // Module settings files (<module>.appsettings.json) are copied to the application
+        // root next to the module assemblies — they are never in a subdirectory. Scan only
+        // the top level: recursing walked the entire content root, including the bind-mounted
+        // upload directory (tens of thousands of user files, host-controlled permissions),
+        // where a single unreadable subdirectory aborted startup with UnauthorizedAccessException.
+        foreach (var file in Directory.GetFiles(root, "*.appsettings.json", SearchOption.TopDirectoryOnly))
         {
             configurationManager.AddJsonFile(file);
         }

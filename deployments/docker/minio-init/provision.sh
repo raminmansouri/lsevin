@@ -1,19 +1,18 @@
 #!/bin/sh
 # Idempotent MinIO provisioning for the LSevin media bucket.
 #
-# Runs as the one-shot `minio-init` Compose service before `lsevin-api` starts.
-# Every step tolerates "already exists", so re-running it (every `docker compose up`)
-# is a no-op once the bucket, policy and service account are in place.
+# Runs as the one-shot `minio-init` Compose service (and from Jenkins stage 5)
+# before `lsevin-api` starts. Every step tolerates "already exists", so re-running
+# it is a no-op once the bucket, policy and service account are in place.
 #
-# It creates:
+# It ensures:
 #   1. the media bucket (MINIO_BUCKET)
-#   2. an anonymous download policy limited to the two genuinely public prefixes
+#   2. an anonymous download policy limited to the two public prefixes
 #      (Categories/*, ServiceProviders/*) -- CustomerDocument/* stays private
 #   3. a scoped service account for the API (MINIO_API_ACCESS_KEY / _SECRET_KEY)
 #      whose inline policy allows only Get/Put/Delete/List on this one bucket
 #
-# Required env: MINIO_ROOT_USER, MINIO_ROOT_PASSWORD, MINIO_BUCKET,
-#               MINIO_API_ACCESS_KEY, MINIO_API_SECRET_KEY
+# Only `sh` builtins and `mc` are used -- the MinIO image userland is minimal.
 set -eu
 
 ALIAS=local
@@ -25,7 +24,6 @@ BUCKET="${MINIO_BUCKET:?MINIO_BUCKET is required}"
 case "${MINIO_API_ACCESS_KEY:-}" in
   '' | CHANGE_ME_*)
     echo "minio-init: ERROR MINIO_API_ACCESS_KEY is unset or still a placeholder." >&2
-    echo "minio-init: set a real scoped access key in deployments/docker/.env first." >&2
     exit 1
     ;;
 esac
@@ -36,11 +34,8 @@ case "${MINIO_API_SECRET_KEY:-}" in
     ;;
 esac
 
-work="$(mktemp -d)"
-trap 'rm -rf "$work"' EXIT
-
-anon_policy="$work/anonymous-policy.json"
-svc_policy="$work/svcacct-policy.json"
+anon_policy=/tmp/lsevin-anon-policy.json
+svc_policy=/tmp/lsevin-svc-policy.json
 
 cat > "$anon_policy" <<JSON
 {
@@ -105,4 +100,5 @@ mc alias set apicheck "$ENDPOINT" "$MINIO_API_ACCESS_KEY" "$MINIO_API_SECRET_KEY
 mc ls "apicheck/${BUCKET}" >/dev/null
 mc alias remove apicheck >/dev/null
 
+rm -f "$anon_policy" "$svc_policy"
 echo "minio-init: done"

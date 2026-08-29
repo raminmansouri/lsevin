@@ -182,6 +182,17 @@ pipeline {
           old_webapp_tag="$(cat "$SOURCE_DIR/.jenkins-old-webapp-tag")"
           [ -n "$old_webapp_tag" ] || old_webapp_tag="$RELEASE_TAG"
 
+          # Provision the media bucket, its anonymous-read policy and the scoped API
+          # service account before the API starts. Idempotent -- a no-op once done.
+          # --no-deps: minio already runs (restart: unless-stopped); don't touch
+          # Postgres/EventStore/etc. A non-zero exit here fails the deploy, which is
+          # what we want -- the API's MinioStartupCheck would abort anyway.
+          docker compose \
+            --project-name "$COMPOSE_PROJECT_NAME" \
+            --env-file "$ENV_FILE" \
+            --file "$COMPOSE_FILE" \
+            run --rm -T --no-deps minio-init
+
           LSEVIN_API_IMAGE_TAG="$RELEASE_TAG" \
           LSEVIN_WEBAPP_IMAGE_TAG="$old_webapp_tag" \
           docker compose \

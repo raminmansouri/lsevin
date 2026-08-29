@@ -139,21 +139,10 @@ services:
       FileUploadOptions__S3__SecretKey: ${MINIO_API_SECRET_KEY}
     expose:
       - "8080"
-    # Read-only fallback copy of the pre-MinIO uploads.
-    #
-    # MinIO is now the write path AND the primary read path: FILE_STORAGE_BACKEND=Minio
-    # makes the API PutObject into the bucket, and Caddy proxies /files/* straight to
-    # MinIO. This mount only backs Caddy's "object not in bucket -> try the .NET static
-    # handler" fallback, which covers the cutover window and anything the mirror has not
-    # copied yet.
-    #
-    # Mounted READ-ONLY on purpose: after this change nothing is ever written to the
-    # container filesystem again, so a rebuild can no longer discard uploads. Docker
-    # creates the host path as an empty directory if it does not exist, which is a
-    # harmless empty fallback. Safe to remove this mount once
-    # deployments/ansible/scripts/mirror-uploads-to-minio.sh reports every file verified.
-    volumes:
-      - ${LSEVIN_UPLOADS_DIR:-/var/lib/lsevin/uploads}:/app/UploadFiles:ro
+    # No uploads volume: media lives only in MinIO now. FILE_STORAGE_BACKEND=Minio makes
+    # the API PutObject into the bucket, and Caddy serves /files/* straight from MinIO.
+    # (The .NET static handler still starts over an empty in-container /app/UploadFiles
+    # as a harmless no-op; nothing is written there and nothing persists there.)
     networks:
       - lsevin-network
     depends_on:
