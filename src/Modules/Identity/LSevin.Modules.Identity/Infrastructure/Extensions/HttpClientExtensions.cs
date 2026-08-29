@@ -12,9 +12,9 @@ public static class HttpClientExtensions
     private const string ModuleName = "Identity";
 
     /// <summary>
-    /// Environment variable that supplies the WhatsiPlus API key at runtime. The key is a
-    /// secret and MUST NOT live in appsettings; it is read from here and overrides any
-    /// configured value when present.
+    /// Optional environment variable that supplies the WhatsiPlus API key. When set to a
+    /// non-empty value it overrides <c>Identity:WhatsplusClientOptions:ApiKey</c> from
+    /// appsettings; when unset/empty the appsettings value is used as-is.
     /// </summary>
     private const string WhatsiplusApiKeyEnvVar = "WHATSIPLUS_API_KEY";
 
@@ -42,9 +42,9 @@ public static class HttpClientExtensions
             configureClient: null
         );
 
-        // The API key is a secret and is kept out of appsettings. Read it from the
-        // WHATSIPLUS_API_KEY environment variable and override the bound value when set.
-        // PostConfigure runs after the options binding, so this always wins.
+        // The key comes from appsettings (Identity:WhatsplusClientOptions:ApiKey). If the
+        // WHATSIPLUS_API_KEY environment variable is set to a non-empty value it wins:
+        // PostConfigure runs after the options binding. An empty/unset var changes nothing.
         services.PostConfigure<WhatsplusClientOptions>(o =>
         {
             var key = Environment.GetEnvironmentVariable(WhatsiplusApiKeyEnvVar);
