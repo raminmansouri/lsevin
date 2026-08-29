@@ -123,10 +123,14 @@ services:
       Identity__MeliPayamakClientOptions__Password: ${MELIPAYAMAK_PASSWORD}
       Identity__MeliPayamakClientOptions__BodyId: ${MELIPAYAMAK_BODY_ID}
       Identity__MeliPayamakClientOptions__BaseAddress: ${MELIPAYAMAK_BASE_URL:-https://rest.payamak-panel.com/api/}
-      # Media storage backend. Left at FileSystem deliberately: deploying this file
-      # must not move writes to object storage as a side effect. Phase 5 of the media
-      # migration flips FILE_STORAGE_BACKEND to Minio once the bucket is mirrored, and
-      # flipping it back is the rollback while the disk files are still present.
+      # Media storage backend. Driven by FILE_STORAGE_BACKEND in .env; defaults to
+      # FileSystem so deploying this file never moves writes to object storage as a
+      # side effect. The cutover to Minio (bucket provisioned by minio-init, existing
+      # files mirrored and verified) is a deliberate .env change — see
+      # deployments/docker/MEDIA_STORAGE_MIGRATION.md. In Production the API refuses to
+      # start on FileSystem, and refuses to start on Minio with blank S3 credentials or
+      # an unreachable bucket, so a misconfigured deploy fails loudly instead of losing
+      # uploads. Flipping back to FileSystem is the rollback while disk files remain.
       FileUploadOptions__Backend: ${FILE_STORAGE_BACKEND:-FileSystem}
       FileUploadOptions__S3__ServiceUrl: http://minio:9000
       FileUploadOptions__S3__Bucket: ${MINIO_BUCKET:-lsevin-media}
@@ -135,20 +139,21 @@ services:
       FileUploadOptions__S3__SecretKey: ${MINIO_API_SECRET_KEY}
     expose:
       - "8080"
-    # UPDATE 2026-08-26: confirmed with the team that MinIO is the active backend
-    # in production and the old FileSystem path (/var/lib/lsevin/uploads on the
-    # host) no longer exists — the pre-migration fallback described below was
-    # fully retired, not still pending. Leaving this uncommented would try to
-    # mount a host directory that isn't there. Left commented out on purpose;
-    # do not restore it without first confirming FILE_STORAGE_BACKEND=Minio is
-    # actually set (see the note on that var above — it isn't in the .env this
-    # audit was run against, so the API would default back to FileSystem).
+    # Read-only fallback copy of the pre-MinIO uploads.
     #
-    # Keep uploaded media outside every Git checkout. Only /app/UploadFiles is mounted:
-    # the old second mount at /app/uploads was a leftover that no code reads or writes
-    # (FileUploadOptions:UploadDirectory is UploadFiles).
+    # MinIO is now the write path AND the primary read path: FILE_STORAGE_BACKEND=Minio
+    # makes the API PutObject into the bucket, and Caddy proxies /files/* straight to
+    # MinIO. This mount only backs Caddy's "object not in bucket -> try the .NET static
+    # handler" fallback, which covers the cutover window and anything the mirror has not
+    # copied yet.
     #
-    # - ${LSEVIN_UPLOADS_DIR:-/var/lib/lsevin/uploads}:/app/UploadFiles
+    # Mounted READ-ONLY on purpose: after this change nothing is ever written to the
+    # container filesystem again, so a rebuild can no longer discard uploads. Docker
+    # creates the host path as an empty directory if it does not exist, which is a
+    # harmless empty fallback. Safe to remove this mount once
+    # deployments/ansible/scripts/mirror-uploads-to-minio.sh reports every file verified.
+    volumes:
+      - ${LSEVIN_UPLOADS_DIR:-/var/lib/lsevin/uploads}:/app/UploadFiles:ro
     networks:
       - lsevin-network
     depends_on:
@@ -160,6 +165,10 @@ services:
         condition: service_started
       eventstore:
         condition: service_started
+      # Bucket, anonymous policy and scoped API credentials must exist before the API
+      # starts, or the MinioStartupCheck hosted service aborts startup by design.
+      minio-init:
+        condition: service_completed_successfully
 
   postgres:
     build:
@@ -328,6 +337,38 @@ services:
       start_period: 10s
     networks:
       - lsevin-network
+
+  # ---------------------------------------------------------------------------
+  # One-shot media-bucket provisioning.
+  #
+  # Creates (idempotently, so it is a no-op on every subsequent `up`):
+  #   - the bucket ${MINIO_BUCKET}
+  #   - an anonymous download policy limited to Categories/* and ServiceProviders/*
+  #     (CustomerDocument/* is deliberately left private)
+  #   - a scoped service account from MINIO_API_ACCESS_KEY / MINIO_API_SECRET_KEY,
+  #     with Get/Put/Delete/List on this one bucket and nothing else
+  #
+  # Reuses the already-pinned MinIO image (it ships `mc`); no extra image to track.
+  # lsevin-api depends on this completing successfully, so a half-configured object
+  # store fails the deploy instead of silently sending uploads to disk.
+  # ---------------------------------------------------------------------------
+  minio-init:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    restart: "no"
+    entrypoint: ["/bin/sh", "/init/provision.sh"]
+    environment:
+      MINIO_BUCKET: ${MINIO_BUCKET:-lsevin-media}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_API_ACCESS_KEY: ${MINIO_API_ACCESS_KEY}
+      MINIO_API_SECRET_KEY: ${MINIO_API_SECRET_KEY}
+    volumes:
+      - ./minio-init:/init:ro
+    networks:
+      - lsevin-network
+    depends_on:
+      minio:
+        condition: service_healthy
 
 volumes:
   postgres_data:

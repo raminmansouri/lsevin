@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 
@@ -69,6 +70,10 @@ public static class FileExtensions
             return new AmazonS3Client(new BasicAWSCredentials(s3.AccessKey, s3.SecretKey), config);
         });
 
+        // Fails startup when Backend is Minio but the bucket cannot be reached, instead of
+        // letting every upload fail one request at a time. No-ops for the filesystem backend.
+        services.AddHostedService<MinioStartupCheck>();
+
         services.AddScoped<IFileService, FileService>();
 
         return services;
@@ -88,6 +93,8 @@ public static class FileExtensions
     )
     {
         var options = configuration.GetSettings<FileUploadOptions>(nameof(FileUploadOptions));
+
+        FileStorageBackendGuard.Validate(options, env.IsProduction());
 
         // Create the full path
         var uploadPath = Path.Combine(env.ContentRootPath, options.UploadDirectory);
