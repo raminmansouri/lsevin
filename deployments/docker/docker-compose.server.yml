@@ -336,31 +336,48 @@ services:
       - lsevin-network
 
   # ---------------------------------------------------------------------------
-  # One-shot media-bucket provisioning.
-  #
-  # Creates (idempotently, so it is a no-op on every subsequent `up`):
+  # One-shot media-bucket provisioning. Idempotent — a no-op once everything
+  # exists. Ensures:
   #   - the bucket ${MINIO_BUCKET}
   #   - an anonymous download policy limited to Categories/* and ServiceProviders/*
-  #     (CustomerDocument/* is deliberately left private)
-  #   - a scoped service account from MINIO_API_ACCESS_KEY / MINIO_API_SECRET_KEY,
-  #     with Get/Put/Delete/List on this one bucket and nothing else
+  #     (CustomerDocument/* stays private)
+  #   - a scoped service account from MINIO_API_ACCESS_KEY / MINIO_API_SECRET_KEY
+  #     with Get/Put/Delete/List on this one bucket, and verifies it can reach it
   #
-  # Reuses the already-pinned MinIO image (it ships `mc`); no extra image to track.
-  # lsevin-api depends on this completing successfully, so a half-configured object
-  # store fails the deploy instead of silently sending uploads to disk.
+  # The script is inline (not a bind-mounted file): the Jenkins deploy runs this
+  # via `docker compose run` from a workspace where a relative ./minio-init mount
+  # resolved to an empty directory. `$$VAR` escapes Compose interpolation so the
+  # value is read from the container environment below at run time.
   # ---------------------------------------------------------------------------
   minio-init:
     image: minio/minio:RELEASE.2025-09-07T16-13-09Z
     restart: "no"
-    entrypoint: ["/bin/sh", "/init/provision.sh"]
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -eu
+        mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"
+        mc ready local
+        mc mb --ignore-existing "local/$$MINIO_BUCKET"
+        printf '%s' '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["s3:GetObject"],"Resource":["arn:aws:s3:::'"$$MINIO_BUCKET"'/Categories/*","arn:aws:s3:::'"$$MINIO_BUCKET"'/ServiceProviders/*"]}]}' > /tmp/anon.json
+        mc anonymous set-json /tmp/anon.json "local/$$MINIO_BUCKET"
+        printf '%s' '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":["s3:GetObject","s3:PutObject","s3:DeleteObject"],"Resource":["arn:aws:s3:::'"$$MINIO_BUCKET"'/*"]},{"Effect":"Allow","Action":["s3:ListBucket","s3:GetBucketLocation"],"Resource":["arn:aws:s3:::'"$$MINIO_BUCKET"'"]}]}' > /tmp/svc.json
+        if mc admin user svcacct info local "$$MINIO_API_ACCESS_KEY" >/dev/null 2>&1; then
+          echo "minio-init: refreshing service account $$MINIO_API_ACCESS_KEY"
+          mc admin user svcacct edit local "$$MINIO_API_ACCESS_KEY" --secret-key "$$MINIO_API_SECRET_KEY" --policy /tmp/svc.json
+        else
+          echo "minio-init: creating service account $$MINIO_API_ACCESS_KEY"
+          mc admin user svcacct add local "$$MINIO_ROOT_USER" --access-key "$$MINIO_API_ACCESS_KEY" --secret-key "$$MINIO_API_SECRET_KEY" --policy /tmp/svc.json
+        fi
+        mc alias set apicheck http://minio:9000 "$$MINIO_API_ACCESS_KEY" "$$MINIO_API_SECRET_KEY"
+        mc ls "apicheck/$$MINIO_BUCKET" >/dev/null
+        echo "minio-init: done"
     environment:
       MINIO_BUCKET: ${MINIO_BUCKET:-lsevin-media}
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
       MINIO_API_ACCESS_KEY: ${MINIO_API_ACCESS_KEY}
       MINIO_API_SECRET_KEY: ${MINIO_API_SECRET_KEY}
-    volumes:
-      - ./minio-init:/init:ro
     networks:
       - lsevin-network
     depends_on:
