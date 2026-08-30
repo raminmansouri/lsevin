@@ -1,5 +1,7 @@
 import "server-only";
 
+import { randomUUID } from "node:crypto";
+
 import sql from "@/config/database/db";
 
 import {
@@ -9,6 +11,8 @@ import {
 } from "../lib/permissions";
 import { splitCsv, translationFromFlat } from "../lib/normalizers";
 import type {
+  BlockedHoursDay,
+  BlockedHourSlotRow,
   BookingRow,
   GalleryRow,
   LedgerRow,
@@ -775,6 +779,341 @@ export async function saveOperatingHours(
         last_modified_date = now()
     `;
   }
+
+  return true;
+}
+
+// Hours the provider switches off for one specific date, so appointments taken
+// outside the application cannot be double-booked here. They are stored as
+// blocking rows in provider_portal.generic_availability_rules, which the booking
+// engine subtracts from the generated slots. Only blocking rows are ever written:
+// an "available" row would replace the weekly operating hours for that date.
+const BLOCKED_HOURS_SOURCE = "provider_portal_blocked_hours";
+
+const DAY_MINUTES = 24 * 60;
+
+function clockToMinutes(value?: string | null) {
+  const match = String(value ?? "")
+    .trim()
+    .match(/^(\d{1,2}):(\d{2})/);
+  if (!match) return null;
+  const minutes = Number(match[1]) * 60 + Number(match[2]);
+  if (!Number.isFinite(minutes) || minutes < 0 || minutes > DAY_MINUTES)
+    return null;
+  return minutes;
+}
+
+function minutesToClock(value: number) {
+  const hours = Math.floor(value / 60);
+  const minutes = value % 60;
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+}
+
+function overlaps(
+  startA: number,
+  endA: number,
+  startB: number,
+  endB: number,
+) {
+  return startA < endB && startB < endA;
+}
+
+function mergeMinuteRanges(ranges: Array<{ start: number; end: number }>) {
+  const sorted = ranges
+    .filter((range) => range.end > range.start)
+    .sort((left, right) => left.start - right.start);
+
+  const merged: Array<{ start: number; end: number }> = [];
+  for (const range of sorted) {
+    const last = merged[merged.length - 1];
+    if (last && range.start <= last.end) {
+      last.end = Math.max(last.end, range.end);
+      continue;
+    }
+    merged.push({ ...range });
+  }
+  return merged;
+}
+
+export async function getBlockedHoursDay(
+  userId: string,
+  providerId: string,
+  date: string,
+): Promise<BlockedHoursDay> {
+  await requireProviderPermission(userId, providerId, "viewDashboard");
+
+  const [dayRow] = await sql<{ dayOfWeek: number }[]>`
+    select extract(isodow from ${date}::date)::int as "dayOfWeek"
+  `;
+  const dayOfWeek = Number(dayRow?.dayOfWeek || 1);
+
+  const [operating] = await sql<
+    { opensAt: string | null; closesAt: string | null; isClosed: boolean }[]
+  >`
+    select
+      opens_at::text as "opensAt",
+      closes_at::text as "closesAt",
+      is_closed as "isClosed"
+    from provider_portal.provider_operating_hours
+    where service_provider_id = ${providerId}::uuid
+      and day_of_week = ${dayOfWeek}
+    limit 1
+  `;
+
+  const rules = await sql<
+    { startsAt: string | null; endsAt: string | null; isOwned: boolean }[]
+  >`
+    select
+      starts_at::text as "startsAt",
+      ends_at::text as "endsAt",
+      (
+        specific_date = ${date}::date
+        and metadata ->> 'source' = ${BLOCKED_HOURS_SOURCE}
+      ) as "isOwned"
+    from provider_portal.generic_availability_rules
+    where target_type = 'provider'
+      and target_id = ${providerId}::uuid
+      and is_available = false
+      and is_active = true
+      and (
+        specific_date = ${date}::date
+        or (specific_date is null and day_of_week = ${dayOfWeek})
+      )
+  `;
+
+  // When an availability rule opens a window for this date, the booking engine
+  // uses that window instead of the weekly operating hours, so the grid has to
+  // follow the same precedence or it would hide hours that are still on sale.
+  const openings = await sql<{ startsAt: string; endsAt: string }[]>`
+    select
+      r.starts_at::text as "startsAt",
+      r.ends_at::text as "endsAt"
+    from provider_portal.generic_availability_rules r
+    where r.is_available = true
+      and r.is_active = true
+      and r.starts_at is not null
+      and r.ends_at is not null
+      and r.starts_at < r.ends_at
+      and (
+        r.specific_date = ${date}::date
+        or (r.specific_date is null and r.day_of_week = ${dayOfWeek})
+      )
+      and (
+        (r.target_type = 'provider' and r.target_id = ${providerId}::uuid)
+        or (r.target_type = 'provider_service' and exists (
+          select 1 from category.provider_services ps
+          where ps.id = r.target_id
+            and ps.service_provider_id = ${providerId}::uuid
+        ))
+        or (r.target_type = 'service_definition' and exists (
+          select 1 from category.provider_services ps
+          where ps.service_definition_id = r.target_id
+            and ps.service_provider_id = ${providerId}::uuid
+        ))
+        or (r.target_type = 'staff' and exists (
+          select 1 from category.provider_staffs pst
+          where pst.staff_id = r.target_id
+            and pst.service_provider_id = ${providerId}::uuid
+        ))
+        or (r.target_type = 'provider_staff' and exists (
+          select 1 from category.provider_staffs pst
+          where pst.id = r.target_id
+            and pst.service_provider_id = ${providerId}::uuid
+        ))
+        or (r.target_type = 'bookable_resource' and exists (
+          select 1
+          from provider_portal.bookable_resources br
+          join category.provider_services ps on ps.id = br.provider_service_id
+          where br.id = r.target_id
+            and ps.service_provider_id = ${providerId}::uuid
+        ))
+      )
+  `;
+
+  const bookings = await sql<{ startsAt: string; endsAt: string }[]>`
+    select
+      coalesce(b.selected_time_from, b.selected_time, time '00:00')::text as "startsAt",
+      coalesce(b.selected_time_to, b.selected_time_from, b.selected_time, time '00:00')::text as "endsAt"
+    from booking.bookings b
+    where b.provider_id = ${providerId}::uuid
+      and b.selected_date = ${date}::date
+      and lower(coalesce(b.booking_status, '')) in ('pending', 'confirmed')
+  `;
+
+  const openRanges = openings
+    .map((opening) => ({
+      start: clockToMinutes(opening.startsAt),
+      end: clockToMinutes(opening.endsAt),
+    }))
+    .filter(
+      (range): range is { start: number; end: number } =>
+        range.start !== null && range.end !== null && range.end > range.start,
+    );
+
+  const operatingClosed = !operating || Boolean(operating.isClosed);
+  const isClosed = openRanges.length === 0 && operatingClosed;
+  const opensAt = openRanges.length
+    ? Math.min(...openRanges.map((range) => range.start))
+    : operatingClosed
+      ? null
+      : (clockToMinutes(operating?.opensAt) ?? null);
+  const closesAt = openRanges.length
+    ? Math.max(...openRanges.map((range) => range.end))
+    : operatingClosed
+      ? null
+      : (clockToMinutes(operating?.closesAt) ?? null);
+
+  // A blocking row without a start or an end closes the whole day, which is how
+  // the booking engine reads it too.
+  const blockedRanges = rules.map((rule) => {
+    const start = clockToMinutes(rule.startsAt);
+    const end = clockToMinutes(rule.endsAt);
+    const bounded = start !== null && end !== null && end > start;
+    return {
+      start: bounded ? (start as number) : 0,
+      end: bounded ? (end as number) : DAY_MINUTES,
+      isOwned: Boolean(rule.isOwned),
+    };
+  });
+
+  const bookedRanges = bookings
+    .map((booking) => {
+      const start = clockToMinutes(booking.startsAt);
+      const end = clockToMinutes(booking.endsAt);
+      if (start === null) return null;
+      return { start, end: end !== null && end > start ? end : start + 1 };
+    })
+    .filter(
+      (range): range is { start: number; end: number } => range !== null,
+    );
+
+  // The grid covers the working window, widened so that anything already
+  // blocked or booked outside it stays visible.
+  let windowStart = opensAt !== null && closesAt !== null ? opensAt : null;
+  let windowEnd = opensAt !== null && closesAt !== null ? closesAt : null;
+  for (const range of [...blockedRanges, ...bookedRanges]) {
+    windowStart = windowStart === null ? range.start : Math.min(windowStart, range.start);
+    windowEnd = windowEnd === null ? range.end : Math.max(windowEnd, range.end);
+  }
+
+  const slots: BlockedHourSlotRow[] = [];
+  if (windowStart !== null && windowEnd !== null && windowEnd > windowStart) {
+    const gridStart = Math.max(Math.floor(windowStart / 60) * 60, 0);
+    const gridEnd = Math.min(Math.ceil(windowEnd / 60) * 60, DAY_MINUTES);
+
+    for (let start = gridStart; start < gridEnd; start += 60) {
+      const end = start + 60;
+      slots.push({
+        startsAt: minutesToClock(start),
+        endsAt: minutesToClock(end),
+        isBlocked: blockedRanges.some(
+          (range) => range.isOwned && overlaps(start, end, range.start, range.end),
+        ),
+        // Only a foreign rule that covers the whole hour makes it untouchable
+        // here. A rule covering part of it leaves the rest on sale, so the
+        // provider must still be able to switch that hour off.
+        isLocked: blockedRanges.some(
+          (range) =>
+            !range.isOwned && range.start <= start && range.end >= end,
+        ),
+        bookedCount: bookedRanges.filter((range) =>
+          overlaps(start, end, range.start, range.end),
+        ).length,
+      });
+    }
+  }
+
+  return {
+    date,
+    dayOfWeek,
+    isClosed,
+    opensAt: opensAt === null ? null : minutesToClock(opensAt),
+    closesAt: closesAt === null ? null : minutesToClock(closesAt),
+    slots,
+  };
+}
+
+export async function saveBlockedHours(
+  userId: string,
+  providerId: string,
+  date: string,
+  blockedSlots: Array<{ startsAt: string; endsAt: string }>,
+) {
+  await requireProviderPermission(userId, providerId, "manageAvailability");
+
+  const ranges = mergeMinuteRanges(
+    blockedSlots
+      .map((slot) => ({
+        start: clockToMinutes(slot.startsAt),
+        end: clockToMinutes(slot.endsAt),
+      }))
+      .filter(
+        (range): range is { start: number; end: number } =>
+          range.start !== null && range.end !== null && range.end > range.start,
+      ),
+  );
+
+  await sql.begin(async (tx) => {
+    await tx`
+      delete from provider_portal.generic_availability_rules
+      where target_type = 'provider'
+        and target_id = ${providerId}::uuid
+        and is_available = false
+        and specific_date = ${date}::date
+        and metadata ->> 'source' = ${BLOCKED_HOURS_SOURCE}
+    `;
+
+    for (const range of ranges) {
+      await tx`
+        insert into provider_portal.generic_availability_rules (
+          id,
+          target_type,
+          target_id,
+          service_provider_id,
+          provider_service_id,
+          resource_id,
+          day_of_week,
+          specific_date,
+          starts_at,
+          ends_at,
+          is_available,
+          is_active,
+          capacity,
+          slot_interval_minutes,
+          min_booking_minutes,
+          max_booking_minutes,
+          priority,
+          timezone_id,
+          metadata
+        )
+        select
+          public.uuid_generate_v4(),
+          'provider',
+          ${providerId}::uuid,
+          ${providerId}::uuid,
+          null::uuid,
+          null::uuid,
+          null::smallint,
+          ${date}::date,
+          ${minutesToClock(range.start)}::time,
+          ${minutesToClock(range.end)}::time,
+          false,
+          true,
+          null::int,
+          null::int,
+          null::int,
+          null::int,
+          100,
+          coalesce(sp.timezone_id, 'UTC'),
+          ${sql.json({
+            source: BLOCKED_HOURS_SOURCE,
+            availabilityGroupId: randomUUID(),
+          })}::jsonb
+        from category.service_providers sp
+        where sp.id = ${providerId}::uuid
+      `;
+    }
+  });
 
   return true;
 }
