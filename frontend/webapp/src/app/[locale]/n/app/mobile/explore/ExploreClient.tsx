@@ -753,7 +753,14 @@ export default function ExploreClient({
         </div>
 
         <div className="flex gap-4 overflow-x-auto hide-scrollbar px-5 pb-2">
-          {trendingServices.map((service) => (
+          {trendingServices.map((service) => {
+            // Ask for no placeholder: /placeholder-provider.svg is an SVG, and the
+            // image optimizer rejects SVG with a 400 unless dangerouslyAllowSVG is
+            // on, so feeding it to <Image> renders the broken-image icon. A service
+            // without artwork gets the same branded block the home cards use.
+            const serviceImage = mediaUrl(service.image, "");
+
+            return (
             <div
               key={`trending-service-${service.id}`}
               onClick={() => router.push(buildMobilePath(`/service/${service.id}`))}
@@ -761,13 +768,19 @@ export default function ExploreClient({
             >
               
               <div className="relative aspect-[16/10]">
+                {serviceImage ? (
                 <ImageWithFallback
                      width={200}
                 height={200}
-                  src={mediaUrl(service.image)}
+                  src={serviceImage}
                   alt={service.name}
                   className="w-full h-full object-cover"
                 />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#083f30] to-[#0f6b56] text-sm font-semibold text-white/80">
+                    LSevin
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
                 {service.growth && (
@@ -813,7 +826,8 @@ export default function ExploreClient({
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
       )}
