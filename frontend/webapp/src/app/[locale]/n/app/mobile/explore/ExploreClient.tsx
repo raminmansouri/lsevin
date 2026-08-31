@@ -742,6 +742,7 @@ export default function ExploreClient({
         </div>
       )}
 
+      {trendingServices.length > 0 && (
       <div className="py-6">
         <div className="px-5 mb-4">
           <div className="flex items-center gap-2 mb-1">
@@ -815,6 +816,7 @@ export default function ExploreClient({
           ))}
         </div>
       </div>
+      )}
 
       <div className="px-5 py-6">
         <div className="flex items-center justify-between mb-4">
