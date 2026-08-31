@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
-import { useForm, type Resolver } from "react-hook-form";
+import { useForm, useWatch, type Resolver } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -125,6 +125,16 @@ export function SpecialPackageForm({ pkg }: { pkg?: SpecialPackageAdminRow | nul
     mode: "onSubmit",
   });
 
+  // Read these through useWatch rather than form.watch() in the render body.
+  // React Compiler (reactCompiler: true in next.config.ts) memoises a render-body
+  // call keyed on `form`, and useForm returns a ref-stable object, so the guard
+  // never fires again: the value froze at its first, empty render and every
+  // keystroke was wiped by the controlled input. useWatch is a hook, so it is
+  // never cached away.
+  const titleTranslations = useWatch({ control: form.control, name: "titleTranslations" });
+  const subtitleTranslations = useWatch({ control: form.control, name: "subtitleTranslations" });
+  const descriptionTranslations = useWatch({ control: form.control, name: "descriptionTranslations" });
+
   function setLocalizedField(
     name: keyof Pick<FormValues, "titleTranslations" | "subtitleTranslations" | "descriptionTranslations">
   ) {
@@ -188,20 +198,20 @@ export function SpecialPackageForm({ pkg }: { pkg?: SpecialPackageAdminRow | nul
             <CardContent className="space-y-6">
               <LocalizedInput
                 label={t("fieldTitle")}
-                value={localizedValue(form.watch("titleTranslations") as never) as never}
+                value={localizedValue(titleTranslations as never) as never}
                 onChange={setLocalizedField("titleTranslations")}
                 required
                 maxLength={180}
               />
               <LocalizedInput
                 label={t("fieldSubtitle")}
-                value={localizedValue(form.watch("subtitleTranslations") as never) as never}
+                value={localizedValue(subtitleTranslations as never) as never}
                 onChange={setLocalizedField("subtitleTranslations")}
                 maxLength={260}
               />
               <LocalizedInput
                 label={t("fieldDescription")}
-                value={localizedValue(form.watch("descriptionTranslations") as never) as never}
+                value={localizedValue(descriptionTranslations as never) as never}
                 onChange={setLocalizedField("descriptionTranslations")}
                 multiline
                 rows={4}
