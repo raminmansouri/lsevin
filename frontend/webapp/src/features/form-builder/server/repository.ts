@@ -388,6 +388,18 @@ export async function upsertFormDefinition(
       `;
       formId = form.id;
     } else {
+      // Renaming a form onto a key another form already owns would either hit a
+      // unique index with a raw Postgres message, or silently leave two forms
+      // sharing a key — after which the lookup above picks an arbitrary one.
+      const [keyOwner] = await tx`
+        select id from form_builder.forms
+        where key = ${input.key} and id <> ${formId}
+      `;
+
+      if (keyOwner) {
+        throw new Error(`Form key "${input.key}" is already used by another form.`);
+      }
+
       await tx`
         update form_builder.forms
         set key = ${input.key},

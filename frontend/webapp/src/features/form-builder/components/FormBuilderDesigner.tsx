@@ -31,8 +31,12 @@ function createSection(fieldTypeCode: FieldTypeCode = "text", fieldTypes = DEFAU
 }
 
 function createEmptyDesignerValue(): UpsertFormDefinitionInput {
+  // Every new form needs its own key. upsertFormDefinition adopts the existing
+  // form when the key is already taken, so a shared default meant the second
+  // and every later form silently replaced the first one instead of being
+  // created alongside it.
   return {
-    key: "booking-form",
+    key: `booking-form-${Math.random().toString(36).slice(2, 8)}`,
     name: "Booking Form",
     title: "Booking Form",
     formScope: "service_booking",

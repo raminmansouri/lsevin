@@ -93,9 +93,17 @@ export default function AdminFormBuilderDetailPage({ params }: { params: Promise
             const savedFormId = body?.formId ?? body?.result?.formId ?? body?.item?.formId;
 
             if (savedFormId) {
-              const { item } = await getForm(savedFormId, t('failedToLoadForm'));
-              setInitial(item);
+              // Record the new id before reloading. If only the reload fails the
+              // form is still saved, and without the id every later save would
+              // post without one and be matched by key instead.
               setFormId(savedFormId);
+
+              try {
+                const { item } = await getForm(savedFormId, t('failedToLoadForm'));
+                setInitial(item);
+              } catch {
+                // Saved, but could not be read back — keep what is on screen.
+              }
             }
 
             if (formId === 'new' && savedFormId) {
