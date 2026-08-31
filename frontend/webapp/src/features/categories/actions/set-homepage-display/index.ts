@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import sql from "@/config/database/db";
-import { auth } from "@/lib/auth";
+import { getAdminContext } from "@/lib/auth/admin-guard";
 
 /**
  * Toggles whether a category appears on the homepage by setting
@@ -17,9 +17,11 @@ export async function setCategoryHomepageDisplayAction(
 ): Promise<{ ok: boolean; message?: string }> {
   if (!categoryId) return { ok: false, message: "Missing category id." };
 
-  const session = await auth();
-  const roles = (session?.user?.roles ?? []) as string[];
-  if (!roles.includes("admin")) {
+  // getAdminContext treats SuperAdmin as a superset of Admin, the way the
+  // middleware and every other admin action do. Testing for the bare "admin"
+  // role rejected super admins, who could open the page but not use the toggle.
+  const { isAdmin } = await getAdminContext();
+  if (!isAdmin) {
     return { ok: false, message: "Forbidden." };
   }
 
