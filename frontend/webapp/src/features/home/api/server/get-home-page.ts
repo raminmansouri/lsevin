@@ -206,6 +206,11 @@ export async function getHomeCategories(input: HomeQueryInput, limit = 6): Promi
     left join category_child_counts cc on cc.category_id = c.id
     where c.is_active = true
       and c.parent_id is null
+      -- The admin "show on home page" switch. It writes
+      -- category.categories.display_in_home_page, and this shelf was reading the
+      -- tree without ever consulting it, so turning a category off changed
+      -- nothing here. NULL means shown, matching getCategoryHomepageFlags.
+      and coalesce(c.display_in_home_page, true) = true
       -- A root with nothing under it is a card that opens an empty page, which is
       -- what made Beauty and Tourism dead ends before.
       and coalesce(pc.provider_count, 0) > 0
