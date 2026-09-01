@@ -23,10 +23,15 @@ export default async function CheckoutPage({ params }: { params: Promise<{ local
   }
 
   const ctx = await getShopContext();
-  const [quote, paymentMethods, addresses] = await Promise.all([
-    quoteCheckout({ cartId: cart.id }),
+  const addresses = await listCustomerAddresses();
+  const defaultAddr = addresses.find((a: any) => a.isDefault) ?? addresses[0];
+  const [quote, paymentMethods] = await Promise.all([
+    quoteCheckout({
+      cartId: cart.id,
+      destinationCountry: (defaultAddr as any)?.country ?? null,
+      destinationRegion: (defaultAddr as any)?.stateRegion ?? null,
+    }),
     getPaymentMethods(normalizeLocale(ctx.locale)),
-    listCustomerAddresses(),
   ]);
 
   await emitCommerceEvent("shop_checkout_started", {

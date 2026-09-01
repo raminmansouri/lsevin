@@ -394,6 +394,22 @@ export async function getHomeSectionWithItems(id: string) {
 }
 
 // ======================================================================
+// Delivery methods + geographic eligibility (SHP-V03-012)
+// ======================================================================
+export async function listDeliveryMethodsAdmin() {
+  await assertShopAdmin();
+  return sql<any[]>`
+    select id::text as id, code,
+      common.get_translation_t(name_translations, 'en', 'en') as name,
+      base_fee::float as base_fee, is_active,
+      estimated_days_min, estimated_days_max,
+      supports_pickup, rules
+    from shop.delivery_methods
+    order by base_fee asc
+  `;
+}
+
+// ======================================================================
 // Stock reconciliation report (SHP-V03-014)
 // ======================================================================
 export async function getStockReconciliation() {

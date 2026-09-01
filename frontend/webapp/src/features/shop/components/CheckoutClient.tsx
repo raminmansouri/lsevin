@@ -74,10 +74,15 @@ export function CheckoutClient({
 
   const cur = quote.currency;
 
-  const reQuote = (nextDeliveryId: string) => {
+  const reQuote = (nextDeliveryId: string, dest?: { country?: string; region?: string }) => {
     setDeliveryId(nextDeliveryId);
     startTransition(async () => {
-      const res = await quoteCheckoutAction({ cartId, deliveryMethodId: nextDeliveryId });
+      const res = await quoteCheckoutAction({
+        cartId,
+        deliveryMethodId: nextDeliveryId || undefined,
+        destinationCountry: (dest?.country ?? addr.country) || undefined,
+        destinationRegion: (dest?.region ?? addr.stateRegion) || undefined,
+      });
       if (res.ok) setQuote(res.quote);
     });
   };
@@ -193,7 +198,10 @@ export function CheckoutClient({
               <button
                 key={a.id}
                 type="button"
-                onClick={() => setAddr({ ...EMPTY_ADDR, ...a })}
+                onClick={() => {
+                  setAddr({ ...EMPTY_ADDR, ...a });
+                  reQuote(deliveryId, { country: (a as { country?: string }).country, region: (a as { stateRegion?: string }).stateRegion });
+                }}
                 className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs text-neutral-700"
               >
                 {a.fullName} · {a.city}
@@ -205,7 +213,13 @@ export function CheckoutClient({
           <input value={addr.fullName} onChange={(e) => setAddr({ ...addr, fullName: e.target.value })} placeholder={t("fullName")} className={cn(field, "col-span-2")} />
           <input value={addr.phoneNumber} onChange={(e) => setAddr({ ...addr, phoneNumber: e.target.value })} placeholder={t("phone")} className={field} inputMode="tel" />
           <input value={addr.company} onChange={(e) => setAddr({ ...addr, company: e.target.value })} placeholder={t("company")} className={field} />
-          <input value={addr.country} onChange={(e) => setAddr({ ...addr, country: e.target.value })} placeholder={t("country")} className={field} />
+          <input
+            value={addr.country}
+            onChange={(e) => setAddr({ ...addr, country: e.target.value })}
+            onBlur={(e) => reQuote(deliveryId, { country: e.target.value, region: addr.stateRegion })}
+            placeholder={t("country")}
+            className={field}
+          />
           <input value={addr.city} onChange={(e) => setAddr({ ...addr, city: e.target.value })} placeholder={t("city")} className={field} />
           <input value={addr.stateRegion} onChange={(e) => setAddr({ ...addr, stateRegion: e.target.value })} placeholder={t("stateRegion")} className={cn(field, "col-span-2")} />
           <input value={addr.addressLine1} onChange={(e) => setAddr({ ...addr, addressLine1: e.target.value })} placeholder={t("addressLine1")} className={cn(field, "col-span-2")} />

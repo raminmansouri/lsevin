@@ -24,6 +24,10 @@ export const checkoutQuoteSchema = z.object({
   cartId: shopId,
   deliveryMethodId: shopId.optional().nullable(),
   paymentCurrency: z.string().trim().max(15).optional().nullable(),
+  // Shipping destination, so delivery options can be filtered/priced by
+  // geography before an address row is saved (SHP-V03-012).
+  destinationCountry: z.string().trim().max(15).optional().nullable(),
+  destinationRegion: z.string().trim().max(120).optional().nullable(),
 });
 
 export const placeOrderSchema = z.object({

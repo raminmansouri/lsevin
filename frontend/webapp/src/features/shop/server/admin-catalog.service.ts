@@ -332,6 +332,35 @@ export async function deleteHomeSection(input: { id: string }): Promise<void> {
   await sql`delete from shop.home_sections where id = ${input.id}::uuid`;
 }
 
+/**
+ * Delivery method operational config incl. `rules.geo` geographic eligibility
+ * (SHP-V03-012). `rules` is validated as an object before it is written.
+ */
+export async function updateDeliveryMethod(input: {
+  id: string;
+  baseFee: number;
+  isActive: boolean;
+  estimatedDaysMin?: number | null;
+  estimatedDaysMax?: number | null;
+  rules: unknown;
+}): Promise<void> {
+  await assertShopPermission(SHOP_PERMISSIONS.ordersManage);
+  const fee = Number(input.baseFee);
+  if (!Number.isFinite(fee) || fee < 0) throw new Error("Base fee must be a non-negative number.");
+  const rules =
+    input.rules && typeof input.rules === "object" && !Array.isArray(input.rules) ? input.rules : {};
+  await sql`
+    update shop.delivery_methods set
+      base_fee = ${fee},
+      is_active = ${input.isActive},
+      estimated_days_min = ${input.estimatedDaysMin ?? null},
+      estimated_days_max = ${input.estimatedDaysMax ?? null},
+      rules = ${j(rules)},
+      last_modified_date = now()
+    where id = ${input.id}::uuid
+  `;
+}
+
 export async function addHomeSectionItem(input: {
   sectionId: string;
   productId?: string | null;

@@ -17,6 +17,7 @@ import {
   removeHomeSectionItem,
   setCategoryServiceLink,
   setProductGallery,
+  updateDeliveryMethod,
   upsertBrand,
   upsertCategory,
   upsertCoupon,
@@ -161,6 +162,33 @@ export async function deleteCouponForm(formData: FormData) {
   const id = z.string().parse(formData.get("id"));
   await deleteCoupon({ id });
   revalidatePath("/admin/shop/coupons");
+}
+
+// ======================================================================
+// Delivery methods — geographic eligibility (SHP-V03-012)
+// ======================================================================
+export async function updateDeliveryMethodForm(formData: FormData) {
+  const rawRules = String(formData.get("rules") || "{}").trim() || "{}";
+  let parsedRules: unknown;
+  try {
+    parsedRules = JSON.parse(rawRules);
+  } catch {
+    throw new Error("Rules must be valid JSON.");
+  }
+  const num = (v: FormDataEntryValue | null) => {
+    const n = Number(v);
+    return v === null || v === "" || Number.isNaN(n) ? null : n;
+  };
+  await updateDeliveryMethod({
+    id: shopId.parse(formData.get("id")),
+    baseFee: Number(formData.get("baseFee") || 0),
+    isActive: formData.get("isActive") === "on",
+    estimatedDaysMin: num(formData.get("estimatedDaysMin")),
+    estimatedDaysMax: num(formData.get("estimatedDaysMax")),
+    rules: parsedRules,
+  });
+  revalidatePath("/admin/shop/delivery");
+  revalidatePath("/n/app/mobile/shop/checkout");
 }
 
 // ======================================================================

@@ -9,6 +9,7 @@ import { calculateShipping, calculateTax, buildCartTotals } from "../lib/calcula
 import { getCartView } from "./cart.repository";
 import { emitCommerceEvent } from "../lib/analytics";
 import { notifyShopOrderEvent } from "../server/shop-notifications";
+import { applyGeoRules } from "../lib/delivery-geo";
 import type { CartTotals } from "../types/domain";
 
 /**
@@ -43,27 +44,58 @@ export type CheckoutQuote = {
   couponEvidence: Record<string, unknown> | null;
 };
 
-export async function getDeliveryOptions(displayCurrency: string, lang: string, subtotal: number): Promise<DeliveryOption[]> {
+export async function getDeliveryOptions(
+  displayCurrency: string,
+  lang: string,
+  subtotal: number,
+  destination?: { country?: string | null; region?: string | null }
+): Promise<DeliveryOption[]> {
   const rows = await sql<any[]>`
     select id::text as id, code,
       common.get_translation_t(name_translations, ${lang}, 'en') as name,
       common.get_translation_t(description_translations, ${lang}, 'en') as description,
-      base_fee::float as "baseFee", estimated_days_min as "etaMin", estimated_days_max as "etaMax"
+      base_fee::float as "baseFee", estimated_days_min as "etaMin", estimated_days_max as "etaMax",
+      rules
     from shop.delivery_methods where is_active = true order by base_fee asc
   `;
-  return rows.map((r) => {
-    const shipping = calculateShipping(subtotal, Number(r.baseFee));
-    return {
+  const out: DeliveryOption[] = [];
+  for (const r of rows) {
+    const geo = applyGeoRules(
+      { baseFee: Number(r.baseFee), etaMin: r.etaMin ?? null, etaMax: r.etaMax ?? null, rules: r.rules },
+      destination ?? {}
+    );
+    if (!geo) continue; // not served at this destination
+    const shipping = calculateShipping(subtotal, geo.baseFee);
+    out.push({
       id: r.id,
       code: r.code,
       name: r.name,
       description: r.description ?? "",
       fee: shipping.amount,
       currency: displayCurrency,
-      etaMinDays: r.etaMin ?? null,
-      etaMaxDays: r.etaMax ?? null,
-    };
-  });
+      etaMinDays: geo.etaMin,
+      etaMaxDays: geo.etaMax,
+    });
+  }
+  return out;
+}
+
+/** Whether a specific delivery method serves a destination (SHP-V03-012). */
+export async function isDeliveryMethodEligible(
+  deliveryMethodId: string,
+  destination: { country?: string | null; region?: string | null }
+): Promise<boolean> {
+  const [row] = await sql<any[]>`
+    select base_fee::float as "baseFee", estimated_days_min as "etaMin", estimated_days_max as "etaMax", rules
+    from shop.delivery_methods where id = ${deliveryMethodId}::uuid and is_active = true limit 1
+  `;
+  if (!row) return false;
+  return (
+    applyGeoRules(
+      { baseFee: Number(row.baseFee), etaMin: row.etaMin ?? null, etaMax: row.etaMax ?? null, rules: row.rules },
+      destination
+    ) !== null
+  );
 }
 
 export async function getPaymentMethods(lang: string) {
@@ -85,6 +117,8 @@ export async function quoteCheckout(input: {
   cartId: string;
   deliveryMethodId?: string | null;
   paymentCurrency?: string | null;
+  destinationCountry?: string | null;
+  destinationRegion?: string | null;
 }): Promise<CheckoutQuote> {
   const ctx = await getShopContext();
   const lang = normalizeLocale(ctx.locale);
@@ -102,7 +136,11 @@ export async function quoteCheckout(input: {
   }
 
   const subtotal = active.reduce((s, x) => s + x.lineTotal, 0);
-  const deliveryOptions = await getDeliveryOptions(currency, lang, subtotal);
+  const deliveryOptions = await getDeliveryOptions(currency, lang, subtotal, {
+    country: input.destinationCountry,
+    region: input.destinationRegion,
+  });
+  if (input.destinationCountry && !deliveryOptions.length) blockingIssues.push("no_delivery_to_destination");
   const selected =
     deliveryOptions.find((d) => d.id === input.deliveryMethodId) ?? deliveryOptions[0] ?? null;
 
@@ -238,10 +276,24 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
     };
   }
 
+  // Server-authoritative geographic eligibility (SHP-V03-012): the client may
+  // have quoted with a different address than the one it is now submitting.
+  const destCountry = (input.shippingAddress?.country as string | undefined) ?? null;
+  const destRegion = (input.shippingAddress?.stateRegion as string | undefined) ?? null;
+  if (input.deliveryMethodId && destCountry) {
+    const eligible = await isDeliveryMethodEligible(input.deliveryMethodId, {
+      country: destCountry,
+      region: destRegion,
+    });
+    if (!eligible) throw new Error("The selected delivery method does not ship to this address.");
+  }
+
   const quote = await quoteCheckout({
     cartId: input.cartId,
     deliveryMethodId: input.deliveryMethodId,
     paymentCurrency: input.paymentCurrency,
+    destinationCountry: destCountry,
+    destinationRegion: destRegion,
   });
   if (quote.blockingIssues.length) {
     throw new Error(`Checkout cannot proceed: ${quote.blockingIssues.join(", ")}`);
