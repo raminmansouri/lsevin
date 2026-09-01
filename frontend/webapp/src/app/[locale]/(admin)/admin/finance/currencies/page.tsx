@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CurrencyActiveToggle } from '@/features/finance/components/admin/currency-active-toggle';
+import { CurrencyDeleteButton } from '@/features/finance/components/admin/currency-delete-button';
 import { getAdminCurrencies } from '@/features/finance/api/server/get-admin-finance';
 
 export default async function AdminCurrenciesPage() {
@@ -50,7 +51,12 @@ export default async function AdminCurrenciesPage() {
                   <td>{currency.isPaymentEnabled ? <Badge>Yes</Badge> : <Badge variant="outline">No</Badge>}</td>
                   <td>{currency.isSettlementEnabled ? <Badge>Yes</Badge> : <Badge variant="outline">No</Badge>}</td>
                   <td><CurrencyActiveToggle code={currency.code} isActive={currency.isActive} /></td>
-                  <td className="text-right"><Button asChild size="sm" variant="outline"><Link href={`/admin/finance/currencies/${currency.code}/edit`}>Edit</Link></Button></td>
+                  <td className="text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <Button asChild size="sm" variant="outline"><Link href={`/admin/finance/currencies/${currency.code}/edit`}>Edit</Link></Button>
+                      <CurrencyDeleteButton code={currency.code} />
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
