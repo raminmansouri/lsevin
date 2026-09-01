@@ -17,7 +17,13 @@ import {
   removeHomeSectionItem,
   setCategoryServiceLink,
   setProductGallery,
+  addAttributeValue,
+  deleteAttribute,
+  deleteAttributeValue,
+  removeProductAttribute,
+  setProductAttribute,
   updateDeliveryMethod,
+  upsertAttribute,
   upsertBrand,
   upsertCategory,
   upsertCoupon,
@@ -162,6 +168,58 @@ export async function deleteCouponForm(formData: FormData) {
   const id = z.string().parse(formData.get("id"));
   await deleteCoupon({ id });
   revalidatePath("/admin/shop/coupons");
+}
+
+// ======================================================================
+// Attributes (SHP-ADM-007)
+// ======================================================================
+export async function upsertAttributeForm(formData: FormData) {
+  await upsertAttribute({
+    id: formData.get("id") ? String(formData.get("id")) : undefined,
+    nameTranslations: fromForm3(formData, "name"),
+    slug: String(formData.get("slug") || ""),
+    displayType: String(formData.get("displayType") || "select"),
+    isVariantDefining: formData.get("isVariantDefining") === "on",
+  });
+  revalidatePath("/admin/shop/attributes");
+}
+
+export async function deleteAttributeForm(formData: FormData) {
+  await deleteAttribute({ id: shopId.parse(formData.get("id")) });
+  revalidatePath("/admin/shop/attributes");
+}
+
+export async function addAttributeValueForm(formData: FormData) {
+  await addAttributeValue({
+    attributeId: shopId.parse(formData.get("attributeId")),
+    value: String(formData.get("value") || ""),
+    displayNameTranslations: fromForm3(formData, "label"),
+    colorHex: formData.get("colorHex") ? String(formData.get("colorHex")) : null,
+    imageUrl: formData.get("imageUrl") ? String(formData.get("imageUrl")) : null,
+  });
+  revalidatePath("/admin/shop/attributes");
+}
+
+export async function deleteAttributeValueForm(formData: FormData) {
+  await deleteAttributeValue({ id: shopId.parse(formData.get("id")) });
+  revalidatePath("/admin/shop/attributes");
+}
+
+export async function setProductAttributeForm(formData: FormData) {
+  const productId = shopId.parse(formData.get("productId"));
+  await setProductAttribute({
+    productId,
+    attributeId: shopId.parse(formData.get("attributeId")),
+    isRequired: formData.get("isRequired") === "on",
+    displayOrder: Number(formData.get("displayOrder") || 0),
+  });
+  revalidatePath(`/admin/shop/products/${productId}`);
+}
+
+export async function removeProductAttributeForm(formData: FormData) {
+  const productId = shopId.parse(formData.get("productId"));
+  await removeProductAttribute({ productId, attributeId: shopId.parse(formData.get("attributeId")) });
+  revalidatePath(`/admin/shop/products/${productId}`);
 }
 
 // ======================================================================

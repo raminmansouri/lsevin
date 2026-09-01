@@ -59,6 +59,7 @@ export default async function AdminShopDashboardPage() {
             ["Products", "/admin/shop/products"],
             ["Categories", "/admin/shop/categories"],
             ["Brands", "/admin/shop/brands"],
+            ["Attributes", "/admin/shop/attributes"],
             ["Coupons", "/admin/shop/coupons"],
             ["Inventory", "/admin/shop/inventory"],
             ["Delivery", "/admin/shop/delivery"],

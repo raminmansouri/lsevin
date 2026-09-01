@@ -181,7 +181,7 @@ export async function getAdminProductForEdit(productId: string) {
     from shop.products where id = ${productId}::uuid and deleted_at is null limit 1
   `;
   if (!p) return null;
-  const [categories, links, media, variants] = await Promise.all([
+  const [categories, links, media, variants, attributes] = await Promise.all([
     sql<any[]>`select category_id::text as category_id, is_primary from shop.product_categories where product_id = ${productId}::uuid`,
     sql<any[]>`
       select psl.id::text as id, psl.service_definition_id::text as service_definition_id, psl.relation_type, psl.display_order,
@@ -202,6 +202,15 @@ export async function getAdminProductForEdit(productId: string) {
       where v.product_id = ${productId}::uuid and v.deleted_at is null
       order by v.price asc
     `,
+    sql<any[]>`
+      select a.id::text as attribute_id, a.slug, a.display_type, a.is_variant_defining,
+        common.get_translation_t(a.name_translations, 'en', 'en') as name,
+        pa.is_required, pa.display_order
+      from shop.product_attributes pa
+      join shop.attributes a on a.id = pa.attribute_id
+      where pa.product_id = ${productId}::uuid
+      order by pa.display_order asc, a.slug asc
+    `,
   ]);
   return {
     ...p,
@@ -209,6 +218,7 @@ export async function getAdminProductForEdit(productId: string) {
     serviceLinks: links,
     galleryUrls: media.map((m) => m.url),
     variants,
+    attributes,
   };
 }
 
@@ -391,6 +401,28 @@ export async function getHomeSectionWithItems(id: string) {
     order by i.display_order asc
   `;
   return { ...section, items };
+}
+
+// ======================================================================
+// Attributes (SHP-ADM-007)
+// ======================================================================
+export async function listAttributesAdmin() {
+  await assertShopAdmin();
+  return sql<any[]>`
+    select a.id::text as id, a.slug, a.display_type, a.is_variant_defining,
+      a.name_translations,
+      common.get_translation_t(a.name_translations, 'en', 'en') as name,
+      coalesce((select count(*)::int from shop.product_attributes pa where pa.attribute_id = a.id), 0) as product_count,
+      coalesce((
+        select jsonb_agg(jsonb_build_object(
+          'id', v.id, 'value', v.value, 'colorHex', v.color_hex, 'imageUrl', v.image_url,
+          'name', common.get_translation_t(v.display_name_translations, 'en', 'en')
+        ) order by v.value)
+        from shop.attribute_values v where v.attribute_id = a.id
+      ), '[]'::jsonb) as values
+    from shop.attributes a
+    order by a.slug asc
+  `;
 }
 
 // ======================================================================

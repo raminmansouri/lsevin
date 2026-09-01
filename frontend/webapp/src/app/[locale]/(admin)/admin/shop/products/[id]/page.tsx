@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import {
   getAdminProductForEdit,
   listAdminCategories,
+  listAttributesAdmin,
   listServiceDefinitionsForPicker,
 } from "@/features/shop/api/admin.repository";
 import {
@@ -11,7 +12,12 @@ import {
   unlinkProductServiceForm,
   updateProductCoreForm,
 } from "@/features/shop/actions/admin.actions";
-import { deleteVariantForm, upsertVariantForm } from "@/features/shop/actions/admin-catalog.actions";
+import {
+  deleteVariantForm,
+  removeProductAttributeForm,
+  setProductAttributeForm,
+  upsertVariantForm,
+} from "@/features/shop/actions/admin-catalog.actions";
 import { ProductGalleryEditor } from "@/features/shop/components/admin/ProductGalleryEditor";
 
 export const dynamic = "force-dynamic";
@@ -21,12 +27,14 @@ const RELATION = ["general", "recommended_before", "recommended_after", "compati
 
 export default async function AdminProductEditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [product, categories, services] = await Promise.all([
+  const [product, categories, services, allAttributes] = await Promise.all([
     getAdminProductForEdit(id),
     listAdminCategories(),
     listServiceDefinitionsForPicker(),
+    listAttributesAdmin(),
   ]);
   if (!product) notFound();
+  const attachedIds = new Set((product.attributes ?? []).map((a: any) => a.attribute_id));
 
   const nt = product.name_translations ?? {};
   const dt = product.short_description_translations ?? {};
@@ -167,6 +175,46 @@ export default async function AdminProductEditPage({ params }: { params: Promise
               </div>
               <button className="w-full rounded bg-[#083f30] px-3 py-2 text-sm font-semibold text-white">Add variant</button>
               <p className="text-xs text-gray-400">Adding the first variant switches the product to a variant product; a variant sells only while active (SHP-CAT-004).</p>
+            </form>
+          </section>
+
+          <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+            <div className="mb-2 flex items-center justify-between">
+              <h2 className="text-sm font-bold text-gray-900">Attributes (SHP-ADM-007)</h2>
+              <Link href="/admin/shop/attributes" className="text-xs font-medium text-[#083f30]">Manage attributes →</Link>
+            </div>
+            <ul className="mb-3 space-y-1">
+              {(product.attributes ?? []).map((a: any) => (
+                <li key={a.attribute_id} className="flex items-center justify-between rounded border border-gray-100 px-2 py-1 text-sm">
+                  <span>
+                    {a.name} <span className="font-mono text-xs text-gray-400">{a.slug}</span>
+                    {a.is_required ? <span className="ms-1 text-xs text-amber-600">required</span> : null}
+                    {a.is_variant_defining ? <span className="ms-1 text-xs text-emerald-600">variant</span> : null}
+                    <span className="ms-1 text-xs text-gray-400">· order {a.display_order}</span>
+                  </span>
+                  <form action={removeProductAttributeForm}>
+                    <input type="hidden" name="productId" value={product.id} />
+                    <input type="hidden" name="attributeId" value={a.attribute_id} />
+                    <button className="text-xs text-red-600">remove</button>
+                  </form>
+                </li>
+              ))}
+              {!(product.attributes ?? []).length ? <li className="text-xs text-gray-400">No attributes attached.</li> : null}
+            </ul>
+            <form action={setProductAttributeForm} className="space-y-2">
+              <input type="hidden" name="productId" value={product.id} />
+              <select name="attributeId" className={input}>
+                {allAttributes
+                  .filter((a: any) => !attachedIds.has(a.id))
+                  .map((a: any) => (
+                    <option key={a.id} value={a.id}>{a.name} ({a.slug})</option>
+                  ))}
+              </select>
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-1 text-sm"><input type="checkbox" name="isRequired" /> required</label>
+                <input name="displayOrder" type="number" defaultValue={0} className="h-9 w-20 rounded border border-gray-300 px-2 text-sm" />
+              </div>
+              <button className="w-full rounded bg-[#083f30] px-3 py-2 text-sm font-semibold text-white">Attach attribute</button>
             </form>
           </section>
         </div>

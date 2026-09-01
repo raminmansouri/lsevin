@@ -332,6 +332,98 @@ export async function deleteHomeSection(input: { id: string }): Promise<void> {
   await sql`delete from shop.home_sections where id = ${input.id}::uuid`;
 }
 
+// ======================================================================
+// Attributes & attribute values (SHP-ADM-007, SHP-CAT-006)
+// ======================================================================
+const ATTRIBUTE_DISPLAY_TYPES = ["select", "swatch", "text", "boolean"] as const;
+
+export async function upsertAttribute(input: {
+  id?: string;
+  nameTranslations: Record<string, string>;
+  slug: string;
+  displayType: string;
+  isVariantDefining: boolean;
+}): Promise<string> {
+  await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
+  const slug = input.slug.trim().toLowerCase();
+  if (!/^[a-z0-9][a-z0-9-]{1,60}$/.test(slug)) throw new Error("Slug must be kebab-case.");
+  const displayType = ATTRIBUTE_DISPLAY_TYPES.includes(input.displayType as never)
+    ? input.displayType
+    : "select";
+  if (input.id) {
+    await sql`
+      update shop.attributes set name_translations = ${j(input.nameTranslations)}, slug = ${slug},
+        display_type = ${displayType}, is_variant_defining = ${input.isVariantDefining},
+        last_modified_date = now()
+      where id = ${input.id}::uuid
+    `;
+    return input.id;
+  }
+  const [row] = await sql<{ id: string }[]>`
+    insert into shop.attributes (name_translations, slug, display_type, is_variant_defining)
+    values (${j(input.nameTranslations)}, ${slug}, ${displayType}, ${input.isVariantDefining})
+    returning id::text as id
+  `;
+  return row.id;
+}
+
+export async function deleteAttribute(input: { id: string }): Promise<void> {
+  await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
+  const [inUse] = await sql<{ n: number }[]>`
+    select count(*)::int as n from shop.product_attributes where attribute_id = ${input.id}::uuid
+  `;
+  if (inUse.n > 0) throw new Error(`Attribute is attached to ${inUse.n} product(s) — detach it first.`);
+  await sql`delete from shop.attribute_values where attribute_id = ${input.id}::uuid`;
+  await sql`delete from shop.attributes where id = ${input.id}::uuid`;
+}
+
+export async function addAttributeValue(input: {
+  attributeId: string;
+  value: string;
+  displayNameTranslations: Record<string, string>;
+  colorHex?: string | null;
+  imageUrl?: string | null;
+}): Promise<string> {
+  await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
+  const value = input.value.trim();
+  if (!value) throw new Error("Value is required.");
+  const [row] = await sql<{ id: string }[]>`
+    insert into shop.attribute_values (attribute_id, value, display_name_translations, color_hex, image_url)
+    values (${input.attributeId}::uuid, ${value}, ${j(input.displayNameTranslations)},
+            ${input.colorHex || null}, ${input.imageUrl || null})
+    returning id::text as id
+  `;
+  return row.id;
+}
+
+export async function deleteAttributeValue(input: { id: string }): Promise<void> {
+  await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
+  await sql`delete from shop.attribute_values where id = ${input.id}::uuid`;
+}
+
+export async function setProductAttribute(input: {
+  productId: string;
+  attributeId: string;
+  isRequired: boolean;
+  displayOrder: number;
+}): Promise<void> {
+  await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
+  await sql`
+    insert into shop.product_attributes (product_id, attribute_id, is_required, display_order)
+    values (${input.productId}::uuid, ${input.attributeId}::uuid, ${input.isRequired}, ${input.displayOrder})
+    on conflict (product_id, attribute_id)
+    do update set is_required = excluded.is_required, display_order = excluded.display_order
+  `;
+}
+
+export async function removeProductAttribute(input: { productId: string; attributeId: string }): Promise<void> {
+  await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
+  await sql`
+    delete from shop.product_attributes
+    where product_id = ${input.productId}::uuid and attribute_id = ${input.attributeId}::uuid
+  `;
+}
+
 /**
  * Delivery method operational config incl. `rules.geo` geographic eligibility
  * (SHP-V03-012). `rules` is validated as an object before it is written.
