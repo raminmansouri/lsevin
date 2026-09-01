@@ -1,11 +1,12 @@
+import { shopId } from "./id";
 import { z } from "zod";
 import { translatedTextSchema } from "./catalog";
 export const adminProductUpsertSchema = z.object({
-  id: z.string().uuid().optional(),
+  id: shopId.optional(),
   productType: z.enum(["simple", "variant", "bundle", "digital"]),
   status: z.enum(["draft", "active", "archived"]),
-  brandId: z.string().uuid().nullable().optional(),
-  primaryCategoryId: z.string().uuid().nullable().optional(),
+  brandId: shopId.nullable().optional(),
+  primaryCategoryId: shopId.nullable().optional(),
   nameTranslations: translatedTextSchema,
   shortDescriptionTranslations: translatedTextSchema,
   descriptionTranslations: translatedTextSchema,
@@ -21,10 +22,10 @@ export const adminProductUpsertSchema = z.object({
   isBestSeller: z.coerce.boolean().default(false),
   isNewArrival: z.coerce.boolean().default(false),
   fulfillmentType: z.enum(["delivery", "pickup", "download"]),
-  categoryIds: z.array(z.string().uuid()).default([]),
+  categoryIds: z.array(shopId).default([]),
 });
 export const adminCouponUpsertSchema = z.object({
-  id: z.string().uuid().optional(),
+  id: shopId.optional(),
   code: z.string().trim().min(2).max(50),
   titleTranslations: translatedTextSchema,
   descriptionTranslations: translatedTextSchema,
