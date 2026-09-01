@@ -4,6 +4,7 @@ import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { CurrencyActiveToggle } from '@/features/finance/components/admin/currency-active-toggle';
 import { getAdminCurrencies } from '@/features/finance/api/server/get-admin-finance';
 
 export default async function AdminCurrenciesPage() {
@@ -48,7 +49,7 @@ export default async function AdminCurrenciesPage() {
                   <td>{currency.isDisplayEnabled ? <Badge>Yes</Badge> : <Badge variant="outline">No</Badge>}</td>
                   <td>{currency.isPaymentEnabled ? <Badge>Yes</Badge> : <Badge variant="outline">No</Badge>}</td>
                   <td>{currency.isSettlementEnabled ? <Badge>Yes</Badge> : <Badge variant="outline">No</Badge>}</td>
-                  <td>{currency.isActive ? <Badge>Active</Badge> : <Badge variant="secondary">Disabled</Badge>}</td>
+                  <td><CurrencyActiveToggle code={currency.code} isActive={currency.isActive} /></td>
                   <td className="text-right"><Button asChild size="sm" variant="outline"><Link href={`/admin/finance/currencies/${currency.code}/edit`}>Edit</Link></Button></td>
                 </tr>
               ))}
