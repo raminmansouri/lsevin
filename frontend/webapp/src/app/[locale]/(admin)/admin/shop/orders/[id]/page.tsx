@@ -159,6 +159,13 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
               <input type="hidden" name="orderId" value={order.id} />
               <input name="carrier" placeholder="Carrier" className={input} />
               <input name="trackingNumber" placeholder="Tracking number" className={input} />
+              <p className="text-xs text-gray-500">Leave quantities at 0 to ship the whole order; set some for a partial shipment (SHP-V03-003).</p>
+              {order.items.map((it: any) => (
+                <div key={it.id} className="flex items-center justify-between gap-2 text-sm">
+                  <span className="line-clamp-1 flex-1">{it.name} <span className="text-gray-400">(×{it.quantity})</span></span>
+                  <input name={`qty:${it.id}`} type="number" min={0} max={it.quantity} defaultValue={0} className="h-8 w-16 rounded border border-gray-300 px-1 text-sm" />
+                </div>
+              ))}
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" name="markShipped" defaultChecked /> mark shipped now
               </label>

@@ -1,11 +1,43 @@
 import Link from "next/link";
 
-import { getAdminDashboardSummary } from "@/features/shop/api/admin.repository";
+import { getAdminDashboardSummary, getExceptionQueues } from "@/features/shop/api/admin.repository";
 
 export const dynamic = "force-dynamic";
 
+const EMPTY_SUMMARY = {
+  ordersMonth: 0,
+  paidSales: 0,
+  avgOrderValue: 0,
+  pendingFulfilment: 0,
+  exceptions: 0,
+  productCount: 0,
+  activeProducts: 0,
+  lowStockCount: 0,
+  recentOrders: [] as any[],
+};
+
 export default async function AdminShopDashboardPage() {
-  const s = await getAdminDashboardSummary();
+  // One failing query must not blank the whole dashboard — each half degrades
+  // independently and `error.tsx` catches anything that still slips through.
+  const [s, exc] = await Promise.all([
+    getAdminDashboardSummary().catch((e) => {
+      console.error("[admin/shop] dashboard summary failed:", e);
+      return EMPTY_SUMMARY;
+    }),
+    getExceptionQueues().catch((e) => {
+      console.error("[admin/shop] exception queues failed:", e);
+      return {} as Record<string, number>;
+    }),
+  ]);
+
+  const exceptions: Array<{ label: string; value: number; href: string }> = [
+    { label: "Stuck payments (>2d)", value: exc.stuck_payments ?? 0, href: "/admin/shop/orders?status=awaiting_payment" },
+    { label: "Unfulfilled paid orders", value: exc.unfulfilled_paid ?? 0, href: "/admin/shop/orders?status=paid" },
+    { label: "Failed payments (7d)", value: exc.recent_failed_payments ?? 0, href: "/admin/shop/orders?paymentStatus=failed" },
+    { label: "Pending returns", value: exc.pending_returns ?? 0, href: "/admin/shop/returns" },
+    { label: "Refunds pending", value: exc.refund_pending ?? 0, href: "/admin/shop/orders?status=cancelled" },
+    { label: "Stalled shipments (>2d)", value: exc.stalled_shipments ?? 0, href: "/admin/shop/orders" },
+  ];
 
   const cards = [
     { label: "Orders (this month)", value: s.ordersMonth },
@@ -31,6 +63,7 @@ export default async function AdminShopDashboardPage() {
             ["Inventory", "/admin/shop/inventory"],
             ["Merchandising", "/admin/shop/merchandising"],
             ["Reviews", "/admin/shop/reviews"],
+            ["Returns", "/admin/shop/returns"],
             ["Settings", "/admin/shop/settings"],
           ].map(([l, h]) => (
             <Link key={h} href={h} className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 font-medium text-gray-700">
@@ -46,6 +79,20 @@ export default async function AdminShopDashboardPage() {
             <div className="text-sm text-gray-500">{c.label}</div>
             <div className={`mt-2 text-2xl font-bold ${c.warn ? "text-amber-600" : "text-gray-900"}`}>{c.value}</div>
           </div>
+        ))}
+      </div>
+
+      <h2 className="mb-3 mt-8 text-lg font-bold text-gray-900">Exception queues (SHP-V03-013)</h2>
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {exceptions.map((e) => (
+          <Link
+            key={e.label}
+            href={e.href}
+            className={`rounded-xl border p-4 ${e.value > 0 ? "border-amber-300 bg-amber-50" : "border-gray-100 bg-white"}`}
+          >
+            <div className="text-sm text-gray-600">{e.label}</div>
+            <div className={`mt-1 text-xl font-bold ${e.value > 0 ? "text-amber-700" : "text-gray-400"}`}>{e.value}</div>
+          </Link>
         ))}
       </div>
 

@@ -71,10 +71,11 @@ export async function markOrderPaidAction(input: unknown) {
 }
 
 const shipmentSchema = z.object({
-  orderId: z.string().uuid(),
+  orderId: shopId,
   carrier: z.string().trim().max(80).optional(),
   trackingNumber: z.string().trim().max(120).optional(),
   markShipped: z.coerce.boolean().optional(),
+  items: z.array(z.object({ orderItemId: shopId, quantity: z.coerce.number().int().min(0) })).optional(),
 });
 export async function recordShipmentAction(input: unknown) {
   const p = shipmentSchema.parse(input);
@@ -223,11 +224,20 @@ export async function markOrderPaidForm(formData: FormData) {
   await markOrderPaidAction({ orderId: formData.get("orderId"), reference: formData.get("reference") || undefined });
 }
 export async function recordShipmentForm(formData: FormData) {
+  // partial shipment: fields named "qty:<orderItemId>" carry the quantity to ship now
+  const items: Array<{ orderItemId: string; quantity: number }> = [];
+  for (const [k, v] of formData.entries()) {
+    if (k.startsWith("qty:")) {
+      const quantity = Number(v);
+      if (quantity > 0) items.push({ orderItemId: k.slice(4), quantity });
+    }
+  }
   await recordShipmentAction({
     orderId: formData.get("orderId"),
     carrier: formData.get("carrier") || undefined,
     trackingNumber: formData.get("trackingNumber") || undefined,
     markShipped: formData.get("markShipped") === "on" || formData.get("markShipped") === "true",
+    items: items.length ? items : undefined,
   });
 }
 export async function markDeliveredForm(formData: FormData) {

@@ -13625,7 +13625,19 @@
     "relRequired": "Required",
     "relAddon": "Optional add-ons",
     "relCompatible": "Works with this",
-    "relGeneral": "Related"
+    "relGeneral": "Related",
+    "cancelOrder": "Cancel order",
+    "cancelReason": "Reason (optional)",
+    "confirmCancel": "Yes, cancel this order",
+    "orderCancelled": "Your order has been cancelled.",
+    "refundPendingNote": "A refund will be processed by our team.",
+    "requestReturn": "Request a return",
+    "returnReason": "Why are you returning these items?",
+    "returnItemsLabel": "Items to return",
+    "returnSubmitted": "Return request submitted — we'll review it shortly.",
+    "returnsHeading": "Returns",
+    "returnStatusLabel": "Status",
+    "qty": "Qty"
   },
   "ShopAdmin": {
     "dashboard": "Shop dashboard",

@@ -13625,7 +13625,19 @@
     "relRequired": "موردنیاز",
     "relAddon": "افزودنی‌های اختیاری",
     "relCompatible": "سازگار با این",
-    "relGeneral": "مرتبط"
+    "relGeneral": "مرتبط",
+    "cancelOrder": "لغو سفارش",
+    "cancelReason": "دلیل (اختیاری)",
+    "confirmCancel": "بله، این سفارش لغو شود",
+    "orderCancelled": "سفارش شما لغو شد.",
+    "refundPendingNote": "بازپرداخت توسط تیم ما انجام خواهد شد.",
+    "requestReturn": "درخواست مرجوعی",
+    "returnReason": "چرا این کالاها را برمی‌گردانید؟",
+    "returnItemsLabel": "کالاهای مرجوعی",
+    "returnSubmitted": "درخواست مرجوعی ثبت شد — به‌زودی بررسی می‌کنیم.",
+    "returnsHeading": "مرجوعی‌ها",
+    "returnStatusLabel": "وضعیت",
+    "qty": "تعداد"
   },
   "ShopAdmin": {
     "dashboard": "داشبورد فروشگاه",

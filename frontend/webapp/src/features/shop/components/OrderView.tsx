@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
 import { formatShopMoney } from "./money";
+import { OrderActions } from "./OrderActions";
 import type { OrderDetail, OrderSummary } from "../types/domain";
 
 function statusTone(s: string): string {
@@ -52,10 +53,16 @@ export async function OrderDetailView({
   order,
   locale,
   confirmation = false,
+  email,
+  canCancel = false,
+  returnable = null,
 }: {
   order: OrderDetail;
   locale: string;
   confirmation?: boolean;
+  email?: string | null;
+  canCancel?: boolean;
+  returnable?: { eligible: boolean; items: Array<{ id: string; name: string; quantity: number; returnable: number }> } | null;
 }) {
   const t = await getTranslations("Shop");
   const paid = ["paid", "processing", "shipped", "completed", "partially_shipped"].includes(order.status);
@@ -146,10 +153,40 @@ export async function OrderDetailView({
             <div key={s.id} className="flex items-center justify-between py-1 text-sm">
               <span className="text-neutral-600">
                 {s.carrier ?? "—"} · {s.trackingNumber ?? "—"}
+                {s.shippedAt ? ` · ${new Date(s.shippedAt).toLocaleDateString(locale)}` : ""}
               </span>
               <StatusPill status={s.status} />
             </div>
           ))}
+        </div>
+      ) : null}
+
+      {order.returns.length ? (
+        <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/[0.04]">
+          <p className="mb-2 text-sm font-bold text-neutral-900">{t("returnsHeading")}</p>
+          {order.returns.map((r) => (
+            <div key={r.id} className="border-b border-neutral-100 py-2 text-sm last:border-0">
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-600">
+                  {r.items.map((i) => `${i.name} ×${i.quantity}`).join(", ")}
+                </span>
+                <StatusPill status={r.status} />
+              </div>
+              {r.reason ? <p className="text-xs text-neutral-400">{r.reason}</p> : null}
+              {r.reviewNote ? <p className="text-xs text-amber-700">{r.reviewNote}</p> : null}
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      {canCancel || returnable?.eligible ? (
+        <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/[0.04]">
+          <OrderActions
+            orderNumber={order.orderNumber}
+            email={email}
+            canCancel={canCancel}
+            returnable={returnable}
+          />
         </div>
       ) : null}
 

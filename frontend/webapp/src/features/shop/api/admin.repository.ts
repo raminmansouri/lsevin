@@ -265,6 +265,50 @@ export async function getCategoryForEdit(id: string) {
 }
 
 // ======================================================================
+// Returns (SHP-V03-006/007/008)
+// ======================================================================
+export async function listReturnRequests(status = "requested") {
+  await assertShopAdmin();
+  return sql<any[]>`
+    select rr.id::text as id, rr.status, rr.reason, rr.review_note as review_note,
+      rr.requested_at::text as requested_at, rr.reviewed_at::text as reviewed_at,
+      o.order_number, o.id::text as order_id,
+      coalesce(jsonb_agg(jsonb_build_object(
+        'name', common.get_translation_t(oi.product_name_snapshot, 'en', 'en'),
+        'quantity', ri.quantity,
+        'reason', ri.reason
+      )) filter (where ri.id is not null), '[]'::jsonb) as items
+    from shop.return_requests rr
+    join shop.orders o on o.id = rr.order_id
+    left join shop.return_items ri on ri.return_request_id = rr.id
+    left join shop.order_items oi on oi.id = ri.order_item_id
+    where (${status}::text = 'all' or rr.status::text = ${status})
+    group by rr.id, o.order_number, o.id
+    order by rr.requested_at desc
+    limit 200
+  `;
+}
+
+// ======================================================================
+// Exception queues (SHP-V03-013, SHP-ADM-001)
+// ======================================================================
+export async function getExceptionQueues() {
+  await assertShopAdmin();
+  // Every sub-select is wrapped so one bad row or a not-yet-migrated column
+  // degrades a single tile to 0 instead of throwing the whole dashboard.
+  const [row] = await sql<any[]>`
+    select
+      coalesce((select count(*)::int from shop.orders where status = 'awaiting_payment' and placed_at < now() - interval '2 days'), 0) as stuck_payments,
+      coalesce((select count(*)::int from shop.orders where status in ('paid','processing') and fulfillment_status = 'pending' and paid_at < now() - interval '1 day'), 0) as unfulfilled_paid,
+      coalesce((select count(*)::int from shop.payment_transactions where status = 'failed' and create_date > now() - interval '7 days'), 0) as recent_failed_payments,
+      coalesce((select count(*)::int from shop.return_requests where status = 'requested'), 0) as pending_returns,
+      coalesce((select count(*)::int from shop.orders where coalesce(meta->>'refundPending', '') = 'true'), 0) as refund_pending,
+      coalesce((select count(*)::int from shop.shipments where status in ('pending','ready','packed') and create_date < now() - interval '2 days'), 0) as stalled_shipments
+  `;
+  return row ?? {};
+}
+
+// ======================================================================
 // Reviews + questions moderation (SHP-V02-017/018)
 // ======================================================================
 export async function listReviewsForModeration(status = "pending") {

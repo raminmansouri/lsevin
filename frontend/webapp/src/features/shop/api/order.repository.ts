@@ -52,7 +52,7 @@ export async function getCustomerOrder(orderNumber: string, guestEmail?: string 
     (!!guestEmail && order.email && guestEmail.trim().toLowerCase() === order.email.toLowerCase());
   if (!authorized) return null;
 
-  const [items, addresses, statusHistory, shipments, payments] = await Promise.all([
+  const [items, addresses, statusHistory, shipments, payments, returns] = await Promise.all([
     sql<any[]>`
       select oi.id::text as id, oi.product_id::text as "productId", p.slug,
         common.get_translation_t(oi.product_name_snapshot, ${lang}, 'en') as name,
@@ -82,6 +82,19 @@ export async function getCustomerOrder(orderNumber: string, guestEmail?: string 
     sql<any[]>`
       select id::text as id, provider, amount::float as amount, currency, status, create_date::text as "createdAt"
       from shop.payment_transactions where order_id = ${order.id}::uuid order by create_date desc
+    `,
+    sql<any[]>`
+      select rr.id::text as id, rr.status, rr.reason, rr.requested_at::text as "requestedAt", rr.review_note as "reviewNote",
+        coalesce(jsonb_agg(jsonb_build_object(
+          'name', common.get_translation_t(oi.product_name_snapshot, ${lang}, 'en'),
+          'quantity', ri.quantity
+        )) filter (where ri.id is not null), '[]'::jsonb) as items
+      from shop.return_requests rr
+      left join shop.return_items ri on ri.return_request_id = rr.id
+      left join shop.order_items oi on oi.id = ri.order_item_id
+      where rr.order_id = ${order.id}::uuid
+      group by rr.id
+      order by rr.requested_at desc
     `,
   ]);
 
@@ -127,6 +140,7 @@ export async function getCustomerOrder(orderNumber: string, guestEmail?: string 
     payments: payments.map((p) => ({ ...p, amount: Number(p.amount) })),
     statusHistory,
     shipments,
+    returns,
     fxSnapshot: order.fxSnapshot ?? {},
   };
 }

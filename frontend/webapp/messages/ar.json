@@ -12911,7 +12911,19 @@
     "relRequired": "مطلوب",
     "relAddon": "إضافات اختيارية",
     "relCompatible": "يعمل مع هذا",
-    "relGeneral": "ذات صلة"
+    "relGeneral": "ذات صلة",
+    "cancelOrder": "إلغاء الطلب",
+    "cancelReason": "السبب (اختياري)",
+    "confirmCancel": "نعم، ألغِ هذا الطلب",
+    "orderCancelled": "تم إلغاء طلبك.",
+    "refundPendingNote": "سيقوم فريقنا بمعالجة الاسترداد.",
+    "requestReturn": "طلب إرجاع",
+    "returnReason": "لماذا تُرجع هذه العناصر؟",
+    "returnItemsLabel": "العناصر المُرجعة",
+    "returnSubmitted": "تم إرسال طلب الإرجاع — سنراجعه قريباً.",
+    "returnsHeading": "المرتجعات",
+    "returnStatusLabel": "الحالة",
+    "qty": "الكمية"
   },
   "ShopAdmin": {
     "dashboard": "لوحة المتجر",

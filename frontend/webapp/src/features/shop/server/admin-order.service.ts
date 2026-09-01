@@ -140,43 +140,104 @@ export async function markOrderPaidManually(input: { orderId: string; reference?
   await notifyShopOrderEvent({ orderId: input.orderId, event: "order.paid" });
 }
 
+/**
+ * Records a shipment. Whole-order by default; pass `items` (order_item_id +
+ * quantity) for a partial shipment (SHP-V03-003). Each covered order line's
+ * `fulfillment_status` advances, the order becomes `shipped` only when every
+ * line is fully shipped, otherwise `partially_shipped`. Stock reservations for
+ * the shipped quantities convert to outbound movements.
+ */
 export async function recordShipment(input: {
   orderId: string;
   carrier?: string;
   trackingNumber?: string;
   markShipped?: boolean;
+  items?: Array<{ orderItemId: string; quantity: number }>;
 }) {
   const { userId } = await assertShopPermission(SHOP_PERMISSIONS.ordersManage);
   const order = await loadOrder(input.orderId);
   const shipmentNumber = `SHP-${order.order_number}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+  const partial = Array.isArray(input.items) && input.items.length > 0;
 
-  await sql.begin(async (tx) => {
+  const outcome = await sql.begin(async (tx) => {
+    const orderLines = await tx<any[]>`
+      select oi.id::text as id, oi.quantity, oi.product_id, oi.variant_id, oi.fulfillment_status::text as fs,
+        coalesce((select sum(si.quantity)::int from shop.shipment_items si where si.order_item_id = oi.id), 0) as already_shipped
+      from shop.order_items oi where oi.order_id = ${input.orderId}::uuid
+    `;
+    const wanted = partial
+      ? input.items!.map((i) => ({ id: i.orderItemId, quantity: Math.trunc(i.quantity) })).filter((i) => i.quantity > 0)
+      : orderLines.map((l) => ({ id: l.id, quantity: l.quantity - Number(l.already_shipped) })).filter((i) => i.quantity > 0);
+    if (!wanted.length) throw new Error("Nothing left to ship on this order.");
+
     const [ship] = await tx<{ id: string }[]>`
       insert into shop.shipments (order_id, status, shipment_number, tracking_number, carrier, shipped_at)
       values (${input.orderId}::uuid, ${input.markShipped ? "shipped" : "pending"}::shop.shipment_status, ${shipmentNumber},
               ${input.trackingNumber ?? null}, ${input.carrier ?? null}, ${input.markShipped ? sql`now()` : null})
       returning id::text as id
     `;
-    // whole-order shipment: all items
-    await tx`
-      insert into shop.shipment_items (shipment_id, order_item_id, quantity)
-      select ${ship.id}::uuid, oi.id, oi.quantity from shop.order_items oi where oi.order_id = ${input.orderId}::uuid
-    `;
+    for (const w of wanted) {
+      const line = orderLines.find((l) => l.id === w.id);
+      if (!line) throw new Error("Unknown order item in shipment.");
+      const remaining = line.quantity - Number(line.already_shipped);
+      if (w.quantity > remaining) throw new Error(`Only ${remaining} of that item remains to ship.`);
+      await tx`insert into shop.shipment_items (shipment_id, order_item_id, quantity) values (${ship.id}::uuid, ${w.id}::uuid, ${w.quantity})`;
+    }
+
     if (input.markShipped) {
-      await tx`update shop.order_items set fulfillment_status = 'shipped' where order_id = ${input.orderId}::uuid`;
+      // per-line fulfilment status
+      for (const l of orderLines) {
+        const inThis = wanted.find((w) => w.id === l.id)?.quantity ?? 0;
+        const shippedTotal = Number(l.already_shipped) + inThis;
+        const nextFs = shippedTotal >= l.quantity ? "shipped" : shippedTotal > 0 ? "packed" : l.fs;
+        if (nextFs !== l.fs) {
+          await tx`update shop.order_items set fulfillment_status = ${nextFs}::shop.shipment_status where id = ${l.id}::uuid`;
+        }
+      }
+      // convert reservations to outbound for the quantities shipped now
+      for (const w of wanted) {
+        const l = orderLines.find((x) => x.id === w.id)!;
+        const [inv] = await tx<{ id: string }[]>`
+          select i.id::text as id from shop.inventory i
+          where (${l.variant_id}::uuid is not null and i.variant_id = ${l.variant_id}::uuid)
+             or (${l.variant_id}::uuid is null and i.product_id = ${l.product_id}::uuid and i.variant_id is null)
+          limit 1
+        `;
+        if (!inv) continue;
+        await tx`
+          update shop.inventory
+          set reserved = greatest(reserved - ${w.quantity}, 0), on_hand = greatest(on_hand - ${w.quantity}, 0), last_modified_date = now()
+          where id = ${inv.id}::uuid
+        `;
+        await tx`insert into shop.inventory_movements (inventory_id, movement_type, quantity, reference_type, reference_id, note)
+                 values (${inv.id}::uuid, 'outbound', ${w.quantity}, 'shop.order', ${input.orderId}::uuid, ${"shipped " + shipmentNumber})`;
+      }
+
+      // recompute order fulfilment: all lines shipped => shipped, some => partially_shipped
+      const [{ fully }] = await tx<{ fully: boolean }[]>`
+        select bool_and(
+          coalesce((select sum(si.quantity)::int from shop.shipment_items si where si.order_item_id = oi.id), 0) >= oi.quantity
+        ) as fully
+        from shop.order_items oi where oi.order_id = ${input.orderId}::uuid
+      `;
+      const nextOrderStatus = fully ? "shipped" : "partially_shipped";
       await tx`
-        update shop.orders set fulfillment_status = 'shipped',
-          status = case when status in ('paid','processing','partially_shipped') then 'shipped'::shop.order_status else status end,
-          last_modified_date = now()
+        update shop.orders
+        set fulfillment_status = ${fully ? "shipped" : "packed"}::shop.shipment_status,
+            status = case when status in ('paid','processing','partially_shipped') then ${nextOrderStatus}::shop.order_status else status end,
+            last_modified_date = now()
         where id = ${input.orderId}::uuid
       `;
-      await convertReservationsToOutbound(tx, input.orderId);
       await tx`
         insert into shop.order_status_history (order_id, from_status, to_status, note, changed_by)
-        values (${input.orderId}::uuid, ${order.status}::shop.order_status, 'shipped', ${"Shipment " + shipmentNumber}, ${userId ?? null}::uuid)
+        values (${input.orderId}::uuid, ${order.status}::shop.order_status, ${nextOrderStatus}::shop.order_status,
+          ${(fully ? "Shipment " : "Partial shipment ") + shipmentNumber}, ${userId ?? null}::uuid)
       `;
+      return { fully };
     }
+    return { fully: false };
   });
+
   if (input.markShipped) {
     await notifyShopOrderEvent({
       orderId: input.orderId,
@@ -184,6 +245,7 @@ export async function recordShipment(input: {
       extra: { trackingNumber: input.trackingNumber ?? "-", carrier: input.carrier ?? "-" },
     });
   }
+  return outcome;
 }
 
 export async function markShipmentDelivered(input: { orderId: string; shipmentId: string }) {

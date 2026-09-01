@@ -132,5 +132,6 @@ export interface OrderDetail extends OrderSummary {
   payments: Array<{ id: UUID; provider: string | null; amount: number; currency: string; status: string; createdAt: string }>;
   statusHistory: Array<{ id: UUID; fromStatus: OrderStatus | null; toStatus: OrderStatus; note: string | null; createDate: string }>;
   shipments: Array<{ id: UUID; shipmentNumber: string; trackingNumber: string | null; carrier: string | null; status: ShipmentStatus; shippedAt: string | null; deliveredAt: string | null }>;
+  returns: Array<{ id: UUID; status: string; reason: string; requestedAt: string; reviewNote: string | null; items: Array<{ name: string; quantity: number }> }>;
   fxSnapshot: Record<string, unknown>;
 }
