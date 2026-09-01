@@ -1,6 +1,7 @@
 import 'server-only';
 import { assertNoUndefinedRecord, pgNumber, pgString } from './checkout-null-safety';
 import db from '@/config/database/db';
+import { reserveHotelDates } from "./hotel-availability.repository";
 import { calculateBookingPaymentTerms, resolveBookingPaymentPolicy } from '@/features/commercial/lib/server/payment-policy-engine';
 import { applyCommercialSnapshotAfterCheckout } from './commercial-integration';
 import { assertDraftAvailabilityBeforeCheckout } from './booking-availability.repository';
@@ -1653,6 +1654,18 @@ export async function checkoutDraft(
       `;
 
       bookingId = booking.id;
+    }
+
+    // A date-range service is a hotel stay, and a hotel takes one booking per night.
+    // Held in the same transaction as the booking itself, so a clash raises on the
+    // unique index and the whole checkout rolls back rather than double-selling.
+    if (draft.bookingUiMode === 'date_range' && scope?.providerId && draft.selectedDateFrom && draft.selectedDateTo) {
+      await reserveHotelDates(tx as any, {
+        serviceProviderId: String(scope.providerId),
+        bookingId: String(bookingId),
+        checkIn: String(draft.selectedDateFrom),
+        checkOut: String(draft.selectedDateTo),
+      });
     }
 
     await tx`
