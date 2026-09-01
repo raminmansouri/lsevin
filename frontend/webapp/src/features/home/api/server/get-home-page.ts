@@ -484,7 +484,9 @@ export async function getTrustedHomeProviders(input: HomeQueryInput, limit = 8):
       sp.id::text as id,
       common.get_translation_t(sp.name_translations, ${locale}::text, 'en-US') as name,
       common.get_translation_t(sp.description_translations, ${locale}::text, 'en-US') as description,
-      nullif(coalesce(gm.file_url, gallery.url, spm.file_url, sp.image_url, ''), '') as "imageUrl",
+      -- The provider's own picture first. The gallery used to lead this chain, so
+      -- a provider that had set an avatar still showed a gallery item here.
+      nullif(coalesce(spm.file_url, sp.image_url, gm.file_url, gallery.url, ''), '') as "imageUrl",
       sp.city,
       sp.country,
       coalesce(sp.rating, 0) as rating,
