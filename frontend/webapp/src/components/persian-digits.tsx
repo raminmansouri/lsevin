@@ -48,6 +48,15 @@ function toPersian(text: string): string {
   return text.replace(/[0-9]/g, (d) => PERSIAN_DIGITS[d.charCodeAt(0) - 48]);
 }
 
+/**
+ * Identifiers keep Latin digits. A UUID or a URL rewritten to Persian digits is
+ * no longer the value it names: copying a provider id out of the admin panel
+ * produced links like /admin/service-providers/۷۸۹۵۰۹۶۹-۰۵۴۳-۴۹a۲-... which
+ * resolve to nothing. Ordinary numbers in the same document still convert.
+ */
+const IDENTIFIER_LIKE =
+  /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|https?:\/\//i;
+
 /** Should we skip this element (and its subtree) entirely? */
 function isSkippedElement(el: Element): boolean {
   if (SKIP_TAGS.has(el.tagName)) return true;
@@ -79,6 +88,7 @@ function isInsideSkipped(node: Node): boolean {
 function convertTextNode(node: Text): void {
   const value = node.nodeValue;
   if (!value || !ASCII_DIGIT.test(value)) return;
+  if (IDENTIFIER_LIKE.test(value)) return;
   if (isInsideSkipped(node)) return;
   const next = toPersian(value);
   if (next !== value) node.nodeValue = next;

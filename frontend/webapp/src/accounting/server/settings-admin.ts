@@ -91,7 +91,8 @@ export async function listActiveCurrencies(): Promise<{ code: string; decimalDig
   return db<{ code: string; decimalDigits: number }[]>`
     select code, decimal_digits as "decimalDigits"
     from finance.currencies
-    where is_active = true
+    where deleted_at is null
+      and is_active = true
     order by sort_order, code
   `;
 }

@@ -853,6 +853,10 @@
     }
   },
   "AdminGenerated": {
+    "deleteCurrency": "Delete currency",
+    "deleteCurrencyConfirm": "Delete this currency? It is removed from the lists while past records stay untouched.",
+    "currencyDeleted": "Currency deleted.",
+    "currencyInUseCannotDelete": "This currency was not deleted because it is used in:",
     "aRIALabel": "A Ria Label",
     "accentColor": "Accent color",
     "accessControl": "Access Control",
@@ -13614,7 +13618,14 @@
     "yourQuestion": "Your question",
     "submitQuestion": "Post question",
     "questionSubmitted": "Thanks! Your question was sent.",
-    "noQuestions": "No questions yet — be the first to ask."
+    "noQuestions": "No questions yet — be the first to ask.",
+    "serviceRelated": "Recommended for {service}",
+    "relBefore": "Before your service",
+    "relAfter": "After your service",
+    "relRequired": "Required",
+    "relAddon": "Optional add-ons",
+    "relCompatible": "Works with this",
+    "relGeneral": "Related"
   },
   "ShopAdmin": {
     "dashboard": "Shop dashboard",

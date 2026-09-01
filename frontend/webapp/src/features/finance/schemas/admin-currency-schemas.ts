@@ -14,6 +14,10 @@ export const CurrencyFormSchema = z.object({
   sortOrder: z.coerce.number().int().default(0),
 });
 
+export const CurrencyDeleteSchema = z.object({
+  code: z.string().trim().min(3).max(10).transform((value) => value.toUpperCase()),
+});
+
 export const ExchangeRateFormSchema = z.object({
   baseCurrencyCode: z.string().trim().min(3).max(10).transform((value) => value.toUpperCase()),
   quoteCurrencyCode: z.string().trim().min(3).max(10).transform((value) => value.toUpperCase()),
@@ -23,4 +27,5 @@ export const ExchangeRateFormSchema = z.object({
 });
 
 export type CurrencyFormInput = z.infer<typeof CurrencyFormSchema>;
+export type CurrencyDeleteInput = z.infer<typeof CurrencyDeleteSchema>;
 export type ExchangeRateFormInput = z.infer<typeof ExchangeRateFormSchema>;

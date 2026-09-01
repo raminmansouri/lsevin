@@ -459,7 +459,15 @@ function buildFeaturedProvidersWhere(filters: ExploreFiltersInput, lang: string)
 }
 
 function buildTrendingServicesWhere(filters: ExploreFiltersInput, lang: string) {
-  const conditions = [sql`sp.is_active = true`, sql`ps.is_active = true`];
+  const conditions = [
+    sql`sp.is_active = true`,
+    sql`ps.is_active = true`,
+    // Same editorial rule as the home "خدمات ویژه" shelf (get-home-page.ts): a
+    // service is on this shelf because an admin ticked "Featured", and for no
+    // other reason. trending_score in the order by below only decides the order
+    // among the services that were actually chosen.
+    sql`coalesce(ps.is_featured, false) = true`,
+  ];
 
   if (filters.categoryId) {
     conditions.push(sql`sd.category_id = ${filters.categoryId}::uuid`);
@@ -725,11 +733,9 @@ const featuredRows = await sql`
   select 
     sp.id::text as id,
     common.get_translation_t(sp.name_translations, ${lang}, 'en') as name,
+    -- The provider's own picture only. The gallery used to come first here, so a
+    -- provider that had set an avatar still showed a gallery item instead.
     coalesce(
-      nullif(btrim(pgi_media.file_url), ''),
-      nullif(btrim(pgi_media.storage_path), ''),
-      nullif(btrim(pgi_media.storage_key), ''),
-      nullif(btrim(split_part(pgi.url, ',', 1)), ''),
       nullif(btrim(sp_media.file_url), ''),
       nullif(btrim(sp_media.storage_path), ''),
       nullif(btrim(sp_media.storage_key), ''),
@@ -812,6 +818,10 @@ const featuredRows = await sql`
     ) as name,
     common.get_translation_t(sp.name_translations, ${lang}, 'en') as provider,
     coalesce(
+      nullif(btrim(sd_media.file_url), ''),
+      nullif(btrim(sd_media.storage_path), ''),
+      nullif(btrim(sd_media.storage_key), ''),
+      nullif(btrim(split_part(sd.image_url, ',', 1)), ''),
       nullif(btrim(ps_media.file_url), ''),
       nullif(btrim(ps_media.storage_path), ''),
       nullif(btrim(ps_media.storage_key), ''),
@@ -823,7 +833,11 @@ const featuredRows = await sql`
       nullif(btrim(pgi_media.file_url), ''),
       nullif(btrim(pgi_media.storage_path), ''),
       nullif(btrim(pgi_media.storage_key), ''),
-      nullif(btrim(split_part(pgi.url, ',', 1)), '')
+      nullif(btrim(split_part(pgi.url, ',', 1)), ''),
+      nullif(btrim(sp_media.file_url), ''),
+      nullif(btrim(sp_media.storage_path), ''),
+      nullif(btrim(sp_media.storage_key), ''),
+      nullif(btrim(split_part(sp.image_url, ',', 1)), '')
     ) as image,
     ps.value::float as price,
     coalesce(ps.currency, 'USD') as currency,
@@ -883,6 +897,10 @@ const featuredRows = await sql`
     on psgi_media.id::text = nullif(btrim(split_part(psgi.url, ',', 1)), '')
   left join media.media_library pgi_media
     on pgi_media.id::text = nullif(btrim(split_part(pgi.url, ',', 1)), '')
+  left join media.media_library sd_media
+    on sd_media.id::text = nullif(btrim(split_part(sd.image_url, ',', 1)), '')
+  left join media.media_library sp_media
+    on sp_media.id::text = nullif(btrim(split_part(sp.image_url, ',', 1)), '')
   left join lateral (
     select o.discount_percent
     from marketing.offers o
@@ -1046,8 +1064,11 @@ const featuredRows = await sql`
       coalesce(service_currency_counts.count, 0)::int as count
     from finance.currencies fc
     full join service_currency_counts on service_currency_counts.code = fc.code
-    where coalesce(fc.is_display_enabled, true) = true
-       or service_currency_counts.count is not null
+    where fc.deleted_at is null
+      and (
+        coalesce(fc.is_display_enabled, true) = true
+        or service_currency_counts.count is not null
+      )
     order by coalesce(service_currency_counts.count, 0) desc, coalesce(fc.sort_order, 100000), code asc
   `;
 

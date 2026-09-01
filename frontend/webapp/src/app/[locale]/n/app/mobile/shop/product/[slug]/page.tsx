@@ -13,9 +13,11 @@ import { emitCommerceEvent } from "@/features/shop/lib/analytics";
 import { getRecentlyViewed, recordRecentlyViewed } from "@/features/shop/api/recently-viewed.repository";
 import { getReviewEligibility } from "@/features/shop/api/review.repository";
 import { getCompareState } from "@/features/shop/api/compare.repository";
+import { getProductsForService } from "@/features/shop/api/service-relations.repository";
 import { ReviewForm } from "@/features/shop/components/ReviewForm";
 import { QuestionsSection } from "@/features/shop/components/QuestionsSection";
 import { CompareButton } from "@/features/shop/components/CompareButton";
+import { ServiceRelatedRail } from "@/features/shop/components/ServiceRelatedRail";
 
 export const dynamic = "force-dynamic";
 
@@ -33,10 +35,12 @@ export default async function ProductDetailPage({
 
   await emitCommerceEvent("shop_product_view", { productId: product.id, currency: product.currency, surface: "product_detail" });
   await recordRecentlyViewed(product.id);
-  const [recentlyViewed, reviewEligibility, compareState] = await Promise.all([
+  const primaryServiceId = product.relatedServices[0]?.serviceDefinitionId ?? null;
+  const [recentlyViewed, reviewEligibility, compareState, serviceRelated] = await Promise.all([
     getRecentlyViewed(product.slug, 10),
     getReviewEligibility(product.id),
     getCompareState(product.id),
+    primaryServiceId ? getProductsForService(primaryServiceId, { limit: 16 }) : Promise.resolve(null),
   ]);
 
   return (
@@ -135,6 +139,15 @@ export default async function ProductDetailPage({
         </section>
       ) : null}
 
+      {serviceRelated && serviceRelated.byRelation.length ? (
+        <ServiceRelatedRail
+          serviceDefinitionId={serviceRelated.serviceDefinitionId}
+          serviceName={serviceRelated.serviceName}
+          groups={serviceRelated.byRelation}
+          locale={locale}
+        />
+      ) : null}
+
       {product.reviews.length || reviewEligibility.canReview || reviewEligibility.alreadyReviewed ? (
         <section className="mt-2 bg-white p-4">
           <h2 className="mb-3 text-sm font-bold text-neutral-900">{t("reviews", { count: product.reviewCount })}</h2>
@@ -178,15 +191,4 @@ export default async function ProductDetailPage({
       {recentlyViewed.length ? (
         <section className="mt-2 bg-white p-4">
           <h2 className="mb-3 text-sm font-bold text-neutral-900">{t("recentlyViewed")}</h2>
-          <ProductGrid products={recentlyViewed} locale={locale} />
-        </section>
-      ) : null}
-
-      <div className="p-4 text-center">
-        <Link href="/n/app/mobile/shop" className="text-xs font-semibold text-[#083f30]">
-          ‹ {t("continueShopping")}
-        </Link>
-      </div>
-    </div>
-  );
-}
+          <Prod

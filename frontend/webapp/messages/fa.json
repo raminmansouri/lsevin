@@ -101,6 +101,10 @@
     }
   },
   "AdminGenerated": {
+    "deleteCurrency": "حذف ارز",
+    "deleteCurrencyConfirm": "این ارز حذف شود؟ از فهرست‌ها برداشته می‌شود ولی داده‌های گذشته دست‌نخورده می‌مانند.",
+    "currencyDeleted": "ارز حذف شد.",
+    "currencyInUseCannotDelete": "این ارز حذف نشد چون در این بخش‌ها استفاده شده است:",
     "aRIALabel": "برچسب ARIA",
     "accentColor": "رنگ تأکیدی",
     "accessControl": "کنترل دسترسی",
@@ -13614,7 +13618,14 @@
     "yourQuestion": "سؤال شما",
     "submitQuestion": "ارسال پرسش",
     "questionSubmitted": "سپاسگزاریم! پرسش شما ارسال شد.",
-    "noQuestions": "هنوز پرسشی ثبت نشده — اولین نفر باشید."
+    "noQuestions": "هنوز پرسشی ثبت نشده — اولین نفر باشید.",
+    "serviceRelated": "پیشنهاد برای {service}",
+    "relBefore": "پیش از خدمت شما",
+    "relAfter": "پس از خدمت شما",
+    "relRequired": "موردنیاز",
+    "relAddon": "افزودنی‌های اختیاری",
+    "relCompatible": "سازگار با این",
+    "relGeneral": "مرتبط"
   },
   "ShopAdmin": {
     "dashboard": "داشبورد فروشگاه",

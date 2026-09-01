@@ -853,6 +853,10 @@
     }
   },
   "AdminGenerated": {
+    "deleteCurrency": "Delete currency",
+    "deleteCurrencyConfirm": "Delete this currency? It is removed from the lists while past records stay untouched.",
+    "currencyDeleted": "Currency deleted.",
+    "currencyInUseCannotDelete": "This currency was not deleted because it is used in:",
     "aRIALabel": "تسمية ARIA",
     "accentColor": "لون التمييز",
     "accessControl": "التحكم في الوصول",
@@ -12900,7 +12904,14 @@
     "yourQuestion": "سؤالك",
     "submitQuestion": "إرسال السؤال",
     "questionSubmitted": "شكراً! تم إرسال سؤالك.",
-    "noQuestions": "لا أسئلة بعد — كن أول من يسأل."
+    "noQuestions": "لا أسئلة بعد — كن أول من يسأل.",
+    "serviceRelated": "موصى به لـ {service}",
+    "relBefore": "قبل خدمتك",
+    "relAfter": "بعد خدمتك",
+    "relRequired": "مطلوب",
+    "relAddon": "إضافات اختيارية",
+    "relCompatible": "يعمل مع هذا",
+    "relGeneral": "ذات صلة"
   },
   "ShopAdmin": {
     "dashboard": "لوحة المتجر",

@@ -70,7 +70,8 @@ export async function getActiveCurrencies(options?: {
       is_settlement_enabled as "isSettlementEnabled",
       sort_order as "sortOrder"
     from finance.currencies
-    where is_active = true
+    where deleted_at is null
+      and is_active = true
       and (${Boolean(options?.displayOnly)} = false or is_display_enabled = true)
       and (${Boolean(options?.paymentOnly)} = false or is_payment_enabled = true)
       and (${Boolean(options?.settlementOnly)} = false or is_settlement_enabled = true)
@@ -95,6 +96,7 @@ export async function getAllCurrencies(): Promise<Currency[]> {
       is_settlement_enabled as "isSettlementEnabled",
       sort_order as "sortOrder"
     from finance.currencies
+    where deleted_at is null
     order by sort_order asc, code asc
   `;
 }

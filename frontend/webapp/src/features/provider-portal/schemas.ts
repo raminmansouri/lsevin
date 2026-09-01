@@ -151,6 +151,40 @@ export const saveOperatingHoursSchema = z.object({
     .length(7),
 });
 
+const isoDate = z
+  .string()
+  .trim()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must use the YYYY-MM-DD format.");
+const clockTime = z
+  .string()
+  .trim()
+  .regex(/^\d{2}:\d{2}(:\d{2})?$/, "Time must use the HH:MM format.")
+  .transform((value) => value.slice(0, 5));
+
+export const blockedHoursDaySchema = z.object({
+  providerId: uuid,
+  date: isoDate,
+});
+
+export const saveBlockedHoursSchema = z.object({
+  providerId: uuid,
+  date: isoDate,
+  blockedSlots: z
+    .array(
+      z
+        .object({
+          startsAt: clockTime,
+          endsAt: clockTime,
+        })
+        .refine(
+          (slot) => slot.startsAt < slot.endsAt,
+          "Blocked hour end must be after its start.",
+        ),
+    )
+    .max(96)
+    .default([]),
+});
+
 export const updateBookingProviderSchema = z.object({
   providerId: uuid,
   bookingId: uuid,

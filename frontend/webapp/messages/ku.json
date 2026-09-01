@@ -2993,6 +2993,10 @@
     "clear": "سڕینەوەی هەڵبژاردن"
   },
   "AdminGenerated": {
+    "deleteCurrency": "Delete currency",
+    "deleteCurrencyConfirm": "Delete this currency? It is removed from the lists while past records stay untouched.",
+    "currencyDeleted": "Currency deleted.",
+    "currencyInUseCannotDelete": "This currency was not deleted because it is used in:",
     "accentColor": "ڕەنگی جیاکەرەوە",
     "accept": "قبوڵکردن",
     "accessControl": "کۆنترۆڵی دەستگەیشتن",

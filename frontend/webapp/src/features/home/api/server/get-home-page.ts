@@ -206,6 +206,11 @@ export async function getHomeCategories(input: HomeQueryInput, limit = 6): Promi
     left join category_child_counts cc on cc.category_id = c.id
     where c.is_active = true
       and c.parent_id is null
+      -- The admin "show on home page" switch. It writes
+      -- category.categories.display_in_home_page, and this shelf was reading the
+      -- tree without ever consulting it, so turning a category off changed
+      -- nothing here. NULL means shown, matching getCategoryHomepageFlags.
+      and coalesce(c.display_in_home_page, true) = true
       -- A root with nothing under it is a card that opens an empty page, which is
       -- what made Beauty and Tourism dead ends before.
       and coalesce(pc.provider_count, 0) > 0
@@ -479,7 +484,9 @@ export async function getTrustedHomeProviders(input: HomeQueryInput, limit = 8):
       sp.id::text as id,
       common.get_translation_t(sp.name_translations, ${locale}::text, 'en-US') as name,
       common.get_translation_t(sp.description_translations, ${locale}::text, 'en-US') as description,
-      nullif(coalesce(gm.file_url, gallery.url, spm.file_url, sp.image_url, ''), '') as "imageUrl",
+      -- The provider's own picture first. The gallery used to lead this chain, so
+      -- a provider that had set an avatar still showed a gallery item here.
+      nullif(coalesce(spm.file_url, sp.image_url, gm.file_url, gallery.url, ''), '') as "imageUrl",
       sp.city,
       sp.country,
       coalesce(sp.rating, 0) as rating,
@@ -497,8 +504,12 @@ export async function getTrustedHomeProviders(input: HomeQueryInput, limit = 8):
     left join media.media_library gm on gm.id::text = gallery.url
     left join media.media_library spm on spm.id::text = sp.image_url
     where sp.is_active = true
-      and (${countryCode}::text is null or upper(sp.country) = upper(${countryCode}::text))
-      and (${cityCode}::text is null or upper(sp.city) = upper(${cityCode}::text))
+      -- Trim as well as fold case. upper(sp.country) = upper('IR') drops every
+      -- provider whose stored code carries stray whitespace, which is why the
+      -- listing showed only part of the providers for a country. This matches
+      -- what the Explore filters already do and can only widen the result.
+      and (${countryCode}::text is null or lower(btrim(sp.country)) = lower(btrim(${countryCode}::text)))
+      and (${cityCode}::text is null or lower(btrim(sp.city)) = lower(btrim(${cityCode}::text)))
     order by
       ${nearby ? sql`${nearby} asc nulls last,` : sql``}
       coalesce(sp.accredited, false) desc,

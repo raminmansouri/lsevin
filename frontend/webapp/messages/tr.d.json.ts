@@ -2999,6 +2999,10 @@ declare const messages: {
     "clear": "Seçimi temizle"
   },
   "AdminGenerated": {
+    "deleteCurrency": "Delete currency",
+    "deleteCurrencyConfirm": "Delete this currency? It is removed from the lists while past records stay untouched.",
+    "currencyDeleted": "Currency deleted.",
+    "currencyInUseCannotDelete": "This currency was not deleted because it is used in:",
     "accentColor": "Vurgu rengi",
     "accept": "Kabul et",
     "accessControl": "Erişim Kontrolü",
@@ -4904,6 +4908,35 @@ declare const messages: {
     "awaitingConfirmation": "Onay bekleniyor",
     "back": "Geri",
     "bankTransfer": "Banka havalesi",
+    "bankReceiptAccountsTitle": "Banka hesapları",
+    "bankReceiptInstructions": "Tutarı aşağıdaki hesaplardan birine transfer edin ve makbuzun fotoğrafını veya PDF dosyasını yükleyin.",
+    "bankNameLabel": "Banka adı",
+    "accountHolderLabel": "Hesap sahibi",
+    "cardNumberLabel": "Kart numarası",
+    "ibanLabel": "IBAN",
+    "accountNumberLabel": "Hesap numarası",
+    "uploadReceiptLabel": "Makbuzu yükle",
+    "receiptRequiredError": "Makbuz görselinin veya dosyasının yüklenmesi zorunludur.",
+    "receiptWrongTypeError": "Makbuz bir görsel veya PDF dosyası olmalıdır.",
+    "receiptTooLargeError": "Makbuz dosyası 15 MB'tan küçük olmalıdır.",
+    "receiptUploading": "Makbuz yükleniyor...",
+    "noBankAccountConfigured": "Yönetici tarafından henüz bir banka hesabı yapılandırılmadı.",
+    "pendingReviewMessage": "Makbuzunuz alındı ve yönetici onayını bekliyor.",
+    "pendingCollectionMessage": "Rezervasyonunuz onaylandı; ödeme hizmet teslim edilirken tahsil edilir.",
+    "submitCheckout": "Rezervasyonu tamamla",
+    "paymentMethodPayOnDelivery": "Kapıda ödeme",
+    "paymentMethodBankReceipt": "Banka dekontu",
+    "paymentStatusPendingReview": "Yönetici onayı bekleniyor",
+    "paymentStatusPendingCollection": "Teslimatta ödeme bekleniyor",
+    "paymentStatusRequiresAction": "Ödemenin tamamlanması gerekiyor",
+    "paymentStatusSucceeded": "Ödeme başarılı",
+    "paymentStatusInsufficientBalance": "Cüzdan bakiyesi yetersiz",
+    "paymentStatusNotRequired": "Ödeme gerekmiyor",
+    "invoiceTitle": "Rezervasyon faturası",
+    "printDate": "Yazdırma tarihi",
+    "trackingNumber": "Takip numarası",
+    "invoiceFooterNote": "Bu belge rezervasyon makbuzunuz olarak düzenlenmiştir.",
+    "downloadInvoicePdf": "PDF indir",
     "beforeAfter": "Öncesi/Sonrası",
     "bESTSELLER": "ÇOK SATAN",
     "bESTVALUE": "EN AVANTAJLI",
@@ -12698,6 +12731,19 @@ declare const messages: {
         "empty": "Henüz alıcı yok — kimseye bildirim gitmiyor.",
         "cancel": "İptal"
       }
+    }
+  },
+  "MobileNotifications": {
+    "title": "Bildirimler",
+    "unreadCount": "{count} okunmamış",
+    "markAllRead": "Tümünü okundu olarak işaretle",
+    "emptyTitle": "Bildirim yok",
+    "emptyDescription": "Her şey güncel!",
+    "tabs": {
+      "all": "Tümü",
+      "booking": "Rezervasyonlar",
+      "offer": "Teklifler",
+      "system": "Sistem"
     }
   }
 };

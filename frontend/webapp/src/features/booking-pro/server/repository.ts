@@ -1,6 +1,7 @@
 import 'server-only';
 import { assertNoUndefinedRecord, pgNumber, pgString } from './checkout-null-safety';
 import db from '@/config/database/db';
+import { reserveHotelDates } from "./hotel-availability.repository";
 import { calculateBookingPaymentTerms, resolveBookingPaymentPolicy } from '@/features/commercial/lib/server/payment-policy-engine';
 import { applyCommercialSnapshotAfterCheckout } from './commercial-integration';
 import { assertDraftAvailabilityBeforeCheckout } from './booking-availability.repository';
@@ -320,7 +321,14 @@ function mapDraftRow(row: any): BookingDraftState {
     serviceId: row.service_id ?? undefined,
     serviceDefinitionId: row.service_definition_id ?? undefined,
     specialistId: row.specialist_id ?? undefined,
-    requiresSpecialist: row.requires_specialist ?? true,
+    // A date-range stay is a room for a night, not an appointment with a person,
+    // so the specialist step never applies to hotels however the service
+    // definition happens to be configured. requires_specialist defaults to true
+    // at the query level, which is why hotels were asking for one.
+    requiresSpecialist:
+      (row.booking_ui_mode ?? 'default_slot') === 'date_range'
+        ? false
+        : (row.requires_specialist ?? true),
     bookingUiMode: row.booking_ui_mode ?? 'default_slot',
     selectedDate: row.selected_date?.toISOString?.().slice(0, 10) ?? row.selected_date ?? undefined,
     selectedDateFrom: row.selected_date_from?.toISOString?.().slice(0, 10) ?? row.selected_date_from ?? undefined,
@@ -1222,7 +1230,10 @@ export async function getServiceMode(providerServiceId: string) {
            ps.value,
            ps.duration_minutes,
            ps.slot_interval_minutes,
-           sd.requires_specialist,
+           case
+             when sd.booking_ui_mode = 'date_range' then false
+             else coalesce(sd.requires_specialist, true)
+           end as requires_specialist,
            sd.booking_ui_mode
     from category.provider_services ps
     join category.service_definitions sd on sd.id = ps.service_definition_id
@@ -1653,6 +1664,18 @@ export async function checkoutDraft(
       `;
 
       bookingId = booking.id;
+    }
+
+    // A date-range service is a hotel stay, and a hotel takes one booking per night.
+    // Held in the same transaction as the booking itself, so a clash raises on the
+    // unique index and the whole checkout rolls back rather than double-selling.
+    if (draft.bookingUiMode === 'date_range' && scope?.providerId && draft.selectedDateFrom && draft.selectedDateTo) {
+      await reserveHotelDates(tx as any, {
+        serviceProviderId: String(scope.providerId),
+        bookingId: String(bookingId),
+        checkIn: String(draft.selectedDateFrom),
+        checkOut: String(draft.selectedDateTo),
+      });
     }
 
     await tx`

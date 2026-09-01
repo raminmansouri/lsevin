@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import {
+  blockedHoursDaySchema,
   createProviderApplicationSchema,
   createSupportTicketSchema,
   deleteGalleryItemSchema,
@@ -22,6 +23,7 @@ import {
   deleteStaffGalleryItemSchema,
   deleteStaffLinkSchema,
   deleteStaffServiceSchema,
+  saveBlockedHoursSchema,
   saveGalleryItemSchema,
   saveServiceFaqSchema,
   saveServiceIncludedSchema,
@@ -64,6 +66,8 @@ import {
   deleteStaffEducation,
   deleteStaffGalleryItem,
   deleteStaffService,
+  getBlockedHoursDay,
+  saveBlockedHours,
   saveGalleryItem,
   saveServiceFaq,
   saveServiceIncluded,
@@ -87,7 +91,7 @@ import {
   updateSupportTicketStatus,
 } from "./server/repository";
 import { requireCurrentUserId } from "./server/session";
-import type { ActionResult } from "./types";
+import type { ActionResult, BlockedHoursDay } from "./types";
 
 function result<T>(data: T): ActionResult<T> {
   return { ok: true, data };
@@ -571,6 +575,38 @@ export async function saveOperatingHoursAction(
     const userId = await requireCurrentUserId();
     const parsed = saveOperatingHoursSchema.parse(input);
     await saveOperatingHours(userId, parsed.providerId, parsed.hours as any);
+    revalidateProviderPortal(parsed.providerId);
+    return result(true);
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+export async function getBlockedHoursDayAction(
+  input: unknown,
+): Promise<ActionResult<BlockedHoursDay>> {
+  try {
+    const userId = await requireCurrentUserId();
+    const parsed = blockedHoursDaySchema.parse(input);
+    const day = await getBlockedHoursDay(userId, parsed.providerId, parsed.date);
+    return result(day);
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+export async function saveBlockedHoursAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
+  try {
+    const userId = await requireCurrentUserId();
+    const parsed = saveBlockedHoursSchema.parse(input);
+    await saveBlockedHours(
+      userId,
+      parsed.providerId,
+      parsed.date,
+      parsed.blockedSlots,
+    );
     revalidateProviderPortal(parsed.providerId);
     return result(true);
   } catch (error) {

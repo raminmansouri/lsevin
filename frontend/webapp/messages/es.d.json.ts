@@ -2999,6 +2999,10 @@ declare const messages: {
     "clear": "Borrar selección"
   },
   "AdminGenerated": {
+    "deleteCurrency": "Delete currency",
+    "deleteCurrencyConfirm": "Delete this currency? It is removed from the lists while past records stay untouched.",
+    "currencyDeleted": "Currency deleted.",
+    "currencyInUseCannotDelete": "This currency was not deleted because it is used in:",
     "accentColor": "Color de acento",
     "accept": "Aceptar",
     "accessControl": "Control de acceso",
@@ -4904,6 +4908,35 @@ declare const messages: {
     "awaitingConfirmation": "Pendiente de confirmación",
     "back": "Atrás",
     "bankTransfer": "Transferencia bancaria",
+    "bankReceiptAccountsTitle": "Cuentas bancarias",
+    "bankReceiptInstructions": "Transfiere el importe a una de las cuentas siguientes y sube una foto o un PDF del comprobante.",
+    "bankNameLabel": "Nombre del banco",
+    "accountHolderLabel": "Titular de la cuenta",
+    "cardNumberLabel": "Número de tarjeta",
+    "ibanLabel": "IBAN",
+    "accountNumberLabel": "Número de cuenta",
+    "uploadReceiptLabel": "Subir comprobante",
+    "receiptRequiredError": "Es obligatorio subir la imagen o el archivo del comprobante.",
+    "receiptWrongTypeError": "El comprobante debe ser una imagen o un archivo PDF.",
+    "receiptTooLargeError": "El archivo del comprobante debe pesar menos de 15 MB.",
+    "receiptUploading": "Subiendo comprobante...",
+    "noBankAccountConfigured": "El administrador aún no ha configurado ninguna cuenta bancaria.",
+    "pendingReviewMessage": "Tu comprobante se recibió y está a la espera de aprobación del administrador.",
+    "pendingCollectionMessage": "Tu reserva está confirmada; el pago se cobra al recibir el servicio.",
+    "submitCheckout": "Confirmar reserva",
+    "paymentMethodPayOnDelivery": "Pago contra entrega",
+    "paymentMethodBankReceipt": "Comprobante bancario",
+    "paymentStatusPendingReview": "Pendiente de revisión del administrador",
+    "paymentStatusPendingCollection": "Pendiente de pago al recibir el servicio",
+    "paymentStatusRequiresAction": "Se requiere completar el pago",
+    "paymentStatusSucceeded": "Pago realizado con éxito",
+    "paymentStatusInsufficientBalance": "Saldo insuficiente en la billetera",
+    "paymentStatusNotRequired": "No se requiere pago",
+    "invoiceTitle": "Factura de la reserva",
+    "printDate": "Fecha de impresión",
+    "trackingNumber": "Número de seguimiento",
+    "invoiceFooterNote": "Este documento se emitió como tu recibo de reserva.",
+    "downloadInvoicePdf": "Descargar PDF",
     "beforeAfter": "Antes/Después",
     "bESTSELLER": "MÁS VENDIDO",
     "bESTVALUE": "MEJOR RELACIÓN CALIDAD-PRECIO",
@@ -12698,6 +12731,19 @@ declare const messages: {
         "empty": "Aún no hay destinatarios: nadie recibe avisos.",
         "cancel": "Cancelar"
       }
+    }
+  },
+  "MobileNotifications": {
+    "title": "Notificaciones",
+    "unreadCount": "{count} sin leer",
+    "markAllRead": "Marcar todo como leído",
+    "emptyTitle": "Sin notificaciones",
+    "emptyDescription": "¡Estás al día!",
+    "tabs": {
+      "all": "Todas",
+      "booking": "Reservas",
+      "offer": "Ofertas",
+      "system": "Sistema"
     }
   }
 };

@@ -2996,6 +2996,10 @@ declare const messages: {
     "clear": "Auswahl löschen"
   },
   "AdminGenerated": {
+    "deleteCurrency": "Delete currency",
+    "deleteCurrencyConfirm": "Delete this currency? It is removed from the lists while past records stay untouched.",
+    "currencyDeleted": "Currency deleted.",
+    "currencyInUseCannotDelete": "This currency was not deleted because it is used in:",
     "processing": "In Bearbeitung",
     "processPayouts": "Auszahlungen verarbeiten",
     "product": "Produkt",
@@ -4901,6 +4905,35 @@ declare const messages: {
     "awaitingConfirmation": "Wartet auf Bestätigung",
     "back": "Zurück",
     "bankTransfer": "Banküberweisung",
+    "bankReceiptAccountsTitle": "Bankkonten",
+    "bankReceiptInstructions": "Überweisen Sie den Betrag auf eines der unten stehenden Konten und laden Sie ein Foto oder eine PDF-Datei der Quittung hoch.",
+    "bankNameLabel": "Bankname",
+    "accountHolderLabel": "Kontoinhaber",
+    "cardNumberLabel": "Kartennummer",
+    "ibanLabel": "IBAN",
+    "accountNumberLabel": "Kontonummer",
+    "uploadReceiptLabel": "Zahlungsbeleg hochladen",
+    "receiptRequiredError": "Das Hochladen des Zahlungsbelegs ist erforderlich.",
+    "receiptWrongTypeError": "Der Beleg muss ein Bild oder eine PDF-Datei sein.",
+    "receiptTooLargeError": "Die Beleg-Datei muss kleiner als 15 MB sein.",
+    "receiptUploading": "Beleg wird hochgeladen...",
+    "noBankAccountConfigured": "Es wurde noch kein Bankkonto vom Administrator eingerichtet.",
+    "pendingReviewMessage": "Ihr Beleg wurde empfangen und wartet auf die Genehmigung des Administrators.",
+    "pendingCollectionMessage": "Ihre Buchung ist bestätigt; die Zahlung erfolgt bei Erbringung der Leistung.",
+    "submitCheckout": "Buchung abschließen",
+    "paymentMethodPayOnDelivery": "Zahlung bei Lieferung",
+    "paymentMethodBankReceipt": "Bankbeleg",
+    "paymentStatusPendingReview": "Wartet auf Prüfung durch den Administrator",
+    "paymentStatusPendingCollection": "Zahlung bei Lieferung ausstehend",
+    "paymentStatusRequiresAction": "Zahlung muss abgeschlossen werden",
+    "paymentStatusSucceeded": "Zahlung erfolgreich",
+    "paymentStatusInsufficientBalance": "Guthaben im Wallet nicht ausreichend",
+    "paymentStatusNotRequired": "Keine Zahlung erforderlich",
+    "invoiceTitle": "Buchungsrechnung",
+    "printDate": "Druckdatum",
+    "trackingNumber": "Trackingnummer",
+    "invoiceFooterNote": "Dieses Dokument wurde als Ihre Buchungsquittung ausgestellt.",
+    "downloadInvoicePdf": "PDF herunterladen",
     "beforeAfter": "Vorher/Nachher",
     "bESTSELLER": "BESTSELLER",
     "bESTVALUE": "BESTES ANGEBOT",
@@ -12695,6 +12728,19 @@ declare const messages: {
         "empty": "Noch keine Empfänger – niemand wird benachrichtigt.",
         "cancel": "Abbrechen"
       }
+    }
+  },
+  "MobileNotifications": {
+    "title": "Benachrichtigungen",
+    "unreadCount": "{count} ungelesen",
+    "markAllRead": "Alle als gelesen markieren",
+    "emptyTitle": "Keine Benachrichtigungen",
+    "emptyDescription": "Du bist auf dem neuesten Stand!",
+    "tabs": {
+      "all": "Alle",
+      "booking": "Buchungen",
+      "offer": "Angebote",
+      "system": "System"
     }
   }
 };

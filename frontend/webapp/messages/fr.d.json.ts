@@ -2996,6 +2996,10 @@ declare const messages: {
     "clear": "Effacer la sélection"
   },
   "AdminGenerated": {
+    "deleteCurrency": "Delete currency",
+    "deleteCurrencyConfirm": "Delete this currency? It is removed from the lists while past records stay untouched.",
+    "currencyDeleted": "Currency deleted.",
+    "currencyInUseCannotDelete": "This currency was not deleted because it is used in:",
     "accentColor": "Couleur d'accentuation",
     "accept": "Accepter",
     "accessControl": "Contrôle d'accès",
@@ -4901,6 +4905,35 @@ declare const messages: {
     "awaitingConfirmation": "En attente de confirmation",
     "back": "Retour",
     "bankTransfer": "Virement bancaire",
+    "bankReceiptAccountsTitle": "Comptes bancaires",
+    "bankReceiptInstructions": "Virez le montant sur l'un des comptes ci-dessous puis téléversez une photo ou un PDF du reçu.",
+    "bankNameLabel": "Nom de la banque",
+    "accountHolderLabel": "Titulaire du compte",
+    "cardNumberLabel": "Numéro de carte",
+    "ibanLabel": "IBAN",
+    "accountNumberLabel": "Numéro de compte",
+    "uploadReceiptLabel": "Téléverser le reçu",
+    "receiptRequiredError": "Le téléversement de l'image ou du fichier du reçu est obligatoire.",
+    "receiptWrongTypeError": "Le reçu doit être une image ou un fichier PDF.",
+    "receiptTooLargeError": "Le fichier du reçu doit faire moins de 15 Mo.",
+    "receiptUploading": "Téléversement du reçu...",
+    "noBankAccountConfigured": "Aucun compte bancaire n'a été configuré par l'administrateur.",
+    "pendingReviewMessage": "Votre reçu a été reçu et attend l'approbation de l'administrateur.",
+    "pendingCollectionMessage": "Votre réservation est confirmée ; le paiement est perçu à la livraison du service.",
+    "submitCheckout": "Confirmer la réservation",
+    "paymentMethodPayOnDelivery": "Paiement à la livraison",
+    "paymentMethodBankReceipt": "Reçu bancaire",
+    "paymentStatusPendingReview": "En attente d'approbation de l'administrateur",
+    "paymentStatusPendingCollection": "En attente de paiement à la livraison",
+    "paymentStatusRequiresAction": "Le paiement doit être finalisé",
+    "paymentStatusSucceeded": "Paiement réussi",
+    "paymentStatusInsufficientBalance": "Solde du portefeuille insuffisant",
+    "paymentStatusNotRequired": "Aucun paiement requis",
+    "invoiceTitle": "Facture de réservation",
+    "printDate": "Date d'impression",
+    "trackingNumber": "Numéro de suivi",
+    "invoiceFooterNote": "Ce document a été émis comme votre reçu de réservation.",
+    "downloadInvoicePdf": "Télécharger le PDF",
     "beforeAfter": "Avant / Après",
     "bESTSELLER": "MEILLEURE VENTE",
     "bESTVALUE": "MEILLEUR RAPPORT QUALITÉ-PRIX",
@@ -12695,6 +12728,19 @@ declare const messages: {
         "empty": "Aucun destinataire pour l'instant — personne n'est prévenu.",
         "cancel": "Annuler"
       }
+    }
+  },
+  "MobileNotifications": {
+    "title": "Notifications",
+    "unreadCount": "{count} non lues",
+    "markAllRead": "Tout marquer comme lu",
+    "emptyTitle": "Aucune notification",
+    "emptyDescription": "Vous êtes à jour !",
+    "tabs": {
+      "all": "Toutes",
+      "booking": "Réservations",
+      "offer": "Offres",
+      "system": "Système"
     }
   }
 };

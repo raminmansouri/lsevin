@@ -1,6 +1,7 @@
 import "server-only";
 
 import sql from "@/config/database/db";
+import { releaseHotelDatesForBooking } from "@/features/booking-pro/server/hotel-availability.repository";
 import { formatDate } from "@/lib/formatters";
 import type {
   Booking,
@@ -471,6 +472,12 @@ export async function cancelMyBookingInDb(input: CancelMyBookingInput): Promise<
        and lower(coalesce(booking_status, '')) not in ('cancelled', 'canceled', 'completed')
      returning id::text
   `;
+
+  // Cancelling gives the nights back. Safe for every booking type: a service that
+  // never held a hotel night simply has no rows to delete.
+  if (rows.length) {
+    await releaseHotelDatesForBooking(input.bookingId);
+  }
 
   return rows.length > 0;
 }

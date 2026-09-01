@@ -620,7 +620,13 @@ export default function ExploreClient({
         </div>
 
         <div className="space-y-3 px-5">
-          {featuredProviders.map((provider) => (
+          {featuredProviders.map((provider) => {
+            // No gallery stand-in: the avatar is the provider's own picture or a
+            // branded block. /placeholder-provider.svg cannot be used here because
+            // the image optimizer rejects SVG unless dangerouslyAllowSVG is on.
+            const providerImage = mediaUrl(provider.image, "");
+
+            return (
             <div
               key={`featured-provider-${provider.id}`}
               onClick={() => router.push(buildMobilePath(`/provider/${provider.id}`))}
@@ -629,13 +635,19 @@ export default function ExploreClient({
               
               <div className="flex gap-4 p-4">
                 <div className="relative flex-shrink-0">
+                  {providerImage ? (
                   <ImageWithFallback
                        width={200}
                 height={200}
-                    src={mediaUrl(provider.image)}
+                    src={providerImage}
                     alt={provider.name}
                     className="w-24 h-24 rounded-xl object-cover"
                   />
+                  ) : (
+                    <div className="flex h-24 w-24 items-center justify-center rounded-xl bg-gradient-to-br from-[#083f30] to-[#0f6b56] text-xs font-semibold text-white/80">
+                      LSevin
+                    </div>
+                  )}
                   {provider.verified && (
                     <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 bg-[#083f30] rounded-full flex items-center justify-center shadow-lg">
                       <BadgeCheck size={16} className="text-[#eacb7f]" />
@@ -698,7 +710,8 @@ export default function ExploreClient({
                 />
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -742,6 +755,7 @@ export default function ExploreClient({
         </div>
       )}
 
+      {trendingServices.length > 0 && (
       <div className="py-6">
         <div className="px-5 mb-4">
           <div className="flex items-center gap-2 mb-1">
@@ -752,7 +766,14 @@ export default function ExploreClient({
         </div>
 
         <div className="flex gap-4 overflow-x-auto hide-scrollbar px-5 pb-2">
-          {trendingServices.map((service) => (
+          {trendingServices.map((service) => {
+            // Ask for no placeholder: /placeholder-provider.svg is an SVG, and the
+            // image optimizer rejects SVG with a 400 unless dangerouslyAllowSVG is
+            // on, so feeding it to <Image> renders the broken-image icon. A service
+            // without artwork gets the same branded block the home cards use.
+            const serviceImage = mediaUrl(service.image, "");
+
+            return (
             <div
               key={`trending-service-${service.id}`}
               onClick={() => router.push(buildMobilePath(`/service/${service.id}`))}
@@ -760,13 +781,19 @@ export default function ExploreClient({
             >
               
               <div className="relative aspect-[16/10]">
+                {serviceImage ? (
                 <ImageWithFallback
                      width={200}
                 height={200}
-                  src={mediaUrl(service.image)}
+                  src={serviceImage}
                   alt={service.name}
                   className="w-full h-full object-cover"
                 />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#083f30] to-[#0f6b56] text-sm font-semibold text-white/80">
+                    LSevin
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
                 {service.growth && (
@@ -812,9 +839,11 @@ export default function ExploreClient({
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
+      )}
 
       <div className="px-5 py-6">
         <div className="flex items-center justify-between mb-4">

@@ -48,6 +48,7 @@ dynamic-admin-dashboard-scaffold/*
 **/*.sql
 
 **/*.md
+!/CLAUDE.md
 **/*.txt
 
 # Secrets — never publish real env files (keep .env.example templates)

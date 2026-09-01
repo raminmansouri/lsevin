@@ -155,6 +155,23 @@ export type OperatingHourRow = {
   slotIntervalMinutes: number;
 };
 
+export type BlockedHourSlotRow = {
+  startsAt: string;
+  endsAt: string;
+  isBlocked: boolean;
+  isLocked: boolean;
+  bookedCount: number;
+};
+
+export type BlockedHoursDay = {
+  date: string;
+  dayOfWeek: number;
+  isClosed: boolean;
+  opensAt: string | null;
+  closesAt: string | null;
+  slots: BlockedHourSlotRow[];
+};
+
 export type BookingRow = {
   id: string;
   bookingSource: "main" | "child";
