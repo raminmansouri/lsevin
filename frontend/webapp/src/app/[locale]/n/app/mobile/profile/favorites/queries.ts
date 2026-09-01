@@ -94,7 +94,7 @@ export async function getFavoritesPageData(
         CONCAT_WS(', ', NULLIF(sp.city, ''), NULLIF(sp.country, '')) AS location,
         sp.rating AS rating,
         sp.review_count AS reviews,
-        COALESCE(NULLIF(sp.image_url, ''), provider_gallery.url) AS image_url,
+        NULLIF(sp.image_url, '') AS image_url,
         NULL::text AS specialty,
         common.get_translation_t(pt.name_translations, ${preferredLanguage}, 'en') AS provider_type_label,
         f.created_at AS created_at

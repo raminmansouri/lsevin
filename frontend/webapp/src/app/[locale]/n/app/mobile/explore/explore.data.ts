@@ -733,11 +733,9 @@ const featuredRows = await sql`
   select 
     sp.id::text as id,
     common.get_translation_t(sp.name_translations, ${lang}, 'en') as name,
+    -- The provider's own picture only. The gallery used to come first here, so a
+    -- provider that had set an avatar still showed a gallery item instead.
     coalesce(
-      nullif(btrim(pgi_media.file_url), ''),
-      nullif(btrim(pgi_media.storage_path), ''),
-      nullif(btrim(pgi_media.storage_key), ''),
-      nullif(btrim(split_part(pgi.url, ',', 1)), ''),
       nullif(btrim(sp_media.file_url), ''),
       nullif(btrim(sp_media.storage_path), ''),
       nullif(btrim(sp_media.storage_key), ''),

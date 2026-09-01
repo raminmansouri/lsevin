@@ -620,7 +620,13 @@ export default function ExploreClient({
         </div>
 
         <div className="space-y-3 px-5">
-          {featuredProviders.map((provider) => (
+          {featuredProviders.map((provider) => {
+            // No gallery stand-in: the avatar is the provider's own picture or a
+            // branded block. /placeholder-provider.svg cannot be used here because
+            // the image optimizer rejects SVG unless dangerouslyAllowSVG is on.
+            const providerImage = mediaUrl(provider.image, "");
+
+            return (
             <div
               key={`featured-provider-${provider.id}`}
               onClick={() => router.push(buildMobilePath(`/provider/${provider.id}`))}
@@ -629,13 +635,19 @@ export default function ExploreClient({
               
               <div className="flex gap-4 p-4">
                 <div className="relative flex-shrink-0">
+                  {providerImage ? (
                   <ImageWithFallback
                        width={200}
                 height={200}
-                    src={mediaUrl(provider.image)}
+                    src={providerImage}
                     alt={provider.name}
                     className="w-24 h-24 rounded-xl object-cover"
                   />
+                  ) : (
+                    <div className="flex h-24 w-24 items-center justify-center rounded-xl bg-gradient-to-br from-[#083f30] to-[#0f6b56] text-xs font-semibold text-white/80">
+                      LSevin
+                    </div>
+                  )}
                   {provider.verified && (
                     <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 bg-[#083f30] rounded-full flex items-center justify-center shadow-lg">
                       <BadgeCheck size={16} className="text-[#eacb7f]" />
@@ -698,7 +710,8 @@ export default function ExploreClient({
                 />
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

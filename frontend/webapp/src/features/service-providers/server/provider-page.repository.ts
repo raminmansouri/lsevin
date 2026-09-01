@@ -60,6 +60,7 @@ export type ProviderReviewReplyInput = {
 type ProviderRow = {
   id: string;
   name: string;
+  avatar: string | null;
   providerType: string | null;
   tagline: string;
   about: string;
@@ -367,6 +368,11 @@ export async function getProviderPageDataFromDb(
         true as verified,
         coalesce(sp.accredited, false) as accredited,
         coalesce(nullif(sp.response_time, ''), 'Usually responds fast') as "responseTime",
+        -- The profile picture is whatever the provider set, and nothing else. It
+        -- used to be read as images[0], which silently became the first gallery
+        -- item whenever image_url was empty, so the avatar looked randomly picked
+        -- from the media tab and changed as gallery items were added or reordered.
+        coalesce(sp_media.file_url, nullif(sp.image_url, '')) as avatar,
         array_cat(
           array_remove(array[coalesce(sp_media.file_url, nullif(sp.image_url, ''))], null),
           coalesce(gallery.images, array[]::text[])
@@ -489,7 +495,7 @@ export async function getProviderPageDataFromDb(
         verified: Boolean(row.verified),
         accredited: Boolean(row.accredited),
         responseTime: row.responseTime || "Usually responds fast",
-        image: providerImages[0] || "",
+        image: row.avatar || "",
         images: providerImages,
         videos: toObjectArray<{ id: string; url: string; title: string | null }>(
           row.videos,
