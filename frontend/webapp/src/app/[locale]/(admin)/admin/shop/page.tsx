@@ -65,6 +65,7 @@ export default async function AdminShopDashboardPage() {
             ["Reviews", "/admin/shop/reviews"],
             ["Returns", "/admin/shop/returns"],
             ["Relation report", "/admin/shop/reports/relations"],
+            ["Stock report", "/admin/shop/reports/stock"],
             ["Settings", "/admin/shop/settings"],
           ].map(([l, h]) => (
             <Link key={h} href={h} className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 font-medium text-gray-700">

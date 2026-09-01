@@ -394,6 +394,57 @@ export async function getHomeSectionWithItems(id: string) {
 }
 
 // ======================================================================
+// Stock reconciliation report (SHP-V03-014)
+// ======================================================================
+export async function getStockReconciliation() {
+  await assertShopAdmin();
+  return sql<any[]>`
+    with reserving_demand as (
+      select oi.product_id, oi.variant_id,
+        sum(
+          oi.quantity - coalesce(
+            (select sum(si.quantity)::int from shop.shipment_items si where si.order_item_id = oi.id), 0)
+        )::int as expected_reserved
+      from shop.order_items oi
+      join shop.orders o on o.id = oi.order_id
+      where o.status in ('pending','awaiting_payment','paid','processing','partially_shipped')
+      group by oi.product_id, oi.variant_id
+    ),
+    inv as (
+      select product_id, variant_id,
+        sum(on_hand)::int as on_hand, sum(reserved)::int as reserved,
+        min(last_counted_at) as last_counted_at,
+        max(reorder_threshold)::int as reorder_threshold
+      from shop.inventory
+      group by product_id, variant_id
+    )
+    select
+      common.get_translation_t(p.name_translations, 'en', 'en') as product_name,
+      p.slug, v.sku,
+      inv.on_hand, inv.reserved,
+      coalesce(rd.expected_reserved, 0) as expected_reserved,
+      (inv.reserved - coalesce(rd.expected_reserved, 0)) as reserved_drift,
+      (inv.on_hand - inv.reserved) as available,
+      inv.reorder_threshold,
+      inv.last_counted_at::text as last_counted_at,
+      (inv.on_hand < 0 or inv.reserved < 0 or inv.reserved > inv.on_hand) as impossible,
+      (inv.last_counted_at is null or inv.last_counted_at < now() - interval '90 days') as stale_count
+    from inv
+    join shop.products p on p.id = inv.product_id
+    left join shop.product_variants v on v.id = inv.variant_id
+    left join reserving_demand rd
+      on rd.product_id = inv.product_id and rd.variant_id is not distinct from inv.variant_id
+    where (inv.reserved - coalesce(rd.expected_reserved, 0)) <> 0
+       or inv.on_hand < 0 or inv.reserved < 0 or inv.reserved > inv.on_hand
+       or (inv.on_hand - inv.reserved) <= inv.reorder_threshold
+       or inv.last_counted_at is null
+       or inv.last_counted_at < now() - interval '90 days'
+    order by abs(inv.reserved - coalesce(rd.expected_reserved, 0)) desc, available asc
+    limit 300
+  `;
+}
+
+// ======================================================================
 // Product <-> service relation analytics (SHP-V02-019)
 // ======================================================================
 export async function getServiceRelationReport(days = 90) {
