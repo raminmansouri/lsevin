@@ -23,6 +23,7 @@ export type CommerceEventName =
   | "shop_purchase_completed"
   | "shop_refund_completed"
   | "shop_related_service_product_click"
+  | "shop_related_service_product_impression"
   | "shop_currency_changed"
   | "shop_search";
 

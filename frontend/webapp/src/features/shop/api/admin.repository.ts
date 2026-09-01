@@ -393,6 +393,34 @@ export async function getHomeSectionWithItems(id: string) {
   return { ...section, items };
 }
 
+// ======================================================================
+// Product <-> service relation analytics (SHP-V02-019)
+// ======================================================================
+export async function getServiceRelationReport(days = 90) {
+  await assertShopAdmin();
+  const window = Math.min(Math.max(Math.trunc(days) || 90, 1), 365);
+  const rows = await sql<any[]>`
+    select
+      e.campaign_key as service_definition_id,
+      coalesce(common.get_translation_t(sd.name_translations, 'en', 'en'), '(unknown service)') as service_name,
+      coalesce(sum(e.quantity) filter (where e.event_name = 'shop_related_service_product_impression'), 0)::int as impressions,
+      count(*) filter (where e.event_name = 'shop_related_service_product_impression')::int as impression_events,
+      count(*) filter (where e.event_name = 'shop_related_service_product_click')::int as clicks
+    from shop.analytics_events e
+    left join category.service_definitions sd on sd.id::text = e.campaign_key
+    where e.event_name in ('shop_related_service_product_impression','shop_related_service_product_click')
+      and e.campaign_key is not null
+      and e.occurred_at > now() - (${window} || ' days')::interval
+    group by e.campaign_key, service_name
+    order by impressions desc, clicks desc
+    limit 200
+  `;
+  return rows.map((r) => ({
+    ...r,
+    ctr: r.impressions > 0 ? r.clicks / r.impressions : null,
+  }));
+}
+
 export async function getShopSettingsView() {
   await assertShopAdmin();
   const rows = await sql<{ key: string; value: string | null }[]>`

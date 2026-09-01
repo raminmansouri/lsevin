@@ -43,6 +43,16 @@ export default async function ProductDetailPage({
     primaryServiceId ? getProductsForService(primaryServiceId, { limit: 16 }) : Promise.resolve(null),
   ]);
 
+  if (serviceRelated && serviceRelated.byRelation.length) {
+    const shown = serviceRelated.byRelation.reduce((n, g) => n + g.products.length, 0);
+    await emitCommerceEvent("shop_related_service_product_impression", {
+      productId: product.id,
+      campaignKey: serviceRelated.serviceDefinitionId,
+      quantity: shown,
+      surface: "product_detail",
+    });
+  }
+
   return (
     <div className="min-h-screen bg-neutral-50 pb-40">
       <ShopHeader cartCount={cart.itemCount} currency={product.currency} back="/n/app/mobile/shop" />

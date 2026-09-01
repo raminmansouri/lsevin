@@ -122,6 +122,34 @@ export async function getShopCategories(locale?: string): Promise<ShopCategory[]
   `;
 }
 
+/**
+ * Active brands that have at least one active, listable product — the brand
+ * facet for the search/category filter bar (SHP-V02-005).
+ */
+export async function getShopBrands(
+  locale?: string,
+  categorySlug?: string
+): Promise<Array<{ slug: string; name: string; productCount: number }>> {
+  const lang = normalizeLocale(locale ?? (await getShopContext()).locale);
+  return sql<Array<{ slug: string; name: string; productCount: number }>>`
+    select b.slug,
+      common.get_translation_t(b.name_translations, ${lang}, 'en') as name,
+      count(distinct p.id)::int as "productCount"
+    from shop.brands b
+    join shop.products p on p.brand_id = b.id and p.deleted_at is null and p.status = 'active'
+    ${
+      categorySlug
+        ? sql`join shop.product_categories pc on pc.product_id = p.id
+               join shop.categories c on c.id = pc.category_id and c.slug = ${categorySlug}`
+        : sql``
+    }
+    where b.deleted_at is null and b.is_active = true
+    group by b.slug, name
+    order by "productCount" desc, name asc
+    limit 24
+  `;
+}
+
 export async function searchProducts(
   input: unknown,
   opts?: { locale?: string; displayCurrency?: string }
@@ -138,6 +166,8 @@ export async function searchProducts(
   if (filters.brand)
     conditions.push(sql`exists (select 1 from shop.brands b where b.id = p.brand_id and b.slug = ${filters.brand})`);
   if (filters.featuredOnly) conditions.push(sql`p.is_featured = true`);
+  if (filters.discountedOnly)
+    conditions.push(sql`p.compare_at_price is not null and p.compare_at_price > coalesce(price_summary.min_price, p.base_price)`);
   if (filters.slugs && filters.slugs.length) conditions.push(sql`p.slug = any(${filters.slugs})`);
   if (filters.minRating > 0) conditions.push(sql`coalesce(review_summary.avg_rating, 0) >= ${filters.minRating}`);
   if (filters.inStockOnly) conditions.push(sql`coalesce(price_summary.has_stock, false) = true`);

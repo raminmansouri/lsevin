@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 
-import { getShopCategories } from "@/features/shop/api/catalog.repository";
+import { getShopBrands, getShopCategories } from "@/features/shop/api/catalog.repository";
 import { getCartView } from "@/features/shop/api/cart.repository";
 import { resolveDisplayCurrency } from "@/features/shop/lib/pricing";
 import { getShopContext } from "@/features/shop/lib/context";
@@ -25,6 +25,7 @@ export default async function ShopCategoryPage({
   const [categories, cart, ctx] = await Promise.all([getShopCategories(), getCartView(), getShopContext()]);
   const category = categories.find((c) => c.slug === slug);
   if (!category) notFound();
+  const brands = await getShopBrands(locale, slug);
   const { currency, selectable } = await resolveDisplayCurrency(ctx);
   await emitCommerceEvent("shop_product_view", { categoryId: category.id, surface: "category" });
 
@@ -46,6 +47,7 @@ export default async function ShopCategoryPage({
         searchParams={sp}
         fixed={{ category: slug }}
         heading={category.name}
+        brands={brands}
       />
     </div>
   );
