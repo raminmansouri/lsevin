@@ -1066,8 +1066,11 @@ const featuredRows = await sql`
       coalesce(service_currency_counts.count, 0)::int as count
     from finance.currencies fc
     full join service_currency_counts on service_currency_counts.code = fc.code
-    where coalesce(fc.is_display_enabled, true) = true
-       or service_currency_counts.count is not null
+    where fc.deleted_at is null
+      and (
+        coalesce(fc.is_display_enabled, true) = true
+        or service_currency_counts.count is not null
+      )
     order by coalesce(service_currency_counts.count, 0) desc, coalesce(fc.sort_order, 100000), code asc
   `;
 

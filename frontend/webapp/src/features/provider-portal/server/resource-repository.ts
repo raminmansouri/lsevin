@@ -406,7 +406,7 @@ export async function getProviderResourceOptions(
     case "currencies":
       return sql<
         ProviderResourceOption[]
-      >`select code as value, concat(code, ' - ', name) as label from finance.currencies where is_active = true order by sort_order asc, code asc`;
+      >`select code as value, concat(code, ' - ', name) as label from finance.currencies where deleted_at is null and is_active = true order by sort_order asc, code asc`;
     default:
       return [];
   }

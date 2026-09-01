@@ -54,6 +54,7 @@ export async function upsertCurrencyAction(input: CurrencyFormInput) {
       is_payment_enabled = excluded.is_payment_enabled,
       is_settlement_enabled = excluded.is_settlement_enabled,
       sort_order = excluded.sort_order,
+      deleted_at = null,
       updated_at = now()
   `;
 

@@ -30,6 +30,7 @@ export async function getAdminCurrencies(): Promise<Currency[]> {
       is_settlement_enabled as "isSettlementEnabled",
       sort_order as "sortOrder"
     from finance.currencies
+    where deleted_at is null
     order by sort_order asc, code asc
   `;
 }
