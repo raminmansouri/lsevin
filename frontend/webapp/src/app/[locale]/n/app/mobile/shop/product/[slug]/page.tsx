@@ -191,4 +191,15 @@ export default async function ProductDetailPage({
       {recentlyViewed.length ? (
         <section className="mt-2 bg-white p-4">
           <h2 className="mb-3 text-sm font-bold text-neutral-900">{t("recentlyViewed")}</h2>
-          <Prod
+          <ProductGrid products={recentlyViewed} locale={locale} />
+        </section>
+      ) : null}
+
+      <div className="p-4 text-center">
+        <Link href="/n/app/mobile/shop" className="text-xs font-semibold text-[#083f30]">
+          ‹ {t("continueShopping")}
+        </Link>
+      </div>
+    </div>
+  );
+}
