@@ -502,8 +502,12 @@ export async function getTrustedHomeProviders(input: HomeQueryInput, limit = 8):
     left join media.media_library gm on gm.id::text = gallery.url
     left join media.media_library spm on spm.id::text = sp.image_url
     where sp.is_active = true
-      and (${countryCode}::text is null or upper(sp.country) = upper(${countryCode}::text))
-      and (${cityCode}::text is null or upper(sp.city) = upper(${cityCode}::text))
+      -- Trim as well as fold case. upper(sp.country) = upper('IR') drops every
+      -- provider whose stored code carries stray whitespace, which is why the
+      -- listing showed only part of the providers for a country. This matches
+      -- what the Explore filters already do and can only widen the result.
+      and (${countryCode}::text is null or lower(btrim(sp.country)) = lower(btrim(${countryCode}::text)))
+      and (${cityCode}::text is null or lower(btrim(sp.city)) = lower(btrim(${cityCode}::text)))
     order by
       ${nearby ? sql`${nearby} asc nulls last,` : sql``}
       coalesce(sp.accredited, false) desc,
