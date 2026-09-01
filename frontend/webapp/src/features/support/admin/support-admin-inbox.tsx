@@ -4,7 +4,7 @@
 import { useTranslations } from "next-intl";
 import { CheckCircle2, Clock3, Headphones, Loader2, MessageSquareText, NotebookPen, Plus, Search, SendHorizonal, Tag, UserRound } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -52,6 +52,24 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
   const [priority, setPriority] = useState<(typeof priorities)[number]>("all");
   const [tagId, setTagId] = useState("");
   const [reply, setReply] = useState("");
+  const threadRef = useRef<HTMLDivElement | null>(null);
+  // Whether the agent is parked at the newest message. A new message scrolls the
+  // thread only when they are; if they scrolled up to read, their place is kept.
+  const atBottomRef = useRef(true);
+  const messageCount = selected?.messages?.length ?? 0;
+
+  useEffect(() => {
+    const node = threadRef.current;
+    if (!node) return;
+    atBottomRef.current = true;
+    node.scrollTop = node.scrollHeight;
+  }, [selected?.id]);
+
+  useEffect(() => {
+    const node = threadRef.current;
+    if (!node || !atBottomRef.current) return;
+    node.scrollTop = node.scrollHeight;
+  }, [messageCount]);
   const [note, setNote] = useState("");
   const [isPending, startTransition] = useTransition();
 
@@ -229,10 +247,10 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
           </div>
         </aside>
 
-        <main className="flex flex-col bg-white lg:min-h-0">
+        <main className="flex min-h-0 flex-col bg-white lg:h-full lg:min-h-0">
           {selected ? (
             <>
-              <div className="flex items-center justify-between gap-3 border-b p-4">
+              <div className="flex shrink-0 items-center justify-between gap-3 border-b p-4">
                 <div className="flex min-w-0 items-center gap-3">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#083f30] font-bold text-white">{getInitials(selected.displayName)}</div>
                   <div className="min-w-0">
@@ -248,18 +266,40 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
                 </div>
               </div>
 
-              <div className="max-h-[50vh] overflow-y-auto bg-slate-50 p-5 lg:h-auto lg:max-h-none lg:min-h-0 lg:flex-1">
+              {/* The only scroll container in this pane. It used to be flex-1 only
+                  from lg up, so below that the thread grew past the card, which is
+                  clipped by lg:overflow-hidden on the wrapper -- the messages and
+                  the composer under them simply could not be reached. */}
+              <div
+                ref={threadRef}
+                onScroll={(event) => {
+                  const node = event.currentTarget;
+                  atBottomRef.current = node.scrollHeight - node.scrollTop - node.clientHeight < 48;
+                }}
+                className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-slate-50 p-5"
+              >
                 <SupportThread messages={selected.messages} customerSide={false} />
               </div>
 
-              <div className="border-t bg-white p-4">
+              <div className="shrink-0 border-t bg-white p-4">
                 <div className="mb-3 flex flex-wrap gap-2">
                   {cannedReplies.map((item) => (
                     <Button key={item.id} type="button" variant="outline" size="sm" className="rounded-full" onClick={() => setReply(item.bodyTranslations["en-US"] || Object.values(item.bodyTranslations)[0] || "")}>{item.shortcut || item.title}</Button>
                   ))}
                 </div>
                 <div className="flex items-end gap-2 rounded-3xl border bg-slate-50 p-2">
-                  <Textarea value={reply} onChange={(event) => setReply(event.target.value)} placeholder={tAdmin("replyToCustomer")} className="min-h-[72px] resize-none border-0 bg-transparent shadow-none focus-visible:ring-0" />
+                  <Textarea
+                    value={reply}
+                    onChange={(event) => setReply(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" && !event.shiftKey) {
+                        event.preventDefault();
+                        if (reply.trim() && !isPending) sendReply();
+                      }
+                    }}
+                    placeholder={tAdmin("replyToCustomer")}
+                    className="min-h-[72px] resize-none border-0 bg-transparent shadow-none focus-visible:ring-0"
+                  />
                   <Button size="icon" onClick={sendReply} disabled={!reply.trim() || isPending} className="h-11 w-11 shrink-0 rounded-2xl"><SendHorizonal className="h-4 w-4" /></Button>
                 </div>
               </div>
