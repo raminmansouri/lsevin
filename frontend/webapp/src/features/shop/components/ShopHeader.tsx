@@ -33,7 +33,7 @@ export async function ShopHeader({
     <header className="sticky top-0 z-30 overflow-x-clip bg-gradient-to-b from-[#083f30] to-[#0a5a44] px-2.5 pb-3 pt-[max(0.6rem,env(safe-area-inset-top))]">
       <div className="flex min-w-0 items-center gap-1.5">
         {back ? (
-          <Link href={back} aria-label="Back" className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-white/90">
+          <Link href={back} aria-label={t("back")} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-white/90">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden className="rtl:rotate-180">
               <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>

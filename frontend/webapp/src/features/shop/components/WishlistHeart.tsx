@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 import { toggleWishlistAction } from "../actions/wishlist.actions";
@@ -16,6 +17,7 @@ export function WishlistHeart({
   className?: string;
   size?: number;
 }) {
+  const t = useTranslations("Shop");
   const [active, setActive] = useState(initialActive);
   const [pending, startTransition] = useTransition();
 
@@ -23,7 +25,7 @@ export function WishlistHeart({
     <button
       type="button"
       aria-pressed={active}
-      aria-label={active ? "Remove from wishlist" : "Add to wishlist"}
+      aria-label={active ? t("wishlistRemove") : t("wishlistAdd")}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
