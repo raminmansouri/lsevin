@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 import { listCategoriesAdminFull } from "@/features/shop/api/admin.repository";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminCategoriesPage() {
+  const t = await getTranslations("ShopAdmin");
   const categories = await listCategoriesAdminFull();
   type Category = (typeof categories)[number];
   const byParent = new Map<string, Category[]>();
@@ -14,7 +16,7 @@ export default async function AdminCategoriesPage() {
     byParent.get(key)!.push(c);
   }
 
-  function Row({ c, depth }: { c: (typeof categories)[number]; depth: number }) {
+  function Row({ c, depth }: { c: Category; depth: number }) {
     return (
       <>
         <tr>
@@ -30,7 +32,7 @@ export default async function AdminCategoriesPage() {
           <td className="px-4 py-3">{c.display_order}</td>
           <td className="px-4 py-3">
             <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${c.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
-              {c.is_active ? "active" : "inactive"}
+              {c.is_active ? t("common.activeShort") : t("common.inactiveShort")}
             </span>
           </td>
         </tr>
@@ -42,22 +44,22 @@ export default async function AdminCategoriesPage() {
   return (
     <div className="min-h-screen bg-gray-50 px-6 py-6">
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Categories</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t("categories.title")}</h1>
         <div className="flex items-center gap-3">
-          <Link href="/admin/shop/categories/new" className="rounded-lg bg-[#083f30] px-3 py-1.5 text-sm font-semibold text-white">+ New category</Link>
-          <Link href="/admin/shop" className="text-sm font-medium text-[#083f30]">← Dashboard</Link>
+          <Link href="/admin/shop/categories/new" className="rounded-lg bg-[#083f30] px-3 py-1.5 text-sm font-semibold text-white">{t("categories.new")}</Link>
+          <Link href="/admin/shop" className="text-sm font-medium text-[#083f30]">{t("nav.backToDashboard")}</Link>
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white">
+      <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left text-xs uppercase text-gray-500">
             <tr>
-              <th className="px-4 py-3">Category</th>
-              <th className="px-4 py-3">Slug</th>
-              <th className="px-4 py-3">Products</th>
-              <th className="px-4 py-3">Order</th>
-              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">{t("categories.colCategory")}</th>
+              <th className="px-4 py-3">{t("categories.colSlug")}</th>
+              <th className="px-4 py-3">{t("categories.colProducts")}</th>
+              <th className="px-4 py-3">{t("categories.colOrder")}</th>
+              <th className="px-4 py-3">{t("categories.colStatus")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">

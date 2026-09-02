@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 
 import MultiMediaPickerInput from "@/features/media-picker-addon/components/MultiMediaPickerInput";
 import { setProductGalleryAction } from "../../actions/admin-catalog.actions";
@@ -11,6 +12,8 @@ import { setProductGalleryAction } from "../../actions/admin-catalog.actions";
  * order, per SHP-CAT-007).
  */
 export function ProductGalleryEditor({ productId, initialUrls }: { productId: string; initialUrls: string[] }) {
+  const t = useTranslations("ShopAdmin.productEdit");
+  const tc = useTranslations("ShopAdmin.common");
   const [value, setValue] = useState(initialUrls.join(","));
   const [pending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
@@ -28,7 +31,7 @@ export function ProductGalleryEditor({ productId, initialUrls }: { productId: st
     <div className="space-y-2">
       <MultiMediaPickerInput
         name="gallery"
-        label="Product images (first = primary)"
+        label={t("galleryLabel")}
         mediaType="image"
         value={value}
         onValueChange={setValue}
@@ -40,9 +43,9 @@ export function ProductGalleryEditor({ productId, initialUrls }: { productId: st
         disabled={pending}
         className="rounded bg-[#083f30] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
       >
-        {pending ? "Saving…" : "Save gallery"}
+        {pending ? t("savingGallery") : t("saveGallery")}
       </button>
-      {saved ? <span className="ms-2 text-xs text-green-600">Saved</span> : null}
+      {saved ? <span className="ms-2 text-xs text-green-600">{tc("saved")}</span> : null}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 import { getAdminDashboardSummary, getExceptionQueues } from "@/features/shop/api/admin.repository";
 
@@ -16,7 +17,25 @@ const EMPTY_SUMMARY = {
   recentOrders: [] as any[],
 };
 
+const NAV: Array<[navKey: string, href: string]> = [
+  ["orders", "/admin/shop/orders"],
+  ["products", "/admin/shop/products"],
+  ["categories", "/admin/shop/categories"],
+  ["brands", "/admin/shop/brands"],
+  ["attributes", "/admin/shop/attributes"],
+  ["coupons", "/admin/shop/coupons"],
+  ["inventory", "/admin/shop/inventory"],
+  ["delivery", "/admin/shop/delivery"],
+  ["merchandising", "/admin/shop/merchandising"],
+  ["reviews", "/admin/shop/reviews"],
+  ["returns", "/admin/shop/returns"],
+  ["relationReport", "/admin/shop/reports/relations"],
+  ["stockReport", "/admin/shop/reports/stock"],
+  ["settings", "/admin/shop/settings"],
+];
+
 export default async function AdminShopDashboardPage() {
+  const t = await getTranslations("ShopAdmin");
   // One failing query must not blank the whole dashboard — each half degrades
   // independently and `error.tsx` catches anything that still slips through.
   const [s, exc] = await Promise.all([
@@ -30,48 +49,36 @@ export default async function AdminShopDashboardPage() {
     }),
   ]);
 
-  const exceptions: Array<{ label: string; value: number; href: string }> = [
-    { label: "Stuck payments (>2d)", value: exc.stuck_payments ?? 0, href: "/admin/shop/orders?status=awaiting_payment" },
-    { label: "Unfulfilled paid orders", value: exc.unfulfilled_paid ?? 0, href: "/admin/shop/orders?status=paid" },
-    { label: "Failed payments (7d)", value: exc.recent_failed_payments ?? 0, href: "/admin/shop/orders?paymentStatus=failed" },
-    { label: "Pending returns", value: exc.pending_returns ?? 0, href: "/admin/shop/returns" },
-    { label: "Refunds pending", value: exc.refund_pending ?? 0, href: "/admin/shop/orders?status=cancelled" },
-    { label: "Stalled shipments (>2d)", value: exc.stalled_shipments ?? 0, href: "/admin/shop/orders" },
+  const orderStatus = (v: string) => (t.has(`enum.orderStatus.${v}` as never) ? t(`enum.orderStatus.${v}` as never) : v);
+  const paymentStatus = (v: string) => (t.has(`enum.paymentStatus.${v}` as never) ? t(`enum.paymentStatus.${v}` as never) : v);
+
+  const exceptions = [
+    { key: "excStuckPayments", value: exc.stuck_payments ?? 0, href: "/admin/shop/orders?status=awaiting_payment" },
+    { key: "excUnfulfilledPaid", value: exc.unfulfilled_paid ?? 0, href: "/admin/shop/orders?status=paid" },
+    { key: "excFailedPayments", value: exc.recent_failed_payments ?? 0, href: "/admin/shop/orders?paymentStatus=failed" },
+    { key: "excPendingReturns", value: exc.pending_returns ?? 0, href: "/admin/shop/returns" },
+    { key: "excRefundsPending", value: exc.refund_pending ?? 0, href: "/admin/shop/orders?status=cancelled" },
+    { key: "excStalledShipments", value: exc.stalled_shipments ?? 0, href: "/admin/shop/orders" },
   ];
 
   const cards = [
-    { label: "Orders (this month)", value: s.ordersMonth },
-    { label: "Paid sales", value: s.paidSales.toFixed(2) },
-    { label: "Avg. order value", value: s.avgOrderValue.toFixed(2) },
-    { label: "Pending fulfilment", value: s.pendingFulfilment, warn: s.pendingFulfilment > 0 },
-    { label: "Payment / review exceptions", value: s.exceptions, warn: s.exceptions > 0 },
-    { label: "Low stock", value: s.lowStockCount, warn: s.lowStockCount > 0 },
-    { label: "Active products", value: `${s.activeProducts} / ${s.productCount}` },
+    { key: "cardOrdersMonth", value: s.ordersMonth },
+    { key: "cardPaidSales", value: s.paidSales.toFixed(2) },
+    { key: "cardAvgOrder", value: s.avgOrderValue.toFixed(2) },
+    { key: "cardPendingFulfilment", value: s.pendingFulfilment, warn: s.pendingFulfilment > 0 },
+    { key: "cardExceptions", value: s.exceptions, warn: s.exceptions > 0 },
+    { key: "cardLowStock", value: s.lowStockCount, warn: s.lowStockCount > 0 },
+    { key: "cardActiveProducts", value: `${s.activeProducts} / ${s.productCount}` },
   ];
 
   return (
     <div className="min-h-screen bg-gray-50 px-6 py-6">
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Shop dashboard</h1>
-        <nav className="flex gap-2 text-sm">
-          {[
-            ["Orders", "/admin/shop/orders"],
-            ["Products", "/admin/shop/products"],
-            ["Categories", "/admin/shop/categories"],
-            ["Brands", "/admin/shop/brands"],
-            ["Attributes", "/admin/shop/attributes"],
-            ["Coupons", "/admin/shop/coupons"],
-            ["Inventory", "/admin/shop/inventory"],
-            ["Delivery", "/admin/shop/delivery"],
-            ["Merchandising", "/admin/shop/merchandising"],
-            ["Reviews", "/admin/shop/reviews"],
-            ["Returns", "/admin/shop/returns"],
-            ["Relation report", "/admin/shop/reports/relations"],
-            ["Stock report", "/admin/shop/reports/stock"],
-            ["Settings", "/admin/shop/settings"],
-          ].map(([l, h]) => (
+        <h1 className="text-2xl font-bold text-gray-900">{t("dashboard.title")}</h1>
+        <nav className="flex flex-wrap gap-2 text-sm">
+          {NAV.map(([navKey, h]) => (
             <Link key={h} href={h} className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 font-medium text-gray-700">
-              {l}
+              {t(`nav.${navKey}` as never)}
             </Link>
           ))}
         </nav>
@@ -79,38 +86,38 @@ export default async function AdminShopDashboardPage() {
 
       <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-4">
         {cards.map((c) => (
-          <div key={c.label} className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-            <div className="text-sm text-gray-500">{c.label}</div>
+          <div key={c.key} className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+            <div className="text-sm text-gray-500">{t(`dashboard.${c.key}` as never)}</div>
             <div className={`mt-2 text-2xl font-bold ${c.warn ? "text-amber-600" : "text-gray-900"}`}>{c.value}</div>
           </div>
         ))}
       </div>
 
-      <h2 className="mb-3 mt-8 text-lg font-bold text-gray-900">Exception queues (SHP-V03-013)</h2>
+      <h2 className="mb-3 mt-8 text-lg font-bold text-gray-900">{t("dashboard.exceptionsTitle")}</h2>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {exceptions.map((e) => (
           <Link
-            key={e.label}
+            key={e.key}
             href={e.href}
             className={`rounded-xl border p-4 ${e.value > 0 ? "border-amber-300 bg-amber-50" : "border-gray-100 bg-white"}`}
           >
-            <div className="text-sm text-gray-600">{e.label}</div>
+            <div className="text-sm text-gray-600">{t(`dashboard.${e.key}` as never)}</div>
             <div className={`mt-1 text-xl font-bold ${e.value > 0 ? "text-amber-700" : "text-gray-400"}`}>{e.value}</div>
           </Link>
         ))}
       </div>
 
-      <h2 className="mb-3 mt-8 text-lg font-bold text-gray-900">Recent orders</h2>
+      <h2 className="mb-3 mt-8 text-lg font-bold text-gray-900">{t("dashboard.recentOrders")}</h2>
       <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left text-xs uppercase text-gray-500">
             <tr>
-              <th className="px-4 py-3">Order</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Payment</th>
-              <th className="px-4 py-3">Total</th>
-              <th className="px-4 py-3">Placed</th>
+              <th className="px-4 py-3">{t("dashboard.colOrder")}</th>
+              <th className="px-4 py-3">{t("dashboard.colEmail")}</th>
+              <th className="px-4 py-3">{t("dashboard.colStatus")}</th>
+              <th className="px-4 py-3">{t("dashboard.colPayment")}</th>
+              <th className="px-4 py-3">{t("dashboard.colTotal")}</th>
+              <th className="px-4 py-3">{t("dashboard.colPlaced")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -122,8 +129,8 @@ export default async function AdminShopDashboardPage() {
                   </Link>
                 </td>
                 <td className="px-4 py-3 text-gray-600">{o.email}</td>
-                <td className="px-4 py-3">{o.status}</td>
-                <td className="px-4 py-3">{o.payment_status}</td>
+                <td className="px-4 py-3">{orderStatus(o.status)}</td>
+                <td className="px-4 py-3">{paymentStatus(o.payment_status)}</td>
                 <td className="px-4 py-3">{o.currency} {Number(o.grand_total).toFixed(2)}</td>
                 <td className="px-4 py-3 text-gray-500">{new Date(o.placed_at).toLocaleString()}</td>
               </tr>

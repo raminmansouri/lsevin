@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 import { getStockReconciliation } from "@/features/shop/api/admin.repository";
 
@@ -10,6 +11,7 @@ export const dynamic = "force-dynamic";
  * DB CHECKs but surfaced anyway), low availability, and stale physical counts.
  */
 export default async function AdminStockReconciliationPage() {
+  const t = await getTranslations("ShopAdmin");
   const rows = await getStockReconciliation();
 
   const drift = rows.filter((r) => Number(r.reserved_drift) !== 0);
@@ -20,37 +22,32 @@ export default async function AdminStockReconciliationPage() {
   return (
     <div className="min-h-screen bg-gray-50 px-6 py-6">
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Stock reconciliation</h1>
-        <Link href="/admin/shop" className="text-sm font-medium text-[#083f30]">← Dashboard</Link>
+        <h1 className="text-2xl font-bold text-gray-900">{t("reportStock.title")}</h1>
+        <Link href="/admin/shop" className="text-sm font-medium text-[#083f30]">{t("nav.backToDashboard")}</Link>
       </div>
 
       <div className="mb-4 grid gap-3 sm:grid-cols-4">
-        <Stat label="Reservation drift" value={drift.length} warn={drift.length > 0} />
-        <Stat label="Impossible quantities" value={impossible.length} warn={impossible.length > 0} />
-        <Stat label="At / below reorder" value={low.length} warn={low.length > 0} />
-        <Stat label="Stale counts (>90d)" value={stale.length} warn={stale.length > 0} />
+        <Stat label={t("reportStock.reservationDrift")} value={drift.length} warn={drift.length > 0} />
+        <Stat label={t("reportStock.impossibleQty")} value={impossible.length} warn={impossible.length > 0} />
+        <Stat label={t("reportStock.atReorder")} value={low.length} warn={low.length > 0} />
+        <Stat label={t("reportStock.staleCounts")} value={stale.length} warn={stale.length > 0} />
       </div>
 
-      <p className="mb-3 text-xs text-gray-500">
-        “Expected reserved” = un-shipped quantity across orders in
-        <code> pending / awaiting_payment / paid / processing / partially_shipped</code>. A non-zero
-        drift means the <code>inventory.reserved</code> counter and live demand disagree — usually a
-        release/convert that did not run.
-      </p>
+      <p className="mb-3 text-xs text-gray-500">{t("reportStock.explainer")}</p>
 
       <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left text-xs uppercase text-gray-500">
             <tr>
-              <th className="px-4 py-3">Product</th>
-              <th className="px-4 py-3">SKU</th>
-              <th className="px-4 py-3">On hand</th>
-              <th className="px-4 py-3">Reserved</th>
-              <th className="px-4 py-3">Expected</th>
-              <th className="px-4 py-3">Drift</th>
-              <th className="px-4 py-3">Available</th>
-              <th className="px-4 py-3">Reorder</th>
-              <th className="px-4 py-3">Last counted</th>
+              <th className="px-4 py-3">{t("reportStock.colProduct")}</th>
+              <th className="px-4 py-3">{t("reportStock.colSku")}</th>
+              <th className="px-4 py-3">{t("reportStock.colOnHand")}</th>
+              <th className="px-4 py-3">{t("reportStock.colReserved")}</th>
+              <th className="px-4 py-3">{t("reportStock.colExpected")}</th>
+              <th className="px-4 py-3">{t("reportStock.colDrift")}</th>
+              <th className="px-4 py-3">{t("reportStock.colAvailable")}</th>
+              <th className="px-4 py-3">{t("reportStock.colReorder")}</th>
+              <th className="px-4 py-3">{t("reportStock.colLastCounted")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -71,16 +68,14 @@ export default async function AdminStockReconciliationPage() {
                   </td>
                   <td className="px-4 py-3 text-gray-500">{r.reorder_threshold}</td>
                   <td className={`px-4 py-3 text-xs ${r.stale_count ? "text-amber-600" : "text-gray-500"}`}>
-                    {r.last_counted_at ? new Date(r.last_counted_at).toLocaleDateString() : "never"}
+                    {r.last_counted_at ? new Date(r.last_counted_at).toLocaleDateString() : t("reportStock.never")}
                   </td>
                 </tr>
               );
             })}
             {!rows.length ? (
               <tr>
-                <td colSpan={9} className="px-4 py-8 text-center text-gray-400">
-                  Everything reconciles — no drift, no impossible quantities, nothing stale or low.
-                </td>
+                <td colSpan={9} className="px-4 py-8 text-center text-gray-400">{t("reportStock.allReconciles")}</td>
               </tr>
             ) : null}
           </tbody>
