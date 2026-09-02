@@ -8,6 +8,7 @@ import { DynamicServiceForm } from '@/features/form-builder/components/DynamicSe
 import { ConsultationStep } from '@/features/consultation/components/consultation-step';
 import type { BookingDraftState, ChildBookingDraft, ProviderCardItem, ProviderTypeAddonItem, ServiceCardItem, SpecialistCardItem, UploadRequirementItem } from '../types';
 import { ChildAddonBookingCard } from './ChildAddonBookingCard';
+import { BookingShopProductsStep, type BookingShopProductGroup } from './BookingShopProductsStep';
 import { PaymentMethodsPanel } from './PaymentMethodsPanel';
 import { DecisionStack } from './step-service/DecisionStack';
 import { autoSelectId, canContinueService, type SlotKey } from '../lib/decision-stack';
@@ -49,16 +50,26 @@ const steps = [
     // drop every in-flight customer onto the wrong screen after a deploy. The keys
     // are identifiers; STEP_ORDER below is what decides position.
     { key: 6, labelKey: 'stepConsultation' },
+    // 7: optional "recommended shop products" step, gated by the global
+    // booking.settings toggle *and* by the service actually having linked
+    // products. Sits just before checkout in STEP_ORDER.
+    { key: 7, labelKey: 'stepShopProducts' },
 ] as const;
 type StepKey = (typeof steps)[number]['key'];
 /** The order steps are presented in — the only place display order is decided. */
-const STEP_ORDER = [1, 2, 6, 3, 4, 5] as const;
+const STEP_ORDER = [1, 2, 6, 3, 4, 7, 5] as const;
 /** Shown only when the customer asked L'Sevin to arrange extra support services. */
 const LSEVIN_ONLY_STEPS = new Set<number>([3, 4]);
+/** Shown only when an admin enabled it and the service has linked shop products. */
+const SHOP_PRODUCTS_STEP = 7;
 /** Checkout. Kept as its own constant so the submit branch is not a bare `=== 5`. */
 const CHECKOUT_STEP = 5;
-function visibleStepKeysFor(useLsevin: boolean): readonly StepKey[] {
-    return STEP_ORDER.filter((key) => useLsevin || !LSEVIN_ONLY_STEPS.has(key));
+function visibleStepKeysFor(useLsevin: boolean, showShopProducts: boolean): readonly StepKey[] {
+    return STEP_ORDER.filter((key) => {
+        if (LSEVIN_ONLY_STEPS.has(key)) return useLsevin;
+        if (key === SHOP_PRODUCTS_STEP) return showShopProducts;
+        return true;
+    });
 }
 /**
  * Maps a persisted `current_step` onto a step that is actually on screen.
@@ -371,6 +382,7 @@ export function BookingWizard() {
     const [entryAttempt, setEntryAttempt] = useState(0);
     const [addonProviderTypes, setAddonProviderTypes] = useState<ProviderTypeAddonItem[]>([]);
     const [uploadRequirements, setUploadRequirements] = useState<UploadRequirementItem[]>([]);
+    const [shopProductGroups, setShopProductGroups] = useState<BookingShopProductGroup[]>([]);
     const [availableDates, setAvailableDates] = useState<AvailableDateItem[]>([]);
     const [timeSlots, setTimeSlots] = useState<TimeSlotItem[]>([]);
     const [dateRangeAvailability, setDateRangeAvailability] = useState<DateRangeAvailability | null>(null);
@@ -437,7 +449,8 @@ export function BookingWizard() {
     const wantsLsevinSupport = Boolean(draft?.useLsevin);
     // [1,2,6,5] without extra support, [1,2,6,3,4,5] with it — position comes from
     // STEP_ORDER, never from the key, which is a stored identifier.
-    const visibleSteps = useMemo(() => visibleStepKeysFor(wantsLsevinSupport).map((key) => steps.find((step) => step.key === key)!), [wantsLsevinSupport]);
+    const showShopProducts = shopProductGroups.length > 0;
+    const visibleSteps = useMemo(() => visibleStepKeysFor(wantsLsevinSupport, showShopProducts).map((key) => steps.find((step) => step.key === key)!), [wantsLsevinSupport, showShopProducts]);
     const visibleStepKeys = useMemo(() => visibleSteps.map((step) => step.key), [visibleSteps]);
     const currentStep = draft ? resolveVisibleStep(rawCurrentStep, visibleStepKeys) : rawCurrentStep;
     const currentStepIndex = visibleSteps.findIndex((step) => step.key === currentStep);
@@ -677,6 +690,23 @@ export function BookingWizard() {
             .catch((e) => { if (!cancelled && serviceModeRequestSeq.current === requestId) setError(e.message); });
         return () => { cancelled = true; };
     }, [draft?.serviceId, locale, resumeChoiceRequired]);
+    useEffect(() => {
+        const serviceDefinitionId = draft?.serviceDefinitionId;
+        if (!serviceDefinitionId || resumeChoiceRequired) {
+            setShopProductGroups([]);
+            return;
+        }
+        let cancelled = false;
+        getJson<{ enabled: boolean; byRelation: BookingShopProductGroup[] }>(
+            `/api/booking-pro/shop-products?serviceDefinitionId=${encodeURIComponent(serviceDefinitionId)}&locale=${locale}`,
+        )
+            .then((data) => {
+                if (cancelled) return;
+                setShopProductGroups(data.enabled && Array.isArray(data.byRelation) ? data.byRelation : []);
+            })
+            .catch(() => { if (!cancelled) setShopProductGroups([]); });
+        return () => { cancelled = true; };
+    }, [draft?.serviceDefinitionId, locale, resumeChoiceRequired]);
     useEffect(() => {
         if (!draft?.providerId || !draft?.serviceId || draft.bookingUiMode !== 'default_slot' || resumeChoiceRequired) {
             setAvailableDates([]);
@@ -1336,6 +1366,12 @@ export function BookingWizard() {
               </div>
               <button type="button" onClick={() => getJson('/api/booking-pro/draft', { method: 'PATCH', body: JSON.stringify({ action: 'documents', draftId: draft.id, documents: draft.uploadFiles }) }).then(() => { }).catch((e) => setError(e.message))} className="mt-5 rounded-2xl bg-[#083f30] px-5 py-3 text-sm font-bold text-white shadow-lg">{tBooking("saveFileSelections")}</button>
             </div>) : null}
+
+          {/* Optional: shop products an admin linked to this service. Never gates
+              Continue — the bottom bar drives it like every other step. */}
+          {currentStep === SHOP_PRODUCTS_STEP ? (
+            <BookingShopProductsStep groups={shopProductGroups} locale={locale} />
+          ) : null}
 
           {currentStep === 5 ? (<div className="space-y-4">
               <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-lg">
