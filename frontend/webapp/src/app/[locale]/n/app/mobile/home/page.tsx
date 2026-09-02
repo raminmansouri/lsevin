@@ -22,9 +22,9 @@ import {
 } from '@/features/home/api/server/get-home-page';
 import {
   formatHomeSectionText,
-  getHomeManagedSections,
   type HomeManagedSection,
 } from '@/features/home/api/server/get-home-sections';
+import { getHomeManagedSectionsCached } from '@/features/home/api/server/get-home-managed-sections-cached';
 import { HomeLexicalDescription } from '@/features/home/components/home-lexical-description';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { SponsoredMediaCarouselSection } from '@/features/home/components/sponsored-media-carousel-section';
@@ -263,7 +263,7 @@ async function Home({ params, searchParams }: PageProps) {
     getTrustedHomeProviders(queryInput, 8),
     getHomeHeroOffer(queryInput),
     getNearbyProviderCount(queryInput),
-    getHomeManagedSections(locale),
+    getHomeManagedSectionsCached(locale),
     // Guests can browse the home page; their profile lookup is optional.
     getProfileForEdit('en-US').catch(() => null),
     countActiveSpecialPackages(),
