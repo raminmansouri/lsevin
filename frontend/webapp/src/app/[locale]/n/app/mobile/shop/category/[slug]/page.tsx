@@ -8,6 +8,7 @@ import { getShopContext } from "@/features/shop/lib/context";
 import { ShopHeader } from "@/features/shop/components/ShopHeader";
 import { ProductListView } from "@/features/shop/components/ProductListView";
 import { emitCommerceEvent } from "@/features/shop/lib/analytics";
+import { shopImageSrc } from "@/features/shop/lib/image";
 
 export const dynamic = "force-dynamic";
 
@@ -39,7 +40,7 @@ export default async function ShopCategoryPage({
       />
       {category.bannerUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={category.bannerUrl} alt={category.name} className="h-32 w-full object-cover" />
+        <img src={shopImageSrc(category.bannerUrl)} alt={category.name} className="h-32 w-full object-cover" />
       ) : null}
       <ProductListView
         locale={locale}

@@ -5,6 +5,7 @@ import { getCompareView } from "@/features/shop/api/compare.repository";
 import { getCartView } from "@/features/shop/api/cart.repository";
 import { ShopHeader } from "@/features/shop/components/ShopHeader";
 import { formatShopMoney } from "@/features/shop/components/money";
+import { shopImageSrc } from "@/features/shop/lib/image";
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +43,7 @@ export default async function ShopComparePage({ params }: { params: Promise<{ lo
                       <div className="aspect-square w-full overflow-hidden rounded-lg bg-neutral-100">
                         {p.imageUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={p.imageUrl} alt={p.name} className="h-full w-full object-cover" />
+                          <img src={shopImageSrc(p.imageUrl)} alt={p.name} className="h-full w-full object-cover" />
                         ) : null}
                       </div>
                       <p className="mt-1 line-clamp-2 text-[12px] font-medium text-neutral-800">{p.name}</p>

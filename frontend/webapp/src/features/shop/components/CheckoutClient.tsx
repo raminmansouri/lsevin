@@ -86,7 +86,12 @@ export function CheckoutClient({
         destinationCountry: (dest?.country ?? addr.country) || undefined,
         destinationRegion: (dest?.region ?? addr.stateRegion) || undefined,
       });
-      if (res.ok) setQuote(res.quote);
+      if (res.ok) {
+        setQuote(res.quote);
+        setError(null);
+      } else {
+        setError(res.message || t("somethingWrong"));
+      }
     });
   };
 

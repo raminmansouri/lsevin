@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { formatShopMoney } from "./money";
 import { OrderActions } from "./OrderActions";
 import type { OrderDetail, OrderSummary } from "../types/domain";
+import { shopImageSrc } from "../lib/image";
 
 function statusTone(s: string): string {
   if (["paid", "captured", "completed", "delivered", "accepted"].includes(s)) return "bg-emerald-50 text-emerald-700";
@@ -117,7 +118,7 @@ export async function OrderDetailView({
             <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-neutral-100">
               {it.imageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={it.imageUrl} alt={it.name} className="h-full w-full object-cover" />
+                <img src={shopImageSrc(it.imageUrl)} alt={it.name} className="h-full w-full object-cover" />
               ) : null}
             </div>
             <div className="min-w-0 flex-1">

@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 
 import type { ProductCard as ProductCardModel } from "../types/domain";
 import { formatShopMoney } from "./money";
+import { shopImageSrc } from "../lib/image";
 import { WishlistHeart } from "./WishlistHeart";
 
 type Labels = {
@@ -56,7 +57,7 @@ export function ProductCard({
         {product.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={product.imageUrl}
+            src={shopImageSrc(product.imageUrl)}
             alt={product.name}
             loading={priority ? "eager" : "lazy"}
             className="h-full w-full object-cover transition duration-300 group-hover:scale-105"

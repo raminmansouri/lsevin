@@ -19,9 +19,13 @@ import { startPaymentSchema } from "../schemas/checkout";
 import { emitCommerceEvent } from "../lib/analytics";
 
 export async function quoteCheckoutAction(input: unknown) {
-  const parsed = checkoutQuoteSchema.parse(input);
-  const quote = await quoteCheckout(parsed);
-  return { ok: true as const, quote };
+  try {
+    const parsed = checkoutQuoteSchema.parse(input);
+    const quote = await quoteCheckout(parsed);
+    return { ok: true as const, quote };
+  } catch (error) {
+    return { ok: false as const, message: error instanceof Error ? error.message : "Could not re-quote the cart." };
+  }
 }
 
 export async function listAddressesAction() {

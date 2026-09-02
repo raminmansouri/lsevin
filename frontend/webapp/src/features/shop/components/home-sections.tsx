@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 import type { HomeSection } from "../api/home.repository";
 import type { ProductCard as ProductCardModel } from "../types/domain";
 import { ProductCard, shopCardLabels } from "./ProductCard";
+import { shopImageSrc } from "../lib/image";
 
 export async function ProductGrid({
   products,
@@ -38,7 +39,7 @@ function ShortcutRail({ section }: { section: Extract<HomeSection, { type: "shor
           >
             {s.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={s.imageUrl} alt={s.label} className="h-full w-full rounded-2xl object-cover" />
+              <img src={shopImageSrc(s.imageUrl)} alt={s.label} className="h-full w-full rounded-2xl object-cover" />
             ) : (
               (s.icon ?? "🏷️")
             )}
@@ -61,7 +62,7 @@ function PromoCards({ section }: { section: Extract<HomeSection, { type: "promo_
         >
           {p.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={p.imageUrl} alt={p.label} className="absolute inset-0 h-full w-full object-cover" />
+            <img src={shopImageSrc(p.imageUrl)} alt={p.label} className="absolute inset-0 h-full w-full object-cover" />
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-[#083f30] to-[#eacb7f]" />
           )}

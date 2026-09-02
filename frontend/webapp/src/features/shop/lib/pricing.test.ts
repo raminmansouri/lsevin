@@ -113,11 +113,15 @@ describe("resolvePrices", () => {
     expect(out[0].price.converted).toBe(true);
   });
 
-  it("marks a row unavailable (never a bare number) when Finance has no rate", async () => {
+  it("falls back to the source currency (exact amount, never blocked) when Finance has no rate", async () => {
     convertMoney.mockRejectedValue(new Error("No active exchange rate"));
     const out = await resolvePrices([{ amount: 100, sourceCurrency: "IRR" }], "TRY");
-    expect(out[0].price.unavailable).toBe(true);
-    expect(out[0].price.amount).toBe(0);
+    // Not blocked — the cart/checkout keeps working; the amount is exact and
+    // shown under its own (source) currency, not a wrong number under TRY.
+    expect(out[0].price.unavailable).toBe(false);
+    expect(out[0].price.fellBackToSource).toBe(true);
+    expect(out[0].price.currency).toBe("IRR");
+    expect(out[0].price.amount).toBe(100);
   });
 
   it("does not convert when source === display", async () => {

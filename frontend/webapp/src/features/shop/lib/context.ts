@@ -97,7 +97,36 @@ export const resolveShopCustomerId = cache(async (userId?: string | null): Promi
     order by case when lower(c.email) = lower(u.email) then 0 else 1 end
     limit 1
   `;
-  return matched[0]?.id || null;
+  if (matched[0]?.id) return matched[0].id;
+
+  // No customer row for this signed-in identity — the shop needs one (wishlist,
+  // addresses, orders all FK it). Provision it from the identity user, keyed by
+  // the same id so `exact` hits on the next request. Best-effort: a failure here
+  // must not turn a signed-in user into a guest for the whole request.
+  try {
+    const [created] = await sql<{ id: string }[]>`
+      insert into customer.customers (
+        id, phone_number, phone_number_country_code, email, first_name, last_name, is_active
+      )
+      select u.id,
+        left(coalesce(nullif(u.phone_number, ''), '-'), 15),
+        left(coalesce(nullif(u.phone_number_country_code, ''), '-'), 3),
+        coalesce(nullif(u.email, ''), u.id::text || '@lsevin.local'),
+        coalesce(nullif(u.first_name, ''), '-'),
+        coalesce(nullif(u.last_name, ''), '-'),
+        true
+      from identity.asp_net_users u
+      where u.id = ${raw}::uuid
+      on conflict (id) do nothing
+      returning id::text as id
+    `;
+    if (created?.id) return created.id;
+    // conflict -> row now exists (race); read it back
+    const [again] = await sql<{ id: string }[]>`select id::text as id from customer.customers where id = ${raw}::uuid limit 1`;
+    return again?.id || null;
+  } catch {
+    return null;
+  }
 });
 
 async function resolveCountryCode(userId: string | null, customerId: string | null): Promise<string | null> {

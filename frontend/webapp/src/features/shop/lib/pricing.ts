@@ -36,6 +36,8 @@ export type MoneyView = {
   converted: boolean;
   /** true when Finance could not produce a rate — never render a bare number then (SHP-NFR-020) */
   unavailable: boolean;
+  /** true when no rate existed and we showed the source currency instead of the display one */
+  fellBackToSource?: boolean;
 };
 
 export type PriceResolution = {
@@ -148,9 +150,20 @@ async function convertOne(amount: number, source: string, target: string): Promi
       unavailable: false,
     };
   } catch {
-    // Finance has no rate / it is expired — controlled unavailable outcome. The
-    // UI must show "price unavailable", never `amount` under `tgt`'s symbol.
-    return { amount: 0, currency: tgt, sourceAmount: amount, sourceCurrency: src, appliedRate: 0, converted: true, unavailable: true };
+    // Finance has no usable rate for src -> tgt. Rather than hard-blocking the
+    // cart/checkout, fall back to the product's own source currency: the amount
+    // stays exact and is shown under the *source* symbol (never a wrong amount
+    // under `tgt`). `unavailable` stays false so the flow is not blocked.
+    return {
+      amount: roundMoney(amount, src),
+      currency: src,
+      sourceAmount: amount,
+      sourceCurrency: src,
+      appliedRate: 1,
+      converted: false,
+      unavailable: false,
+      fellBackToSource: true,
+    };
   }
 }
 
@@ -202,7 +215,18 @@ export async function resolvePrices<T extends { amount: number; sourceCurrency: 
     const norm = normalizeCurrencyCode(src);
     const info = rateBySource.get(norm) ?? { rate: 0, unavailable: true };
     if (info.unavailable) {
-      return { amount: 0, currency: tgt, sourceAmount: amount, sourceCurrency: norm, appliedRate: 0, converted: true, unavailable: true };
+      // No rate norm -> tgt: show the exact amount in its own source currency
+      // rather than blocking the cart/checkout (see convertOne).
+      return {
+        amount: roundMoney(amount, norm),
+        currency: norm,
+        sourceAmount: amount,
+        sourceCurrency: norm,
+        appliedRate: 1,
+        converted: false,
+        unavailable: false,
+        fellBackToSource: true,
+      };
     }
     const converted = !sameCurrency(norm, tgt);
     return {

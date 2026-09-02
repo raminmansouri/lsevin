@@ -15,6 +15,7 @@ import {
 } from "../actions/cart.actions";
 import { formatShopMoney } from "./money";
 import type { CartView } from "../types/domain";
+import { shopImageSrc } from "../lib/image";
 
 export function CartClient({ initial, locale }: { initial: CartView; locale: string }) {
   const t = useTranslations("Shop");
@@ -60,7 +61,7 @@ export function CartClient({ initial, locale }: { initial: CartView; locale: str
           <Link href={`/n/app/mobile/shop/product/${item.slug}`} className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-neutral-100">
             {item.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={item.imageUrl} alt={item.name} className="h-full w-full object-cover" />
+              <img src={shopImageSrc(item.imageUrl)} alt={item.name} className="h-full w-full object-cover" />
             ) : null}
           </Link>
           <div className="flex min-w-0 flex-1 flex-col">
@@ -111,7 +112,7 @@ export function CartClient({ initial, locale }: { initial: CartView; locale: str
               <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-neutral-100">
                 {item.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={item.imageUrl} alt={item.name} className="h-full w-full object-cover" />
+                  <img src={shopImageSrc(item.imageUrl)} alt={item.name} className="h-full w-full object-cover" />
                 ) : null}
               </div>
               <p className="line-clamp-1 flex-1 text-[13px] text-neutral-700">{item.name}</p>

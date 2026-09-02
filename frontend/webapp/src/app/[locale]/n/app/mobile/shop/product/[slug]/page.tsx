@@ -18,6 +18,7 @@ import { ReviewForm } from "@/features/shop/components/ReviewForm";
 import { QuestionsSection } from "@/features/shop/components/QuestionsSection";
 import { CompareButton } from "@/features/shop/components/CompareButton";
 import { ServiceRelatedRail } from "@/features/shop/components/ServiceRelatedRail";
+import { shopImageSrc } from "@/features/shop/lib/image";
 
 export const dynamic = "force-dynamic";
 
@@ -59,16 +60,27 @@ export default async function ProductDetailPage({
 
       <div className="bg-white">
         <div className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto">
-          {(product.gallery.length ? product.gallery : [{ id: "x", url: product.imageUrl ?? "", alt: product.name }]).map(
-            (m) => (
+          {(() => {
+            const shots = product.gallery.filter((g) => g.url && g.url.trim());
+            const list = shots.length
+              ? shots
+              : product.imageUrl
+                ? [{ id: "primary", url: product.imageUrl, alt: product.name }]
+                : [];
+            if (!list.length) {
+              return (
+                <div className="grid aspect-square w-full shrink-0 place-items-center bg-neutral-100 text-4xl text-neutral-300">
+                  🖼️
+                </div>
+              );
+            }
+            return list.map((m) => (
               <div key={m.id} className="aspect-square w-full shrink-0 snap-center bg-neutral-100">
-                {m.url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={m.url} alt={m.alt || product.name} className="h-full w-full object-cover" />
-                ) : null}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={shopImageSrc(m.url)} alt={m.alt || product.name} className="h-full w-full object-cover" loading="eager" />
               </div>
-            )
-          )}
+            ));
+          })()}
         </div>
 
         <div className="space-y-3 p-4">
