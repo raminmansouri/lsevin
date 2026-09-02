@@ -278,6 +278,15 @@ export async function setPricingModeForm(formData: FormData) {
   await setPricingModeAction({ mode: formData.get("mode") });
 }
 
+// Invoicing (SHP-V02-013/014/015) — issue a billing document for an order.
+export async function issueInvoiceForm(formData: FormData) {
+  const orderId = shopId.parse(formData.get("orderId"));
+  const type = z.enum(["proforma", "standard"]).parse(formData.get("type"));
+  const { issueOrderInvoice } = await import("../server/invoicing.service");
+  await issueOrderInvoice({ orderId, type });
+  revalidatePath(`/admin/shop/orders/${orderId}`);
+}
+
 // Abandoned-cart recovery (SHP-V03-011) — invoked from the dashboard.
 export async function runCartRecoveryForm(formData: FormData) {
   const idleHours = Number(formData.get("idleHours")) || 4;

@@ -4,8 +4,10 @@ import { getTranslations } from "next-intl/server";
 
 import { getAdminOrder } from "@/features/shop/api/admin.repository";
 import { getOrderRefundView } from "@/features/shop/server/shop-refund.service";
+import { getOrderInvoices } from "@/features/shop/server/invoicing.service";
 import {
   advanceOrderForm,
+  issueInvoiceForm,
   markDeliveredForm,
   markOrderPaidForm,
   recordRefundForm,
@@ -23,7 +25,10 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
   const { id } = await params;
   const order = await getAdminOrder(id);
   if (!order) notFound();
-  const refundView = await getOrderRefundView(id).catch(() => null);
+  const [refundView, invoices] = await Promise.all([
+    getOrderRefundView(id).catch(() => null),
+    getOrderInvoices(id).catch(() => []),
+  ]);
 
   const d = (k: string) => t(`orderDetail.${k}` as never);
   const orderStatus = (v: string) => (t.has(`enum.orderStatus.${v}` as never) ? t(`enum.orderStatus.${v}` as never) : v);
@@ -211,6 +216,36 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
               </form>
             </Card>
           ) : null}
+          <Card title={d("invoices")}>
+            <div className="mb-2 flex gap-2">
+              <form action={issueInvoiceForm}>
+                <input type="hidden" name="orderId" value={order.id} />
+                <input type="hidden" name="type" value="proforma" />
+                <button className="rounded border border-[#083f30] px-3 py-1.5 text-xs font-semibold text-[#083f30]">{d("issueProforma")}</button>
+              </form>
+              <form action={issueInvoiceForm}>
+                <input type="hidden" name="orderId" value={order.id} />
+                <input type="hidden" name="type" value="standard" />
+                <button className="rounded bg-[#083f30] px-3 py-1.5 text-xs font-semibold text-white">{d("issueInvoice")}</button>
+              </form>
+            </div>
+            {invoices.length ? (
+              <ul className="space-y-1 text-sm">
+                {invoices.map((inv) => (
+                  <li key={inv.id} className="flex items-center justify-between text-gray-600">
+                    <span>
+                      {d(`invoiceType_${inv.type}` as never)} · <span className="font-mono text-xs">{inv.invoiceNumber}</span> · {inv.status}
+                      {" · "}{inv.currency} {inv.total.toFixed(2)}
+                    </span>
+                    {inv.pdfUrl ? <a href={inv.pdfUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-[#083f30]">PDF</a> : null}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs text-gray-400">{d("noInvoices")}</p>
+            )}
+          </Card>
+
           {refundView && refundView.refunds.length ? (
             <Card title={d("refundHistory")}>
               <ul className="space-y-1 text-sm">

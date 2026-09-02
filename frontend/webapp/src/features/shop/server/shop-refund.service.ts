@@ -129,5 +129,9 @@ export async function recordManualRefund(input: {
   `;
   await emitCommerceEvent("shop_refund_completed", { orderId: input.orderId, value: amount, currency: order?.currency });
   await notifyShopOrderEvent({ orderId: input.orderId, event: "order.refunded", extra: { reason: input.reason.trim() } });
+  // Credit-note document against the canonical billing capability (SHP-V03-010).
+  await import("./invoicing.service").then((m) =>
+    m.issueRefundCreditNote({ orderId: input.orderId, amount, reason: input.reason.trim(), actorUserId: userId ?? null }),
+  );
   return result;
 }

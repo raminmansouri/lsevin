@@ -4,6 +4,7 @@ import { setRequestLocale } from "next-intl/server";
 import { getCustomerOrder } from "@/features/shop/api/order.repository";
 import { getCartView } from "@/features/shop/api/cart.repository";
 import { getReturnableItems } from "@/features/shop/server/returns.service";
+import { billingAvailable, getOrderInvoices } from "@/features/shop/server/invoicing.service";
 import { ShopHeader } from "@/features/shop/components/ShopHeader";
 import { OrderDetailView } from "@/features/shop/components/OrderView";
 
@@ -29,6 +30,12 @@ export default async function OrderConfirmationPage({
   ]);
   if (!order) notFound();
 
+  const [invoices, billing] = await Promise.all([
+    getOrderInvoices(order.id).catch(() => []),
+    billingAvailable().catch(() => false),
+  ]);
+  const hasProforma = invoices.some((i) => i.type === "proforma");
+
   return (
     <div className="min-h-screen bg-neutral-50">
       <ShopHeader cartCount={cart.itemCount} back="/n/app/mobile/shop" />
@@ -39,6 +46,8 @@ export default async function OrderConfirmationPage({
         email={email ?? null}
         canCancel={CANCELLABLE.includes(order.status)}
         returnable={returnable ? { eligible: returnable.eligible, items: returnable.items } : null}
+        invoices={invoices}
+        canRequestProforma={billing && !hasProforma}
       />
     </div>
   );

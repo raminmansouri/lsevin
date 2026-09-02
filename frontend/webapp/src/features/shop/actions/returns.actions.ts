@@ -42,6 +42,18 @@ export async function submitReturnAction(input: unknown) {
   return { ok: true as const, ...res };
 }
 
+const proformaSchema = z.object({
+  orderNumber: z.string().trim().min(3).max(40),
+  email: z.string().email().optional().nullable(),
+});
+export async function requestProformaAction(input: unknown) {
+  const p = proformaSchema.parse(input);
+  const { requestOrderProforma } = await import("../server/invoicing.service");
+  const res = await requestOrderProforma({ orderNumber: p.orderNumber, guestEmail: p.email ?? null });
+  revalidatePath(`/n/app/mobile/shop/order/${p.orderNumber}`);
+  return { ok: true as const, ...res };
+}
+
 // ---- admin -----------------------------------------------------------------
 
 export async function reviewReturnForm(formData: FormData) {

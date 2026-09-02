@@ -49,6 +49,17 @@ export async function OrderRow({ order, locale }: { order: OrderSummary; locale:
   );
 }
 
+type OrderInvoice = {
+  id: string;
+  invoiceNumber: string;
+  type: string;
+  status: string;
+  currency: string;
+  total: number;
+  issueDate: string;
+  pdfUrl: string | null;
+};
+
 export async function OrderDetailView({
   order,
   locale,
@@ -56,6 +67,8 @@ export async function OrderDetailView({
   email,
   canCancel = false,
   returnable = null,
+  invoices = [],
+  canRequestProforma = false,
 }: {
   order: OrderDetail;
   locale: string;
@@ -63,6 +76,8 @@ export async function OrderDetailView({
   email?: string | null;
   canCancel?: boolean;
   returnable?: { eligible: boolean; items: Array<{ id: string; name: string; quantity: number; returnable: number }> } | null;
+  invoices?: OrderInvoice[];
+  canRequestProforma?: boolean;
 }) {
   const t = await getTranslations("Shop");
   const paid = ["paid", "processing", "shipped", "completed", "partially_shipped"].includes(order.status);
@@ -179,14 +194,36 @@ export async function OrderDetailView({
         </div>
       ) : null}
 
-      {canCancel || returnable?.eligible ? (
+      {canCancel || returnable?.eligible || canRequestProforma ? (
         <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/[0.04]">
           <OrderActions
             orderNumber={order.orderNumber}
             email={email}
             canCancel={canCancel}
             returnable={returnable}
+            canRequestProforma={canRequestProforma}
           />
+        </div>
+      ) : null}
+
+      {invoices.length ? (
+        <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/[0.04]">
+          <p className="mb-2 text-sm font-bold text-neutral-900">{t("invoicesTitle")}</p>
+          <ul className="space-y-1 text-sm">
+            {invoices.map((inv) => (
+              <li key={inv.id} className="flex items-center justify-between gap-2">
+                <span className="text-neutral-700">
+                  {t(`invoiceType_${inv.type}` as never)} · <span className="font-mono text-xs">{inv.invoiceNumber}</span>
+                  <span className="ms-1 text-xs text-neutral-400">{inv.status}</span>
+                </span>
+                {inv.pdfUrl ? (
+                  <a href={inv.pdfUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-[#083f30]">
+                    {t("viewPdf")}
+                  </a>
+                ) : null}
+              </li>
+            ))}
+          </ul>
         </div>
       ) : null}
 

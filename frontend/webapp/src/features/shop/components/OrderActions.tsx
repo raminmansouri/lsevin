@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 
-import { cancelOrderAction, submitReturnAction } from "../actions/returns.actions";
+import { cancelOrderAction, requestProformaAction, submitReturnAction } from "../actions/returns.actions";
 
 type ReturnableItem = { id: string; name: string; quantity: number; returnable: number };
 
@@ -12,11 +12,13 @@ export function OrderActions({
   email,
   canCancel,
   returnable,
+  canRequestProforma = false,
 }: {
   orderNumber: string;
   email?: string | null;
   canCancel: boolean;
   returnable: { eligible: boolean; items: ReturnableItem[] } | null;
+  canRequestProforma?: boolean;
 }) {
   const t = useTranslations("Shop");
   const [pending, startTransition] = useTransition();
@@ -60,6 +62,18 @@ export function OrderActions({
     });
   }
 
+  function doProforma() {
+    setErr(null);
+    startTransition(async () => {
+      try {
+        const res = await requestProformaAction({ orderNumber, email: email || undefined });
+        setMsg(t("proformaReady", { number: res.invoiceNumber }));
+      } catch (e) {
+        setErr(e instanceof Error ? e.message : t("somethingWrong"));
+      }
+    });
+  }
+
   if (msg) return <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{msg}</p>;
 
   const hasReturnable = returnable?.eligible && returnable.items.some((i) => i.returnable > 0);
@@ -78,6 +92,11 @@ export function OrderActions({
           {hasReturnable ? (
             <button onClick={() => setMode("return")} className="rounded-full border border-[#083f30] px-4 py-2 text-sm font-semibold text-[#083f30]">
               {t("requestReturn")}
+            </button>
+          ) : null}
+          {canRequestProforma ? (
+            <button disabled={pending} onClick={doProforma} className="rounded-full border border-neutral-300 px-4 py-2 text-sm font-semibold text-neutral-700 disabled:opacity-50">
+              {t("requestProforma")}
             </button>
           ) : null}
         </div>
