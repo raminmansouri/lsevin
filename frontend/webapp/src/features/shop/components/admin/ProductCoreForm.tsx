@@ -29,11 +29,26 @@ type ProductForEdit = {
   is_featured: boolean;
   is_best_seller: boolean;
   is_new_arrival: boolean;
+  is_preorder?: boolean;
+  preorder_release_at?: string | null;
+  preorder_limit?: number | null;
+  preorder_payment_policy?: "full" | "deposit" | "proforma" | null;
+  preorder_deposit_percent?: number | null;
   name_translations: Record<string, string>;
   short_description_translations: Record<string, string>;
 };
 
 const STATUS = ["draft", "active", "archived"] as const;
+const PREORDER_POLICIES = ["full", "deposit", "proforma"] as const;
+
+/** datetime-local wants "YYYY-MM-DDTHH:mm"; the API sends an ISO string. */
+function toLocalInput(iso?: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 
 export function ProductCoreForm({
   product,
@@ -65,6 +80,11 @@ export function ProductCoreForm({
       isFeatured: product.is_featured,
       isBestSeller: product.is_best_seller,
       isNewArrival: product.is_new_arrival,
+      isPreorder: product.is_preorder ?? false,
+      preorderReleaseAt: toLocalInput(product.preorder_release_at),
+      preorderLimit: product.preorder_limit == null ? "" : String(product.preorder_limit),
+      preorderPaymentPolicy: (product.preorder_payment_policy as "full" | "deposit" | "proforma") ?? "full",
+      preorderDepositPercent: product.preorder_deposit_percent == null ? "" : String(product.preorder_deposit_percent),
     },
   });
 
@@ -84,6 +104,11 @@ export function ProductCoreForm({
           isFeatured: values.isFeatured,
           isBestSeller: values.isBestSeller,
           isNewArrival: values.isNewArrival,
+          isPreorder: values.isPreorder,
+          preorderReleaseAt: values.preorderReleaseAt ? new Date(values.preorderReleaseAt).toISOString() : null,
+          preorderLimit: values.preorderLimit === "" ? null : Number(values.preorderLimit),
+          preorderPaymentPolicy: values.preorderPaymentPolicy,
+          preorderDepositPercent: values.preorderDepositPercent === "" ? null : Number(values.preorderDepositPercent),
         });
         toast.success(t("common.saved"));
         router.refresh();
@@ -179,7 +204,30 @@ export function ProductCoreForm({
               {toggle("isFeatured", e("featured"))}
               {toggle("isBestSeller", e("bestSeller"))}
               {toggle("isNewArrival", e("newArrival"))}
+              {toggle("isPreorder", e("preorder"))}
             </div>
+
+            {form.watch("isPreorder") ? (
+              <div className="grid gap-3 rounded-xl border p-3 md:grid-cols-4">
+                {field("preorderReleaseAt", e("preorderReleaseAt"), { type: "datetime-local" })}
+                {field("preorderLimit", e("preorderLimit"), { type: "number", min: 0 })}
+                <FormField control={form.control} name="preorderPaymentPolicy" render={({ field: f }) => (
+                  <FormItem>
+                    <FormLabel>{e("preorderPolicy")}</FormLabel>
+                    <Select value={f.value} onValueChange={f.onChange} disabled={isPending}>
+                      <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        {PREORDER_POLICIES.map((x) => <SelectItem key={x} value={x}>{e(`preorderPolicy_${x}`)}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                {form.watch("preorderPaymentPolicy") === "deposit"
+                  ? field("preorderDepositPercent", e("preorderDepositPercent"), { type: "number", min: 0, max: 100 })
+                  : null}
+              </div>
+            ) : null}
 
             <Button type="submit" disabled={isPending}>{isPending ? `${e("saveCore")}…` : e("saveCore")}</Button>
             <p className="text-xs text-muted-foreground">{t("products.footnote")}</p>

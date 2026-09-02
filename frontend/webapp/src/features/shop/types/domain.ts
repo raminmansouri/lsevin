@@ -82,6 +82,11 @@ export interface ProductDetail extends ProductCard {
   fulfillmentType: "delivery" | "pickup" | "download";
   allowBackorder: boolean;
   inventoryAvailable: number;
+  preorderConfigured: boolean;
+  preorderReleaseAt: string | null;
+  preorderPaymentPolicy: "full" | "deposit" | "proforma";
+  preorderDepositPercent: number | null;
+  preorderRemaining: number | null;
   gallery: Array<{ id: UUID; url: string; mediaType: string; alt: string; isPrimary: boolean }>;
   categories: ShopCategory[];
   attributes: Array<{ attributeId: UUID; name: string; slug: string; values: Array<{ id: UUID; value: string; displayName: string; colorHex: string | null }> }>;

@@ -177,7 +177,10 @@ export async function getAdminProductForEdit(productId: string) {
       id::text as id, status, slug, base_price::float as base_price, base_currency,
       name_translations, short_description_translations, description_translations,
       primary_category_id::text as primary_category_id,
-      is_featured, is_best_seller, is_new_arrival
+      is_featured, is_best_seller, is_new_arrival,
+      is_preorder, preorder_release_at::text as preorder_release_at, preorder_limit,
+      preorder_payment_policy::text as preorder_payment_policy,
+      preorder_deposit_percent::float as preorder_deposit_percent
     from shop.products where id = ${productId}::uuid and deleted_at is null limit 1
   `;
   if (!p) return null;

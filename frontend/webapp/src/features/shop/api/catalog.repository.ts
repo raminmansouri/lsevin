@@ -283,6 +283,15 @@ export async function getProductBySlug(slug: string, locale?: string): Promise<P
       coalesce(review_summary.review_count, 0)::int as "reviewCount",
       coalesce(order_summary.units_sold, 0)::int as "soldCount",
       p.is_featured as "isFeatured", p.is_best_seller as "isBestSeller", p.is_new_arrival as "isNewArrival",
+      p.is_preorder as "isPreorder", p.preorder_release_at::text as "preorderReleaseAt",
+      p.preorder_limit as "preorderLimit",
+      p.preorder_payment_policy::text as "preorderPaymentPolicy",
+      p.preorder_deposit_percent::float as "preorderDepositPercent",
+      coalesce((
+        select sum(oi.quantity)::int from shop.order_items oi
+        join shop.orders o on o.id = oi.order_id
+        where oi.product_id = p.id and oi.is_preorder = true and o.status not in ('cancelled','refunded','returned')
+      ), 0) as "preorderSold",
       common.get_translation_t(b.name_translations, ${lang}, 'en') as "brandName",
       common.get_translation_t(c.name_translations, ${lang}, 'en') as "categoryName",
       coalesce((
@@ -391,6 +400,7 @@ export async function getProductBySlug(slug: string, locale?: string): Promise<P
     { locale: lang, displayCurrency }
   );
 
+  const preorderLimit = row.preorderLimit == null ? null : Number(row.preorderLimit);
   return {
     ...card,
     description: row.description ?? "",
@@ -398,6 +408,12 @@ export async function getProductBySlug(slug: string, locale?: string): Promise<P
     fulfillmentType: row.fulfillmentType,
     allowBackorder: Boolean(row.allowBackorder),
     inventoryAvailable: Number(row.inventoryAvailable) || 0,
+    isPreorder: Boolean(row.isPreorder) || Boolean((card as { isPreorder?: boolean }).isPreorder),
+    preorderConfigured: Boolean(row.isPreorder),
+    preorderReleaseAt: row.preorderReleaseAt ?? null,
+    preorderPaymentPolicy: row.preorderPaymentPolicy ?? "full",
+    preorderDepositPercent: row.preorderDepositPercent == null ? null : Number(row.preorderDepositPercent),
+    preorderRemaining: preorderLimit == null ? null : Math.max(0, preorderLimit - Number(row.preorderSold || 0)),
     gallery,
     categories,
     attributes: attrRows.map((a) => ({ attributeId: a.attributeId, name: a.name, slug: a.slug, values: a.values })),

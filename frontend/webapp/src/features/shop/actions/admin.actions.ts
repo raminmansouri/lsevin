@@ -139,6 +139,11 @@ const productCoreSchema = z.object({
   isFeatured: z.coerce.boolean().default(false),
   isBestSeller: z.coerce.boolean().default(false),
   isNewArrival: z.coerce.boolean().default(false),
+  isPreorder: z.coerce.boolean().default(false),
+  preorderReleaseAt: z.string().trim().optional().nullable(),
+  preorderLimit: z.coerce.number().int().min(0).optional().nullable(),
+  preorderPaymentPolicy: z.enum(["full", "deposit", "proforma"]).default("full"),
+  preorderDepositPercent: z.coerce.number().min(0).max(100).optional().nullable(),
 });
 export async function updateProductCoreAction(input: unknown) {
   const p = productCoreSchema.parse(input);

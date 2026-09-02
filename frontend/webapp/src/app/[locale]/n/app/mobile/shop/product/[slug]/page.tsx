@@ -102,6 +102,24 @@ export default async function ProductDetailPage({
             <p className="text-sm leading-relaxed text-neutral-600">{product.shortDescription}</p>
           ) : null}
 
+          {product.preorderConfigured ? (
+            <div className="rounded-xl bg-[#083f30]/[0.06] px-3 py-2 text-xs text-[#083f30]">
+              <p className="font-semibold">
+                {product.preorderReleaseAt
+                  ? t("preorderShipsAfter", { date: new Date(product.preorderReleaseAt).toLocaleDateString(locale) })
+                  : t("preorder")}
+              </p>
+              {product.preorderPaymentPolicy === "deposit" && product.preorderDepositPercent ? (
+                <p className="mt-0.5">{t("preorderDeposit", { percent: product.preorderDepositPercent })}</p>
+              ) : product.preorderPaymentPolicy === "proforma" ? (
+                <p className="mt-0.5">{t("preorderProforma")}</p>
+              ) : null}
+              {typeof product.preorderRemaining === "number" ? (
+                <p className="mt-0.5">{t("preorderRemaining", { count: product.preorderRemaining })}</p>
+              ) : null}
+            </div>
+          ) : null}
+
           <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-500">
             {product.rating > 0 ? (
               <span className="flex items-center gap-1">

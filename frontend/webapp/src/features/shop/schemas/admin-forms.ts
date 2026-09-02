@@ -149,6 +149,11 @@ export const productCoreFormSchema = z.object({
   isFeatured: z.coerce.boolean().default(false),
   isBestSeller: z.coerce.boolean().default(false),
   isNewArrival: z.coerce.boolean().default(false),
+  isPreorder: z.coerce.boolean().default(false),
+  preorderReleaseAt: str.default(""),
+  preorderLimit: str.default(""),
+  preorderPaymentPolicy: z.enum(["full", "deposit", "proforma"]).default("full"),
+  preorderDepositPercent: str.default(""),
 });
 export type ProductCoreFormInput = z.infer<typeof productCoreFormSchema>;
 

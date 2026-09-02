@@ -62,6 +62,11 @@ export default async function AdminProductEditPage({ params }: { params: Promise
             is_featured: product.is_featured,
             is_best_seller: product.is_best_seller,
             is_new_arrival: product.is_new_arrival,
+            is_preorder: product.is_preorder,
+            preorder_release_at: product.preorder_release_at,
+            preorder_limit: product.preorder_limit,
+            preorder_payment_policy: product.preorder_payment_policy,
+            preorder_deposit_percent: product.preorder_deposit_percent,
             name_translations: nt,
             short_description_translations: dt,
           }}

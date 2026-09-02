@@ -39,8 +39,17 @@ export async function updateProductCore(input: {
   isFeatured: boolean;
   isBestSeller: boolean;
   isNewArrival: boolean;
+  isPreorder?: boolean;
+  preorderReleaseAt?: string | null;
+  preorderLimit?: number | null;
+  preorderPaymentPolicy?: "full" | "deposit" | "proforma";
+  preorderDepositPercent?: number | null;
 }): Promise<void> {
   await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
+  const isPreorder = Boolean(input.isPreorder);
+  const policy = ["full", "deposit", "proforma"].includes(input.preorderPaymentPolicy ?? "")
+    ? input.preorderPaymentPolicy
+    : "full";
   await sql.begin(async (tx) => {
     await tx`
       update shop.products set
@@ -54,6 +63,11 @@ export async function updateProductCore(input: {
         is_featured = ${input.isFeatured},
         is_best_seller = ${input.isBestSeller},
         is_new_arrival = ${input.isNewArrival},
+        is_preorder = ${isPreorder},
+        preorder_release_at = ${isPreorder ? (input.preorderReleaseAt || null) : null},
+        preorder_limit = ${isPreorder && input.preorderLimit != null ? Math.trunc(input.preorderLimit) : null},
+        preorder_payment_policy = ${policy}::shop.preorder_payment_policy,
+        preorder_deposit_percent = ${isPreorder && policy === "deposit" && input.preorderDepositPercent != null ? input.preorderDepositPercent : null},
         published_at = case when ${input.status} = 'active' then coalesce(published_at, now()) else published_at end,
         last_modified_date = now()
       where id = ${input.productId}::uuid and deleted_at is null

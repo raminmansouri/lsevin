@@ -336,6 +336,9 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
         coalesce(v.currency, p.base_currency) as "sourceCurrency",
         coalesce(v.compare_at_price, p.compare_at_price)::float as "sourceCompareAt",
         coalesce(v.allow_backorder, p.allow_backorder) as "allowBackorder",
+        coalesce(v.is_preorder, p.is_preorder) as "isPreorder",
+        coalesce(v.preorder_limit, p.preorder_limit) as "preorderLimit",
+        coalesce(v.preorder_release_at, p.preorder_release_at)::text as "preorderReleaseAt",
         (p.status = 'active' and p.deleted_at is null) as "productActive",
         coalesce((
           select url from shop.product_media where product_id = p.id order by is_primary desc, display_order asc limit 1
@@ -353,6 +356,24 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
 
     // 3. reserve stock atomically (skips backorder-allowed lines)
     for (const l of lines) {
+      // Preorder line: never reserves physical stock (it isn't shippable yet,
+      // SHP-V02-012). Instead the preorder cap is enforced server-side
+      // (SHP-V02-011) — count units already sold as preorder for this product.
+      if (l.isPreorder) {
+        if (l.preorderLimit != null) {
+          const [{ sold }] = await tx<{ sold: number }[]>`
+            select coalesce(sum(oi.quantity), 0)::int as sold
+            from shop.order_items oi
+            join shop.orders o on o.id = oi.order_id
+            where oi.product_id = ${l.productId}::uuid and oi.is_preorder = true
+              and o.status not in ('cancelled', 'refunded', 'returned')
+          `;
+          if (Number(sold) + Number(l.quantity) > Number(l.preorderLimit)) {
+            throw new Error(`Preorder allocation for "${l.nameEn}" is full.`);
+          }
+        }
+        continue;
+      }
       if (l.allowBackorder) continue;
       const reserved = await tx<{ id: string }[]>`
         update shop.inventory
@@ -437,23 +458,26 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
           order_id, product_id, variant_id, sku, quantity, currency,
           unit_price_snapshot, compare_at_price_snapshot, discount_total_snapshot, tax_total_snapshot, line_total_snapshot,
           product_name_snapshot, variant_name_snapshot, attributes_snapshot, image_url_snapshot,
-          source_currency, source_unit_price, display_currency, fx_applied_rate
+          source_currency, source_unit_price, display_currency, fx_applied_rate, is_preorder
         ) values (
           ${order.id}::uuid, ${l.productId}::uuid, ${l.variantId ?? null}::uuid, ${l.sku ?? null}, ${l.quantity}, ${quote.currency},
           ${unit}, ${p.compareAtPrice && !p.compareAtPrice.unavailable ? p.compareAtPrice.amount : null}, 0, 0, ${lineTotal},
           ${l.nameTr ?? sql.json({ en: l.nameEn })}, ${l.variantTr ?? sql.json({})}, ${sql.json({})}, ${l.imageUrl ?? null},
-          ${l.sourceCurrency}, ${Number(l.sourceUnitPrice)}, ${quote.currency}, ${p.price.appliedRate}
+          ${l.sourceCurrency}, ${Number(l.sourceUnitPrice)}, ${quote.currency}, ${p.price.appliedRate}, ${Boolean(l.isPreorder)}
         )
       `;
-      // trace reservation to the order (SHP-INV / SHP-V03-002)
-      await tx`
-        insert into shop.inventory_movements (inventory_id, movement_type, quantity, reference_type, reference_id, note)
-        select i.id, 'reservation', ${l.quantity}, 'shop.order', ${order.id}::uuid, ${"reserved at checkout " + orderNumber}
-        from shop.inventory i
-        where (${l.variantId}::uuid is not null and i.variant_id = ${l.variantId}::uuid)
-           or (${l.variantId}::uuid is null and i.product_id = ${l.productId}::uuid and i.variant_id is null)
-        limit 1
-      `;
+      // trace reservation to the order (SHP-INV / SHP-V03-002) — preorder lines
+      // hold no physical stock, so there is nothing to trace.
+      if (!l.isPreorder) {
+        await tx`
+          insert into shop.inventory_movements (inventory_id, movement_type, quantity, reference_type, reference_id, note)
+          select i.id, 'reservation', ${l.quantity}, 'shop.order', ${order.id}::uuid, ${"reserved at checkout " + orderNumber}
+          from shop.inventory i
+          where (${l.variantId}::uuid is not null and i.variant_id = ${l.variantId}::uuid)
+             or (${l.variantId}::uuid is null and i.product_id = ${l.productId}::uuid and i.variant_id is null)
+          limit 1
+        `;
+      }
     }
 
     // coupon redemption audit row (SHP-CHK-002)

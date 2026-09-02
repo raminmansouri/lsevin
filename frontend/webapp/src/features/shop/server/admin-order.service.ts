@@ -162,8 +162,14 @@ export async function recordShipment(input: {
   const outcome = await sql.begin(async (tx) => {
     const orderLines = await tx<any[]>`
       select oi.id::text as id, oi.quantity, oi.product_id, oi.variant_id, oi.fulfillment_status::text as fs,
+        oi.is_preorder,
+        coalesce(oi.product_name_snapshot->>'en', '') as name_en,
+        coalesce(v.preorder_release_at, p.preorder_release_at) as release_at,
         coalesce((select sum(si.quantity)::int from shop.shipment_items si where si.order_item_id = oi.id), 0) as already_shipped
-      from shop.order_items oi where oi.order_id = ${input.orderId}::uuid
+      from shop.order_items oi
+      join shop.products p on p.id = oi.product_id
+      left join shop.product_variants v on v.id = oi.variant_id
+      where oi.order_id = ${input.orderId}::uuid
     `;
     const wanted = partial
       ? input.items!.map((i) => ({ id: i.orderItemId, quantity: Math.trunc(i.quantity) })).filter((i) => i.quantity > 0)
@@ -179,6 +185,12 @@ export async function recordShipment(input: {
     for (const w of wanted) {
       const line = orderLines.find((l) => l.id === w.id);
       if (!line) throw new Error("Unknown order item in shipment.");
+      // A preorder line is not shippable before its release date (SHP-V02-012).
+      if (line.is_preorder && line.release_at && new Date(line.release_at).getTime() > Date.now()) {
+        throw new Error(
+          `"${line.name_en || "This item"}" is a preorder that releases on ${new Date(line.release_at).toISOString().slice(0, 10)}.`,
+        );
+      }
       const remaining = line.quantity - Number(line.already_shipped);
       if (w.quantity > remaining) throw new Error(`Only ${remaining} of that item remains to ship.`);
       await tx`insert into shop.shipment_items (shipment_id, order_item_id, quantity) values (${ship.id}::uuid, ${w.id}::uuid, ${w.quantity})`;
