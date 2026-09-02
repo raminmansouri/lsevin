@@ -4,7 +4,8 @@ import type { ProductCard, ShopCategory } from "../types/domain";
 import { getShopContext, normalizeLocale } from "../lib/context";
 import { resolveDisplayCurrency } from "../lib/pricing";
 import { sql } from "../lib/db";
-import { getShopCategories, searchProducts } from "./catalog.repository";
+import { searchProducts } from "./catalog.repository";
+import { getShopCategoriesCached } from "./catalog.repository.cached";
 
 /**
  * Data-driven Shop home composition (SHP-DB-003, SHP-UX-013, SHP-ADM-018).
@@ -47,7 +48,7 @@ export async function getShopHome(): Promise<ShopHome> {
   const { currency, mode, selectable } = await resolveDisplayCurrency(ctx);
 
   const [categories, sectionRows] = await Promise.all([
-    getShopCategories(lang),
+    getShopCategoriesCached(lang),
     sql<SectionRow[]>`
       select
         s.id::text as id, s.key, s.section_type,

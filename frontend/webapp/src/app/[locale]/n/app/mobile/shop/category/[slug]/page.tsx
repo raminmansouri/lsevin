@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 
-import { getShopBrands, getShopCategories } from "@/features/shop/api/catalog.repository";
+import { getShopBrands } from "@/features/shop/api/catalog.repository";
+import { getShopCategoriesCached } from "@/features/shop/api/catalog.repository.cached";
 import { getCartView } from "@/features/shop/api/cart.repository";
 import { resolveDisplayCurrency } from "@/features/shop/lib/pricing";
 import { getShopContext } from "@/features/shop/lib/context";
@@ -23,7 +24,7 @@ export default async function ShopCategoryPage({
   setRequestLocale(locale);
   const sp = await searchParams;
 
-  const [categories, cart, ctx] = await Promise.all([getShopCategories(), getCartView(), getShopContext()]);
+  const [categories, cart, ctx] = await Promise.all([getShopCategoriesCached(locale), getCartView(), getShopContext()]);
   const category = categories.find((c) => c.slug === slug);
   if (!category) notFound();
   const brands = await getShopBrands(locale, slug);
