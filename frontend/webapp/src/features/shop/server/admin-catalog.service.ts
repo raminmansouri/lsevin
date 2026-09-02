@@ -425,6 +425,33 @@ export async function removeProductAttribute(input: { productId: string; attribu
 }
 
 /**
+ * Warehouse allocation policy (SHP-V03-001): priority (lower = preferred),
+ * active flag, and the single default warehouse for un-targeted stock writes.
+ */
+export async function updateWarehouse(input: {
+  id: string;
+  priority: number;
+  isActive: boolean;
+  isDefault: boolean;
+}): Promise<void> {
+  await assertShopPermission(SHOP_PERMISSIONS.inventoryManage);
+  const priority = Number.isFinite(input.priority) ? Math.trunc(input.priority) : 100;
+  await sql.begin(async (tx) => {
+    if (input.isDefault) {
+      await tx`update shop.warehouses set is_default = false where is_default and id <> ${input.id}::uuid`;
+    }
+    await tx`
+      update shop.warehouses set
+        priority = ${Math.min(Math.max(priority, 0), 100000)},
+        is_active = ${input.isActive},
+        is_default = ${input.isDefault},
+        last_modified_date = now()
+      where id = ${input.id}::uuid
+    `;
+  });
+}
+
+/**
  * Delivery method operational config incl. `rules.geo` geographic eligibility
  * (SHP-V03-012). `rules` is validated as an object before it is written.
  */

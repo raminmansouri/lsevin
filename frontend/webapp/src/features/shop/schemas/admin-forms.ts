@@ -107,6 +107,15 @@ export const deliveryMethodFormSchema = z.object({
 });
 export type DeliveryMethodFormInput = z.infer<typeof deliveryMethodFormSchema>;
 
+// -- Warehouse allocation (SHP-V03-001) -----------------------------------
+export const warehouseFormSchema = z.object({
+  id: shopId,
+  priority: num.int().min(0).max(100000).default(100),
+  isActive: z.coerce.boolean().default(true),
+  isDefault: z.coerce.boolean().default(false),
+});
+export type WarehouseFormInput = z.infer<typeof warehouseFormSchema>;
+
 // -- Home section --------------------------------------------------------------
 export const homeSectionFormSchema = z.object({
   id: shopId.optional(),

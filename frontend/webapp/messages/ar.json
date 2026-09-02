@@ -11130,6 +11130,7 @@
         "prescriptionInbox": "صندوق الوصفات",
         "orders": "الطلبات",
         "inventory": "المخزون",
+      "warehouses": "المستودعات",
         "medicineRequests": "طلبات الدواء",
         "deliveryTracking": "تتبع التوصيل",
         "operatingHours": "ساعات العمل",
@@ -13310,6 +13311,22 @@
       "manageUnderFinance": "أدِرها من الإدارة ← المالية.",
       "countryDefaults": "افتراضي الدولة ← العملة: {list}",
       "countryDefaultsNone": "لا شيء"
+    },
+    "warehouses": {
+      "title": "المستودعات",
+      "hint": "سياسة التخصيص (SHP-V03-001): يُحجز البند من المستودع النشط الأعلى أولوية القادر على تلبيته بالكامل؛ وعند التعادل يُختار الأكثر مخزوناً. رقم الأولوية الأقل = مُفضّل. أحد المستودعات هو الوجهة الافتراضية لكتابة المخزون غير الموجّه.",
+      "colWarehouse": "المستودع",
+      "colCode": "الرمز",
+      "colLocation": "الموقع",
+      "colSkus": "الأصناف",
+      "colOnHand": "المتوفر",
+      "colReserved": "المحجوز",
+      "colPriority": "الأولوية",
+      "priority": "الأولوية",
+      "active": "نشط",
+      "isDefault": "افتراضي",
+      "save": "حفظ",
+      "noWarehouses": "لا مستودعات مُهيّأة."
     },
     "delivery": {
       "title": "طرق التوصيل",

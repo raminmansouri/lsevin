@@ -426,6 +426,22 @@ export async function listAttributesAdmin() {
 }
 
 // ======================================================================
+// Warehouses + allocation policy (SHP-V03-001)
+// ======================================================================
+export async function listWarehousesAdmin() {
+  await assertShopAdmin();
+  return sql<any[]>`
+    select w.id::text as id, w.name, w.code, w.country, w.city,
+      w.is_active, w.priority, w.is_default,
+      coalesce((select sum(i.on_hand)::int from shop.inventory i where i.warehouse_id = w.id), 0) as on_hand,
+      coalesce((select sum(i.reserved)::int from shop.inventory i where i.warehouse_id = w.id), 0) as reserved,
+      coalesce((select count(distinct i.product_id)::int from shop.inventory i where i.warehouse_id = w.id), 0) as skus
+    from shop.warehouses w
+    order by w.priority asc, w.name asc
+  `;
+}
+
+// ======================================================================
 // Delivery methods + geographic eligibility (SHP-V03-012)
 // ======================================================================
 export async function listDeliveryMethodsAdmin() {

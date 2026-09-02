@@ -358,10 +358,15 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
         update shop.inventory
         set reserved = reserved + ${l.quantity}, last_modified_date = now()
         where id = (
-          select i.id from shop.inventory i
-          where (${l.variantId}::uuid is not null and i.variant_id = ${l.variantId}::uuid)
-             or (${l.variantId}::uuid is null and i.product_id = ${l.productId}::uuid and i.variant_id is null)
-          order by (i.on_hand - i.reserved) desc
+          select i.id
+          from shop.inventory i
+          join shop.warehouses w on w.id = i.warehouse_id and w.is_active
+          where ((${l.variantId}::uuid is not null and i.variant_id = ${l.variantId}::uuid)
+              or (${l.variantId}::uuid is null and i.product_id = ${l.productId}::uuid and i.variant_id is null))
+            and (i.on_hand - i.reserved) >= ${l.quantity}
+          -- Allocation policy (SHP-V03-001): prefer the highest-priority
+          -- warehouse that can fully fill the line; ties break on most stock.
+          order by w.priority asc, (i.on_hand - i.reserved) desc
           limit 1
         )
         and (on_hand - reserved) >= ${l.quantity}

@@ -11240,6 +11240,7 @@
         "prescriptionInbox": "Prescription Inbox",
         "orders": "Orders",
         "inventory": "Inventory",
+      "warehouses": "Warehouses",
         "medicineRequests": "Medicine Requests",
         "deliveryTracking": "Delivery Tracking",
         "operatingHours": "Operating Hours",
@@ -14024,6 +14025,22 @@
       "manageUnderFinance": "Manage these under Admin → Finance.",
       "countryDefaults": "Country → currency defaults: {list}",
       "countryDefaultsNone": "none"
+    },
+    "warehouses": {
+      "title": "Warehouses",
+      "hint": "Allocation policy (SHP-V03-001): a line reserves from the highest-priority active warehouse that can fully fill it; ties break on most available stock. Lower priority number = preferred. One warehouse is the default target for un-targeted stock writes.",
+      "colWarehouse": "Warehouse",
+      "colCode": "Code",
+      "colLocation": "Location",
+      "colSkus": "SKUs",
+      "colOnHand": "On hand",
+      "colReserved": "Reserved",
+      "colPriority": "Priority",
+      "priority": "Priority",
+      "active": "Active",
+      "isDefault": "Default",
+      "save": "Save",
+      "noWarehouses": "No warehouses configured."
     },
     "delivery": {
       "title": "Delivery methods",

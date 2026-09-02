@@ -11240,6 +11240,7 @@
         "prescriptionInbox": "صندوق نسخه‌ها",
         "orders": "سفارش‌ها",
         "inventory": "موجودی",
+      "warehouses": "انبارها",
         "medicineRequests": "درخواست دارو",
         "deliveryTracking": "پیگیری ارسال",
         "operatingHours": "ساعات کاری",
@@ -14024,6 +14025,22 @@
       "manageUnderFinance": "این‌ها را از بخش مدیریت ← مالی مدیریت کنید.",
       "countryDefaults": "پیش‌فرض کشور ← ارز: {list}",
       "countryDefaultsNone": "هیچ‌کدام"
+    },
+    "warehouses": {
+      "title": "انبارها",
+      "hint": "سیاست تخصیص (SHP-V03-001): هر قلم از انباری با بالاترین اولویت که بتواند کل آن را تأمین کند رزرو می‌شود؛ در تساوی، انبار با بیشترین موجودی. عدد اولویت کمتر = ارجح. یک انبار به‌عنوان مقصد پیش‌فرض نوشتن موجودیِ بدون مقصد است.",
+      "colWarehouse": "انبار",
+      "colCode": "کد",
+      "colLocation": "مکان",
+      "colSkus": "کالاها",
+      "colOnHand": "موجود",
+      "colReserved": "رزروشده",
+      "colPriority": "اولویت",
+      "priority": "اولویت",
+      "active": "فعال",
+      "isDefault": "پیش‌فرض",
+      "save": "ذخیره",
+      "noWarehouses": "انباری پیکربندی نشده است."
     },
     "delivery": {
       "title": "روش‌های ارسال",

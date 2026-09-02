@@ -23,6 +23,7 @@ import {
   removeProductAttribute,
   setProductAttribute,
   updateDeliveryMethod,
+  updateWarehouse,
   upsertAttribute,
   upsertBrand,
   upsertCategory,
@@ -290,6 +291,17 @@ export async function updateDeliveryMethodForm(formData: FormData) {
   revalidatePath("/admin/shop/delivery");
   revalidatePath("/n/app/mobile/shop/checkout");
 }
+export async function updateWarehouseAction(input: {
+  id: string;
+  priority: number;
+  isActive: boolean;
+  isDefault: boolean;
+}) {
+  await updateWarehouse({ ...input, id: shopId.parse(input.id) });
+  revalidatePath("/admin/shop/warehouses");
+  return { ok: true as const };
+}
+
 export async function updateDeliveryMethodAction(input: {
   id: string;
   baseFee: number;
