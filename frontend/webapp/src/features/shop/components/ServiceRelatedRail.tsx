@@ -10,6 +10,7 @@ import type { ServiceRelationType } from "../api/service-relations.repository";
 
 const REL_KEY: Record<ServiceRelationType, string> = {
   recommended_before: "relBefore",
+  recommended_during: "relDuring",
   recommended_after: "relAfter",
   required: "relRequired",
   optional_addon: "relAddon",

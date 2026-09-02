@@ -19,6 +19,7 @@ const j = (value: unknown) => sql.json((value ?? {}) as any);
 const RELATION_TYPES = [
   "general",
   "recommended_before",
+  "recommended_during",
   "recommended_after",
   "compatible",
   "required",

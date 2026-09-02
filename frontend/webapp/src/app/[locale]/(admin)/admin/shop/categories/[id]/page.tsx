@@ -18,7 +18,7 @@ import {
 export const dynamic = "force-dynamic";
 
 const input = "h-9 w-full rounded border border-gray-300 px-2 text-sm";
-const RELATION = ["general", "recommended_before", "recommended_after", "compatible", "required", "optional_addon"];
+const RELATION = ["general", "recommended_before", "recommended_during", "recommended_after", "compatible", "required", "optional_addon"];
 
 export default async function AdminCategoryEditPage({ params }: { params: Promise<{ id: string }> }) {
   const t = await getTranslations("ShopAdmin");
@@ -55,7 +55,7 @@ export default async function AdminCategoryEditPage({ params }: { params: Promis
             {category.serviceLinks.map((l: any) => (
               <li key={l.id} className="flex items-center justify-between rounded border border-gray-100 px-2 py-1 text-sm">
                 <span className={l.broken ? "text-red-600" : ""}>
-                  {l.service_name} <span className="text-gray-400">· {l.relation_type}</span>
+                  {l.service_name} <span className="text-gray-400">· {t.has(`relation.${l.relation_type}`) ? t(`relation.${l.relation_type}`) : l.relation_type}</span>
                   {l.broken ? ` · ${t("categoryEdit.brokenRef")}` : ""}
                 </span>
                 <form action={unlinkCategoryServiceForm}>
@@ -75,7 +75,7 @@ export default async function AdminCategoryEditPage({ params }: { params: Promis
               ))}
             </select>
             <select name="relationType" className={input}>
-              {RELATION.map((r) => <option key={r} value={r}>{r}</option>)}
+              {RELATION.map((r) => <option key={r} value={r}>{t.has(`relation.${r}`) ? t(`relation.${r}`) : r}</option>)}
             </select>
             <button className="w-full rounded bg-[#083f30] px-3 py-2 text-sm font-semibold text-white">{t("categoryEdit.addServiceLink")}</button>
           </form>

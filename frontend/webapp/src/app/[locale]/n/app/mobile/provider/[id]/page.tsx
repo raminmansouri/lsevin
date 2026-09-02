@@ -38,6 +38,7 @@ import { CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { VideoGallery } from "@/components/media/video-gallery";
+import { ServiceProductsRail } from "@/features/shop/components/ServiceProductsRail";
 
 const FALLBACK_IMAGE = "/placeholder-provider.svg";
 
@@ -709,6 +710,8 @@ export default function ProviderDetailPage() {
               internationalRecommendations={data.internationalRecommendations}
               locale={locale}
             />
+
+            <ServiceProductsRail src={`/api/shop/provider/${providerId}/products`} locale={locale} />
           </div>
         ) : null}
       </div>

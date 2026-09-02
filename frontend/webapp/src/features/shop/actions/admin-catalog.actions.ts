@@ -32,7 +32,7 @@ import {
   upsertVariant,
 } from "../server/admin-catalog.service";
 
-const RELATION = ["general", "recommended_before", "recommended_after", "compatible", "required", "optional_addon"] as const;
+const RELATION = ["general", "recommended_before", "recommended_during", "recommended_after", "compatible", "required", "optional_addon"] as const;
 const localized = z.record(z.string(), z.string()).default({});
 
 function fromForm3(formData: FormData, prefix: string) {

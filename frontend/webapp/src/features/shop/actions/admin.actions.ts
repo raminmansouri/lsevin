@@ -124,7 +124,7 @@ export async function setPricingModeAction(input: unknown) {
 
 // --- product edit + service links -----------------------------------------
 
-const RELATION = ["general", "recommended_before", "recommended_after", "compatible", "required", "optional_addon"] as const;
+const RELATION = ["general", "recommended_before", "recommended_during", "recommended_after", "compatible", "required", "optional_addon"] as const;
 
 const productCoreSchema = z.object({
   productId: shopId,

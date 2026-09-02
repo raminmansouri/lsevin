@@ -40,6 +40,7 @@ import { LexicalDescription } from "@/features/service-providers/components/lexi
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { Skeleton } from "@/components/ui/skeleton";
 import { env } from "@/config/env/client";
+import { ServiceProductsRail } from "@/features/shop/components/ServiceProductsRail";
 import { useNavigate } from "@/hooks/use-navigate";
 import type {
   GetServicePageByIdResponse,
@@ -758,6 +759,14 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
 
         <ProvidersForServiceSection providers={data.providers} currentProviderServiceId={service.providerServiceId} locale={locale} />
         {(data.localRecommendations.length > 0 || data.internationalRecommendations.length > 0) && <RecommendationSection localRecommendations={data.localRecommendations} internationalRecommendations={data.internationalRecommendations} userCountry={service.country || t("recommendations.yourCountry")} />}
+
+        {service.serviceDefinitionId ? (
+          <ServiceProductsRail
+            src={`/api/shop/service/${service.serviceDefinitionId}/products`}
+            serviceDefinitionId={service.serviceDefinitionId}
+            locale={locale}
+          />
+        ) : null}
 
         <section className="mb-6">
           <div className="mb-4 flex items-center justify-between gap-3">

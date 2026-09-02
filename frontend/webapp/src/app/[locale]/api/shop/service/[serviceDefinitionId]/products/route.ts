@@ -17,6 +17,7 @@ import {
 const RELATIONS = new Set([
   "general",
   "recommended_before",
+  "recommended_during",
   "recommended_after",
   "compatible",
   "required",

@@ -19,6 +19,7 @@ import { searchProducts } from "./catalog.repository";
 export type ServiceRelationType =
   | "general"
   | "recommended_before"
+  | "recommended_during"
   | "recommended_after"
   | "compatible"
   | "required"
@@ -34,6 +35,7 @@ export type ServiceRelatedProducts = {
 const RELATION_ORDER: ServiceRelationType[] = [
   "required",
   "recommended_before",
+  "recommended_during",
   "recommended_after",
   "optional_addon",
   "compatible",
@@ -98,6 +100,86 @@ export async function getProductsForService(
   }
 
   return { serviceDefinitionId, serviceName: svc?.name ?? "", byRelation, flat };
+}
+
+/**
+ * Same as `getProductsForService` but aggregated across several service
+ * definitions — the read model behind a provider page or a specialist page,
+ * where a booking covers many services (SHP-V02-007). Products are deduped and
+ * the group order is preserved.
+ */
+export async function getProductsForServices(
+  serviceDefinitionIds: string[],
+  opts?: { limit?: number; locale?: string; displayCurrency?: string },
+): Promise<{ byRelation: Array<{ relationType: ServiceRelationType; products: ProductCard[] }>; flat: ProductCard[] }> {
+  const ids = Array.from(new Set((serviceDefinitionIds ?? []).filter((v) => /^[0-9a-fA-F-]{36}$/.test(v))));
+  if (!ids.length) return { byRelation: [], flat: [] };
+
+  const ctx = await getShopContext();
+  const lang = normalizeLocale(opts?.locale ?? ctx.locale);
+  const displayCurrency = opts?.displayCurrency ?? (await resolveDisplayCurrency(ctx)).currency;
+  const limit = Math.min(60, Math.max(1, opts?.limit ?? 30));
+
+  const links = await sql<{ slug: string; relation_type: ServiceRelationType }[]>`
+    select distinct on (p.slug, psl.relation_type) p.slug, psl.relation_type
+    from shop.product_service_links psl
+    join shop.products p on p.id = psl.product_id
+    where psl.service_definition_id = any(${ids}::uuid[])
+      and psl.is_active = true
+      and p.deleted_at is null and p.status = 'active'
+    order by p.slug, psl.relation_type, psl.display_order asc
+    limit ${limit}
+  `;
+  if (!links.length) return { byRelation: [], flat: [] };
+
+  const slugs = Array.from(new Set(links.map((l) => l.slug)));
+  const { items } = await searchProducts({ slugs, page: 1, pageSize: limit }, { locale: lang, displayCurrency });
+  const bySlug = new Map(items.map((p) => [p.slug, p]));
+
+  const groups = new Map<ServiceRelationType, ProductCard[]>();
+  for (const l of links) {
+    const p = bySlug.get(l.slug);
+    if (!p) continue;
+    const g = groups.get(l.relation_type) ?? [];
+    if (!g.some((x) => x.id === p.id)) g.push(p);
+    groups.set(l.relation_type, g);
+  }
+  const byRelation = RELATION_ORDER.filter((r) => groups.has(r)).map((relationType) => ({
+    relationType,
+    products: groups.get(relationType)!,
+  }));
+  const seen = new Set<string>();
+  const flat: ProductCard[] = [];
+  for (const g of byRelation) for (const p of g.products) if (!seen.has(p.id)) { seen.add(p.id); flat.push(p); }
+  return { byRelation, flat };
+}
+
+/** Products recommended around every service a provider offers (SHP-V02-007). */
+export async function getProductsForProvider(
+  serviceProviderId: string,
+  opts?: { limit?: number; locale?: string; displayCurrency?: string },
+) {
+  if (!/^[0-9a-fA-F-]{36}$/.test(serviceProviderId)) return { byRelation: [], flat: [] };
+  const rows = await sql<{ id: string }[]>`
+    select distinct service_definition_id::text as id
+    from category.provider_services
+    where service_provider_id = ${serviceProviderId}::uuid and is_active = true
+  `;
+  return getProductsForServices(rows.map((r) => r.id), opts);
+}
+
+/** Products recommended around every service a staff member (doctor) offers. */
+export async function getProductsForStaff(
+  staffId: string,
+  opts?: { limit?: number; locale?: string; displayCurrency?: string },
+) {
+  if (!/^[0-9a-fA-F-]{36}$/.test(staffId)) return { byRelation: [], flat: [] };
+  const rows = await sql<{ id: string }[]>`
+    select distinct service_definition_id::text as id
+    from category.staff_services
+    where staff_id = ${staffId}::uuid and is_active = true
+  `;
+  return getProductsForServices(rows.map((r) => r.id), opts);
 }
 
 /** Curated product discovery from a Shop-category ↔ service link (SHP-V02-009). */

@@ -13657,12 +13657,14 @@
     "questionSubmitted": "Thanks! Your question was sent.",
     "noQuestions": "No questions yet — be the first to ask.",
     "serviceRelated": "Recommended for {service}",
-    "relBefore": "Before your service",
-    "relAfter": "After your service",
+    "relBefore": "Before treatment",
+    "relDuring": "During treatment",
+    "relAfter": "After treatment",
     "relRequired": "Required",
     "relAddon": "Optional add-ons",
     "relCompatible": "Works with this",
     "relGeneral": "Related",
+    "serviceProductsHeading": "Recommended products",
     "cancelOrder": "Cancel order",
     "cancelReason": "Reason (optional)",
     "confirmCancel": "Yes, cancel this order",
@@ -14152,6 +14154,15 @@
       "tryAgain": "Try again",
       "backToDashboard": "Back to dashboard",
       "unknownError": "Unknown error"
+    },
+    "relation": {
+      "general": "General",
+      "recommended_before": "Before treatment",
+      "recommended_during": "During treatment",
+      "recommended_after": "After treatment",
+      "compatible": "Works with this",
+      "required": "Required",
+      "optional_addon": "Optional add-on"
     },
     "enum": {
       "orderStatus": {
