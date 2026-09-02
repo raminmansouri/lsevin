@@ -9,17 +9,16 @@ import {
 } from "@/features/shop/api/admin.repository";
 import {
   addHomeSectionItemForm,
-  deleteHomeSectionForm,
+  deleteHomeSectionAction,
   removeHomeSectionItemForm,
-  upsertHomeSectionForm,
 } from "@/features/shop/actions/admin-catalog.actions";
 import { MediaUrlField } from "@/features/shop/components/admin/MediaUrlField";
+import { HomeSectionForm } from "@/features/shop/components/admin/HomeSectionForm";
+import { ShopDeleteButton } from "@/features/shop/components/admin/ShopDeleteButton";
 
 export const dynamic = "force-dynamic";
 
 const input = "h-9 w-full rounded border border-gray-300 px-2 text-sm";
-const SECTION_TYPES = ["shortcut_rail", "promo_cards", "product_rail", "category_rail", "service_related_rail"];
-const QUERY_SOURCES = ["manual", "featured", "best_seller", "new_arrival", "discounted", "category", "service_related"];
 
 export default async function AdminMerchandisingPage({
   searchParams,
@@ -66,10 +65,12 @@ export default async function AdminMerchandisingPage({
                     <td className="px-3 py-2">{s.item_count}</td>
                     <td className="px-3 py-2">{s.display_order}</td>
                     <td className="px-3 py-2">
-                      <form action={deleteHomeSectionForm}>
-                        <input type="hidden" name="id" value={s.id} />
-                        <button className="text-xs text-red-600">{t("common.delete")}</button>
-                      </form>
+                      <ShopDeleteButton
+                        action={deleteHomeSectionAction.bind(null, { id: s.id })}
+                        title={`${t("common.delete")} — ${s.key}`}
+                        description={t("merchandising.title")}
+                        variant="ghost"
+                      />
                     </td>
                   </tr>
                 ))}
@@ -77,34 +78,12 @@ export default async function AdminMerchandisingPage({
             </table>
           </div>
 
-          <form action={upsertHomeSectionForm} className="space-y-2 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-            <h2 className="text-sm font-bold text-gray-900">{t("merchandising.newEditSection")}</h2>
-            {openSection ? <input type="hidden" name="id" value={openSection.id} /> : null}
-            <div className="grid grid-cols-2 gap-2">
-              <label className="text-sm">{t("merchandising.key")}<input name="key" defaultValue={openSection?.key ?? ""} required className={input} /></label>
-              <label className="text-sm">{t("merchandising.displayOrder")}<input name="displayOrder" type="number" defaultValue={openSection?.display_order ?? 0} className={input} /></label>
-              <label className="text-sm">{t("merchandising.type")}
-                <select name="sectionType" defaultValue={openSection?.section_type ?? "product_rail"} className={input}>
-                  {SECTION_TYPES.map((ty) => <option key={ty} value={ty}>{ty}</option>)}
-                </select>
-              </label>
-              <label className="text-sm">{t("merchandising.querySource")}
-                <select name="querySource" defaultValue={openSection?.query_source ?? "manual"} className={input}>
-                  {QUERY_SOURCES.map((ty) => <option key={ty} value={ty}>{ty}</option>)}
-                </select>
-              </label>
-              <label className="text-sm">{t("merchandising.categorySlug")}
-                <input name="categorySlug" defaultValue={openSection?.query_config?.slug ?? ""} className={input} />
-              </label>
-              <label className="mt-5 flex items-center gap-1 text-sm"><input type="checkbox" name="isActive" defaultChecked={openSection?.is_active ?? true} /> {t("merchandising.active")}</label>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              <label className="text-sm">{t("merchandising.titleEn")}<input name="title_en" defaultValue={openSection?.title_translations?.en ?? ""} className={input} /></label>
-              <label className="text-sm">{t("merchandising.titleFa")}<input name="title_fa" defaultValue={openSection?.title_translations?.fa ?? ""} className={input} dir="rtl" /></label>
-              <label className="text-sm">{t("merchandising.titleAr")}<input name="title_ar" defaultValue={openSection?.title_translations?.ar ?? ""} className={input} dir="rtl" /></label>
-            </div>
-            <button className="rounded-lg bg-[#083f30] px-4 py-2 text-sm font-semibold text-white">{t("merchandising.saveSection")}</button>
-          </form>
+          <HomeSectionForm section={openSection ?? undefined} />
+          {openSection ? (
+            <Link href="/admin/shop/merchandising" className="inline-block text-xs font-medium text-[#083f30]">
+              + {t("merchandising.newEditSection")}
+            </Link>
+          ) : null}
         </div>
 
         {openSection ? (

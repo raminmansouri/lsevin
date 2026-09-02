@@ -188,10 +188,26 @@ export async function upsertAttributeForm(formData: FormData) {
   });
   revalidatePath("/admin/shop/attributes");
 }
+export async function upsertAttributeAction(input: {
+  id?: string;
+  nameTranslations: Record<string, string>;
+  slug: string;
+  displayType: string;
+  isVariantDefining: boolean;
+}) {
+  const id = await upsertAttribute(input);
+  revalidatePath("/admin/shop/attributes");
+  return { ok: true as const, id };
+}
 
 export async function deleteAttributeForm(formData: FormData) {
   await deleteAttribute({ id: shopId.parse(formData.get("id")) });
   revalidatePath("/admin/shop/attributes");
+}
+export async function deleteAttributeAction(input: { id: string }) {
+  await deleteAttribute({ id: shopId.parse(input.id) });
+  revalidatePath("/admin/shop/attributes");
+  return { ok: true as const };
 }
 
 export async function addAttributeValueForm(formData: FormData) {
@@ -204,10 +220,31 @@ export async function addAttributeValueForm(formData: FormData) {
   });
   revalidatePath("/admin/shop/attributes");
 }
+export async function addAttributeValueAction(input: {
+  attributeId: string;
+  value: string;
+  displayNameTranslations: Record<string, string>;
+  colorHex?: string | null;
+}) {
+  await addAttributeValue({
+    attributeId: shopId.parse(input.attributeId),
+    value: input.value,
+    displayNameTranslations: input.displayNameTranslations,
+    colorHex: input.colorHex ?? null,
+    imageUrl: null,
+  });
+  revalidatePath("/admin/shop/attributes");
+  return { ok: true as const };
+}
 
 export async function deleteAttributeValueForm(formData: FormData) {
   await deleteAttributeValue({ id: shopId.parse(formData.get("id")) });
   revalidatePath("/admin/shop/attributes");
+}
+export async function deleteAttributeValueAction(input: { id: string }) {
+  await deleteAttributeValue({ id: shopId.parse(input.id) });
+  revalidatePath("/admin/shop/attributes");
+  return { ok: true as const };
 }
 
 export async function setProductAttributeForm(formData: FormData) {
@@ -252,6 +289,26 @@ export async function updateDeliveryMethodForm(formData: FormData) {
   });
   revalidatePath("/admin/shop/delivery");
   revalidatePath("/n/app/mobile/shop/checkout");
+}
+export async function updateDeliveryMethodAction(input: {
+  id: string;
+  baseFee: number;
+  isActive: boolean;
+  estimatedDaysMin: number | null;
+  estimatedDaysMax: number | null;
+  rules: unknown;
+}) {
+  await updateDeliveryMethod({
+    id: shopId.parse(input.id),
+    baseFee: input.baseFee,
+    isActive: input.isActive,
+    estimatedDaysMin: input.estimatedDaysMin,
+    estimatedDaysMax: input.estimatedDaysMax,
+    rules: input.rules,
+  });
+  revalidatePath("/admin/shop/delivery");
+  revalidatePath("/n/app/mobile/shop/checkout");
+  return { ok: true as const };
 }
 
 // ======================================================================
@@ -416,6 +473,12 @@ export async function deleteHomeSectionForm(formData: FormData) {
   await deleteHomeSection({ id });
   revalidatePath("/admin/shop/merchandising");
   revalidatePath("/n/app/mobile/shop");
+}
+export async function deleteHomeSectionAction(input: { id: string }) {
+  await deleteHomeSection({ id: shopId.parse(input.id) });
+  revalidatePath("/admin/shop/merchandising");
+  revalidatePath("/n/app/mobile/shop");
+  return { ok: true as const };
 }
 
 const sectionItemSchema = z.object({

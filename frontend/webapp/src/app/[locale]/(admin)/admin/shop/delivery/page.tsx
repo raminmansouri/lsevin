@@ -2,20 +2,9 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { listDeliveryMethodsAdmin } from "@/features/shop/api/admin.repository";
-import { updateDeliveryMethodForm } from "@/features/shop/actions/admin-catalog.actions";
+import { DeliveryMethodForm } from "@/features/shop/components/admin/DeliveryMethodForm";
 
 export const dynamic = "force-dynamic";
-
-const input = "h-9 w-full rounded border border-gray-300 px-2 text-sm";
-
-const EXAMPLE = `{
-  "geo": {
-    "includeCountries": ["IR", "TR"],
-    "excludeCountries": [],
-    "surcharges": [{ "countries": ["AE", "GB"], "amount": 8 }],
-    "etaOverrides": [{ "countries": ["GB"], "minDays": 7, "maxDays": 14 }]
-  }
-}`;
 
 /**
  * SHP-V03-012 — delivery methods with geographic eligibility, surcharges and ETA
@@ -37,47 +26,19 @@ export default async function AdminDeliveryPage() {
 
       <div className="space-y-4">
         {rows.map((m: any) => (
-          <form key={m.id} action={updateDeliveryMethodForm} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-            <input type="hidden" name="id" value={m.id} />
-            <div className="mb-3 flex items-center justify-between">
-              <div>
-                <span className="font-bold text-gray-900">{m.name}</span>
-                <span className="ms-2 font-mono text-xs text-gray-400">{m.code}</span>
-              </div>
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" name="isActive" defaultChecked={m.is_active} /> {t("delivery.active")}
-              </label>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <label className="text-xs text-gray-500">
-                {t("delivery.baseFee")}
-                <input name="baseFee" type="number" step="0.01" min={0} defaultValue={m.base_fee} className={input} />
-              </label>
-              <label className="text-xs text-gray-500">
-                {t("delivery.etaMin")}
-                <input name="estimatedDaysMin" type="number" min={0} defaultValue={m.estimated_days_min ?? ""} className={input} />
-              </label>
-              <label className="text-xs text-gray-500">
-                {t("delivery.etaMax")}
-                <input name="estimatedDaysMax" type="number" min={0} defaultValue={m.estimated_days_max ?? ""} className={input} />
-              </label>
-            </div>
-
-            <label className="mt-3 block text-xs text-gray-500">
-              {t("delivery.rulesJson")}
-              <textarea
-                name="rules"
-                rows={8}
-                defaultValue={JSON.stringify(m.rules ?? {}, null, 2)}
-                placeholder={EXAMPLE}
-                dir="ltr"
-                className="mt-1 w-full rounded border border-gray-300 p-2 font-mono text-xs"
-              />
-            </label>
-
-            <button className="mt-3 rounded-lg bg-[#083f30] px-4 py-2 text-sm font-semibold text-white">{t("delivery.save")}</button>
-          </form>
+          <DeliveryMethodForm
+            key={m.id}
+            method={{
+              id: m.id,
+              code: m.code,
+              name: m.name,
+              base_fee: m.base_fee,
+              is_active: m.is_active,
+              estimated_days_min: m.estimated_days_min,
+              estimated_days_max: m.estimated_days_max,
+              rules: m.rules,
+            }}
+          />
         ))}
         {!rows.length ? <p className="text-sm text-gray-400">{t("delivery.noMethods")}</p> : null}
       </div>
