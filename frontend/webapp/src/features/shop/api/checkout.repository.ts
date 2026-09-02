@@ -251,6 +251,11 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
   if (!scopeId) throw new Error("No checkout identity.");
   if (!input.idempotencyKey || input.idempotencyKey.length < 8) throw new Error("A valid idempotency key is required.");
 
+  // A signed-in checkout may omit the email — fall back to the account email so
+  // the order still has a contact and stays findable in the customer's list.
+  const orderEmail = (input.email?.trim() || ctx.email || "").toLowerCase();
+  if (!orderEmail) throw new Error("An email address is required to place the order.");
+
   // Idempotency short-circuit BEFORE re-quoting: a retry hits a cart that the
   // first call already converted, so re-quoting would fail with "cart mismatch"
   // before the in-transaction gate is reached (SHP-V01-017, SHP-CHK-007).
@@ -300,7 +305,7 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
   }
 
   const requestHash = createHash("sha256")
-    .update(JSON.stringify({ cartId: input.cartId, total: quote.totals.grandTotal, email: input.email }))
+    .update(JSON.stringify({ cartId: input.cartId, total: quote.totals.grandTotal, email: orderEmail }))
     .digest("hex");
 
   const result = await sql.begin(async (tx) => {
@@ -427,7 +432,7 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
         source_currency, display_currency, payment_currency, payment_total, fx_quote_id, fx_applied_rate,
         fx_snapshot, idempotency_key, source_surface
       ) values (
-        ${orderNumber}, ${ctx.customerId ?? null}::uuid, ${input.cartId}::uuid, ${input.email}, ${quote.currency},
+        ${orderNumber}, ${ctx.customerId ?? null}::uuid, ${input.cartId}::uuid, ${orderEmail}, ${quote.currency},
         'awaiting_payment', 'pending', 'pending', 'not_required',
         ${quote.totals.subtotal}, ${quote.totals.discountTotal}, ${quote.totals.shippingTotal}, ${quote.totals.taxTotal},
         ${quote.totals.grandTotal}, ${quote.totals.couponCode}, ${input.note ?? null},

@@ -27,6 +27,9 @@ export type ShopContext = {
   userId: string | null;
   /** customer.customers.id — FK target of shop.orders.customer_id. null for guests / unresolved. */
   customerId: string | null;
+  /** Signed-in user's email, when the session carries one. Used to pre-fill and
+   *  to match orders that were placed before a customer row existed. */
+  email: string | null;
   /** Opaque guest cart token from the cookie; always present (created if missing). */
   guestToken: string;
   /** Active UI locale (fa | ar | en | ...). */
@@ -136,6 +139,7 @@ export const getShopContext = cache(async (): Promise<ShopContext> => {
   ]);
 
   const userId = session?.user?.id ?? null;
+  const email = (session?.user?.email as string | undefined)?.trim().toLowerCase() || null;
   const customerId = userId ? await resolveShopCustomerId(userId) : null;
   const countryCode = await resolveCountryCode(userId, customerId);
 
@@ -145,6 +149,7 @@ export const getShopContext = cache(async (): Promise<ShopContext> => {
   return {
     userId,
     customerId,
+    email,
     guestToken: guestToken || "",
     locale,
     countryCode,

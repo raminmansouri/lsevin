@@ -33,7 +33,10 @@ export const checkoutQuoteSchema = z.object({
 export const placeOrderSchema = z.object({
   cartId: shopId,
   idempotencyKey: z.string().trim().min(8).max(80),
-  email: z.string().email(),
+  // Optional at the edge — a signed-in checkout falls back to the account email
+  // server-side (SHP-CHK). Guests still get an "email required" error from
+  // placeOrder when neither is available.
+  email: z.string().email().optional().or(z.literal("")).transform((v) => v || undefined),
   shippingAddress: addressInputSchema,
   billingAddress: addressInputSchema.optional(),
   sameBilling: z.boolean().optional().default(true),

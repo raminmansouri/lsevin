@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
-import { placeOrderAction, quoteCheckoutAction } from "../actions/checkout.actions";
+import { placeOrderAction, quoteCheckoutAction, saveAddressAction } from "../actions/checkout.actions";
 import { formatShopMoney } from "./money";
 import type { CheckoutQuote } from "../api/checkout.repository";
 import type { ShopAddress } from "../api/address.repository";
@@ -61,10 +61,13 @@ export function CheckoutClient({
   );
 
   const [email, setEmail] = useState(defaultEmail ?? "");
-  const [addr, setAddr] = useState<typeof EMPTY_ADDR>(() => {
-    const d = savedAddresses.find((a) => a.isDefault) ?? savedAddresses[0];
-    return d ? { ...EMPTY_ADDR, ...d } : EMPTY_ADDR;
-  });
+  const initialAddr = savedAddresses.find((a) => a.isDefault) ?? savedAddresses[0];
+  const [addrChoice, setAddrChoice] = useState<string>(initialAddr?.id ?? "new");
+  const [saveNewAddr, setSaveNewAddr] = useState(false);
+  const [addr, setAddr] = useState<typeof EMPTY_ADDR>(() =>
+    initialAddr ? { ...EMPTY_ADDR, ...initialAddr } : EMPTY_ADDR,
+  );
+  const usingNewAddr = addrChoice === "new" || savedAddresses.length === 0;
   const [deliveryId, setDeliveryId] = useState(initialQuote.selectedDeliveryMethodId ?? "");
   const [paymentCode, setPaymentCode] = useState(paymentMethods[0]?.code ?? "");
   const [note, setNote] = useState("");
@@ -89,7 +92,7 @@ export function CheckoutClient({
 
   const canPlace = useMemo(() => {
     return (
-      /.+@.+\..+/.test(email) &&
+      (isAuthenticated || /.+@.+\..+/.test(email)) &&
       addr.fullName.trim().length > 1 &&
       addr.country.trim() &&
       addr.city.trim() &&
@@ -99,16 +102,30 @@ export function CheckoutClient({
       !quote.totals.hasUnavailablePrice &&
       quote.blockingIssues.length === 0
     );
-  }, [email, addr, deliveryId, paymentCode, quote]);
+  }, [email, addr, deliveryId, paymentCode, quote, isAuthenticated]);
 
   function submit() {
     setError(null);
     startTransition(async () => {
       try {
+        if (usingNewAddr && saveNewAddr && isAuthenticated) {
+          await saveAddressAction({
+            fullName: addr.fullName,
+            phoneNumber: addr.phoneNumber || undefined,
+            country: addr.country,
+            city: addr.city,
+            stateRegion: addr.stateRegion || undefined,
+            addressLine1: addr.addressLine1,
+            addressLine2: addr.addressLine2 || undefined,
+            postalCode: addr.postalCode || undefined,
+            company: addr.company || undefined,
+            isDefault: savedAddresses.length === 0,
+          }).catch(() => undefined);
+        }
         const res = await placeOrderAction({
           cartId,
           idempotencyKey: idempotencyKey.current,
-          email,
+          email: email || undefined,
           shippingAddress: {
             fullName: addr.fullName,
             phoneNumber: addr.phoneNumber || undefined,
@@ -181,7 +198,7 @@ export function CheckoutClient({
           inputMode="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder={t("email")}
+          placeholder={isAuthenticated ? t("emailOptional") : t("email")}
           className={field}
         />
       </Section>
@@ -193,23 +210,59 @@ export function CheckoutClient({
           </a>
         ) : null}
         {savedAddresses.length ? (
-          <div className="mb-2 flex flex-wrap gap-2">
+          <div className="mb-3 space-y-1.5">
+            <p className="text-xs font-semibold text-neutral-500">{t("selectAddress")}</p>
             {savedAddresses.map((a) => (
-              <button
+              <label
                 key={a.id}
-                type="button"
-                onClick={() => {
-                  setAddr({ ...EMPTY_ADDR, ...a });
-                  reQuote(deliveryId, { country: (a as { country?: string }).country, region: (a as { stateRegion?: string }).stateRegion });
-                }}
-                className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs text-neutral-700"
+                className={cn(
+                  "flex cursor-pointer items-start gap-2 rounded-xl border p-2.5 text-sm",
+                  addrChoice === a.id ? "border-[#083f30] bg-[#083f30]/5" : "border-neutral-200",
+                )}
               >
-                {a.fullName} · {a.city}
-              </button>
+                <input
+                  type="radio"
+                  name="savedAddr"
+                  className="mt-0.5"
+                  checked={addrChoice === a.id}
+                  onChange={() => {
+                    setAddrChoice(a.id ?? "new");
+                    setAddr({ ...EMPTY_ADDR, ...a });
+                    reQuote(deliveryId, {
+                      country: (a as { country?: string }).country,
+                      region: (a as { stateRegion?: string }).stateRegion,
+                    });
+                  }}
+                />
+                <span>
+                  <span className="font-medium text-neutral-800">{a.fullName}</span>
+                  <br />
+                  <span className="text-xs text-neutral-500">
+                    {[a.addressLine1, a.city, a.country].filter(Boolean).join("، ")}
+                  </span>
+                </span>
+              </label>
             ))}
+            <label
+              className={cn(
+                "flex cursor-pointer items-center gap-2 rounded-xl border p-2.5 text-sm",
+                addrChoice === "new" ? "border-[#083f30] bg-[#083f30]/5" : "border-neutral-200",
+              )}
+            >
+              <input
+                type="radio"
+                name="savedAddr"
+                checked={addrChoice === "new"}
+                onChange={() => {
+                  setAddrChoice("new");
+                  setAddr(EMPTY_ADDR);
+                }}
+              />
+              <span className="font-medium text-neutral-800">{t("useNewAddress")}</span>
+            </label>
           </div>
         ) : null}
-        <div className="grid grid-cols-2 gap-2">
+        <div className={cn("grid grid-cols-2 gap-2", usingNewAddr ? "" : "hidden")}>
           <input value={addr.fullName} onChange={(e) => setAddr({ ...addr, fullName: e.target.value })} placeholder={t("fullName")} className={cn(field, "col-span-2")} />
           <input value={addr.phoneNumber} onChange={(e) => setAddr({ ...addr, phoneNumber: e.target.value })} placeholder={t("phone")} className={field} inputMode="tel" />
           <input value={addr.company} onChange={(e) => setAddr({ ...addr, company: e.target.value })} placeholder={t("company")} className={field} />
@@ -226,6 +279,12 @@ export function CheckoutClient({
           <input value={addr.addressLine2} onChange={(e) => setAddr({ ...addr, addressLine2: e.target.value })} placeholder={t("addressLine2")} className={cn(field, "col-span-2")} />
           <input value={addr.postalCode} onChange={(e) => setAddr({ ...addr, postalCode: e.target.value })} placeholder={t("postalCode")} className={field} />
         </div>
+        {usingNewAddr && isAuthenticated ? (
+          <label className="mt-2 flex items-center gap-2 text-xs text-neutral-600">
+            <input type="checkbox" checked={saveNewAddr} onChange={(e) => setSaveNewAddr(e.target.checked)} />
+            {t("saveThisAddress")}
+          </label>
+        ) : null}
       </Section>
 
       <Section title={t("deliveryMethod")}>
@@ -310,7 +369,7 @@ export function CheckoutClient({
           <div className="flex flex-col">
             <span className="text-[10px] text-neutral-500">{t("payableNow")}</span>
             <span className="text-lg font-extrabold text-[#e02e2a]">
-              {quote.paymentCurrency} {formatShopMoney(quote.paymentTotal, quote.paymentCurrency, locale)}
+              {formatShopMoney(quote.paymentTotal, quote.paymentCurrency, locale)}
             </span>
           </div>
           <button

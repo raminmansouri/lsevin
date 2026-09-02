@@ -60,8 +60,8 @@ export default async function CheckoutPage({ params }: { params: Promise<{ local
         initialQuote={quote}
         paymentMethods={paymentMethods.map((m) => ({ id: m.id, code: m.code, name: m.name, description: m.description ?? "" }))}
         savedAddresses={addresses}
-        defaultEmail={ctx.userId ? undefined : undefined}
-        isAuthenticated={Boolean(ctx.customerId)}
+        defaultEmail={ctx.email ?? undefined}
+        isAuthenticated={Boolean(ctx.userId)}
       />
     </div>
   );

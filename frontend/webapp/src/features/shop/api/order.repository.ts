@@ -20,11 +20,14 @@ const summarySelect = sql`
 
 export async function listCustomerOrders(): Promise<OrderSummary[]> {
   const ctx = await getShopContext();
-  if (!ctx.customerId) return [];
+  // Match on the customer id AND on the signed-in email — an order placed before
+  // a `customer.customers` row existed (customer_id null) is still theirs.
+  if (!ctx.customerId && !ctx.email) return [];
   const rows = await sql<any[]>`
     select ${summarySelect}
     from shop.orders o
-    where o.customer_id = ${ctx.customerId}::uuid
+    where (${ctx.customerId ?? null}::uuid is not null and o.customer_id = ${ctx.customerId ?? null}::uuid)
+       or (${ctx.email ?? null}::text is not null and lower(o.email) = ${ctx.email ?? null}::text)
     order by o.placed_at desc
     limit 100
   `;
@@ -47,9 +50,11 @@ export async function getCustomerOrder(orderNumber: string, guestEmail?: string 
   `;
   if (!order) return null;
 
+  const orderEmail = (order.email ?? "").toLowerCase();
   const authorized =
     (ctx.customerId && order.customerId === ctx.customerId) ||
-    (!!guestEmail && order.email && guestEmail.trim().toLowerCase() === order.email.toLowerCase());
+    (!!ctx.email && orderEmail === ctx.email) ||
+    (!!guestEmail && !!orderEmail && guestEmail.trim().toLowerCase() === orderEmail);
   if (!authorized) return null;
 
   const [items, addresses, statusHistory, shipments, payments, returns] = await Promise.all([

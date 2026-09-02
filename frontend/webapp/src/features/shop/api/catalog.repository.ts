@@ -297,11 +297,17 @@ export async function getProductBySlug(slug: string, locale?: string): Promise<P
       coalesce((
         select sum(greatest(i.on_hand - i.reserved, 0))::int
         from shop.inventory i where i.product_id = p.id and i.variant_id is null
-      ), 0) as "inventoryAvailable"
+      ), 0) as "inventoryAvailable",
+      pm.url as "imageUrl"
     from shop.products p
     left join shop.brands b on b.id = p.brand_id
     left join shop.categories c on c.id = p.primary_category_id
     left join shop.v_product_price_summary ps on ps.product_id = p.id
+    left join lateral (
+      select url from shop.product_media m
+      where m.product_id = p.id and m.variant_id is null
+      order by m.is_primary desc, m.display_order asc limit 1
+    ) pm on true
     left join review_summary on review_summary.product_id = p.id
     left join order_summary on order_summary.product_id = p.id
     where p.slug = ${slug} and p.deleted_at is null and p.status = 'active'
