@@ -277,3 +277,11 @@ export async function adjustInventoryForm(formData: FormData) {
 export async function setPricingModeForm(formData: FormData) {
   await setPricingModeAction({ mode: formData.get("mode") });
 }
+
+// Abandoned-cart recovery (SHP-V03-011) — invoked from the dashboard.
+export async function runCartRecoveryForm(formData: FormData) {
+  const idleHours = Number(formData.get("idleHours")) || 4;
+  const { runCartRecovery } = await import("../server/cart-recovery.service");
+  await runCartRecovery({ idleHours });
+  revalidatePath("/admin/shop");
+}

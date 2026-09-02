@@ -117,6 +117,18 @@ async function ensureTemplates(): Promise<void> {
     },
   ];
 
+  templates.push({
+    key: "shop.cart.abandoned.customer",
+    name: "Shop cart abandoned (customer)",
+    channels: ["in_app", "email"] as NotificationChannel[],
+    title: tr("سبد خرید شما منتظر شماست", "Your cart is waiting", "سلة التسوق بانتظارك"),
+    body: tr(
+      "شما {{itemCount}} کالا در سبد خرید خود دارید. برای تکمیل خرید بازگردید.",
+      "You have {{itemCount}} item(s) waiting in your cart. Come back to complete your purchase.",
+      "لديك {{itemCount}} عنصر بانتظارك في السلة. عد لإتمام الشراء."
+    ),
+  });
+
   for (const tmpl of templates) {
     await sql`
       insert into notify.notification_templates (template_key, name, notification_type, default_channels, title_translations, body_translations)
@@ -215,5 +227,58 @@ export async function notifyShopOrderEvent(input: {
     });
   } catch (error) {
     console.error(`notifyShopOrderEvent(${input.event}) failed`, error);
+  }
+}
+
+/**
+ * Abandoned-cart nudge (SHP-V03-011). Best-effort, never throws. Only a customer
+ * with a resolvable identity user is messaged; returns whether a notification
+ * was actually created so the caller can record delivery state.
+ */
+export async function notifyCartAbandoned(input: {
+  cartId: string;
+  customerId: string | null;
+  recoveryToken?: string | null;
+  itemCount: number;
+  currency?: string;
+}): Promise<boolean> {
+  try {
+    if (!input.customerId) return false;
+    if (!(await notifyTablesExist())) return false;
+
+    const [u] = await sql<
+      { identityUserId: string | null; email: string | null; phone: string | null }[]
+    >`
+      select u.id::text as "identityUserId",
+        nullif(u.email, '') as email,
+        nullif(concat_ws('', u.phone_number_country_code, u.phone_number), '') as phone
+      from customer.customers c
+      join identity.asp_net_users u
+        on (nullif(c.email, '') is not null and lower(u.email) = lower(c.email))
+        or (nullif(c.phone_number, '') is not null and u.phone_number = c.phone_number
+            and u.phone_number_country_code = c.phone_number_country_code)
+      where c.id = ${input.customerId}::uuid
+      limit 1
+    `;
+    if (!u?.identityUserId) return false;
+
+    await ensureTemplates();
+    await createNotificationFromTemplate({
+      templateKey: "shop.cart.abandoned.customer",
+      locale: "fa",
+      customerId: u.identityUserId,
+      entityType: "shop_cart",
+      entityId: input.cartId,
+      channels: eligibleChannels(u.email, u.phone),
+      emailTo: u.email,
+      phoneTo: u.phone,
+      variables: { itemCount: String(input.itemCount) },
+      fallbackTitle: "LSevin Shop",
+      fallbackBody: "You left items in your cart",
+    });
+    return true;
+  } catch (error) {
+    console.error("notifyCartAbandoned failed", error);
+    return false;
   }
 }

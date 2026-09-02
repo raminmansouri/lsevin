@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { getAdminDashboardSummary, getExceptionQueues } from "@/features/shop/api/admin.repository";
+import { getCartRecoveryStats } from "@/features/shop/server/cart-recovery.service";
+import { runCartRecoveryForm } from "@/features/shop/actions/admin.actions";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +40,7 @@ export default async function AdminShopDashboardPage() {
   const t = await getTranslations("ShopAdmin");
   // One failing query must not blank the whole dashboard — each half degrades
   // independently and `error.tsx` catches anything that still slips through.
-  const [s, exc] = await Promise.all([
+  const [s, exc, recovery] = await Promise.all([
     getAdminDashboardSummary().catch((e) => {
       console.error("[admin/shop] dashboard summary failed:", e);
       return EMPTY_SUMMARY;
@@ -46,6 +48,10 @@ export default async function AdminShopDashboardPage() {
     getExceptionQueues().catch((e) => {
       console.error("[admin/shop] exception queues failed:", e);
       return {} as Record<string, number>;
+    }),
+    getCartRecoveryStats().catch((e) => {
+      console.error("[admin/shop] cart recovery stats failed:", e);
+      return { recoverable: 0, recorded: 0, awaiting_notification: 0, recovered: 0 };
     }),
   ]);
 
@@ -105,6 +111,29 @@ export default async function AdminShopDashboardPage() {
             <div className={`mt-1 text-xl font-bold ${e.value > 0 ? "text-amber-700" : "text-gray-400"}`}>{e.value}</div>
           </Link>
         ))}
+      </div>
+
+      <h2 className="mb-3 mt-8 text-lg font-bold text-gray-900">{t("dashboard.cartRecoveryTitle")}</h2>
+      <div className="flex flex-wrap items-end gap-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+        <div>
+          <div className="text-sm text-gray-500">{t("dashboard.cartRecoverable")}</div>
+          <div className={`mt-1 text-2xl font-bold ${recovery.recoverable > 0 ? "text-amber-600" : "text-gray-900"}`}>{recovery.recoverable}</div>
+        </div>
+        <div>
+          <div className="text-sm text-gray-500">{t("dashboard.cartAwaitingNotification")}</div>
+          <div className="mt-1 text-2xl font-bold text-gray-900">{recovery.awaiting_notification}</div>
+        </div>
+        <div>
+          <div className="text-sm text-gray-500">{t("dashboard.cartRecovered")}</div>
+          <div className="mt-1 text-2xl font-bold text-emerald-700">{recovery.recovered}</div>
+        </div>
+        <form action={runCartRecoveryForm} className="ms-auto flex items-end gap-2">
+          <label className="text-xs text-gray-500">
+            {t("dashboard.idleHoursLabel")}
+            <input name="idleHours" type="number" min={1} max={168} defaultValue={4} className="mt-1 h-9 w-20 rounded border border-gray-300 px-2 text-sm" />
+          </label>
+          <button className="h-9 rounded-lg bg-[#083f30] px-4 text-sm font-semibold text-white">{t("dashboard.runRecovery")}</button>
+        </form>
       </div>
 
       <h2 className="mb-3 mt-8 text-lg font-bold text-gray-900">{t("dashboard.recentOrders")}</h2>

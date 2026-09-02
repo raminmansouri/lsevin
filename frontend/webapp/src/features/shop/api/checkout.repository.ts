@@ -494,6 +494,8 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
       surface: input.sourceSurface ?? "shop_checkout",
     });
     await notifyShopOrderEvent({ orderId: result.orderId, event: "order.placed", locale: ctx.locale });
+    // Close the loop for abandoned-cart reporting (SHP-V03-011).
+    await import("../server/cart-recovery.service").then((m) => m.markCartRecovered(input.cartId)).catch(() => undefined);
   }
   return result;
 }
