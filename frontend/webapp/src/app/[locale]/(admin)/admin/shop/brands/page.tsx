@@ -2,12 +2,11 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { listBrandsAdmin } from "@/features/shop/api/admin.repository";
-import { deleteBrandForm, upsertBrandForm } from "@/features/shop/actions/admin-catalog.actions";
-import { MediaUrlField } from "@/features/shop/components/admin/MediaUrlField";
+import { deleteBrandAction } from "@/features/shop/actions/admin-catalog.actions";
+import { BrandForm } from "@/features/shop/components/admin/BrandForm";
+import { ShopDeleteButton } from "@/features/shop/components/admin/ShopDeleteButton";
 
 export const dynamic = "force-dynamic";
-
-const input = "h-9 w-full rounded border border-gray-300 px-2 text-sm";
 
 export default async function AdminBrandsPage() {
   const t = await getTranslations("ShopAdmin");
@@ -45,10 +44,13 @@ export default async function AdminBrandsPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <form action={deleteBrandForm}>
-                      <input type="hidden" name="id" value={b.id} />
-                      <button className="text-xs text-red-600">{t("brands.archive")}</button>
-                    </form>
+                    <ShopDeleteButton
+                      action={deleteBrandAction.bind(null, { id: b.id })}
+                      title={`${t("brands.archive")} — ${b.name}`}
+                      description={t("brands.title")}
+                      label={t("brands.archive")}
+                      variant="ghost"
+                    />
                   </td>
                 </tr>
               ))}
@@ -57,19 +59,7 @@ export default async function AdminBrandsPage() {
           </table>
         </div>
 
-        <form action={upsertBrandForm} className="space-y-3 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-          <h2 className="text-sm font-bold text-gray-900">{t("brands.add")}</h2>
-          <div className="grid grid-cols-3 gap-2">
-            <label className="text-sm">{t("brands.nameEn")}<input name="name_en" required className={input} /></label>
-            <label className="text-sm">{t("brands.nameFa")}<input name="name_fa" className={input} dir="rtl" /></label>
-            <label className="text-sm">{t("brands.nameAr")}<input name="name_ar" className={input} dir="rtl" /></label>
-          </div>
-          <label className="block text-sm">{t("brands.slug")}<input name="slug" required pattern="[a-z0-9-]+" className={input} /></label>
-          <label className="block text-sm">{t("brands.website")}<input name="websiteUrl" type="url" className={input} /></label>
-          <MediaUrlField name="logoUrl" label={t("brands.logo")} />
-          <label className="flex items-center gap-1 text-sm"><input type="checkbox" name="isActive" defaultChecked /> {t("brands.active")}</label>
-          <button className="rounded-lg bg-[#083f30] px-4 py-2 text-sm font-semibold text-white">{t("brands.save")}</button>
-        </form>
+        <BrandForm />
       </div>
     </div>
   );

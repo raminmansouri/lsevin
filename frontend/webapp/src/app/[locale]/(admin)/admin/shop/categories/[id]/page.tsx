@@ -8,8 +8,9 @@ import {
   listServiceDefinitionsForPicker,
 } from "@/features/shop/api/admin.repository";
 import { CategoryForm } from "@/features/shop/components/admin/CategoryForm";
+import { ShopDeleteButton } from "@/features/shop/components/admin/ShopDeleteButton";
 import {
-  deleteCategoryForm,
+  deleteCategoryAction,
   linkCategoryServiceForm,
   unlinkCategoryServiceForm,
 } from "@/features/shop/actions/admin-catalog.actions";
@@ -39,10 +40,13 @@ export default async function AdminCategoryEditPage({ params }: { params: Promis
       <div className="grid gap-6 lg:grid-cols-[1.3fr,1fr]">
         <div className="space-y-4">
           <CategoryForm category={category} categories={categories} />
-          <form action={deleteCategoryForm}>
-            <input type="hidden" name="id" value={category.id} />
-            <button className="rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-700">{t("categoryEdit.delete")}</button>
-          </form>
+          <ShopDeleteButton
+            action={deleteCategoryAction.bind(null, { id: category.id })}
+            title={`${t("categoryEdit.delete")} — ${category.name_translations?.en || category.slug}`}
+            description={t("categoryEdit.delete")}
+            label={t("categoryEdit.delete")}
+            variant="destructive"
+          />
         </div>
 
         <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">

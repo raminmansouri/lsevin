@@ -2,11 +2,11 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { listCouponsAdmin } from "@/features/shop/api/admin.repository";
-import { deleteCouponForm, upsertCouponForm } from "@/features/shop/actions/admin-catalog.actions";
+import { deleteCouponAction } from "@/features/shop/actions/admin-catalog.actions";
+import { CouponForm } from "@/features/shop/components/admin/CouponForm";
+import { ShopDeleteButton } from "@/features/shop/components/admin/ShopDeleteButton";
 
 export const dynamic = "force-dynamic";
-
-const input = "h-9 w-full rounded border border-gray-300 px-2 text-sm";
 
 export default async function AdminCouponsPage() {
   const t = await getTranslations("ShopAdmin");
@@ -49,11 +49,14 @@ export default async function AdminCouponsPage() {
                       {c.is_active ? t("common.activeShort") : t("common.off")}
                     </span>
                   </td>
-                  <td className="px-3 py-2">
-                    <form action={deleteCouponForm}>
-                      <input type="hidden" name="id" value={c.id} />
-                      <button className="text-xs text-red-600">{t("coupons.disable")}</button>
-                    </form>
+                  <td className="px-3 py-2 text-right">
+                    <ShopDeleteButton
+                      action={deleteCouponAction.bind(null, { id: c.id })}
+                      title={`${t("coupons.disable")} — ${c.code}`}
+                      description={t("coupons.title")}
+                      label={t("coupons.disable")}
+                      variant="ghost"
+                    />
                   </td>
                 </tr>
               ))}
@@ -62,44 +65,7 @@ export default async function AdminCouponsPage() {
           </table>
         </div>
 
-        <form action={upsertCouponForm} className="space-y-2 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-          <h2 className="text-sm font-bold text-gray-900">{t("coupons.new")}</h2>
-          <div className="grid grid-cols-2 gap-2">
-            <label className="text-sm">{t("coupons.code")}<input name="code" required className={input} /></label>
-            <label className="text-sm">{t("coupons.type")}
-              <select name="couponType" className={input}>
-                <option value="percentage">percentage</option>
-                <option value="fixed">fixed</option>
-                <option value="free_shipping">free_shipping</option>
-              </select>
-            </label>
-            <label className="text-sm">{t("coupons.value")}<input name="value" type="number" step="0.01" defaultValue={0} className={input} /></label>
-            <label className="text-sm">{t("coupons.currencyFixedOnly")}<input name="currency" placeholder="USD" className={input} /></label>
-            <label className="text-sm">{t("coupons.minSubtotal")}<input name="minSubtotal" type="number" step="0.01" defaultValue={0} className={input} /></label>
-            <label className="text-sm">{t("coupons.maxDiscount")}<input name="maxDiscountAmount" type="number" step="0.01" className={input} /></label>
-            <label className="text-sm">{t("coupons.usageLimit")}<input name="usageLimit" type="number" className={input} /></label>
-            <label className="text-sm">{t("coupons.perCustomer")}<input name="usagePerCustomer" type="number" className={input} /></label>
-            <label className="text-sm">{t("coupons.scope")}
-              <select name="scope" className={input}>
-                <option value="cart">cart</option>
-                <option value="shipping">shipping</option>
-                <option value="product">product</option>
-                <option value="category">category</option>
-                <option value="brand">brand</option>
-              </select>
-            </label>
-            <label className="text-sm">{t("coupons.startsAt")}<input name="startsAt" type="datetime-local" className={input} /></label>
-            <label className="text-sm">{t("coupons.expiresAt")}<input name="expiresAt" type="datetime-local" className={input} /></label>
-            <label className="mt-5 flex items-center gap-1 text-sm"><input type="checkbox" name="isActive" defaultChecked /> {t("coupons.active")}</label>
-          </div>
-          <div className="grid grid-cols-3 gap-1">
-            <input name="title_en" placeholder={t("coupons.titleEn")} className={input} />
-            <input name="title_fa" placeholder={t("coupons.titleFa")} className={input} dir="rtl" />
-            <input name="title_ar" placeholder={t("coupons.titleAr")} className={input} dir="rtl" />
-          </div>
-          <label className="flex items-center gap-1 text-sm"><input type="checkbox" name="stackable" /> {t("coupons.stackable")}</label>
-          <button className="rounded-lg bg-[#083f30] px-4 py-2 text-sm font-semibold text-white">{t("coupons.save")}</button>
-        </form>
+        <CouponForm />
       </div>
     </div>
   );

@@ -169,6 +169,11 @@ export async function deleteCouponForm(formData: FormData) {
   await deleteCoupon({ id });
   revalidatePath("/admin/shop/coupons");
 }
+export async function deleteCouponAction(input: { id: string }) {
+  await deleteCoupon({ id: shopId.parse(input.id) });
+  revalidatePath("/admin/shop/coupons");
+  return { ok: true as const };
+}
 
 // ======================================================================
 // Attributes (SHP-ADM-007)
@@ -361,6 +366,11 @@ export async function deleteBrandForm(formData: FormData) {
   const id = z.string().parse(formData.get("id"));
   await deleteBrand({ id });
   revalidatePath("/admin/shop/brands");
+}
+export async function deleteBrandAction(input: { id: string }) {
+  await deleteBrand({ id: shopId.parse(input.id) });
+  revalidatePath("/admin/shop/brands");
+  return { ok: true as const };
 }
 
 // ======================================================================
