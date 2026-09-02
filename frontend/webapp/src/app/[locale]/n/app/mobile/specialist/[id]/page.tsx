@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import { getSpecialistPageAction } from "@/features/service-providers/actions/specialist-page";
+import { getSpecialistPageFromDbCached } from "@/features/service-providers/server/specialist-page.repository.cached";
 
 import SpecialistProfileClient from "./specialist-page";
 
@@ -46,7 +46,7 @@ export default async function SpecialistPage({ params, searchParams }: PageProps
 
   const userId = await resolveCurrentUserId();
 
-  const data = await getSpecialistPageAction({
+  const data = await getSpecialistPageFromDbCached({
     specialistId: resolvedParams.id,
     locale: resolvedParams.locale,
     userId,

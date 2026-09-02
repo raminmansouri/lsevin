@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { getUserId } from '@/lib/auth/session';
-import { getServicePageByIdFromDb } from '@/features/service-providers/server/service-page.repository';
+import { getServicePageByIdCached } from '@/features/service-providers/server/service-page.repository.cached';
 
 import ServicePage from './service-page';
 
@@ -41,7 +41,7 @@ export default async function TreatmentDetailPage({ params, searchParams }: Serv
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const userId = await getOptionalUserId();
 
-  const data = await getServicePageByIdFromDb({
+  const data = await getServicePageByIdCached({
     serviceId: id,
     locale,
     userId,
