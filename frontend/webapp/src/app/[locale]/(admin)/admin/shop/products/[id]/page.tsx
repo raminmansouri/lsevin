@@ -11,7 +11,6 @@ import {
 import {
   linkProductServiceForm,
   unlinkProductServiceForm,
-  updateProductCoreForm,
 } from "@/features/shop/actions/admin.actions";
 import {
   deleteVariantForm,
@@ -19,6 +18,7 @@ import {
   setProductAttributeForm,
   upsertVariantForm,
 } from "@/features/shop/actions/admin-catalog.actions";
+import { ProductCoreForm } from "@/features/shop/components/admin/ProductCoreForm";
 import { ProductGalleryEditor } from "@/features/shop/components/admin/ProductGalleryEditor";
 
 export const dynamic = "force-dynamic";
@@ -50,48 +50,23 @@ export default async function AdminProductEditPage({ params }: { params: Promise
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.3fr,1fr]">
-        <form action={updateProductCoreForm} className="space-y-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-          <input type="hidden" name="productId" value={product.id} />
-          <div className="grid grid-cols-3 gap-2">
-            <label className="col-span-1 text-sm">{e("nameEn")}<input name="name_en" defaultValue={nt.en ?? ""} className={input} /></label>
-            <label className="col-span-1 text-sm">{e("nameFa")}<input name="name_fa" defaultValue={nt.fa ?? ""} className={input} dir="rtl" /></label>
-            <label className="col-span-1 text-sm">{e("nameAr")}<input name="name_ar" defaultValue={nt.ar ?? ""} className={input} dir="rtl" /></label>
-            <label className="col-span-1 text-sm">{e("shortDescEn")}<input name="desc_en" defaultValue={dt.en ?? ""} className={input} /></label>
-            <label className="col-span-1 text-sm">{e("shortDescFa")}<input name="desc_fa" defaultValue={dt.fa ?? ""} className={input} dir="rtl" /></label>
-            <label className="col-span-1 text-sm">{e("shortDescAr")}<input name="desc_ar" defaultValue={dt.ar ?? ""} className={input} dir="rtl" /></label>
-          </div>
-          <div className="grid grid-cols-4 gap-2">
-            <label className="text-sm">{e("slug")}<input name="slug" defaultValue={product.slug} className={input} /></label>
-            <label className="text-sm">{e("sourcePrice")}<input name="basePrice" type="number" step="0.01" defaultValue={product.base_price} className={input} /></label>
-            <label className="text-sm">{e("sourceCurrency")}<input name="baseCurrency" defaultValue={product.base_currency} className={input} /></label>
-            <label className="text-sm">{e("status")}
-              <select name="status" defaultValue={product.status} className={input}>
-                <option value="draft">{t("enum.productStatus.draft")}</option>
-                <option value="active">{t("enum.productStatus.active")}</option>
-                <option value="archived">{t("enum.productStatus.archived")}</option>
-              </select>
-            </label>
-          </div>
-          <div>
-            <p className="mb-1 text-sm font-medium">{e("categories")}</p>
-            <div className="flex flex-wrap gap-3">
-              {categories.map((c: any) => (
-                <label key={c.id} className="flex items-center gap-1 rounded border border-gray-200 px-2 py-1 text-sm">
-                  <input type="radio" name="primaryCategoryId" value={c.id} defaultChecked={product.primary_category_id === c.id} />
-                  <input type="checkbox" name="categoryIds" value={c.id} defaultChecked={product.categoryIds.includes(c.id)} />
-                  {c.name}
-                </label>
-              ))}
-            </div>
-          </div>
-          <div className="flex gap-4 text-sm">
-            <label className="flex items-center gap-1"><input type="checkbox" name="isFeatured" defaultChecked={product.is_featured} /> {e("featured")}</label>
-            <label className="flex items-center gap-1"><input type="checkbox" name="isBestSeller" defaultChecked={product.is_best_seller} /> {e("bestSeller")}</label>
-            <label className="flex items-center gap-1"><input type="checkbox" name="isNewArrival" defaultChecked={product.is_new_arrival} /> {e("newArrival")}</label>
-          </div>
-          <button className="rounded-lg bg-[#083f30] px-4 py-2 text-sm font-semibold text-white">{e("saveCore")}</button>
-          <p className="text-xs text-gray-400">{t("products.footnote")}</p>
-        </form>
+        <ProductCoreForm
+          product={{
+            id: product.id,
+            slug: product.slug,
+            status: product.status,
+            base_price: product.base_price,
+            base_currency: product.base_currency,
+            primary_category_id: product.primary_category_id,
+            categoryIds: product.categoryIds,
+            is_featured: product.is_featured,
+            is_best_seller: product.is_best_seller,
+            is_new_arrival: product.is_new_arrival,
+            name_translations: nt,
+            short_description_translations: dt,
+          }}
+          categories={categories.map((c: any) => ({ id: c.id, name: c.name }))}
+        />
 
         <div className="space-y-4">
           <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
