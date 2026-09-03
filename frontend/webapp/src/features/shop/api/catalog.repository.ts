@@ -50,7 +50,7 @@ async function loadWishlistIds(): Promise<Set<string>> {
   return new Set(rows.map((r) => r.id));
 }
 
-async function priceCards(rows: RawProductRow[], displayCurrency: string, wishlistIds?: Set<string>): Promise<ProductCard[]> {
+async function priceCards(rows: RawProductRow[], displayCurrency: string, wishlistIds?: Set<string>, noFx = false): Promise<ProductCard[]> {
   const priced = await resolvePrices(
     rows.map((r) => ({
       ref: r,
@@ -58,7 +58,8 @@ async function priceCards(rows: RawProductRow[], displayCurrency: string, wishli
       sourceCurrency: r.sourceCurrency,
       compareAtAmount: r.sourceCompareAt != null ? Number(r.sourceCompareAt) : null,
     })),
-    displayCurrency
+    displayCurrency,
+    { noFx }
   );
   const maxPriced = await resolvePrices(
     rows.map((r) => ({ ref: r, amount: Number(r.sourceMaxPrice), sourceCurrency: r.sourceCurrency })),
@@ -154,7 +155,7 @@ export async function searchProducts(
   input: unknown,
   // `cookieFree` (with `locale` + `displayCurrency`) keeps this off the request
   // context entirely so the result can be cached / statically rendered.
-  opts?: { locale?: string; displayCurrency?: string; cookieFree?: boolean }
+  opts?: { locale?: string; displayCurrency?: string; cookieFree?: boolean; noFx?: boolean }
 ): Promise<{ items: ProductCard[]; total: number; page: number; pageSize: number }> {
   const filters = productSearchSchema.parse(input ?? {});
   const ctx =
@@ -234,7 +235,7 @@ export async function searchProducts(
 
   const total = rows[0]?.total_count ?? 0;
   const wishlistIds = ctx?.customerId ? await loadWishlistIds() : undefined;
-  const items = await priceCards(rows, displayCurrency, wishlistIds);
+  const items = await priceCards(rows, displayCurrency, wishlistIds, opts?.noFx);
 
   // price sort must run on the resolved comparison currency, not raw source
   // amounts (SHP-CHK-018 / SHP-NFR-017)
@@ -259,7 +260,7 @@ export async function getProductBySlug(
   // When the caller already knows the display currency (e.g. a cached, cookie-free
   // storefront render) it can pass it here plus `skipWishlist` so this function
   // never touches `getShopContext()` and its result becomes safely cacheable.
-  opts?: { displayCurrency?: string; skipWishlist?: boolean },
+  opts?: { displayCurrency?: string; skipWishlist?: boolean; noFx?: boolean },
 ): Promise<ProductDetail | null> {
   const ctx = locale && opts?.displayCurrency ? null : await getShopContext();
   const lang = normalizeLocale(locale ?? ctx!.locale);
@@ -337,7 +338,8 @@ export async function getProductBySlug(
       } as RawProductRow,
     ],
     displayCurrency,
-    opts?.skipWishlist ? undefined : await loadWishlistIds()
+    opts?.skipWishlist ? undefined : await loadWishlistIds(),
+    opts?.noFx
   );
 
   const [gallery, categories, variantRows, attrRows, reviews, serviceLinks, questions] = await Promise.all([
@@ -388,6 +390,7 @@ export async function getProductBySlug(
   const variants = await Promise.all(
     variantRows.map(async (v) => {
       const pr = await resolvePrice({
+        noFx: opts?.noFx,
         amount: Number(v.price),
         sourceCurrency: v.sourceCurrency,
         compareAtAmount: v.compareAtPrice != null ? Number(v.compareAtPrice) : null,
@@ -413,7 +416,7 @@ export async function getProductBySlug(
 
   const related = await searchProducts(
     { category: categories[0]?.slug, sort: "popularity", page: 1, pageSize: 8 },
-    { locale: lang, displayCurrency, cookieFree: ctx === null }
+    { locale: lang, displayCurrency, cookieFree: ctx === null, noFx: opts?.noFx }
   );
 
   const preorderLimit = row.preorderLimit == null ? null : Number(row.preorderLimit);

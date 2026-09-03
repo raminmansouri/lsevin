@@ -2,15 +2,12 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
-import {
-  getProductBySlugCached,
-  getShopDefaultCurrencyCached,
-} from "@/features/shop/api/catalog.repository.cached";
+import { getProductBySlugCached } from "@/features/shop/api/catalog.repository.cached";
 import { listActiveProductSlugs } from "@/features/shop/api/catalog.repository";
 import { ShopHeader } from "@/features/shop/components/ShopHeader";
 import { ProductDetailClient } from "@/features/shop/components/ProductDetailClient";
 import { ProductGrid } from "@/features/shop/components/home-sections";
-import { formatShopMoney } from "@/features/shop/components/money";
+import { ShopPrice } from "@/features/shop/components/ShopPrice";
 import { WishlistHeart } from "@/features/shop/components/WishlistHeart";
 import { getProductsForService } from "@/features/shop/api/service-relations.repository";
 import { CompareButton } from "@/features/shop/components/CompareButton";
@@ -48,13 +45,12 @@ export default async function ProductDetailPage({
   setRequestLocale(locale);
   const t = await getTranslations("Shop");
 
-  const currency = await getShopDefaultCurrencyCached().catch(() => "USD");
-  const product = await getProductBySlugCached(slug, locale, currency);
+  const product = await getProductBySlugCached(slug, locale);
   if (!product) notFound();
 
   const primaryServiceId = product.relatedServices[0]?.serviceDefinitionId ?? null;
   const serviceRelated = primaryServiceId
-    ? await getProductsForService(primaryServiceId, { limit: 16, locale, displayCurrency: currency })
+    ? await getProductsForService(primaryServiceId, { limit: 16, locale, displayCurrency: "USD", noFx: true })
     : null;
   const serviceRelatedCount =
     serviceRelated?.byRelation.reduce((n, g) => n + g.products.length, 0) ?? 0;
@@ -94,13 +90,19 @@ export default async function ProductDetailPage({
               <span className="text-xl font-bold text-neutral-500">{t("priceUnavailable")}</span>
             ) : (
               <>
-                <span className="text-2xl font-extrabold text-[#e02e2a]">
-                  {formatShopMoney(product.price, product.currency, locale)}
-                </span>
+                <ShopPrice
+                  amount={product.price}
+                  currency={product.currency}
+                  locale={locale}
+                  className="text-2xl font-extrabold text-[#e02e2a]"
+                />
                 {product.compareAtPrice ? (
-                  <span className="text-sm text-neutral-400 line-through">
-                    {formatShopMoney(product.compareAtPrice, product.currency, locale)}
-                  </span>
+                  <ShopPrice
+                    amount={product.compareAtPrice}
+                    currency={product.currency}
+                    locale={locale}
+                    className="text-sm font-normal text-neutral-400 line-through"
+                  />
                 ) : null}
                 {product.discountPercent ? (
                   <span className="rounded bg-[#e02e2a]/10 px-1.5 py-0.5 text-xs font-bold text-[#e02e2a]">

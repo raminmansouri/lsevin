@@ -129,9 +129,14 @@ function sameCurrency(a: string, b: string) {
   return normalizeCurrencyCode(a) === normalizeCurrencyCode(b);
 }
 
-async function convertOne(amount: number, source: string, target: string): Promise<MoneyView> {
+async function convertOne(amount: number, source: string, target: string, noFx = false): Promise<MoneyView> {
   const src = normalizeCurrencyCode(source);
-  const tgt = normalizeCurrencyCode(target);
+  const tgt = noFx ? src : normalizeCurrencyCode(target);
+  if (noFx) {
+    // Currency-agnostic render (a statically generated page): keep every amount
+    // in its own stored currency; the client converts to the visitor's choice.
+    return { amount: roundMoney(amount ?? 0, src), currency: src, sourceAmount: amount ?? 0, sourceCurrency: src, appliedRate: 1, converted: false, unavailable: false };
+  }
   if (amount == null || Number.isNaN(amount)) {
     return { amount: 0, currency: tgt, sourceAmount: 0, sourceCurrency: src, appliedRate: 1, converted: false, unavailable: false };
   }
@@ -172,11 +177,12 @@ export async function resolvePrice(input: {
   sourceCurrency: string;
   compareAtAmount?: number | null;
   displayCurrency: string;
+  noFx?: boolean;
 }): Promise<PriceResolution> {
-  const price = await convertOne(input.amount, input.sourceCurrency, input.displayCurrency);
+  const price = await convertOne(input.amount, input.sourceCurrency, input.displayCurrency, input.noFx);
   const compareAtPrice =
     input.compareAtAmount && input.compareAtAmount > 0
-      ? await convertOne(input.compareAtAmount, input.sourceCurrency, input.displayCurrency)
+      ? await convertOne(input.compareAtAmount, input.sourceCurrency, input.displayCurrency, input.noFx)
       : null;
   return { price, compareAtPrice };
 }
@@ -189,9 +195,11 @@ export async function resolvePrice(input: {
  */
 export async function resolvePrices<T extends { amount: number; sourceCurrency: string; compareAtAmount?: number | null }>(
   rows: T[],
-  displayCurrency: string
+  displayCurrency: string,
+  opts?: { noFx?: boolean }
 ): Promise<(T & PriceResolution)[]> {
   const tgt = normalizeCurrencyCode(displayCurrency);
+  const noFx = Boolean(opts?.noFx);
   const rateBySource = new Map<string, { rate: number; unavailable: boolean }>();
 
   for (const src of new Set(rows.map((r) => normalizeCurrencyCode(r.sourceCurrency)))) {
@@ -213,6 +221,9 @@ export async function resolvePrices<T extends { amount: number; sourceCurrency: 
 
   const view = (amount: number, src: string): MoneyView => {
     const norm = normalizeCurrencyCode(src);
+    if (noFx) {
+      return { amount: roundMoney(amount, norm), currency: norm, sourceAmount: amount, sourceCurrency: norm, appliedRate: 1, converted: false, unavailable: false };
+    }
     const info = rateBySource.get(norm) ?? { rate: 0, unavailable: true };
     if (info.unavailable) {
       // No rate norm -> tgt: show the exact amount in its own source currency

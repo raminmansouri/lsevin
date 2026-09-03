@@ -44,7 +44,7 @@ const RELATION_ORDER: ServiceRelationType[] = [
 
 export async function getProductsForService(
   serviceDefinitionId: string,
-  opts?: { relationType?: ServiceRelationType; limit?: number; locale?: string; displayCurrency?: string },
+  opts?: { relationType?: ServiceRelationType; limit?: number; locale?: string; displayCurrency?: string; noFx?: boolean },
 ): Promise<ServiceRelatedProducts> {
   // Skip the cookie read entirely when the caller supplies locale + currency
   // (a cached, statically-rendered storefront surface).
@@ -76,7 +76,7 @@ export async function getProductsForService(
   const slugs = Array.from(new Set(links.map((l) => l.slug)));
   const { items } = await searchProducts(
     { slugs, page: 1, pageSize: limit },
-    { locale: lang, displayCurrency, cookieFree: ctx === null },
+    { locale: lang, displayCurrency, cookieFree: ctx === null, noFx: opts?.noFx },
   );
   const bySlug = new Map(items.map((p) => [p.slug, p]));
 
@@ -115,7 +115,7 @@ export async function getProductsForService(
  */
 export async function getProductsForServices(
   serviceDefinitionIds: string[],
-  opts?: { limit?: number; locale?: string; displayCurrency?: string },
+  opts?: { limit?: number; locale?: string; displayCurrency?: string; noFx?: boolean },
 ): Promise<{ byRelation: Array<{ relationType: ServiceRelationType; products: ProductCard[] }>; flat: ProductCard[] }> {
   const ids = Array.from(new Set((serviceDefinitionIds ?? []).filter((v) => /^[0-9a-fA-F-]{36}$/.test(v))));
   if (!ids.length) return { byRelation: [], flat: [] };
@@ -140,7 +140,7 @@ export async function getProductsForServices(
   const slugs = Array.from(new Set(links.map((l) => l.slug)));
   const { items } = await searchProducts(
     { slugs, page: 1, pageSize: limit },
-    { locale: lang, displayCurrency, cookieFree: ctx === null },
+    { locale: lang, displayCurrency, cookieFree: ctx === null, noFx: opts?.noFx },
   );
   const bySlug = new Map(items.map((p) => [p.slug, p]));
 
@@ -165,7 +165,7 @@ export async function getProductsForServices(
 /** Products recommended around every service a provider offers (SHP-V02-007). */
 export async function getProductsForProvider(
   serviceProviderId: string,
-  opts?: { limit?: number; locale?: string; displayCurrency?: string },
+  opts?: { limit?: number; locale?: string; displayCurrency?: string; noFx?: boolean },
 ) {
   if (!/^[0-9a-fA-F-]{36}$/.test(serviceProviderId)) return { byRelation: [], flat: [] };
   const rows = await sql<{ id: string }[]>`
@@ -179,7 +179,7 @@ export async function getProductsForProvider(
 /** Products recommended around every service a staff member (doctor) offers. */
 export async function getProductsForStaff(
   staffId: string,
-  opts?: { limit?: number; locale?: string; displayCurrency?: string },
+  opts?: { limit?: number; locale?: string; displayCurrency?: string; noFx?: boolean },
 ) {
   if (!/^[0-9a-fA-F-]{36}$/.test(staffId)) return { byRelation: [], flat: [] };
   const rows = await sql<{ id: string }[]>`
@@ -193,7 +193,7 @@ export async function getProductsForStaff(
 /** Curated product discovery from a Shop-category ↔ service link (SHP-V02-009). */
 export async function getProductsForServiceViaCategory(
   serviceDefinitionId: string,
-  opts?: { limit?: number; locale?: string; displayCurrency?: string },
+  opts?: { limit?: number; locale?: string; displayCurrency?: string; noFx?: boolean },
 ): Promise<ProductCard[]> {
   const ctx = opts?.locale && opts?.displayCurrency ? null : await getShopContext();
   const lang = normalizeLocale(opts?.locale ?? ctx!.locale);
@@ -212,7 +212,7 @@ export async function getProductsForServiceViaCategory(
   if (!rows.length) return [];
   const { items } = await searchProducts(
     { slugs: rows.map((r) => r.slug), page: 1, pageSize: limit },
-    { locale: lang, displayCurrency, cookieFree: ctx === null },
+    { locale: lang, displayCurrency, cookieFree: ctx === null, noFx: opts?.noFx },
   );
   return items;
 }

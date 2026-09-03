@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
-import { setDisplayCurrencyAction } from "../actions/currency.actions";
+import { useShopCurrency } from "./ShopCurrencyProvider";
 
 export function CurrencySwitcher({
   current,
@@ -17,9 +17,12 @@ export function CurrencySwitcher({
 }) {
   const t = useTranslations("Shop");
   const [open, setOpen] = useState(false);
-  const [pending, startTransition] = useTransition();
+  const { currency: activeCurrency, setCurrency } = useShopCurrency();
 
   if (!options.length) return null;
+
+  // `current` is the server-rendered default; the live choice comes from context.
+  const shown = activeCurrency || current;
 
   return (
     <div className={cn("relative", className)}>
@@ -30,7 +33,7 @@ export function CurrencySwitcher({
         aria-expanded={open}
         className="flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur"
       >
-        {current}
+        {shown}
         <span className="text-[9px] opacity-80">▼</span>
       </button>
       {open ? (
@@ -41,16 +44,13 @@ export function CurrencySwitcher({
               <button
                 key={o.code}
                 type="button"
-                disabled={pending}
-                onClick={() =>
-                  startTransition(async () => {
-                    await setDisplayCurrencyAction({ currency: o.code });
-                    setOpen(false);
-                  })
-                }
+                onClick={() => {
+                  setCurrency(o.code);
+                  setOpen(false);
+                }}
                 className={cn(
                   "flex w-full items-center justify-between rounded-lg px-3 py-2 text-start text-sm text-neutral-700 hover:bg-neutral-50",
-                  o.code === current && "font-bold text-[#083f30]"
+                  o.code === shown && "font-bold text-[#083f30]"
                 )}
               >
                 <span>

@@ -60,10 +60,11 @@ export async function getShopBrandsCached(
 }
 
 /**
- * Cached, cookie-free product detail for the storefront PDP. Rendered in the
- * shop default currency and with no wishlist state, so the page can be statically
- * generated / ISR'd; the per-visitor bits (wishlist heart, cart badge, recently
- * viewed, review eligibility) hydrate as client islands.
+ * Cached, currency-agnostic product detail for the storefront PDP. Prices come
+ * back in each item's own stored currency (`noFx`), so the page is genuinely
+ * static / prerenderable per (slug, locale); the visitor's display currency is
+ * applied on the client by `<ShopPrice>`. Wishlist / cart / compare / review
+ * eligibility hydrate as client islands.
  *
  * Tags: `shop-product` (all) + `shop-product:<slug>` — revalidate from the
  * product admin mutations.
@@ -71,12 +72,11 @@ export async function getShopBrandsCached(
 export async function getProductBySlugCached(
   slug: string,
   locale: string,
-  displayCurrency: string,
 ): Promise<ProductDetail | null> {
   "use cache";
   cacheTag("shop-product");
   cacheTag(`shop-product:${slug}`);
   cacheLife("default");
 
-  return getProductBySlug(slug, locale, { displayCurrency, skipWishlist: true });
+  return getProductBySlug(slug, locale, { noFx: true, skipWishlist: true });
 }

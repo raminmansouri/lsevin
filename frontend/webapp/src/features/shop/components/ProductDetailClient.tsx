@@ -7,7 +7,7 @@ import { useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 import { addToCartAction } from "../actions/cart.actions";
-import { formatShopMoney } from "./money";
+import { ShopPrice } from "./ShopPrice";
 import type { ProductDetail } from "../types/domain";
 
 export function ProductDetailClient({ product, locale }: { product: ProductDetail; locale: string }) {
@@ -124,9 +124,12 @@ export function ProductDetailClient({ product, locale }: { product: ProductDetai
             {priceUnavailable ? (
               <span className="text-sm font-bold text-neutral-500">{t("priceUnavailable")}</span>
             ) : (
-              <span className="text-lg font-extrabold text-[#e02e2a]">
-                {formatShopMoney(price * qty, currency, locale)}
-              </span>
+              <ShopPrice
+                amount={price * qty}
+                currency={currency}
+                locale={locale}
+                className="text-lg font-extrabold text-[#e02e2a]"
+              />
             )}
           </div>
           <button

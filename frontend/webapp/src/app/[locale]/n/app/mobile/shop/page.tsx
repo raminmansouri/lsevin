@@ -10,10 +10,10 @@ import { searchProducts } from "@/features/shop/api/catalog.repository";
 import { RecentlyViewedRail } from "@/features/shop/components/RecentlyViewedRail";
 
 /**
- * Static / ISR: rendered in the shop's default display currency (the majority
- * case under `market_default`; a currency the visitor picked still applies at
- * cart / checkout, which stay dynamic). Cart badge and recently-viewed are
- * client islands. Every read is cookie-free and cached.
+ * Fully static / ISR. Prices come off the server in their own stored currency
+ * (`noFx`); `<ShopPrice>` inside every card converts to the visitor's chosen
+ * currency on the client (`ShopCurrencyProvider` in `shop/layout`). Cart badge
+ * and recently-viewed are client islands. Every read is cookie-free and cached.
  */
 export const dynamic = "force-static";
 export const revalidate = 3600;
@@ -28,7 +28,7 @@ export default async function ShopHomePage({ params }: { params: Promise<{ local
   const home = await getShopHomeCached(locale, displayCurrency);
   const feed = await searchProducts(
     { sort: "popularity", page: 1, pageSize: 20 },
-    { locale, displayCurrency: home.currency, cookieFree: true },
+    { locale, displayCurrency: home.currency, cookieFree: true, noFx: true },
   );
 
   return (

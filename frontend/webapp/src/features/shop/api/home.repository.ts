@@ -49,6 +49,8 @@ export async function getShopHome(opts?: {
   // per (locale, currency); omit it to fall back to the market default.
   displayCurrency?: string;
   cookieFree?: boolean;
+  /** Prices come back in their own stored currency; the client converts. */
+  noFx?: boolean;
 }): Promise<ShopHome> {
   const cookieFree = Boolean(opts?.cookieFree && opts?.locale);
   const ctx = cookieFree ? null : await getShopContext();
@@ -151,7 +153,7 @@ export async function getShopHome(opts?: {
         default:
           filters.sort = "popularity";
       }
-      let { items } = await searchProducts(filters, { locale: lang, displayCurrency: currency, cookieFree });
+      let { items } = await searchProducts(filters, { locale: lang, displayCurrency: currency, cookieFree, noFx: opts?.noFx });
       if (row.query_source === "discounted") items = items.filter((p) => p.hasDiscount);
       if (items.length) {
         sections.push({

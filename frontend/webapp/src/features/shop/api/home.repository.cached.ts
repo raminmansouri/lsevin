@@ -22,5 +22,5 @@ export async function getShopHomeCached(locale: string, displayCurrency: string)
   cacheTag("shop-home");
   cacheLife("default");
 
-  return getShopHome({ locale, displayCurrency, cookieFree: true });
+  return getShopHome({ locale, displayCurrency, cookieFree: true, noFx: true });
 }

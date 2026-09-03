@@ -3,7 +3,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import type { ProductCard as ProductCardModel } from "../types/domain";
-import { formatShopMoney } from "./money";
+import { ShopPrice } from "./ShopPrice";
 import { shopImageSrc } from "../lib/image";
 import { WishlistHeart } from "./WishlistHeart";
 
@@ -98,13 +98,19 @@ export function ProductCard({
               {ranged ? (
                 <span className="text-[11px] font-medium text-[#e02e2a]">{labels.from}</span>
               ) : null}
-              <span className="text-[15px] font-extrabold text-[#e02e2a]">
-                {formatShopMoney(product.price, product.currency, locale)}
-              </span>
+              <ShopPrice
+                amount={product.price}
+                currency={product.currency}
+                locale={locale}
+                className="text-[15px] font-extrabold text-[#e02e2a]"
+              />
               {product.compareAtPrice ? (
-                <span className="text-[11px] text-neutral-400 line-through">
-                  {formatShopMoney(product.compareAtPrice, product.currency, locale)}
-                </span>
+                <ShopPrice
+                  amount={product.compareAtPrice}
+                  currency={product.currency}
+                  locale={locale}
+                  className="text-[11px] font-normal text-neutral-400 line-through"
+                />
               ) : null}
             </>
           )}
