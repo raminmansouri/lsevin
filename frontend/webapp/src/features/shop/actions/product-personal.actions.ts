@@ -47,6 +47,19 @@ export async function getProductPersonalStateAction(input: {
   };
 }
 
+/** Generic commerce view-event beacon for cookie-free (ISR) storefront pages. */
+export async function trackShopViewAction(input: {
+  categoryId?: string;
+  productId?: string;
+  surface: string;
+}): Promise<void> {
+  await emitCommerceEvent("shop_product_view", {
+    categoryId: input.categoryId,
+    productId: input.productId,
+    surface: input.surface,
+  }).catch(() => {});
+}
+
 /** Recently-viewed rail for a statically-rendered surface (shop home). */
 export async function getRecentlyViewedAction(input?: {
   excludeSlug?: string;

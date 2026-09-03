@@ -19,6 +19,7 @@ export async function ProductListView({
   fixed,
   heading,
   brands,
+  displayCurrency,
 }: {
   locale: string;
   basePath: string;
@@ -27,6 +28,9 @@ export async function ProductListView({
   heading?: string;
   /** Brand facet for the filter bar (SHP-V02-005). Omit to hide the brand row. */
   brands?: Array<{ slug: string; name: string; productCount: number }>;
+  /** When set, the product query runs cookie-free in this currency (so a
+   *  parent page need not read `getShopContext()`). */
+  displayCurrency?: string;
 }) {
   const t = await getTranslations("Shop");
 
@@ -41,19 +45,22 @@ export async function ProductListView({
   const maxPrice = Number(one(searchParams.maxPrice) ?? "0") || 0;
 
   const pageSize = 24;
-  const { items, total } = await searchProducts({
-    q,
-    category: fixed?.category,
-    brand,
-    sort,
-    page,
-    pageSize,
-    inStockOnly,
-    discountedOnly,
-    minRating,
-    minPrice,
-    maxPrice,
-  });
+  const { items, total } = await searchProducts(
+    {
+      q,
+      category: fixed?.category,
+      brand,
+      sort,
+      page,
+      pageSize,
+      inStockOnly,
+      discountedOnly,
+      minRating,
+      minPrice,
+      maxPrice,
+    },
+    displayCurrency ? { locale, displayCurrency, cookieFree: true } : undefined
+  );
 
   // Current filter state, so every generated link keeps the other filters intact
   // and only patches what the control changes.

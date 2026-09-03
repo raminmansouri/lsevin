@@ -6,7 +6,7 @@ import {
 } from "next/cache";
 
 import type { ProductDetail, ShopCategory } from "../types/domain";
-import { getProductBySlug, getShopCategories } from "./catalog.repository";
+import { getProductBySlug, getShopBrands, getShopCategories } from "./catalog.repository";
 import { getShopDefaultCurrency } from "../lib/pricing";
 
 /**
@@ -41,6 +41,22 @@ export async function getShopDefaultCurrencyCached(): Promise<string> {
   cacheLife("default");
 
   return getShopDefaultCurrency();
+}
+
+/**
+ * Brand facet for a category / search filter bar. Cookie-free (pass `locale`);
+ * changes only with the catalogue. Tag: `shop-categories` (brands move with
+ * the same admin edits).
+ */
+export async function getShopBrandsCached(
+  locale: string,
+  categorySlug?: string,
+): Promise<Array<{ slug: string; name: string; productCount: number }>> {
+  "use cache";
+  cacheTag("shop-categories");
+  cacheLife("default");
+
+  return getShopBrands(locale, categorySlug);
 }
 
 /**
