@@ -291,6 +291,22 @@ async function assertLineInCart(cartItemId: string): Promise<string> {
       and (
         (${ctx.customerId}::uuid is not null and c.customer_id = ${ctx.customerId}::uuid)
         or (${ctx.guestToken} <> '' and c.guest_token = ${ctx.guestToken})
+        -- Signed-in visitor whose cart was adopted (guest_token nulled) under a
+        -- customer row that this request resolved differently or not at all:
+        -- accept it if the cart's customer row is this identity's, by id or email.
+        or (
+          c.customer_id is not null
+          and (
+            (${ctx.userId}::uuid is not null and c.customer_id = ${ctx.userId}::uuid)
+            or (
+              ${ctx.email ?? ""} <> ''
+              and exists (
+                select 1 from customer.customers cust
+                where cust.id = c.customer_id and lower(cust.email) = ${ctx.email ?? ""}
+              )
+            )
+          )
+        )
       )
     limit 1
   `;

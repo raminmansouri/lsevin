@@ -100,9 +100,9 @@ export const resolveShopCustomerId = cache(async (userId?: string | null): Promi
   if (matched[0]?.id) return matched[0].id;
 
   // No customer row for this signed-in identity — the shop needs one (wishlist,
-  // addresses, orders all FK it). Provision it from the identity user, keyed by
-  // the same id so `exact` hits on the next request. Best-effort: a failure here
-  // must not turn a signed-in user into a guest for the whole request.
+  // addresses, orders, carts all FK it). Provision it from the identity user,
+  // keyed by the same id so `exact` hits next time. Best-effort: a failure here
+  // must not turn a signed-in user into a guest for the request.
   try {
     const [created] = await sql<{ id: string }[]>`
       insert into customer.customers (
@@ -121,12 +121,43 @@ export const resolveShopCustomerId = cache(async (userId?: string | null): Promi
       returning id::text as id
     `;
     if (created?.id) return created.id;
-    // conflict -> row now exists (race); read it back
-    const [again] = await sql<{ id: string }[]>`select id::text as id from customer.customers where id = ${raw}::uuid limit 1`;
-    return again?.id || null;
   } catch {
-    return null;
+    // The insert hit `customer.customers`' unique index on email or on
+    // (phone_number, phone_number_country_code): this person already has a
+    // customer row under a *different* id. Fall through and resolve to it — the
+    // key requirement is that this function is deterministic, otherwise a cart
+    // adopted under one id is unreachable from a request that resolved another.
   }
+
+  // Deterministic re-resolution: by id, then by the identity user's literal
+  // email / phone (not the join above, which can miss on whitespace / casing /
+  // null e-mail). Whatever this returns, it must be the same every call.
+  const [again] = await sql<{ id: string }[]>`
+    select id::text as id from customer.customers where id = ${raw}::uuid limit 1
+  `;
+  if (again?.id) return again.id;
+
+  const [u] = await sql<{ email: string | null; phone_number: string | null; phone_number_country_code: string | null }[]>`
+    select nullif(email, '') as email,
+           nullif(phone_number, '') as phone_number,
+           nullif(phone_number_country_code, '') as phone_number_country_code
+    from identity.asp_net_users where id = ${raw}::uuid limit 1
+  `;
+  if (u?.email) {
+    const [byEmail] = await sql<{ id: string }[]>`
+      select id::text as id from customer.customers where lower(email) = lower(${u.email}) limit 1
+    `;
+    if (byEmail?.id) return byEmail.id;
+  }
+  if (u?.phone_number && u?.phone_number_country_code) {
+    const [byPhone] = await sql<{ id: string }[]>`
+      select id::text as id from customer.customers
+      where phone_number = ${u.phone_number} and phone_number_country_code = ${u.phone_number_country_code}
+      limit 1
+    `;
+    if (byPhone?.id) return byPhone.id;
+  }
+  return null;
 });
 
 async function resolveCountryCode(userId: string | null, customerId: string | null): Promise<string | null> {
