@@ -43,6 +43,7 @@ function numberValue(value: unknown): number {
 export async function getSponsoredSlides(locale?: string | null, limit = 8): Promise<SponsoredSlide[]> {
   const normalizedLocale = normalizeLocale(locale);
 
+  try {
   const rows = await sql<{
     id: string;
     link: string | null;
@@ -89,4 +90,12 @@ export async function getSponsoredSlides(locale?: string | null, limit = 8): Pro
     buttonLabel: row.buttonLabel,
     displayOrder: numberValue(row.displayOrder),
   }));
+  } catch (error) {
+    // The carousel is decorative — a missing table or an unreachable DB (e.g.
+    // during `next build` prerender) must never abort the home page render.
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('[home] getSponsoredSlides failed; returning no slides.', error);
+    }
+    return [];
+  }
 }
