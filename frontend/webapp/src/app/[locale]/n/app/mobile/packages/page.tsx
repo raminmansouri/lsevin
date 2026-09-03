@@ -4,7 +4,6 @@ import { ChevronLeft, Sparkles } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import { Link } from '@/i18n/navigation';
 import type { PageProps } from '@/types/next';
-import { homeSearchParamsCache } from '@/features/home/types';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { SafePriceText } from '@/features/home/components/safe-price-text';
 import {
@@ -12,20 +11,20 @@ import {
   type SpecialPackagePublicItem,
 } from '@/features/special-packages/server/repository';
 
-export const dynamic = "force-dynamic";
+// Static / ISR — the package list is the same for every visitor of a locale.
+export const dynamic = 'force-static';
+export const revalidate = 3600;
 
 async function getLocaleFromParams(params: PageProps['params']) {
   const resolved = await params;
   return String((resolved as { locale?: string } | undefined)?.locale || 'fa-IR');
 }
 
-export default async function SpecialPackagesPage({ params, searchParams }: PageProps) {
+export default async function SpecialPackagesPage({ params }: PageProps) {
   const locale = await getLocaleFromParams(params);
   const t = await getTranslations({ locale, namespace: 'Home' });
-  const searchParamsData = await searchParams;
-  const { countryCode } = homeSearchParamsCache.parse(searchParamsData);
 
-  const packages = await getActiveSpecialPackages(locale);
+  const packages = await getActiveSpecialPackages(locale).catch(() => []);
 
   return (
     <div className="min-h-screen bg-white pb-24">
@@ -62,7 +61,7 @@ export default async function SpecialPackagesPage({ params, searchParams }: Page
                 key={pkg.id}
                 pkg={pkg}
                 locale={locale}
-                selectedCountryCode={countryCode}
+                selectedCountryCode={null}
               />
             ))}
           </div>

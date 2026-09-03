@@ -7,7 +7,7 @@ import {
 
 import type { ProductDetail, ShopCategory } from "../types/domain";
 import { getProductBySlug, getShopBrands, getShopCategories } from "./catalog.repository";
-import { getShopDefaultCurrency } from "../lib/pricing";
+import { getDisplayCurrencyOptions, getShopDefaultCurrency, getShopPricingMode } from "../lib/pricing";
 
 /**
  * Cached view of {@link getShopCategories}. The category tree (with its
@@ -41,6 +41,22 @@ export async function getShopDefaultCurrencyCached(): Promise<string> {
   cacheLife("default");
 
   return getShopDefaultCurrency();
+}
+
+/**
+ * Selectable display currencies for the header switcher — empty unless the
+ * shop runs `market_default_with_selector`. Settings-only, cached.
+ */
+export async function getShopCurrencyOptionsCached(): Promise<
+  Array<{ code: string; symbol: string; name: string }>
+> {
+  "use cache";
+  cacheTag("shop-settings");
+  cacheLife("default");
+
+  const [mode, options] = await Promise.all([getShopPricingMode(), getDisplayCurrencyOptions()]);
+  if (mode !== "market_default_with_selector") return [];
+  return options.map((o) => ({ code: o.code, symbol: o.symbol, name: o.name }));
 }
 
 /**

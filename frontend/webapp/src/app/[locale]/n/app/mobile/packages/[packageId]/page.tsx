@@ -5,25 +5,29 @@ import { notFound } from 'next/navigation';
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import { Link } from '@/i18n/navigation';
 import type { PageProps } from '@/types/next';
-import { homeSearchParamsCache } from '@/features/home/types';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { SafePriceText } from '@/features/home/components/safe-price-text';
-import { getSpecialPackageById } from '@/features/special-packages/server/repository';
+import { getSpecialPackageById, listActiveSpecialPackageIds } from '@/features/special-packages/server/repository';
 
-export const dynamic = "force-dynamic";
+// Static / ISR.
+export const dynamic = 'force-static';
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const ids = await listActiveSpecialPackageIds(300);
+  return ids.map((packageId) => ({ packageId }));
+}
 
 async function getLocaleFromParams(params: PageProps['params']) {
   const resolved = await params;
   return String((resolved as { locale?: string } | undefined)?.locale || 'fa-IR');
 }
 
-export default async function SpecialPackageDetailPage({ params, searchParams }: PageProps) {
+export default async function SpecialPackageDetailPage({ params }: PageProps) {
   const locale = await getLocaleFromParams(params);
   const resolvedParams = (await params) as { packageId?: string } | undefined;
   const packageId = String(resolvedParams?.packageId || '');
   const t = await getTranslations({ locale, namespace: 'Home' });
-  const searchParamsData = await searchParams;
-  const { countryCode } = homeSearchParamsCache.parse(searchParamsData);
 
   const pkg = await getSpecialPackageById(locale, packageId);
   if (!pkg) notFound();
@@ -66,7 +70,7 @@ export default async function SpecialPackageDetailPage({ params, searchParams }:
                 <SafePriceText
                   amount={pkg.originalPriceAmount}
                   sourceCurrencyCode={pkg.currencyCode}
-                  selectedCountryCode={countryCode}
+                  selectedCountryCode={null}
                   locale={locale}
                   className="text-sm text-gray-400 line-through"
                 />
@@ -74,7 +78,7 @@ export default async function SpecialPackageDetailPage({ params, searchParams }:
               <SafePriceText
                 amount={pkg.priceAmount}
                 sourceCurrencyCode={pkg.currencyCode}
-                selectedCountryCode={countryCode}
+                selectedCountryCode={null}
                 locale={locale}
                 className="text-2xl font-bold text-[#083f30]"
                 showSourceWhenConverted

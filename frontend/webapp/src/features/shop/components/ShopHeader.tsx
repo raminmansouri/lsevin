@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
 
+import { getShopCurrencyOptionsCached } from "../api/catalog.repository.cached";
 import { SearchBar } from "./SearchBar";
 import { CurrencySwitcher } from "./CurrencySwitcher";
 import { ShopCartCountBadge } from "./ShopCartCountBadge";
@@ -29,6 +30,11 @@ export async function ShopHeader({
   back?: string;
 }) {
   const t = await getTranslations("Shop");
+  // Fetch the switcher options when the page didn't supply them (static pages),
+  // so every shop surface has a working currency switch.
+  const options = selectableCurrencies.length
+    ? selectableCurrencies
+    : await getShopCurrencyOptionsCached().catch(() => []);
 
   return (
     <header className="sticky top-0 z-30 overflow-x-clip bg-gradient-to-b from-[#083f30] to-[#0a5a44] px-2.5 pb-3 pt-[max(0.6rem,env(safe-area-inset-top))]">
@@ -45,9 +51,9 @@ export async function ShopHeader({
 
         <SearchBar defaultValue={searchDefault} />
 
-        {currency && selectableCurrencies.length > 0 ? (
+        {options.length > 0 ? (
           <div className="shrink-0">
-            <CurrencySwitcher current={currency} options={selectableCurrencies} />
+            <CurrencySwitcher current={currency ?? options[0].code} options={options} />
           </div>
         ) : currency ? (
           <span className="shrink-0 rounded-full bg-white/15 px-2 py-1 text-[11px] font-semibold text-white">{currency}</span>

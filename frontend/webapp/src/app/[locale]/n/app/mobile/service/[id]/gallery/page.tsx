@@ -6,9 +6,23 @@ import { ArrowLeft, ArrowRight, Image as ImageIcon, PlayCircle } from "lucide-re
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { LexicalDescription } from "@/features/service-providers/components/lexical-description";
 import { env } from "@/config/env/server";
-import { getServicePageByIdFromDb } from "@/features/service-providers/server/service-page.repository";
+import {
+  getServicePageByIdFromDb,
+  listActiveServicePageIds,
+} from "@/features/service-providers/server/service-page.repository";
 
-export const dynamic = "force-dynamic";
+// Static / ISR — a service's photo gallery has no visitor-specific content.
+export const dynamic = "force-static";
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  try {
+    const ids = await listActiveServicePageIds(400);
+    return ids.map((id) => ({ id }));
+  } catch {
+    return [];
+  }
+}
 
 type ServiceGalleryRouteParams = {
   locale: string;

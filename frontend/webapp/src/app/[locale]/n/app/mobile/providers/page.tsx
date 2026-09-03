@@ -5,10 +5,11 @@ import { Suspense } from 'react';
 import HomeTrustedProvidersSuspenseBoundary from '../home/components/trusted-providers';
 import type { PageProps } from '@/types/next';
 import { Link } from '@/i18n/navigation';
-import { homeSearchParamsCache } from '@/features/home/types';
-import { getTrustedHomeProviders } from '@/features/home/api/server/get-home-page';
+import { getTrustedHomeProvidersCached } from '@/features/home/api/server/get-home-page.cached';
 
-export const dynamic = "force-dynamic";
+// Static / ISR — location-agnostic listing.
+export const dynamic = 'force-static';
+export const revalidate = 3600;
 
 // Generous cap for the full listing — the horizontal home rail shows only 8.
 // Kept as a single constant so it can move to config/pagination later without
@@ -20,14 +21,11 @@ async function getLocaleFromParams(params: PageProps['params']) {
   return String((resolved as { locale?: string } | undefined)?.locale || 'fa-IR');
 }
 
-export default async function TrustedProvidersPage({ params, searchParams }: PageProps) {
+export default async function TrustedProvidersPage({ params }: PageProps) {
   const locale = await getLocaleFromParams(params);
   const t = await getTranslations({ locale, namespace: 'Home' });
-  const searchParamsData = await searchParams;
-  const { countryCode, cityCode } = homeSearchParamsCache.parse(searchParamsData);
 
-  const queryInput = { locale, countryCode, cityCode };
-  const providers = await getTrustedHomeProviders(queryInput, TRUSTED_PROVIDERS_LISTING_LIMIT);
+  const providers = await getTrustedHomeProvidersCached({ locale }, TRUSTED_PROVIDERS_LISTING_LIMIT).catch(() => []);
 
   return (
     <div className="min-h-screen bg-white pb-24">
