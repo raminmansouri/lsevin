@@ -47,6 +47,14 @@ export async function getProductPersonalStateAction(input: {
   };
 }
 
+/** Recently-viewed rail for a statically-rendered surface (shop home). */
+export async function getRecentlyViewedAction(input?: {
+  excludeSlug?: string;
+  limit?: number;
+}): Promise<ProductCard[]> {
+  return getRecentlyViewed(input?.excludeSlug, input?.limit ?? 10).catch(() => []);
+}
+
 /** Fire-and-forget view side effects, moved off the render path. */
 export async function trackProductViewAction(input: {
   productId: string;

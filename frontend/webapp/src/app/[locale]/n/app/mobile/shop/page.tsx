@@ -1,33 +1,29 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import { getShopHome } from "@/features/shop/api/home.repository";
-import { getCartView } from "@/features/shop/api/cart.repository";
+import { getShopHomeCached } from "@/features/shop/api/home.repository.cached";
 import { ShopHeader } from "@/features/shop/components/ShopHeader";
 import { HomeSectionView, ProductGrid } from "@/features/shop/components/home-sections";
 import { searchProducts } from "@/features/shop/api/catalog.repository";
-import { getRecentlyViewed } from "@/features/shop/api/recently-viewed.repository";
+import { RecentlyViewedRail } from "@/features/shop/components/RecentlyViewedRail";
 
-export const dynamic = "force-dynamic";
+// ISR: the shell is cookie-free (market-default currency, no cart/recently
+// viewed baked in). Cart badge + recently-viewed hydrate as client islands.
+export const revalidate = 3600;
 
 export default async function ShopHomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("Shop");
 
-  const [home, cart, feed, recentlyViewed] = await Promise.all([
-    getShopHome(),
-    getCartView(),
-    searchProducts({ sort: "popularity", page: 1, pageSize: 20 }),
-    getRecentlyViewed(undefined, 10),
-  ]);
+  const home = await getShopHomeCached(locale);
+  const feed = await searchProducts(
+    { sort: "popularity", page: 1, pageSize: 20 },
+    { locale, displayCurrency: home.currency, cookieFree: true },
+  );
 
   return (
     <div className="min-h-screen bg-neutral-50 pb-24">
-      <ShopHeader
-        cartCount={cart.itemCount}
-        currency={home.currency}
-        selectableCurrencies={home.selectableCurrencies}
-      />
+      <ShopHeader currency={home.currency} selectableCurrencies={home.selectableCurrencies} />
 
       <div className="space-y-1 bg-white pb-2">
         {home.sections.map((section) => (
@@ -35,12 +31,7 @@ export default async function ShopHomePage({ params }: { params: Promise<{ local
         ))}
       </div>
 
-      {recentlyViewed.length ? (
-        <section className="mt-2 bg-white px-4 py-3">
-          <h2 className="mb-2.5 text-[15px] font-extrabold text-neutral-900">{t("recentlyViewed")}</h2>
-          <ProductGrid products={recentlyViewed.slice(0, 6)} locale={locale} />
-        </section>
-      ) : null}
+      <RecentlyViewedRail locale={locale} />
 
       <section className="mt-2 px-4 pt-3">
         <h2 className="mb-2.5 text-[17px] font-extrabold text-neutral-900">{t("featured")}</h2>

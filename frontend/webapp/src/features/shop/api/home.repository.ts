@@ -42,10 +42,18 @@ type SectionRow = {
 
 const RAIL_LIMIT = 10;
 
-export async function getShopHome(): Promise<ShopHome> {
-  const ctx = await getShopContext();
-  const lang = normalizeLocale(ctx.locale);
-  const { currency, mode, selectable } = await resolveDisplayCurrency(ctx);
+export async function getShopHome(opts?: {
+  locale?: string;
+  // Skip the cookie read: render in the market-default currency (no country /
+  // no per-visitor selection) so the composition can be cached / ISR'd.
+  cookieFree?: boolean;
+}): Promise<ShopHome> {
+  const cookieFree = Boolean(opts?.cookieFree && opts?.locale);
+  const ctx = cookieFree ? null : await getShopContext();
+  const lang = normalizeLocale(opts?.locale ?? ctx!.locale);
+  const { currency, mode, selectable } = await resolveDisplayCurrency(
+    cookieFree ? { countryCode: null, selectedCurrencyCode: null } : ctx!,
+  );
 
   const [categories, sectionRows] = await Promise.all([
     getShopCategoriesCached(lang),
@@ -139,7 +147,7 @@ export async function getShopHome(): Promise<ShopHome> {
         default:
           filters.sort = "popularity";
       }
-      let { items } = await searchProducts(filters, { locale: lang, displayCurrency: currency });
+      let { items } = await searchProducts(filters, { locale: lang, displayCurrency: currency, cookieFree });
       if (row.query_source === "discounted") items = items.filter((p) => p.hasDiscount);
       if (items.length) {
         sections.push({
