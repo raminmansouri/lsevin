@@ -2,29 +2,28 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getSpecialistPageFromDbCached } from "@/features/service-providers/server/specialist-page.repository.cached";
+import { listActiveSpecialistPageIds } from "@/features/service-providers/server/specialist-page.repository";
 
 import SpecialistProfileClient from "./specialist-page";
 
 type Awaitable<T> = T | Promise<T>;
 
 type PageProps = {
-  params: Awaitable<{
-    locale: string;
-    id: string;
-  }>;
-  searchParams?: Awaitable<Record<string, string | string[] | undefined>>;
+  params: Awaitable<{ locale: string; id: string }>;
 };
 
-function firstSearchValue(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value;
-}
+// Static / ISR. No visitor context (default currency, favourite state resolved
+// client-side by the interactive view). `generateStaticParams` prewarms active
+// specialists; anything else is ISR'd on first hit.
+export const dynamic = "force-static";
+export const revalidate = 3600;
 
-async function resolveCurrentUserId() {
+export async function generateStaticParams() {
   try {
-    const auth = await import("@/lib/auth/session");
-    return typeof (auth as any).getUserId === "function" ? await (auth as any).getUserId() : null;
+    const ids = await listActiveSpecialistPageIds(400);
+    return ids.map((id) => ({ id }));
   } catch {
-    return null;
+    return [];
   }
 }
 
@@ -38,30 +37,13 @@ export async function generateMetadata({ params }: Pick<PageProps, "params">) {
   };
 }
 
-export default async function SpecialistPage({ params, searchParams }: PageProps) {
-  const resolvedParams = await params;
-  setRequestLocale(resolvedParams.locale);
+export default async function SpecialistPage({ params }: PageProps) {
+  const { locale, id } = await params;
+  setRequestLocale(locale);
 
-  const resolvedSearchParams = searchParams ? await searchParams : {};
-
-  const userId = await resolveCurrentUserId();
-
-  const data = await getSpecialistPageFromDbCached({
-    specialistId: resolvedParams.id,
-    locale: resolvedParams.locale,
-    userId,
-    explicitCurrencyCode: firstSearchValue(resolvedSearchParams.currency),
-    selectedCountryCode: firstSearchValue(resolvedSearchParams.country),
-    browserCountryCode: firstSearchValue(resolvedSearchParams.browserCountry),
-  });
+  const data = await getSpecialistPageFromDbCached({ specialistId: id, locale });
 
   if (!data) notFound();
 
-  return (
-    <SpecialistProfileClient
-      data={data}
-      specialistId={resolvedParams.id}
-      locale={resolvedParams.locale}
-    />
-  );
+  return <SpecialistProfileClient data={data} specialistId={id} locale={locale} />;
 }

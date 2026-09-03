@@ -2,9 +2,11 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
-import { getProductBySlugCached } from "@/features/shop/api/catalog.repository.cached";
-import { getShopContext } from "@/features/shop/lib/context";
-import { resolveDisplayCurrency } from "@/features/shop/lib/pricing";
+import {
+  getProductBySlugCached,
+  getShopDefaultCurrencyCached,
+} from "@/features/shop/api/catalog.repository.cached";
+import { listActiveProductSlugs } from "@/features/shop/api/catalog.repository";
 import { ShopHeader } from "@/features/shop/components/ShopHeader";
 import { ProductDetailClient } from "@/features/shop/components/ProductDetailClient";
 import { ProductGrid } from "@/features/shop/components/home-sections";
@@ -17,12 +19,26 @@ import { ProductPersonalSections } from "@/features/shop/components/ProductPerso
 import { shopImageSrc } from "@/features/shop/lib/image";
 
 /**
- * Dynamic (reads the visitor's currency cookie), but the heavy product read is
- * cached per (slug, locale, currency) via `getProductBySlugCached`, and every
- * visitor-specific block (cart badge, wishlist, compare, reviews eligibility,
- * recently viewed) hydrates as a client island. Admin mutations can bust the
- * `shop-product:<slug>` cache tag.
+ * Static / ISR. Rendered in the shop default currency; every visitor-specific
+ * block (cart badge, wishlist, compare, review eligibility, recently viewed)
+ * hydrates as a client island. Admin mutations bust the `shop-product:<slug>`
+ * cache tag. `generateStaticParams` prewarms the active catalogue; unknown
+ * slugs are ISR'd on first hit (`dynamicParams` defaults to true).
  */
+export const dynamic = "force-static";
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  // Bounded + resilient: a DB-less build just yields an empty list and every
+  // slug becomes ISR-on-demand.
+  try {
+    const slugs = await listActiveProductSlugs(500);
+    return slugs.map((slug) => ({ slug }));
+  } catch {
+    return [];
+  }
+}
+
 export default async function ProductDetailPage({
   params,
 }: {
@@ -32,8 +48,7 @@ export default async function ProductDetailPage({
   setRequestLocale(locale);
   const t = await getTranslations("Shop");
 
-  const ctx = await getShopContext();
-  const { currency } = await resolveDisplayCurrency(ctx);
+  const currency = await getShopDefaultCurrencyCached().catch(() => "USD");
   const product = await getProductBySlugCached(slug, locale, currency);
   if (!product) notFound();
 

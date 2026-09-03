@@ -821,3 +821,19 @@ export async function getSpecialistPageFromDb({
     },
   };
 }
+
+/**
+ * Active staff ids — for `generateStaticParams` on the specialist page.
+ * Bounded; cookie-free.
+ */
+export async function listActiveSpecialistPageIds(limit = 400): Promise<string[]> {
+  const rows = await sql<{ id: string }[]>`
+    select s.id::text as id
+    from category.staff s
+    where s.is_active = true
+      and exists (select 1 from category.provider_staffs ps where ps.staff_id = s.id and ps.is_active = true)
+    order by s.rating desc nulls last, s.review_count desc nulls last, s.create_date desc
+    limit ${Math.max(1, Math.min(3000, limit))}
+  `;
+  return rows.map((r) => r.id).filter(Boolean);
+}

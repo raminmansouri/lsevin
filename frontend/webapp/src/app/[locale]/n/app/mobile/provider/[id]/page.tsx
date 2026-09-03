@@ -1,45 +1,36 @@
 import { setRequestLocale } from "next-intl/server";
 
-import { getUserId } from "@/lib/auth/session";
 import { getProviderPageDataFromDbCached } from "@/features/service-providers/server/provider-page.repository.cached";
+import { listActiveProviderPageIds } from "@/features/service-providers/server/provider-page.repository";
 
 import { ProviderDetailView } from "./provider-detail-view";
 
 type RouteParams = { locale: string; id: string };
-type SearchParams = { currency?: string; country?: string; browserCountry?: string };
 type PageProps = {
   params: Promise<RouteParams> | RouteParams;
-  searchParams?: Promise<SearchParams> | SearchParams;
 };
 
-async function getOptionalUserId() {
+// Static / ISR. The server shell fetches the page data in the default currency
+// with no visitor context and hands it to the interactive client view as
+// `initialData`; the view owns the favourite toggle and any currency the
+// visitor picked. `generateStaticParams` prewarms active providers.
+export const dynamic = "force-static";
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
   try {
-    return (await getUserId()) || null;
+    const ids = await listActiveProviderPageIds(400);
+    return ids.map((id) => ({ id }));
   } catch {
-    return null;
+    return [];
   }
 }
 
-/**
- * Server shell for the provider profile. Fetches the page data through the
- * cached repository wrapper and hands it to the interactive client view as
- * `initialData`, so the first paint is server-rendered HTML instead of a
- * skeleton that waits on a client-side action round-trip.
- */
-export default async function ProviderDetailPage({ params, searchParams }: PageProps) {
+export default async function ProviderDetailPage({ params }: PageProps) {
   const { locale, id } = await params;
   setRequestLocale(locale);
-  const sp = searchParams ? await searchParams : {};
-  const userId = await getOptionalUserId();
 
-  const result = await getProviderPageDataFromDbCached({
-    providerId: id,
-    locale,
-    userId,
-    targetCurrencyCode: sp.currency ?? null,
-    selectedCountryCode: sp.country ?? null,
-    browserCountryCode: sp.browserCountry ?? null,
-  });
+  const result = await getProviderPageDataFromDbCached({ providerId: id, locale });
 
   return <ProviderDetailView initialData={result?.data ?? undefined} />;
 }

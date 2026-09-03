@@ -19,6 +19,7 @@ import { useNavigate } from "@/hooks/use-navigate";
 
 import {
   clearSearchHistoryAction,
+  getRecentSearchesAction,
   recordSearchTermAction,
 } from "../../actions/search";
 import type {
@@ -62,6 +63,20 @@ export function MobileSearchPageClient({ initialData }: MobileSearchPageClientPr
   const [recentSearches, setRecentSearches] = useState<string[]>(
     initialData.recentSearches ?? []
   );
+
+  // The page shell is statically rendered, so it can't read the visitor's
+  // identity — pull their recent searches on the client instead.
+  useEffect(() => {
+    let alive = true;
+    getRecentSearchesAction()
+      .then((rows) => {
+        if (alive && Array.isArray(rows) && rows.length) setRecentSearches(rows);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const popularCategories = useMemo(
     () => initialData.popularCategories ?? [],

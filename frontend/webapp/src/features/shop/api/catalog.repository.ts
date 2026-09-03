@@ -440,3 +440,17 @@ export async function getProductBySlug(
     relatedProducts: related.items.filter((x) => x.id !== row.id).slice(0, 8),
   };
 }
+
+/**
+ * Active, listable product slugs — for `generateStaticParams` on the PDP.
+ * Cookie-free and cheap; bounded by `limit`.
+ */
+export async function listActiveProductSlugs(limit = 500): Promise<string[]> {
+  const rows = await sql<{ slug: string }[]>`
+    select slug from shop.products
+    where deleted_at is null and status = 'active' and slug is not null
+    order by is_featured desc, is_best_seller desc, create_date desc
+    limit ${Math.max(1, Math.min(5000, limit))}
+  `;
+  return rows.map((r) => r.slug).filter(Boolean);
+}

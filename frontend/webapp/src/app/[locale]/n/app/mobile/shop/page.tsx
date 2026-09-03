@@ -1,26 +1,29 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import {
+  getShopDefaultCurrencyCached,
+} from "@/features/shop/api/catalog.repository.cached";
 import { getShopHomeCached } from "@/features/shop/api/home.repository.cached";
-import { getShopContext } from "@/features/shop/lib/context";
-import { resolveDisplayCurrency } from "@/features/shop/lib/pricing";
 import { ShopHeader } from "@/features/shop/components/ShopHeader";
 import { HomeSectionView, ProductGrid } from "@/features/shop/components/home-sections";
 import { searchProducts } from "@/features/shop/api/catalog.repository";
 import { RecentlyViewedRail } from "@/features/shop/components/RecentlyViewedRail";
 
 /**
- * Dynamic (it reads the visitor's currency cookie), but every expensive read
- * is cached: the whole composition via `getShopHomeCached(locale, currency)`,
- * the featured feed via a cookie-free `searchProducts`. Cart badge and
- * recently-viewed are client islands.
+ * Static / ISR: rendered in the shop's default display currency (the majority
+ * case under `market_default`; a currency the visitor picked still applies at
+ * cart / checkout, which stay dynamic). Cart badge and recently-viewed are
+ * client islands. Every read is cookie-free and cached.
  */
+export const dynamic = "force-static";
+export const revalidate = 3600;
+
 export default async function ShopHomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("Shop");
 
-  const ctx = await getShopContext();
-  const { currency: displayCurrency } = await resolveDisplayCurrency(ctx);
+  const displayCurrency = await getShopDefaultCurrencyCached().catch(() => "USD");
 
   const home = await getShopHomeCached(locale, displayCurrency);
   const feed = await searchProducts(
