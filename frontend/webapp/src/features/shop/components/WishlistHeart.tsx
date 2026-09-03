@@ -1,25 +1,43 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
-import { toggleWishlistAction } from "../actions/wishlist.actions";
+import { getWishlistStateAction, toggleWishlistAction } from "../actions/wishlist.actions";
 
 export function WishlistHeart({
   productId,
   initialActive,
   className,
   size = 20,
+  // When the page is statically rendered it cannot know the visitor's wishlist,
+  // so it passes `initialActive={false}` + `resolveOnMount` and the real state
+  // is fetched client-side.
+  resolveOnMount = false,
 }: {
   productId: string;
   initialActive: boolean;
   className?: string;
   size?: number;
+  resolveOnMount?: boolean;
 }) {
   const t = useTranslations("Shop");
   const [active, setActive] = useState(initialActive);
   const [pending, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (!resolveOnMount) return;
+    let alive = true;
+    getWishlistStateAction({ productId })
+      .then((res) => {
+        if (alive && typeof res?.active === "boolean") setActive(res.active);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [resolveOnMount, productId]);
 
   return (
     <button

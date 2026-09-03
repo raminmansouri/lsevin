@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 
 import { SearchBar } from "./SearchBar";
 import { CurrencySwitcher } from "./CurrencySwitcher";
+import { ShopCartCountBadge } from "./ShopCartCountBadge";
 
 /**
  * Compact Shop top bar following the AliExpress reference (SHP-UX-011, §18):
@@ -68,11 +69,7 @@ export async function ShopHeader({
             <circle cx="10" cy="21" r="1.6" fill="currentColor" />
             <circle cx="18" cy="21" r="1.6" fill="currentColor" />
           </svg>
-          {cartCount > 0 ? (
-            <span className="absolute end-0 top-0 min-w-[16px] rounded-full bg-[#eacb7f] px-1 text-center text-[10px] font-bold leading-4 text-[#083f30]">
-              {cartCount > 99 ? "99+" : cartCount}
-            </span>
-          ) : null}
+          <ShopCartCountBadge initial={cartCount} />
         </Link>
       </div>
     </header>

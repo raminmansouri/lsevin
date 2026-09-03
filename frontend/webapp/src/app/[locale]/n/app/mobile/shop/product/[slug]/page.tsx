@@ -2,25 +2,23 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
-import { getProductBySlug } from "@/features/shop/api/catalog.repository";
-import { getCartView } from "@/features/shop/api/cart.repository";
+import { getProductBySlugCached, getShopDefaultCurrencyCached } from "@/features/shop/api/catalog.repository.cached";
 import { ShopHeader } from "@/features/shop/components/ShopHeader";
 import { ProductDetailClient } from "@/features/shop/components/ProductDetailClient";
 import { ProductGrid } from "@/features/shop/components/home-sections";
 import { formatShopMoney } from "@/features/shop/components/money";
 import { WishlistHeart } from "@/features/shop/components/WishlistHeart";
-import { emitCommerceEvent } from "@/features/shop/lib/analytics";
-import { getRecentlyViewed, recordRecentlyViewed } from "@/features/shop/api/recently-viewed.repository";
-import { getReviewEligibility } from "@/features/shop/api/review.repository";
-import { getCompareState } from "@/features/shop/api/compare.repository";
 import { getProductsForService } from "@/features/shop/api/service-relations.repository";
-import { ReviewForm } from "@/features/shop/components/ReviewForm";
-import { QuestionsSection } from "@/features/shop/components/QuestionsSection";
 import { CompareButton } from "@/features/shop/components/CompareButton";
 import { ServiceRelatedRail } from "@/features/shop/components/ServiceRelatedRail";
+import { ProductPersonalSections } from "@/features/shop/components/ProductPersonalSections";
 import { shopImageSrc } from "@/features/shop/lib/image";
 
-export const dynamic = "force-dynamic";
+// ISR: the shell is cookie-free (rendered in the shop default currency, no
+// wishlist/cart/compare state). Everything visitor-specific hydrates as a
+// client island. Revalidate hourly; product/admin mutations can also bust the
+// `shop-product:<slug>` cache tag.
+export const revalidate = 3600;
 
 export default async function ProductDetailPage({
   params,
@@ -31,32 +29,20 @@ export default async function ProductDetailPage({
   setRequestLocale(locale);
   const t = await getTranslations("Shop");
 
-  const [product, cart] = await Promise.all([getProductBySlug(slug), getCartView()]);
+  const currency = await getShopDefaultCurrencyCached();
+  const product = await getProductBySlugCached(slug, locale, currency);
   if (!product) notFound();
 
-  await emitCommerceEvent("shop_product_view", { productId: product.id, currency: product.currency, surface: "product_detail" });
-  await recordRecentlyViewed(product.id);
   const primaryServiceId = product.relatedServices[0]?.serviceDefinitionId ?? null;
-  const [recentlyViewed, reviewEligibility, compareState, serviceRelated] = await Promise.all([
-    getRecentlyViewed(product.slug, 10),
-    getReviewEligibility(product.id),
-    getCompareState(product.id),
-    primaryServiceId ? getProductsForService(primaryServiceId, { limit: 16 }) : Promise.resolve(null),
-  ]);
-
-  if (serviceRelated && serviceRelated.byRelation.length) {
-    const shown = serviceRelated.byRelation.reduce((n, g) => n + g.products.length, 0);
-    await emitCommerceEvent("shop_related_service_product_impression", {
-      productId: product.id,
-      campaignKey: serviceRelated.serviceDefinitionId,
-      quantity: shown,
-      surface: "product_detail",
-    });
-  }
+  const serviceRelated = primaryServiceId
+    ? await getProductsForService(primaryServiceId, { limit: 16, locale, displayCurrency: currency })
+    : null;
+  const serviceRelatedCount =
+    serviceRelated?.byRelation.reduce((n, g) => n + g.products.length, 0) ?? 0;
 
   return (
     <div className="min-h-screen bg-neutral-50 pb-40">
-      <ShopHeader cartCount={cart.itemCount} currency={product.currency} back="/n/app/mobile/shop" />
+      <ShopHeader currency={product.currency} back="/n/app/mobile/shop" />
 
       <div className="bg-white">
         <div className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto">
@@ -108,7 +94,7 @@ export default async function ProductDetailPage({
 
           <div className="flex items-start justify-between gap-2">
             <h1 className="text-base font-bold leading-snug text-neutral-900">{product.name}</h1>
-            <WishlistHeart productId={product.id} initialActive={product.wishlistActive} className="shrink-0" />
+            <WishlistHeart productId={product.id} initialActive={false} resolveOnMount className="shrink-0" />
           </div>
           {product.shortDescription ? (
             <p className="text-sm leading-relaxed text-neutral-600">{product.shortDescription}</p>
@@ -153,7 +139,7 @@ export default async function ProductDetailPage({
             </span>
           </div>
 
-          <CompareButton productId={product.id} initialInList={compareState.inList} initialCount={compareState.count} />
+          <CompareButton productId={product.id} initialInList={false} initialCount={0} resolveOnMount />
 
           <ProductDetailClient product={product} locale={locale} />
         </div>
@@ -188,32 +174,6 @@ export default async function ProductDetailPage({
         />
       ) : null}
 
-      {product.reviews.length || reviewEligibility.canReview || reviewEligibility.alreadyReviewed ? (
-        <section className="mt-2 bg-white p-4">
-          <h2 className="mb-3 text-sm font-bold text-neutral-900">{t("reviews", { count: product.reviewCount })}</h2>
-          {reviewEligibility.canReview ? (
-            <div className="mb-4">
-              <ReviewForm productId={product.id} slug={product.slug} />
-            </div>
-          ) : reviewEligibility.alreadyReviewed ? (
-            <p className="mb-3 text-xs text-neutral-500">{t("reviewSubmitted")}</p>
-          ) : null}
-          <div className="space-y-3">
-            {product.reviews.slice(0, 8).map((r) => (
-              <div key={r.id} className="border-b border-neutral-100 pb-3 last:border-0">
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="text-amber-500">{"★".repeat(r.rating)}</span>
-                  <span className="font-medium text-neutral-700">{r.customerName || "—"}</span>
-                  {r.isVerifiedPurchase ? <span className="text-emerald-600">✓</span> : null}
-                </div>
-                {r.title ? <p className="mt-1 text-sm font-semibold text-neutral-800">{r.title}</p> : null}
-                {r.body ? <p className="mt-0.5 text-sm text-neutral-600">{r.body}</p> : null}
-              </div>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
       {product.relatedProducts.length ? (
         <section className="mt-2 bg-white p-4">
           <h2 className="mb-3 text-sm font-bold text-neutral-900">{t("relatedProducts")}</h2>
@@ -221,19 +181,17 @@ export default async function ProductDetailPage({
         </section>
       ) : null}
 
-      <QuestionsSection
+      <ProductPersonalSections
         productId={product.id}
         slug={product.slug}
+        currency={product.currency}
+        locale={locale}
+        reviews={product.reviews}
+        reviewCount={product.reviewCount}
         questions={product.questions}
-        canAsk={reviewEligibility.canAsk}
+        relatedServiceKey={serviceRelated?.serviceDefinitionId ?? null}
+        relatedServiceCount={serviceRelatedCount}
       />
-
-      {recentlyViewed.length ? (
-        <section className="mt-2 bg-white p-4">
-          <h2 className="mb-3 text-sm font-bold text-neutral-900">{t("recentlyViewed")}</h2>
-          <ProductGrid products={recentlyViewed} locale={locale} />
-        </section>
-      ) : null}
 
       <div className="p-4 text-center">
         <Link href="/n/app/mobile/shop" className="text-xs font-semibold text-[#083f30]">

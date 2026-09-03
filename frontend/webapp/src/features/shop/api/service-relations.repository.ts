@@ -46,9 +46,11 @@ export async function getProductsForService(
   serviceDefinitionId: string,
   opts?: { relationType?: ServiceRelationType; limit?: number; locale?: string; displayCurrency?: string },
 ): Promise<ServiceRelatedProducts> {
-  const ctx = await getShopContext();
-  const lang = normalizeLocale(opts?.locale ?? ctx.locale);
-  const displayCurrency = opts?.displayCurrency ?? (await resolveDisplayCurrency(ctx)).currency;
+  // Skip the cookie read entirely when the caller supplies locale + currency
+  // (a cached, statically-rendered storefront surface).
+  const ctx = opts?.locale && opts?.displayCurrency ? null : await getShopContext();
+  const lang = normalizeLocale(opts?.locale ?? ctx!.locale);
+  const displayCurrency = opts?.displayCurrency ?? (await resolveDisplayCurrency(ctx!)).currency;
   const limit = Math.min(40, Math.max(1, opts?.limit ?? 24));
 
   const links = await sql<{ slug: string; relation_type: ServiceRelationType }[]>`
@@ -72,7 +74,10 @@ export async function getProductsForService(
   }
 
   const slugs = Array.from(new Set(links.map((l) => l.slug)));
-  const { items } = await searchProducts({ slugs, page: 1, pageSize: limit }, { locale: lang, displayCurrency });
+  const { items } = await searchProducts(
+    { slugs, page: 1, pageSize: limit },
+    { locale: lang, displayCurrency, cookieFree: ctx === null },
+  );
   const bySlug = new Map(items.map((p) => [p.slug, p]));
 
   const groups = new Map<ServiceRelationType, ProductCard[]>();
@@ -115,9 +120,9 @@ export async function getProductsForServices(
   const ids = Array.from(new Set((serviceDefinitionIds ?? []).filter((v) => /^[0-9a-fA-F-]{36}$/.test(v))));
   if (!ids.length) return { byRelation: [], flat: [] };
 
-  const ctx = await getShopContext();
-  const lang = normalizeLocale(opts?.locale ?? ctx.locale);
-  const displayCurrency = opts?.displayCurrency ?? (await resolveDisplayCurrency(ctx)).currency;
+  const ctx = opts?.locale && opts?.displayCurrency ? null : await getShopContext();
+  const lang = normalizeLocale(opts?.locale ?? ctx!.locale);
+  const displayCurrency = opts?.displayCurrency ?? (await resolveDisplayCurrency(ctx!)).currency;
   const limit = Math.min(60, Math.max(1, opts?.limit ?? 30));
 
   const links = await sql<{ slug: string; relation_type: ServiceRelationType }[]>`
@@ -133,7 +138,10 @@ export async function getProductsForServices(
   if (!links.length) return { byRelation: [], flat: [] };
 
   const slugs = Array.from(new Set(links.map((l) => l.slug)));
-  const { items } = await searchProducts({ slugs, page: 1, pageSize: limit }, { locale: lang, displayCurrency });
+  const { items } = await searchProducts(
+    { slugs, page: 1, pageSize: limit },
+    { locale: lang, displayCurrency, cookieFree: ctx === null },
+  );
   const bySlug = new Map(items.map((p) => [p.slug, p]));
 
   const groups = new Map<ServiceRelationType, ProductCard[]>();
@@ -187,9 +195,9 @@ export async function getProductsForServiceViaCategory(
   serviceDefinitionId: string,
   opts?: { limit?: number; locale?: string; displayCurrency?: string },
 ): Promise<ProductCard[]> {
-  const ctx = await getShopContext();
-  const lang = normalizeLocale(opts?.locale ?? ctx.locale);
-  const displayCurrency = opts?.displayCurrency ?? (await resolveDisplayCurrency(ctx)).currency;
+  const ctx = opts?.locale && opts?.displayCurrency ? null : await getShopContext();
+  const lang = normalizeLocale(opts?.locale ?? ctx!.locale);
+  const displayCurrency = opts?.displayCurrency ?? (await resolveDisplayCurrency(ctx!)).currency;
   const limit = Math.min(40, Math.max(1, opts?.limit ?? 24));
 
   const rows = await sql<{ slug: string }[]>`
@@ -204,7 +212,7 @@ export async function getProductsForServiceViaCategory(
   if (!rows.length) return [];
   const { items } = await searchProducts(
     { slugs: rows.map((r) => r.slug), page: 1, pageSize: limit },
-    { locale: lang, displayCurrency },
+    { locale: lang, displayCurrency, cookieFree: ctx === null },
   );
   return items;
 }

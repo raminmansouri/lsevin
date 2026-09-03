@@ -1,26 +1,44 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
-import { toggleCompareAction } from "../actions/compare.actions";
+import { getCompareStateAction, toggleCompareAction } from "../actions/compare.actions";
 
 export function CompareButton({
   productId,
   initialInList,
   initialCount,
+  // Statically-rendered PDP: resolve the real compare state client-side.
+  resolveOnMount = false,
 }: {
   productId: string;
   initialInList: boolean;
   initialCount: number;
+  resolveOnMount?: boolean;
 }) {
   const t = useTranslations("Shop");
   const [inList, setInList] = useState(initialInList);
   const [count, setCount] = useState(initialCount);
   const [pending, startTransition] = useTransition();
   const [msg, setMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!resolveOnMount) return;
+    let alive = true;
+    getCompareStateAction({ productId })
+      .then((res) => {
+        if (!alive) return;
+        setInList(Boolean(res?.inList));
+        setCount(Number(res?.count ?? 0));
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [resolveOnMount, productId]);
 
   return (
     <div className="flex flex-wrap items-center gap-2">
