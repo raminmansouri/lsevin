@@ -30,7 +30,9 @@ export default async function ProviderDetailPage({ params }: PageProps) {
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const result = await getProviderPageDataFromDbCached({ providerId: id, locale });
+  const result = await getProviderPageDataFromDbCached({ providerId: id, locale }).catch(
+    () => ({ data: undefined, error: undefined }) as Awaited<ReturnType<typeof getProviderPageDataFromDbCached>>,
+  );
 
   return <ProviderDetailView initialData={result?.data ?? undefined} />;
 }

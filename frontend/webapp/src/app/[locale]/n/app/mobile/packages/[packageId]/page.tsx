@@ -29,7 +29,7 @@ export default async function SpecialPackageDetailPage({ params }: PageProps) {
   const packageId = String(resolvedParams?.packageId || '');
   const t = await getTranslations({ locale, namespace: 'Home' });
 
-  const pkg = await getSpecialPackageById(locale, packageId);
+  const pkg = await getSpecialPackageById(locale, packageId).catch(() => null);
   if (!pkg) notFound();
 
   const mediaUrl = resolveHomeMediaUrl(pkg.imageUrl);

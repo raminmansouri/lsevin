@@ -44,7 +44,7 @@ export default async function TreatmentDetailPage({ params }: ServicePageRoutePr
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const data = await getServicePageByIdCached({ serviceId: id, locale });
+  const data = await getServicePageByIdCached({ serviceId: id, locale }).catch(() => null);
 
   if (!data) {
     notFound();

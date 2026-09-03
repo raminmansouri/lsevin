@@ -41,7 +41,7 @@ export default async function SpecialistPage({ params }: PageProps) {
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const data = await getSpecialistPageFromDbCached({ specialistId: id, locale });
+  const data = await getSpecialistPageFromDbCached({ specialistId: id, locale }).catch(() => null);
 
   if (!data) notFound();
 

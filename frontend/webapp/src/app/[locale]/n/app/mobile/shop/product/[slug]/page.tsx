@@ -45,12 +45,12 @@ export default async function ProductDetailPage({
   setRequestLocale(locale);
   const t = await getTranslations("Shop");
 
-  const product = await getProductBySlugCached(slug, locale);
+  const product = await getProductBySlugCached(slug, locale).catch(() => null);
   if (!product) notFound();
 
   const primaryServiceId = product.relatedServices[0]?.serviceDefinitionId ?? null;
   const serviceRelated = primaryServiceId
-    ? await getProductsForService(primaryServiceId, { limit: 16, locale, displayCurrency: "USD", noFx: true })
+    ? await getProductsForService(primaryServiceId, { limit: 16, locale, displayCurrency: "USD", noFx: true }).catch(() => null)
     : null;
   const serviceRelatedCount =
     serviceRelated?.byRelation.reduce((n, g) => n + g.products.length, 0) ?? 0;

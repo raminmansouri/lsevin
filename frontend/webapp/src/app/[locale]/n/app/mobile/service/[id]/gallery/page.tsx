@@ -66,7 +66,7 @@ export default async function ServiceGalleryPage({ params }: ServiceGalleryPageP
   setRequestLocale(locale);
 
   const t = await getTranslations({ locale, namespace: "ServiceGalleryPage" });
-  const data = await getServicePageByIdFromDb({ serviceId: id, locale });
+  const data = await getServicePageByIdFromDb({ serviceId: id, locale }).catch(() => null);
 
   if (!data) {
     notFound();

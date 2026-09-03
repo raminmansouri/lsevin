@@ -17,6 +17,17 @@ if (!connectionString) {
   throw new Error("DATABASE_URL is not set.");
 }
 
+// `next build` prerenders every static / ISR page up front — hundreds of
+// renders, each firing a dozen distinct catalogue queries. Through
+// transaction-pooled PgBouncer that easily exceeds `max_prepared_statements`
+// and the connection can't reuse a prepared name across backends. The simple
+// query protocol has neither problem, and build-time query latency is
+// irrelevant, so force `prepare: false` for the build phase (unless already
+// opted out). Runtime keeps prepared statements.
+const isNextBuildPhase = process.env.NEXT_PHASE === "phase-production-build";
+const usePreparedStatements =
+  process.env.POSTGRES_PREPARE === "false" ? false : !isNextBuildPhase;
+
 const createSqlClient = () =>
   postgres(connectionString, {
     // Keep this low in Next.js, especially in dev/serverless.
@@ -31,8 +42,8 @@ const createSqlClient = () =>
     // Fail faster if DB is unreachable.
     connect_timeout: Number(process.env.POSTGRES_CONNECT_TIMEOUT ?? 10),
 
-    // Use this if you are behind PgBouncer transaction pooling.
-    prepare: process.env.POSTGRES_PREPARE === "false" ? false : true,
+    // Off behind PgBouncer transaction pooling and during `next build` (see above).
+    prepare: usePreparedStatements,
 
     // Deliberately NOT setting `connection: { options: "-c ..." }` here. It is
     // the obvious place to force `jit=off`, and it would break the moment the

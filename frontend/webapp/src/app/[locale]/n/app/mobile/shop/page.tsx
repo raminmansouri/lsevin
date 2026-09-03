@@ -25,11 +25,19 @@ export default async function ShopHomePage({ params }: { params: Promise<{ local
 
   const displayCurrency = await getShopDefaultCurrencyCached().catch(() => "USD");
 
-  const home = await getShopHomeCached(locale, displayCurrency);
+  // Resilient: a transient DB failure at build time yields an empty shell that
+  // ISR fills on the next request, rather than failing the whole export.
+  const home = await getShopHomeCached(locale, displayCurrency).catch(() => ({
+    currency: displayCurrency,
+    pricingMode: "market_default" as const,
+    selectableCurrencies: [] as Array<{ code: string; symbol: string; name: string }>,
+    categories: [],
+    sections: [],
+  }));
   const feed = await searchProducts(
     { sort: "popularity", page: 1, pageSize: 20 },
     { locale, displayCurrency: home.currency, cookieFree: true, noFx: true },
-  );
+  ).catch(() => ({ items: [], total: 0, page: 1, pageSize: 20 }));
 
   return (
     <div className="min-h-screen bg-neutral-50 pb-24">

@@ -251,12 +251,14 @@ async function Home({ params }: PageProps) {
     homeSections,
     specialPackagesCount,
   ] = await Promise.all([
-    getHomeCategoriesCached(queryInput, 6),
-    getFeaturedHomeServicesCached(queryInput, 8),
-    getTrendingHomeServicesCached(queryInput, 8),
-    getTrustedHomeProvidersCached(queryInput, 8),
-    getHomeHeroOfferCached(queryInput),
-    getNearbyProviderCountCached(queryInput),
+    // Each read is guarded so a transient build-time DB failure produces an
+    // empty rail (ISR fills it on the next request) instead of aborting export.
+    getHomeCategoriesCached(queryInput, 6).catch(() => []),
+    getFeaturedHomeServicesCached(queryInput, 8).catch(() => []),
+    getTrendingHomeServicesCached(queryInput, 8).catch(() => []),
+    getTrustedHomeProvidersCached(queryInput, 8).catch(() => []),
+    getHomeHeroOfferCached(queryInput).catch(() => null),
+    getNearbyProviderCountCached(queryInput).catch(() => 0),
     getHomeManagedSectionsCached(locale),
     countActiveSpecialPackages(),
   ]);
