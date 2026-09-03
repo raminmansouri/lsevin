@@ -8,6 +8,8 @@ import { Link } from '@/i18n/navigation';
 import { homeSearchParamsCache } from '@/features/home/types';
 import { getFeaturedHomeServices } from '@/features/home/api/server/get-home-page';
 
+export const dynamic = "force-dynamic";
+
 async function getLocaleFromParams(params: PageProps['params']) {
   const resolved = await params;
   return String((resolved as { locale?: string } | undefined)?.locale || 'fa-IR');

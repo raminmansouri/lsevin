@@ -8,6 +8,8 @@ import { LexicalDescription } from "@/features/service-providers/components/lexi
 import { env } from "@/config/env/server";
 import { getServicePageByIdFromDb } from "@/features/service-providers/server/service-page.repository";
 
+export const dynamic = "force-dynamic";
+
 type ServiceGalleryRouteParams = {
   locale: string;
   id: string;

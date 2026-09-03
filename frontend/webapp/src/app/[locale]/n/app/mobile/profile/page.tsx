@@ -10,6 +10,8 @@ import { getSession } from '@/lib/auth/session';
 import { CustomerStats } from './components/customer-stats';
 import { getLocale, getTranslations } from 'next-intl/server';
 
+export const dynamic = "force-dynamic";
+
 export default async function Profile() {
   const locale = await getLocale();
   const dataLocale = locale === "fa" ? "fa-IR" : "en-US";

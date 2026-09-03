@@ -1,5 +1,7 @@
 import { BookingWizard } from "@/features/booking-v2/components/BookingWizard";
 
+export const dynamic = "force-dynamic";
+
 export default async function BookingV2Page({
   searchParams,
   params,

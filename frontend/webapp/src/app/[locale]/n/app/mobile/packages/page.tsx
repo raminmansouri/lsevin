@@ -12,6 +12,8 @@ import {
   type SpecialPackagePublicItem,
 } from '@/features/special-packages/server/repository';
 
+export const dynamic = "force-dynamic";
+
 async function getLocaleFromParams(params: PageProps['params']) {
   const resolved = await params;
   return String((resolved as { locale?: string } | undefined)?.locale || 'fa-IR');

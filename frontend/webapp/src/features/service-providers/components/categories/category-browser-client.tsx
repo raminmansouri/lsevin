@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   ChevronLeft,
   ChevronRight,
@@ -242,15 +243,15 @@ export function CategoryBrowserClient({
   categoryGroups,
   totalCategories,
   totalProviders,
-  initialParentId = null,
 }: {
   categoryGroups: CategoryBrowserGroup[];
   totalCategories: number;
   totalProviders: number;
-  /** Open straight onto this node's subcategories, for links from the home shelf. */
-  initialParentId?: string | null;
 }) {
   const router = useRouter();
+  // `?parent=` deep-links straight onto a node's subcategories (home-shelf
+  // links). Read on the client so the page itself stays statically rendered.
+  const initialParentId = useSearchParams().get("parent")?.trim() || null;
   const [query, setQuery] = useState("");
 
   const allCategories = useMemo(

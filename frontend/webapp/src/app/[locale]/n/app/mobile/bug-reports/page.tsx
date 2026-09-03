@@ -3,6 +3,8 @@ import { getLocale } from "next-intl/server";
 import { CustomerBugReportPage } from "@/features/bug-reports/components/CustomerBugReportPage";
 import { getCustomerBugReportPageData } from "@/features/bug-reports/data";
 
+export const dynamic = "force-dynamic";
+
 type SearchParams =
   | Promise<Record<string, string | string[] | undefined>>
   | Record<string, string | string[] | undefined>;

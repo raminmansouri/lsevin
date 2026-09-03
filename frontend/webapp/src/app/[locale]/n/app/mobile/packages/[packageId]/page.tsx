@@ -10,6 +10,8 @@ import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { SafePriceText } from '@/features/home/components/safe-price-text';
 import { getSpecialPackageById } from '@/features/special-packages/server/repository';
 
+export const dynamic = "force-dynamic";
+
 async function getLocaleFromParams(params: PageProps['params']) {
   const resolved = await params;
   return String((resolved as { locale?: string } | undefined)?.locale || 'fa-IR');

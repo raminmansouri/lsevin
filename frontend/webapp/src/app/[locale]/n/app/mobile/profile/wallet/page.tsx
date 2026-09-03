@@ -3,6 +3,8 @@ import { Suspense } from "react";
 import { getWalletPageDataAction } from "./actions";
 import WalletPageClient from "./WalletPageClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function WalletPage() {
   const data = await getWalletPageDataAction();
 

@@ -9,6 +9,12 @@ import AuthNav, {
 import { getClientMessages } from "@/i18n/client-messages";
 import { LocalePageProps } from "@/types/next";
 
+// This whole segment renders per request (session-gated dashboards / forms /
+// marketing pages that read the DB). The dynamic floor that used to sit on
+// `[locale]/layout.tsx` now lives here.
+export const dynamic = "force-dynamic";
+
+
 export default async function AuthLayout({ children, params }: LocalePageProps) {
   // Sign-in only needs the core chrome namespaces.
   const messages = await getClientMessages("auth");

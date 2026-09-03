@@ -1,6 +1,8 @@
 import NearbyClient from "./NearbyClient";
 import { getNearbyPageData, parseNearbyFilters } from "./nearby.data";
 
+export const dynamic = "force-dynamic";
+
 export default async function MapDiscoveryPage({
   params,
   searchParams,

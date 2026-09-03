@@ -1,6 +1,8 @@
 import OffersClient from "./OffersClient";
 import { getOffersPageData, parseOffersFilters } from "./offers.data";
 
+export const dynamic = "force-dynamic";
+
 type PageProps = {
   params: Promise<{ locale: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;

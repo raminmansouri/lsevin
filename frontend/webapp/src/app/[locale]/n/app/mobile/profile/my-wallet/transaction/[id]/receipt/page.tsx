@@ -4,6 +4,8 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { getWalletTransactionDetailAction } from "../../../actions";
 import { currencySymbol, formatLongDate } from "../../../utils";
 
+export const dynamic = "force-dynamic";
+
 interface WalletReceiptPageProps {
   params: Promise<{ id: string }>;
 }

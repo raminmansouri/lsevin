@@ -16,6 +16,8 @@ import { notFound } from "next/navigation";
  *   import { requireAuthenticatedUserId } from "./auth";
  *   import MedicalProfilePageClient from "./MedicalProfilePageClient";
  *   import { getMedicalProfilePageData } from "./queries";
+
+export const dynamic = "force-dynamic";
  *
  *   export default async function MedicalProfilePage() {
  *     const identityUserId = await requireAuthenticatedUserId();

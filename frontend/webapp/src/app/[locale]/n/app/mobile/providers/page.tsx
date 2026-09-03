@@ -8,6 +8,8 @@ import { Link } from '@/i18n/navigation';
 import { homeSearchParamsCache } from '@/features/home/types';
 import { getTrustedHomeProviders } from '@/features/home/api/server/get-home-page';
 
+export const dynamic = "force-dynamic";
+
 // Generous cap for the full listing — the horizontal home rail shows only 8.
 // Kept as a single constant so it can move to config/pagination later without
 // hunting for a magic number (see get-home-page.ts for the offset hook).

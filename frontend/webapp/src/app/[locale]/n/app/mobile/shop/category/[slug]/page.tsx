@@ -12,6 +12,8 @@ import { ProductListView } from "@/features/shop/components/ProductListView";
 import { ShopViewTracker } from "@/features/shop/components/ShopViewTracker";
 import { shopImageSrc } from "@/features/shop/lib/image";
 
+export const dynamic = "force-dynamic";
+
 export default async function ShopCategoryPage({
   params,
   searchParams,
