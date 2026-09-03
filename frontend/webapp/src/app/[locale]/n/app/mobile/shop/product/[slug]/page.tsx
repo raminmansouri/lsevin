@@ -2,7 +2,9 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
-import { getProductBySlugCached, getShopDefaultCurrencyCached } from "@/features/shop/api/catalog.repository.cached";
+import { getProductBySlugCached } from "@/features/shop/api/catalog.repository.cached";
+import { getShopContext } from "@/features/shop/lib/context";
+import { resolveDisplayCurrency } from "@/features/shop/lib/pricing";
 import { ShopHeader } from "@/features/shop/components/ShopHeader";
 import { ProductDetailClient } from "@/features/shop/components/ProductDetailClient";
 import { ProductGrid } from "@/features/shop/components/home-sections";
@@ -14,12 +16,13 @@ import { ServiceRelatedRail } from "@/features/shop/components/ServiceRelatedRai
 import { ProductPersonalSections } from "@/features/shop/components/ProductPersonalSections";
 import { shopImageSrc } from "@/features/shop/lib/image";
 
-// ISR: the shell is cookie-free (rendered in the shop default currency, no
-// wishlist/cart/compare state). Everything visitor-specific hydrates as a
-// client island. Revalidate hourly; product/admin mutations can also bust the
-// `shop-product:<slug>` cache tag.
-export const revalidate = 3600;
-
+/**
+ * Dynamic (reads the visitor's currency cookie), but the heavy product read is
+ * cached per (slug, locale, currency) via `getProductBySlugCached`, and every
+ * visitor-specific block (cart badge, wishlist, compare, reviews eligibility,
+ * recently viewed) hydrates as a client island. Admin mutations can bust the
+ * `shop-product:<slug>` cache tag.
+ */
 export default async function ProductDetailPage({
   params,
 }: {
@@ -29,7 +32,8 @@ export default async function ProductDetailPage({
   setRequestLocale(locale);
   const t = await getTranslations("Shop");
 
-  const currency = await getShopDefaultCurrencyCached();
+  const ctx = await getShopContext();
+  const { currency } = await resolveDisplayCurrency(ctx);
   const product = await getProductBySlugCached(slug, locale, currency);
   if (!product) notFound();
 

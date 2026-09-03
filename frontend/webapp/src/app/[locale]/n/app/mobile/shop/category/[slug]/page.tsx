@@ -5,6 +5,7 @@ import {
   getShopBrandsCached,
   getShopCategoriesCached,
 } from "@/features/shop/api/catalog.repository.cached";
+import { getShopContext } from "@/features/shop/lib/context";
 import { resolveDisplayCurrency } from "@/features/shop/lib/pricing";
 import { ShopHeader } from "@/features/shop/components/ShopHeader";
 import { ProductListView } from "@/features/shop/components/ProductListView";
@@ -22,13 +23,13 @@ export default async function ShopCategoryPage({
   setRequestLocale(locale);
   const sp = await searchParams;
 
-  // All cookie-free: category tree + brands are cached, the display currency is
-  // the market default (no country / no per-visitor selection). The page is
-  // still dynamic because of `searchParams` (filters/sort/pagination), but it
-  // no longer does per-request cookie / cart / FX work.
+  // Dynamic (it reads `searchParams` for filters + the visitor's currency),
+  // but the category tree, brand facet and product query are all cached — no
+  // per-request cart / analytics / FX work.
+  const ctx = await getShopContext();
   const [categories, { currency, selectable }] = await Promise.all([
     getShopCategoriesCached(locale),
-    resolveDisplayCurrency({ countryCode: null, selectedCurrencyCode: null }),
+    resolveDisplayCurrency(ctx),
   ]);
   const category = categories.find((c) => c.slug === slug);
   if (!category) notFound();

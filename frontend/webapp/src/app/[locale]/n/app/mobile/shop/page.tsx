@@ -1,21 +1,28 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getShopHomeCached } from "@/features/shop/api/home.repository.cached";
+import { getShopContext } from "@/features/shop/lib/context";
+import { resolveDisplayCurrency } from "@/features/shop/lib/pricing";
 import { ShopHeader } from "@/features/shop/components/ShopHeader";
 import { HomeSectionView, ProductGrid } from "@/features/shop/components/home-sections";
 import { searchProducts } from "@/features/shop/api/catalog.repository";
 import { RecentlyViewedRail } from "@/features/shop/components/RecentlyViewedRail";
 
-// ISR: the shell is cookie-free (market-default currency, no cart/recently
-// viewed baked in). Cart badge + recently-viewed hydrate as client islands.
-export const revalidate = 3600;
-
+/**
+ * Dynamic (it reads the visitor's currency cookie), but every expensive read
+ * is cached: the whole composition via `getShopHomeCached(locale, currency)`,
+ * the featured feed via a cookie-free `searchProducts`. Cart badge and
+ * recently-viewed are client islands.
+ */
 export default async function ShopHomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("Shop");
 
-  const home = await getShopHomeCached(locale);
+  const ctx = await getShopContext();
+  const { currency: displayCurrency } = await resolveDisplayCurrency(ctx);
+
+  const home = await getShopHomeCached(locale, displayCurrency);
   const feed = await searchProducts(
     { sort: "popularity", page: 1, pageSize: 20 },
     { locale, displayCurrency: home.currency, cookieFree: true },

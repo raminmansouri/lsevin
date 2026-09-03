@@ -44,16 +44,20 @@ const RAIL_LIMIT = 10;
 
 export async function getShopHome(opts?: {
   locale?: string;
-  // Skip the cookie read: render in the market-default currency (no country /
-  // no per-visitor selection) so the composition can be cached / ISR'd.
+  // Skip the cookie read. `displayCurrency` pins the rail prices to a known
+  // currency (the caller resolved it once) so the composition can be cached
+  // per (locale, currency); omit it to fall back to the market default.
+  displayCurrency?: string;
   cookieFree?: boolean;
 }): Promise<ShopHome> {
   const cookieFree = Boolean(opts?.cookieFree && opts?.locale);
   const ctx = cookieFree ? null : await getShopContext();
   const lang = normalizeLocale(opts?.locale ?? ctx!.locale);
-  const { currency, mode, selectable } = await resolveDisplayCurrency(
+  const resolved = await resolveDisplayCurrency(
     cookieFree ? { countryCode: null, selectedCurrencyCode: null } : ctx!,
   );
+  const currency = opts?.displayCurrency ?? resolved.currency;
+  const { mode, selectable } = resolved;
 
   const [categories, sectionRows] = await Promise.all([
     getShopCategoriesCached(lang),
