@@ -11,6 +11,8 @@ import { getServicePageByIdFromDb } from "./service-page.repository";
 
 type ServicePageArgs = Parameters<typeof getServicePageByIdFromDb>[0];
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 /**
  * Cached wrapper around {@link getServicePageByIdFromDb}. The repository does a
  * large fan-out of joins across `category.*` / `media.*` on every request; the
@@ -32,6 +34,10 @@ export async function getServicePageByIdCached(
   cacheTag("service-page");
   if (args?.serviceId) cacheTag(getServicePageDataTag(args.serviceId));
   cacheLife("default");
+
+  // The underlying query casts serviceId to ::uuid; a malformed id would throw
+  // a 500 instead of a clean 404. Guard here (the repo's own check is disabled).
+  if (!args?.serviceId || !UUID_RE.test(String(args.serviceId))) return null;
 
   return getServicePageByIdFromDb(args);
 }
