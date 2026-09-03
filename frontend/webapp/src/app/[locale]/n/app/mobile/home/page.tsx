@@ -11,15 +11,15 @@ import HomeFeaturedServicesSuspenseBoundary from './components/service-providers
 import HomeTrendingServicesSuspenseBoundary from './components/trending-services';
 import HomeTrustedProvidersSuspenseBoundary from './components/trusted-providers';
 import UserInfoSubBar from './components/user-info';
+import { type HomeHeroOffer } from '@/features/home/api/server/get-home-page';
 import {
-  getFeaturedHomeServices,
-  getHomeCategories,
-  getHomeHeroOffer,
-  getNearbyProviderCount,
-  getTrendingHomeServices,
-  getTrustedHomeProviders,
-  type HomeHeroOffer,
-} from '@/features/home/api/server/get-home-page';
+  getFeaturedHomeServicesCached,
+  getHomeCategoriesCached,
+  getHomeHeroOfferCached,
+  getNearbyProviderCountCached,
+  getTrendingHomeServicesCached,
+  getTrustedHomeProvidersCached,
+} from '@/features/home/api/server/get-home-page.cached';
 import {
   formatHomeSectionText,
   type HomeManagedSection,
@@ -257,12 +257,12 @@ async function Home({ params, searchParams }: PageProps) {
     profile,
     specialPackagesCount,
   ] = await Promise.all([
-    getHomeCategories(queryInput, 6),
-    getFeaturedHomeServices(queryInput, 8),
-    getTrendingHomeServices(queryInput, 8),
-    getTrustedHomeProviders(queryInput, 8),
-    getHomeHeroOffer(queryInput),
-    getNearbyProviderCount(queryInput),
+    getHomeCategoriesCached(queryInput, 6),
+    getFeaturedHomeServicesCached(queryInput, 8),
+    getTrendingHomeServicesCached(queryInput, 8),
+    getTrustedHomeProvidersCached(queryInput, 8),
+    getHomeHeroOfferCached(queryInput),
+    getNearbyProviderCountCached(queryInput),
     getHomeManagedSectionsCached(locale),
     // Guests can browse the home page; their profile lookup is optional.
     getProfileForEdit('en-US').catch(() => null),
