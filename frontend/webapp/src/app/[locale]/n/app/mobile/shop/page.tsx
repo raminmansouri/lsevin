@@ -8,6 +8,7 @@ import { ShopHeader } from "@/features/shop/components/ShopHeader";
 import { HomeSectionView, ProductGrid } from "@/features/shop/components/home-sections";
 import { searchProducts } from "@/features/shop/api/catalog.repository";
 import { RecentlyViewedRail } from "@/features/shop/components/RecentlyViewedRail";
+import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
 
 /**
  * Fully static / ISR. Prices come off the server in their own stored currency
@@ -50,6 +51,8 @@ export default async function ShopHomePage({ params }: { params: Promise<{ local
       </div>
 
       <RecentlyViewedRail locale={locale} />
+
+      <SponsoredPlacementSlot locale={locale} placement="shop_home" />
 
       <section className="mt-2 px-4 pt-3">
         <h2 className="mb-2.5 text-[17px] font-extrabold text-neutral-900">{t("featured")}</h2>

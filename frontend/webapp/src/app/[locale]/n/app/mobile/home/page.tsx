@@ -290,6 +290,8 @@ async function Home({ params }: PageProps) {
         </div>
       </div>
 
+      <SponsoredMediaCarouselSection locale={locale} placement="home_top" />
+
       <HomeHeroBanner offer={heroOffer} section={homeSections.hero_featured} labels={labels.hero} noDescription={labels.common.noDescription} />
 
       <section className="px-5 pb-8 lg:px-8">
@@ -349,7 +351,7 @@ async function Home({ params }: PageProps) {
         </div>
       </section>
 
-      <SponsoredMediaCarouselSection locale={locale} />
+      <SponsoredMediaCarouselSection locale={locale} placement="home_native_ad" />
 
       <section className="pb-8">
         <div className="mb-5 px-5">
@@ -423,6 +425,8 @@ async function Home({ params }: PageProps) {
         activePackagesCount={specialPackagesCount}
       />
       <LoyaltyClubSection section={homeSections.loyalty_club} locale={locale} labels={labels.loyaltyClub} />
+
+      <SponsoredMediaCarouselSection locale={locale} placement="home_bottom" />
 
 
 <div className="container" style={{  

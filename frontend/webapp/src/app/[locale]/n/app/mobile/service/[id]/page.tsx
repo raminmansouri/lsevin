@@ -4,6 +4,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getServicePageByIdCached } from '@/features/service-providers/server/service-page.repository.cached';
 import { listActiveServicePageIds } from '@/features/service-providers/server/service-page.repository';
 
+import { SponsoredPlacementSlot } from '@/features/sponsered-slider/components/sponsored-placement-slot';
+
 import ServicePage from './service-page';
 
 type ServiceRouteParams = {
@@ -50,5 +52,10 @@ export default async function TreatmentDetailPage({ params }: ServicePageRoutePr
     notFound();
   }
 
-  return <ServicePage data={data} serviceId={id} locale={locale} />;
+  return (
+    <>
+      <ServicePage data={data} serviceId={id} locale={locale} />
+      <SponsoredPlacementSlot locale={locale} placement="service_detail" />
+    </>
+  );
 }

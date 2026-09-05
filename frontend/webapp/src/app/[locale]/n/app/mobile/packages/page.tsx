@@ -6,6 +6,7 @@ import { Link } from '@/i18n/navigation';
 import type { PageProps } from '@/types/next';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { SafePriceText } from '@/features/home/components/safe-price-text';
+import { SponsoredPlacementSlot } from '@/features/sponsered-slider/components/sponsored-placement-slot';
 import {
   getActiveSpecialPackages,
   type SpecialPackagePublicItem,
@@ -67,6 +68,8 @@ export default async function SpecialPackagesPage({ params }: PageProps) {
           </div>
         )}
       </div>
+
+      <SponsoredPlacementSlot locale={locale} placement="packages" />
     </div>
   );
 }

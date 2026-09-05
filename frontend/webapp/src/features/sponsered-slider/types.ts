@@ -6,6 +6,11 @@ export const SPONSERED_SLIDER_PLACEMENTS = [
   "provider_detail",
   "service_detail",
   "booking_review",
+  "explore",
+  "categories",
+  "offers",
+  "packages",
+  "shop_home",
 ] as const;
 
 export const SPONSERED_SLIDER_OVERLAY_VARIANTS = ["dark", "light", "brand", "none"] as const;

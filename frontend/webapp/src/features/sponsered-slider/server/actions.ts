@@ -22,10 +22,21 @@ function flattenFieldErrors(error: unknown): Record<string, string[]> {
   return flattened.fieldErrors;
 }
 
+/**
+ * Slides are now rendered from several placements across the site (home, search
+ * results, explore, categories, offers, packages, provider/service pages, shop),
+ * and most of those routes are `force-static` with hourly ISR. Revalidating a
+ * handful of literal paths missed all of them twice over: the routes are locale
+ * prefixed (`/fa/n/app/mobile/home`, never `/n/app/mobile`), and a new placement
+ * would need another line here to ever show up.
+ *
+ * `revalidatePath("/", "layout")` clears the route cache for the whole app --
+ * the same purge the admin cache tool performs -- so an edit is visible on every
+ * page that hosts a slot, whichever locale it is viewed in.
+ */
 function revalidateSponseredSlider() {
   revalidatePath("/admin/sponsored-slider");
-  revalidatePath("/");
-  revalidatePath("/n/app/mobile");
+  revalidatePath("/", "layout");
 }
 
 export async function saveSponseredSliderAction(input: SponseredSliderFormValues & { id?: string }): Promise<SponseredSliderActionState> {

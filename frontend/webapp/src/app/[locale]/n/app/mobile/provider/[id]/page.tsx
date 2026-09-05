@@ -3,6 +3,8 @@ import { setRequestLocale } from "next-intl/server";
 import { getProviderPageDataFromDbCached } from "@/features/service-providers/server/provider-page.repository.cached";
 import { listActiveProviderPageIds } from "@/features/service-providers/server/provider-page.repository";
 
+import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
+
 import { ProviderDetailView } from "./provider-detail-view";
 
 type RouteParams = { locale: string; id: string };
@@ -34,5 +36,10 @@ export default async function ProviderDetailPage({ params }: PageProps) {
     () => ({ data: undefined, error: undefined }) as Awaited<ReturnType<typeof getProviderPageDataFromDbCached>>,
   );
 
-  return <ProviderDetailView initialData={result?.data ?? undefined} />;
+  return (
+    <>
+      <ProviderDetailView initialData={result?.data ?? undefined} />
+      <SponsoredPlacementSlot locale={locale} placement="provider_detail" />
+    </>
+  );
 }

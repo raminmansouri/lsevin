@@ -13,6 +13,14 @@ export type SponsoredSlide = {
   displayOrder: number;
 };
 
+/**
+ * A slide belongs to exactly one slot on the site. Rows written before
+ * `placement_key` existed read back as null and are treated as home-page slides,
+ * which is where they render today -- so switching this query to filter by
+ * placement leaves existing ads exactly where they are.
+ */
+export const DEFAULT_SPONSORED_PLACEMENT = 'home_native_ad';
+
 function normalizeLocale(locale?: string | null) {
   const value = (locale || 'fa-IR').trim();
   if (value.toLowerCase() === 'en') return 'en-US';
@@ -40,8 +48,13 @@ function numberValue(value: unknown): number {
   return 0;
 }
 
-export async function getSponsoredSlides(locale?: string | null, limit = 8): Promise<SponsoredSlide[]> {
+export async function getSponsoredSlides(
+  locale?: string | null,
+  limit = 8,
+  placementKey: string = DEFAULT_SPONSORED_PLACEMENT
+): Promise<SponsoredSlide[]> {
   const normalizedLocale = normalizeLocale(locale);
+  const normalizedPlacement = (placementKey || '').trim() || DEFAULT_SPONSORED_PLACEMENT;
 
   try {
   const rows = await sql<{
@@ -73,6 +86,7 @@ export async function getSponsoredSlides(locale?: string | null, limit = 8): Pro
     left join media.media_library ml
       on ml.id::text = coalesce(nullif(s.media_id::text, ''), nullif(s.url, ''))
     where coalesce(s.is_active, true) = true
+      and coalesce(nullif(btrim(s.placement_key), ''), ${DEFAULT_SPONSORED_PLACEMENT}::text) = ${normalizedPlacement}::text
       and coalesce(nullif(btrim(ml.file_url), ''), nullif(btrim(s.url), '')) is not null
     order by s.display_order asc, s.id desc
     limit ${limit}
@@ -94,7 +108,7 @@ export async function getSponsoredSlides(locale?: string | null, limit = 8): Pro
     // The carousel is decorative — a missing table or an unreachable DB (e.g.
     // during `next build` prerender) must never abort the home page render.
     if (process.env.NODE_ENV !== 'production') {
-      console.warn('[home] getSponsoredSlides failed; returning no slides.', error);
+      console.warn(`[home] getSponsoredSlides failed for placement "${normalizedPlacement}"; returning no slides.`, error);
     }
     return [];
   }

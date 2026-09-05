@@ -1,5 +1,7 @@
 import { getLocale } from "next-intl/server";
 
+import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
+
 import ExploreClient from "./ExploreClient";
 import { getExplorePageData, parseExploreFilters } from "./explore.data";
 
@@ -25,17 +27,20 @@ export default async function Explore({
   const data = await getExplorePageData({ locale, filters });
 
   return (
-    <ExploreClient
-      customerId={data.customerId}
-      categories={data.categories}
-      providerTypes={data.providerTypes}
-      featuredProviders={data.featuredProviders}
-      trendingServices={data.trendingServices}
-      sponsoredProviders={data.sponsoredProviders}
-      availableLanguages={data.availableLanguages}
-      availableCurrencies={data.availableCurrencies}
-      locale={locale}
-      filters={filters}
-    />
+    <>
+      <ExploreClient
+        customerId={data.customerId}
+        categories={data.categories}
+        providerTypes={data.providerTypes}
+        featuredProviders={data.featuredProviders}
+        trendingServices={data.trendingServices}
+        sponsoredProviders={data.sponsoredProviders}
+        availableLanguages={data.availableLanguages}
+        availableCurrencies={data.availableCurrencies}
+        locale={locale}
+        filters={filters}
+      />
+      <SponsoredPlacementSlot locale={locale} placement="explore" />
+    </>
   );
 }

@@ -22,9 +22,13 @@ import { LocalizedInput } from "@/features/shared/components/LocalizedInput";
 import {
   SPONSERED_SLIDER_ALIGNMENTS,
   SPONSERED_SLIDER_OVERLAY_VARIANTS,
-  SPONSERED_SLIDER_PLACEMENTS,
   type SponseredSliderAdminRow,
 } from "../types";
+import {
+  SPONSERED_SLIDER_PLACEMENT_META,
+  getSponseredSliderPlacementMeta,
+  sponseredSliderPlacementLabel,
+} from "../lib/placements";
 import { saveSponseredSliderAction } from "../server/actions";
 import { SponseredSliderInputSchema, type SponseredSliderFormValues } from "../server/schema";
 
@@ -142,6 +146,10 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
     mode: "onSubmit",
   });
 
+  // Which page the picked slot actually renders on -- shown under the dropdown so
+  // nobody has to guess what "home_native_ad" means.
+  const selectedPlacement = getSponseredSliderPlacementMeta(form.watch("placementKey"));
+
   function setLocalizedField(name: keyof Pick<
     FormValues,
     | "eyebrowTranslations"
@@ -226,12 +234,20 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {SPONSERED_SLIDER_PLACEMENTS.map((placement) => (
-                          <SelectItem key={placement} value={placement}>{prettify(placement)}</SelectItem>
+                        {SPONSERED_SLIDER_PLACEMENT_META.map((placement) => (
+                          <SelectItem key={placement.key} value={placement.key}>
+                            {sponseredSliderPlacementLabel(tAdmin, placement.key)}
+                            {placement.isMounted ? "" : ` — ${tAdmin("placementNotMounted")}`}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormDescription>{tAdmin("useTheSameKeyInTheFrontendComponentForExampleHomeNativeAd")}</FormDescription>
+                    <FormDescription>
+                      {tAdmin("slidesPerPlacement")}
+                      {selectedPlacement?.route
+                        ? ` ${tAdmin("renderedOn")}: ${selectedPlacement.route}`
+                        : ""}
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

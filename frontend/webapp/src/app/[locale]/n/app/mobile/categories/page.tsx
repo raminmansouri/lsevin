@@ -4,6 +4,7 @@ import { setRequestLocale } from "next-intl/server";
 
 import { getCategoryBrowserGroups } from "@/features/service-providers/actions/categories/get-category-browser-groups";
 import { CategoryBrowserClient } from "@/features/service-providers/components/categories/category-browser-client";
+import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
 
 export const metadata: Metadata = {
   title: "Categories",
@@ -40,6 +41,7 @@ export default async function CategoryBrowserPage({
         totalCategories={data.totalCategories}
         totalProviders={data.totalProviders}
       />
+      <SponsoredPlacementSlot locale={locale} placement="categories" />
     </Suspense>
   );
 }

@@ -1,3 +1,5 @@
+import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
+
 import OffersClient from "./OffersClient";
 import { getOffersPageData, parseOffersFilters } from "./offers.data";
 
@@ -14,5 +16,10 @@ export default async function Page({ params, searchParams }: PageProps) {
   const filters = parseOffersFilters(resolvedSearchParams);
   const data = await getOffersPageData({ locale, filters });
 
-  return <OffersClient {...data} filters={filters} />;
+  return (
+    <>
+      <OffersClient {...data} filters={filters} />
+      <SponsoredPlacementSlot locale={locale} placement="offers" />
+    </>
+  );
 }

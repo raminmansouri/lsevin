@@ -2364,7 +2364,23 @@
     },
     "internationalPriceMultiplier": "International price multiplier",
     "internationalPriceMultiplierPlaceholder": "e.g. 3",
-    "internationalPriceMultiplierHint": "International price = converted price × this coefficient. Leave blank to use the global default."
+    "internationalPriceMultiplierHint": "International price = converted price × this coefficient. Leave blank to use the global default.",
+    "placementHomeTop": "Home — top of page",
+    "placementHomeNativeAd": "Home — mid feed",
+    "placementHomeBottom": "Home — bottom of page",
+    "placementSearchResults": "Search results",
+    "placementExplore": "Explore",
+    "placementCategories": "Categories",
+    "placementOffers": "Offers",
+    "placementPackages": "Special packages",
+    "placementProviderDetail": "Provider page",
+    "placementServiceDetail": "Service page",
+    "placementShopHome": "Shop home",
+    "placementBookingReview": "Booking review",
+    "placementNotMounted": "No page renders this placement yet",
+    "allPlacements": "All placements",
+    "slidesPerPlacement": "Slides are shown only on the placement selected here.",
+    "renderedOn": "Rendered on"
   },
   "Home": {
     "common": {

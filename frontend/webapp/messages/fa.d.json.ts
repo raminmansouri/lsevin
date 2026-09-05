@@ -1610,7 +1610,23 @@ declare const messages: {
     },
     "internationalPriceMultiplier": "ضریب قیمت بین‌المللی",
     "internationalPriceMultiplierPlaceholder": "مثلاً ۳",
-    "internationalPriceMultiplierHint": "قیمت بیماران بین‌المللی = قیمت ارزی × این ضریب. خالی بگذارید تا از مقدار پیش‌فرض استفاده شود."
+    "internationalPriceMultiplierHint": "قیمت بیماران بین‌المللی = قیمت ارزی × این ضریب. خالی بگذارید تا از مقدار پیش‌فرض استفاده شود.",
+    "placementHomeTop": "صفحه اصلی — بالای صفحه",
+    "placementHomeNativeAd": "صفحه اصلی — میان محتوا",
+    "placementHomeBottom": "صفحه اصلی — پایین صفحه",
+    "placementSearchResults": "نتایج جستجو",
+    "placementExplore": "کاوش",
+    "placementCategories": "دسته‌بندی‌ها",
+    "placementOffers": "پیشنهادها",
+    "placementPackages": "پکیج‌های ویژه",
+    "placementProviderDetail": "صفحه ارائه‌دهنده",
+    "placementServiceDetail": "صفحه خدمت",
+    "placementShopHome": "صفحه اصلی فروشگاه",
+    "placementBookingReview": "بازبینی رزرو",
+    "placementNotMounted": "هنوز هیچ صفحه‌ای این جایگاه را نمایش نمی‌دهد",
+    "allPlacements": "همه جایگاه‌ها",
+    "slidesPerPlacement": "هر اسلاید فقط در جایگاهی که اینجا انتخاب می‌شود نمایش داده می‌شود.",
+    "renderedOn": "نمایش در"
   },
   "Home": {
     "common": {

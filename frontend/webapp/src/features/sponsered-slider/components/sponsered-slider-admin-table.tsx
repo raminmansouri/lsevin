@@ -8,14 +8,44 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 import type { SponseredSliderAdminRow } from "../types";
+import {
+  SPONSERED_SLIDER_PLACEMENT_META,
+  getSponseredSliderPlacementMeta,
+  normalizeSponseredSliderPlacement,
+  sponseredSliderPlacementLabel,
+} from "../lib/placements";
 import { deleteSponseredSliderAction } from "../server/actions";
 
 function pickTranslation(value?: Record<string, string>, fallback?: string | null) {
   return value?.["en-US"] || value?.["fa-IR"] || Object.values(value || {}).find(Boolean) || fallback || "—";
 }
 
-export function SponseredSliderAdminTable({ rows }: { rows: SponseredSliderAdminRow[] }) {
+export function SponseredSliderAdminTable({
+  rows,
+  placementFilter = null,
+}: {
+  rows: SponseredSliderAdminRow[];
+  placementFilter?: string | null;
+}) {
   const tAdmin = useTranslations("AdminGenerated");
+
+  // Rows written before `placement_key` existed carry null and render on the home
+  // page, so they are counted under `home_native_ad` here too -- the list has to
+  // agree with what the site actually shows.
+  const countByPlacement = rows.reduce<Record<string, number>>((totals, row) => {
+    const key = normalizeSponseredSliderPlacement(row.placementKey);
+    totals[key] = (totals[key] || 0) + 1;
+    return totals;
+  }, {});
+
+  const activeFilter = placementFilter
+    ? SPONSERED_SLIDER_PLACEMENT_META.find((item) => item.key === placementFilter)?.key ?? null
+    : null;
+
+  const visibleRows = activeFilter
+    ? rows.filter((row) => normalizeSponseredSliderPlacement(row.placementKey) === activeFilter)
+    : rows;
+
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -33,10 +63,36 @@ export function SponseredSliderAdminTable({ rows }: { rows: SponseredSliderAdmin
         </Button>
       </div>
 
+      <div className="flex flex-wrap gap-2">
+        <Button asChild size="sm" variant={activeFilter ? "outline" : "default"} className="rounded-full">
+          <Link href="/admin/sponsored-slider">
+            {tAdmin("allPlacements")} ({rows.length})
+          </Link>
+        </Button>
+        {SPONSERED_SLIDER_PLACEMENT_META.map((placement) => (
+          <Button
+            key={placement.key}
+            asChild
+            size="sm"
+            variant={activeFilter === placement.key ? "default" : "outline"}
+            className="rounded-full"
+          >
+            <Link href={`/admin/sponsored-slider?placement=${placement.key}`}>
+              {sponseredSliderPlacementLabel(tAdmin, placement.key)} ({countByPlacement[placement.key] || 0})
+            </Link>
+          </Button>
+        ))}
+      </div>
+
       <Card className="overflow-hidden">
         <CardHeader>
           <CardTitle>{tAdmin("slides")}</CardTitle>
-          <CardDescription>{rows.length} slide{rows.length === 1 ? "" : "s"} configured.</CardDescription>
+          <CardDescription>
+            {visibleRows.length} slide{visibleRows.length === 1 ? "" : "s"} configured.
+            {activeFilter && !getSponseredSliderPlacementMeta(activeFilter)?.isMounted
+              ? ` ${tAdmin("placementNotMounted")}.`
+              : ""}
+          </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -53,12 +109,12 @@ export function SponseredSliderAdminTable({ rows }: { rows: SponseredSliderAdmin
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {rows.map((row) => (
+                {visibleRows.map((row) => (
                   <TableRow key={row.id}>
                     <TableCell className="font-medium">{row.displayOrder}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className="rounded-full capitalize">
-                        {row.placementKey.replaceAll("_", " ")}
+                      <Badge variant="secondary" className="rounded-full">
+                        {sponseredSliderPlacementLabel(tAdmin, row.placementKey)}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -108,7 +164,7 @@ export function SponseredSliderAdminTable({ rows }: { rows: SponseredSliderAdmin
                     </TableCell>
                   </TableRow>
                 ))}
-                {!rows.length && (
+                {!visibleRows.length && (
                   <TableRow>
                     <TableCell colSpan={7} className="h-32 text-center text-sm text-slate-500">
                       No sponsored slider items yet.
