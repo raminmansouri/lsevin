@@ -1546,3 +1546,17 @@ export async function createProviderReviewReplyInDb(
   }
 }
 
+
+/**
+ * Active service-provider ids — for `generateStaticParams` on the provider
+ * page. Bounded; cookie-free.
+ */
+export async function listActiveProviderPageIds(limit = 400): Promise<string[]> {
+  const rows = await sql<{ id: string }[]>`
+    select id::text as id from category.service_providers
+    where is_active = true
+    order by coalesce(featured_score, 0) desc, coalesce(rating, 0) desc, create_date desc
+    limit ${Math.max(1, Math.min(3000, limit))}
+  `;
+  return rows.map((r) => r.id).filter(Boolean);
+}

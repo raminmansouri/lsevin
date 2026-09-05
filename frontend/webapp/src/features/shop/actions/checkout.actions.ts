@@ -1,47 +1,97 @@
 "use server";
-import { revalidatePath } from "next/cache";
-import { sql, resolveCurrentCustomerId } from "../lib/db";
-import { getCartView } from "../api/cart.repository";
-import { checkoutSubmitSchema } from "../schemas/checkout";
 
-function generateOrderNumber() {
-  const stamp = Date.now().toString().slice(-8);
-  return `SO-${stamp}`;
+import { revalidatePath } from "next/cache";
+
+import { getShopContext } from "../lib/context";
+import {
+  checkoutQuoteSchema,
+  placeOrderSchema,
+  saveAddressSchema,
+} from "../schemas/checkout";
+import { quoteCheckout, placeOrder } from "../api/checkout.repository";
+import {
+  deleteCustomerAddress,
+  listCustomerAddresses,
+  saveCustomerAddress,
+} from "../api/address.repository";
+import { startOrderPayment } from "../server/shop-payment.service";
+import { startPaymentSchema } from "../schemas/checkout";
+import { emitCommerceEvent } from "../lib/analytics";
+
+export async function quoteCheckoutAction(input: unknown) {
+  try {
+    const parsed = checkoutQuoteSchema.parse(input);
+    const quote = await quoteCheckout(parsed);
+    return { ok: true as const, quote };
+  } catch (error) {
+    return { ok: false as const, message: error instanceof Error ? error.message : "Could not re-quote the cart." };
+  }
 }
 
-export async function submitCheckoutAction(input: unknown) {
-  const parsed = checkoutSubmitSchema.parse(input);
-  const cart = await getCartView();
-  if (!cart.items.filter(x => !x.savedForLater).length) throw new Error("Cart is empty");
-  const insufficient = cart.items.find(x => !x.savedForLater && !x.hasStock);
-  if (insufficient) throw new Error(`Insufficient stock for ${insufficient.name}`);
-  const customerId = await resolveCurrentCustomerId();
-  const orderNumber = generateOrderNumber();
+export async function listAddressesAction() {
+  return listCustomerAddresses();
+}
 
-  const [order] = await sql<{ id: string }[]>`
-    insert into shop.orders (order_number, customer_id, cart_id, email, currency, status, payment_status, fulfillment_status, subtotal, discount_total, shipping_total, tax_total, grand_total, coupon_code, note)
-    values (${orderNumber}, ${customerId}::uuid, ${parsed.cartId}::uuid, ${parsed.email}, ${cart.totals.currency}, 'pending', 'pending', 'pending', ${cart.totals.subtotal}, ${cart.totals.discountTotal}, ${cart.totals.shippingTotal}, ${cart.totals.taxTotal}, ${cart.totals.grandTotal}, ${cart.totals.couponCode}, ${parsed.note ?? null})
-    returning id::text as id
-  `;
+export async function saveAddressAction(input: unknown) {
+  const parsed = saveAddressSchema.parse(input);
+  const id = await saveCustomerAddress(parsed);
+  revalidatePath("/n/app/mobile/shop/checkout");
+  return { ok: true as const, id, addresses: await listCustomerAddresses() };
+}
 
-  for (const addressType of ["shipping", "billing"] as const) {
-    const source = parsed[`${addressType}Address`];
-    await sql`
-      insert into shop.order_addresses (order_id, address_type, full_name, phone_number_country_code, phone_number, country, city, state_region, address_line_1, address_line_2, postal_code, company)
-      values (${order.id}::uuid, ${addressType}, ${source.fullName}, ${source.phoneNumberCountryCode ?? null}, ${source.phoneNumber ?? null}, ${source.country}, ${source.city}, ${source.stateRegion ?? null}, ${source.addressLine1}, ${source.addressLine2 ?? null}, ${source.postalCode ?? null}, ${source.company ?? null})
-    `;
+export async function deleteAddressAction(id: string) {
+  await deleteCustomerAddress(String(id));
+  revalidatePath("/n/app/mobile/shop/checkout");
+  return { ok: true as const, addresses: await listCustomerAddresses() };
+}
+
+/**
+ * Places the order then immediately begins payment. Returns either a redirect
+ * URL (online gateway) or manual bank-transfer instructions. Idempotent: a retry
+ * with the same idempotencyKey returns the same order (SHP-V01-017).
+ */
+export async function placeOrderAction(input: unknown) {
+  const parsed = placeOrderSchema.parse(input);
+  const ctx = await getShopContext();
+
+  const order = await placeOrder({
+    cartId: parsed.cartId,
+    idempotencyKey: parsed.idempotencyKey,
+    email: parsed.email,
+    shippingAddress: parsed.shippingAddress,
+    billingAddress: parsed.sameBilling || !parsed.billingAddress ? parsed.shippingAddress : parsed.billingAddress,
+    deliveryMethodId: parsed.deliveryMethodId,
+    paymentMethodId: parsed.paymentMethodId ?? "",
+    paymentCurrency: parsed.paymentCurrency,
+    note: parsed.note,
+    sourceSurface: parsed.sourceSurface ?? "shop_checkout",
+  });
+
+  await emitCommerceEvent("shop_checkout_started", {
+    orderId: order.orderId,
+    value: order.grandTotal,
+    currency: order.currency,
+    idempotencyKey: parsed.idempotencyKey,
+  });
+
+  let payment: Awaited<ReturnType<typeof startOrderPayment>> | { mode: "error"; message: string };
+  try {
+    payment = await startOrderPayment({
+      orderId: order.orderId,
+      methodCode: parsed.paymentMethodCode,
+      locale: ctx.locale,
+    });
+  } catch (e) {
+    payment = { mode: "error", message: e instanceof Error ? e.message : "Payment could not be started." };
   }
 
-  for (const item of cart.items.filter(x => !x.savedForLater)) {
-    await sql`
-      insert into shop.order_items (order_id, product_id, variant_id, quantity, currency, unit_price_snapshot, compare_at_price_snapshot, discount_total_snapshot, tax_total_snapshot, line_total_snapshot, product_name_snapshot, variant_name_snapshot, attributes_snapshot, image_url_snapshot)
-      values (${order.id}::uuid, ${item.productId}::uuid, ${item.variantId ?? null}::uuid, ${item.quantity}, ${item.currency}, ${item.unitPrice}, ${item.compareAtPrice ?? null}, 0, 0, ${item.unitPrice * item.quantity}, ${JSON.stringify({ en: item.name })}, ${JSON.stringify(item.variantId ? { en: "Selected variant" } : {})}, ${JSON.stringify(item.attributes)}, ${item.imageUrl})
-    `;
-  }
-
-  await sql`insert into shop.order_status_history (order_id, from_status, to_status, note) values (${order.id}::uuid, null, 'pending', 'Order created via checkout')`;
-  await sql`update shop.carts set status = 'converted', converted_order_id = ${order.id}::uuid, last_modified_date = now() where id = ${parsed.cartId}::uuid`;
-  revalidatePath("/n/app/mobile/shop/cart");
   revalidatePath("/n/app/mobile/shop/orders");
-  return { ok: true, orderId: order.id, orderNumber };
+  return { ok: true as const, order, payment };
+}
+
+export async function startPaymentAction(input: unknown) {
+  const parsed = startPaymentSchema.parse(input);
+  const ctx = await getShopContext();
+  const payment = await startOrderPayment({ orderId: parsed.orderId, methodCode: parsed.methodCode, locale: ctx.locale });
+  return { ok: true as const, payment };
 }

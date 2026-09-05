@@ -8,12 +8,13 @@ import { getClientMessages } from "@/i18n/client-messages";
 import { routing } from "@/i18n/routing";
 import { LocalePageProps } from "@/types/next";
 
-// Render localized pages dynamically (per request) instead of statically
-// prerendering them at build time. Many pages fetch from the API / Postgres,
-// which aren't reachable during `next build`, so prerendering them would time
-// out. This matches how the app runs under `next dev`.
-export const dynamic = "force-dynamic";
-
+// The dynamic floor used to live here (`export const dynamic = "force-dynamic"`),
+// which forced *every* localized route to render per request. It has moved down
+// to the segment layouts that actually need it — `(admin)`, `(auth)`, `(main)`,
+// `provider-portal`, `provider-panel` — and to the individual mobile pages that
+// read the DB without a request context. That lets the storefront / discovery
+// pages (`n/app/mobile/{home,shop,categories,search,explore,provider,specialist,
+// service}` and `shop/product`) be statically generated / ISR'd.
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }

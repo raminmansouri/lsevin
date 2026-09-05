@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
-import { getUserId } from '@/lib/auth/session';
-import { getServicePageByIdFromDb } from '@/features/service-providers/server/service-page.repository';
+import { getServicePageByIdCached } from '@/features/service-providers/server/service-page.repository.cached';
+import { listActiveServicePageIds } from '@/features/service-providers/server/service-page.repository';
 
 import ServicePage from './service-page';
 
@@ -13,14 +13,20 @@ type ServiceRouteParams = {
 
 type ServicePageRouteProps = {
   params: Promise<ServiceRouteParams> | ServiceRouteParams;
-  searchParams?: Promise<{ currency?: string; country?: string; browserCountry?: string }> | { currency?: string; country?: string; browserCountry?: string };
 };
 
-async function getOptionalUserId() {
+// Static / ISR. Rendered without a visitor context (default currency, no
+// favourite state — the interactive view resolves those on the client).
+// `generateStaticParams` prewarms active services; anything else is ISR'd.
+export const dynamic = 'force-static';
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
   try {
-    return (await getUserId()) || null;
+    const ids = await listActiveServicePageIds(400);
+    return ids.map((id) => ({ id }));
   } catch {
-    return null;
+    return [];
   }
 }
 
@@ -34,21 +40,11 @@ export async function generateMetadata({ params }: Pick<ServicePageRouteProps, '
   };
 }
 
-export default async function TreatmentDetailPage({ params, searchParams }: ServicePageRouteProps) {
+export default async function TreatmentDetailPage({ params }: ServicePageRouteProps) {
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const resolvedSearchParams = searchParams ? await searchParams : {};
-  const userId = await getOptionalUserId();
-
-  const data = await getServicePageByIdFromDb({
-    serviceId: id,
-    locale,
-    userId,
-    preferredCurrencyCode: resolvedSearchParams.currency,
-    selectedCountryCode: resolvedSearchParams.country,
-    browserCountryCode: resolvedSearchParams.browserCountry,
-  });
+  const data = await getServicePageByIdCached({ serviceId: id, locale }).catch(() => null);
 
   if (!data) {
     notFound();

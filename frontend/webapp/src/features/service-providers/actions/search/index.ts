@@ -6,6 +6,7 @@ import { z } from "zod/v4";
 import { getSearchHistoryTag, getSearchResultsTag } from "../../db/cache";
 import {
   clearSearchHistory,
+  getRecentSearches,
   getSearchHistory,
   getSearchResults,
   normalizeSearchTerm,
@@ -36,6 +37,12 @@ const searchResultsSchema = z
 
 export async function getSearchHistoryAction(locale?: string) {
   return getSearchHistory(locale);
+}
+
+/** Per-identity recent searches, fetched by the (statically rendered) search
+ *  page on the client so the page shell itself stays cookie-free. */
+export async function getRecentSearchesAction(): Promise<string[]> {
+  return getRecentSearches(8).catch(() => []);
 }
 
 export async function recordSearchTermAction(input: unknown) {

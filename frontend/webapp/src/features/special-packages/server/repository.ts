@@ -267,3 +267,20 @@ export async function countActiveSpecialPackages(): Promise<number> {
     return 0;
   }
 }
+
+/**
+ * Active special-package ids — for `generateStaticParams` on the package detail
+ * page. Cookie-free.
+ */
+export async function listActiveSpecialPackageIds(limit = 300): Promise<string[]> {
+  try {
+    const rows = await sql<{ id: string }[]>`
+      select id::text as id from marketing.special_packages
+      where is_active = true order by create_date desc
+      limit ${Math.max(1, Math.min(3000, limit))}
+    `;
+    return rows.map((r) => r.id).filter(Boolean);
+  } catch {
+    return [];
+  }
+}

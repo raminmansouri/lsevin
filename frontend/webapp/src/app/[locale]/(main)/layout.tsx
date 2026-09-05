@@ -7,6 +7,12 @@ import Shell from "@/components/shell";
 import { getClientMessages } from "@/i18n/client-messages";
 import { LocalePageProps } from "@/types/next";
 
+// This whole segment renders per request (session-gated dashboards / forms /
+// marketing pages that read the DB). The dynamic floor that used to sit on
+// `[locale]/layout.tsx` now lives here.
+export const dynamic = "force-dynamic";
+
+
 const MainLayout = async ({ children, params }: LocalePageProps) => {
   // The public marketing tree — the browse/type pages and their filters.
   const messages = await getClientMessages("marketing");

@@ -2996,6 +2996,10 @@ declare const messages: {
     "clear": "سڕینەوەی هەڵبژاردن"
   },
   "AdminGenerated": {
+    "deleteCurrency": "Delete currency",
+    "deleteCurrencyConfirm": "Delete this currency? It is removed from the lists while past records stay untouched.",
+    "currencyDeleted": "Currency deleted.",
+    "currencyInUseCannotDelete": "This currency was not deleted because it is used in:",
     "accentColor": "ڕەنگی جیاکەرەوە",
     "accept": "قبوڵکردن",
     "accessControl": "کۆنترۆڵی دەستگەیشتن",
@@ -4901,6 +4905,35 @@ declare const messages: {
     "awaitingConfirmation": "چاوەڕوانی دڵنیاکردنەوە",
     "back": "گەڕانەوە",
     "bankTransfer": "گواستنەوەی بانکی",
+    "bankReceiptAccountsTitle": "هەژمارە بانکییەکان",
+    "bankReceiptInstructions": "بڕی پارەکە بگوازەرەوە بۆ یەکێک لە هەژمارەکانی خوارەوە و وێنە یان فایلی PDF ی فیشەکە بار بکە.",
+    "bankNameLabel": "ناوی بانک",
+    "accountHolderLabel": "ناوی خاوەنی هەژمار",
+    "cardNumberLabel": "ژمارەی کارت",
+    "ibanLabel": "ژمارەی شەبا",
+    "accountNumberLabel": "ژمارەی هەژمار",
+    "uploadReceiptLabel": "بارکردنی فیش",
+    "receiptRequiredError": "بارکردنی وێنە یان فایلی فیش پێویستە.",
+    "receiptWrongTypeError": "فیشەکە دەبێت وێنە یان فایلی PDF بێت.",
+    "receiptTooLargeError": "قەبارەی فایلی فیش دەبێت لە 15 مێگابایت کەمتر بێت.",
+    "receiptUploading": "فیشەکە باردەکرێت...",
+    "noBankAccountConfigured": "هیچ هەژمارێکی بانکی لەلایەن بەڕێوەبەرەوە ڕێکنەخراوە.",
+    "pendingReviewMessage": "فیشەکەت وەرگیرا و چاوەڕوانی پەسەندکردنی بەڕێوەبەرە.",
+    "pendingCollectionMessage": "حجزەکەت دڵنیاکرایەوە؛ پارەکە لە کاتی پێشکەشکردنی خزمەتەکە وەردەگیرێت.",
+    "submitCheckout": "تۆمارکردنی کۆتایی حجز",
+    "paymentMethodPayOnDelivery": "پارەدان لە کاتی گەیاندن",
+    "paymentMethodBankReceipt": "فیشی بانکی",
+    "paymentStatusPendingReview": "چاوەڕوانی پێداچوونەوەی بەڕێوەبەر",
+    "paymentStatusPendingCollection": "چاوەڕوانی پارەدان لە کاتی گەیاندن",
+    "paymentStatusRequiresAction": "پێویستە پارەدان تەواو بکرێت",
+    "paymentStatusSucceeded": "پارەدان بە سەرکەوتوویی ئەنجامدرا",
+    "paymentStatusInsufficientBalance": "باڵانسی جزدان کەمە",
+    "paymentStatusNotRequired": "پێویست بە پارەدان ناکات",
+    "invoiceTitle": "پسووڵەی حجز",
+    "printDate": "بەرواری چاپکردن",
+    "trackingNumber": "ژمارەی شوێنکەوتن",
+    "invoiceFooterNote": "ئەم بەڵگەنامەیە وەک وەسڵی حجزەکەت دەرچووە.",
+    "downloadInvoicePdf": "داگرتنی PDF",
     "beforeAfter": "پێش/دوای",
     "bESTSELLER": "زۆرترین فرۆش",
     "bESTVALUE": "باشترین نرخ",
@@ -12695,6 +12728,19 @@ declare const messages: {
         "empty": "هێشتا هیچ وەرگرێک نییە — کەس ئاگادار ناکرێتەوە.",
         "cancel": "هەڵوەشاندنەوە"
       }
+    }
+  },
+  "MobileNotifications": {
+    "title": "ئاگادارکردنەوەکان",
+    "unreadCount": "{count} نەخوێندراوە",
+    "markAllRead": "هەمووی وەک خوێندراوە نیشانە بکە",
+    "emptyTitle": "هیچ ئاگادارکردنەوەیەک نییە",
+    "emptyDescription": "هەموو شتێک تازەیە!",
+    "tabs": {
+      "all": "هەموو",
+      "booking": "پاشکەوتکردنەکان",
+      "offer": "پێشنیارەکان",
+      "system": "سیستەم"
     }
   }
 };

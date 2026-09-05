@@ -5,22 +5,22 @@ import { Suspense } from 'react';
 import HomeFeaturedServicesSuspenseBoundary from '../home/components/service-providers';
 import type { PageProps } from '@/types/next';
 import { Link } from '@/i18n/navigation';
-import { homeSearchParamsCache } from '@/features/home/types';
-import { getFeaturedHomeServices } from '@/features/home/api/server/get-home-page';
+import { getFeaturedHomeServicesCached } from '@/features/home/api/server/get-home-page.cached';
+
+// Static / ISR — the featured list is location-agnostic here.
+export const dynamic = 'force-static';
+export const revalidate = 3600;
 
 async function getLocaleFromParams(params: PageProps['params']) {
   const resolved = await params;
   return String((resolved as { locale?: string } | undefined)?.locale || 'fa-IR');
 }
 
-export default async function FeaturedServicesPage({ params, searchParams }: PageProps) {
+export default async function FeaturedServicesPage({ params }: PageProps) {
   const locale = await getLocaleFromParams(params);
   const t = await getTranslations({ locale, namespace: 'Home' });
-  const searchParamsData = await searchParams;
-  const { countryCode, cityCode } = homeSearchParamsCache.parse(searchParamsData);
 
-  const queryInput = { locale, countryCode, cityCode };
-  const featuredServices = await getFeaturedHomeServices(queryInput, 999);
+  const featuredServices = await getFeaturedHomeServicesCached({ locale }, 999).catch(() => []);
 
   return (
     <div className="min-h-screen bg-white pb-24">
@@ -55,7 +55,7 @@ export default async function FeaturedServicesPage({ params, searchParams }: Pag
             <HomeFeaturedServicesSuspenseBoundary
               services={featuredServices}
               locale={locale}
-              selectedCountryCode={countryCode}
+              selectedCountryCode={undefined}
               layout="grid"
               labels={{
                 emptyTitle: t('featured.emptyTitle'),

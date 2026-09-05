@@ -1,6 +1,8 @@
 import { getNotificationsPageData, parseNotificationsFilters } from "./notifications.data";
 import NotificationsClient from "./NotificationsClient";
 
+export const dynamic = "force-dynamic";
+
 type SearchParams = Record<string, string | string[] | undefined>;
 
 export default async function Page({

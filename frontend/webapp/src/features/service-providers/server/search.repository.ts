@@ -6,6 +6,10 @@ import { cookies } from "next/headers";
 
 import sql from "@/config/database/db";
 
+import {
+  getPopularSearchCategoriesCached,
+  getTrendingSearchesCached,
+} from "./search.repository.cached";
 import type {
   SearchHistoryPopularCategoryVm,
   SearchHistoryResponse,
@@ -343,10 +347,12 @@ export async function getPopularSearchCategories(
 }
 
 export async function getSearchHistory(locale?: string): Promise<SearchHistoryResponse> {
+  // `getRecentSearches` is per identity; the other two are global (locale-only)
+  // and served from the `"use cache"` layer — see `search.repository.cached`.
   const [recentSearches, popularCategories, trendingSearches] = await Promise.all([
     getRecentSearches(8),
-    getPopularSearchCategories(locale, 8),
-    getTrendingSearches(locale, 6),
+    getPopularSearchCategoriesCached(locale, 8),
+    getTrendingSearchesCached(locale, 6),
   ]);
 
   return {

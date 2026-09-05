@@ -1,5 +1,5 @@
 import { Award, ChevronRight, Gift, Map, Search, Sparkles, Star, TrendingUp } from 'lucide-react';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import { Skeleton } from '../../design-system/components';
@@ -11,27 +11,29 @@ import HomeFeaturedServicesSuspenseBoundary from './components/service-providers
 import HomeTrendingServicesSuspenseBoundary from './components/trending-services';
 import HomeTrustedProvidersSuspenseBoundary from './components/trusted-providers';
 import UserInfoSubBar from './components/user-info';
+import { type HomeHeroOffer } from '@/features/home/api/server/get-home-page';
 import {
-  getFeaturedHomeServices,
-  getHomeCategories,
-  getHomeHeroOffer,
-  getNearbyProviderCount,
-  getTrendingHomeServices,
-  getTrustedHomeProviders,
-  type HomeHeroOffer,
-} from '@/features/home/api/server/get-home-page';
+  getFeaturedHomeServicesCached,
+  getHomeCategoriesCached,
+  getHomeHeroOfferCached,
+  getNearbyProviderCountCached,
+  getTrendingHomeServicesCached,
+  getTrustedHomeProvidersCached,
+} from '@/features/home/api/server/get-home-page.cached';
 import {
   formatHomeSectionText,
-  getHomeManagedSections,
   type HomeManagedSection,
 } from '@/features/home/api/server/get-home-sections';
+import { getHomeManagedSectionsCached } from '@/features/home/api/server/get-home-managed-sections-cached';
 import { HomeLexicalDescription } from '@/features/home/components/home-lexical-description';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { SponsoredMediaCarouselSection } from '@/features/home/components/sponsored-media-carousel-section';
-import { homeSearchParamsCache } from '@/features/home/types';
-import { getActiveLocationQueryScope } from '@/features/locations/server/active-location';
-import { getProfileForEdit } from '@/features/profile/actions/profile.actions';
 import { countActiveSpecialPackages } from '@/features/special-packages/server/repository';
+
+// Static / ISR — the landing page shell no longer reads the visitor's location
+// or profile on the server; see `Home` below.
+export const dynamic = 'force-static';
+export const revalidate = 3600;
 
 async function getLocaleFromParams(params: PageProps['params']) {
   const resolved = await params;
@@ -150,8 +152,9 @@ function formatLabel(template: string, replacements: Record<string, string | num
   );
 }
 
-async function Home({ params, searchParams }: PageProps) {
+async function Home({ params }: PageProps) {
   const locale = await getLocaleFromParams(params);
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'Home' });
   const labels: HomePageLabels = {
     common: {
@@ -225,26 +228,18 @@ async function Home({ params, searchParams }: PageProps) {
     },
   };
 
-  const searchParamsData = await searchParams;
-  const { countryCode, cityCode } = homeSearchParamsCache.parse(searchParamsData);
-  const userLat = parseCoordParam(searchParamsData.lat);
-  const userLng = parseCoordParam(searchParamsData.lng);
-
-  const queryScope = await getActiveLocationQueryScope({
-    locale,
-    countryCode,
-    cityCode,
-    latitude: userLat,
-    longitude: userLng,
-    includeProfile: true,
-    includeIp: true,
-  });
-
-  // Prefer the visitor's real coordinates (from the URL) over the matched city
-  // centroid so provider lists sort by what's truly closest to them.
-  const nearbyLat = userLat ?? queryScope.latitude;
-  const nearbyLng = userLng ?? queryScope.longitude;
-  const queryInput = { ...queryScope, latitude: nearbyLat, longitude: nearbyLng };
+  // Statically rendered: the rails are location-agnostic (the `LocationPicker`
+  // below still lets the visitor scope the app, and a location cookie is applied
+  // by the pages they navigate to). The greeting row resolves the signed-in
+  // user on the client.
+  const queryInput: {
+    locale: string;
+    countryCode?: string;
+    cityCode?: string;
+  } = { locale: normalizeLocale(locale) };
+  const nearbyLat: number | null = null;
+  const nearbyLng: number | null = null;
+  const profile = null;
 
   const [
     categories,
@@ -254,18 +249,17 @@ async function Home({ params, searchParams }: PageProps) {
     heroOffer,
     nearbyProviderCount,
     homeSections,
-    profile,
     specialPackagesCount,
   ] = await Promise.all([
-    getHomeCategories(queryInput, 6),
-    getFeaturedHomeServices(queryInput, 8),
-    getTrendingHomeServices(queryInput, 8),
-    getTrustedHomeProviders(queryInput, 8),
-    getHomeHeroOffer(queryInput),
-    getNearbyProviderCount(queryInput),
-    getHomeManagedSections(locale),
-    // Guests can browse the home page; their profile lookup is optional.
-    getProfileForEdit('en-US').catch(() => null),
+    // Each read is guarded so a transient build-time DB failure produces an
+    // empty rail (ISR fills it on the next request) instead of aborting export.
+    getHomeCategoriesCached(queryInput, 6).catch(() => []),
+    getFeaturedHomeServicesCached(queryInput, 8).catch(() => []),
+    getTrendingHomeServicesCached(queryInput, 8).catch(() => []),
+    getTrustedHomeProvidersCached(queryInput, 8).catch(() => []),
+    getHomeHeroOfferCached(queryInput).catch(() => null),
+    getNearbyProviderCountCached(queryInput).catch(() => 0),
+    getHomeManagedSectionsCached(locale),
     countActiveSpecialPackages(),
   ]);
 

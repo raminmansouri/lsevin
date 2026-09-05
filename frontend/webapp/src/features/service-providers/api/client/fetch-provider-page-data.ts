@@ -50,7 +50,11 @@ const queryKey = (providerId?: string | null, locale?: string | null, options?: 
 export const useFetchProviderPageData = (
   providerId?: string | null,
   locale?: string | null,
-  currencyOptions?: ProviderPageCurrencyOptions
+  currencyOptions?: ProviderPageCurrencyOptions,
+  // Server-rendered payload from the route's server component. When present the
+  // first render uses it directly — no client action round-trip — and React
+  // Query only refetches in the background once the entry goes stale.
+  initialData?: ProviderPageDataResponse
 ) => {
   const options = queryOptions<ProviderPageDataResponse, IProblem | Error>({
     queryKey: queryKey(providerId, locale, currencyOptions),
@@ -58,6 +62,7 @@ export const useFetchProviderPageData = (
     enabled: Boolean(providerId),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
+    initialData,
   });
 
   const { data, error, isFetching, refetch } = useQuery(options);

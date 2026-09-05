@@ -3,6 +3,13 @@ import { getLocale } from "next-intl/server";
 import ExploreClient from "./ExploreClient";
 import { getExplorePageData, parseExploreFilters } from "./explore.data";
 
+// Explore is a URL-filter-driven directory (country / city / category /
+// provider-type / language / currency / rating). Its content is *defined* by
+// the query string and it resolves per-visitor favourites, so it renders
+// dynamically — the same way a search-results page does. `getExplorePageData`
+// carries `noStore()` for that reason.
+export const dynamic = "force-dynamic";
+
 type SearchParams =
   | Promise<Record<string, string | string[] | undefined>>
   | Record<string, string | string[] | undefined>;

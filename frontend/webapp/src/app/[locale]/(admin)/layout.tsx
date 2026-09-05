@@ -25,6 +25,12 @@ import { getAdminTableGroups } from "@/lib/admin/table-groups";
 import { LocalePageProps } from "@/types/next";
 import { getProfileForEdit } from "@/features/profile/actions/profile.actions";
 
+// This whole segment renders per request (session-gated dashboards / forms /
+// marketing pages that read the DB). The dynamic floor that used to sit on
+// `[locale]/layout.tsx` now lives here.
+export const dynamic = "force-dynamic";
+
+
 export default async function AdminLayout({ children, params }: LocalePageProps) {
   const { locale } = await params;
   setRequestLocale(locale);

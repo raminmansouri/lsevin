@@ -1527,3 +1527,19 @@ export async function getServicePageByIdFromDb({
     providerGalleryItems,
   };
 }
+
+/**
+ * Active provider-service ids — for `generateStaticParams` on the service page.
+ * Bounded; cookie-free.
+ */
+export async function listActiveServicePageIds(limit = 400): Promise<string[]> {
+  const rows = await sql<{ id: string }[]>`
+    select ps.id::text as id
+    from category.provider_services ps
+    join category.service_providers sp on sp.id = ps.service_provider_id and sp.is_active = true
+    where ps.is_active = true
+    order by ps.is_popular desc nulls last, ps.trending_score desc nulls last, ps.create_date desc
+    limit ${Math.max(1, Math.min(3000, limit))}
+  `;
+  return rows.map((r) => r.id).filter(Boolean);
+}

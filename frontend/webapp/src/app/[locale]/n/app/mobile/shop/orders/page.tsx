@@ -1,10 +1,41 @@
+import { getTranslations, setRequestLocale } from "next-intl/server";
+
+import { Link } from "@/i18n/navigation";
 import { listCustomerOrders } from "@/features/shop/api/order.repository";
-export default async function OrdersPage() {
-  const orders = await listCustomerOrders();
+import { getCartView } from "@/features/shop/api/cart.repository";
+import { getShopContext } from "@/features/shop/lib/context";
+import { ShopHeader } from "@/features/shop/components/ShopHeader";
+import { OrderRow } from "@/features/shop/components/OrderView";
+
+export const dynamic = "force-dynamic";
+
+export default async function OrdersPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("Shop");
+
+  const [orders, cart, ctx] = await Promise.all([listCustomerOrders(), getCartView(), getShopContext()]);
+
   return (
-    <div className="min-h-screen bg-gray-50 px-5 py-6">
-      <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
-      <div className="mt-6 space-y-4">{orders.length ? orders.map((order) => <a key={order.id} href={`/n/app/mobile/shop/orders/${order.orderNumber}`} className="block rounded-2xl border border-gray-100 bg-white p-5 shadow-sm"><div className="flex items-center justify-between"><div><div className="font-semibold text-gray-900">{order.orderNumber}</div><div className="text-sm text-gray-500">{new Date(order.placedAt).toLocaleString()}</div></div><div className="text-right"><div className="font-semibold text-gray-900">{order.currency} {order.grandTotal.toFixed(2)}</div><div className="text-sm text-gray-500 capitalize">{order.status.replaceAll("_", " ")}</div></div></div></a>) : <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center text-gray-500">No orders yet.</div>}</div>
+    <div className="min-h-screen bg-neutral-50">
+      <ShopHeader cartCount={cart.itemCount} back="/n/app/mobile/shop" />
+      <h1 className="px-4 pt-3 text-lg font-extrabold text-neutral-900">{t("myOrders")}</h1>
+
+      <div className="space-y-3 p-4 pb-24">
+        {!ctx.customerId ? (
+          <p className="rounded-2xl bg-white p-8 text-center text-sm text-neutral-500">{t("noOrders")}</p>
+        ) : orders.length ? (
+          orders.map((o) => <OrderRow key={o.id} order={o} locale={locale} />)
+        ) : (
+          <div className="rounded-2xl bg-white p-10 text-center">
+            <div className="text-4xl">📦</div>
+            <p className="mt-3 text-sm font-semibold text-neutral-700">{t("noOrders")}</p>
+            <Link href="/n/app/mobile/shop" className="mt-3 inline-block text-xs font-semibold text-[#083f30]">
+              {t("startShopping")}
+            </Link>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

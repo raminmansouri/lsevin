@@ -30,6 +30,7 @@ import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { VideoGallery } from "@/components/media/video-gallery";
 import { env } from "@/config/env/client";
 import { PriceTextClient } from "@/features/finance/components/price-text-client";
+import { ServiceProductsRail } from "@/features/shop/components/ServiceProductsRail";
 import type {
   SpecialistAchievement,
   SpecialistAvailability,
@@ -882,6 +883,8 @@ export default function SpecialistProfileClient({
         ) : null}
 
         {selectedTab === "credentials" ? <CredentialsSection data={data} /> : null}
+
+        <ServiceProductsRail src={`/api/shop/specialist/${specialistId}/products`} locale={locale} />
       </div>
 
       {showReviewForm ? (

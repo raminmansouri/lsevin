@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { getWalletTransactionDetailAction } from "../../actions";
 import TransactionDetailPageClient from "./TransactionDetailPageClient";
 
+export const dynamic = "force-dynamic";
+
 interface WalletTransactionDetailPageProps {
   params: Promise<{ id: string }>;
 }

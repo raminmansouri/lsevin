@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 
 import { getCategoryBrowserGroups } from "@/features/service-providers/actions/categories/get-category-browser-groups";
 import { CategoryBrowserClient } from "@/features/service-providers/components/categories/category-browser-client";
@@ -8,31 +10,36 @@ export const metadata: Metadata = {
   description: "Browse all active LSevin service categories.",
 };
 
-// export const revalidate = 300;
-
-function firstParam(value: string | string[] | undefined) {
-  const raw = Array.isArray(value) ? value[0] : value;
-  return raw?.trim() || null;
-}
+// Truly static: the category tree is the same for every visitor of a locale
+// (the `?parent=` deep-link is read on the client). Rebuilt at most hourly, and
+// on demand via the `cp-category-groups` cache tag the underlying
+// `unstable_cache` is already tagged with.
+export const dynamic = "force-static";
+export const revalidate = 3600;
 
 export default async function CategoryBrowserPage({
-  searchParams,
+  params,
 }: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+  params: Promise<{ locale: string }>;
 }) {
-  const [data, resolvedSearchParams] = await Promise.all([
-    getCategoryBrowserGroups(),
-    searchParams,
-  ]);
+  const { locale } = await params;
+  setRequestLocale(locale);
+
+  // Never let a transient DB hiccup at build time fail the whole build — an
+  // empty tree renders fine and the next revalidation fills it in.
+  const data = await getCategoryBrowserGroups().catch(() => ({
+    groups: [],
+    totalCategories: 0,
+    totalProviders: 0,
+  }));
 
   return (
-    <CategoryBrowserClient
-      categoryGroups={data.groups}
-      totalCategories={data.totalCategories}
-      totalProviders={data.totalProviders}
-      // Home-page cards link straight to a node so the shelf and this screen are
-      // the same tree seen from two places, rather than two separate entry points.
-      initialParentId={firstParam(resolvedSearchParams.parent)}
-    />
+    <Suspense fallback={null}>
+      <CategoryBrowserClient
+        categoryGroups={data.groups}
+        totalCategories={data.totalCategories}
+        totalProviders={data.totalProviders}
+      />
+    </Suspense>
   );
 }

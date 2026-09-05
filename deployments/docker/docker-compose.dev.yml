@@ -1,0 +1,157 @@
+# ---------------------------------------------------------------------------
+# Local DEVELOPMENT stack for the LSevin platform (Shop sub-system work).
+#
+# Derived from docker-compose.server.yml, but reduced to the infrastructure a
+# developer needs to run the webapp and API *natively* against:
+#
+#   - postgres      the full platform schema, auto-loaded from
+#                   auto_backups/schema_backup.sql on first boot, then dev seed
+#   - redis         cache / rate-limit store the API expects
+#   - eventstore    EventStoreDB the API connects to at startup
+#   - minio         S3-compatible object storage for uploaded media
+#   - minio-init    one-shot bucket / policy / service-account provisioning
+#
+# It deliberately does NOT build or run the `lsevin-api` or `lsevin-webapp`
+# containers — run those with `dotnet run` / `pnpm dev` for a fast feedback loop
+# (decision recorded in docs/LSEVIN_SHOP_REQUIREMENTS_FEATURES.md work log).
+# It also drops caddy, pgbouncer, the prod postgres config bind-mounts and the
+# exporters: none are needed to develop a feature, and every one of them is a
+# source of "works on the server, not on my laptop" friction.
+#
+# Usage (from deployments/docker/):
+#   docker compose -f docker-compose.dev.yml --env-file .env.dev up -d
+#   docker compose -f docker-compose.dev.yml --env-file .env.dev logs -f postgres
+#   docker compose -f docker-compose.dev.yml --env-file .env.dev down            # keep data
+#   docker compose -f docker-compose.dev.yml --env-file .env.dev down -v         # wipe data
+#
+# Then point the webapp at it:  frontend/webapp/.env.local
+#   DATABASE_URL=postgres://lsevin:lsevin@localhost:5432/lsevin
+#
+# See deployments/docker/DEV.md for the full walkthrough.
+# ---------------------------------------------------------------------------
+name: lsevin-dev
+
+services:
+  postgres:
+    image: postgres:${POSTGRES_IMAGE_TAG:-17.10-alpine}
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-lsevin}
+      POSTGRES_USER: ${POSTGRES_USER:-lsevin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lsevin}
+      # The dump was taken with `\restrict`; nothing here needs the restore to be
+      # strict about it. Keeps first-boot noise down.
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    # First boot only: files in /docker-entrypoint-initdb.d run once, in name
+    # order, as POSTGRES_USER (a superuser in this image, so CREATE EXTENSION in
+    # the dump works). `down -v` wipes the volume and re-triggers them.
+    volumes:
+      - lsevin_dev_pg:/var/lib/postgresql/data
+      - ../../auto_backups/schema_backup.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./dev-seed/10_dev_seed.sql:/docker-entrypoint-initdb.d/10_dev_seed.sql:ro
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-5432}:5432"
+    shm_size: ${POSTGRES_SHM_SIZE:-256m}
+    command:
+      - postgres
+      - -c
+      - shared_buffers=128MB
+      - -c
+      - max_connections=200
+      - -c
+      - jit=off
+      - -c
+      - fsync=off                  # dev only: faster, data is disposable
+      - -c
+      - synchronous_commit=off
+      - -c
+      - full_page_writes=off
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-lsevin} -d ${POSTGRES_DB:-lsevin}"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+    networks:
+      - lsevin-dev
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "127.0.0.1:${REDIS_HOST_PORT:-6379}:6379"
+    networks:
+      - lsevin-dev
+
+  eventstore:
+    image: eventstore/eventstore:24.10.0-bookworm-slim
+    restart: unless-stopped
+    environment:
+      EVENTSTORE_CLUSTER_SIZE: "1"
+      EVENTSTORE_RUN_PROJECTIONS: "All"
+      EVENTSTORE_START_STANDARD_PROJECTIONS: "true"
+      EVENTSTORE_HTTP_PORT: "2113"
+      EVENTSTORE_INSECURE: "true"
+      EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP: "true"
+      EVENTSTORE_MEM_DB: "true"          # dev only: no on-disk stream data to corrupt
+    ports:
+      - "127.0.0.1:${EVENTSTORE_HOST_PORT:-2113}:2113"
+    networks:
+      - lsevin-dev
+
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    volumes:
+      - lsevin_dev_minio:/data
+    ports:
+      - "127.0.0.1:${MINIO_API_HOST_PORT:-9000}:9000"
+      - "127.0.0.1:${MINIO_CONSOLE_HOST_PORT:-9001}:9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - lsevin-dev
+
+  minio-init:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    restart: "no"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -eu
+        mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"
+        mc ready local
+        mc mb --ignore-existing "local/$$MINIO_BUCKET"
+        printf '%s' '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["s3:GetObject"],"Resource":["arn:aws:s3:::'"$$MINIO_BUCKET"'/*"]}]}' > /tmp/anon.json
+        mc anonymous set-json /tmp/anon.json "local/$$MINIO_BUCKET"
+        if ! mc admin user svcacct info local "$$MINIO_API_ACCESS_KEY" >/dev/null 2>&1; then
+          mc admin user svcacct add local "$$MINIO_ROOT_USER" --access-key "$$MINIO_API_ACCESS_KEY" --secret-key "$$MINIO_API_SECRET_KEY"
+        fi
+        echo "minio-init(dev): bucket $$MINIO_BUCKET ready, anonymous read enabled"
+    environment:
+      MINIO_BUCKET: ${MINIO_BUCKET:-lsevin-media}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_API_ACCESS_KEY: ${MINIO_API_ACCESS_KEY:-lsevin-dev-media}
+      MINIO_API_SECRET_KEY: ${MINIO_API_SECRET_KEY:-lsevin-dev-media-secret}
+    networks:
+      - lsevin-dev
+    depends_on:
+      minio:
+        condition: service_healthy
+
+volumes:
+  lsevin_dev_pg:
+  lsevin_dev_minio:
+
+networks:
+  lsevin-dev:
+    name: lsevin-dev

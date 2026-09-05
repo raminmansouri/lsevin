@@ -73,11 +73,13 @@ export const SEGMENT_NAMESPACES = {
     "RecommendationSection",
     "SearchResults",
     "ServicePage",
+    "Shop",
     "SpecialistPage",
     "SupportPages",
   ],
   admin: [
     "Admin",
+    "ShopAdmin",
     "AdminColumn",
     "AdminGenerated",
     "AdminTable",
