@@ -47,13 +47,15 @@ export default async function TrustedProvidersPage({ params }: PageProps) {
       </div>
 
       <div className="px-5 py-6">
-        {/* Wrapping flex (not a rigid grid) keeps the fixed-width w-44 cards from
-            stretching, preserving the exact home-rail card design. */}
-        <div className="flex flex-wrap justify-center gap-4 sm:justify-start">
+        {/* Two columns on phones, wider on bigger screens. `auto-rows-fr` gives
+            every row the same height so the cards line up; the card's own
+            `grid` variant stretches it to fill that height. */}
+        <div className="grid auto-rows-fr grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
           <Suspense fallback={<div>{t('common.loading')}</div>}>
             <HomeTrustedProvidersSuspenseBoundary
               providers={providers}
               locale={locale}
+              variant="grid"
               labels={{
                 emptyTitle: t('trusted.emptyTitle'),
                 emptyDescription: t('trusted.emptyDescription'),
