@@ -560,8 +560,8 @@ export const saveProviderGalleryItemAction = createAuthenticatedSafeAction(
             returning id::text
           `
         : await sql<{ id: string }[]>`
-            insert into category.provider_gallery_items (title_translations, description_translations, url, media_type, display_order, service_provider_id, create_date)
-            values (${jsonb(input.title)}::jsonb, ${jsonb(input.description)}::jsonb, ${input.url}, ${input.mediaType}, ${input.displayOrder}, ${input.serviceProviderId}, now())
+            insert into category.provider_gallery_items (id, title_translations, description_translations, url, media_type, display_order, service_provider_id, create_date)
+            values (public.uuid_generate_v4(), ${jsonb(input.title)}::jsonb, ${jsonb(input.description)}::jsonb, ${input.url}, ${input.mediaType}, ${input.displayOrder}, ${input.serviceProviderId}, now())
             returning id::text
           `;
       revalidateAdminServiceProvider(input.serviceProviderId);
@@ -588,6 +588,93 @@ export const deleteProviderGalleryItemAction = createAuthenticatedSafeAction(
       return {
         data: undefined,
         error: problem("Could not delete gallery item.", 500, error?.message),
+        payload: input,
+      };
+    }
+  },
+  { adminRequired: true },
+);
+
+const providerGalleryBulkAddSchema = z.object({
+  serviceProviderId: uuidSchema,
+  urls: z.array(mediaValueSchema).min(1).max(60),
+  mediaType: z.string().min(1).max(50).default("image"),
+});
+
+// Bulk companion to saveProviderGalleryItemAction: the admin gallery picker hands
+// over every media item selected in one pass, so the rows are appended after the
+// current highest display_order and URLs already in the gallery are skipped.
+export const addProviderGalleryItemsAction = createAuthenticatedSafeAction(
+  providerGalleryBulkAddSchema,
+  async (input) => {
+    try {
+      const existing = await sql<{ url: string; displayOrder: number }[]>`
+        select url, display_order as "displayOrder"
+        from category.provider_gallery_items
+        where service_provider_id = ${input.serviceProviderId}::uuid
+      `;
+
+      const knownUrls = new Set(existing.map((row) => row.url));
+      const newUrls = Array.from(new Set(input.urls)).filter(
+        (url) => !knownUrls.has(url),
+      );
+
+      if (!newUrls.length) return { data: { added: 0 }, error: undefined };
+
+      let nextOrder =
+        existing.reduce(
+          (highest, row) => Math.max(highest, row.displayOrder ?? 0),
+          -1,
+        ) + 1;
+
+      await sql.begin(async (tx) => {
+        for (const url of newUrls) {
+          await tx`
+            insert into category.provider_gallery_items (id, title_translations, description_translations, url, media_type, display_order, service_provider_id, create_date)
+            values (public.uuid_generate_v4(), ${jsonb({})}::jsonb, ${jsonb({})}::jsonb, ${url}, ${input.mediaType}, ${nextOrder++}, ${input.serviceProviderId}, now())
+          `;
+        }
+      });
+
+      revalidateAdminServiceProvider(input.serviceProviderId);
+      return { data: { added: newUrls.length }, error: undefined };
+    } catch (error: any) {
+      return {
+        data: undefined,
+        error: problem("Could not add gallery items.", 500, error?.message),
+        payload: input,
+      };
+    }
+  },
+  { adminRequired: true },
+);
+
+const providerGalleryReorderSchema = z.object({
+  serviceProviderId: uuidSchema,
+  ids: z.array(uuidSchema).min(1).max(200),
+});
+
+export const reorderProviderGalleryItemsAction = createAuthenticatedSafeAction(
+  providerGalleryReorderSchema,
+  async (input) => {
+    try {
+      await sql.begin(async (tx) => {
+        for (const [index, id] of input.ids.entries()) {
+          await tx`
+            update category.provider_gallery_items
+            set display_order = ${index},
+                last_modified_date = now()
+            where id = ${id}::uuid and service_provider_id = ${input.serviceProviderId}::uuid
+          `;
+        }
+      });
+
+      revalidateAdminServiceProvider(input.serviceProviderId);
+      return { data: { ordered: input.ids.length }, error: undefined };
+    } catch (error: any) {
+      return {
+        data: undefined,
+        error: problem("Could not reorder gallery items.", 500, error?.message),
         payload: input,
       };
     }

@@ -45,6 +45,7 @@ import { SUPPORTED_LOCALE_HEADERS } from "@/config/locales";
 import { LocalizedInput } from "@/features/shared/components/LocalizedInput";
 import { createEmptyLocalizedContent } from "@/features/shared/utils/localization";
 import SingleMediaPickerInput from "@/features/media-picker-addon/components/SingleMediaPickerInput";
+import { ProviderGalleryPickerButton } from "./provider-image-gallery";
 import useAction from "@/hooks/use-action";
 import { Link, useRouter } from "@/i18n/navigation";
 
@@ -899,6 +900,17 @@ function GalleryManager({
       title={tAdmin("mediaGallery")}
       description="Manages category.provider_gallery_items. The media field uses the central media picker and stores the selected media URL."
     >
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-dashed p-3">
+        <p className="text-sm text-muted-foreground">
+          Add several images in one go, or use the form below to add a single
+          item with a title, description and order.
+        </p>
+        <ProviderGalleryPickerButton
+          serviceProviderId={provider.id}
+          label="Add images"
+        />
+      </div>
+
       <Form {...galleryForm}>
         <div className="grid gap-4 xl:grid-cols-[1fr_1fr_180px_140px_auto]">
           <FormField

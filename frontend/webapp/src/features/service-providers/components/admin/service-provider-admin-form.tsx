@@ -45,6 +45,7 @@ import type {
   AdminServiceProviderDetails,
 } from "../../db/admin-service-providers.queries";
 import { RHFSingleMediaPickerField } from "../service-provider-data-entry/media-picker-adapter";
+import { ProviderImageGallery } from "./provider-image-gallery";
 
 type Props = {
   provider?: AdminServiceProviderDetails;
@@ -440,6 +441,13 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
                     modalTitle="Pick provider image"
                     key="imageUrl"
                   />
+
+                  {provider?.id ? (
+                    <ProviderImageGallery
+                      serviceProviderId={provider.id}
+                      items={provider.galleryItems}
+                    />
+                  ) : null}
                 </section>
 
                 <section className="space-y-4">
