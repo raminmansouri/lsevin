@@ -35,6 +35,7 @@ export type AdminLookupType =
   | "serviceDefinitions"
   | "staff"
   | "providers"
+  | "providerServices"
   | "attributeDefinitions"
   | "requestStatuses"
   | "policyTypes"
@@ -1416,6 +1417,30 @@ export async function searchAdminProviderLookupOptions(
         from category.service_providers sp
         where ${excludeProviderId ? sql`sp.id::text <> ${excludeProviderId}` : sql`true`}
           and ${hasQuery ? sql`(${providerLabel} ilike ${like} or coalesce(sp.email, '') ilike ${like} or coalesce(sp.city, '') ilike ${like} or coalesce(sp.country, '') ilike ${like})` : sql`true`}
+        order by label
+        limit ${limit} offset ${offset}
+      `;
+    } else if (params.type === "providerServices") {
+      // name_translations is not always an object here - some rows hold a bare JSON
+      // string - and translated() only reads objects. Fall back to the scalar so those
+      // rows keep a label instead of rendering as a bare " / " separator.
+      const scalarText = (columnSql: any) => sql`case
+        when jsonb_typeof(${columnSql}) in ('string', 'number', 'boolean')
+          then coalesce(nullif(btrim(${columnSql} #>> '{}'), ''), '')
+        else ''
+      end`;
+      const providerLabel = sql`coalesce(nullif(${translated(sql`sp.name_translations`, locale)}, ''), ${scalarText(sql`sp.name_translations`)})`;
+      const serviceLabel = sql`coalesce(nullif(${translated(sql`ps.display_name_translations`, locale)}, ''), ${scalarText(sql`ps.display_name_translations`)})`;
+
+      rows = await sql<AdminLookupOption[]>`
+        select
+          ps.id::text,
+          concat(${providerLabel}, ' / ', ${serviceLabel}) as label,
+          concat(ps.currency, ' ', ps.value::text) as code
+        from category.provider_services ps
+        join category.service_providers sp on sp.id = ps.service_provider_id
+        where ps.is_active = true
+          and ${hasQuery ? sql`(${providerLabel} ilike ${like} or ${serviceLabel} ilike ${like})` : sql`true`}
         order by label
         limit ${limit} offset ${offset}
       `;
