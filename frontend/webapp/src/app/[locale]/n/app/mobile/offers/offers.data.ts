@@ -225,7 +225,23 @@ export async function getOffersPageData({
       o.title,
       coalesce(o.subtitle, '') as subtitle,
       common.get_translation_t(sp.name_translations, ${lang}, 'en') as provider,
-      coalesce(psgi.url, pgi.url, ps.image_url, sp.image_url) as image,
+      -- Featured image first, gallery only as a fallback: the service's own picture,
+      -- then its gallery, then the provider's picture, then the provider gallery.
+      -- The two galleries used to lead, so an offer for a service with a hand-picked
+      -- image still showed whatever photo happened to sort first.
+      -- image_url and gallery urls hold either a media.media_library id or a plain
+      -- URL, so each candidate is tried resolved first and raw second, the way the
+      -- Explore and map queries already do it.
+      coalesce(
+        nullif(btrim(ps_media.file_url), ''),
+        nullif(btrim(split_part(coalesce(ps.image_url, ''), ',', 1)), ''),
+        nullif(btrim(psgi_media.file_url), ''),
+        nullif(btrim(split_part(coalesce(psgi.url, ''), ',', 1)), ''),
+        nullif(btrim(sp_media.file_url), ''),
+        nullif(btrim(split_part(coalesce(sp.image_url, ''), ',', 1)), ''),
+        nullif(btrim(pgi_media.file_url), ''),
+        nullif(btrim(split_part(coalesce(pgi.url, ''), ',', 1)), '')
+      ) as image,
       o.discount_percent::float as discount_percent,
       to_char(o.discount_percent, 'FM999990D##') || '%' as discount_label,
       o.valid_until::text as valid_until_iso,
@@ -279,6 +295,14 @@ export async function getOffersPageData({
       order by g.display_order asc, g.create_date asc
       limit 1
     ) pgi on true
+    left join media.media_library ps_media
+      on ps_media.id::text = nullif(btrim(split_part(coalesce(ps.image_url, ''), ',', 1)), '')
+    left join media.media_library psgi_media
+      on psgi_media.id::text = nullif(btrim(split_part(coalesce(psgi.url, ''), ',', 1)), '')
+    left join media.media_library sp_media
+      on sp_media.id::text = nullif(btrim(split_part(coalesce(sp.image_url, ''), ',', 1)), '')
+    left join media.media_library pgi_media
+      on pgi_media.id::text = nullif(btrim(split_part(coalesce(pgi.url, ''), ',', 1)), '')
     ${whereSql}
     order by
       coalesce(o.is_featured, false) desc,

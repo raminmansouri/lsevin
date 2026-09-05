@@ -250,6 +250,7 @@ type PrimaryServiceRow = {
   review_count: number | string | null;
   recovery: string | null;
   image_url: string | null;
+  featured_image_url: string | null;
   is_popular: boolean | null;
   anesthesia: string | null;
   stay_required: string | null;
@@ -585,7 +586,14 @@ async function getPrimaryServiceRow(serviceId: string, locale: string) {
       coalesce(ps.rating, sp.rating, 0) as rating,
       coalesce(ps.review_count, sp.review_count, 0) as review_count,
       ps.recovery,
-      coalesce(sd_media.file_url, sd.image_url, def_gallery_media.file_url, definition_gallery.url, ps_media.file_url, ps.image_url) as image_url,
+      -- The featured image the admin picked for THIS service wins. It used to sit
+      -- last, so a service with a hand-picked picture still showed the service
+      -- definition's stock image, or a gallery photo belonging to some other
+      -- provider that happens to offer the same definition.
+      coalesce(ps_media.file_url, ps.image_url, sd_media.file_url, sd.image_url, def_gallery_media.file_url, definition_gallery.url) as image_url,
+      -- The hand-picked image on its own, with no fallbacks folded in, so the gallery
+      -- below can lead with it only when an admin actually chose one.
+      coalesce(ps_media.file_url, nullif(btrim(ps.image_url), '')) as featured_image_url,
       ps.is_popular,
       ps.anesthesia,
       ps.stay_required,
@@ -688,7 +696,7 @@ function dedupeGalleryItems(items: ServiceGalleryItem[]) {
   });
 }
 
-async function getGalleryItems(serviceDefinitionId: string, providerServiceId: string, locale: string, fallbackImages: string[]): Promise<ServiceGalleryItem[]> {
+async function getGalleryItems(serviceDefinitionId: string, providerServiceId: string, locale: string, fallbackImages: string[], featuredImage?: string | null): Promise<ServiceGalleryItem[]> {
   const serviceGallery = await sql<GalleryRow[]>`
     with active_provider_services as (
       select
@@ -770,7 +778,25 @@ async function getGalleryItems(serviceDefinitionId: string, providerServiceId: s
     limit 24
   `;
 
-  const dbGallery = dedupeGalleryItems([...serviceGallery, ...providerGallery].map(mapGalleryRow));
+  // The image an admin picked for this service leads the gallery, so the hero on the
+  // service page is the same picture every card shows. It used to be appended after
+  // every gallery row -- including rows belonging to other providers offering the same
+  // service definition -- so the page opened on a photo nobody had chosen.
+  const featured: ServiceGalleryItem[] = featuredImage?.trim()
+    ? [{
+        id: 'featured',
+        title: '',
+        description: '',
+        url: featuredImage.trim(),
+        mediaType: 'image',
+        displayOrder: -1,
+        isPrimary: true,
+        source: 'media_library',
+      }]
+    : [];
+  // dedupeGalleryItems keeps the first occurrence of a url, so a featured image that is
+  // also a gallery row stays at the front instead of being listed twice.
+  const dbGallery = dedupeGalleryItems([...featured, ...[...serviceGallery, ...providerGallery].map(mapGalleryRow)]);
   const existingUrls = new Set(dbGallery.map((item) => item.url.trim().toLowerCase()));
   const fallbackGallery = fallbackImages
     .filter((url) => !existingUrls.has(url.trim().toLowerCase()))
@@ -821,7 +847,8 @@ async function getProvidersForService(serviceDefinitionId: string, locale: strin
       common.get_translation_t(sp.name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as provider_name,
       common.get_translation_t(sp.description_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as provider_description,
       coalesce(sp_media.file_url, sp.image_url) as provider_image_url,
-      coalesce(sd_media.file_url, sd.image_url, def_gallery_media.file_url, definition_gallery.url, ps_media.file_url, ps.image_url) as service_image_url,
+      -- Same precedence as the detail query above: the service's own featured image first.
+      coalesce(ps_media.file_url, ps.image_url, sd_media.file_url, sd.image_url, def_gallery_media.file_url, definition_gallery.url) as service_image_url,
       sp.city,
       sp.country,
       sp.response_time,
@@ -1370,7 +1397,7 @@ export async function getServicePageByIdFromDb({
     getFaqs(row.service_definition_id, row.provider_service_id),
     getProvidersForService(row.service_definition_id, normalizedLocale, { preferredCurrencyCode: resolvedDisplayCurrencyCode, customerId: favoritesCustomerId }),
     getTopReviews(row.provider_id, row.provider_service_id),
-    getGalleryItems(row.service_definition_id, row.provider_service_id, normalizedLocale, fallbackImages),
+    getGalleryItems(row.service_definition_id, row.provider_service_id, normalizedLocale, fallbackImages, row.featured_image_url),
     getProviderGalleryItems(row.provider_id, normalizedLocale),
     getIsFavorite({ customerId: favoritesCustomerId, favoriteType: 'service', entityId: row.provider_service_id }),
     getServiceAttributes(row.provider_service_id, row.service_definition_id, normalizedLocale),

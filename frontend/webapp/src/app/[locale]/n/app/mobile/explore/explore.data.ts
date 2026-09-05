@@ -817,15 +817,18 @@ const featuredRows = await sql`
       nullif(common.get_translation_t(sd.name_translations, ${lang}, 'en'), '')
     ) as name,
     common.get_translation_t(sp.name_translations, ${lang}, 'en') as provider,
+    -- The service's own featured image first. The service definition's stock image
+    -- used to lead, so a service with a hand-picked picture still showed the generic
+    -- one shared by every provider offering that definition.
     coalesce(
-      nullif(btrim(sd_media.file_url), ''),
-      nullif(btrim(sd_media.storage_path), ''),
-      nullif(btrim(sd_media.storage_key), ''),
-      nullif(btrim(split_part(sd.image_url, ',', 1)), ''),
       nullif(btrim(ps_media.file_url), ''),
       nullif(btrim(ps_media.storage_path), ''),
       nullif(btrim(ps_media.storage_key), ''),
       nullif(btrim(split_part(ps.image_url, ',', 1)), ''),
+      nullif(btrim(sd_media.file_url), ''),
+      nullif(btrim(sd_media.storage_path), ''),
+      nullif(btrim(sd_media.storage_key), ''),
+      nullif(btrim(split_part(sd.image_url, ',', 1)), ''),
       nullif(btrim(psgi_media.file_url), ''),
       nullif(btrim(psgi_media.storage_path), ''),
       nullif(btrim(psgi_media.storage_key), ''),
@@ -947,7 +950,14 @@ const featuredRows = await sql`
       sp.id::text as id,
       common.get_translation_t(sp.name_translations, ${lang}, 'en') as name,
       common.get_translation_t(sp.description_translations, ${lang}, 'en') as subtitle,
+      -- This is a provider card, so the provider's own featured image wins. The
+      -- image of whichever service the ps_pick lateral happened to return used to
+      -- lead, which is why a provider with a set picture still showed something else.
       coalesce(
+        nullif(btrim(sp_media.file_url), ''),
+        nullif(btrim(sp_media.storage_path), ''),
+        nullif(btrim(sp_media.storage_key), ''),
+        nullif(btrim(split_part(sp.image_url, ',', 1)), ''),
         nullif(btrim(ps_pick_media.file_url), ''),
         nullif(btrim(ps_pick_media.storage_path), ''),
         nullif(btrim(ps_pick_media.storage_key), ''),
@@ -955,11 +965,7 @@ const featuredRows = await sql`
         nullif(btrim(pgi_media.file_url), ''),
         nullif(btrim(pgi_media.storage_path), ''),
         nullif(btrim(pgi_media.storage_key), ''),
-        nullif(btrim(split_part(pgi.url, ',', 1)), ''),
-        nullif(btrim(sp_media.file_url), ''),
-        nullif(btrim(sp_media.storage_path), ''),
-        nullif(btrim(sp_media.storage_key), ''),
-        nullif(btrim(split_part(sp.image_url, ',', 1)), '')
+        nullif(btrim(split_part(pgi.url, ',', 1)), '')
       ) as image,
       ps_pick.value::float as price,
       coalesce(ps_pick.currency, 'USD') as currency,

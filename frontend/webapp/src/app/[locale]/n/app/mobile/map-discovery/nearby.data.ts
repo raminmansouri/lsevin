@@ -574,15 +574,17 @@ export async function getNearbyPageData({
     select
       sp.id::text as id,
       common.get_translation_t(sp.name_translations, ${lang}, 'en') as name,
+      -- The provider's own featured image first. The first gallery item used to lead,
+      -- so a provider that had set a picture still showed a gallery photo instead.
       coalesce(
-        nullif(btrim(pgi_media.file_url), ''),
-        nullif(btrim(pgi_media.storage_path), ''),
-        nullif(btrim(pgi_media.storage_key), ''),
-        nullif(btrim(split_part(coalesce(pgi.url, ''), ',', 1)), ''),
         nullif(btrim(sp_media.file_url), ''),
         nullif(btrim(sp_media.storage_path), ''),
         nullif(btrim(sp_media.storage_key), ''),
         nullif(btrim(split_part(coalesce(sp.image_url, ''), ',', 1)), ''),
+        nullif(btrim(pgi_media.file_url), ''),
+        nullif(btrim(pgi_media.storage_path), ''),
+        nullif(btrim(pgi_media.storage_key), ''),
+        nullif(btrim(split_part(coalesce(pgi.url, ''), ',', 1)), ''),
         nullif(btrim(provider_type_image_media.file_url), ''),
         nullif(btrim(provider_type_image_media.storage_path), ''),
         nullif(btrim(provider_type_image_media.storage_key), ''),

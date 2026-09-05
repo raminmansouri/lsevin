@@ -287,7 +287,11 @@ export async function getFeaturedHomeServices(input: HomeQueryInput, limit = 8):
         else null
       end as "originalAmount",
       active_offer.discount_percent as "discountPercent",
-      nullif(coalesce(sdm.file_url, sd.image_url, def_gm.file_url, definition_gallery.url, gm.file_url, gallery.url, psm.file_url, ps.image_url, spm.file_url, sp.image_url, ''), '') as "imageUrl",
+      -- The service's own featured image first. It used to sit near the end of this
+      -- chain, so a service with a hand-picked picture still showed the definition's
+      -- stock image or a gallery photo from another provider offering the same
+      -- definition -- the "random image" symptom.
+      nullif(coalesce(psm.file_url, ps.image_url, sdm.file_url, sd.image_url, def_gm.file_url, definition_gallery.url, gm.file_url, gallery.url, spm.file_url, sp.image_url, ''), '') as "imageUrl",
       ps.tags,
       ps.recovery,
       ps.success_rate as "successRate",
@@ -407,7 +411,8 @@ export async function getTrendingHomeServices(input: HomeQueryInput, limit = 8):
         nullif(common.get_translation_t(sd.name_translations, ${locale}::text, 'en-US'), ''),
         common.get_translation_t(ps.display_name_translations, ${locale}::text, 'en-US')
       ) as "displayName",
-      nullif(coalesce(sdm.file_url, sd.image_url, gm.file_url, gallery.url, psm.file_url, ps.image_url, spm.file_url, sp.image_url, ''), '') as "imageUrl",
+      -- The service's own featured image first; see the featured shelf above.
+      nullif(coalesce(psm.file_url, ps.image_url, sdm.file_url, sd.image_url, gm.file_url, gallery.url, spm.file_url, sp.image_url, ''), '') as "imageUrl",
       coalesce(recent_bookings.booking_count, 0)::int as "bookingCount",
       nullif(ps.growth, '') as growth,
       coalesce(ps.trending_score, 0) as "trendingScore"
@@ -554,7 +559,8 @@ export async function getHomeHeroOffer(input: HomeQueryInput): Promise<HomeHeroO
       o.discount_percent as "discountPercent",
       o.valid_until::text as "validUntil",
       ps.id::text as "serviceId",
-      nullif(coalesce(sdm.file_url, sd.image_url, gm.file_url, gallery.url, psm.file_url, ps.image_url, spm.file_url, sp.image_url, ''), '') as "imageUrl"
+      -- The service's own featured image first; see the featured shelf above.
+      nullif(coalesce(psm.file_url, ps.image_url, sdm.file_url, sd.image_url, gm.file_url, gallery.url, spm.file_url, sp.image_url, ''), '') as "imageUrl"
     from marketing.offers o
     join category.provider_services ps
       on ps.id = o.provider_service_id
