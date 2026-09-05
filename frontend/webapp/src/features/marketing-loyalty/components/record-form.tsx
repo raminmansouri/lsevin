@@ -130,6 +130,14 @@ function FieldControl({
   const commonClass = error ? "border-destructive focus-visible:ring-destructive" : "";
   const wide = ["textarea", "richtext", "localized-text", "localized-rich-text", "json"].includes(field.kind);
   const usesLazyLookup = field.kind === "select" && field.lookupType;
+  // LazyAdminLookupSelect identifies options by `id`, but these arrive from the server
+  // as {value,label,helper}. Unmapped, every option stringifies to "undefined", so the
+  // picker's dedupe collapses the whole list to a single row and hands the save action
+  // a literal "undefined" id that the insert then rejects.
+  const lookupOptions = useMemo(
+    () => options.map((option) => ({ id: option.value, label: option.label, code: option.helper })),
+    [options]
+  );
 
   return (
     <div className={`space-y-2 ${wide ? "lg:col-span-2" : ""}`}>
@@ -202,7 +210,7 @@ function FieldControl({
               value={String(controllerField.value || "")}
               onValueChange={controllerField.onChange}
               placeholder={field.placeholder || t("form.selectField", { field: field.label })}
-              initialOptions={options}
+              initialOptions={lookupOptions}
               disabled={disabled}
               contentClassName={field.lookupType === "providerServices" ? "w-[520px]" : "w-[420px]"}
             />
