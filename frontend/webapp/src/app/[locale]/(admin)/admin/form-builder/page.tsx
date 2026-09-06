@@ -33,7 +33,7 @@ export default function AdminFormBuilderPage({ params }: { params: Promise<{ loc
         </div>
       </div>
 
-      <div className="grid gap-4">
+      <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
         {items?.map((item: any) => (
           <Link key={item.id} href={`/${locale}/admin/form-builder/${item.id}`} className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-lg">
             <div className="flex items-start justify-between gap-4">
@@ -42,7 +42,7 @@ export default function AdminFormBuilderPage({ params }: { params: Promise<{ loc
                 <div className="mt-1 text-sm text-slate-500">{item.key}</div>
                 {item.description ? <p className="mt-3 text-sm text-slate-600">{item.description}</p> : null}
               </div>
-              <div className="space-y-3 text-right">
+              <div className="space-y-3 text-end">
                 <div className="rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600">
                   <div>{t("scope")}: {item.form_scope}</div>
                   <div>{t("status")}: {item.latest_version?.status ?? "draft"}</div>
