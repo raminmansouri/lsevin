@@ -649,12 +649,12 @@ export default function ExploreClient({
                     </div>
                   )}
                   {provider.verified && (
-                    <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 bg-[#083f30] rounded-full flex items-center justify-center shadow-lg">
+                    <div className="absolute -bottom-1.5 -end-1.5 w-7 h-7 bg-[#083f30] rounded-full flex items-center justify-center shadow-lg">
                       <BadgeCheck size={16} className="text-[#eacb7f]" />
                     </div>
                   )}
 
-                  <div className="absolute top-2 left-2 px-2 py-0.5 bg-white/95 backdrop-blur-sm rounded-md">
+                  <div className="absolute top-2 start-2 px-2 py-0.5 bg-white/95 backdrop-blur-sm rounded-md">
                     <span className="text-xs font-bold text-[#083f30]">{provider.badge}</span>
                   </div>
                 </div>
