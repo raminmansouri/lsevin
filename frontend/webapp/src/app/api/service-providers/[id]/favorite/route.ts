@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { setProviderFavoriteInDb } from "@/features/service-providers/server/provider-page.repository";
 
-type RouteContext = { params: Promise<{ providerId: string }> | { providerId: string } };
+type RouteContext = { params: Promise<{ id: string }> | { id: string } };
 
 async function getParams(context: RouteContext) {
   return await context.params;
@@ -14,7 +14,7 @@ async function readUserId(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest, context: RouteContext) {
-  const { providerId } = await getParams(context);
+  const { id: providerId } = await getParams(context);
   const userId = await readUserId(request);
   const result = await setProviderFavoriteInDb({ providerId, userId, isFavorite: true });
 
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
 }
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
-  const { providerId } = await getParams(context);
+  const { id: providerId } = await getParams(context);
   const userId = await readUserId(request);
   const result = await setProviderFavoriteInDb({ providerId, userId, isFavorite: false });
 
