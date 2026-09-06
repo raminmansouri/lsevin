@@ -983,13 +983,18 @@ declare const messages: {
         "password": {
           "label": "Contraseña"
         },
+        "referralCode": {
+          "label": "Código de invitación",
+          "helper": "Opcional. Introduce un código de invitación para recibir su descuento."
+        },
         "signUp": "Enviar código"
       },
       "placeholders": {
         "firstName": "Juan",
         "lastName": "Pérez",
         "email": "ejemplo@gmail.com",
-        "password": "*******"
+        "password": "*******",
+        "referralCode": "p. ej. LSEVIN1234"
       },
       "errors": {
         "invalidPhone": "Número de teléfono no válido"

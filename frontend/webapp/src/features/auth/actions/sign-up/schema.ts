@@ -11,6 +11,9 @@ export const SignUpSchema = z
     phoneNumber: phoneNumberSchema,
     password: z.string().min(6),
     confirmPassword: z.string().optional(),
+    // Optional on purpose: an invite code is a bonus, never a barrier to
+    // registering. Validated against the programme after the phone is verified.
+    referralCode: z.string().trim().max(64).optional(),
   })
   .refine(
     (data) => {

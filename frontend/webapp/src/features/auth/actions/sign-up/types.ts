@@ -7,7 +7,7 @@ import { SignUpSchema } from "./schema";
 
 export type OutputType = string;
 export type InputType = z.infer<typeof SignUpSchema>;
-export type ApiInputType = Omit<InputType, "phoneNumber"> & {
+export type ApiInputType = Omit<InputType, "phoneNumber" | "referralCode"> & {
   phoneNumber: string;
   phoneNumberCountryCode: CountryCode;
 };

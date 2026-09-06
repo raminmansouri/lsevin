@@ -4910,13 +4910,18 @@ declare const messages: {
         "password": {
           "label": "كلمة المرور"
         },
+        "referralCode": {
+          "label": "رمز الدعوة",
+          "helper": "اختياري. أدخل رمز الدعوة للحصول على الخصم الخاص به."
+        },
         "signUp": "إرسال الرمز"
       },
       "placeholders": {
         "firstName": "John",
         "lastName": "Doe",
         "email": "example@gmail.com",
-        "password": "*******"
+        "password": "*******",
+        "referralCode": "مثال LSEVIN1234"
       },
       "errors": {
         "invalidPhone": "رقم الهاتف غير صالح"

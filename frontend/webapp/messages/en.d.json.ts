@@ -5033,13 +5033,18 @@ declare const messages: {
         "password": {
           "label": "Password"
         },
+        "referralCode": {
+          "label": "Invite code",
+          "helper": "Optional. Enter an invite code to receive its discount."
+        },
         "signUp": "Send Code"
       },
       "placeholders": {
         "firstName": "John",
         "lastName": "Doe",
         "email": "example@gmail.com",
-        "password": "*******"
+        "password": "*******",
+        "referralCode": "e.g. LSEVIN1234"
       },
       "errors": {
         "invalidPhone": "Invalid phone number"

@@ -4276,13 +4276,18 @@ declare const messages: {
         "password": {
           "label": "رمز عبور"
         },
+        "referralCode": {
+          "label": "کد دعوت",
+          "helper": "اختیاری. اگر کد دعوت دارید وارد کنید تا تخفیف آن برای شما ثبت شود."
+        },
         "signUp": "ارسال کد"
       },
       "placeholders": {
         "firstName": "پوریا",
         "lastName": "نوفلاح",
         "email": "example@gmail.com",
-        "password": "*******"
+        "password": "*******",
+        "referralCode": "مثلا LSEVIN1234"
       },
       "errors": {
         "invalidPhone": "شماره تلفن معتبر نیست"

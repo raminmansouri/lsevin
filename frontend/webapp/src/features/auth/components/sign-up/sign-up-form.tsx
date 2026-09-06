@@ -48,6 +48,7 @@ export default function SignUpForm() {
       phoneNumber: "",
       password: "",
       confirmPassword: "",
+      referralCode: "",
     },
   });
 
@@ -163,6 +164,27 @@ export default function SignUpForm() {
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="referralCode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("form.referralCode.label")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={t("placeholders.referralCode")}
+                      autoCapitalize="characters"
+                      {...field}
+                    />
+                  </FormControl>
+                  <p className="text-xs text-muted-foreground">
+                    {t("form.referralCode.helper")}
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <Button className="w-full" type="submit" disabled={isPending}>
               {t("form.signUp")}
             </Button>
@@ -176,7 +198,7 @@ export default function SignUpForm() {
 export const SignUpFormSkeleton = () => {
   return (
     <AuthFormContainer>
-      {[...Array(5)].map((_, i) => (
+      {[...Array(6)].map((_, i) => (
         <div key={i} className="flex flex-col items-start gap-2">
           <Skeleton className="h-4 w-24" />
           <Skeleton className="h-10 w-full" />

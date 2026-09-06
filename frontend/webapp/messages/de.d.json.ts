@@ -983,13 +983,18 @@ declare const messages: {
         "password": {
           "label": "Passwort"
         },
+        "referralCode": {
+          "label": "Einladungscode",
+          "helper": "Optional. Geben Sie einen Einladungscode ein, um den zugehörigen Rabatt zu erhalten."
+        },
         "signUp": "Code senden"
       },
       "placeholders": {
         "firstName": "Max",
         "lastName": "Mustermann",
         "email": "beispiel@gmail.com",
-        "password": "*******"
+        "password": "*******",
+        "referralCode": "z. B. LSEVIN1234"
       },
       "errors": {
         "invalidPhone": "Ungültige Telefonnummer"

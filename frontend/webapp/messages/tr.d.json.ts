@@ -983,13 +983,18 @@ declare const messages: {
         "password": {
           "label": "Şifre"
         },
+        "referralCode": {
+          "label": "Davet kodu",
+          "helper": "İsteğe bağlı. İndirimden yararlanmak için davet kodunu girin."
+        },
         "signUp": "Kod Gönder"
       },
       "placeholders": {
         "firstName": "Ahmet",
         "lastName": "Yılmaz",
         "email": "ornek@gmail.com",
-        "password": "*******"
+        "password": "*******",
+        "referralCode": "örn. LSEVIN1234"
       },
       "errors": {
         "invalidPhone": "Geçersiz telefon numarası"
