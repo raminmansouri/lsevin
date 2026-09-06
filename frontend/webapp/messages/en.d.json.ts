@@ -611,6 +611,7 @@ declare const messages: {
     "yourStayIsReady": "Your Stay is Ready!",
     "stepService": "Service",
     "stepSchedule": "Schedule",
+    "noAddOnsConfigured": "No side services are available for this service.",
     "stepAddOns": "Add-ons",
     "stepFiles": "Files",
     "stepShopProducts": "Products",

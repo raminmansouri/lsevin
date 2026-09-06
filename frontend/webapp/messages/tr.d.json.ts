@@ -5483,6 +5483,7 @@ declare const messages: {
     "stayDetails": "Konaklama Bilgileri",
     "step": "· adım",
     "step2": "Adım",
+    "noAddOnsConfigured": "Bu hizmet için ek hizmet bulunmuyor.",
     "stepAddOns": "Ek Hizmetler",
     "stepFiles": "Dosyalar",
     "stepReviewPay": "İncele ve Öde",

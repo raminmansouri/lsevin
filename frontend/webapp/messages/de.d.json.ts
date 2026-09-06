@@ -5480,6 +5480,7 @@ declare const messages: {
     "stayDetails": "Details zum Aufenthalt",
     "step": "· Schritt",
     "step2": "Schritt",
+    "noAddOnsConfigured": "Für diese Leistung sind keine Zusatzleistungen verfügbar.",
     "stepAddOns": "Zusatzleistungen",
     "stepFiles": "Dateien",
     "stepReviewPay": "Prüfen & Bezahlen",

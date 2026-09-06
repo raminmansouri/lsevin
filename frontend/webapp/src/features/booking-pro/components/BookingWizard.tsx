@@ -1336,6 +1336,7 @@ export function BookingWizard() {
                 <h2 className="text-xl font-bold text-slate-900">{tBooking("addOnSubBookings2")}</h2>
                 <p className="mt-2 text-sm text-slate-600">{tBooking("everySelectedProviderTypeAddOnStartsAnEmbedded")}</p>
               </div>
+              {addonProviderTypes.length === 0 ? (<div className="rounded-[28px] border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-600">{tBooking("noAddOnsConfigured")}</div>) : null}
               {addonProviderTypes.map((addon) => (<ChildAddonBookingCard key={addon.providerTypeId} locale={locale} draftId={draft.id!} addon={addon} value={childMap[addon.providerTypeId]} onChange={(next) => setDraft((prev) => ({ ...(prev as BookingDraftState), childBookings: [...(prev?.childBookings ?? []).filter((x) => x.providerTypeId !== next.providerTypeId), next] }))} onSaved={(next, totals) => setDraft((prev) => ({ ...(prev as BookingDraftState), childBookings: [...(prev?.childBookings ?? []).filter((x) => x.providerTypeId !== next.providerTypeId), next], ...(totals ?? {}) }))}/>))}
             </div>) : null}
 

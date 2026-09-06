@@ -611,6 +611,7 @@ declare const messages: {
     "yourStayIsReady": "الخاص بك Stay is جاهز!",
     "stepService": "الخدمة",
     "stepSchedule": "الجدولة",
+    "noAddOnsConfigured": "لا توجد خدمات إضافية متاحة لهذه الخدمة.",
     "stepAddOns": "الإضافات",
     "stepFiles": "الملفات",
     "stepShopProducts": "المنتجات",

@@ -5480,6 +5480,7 @@ declare const messages: {
     "stayDetails": "وردەکارییەکانی مانەوە",
     "step": "· هەنگاو",
     "step2": "هەنگاو",
+    "noAddOnsConfigured": "هیچ خزمەتگوزارییەکی زیادە بۆ ئەم خزمەتگوزارییە بەردەست نییە.",
     "stepAddOns": "خزمەتە زیادەکان",
     "stepFiles": "پەڕگەکان",
     "stepReviewPay": "پێداچوونەوە و پارەدان",

@@ -5483,6 +5483,7 @@ declare const messages: {
     "stayDetails": "Detalles de la estancia",
     "step": "· paso",
     "step2": "Paso",
+    "noAddOnsConfigured": "No hay servicios adicionales disponibles para este servicio.",
     "stepAddOns": "Extras",
     "stepFiles": "Archivos",
     "stepReviewPay": "Revisar y pagar",
