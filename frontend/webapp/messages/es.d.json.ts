@@ -6164,6 +6164,24 @@ declare const messages: {
     }
   },
   "FormBuilder": {
+    "bindings": {
+      "title": "Vinculación con servicios",
+      "description": "Un formulario no aparece en la reserva hasta que se vincula a un servicio. Elige «Reserva de complemento» para un formulario de complemento.",
+      "service": "Servicio",
+      "servicePlaceholder": "Selecciona un servicio",
+      "usageScope": "Se usa en",
+      "scopeAddon": "Reserva de complemento",
+      "scopeMain": "Reserva principal",
+      "add": "Añadir",
+      "saving": "Guardando...",
+      "loading": "Cargando...",
+      "empty": "Este formulario no está vinculado a ningún servicio, por lo que nunca aparecerá en una reserva.",
+      "remove": "Quitar",
+      "inactive": "Inactivo",
+      "loadFailed": "No se pudieron cargar las vinculaciones",
+      "saveFailed": "No se pudo guardar la vinculación",
+      "deleteFailed": "No se pudo quitar la vinculación"
+    },
     "actions": {
       "addResource": "Añadir recurso",
       "addRule": "Añadir regla",

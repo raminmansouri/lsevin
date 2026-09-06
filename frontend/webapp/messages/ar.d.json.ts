@@ -2579,6 +2579,24 @@ declare const messages: {
     }
   },
   "FormBuilder": {
+    "bindings": {
+      "title": "ربط النموذج بالخدمات",
+      "description": "لا يظهر النموذج في الحجز حتى يُربط بخدمة. اختر «حجز الإضافة» لنموذج الإضافة.",
+      "service": "الخدمة",
+      "servicePlaceholder": "اختر خدمة",
+      "usageScope": "مكان الاستخدام",
+      "scopeAddon": "حجز الإضافة",
+      "scopeMain": "الحجز الرئيسي",
+      "add": "إضافة",
+      "saving": "جارٍ الحفظ...",
+      "loading": "جارٍ التحميل...",
+      "empty": "هذا النموذج غير مرتبط بأي خدمة، لذلك لن يظهر في الحجز.",
+      "remove": "حذف",
+      "inactive": "غير مفعّل",
+      "loadFailed": "فشل تحميل الروابط",
+      "saveFailed": "فشل حفظ الربط",
+      "deleteFailed": "فشل حذف الربط"
+    },
     "common": {
       "loading": "جارٍ التحميل...",
       "clear": "مسح",

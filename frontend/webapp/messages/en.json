@@ -2592,6 +2592,24 @@
     }
   },
   "FormBuilder": {
+    "bindings": {
+      "title": "Service bindings",
+      "description": "A form is not shown on a booking until it is bound to a service. Pick \"Add-on booking\" for an add-on form.",
+      "service": "Service",
+      "servicePlaceholder": "Select a service",
+      "usageScope": "Used in",
+      "scopeAddon": "Add-on booking",
+      "scopeMain": "Main booking",
+      "add": "Add",
+      "saving": "Saving...",
+      "loading": "Loading...",
+      "empty": "This form is not bound to any service, so it will never appear on a booking.",
+      "remove": "Remove",
+      "inactive": "Inactive",
+      "loadFailed": "Failed to load bindings",
+      "saveFailed": "Failed to save binding",
+      "deleteFailed": "Failed to remove binding"
+    },
     "common": {
       "loading": "Loading...",
       "clear": "Clear",

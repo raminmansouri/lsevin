@@ -6161,6 +6161,24 @@ declare const messages: {
     }
   },
   "FormBuilder": {
+    "bindings": {
+      "title": "Formularzuordnung",
+      "description": "Ein Formular erscheint erst in der Buchung, wenn es einer Leistung zugeordnet ist. Für ein Zusatzformular „Zusatzbuchung“ wählen.",
+      "service": "Leistung",
+      "servicePlaceholder": "Leistung auswählen",
+      "usageScope": "Verwendet in",
+      "scopeAddon": "Zusatzbuchung",
+      "scopeMain": "Hauptbuchung",
+      "add": "Hinzufügen",
+      "saving": "Wird gespeichert...",
+      "loading": "Wird geladen...",
+      "empty": "Dieses Formular ist keiner Leistung zugeordnet und erscheint daher nie in einer Buchung.",
+      "remove": "Entfernen",
+      "inactive": "Inaktiv",
+      "loadFailed": "Zuordnungen konnten nicht geladen werden",
+      "saveFailed": "Zuordnung konnte nicht gespeichert werden",
+      "deleteFailed": "Zuordnung konnte nicht entfernt werden"
+    },
     "actions": {
       "addResource": "Ressource hinzufügen",
       "addRule": "Regel hinzufügen",

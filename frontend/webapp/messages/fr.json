@@ -6158,6 +6158,24 @@
     }
   },
   "FormBuilder": {
+    "bindings": {
+      "title": "Association aux services",
+      "description": "Un formulaire n'apparaît dans une réservation qu'une fois associé à un service. Choisissez « Réservation d'option » pour un formulaire d'option.",
+      "service": "Service",
+      "servicePlaceholder": "Sélectionner un service",
+      "usageScope": "Utilisé dans",
+      "scopeAddon": "Réservation d'option",
+      "scopeMain": "Réservation principale",
+      "add": "Ajouter",
+      "saving": "Enregistrement...",
+      "loading": "Chargement...",
+      "empty": "Ce formulaire n'est associé à aucun service, il n'apparaîtra donc jamais dans une réservation.",
+      "remove": "Retirer",
+      "inactive": "Inactif",
+      "loadFailed": "Échec du chargement des associations",
+      "saveFailed": "Échec de l'enregistrement de l'association",
+      "deleteFailed": "Échec de la suppression de l'association"
+    },
     "actions": {
       "addResource": "Ajouter une ressource",
       "addRule": "Ajouter une règle",

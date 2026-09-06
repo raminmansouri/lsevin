@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { FormBuilderDesigner } from '@/features/form-builder/components/FormBuilderDesigner';
+import { FormServiceBindings } from '@/features/form-builder/components/FormServiceBindings';
 
 async function getForm(formId: string, failedMessage: string) {
   const res = await fetch(`/api/form-builder/forms?formId=${formId}`, { cache: 'no-store' });
@@ -114,6 +115,11 @@ export default function AdminFormBuilderDetailPage({ params }: { params: Promise
           }}
         />
       )}
+
+      {/* Only meaningful once the form has an id to bind against. */}
+      {!isLoading && formId && formId !== 'new' ? (
+        <FormServiceBindings formId={formId} locale={locale ?? 'fa-IR'} />
+      ) : null}
     </div>
   );
 }

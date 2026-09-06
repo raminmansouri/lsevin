@@ -173,6 +173,28 @@ export async function createServiceDefinitionFormMapping(input: {
   formId: string;
   usageScope: 'main_booking' | 'child_addon_booking';
 }) {
+  // Re-binding the same form to the same service and scope reactivates the row
+  // it already has instead of stacking duplicates: getActiveServiceForm takes
+  // the first match, so duplicates would decide the live form by insert order.
+  const [existing] = await db<{ id: string }[]>`
+    select id
+    from form_builder.service_definition_forms
+    where service_definition_id = ${input.serviceDefinitionId}::uuid
+      and form_id = ${input.formId}::uuid
+      and usage_scope = ${input.usageScope}
+    limit 1
+  `;
+
+  if (existing) {
+    const [reactivated] = await db<{ id: string }[]>`
+      update form_builder.service_definition_forms
+      set is_active = true
+      where id = ${existing.id}
+      returning id
+    `;
+    return reactivated;
+  }
+
   const [row] = await db`
     insert into form_builder.service_definition_forms (
       service_definition_id, form_id, usage_scope, is_active
@@ -185,6 +207,50 @@ export async function createServiceDefinitionFormMapping(input: {
     returning id
   `;
   return row;
+}
+
+/**
+ * Which services this form is wired to, and in which slot.
+ *
+ * This mapping is what the booking runtime actually reads — a form's own
+ * form_scope column is metadata and is never consulted by getActiveServiceForm.
+ * Without a row here an add-on form is built, published, and then never shown.
+ */
+export async function listServiceDefinitionFormMappings(formId: string, locale = 'fa-IR') {
+  return db<{
+    id: string;
+    serviceDefinitionId: string;
+    serviceDefinitionName: string | null;
+    usageScope: string;
+    isActive: boolean;
+  }[]>`
+    select
+      sdf.id,
+      sdf.service_definition_id as "serviceDefinitionId",
+      case
+        when jsonb_typeof(sd.name_translations) = 'object' then coalesce(
+          nullif(btrim(sd.name_translations ->> ${locale}), ''),
+          nullif(btrim(sd.name_translations ->> 'en-US'), '')
+        )
+        when jsonb_typeof(sd.name_translations) in ('string', 'number', 'boolean')
+          then nullif(btrim(sd.name_translations #>> '{}'), '')
+      end as "serviceDefinitionName",
+      sdf.usage_scope as "usageScope",
+      sdf.is_active as "isActive"
+    from form_builder.service_definition_forms sdf
+    left join category.service_definitions sd on sd.id = sdf.service_definition_id
+    where sdf.form_id = ${formId}::uuid
+    order by sdf.usage_scope asc, sdf.display_order asc, sdf.id asc
+  `;
+}
+
+export async function deleteServiceDefinitionFormMapping(id: string) {
+  const [row] = await db<{ id: string }[]>`
+    delete from form_builder.service_definition_forms
+    where id = ${id}::uuid
+    returning id
+  `;
+  return row ?? null;
 }
 
 type ListSubmissionsParams = {

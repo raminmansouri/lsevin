@@ -6164,6 +6164,24 @@ declare const messages: {
     }
   },
   "FormBuilder": {
+    "bindings": {
+      "title": "Hizmet bağlantıları",
+      "description": "Bir form, bir hizmete bağlanmadan rezervasyonda görünmez. Ek hizmet formu için «Ek rezervasyon» seçin.",
+      "service": "Hizmet",
+      "servicePlaceholder": "Bir hizmet seçin",
+      "usageScope": "Kullanıldığı yer",
+      "scopeAddon": "Ek rezervasyon",
+      "scopeMain": "Ana rezervasyon",
+      "add": "Ekle",
+      "saving": "Kaydediliyor...",
+      "loading": "Yükleniyor...",
+      "empty": "Bu form hiçbir hizmete bağlı değil, bu yüzden rezervasyonda hiç görünmeyecek.",
+      "remove": "Kaldır",
+      "inactive": "Pasif",
+      "loadFailed": "Bağlantılar yüklenemedi",
+      "saveFailed": "Bağlantı kaydedilemedi",
+      "deleteFailed": "Bağlantı kaldırılamadı"
+    },
     "actions": {
       "addResource": "Kaynak ekle",
       "addRule": "Kural ekle",
