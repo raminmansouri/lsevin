@@ -52,13 +52,13 @@ export function SponseredSliderAdminTable({
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-950">{tAdmin("sponsoredSlider")}</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Manage image, GIF, video slides and all frontend copy from the admin panel.
+            {tAdmin("manageSponsoredSliderDescription")}
           </p>
         </div>
         <Button asChild className="gap-2 rounded-2xl">
           <Link href="/admin/sponsored-slider/add">
             <Plus className="h-4 w-4" />
-            Add slide
+            {tAdmin("addSlide")}
           </Link>
         </Button>
       </div>
@@ -167,7 +167,7 @@ export function SponseredSliderAdminTable({
                 {!visibleRows.length && (
                   <TableRow>
                     <TableCell colSpan={7} className="h-32 text-center text-sm text-slate-500">
-                      No sponsored slider items yet.
+                      {tAdmin("noSponsoredSliderItemsYet")}
                     </TableCell>
                   </TableRow>
                 )}
