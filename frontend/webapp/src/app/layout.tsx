@@ -1,7 +1,9 @@
 import { getLocale } from "next-intl/server";
 import localFont from "next/font/local";
+import Script from "next/script";
 
 import { getDirection } from "@/config/locales";
+import { env } from "@/config/env/client";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 import { LocaleTypes } from "@/types/common";
 
@@ -56,6 +58,13 @@ export default async function RootLayout({
       <body className="antialiased" suppressHydrationWarning>
         {children}
         <ServiceWorkerRegister />
+        {env.NEXT_PUBLIC_CRM_ANALYTICS_URL && env.NEXT_PUBLIC_CRM_ANALYTICS_SITE_KEY && (
+          <Script
+            src={`${env.NEXT_PUBLIC_CRM_ANALYTICS_URL}/t.js`}
+            data-site={env.NEXT_PUBLIC_CRM_ANALYTICS_SITE_KEY}
+            strategy="afterInteractive"
+          />
+        )}
       </body>
     </html>
   );
