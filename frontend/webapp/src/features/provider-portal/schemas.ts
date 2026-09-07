@@ -47,6 +47,16 @@ export const createProviderApplicationSchema = z.object({
   websiteUrl: optionalText,
 });
 
+export const approveProviderApplicationSchema = z.object({
+  applicationId: uuid,
+  reviewNote: optionalText,
+});
+
+export const rejectProviderApplicationSchema = z.object({
+  applicationId: uuid,
+  reviewReason: z.string().trim().min(1, "Rejection reason is required."),
+});
+
 export const updateProviderProfileSchema = z.object({
   providerId: uuid,
   nameEn: z.string().trim().min(1, "Name is required."),

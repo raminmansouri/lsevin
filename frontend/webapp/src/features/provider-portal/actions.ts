@@ -3,8 +3,10 @@
 import { revalidatePath } from "next/cache";
 
 import {
+  approveProviderApplicationSchema,
   blockedHoursDaySchema,
   createProviderApplicationSchema,
+  rejectProviderApplicationSchema,
   createSupportTicketSchema,
   deleteGalleryItemSchema,
   deleteServiceFaqSchema,
@@ -47,8 +49,10 @@ import {
   updateSupportTicketSchema,
 } from "./schemas";
 import {
+  approveProviderApplication,
   createProviderApplication,
   createSupportTicket,
+  rejectProviderApplication,
   deleteGalleryItem,
   deleteServiceFaq,
   deleteServiceIncluded,
@@ -128,6 +132,40 @@ export async function createProviderApplicationAction(
     revalidatePath("/provider-portal");
     revalidatePath("/provider-portal/applications");
     return result(id);
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+export async function approveProviderApplicationAction(
+  input: unknown,
+): Promise<ActionResult<{ providerId: string }>> {
+  try {
+    const userId = await requireCurrentUserId();
+    const parsed = approveProviderApplicationSchema.parse(input);
+    const providerId = await approveProviderApplication(
+      userId,
+      parsed.applicationId,
+      parsed.reviewNote,
+    );
+    revalidatePath("/admin/provider-portal/applications");
+    revalidatePath(`/admin/provider-portal/applications/${parsed.applicationId}`);
+    return result({ providerId });
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+export async function rejectProviderApplicationAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
+  try {
+    const userId = await requireCurrentUserId();
+    const parsed = rejectProviderApplicationSchema.parse(input);
+    await rejectProviderApplication(userId, parsed.applicationId, parsed.reviewReason);
+    revalidatePath("/admin/provider-portal/applications");
+    revalidatePath(`/admin/provider-portal/applications/${parsed.applicationId}`);
+    return result(true);
   } catch (error) {
     return failure(error);
   }

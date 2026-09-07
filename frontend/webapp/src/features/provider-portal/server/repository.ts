@@ -9,7 +9,7 @@ import {
   hasPortalPermission,
   type ProviderPortalPermission,
 } from "../lib/permissions";
-import { splitCsv, translationFromFlat } from "../lib/normalizers";
+import { emptyTranslations, splitCsv, translationFromFlat } from "../lib/normalizers";
 import type {
   BlockedHoursDay,
   BlockedHourSlotRow,
@@ -166,6 +166,110 @@ export async function getProviderApplicationForAdmin(
     limit 1
   `;
   return rows[0] || null;
+}
+
+/**
+ * Approving an application creates the live category.service_providers row and an
+ * owner membership in provider_portal.provider_members, then marks the application
+ * approved. category.service_providers is owned by the .NET Category module, so the
+ * required columns (city/country max 15 chars, phone_number_country_code max 3 chars,
+ * NOT NULL description_translations) come straight from its EF Core migration, not
+ * from this feature's own schema.
+ */
+export async function approveProviderApplication(
+  _userId: string,
+  applicationId: string,
+  reviewNote?: string | null,
+): Promise<string> {
+  const application = await getProviderApplicationForAdmin(applicationId, "en-US");
+  if (!application) throw new Error("Application was not found.");
+  if (application.status === "approved") {
+    return application.service_provider_id as string;
+  }
+
+  const email = application.email || application.applicant_email;
+  if (!email) {
+    throw new Error(
+      "Application is missing a contact email required to create the provider.",
+    );
+  }
+
+  const providerId = randomUUID();
+
+  await sql.begin(async (tx) => {
+    await tx`
+      insert into category.service_providers (
+        id,
+        name_translations,
+        description_translations,
+        provider_type_id,
+        email,
+        phone_number_country_code,
+        phone_number,
+        country,
+        city,
+        is_active,
+        create_date,
+        last_modified_date
+      ) values (
+        ${providerId}::uuid,
+        ${sql.json(application.display_name_translations)}::jsonb,
+        ${sql.json(emptyTranslations())}::jsonb,
+        ${application.provider_type_id}::uuid,
+        ${email},
+        ${String(application.phone_number_country_code || "").slice(0, 3)},
+        ${application.phone_number},
+        ${String(application.submission_payload?.country || "").slice(0, 15)},
+        ${String(application.submission_payload?.city || "").slice(0, 15)},
+        true,
+        now(),
+        now()
+      )
+    `;
+
+    await tx`
+      insert into provider_portal.provider_members (
+        service_provider_id,
+        user_id,
+        role,
+        is_default
+      ) values (
+        ${providerId}::uuid,
+        ${application.applicant_user_id}::uuid,
+        'owner',
+        true
+      )
+      on conflict do nothing
+    `;
+
+    await tx`
+      update provider_portal.onboarding_applications
+      set
+        status = 'approved',
+        service_provider_id = ${providerId}::uuid,
+        review_reason = ${reviewNote || null},
+        last_modified_date = now()
+      where id = ${applicationId}::uuid
+    `;
+  });
+
+  return providerId;
+}
+
+export async function rejectProviderApplication(
+  _userId: string,
+  applicationId: string,
+  reviewReason: string,
+): Promise<void> {
+  await sql`
+    update provider_portal.onboarding_applications
+    set
+      status = 'rejected',
+      review_reason = ${reviewReason},
+      last_modified_date = now()
+    where id = ${applicationId}::uuid
+      and status <> 'approved'
+  `;
 }
 
 export async function listMyProviders(
