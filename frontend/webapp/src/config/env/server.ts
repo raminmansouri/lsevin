@@ -30,6 +30,14 @@ export const env = createEnv({
     // docker-compose.server.yml) -- the notification WhatsApp channel falls back to
     // this when no channel-specific override is set in /admin/notification-channels.
     WHATSIPLUS_API_KEY: z.string().min(1).optional(),
+    // Verbose per-request curl/node-fetch reproduction logging in customFetch
+    // (config/http/logger.ts). Off by default — it used to be hardcoded on for
+    // every server-to-API call in every environment, which logs a full request
+    // and response body (up to 10,000 chars each) for every single backend
+    // call. Under sustained traffic that's continuous, unrotated stdout growth
+    // plus real per-request JSON/regex overhead — the app "getting heavier the
+    // longer it runs" was this, not a memory leak. Opt in for local debugging only.
+    HTTP_DEBUG_LOGGING: z.enum(["true", "false"]).optional(),
   },
   experimental__runtimeEnv: {
     INTERNAL_API_URL: process.env.INTERNAL_API_URL,
@@ -47,6 +55,7 @@ export const env = createEnv({
     MELIPAYAMAK_PASSWORD: process.env.MELIPAYAMAK_PASSWORD,
     MELIPAYAMAK_BASE_URL: process.env.MELIPAYAMAK_BASE_URL,
     WHATSIPLUS_API_KEY: process.env.WHATSIPLUS_API_KEY,
+    HTTP_DEBUG_LOGGING: process.env.HTTP_DEBUG_LOGGING,
   },
   skipValidation: !!process.env.SKIP_ENV_VALIDATION || process.env.NODE_ENV === "test",
 });

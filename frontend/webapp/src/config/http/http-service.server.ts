@@ -117,8 +117,10 @@ const customFetch = async <TResult extends ApiDataValue>(
   try {
     const fetchOptions = await prepareRequest(finalUrl, options);
 
+    const httpDebugLogging = serverEnv.HTTP_DEBUG_LOGGING === "true";
+
     logRequest(finalUrl.toString(), fetchOptions, fetchOptions.body as any, {
-      enabled: true,
+      enabled: httpDebugLogging,
       format: "both",
       // redactHeaders: ["cookie", "set-cookie"],
     });
@@ -126,7 +128,7 @@ const customFetch = async <TResult extends ApiDataValue>(
     const response = await fetch(finalUrl, fetchOptions);
 
     await logResponse(finalUrl.toString(), response.clone(), {
-      enabled: true,
+      enabled: httpDebugLogging,
       format: "both",
     });
 

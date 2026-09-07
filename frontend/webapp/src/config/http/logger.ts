@@ -9,7 +9,7 @@ type RequestLogOptions = {
 };
 
 const DEFAULT_LOG_OPTIONS: Required<RequestLogOptions> = {
-  enabled: true,
+  enabled: false,
   format: "both",
   // This list had been commented out and replaced with `[]`, which turned every
   // logged request into a copy-pasteable snippet carrying the caller's real
