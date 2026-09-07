@@ -22,7 +22,7 @@ export function AdminApplicationReview({ application }: { application: any }) {
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-8">
       <Card className="rounded-3xl border-slate-200 shadow-sm">
         <CardHeader>
-          <CardTitle>{application.provider_type_name} application</CardTitle>
+          <CardTitle>{tAdmin("applicationForType", { type: application.provider_type_name })}</CardTitle>
           <CardDescription>{application.application_number || application.id}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 text-sm md:grid-cols-2">
@@ -55,7 +55,7 @@ export function AdminApplicationReview({ application }: { application: any }) {
               startTransition(async () => {
                 const response = await approveProviderApplicationAction({ applicationId: application.id, reviewNote });
                 if (!response.ok) {
-                  toast.error(response.error || "Application could not be approved.");
+                  toast.error(response.error || tAdmin("applicationCouldNotBeApproved"));
                   return;
                 }
                 toast.success(tAdmin("applicationApprovedAndProviderCreated"));
@@ -72,7 +72,7 @@ export function AdminApplicationReview({ application }: { application: any }) {
             <div className="flex flex-wrap gap-3">
               <Button type="submit" disabled={isPending || application.status === "approved"}>
                 <CheckCircle2 className="mr-2 h-4 w-4" />
-                Approve and create provider
+                {tAdmin("approveAndCreateProvider")}
               </Button>
 
               <Button
@@ -80,12 +80,12 @@ export function AdminApplicationReview({ application }: { application: any }) {
                 variant="destructive"
                 disabled={isPending || application.status === "approved"}
                 onClick={() => {
-                  const reason = prompt("Rejection reason");
+                  const reason = prompt(tAdmin("rejectionReason"));
                   if (!reason) return;
                   startTransition(async () => {
                     const response = await rejectProviderApplicationAction({ applicationId: application.id, reviewReason: reason });
                     if (!response.ok) {
-                      toast.error(response.error || "Application could not be rejected.");
+                      toast.error(response.error || tAdmin("applicationCouldNotBeRejected"));
                       return;
                     }
                     toast.success(tAdmin("applicationRejected"));
@@ -95,7 +95,7 @@ export function AdminApplicationReview({ application }: { application: any }) {
                 }}
               >
                 <XCircle className="mr-2 h-4 w-4" />
-                Reject
+                {tAdmin("reject")}
               </Button>
             </div>
           </form>

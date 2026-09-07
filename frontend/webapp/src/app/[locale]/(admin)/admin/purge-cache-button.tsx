@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -12,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { purgeAllCacheAction, type PurgeCacheResult } from "./cache-actions";
 
 export function PurgeCacheButton() {
+  const t = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
   const [confirming, setConfirming] = useState(false);
   const [result, setResult] = useState<PurgeCacheResult | null>(null);
@@ -47,14 +49,12 @@ export function PurgeCacheButton() {
           disabled={isPending}
         >
           <Trash2 className="h-4 w-4" />
-          Purge all cache
+          {t("purgeAllCache")}
         </Button>
       ) : (
         <div className="space-y-3 rounded-2xl border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-950/30">
           <p className="text-sm font-medium text-red-900 dark:text-red-200">
-            Purge the entire application cache? Pages and cached data will be
-            rebuilt on the next request — the first hits after this may be
-            slower.
+            {t("purgeCacheConfirmMessage")}
           </p>
           <div className="flex flex-wrap gap-2">
             <Button variant="destructive" onClick={run} disabled={isPending}>
@@ -63,14 +63,14 @@ export function PurgeCacheButton() {
               ) : (
                 <Trash2 className="h-4 w-4" />
               )}
-              {isPending ? "Purging…" : "Yes, purge everything"}
+              {isPending ? t("purging") : t("yesPurgeEverything")}
             </Button>
             <Button
               variant="outline"
               onClick={() => setConfirming(false)}
               disabled={isPending}
             >
-              Cancel
+              {t("cancel")}
             </Button>
           </div>
         </div>
@@ -79,15 +79,17 @@ export function PurgeCacheButton() {
       {result?.ok ? (
         <p className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
           <CheckCircle2 className="h-4 w-4" />
-          Cache purged ({result.tagCount} tags) at{" "}
-          {new Date(result.revalidatedAt).toLocaleTimeString()}.
+          {t("cachePurgedAt", {
+            count: result.tagCount,
+            time: new Date(result.revalidatedAt).toLocaleTimeString(),
+          })}
         </p>
       ) : null}
 
       {result && !result.ok ? (
         <p className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
           <AlertTriangle className="h-4 w-4" />
-          {result.error ?? "Failed to purge cache."}
+          {result.error ?? t("failedToPurgeCache")}
         </p>
       ) : null}
     </div>

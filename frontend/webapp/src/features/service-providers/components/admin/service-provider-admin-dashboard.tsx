@@ -1954,7 +1954,7 @@ function StaffManager({ provider, lookups, locale }: Props) {
           }
           disabled={isPending || !staffId}
         >
-          <Plus className="me-2 h-4 w-4" /> Link
+          <Plus className="me-2 h-4 w-4" /> {tAdmin("link")}
         </Button>
       </div>
       <label className="flex items-center gap-2 text-sm">
@@ -1962,7 +1962,7 @@ function StaffManager({ provider, lookups, locale }: Props) {
           checked={isActive}
           onCheckedChange={(v) => setIsActive(Boolean(v))}
         />{" "}
-        New link active
+        {tAdmin("newLinkActive")}
       </label>
       <div className="space-y-2">
         {provider.staff.length ? (
@@ -2130,15 +2130,14 @@ function ReviewsManager({
   return (
     <RelationCard
       title={tAdmin("reviewsAndComments")}
-      description="Customer feedback is booking-gated and stays pending until admin approval. Admin can also add public SEO reviews."
+      description={tAdmin("reviewsAndCommentsDescription")}
     >
       <div className="rounded-2xl border bg-muted/20 p-4">
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
             <div className="font-semibold">{tAdmin("addAdminSEOReview")}</div>
             <p className="text-sm text-muted-foreground">
-              Use this only for curated editorial comments or imported reviews.
-              Customer reviews should come from booked customers.
+              {tAdmin("curatedEditorialCommentsNotice")}
             </p>
           </div>
           <Badge variant="outline">{tAdmin("adminCreated")}</Badge>
@@ -2290,7 +2289,7 @@ function ReviewsManager({
               }
               disabled={isPending}
             />
-            Verified badge
+            {tAdmin("verifiedBadge")}
           </label>
         </div>
         <div className="mt-3 grid gap-3 lg:grid-cols-2">
@@ -2496,7 +2495,7 @@ function ReviewsManager({
                   ) : null}
                   <div className="rounded-xl border bg-background p-3">
                     <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                      Admin answer
+                      {tAdmin("adminAnswer")}
                     </div>
                     <textarea
                       value={replyDrafts[item.id] || ""}

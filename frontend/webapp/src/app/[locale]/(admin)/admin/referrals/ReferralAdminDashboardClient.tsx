@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import { BarChart3, Gift, TicketPercent, UserPlus, Users } from "lucide-react";
 
 import type { ReferralAdminDashboardData } from "./types";
@@ -9,7 +10,7 @@ interface ReferralAdminDashboardClientProps {
   initialData: ReferralAdminDashboardData;
 }
 
-function formatDate(value: string | null): string {
+function formatDate(value: string | null, locale: string): string {
   if (!value) {
     return "—";
   }
@@ -20,7 +21,7 @@ function formatDate(value: string | null): string {
     return "—";
   }
 
-  return date.toLocaleString("en-US", {
+  return date.toLocaleString(locale, {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -32,14 +33,16 @@ function formatDate(value: string | null): string {
 export function ReferralAdminDashboardClient({
   initialData,
 }: ReferralAdminDashboardClientProps) {
+  const t = useTranslations("AdminGenerated");
+  const locale = useLocale();
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Referral Program Admin</h1>
+            <h1 className="text-3xl font-bold text-gray-900">{t("referralProgramAdmin")}</h1>
             <p className="text-gray-600 mt-1">
-              Active program: {initialData.program.name} ({initialData.program.code})
+              {t("activeProgramLabel", { name: initialData.program.name, code: initialData.program.code })}
             </p>
           </div>
 
@@ -47,39 +50,39 @@ export function ReferralAdminDashboardClient({
             href="/admin/referrals/policies"
             className="inline-flex items-center justify-center rounded-xl bg-[#083f30] px-4 py-2.5 text-white font-semibold hover:bg-[#0a5a44] transition-colors"
           >
-            Manage Policy
+            {t("managePolicy")}
           </Link>
         </div>
 
         <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
           {[
             {
-              title: "Active Codes",
+              title: t("activeCodes"),
               value: initialData.summary.activeCodes,
               icon: Gift,
             },
             {
-              title: "Invitations",
+              title: t("invitations"),
               value: initialData.summary.invitations,
               icon: UserPlus,
             },
             {
-              title: "Registrations",
+              title: t("registrations"),
               value: initialData.summary.registrations,
               icon: Users,
             },
             {
-              title: "Profile Completions",
+              title: t("profileCompletions"),
               value: initialData.summary.profileCompletions,
               icon: BarChart3,
             },
             {
-              title: "Coupons Issued",
+              title: t("couponsIssued"),
               value: initialData.summary.couponsIssued,
               icon: TicketPercent,
             },
             {
-              title: "Coupons Redeemed",
+              title: t("couponsRedeemed"),
               value: initialData.summary.couponsRedeemed,
               icon: TicketPercent,
             },
@@ -105,18 +108,18 @@ export function ReferralAdminDashboardClient({
         <div className="grid gap-6 xl:grid-cols-2">
           <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">Recent Invitations</h2>
-              <span className="text-sm text-gray-500">{initialData.invitations.length} shown</span>
+              <h2 className="text-xl font-bold text-gray-900">{t("recentInvitations")}</h2>
+              <span className="text-sm text-gray-500">{t("shownCount", { count: initialData.invitations.length })}</span>
             </div>
 
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-200 text-left text-gray-500">
-                    <th className="py-3 pr-4 font-medium">Referrer</th>
-                    <th className="py-3 pr-4 font-medium">Referee</th>
-                    <th className="py-3 pr-4 font-medium">Status</th>
-                    <th className="py-3 font-medium">Invited</th>
+                    <th className="py-3 pr-4 font-medium">{t("referrer")}</th>
+                    <th className="py-3 pr-4 font-medium">{t("referee")}</th>
+                    <th className="py-3 pr-4 font-medium">{t("status")}</th>
+                    <th className="py-3 font-medium">{t("invited")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -125,7 +128,7 @@ export function ReferralAdminDashboardClient({
                       <td className="py-3 pr-4 font-medium text-gray-900">{row.referrer}</td>
                       <td className="py-3 pr-4 text-gray-700">{row.referee}</td>
                       <td className="py-3 pr-4 text-gray-700">{row.status}</td>
-                      <td className="py-3 text-gray-700">{formatDate(row.invitedAt)}</td>
+                      <td className="py-3 text-gray-700">{formatDate(row.invitedAt, locale)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -135,18 +138,18 @@ export function ReferralAdminDashboardClient({
 
           <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">Recent Coupons</h2>
-              <span className="text-sm text-gray-500">{initialData.coupons.length} shown</span>
+              <h2 className="text-xl font-bold text-gray-900">{t("recentCoupons")}</h2>
+              <span className="text-sm text-gray-500">{t("shownCount", { count: initialData.coupons.length })}</span>
             </div>
 
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-200 text-left text-gray-500">
-                    <th className="py-3 pr-4 font-medium">Customer</th>
-                    <th className="py-3 pr-4 font-medium">Reward</th>
-                    <th className="py-3 pr-4 font-medium">Status</th>
-                    <th className="py-3 font-medium">Issued</th>
+                    <th className="py-3 pr-4 font-medium">{t("customer")}</th>
+                    <th className="py-3 pr-4 font-medium">{t("reward")}</th>
+                    <th className="py-3 pr-4 font-medium">{t("status")}</th>
+                    <th className="py-3 font-medium">{t("issued")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -158,7 +161,7 @@ export function ReferralAdminDashboardClient({
                         <div className="text-xs text-[#083f30] font-semibold">{row.discountDisplay}</div>
                       </td>
                       <td className="py-3 pr-4 text-gray-700">{row.status}</td>
-                      <td className="py-3 text-gray-700">{formatDate(row.issuedAt)}</td>
+                      <td className="py-3 text-gray-700">{formatDate(row.issuedAt, locale)}</td>
                     </tr>
                   ))}
                 </tbody>
