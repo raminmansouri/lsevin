@@ -7134,8 +7134,8 @@
       "gatewayCurrencyNote": "ارز درگاه پرداخت ممکن است با ارز نمایشی شما متفاوت باشد.",
       "processing": "در حال پردازش...",
       "topUpAmount": "مبلغ شارژ",
-      "todayAt": "Today at {time}",
-      "yesterdayAt": "Yesterday at {time}",
+      "todayAt": "امروز ساعت {time}",
+      "yesterdayAt": "دیروز ساعت {time}",
       "statuses": {
         "completed": "تکمیل‌شده",
         "pending": "در انتظار",
@@ -7288,8 +7288,8 @@
           "title": "شارژ کیف پول"
         }
       },
-      "todayAt": "Today at {time}",
-      "yesterdayAt": "Yesterday at {time}"
+      "todayAt": "امروز ساعت {time}",
+      "yesterdayAt": "دیروز ساعت {time}"
     },
     "transactionDetail": {
       "title": "جزئیات تراکنش",

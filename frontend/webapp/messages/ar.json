@@ -6921,8 +6921,21 @@
       "gatewayCurrencyNote": "قد تختلف عملة بوابة الدفع عن عملة العرض.",
       "processing": "جارٍ المعالجة...",
       "topUpAmount": "مبلغ الشحن",
-      "todayAt": "Today at {time}",
-      "yesterdayAt": "Yesterday at {time}",
+      "topUpResult": {
+        "succeededTitle": "تم شحن المحفظة",
+        "succeededBody": "تم التحقق من دفعتك وأُضيف المبلغ إلى رصيدك.",
+        "succeededToast": "تم شحن المحفظة بنجاح",
+        "cancelledTitle": "تم إلغاء الدفع",
+        "cancelledBody": "لقد ألغيت عملية الدفع، لذا لم يتم خصم أي مبلغ ولم يتغير رصيدك.",
+        "cancelledToast": "تم إلغاء الدفع",
+        "failedTitle": "فشلت عملية الشحن",
+        "failedBody": "لم نتمكن من تأكيد هذه الدفعة، لذا لم تتم إضافة أي مبلغ إلى رصيدك. إذا تم خصم مبلغ من حسابك، يرجى التواصل مع الدعم قبل المحاولة مرة أخرى.",
+        "failedToast": "تعذّر التحقق من الشحن",
+        "reference": "الرقم المرجعي: {reference}",
+        "dismiss": "إغلاق"
+      },
+      "todayAt": "اليوم الساعة {time}",
+      "yesterdayAt": "أمس الساعة {time}",
       "statuses": {
         "completed": "مكتملة",
         "pending": "قيد الانتظار",
@@ -7062,8 +7075,8 @@
           "title": "شحن المحفظة"
         }
       },
-      "todayAt": "Today at {time}",
-      "yesterdayAt": "Yesterday at {time}"
+      "todayAt": "اليوم الساعة {time}",
+      "yesterdayAt": "أمس الساعة {time}"
     },
     "transactionDetail": {
       "title": "تفاصيل المعاملة",
