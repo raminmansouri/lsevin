@@ -271,7 +271,7 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
             <h3 className="font-bold text-gray-900">{t("privacyControls")}</h3>
             <button type="button" onClick={() => void refreshPermissions(true)} className="inline-flex items-center gap-2 text-sm font-medium text-[#083f30]" disabled={permissionLoading !== "none"}>
               <RefreshCw size={15} className={permissionLoading === "refresh" ? "animate-spin" : ""} />
-              Refresh
+              {t("refresh")}
             </button>
           </div>
 
@@ -280,7 +280,7 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
               icon={<MapPin size={20} className="text-gray-600" />}
               title={t("locationPermissions")}
               value={locationPermissionStatus}
-              summary={permissionHelpText("location", locationPermissionStatus)}
+              summary={permissionHelpText("location", locationPermissionStatus, t)}
               actionLabel={locationPermissionStatus === "granted" ? t("refresh") : locationPermissionStatus === "denied" ? t("checkAgain") : t("requestAccess")}
               onAction={() => locationPermissionStatus === "granted" ? refreshPermissions(true) : requestLocationPermission()}
               isBusy={permissionLoading === "location" || permissionLoading === "refresh"}
@@ -290,7 +290,7 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
               icon={<Bell size={20} className="text-gray-600" />}
               title={t("notificationPermissions")}
               value={notificationPermissionStatus}
-              summary={permissionHelpText("notification", notificationPermissionStatus)}
+              summary={permissionHelpText("notification", notificationPermissionStatus, t)}
               actionLabel={notificationPermissionStatus === "granted" ? t("refresh") : notificationPermissionStatus === "denied" ? t("checkAgain") : t("requestAccess")}
               onAction={() => notificationPermissionStatus === "granted" ? refreshPermissions(true) : requestNotificationPermission()}
               isBusy={permissionLoading === "notification" || permissionLoading === "refresh"}
@@ -343,7 +343,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (value: boo
 }
 
 function PermissionCard({ icon, title, value, summary, actionLabel, onAction, isBusy, t }: { icon: React.ReactNode; title: string; value: PermissionStatusValue; summary: string; actionLabel: string; onAction: () => void | Promise<void>; isBusy: boolean; t: ReturnType<typeof useTranslations>; }) {
-  const badge = permissionBadgeLabel(value);
+  const badge = permissionBadgeLabel(value, t);
   return (
     <div className="rounded-lg bg-gray-50 p-3">
       <div className="mb-3 flex items-start justify-between gap-3">

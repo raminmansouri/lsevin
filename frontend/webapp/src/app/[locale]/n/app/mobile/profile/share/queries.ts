@@ -1,4 +1,5 @@
 import { type Sql } from "postgres";
+import { getTranslations } from "next-intl/server";
 
 import sharedSql from "@/config/database/db";
 
@@ -54,6 +55,7 @@ export async function getShareFriendsPageData(
   identityUserId: string,
   appBaseUrl: string
 ): Promise<ShareFriendsPageData> {
+  const t = await getTranslations("MobileProfile.shareFriends");
   const customer = await resolveCustomerFromIdentityUser(sql, identityUserId);
   const program = await getActiveReferralProgram(sql);
   const referralCode = await ensureReferralCode(sql, {
@@ -212,8 +214,8 @@ export async function getShareFriendsPageData(
     .map((rule) => `${rule.title}: ${formatDiscountValue(rule.discount_type, Number(rule.discount_value), "USD")}`);
 
   const heroSubtitle = referrerRuleValues.length > 0
-    ? `Current rewards unlock in sequence: ${referrerRuleValues.join(", ")}.`
-    : "Share your code and earn referral rewards based on the active program.";
+    ? t("dynamicHeroSubtitle", { rewards: referrerRuleValues.join(", ") })
+    : t("heroSubtitle");
 
   const referralLink = `${appBaseUrl.replace(/\/$/, "")}/ref/${referralCode}`;
 
@@ -223,7 +225,7 @@ export async function getShareFriendsPageData(
     referralCode,
     referralLink,
     heroSubtitle,
-    shareMessage: `Join LSevin with my referral code ${referralCode}. ${heroSubtitle} Sign up here: ${referralLink}`,
+    shareMessage: t("dynamicShareMessage", { code: referralCode, subtitle: heroSubtitle, link: referralLink }),
     stats: {
       totalReferrals: Number(statsRow.total_referrals ?? 0),
       pendingRewards: Number(statsRow.pending_rewards ?? 0),
@@ -231,7 +233,7 @@ export async function getShareFriendsPageData(
     },
     referralHistory: history,
     couponQueue,
-    terms: buildTerms({
+    terms: buildTerms(t, {
       allowStacking: program.allow_stacking,
       requirePreviousCouponRedeemed: program.require_previous_coupon_redeemed,
       maxReferralsPerReferrer: program.max_referrals_per_referrer,
@@ -565,38 +567,41 @@ async function ensureReferralCode(
   throw new Error("Unable to generate a unique referral code.");
 }
 
-function buildTerms(args: {
-  allowStacking: boolean;
-  requirePreviousCouponRedeemed: boolean;
-  maxReferralsPerReferrer: number | null;
-  referrerRuleValues: string[];
-  refereeRuleValues: string[];
-}): string[] {
+function buildTerms(
+  t: Awaited<ReturnType<typeof getTranslations>>,
+  args: {
+    allowStacking: boolean;
+    requirePreviousCouponRedeemed: boolean;
+    maxReferralsPerReferrer: number | null;
+    referrerRuleValues: string[];
+    refereeRuleValues: string[];
+  }
+): string[] {
   const terms: string[] = [];
 
   terms.push(
     args.allowStacking
-      ? "This program currently allows combinable discounts."
-      : "Discounts cannot be combined in the same checkout."
+      ? t("dynamicTerms.stackingAllowed")
+      : t("dynamicTerms.stackingNotAllowed")
   );
 
   if (args.requirePreviousCouponRedeemed) {
-    terms.push("A newly earned discount unlocks only after the previous discount is redeemed.");
+    terms.push(t("dynamicTerms.previousRedeemedRequired"));
   }
 
   if (args.referrerRuleValues.length > 0) {
-    terms.push(`Referrer reward sequence: ${args.referrerRuleValues.join(", ")}.`);
+    terms.push(t("dynamicTerms.referrerSequence", { values: args.referrerRuleValues.join(", ") }));
   }
 
   if (args.refereeRuleValues.length > 0) {
-    terms.push(`Invitee onboarding rewards: ${args.refereeRuleValues.join(" • ")}.`);
+    terms.push(t("dynamicTerms.refereeRewards", { values: args.refereeRuleValues.join(" • ") }));
   }
 
   if (args.maxReferralsPerReferrer !== null) {
-    terms.push(`Each referrer can qualify for up to ${args.maxReferralsPerReferrer} referral rewards under the active program.`);
+    terms.push(t("dynamicTerms.maxReferrals", { count: args.maxReferralsPerReferrer }));
   }
 
-  terms.push("LSevin can update the active referral policy at any time from admin.");
+  terms.push(t("dynamicTerms.policyMayChange"));
 
   return terms;
 }

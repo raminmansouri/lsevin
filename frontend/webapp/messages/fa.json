@@ -43,6 +43,14 @@
     "sponsored": {
       "alt": "اسپانسری"
     },
+    "badges": {
+      "allServices": "همه خدمات",
+      "verified": "تأیید شده",
+      "featured": "ویژه",
+      "sponsored": "تبلیغاتی",
+      "newProvider": "ارائه‌دهنده جدید",
+      "responseTimeUnavailable": "زمان پاسخ‌دهی موجود نیست"
+    },
     "counts": {
       "providers": "{count} ارائه‌دهنده"
     },
@@ -7231,7 +7239,7 @@
         "completed": "تکمیل‌شده",
         "pending": "در انتظار",
         "failed": "ناموفق",
-        "refunded": "Refunded",
+        "refunded": "بازپرداخت‌شده",
         "processing": "در حال پردازش",
         "cancelled": "لغوشده"
       },
@@ -7248,7 +7256,17 @@
       "applyFilters": "اعمال فیلترها",
       "paymentMethods": {
         "applePay": "اپل‌پی",
-        "bankTransfer": "انتقال بانکی"
+        "bankTransfer": "انتقال بانکی",
+        "card": "کارت",
+        "crypto": "رمزارز",
+        "unknown": "نامشخص"
+      },
+      "share": {
+        "receiptTitle": "رسید {title}",
+        "reference": "کد پیگیری: {reference}",
+        "amount": "مبلغ: {amount}",
+        "status": "وضعیت: {status}",
+        "date": "تاریخ: {date}"
       },
       "sample": {
         "botox": {
@@ -7426,6 +7444,36 @@
     },
     "privacySecurity": {
       "title": "حریم خصوصی و امنیت",
+      "unknownDevice": "دستگاه نامشخص",
+      "unknownLocation": "موقعیت نامشخص",
+      "relativeTime": {
+        "activeNow": "اکنون فعال",
+        "minutesAgo": "{count} دقیقه پیش",
+        "hoursAgo": "{count} ساعت پیش",
+        "daysAgo": "{count} روز پیش"
+      },
+      "badge": {
+        "granted": "مجاز",
+        "denied": "مسدود",
+        "prompt": "پرسش",
+        "unsupported": "پشتیبانی نمی‌شود",
+        "unknown": "نامشخص"
+      },
+      "helpText": {
+        "location": {
+          "granted": "دسترسی به موقعیت مکانی در مرورگر روی این دستگاه فعال است.",
+          "denied": "دسترسی به موقعیت مکانی در تنظیمات مرورگر یا سیستم‌عامل مسدود شده است.",
+          "prompt": "مرورگر همچنان می‌تواند برای دسترسی به موقعیت مکانی درخواست بدهد.",
+          "unsupported": "این مرورگر وضعیت مجوز موقعیت مکانی را نمایش نمی‌دهد."
+        },
+        "notification": {
+          "granted": "اعلان‌های مرورگر روی این دستگاه فعال است.",
+          "denied": "اعلان‌ها در تنظیمات مرورگر یا سیستم‌عامل مسدود شده‌اند.",
+          "prompt": "مرورگر همچنان می‌تواند برای دسترسی به اعلان‌ها درخواست بدهد.",
+          "unsupported": "این مرورگر از Notification API پشتیبانی نمی‌کند."
+        },
+        "unknown": "وضعیت مجوز هنوز روی این دستگاه خوانده نشده است."
+      },
       "changePassword": "تغییر رمز عبور",
       "currentPassword": "رمز عبور فعلی",
       "enterCurrentPassword": "رمز فعلی را وارد کنید",
@@ -7629,6 +7677,17 @@
       "copiedBang": "کپی شد!",
       "copy": "کپی",
       "discountQueue": "صف تخفیف",
+      "dynamicHeroSubtitle": "پاداش‌های فعلی به‌ترتیب آزاد می‌شوند: {rewards}.",
+      "dynamicShareMessage": "با کد دعوت من {code} به السوین بپیوندید. {subtitle} از اینجا ثبت‌نام کنید: {link}",
+      "dynamicTerms": {
+        "stackingAllowed": "این برنامه در حال حاضر اجازه ترکیب تخفیف‌ها را می‌دهد.",
+        "stackingNotAllowed": "تخفیف‌ها را نمی‌توان در یک پرداخت با هم ترکیب کرد.",
+        "previousRedeemedRequired": "تخفیف تازه‌کسب‌شده تنها پس از استفاده از تخفیف قبلی فعال می‌شود.",
+        "referrerSequence": "ترتیب پاداش دعوت‌کننده: {values}.",
+        "refereeRewards": "پاداش‌های خوش‌آمدگویی به دعوت‌شونده: {values}.",
+        "maxReferrals": "هر دعوت‌کننده می‌تواند حداکثر تا {count} پاداش دعوت در برنامه فعال دریافت کند.",
+        "policyMayChange": "السوین می‌تواند در هر زمان قوانین دعوت فعال را از پنل مدیریت به‌روزرسانی کند."
+      },
       "heroSubtitle": "السوین را با دوستانتان به اشتراک بگذارید و مزایای دعوت را آزاد کنید.",
       "heroTitle": "دوستانتان را دعوت کنید و پاداش بگیرید",
       "howItWorks": "نحوه کار",
@@ -10922,6 +10981,19 @@
       "removeFavorite": "حذف ارائه‌دهنده از علاقه‌مندی‌ها",
       "contact": "تماس",
       "viewServices": "مشاهده خدمات"
+    },
+    "recommendations": {
+      "similarProvidersTitle": "ارائه‌دهندگان مشابه",
+      "similarProvidersTitleWithCountry": "ارائه‌دهندگان مشابه در {country}",
+      "exploreNearby": "گزینه‌های بیشتری نزدیک این موقعیت را کشف کنید",
+      "viewAll": "مشاهده همه",
+      "topInternationalTitle": "ارائه‌دهندگان برتر بین‌المللی",
+      "topInternationalSubtitle": "مقاصد پیشرو گردشگری سلامت",
+      "verified": "تأیید شده",
+      "priceFrom": "شروع از",
+      "ctaTitle": "نمی‌دانید کدام ارائه‌دهنده را انتخاب کنید؟",
+      "ctaDescription": "مشاوران متخصص ما به شما کمک می‌کنند ارائه‌دهندگان را مقایسه کنید، قیمت‌ها را درک کنید و بهترین گزینه را برای نیازتان پیدا کنید.",
+      "ctaButton": "دریافت مشاوره رایگان"
     },
     "errors": {
       "providerCouldNotBeLoaded": "اطلاعات ارائه‌دهنده بارگذاری نشد",

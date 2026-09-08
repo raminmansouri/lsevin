@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+
 import sharedSql from "@/config/database/db";
 import type {
   CreateTopUpIntentInput,
@@ -259,6 +261,7 @@ export async function getWalletTransactionDetail(
     return null;
   }
 
+  const t = await getTranslations("MobileProfile.transactions");
   const row = rows[0];
   const metadata = row.metadata ?? {};
   const providerName =
@@ -295,7 +298,7 @@ export async function getWalletTransactionDetail(
     paymentMethodLabel:
       asTrimmedString(metadata.paymentMethodLabel) ??
       asTrimmedString(row.gateway_name) ??
-      getPaymentMethodLabel(row.payment_method),
+      getPaymentMethodLabel(row.payment_method, t),
     title: row.title,
     subtitle: row.subtitle,
     currencyCode: row.currency_code,

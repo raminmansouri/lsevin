@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+
 import sql from "@/config/database/db";
 
 import { requireIdentityUserId } from "./auth";
@@ -6,6 +8,7 @@ import { formatLocation, formatRelativeActivity } from "./utils";
 
 export async function getPrivacySecurityPageData(): Promise<PrivacySecurityPageData> {
   const userId = await requireIdentityUserId();
+  const t = await getTranslations("MobileProfile.privacySecurity");
 
   const securityRows = await sql<{
     biometric_enabled: boolean;
@@ -76,10 +79,10 @@ export async function getPrivacySecurityPageData(): Promise<PrivacySecurityPageD
     hasPendingDeletionRequest: deletionRows[0]?.has_pending_request ?? false,
     activeSessions: sessionRows.map((row) => ({
       id: row.id,
-      deviceName: row.device_name ?? "Unknown device",
-      locationLabel: formatLocation(row.city, row.country),
+      deviceName: row.device_name ?? t("unknownDevice"),
+      locationLabel: formatLocation(row.city, row.country, t("unknownLocation")),
       isCurrent: row.is_current,
-      lastActiveLabel: formatRelativeActivity(row.last_seen_at),
+      lastActiveLabel: formatRelativeActivity(row.last_seen_at, t),
     })),
   };
 }

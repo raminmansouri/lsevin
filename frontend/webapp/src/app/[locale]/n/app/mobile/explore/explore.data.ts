@@ -1,5 +1,6 @@
 import sql from "@/config/database/db";
 import { unstable_noStore as noStore } from "next/cache";
+import { getTranslations } from "next-intl/server";
 
 import {
   categoryProviderCountsCte,
@@ -618,6 +619,7 @@ export async function getExplorePageData({
   noStore();
 
   const lang = normalizeLocale(locale);
+  const tBadges = await getTranslations({ locale, namespace: "Explore.badges" });
   const customerId = await resolveCurrentCustomerId();
   const featuredWhereSql = buildFeaturedProvidersWhere(filters, lang);
   const trendingWhereSql = buildTrendingServicesWhere(filters, lang);
@@ -645,7 +647,7 @@ export async function getExplorePageData({
   const categories: ExploreCategory[] = [
     {
       id: "all",
-      label: "All Services",
+      label: tBadges("allServices"),
       // Distinct providers, not the sum of the chips — a provider filed under
       // Clinic is counted for Clinic and again for its parent.
       count: Number(categoryRows[0]?.totalProviders || 0),
@@ -800,9 +802,9 @@ const featuredRows = await sql`
     verified: Boolean(row.verified),
     location: row.location || "",
     specialties: Array.isArray(row.specialties) ? row.specialties.filter(Boolean) : [],
-    responseTime: row.response_time || "Response time unavailable",
-    bookings: row.bookings || "New provider",
-    badge: row.badge || (row.verified ? "Verified" : "Featured"),
+    responseTime: row.response_time || tBadges("responseTimeUnavailable"),
+    bookings: row.bookings || tBadges("newProvider"),
+    badge: row.badge || (row.verified ? tBadges("verified") : tBadges("featured")),
     isFavorited: providerFavoriteSet.has(row.id),
   }));
 
@@ -1017,7 +1019,7 @@ const featuredRows = await sql`
     image: coalesceImage(row.image),
     price: row.price == null ? null : Number(row.price),
     currency: row.currency || "USD",
-    tag: row.tag || "Sponsored",
+    tag: row.tag || tBadges("sponsored"),
   }));
 
   const languageRows = await sql<{ language: string; count: number }[]>`

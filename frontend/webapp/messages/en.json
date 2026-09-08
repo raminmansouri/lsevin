@@ -801,6 +801,14 @@
     "sponsored": {
       "alt": "Sponsored"
     },
+    "badges": {
+      "allServices": "All Services",
+      "verified": "Verified",
+      "featured": "Featured",
+      "sponsored": "Sponsored",
+      "newProvider": "New provider",
+      "responseTimeUnavailable": "Response time unavailable"
+    },
     "counts": {
       "providers": "{count} providers"
     },
@@ -7248,7 +7256,17 @@
       "applyFilters": "Apply filters",
       "paymentMethods": {
         "applePay": "Apple Pay",
-        "bankTransfer": "Bank transfer"
+        "bankTransfer": "Bank transfer",
+        "card": "Card",
+        "crypto": "Crypto",
+        "unknown": "Unknown"
+      },
+      "share": {
+        "receiptTitle": "{title} Receipt",
+        "reference": "Reference: {reference}",
+        "amount": "Amount: {amount}",
+        "status": "Status: {status}",
+        "date": "Date: {date}"
       },
       "sample": {
         "botox": {
@@ -7426,6 +7444,36 @@
     },
     "privacySecurity": {
       "title": "Privacy & Security",
+      "unknownDevice": "Unknown device",
+      "unknownLocation": "Unknown location",
+      "relativeTime": {
+        "activeNow": "Active now",
+        "minutesAgo": "{count, plural, one {# minute ago} other {# minutes ago}}",
+        "hoursAgo": "{count, plural, one {# hour ago} other {# hours ago}}",
+        "daysAgo": "{count, plural, one {# day ago} other {# days ago}}"
+      },
+      "badge": {
+        "granted": "Allowed",
+        "denied": "Blocked",
+        "prompt": "Ask",
+        "unsupported": "Unsupported",
+        "unknown": "Unknown"
+      },
+      "helpText": {
+        "location": {
+          "granted": "Browser location access is enabled on this device.",
+          "denied": "Location access is blocked in the browser or OS settings.",
+          "prompt": "The browser can still ask for location access.",
+          "unsupported": "This browser does not expose location permission status."
+        },
+        "notification": {
+          "granted": "Browser notifications are enabled on this device.",
+          "denied": "Notifications are blocked in the browser or OS settings.",
+          "prompt": "The browser can still ask for notification access.",
+          "unsupported": "This browser does not support the Notification API."
+        },
+        "unknown": "Permission state has not been read yet on this device."
+      },
       "changePassword": "Change Password",
       "currentPassword": "Current password",
       "enterCurrentPassword": "Enter current password",
@@ -7629,6 +7677,17 @@
       "copiedBang": "Copied!",
       "copy": "Copy",
       "discountQueue": "Discount queue",
+      "dynamicHeroSubtitle": "Current rewards unlock in sequence: {rewards}.",
+      "dynamicShareMessage": "Join LSevin with my referral code {code}. {subtitle} Sign up here: {link}",
+      "dynamicTerms": {
+        "stackingAllowed": "This program currently allows combinable discounts.",
+        "stackingNotAllowed": "Discounts cannot be combined in the same checkout.",
+        "previousRedeemedRequired": "A newly earned discount unlocks only after the previous discount is redeemed.",
+        "referrerSequence": "Referrer reward sequence: {values}.",
+        "refereeRewards": "Invitee onboarding rewards: {values}.",
+        "maxReferrals": "Each referrer can qualify for up to {count} referral rewards under the active program.",
+        "policyMayChange": "LSevin can update the active referral policy at any time from admin."
+      },
       "heroSubtitle": "Share LSevin with friends and unlock referral benefits.",
       "heroTitle": "Invite friends, earn rewards",
       "howItWorks": "How it works",
@@ -10922,6 +10981,19 @@
       "removeFavorite": "Remove provider from favorites",
       "contact": "Contact",
       "viewServices": "View services"
+    },
+    "recommendations": {
+      "similarProvidersTitle": "Similar Providers",
+      "similarProvidersTitleWithCountry": "Similar Providers in {country}",
+      "exploreNearby": "Explore more options near this location",
+      "viewAll": "View All",
+      "topInternationalTitle": "Top International Providers",
+      "topInternationalSubtitle": "Leading medical tourism destinations",
+      "verified": "Verified",
+      "priceFrom": "From",
+      "ctaTitle": "Can't decide which provider to choose?",
+      "ctaDescription": "Our expert consultants can help you compare providers, understand pricing, and find the perfect match for your needs.",
+      "ctaButton": "Get Free Consultation"
     },
     "errors": {
       "providerCouldNotBeLoaded": "Provider could not be loaded",

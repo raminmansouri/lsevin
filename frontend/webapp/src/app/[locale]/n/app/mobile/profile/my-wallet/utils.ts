@@ -5,6 +5,8 @@ import type {
   WalletTransactionStatus,
 } from "./types";
 
+type Translate = (key: string, values?: Record<string, unknown>) => string;
+
 export function currencySymbol(currency: string) {
   switch (currency) {
     case "USD":
@@ -27,7 +29,7 @@ export function formatAmount(amount: number) {
   });
 }
 
-export function formatTransactionDate(dateString: string) {
+export function formatTransactionDate(dateString: string, t: Translate) {
   const date = new Date(dateString);
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -36,17 +38,15 @@ export function formatTransactionDate(dateString: string) {
   const candidate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
   if (candidate.getTime() === today.getTime()) {
-    return `Today, ${date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-    })}`;
+    return t("todayAt", {
+      time: date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
+    });
   }
 
   if (candidate.getTime() === yesterday.getTime()) {
-    return `Yesterday, ${date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-    })}`;
+    return t("yesterdayAt", {
+      time: date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
+    });
   }
 
   return date.toLocaleDateString("en-US", {
@@ -69,38 +69,38 @@ export function formatLongDate(dateString: string) {
   });
 }
 
-export function getStatusPresentation(status: WalletTransactionStatus) {
+export function getStatusPresentation(status: WalletTransactionStatus, t: Translate) {
   switch (status) {
     case "completed":
-      return { label: "Completed", tone: "success" as const };
+      return { label: t("statuses.completed"), tone: "success" as const };
     case "refunded":
-      return { label: "Refunded", tone: "success" as const };
+      return { label: t("statuses.refunded"), tone: "success" as const };
     case "pending":
-      return { label: "Pending", tone: "warning" as const };
+      return { label: t("statuses.pending"), tone: "warning" as const };
     case "processing":
-      return { label: "Processing", tone: "warning" as const };
+      return { label: t("statuses.processing"), tone: "warning" as const };
     case "cancelled":
-      return { label: "Cancelled", tone: "danger" as const };
+      return { label: t("statuses.cancelled"), tone: "danger" as const };
     case "failed":
     default:
-      return { label: "Failed", tone: "danger" as const };
+      return { label: t("statuses.failed"), tone: "danger" as const };
   }
 }
 
-export function getPaymentMethodLabel(method: WalletPaymentMethod | null) {
+export function getPaymentMethodLabel(method: WalletPaymentMethod | null, t: Translate) {
   switch (method) {
     case "card":
-      return "Card";
+      return t("paymentMethods.card");
     case "bank":
-      return "Bank Transfer";
+      return t("paymentMethods.bankTransfer");
     case "crypto":
-      return "Crypto";
+      return t("paymentMethods.crypto");
     case "apple":
-      return "Apple Pay";
+      return t("paymentMethods.applePay");
     case "wallet":
-      return "LSevin Wallet";
+      return t("lsevinWallet");
     default:
-      return "Unknown";
+      return t("paymentMethods.unknown");
   }
 }
 
@@ -137,17 +137,17 @@ export function matchesHistoryPeriod(dateString: string, selectedPeriod: string)
   return true;
 }
 
-export function buildReceiptTitle(transaction: WalletTransactionDetailData) {
-  return `${transaction.title} Receipt`;
+export function buildReceiptTitle(transaction: WalletTransactionDetailData, t: Translate) {
+  return t("share.receiptTitle", { title: transaction.title });
 }
 
-export function shareTransactionText(transaction: WalletTransactionDetailData) {
+export function shareTransactionText(transaction: WalletTransactionDetailData, t: Translate) {
   return [
-    buildReceiptTitle(transaction),
-    `Reference: ${transaction.transactionReference}`,
-    `Amount: ${currencySymbol(transaction.currencyCode)}${formatAmount(transaction.total)}`,
-    `Status: ${getStatusPresentation(transaction.status).label}`,
-    `Date: ${formatLongDate(transaction.occurredAt)}`,
+    buildReceiptTitle(transaction, t),
+    t("share.reference", { reference: transaction.transactionReference }),
+    t("share.amount", { amount: `${currencySymbol(transaction.currencyCode)}${formatAmount(transaction.total)}` }),
+    t("share.status", { status: getStatusPresentation(transaction.status, t).label }),
+    t("share.date", { date: formatLongDate(transaction.occurredAt) }),
   ].join("\n");
 }
 

@@ -6381,6 +6381,14 @@
     "sponsored": {
       "alt": "Sponsorlu"
     },
+    "badges": {
+      "allServices": "Tüm Hizmetler",
+      "verified": "Onaylı",
+      "featured": "Öne Çıkan",
+      "sponsored": "Sponsorlu",
+      "newProvider": "Yeni sağlayıcı",
+      "responseTimeUnavailable": "Yanıt süresi mevcut değil"
+    },
     "trending": {
       "subtitle": "Bu hafta en çok rezervasyon alanlar",
       "title": "Trend Hizmetler"
@@ -7756,6 +7764,36 @@
       }
     },
     "privacySecurity": {
+      "unknownDevice": "Bilinmeyen cihaz",
+      "unknownLocation": "Bilinmeyen konum",
+      "relativeTime": {
+        "activeNow": "Şu anda aktif",
+        "minutesAgo": "{count} dakika önce",
+        "hoursAgo": "{count} saat önce",
+        "daysAgo": "{count} gün önce"
+      },
+      "badge": {
+        "granted": "İzin verildi",
+        "denied": "Engellendi",
+        "prompt": "Sor",
+        "unsupported": "Desteklenmiyor",
+        "unknown": "Bilinmiyor"
+      },
+      "helpText": {
+        "location": {
+          "granted": "Tarayıcı konum erişimi bu cihazda etkin.",
+          "denied": "Konum erişimi tarayıcı veya işletim sistemi ayarlarında engellenmiş.",
+          "prompt": "Tarayıcı hâlâ konum erişimi isteyebilir.",
+          "unsupported": "Bu tarayıcı konum izni durumunu göstermiyor."
+        },
+        "notification": {
+          "granted": "Tarayıcı bildirimleri bu cihazda etkin.",
+          "denied": "Bildirimler tarayıcı veya işletim sistemi ayarlarında engellenmiş.",
+          "prompt": "Tarayıcı hâlâ bildirim izni isteyebilir.",
+          "unsupported": "Bu tarayıcı Notification API'sini desteklemiyor."
+        },
+        "unknown": "İzin durumu bu cihazda henüz okunmadı."
+      },
       "activeSessions": "Aktif oturumlar",
       "biometricDescription": "Daha hızlı giriş yapmak için Face ID, Touch ID veya cihaz biyometriğini kullanın.",
       "biometricLogin": "Biyometrik giriş",
@@ -7964,6 +8002,17 @@
       "copiedBang": "Kopyalandı!",
       "copy": "Kopyala",
       "discountQueue": "İndirim sırası",
+      "dynamicHeroSubtitle": "Mevcut ödüller şu sırayla açılır: {rewards}.",
+      "dynamicShareMessage": "{code} davet kodumla LSevin'e katıl. {subtitle} Buradan kaydol: {link}",
+      "dynamicTerms": {
+        "stackingAllowed": "Bu program şu anda birleştirilebilir indirimlere izin veriyor.",
+        "stackingNotAllowed": "İndirimler aynı ödemede birleştirilemez.",
+        "previousRedeemedRequired": "Yeni kazanılan bir indirim yalnızca önceki indirim kullanıldıktan sonra açılır.",
+        "referrerSequence": "Davet eden ödül sırası: {values}.",
+        "refereeRewards": "Davet edilen için hoş geldin ödülleri: {values}.",
+        "maxReferrals": "Her davet eden, aktif program kapsamında en fazla {count} davet ödülü kazanabilir.",
+        "policyMayChange": "LSevin, aktif davet politikasını yönetim panelinden istediği zaman güncelleyebilir."
+      },
       "heroSubtitle": "LSevin'i arkadaşlarınla paylaş, davet avantajlarının kilidini aç.",
       "heroTitle": "Arkadaşlarını davet et, ödül kazan",
       "howItWorks": "Nasıl çalışır",
@@ -8088,7 +8137,17 @@
       "noTransactionsFound": "İşlem bulunamadı",
       "paymentMethods": {
         "applePay": "Apple Pay",
-        "bankTransfer": "Banka havalesi"
+        "bankTransfer": "Banka havalesi",
+        "card": "Kart",
+        "crypto": "Kripto",
+        "unknown": "Bilinmiyor"
+      },
+      "share": {
+        "receiptTitle": "{title} Makbuzu",
+        "reference": "Referans: {reference}",
+        "amount": "Tutar: {amount}",
+        "status": "Durum: {status}",
+        "date": "Tarih: {date}"
       },
       "periods": {
         "all": "Tüm zamanlar",
@@ -8482,6 +8541,19 @@
       "removeFavorite": "Sağlayıcıyı favorilerden çıkar",
       "share": "Sağlayıcıyı paylaş",
       "viewServices": "Hizmetleri gör"
+    },
+    "recommendations": {
+      "similarProvidersTitle": "Benzer Sağlayıcılar",
+      "similarProvidersTitleWithCountry": "{country} içindeki Benzer Sağlayıcılar",
+      "exploreNearby": "Bu konuma yakın diğer seçenekleri keşfedin",
+      "viewAll": "Tümünü Gör",
+      "topInternationalTitle": "En İyi Uluslararası Sağlayıcılar",
+      "topInternationalSubtitle": "Önde gelen sağlık turizmi destinasyonları",
+      "verified": "Onaylı",
+      "priceFrom": "Başlangıç",
+      "ctaTitle": "Hangi sağlayıcıyı seçeceğinize karar veremiyor musunuz?",
+      "ctaDescription": "Uzman danışmanlarımız sağlayıcıları karşılaştırmanıza, fiyatlandırmayı anlamanıza ve ihtiyaçlarınıza en uygun seçeneği bulmanıza yardımcı olabilir.",
+      "ctaButton": "Ücretsiz Danışmanlık Alın"
     },
     "badges": {
       "accredited": "Akredite",

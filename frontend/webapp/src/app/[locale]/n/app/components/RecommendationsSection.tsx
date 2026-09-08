@@ -1,6 +1,7 @@
 "use client";
 
 import { BadgeCheck, ChevronRight, MapPin, Star, TrendingUp } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { PriceTextClient } from "@/features/finance/components/price-text-client";
 import type { Recommendation } from "@/features/service-providers/types/provider-page-types";
@@ -38,6 +39,7 @@ export default function RecommendationsSection({
   internationalRecommendations = [],
   locale,
 }: RecommendationsSectionProps) {
+  const t = useTranslations("ProviderPage.recommendations");
   const navigate = useNavigate();
   void _currentProviderId;
   void _type;
@@ -62,7 +64,7 @@ export default function RecommendationsSection({
         <ImageWithFallback fill src={mediaUrl(provider.image)} alt={provider.title} sizes="280px" className="object-cover transition-transform duration-300 group-hover:scale-105" fallbackClassName="h-full w-full" />
         {provider.verified ? (
           <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-[#083f30] px-2.5 py-1 text-xs font-bold text-white">
-            <BadgeCheck size={12} /> Verified
+            <BadgeCheck size={12} /> {t("verified")}
           </span>
         ) : null}
       </div>
@@ -84,7 +86,7 @@ export default function RecommendationsSection({
 
           {provider.priceFrom && provider.currency ? (
             <div className="text-right">
-              <p className="text-xs text-gray-500">From</p>
+              <p className="text-xs text-gray-500">{t("priceFrom")}</p>
               <PriceTextClient
                 amount={provider.priceFrom}
                 currencyCode={provider.currency}
@@ -108,16 +110,18 @@ export default function RecommendationsSection({
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
               <h2 className="mb-1 text-xl font-bold text-gray-900">
-                Similar Providers{currentCountry ? ` in ${currentCountry}` : ""}
+                {currentCountry
+                  ? t("similarProvidersTitleWithCountry", { country: currentCountry })
+                  : t("similarProvidersTitle")}
               </h2>
-              <p className="text-sm text-gray-600">Explore more options near this location</p>
+              <p className="text-sm text-gray-600">{t("exploreNearby")}</p>
             </div>
             <button
               onClick={viewAllLocalProviders}
               className="flex shrink-0 items-center gap-1 text-sm font-semibold text-[#083f30] hover:underline"
               type="button"
             >
-              View All <ChevronRight size={16} />
+              {t("viewAll")} <ChevronRight size={16} />
             </button>
           </div>
 
@@ -132,9 +136,9 @@ export default function RecommendationsSection({
           <div className="mb-5 flex items-center justify-between">
             <div>
               <h2 className="mb-1 flex items-center gap-2 text-xl font-bold text-gray-900">
-                <TrendingUp size={24} className="text-[#083f30]" /> Top International Providers
+                <TrendingUp size={24} className="text-[#083f30]" /> {t("topInternationalTitle")}
               </h2>
-              <p className="text-sm text-gray-600">Leading medical tourism destinations</p>
+              <p className="text-sm text-gray-600">{t("topInternationalSubtitle")}</p>
             </div>
           </div>
 
@@ -145,16 +149,16 @@ export default function RecommendationsSection({
       ) : null}
 
       <div className="rounded-3xl bg-gradient-to-br from-[#083f30] to-[#0a5a44] p-8 text-center text-white">
-        <h3 className="mb-2 text-2xl font-bold">Can&apos;t decide which provider to choose?</h3>
+        <h3 className="mb-2 text-2xl font-bold">{t("ctaTitle")}</h3>
         <p className="mx-auto mb-6 max-w-2xl text-white/90">
-          Our expert consultants can help you compare providers, understand pricing, and find the perfect match for your needs.
+          {t("ctaDescription")}
         </p>
         <button
           onClick={() => navigate("/n/app/mobile/support")}
           className="inline-flex items-center gap-2 rounded-xl bg-[#eacb7f] px-8 py-4 font-bold text-[#083f30] transition-colors hover:bg-[#d4b76c]"
           type="button"
         >
-          Get Free Consultation <ChevronRight size={20} />
+          {t("ctaButton")} <ChevronRight size={20} />
         </button>
       </div>
     </div>

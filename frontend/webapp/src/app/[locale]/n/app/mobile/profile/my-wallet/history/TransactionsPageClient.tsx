@@ -111,7 +111,7 @@ export default function TransactionsPageClient({ initialData }: TransactionsPage
 
       <div className="px-5 space-y-2">
         {filteredTransactions.map((transaction) => {
-          const status = getStatusPresentation(transaction.status);
+          const status = getStatusPresentation(transaction.status, t);
           const isCredit = transaction.direction === "credit";
           const amountTone = isCredit
             ? "text-green-600"
@@ -149,7 +149,7 @@ export default function TransactionsPageClient({ initialData }: TransactionsPage
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-500">
                     <Clock size={12} />
-                    <span>{formatTransactionDate(transaction.occurredAt)}</span>
+                    <span>{formatTransactionDate(transaction.occurredAt, t)}</span>
                   </div>
                 </div>
 

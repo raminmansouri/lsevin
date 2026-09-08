@@ -36,17 +36,18 @@ export default function TransactionDetailPageClient({
   const navigate = useNavigate();
   const locale = useLocale();
   const t = useTranslations("MobileProfile.transactionDetail");
+  const tTransactions = useTranslations("MobileProfile.transactions");
   const [shareMessage, setShareMessage] = useState<string | null>(null);
-  const status = getStatusPresentation(transaction.status);
+  const status = getStatusPresentation(transaction.status, tTransactions);
 
   const handleShare = async () => {
-    const text = shareTransactionText(transaction);
+    const text = shareTransactionText(transaction, tTransactions);
     const url = `${window.location.origin}/app/wallet/transaction/${transaction.id}`;
 
     try {
       if (navigator.share) {
         await navigator.share({
-          title: buildReceiptTitle(transaction),
+          title: buildReceiptTitle(transaction, tTransactions),
           text,
           url,
         });
