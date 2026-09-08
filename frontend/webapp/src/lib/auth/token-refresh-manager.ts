@@ -90,6 +90,12 @@ const performTokenRefresh = async (
         },
         body: requestBody,
         cache: "no-store",
+        // Without this, a stalled (not merely erroring) upstream never settles
+        // this fetch, so the .finally() below that clears refreshPromises never
+        // runs either — that key sits in the module-level Map for the rest of
+        // the process's life. One stuck refresh per affected user during an
+        // upstream outage is exactly the kind of thing that piles up over time.
+        signal: AbortSignal.timeout(15000),
       }
     );
 

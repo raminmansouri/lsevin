@@ -34,7 +34,11 @@ export async function getProviderPageDataFromDbCached(
   "use cache";
   cacheTag("provider-page");
   if (input?.providerId) cacheTag(getProviderPageDataTag(input.providerId));
-  cacheLife("default");
+  // See service-page.repository.cached.ts: "default" never expires, and the
+  // key includes userId, so entries only ever accumulated until the 50MB
+  // cache cap forced eviction churn. "hours" still avoids the join fan-out
+  // within a session but frees combinations nobody revisits in a day.
+  cacheLife("hours");
 
   return getProviderPageDataFromDb(input);
 }

@@ -145,6 +145,28 @@ type HomePageLabels = {
   };
 };
 
+// `force-static` bakes whatever this render produces into the page for the
+// full `revalidate` window (1 hour) — a single transient DB/connection-pool
+// hiccup during that one render (most often right after a deploy restart)
+// used to fall straight through to `.catch(() => [])` and get served to
+// every visitor as "No categories found" until the next regeneration. A
+// couple of short retries absorbs exactly that kind of blip; a genuinely
+// down database still falls back to the empty rail after this.
+async function withRailRetry<T>(fn: () => Promise<T>, fallback: T, retries = 2, delayMs = 300): Promise<T> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (attempt === retries) {
+        console.error('[home] rail fetch failed after retries', error);
+        return fallback;
+      }
+      await new Promise((resolve) => setTimeout(resolve, delayMs * (attempt + 1)));
+    }
+  }
+  return fallback;
+}
+
 function formatLabel(template: string, replacements: Record<string, string | number | null | undefined>) {
   return Object.entries(replacements).reduce(
     (value, [key, replacement]) => value.replaceAll(`{${key}}`, String(replacement ?? '')),
@@ -251,14 +273,16 @@ async function Home({ params }: PageProps) {
     homeSections,
     specialPackagesCount,
   ] = await Promise.all([
-    // Each read is guarded so a transient build-time DB failure produces an
-    // empty rail (ISR fills it on the next request) instead of aborting export.
-    getHomeCategoriesCached(queryInput, 6).catch(() => []),
-    getFeaturedHomeServicesCached(queryInput, 8).catch(() => []),
-    getTrendingHomeServicesCached(queryInput, 8).catch(() => []),
-    getTrustedHomeProvidersCached(queryInput, 8).catch(() => []),
-    getHomeHeroOfferCached(queryInput).catch(() => null),
-    getNearbyProviderCountCached(queryInput).catch(() => 0),
+    // Each read is guarded so a sustained DB failure produces an empty rail
+    // (ISR fills it on the next request) instead of aborting export — but a
+    // transient blip is retried first so it doesn't get baked into this hour's
+    // static page. See withRailRetry above.
+    withRailRetry(() => getHomeCategoriesCached(queryInput, 6), []),
+    withRailRetry(() => getFeaturedHomeServicesCached(queryInput, 8), []),
+    withRailRetry(() => getTrendingHomeServicesCached(queryInput, 8), []),
+    withRailRetry(() => getTrustedHomeProvidersCached(queryInput, 8), []),
+    withRailRetry(() => getHomeHeroOfferCached(queryInput), null),
+    withRailRetry(() => getNearbyProviderCountCached(queryInput), 0),
     getHomeManagedSectionsCached(locale),
     countActiveSpecialPackages(),
   ]);

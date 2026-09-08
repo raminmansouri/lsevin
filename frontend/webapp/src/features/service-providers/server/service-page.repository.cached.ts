@@ -33,7 +33,12 @@ export async function getServicePageByIdCached(
   "use cache";
   cacheTag("service-page");
   if (args?.serviceId) cacheTag(getServicePageDataTag(args.serviceId));
-  cacheLife("default");
+  // "default" expires effectively never (INFINITE_CACHE) and the key includes
+  // userId, so every signed-in visitor x service x currency x country
+  // combination this process ever sees stayed resident until the 50MB cache
+  // cap forced eviction churn. "hours" still avoids the join fan-out within a
+  // session but actually frees combinations nobody revisits in a day.
+  cacheLife("hours");
 
   // The underlying query casts serviceId to ::uuid; a malformed id would throw
   // a 500 instead of a clean 404. Guard here (the repo's own check is disabled).

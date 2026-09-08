@@ -28,7 +28,11 @@ export async function getSpecialistPageFromDbCached(
   "use cache";
   cacheTag("specialist-page");
   if (args?.specialistId) cacheTag(getSpecialistPageByIdTag(args.specialistId));
-  cacheLife("default");
+  // See service-page.repository.cached.ts: "default" never expires, and the
+  // key includes userId, so entries only ever accumulated until the 50MB
+  // cache cap forced eviction churn. "hours" still avoids the join fan-out
+  // within a session but frees combinations nobody revisits in a day.
+  cacheLife("hours");
 
   return getSpecialistPageFromDb(args);
 }
