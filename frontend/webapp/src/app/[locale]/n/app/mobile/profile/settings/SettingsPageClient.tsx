@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { useParams } from "next/navigation";
 import {
   Bell,
   ChevronRight,
@@ -14,6 +15,8 @@ import {
   Wallet,
 } from "lucide-react";
 
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { markLocaleChosenExplicitly } from "@/i18n/locale-by-country";
 import type { SettingsOverview, UpdatePreferencesInput } from "./types";
 import { updatePreferences } from "./actions";
 import { formatCurrency, getLocationLabel } from "./utils";
@@ -24,6 +27,10 @@ type Props = {
 
 export default function SettingsPageClient({ initialData }: Props) {
   const t = useTranslations("MobileProfile.settings");
+  const currentLocale = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useParams();
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +56,22 @@ export default function SettingsPageClient({ initialData }: Props) {
       try {
         await updatePreferences(form);
         setMessage(t("preferencesUpdated"));
+
+        // The saved preference is inert until the app actually switches — the
+        // [locale] segment and the NEXT_LOCALE cookie are what next-intl reads,
+        // not the database row. Without this the page kept showing the old
+        // language until a manual refresh happened to land on a route that
+        // re-read the preference.
+        if (form.preferredLocale && form.preferredLocale !== currentLocale) {
+          document.cookie = `NEXT_LOCALE=${form.preferredLocale};path=/;max-age=31536000;samesite=lax`;
+          markLocaleChosenExplicitly();
+          router.replace(
+            // @ts-expect-error -- see locale-switcher.tsx: params always match
+            // pathname for the current route.
+            { pathname, params },
+            { locale: form.preferredLocale }
+          );
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : t("couldNotSavePreferences"));
       }

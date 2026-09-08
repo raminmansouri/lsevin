@@ -80,6 +80,20 @@ const useAction = <TInput, TOutput>(
         }
         options.onSuccess?.();
       } catch (error) {
+        // redirect()/notFound() inside a server action work by throwing an
+        // error with this digest; Next's router only performs the navigation
+        // if that throw propagates uncaught, so it must be rethrown here
+        // rather than treated as a failed action.
+        if (
+          error instanceof Error &&
+          "digest" in error &&
+          typeof error.digest === "string" &&
+          (error.digest.startsWith("NEXT_REDIRECT") ||
+            error.digest === "NEXT_NOT_FOUND")
+        ) {
+          throw error;
+        }
+
         console.log("error", error);
         const problem: IProblem = {
           title: "An error occurred",
