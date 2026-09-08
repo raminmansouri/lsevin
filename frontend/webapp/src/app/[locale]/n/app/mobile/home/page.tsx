@@ -147,12 +147,14 @@ type HomePageLabels = {
 
 // `force-static` bakes whatever this render produces into the page for the
 // full `revalidate` window (1 hour) — a single transient DB/connection-pool
-// hiccup during that one render (most often right after a deploy restart)
+// hiccup during that one render (most often right after a deploy restart,
+// where the DB/pool can take several seconds to accept connections again)
 // used to fall straight through to `.catch(() => [])` and get served to
-// every visitor as "No categories found" until the next regeneration. A
-// couple of short retries absorbs exactly that kind of blip; a genuinely
-// down database still falls back to the empty rail after this.
-async function withRailRetry<T>(fn: () => Promise<T>, fallback: T, retries = 2, delayMs = 300): Promise<T> {
+// every visitor as "No categories found" until the next regeneration. This
+// only runs once per (re)generation — never on a per-visitor request — so it
+// can afford to keep retrying for several seconds; a genuinely down database
+// still falls back to the empty rail after this.
+async function withRailRetry<T>(fn: () => Promise<T>, fallback: T, retries = 5, delayMs = 500): Promise<T> {
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       return await fn();

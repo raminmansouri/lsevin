@@ -19,26 +19,50 @@ import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/s
 export const dynamic = "force-static";
 export const revalidate = 3600;
 
+// `force-static` bakes whatever this render produces into the page for the
+// full `revalidate` window (1 hour) — see the identical helper in
+// n/app/mobile/home/page.tsx. A transient DB/connection-pool hiccup during
+// the one render that regenerates this page (most often right after a
+// deploy restart) used to fall straight through to `.catch()` and ship an
+// empty shop shell / "An error occurred" for up to an hour. This only runs
+// once per (re)generation, never per visitor, so it can afford to retry for
+// several seconds before a genuinely down database falls back to empty.
+async function withShopRetry<T>(fn: () => Promise<T>, fallback: T, retries = 5, delayMs = 500): Promise<T> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (attempt === retries) {
+        console.error('[shop] fetch failed after retries', error);
+        return fallback;
+      }
+      await new Promise((resolve) => setTimeout(resolve, delayMs * (attempt + 1)));
+    }
+  }
+  return fallback;
+}
+
 export default async function ShopHomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("Shop");
 
-  const displayCurrency = await getShopDefaultCurrencyCached().catch(() => "USD");
+  const displayCurrency = await withShopRetry(() => getShopDefaultCurrencyCached(), "USD");
 
-  // Resilient: a transient DB failure at build time yields an empty shell that
-  // ISR fills on the next request, rather than failing the whole export.
-  const home = await getShopHomeCached(locale, displayCurrency).catch(() => ({
+  const home = await withShopRetry(() => getShopHomeCached(locale, displayCurrency), {
     currency: displayCurrency,
     pricingMode: "market_default" as const,
     selectableCurrencies: [] as Array<{ code: string; symbol: string; name: string }>,
     categories: [],
     sections: [],
-  }));
-  const feed = await searchProducts(
-    { sort: "popularity", page: 1, pageSize: 20 },
-    { locale, displayCurrency: home.currency, cookieFree: true, noFx: true },
-  ).catch(() => ({ items: [], total: 0, page: 1, pageSize: 20 }));
+  });
+  const feed = await withShopRetry(
+    () => searchProducts(
+      { sort: "popularity", page: 1, pageSize: 20 },
+      { locale, displayCurrency: home.currency, cookieFree: true, noFx: true },
+    ),
+    { items: [], total: 0, page: 1, pageSize: 20 },
+  );
 
   return (
     <div className="min-h-screen bg-neutral-50 pb-24">
