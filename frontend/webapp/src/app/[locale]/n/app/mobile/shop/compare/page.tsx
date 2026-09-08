@@ -56,7 +56,7 @@ export default async function ShopComparePage({ params }: { params: Promise<{ lo
               <Row label={t("grandTotal")} cells={products.map((p) => (p.priceUnavailable ? t("priceUnavailable") : formatShopMoney(p.price, p.currency, locale)))} strong />
               <Row label="★" cells={products.map((p) => (p.rating > 0 ? `${p.rating.toFixed(1)} (${p.reviewCount})` : "—"))} />
               <Row label={t("sold", { count: "" }).replace("{count}", "").trim() || "Sold"} cells={products.map((p) => String(p.soldCount || 0))} />
-              <Row label="Brand" cells={products.map((p) => p.brandName ?? "—")} />
+              <Row label={t("brand")} cells={products.map((p) => p.brandName ?? "—")} />
               <Row label={t("inStock")} cells={products.map((p) => (p.hasStock ? "✓" : "—"))} />
               {attrNames.map((name) => (
                 <Row

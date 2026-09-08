@@ -7,10 +7,19 @@
     "Support": "پشتیبانی",
     "Shop": "فروشگاه"
   },
+  "CategoryBrowser": {
+    "categoriesCount": "{count, plural, other {# دسته‌بندی}}",
+    "providersCount": "{count, plural, other {# ارائه‌دهنده}}",
+    "smartDiscovery": "جستجوی هوشمند",
+    "cantFindTitle": "آنچه دنبالش هستید را پیدا نکردید؟",
+    "cantFindDescription": "از جستجوی هوشمند برای یافتن خدمات، ارائه‌دهندگان، پکیج‌ها و متخصصان نزدیک استفاده کنید.",
+    "searchNow": "جستجو کنید"
+  },
   "Explore": {
     "header": {
       "title": "کاوش",
-      "subtitle": "خدمات سلامت را در سراسر جهان پیدا کنید"
+      "subtitle": "خدمات سلامت را در سراسر جهان پیدا کنید",
+      "browseCategories": "مرور دسته‌بندی‌ها"
     },
     "search": {
       "placeholder": "جستجوی خدمات..."
@@ -7814,7 +7823,9 @@
       "selectSpecialties": "انتخاب تخصص‌ها",
       "searchSpecialties": "جستجوی تخصص‌ها...",
       "noSpecialtiesFound": "تخصصی پیدا نشد.",
-      "specialtiesSelected": "{count} تخصص انتخاب شد"
+      "specialtiesSelected": "{count} تخصص انتخاب شد",
+      "currency": "واحد پول",
+      "allCurrencies": "همه واحدهای پول"
     },
     "backup": {
       "mapAlt": "نقشه",
@@ -13619,6 +13630,7 @@
     "reviews": "{count} دیدگاه",
     "from": "از",
     "inStock": "موجود",
+    "brand": "برند",
     "outOfStock": "ناموجود",
     "preorder": "پیش‌خرید",
     "preorderShipsAfter": "پیش‌خرید · ارسال پس از {date}",

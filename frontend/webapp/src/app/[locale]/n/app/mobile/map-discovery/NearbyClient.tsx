@@ -1095,7 +1095,7 @@ export default function NearbyClient({
 
                 <div className="mb-4">
                   <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    Currency
+                    {t("filters.currency")}
                   </label>
                   <select
                     value={activeFilters.currencyCode ?? ""}
@@ -1108,7 +1108,7 @@ export default function NearbyClient({
                     }
                     className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-900 outline-none transition focus:border-[#083f30] focus:ring-2 focus:ring-[#083f30]/10"
                   >
-                    <option value="">All currencies</option>
+                    <option value="">{t("filters.allCurrencies")}</option>
                     {availableCurrencies.map((currency) => (
                       <option key={currency.code} value={currency.code}>
                         {currency.symbol} {currency.code} — {currency.label} (

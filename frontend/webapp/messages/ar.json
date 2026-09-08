@@ -7,6 +7,14 @@
     "Support": "الدعم",
     "Shop": "المتجر"
   },
+  "CategoryBrowser": {
+    "categoriesCount": "{count, plural, other {# فئة}}",
+    "providersCount": "{count, plural, other {# مزود}}",
+    "smartDiscovery": "اكتشاف ذكي",
+    "cantFindTitle": "لم تجد ما تبحث عنه؟",
+    "cantFindDescription": "استخدم البحث الذكي للعثور على الخدمات ومقدمي الخدمة والباقات والمختصين القريبين.",
+    "searchNow": "ابحث الآن"
+  },
   "Booking": {
     "aDedicatedCoordinatorWillBeAssignedAfterBookingConfirmation": "dedicated منسق will be مُعيّن بعد تأكيد الحجز.",
     "aDedicatedMedicalCoordinatorWillBeAssignedToYou": "dedicated المنسق الطبي will be مُعيّن إلى أنت immediately بعد تأكيد الحجز.",
@@ -768,7 +776,8 @@
   "Explore": {
     "header": {
       "title": "استكشف",
-      "subtitle": "اكتشف الرعاية الصحية حول العالم"
+      "subtitle": "اكتشف الرعاية الصحية حول العالم",
+      "browseCategories": "تصفح الفئات"
     },
     "search": {
       "placeholder": "بحث الخدمات..."
@@ -7588,7 +7597,9 @@
       "selectSpecialties": "اختر التخصصات",
       "searchSpecialties": "ابحث عن التخصصات...",
       "noSpecialtiesFound": "لم يتم العثور على تخصصات.",
-      "specialtiesSelected": "{count} محدد"
+      "specialtiesSelected": "{count} محدد",
+      "currency": "العملة",
+      "allCurrencies": "كل العملات"
     },
     "backup": {
       "mapAlt": "الخريطة",
@@ -12789,6 +12800,7 @@
     "reviews": "{count} تقييم",
     "from": "من",
     "inStock": "متوفر",
+    "brand": "العلامة التجارية",
     "outOfStock": "غير متوفر",
     "preorder": "طلب مسبق",
     "preorderShipsAfter": "طلب مسبق · الشحن بعد {date}",

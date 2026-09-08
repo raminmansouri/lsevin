@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   ChevronLeft,
   ChevronRight,
@@ -248,6 +249,7 @@ export function CategoryBrowserClient({
   totalCategories: number;
   totalProviders: number;
 }) {
+  const t = useTranslations("CategoryBrowser");
   const router = useRouter();
   // `?parent=` deep-links straight onto a node's subcategories (home-shelf
   // links). Read on the client so the page itself stays statically rendered.
@@ -458,11 +460,11 @@ export function CategoryBrowserClient({
                         {group.title}
                       </h2>
                       <p className="text-xs font-medium text-gray-500">
-                        {group.categories.length.toLocaleString()} categories
+                        {t("categoriesCount", { count: group.categories.length })}
                       </p>
                     </div>
                     <span className="shrink-0 text-sm font-medium text-gray-500">
-                      {groupProviderCount.toLocaleString()} providers
+                      {t("providersCount", { count: groupProviderCount })}
                     </span>
                   </div>
 
@@ -494,20 +496,20 @@ export function CategoryBrowserClient({
             <div className="mb-3 flex items-center gap-2">
               <Sparkles size={18} className="text-[#eacb7f]" />
               <span className="text-xs font-bold uppercase tracking-wide text-[#eacb7f]">
-                Smart discovery
+                {t("smartDiscovery")}
               </span>
             </div>
             <h3 className="mb-2 text-lg font-bold text-white">
-              Can&apos;t find what you&apos;re looking for?
+              {t("cantFindTitle")}
             </h3>
             <p className="mb-4 text-sm leading-6 text-white/90">
-              Use smart search to find services, providers, packages, and nearby specialists.
+              {t("cantFindDescription")}
             </p>
             <Link
               href="/n/app/mobile/search"
               className="inline-flex rounded-xl bg-[#eacb7f] px-6 py-3 text-sm font-bold text-[#083f30] shadow-lg transition-all hover:bg-[#e0b654] hover:shadow-xl active:scale-95"
             >
-              Search Now
+              {t("searchNow")}
             </Link>
           </div>
         </div>

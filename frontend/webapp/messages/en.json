@@ -7,6 +7,14 @@
     "Support": "Support",
     "Shop": "Shop"
   },
+  "CategoryBrowser": {
+    "categoriesCount": "{count, plural, one {# category} other {# categories}}",
+    "providersCount": "{count, plural, one {# provider} other {# providers}}",
+    "smartDiscovery": "Smart discovery",
+    "cantFindTitle": "Can't find what you're looking for?",
+    "cantFindDescription": "Use smart search to find services, providers, packages, and nearby specialists.",
+    "searchNow": "Search Now"
+  },
   "Booking": {
     "aDedicatedCoordinatorWillBeAssignedAfterBookingConfirmation": "A dedicated coordinator will be assigned after booking confirmation.",
     "aDedicatedMedicalCoordinatorWillBeAssignedToYou": "A dedicated medical coordinator will be assigned to you immediately after booking confirmation.",
@@ -768,7 +776,8 @@
   "Explore": {
     "header": {
       "title": "Explore",
-      "subtitle": "Discover healthcare worldwide"
+      "subtitle": "Discover healthcare worldwide",
+      "browseCategories": "Browse Categories"
     },
     "search": {
       "placeholder": "Search services..."
@@ -7814,7 +7823,9 @@
       "selectSpecialties": "Select specialties",
       "searchSpecialties": "Search specialties...",
       "noSpecialtiesFound": "No specialties found.",
-      "specialtiesSelected": "{count} selected"
+      "specialtiesSelected": "{count} selected",
+      "currency": "Currency",
+      "allCurrencies": "All currencies"
     },
     "backup": {
       "mapAlt": "Map",
@@ -13619,6 +13630,7 @@
     "reviews": "{count} reviews",
     "from": "From",
     "inStock": "In stock",
+    "brand": "Brand",
     "outOfStock": "Out of stock",
     "preorder": "Pre-order",
     "preorderShipsAfter": "Pre-order · ships after {date}",

@@ -921,7 +921,7 @@ export default function ExploreClient({
 
       <div className="px-5 py-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-900">Browse Categories</h2>
+          <h2 className="text-xl font-bold text-gray-900">{t("header.browseCategories")}</h2>
           <button
             onClick={() => router.push(EXPLORE_PATH)}
             className="text-sm font-semibold text-[#083f30] hover:underline flex items-center gap-1"
