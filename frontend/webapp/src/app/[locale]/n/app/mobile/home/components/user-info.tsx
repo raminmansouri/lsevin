@@ -1,11 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { User } from "lucide-react";
 
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { Link } from "@/i18n/navigation";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
+import { getProfileAvatar } from "@/features/profile/actions/profile.actions";
 import { Skeleton } from "../../../design-system/components";
 import { useCurrentSession } from "@/hooks/use-current-session";
 
@@ -23,9 +25,34 @@ export default function UserInfoSubBar({ profile }: Props) {
   const { user, status } = useCurrentSession(false);
   const homeT = useTranslations("Home.userInfo");
 
+  // The home page shell is statically generated (see page.tsx), so it can
+  // never know the visitor's profile image at render time — that prop is
+  // always null. Fetch it client-side once we know who's signed in instead.
+  const [avatarUrl, setAvatarUrl] = useState<string | null | undefined>(
+    profile?.profileImageUrl
+  );
+
+  useEffect(() => {
+    if (!user?.id) {
+      setAvatarUrl(undefined);
+      return;
+    }
+    let cancelled = false;
+    getProfileAvatar()
+      .then((result) => {
+        if (!cancelled) setAvatarUrl(result.profileImageUrl);
+      })
+      .catch(() => {
+        if (!cancelled) setAvatarUrl(undefined);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
+
   const resolvedImageUrl = useMemo(
-    () => resolveHomeMediaUrl(profile?.profileImageUrl),
-    [profile?.profileImageUrl]
+    () => resolveHomeMediaUrl(avatarUrl),
+    [avatarUrl]
   );
 
   if (status === "loading") {
@@ -74,13 +101,19 @@ export default function UserInfoSubBar({ profile }: Props) {
         href="/n/app/mobile/profile"
         className="size-11 shrink-0 overflow-hidden rounded-full ring-2 ring-[#eacb7f]/60 ring-offset-2 ring-offset-[#083f30]"
       >
-        <ImageWithFallback
-          width={100}
-          height={100}
-          src={resolvedImageUrl}
-          alt={homeT("profileAlt")}
-          className="h-full w-full object-cover"
-        />
+        {resolvedImageUrl ? (
+          <ImageWithFallback
+            width={100}
+            height={100}
+            src={resolvedImageUrl}
+            alt={homeT("profileAlt")}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-white/10">
+            <User className="h-5 w-5 text-white/70" aria-label={homeT("profileAlt")} />
+          </div>
+        )}
       </Link>
     </div>
   );

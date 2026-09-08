@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { hasLexicalContent, LexicalRenderer } from "@/components/editor/lexical-renderer";
+import { formatMoney } from "@/features/finance/lib/money";
 import {
   Search,
   SlidersHorizontal,
@@ -111,18 +112,14 @@ function buildSearchQuery(next: ExploreFiltersInput) {
   return buildFilteredMobilePath("/search", next);
 }
 
+// Intl.NumberFormat({style:"currency"}) throws for currency codes this app
+// actually uses that aren't valid ISO-4217 (IRT/Toman above all), and the old
+// catch-fallback here silently mislabeled those amounts with a "$" sign.
+// formatMoney is the finance module's canonical formatter and handles every
+// currency code in use without that crash.
 function formatPrice(value: number | null, currency: string = "USD") {
   if (value == null) return null;
-
-  try {
-    return new Intl.NumberFormat("en", {
-      style: "currency",
-      currency,
-      maximumFractionDigits: 0,
-    }).format(value);
-  } catch {
-    return `$${value.toLocaleString("en")}`;
-  }
+  return formatMoney({ amount: value, currencyCode: currency }, { locale: "en-US" });
 }
 
 

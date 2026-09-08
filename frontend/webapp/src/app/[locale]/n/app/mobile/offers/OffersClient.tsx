@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 
 import type { OfferCard, OfferTab, OffersFiltersInput } from "./offers.data";
+import { formatMoney } from "@/features/finance/lib/money";
 
 type FilterFormValues = {
   q: string;
@@ -54,16 +55,13 @@ function navigateSmooth(
   });
 }
 
-function formatPrice(value: number, currency: string = "USD", locale: string = "en") {
-  try {
-    return new Intl.NumberFormat(locale, {
-      style: "currency",
-      currency,
-      maximumFractionDigits: 0,
-    }).format(value);
-  } catch {
-    return `$${value.toLocaleString(locale)}`;
-  }
+// Intl.NumberFormat({style:"currency"}) throws for currency codes this app
+// actually uses that aren't valid ISO-4217 (IRT/Toman above all), and the old
+// catch-fallback here silently mislabeled those amounts with a "$" sign.
+// formatMoney is the finance module's canonical formatter and handles every
+// currency code in use without that crash.
+function formatPrice(value: number, currency: string = "USD", locale: string = "en-US") {
+  return formatMoney({ amount: value, currencyCode: currency }, { locale });
 }
 
 function PendingOverlay() {

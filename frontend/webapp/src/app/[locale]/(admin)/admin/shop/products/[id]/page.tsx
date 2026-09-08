@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+
+import { formatMoney } from "@/features/finance/lib/money";
 
 import {
   getAdminProductForEdit,
@@ -28,6 +30,7 @@ const RELATION = ["general", "recommended_before", "recommended_during", "recomm
 
 export default async function AdminProductEditPage({ params }: { params: Promise<{ id: string }> }) {
   const t = await getTranslations("ShopAdmin");
+  const locale = await getLocale();
   const { id } = await params;
   const [product, categories, services, allAttributes] = await Promise.all([
     getAdminProductForEdit(id),
@@ -121,7 +124,7 @@ export default async function AdminProductEditPage({ params }: { params: Promise
                       <span className="font-medium">{v.title || v.option_key}</span>
                       <span className="ms-1 font-mono text-xs text-gray-400">{v.sku}</span>
                     </td>
-                    <td className="py-1.5 text-right">{v.currency} {Number(v.price).toFixed(2)}</td>
+                    <td className="py-1.5 text-right">{formatMoney({ amount: Number(v.price), currencyCode: v.currency }, { locale, showCode: true })}</td>
                     <td className="py-1.5 text-center text-xs text-gray-500">{t("productEdit.variantStock", { n: v.available })}</td>
                     <td className="py-1.5 text-center text-xs">{v.is_active ? t("common.activeShort") : t("common.off")}</td>
                     <td className="py-1.5 text-right">

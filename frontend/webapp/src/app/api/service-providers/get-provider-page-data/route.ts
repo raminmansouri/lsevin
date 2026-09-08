@@ -13,7 +13,14 @@ export async function GET(request: NextRequest) {
     locale,
     targetCurrencyCode: searchParams.get("currency") || searchParams.get("targetCurrencyCode"),
     selectedCountryCode: searchParams.get("country") || searchParams.get("selectedCountryCode"),
-    browserCountryCode: searchParams.get("browserCountry") || searchParams.get("browserCountryCode"),
+    // Falls back to the Caddy GeoIP header (same pattern as x-locale above) so
+    // display currency can default by country even when the client hasn't
+    // explicitly passed one — display only, never used for payment/gateway
+    // selection (that stays phone-number-based, see payment/server/gateway-eligibility.ts).
+    browserCountryCode:
+      searchParams.get("browserCountry") ||
+      searchParams.get("browserCountryCode") ||
+      request.headers.get("x-country"),
     userId: searchParams.get("userId"),
   });
 

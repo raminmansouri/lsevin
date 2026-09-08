@@ -122,6 +122,24 @@ export async function getProfileForEdit(): Promise<EditProfileInitialData> {
 };
 }
 
+/**
+ * Lean counterpart to getProfileForEdit for surfaces that only need the
+ * avatar (e.g. the home page header) — avoids pulling phone/email/DOB/address
+ * into the client just to render a thumbnail.
+ */
+export async function getProfileAvatar(): Promise<{ profileImageUrl: string | null }> {
+  const userId = await getCurrentUserId();
+
+  const rows = await sql<{ profile_image_url: string | null }[]>`
+    SELECT profile_image_url
+    FROM identity.asp_net_users
+    WHERE id = ${userId}
+    LIMIT 1
+  `;
+
+  return { profileImageUrl: rows[0]?.profile_image_url ?? null };
+}
+
 export async function updateProfileAction(
   input: ProfileFormValues
 ): Promise<ActionResult> {

@@ -246,7 +246,7 @@ function ProvidersForServiceSection({ providers, currentProviderServiceId, local
   );
 }
 
-function ServiceAttributesSection({ attributes }: { attributes: ServiceAttribute[] }) {
+function ServiceAttributesSection({ attributes, currency, locale }: { attributes: ServiceAttribute[]; currency: string; locale: string }) {
   const t = useTranslations("ServicePage");
   if (!attributes.length) return null;
   return (
@@ -269,7 +269,15 @@ function ServiceAttributesSection({ attributes }: { attributes: ServiceAttribute
             {attribute.availableOptions.length > 0 && (
               <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
                 {attribute.availableOptions.map((option) => (
-                  <Chip key={`${attribute.id}-${option.id}`}>{option.name || option.value}{option.additionalPrice > 0 ? ` +${option.additionalPrice}` : ""}</Chip>
+                  <Chip key={`${attribute.id}-${option.id}`}>
+                    {option.name || option.value}
+                    {option.additionalPrice > 0 && (
+                      <>
+                        {" +"}
+                        <PriceTextClient amount={option.additionalPrice} currencyCode={currency} locale={locale} />
+                      </>
+                    )}
+                  </Chip>
                 ))}
               </div>
             )}
@@ -720,7 +728,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
         <ProviderProfileSection data={data} />
         <SpecialistsSection specialists={data.specialists} locale={locale} />
         <OffersSection offers={data.offers} locale={locale} />
-        <ServiceAttributesSection attributes={data.serviceAttributes} />
+        <ServiceAttributesSection attributes={data.serviceAttributes} currency={service.currency} locale={locale} />
         <AddonsSection addOns={data.addOns} locale={locale} />
         <RequirementsSection uploadRequirements={data.uploadRequirements} domainRequirements={data.domainRequirements} />
 

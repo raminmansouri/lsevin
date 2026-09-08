@@ -51,7 +51,7 @@ import {
 } from "@/features/shared/utils/localization";
 import useAction from "@/hooks/use-action";
 import { useConfirm } from "@/hooks/use-confirm";
-import { formatPrice } from "@/lib/formatters";
+import { formatMoney } from "@/features/finance/lib/money";
 import { cn } from "@/lib/utils";
 import { LocaleTypes } from "@/types/common";
 
@@ -499,7 +499,7 @@ export function StaffServiceManager({
                       <div className="text-muted-foreground flex items-center gap-4 text-sm">
                         <div className="flex items-center gap-1">
                           <DollarSign className="h-4 w-4" />
-                          <span>{formatPrice(service.price)} USD</span>
+                          <span>{formatMoney({ amount: service.price, currencyCode: service.currency }, { locale, showCode: true })}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
