@@ -40,7 +40,9 @@ pipeline {
     ENV_FILE = '/opt/lsevin/app/deployments/docker/.env'
 
     // Keep the existing Compose project name so Jenkins manages the current
-    // docker-lsevin-api-1 and docker-lsevin-webapp-1 containers.
+    // docker-lsevin-api-1, lsevin-webapp-1 and lsevin-webapp-2 containers
+    // (the webapp pair has an explicit container_name: in docker-compose.server.yml,
+    // so it isn't project-prefixed the way lsevin-api's auto-generated name is).
     COMPOSE_PROJECT_NAME = 'docker'
 
     // /readiness (not /hc -- that route only exists when ASPNETCORE_ENVIRONMENT
@@ -117,7 +119,7 @@ pipeline {
             --project-name "$COMPOSE_PROJECT_NAME" \
             --env-file "$ENV_FILE" \
             --file "$COMPOSE_FILE" \
-            ps --quiet lsevin-webapp 2>/dev/null || true)"
+            ps --quiet lsevin-webapp-1 2>/dev/null || true)"
 
           if [ -n "$api_container" ]; then
             api_image_id="$(docker inspect --format '{{.Image}}' "$api_container")"
@@ -161,6 +163,11 @@ pipeline {
 
             # Do not add --pull or --no-cache here. The host Docker daemon keeps
             # dependency and compiler layers between Jenkins builds.
+            #
+            # lsevin-webapp-1 and lsevin-webapp-2 share one image (image:
+            # lsevin-webapp:${LSEVIN_WEBAPP_IMAGE_TAG}, via docker-compose.server.yml's
+            # x-lsevin-webapp anchor), so building the -1 service name is enough to
+            # produce the image both replicas run from.
             DOCKER_BUILDKIT=1 \
             LSEVIN_API_IMAGE_TAG="$RELEASE_TAG" \
             LSEVIN_WEBAPP_IMAGE_TAG="$RELEASE_TAG" \
@@ -168,7 +175,7 @@ pipeline {
               --project-name "$COMPOSE_PROJECT_NAME" \
               --env-file "$ENV_FILE" \
               --file "$COMPOSE_FILE" \
-              build lsevin-api lsevin-webapp
+              build lsevin-api lsevin-webapp-1
           '''
         }
       }
@@ -260,7 +267,59 @@ pipeline {
       }
     }
 
-    stage('6. Deploy API') {
+    stage('6. Ensure Elasticsearch is running') {
+      steps {
+        sh '''
+          set -eu
+
+          # Data store for the CRM's ANALYTICS module (crm/packages/modules/analytics).
+          # Defined in docker-compose.server.yml but never brought up by this pipeline
+          # before now -- postgres/redis/eventstore/minio are expected to already be
+          # running (started once outside Jenkins) and this pipeline only ever
+          # verifies/uses them, never starts them. Unlike those, elasticsearch holds no
+          # data any other service depends on directly, and the ANALYTICS module
+          # already degrades gracefully without it (dashboard shows "unavailable",
+          # ingestion just queues and retries), so it is safe for this pipeline to
+          # bring up or recreate on every deploy instead of only verifying it pre-exists.
+          docker compose \
+            --project-name "$COMPOSE_PROJECT_NAME" \
+            --env-file "$ENV_FILE" \
+            --file "$COMPOSE_FILE" \
+            up --detach --no-deps elasticsearch
+
+          container_id="$(docker compose \
+            --project-name "$COMPOSE_PROJECT_NAME" \
+            --env-file "$ENV_FILE" \
+            --file "$COMPOSE_FILE" \
+            ps -q elasticsearch)"
+
+          attempt=1
+          while true; do
+            status="$(docker inspect --format '{{.State.Status}}' "$container_id")"
+            health="$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "$container_id")"
+            echo "elasticsearch: status=$status health=$health"
+
+            if [ "$status" = "running" ] && { [ "$health" = "healthy" ] || [ "$health" = "none" ]; }; then
+              break
+            fi
+            if [ "$status" = "exited" ] || [ "$status" = "dead" ] || [ "$health" = "unhealthy" ]; then
+              docker logs --tail=100 "$container_id" || true
+              echo "elasticsearch did not become healthy" >&2
+              exit 1
+            fi
+            if [ "$attempt" -ge 30 ]; then
+              docker logs --tail=100 "$container_id" || true
+              echo "elasticsearch timed out waiting for health" >&2
+              exit 1
+            fi
+            attempt=$((attempt + 1))
+            sleep 2
+          done
+        '''
+      }
+    }
+
+    stage('7. Deploy API') {
       steps {
         sh '''
           set -eu
@@ -300,18 +359,59 @@ pipeline {
       }
     }
 
-    stage('7. Deploy webapp') {
+    stage('8. Deploy webapp') {
       steps {
         sh '''
           set -eu
 
-          LSEVIN_API_IMAGE_TAG="$RELEASE_TAG" \
-          LSEVIN_WEBAPP_IMAGE_TAG="$RELEASE_TAG" \
-          docker compose \
-            --project-name "$COMPOSE_PROJECT_NAME" \
-            --env-file "$ENV_FILE" \
-            --file "$COMPOSE_FILE" \
-            up --detach --no-deps lsevin-webapp
+          # Rolling restart: recreate one webapp replica at a time and wait for its
+          # own container health (docker-compose.server.yml's healthcheck, backed by
+          # src/app/api/health/route.ts) before touching the other, so
+          # Caddyfile.server's round_robin + health_uri always has a warm replica to
+          # route appmain.lsevin.com traffic to. Before this there was a single
+          # lsevin-webapp container, so every deploy tore down the only Next.js
+          # process in existence -- resetting its in-memory "use cache" data cache to
+          # empty and forcing force-static pages like home/shop to regenerate from
+          # scratch on whichever request happened to land first. That is the "all
+          # data missing for a few minutes after publish" symptom.
+          for replica in lsevin-webapp-1 lsevin-webapp-2; do
+            LSEVIN_API_IMAGE_TAG="$RELEASE_TAG" \
+            LSEVIN_WEBAPP_IMAGE_TAG="$RELEASE_TAG" \
+            docker compose \
+              --project-name "$COMPOSE_PROJECT_NAME" \
+              --env-file "$ENV_FILE" \
+              --file "$COMPOSE_FILE" \
+              up --detach --no-deps "$replica"
+
+            container_id="$(docker compose \
+              --project-name "$COMPOSE_PROJECT_NAME" \
+              --env-file "$ENV_FILE" \
+              --file "$COMPOSE_FILE" \
+              ps -q "$replica")"
+
+            attempt=1
+            while true; do
+              status="$(docker inspect --format '{{.State.Status}}' "$container_id")"
+              health="$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "$container_id")"
+              echo "$replica: status=$status health=$health"
+
+              if [ "$status" = "running" ] && { [ "$health" = "healthy" ] || [ "$health" = "none" ]; }; then
+                break
+              fi
+              if [ "$status" = "exited" ] || [ "$status" = "dead" ] || [ "$health" = "unhealthy" ]; then
+                docker logs --tail=100 "$container_id" || true
+                echo "$replica did not become healthy" >&2
+                exit 1
+              fi
+              if [ "$attempt" -ge 30 ]; then
+                docker logs --tail=100 "$container_id" || true
+                echo "$replica timed out waiting for health" >&2
+                exit 1
+              fi
+              attempt=$((attempt + 1))
+              sleep 2
+            done
+          done
 
           attempt=1
           until curl --fail --silent --show-error --location --max-time 15 "$WEBAPP_HEALTH_URL" >/dev/null; do
@@ -326,7 +426,7 @@ pipeline {
       }
     }
 
-    stage('8. Mark stable release') {
+    stage('9. Mark stable release') {
       steps {
         sh '''
           set -eu
@@ -354,7 +454,7 @@ pipeline {
             --project-name "$COMPOSE_PROJECT_NAME" \
             --env-file "$ENV_FILE" \
             --file "$COMPOSE_FILE" \
-            up --detach --no-deps lsevin-api lsevin-webapp
+            up --detach --no-deps lsevin-api lsevin-webapp-1 lsevin-webapp-2
         else
           echo "No previous images were available for automatic rollback."
         fi

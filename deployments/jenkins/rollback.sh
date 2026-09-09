@@ -100,7 +100,7 @@ rollback_rescue() {
   docker image tag "${RESCUE_API_ID}" lsevin-api:server || true
   docker image tag "${RESCUE_WEBAPP_ID}" lsevin-webapp:server || true
   docker image tag "${RESCUE_CADDY_ID}" lsevin-caddy:geoip || true
-  compose up -d --no-deps --no-build --force-recreate lsevin-api lsevin-webapp caddy || true
+  compose up -d --no-deps --no-build --force-recreate lsevin-api lsevin-webapp-1 lsevin-webapp-2 caddy || true
   exit "${rc}"
 }
 trap rollback_rescue ERR
@@ -124,7 +124,7 @@ docker image tag "${API_IMAGE}" lsevin-api:server
 docker image tag "${WEBAPP_IMAGE}" lsevin-webapp:server
 docker image tag "${CADDY_IMAGE}" lsevin-caddy:geoip
 compose config --quiet
-compose up -d --no-deps --no-build --force-recreate lsevin-api lsevin-webapp caddy
+compose up -d --no-deps --no-build --force-recreate lsevin-api lsevin-webapp-1 lsevin-webapp-2 caddy
 
 say 'Verify rollback health'
 for attempt in $(seq 1 30); do

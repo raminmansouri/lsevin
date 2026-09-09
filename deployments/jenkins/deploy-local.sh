@@ -264,12 +264,15 @@ compose config --quiet
 
 say 'Save rollback images from currently running application containers'
 save_rollback_image lsevin-api lsevin-api
-save_rollback_image lsevin-webapp lsevin-webapp
+save_rollback_image lsevin-webapp-1 lsevin-webapp
 save_rollback_image caddy lsevin-caddy
 
 say 'Build production images while current containers continue serving traffic'
 # Do not use --pull or --no-cache here. Normal source changes should reuse Docker cache.
-compose build lsevin-api lsevin-webapp caddy
+# lsevin-webapp-1 and -2 share one image (image: lsevin-webapp:${LSEVIN_WEBAPP_IMAGE_TAG})
+# defined via the x-lsevin-webapp anchor, so building the -1 service name is enough to
+# produce the image both replicas run from.
+compose build lsevin-api lsevin-webapp-1 caddy
 
 say 'Tag immutable images for commit rollback'
 docker image tag lsevin-api:server "lsevin-api:release-${SHORT_SHA}"
@@ -346,6 +349,14 @@ wait_for_service_container pgbouncer "${PGBOUNCER_CONTAINER_ID}"
 wait_for_service_container redis "${REDIS_CONTAINER_ID}"
 wait_for_service_container eventstore "${EVENTSTORE_CONTAINER_ID}"
 
+say 'Ensure Elasticsearch is running (CRM ANALYTICS module data store)'
+# Unlike postgres/redis/eventstore above, elasticsearch is defined in THIS
+# compose file (docker-compose.server.yml), not managed elsewhere, and holds
+# no data other services depend on directly, so it is safe for Jenkins to
+# bring up/recreate on every deploy instead of only verifying it pre-exists.
+compose up -d --no-deps elasticsearch
+wait_for_service_container elasticsearch "$(compose ps -q elasticsearch)"
+
 say 'Database backup before migration/deployment'
 BACKUP_FILE="${BACKUP_DIR}/predeploy-${TIMESTAMP}.sql.gz"
 
@@ -375,7 +386,21 @@ fi
 
 say 'Recreate application containers'
 compose up -d --no-deps lsevin-api
-compose up -d --no-deps lsevin-webapp
+
+# Rolling restart: recreate one webapp replica at a time and wait for it to
+# report healthy (deployments/docker/Caddyfile.server's health_uri) before
+# touching the other, so Caddy always has a warm replica to route to. Before
+# this there was a single lsevin-webapp container, so every deploy tore down
+# the only Next.js process — resetting its in-memory "use cache" cache to
+# empty and forcing the force-static home/shop pages to regenerate from
+# scratch on whichever request happened to land first. That's the "all data
+# missing for a few minutes after publish" symptom.
+compose up -d --no-deps lsevin-webapp-1
+wait_for_service_container lsevin-webapp-1 "$(compose ps -q lsevin-webapp-1)"
+
+compose up -d --no-deps lsevin-webapp-2
+wait_for_service_container lsevin-webapp-2 "$(compose ps -q lsevin-webapp-2)"
+
 compose up -d --no-deps caddy
 
 say 'Wait for backend readiness'
