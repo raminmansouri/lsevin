@@ -48,11 +48,13 @@ services:
       # Lets Jenkins build images and recreate containers on the host.
       - /var/run/docker.sock:/var/run/docker.sock
 
-      # Main LSevin deployment paths used by deploy-local.sh.
+      # /opt/lsevin/app holds the production .env that Jenkinsfile.main reads
+      # from (deliberately outside the pipeline's own checkout so a fresh
+      # clone can never overwrite it). /opt/lsevin/backups is pgBackRest's
+      # database backup target (deployments/ansible/roles/lsevin_database),
+      # unrelated to the pipeline itself.
       - /opt/lsevin/app:/opt/lsevin/app:rw
-      - /opt/lsevin/releases:/opt/lsevin/releases:rw
       - /opt/lsevin/backups:/opt/lsevin/backups:rw
-      - /opt/lsevin/jenkins:/opt/lsevin/jenkins:rw
 
       # Independent workspace for the lsevin-main-production pipeline.
       - /opt/lsevin-platform:/opt/lsevin-platform:rw

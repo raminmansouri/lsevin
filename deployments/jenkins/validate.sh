@@ -9,7 +9,7 @@ REPORT_DIR="${ROOT_DIR}/deployments/jenkins/reports"
 mkdir -p "${REPORT_DIR}"
 
 required_files=(
-  "${ROOT_DIR}/Jenkinsfile"
+  "${ROOT_DIR}/deployments/jenkins/Jenkinsfile.main"
   "${DOCKER_DIR}/docker-compose.server.yml"
   "${DOCKER_DIR}/Caddyfile.server"
   "${ROOT_DIR}/frontend/webapp/Dockerfile"

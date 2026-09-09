@@ -71,7 +71,7 @@
 		}
 	}
 
-	# Two replicas (deploy-local.sh recreates them one at a time) so a deploy
+	# Two replicas (Jenkinsfile.main recreates them one at a time) so a deploy
 	# never tears down the only Next.js process in existence — the other
 	# replica keeps serving with its in-memory caches already warm while the
 	# one being redeployed restarts. Same round_robin + health_uri pattern as

@@ -8,8 +8,9 @@
 
 # lsevin-webapp runs as two replicas behind Caddy's round_robin + health_uri
 # (Caddyfile.server), the same pattern crm/providers/shop already use — see
-# deployments/jenkins/deploy-local.sh, which recreates them one at a time so
-# there is always a warm replica serving traffic during a deploy. Before this,
+# deployments/jenkins/Jenkinsfile.main (stage 8, "Deploy webapp"), which
+# recreates them one at a time so there is always a warm replica serving
+# traffic during a deploy. Before this,
 # a single replica meant every deploy tore down the only Next.js process,
 # resetting its in-memory "use cache" data cache to empty and forcing the
 # force-static home/shop pages to regenerate from scratch on whichever request

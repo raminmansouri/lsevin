@@ -69,8 +69,6 @@
     - { path: "{{ lsevin_jenkins_backup_dir }}", mode: "0700" }
     - { path: /etc/lsevin/projects, mode: "0700" }
     - { path: /opt/lsevin/app, mode: "0750" }
-    - { path: /opt/lsevin/releases, mode: "0750" }
-    - { path: /opt/lsevin/jenkins, mode: "0750" }
     - { path: /var/lib/lsevin/uploads, mode: "0750" }
     - { path: /var/backups/lsevin/uploads, mode: "0700" }
 
@@ -79,11 +77,10 @@
     path: "{{ lsevin_jenkins_repository_source_dir }}/deployments/jenkins/{{ item }}"
   loop:
     - validate.sh
-    - deploy-local.sh
-    - rollback.sh
+    - Jenkinsfile.main
   register: lsevin_jenkins_pipeline_scripts
 
-- name: Require production deployment and rollback scripts
+- name: Require production validation and pipeline files
   ansible.builtin.assert:
     that:
       - item.stat.exists

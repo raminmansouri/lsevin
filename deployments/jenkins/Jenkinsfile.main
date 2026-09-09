@@ -30,13 +30,9 @@ pipeline {
     // EventStore, and Caddy.
     COMPOSE_FILE = '/opt/lsevin-platform/deployments/docker/docker-compose.server.yml'
 
-    // Same production secrets Strategy A (root Jenkinsfile/deploy-local.sh)
-    // already maintains at this path -- not a separate file. This path is a
-    // completely different top-level directory from /opt/lsevin-platform
-    // (this pipeline's own workspace), so it was never at risk from stage 1's
-    // deleteDir() to begin with; deploy-local.sh's rsync also excludes it
-    // from ever being overwritten by a checkout. One shared file for both
-    // pipelines avoids the two ever drifting out of sync with each other.
+    // The persistent production .env, deliberately outside this pipeline's own
+    // workspace (/opt/lsevin-platform) so stage 1's deleteDir() -- which wipes
+    // that workspace on every build -- can never touch it.
     ENV_FILE = '/opt/lsevin/app/deployments/docker/.env'
 
     // Keep the existing Compose project name so Jenkins manages the current
@@ -78,10 +74,9 @@ pipeline {
           if [ ! -f "$ENV_FILE" ]; then
             echo "Missing $ENV_FILE" >&2
             echo "" >&2
-            echo "This is the same production .env that Strategy A (root Jenkinsfile /" >&2
-            echo "deploy-local.sh) already maintains -- if it's missing, this server was" >&2
-            echo "never bootstrapped yet. Follow deployments/FIRST-RUN.md section 5" >&2
-            echo "(\"Create the production .env\") once, then re-run this job." >&2
+            echo "If it's missing, this server was never bootstrapped yet. Follow" >&2
+            echo "deployments/FIRST-RUN.md section 5 (\"Create the production .env\")" >&2
+            echo "once, then re-run this job." >&2
             exit 1
           fi
           test -f "$COMPOSE_FILE"
@@ -124,13 +119,12 @@ pipeline {
           if [ -n "$api_container" ]; then
             api_image_id="$(docker inspect --format '{{.Image}}' "$api_container")"
             # A running container outlives its image entry being pruned from the
-            # local image list (docker image prune, or deploy-local.sh's own
-            # cleanup) -- it keeps running fine, but "docker image tag" on that
-            # now-delisted id fails with "No such image" even though the
-            # container plainly still exists. Fall back to snapshotting the live
-            # container directly (matching deploy-local.sh's save_rollback_image),
-            # so rollback safety survives that case instead of silently
-            # vanishing for this one deploy.
+            # local image list (e.g. docker image prune) -- it keeps running
+            # fine, but "docker image tag" on that now-delisted id fails with
+            # "No such image" even though the container plainly still exists.
+            # Fall back to snapshotting the live container directly, so
+            # rollback safety survives that case instead of silently vanishing
+            # for this one deploy.
             if ! docker image tag "$api_image_id" "lsevin-api:$OLD_API_TAG" 2>/dev/null; then
               echo "lsevin-api's running image ($api_image_id) is no longer in the local image list (likely pruned) -- committing a live snapshot instead." >&2
               docker commit --pause=true "$api_container" "lsevin-api:$OLD_API_TAG"
@@ -185,11 +179,10 @@ pipeline {
      * Migrations run before any container is replaced, so a failure here leaves the
      * release that is currently serving untouched.
      *
-     * Why this stage exists: nothing applied them. deploy-local.sh scans
-     * scripts/sql/*.sql, a directory this repository does not contain, and this
-     * pipeline had no migration step at all -- so code depending on a new column
-     * shipped against a database without it, and every page using that column
-     * returned 500 until someone ran the runner by hand.
+     * Why this stage exists: nothing applied them. This pipeline had no migration
+     * step at all -- so code depending on a new column shipped against a database
+     * without it, and every page using that column returned 500 until someone
+     * ran the runner by hand.
      *
      * It cannot call `pnpm migrate`: the webapp image is a Next standalone build
      * holding only public/, package.json, .next/standalone and .next/static, so
