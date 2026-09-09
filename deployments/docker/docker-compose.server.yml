@@ -5,6 +5,70 @@
 #   - database ports are published for firewall-restricted administration
 #   - webapp gets DATABASE_URL (queries Postgres directly) + Neshan map key
 #   - uploads bind-mounted from /opt/lsevin/uploads (populated by rsync)
+
+# lsevin-webapp runs as two replicas behind Caddy's round_robin + health_uri
+# (Caddyfile.server), the same pattern crm/providers/shop already use — see
+# deployments/jenkins/deploy-local.sh, which recreates them one at a time so
+# there is always a warm replica serving traffic during a deploy. Before this,
+# a single replica meant every deploy tore down the only Next.js process,
+# resetting its in-memory "use cache" data cache to empty and forcing the
+# force-static home/shop pages to regenerate from scratch on whichever request
+# happened to land first — "all data missing for a few minutes after publish".
+x-lsevin-webapp: &lsevin-webapp
+  build:
+    context: ../../frontend/webapp
+    dockerfile: Dockerfile
+    args:
+      NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_FILES_URL: ${NEXT_PUBLIC_FILES_URL}
+      NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL}
+      NEXT_PUBLIC_NESHAN_MAP_KEY: ${NEXT_PUBLIC_NESHAN_MAP_KEY}
+      NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN}
+      NEXT_PUBLIC_CRM_ANALYTICS_URL: ${NEXT_PUBLIC_CRM_ANALYTICS_URL}
+      NEXT_PUBLIC_CRM_ANALYTICS_SITE_KEY: ${NEXT_PUBLIC_CRM_ANALYTICS_SITE_KEY}
+      NEXT_DEPLOYMENT_ID: ${LSEVIN_WEBAPP_DEPLOYMENT_ID:-local}
+    secrets:
+      - database_url
+      - auth_secret
+      - server_actions_encryption_key
+      - webhook_key
+  image: lsevin-webapp:${LSEVIN_WEBAPP_IMAGE_TAG:-server}
+  environment:
+    NODE_ENV: production
+    AUTH_URL: ${AUTH_URL}
+    APP_URL: ${APP_URL}
+    AUTH_SECRET: ${AUTH_SECRET}
+    NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: ${NEXT_SERVER_ACTIONS_ENCRYPTION_KEY}
+    AUTH_TRUST_HOST: "true"
+    INTERNAL_API_URL: ${INTERNAL_API_URL}
+    WEBHOOK_KEY: ${WEBHOOK_KEY}
+    WEBAPP_API_KEY: ${WEBAPP_API_KEY}
+    NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
+    NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    NEXT_PUBLIC_FILES_URL: ${NEXT_PUBLIC_FILES_URL}
+    NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL}
+    NEXT_PUBLIC_NESHAN_MAP_KEY: ${NEXT_PUBLIC_NESHAN_MAP_KEY}
+    NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN}
+    NEXT_PUBLIC_CRM_ANALYTICS_URL: ${NEXT_PUBLIC_CRM_ANALYTICS_URL}
+    NEXT_PUBLIC_CRM_ANALYTICS_SITE_KEY: ${NEXT_PUBLIC_CRM_ANALYTICS_SITE_KEY}
+    LSEVIN_SSO_SECRET: ${LSEVIN_SSO_SECRET}
+    LSEVIN_SSO_DEBUG: ${LSEVIN_SSO_DEBUG:-false}
+    LSEVIN_PROVIDER_PORTAL_URL: ${LSEVIN_PROVIDER_PORTAL_URL:-https://providers.lsevin.com}
+    DATABASE_URL: ${DATABASE_URL}
+    POSTGRES_PREPARE: "false"
+  restart: unless-stopped
+  healthcheck:
+    test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/health >/dev/null || exit 1"]
+    interval: 10s
+    timeout: 5s
+    retries: 12
+    start_period: 20s
+  expose:
+    - "3000"
+  networks:
+    - lsevin-network
+
 services:
   caddy:
     # Custom Caddy built with the GeoIP plugin (see caddy.Dockerfile) so it can
@@ -27,57 +91,17 @@ services:
     networks:
       - lsevin-network
     depends_on:
-      - lsevin-webapp
+      - lsevin-webapp-1
+      - lsevin-webapp-2
       - lsevin-api
 
-  lsevin-webapp:
-    build:
-      context: ../../frontend/webapp
-      dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-        NEXT_PUBLIC_FILES_URL: ${NEXT_PUBLIC_FILES_URL}
-        NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL}
-        NEXT_PUBLIC_NESHAN_MAP_KEY: ${NEXT_PUBLIC_NESHAN_MAP_KEY}
-        NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN}
-        NEXT_PUBLIC_CRM_ANALYTICS_URL: ${NEXT_PUBLIC_CRM_ANALYTICS_URL}
-        NEXT_PUBLIC_CRM_ANALYTICS_SITE_KEY: ${NEXT_PUBLIC_CRM_ANALYTICS_SITE_KEY}
-        NEXT_DEPLOYMENT_ID: ${LSEVIN_WEBAPP_DEPLOYMENT_ID:-local}
-      secrets:
-        - database_url
-        - auth_secret
-        - server_actions_encryption_key
-        - webhook_key
-    image: lsevin-webapp:${LSEVIN_WEBAPP_IMAGE_TAG:-server}
-    environment:
-      NODE_ENV: production
-      AUTH_URL: ${AUTH_URL}
-      APP_URL: ${APP_URL}
-      AUTH_SECRET: ${AUTH_SECRET}
-      NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: ${NEXT_SERVER_ACTIONS_ENCRYPTION_KEY}
-      AUTH_TRUST_HOST: "true"
-      INTERNAL_API_URL: ${INTERNAL_API_URL}
-      WEBHOOK_KEY: ${WEBHOOK_KEY}
-      WEBAPP_API_KEY: ${WEBAPP_API_KEY}
-      NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-      NEXT_PUBLIC_FILES_URL: ${NEXT_PUBLIC_FILES_URL}
-      NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL}
-      NEXT_PUBLIC_NESHAN_MAP_KEY: ${NEXT_PUBLIC_NESHAN_MAP_KEY}
-      NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN}
-      NEXT_PUBLIC_CRM_ANALYTICS_URL: ${NEXT_PUBLIC_CRM_ANALYTICS_URL}
-      NEXT_PUBLIC_CRM_ANALYTICS_SITE_KEY: ${NEXT_PUBLIC_CRM_ANALYTICS_SITE_KEY}
-      LSEVIN_SSO_SECRET: ${LSEVIN_SSO_SECRET}
-      LSEVIN_SSO_DEBUG: ${LSEVIN_SSO_DEBUG:-false}
-      LSEVIN_PROVIDER_PORTAL_URL: ${LSEVIN_PROVIDER_PORTAL_URL:-https://providers.lsevin.com}
-      DATABASE_URL: ${DATABASE_URL}
-      POSTGRES_PREPARE: "false"
-    restart: unless-stopped
-    expose:
-      - "3000"
-    networks:
-      - lsevin-network
+  lsevin-webapp-1:
+    <<: *lsevin-webapp
+    container_name: lsevin-webapp-1
+
+  lsevin-webapp-2:
+    <<: *lsevin-webapp
+    container_name: lsevin-webapp-2
     depends_on:
       - lsevin-api
 
@@ -113,7 +137,12 @@ services:
       JwtOptions__Audience: ${JWT_AUDIENCE}
       JwtOptions__SecretKey: ${JWT_SECRET}
       WebApplicationClientOptions__ApiKey: ${WEBAPP_API_KEY}
-      WebApplicationClientOptions__BaseAddress: http://lsevin-webapp:3000/api/
+      # Points at one specific replica (not load-balanced across both) — this
+      # container-to-container call doesn't go through Caddy, and Caddy's site
+      # blocks route by Host header anyway, which a bare internal hostname
+      # wouldn't match. Unchanged in effect from before the webapp had two
+      # replicas: it was always a single fixed target.
+      WebApplicationClientOptions__BaseAddress: http://lsevin-webapp-1:3000/api/
       ObservabilityOptions__UseAspireOTLPExporter: "false"
       ObservabilityOptions__UseJaegerExporter: "false"
       SerilogOptions__SeqUrl: ""

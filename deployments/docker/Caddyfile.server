@@ -71,9 +71,21 @@
 		}
 	}
 
+	# Two replicas (deploy-local.sh recreates them one at a time) so a deploy
+	# never tears down the only Next.js process in existence — the other
+	# replica keeps serving with its in-memory caches already warm while the
+	# one being redeployed restarts. Same round_robin + health_uri pattern as
+	# crm/providers/shop below.
 	handle {
-		reverse_proxy lsevin-webapp:3000 {
+		reverse_proxy lsevin-webapp-1:3000 lsevin-webapp-2:3000 {
 			header_up X-Country {geoip2.country_code}
+			lb_policy round_robin
+			health_uri /api/health
+			health_interval 5s
+			health_timeout 3s
+			fail_duration 10s
+			max_fails 1
+			lb_try_duration 5s
 		}
 	}
 }
