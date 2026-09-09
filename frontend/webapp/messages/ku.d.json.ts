@@ -5607,6 +5607,7 @@ declare const messages: {
     "Explore": "دۆزینەوە",
     "Home": "سەرەتا",
     "Profile": "پرۆفایل",
+    "Shop": "فرۆشگا",
     "Support": "پشتگیری"
   },
   "Categories": {

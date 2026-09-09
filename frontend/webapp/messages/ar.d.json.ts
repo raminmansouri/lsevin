@@ -10,6 +10,14 @@ declare const messages: {
     "Support": "الدعم",
     "Shop": "المتجر"
   },
+  "CategoryBrowser": {
+    "categoriesCount": "{count, plural, other {# فئة}}",
+    "providersCount": "{count, plural, other {# مزود}}",
+    "smartDiscovery": "اكتشاف ذكي",
+    "cantFindTitle": "لم تجد ما تبحث عنه؟",
+    "cantFindDescription": "استخدم البحث الذكي للعثور على الخدمات ومقدمي الخدمة والباقات والمختصين القريبين.",
+    "searchNow": "ابحث الآن"
+  },
   "Booking": {
     "aDedicatedCoordinatorWillBeAssignedAfterBookingConfirmation": "dedicated منسق will be مُعيّن بعد تأكيد الحجز.",
     "aDedicatedMedicalCoordinatorWillBeAssignedToYou": "dedicated المنسق الطبي will be مُعيّن إلى أنت immediately بعد تأكيد الحجز.",
@@ -771,7 +779,8 @@ declare const messages: {
   "Explore": {
     "header": {
       "title": "استكشف",
-      "subtitle": "اكتشف الرعاية الصحية حول العالم"
+      "subtitle": "اكتشف الرعاية الصحية حول العالم",
+      "browseCategories": "تصفح الفئات"
     },
     "search": {
       "placeholder": "بحث الخدمات..."
@@ -790,10 +799,18 @@ declare const messages: {
     "providerTypes": {
       "title": "Browse أنواع المزوّدين",
       "subtitle": "اختر kind من المزوّد أنت need",
-      "empty": "لا يوجد أنواع المزوّدين are متاح yet."
+      "empty": "لا توجد أنواع مزوّدين متاحة بعد."
     },
     "sponsored": {
       "alt": "مدعوم"
+    },
+    "badges": {
+      "allServices": "جميع الخدمات",
+      "verified": "موثّق",
+      "featured": "مميز",
+      "sponsored": "مدعوم",
+      "newProvider": "مزوّد جديد",
+      "responseTimeUnavailable": "وقت الاستجابة غير متاح"
     },
     "counts": {
       "providers": "{count} مزوّدون"
@@ -2517,7 +2534,7 @@ declare const messages: {
       "resumeAria": "استئناف السلايدر",
       "previousSlideAria": "الشريحة السابقة",
       "nextSlideAria": "الشريحة التالية",
-      "goToSlideAria": "Go إلى الشريحة {index}",
+      "goToSlideAria": "الانتقال إلى الشريحة {index}",
       "playVideoAria": "تشغيل الفيديو"
     },
     "featuredPage": {
@@ -6915,8 +6932,21 @@ declare const messages: {
       "gatewayCurrencyNote": "قد تختلف عملة بوابة الدفع عن عملة العرض.",
       "processing": "جارٍ المعالجة...",
       "topUpAmount": "مبلغ الشحن",
-      "todayAt": "Today at {time}",
-      "yesterdayAt": "Yesterday at {time}",
+      "topUpResult": {
+        "succeededTitle": "تم شحن المحفظة",
+        "succeededBody": "تم التحقق من دفعتك وأُضيف المبلغ إلى رصيدك.",
+        "succeededToast": "تم شحن المحفظة بنجاح",
+        "cancelledTitle": "تم إلغاء الدفع",
+        "cancelledBody": "لقد ألغيت عملية الدفع، لذا لم يتم خصم أي مبلغ ولم يتغير رصيدك.",
+        "cancelledToast": "تم إلغاء الدفع",
+        "failedTitle": "فشلت عملية الشحن",
+        "failedBody": "لم نتمكن من تأكيد هذه الدفعة، لذا لم تتم إضافة أي مبلغ إلى رصيدك. إذا تم خصم مبلغ من حسابك، يرجى التواصل مع الدعم قبل المحاولة مرة أخرى.",
+        "failedToast": "تعذّر التحقق من الشحن",
+        "reference": "الرقم المرجعي: {reference}",
+        "dismiss": "إغلاق"
+      },
+      "todayAt": "اليوم الساعة {time}",
+      "yesterdayAt": "أمس الساعة {time}",
       "statuses": {
         "completed": "مكتملة",
         "pending": "قيد الانتظار",
@@ -6999,7 +7029,7 @@ declare const messages: {
         "completed": "مكتملة",
         "pending": "قيد الانتظار",
         "failed": "فشلت",
-        "refunded": "Refunded",
+        "refunded": "مسترد",
         "processing": "قيد المعالجة",
         "cancelled": "ملغاة"
       },
@@ -7016,7 +7046,17 @@ declare const messages: {
       "applyFilters": "تطبيق الفلاتر",
       "paymentMethods": {
         "applePay": "Apple Pay",
-        "bankTransfer": "تحويل بنكي"
+        "bankTransfer": "تحويل بنكي",
+        "card": "بطاقة",
+        "crypto": "عملة رقمية",
+        "unknown": "غير معروف"
+      },
+      "share": {
+        "receiptTitle": "إيصال {title}",
+        "reference": "المرجع: {reference}",
+        "amount": "المبلغ: {amount}",
+        "status": "الحالة: {status}",
+        "date": "التاريخ: {date}"
       },
       "sample": {
         "botox": {
@@ -7056,8 +7096,8 @@ declare const messages: {
           "title": "شحن المحفظة"
         }
       },
-      "todayAt": "Today at {time}",
-      "yesterdayAt": "Yesterday at {time}"
+      "todayAt": "اليوم الساعة {time}",
+      "yesterdayAt": "أمس الساعة {time}"
     },
     "transactionDetail": {
       "title": "تفاصيل المعاملة",
@@ -7194,6 +7234,36 @@ declare const messages: {
     },
     "privacySecurity": {
       "title": "الخصوصية والأمان",
+      "unknownDevice": "جهاز غير معروف",
+      "unknownLocation": "موقع غير معروف",
+      "relativeTime": {
+        "activeNow": "نشط الآن",
+        "minutesAgo": "قبل {count} دقيقة",
+        "hoursAgo": "قبل {count} ساعة",
+        "daysAgo": "قبل {count} يوم"
+      },
+      "badge": {
+        "granted": "مسموح",
+        "denied": "محظور",
+        "prompt": "سؤال",
+        "unsupported": "غير مدعوم",
+        "unknown": "غير معروف"
+      },
+      "helpText": {
+        "location": {
+          "granted": "الوصول إلى الموقع من المتصفح مفعّل على هذا الجهاز.",
+          "denied": "الوصول إلى الموقع محظور في إعدادات المتصفح أو نظام التشغيل.",
+          "prompt": "لا يزال بإمكان المتصفح طلب الوصول إلى الموقع.",
+          "unsupported": "هذا المتصفح لا يعرض حالة إذن الموقع."
+        },
+        "notification": {
+          "granted": "إشعارات المتصفح مفعّلة على هذا الجهاز.",
+          "denied": "الإشعارات محظورة في إعدادات المتصفح أو نظام التشغيل.",
+          "prompt": "لا يزال بإمكان المتصفح طلب إذن الإشعارات.",
+          "unsupported": "هذا المتصفح لا يدعم واجهة برمجة الإشعارات."
+        },
+        "unknown": "لم تتم قراءة حالة الإذن بعد على هذا الجهاز."
+      },
       "changePassword": "تغيير كلمة المرور",
       "currentPassword": "كلمة المرور الحالية",
       "enterCurrentPassword": "أدخل كلمة المرور الحالية",
@@ -7397,6 +7467,17 @@ declare const messages: {
       "copiedBang": "تم النسخ!",
       "copy": "نسخ",
       "discountQueue": "قائمة الخصومات",
+      "dynamicHeroSubtitle": "تُفتح المكافآت الحالية بالتسلسل التالي: {rewards}.",
+      "dynamicShareMessage": "انضم إلى LSevin باستخدام كود الدعوة الخاص بي {code}. {subtitle} سجّل من هنا: {link}",
+      "dynamicTerms": {
+        "stackingAllowed": "يسمح هذا البرنامج حالياً بدمج الخصومات.",
+        "stackingNotAllowed": "لا يمكن دمج الخصومات في نفس عملية الدفع.",
+        "previousRedeemedRequired": "لا يتم تفعيل الخصم المكتسب حديثاً إلا بعد استخدام الخصم السابق.",
+        "referrerSequence": "تسلسل مكافآت الداعي: {values}.",
+        "refereeRewards": "مكافآت ترحيب المدعو: {values}.",
+        "maxReferrals": "يمكن لكل داعٍ الحصول على ما يصل إلى {count} مكافأة دعوة ضمن البرنامج الفعّال.",
+        "policyMayChange": "يمكن لـ LSevin تحديث سياسة الدعوة الفعّالة في أي وقت من لوحة الإدارة."
+      },
       "heroSubtitle": "شارك LSevin مع أصدقائك وافتح مزايا الدعوة.",
       "heroTitle": "ادعُ أصدقاءك واكسب مكافآت",
       "howItWorks": "طريقة العمل",
@@ -7591,7 +7672,9 @@ declare const messages: {
       "selectSpecialties": "اختر التخصصات",
       "searchSpecialties": "ابحث عن التخصصات...",
       "noSpecialtiesFound": "لم يتم العثور على تخصصات.",
-      "specialtiesSelected": "{count} محدد"
+      "specialtiesSelected": "{count} محدد",
+      "currency": "العملة",
+      "allCurrencies": "كل العملات"
     },
     "backup": {
       "mapAlt": "الخريطة",
@@ -10689,6 +10772,19 @@ declare const messages: {
       "contact": "تواصل",
       "viewServices": "عرض الخدمات"
     },
+    "recommendations": {
+      "similarProvidersTitle": "مقدمو خدمات مشابهون",
+      "similarProvidersTitleWithCountry": "مقدمو خدمات مشابهون في {country}",
+      "exploreNearby": "استكشف المزيد من الخيارات القريبة من هذا الموقع",
+      "viewAll": "عرض الكل",
+      "topInternationalTitle": "أفضل مقدمي الخدمات الدوليين",
+      "topInternationalSubtitle": "وجهات رائدة للسياحة العلاجية",
+      "verified": "موثّق",
+      "priceFrom": "يبدأ من",
+      "ctaTitle": "لا تستطيع تحديد مقدم الخدمة المناسب؟",
+      "ctaDescription": "يمكن لمستشارينا الخبراء مساعدتك في مقارنة مقدمي الخدمات وفهم الأسعار وإيجاد الخيار الأنسب لاحتياجاتك.",
+      "ctaButton": "احصل على استشارة مجانية"
+    },
     "errors": {
       "providerCouldNotBeLoaded": "تعذر تحميل مقدم الخدمة",
       "tryAgainLater": "يرجى المحاولة مرة أخرى لاحقاً.",
@@ -12792,6 +12888,7 @@ declare const messages: {
     "reviews": "{count} تقييم",
     "from": "من",
     "inStock": "متوفر",
+    "brand": "العلامة التجارية",
     "outOfStock": "غير متوفر",
     "preorder": "طلب مسبق",
     "preorderShipsAfter": "طلب مسبق · الشحن بعد {date}",

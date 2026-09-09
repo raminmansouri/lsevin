@@ -10,6 +10,14 @@ declare const messages: {
     "Support": "Support",
     "Shop": "Shop"
   },
+  "CategoryBrowser": {
+    "categoriesCount": "{count, plural, one {# category} other {# categories}}",
+    "providersCount": "{count, plural, one {# provider} other {# providers}}",
+    "smartDiscovery": "Smart discovery",
+    "cantFindTitle": "Can't find what you're looking for?",
+    "cantFindDescription": "Use smart search to find services, providers, packages, and nearby specialists.",
+    "searchNow": "Search Now"
+  },
   "Booking": {
     "aDedicatedCoordinatorWillBeAssignedAfterBookingConfirmation": "A dedicated coordinator will be assigned after booking confirmation.",
     "aDedicatedMedicalCoordinatorWillBeAssignedToYou": "A dedicated medical coordinator will be assigned to you immediately after booking confirmation.",
@@ -771,7 +779,8 @@ declare const messages: {
   "Explore": {
     "header": {
       "title": "Explore",
-      "subtitle": "Discover healthcare worldwide"
+      "subtitle": "Discover healthcare worldwide",
+      "browseCategories": "Browse Categories"
     },
     "search": {
       "placeholder": "Search services..."
@@ -794,6 +803,14 @@ declare const messages: {
     },
     "sponsored": {
       "alt": "Sponsored"
+    },
+    "badges": {
+      "allServices": "All Services",
+      "verified": "Verified",
+      "featured": "Featured",
+      "sponsored": "Sponsored",
+      "newProvider": "New provider",
+      "responseTimeUnavailable": "Response time unavailable"
     },
     "counts": {
       "providers": "{count} providers"
@@ -866,6 +883,96 @@ declare const messages: {
     "deleteCurrencyConfirm": "Delete this currency? It is removed from the lists while past records stay untouched.",
     "currencyDeleted": "Currency deleted.",
     "currencyInUseCannotDelete": "This currency was not deleted because it is used in:",
+    "approveAndCreateProvider": "Approve and create provider",
+    "rejectionReason": "Rejection reason",
+    "applicationCouldNotBeApproved": "Application could not be approved.",
+    "applicationCouldNotBeRejected": "Application could not be rejected.",
+    "applicationForType": "{type} application",
+    "purgeAllCache": "Purge all cache",
+    "purgeCacheConfirmMessage": "Purge the entire application cache? Pages and cached data will be rebuilt on the next request — the first hits after this may be slower.",
+    "purging": "Purging…",
+    "yesPurgeEverything": "Yes, purge everything",
+    "cachePurgedAt": "Cache purged ({count} tags) at {time}.",
+    "failedToPurgeCache": "Failed to purge cache.",
+    "referralProgramAdmin": "Referral Program Admin",
+    "activeProgramLabel": "Active program: {name} ({code})",
+    "managePolicy": "Manage Policy",
+    "activeCodes": "Active Codes",
+    "invitations": "Invitations",
+    "registrations": "Registrations",
+    "profileCompletions": "Profile Completions",
+    "couponsIssued": "Coupons Issued",
+    "couponsRedeemed": "Coupons Redeemed",
+    "recentInvitations": "Recent Invitations",
+    "shownCount": "{count} shown",
+    "referrer": "Referrer",
+    "referee": "Referee",
+    "invited": "Invited",
+    "recentCoupons": "Recent Coupons",
+    "reward": "Reward",
+    "issued": "Issued",
+    "manageSponsoredSliderDescription": "Manage image, GIF, video slides and all frontend copy from the admin panel.",
+    "addSlide": "Add slide",
+    "noSponsoredSliderItemsYet": "No sponsored slider items yet.",
+    "newLinkActive": "New link active",
+    "curatedEditorialCommentsNotice": "Use this only for curated editorial comments or imported reviews. Customer reviews should come from booked customers.",
+    "verifiedBadge": "Verified badge",
+    "adminAnswer": "Admin answer",
+    "reviewsAndCommentsDescription": "Customer feedback is booking-gated and stays pending until admin approval. Admin can also add public SEO reviews.",
+    "serviceAddons": "Service Add-ons",
+    "addonFieldLabel": "Add-on",
+    "noAddonsLinkedYet": "No add-ons linked yet.",
+    "addonLinked": "Add-on linked",
+    "addonRemoved": "Add-on removed",
+    "failedToLink": "Failed to link",
+    "failedToRemove": "Failed to remove",
+    "attributeDefinitions": "Attribute Definitions",
+    "attributeType": "Attribute Type",
+    "selectAttributeType": "Select attribute type",
+    "required": "Required",
+    "affectsPricing": "Affects Pricing",
+    "updateDefinition": "Update Definition",
+    "addDefinition": "Add Definition",
+    "existingAttributeDefinitions": "Existing Attribute Definitions",
+    "typeAndDisplayOrder": "Type: {type} • Display order: {order}",
+    "requiredAndAffectsPricing": "Required: {required} • Affects pricing: {affectsPricing}",
+    "optionsForThisDefinition": "Options for this definition",
+    "storedValue": "Stored value",
+    "additionalPrice": "Additional Price",
+    "updateOption": "Update Option",
+    "addOption": "Add Option",
+    "additionalPriceValue": "Additional price: {price}",
+    "noOptionsYet": "No options yet.",
+    "noAttributeDefinitionsYet": "No attribute definitions yet.",
+    "removed": "Removed",
+    "optionUpdated": "Option updated",
+    "optionAdded": "Option added",
+    "optionRemoved": "Option removed",
+    "serviceAttributeValues": "Service Attribute Values",
+    "attributeDefinition": "Attribute Definition",
+    "selectAttributeDefinition": "Select attribute definition",
+    "noAttributeValuesYet": "No attribute values yet.",
+    "serviceFaqs": "Service FAQs",
+    "question": "Question",
+    "answer": "Answer",
+    "noFaqYet": "No FAQ yet.",
+    "includedItems": "Included Items",
+    "item": "Item",
+    "noItemYet": "No item yet.",
+    "serviceProcess": "Service Process",
+    "duration": "Duration",
+    "stepNumberTitle": "Step {step}: {title}",
+    "durationValue": "Duration: {duration}",
+    "noProcessStepsYet": "No process steps yet.",
+    "addonProviderTypeWhitelist": "Add-on Provider Type Whitelist",
+    "icon": "Icon",
+    "pickIcon": "Pick icon",
+    "storesOneMediaIdHiddenInput": "Stores one media id in a hidden input.",
+    "metadataJson": "Metadata JSON",
+    "displayOrderAndRequired": "Display order: {order} • Required: {required}",
+    "iconValue": "Icon: {icon}",
+    "noWhitelistEntriesYet": "No whitelist entries yet.",
+    "pleaseCheckTheForm": "Please check the form.",
     "aRIALabel": "A Ria Label",
     "accentColor": "Accent color",
     "accessControl": "Access Control",
@@ -7152,7 +7259,17 @@ declare const messages: {
       "applyFilters": "Apply filters",
       "paymentMethods": {
         "applePay": "Apple Pay",
-        "bankTransfer": "Bank transfer"
+        "bankTransfer": "Bank transfer",
+        "card": "Card",
+        "crypto": "Crypto",
+        "unknown": "Unknown"
+      },
+      "share": {
+        "receiptTitle": "{title} Receipt",
+        "reference": "Reference: {reference}",
+        "amount": "Amount: {amount}",
+        "status": "Status: {status}",
+        "date": "Date: {date}"
       },
       "sample": {
         "botox": {
@@ -7330,6 +7447,36 @@ declare const messages: {
     },
     "privacySecurity": {
       "title": "Privacy & Security",
+      "unknownDevice": "Unknown device",
+      "unknownLocation": "Unknown location",
+      "relativeTime": {
+        "activeNow": "Active now",
+        "minutesAgo": "{count, plural, one {# minute ago} other {# minutes ago}}",
+        "hoursAgo": "{count, plural, one {# hour ago} other {# hours ago}}",
+        "daysAgo": "{count, plural, one {# day ago} other {# days ago}}"
+      },
+      "badge": {
+        "granted": "Allowed",
+        "denied": "Blocked",
+        "prompt": "Ask",
+        "unsupported": "Unsupported",
+        "unknown": "Unknown"
+      },
+      "helpText": {
+        "location": {
+          "granted": "Browser location access is enabled on this device.",
+          "denied": "Location access is blocked in the browser or OS settings.",
+          "prompt": "The browser can still ask for location access.",
+          "unsupported": "This browser does not expose location permission status."
+        },
+        "notification": {
+          "granted": "Browser notifications are enabled on this device.",
+          "denied": "Notifications are blocked in the browser or OS settings.",
+          "prompt": "The browser can still ask for notification access.",
+          "unsupported": "This browser does not support the Notification API."
+        },
+        "unknown": "Permission state has not been read yet on this device."
+      },
       "changePassword": "Change Password",
       "currentPassword": "Current password",
       "enterCurrentPassword": "Enter current password",
@@ -7533,6 +7680,17 @@ declare const messages: {
       "copiedBang": "Copied!",
       "copy": "Copy",
       "discountQueue": "Discount queue",
+      "dynamicHeroSubtitle": "Current rewards unlock in sequence: {rewards}.",
+      "dynamicShareMessage": "Join LSevin with my referral code {code}. {subtitle} Sign up here: {link}",
+      "dynamicTerms": {
+        "stackingAllowed": "This program currently allows combinable discounts.",
+        "stackingNotAllowed": "Discounts cannot be combined in the same checkout.",
+        "previousRedeemedRequired": "A newly earned discount unlocks only after the previous discount is redeemed.",
+        "referrerSequence": "Referrer reward sequence: {values}.",
+        "refereeRewards": "Invitee onboarding rewards: {values}.",
+        "maxReferrals": "Each referrer can qualify for up to {count} referral rewards under the active program.",
+        "policyMayChange": "LSevin can update the active referral policy at any time from admin."
+      },
       "heroSubtitle": "Share LSevin with friends and unlock referral benefits.",
       "heroTitle": "Invite friends, earn rewards",
       "howItWorks": "How it works",
@@ -7727,7 +7885,9 @@ declare const messages: {
       "selectSpecialties": "Select specialties",
       "searchSpecialties": "Search specialties...",
       "noSpecialtiesFound": "No specialties found.",
-      "specialtiesSelected": "{count} selected"
+      "specialtiesSelected": "{count} selected",
+      "currency": "Currency",
+      "allCurrencies": "All currencies"
     },
     "backup": {
       "mapAlt": "Map",
@@ -10825,6 +10985,19 @@ declare const messages: {
       "contact": "Contact",
       "viewServices": "View services"
     },
+    "recommendations": {
+      "similarProvidersTitle": "Similar Providers",
+      "similarProvidersTitleWithCountry": "Similar Providers in {country}",
+      "exploreNearby": "Explore more options near this location",
+      "viewAll": "View All",
+      "topInternationalTitle": "Top International Providers",
+      "topInternationalSubtitle": "Leading medical tourism destinations",
+      "verified": "Verified",
+      "priceFrom": "From",
+      "ctaTitle": "Can't decide which provider to choose?",
+      "ctaDescription": "Our expert consultants can help you compare providers, understand pricing, and find the perfect match for your needs.",
+      "ctaButton": "Get Free Consultation"
+    },
     "errors": {
       "providerCouldNotBeLoaded": "Provider could not be loaded",
       "tryAgainLater": "Please try again later.",
@@ -13532,6 +13705,7 @@ declare const messages: {
     "reviews": "{count} reviews",
     "from": "From",
     "inStock": "In stock",
+    "brand": "Brand",
     "outOfStock": "Out of stock",
     "preorder": "Pre-order",
     "preorderShipsAfter": "Pre-order · ships after {date}",

@@ -10,10 +10,19 @@ declare const messages: {
     "Support": "پشتیبانی",
     "Shop": "فروشگاه"
   },
+  "CategoryBrowser": {
+    "categoriesCount": "{count, plural, other {# دسته‌بندی}}",
+    "providersCount": "{count, plural, other {# ارائه‌دهنده}}",
+    "smartDiscovery": "جستجوی هوشمند",
+    "cantFindTitle": "آنچه دنبالش هستید را پیدا نکردید؟",
+    "cantFindDescription": "از جستجوی هوشمند برای یافتن خدمات، ارائه‌دهندگان، پکیج‌ها و متخصصان نزدیک استفاده کنید.",
+    "searchNow": "جستجو کنید"
+  },
   "Explore": {
     "header": {
       "title": "کاوش",
-      "subtitle": "خدمات سلامت را در سراسر جهان پیدا کنید"
+      "subtitle": "خدمات سلامت را در سراسر جهان پیدا کنید",
+      "browseCategories": "مرور دسته‌بندی‌ها"
     },
     "search": {
       "placeholder": "جستجوی خدمات..."
@@ -36,6 +45,14 @@ declare const messages: {
     },
     "sponsored": {
       "alt": "اسپانسری"
+    },
+    "badges": {
+      "allServices": "همه خدمات",
+      "verified": "تأیید شده",
+      "featured": "ویژه",
+      "sponsored": "تبلیغاتی",
+      "newProvider": "ارائه‌دهنده جدید",
+      "responseTimeUnavailable": "زمان پاسخ‌دهی موجود نیست"
     },
     "counts": {
       "providers": "{count} ارائه‌دهنده"
@@ -108,6 +125,96 @@ declare const messages: {
     "deleteCurrencyConfirm": "این ارز حذف شود؟ از فهرست‌ها برداشته می‌شود ولی داده‌های گذشته دست‌نخورده می‌مانند.",
     "currencyDeleted": "ارز حذف شد.",
     "currencyInUseCannotDelete": "این ارز حذف نشد چون در این بخش‌ها استفاده شده است:",
+    "approveAndCreateProvider": "تأیید و ایجاد ارائه‌دهنده",
+    "rejectionReason": "دلیل رد",
+    "applicationCouldNotBeApproved": "درخواست تأیید نشد.",
+    "applicationCouldNotBeRejected": "درخواست رد نشد.",
+    "applicationForType": "درخواست {type}",
+    "purgeAllCache": "پاک‌سازی کامل کش",
+    "purgeCacheConfirmMessage": "کش کامل برنامه پاک شود؟ صفحات و داده‌های کش‌شده در درخواست بعدی دوباره ساخته می‌شوند — اولین بازدیدها پس از این ممکن است کندتر باشند.",
+    "purging": "در حال پاک‌سازی…",
+    "yesPurgeEverything": "بله، همه چیز پاک شود",
+    "cachePurgedAt": "کش پاک شد ({count} تگ) در {time}.",
+    "failedToPurgeCache": "پاک‌سازی کش ناموفق بود.",
+    "referralProgramAdmin": "مدیریت برنامه معرفی",
+    "activeProgramLabel": "برنامه فعال: {name} ({code})",
+    "managePolicy": "مدیریت سیاست",
+    "activeCodes": "کدهای فعال",
+    "invitations": "دعوت‌ها",
+    "registrations": "ثبت‌نام‌ها",
+    "profileCompletions": "تکمیل پروفایل‌ها",
+    "couponsIssued": "کوپن‌های صادرشده",
+    "couponsRedeemed": "کوپن‌های استفاده‌شده",
+    "recentInvitations": "دعوت‌های اخیر",
+    "shownCount": "{count} مورد نمایش داده‌شده",
+    "referrer": "معرف",
+    "referee": "معرفی‌شده",
+    "invited": "تاریخ دعوت",
+    "recentCoupons": "کوپن‌های اخیر",
+    "reward": "پاداش",
+    "issued": "تاریخ صدور",
+    "manageSponsoredSliderDescription": "مدیریت اسلایدهای تصویر، گیف و ویدیو و تمام متن‌های نمایشی از پنل مدیریت.",
+    "addSlide": "افزودن اسلاید",
+    "noSponsoredSliderItemsYet": "هنوز اسلایدی ثبت نشده است.",
+    "newLinkActive": "لینک جدید فعال است",
+    "curatedEditorialCommentsNotice": "این گزینه فقط برای نظرات ویرایش‌شده تحریریه یا نظرات وارد‌شده از منابع دیگر استفاده شود. نظرات مشتریان باید از مشتریانی باشد که رزرو کرده‌اند.",
+    "verifiedBadge": "نشان تأییدشده",
+    "adminAnswer": "پاسخ مدیر",
+    "reviewsAndCommentsDescription": "بازخورد مشتری وابسته به رزرو است و تا تأیید مدیر در حالت در انتظار می‌ماند. مدیر می‌تواند نظرات عمومی سئو را نیز اضافه کند.",
+    "serviceAddons": "افزودنی‌های خدمت",
+    "addonFieldLabel": "افزودنی",
+    "noAddonsLinkedYet": "هنوز افزودنی‌ای متصل نشده است.",
+    "addonLinked": "افزودنی متصل شد",
+    "addonRemoved": "افزودنی حذف شد",
+    "failedToLink": "اتصال ناموفق بود",
+    "failedToRemove": "حذف ناموفق بود",
+    "attributeDefinitions": "تعریف ویژگی‌ها",
+    "attributeType": "نوع ویژگی",
+    "selectAttributeType": "نوع ویژگی را انتخاب کنید",
+    "required": "الزامی",
+    "affectsPricing": "اثر بر قیمت",
+    "updateDefinition": "به‌روزرسانی تعریف",
+    "addDefinition": "افزودن تعریف",
+    "existingAttributeDefinitions": "تعریف‌های ویژگی موجود",
+    "typeAndDisplayOrder": "نوع: {type} • ترتیب نمایش: {order}",
+    "requiredAndAffectsPricing": "الزامی: {required} • اثر بر قیمت: {affectsPricing}",
+    "optionsForThisDefinition": "گزینه‌های این تعریف",
+    "storedValue": "مقدار ذخیره‌شده",
+    "additionalPrice": "قیمت اضافه",
+    "updateOption": "به‌روزرسانی گزینه",
+    "addOption": "افزودن گزینه",
+    "additionalPriceValue": "قیمت اضافه: {price}",
+    "noOptionsYet": "هنوز گزینه‌ای ثبت نشده است.",
+    "noAttributeDefinitionsYet": "هنوز تعریف ویژگی‌ای ثبت نشده است.",
+    "removed": "حذف شد",
+    "optionUpdated": "گزینه به‌روزرسانی شد",
+    "optionAdded": "گزینه افزوده شد",
+    "optionRemoved": "گزینه حذف شد",
+    "serviceAttributeValues": "مقادیر ویژگی خدمت",
+    "attributeDefinition": "تعریف ویژگی",
+    "selectAttributeDefinition": "تعریف ویژگی را انتخاب کنید",
+    "noAttributeValuesYet": "هنوز مقدار ویژگی‌ای ثبت نشده است.",
+    "serviceFaqs": "پرسش‌های متداول خدمت",
+    "question": "پرسش",
+    "answer": "پاسخ",
+    "noFaqYet": "هنوز پرسشی ثبت نشده است.",
+    "includedItems": "موارد شامل",
+    "item": "مورد",
+    "noItemYet": "هنوز موردی ثبت نشده است.",
+    "serviceProcess": "فرایند خدمت",
+    "duration": "مدت‌زمان",
+    "stepNumberTitle": "مرحله {step}: {title}",
+    "durationValue": "مدت‌زمان: {duration}",
+    "noProcessStepsYet": "هنوز مرحله‌ای ثبت نشده است.",
+    "addonProviderTypeWhitelist": "لیست سفید نوع ارائه‌دهنده برای افزودنی",
+    "icon": "آیکون",
+    "pickIcon": "انتخاب آیکون",
+    "storesOneMediaIdHiddenInput": "یک شناسه رسانه در فیلد مخفی ذخیره می‌شود.",
+    "metadataJson": "فراداده JSON",
+    "displayOrderAndRequired": "ترتیب نمایش: {order} • الزامی: {required}",
+    "iconValue": "آیکون: {icon}",
+    "noWhitelistEntriesYet": "هنوز موردی در لیست سفید ثبت نشده است.",
+    "pleaseCheckTheForm": "لطفاً فرم را بررسی کنید.",
     "aRIALabel": "برچسب ARIA",
     "accentColor": "رنگ تأکیدی",
     "accessControl": "کنترل دسترسی",
@@ -7038,8 +7145,8 @@ declare const messages: {
       "gatewayCurrencyNote": "ارز درگاه پرداخت ممکن است با ارز نمایشی شما متفاوت باشد.",
       "processing": "در حال پردازش...",
       "topUpAmount": "مبلغ شارژ",
-      "todayAt": "Today at {time}",
-      "yesterdayAt": "Yesterday at {time}",
+      "todayAt": "امروز ساعت {time}",
+      "yesterdayAt": "دیروز ساعت {time}",
       "statuses": {
         "completed": "تکمیل‌شده",
         "pending": "در انتظار",
@@ -7135,7 +7242,7 @@ declare const messages: {
         "completed": "تکمیل‌شده",
         "pending": "در انتظار",
         "failed": "ناموفق",
-        "refunded": "Refunded",
+        "refunded": "بازپرداخت‌شده",
         "processing": "در حال پردازش",
         "cancelled": "لغوشده"
       },
@@ -7152,7 +7259,17 @@ declare const messages: {
       "applyFilters": "اعمال فیلترها",
       "paymentMethods": {
         "applePay": "اپل‌پی",
-        "bankTransfer": "انتقال بانکی"
+        "bankTransfer": "انتقال بانکی",
+        "card": "کارت",
+        "crypto": "رمزارز",
+        "unknown": "نامشخص"
+      },
+      "share": {
+        "receiptTitle": "رسید {title}",
+        "reference": "کد پیگیری: {reference}",
+        "amount": "مبلغ: {amount}",
+        "status": "وضعیت: {status}",
+        "date": "تاریخ: {date}"
       },
       "sample": {
         "botox": {
@@ -7192,8 +7309,8 @@ declare const messages: {
           "title": "شارژ کیف پول"
         }
       },
-      "todayAt": "Today at {time}",
-      "yesterdayAt": "Yesterday at {time}"
+      "todayAt": "امروز ساعت {time}",
+      "yesterdayAt": "دیروز ساعت {time}"
     },
     "transactionDetail": {
       "title": "جزئیات تراکنش",
@@ -7330,6 +7447,36 @@ declare const messages: {
     },
     "privacySecurity": {
       "title": "حریم خصوصی و امنیت",
+      "unknownDevice": "دستگاه نامشخص",
+      "unknownLocation": "موقعیت نامشخص",
+      "relativeTime": {
+        "activeNow": "اکنون فعال",
+        "minutesAgo": "{count} دقیقه پیش",
+        "hoursAgo": "{count} ساعت پیش",
+        "daysAgo": "{count} روز پیش"
+      },
+      "badge": {
+        "granted": "مجاز",
+        "denied": "مسدود",
+        "prompt": "پرسش",
+        "unsupported": "پشتیبانی نمی‌شود",
+        "unknown": "نامشخص"
+      },
+      "helpText": {
+        "location": {
+          "granted": "دسترسی به موقعیت مکانی در مرورگر روی این دستگاه فعال است.",
+          "denied": "دسترسی به موقعیت مکانی در تنظیمات مرورگر یا سیستم‌عامل مسدود شده است.",
+          "prompt": "مرورگر همچنان می‌تواند برای دسترسی به موقعیت مکانی درخواست بدهد.",
+          "unsupported": "این مرورگر وضعیت مجوز موقعیت مکانی را نمایش نمی‌دهد."
+        },
+        "notification": {
+          "granted": "اعلان‌های مرورگر روی این دستگاه فعال است.",
+          "denied": "اعلان‌ها در تنظیمات مرورگر یا سیستم‌عامل مسدود شده‌اند.",
+          "prompt": "مرورگر همچنان می‌تواند برای دسترسی به اعلان‌ها درخواست بدهد.",
+          "unsupported": "این مرورگر از Notification API پشتیبانی نمی‌کند."
+        },
+        "unknown": "وضعیت مجوز هنوز روی این دستگاه خوانده نشده است."
+      },
       "changePassword": "تغییر رمز عبور",
       "currentPassword": "رمز عبور فعلی",
       "enterCurrentPassword": "رمز فعلی را وارد کنید",
@@ -7533,6 +7680,17 @@ declare const messages: {
       "copiedBang": "کپی شد!",
       "copy": "کپی",
       "discountQueue": "صف تخفیف",
+      "dynamicHeroSubtitle": "پاداش‌های فعلی به‌ترتیب آزاد می‌شوند: {rewards}.",
+      "dynamicShareMessage": "با کد دعوت من {code} به السوین بپیوندید. {subtitle} از اینجا ثبت‌نام کنید: {link}",
+      "dynamicTerms": {
+        "stackingAllowed": "این برنامه در حال حاضر اجازه ترکیب تخفیف‌ها را می‌دهد.",
+        "stackingNotAllowed": "تخفیف‌ها را نمی‌توان در یک پرداخت با هم ترکیب کرد.",
+        "previousRedeemedRequired": "تخفیف تازه‌کسب‌شده تنها پس از استفاده از تخفیف قبلی فعال می‌شود.",
+        "referrerSequence": "ترتیب پاداش دعوت‌کننده: {values}.",
+        "refereeRewards": "پاداش‌های خوش‌آمدگویی به دعوت‌شونده: {values}.",
+        "maxReferrals": "هر دعوت‌کننده می‌تواند حداکثر تا {count} پاداش دعوت در برنامه فعال دریافت کند.",
+        "policyMayChange": "السوین می‌تواند در هر زمان قوانین دعوت فعال را از پنل مدیریت به‌روزرسانی کند."
+      },
       "heroSubtitle": "السوین را با دوستانتان به اشتراک بگذارید و مزایای دعوت را آزاد کنید.",
       "heroTitle": "دوستانتان را دعوت کنید و پاداش بگیرید",
       "howItWorks": "نحوه کار",
@@ -7727,7 +7885,9 @@ declare const messages: {
       "selectSpecialties": "انتخاب تخصص‌ها",
       "searchSpecialties": "جستجوی تخصص‌ها...",
       "noSpecialtiesFound": "تخصصی پیدا نشد.",
-      "specialtiesSelected": "{count} تخصص انتخاب شد"
+      "specialtiesSelected": "{count} تخصص انتخاب شد",
+      "currency": "واحد پول",
+      "allCurrencies": "همه واحدهای پول"
     },
     "backup": {
       "mapAlt": "نقشه",
@@ -10825,6 +10985,19 @@ declare const messages: {
       "contact": "تماس",
       "viewServices": "مشاهده خدمات"
     },
+    "recommendations": {
+      "similarProvidersTitle": "ارائه‌دهندگان مشابه",
+      "similarProvidersTitleWithCountry": "ارائه‌دهندگان مشابه در {country}",
+      "exploreNearby": "گزینه‌های بیشتری نزدیک این موقعیت را کشف کنید",
+      "viewAll": "مشاهده همه",
+      "topInternationalTitle": "ارائه‌دهندگان برتر بین‌المللی",
+      "topInternationalSubtitle": "مقاصد پیشرو گردشگری سلامت",
+      "verified": "تأیید شده",
+      "priceFrom": "شروع از",
+      "ctaTitle": "نمی‌دانید کدام ارائه‌دهنده را انتخاب کنید؟",
+      "ctaDescription": "مشاوران متخصص ما به شما کمک می‌کنند ارائه‌دهندگان را مقایسه کنید، قیمت‌ها را درک کنید و بهترین گزینه را برای نیازتان پیدا کنید.",
+      "ctaButton": "دریافت مشاوره رایگان"
+    },
     "errors": {
       "providerCouldNotBeLoaded": "اطلاعات ارائه‌دهنده بارگذاری نشد",
       "tryAgainLater": "لطفاً بعداً دوباره تلاش کنید.",
@@ -13532,6 +13705,7 @@ declare const messages: {
     "reviews": "{count} دیدگاه",
     "from": "از",
     "inStock": "موجود",
+    "brand": "برند",
     "outOfStock": "ناموجود",
     "preorder": "پیش‌خرید",
     "preorderShipsAfter": "پیش‌خرید · ارسال پس از {date}",

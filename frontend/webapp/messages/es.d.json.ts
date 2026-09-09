@@ -5610,6 +5610,7 @@ declare const messages: {
     "Explore": "Explorar",
     "Home": "Inicio",
     "Profile": "Perfil",
+    "Shop": "Tienda",
     "Support": "Soporte"
   },
   "Categories": {

@@ -5607,6 +5607,7 @@ declare const messages: {
     "Explore": "Explorer",
     "Home": "Accueil",
     "Profile": "Profil",
+    "Shop": "Boutique",
     "Support": "Assistance"
   },
   "Categories": {
