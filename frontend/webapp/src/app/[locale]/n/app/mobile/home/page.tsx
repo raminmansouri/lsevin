@@ -151,15 +151,22 @@ type HomePageLabels = {
 // where the DB/pool can take several seconds to accept connections again)
 // used to fall straight through to `.catch(() => [])` and get served to
 // every visitor as "No categories found" until the next regeneration. This
-// only runs once per (re)generation — never on a per-visitor request — so it
+// only runs at (re)generation time, never on a per-visitor request, so it
 // can afford to keep retrying for several seconds; a genuinely down database
 // still falls back to the empty rail after this.
+//
+// The exception is `next build` itself: the DB is deliberately off the build
+// network, so every attempt is a guaranteed miss and the backoff just drags
+// the build toward the prerender-worker timeout. Take the fallback on the
+// first failure there — ISR fills the rail on the first real request.
+const IS_BUILD = process.env.NEXT_PHASE === 'phase-production-build';
 async function withRailRetry<T>(fn: () => Promise<T>, fallback: T, retries = 5, delayMs = 500): Promise<T> {
-  for (let attempt = 0; attempt <= retries; attempt++) {
+  const maxAttempts = IS_BUILD ? 0 : retries;
+  for (let attempt = 0; attempt <= maxAttempts; attempt++) {
     try {
       return await fn();
     } catch (error) {
-      if (attempt === retries) {
+      if (attempt === maxAttempts) {
         console.error('[home] rail fetch failed after retries', error);
         return fallback;
       }

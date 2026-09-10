@@ -21,18 +21,14 @@ export const revalidate = 3600;
 
 // `force-static` bakes whatever this render produces into the page for the
 // full `revalidate` window (1 hour) — see the identical helper in
-// n/app/mobile/home/page.tsx. A transient DB/connection-pool hiccup during
-// the one render that regenerates this page (most often right after a
-// deploy restart) used to fall straight through to `.catch()` and ship an
-// empty shop shell / "An error occurred" for up to an hour. This only runs
-// once per (re)generation, never per visitor, so it can afford to retry for
-// several seconds before a genuinely down database falls back to empty.
+// n/app/mobile/home/page.tsx, including why `next build` skips the retries.
 async function withShopRetry<T>(fn: () => Promise<T>, fallback: T, retries = 5, delayMs = 500): Promise<T> {
-  for (let attempt = 0; attempt <= retries; attempt++) {
+  const maxAttempts = process.env.NEXT_PHASE === 'phase-production-build' ? 0 : retries;
+  for (let attempt = 0; attempt <= maxAttempts; attempt++) {
     try {
       return await fn();
     } catch (error) {
-      if (attempt === retries) {
+      if (attempt === maxAttempts) {
         console.error('[shop] fetch failed after retries', error);
         return fallback;
       }
