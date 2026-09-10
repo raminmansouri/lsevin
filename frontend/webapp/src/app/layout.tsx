@@ -1,11 +1,8 @@
-import { getLocale } from "next-intl/server";
 import localFont from "next/font/local";
 import Script from "next/script";
 
-import { getDirection } from "@/config/locales";
 import { env } from "@/config/env/client";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
-import { LocaleTypes } from "@/types/common";
 
 import "./globals.css";
 
@@ -37,21 +34,27 @@ const vazirmatn = localFont({
   preload: false,
 });
 
-// This is the single <html>/<body> for the whole app. The locale comes from the
-// next-intl middleware (available via getLocale even though this layout sits
-// above the [locale] segment), so `lang` and `dir` are set here — that makes RTL
-// apply to the real document element for Persian/Arabic/Kurdish.
-export default async function RootLayout({
+// The single <html>/<body> for the whole app — it wraps the [locale] tree, the
+// (financial) tree and the root not-found, so it must stay a plain root layout.
+//
+// `lang`/`dir` are rendered with the DEFAULT locale only. This layout sits above
+// the [locale] segment, so it cannot read the locale param, and it must NOT call
+// next-intl's `getLocale()`/`getMessages()` here: during static generation of a
+// non-default locale (e.g. /tr, /en) that call runs before the [locale] layout's
+// `setRequestLocale`, resolves to the default, and — because next-intl memoises
+// the request config per render — pins every later `getMessages()` in that page
+// to the default too. That was the "client components and the bottom nav stay
+// Persian on /tr and /en" bug. `LocaleSync` (mounted in the [locale] providers)
+// mirrors the real locale onto <html lang/dir> on the client after hydration.
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const locale = await getLocale();
-
   return (
     <html
-      lang={locale}
-      dir={getDirection(locale as LocaleTypes)}
+      lang="fa"
+      dir="rtl"
       className={vazirmatn.variable}
       suppressHydrationWarning
     >
