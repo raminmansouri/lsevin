@@ -4846,6 +4846,8 @@ declare const messages: {
     }
   },
   "Booking": {
+    "upcoming": "داهاتوو",
+    "past": "ڕابردوو",
     "abuDhabi": "ئەبووزەبی",
     "actions": "کردارەکان",
     "active": "چالاک",
@@ -10047,6 +10049,7 @@ declare const messages: {
     }
   },
   "ServicePage": {
+    "attributeValue": { "yes": "بەڵێ", "no": "نەخێر" },
     "actions": {
       "back": "گەڕانەوە",
       "bookNow": "ئێستا حجز بکە",

@@ -4849,6 +4849,8 @@ declare const messages: {
     }
   },
   "Booking": {
+    "upcoming": "Próximas",
+    "past": "Pasadas",
     "abuDhabi": "Abu Dabi",
     "actions": "Acciones",
     "active": "Activa",
@@ -10050,6 +10052,7 @@ declare const messages: {
     }
   },
   "ServicePage": {
+    "attributeValue": { "yes": "Sí", "no": "No" },
     "actions": {
       "back": "Volver",
       "bookNow": "Reservar ahora",

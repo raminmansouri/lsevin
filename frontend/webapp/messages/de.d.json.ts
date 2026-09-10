@@ -4846,6 +4846,8 @@ declare const messages: {
     }
   },
   "Booking": {
+    "upcoming": "Anstehend",
+    "past": "Vergangen",
     "abuDhabi": "Abu Dhabi",
     "actions": "Aktionen",
     "active": "Aktiv",
@@ -10047,6 +10049,7 @@ declare const messages: {
     }
   },
   "ServicePage": {
+    "attributeValue": { "yes": "Ja", "no": "Nein" },
     "actions": {
       "back": "Zurück",
       "bookNow": "Jetzt buchen",

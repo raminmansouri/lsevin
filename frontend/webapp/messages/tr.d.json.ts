@@ -4849,6 +4849,8 @@ declare const messages: {
     }
   },
   "Booking": {
+    "upcoming": "Yaklaşan",
+    "past": "Geçmiş",
     "abuDhabi": "Abu Dabi",
     "actions": "İşlemler",
     "active": "Aktif",
@@ -10361,6 +10363,7 @@ declare const messages: {
     }
   },
   "ServicePage": {
+    "attributeValue": { "yes": "Evet", "no": "Hayır" },
     "actions": {
       "back": "Geri dön",
       "bookNow": "Hemen Randevu Al",

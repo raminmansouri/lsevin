@@ -19,6 +19,8 @@ declare const messages: {
     "searchNow": "ابحث الآن"
   },
   "Booking": {
+    "upcoming": "القادمة",
+    "past": "السابقة",
     "aDedicatedCoordinatorWillBeAssignedAfterBookingConfirmation": "dedicated منسق will be مُعيّن بعد تأكيد الحجز.",
     "aDedicatedMedicalCoordinatorWillBeAssignedToYou": "dedicated المنسق الطبي will be مُعيّن إلى أنت immediately بعد تأكيد الحجز.",
     "aED1240": "1,240 درهم",
@@ -3827,6 +3829,7 @@ declare const messages: {
     "description": "يرجى استخدم  رئيسي صفحة من  الموقع الإلكتروني."
   },
   "ServicePage": {
+    "attributeValue": { "yes": "نعم", "no": "لا" },
     "metadata": {
       "title": "تفاصيل الخدمة",
       "description": "راجع تفاصيل الخدمة ومقدميها والمتخصصين والعروض والمتطلبات وخيارات الحجز."
