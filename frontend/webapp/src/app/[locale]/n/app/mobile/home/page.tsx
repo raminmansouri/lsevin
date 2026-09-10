@@ -32,8 +32,14 @@ import { countActiveSpecialPackages } from '@/features/special-packages/server/r
 
 // Static / ISR — the landing page shell no longer reads the visitor's location
 // or profile on the server; see `Home` below.
+//
+// `next build` runs with no DB reachable, so the very first prerender of each
+// locale is baked with empty rails (see withRailRetry). A long revalidate then
+// left /en, /tr, … showing "No categories found" for up to an hour after a
+// deploy until enough traffic triggered a regen. 120s means each locale
+// self-heals within ~2 minutes of its first post-deploy visit, against live DB.
 export const dynamic = 'force-static';
-export const revalidate = 3600;
+export const revalidate = 120;
 
 async function getLocaleFromParams(params: PageProps['params']) {
   const resolved = await params;

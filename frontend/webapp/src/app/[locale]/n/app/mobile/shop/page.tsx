@@ -17,7 +17,10 @@ import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/s
  * and recently-viewed are client islands. Every read is cookie-free and cached.
  */
 export const dynamic = "force-static";
-export const revalidate = 3600;
+// 120s, not an hour: `next build` bakes this empty (no DB on the build network),
+// so a long revalidate leaves a locale's storefront near-empty until traffic
+// triggers a regen. See the identical note in n/app/mobile/home/page.tsx.
+export const revalidate = 120;
 
 // `force-static` bakes whatever this render produces into the page for the
 // full `revalidate` window (1 hour) — see the identical helper in
