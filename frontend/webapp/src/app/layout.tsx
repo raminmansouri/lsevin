@@ -1,11 +1,8 @@
-import { getLocale } from "next-intl/server";
 import localFont from "next/font/local";
 import Script from "next/script";
 
-import { getDirection } from "@/config/locales";
 import { env } from "@/config/env/client";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
-import { LocaleTypes } from "@/types/common";
 
 import "./globals.css";
 
@@ -37,21 +34,29 @@ const vazirmatn = localFont({
   preload: false,
 });
 
-// This is the single <html>/<body> for the whole app. The locale comes from the
-// next-intl middleware (available via getLocale even though this layout sits
-// above the [locale] segment), so `lang` and `dir` are set here — that makes RTL
-// apply to the real document element for Persian/Arabic/Kurdish.
-export default async function RootLayout({
+// The single <html>/<body> for the whole app — it also wraps the (financial)
+// tree and the root not-found, so it stays a plain root layout.
+//
+// It must NOT call any next-intl server API (getLocale/getMessages/...). This
+// layout renders above the [locale] segment, so during static generation of a
+// non-default locale that call runs before app/[locale]/layout.tsx's
+// setRequestLocale(), resolves to the default locale, and — because next-intl
+// memoises the request config per render — pins every later ambient
+// getTranslations()/getFormatter() on that page to the default too. That was
+// "/tr shop shows Mağaza and فروشگاه side by side": client components (their
+// provider is passed an explicit locale) rendered tr, ambient server
+// components rendered fa. `lang`/`dir` here are the default locale; LocaleSync
+// (mounted in the [locale] providers) mirrors the real locale onto <html
+// lang/dir> on the client after hydration.
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const locale = await getLocale();
-
   return (
     <html
-      lang={locale}
-      dir={getDirection(locale as LocaleTypes)}
+      lang="fa"
+      dir="rtl"
       className={vazirmatn.variable}
       suppressHydrationWarning
     >
