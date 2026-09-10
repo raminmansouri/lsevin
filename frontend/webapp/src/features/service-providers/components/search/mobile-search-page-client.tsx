@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowUpRight,
   Clock,
@@ -15,6 +16,7 @@ import { useTranslations } from "next-intl";
 
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { env } from "@/config/env/client";
+import { prefetchSearchResults } from "@/features/service-providers/api/client/fetch-search-results";
 import { useNavigate } from "@/hooks/use-navigate";
 
 import {
@@ -50,14 +52,24 @@ function resolveMediaUrl(value?: string | null) {
   return base ? `${base}/${path}` : `/${path}`;
 }
 
+// Mirrors `normalizeSearchTerm` on the server, slice included, so the term the
+// client navigates with is byte-for-byte the one the server would have handed
+// back — which is what makes it safe not to wait for that round trip.
+const SEARCH_TERM_MAX_LENGTH = 120;
+
 function normalizeTerm(value: string) {
   return value.replace(/\s+/g, " ").trim();
+}
+
+function toSearchTerm(value: string) {
+  return normalizeTerm(value).slice(0, SEARCH_TERM_MAX_LENGTH);
 }
 
 export function MobileSearchPageClient({ initialData }: MobileSearchPageClientProps) {
   const t = useTranslations("MobileSearch");
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
   const [isPending, startTransition] = useTransition();
   const [searchQuery, setSearchQuery] = useState("");
   const [recentSearches, setRecentSearches] = useState<string[]>(
@@ -110,29 +122,46 @@ export function MobileSearchPageClient({ initialData }: MobileSearchPageClientPr
     inputRef.current?.focus();
   }, []);
 
+  // Warm the results query while the visitor is still typing. The results
+  // screen reads the same react-query cache, so by the time they submit the
+  // answer is usually already there and the list paints immediately instead of
+  // opening its own round trip after mount.
+  useEffect(() => {
+    const term = toSearchTerm(searchQuery);
+    if (term.length < 2) return;
+
+    const timer = window.setTimeout(() => {
+      void prefetchSearchResults(queryClient, term);
+    }, 300);
+
+    return () => window.clearTimeout(timer);
+  }, [searchQuery, queryClient]);
+
   const goBack = () => {
     navigate(-1);
   };
 
   const navigateToResults = (query: string) => {
-    const normalized = normalizeTerm(query);
-    if (!normalized) return;
+    const nextTerm = toSearchTerm(query);
+    if (!nextTerm) return;
 
-    startTransition(async () => {
-      const result = await recordSearchTermAction({ term: normalized });
-      const nextTerm = result.ok && result.term ? result.term : normalized;
+    // Recording the term is bookkeeping — it used to sit in front of the
+    // navigation, so every search paid a full server-action round trip before
+    // the results route was even requested. Move first, record after.
+    setRecentSearches((current) =>
+      [
+        nextTerm,
+        ...current.filter(
+          (item) => item.toLocaleLowerCase() !== nextTerm.toLocaleLowerCase()
+        ),
+      ].slice(0, 8)
+    );
 
-      setRecentSearches((current) =>
-        [
-          nextTerm,
-          ...current.filter(
-            (item) => item.toLocaleLowerCase() !== nextTerm.toLocaleLowerCase()
-          ),
-        ].slice(0, 8)
-      );
-
+    startTransition(() => {
       navigate(`/n/app/mobile/search-results?q=${encodeURIComponent(nextTerm)}`);
     });
+
+    void recordSearchTermAction({ term: nextTerm }).catch(() => {});
   };
 
   const handleRemoveRecent = (term: string) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ArrowUpDown,
   BadgeCheck,
@@ -18,11 +18,6 @@ import { useTranslations } from "next-intl";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { env } from "@/config/env/client";
 import { useFetchSearchResults } from "@/features/service-providers/api/client/fetch-search-results";
-import {
-  SearchResultsCategory,
-  SearchResultsFilter,
-  SearchResultsItem,
-} from "@/features/service-providers/types";
 import { useNavigate } from "@/hooks/use-navigate";
 
 // Client view. useSearchParams() here has no <Suspense> of its own, so the
@@ -50,25 +45,20 @@ export function SearchResultsView() {
   const [sortBy, setSortBy] = useState("relevance");
   const [showFilters, setShowFilters] = useState(false);
 
-  const { data } = useFetchSearchResults(query);
+  const { data, isFetching, isPending } = useFetchSearchResults(query);
 
-  useEffect(() => {
-    // Auto-focus on mount
-    if (data?.results) setResults(data?.results);
-    if (data?.categories) setCategories(data?.categories);
-    if (data?.filters) setFilters(data?.filters);
-  }, [data]);
+  // Read straight off the query instead of mirroring it into state: the old
+  // effect copy left the list at `[]` for the whole first request (which is
+  // what rendered "no results" over every search) and then never cleared it
+  // when the term changed.
+  const results = data?.results ?? [];
+  const categories = data?.categories ?? [];
+  const filters = data?.filters ?? [];
 
-  const [results, setResults] = useState<SearchResultsItem[]>([]);
-  const [filters, setFilters] = useState<SearchResultsFilter[]>([]);
-
-  const [categories, setCategories] = useState<SearchResultsCategory[]>([
-    // { id: 'all', label: 'All Results' },
-    // { id: 'clinics', label: 'Clinics' },
-    // { id: 'treatments', label: 'Treatments' },
-    // { id: 'doctors', label: 'Doctors' },
-    // { id: 'packages', label: 'Packages' },
-  ]);
+  // Nothing has answered for this term yet — show the skeleton, never the
+  // empty state. `isFetching` alone would hide results we are already holding
+  // from the previous term while the new one loads.
+  const isSearching = isPending || (isFetching && results.length === 0);
 
   const sortOptions = [
     { value: "relevance", label: t("sort.mostRelevant") },
@@ -163,9 +153,13 @@ export function SearchResultsView() {
               <h1 className="line-clamp-1 font-bold text-gray-900">
                 "{query}"
               </h1>
-              <p className="text-sm text-gray-600">
-                {t("resultsFound", { count: results.length })}
-              </p>
+              {isSearching ? (
+                <span className="mt-1 block h-4 w-24 animate-pulse rounded bg-gray-200" />
+              ) : (
+                <p className="text-sm text-gray-600">
+                  {t("resultsFound", { count: results.length })}
+                </p>
+              )}
             </div>
           </div>
 
@@ -247,7 +241,12 @@ return  <div key={filter.id} className="flex items-center gap-1.5 rounded-full b
       </div>
 
       {/* Results */}
-      <div className="space-y-4 px-5 py-4">
+      <div
+        className={`space-y-4 px-5 py-4 transition-opacity ${
+          isFetching && !isSearching ? "opacity-60" : ""
+        }`}
+      >
+        {isSearching ? <SearchResultsSkeleton /> : null}
         {results.map((result) => {
           // Never hand next/image an empty src: fall back to the neutral
           // placeholder when the server could not resolve an image.
@@ -362,8 +361,8 @@ return  <div key={filter.id} className="flex items-center gap-1.5 rounded-full b
         })}
       </div>
 
-      {/* No Results State */}
-      {results.length === 0 && (
+      {/* No Results State — only once the search has actually answered. */}
+      {!isSearching && results.length === 0 && (
         <div className="px-5 py-16 text-center">
           <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
             <Filter size={32} className="text-gray-400" />
@@ -380,6 +379,29 @@ return  <div key={filter.id} className="flex items-center gap-1.5 rounded-full b
           </button>
         </div>
       )}
+    </div>
+  );
+}
+
+function SearchResultsSkeleton() {
+  return (
+    <div className="space-y-4" aria-hidden>
+      {Array.from({ length: 4 }).map((_, index) => (
+        <div
+          key={index}
+          className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
+        >
+          <div className="flex animate-pulse gap-4 p-4">
+            <div className="h-28 w-28 flex-shrink-0 rounded-xl bg-gray-200" />
+            <div className="min-w-0 flex-1 space-y-2 py-1">
+              <div className="h-4 w-3/4 rounded bg-gray-200" />
+              <div className="h-3 w-1/2 rounded bg-gray-200" />
+              <div className="h-3 w-2/5 rounded bg-gray-200" />
+              <div className="h-3 w-1/3 rounded bg-gray-200" />
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

@@ -1,7 +1,12 @@
 import { addAllFilterParams } from "@/lib/filter-params";
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, FilterParams } from "@/types/filter";
 import { IProblem } from "@/types/error";
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  QueryClient,
+  queryOptions,
+  useQuery,
+} from "@tanstack/react-query";
 import axios, { AxiosRequestConfig } from "axios";
 
 import { SearchResultsResponse } from "../../types";
@@ -50,10 +55,10 @@ const fetchSearchResults = async (
 const SEARCH_RESULTS_CACHE_TAG = "search-results";
 const queryKey = (term: string) => [SEARCH_RESULTS_CACHE_TAG, term] as const;
 
-export const useFetchSearchResults = (term: string) => {
+export const searchResultsQueryOptions = (term: string) => {
   const normalizedTerm = term.trim();
 
-  const options = queryOptions<SearchResultsResponse, IProblem>({
+  return queryOptions<SearchResultsResponse, IProblem>({
     queryKey: queryKey(normalizedTerm),
     queryFn: () =>
       fetchSearchResults({
@@ -68,14 +73,33 @@ export const useFetchSearchResults = (term: string) => {
     enabled: true,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
+    // Switching terms used to blank the list back to `undefined`, which is what
+    // painted the "no results" screen over every in-flight search. Holding the
+    // previous answer keeps something on screen until the new one lands.
+    placeholderData: keepPreviousData,
   });
+};
 
-  const { data, error, isFetching, refetch } = useQuery(options);
+/** Warm the cache for a term the visitor has typed but not submitted yet, so
+ *  the results screen renders from cache instead of opening its own round trip
+ *  after it mounts. */
+export const prefetchSearchResults = (queryClient: QueryClient, term: string) => {
+  const normalizedTerm = term.trim();
+  if (!normalizedTerm) return Promise.resolve();
+
+  return queryClient.prefetchQuery(searchResultsQueryOptions(normalizedTerm));
+};
+
+export const useFetchSearchResults = (term: string) => {
+  const { data, error, isFetching, isPending, refetch } = useQuery(
+    searchResultsQueryOptions(term)
+  );
 
   return {
     data,
     error,
     isFetching,
+    isPending,
     refetch,
   };
 };
