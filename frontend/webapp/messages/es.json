@@ -10049,6 +10049,7 @@
     }
   },
   "ServicePage": {
+    "attributeValue": { "yes": "Sí", "no": "No" },
     "actions": {
       "back": "Volver",
       "bookNow": "Reservar ahora",

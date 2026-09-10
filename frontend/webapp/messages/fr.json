@@ -10046,6 +10046,7 @@
     }
   },
   "ServicePage": {
+    "attributeValue": { "yes": "Oui", "no": "Non" },
     "actions": {
       "back": "Retour",
       "bookNow": "Réserver",

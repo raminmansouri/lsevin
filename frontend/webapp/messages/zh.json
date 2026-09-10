@@ -9125,6 +9125,7 @@
     }
   },
   "ServicePage": {
+    "attributeValue": { "yes": "是", "no": "否" },
     "actions": {
       "back": "返回",
       "bookNow": "立即预约",

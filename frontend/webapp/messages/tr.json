@@ -10360,6 +10360,7 @@
     }
   },
   "ServicePage": {
+    "attributeValue": { "yes": "Evet", "no": "Hayır" },
     "actions": {
       "back": "Geri dön",
       "bookNow": "Hemen Randevu Al",

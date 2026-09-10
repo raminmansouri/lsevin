@@ -10046,6 +10046,7 @@
     }
   },
   "ServicePage": {
+    "attributeValue": { "yes": "بەڵێ", "no": "نەخێر" },
     "actions": {
       "back": "گەڕانەوە",
       "bookNow": "ئێستا حجز بکە",

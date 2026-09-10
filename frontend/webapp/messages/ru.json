@@ -9125,6 +9125,7 @@
     }
   },
   "ServicePage": {
+    "attributeValue": { "yes": "Да", "no": "Нет" },
     "actions": {
       "back": "Назад",
       "bookNow": "Записаться",

@@ -69,6 +69,16 @@ function formatNumber(value: number, locale: string) {
   return new Intl.NumberFormat(locale || "en-US").format(value || 0);
 }
 
+// Boolean-typed category attributes arrive from the DB as the literal string
+// "true"/"false" (attribute_type is a free-text lookup name, so it can't be
+// relied on). Render those as a localized Yes/No instead of the raw token.
+function displayAttributeValue(value: string, t: (key: string) => string) {
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "true") return t("attributeValue.yes");
+  if (normalized === "false") return t("attributeValue.no");
+  return value;
+}
+
 function formatReviewDate(value: string, locale: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
@@ -265,7 +275,7 @@ function ServiceAttributesSection({ attributes, currency, locale }: { attributes
                 {attribute.affectsPricing && <span className="rounded-full bg-amber-50 px-2 py-1 text-[10px] font-bold text-amber-700">{t("badges.pricing")}</span>}
               </div>
             </div>
-            {attribute.value && <p className="rounded-xl bg-gray-50 px-3 py-2 text-sm font-medium text-gray-800">{attribute.value}</p>}
+            {attribute.value && <p className="rounded-xl bg-gray-50 px-3 py-2 text-sm font-medium text-gray-800">{displayAttributeValue(attribute.value, t)}</p>}
             {attribute.availableOptions.length > 0 && (
               <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
                 {attribute.availableOptions.map((option) => (
@@ -420,7 +430,7 @@ function ProviderProfileSection({ data }: { data: GetServicePageByIdResponse }) 
 
       {data.providerAttributes.length > 0 && (
         <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-          {data.providerAttributes.slice(0, 8).map((attr: ProviderAttribute) => <Chip key={attr.id}>{attr.name}: {attr.value}</Chip>)}
+          {data.providerAttributes.slice(0, 8).map((attr: ProviderAttribute) => <Chip key={attr.id}>{attr.name}: {displayAttributeValue(attr.value, t)}</Chip>)}
         </div>
       )}
     </section>
