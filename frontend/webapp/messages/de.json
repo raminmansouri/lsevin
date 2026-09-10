@@ -4843,6 +4843,8 @@
     }
   },
   "Booking": {
+    "upcoming": "Anstehend",
+    "past": "Vergangen",
     "abuDhabi": "Abu Dhabi",
     "actions": "Aktionen",
     "active": "Aktiv",

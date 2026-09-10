@@ -16,6 +16,8 @@
     "searchNow": "Search Now"
   },
   "Booking": {
+    "upcoming": "Upcoming",
+    "past": "Past",
     "aDedicatedCoordinatorWillBeAssignedAfterBookingConfirmation": "A dedicated coordinator will be assigned after booking confirmation.",
     "aDedicatedMedicalCoordinatorWillBeAssignedToYou": "A dedicated medical coordinator will be assigned to you immediately after booking confirmation.",
     "aED1240": "AED 1,240",

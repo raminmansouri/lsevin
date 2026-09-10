@@ -6234,6 +6234,8 @@
     "loadMore": "بارگذاری بیشتر"
   },
   "Booking": {
+    "upcoming": "پیش‌رو",
+    "past": "گذشته",
     "aDedicatedCoordinatorWillBeAssignedAfterBookingConfirmation": "A dedicated coordinator will be assigned after رزرو confirmation.",
     "aDedicatedMedicalCoordinatorWillBeAssignedToYou": "A dedicated پزشکی coordinator will be assigned to you immediately after رزرو confirmation.",
     "aED1240": "۱٬۲۴۰ درهم",

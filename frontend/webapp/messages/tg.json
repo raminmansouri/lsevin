@@ -1839,6 +1839,8 @@
     "commercial": "Тиҷоратӣ"
   },
   "Booking": {
+    "upcoming": "Оянда",
+    "past": "Гузашта",
     "abuDhabi": "Абу-Дабӣ",
     "actions": "Амалҳо",
     "active": "Фаъол",

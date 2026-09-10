@@ -4843,6 +4843,8 @@
     }
   },
   "Booking": {
+    "upcoming": "À venir",
+    "past": "Passées",
     "abuDhabi": "Abou Dabi",
     "actions": "Actions",
     "active": "Active",

@@ -2237,6 +2237,8 @@
     }
   },
   "Booking": {
+    "upcoming": "即将到来",
+    "past": "已过去",
     "abuDhabi": "阿布扎比",
     "actions": "操作",
     "active": "进行中",

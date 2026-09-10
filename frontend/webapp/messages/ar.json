@@ -16,6 +16,8 @@
     "searchNow": "ابحث الآن"
   },
   "Booking": {
+    "upcoming": "القادمة",
+    "past": "السابقة",
     "aDedicatedCoordinatorWillBeAssignedAfterBookingConfirmation": "dedicated منسق will be مُعيّن بعد تأكيد الحجز.",
     "aDedicatedMedicalCoordinatorWillBeAssignedToYou": "dedicated المنسق الطبي will be مُعيّن إلى أنت immediately بعد تأكيد الحجز.",
     "aED1240": "1,240 درهم",

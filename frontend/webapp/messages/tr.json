@@ -4846,6 +4846,8 @@
     }
   },
   "Booking": {
+    "upcoming": "Yaklaşan",
+    "past": "Geçmiş",
     "abuDhabi": "Abu Dabi",
     "actions": "İşlemler",
     "active": "Aktif",

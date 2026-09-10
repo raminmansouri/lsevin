@@ -58,6 +58,9 @@ export const SEGMENT_NAMESPACES = {
     "AsyncSelect",
     "Booking",
     "BottomTabBar",
+    // n/app/mobile/categories/page.tsx renders category-browser-client.tsx,
+    // a "use client" component calling useTranslations("CategoryBrowser").
+    "CategoryBrowser",
     "Consultation",
     "Explore",
     "FormBuilder",
