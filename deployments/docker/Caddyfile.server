@@ -238,11 +238,17 @@
 # - X-Forwarded-For
 #
 # Therefore, manually adding these headers is unnecessary.
-# The accounting panel. Same webapp process as appmain, but a separate product: the
+# The accounting panel. Same webapp image as appmain, but a separate product: the
 # middleware serves only /financial on this host and 404s that path on every other one,
 # and the panel authenticates against accounting.panel_users rather than the platform's
 # admin session. An admin cookie is worth nothing here, and a panel cookie is worth
 # nothing on appmain.
+#
+# It rides the same two webapp replicas as appmain (round_robin + health_uri, the
+# crm/providers/shop pattern), so it gets Jenkins' rolling deploy and the real
+# .env for free. It used to point at a bare `lsevin-webapp:3000`, which resolved
+# only to a hand-run orphan container from the pre-`-1`/`-2` compose layout —
+# stale image, no .env mount, updated by nobody.
 {$FINANCIAL_DOMAIN:financial.lsevin.com} {
     import common_headers
 
@@ -258,7 +264,15 @@
         Content-Security-Policy "default-src 'self' https: data: blob:; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; style-src 'self' https: 'unsafe-inline'; img-src 'self' https: data: blob:; font-src 'self' https: data:; connect-src 'self' https: wss:; frame-src 'self' https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
     }
 
-    reverse_proxy lsevin-webapp:3000
+    reverse_proxy lsevin-webapp-1:3000 lsevin-webapp-2:3000 {
+        lb_policy round_robin
+        health_uri /api/health
+        health_interval 5s
+        health_timeout 3s
+        fail_duration 10s
+        max_fails 1
+        lb_try_duration 5s
+    }
 }
 
 {$JENKINS_DOMAIN:devops.lsevin.com} {
