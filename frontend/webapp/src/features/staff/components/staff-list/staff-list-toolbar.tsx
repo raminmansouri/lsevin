@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Plus, Search } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
@@ -8,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from "@/i18n/navigation";
 
 export const StaffListToolbar = () => {
+  const t = useTranslations("AdminGenerated");
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -18,12 +20,12 @@ export const StaffListToolbar = () => {
         <Input
           name="search"
           defaultValue={searchParams.get("search") || ""}
-          placeholder="Search staff, title, specialty..."
+          placeholder={t("searchStaffTitleSpecialty")}
           className="pl-9"
         />
       </form>
       <Button type="button" onClick={() => router.push("/admin/staff/add")} className="bg-[#083f30] hover:bg-[#083f30]/90">
-        <Plus className="mr-2 h-4 w-4" /> Add staff
+        <Plus className="mr-2 h-4 w-4" /> {t("addStaff")}
       </Button>
     </div>
   );

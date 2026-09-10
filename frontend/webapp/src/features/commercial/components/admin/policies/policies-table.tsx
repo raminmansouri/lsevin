@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { deleteCompensationPolicyAction } from '../../../actions/admin-commercial-actions';
 
 export function PoliciesTable({ rows }: { rows: any[] }) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
 
@@ -61,7 +62,7 @@ export function PoliciesTable({ rows }: { rows: any[] }) {
               <td className="p-3 text-right">
                 <div className="flex justify-end gap-2">
                   <Button asChild size="sm" variant="outline"><Link href={`/admin/commercial/policies/${row.id}/edit`}>{tAdmin("edit")}</Link></Button>
-                  <Button size="sm" variant="ghost" disabled={isPending} onClick={() => onDelete(row.id)}>Delete</Button>
+                  <Button size="sm" variant="ghost" disabled={isPending} onClick={() => onDelete(row.id)}>{t("delete")}</Button>
                 </div>
               </td>
             </tr>

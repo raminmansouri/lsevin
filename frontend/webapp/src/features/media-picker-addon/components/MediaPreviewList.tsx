@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import React from "react";
 import { File, Film, ImageIcon, Trash2 } from "lucide-react";
 
@@ -30,10 +31,11 @@ export default function MediaPreviewList({
   onRemove?: (id: string) => void;
   compact?: boolean;
 }) {
+  const t = useTranslations("AdminGenerated");
   if (!items.length) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500">
-        No file selected.
+        {t("noFileSelected")}
       </div>
     );
   }

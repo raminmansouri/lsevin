@@ -22,6 +22,7 @@ import { ExchangeRateFormSchema } from "../../schemas/admin-currency-schemas";
 type FormInput = z.infer<typeof ExchangeRateFormSchema>;
 
 export function ExchangeRateForm({ currencies }: { currencies: Currency[] }) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -96,7 +97,7 @@ export function ExchangeRateForm({ currencies }: { currencies: Currency[] }) {
               <FormField control={form.control} name="source" render={({ field }) => (
                 <FormItem>
                   <FormLabel>{tAdmin("source")}</FormLabel>
-                  <FormControl><Input {...field} disabled={isPending} placeholder="manual_admin" /></FormControl>
+                  <FormControl><Input {...field} disabled={isPending} placeholder={t("manualAdmin")} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
@@ -117,7 +118,7 @@ export function ExchangeRateForm({ currencies }: { currencies: Currency[] }) {
 
             <div className="flex gap-3">
               <Button type="submit" disabled={isPending}>{isPending ? 'Saving...' : 'Save rate'}</Button>
-              <Button type="button" variant="outline" disabled={isPending} onClick={() => router.push('/admin/finance/exchange-rates')}>Cancel</Button>
+              <Button type="button" variant="outline" disabled={isPending} onClick={() => router.push('/admin/finance/exchange-rates')}>{t("cancel")}</Button>
             </div>
           </form>
         </Form>

@@ -181,6 +181,7 @@ function LocalizedInputBridge({
 }
 
 export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -324,7 +325,7 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
           <CardHeader className="border-b">
             <CardTitle>{isEdit ? "Edit service provider" : "Create service provider"}</CardTitle>
             <CardDescription>
-              Manage the complete provider profile directly from PostgreSQL. Image fields store the selected media URL.
+              {t("manageTheCompleteProviderProfileDirectlyFromPostgresql")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-8 pt-6">
@@ -582,7 +583,7 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
                             setCoordinatesText(`${parsed.latitude}, ${parsed.longitude}`);
                           }}
                         >
-                          Apply
+                          {t("apply")}
                         </Button>
                       </div>
                       <p className="text-xs text-muted-foreground">{tAdmin("pasteDirectlyFromGoogleMapsTheFirstNumberIsLatitudeAndTheSec3db775e6")}</p>
@@ -699,7 +700,7 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
 
         <div className="sticky bottom-4 z-20 flex justify-end gap-3 rounded-2xl border bg-background/95 p-3 shadow-lg backdrop-blur">
           <Button type="button" variant="outline" onClick={() => router.back()} disabled={isPending}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back
+            <ArrowLeft className="mr-2 h-4 w-4" /> {t("back")}
           </Button>
           <Button type="submit" disabled={isPending}>
             <Save className="mr-2 h-4 w-4" /> {isPending ? "Saving..." : "Save provider"}

@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl";
 import { useState } from 'react';
 import { ChevronDown, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -41,6 +42,7 @@ interface CountryCodeSelectorProps {
 }
 
 export function CountryCodeSelector({ value, onChange, className = '' }: CountryCodeSelectorProps) {
+  const tIntl = useTranslations("AdminGenerated");
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -111,7 +113,7 @@ export function CountryCodeSelector({ value, onChange, className = '' }: Country
                 </button>
               ))}
               {filteredCountries.length === 0 && (
-                <div className="p-4 text-center text-gray-500">No countries found</div>
+                <div className="p-4 text-center text-gray-500">{tIntl("noCountriesFound")}</div>
               )}
             </div>
           </div>

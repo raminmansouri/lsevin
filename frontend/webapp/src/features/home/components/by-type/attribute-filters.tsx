@@ -222,7 +222,7 @@ function AttributeFilterItem({
               className="text-sm"
             />
             {/* <Button size="sm" onClick={handleTextNumberSubmit}>
-              Add
+              {t("add")}
             </Button> */}
           </div>
         )}
@@ -233,7 +233,7 @@ function AttributeFilterItem({
             <DatePicker
               value={dateValue}
               onChange={setDateValue}
-              placeholder="Select date"
+              placeholder={t("selectDate")}
               className="w-full"
             />
             <Button
@@ -242,7 +242,7 @@ function AttributeFilterItem({
               disabled={!dateValue}
               className="w-full"
             >
-              Add Date Filter
+              {t("addDateFilter")}
             </Button>
           </div>
         )}

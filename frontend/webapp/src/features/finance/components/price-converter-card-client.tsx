@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from 'react';
 
 import { cn } from '@/lib/utils';

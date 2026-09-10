@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { updateProviderLedgerStatusAction } from '../../actions/admin-commercial-actions';
 
 export function ProviderLedgerTable({ rows }: { rows: any[] }) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
 
@@ -54,9 +55,9 @@ export function ProviderLedgerTable({ rows }: { rows: any[] }) {
               <td className="p-3">{row.bookingId ? <Link href={`/admin/bookings/${row.bookingId}/financial`} className="underline">{tAdmin("openFinancials")}</Link> : '—'}</td>
               <td className="p-3 text-right">
                 <div className="flex justify-end gap-2">
-                  <Button size="sm" variant="outline" disabled={isPending} onClick={() => updateStatus(row.id, 'approved')}>Approve</Button>
-                  <Button size="sm" variant="outline" disabled={isPending} onClick={() => updateStatus(row.id, 'paid')}>Mark paid</Button>
-                  <Button size="sm" variant="ghost" disabled={isPending} onClick={() => updateStatus(row.id, 'cancelled')}>Cancel</Button>
+                  <Button size="sm" variant="outline" disabled={isPending} onClick={() => updateStatus(row.id, 'approved')}>{t("approve")}</Button>
+                  <Button size="sm" variant="outline" disabled={isPending} onClick={() => updateStatus(row.id, 'paid')}>{t("markPaid")}</Button>
+                  <Button size="sm" variant="ghost" disabled={isPending} onClick={() => updateStatus(row.id, 'cancelled')}>{t("cancel")}</Button>
                 </div>
               </td>
             </tr>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { KeyboardEvent, MouseEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronsUpDown, Loader2, X } from "lucide-react";
@@ -92,6 +93,7 @@ export function LazyServiceDefinitionLookupSelect({
   allowClear = true,
   limit = 30,
 }: LazyServiceDefinitionLookupSelectProps) {
+  const t = useTranslations("AdminGenerated");
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [remoteOptions, setRemoteOptions] = useState<ServiceDefinitionLookupOption[]>([]);
@@ -209,7 +211,7 @@ export function LazyServiceDefinitionLookupSelect({
             {isLoading ? (
               <div className="text-muted-foreground flex items-center gap-2 px-3 py-6 text-sm">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Searching...
+                {t("searching")}
               </div>
             ) : null}
             {!isLoading && error ? (

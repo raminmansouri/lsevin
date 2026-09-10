@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -27,6 +28,7 @@ type Props = {
 };
 
 export function AdminDataForm({ config, row, rowId, relationOptions, mode, locale }: Props) {
+  const t = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const isEdit = mode === "update";
@@ -93,7 +95,7 @@ export function AdminDataForm({ config, row, rowId, relationOptions, mode, local
 
             <div className="flex items-center justify-end gap-3 border-t pt-6">
               <Button type="button" variant="outline" onClick={() => router.push(`/admin/platform-data/${config.schema}/${config.table}`)} disabled={isPending}>
-                Cancel
+                {t("cancel")}
               </Button>
               {!config.readOnly && (
                 <Button type="submit" disabled={isPending}>

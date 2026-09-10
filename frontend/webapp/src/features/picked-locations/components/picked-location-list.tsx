@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useOptimistic, useTransition } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { ImageIcon, MapPin, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
@@ -38,6 +39,7 @@ function coordinateLabel(latitude: number | null, longitude: number | null) {
 }
 
 function columns(onDelete: (item: PickedLocationListItem) => void): ColumnDef<PickedLocationListItem>[] {
+  const t = useTranslations("AdminGenerated");
   return [
     {
       accessorKey: "image",
@@ -99,19 +101,19 @@ function columns(onDelete: (item: PickedLocationListItem) => void): ColumnDef<Pi
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
               <MoreHorizontal className="h-4 w-4" />
-              <span className="sr-only">Open actions</span>
+              <span className="sr-only">{t("openActions")}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <Link href={`/admin/picked-locations/${row.original.id}/update`}>
               <DropdownMenuItem>
                 <Pencil className="mr-2 h-4 w-4" />
-                Edit
+                {t("edit")}
               </DropdownMenuItem>
             </Link>
             <DropdownMenuItem className="text-destructive" onClick={() => onDelete(row.original)}>
               <Trash2 className="mr-2 h-4 w-4" />
-              Delete
+              {t("delete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

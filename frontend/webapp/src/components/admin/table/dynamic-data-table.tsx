@@ -36,6 +36,7 @@ export function DynamicDataTable({
   pageCount,
   total,
 }: Props) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const tColumn = useTranslations("AdminColumn");
   const tTable = useTranslations("AdminTable");
@@ -154,7 +155,7 @@ export function DynamicDataTable({
             className="inline-flex items-center gap-2 rounded-2xl border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-100 dark:border-zinc-800 dark:hover:bg-zinc-800"
           >
             <Filter className="h-4 w-4" />
-            Apply
+            {t("apply")}
           </button>
         </div>
 
@@ -180,7 +181,7 @@ export function DynamicDataTable({
             {table.getRowModel().rows.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="px-4 py-14 text-center text-zinc-500">
-                  No records found.
+                  {t("noRecordsFound")}
                 </td>
               </tr>
             ) : (
@@ -229,14 +230,14 @@ export function DynamicDataTable({
             className="inline-flex items-center gap-2 rounded-2xl border border-zinc-200 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800"
           >
             <ChevronLeft className="h-4 w-4" />
-            Prev
+            {t("prev")}
           </button>
           <button
             disabled={page >= pageCount}
             onClick={() => updateQuery({ page: page + 1 })}
             className="inline-flex items-center gap-2 rounded-2xl border border-zinc-200 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800"
           >
-            Next
+            {t("next")}
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>

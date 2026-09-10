@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { Check, ChevronsUpDown, PlusCircle, Search, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -31,6 +32,7 @@ type Props = {
 };
 
 export function ServiceDefinitionsListToolbar({ categories }: Props) {
+  const t = useTranslations("AdminGenerated");
   const i18nRouter = useI18nRouter();
   const nextRouter = useRouter();
   const pathname = usePathname();
@@ -116,7 +118,7 @@ export function ServiceDefinitionsListToolbar({ categories }: Props) {
           <Input
             value={search}
             onChange={(event) => handleSearchChange(event.target.value)}
-            placeholder="Search service definitions, descriptions, category..."
+            placeholder={t("searchServiceDefinitionsDescriptionsCategory")}
             className="h-8 pl-9 pr-9"
           />
           {search ? (
@@ -128,7 +130,7 @@ export function ServiceDefinitionsListToolbar({ categories }: Props) {
               onClick={handleClearSearch}
             >
               <X className="h-4 w-4" />
-              <span className="sr-only">Clear search</span>
+              <span className="sr-only">{t("clearSearch")}</span>
             </Button>
           ) : null}
         </div>
@@ -145,12 +147,12 @@ export function ServiceDefinitionsListToolbar({ categories }: Props) {
           <PopoverContent className="w-[280px] p-0" align="start">
             <Command shouldFilter={false}>
               <CommandInput
-                placeholder="Search category..."
+                placeholder={t("searchCategory")}
                 value={categorySearch}
                 onValueChange={setCategorySearch}
               />
               <CommandList>
-                <CommandEmpty>No category found.</CommandEmpty>
+                <CommandEmpty>{t("noCategoryFound")}</CommandEmpty>
                 <CommandGroup>
                   {filteredCategories.map((category) => {
                     const isSelected = selectedCategoryId === category.id;
@@ -179,7 +181,7 @@ export function ServiceDefinitionsListToolbar({ categories }: Props) {
                     <CommandSeparator />
                     <CommandGroup>
                       <CommandItem onSelect={handleClearCategory} className="justify-center text-center">
-                        Clear category filter
+                        {t("clearCategoryFilter")}
                       </CommandItem>
                     </CommandGroup>
                   </>
@@ -192,7 +194,7 @@ export function ServiceDefinitionsListToolbar({ categories }: Props) {
 
       <Button onClick={() => i18nRouter.push("/admin/service-definitions/add")}>
         <PlusCircle className="mr-2 h-4 w-4" />
-        Add service definition
+        {t("addServiceDefinition")}
       </Button>
     </div>
   );

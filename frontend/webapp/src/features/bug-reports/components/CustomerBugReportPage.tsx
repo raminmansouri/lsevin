@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { AlertCircle, Bug, CheckCircle2, ChevronRight, Globe2, Loader2, Plus, Smartphone } from "lucide-react";
 import { useEffect, useMemo, useState, useTransition } from "react";
 
@@ -62,6 +63,7 @@ function detectOs() {
 }
 
 export function CustomerBugReportPage({ locale, userId, reports, defaults }: Props) {
+  const t = useTranslations("AdminGenerated");
   const copy = BUG_REPORT_COPY[normalizeBugReportLocale(locale)];
   const isRtl = normalizeBugReportLocale(locale) !== "en";
   const [files, setFiles] = useState<File[]>([]);
@@ -123,17 +125,17 @@ export function CustomerBugReportPage({ locale, userId, reports, defaults }: Pro
           <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
             <div className="max-w-2xl">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-sm backdrop-blur">
-                <Bug className="h-4 w-4 text-[#eac074]" /> LSevin QA
+                <Bug className="h-4 w-4 text-[#eac074]" /> {t("lsevinQa")}
               </div>
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{copy.pageTitle}</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-white/80 sm:text-base">{copy.pageSubtitle}</p>
             </div>
             <div className="grid grid-cols-2 gap-3 text-sm sm:min-w-[280px]">
               <div className="rounded-2xl bg-white/10 p-4 backdrop-blur">
-                <Smartphone className="mb-2 h-5 w-5 text-[#eac074]" /> Device details included
+                <Smartphone className="mb-2 h-5 w-5 text-[#eac074]" /> {t("deviceDetailsIncluded")}
               </div>
               <div className="rounded-2xl bg-white/10 p-4 backdrop-blur">
-                <Globe2 className="mb-2 h-5 w-5 text-[#eac074]" /> URL and locale captured
+                <Globe2 className="mb-2 h-5 w-5 text-[#eac074]" /> {t("urlAndLocaleCaptured")}
               </div>
             </div>
           </div>
@@ -160,7 +162,7 @@ export function CustomerBugReportPage({ locale, userId, reports, defaults }: Pro
             <div className="grid gap-4 md:grid-cols-2">
               <label className="space-y-2 md:col-span-2">
                 <span className="text-sm font-semibold text-slate-800">{copy.title}</span>
-                <input name="title" required minLength={4} maxLength={180} className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-emerald-600" placeholder="Example: Specialist does not load after selecting provider" />
+                <input name="title" required minLength={4} maxLength={180} className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-emerald-600" placeholder={t("exampleSpecialistDoesNotLoadAfterSelectingProvider")} />
               </label>
 
               <label className="space-y-2">
@@ -207,7 +209,7 @@ export function CustomerBugReportPage({ locale, userId, reports, defaults }: Pro
               <div className="flex items-center justify-between">
                 <span className="text-sm font-semibold text-slate-800">{copy.steps}</span>
                 <button type="button" onClick={() => setSteps([...steps, ""])} className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm">
-                  <Plus className="h-3.5 w-3.5" /> Add step
+                  <Plus className="h-3.5 w-3.5" /> {t("addStep")}
                 </button>
               </div>
               {steps.map((step, index) => (

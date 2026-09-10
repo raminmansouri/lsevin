@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { ArrowLeft, Bug, Loader2, MessageCircle, Paperclip, Send } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -25,6 +26,7 @@ function formatDate(value: string | null) {
 }
 
 export function CustomerBugReportDetails({ report }: Props) {
+  const t = useTranslations("AdminGenerated");
   const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
   const [body, setBody] = useState("");
@@ -59,7 +61,7 @@ export function CustomerBugReportDetails({ report }: Props) {
       <div className="mx-auto max-w-5xl space-y-5">
         <section className="rounded-[32px] bg-[#083f30] p-5 text-white shadow-xl sm:p-7">
           <Link href="/n/app/mobile/bug-reports" className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-white/80 hover:text-white">
-            <ArrowLeft className="h-4 w-4" /> Back to reports
+            <ArrowLeft className="h-4 w-4" /> {t("backToReports")}
           </Link>
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold">{report.reportNumber}</span>
@@ -74,13 +76,13 @@ export function CustomerBugReportDetails({ report }: Props) {
         {error ? <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</div> : null}
 
         <section className="rounded-[32px] border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-3 flex items-center gap-2 text-lg font-black"><Bug className="h-5 w-5 text-emerald-700" /> Your report</h2>
+          <h2 className="mb-3 flex items-center gap-2 text-lg font-black"><Bug className="h-5 w-5 text-emerald-700" /> {t("yourReport")}</h2>
           <p className="whitespace-pre-wrap text-sm leading-6 text-slate-700">{report.description}</p>
           <BugReportAttachmentGrid attachments={report.media} imageClassName="h-32" />
         </section>
 
         <section className="rounded-[32px] border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-black"><MessageCircle className="h-5 w-5 text-emerald-700" /> Conversation</h2>
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-black"><MessageCircle className="h-5 w-5 text-emerald-700" /> {t("conversation")}</h2>
           <div className="space-y-4">
             {report.messages.map((msg) => {
               const isMine = msg.senderType === "customer" && (!report.currentViewerUserId || !msg.senderUserId || msg.senderUserId === report.currentViewerUserId);
@@ -107,8 +109,8 @@ export function CustomerBugReportDetails({ report }: Props) {
         <BugReportUpdateTimeline updates={report.updates} title="Updates from support" />
 
         <section className="rounded-[32px] border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-black"><Paperclip className="h-5 w-5 text-emerald-700" /> Add more information</h2>
-          <textarea value={body} onChange={(event) => setBody(event.target.value)} rows={5} className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-emerald-600" placeholder="Add details requested by support, or explain what changed..." />
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-black"><Paperclip className="h-5 w-5 text-emerald-700" /> {t("addMoreInformation")}</h2>
+          <textarea value={body} onChange={(event) => setBody(event.target.value)} rows={5} className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-emerald-600" placeholder={t("addDetailsRequestedBySupportOrExplainWhat")} />
           <div className="mt-4">
             <ScreenshotPasteDropzone files={files} onFilesChange={setFiles} label="Attach screenshots/files" hint="Paste screenshot, drag files, or choose attachments." />
           </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { Check, ChevronsUpDown, Loader2, X } from "lucide-react";
@@ -125,6 +126,7 @@ function buildLookupUrl({
 }
 
 function OptionContent({ option, selected }: { option: StaffLookupOption; selected: boolean }) {
+  const t = useTranslations("AdminGenerated");
   return (
     <>
       <Check className={cn("mr-2 h-4 w-4", selected ? "opacity-100" : "opacity-0")} />
@@ -133,7 +135,7 @@ function OptionContent({ option, selected }: { option: StaffLookupOption; select
         <div className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
           {option.description ? <span className="truncate">{option.description}</span> : null}
           {option.code ? <span className="shrink-0 rounded bg-muted px-1.5 py-0.5">{option.code}</span> : null}
-          {option.isActive === false ? <span className="shrink-0 text-amber-600">Inactive</span> : null}
+          {option.isActive === false ? <span className="shrink-0 text-amber-600">{t("inactive")}</span> : null}
         </div>
       </div>
     </>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save } from "lucide-react";
@@ -31,6 +32,7 @@ function normalizeLocalized(value: unknown) {
 }
 
 export function ProviderPolicyTypeForm({ item }: { item?: ProviderPolicyType }) {
+  const t = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const isEdit = !!item;
@@ -70,14 +72,14 @@ export function ProviderPolicyTypeForm({ item }: { item?: ProviderPolicyType }) 
           {isEdit && <input type="hidden" {...form.register("id")} />}
           <FormField control={form.control} name="code" render={({ field }) => (
             <FormItem>
-              <FormLabel>Code</FormLabel>
-              <FormControl><Input {...field} placeholder="cancellation" /></FormControl>
+              <FormLabel>{t("code")}</FormLabel>
+              <FormControl><Input {...field} placeholder={t("cancellation")} /></FormControl>
               <FormMessage />
             </FormItem>
           )} />
           <FormField control={form.control} name="displayOrder" render={({ field }) => (
             <FormItem>
-              <FormLabel>Display order</FormLabel>
+              <FormLabel>{t("displayOrder")}</FormLabel>
               <FormControl><Input type="number" min={0} {...field} /></FormControl>
               <FormMessage />
             </FormItem>
@@ -96,12 +98,12 @@ export function ProviderPolicyTypeForm({ item }: { item?: ProviderPolicyType }) 
           )} />
           <FormField control={form.control} name="isActive" render={({ field }) => (
             <FormItem className="flex items-center justify-between rounded-2xl border bg-gray-50 p-4 md:col-span-2">
-              <div><FormLabel>Active</FormLabel><p className="text-sm text-muted-foreground">Inactive types stay in the database but are hidden from active selection flows.</p></div>
+              <div><FormLabel>{t("active")}</FormLabel><p className="text-sm text-muted-foreground">{t("inactiveTypesStayInTheDatabaseButAre")}</p></div>
               <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
             </FormItem>
           )} />
           <div className="flex justify-end gap-2 md:col-span-2">
-            <Button type="button" variant="outline" onClick={() => router.push("/admin/provider-policy-types")} disabled={isPending}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => router.push("/admin/provider-policy-types")} disabled={isPending}>{t("cancel")}</Button>
             <Button type="submit" disabled={isPending} className="bg-[#083f30] hover:bg-[#083f30]/90"><Save className="mr-2 h-4 w-4" />{isPending ? "Saving..." : isEdit ? "Update type" : "Create type"}</Button>
           </div>
         </form>

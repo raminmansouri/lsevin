@@ -106,6 +106,7 @@ export function ProviderImageGallery({
   serviceProviderId: string;
   items: AdminProviderGalleryItem[];
 }) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
   const [orderedItems, setOrderedItems] = useState(items);
@@ -141,8 +142,7 @@ export function ProviderImageGallery({
         <div>
           <div className="text-sm font-medium">{tAdmin("mediaGallery")}</div>
           <p className="text-sm text-muted-foreground">
-            Pick several images at once. They are stored in
-            category.provider_gallery_items and shown on the provider page.
+            {t("pickSeveralImagesAtOnceTheyAreStored")}
           </p>
         </div>
         <ProviderGalleryPickerButton serviceProviderId={serviceProviderId} />

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Clock, ImageIcon, MoreHorizontal, Pencil, PlayCircle, Settings2, Trash2 } from "lucide-react";
@@ -50,6 +51,8 @@ function compactText(value: string | null | undefined, max = 140) {
 const getColumns = (
   onDelete: (item: AdminServiceDefinitionListItem) => void,
   isPending: boolean,
+  // The cells are render callbacks, so t is handed in from the component.
+  t: (key: string) => string,
 ): ColumnDef<AdminServiceDefinitionListItem>[] => [
   {
     accessorKey: "name",
@@ -137,12 +140,12 @@ const getColumns = (
         <DropdownMenuContent align="end">
           <Link href={`/admin/service-definitions/${row.original.id}/update`}>
             <DropdownMenuItem>
-              <Pencil className="mr-2 h-4 w-4" /> Edit
+              <Pencil className="mr-2 h-4 w-4" /> {t("edit")}
             </DropdownMenuItem>
           </Link>
           <Link href={`/admin/service-definitions-new/${row.original.id}/addon-provider-types`}>
             <DropdownMenuItem>
-              <Settings2 className="mr-2 h-4 w-4" /> Add-on provider types
+              <Settings2 className="mr-2 h-4 w-4" /> {t("addOnProviderTypes")}
             </DropdownMenuItem>
           </Link>
           <DropdownMenuItem
@@ -150,7 +153,7 @@ const getColumns = (
             disabled={isPending}
             onClick={() => onDelete(row.original)}
           >
-            <Trash2 className="mr-2 h-4 w-4" /> Remove
+            <Trash2 className="mr-2 h-4 w-4" /> {t("remove")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -159,6 +162,7 @@ const getColumns = (
 ];
 
 export function ServiceDefinitionsAdminList({ items, pagination, categories }: Props) {
+  const t = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [rows, setRows] = useState(items);
@@ -204,7 +208,7 @@ export function ServiceDefinitionsAdminList({ items, pagination, categories }: P
 
   return (
     <>
-      <DataTable columns={getColumns(handleDelete, isPending)} data={rows} pagination={pagination}>
+      <DataTable columns={getColumns(handleDelete, isPending, t)} data={rows} pagination={pagination}>
         <ServiceDefinitionsListToolbar categories={categories} />
       </DataTable>
       <DeleteConfirmDialog />

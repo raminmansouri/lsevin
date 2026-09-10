@@ -34,6 +34,7 @@ export function CompensationPolicyForm({
   policy?: CompensationPolicy | null;
   lookups: CommercialPolicyLookups;
 }) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -464,7 +465,7 @@ export function CompensationPolicyForm({
                 {policy ? 'Save changes' : 'Create policy'}
               </Button>
               <Button type="button" variant="outline" onClick={() => router.push('/admin/commercial/policies')}>
-                Cancel
+                {t("cancel")}
               </Button>
             </div>
           </form>

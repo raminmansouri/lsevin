@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { CheckCircle2, Info, MessageCircle, UserRound } from "lucide-react";
 
 import { BugReportUpdate } from "../types";
@@ -29,6 +30,7 @@ export function BugReportUpdateTimeline({
   title?: string;
   emptyText?: string;
 }) {
+  const t = useTranslations("AdminGenerated");
   return (
     <section className="rounded-[32px] border border-slate-200 bg-white p-5 shadow-sm">
       <h2 className="mb-4 text-lg font-black">{title}</h2>
@@ -50,7 +52,7 @@ export function BugReportUpdateTimeline({
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500">
                   <span>By {update.actor.displayName}</span>
                   <span className="rounded-full bg-white px-2 py-0.5 text-slate-500">{update.actor.role}</span>
-                  {update.isInternal ? <span className="rounded-full bg-amber-100 px-2 py-0.5 text-amber-700">internal</span> : null}
+                  {update.isInternal ? <span className="rounded-full bg-amber-100 px-2 py-0.5 text-amber-700">{t("internal")}</span> : null}
                 </div>
               </div>
             </div>

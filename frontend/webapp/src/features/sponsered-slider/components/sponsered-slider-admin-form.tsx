@@ -133,6 +133,7 @@ function serverFieldErrorsToMessages(fieldErrors?: Record<string, string[]>) {
 }
 
 export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderAdminRow | null }) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -201,14 +202,14 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
           <Button asChild variant="ghost" className="mb-2 -ml-3 gap-2">
             <Link href="/admin/sponsored-slider">
               <ArrowLeft className="h-4 w-4" />
-              Back to sliders
+              {t("backToSliders")}
             </Link>
           </Button>
           <h1 className="text-2xl font-bold tracking-tight text-slate-950">
             {slider ? "Edit sponsored slider" : "Create sponsored slider"}
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Manage every visible frontend text: eyebrow, title, subtitle, description, badge, and CTA labels.
+            {t("manageEveryVisibleFrontendTextEyebrowTitleSubtitle")}
           </p>
         </div>
       </div>
@@ -271,7 +272,7 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
                   <FormItem>
                     <FormLabel>{tAdmin("directMediaURLFallback")}</FormLabel>
                     <FormControl>
-                      <Input {...field} value={field.value || ""} disabled={isPending} placeholder="https://..." />
+                      <Input {...field} value={field.value || ""} disabled={isPending} placeholder={t("https")} />
                     </FormControl>
                     <FormDescription>{tAdmin("usedOnlyWhenNoMediaLibraryItemIsSelected")}</FormDescription>
                     <FormMessage />
@@ -504,7 +505,7 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
             </Button>
             <Button type="submit" disabled={isPending} className="gap-2">
               <Save className="h-4 w-4" />
-              Save slider
+              {t("saveSlider")}
             </Button>
           </div>
         </form>

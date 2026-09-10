@@ -20,6 +20,7 @@ import type { Currency } from '../../types';
 type FormInput = CurrencyFormInput;
 
 export function CurrencyForm({ currency }: { currency?: Currency }) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -128,7 +129,7 @@ export function CurrencyForm({ currency }: { currency?: Currency }) {
 
             <div className="flex gap-3">
               <Button type="submit" disabled={isPending}>{isPending ? 'Saving...' : 'Save currency'}</Button>
-              <Button type="button" variant="outline" disabled={isPending} onClick={() => router.push('/admin/finance/currencies')}>Cancel</Button>
+              <Button type="button" variant="outline" disabled={isPending} onClick={() => router.push('/admin/finance/currencies')}>{t("cancel")}</Button>
             </div>
           </form>
         </Form>

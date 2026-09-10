@@ -23,6 +23,7 @@ import { HomeSectionFormSchema, type HomeSectionFormInput } from '../actions/sch
 import type { AdminHomeSection } from '../types';
 
 export function HomeSectionForm({ section }: { section: AdminHomeSection }) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -78,7 +79,7 @@ export function HomeSectionForm({ section }: { section: AdminHomeSection }) {
       <CardHeader>
         <CardTitle>{tAdmin("editHomeSection")}</CardTitle>
         <CardDescription>
-          Manage the text, media, link, and active state for <span className="font-mono">{section.sectionKey}</span>.
+          {t("manageTheTextMediaLinkAndActiveState")} <span className="font-mono">{section.sectionKey}</span>.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -250,7 +251,7 @@ export function HomeSectionForm({ section }: { section: AdminHomeSection }) {
 
             <div className="flex gap-3 pt-2">
               <Button type="submit" disabled={isPending}>{isPending ? 'Saving...' : 'Save section'}</Button>
-              <Button type="button" variant="outline" disabled={isPending} onClick={() => router.push('/admin/home-sections')}>Cancel</Button>
+              <Button type="button" variant="outline" disabled={isPending} onClick={() => router.push('/admin/home-sections')}>{t("cancel")}</Button>
             </div>
           </form>
         </Form>

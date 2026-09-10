@@ -40,6 +40,7 @@ const schema = z.object({
 type Values = z.infer<typeof schema>;
 
 export function IdentityUserForm({ user }: { user?: any }) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -110,13 +111,13 @@ export function IdentityUserForm({ user }: { user?: any }) {
             )} />
             <FormField control={form.control} name="twoFactorEnabled" render={({ field }) => (
               <FormItem className="flex items-center justify-between rounded-md border p-3">
-                <div className="space-y-0.5"><FormLabel>احراز دومرحله‌ای</FormLabel><FormDescription className="text-xs">2FA فعال باشد</FormDescription></div>
+                <div className="space-y-0.5"><FormLabel>احراز دومرحله‌ای</FormLabel><FormDescription className="text-xs">{t("n2fa")}</FormDescription></div>
                 <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} disabled={isPending} /></FormControl>
               </FormItem>
             )} />
           </div>
 
-          <div className="flex gap-3"><Button type="submit" disabled={isPending}>{isPending ? 'Saving...' : 'Save user'}</Button><Button type="button" variant="outline" onClick={() => router.push('/admin/identity-users')} disabled={isPending}>Cancel</Button></div>
+          <div className="flex gap-3"><Button type="submit" disabled={isPending}>{isPending ? 'Saving...' : 'Save user'}</Button><Button type="button" variant="outline" onClick={() => router.push('/admin/identity-users')} disabled={isPending}>{t("cancel")}</Button></div>
         </form>
       </Form>
     </CardContent>

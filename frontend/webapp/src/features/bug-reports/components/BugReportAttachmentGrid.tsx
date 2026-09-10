@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { ExternalLink, FileText, Maximize2, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -28,6 +29,7 @@ function openOriginal(url: string) {
 }
 
 export function BugReportAttachmentGrid({ attachments, imageClassName = "h-36" }: Props) {
+  const t = useTranslations("AdminGenerated");
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const activeAttachment = activeIndex === null ? null : attachments[activeIndex] ?? null;
   const activeUrl = useMemo(
@@ -78,7 +80,7 @@ export function BugReportAttachmentGrid({ attachments, imageClassName = "h-36" }
                   onClick={() => openOriginal(url)}
                   className="shrink-0 rounded-full border border-slate-200 px-2 py-1 text-[11px] font-semibold text-slate-600 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
                 >
-                  Open
+                  {t("open")}
                 </button>
               </div>
               {formatSize(attachment.fileSize) ? (
@@ -110,7 +112,7 @@ export function BugReportAttachmentGrid({ attachments, imageClassName = "h-36" }
                   className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
                 >
                   <ExternalLink className="h-4 w-4" />
-                  Open original
+                  {t("openOriginal")}
                 </button>
                 <button
                   type="button"

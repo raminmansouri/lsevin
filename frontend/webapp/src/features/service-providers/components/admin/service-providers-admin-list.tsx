@@ -39,6 +39,7 @@ function formatDate(value?: string | null) {
 }
 
 function columns(onDelete: (item: AdminServiceProviderListItem) => void): ColumnDef<AdminServiceProviderListItem>[] {
+  const t = useTranslations("AdminGenerated");
   return [
     {
       accessorKey: "name",
@@ -71,7 +72,7 @@ function columns(onDelete: (item: AdminServiceProviderListItem) => void): Column
       cell: ({ row }) => (
         <div className="flex flex-wrap gap-1">
           <Badge variant={row.original.isActive ? "default" : "secondary"}>{row.original.isActive ? "Active" : "Inactive"}</Badge>
-          {row.original.accredited ? <Badge variant="outline">Accredited</Badge> : null}
+          {row.original.accredited ? <Badge variant="outline">{t("accredited")}</Badge> : null}
           {row.original.isSponsored ? <Badge>{row.original.sponsoredTag || "Sponsored"}</Badge> : null}
         </div>
       ),
@@ -111,9 +112,9 @@ function columns(onDelete: (item: AdminServiceProviderListItem) => void): Column
             <Button variant="ghost" className="h-8 w-8 p-0"><MoreHorizontal className="h-4 w-4" /></Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <Link href={`/admin/service-providers/${row.original.id}/details`}><DropdownMenuItem><Eye className="mr-2 h-4 w-4" /> Details</DropdownMenuItem></Link>
-            <Link href={`/admin/service-providers/${row.original.id}/update`}><DropdownMenuItem><Pencil className="mr-2 h-4 w-4" /> Edit</DropdownMenuItem></Link>
-            <DropdownMenuItem className="text-destructive" onClick={() => onDelete(row.original)}><Trash2 className="mr-2 h-4 w-4" /> Delete</DropdownMenuItem>
+            <Link href={`/admin/service-providers/${row.original.id}/details`}><DropdownMenuItem><Eye className="mr-2 h-4 w-4" /> {t("details")}</DropdownMenuItem></Link>
+            <Link href={`/admin/service-providers/${row.original.id}/update`}><DropdownMenuItem><Pencil className="mr-2 h-4 w-4" /> {t("edit")}</DropdownMenuItem></Link>
+            <DropdownMenuItem className="text-destructive" onClick={() => onDelete(row.original)}><Trash2 className="mr-2 h-4 w-4" /> {t("delete")}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),

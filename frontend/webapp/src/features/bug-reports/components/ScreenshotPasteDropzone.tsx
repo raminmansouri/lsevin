@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Clipboard, FileImage, Trash2, UploadCloud } from "lucide-react";
 import { ChangeEvent, DragEvent, useEffect, useMemo, useRef, useState } from "react";
 
@@ -29,6 +30,7 @@ function isImage(file: File) {
 }
 
 export function ScreenshotPasteDropzone({ files, onFilesChange, label, hint }: Props) {
+  const t = useTranslations("AdminGenerated");
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const previews = useMemo(
@@ -68,7 +70,7 @@ export function ScreenshotPasteDropzone({ files, onFilesChange, label, hint }: P
           onClick={() => inputRef.current?.click()}
           className="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
         >
-          Choose files
+          {t("chooseFiles")}
         </button>
       </div>
 
@@ -106,7 +108,7 @@ export function ScreenshotPasteDropzone({ files, onFilesChange, label, hint }: P
         </div>
         <p className="text-sm font-medium text-slate-800">{hint}</p>
         <p className="mt-1 flex items-center justify-center gap-1 text-xs text-slate-500">
-          <Clipboard className="h-3.5 w-3.5" /> Ctrl/⌘ + V works after clicking this box. Max 8 files, 15MB each.
+          <Clipboard className="h-3.5 w-3.5" /> {t("ctrlVWorksAfterClickingThisBoxMax")}
         </p>
       </div>
 

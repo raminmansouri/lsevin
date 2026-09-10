@@ -20,6 +20,7 @@ type Draft = { id?: string; name: string; color: string; isActive: boolean };
 const emptyDraft: Draft = { name: "", color: "#083f30", isActive: true };
 
 export function SupportTagsManager({ tags }: Props) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const [items, setItems] = useState(tags);
   const [draft, setDraft] = useState<Draft>(emptyDraft);
@@ -59,7 +60,7 @@ export function SupportTagsManager({ tags }: Props) {
         <CardHeader><CardTitle>{draft.id ? tAdmin("editTag") : tAdmin("newTag")}</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <Input value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} placeholder={tAdmin("tagName")} />
-          <Input value={draft.color} onChange={(event) => setDraft((current) => ({ ...current, color: event.target.value }))} placeholder="#083f30" />
+          <Input value={draft.color} onChange={(event) => setDraft((current) => ({ ...current, color: event.target.value }))} placeholder={t("n083f30")} />
           <div className="flex items-center justify-between rounded-2xl border bg-slate-50 p-4">
             <span className="text-sm font-medium">{tAdmin("active")}</span>
             <Switch checked={draft.isActive} onCheckedChange={(checked) => setDraft((current) => ({ ...current, isActive: checked }))} />

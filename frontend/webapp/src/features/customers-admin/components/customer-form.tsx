@@ -34,6 +34,7 @@ const schema = z.object({
 type Values = z.infer<typeof schema>;
 
 export function CustomerForm({ customer }: { customer?: any }) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -70,7 +71,7 @@ export function CustomerForm({ customer }: { customer?: any }) {
             <FormField control={form.control} name="country" render={({ field }) => <FormItem><FormLabel>{tAdmin("country")}</FormLabel><FormControl><Input {...field} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
           </div>
           <RHFSingleMediaPickerField control={form.control} name="profileImageUrl" label={tAdmin("profileImage")} placeholder={tAdmin("pickImage")} mediaType="image" helperText="Stores one media id in a hidden input." modalTitle="Pick profile image" />
-          <div className="flex gap-3"><Button type="submit" disabled={isPending}>{isPending ? 'Saving...' : 'Save customer'}</Button><Button type="button" variant="outline" onClick={() => router.push('/admin/customers')} disabled={isPending}>Cancel</Button></div>
+          <div className="flex gap-3"><Button type="submit" disabled={isPending}>{isPending ? 'Saving...' : 'Save customer'}</Button><Button type="button" variant="outline" onClick={() => router.push('/admin/customers')} disabled={isPending}>{t("cancel")}</Button></div>
         </form>
       </Form>
     </CardContent>

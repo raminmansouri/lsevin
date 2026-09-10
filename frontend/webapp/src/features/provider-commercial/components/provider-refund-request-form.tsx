@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from "next-intl";
 import { useMemo, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { createProviderRefundRequestAction } from '../actions/provider-refund-actions';
 
 export function ProviderRefundRequestForm({ providerId, bookingId, paymentId, chargeLines }: { providerId: string; bookingId: string; paymentId?: string | null; chargeLines: any[]; }) {
+  const t = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
   const [reason, setReason] = useState('');
   const [providerNote, setProviderNote] = useState('');
@@ -20,10 +22,10 @@ export function ProviderRefundRequestForm({ providerId, bookingId, paymentId, ch
 
   return (
     <Card>
-      <CardHeader><CardTitle>Request refund review</CardTitle></CardHeader>
+      <CardHeader><CardTitle>{t("requestRefundReview")}</CardTitle></CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2 rounded-xl border p-4">
-          <div className="font-medium">Select provider lines to refund</div>
+          <div className="font-medium">{t("selectProviderLinesToRefund")}</div>
           {chargeLines.map((line) => {
             const checked = selected.includes(line.id);
             return (
@@ -49,13 +51,13 @@ export function ProviderRefundRequestForm({ providerId, bookingId, paymentId, ch
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-md border p-3 text-sm">
-            <div className="text-muted-foreground">Selected amount</div>
+            <div className="text-muted-foreground">{t("selectedAmount")}</div>
             <div className="font-semibold">{totalSelected.toFixed(2)}</div>
           </div>
-          <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Reason for refund review" />
+          <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder={t("reasonForRefundReview")} />
         </div>
 
-        <Textarea value={providerNote} onChange={(e) => setProviderNote(e.target.value)} rows={3} placeholder="Provider note for admin review" />
+        <Textarea value={providerNote} onChange={(e) => setProviderNote(e.target.value)} rows={3} placeholder={t("providerNoteForAdminReview")} />
 
         <Button
           type="button"

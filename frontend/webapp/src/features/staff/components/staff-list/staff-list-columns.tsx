@@ -24,7 +24,10 @@ function mediaUrl(value?: string | null) {
 export const getStaffListColumns = (
   handleEdit: (staff: Staff) => void,
   handleDelete: (staff: Staff) => void,
-  handleToggle: (staff: Staff) => void
+  handleToggle: (staff: Staff) => void,
+  // Passed in rather than read here: the cells below are render callbacks, so a
+  // hook call inside them would run outside the component's render.
+  t: (key: string) => string
 ): ColumnDef<Staff>[] => [
   {
     accessorKey: "name",
@@ -107,14 +110,14 @@ export const getStaffListColumns = (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
+              <span className="sr-only">{t("openMenu")}</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleEdit(staff)}>Edit full profile</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleEdit(staff)}>{t("editFullProfile")}</DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleToggle(staff)}>{staff.isActive ? "Deactivate" : "Activate"}</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleDelete(staff)} className="text-destructive">Delete</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleDelete(staff)} className="text-destructive">{t("delete")}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

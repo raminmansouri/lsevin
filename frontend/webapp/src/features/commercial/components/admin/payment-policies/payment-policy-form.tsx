@@ -36,6 +36,7 @@ export function BookingPaymentPolicyForm({
   policy?: BookingPaymentPolicyRecord | null;
   lookups: CommercialPolicyLookups;
 }) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -485,7 +486,7 @@ export function BookingPaymentPolicyForm({
                 {policy ? 'Save changes' : 'Create policy'}
               </Button>
               <Button type="button" variant="outline" onClick={() => router.push('/admin/commercial/payment-policies')}>
-                Cancel
+                {t("cancel")}
               </Button>
             </div>
           </form>

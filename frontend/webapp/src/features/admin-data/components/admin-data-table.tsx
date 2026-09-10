@@ -55,6 +55,7 @@ function badge(value: unknown) {
 }
 
 export function AdminDataTable({ config, result, search, locale }: Props) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const pathname = usePathname();
@@ -94,7 +95,7 @@ export function AdminDataTable({ config, result, search, locale }: Props) {
           {!config.readOnly && (
             <Button asChild>
               <Link href={`/admin/platform-data/${config.schema}/${config.table}/new`}>
-                <Plus className="mr-2 h-4 w-4" /> New record
+                <Plus className="mr-2 h-4 w-4" /> {t("newRecord")}
               </Link>
             </Button>
           )}
@@ -133,12 +134,12 @@ export function AdminDataTable({ config, result, search, locale }: Props) {
                       <div className="flex justify-end gap-2">
                         <Button asChild size="sm" variant="outline">
                           <Link href={`/admin/platform-data/${config.schema}/${config.table}/${rowId}/edit`}>
-                            <Edit className="mr-1 h-3.5 w-3.5" /> View/Edit
+                            <Edit className="mr-1 h-3.5 w-3.5" /> {t("viewEdit")}
                           </Link>
                         </Button>
                         {!config.readOnly && (
                           <Button size="sm" variant="destructive" disabled={isPending} onClick={() => handleDelete(row)}>
-                            <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
+                            <Trash2 className="mr-1 h-3.5 w-3.5" /> {t("delete")}
                           </Button>
                         )}
                       </div>
@@ -158,8 +159,8 @@ export function AdminDataTable({ config, result, search, locale }: Props) {
         <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
           <span>{result.total} records · page {result.page} of {result.pageCount}</span>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" disabled={result.page <= 1} onClick={() => router.push(`${pathname}?page=${result.page - 1}${search ? `&q=${encodeURIComponent(search)}` : ""}`)}>Previous</Button>
-            <Button variant="outline" size="sm" disabled={result.page >= result.pageCount} onClick={() => router.push(`${pathname}?page=${result.page + 1}${search ? `&q=${encodeURIComponent(search)}` : ""}`)}>Next</Button>
+            <Button variant="outline" size="sm" disabled={result.page <= 1} onClick={() => router.push(`${pathname}?page=${result.page - 1}${search ? `&q=${encodeURIComponent(search)}` : ""}`)}>{t("previous")}</Button>
+            <Button variant="outline" size="sm" disabled={result.page >= result.pageCount} onClick={() => router.push(`${pathname}?page=${result.page + 1}${search ? `&q=${encodeURIComponent(search)}` : ""}`)}>{t("next")}</Button>
           </div>
         </div>
       </CardContent>

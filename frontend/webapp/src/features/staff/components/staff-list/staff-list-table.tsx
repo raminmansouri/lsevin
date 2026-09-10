@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useOptimistic, useTransition } from "react";
 import { toast } from "sonner";
 
@@ -67,7 +68,8 @@ const StaffListTable = ({ items, pagination }: Props) => {
     await executeToggle({ staffId: staff.id, isActive: !staff.isActive });
   };
 
-  const columns = getStaffListColumns(handleEdit, handleDelete, handleToggle);
+  const t = useTranslations("AdminGenerated");
+  const columns = getStaffListColumns(handleEdit, handleDelete, handleToggle, t);
 
   return (
     <>

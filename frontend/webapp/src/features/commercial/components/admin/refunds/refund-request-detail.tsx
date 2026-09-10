@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { approveRefundRequestAction, executeRefundRequestAction, rejectRefundRequestAction } from '../../../actions/admin-commercial-actions';
 
 export function RefundRequestDetail({ data }: { data: any }) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
   const request = data.request;
@@ -33,9 +34,9 @@ export function RefundRequestDetail({ data }: { data: any }) {
             <p className="text-sm text-muted-foreground">Booking {request.booking_id}</p>
           </div>
           <div className="flex gap-2">
-            {request.status === 'requested' && <Button disabled={isPending} onClick={() => run(() => approveRefundRequestAction(request.id), 'Refund request approved.')}>Approve</Button>}
-            {(request.status === 'requested' || request.status === 'approved') && <Button variant="outline" disabled={isPending} onClick={() => run(() => rejectRefundRequestAction(request.id), 'Refund request rejected.')}>Reject</Button>}
-            {request.status === 'approved' && <Button variant="secondary" disabled={isPending} onClick={() => run(() => executeRefundRequestAction(request.id), 'Refund executed.')}>Execute</Button>}
+            {request.status === 'requested' && <Button disabled={isPending} onClick={() => run(() => approveRefundRequestAction(request.id), 'Refund request approved.')}>{t("approve")}</Button>}
+            {(request.status === 'requested' || request.status === 'approved') && <Button variant="outline" disabled={isPending} onClick={() => run(() => rejectRefundRequestAction(request.id), 'Refund request rejected.')}>{t("reject")}</Button>}
+            {request.status === 'approved' && <Button variant="secondary" disabled={isPending} onClick={() => run(() => executeRefundRequestAction(request.id), 'Refund executed.')}>{t("execute")}</Button>}
           </div>
         </div>
         <div className="grid gap-4 text-sm md:grid-cols-2 xl:grid-cols-4">
