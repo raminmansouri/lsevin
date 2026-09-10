@@ -14,8 +14,17 @@ export const dynamic = 'force-static';
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  const ids = await listActiveSpecialPackageIds(300);
-  return ids.map((packageId) => ({ packageId }));
+  // The DB (pgbouncer) is not reachable from the Docker build network, so a
+  // build-time query throws ENOTFOUND. Every sibling route (provider, service,
+  // specialist, shop/*) already swallows that and returns no prewarmed params;
+  // this one did not, which failed the whole `next build`. Unknown ids are
+  // ISR'd on first request regardless.
+  try {
+    const ids = await listActiveSpecialPackageIds(300);
+    return ids.map((packageId) => ({ packageId }));
+  } catch {
+    return [];
+  }
 }
 
 async function getLocaleFromParams(params: PageProps['params']) {
