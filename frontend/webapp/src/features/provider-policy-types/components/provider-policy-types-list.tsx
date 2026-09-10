@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useTransition } from "react";
 import { Edit, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -15,6 +16,7 @@ import { deleteProviderPolicyTypeAction } from "../actions/delete-provider-polic
 import type { ProviderPolicyType } from "../types";
 
 export function ProviderPolicyTypesList({ items }: { items: ProviderPolicyType[] }) {
+  const t = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
   const { execute: toggleStatus } = useAction(changeProviderPolicyTypeActivationAction, {
     startTransition,
@@ -30,23 +32,23 @@ export function ProviderPolicyTypesList({ items }: { items: ProviderPolicyType[]
   return (
     <CardContent className="space-y-4 p-6">
       <div className="flex justify-end">
-        <Button asChild className="bg-[#083f30] hover:bg-[#083f30]/90"><Link href="/admin/provider-policy-types/add"><Plus className="mr-2 h-4 w-4" />Add policy type</Link></Button>
+        <Button asChild className="bg-[#083f30] hover:bg-[#083f30]/90"><Link href="/admin/provider-policy-types/add"><Plus className="mr-2 h-4 w-4" />{t("addPolicyType")}</Link></Button>
       </div>
       <div className="overflow-hidden rounded-2xl border">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left">
             <tr>
-              <th className="p-3">Code</th>
-              <th className="p-3">Name</th>
-              <th className="p-3">Policies</th>
-              <th className="p-3">Order</th>
-              <th className="p-3">Active</th>
-              <th className="p-3 text-right">Actions</th>
+              <th className="p-3">{t("code")}</th>
+              <th className="p-3">{t("name")}</th>
+              <th className="p-3">{t("policies")}</th>
+              <th className="p-3">{t("order")}</th>
+              <th className="p-3">{t("active")}</th>
+              <th className="p-3 text-right">{t("actions")}</th>
             </tr>
           </thead>
           <tbody>
             {items.length === 0 ? (
-              <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">No provider policy types found.</td></tr>
+              <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">{t("noProviderPolicyTypesFound")}</td></tr>
             ) : items.map((item) => (
               <tr key={item.id} className="border-t">
                 <td className="p-3 font-mono text-xs">{item.code}</td>
@@ -56,8 +58,8 @@ export function ProviderPolicyTypesList({ items }: { items: ProviderPolicyType[]
                 <td className="p-3"><Switch checked={item.isActive} disabled={isPending} onCheckedChange={(checked) => toggleStatus({ id: item.id, isActive: checked })} /></td>
                 <td className="p-3">
                   <div className="flex justify-end gap-2">
-                    <Button asChild size="sm" variant="outline"><Link href={`/admin/provider-policy-types/${item.id}/update`}><Edit className="mr-2 h-4 w-4" />Edit</Link></Button>
-                    <Button size="sm" variant="outline" disabled={isPending || item.policyCount > 0} onClick={() => deleteType({ id: item.id })} title={item.policyCount > 0 ? "This type is used by provider policies." : "Delete"}><Trash2 className="mr-2 h-4 w-4" />Delete</Button>
+                    <Button asChild size="sm" variant="outline"><Link href={`/admin/provider-policy-types/${item.id}/update`}><Edit className="mr-2 h-4 w-4" />{t("edit")}</Link></Button>
+                    <Button size="sm" variant="outline" disabled={isPending || item.policyCount > 0} onClick={() => deleteType({ id: item.id })} title={item.policyCount > 0 ? "This type is used by provider policies." : "Delete"}><Trash2 className="mr-2 h-4 w-4" />{t("delete")}</Button>
                   </div>
                 </td>
               </tr>

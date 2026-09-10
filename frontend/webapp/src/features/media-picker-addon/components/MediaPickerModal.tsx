@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertCircle,
@@ -201,6 +202,7 @@ export default function MediaPickerModal({
   uploadWith,
   title,
 }: MediaPickerModalProps) {
+  const t = useTranslations("Common");
   const [items, setItems] = useState<MediaItem[]>([]);
   const [selectedMap, setSelectedMap] = useState<Record<string, MediaItem>>({});
   const [query, setQuery] = useState("");
@@ -418,7 +420,7 @@ export default function MediaPickerModal({
                     setPage(1);
                     setQuery(event.target.value);
                   }}
-                  placeholder="Search filename, title or description"
+                  placeholder={t("searchFilenameTitleOrDescription")}
                   className="h-11 w-full rounded-2xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition focus:border-slate-400"
                 />
               </div>
@@ -431,7 +433,7 @@ export default function MediaPickerModal({
                     setFilterType("all");
                   }}
                 >
-                  All
+                  {t("all")}
                 </ChipButton>
                 <ChipButton
                   active={filterType === "image"}
@@ -440,7 +442,7 @@ export default function MediaPickerModal({
                     setFilterType("image");
                   }}
                 >
-                  Images
+                  {t("images")}
                 </ChipButton>
                 <ChipButton
                   active={filterType === "video"}
@@ -449,7 +451,7 @@ export default function MediaPickerModal({
                     setFilterType("video");
                   }}
                 >
-                  Videos
+                  {t("videos")}
                 </ChipButton>
                 <ChipButton
                   active={filterType === "file"}
@@ -458,7 +460,7 @@ export default function MediaPickerModal({
                     setFilterType("file");
                   }}
                 >
-                  Files
+                  {t("files")}
                 </ChipButton>
               </div>
             </div>
@@ -479,7 +481,7 @@ export default function MediaPickerModal({
                 className="inline-flex h-11 items-center gap-2 rounded-2xl bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-800"
               >
                 <Upload className="h-4 w-4" />
-                Upload
+                {t("upload")}
               </button>
             </div>
           </div>
@@ -487,7 +489,7 @@ export default function MediaPickerModal({
           {uploadProgress !== null && (
             <div className="mt-3">
               <div className="mb-1 flex items-center justify-between text-xs text-slate-500">
-                <span>Uploading</span>
+                <span>{t("uploading")}</span>
                 <span>{uploadProgress}%</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-slate-100">
@@ -511,14 +513,14 @@ export default function MediaPickerModal({
           {loading ? (
             <div className="flex h-full items-center justify-center py-24 text-slate-500">
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              Loading media...
+              {t("loadingMedia")}
             </div>
           ) : items.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-slate-50 py-24 text-center">
               <FileImage className="mb-3 h-10 w-10 text-slate-400" />
-              <div className="text-base font-medium text-slate-900">No media found</div>
+              <div className="text-base font-medium text-slate-900">{t("noMediaFound")}</div>
               <div className="mt-1 text-sm text-slate-500">
-                Upload a new file or change your search/filter.
+                {t("uploadANewFileOrChangeYourSearch")}
               </div>
             </div>
           ) : (
@@ -543,7 +545,7 @@ export default function MediaPickerModal({
               Page {page} of {totalPages}
               {mode === "multiple" && (
                 <span className="ml-3">
-                  Selected: <span className="font-medium text-slate-900">{selectedItems.length}</span>
+                  {t("selected")} <span className="font-medium text-slate-900">{selectedItems.length}</span>
                 </span>
               )}
             </div>
@@ -556,7 +558,7 @@ export default function MediaPickerModal({
                   onClick={() => setPage((current) => Math.max(1, current - 1))}
                   className="rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Previous
+                  {t("previous")}
                 </button>
                 <button
                   type="button"
@@ -564,7 +566,7 @@ export default function MediaPickerModal({
                   onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
                   className="rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Next
+                  {t("next")}
                 </button>
               </div>
 
@@ -577,7 +579,7 @@ export default function MediaPickerModal({
                   }}
                   className="rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800"
                 >
-                  Use selected files
+                  {t("useSelectedFiles")}
                 </button>
               )}
             </div>

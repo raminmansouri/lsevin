@@ -91,6 +91,7 @@ function ChildCollectionCard({
   locale: string;
   panel: ChildCollectionPanel;
 }) {
+  const t = useTranslations("Common");
   const tAdmin = useTranslations("AdminGenerated");
   const tColumn = useTranslations("AdminColumn");
   const tTable = useTranslations("AdminTable");
@@ -211,7 +212,7 @@ function ChildCollectionCard({
             className="inline-flex items-center gap-2 rounded-2xl border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-100 dark:border-zinc-800 dark:hover:bg-zinc-800"
           >
             <RefreshCw className="h-4 w-4" />
-            Refresh
+            {t("refresh")}
           </button>
 
           {panel.collection.allowCreate ? (
@@ -242,7 +243,7 @@ function ChildCollectionCard({
             {result.rows.length === 0 ? (
               <tr>
                 <td colSpan={listFields.length + 1} className="px-4 py-10 text-center text-zinc-500">
-                  No related records found.
+                  {t("noRelatedRecordsFound")}
                 </td>
               </tr>
             ) : (
@@ -277,7 +278,7 @@ function ChildCollectionCard({
                                                     className="object-cover"
                                                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                                   /> */}
-                            {/* <a target="_blank" href={`${env.NEXT_PUBLIC_FILES_URL}/${ row[field.columnName]}`}>link</a> */}
+                            {/* <a target="_blank" href={`${env.NEXT_PUBLIC_FILES_URL}/${ row[field.columnName]}`}>{t("link")}</a> */}
 
                             {display &&
                               hasLexicalContent(display) ? (
@@ -340,14 +341,14 @@ function ChildCollectionCard({
             onClick={() => refresh({ page: result.page - 1 })}
             className="rounded-2xl border border-zinc-200 px-3 py-2 disabled:opacity-50 dark:border-zinc-800"
           >
-            Prev
+            {t("prev")}
           </button>
           <button
             disabled={result.page >= result.pageCount}
             onClick={() => refresh({ page: result.page + 1 })}
             className="rounded-2xl border border-zinc-200 px-3 py-2 disabled:opacity-50 dark:border-zinc-800"
           >
-            Next
+            {t("next")}
           </button>
         </div>
       </div>
@@ -420,6 +421,7 @@ export function OneToManyManager({
   locale,
   panels,
 }: Props) {
+  const t = useTranslations("Common");
   const tAdmin = useTranslations("AdminGenerated");
   if (panels.length === 0) return null;
 
@@ -428,7 +430,7 @@ export function OneToManyManager({
       <div>
         <h2 className="text-xl font-semibold">{tAdmin("relatedRecords")}</h2>
         <p className="mt-1 text-sm text-zinc-500">
-          View and manage one-to-many child records without leaving the parent edit page.
+          {t("viewAndManageOneToManyChildRecords")}
         </p>
       </div>
 

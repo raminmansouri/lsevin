@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Link from 'next/link';
 import { Banknote, WalletCards, ReceiptText, Scale } from 'lucide-react';
 
@@ -5,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getAdminCommercialDashboardSummary } from '@/features/commercial/api/server/get-admin-commercial';
 
 export default async function CommercialDashboardPage() {
+  const t = await getTranslations("AdminPages");
   const summary = await getAdminCommercialDashboardSummary();
   const cards = [
     { href: '/admin/commercial/policies', title: 'Compensation policies', icon: Scale, body: 'Provider/platform revenue split rules.' },
@@ -16,8 +18,8 @@ export default async function CommercialDashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Commercial operations</h1>
-        <p className="text-sm text-muted-foreground">Compensation, booking payment collection, provider ledgers, and refunds.</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t("commercialOperations")}</h1>
+        <p className="text-sm text-muted-foreground">{t("compensationBookingPaymentCollectionProviderLedgersAndRefunds")}</p>
       </div>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {cards.map((card) => {
@@ -39,12 +41,12 @@ export default async function CommercialDashboardPage() {
       </div>
       {summary ? (
         <Card>
-          <CardHeader><CardTitle>Snapshot</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{t("snapshot")}</CardTitle></CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-4 text-sm">
-            <div><div className="text-muted-foreground">Policies</div><div className="font-medium">{summary.policyCount ?? '—'}</div></div>
-            <div><div className="text-muted-foreground">Pending ledgers</div><div className="font-medium">{summary.pendingLedgerCount ?? '—'}</div></div>
-            <div><div className="text-muted-foreground">Requested refunds</div><div className="font-medium">{summary.requestedRefundCount ?? '—'}</div></div>
-            <div><div className="text-muted-foreground">Approved refunds</div><div className="font-medium">{summary.approvedRefundCount ?? '—'}</div></div>
+            <div><div className="text-muted-foreground">{t("policies")}</div><div className="font-medium">{summary.policyCount ?? '—'}</div></div>
+            <div><div className="text-muted-foreground">{t("pendingLedgers")}</div><div className="font-medium">{summary.pendingLedgerCount ?? '—'}</div></div>
+            <div><div className="text-muted-foreground">{t("requestedRefunds")}</div><div className="font-medium">{summary.requestedRefundCount ?? '—'}</div></div>
+            <div><div className="text-muted-foreground">{t("approvedRefunds")}</div><div className="font-medium">{summary.approvedRefundCount ?? '—'}</div></div>
           </CardContent>
         </Card>
       ) : null}

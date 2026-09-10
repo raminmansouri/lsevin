@@ -133,6 +133,7 @@ function LocalizedInputBridge({ value, onChange, locale, ...props }: LocalizedIn
 }
 
 export function AuthContentAdminForm({ item, locale }: Props) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -173,19 +174,19 @@ export function AuthContentAdminForm({ item, locale }: Props) {
             <Button asChild variant="ghost" className="mb-2 px-0">
               <Link href="/admin/auth-content">
                 <ArrowLeft className="mr-2 size-4" />
-                Back to auth content
+                {t("backToAuthContent")}
               </Link>
             </Button>
             <h1 className="text-2xl font-semibold tracking-tight">
               {isEdit ? "Edit auth content" : "Create auth content"}
             </h1>
             <p className="text-muted-foreground text-sm">
-              These values override translation JSON for the selected auth placement.
+              {t("theseValuesOverrideTranslationJsonForTheSelected")}
             </p>
           </div>
           <Button disabled={isPending} type="submit">
             <Save className="mr-2 size-4" />
-            Save
+            {t("save")}
           </Button>
         </div>
 
@@ -193,7 +194,7 @@ export function AuthContentAdminForm({ item, locale }: Props) {
           <CardHeader>
             <CardTitle>{tAdmin("placement")}</CardTitle>
             <CardDescription>
-              Auth pages use fixed keys. Onboarding steps are sorted by display order.
+              {t("authPagesUseFixedKeysOnboardingStepsAre")}
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-5 md:grid-cols-2">
@@ -291,7 +292,7 @@ export function AuthContentAdminForm({ item, locale }: Props) {
           <CardHeader>
             <CardTitle>{tAdmin("text")}</CardTitle>
             <CardDescription>
-              Fill any locale supported by the platform. Empty locales fall back automatically.
+              {t("fillAnyLocaleSupportedByThePlatformEmpty")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -350,7 +351,7 @@ export function AuthContentAdminForm({ item, locale }: Props) {
           <CardHeader>
             <CardTitle>{tAdmin("mediaAndButtons")}</CardTitle>
             <CardDescription>
-              Image URL accepts uploaded media paths or full CDN URLs. Secondary button is used by onboarding steps.
+              {t("imageUrlAcceptsUploadedMediaPathsOrFull")}
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-5 md:grid-cols-2">

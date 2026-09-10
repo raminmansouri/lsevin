@@ -17,7 +17,7 @@ import {
   List as ListIcon,
 } from "lucide-react";
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { createEmptyLocalizedContent, getLocalizedValue } from "../localized";
@@ -185,6 +185,7 @@ function MetadataEditor({
   onClose,
   onSaved,
 }: MetadataEditorProps) {
+  const t = useTranslations("Common");
   const [titleTranslations, setTitleTranslations] = useState<LocalizedText>(
     createEmptyLocalizedContent(locales)
   );
@@ -324,7 +325,7 @@ function MetadataEditor({
                 onChange={(event) => setIsPublic(event.target.checked)}
                 className="h-4 w-4 rounded border-slate-300"
               />
-              Publicly accessible file
+              {t("publiclyAccessibleFile")}
             </label>
 
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -333,7 +334,7 @@ function MetadataEditor({
               </div>
               <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300">
                 <UploadCloud className="h-4 w-4" />
-                Upload replacement
+                {t("uploadReplacement")}
                 <input
                   type="file"
                   className="hidden"
@@ -394,6 +395,7 @@ export function MediaManager({
   onCancel,
   uploadHandler,
 }: MediaManagerProps) {
+  const t = useTranslations("Common");
   const locale = useLocale();
   const [search, setSearch] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
@@ -651,7 +653,7 @@ export function MediaManager({
               {defaultMediaLabels.libraryTitle}
             </div>
             <div className="text-sm text-slate-500">
-              Upload, organize, and reuse files across forms and admin screens.
+              {t("uploadOrganizeAndReuseFilesAcrossFormsAnd")}
             </div>
           </div>
 
@@ -922,7 +924,7 @@ export function MediaManager({
                         className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2 py-1 text-xs font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
                       >
                         <Pencil className="h-3.5 w-3.5" />
-                        Edit
+                        {t("edit")}
                       </button>
                     </div>
                   </div>
@@ -1002,7 +1004,7 @@ export function MediaManager({
             onClick={() => setPage((current) => Math.max(1, current - 1))}
             className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 disabled:opacity-50"
           >
-            Previous
+            {t("previous")}
           </button>
           <button
             type="button"
@@ -1010,7 +1012,7 @@ export function MediaManager({
             onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
             className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 disabled:opacity-50"
           >
-            Next
+            {t("next")}
           </button>
         </div>
       </div>

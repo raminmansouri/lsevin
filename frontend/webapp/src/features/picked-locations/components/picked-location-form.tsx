@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Save } from "lucide-react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -61,6 +61,7 @@ function parseCoordinatePair(value: string) {
 }
 
 export function PickedLocationForm({ pickedLocation }: Props) {
+  const t = useTranslations("Common");
   const router = useRouter();
   const locale = useLocale();
   const [isPending, startTransition] = useTransition();
@@ -134,9 +135,9 @@ export function PickedLocationForm({ pickedLocation }: Props) {
               <div className="space-y-6">
                 <section className="space-y-4 rounded-2xl border bg-muted/20 p-4">
                   <div>
-                    <h3 className="text-base font-semibold">Location</h3>
+                    <h3 className="text-base font-semibold">{t("location")}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Pick a country and city. The selected city is saved into category.picked_locations.locationid.
+                      {t("pickACountryAndCityTheSelectedCity")}
                     </p>
                   </div>
 
@@ -164,9 +165,9 @@ export function PickedLocationForm({ pickedLocation }: Props) {
 
                 <section className="space-y-4 rounded-2xl border bg-muted/20 p-4">
                   <div>
-                    <h3 className="text-base font-semibold">Coordinates</h3>
+                    <h3 className="text-base font-semibold">{t("coordinates")}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Optional latitude and longitude for map positioning and nearby location logic.
+                      {t("optionalLatitudeAndLongitudeForMapPositioningAnd")}
                     </p>
                   </div>
 
@@ -174,12 +175,12 @@ export function PickedLocationForm({ pickedLocation }: Props) {
                     <Input
                       value={coordinatesText}
                       onChange={(event) => setCoordinatesText(event.target.value)}
-                      placeholder="Paste coordinates, e.g. 35.6892, 51.3890"
+                      placeholder={t("pasteCoordinatesEG356892513890")}
                       dir="ltr"
                       disabled={isPending}
                     />
                     <Button type="button" variant="outline" onClick={applyCoordinateText} disabled={isPending || !coordinatesText.trim()}>
-                      Apply
+                      {t("apply")}
                     </Button>
                   </div>
 
@@ -189,7 +190,7 @@ export function PickedLocationForm({ pickedLocation }: Props) {
                       name="latitude"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Latitude</FormLabel>
+                          <FormLabel>{t("latitude")}</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -215,7 +216,7 @@ export function PickedLocationForm({ pickedLocation }: Props) {
                       name="longitude"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Longitude</FormLabel>
+                          <FormLabel>{t("longitude")}</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -241,9 +242,9 @@ export function PickedLocationForm({ pickedLocation }: Props) {
 
               <aside className="space-y-4 rounded-2xl border bg-muted/20 p-4">
                 <div>
-                  <h3 className="text-base font-semibold">Hero image</h3>
+                  <h3 className="text-base font-semibold">{t("heroImage")}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Stores a media id or URL in the existing image column.
+                    {t("storesAMediaIdOrUrlInThe")}
                   </p>
                 </div>
 
@@ -258,7 +259,7 @@ export function PickedLocationForm({ pickedLocation }: Props) {
                           value={field.value ?? ""}
                           onValueChange={field.onChange}
                           label="Picked location image"
-                          placeholder="Pick an image"
+                          placeholder={t("pickAnImage")}
                           mediaType="image"
                           modalTitle="Pick location image"
                           helperText="Recommended: wide city photo. Existing media ids and legacy URLs are supported."
@@ -275,7 +276,7 @@ export function PickedLocationForm({ pickedLocation }: Props) {
             <div className="flex flex-col-reverse gap-3 border-t pt-4 sm:flex-row sm:justify-between">
               <Button type="button" variant="outline" onClick={() => router.push("/admin/picked-locations")} disabled={isPending}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to list
+                {t("backToList")}
               </Button>
               <Button type="submit" disabled={isPending}>
                 <Save className="mr-2 h-4 w-4" />
