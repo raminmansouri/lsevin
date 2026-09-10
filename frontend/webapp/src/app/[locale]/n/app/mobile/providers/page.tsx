@@ -8,8 +8,7 @@ import { Link } from '@/i18n/navigation';
 import { getTrustedHomeProvidersCached } from '@/features/home/api/server/get-home-page.cached';
 
 // Static / ISR — location-agnostic listing.
-export const dynamic = 'force-static';
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 // Generous cap for the full listing — the horizontal home rail shows only 8.
 // Kept as a single constant so it can move to config/pagination later without

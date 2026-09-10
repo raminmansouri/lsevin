@@ -8,8 +8,7 @@ import { Link } from '@/i18n/navigation';
 import { getFeaturedHomeServicesCached } from '@/features/home/api/server/get-home-page.cached';
 
 // Static / ISR — the featured list is location-agnostic here.
-export const dynamic = 'force-static';
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 async function getLocaleFromParams(params: PageProps['params']) {
   const resolved = await params;

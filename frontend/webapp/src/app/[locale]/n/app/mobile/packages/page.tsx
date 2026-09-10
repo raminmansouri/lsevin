@@ -13,8 +13,7 @@ import {
 } from '@/features/special-packages/server/repository';
 
 // Static / ISR — the package list is the same for every visitor of a locale.
-export const dynamic = 'force-static';
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 async function getLocaleFromParams(params: PageProps['params']) {
   const resolved = await params;

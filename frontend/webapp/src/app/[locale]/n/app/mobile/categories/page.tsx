@@ -15,8 +15,7 @@ export const metadata: Metadata = {
 // (the `?parent=` deep-link is read on the client). Rebuilt at most hourly, and
 // on demand via the `cp-category-groups` cache tag the underlying
 // `unstable_cache` is already tagged with.
-export const dynamic = "force-static";
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export default async function CategoryBrowserPage({
   params,

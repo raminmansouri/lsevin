@@ -14,8 +14,7 @@ type SearchPageProps = {
 // Static / ISR: the shell shows the global "trending" + "popular categories"
 // (both `"use cache"`d). The visitor's own recent searches are pulled on the
 // client by `MobileSearchPageClient`.
-export const dynamic = "force-static";
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: SearchPageProps): Promise<Metadata> {
   const { locale } = await params;
