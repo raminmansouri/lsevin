@@ -33,11 +33,31 @@ import { countActiveSpecialPackages } from '@/features/special-packages/server/r
 // Static / ISR — the landing page shell no longer reads the visitor's location
 // or profile on the server; see `Home` below.
 //
-// `next build` runs with no DB reachable, so the very first prerender of each
-// locale is baked with empty rails (see withRailRetry). A long revalidate then
-// left /en, /tr, … showing "No categories found" for up to an hour after a
-// deploy until enough traffic triggered a regen. 120s means each locale
-// self-heals within ~2 minutes of its first post-deploy visit, against live DB.
+// WHY THE FIRST VISIT AFTER A DEPLOY CAN SHOW AN EMPTY PAGE, end to end:
+//
+//   1. `next build` cannot reach the database. DATABASE_URL *is* mounted (a
+//      BuildKit secret, see frontend/webapp/Dockerfile), but it points at the
+//      `pgbouncer` compose service and a BuildKit build does not join the
+//      compose network. Every rail query fails and withRailRetry returns its
+//      empty fallback.
+//   2. This route is prerendered for all 11 locales, so that empty render is
+//      baked into the image and shipped.
+//   3. `revalidate` below bounds how long the server serves it — but the first
+//      visitor per locale still gets the empty copy while ISR regenerates.
+//   4. experimental.staleTimes.static in next.config.ts (180s) then keeps that
+//      empty RSC payload in the visitor's router cache, so even after the
+//      server heals, in-app navigation keeps showing it until it expires. That
+//      is why a hard refresh "fixes" it.
+//
+// Only step 1 is the actual defect, and it cannot be fixed from here: shortening
+// revalidate (3600 -> 120) narrowed the window, it did not close it. The fix is
+// to let the build reach the database, or to warm/invalidate the route after the
+// deploy — both in deployments/, not in this file.
+//
+// Note `generateStaticParams` cannot opt this route out: its only dynamic
+// segment, [locale], belongs to app/[locale]/layout.tsx, so a page-level
+// override is inert here. `connection()` would work but needs PPR, which
+// next.config.ts turns off on purpose.
 export const dynamic = 'force-static';
 export const revalidate = 120;
 
