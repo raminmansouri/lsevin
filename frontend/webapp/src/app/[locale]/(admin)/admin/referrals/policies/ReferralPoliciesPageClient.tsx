@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { Plus, Save, Trash2 } from "lucide-react";
@@ -47,6 +48,7 @@ function createEmptyRule(sortOrder: number): ReferralPolicyRule {
 export function ReferralPoliciesPageClient({
   initialData,
 }: ReferralPoliciesPageClientProps) {
+  const t = useTranslations("AdminPages");
   const [name, setName] = useState(initialData.program.name);
   const [description, setDescription] = useState(initialData.program.description ?? "");
   const [allowStacking, setAllowStacking] = useState(initialData.program.allowStacking);
@@ -108,8 +110,8 @@ export function ReferralPoliciesPageClient({
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Referral Policy</h1>
-            <p className="text-gray-600 mt-1">Edit the active program instead of hard-coding percentages in the app.</p>
+            <h1 className="text-3xl font-bold text-gray-900">{t("referralPolicy")}</h1>
+            <p className="text-gray-600 mt-1">{t("editTheActiveProgramInsteadOfHardCoding")}</p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -117,7 +119,7 @@ export function ReferralPoliciesPageClient({
               href="/admin/referrals"
               className="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-gray-900 font-semibold hover:bg-gray-100 transition-colors"
             >
-              Back to dashboard
+              {t("backToDashboard")}
             </Link>
             <button
               onClick={save}
@@ -125,7 +127,7 @@ export function ReferralPoliciesPageClient({
               className="inline-flex items-center justify-center rounded-xl bg-[#083f30] px-4 py-2.5 text-white font-semibold hover:bg-[#0a5a44] transition-colors disabled:opacity-60"
             >
               <Save className="mr-2 h-4 w-4" />
-              Save policy
+              {t("savePolicy")}
             </button>
           </div>
         </div>
@@ -139,7 +141,7 @@ export function ReferralPoliciesPageClient({
         <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-5">
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             <label className="space-y-2">
-              <span className="text-sm font-medium text-gray-700">Program name</span>
+              <span className="text-sm font-medium text-gray-700">{t("programName")}</span>
               <input
                 value={name}
                 onChange={(event) => setName(event.target.value)}
@@ -148,7 +150,7 @@ export function ReferralPoliciesPageClient({
             </label>
 
             <label className="space-y-2">
-              <span className="text-sm font-medium text-gray-700">Program code</span>
+              <span className="text-sm font-medium text-gray-700">{t("programCode")}</span>
               <input
                 value={initialData.program.code}
                 readOnly
@@ -157,7 +159,7 @@ export function ReferralPoliciesPageClient({
             </label>
 
             <label className="space-y-2">
-              <span className="text-sm font-medium text-gray-700">Max referrals per referrer</span>
+              <span className="text-sm font-medium text-gray-700">{t("maxReferralsPerReferrer")}</span>
               <input
                 value={maxReferralsPerReferrer}
                 onChange={(event) => setMaxReferralsPerReferrer(event.target.value)}
@@ -173,7 +175,7 @@ export function ReferralPoliciesPageClient({
                   checked={allowStacking}
                   onChange={(event) => setAllowStacking(event.target.checked)}
                 />
-                <span className="text-sm font-medium text-gray-700">Allow stacking</span>
+                <span className="text-sm font-medium text-gray-700">{t("allowStacking")}</span>
               </label>
               <label className="flex items-center gap-2 rounded-xl border border-gray-200 px-3 py-3">
                 <input
@@ -181,13 +183,13 @@ export function ReferralPoliciesPageClient({
                   checked={requirePreviousCouponRedeemed}
                   onChange={(event) => setRequirePreviousCouponRedeemed(event.target.checked)}
                 />
-                <span className="text-sm font-medium text-gray-700">Force order</span>
+                <span className="text-sm font-medium text-gray-700">{t("forceOrder")}</span>
               </label>
             </div>
           </div>
 
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-gray-700">Description</span>
+            <span className="text-sm font-medium text-gray-700">{t("description")}</span>
             <textarea
               value={description}
               onChange={(event) => setDescription(event.target.value)}
@@ -200,15 +202,15 @@ export function ReferralPoliciesPageClient({
         <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Reward Rules</h2>
-              <p className="text-sm text-gray-600 mt-1">Rules are evaluated by trigger, recipient, and optional referral order.</p>
+              <h2 className="text-xl font-bold text-gray-900">{t("rewardRules")}</h2>
+              <p className="text-sm text-gray-600 mt-1">{t("rulesAreEvaluatedByTriggerRecipientAndOptional")}</p>
             </div>
             <button
               onClick={addRule}
               className="inline-flex items-center justify-center rounded-xl border border-[#083f30] px-4 py-2 text-[#083f30] font-semibold hover:bg-[#083f30]/5"
             >
               <Plus className="mr-2 h-4 w-4" />
-              Add rule
+              {t("addRule")}
             </button>
           </div>
 
@@ -222,13 +224,13 @@ export function ReferralPoliciesPageClient({
                     className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 hover:bg-red-50"
                   >
                     <Trash2 className="h-4 w-4" />
-                    Remove
+                    {t("remove")}
                   </button>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
                   <label className="space-y-2">
-                    <span className="text-sm font-medium text-gray-700">Title</span>
+                    <span className="text-sm font-medium text-gray-700">{t("title")}</span>
                     <input
                       value={rule.title}
                       onChange={(event) => updateRule(rule.id, { title: event.target.value })}
@@ -237,7 +239,7 @@ export function ReferralPoliciesPageClient({
                   </label>
 
                   <label className="space-y-2">
-                    <span className="text-sm font-medium text-gray-700">Trigger</span>
+                    <span className="text-sm font-medium text-gray-700">{t("trigger")}</span>
                     <select
                       value={rule.trigger}
                       onChange={(event) =>
@@ -254,7 +256,7 @@ export function ReferralPoliciesPageClient({
                   </label>
 
                   <label className="space-y-2">
-                    <span className="text-sm font-medium text-gray-700">Recipient</span>
+                    <span className="text-sm font-medium text-gray-700">{t("recipient")}</span>
                     <select
                       value={rule.recipient}
                       onChange={(event) =>
@@ -271,7 +273,7 @@ export function ReferralPoliciesPageClient({
                   </label>
 
                   <label className="space-y-2">
-                    <span className="text-sm font-medium text-gray-700">Referral order</span>
+                    <span className="text-sm font-medium text-gray-700">{t("referralOrder")}</span>
                     <input
                       value={rule.referralOrdinal ?? ""}
                       onChange={(event) =>
@@ -286,7 +288,7 @@ export function ReferralPoliciesPageClient({
                   </label>
 
                   <label className="space-y-2">
-                    <span className="text-sm font-medium text-gray-700">Discount type</span>
+                    <span className="text-sm font-medium text-gray-700">{t("discountType")}</span>
                     <select
                       value={rule.discountType}
                       onChange={(event) =>
@@ -296,13 +298,13 @@ export function ReferralPoliciesPageClient({
                       }
                       className="h-11 w-full rounded-xl border border-gray-300 px-3 outline-none focus:border-[#083f30]"
                     >
-                      <option value="percent">Percent</option>
-                      <option value="fixed">Fixed amount</option>
+                      <option value="percent">{t("percent")}</option>
+                      <option value="fixed">{t("fixedAmount")}</option>
                     </select>
                   </label>
 
                   <label className="space-y-2">
-                    <span className="text-sm font-medium text-gray-700">Discount value</span>
+                    <span className="text-sm font-medium text-gray-700">{t("discountValue")}</span>
                     <input
                       value={rule.discountValue}
                       onChange={(event) =>
@@ -316,7 +318,7 @@ export function ReferralPoliciesPageClient({
 
                 <div className="mt-4 grid gap-4 md:grid-cols-2">
                   <label className="block space-y-2">
-                    <span className="text-sm font-medium text-gray-700">Description</span>
+                    <span className="text-sm font-medium text-gray-700">{t("description")}</span>
                     <textarea
                       rows={2}
                       value={rule.description ?? ""}
@@ -332,7 +334,7 @@ export function ReferralPoliciesPageClient({
                         checked={rule.isActive}
                         onChange={(event) => updateRule(rule.id, { isActive: event.target.checked })}
                       />
-                      <span className="text-sm font-medium text-gray-700">Rule active</span>
+                      <span className="text-sm font-medium text-gray-700">{t("ruleActive")}</span>
                     </label>
                     <label className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-3">
                       <input
@@ -344,7 +346,7 @@ export function ReferralPoliciesPageClient({
                           })
                         }
                       />
-                      <span className="text-sm font-medium text-gray-700">Force queue</span>
+                      <span className="text-sm font-medium text-gray-700">{t("forceQueue")}</span>
                     </label>
                   </div>
                 </div>

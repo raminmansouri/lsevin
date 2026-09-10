@@ -233,13 +233,14 @@ function ChannelBadge({ channel }: { channel: NotificationChannel }) {
 }
 
 function MissingTableWarning() {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   return (
     <Card className="border-amber-200 bg-amber-50/60">
       <CardHeader>
         <CardTitle className="text-amber-900">{tAdmin("notificationTemplateTableIsNotInstalled")}</CardTitle>
         <CardDescription className="text-amber-800">
-          Run <code>database/migrations/20260504_notify_notification_templates.sql</code> before using this page.
+          {t("run")} <code>{t("databaseMigrations20260504NotifyNotificationTemplatesSql")}</code> {t("beforeUsingThisPage")}
         </CardDescription>
       </CardHeader>
     </Card>
@@ -247,6 +248,7 @@ function MissingTableWarning() {
 }
 
 function TemplateToolbar({ tableMissing }: { tableMissing: boolean }) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const pathname = usePathname();
@@ -367,7 +369,7 @@ function TemplateToolbar({ tableMissing }: { tableMissing: boolean }) {
 
       <Button variant="outline" onClick={() => router.refresh()} disabled={tableMissing}>
         <RefreshCw className="mr-2 h-4 w-4" />
-        Refresh
+        {t("refresh")}
       </Button>
     </div>
   );
@@ -386,6 +388,7 @@ function TemplateEditor({
   onSave: () => void;
   isPending: boolean;
 }) {
+  const t = useTranslations("AdminGenerated");
   const previewTitle = renderPreview(firstText(draft.titleTranslations, "Notification title"), draft.variables);
   const previewBody = renderPreview(firstText(draft.bodyTranslations, "Notification body"), draft.variables);
 
@@ -408,12 +411,12 @@ function TemplateEditor({
           <div>
             <CardTitle>{draft.id ? "Edit notification template" : "Create notification template"}</CardTitle>
             <CardDescription>
-              Use placeholders like <code>{"{{customerName}}"}</code> and list them in the variables field.
+              {t("usePlaceholdersLike")} <code>{"{{customerName}}"}</code> {t("andListThemInTheVariablesField")}
             </CardDescription>
           </div>
           <div className="flex gap-2">
             <Button type="button" variant="outline" onClick={onCancel} disabled={isPending}>
-              Cancel
+              {t("cancel")}
             </Button>
             <Button type="button" onClick={onSave} disabled={isPending}>
               {isPending ? "Saving..." : "Save template"}
@@ -426,29 +429,29 @@ function TemplateEditor({
           <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="templateKey">Template key</Label>
+                <Label htmlFor="templateKey">{t("templateKey")}</Label>
                 <Input
                   id="templateKey"
                   dir="ltr"
                   value={draft.templateKey}
                   onChange={(event) => set("templateKey", event.target.value)}
-                  placeholder="booking.created.customer"
+                  placeholder={t("bookingCreatedCustomer")}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="templateName">Name</Label>
+                <Label htmlFor="templateName">{t("name")}</Label>
                 <Input
                   id="templateName"
                   value={draft.name}
                   onChange={(event) => set("name", event.target.value)}
-                  placeholder="Booking created - customer"
+                  placeholder={t("bookingCreatedCustomer2")}
                 />
               </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-[200px_1fr]">
               <div className="space-y-2">
-                <Label>Notification type</Label>
+                <Label>{t("notificationType")}</Label>
                 <Select
                   value={draft.notificationType}
                   onValueChange={(value) => set("notificationType", value as NotificationType)}
@@ -466,12 +469,12 @@ function TemplateEditor({
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Description</Label>
+                <Label>{t("description")}</Label>
                 <Textarea
                   value={draft.description}
                   onChange={(event) => set("description", event.target.value)}
                   rows={2}
-                  placeholder="Explain when this template is used."
+                  placeholder={t("explainWhenThisTemplateIsUsed")}
                 />
               </div>
             </div>
@@ -479,8 +482,8 @@ function TemplateEditor({
             <div className="space-y-3 rounded-xl border p-4">
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <Label>Default channels</Label>
-                  <p className="text-sm text-muted-foreground">These channels are queued unless caller overrides them.</p>
+                  <Label>{t("defaultChannels")}</Label>
+                  <p className="text-sm text-muted-foreground">{t("theseChannelsAreQueuedUnlessCallerOverridesThem")}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Switch checked={draft.isActive} onCheckedChange={(checked) => set("isActive", checked)} />
@@ -503,23 +506,23 @@ function TemplateEditor({
             </div>
 
             <div className="space-y-2">
-              <Label>Variables</Label>
+              <Label>{t("variables")}</Label>
               <Input
                 dir="ltr"
                 value={variablesText(draft.variables)}
                 onChange={(event) => set("variables", normalizeVariablesText(event.target.value))}
-                placeholder="customerName, bookingCode, amount, currency"
+                placeholder={t("customernameBookingcodeAmountCurrency")}
               />
               <p className="text-sm text-muted-foreground">
-                Separate variables with commas. Use them inside text as <code>{"{{variableName}}"}</code>.
+                {t("separateVariablesWithCommasUseThemInsideText")} <code>{"{{variableName}}"}</code>.
               </p>
             </div>
           </div>
 
           <Card className="bg-muted/30">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Live preview</CardTitle>
-              <CardDescription>Preview uses the first available locale.</CardDescription>
+              <CardTitle className="text-base">{t("livePreview")}</CardTitle>
+              <CardDescription>{t("previewUsesTheFirstAvailableLocale")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="rounded-2xl border bg-background p-4 shadow-sm">
@@ -531,7 +534,7 @@ function TemplateEditor({
               </div>
 
               <div className="space-y-2">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Variables</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("variables")}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {draft.variables.length ? (
                     draft.variables.map((variable) => (
@@ -540,7 +543,7 @@ function TemplateEditor({
                       </Badge>
                     ))
                   ) : (
-                    <p className="text-sm text-muted-foreground">No variables documented.</p>
+                    <p className="text-sm text-muted-foreground">{t("noVariablesDocumented")}</p>
                   )}
                 </div>
               </div>
@@ -550,11 +553,11 @@ function TemplateEditor({
 
         <Tabs defaultValue="in_app" className="space-y-4">
           <TabsList className="flex h-auto w-full flex-wrap justify-start">
-            <TabsTrigger value="in_app">In-app</TabsTrigger>
-            <TabsTrigger value="email">Email</TabsTrigger>
-            <TabsTrigger value="sms">SMS</TabsTrigger>
-            <TabsTrigger value="push">Push</TabsTrigger>
-            <TabsTrigger value="metadata">Metadata</TabsTrigger>
+            <TabsTrigger value="in_app">{t("inApp")}</TabsTrigger>
+            <TabsTrigger value="email">{t("email")}</TabsTrigger>
+            <TabsTrigger value="sms">{t("sms")}</TabsTrigger>
+            <TabsTrigger value="push">{t("push")}</TabsTrigger>
+            <TabsTrigger value="metadata">{t("metadata")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="in_app" className="space-y-4">
@@ -627,7 +630,7 @@ function TemplateEditor({
 
           <TabsContent value="metadata" className="space-y-4">
             <div className="space-y-2">
-              <Label>Metadata JSON</Label>
+              <Label>{t("metadataJson")}</Label>
               <Textarea
                 dir="ltr"
                 rows={8}
@@ -640,7 +643,7 @@ function TemplateEditor({
                   }
                 }}
               />
-              <p className="text-sm text-muted-foreground">Optional advanced settings for workers/providers.</p>
+              <p className="text-sm text-muted-foreground">{t("optionalAdvancedSettingsForWorkersProviders")}</p>
             </div>
           </TabsContent>
         </Tabs>
@@ -660,6 +663,7 @@ function TemplateCard({
   onDuplicate: (item: AdminNotificationTemplate) => void;
   onDelete: (item: AdminNotificationTemplate) => void;
 }) {
+  const t = useTranslations("AdminGenerated");
   return (
     <Card className="overflow-hidden">
       <CardHeader className="space-y-3">
@@ -691,15 +695,15 @@ function TemplateCard({
           <div className="flex flex-wrap gap-2">
             <Button type="button" variant="outline" size="sm" onClick={() => onEdit(item)}>
               <Edit className="mr-2 h-4 w-4" />
-              Edit
+              {t("edit")}
             </Button>
             <Button type="button" variant="outline" size="sm" onClick={() => onDuplicate(item)}>
               <Copy className="mr-2 h-4 w-4" />
-              Duplicate
+              {t("duplicate")}
             </Button>
             <Button type="button" variant="ghost" size="sm" className="text-destructive" onClick={() => onDelete(item)}>
               <Trash2 className="mr-2 h-4 w-4" />
-              Delete
+              {t("delete")}
             </Button>
           </div>
         </div>
@@ -742,6 +746,7 @@ function TemplateCard({
 }
 
 export function NotificationTemplateAdmin({ data }: { data: AdminNotificationTemplatesPageData }) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -786,12 +791,12 @@ export function NotificationTemplateAdmin({ data }: { data: AdminNotificationTem
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{tAdmin("notificationTemplates")}</h1>
           <p className="text-muted-foreground">
-            Edit message formats for in-app, email, SMS, and push notifications without changing code.
+            {t("editMessageFormatsForInAppEmailSms")}
           </p>
         </div>
         <Button onClick={() => setDraft(emptyDraft())} disabled={data.tableMissing}>
           <Plus className="mr-2 h-4 w-4" />
-          New template
+          {t("newTemplate")}
         </Button>
       </div>
 
@@ -842,7 +847,7 @@ export function NotificationTemplateAdmin({ data }: { data: AdminNotificationTem
         ) : (
           <Card>
             <CardContent className="py-12 text-center text-sm text-muted-foreground">
-              No notification templates found.
+              {t("noNotificationTemplatesFound")}
             </CardContent>
           </Card>
         )}

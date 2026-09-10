@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { AlertTriangle, ArrowLeft, Bug, CheckCircle2, Loader2, Lock, MessageCircle, Send, UserRound } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -42,6 +43,7 @@ function statusTone(status: string) {
 }
 
 export function AdminBugReportDetails({ report, agents }: Props) {
+  const t = useTranslations("AdminPages");
   const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
   const [body, setBody] = useState("");
@@ -130,7 +132,7 @@ export function AdminBugReportDetails({ report, agents }: Props) {
         <div className="flex flex-col gap-4 rounded-[32px] bg-white p-5 shadow-sm lg:flex-row lg:items-start lg:justify-between">
           <div>
             <Link href="/admin/bug-reports" className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900">
-              <ArrowLeft className="h-4 w-4" /> Back to board
+              <ArrowLeft className="h-4 w-4" /> {t("backToBoard")}
             </Link>
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">{report.reportNumber}</span>
@@ -147,12 +149,12 @@ export function AdminBugReportDetails({ report, agents }: Props) {
               {BUG_REPORT_STATUSES.map((status) => <option key={status} value={status}>{status.replace(/_/g, " ")}</option>)}
             </select>
             <button onClick={() => updateStatus("resolved")} disabled={isPending} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-4 py-3 text-sm font-bold text-white disabled:opacity-60">
-              <CheckCircle2 className="h-4 w-4" /> Mark resolved
+              <CheckCircle2 className="h-4 w-4" /> {t("markResolved")}
             </button>
             <button onClick={() => updateStatus("need_info")} disabled={isPending} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-amber-500 px-4 py-3 text-sm font-bold text-white disabled:opacity-60">
-              <AlertTriangle className="h-4 w-4" /> Ask for info
+              <AlertTriangle className="h-4 w-4" /> {t("askForInfo")}
             </button>
-            <button onClick={archive} disabled={isPending} className="rounded-2xl border border-red-200 px-4 py-3 text-sm font-bold text-red-600 disabled:opacity-60">Archive</button>
+            <button onClick={archive} disabled={isPending} className="rounded-2xl border border-red-200 px-4 py-3 text-sm font-bold text-red-600 disabled:opacity-60">{t("archive")}</button>
           </div>
         </div>
 
@@ -162,7 +164,7 @@ export function AdminBugReportDetails({ report, agents }: Props) {
         <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
           <section className="space-y-5">
             <div className="rounded-[32px] border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="mb-3 flex items-center gap-2 text-lg font-black"><Bug className="h-5 w-5 text-emerald-700" /> Bug details</h2>
+              <h2 className="mb-3 flex items-center gap-2 text-lg font-black"><Bug className="h-5 w-5 text-emerald-700" /> {t("bugDetails")}</h2>
               <div className="prose prose-sm max-w-none whitespace-pre-wrap text-slate-700">{report.description}</div>
               <div className="mt-5 grid gap-4 md:grid-cols-2">
                 <InfoBlock title="Expected" value={report.expectedBehavior} />
@@ -170,7 +172,7 @@ export function AdminBugReportDetails({ report, agents }: Props) {
               </div>
               {report.reproductionSteps.length > 0 ? (
                 <div className="mt-5 rounded-3xl bg-slate-50 p-4">
-                  <h3 className="mb-3 text-sm font-bold text-slate-900">Steps to reproduce</h3>
+                  <h3 className="mb-3 text-sm font-bold text-slate-900">{t("stepsToReproduce")}</h3>
                   <ol className="space-y-2 text-sm text-slate-700">
                     {report.reproductionSteps.map((step, index) => <li key={index}>{index + 1}. {step}</li>)}
                   </ol>
@@ -180,7 +182,7 @@ export function AdminBugReportDetails({ report, agents }: Props) {
             </div>
 
             <div className="rounded-[32px] border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="mb-4 flex items-center gap-2 text-lg font-black"><MessageCircle className="h-5 w-5 text-emerald-700" /> Conversation</h2>
+              <h2 className="mb-4 flex items-center gap-2 text-lg font-black"><MessageCircle className="h-5 w-5 text-emerald-700" /> {t("conversation")}</h2>
               <div className="space-y-4">
                 {report.messages.map((msg) => {
                   const isMine = Boolean(report.currentViewerUserId && msg.senderUserId === report.currentViewerUserId);
@@ -218,17 +220,17 @@ export function AdminBugReportDetails({ report, agents }: Props) {
             <BugReportUpdateTimeline updates={report.updates} title="Activity visible to the team" />
 
             <div className="rounded-[32px] border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="mb-4 text-lg font-black">Reply / internal note</h2>
-              <textarea value={body} onChange={(event) => setBody(event.target.value)} rows={5} placeholder="Write a reply, ask for more information, or add an internal note..." className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-emerald-600" />
+              <h2 className="mb-4 text-lg font-black">{t("replyInternalNote")}</h2>
+              <textarea value={body} onChange={(event) => setBody(event.target.value)} rows={5} placeholder={t("writeAReplyAskForMoreInformationOr")} className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-emerald-600" />
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 <label className="flex items-center gap-2 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700">
-                  <input type="checkbox" checked={isInternalNote} onChange={(event) => setIsInternalNote(event.target.checked)} /> Internal note only
+                  <input type="checkbox" checked={isInternalNote} onChange={(event) => setIsInternalNote(event.target.checked)} /> {t("internalNoteOnly")}
                 </label>
                 <select value={nextStatus} onChange={(event) => setNextStatus(event.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-600">
-                  <option value="">Keep current status</option>
-                  <option value="need_info">Ask for more information</option>
-                  <option value="in_progress">Move to in progress</option>
-                  <option value="resolved">Resolve after this reply</option>
+                  <option value="">{t("keepCurrentStatus")}</option>
+                  <option value="need_info">{t("askForMoreInformation")}</option>
+                  <option value="in_progress">{t("moveToInProgress")}</option>
+                  <option value="resolved">{t("resolveAfterThisReply")}</option>
                 </select>
               </div>
               <div className="mt-4">
@@ -242,22 +244,22 @@ export function AdminBugReportDetails({ report, agents }: Props) {
 
           <aside className="space-y-5">
             <div className="rounded-[32px] border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-black">Resolution</h2>
-              <textarea value={resolutionNote} onChange={(event) => setResolutionNote(event.target.value)} rows={5} placeholder="What was fixed? Which commit/deploy?" className="mt-3 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-emerald-600" />
-              <button onClick={() => updateStatus("resolved")} disabled={isPending} className="mt-3 w-full rounded-2xl bg-emerald-700 px-4 py-3 text-sm font-bold text-white disabled:opacity-60">Save and resolve</button>
+              <h2 className="text-lg font-black">{t("resolution")}</h2>
+              <textarea value={resolutionNote} onChange={(event) => setResolutionNote(event.target.value)} rows={5} placeholder={t("whatWasFixedWhichCommitDeploy")} className="mt-3 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-emerald-600" />
+              <button onClick={() => updateStatus("resolved")} disabled={isPending} className="mt-3 w-full rounded-2xl bg-emerald-700 px-4 py-3 text-sm font-bold text-white disabled:opacity-60">{t("saveAndResolve")}</button>
             </div>
 
 
             <div className="rounded-[32px] border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="flex items-center gap-2 text-lg font-black"><UserRound className="h-5 w-5 text-emerald-700" /> Assign internally</h2>
-              <p className="mt-2 text-sm text-slate-500">Visible only to the admin/support team. Customers will not see this assignment.</p>
+              <h2 className="flex items-center gap-2 text-lg font-black"><UserRound className="h-5 w-5 text-emerald-700" /> {t("assignInternally")}</h2>
+              <p className="mt-2 text-sm text-slate-500">{t("visibleOnlyToTheAdminSupportTeamCustomers")}</p>
               <select
                 value={assignedToUserId}
                 onChange={(event) => setAssignedToUserId(event.target.value)}
                 disabled={isPending}
                 className="mt-4 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-600"
               >
-                <option value="">Unassigned</option>
+                <option value="">{t("unassigned")}</option>
                 {agents.map((agent) => (
                   <option key={agent.userId} value={agent.userId}>
                     {agent.displayName}{agent.email ? ` — ${agent.email}` : ""}{agent.status ? ` (${agent.status})` : ""}
@@ -265,13 +267,13 @@ export function AdminBugReportDetails({ report, agents }: Props) {
                 ))}
               </select>
               <button onClick={assignTo} disabled={isPending || assignedToUserId === (report.assignedToUserId || "")} className="mt-3 w-full rounded-2xl bg-[#083f30] px-4 py-3 text-sm font-bold text-white disabled:opacity-60">
-                Save assignment
+                {t("saveAssignment")}
               </button>
               <p className="mt-3 text-xs text-slate-500">Current: {report.assignedToDisplayName || "Unassigned"}</p>
             </div>
 
             <div className="rounded-[32px] border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-black">Context</h2>
+              <h2 className="text-lg font-black">{t("context")}</h2>
               <dl className="mt-4 space-y-3 text-sm">
                 <Meta label="Customer" value={report.customerDisplayName || report.guestName || report.guestEmail} />
                 <Meta label="Customer email" value={report.customerEmail || report.guestEmail} />
@@ -289,7 +291,7 @@ export function AdminBugReportDetails({ report, agents }: Props) {
             </div>
 
             <div className="rounded-[32px] border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-black">Raw environment</h2>
+              <h2 className="text-lg font-black">{t("rawEnvironment")}</h2>
               <pre className="mt-3 max-h-96 overflow-auto rounded-2xl bg-slate-950 p-4 text-xs text-slate-100">{JSON.stringify(report.environment, null, 2)}</pre>
             </div>
           </aside>

@@ -20,8 +20,10 @@ import { savePaymentGatewayAction } from "@/payment/admin/actions";
 import { SavePaymentGatewaySchema } from "@/payment/admin/actions/save-payment-gateway/schema";
 import type { InputType } from "@/payment/admin/actions/save-payment-gateway/types";
 import type { PaymentGatewayConfig } from "@/payment/server/payment-gateway.repository";
+import { useTranslations } from "next-intl";
 
 export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig }) {
+  const t = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -92,12 +94,12 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
           <Button asChild variant="ghost" className="mb-2 px-0">
             <Link href="/admin/payment-gateways">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to gateways
+              {t("backToGateways")}
             </Link>
           </Button>
           <h1 className="text-2xl font-bold tracking-tight">{gateway.displayName} settings</h1>
           <p className="text-sm text-muted-foreground">
-            Configure the gateway used by booking checkout and payment verification.
+            {t("configureTheGatewayUsedByBookingCheckoutAnd")}
           </p>
         </div>
       </div>
@@ -106,8 +108,8 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Gateway status</CardTitle>
-              <CardDescription>Control whether users can start payments through this gateway.</CardDescription>
+              <CardTitle>{t("gatewayStatus")}</CardTitle>
+              <CardDescription>{t("controlWhetherUsersCanStartPaymentsThroughThis")}</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-6 md:grid-cols-2">
               <FormField
@@ -116,8 +118,8 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                 render={({ field }) => (
                   <FormItem className="flex items-center justify-between rounded-2xl border p-4">
                     <div>
-                      <FormLabel>Enabled</FormLabel>
-                      <FormDescription>Disabled gateways are hidden from checkout and cannot initiate payments.</FormDescription>
+                      <FormLabel>{t("enabled")}</FormLabel>
+                      <FormDescription>{t("disabledGatewaysAreHiddenFromCheckoutAndCannot")}</FormDescription>
                     </div>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} disabled={isPending} />
@@ -132,8 +134,8 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                 render={({ field }) => (
                   <FormItem className="flex items-center justify-between rounded-2xl border p-4">
                     <div>
-                      <FormLabel>Sandbox mode</FormLabel>
-                      <FormDescription>Use Zarinpal sandbox for development and tests.</FormDescription>
+                      <FormLabel>{t("sandboxMode")}</FormLabel>
+                      <FormDescription>{t("useZarinpalSandboxForDevelopmentAndTests")}</FormDescription>
                     </div>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} disabled={isPending} />
@@ -146,8 +148,8 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
 
           <Card>
             <CardHeader>
-              <CardTitle>Public display</CardTitle>
-              <CardDescription>Admin-facing labels and checkout display values.</CardDescription>
+              <CardTitle>{t("publicDisplay")}</CardTitle>
+              <CardDescription>{t("adminFacingLabelsAndCheckoutDisplayValues")}</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-6 md:grid-cols-2">
               <FormField
@@ -155,7 +157,7 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                 name="displayName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Display name</FormLabel>
+                    <FormLabel>{t("displayName")}</FormLabel>
                     <FormControl>
                       <Input {...field} disabled={isPending} />
                     </FormControl>
@@ -169,7 +171,7 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                 name="sortOrder"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Sort order</FormLabel>
+                    <FormLabel>{t("sortOrder")}</FormLabel>
                     <FormControl>
                       {/* Coerced fields hold `unknown` until the resolver runs. */}
                       <Input {...field} value={String(field.value ?? "")} type="number" min={0} disabled={isPending} />
@@ -184,7 +186,7 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                 name="description"
                 render={({ field }) => (
                   <FormItem className="md:col-span-2">
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>{t("description")}</FormLabel>
                     <FormControl>
                       <Textarea {...field} value={field.value || ""} disabled={isPending} rows={3} />
                     </FormControl>
@@ -199,9 +201,9 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
 
           <Card>
             <CardHeader>
-              <CardTitle>Where this gateway appears</CardTitle>
+              <CardTitle>{t("whereThisGatewayAppears")}</CardTitle>
               <CardDescription>
-                Zarinpal is shown only after the user chooses an online card payment method.
+                {t("zarinpalIsShownOnlyAfterTheUserChooses")}
               </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-6 md:grid-cols-2">
@@ -221,9 +223,9 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                     <>
                       <FormItem className="flex items-center justify-between rounded-2xl border p-4">
                         <div>
-                          <FormLabel>Booking online card checkout</FormLabel>
+                          <FormLabel>{t("bookingOnlineCardCheckout")}</FormLabel>
                           <FormDescription>
-                            Show this gateway after the customer selects online card payment.
+                            {t("showThisGatewayAfterTheCustomerSelectsOnline")}
                           </FormDescription>
                         </div>
                         <FormControl>
@@ -237,9 +239,9 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
 
                       <FormItem className="flex items-center justify-between rounded-2xl border p-4">
                         <div>
-                          <FormLabel>Wallet top-up</FormLabel>
+                          <FormLabel>{t("walletTopUp")}</FormLabel>
                           <FormDescription>
-                            Allow users to increase wallet balance through this gateway.
+                            {t("allowUsersToIncreaseWalletBalanceThroughThis")}
                           </FormDescription>
                         </div>
                         <FormControl>
@@ -273,7 +275,7 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                   name="settings.merchantId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Merchant ID</FormLabel>
+                      <FormLabel>{t("merchantId")}</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
@@ -284,7 +286,7 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                           disabled={isPending}
                         />
                       </FormControl>
-                      <FormDescription>Leave blank to keep the current merchant id.</FormDescription>
+                      <FormDescription>{t("leaveBlankToKeepTheCurrentMerchantId")}</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -298,16 +300,16 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                     name="settings.serverUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Server URL</FormLabel>
+                        <FormLabel>{t("serverUrl")}</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
                             value={field.value || ""}
-                            placeholder="https://pay.lsevin.com"
+                            placeholder={t("httpsPayLsevinCom")}
                             disabled={isPending}
                           />
                         </FormControl>
-                        <FormDescription>Base URL of your self-hosted BTCPay Server.</FormDescription>
+                        <FormDescription>{t("baseUrlOfYourSelfHostedBtcpayServer")}</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -318,9 +320,9 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                     name="settings.storeId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Store ID</FormLabel>
+                        <FormLabel>{t("storeId")}</FormLabel>
                         <FormControl>
-                          <Input {...field} value={field.value || ""} placeholder="Greenfield store id" disabled={isPending} />
+                          <Input {...field} value={field.value || ""} placeholder={t("greenfieldStoreId")} disabled={isPending} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -332,7 +334,7 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                     name="settings.apiKey"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Greenfield API key</FormLabel>
+                        <FormLabel>{t("greenfieldApiKey")}</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -343,7 +345,7 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                             disabled={isPending}
                           />
                         </FormControl>
-                        <FormDescription>Leave blank to keep the current key.</FormDescription>
+                        <FormDescription>{t("leaveBlankToKeepTheCurrentKey")}</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -354,7 +356,7 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                     name="settings.webhookSecret"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Webhook secret</FormLabel>
+                        <FormLabel>{t("webhookSecret")}</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -366,7 +368,7 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                           />
                         </FormControl>
                         <FormDescription>
-                          Must match the secret on the BTCPay webhook pointing at /api/payments/btcpay/webhook.
+                          {t("mustMatchTheSecretOnTheBtcpayWebhook")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -378,7 +380,7 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                     name="settings.expirationMinutes"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Invoice expiration (minutes)</FormLabel>
+                        <FormLabel>{t("invoiceExpirationMinutes")}</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -389,7 +391,7 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                             disabled={isPending}
                           />
                         </FormControl>
-                        <FormDescription>How long the customer has to pay before the rate is re-quoted.</FormDescription>
+                        <FormDescription>{t("howLongTheCustomerHasToPayBefore")}</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -402,23 +404,23 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                 name="settings.currency"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Payment currency</FormLabel>
+                    <FormLabel>{t("paymentCurrency")}</FormLabel>
                     <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select currency" />
+                          <SelectValue placeholder={t("selectCurrency")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {isBtcPay ? (
                           <>
-                            <SelectItem value="USD">USD - US Dollar</SelectItem>
-                            <SelectItem value="EUR">EUR - Euro</SelectItem>
+                            <SelectItem value="USD">{t("usdUsDollar")}</SelectItem>
+                            <SelectItem value="EUR">{t("eurEuro")}</SelectItem>
                           </>
                         ) : (
                           <>
-                            <SelectItem value="IRR">IRR - Rial</SelectItem>
-                            <SelectItem value="IRT">IRT - Toman</SelectItem>
+                            <SelectItem value="IRR">{t("irrRial")}</SelectItem>
+                            <SelectItem value="IRT">{t("irtToman")}</SelectItem>
                           </>
                         )}
                       </SelectContent>
@@ -438,7 +440,7 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                 name="settings.minimumAmount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Minimum amount</FormLabel>
+                    <FormLabel>{t("minimumAmount")}</FormLabel>
                     <FormControl>
                       <Input {...field} value={String(field.value ?? "")} type="number" min={1} disabled={isPending} />
                     </FormControl>
@@ -452,7 +454,7 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                 name="settings.descriptionTemplate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Payment description template</FormLabel>
+                    <FormLabel>{t("paymentDescriptionTemplate")}</FormLabel>
                     <FormControl>
                       <Input {...field} disabled={isPending} />
                     </FormControl>
@@ -467,11 +469,11 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                 name="settings.requestEndpoint"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Custom request endpoint</FormLabel>
+                    <FormLabel>{t("customRequestEndpoint")}</FormLabel>
                     <FormControl>
-                      <Input {...field} value={field.value || ""} placeholder="Optional" disabled={isPending} />
+                      <Input {...field} value={field.value || ""} placeholder={t("optional")} disabled={isPending} />
                     </FormControl>
-                    <FormDescription>Reserved for a custom provider adapter or proxy.</FormDescription>
+                    <FormDescription>{t("reservedForACustomProviderAdapterOrProxy")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -482,11 +484,11 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                 name="settings.verificationEndpoint"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Custom verification endpoint</FormLabel>
+                    <FormLabel>{t("customVerificationEndpoint")}</FormLabel>
                     <FormControl>
-                      <Input {...field} value={field.value || ""} placeholder="Optional" disabled={isPending} />
+                      <Input {...field} value={field.value || ""} placeholder={t("optional")} disabled={isPending} />
                     </FormControl>
-                    <FormDescription>Reserved for a custom provider adapter or proxy.</FormDescription>
+                    <FormDescription>{t("reservedForACustomProviderAdapterOrProxy")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -496,7 +498,7 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
 
           <div className="flex justify-end gap-3">
             <Button asChild type="button" variant="outline">
-              <Link href="/admin/payment-gateways">Cancel</Link>
+              <Link href="/admin/payment-gateways">{t("cancel")}</Link>
             </Button>
             <Button type="submit" disabled={isPending}>
               <Save className="mr-2 h-4 w-4" />

@@ -11,6 +11,7 @@ import useAction from "@/hooks/use-action";
 import { Link } from "@/i18n/navigation";
 import { togglePaymentGatewayAction } from "@/payment/admin/actions";
 import type { PaymentGatewayConfig } from "@/payment/server/payment-gateway.repository";
+import { useTranslations } from "next-intl";
 
 function formatDate(value?: string | null) {
   if (!value) return "-";
@@ -26,6 +27,7 @@ function gatewayCurrency(gateway: PaymentGatewayConfig) {
 }
 
 export function PaymentGatewaysDashboard({ gateways }: { gateways: PaymentGatewayConfig[] }) {
+  const t = useTranslations("AdminGenerated");
   const [items, setItems] = useState(gateways);
   const [isPending, startTransition] = useTransition();
 
@@ -47,9 +49,9 @@ export function PaymentGatewaysDashboard({ gateways }: { gateways: PaymentGatewa
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Payment gateways</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("paymentGateways")}</h1>
           <p className="text-sm text-muted-foreground">
-            Enable gateways and manage checkout credentials without redeploying the app.
+            {t("enableGatewaysAndManageCheckoutCredentialsWithoutRedeploying")}
           </p>
         </div>
         <Badge variant="secondary" className="w-fit px-3 py-1 text-sm">
@@ -60,19 +62,19 @@ export function PaymentGatewaysDashboard({ gateways }: { gateways: PaymentGatewa
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Total gateways</CardDescription>
+            <CardDescription>{t("totalGateways")}</CardDescription>
             <CardTitle className="text-3xl">{items.length}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Enabled</CardDescription>
+            <CardDescription>{t("enabled")}</CardDescription>
             <CardTitle className="text-3xl">{enabledCount}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Primary gateway</CardDescription>
+            <CardDescription>{t("primaryGateway")}</CardDescription>
             <CardTitle className="truncate text-3xl">
               {items.find((item) => item.isEnabled)?.displayName || "Not set"}
             </CardTitle>
@@ -95,7 +97,7 @@ export function PaymentGatewaysDashboard({ gateways }: { gateways: PaymentGatewa
                       {gateway.isEnabled ? "Enabled" : "Disabled"}
                     </Badge>
                     <Badge variant="outline">{gatewayCurrency(gateway)}</Badge>
-                    {gateway.settings.sandbox ? <Badge variant="outline">Sandbox</Badge> : <Badge variant="outline">Live</Badge>}
+                    {gateway.settings.sandbox ? <Badge variant="outline">{t("sandbox")}</Badge> : <Badge variant="outline">{t("live")}</Badge>}
                   </div>
                   <CardDescription className="mt-1">
                     {gateway.description || "No description."}
@@ -116,7 +118,7 @@ export function PaymentGatewaysDashboard({ gateways }: { gateways: PaymentGatewa
                 <Button asChild variant="outline">
                   <Link href={`/admin/payment-gateways/${gateway.code}`}>
                     <Edit className="mr-2 h-4 w-4" />
-                    Settings
+                    {t("settings")}
                   </Link>
                 </Button>
               </div>
@@ -124,19 +126,19 @@ export function PaymentGatewaysDashboard({ gateways }: { gateways: PaymentGatewa
 
             <CardContent className="grid gap-4 p-4 text-sm md:grid-cols-4">
               <div>
-                <p className="text-muted-foreground">Provider</p>
+                <p className="text-muted-foreground">{t("provider")}</p>
                 <p className="font-medium">{gateway.provider}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Minimum amount</p>
+                <p className="text-muted-foreground">{t("minimumAmount")}</p>
                 <p className="font-medium">{gateway.settings.minimumAmount?.toLocaleString()} {gateway.settings.currency}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Merchant</p>
+                <p className="text-muted-foreground">{t("merchant")}</p>
                 <p className="font-medium">{gateway.settings.merchantId || "Not configured"}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Updated</p>
+                <p className="text-muted-foreground">{t("updated")}</p>
                 <p className="font-medium">{formatDate(gateway.updatedAt)}</p>
               </div>
             </CardContent>
@@ -148,10 +150,10 @@ export function PaymentGatewaysDashboard({ gateways }: { gateways: PaymentGatewa
         <CardHeader>
           <div className="flex items-center gap-2">
             <Settings size={18} />
-            <CardTitle className="text-base">Adding more gateways</CardTitle>
+            <CardTitle className="text-base">{t("addingMoreGateways")}</CardTitle>
           </div>
           <CardDescription>
-            Add a provider implementation, register it in the payment provider registry, then seed its row in booking.payment_gateways.
+            {t("addAProviderImplementationRegisterItInThe")}
           </CardDescription>
         </CardHeader>
       </Card>

@@ -355,6 +355,7 @@ export function ServiceProviderAdminDashboard({
   lookups,
   locale,
 }: Props) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const tabs = [
     ["overview", "Overview"],
@@ -398,7 +399,7 @@ export function ServiceProviderAdminDashboard({
             </div>
             <Button asChild>
               <Link href={`/admin/service-providers/${provider.id}/update`}>
-                <Edit className="me-2 h-4 w-4" /> Edit profile
+                <Edit className="me-2 h-4 w-4" /> {t("editProfile")}
               </Link>
             </Button>
           </div>
@@ -489,6 +490,7 @@ function ServiceBeforeAfterTab({
   provider: AdminServiceProviderDetails;
   locale: string;
 }) {
+  const t = useTranslations("AdminGenerated");
   const services = provider.services;
   const [serviceId, setServiceId] = useState(services[0]?.id ?? "");
   const [panel, setPanel] = useState<ChildCollectionPanel | null>(null);
@@ -516,7 +518,7 @@ function ServiceBeforeAfterTab({
   if (!services.length) {
     return (
       <p className="text-sm text-muted-foreground">
-        This provider has no services yet. Add a service in the Services tab first.
+        {t("thisProviderHasNoServicesYetAddA")}
       </p>
     );
   }
@@ -524,10 +526,10 @@ function ServiceBeforeAfterTab({
   return (
     <div className="space-y-4">
       <div className="max-w-md">
-        <label className="mb-2 block text-sm font-medium">Service</label>
+        <label className="mb-2 block text-sm font-medium">{t("service")}</label>
         <Select value={serviceId} onValueChange={setServiceId}>
           <SelectTrigger>
-            <SelectValue placeholder="Select a service" />
+            <SelectValue placeholder={t("selectAService")} />
           </SelectTrigger>
           <SelectContent>
             {services.map((service) => (
@@ -538,7 +540,7 @@ function ServiceBeforeAfterTab({
           </SelectContent>
         </Select>
         <p className="mt-1 text-xs text-muted-foreground">
-          Manage before/after photos for the selected service.
+          {t("manageBeforeAfterPhotosForTheSelectedService")}
         </p>
       </div>
 
@@ -681,6 +683,7 @@ function CertificationsManager({
 }: {
   provider: AdminServiceProviderDetails;
 }) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -732,7 +735,7 @@ function CertificationsManager({
           <SingleMediaPickerInput
             name="provider-certification-image"
             label="Certificate image"
-            placeholder="Pick certificate image"
+            placeholder={t("pickCertificateImage")}
             mediaType="image"
             value={imageUrl}
             onValueChange={setImageUrl}
@@ -743,7 +746,7 @@ function CertificationsManager({
           <SingleMediaPickerInput
             name="provider-certification-secondary-image"
             label="Second image"
-            placeholder="Pick second image"
+            placeholder={t("pickSecondImage")}
             mediaType="image"
             value={secondaryImageUrl}
             onValueChange={setSecondaryImageUrl}
@@ -765,7 +768,7 @@ function CertificationsManager({
             }
             disabled={isPending || !name.trim()}
           >
-            <Plus className="me-2 h-4 w-4" /> Add
+            <Plus className="me-2 h-4 w-4" /> {t("add")}
           </Button>
         </div>
       </div>
@@ -782,8 +785,8 @@ function CertificationsManager({
                   {item.isVerified ? (
                     <Badge variant="outline">{tAdmin("verified")}</Badge>
                   ) : null}
-                  {item.imageUrl ? <Badge variant="secondary">Image 1</Badge> : null}
-                  {item.secondaryImageUrl ? <Badge variant="secondary">Image 2</Badge> : null}
+                  {item.imageUrl ? <Badge variant="secondary">{t("image1")}</Badge> : null}
+                  {item.secondaryImageUrl ? <Badge variant="secondary">{t("image2")}</Badge> : null}
                 </div>
                 {(item.imageUrl || item.secondaryImageUrl) ? (
                   <div className="mt-3 flex flex-wrap gap-3">
@@ -837,6 +840,7 @@ function GalleryManager({
   provider: AdminServiceProviderDetails;
   locale: string;
 }) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
   const galleryForm = useForm<ProviderGalleryDraftForm>({
@@ -902,8 +906,7 @@ function GalleryManager({
     >
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-dashed p-3">
         <p className="text-sm text-muted-foreground">
-          Add several images in one go, or use the form below to add a single
-          item with a title, description and order.
+          {t("addSeveralImagesInOneGoOrUse")}
         </p>
         <ProviderGalleryPickerButton
           serviceProviderId={provider.id}
@@ -1002,7 +1005,7 @@ function GalleryManager({
             disabled={isPending}
             className="self-start"
           >
-            <Plus className="me-2 h-4 w-4" /> Add
+            <Plus className="me-2 h-4 w-4" /> {t("add")}
           </Button>
         </div>
       </Form>
@@ -1054,6 +1057,7 @@ type ProviderPolicyDraftForm = {
 };
 
 function PoliciesManager({ provider, lookups, locale }: Props) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -1186,7 +1190,7 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
             disabled={isPending}
             className="self-start"
           >
-            <Plus className="me-2 h-4 w-4" /> Add
+            <Plus className="me-2 h-4 w-4" /> {t("add")}
           </Button>
         </div>
       </Form>
@@ -1231,6 +1235,7 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
 }
 
 function AttributesManager({ provider, lookups, locale }: Props) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
   const [attributeDefinitionId, setAttributeDefinitionId] = useState("");
@@ -1284,7 +1289,7 @@ function AttributesManager({ provider, lookups, locale }: Props) {
           }
           disabled={isPending || !attributeDefinitionId || !value.trim()}
         >
-          <Plus className="me-2 h-4 w-4" /> Save
+          <Plus className="me-2 h-4 w-4" /> {t("save")}
         </Button>
       </div>
       <div className="space-y-2">
@@ -1356,6 +1361,7 @@ function emptyServiceFormValues(
 }
 
 function ServicesManager({ provider, lookups, locale }: Props) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
   const [showForm, setShowForm] = useState(false);
@@ -1464,9 +1470,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="text-sm text-muted-foreground">
-          Use the service definition selector, localized rich text fields,
-          currency list, and media picker. Prices are formatted with thousands
-          separators.
+          {t("useTheServiceDefinitionSelectorLocalizedRichText")}
         </div>
         <Button
           type="button"
@@ -1474,7 +1478,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
           disabled={isPending}
           className="self-start sm:self-auto"
         >
-          <Plus className="me-2 h-4 w-4" /> Add provider service
+          <Plus className="me-2 h-4 w-4" /> {t("addProviderService")}
         </Button>
       </div>
 
@@ -1489,8 +1493,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                     : "Add provider service"}
                 </CardTitle>
                 <CardDescription>
-                  Name and description keep the full localized JSON object,
-                  including Lexical rich-text values.
+                  {t("nameAndDescriptionKeepTheFullLocalizedJson")}
                 </CardDescription>
               </div>
               <Button
@@ -1656,7 +1659,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                     name="trendingScoreText"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Trending score</FormLabel>
+                        <FormLabel>{t("trendingScore")}</FormLabel>
                         <FormControl>
                           <Input
                             dir="ltr"
@@ -1791,7 +1794,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                     }}
                     disabled={isPending}
                   >
-                    Cancel
+                    {t("cancel")}
                   </Button>
                   <Button
                     type="button"
@@ -1873,7 +1876,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                     onClick={() => startEdit(item)}
                     disabled={isPending}
                   >
-                    <Edit className="me-2 h-4 w-4" /> Edit
+                    <Edit className="me-2 h-4 w-4" /> {t("edit")}
                   </Button>
                   <Button
                     variant="ghost"
@@ -2033,6 +2036,7 @@ function ReviewsManager({
 }: {
   provider: AdminServiceProviderDetails;
 }) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
   const [draft, setDraft] = useState(emptyReviewDraft);
@@ -2334,7 +2338,7 @@ function ReviewsManager({
               !draft.customerName.trim()
             }
           >
-            <Plus className="me-2 h-4 w-4" /> Add review
+            <Plus className="me-2 h-4 w-4" /> {t("addReview")}
           </Button>
         </div>
       </div>
@@ -2405,7 +2409,7 @@ function ReviewsManager({
                   {item.replies?.length ? (
                     <div className="space-y-2 rounded-xl border bg-muted/30 p-3">
                       <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        Replies
+                        {t("replies")}
                       </div>
                       {item.replies.map((reply) => (
                         <div key={reply.id} className="rounded-lg border bg-background p-2">
@@ -2443,7 +2447,7 @@ function ReviewsManager({
                               }
                               disabled={isPending}
                             >
-                              Accept
+                              {t("accept")}
                             </Button>
                             <Button
                               variant="outline"
@@ -2458,7 +2462,7 @@ function ReviewsManager({
                               }
                               disabled={isPending}
                             >
-                              Reject
+                              {t("reject")}
                             </Button>
                             <Button
                               variant="outline"
@@ -2473,7 +2477,7 @@ function ReviewsManager({
                               }
                               disabled={isPending}
                             >
-                              Pending
+                              {t("pending")}
                             </Button>
                             <Button
                               variant="ghost"
@@ -2518,7 +2522,7 @@ function ReviewsManager({
                         onClick={() => submitAdminReply(item.id)}
                         disabled={isPending || String(replyDrafts[item.id] || "").trim().length < 2}
                       >
-                        <Plus className="me-2 h-4 w-4" /> Add reply
+                        <Plus className="me-2 h-4 w-4" /> {t("addReply")}
                       </Button>
                     </div>
                   </div>
@@ -2533,7 +2537,7 @@ function ReviewsManager({
                     onClick={() => setModeration(item, "approved")}
                     disabled={isPending}
                   >
-                    Accept
+                    {t("accept")}
                   </Button>
                   <Button
                     variant="outline"
@@ -2541,7 +2545,7 @@ function ReviewsManager({
                     onClick={() => setModeration(item, "rejected")}
                     disabled={isPending}
                   >
-                    Reject
+                    {t("reject")}
                   </Button>
                   <Button
                     variant="outline"
@@ -2549,7 +2553,7 @@ function ReviewsManager({
                     onClick={() => setModeration(item, "pending")}
                     disabled={isPending}
                   >
-                    Pending
+                    {t("pending")}
                   </Button>
                   <Button
                     variant="outline"
@@ -2721,6 +2725,7 @@ function BookingsTab({ provider }: { provider: AdminServiceProviderDetails }) {
 }
 
 function RecommendationsManager({ provider, lookups, locale }: Props) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
   const [targetProviderId, setTargetProviderId] = useState("");
@@ -2757,7 +2762,7 @@ function RecommendationsManager({ provider, lookups, locale }: Props) {
         <Input
           value={type}
           onChange={(e) => setType(e.target.value)}
-          placeholder="similar/local/international"
+          placeholder={t("similarLocalInternational")}
           disabled={isPending}
         />
         <Button
@@ -2770,7 +2775,7 @@ function RecommendationsManager({ provider, lookups, locale }: Props) {
           }
           disabled={isPending || !targetProviderId || !type.trim()}
         >
-          <Plus className="me-2 h-4 w-4" /> Add
+          <Plus className="me-2 h-4 w-4" /> {t("add")}
         </Button>
       </div>
       <div className="space-y-2">
