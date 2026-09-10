@@ -64,7 +64,7 @@ export async function PanelShell({ user, children }: PropsWithChildren<{ user: P
         <aside className="sticky top-0 hidden h-screen overflow-auto bg-gradient-to-b from-[#073d30] to-[#0b5d46] p-4 text-white lg:block print:hidden">
           <div className="mb-3 flex items-center gap-3 border-b border-white/10 px-2 pb-4">
             <div className="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-[#d6af5a] to-[#f4d98c] font-black text-[#063d2f]">
-              LS
+              {t("ls")}
             </div>
             <div>
               <p className="text-base font-semibold leading-tight">{t("panelName")}</p>

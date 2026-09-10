@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 
@@ -25,6 +26,7 @@ export function AttributeOptionManager({
   addOptionLabel = "Add Option",
   noOptionsLabel = "Click 'Add Option' to create selection options",
 }: AttributeOptionManagerProps) {
+  const t = useTranslations("Common");
   const [localOptions, setLocalOptions] =
     useState<BaseAttributeOption[]>(options);
 
@@ -66,7 +68,7 @@ export function AttributeOptionManager({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <label className="text-sm font-medium">Options</label>
+        <label className="text-sm font-medium">{t("options")}</label>
         <Button
           type="button"
           variant="outline"
@@ -82,30 +84,30 @@ export function AttributeOptionManager({
       {localOptions.map((option, index) => (
         <div key={index} className="flex items-end gap-2 rounded-lg border p-3">
           <div className="flex-1 space-y-2">
-            <label className="text-xs">Display Name</label>
+            <label className="text-xs">{t("displayName")}</label>
             <Input
               value={option.displayName}
               onChange={(e) =>
                 updateOption(index, "displayName", e.target.value)
               }
-              placeholder="Option display name"
+              placeholder={t("optionDisplayName")}
               disabled={disabled}
             />
           </div>
 
           <div className="flex-1 space-y-2">
-            <label className="text-xs">Value</label>
+            <label className="text-xs">{t("value")}</label>
             <Input
               value={option.value}
               onChange={(e) => updateOption(index, "value", e.target.value)}
-              placeholder="option_value"
+              placeholder={t("optionValue")}
               disabled={disabled}
             />
           </div>
 
           {showAdditionalPrice && (
             <div className="w-32 space-y-2">
-              <label className="text-xs">Extra Price</label>
+              <label className="text-xs">{t("extraPrice")}</label>
               <Input
                 type="number"
                 min="0"

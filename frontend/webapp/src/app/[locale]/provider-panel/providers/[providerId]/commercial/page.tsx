@@ -1,9 +1,11 @@
+import { getTranslations } from "next-intl/server";
 import Link from 'next/link';
 import { Banknote, ReceiptText, WalletCards } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getProviderCommercialDashboard } from '@/features/provider-commercial/server/repository';
 
 export default async function ProviderCommercialDashboardPage({ params }: { params: Promise<{ providerId: string }> }) {
+  const t = await getTranslations("ProviderPortal");
   const { providerId } = await params;
   const data = await getProviderCommercialDashboard(providerId);
   const cards = [
@@ -13,14 +15,14 @@ export default async function ProviderCommercialDashboardPage({ params }: { para
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Provider commercial operations</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{t("providerCommercialOperations")}</h1>
         <p className="text-sm text-muted-foreground">{data.provider?.name ?? providerId} — earnings, refund requests, and booking payment visibility.</p>
       </div>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card><CardHeader><CardTitle>Open amount</CardTitle></CardHeader><CardContent>{Number(data.open_amount ?? 0).toFixed(2)}</CardContent></Card>
-        <Card><CardHeader><CardTitle>Paid amount</CardTitle></CardHeader><CardContent>{Number(data.paid_amount ?? 0).toFixed(2)}</CardContent></Card>
-        <Card><CardHeader><CardTitle>Requested refunds</CardTitle></CardHeader><CardContent>{data.requested_refunds ?? 0}</CardContent></Card>
-        <Card><CardHeader><CardTitle>Approved refunds</CardTitle></CardHeader><CardContent>{data.approved_refunds ?? 0}</CardContent></Card>
+        <Card><CardHeader><CardTitle>{t("openAmount")}</CardTitle></CardHeader><CardContent>{Number(data.open_amount ?? 0).toFixed(2)}</CardContent></Card>
+        <Card><CardHeader><CardTitle>{t("paidAmount")}</CardTitle></CardHeader><CardContent>{Number(data.paid_amount ?? 0).toFixed(2)}</CardContent></Card>
+        <Card><CardHeader><CardTitle>{t("requestedRefunds")}</CardTitle></CardHeader><CardContent>{data.requested_refunds ?? 0}</CardContent></Card>
+        <Card><CardHeader><CardTitle>{t("approvedRefunds")}</CardTitle></CardHeader><CardContent>{data.approved_refunds ?? 0}</CardContent></Card>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         {cards.map((card) => {

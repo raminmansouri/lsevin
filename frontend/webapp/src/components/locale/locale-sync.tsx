@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { usePathname as useRawPathname } from "next/navigation";
 
 import { getDirection } from "@/config/locales";

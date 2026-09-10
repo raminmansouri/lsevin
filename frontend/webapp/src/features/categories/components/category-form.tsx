@@ -50,6 +50,7 @@ interface CategoryFormProps {
 }
 
 export function CategoryForm({ category }: CategoryFormProps) {
+  const t = useTranslations("Category");
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -192,9 +193,9 @@ export function CategoryForm({ category }: CategoryFormProps) {
 
                 <div className="rounded-xl border bg-muted/20 p-4 space-y-4">
                   <div className="space-y-1">
-                    <h3 className="text-sm font-semibold">Category card overlay</h3>
+                    <h3 className="text-sm font-semibold">{t("categoryCardOverlay")}</h3>
                     <p className="text-xs text-muted-foreground">
-                      This controls the colored layer shown over category images on the home page and categories page.
+                      {t("thisControlsTheColoredLayerShownOverCategory")}
                     </p>
                   </div>
 
@@ -204,7 +205,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
                       name="overlayColor"
                       render={({ field }) => (
                         <FormItem>
-                          <label className="text-sm font-medium">Overlay color</label>
+                          <label className="text-sm font-medium">{t("overlayColor")}</label>
                           <FormControl>
                             <div className="flex items-center gap-3">
                               <Input
@@ -216,7 +217,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
                               <Input
                                 value={field.value || DEFAULT_CATEGORY_OVERLAY_COLOR}
                                 onChange={field.onChange}
-                                placeholder="#083f30"
+                                placeholder={t("n083f30")}
                               />
                             </div>
                           </FormControl>
@@ -229,7 +230,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
                       name="overlayOpacity"
                       render={({ field }) => (
                         <FormItem>
-                          <label className="text-sm font-medium">Overlay opacity</label>
+                          <label className="text-sm font-medium">{t("overlayOpacity")}</label>
                           <FormControl>
                             <div className="flex items-center gap-3">
                               <Input
@@ -308,6 +309,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
 }
 
 function CategoryImageUploadForm({ category }: { category: CategoryDetails }) {
+  const t = useTranslations("Category");
   const router = useRouter();
   const { invalidateAllCache } = useCategoriesBySearchCacheManagement();
 
@@ -360,9 +362,9 @@ function CategoryImageUploadForm({ category }: { category: CategoryDetails }) {
   return (
     <div className="rounded-lg border p-4 h-fit space-y-4">
       <div className="space-y-1">
-        <h3 className="text-base font-semibold">Category image</h3>
+        <h3 className="text-base font-semibold">{t("categoryImage")}</h3>
         <p className="text-sm text-muted-foreground">
-          Upload or replace the category image separately.
+          {t("uploadOrReplaceTheCategoryImageSeparately")}
         </p>
       </div>
 
@@ -376,7 +378,7 @@ function CategoryImageUploadForm({ category }: { category: CategoryDetails }) {
         </div>
       ) : (
         <div className="flex h-48 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
-          No image selected
+          {t("noImageSelected")}
         </div>
       )}
 
@@ -415,7 +417,7 @@ function CategoryImageUploadForm({ category }: { category: CategoryDetails }) {
               }
             }}
           >
-            Clear
+            {t("clear")}
           </Button>
         </div>
       </form>

@@ -916,10 +916,10 @@ function StaffGalleryForm({
           {...form.register("mediaType")}
           className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm"
         >
-          <option value="image">Image</option>
-          <option value="gif">GIF</option>
-          <option value="video">Video</option>
-          <option value="file">File</option>
+          <option value="image">{t("image")}</option>
+          <option value="gif">{t("gif")}</option>
+          <option value="video">{t("video")}</option>
+          <option value="file">{t("file")}</option>
         </select>
       </Field>
       <Field label="Description English">

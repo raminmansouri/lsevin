@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
 
 import {
@@ -17,6 +18,7 @@ const KINDS = [
 ];
 
 export function DimensionForm() {
+  const t = useTranslations("AdminPages");
   const [kind, setKind] = useState("cost_center");
   const [state, action, pending] = useActionState<ActionState, FormData>(
     createDimensionAction,
@@ -60,7 +62,7 @@ export function DimensionForm() {
           <input
             name="code"
             required
-            placeholder="OPS"
+            placeholder={t("ops")}
             dir="ltr"
             className="w-full rounded-md border p-2"
           />
@@ -91,10 +93,10 @@ export function DimensionForm() {
               <span className="mb-1 block font-medium">ارز بودجه</span>
               <select name="budget-currency" className="w-full rounded-md border p-2">
                 <option value="">—</option>
-                <option value="IRR">IRR</option>
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-                <option value="TRY">TRY</option>
+                <option value="IRR">{t("irr")}</option>
+                <option value="USD">{t("usd")}</option>
+                <option value="EUR">{t("eur")}</option>
+                <option value="TRY">{t("try")}</option>
               </select>
             </label>
           </>

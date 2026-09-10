@@ -76,6 +76,7 @@ function detectServiceMediaType(item?: MediaItem | null): "image" | "video" | "g
 }
 
 export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFormProps) {
+  const t = useTranslations("ServiceDefinition");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const locale = useLocale();
@@ -206,9 +207,9 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
 
                 <div className="rounded-2xl border bg-muted/20 p-4">
                   <div className="mb-4">
-                    <h3 className="text-sm font-semibold">Service definition media</h3>
+                    <h3 className="text-sm font-semibold">{t("serviceDefinitionMedia")}</h3>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Pick one hero visual for this service definition. The value is stored as a virtual media reference or direct URL, not a database foreign key.
+                      {t("pickOneHeroVisualForThisServiceDefinition")}
                     </p>
                   </div>
 
@@ -231,7 +232,7 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
                                 });
                               }}
                               label="Media"
-                              placeholder="Pick image, video, or GIF"
+                              placeholder={t("pickImageVideoOrGif")}
                               mediaType="all"
                               helperText="Stores one media picker value in a hidden input. GIF files are detected from image/gif MIME type or .gif extension."
                               modalTitle="Pick service definition media"
@@ -248,7 +249,7 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
                       name="mediaType"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Media type</FormLabel>
+                          <FormLabel>{t("mediaType")}</FormLabel>
                           <FormControl>
                             <select
                               value={field.value || "image"}
@@ -263,7 +264,7 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
                               ))}
                             </select>
                           </FormControl>
-                          <p className="text-xs text-muted-foreground">Override auto-detection for legacy URLs when needed.</p>
+                          <p className="text-xs text-muted-foreground">{t("overrideAutoDetectionForLegacyUrlsWhenNeeded")}</p>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -325,7 +326,7 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
                             locale={locale}
                             value={field.value}
                             onValueChange={(nextValue) => field.onChange(nextValue ?? "")}
-                            placeholder="Currency"
+                            placeholder={t("currency")}
                             searchPlaceholder="Search currencies..."
                             emptyMessage="No currency found."
                             initialOptions={initialCurrencyOptions}
@@ -365,7 +366,7 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
                           locale={locale}
                           value={field.value}
                           onValueChange={(nextValue) => field.onChange(nextValue ?? "")}
-                          placeholder="Pricing model"
+                          placeholder={t("pricingModel")}
                           searchPlaceholder="Search pricing models..."
                           emptyMessage="No pricing model found."
                           initialOptions={initialPricingModelOptions}
@@ -385,7 +386,7 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
                     <FormItem className="flex items-center justify-between rounded-xl border bg-background p-4">
                       <div>
                         <FormLabel>{componentT("form.isActive.label")}</FormLabel>
-                        <p className="text-muted-foreground text-xs">Show this service definition in provider setup and booking flows.</p>
+                        <p className="text-muted-foreground text-xs">{t("showThisServiceDefinitionInProviderSetupAnd")}</p>
                       </div>
                       <FormControl>
                         <Switch checked={field.value} onCheckedChange={field.onChange} disabled={isPending} />

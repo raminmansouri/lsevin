@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 import LocaleSwitcher from "./locale/locale-switcher";
 import NotificationsBar from "@/features/shared/components/Notifications/notifications-bar";
 import { Link } from "@/i18n/navigation";
@@ -11,13 +13,14 @@ import { Link } from "@/i18n/navigation";
  * render their own canopy continue the same pine underneath it with no seam.
  */
 export default function MobileAppBar() {
+  const t = useTranslations("Common");
   return (
     <header className="sticky top-0 z-50 bg-[#052a20]">
       <nav className="flex items-center justify-between px-5 pb-2 pt-3">
         <Link href="/" className="shrink-0">
           {/* The wordmark is the app's identity mark here, not a masthead — small,
               wide-tracked and gold, so it reads as a logo lockup at a glance. */}
-          <span className="text-lg font-bold tracking-[0.3em] text-[#eacb7f]">L SEVIN</span>
+          <span className="text-lg font-bold tracking-[0.3em] text-[#eacb7f]">{t("lSevin")}</span>
         </Link>
 
         <div className="flex items-center gap-2">

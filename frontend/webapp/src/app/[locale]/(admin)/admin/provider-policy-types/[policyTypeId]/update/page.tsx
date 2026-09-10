@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 
 import { PageHeader } from "@/components/page/page-header";
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
 
 const UpdateProviderPolicyTypePage = async ({ params }: PageProps<PageParams>) => {
   const { locale, policyTypeId } = await params;
+  const t = await getTranslations("AdminPages");
   const result = await getProviderPolicyTypeByIdServer(policyTypeId, { locale });
 
   return (
@@ -29,7 +31,7 @@ const UpdateProviderPolicyTypePage = async ({ params }: PageProps<PageParams>) =
       ) : result.data ? (
         <ProviderPolicyTypeForm key={result.data.id} item={result.data} />
       ) : (
-        <div className="p-6 text-sm text-muted-foreground">Provider policy type was not found.</div>
+        <div className="p-6 text-sm text-muted-foreground">{t("providerPolicyTypeWasNotFound")}</div>
       )}
     </Card>
   );

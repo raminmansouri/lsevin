@@ -53,7 +53,7 @@ export default async function WalletPaymentIntentsPage() {
                   {item.gateway_reference ? <div className="text-xs text-muted-foreground">{t("reference")}: <span dir="ltr">{item.gateway_reference}</span></div> : null}
 
                   {isCrypto ? (
-                    <span className="inline-block rounded bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">crypto</span>
+                    <span className="inline-block rounded bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">{t("crypto")}</span>
                   ) : null}
 
                   {network ? (

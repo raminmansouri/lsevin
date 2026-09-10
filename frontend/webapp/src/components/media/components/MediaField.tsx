@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { ImagePlus, Paperclip, PlayCircle, Trash2 } from "lucide-react";
 import { ReactNode, useMemo, useState } from "react";
 
@@ -78,10 +79,11 @@ function SinglePreview({
   onRemove: () => void;
   disabled?: boolean;
 }) {
+  const t = useTranslations("Common");
   if (!item) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
-        No file selected yet.
+        {t("noFileSelectedYet")}
       </div>
     );
   }
@@ -128,10 +130,11 @@ function MultiPreview({
   onRemove: (id: string) => void;
   disabled?: boolean;
 }) {
+  const t = useTranslations("Common");
   if (items.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
-        No files selected yet.
+        {t("noFilesSelectedYet")}
       </div>
     );
   }

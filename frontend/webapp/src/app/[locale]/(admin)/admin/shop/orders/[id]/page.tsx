@@ -237,7 +237,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                       {d(`invoiceType_${inv.type}` as never)} · <span className="font-mono text-xs">{inv.invoiceNumber}</span> · {inv.status}
                       {" · "}{inv.currency} {inv.total.toFixed(2)}
                     </span>
-                    {inv.pdfUrl ? <a href={inv.pdfUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-[#083f30]">PDF</a> : null}
+                    {inv.pdfUrl ? <a href={inv.pdfUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-[#083f30]">{t("pdf")}</a> : null}
                   </li>
                 ))}
               </ul>

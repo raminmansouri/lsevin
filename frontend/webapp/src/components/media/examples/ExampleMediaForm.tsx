@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useForm, Controller } from "react-hook-form";
 
 import { uploadMediaUsingServerActionExample } from "../examples/use-server-action-upload-handler.example";
@@ -19,6 +20,7 @@ type ExampleFormValues = {
 };
 
 export function ExampleMediaForm() {
+  const t = useTranslations("Common");
   const form = useForm<ExampleFormValues>({
     defaultValues: {
       thumbnail: null,
@@ -34,10 +36,10 @@ export function ExampleMediaForm() {
     <div className="mx-auto max-w-6xl space-y-8 p-6">
       <div>
         <div className="text-2xl font-semibold text-slate-950">
-          Example media-enabled form
+          {t("exampleMediaEnabledForm")}
         </div>
         <div className="mt-1 text-sm text-slate-500">
-          This shows Controller-based integration for image, video, file, and gallery fields.
+          {t("thisShowsControllerBasedIntegrationForImageVideo")}
         </div>
       </div>
 
@@ -109,20 +111,20 @@ export function ExampleMediaForm() {
             type="submit"
             className="rounded-2xl bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
           >
-            Submit example form
+            {t("submitExampleForm")}
           </button>
           <button
             type="button"
             onClick={() => form.reset()}
             className="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300"
           >
-            Reset
+            {t("reset")}
           </button>
         </div>
 
         <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-5">
           <div className="mb-3 text-sm font-semibold text-slate-900">
-            Current form value
+            {t("currentFormValue")}
           </div>
           <pre className="overflow-x-auto text-xs text-slate-700">
             {JSON.stringify(values, null, 2)}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { GripVertical, ImagePlus, Star, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 
@@ -35,6 +36,7 @@ export function GalleryEditor({
   locales = DEFAULT_MEDIA_LOCALES,
   disabled,
 }: GalleryEditorProps) {
+  const t = useTranslations("Common");
   const dragIndexRef = useRef<number | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(value[0]?.media.id ?? null);
 
@@ -85,7 +87,7 @@ export function GalleryEditor({
         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm">
           <ImagePlus className="h-5 w-5" />
         </div>
-        No gallery items selected yet.
+        {t("noGalleryItemsSelectedYet")}
       </div>
     );
   }
@@ -190,7 +192,7 @@ export function GalleryEditor({
               >
                 <span className="inline-flex items-center gap-1">
                   <Trash2 className="h-3.5 w-3.5" />
-                  Remove
+                  {t("remove")}
                 </span>
               </button>
             </div>

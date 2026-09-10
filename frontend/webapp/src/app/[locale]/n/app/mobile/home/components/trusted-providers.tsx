@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { BadgeCheck, Star } from 'lucide-react';
 
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
@@ -63,6 +65,7 @@ function TrustedProviderCard({
   labels: HomeTrustedProviderLabels;
   variant?: HomeTrustedProviderVariant;
 }) {
+  const t = useTranslations("Common");
   const mediaUrl = resolveHomeMediaUrl(provider.imageUrl);
   const isGrid = variant === 'grid';
   // In the grid the cards share a row height, so the tag row has to be bounded
@@ -87,7 +90,7 @@ function TrustedProviderCard({
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#083f30] to-[#0f6b56] text-xs font-semibold text-white/80">
-            LSevin
+            {t("lsevin")}
           </div>
         )}
 

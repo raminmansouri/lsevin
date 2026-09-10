@@ -25,7 +25,7 @@ export default async function WalletReceiptPage({ params }: WalletReceiptPagePro
       <div className="max-w-2xl mx-auto px-6 py-10">
         <div className="flex items-start justify-between mb-10 gap-6">
           <div>
-            <p className="text-sm uppercase tracking-[0.18em] text-gray-500 mb-3">LSevin</p>
+            <p className="text-sm uppercase tracking-[0.18em] text-gray-500 mb-3">{t("lsevin")}</p>
             <h1 className="text-3xl font-bold">{t("title")}</h1>
             <p className="text-sm text-gray-500 mt-2">{formatLongDate(transaction.occurredAt)}</p>
           </div>

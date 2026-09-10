@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export default async function AdminSchemaTablePage({ params, searchParams }: Props) {
+  const t = await getTranslations("AdminPages");
   const { locale, schemaName, tableName } = await params;
   const query = await searchParams;
   if (!isAdminSchemaName(schemaName)) notFound();
@@ -29,7 +31,7 @@ export default async function AdminSchemaTablePage({ params, searchParams }: Pro
   return (
     <div className="space-y-4">
       <Button asChild variant="ghost" className="px-0">
-        <Link href="/admin/platform-data">← Back to platform data</Link>
+        <Link href="/admin/platform-data">{t("backToPlatformData")}</Link>
       </Button>
       <AdminDataTable config={config} result={result} search={query.q} locale={locale} />
     </div>

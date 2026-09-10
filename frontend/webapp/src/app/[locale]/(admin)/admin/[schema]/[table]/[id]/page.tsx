@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Pencil } from "lucide-react";
@@ -11,6 +12,7 @@ type Props = {
 };
 
 export default async function ViewRecordPage({ params }: Props) {
+  const t = await getTranslations("AdminPages");
   const { schema, table, id } = await params;
   await assertAdminPermission(schema, table, "single");
 
@@ -40,7 +42,7 @@ export default async function ViewRecordPage({ params }: Props) {
             className="inline-flex items-center gap-2 rounded-2xl bg-zinc-900 px-4 py-2 text-sm text-white dark:bg-white dark:text-zinc-950"
           >
             <Pencil className="h-4 w-4" />
-            Edit
+            {t("edit")}
           </Link>
         </div>
 

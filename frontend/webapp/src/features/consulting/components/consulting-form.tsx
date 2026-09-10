@@ -255,7 +255,7 @@ export function ConsultingForm({ documents }: Props) {
                                           >
                                             <ExternalLink className="size-2" />
                                             <span className="sr-only">
-                                              View document
+                                              {t("viewDocument")}
                                             </span>
                                           </Link>
                                         </Button>

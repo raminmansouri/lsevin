@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { Check, ChevronsUpDown, icons, X } from "lucide-react";
 
@@ -38,6 +39,7 @@ export function IconSelector({
   placeholder = "Select icon",
   disabled = false,
 }: IconSelectorProps) {
+  const t = useTranslations("Common");
   const [open, setOpen] = useState(false);
 
   // Get all icon names on mount (memoized)
@@ -96,9 +98,9 @@ export function IconSelector({
       </PopoverTrigger>
       <PopoverContent className="w-full p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search icons..." />
+          <CommandInput placeholder={t("searchIcons")} />
           <CommandList>
-            <CommandEmpty>No icon found.</CommandEmpty>
+            <CommandEmpty>{t("noIconFound")}</CommandEmpty>
             {/* None Option */}
             <CommandGroup heading="Options">
               <CommandItem value="__none__" onSelect={handleSelect}>
@@ -109,7 +111,7 @@ export function IconSelector({
                   )}
                 />
                 <X className="text-muted-foreground mr-2 h-4 w-4" />
-                <span className="text-muted-foreground">None</span>
+                <span className="text-muted-foreground">{t("none")}</span>
               </CommandItem>
             </CommandGroup>
             {/* Icon List */}

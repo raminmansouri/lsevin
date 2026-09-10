@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,6 +7,7 @@ import { listAllProviderApplications } from "@/features/provider-portal/server/r
 import { requireCurrentUserId } from "@/features/provider-portal/server/session";
 
 export default async function AdminProviderApplicationsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const t = await getTranslations("AdminPages");
   const { locale } = await params;
   await requireCurrentUserId(true);
   const applications = await listAllProviderApplications(locale);
@@ -13,8 +15,8 @@ export default async function AdminProviderApplicationsPage({ params }: { params
   return (
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-8">
       <div>
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Admin</p>
-        <h1 className="text-3xl font-bold text-slate-950">Provider portal applications</h1>
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">{t("admin")}</p>
+        <h1 className="text-3xl font-bold text-slate-950">{t("providerPortalApplications")}</h1>
       </div>
 
       <div className="grid gap-3">
@@ -29,7 +31,7 @@ export default async function AdminProviderApplicationsPage({ params }: { params
                 <p className="mt-1 text-sm text-slate-500">{app.providerTypeName} · {app.legalName || "-"} · {app.email || "-"}</p>
               </div>
               <Button asChild variant="outline">
-                <Link href={`/admin/provider-portal/applications/${app.id}`}>Review</Link>
+                <Link href={`/admin/provider-portal/applications/${app.id}`}>{t("review")}</Link>
               </Button>
             </CardContent>
           </Card>
@@ -37,7 +39,7 @@ export default async function AdminProviderApplicationsPage({ params }: { params
 
         {!applications.length ? (
           <Card className="rounded-3xl border-dashed">
-            <CardContent className="p-10 text-center text-sm text-slate-500">No applications.</CardContent>
+            <CardContent className="p-10 text-center text-sm text-slate-500">{t("noApplications")}</CardContent>
           </Card>
         ) : null}
       </div>

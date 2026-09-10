@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl";
 import { useNavigate } from '@/hooks/use-navigate';
 import { 
   ChevronLeft, 
@@ -16,6 +17,7 @@ import {
 import { useState } from 'react';
 
 export default function ClinicListing() {
+  const t = useTranslations("Common");
   const navigate = useNavigate();
   const [sortBy, setSortBy] = useState('rating');
   const [selectedSpecialty, setSelectedSpecialty] = useState('all');
@@ -148,7 +150,7 @@ export default function ClinicListing() {
             </button>
             
             <div className="flex-1">
-              <h1 className="text-xl font-bold text-gray-900">Clinics & Hospitals</h1>
+              <h1 className="text-xl font-bold text-gray-900">{t("clinicsHospitals")}</h1>
               <p className="text-sm text-gray-600">{clinics.length} verified providers</p>
             </div>
 
@@ -181,7 +183,7 @@ export default function ClinicListing() {
           <div className="flex gap-2">
             <button className="flex-1 h-10 px-4 bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors">
               <SlidersHorizontal size={18} className="text-gray-700" />
-              <span className="text-sm font-medium text-gray-700">Filters</span>
+              <span className="text-sm font-medium text-gray-700">{t("filters")}</span>
             </button>
 
             <div className="flex-1 relative">

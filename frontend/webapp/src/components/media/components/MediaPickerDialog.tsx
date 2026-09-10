@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 import { ReactNode, useEffect } from "react";
 
@@ -16,6 +17,7 @@ export function MediaPickerDialog({
   title,
   children,
 }: MediaPickerDialogProps) {
+  const t = useTranslations("Common");
   useEffect(() => {
     if (!open) return;
 
@@ -42,7 +44,7 @@ export function MediaPickerDialog({
               {title || "Media picker"}
             </div>
             <div className="text-sm text-slate-500">
-              Browse, upload, and select media without leaving the form.
+              {t("browseUploadAndSelectMediaWithoutLeavingThe")}
             </div>
           </div>
 

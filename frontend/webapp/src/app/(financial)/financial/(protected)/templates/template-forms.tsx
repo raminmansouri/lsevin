@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState, useMemo, useState } from "react";
 
 import type { PostableAccount } from "@/accounting/server/manual-entry.queries";
@@ -19,6 +20,7 @@ type Row = { key: number; accountId: string; side: "debit" | "credit"; amount: s
 const emptyRow = (key: number): Row => ({ key, accountId: "", side: "debit", amount: "", memo: "" });
 
 export function TemplateForm({ accounts }: { accounts: PostableAccount[] }) {
+  const t = useTranslations("AdminPages");
   const [rows, setRows] = useState<Row[]>([emptyRow(1), emptyRow(2)]);
   const [nextKey, setNextKey] = useState(3);
   const [state, action, pending] = useActionState<TemplateActionState, FormData>(
@@ -64,7 +66,7 @@ export function TemplateForm({ accounts }: { accounts: PostableAccount[] }) {
       <div className="grid gap-3 md:grid-cols-4">
         <label className="text-sm">
           <span className="mb-1 block font-medium">کد</span>
-          <input name="code" required dir="ltr" placeholder="RENT" className="w-full rounded-md border p-2" />
+          <input name="code" required dir="ltr" placeholder={t("rent")} className="w-full rounded-md border p-2" />
         </label>
         <label className="text-sm md:col-span-2">
           <span className="mb-1 block font-medium">عنوان</span>

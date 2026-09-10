@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { LexicalRenderer } from "@/components/editor/lexical-renderer";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +39,7 @@ export function LocalizedDisplay({
   className = "",
   richText = false,
 }: LocalizedDisplayProps) {
+  const t = useTranslations("Common");
   const locale = useLocale();
   const [showAll, setShowAll] = useState(showAllTranslations);
 
@@ -56,9 +57,9 @@ export function LocalizedDisplay({
     return (
       <div className={`space-y-2 ${className}`}>
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">Translations:</span>
+          <span className="text-sm font-medium">{t("translations")}</span>
           <Button variant="ghost" size="sm" onClick={() => setShowAll(false)}>
-            Show current only
+            {t("showCurrentOnly")}
           </Button>
         </div>
         <div className="space-y-1">

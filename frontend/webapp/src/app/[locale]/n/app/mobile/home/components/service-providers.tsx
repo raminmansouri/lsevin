@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { BadgeCheck, Heart, Star } from 'lucide-react';
 
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
@@ -119,6 +121,7 @@ function FeaturedServiceCard({
   labels: HomeFeaturedServiceLabels;
   layout: FeaturedServiceLayout;
 }) {
+  const t = useTranslations("Common");
   const mediaUrl = resolveHomeMediaUrl(service.imageUrl);
   const styles = layoutStyles[layout];
 
@@ -138,7 +141,7 @@ function FeaturedServiceCard({
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#083f30] to-[#0f6b56] text-sm font-semibold text-white/80">
-            LSevin
+            {t("lsevin")}
           </div>
         )}
 

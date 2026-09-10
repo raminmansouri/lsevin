@@ -138,9 +138,9 @@ export function CategorySelector({
         </PopoverTrigger>
         <PopoverContent className="w-full p-0" align="start">
           <Command>
-            <CommandInput placeholder="Search categories..." />
+            <CommandInput placeholder={t("searchCategories")} />
             <CommandList>
-              <CommandEmpty>No category found.</CommandEmpty>
+              <CommandEmpty>{t("noCategoryFound")}</CommandEmpty>
               <CommandGroup>
                 {filteredOptions.map((option) => (
                   <CommandItem
@@ -200,9 +200,9 @@ export function CategorySelector({
       </PopoverTrigger>
       <PopoverContent className="w-full p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search categories..." />
+          <CommandInput placeholder={t("searchCategories")} />
           <CommandList>
-            <CommandEmpty>No category found.</CommandEmpty>
+            <CommandEmpty>{t("noCategoryFound")}</CommandEmpty>
             <CommandGroup>
               {filteredOptions.map((option) => (
                 <CommandItem
