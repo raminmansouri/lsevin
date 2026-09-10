@@ -77,6 +77,7 @@ export const SEGMENT_NAMESPACES = {
     "NearbyMap",
     "ProviderDashboardOffers",
     "ProviderDoctorProfile",
+    "ProviderOnboarding",
     "ProviderPage",
     "RecommendationSection",
     "SearchResults",
