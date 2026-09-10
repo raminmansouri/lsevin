@@ -7432,6 +7432,16 @@
     "loadMore": "Load More"
   },
   "MobileProfile": {
+    "allMedicalInformationIsEncryptedHipaaCompliantAnd": "All medical information is encrypted, HIPAA-compliant, and only shared with your authorized healthcare providers.",
+    "addYourFirstAllergy": "Add your first allergy",
+    "addYourFirstMedication": "Add your first medication",
+    "addMedicalHistory": "Add medical history",
+    "view": "View",
+    "uploadYourFirstDocument": "Upload your first document",
+    "edit": "Edit",
+    "severityLevel": "Severity Level",
+    "notesOptional": "Notes (Optional)",
+    "addAllergy": "Add Allergy",
     "common": {
       "logOut": "Log out"
     },
@@ -8401,6 +8411,20 @@
     }
   },
   "MobileSearch": {
+    "mapDiscovery": "Map Discovery",
+    "advancedFilters": "Advanced Filters",
+    "interactiveMap": "Interactive Map",
+    "refineYourSearchResults": "Refine your search results",
+    "priceRange": "Price Range",
+    "distance": "Distance",
+    "n1Km": "1 km",
+    "n50Km": "50 km",
+    "minimumRating": "Minimum Rating",
+    "verifiedProvidersOnly": "Verified Providers Only",
+    "showOnlyAccreditedClinics": "Show only accredited clinics",
+    "languagesSpoken": "Languages Spoken",
+    "specialties": "Specialties",
+    "applyFilters": "Apply Filters",
     "metadata": {
       "title": "Search | LSevin",
       "description": "Search LSevin services, providers, clinics, doctors, and wellness offers."
@@ -11414,6 +11438,23 @@
     "openRecommendation": "Open {title}"
   },
   "ProviderPage": {
+    "reviewSubmitted": "Review Submitted!",
+    "thankYouForSharingYourExperienceYourReview": "Thank you for sharing your experience. Your review is pending admin approval before it becomes public.",
+    "writeAReview": "Write a Review",
+    "overallRating": "Overall Rating",
+    "treatmentTitleOptional": "Treatment / Title (Optional)",
+    "yourReview": "Your Review",
+    "addPhotosOptional": "Add Photos (Optional)",
+    "attachPhotos": "Attach Photos",
+    "previewOnlyUntilYourMediaUploadEndpointIs": "Preview only until your media upload endpoint is connected",
+    "reviewGuidelines": "Review Guidelines",
+    "beHonestAndFair": "Be honest and fair",
+    "shareYourPersonalExperience": "Share your personal experience",
+    "avoidOffensiveLanguage": "Avoid offensive language",
+    "includeSpecificDetailsAboutTheService": "Include specific details about the service",
+    "cancel": "Cancel",
+    "exampleHairTransplantDentalCareSpaDay": "Example: Hair transplant, dental care, spa day",
+    "shareDetailsOfYourOwnExperienceAtThis": "Share details of your own experience at this place",
     "actions": {
       "back": "Go back",
       "share": "Share provider",

@@ -7435,6 +7435,16 @@ declare const messages: {
     "stepConsultation": "مشاوره رایگان"
   },
   "MobileProfile": {
+    "allMedicalInformationIsEncryptedHipaaCompliantAnd": "تمام اطلاعات پزشکی رمزنگاری شده و محرمانه نگهداری می‌شود.",
+    "addYourFirstAllergy": "اولین حساسیت خود را اضافه کنید",
+    "addYourFirstMedication": "اولین داروی خود را اضافه کنید",
+    "addMedicalHistory": "افزودن سابقه پزشکی",
+    "view": "مشاهده",
+    "uploadYourFirstDocument": "اولین مدرک خود را بارگذاری کنید",
+    "edit": "ویرایش",
+    "severityLevel": "شدت",
+    "notesOptional": "یادداشت (اختیاری)",
+    "addAllergy": "افزودن حساسیت",
     "common": {
       "logOut": "خروج"
     },
@@ -8404,6 +8414,20 @@ declare const messages: {
     }
   },
   "MobileSearch": {
+    "mapDiscovery": "جستجو روی نقشه",
+    "advancedFilters": "فیلترهای پیشرفته",
+    "interactiveMap": "نقشه تعاملی",
+    "refineYourSearchResults": "نتایج جستجو را دقیق‌تر کنید",
+    "priceRange": "بازه قیمت",
+    "distance": "فاصله",
+    "n1Km": "۱ کیلومتر",
+    "n50Km": "۵۰ کیلومتر",
+    "minimumRating": "حداقل امتیاز",
+    "verifiedProvidersOnly": "فقط ارائه‌دهندگان تأییدشده",
+    "showOnlyAccreditedClinics": "فقط کلینیک‌های دارای اعتبار نمایش داده شوند",
+    "languagesSpoken": "زبان‌های قابل ارائه",
+    "specialties": "تخصص‌ها",
+    "applyFilters": "اعمال فیلترها",
     "metadata": {
       "title": "جستجو | LSevin",
       "description": "جستجوی خدمات، ارائه‌دهندگان، کلینیک‌ها، پزشکان و پیشنهادهای سلامت در LSevin."
@@ -11417,6 +11441,23 @@ declare const messages: {
     "openRecommendation": "مشاهده {title}"
   },
   "ProviderPage": {
+    "reviewSubmitted": "نظر شما ثبت شد!",
+    "thankYouForSharingYourExperienceYourReview": "ممنون که تجربه‌تان را به اشتراک گذاشتید. نظر شما پس از بررسی منتشر می‌شود.",
+    "writeAReview": "ثبت نظر",
+    "overallRating": "امتیاز کلی",
+    "treatmentTitleOptional": "درمان / عنوان (اختیاری)",
+    "yourReview": "نظر شما",
+    "addPhotosOptional": "افزودن تصویر (اختیاری)",
+    "attachPhotos": "پیوست تصاویر",
+    "previewOnlyUntilYourMediaUploadEndpointIs": "تا زمان فعال شدن سرویس بارگذاری، فقط پیش‌نمایش است.",
+    "reviewGuidelines": "راهنمای ثبت نظر",
+    "beHonestAndFair": "صادق و منصف باشید",
+    "shareYourPersonalExperience": "تجربه شخصی خودتان را بنویسید",
+    "avoidOffensiveLanguage": "از الفاظ توهین‌آمیز پرهیز کنید",
+    "includeSpecificDetailsAboutTheService": "جزئیات مشخصی از خدمت را ذکر کنید",
+    "cancel": "انصراف",
+    "exampleHairTransplantDentalCareSpaDay": "مثلا کاشت مو، خدمات دندان‌پزشکی، یک روز اسپا",
+    "shareDetailsOfYourOwnExperienceAtThis": "جزئیات تجربه خودتان در این مرکز را بنویسید...",
     "actions": {
       "back": "بازگشت",
       "share": "اشتراک‌گذاری ارائه‌دهنده",

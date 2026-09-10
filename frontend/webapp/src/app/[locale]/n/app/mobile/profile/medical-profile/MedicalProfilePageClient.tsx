@@ -256,7 +256,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
             <div>
               <h3 className="font-bold mb-1">{t("privacyTitle")}</h3>
               <p className="text-sm text-white/90">
-                All medical information is encrypted, HIPAA-compliant, and only shared with your authorized healthcare providers.
+                {t("allMedicalInformationIsEncryptedHipaaCompliantAnd")}
               </p>
             </div>
           </div>
@@ -304,7 +304,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
                 className="text-sm font-semibold text-[#083f30] hover:underline"
                 type="button"
               >
-                Add your first allergy
+                {t("addYourFirstAllergy")}
               </button>
             </div>
           )}
@@ -350,7 +350,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
                 className="text-sm font-semibold text-[#083f30] hover:underline"
                 type="button"
               >
-                Add your first medication
+                {t("addYourFirstMedication")}
               </button>
             </div>
           )}
@@ -396,7 +396,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
                 className="text-sm font-semibold text-[#083f30] hover:underline"
                 type="button"
               >
-                Add medical history
+                {t("addMedicalHistory")}
               </button>
             </div>
           )}
@@ -434,7 +434,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
                     rel="noreferrer"
                     className="text-[#083f30] text-sm font-semibold hover:underline ml-4"
                   >
-                    View
+                    {t("view")}
                   </a>
                 </div>
               ))}
@@ -447,7 +447,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
                 className="text-sm font-semibold text-[#083f30] hover:underline"
                 type="button"
               >
-                Upload your first document
+                {t("uploadYourFirstDocument")}
               </button>
             </div>
           )}
@@ -470,7 +470,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
               type="button"
             >
               <Edit2 size={16} className="inline-block mr-1" />
-              Edit
+              {t("edit")}
             </button>
           </div>
           <div className="p-4 bg-orange-50 rounded-xl border border-orange-100">
@@ -523,7 +523,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
 
             <div>
               <label className="mb-2 block text-sm font-semibold text-gray-900">
-                Severity Level
+                {t("severityLevel")}
               </label>
               <select
                 value={allergyForm.severity}
@@ -543,7 +543,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
 
             <div>
               <label className="mb-2 block text-sm font-semibold text-gray-900">
-                Notes (Optional)
+                {t("notesOptional")}
               </label>
               <textarea
                 value={allergyForm.notes}
@@ -566,7 +566,7 @@ export default function MedicalProfilePageClient({ initialData }: Props) {
               className="h-14 w-full rounded-xl bg-[#083f30] font-bold text-white transition-all active:scale-95 hover:bg-[#0a5a44] disabled:cursor-not-allowed disabled:bg-gray-300"
               type="button"
             >
-              Add Allergy
+              {t("addAllergy")}
             </button>
           </div>
         </>

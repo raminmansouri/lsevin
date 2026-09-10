@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl";
 import { useNavigate } from '@/hooks/use-navigate';
 import { 
   ChevronLeft, 
@@ -18,6 +19,7 @@ import {
 import { useState } from 'react';
 
 export default function MapDiscovery() {
+  const t = useTranslations("MobileSearch");
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [selectedProvider, setSelectedProvider] = useState<number | null>(1);
@@ -105,7 +107,7 @@ export default function MapDiscovery() {
             </button>
             
             <div className="flex-1">
-              <h1 className="text-xl font-bold text-gray-900">Map Discovery</h1>
+              <h1 className="text-xl font-bold text-gray-900">{t("mapDiscovery")}</h1>
               <p className="text-sm text-gray-600">{providers.length} providers nearby</p>
             </div>
 
@@ -144,7 +146,7 @@ export default function MapDiscovery() {
             className="w-full h-10 px-4 bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors"
           >
             <SlidersHorizontal size={18} className="text-gray-700" />
-            <span className="text-sm font-medium text-gray-700">Advanced Filters</span>
+            <span className="text-sm font-medium text-gray-700">{t("advancedFilters")}</span>
             {(filters.verifiedOnly || filters.minRating > 0 || filters.languages.length > 0) && (
               <span className="w-2 h-2 bg-[#083f30] rounded-full" />
             )}
@@ -213,7 +215,7 @@ export default function MapDiscovery() {
             
             {/* Map Attribution */}
             <div className="absolute bottom-2 left-2 text-xs text-gray-500 bg-white/80 px-2 py-1 rounded">
-              Interactive Map
+              {t("interactiveMap")}
             </div>
           </div>
 
@@ -344,7 +346,7 @@ export default function MapDiscovery() {
             {/* Header */}
             <div className="sticky top-0 bg-white border-b border-gray-200 px-5 py-4 z-10">
               <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xl font-bold text-gray-900">Advanced Filters</h2>
+                <h2 className="text-xl font-bold text-gray-900">{t("advancedFilters")}</h2>
                 <button
                   onClick={() => setShowFilters(false)}
                   className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
@@ -352,7 +354,7 @@ export default function MapDiscovery() {
                   <X size={20} className="text-gray-600" />
                 </button>
               </div>
-              <p className="text-sm text-gray-600">Refine your search results</p>
+              <p className="text-sm text-gray-600">{t("refineYourSearchResults")}</p>
             </div>
             
             {/* Filters Content */}
@@ -362,7 +364,7 @@ export default function MapDiscovery() {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <DollarSign size={20} className="text-[#083f30]" />
-                    <h3 className="font-bold text-gray-900">Price Range</h3>
+                    <h3 className="font-bold text-gray-900">{t("priceRange")}</h3>
                   </div>
                   <span className="text-sm font-semibold text-[#083f30]">
                     ${filters.priceRange[0]} - ${filters.priceRange[1]}
@@ -393,7 +395,7 @@ export default function MapDiscovery() {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <MapPin size={20} className="text-[#083f30]" />
-                    <h3 className="font-bold text-gray-900">Distance</h3>
+                    <h3 className="font-bold text-gray-900">{t("distance")}</h3>
                   </div>
                   <span className="text-sm font-semibold text-[#083f30]">
                     {filters.distance} km
@@ -412,8 +414,8 @@ export default function MapDiscovery() {
                     }}
                   />
                   <div className="flex justify-between text-xs text-gray-500">
-                    <span>1 km</span>
-                    <span>50 km</span>
+                    <span>{t("n1Km")}</span>
+                    <span>{t("n50Km")}</span>
                   </div>
                 </div>
               </div>
@@ -422,7 +424,7 @@ export default function MapDiscovery() {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Star size={20} className="text-[#083f30]" />
-                  <h3 className="font-bold text-gray-900">Minimum Rating</h3>
+                  <h3 className="font-bold text-gray-900">{t("minimumRating")}</h3>
                 </div>
                 <div className="grid grid-cols-5 gap-2">
                   {[0, 3.0, 3.5, 4.0, 4.5].map(rating => (
@@ -459,8 +461,8 @@ export default function MapDiscovery() {
                       <BadgeCheck size={24} className={filters.verifiedOnly ? 'text-white' : 'text-gray-400'} />
                     </div>
                     <div className="text-left">
-                      <h3 className="font-bold text-gray-900">Verified Providers Only</h3>
-                      <p className="text-sm text-gray-600">Show only accredited clinics</p>
+                      <h3 className="font-bold text-gray-900">{t("verifiedProvidersOnly")}</h3>
+                      <p className="text-sm text-gray-600">{t("showOnlyAccreditedClinics")}</p>
                     </div>
                   </div>
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${
@@ -475,7 +477,7 @@ export default function MapDiscovery() {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Globe size={20} className="text-[#083f30]" />
-                  <h3 className="font-bold text-gray-900">Languages Spoken</h3>
+                  <h3 className="font-bold text-gray-900">{t("languagesSpoken")}</h3>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {['English', 'Arabic', 'Turkish', 'German', 'French', 'Spanish', 'Russian'].map(lang => (
@@ -504,7 +506,7 @@ export default function MapDiscovery() {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Award size={20} className="text-[#083f30]" />
-                  <h3 className="font-bold text-gray-900">Specialties</h3>
+                  <h3 className="font-bold text-gray-900">{t("specialties")}</h3>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {['Hair Transplant', 'Dental', 'Cosmetic Surgery', 'Botox', 'Implants', 'Veneers'].map(spec => (
@@ -546,13 +548,13 @@ export default function MapDiscovery() {
                   }}
                   className="flex-1 h-12 rounded-xl bg-gray-100 text-gray-900 font-bold hover:bg-gray-200 transition-colors"
                 >
-                  Clear All
+                  {t("clearAll")}
                 </button>
                 <button
                   onClick={() => setShowFilters(false)}
                   className="flex-1 h-12 rounded-xl bg-gradient-to-r from-[#083f30] to-[#0a5a44] text-white font-bold hover:shadow-lg transition-all"
                 >
-                  Apply Filters
+                  {t("applyFilters")}
                 </button>
               </div>
             </div>
