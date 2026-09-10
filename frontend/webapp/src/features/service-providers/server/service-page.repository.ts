@@ -1415,7 +1415,7 @@ export async function getServicePageByIdFromDb({
   const rating = asNumber(row.rating ?? row.provider_rating, 0);
   const reviewCount = asNumber(row.review_count ?? row.provider_review_count, 0);
   const durationMinutes = asNumber(row.duration_minutes, 0);
-  const duration = durationMinutes > 0 ? `${durationMinutes} min` : 'On request';
+  const duration = durationMinutes > 0 ? `${durationMinutes} min` : '';
   const allowedDisplayCurrencies = uniqueCurrencyCodes([sourceCurrencyCode, resolvedDisplayCurrencyCode, ...DEFAULT_DISPLAY_CURRENCIES]);
 
   const [priceOptions, originalPriceOptions] = await Promise.all([
@@ -1490,13 +1490,15 @@ export async function getServicePageByIdFromDb({
     galleryItems,
     duration,
     durationMinutes,
-    recovery: asString(row.recovery, 'On request'),
-    anesthesia: asString(row.anesthesia, 'On request'),
-    stayRequired: asString(row.stay_required, 'On request'),
+    // Empty when unset; the client component fills in a localized "on request"
+    // placeholder (a hardcoded English string here can't be translated).
+    recovery: asString(row.recovery, ''),
+    anesthesia: asString(row.anesthesia, ''),
+    stayRequired: asString(row.stay_required, ''),
     verified: Boolean(row.provider_accredited),
     popular: Boolean(row.is_popular || row.provider_is_sponsored),
-    successRate: asString(row.success_rate || row.provider_success_rate, 'On request'),
-    satisfaction: asString(row.satisfaction, 'On request'),
+    successRate: asString(row.success_rate || row.provider_success_rate, ''),
+    satisfaction: asString(row.satisfaction, ''),
     bookingUiMode: asString(row.booking_ui_mode, 'default_slot'),
     requiresSpecialist: Boolean(row.requires_specialist),
     providerCount: providers.length,

@@ -729,10 +729,10 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
         <PriceConverterCardClient label={t("price.packagePrice")} convertedPrices={service.priceOptions} convertedOriginalPrices={service.originalPriceOptions} selectedCurrencyCode={selectedCurrency} onCurrencyChange={setSelectedCurrency} saveLabel={(percent) => t("price.save", { percent })} convertedFromLabel={(value) => t("price.convertedFrom", { value })} badgeText={t("price.providerPackagePrice")} locale={locale} />
 
         <div className="mb-6 grid grid-cols-2 gap-3">
-          <div className="rounded-xl bg-gray-50 p-4"><Clock size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">{t("stats.duration")}</div><div className="font-bold text-gray-900">{service.duration}</div></div>
-          <div className="rounded-xl bg-gray-50 p-4"><Calendar size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">{t("stats.recovery")}</div><div className="font-bold text-gray-900">{service.recovery}</div></div>
-          <div className="rounded-xl bg-gray-50 p-4"><Shield size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">{t("stats.successRate")}</div><div className="font-bold text-gray-900">{service.successRate}</div></div>
-          <div className="rounded-xl bg-gray-50 p-4"><Users size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">{t("stats.satisfaction")}</div><div className="font-bold text-gray-900">{service.satisfaction}</div></div>
+          <div className="rounded-xl bg-gray-50 p-4"><Clock size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">{t("stats.duration")}</div><div className="font-bold text-gray-900">{service.duration || t("providerProfile.onRequest")}</div></div>
+          <div className="rounded-xl bg-gray-50 p-4"><Calendar size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">{t("stats.recovery")}</div><div className="font-bold text-gray-900">{service.recovery || t("providerProfile.onRequest")}</div></div>
+          <div className="rounded-xl bg-gray-50 p-4"><Shield size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">{t("stats.successRate")}</div><div className="font-bold text-gray-900">{service.successRate || t("providerProfile.onRequest")}</div></div>
+          <div className="rounded-xl bg-gray-50 p-4"><Users size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">{t("stats.satisfaction")}</div><div className="font-bold text-gray-900">{service.satisfaction || t("providerProfile.onRequest")}</div></div>
         </div>
 
         <ProviderProfileSection data={data} />
