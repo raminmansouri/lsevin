@@ -15,6 +15,7 @@ function schemaIcon(schema: string) {
 }
 
 export function AdminDataDashboard({ cards }: { cards: AdminDashboardCard[] }) {
+  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const grouped = cards.reduce<Record<string, AdminDashboardCard[]>>((acc, card) => {
     acc[card.schema] ||= [];
@@ -28,7 +29,7 @@ export function AdminDataDashboard({ cards }: { cards: AdminDashboardCard[] }) {
         <p className="text-sm font-semibold uppercase tracking-[0.24em] text-white/70">{tAdmin("adminDataControl")}</p>
         <h1 className="mt-3 text-3xl font-bold">{tAdmin("bookingIdentityCustomer")}</h1>
         <p className="mt-3 max-w-3xl text-white/80">
-          Direct PostgreSQL admin console for operational bookings, ASP.NET Identity users/roles/security records, customer profiles, documents, favorites, and wallet flows.
+          {t("directPostgresqlAdminConsoleForOperationalBookingsAsp")}
         </p>
       </div>
 
@@ -56,7 +57,7 @@ export function AdminDataDashboard({ cards }: { cards: AdminDashboardCard[] }) {
                     </CardHeader>
                     <CardContent>
                       <div className="text-3xl font-bold text-gray-900">{card.total.toLocaleString()}</div>
-                      <div className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">records</div>
+                      <div className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">{t("records")}</div>
                     </CardContent>
                   </Card>
                 </Link>

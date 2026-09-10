@@ -268,7 +268,7 @@ export function SpecialPackageForm({ pkg }: { pkg?: SpecialPackageAdminRow | nul
                         value={field.value ?? ""}
                         onChange={(event) => field.onChange(event.target.value)}
                         disabled={isPending}
-                        placeholder="IRR"
+                        placeholder={t("irr")}
                       />
                     </FormControl>
                     <FormDescription>{t("fieldCurrencyCodeHelper")}</FormDescription>

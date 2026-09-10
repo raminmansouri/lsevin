@@ -31,6 +31,7 @@ interface TransactionsPageClientProps {
 }
 
 export default function TransactionsPageClient({ initialData }: TransactionsPageClientProps) {
+  const tt = useTranslations("MobileProfile");
   const navigate = useNavigate();
   const locale = useLocale();
   const t = useTranslations("MobileProfile.transactions");
@@ -190,7 +191,7 @@ export default function TransactionsPageClient({ initialData }: TransactionsPage
               onClick={clearFilters}
               className="px-6 py-3 bg-[#083f30] text-white rounded-xl font-semibold hover:bg-[#0a5a44] transition-colors"
             >
-              Clear Filters
+              {tt("clearFilters")}
             </button>
           </div>
         )}
@@ -311,13 +312,13 @@ export default function TransactionsPageClient({ initialData }: TransactionsPage
                 onClick={clearFilters}
                 className="flex-1 h-14 rounded-xl border-2 border-gray-300 font-bold text-gray-900 hover:bg-gray-50 transition-all active:scale-95"
               >
-                Clear All
+                {tt("clearAll")}
               </button>
               <button
                 onClick={() => setShowFilters(false)}
                 className="flex-1 h-14 rounded-xl bg-[#083f30] text-white font-bold hover:bg-[#0a5a44] transition-all active:scale-95"
               >
-                Apply Filters
+                {tt("applyFilters")}
               </button>
             </div>
           </div>

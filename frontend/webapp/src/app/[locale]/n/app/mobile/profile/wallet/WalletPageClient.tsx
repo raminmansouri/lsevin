@@ -143,6 +143,7 @@ function TransactionStatus({ status, t }: { status: WalletTransactionRow["status
 export default function WalletPageClient({
   initialData,
 }: WalletPageClientProps) {
+  const tt = useTranslations("MobileProfile");
   const navigate = useNavigate();
   const router = useRouter();
   const pathname = usePathname();
@@ -764,7 +765,7 @@ export default function WalletPageClient({
                             type="text"
                             value={cryptoNetwork}
                             onChange={(e) => setCryptoNetwork(e.target.value)}
-                            placeholder="USDT TRC20"
+                            placeholder={tt("usdtTrc20")}
                             className="h-12 w-full rounded-xl border-2 border-gray-200 bg-white px-3 text-start focus:border-[#083f30] focus:outline-none"
                           />
                         </div>

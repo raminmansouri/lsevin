@@ -149,6 +149,7 @@ export function ServiceCard({
   isFavorited = false,
   onClick 
 }: ServiceCardProps) {
+  const t = useTranslations("BottomTabBar");
   return (
     <div 
       className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer"
@@ -192,7 +193,7 @@ export function ServiceCard({
           </div>
           
           <div className="text-right">
-            <span className="text-sm text-gray-500">From</span>
+            <span className="text-sm text-gray-500">{t("from")}</span>
             <div className="font-semibold text-[#083f30]">{price}</div>
           </div>
         </div>
@@ -299,11 +300,12 @@ interface WalletCardProps {
 }
 
 export function WalletCard({ balance, currency, points }: WalletCardProps) {
+  const t = useTranslations("BottomTabBar");
   return (
     <div className="bg-gradient-to-br from-[#083f30] to-[#0a5a44] rounded-2xl p-6 text-white">
       <div className="flex items-start justify-between mb-8">
         <div>
-          <p className="text-sm text-white/70 mb-1">Available Balance</p>
+          <p className="text-sm text-white/70 mb-1">{t("availableBalance")}</p>
           <h2 className="text-3xl font-bold">{balance} {currency}</h2>
         </div>
         <Shield size={32} className="text-[#eacb7f]" />
@@ -311,7 +313,7 @@ export function WalletCard({ balance, currency, points }: WalletCardProps) {
       
       {points !== undefined && (
         <div className="flex items-center justify-between pt-4 border-t border-white/20">
-          <span className="text-sm text-white/70">Loyalty Points</span>
+          <span className="text-sm text-white/70">{t("loyaltyPoints")}</span>
           <span className="text-lg font-semibold text-[#eacb7f]">{points.toLocaleString()}</span>
         </div>
       )}

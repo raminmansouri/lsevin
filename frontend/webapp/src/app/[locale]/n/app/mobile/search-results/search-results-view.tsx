@@ -231,13 +231,13 @@ return  <div key={filter.id} className="flex items-center gap-1.5 rounded-full b
             })}
 
           {/*   <div className="flex items-center gap-1.5 rounded-full bg-[#083f30] px-3 py-1.5 text-xs font-medium text-white">
-              <span>Verified Only</span>
+              <span>{t("verifiedOnly")}</span>
               <button className="rounded-full p-0.5 hover:bg-white/20">
                 <X size={12} />
               </button>
             </div>
             <div className="flex items-center gap-1.5 rounded-full bg-[#083f30] px-3 py-1.5 text-xs font-medium text-white">
-              <span>4+ Stars</span>
+              <span>{t("n4Stars")}</span>
               <button className="rounded-full p-0.5 hover:bg-white/20">
                 <X size={12} />
               </button>

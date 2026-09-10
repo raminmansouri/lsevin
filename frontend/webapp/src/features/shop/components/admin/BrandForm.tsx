@@ -105,7 +105,7 @@ export function BrandForm({ brand }: { brand?: BrandRow }) {
               <FormField control={form.control} name="slug" render={({ field }) => (
                 <FormItem>
                   <FormLabel>{t("brands.slug")}</FormLabel>
-                  <FormControl><Input {...field} dir="ltr" disabled={isPending} placeholder="acme-health" /></FormControl>
+                  <FormControl><Input {...field} dir="ltr" disabled={isPending} placeholder={t("acmeHealth")} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />

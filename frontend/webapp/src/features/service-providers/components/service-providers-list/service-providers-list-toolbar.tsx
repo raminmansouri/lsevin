@@ -70,7 +70,7 @@ export const ServiceProvidersListToolbar = () => {
           <Input
             value={search}
             onChange={(event) => handleSearchChange(event.target.value)}
-            placeholder="Search providers, services, staff, city, country..."
+            placeholder={t("searchProvidersServicesStaffCityCountry")}
             className="h-8 pl-9 pr-9"
           />
           {search ? (
@@ -82,7 +82,7 @@ export const ServiceProvidersListToolbar = () => {
               onClick={handleClearSearch}
             >
               <X className="h-4 w-4" />
-              <span className="sr-only">Clear search</span>
+              <span className="sr-only">{t("clearSearch")}</span>
             </Button>
           ) : null}
         </div>

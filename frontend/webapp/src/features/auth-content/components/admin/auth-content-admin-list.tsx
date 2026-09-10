@@ -19,13 +19,13 @@ export function AuthContentAdminList({ items }: Props) {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">{tAdmin("authContent")}</h1>
           <p className="text-muted-foreground text-sm">
-            Configure sign-in, sign-up, forgot-password, OTP, and onboarding content without code changes.
+            {tAdmin("configureSignInSignUpForgotPasswordOtp")}
           </p>
         </div>
         <Button asChild>
           <Link href="/admin/auth-content/new">
             <Plus className="mr-2 size-4" />
-            New content
+            {tAdmin("newContent")}
           </Link>
         </Button>
       </div>
@@ -34,7 +34,7 @@ export function AuthContentAdminList({ items }: Props) {
         <CardHeader>
           <CardTitle>{tAdmin("configuredItems")}</CardTitle>
           <CardDescription>
-            Use item keys: sign-in, sign-up, forgot-password, otp, or step keys like step-1.
+            {tAdmin("useItemKeysSignInSignUpForgot")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -85,7 +85,7 @@ export function AuthContentAdminList({ items }: Props) {
                       <Button asChild size="sm" variant="outline">
                         <Link href={`/admin/auth-content/${item.id}`}>
                           <Pencil className="mr-2 size-3.5" />
-                          Edit
+                          {tAdmin("edit")}
                         </Link>
                       </Button>
                     </td>
@@ -94,7 +94,7 @@ export function AuthContentAdminList({ items }: Props) {
                 {!items.length ? (
                   <tr>
                     <td colSpan={7} className="py-10 text-center text-muted-foreground">
-                      No auth content has been configured yet.
+                      {tAdmin("noAuthContentHasBeenConfiguredYet")}
                     </td>
                   </tr>
                 ) : null}

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
@@ -14,7 +15,7 @@ export const Logo = ({ className, showText = false }: Props) => {
   return (
     <Link href="/" className={cn("flex flex-col items-center", className)}>
       <span className="text-gold text-4xl font-bold tracking-wider">
-        L SEVIN
+        {t("lSevin")}
       </span>
       {showText && (
         <span className="text-muted-foreground flex w-full items-center gap-1 text-sm">

@@ -396,7 +396,7 @@ export function CategoryBrowserClient({
               onClick={() => setPath([])}
               className="rounded-full bg-gray-100 px-3 py-1 text-[#083f30]"
             >
-              All categories
+              {t("allCategories")}
             </button>
             {path.map((category, index) => (
               <button
@@ -416,7 +416,7 @@ export function CategoryBrowserClient({
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search categories..."
+            placeholder={t("searchCategories")}
             className="h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-gray-900 outline-none placeholder:text-gray-500"
           />
         </div>

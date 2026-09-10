@@ -31,6 +31,7 @@ type Props = {
 };
 
 export function MarketingLoyaltyRecordForm({ config: rawConfig, formData, locale = "en" }: Props) {
+  const tt = useTranslations("AdminPages");
   const t = useTranslations("AdminPages.marketingLoyalty");
   const config = useLocalizedEntityConfig(rawConfig);
   const router = useRouter();
@@ -79,7 +80,7 @@ export function MarketingLoyaltyRecordForm({ config: rawConfig, formData, locale
           <Button asChild variant="outline">
             <Link href={config.routeBase}>
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to list
+              {tt("backToList")}
             </Link>
           </Button>
         </div>
@@ -124,6 +125,7 @@ function FieldControl({
   options: SelectOption[];
   locale: string;
 }) {
+  const tt = useTranslations("AdminPages");
   const t = useTranslations("AdminPages.marketingLoyalty");
   const error = form.formState.errors[field.name]?.message as string | undefined;
   const id = `field-${field.name}`;
@@ -225,7 +227,7 @@ function FieldControl({
           disabled={disabled}
           className={`h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 ${commonClass}`}
         >
-          <option value="">Select...</option>
+          <option value="">{tt("select")}</option>
           {options.map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
           ))}

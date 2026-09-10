@@ -38,6 +38,7 @@ function LineItem({ name, meta, amount, currency }: { name: string; meta?: strin
 }
 
 function InvoiceContent({ booking }: { booking: BookingRecord }) {
+  const t = useTranslations("Booking");
   const tBooking = useTranslations("Booking");
   const imageSrc = resolveHomeMediaUrl(booking.providerImage || booking.image);
   const normalizedPaymentStatus = normalizeStatus(booking.paymentStatus);
@@ -68,7 +69,7 @@ function InvoiceContent({ booking }: { booking: BookingRecord }) {
         <div className="border-b-2 border-[#083f30] bg-[#083f30]/5 px-6 py-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <div className="text-lg font-extrabold text-[#083f30]">LSevin</div>
+              <div className="text-lg font-extrabold text-[#083f30]">{t("lsevin")}</div>
               <div className="text-xs text-gray-500">{tBooking("invoiceTitle")}</div>
             </div>
             <div className="text-right">

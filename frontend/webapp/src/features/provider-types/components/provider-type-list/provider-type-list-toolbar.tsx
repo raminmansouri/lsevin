@@ -18,7 +18,7 @@ export const ProviderTypeListToolbar = () => {
         {t("actions.addProviderType")}
       </Button>
       <Button variant="outline" onClick={() => router.push("/admin/service-definitions")}>
-        Service definitions
+        {t("serviceDefinitions")}
       </Button>
     </div>
   );

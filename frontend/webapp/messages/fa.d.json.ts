@@ -280,6 +280,9 @@ declare const messages: {
     "infoToursCom": "info@tours.com"
   },
   "BottomTabBar": {
+    "from": "از",
+    "availableBalance": "موجودی قابل برداشت",
+    "loyaltyPoints": "امتیاز وفاداری",
     "Profile": "پروفایل",
     "Home": "خانه",
     "Explore": "کاوش",
@@ -288,6 +291,8 @@ declare const messages: {
     "Shop": "فروشگاه"
   },
   "CategoryBrowser": {
+    "allCategories": "همه دسته‌ها",
+    "searchCategories": "جستجوی دسته‌ها...",
     "categoriesCount": "{count, plural, other {# دسته‌بندی}}",
     "providersCount": "{count, plural, other {# ارائه‌دهنده}}",
     "smartDiscovery": "جستجوی هوشمند",
@@ -398,6 +403,13 @@ declare const messages: {
     }
   },
   "AdminGenerated": {
+    "configureSignInSignUpForgotPasswordOtp": "ورود، ثبت‌نام، فراموشی رمز و کد یک‌بارمصرف را تنظیم کنید.",
+    "useItemKeysSignInSignUpForgot": "از کلیدهای sign-in، sign-up و forgot-password استفاده کنید.",
+    "previousImage": "تصویر قبلی",
+    "nextImage": "تصویر بعدی",
+    "editAppHomePageContentBlocksSuchAs": "بلوک‌های محتوای صفحه اصلی اپ را ویرایش کنید.",
+    "directPostgresqlAdminConsoleForOperationalBookingsAsp": "کنسول مستقیم مدیریت دیتابیس برای داده‌های عملیاتی.",
+    "searchProvidersServicesStaffCityCountry": "جستجوی ارائه‌دهنده، خدمت، کادر، شهر یا کشور",
     "noCategoryFound": "دسته‌ای یافت نشد.",
     "clearCategoryFilter": "پاک کردن فیلتر دسته",
     "addServiceDefinition": "افزودن تعریف خدمت",
@@ -2331,6 +2343,12 @@ declare const messages: {
     }
   },
   "FormBuilder": {
+    "email": "ایمیل",
+    "url": "آدرس",
+    "remove": "حذف",
+    "aZ09": "^[A-Z0-9_-]+$",
+    "imagePdfDocDocx": "image/*,.pdf,.doc,.docx",
+    "enUsFaIr": "en-US, fa-IR",
     "bindings": {
       "title": "اتصال فرم به خدمات",
       "description": "فرم تا وقتی به یک خدمت وصل نشود در رزرو نمایش داده نمی‌شود. برای فرم افزونه، «رزرو افزونه» را انتخاب کنید.",
@@ -4519,6 +4537,7 @@ declare const messages: {
     "zh": "中文"
   },
   "Logo": {
+    "lSevin": "L SEVIN",
     "medical": "پزشکی",
     "tourism": "گردشگری",
     "beauty": "زیبایی"
@@ -4678,6 +4697,11 @@ declare const messages: {
     }
   },
   "Common": {
+    "loading": "در حال بارگذاری...",
+    "goToFirstPage": "رفتن به صفحه اول",
+    "goToPreviousPage": "صفحه قبل",
+    "goToNextPage": "صفحه بعد",
+    "goToLastPage": "رفتن به صفحه آخر",
     "bookings": "رزروها",
     "points": "امتیاز",
     "saved": "ذخیره‌شده",
@@ -6630,6 +6654,10 @@ declare const messages: {
     }
   },
   "ProviderType": {
+    "keptForTheLegacySmallIconUseThe": "برای آیکون کوچک قدیمی نگه داشته شده است. برای کارت‌ها از فیلد تصویر استفاده کنید.",
+    "pickImage": "انتخاب تصویر",
+    "serviceDefinitions": "service_definitions",
+    "noImageSelected": "تصویری انتخاب نشده",
     "name": "نوع ارائه‌دهنده",
     "page": {
       "title": "انواع ارائه‌دهندگان",
@@ -6774,6 +6802,7 @@ declare const messages: {
     "loadMore": "بارگذاری بیشتر"
   },
   "Booking": {
+    "lsevin": "لسوین",
     "upcoming": "پیش‌رو",
     "past": "گذشته",
     "aDedicatedCoordinatorWillBeAssignedAfterBookingConfirmation": "A dedicated coordinator will be assigned after رزرو confirmation.",
@@ -7534,6 +7563,14 @@ declare const messages: {
     "stepConsultation": "مشاوره رایگان"
   },
   "MobileProfile": {
+    "usd": "USD",
+    "eur": "EUR",
+    "gbp": "GBP",
+    "aed": "AED",
+    "clearFilters": "پاک کردن فیلترها",
+    "clearAll": "پاک کردن همه",
+    "applyFilters": "اعمال فیلترها",
+    "usdtTrc20": "USDT TRC20",
     "allMedicalInformationIsEncryptedHipaaCompliantAnd": "تمام اطلاعات پزشکی رمزنگاری شده و محرمانه نگهداری می‌شود.",
     "addYourFirstAllergy": "اولین حساسیت خود را اضافه کنید",
     "addYourFirstMedication": "اولین داروی خود را اضافه کنید",
@@ -8497,6 +8534,8 @@ declare const messages: {
     "mapboxMapLoadError": "نقشه Mapbox بارگذاری نشد."
   },
   "SearchResults": {
+    "verifiedOnly": "فقط تأییدشده‌ها",
+    "n4Stars": "۴ ستاره و بالاتر",
     "resultsFound": "{count, plural, =0 {نتیجه‌ای پیدا نشد} one {# نتیجه پیدا شد} other {# نتیجه پیدا شد}}",
     "filters": "فیلترها",
     "reviewsCount": "({count, plural, one {# نظر} other {# نظر}})",
@@ -12318,6 +12357,7 @@ declare const messages: {
     }
   },
   "SpecialPackagesAdmin": {
+    "irr": "IRR",
     "listTitle": "پکیج‌های ویژه",
     "listDescription": "پکیج‌های ویژه‌ای که در صفحه اصلی موبایل نمایش داده می‌شوند را ایجاد و مدیریت کنید.",
     "createTitle": "ایجاد پکیج ویژه",
@@ -13664,6 +13704,14 @@ declare const messages: {
     }
   },
   "AdminPages": {
+    "smtpExampleCom": "smtp.example.com",
+    "noReplyLsevinCom": "no-reply@lsevin.com",
+    "mailtoAdminLsevinCom": "mailto:admin@lsevin.com",
+    "lsevinBot": "lsevin_bot",
+    "xxxxXxxxXxxxXxxx": "XXXX-XXXX-XXXX-XXXX",
+    "irxxxxxxxxxxxxxxxxxxxxxxxx": "IRxxxxxxxxxxxxxxxxxxxxxxxx",
+    "backToList": "بازگشت به فهرست",
+    "select": "انتخاب کنید...",
     "irr": "IRR",
     "usd": "USD",
     "eur": "EUR",
@@ -14450,6 +14498,9 @@ declare const messages: {
     }
   },
   "Shop": {
+    "iban": "شبا:",
+    "ge00Ls0000000000000000": "GE00 LS00 0000 0000 0000 00",
+    "ref": "کد پیگیری:",
     "title": "فروشگاه",
     "tab": "فروشگاه",
     "searchPlaceholder": "جستجوی محصول، برند…",
@@ -14661,6 +14712,7 @@ declare const messages: {
     "qty": "تعداد"
   },
   "ShopAdmin": {
+    "acmeHealth": "acme-health",
     "nav": {
       "dashboard": "داشبورد",
       "orders": "سفارش‌ها",

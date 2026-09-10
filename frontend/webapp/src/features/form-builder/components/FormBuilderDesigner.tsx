@@ -245,6 +245,7 @@ function FieldEditor({
   fieldTypes: typeof DEFAULT_DESIGNER_FIELD_TYPES;
   setValue: React.Dispatch<React.SetStateAction<UpsertFormDefinitionInput>>;
 }) {
+  const tt = useTranslations("FormBuilder");
   const t = useTranslations("FormBuilder.designer");
   const commonT = useTranslations("FormBuilder.common");
   const optionEnabled = supportsFieldOptions(field.fieldTypeCode, fieldTypes);
@@ -357,8 +358,8 @@ function FieldEditor({
               className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 outline-none focus:border-[#155e75]"
             >
               <option value="">{commonT("none")}</option>
-              <option value="email">Email</option>
-              <option value="url">URL</option>
+              <option value="email">{tt("email")}</option>
+              <option value="url">{tt("url")}</option>
             </select>
           </label>
           <label className="block text-sm">
@@ -405,7 +406,7 @@ function FieldEditor({
               value={validationString(field.validationRules, "pattern", "")}
               onChange={(e) => setValue((current) => replaceField(current, sectionIndex, fieldIndex, setFieldValidationRule(field, "pattern", e.target.value)))}
               className="h-10 w-full rounded-xl border border-slate-200 px-3 outline-none focus:border-[#155e75]"
-              placeholder="^[A-Z0-9_-]+$"
+              placeholder={tt("aZ09")}
             />
           </label>
           <label className="block text-sm">
@@ -462,7 +463,7 @@ function FieldEditor({
                 value={settingAsString(field.settings, "accept", "")}
                 onChange={(e) => setValue((current) => replaceField(current, sectionIndex, fieldIndex, setFieldSetting(field, "accept", e.target.value)))}
                 className="h-10 w-full rounded-xl border border-slate-200 px-3 outline-none focus:border-[#155e75]"
-                placeholder="image/*,.pdf,.doc,.docx"
+                placeholder={tt("imagePdfDocDocx")}
               />
             </label>
             <label className="block text-sm">
@@ -501,7 +502,7 @@ function FieldEditor({
                 value={settingAsString(field.settings, "resource", "service_definitions")}
                 onChange={(e) => setValue((current) => replaceField(current, sectionIndex, fieldIndex, setFieldSetting(field, "resource", e.target.value)))}
                 className="h-10 w-full rounded-xl border border-slate-200 px-3 outline-none focus:border-[#155e75]"
-                placeholder="service_definitions"
+                placeholder={tt("serviceDefinitions")}
               />
             </label>
             <label className="block text-sm">
@@ -621,6 +622,7 @@ function FieldEditor({
 }
 
 export function FormBuilderDesigner({ initial, fieldTypes = DEFAULT_DESIGNER_FIELD_TYPES, onSave }: FormBuilderDesignerProps) {
+  const tt = useTranslations("FormBuilder");
   const t = useTranslations("FormBuilder.designer");
   const commonT = useTranslations("FormBuilder.common");
   const [value, setValue] = useState<UpsertFormDefinitionInput>(() => normalizeInitial(initial));
@@ -882,7 +884,7 @@ export function FormBuilderDesigner({ initial, fieldTypes = DEFAULT_DESIGNER_FIE
               </label>
               <label className="block text-sm">
                 <span className="mb-1 block font-semibold text-slate-800">{t("locales")}</span>
-                <input value={(value.locales ?? []).join(", ")} onChange={(e) => setValue({ ...value, locales: e.target.value.split(",").map((item) => item.trim()).filter(Boolean) })} className="h-12 w-full rounded-2xl border border-slate-200 px-4 outline-none focus:border-[#155e75]" placeholder="en-US, fa-IR" />
+                <input value={(value.locales ?? []).join(", ")} onChange={(e) => setValue({ ...value, locales: e.target.value.split(",").map((item) => item.trim()).filter(Boolean) })} className="h-12 w-full rounded-2xl border border-slate-200 px-4 outline-none focus:border-[#155e75]" placeholder={tt("enUsFaIr")} />
               </label>
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="block text-sm">
@@ -935,7 +937,7 @@ export function FormBuilderDesigner({ initial, fieldTypes = DEFAULT_DESIGNER_FIE
                         });
                       }}
                     >
-                      Remove
+                      {tt("remove")}
                     </button>
                   </div>
 

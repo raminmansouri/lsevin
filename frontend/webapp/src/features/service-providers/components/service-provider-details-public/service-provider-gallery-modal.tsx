@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
@@ -113,7 +114,7 @@ export const ServiceProviderGalleryModal = ({
               onClick={scrollPrev}
             >
               <ChevronLeft className="size-4" />
-              <span className="sr-only">Previous image</span>
+              <span className="sr-only">{t("previousImage")}</span>
             </Button>
             <Button
               variant="outline"
@@ -122,7 +123,7 @@ export const ServiceProviderGalleryModal = ({
               onClick={scrollNext}
             >
               <ChevronRight className="size-4" />
-              <span className="sr-only">Next image</span>
+              <span className="sr-only">{t("nextImage")}</span>
             </Button>
           </div>
         </Carousel>

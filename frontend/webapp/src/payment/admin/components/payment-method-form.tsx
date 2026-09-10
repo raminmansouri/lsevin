@@ -26,6 +26,7 @@ function newBankAccountId() {
 }
 
 export function PaymentMethodForm({ method }: { method: PaymentMethodConfig }) {
+  const tt = useTranslations("AdminPages");
   const t = useTranslations("AdminPages.paymentMethods.form");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -211,7 +212,7 @@ export function PaymentMethodForm({ method }: { method: PaymentMethodConfig }) {
                           <FormItem>
                             <FormLabel>{t("cardNumberLabel")}</FormLabel>
                             <FormControl>
-                              <Input {...f} value={f.value || ""} dir="ltr" placeholder="XXXX-XXXX-XXXX-XXXX" disabled={isPending} />
+                              <Input {...f} value={f.value || ""} dir="ltr" placeholder={tt("xxxxXxxxXxxxXxxx")} disabled={isPending} />
                             </FormControl>
                           </FormItem>
                         )}
@@ -223,7 +224,7 @@ export function PaymentMethodForm({ method }: { method: PaymentMethodConfig }) {
                           <FormItem>
                             <FormLabel>{t("ibanLabel")}</FormLabel>
                             <FormControl>
-                              <Input {...f} value={f.value || ""} dir="ltr" placeholder="IRxxxxxxxxxxxxxxxxxxxxxxxx" disabled={isPending} />
+                              <Input {...f} value={f.value || ""} dir="ltr" placeholder={tt("irxxxxxxxxxxxxxxxxxxxxxxxx")} disabled={isPending} />
                             </FormControl>
                           </FormItem>
                         )}

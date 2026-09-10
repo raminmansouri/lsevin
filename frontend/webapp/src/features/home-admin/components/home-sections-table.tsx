@@ -17,7 +17,7 @@ export function HomeSectionsTable({ sections }: { sections: HomeSectionListItem[
       <CardHeader>
         <CardTitle>{tAdmin("homeSections")}</CardTitle>
         <CardDescription>
-          Edit app home page content blocks such as hero featured copy, nearby discovery, premium packages, and loyalty club.
+          {tAdmin("editAppHomePageContentBlocksSuchAs")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -65,7 +65,7 @@ export function HomeSectionsTable({ sections }: { sections: HomeSectionListItem[
                       <Button asChild variant="outline" size="sm">
                         <Link href={`/admin/home-sections/${encodeURIComponent(section.sectionKey)}/update`}>
                           <Edit className="mr-2 h-4 w-4" />
-                          Edit
+                          {tAdmin("edit")}
                         </Link>
                       </Button>
                     </td>

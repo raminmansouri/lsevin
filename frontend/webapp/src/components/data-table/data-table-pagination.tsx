@@ -31,6 +31,7 @@ export function DataTablePagination<TData>({
   table,
   pagination,
 }: DataTablePaginationProps<TData>) {
+  const tt = useTranslations("Common");
   const { isPending, handlePaginationChange } = useTableState();
   const { pageNumber, pageSize } = useFilterParams();
   const t = useTranslations("Common.DataTable");
@@ -96,7 +97,7 @@ export function DataTablePagination<TData>({
             onClick={() => handlePageChange(0)}
             disabled={!table.getCanPreviousPage()}
           >
-            <span className="sr-only">Go to first page</span>
+            <span className="sr-only">{tt("goToFirstPage")}</span>
             <ChevronsLeft className="size-4 rtl:rotate-180" />
           </Button>
           <Button
@@ -105,7 +106,7 @@ export function DataTablePagination<TData>({
             onClick={() => handlePageChange(Number(pageNumber) - 2)}
             disabled={!table.getCanPreviousPage()}
           >
-            <span className="sr-only">Go to previous page</span>
+            <span className="sr-only">{tt("goToPreviousPage")}</span>
             <ChevronLeft className="size-4 rtl:rotate-180" />
           </Button>
           <Button
@@ -114,7 +115,7 @@ export function DataTablePagination<TData>({
             onClick={() => handlePageChange(Number(pageNumber))}
             disabled={!table.getCanNextPage()}
           >
-            <span className="sr-only">Go to next page</span>
+            <span className="sr-only">{tt("goToNextPage")}</span>
             <ChevronRight className="size-4 rtl:rotate-180" />
           </Button>
           <Button
@@ -123,7 +124,7 @@ export function DataTablePagination<TData>({
             onClick={() => handlePageChange(totalPages - 1)}
             disabled={!table.getCanNextPage()}
           >
-            <span className="sr-only">Go to last page</span>
+            <span className="sr-only">{tt("goToLastPage")}</span>
             <ChevronsRight className="size-4 rtl:rotate-180" />
           </Button>
         </div>

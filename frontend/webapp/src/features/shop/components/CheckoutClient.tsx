@@ -176,8 +176,8 @@ export function CheckoutClient({
             {t("bankTransferInstructions", { amount: formatShopMoney(manual.amount, manual.currency, locale) })}
           </p>
           <div className="mt-4 rounded-xl bg-neutral-50 p-3 text-start text-sm">
-            <p><span className="text-neutral-500">IBAN:</span> <span className="font-mono">GE00 LS00 0000 0000 0000 00</span></p>
-            <p><span className="text-neutral-500">Ref:</span> <span className="font-mono">{idempotencyKey.current.slice(0, 10).toUpperCase()}</span></p>
+            <p><span className="text-neutral-500">{t("iban")}</span> <span className="font-mono">{t("ge00Ls0000000000000000")}</span></p>
+            <p><span className="text-neutral-500">{t("ref")}</span> <span className="font-mono">{idempotencyKey.current.slice(0, 10).toUpperCase()}</span></p>
           </div>
         </div>
         <button

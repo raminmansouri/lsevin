@@ -280,6 +280,9 @@ declare const messages: {
     "infoToursCom": "info@tours.com"
   },
   "BottomTabBar": {
+    "from": "From",
+    "availableBalance": "Available Balance",
+    "loyaltyPoints": "Loyalty Points",
     "Profile": "Profile",
     "Home": "Home",
     "Explore": "Explore",
@@ -288,6 +291,8 @@ declare const messages: {
     "Shop": "Shop"
   },
   "CategoryBrowser": {
+    "allCategories": "All categories",
+    "searchCategories": "Search categories...",
     "categoriesCount": "{count, plural, one {# category} other {# categories}}",
     "providersCount": "{count, plural, one {# provider} other {# providers}}",
     "smartDiscovery": "Smart discovery",
@@ -296,6 +301,7 @@ declare const messages: {
     "searchNow": "Search Now"
   },
   "Booking": {
+    "lsevin": "LSevin",
     "upcoming": "Upcoming",
     "past": "Past",
     "aDedicatedCoordinatorWillBeAssignedAfterBookingConfirmation": "A dedicated coordinator will be assigned after booking confirmation.",
@@ -1158,6 +1164,13 @@ declare const messages: {
     }
   },
   "AdminGenerated": {
+    "configureSignInSignUpForgotPasswordOtp": "Configure sign-in, sign-up, forgot-password, OTP, and onboarding content without code changes.",
+    "useItemKeysSignInSignUpForgot": "Use item keys: sign-in, sign-up, forgot-password, otp, or step keys like step-1.",
+    "previousImage": "Previous image",
+    "nextImage": "Next image",
+    "editAppHomePageContentBlocksSuchAs": "Edit app home page content blocks such as hero featured copy, nearby discovery, premium packages, and loyalty club.",
+    "directPostgresqlAdminConsoleForOperationalBookingsAsp": "Direct PostgreSQL admin console for operational bookings, ASP.NET Identity users/roles/security records, customer profiles, documents, favorites, and wallet flows.",
+    "searchProvidersServicesStaffCityCountry": "Search providers, services, staff, city, country...",
     "noCategoryFound": "No category found.",
     "clearCategoryFilter": "Clear category filter",
     "addServiceDefinition": "Add service definition",
@@ -3091,6 +3104,12 @@ declare const messages: {
     }
   },
   "FormBuilder": {
+    "email": "Email",
+    "url": "URL",
+    "remove": "Remove",
+    "aZ09": "^[A-Z0-9_-]+$",
+    "imagePdfDocDocx": "image/*,.pdf,.doc,.docx",
+    "enUsFaIr": "en-US, fa-IR",
     "bindings": {
       "title": "Service bindings",
       "description": "A form is not shown on a booking until it is bound to a service. Pick \"Add-on booking\" for an add-on form.",
@@ -5279,6 +5298,7 @@ declare const messages: {
     "zh": "中文"
   },
   "Logo": {
+    "lSevin": "L SEVIN",
     "medical": "Medical",
     "tourism": "Tourism",
     "beauty": "Beauty"
@@ -5438,6 +5458,11 @@ declare const messages: {
     }
   },
   "Common": {
+    "loading": "Loading...",
+    "goToFirstPage": "Go to first page",
+    "goToPreviousPage": "Go to previous page",
+    "goToNextPage": "Go to next page",
+    "goToLastPage": "Go to last page",
     "bookings": "Bookings",
     "points": "Points",
     "saved": "Saved",
@@ -7390,6 +7415,10 @@ declare const messages: {
     }
   },
   "ProviderType": {
+    "keptForTheLegacySmallIconUseThe": "Kept for the legacy small icon. Use the image field for visual cards.",
+    "pickImage": "Pick image",
+    "serviceDefinitions": "Service definitions",
+    "noImageSelected": "No image selected",
     "name": "Provider Type",
     "page": {
       "title": "Provider Types",
@@ -7534,6 +7563,14 @@ declare const messages: {
     "loadMore": "Load More"
   },
   "MobileProfile": {
+    "usd": "USD",
+    "eur": "EUR",
+    "gbp": "GBP",
+    "aed": "AED",
+    "clearFilters": "Clear Filters",
+    "clearAll": "Clear All",
+    "applyFilters": "Apply Filters",
+    "usdtTrc20": "USDT TRC20",
     "allMedicalInformationIsEncryptedHipaaCompliantAnd": "All medical information is encrypted, HIPAA-compliant, and only shared with your authorized healthcare providers.",
     "addYourFirstAllergy": "Add your first allergy",
     "addYourFirstMedication": "Add your first medication",
@@ -8497,6 +8534,8 @@ declare const messages: {
     "mapboxMapLoadError": "Mapbox map could not load."
   },
   "SearchResults": {
+    "verifiedOnly": "Verified Only",
+    "n4Stars": "4+ Stars",
     "resultsFound": "{count, plural, =0 {No results found} one {# result found} other {# results found}}",
     "filters": "Filters",
     "reviewsCount": "({count, plural, one {# review} other {# reviews}})",
@@ -12318,6 +12357,7 @@ declare const messages: {
     }
   },
   "SpecialPackagesAdmin": {
+    "irr": "IRR",
     "listTitle": "Special packages",
     "listDescription": "Create and manage special packages shown on the mobile home page.",
     "createTitle": "Create special package",
@@ -13664,6 +13704,14 @@ declare const messages: {
     }
   },
   "AdminPages": {
+    "smtpExampleCom": "smtp.example.com",
+    "noReplyLsevinCom": "no-reply@lsevin.com",
+    "mailtoAdminLsevinCom": "mailto:admin@lsevin.com",
+    "lsevinBot": "lsevin_bot",
+    "xxxxXxxxXxxxXxxx": "XXXX-XXXX-XXXX-XXXX",
+    "irxxxxxxxxxxxxxxxxxxxxxxxx": "IRxxxxxxxxxxxxxxxxxxxxxxxx",
+    "backToList": "Back to list",
+    "select": "Select...",
     "irr": "IRR",
     "usd": "USD",
     "eur": "EUR",
@@ -14450,6 +14498,9 @@ declare const messages: {
     }
   },
   "Shop": {
+    "iban": "IBAN:",
+    "ge00Ls0000000000000000": "GE00 LS00 0000 0000 0000 00",
+    "ref": "Ref:",
     "title": "Shop",
     "tab": "Shop",
     "searchPlaceholder": "Search products, brands…",
@@ -14661,6 +14712,7 @@ declare const messages: {
     "qty": "Qty"
   },
   "ShopAdmin": {
+    "acmeHealth": "acme-health",
     "nav": {
       "dashboard": "Dashboard",
       "orders": "Orders",

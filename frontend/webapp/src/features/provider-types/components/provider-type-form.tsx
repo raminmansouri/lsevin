@@ -37,6 +37,7 @@ interface ProviderTypeFormProps {
 }
 
 export function ProviderTypeForm({ providerType }: ProviderTypeFormProps) {
+  const t = useTranslations("ProviderType");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -156,7 +157,7 @@ export function ProviderTypeForm({ providerType }: ProviderTypeFormProps) {
                   control={form.control}
                   name="imageUrl"
                   label="Provider type image"
-                  placeholder="Pick image"
+                  placeholder={t("pickImage")}
                   mediaType="image"
                   helperText="Stores one media id; list/detail resolve it through media.media_library."
                   modalTitle="Pick provider type image"
@@ -178,7 +179,7 @@ export function ProviderTypeForm({ providerType }: ProviderTypeFormProps) {
                             placeholder={componentT("form.iconUrl.placeholder")}
                           />
                           <p className="text-xs text-muted-foreground">
-                            Kept for the legacy small icon. Use the image field for visual cards.
+                            {t("keptForTheLegacySmallIconUseThe")}
                           </p>
                         </div>
                       </FormControl>

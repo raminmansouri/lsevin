@@ -21,6 +21,7 @@ import type { InputType } from "@/features/notification/admin/actions/save-notif
 import type { NotificationChannelConfig } from "@/features/notification/server/channel.repository";
 
 export function NotificationChannelForm({ channel }: { channel: NotificationChannelConfig }) {
+  const tt = useTranslations("AdminPages");
   const t = useTranslations("AdminPages.notificationChannels.form");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -116,7 +117,7 @@ export function NotificationChannelForm({ channel }: { channel: NotificationChan
               </CardHeader>
               <CardContent className="grid gap-6 md:grid-cols-2">
                 <FormField control={form.control} name="settings.smtpHost" render={({ field }) => (
-                  <FormItem><FormLabel>{t("smtpHostLabel")}</FormLabel><FormControl><Input {...field} value={field.value || ""} dir="ltr" placeholder="smtp.example.com" disabled={isPending} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t("smtpHostLabel")}</FormLabel><FormControl><Input {...field} value={field.value || ""} dir="ltr" placeholder={tt("smtpExampleCom")} disabled={isPending} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="settings.smtpPort" render={({ field }) => (
                   <FormItem><FormLabel>{t("smtpPortLabel")}</FormLabel><FormControl><Input {...field} value={String(field.value ?? "")} type="number" dir="ltr" disabled={isPending} /></FormControl><FormMessage /></FormItem>
@@ -128,7 +129,7 @@ export function NotificationChannelForm({ channel }: { channel: NotificationChan
                   <FormItem><FormLabel>{t("smtpPasswordLabel")}</FormLabel><FormControl><Input {...field} value={field.value || ""} type="password" autoComplete="new-password" dir="ltr" placeholder={channel.settings.smtpPassword ? `${t("current")}: ${channel.settings.smtpPassword}` : ""} disabled={isPending} /></FormControl><FormDescription>{t("keepBlankHint")}</FormDescription><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="settings.fromAddress" render={({ field }) => (
-                  <FormItem><FormLabel>{t("fromAddressLabel")}</FormLabel><FormControl><Input {...field} value={field.value || ""} dir="ltr" placeholder="no-reply@lsevin.com" disabled={isPending} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t("fromAddressLabel")}</FormLabel><FormControl><Input {...field} value={field.value || ""} dir="ltr" placeholder={tt("noReplyLsevinCom")} disabled={isPending} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="settings.fromName" render={({ field }) => (
                   <FormItem><FormLabel>{t("fromNameLabel")}</FormLabel><FormControl><Input {...field} value={field.value || ""} disabled={isPending} /></FormControl><FormMessage /></FormItem>
@@ -177,7 +178,7 @@ export function NotificationChannelForm({ channel }: { channel: NotificationChan
                   <FormItem className="md:col-span-2"><FormLabel>{t("vapidPrivateKeyLabel")}</FormLabel><FormControl><Input {...field} value={field.value || ""} type="password" autoComplete="new-password" dir="ltr" placeholder={channel.settings.vapidPrivateKey ? `${t("current")}: ${channel.settings.vapidPrivateKey}` : ""} disabled={isPending} /></FormControl><FormDescription>{t("keepBlankHint")}</FormDescription><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="settings.vapidSubject" render={({ field }) => (
-                  <FormItem className="md:col-span-2"><FormLabel>{t("vapidSubjectLabel")}</FormLabel><FormControl><Input {...field} value={field.value || ""} dir="ltr" placeholder="mailto:admin@lsevin.com" disabled={isPending} /></FormControl><FormDescription>{t("vapidSubjectDescription")}</FormDescription><FormMessage /></FormItem>
+                  <FormItem className="md:col-span-2"><FormLabel>{t("vapidSubjectLabel")}</FormLabel><FormControl><Input {...field} value={field.value || ""} dir="ltr" placeholder={tt("mailtoAdminLsevinCom")} disabled={isPending} /></FormControl><FormDescription>{t("vapidSubjectDescription")}</FormDescription><FormMessage /></FormItem>
                 )} />
               </CardContent>
             </Card>
@@ -211,7 +212,7 @@ export function NotificationChannelForm({ channel }: { channel: NotificationChan
                   <FormItem><FormLabel>{t("baleBotTokenLabel")}</FormLabel><FormControl><Input {...field} value={field.value || ""} type="password" autoComplete="new-password" dir="ltr" placeholder={channel.settings.baleBotToken ? `${t("current")}: ${channel.settings.baleBotToken}` : ""} disabled={isPending} /></FormControl><FormDescription>{t("keepBlankHint")}</FormDescription><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="settings.baleBotUsername" render={({ field }) => (
-                  <FormItem><FormLabel>{t("baleBotUsernameLabel")}</FormLabel><FormControl><Input {...field} value={field.value || ""} dir="ltr" placeholder="lsevin_bot" disabled={isPending} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t("baleBotUsernameLabel")}</FormLabel><FormControl><Input {...field} value={field.value || ""} dir="ltr" placeholder={tt("lsevinBot")} disabled={isPending} /></FormControl><FormMessage /></FormItem>
                 )} />
               </CardContent>
             </Card>

@@ -26,6 +26,7 @@ type Props = {
 };
 
 export default function SettingsPageClient({ initialData }: Props) {
+  const tt = useTranslations("MobileProfile");
   const t = useTranslations("MobileProfile.settings");
   const currentLocale = useLocale();
   const router = useRouter();
@@ -157,10 +158,10 @@ export default function SettingsPageClient({ initialData }: Props) {
             <label className="space-y-2">
               <span className="text-sm font-semibold text-gray-900">{t("currency")}</span>
               <select className="h-12 w-full rounded-xl border-2 border-gray-300 bg-white px-4 focus:border-[#083f30] focus:outline-none" value={form.preferredCurrencyCode} onChange={(e) => setForm((prev) => ({ ...prev, preferredCurrencyCode: e.target.value }))}>
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-                <option value="GBP">GBP</option>
-                <option value="AED">AED</option>
+                <option value="USD">{tt("usd")}</option>
+                <option value="EUR">{tt("eur")}</option>
+                <option value="GBP">{tt("gbp")}</option>
+                <option value="AED">{tt("aed")}</option>
               </select>
             </label>
 

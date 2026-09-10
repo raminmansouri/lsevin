@@ -96,7 +96,7 @@ export function ProviderTypeDetailsModal({
                     />
                   ) : (
                     <div className="flex h-44 items-center justify-center text-sm text-muted-foreground">
-                      No image selected
+                      {t("noImageSelected")}
                     </div>
                   )}
                 </div>

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Image from "next/image";
 
 import {
@@ -315,7 +316,7 @@ export const ServiceProviderDetails = async ({ serviceProvider, t }: Props) => {
             <div>
               <div className="mb-4 flex items-center">
                 <div className="bg-primary me-3 h-2 w-2 rounded-full"></div>
-                <h2 className="text-lg font-semibold">Certifications</h2>
+                <h2 className="text-lg font-semibold">{t("certifications")}</h2>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 {certifications.map((certificate, index) => {
@@ -327,7 +328,7 @@ export const ServiceProviderDetails = async ({ serviceProvider, t }: Props) => {
                     <div key={`${certificate.name}-${index}`} className="rounded-lg border bg-muted/20 p-4">
                       <div className="flex items-center justify-between gap-3">
                         <h3 className="font-medium">{certificate.name}</h3>
-                        {certificate.verified ? <Badge variant="outline">Verified</Badge> : null}
+                        {certificate.verified ? <Badge variant="outline">{t("verified")}</Badge> : null}
                       </div>
                       {imageUrls.length ? (
                         <div className="mt-3 grid grid-cols-2 gap-3">
