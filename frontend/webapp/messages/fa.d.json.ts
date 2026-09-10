@@ -301,6 +301,8 @@ declare const messages: {
     "searchNow": "جستجو کنید"
   },
   "Explore": {
+    "lsevin": "لسوین",
+    "viewAll": "مشاهده همه",
     "header": {
       "title": "کاوش",
       "subtitle": "خدمات سلامت را در سراسر جهان پیدا کنید",

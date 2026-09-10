@@ -642,7 +642,7 @@ export default function ExploreClient({
                   />
                   ) : (
                     <div className="flex h-24 w-24 items-center justify-center rounded-xl bg-gradient-to-br from-[#083f30] to-[#0f6b56] text-xs font-semibold text-white/80">
-                      LSevin
+                      {t("lsevin")}
                     </div>
                   )}
                   {provider.verified && (
@@ -788,7 +788,7 @@ export default function ExploreClient({
                 />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#083f30] to-[#0f6b56] text-sm font-semibold text-white/80">
-                    LSevin
+                    {t("lsevin")}
                   </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
@@ -926,7 +926,7 @@ export default function ExploreClient({
             onClick={() => router.push(EXPLORE_PATH)}
             className="text-sm font-semibold text-[#083f30] hover:underline flex items-center gap-1"
           >
-            View All
+            {t("viewAll")}
             <ChevronRight size={16} />
           </button>
         </div>

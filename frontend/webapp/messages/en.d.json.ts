@@ -1062,6 +1062,8 @@ declare const messages: {
     "stepConsultation": "Free consultation"
   },
   "Explore": {
+    "lsevin": "LSevin",
+    "viewAll": "View All",
     "header": {
       "title": "Explore",
       "subtitle": "Discover healthcare worldwide",
