@@ -419,7 +419,79 @@ pipeline {
       }
     }
 
-    stage('9. Mark stable release') {
+    /*
+     * Why this stage exists.
+     *
+     * `next build` cannot reach the database. DATABASE_URL *is* mounted for the
+     * build (a BuildKit secret, frontend/webapp/Dockerfile), but it addresses the
+     * `pgbouncer` compose service and a BuildKit build does not join the compose
+     * network. Every rail query fails during prerender, so the force-static pages
+     * -- n/app/mobile/home and n/app/mobile/shop, both `revalidate = 120` -- are
+     * baked EMPTY for all 11 locales and shipped that way.
+     *
+     * The result reached users: the first visitor to a locale after each release
+     * got "No categories found". Shortening revalidate (3600 -> 120) narrowed
+     * that window without closing it, because the empty copy is still what the
+     * first request is served.
+     *
+     * Two passes, on purpose. ISR is stale-while-revalidate: the first request
+     * for a stale path is answered from the baked copy and only *starts* the
+     * regeneration. The second pass is what confirms the fresh page is in place
+     * before real traffic arrives.
+     *
+     * Each replica is warmed through its own container rather than through
+     * appmain.lsevin.com, because each Next process keeps its own in-memory
+     * "use cache" data cache (see the rolling-restart comment in stage 8) and
+     * Caddy would round-robin, leaving one replica cold.
+     *
+     * Never fails the deploy. The release is already healthy at this point; a
+     * warm miss costs one slow first visit, which is strictly better than
+     * failing a good release.
+     */
+    stage('9. Warm the static landing pages') {
+      steps {
+        sh '''
+          set -u
+
+          locales="en fa tr es ar ku de fr ru tg zh"
+          paths="/n/app/mobile/home /n/app/mobile/shop"
+
+          warmed=0
+          missed=0
+
+          for replica in lsevin-webapp-1 lsevin-webapp-2; do
+            container_id="$(docker compose \
+              --project-name "$COMPOSE_PROJECT_NAME" \
+              --env-file "$ENV_FILE" \
+              --file "$COMPOSE_FILE" \
+              ps -q "$replica" 2>/dev/null || true)"
+
+            if [ -z "$container_id" ]; then
+              echo "WARN: $replica has no container, skipping warm" >&2
+              continue
+            fi
+
+            for pass in 1 2; do
+              for locale in $locales; do
+                for path in $paths; do
+                  url="http://127.0.0.1:3000/${locale}${path}"
+                  if docker exec "$container_id" wget -q -O /dev/null -T 25 "$url"; then
+                    [ "$pass" = "2" ] && warmed=$((warmed + 1))
+                  else
+                    [ "$pass" = "2" ] && missed=$((missed + 1))
+                    echo "WARN: could not warm $replica $url" >&2
+                  fi
+                done
+              done
+            done
+          done
+
+          echo "warm complete: $warmed ok, $missed missed"
+        '''
+      }
+    }
+
+    stage('10. Mark stable release') {
       steps {
         sh '''
           set -eu
