@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useLocale } from "next-intl";
+import { usePathname as useRawPathname } from "next/navigation";
 
 import { getDirection } from "@/config/locales";
 import { hasExplicitLocaleChoice } from "@/i18n/locale-by-country";
@@ -33,6 +34,13 @@ function readCookieLocale(): string | null {
 export function LocaleSync() {
   const activeLocale = useLocale();
   const pathname = usePathname();
+  // Raw, locale-prefixed path. `usePathname` from @/i18n/navigation is
+  // locale-stripped, so /fa/n/app/... and /tr/n/app/... look identical to it —
+  // a forward <Link> tap that lands on the wrong-locale copy of a *different*
+  // page would still change the stripped pathname, but a same-page locale flip
+  // (or a stale RSC-cache segment) would not re-trigger the effect. The raw
+  // path always changes when the URL locale changes.
+  const rawPathname = useRawPathname();
   const router = useRouter();
 
   // Mirror <html lang/dir> to whatever locale is actually rendering.
@@ -55,9 +63,16 @@ export function LocaleSync() {
         : routing.defaultLocale;
 
       if (urlLocale !== cookieLocale) {
-        // `pathname` from @/i18n/navigation is already locale-stripped; re-issue it
-        // under the chosen locale. Converges after one hop (urlLocale === cookie).
+        // A stale <Link> navigated to the wrong-locale copy of the page.
+        // Re-issue the current (locale-stripped) path under the chosen locale;
+        // converges in one hop once urlLocale === cookieLocale.
         router.replace(pathname, { locale: cookieLocale });
+      } else if (activeLocale !== cookieLocale) {
+        // URL locale is right but the rendered [locale] provider tree is a
+        // reused/cached segment still on the pre-switch value. Re-fetch this
+        // route's RSC without touching the URL. Guarded once per rawPathname
+        // by the effect deps so it can't loop.
+        router.refresh();
       }
     }
 
@@ -68,7 +83,7 @@ export function LocaleSync() {
       window.removeEventListener("popstate", reconcile);
       window.removeEventListener("pageshow", reconcile);
     };
-  }, [pathname, activeLocale, router]);
+  }, [pathname, rawPathname, activeLocale, router]);
 
   return null;
 }
