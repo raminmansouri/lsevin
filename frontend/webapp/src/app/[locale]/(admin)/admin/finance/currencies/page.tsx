@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 
@@ -9,35 +10,36 @@ import { CurrencyDeleteButton } from '@/features/finance/components/admin/curren
 import { getAdminCurrencies } from '@/features/finance/api/server/get-admin-finance';
 
 export default async function AdminCurrenciesPage() {
+  const t = await getTranslations("AdminPages");
   const currencies = await getAdminCurrencies();
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Currencies</h1>
-          <p className="text-sm text-muted-foreground">Manage display, payment, and settlement currencies.</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t("currencies")}</h1>
+          <p className="text-sm text-muted-foreground">{t("manageDisplayPaymentAndSettlementCurrencies")}</p>
         </div>
         <Button asChild>
-          <Link href="/admin/finance/currencies/new"><Plus className="mr-2 h-4 w-4" />New currency</Link>
+          <Link href="/admin/finance/currencies/new"><Plus className="mr-2 h-4 w-4" />{t("newCurrency")}</Link>
         </Button>
       </div>
 
       <Card>
-        <CardHeader><CardTitle>Currency registry</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t("currencyRegistry")}</CardTitle></CardHeader>
         <CardContent className="overflow-x-auto">
           <table className="w-full min-w-[900px] text-sm">
             <thead>
               <tr className="border-b text-left text-muted-foreground">
-                <th className="py-3">Code</th>
-                <th>Name</th>
-                <th>Symbol</th>
-                <th>Decimals</th>
-                <th>Display</th>
-                <th>Payment</th>
-                <th>Settlement</th>
-                <th>Active</th>
-                <th className="text-right">Action</th>
+                <th className="py-3">{t("code")}</th>
+                <th>{t("name")}</th>
+                <th>{t("symbol")}</th>
+                <th>{t("decimals")}</th>
+                <th>{t("display")}</th>
+                <th>{t("payment")}</th>
+                <th>{t("settlement")}</th>
+                <th>{t("active")}</th>
+                <th className="text-right">{t("action")}</th>
               </tr>
             </thead>
             <tbody>
@@ -47,13 +49,13 @@ export default async function AdminCurrenciesPage() {
                   <td>{currency.name}</td>
                   <td>{currency.symbol}</td>
                   <td>{currency.decimalDigits}</td>
-                  <td>{currency.isDisplayEnabled ? <Badge>Yes</Badge> : <Badge variant="outline">No</Badge>}</td>
-                  <td>{currency.isPaymentEnabled ? <Badge>Yes</Badge> : <Badge variant="outline">No</Badge>}</td>
-                  <td>{currency.isSettlementEnabled ? <Badge>Yes</Badge> : <Badge variant="outline">No</Badge>}</td>
+                  <td>{currency.isDisplayEnabled ? <Badge>{t("yes")}</Badge> : <Badge variant="outline">{t("no")}</Badge>}</td>
+                  <td>{currency.isPaymentEnabled ? <Badge>{t("yes")}</Badge> : <Badge variant="outline">{t("no")}</Badge>}</td>
+                  <td>{currency.isSettlementEnabled ? <Badge>{t("yes")}</Badge> : <Badge variant="outline">{t("no")}</Badge>}</td>
                   <td><CurrencyActiveToggle code={currency.code} isActive={currency.isActive} /></td>
                   <td className="text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Button asChild size="sm" variant="outline"><Link href={`/admin/finance/currencies/${currency.code}/edit`}>Edit</Link></Button>
+                      <Button asChild size="sm" variant="outline"><Link href={`/admin/finance/currencies/${currency.code}/edit`}>{t("edit")}</Link></Button>
                       <CurrencyDeleteButton code={currency.code} />
                     </div>
                   </td>
