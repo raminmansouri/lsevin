@@ -14,9 +14,49 @@
 	encode zstd gzip
 	header {
 		-X-Powered-By
+		# Caddy's Server: Caddy carries no functional meaning for clients and only
+		# advertises the stack. MinIO's own Server header is already stripped on
+		# the /files/* handlers; this covers everything else.
+		-Server
 		X-Content-Type-Options "nosniff"
 		Referrer-Policy "strict-origin-when-cross-origin"
 		X-Frame-Options "SAMEORIGIN"
+
+		# One year. Deliberately NO includeSubDomains and NO preload yet — every
+		# lsevin.com subdomain must be confirmed HTTPS-only first, and preload is
+		# irreversible. Only sent on :443 responses (the :80 vhost is Caddy's
+		# auto HTTP->HTTPS redirect and never imports this snippet).
+		Strict-Transport-Security "max-age=31536000"
+
+		# camera/microphone: no code in any of the three apps calls getUserMedia.
+		# geolocation=(self): the webapp's "current location" picker, map-discovery
+		# NearbyClient and privacy-security page all call navigator.geolocation, so
+		# it must stay allowed for our own origin — just not for third parties or
+		# embedded frames.
+		Permissions-Policy "camera=(), microphone=(), geolocation=(self)"
+
+		# First-pass enforcing policy. Intentionally broad (`https:` wildcards,
+		# 'unsafe-inline', 'unsafe-eval') so it cannot break the running apps;
+		# every relaxation below is load-bearing:
+		#   script-src 'unsafe-inline'  -> Next.js App Router streams inline
+		#     <script>self.__next_f.push(...)</script> chunks with no nonce
+		#     threaded through Caddy.
+		#   script-src 'unsafe-eval'    -> mapbox-gl / react-map-gl (transpiled in
+		#     next.config.ts) use Function()/eval in some code paths.
+		#   style-src 'unsafe-inline'   -> Next.js critical CSS and next/font emit
+		#     inline <style>.
+		#   connect-src wss:            -> SignalR realtime hub
+		#     (NEXT_PUBLIC_SOCKET_URL -> wss://appmain.lsevin.com/hubs).
+		#   worker-src blob:            -> mapbox-gl web workers, Next.js.
+		#   frame-ancestors 'self'      -> same protection as the X-Frame-Options
+		#     above, which is already live and does not break provider<->appmain
+		#     SSO (that flow is top-level redirects, not framing).
+		#   NO form-action              -> payment-gateway flows POST forms to
+		#     external acquirer URLs.
+		# Future hardening: replace `https:` with explicit origins (GTM, Hotjar,
+		# mapbox, neshan tiles, enamad trustseal, fonts) and drop the unsafe-*
+		# tokens via a nonce/hash strategy.
+		Content-Security-Policy "default-src 'self' https: data: blob:; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; style-src 'self' https: 'unsafe-inline'; img-src 'self' https: data: blob:; font-src 'self' https: data:; connect-src 'self' https: wss:; frame-src 'self' https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; upgrade-insecure-requests"
 	}
 	log {
 		output stdout
@@ -207,10 +247,15 @@
     import common_headers
 
     # The books are not for search engines, and must never be framed.
+    # This header block runs after `import common_headers`, so these three
+    # fields override the shared values, and the CSP is re-stated with
+    # frame-ancestors 'none' (modern browsers honour CSP frame-ancestors over
+    # X-Frame-Options, so the shared 'self' would otherwise weaken DENY here).
     header {
         X-Robots-Tag "noindex, nofollow"
         X-Frame-Options "DENY"
         Referrer-Policy "no-referrer"
+        Content-Security-Policy "default-src 'self' https: data: blob:; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; style-src 'self' https: 'unsafe-inline'; img-src 'self' https: data: blob:; font-src 'self' https: data:; connect-src 'self' https: wss:; frame-src 'self' https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
     }
 
     reverse_proxy lsevin-webapp:3000
