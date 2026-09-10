@@ -47,7 +47,9 @@ export function AsyncSearchableSingleSelect({
   const [items, setItems] = useState<AsyncSelectOption[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
-  const [loading, setLoading] = useState(false);
+  // The panel paints before the load effect runs, so this has to start true
+  // or the empty text flashes before the first request even leaves.
+  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<AsyncSelectOption | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const reqRef = useRef(0);
@@ -138,7 +140,10 @@ export function AsyncSearchableSingleSelect({
         <button
           type="button"
           disabled={disabled}
-          onClick={() => setOpen((prev) => !prev)}
+          onClick={() => {
+            setLoading(true);
+            setOpen((prev) => !prev);
+          }}
           className="flex min-h-11 w-full items-center justify-between rounded-2xl border border-zinc-200 bg-white px-3 py-2 text-left shadow-sm transition hover:border-zinc-300 disabled:cursor-not-allowed disabled:opacity-60 dark:border-zinc-800 dark:bg-zinc-950"
         >
           <div className="min-w-0 flex-1">
@@ -200,6 +205,12 @@ export function AsyncSearchableSingleSelect({
             </div>
 
             <div className="max-h-72 overflow-auto p-2">
+              {items.length === 0 && loading ? (
+                <div className="flex items-center justify-center px-3 py-8 text-zinc-500">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                </div>
+              ) : null}
+
               {items.length === 0 && !loading ? (
                 <div className="px-3 py-8 text-center text-sm text-zinc-500">{emptyText}</div>
               ) : (

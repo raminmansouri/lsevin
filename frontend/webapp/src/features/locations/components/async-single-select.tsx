@@ -89,7 +89,9 @@ export function AsyncSingleSelect({
   const [items, setItems] = useState<LazyOption[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  // The panel paints before the load effect runs, so this has to start true
+  // or the empty text flashes before the first request even leaves.
+  const [isLoading, setIsLoading] = useState(true);
 
   const panelRef = useRef<HTMLDivElement | null>(null);
   const requestRef = useRef(0);
@@ -116,6 +118,9 @@ export function AsyncSingleSelect({
         setHasMore(cached.hasMore);
         setPage(nextPage);
         setCachedItems(cacheKey, cached.items);
+        // Opening the panel arms the spinner; the cache path answers without
+        // ever entering the try/finally below, so it has to disarm it itself.
+        setIsLoading(false);
         return;
       }
 
@@ -215,7 +220,10 @@ export function AsyncSingleSelect({
         <button
           type="button"
           disabled={disabled}
-          onClick={() => setOpen((prev) => !prev)}
+          onClick={() => {
+            setIsLoading(true);
+            setOpen((prev) => !prev);
+          }}
           className="flex min-h-11 w-full items-center justify-between rounded-2xl border border-zinc-200 bg-white px-3 py-2 text-left shadow-sm transition hover:border-zinc-300 disabled:cursor-not-allowed disabled:opacity-60 dark:border-zinc-800 dark:bg-zinc-950"
         >
           <div className="min-w-0 flex-1">
@@ -277,6 +285,13 @@ export function AsyncSingleSelect({
             </div>
 
             <div className="max-h-72 overflow-auto p-2">
+              {items.length === 0 && isLoading ? (
+                <div className="flex items-center justify-center gap-2 px-3 py-8 text-sm text-zinc-500">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {t("loading")}
+                </div>
+              ) : null}
+
               {items.length === 0 && !isLoading ? (
                 <div className="px-3 py-8 text-center text-sm text-zinc-500">
                   {emptyTextValue}

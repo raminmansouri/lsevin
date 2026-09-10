@@ -77,7 +77,9 @@ export function LazySearchableSelect({
   const selectedValues = React.useMemo(() => asArray(value), [value]);
   const [options, setOptions] = React.useState<LazySelectOption[]>([]);
   const [selectedOptions, setSelectedOptions] = React.useState<Record<string, LazySelectOption>>({});
-  const [loading, setLoading] = React.useState(false);
+  // A request always fires on mount, so starting at `false` painted the empty
+  // text before the first one had even left.
+  const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
   const selectedParam = selectedValues.join(",");
@@ -95,6 +97,7 @@ export function LazySearchableSelect({
     if (!resource) {
       setOptions([]);
       setError(t("missingResource"));
+      setLoading(false);
       return;
     }
 
@@ -135,7 +138,12 @@ export function LazySearchableSelect({
           setError((requestError as Error).message || t("failedToLoad"));
         }
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        // The abort rejects after the replacing effect has already set
+        // `loading`, so clearing it unconditionally uncovered the empty text
+        // in the middle of the newer request.
+        if (!controller.signal.aborted) setLoading(false);
+      });
 
     return () => controller.abort();
   }, [debouncedQuery, endpoint, limit, locale, resource, selectedParam, t]);
@@ -238,6 +246,11 @@ export function LazySearchableSelect({
 
           <div className="max-h-72 overflow-y-auto p-1.5">
             {error ? <div className="px-3 py-4 text-sm text-red-600">{error}</div> : null}
+            {options.length === 0 && loading && !error ? (
+              <div className="flex items-center justify-center px-3 py-6 text-slate-400">
+                <Loader2 size={18} className="animate-spin" />
+              </div>
+            ) : null}
             {options.length === 0 && !loading && !error ? <div className="px-3 py-6 text-center text-sm text-slate-500">{resolvedEmptyText}</div> : null}
 
             {options.map((option) => {

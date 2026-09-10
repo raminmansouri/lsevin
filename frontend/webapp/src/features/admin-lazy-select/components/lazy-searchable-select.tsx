@@ -72,7 +72,9 @@ export function LazySearchableSelect({
   const selectedValues = React.useMemo(() => asArray(value), [value]);
   const [options, setOptions] = React.useState<LazySelectOption[]>([]);
   const [selectedOptions, setSelectedOptions] = React.useState<Record<string, LazySelectOption>>({});
-  const [loading, setLoading] = React.useState(false);
+  // A request always fires on mount, so starting at `false` painted "no options
+  // found" before the first one had even left.
+  const [loading, setLoading] = React.useState(true);
 
   const selectedParam = selectedValues.join(",");
 
@@ -119,7 +121,12 @@ export function LazySearchableSelect({
       .catch((error) => {
         if ((error as Error).name !== "AbortError") console.error(error);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        // The abort rejects after the replacing effect has already set
+        // `loading`, so clearing it unconditionally uncovered the empty state
+        // in the middle of the newer request.
+        if (!controller.signal.aborted) setLoading(false);
+      });
 
     return () => controller.abort();
   }, [debouncedQuery, endpoint, limit, locale, resource, selectedParam]);
@@ -218,6 +225,12 @@ export function LazySearchableSelect({
           </div>
 
           <div className="max-h-72 overflow-y-auto p-1.5">
+            {options.length === 0 && loading ? (
+              <div className="flex items-center justify-center px-3 py-6 text-gray-400">
+                <Loader2 size={18} className="animate-spin" />
+              </div>
+            ) : null}
+
             {options.length === 0 && !loading ? (
               <div className="px-3 py-6 text-center text-sm text-gray-500">{emptyText}</div>
             ) : null}

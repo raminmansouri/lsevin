@@ -48,7 +48,9 @@ export default function LazySearchableSelect({
   const [items, setItems] = useState<LazySelectOption[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
-  const [loading, setLoading] = useState(false);
+  // The panel paints before the load effect runs, so this has to start true
+  // or the empty text flashes before the first request even leaves.
+  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<LazySelectOption | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const requestRef = useRef(0);
@@ -151,7 +153,10 @@ export default function LazySearchableSelect({
         <button
           type="button"
           disabled={disabled}
-          onClick={() => setOpen((current) => !current)}
+          onClick={() => {
+            setLoading(true);
+            setOpen((current) => !current);
+          }}
           className="flex min-h-12 w-full items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 text-left transition-colors hover:border-[#083f30] disabled:cursor-not-allowed disabled:bg-gray-50 disabled:opacity-60"
         >
           <div className="min-w-0 flex-1">
@@ -210,6 +215,13 @@ export default function LazySearchableSelect({
             </div>
 
             <div className="max-h-72 overflow-auto p-2">
+              {items.length === 0 && loading ? (
+                <div className="flex items-center justify-center gap-2 px-3 py-8 text-sm text-gray-500">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {t("loading")}
+                </div>
+              ) : null}
+
               {items.length === 0 && !loading ? (
                 <div className="px-3 py-8 text-center text-sm text-gray-500">{resolvedEmptyText}</div>
               ) : (
