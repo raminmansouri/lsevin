@@ -25,6 +25,14 @@ import {
 } from "@/features/service-providers/types";
 import { useNavigate } from "@/hooks/use-navigate";
 
+// This page is a search view: its entire content depends on `?q=` read via
+// useSearchParams(), which has no <Suspense> boundary here. Static prerender of
+// such a page is a fatal `next build` error ("useSearchParams() should be
+// wrapped in a suspense boundary"). It only ever built because an ancestor was
+// accidentally forcing the whole app dynamic; pin it explicitly so it cannot
+// regress the build again.
+export const dynamic = "force-dynamic";
+
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function resolveMediaUrl(value?: string | null) {

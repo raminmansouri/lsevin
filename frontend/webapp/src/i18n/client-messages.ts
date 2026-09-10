@@ -143,9 +143,21 @@ export type MessageSegment = keyof typeof SEGMENT_NAMESPACES;
 /**
  * Reads the request's messages and returns only the namespaces `segment` needs.
  * Pass no segment for the root layout, which gets the core set alone.
+ *
+ * Pass `locale` explicitly from any layout under `[locale]`. The root layout
+ * (src/app/layout.tsx) calls `getLocale()` before the `[locale]` layout's
+ * `setRequestLocale()` runs, and next-intl memoises the request config it
+ * resolves; during static generation of a non-default locale that first call
+ * lands on the default locale and pins `getMessages()` there for the rest of
+ * the render. `getMessages({locale})` takes a separate, locale-keyed config
+ * path that never reads the ambient request locale, so it is immune — this is
+ * why `force-static` pages like home/shop used to bake the Persian bottom nav
+ * and greetings onto every /tr and /en page.
  */
-export async function getClientMessages(segment?: MessageSegment) {
-  const messages = (await getMessages()) as Messages;
+export async function getClientMessages(segment?: MessageSegment, locale?: string) {
+  const messages = (await getMessages(
+    locale ? { locale } : undefined,
+  )) as Messages;
 
   const wanted = new Set<string>([
     ...CORE_NAMESPACES,

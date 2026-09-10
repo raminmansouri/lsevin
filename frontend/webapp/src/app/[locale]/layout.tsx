@@ -60,7 +60,10 @@ export default async function LocaleLayout({
   // provider with the full set it needs, so a customer on the mobile app never
   // downloads the admin or provider-portal catalogs. Omitting `messages` would
   // send all ~66 namespaces to every page — see @/i18n/client-messages.
-  const messages = await getClientMessages();
+  // Explicit `locale` — see getClientMessages: the root layout's getLocale()
+  // runs before this setRequestLocale() and can pin getMessages() to the
+  // default locale during static generation of /tr, /en, etc.
+  const messages = await getClientMessages(undefined, locale);
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>

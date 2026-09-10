@@ -20,7 +20,10 @@ export default async function MainLayout({
   // The mobile app's own translation set. The root layout only provides the core
   // namespaces, so this provider carries the full list this tree needs — nothing
   // from the admin or provider-portal catalogs comes down to a customer's phone.
-  const messages = await getClientMessages("mobileApp");
+  // Explicit `locale` — see getClientMessages: without it, static generation of
+  // /tr, /en, … bakes the default locale's copy of the bottom nav / greetings
+  // onto every page in this tree.
+  const messages = await getClientMessages("mobileApp", locale);
 
   // Shell's default page padding would float the app bar away from the top edge,
   // which is the giveaway that you are looking at a website. The app tree owns its
