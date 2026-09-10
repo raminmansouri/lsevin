@@ -529,6 +529,7 @@ function AvailabilityForm({
   editing: StaffAvailabilityRow | null;
   onDone: () => void;
 }) {
+  const t = useTranslations("ProviderPortal");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const cleanTime = (value?: string | null) =>
