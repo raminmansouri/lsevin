@@ -120,6 +120,8 @@ export const SEGMENT_NAMESPACES = {
     "ServiceDefinition",
     "ServiceProvider",
     "SpecialPackagesAdmin",
+    // staff-form.tsx is a client component under (admin)/admin/staff/*
+    "Staff",
     "SupportPages",
     "UserInfo",
   ],

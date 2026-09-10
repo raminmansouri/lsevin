@@ -39,6 +39,7 @@ import { STAFF_TRANSLATION_KEY } from "../constants";
 import { StaffFormInput, StaffSchema } from "../schemas";
 import { DayOfWeek, StaffDetails, StaffFormOptions } from "../types";
 import { RHFStaffLazyMultiSelectField, RHFStaffLazySelectField, type StaffLookupOption } from "./staff-lazy-select";
+import { useTranslations } from "next-intl";
 
 type StaffFormProps = {
   staff?: StaffDetails;
@@ -224,11 +225,12 @@ function SectionHeader({ icon: Icon, title, description }: { icon: LucideIcon; t
 }
 
 function ArrayItemShell({ children, onRemove }: { children: React.ReactNode; onRemove: () => void }) {
+  const t = useTranslations("Staff");
   return (
     <div className="rounded-2xl border bg-white/70 p-4 shadow-sm">
       <div className="flex justify-end">
         <Button type="button" variant="ghost" size="sm" onClick={onRemove} className="text-destructive">
-          <Trash2 className="mr-2 h-4 w-4" /> Remove
+          <Trash2 className="mr-2 h-4 w-4" /> {t("remove")}
         </Button>
       </div>
       <div className="grid gap-4 md:grid-cols-2">{children}</div>
@@ -237,6 +239,7 @@ function ArrayItemShell({ children, onRemove }: { children: React.ReactNode; onR
 }
 
 export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) {
+  const t = useTranslations("Staff");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const isEdit = !!staff;
@@ -380,7 +383,7 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
                     control={form.control}
                     name="profileImageUrl"
                     label="Profile image"
-                    placeholder="Pick image"
+                    placeholder={t("pickImage")}
                     mediaType="image"
                     helperText="Stores the selected media id/path in category.staff.profile_image_url."
                     modalTitle="Pick profile image"
@@ -432,36 +435,36 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
                 />
 
                 <FormField control={form.control} name="specialty" render={({ field }) => (
-                  <FormItem><FormLabel>Fallback specialty</FormLabel><FormControl><Input {...field} value={field.value || ""} placeholder="Plastic surgery, Dentistry, IVF..." /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t("fallbackSpecialty")}</FormLabel><FormControl><Input {...field} value={field.value || ""} placeholder={t("plasticSurgeryDentistryIvf")} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="experience" render={({ field }) => (
-                  <FormItem><FormLabel>Experience label</FormLabel><FormControl><Input {...field} value={field.value || ""} placeholder="15+ years" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t("experienceLabel")}</FormLabel><FormControl><Input {...field} value={field.value || ""} placeholder={t("n15Years")} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="experienceYears" render={({ field }) => (
-                  <FormItem><FormLabel>Experience years</FormLabel><FormControl><Input type="number" min={0} {...field} value={field.value ?? ""} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t("experienceYears")}</FormLabel><FormControl><Input type="number" min={0} {...field} value={field.value ?? ""} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="patients" render={({ field }) => (
-                  <FormItem><FormLabel>Patients label</FormLabel><FormControl><Input {...field} value={field.value || ""} placeholder="2,000+" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t("patientsLabel")}</FormLabel><FormControl><Input {...field} value={field.value || ""} placeholder="2,000+" /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="rating" render={({ field }) => (
-                  <FormItem><FormLabel>Rating</FormLabel><FormControl><Input type="number" min={0} max={5} step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t("rating")}</FormLabel><FormControl><Input type="number" min={0} max={5} step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="reviewCount" render={({ field }) => (
-                  <FormItem><FormLabel>Review count</FormLabel><FormControl><Input type="number" min={0} {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t("reviewCount")}</FormLabel><FormControl><Input type="number" min={0} {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="consultationFee" render={({ field }) => (
-                  <FormItem><FormLabel>Consultation fee</FormLabel><FormControl><Input type="number" min={0} step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t("consultationFee")}</FormLabel><FormControl><Input type="number" min={0} step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="successRate" render={({ field }) => (
-                  <FormItem><FormLabel>Success rate</FormLabel><FormControl><Input {...field} value={field.value || ""} placeholder="98%" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t("successRate")}</FormLabel><FormControl><Input {...field} value={field.value || ""} placeholder="98%" /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="nextAvailableLabel" render={({ field }) => (
-                  <FormItem><FormLabel>Next available label</FormLabel><FormControl><Input {...field} value={field.value || ""} placeholder="Tomorrow morning" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t("nextAvailableLabel")}</FormLabel><FormControl><Input {...field} value={field.value || ""} placeholder={t("tomorrowMorning")} /></FormControl><FormMessage /></FormItem>
                 )} />
 
                 <FormField control={form.control} name="isActive" render={({ field }) => (
                   <FormItem className="flex items-center justify-between rounded-2xl border bg-gray-50 p-4 md:col-span-2">
-                    <div><FormLabel>Active</FormLabel><p className="text-sm text-muted-foreground">Inactive staff will not be available for new provider/service assignment flows.</p></div>
+                    <div><FormLabel>{t("active")}</FormLabel><p className="text-sm text-muted-foreground">{t("inactiveStaffWillNotBeAvailableForNew")}</p></div>
                     <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                   </FormItem>
                 )} />
@@ -478,7 +481,7 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
                   resource="languages"
                   locale={locale}
                   initialOptions={languageInitialOptions}
-                  placeholder="Search, select, or add languages"
+                  placeholder={t("searchSelectOrAddLanguages")}
                   searchPlaceholder="Search languages..."
                   allowCustomValue
                   customValueLabel="Add language"
@@ -491,7 +494,7 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
                   resource="specializations"
                   locale={locale}
                   initialOptions={specializationInitialOptions}
-                  placeholder="Search, select, or add specializations"
+                  placeholder={t("searchSelectOrAddSpecializations")}
                   searchPlaceholder="Search specializations..."
                   allowCustomValue
                   customValueLabel="Add specialization"
@@ -503,10 +506,10 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
             <Card className="border-gray-200 shadow-sm">
               <CardHeader className="flex flex-row items-start justify-between gap-3">
                 <SectionHeader icon={BriefcaseBusiness} title="Provider assignments" description="Connect staff to one or more service providers." />
-                <Button type="button" variant="outline" onClick={() => providerAssignments.append({ serviceProviderId: "", notes: emptyLocalized(), isActive: true })}><Plus className="mr-2 h-4 w-4" /> Add provider</Button>
+                <Button type="button" variant="outline" onClick={() => providerAssignments.append({ serviceProviderId: "", notes: emptyLocalized(), isActive: true })}><Plus className="mr-2 h-4 w-4" /> {t("addProvider")}</Button>
               </CardHeader>
               <CardContent className="space-y-4">
-                {providerAssignments.fields.length === 0 && <p className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">No provider assigned yet.</p>}
+                {providerAssignments.fields.length === 0 && <p className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">{t("noProviderAssignedYet")}</p>}
                 {providerAssignments.fields.map((field, index) => (
                   <ArrayItemShell key={field.id} onRemove={() => providerAssignments.remove(index)}>
                     <RHFStaffLazySelectField
@@ -516,11 +519,11 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
                       resource="serviceProviders"
                       locale={locale}
                       initialOptions={providerInitialOptions}
-                      placeholder="Search and select provider"
+                      placeholder={t("searchAndSelectProvider")}
                       searchPlaceholder="Search providers by name, city, country, or type..."
                     />
                     <FormField control={form.control} name={`providerAssignments.${index}.isActive`} render={({ field }) => (
-                      <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>Active assignment</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
+                      <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>{t("activeAssignment")}</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
                     )} />
                     <FormField control={form.control} name={`providerAssignments.${index}.notes`} render={({ field }) => (
                       <FormItem className="md:col-span-2"><LocalizedInput label="Provider notes" value={field.value} onChange={field.onChange} multiline rows={3} /><FormMessage /></FormItem>
@@ -533,10 +536,10 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
             <Card className="border-gray-200 shadow-sm">
               <CardHeader className="flex flex-row items-start justify-between gap-3">
                 <SectionHeader icon={Stethoscope} title="Service definitions" description="Services this staff member can perform." />
-                <Button type="button" variant="outline" onClick={() => services.append({ serviceDefinitionId: "", notes: emptyLocalized(), isActive: true })}><Plus className="mr-2 h-4 w-4" /> Add service</Button>
+                <Button type="button" variant="outline" onClick={() => services.append({ serviceDefinitionId: "", notes: emptyLocalized(), isActive: true })}><Plus className="mr-2 h-4 w-4" /> {t("addService")}</Button>
               </CardHeader>
               <CardContent className="space-y-4">
-                {services.fields.length === 0 && <p className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">No service assigned yet.</p>}
+                {services.fields.length === 0 && <p className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">{t("noServiceAssignedYet")}</p>}
                 {services.fields.map((field, index) => (
                   <ArrayItemShell key={field.id} onRemove={() => services.remove(index)}>
                     <RHFStaffLazySelectField
@@ -546,11 +549,11 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
                       resource="serviceDefinitions"
                       locale={locale}
                       initialOptions={serviceDefinitionInitialOptions}
-                      placeholder="Search and select service"
+                      placeholder={t("searchAndSelectService")}
                       searchPlaceholder="Search service definitions by name, category, or pricing model..."
                     />
                     <FormField control={form.control} name={`services.${index}.isActive`} render={({ field }) => (
-                      <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>Active service</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
+                      <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>{t("activeService")}</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
                     )} />
                     <FormField control={form.control} name={`services.${index}.notes`} render={({ field }) => (
                       <FormItem className="md:col-span-2"><LocalizedInput label="Service notes" value={field.value} onChange={field.onChange} multiline rows={3} /><FormMessage /></FormItem>
@@ -563,10 +566,10 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
             <Card className="border-gray-200 shadow-sm">
               <CardHeader className="flex flex-row items-start justify-between gap-3">
                 <SectionHeader icon={CalendarClock} title="Availability" description="Recurring weekly slots or one-off dated availability." />
-                <Button type="button" variant="outline" onClick={() => availabilities.append({ dayOfWeek: DayOfWeek.Monday, startTime: "09:00:00", endTime: "17:00:00", isRecurring: true, availabilityStatusId: defaultAvailabilityStatusId(options), specificDate: "" })}><Plus className="mr-2 h-4 w-4" /> Add slot</Button>
+                <Button type="button" variant="outline" onClick={() => availabilities.append({ dayOfWeek: DayOfWeek.Monday, startTime: "09:00:00", endTime: "17:00:00", isRecurring: true, availabilityStatusId: defaultAvailabilityStatusId(options), specificDate: "" })}><Plus className="mr-2 h-4 w-4" /> {t("addSlot")}</Button>
               </CardHeader>
               <CardContent className="space-y-4">
-                {availabilities.fields.length === 0 && <p className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">No availability slot defined yet.</p>}
+                {availabilities.fields.length === 0 && <p className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">{t("noAvailabilitySlotDefinedYet")}</p>}
                 {availabilities.fields.map((field, index) => {
                   const isRecurring = form.watch(`availabilities.${index}.isRecurring`);
                   return (
@@ -578,7 +581,7 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
                         resource="daysOfWeek"
                         locale={locale}
                         initialOptions={DAY_LOOKUP_OPTIONS}
-                        placeholder="Search and select day"
+                        placeholder={t("searchAndSelectDay")}
                       />
                       <RHFStaffLazySelectField
                         control={form.control}
@@ -587,19 +590,19 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
                         resource="staffAvailabilityStatuses"
                         locale={locale}
                         initialOptions={availabilityStatusInitialOptions}
-                        placeholder="Search and select status"
+                        placeholder={t("searchAndSelectStatus")}
                       />
                       <FormField control={form.control} name={`availabilities.${index}.startTime`} render={({ field }) => (
-                        <FormItem><FormLabel>Start time</FormLabel><FormControl><Input {...field} placeholder="09:00:00" /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>{t("startTime")}</FormLabel><FormControl><Input {...field} placeholder="09:00:00" /></FormControl><FormMessage /></FormItem>
                       )} />
                       <FormField control={form.control} name={`availabilities.${index}.endTime`} render={({ field }) => (
-                        <FormItem><FormLabel>End time</FormLabel><FormControl><Input {...field} placeholder="17:00:00" /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>{t("endTime")}</FormLabel><FormControl><Input {...field} placeholder="17:00:00" /></FormControl><FormMessage /></FormItem>
                       )} />
                       <FormField control={form.control} name={`availabilities.${index}.isRecurring`} render={({ field }) => (
-                        <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>Recurring weekly</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
+                        <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>{t("recurringWeekly")}</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
                       )} />
                       {!isRecurring && <FormField control={form.control} name={`availabilities.${index}.specificDate`} render={({ field }) => (
-                        <FormItem><FormLabel>Specific date</FormLabel><FormControl><Input type="date" {...field} value={field.value || ""} /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>{t("specificDate")}</FormLabel><FormControl><Input type="date" {...field} value={field.value || ""} /></FormControl><FormMessage /></FormItem>
                       )} />}
                     </ArrayItemShell>
                   );
@@ -611,9 +614,9 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
               <CardHeader className="flex flex-row items-start justify-between gap-3">
                 <SectionHeader icon={GraduationCap} title="Education, certifications and credentials" />
                 <div className="flex flex-wrap gap-2">
-                  <Button type="button" variant="outline" onClick={() => education.append({ degree: "", institution: "", year: undefined, imageUrl: "" })}><Plus className="mr-2 h-4 w-4" /> Education</Button>
-                  <Button type="button" variant="outline" onClick={() => certifications.append({ name: "", issuer: "", isVerified: false, imageUrl: "" })}><Plus className="mr-2 h-4 w-4" /> Certification</Button>
-                  <Button type="button" variant="outline" onClick={() => credentials.append({ credential: "", isVerified: false, imageUrl: "" })}><Plus className="mr-2 h-4 w-4" /> Credential</Button>
+                  <Button type="button" variant="outline" onClick={() => education.append({ degree: "", institution: "", year: undefined, imageUrl: "" })}><Plus className="mr-2 h-4 w-4" /> {t("education")}</Button>
+                  <Button type="button" variant="outline" onClick={() => certifications.append({ name: "", issuer: "", isVerified: false, imageUrl: "" })}><Plus className="mr-2 h-4 w-4" /> {t("certification")}</Button>
+                  <Button type="button" variant="outline" onClick={() => credentials.append({ credential: "", isVerified: false, imageUrl: "" })}><Plus className="mr-2 h-4 w-4" /> {t("credential")}</Button>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -624,15 +627,15 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
                         control={form.control}
                         name={`education.${index}.imageUrl` as any}
                         label="Education image"
-                        placeholder="Pick degree/certificate image"
+                        placeholder={t("pickDegreeCertificateImage")}
                         mediaType="image"
                         helperText="Stores one media id/path in category.staff_education.image_url."
                         modalTitle="Pick education image"
                       />
                     </div>
-                    <FormField control={form.control} name={`education.${index}.degree`} render={({ field }) => <FormItem><FormLabel>Degree</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
-                    <FormField control={form.control} name={`education.${index}.institution`} render={({ field }) => <FormItem><FormLabel>Institution</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
-                    <FormField control={form.control} name={`education.${index}.year`} render={({ field }) => <FormItem><FormLabel>Year</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ""} /></FormControl><FormMessage /></FormItem>} />
+                    <FormField control={form.control} name={`education.${index}.degree`} render={({ field }) => <FormItem><FormLabel>{t("degree")}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+                    <FormField control={form.control} name={`education.${index}.institution`} render={({ field }) => <FormItem><FormLabel>{t("institution")}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+                    <FormField control={form.control} name={`education.${index}.year`} render={({ field }) => <FormItem><FormLabel>{t("year")}</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ""} /></FormControl><FormMessage /></FormItem>} />
                   </ArrayItemShell>
                 ))}
                 {certifications.fields.map((field, index) => (
@@ -642,15 +645,15 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
                         control={form.control}
                         name={`certifications.${index}.imageUrl` as any}
                         label="Certification image"
-                        placeholder="Pick certificate image"
+                        placeholder={t("pickCertificateImage")}
                         mediaType="image"
                         helperText="Stores one media id/path in category.staff_certifications.image_url."
                         modalTitle="Pick certification image"
                       />
                     </div>
-                    <FormField control={form.control} name={`certifications.${index}.name`} render={({ field }) => <FormItem><FormLabel>Certification</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
-                    <FormField control={form.control} name={`certifications.${index}.issuer`} render={({ field }) => <FormItem><FormLabel>Issuer</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl><FormMessage /></FormItem>} />
-                    <FormField control={form.control} name={`certifications.${index}.isVerified`} render={({ field }) => <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>Verified</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>} />
+                    <FormField control={form.control} name={`certifications.${index}.name`} render={({ field }) => <FormItem><FormLabel>{t("certification")}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+                    <FormField control={form.control} name={`certifications.${index}.issuer`} render={({ field }) => <FormItem><FormLabel>{t("issuer")}</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl><FormMessage /></FormItem>} />
+                    <FormField control={form.control} name={`certifications.${index}.isVerified`} render={({ field }) => <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>{t("verified")}</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>} />
                   </ArrayItemShell>
                 ))}
                 {credentials.fields.map((field, index) => (
@@ -660,14 +663,14 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
                         control={form.control}
                         name={`credentials.${index}.imageUrl` as any}
                         label="Credential image"
-                        placeholder="Pick credential image"
+                        placeholder={t("pickCredentialImage")}
                         mediaType="image"
                         helperText="Stores one media id/path in category.staff_credentials.image_url."
                         modalTitle="Pick credential image"
                       />
                     </div>
-                    <FormField control={form.control} name={`credentials.${index}.credential`} render={({ field }) => <FormItem><FormLabel>Credential</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
-                    <FormField control={form.control} name={`credentials.${index}.isVerified`} render={({ field }) => <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>Verified</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>} />
+                    <FormField control={form.control} name={`credentials.${index}.credential`} render={({ field }) => <FormItem><FormLabel>{t("credential")}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+                    <FormField control={form.control} name={`credentials.${index}.isVerified`} render={({ field }) => <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>{t("verified")}</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>} />
                   </ArrayItemShell>
                 ))}
               </CardContent>
@@ -676,10 +679,10 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
             <Card className="border-gray-200 shadow-sm">
               <CardHeader className="flex flex-row items-start justify-between gap-3">
                 <SectionHeader icon={Award} title="Achievements" />
-                <Button type="button" variant="outline" onClick={() => achievements.append({ icon: "", title: "", organization: "", displayOrder: achievements.fields.length })}><Plus className="mr-2 h-4 w-4" /> Add achievement</Button>
+                <Button type="button" variant="outline" onClick={() => achievements.append({ icon: "", title: "", organization: "", displayOrder: achievements.fields.length })}><Plus className="mr-2 h-4 w-4" /> {t("addAchievement")}</Button>
               </CardHeader>
               <CardContent className="space-y-4">
-                {achievements.fields.map((field, index) => <ArrayItemShell key={field.id} onRemove={() => achievements.remove(index)}><FormField control={form.control} name={`achievements.${index}.icon`} render={({ field }) => <FormItem><FormLabel>Icon</FormLabel><FormControl><Input {...field} value={field.value || ""} placeholder="award" /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`achievements.${index}.title`} render={({ field }) => <FormItem><FormLabel>Title</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`achievements.${index}.organization`} render={({ field }) => <FormItem><FormLabel>Organization</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`achievements.${index}.displayOrder`} render={({ field }) => <FormItem><FormLabel>Display order</FormLabel><FormControl><Input type="number" min={0} {...field} /></FormControl><FormMessage /></FormItem>} /></ArrayItemShell>)}
+                {achievements.fields.map((field, index) => <ArrayItemShell key={field.id} onRemove={() => achievements.remove(index)}><FormField control={form.control} name={`achievements.${index}.icon`} render={({ field }) => <FormItem><FormLabel>{t("icon")}</FormLabel><FormControl><Input {...field} value={field.value || ""} placeholder={t("award")} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`achievements.${index}.title`} render={({ field }) => <FormItem><FormLabel>{t("title")}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`achievements.${index}.organization`} render={({ field }) => <FormItem><FormLabel>{t("organization")}</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`achievements.${index}.displayOrder`} render={({ field }) => <FormItem><FormLabel>{t("displayOrder")}</FormLabel><FormControl><Input type="number" min={0} {...field} /></FormControl><FormMessage /></FormItem>} /></ArrayItemShell>)}
               </CardContent>
             </Card>
 
@@ -687,21 +690,21 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
               <CardHeader className="flex flex-row items-start justify-between gap-3">
                 <SectionHeader icon={ImageIcon} title="Gallery and before/after media" description="Uses the central media manager instead of manual file URLs." />
                 <div className="flex flex-wrap gap-2">
-                  <Button type="button" variant="outline" onClick={() => galleryItems.append({ title: emptyLocalized(), description: emptyLocalized(), url: "", mediaType: "image", displayOrder: galleryItems.fields.length, isPrimary: galleryItems.fields.length === 0 })}><Plus className="mr-2 h-4 w-4" /> Gallery item</Button>
-                  <Button type="button" variant="outline" onClick={() => beforeAfterItems.append({ beforeImage: "", afterImage: "", procedure: "", months: undefined, displayOrder: beforeAfterItems.fields.length })}><Plus className="mr-2 h-4 w-4" /> Before/after</Button>
+                  <Button type="button" variant="outline" onClick={() => galleryItems.append({ title: emptyLocalized(), description: emptyLocalized(), url: "", mediaType: "image", displayOrder: galleryItems.fields.length, isPrimary: galleryItems.fields.length === 0 })}><Plus className="mr-2 h-4 w-4" /> {t("galleryItem")}</Button>
+                  <Button type="button" variant="outline" onClick={() => beforeAfterItems.append({ beforeImage: "", afterImage: "", procedure: "", months: undefined, displayOrder: beforeAfterItems.fields.length })}><Plus className="mr-2 h-4 w-4" /> {t("beforeAfter")}</Button>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <RHFMultiMediaPickerField control={form.control} name="galleryBulkMediaIds" label="Bulk add gallery media" placeholder="Pick files" mediaType="all" helperText="Stores selected ids as comma-separated text; they are converted into gallery rows on save." modalTitle="Pick gallery files" />
-                {galleryItems.fields.map((field, index) => <ArrayItemShell key={field.id} onRemove={() => galleryItems.remove(index)}><div className="md:col-span-2"><RHFSingleMediaPickerField control={form.control} name={`galleryItems.${index}.url` as any} label="Media" placeholder="Pick media" mediaType="all" helperText="Stores one media id/path." modalTitle="Pick media" /></div><FormField control={form.control} name={`galleryItems.${index}.title`} render={({ field }) => <FormItem className="md:col-span-2"><LocalizedInput label="Title" value={field.value} onChange={field.onChange} /><FormMessage /></FormItem>} /><FormField control={form.control} name={`galleryItems.${index}.description`} render={({ field }) => <FormItem className="md:col-span-2"><LocalizedInput label="Description" value={field.value} onChange={field.onChange} multiline rows={3} /><FormMessage /></FormItem>} /><RHFStaffLazySelectField control={form.control} name={`galleryItems.${index}.mediaType` as any} label="Media type" resource="staffGalleryMediaTypes" locale={locale} initialOptions={MEDIA_TYPE_LOOKUP_OPTIONS} placeholder="Search and select media type" /><FormField control={form.control} name={`galleryItems.${index}.displayOrder`} render={({ field }) => <FormItem><FormLabel>Display order</FormLabel><FormControl><Input type="number" min={0} {...field} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`galleryItems.${index}.isPrimary`} render={({ field }) => <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>Primary</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>} /></ArrayItemShell>)}
-                {beforeAfterItems.fields.map((field, index) => <ArrayItemShell key={field.id} onRemove={() => beforeAfterItems.remove(index)}><RHFSingleMediaPickerField control={form.control} name={`beforeAfterItems.${index}.beforeImage` as any} label="Before image" placeholder="Pick before image" mediaType="image" helperText="Stores one media id/path." modalTitle="Pick before image" /><RHFSingleMediaPickerField control={form.control} name={`beforeAfterItems.${index}.afterImage` as any} label="After image" placeholder="Pick after image" mediaType="image" helperText="Stores one media id/path." modalTitle="Pick after image" /><FormField control={form.control} name={`beforeAfterItems.${index}.procedure`} render={({ field }) => <FormItem><FormLabel>Procedure</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`beforeAfterItems.${index}.months`} render={({ field }) => <FormItem><FormLabel>Months</FormLabel><FormControl><Input type="number" min={0} {...field} value={field.value ?? ""} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`beforeAfterItems.${index}.displayOrder`} render={({ field }) => <FormItem><FormLabel>Display order</FormLabel><FormControl><Input type="number" min={0} {...field} /></FormControl><FormMessage /></FormItem>} /></ArrayItemShell>)}
+                <RHFMultiMediaPickerField control={form.control} name="galleryBulkMediaIds" label="Bulk add gallery media" placeholder={t("pickFiles")} mediaType="all" helperText="Stores selected ids as comma-separated text; they are converted into gallery rows on save." modalTitle="Pick gallery files" />
+                {galleryItems.fields.map((field, index) => <ArrayItemShell key={field.id} onRemove={() => galleryItems.remove(index)}><div className="md:col-span-2"><RHFSingleMediaPickerField control={form.control} name={`galleryItems.${index}.url` as any} label="Media" placeholder={t("pickMedia")} mediaType="all" helperText="Stores one media id/path." modalTitle="Pick media" /></div><FormField control={form.control} name={`galleryItems.${index}.title`} render={({ field }) => <FormItem className="md:col-span-2"><LocalizedInput label="Title" value={field.value} onChange={field.onChange} /><FormMessage /></FormItem>} /><FormField control={form.control} name={`galleryItems.${index}.description`} render={({ field }) => <FormItem className="md:col-span-2"><LocalizedInput label="Description" value={field.value} onChange={field.onChange} multiline rows={3} /><FormMessage /></FormItem>} /><RHFStaffLazySelectField control={form.control} name={`galleryItems.${index}.mediaType` as any} label="Media type" resource="staffGalleryMediaTypes" locale={locale} initialOptions={MEDIA_TYPE_LOOKUP_OPTIONS} placeholder={t("searchAndSelectMediaType")} /><FormField control={form.control} name={`galleryItems.${index}.displayOrder`} render={({ field }) => <FormItem><FormLabel>{t("displayOrder")}</FormLabel><FormControl><Input type="number" min={0} {...field} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`galleryItems.${index}.isPrimary`} render={({ field }) => <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>{t("primary")}</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>} /></ArrayItemShell>)}
+                {beforeAfterItems.fields.map((field, index) => <ArrayItemShell key={field.id} onRemove={() => beforeAfterItems.remove(index)}><RHFSingleMediaPickerField control={form.control} name={`beforeAfterItems.${index}.beforeImage` as any} label="Before image" placeholder={t("pickBeforeImage")} mediaType="image" helperText="Stores one media id/path." modalTitle="Pick before image" /><RHFSingleMediaPickerField control={form.control} name={`beforeAfterItems.${index}.afterImage` as any} label="After image" placeholder={t("pickAfterImage")} mediaType="image" helperText="Stores one media id/path." modalTitle="Pick after image" /><FormField control={form.control} name={`beforeAfterItems.${index}.procedure`} render={({ field }) => <FormItem><FormLabel>{t("procedure")}</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`beforeAfterItems.${index}.months`} render={({ field }) => <FormItem><FormLabel>{t("months")}</FormLabel><FormControl><Input type="number" min={0} {...field} value={field.value ?? ""} /></FormControl><FormMessage /></FormItem>} /><FormField control={form.control} name={`beforeAfterItems.${index}.displayOrder`} render={({ field }) => <FormItem><FormLabel>{t("displayOrder")}</FormLabel><FormControl><Input type="number" min={0} {...field} /></FormControl><FormMessage /></FormItem>} /></ArrayItemShell>)}
               </CardContent>
             </Card>
 
             <div className="sticky bottom-4 z-10 flex items-center justify-between rounded-2xl border bg-white/95 p-4 shadow-xl backdrop-blur">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground"><Sparkles className="h-4 w-4 text-[#eac074]" /> Full staff profile, relations, and media will be saved in one transaction.</div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground"><Sparkles className="h-4 w-4 text-[#eac074]" /> {t("fullStaffProfileRelationsAndMediaWillBe")}</div>
               <div className="flex gap-3">
-                <Button type="button" variant="outline" onClick={() => router.push("/admin/staff")} disabled={isPending}>Cancel</Button>
+                <Button type="button" variant="outline" onClick={() => router.push("/admin/staff")} disabled={isPending}>{t("cancel")}</Button>
                 <Button type="submit" disabled={isPending} className="bg-[#083f30] hover:bg-[#083f30]/90"><Save className="mr-2 h-4 w-4" />{isPending ? "Saving..." : isEdit ? "Update staff" : "Create staff"}</Button>
               </div>
             </div>
