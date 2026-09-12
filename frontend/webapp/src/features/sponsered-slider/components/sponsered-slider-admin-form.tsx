@@ -84,7 +84,9 @@ function toFormValues(row?: SponseredSliderAdminRow | null): FormValues {
     titleTranslations: withTranslationDefaults(row?.titleTranslations, row?.legacyTitle ? { "en-US": row.legacyTitle } : {}),
     subtitleTranslations: withTranslationDefaults(row?.subtitleTranslations, row?.legacySubtitle ? { "en-US": row.legacySubtitle } : {}),
     descriptionTranslations: withTranslationDefaults(row?.descriptionTranslations),
-    buttonLabelTranslations: withTranslationDefaults(row?.buttonLabelTranslations, row?.legacyButtonLabel ? { "en-US": row.legacyButtonLabel } : { "en-US": "Learn More" }),
+    // No seeded "Learn More": a new slide pre-filled with an English label is how
+    // every Persian placement ended up with an English button.
+    buttonLabelTranslations: withTranslationDefaults(row?.buttonLabelTranslations, row?.legacyButtonLabel ? { "en-US": row.legacyButtonLabel } : {}),
     badgeTranslations: withTranslationDefaults(row?.badgeTranslations),
     secondaryButtonLabelTranslations: withTranslationDefaults(row?.secondaryButtonLabelTranslations),
     ariaLabelTranslations: withTranslationDefaults(row?.ariaLabelTranslations),

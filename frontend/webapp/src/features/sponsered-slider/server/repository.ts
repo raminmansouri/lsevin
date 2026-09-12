@@ -176,7 +176,11 @@ function firstTranslation(translations?: Record<string, string | null | undefine
 export async function createSponseredSlider(input: SponseredSliderInput) {
   const legacyTitle = firstTranslation(input.titleTranslations, null);
   const legacySubtitle = firstTranslation(input.subtitleTranslations, null);
-  const legacyButton = firstTranslation(input.buttonLabelTranslations, "Learn More");
+  // Null, not "Learn More": the legacy column is what the carousel reads when no
+  // localized label exists, and an English default written into it is what a
+  // Persian page ends up showing. Left empty, the frontend uses its own
+  // translated fallback instead.
+  const legacyButton = firstTranslation(input.buttonLabelTranslations, null);
 
   const rows = await sql<{ id: string }[]>`
     insert into media.sponsered_slider (
@@ -237,7 +241,11 @@ export async function createSponseredSlider(input: SponseredSliderInput) {
 export async function updateSponseredSlider(input: SponseredSliderInput & { id: string }) {
   const legacyTitle = firstTranslation(input.titleTranslations, null);
   const legacySubtitle = firstTranslation(input.subtitleTranslations, null);
-  const legacyButton = firstTranslation(input.buttonLabelTranslations, "Learn More");
+  // Null, not "Learn More": the legacy column is what the carousel reads when no
+  // localized label exists, and an English default written into it is what a
+  // Persian page ends up showing. Left empty, the frontend uses its own
+  // translated fallback instead.
+  const legacyButton = firstTranslation(input.buttonLabelTranslations, null);
 
   const rows = await sql<{ id: string }[]>`
     update media.sponsered_slider
