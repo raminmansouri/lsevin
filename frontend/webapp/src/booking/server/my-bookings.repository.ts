@@ -462,10 +462,14 @@ export async function cancelMyBookingInDb(input: CancelMyBookingInput): Promise<
        set booking_status = 'Cancelled',
            last_modified_date = now(),
            provider_updated_at = now(),
+           -- ::text, because jsonb_build_object takes VARIADIC "any" and leaves a bind
+           -- parameter's type unresolvable: uncast, the whole statement dies at Parse time
+           -- with "could not determine data type of parameter $1" and no row is ever
+           -- cancelled. The casts pin the type only; the stored value is unchanged.
            metadata = coalesce(metadata, '{}'::jsonb) || jsonb_build_object(
-             'cancelledByUserId', ${input.userId},
+             'cancelledByUserId', ${input.userId}::text,
              'cancelledAt', now(),
-             'cancelReason', ${reason}
+             'cancelReason', ${reason}::text
            )
      where id = ${input.bookingId}::uuid
        and user_id = ${input.userId}::uuid
