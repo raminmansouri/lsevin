@@ -921,6 +921,35 @@ export async function listProviders(params: { locale?: Locale; search?: string; 
   return { items, total, hasMore: offset + items.length < total };
 }
 
+/** Item 1 (hotel room features / any service's admin-defined attributes) -- batches the
+ * (provider_service_id -> attribute name/value) lookup for a page of services in one query
+ * instead of N+1. Values here are what the provider filled in on the
+ * service-attribute-values admin screen (category.service_attribute_values): a fixed spec per
+ * listing (e.g. "View: Sea view"), not a customer-selectable, priced option -- so this is
+ * read-only display data and touches no checkout/pricing logic. */
+async function listServiceAttributeValues(providerServiceIds: string[], locale: Locale) {
+  const byService = new Map<string, Array<{ name: string; value: string }>>();
+  if (providerServiceIds.length === 0) return byService;
+  const rows = await db<any[]>`
+    select v.provider_service_id,
+           common.get_translation_t(d.name_translations, ${locale}, 'fa-IR') as attribute_name,
+           common.get_translation_t(v.value_translations, ${locale}, 'fa-IR') as attribute_value
+    from category.service_attribute_values v
+    join category.service_attribute_definitions d on d.id = v.attribute_definition_id
+    where v.provider_service_id = any(${providerServiceIds})
+    order by d.display_order asc, d.create_date asc
+  `;
+  for (const row of rows) {
+    const name = String(row.attribute_name || '').trim();
+    const value = String(row.attribute_value || '').trim();
+    if (!name || !value) continue;
+    const list = byService.get(row.provider_service_id) ?? [];
+    list.push({ name, value });
+    byService.set(row.provider_service_id, list);
+  }
+  return byService;
+}
+
 export async function listServices(params: { providerId?: string; serviceId?: string; specialistId?: string; locale?: Locale; search?: string; take?: number; offset?: number; }) {
   const { providerId, serviceId, specialistId, locale = 'fa-IR', search = '', take = 8, offset = 0 } = params;
   const searchText = normalizeCatalogSearch(search);
@@ -1076,6 +1105,8 @@ export async function listServices(params: { providerId?: string; serviceId?: st
     limit ${take} offset ${offset}
   `;
 
+  const attributesByService = await listServiceAttributeValues(rows.map((row: any) => row.id), locale);
+
   const items: ServiceCardItem[] = rows.map((row: any) => ({
     id: row.id,
     serviceDefinitionId: row.service_definition_id,
@@ -1095,6 +1126,7 @@ export async function listServices(params: { providerId?: string; serviceId?: st
     isPopular: row.is_popular,
     requiresSpecialist: row.requires_specialist,
     bookingUiMode: row.booking_ui_mode,
+    attributes: attributesByService.get(row.id),
   }));
 
   const total = Number(rows[0]?.total_count ?? 0);

@@ -51,6 +51,10 @@ export interface ServiceCardItem {
   isPopular?: boolean | null;
   bookingUiMode?: BookingUiMode;
   requiresSpecialist?: boolean;
+  /** Admin/provider-defined attributes for this listing (e.g. a hotel room's View/Bed type),
+   * from category.service_attribute_values -- a fixed spec per listing, not a customer-selectable
+   * priced option. Undefined/empty when the service has none defined. */
+  attributes?: Array<{ name: string; value: string }>;
 }
 
 export interface SpecialistCardItem {
