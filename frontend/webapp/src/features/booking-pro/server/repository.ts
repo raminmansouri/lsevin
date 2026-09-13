@@ -355,7 +355,12 @@ function mapDraftRow(row: any): BookingDraftState {
   };
 }
 
-export async function getOrCreateActiveDraft(userId: string): Promise<BookingDraftState> {
+export async function getOrCreateActiveDraft(userId: string, draftId?: string): Promise<BookingDraftState> {
+  if (draftId) {
+    const selected = await getActiveDraft(userId, draftId);
+    if (!selected) throw new Error('BOOKING_DRAFT_NOT_EDITABLE');
+    return selected;
+  }
   const rows = await db`
     with current_draft as (
       select d.*,
@@ -405,6 +410,7 @@ export async function getOrCreateActiveDraft(userId: string): Promise<BookingDra
       left join category.service_definitions sd on sd.id = ps.service_definition_id
       where d.user_id = ${userId}
         and d.status in ('Draft', 'InProgress')
+        and not (coalesce(d.metadata, '{}'::jsonb) ? 'cartSavedAt')
       order by d.updated_at desc
       limit 1
     )
@@ -433,7 +439,7 @@ export async function getOrCreateActiveDraft(userId: string): Promise<BookingDra
   return mapDraftRow(inserted[0]);
 }
 
-export async function getActiveDraft(userId: string): Promise<BookingDraftState | null> {
+export async function getActiveDraft(userId: string, draftId?: string): Promise<BookingDraftState | null> {
   const rows = await db`
     select d.*,
            ps.service_definition_id,
@@ -482,6 +488,8 @@ export async function getActiveDraft(userId: string): Promise<BookingDraftState 
     left join category.service_definitions sd on sd.id = ps.service_definition_id
     where d.user_id = ${userId}
       and d.status in ('Draft', 'InProgress')
+      and (${draftId ?? null}::uuid is null or d.id = ${draftId ?? null}::uuid)
+      and (${Boolean(draftId)} or not (coalesce(d.metadata, '{}'::jsonb) ? 'cartSavedAt'))
     order by d.updated_at desc
     limit 1
   `;
@@ -494,6 +502,7 @@ export async function abandonActiveDraft(userId: string): Promise<void> {
     update booking.booking_drafts
     set status = 'Cancelled'
     where user_id = ${userId} and status in ('Draft', 'InProgress')
+      and not (coalesce(metadata, '{}'::jsonb) ? 'cartSavedAt')
   `;
 }
 
@@ -511,9 +520,9 @@ function hasInput<T extends object>(input: T, key: keyof T) {
 
 export async function upsertMainDraftSelection(
   userId: string,
-  input: Partial<BookingDraftState>
+  input: Partial<BookingDraftState> & { draftId?: string }
 ) {
-  const draft = await getOrCreateActiveDraft(userId);
+  const draft = await getOrCreateActiveDraft(userId, input.draftId);
 
   const metadataPatch = sanitizeDraftMetadataPatch({
     formSubmissionId: hasInput(input, 'formSubmissionId') ? input.formSubmissionId ?? null : undefined,
@@ -559,7 +568,7 @@ export async function upsertMainDraftSelection(
         total_amount = case when ${hasInput(input, 'totalAmount')} then coalesce(${input.totalAmount ?? null}, 0) else total_amount end,
         notes = case when ${hasInput(input, 'notes')} then ${input.notes ?? null} else notes end,
         metadata = coalesce(metadata, '{}'::jsonb) || ${db.json(metadataPatch as Record<string, never>)}
-    where id = ${draft.id}
+    where id = ${draft.id} and user_id = ${userId} and status in ('Draft', 'InProgress')
   `;
 
   const safeClientMetadataPatch = sanitizeDraftMetadataPatch(input.metadata);
@@ -567,7 +576,7 @@ export async function upsertMainDraftSelection(
     await db`
       update booking.booking_drafts
       set metadata = coalesce(metadata, '{}'::jsonb) || ${db.json(safeClientMetadataPatch as Record<string, never>)}
-      where id = ${draft.id}
+      where id = ${draft.id} and user_id = ${userId} and status in ('Draft', 'InProgress')
     `;
   }
 
@@ -582,7 +591,7 @@ export async function upsertMainDraftSelection(
     const [marked] = await db<{ id: string }[]>`
       update booking.booking_drafts
       set provider_notified_at = now()
-      where id = ${draft.id} and provider_notified_at is null
+      where id = ${draft.id} and user_id = ${userId} and status in ('Draft', 'InProgress') and provider_notified_at is null
       returning id
     `;
     if (marked) {
@@ -592,11 +601,18 @@ export async function upsertMainDraftSelection(
     }
   }
 
-  return await getOrCreateActiveDraft(userId);
+  return await getOrCreateActiveDraft(userId, draft.id);
 }
 
 export async function saveDraftDocuments(userId: string, draftId: string, documents: BookingDraftState['uploadFiles']) {
   await db.begin(async (tx) => {
+    const [editableDraft] = await tx`
+      select id from booking.booking_drafts
+      where id = ${draftId} and user_id = ${userId}
+        and status in ('Draft', 'InProgress')
+      for update
+    `;
+    if (!editableDraft) throw new Error('BOOKING_DRAFT_NOT_EDITABLE');
     await tx`delete from booking.booking_draft_documents where draft_id = ${draftId}`;
     for (const doc of documents) {
       await tx`
@@ -616,7 +632,7 @@ export async function saveDraftDocuments(userId: string, draftId: string, docume
 }
 
 export async function saveChildDraft(userId: string, draftId: string, child: ChildBookingDraft) {
-  const active = await getOrCreateActiveDraft(userId);
+  const active = await getOrCreateActiveDraft(userId, draftId);
   if (active.id !== draftId) {
     throw new Error('Draft mismatch');
   }
@@ -1230,6 +1246,7 @@ export async function getServiceMode(providerServiceId: string) {
            ps.value,
            ps.duration_minutes,
            ps.slot_interval_minutes,
+           coalesce(sp.timezone_id, 'UTC') as timezone_id,
            case
              when sd.booking_ui_mode = 'date_range' then false
              else coalesce(sd.requires_specialist, true)
@@ -1237,6 +1254,7 @@ export async function getServiceMode(providerServiceId: string) {
            sd.booking_ui_mode
     from category.provider_services ps
     join category.service_definitions sd on sd.id = ps.service_definition_id
+    join category.service_providers sp on sp.id = ps.service_provider_id
     where ps.id = ${providerServiceId}
     limit 1
   `;
@@ -1471,6 +1489,9 @@ export async function checkoutDraft(
 
   const draft = await getDraftByIdForUser(userId, payload.draftId);
   if (!draft?.id) throw new Error("Draft not found");
+  if (!['Draft', 'InProgress'].includes(String(draft.status))) {
+    throw new Error("BOOKING_DRAFT_NOT_EDITABLE");
+  }
 
   const totals = await recalculateDraftTotals(draft.id);
 
@@ -1522,149 +1543,80 @@ export async function checkoutDraft(
       throw new Error("Draft not found");
     }
 
-    const [existingPending] = await tx`
-      select b.id
-      from booking.bookings b
-      where b.user_id = ${userId}
-        and b.booking_status = 'Pending'
-      order by b.create_date desc
-      limit 1
-      for update
+    // Each draft is a separate purchase. Never overwrite another pending booking
+    // or remove its payments when the customer books an additional service.
+    if (!['Draft', 'InProgress'].includes(String(lockedDraft.status))) {
+      throw new Error("BOOKING_DRAFT_NOT_EDITABLE");
+    }
+
+    const [booking] = await tx`
+      insert into booking.bookings (
+        id, provider_id, service_id, specialist_id,
+        selected_date, selected_date_from, selected_date_to,
+        selected_time, selected_time_from, selected_time_to,
+        payment_method, add_ons, upload_files, additional_services,
+        payment_status, booking_status, user_id,
+        currency_code, total_amount, paid_amount,
+        applied_coupon_id, applied_discount_type, applied_discount_value, applied_discount_amount,
+        booking_ui_mode, form_submission_id, adults, children, infants, rooms, metadata,
+        source_currency_code, display_currency_code, payment_currency_code, settlement_currency_code,
+        source_subtotal_amount, source_addons_amount, source_total_amount,
+        display_subtotal_amount, display_addons_amount, display_total_amount,
+        exchange_rate, exchange_rate_ids, fx_quote_id, pricing_snapshot
+      )
+      select public.uuid_generate_v4(),
+             d.provider_id,
+             d.service_id,
+             d.specialist_id,
+             d.selected_date,
+             d.selected_date_from,
+             d.selected_date_to,
+             d.selected_time,
+             d.selected_time_from,
+             d.selected_time_to,
+             ${payload.paymentMethod},
+             '[]'::jsonb,
+             coalesce((select jsonb_agg(jsonb_build_object('title', x.title,'fileUrl', x.file_url,'requirementId', x.requirement_id)) from booking.booking_draft_documents x where x.draft_id = d.id),'[]'::jsonb),
+             '[]'::jsonb,
+             case when ${paymentTerms.dueNowAmount} <= 0 then 'NotRequired' else 'Pending' end,
+             'Pending',
+             d.user_id,
+             ${totals.currency},
+             ${totals.totalAmount},
+             0,
+             ${totals.appliedCouponId ?? null},
+             ${totals.appliedDiscountType ?? null},
+             ${totals.appliedDiscountValue ?? null},
+             ${totals.discountAmount ?? 0},
+             coalesce(sd.booking_ui_mode, 'default_slot'),
+             (d.metadata ->> 'formSubmissionId')::uuid,
+             (d.metadata ->> 'adults')::integer,
+             (d.metadata ->> 'children')::integer,
+             (d.metadata ->> 'infants')::integer,
+             (d.metadata ->> 'rooms')::integer,
+             d.metadata,
+             coalesce(d.source_currency_code, ${totals.currency}),
+             coalesce(d.display_currency_code, ${totals.currency}),
+             coalesce(d.payment_currency_code, ${totals.currency}),
+             coalesce(d.settlement_currency_code, d.source_currency_code, ${totals.currency}),
+             coalesce(d.source_subtotal_amount, d.subtotal_amount, ${totals.subtotalAmount}),
+             coalesce(d.source_addons_amount, d.addons_amount, ${totals.addonsAmount}),
+             coalesce(d.source_total_amount, d.total_amount, ${totals.totalAmount}),
+             coalesce(d.display_subtotal_amount, d.subtotal_amount, ${totals.subtotalAmount}),
+             coalesce(d.display_addons_amount, d.addons_amount, ${totals.addonsAmount}),
+             coalesce(d.display_total_amount, d.total_amount, ${totals.totalAmount}),
+             d.exchange_rate,
+             coalesce(d.exchange_rate_ids, array[]::uuid[]),
+             d.fx_quote_id,
+             coalesce(d.pricing_snapshot, '{}'::jsonb)
+      from booking.booking_drafts d
+      left join category.provider_services ps on ps.id = d.service_id
+      left join category.service_definitions sd on sd.id = ps.service_definition_id
+      where d.id = ${draft.id}
+      returning id
     `;
 
-    let bookingId: string;
-
-    if (existingPending?.id) {
-      bookingId = existingPending.id;
-
-      await tx`
-        update booking.bookings b
-        set provider_id = d.provider_id,
-            service_id = d.service_id,
-            specialist_id = d.specialist_id,
-            selected_date = d.selected_date,
-            selected_date_from = d.selected_date_from,
-            selected_date_to = d.selected_date_to,
-            selected_time = d.selected_time,
-            selected_time_from = d.selected_time_from,
-            selected_time_to = d.selected_time_to,
-            payment_method = ${payload.paymentMethod},
-            add_ons = '[]'::jsonb,
-            upload_files = coalesce((select jsonb_agg(jsonb_build_object('title', x.title,'fileUrl', x.file_url,'requirementId', x.requirement_id)) from booking.booking_draft_documents x where x.draft_id = d.id),'[]'::jsonb),
-            additional_services = '[]'::jsonb,
-            payment_status = case when ${paymentTerms.dueNowAmount} <= 0 then 'NotRequired' else 'Pending' end,
-            booking_status = 'Pending',
-            currency_code = ${totals.currency},
-            total_amount = ${totals.totalAmount},
-            paid_amount = 0,
-            applied_coupon_id = ${totals.appliedCouponId ?? null},
-            applied_discount_type = ${totals.appliedDiscountType ?? null},
-            applied_discount_value = ${totals.appliedDiscountValue ?? null},
-            applied_discount_amount = ${totals.discountAmount ?? 0},
-            booking_ui_mode = coalesce(sd.booking_ui_mode, 'default_slot'),
-            form_submission_id = (d.metadata ->> 'formSubmissionId')::uuid,
-            adults = (d.metadata ->> 'adults')::integer,
-            children = (d.metadata ->> 'children')::integer,
-            infants = (d.metadata ->> 'infants')::integer,
-            rooms = (d.metadata ->> 'rooms')::integer,
-            metadata = d.metadata,
-            source_currency_code = coalesce(d.source_currency_code, ${totals.currency}),
-            display_currency_code = coalesce(d.display_currency_code, ${totals.currency}),
-            payment_currency_code = coalesce(d.payment_currency_code, ${totals.currency}),
-            settlement_currency_code = coalesce(d.settlement_currency_code, d.source_currency_code, ${totals.currency}),
-            source_subtotal_amount = coalesce(d.source_subtotal_amount, d.subtotal_amount, ${totals.subtotalAmount}),
-            source_addons_amount = coalesce(d.source_addons_amount, d.addons_amount, ${totals.addonsAmount}),
-            source_total_amount = coalesce(d.source_total_amount, d.total_amount, ${totals.totalAmount}),
-            display_subtotal_amount = coalesce(d.display_subtotal_amount, d.subtotal_amount, ${totals.subtotalAmount}),
-            display_addons_amount = coalesce(d.display_addons_amount, d.addons_amount, ${totals.addonsAmount}),
-            display_total_amount = coalesce(d.display_total_amount, d.total_amount, ${totals.totalAmount}),
-            exchange_rate = d.exchange_rate,
-            exchange_rate_ids = coalesce(d.exchange_rate_ids, array[]::uuid[]),
-            fx_quote_id = d.fx_quote_id,
-            pricing_snapshot = coalesce(d.pricing_snapshot, '{}'::jsonb)
-        from booking.booking_drafts d
-        left join category.provider_services ps on ps.id = d.service_id
-        left join category.service_definitions sd on sd.id = ps.service_definition_id
-        where b.id = ${bookingId}
-          and d.id = ${draft.id}
-      `;
-
-      await tx`delete from booking.booking_child_bookings where parent_booking_id = ${bookingId}`;
-      await tx`delete from booking.booking_documents where booking_id = ${bookingId}`;
-      await tx`delete from booking.booking_addons where booking_id = ${bookingId}`;
-      await tx`delete from booking.payments where booking_id = ${bookingId}`;
-      await tx`delete from commercial.booking_payment_schedule_lines where payment_terms_id in (select id from commercial.booking_payment_terms where booking_id = ${bookingId})`;
-      await tx`delete from commercial.booking_payment_terms where booking_id = ${bookingId}`;
-    } else {
-      const [booking] = await tx`
-        insert into booking.bookings (
-          id, provider_id, service_id, specialist_id,
-          selected_date, selected_date_from, selected_date_to,
-          selected_time, selected_time_from, selected_time_to,
-          payment_method, add_ons, upload_files, additional_services,
-          payment_status, booking_status, user_id,
-          currency_code, total_amount, paid_amount,
-          applied_coupon_id, applied_discount_type, applied_discount_value, applied_discount_amount,
-          booking_ui_mode, form_submission_id, adults, children, infants, rooms, metadata,
-          source_currency_code, display_currency_code, payment_currency_code, settlement_currency_code,
-          source_subtotal_amount, source_addons_amount, source_total_amount,
-          display_subtotal_amount, display_addons_amount, display_total_amount,
-          exchange_rate, exchange_rate_ids, fx_quote_id, pricing_snapshot
-        )
-        select public.uuid_generate_v4(),
-               d.provider_id,
-               d.service_id,
-               d.specialist_id,
-               d.selected_date,
-               d.selected_date_from,
-               d.selected_date_to,
-               d.selected_time,
-               d.selected_time_from,
-               d.selected_time_to,
-               ${payload.paymentMethod},
-               '[]'::jsonb,
-               coalesce((select jsonb_agg(jsonb_build_object('title', x.title,'fileUrl', x.file_url,'requirementId', x.requirement_id)) from booking.booking_draft_documents x where x.draft_id = d.id),'[]'::jsonb),
-               '[]'::jsonb,
-               case when ${paymentTerms.dueNowAmount} <= 0 then 'NotRequired' else 'Pending' end,
-               'Pending',
-               d.user_id,
-               ${totals.currency},
-               ${totals.totalAmount},
-               0,
-               ${totals.appliedCouponId ?? null},
-               ${totals.appliedDiscountType ?? null},
-               ${totals.appliedDiscountValue ?? null},
-               ${totals.discountAmount ?? 0},
-               coalesce(sd.booking_ui_mode, 'default_slot'),
-               (d.metadata ->> 'formSubmissionId')::uuid,
-               (d.metadata ->> 'adults')::integer,
-               (d.metadata ->> 'children')::integer,
-               (d.metadata ->> 'infants')::integer,
-               (d.metadata ->> 'rooms')::integer,
-               d.metadata,
-               coalesce(d.source_currency_code, ${totals.currency}),
-               coalesce(d.display_currency_code, ${totals.currency}),
-               coalesce(d.payment_currency_code, ${totals.currency}),
-               coalesce(d.settlement_currency_code, d.source_currency_code, ${totals.currency}),
-               coalesce(d.source_subtotal_amount, d.subtotal_amount, ${totals.subtotalAmount}),
-               coalesce(d.source_addons_amount, d.addons_amount, ${totals.addonsAmount}),
-               coalesce(d.source_total_amount, d.total_amount, ${totals.totalAmount}),
-               coalesce(d.display_subtotal_amount, d.subtotal_amount, ${totals.subtotalAmount}),
-               coalesce(d.display_addons_amount, d.addons_amount, ${totals.addonsAmount}),
-               coalesce(d.display_total_amount, d.total_amount, ${totals.totalAmount}),
-               d.exchange_rate,
-               coalesce(d.exchange_rate_ids, array[]::uuid[]),
-               d.fx_quote_id,
-               coalesce(d.pricing_snapshot, '{}'::jsonb)
-        from booking.booking_drafts d
-        left join category.provider_services ps on ps.id = d.service_id
-        left join category.service_definitions sd on sd.id = ps.service_definition_id
-        where d.id = ${draft.id}
-        returning id
-      `;
-
-      bookingId = booking.id;
-    }
+    const bookingId = booking.id;
 
     // A date-range service is a hotel stay, and a hotel takes one booking per night.
     // Held in the same transaction as the booking itself, so a clash raises on the

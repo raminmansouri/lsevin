@@ -10,11 +10,12 @@ import type { BookingDraftState, ChildBookingDraft, ProviderCardItem, ProviderTy
 import { ChildAddonBookingCard } from './ChildAddonBookingCard';
 import { BookingShopProductsStep, type BookingShopProductGroup } from './BookingShopProductsStep';
 import { PaymentMethodsPanel } from './PaymentMethodsPanel';
+import { SaveBookingCartButton } from './SaveBookingCartButton';
 import { DecisionStack } from './step-service/DecisionStack';
 import { autoSelectId, canContinueService, type SlotKey } from '../lib/decision-stack';
 import { cascadeFor } from '../lib/cascade';
-import { PersianDateTimePicker } from '@/components/date-time/PersianDateTimePicker';
-import { formatBookingDate, isReasonableBookingIsoDate, normalizeBookingCalendar, toIsoDate } from '../lib/calendar';
+import { BookingDatePicker } from './BookingDatePicker';
+import { formatBookingDateTime, isBookingTimeZone, BOOKING_CALENDARS, bookingCalendarLabel, type BookingCalendar, formatBookingDate, isReasonableBookingIsoDate, normalizeBookingCalendar, toIsoDate } from '../lib/calendar';
 import { RichTextPreview } from '@/features/booking/components/rich-text-preview';
 async function getJson<T>(url: string, init?: RequestInit): Promise<T> {
     const response = await fetch(url, {
@@ -388,7 +389,28 @@ export function BookingWizard() {
     const [dateRangeAvailability, setDateRangeAvailability] = useState<DateRangeAvailability | null>(null);
     const [rangeAvailabilityLoading, setRangeAvailabilityLoading] = useState(false);
     const [scheduleLoading, setScheduleLoading] = useState(false);
-    const [calendar, setCalendar] = useState<'gregorian' | 'jalali'>(defaultCalendar);
+    const [calendar, setCalendar] = useState<BookingCalendar>(defaultCalendar);
+    const tCalendarAdmin = useTranslations('AdminGenerated');
+    const [viewerTimeZone, setViewerTimeZone] = useState('UTC');
+    const [providerTimeZone, setProviderTimeZone] = useState('UTC');
+    useEffect(() => {
+      try {
+        const savedCalendar = localStorage.getItem('booking.calendar');
+        if (savedCalendar && BOOKING_CALENDARS.includes(savedCalendar as BookingCalendar)) setCalendar(savedCalendar as BookingCalendar);
+        const zone = localStorage.getItem('booking.timezone') || Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (isBookingTimeZone(zone)) setViewerTimeZone(zone);
+      } catch { setViewerTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone); }
+    }, []);
+    const viewerTimeZones = useMemo(() => [...new Set(['UTC', viewerTimeZone, providerTimeZone, ...Intl.supportedValuesOf('timeZone')])], [viewerTimeZone, providerTimeZone]);
+    function selectCalendar(value: BookingCalendar) {
+      setCalendar(value);
+      try { localStorage.setItem('booking.calendar', value); } catch { /* Optional browser preference. */ }
+    }
+    function selectTimeZone(value: string) {
+      setViewerTimeZone(value);
+      try { localStorage.setItem('booking.timezone', value); } catch { /* Optional browser preference. */ }
+    }
+
     const [mainServiceForm, setMainServiceForm] = useState<any>(null);
     const [submitting, setSubmitting] = useState(false);
     const [checkoutResult, setCheckoutResult] = useState<any>(null);
@@ -409,12 +431,12 @@ export function BookingWizard() {
             try {
                 const { draft } = await getJson<{
                     draft: BookingDraftState | null;
-                }>('/api/booking-pro/draft');
+                }>(searchParams.get('draftId') ? `/api/booking-pro/draft?draftId=${encodeURIComponent(searchParams.get('draftId')!)}` : '/api/booking-pro/draft');
                 if (cancelled)
                     return;
                 if (draft) {
                     const hasExistingSelection = Boolean(draft.providerId || draft.serviceId || draft.childBookings?.length || draft.uploadFiles?.length);
-                    if (hasExistingSelection && !hasSeedSelection) {
+                    if (hasExistingSelection && !hasSeedSelection && !searchParams.get('draftId')) {
                         setDraft(draft);
                         setResumeChoiceRequired(true);
                     }
@@ -648,6 +670,7 @@ export function BookingWizard() {
         getJson<{
             item: {
                 service_definition_id: string;
+                timezone_id: string;
                 booking_ui_mode: string;
                 requires_specialist: boolean;
                 value: number;
@@ -657,6 +680,7 @@ export function BookingWizard() {
             .then(async ({ item }) => {
             if (cancelled || serviceModeRequestSeq.current !== requestId)
                 return;
+            setProviderTimeZone(isBookingTimeZone(item.timezone_id) ? item.timezone_id : 'UTC');
             setDraft((prev) => prev?.serviceId === serviceId ? ({
                 ...prev,
                 serviceDefinitionId: item.service_definition_id,
@@ -1116,6 +1140,7 @@ export function BookingWizard() {
         goNext();
     }
     if (loadingDraft || !draft) {
+        if (!loadingDraft && error) return <div role="alert" className="p-6 text-red-700">{tBooking('failedToLoadBookingDraft')}</div>;
         return <div className="min-h-screen bg-slate-50 p-6 text-sm text-slate-500">{tBooking("loadingBooking")}</div>;
     }
     if (resumeChoiceRequired) {
@@ -1139,6 +1164,7 @@ export function BookingWizard() {
     }
     // pb clears the sticky action bar *and* the global BottomTabBar stacked beneath it.
     return (<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 pb-44 lg:pb-10">
+      {draft.id && !checkoutResult && <SaveBookingCartButton draftId={draft.id} disabled={!draft.providerId || !draft.serviceId} />}
       <div className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
         <div className="mx-auto max-w-6xl px-5 py-4">
           <div className="mb-4 flex items-center gap-3">
@@ -1198,39 +1224,25 @@ export function BookingWizard() {
 
           {currentStep === 2 ? (<div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-lg">
               <h2 className="mb-4 text-xl font-bold text-slate-900">{tBooking("scheduleAndBookingDetails")}</h2>
+              <label className="mb-4 block text-sm font-semibold">{tBooking('calendar')}
+                <select value={calendar} onChange={event => selectCalendar(event.target.value as BookingCalendar)} className="ms-3 min-h-11 rounded-xl border border-slate-200 bg-white px-3">
+                  {BOOKING_CALENDARS.map(item => <option key={item} value={item}>{bookingCalendarLabel(item, locale)}</option>)}
+                </select>
+              </label>
+              {draft.bookingUiMode === 'default_slot' && <label className="mb-4 block text-sm font-semibold">{tCalendarAdmin('timezone')}
+                <select value={viewerTimeZone} onChange={event => selectTimeZone(event.target.value)} className="ms-3 min-h-11 max-w-full rounded-xl border border-slate-200 bg-white px-3">
+                  {viewerTimeZones.map(zone => <option key={zone} value={zone}>{zone}</option>)}
+                </select>
+              </label>}
               {draft.bookingUiMode === 'default_slot' ? (<div className="space-y-6">
                   <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <div className="text-sm font-semibold text-slate-700">{tBooking("calendar")}</div>
-                      <div className="mt-2 flex rounded-2xl bg-slate-100 p-1">
-                        {(['gregorian', 'jalali'] as const).map((item) => (<button key={item} type="button" onClick={() => setCalendar(item)} className={`rounded-xl px-4 py-2 text-sm font-bold ${calendar === item ? 'bg-white text-[#083f30] shadow-sm' : 'text-slate-500'}`}>
-                            {item === 'gregorian' ? tBooking('gregorian') : tBooking('jalaliPersian')}
-                          </button>))}
-                      </div>
-                    </div>
-
                     <div className="min-w-[260px] text-sm font-semibold text-slate-700">
-                      <span>{calendar === 'jalali' ? tBooking('selectJalaliDate') : tBooking('selectGregorianDate')}</span>
+                      <span>{tBooking('date2')}</span>
                       <div className="mt-2">
-                        {calendar === 'jalali' ? (<PersianDateTimePicker value={isReasonableBookingIsoDate(draft.selectedDate) ? draft.selectedDate : ''} mode="date" onChange={(value) => {
-                        const iso = toIsoDate(String(value || '').slice(0, 10));
-                        if (!iso || !isReasonableBookingIsoDate(iso)) {
-                            setError(tBooking('pleaseSelectAValidBookingDate'));
-                            return;
-                        }
-                        const next = { ...draft, selectedDate: iso, selectedDateFrom: iso, selectedDateTo: iso, selectedTime: undefined, selectedTimeFrom: undefined, selectedTimeTo: undefined };
-                        setDraft(next);
-                        patchDraft(next).catch((er) => setError(er.message));
-                    }}/>) : (<input type="date" value={isReasonableBookingIsoDate(draft.selectedDate) ? draft.selectedDate ?? '' : ''} onChange={(e) => {
-                        const iso = toIsoDate(e.target.value);
-                        if (!iso || !isReasonableBookingIsoDate(iso)) {
-                            setError(tBooking('pleaseSelectAValidBookingDate'));
-                            return;
-                        }
-                        const next = { ...draft, selectedDate: iso, selectedDateFrom: iso, selectedDateTo: iso, selectedTime: undefined, selectedTimeFrom: undefined, selectedTimeTo: undefined };
-                        setDraft(next);
-                        patchDraft(next).catch((er) => setError(er.message));
-                    }} className="h-12 w-full rounded-2xl border border-slate-200 px-4 outline-none focus:border-[#155e75]"/>)}
+                        <BookingDatePicker calendar={calendar} label={tBooking('date2')} value={draft.selectedDate} onChange={(iso) => {
+                          const next = { ...draft, selectedDate: iso, selectedDateFrom: iso, selectedDateTo: iso, selectedTime: undefined, selectedTimeFrom: undefined, selectedTimeTo: undefined };
+                          setDraft(next); patchDraft(next).catch(er => setError(er.message));
+                        }} />
                       </div>
                       {!isReasonableBookingIsoDate(draft.selectedDate) && draft.selectedDate ? (<p className="mt-2 text-xs text-red-600">{tBooking("thisDraftContainsAnOldInvalidConvertedDatePlease")}</p>) : null}
                     </div>
@@ -1255,18 +1267,27 @@ export function BookingWizard() {
                   </div>
 
                   {draft.selectedDate ? (<div>
-                      <div className="mb-3 text-sm font-bold text-slate-900">{tBooking("availableTimeSlotsFor")}{formatBookingDate(draft.selectedDate, { locale, calendar })}</div>
+                      <div className="mb-3 text-sm font-bold text-slate-900">{tBooking("availableTimeSlotsFor")}{formatBookingDate(draft.selectedDate, { locale, calendar })} <span className="text-xs font-normal">({providerTimeZone})</span></div>
                       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                         {timeSlots.map((slot) => {
                         const selected = draft.selectedTimeFrom === slot.time && draft.selectedTimeTo === slot.endTime;
-                        return (<button key={`${slot.time}-${slot.endTime}`} type="button" disabled={!slot.available} onClick={() => {
+                        let localStart = slot.label;
+                        let localEnd = slot.endLabel;
+                        let validTime = true;
+                        try {
+                          const options = { locale, calendar, sourceTimeZone: providerTimeZone, timeZone: viewerTimeZone };
+                          localStart = formatBookingDateTime(draft.selectedDate, slot.time, options);
+                          localEnd = formatBookingDateTime(draft.selectedDate, slot.endTime, options);
+                        } catch { validTime = false; }
+
+                        return (<button key={`${slot.time}-${slot.endTime}`} type="button" disabled={!slot.available || !validTime} onClick={() => {
                                 const fallbackEnd = slot.endTime || addMinutes(slot.time, chosenService?.durationMinutes ?? 30);
                                 const next = { ...draft, selectedTime: slot.time, selectedTimeFrom: slot.time, selectedTimeTo: fallbackEnd };
                                 setDraft(next);
                                 patchDraft(next).catch((er) => setError(er.message));
                             }} className={`rounded-2xl border p-4 text-left transition ${selected ? 'border-[#083f30] bg-[#083f30]/5' : 'border-slate-200 bg-white'} ${slot.available ? 'hover:border-[#155e75]' : 'cursor-not-allowed opacity-40'}`}>
-                              <div className="text-sm font-bold text-slate-900">{slot.label}</div>
-                              <div className="mt-1 text-xs text-slate-500">{tBooking("toTime", { time: slot.endLabel })}</div>
+                              <div className="text-sm font-bold text-slate-900">{localStart}</div>
+                              <div className="mt-1 text-xs text-slate-500">{tBooking("toTime", { time: localEnd })}</div>
                               {typeof slot.remainingCapacity === 'number' && !draft.specialistId ? (<div className="mt-2 text-[11px] font-semibold text-slate-500">{slot.remainingCapacity}{tBooking("capacityLeft")}</div>) : null}
                             </button>);
                     })}
@@ -1275,12 +1296,12 @@ export function BookingWizard() {
                 </div>) : null}
 
               {draft.bookingUiMode === 'date_range' ? (<div className="grid gap-4 md:grid-cols-4">
-                  <label className="text-sm font-semibold text-slate-700">{tBooking("fromDate")}{calendar === 'jalali' ? (<PersianDateTimePicker value={isReasonableBookingIsoDate(draft.selectedDateFrom) ? draft.selectedDateFrom : ''} onChange={(value) => { const iso = toIsoDate(String(value || '').slice(0, 10)); if (!iso)
-                    return; const next = { ...draft, selectedDateFrom: iso }; setDraft(next); patchDraft(next).catch((er) => setError(er.message)); }} className="mt-2"/>) : (<input type="date" value={isReasonableBookingIsoDate(draft.selectedDateFrom) ? draft.selectedDateFrom ?? '' : ''} onChange={(e) => { const next = { ...draft, selectedDateFrom: e.target.value }; setDraft(next); patchDraft(next).catch((er) => setError(er.message)); }} className="mt-2 h-12 w-full rounded-2xl border border-slate-200 px-4 outline-none focus:border-[#155e75]"/>)}
-                  </label>
-                  <label className="text-sm font-semibold text-slate-700">{tBooking("toDate")}{calendar === 'jalali' ? (<PersianDateTimePicker value={isReasonableBookingIsoDate(draft.selectedDateTo) ? draft.selectedDateTo : ''} onChange={(value) => { const iso = toIsoDate(String(value || '').slice(0, 10)); if (!iso)
-                    return; const next = { ...draft, selectedDateTo: iso }; setDraft(next); patchDraft(next).catch((er) => setError(er.message)); }} className="mt-2"/>) : (<input type="date" value={isReasonableBookingIsoDate(draft.selectedDateTo) ? draft.selectedDateTo ?? '' : ''} onChange={(e) => { const next = { ...draft, selectedDateTo: e.target.value }; setDraft(next); patchDraft(next).catch((er) => setError(er.message)); }} className="mt-2 h-12 w-full rounded-2xl border border-slate-200 px-4 outline-none focus:border-[#155e75]"/>)}
-                  </label>
+                  <div className="text-sm font-semibold text-slate-700"><span>{tBooking("fromDate")}</span><div className="mt-2"><BookingDatePicker calendar={calendar} label={tBooking("fromDate")} value={draft.selectedDateFrom} onChange={(iso) => {
+                    const next = { ...draft, selectedDateFrom: iso }; setDraft(next); patchDraft(next).catch(er => setError(er.message));
+                  }} /></div></div>
+                  <div className="text-sm font-semibold text-slate-700"><span>{tBooking("toDate")}</span><div className="mt-2"><BookingDatePicker calendar={calendar} label={tBooking("toDate")} value={draft.selectedDateTo} onChange={(iso) => {
+                    const next = { ...draft, selectedDateTo: iso }; setDraft(next); patchDraft(next).catch(er => setError(er.message));
+                  }} /></div></div>
                   <label className="text-sm font-semibold text-slate-700">{tBooking("adults")}<input type="number" min={1} value={draft.adults ?? 1} onChange={(e) => { const next = { ...draft, adults: Number(e.target.value || 1) }; setDraft(next); patchDraft(next).catch((er) => setError(er.message)); }} className="mt-2 h-12 w-full rounded-2xl border border-slate-200 px-4 outline-none focus:border-[#155e75]"/></label>
                   <label className="text-sm font-semibold text-slate-700">{tBooking("rooms")}<input type="number" min={1} value={draft.rooms ?? 1} onChange={(e) => { const next = { ...draft, rooms: Number(e.target.value || 1) }; setDraft(next); patchDraft(next).catch((er) => setError(er.message)); }} className="mt-2 h-12 w-full rounded-2xl border border-slate-200 px-4 outline-none focus:border-[#155e75]"/></label>
                   <div className="md:col-span-4">

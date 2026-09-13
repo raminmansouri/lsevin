@@ -6,6 +6,13 @@ export async function POST(request: NextRequest) {
   const userId = await resolveCurrentUserId();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const body = await request.json();
-  const result = await checkoutDraft(userId, body);
-  return NextResponse.json(result);
+  try {
+    const result = await checkoutDraft(userId, body);
+    return NextResponse.json(result);
+  } catch (error) {
+    if (error instanceof Error && error.message === 'BOOKING_DRAFT_NOT_EDITABLE') {
+      return NextResponse.json({ error: 'BOOKING_DRAFT_NOT_EDITABLE' }, { status: 409 });
+    }
+    throw error;
+  }
 }

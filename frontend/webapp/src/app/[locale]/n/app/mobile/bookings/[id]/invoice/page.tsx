@@ -1,43 +1,49 @@
 "use client";
 import { useParams } from "next/navigation";
 import { AlertCircle, ChevronLeft, Loader2, Printer } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import { useFetchGetBookingById } from "@/features/service-providers/api/client/fetch-getBookingById";
 import type { BookingRecord } from "@/features/service-providers/types";
 import { useRouter } from "@/i18n/navigation";
+import { invoiceBreakdown } from "@/features/booking-pro/lib/invoice-breakdown";
 
 function normalizeStatus(value?: string | null) {
   return String(value || "pending").trim().toLowerCase();
 }
 
-function formatMoney(amount?: number | null, currency?: string | null) {
+function formatMoney(amount?: number | null, currency?: string | null, locale?: string) {
   const code = String(currency || "USD").trim().toUpperCase();
   const value = Number(amount || 0);
   try {
-    return new Intl.NumberFormat(undefined, { style: "currency", currency: code, maximumFractionDigits: 2 }).format(value);
+    return new Intl.NumberFormat(locale, { style: "currency", currency: code }).format(value);
   } catch {
     return `${value.toLocaleString()} ${code}`;
   }
 }
 
-function LineItem({ name, meta, amount, currency }: { name: string; meta?: string | null; amount: number; currency?: string | null }) {
+function LineItem({ name, meta, amount, currency }: { name: string; meta?: string | null; amount: number | null; currency?: string | null }) {
+  const locale = useLocale();
+  const tShop = useTranslations('Shop');
   return (
     <tr className="border-b border-dashed border-gray-200 last:border-0">
-      <td className="py-2 pr-3 align-top">
+      <td className="py-2 pe-3 align-top">
         <div className="font-semibold text-gray-900">{name}</div>
         {meta ? <div className="text-xs text-gray-500">{meta}</div> : null}
       </td>
       <td className="whitespace-nowrap py-2 text-left align-top font-semibold text-gray-900" dir="ltr">
-        {formatMoney(amount, currency)}
+        {amount == null || !Number.isFinite(amount) ? tShop('priceUnavailable') : formatMoney(amount, currency, locale)}
       </td>
     </tr>
   );
 }
 
 function InvoiceContent({ booking }: { booking: BookingRecord }) {
+  const locale = useLocale();
+  const breakdown = invoiceBreakdown(booking);
+  const tShop = useTranslations('Shop');
   const t = useTranslations("Booking");
   const tBooking = useTranslations("Booking");
   const imageSrc = resolveHomeMediaUrl(booking.providerImage || booking.image);
@@ -74,7 +80,7 @@ function InvoiceContent({ booking }: { booking: BookingRecord }) {
             </div>
             <div className="text-right">
               <div className="text-xs text-gray-500">{tBooking("printDate")}</div>
-              <div className="text-sm font-semibold text-gray-800">{new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(new Date())}</div>
+              <div className="text-sm font-semibold text-gray-800">{new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date())}</div>
             </div>
           </div>
 
@@ -129,18 +135,18 @@ function InvoiceContent({ booking }: { booking: BookingRecord }) {
             <h3 className="mb-2 text-sm font-bold text-gray-900">{tBooking("bookingSummary")}</h3>
             <table className="w-full text-sm">
               <tbody>
-                <LineItem name={booking.service} meta={booking.provider} amount={Number(booking.price || 0)} currency={currency} />
+                <LineItem name={booking.service} meta={booking.provider} amount={breakdown.main} currency={currency} />
                 {(booking.addons || []).map((addon) => (
                   <LineItem
                     key={addon.id}
                     name={addon.name}
                     meta={`${tBooking("quantity")}${addon.quantity}`}
-                    amount={Number(addon.unitPrice || 0) * Number(addon.quantity || 1)}
+                    amount={Number(addon.unitPrice ?? 0) * Number(addon.quantity ?? 0)}
                     currency={addon.currency || currency}
                   />
                 ))}
                 {(booking.childBookings || []).map((child) => (
-                  <LineItem key={child.id} name={child.service} meta={child.provider} amount={0} currency={currency} />
+                  <LineItem key={child.id} name={child.service} meta={child.provider} amount={child.subtotal == null ? null : Number(child.subtotal)} currency={child.currency || currency} />
                 ))}
               </tbody>
             </table>
@@ -148,18 +154,22 @@ function InvoiceContent({ booking }: { booking: BookingRecord }) {
 
           <div className="rounded-2xl bg-gray-50 p-4">
             <div className="space-y-2 text-sm">
+              {breakdown.discount != null && breakdown.discount > 0 && <div className="flex items-center justify-between">
+                <span className="text-gray-600">{tShop('discount')}</span>
+                <span className="font-semibold text-gray-900" dir="ltr">-{formatMoney(breakdown.discount, currency, locale)}</span>
+              </div>}
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">{tBooking("totalAmount")}</span>
-                <span className="font-semibold text-gray-900" dir="ltr">{formatMoney(booking.price, currency)}</span>
+                <span className="font-semibold text-gray-900" dir="ltr">{formatMoney(booking.price, currency, locale)}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">{tBooking("paidAmount")}</span>
-                <span className="font-semibold text-green-700" dir="ltr">-{formatMoney(booking.deposit || 0, currency)}</span>
+                <span className="font-semibold text-green-700" dir="ltr">-{formatMoney(booking.deposit || 0, currency, locale)}</span>
               </div>
               <div className="my-2 h-px bg-gray-200" />
               <div className="flex items-center justify-between">
                 <span className="text-base font-bold text-gray-900">{tBooking("remaining")}</span>
-                <span className="text-xl font-extrabold text-[#083f30]" dir="ltr">{formatMoney(booking.remaining || 0, currency)}</span>
+                <span className="text-xl font-extrabold text-[#083f30]" dir="ltr">{formatMoney(booking.remaining || 0, currency, locale)}</span>
               </div>
             </div>
           </div>
