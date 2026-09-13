@@ -1,4 +1,14 @@
 {
+  "BookingCart": {
+    "title": "已保存的预订",
+    "hint": "这些是估价，并非已确认的预订。请查看每项预订以确认可用性并付款。商品目前单独付款。",
+    "resume": "查看预订",
+    "remove": "移除",
+    "another": "添加其他服务",
+    "save": "保存到购物车并继续购物",
+    "saving": "正在保存…",
+    "error": "无法更新。请刷新页面并重试。"
+  },
   "Admin": {
     "accounting": {
       "accountCode": "科目编码",
@@ -12729,6 +12739,100 @@
         "confirmDelete": "要移除此接收人吗？",
         "empty": "尚未添加接收人 —— 不会通知任何人。",
         "cancel": "取消"
+      }
+    }
+  },
+  "GymMemberships": {
+    "customer": {
+      "title": "我的健身房会员",
+      "empty": "您还没有任何健身房会员资格。",
+      "plan": { "monthlyPriceLabel": "月费" },
+      "subscribe": {
+        "title": "订阅",
+        "selectMonths": "选择要支付的月份",
+        "paymentReference": "付款参考号（可选）",
+        "paymentReferenceHint": "如果您已通过银行转账付款，请在此处输入参考号。",
+        "submit": "提交审核",
+        "submitting": "提交中…",
+        "submitted": "已提交审核"
+      },
+      "month": {
+        "pending_review": "待审核",
+        "approved": "已支付",
+        "rejected": "已拒绝",
+        "due": "已到期"
+      },
+      "errors": {
+        "signInRequired": "请登录以管理您的健身房会员资格。",
+        "notAvailable": "健身房会员功能暂不可用，请稍后再试。",
+        "invalidForm": "请检查标记的字段。",
+        "planNotFound": "该套餐已不可用。",
+        "generic": "出了点问题，请重试。"
+      }
+    },
+    "admin": {
+      "title": "健身房会员",
+      "description": "管理健身房会员套餐并审核付款。",
+      "schemaMissing": {
+        "title": "数据库迁移待处理",
+        "body": "请应用迁移 0039_gym_memberships.sql 以启用此部分。"
+      },
+      "plans": {
+        "title": "会员套餐",
+        "empty": "尚无会员套餐。",
+        "create": "添加套餐",
+        "edit": "编辑",
+        "provider": "健身房",
+        "name": "套餐名称",
+        "monthlyPrice": "月费",
+        "currency": "货币",
+        "isActive": "启用",
+        "save": "保存",
+        "saving": "保存中…",
+        "saved": "套餐已保存",
+        "cancel": "取消"
+      },
+      "months": {
+        "title": "付款审核",
+        "empty": "没有需要审核的付款。",
+        "filters": {
+          "search": "搜索健身房或参考号",
+          "status": "状态",
+          "all": "全部",
+          "apply": "应用"
+        },
+        "table": {
+          "gym": "健身房",
+          "plan": "套餐",
+          "period": "月份",
+          "amount": "金额",
+          "reference": "参考号",
+          "status": "状态",
+          "createdAt": "提交时间",
+          "actions": "操作",
+          "review": "审核"
+        },
+        "status": {
+          "pending_review": "待审核",
+          "approved": "已批准",
+          "rejected": "已拒绝"
+        },
+        "review": {
+          "title": "审核付款",
+          "note": "备注",
+          "notePlaceholder": "原因（拒绝时必填）…",
+          "approve": "批准",
+          "reject": "拒绝",
+          "saving": "保存中…",
+          "saved": "已保存",
+          "close": "关闭"
+        }
+      },
+      "errors": {
+        "invalidForm": "请检查标记的字段。",
+        "notFound": "该付款已不存在。",
+        "reasonRequiredToReject": "拒绝付款时必须填写原因。",
+        "generic": "出了点问题，请重试。"
       }
     }
   },

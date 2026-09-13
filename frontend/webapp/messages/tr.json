@@ -1,4 +1,14 @@
 {
+  "BookingCart": {
+    "title": "Kaydedilen rezervasyonlar",
+    "hint": "Bunlar tahminlerdir, kesin rezervasyon değildir. Uygunluğu doğrulamak ve ödeme yapmak için her rezervasyonu inceleyin. Ürünler şu anda ayrı ödenir.",
+    "resume": "Rezervasyonu incele",
+    "remove": "Kaldır",
+    "another": "Başka hizmet ekle",
+    "save": "Sepete kaydet ve alışverişe devam et",
+    "saving": "Kaydediliyor…",
+    "error": "Güncellenemedi. Sayfayı yenileyip tekrar deneyin."
+  },
   "UploadFiles": {
     "title": "Upload documents",
     "subtitle": "Please upload the requested files for your booking",
@@ -13066,6 +13076,100 @@
         "confirmDelete": "Bu alıcı kaldırılsın mı?",
         "empty": "Henüz alıcı yok — kimseye bildirim gitmiyor.",
         "cancel": "İptal"
+      }
+    }
+  },
+  "GymMemberships": {
+    "customer": {
+      "title": "Spor salonu üyeliklerim",
+      "empty": "Henüz bir spor salonu üyeliğiniz yok.",
+      "plan": { "monthlyPriceLabel": "Aylık fiyat" },
+      "subscribe": {
+        "title": "Abone ol",
+        "selectMonths": "Ödemek istediğiniz ayları seçin",
+        "paymentReference": "Ödeme referansı (isteğe bağlı)",
+        "paymentReferenceHint": "Banka havalesiyle ödeme yaptıysanız referans numarasını buraya girin.",
+        "submit": "İncelemeye gönder",
+        "submitting": "Gönderiliyor…",
+        "submitted": "İncelemeye gönderildi"
+      },
+      "month": {
+        "pending_review": "İnceleniyor",
+        "approved": "Ödendi",
+        "rejected": "Reddedildi",
+        "due": "Vadesi geçmiş"
+      },
+      "errors": {
+        "signInRequired": "Spor salonu üyeliklerinizi yönetmek için lütfen giriş yapın.",
+        "notAvailable": "Spor salonu üyelikleri henüz kullanılamıyor. Lütfen daha sonra tekrar deneyin.",
+        "invalidForm": "Lütfen işaretlenen alanları kontrol edin.",
+        "planNotFound": "Bu plan artık mevcut değil.",
+        "generic": "Bir şeyler ters gitti. Lütfen tekrar deneyin."
+      }
+    },
+    "admin": {
+      "title": "Spor salonu üyelikleri",
+      "description": "Üyelik planlarını yönetin ve ödemeleri inceleyin.",
+      "schemaMissing": {
+        "title": "Veritabanı geçişi bekleniyor",
+        "body": "Bu bölümü etkinleştirmek için 0039_gym_memberships.sql geçişini uygulayın."
+      },
+      "plans": {
+        "title": "Üyelik planları",
+        "empty": "Henüz üyelik planı yok.",
+        "create": "Plan ekle",
+        "edit": "Düzenle",
+        "provider": "Spor salonu",
+        "name": "Plan adı",
+        "monthlyPrice": "Aylık fiyat",
+        "currency": "Para birimi",
+        "isActive": "Aktif",
+        "save": "Kaydet",
+        "saving": "Kaydediliyor…",
+        "saved": "Plan kaydedildi",
+        "cancel": "İptal"
+      },
+      "months": {
+        "title": "Ödeme incelemesi",
+        "empty": "İncelenecek ödeme yok.",
+        "filters": {
+          "search": "Spor salonu veya referans ara",
+          "status": "Durum",
+          "all": "Tümü",
+          "apply": "Uygula"
+        },
+        "table": {
+          "gym": "Spor salonu",
+          "plan": "Plan",
+          "period": "Ay",
+          "amount": "Tutar",
+          "reference": "Referans",
+          "status": "Durum",
+          "createdAt": "Gönderildi",
+          "actions": "İşlemler",
+          "review": "İncele"
+        },
+        "status": {
+          "pending_review": "İnceleniyor",
+          "approved": "Onaylandı",
+          "rejected": "Reddedildi"
+        },
+        "review": {
+          "title": "Ödemeyi incele",
+          "note": "Not",
+          "notePlaceholder": "Gerekçe (reddetmek için zorunlu)…",
+          "approve": "Onayla",
+          "reject": "Reddet",
+          "saving": "Kaydediliyor…",
+          "saved": "Kaydedildi",
+          "close": "Kapat"
+        }
+      },
+      "errors": {
+        "invalidForm": "Lütfen işaretlenen alanları kontrol edin.",
+        "notFound": "Bu ödeme artık mevcut değil.",
+        "reasonRequiredToReject": "Bir ödemeyi reddetmek için gerekçe girilmelidir.",
+        "generic": "Bir şeyler ters gitti. Lütfen tekrar deneyin."
       }
     }
   },

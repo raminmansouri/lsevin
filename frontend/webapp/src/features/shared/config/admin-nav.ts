@@ -18,6 +18,7 @@ import {
   Coins,
   CreditCard,
   Database,
+  Dumbbell,
   FileClock,
   FileCog,
   FileStack,
@@ -118,6 +119,7 @@ export const ADMIN_NAV: AdminNavEntry[] = [
       { titleKey: "bookingDrafts", href: "/admin/booking-drafts", icon: FileClock },
       { titleKey: "bookingCalendar", href: "/admin/booking-calendar", icon: CalendarDays },
       { titleKey: "availability", href: "/admin/availability", icon: Clock },
+      { titleKey: "gymMemberships", href: "/admin/gym-memberships", icon: Dumbbell },
     ],
   },
 

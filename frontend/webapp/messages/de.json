@@ -1,4 +1,14 @@
 {
+  "BookingCart": {
+    "title": "Gespeicherte Buchungen",
+    "hint": "Dies sind Schätzungen, keine bestätigten Reservierungen. Prüfen und bezahlen Sie jede Buchung. Produkte werden derzeit separat bezahlt.",
+    "resume": "Buchung prüfen",
+    "remove": "Entfernen",
+    "another": "Weiteren Service hinzufügen",
+    "save": "Im Warenkorb speichern und weiter einkaufen",
+    "saving": "Wird gespeichert…",
+    "error": "Aktualisierung fehlgeschlagen. Laden Sie die Seite neu und versuchen Sie es erneut."
+  },
   "UploadFiles": {
     "title": "Upload documents",
     "subtitle": "Please upload the requested files for your booking",
@@ -12752,6 +12762,100 @@
         "confirmDelete": "Diesen Empfänger entfernen?",
         "empty": "Noch keine Empfänger – niemand wird benachrichtigt.",
         "cancel": "Abbrechen"
+      }
+    }
+  },
+  "GymMemberships": {
+    "customer": {
+      "title": "Meine Fitnessstudio-Mitgliedschaften",
+      "empty": "Sie haben noch keine Fitnessstudio-Mitgliedschaft.",
+      "plan": { "monthlyPriceLabel": "Monatlicher Preis" },
+      "subscribe": {
+        "title": "Abonnieren",
+        "selectMonths": "Wählen Sie die zu zahlenden Monate",
+        "paymentReference": "Zahlungsreferenz (optional)",
+        "paymentReferenceHint": "Falls Sie bereits per Banküberweisung bezahlt haben, geben Sie hier die Referenznummer ein.",
+        "submit": "Zur Prüfung senden",
+        "submitting": "Wird gesendet…",
+        "submitted": "Zur Prüfung eingereicht"
+      },
+      "month": {
+        "pending_review": "In Prüfung",
+        "approved": "Bezahlt",
+        "rejected": "Abgelehnt",
+        "due": "Fällig"
+      },
+      "errors": {
+        "signInRequired": "Bitte melden Sie sich an, um Ihre Fitnessstudio-Mitgliedschaften zu verwalten.",
+        "notAvailable": "Fitnessstudio-Mitgliedschaften sind noch nicht verfügbar. Bitte versuchen Sie es später erneut.",
+        "invalidForm": "Bitte überprüfen Sie die markierten Felder.",
+        "planNotFound": "Dieser Tarif ist nicht mehr verfügbar.",
+        "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+      }
+    },
+    "admin": {
+      "title": "Fitnessstudio-Mitgliedschaften",
+      "description": "Mitgliedschaftstarife verwalten und Zahlungen prüfen.",
+      "schemaMissing": {
+        "title": "Datenbankmigration ausstehend",
+        "body": "Führen Sie die Migration 0039_gym_memberships.sql aus, um diesen Bereich zu aktivieren."
+      },
+      "plans": {
+        "title": "Mitgliedschaftstarife",
+        "empty": "Noch keine Mitgliedschaftstarife vorhanden.",
+        "create": "Tarif hinzufügen",
+        "edit": "Bearbeiten",
+        "provider": "Fitnessstudio",
+        "name": "Tarifname",
+        "monthlyPrice": "Monatlicher Preis",
+        "currency": "Währung",
+        "isActive": "Aktiv",
+        "save": "Speichern",
+        "saving": "Wird gespeichert…",
+        "saved": "Tarif gespeichert",
+        "cancel": "Abbrechen"
+      },
+      "months": {
+        "title": "Zahlungsprüfung",
+        "empty": "Keine Zahlungen zu prüfen.",
+        "filters": {
+          "search": "Fitnessstudio oder Referenz suchen",
+          "status": "Status",
+          "all": "Alle",
+          "apply": "Anwenden"
+        },
+        "table": {
+          "gym": "Fitnessstudio",
+          "plan": "Tarif",
+          "period": "Monat",
+          "amount": "Betrag",
+          "reference": "Referenz",
+          "status": "Status",
+          "createdAt": "Eingereicht",
+          "actions": "Aktionen",
+          "review": "Prüfen"
+        },
+        "status": {
+          "pending_review": "In Prüfung",
+          "approved": "Genehmigt",
+          "rejected": "Abgelehnt"
+        },
+        "review": {
+          "title": "Zahlung prüfen",
+          "note": "Notiz",
+          "notePlaceholder": "Grund (bei Ablehnung erforderlich)…",
+          "approve": "Genehmigen",
+          "reject": "Ablehnen",
+          "saving": "Wird gespeichert…",
+          "saved": "Gespeichert",
+          "close": "Schließen"
+        }
+      },
+      "errors": {
+        "invalidForm": "Bitte überprüfen Sie die markierten Felder.",
+        "notFound": "Diese Zahlung existiert nicht mehr.",
+        "reasonRequiredToReject": "Ein Grund ist erforderlich, um eine Zahlung abzulehnen.",
+        "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
       }
     }
   },

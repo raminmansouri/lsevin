@@ -1,4 +1,14 @@
 {
+  "BookingCart": {
+    "title": "Reservas guardadas",
+    "hint": "Son estimaciones, no reservas confirmadas. Revise cada reserva para comprobar la disponibilidad y pagar. Los productos se pagan por separado por ahora.",
+    "resume": "Revisar reserva",
+    "remove": "Eliminar",
+    "another": "Añadir otro servicio",
+    "save": "Guardar en el carrito y seguir comprando",
+    "saving": "Guardando…",
+    "error": "No se pudo actualizar. Actualice la página e inténtelo de nuevo."
+  },
   "UploadFiles": {
     "title": "Upload documents",
     "subtitle": "Please upload the requested files for your booking",
@@ -12755,6 +12765,100 @@
         "confirmDelete": "¿Quitar este destinatario?",
         "empty": "Aún no hay destinatarios: nadie recibe avisos.",
         "cancel": "Cancelar"
+      }
+    }
+  },
+  "GymMemberships": {
+    "customer": {
+      "title": "Mis membresías de gimnasio",
+      "empty": "Todavía no tienes ninguna membresía de gimnasio.",
+      "plan": { "monthlyPriceLabel": "Precio mensual" },
+      "subscribe": {
+        "title": "Suscribirse",
+        "selectMonths": "Selecciona los meses que quieres pagar",
+        "paymentReference": "Referencia de pago (opcional)",
+        "paymentReferenceHint": "Si ya pagaste por transferencia bancaria, ingresa aquí el número de referencia.",
+        "submit": "Enviar para revisión",
+        "submitting": "Enviando…",
+        "submitted": "Enviado para revisión"
+      },
+      "month": {
+        "pending_review": "En revisión",
+        "approved": "Pagado",
+        "rejected": "Rechazado",
+        "due": "Vencido"
+      },
+      "errors": {
+        "signInRequired": "Inicia sesión para administrar tus membresías de gimnasio.",
+        "notAvailable": "Las membresías de gimnasio aún no están disponibles. Inténtalo de nuevo más tarde.",
+        "invalidForm": "Revisa los campos marcados.",
+        "planNotFound": "Ese plan ya no está disponible.",
+        "generic": "Algo salió mal. Inténtalo de nuevo."
+      }
+    },
+    "admin": {
+      "title": "Membresías de gimnasio",
+      "description": "Administra los planes de membresía de gimnasio y revisa los pagos.",
+      "schemaMissing": {
+        "title": "Migración de base de datos pendiente",
+        "body": "Aplica la migración 0039_gym_memberships.sql para habilitar esta sección."
+      },
+      "plans": {
+        "title": "Planes de membresía",
+        "empty": "Todavía no hay planes de membresía.",
+        "create": "Agregar plan",
+        "edit": "Editar",
+        "provider": "Gimnasio",
+        "name": "Nombre del plan",
+        "monthlyPrice": "Precio mensual",
+        "currency": "Moneda",
+        "isActive": "Activo",
+        "save": "Guardar",
+        "saving": "Guardando…",
+        "saved": "Plan guardado",
+        "cancel": "Cancelar"
+      },
+      "months": {
+        "title": "Revisión de pagos",
+        "empty": "No hay pagos para revisar.",
+        "filters": {
+          "search": "Buscar gimnasio o referencia",
+          "status": "Estado",
+          "all": "Todos",
+          "apply": "Aplicar"
+        },
+        "table": {
+          "gym": "Gimnasio",
+          "plan": "Plan",
+          "period": "Mes",
+          "amount": "Monto",
+          "reference": "Referencia",
+          "status": "Estado",
+          "createdAt": "Enviado",
+          "actions": "Acciones",
+          "review": "Revisar"
+        },
+        "status": {
+          "pending_review": "En revisión",
+          "approved": "Aprobado",
+          "rejected": "Rechazado"
+        },
+        "review": {
+          "title": "Revisar pago",
+          "note": "Nota",
+          "notePlaceholder": "Motivo (obligatorio para rechazar)…",
+          "approve": "Aprobar",
+          "reject": "Rechazar",
+          "saving": "Guardando…",
+          "saved": "Guardado",
+          "close": "Cerrar"
+        }
+      },
+      "errors": {
+        "invalidForm": "Revisa los campos marcados.",
+        "notFound": "Ese pago ya no existe.",
+        "reasonRequiredToReject": "Se requiere un motivo para rechazar un pago.",
+        "generic": "Algo salió mal. Inténtalo de nuevo."
       }
     }
   },
