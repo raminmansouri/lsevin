@@ -318,6 +318,8 @@ export interface Booking {
 
 
 export interface BookingRecord {
+    mainSubtotal?: number | null;
+    discountAmount?: number | null;
     id: string;
     service: string;
     provider: string;
