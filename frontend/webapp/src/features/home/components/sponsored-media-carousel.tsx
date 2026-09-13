@@ -18,6 +18,22 @@ function isExternalLink(value: string) {
   return /^https?:\/\//i.test(value);
 }
 
+/**
+ * The text an admin actually filled in, or null.
+ *
+ * An empty title used to be replaced by a canned marketing sentence printed over
+ * the advertiser's creative, so admins typed a single "." into the field to get
+ * rid of it -- and that dot is what the live home page renders as its heading
+ * today. Empty now renders nothing, and a leftover punctuation-only value counts
+ * as empty too, so those rows come good without anyone re-editing them.
+ */
+function meaningfulText(value?: string | null) {
+  const trimmed = (value ?? '').trim();
+  if (!trimmed) return null;
+
+  return /[\p{L}\p{N}]/u.test(trimmed) ? trimmed : null;
+}
+
 const VIDEO_MIME_TYPE_BY_EXTENSION: Record<string, string> = {
   mp4: 'video/mp4',
   m4v: 'video/mp4',
@@ -97,6 +113,10 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
   const [playableSlideIds, setPlayableSlideIds] = useState<ReadonlySet<string>>(new Set());
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const touchStartX = useRef<number | null>(null);
+  // A horizontal flick still lands as a click on the element under the finger in
+  // mobile browsers. Now that the whole creative is a link, swiping to the next
+  // ad would otherwise navigate to the current one.
+  const swipedRef = useRef(false);
   const autoplayAllowed = useAutoplayAllowed();
 
   const safeSlides = useMemo(() => slides.filter((item) => Boolean(item.url)), [slides]);
@@ -165,6 +185,7 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
   };
 
   const onTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    swipedRef.current = false;
     touchStartX.current = event.touches[0]?.clientX ?? null;
   };
 
@@ -175,11 +196,20 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
     const delta = endX - touchStartX.current;
 
     if (Math.abs(delta) > 50) {
+      swipedRef.current = true;
       if (delta < 0) goTo(activeIndex + 1);
       else goTo(activeIndex - 1);
     }
 
     touchStartX.current = null;
+  };
+
+  const onClickCapture = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!swipedRef.current) return;
+
+    swipedRef.current = false;
+    event.preventDefault();
+    event.stopPropagation();
   };
 
   return (
@@ -190,32 +220,35 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
         onMouseLeave={() => setIsPaused(false)}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
+        onClickCapture={onClickCapture}
       >
-        <div className="relative aspect-[16/9] w-full  h-full lg:h-80">
+        {/*
+          The unit is as tall as the creatives it carries. Every ad uploaded
+          through the admin panel so far is 4:3, and a 16/9 box both cropped a
+          quarter of it away and left the overlay 188px to fit a badge, a title,
+          a subtitle and a call-to-action into on a 375px phone -- the button
+          ended up 24px below the clipping edge, which is why the ad could not be
+          tapped. Wider screens keep a wider frame; `lg:h-80` is unchanged.
+        */}
+        <div className="relative aspect-[4/3] w-full sm:aspect-[3/2] sm:max-h-[380px] lg:aspect-auto lg:h-80">
           {safeSlides.map((slide, index) => {
             const active = index === activeIndex;
             const mediaSrc = resolveHomeMediaUrl(slide.url);
-            const title = slide.title || t('fallbackTitle');
-            const subtitle = slide.subtitle || t('fallbackSubtitle');
-            const buttonLabel = slide.buttonLabel || t('fallbackButton');
+            const eyebrow = meaningfulText(slide.eyebrow);
+            const badge = meaningfulText(slide.badge);
+            const title = meaningfulText(slide.title);
+            const subtitle = meaningfulText(slide.subtitle);
+            const buttonLabel = meaningfulText(slide.buttonLabel) ?? t('fallbackButton');
+            const link = (slide.link ?? '').trim();
+            const opensInNewTab = slide.opensInNewTab || isExternalLink(link);
             const isPlayableVideo = slide.mediaType === 'video' && playableSlideIds.has(slide.id);
             // Only these two states fetch bytes. Everything else renders the card
             // chrome over the dark backdrop and requests nothing.
             const loadsVideo = isPlayableVideo && (autoplayAllowed || startedSlideIds.has(slide.id));
             const showsPlayButton = isPlayableVideo && !loadsVideo && active;
 
-            return (
-              <div
-                key={slide.id}
-                className={`absolute inset-0 transition-all duration-500 ${
-                  active
-                    ? 'z-10 translate-x-0 opacity-100'
-                    : index < activeIndex
-                      ? 'z-0 -translate-x-4 opacity-0'
-                      : 'z-0 translate-x-4 opacity-0'
-                }`}
-                aria-hidden={!active}
-              >
+            const slideBody = (
+              <>
                 {slide.mediaType === 'video' ? (
                   <video
                     ref={(node) => {
@@ -241,7 +274,7 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
                   <ImageWithFallback
                     fill
                     src={mediaSrc}
-                    alt={title}
+                    alt={title ?? t('sponsored')}
                     sizes="100vw"
                     className="object-cover"
                     priority={active}
@@ -249,7 +282,95 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
                 )}
 
                 <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-black/10" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+                <div className="relative z-10 flex h-full flex-col justify-between gap-3 p-4 sm:p-6">
+                  <div className="flex flex-wrap items-start gap-2">
+                    <span className="inline-flex w-fit items-center rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-white backdrop-blur-md">
+                      {t('sponsored')}
+                    </span>
+
+                    {badge ? (
+                      <span className="inline-flex w-fit items-center rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-bold text-gray-950">
+                        {badge}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {/*
+                    Every line below is clamped. The box is a fixed ratio, so a
+                    long title typed into the admin panel has to lose its tail
+                    rather than push the call-to-action out through the bottom.
+                  */}
+                  <div className="min-h-0 max-w-md">
+                    {eyebrow ? (
+                      <p className="mb-1 line-clamp-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/70">
+                        {eyebrow}
+                      </p>
+                    ) : null}
+
+                    {title ? (
+                      <h3 className="mb-1 line-clamp-2 text-xl font-bold leading-tight text-white sm:mb-2 sm:text-3xl">
+                        {title}
+                      </h3>
+                    ) : null}
+
+                    {subtitle ? (
+                      <p className="mb-3 line-clamp-2 text-xs leading-5 text-white/85 sm:mb-5 sm:text-base sm:leading-6">
+                        {subtitle}
+                      </p>
+                    ) : null}
+
+                    {/*
+                      No link, no button. A slide with an empty destination used
+                      to render a white pill that looked exactly like the real
+                      call-to-action and did nothing when tapped — which is what
+                      all three home placements show today.
+                    */}
+                    {link ? (
+                      <span className="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-2.5 text-xs font-bold text-gray-950 transition group-hover:bg-gray-100 sm:px-5 sm:py-3 sm:text-sm">
+                        {buttonLabel}
+                        {opensInNewTab ? <ExternalLink size={16} /> : null}
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+              </>
+            );
+
+            return (
+              <div
+                key={slide.id}
+                className={`absolute inset-0 transition-all duration-500 ${
+                  active
+                    ? 'z-10 translate-x-0 opacity-100'
+                    : index < activeIndex
+                      ? 'pointer-events-none z-0 -translate-x-4 opacity-0'
+                      : 'pointer-events-none z-0 translate-x-4 opacity-0'
+                }`}
+                aria-hidden={!active}
+              >
+                {/*
+                  The creative itself is the click target. A sponsored banner is
+                  tapped anywhere, not only on its button — and the button is the
+                  one part of the card a short frame is liable to cut off.
+                */}
+                {link ? (
+                  <a
+                    href={link}
+                    target={opensInNewTab ? '_blank' : undefined}
+                    rel={opensInNewTab ? 'noreferrer noopener' : undefined}
+                    aria-label={meaningfulText(slide.ariaLabel) ?? title ?? t('sponsored')}
+                    // Hidden slides stay in the DOM for the cross-fade; keyboard
+                    // users must not be able to tab into an invisible ad.
+                    tabIndex={active ? undefined : -1}
+                    className="absolute inset-0 block"
+                  >
+                    {slideBody}
+                  </a>
+                ) : (
+                  <div className="absolute inset-0">{slideBody}</div>
+                )}
 
                 {showsPlayButton ? (
                   <button
@@ -259,54 +380,11 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
                     // Bottom inline-end: the copy and call-to-action sit at the
                     // inline-start in both directions, so this corner is the one
                     // place a play button does not land on the title.
-                    className="absolute bottom-5 end-5 z-20 inline-flex h-14 w-14 items-center justify-center rounded-full bg-white/90 text-gray-950 shadow-lg backdrop-blur-md transition hover:bg-white sm:bottom-6 sm:end-6"
+                    className="absolute bottom-5 end-5 z-30 inline-flex h-14 w-14 items-center justify-center rounded-full bg-white/90 text-gray-950 shadow-lg backdrop-blur-md transition hover:bg-white sm:bottom-6 sm:end-6"
                   >
                     <Play size={24} className="ms-1 fill-current" />
                   </button>
                 ) : null}
-
-                <div className="relative z-10 flex h-full flex-col justify-between p-5 sm:p-6">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="inline-flex w-fit items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-white backdrop-blur-md">
-                      {t('sponsored')}
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setIsPaused((value) => !value)}
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-md transition hover:bg-black/45"
-                      aria-label={isPaused ? t('resumeAria') : t('pauseAria')}
-                    >
-                      {isPaused ? <Play size={16} /> : <Pause size={16} />}
-                    </button>
-                  </div>
-
-                  <div className="max-w-md">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-white/70">
-                      {t('premiumPlacement')}
-                    </p>
-
-                    <h3 className="mb-2 text-2xl font-bold text-white sm:text-3xl">{title}</h3>
-
-                    <p className="mb-5 text-sm leading-6 text-white/85 sm:text-base">{subtitle}</p>
-
-                    {slide.link ? (
-                      <a
-                        href={slide.link}
-                        target={isExternalLink(slide.link) ? '_blank' : undefined}
-                        rel={isExternalLink(slide.link) ? 'noreferrer noopener' : undefined}
-                        className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-bold text-gray-950 transition hover:bg-gray-100"
-                      >
-                        {buttonLabel}
-                        <ExternalLink size={16} />
-                      </a>
-                    ) : (
-                      <div className="inline-flex items-center rounded-2xl bg-white/15 px-5 py-3 text-sm font-semibold text-white backdrop-blur-md">
-                        {buttonLabel}
-                      </div>
-                    )}
-                  </div>
-                </div>
               </div>
             );
           })}
@@ -314,10 +392,25 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
 
         {safeSlides.length > 1 ? (
           <>
+            {/*
+              Rotation controls belong to the carousel, not to each slide: the
+              pause button used to be rendered once per slide inside the card
+              copy, where it is now nested inside the slide's link and would
+              navigate instead of pausing.
+            */}
+            <button
+              type="button"
+              onClick={() => setIsPaused((value) => !value)}
+              className="absolute top-4 end-4 z-30 inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-md transition hover:bg-black/45 sm:top-6 sm:end-6"
+              aria-label={isPaused ? t('resumeAria') : t('pauseAria')}
+            >
+              {isPaused ? <Play size={16} /> : <Pause size={16} />}
+            </button>
+
             <button
               type="button"
               onClick={() => goTo(activeIndex - 1)}
-              className="absolute left-3 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-lg transition hover:bg-white group-hover:flex"
+              className="absolute left-3 top-1/2 z-30 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-lg transition hover:bg-white group-hover:flex"
               aria-label={t('previousSlideAria')}
             >
               <ChevronLeft size={20} />
@@ -326,13 +419,13 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
             <button
               type="button"
               onClick={() => goTo(activeIndex + 1)}
-              className="absolute right-3 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-lg transition hover:bg-white group-hover:flex"
+              className="absolute right-3 top-1/2 z-30 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-lg transition hover:bg-white group-hover:flex"
               aria-label={t('nextSlideAria')}
             >
               <ChevronRight size={20} />
             </button>
 
-            <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-black/30 px-3 py-2 backdrop-blur-md">
+            <div className="absolute bottom-4 left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 rounded-full bg-black/30 px-3 py-2 backdrop-blur-md">
               {safeSlides.map((slide, index) => (
                 <button
                   key={slide.id}

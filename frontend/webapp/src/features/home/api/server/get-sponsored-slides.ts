@@ -7,9 +7,13 @@ export type SponsoredSlide = {
   link: string | null;
   url: string;
   mediaType: 'image' | 'video' | 'gif';
+  eyebrow: string | null;
+  badge: string | null;
   title: string | null;
   subtitle: string | null;
   buttonLabel: string | null;
+  ariaLabel: string | null;
+  opensInNewTab: boolean;
   displayOrder: number;
 };
 
@@ -64,9 +68,13 @@ export async function getSponsoredSlides(
     media_type: string | null;
     lib_media_type: string | null;
     mime_type: string | null;
+    eyebrow: string | null;
+    badge: string | null;
     title: string | null;
     subtitle: string | null;
     buttonLabel: string | null;
+    ariaLabel: string | null;
+    opensInNewTab: boolean | null;
     displayOrder: string | number;
   }[]>`
     select
@@ -76,9 +84,13 @@ export async function getSponsoredSlides(
       mt.name as media_type,
       ml.media_type as lib_media_type,
       ml.mime_type,
+      nullif(common.get_translation_t(s.eyebrow_translations, ${normalizedLocale}::text, 'en-US'), '') as eyebrow,
+      nullif(common.get_translation_t(s.badge_translations, ${normalizedLocale}::text, 'en-US'), '') as badge,
       coalesce(nullif(common.get_translation_t(s.title_translations, ${normalizedLocale}::text, 'en-US'), ''), nullif(btrim(s.title), '')) as title,
       coalesce(nullif(common.get_translation_t(s.subtitle_translations, ${normalizedLocale}::text, 'en-US'), ''), nullif(common.get_translation_t(s.description_translations, ${normalizedLocale}::text, 'en-US'), ''), nullif(btrim(s.subtitle), '')) as subtitle,
       coalesce(nullif(common.get_translation_t(s.button_label_translations, ${normalizedLocale}::text, 'en-US'), ''), nullif(btrim(s.button_label), '')) as "buttonLabel",
+      nullif(common.get_translation_t(s.aria_label_translations, ${normalizedLocale}::text, 'en-US'), '') as "ariaLabel",
+      coalesce(s.opens_in_new_tab, false) as "opensInNewTab",
       s.display_order as "displayOrder"
     from media.sponsered_slider s
     left join media.media_type mt
@@ -99,9 +111,13 @@ export async function getSponsoredSlides(
     // Prefer the media_library row's actual type (source of truth) over the slide's
     // separately-managed media_type_id, which can be stale after swapping the media.
     mediaType: normalizeMediaType(row.lib_media_type || row.mime_type || row.media_type, row.url),
+    eyebrow: row.eyebrow,
+    badge: row.badge,
     title: row.title,
     subtitle: row.subtitle,
     buttonLabel: row.buttonLabel,
+    ariaLabel: row.ariaLabel,
+    opensInNewTab: Boolean(row.opensInNewTab),
     displayOrder: numberValue(row.displayOrder),
   }));
   } catch (error) {

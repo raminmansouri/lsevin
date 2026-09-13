@@ -6,7 +6,17 @@ import {
   SPONSERED_SLIDER_PLACEMENTS,
 } from "../types";
 
-const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+/**
+ * Shape only -- deliberately no RFC 4122 version/variant bits.
+ *
+ * This database's own ids fail that check: a media library row is
+ * `01a076e3-1682-f05c-626e-986204d53a82`, version nibble `f`, variant nibble `6`.
+ * Postgres' `uuid` type accepts any 128-bit value, so the picker hands back a
+ * perfectly good id that the strict pattern turned into null -- the slide was
+ * saved with `media_id = null`, and a slide whose media came only from the
+ * picker then had no creative left to render at all.
+ */
+const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function trimOrNull(value: unknown) {
   const trimmed = typeof value === "string" ? value.trim() : "";
@@ -46,7 +56,7 @@ const localizedTextSchema = z.preprocess((value) => {
   );
 }, z.record(z.string(), z.string()).catch({}));
 
-const optionalUuidSchema = z.preprocess(optionalUuid, z.string().uuid().nullable()).catch(null);
+const optionalUuidSchema = z.preprocess(optionalUuid, z.guid().nullable()).catch(null);
 const optionalTextSchema = z.preprocess(trimOrNull, z.string().nullable()).catch(null);
 const metadataSchema = z.preprocess((value) => {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
@@ -54,7 +64,7 @@ const metadataSchema = z.preprocess((value) => {
 }, z.record(z.string(), z.unknown()).catch({}));
 
 export const SponseredSliderInputSchema = z.object({
-  id: z.preprocess(optionalUuid, z.string().uuid().optional().nullable()).optional(),
+  id: z.preprocess(optionalUuid, z.guid().optional().nullable()).optional(),
   placementKey: optionalEnum(SPONSERED_SLIDER_PLACEMENTS, "home_native_ad"),
   mediaId: optionalUuidSchema,
   url: optionalTextSchema,

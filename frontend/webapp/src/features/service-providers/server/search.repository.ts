@@ -2,6 +2,10 @@ import "server-only";
 
 import { createHash, randomUUID } from "crypto";
 
+import {
+  unstable_cacheLife as cacheLife,
+  unstable_cacheTag as cacheTag,
+} from "next/cache";
 import { cookies } from "next/headers";
 
 import sql from "@/config/database/db";
@@ -398,6 +402,108 @@ export async function clearSearchHistory(term?: string | null) {
   return { ok: true };
 }
 
+/**
+ * The catalogue facets shown beside the results. Neither depends on the search
+ * term — only on locale + the provider-type / category / country / city the
+ * visitor is already filtered to — yet both were re-running a full
+ * `provider_services x service_definitions x service_providers` join with a
+ * `COUNT(DISTINCT ...)` on every single search. Caching them takes two of the
+ * three queries off the hot path.
+ *
+ * The `"use cache"` sits here rather than in the `search.repository.cached.ts`
+ * sibling because `getSearchResults` below consumes them, and importing the
+ * sibling from this module would close an import cycle.
+ */
+export async function getSearchResultCategoriesCached(args: {
+  locale: string;
+  providerTypeId: string | null;
+  country: string | null;
+  city: string | null;
+}): Promise<SearchResultsCategory[]> {
+  "use cache";
+  cacheTag("search-discovery");
+  cacheLife("default");
+
+  const rows = await sql<SearchCategoryRow[]>`
+    WITH params AS (
+      SELECT
+        ${args.locale}::text AS locale,
+        ${args.providerTypeId}::uuid AS provider_type_id,
+        NULLIF(BTRIM(${args.country}::text), '') AS country,
+        NULLIF(BTRIM(${args.city}::text), '') AS city
+    )
+    SELECT
+      c.id::text AS id,
+      common.get_translation_t(c.name_translations, params.locale, 'en-US') AS label,
+      COUNT(DISTINCT ps.id)::int AS count
+    FROM category.categories c
+    JOIN category.service_definitions sd ON sd.category_id = c.id AND sd.is_active = true
+    JOIN category.provider_services ps ON ps.service_definition_id = sd.id AND ps.is_active = true
+    JOIN category.service_providers sp ON sp.id = ps.service_provider_id AND sp.is_active = true
+    CROSS JOIN params
+    WHERE c.is_active = true
+      AND (params.provider_type_id IS NULL OR sp.provider_type_id = params.provider_type_id)
+      AND (params.country IS NULL OR lower(sp.country) = lower(params.country))
+      AND (params.city IS NULL OR lower(sp.city) = lower(params.city))
+    GROUP BY c.id, c.name_translations, c.display_order, params.locale
+    ORDER BY count DESC, c.display_order ASC, label ASC
+    LIMIT 12;
+  `;
+
+  const labels = getSearchStaticLabels(args.locale);
+
+  return rows.map((row) => ({
+    id: row.id,
+    label: row.label || labels.category,
+    count: toNumber(row.count),
+  }));
+}
+
+export async function getSearchResultFiltersCached(args: {
+  locale: string;
+  categoryId: string | null;
+  country: string | null;
+  city: string | null;
+}): Promise<SearchResultsFilter[]> {
+  "use cache";
+  cacheTag("search-discovery");
+  cacheLife("default");
+
+  const rows = await sql<SearchFilterRow[]>`
+    WITH params AS (
+      SELECT
+        ${args.locale}::text AS locale,
+        ${args.categoryId}::uuid AS category_id,
+        NULLIF(BTRIM(${args.country}::text), '') AS country,
+        NULLIF(BTRIM(${args.city}::text), '') AS city
+    )
+    SELECT
+      pt.id::text AS id,
+      common.get_translation_t(pt.name_translations, params.locale, 'en-US') AS label,
+      COUNT(DISTINCT sp.id)::int AS count
+    FROM category.provider_types pt
+    JOIN category.service_providers sp ON sp.provider_type_id = pt.id AND sp.is_active = true
+    JOIN category.provider_services ps ON ps.service_provider_id = sp.id AND ps.is_active = true
+    JOIN category.service_definitions sd ON sd.id = ps.service_definition_id AND sd.is_active = true
+    CROSS JOIN params
+    WHERE pt.is_active = true
+      AND (params.category_id IS NULL OR sd.category_id = params.category_id)
+      AND (params.country IS NULL OR lower(sp.country) = lower(params.country))
+      AND (params.city IS NULL OR lower(sp.city) = lower(params.city))
+    GROUP BY pt.id, pt.name_translations, params.locale
+    ORDER BY count DESC, label ASC
+    LIMIT 12;
+  `;
+
+  const labels = getSearchStaticLabels(args.locale);
+
+  return rows.map((row) => ({
+    id: row.id,
+    label: row.label || labels.providerType,
+    count: toNumber(row.count),
+  }));
+}
+
 export async function getSearchResults(params?: {
   term?: string | null;
   locale?: string | null;
@@ -417,7 +523,12 @@ export async function getSearchResults(params?: {
   const country = normalizeOptionalText(params?.country);
   const city = normalizeOptionalText(params?.city);
 
-  const [resultRows, categoryRows, filterRows] = await Promise.all([
+  // The three CTEs below only select what filtering and ordering need, plus the
+  // *raw* image pointers. Media lookups and the gallery / minimum-price
+  // laterals used to run once per candidate row — i.e. over the whole active
+  // catalogue whenever there is no search term — even though at most `limit`
+  // of those rows are ever returned. They now run against the ranked page.
+  const [resultRows, categories, filters] = await Promise.all([
     sql<SearchResultRow[]>`
       WITH params AS (
         SELECT
@@ -427,7 +538,9 @@ export async function getSearchResults(params?: {
           ${categoryId}::uuid AS category_id,
           ${providerTypeId}::uuid AS provider_type_id,
           NULLIF(BTRIM(${country}::text), '') AS country,
-          NULLIF(BTRIM(${city}::text), '') AS city
+          NULLIF(BTRIM(${city}::text), '') AS city,
+          -- Built once instead of re-parsed for every row it is compared against.
+          plainto_tsquery('simple', NULLIF(BTRIM(${term}::text), '')) AS tsq
       ),
       service_results AS (
         SELECT
@@ -438,24 +551,11 @@ export async function getSearchResults(params?: {
             common.get_translation_t(sd.name_translations, params.locale, 'en-US')
           ) AS name,
           common.get_translation_t(sp.name_translations, params.locale, 'en-US') AS provider,
-          COALESCE(
-            CASE
-              WHEN BTRIM(split_part(ps.image_url, ',', 1)) ~* ${uuidPattern}
-              THEN ps_media.file_url
-              ELSE NULLIF(BTRIM(split_part(ps.image_url, ',', 1)), '')
-            END,
-            NULLIF(BTRIM(primary_gallery.url), ''),
-            CASE
-              WHEN BTRIM(split_part(sp.image_url, ',', 1)) ~* ${uuidPattern}
-              THEN sp_media.file_url
-              ELSE NULLIF(BTRIM(split_part(sp.image_url, ',', 1)), '')
-            END,
-            CASE
-              WHEN BTRIM(split_part(c.image_url, ',', 1)) ~* ${uuidPattern}
-              THEN c_media.file_url
-              ELSE NULLIF(BTRIM(split_part(c.image_url, ',', 1)), '')
-            END
-          ) AS image,
+          BTRIM(split_part(ps.image_url, ',', 1)) AS image_1,
+          BTRIM(split_part(sp.image_url, ',', 1)) AS image_2,
+          BTRIM(split_part(c.image_url, ',', 1)) AS image_3,
+          ps.id AS gallery_owner,
+          NULL::uuid AS currency_owner,
           CONCAT_WS(', ', NULLIF(BTRIM(sp.city), ''), NULLIF(BTRIM(sp.country), '')) AS location,
           COALESCE(ps.rating, sp.rating, 0)::float8 AS rating,
           COALESCE(ps.review_count, sp.review_count, 0)::int AS reviews,
@@ -475,7 +575,7 @@ export async function getSearchResults(params?: {
             CASE WHEN params.q IS NULL THEN 0 ELSE
               ts_rank_cd(
                 COALESCE(ps.search_vector, to_tsvector('simple', COALESCE(common.get_translation_t(ps.display_name_translations, params.locale, 'en-US'), ''))),
-                plainto_tsquery('simple', params.q)
+                params.tsq
               )
             END
             + COALESCE(ps.trending_score, 0)::float8 / 100
@@ -487,43 +587,6 @@ export async function getSearchResults(params?: {
         JOIN category.service_providers sp ON sp.id = ps.service_provider_id
         JOIN category.provider_types pt ON pt.id = sp.provider_type_id
         CROSS JOIN params
-        LEFT JOIN media.media_library ps_media
-          ON ps_media.id = CASE
-            WHEN BTRIM(split_part(ps.image_url, ',', 1)) ~* ${uuidPattern}
-            THEN BTRIM(split_part(ps.image_url, ',', 1))::uuid
-            ELSE NULL
-          END
-        LEFT JOIN media.media_library sp_media
-          ON sp_media.id = CASE
-            WHEN BTRIM(split_part(sp.image_url, ',', 1)) ~* ${uuidPattern}
-            THEN BTRIM(split_part(sp.image_url, ',', 1))::uuid
-            ELSE NULL
-          END
-        LEFT JOIN media.media_library c_media
-          ON c_media.id = CASE
-            WHEN BTRIM(split_part(c.image_url, ',', 1)) ~* ${uuidPattern}
-            THEN BTRIM(split_part(c.image_url, ',', 1))::uuid
-            ELSE NULL
-          END
-        LEFT JOIN LATERAL (
-          SELECT COALESCE(
-            gml.file_url,
-            CASE
-              WHEN BTRIM(split_part(psgi.url, ',', 1)) ~* ${uuidPattern} THEN NULL
-              ELSE NULLIF(BTRIM(split_part(psgi.url, ',', 1)), '')
-            END
-          ) AS url
-          FROM category.provider_service_gallery_items psgi
-          LEFT JOIN media.media_library gml
-            ON gml.id = CASE
-              WHEN BTRIM(split_part(psgi.url, ',', 1)) ~* ${uuidPattern}
-              THEN BTRIM(split_part(psgi.url, ',', 1))::uuid
-              ELSE NULL
-            END
-          WHERE psgi.provider_service_id = ps.id
-          ORDER BY psgi.is_primary DESC, psgi.display_order ASC, psgi.create_date DESC
-          LIMIT 1
-        ) primary_gallery ON true
         WHERE ps.is_active = true
           AND sd.is_active = true
           AND c.is_active = true
@@ -532,8 +595,12 @@ export async function getSearchResults(params?: {
           AND (params.provider_type_id IS NULL OR pt.id = params.provider_type_id)
           AND (params.country IS NULL OR lower(sp.country) = lower(params.country))
           AND (params.city IS NULL OR lower(sp.city) = lower(params.city))
+          -- Same branches as before, cheapest first: OR short-circuits, so a row
+          -- that matches the tsvector never pays for the jsonb expansion below.
           AND (
             params.q IS NULL
+            OR COALESCE(ps.search_vector, to_tsvector('simple', '')) @@ params.tsq
+            OR COALESCE(sp.search_vector, to_tsvector('simple', '')) @@ params.tsq
             OR common.get_translation_t(ps.display_name_translations, params.locale, 'en-US') ILIKE params.like_q
             OR common.get_translation_t(ps.description_translations, params.locale, 'en-US') ILIKE params.like_q
             OR common.get_translation_t(sd.name_translations, params.locale, 'en-US') ILIKE params.like_q
@@ -542,6 +609,10 @@ export async function getSearchResults(params?: {
             OR common.get_translation_t(c.description_translations, params.locale, 'en-US') ILIKE params.like_q
             OR common.get_translation_t(sp.name_translations, params.locale, 'en-US') ILIKE params.like_q
             OR common.get_translation_t(sp.description_translations, params.locale, 'en-US') ILIKE params.like_q
+            OR EXISTS (
+              SELECT 1 FROM unnest(COALESCE(ps.tags, sp.specialties, ARRAY[]::text[])) AS tag
+              WHERE tag ILIKE params.like_q
+            )
             OR EXISTS (
               SELECT 1
               FROM jsonb_each_text(CASE WHEN jsonb_typeof(ps.display_name_translations) = 'object' THEN ps.display_name_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
@@ -582,12 +653,6 @@ export async function getSearchResults(params?: {
               FROM jsonb_each_text(CASE WHEN jsonb_typeof(sp.description_translations) = 'object' THEN sp.description_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
               WHERE translated.translated_value ILIKE params.like_q
             )
-            OR COALESCE(ps.search_vector, to_tsvector('simple', '')) @@ plainto_tsquery('simple', params.q)
-            OR COALESCE(sp.search_vector, to_tsvector('simple', '')) @@ plainto_tsquery('simple', params.q)
-            OR EXISTS (
-              SELECT 1 FROM unnest(COALESCE(ps.tags, sp.specialties, ARRAY[]::text[])) AS tag
-              WHERE tag ILIKE params.like_q
-            )
           )
       ),
       provider_results AS (
@@ -596,14 +661,11 @@ export async function getSearchResults(params?: {
           'provider'::text AS type,
           common.get_translation_t(sp.name_translations, params.locale, 'en-US') AS name,
           common.get_translation_t(pt.name_translations, params.locale, 'en-US') AS provider,
-          COALESCE(
-            CASE
-              WHEN BTRIM(split_part(sp.image_url, ',', 1)) ~* ${uuidPattern}
-              THEN sp_media.file_url
-              ELSE NULLIF(BTRIM(split_part(sp.image_url, ',', 1)), '')
-            END,
-            NULLIF(BTRIM(provider_gallery.url), '')
-          ) AS image,
+          BTRIM(split_part(sp.image_url, ',', 1)) AS image_1,
+          NULL::text AS image_2,
+          NULL::text AS image_3,
+          sp.id AS gallery_owner,
+          NULL::uuid AS currency_owner,
           CONCAT_WS(', ', NULLIF(BTRIM(sp.city), ''), NULLIF(BTRIM(sp.country), '')) AS location,
           COALESCE(sp.rating, 0)::float8 AS rating,
           COALESCE(sp.review_count, 0)::int AS reviews,
@@ -622,7 +684,7 @@ export async function getSearchResults(params?: {
             CASE WHEN params.q IS NULL THEN 0 ELSE
               ts_rank_cd(
                 COALESCE(sp.search_vector, to_tsvector('simple', COALESCE(common.get_translation_t(sp.name_translations, params.locale, 'en-US'), ''))),
-                plainto_tsquery('simple', params.q)
+                params.tsq
               )
             END
             + COALESCE(sp.featured_score, 0)::float8 / 100
@@ -631,12 +693,6 @@ export async function getSearchResults(params?: {
         FROM category.service_providers sp
         JOIN category.provider_types pt ON pt.id = sp.provider_type_id
         CROSS JOIN params
-        LEFT JOIN media.media_library sp_media
-          ON sp_media.id = CASE
-            WHEN BTRIM(split_part(sp.image_url, ',', 1)) ~* ${uuidPattern}
-            THEN BTRIM(split_part(sp.image_url, ',', 1))::uuid
-            ELSE NULL
-          END
         LEFT JOIN LATERAL (
           SELECT ps.value AS minimum_price, ps.currency
           FROM category.provider_services ps
@@ -648,25 +704,6 @@ export async function getSearchResults(params?: {
           ORDER BY ps.value ASC NULLS LAST
           LIMIT 1
         ) min_service ON true
-        LEFT JOIN LATERAL (
-          SELECT COALESCE(
-            pgml.file_url,
-            CASE
-              WHEN BTRIM(split_part(pgi.url, ',', 1)) ~* ${uuidPattern} THEN NULL
-              ELSE NULLIF(BTRIM(split_part(pgi.url, ',', 1)), '')
-            END
-          ) AS url
-          FROM category.provider_gallery_items pgi
-          LEFT JOIN media.media_library pgml
-            ON pgml.id = CASE
-              WHEN BTRIM(split_part(pgi.url, ',', 1)) ~* ${uuidPattern}
-              THEN BTRIM(split_part(pgi.url, ',', 1))::uuid
-              ELSE NULL
-            END
-          WHERE pgi.service_provider_id = sp.id
-          ORDER BY pgi.display_order ASC, pgi.create_date DESC
-          LIMIT 1
-        ) provider_gallery ON true
         WHERE sp.is_active = true
           AND (params.provider_type_id IS NULL OR pt.id = params.provider_type_id)
           AND (params.country IS NULL OR lower(sp.country) = lower(params.country))
@@ -674,10 +711,15 @@ export async function getSearchResults(params?: {
           AND min_service.minimum_price IS NOT NULL
           AND (
             params.q IS NULL
+            OR COALESCE(sp.search_vector, to_tsvector('simple', '')) @@ params.tsq
             OR common.get_translation_t(sp.name_translations, params.locale, 'en-US') ILIKE params.like_q
             OR common.get_translation_t(sp.description_translations, params.locale, 'en-US') ILIKE params.like_q
             OR common.get_translation_t(pt.name_translations, params.locale, 'en-US') ILIKE params.like_q
             OR common.get_translation_t(pt.description_translations, params.locale, 'en-US') ILIKE params.like_q
+            OR EXISTS (
+              SELECT 1 FROM unnest(COALESCE(sp.specialties, ARRAY[]::text[])) AS specialty
+              WHERE specialty ILIKE params.like_q
+            )
             OR EXISTS (
               SELECT 1
               FROM jsonb_each_text(CASE WHEN jsonb_typeof(sp.name_translations) = 'object' THEN sp.name_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
@@ -698,11 +740,6 @@ export async function getSearchResults(params?: {
               FROM jsonb_each_text(CASE WHEN jsonb_typeof(pt.description_translations) = 'object' THEN pt.description_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
               WHERE translated.translated_value ILIKE params.like_q
             )
-            OR COALESCE(sp.search_vector, to_tsvector('simple', '')) @@ plainto_tsquery('simple', params.q)
-            OR EXISTS (
-              SELECT 1 FROM unnest(COALESCE(sp.specialties, ARRAY[]::text[])) AS specialty
-              WHERE specialty ILIKE params.like_q
-            )
           )
       ),
       specialist_results AS (
@@ -711,21 +748,17 @@ export async function getSearchResults(params?: {
           'specialist'::text AS type,
           common.get_translation_t(staff.name_translations, params.locale, 'en-US') AS name,
           common.get_translation_t(sp.name_translations, params.locale, 'en-US') AS provider,
-          COALESCE(
-            NULLIF(BTRIM(staff_profile_media.file_url), ''),
-            CASE
-              WHEN NULLIF(BTRIM(staff.profile_image_url), '') IS NOT NULL
-                AND NULLIF(BTRIM(staff.profile_image_url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
-              THEN NULLIF(BTRIM(staff.profile_image_url), '')
-            END,
-            NULLIF(BTRIM(staff_gallery.url), '')
-          ) AS image,
+          NULLIF(BTRIM(staff.profile_image_url), '') AS image_1,
+          NULL::text AS image_2,
+          NULL::text AS image_3,
+          staff.id AS gallery_owner,
+          sp.id AS currency_owner,
           CONCAT_WS(', ', NULLIF(BTRIM(sp.city), ''), NULLIF(BTRIM(sp.country), '')) AS location,
           COALESCE(staff.rating, 0)::float8 AS rating,
           COALESCE(staff.review_count, 0)::int AS reviews,
           COALESCE(staff.consultation_fee, 0)::float8 AS price,
           NULL::float8 AS original_price,
-          COALESCE(service_price.currency, 'USD') AS currency,
+          NULL::text AS currency,
           true AS verified,
           ARRAY_REMOVE(ARRAY[NULLIF(COALESCE(staff.specialty, common.get_translation_t(staff.specialty_translations, params.locale, 'en-US')), '')], NULL) AS specialties,
           ARRAY_REMOVE(ARRAY[
@@ -739,47 +772,17 @@ export async function getSearchResults(params?: {
         JOIN category.service_providers sp ON sp.id = psf.service_provider_id AND sp.is_active = true
         JOIN category.provider_types pt ON pt.id = sp.provider_type_id
         CROSS JOIN params
-        LEFT JOIN media.media_library staff_profile_media
-          ON staff_profile_media.id::text = NULLIF(BTRIM(staff.profile_image_url), '')
-        LEFT JOIN LATERAL (
-          SELECT COALESCE(
-            NULLIF(BTRIM(staff_gallery_media.file_url), ''),
-            CASE
-              WHEN NULLIF(BTRIM(sgi.url), '') IS NOT NULL
-                AND NULLIF(BTRIM(sgi.url), '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
-              THEN NULLIF(BTRIM(sgi.url), '')
-            END
-          ) AS url
-          FROM category.staff_gallery_items sgi
-          LEFT JOIN media.media_library staff_gallery_media
-            ON staff_gallery_media.id::text = NULLIF(BTRIM(sgi.url), '')
-          WHERE sgi.staff_id = staff.id
-            AND COALESCE(NULLIF(BTRIM(sgi.media_type), ''), 'image') = 'image'
-          ORDER BY sgi.is_primary DESC, sgi.display_order ASC, sgi.create_date DESC
-          LIMIT 1
-        ) staff_gallery ON true
-        LEFT JOIN LATERAL (
-          SELECT ps.currency
-          FROM category.provider_services ps
-          JOIN category.service_definitions sd ON sd.id = ps.service_definition_id
-          WHERE ps.service_provider_id = sp.id
-            AND ps.is_active = true
-            AND sd.is_active = true
-            AND (params.category_id IS NULL OR sd.category_id = params.category_id)
-          ORDER BY ps.value ASC NULLS LAST
-          LIMIT 1
-        ) service_price ON true
         WHERE staff.is_active = true
           AND (params.provider_type_id IS NULL OR pt.id = params.provider_type_id)
           AND (params.country IS NULL OR lower(sp.country) = lower(params.country))
           AND (params.city IS NULL OR lower(sp.city) = lower(params.city))
           AND (
             params.q IS NULL
+            OR staff.specialty ILIKE params.like_q
             OR common.get_translation_t(staff.name_translations, params.locale, 'en-US') ILIKE params.like_q
             OR common.get_translation_t(staff.title_translations, params.locale, 'en-US') ILIKE params.like_q
             OR common.get_translation_t(staff.biography_translations, params.locale, 'en-US') ILIKE params.like_q
             OR common.get_translation_t(staff.specialty_translations, params.locale, 'en-US') ILIKE params.like_q
-            OR staff.specialty ILIKE params.like_q
             OR common.get_translation_t(sp.name_translations, params.locale, 'en-US') ILIKE params.like_q
             OR EXISTS (
               SELECT 1
@@ -807,68 +810,150 @@ export async function getSearchResults(params?: {
               WHERE translated.translated_value ILIKE params.like_q
             )
           )
-      )
-      SELECT *
-      FROM (
-        SELECT * FROM service_results
-        UNION ALL
-        SELECT * FROM provider_results
-        UNION ALL
-        SELECT * FROM specialist_results
-      ) results
-      ORDER BY rank_score DESC, rating DESC NULLS LAST, reviews DESC NULLS LAST, name ASC
-      LIMIT ${limit};
-    `,
-    sql<SearchCategoryRow[]>`
-      WITH params AS (
-        SELECT
-          ${normalizedLocale}::text AS locale,
-          ${providerTypeId}::uuid AS provider_type_id,
-          NULLIF(BTRIM(${country}::text), '') AS country,
-          NULLIF(BTRIM(${city}::text), '') AS city
+      ),
+      ranked AS (
+        SELECT *
+        FROM (
+          SELECT * FROM service_results
+          UNION ALL
+          SELECT * FROM provider_results
+          UNION ALL
+          SELECT * FROM specialist_results
+        ) results
+        ORDER BY rank_score DESC, rating DESC NULLS LAST, reviews DESC NULLS LAST, name ASC
+        LIMIT ${limit}
       )
       SELECT
-        c.id::text AS id,
-        common.get_translation_t(c.name_translations, params.locale, 'en-US') AS label,
-        COUNT(DISTINCT ps.id)::int AS count
-      FROM category.categories c
-      JOIN category.service_definitions sd ON sd.category_id = c.id AND sd.is_active = true
-      JOIN category.provider_services ps ON ps.service_definition_id = sd.id AND ps.is_active = true
-      JOIN category.service_providers sp ON sp.id = ps.service_provider_id AND sp.is_active = true
+        r.id,
+        r.type,
+        r.name,
+        r.provider,
+        COALESCE(
+          CASE
+            WHEN r.image_1 ~* ${uuidPattern} THEN NULLIF(BTRIM(media_1.file_url), '')
+            ELSE NULLIF(r.image_1, '')
+          END,
+          -- A service falls back to its own gallery before the provider's and
+          -- the category's picture; a provider and a specialist have nothing
+          -- between their own column and their gallery, so the two NULL image
+          -- slots below keep the gallery in last place for them.
+          CASE WHEN r.type = 'service' THEN service_gallery.url END,
+          CASE
+            WHEN r.image_2 ~* ${uuidPattern} THEN NULLIF(BTRIM(media_2.file_url), '')
+            ELSE NULLIF(r.image_2, '')
+          END,
+          CASE
+            WHEN r.image_3 ~* ${uuidPattern} THEN NULLIF(BTRIM(media_3.file_url), '')
+            ELSE NULLIF(r.image_3, '')
+          END,
+          COALESCE(provider_gallery.url, staff_gallery.url)
+        ) AS image,
+        r.location,
+        r.rating,
+        r.reviews,
+        r.price,
+        r.original_price,
+        COALESCE(r.currency, specialist_currency.currency, 'USD') AS currency,
+        r.verified,
+        r.specialties,
+        r.tags,
+        r.href,
+        r.rank_score
+      FROM ranked r
       CROSS JOIN params
-      WHERE c.is_active = true
-        AND (params.provider_type_id IS NULL OR sp.provider_type_id = params.provider_type_id)
-        AND (params.country IS NULL OR lower(sp.country) = lower(params.country))
-        AND (params.city IS NULL OR lower(sp.city) = lower(params.city))
-      GROUP BY c.id, c.name_translations, c.display_order, params.locale
-      ORDER BY count DESC, c.display_order ASC, label ASC
-      LIMIT 12;
+      LEFT JOIN media.media_library media_1
+        ON media_1.id = CASE WHEN r.image_1 ~* ${uuidPattern} THEN r.image_1::uuid ELSE NULL END
+      LEFT JOIN media.media_library media_2
+        ON media_2.id = CASE WHEN r.image_2 ~* ${uuidPattern} THEN r.image_2::uuid ELSE NULL END
+      LEFT JOIN media.media_library media_3
+        ON media_3.id = CASE WHEN r.image_3 ~* ${uuidPattern} THEN r.image_3::uuid ELSE NULL END
+      LEFT JOIN LATERAL (
+        SELECT COALESCE(
+          NULLIF(BTRIM(gml.file_url), ''),
+          CASE
+            WHEN BTRIM(split_part(psgi.url, ',', 1)) ~* ${uuidPattern} THEN NULL
+            ELSE NULLIF(BTRIM(split_part(psgi.url, ',', 1)), '')
+          END
+        ) AS url
+        FROM category.provider_service_gallery_items psgi
+        LEFT JOIN media.media_library gml
+          ON gml.id = CASE
+            WHEN BTRIM(split_part(psgi.url, ',', 1)) ~* ${uuidPattern}
+            THEN BTRIM(split_part(psgi.url, ',', 1))::uuid
+            ELSE NULL
+          END
+        WHERE r.type = 'service'
+          AND psgi.provider_service_id = r.gallery_owner
+        ORDER BY psgi.is_primary DESC, psgi.display_order ASC, psgi.create_date DESC
+        LIMIT 1
+      ) service_gallery ON true
+      LEFT JOIN LATERAL (
+        SELECT COALESCE(
+          NULLIF(BTRIM(pgml.file_url), ''),
+          CASE
+            WHEN BTRIM(split_part(pgi.url, ',', 1)) ~* ${uuidPattern} THEN NULL
+            ELSE NULLIF(BTRIM(split_part(pgi.url, ',', 1)), '')
+          END
+        ) AS url
+        FROM category.provider_gallery_items pgi
+        LEFT JOIN media.media_library pgml
+          ON pgml.id = CASE
+            WHEN BTRIM(split_part(pgi.url, ',', 1)) ~* ${uuidPattern}
+            THEN BTRIM(split_part(pgi.url, ',', 1))::uuid
+            ELSE NULL
+          END
+        WHERE r.type = 'provider'
+          AND pgi.service_provider_id = r.gallery_owner
+        ORDER BY pgi.display_order ASC, pgi.create_date DESC
+        LIMIT 1
+      ) provider_gallery ON true
+      LEFT JOIN LATERAL (
+        SELECT COALESCE(
+          NULLIF(BTRIM(sgml.file_url), ''),
+          CASE
+            WHEN NULLIF(BTRIM(sgi.url), '') ~* ${uuidPattern} THEN NULL
+            ELSE NULLIF(BTRIM(sgi.url), '')
+          END
+        ) AS url
+        FROM category.staff_gallery_items sgi
+        LEFT JOIN media.media_library sgml
+          ON sgml.id = CASE
+            WHEN NULLIF(BTRIM(sgi.url), '') ~* ${uuidPattern}
+            THEN BTRIM(sgi.url)::uuid
+            ELSE NULL
+          END
+        WHERE r.type = 'specialist'
+          AND sgi.staff_id = r.gallery_owner
+          AND COALESCE(NULLIF(BTRIM(sgi.media_type), ''), 'image') = 'image'
+        ORDER BY sgi.is_primary DESC, sgi.display_order ASC, sgi.create_date DESC
+        LIMIT 1
+      ) staff_gallery ON true
+      LEFT JOIN LATERAL (
+        SELECT ps.currency
+        FROM category.provider_services ps
+        JOIN category.service_definitions sd ON sd.id = ps.service_definition_id
+        WHERE r.currency_owner IS NOT NULL
+          AND ps.service_provider_id = r.currency_owner
+          AND ps.is_active = true
+          AND sd.is_active = true
+          AND (params.category_id IS NULL OR sd.category_id = params.category_id)
+        ORDER BY ps.value ASC NULLS LAST
+        LIMIT 1
+      ) specialist_currency ON true
+      ORDER BY r.rank_score DESC, r.rating DESC NULLS LAST, r.reviews DESC NULLS LAST, r.name ASC;
     `,
-    sql<SearchFilterRow[]>`
-      WITH params AS (
-        SELECT
-          ${normalizedLocale}::text AS locale,
-          ${categoryId}::uuid AS category_id,
-          NULLIF(BTRIM(${country}::text), '') AS country,
-          NULLIF(BTRIM(${city}::text), '') AS city
-      )
-      SELECT
-        pt.id::text AS id,
-        common.get_translation_t(pt.name_translations, params.locale, 'en-US') AS label,
-        COUNT(DISTINCT sp.id)::int AS count
-      FROM category.provider_types pt
-      JOIN category.service_providers sp ON sp.provider_type_id = pt.id AND sp.is_active = true
-      JOIN category.provider_services ps ON ps.service_provider_id = sp.id AND ps.is_active = true
-      JOIN category.service_definitions sd ON sd.id = ps.service_definition_id AND sd.is_active = true
-      CROSS JOIN params
-      WHERE pt.is_active = true
-        AND (params.category_id IS NULL OR sd.category_id = params.category_id)
-        AND (params.country IS NULL OR lower(sp.country) = lower(params.country))
-        AND (params.city IS NULL OR lower(sp.city) = lower(params.city))
-      GROUP BY pt.id, pt.name_translations, params.locale
-      ORDER BY count DESC, label ASC
-      LIMIT 12;
-    `,
+    getSearchResultCategoriesCached({
+      locale: normalizedLocale,
+      providerTypeId,
+      country,
+      city,
+    }).catch(() => [] as SearchResultsCategory[]),
+    getSearchResultFiltersCached({
+      locale: normalizedLocale,
+      categoryId,
+      country,
+      city,
+    }).catch(() => [] as SearchResultsFilter[]),
   ]);
 
   const results: SearchResultsItem[] = resultRows.map((row) => ({
@@ -887,18 +972,6 @@ export async function getSearchResults(params?: {
     specialties: cleanArray(row.specialties),
     tags: cleanArray(row.tags),
     href: row.href,
-  }));
-
-  const categories: SearchResultsCategory[] = categoryRows.map((row) => ({
-    id: row.id,
-    label: row.label || labels.category,
-    count: toNumber(row.count),
-  }));
-
-  const filters: SearchResultsFilter[] = filterRows.map((row) => ({
-    id: row.id,
-    label: row.label || labels.providerType,
-    count: toNumber(row.count),
   }));
 
   return { results, categories, filters };
