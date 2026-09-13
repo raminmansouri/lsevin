@@ -5,6 +5,7 @@ import { useMemo, useState, useTransition } from "react";
 import { CalendarDays, Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 
+import { BOOKING_CALENDARS, bookingCalendarLabel, type BookingCalendar } from "@/features/booking-pro/lib/calendar";
 import useAction from "@/hooks/use-action";
 import type { BookingCalendarSettings } from "@/features/booking-pro/server/booking-calendar-settings.repository";
 import { saveBookingCalendarSettingsAction } from "@/features/booking-pro/admin/actions";
@@ -138,13 +139,13 @@ export function BookingCalendarSettingsForm({ settings }: Props) {
     setForm(existing || emptyForm());
   }
 
-  function toggleCalendar(calendar: "gregorian" | "jalali") {
+  function toggleCalendar(calendar: BookingCalendar) {
     setForm((current) => {
       const enabled = new Set(current.enabledCalendars);
       if (enabled.has(calendar)) enabled.delete(calendar);
       else enabled.add(calendar);
 
-      const enabledCalendars = Array.from(enabled) as Array<"gregorian" | "jalali">;
+      const enabledCalendars = Array.from(enabled) as Array<BookingCalendar>;
       return {
         ...current,
         enabledCalendars: enabledCalendars.length ? enabledCalendars : [calendar],
@@ -227,11 +228,10 @@ export function BookingCalendarSettingsForm({ settings }: Props) {
             <span className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-100">{isPersian ? "تقویم پیش‌فرض" : tAdmin("defaultCalendar")}</span>
             <select
               value={form.defaultCalendar}
-              onChange={(event) => setForm((current) => ({ ...current, defaultCalendar: event.target.value as "gregorian" | "jalali" }))}
+              onChange={(event) => setForm((current) => ({ ...current, defaultCalendar: event.target.value as BookingCalendar }))}
               className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none focus:border-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
             >
-              <option value="gregorian">{isPersian ? "میلادی / Gregorian" : tAdmin("gregorian")}</option>
-              <option value="jalali">{isPersian ? "شمسی / Jalali" : tAdmin("jalaliPersian")}</option>
+              {BOOKING_CALENDARS.map(calendar => <option key={calendar} value={calendar}>{bookingCalendarLabel(calendar, locale)}</option>)}
             </select>
             <span className={readableHelpClass}>{selectedCalendarHelp}</span>
           </label>
@@ -273,14 +273,14 @@ export function BookingCalendarSettingsForm({ settings }: Props) {
         <div className="mt-5 rounded-2xl border border-slate-300 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
           <p className="mb-3 text-sm font-semibold text-slate-800 dark:text-slate-100">{isPersian ? "تقویم‌های فعال" : tAdmin("enabledCalendars")}</p>
           <div className="flex flex-wrap gap-3">
-            {(["gregorian", "jalali"] as const).map((calendar) => (
+            {(BOOKING_CALENDARS).map((calendar) => (
               <button
                 key={calendar}
                 type="button"
                 onClick={() => toggleCalendar(calendar)}
                 className={`rounded-xl px-4 py-2 text-sm font-semibold ${form.enabledCalendars.includes(calendar) ? "bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950" : "bg-white text-slate-800 ring-1 ring-slate-300 dark:bg-slate-950 dark:text-slate-100 dark:ring-slate-700"}`}
               >
-                {calendar === "gregorian" ? (isPersian ? "میلادی" : "Gregorian") : (isPersian ? "شمسی" : "Jalali / Persian")}
+                {bookingCalendarLabel(calendar, locale)}
               </button>
             ))}
           </div>
