@@ -13100,7 +13100,8 @@ declare const messages: {
         "pending_review": "İnceleniyor",
         "approved": "Ödendi",
         "rejected": "Reddedildi",
-        "due": "Vadesi geçmiş"
+        "due": "Vadesi geçmiş",
+        "reviewNoteLabel": "Neden"
       },
       "errors": {
         "signInRequired": "Spor salonu üyeliklerinizi yönetmek için lütfen giriş yapın.",
@@ -13172,6 +13173,43 @@ declare const messages: {
         "invalidForm": "Lütfen işaretlenen alanları kontrol edin.",
         "notFound": "Bu ödeme artık mevcut değil.",
         "reasonRequiredToReject": "Bir ödemeyi reddetmek için gerekçe girilmelidir.",
+        "generic": "Bir şeyler ters gitti. Lütfen tekrar deneyin."
+      }
+    }
+  },
+  "Transfers": {
+    "admin": {
+      "title": "Transfer güzergahları",
+      "description": "Otel ve havalimanı transferleri için sabit fiyatlı güzergahlar tanımlayın. Her güzergah normal, rezerve edilebilir bir hizmete dönüşür; böylece müşteriler bunu olağan rezervasyon akışıyla rezerve eder.",
+      "schemaMissing": {
+        "title": "Veritabanı geçişi bekleniyor",
+        "body": "Bu bölümü etkinleştirmek için 0040_transfer_routes.sql geçişini uygulayın."
+      },
+      "routes": {
+        "title": "Güzergahlar",
+        "empty": "Henüz transfer güzergahı yok.",
+        "create": "Güzergah ekle",
+        "edit": "Düzenle",
+        "provider": "Transfer sağlayıcısı",
+        "serviceDefinition": "Hizmet tanımı",
+        "route": "Güzergah",
+        "from": "Nereden",
+        "to": "Nereye",
+        "vehicleType": "Araç tipi",
+        "vehicleTypePlaceholder": "örn. Sedan, Van",
+        "price": "Fiyat",
+        "currency": "Para birimi",
+        "isActive": "Aktif",
+        "save": "Kaydet",
+        "saving": "Kaydediliyor…",
+        "saved": "Güzergah kaydedildi",
+        "cancel": "Vazgeç",
+        "confirmDelete": "Bu güzergahın nereden/nereye bilgileri kaldırılsın mı? Alttaki hizmet rezerve edilebilir olmaya devam eder — tamamen kaldırmak isterseniz Hizmet sağlayıcıları bölümünden pasifleştirin veya silin.",
+        "deleted": "Güzergah bilgileri kaldırıldı"
+      },
+      "errors": {
+        "invalidForm": "Lütfen işaretlenen alanları kontrol edin.",
+        "notFound": "Bu güzergah artık mevcut değil.",
         "generic": "Bir şeyler ters gitti. Lütfen tekrar deneyin."
       }
     }

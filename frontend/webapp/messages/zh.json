@@ -12837,6 +12837,43 @@
       }
     }
   },
+  "Transfers": {
+    "admin": {
+      "title": "接送路线",
+      "description": "设置固定价格的酒店/机场接送路线。每条路线都会成为一项普通的可预订服务，客户可通过常规预订流程进行预订。",
+      "schemaMissing": {
+        "title": "数据库迁移待执行",
+        "body": "请执行迁移 0040_transfer_routes.sql 以启用此部分。"
+      },
+      "routes": {
+        "title": "路线",
+        "empty": "暂无接送路线。",
+        "create": "添加路线",
+        "edit": "编辑",
+        "provider": "接送服务商",
+        "serviceDefinition": "服务定义",
+        "route": "路线",
+        "from": "出发地",
+        "to": "目的地",
+        "vehicleType": "车辆类型",
+        "vehicleTypePlaceholder": "例如：轿车、面包车",
+        "price": "价格",
+        "currency": "货币",
+        "isActive": "启用",
+        "save": "保存",
+        "saving": "保存中…",
+        "saved": "路线已保存",
+        "cancel": "取消",
+        "confirmDelete": "移除此路线的出发地/目的地信息？基础服务仍可预订——如需彻底移除，请在服务商中将其停用或删除。",
+        "deleted": "路线信息已移除"
+      },
+      "errors": {
+        "invalidForm": "请检查标记的字段。",
+        "notFound": "该路线已不存在。",
+        "generic": "出了点问题，请重试。"
+      }
+    }
+  },
   "MobileNotifications": {
     "title": "通知",
     "unreadCount": "{count} 条未读",

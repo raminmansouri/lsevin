@@ -12786,7 +12786,8 @@ declare const messages: {
         "pending_review": "En attente de vérification",
         "approved": "Payé",
         "rejected": "Rejeté",
-        "due": "Échu"
+        "due": "Échu",
+        "reviewNoteLabel": "Motif"
       },
       "errors": {
         "signInRequired": "Veuillez vous connecter pour gérer vos abonnements de salle de sport.",
@@ -12858,6 +12859,43 @@ declare const messages: {
         "invalidForm": "Veuillez vérifier les champs signalés.",
         "notFound": "Ce paiement n'existe plus.",
         "reasonRequiredToReject": "Un motif est requis pour rejeter un paiement.",
+        "generic": "Une erreur s'est produite. Veuillez réessayer."
+      }
+    }
+  },
+  "Transfers": {
+    "admin": {
+      "title": "Itinéraires de transfert",
+      "description": "Définissez des itinéraires de transfert hôtel/aéroport à prix fixe. Chaque itinéraire devient un service réservable classique, que les clients réservent via le parcours de réservation habituel.",
+      "schemaMissing": {
+        "title": "Migration de base de données en attente",
+        "body": "Appliquez la migration 0040_transfer_routes.sql pour activer cette section."
+      },
+      "routes": {
+        "title": "Itinéraires",
+        "empty": "Aucun itinéraire de transfert pour le moment.",
+        "create": "Ajouter un itinéraire",
+        "edit": "Modifier",
+        "provider": "Prestataire de transfert",
+        "serviceDefinition": "Définition du service",
+        "route": "Itinéraire",
+        "from": "Départ",
+        "to": "Arrivée",
+        "vehicleType": "Type de véhicule",
+        "vehicleTypePlaceholder": "ex. Berline, Van",
+        "price": "Prix",
+        "currency": "Devise",
+        "isActive": "Actif",
+        "save": "Enregistrer",
+        "saving": "Enregistrement…",
+        "saved": "Itinéraire enregistré",
+        "cancel": "Annuler",
+        "confirmDelete": "Supprimer les détails départ/arrivée de cet itinéraire ? Le service reste réservable — désactivez-le ou supprimez-le depuis Prestataires de service si vous voulez le retirer complètement.",
+        "deleted": "Détails de l'itinéraire supprimés"
+      },
+      "errors": {
+        "invalidForm": "Veuillez vérifier les champs signalés.",
+        "notFound": "Cet itinéraire n'existe plus.",
         "generic": "Une erreur s'est produite. Veuillez réessayer."
       }
     }

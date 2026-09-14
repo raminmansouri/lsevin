@@ -12,6 +12,7 @@ import {
   Building2,
   CalendarCheck,
   CalendarDays,
+  Car,
   ClipboardCheck,
   ClipboardList,
   Clock,
@@ -120,6 +121,7 @@ export const ADMIN_NAV: AdminNavEntry[] = [
       { titleKey: "bookingCalendar", href: "/admin/booking-calendar", icon: CalendarDays },
       { titleKey: "availability", href: "/admin/availability", icon: Clock },
       { titleKey: "gymMemberships", href: "/admin/gym-memberships", icon: Dumbbell },
+      { titleKey: "transferRoutes", href: "/admin/transfer-routes", icon: Car },
     ],
   },
 

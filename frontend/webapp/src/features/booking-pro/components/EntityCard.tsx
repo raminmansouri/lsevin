@@ -1,5 +1,5 @@
 'use client';
-import { BadgeCheck, Clock3, MapPin, Star, Tag, TrendingUp, Users } from 'lucide-react';
+import { ArrowRight, BadgeCheck, Clock3, MapPin, Star, Tag, TrendingUp, Users } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { RichTextPreview } from '@/features/booking/components/rich-text-preview';
@@ -74,8 +74,13 @@ export function serviceMeta(input: {
      * appended after the existing signal chips, so `meta.slice(0, 4)` on the card still
      * prioritizes rating/duration/growth/successRate first when a service has both. */
     attributes?: Array<{ name: string; value: string }> | null;
+    /** Item 5 (hotel/airport transfers): an admin-defined fixed route's from/to,
+     * shown first since it's the primary identity of a transfer listing, not a
+     * secondary signal like rating/duration. */
+    route?: { from: string; to: string; vehicleType: string | null } | null;
 }, t?: BookingTranslator) {
     return [
+        input.route ? { icon: <ArrowRight className="h-3.5 w-3.5"/>, label: input.route.vehicleType ? `${input.route.from} → ${input.route.to} (${input.route.vehicleType})` : `${input.route.from} → ${input.route.to}` } : null,
         input.rating ? { icon: <Star className="h-3.5 w-3.5"/>, label: t ? (input.reviewCount ? t('starsWithReviewCount', { rating: input.rating, count: input.reviewCount }) : t('starsValue', { rating: input.rating })) : `${input.rating} stars${input.reviewCount ? ` · ${input.reviewCount}` : ''}` } : null,
         input.durationMinutes ? { icon: <Clock3 className="h-3.5 w-3.5"/>, label: t ? t('durationMinutesValue', { minutes: input.durationMinutes }) : `${input.durationMinutes} min` } : null,
         input.growth ? { icon: <TrendingUp className="h-3.5 w-3.5"/>, label: input.growth } : null,

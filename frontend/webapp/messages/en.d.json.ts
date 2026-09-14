@@ -5073,6 +5073,7 @@ declare const messages: {
       "bookingCalendar": "Booking calendar",
       "availability": "Availability",
       "gymMemberships": "Gym memberships",
+      "transferRoutes": "Transfer routes",
       "finance": "Finance",
       "payments": "Payments",
       "paymentGateways": "Payment gateways",
@@ -13736,7 +13737,8 @@ declare const messages: {
         "pending_review": "Pending review",
         "approved": "Paid",
         "rejected": "Rejected",
-        "due": "Due"
+        "due": "Due",
+        "reviewNoteLabel": "Reason"
       },
       "errors": {
         "signInRequired": "Please sign in to manage your gym memberships.",
@@ -13808,6 +13810,43 @@ declare const messages: {
         "invalidForm": "Please check the highlighted fields.",
         "notFound": "That payment no longer exists.",
         "reasonRequiredToReject": "A reason is required to reject a payment.",
+        "generic": "Something went wrong. Please try again."
+      }
+    }
+  },
+  "Transfers": {
+    "admin": {
+      "title": "Transfer routes",
+      "description": "Define fixed-price hotel and airport transfer routes. Each route becomes a regular bookable service, so customers book it through the normal booking flow.",
+      "schemaMissing": {
+        "title": "Database migration pending",
+        "body": "Apply migration 0040_transfer_routes.sql to enable this section."
+      },
+      "routes": {
+        "title": "Routes",
+        "empty": "No transfer routes yet.",
+        "create": "Add route",
+        "edit": "Edit",
+        "provider": "Transfer provider",
+        "serviceDefinition": "Service definition",
+        "route": "Route",
+        "from": "From",
+        "to": "To",
+        "vehicleType": "Vehicle type",
+        "vehicleTypePlaceholder": "e.g. Sedan, Van",
+        "price": "Price",
+        "currency": "Currency",
+        "isActive": "Active",
+        "save": "Save",
+        "saving": "Saving…",
+        "saved": "Route saved",
+        "cancel": "Cancel",
+        "confirmDelete": "Remove this route's from/to details? The underlying listing stays bookable — deactivate or delete it from Service providers if you want it gone entirely.",
+        "deleted": "Route details removed"
+      },
+      "errors": {
+        "invalidForm": "Please check the highlighted fields.",
+        "notFound": "That route no longer exists.",
         "generic": "Something went wrong. Please try again."
       }
     }

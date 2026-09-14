@@ -55,6 +55,10 @@ export interface ServiceCardItem {
    * from category.service_attribute_values -- a fixed spec per listing, not a customer-selectable
    * priced option. Undefined/empty when the service has none defined. */
   attributes?: Array<{ name: string; value: string }>;
+  /** Admin-defined fixed route (from label, to label, optional vehicle type) when this
+   * listing is a transfer.routes-enriched service -- from db/migrations/0040. Undefined
+   * for every ordinary (non-transfer) service. */
+  route?: { from: string; to: string; vehicleType: string | null };
 }
 
 export interface SpecialistCardItem {

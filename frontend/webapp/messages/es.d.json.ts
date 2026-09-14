@@ -12789,7 +12789,8 @@ declare const messages: {
         "pending_review": "En revisión",
         "approved": "Pagado",
         "rejected": "Rechazado",
-        "due": "Vencido"
+        "due": "Vencido",
+        "reviewNoteLabel": "Motivo"
       },
       "errors": {
         "signInRequired": "Inicia sesión para administrar tus membresías de gimnasio.",
@@ -12862,6 +12863,43 @@ declare const messages: {
         "notFound": "Ese pago ya no existe.",
         "reasonRequiredToReject": "Se requiere un motivo para rechazar un pago.",
         "generic": "Algo salió mal. Inténtalo de nuevo."
+      }
+    }
+  },
+  "Transfers": {
+    "admin": {
+      "title": "Rutas de traslado",
+      "description": "Defina rutas de traslado de hotel y aeropuerto con precio fijo. Cada ruta se convierte en un servicio reservable normal, para que los clientes la reserven a través del flujo de reserva habitual.",
+      "schemaMissing": {
+        "title": "Migración de base de datos pendiente",
+        "body": "Aplique la migración 0040_transfer_routes.sql para habilitar esta sección."
+      },
+      "routes": {
+        "title": "Rutas",
+        "empty": "Aún no hay rutas de traslado.",
+        "create": "Añadir ruta",
+        "edit": "Editar",
+        "provider": "Proveedor de traslados",
+        "serviceDefinition": "Definición de servicio",
+        "route": "Ruta",
+        "from": "Origen",
+        "to": "Destino",
+        "vehicleType": "Tipo de vehículo",
+        "vehicleTypePlaceholder": "p. ej. Sedán, Furgoneta",
+        "price": "Precio",
+        "currency": "Moneda",
+        "isActive": "Activo",
+        "save": "Guardar",
+        "saving": "Guardando…",
+        "saved": "Ruta guardada",
+        "cancel": "Cancelar",
+        "confirmDelete": "¿Quitar los datos de origen/destino de esta ruta? El servicio subyacente seguirá siendo reservable; desactívelo o elimínelo desde Proveedores de servicio si desea eliminarlo por completo.",
+        "deleted": "Datos de la ruta eliminados"
+      },
+      "errors": {
+        "invalidForm": "Revise los campos marcados.",
+        "notFound": "Esa ruta ya no existe.",
+        "generic": "Algo salió mal. Inténtelo de nuevo."
       }
     }
   },

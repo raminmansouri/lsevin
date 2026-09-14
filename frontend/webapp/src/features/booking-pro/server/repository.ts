@@ -6,6 +6,7 @@ import { calculateBookingPaymentTerms, resolveBookingPaymentPolicy } from '@/fea
 import { applyCommercialSnapshotAfterCheckout } from './commercial-integration';
 import { assertDraftAvailabilityBeforeCheckout } from './booking-availability.repository';
 import { notifyBookingCreated, notifyBookingStarted } from '@/features/notification/server/booking-notifications';
+import { listTransferRouteSummaries } from '@/features/transfers/server/repository';
 import { pickTranslation } from '../utils/translation';
 import type {
   BookingDraftState,
@@ -1106,6 +1107,7 @@ export async function listServices(params: { providerId?: string; serviceId?: st
   `;
 
   const attributesByService = await listServiceAttributeValues(rows.map((row: any) => row.id), locale);
+  const routeByService = await listTransferRouteSummaries(rows.map((row: any) => row.id), locale);
 
   const items: ServiceCardItem[] = rows.map((row: any) => ({
     id: row.id,
@@ -1127,6 +1129,7 @@ export async function listServices(params: { providerId?: string; serviceId?: st
     requiresSpecialist: row.requires_specialist,
     bookingUiMode: row.booking_ui_mode,
     attributes: attributesByService.get(row.id),
+    route: routeByService.get(row.id),
   }));
 
   const total = Number(rows[0]?.total_count ?? 0);

@@ -12786,7 +12786,8 @@ declare const messages: {
         "pending_review": "In Prüfung",
         "approved": "Bezahlt",
         "rejected": "Abgelehnt",
-        "due": "Fällig"
+        "due": "Fällig",
+        "reviewNoteLabel": "Grund"
       },
       "errors": {
         "signInRequired": "Bitte melden Sie sich an, um Ihre Fitnessstudio-Mitgliedschaften zu verwalten.",
@@ -12858,6 +12859,43 @@ declare const messages: {
         "invalidForm": "Bitte überprüfen Sie die markierten Felder.",
         "notFound": "Diese Zahlung existiert nicht mehr.",
         "reasonRequiredToReject": "Ein Grund ist erforderlich, um eine Zahlung abzulehnen.",
+        "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+      }
+    }
+  },
+  "Transfers": {
+    "admin": {
+      "title": "Transferstrecken",
+      "description": "Legen Sie Hotel- und Flughafentransfers mit Festpreisen fest. Jede Strecke wird zu einer regulären buchbaren Leistung, sodass Kunden sie über den normalen Buchungsablauf buchen.",
+      "schemaMissing": {
+        "title": "Datenbankmigration ausstehend",
+        "body": "Wenden Sie die Migration 0040_transfer_routes.sql an, um diesen Bereich zu aktivieren."
+      },
+      "routes": {
+        "title": "Strecken",
+        "empty": "Noch keine Transferstrecken.",
+        "create": "Strecke hinzufügen",
+        "edit": "Bearbeiten",
+        "provider": "Transferanbieter",
+        "serviceDefinition": "Leistungsdefinition",
+        "route": "Strecke",
+        "from": "Von",
+        "to": "Nach",
+        "vehicleType": "Fahrzeugtyp",
+        "vehicleTypePlaceholder": "z. B. Limousine, Van",
+        "price": "Preis",
+        "currency": "Währung",
+        "isActive": "Aktiv",
+        "save": "Speichern",
+        "saving": "Wird gespeichert…",
+        "saved": "Strecke gespeichert",
+        "cancel": "Abbrechen",
+        "confirmDelete": "Von/Nach-Angaben dieser Strecke entfernen? Die zugrunde liegende Leistung bleibt weiterhin buchbar — deaktivieren oder löschen Sie sie bei Bedarf vollständig unter Dienstleister.",
+        "deleted": "Streckendetails entfernt"
+      },
+      "errors": {
+        "invalidForm": "Bitte überprüfen Sie die markierten Felder.",
+        "notFound": "Diese Strecke existiert nicht mehr.",
         "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
       }
     }
