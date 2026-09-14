@@ -336,8 +336,16 @@ function mapDraftRow(row: any): BookingDraftState {
         : (row.requires_specialist ?? true),
     bookingUiMode: row.booking_ui_mode ?? 'default_slot',
     selectedDate: row.selected_date?.toISOString?.().slice(0, 10) ?? row.selected_date ?? undefined,
-    selectedDateFrom: row.selected_date_from?.toISOString?.().slice(0, 10) ?? row.selected_date_from ?? undefined,
-    selectedDateTo: row.selected_date_to?.toISOString?.().slice(0, 10) ?? row.selected_date_to ?? undefined,
+    // Bug fix: booking_drafts.selected_date_from/to are genuinely `time without time
+    // zone` columns (not date) -- upsertMainDraftSelection has always known this (see
+    // its own "does not currently support date typed selected_date_from/to" comment)
+    // and routes the real check-in/check-out date strings through metadata instead.
+    // This function was the one place that still read the always-null time columns,
+    // so a date-range selection vanished on every draft reload (masked in the same
+    // browser tab only because the client optimistically keeps its own copy).
+    // booking-availability.repository.ts already reads metadata the same way.
+    selectedDateFrom: (metadata.selectedDateFrom as string | undefined) ?? undefined,
+    selectedDateTo: (metadata.selectedDateTo as string | undefined) ?? undefined,
     selectedTime: row.selected_time ?? undefined,
     selectedTimeFrom: row.selected_time_from ?? undefined,
     selectedTimeTo: row.selected_time_to ?? undefined,
@@ -1606,10 +1614,12 @@ export async function checkoutDraft(
     select d.provider_id as "providerId",
            d.service_id as "providerServiceId",
            ps.service_definition_id as "serviceDefinitionId",
-           sp.provider_type_id as "providerTypeId"
+           sp.provider_type_id as "providerTypeId",
+           coalesce(sd.booking_ui_mode, d.metadata ->> 'bookingUiMode', 'default_slot') as "bookingUiMode"
     from booking.booking_drafts d
     left join category.provider_services ps on ps.id = d.service_id
     left join category.service_providers sp on sp.id = d.provider_id
+    left join category.service_definitions sd on sd.id = ps.service_definition_id
     where d.id = ${draft.id}
     limit 1
   `;
@@ -1728,12 +1738,28 @@ export async function checkoutDraft(
     // A date-range service is a hotel stay, and a hotel takes one booking per night.
     // Held in the same transaction as the booking itself, so a clash raises on the
     // unique index and the whole checkout rolls back rather than double-selling.
-    if (draft.bookingUiMode === 'date_range' && scope?.providerId && draft.selectedDateFrom && draft.selectedDateTo) {
+    //
+    // Bug fix: `draft` is getDraftByIdForUser()'s raw `select *` row, so
+    // draft.bookingUiMode/draft.selectedDateFrom were always undefined (multi-word
+    // snake_case columns don't equal their camelCase name the way `id`/`status`
+    // accidentally do) -- this guard never actually fired, silently disabling the
+    // reservation the comment above and 0020_hotel_date_availability.sql's own
+    // comment describe. booking_ui_mode comes from `scope` (joined against
+    // service_definitions, the authoritative source); selected_date_from/to are
+    // genuinely `time without time zone` columns on this table (not date), so the
+    // real check-in/check-out values live in metadata as date strings instead --
+    // see repository.ts's own note by SAFE_DRAFT_METADATA_KEYS for why, and
+    // booking-availability.repository.ts's identical coalesce(metadata->>...) reads
+    // for existing precedent.
+    const draftMetadata = (draft as any).metadata ?? {};
+    const checkIn = draftMetadata.selectedDateFrom as string | undefined;
+    const checkOut = draftMetadata.selectedDateTo as string | undefined;
+    if (scope?.bookingUiMode === 'date_range' && scope?.providerId && checkIn && checkOut) {
       await reserveHotelDates(tx as any, {
         serviceProviderId: String(scope.providerId),
         bookingId: String(bookingId),
-        checkIn: String(draft.selectedDateFrom),
-        checkOut: String(draft.selectedDateTo),
+        checkIn,
+        checkOut,
       });
     }
 
@@ -1742,13 +1768,7 @@ export async function checkoutDraft(
     // db/migrations/0042's own comment for why these can't share a mechanism.
     // Held in the same transaction so a departure that just sold out rolls the
     // whole checkout back instead of confirming an overbooked seat.
-    //
-    // `draft` here is getDraftByIdForUser()'s raw `select *` row, not mapDraftRow's
-    // camelCase BookingDraftState -- draft.tourDepartureId would silently always be
-    // undefined (multi-word snake_case columns don't happen to equal their camelCase
-    // name the way `id`/`status` do). metadata is the real column name either way,
-    // and its jsonb value already has camelCase keys, so read through it directly.
-    const tourDepartureId = (draft as any).metadata?.tourDepartureId;
+    const tourDepartureId = draftMetadata.tourDepartureId as string | undefined;
     if (tourDepartureId) {
       await reserveTourDeparture(tx as any, tourDepartureId);
     }
