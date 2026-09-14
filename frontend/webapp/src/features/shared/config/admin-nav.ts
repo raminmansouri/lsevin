@@ -124,6 +124,7 @@ export const ADMIN_NAV: AdminNavEntry[] = [
       { titleKey: "gymMemberships", href: "/admin/gym-memberships", icon: Dumbbell },
       { titleKey: "transferRoutes", href: "/admin/transfer-routes", icon: Car },
       { titleKey: "tours", href: "/admin/tours", icon: Compass },
+      { titleKey: "tourGatherings", href: "/admin/tour-gatherings", icon: Users },
     ],
   },
 
