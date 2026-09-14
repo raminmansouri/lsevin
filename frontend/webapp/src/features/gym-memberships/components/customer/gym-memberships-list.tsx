@@ -35,14 +35,21 @@ export function GymMembershipsList({ memberships }: { memberships: GymMembership
           <CardContent>
             <ul className="divide-y">
               {membership.months.map((month) => (
-                <li key={month.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-                  <span className="text-sm font-medium">{monthLabel(month.periodMonth)}</span>
-                  <div className="flex items-center gap-2">
-                    <span dir="ltr" className="text-muted-foreground text-xs tabular-nums">
-                      {month.amount.toLocaleString()} {month.currency}
-                    </span>
-                    <GymMembershipMonthStatusPill month={month} />
+                <li key={month.id} className="py-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-sm font-medium">{monthLabel(month.periodMonth)}</span>
+                    <div className="flex items-center gap-2">
+                      <span dir="ltr" className="text-muted-foreground text-xs tabular-nums">
+                        {month.amount.toLocaleString()} {month.currency}
+                      </span>
+                      <GymMembershipMonthStatusPill month={month} />
+                    </div>
                   </div>
+                  {month.status === "rejected" && month.reviewNote ? (
+                    <p className="text-destructive mt-1 text-xs">
+                      <span className="font-medium">{t("customer.month.reviewNoteLabel")}:</span> {month.reviewNote}
+                    </p>
+                  ) : null}
                 </li>
               ))}
             </ul>

@@ -12760,7 +12760,8 @@
         "pending_review": "待审核",
         "approved": "已支付",
         "rejected": "已拒绝",
-        "due": "已到期"
+        "due": "已到期",
+        "reviewNoteLabel": "原因"
       },
       "errors": {
         "signInRequired": "请登录以管理您的健身房会员资格。",

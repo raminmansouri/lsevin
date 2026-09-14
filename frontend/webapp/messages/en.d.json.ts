@@ -2,6 +2,16 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+  "BookingCart": {
+    "title": "Saved bookings",
+    "hint": "Saved estimates are not confirmed reservations. Review each booking to check availability and pay. Products are currently paid for separately.",
+    "resume": "Review booking",
+    "remove": "Remove",
+    "another": "Add another service",
+    "save": "Save to cart and continue shopping",
+    "saving": "Saving…",
+    "error": "Could not update this booking. Refresh and try again."
+  },
   "ProviderOnboarding": {
     "eG25": "e.g., 25",
     "eG15": "e.g., 15",
@@ -5062,6 +5072,7 @@ declare const messages: {
       "bookingDrafts": "Booking drafts",
       "bookingCalendar": "Booking calendar",
       "availability": "Availability",
+      "gymMemberships": "Gym memberships",
       "finance": "Finance",
       "payments": "Payments",
       "paymentGateways": "Payment gateways",
@@ -13702,6 +13713,102 @@ declare const messages: {
         "confirmDelete": "Remove this recipient?",
         "empty": "No recipients yet — nobody is notified.",
         "cancel": "Cancel"
+      }
+    }
+  },
+  "GymMemberships": {
+    "customer": {
+      "title": "My gym memberships",
+      "empty": "You don't have any gym memberships yet.",
+      "plan": {
+        "monthlyPriceLabel": "Monthly price"
+      },
+      "subscribe": {
+        "title": "Subscribe",
+        "selectMonths": "Select months to pay",
+        "paymentReference": "Payment reference (optional)",
+        "paymentReferenceHint": "If you already paid by bank transfer, enter the reference number here.",
+        "submit": "Submit for review",
+        "submitting": "Submitting…",
+        "submitted": "Submitted for review"
+      },
+      "month": {
+        "pending_review": "Pending review",
+        "approved": "Paid",
+        "rejected": "Rejected",
+        "due": "Due"
+      },
+      "errors": {
+        "signInRequired": "Please sign in to manage your gym memberships.",
+        "notAvailable": "Gym memberships are not available yet. Please try again later.",
+        "invalidForm": "Please check the highlighted fields.",
+        "planNotFound": "That plan is no longer available.",
+        "generic": "Something went wrong. Please try again."
+      }
+    },
+    "admin": {
+      "title": "Gym memberships",
+      "description": "Manage gym membership plans and review payments.",
+      "schemaMissing": {
+        "title": "Database migration pending",
+        "body": "Apply migration 0039_gym_memberships.sql to enable this section."
+      },
+      "plans": {
+        "title": "Membership plans",
+        "empty": "No membership plans yet.",
+        "create": "Add plan",
+        "edit": "Edit",
+        "provider": "Gym",
+        "name": "Plan name",
+        "monthlyPrice": "Monthly price",
+        "currency": "Currency",
+        "isActive": "Active",
+        "save": "Save",
+        "saving": "Saving…",
+        "saved": "Plan saved",
+        "cancel": "Cancel"
+      },
+      "months": {
+        "title": "Payment review",
+        "empty": "No payments to review.",
+        "filters": {
+          "search": "Search gym or reference",
+          "status": "Status",
+          "all": "All",
+          "apply": "Apply"
+        },
+        "table": {
+          "gym": "Gym",
+          "plan": "Plan",
+          "period": "Month",
+          "amount": "Amount",
+          "reference": "Reference",
+          "status": "Status",
+          "createdAt": "Submitted",
+          "actions": "Actions",
+          "review": "Review"
+        },
+        "status": {
+          "pending_review": "Pending review",
+          "approved": "Approved",
+          "rejected": "Rejected"
+        },
+        "review": {
+          "title": "Review payment",
+          "note": "Note",
+          "notePlaceholder": "Reason (required to reject)…",
+          "approve": "Approve",
+          "reject": "Reject",
+          "saving": "Saving…",
+          "saved": "Saved",
+          "close": "Close"
+        }
+      },
+      "errors": {
+        "invalidForm": "Please check the highlighted fields.",
+        "notFound": "That payment no longer exists.",
+        "reasonRequiredToReject": "A reason is required to reject a payment.",
+        "generic": "Something went wrong. Please try again."
       }
     }
   },

@@ -12887,7 +12887,8 @@
         "pending_review": "قيد المراجعة",
         "approved": "مدفوع",
         "rejected": "مرفوض",
-        "due": "مستحق"
+        "due": "مستحق",
+        "reviewNoteLabel": "السبب"
       },
       "errors": {
         "signInRequired": "يرجى تسجيل الدخول لإدارة عضويات الصالة الرياضية.",

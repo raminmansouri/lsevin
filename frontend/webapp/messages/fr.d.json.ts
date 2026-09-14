@@ -2,6 +2,16 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+  "BookingCart": {
+    "title": "Réservations enregistrées",
+    "hint": "Ce sont des estimations, pas des réservations confirmées. Vérifiez chaque réservation et payez. Les produits se paient séparément pour le moment.",
+    "resume": "Vérifier la réservation",
+    "remove": "Supprimer",
+    "another": "Ajouter un autre service",
+    "save": "Enregistrer dans le panier et continuer les achats",
+    "saving": "Enregistrement…",
+    "error": "Échec de la mise à jour. Actualisez la page et réessayez."
+  },
   "UploadFiles": {
     "title": "Upload documents",
     "subtitle": "Please upload the requested files for your booking",
@@ -12755,6 +12765,100 @@ declare const messages: {
         "confirmDelete": "Retirer ce destinataire ?",
         "empty": "Aucun destinataire pour l'instant — personne n'est prévenu.",
         "cancel": "Annuler"
+      }
+    }
+  },
+  "GymMemberships": {
+    "customer": {
+      "title": "Mes abonnements de salle de sport",
+      "empty": "Vous n'avez encore aucun abonnement de salle de sport.",
+      "plan": { "monthlyPriceLabel": "Prix mensuel" },
+      "subscribe": {
+        "title": "S'abonner",
+        "selectMonths": "Sélectionnez les mois à payer",
+        "paymentReference": "Référence de paiement (facultatif)",
+        "paymentReferenceHint": "Si vous avez déjà payé par virement bancaire, saisissez le numéro de référence ici.",
+        "submit": "Envoyer pour vérification",
+        "submitting": "Envoi en cours…",
+        "submitted": "Envoyé pour vérification"
+      },
+      "month": {
+        "pending_review": "En attente de vérification",
+        "approved": "Payé",
+        "rejected": "Rejeté",
+        "due": "Échu"
+      },
+      "errors": {
+        "signInRequired": "Veuillez vous connecter pour gérer vos abonnements de salle de sport.",
+        "notAvailable": "Les abonnements de salle de sport ne sont pas encore disponibles. Veuillez réessayer plus tard.",
+        "invalidForm": "Veuillez vérifier les champs signalés.",
+        "planNotFound": "Ce forfait n'est plus disponible.",
+        "generic": "Une erreur s'est produite. Veuillez réessayer."
+      }
+    },
+    "admin": {
+      "title": "Abonnements de salle de sport",
+      "description": "Gérez les forfaits d'abonnement et vérifiez les paiements.",
+      "schemaMissing": {
+        "title": "Migration de la base de données en attente",
+        "body": "Appliquez la migration 0039_gym_memberships.sql pour activer cette section."
+      },
+      "plans": {
+        "title": "Forfaits d'abonnement",
+        "empty": "Aucun forfait d'abonnement pour le moment.",
+        "create": "Ajouter un forfait",
+        "edit": "Modifier",
+        "provider": "Salle de sport",
+        "name": "Nom du forfait",
+        "monthlyPrice": "Prix mensuel",
+        "currency": "Devise",
+        "isActive": "Actif",
+        "save": "Enregistrer",
+        "saving": "Enregistrement…",
+        "saved": "Forfait enregistré",
+        "cancel": "Annuler"
+      },
+      "months": {
+        "title": "Vérification des paiements",
+        "empty": "Aucun paiement à vérifier.",
+        "filters": {
+          "search": "Rechercher une salle ou une référence",
+          "status": "Statut",
+          "all": "Tous",
+          "apply": "Appliquer"
+        },
+        "table": {
+          "gym": "Salle de sport",
+          "plan": "Forfait",
+          "period": "Mois",
+          "amount": "Montant",
+          "reference": "Référence",
+          "status": "Statut",
+          "createdAt": "Envoyé",
+          "actions": "Actions",
+          "review": "Vérifier"
+        },
+        "status": {
+          "pending_review": "En attente de vérification",
+          "approved": "Approuvé",
+          "rejected": "Rejeté"
+        },
+        "review": {
+          "title": "Vérifier le paiement",
+          "note": "Note",
+          "notePlaceholder": "Motif (obligatoire en cas de rejet)…",
+          "approve": "Approuver",
+          "reject": "Rejeter",
+          "saving": "Enregistrement…",
+          "saved": "Enregistré",
+          "close": "Fermer"
+        }
+      },
+      "errors": {
+        "invalidForm": "Veuillez vérifier les champs signalés.",
+        "notFound": "Ce paiement n'existe plus.",
+        "reasonRequiredToReject": "Un motif est requis pour rejeter un paiement.",
+        "generic": "Une erreur s'est produite. Veuillez réessayer."
       }
     }
   },

@@ -12783,7 +12783,8 @@
         "pending_review": "En attente de vérification",
         "approved": "Payé",
         "rejected": "Rejeté",
-        "due": "Échu"
+        "due": "Échu",
+        "reviewNoteLabel": "Motif"
       },
       "errors": {
         "signInRequired": "Veuillez vous connecter pour gérer vos abonnements de salle de sport.",

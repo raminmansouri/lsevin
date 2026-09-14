@@ -12786,7 +12786,8 @@
         "pending_review": "En revisión",
         "approved": "Pagado",
         "rejected": "Rechazado",
-        "due": "Vencido"
+        "due": "Vencido",
+        "reviewNoteLabel": "Motivo"
       },
       "errors": {
         "signInRequired": "Inicia sesión para administrar tus membresías de gimnasio.",

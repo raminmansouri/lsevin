@@ -13733,7 +13733,8 @@
         "pending_review": "Pending review",
         "approved": "Paid",
         "rejected": "Rejected",
-        "due": "Due"
+        "due": "Due",
+        "reviewNoteLabel": "Reason"
       },
       "errors": {
         "signInRequired": "Please sign in to manage your gym memberships.",

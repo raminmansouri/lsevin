@@ -12783,7 +12783,8 @@
         "pending_review": "In Prüfung",
         "approved": "Bezahlt",
         "rejected": "Abgelehnt",
-        "due": "Fällig"
+        "due": "Fällig",
+        "reviewNoteLabel": "Grund"
       },
       "errors": {
         "signInRequired": "Bitte melden Sie sich an, um Ihre Fitnessstudio-Mitgliedschaften zu verwalten.",

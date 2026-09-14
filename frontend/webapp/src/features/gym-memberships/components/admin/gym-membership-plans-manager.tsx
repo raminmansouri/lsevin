@@ -37,6 +37,10 @@ type FormState = {
   serviceProviderId: string;
   providerLabel: string;
   name: string;
+  /** Every locale's saved name, keyed by locale -- carried through untouched so
+   * saving from one locale never wipes out names entered from another (the action
+   * replaces the whole jsonb column, it does not merge). */
+  nameTranslations: Record<string, string>;
   monthlyPrice: string;
   currency: string;
   isActive: boolean;
@@ -46,6 +50,7 @@ const EMPTY_FORM: FormState = {
   serviceProviderId: "",
   providerLabel: "",
   name: "",
+  nameTranslations: {},
   monthlyPrice: "",
   currency: "IRR",
   isActive: true,
@@ -69,7 +74,8 @@ export function GymMembershipPlansManager({ plans }: { plans: GymMembershipPlan[
       id: plan.id,
       serviceProviderId: plan.serviceProviderId,
       providerLabel: plan.providerName,
-      name: plan.name,
+      name: plan.nameTranslations[locale] ?? plan.name,
+      nameTranslations: plan.nameTranslations,
       monthlyPrice: String(plan.monthlyPrice),
       currency: plan.currency,
       isActive: plan.isActive,
@@ -83,7 +89,7 @@ export function GymMembershipPlansManager({ plans }: { plans: GymMembershipPlan[
         const result = await upsertMembershipPlanAction({
           id: form.id,
           serviceProviderId: form.serviceProviderId,
-          nameTranslations: { translations: { [locale]: form.name } },
+          nameTranslations: { translations: { ...form.nameTranslations, [locale]: form.name } },
           monthlyPrice: form.monthlyPrice,
           currency: form.currency,
           isActive: form.isActive,

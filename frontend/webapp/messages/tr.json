@@ -13097,7 +13097,8 @@
         "pending_review": "İnceleniyor",
         "approved": "Ödendi",
         "rejected": "Reddedildi",
-        "due": "Vadesi geçmiş"
+        "due": "Vadesi geçmiş",
+        "reviewNoteLabel": "Neden"
       },
       "errors": {
         "signInRequired": "Spor salonu üyeliklerinizi yönetmek için lütfen giriş yapın.",
