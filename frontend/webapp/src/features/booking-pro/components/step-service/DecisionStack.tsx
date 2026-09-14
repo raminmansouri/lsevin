@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { AlertCircle, MapPin, Star } from 'lucide-react';
+import { AlertCircle, Languages, MapPin, Star } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { BookingDraftState, ProviderCardItem, ServiceCardItem, SpecialistCardItem } from '../../types';
 import { deriveSlots, firstOpenSlot, type SlotKey } from '../../lib/decision-stack';
@@ -25,6 +25,19 @@ export interface SlotData<T> {
   onLoadMore: () => void;
   /** The resolved entity, independent of whatever page the list is showing. */
   resolved?: T | null;
+}
+
+/**
+ * Item 6 (translator booking): "title/specialty" plus spoken languages, so a
+ * customer picking a translator sees straight away which languages they speak --
+ * the one detail that matters most for this booking, not buried behind the
+ * details sheet. category.staff_languages already ties languages to a specific
+ * staff member (populated by the existing staff admin form).
+ */
+function specialistSubtitle(specialist: SpecialistCardItem): string | null {
+  return [specialist.title || specialist.specialty, specialist.languages?.length ? specialist.languages.join('، ') : null]
+    .filter(Boolean)
+    .join(' · ') || null;
 }
 
 interface Props {
@@ -189,7 +202,7 @@ export function DecisionStack({
           : key === 'service'
             ? // Price stays on the row: it is the one fact a collapsed step must not hide.
               formatMoney((resolved as ServiceCardItem).value, (resolved as ServiceCardItem).currency)
-            : (resolved as SpecialistCardItem).title || (resolved as SpecialistCardItem).specialty;
+            : specialistSubtitle(resolved as SpecialistCardItem);
 
       return (
         <ConfirmedRow
@@ -200,7 +213,7 @@ export function DecisionStack({
           imageUrl={resolved.imageUrl}
           soleOption={slot.total <= 1}
           invalidating={invalidatedBy(key)}
-          hasDetails={key !== 'specialist' || Boolean((resolved as SpecialistCardItem).title)}
+          hasDetails={key !== 'specialist' || Boolean((resolved as SpecialistCardItem).title) || Boolean((resolved as SpecialistCardItem).languages?.length)}
           onChange={slot.total > 1 ? () => openPicker(key) : undefined}
           onDetails={() => setDetails({ slot: key, item: resolved })}
         />
@@ -247,7 +260,7 @@ export function DecisionStack({
                 ? [(item as ProviderCardItem).city, (item as ProviderCardItem).country].filter(Boolean).join(', ')
                 : key === 'service'
                   ? null
-                  : (item as SpecialistCardItem).title || (item as SpecialistCardItem).specialty
+                  : specialistSubtitle(item as SpecialistCardItem)
             }
             trailing={key === 'service' ? formatMoney((item as ServiceCardItem).value, (item as ServiceCardItem).currency) : null}
             imageUrl={item.imageUrl}
@@ -276,6 +289,7 @@ export function DecisionStack({
     return [
       s.specialty ? { icon: <MapPin className="h-3.5 w-3.5" />, label: s.specialty } : null,
       s.rating ? { icon: <Star className="h-3.5 w-3.5" />, label: tBooking('starsValue', { rating: s.rating }) } : null,
+      s.languages?.length ? { icon: <Languages className="h-3.5 w-3.5" />, label: s.languages.join('، ') } : null,
     ].filter(Boolean) as Array<{ icon: React.ReactNode; label: string }>;
   };
 

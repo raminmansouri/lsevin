@@ -41,6 +41,8 @@ const SAFE_DRAFT_METADATA_KEYS = new Set([
   'appliedDiscountAmount',
   'couponTitle',
   'customerCouponId',
+  'customerAddressId',
+  'customerAddressSnapshot',
 ]);
 
 let draftProviderNotifiedColumnEnsured = false;
@@ -351,6 +353,10 @@ function mapDraftRow(row: any): BookingDraftState {
     notes: row.notes ?? undefined,
     metadata,
     formSubmissionId: (row.form_submission_id ?? metadata.formSubmissionId) as string | undefined,
+    // No dedicated columns for these (unlike adults/rooms) -- metadata is the only place
+    // they're ever written, so it's also the only place they're read back from.
+    customerAddressId: metadata.customerAddressId as string | undefined,
+    customerAddressSnapshot: metadata.customerAddressSnapshot as string | undefined,
     childBookings,
     uploadFiles,
   };
@@ -531,6 +537,11 @@ export async function upsertMainDraftSelection(
     children: input.children ?? undefined,
     infants: input.infants ?? undefined,
     rooms: input.rooms ?? undefined,
+    customerAddressId: hasInput(input, 'customerAddressId') ? input.customerAddressId ?? null : undefined,
+    // A JSON string, not a nested object -- sanitizeDraftMetadataPatch only keeps string/number/
+    // boolean/null primitives (nested objects are silently dropped), and the sub-500-char cap
+    // comfortably covers one address's worth of fields.
+    customerAddressSnapshot: hasInput(input, 'customerAddressSnapshot') ? input.customerAddressSnapshot ?? null : undefined,
     bookingUiMode: input.bookingUiMode ?? undefined,
     requiresSpecialist: input.requiresSpecialist ?? undefined,
 
@@ -951,6 +962,26 @@ async function listServiceAttributeValues(providerServiceIds: string[], locale: 
   return byService;
 }
 
+/** Item 7 (home nursing): which of the given service_definition ids are flagged
+ * category.service_definitions.requires_customer_address = true (migration 0041). Kept as a
+ * separate query rather than joined into listServices()'s own CTE so an unapplied migration
+ * degrades to "nothing requires an address" instead of breaking the whole catalogue -- same
+ * reasoning listTransferRouteSummaries() documents for itself. */
+async function listAddressRequiredServiceDefinitions(serviceDefinitionIds: string[]): Promise<Set<string>> {
+  const result = new Set<string>();
+  if (serviceDefinitionIds.length === 0) return result;
+  try {
+    const rows = await db<{ id: string }[]>`
+      select id from category.service_definitions
+      where id = any(${serviceDefinitionIds}) and requires_customer_address = true
+    `;
+    for (const row of rows) result.add(row.id);
+  } catch {
+    // Column not there yet -- migration 0041 hasn't run.
+  }
+  return result;
+}
+
 export async function listServices(params: { providerId?: string; serviceId?: string; specialistId?: string; locale?: Locale; search?: string; take?: number; offset?: number; }) {
   const { providerId, serviceId, specialistId, locale = 'fa-IR', search = '', take = 8, offset = 0 } = params;
   const searchText = normalizeCatalogSearch(search);
@@ -1108,6 +1139,7 @@ export async function listServices(params: { providerId?: string; serviceId?: st
 
   const attributesByService = await listServiceAttributeValues(rows.map((row: any) => row.id), locale);
   const routeByService = await listTransferRouteSummaries(rows.map((row: any) => row.id), locale);
+  const addressRequiredDefIds = await listAddressRequiredServiceDefinitions(rows.map((row: any) => row.service_definition_id));
 
   const items: ServiceCardItem[] = rows.map((row: any) => ({
     id: row.id,
@@ -1130,14 +1162,36 @@ export async function listServices(params: { providerId?: string; serviceId?: st
     bookingUiMode: row.booking_ui_mode,
     attributes: attributesByService.get(row.id),
     route: routeByService.get(row.id),
+    requiresCustomerAddress: addressRequiredDefIds.has(row.service_definition_id),
   }));
 
   const total = Number(rows[0]?.total_count ?? 0);
   return { items, total, hasMore: offset + items.length < total };
 }
 
-export async function listSpecialists(params: { providerId?: string; serviceId?: string; specialistId?: string; locale?: Locale; search?: string; take?: number; offset?: number; }) {
-  const { providerId, serviceId, specialistId, locale = 'fa-IR', search = '', take = 8, offset = 0 } = params;
+/** Item 6 (translator booking) -- batches the (staff_id -> spoken languages) lookup for a page
+ * of specialists in one query. category.staff_languages already ties languages to individual
+ * staff members (populated by the existing staff admin form's "languages" lazy-select); this
+ * is purely a read, same shape as listServiceAttributeValues()'s own batching. */
+async function listStaffLanguages(staffIds: string[]) {
+  const byStaff = new Map<string, string[]>();
+  if (staffIds.length === 0) return byStaff;
+  const rows = await db<{ staff_id: string; language: string }[]>`
+    select staff_id, language
+    from category.staff_languages
+    where staff_id = any(${staffIds})
+    order by language asc
+  `;
+  for (const row of rows) {
+    const list = byStaff.get(row.staff_id) ?? [];
+    list.push(row.language);
+    byStaff.set(row.staff_id, list);
+  }
+  return byStaff;
+}
+
+export async function listSpecialists(params: { providerId?: string; serviceId?: string; specialistId?: string; locale?: Locale; search?: string; take?: number; offset?: number; language?: string; }) {
+  const { providerId, serviceId, specialistId, locale = 'fa-IR', search = '', take = 8, offset = 0, language } = params;
   const searchText = normalizeCatalogSearch(search);
   const normalizedSearchText = searchText.replace(/[يى]/g, 'ی').replace(/ك/g, 'ک');
   const like = `%${searchText}%`;
@@ -1173,7 +1227,8 @@ export async function listSpecialists(params: { providerId?: string; serviceId?:
                s.title_translations::text,
                s.specialty,
                s.experience,
-               s.next_available_label
+               s.next_available_label,
+               (select string_agg(sl.language, ' ') from category.staff_languages sl where sl.staff_id = s.id)
              ) as search_blob,
              regexp_replace(
                replace(replace(replace(replace(concat_ws(' ',
@@ -1183,7 +1238,8 @@ export async function listSpecialists(params: { providerId?: string; serviceId?:
                  s.title_translations::text,
                  s.specialty,
                  s.experience,
-                 s.next_available_label
+                 s.next_available_label,
+                 (select string_agg(sl.language, ' ') from category.staff_languages sl where sl.staff_id = s.id)
                ), 'ي', 'ی'), 'ى', 'ی'), 'ك', 'ک'), chr(8204), ' '),
                '\\s+',
                ' ',
@@ -1194,6 +1250,13 @@ export async function listSpecialists(params: { providerId?: string; serviceId?:
       where ps.is_active = true
         and (${providerId ?? null}::uuid is null or ps.service_provider_id = ${providerId ?? null}::uuid)
         and (${specialistId ?? null}::uuid is null or s.id = ${specialistId ?? null}::uuid)
+        and (
+          ${language ?? null}::text is null
+          or exists (
+            select 1 from category.staff_languages sl
+            where sl.staff_id = s.id and sl.language = ${language ?? null}::text
+          )
+        )
         and (
           ${serviceId ?? null}::uuid is null
           or exists (
@@ -1255,6 +1318,8 @@ export async function listSpecialists(params: { providerId?: string; serviceId?:
     limit ${take} offset ${offset}
   `;
 
+  const languagesByStaff = await listStaffLanguages(rows.map((row: any) => row.id));
+
   const items: SpecialistCardItem[] = rows.map((row: any) => ({
     id: row.id,
     name: row.specialist_name || '',
@@ -1267,6 +1332,7 @@ export async function listSpecialists(params: { providerId?: string; serviceId?:
     patients: row.patients,
     nextAvailableLabel: row.next_available_label,
     successRate: row.success_rate,
+    languages: languagesByStaff.get(row.id),
   }));
 
   const total = Number(rows[0]?.total_count ?? 0);

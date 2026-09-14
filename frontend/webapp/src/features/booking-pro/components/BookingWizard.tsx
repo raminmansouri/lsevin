@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { DynamicServiceForm } from '@/features/form-builder/components/DynamicServiceForm';
 import { ConsultationStep } from '@/features/consultation/components/consultation-step';
 import type { BookingDraftState, ChildBookingDraft, ProviderCardItem, ProviderTypeAddonItem, ServiceCardItem, SpecialistCardItem, UploadRequirementItem } from '../types';
+import { AddressPicker } from './AddressPicker';
 import { ChildAddonBookingCard } from './ChildAddonBookingCard';
 import { BookingShopProductsStep, type BookingShopProductGroup } from './BookingShopProductsStep';
 import { PaymentMethodsPanel } from './PaymentMethodsPanel';
@@ -208,6 +209,8 @@ const DRAFT_PATCH_KEYS: Array<keyof BookingDraftState> = [
     'children',
     'infants',
     'rooms',
+    'customerAddressId',
+    'customerAddressSnapshot',
     'currentStep',
     'paymentMethod',
     'currency',
@@ -1313,6 +1316,12 @@ export function BookingWizard() {
                       </div>) : (<div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">{tBooking("selectDatesAndUnitsToCheckServiceResourceAvailability")}</div>)}
                   </div>
                 </div>) : null}
+
+              {chosenService?.requiresCustomerAddress ? (<AddressPicker selectedId={draft.customerAddressId} onSelect={(address) => {
+                    const next = { ...draft, customerAddressId: address.id, customerAddressSnapshot: JSON.stringify(address) };
+                    setDraft(next);
+                    patchDraft(next).catch((er) => setError(er.message));
+                }} />) : null}
 
               {draft.bookingUiMode === 'custom_form' && mainServiceForm ? (<DynamicServiceForm form={mainServiceForm} locales={[locale]} onSubmit={async (values) => {
                     const res = await getJson<{

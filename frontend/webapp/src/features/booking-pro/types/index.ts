@@ -59,6 +59,10 @@ export interface ServiceCardItem {
    * listing is a transfer.routes-enriched service -- from db/migrations/0040. Undefined
    * for every ordinary (non-transfer) service. */
   route?: { from: string; to: string; vehicleType: string | null };
+  /** Item 7 (home nursing): true when this service needs a customer address picked before
+   * booking (a provider/admin-set flag on category.service_definitions), e.g. a nurse visiting
+   * the customer's home rather than the customer visiting a clinic. */
+  requiresCustomerAddress?: boolean;
 }
 
 export interface SpecialistCardItem {
@@ -73,6 +77,10 @@ export interface SpecialistCardItem {
   patients?: string | null;
   nextAvailableLabel?: string | null;
   successRate?: string | null;
+  /** Item 6 (translator booking): languages this staff member speaks, from
+   * category.staff_languages -- the same per-staff tagging the admin staff form
+   * already writes. Undefined/empty when the staff member has none tagged. */
+  languages?: string[];
 }
 
 export interface UploadRequirementItem {
@@ -141,6 +149,12 @@ export interface BookingDraftState {
   children?: number;
   infants?: number;
   rooms?: number;
+  /** Item 7 (home nursing): the chosen shop.customer_addresses row id, and a JSON-stringified
+   * snapshot of it at selection time (addresses can be edited/deleted later; the booking should
+   * keep showing what was actually chosen). Both live in the draft's metadata jsonb, same as
+   * adults/children/rooms -- no schema change needed on booking.booking_drafts/bookings. */
+  customerAddressId?: string;
+  customerAddressSnapshot?: string;
   currentStep: number;
   paymentMethod?: string;
   currency?: string;
