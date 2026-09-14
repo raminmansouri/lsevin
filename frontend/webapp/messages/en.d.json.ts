@@ -561,6 +561,11 @@ declare const messages: {
     "serviceAddress": "Service address",
     "serviceAddressHint": "This service is provided at your address. Choose or add one below.",
     "stateRegion": "State / Region",
+    "chooseDeparture": "Choose a departure",
+    "departureFull": "Full",
+    "loadingDepartures": "Loading departures…",
+    "noUpcomingDepartures": "No upcoming departures for this tour yet.",
+    "spotsLeft": "{count} spots left",
     "gatewayChargeCurrency": "Gateway charge currency:",
     "gender": "Gender",
     "genericAvailability": "Generic availability",
@@ -5088,6 +5093,7 @@ declare const messages: {
       "availability": "Availability",
       "gymMemberships": "Gym memberships",
       "transferRoutes": "Transfer routes",
+      "tours": "Tours",
       "finance": "Finance",
       "payments": "Payments",
       "paymentGateways": "Payment gateways",
@@ -13861,6 +13867,46 @@ declare const messages: {
       "errors": {
         "invalidForm": "Please check the highlighted fields.",
         "notFound": "That route no longer exists.",
+        "generic": "Something went wrong. Please try again."
+      }
+    }
+  },
+  "Tours": {
+    "admin": {
+      "title": "Tours",
+      "description": "Schedule fixed departure dates for multi-day tours. The tour itself (name, description, price, itinerary) is edited like any other service through Service providers.",
+      "schemaMissing": {
+        "title": "Database migration pending",
+        "body": "Apply migration 0042_tour_departures.sql to enable this section."
+      },
+      "departures": {
+        "title": "Departures",
+        "empty": "No departures scheduled yet.",
+        "create": "Add departure",
+        "edit": "Edit",
+        "tour": "Tour",
+        "tourPlaceholder": "Search for a tour listing",
+        "tourHint": "Pick an existing service listing (create it first under Service providers if it doesn't exist yet).",
+        "provider": "Provider",
+        "startsOn": "Starts on",
+        "endsOn": "Ends on",
+        "capacity": "Capacity",
+        "dates": "Dates",
+        "booked": "Booked",
+        "isActive": "Active",
+        "save": "Save",
+        "saving": "Saving…",
+        "saved": "Departure saved",
+        "cancel": "Cancel",
+        "confirmDelete": "Delete this departure?",
+        "deleted": "Departure deleted",
+        "cannotDeleteWithBookings": "This departure has bookings and can't be deleted."
+      },
+      "errors": {
+        "invalidForm": "Please check the highlighted fields.",
+        "capacityBelowBooked": "Capacity can't be set below the number already booked.",
+        "tourNotFound": "That tour listing no longer exists.",
+        "deleteHasBookings": "This departure has bookings and can't be deleted.",
         "generic": "Something went wrong. Please try again."
       }
     }

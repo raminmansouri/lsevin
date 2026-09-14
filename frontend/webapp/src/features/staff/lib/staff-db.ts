@@ -254,6 +254,7 @@ export async function getStaffFormOptions(localeOrRequest?: Partial<BaseRequest>
 export type StaffLookupResource =
   | "serviceProviders"
   | "serviceDefinitions"
+  | "providerServices"
   | "daysOfWeek"
   | "staffAvailabilityStatuses"
   | "staffGalleryMediaTypes"
@@ -395,6 +396,28 @@ export async function searchStaffLookupOptions(request: StaffLookupRequest): Pro
         or ${allTranslationValuesMatch("c.name_translations", like)}
         or sd.pricing_model ilike ${like}
       order by sd.is_active desc, label asc, sd.create_date desc
+      limit ${pageSize} offset ${offset}
+    `;
+    const total = Number(rows[0]?.totalCount || 0);
+    return { items: rows.map(({ totalCount: _totalCount, ...item }) => ({ ...item, label: item.label || item.id })), hasMore: offset + rows.length < total, page, pageSize };
+  }
+
+  if (resource === "providerServices") {
+    const rows = await sql<(StaffLookupOption & { totalCount: number })[]>`
+      select
+        ps.id::text as id,
+        ${tr("ps.display_name_translations", locale)} as label,
+        concat_ws(' • ', nullif(${tr("sp.name_translations", locale)}, ''), ps.currency::text, ps.value::text) as description,
+        null::text as code,
+        ps.is_active as "isActive",
+        count(*) over()::int as "totalCount"
+      from category.provider_services ps
+      join category.service_providers sp on sp.id = ps.service_provider_id
+      where ${search === ""}
+        or ps.id::text = ${search}
+        or ${allTranslationValuesMatch("ps.display_name_translations", like)}
+        or ${allTranslationValuesMatch("sp.name_translations", like)}
+      order by ps.is_active desc, label asc, ps.create_date desc
       limit ${pageSize} offset ${offset}
     `;
     const total = Number(rows[0]?.totalCount || 0);

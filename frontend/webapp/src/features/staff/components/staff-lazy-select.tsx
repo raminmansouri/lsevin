@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 export type StaffLookupResource =
   | "serviceProviders"
   | "serviceDefinitions"
+  | "providerServices"
   | "daysOfWeek"
   | "staffAvailabilityStatuses"
   | "staffGalleryMediaTypes"

@@ -4313,6 +4313,7 @@ declare const messages: {
       "availability": "ظرفیت و زمان‌ها",
       "gymMemberships": "اشتراک‌های باشگاه",
       "transferRoutes": "مسیرهای ترانسفر",
+      "tours": "تورها",
       "finance": "مالی",
       "payments": "پرداخت‌ها",
       "paymentGateways": "درگاه‌های پرداخت",
@@ -7066,6 +7067,11 @@ declare const messages: {
     "serviceAddress": "آدرس ارائه خدمت",
     "serviceAddressHint": "این خدمت در آدرس شما ارائه می‌شود. یکی را انتخاب کنید یا آدرس جدید اضافه کنید.",
     "stateRegion": "استان / منطقه",
+    "chooseDeparture": "یک حرکت را انتخاب کنید",
+    "departureFull": "تکمیل ظرفیت",
+    "loadingDepartures": "در حال بارگذاری حرکت‌ها…",
+    "noUpcomingDepartures": "هنوز حرکتی برای این تور ثبت نشده است.",
+    "spotsLeft": "{count} جای خالی",
     "gatewayChargeCurrency": "ارز کارمزد درگاه:",
     "gender": "جنسیت",
     "genericAvailability": "دسترسی عمومی",
@@ -13861,6 +13867,46 @@ declare const messages: {
       "errors": {
         "invalidForm": "لطفاً فیلدهای مشخص‌شده را بررسی کنید.",
         "notFound": "این مسیر دیگر وجود ندارد.",
+        "generic": "مشکلی پیش آمد. لطفاً دوباره تلاش کنید."
+      }
+    }
+  },
+  "Tours": {
+    "admin": {
+      "title": "تورها",
+      "description": "تاریخ‌های ثابت حرکت تورهای چندروزه را زمان‌بندی کنید. خودِ تور (نام، توضیحات، قیمت، برنامه سفر) مانند هر خدمت دیگری از بخش ارائه‌دهندگان خدمت ویرایش می‌شود.",
+      "schemaMissing": {
+        "title": "مایگریشن دیتابیس در انتظار اجراست",
+        "body": "برای فعال‌سازی این بخش، مایگریشن 0042_tour_departures.sql را اجرا کنید."
+      },
+      "departures": {
+        "title": "حرکت‌ها",
+        "empty": "هنوز حرکتی زمان‌بندی نشده است.",
+        "create": "افزودن حرکت",
+        "edit": "ویرایش",
+        "tour": "تور",
+        "tourPlaceholder": "جست‌وجوی یک تور",
+        "tourHint": "یک خدمت موجود را انتخاب کنید (اگر هنوز ساخته نشده، ابتدا آن را از بخش ارائه‌دهندگان خدمت بسازید).",
+        "provider": "ارائه‌دهنده",
+        "startsOn": "تاریخ شروع",
+        "endsOn": "تاریخ پایان",
+        "capacity": "ظرفیت",
+        "dates": "تاریخ‌ها",
+        "booked": "رزروشده",
+        "isActive": "فعال",
+        "save": "ذخیره",
+        "saving": "در حال ذخیره…",
+        "saved": "حرکت ذخیره شد",
+        "cancel": "انصراف",
+        "confirmDelete": "این حرکت حذف شود؟",
+        "deleted": "حرکت حذف شد",
+        "cannotDeleteWithBookings": "این حرکت رزرو دارد و قابل حذف نیست."
+      },
+      "errors": {
+        "invalidForm": "لطفاً فیلدهای مشخص‌شده را بررسی کنید.",
+        "capacityBelowBooked": "ظرفیت نمی‌تواند کمتر از تعداد رزروشده باشد.",
+        "tourNotFound": "این تور دیگر وجود ندارد.",
+        "deleteHasBookings": "این حرکت رزرو دارد و قابل حذف نیست.",
         "generic": "مشکلی پیش آمد. لطفاً دوباره تلاش کنید."
       }
     }

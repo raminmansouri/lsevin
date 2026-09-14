@@ -5180,6 +5180,11 @@ declare const messages: {
     "serviceAddress": "Adresse der Leistung",
     "serviceAddressHint": "Diese Leistung wird an Ihrer Adresse erbracht. Wählen Sie unten eine aus oder fügen Sie eine neue hinzu.",
     "stateRegion": "Bundesland / Region",
+    "chooseDeparture": "Abreisetermin wählen",
+    "departureFull": "Ausgebucht",
+    "loadingDepartures": "Abreisetermine werden geladen…",
+    "noUpcomingDepartures": "Für diese Tour sind noch keine Termine geplant.",
+    "spotsLeft": "{count} Plätze frei",
     "gallery": "Galerie",
     "gatewayChargeCurrency": "Abrechnungswährung des Zahlungsanbieters:",
     "gender": "Geschlecht",
@@ -12910,6 +12915,46 @@ declare const messages: {
       "errors": {
         "invalidForm": "Bitte überprüfen Sie die markierten Felder.",
         "notFound": "Diese Strecke existiert nicht mehr.",
+        "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+      }
+    }
+  },
+  "Tours": {
+    "admin": {
+      "title": "Touren",
+      "description": "Planen Sie feste Abreisetermine für mehrtägige Touren. Die Tour selbst (Name, Beschreibung, Preis, Reiseverlauf) wird wie jede andere Leistung über Dienstleister bearbeitet.",
+      "schemaMissing": {
+        "title": "Datenbankmigration ausstehend",
+        "body": "Wenden Sie die Migration 0042_tour_departures.sql an, um diesen Bereich zu aktivieren."
+      },
+      "departures": {
+        "title": "Abreisetermine",
+        "empty": "Noch keine Abreisetermine geplant.",
+        "create": "Termin hinzufügen",
+        "edit": "Bearbeiten",
+        "tour": "Tour",
+        "tourPlaceholder": "Nach einer Tour suchen",
+        "tourHint": "Wählen Sie eine bestehende Leistung aus (legen Sie sie zuerst unter Dienstleister an, falls sie noch nicht existiert).",
+        "provider": "Anbieter",
+        "startsOn": "Beginnt am",
+        "endsOn": "Endet am",
+        "capacity": "Kapazität",
+        "dates": "Termine",
+        "booked": "Gebucht",
+        "isActive": "Aktiv",
+        "save": "Speichern",
+        "saving": "Wird gespeichert…",
+        "saved": "Termin gespeichert",
+        "cancel": "Abbrechen",
+        "confirmDelete": "Diesen Termin löschen?",
+        "deleted": "Termin gelöscht",
+        "cannotDeleteWithBookings": "Dieser Termin hat Buchungen und kann nicht gelöscht werden."
+      },
+      "errors": {
+        "invalidForm": "Bitte überprüfen Sie die markierten Felder.",
+        "capacityBelowBooked": "Die Kapazität kann nicht unter die bereits gebuchte Anzahl gesetzt werden.",
+        "tourNotFound": "Diese Tour existiert nicht mehr.",
+        "deleteHasBookings": "Dieser Termin hat Buchungen und kann nicht gelöscht werden.",
         "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
       }
     }

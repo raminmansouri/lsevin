@@ -63,6 +63,9 @@ export interface ServiceCardItem {
    * booking (a provider/admin-set flag on category.service_definitions), e.g. a nurse visiting
    * the customer's home rather than the customer visiting a clinic. */
   requiresCustomerAddress?: boolean;
+  /** Item 8 (tours): true when this listing has open fixed departures (tour.departures,
+   * migration 0042) to pick from, rather than a free date/time the customer chooses. */
+  hasTourDepartures?: boolean;
 }
 
 export interface SpecialistCardItem {
@@ -155,6 +158,11 @@ export interface BookingDraftState {
    * adults/children/rooms -- no schema change needed on booking.booking_drafts/bookings. */
   customerAddressId?: string;
   customerAddressSnapshot?: string;
+  /** Item 8 (tours): which tour.departures row was picked. Picking one also sets
+   * selectedDateFrom/selectedDateTo to that departure's dates, so pricing/invoice
+   * display need no changes -- this id is only needed to run the capacity check at
+   * checkout (reserveTourDeparture). */
+  tourDepartureId?: string;
   currentStep: number;
   paymentMethod?: string;
   currency?: string;

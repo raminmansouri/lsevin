@@ -5177,6 +5177,11 @@
     "serviceAddress": "Adresse du service",
     "serviceAddressHint": "Ce service est fourni à votre adresse. Choisissez-en une ci-dessous ou ajoutez-en une nouvelle.",
     "stateRegion": "Région / Province",
+    "chooseDeparture": "Choisir un départ",
+    "departureFull": "Complet",
+    "loadingDepartures": "Chargement des départs…",
+    "noUpcomingDepartures": "Aucun départ prévu pour ce circuit pour le moment.",
+    "spotsLeft": "{count} places restantes",
     "gallery": "Galerie",
     "gatewayChargeCurrency": "Devise de débit de la passerelle :",
     "gender": "Genre",
@@ -12907,6 +12912,46 @@
       "errors": {
         "invalidForm": "Veuillez vérifier les champs signalés.",
         "notFound": "Cet itinéraire n'existe plus.",
+        "generic": "Une erreur s'est produite. Veuillez réessayer."
+      }
+    }
+  },
+  "Tours": {
+    "admin": {
+      "title": "Circuits",
+      "description": "Planifiez des dates de départ fixes pour les circuits de plusieurs jours. Le circuit lui-même (nom, description, prix, itinéraire) se modifie comme tout autre service via Prestataires de service.",
+      "schemaMissing": {
+        "title": "Migration de base de données en attente",
+        "body": "Appliquez la migration 0042_tour_departures.sql pour activer cette section."
+      },
+      "departures": {
+        "title": "Départs",
+        "empty": "Aucun départ programmé pour le moment.",
+        "create": "Ajouter un départ",
+        "edit": "Modifier",
+        "tour": "Circuit",
+        "tourPlaceholder": "Rechercher un circuit",
+        "tourHint": "Choisissez un service existant (créez-le d'abord dans Prestataires de service s'il n'existe pas encore).",
+        "provider": "Prestataire",
+        "startsOn": "Date de début",
+        "endsOn": "Date de fin",
+        "capacity": "Capacité",
+        "dates": "Dates",
+        "booked": "Réservé",
+        "isActive": "Actif",
+        "save": "Enregistrer",
+        "saving": "Enregistrement…",
+        "saved": "Départ enregistré",
+        "cancel": "Annuler",
+        "confirmDelete": "Supprimer ce départ ?",
+        "deleted": "Départ supprimé",
+        "cannotDeleteWithBookings": "Ce départ a des réservations et ne peut pas être supprimé."
+      },
+      "errors": {
+        "invalidForm": "Veuillez vérifier les champs signalés.",
+        "capacityBelowBooked": "La capacité ne peut pas être inférieure au nombre déjà réservé.",
+        "tourNotFound": "Ce circuit n'existe plus.",
+        "deleteHasBookings": "Ce départ a des réservations et ne peut pas être supprimé.",
         "generic": "Une erreur s'est produite. Veuillez réessayer."
       }
     }

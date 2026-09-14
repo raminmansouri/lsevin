@@ -5183,6 +5183,11 @@ declare const messages: {
     "serviceAddress": "Hizmet adresi",
     "serviceAddressHint": "Bu hizmet adresinizde sunulur. Aşağıdan birini seçin veya yeni bir adres ekleyin.",
     "stateRegion": "Eyalet / Bölge",
+    "chooseDeparture": "Bir hareket tarihi seçin",
+    "departureFull": "Dolu",
+    "loadingDepartures": "Hareket tarihleri yükleniyor…",
+    "noUpcomingDepartures": "Bu tur için henüz planlanmış bir hareket tarihi yok.",
+    "spotsLeft": "{count} kontenjan kaldı",
     "gallery": "Galeri",
     "gatewayChargeCurrency": "Ödeme geçidi tahsilat para birimi:",
     "gender": "Cinsiyet",
@@ -13224,6 +13229,46 @@ declare const messages: {
       "errors": {
         "invalidForm": "Lütfen işaretlenen alanları kontrol edin.",
         "notFound": "Bu güzergah artık mevcut değil.",
+        "generic": "Bir şeyler ters gitti. Lütfen tekrar deneyin."
+      }
+    }
+  },
+  "Tours": {
+    "admin": {
+      "title": "Turlar",
+      "description": "Çok günlük turlar için sabit hareket tarihleri planlayın. Turun kendisi (ad, açıklama, fiyat, program) diğer hizmetler gibi Hizmet sağlayıcıları üzerinden düzenlenir.",
+      "schemaMissing": {
+        "title": "Veritabanı geçişi bekleniyor",
+        "body": "Bu bölümü etkinleştirmek için 0042_tour_departures.sql geçişini uygulayın."
+      },
+      "departures": {
+        "title": "Hareket tarihleri",
+        "empty": "Henüz planlanmış bir hareket tarihi yok.",
+        "create": "Hareket tarihi ekle",
+        "edit": "Düzenle",
+        "tour": "Tur",
+        "tourPlaceholder": "Bir tur ara",
+        "tourHint": "Mevcut bir hizmet seçin (henüz yoksa önce Hizmet sağlayıcıları altında oluşturun).",
+        "provider": "Sağlayıcı",
+        "startsOn": "Başlangıç tarihi",
+        "endsOn": "Bitiş tarihi",
+        "capacity": "Kontenjan",
+        "dates": "Tarihler",
+        "booked": "Rezerve edildi",
+        "isActive": "Aktif",
+        "save": "Kaydet",
+        "saving": "Kaydediliyor…",
+        "saved": "Hareket tarihi kaydedildi",
+        "cancel": "Vazgeç",
+        "confirmDelete": "Bu hareket tarihi silinsin mi?",
+        "deleted": "Hareket tarihi silindi",
+        "cannotDeleteWithBookings": "Bu hareket tarihinde rezervasyon var ve silinemez."
+      },
+      "errors": {
+        "invalidForm": "Lütfen işaretlenen alanları kontrol edin.",
+        "capacityBelowBooked": "Kontenjan, mevcut rezervasyon sayısının altına düşürülemez.",
+        "tourNotFound": "Bu tur artık mevcut değil.",
+        "deleteHasBookings": "Bu hareket tarihinde rezervasyon var ve silinemez.",
         "generic": "Bir şeyler ters gitti. Lütfen tekrar deneyin."
       }
     }

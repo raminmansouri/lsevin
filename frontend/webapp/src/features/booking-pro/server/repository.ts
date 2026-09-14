@@ -7,6 +7,7 @@ import { applyCommercialSnapshotAfterCheckout } from './commercial-integration';
 import { assertDraftAvailabilityBeforeCheckout } from './booking-availability.repository';
 import { notifyBookingCreated, notifyBookingStarted } from '@/features/notification/server/booking-notifications';
 import { listTransferRouteSummaries } from '@/features/transfers/server/repository';
+import { listServicesWithOpenDepartures, reserveTourDeparture } from '@/features/tours/server/repository';
 import { pickTranslation } from '../utils/translation';
 import type {
   BookingDraftState,
@@ -43,6 +44,7 @@ const SAFE_DRAFT_METADATA_KEYS = new Set([
   'customerCouponId',
   'customerAddressId',
   'customerAddressSnapshot',
+  'tourDepartureId',
 ]);
 
 let draftProviderNotifiedColumnEnsured = false;
@@ -357,6 +359,7 @@ function mapDraftRow(row: any): BookingDraftState {
     // they're ever written, so it's also the only place they're read back from.
     customerAddressId: metadata.customerAddressId as string | undefined,
     customerAddressSnapshot: metadata.customerAddressSnapshot as string | undefined,
+    tourDepartureId: metadata.tourDepartureId as string | undefined,
     childBookings,
     uploadFiles,
   };
@@ -542,6 +545,7 @@ export async function upsertMainDraftSelection(
     // boolean/null primitives (nested objects are silently dropped), and the sub-500-char cap
     // comfortably covers one address's worth of fields.
     customerAddressSnapshot: hasInput(input, 'customerAddressSnapshot') ? input.customerAddressSnapshot ?? null : undefined,
+    tourDepartureId: hasInput(input, 'tourDepartureId') ? input.tourDepartureId ?? null : undefined,
     bookingUiMode: input.bookingUiMode ?? undefined,
     requiresSpecialist: input.requiresSpecialist ?? undefined,
 
@@ -1140,6 +1144,7 @@ export async function listServices(params: { providerId?: string; serviceId?: st
   const attributesByService = await listServiceAttributeValues(rows.map((row: any) => row.id), locale);
   const routeByService = await listTransferRouteSummaries(rows.map((row: any) => row.id), locale);
   const addressRequiredDefIds = await listAddressRequiredServiceDefinitions(rows.map((row: any) => row.service_definition_id));
+  const servicesWithDepartures = await listServicesWithOpenDepartures(rows.map((row: any) => row.id));
 
   const items: ServiceCardItem[] = rows.map((row: any) => ({
     id: row.id,
@@ -1163,6 +1168,7 @@ export async function listServices(params: { providerId?: string; serviceId?: st
     attributes: attributesByService.get(row.id),
     route: routeByService.get(row.id),
     requiresCustomerAddress: addressRequiredDefIds.has(row.service_definition_id),
+    hasTourDepartures: servicesWithDepartures.has(row.id),
   }));
 
   const total = Number(rows[0]?.total_count ?? 0);
@@ -1729,6 +1735,22 @@ export async function checkoutDraft(
         checkIn: String(draft.selectedDateFrom),
         checkOut: String(draft.selectedDateTo),
       });
+    }
+
+    // A tour departure is shared capacity (many bookings, one headcount), the
+    // opposite of a hotel night's exclusive reservation above -- see
+    // db/migrations/0042's own comment for why these can't share a mechanism.
+    // Held in the same transaction so a departure that just sold out rolls the
+    // whole checkout back instead of confirming an overbooked seat.
+    //
+    // `draft` here is getDraftByIdForUser()'s raw `select *` row, not mapDraftRow's
+    // camelCase BookingDraftState -- draft.tourDepartureId would silently always be
+    // undefined (multi-word snake_case columns don't happen to equal their camelCase
+    // name the way `id`/`status` do). metadata is the real column name either way,
+    // and its jsonb value already has camelCase keys, so read through it directly.
+    const tourDepartureId = (draft as any).metadata?.tourDepartureId;
+    if (tourDepartureId) {
+      await reserveTourDeparture(tx as any, tourDepartureId);
     }
 
     await tx`

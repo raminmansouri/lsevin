@@ -278,6 +278,11 @@ declare const messages: {
     "serviceAddress": "عنوان الخدمة",
     "serviceAddressHint": "تُقدَّم هذه الخدمة في عنوانك. اختر عنوانًا أدناه أو أضف عنوانًا جديدًا.",
     "stateRegion": "المحافظة / المنطقة",
+    "chooseDeparture": "اختر موعد رحلة",
+    "departureFull": "مكتمل",
+    "loadingDepartures": "جارٍ تحميل الرحلات…",
+    "noUpcomingDepartures": "لا توجد رحلات قادمة لهذه الجولة بعد.",
+    "spotsLeft": "{count} مقعد متبقٍ",
     "gatewayChargeCurrency": "عملة رسوم البوابة:",
     "gender": "الجنس",
     "genericAvailability": "توفر عام",
@@ -13014,6 +13019,46 @@ declare const messages: {
       "errors": {
         "invalidForm": "يرجى مراجعة الحقول المحددة.",
         "notFound": "هذا المسار لم يعد موجودًا.",
+        "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+      }
+    }
+  },
+  "Tours": {
+    "admin": {
+      "title": "الجولات",
+      "description": "جدولة تواريخ انطلاق ثابتة للجولات متعددة الأيام. يتم تعديل الجولة نفسها (الاسم، الوصف، السعر، البرنامج) مثل أي خدمة أخرى من خلال مزوّدي الخدمة.",
+      "schemaMissing": {
+        "title": "ترحيل قاعدة البيانات قيد الانتظار",
+        "body": "قم بتطبيق الترحيل 0042_tour_departures.sql لتفعيل هذا القسم."
+      },
+      "departures": {
+        "title": "الرحلات",
+        "empty": "لا توجد رحلات مجدولة بعد.",
+        "create": "إضافة رحلة",
+        "edit": "تعديل",
+        "tour": "الجولة",
+        "tourPlaceholder": "ابحث عن جولة",
+        "tourHint": "اختر خدمة موجودة (أنشئها أولاً من مزوّدي الخدمة إذا لم تكن موجودة بعد).",
+        "provider": "المزوّد",
+        "startsOn": "تاريخ البدء",
+        "endsOn": "تاريخ الانتهاء",
+        "capacity": "السعة",
+        "dates": "التواريخ",
+        "booked": "محجوز",
+        "isActive": "نشط",
+        "save": "حفظ",
+        "saving": "جارٍ الحفظ…",
+        "saved": "تم حفظ الرحلة",
+        "cancel": "إلغاء",
+        "confirmDelete": "حذف هذه الرحلة؟",
+        "deleted": "تم حذف الرحلة",
+        "cannotDeleteWithBookings": "هذه الرحلة لديها حجوزات ولا يمكن حذفها."
+      },
+      "errors": {
+        "invalidForm": "يرجى مراجعة الحقول المحددة.",
+        "capacityBelowBooked": "لا يمكن تعيين السعة أقل من العدد المحجوز بالفعل.",
+        "tourNotFound": "هذه الجولة لم تعد موجودة.",
+        "deleteHasBookings": "هذه الرحلة لديها حجوزات ولا يمكن حذفها.",
         "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
       }
     }

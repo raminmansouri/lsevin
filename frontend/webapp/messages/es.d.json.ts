@@ -5183,6 +5183,11 @@ declare const messages: {
     "serviceAddress": "Dirección del servicio",
     "serviceAddressHint": "Este servicio se presta en su dirección. Elija una a continuación o añada una nueva.",
     "stateRegion": "Provincia / Región",
+    "chooseDeparture": "Elegir una salida",
+    "departureFull": "Completo",
+    "loadingDepartures": "Cargando salidas…",
+    "noUpcomingDepartures": "Aún no hay salidas programadas para este tour.",
+    "spotsLeft": "{count} plazas disponibles",
     "gallery": "Galería",
     "gatewayChargeCurrency": "Moneda de cobro de la pasarela:",
     "gender": "Género",
@@ -12913,6 +12918,46 @@ declare const messages: {
       "errors": {
         "invalidForm": "Revise los campos marcados.",
         "notFound": "Esa ruta ya no existe.",
+        "generic": "Algo salió mal. Inténtelo de nuevo."
+      }
+    }
+  },
+  "Tours": {
+    "admin": {
+      "title": "Tours",
+      "description": "Programe fechas de salida fijas para tours de varios días. El tour en sí (nombre, descripción, precio, itinerario) se edita como cualquier otro servicio a través de Proveedores de servicio.",
+      "schemaMissing": {
+        "title": "Migración de base de datos pendiente",
+        "body": "Aplique la migración 0042_tour_departures.sql para habilitar esta sección."
+      },
+      "departures": {
+        "title": "Salidas",
+        "empty": "Aún no hay salidas programadas.",
+        "create": "Añadir salida",
+        "edit": "Editar",
+        "tour": "Tour",
+        "tourPlaceholder": "Buscar un tour",
+        "tourHint": "Elija un servicio existente (créelo primero en Proveedores de servicio si aún no existe).",
+        "provider": "Proveedor",
+        "startsOn": "Fecha de inicio",
+        "endsOn": "Fecha de fin",
+        "capacity": "Capacidad",
+        "dates": "Fechas",
+        "booked": "Reservado",
+        "isActive": "Activo",
+        "save": "Guardar",
+        "saving": "Guardando…",
+        "saved": "Salida guardada",
+        "cancel": "Cancelar",
+        "confirmDelete": "¿Eliminar esta salida?",
+        "deleted": "Salida eliminada",
+        "cannotDeleteWithBookings": "Esta salida tiene reservas y no se puede eliminar."
+      },
+      "errors": {
+        "invalidForm": "Revise los campos marcados.",
+        "capacityBelowBooked": "La capacidad no puede fijarse por debajo de lo ya reservado.",
+        "tourNotFound": "Ese tour ya no existe.",
+        "deleteHasBookings": "Esta salida tiene reservas y no se puede eliminar.",
         "generic": "Algo salió mal. Inténtelo de nuevo."
       }
     }

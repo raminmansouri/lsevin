@@ -2571,6 +2571,11 @@
     "serviceAddress": "服务地址",
     "serviceAddressHint": "该服务将在您的地址提供。请在下方选择或添加新地址。",
     "stateRegion": "省/地区",
+    "chooseDeparture": "选择出发日期",
+    "departureFull": "已满员",
+    "loadingDepartures": "正在加载出发日期…",
+    "noUpcomingDepartures": "该旅行团暂无即将出发的班期。",
+    "spotsLeft": "剩余 {count} 个名额",
     "gallery": "相册",
     "gatewayChargeCurrency": "网关扣款币种：",
     "gender": "性别",
@@ -12884,6 +12889,46 @@
       "errors": {
         "invalidForm": "请检查标记的字段。",
         "notFound": "该路线已不存在。",
+        "generic": "出了点问题，请重试。"
+      }
+    }
+  },
+  "Tours": {
+    "admin": {
+      "title": "旅行团",
+      "description": "为多日游安排固定出发日期。旅行团本身（名称、描述、价格、行程）与其他服务一样，通过服务商板块编辑。",
+      "schemaMissing": {
+        "title": "数据库迁移待执行",
+        "body": "请执行迁移 0042_tour_departures.sql 以启用此部分。"
+      },
+      "departures": {
+        "title": "出发班期",
+        "empty": "尚未安排任何出发班期。",
+        "create": "添加班期",
+        "edit": "编辑",
+        "tour": "旅行团",
+        "tourPlaceholder": "搜索旅行团",
+        "tourHint": "选择一个已有的服务（如尚未创建，请先在服务商板块创建）。",
+        "provider": "服务商",
+        "startsOn": "开始日期",
+        "endsOn": "结束日期",
+        "capacity": "名额",
+        "dates": "日期",
+        "booked": "已预订",
+        "isActive": "启用",
+        "save": "保存",
+        "saving": "保存中…",
+        "saved": "班期已保存",
+        "cancel": "取消",
+        "confirmDelete": "删除该班期？",
+        "deleted": "班期已删除",
+        "cannotDeleteWithBookings": "该班期已有预订，无法删除。"
+      },
+      "errors": {
+        "invalidForm": "请检查标记的字段。",
+        "capacityBelowBooked": "名额不能低于已预订的数量。",
+        "tourNotFound": "该旅行团已不存在。",
+        "deleteHasBookings": "该班期已有预订，无法删除。",
         "generic": "出了点问题，请重试。"
       }
     }

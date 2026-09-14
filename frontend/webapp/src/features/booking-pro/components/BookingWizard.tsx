@@ -9,6 +9,7 @@ import { ConsultationStep } from '@/features/consultation/components/consultatio
 import type { BookingDraftState, ChildBookingDraft, ProviderCardItem, ProviderTypeAddonItem, ServiceCardItem, SpecialistCardItem, UploadRequirementItem } from '../types';
 import { AddressPicker } from './AddressPicker';
 import { ChildAddonBookingCard } from './ChildAddonBookingCard';
+import { TourDeparturePicker } from './TourDeparturePicker';
 import { BookingShopProductsStep, type BookingShopProductGroup } from './BookingShopProductsStep';
 import { PaymentMethodsPanel } from './PaymentMethodsPanel';
 import { SaveBookingCartButton } from './SaveBookingCartButton';
@@ -211,6 +212,7 @@ const DRAFT_PATCH_KEYS: Array<keyof BookingDraftState> = [
     'rooms',
     'customerAddressId',
     'customerAddressSnapshot',
+    'tourDepartureId',
     'currentStep',
     'paymentMethod',
     'currency',
@@ -1237,7 +1239,13 @@ export function BookingWizard() {
                   {viewerTimeZones.map(zone => <option key={zone} value={zone}>{zone}</option>)}
                 </select>
               </label>}
-              {draft.bookingUiMode === 'default_slot' ? (<div className="space-y-6">
+              {chosenService?.hasTourDepartures ? (<TourDeparturePicker serviceId={chosenService.id} selectedDepartureId={draft.tourDepartureId} onSelect={(departure) => {
+                    const next = { ...draft, selectedDate: departure.startsOn, selectedDateFrom: departure.startsOn, selectedDateTo: departure.endsOn, selectedTime: undefined, selectedTimeFrom: undefined, selectedTimeTo: undefined, tourDepartureId: departure.id };
+                    setDraft(next);
+                    patchDraft(next).catch((er) => setError(er.message));
+                }} />) : null}
+
+              {draft.bookingUiMode === 'default_slot' && !chosenService?.hasTourDepartures ? (<div className="space-y-6">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="min-w-[260px] text-sm font-semibold text-slate-700">
                       <span>{tBooking('date2')}</span>
