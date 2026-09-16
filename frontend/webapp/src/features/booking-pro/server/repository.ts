@@ -2,6 +2,8 @@ import 'server-only';
 import { assertNoUndefinedRecord, pgNumber, pgString } from './checkout-null-safety';
 import db from '@/config/database/db';
 import { reserveHotelDates } from "./hotel-availability.repository";
+import { resolveUserPaymentRegion } from '@/payment/server/gateway-eligibility';
+import { TOMAN_CURRENCY_CODE } from '@/features/finance/lib/server/toman-price';
 import { calculateBookingPaymentTerms, resolveBookingPaymentPolicy } from '@/features/commercial/lib/server/payment-policy-engine';
 import { applyCommercialSnapshotAfterCheckout } from './commercial-integration';
 import { assertDraftAvailabilityBeforeCheckout } from './booking-availability.repository';
@@ -1451,8 +1453,10 @@ export async function listUploadRequirements(providerServiceId: string, locale =
 
 export async function recalculateDraftTotals(draftId: string) {
   const mainRows = await db<any[]>`
-    select coalesce(ps.value, 0) as main_amount,
+    select d.user_id as user_id,
+           coalesce(ps.value, 0) as main_amount,
            coalesce(ps.currency, d.currency) as currency,
+           ps.value_toman as main_value_toman,
            coalesce(d.use_lsevin, false) as use_lsevin,
            d.metadata
     from booking.booking_drafts d
@@ -1460,15 +1464,35 @@ export async function recalculateDraftTotals(draftId: string) {
     where d.id = ${draftId}
   `;
   const useLsevin = Boolean(mainRows[0]?.use_lsevin);
+
+  // Iranian customers are charged through Zarinpal, which always settles in
+  // Rial/Toman and never converts on its own (see payment/server/
+  // gateway-eligibility.ts and payment/providers/zarinpal.ts) -- so a native
+  // Toman price is exactly what should be snapshotted for them here, instead
+  // of the provider's base price going through a separate FX conversion
+  // later. Non-Iranian customers (BTCPay) never touch this branch. Same
+  // region check payment routing itself already trusts, not a new one.
+  const userId = mainRows[0]?.user_id ? String(mainRows[0].user_id) : null;
+  const isIranian = userId ? (await resolveUserPaymentRegion(userId)) === 'iran' : false;
+
   const childRows = useLsevin
     ? await db<any[]>`
-        select coalesce(sum(coalesce(ps.value, c.subtotal_amount, 0)), 0) as child_amount
+        select coalesce(sum(
+          case
+            when ${isIranian} and ps.value_toman is not null then ps.value_toman
+            else coalesce(ps.value, c.subtotal_amount, 0)
+          end
+        ), 0) as child_amount
         from booking.booking_draft_child_bookings c
         left join category.provider_services ps on ps.id = c.service_id
         where c.parent_draft_id = ${draftId}
       `
     : [{ child_amount: 0 }];
-  const mainAmount = Number(mainRows[0]?.main_amount ?? 0);
+
+  const mainValueToman = mainRows[0]?.main_value_toman;
+  const usesNativeTomanMain = isIranian && mainValueToman != null;
+  const mainAmount = usesNativeTomanMain ? Number(mainValueToman) : Number(mainRows[0]?.main_amount ?? 0);
+  const mainCurrency = usesNativeTomanMain ? TOMAN_CURRENCY_CODE : (mainRows[0]?.currency ?? 'USD');
   const childAmount = Number(childRows[0]?.child_amount ?? 0);
   const grossTotal = Math.round((mainAmount + childAmount) * 100) / 100;
   const coupon = await resolveDraftCoupon(draftId, grossTotal);
@@ -1530,7 +1554,7 @@ export async function recalculateDraftTotals(draftId: string) {
     appliedDiscountType: coupon?.discountType ?? null,
     appliedDiscountValue: coupon?.discountValue ?? null,
     customerCouponId: coupon?.customerCouponId ?? null,
-    currency: mainRows[0]?.currency ?? 'USD',
+    currency: mainCurrency,
   };
 }
 
