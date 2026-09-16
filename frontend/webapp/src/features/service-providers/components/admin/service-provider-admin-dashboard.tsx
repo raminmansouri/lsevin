@@ -4,11 +4,28 @@
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { Edit, Plus, Trash2, X } from "lucide-react";
+import {
+  Edit,
+  HelpCircle,
+  ListChecks,
+  MoreHorizontal,
+  PackagePlus,
+  Plus,
+  Route,
+  SlidersHorizontal,
+  Trash2,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Card,
   CardContent,
@@ -1869,6 +1886,40 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                   ) : null}
                 </div>
                 <div className="flex flex-wrap justify-end gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button type="button" variant="outline" size="sm">
+                        <MoreHorizontal className="me-2 h-4 w-4" /> Manage
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
+                        <Link href={`/admin/provider-services/${item.id}/attribute-values`}>
+                          <SlidersHorizontal className="me-2 h-4 w-4" /> Attributes (e.g. room features)
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href={`/admin/provider-services/${item.id}/addons`}>
+                          <PackagePlus className="me-2 h-4 w-4" /> Add-ons
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href={`/admin/provider-services/${item.id}/included`}>
+                          <ListChecks className="me-2 h-4 w-4" /> What&apos;s included
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href={`/admin/provider-services/${item.id}/faqs`}>
+                          <HelpCircle className="me-2 h-4 w-4" /> FAQs
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href={`/admin/provider-services/${item.id}/process`}>
+                          <Route className="me-2 h-4 w-4" /> Process / itinerary
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <Button
                     type="button"
                     variant="outline"
