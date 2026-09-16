@@ -6,10 +6,13 @@ import ExploreClient from "./ExploreClient";
 import { getExplorePageData, parseExploreFilters } from "./explore.data";
 
 // Explore is a URL-filter-driven directory (country / city / category /
-// provider-type / language / currency / rating). Its content is *defined* by
-// the query string and it resolves per-visitor favourites, so it renders
-// dynamically — the same way a search-results page does. `getExplorePageData`
-// carries `noStore()` for that reason.
+// provider-type / language / currency / rating). It reads `searchParams`
+// directly and resolves per-visitor favourites, so the page itself still
+// renders dynamically — the same way a search-results page does. The
+// visitor-agnostic catalogue data (categories, provider types, featured /
+// trending / sponsored rows, language & currency facets) is cached per
+// locale + filter combination inside getExplorePageData via `"use cache"`;
+// only the favourites lookup and this per-request wrapper stay dynamic.
 export const dynamic = "force-dynamic";
 
 type SearchParams =
