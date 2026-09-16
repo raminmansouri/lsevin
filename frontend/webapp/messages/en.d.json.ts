@@ -1915,6 +1915,8 @@ declare const messages: {
     "preferredCurrency": "Preferred Currency",
     "preferredLocale": "Preferred Locale",
     "price": "Price",
+    "priceToman": "Price (Toman)",
+    "priceTomanPlaceholder": "Optional — shown to Iranian visitors instead of the price above",
     "primaryButtonTitle": "Primary Button Title",
     "primaryButtonURL": "Primary Button URL",
     "primaryColor": "Primary color",

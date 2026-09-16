@@ -1135,6 +1135,8 @@ declare const messages: {
     "preferredCurrency": "preferred ارز",
     "preferredLocale": "زبان ترجیحی",
     "price": "قیمت",
+    "priceToman": "قیمت (تومان)",
+    "priceTomanPlaceholder": "اختیاری — برای بازدیدکنندگان ایرانی به‌جای قیمت بالا نمایش داده می‌شود",
     "primaryButtonTitle": "primary Button عنوان",
     "primaryButtonURL": "URL دکمه اصلی",
     "primaryColor": "رنگ اصلی",

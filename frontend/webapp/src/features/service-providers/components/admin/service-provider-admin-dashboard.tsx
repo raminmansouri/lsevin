@@ -1347,6 +1347,7 @@ type ServiceManagerFormValues = {
   description: Record<string, unknown>;
   currency: string;
   priceText: string;
+  priceTomanText: string;
   durationMinutes: string;
   trendingScoreText: string;
   imageUrl: unknown;
@@ -1366,6 +1367,7 @@ function emptyServiceFormValues(
     description: createEmptyLocalizedContent(),
     currency: defaultCurrency,
     priceText: "0",
+    priceTomanText: "",
     durationMinutes: "0",
     trendingScoreText: "0",
     imageUrl: "",
@@ -1430,6 +1432,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
       ),
       currency: item.currency || lookups.currencies[0]?.code || "USD",
       priceText: formatNumberInput(item.value, locale),
+      priceTomanText: item.valueToman != null ? formatNumberInput(item.valueToman, locale) : "",
       durationMinutes: String(item.durationMinutes ?? 0),
       trendingScoreText: formatNumberInput(item.trendingScore ?? 0, locale),
       imageUrl: item.imageUrl || "",
@@ -1463,6 +1466,7 @@ function ServicesManager({ provider, lookups, locale }: Props) {
       isActive: values.isActive,
       currency: values.currency,
       value: parseFormattedNumber(values.priceText),
+      valueToman: values.priceTomanText.trim() ? parseFormattedNumber(values.priceTomanText) : null,
       durationMinutes: Number(values.durationMinutes || 0),
       trendingScore: parseFormattedNumber(values.trendingScoreText),
       imageUrl: normalizeMediaPickerValue(values.imageUrl) || null,
@@ -1644,6 +1648,32 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                               )
                             }
                             placeholder="0"
+                            disabled={isPending}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={serviceForm.control}
+                    name="priceTomanText"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{tAdmin("priceToman")}</FormLabel>
+                        <FormControl>
+                          <Input
+                            dir="ltr"
+                            inputMode="decimal"
+                            value={field.value}
+                            onChange={(event) => field.onChange(event.target.value)}
+                            onBlur={() =>
+                              field.onChange(
+                                field.value.trim() ? formatNumberInput(field.value, locale) : "",
+                              )
+                            }
+                            placeholder={tAdmin("priceTomanPlaceholder")}
                             disabled={isPending}
                           />
                         </FormControl>

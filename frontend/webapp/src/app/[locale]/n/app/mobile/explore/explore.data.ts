@@ -5,6 +5,8 @@ import {
 } from "next/cache";
 import { getTranslations } from "next-intl/server";
 
+import { resolveIsIranianVisitor } from "@/features/finance/lib/server/iranian-visitor";
+import { resolveDisplayPrice } from "@/features/finance/lib/server/toman-price";
 import {
   categoryProviderCountsCte,
   categoryTotalProviderCount,
@@ -617,10 +619,14 @@ type ExploreCatalog = {
   categories: ExploreCategory[];
   providerTypes: ExploreProviderType[];
   // isFavorited is per-visitor, so it is deliberately left off the cached shape
-  // and stitched on afterwards in getExplorePageData.
+  // and stitched on afterwards in getExplorePageData. valueToman likewise never
+  // leaves getExplorePageData: whether to show it (vs. price/currency) depends
+  // on the visitor's Iranian-ness, so it's resolved into price/currency there
+  // instead of being cached pre-resolved for whichever visitor happened to
+  // trigger the cache write.
   featuredProviders: Omit<ExploreFeaturedProvider, "isFavorited">[];
-  trendingServices: Omit<ExploreTrendingService, "isFavorited">[];
-  sponsoredProviders: ExploreSponsoredProvider[];
+  trendingServices: (Omit<ExploreTrendingService, "isFavorited"> & { valueToman: number | null })[];
+  sponsoredProviders: (ExploreSponsoredProvider & { valueToman: number | null })[];
   availableLanguages: ExploreLanguageOption[];
   availableCurrencies: ExploreCurrencyOption[];
 };
@@ -822,6 +828,7 @@ async function getExploreCatalogCached(
     ) as image,
     ps.value::float as price,
     coalesce(ps.currency, 'USD') as currency,
+    ps.value_toman::float as value_toman,
     case
       when offer.discount_percent is not null and offer.discount_percent > 0
         then round(ps.value / (1 - (offer.discount_percent / 100.0)))::int
@@ -922,10 +929,11 @@ async function getExploreCatalogCached(
       ) as image,
       ps_pick.value::float as price,
       coalesce(ps_pick.currency, 'USD') as currency,
+      ps_pick.value_toman::float as value_toman,
       coalesce(sp.sponsored_tag, 'Sponsored') as tag
     from category.service_providers sp
     left join lateral (
-      select ps.value, ps.image_url, ps.currency
+      select ps.value, ps.image_url, ps.currency, ps.value_toman
       from category.provider_services ps
       join category.service_definitions sd on sd.id = ps.service_definition_id
       where ps.service_provider_id = sp.id
@@ -1032,7 +1040,7 @@ async function getExploreCatalogCached(
     badge: row.badge || "",
   }));
 
-  const trendingServices: Omit<ExploreTrendingService, "isFavorited">[] = uniqueById(trendingRows).map((row) => ({
+  const trendingServices = uniqueById(trendingRows).map((row) => ({
     id: row.id,
     providerId: row.provider_id,
     name: row.name,
@@ -1040,6 +1048,7 @@ async function getExploreCatalogCached(
     image: coalesceImage(row.image),
     price: Number(row.price ?? 0),
     currency: row.currency || "USD",
+    valueToman: row.value_toman == null ? null : Number(row.value_toman),
     originalPrice: row.original_price == null ? null : Number(row.original_price),
     rating: Number(row.rating ?? 0),
     reviews: Number(row.reviews ?? 0),
@@ -1047,13 +1056,14 @@ async function getExploreCatalogCached(
     location: row.location || "",
   }));
 
-  const sponsoredProviders: ExploreSponsoredProvider[] = uniqueById(sponsoredRows).map((row) => ({
+  const sponsoredProviders = uniqueById(sponsoredRows).map((row) => ({
     id: row.id,
     name: row.name,
     subtitle: row.subtitle || "",
     image: coalesceImage(row.image),
     price: row.price == null ? null : Number(row.price),
     currency: row.currency || "USD",
+    valueToman: row.value_toman == null ? null : Number(row.value_toman),
     tag: row.tag || "",
   }));
 
@@ -1105,6 +1115,7 @@ export async function getExplorePageData({
   const lang = normalizeLocale(locale);
   const tBadges = await getTranslations({ locale, namespace: "Explore.badges" });
   const customerId = await resolveCurrentCustomerId();
+  const isIranianVisitor = await resolveIsIranianVisitor();
 
   const [catalog, favoriteProviderIds, favoriteServiceIds] = await Promise.all([
     getExploreCatalogCached(lang, filters),
@@ -1143,14 +1154,29 @@ export async function getExplorePageData({
       badge: provider.badge || (provider.verified ? tBadges("verified") : tBadges("featured")),
       isFavorited: providerFavoriteSet.has(provider.id),
     })),
-    trendingServices: catalog.trendingServices.map((service) => ({
-      ...service,
-      isFavorited: serviceFavoriteSet.has(service.id),
-    })),
-    sponsoredProviders: catalog.sponsoredProviders.map((provider) => ({
-      ...provider,
-      tag: provider.tag || tBadges("sponsored"),
-    })),
+    trendingServices: catalog.trendingServices.map((service) => {
+      const { valueToman, ...rest } = service;
+      const displayPrice = resolveDisplayPrice({ value: service.price, currency: service.currency }, valueToman, isIranianVisitor);
+      return {
+        ...rest,
+        price: displayPrice.value,
+        currency: displayPrice.currency,
+        isFavorited: serviceFavoriteSet.has(service.id),
+      };
+    }),
+    sponsoredProviders: catalog.sponsoredProviders.map((provider) => {
+      const { valueToman, ...rest } = provider;
+      const displayPrice =
+        provider.price == null
+          ? null
+          : resolveDisplayPrice({ value: provider.price, currency: provider.currency }, valueToman, isIranianVisitor);
+      return {
+        ...rest,
+        price: displayPrice ? displayPrice.value : provider.price,
+        currency: displayPrice ? displayPrice.currency : provider.currency,
+        tag: provider.tag || tBadges("sponsored"),
+      };
+    }),
     availableLanguages: catalog.availableLanguages,
     availableCurrencies: catalog.availableCurrencies,
   };

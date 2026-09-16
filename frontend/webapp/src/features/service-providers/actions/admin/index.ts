@@ -810,6 +810,10 @@ const providerServiceSchema = z.object({
   isActive: z.boolean().default(true),
   currency: z.string().min(1).max(15),
   value: z.coerce.number().min(0),
+  // Optional, additive to the currency/value above -- see db/migrations/0045
+  // and finance/lib/server/toman-price.ts. Null/omitted leaves the price
+  // exactly as it was before this field existed.
+  valueToman: z.coerce.number().min(0).optional().nullable(),
   durationMinutes: z.coerce.number().int().min(0).default(0),
   recovery: z.string().max(100).optional().nullable(),
   imageUrl: nullableMediaValueSchema,
@@ -842,6 +846,7 @@ export const saveProviderServiceAction = createAuthenticatedSafeAction(
                   is_active = ${input.isActive},
                   currency = ${input.currency},
                   value = ${input.value},
+                  value_toman = ${input.valueToman ?? null},
                   duration_minutes = ${input.durationMinutes},
                   recovery = ${nullableString(input.recovery)},
                   image_url = ${nullableString(input.imageUrl)},
@@ -863,12 +868,12 @@ export const saveProviderServiceAction = createAuthenticatedSafeAction(
           : await tx<{ id: string }[]>`
               insert into category.provider_services (
                 id, service_definition_id, display_name_translations, description_translations, is_active,
-                service_provider_id, currency, value, duration_minutes, recovery, image_url, is_popular, is_featured,
+                service_provider_id, currency, value, value_toman, duration_minutes, recovery, image_url, is_popular, is_featured,
                 anesthesia, stay_required, success_rate, satisfaction, trending_score, growth, tags,
                 slot_interval_minutes, create_date, search_vector
               ) values (
                 public.uuid_generate_v4(), ${input.serviceDefinitionId}, ${jsonb(input.displayName)}::jsonb, ${jsonb(input.description)}::jsonb, ${input.isActive},
-                ${input.serviceProviderId}, ${input.currency}, ${input.value}, ${input.durationMinutes}, ${nullableString(input.recovery)}, ${nullableString(input.imageUrl)}, ${input.isPopular}, ${input.isFeatured},
+                ${input.serviceProviderId}, ${input.currency}, ${input.value}, ${input.valueToman ?? null}, ${input.durationMinutes}, ${nullableString(input.recovery)}, ${nullableString(input.imageUrl)}, ${input.isPopular}, ${input.isFeatured},
                 ${nullableString(input.anesthesia)}, ${nullableString(input.stayRequired)}, ${nullableString(input.successRate)}, ${nullableString(input.satisfaction)}, ${input.trendingScore}, ${nullableString(input.growth)}, ${splitCsv(input.tagsText)},
                 ${input.slotIntervalMinutes}, now(), to_tsvector('simple', coalesce(${getTranslationForSearchVector(input.displayName)}, ''))
               ) returning id::text
