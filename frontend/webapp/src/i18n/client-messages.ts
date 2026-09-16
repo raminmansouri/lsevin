@@ -124,6 +124,14 @@ export const SEGMENT_NAMESPACES = {
     "Staff",
     "SupportPages",
     "UserInfo",
+    // /admin/gym-memberships, /admin/transfer-routes, /admin/tours and
+    // /admin/tour-gatherings are all client components under (admin) that never had
+    // their namespace registered here, so every label on all four pages rendered as
+    // its raw "GymMemberships.admin.*" / "Transfers.admin.*" / "Tours.admin.*" key
+    // path instead of translated text.
+    "GymMemberships",
+    "Transfers",
+    "Tours",
   ],
   // Every screen in the (auth) group — sign-in, sign-up, OTP, forgot-password,
   // reset-password — is a client component calling `useTranslations("Auth.*")`,
@@ -136,11 +144,19 @@ export const SEGMENT_NAMESPACES = {
   marketing: [
     "BottomTabBar",
     "Category",
+    // /profile/memberships (gym-membership-plans-browser.tsx, gym-memberships-list.tsx,
+    // gym-membership-subscribe-dialog.tsx) and /profile/tour-gatherings
+    // (gathering-campaigns-browser.tsx, my-gathering-participations-list.tsx,
+    // gathering-join-dialog.tsx) both live under the (main) group, which gets this
+    // segment -- without these two, both customer pages rendered their labels as raw
+    // "GymMemberships.customer.*" / "Tours.customer.*" key paths.
+    "GymMemberships",
     "Home",
     "HomePage",
     "List",
     "LocalizedInput",
     "MapShared",
+    "Tours",
   ],
   providerPanel: ["AdminGenerated"],
   providerPortal: ["ProviderPortal"],
