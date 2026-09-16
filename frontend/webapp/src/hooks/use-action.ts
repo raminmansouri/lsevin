@@ -8,8 +8,8 @@ type Action<TInput, TOutput> = (
   data: TInput
 ) => Promise<ActionState<TInput, TOutput>>;
 
-interface UseActionOptions<TOutput> {
-  onSuccess?: (data?: TOutput) => void;
+interface UseActionOptions<TInput, TOutput> {
+  onSuccess?: (data: TOutput | undefined, input: TInput) => void;
   onError?: (error: IProblem) => void;
   onComplete?: () => void;
   onBeforeAction?: () => Promise<void> | void;
@@ -19,7 +19,7 @@ interface UseActionOptions<TOutput> {
 
 const useAction = <TInput, TOutput>(
   action: Action<TInput, TOutput>,
-  options: UseActionOptions<TOutput> = {
+  options: UseActionOptions<TInput, TOutput> = {
     startTransition: () => {},
   }
 ) => {
@@ -75,10 +75,10 @@ const useAction = <TInput, TOutput>(
         }
         if (result.data) {
           setData(result.data);
-          options.onSuccess?.(result.data);
+          options.onSuccess?.(result.data, input);
           return;
         }
-        options.onSuccess?.();
+        options.onSuccess?.(undefined, input);
       } catch (error) {
         // redirect()/notFound() inside a server action work by throwing an
         // error with this digest; Next's router only performs the navigation
