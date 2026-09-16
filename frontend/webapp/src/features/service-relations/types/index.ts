@@ -46,3 +46,27 @@ export interface ServiceDefinitionRelationsDetails {
   addonProviderTypes: ServiceDefinitionAddonProviderTypeItem[];
   attributeDefinitions: ServiceAttributeDefinitionItem[];
 }
+
+export interface AddonSummary {
+  id: string;
+  name: string;
+  price: number;
+  currencyCode: string;
+  addonKind: string;
+  sourceType: string;
+  isActive: boolean;
+}
+
+export interface AddonLinkedProviderServiceItem {
+  providerServiceId: string;
+  providerServiceName: string;
+  providerName: string;
+  serviceDefinitionName: string;
+  price: number;
+  currency: string;
+  isActive: boolean;
+}
+
+export interface AddonProviderServicePickerItem extends AddonLinkedProviderServiceItem {
+  isLinked: boolean;
+}

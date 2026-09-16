@@ -42,6 +42,7 @@ import {
   MessagesSquare,
   Package,
   PackageOpen,
+  PackagePlus,
   Percent,
   Plug,
   Receipt,
@@ -167,6 +168,7 @@ export const ADMIN_NAV: AdminNavEntry[] = [
       { titleKey: "staff", href: "/admin/staff", icon: Stethoscope },
       { titleKey: "categories", href: "/admin/categories", icon: FolderTree },
       { titleKey: "serviceDefinitions", href: "/admin/service-definitions", icon: Briefcase },
+      { titleKey: "addons", href: "/admin/addons", icon: PackagePlus },
     ],
   },
 
