@@ -8760,6 +8760,10 @@
       "isActive": {
         "label": "启用"
       },
+      "requiresCustomerAddress": {
+        "label": "需要客户地址（上门服务）",
+        "hint": "适用于在客户地址提供的服务，例如上门护理。会在预订流程中新增一个选择地址的步骤。"
+      },
       "name": {
         "label": "名称"
       },

@@ -1920,6 +1920,10 @@
       "isActive": {
         "label": "Actif"
       },
+      "requiresCustomerAddress": {
+        "label": "Nécessite l'adresse du client (visite à domicile)",
+        "hint": "À activer pour les services fournis à l'adresse du client, par ex. les soins infirmiers à domicile. Ajoute une étape de sélection d'adresse au parcours de réservation."
+      },
       "attributeDefinitions": "Définitions d'attributs",
       "requirements": "Exigences",
       "create": "Créer la définition de service",

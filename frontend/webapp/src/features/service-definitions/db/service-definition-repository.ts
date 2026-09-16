@@ -41,6 +41,7 @@ type ServiceDefinitionMutationInput = {
   isActive: boolean;
   currency: string;
   value: number;
+  requiresCustomerAddress: boolean;
 };
 
 type AttributeMutationInput = {
@@ -979,6 +980,7 @@ export async function getServiceDefinitionByIdFromDb(
       basePrice: asNumber(row.value),
       pricingModel: String(row.pricing_model ?? ""),
       isActive: asBoolean(row.is_active),
+      requiresCustomerAddress: asBoolean(row.requires_customer_address),
       attributeDefinitions: attributes,
       requirements,
       uploadRequirements,
@@ -1005,6 +1007,7 @@ export async function createServiceDefinitionInDb(input: ServiceDefinitionMutati
       is_active,
       currency,
       value,
+      requires_customer_address,
       create_date,
       last_modified_date
     ) values (
@@ -1019,6 +1022,7 @@ export async function createServiceDefinitionInDb(input: ServiceDefinitionMutati
       ${input.isActive},
       ${input.currency},
       ${input.value},
+      ${input.requiresCustomerAddress},
       now(),
       now()
     )
@@ -1044,6 +1048,7 @@ export async function updateServiceDefinitionInDb(input: ServiceDefinitionMutati
       is_active = ${input.isActive},
       currency = ${input.currency},
       value = ${input.value},
+      requires_customer_address = ${input.requiresCustomerAddress},
       last_modified_date = now()
     where id = ${input.serviceDefinitionId}
     returning id

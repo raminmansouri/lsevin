@@ -98,6 +98,7 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
       value: serviceDefinition?.basePrice ?? 0,
       pricingModel: serviceDefinition?.pricingModel ?? "Fixed",
       isActive: serviceDefinition?.isActive ?? true,
+      requiresCustomerAddress: serviceDefinition?.requiresCustomerAddress ?? false,
     },
     resolver: zodResolver(ServiceDefinitionFormSchema),
   });
@@ -387,6 +388,24 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
                       <div>
                         <FormLabel>{componentT("form.isActive.label")}</FormLabel>
                         <p className="text-muted-foreground text-xs">{t("showThisServiceDefinitionInProviderSetupAnd")}</p>
+                      </div>
+                      <FormControl>
+                        <Switch checked={field.value} onCheckedChange={field.onChange} disabled={isPending} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="requiresCustomerAddress"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center justify-between rounded-xl border bg-background p-4">
+                      <div>
+                        <FormLabel>{componentT("form.requiresCustomerAddress.label")}</FormLabel>
+                        <p className="text-muted-foreground text-xs">
+                          {componentT("form.requiresCustomerAddress.hint")}
+                        </p>
                       </div>
                       <FormControl>
                         <Switch checked={field.value} onCheckedChange={field.onChange} disabled={isPending} />

@@ -1923,6 +1923,10 @@ declare const messages: {
       "isActive": {
         "label": "Aktiv"
       },
+      "requiresCustomerAddress": {
+        "label": "Erfordert Kundenadresse (Hausbesuch)",
+        "hint": "Aktivieren für Leistungen, die an der Adresse des Kunden erbracht werden, z. B. häusliche Pflege. Fügt dem Buchungsablauf einen Adressauswahl-Schritt hinzu."
+      },
       "attributeDefinitions": "Attributdefinitionen",
       "requirements": "Anforderungen",
       "create": "Dienstleistungsdefinition erstellen",

@@ -1923,6 +1923,10 @@ declare const messages: {
       "isActive": {
         "label": "Aktif"
       },
+      "requiresCustomerAddress": {
+        "label": "Müşteri adresi gerektirir (evde ziyaret)",
+        "hint": "Müşterinin adresinde sunulan hizmetler için açın, örn. evde hemşirelik. Rezervasyon akışına bir adres seçim adımı ekler."
+      },
       "attributeDefinitions": "Öznitelik Tanımları",
       "requirements": "Gereklilikler",
       "create": "Hizmet Tanımı Oluştur",

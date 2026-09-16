@@ -6625,6 +6625,10 @@ declare const messages: {
       "isActive": {
         "label": "Active"
       },
+      "requiresCustomerAddress": {
+        "label": "Requires customer address (home visit)",
+        "hint": "Turn on for services delivered at the customer's address, e.g. home nursing. Adds an address-picker step to the booking flow."
+      },
       "attributeDefinitions": "Attribute Definitions",
       "requirements": "Requirements",
       "create": "Create Service Definition",

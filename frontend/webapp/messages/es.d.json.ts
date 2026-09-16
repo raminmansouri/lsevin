@@ -1923,6 +1923,10 @@ declare const messages: {
       "isActive": {
         "label": "Activo"
       },
+      "requiresCustomerAddress": {
+        "label": "Requiere dirección del cliente (visita a domicilio)",
+        "hint": "Actívelo para servicios prestados en la dirección del cliente, p. ej. enfermería a domicilio. Añade un paso de selección de dirección al flujo de reserva."
+      },
       "attributeDefinitions": "Definiciones de atributos",
       "requirements": "Requisitos",
       "create": "Crear definición de servicio",
