@@ -1186,20 +1186,33 @@ export async function listServices(params: { providerId?: string; serviceId?: st
 /** Item 6 (translator booking) -- batches the (staff_id -> spoken languages) lookup for a page
  * of specialists in one query. category.staff_languages already ties languages to individual
  * staff members (populated by the existing staff admin form's "languages" lazy-select); this
- * is purely a read, same shape as listServiceAttributeValues()'s own batching. */
+ * is purely a read, same shape as listServiceAttributeValues()'s own batching.
+ *
+ * Bug fix: this used to also be referenced directly inside listSpecialists()'s own SQL (a
+ * correlated subquery baked into search_blob, plus a WHERE-clause exists() for the `language`
+ * filter). A table reference has to resolve at parse time regardless of which branch of an OR
+ * a value ends up taking, so if staff_languages didn't actually exist wherever this ran, EVERY
+ * specialist lookup failed outright -- not just ones that searched or filtered by language.
+ * That broke specialist selection for any booking requiring one, i.e. most "casual" bookings.
+ * Now the base specialist query never references this table at all; language search/display
+ * both go through this one already-isolated, try/catch-guarded function instead. */
 async function listStaffLanguages(staffIds: string[]) {
   const byStaff = new Map<string, string[]>();
   if (staffIds.length === 0) return byStaff;
-  const rows = await db<{ staff_id: string; language: string }[]>`
-    select staff_id, language
-    from category.staff_languages
-    where staff_id = any(${staffIds})
-    order by language asc
-  `;
-  for (const row of rows) {
-    const list = byStaff.get(row.staff_id) ?? [];
-    list.push(row.language);
-    byStaff.set(row.staff_id, list);
+  try {
+    const rows = await db<{ staff_id: string; language: string }[]>`
+      select staff_id, language
+      from category.staff_languages
+      where staff_id = any(${staffIds})
+      order by language asc
+    `;
+    for (const row of rows) {
+      const list = byStaff.get(row.staff_id) ?? [];
+      list.push(row.language);
+      byStaff.set(row.staff_id, list);
+    }
+  } catch {
+    // category.staff_languages missing or unreachable -- no languages rather than a crash.
   }
   return byStaff;
 }
@@ -1241,8 +1254,7 @@ export async function listSpecialists(params: { providerId?: string; serviceId?:
                s.title_translations::text,
                s.specialty,
                s.experience,
-               s.next_available_label,
-               (select string_agg(sl.language, ' ') from category.staff_languages sl where sl.staff_id = s.id)
+               s.next_available_label
              ) as search_blob,
              regexp_replace(
                replace(replace(replace(replace(concat_ws(' ',
@@ -1252,8 +1264,7 @@ export async function listSpecialists(params: { providerId?: string; serviceId?:
                  s.title_translations::text,
                  s.specialty,
                  s.experience,
-                 s.next_available_label,
-                 (select string_agg(sl.language, ' ') from category.staff_languages sl where sl.staff_id = s.id)
+                 s.next_available_label
                ), 'ي', 'ی'), 'ى', 'ی'), 'ك', 'ک'), chr(8204), ' '),
                '\\s+',
                ' ',
@@ -1264,13 +1275,6 @@ export async function listSpecialists(params: { providerId?: string; serviceId?:
       where ps.is_active = true
         and (${providerId ?? null}::uuid is null or ps.service_provider_id = ${providerId ?? null}::uuid)
         and (${specialistId ?? null}::uuid is null or s.id = ${specialistId ?? null}::uuid)
-        and (
-          ${language ?? null}::text is null
-          or exists (
-            select 1 from category.staff_languages sl
-            where sl.staff_id = s.id and sl.language = ${language ?? null}::text
-          )
-        )
         and (
           ${serviceId ?? null}::uuid is null
           or exists (
@@ -1334,7 +1338,7 @@ export async function listSpecialists(params: { providerId?: string; serviceId?:
 
   const languagesByStaff = await listStaffLanguages(rows.map((row: any) => row.id));
 
-  const items: SpecialistCardItem[] = rows.map((row: any) => ({
+  let items: SpecialistCardItem[] = rows.map((row: any) => ({
     id: row.id,
     name: row.specialist_name || '',
     title: row.specialist_title || '',
@@ -1348,6 +1352,14 @@ export async function listSpecialists(params: { providerId?: string; serviceId?:
     successRate: row.success_rate,
     languages: languagesByStaff.get(row.id),
   }));
+
+  // Applied after the SQL LIMIT/OFFSET rather than in the WHERE clause -- a page can come
+  // back thinner than `take` even when more matches exist further in, which is an acceptable
+  // tradeoff for a rarely-used exact filter against an isolated, try/catch-guarded lookup that
+  // must never be able to break specialist listing for everyone else. See listStaffLanguages().
+  if (language) {
+    items = items.filter((item) => item.languages?.includes(language));
+  }
 
   const total = Number(rows[0]?.total_count ?? 0);
   return { items, total, hasMore: offset + items.length < total };
