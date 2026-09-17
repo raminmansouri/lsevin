@@ -169,6 +169,7 @@ export const ADMIN_NAV: AdminNavEntry[] = [
       { titleKey: "categories", href: "/admin/categories", icon: FolderTree },
       { titleKey: "serviceDefinitions", href: "/admin/service-definitions", icon: Briefcase },
       { titleKey: "addons", href: "/admin/addons", icon: PackagePlus },
+      { titleKey: "addonProviderTypes", href: "/admin/addon-provider-types", icon: Layers },
     ],
   },
 

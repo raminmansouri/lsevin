@@ -17,6 +17,12 @@ export const bulkSetAddonProviderServicesSchema = z.object({
   removeProviderServiceIds: z.array(z.guid()).default([]),
 });
 
+export const bulkSetServiceDefinitionAddonProviderTypesSchema = z.object({
+  providerTypeId: z.guid(),
+  addServiceDefinitionIds: z.array(z.guid()).default([]),
+  removeServiceDefinitionIds: z.array(z.guid()).default([]),
+});
+
 export const serviceFaqSchema = z.object({ providerServiceId: z.guid(), faqId: z.guid().optional(), question: z.string().trim().min(1), answer: z.string().trim().min(1) });
 export const deleteServiceFaqSchema = z.object({ providerServiceId: z.guid(), faqId: z.guid() });
 

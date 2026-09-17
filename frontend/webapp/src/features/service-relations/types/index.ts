@@ -70,3 +70,22 @@ export interface AddonLinkedProviderServiceItem {
 export interface AddonProviderServicePickerItem extends AddonLinkedProviderServiceItem {
   isLinked: boolean;
 }
+
+export interface ProviderTypeAddonSummary {
+  id: string;
+  name: string;
+  iconUrl: string | null;
+  isActive: boolean;
+  linkedCount: number;
+}
+
+export interface ProviderTypeAddonServiceDefinitionItem {
+  serviceDefinitionId: string;
+  serviceDefinitionName: string;
+  categoryName: string;
+  isActive: boolean;
+}
+
+export interface ProviderTypeAddonServiceDefinitionPickerItem extends ProviderTypeAddonServiceDefinitionItem {
+  isLinked: boolean;
+}

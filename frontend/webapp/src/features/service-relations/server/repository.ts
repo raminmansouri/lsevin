@@ -317,6 +317,141 @@ export async function upsertAddonProviderType(input: { serviceDefinitionId: stri
 }
 export async function deleteAddonProviderType(serviceDefinitionId: string, relationId: string) { await db`delete from category.service_definition_addon_provider_types where id = ${relationId} and service_definition_id = ${serviceDefinitionId}`; }
 
+// Bulk provider-type-as-addon <-> service-definition linking. The single-item
+// form above (upsertAddonProviderType) only works from one service definition
+// at a time -- pick provider types to offer on THIS definition. With ~7000
+// definitions, offering e.g. "Hotel" as an addon broadly means opening 7000
+// pages one at a time. These instead work from one provider type outward:
+// list which definitions already offer it, search/paginate the rest, and
+// apply a whole batch of links/unlinks in one round trip -- same shape as the
+// bulk add-on-catalog linker, pointed at the relationship that was actually
+// asked for (service_definition_addon_provider_types, not
+// provider_service_addons).
+
+export async function getProviderTypeSummary(providerTypeId: string, locale: string) {
+  const rows = await db`
+    select id, common.get_translation_t(name_translations, ${locale}, ${FALLBACK_LOCALE}) as name, icon_url, is_active
+    from category.provider_types
+    where id = ${providerTypeId}
+    limit 1
+  `;
+  const row = rows[0] as any;
+  if (!row) return null;
+  return {
+    id: row.id as string,
+    name: row.name as string,
+    iconUrl: row.icon_url as string | null,
+    isActive: Boolean(row.is_active),
+  };
+}
+
+export async function listProviderTypesForAddonAdmin(locale: string) {
+  const rows = await db`
+    select pt.id, common.get_translation_t(pt.name_translations, ${locale}, ${FALLBACK_LOCALE}) as name, pt.icon_url, pt.is_active,
+           (select count(*) from category.service_definition_addon_provider_types sapt where sapt.provider_type_id = pt.id)::int as linked_count
+    from category.provider_types pt
+    order by name asc
+  `;
+  return rows.map((row: any) => ({
+    id: row.id as string,
+    name: row.name as string,
+    iconUrl: row.icon_url as string | null,
+    isActive: Boolean(row.is_active),
+    linkedCount: Number(row.linked_count ?? 0),
+  }));
+}
+
+export async function listServiceDefinitionsOfferingProviderTypeAddon(providerTypeId: string, locale: string) {
+  const rows = await db`
+    select sd.id as service_definition_id,
+           common.get_translation_t(sd.name_translations, ${locale}, ${FALLBACK_LOCALE}) as service_definition_name,
+           common.get_translation_t(c.name_translations, ${locale}, ${FALLBACK_LOCALE}) as category_name,
+           sd.is_active
+    from category.service_definition_addon_provider_types sapt
+    join category.service_definitions sd on sd.id = sapt.service_definition_id
+    left join category.categories c on c.id = sd.category_id
+    where sapt.provider_type_id = ${providerTypeId}
+    order by category_name asc, service_definition_name asc
+  `;
+  return rows.map((row: any) => ({
+    serviceDefinitionId: row.service_definition_id as string,
+    serviceDefinitionName: row.service_definition_name as string,
+    categoryName: (row.category_name as string) || '',
+    isActive: Boolean(row.is_active),
+  }));
+}
+
+export async function searchServiceDefinitionsForProviderTypeAddonPicker(args: {
+  providerTypeId: string;
+  query: string;
+  page: number;
+  pageSize: number;
+  locale: string;
+}) {
+  const offset = Math.max(0, (args.page - 1) * args.pageSize);
+  const term = args.query.trim();
+  const like = `%${term}%`;
+
+  const rows = await db<any[]>`
+    select
+      sd.id as service_definition_id,
+      common.get_translation_t(sd.name_translations, ${args.locale}, ${FALLBACK_LOCALE}) as service_definition_name,
+      common.get_translation_t(c.name_translations, ${args.locale}, ${FALLBACK_LOCALE}) as category_name,
+      sd.is_active,
+      (sapt.id is not null) as is_linked,
+      count(*) over()::int as total_count
+    from category.service_definitions sd
+    left join category.categories c on c.id = sd.category_id
+    left join category.service_definition_addon_provider_types sapt
+      on sapt.service_definition_id = sd.id and sapt.provider_type_id = ${args.providerTypeId}
+    where (
+      ${term === ""}
+      or common.get_translation_t(sd.name_translations, ${args.locale}, ${FALLBACK_LOCALE}) ilike ${like}
+      or common.get_translation_t(c.name_translations, ${args.locale}, ${FALLBACK_LOCALE}) ilike ${like}
+    )
+    order by is_linked desc, category_name asc, service_definition_name asc
+    limit ${args.pageSize} offset ${offset}
+  `;
+
+  const total = rows.length ? Number(rows[0].total_count) : 0;
+
+  return {
+    items: rows.map((row) => ({
+      serviceDefinitionId: row.service_definition_id as string,
+      serviceDefinitionName: row.service_definition_name as string,
+      categoryName: (row.category_name as string) || '',
+      isActive: Boolean(row.is_active),
+      isLinked: Boolean(row.is_linked),
+    })),
+    total,
+  };
+}
+
+export async function bulkSetServiceDefinitionAddonProviderTypes(args: {
+  providerTypeId: string;
+  addServiceDefinitionIds: string[];
+  removeServiceDefinitionIds: string[];
+}) {
+  if (args.addServiceDefinitionIds.length) {
+    await db`
+      insert into category.service_definition_addon_provider_types (id, service_definition_id, provider_type_id)
+      select public.uuid_generate_v4(), sd_id, ${args.providerTypeId}
+      from unnest(${args.addServiceDefinitionIds}::uuid[]) as sd_id
+      where not exists (
+        select 1 from category.service_definition_addon_provider_types existing
+        where existing.service_definition_id = sd_id and existing.provider_type_id = ${args.providerTypeId}
+      )
+    `;
+  }
+  if (args.removeServiceDefinitionIds.length) {
+    await db`
+      delete from category.service_definition_addon_provider_types
+      where provider_type_id = ${args.providerTypeId}
+        and service_definition_id = any(${args.removeServiceDefinitionIds}::uuid[])
+    `;
+  }
+}
+
 export async function upsertServiceAttributeDefinition(input: { serviceDefinitionId: string; attributeDefinitionId?: string; nameTranslations: Record<string, string>; descriptionTranslations: Record<string, string>; attributeTypeId: number; isRequired: boolean; affectsPricing: boolean; displayOrder: number; }) {
   if (input.attributeDefinitionId) { await db`update category.service_attribute_definitions set name_translations = ${asJson(input.nameTranslations)}::jsonb, description_translations = ${asJson(input.descriptionTranslations)}::jsonb, attribute_type_id = ${input.attributeTypeId}, is_required = ${input.isRequired}, affects_pricing = ${input.affectsPricing}, display_order = ${input.displayOrder}, last_modified_date = now() where id = ${input.attributeDefinitionId} and service_definition_id = ${input.serviceDefinitionId}`; return { id: input.attributeDefinitionId }; }
   const rows = await db`insert into category.service_attribute_definitions (id, name_translations, description_translations, attribute_type_id, is_required, affects_pricing, display_order, service_definition_id, create_date) values (public.uuid_generate_v4(), ${asJson(input.nameTranslations)}::jsonb, ${asJson(input.descriptionTranslations)}::jsonb, ${input.attributeTypeId}, ${input.isRequired}, ${input.affectsPricing}, ${input.displayOrder}, ${input.serviceDefinitionId}, now()) returning id`;
