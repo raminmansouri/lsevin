@@ -3,7 +3,8 @@ import { assertNoUndefinedRecord, pgNumber, pgString } from './checkout-null-saf
 import db from '@/config/database/db';
 import { reserveHotelDates } from "./hotel-availability.repository";
 import { resolveUserPaymentRegion } from '@/payment/server/gateway-eligibility';
-import { TOMAN_CURRENCY_CODE } from '@/features/finance/lib/server/toman-price';
+import { resolveIsIranianVisitor } from '@/features/finance/lib/server/iranian-visitor';
+import { resolveDisplayPrice, TOMAN_CURRENCY_CODE } from '@/features/finance/lib/server/toman-price';
 import { calculateBookingPaymentTerms, resolveBookingPaymentPolicy } from '@/features/commercial/lib/server/payment-policy-engine';
 import { applyCommercialSnapshotAfterCheckout } from './commercial-integration';
 import { assertDraftAvailabilityBeforeCheckout } from './booking-availability.repository';
@@ -1034,6 +1035,7 @@ export async function listServices(params: { providerId?: string; serviceId?: st
              ) as image_url,
              ps.currency,
              ps.value,
+             ps.value_toman,
              ps.duration_minutes,
              ps.slot_interval_minutes,
              ps.rating,
@@ -1097,6 +1099,7 @@ export async function listServices(params: { providerId?: string; serviceId?: st
            image_url,
            currency,
            value,
+           value_toman,
            duration_minutes,
            slot_interval_minutes,
            rating,
@@ -1155,15 +1158,22 @@ export async function listServices(params: { providerId?: string; serviceId?: st
   const routeByService = await listTransferRouteSummaries(rows.map((row: any) => row.id), locale);
   const addressRequiredDefIds = await listAddressRequiredServiceDefinitions(rows.map((row: any) => row.service_definition_id));
   const servicesWithDepartures = await listServicesWithOpenDepartures(rows.map((row: any) => row.id));
+  const isIranianVisitor = await resolveIsIranianVisitor().catch(() => false);
 
-  const items: ServiceCardItem[] = rows.map((row: any) => ({
+  const items: ServiceCardItem[] = rows.map((row: any) => {
+    const displayPrice = resolveDisplayPrice(
+      { value: Number(row.value ?? 0), currency: row.currency },
+      row.value_toman == null ? null : Number(row.value_toman),
+      isIranianVisitor,
+    );
+    return {
     id: row.id,
     serviceDefinitionId: row.service_definition_id,
     name: row.service_name || '',
     description: row.service_description || '',
     imageUrl: row.image_url,
-    currency: row.currency,
-    value: Number(row.value ?? 0),
+    currency: displayPrice.currency,
+    value: displayPrice.value,
     durationMinutes: row.duration_minutes,
     slotIntervalMinutes: row.slot_interval_minutes,
     rating: row.rating,
@@ -1179,7 +1189,8 @@ export async function listServices(params: { providerId?: string; serviceId?: st
     route: routeByService.get(row.id),
     requiresCustomerAddress: addressRequiredDefIds.has(row.service_definition_id),
     hasTourDepartures: servicesWithDepartures.has(row.id),
-  }));
+    };
+  });
 
   const total = Number(rows[0]?.total_count ?? 0);
   return { items, total, hasMore: offset + items.length < total };
