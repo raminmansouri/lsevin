@@ -1,9 +1,26 @@
-import { getLocale } from "next-intl/server";
+import { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
 
+import { alternatesFor } from "@/lib/seo/alternates";
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
 
 import ExploreClient from "./ExploreClient";
 import { getExplorePageData, parseExploreFilters } from "./explore.data";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Explore" });
+
+  return {
+    title: t("header.title"),
+    description: t("header.subtitle"),
+    alternates: alternatesFor(locale, "/n/app/mobile/explore"),
+  };
+}
 
 // Explore is a URL-filter-driven directory (country / city / category /
 // provider-type / language / currency / rating). It reads `searchParams`

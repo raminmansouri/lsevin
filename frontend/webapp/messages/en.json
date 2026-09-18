@@ -14812,6 +14812,8 @@
     "ge00Ls0000000000000000": "GE00 LS00 0000 0000 0000 00",
     "ref": "Ref:",
     "title": "Shop",
+    "metaDescription": "Shop medical and wellness products, equipment, and supplies with fast delivery.",
+    "categoryMetaDescription": "Browse {count} products in {name}.",
     "tab": "Shop",
     "searchPlaceholder": "Search products, brands…",
     "search": "Search",

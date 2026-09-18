@@ -1,9 +1,10 @@
 import { notFound } from 'next/navigation';
-import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { setRequestLocale } from 'next-intl/server';
 
 import { getServicePageByIdCached } from '@/features/service-providers/server/service-page.repository.cached';
 import { listActiveServicePageIds } from '@/features/service-providers/server/service-page.repository';
 
+import { alternatesFor } from '@/lib/seo/alternates';
 import { SponsoredPlacementSlot } from '@/features/sponsered-slider/components/sponsored-placement-slot';
 
 import ServicePage from './service-page';
@@ -33,12 +34,27 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Pick<ServicePageRouteProps, 'params'>) {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'ServicePage' });
+  const { locale, id } = await params;
+  const data = await getServicePageByIdCached({ serviceId: id, locale }).catch(() => null);
+  const service = data?.service;
+
+  if (!service) {
+    return { title: 'Service', alternates: alternatesFor(locale, `/n/app/mobile/service/${id}`) };
+  }
+
+  const title = service.clinic ? `${service.name} — ${service.clinic}` : service.name;
+  const description = (service.subtitle || service.definitionDescription || service.providerDescription || '').slice(0, 300);
 
   return {
-    title: t('metadata.title'),
-    description: t('metadata.description'),
+    title,
+    description: description || undefined,
+    alternates: alternatesFor(locale, `/n/app/mobile/service/${id}`),
+    openGraph: {
+      title,
+      description: description || undefined,
+      type: 'website',
+      images: service.images?.[0] ? [{ url: service.images[0] }] : undefined,
+    },
   };
 }
 

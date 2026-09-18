@@ -14815,6 +14815,8 @@ declare const messages: {
     "ge00Ls0000000000000000": "GE00 LS00 0000 0000 0000 00",
     "ref": "کد پیگیری:",
     "title": "فروشگاه",
+    "metaDescription": "خرید محصولات و تجهیزات پزشکی و سلامت با ارسال سریع.",
+    "categoryMetaDescription": "مشاهده {count} محصول در دسته {name}.",
     "tab": "فروشگاه",
     "searchPlaceholder": "جستجوی محصول، برند…",
     "search": "جستجو",

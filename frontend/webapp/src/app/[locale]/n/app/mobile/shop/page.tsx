@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { alternatesFor } from "@/lib/seo/alternates";
 import {
   getShopDefaultCurrencyCached,
 } from "@/features/shop/api/catalog.repository.cached";
@@ -39,6 +40,17 @@ async function withShopRetry<T>(fn: () => Promise<T>, fallback: T, retries = 5, 
     }
   }
   return fallback;
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Shop" });
+
+  return {
+    title: t("title"),
+    description: t("metaDescription"),
+    alternates: alternatesFor(locale, "/n/app/mobile/shop"),
+  };
 }
 
 export default async function ShopHomePage({ params }: { params: Promise<{ locale: string }> }) {
