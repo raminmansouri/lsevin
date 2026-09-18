@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { csvResponse, toCsv, type CsvColumn } from "@/accounting/lib/csv";
 import { assertAccounting } from "@/accounting/server/access";
 import {
-  getTrialBalance,
+  getTrialBalanceForScope,
   listAuditLog,
   listJournalEntries,
   listPendingDeposits,
@@ -38,7 +38,11 @@ export async function GET(request: NextRequest) {
 
   switch (report) {
     case "trial-balance": {
-      const rows = await getTrialBalance();
+      // The same scope the screen was showing, so the file and the page agree.
+      const scope = request.nextUrl.searchParams.get("scope");
+      const rows = await getTrialBalanceForScope(
+        scope === "in_workflow" || scope === "all" ? scope : "in_books"
+      );
       const columns: CsvColumn<(typeof rows)[number]>[] = [
         { header: "code", value: (r) => r.accountCode },
         { header: "account", value: (r) => pickName(r.accountName, locale) },

@@ -176,6 +176,67 @@ export async function getTrialBalance(): Promise<TrialBalanceRow[]> {
   `;
 }
 
+/**
+ * How much of the journal a trial balance is allowed to see.
+ *
+ *   in_books    — posted and reversed. What the books say, and the only scope the
+ *                 balance sheet and the income statement are built from.
+ *   in_workflow — plus documents waiting for approval, so an accountant can see
+ *                 where the month lands once the queue clears.
+ *   all         — every document that exists, drafts and rejections included.
+ *
+ * The wider two are a working view, not a statement: a draft is unbalanced by
+ * design while it is being typed, so this report can legitimately not foot in those
+ * scopes. That is why the default stays `in_books` and why it keeps reading
+ * v_trial_balance — the official number has exactly one definition, in the view.
+ */
+export type TrialBalanceScope = "in_books" | "in_workflow" | "all";
+
+const SCOPE_STATUSES: Record<Exclude<TrialBalanceScope, "in_books">, string[]> = {
+  in_workflow: ["posted", "reversed", "approved", "temporary"],
+  all: ["posted", "reversed", "approved", "temporary", "draft", "rejected"],
+};
+
+export async function getTrialBalanceForScope(
+  scope: TrialBalanceScope = "in_books"
+): Promise<TrialBalanceRow[]> {
+  if (scope === "in_books") return getTrialBalance();
+
+  const statuses = SCOPE_STATUSES[scope];
+
+  // The same shape as v_trial_balance, with the status test widened. The lines are
+  // filtered inside the subquery rather than on the outer join, for the reason 0016
+  // spells out: a predicate on the LEFT JOINed entry leaves the line in the result
+  // when it fails, and sum() then counts a document that was meant to be excluded.
+  return db<TrialBalanceRow[]>`
+    select
+      a.code               as "accountCode",
+      a.name_translations  as "accountName",
+      a.account_type       as "accountType",
+      l.base_currency_code as "currencyCode",
+      coalesce(sum(l.base_debit_amount), 0)::text  as "totalDebit",
+      coalesce(sum(l.base_credit_amount), 0)::text as "totalCredit",
+      (case a.normal_balance
+         when 'debit' then coalesce(sum(l.base_debit_amount), 0::numeric)
+                         - coalesce(sum(l.base_credit_amount), 0::numeric)
+         else              coalesce(sum(l.base_credit_amount), 0::numeric)
+                         - coalesce(sum(l.base_debit_amount), 0::numeric)
+       end)::text          as "balance"
+    from accounting.accounts a
+    left join (
+      select l.*
+        from accounting.journal_lines l
+        join accounting.journal_entries e on e.id = l.entry_id
+       where e.status = any(${statuses}::text[])
+    ) l on l.account_id = a.id
+    group by a.id, a.code, a.name_translations, a.account_type, a.normal_balance,
+             l.base_currency_code
+    having coalesce(sum(l.base_debit_amount), 0) <> 0
+        or coalesce(sum(l.base_credit_amount), 0) <> 0
+    order by a.code
+  `;
+}
+
 export type JournalEntryRow = {
   id: string;
   entryNumber: string;
