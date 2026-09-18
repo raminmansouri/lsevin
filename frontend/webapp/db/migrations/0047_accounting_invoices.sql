@@ -1,5 +1,5 @@
 -- ---------------------------------------------------------------------------
--- 0040 — purchase and sales invoices, and the document each one posts.
+-- 0047 — purchase and sales invoices, and the document each one posts.
 --
 -- The panel could record what the books owed but not what the paperwork said. A
 -- supplier bill or a customer invoice had to be re-keyed as a journal document,

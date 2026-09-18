@@ -1,5 +1,5 @@
 -- ---------------------------------------------------------------------------
--- 0039 — let a document that never entered the books be deleted.
+-- 0046 — let a document that never entered the books be deleted.
 --
 -- accounting.fn_block_ledger_mutation is the append-only guard, called by
 -- trg_accounting_entries_immutable (BEFORE UPDATE OR DELETE on journal_entries)
