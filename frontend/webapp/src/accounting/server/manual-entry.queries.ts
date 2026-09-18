@@ -1,5 +1,6 @@
 import "server-only";
 
+import { pickTranslatedName } from "@/accounting/lib/names";
 import db from "@/config/database/db";
 
 import { assertAccounting } from "./access";
@@ -44,6 +45,8 @@ export type EntryListRow = {
   lineCount: number;
   baseCurrencyCode: string;
   createdBy: string | null;
+  /** The author's id, so the screen can tell whether the viewer may approve it. */
+  createdById: string | null;
   approvedBy: string | null;
 };
 
@@ -61,7 +64,7 @@ export async function listPostableAccounts(locale = "fa"): Promise<PostableAccou
     {
       id: string;
       code: string;
-      name: string;
+      name_translations: Record<string, string> | null;
       level: number;
       normal_balance: string;
       requires_cost_center: boolean;
@@ -71,12 +74,7 @@ export async function listPostableAccounts(locale = "fa"): Promise<PostableAccou
   >`
     select id::text as id,
            code,
-           coalesce(
-             name_translations ->> ${locale},
-             name_translations ->> 'fa',
-             name_translations ->> 'en',
-             code
-           ) as name,
+           name_translations,
            level,
            normal_balance,
            requires_cost_center,
@@ -90,7 +88,7 @@ export async function listPostableAccounts(locale = "fa"): Promise<PostableAccou
   return rows.map((r) => ({
     id: r.id,
     code: r.code,
-    name: r.name,
+    name: pickTranslatedName(r.name_translations, locale, r.code),
     level: r.level,
     normalBalance: r.normal_balance,
     requiresCostCenter: r.requires_cost_center,
@@ -102,22 +100,24 @@ export async function listPostableAccounts(locale = "fa"): Promise<PostableAccou
 export async function listDimensions(locale = "fa"): Promise<DimensionOption[]> {
   await assertAccounting("read");
 
-  const rows = await db<{ id: string; kind: string; code: string; name: string }[]>`
+  const rows = await db<
+    { id: string; kind: string; code: string; name_translations: Record<string, string> | null }[]
+  >`
     select id::text as id,
            kind,
            code,
-           coalesce(
-             name_translations ->> ${locale},
-             name_translations ->> 'fa',
-             name_translations ->> 'en',
-             code
-           ) as name
+           name_translations
       from accounting.dimensions
      where is_active
      order by kind, code
   `;
 
-  return rows;
+  return rows.map((r) => ({
+    id: r.id,
+    kind: r.kind,
+    code: r.code,
+    name: pickTranslatedName(r.name_translations, locale, r.code),
+  }));
 }
 
 /** The journal — every document, newest first. */
@@ -141,6 +141,7 @@ export async function listEntries(
       line_count: number;
       base_currency_code: string;
       created_by: string | null;
+      created_by_id: string | null;
       approved_by: string | null;
     }[]
   >`
@@ -157,6 +158,7 @@ export async function listEntries(
            count(l.id)::int as line_count,
            e.base_currency_code,
            cu.display_name as created_by,
+           e.created_by::text as created_by_id,
            au.display_name as approved_by
       from accounting.journal_entries e
       left join accounting.journal_lines l on l.entry_id = e.id
@@ -183,6 +185,7 @@ export async function listEntries(
     lineCount: r.line_count,
     baseCurrencyCode: r.base_currency_code,
     createdBy: r.created_by,
+    createdById: r.created_by_id,
     approvedBy: r.approved_by,
   }));
 }
