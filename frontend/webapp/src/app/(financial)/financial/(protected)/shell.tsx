@@ -24,6 +24,7 @@ const NAV_GROUPS: {
     items: [
       { href: "/financial", key: "title" },
       { href: "/financial/entries", key: "entriesTitle" },
+      { href: "/financial/invoices", key: "invoicesTitle" },
       { href: "/financial/journal", key: "journalTitle" },
       { href: "/financial/accounts", key: "accountsTitle" },
     ],

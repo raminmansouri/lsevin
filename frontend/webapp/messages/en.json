@@ -4929,6 +4929,7 @@
       "scopeApply": "Apply",
       "scopeDraftNote": "A working view, not the books: a draft may legitimately be unbalanced, and the financial statements are still built from posted documents only.",
       "trialBalanceEmpty": "No account has movement in this scope.",
+      "invoicesTitle": "Purchase & sales invoices",
       "reportsTitle": "Trial balance",
       "reportsDescription": "Total debit and total credit must always be equal.",
       "balance": "Balance",
