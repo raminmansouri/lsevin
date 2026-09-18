@@ -39,11 +39,14 @@ function optionalAmount(formData: FormData, field: string): string | undefined {
   return raw;
 }
 
+// The panel moved off /admin onto financial.lsevin.com in 50411750; these paths did
+// not move with it, so approving a deposit revalidated four routes that no longer
+// exist and the queue the accountant was looking at kept showing the request.
 function revalidateAccounting() {
-  revalidatePath("/admin/accounting");
-  revalidatePath("/admin/accounting/deposits");
-  revalidatePath("/admin/accounting/withdrawals");
-  revalidatePath("/admin/accounting/journal");
+  revalidatePath("/financial");
+  revalidatePath("/financial/deposits");
+  revalidatePath("/financial/withdrawals");
+  revalidatePath("/financial/journal");
 }
 
 export async function approveDepositAction(formData: FormData) {

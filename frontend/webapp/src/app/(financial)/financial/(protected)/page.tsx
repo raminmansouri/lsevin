@@ -85,13 +85,13 @@ export default async function AccountingDashboardPage() {
 
       <div className="grid gap-4 md:grid-cols-2">
         <QueueCard
-          href={`/${locale}/admin/accounting/deposits`}
+          href="/financial/deposits"
           title={t("pendingDeposits")}
           count={deposits.length}
           emptyLabel={t("queueEmpty")}
         />
         <QueueCard
-          href={`/${locale}/admin/accounting/withdrawals`}
+          href="/financial/withdrawals"
           title={t("pendingWithdrawals")}
           count={withdrawals.length}
           emptyLabel={t("queueEmpty")}
