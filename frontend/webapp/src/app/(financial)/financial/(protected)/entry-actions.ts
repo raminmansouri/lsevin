@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { AccountingAccessError } from "@/accounting/server/access";
 import {
   ManualEntryError,
   copyEntry,
@@ -139,11 +140,68 @@ export async function deleteDraftAction(
  * cost centre"), and those messages name the actual problem, so they are worth
  * showing. Anything else is left generic rather than leaking internals to the
  * screen.
+ *
+ * The refusals from manual-entry.service.ts are matched here too. They used to be
+ * handed to the screen verbatim, which put English at an accountant who works in
+ * Persian — and the two that actually stop people, a missing capability and the
+ * four-eyes rule, then read as "the button does nothing".
  */
 function messageFor(error: unknown): string {
-  if (error instanceof ManualEntryError) return error.message;
+  if (error instanceof AccountingAccessError) {
+    return error.capability === "configure"
+      ? "این مرحله دسترسی «مدیر مالی» می‌خواهد و حساب شما «حسابدار» است."
+      : "حساب شما اجازهٔ این کار را ندارد.";
+  }
 
   const raw = error instanceof Error ? error.message : "";
+
+  if (/approved by someone other than its author/i.test(raw)) {
+    return "سند باید توسط شخصی غیر از ثبت‌کنندهٔ آن تأیید شود.";
+  }
+  if (/cannot be deleted/i.test(raw)) {
+    return "فقط سند پیش‌نویس حذف می‌شود؛ سند در جریان یا قطعی با سند معکوس اصلاح می‌شود.";
+  }
+  if (/cannot become/i.test(raw)) {
+    return "این تغییر وضعیت در گردش کار سند مجاز نیست.";
+  }
+  if (/cannot be edited/i.test(raw)) {
+    return "این سند دیگر قابل ویرایش نیست.";
+  }
+  if (/not part of the approval workflow/i.test(raw)) {
+    return "سندهای خودکار وارد گردش تأیید نمی‌شوند.";
+  }
+  if (/Document not found/i.test(raw)) {
+    return "سند پیدا نشد؛ ممکن است همین حالا حذف شده باشد.";
+  }
+  if (/No open fiscal period covers today/i.test(raw)) {
+    return "هیچ دورهٔ مالی بازی امروز را پوشش نمی‌دهد.";
+  }
+  if (/No fiscal period covers/i.test(raw)) {
+    return "برای تاریخ این سند دورهٔ مالی تعریف نشده است؛ ابتدا دوره را بسازید.";
+  }
+  if (/period covering .* is locked/i.test(raw)) {
+    return "دورهٔ مالی این تاریخ قفل است.";
+  }
+  if (/needs a description/i.test(raw)) {
+    return "شرح سند اجباری است.";
+  }
+  if (/Not signed in/i.test(raw)) {
+    return "نشست شما منقضی شده است؛ دوباره وارد شوید.";
+  }
+  // The line-level complaints already name the row number, which is the useful part.
+  if (/^Line \d+ /i.test(raw)) {
+    const row = raw.match(/^Line (\d+)/i)?.[1] ?? "";
+    if (/both a debit and a credit/i.test(raw)) {
+      return `ردیف ${row} هم بدهکار دارد هم بستانکار؛ آن را به دو ردیف تبدیل کنید.`;
+    }
+    if (/has no amount/i.test(raw)) return `ردیف ${row} مبلغ ندارد.`;
+    if (/has no account/i.test(raw)) return `ردیف ${row} حساب ندارد.`;
+    return `مقدار ردیف ${row} معتبر نیست.`;
+  }
+  // A draft another document was copied from still has a child pointing at it.
+  if (/copied_from_entry_id|foreign key/i.test(raw)) {
+    return "از روی این سند رونوشت گرفته شده است؛ ابتدا رونوشت را حذف کنید.";
+  }
 
   if (/unbalanced in base currency/i.test(raw)) {
     return "سند در ارز پایه تراز نیست؛ نرخ تبدیل ردیف‌ها را بررسی کنید.";
@@ -175,6 +233,8 @@ function messageFor(error: unknown): string {
   if (/duplicate key|ux_accounting_entries_reference/i.test(raw)) {
     return "این شماره عطف قبلاً در همین دوره ثبت شده است.";
   }
+
+  if (error instanceof ManualEntryError) return error.message;
 
   console.error("manual entry action failed", error);
   return "ثبت سند انجام نشد.";

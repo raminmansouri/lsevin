@@ -9,6 +9,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { listAttachmentsForEntries } from "@/accounting/server/attachments.service";
+import { canAccounting } from "@/accounting/server/access";
+import { getPanelUser } from "@/accounting/server/panel-auth";
 
 import { EntryAttachments } from "./attachments";
 import { EntryForm } from "./entry-form";
@@ -37,11 +39,15 @@ const TYPE_LABEL: Record<string, string> = {
 
 export default async function EntriesPage() {
   const locale = PANEL_LOCALE;
-  const [accounts, dimensions, entries, coverage] = await Promise.all([
+  const [accounts, dimensions, entries, coverage, viewer, canConfigure] = await Promise.all([
     listPostableAccounts(locale),
     listDimensions(locale),
     listEntries({ limit: 100 }),
     getPeriodCoverage(),
+    getPanelUser(),
+    // The approval half of the ladder needs `configure`. Reading it here lets the row
+    // say so on the button instead of the accountant finding out by being refused.
+    canAccounting("configure"),
   ]);
 
   const attachmentsByEntry = await listAttachmentsForEntries(entries.map((e) => e.id));
@@ -146,7 +152,12 @@ export default async function EntriesPage() {
                       </td>
                       <td className="p-2">
                         {entry.isManual ? (
-                          <EntryWorkflowButtons entryId={entry.id} status={entry.status} />
+                          <EntryWorkflowButtons
+                            entryId={entry.id}
+                            status={entry.status}
+                            canConfigure={canConfigure}
+                            isAuthor={Boolean(viewer && entry.createdById === viewer.id)}
+                          />
                         ) : (
                           <span className="text-muted-foreground text-xs">خودکار</span>
                         )}
