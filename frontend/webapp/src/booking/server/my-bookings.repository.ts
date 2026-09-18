@@ -49,6 +49,8 @@ type BookingListRow = {
 };
 
 type BookingDetailRow = BookingListRow & {
+  mainSubtotal: number | string | null;
+  discountAmount: number | string | null;
   providerImage: string | null;
   serviceImage: string | null;
   providerDescription: string | null;
@@ -147,6 +149,8 @@ function toBookingRecord(row: BookingDetailRow, locale: string): BookingRecord {
 
   return {
     ...toBooking({ ...row, image: image ?? null }, locale),
+    mainSubtotal: row.mainSubtotal == null ? null : toNumber(row.mainSubtotal),
+    discountAmount: row.discountAmount == null ? null : toNumber(row.discountAmount),
     providerImage,
     providerDescription: row.providerDescription || undefined,
     serviceDescription: row.serviceDescription || undefined,
@@ -367,6 +371,11 @@ export async function getMyBookingByIdFromDb(input: GetMyBookingByIdInput): Prom
       end as "paymentStatus",
       coalesce(base.display_total_amount, base.total_amount, base.source_total_amount, base.provider_service_value, 0)::text as price,
       coalesce(base.paid_amount, 0)::text as deposit,
+      coalesce(base.display_subtotal_amount,
+        case when upper(coalesce(base.source_currency_code, base.currency_code, 'USD')) = upper(coalesce(base.display_currency_code, base.currency_code, 'USD'))
+          then base.source_subtotal_amount end)::text as "mainSubtotal",
+      case when upper(coalesce(base.currency_code, 'USD')) = upper(coalesce(base.display_currency_code, base.currency_code, 'USD'))
+        then coalesce(base.applied_discount_amount, 0)::text end as "discountAmount",
       greatest(coalesce(base.display_total_amount, base.total_amount, base.source_total_amount, base.provider_service_value, 0) - coalesce(base.paid_amount, 0), 0)::text as remaining,
       upper(coalesce(nullif(base.display_currency_code, ''), nullif(base.currency_code, ''), nullif(base.payment_currency_code, ''), nullif(base.provider_service_currency, ''), 'USD')) as currency,
       coalesce(base.provider_accredited, false) as verified,

@@ -1,4 +1,14 @@
 {
+  "BookingCart": {
+    "title": "Reservas guardadas",
+    "hint": "Son estimaciones, no reservas confirmadas. Revise cada reserva para comprobar la disponibilidad y pagar. Los productos se pagan por separado por ahora.",
+    "resume": "Revisar reserva",
+    "remove": "Eliminar",
+    "another": "Añadir otro servicio",
+    "save": "Guardar en el carrito y seguir comprando",
+    "saving": "Guardando…",
+    "error": "No se pudo actualizar. Actualice la página e inténtelo de nuevo."
+  },
   "UploadFiles": {
     "title": "Upload documents",
     "subtitle": "Please upload the requested files for your booking",
@@ -1909,6 +1919,10 @@
       },
       "isActive": {
         "label": "Activo"
+      },
+      "requiresCustomerAddress": {
+        "label": "Requiere dirección del cliente (visita a domicilio)",
+        "hint": "Actívelo para servicios prestados en la dirección del cliente, p. ej. enfermería a domicilio. Añade un paso de selección de dirección al flujo de reserva."
       },
       "attributeDefinitions": "Definiciones de atributos",
       "requirements": "Requisitos",
@@ -5156,6 +5170,25 @@
     "fromDate": "Fecha de inicio",
     "fullName": "Nombre completo *",
     "fullName2": "Nombre completo",
+    "addNewAddress": "Añadir nueva dirección",
+    "addressFormIncomplete": "Indique su nombre, país, ciudad y dirección.",
+    "addressLine1": "Dirección (línea 1)",
+    "addressLine2": "Dirección (línea 2, opcional)",
+    "addressSaveFailed": "No se pudo guardar esta dirección. Inténtelo de nuevo.",
+    "city": "Ciudad",
+    "country": "País",
+    "loadingAddresses": "Cargando sus direcciones…",
+    "noSavedAddresses": "Aún no tiene direcciones guardadas.",
+    "postalCode": "Código postal",
+    "saveAddress": "Guardar dirección",
+    "serviceAddress": "Dirección del servicio",
+    "serviceAddressHint": "Este servicio se presta en su dirección. Elija una a continuación o añada una nueva.",
+    "stateRegion": "Provincia / Región",
+    "chooseDeparture": "Elegir una salida",
+    "departureFull": "Completo",
+    "loadingDepartures": "Cargando salidas…",
+    "noUpcomingDepartures": "Aún no hay salidas programadas para este tour.",
+    "spotsLeft": "{count} plazas disponibles",
     "gallery": "Galería",
     "gatewayChargeCurrency": "Moneda de cobro de la pasarela:",
     "gender": "Género",
@@ -12755,6 +12788,256 @@
         "confirmDelete": "¿Quitar este destinatario?",
         "empty": "Aún no hay destinatarios: nadie recibe avisos.",
         "cancel": "Cancelar"
+      }
+    }
+  },
+  "GymMemberships": {
+    "customer": {
+      "title": "Mis membresías de gimnasio",
+      "empty": "Todavía no tienes ninguna membresía de gimnasio.",
+      "plan": { "monthlyPriceLabel": "Precio mensual" },
+      "subscribe": {
+        "title": "Suscribirse",
+        "selectMonths": "Selecciona los meses que quieres pagar",
+        "paymentReference": "Referencia de pago (opcional)",
+        "paymentReferenceHint": "Si ya pagaste por transferencia bancaria, ingresa aquí el número de referencia.",
+        "submit": "Enviar para revisión",
+        "submitting": "Enviando…",
+        "submitted": "Enviado para revisión"
+      },
+      "month": {
+        "pending_review": "En revisión",
+        "approved": "Pagado",
+        "rejected": "Rechazado",
+        "due": "Vencido",
+        "reviewNoteLabel": "Motivo"
+      },
+      "errors": {
+        "signInRequired": "Inicia sesión para administrar tus membresías de gimnasio.",
+        "notAvailable": "Las membresías de gimnasio aún no están disponibles. Inténtalo de nuevo más tarde.",
+        "invalidForm": "Revisa los campos marcados.",
+        "planNotFound": "Ese plan ya no está disponible.",
+        "generic": "Algo salió mal. Inténtalo de nuevo."
+      }
+    },
+    "admin": {
+      "title": "Membresías de gimnasio",
+      "description": "Administra los planes de membresía de gimnasio y revisa los pagos.",
+      "schemaMissing": {
+        "title": "Migración de base de datos pendiente",
+        "body": "Aplica la migración 0039_gym_memberships.sql para habilitar esta sección."
+      },
+      "plans": {
+        "title": "Planes de membresía",
+        "empty": "Todavía no hay planes de membresía.",
+        "create": "Agregar plan",
+        "edit": "Editar",
+        "provider": "Gimnasio",
+        "name": "Nombre del plan",
+        "monthlyPrice": "Precio mensual",
+        "currency": "Moneda",
+        "isActive": "Activo",
+        "save": "Guardar",
+        "saving": "Guardando…",
+        "saved": "Plan guardado",
+        "cancel": "Cancelar"
+      },
+      "months": {
+        "title": "Revisión de pagos",
+        "empty": "No hay pagos para revisar.",
+        "filters": {
+          "search": "Buscar gimnasio o referencia",
+          "status": "Estado",
+          "all": "Todos",
+          "apply": "Aplicar"
+        },
+        "table": {
+          "gym": "Gimnasio",
+          "plan": "Plan",
+          "period": "Mes",
+          "amount": "Monto",
+          "reference": "Referencia",
+          "status": "Estado",
+          "createdAt": "Enviado",
+          "actions": "Acciones",
+          "review": "Revisar"
+        },
+        "status": {
+          "pending_review": "En revisión",
+          "approved": "Aprobado",
+          "rejected": "Rechazado"
+        },
+        "review": {
+          "title": "Revisar pago",
+          "note": "Nota",
+          "notePlaceholder": "Motivo (obligatorio para rechazar)…",
+          "approve": "Aprobar",
+          "reject": "Rechazar",
+          "saving": "Guardando…",
+          "saved": "Guardado",
+          "close": "Cerrar"
+        }
+      },
+      "errors": {
+        "invalidForm": "Revisa los campos marcados.",
+        "notFound": "Ese pago ya no existe.",
+        "reasonRequiredToReject": "Se requiere un motivo para rechazar un pago.",
+        "generic": "Algo salió mal. Inténtalo de nuevo."
+      }
+    }
+  },
+  "Transfers": {
+    "admin": {
+      "title": "Rutas de traslado",
+      "description": "Defina rutas de traslado de hotel y aeropuerto con precio fijo. Cada ruta se convierte en un servicio reservable normal, para que los clientes la reserven a través del flujo de reserva habitual.",
+      "schemaMissing": {
+        "title": "Migración de base de datos pendiente",
+        "body": "Aplique la migración 0040_transfer_routes.sql para habilitar esta sección."
+      },
+      "routes": {
+        "title": "Rutas",
+        "empty": "Aún no hay rutas de traslado.",
+        "create": "Añadir ruta",
+        "edit": "Editar",
+        "provider": "Proveedor de traslados",
+        "serviceDefinition": "Definición de servicio",
+        "route": "Ruta",
+        "from": "Origen",
+        "to": "Destino",
+        "vehicleType": "Tipo de vehículo",
+        "vehicleTypePlaceholder": "p. ej. Sedán, Furgoneta",
+        "price": "Precio",
+        "currency": "Moneda",
+        "isActive": "Activo",
+        "save": "Guardar",
+        "saving": "Guardando…",
+        "saved": "Ruta guardada",
+        "cancel": "Cancelar",
+        "confirmDelete": "¿Quitar los datos de origen/destino de esta ruta? El servicio subyacente seguirá siendo reservable; desactívelo o elimínelo desde Proveedores de servicio si desea eliminarlo por completo.",
+        "deleted": "Datos de la ruta eliminados"
+      },
+      "errors": {
+        "invalidForm": "Revise los campos marcados.",
+        "notFound": "Esa ruta ya no existe.",
+        "generic": "Algo salió mal. Inténtelo de nuevo."
+      }
+    }
+  },
+  "Tours": {
+    "admin": {
+      "title": "Tours",
+      "description": "Programe fechas de salida fijas para tours de varios días. El tour en sí (nombre, descripción, precio, itinerario) se edita como cualquier otro servicio a través de Proveedores de servicio.",
+      "schemaMissing": {
+        "title": "Migración de base de datos pendiente",
+        "body": "Aplique la migración 0042_tour_departures.sql para habilitar esta sección."
+      },
+      "departures": {
+        "title": "Salidas",
+        "empty": "Aún no hay salidas programadas.",
+        "create": "Añadir salida",
+        "edit": "Editar",
+        "tour": "Tour",
+        "tourPlaceholder": "Buscar un tour",
+        "tourHint": "Elija un servicio existente (créelo primero en Proveedores de servicio si aún no existe).",
+        "provider": "Proveedor",
+        "startsOn": "Fecha de inicio",
+        "endsOn": "Fecha de fin",
+        "capacity": "Capacidad",
+        "dates": "Fechas",
+        "booked": "Reservado",
+        "isActive": "Activo",
+        "save": "Guardar",
+        "saving": "Guardando…",
+        "saved": "Salida guardada",
+        "cancel": "Cancelar",
+        "confirmDelete": "¿Eliminar esta salida?",
+        "deleted": "Salida eliminada",
+        "cannotDeleteWithBookings": "Esta salida tiene reservas y no se puede eliminar."
+      },
+      "errors": {
+        "invalidForm": "Revise los campos marcados.",
+        "capacityBelowBooked": "La capacidad no puede fijarse por debajo de lo ya reservado.",
+        "tourNotFound": "Ese tour ya no existe.",
+        "deleteHasBookings": "Esta salida tiene reservas y no se puede eliminar.",
+        "gatheringNotOpen": "Esta campaña ya no está abierta.",
+        "notFound": "Esa solicitud ya no existe.",
+        "generic": "Algo salió mal. Inténtelo de nuevo."
+      },
+      "gathering": {
+        "pageTitle": "Campañas de recaudación de tours",
+        "pageDescription": "Gestione tours sin fechas fijas: campañas a las que los clientes se unen hasta alcanzar un número objetivo de participantes.",
+        "schemaMissing": {
+          "title": "Migración de base de datos pendiente",
+          "body": "Aplique la migración 0043_tour_gathering_campaigns.sql para habilitar esta sección."
+        },
+        "campaignsTitle": "Campañas",
+        "participantsTitle": "Solicitudes de inscripción",
+        "empty": "Aún no hay campañas de recaudación.",
+        "participantsEmpty": "Aún no hay solicitudes de inscripción.",
+        "create": "Añadir campaña",
+        "saved": "Campaña creada",
+        "targetHeadcount": "Número objetivo",
+        "pricePerPerson": "Precio por persona",
+        "currency": "Moneda",
+        "joinDeadline": "Fecha límite de inscripción (opcional)",
+        "progress": "Aprobados",
+        "pending": "pendiente",
+        "status": {
+          "label": "Estado",
+          "gathering": "Recaudando",
+          "confirmed": "Confirmada",
+          "cancelled": "Cancelada"
+        },
+        "confirm": "Confirmar",
+        "confirmTitle": "Confirmar campaña",
+        "confirmHint": "{count} de {target} aprobados. Establezca las fechas definitivas para confirmar este tour.",
+        "confirmed": "Campaña confirmada",
+        "cancel": "Cancelar campaña",
+        "confirmCancel": "¿Cancelar esta campaña? Los clientes inscritos deberán recibir un reembolso por separado.",
+        "cancelled": "Campaña cancelada",
+        "amount": "Importe",
+        "reference": "Referencia",
+        "createdAt": "Inscrito",
+        "review": "Revisar",
+        "participantStatus": {
+          "pending_review": "En revisión",
+          "approved": "Aprobado",
+          "rejected": "Rechazado"
+        },
+        "reviewTitle": "Revisar solicitud de inscripción",
+        "note": "Nota",
+        "notePlaceholder": "Motivo (obligatorio para rechazar)…",
+        "approve": "Aprobar",
+        "reject": "Rechazar",
+        "saving": "Guardando…",
+        "reviewSaved": "Guardado",
+        "close": "Cerrar"
+      },
+      "customer": {
+        "pageTitle": "Tours grupales",
+        "browseTitle": "Campañas abiertas",
+        "empty": "Ningún tour está recaudando participantes en este momento.",
+        "myParticipationsEmpty": "Aún no se ha unido a ningún tour grupal.",
+        "join": "Unirse",
+        "joining": "Uniéndose…",
+        "joined": "Se ha unido a esta campaña",
+        "alreadyJoined": "Ya se ha unido a esta campaña",
+        "joinTitle": "Únase a este tour",
+        "paymentReference": "Referencia de pago (opcional)",
+        "paymentReferenceHint": "Si ya pagó por transferencia bancaria, introduzca aquí el número de referencia.",
+        "cancel": "Cancelar",
+        "progress": "{count} de {target} inscritos",
+        "joinBy": "Inscríbase antes del {date}",
+        "tourConfirmed": "Tour confirmado",
+        "gatheringCancelled": "Cancelada",
+        "reviewNoteLabel": "Motivo",
+        "errors": {
+          "generic": "Algo salió mal. Inténtelo de nuevo.",
+          "invalidForm": "Revise los campos marcados.",
+          "signInRequired": "Inicie sesión para unirse a un tour.",
+          "campaignNotFound": "Esa campaña ya no está disponible.",
+          "campaignNotOpen": "Esta campaña ya no está abierta."
+        }
       }
     }
   },

@@ -9,6 +9,8 @@ import {
 import { cookies } from "next/headers";
 
 import sql from "@/config/database/db";
+import { resolveIsIranianVisitor } from "@/features/finance/lib/server/iranian-visitor";
+import { resolveDisplayPrice } from "@/features/finance/lib/server/toman-price";
 
 import {
   getPopularSearchCategoriesCached,
@@ -69,6 +71,7 @@ type SearchResultRow = {
   price: number | null;
   original_price: number | null;
   currency: string | null;
+  value_toman: number | null;
   verified: boolean | null;
   specialties: string[] | null;
   tags: string[] | null;
@@ -528,7 +531,7 @@ export async function getSearchResults(params?: {
   // laterals used to run once per candidate row — i.e. over the whole active
   // catalogue whenever there is no search term — even though at most `limit`
   // of those rows are ever returned. They now run against the ranked page.
-  const [resultRows, categories, filters] = await Promise.all([
+  const [resultRows, categories, filters, isIranianVisitor] = await Promise.all([
     sql<SearchResultRow[]>`
       WITH params AS (
         SELECT
@@ -562,6 +565,7 @@ export async function getSearchResults(params?: {
           ps.value::float8 AS price,
           NULL::float8 AS original_price,
           ps.currency AS currency,
+          ps.value_toman::float8 AS value_toman,
           COALESCE(sp.accredited, false) AS verified,
           COALESCE(ps.tags, sp.specialties, ARRAY[]::text[]) AS specialties,
           ARRAY_REMOVE(ARRAY[
@@ -672,6 +676,7 @@ export async function getSearchResults(params?: {
           COALESCE(min_service.minimum_price, 0)::float8 AS price,
           NULL::float8 AS original_price,
           COALESCE(min_service.currency, 'USD') AS currency,
+          min_service.value_toman::float8 AS value_toman,
           COALESCE(sp.accredited, false) AS verified,
           COALESCE(sp.specialties, ARRAY[]::text[]) AS specialties,
           ARRAY_REMOVE(ARRAY[
@@ -694,7 +699,7 @@ export async function getSearchResults(params?: {
         JOIN category.provider_types pt ON pt.id = sp.provider_type_id
         CROSS JOIN params
         LEFT JOIN LATERAL (
-          SELECT ps.value AS minimum_price, ps.currency
+          SELECT ps.value AS minimum_price, ps.currency, ps.value_toman
           FROM category.provider_services ps
           JOIN category.service_definitions sd ON sd.id = ps.service_definition_id
           WHERE ps.service_provider_id = sp.id
@@ -759,6 +764,7 @@ export async function getSearchResults(params?: {
           COALESCE(staff.consultation_fee, 0)::float8 AS price,
           NULL::float8 AS original_price,
           NULL::text AS currency,
+          NULL::float8 AS value_toman,
           true AS verified,
           ARRAY_REMOVE(ARRAY[NULLIF(COALESCE(staff.specialty, common.get_translation_t(staff.specialty_translations, params.locale, 'en-US')), '')], NULL) AS specialties,
           ARRAY_REMOVE(ARRAY[
@@ -854,6 +860,7 @@ export async function getSearchResults(params?: {
         r.price,
         r.original_price,
         COALESCE(r.currency, specialist_currency.currency, 'USD') AS currency,
+        r.value_toman,
         r.verified,
         r.specialties,
         r.tags,
@@ -954,9 +961,17 @@ export async function getSearchResults(params?: {
       country,
       city,
     }).catch(() => [] as SearchResultsFilter[]),
+    resolveIsIranianVisitor().catch(() => false),
   ]);
 
-  const results: SearchResultsItem[] = resultRows.map((row) => ({
+  const results: SearchResultsItem[] = resultRows.map((row): SearchResultsItem => {
+    const displayPrice = resolveDisplayPrice(
+      { value: toNumber(row.price), currency: row.currency || "USD" },
+      row.value_toman,
+      isIranianVisitor,
+    );
+
+    return {
     id: row.id,
     type: row.type,
     name: row.name || labels.untitled,
@@ -965,14 +980,15 @@ export async function getSearchResults(params?: {
     location: row.location || "",
     rating: toNumber(row.rating),
     reviews: toNumber(row.reviews),
-    price: toNumber(row.price),
+    price: displayPrice.value,
     originalPrice: row.original_price === null ? null : toNumber(row.original_price),
-    currency: row.currency || "USD",
+    currency: displayPrice.currency,
     verified: Boolean(row.verified),
     specialties: cleanArray(row.specialties),
     tags: cleanArray(row.tags),
     href: row.href,
-  }));
+    };
+  });
 
   return { results, categories, filters };
 }

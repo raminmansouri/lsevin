@@ -1,4 +1,14 @@
 {
+  "BookingCart": {
+    "title": "Kaydedilen rezervasyonlar",
+    "hint": "Bunlar tahminlerdir, kesin rezervasyon değildir. Uygunluğu doğrulamak ve ödeme yapmak için her rezervasyonu inceleyin. Ürünler şu anda ayrı ödenir.",
+    "resume": "Rezervasyonu incele",
+    "remove": "Kaldır",
+    "another": "Başka hizmet ekle",
+    "save": "Sepete kaydet ve alışverişe devam et",
+    "saving": "Kaydediliyor…",
+    "error": "Güncellenemedi. Sayfayı yenileyip tekrar deneyin."
+  },
   "UploadFiles": {
     "title": "Upload documents",
     "subtitle": "Please upload the requested files for your booking",
@@ -1909,6 +1919,10 @@
       },
       "isActive": {
         "label": "Aktif"
+      },
+      "requiresCustomerAddress": {
+        "label": "Müşteri adresi gerektirir (evde ziyaret)",
+        "hint": "Müşterinin adresinde sunulan hizmetler için açın, örn. evde hemşirelik. Rezervasyon akışına bir adres seçim adımı ekler."
       },
       "attributeDefinitions": "Öznitelik Tanımları",
       "requirements": "Gereklilikler",
@@ -5156,6 +5170,25 @@
     "fromDate": "Başlangıç tarihi",
     "fullName": "Ad Soyad *",
     "fullName2": "Ad Soyad",
+    "addNewAddress": "Yeni adres ekle",
+    "addressFormIncomplete": "Lütfen adınızı, ülkenizi, şehrinizi ve adresinizi girin.",
+    "addressLine1": "Adres (satır 1)",
+    "addressLine2": "Adres (satır 2, isteğe bağlı)",
+    "addressSaveFailed": "Adres kaydedilemedi. Lütfen tekrar deneyin.",
+    "city": "Şehir",
+    "country": "Ülke",
+    "loadingAddresses": "Adresleriniz yükleniyor…",
+    "noSavedAddresses": "Henüz kayıtlı bir adresiniz yok.",
+    "postalCode": "Posta kodu",
+    "saveAddress": "Adresi kaydet",
+    "serviceAddress": "Hizmet adresi",
+    "serviceAddressHint": "Bu hizmet adresinizde sunulur. Aşağıdan birini seçin veya yeni bir adres ekleyin.",
+    "stateRegion": "Eyalet / Bölge",
+    "chooseDeparture": "Bir hareket tarihi seçin",
+    "departureFull": "Dolu",
+    "loadingDepartures": "Hareket tarihleri yükleniyor…",
+    "noUpcomingDepartures": "Bu tur için henüz planlanmış bir hareket tarihi yok.",
+    "spotsLeft": "{count} kontenjan kaldı",
     "gallery": "Galeri",
     "gatewayChargeCurrency": "Ödeme geçidi tahsilat para birimi:",
     "gender": "Cinsiyet",
@@ -13066,6 +13099,256 @@
         "confirmDelete": "Bu alıcı kaldırılsın mı?",
         "empty": "Henüz alıcı yok — kimseye bildirim gitmiyor.",
         "cancel": "İptal"
+      }
+    }
+  },
+  "GymMemberships": {
+    "customer": {
+      "title": "Spor salonu üyeliklerim",
+      "empty": "Henüz bir spor salonu üyeliğiniz yok.",
+      "plan": { "monthlyPriceLabel": "Aylık fiyat" },
+      "subscribe": {
+        "title": "Abone ol",
+        "selectMonths": "Ödemek istediğiniz ayları seçin",
+        "paymentReference": "Ödeme referansı (isteğe bağlı)",
+        "paymentReferenceHint": "Banka havalesiyle ödeme yaptıysanız referans numarasını buraya girin.",
+        "submit": "İncelemeye gönder",
+        "submitting": "Gönderiliyor…",
+        "submitted": "İncelemeye gönderildi"
+      },
+      "month": {
+        "pending_review": "İnceleniyor",
+        "approved": "Ödendi",
+        "rejected": "Reddedildi",
+        "due": "Vadesi geçmiş",
+        "reviewNoteLabel": "Neden"
+      },
+      "errors": {
+        "signInRequired": "Spor salonu üyeliklerinizi yönetmek için lütfen giriş yapın.",
+        "notAvailable": "Spor salonu üyelikleri henüz kullanılamıyor. Lütfen daha sonra tekrar deneyin.",
+        "invalidForm": "Lütfen işaretlenen alanları kontrol edin.",
+        "planNotFound": "Bu plan artık mevcut değil.",
+        "generic": "Bir şeyler ters gitti. Lütfen tekrar deneyin."
+      }
+    },
+    "admin": {
+      "title": "Spor salonu üyelikleri",
+      "description": "Üyelik planlarını yönetin ve ödemeleri inceleyin.",
+      "schemaMissing": {
+        "title": "Veritabanı geçişi bekleniyor",
+        "body": "Bu bölümü etkinleştirmek için 0039_gym_memberships.sql geçişini uygulayın."
+      },
+      "plans": {
+        "title": "Üyelik planları",
+        "empty": "Henüz üyelik planı yok.",
+        "create": "Plan ekle",
+        "edit": "Düzenle",
+        "provider": "Spor salonu",
+        "name": "Plan adı",
+        "monthlyPrice": "Aylık fiyat",
+        "currency": "Para birimi",
+        "isActive": "Aktif",
+        "save": "Kaydet",
+        "saving": "Kaydediliyor…",
+        "saved": "Plan kaydedildi",
+        "cancel": "İptal"
+      },
+      "months": {
+        "title": "Ödeme incelemesi",
+        "empty": "İncelenecek ödeme yok.",
+        "filters": {
+          "search": "Spor salonu veya referans ara",
+          "status": "Durum",
+          "all": "Tümü",
+          "apply": "Uygula"
+        },
+        "table": {
+          "gym": "Spor salonu",
+          "plan": "Plan",
+          "period": "Ay",
+          "amount": "Tutar",
+          "reference": "Referans",
+          "status": "Durum",
+          "createdAt": "Gönderildi",
+          "actions": "İşlemler",
+          "review": "İncele"
+        },
+        "status": {
+          "pending_review": "İnceleniyor",
+          "approved": "Onaylandı",
+          "rejected": "Reddedildi"
+        },
+        "review": {
+          "title": "Ödemeyi incele",
+          "note": "Not",
+          "notePlaceholder": "Gerekçe (reddetmek için zorunlu)…",
+          "approve": "Onayla",
+          "reject": "Reddet",
+          "saving": "Kaydediliyor…",
+          "saved": "Kaydedildi",
+          "close": "Kapat"
+        }
+      },
+      "errors": {
+        "invalidForm": "Lütfen işaretlenen alanları kontrol edin.",
+        "notFound": "Bu ödeme artık mevcut değil.",
+        "reasonRequiredToReject": "Bir ödemeyi reddetmek için gerekçe girilmelidir.",
+        "generic": "Bir şeyler ters gitti. Lütfen tekrar deneyin."
+      }
+    }
+  },
+  "Transfers": {
+    "admin": {
+      "title": "Transfer güzergahları",
+      "description": "Otel ve havalimanı transferleri için sabit fiyatlı güzergahlar tanımlayın. Her güzergah normal, rezerve edilebilir bir hizmete dönüşür; böylece müşteriler bunu olağan rezervasyon akışıyla rezerve eder.",
+      "schemaMissing": {
+        "title": "Veritabanı geçişi bekleniyor",
+        "body": "Bu bölümü etkinleştirmek için 0040_transfer_routes.sql geçişini uygulayın."
+      },
+      "routes": {
+        "title": "Güzergahlar",
+        "empty": "Henüz transfer güzergahı yok.",
+        "create": "Güzergah ekle",
+        "edit": "Düzenle",
+        "provider": "Transfer sağlayıcısı",
+        "serviceDefinition": "Hizmet tanımı",
+        "route": "Güzergah",
+        "from": "Nereden",
+        "to": "Nereye",
+        "vehicleType": "Araç tipi",
+        "vehicleTypePlaceholder": "örn. Sedan, Van",
+        "price": "Fiyat",
+        "currency": "Para birimi",
+        "isActive": "Aktif",
+        "save": "Kaydet",
+        "saving": "Kaydediliyor…",
+        "saved": "Güzergah kaydedildi",
+        "cancel": "Vazgeç",
+        "confirmDelete": "Bu güzergahın nereden/nereye bilgileri kaldırılsın mı? Alttaki hizmet rezerve edilebilir olmaya devam eder — tamamen kaldırmak isterseniz Hizmet sağlayıcıları bölümünden pasifleştirin veya silin.",
+        "deleted": "Güzergah bilgileri kaldırıldı"
+      },
+      "errors": {
+        "invalidForm": "Lütfen işaretlenen alanları kontrol edin.",
+        "notFound": "Bu güzergah artık mevcut değil.",
+        "generic": "Bir şeyler ters gitti. Lütfen tekrar deneyin."
+      }
+    }
+  },
+  "Tours": {
+    "admin": {
+      "title": "Turlar",
+      "description": "Çok günlük turlar için sabit hareket tarihleri planlayın. Turun kendisi (ad, açıklama, fiyat, program) diğer hizmetler gibi Hizmet sağlayıcıları üzerinden düzenlenir.",
+      "schemaMissing": {
+        "title": "Veritabanı geçişi bekleniyor",
+        "body": "Bu bölümü etkinleştirmek için 0042_tour_departures.sql geçişini uygulayın."
+      },
+      "departures": {
+        "title": "Hareket tarihleri",
+        "empty": "Henüz planlanmış bir hareket tarihi yok.",
+        "create": "Hareket tarihi ekle",
+        "edit": "Düzenle",
+        "tour": "Tur",
+        "tourPlaceholder": "Bir tur ara",
+        "tourHint": "Mevcut bir hizmet seçin (henüz yoksa önce Hizmet sağlayıcıları altında oluşturun).",
+        "provider": "Sağlayıcı",
+        "startsOn": "Başlangıç tarihi",
+        "endsOn": "Bitiş tarihi",
+        "capacity": "Kontenjan",
+        "dates": "Tarihler",
+        "booked": "Rezerve edildi",
+        "isActive": "Aktif",
+        "save": "Kaydet",
+        "saving": "Kaydediliyor…",
+        "saved": "Hareket tarihi kaydedildi",
+        "cancel": "Vazgeç",
+        "confirmDelete": "Bu hareket tarihi silinsin mi?",
+        "deleted": "Hareket tarihi silindi",
+        "cannotDeleteWithBookings": "Bu hareket tarihinde rezervasyon var ve silinemez."
+      },
+      "errors": {
+        "invalidForm": "Lütfen işaretlenen alanları kontrol edin.",
+        "capacityBelowBooked": "Kontenjan, mevcut rezervasyon sayısının altına düşürülemez.",
+        "tourNotFound": "Bu tur artık mevcut değil.",
+        "deleteHasBookings": "Bu hareket tarihinde rezervasyon var ve silinemez.",
+        "gatheringNotOpen": "Bu kampanya artık açık değil.",
+        "notFound": "Bu talep artık mevcut değil.",
+        "generic": "Bir şeyler ters gitti. Lütfen tekrar deneyin."
+      },
+      "gathering": {
+        "pageTitle": "Tur toplama kampanyaları",
+        "pageDescription": "Henüz sabit tarihi olmayan turları yönetin: müşterilerin bir hedef katılımcı sayısına ulaşılana kadar katıldığı kampanyalar.",
+        "schemaMissing": {
+          "title": "Veritabanı geçişi bekleniyor",
+          "body": "Bu bölümü etkinleştirmek için 0043_tour_gathering_campaigns.sql geçişini uygulayın."
+        },
+        "campaignsTitle": "Kampanyalar",
+        "participantsTitle": "Katılım talepleri",
+        "empty": "Henüz bir toplama kampanyası yok.",
+        "participantsEmpty": "Henüz bir katılım talebi yok.",
+        "create": "Kampanya ekle",
+        "saved": "Kampanya oluşturuldu",
+        "targetHeadcount": "Hedef katılımcı sayısı",
+        "pricePerPerson": "Kişi başı fiyat",
+        "currency": "Para birimi",
+        "joinDeadline": "Katılım son tarihi (isteğe bağlı)",
+        "progress": "Onaylandı",
+        "pending": "beklemede",
+        "status": {
+          "label": "Durum",
+          "gathering": "Toplanıyor",
+          "confirmed": "Onaylandı",
+          "cancelled": "İptal edildi"
+        },
+        "confirm": "Onayla",
+        "confirmTitle": "Kampanyayı onayla",
+        "confirmHint": "{target} kişiden {count} onaylandı. Bu turu onaylamak için son tarihleri belirleyin.",
+        "confirmed": "Kampanya onaylandı",
+        "cancel": "Kampanyayı iptal et",
+        "confirmCancel": "Bu kampanya iptal edilsin mi? Katılan müşterilere ayrıca iade yapılmalıdır.",
+        "cancelled": "Kampanya iptal edildi",
+        "amount": "Tutar",
+        "reference": "Referans",
+        "createdAt": "Katılma tarihi",
+        "review": "İncele",
+        "participantStatus": {
+          "pending_review": "İnceleniyor",
+          "approved": "Onaylandı",
+          "rejected": "Reddedildi"
+        },
+        "reviewTitle": "Katılım talebini incele",
+        "note": "Not",
+        "notePlaceholder": "Neden (reddetmek için zorunlu)…",
+        "approve": "Onayla",
+        "reject": "Reddet",
+        "saving": "Kaydediliyor…",
+        "reviewSaved": "Kaydedildi",
+        "close": "Kapat"
+      },
+      "customer": {
+        "pageTitle": "Grup turları",
+        "browseTitle": "Açık kampanyalar",
+        "empty": "Şu anda katılımcı toplayan bir tur yok.",
+        "myParticipationsEmpty": "Henüz hiçbir grup turuna katılmadınız.",
+        "join": "Katıl",
+        "joining": "Katılıyor…",
+        "joined": "Bu kampanyaya katıldınız",
+        "alreadyJoined": "Bu kampanyaya zaten katıldınız",
+        "joinTitle": "Bu tura katıl",
+        "paymentReference": "Ödeme referansı (isteğe bağlı)",
+        "paymentReferenceHint": "Zaten banka havalesiyle ödeme yaptıysanız referans numarasını buraya girin.",
+        "cancel": "Vazgeç",
+        "progress": "{target} kişiden {count} katıldı",
+        "joinBy": "Son katılım tarihi: {date}",
+        "tourConfirmed": "Tur onaylandı",
+        "gatheringCancelled": "İptal edildi",
+        "reviewNoteLabel": "Neden",
+        "errors": {
+          "generic": "Bir şeyler ters gitti. Lütfen tekrar deneyin.",
+          "invalidForm": "Lütfen işaretlenen alanları kontrol edin.",
+          "signInRequired": "Bir tura katılmak için lütfen giriş yapın.",
+          "campaignNotFound": "Bu kampanya artık mevcut değil.",
+          "campaignNotOpen": "Bu kampanya artık açık değil."
+        }
       }
     }
   },

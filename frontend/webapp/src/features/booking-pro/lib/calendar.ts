@@ -1,196 +1,88 @@
-export type BookingCalendar = "gregorian" | "jalali";
+import { CalendarDate, GregorianCalendar, PersianCalendar, IslamicUmalquraCalendar, parseDate, parseDateTime, toCalendar, toZoned } from '@internationalized/date';
 
-export type CalendarDateParts = {
-  year: number;
-  month: number;
-  day: number;
-};
-
-const PERSIAN_DIGITS: Record<string, string> = {
-  "۰": "0",
-  "۱": "1",
-  "۲": "2",
-  "۳": "3",
-  "۴": "4",
-  "۵": "5",
-  "۶": "6",
-  "۷": "7",
-  "۸": "8",
-  "۹": "9",
-  "٠": "0",
-  "١": "1",
-  "٢": "2",
-  "٣": "3",
-  "٤": "4",
-  "٥": "5",
-  "٦": "6",
-  "٧": "7",
-  "٨": "8",
-  "٩": "9",
-};
-
-function toLatinDigits(value: string) {
-  return value.replace(/[۰-۹٠-٩]/g, (digit) => PERSIAN_DIGITS[digit] ?? digit);
-}
-
-function pad(value: number) {
-  return String(value).padStart(2, "0");
-}
-
-function div(a: number, b: number) {
-  return ~~(a / b);
-}
-
-function g2d(gy: number, gm: number, gd: number) {
-  let d = div((gy + div(gm - 8, 6) + 100100) * 1461, 4) + div(153 * ((gm + 9) % 12) + 2, 5) + gd - 34840408;
-  d = d - div(div(gy + 100100 + div(gm - 8, 6), 100) * 3, 4) + 752;
-  return d;
-}
-
-function d2g(jdn: number): { gy: number; gm: number; gd: number } {
-  let j = 4 * jdn + 139361631;
-  j = j + div(div(4 * jdn + 183187720, 146097) * 3, 4) * 4 - 3908;
-  const i = div((j % 1461), 4) * 5 + 308;
-  const gd = div((i % 153), 5) + 1;
-  const gm = (div(i, 153) % 12) + 1;
-  const gy = div(j, 1461) - 100100 + div(8 - gm, 6);
-  return { gy, gm, gd };
-}
-
-function jalCal(jy: number) {
-  const breaks = [-61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210, 1635, 2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178];
-  const gy = jy + 621;
-  let leapJ = -14;
-  let jp = breaks[0];
-  let jump = 0;
-
-  if (jy < jp || jy >= breaks[breaks.length - 1]) {
-    throw new Error(`Invalid Jalali year ${jy}`);
-  }
-
-  for (let i = 1; i < breaks.length; i += 1) {
-    const jm = breaks[i];
-    jump = jm - jp;
-    if (jy < jm) break;
-    leapJ += div(jump, 33) * 8 + div((jump % 33), 4);
-    jp = jm;
-  }
-
-  let n = jy - jp;
-  leapJ += div(n, 33) * 8 + div(((n % 33) + 3), 4);
-  if (jump % 33 === 4 && jump - n === 4) leapJ += 1;
-
-  const leapG = div(gy, 4) - div((div(gy, 100) + 1) * 3, 4) - 150;
-  const march = 20 + leapJ - leapG;
-
-  if (jump - n < 6) n = n - jump + div(jump + 4, 33) * 33;
-  let leap = (((n + 1) % 33) - 1) % 4;
-  if (leap === -1) leap = 4;
-
-  return { leap, gy, march };
-}
-
-function j2d(jy: number, jm: number, jd: number) {
-  const r = jalCal(jy);
-  return g2d(r.gy, 3, r.march) + (jm - 1) * 31 - div(jm, 7) * (jm - 7) + jd - 1;
-}
-
-export function jalaliToGregorian(jy: number, jm: number, jd: number): CalendarDateParts {
-  const g = d2g(j2d(Number(jy), Number(jm), Number(jd)));
-  return { year: g.gy, month: g.gm, day: g.gd };
+export type BookingCalendar = 'gregorian' | 'jalali' | 'hijri';
+export type CalendarDateParts = { year: number; month: number; day: number };
+export const BOOKING_CALENDARS: BookingCalendar[] = ['gregorian', 'jalali', 'hijri'];
+export const calendarIdentifier = (calendar: BookingCalendar) => ({ gregorian: 'gregory', jalali: 'persian', hijri: 'islamic-umalqura' })[calendar];
+export const bookingCalendarSystem = (calendar: BookingCalendar) => calendar === 'jalali' ? new PersianCalendar() : calendar === 'hijri' ? new IslamicUmalquraCalendar() : new GregorianCalendar();
+export function bookingCalendarLabel(calendar: BookingCalendar, locale: string): string {
+  return new Intl.DisplayNames([locale], { type: 'calendar' }).of(calendarIdentifier(calendar)) || calendar;
 }
 
 export function normalizeBookingCalendar(value?: string | null, locale?: string | null): BookingCalendar {
-  const raw = String(value || "").trim().toLowerCase();
-  if (["jalali", "persian", "shamsi"].includes(raw)) return "jalali";
-  if (["gregorian", "gregory", "iso"].includes(raw)) return "gregorian";
-  return String(locale || "").toLowerCase().startsWith("fa") ? "jalali" : "gregorian";
+  const raw = String(value || '').trim().toLowerCase();
+  if (['jalali', 'persian', 'shamsi'].includes(raw)) return 'jalali';
+  if (['hijri', 'islamic', 'islamic-umalqura'].includes(raw)) return 'hijri';
+  if (['gregorian', 'gregory', 'iso'].includes(raw)) return 'gregorian';
+  return String(locale || '').toLowerCase().startsWith('fa') ? 'jalali' : 'gregorian';
 }
 
-export function toIsoDate(input: Date | string) {
-  if (input instanceof Date) return input.toISOString().slice(0, 10);
-  const trimmed = String(input || "").trim();
-  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
-  const parsed = new Date(trimmed);
-  if (Number.isNaN(parsed.getTime())) return "";
-  return parsed.toISOString().slice(0, 10);
-}
-
-export function isReasonableBookingIsoDate(isoDate?: string | null) {
-  const safeIso = toIsoDate(String(isoDate || ""));
-  if (!safeIso) return false;
-  const year = Number(safeIso.slice(0, 4));
-  return Number.isFinite(year) && year >= 1900 && year <= 2200;
-}
-
-export function formatBookingDate(
-  isoDate?: string | null,
-  options?: {
-    locale?: string | null;
-    calendar?: BookingCalendar | string | null;
-    dateStyle?: Intl.DateTimeFormatOptions["dateStyle"];
-    timeZone?: string | null;
+export function toIsoDate(input: Date | string): string {
+  if (input instanceof Date) return Number.isNaN(input.getTime()) ? '' : input.toISOString().slice(0, 10);
+  const raw = String(input || '').trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+    try { return parseDate(raw).toString(); } catch { return ''; }
   }
-) {
-  const safeIso = toIsoDate(String(isoDate || ""));
-  if (!safeIso) return "-";
-
-  if (!isReasonableBookingIsoDate(safeIso)) {
-    return "Invalid date — please reselect";
-  }
-
-  const calendar = normalizeBookingCalendar(options?.calendar, options?.locale);
-  const locale = calendar === "jalali" ? "fa-IR-u-ca-persian" : options?.locale || "fa-IR";
-  const date = new Date(`${safeIso}T12:00:00Z`);
-
-  return new Intl.DateTimeFormat(locale, {
-    dateStyle: options?.dateStyle || "medium",
-    timeZone: options?.timeZone || "UTC",
-  }).format(date);
+  if (!raw) return '';
+  const date = new Date(raw);
+  return Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 10);
 }
 
-export function formatBookingDateTime(
-  isoDate?: string | null,
-  time?: string | null,
-  options?: {
-    locale?: string | null;
-    calendar?: BookingCalendar | string | null;
-    timeZone?: string | null;
-  }
-) {
-  const safeIso = toIsoDate(String(isoDate || ""));
-  if (!safeIso) return "-";
-
-  if (!isReasonableBookingIsoDate(safeIso)) {
-    return "Invalid date — please reselect";
-  }
-
-  const normalizedTime = String(time || "00:00").slice(0, 5);
-  const calendar = normalizeBookingCalendar(options?.calendar, options?.locale);
-  const locale = calendar === "jalali" ? "fa-IR-u-ca-persian" : options?.locale || "fa-IR";
-  const date = new Date(`${safeIso}T${normalizedTime}:00Z`);
-
-  return new Intl.DateTimeFormat(locale, {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: options?.timeZone || "UTC",
-  }).format(date);
+export function isReasonableBookingIsoDate(value?: string | null) {
+  const iso = toIsoDate(String(value || ''));
+  return Boolean(iso) && Number(iso.slice(0, 4)) >= 1900 && Number(iso.slice(0, 4)) <= 2200;
 }
 
-export function parseBookingCalendarDate(
-  value: string,
-  calendar: BookingCalendar | string | null | undefined,
-  locale?: string | null
-) {
-  const normalizedCalendar = normalizeBookingCalendar(calendar, locale);
-  const raw = toLatinDigits(String(value || "").trim()).replace(/[/.]/g, "-");
-
-  if (!raw) return "";
-  if (normalizedCalendar === "gregorian") return toIsoDate(raw);
-
+export function parseBookingCalendarDate(value: string, calendar?: BookingCalendar | string | null, locale?: string | null): string {
+  const raw = String(value || '').trim().replace(/[\u06f0-\u06f9\u0660-\u0669]/g, digit => String(digit.charCodeAt(0) - (digit.charCodeAt(0) >= 0x06f0 ? 0x06f0 : 0x0660))).replace(/[/.]/g, '-');
   const match = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-  if (!match) return "";
+  if (!match) return '';
   const [, y, m, d] = match;
-  const gregorian = jalaliToGregorian(Number(y), Number(m), Number(d));
-  return `${gregorian.year}-${pad(gregorian.month)}-${pad(gregorian.day)}`;
+  try {
+    const date = new CalendarDate(bookingCalendarSystem(normalizeBookingCalendar(calendar, locale)), Number(y), Number(m), Number(d));
+    if (date.year !== Number(y) || date.month !== Number(m) || date.day !== Number(d)) return '';
+    return date.toString();
+  } catch { return ''; }
+}
+
+export function jalaliToGregorian(year: number, month: number, day: number): CalendarDateParts {
+  const iso = parseBookingCalendarDate(`${year}-${month}-${day}`, 'jalali');
+  if (!iso) throw new Error('Invalid Jalali date');
+  const date = parseDate(iso);
+  return { year: date.year, month: date.month, day: date.day };
+}
+
+export function bookingCalendarParts(iso: string, calendar: BookingCalendar): CalendarDateParts {
+  const date = toCalendar(parseDate(iso), bookingCalendarSystem(calendar));
+  return { year: date.year, month: date.month, day: date.day };
+}
+
+export function isBookingTimeZone(value: string): boolean {
+  try { new Intl.DateTimeFormat('en', { timeZone: value }).format(); return Boolean(value); } catch { return false; }
+}
+
+/** Reject ambiguous/nonexistent local times instead of silently shifting bookings. */
+export function bookingDateTimeInstant(date: string, time: string, sourceTimeZone: string): Date {
+  if (!isBookingTimeZone(sourceTimeZone)) throw new Error('Invalid booking timezone');
+  return toZoned(parseDateTime(`${parseDate(date).toString()}T${time}`), sourceTimeZone, 'reject').toDate();
+}
+
+type FormatOptions = { locale?: string | null; calendar?: BookingCalendar | string | null; timeZone?: string | null; sourceTimeZone?: string | null; dateStyle?: Intl.DateTimeFormatOptions['dateStyle'] };
+export function formatBookingDate(isoDate?: string | null, options?: FormatOptions) {
+  const iso = toIsoDate(String(isoDate || ''));
+  if (!isReasonableBookingIsoDate(iso)) return '-';
+  return new Intl.DateTimeFormat(options?.locale || 'en', {
+    calendar: calendarIdentifier(normalizeBookingCalendar(options?.calendar, options?.locale)),
+    dateStyle: options?.dateStyle || 'medium', timeZone: 'UTC',
+  }).format(new Date(`${iso}T12:00:00Z`));
+}
+
+export function formatBookingDateTime(isoDate?: string | null, time?: string | null, options?: FormatOptions) {
+  const iso = toIsoDate(String(isoDate || ''));
+  if (!isReasonableBookingIsoDate(iso)) return '-';
+  const instant = bookingDateTimeInstant(iso, String(time || '00:00'), options?.sourceTimeZone || 'UTC');
+  return new Intl.DateTimeFormat(options?.locale || 'en', {
+    calendar: calendarIdentifier(normalizeBookingCalendar(options?.calendar, options?.locale)),
+    dateStyle: options?.dateStyle || 'medium', timeStyle: 'short', timeZone: options?.timeZone || 'UTC',
+  }).format(instant);
 }

@@ -1,4 +1,14 @@
 {
+  "BookingCart": {
+    "title": "رزروهای ذخیره‌شده",
+    "hint": "این موارد برآورد هستند و رزرو قطعی نیستند. برای بررسی ظرفیت و پرداخت، هر رزرو را باز کنید. پرداخت محصولات فعلاً جداگانه است.",
+    "resume": "بررسی رزرو",
+    "remove": "حذف",
+    "another": "افزودن خدمت دیگر",
+    "save": "ذخیره در سبد و ادامه خرید",
+    "saving": "در حال ذخیره…",
+    "error": "رزرو به‌روز نشد. صفحه را تازه کنید و دوباره تلاش کنید."
+  },
   "ProviderOnboarding": {
     "eG25": "مثلا ۲۵",
     "eG15": "مثلا ۱۵",
@@ -561,6 +571,24 @@
     "serviceAddons": "افزودنی‌های خدمت",
     "addonFieldLabel": "افزودنی",
     "noAddonsLinkedYet": "هنوز افزودنی‌ای متصل نشده است.",
+    "addonsPageTitle": "افزودنی‌ها",
+    "manageServices": "مدیریت خدمات",
+    "linkedServices": "خدمات متصل‌شده",
+    "searchServicesPlaceholder": "جستجو بر اساس خدمت، ارائه‌دهنده یا دسته‌بندی…",
+    "noServicesLinkedYet": "هنوز خدمتی متصل نشده است.",
+    "noServicesFound": "خدمتی یافت نشد.",
+    "applyChanges": "اعمال تغییرات",
+    "changesApplied": "تغییرات اعمال شد",
+    "selectedCount": "{count} مورد انتخاب شد",
+    "unsavedChanges": "تغییرات ذخیره‌نشده دارید",
+    "pageIndicator": "صفحه {page} از {totalPages}",
+    "addonProviderTypesPageTitle": "انواع ارائه‌دهنده افزونه",
+    "addonProviderTypesPageDescription": "یک نوع ارائه‌دهنده (هتل، مترجم، پرستاری در منزل، ترانسفر، تور) را یک‌جا به چند تعریف خدمت وصل کنید تا به‌عنوان یک رزرو کامل افزونه قابل افزودن باشد.",
+    "linkedServiceDefinitions": "تعریف خدمات متصل‌شده",
+    "noServiceDefinitionsLinkedYet": "هنوز تعریف خدمتی متصل نشده است.",
+    "manageServiceDefinitions": "مدیریت تعریف خدمات",
+    "searchServiceDefinitionsPlaceholder": "جستجو بر اساس تعریف خدمت یا دسته‌بندی…",
+    "noServiceDefinitionsFound": "تعریف خدمتی یافت نشد.",
     "addonLinked": "افزودنی متصل شد",
     "addonRemoved": "افزودنی حذف شد",
     "failedToLink": "اتصال ناموفق بود",
@@ -1111,6 +1139,8 @@
     "preferredCurrency": "preferred ارز",
     "preferredLocale": "زبان ترجیحی",
     "price": "قیمت",
+    "priceToman": "قیمت (تومان)",
+    "priceTomanPlaceholder": "اختیاری — برای بازدیدکنندگان ایرانی به‌جای قیمت بالا نمایش داده می‌شود",
     "primaryButtonTitle": "primary Button عنوان",
     "primaryButtonURL": "URL دکمه اصلی",
     "primaryColor": "رنگ اصلی",
@@ -4309,6 +4339,10 @@
       "bookingDrafts": "پیش‌نویس رزروها",
       "bookingCalendar": "تقویم رزرو",
       "availability": "ظرفیت و زمان‌ها",
+      "gymMemberships": "اشتراک‌های باشگاه",
+      "transferRoutes": "مسیرهای ترانسفر",
+      "tours": "تورها",
+      "tourGatherings": "کمپین‌های تور گروهی",
       "finance": "مالی",
       "payments": "پرداخت‌ها",
       "paymentGateways": "درگاه‌های پرداخت",
@@ -4333,6 +4367,8 @@
       "staff": "کادر درمان",
       "categories": "دسته‌بندی‌ها",
       "serviceDefinitions": "تعریف خدمات",
+      "addons": "افزودنی‌ها",
+      "addonProviderTypes": "انواع ارائه‌دهنده افزونه",
       "customers": "مشتریان",
       "customersList": "همه مشتریان",
       "identityUsers": "کاربران",
@@ -5839,6 +5875,10 @@
       "isActive": {
         "label": "فعال"
       },
+      "requiresCustomerAddress": {
+        "label": "نیازمند آدرس مشتری (مراجعه به محل)",
+        "hint": "برای خدماتی که در آدرس مشتری ارائه می‌شوند، مانند پرستاری در منزل، فعال کنید. یک مرحله انتخاب آدرس به روند رزرو اضافه می‌کند."
+      },
       "attributeDefinitions": "تعریف ویژگی‌ها",
       "requirements": "الزامات",
       "create": "ایجاد تعریف خدمات",
@@ -7048,6 +7088,25 @@
     "fromDate": "از تاریخ",
     "fullName": "نام کامل *",
     "fullName2": "نام کامل",
+    "addNewAddress": "افزودن آدرس جدید",
+    "addressFormIncomplete": "لطفاً نام، کشور، شهر و آدرس را وارد کنید.",
+    "addressLine1": "آدرس (خط اول)",
+    "addressLine2": "آدرس (خط دوم، اختیاری)",
+    "addressSaveFailed": "ذخیره آدرس ناموفق بود. لطفاً دوباره تلاش کنید.",
+    "city": "شهر",
+    "country": "کشور",
+    "loadingAddresses": "در حال بارگذاری آدرس‌ها…",
+    "noSavedAddresses": "هنوز آدرسی ذخیره نکرده‌اید.",
+    "postalCode": "کد پستی",
+    "saveAddress": "ذخیره آدرس",
+    "serviceAddress": "آدرس ارائه خدمت",
+    "serviceAddressHint": "این خدمت در آدرس شما ارائه می‌شود. یکی را انتخاب کنید یا آدرس جدید اضافه کنید.",
+    "stateRegion": "استان / منطقه",
+    "chooseDeparture": "یک حرکت را انتخاب کنید",
+    "departureFull": "تکمیل ظرفیت",
+    "loadingDepartures": "در حال بارگذاری حرکت‌ها…",
+    "noUpcomingDepartures": "هنوز حرکتی برای این تور ثبت نشده است.",
+    "spotsLeft": "{count} جای خالی",
     "gatewayChargeCurrency": "ارز کارمزد درگاه:",
     "gender": "جنسیت",
     "genericAvailability": "دسترسی عمومی",
@@ -13713,6 +13772,258 @@
       }
     }
   },
+  "GymMemberships": {
+    "customer": {
+      "title": "اشتراک‌های باشگاه من",
+      "empty": "هنوز هیچ اشتراک باشگاهی ندارید.",
+      "plan": {
+        "monthlyPriceLabel": "هزینه ماهانه"
+      },
+      "subscribe": {
+        "title": "اشتراک",
+        "selectMonths": "ماه‌هایی که می‌خواهید پرداخت کنید را انتخاب کنید",
+        "paymentReference": "شماره پیگیری پرداخت (اختیاری)",
+        "paymentReferenceHint": "اگر قبلاً با انتقال بانکی پرداخت کرده‌اید، شماره پیگیری را اینجا وارد کنید.",
+        "submit": "ارسال برای بررسی",
+        "submitting": "در حال ارسال…",
+        "submitted": "برای بررسی ارسال شد"
+      },
+      "month": {
+        "pending_review": "در انتظار بررسی",
+        "approved": "پرداخت‌شده",
+        "rejected": "ردشده",
+        "due": "سررسیدشده",
+        "reviewNoteLabel": "دلیل"
+      },
+      "errors": {
+        "signInRequired": "برای مدیریت اشتراک‌های باشگاه، وارد حساب کاربری شوید.",
+        "notAvailable": "اشتراک باشگاه هنوز در دسترس نیست. لطفاً بعداً دوباره تلاش کنید.",
+        "invalidForm": "لطفاً فیلدهای مشخص‌شده را بررسی کنید.",
+        "planNotFound": "این طرح دیگر در دسترس نیست.",
+        "generic": "مشکلی پیش آمد. لطفاً دوباره تلاش کنید."
+      }
+    },
+    "admin": {
+      "title": "اشتراک‌های باشگاه",
+      "description": "مدیریت طرح‌های اشتراک باشگاه و بررسی پرداخت‌ها.",
+      "schemaMissing": {
+        "title": "مایگریشن دیتابیس در انتظار اجراست",
+        "body": "برای فعال‌سازی این بخش، مایگریشن 0039_gym_memberships.sql را اجرا کنید."
+      },
+      "plans": {
+        "title": "طرح‌های اشتراک",
+        "empty": "هنوز طرح اشتراکی ثبت نشده است.",
+        "create": "افزودن طرح",
+        "edit": "ویرایش",
+        "provider": "باشگاه",
+        "name": "نام طرح",
+        "monthlyPrice": "هزینه ماهانه",
+        "currency": "واحد پول",
+        "isActive": "فعال",
+        "save": "ذخیره",
+        "saving": "در حال ذخیره…",
+        "saved": "طرح ذخیره شد",
+        "cancel": "انصراف"
+      },
+      "months": {
+        "title": "بررسی پرداخت‌ها",
+        "empty": "پرداختی برای بررسی وجود ندارد.",
+        "filters": {
+          "search": "جست‌وجوی باشگاه یا شماره پیگیری",
+          "status": "وضعیت",
+          "all": "همه",
+          "apply": "اعمال"
+        },
+        "table": {
+          "gym": "باشگاه",
+          "plan": "طرح",
+          "period": "ماه",
+          "amount": "مبلغ",
+          "reference": "شماره پیگیری",
+          "status": "وضعیت",
+          "createdAt": "زمان ارسال",
+          "actions": "عملیات",
+          "review": "بررسی"
+        },
+        "status": {
+          "pending_review": "در انتظار بررسی",
+          "approved": "تأییدشده",
+          "rejected": "ردشده"
+        },
+        "review": {
+          "title": "بررسی پرداخت",
+          "note": "یادداشت",
+          "notePlaceholder": "دلیل (برای رد کردن الزامی است)…",
+          "approve": "تأیید",
+          "reject": "رد",
+          "saving": "در حال ذخیره…",
+          "saved": "ذخیره شد",
+          "close": "بستن"
+        }
+      },
+      "errors": {
+        "invalidForm": "لطفاً فیلدهای مشخص‌شده را بررسی کنید.",
+        "notFound": "این پرداخت دیگر وجود ندارد.",
+        "reasonRequiredToReject": "برای رد کردن پرداخت، ذکر دلیل الزامی است.",
+        "generic": "مشکلی پیش آمد. لطفاً دوباره تلاش کنید."
+      }
+    }
+  },
+  "Transfers": {
+    "admin": {
+      "title": "مسیرهای ترانسفر",
+      "description": "مسیرهای ترانسفر هتل و فرودگاه را با قیمت ثابت تعریف کنید. هر مسیر به یک خدمت قابل رزرو معمولی تبدیل می‌شود، بنابراین مشتریان آن را از طریق روند عادی رزرو، رزرو می‌کنند.",
+      "schemaMissing": {
+        "title": "مایگریشن دیتابیس در انتظار اجراست",
+        "body": "برای فعال‌سازی این بخش، مایگریشن 0040_transfer_routes.sql را اجرا کنید."
+      },
+      "routes": {
+        "title": "مسیرها",
+        "empty": "هنوز مسیر ترانسفری ثبت نشده است.",
+        "create": "افزودن مسیر",
+        "edit": "ویرایش",
+        "provider": "ارائه‌دهنده ترانسفر",
+        "serviceDefinition": "تعریف خدمت",
+        "route": "مسیر",
+        "from": "مبدا",
+        "to": "مقصد",
+        "vehicleType": "نوع خودرو",
+        "vehicleTypePlaceholder": "مثلاً سدان، ون",
+        "price": "قیمت",
+        "currency": "واحد پول",
+        "isActive": "فعال",
+        "save": "ذخیره",
+        "saving": "در حال ذخیره…",
+        "saved": "مسیر ذخیره شد",
+        "cancel": "انصراف",
+        "confirmDelete": "جزئیات مبدا/مقصد این مسیر حذف شود؟ خودِ خدمت همچنان قابل رزرو باقی می‌ماند — اگر می‌خواهید کاملاً حذف شود، آن را از بخش ارائه‌دهندگان خدمت غیرفعال یا حذف کنید.",
+        "deleted": "جزئیات مسیر حذف شد"
+      },
+      "errors": {
+        "invalidForm": "لطفاً فیلدهای مشخص‌شده را بررسی کنید.",
+        "notFound": "این مسیر دیگر وجود ندارد.",
+        "generic": "مشکلی پیش آمد. لطفاً دوباره تلاش کنید."
+      }
+    }
+  },
+  "Tours": {
+    "admin": {
+      "title": "تورها",
+      "description": "تاریخ‌های ثابت حرکت تورهای چندروزه را زمان‌بندی کنید. خودِ تور (نام، توضیحات، قیمت، برنامه سفر) مانند هر خدمت دیگری از بخش ارائه‌دهندگان خدمت ویرایش می‌شود.",
+      "schemaMissing": {
+        "title": "مایگریشن دیتابیس در انتظار اجراست",
+        "body": "برای فعال‌سازی این بخش، مایگریشن 0042_tour_departures.sql را اجرا کنید."
+      },
+      "departures": {
+        "title": "حرکت‌ها",
+        "empty": "هنوز حرکتی زمان‌بندی نشده است.",
+        "create": "افزودن حرکت",
+        "edit": "ویرایش",
+        "tour": "تور",
+        "tourPlaceholder": "جست‌وجوی یک تور",
+        "tourHint": "یک خدمت موجود را انتخاب کنید (اگر هنوز ساخته نشده، ابتدا آن را از بخش ارائه‌دهندگان خدمت بسازید).",
+        "provider": "ارائه‌دهنده",
+        "startsOn": "تاریخ شروع",
+        "endsOn": "تاریخ پایان",
+        "capacity": "ظرفیت",
+        "dates": "تاریخ‌ها",
+        "booked": "رزروشده",
+        "isActive": "فعال",
+        "save": "ذخیره",
+        "saving": "در حال ذخیره…",
+        "saved": "حرکت ذخیره شد",
+        "cancel": "انصراف",
+        "confirmDelete": "این حرکت حذف شود؟",
+        "deleted": "حرکت حذف شد",
+        "cannotDeleteWithBookings": "این حرکت رزرو دارد و قابل حذف نیست."
+      },
+      "errors": {
+        "invalidForm": "لطفاً فیلدهای مشخص‌شده را بررسی کنید.",
+        "capacityBelowBooked": "ظرفیت نمی‌تواند کمتر از تعداد رزروشده باشد.",
+        "tourNotFound": "این تور دیگر وجود ندارد.",
+        "deleteHasBookings": "این حرکت رزرو دارد و قابل حذف نیست.",
+        "gatheringNotOpen": "این کمپین دیگر باز نیست.",
+        "notFound": "این درخواست دیگر وجود ندارد.",
+        "generic": "مشکلی پیش آمد. لطفاً دوباره تلاش کنید."
+      },
+      "gathering": {
+        "pageTitle": "کمپین‌های تور گروهی",
+        "pageDescription": "مدیریت تورهای گروهی بدون تاریخ ثابت: کمپین‌هایی که مشتریان به آن‌ها می‌پیوندند تا به تعداد هدف برسد.",
+        "schemaMissing": {
+          "title": "مایگریشن دیتابیس در انتظار اجراست",
+          "body": "برای فعال‌سازی این بخش، مایگریشن 0043_tour_gathering_campaigns.sql را اجرا کنید."
+        },
+        "campaignsTitle": "کمپین‌ها",
+        "participantsTitle": "درخواست‌های عضویت",
+        "empty": "هنوز کمپین گروهی ثبت نشده است.",
+        "participantsEmpty": "هنوز درخواست عضویتی ثبت نشده است.",
+        "create": "افزودن کمپین",
+        "saved": "کمپین ایجاد شد",
+        "targetHeadcount": "تعداد هدف",
+        "pricePerPerson": "قیمت هر نفر",
+        "currency": "واحد پول",
+        "joinDeadline": "مهلت عضویت (اختیاری)",
+        "progress": "تأییدشده",
+        "pending": "در انتظار",
+        "status": {
+          "label": "وضعیت",
+          "gathering": "در حال جمع‌آوری",
+          "confirmed": "تأییدشده",
+          "cancelled": "لغوشده"
+        },
+        "confirm": "تأیید",
+        "confirmTitle": "تأیید کمپین",
+        "confirmHint": "{count} از {target} تأیید شده‌اند. تاریخ نهایی را برای تأیید این تور تعیین کنید.",
+        "confirmed": "کمپین تأیید شد",
+        "cancel": "لغو کمپین",
+        "confirmCancel": "این کمپین لغو شود؟ باید بازپرداخت مشتریان عضوشده جداگانه انجام شود.",
+        "cancelled": "کمپین لغو شد",
+        "amount": "مبلغ",
+        "reference": "شماره پیگیری",
+        "createdAt": "زمان عضویت",
+        "review": "بررسی",
+        "participantStatus": {
+          "pending_review": "در انتظار بررسی",
+          "approved": "تأییدشده",
+          "rejected": "ردشده"
+        },
+        "reviewTitle": "بررسی درخواست عضویت",
+        "note": "یادداشت",
+        "notePlaceholder": "دلیل (برای رد کردن الزامی است)…",
+        "approve": "تأیید",
+        "reject": "رد",
+        "saving": "در حال ذخیره…",
+        "reviewSaved": "ذخیره شد",
+        "close": "بستن"
+      },
+      "customer": {
+        "pageTitle": "تورهای گروهی",
+        "browseTitle": "کمپین‌های باز",
+        "empty": "در حال حاضر هیچ توری در حال جمع‌آوری اعضا نیست.",
+        "myParticipationsEmpty": "هنوز به هیچ تور گروهی نپیوسته‌اید.",
+        "join": "پیوستن",
+        "joining": "در حال پیوستن…",
+        "joined": "به این کمپین پیوستید",
+        "alreadyJoined": "قبلاً به این کمپین پیوسته‌اید",
+        "joinTitle": "پیوستن به این تور",
+        "paymentReference": "شماره پیگیری پرداخت (اختیاری)",
+        "paymentReferenceHint": "اگر قبلاً با انتقال بانکی پرداخت کرده‌اید، شماره پیگیری را اینجا وارد کنید.",
+        "cancel": "انصراف",
+        "progress": "{count} از {target} نفر پیوسته‌اند",
+        "joinBy": "مهلت پیوستن: {date}",
+        "tourConfirmed": "تور تأیید شد",
+        "gatheringCancelled": "لغوشده",
+        "reviewNoteLabel": "دلیل",
+        "errors": {
+          "generic": "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
+          "invalidForm": "لطفاً فیلدهای مشخص‌شده را بررسی کنید.",
+          "signInRequired": "برای پیوستن به تور، وارد حساب کاربری شوید.",
+          "campaignNotFound": "این کمپین دیگر در دسترس نیست.",
+          "campaignNotOpen": "این کمپین دیگر باز نیست."
+        }
+      }
+    }
+  },
   "AdminPages": {
     "smtpExampleCom": "smtp.example.com",
     "noReplyLsevinCom": "no-reply@lsevin.com",
@@ -14512,6 +14823,8 @@
     "ge00Ls0000000000000000": "GE00 LS00 0000 0000 0000 00",
     "ref": "کد پیگیری:",
     "title": "فروشگاه",
+    "metaDescription": "خرید محصولات و تجهیزات پزشکی و سلامت با ارسال سریع.",
+    "categoryMetaDescription": "مشاهده {count} محصول در دسته {name}.",
     "tab": "فروشگاه",
     "searchPlaceholder": "جستجوی محصول، برند…",
     "search": "جستجو",

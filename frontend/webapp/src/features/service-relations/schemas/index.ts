@@ -11,6 +11,18 @@ import { LocalizedContentSchema } from "@/features/shared/schemas/localization";
 export const providerServiceAddonSchema = z.object({ providerServiceId: z.guid(), addonId: z.string().min(1) });
 export const removeProviderServiceAddonSchema = z.object({ providerServiceId: z.guid(), addonId: z.string().min(1) });
 
+export const bulkSetAddonProviderServicesSchema = z.object({
+  addonId: z.string().min(1),
+  addProviderServiceIds: z.array(z.guid()).default([]),
+  removeProviderServiceIds: z.array(z.guid()).default([]),
+});
+
+export const bulkSetServiceDefinitionAddonProviderTypesSchema = z.object({
+  providerTypeId: z.guid(),
+  addServiceDefinitionIds: z.array(z.guid()).default([]),
+  removeServiceDefinitionIds: z.array(z.guid()).default([]),
+});
+
 export const serviceFaqSchema = z.object({ providerServiceId: z.guid(), faqId: z.guid().optional(), question: z.string().trim().min(1), answer: z.string().trim().min(1) });
 export const deleteServiceFaqSchema = z.object({ providerServiceId: z.guid(), faqId: z.guid() });
 

@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
     search: s.get('search') ?? '',
     take: Number(s.get('take') ?? 8),
     offset: Number(s.get('offset') ?? 0),
+    language: s.get('language') ?? undefined,
   });
   return NextResponse.json(data);
 }

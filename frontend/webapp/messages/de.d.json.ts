@@ -2,6 +2,16 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+  "BookingCart": {
+    "title": "Gespeicherte Buchungen",
+    "hint": "Dies sind Schätzungen, keine bestätigten Reservierungen. Prüfen und bezahlen Sie jede Buchung. Produkte werden derzeit separat bezahlt.",
+    "resume": "Buchung prüfen",
+    "remove": "Entfernen",
+    "another": "Weiteren Service hinzufügen",
+    "save": "Im Warenkorb speichern und weiter einkaufen",
+    "saving": "Wird gespeichert…",
+    "error": "Aktualisierung fehlgeschlagen. Laden Sie die Seite neu und versuchen Sie es erneut."
+  },
   "UploadFiles": {
     "title": "Upload documents",
     "subtitle": "Please upload the requested files for your booking",
@@ -1912,6 +1922,10 @@ declare const messages: {
       },
       "isActive": {
         "label": "Aktiv"
+      },
+      "requiresCustomerAddress": {
+        "label": "Erfordert Kundenadresse (Hausbesuch)",
+        "hint": "Aktivieren für Leistungen, die an der Adresse des Kunden erbracht werden, z. B. häusliche Pflege. Fügt dem Buchungsablauf einen Adressauswahl-Schritt hinzu."
       },
       "attributeDefinitions": "Attributdefinitionen",
       "requirements": "Anforderungen",
@@ -5156,6 +5170,25 @@ declare const messages: {
     "fromDate": "Datum von",
     "fullName": "Vollständiger Name *",
     "fullName2": "Vollständiger Name",
+    "addNewAddress": "Neue Adresse hinzufügen",
+    "addressFormIncomplete": "Bitte Name, Land, Stadt und Adresse angeben.",
+    "addressLine1": "Adresse (Zeile 1)",
+    "addressLine2": "Adresse (Zeile 2, optional)",
+    "addressSaveFailed": "Adresse konnte nicht gespeichert werden. Bitte erneut versuchen.",
+    "city": "Stadt",
+    "country": "Land",
+    "loadingAddresses": "Ihre Adressen werden geladen…",
+    "noSavedAddresses": "Sie haben noch keine gespeicherten Adressen.",
+    "postalCode": "Postleitzahl",
+    "saveAddress": "Adresse speichern",
+    "serviceAddress": "Adresse der Leistung",
+    "serviceAddressHint": "Diese Leistung wird an Ihrer Adresse erbracht. Wählen Sie unten eine aus oder fügen Sie eine neue hinzu.",
+    "stateRegion": "Bundesland / Region",
+    "chooseDeparture": "Abreisetermin wählen",
+    "departureFull": "Ausgebucht",
+    "loadingDepartures": "Abreisetermine werden geladen…",
+    "noUpcomingDepartures": "Für diese Tour sind noch keine Termine geplant.",
+    "spotsLeft": "{count} Plätze frei",
     "gallery": "Galerie",
     "gatewayChargeCurrency": "Abrechnungswährung des Zahlungsanbieters:",
     "gender": "Geschlecht",
@@ -12755,6 +12788,256 @@ declare const messages: {
         "confirmDelete": "Diesen Empfänger entfernen?",
         "empty": "Noch keine Empfänger – niemand wird benachrichtigt.",
         "cancel": "Abbrechen"
+      }
+    }
+  },
+  "GymMemberships": {
+    "customer": {
+      "title": "Meine Fitnessstudio-Mitgliedschaften",
+      "empty": "Sie haben noch keine Fitnessstudio-Mitgliedschaft.",
+      "plan": { "monthlyPriceLabel": "Monatlicher Preis" },
+      "subscribe": {
+        "title": "Abonnieren",
+        "selectMonths": "Wählen Sie die zu zahlenden Monate",
+        "paymentReference": "Zahlungsreferenz (optional)",
+        "paymentReferenceHint": "Falls Sie bereits per Banküberweisung bezahlt haben, geben Sie hier die Referenznummer ein.",
+        "submit": "Zur Prüfung senden",
+        "submitting": "Wird gesendet…",
+        "submitted": "Zur Prüfung eingereicht"
+      },
+      "month": {
+        "pending_review": "In Prüfung",
+        "approved": "Bezahlt",
+        "rejected": "Abgelehnt",
+        "due": "Fällig",
+        "reviewNoteLabel": "Grund"
+      },
+      "errors": {
+        "signInRequired": "Bitte melden Sie sich an, um Ihre Fitnessstudio-Mitgliedschaften zu verwalten.",
+        "notAvailable": "Fitnessstudio-Mitgliedschaften sind noch nicht verfügbar. Bitte versuchen Sie es später erneut.",
+        "invalidForm": "Bitte überprüfen Sie die markierten Felder.",
+        "planNotFound": "Dieser Tarif ist nicht mehr verfügbar.",
+        "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+      }
+    },
+    "admin": {
+      "title": "Fitnessstudio-Mitgliedschaften",
+      "description": "Mitgliedschaftstarife verwalten und Zahlungen prüfen.",
+      "schemaMissing": {
+        "title": "Datenbankmigration ausstehend",
+        "body": "Führen Sie die Migration 0039_gym_memberships.sql aus, um diesen Bereich zu aktivieren."
+      },
+      "plans": {
+        "title": "Mitgliedschaftstarife",
+        "empty": "Noch keine Mitgliedschaftstarife vorhanden.",
+        "create": "Tarif hinzufügen",
+        "edit": "Bearbeiten",
+        "provider": "Fitnessstudio",
+        "name": "Tarifname",
+        "monthlyPrice": "Monatlicher Preis",
+        "currency": "Währung",
+        "isActive": "Aktiv",
+        "save": "Speichern",
+        "saving": "Wird gespeichert…",
+        "saved": "Tarif gespeichert",
+        "cancel": "Abbrechen"
+      },
+      "months": {
+        "title": "Zahlungsprüfung",
+        "empty": "Keine Zahlungen zu prüfen.",
+        "filters": {
+          "search": "Fitnessstudio oder Referenz suchen",
+          "status": "Status",
+          "all": "Alle",
+          "apply": "Anwenden"
+        },
+        "table": {
+          "gym": "Fitnessstudio",
+          "plan": "Tarif",
+          "period": "Monat",
+          "amount": "Betrag",
+          "reference": "Referenz",
+          "status": "Status",
+          "createdAt": "Eingereicht",
+          "actions": "Aktionen",
+          "review": "Prüfen"
+        },
+        "status": {
+          "pending_review": "In Prüfung",
+          "approved": "Genehmigt",
+          "rejected": "Abgelehnt"
+        },
+        "review": {
+          "title": "Zahlung prüfen",
+          "note": "Notiz",
+          "notePlaceholder": "Grund (bei Ablehnung erforderlich)…",
+          "approve": "Genehmigen",
+          "reject": "Ablehnen",
+          "saving": "Wird gespeichert…",
+          "saved": "Gespeichert",
+          "close": "Schließen"
+        }
+      },
+      "errors": {
+        "invalidForm": "Bitte überprüfen Sie die markierten Felder.",
+        "notFound": "Diese Zahlung existiert nicht mehr.",
+        "reasonRequiredToReject": "Ein Grund ist erforderlich, um eine Zahlung abzulehnen.",
+        "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+      }
+    }
+  },
+  "Transfers": {
+    "admin": {
+      "title": "Transferstrecken",
+      "description": "Legen Sie Hotel- und Flughafentransfers mit Festpreisen fest. Jede Strecke wird zu einer regulären buchbaren Leistung, sodass Kunden sie über den normalen Buchungsablauf buchen.",
+      "schemaMissing": {
+        "title": "Datenbankmigration ausstehend",
+        "body": "Wenden Sie die Migration 0040_transfer_routes.sql an, um diesen Bereich zu aktivieren."
+      },
+      "routes": {
+        "title": "Strecken",
+        "empty": "Noch keine Transferstrecken.",
+        "create": "Strecke hinzufügen",
+        "edit": "Bearbeiten",
+        "provider": "Transferanbieter",
+        "serviceDefinition": "Leistungsdefinition",
+        "route": "Strecke",
+        "from": "Von",
+        "to": "Nach",
+        "vehicleType": "Fahrzeugtyp",
+        "vehicleTypePlaceholder": "z. B. Limousine, Van",
+        "price": "Preis",
+        "currency": "Währung",
+        "isActive": "Aktiv",
+        "save": "Speichern",
+        "saving": "Wird gespeichert…",
+        "saved": "Strecke gespeichert",
+        "cancel": "Abbrechen",
+        "confirmDelete": "Von/Nach-Angaben dieser Strecke entfernen? Die zugrunde liegende Leistung bleibt weiterhin buchbar — deaktivieren oder löschen Sie sie bei Bedarf vollständig unter Dienstleister.",
+        "deleted": "Streckendetails entfernt"
+      },
+      "errors": {
+        "invalidForm": "Bitte überprüfen Sie die markierten Felder.",
+        "notFound": "Diese Strecke existiert nicht mehr.",
+        "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+      }
+    }
+  },
+  "Tours": {
+    "admin": {
+      "title": "Touren",
+      "description": "Planen Sie feste Abreisetermine für mehrtägige Touren. Die Tour selbst (Name, Beschreibung, Preis, Reiseverlauf) wird wie jede andere Leistung über Dienstleister bearbeitet.",
+      "schemaMissing": {
+        "title": "Datenbankmigration ausstehend",
+        "body": "Wenden Sie die Migration 0042_tour_departures.sql an, um diesen Bereich zu aktivieren."
+      },
+      "departures": {
+        "title": "Abreisetermine",
+        "empty": "Noch keine Abreisetermine geplant.",
+        "create": "Termin hinzufügen",
+        "edit": "Bearbeiten",
+        "tour": "Tour",
+        "tourPlaceholder": "Nach einer Tour suchen",
+        "tourHint": "Wählen Sie eine bestehende Leistung aus (legen Sie sie zuerst unter Dienstleister an, falls sie noch nicht existiert).",
+        "provider": "Anbieter",
+        "startsOn": "Beginnt am",
+        "endsOn": "Endet am",
+        "capacity": "Kapazität",
+        "dates": "Termine",
+        "booked": "Gebucht",
+        "isActive": "Aktiv",
+        "save": "Speichern",
+        "saving": "Wird gespeichert…",
+        "saved": "Termin gespeichert",
+        "cancel": "Abbrechen",
+        "confirmDelete": "Diesen Termin löschen?",
+        "deleted": "Termin gelöscht",
+        "cannotDeleteWithBookings": "Dieser Termin hat Buchungen und kann nicht gelöscht werden."
+      },
+      "errors": {
+        "invalidForm": "Bitte überprüfen Sie die markierten Felder.",
+        "capacityBelowBooked": "Die Kapazität kann nicht unter die bereits gebuchte Anzahl gesetzt werden.",
+        "tourNotFound": "Diese Tour existiert nicht mehr.",
+        "deleteHasBookings": "Dieser Termin hat Buchungen und kann nicht gelöscht werden.",
+        "gatheringNotOpen": "Diese Kampagne ist nicht mehr offen.",
+        "notFound": "Diese Anfrage existiert nicht mehr.",
+        "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+      },
+      "gathering": {
+        "pageTitle": "Touren-Sammelkampagnen",
+        "pageDescription": "Verwalten Sie Touren ohne feste Termine: Kampagnen, denen Kunden beitreten, bis eine Zielteilnehmerzahl erreicht ist.",
+        "schemaMissing": {
+          "title": "Datenbankmigration ausstehend",
+          "body": "Wenden Sie die Migration 0043_tour_gathering_campaigns.sql an, um diesen Bereich zu aktivieren."
+        },
+        "campaignsTitle": "Kampagnen",
+        "participantsTitle": "Beitrittsanfragen",
+        "empty": "Noch keine Sammelkampagnen.",
+        "participantsEmpty": "Noch keine Beitrittsanfragen.",
+        "create": "Kampagne hinzufügen",
+        "saved": "Kampagne erstellt",
+        "targetHeadcount": "Zielteilnehmerzahl",
+        "pricePerPerson": "Preis pro Person",
+        "currency": "Währung",
+        "joinDeadline": "Beitrittsfrist (optional)",
+        "progress": "Bestätigt",
+        "pending": "ausstehend",
+        "status": {
+          "label": "Status",
+          "gathering": "Sammelt",
+          "confirmed": "Bestätigt",
+          "cancelled": "Storniert"
+        },
+        "confirm": "Bestätigen",
+        "confirmTitle": "Kampagne bestätigen",
+        "confirmHint": "{count} von {target} bestätigt. Legen Sie die endgültigen Termine fest, um diese Tour zu bestätigen.",
+        "confirmed": "Kampagne bestätigt",
+        "cancel": "Kampagne stornieren",
+        "confirmCancel": "Diese Kampagne stornieren? Beigetretene Kunden müssen separat erstattet werden.",
+        "cancelled": "Kampagne storniert",
+        "amount": "Betrag",
+        "reference": "Referenz",
+        "createdAt": "Beigetreten",
+        "review": "Prüfen",
+        "participantStatus": {
+          "pending_review": "Wird geprüft",
+          "approved": "Bestätigt",
+          "rejected": "Abgelehnt"
+        },
+        "reviewTitle": "Beitrittsanfrage prüfen",
+        "note": "Notiz",
+        "notePlaceholder": "Grund (bei Ablehnung erforderlich)…",
+        "approve": "Bestätigen",
+        "reject": "Ablehnen",
+        "saving": "Wird gespeichert…",
+        "reviewSaved": "Gespeichert",
+        "close": "Schließen"
+      },
+      "customer": {
+        "pageTitle": "Touren-Sammelaktionen",
+        "browseTitle": "Offene Kampagnen",
+        "empty": "Derzeit sammelt keine Tour Interessenten.",
+        "myParticipationsEmpty": "Sie sind noch keiner Touren-Sammelaktion beigetreten.",
+        "join": "Beitreten",
+        "joining": "Beitreten…",
+        "joined": "Sie sind dieser Kampagne beigetreten",
+        "alreadyJoined": "Sie sind dieser Kampagne bereits beigetreten",
+        "joinTitle": "Dieser Tour beitreten",
+        "paymentReference": "Zahlungsreferenz (optional)",
+        "paymentReferenceHint": "Wenn Sie bereits per Banküberweisung bezahlt haben, geben Sie hier die Referenznummer ein.",
+        "cancel": "Abbrechen",
+        "progress": "{count} von {target} beigetreten",
+        "joinBy": "Beitritt bis {date}",
+        "tourConfirmed": "Tour bestätigt",
+        "gatheringCancelled": "Storniert",
+        "reviewNoteLabel": "Grund",
+        "errors": {
+          "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+          "invalidForm": "Bitte überprüfen Sie die markierten Felder.",
+          "signInRequired": "Bitte melden Sie sich an, um einer Tour beizutreten.",
+          "campaignNotFound": "Diese Kampagne ist nicht mehr verfügbar.",
+          "campaignNotOpen": "Diese Kampagne ist nicht mehr offen."
+        }
       }
     }
   },

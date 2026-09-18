@@ -2,6 +2,16 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+  "BookingCart": {
+    "title": "Saved bookings",
+    "hint": "Saved estimates are not confirmed reservations. Review each booking to check availability and pay. Products are currently paid for separately.",
+    "resume": "Review booking",
+    "remove": "Remove",
+    "another": "Add another service",
+    "save": "Save to cart and continue shopping",
+    "saving": "Saving…",
+    "error": "Could not update this booking. Refresh and try again."
+  },
   "ProviderOnboarding": {
     "eG25": "e.g., 25",
     "eG15": "e.g., 15",
@@ -537,6 +547,25 @@ declare const messages: {
     "fromDate": "From date",
     "fullName": "Full Name *",
     "fullName2": "Full Name",
+    "addNewAddress": "Add new address",
+    "addressFormIncomplete": "Please fill in your name, country, city and address.",
+    "addressLine1": "Address line 1",
+    "addressLine2": "Address line 2 (optional)",
+    "addressSaveFailed": "Could not save this address. Please try again.",
+    "city": "City",
+    "country": "Country",
+    "loadingAddresses": "Loading your addresses…",
+    "noSavedAddresses": "You don't have any saved addresses yet.",
+    "postalCode": "Postal code",
+    "saveAddress": "Save address",
+    "serviceAddress": "Service address",
+    "serviceAddressHint": "This service is provided at your address. Choose or add one below.",
+    "stateRegion": "State / Region",
+    "chooseDeparture": "Choose a departure",
+    "departureFull": "Full",
+    "loadingDepartures": "Loading departures…",
+    "noUpcomingDepartures": "No upcoming departures for this tour yet.",
+    "spotsLeft": "{count} spots left",
     "gatewayChargeCurrency": "Gateway charge currency:",
     "gender": "Gender",
     "genericAvailability": "Generic availability",
@@ -1325,6 +1354,24 @@ declare const messages: {
     "serviceAddons": "Service Add-ons",
     "addonFieldLabel": "Add-on",
     "noAddonsLinkedYet": "No add-ons linked yet.",
+    "addonsPageTitle": "Add-ons",
+    "manageServices": "Manage services",
+    "linkedServices": "Linked services",
+    "searchServicesPlaceholder": "Search by service, provider or category…",
+    "noServicesLinkedYet": "No services linked yet.",
+    "noServicesFound": "No services found.",
+    "applyChanges": "Apply changes",
+    "changesApplied": "Changes applied",
+    "selectedCount": "{count} selected",
+    "unsavedChanges": "You have unsaved changes",
+    "pageIndicator": "Page {page} of {totalPages}",
+    "addonProviderTypesPageTitle": "Add-on Provider Types",
+    "addonProviderTypesPageDescription": "Attach a provider type (hotel, translator, home nursing, transfers, tours) to many service definitions at once, so it can be added as a full add-on booking.",
+    "linkedServiceDefinitions": "Linked service definitions",
+    "noServiceDefinitionsLinkedYet": "No service definitions linked yet.",
+    "manageServiceDefinitions": "Manage service definitions",
+    "searchServiceDefinitionsPlaceholder": "Search by service definition or category…",
+    "noServiceDefinitionsFound": "No service definitions found.",
     "addonLinked": "Add-on linked",
     "addonRemoved": "Add-on removed",
     "failedToLink": "Failed to link",
@@ -1875,6 +1922,8 @@ declare const messages: {
     "preferredCurrency": "Preferred Currency",
     "preferredLocale": "Preferred Locale",
     "price": "Price",
+    "priceToman": "Price (Toman)",
+    "priceTomanPlaceholder": "Optional — shown to Iranian visitors instead of the price above",
     "primaryButtonTitle": "Primary Button Title",
     "primaryButtonURL": "Primary Button URL",
     "primaryColor": "Primary color",
@@ -5062,6 +5111,10 @@ declare const messages: {
       "bookingDrafts": "Booking drafts",
       "bookingCalendar": "Booking calendar",
       "availability": "Availability",
+      "gymMemberships": "Gym memberships",
+      "transferRoutes": "Transfer routes",
+      "tours": "Tours",
+      "tourGatherings": "Tour gathering campaigns",
       "finance": "Finance",
       "payments": "Payments",
       "paymentGateways": "Payment gateways",
@@ -5086,6 +5139,8 @@ declare const messages: {
       "staff": "Staff",
       "categories": "Categories",
       "serviceDefinitions": "Service definitions",
+      "addons": "Add-ons",
+      "addonProviderTypes": "Add-on provider types",
       "customers": "Customers",
       "customersList": "All customers",
       "identityUsers": "Users",
@@ -6591,6 +6646,10 @@ declare const messages: {
       },
       "isActive": {
         "label": "Active"
+      },
+      "requiresCustomerAddress": {
+        "label": "Requires customer address (home visit)",
+        "hint": "Turn on for services delivered at the customer's address, e.g. home nursing. Adds an address-picker step to the booking flow."
       },
       "attributeDefinitions": "Attribute Definitions",
       "requirements": "Requirements",
@@ -13705,6 +13764,258 @@ declare const messages: {
       }
     }
   },
+  "GymMemberships": {
+    "customer": {
+      "title": "My gym memberships",
+      "empty": "You don't have any gym memberships yet.",
+      "plan": {
+        "monthlyPriceLabel": "Monthly price"
+      },
+      "subscribe": {
+        "title": "Subscribe",
+        "selectMonths": "Select months to pay",
+        "paymentReference": "Payment reference (optional)",
+        "paymentReferenceHint": "If you already paid by bank transfer, enter the reference number here.",
+        "submit": "Submit for review",
+        "submitting": "Submitting…",
+        "submitted": "Submitted for review"
+      },
+      "month": {
+        "pending_review": "Pending review",
+        "approved": "Paid",
+        "rejected": "Rejected",
+        "due": "Due",
+        "reviewNoteLabel": "Reason"
+      },
+      "errors": {
+        "signInRequired": "Please sign in to manage your gym memberships.",
+        "notAvailable": "Gym memberships are not available yet. Please try again later.",
+        "invalidForm": "Please check the highlighted fields.",
+        "planNotFound": "That plan is no longer available.",
+        "generic": "Something went wrong. Please try again."
+      }
+    },
+    "admin": {
+      "title": "Gym memberships",
+      "description": "Manage gym membership plans and review payments.",
+      "schemaMissing": {
+        "title": "Database migration pending",
+        "body": "Apply migration 0039_gym_memberships.sql to enable this section."
+      },
+      "plans": {
+        "title": "Membership plans",
+        "empty": "No membership plans yet.",
+        "create": "Add plan",
+        "edit": "Edit",
+        "provider": "Gym",
+        "name": "Plan name",
+        "monthlyPrice": "Monthly price",
+        "currency": "Currency",
+        "isActive": "Active",
+        "save": "Save",
+        "saving": "Saving…",
+        "saved": "Plan saved",
+        "cancel": "Cancel"
+      },
+      "months": {
+        "title": "Payment review",
+        "empty": "No payments to review.",
+        "filters": {
+          "search": "Search gym or reference",
+          "status": "Status",
+          "all": "All",
+          "apply": "Apply"
+        },
+        "table": {
+          "gym": "Gym",
+          "plan": "Plan",
+          "period": "Month",
+          "amount": "Amount",
+          "reference": "Reference",
+          "status": "Status",
+          "createdAt": "Submitted",
+          "actions": "Actions",
+          "review": "Review"
+        },
+        "status": {
+          "pending_review": "Pending review",
+          "approved": "Approved",
+          "rejected": "Rejected"
+        },
+        "review": {
+          "title": "Review payment",
+          "note": "Note",
+          "notePlaceholder": "Reason (required to reject)…",
+          "approve": "Approve",
+          "reject": "Reject",
+          "saving": "Saving…",
+          "saved": "Saved",
+          "close": "Close"
+        }
+      },
+      "errors": {
+        "invalidForm": "Please check the highlighted fields.",
+        "notFound": "That payment no longer exists.",
+        "reasonRequiredToReject": "A reason is required to reject a payment.",
+        "generic": "Something went wrong. Please try again."
+      }
+    }
+  },
+  "Transfers": {
+    "admin": {
+      "title": "Transfer routes",
+      "description": "Define fixed-price hotel and airport transfer routes. Each route becomes a regular bookable service, so customers book it through the normal booking flow.",
+      "schemaMissing": {
+        "title": "Database migration pending",
+        "body": "Apply migration 0040_transfer_routes.sql to enable this section."
+      },
+      "routes": {
+        "title": "Routes",
+        "empty": "No transfer routes yet.",
+        "create": "Add route",
+        "edit": "Edit",
+        "provider": "Transfer provider",
+        "serviceDefinition": "Service definition",
+        "route": "Route",
+        "from": "From",
+        "to": "To",
+        "vehicleType": "Vehicle type",
+        "vehicleTypePlaceholder": "e.g. Sedan, Van",
+        "price": "Price",
+        "currency": "Currency",
+        "isActive": "Active",
+        "save": "Save",
+        "saving": "Saving…",
+        "saved": "Route saved",
+        "cancel": "Cancel",
+        "confirmDelete": "Remove this route's from/to details? The underlying listing stays bookable — deactivate or delete it from Service providers if you want it gone entirely.",
+        "deleted": "Route details removed"
+      },
+      "errors": {
+        "invalidForm": "Please check the highlighted fields.",
+        "notFound": "That route no longer exists.",
+        "generic": "Something went wrong. Please try again."
+      }
+    }
+  },
+  "Tours": {
+    "admin": {
+      "title": "Tours",
+      "description": "Schedule fixed departure dates for multi-day tours. The tour itself (name, description, price, itinerary) is edited like any other service through Service providers.",
+      "schemaMissing": {
+        "title": "Database migration pending",
+        "body": "Apply migration 0042_tour_departures.sql to enable this section."
+      },
+      "departures": {
+        "title": "Departures",
+        "empty": "No departures scheduled yet.",
+        "create": "Add departure",
+        "edit": "Edit",
+        "tour": "Tour",
+        "tourPlaceholder": "Search for a tour listing",
+        "tourHint": "Pick an existing service listing (create it first under Service providers if it doesn't exist yet).",
+        "provider": "Provider",
+        "startsOn": "Starts on",
+        "endsOn": "Ends on",
+        "capacity": "Capacity",
+        "dates": "Dates",
+        "booked": "Booked",
+        "isActive": "Active",
+        "save": "Save",
+        "saving": "Saving…",
+        "saved": "Departure saved",
+        "cancel": "Cancel",
+        "confirmDelete": "Delete this departure?",
+        "deleted": "Departure deleted",
+        "cannotDeleteWithBookings": "This departure has bookings and can't be deleted."
+      },
+      "errors": {
+        "invalidForm": "Please check the highlighted fields.",
+        "capacityBelowBooked": "Capacity can't be set below the number already booked.",
+        "tourNotFound": "That tour listing no longer exists.",
+        "deleteHasBookings": "This departure has bookings and can't be deleted.",
+        "gatheringNotOpen": "This campaign is no longer open.",
+        "notFound": "That request no longer exists.",
+        "generic": "Something went wrong. Please try again."
+      },
+      "gathering": {
+        "pageTitle": "Tour gathering campaigns",
+        "pageDescription": "Manage subscription-gathering tours: campaigns with no fixed dates yet, where customers join until a target headcount is reached.",
+        "schemaMissing": {
+          "title": "Database migration pending",
+          "body": "Apply migration 0043_tour_gathering_campaigns.sql to enable this section."
+        },
+        "campaignsTitle": "Campaigns",
+        "participantsTitle": "Join requests",
+        "empty": "No gathering campaigns yet.",
+        "participantsEmpty": "No join requests yet.",
+        "create": "Add campaign",
+        "saved": "Campaign created",
+        "targetHeadcount": "Target headcount",
+        "pricePerPerson": "Price per person",
+        "currency": "Currency",
+        "joinDeadline": "Join deadline (optional)",
+        "progress": "Approved",
+        "pending": "pending",
+        "status": {
+          "label": "Status",
+          "gathering": "Gathering",
+          "confirmed": "Confirmed",
+          "cancelled": "Cancelled"
+        },
+        "confirm": "Confirm",
+        "confirmTitle": "Confirm campaign",
+        "confirmHint": "{count} of {target} approved. Set the final dates to confirm this tour.",
+        "confirmed": "Campaign confirmed",
+        "cancel": "Cancel campaign",
+        "confirmCancel": "Cancel this campaign? Joined customers will need to be refunded separately.",
+        "cancelled": "Campaign cancelled",
+        "amount": "Amount",
+        "reference": "Reference",
+        "createdAt": "Joined",
+        "review": "Review",
+        "participantStatus": {
+          "pending_review": "Pending review",
+          "approved": "Approved",
+          "rejected": "Rejected"
+        },
+        "reviewTitle": "Review join request",
+        "note": "Note",
+        "notePlaceholder": "Reason (required to reject)…",
+        "approve": "Approve",
+        "reject": "Reject",
+        "saving": "Saving…",
+        "reviewSaved": "Saved",
+        "close": "Close"
+      },
+      "customer": {
+        "pageTitle": "Tour gatherings",
+        "browseTitle": "Open campaigns",
+        "empty": "No tours are gathering interest right now.",
+        "myParticipationsEmpty": "You haven't joined any tour gatherings yet.",
+        "join": "Join",
+        "joining": "Joining…",
+        "joined": "You've joined this campaign",
+        "alreadyJoined": "You've already joined this campaign",
+        "joinTitle": "Join this tour",
+        "paymentReference": "Payment reference (optional)",
+        "paymentReferenceHint": "If you already paid by bank transfer, enter the reference number here.",
+        "cancel": "Cancel",
+        "progress": "{count} of {target} joined",
+        "joinBy": "Join by {date}",
+        "tourConfirmed": "Tour confirmed",
+        "gatheringCancelled": "Cancelled",
+        "reviewNoteLabel": "Reason",
+        "errors": {
+          "generic": "Something went wrong. Please try again.",
+          "invalidForm": "Please check the highlighted fields.",
+          "signInRequired": "Please sign in to join a tour.",
+          "campaignNotFound": "That campaign is no longer available.",
+          "campaignNotOpen": "This campaign is no longer open."
+        }
+      }
+    }
+  },
   "AdminPages": {
     "smtpExampleCom": "smtp.example.com",
     "noReplyLsevinCom": "no-reply@lsevin.com",
@@ -14504,6 +14815,8 @@ declare const messages: {
     "ge00Ls0000000000000000": "GE00 LS00 0000 0000 0000 00",
     "ref": "Ref:",
     "title": "Shop",
+    "metaDescription": "Shop medical and wellness products, equipment, and supplies with fast delivery.",
+    "categoryMetaDescription": "Browse {count} products in {name}.",
     "tab": "Shop",
     "searchPlaceholder": "Search products, brands…",
     "search": "Search",

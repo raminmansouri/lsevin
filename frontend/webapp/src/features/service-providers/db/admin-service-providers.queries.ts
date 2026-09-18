@@ -164,6 +164,7 @@ export type AdminProviderService = {
   isActive: boolean;
   currency: string;
   value: number;
+  valueToman: number | null;
   durationMinutes: number;
   rating: number;
   reviewCount: number;
@@ -988,6 +989,7 @@ async function getProviderServices(
       ps.is_active as "isActive",
       ps.currency,
       ps.value::float8,
+      ps.value_toman::float8 as "valueToman",
       ps.duration_minutes as "durationMinutes",
       coalesce(ps.rating, 0)::float8 as rating,
       coalesce(ps.review_count, 0)::int as "reviewCount",

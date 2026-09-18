@@ -17,7 +17,7 @@ import { formatShopMoney } from "./money";
 import type { CartView } from "../types/domain";
 import { shopImageSrc } from "../lib/image";
 
-export function CartClient({ initial, locale }: { initial: CartView; locale: string }) {
+export function CartClient({ initial, locale, hasBookings = false }: { initial: CartView; locale: string; hasBookings?: boolean }) {
   const t = useTranslations("Shop");
   const router = useRouter();
   const [cart, setCart] = useState(initial);
@@ -40,6 +40,7 @@ export function CartClient({ initial, locale }: { initial: CartView; locale: str
   }
 
   if (!active.length && !saved.length) {
+    if (hasBookings) return <div className="px-4 py-6"><Link href="/n/app/mobile/shop" className="inline-flex min-h-11 items-center rounded-xl border border-neutral-300 px-4 text-sm font-semibold text-[#083f30]">{t("startShopping")}</Link></div>;
     return (
       <div className="flex flex-col items-center justify-center px-6 py-24 text-center">
         <div className="text-5xl">🛒</div>

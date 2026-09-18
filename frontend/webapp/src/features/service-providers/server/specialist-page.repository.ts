@@ -2,6 +2,8 @@ import "server-only";
 
 import sql from "@/config/database/db";
 import { convertMoney, resolvePreferredCurrencyCode } from "@/features/finance/lib/server/currency-queries";
+import { resolveIsIranianVisitor } from "@/features/finance/lib/server/iranian-visitor";
+import { resolveDisplayPrice } from "@/features/finance/lib/server/toman-price";
 
 import type {
   SpecialistAchievement,
@@ -201,6 +203,7 @@ type ServiceRow = {
   country: string | null;
   value: number | string | null;
   currency: string;
+  valueToman: number | string | null;
   durationMinutes: number | string | null;
   rating: number | string | null;
   reviewCount: number | string | null;
@@ -372,6 +375,7 @@ async function getSpecialistServiceRows(specialistId: string, locale: string): P
       sp.country,
       ps.value,
       ps.currency,
+      ps.value_toman as "valueToman",
       coalesce(nullif(ps.duration_minutes, 0), sd.duration_minutes) as "durationMinutes",
       coalesce(ps.rating, sp.rating, 0) as rating,
       coalesce(ps.review_count, sp.review_count, 0) as "reviewCount",
@@ -420,16 +424,24 @@ async function getSpecialistServiceRows(specialistId: string, locale: string): P
   `;
 }
 
-async function mapServices(rows: ServiceRow[], targetCurrencyCode: string): Promise<SpecialistService[]> {
+async function mapServices(rows: ServiceRow[], targetCurrencyCode: string, isIranianVisitor?: boolean): Promise<SpecialistService[]> {
   return Promise.all(
     rows.map(async (row) => {
       const amount = asNumber(row.value, 0);
-      const price = await safeConvertMoney({
+      const converted = await safeConvertMoney({
         amount,
         sourceCurrencyCode: row.currency,
         targetCurrencyCode,
         marginProfile: "standard",
       });
+      const tomanOverride = resolveDisplayPrice(
+        { value: converted.displayAmount, currency: converted.displayCurrencyCode },
+        asNullableNumber(row.valueToman),
+        Boolean(isIranianVisitor),
+      );
+      const price = tomanOverride.isNativeToman
+        ? { ...converted, displayAmount: tomanOverride.value, displayCurrencyCode: tomanOverride.currency }
+        : converted;
 
       return {
         id: row.providerServiceId,
@@ -735,13 +747,16 @@ export async function getSpecialistPageFromDb({
   const serviceRows = await getSpecialistServiceRows(specialistId, normalizedLocale);
   const firstServiceCurrency = serviceRows[0]?.currency || DEFAULT_CONSULTATION_CURRENCY;
 
-  const displayCurrencyCode = await resolvePreferredCurrencyCode({
-    userId,
-    explicitCurrencyCode,
-    selectedCountryCode,
-    browserCountryCode,
-    fallbackCurrencyCode: firstServiceCurrency,
-  });
+  const [displayCurrencyCode, isIranianVisitor] = await Promise.all([
+    resolvePreferredCurrencyCode({
+      userId,
+      explicitCurrencyCode,
+      selectedCountryCode,
+      browserCountryCode,
+      fallbackCurrencyCode: firstServiceCurrency,
+    }),
+    resolveIsIranianVisitor().catch(() => false),
+  ]);
 
   const [
     providers,
@@ -756,7 +771,7 @@ export async function getSpecialistPageFromDb({
     availability,
   ] = await Promise.all([
     getSpecialistProviders(specialistId, normalizedLocale),
-    mapServices(serviceRows, displayCurrencyCode),
+    mapServices(serviceRows, displayCurrencyCode, isIranianVisitor),
     getEducation(specialistId),
     getCertifications(specialistId),
     getCredentials(specialistId),

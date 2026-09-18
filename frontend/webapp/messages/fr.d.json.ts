@@ -2,6 +2,16 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+  "BookingCart": {
+    "title": "Réservations enregistrées",
+    "hint": "Ce sont des estimations, pas des réservations confirmées. Vérifiez chaque réservation et payez. Les produits se paient séparément pour le moment.",
+    "resume": "Vérifier la réservation",
+    "remove": "Supprimer",
+    "another": "Ajouter un autre service",
+    "save": "Enregistrer dans le panier et continuer les achats",
+    "saving": "Enregistrement…",
+    "error": "Échec de la mise à jour. Actualisez la page et réessayez."
+  },
   "UploadFiles": {
     "title": "Upload documents",
     "subtitle": "Please upload the requested files for your booking",
@@ -1912,6 +1922,10 @@ declare const messages: {
       },
       "isActive": {
         "label": "Actif"
+      },
+      "requiresCustomerAddress": {
+        "label": "Nécessite l'adresse du client (visite à domicile)",
+        "hint": "À activer pour les services fournis à l'adresse du client, par ex. les soins infirmiers à domicile. Ajoute une étape de sélection d'adresse au parcours de réservation."
       },
       "attributeDefinitions": "Définitions d'attributs",
       "requirements": "Exigences",
@@ -5156,6 +5170,25 @@ declare const messages: {
     "fromDate": "Date de début",
     "fullName": "Nom complet *",
     "fullName2": "Nom complet",
+    "addNewAddress": "Ajouter une nouvelle adresse",
+    "addressFormIncomplete": "Veuillez indiquer votre nom, pays, ville et adresse.",
+    "addressLine1": "Adresse (ligne 1)",
+    "addressLine2": "Adresse (ligne 2, facultatif)",
+    "addressSaveFailed": "Impossible d'enregistrer cette adresse. Veuillez réessayer.",
+    "city": "Ville",
+    "country": "Pays",
+    "loadingAddresses": "Chargement de vos adresses…",
+    "noSavedAddresses": "Vous n'avez pas encore d'adresse enregistrée.",
+    "postalCode": "Code postal",
+    "saveAddress": "Enregistrer l'adresse",
+    "serviceAddress": "Adresse du service",
+    "serviceAddressHint": "Ce service est fourni à votre adresse. Choisissez-en une ci-dessous ou ajoutez-en une nouvelle.",
+    "stateRegion": "Région / Province",
+    "chooseDeparture": "Choisir un départ",
+    "departureFull": "Complet",
+    "loadingDepartures": "Chargement des départs…",
+    "noUpcomingDepartures": "Aucun départ prévu pour ce circuit pour le moment.",
+    "spotsLeft": "{count} places restantes",
     "gallery": "Galerie",
     "gatewayChargeCurrency": "Devise de débit de la passerelle :",
     "gender": "Genre",
@@ -12755,6 +12788,256 @@ declare const messages: {
         "confirmDelete": "Retirer ce destinataire ?",
         "empty": "Aucun destinataire pour l'instant — personne n'est prévenu.",
         "cancel": "Annuler"
+      }
+    }
+  },
+  "GymMemberships": {
+    "customer": {
+      "title": "Mes abonnements de salle de sport",
+      "empty": "Vous n'avez encore aucun abonnement de salle de sport.",
+      "plan": { "monthlyPriceLabel": "Prix mensuel" },
+      "subscribe": {
+        "title": "S'abonner",
+        "selectMonths": "Sélectionnez les mois à payer",
+        "paymentReference": "Référence de paiement (facultatif)",
+        "paymentReferenceHint": "Si vous avez déjà payé par virement bancaire, saisissez le numéro de référence ici.",
+        "submit": "Envoyer pour vérification",
+        "submitting": "Envoi en cours…",
+        "submitted": "Envoyé pour vérification"
+      },
+      "month": {
+        "pending_review": "En attente de vérification",
+        "approved": "Payé",
+        "rejected": "Rejeté",
+        "due": "Échu",
+        "reviewNoteLabel": "Motif"
+      },
+      "errors": {
+        "signInRequired": "Veuillez vous connecter pour gérer vos abonnements de salle de sport.",
+        "notAvailable": "Les abonnements de salle de sport ne sont pas encore disponibles. Veuillez réessayer plus tard.",
+        "invalidForm": "Veuillez vérifier les champs signalés.",
+        "planNotFound": "Ce forfait n'est plus disponible.",
+        "generic": "Une erreur s'est produite. Veuillez réessayer."
+      }
+    },
+    "admin": {
+      "title": "Abonnements de salle de sport",
+      "description": "Gérez les forfaits d'abonnement et vérifiez les paiements.",
+      "schemaMissing": {
+        "title": "Migration de la base de données en attente",
+        "body": "Appliquez la migration 0039_gym_memberships.sql pour activer cette section."
+      },
+      "plans": {
+        "title": "Forfaits d'abonnement",
+        "empty": "Aucun forfait d'abonnement pour le moment.",
+        "create": "Ajouter un forfait",
+        "edit": "Modifier",
+        "provider": "Salle de sport",
+        "name": "Nom du forfait",
+        "monthlyPrice": "Prix mensuel",
+        "currency": "Devise",
+        "isActive": "Actif",
+        "save": "Enregistrer",
+        "saving": "Enregistrement…",
+        "saved": "Forfait enregistré",
+        "cancel": "Annuler"
+      },
+      "months": {
+        "title": "Vérification des paiements",
+        "empty": "Aucun paiement à vérifier.",
+        "filters": {
+          "search": "Rechercher une salle ou une référence",
+          "status": "Statut",
+          "all": "Tous",
+          "apply": "Appliquer"
+        },
+        "table": {
+          "gym": "Salle de sport",
+          "plan": "Forfait",
+          "period": "Mois",
+          "amount": "Montant",
+          "reference": "Référence",
+          "status": "Statut",
+          "createdAt": "Envoyé",
+          "actions": "Actions",
+          "review": "Vérifier"
+        },
+        "status": {
+          "pending_review": "En attente de vérification",
+          "approved": "Approuvé",
+          "rejected": "Rejeté"
+        },
+        "review": {
+          "title": "Vérifier le paiement",
+          "note": "Note",
+          "notePlaceholder": "Motif (obligatoire en cas de rejet)…",
+          "approve": "Approuver",
+          "reject": "Rejeter",
+          "saving": "Enregistrement…",
+          "saved": "Enregistré",
+          "close": "Fermer"
+        }
+      },
+      "errors": {
+        "invalidForm": "Veuillez vérifier les champs signalés.",
+        "notFound": "Ce paiement n'existe plus.",
+        "reasonRequiredToReject": "Un motif est requis pour rejeter un paiement.",
+        "generic": "Une erreur s'est produite. Veuillez réessayer."
+      }
+    }
+  },
+  "Transfers": {
+    "admin": {
+      "title": "Itinéraires de transfert",
+      "description": "Définissez des itinéraires de transfert hôtel/aéroport à prix fixe. Chaque itinéraire devient un service réservable classique, que les clients réservent via le parcours de réservation habituel.",
+      "schemaMissing": {
+        "title": "Migration de base de données en attente",
+        "body": "Appliquez la migration 0040_transfer_routes.sql pour activer cette section."
+      },
+      "routes": {
+        "title": "Itinéraires",
+        "empty": "Aucun itinéraire de transfert pour le moment.",
+        "create": "Ajouter un itinéraire",
+        "edit": "Modifier",
+        "provider": "Prestataire de transfert",
+        "serviceDefinition": "Définition du service",
+        "route": "Itinéraire",
+        "from": "Départ",
+        "to": "Arrivée",
+        "vehicleType": "Type de véhicule",
+        "vehicleTypePlaceholder": "ex. Berline, Van",
+        "price": "Prix",
+        "currency": "Devise",
+        "isActive": "Actif",
+        "save": "Enregistrer",
+        "saving": "Enregistrement…",
+        "saved": "Itinéraire enregistré",
+        "cancel": "Annuler",
+        "confirmDelete": "Supprimer les détails départ/arrivée de cet itinéraire ? Le service reste réservable — désactivez-le ou supprimez-le depuis Prestataires de service si vous voulez le retirer complètement.",
+        "deleted": "Détails de l'itinéraire supprimés"
+      },
+      "errors": {
+        "invalidForm": "Veuillez vérifier les champs signalés.",
+        "notFound": "Cet itinéraire n'existe plus.",
+        "generic": "Une erreur s'est produite. Veuillez réessayer."
+      }
+    }
+  },
+  "Tours": {
+    "admin": {
+      "title": "Circuits",
+      "description": "Planifiez des dates de départ fixes pour les circuits de plusieurs jours. Le circuit lui-même (nom, description, prix, itinéraire) se modifie comme tout autre service via Prestataires de service.",
+      "schemaMissing": {
+        "title": "Migration de base de données en attente",
+        "body": "Appliquez la migration 0042_tour_departures.sql pour activer cette section."
+      },
+      "departures": {
+        "title": "Départs",
+        "empty": "Aucun départ programmé pour le moment.",
+        "create": "Ajouter un départ",
+        "edit": "Modifier",
+        "tour": "Circuit",
+        "tourPlaceholder": "Rechercher un circuit",
+        "tourHint": "Choisissez un service existant (créez-le d'abord dans Prestataires de service s'il n'existe pas encore).",
+        "provider": "Prestataire",
+        "startsOn": "Date de début",
+        "endsOn": "Date de fin",
+        "capacity": "Capacité",
+        "dates": "Dates",
+        "booked": "Réservé",
+        "isActive": "Actif",
+        "save": "Enregistrer",
+        "saving": "Enregistrement…",
+        "saved": "Départ enregistré",
+        "cancel": "Annuler",
+        "confirmDelete": "Supprimer ce départ ?",
+        "deleted": "Départ supprimé",
+        "cannotDeleteWithBookings": "Ce départ a des réservations et ne peut pas être supprimé."
+      },
+      "errors": {
+        "invalidForm": "Veuillez vérifier les champs signalés.",
+        "capacityBelowBooked": "La capacité ne peut pas être inférieure au nombre déjà réservé.",
+        "tourNotFound": "Ce circuit n'existe plus.",
+        "deleteHasBookings": "Ce départ a des réservations et ne peut pas être supprimé.",
+        "gatheringNotOpen": "Cette campagne n'est plus ouverte.",
+        "notFound": "Cette demande n'existe plus.",
+        "generic": "Une erreur s'est produite. Veuillez réessayer."
+      },
+      "gathering": {
+        "pageTitle": "Campagnes de circuits collectifs",
+        "pageDescription": "Gérez les circuits sans dates fixes : des campagnes que les clients rejoignent jusqu'à atteindre un effectif cible.",
+        "schemaMissing": {
+          "title": "Migration de base de données en attente",
+          "body": "Appliquez la migration 0043_tour_gathering_campaigns.sql pour activer cette section."
+        },
+        "campaignsTitle": "Campagnes",
+        "participantsTitle": "Demandes d'inscription",
+        "empty": "Aucune campagne collective pour le moment.",
+        "participantsEmpty": "Aucune demande d'inscription pour le moment.",
+        "create": "Ajouter une campagne",
+        "saved": "Campagne créée",
+        "targetHeadcount": "Effectif cible",
+        "pricePerPerson": "Prix par personne",
+        "currency": "Devise",
+        "joinDeadline": "Date limite d'inscription (facultatif)",
+        "progress": "Approuvés",
+        "pending": "en attente",
+        "status": {
+          "label": "Statut",
+          "gathering": "En cours de collecte",
+          "confirmed": "Confirmée",
+          "cancelled": "Annulée"
+        },
+        "confirm": "Confirmer",
+        "confirmTitle": "Confirmer la campagne",
+        "confirmHint": "{count} sur {target} approuvés. Définissez les dates définitives pour confirmer ce circuit.",
+        "confirmed": "Campagne confirmée",
+        "cancel": "Annuler la campagne",
+        "confirmCancel": "Annuler cette campagne ? Les clients inscrits devront être remboursés séparément.",
+        "cancelled": "Campagne annulée",
+        "amount": "Montant",
+        "reference": "Référence",
+        "createdAt": "Inscrit le",
+        "review": "Examiner",
+        "participantStatus": {
+          "pending_review": "En attente d'examen",
+          "approved": "Approuvé",
+          "rejected": "Rejeté"
+        },
+        "reviewTitle": "Examiner la demande d'inscription",
+        "note": "Note",
+        "notePlaceholder": "Motif (obligatoire en cas de rejet)…",
+        "approve": "Approuver",
+        "reject": "Rejeter",
+        "saving": "Enregistrement…",
+        "reviewSaved": "Enregistré",
+        "close": "Fermer"
+      },
+      "customer": {
+        "pageTitle": "Circuits collectifs",
+        "browseTitle": "Campagnes ouvertes",
+        "empty": "Aucun circuit ne recrute de participants pour le moment.",
+        "myParticipationsEmpty": "Vous n'avez encore rejoint aucun circuit collectif.",
+        "join": "Rejoindre",
+        "joining": "Inscription…",
+        "joined": "Vous avez rejoint cette campagne",
+        "alreadyJoined": "Vous avez déjà rejoint cette campagne",
+        "joinTitle": "Rejoindre ce circuit",
+        "paymentReference": "Référence de paiement (facultatif)",
+        "paymentReferenceHint": "Si vous avez déjà payé par virement bancaire, saisissez le numéro de référence ici.",
+        "cancel": "Annuler",
+        "progress": "{count} sur {target} inscrits",
+        "joinBy": "À rejoindre avant le {date}",
+        "tourConfirmed": "Circuit confirmé",
+        "gatheringCancelled": "Annulée",
+        "reviewNoteLabel": "Motif",
+        "errors": {
+          "generic": "Une erreur s'est produite. Veuillez réessayer.",
+          "invalidForm": "Veuillez vérifier les champs signalés.",
+          "signInRequired": "Veuillez vous connecter pour rejoindre un circuit.",
+          "campaignNotFound": "Cette campagne n'est plus disponible.",
+          "campaignNotOpen": "Cette campagne n'est plus ouverte."
+        }
       }
     }
   },

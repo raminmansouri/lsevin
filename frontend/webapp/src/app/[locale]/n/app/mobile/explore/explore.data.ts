@@ -1,7 +1,12 @@
 import sql from "@/config/database/db";
-import { unstable_noStore as noStore } from "next/cache";
+import {
+  unstable_cacheLife as cacheLife,
+  unstable_cacheTag as cacheTag,
+} from "next/cache";
 import { getTranslations } from "next-intl/server";
 
+import { resolveIsIranianVisitor } from "@/features/finance/lib/server/iranian-visitor";
+import { resolveDisplayPrice } from "@/features/finance/lib/server/toman-price";
 import {
   categoryProviderCountsCte,
   categoryTotalProviderCount,
@@ -609,53 +614,79 @@ function buildSponsoredProvidersWhere(
     : sql``;
 }
 
-export async function getExplorePageData({
-  locale,
-  filters,
-}: {
-  locale: string;
-  filters: ExploreFiltersInput;
-}): Promise<ExplorePageData> {
-  noStore();
+type ExploreCatalog = {
+  totalProviderCount: number;
+  categories: ExploreCategory[];
+  providerTypes: ExploreProviderType[];
+  // isFavorited is per-visitor, so it is deliberately left off the cached shape
+  // and stitched on afterwards in getExplorePageData. valueToman likewise never
+  // leaves getExplorePageData: whether to show it (vs. price/currency) depends
+  // on the visitor's Iranian-ness, so it's resolved into price/currency there
+  // instead of being cached pre-resolved for whichever visitor happened to
+  // trigger the cache write.
+  featuredProviders: Omit<ExploreFeaturedProvider, "isFavorited">[];
+  trendingServices: (Omit<ExploreTrendingService, "isFavorited"> & { valueToman: number | null })[];
+  sponsoredProviders: (ExploreSponsoredProvider & { valueToman: number | null })[];
+  availableLanguages: ExploreLanguageOption[];
+  availableCurrencies: ExploreCurrencyOption[];
+};
 
-  const lang = normalizeLocale(locale);
-  const tBadges = await getTranslations({ locale, namespace: "Explore.badges" });
-  const customerId = await resolveCurrentCustomerId();
+// Everything here is visitor-agnostic (resolveCurrentCustomerId() is a stub
+// that always returns null today, and even once it's wired up favorites are
+// deliberately excluded from this shape above) and keyed only by locale +
+// filters, so it's cached rather than re-queried on every explore page view.
+// Previously this ran under noStore()/force-dynamic with each of the 7 queries
+// below awaited one at a time -- every single page view paid for 7 sequential
+// round trips to Postgres with no caching at all. They have no data
+// dependency on each other (only on the filter/lang-derived SQL fragments
+// built above them, which are pure string building, not DB calls), so they
+// now run concurrently, and the combined result is cached.
+async function getExploreCatalogCached(
+  lang: string,
+  filters: ExploreFiltersInput,
+): Promise<ExploreCatalog> {
+  "use cache";
+  cacheTag("explore-page");
+  cacheLife("default");
+
   const featuredWhereSql = buildFeaturedProvidersWhere(filters, lang);
   const trendingWhereSql = buildTrendingServicesWhere(filters, lang);
+  const sponsoredCurrencyCode = normalizeCurrencyCode(filters.currencyCode);
+  const sponsoredWhereSql = buildSponsoredProvidersWhere(
+    filters,
+    lang,
+    filters.languages,
+    sponsoredCurrencyCode,
+  );
 
-
-  // The number on a chip is providers, rolled up over the category's subtree. It
-  // used to be a count of provider_services — so "Hospital (3303)" sat next to a
-  // list of six businesses, and picking a category told you nothing about how much
-  // you would get back.
-  const categoryRows = await sql<(ExploreCategory & { totalProviders: number })[]>`
-    with recursive ${categoryProviderCountsCte()}
-    select
-      c.id::text as id,
-      common.get_translation_t(c.name_translations, ${lang}, 'en') as label,
-      pc.provider_count as count,
-      ${categoryTotalProviderCount()} as "totalProviders"
-    from category.categories c
-    join category_provider_counts pc
-      on pc.category_id = c.id
-     and pc.provider_count > 0
-    where c.is_active = true
-    order by pc.provider_count desc, label asc
-  `;
-
-  const categories: ExploreCategory[] = [
-    {
-      id: "all",
-      label: tBadges("allServices"),
-      // Distinct providers, not the sum of the chips — a provider filed under
-      // Clinic is counted for Clinic and again for its parent.
-      count: Number(categoryRows[0]?.totalProviders || 0),
-    },
-    ...categoryRows.map(({ id, label, count }) => ({ id, label, count: Number(count) })),
-  ];
-
-  const providerTypeRows = await sql<ExploreProviderType[]>`
+  const [
+    categoryRows,
+    providerTypeRows,
+    featuredRows,
+    trendingRows,
+    sponsoredRows,
+    languageRows,
+    currencyRows,
+  ] = await Promise.all([
+    // The number on a chip is providers, rolled up over the category's subtree. It
+    // used to be a count of provider_services — so "Hospital (3303)" sat next to a
+    // list of six businesses, and picking a category told you nothing about how much
+    // you would get back.
+    sql<(ExploreCategory & { totalProviders: number })[]>`
+      with recursive ${categoryProviderCountsCte()}
+      select
+        c.id::text as id,
+        common.get_translation_t(c.name_translations, ${lang}, 'en') as label,
+        pc.provider_count as count,
+        ${categoryTotalProviderCount()} as "totalProviders"
+      from category.categories c
+      join category_provider_counts pc
+        on pc.category_id = c.id
+       and pc.provider_count > 0
+      where c.is_active = true
+      order by pc.provider_count desc, label asc
+    `,
+    sql<ExploreProviderType[]>`
     select
       pt.id::text as id,
       common.get_translation_t(pt.name_translations, ${lang}, 'en') as label,
@@ -699,40 +730,9 @@ export async function getExplorePageData({
       pt.image_url,
       pt.icon_url
     order by count(distinct sp.id) desc, label asc
-  `;
-
-  const providerTypes: ExploreProviderType[] = providerTypeRows.map((row) => ({
-    id: row.id,
-    label: row.label,
-    description: row.description || "",
-    image: coalesceImage(row.image),
-    icon: row.icon || "",
-    count: Number(row.count ?? 0),
-  }));
-
-  const favoriteProviderIds = customerId
-    ? await sql<{ entity_id: string }[]>`
-        select entity_id::text as entity_id
-        from customer.favorites
-        where customer_id = ${customerId}
-          and favorite_type = 'provider'
-      `
-    : [];
-
-  const favoriteServiceIds = customerId
-    ? await sql<{ entity_id: string }[]>`
-        select entity_id::text as entity_id
-        from customer.favorites
-        where customer_id = ${customerId}
-          and favorite_type = 'service'
-      `
-    : [];
-
-  const providerFavoriteSet = new Set(favoriteProviderIds.map((x) => x.entity_id));
-  const serviceFavoriteSet = new Set(favoriteServiceIds.map((x) => x.entity_id));
-
-const featuredRows = await sql`
-  select 
+    `,
+    sql`
+  select
     sp.id::text as id,
     common.get_translation_t(sp.name_translations, ${lang}, 'en') as name,
     -- The provider's own picture only. The gallery used to come first here, so a
@@ -791,26 +791,8 @@ const featuredRows = await sql`
     coalesce(sp.review_count, 0) desc,
     sp.create_date desc
   limit 10
-`;
-
-  const featuredProviders: ExploreFeaturedProvider[] = uniqueById(featuredRows).map((row) => ({
-    id: row.id,
-    name: row.name,
-    image: coalesceImage(row.image),
-    rating: Number(row.rating ?? 0),
-    reviews: Number(row.reviews ?? 0),
-    verified: Boolean(row.verified),
-    location: row.location || "",
-    specialties: Array.isArray(row.specialties) ? row.specialties.filter(Boolean) : [],
-    responseTime: row.response_time || tBadges("responseTimeUnavailable"),
-    bookings: row.bookings || tBadges("newProvider"),
-    badge: row.badge || (row.verified ? tBadges("verified") : tBadges("featured")),
-    isFavorited: providerFavoriteSet.has(row.id),
-  }));
-
-  // const whereSql = sql.join(conditions, sql` and `);
-
-  const trendingRows = await sql<any[]>`
+    `,
+    sql<any[]>`
   select
     ps.id::text as id,
     sp.id::text as provider_id,
@@ -846,6 +828,7 @@ const featuredRows = await sql`
     ) as image,
     ps.value::float as price,
     coalesce(ps.currency, 'USD') as currency,
+    ps.value_toman::float as value_toman,
     case
       when offer.discount_percent is not null and offer.discount_percent > 0
         then round(ps.value / (1 - (offer.discount_percent / 100.0)))::int
@@ -921,33 +904,8 @@ const featuredRows = await sql`
     coalesce(ps.review_count, 0) desc,
     ps.create_date desc
   limit 10
-`;
-
-  const trendingServices: ExploreTrendingService[] = uniqueById(trendingRows).map((row) => ({
-    id: row.id,
-    providerId: row.provider_id,
-    name: row.name,
-    provider: row.provider,
-    image: coalesceImage(row.image),
-    price: Number(row.price ?? 0),
-    currency: row.currency || "USD",
-    originalPrice: row.original_price == null ? null : Number(row.original_price),
-    rating: Number(row.rating ?? 0),
-    reviews: Number(row.reviews ?? 0),
-    growth: row.growth,
-    location: row.location || "",
-    isFavorited: serviceFavoriteSet.has(row.id),
-  }));
-
-  const sponsoredCurrencyCode = normalizeCurrencyCode(filters.currencyCode);
-  const sponsoredWhereSql = buildSponsoredProvidersWhere(
-    filters,
-    lang,
-    filters.languages,
-    sponsoredCurrencyCode,
-  );
-
-  const sponsoredRows = await sql<any[]>`
+    `,
+    sql<any[]>`
     select
       sp.id::text as id,
       common.get_translation_t(sp.name_translations, ${lang}, 'en') as name,
@@ -971,10 +929,11 @@ const featuredRows = await sql`
       ) as image,
       ps_pick.value::float as price,
       coalesce(ps_pick.currency, 'USD') as currency,
+      ps_pick.value_toman::float as value_toman,
       coalesce(sp.sponsored_tag, 'Sponsored') as tag
     from category.service_providers sp
     left join lateral (
-      select ps.value, ps.image_url, ps.currency
+      select ps.value, ps.image_url, ps.currency, ps.value_toman
       from category.provider_services ps
       join category.service_definitions sd on sd.id = ps.service_definition_id
       where ps.service_provider_id = sp.id
@@ -1010,34 +969,103 @@ const featuredRows = await sql`
              coalesce(sp.rating, 0) desc,
              sp.create_date desc
     limit 10
-  `;
+    `,
+    sql<{ language: string; count: number }[]>`
+      select lower(replace(language, '_', '-')) as language, count(distinct service_provider_id)::int as count
+      from (
+        select sp.id as service_provider_id, unnest(coalesce(sp.languages, array[]::text[])) as language
+        from category.service_providers sp
+        where sp.is_active = true
+        union all
+        select pl.service_provider_id, pl.language
+        from category.provider_languages pl
+        join category.service_providers sp on sp.id = pl.service_provider_id
+        where sp.is_active = true
+      ) lang
+      where nullif(btrim(language), '') is not null
+      group by lower(replace(language, '_', '-'))
+      order by count(distinct service_provider_id) desc, language asc
+    `,
+    sql<{ code: string; label: string; symbol: string; count: number }[]>`
+      with service_currency_counts as (
+        select upper(coalesce(nullif(btrim(ps.currency), ''), 'USD')) as code, count(*)::int as count
+        from category.provider_services ps
+        join category.service_providers sp on sp.id = ps.service_provider_id
+        where ps.is_active = true
+          and sp.is_active = true
+        group by upper(coalesce(nullif(btrim(ps.currency), ''), 'USD'))
+      )
+      select
+        coalesce(fc.code, service_currency_counts.code) as code,
+        coalesce(fc.name, service_currency_counts.code) as label,
+        coalesce(nullif(btrim(fc.symbol), ''), service_currency_counts.code) as symbol,
+        coalesce(service_currency_counts.count, 0)::int as count
+      from finance.currencies fc
+      full join service_currency_counts on service_currency_counts.code = fc.code
+      where fc.deleted_at is null
+        and (
+          coalesce(fc.is_display_enabled, true) = true
+          or service_currency_counts.count is not null
+        )
+      order by coalesce(service_currency_counts.count, 0) desc, coalesce(fc.sort_order, 100000), code asc
+    `,
+  ]);
 
-  const sponsoredProviders: ExploreSponsoredProvider[] = uniqueById(sponsoredRows).map((row) => ({
+  const categories: ExploreCategory[] = categoryRows.map(({ id, label, count }) => ({
+    id,
+    label,
+    count: Number(count),
+  }));
+
+  const providerTypes: ExploreProviderType[] = providerTypeRows.map((row) => ({
+    id: row.id,
+    label: row.label,
+    description: row.description || "",
+    image: coalesceImage(row.image),
+    icon: row.icon || "",
+    count: Number(row.count ?? 0),
+  }));
+
+  const featuredProviders: Omit<ExploreFeaturedProvider, "isFavorited">[] = uniqueById(featuredRows).map((row) => ({
+    id: row.id,
+    name: row.name,
+    image: coalesceImage(row.image),
+    rating: Number(row.rating ?? 0),
+    reviews: Number(row.reviews ?? 0),
+    verified: Boolean(row.verified),
+    location: row.location || "",
+    specialties: Array.isArray(row.specialties) ? row.specialties.filter(Boolean) : [],
+    responseTime: row.response_time || "",
+    bookings: row.bookings || "",
+    badge: row.badge || "",
+  }));
+
+  const trendingServices = uniqueById(trendingRows).map((row) => ({
+    id: row.id,
+    providerId: row.provider_id,
+    name: row.name,
+    provider: row.provider,
+    image: coalesceImage(row.image),
+    price: Number(row.price ?? 0),
+    currency: row.currency || "USD",
+    valueToman: row.value_toman == null ? null : Number(row.value_toman),
+    originalPrice: row.original_price == null ? null : Number(row.original_price),
+    rating: Number(row.rating ?? 0),
+    reviews: Number(row.reviews ?? 0),
+    growth: row.growth,
+    location: row.location || "",
+  }));
+
+  const sponsoredProviders = uniqueById(sponsoredRows).map((row) => ({
     id: row.id,
     name: row.name,
     subtitle: row.subtitle || "",
     image: coalesceImage(row.image),
     price: row.price == null ? null : Number(row.price),
     currency: row.currency || "USD",
-    tag: row.tag || tBadges("sponsored"),
+    valueToman: row.value_toman == null ? null : Number(row.value_toman),
+    tag: row.tag || "",
   }));
-
-  const languageRows = await sql<{ language: string; count: number }[]>`
-    select lower(replace(language, '_', '-')) as language, count(distinct service_provider_id)::int as count
-    from (
-      select sp.id as service_provider_id, unnest(coalesce(sp.languages, array[]::text[])) as language
-      from category.service_providers sp
-      where sp.is_active = true
-      union all
-      select pl.service_provider_id, pl.language
-      from category.provider_languages pl
-      join category.service_providers sp on sp.id = pl.service_provider_id
-      where sp.is_active = true
-    ) lang
-    where nullif(btrim(language), '') is not null
-    group by lower(replace(language, '_', '-'))
-    order by count(distinct service_provider_id) desc, language asc
-  `;
 
   const languageCounts = new Map<string, number>();
 
@@ -1056,30 +1084,6 @@ const featuredRows = await sql`
     }))
     .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
 
-  const currencyRows = await sql<{ code: string; label: string; symbol: string; count: number }[]>`
-    with service_currency_counts as (
-      select upper(coalesce(nullif(btrim(ps.currency), ''), 'USD')) as code, count(*)::int as count
-      from category.provider_services ps
-      join category.service_providers sp on sp.id = ps.service_provider_id
-      where ps.is_active = true
-        and sp.is_active = true
-      group by upper(coalesce(nullif(btrim(ps.currency), ''), 'USD'))
-    )
-    select
-      coalesce(fc.code, service_currency_counts.code) as code,
-      coalesce(fc.name, service_currency_counts.code) as label,
-      coalesce(nullif(btrim(fc.symbol), ''), service_currency_counts.code) as symbol,
-      coalesce(service_currency_counts.count, 0)::int as count
-    from finance.currencies fc
-    full join service_currency_counts on service_currency_counts.code = fc.code
-    where fc.deleted_at is null
-      and (
-        coalesce(fc.is_display_enabled, true) = true
-        or service_currency_counts.count is not null
-      )
-    order by coalesce(service_currency_counts.count, 0) desc, coalesce(fc.sort_order, 100000), code asc
-  `;
-
   const availableCurrencies = currencyRows.map((row) => ({
     code: row.code,
     label: row.label || row.code,
@@ -1088,7 +1092,9 @@ const featuredRows = await sql`
   }));
 
   return {
-    customerId,
+    // Distinct providers, not the sum of the chips — a provider filed under
+    // Clinic is counted for Clinic and again for its parent.
+    totalProviderCount: Number(categoryRows[0]?.totalProviders || 0),
     categories,
     providerTypes,
     featuredProviders,
@@ -1096,5 +1102,82 @@ const featuredRows = await sql`
     sponsoredProviders,
     availableLanguages,
     availableCurrencies,
+  };
+}
+
+export async function getExplorePageData({
+  locale,
+  filters,
+}: {
+  locale: string;
+  filters: ExploreFiltersInput;
+}): Promise<ExplorePageData> {
+  const lang = normalizeLocale(locale);
+  const tBadges = await getTranslations({ locale, namespace: "Explore.badges" });
+  const customerId = await resolveCurrentCustomerId();
+  const isIranianVisitor = await resolveIsIranianVisitor();
+
+  const [catalog, favoriteProviderIds, favoriteServiceIds] = await Promise.all([
+    getExploreCatalogCached(lang, filters),
+    customerId
+      ? sql<{ entity_id: string }[]>`
+          select entity_id::text as entity_id
+          from customer.favorites
+          where customer_id = ${customerId}
+            and favorite_type = 'provider'
+        `
+      : Promise.resolve([] as { entity_id: string }[]),
+    customerId
+      ? sql<{ entity_id: string }[]>`
+          select entity_id::text as entity_id
+          from customer.favorites
+          where customer_id = ${customerId}
+            and favorite_type = 'service'
+        `
+      : Promise.resolve([] as { entity_id: string }[]),
+  ]);
+
+  const providerFavoriteSet = new Set(favoriteProviderIds.map((x) => x.entity_id));
+  const serviceFavoriteSet = new Set(favoriteServiceIds.map((x) => x.entity_id));
+
+  return {
+    customerId,
+    categories: [
+      { id: "all", label: tBadges("allServices"), count: catalog.totalProviderCount },
+      ...catalog.categories,
+    ],
+    providerTypes: catalog.providerTypes,
+    featuredProviders: catalog.featuredProviders.map((provider) => ({
+      ...provider,
+      responseTime: provider.responseTime || tBadges("responseTimeUnavailable"),
+      bookings: provider.bookings || tBadges("newProvider"),
+      badge: provider.badge || (provider.verified ? tBadges("verified") : tBadges("featured")),
+      isFavorited: providerFavoriteSet.has(provider.id),
+    })),
+    trendingServices: catalog.trendingServices.map((service) => {
+      const { valueToman, ...rest } = service;
+      const displayPrice = resolveDisplayPrice({ value: service.price, currency: service.currency }, valueToman, isIranianVisitor);
+      return {
+        ...rest,
+        price: displayPrice.value,
+        currency: displayPrice.currency,
+        isFavorited: serviceFavoriteSet.has(service.id),
+      };
+    }),
+    sponsoredProviders: catalog.sponsoredProviders.map((provider) => {
+      const { valueToman, ...rest } = provider;
+      const displayPrice =
+        provider.price == null
+          ? null
+          : resolveDisplayPrice({ value: provider.price, currency: provider.currency }, valueToman, isIranianVisitor);
+      return {
+        ...rest,
+        price: displayPrice ? displayPrice.value : provider.price,
+        currency: displayPrice ? displayPrice.currency : provider.currency,
+        tag: provider.tag || tBadges("sponsored"),
+      };
+    }),
+    availableLanguages: catalog.availableLanguages,
+    availableCurrencies: catalog.availableCurrencies,
   };
 }

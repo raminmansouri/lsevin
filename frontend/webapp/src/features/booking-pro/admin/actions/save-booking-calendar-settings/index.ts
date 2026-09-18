@@ -16,7 +16,7 @@ const handler = async (
   locale: LocaleHeaderTypes
 ): Promise<ReturnType> => {
   try {
-    const data = await saveBookingCalendarSettings(input);
+    const data = await saveBookingCalendarSettings({ ...input, scopeId: input.scopeId ?? null });
     revalidatePath(`/${locale}/admin/booking-calendar`);
     return { data, error: undefined, payload: input };
   } catch (error) {

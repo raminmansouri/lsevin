@@ -24,6 +24,10 @@ export const ServiceDefinitionSchema = z.object({
   value: z.coerce.number().min(0),
   pricingModel: z.string().trim().min(1).max(100),
   isActive: z.boolean(),
+  // Item 7 (home nursing): does booking this service require the customer to pick a
+  // service address first (e.g. a nurse visiting their home)? See
+  // db/migrations/0041_service_definitions_requires_address.sql.
+  requiresCustomerAddress: z.boolean().default(false),
 });
 
 export const ServiceDefinitionFormSchema = ServiceDefinitionSchema;

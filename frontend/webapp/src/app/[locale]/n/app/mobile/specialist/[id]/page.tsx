@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import { setRequestLocale } from "next-intl/server";
 
 import { getSpecialistPageFromDbCached } from "@/features/service-providers/server/specialist-page.repository.cached";
 import { listActiveSpecialistPageIds } from "@/features/service-providers/server/specialist-page.repository";
 
+import { alternatesFor } from "@/lib/seo/alternates";
 import SpecialistProfileClient from "./specialist-page";
 
 type Awaitable<T> = T | Promise<T>;
@@ -28,12 +29,27 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Pick<PageProps, "params">) {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "SpecialistPage" });
+  const { locale, id } = await params;
+  const data = await getSpecialistPageFromDbCached({ specialistId: id, locale }).catch(() => null);
+  const specialist = data?.specialist;
+
+  if (!specialist) {
+    return { title: "Specialist", alternates: alternatesFor(locale, `/n/app/mobile/specialist/${id}`) };
+  }
+
+  const title = specialist.title ? `${specialist.name} — ${specialist.title}` : specialist.name;
+  const description = (specialist.biography || specialist.specialty || "").slice(0, 300);
 
   return {
-    title: t("metadata.title"),
-    description: t("metadata.description"),
+    title,
+    description: description || undefined,
+    alternates: alternatesFor(locale, `/n/app/mobile/specialist/${id}`),
+    openGraph: {
+      title,
+      description: description || undefined,
+      type: "profile",
+      images: specialist.image ? [{ url: specialist.image }] : undefined,
+    },
   };
 }
 

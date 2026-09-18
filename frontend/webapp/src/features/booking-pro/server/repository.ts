@@ -2,10 +2,15 @@ import 'server-only';
 import { assertNoUndefinedRecord, pgNumber, pgString } from './checkout-null-safety';
 import db from '@/config/database/db';
 import { reserveHotelDates } from "./hotel-availability.repository";
+import { resolveUserPaymentRegion } from '@/payment/server/gateway-eligibility';
+import { resolveIsIranianVisitor } from '@/features/finance/lib/server/iranian-visitor';
+import { resolveDisplayPrice, TOMAN_CURRENCY_CODE } from '@/features/finance/lib/server/toman-price';
 import { calculateBookingPaymentTerms, resolveBookingPaymentPolicy } from '@/features/commercial/lib/server/payment-policy-engine';
 import { applyCommercialSnapshotAfterCheckout } from './commercial-integration';
 import { assertDraftAvailabilityBeforeCheckout } from './booking-availability.repository';
 import { notifyBookingCreated, notifyBookingStarted } from '@/features/notification/server/booking-notifications';
+import { listTransferRouteSummaries } from '@/features/transfers/server/repository';
+import { listServicesWithOpenDepartures, reserveTourDeparture } from '@/features/tours/server/repository';
 import { pickTranslation } from '../utils/translation';
 import type {
   BookingDraftState,
@@ -40,6 +45,9 @@ const SAFE_DRAFT_METADATA_KEYS = new Set([
   'appliedDiscountAmount',
   'couponTitle',
   'customerCouponId',
+  'customerAddressId',
+  'customerAddressSnapshot',
+  'tourDepartureId',
 ]);
 
 let draftProviderNotifiedColumnEnsured = false;
@@ -331,8 +339,16 @@ function mapDraftRow(row: any): BookingDraftState {
         : (row.requires_specialist ?? true),
     bookingUiMode: row.booking_ui_mode ?? 'default_slot',
     selectedDate: row.selected_date?.toISOString?.().slice(0, 10) ?? row.selected_date ?? undefined,
-    selectedDateFrom: row.selected_date_from?.toISOString?.().slice(0, 10) ?? row.selected_date_from ?? undefined,
-    selectedDateTo: row.selected_date_to?.toISOString?.().slice(0, 10) ?? row.selected_date_to ?? undefined,
+    // Bug fix: booking_drafts.selected_date_from/to are genuinely `time without time
+    // zone` columns (not date) -- upsertMainDraftSelection has always known this (see
+    // its own "does not currently support date typed selected_date_from/to" comment)
+    // and routes the real check-in/check-out date strings through metadata instead.
+    // This function was the one place that still read the always-null time columns,
+    // so a date-range selection vanished on every draft reload (masked in the same
+    // browser tab only because the client optimistically keeps its own copy).
+    // booking-availability.repository.ts already reads metadata the same way.
+    selectedDateFrom: (metadata.selectedDateFrom as string | undefined) ?? undefined,
+    selectedDateTo: (metadata.selectedDateTo as string | undefined) ?? undefined,
     selectedTime: row.selected_time ?? undefined,
     selectedTimeFrom: row.selected_time_from ?? undefined,
     selectedTimeTo: row.selected_time_to ?? undefined,
@@ -350,12 +366,22 @@ function mapDraftRow(row: any): BookingDraftState {
     notes: row.notes ?? undefined,
     metadata,
     formSubmissionId: (row.form_submission_id ?? metadata.formSubmissionId) as string | undefined,
+    // No dedicated columns for these (unlike adults/rooms) -- metadata is the only place
+    // they're ever written, so it's also the only place they're read back from.
+    customerAddressId: metadata.customerAddressId as string | undefined,
+    customerAddressSnapshot: metadata.customerAddressSnapshot as string | undefined,
+    tourDepartureId: metadata.tourDepartureId as string | undefined,
     childBookings,
     uploadFiles,
   };
 }
 
-export async function getOrCreateActiveDraft(userId: string): Promise<BookingDraftState> {
+export async function getOrCreateActiveDraft(userId: string, draftId?: string): Promise<BookingDraftState> {
+  if (draftId) {
+    const selected = await getActiveDraft(userId, draftId);
+    if (!selected) throw new Error('BOOKING_DRAFT_NOT_EDITABLE');
+    return selected;
+  }
   const rows = await db`
     with current_draft as (
       select d.*,
@@ -405,6 +431,7 @@ export async function getOrCreateActiveDraft(userId: string): Promise<BookingDra
       left join category.service_definitions sd on sd.id = ps.service_definition_id
       where d.user_id = ${userId}
         and d.status in ('Draft', 'InProgress')
+        and not (coalesce(d.metadata, '{}'::jsonb) ? 'cartSavedAt')
       order by d.updated_at desc
       limit 1
     )
@@ -433,7 +460,7 @@ export async function getOrCreateActiveDraft(userId: string): Promise<BookingDra
   return mapDraftRow(inserted[0]);
 }
 
-export async function getActiveDraft(userId: string): Promise<BookingDraftState | null> {
+export async function getActiveDraft(userId: string, draftId?: string): Promise<BookingDraftState | null> {
   const rows = await db`
     select d.*,
            ps.service_definition_id,
@@ -482,6 +509,8 @@ export async function getActiveDraft(userId: string): Promise<BookingDraftState 
     left join category.service_definitions sd on sd.id = ps.service_definition_id
     where d.user_id = ${userId}
       and d.status in ('Draft', 'InProgress')
+      and (${draftId ?? null}::uuid is null or d.id = ${draftId ?? null}::uuid)
+      and (${Boolean(draftId)} or not (coalesce(d.metadata, '{}'::jsonb) ? 'cartSavedAt'))
     order by d.updated_at desc
     limit 1
   `;
@@ -494,6 +523,7 @@ export async function abandonActiveDraft(userId: string): Promise<void> {
     update booking.booking_drafts
     set status = 'Cancelled'
     where user_id = ${userId} and status in ('Draft', 'InProgress')
+      and not (coalesce(metadata, '{}'::jsonb) ? 'cartSavedAt')
   `;
 }
 
@@ -511,9 +541,9 @@ function hasInput<T extends object>(input: T, key: keyof T) {
 
 export async function upsertMainDraftSelection(
   userId: string,
-  input: Partial<BookingDraftState>
+  input: Partial<BookingDraftState> & { draftId?: string }
 ) {
-  const draft = await getOrCreateActiveDraft(userId);
+  const draft = await getOrCreateActiveDraft(userId, input.draftId);
 
   const metadataPatch = sanitizeDraftMetadataPatch({
     formSubmissionId: hasInput(input, 'formSubmissionId') ? input.formSubmissionId ?? null : undefined,
@@ -521,6 +551,12 @@ export async function upsertMainDraftSelection(
     children: input.children ?? undefined,
     infants: input.infants ?? undefined,
     rooms: input.rooms ?? undefined,
+    customerAddressId: hasInput(input, 'customerAddressId') ? input.customerAddressId ?? null : undefined,
+    // A JSON string, not a nested object -- sanitizeDraftMetadataPatch only keeps string/number/
+    // boolean/null primitives (nested objects are silently dropped), and the sub-500-char cap
+    // comfortably covers one address's worth of fields.
+    customerAddressSnapshot: hasInput(input, 'customerAddressSnapshot') ? input.customerAddressSnapshot ?? null : undefined,
+    tourDepartureId: hasInput(input, 'tourDepartureId') ? input.tourDepartureId ?? null : undefined,
     bookingUiMode: input.bookingUiMode ?? undefined,
     requiresSpecialist: input.requiresSpecialist ?? undefined,
 
@@ -559,7 +595,7 @@ export async function upsertMainDraftSelection(
         total_amount = case when ${hasInput(input, 'totalAmount')} then coalesce(${input.totalAmount ?? null}, 0) else total_amount end,
         notes = case when ${hasInput(input, 'notes')} then ${input.notes ?? null} else notes end,
         metadata = coalesce(metadata, '{}'::jsonb) || ${db.json(metadataPatch as Record<string, never>)}
-    where id = ${draft.id}
+    where id = ${draft.id} and user_id = ${userId} and status in ('Draft', 'InProgress')
   `;
 
   const safeClientMetadataPatch = sanitizeDraftMetadataPatch(input.metadata);
@@ -567,7 +603,7 @@ export async function upsertMainDraftSelection(
     await db`
       update booking.booking_drafts
       set metadata = coalesce(metadata, '{}'::jsonb) || ${db.json(safeClientMetadataPatch as Record<string, never>)}
-      where id = ${draft.id}
+      where id = ${draft.id} and user_id = ${userId} and status in ('Draft', 'InProgress')
     `;
   }
 
@@ -582,7 +618,7 @@ export async function upsertMainDraftSelection(
     const [marked] = await db<{ id: string }[]>`
       update booking.booking_drafts
       set provider_notified_at = now()
-      where id = ${draft.id} and provider_notified_at is null
+      where id = ${draft.id} and user_id = ${userId} and status in ('Draft', 'InProgress') and provider_notified_at is null
       returning id
     `;
     if (marked) {
@@ -592,11 +628,18 @@ export async function upsertMainDraftSelection(
     }
   }
 
-  return await getOrCreateActiveDraft(userId);
+  return await getOrCreateActiveDraft(userId, draft.id);
 }
 
 export async function saveDraftDocuments(userId: string, draftId: string, documents: BookingDraftState['uploadFiles']) {
   await db.begin(async (tx) => {
+    const [editableDraft] = await tx`
+      select id from booking.booking_drafts
+      where id = ${draftId} and user_id = ${userId}
+        and status in ('Draft', 'InProgress')
+      for update
+    `;
+    if (!editableDraft) throw new Error('BOOKING_DRAFT_NOT_EDITABLE');
     await tx`delete from booking.booking_draft_documents where draft_id = ${draftId}`;
     for (const doc of documents) {
       await tx`
@@ -616,7 +659,7 @@ export async function saveDraftDocuments(userId: string, draftId: string, docume
 }
 
 export async function saveChildDraft(userId: string, draftId: string, child: ChildBookingDraft) {
-  const active = await getOrCreateActiveDraft(userId);
+  const active = await getOrCreateActiveDraft(userId, draftId);
   if (active.id !== draftId) {
     throw new Error('Draft mismatch');
   }
@@ -905,6 +948,55 @@ export async function listProviders(params: { locale?: Locale; search?: string; 
   return { items, total, hasMore: offset + items.length < total };
 }
 
+/** Item 1 (hotel room features / any service's admin-defined attributes) -- batches the
+ * (provider_service_id -> attribute name/value) lookup for a page of services in one query
+ * instead of N+1. Values here are what the provider filled in on the
+ * service-attribute-values admin screen (category.service_attribute_values): a fixed spec per
+ * listing (e.g. "View: Sea view"), not a customer-selectable, priced option -- so this is
+ * read-only display data and touches no checkout/pricing logic. */
+async function listServiceAttributeValues(providerServiceIds: string[], locale: Locale) {
+  const byService = new Map<string, Array<{ name: string; value: string }>>();
+  if (providerServiceIds.length === 0) return byService;
+  const rows = await db<any[]>`
+    select v.provider_service_id,
+           common.get_translation_t(d.name_translations, ${locale}, 'fa-IR') as attribute_name,
+           common.get_translation_t(v.value_translations, ${locale}, 'fa-IR') as attribute_value
+    from category.service_attribute_values v
+    join category.service_attribute_definitions d on d.id = v.attribute_definition_id
+    where v.provider_service_id = any(${providerServiceIds})
+    order by d.display_order asc, d.create_date asc
+  `;
+  for (const row of rows) {
+    const name = String(row.attribute_name || '').trim();
+    const value = String(row.attribute_value || '').trim();
+    if (!name || !value) continue;
+    const list = byService.get(row.provider_service_id) ?? [];
+    list.push({ name, value });
+    byService.set(row.provider_service_id, list);
+  }
+  return byService;
+}
+
+/** Item 7 (home nursing): which of the given service_definition ids are flagged
+ * category.service_definitions.requires_customer_address = true (migration 0041). Kept as a
+ * separate query rather than joined into listServices()'s own CTE so an unapplied migration
+ * degrades to "nothing requires an address" instead of breaking the whole catalogue -- same
+ * reasoning listTransferRouteSummaries() documents for itself. */
+async function listAddressRequiredServiceDefinitions(serviceDefinitionIds: string[]): Promise<Set<string>> {
+  const result = new Set<string>();
+  if (serviceDefinitionIds.length === 0) return result;
+  try {
+    const rows = await db<{ id: string }[]>`
+      select id from category.service_definitions
+      where id = any(${serviceDefinitionIds}) and requires_customer_address = true
+    `;
+    for (const row of rows) result.add(row.id);
+  } catch {
+    // Column not there yet -- migration 0041 hasn't run.
+  }
+  return result;
+}
+
 export async function listServices(params: { providerId?: string; serviceId?: string; specialistId?: string; locale?: Locale; search?: string; take?: number; offset?: number; }) {
   const { providerId, serviceId, specialistId, locale = 'fa-IR', search = '', take = 8, offset = 0 } = params;
   const searchText = normalizeCatalogSearch(search);
@@ -943,6 +1035,7 @@ export async function listServices(params: { providerId?: string; serviceId?: st
              ) as image_url,
              ps.currency,
              ps.value,
+             ps.value_toman,
              ps.duration_minutes,
              ps.slot_interval_minutes,
              ps.rating,
@@ -1006,6 +1099,7 @@ export async function listServices(params: { providerId?: string; serviceId?: st
            image_url,
            currency,
            value,
+           value_toman,
            duration_minutes,
            slot_interval_minutes,
            rating,
@@ -1060,14 +1154,26 @@ export async function listServices(params: { providerId?: string; serviceId?: st
     limit ${take} offset ${offset}
   `;
 
-  const items: ServiceCardItem[] = rows.map((row: any) => ({
+  const attributesByService = await listServiceAttributeValues(rows.map((row: any) => row.id), locale);
+  const routeByService = await listTransferRouteSummaries(rows.map((row: any) => row.id), locale);
+  const addressRequiredDefIds = await listAddressRequiredServiceDefinitions(rows.map((row: any) => row.service_definition_id));
+  const servicesWithDepartures = await listServicesWithOpenDepartures(rows.map((row: any) => row.id));
+  const isIranianVisitor = await resolveIsIranianVisitor().catch(() => false);
+
+  const items: ServiceCardItem[] = rows.map((row: any) => {
+    const displayPrice = resolveDisplayPrice(
+      { value: Number(row.value ?? 0), currency: row.currency },
+      row.value_toman == null ? null : Number(row.value_toman),
+      isIranianVisitor,
+    );
+    return {
     id: row.id,
     serviceDefinitionId: row.service_definition_id,
     name: row.service_name || '',
     description: row.service_description || '',
     imageUrl: row.image_url,
-    currency: row.currency,
-    value: Number(row.value ?? 0),
+    currency: displayPrice.currency,
+    value: displayPrice.value,
     durationMinutes: row.duration_minutes,
     slotIntervalMinutes: row.slot_interval_minutes,
     rating: row.rating,
@@ -1079,14 +1185,53 @@ export async function listServices(params: { providerId?: string; serviceId?: st
     isPopular: row.is_popular,
     requiresSpecialist: row.requires_specialist,
     bookingUiMode: row.booking_ui_mode,
-  }));
+    attributes: attributesByService.get(row.id),
+    route: routeByService.get(row.id),
+    requiresCustomerAddress: addressRequiredDefIds.has(row.service_definition_id),
+    hasTourDepartures: servicesWithDepartures.has(row.id),
+    };
+  });
 
   const total = Number(rows[0]?.total_count ?? 0);
   return { items, total, hasMore: offset + items.length < total };
 }
 
-export async function listSpecialists(params: { providerId?: string; serviceId?: string; specialistId?: string; locale?: Locale; search?: string; take?: number; offset?: number; }) {
-  const { providerId, serviceId, specialistId, locale = 'fa-IR', search = '', take = 8, offset = 0 } = params;
+/** Item 6 (translator booking) -- batches the (staff_id -> spoken languages) lookup for a page
+ * of specialists in one query. category.staff_languages already ties languages to individual
+ * staff members (populated by the existing staff admin form's "languages" lazy-select); this
+ * is purely a read, same shape as listServiceAttributeValues()'s own batching.
+ *
+ * Bug fix: this used to also be referenced directly inside listSpecialists()'s own SQL (a
+ * correlated subquery baked into search_blob, plus a WHERE-clause exists() for the `language`
+ * filter). A table reference has to resolve at parse time regardless of which branch of an OR
+ * a value ends up taking, so if staff_languages didn't actually exist wherever this ran, EVERY
+ * specialist lookup failed outright -- not just ones that searched or filtered by language.
+ * That broke specialist selection for any booking requiring one, i.e. most "casual" bookings.
+ * Now the base specialist query never references this table at all; language search/display
+ * both go through this one already-isolated, try/catch-guarded function instead. */
+async function listStaffLanguages(staffIds: string[]) {
+  const byStaff = new Map<string, string[]>();
+  if (staffIds.length === 0) return byStaff;
+  try {
+    const rows = await db<{ staff_id: string; language: string }[]>`
+      select staff_id, language
+      from category.staff_languages
+      where staff_id = any(${staffIds})
+      order by language asc
+    `;
+    for (const row of rows) {
+      const list = byStaff.get(row.staff_id) ?? [];
+      list.push(row.language);
+      byStaff.set(row.staff_id, list);
+    }
+  } catch {
+    // category.staff_languages missing or unreachable -- no languages rather than a crash.
+  }
+  return byStaff;
+}
+
+export async function listSpecialists(params: { providerId?: string; serviceId?: string; specialistId?: string; locale?: Locale; search?: string; take?: number; offset?: number; language?: string; }) {
+  const { providerId, serviceId, specialistId, locale = 'fa-IR', search = '', take = 8, offset = 0, language } = params;
   const searchText = normalizeCatalogSearch(search);
   const normalizedSearchText = searchText.replace(/[يى]/g, 'ی').replace(/ك/g, 'ک');
   const like = `%${searchText}%`;
@@ -1204,7 +1349,9 @@ export async function listSpecialists(params: { providerId?: string; serviceId?:
     limit ${take} offset ${offset}
   `;
 
-  const items: SpecialistCardItem[] = rows.map((row: any) => ({
+  const languagesByStaff = await listStaffLanguages(rows.map((row: any) => row.id));
+
+  let items: SpecialistCardItem[] = rows.map((row: any) => ({
     id: row.id,
     name: row.specialist_name || '',
     title: row.specialist_title || '',
@@ -1216,7 +1363,16 @@ export async function listSpecialists(params: { providerId?: string; serviceId?:
     patients: row.patients,
     nextAvailableLabel: row.next_available_label,
     successRate: row.success_rate,
+    languages: languagesByStaff.get(row.id),
   }));
+
+  // Applied after the SQL LIMIT/OFFSET rather than in the WHERE clause -- a page can come
+  // back thinner than `take` even when more matches exist further in, which is an acceptable
+  // tradeoff for a rarely-used exact filter against an isolated, try/catch-guarded lookup that
+  // must never be able to break specialist listing for everyone else. See listStaffLanguages().
+  if (language) {
+    items = items.filter((item) => item.languages?.includes(language));
+  }
 
   const total = Number(rows[0]?.total_count ?? 0);
   return { items, total, hasMore: offset + items.length < total };
@@ -1230,6 +1386,7 @@ export async function getServiceMode(providerServiceId: string) {
            ps.value,
            ps.duration_minutes,
            ps.slot_interval_minutes,
+           coalesce(sp.timezone_id, 'UTC') as timezone_id,
            case
              when sd.booking_ui_mode = 'date_range' then false
              else coalesce(sd.requires_specialist, true)
@@ -1237,6 +1394,7 @@ export async function getServiceMode(providerServiceId: string) {
            sd.booking_ui_mode
     from category.provider_services ps
     join category.service_definitions sd on sd.id = ps.service_definition_id
+    join category.service_providers sp on sp.id = ps.service_provider_id
     where ps.id = ${providerServiceId}
     limit 1
   `;
@@ -1306,8 +1464,10 @@ export async function listUploadRequirements(providerServiceId: string, locale =
 
 export async function recalculateDraftTotals(draftId: string) {
   const mainRows = await db<any[]>`
-    select coalesce(ps.value, 0) as main_amount,
+    select d.user_id as user_id,
+           coalesce(ps.value, 0) as main_amount,
            coalesce(ps.currency, d.currency) as currency,
+           ps.value_toman as main_value_toman,
            coalesce(d.use_lsevin, false) as use_lsevin,
            d.metadata
     from booking.booking_drafts d
@@ -1315,15 +1475,35 @@ export async function recalculateDraftTotals(draftId: string) {
     where d.id = ${draftId}
   `;
   const useLsevin = Boolean(mainRows[0]?.use_lsevin);
+
+  // Iranian customers are charged through Zarinpal, which always settles in
+  // Rial/Toman and never converts on its own (see payment/server/
+  // gateway-eligibility.ts and payment/providers/zarinpal.ts) -- so a native
+  // Toman price is exactly what should be snapshotted for them here, instead
+  // of the provider's base price going through a separate FX conversion
+  // later. Non-Iranian customers (BTCPay) never touch this branch. Same
+  // region check payment routing itself already trusts, not a new one.
+  const userId = mainRows[0]?.user_id ? String(mainRows[0].user_id) : null;
+  const isIranian = userId ? (await resolveUserPaymentRegion(userId)) === 'iran' : false;
+
   const childRows = useLsevin
     ? await db<any[]>`
-        select coalesce(sum(coalesce(ps.value, c.subtotal_amount, 0)), 0) as child_amount
+        select coalesce(sum(
+          case
+            when ${isIranian} and ps.value_toman is not null then ps.value_toman
+            else coalesce(ps.value, c.subtotal_amount, 0)
+          end
+        ), 0) as child_amount
         from booking.booking_draft_child_bookings c
         left join category.provider_services ps on ps.id = c.service_id
         where c.parent_draft_id = ${draftId}
       `
     : [{ child_amount: 0 }];
-  const mainAmount = Number(mainRows[0]?.main_amount ?? 0);
+
+  const mainValueToman = mainRows[0]?.main_value_toman;
+  const usesNativeTomanMain = isIranian && mainValueToman != null;
+  const mainAmount = usesNativeTomanMain ? Number(mainValueToman) : Number(mainRows[0]?.main_amount ?? 0);
+  const mainCurrency = usesNativeTomanMain ? TOMAN_CURRENCY_CODE : (mainRows[0]?.currency ?? 'USD');
   const childAmount = Number(childRows[0]?.child_amount ?? 0);
   const grossTotal = Math.round((mainAmount + childAmount) * 100) / 100;
   const coupon = await resolveDraftCoupon(draftId, grossTotal);
@@ -1385,7 +1565,7 @@ export async function recalculateDraftTotals(draftId: string) {
     appliedDiscountType: coupon?.discountType ?? null,
     appliedDiscountValue: coupon?.discountValue ?? null,
     customerCouponId: coupon?.customerCouponId ?? null,
-    currency: mainRows[0]?.currency ?? 'USD',
+    currency: mainCurrency,
   };
 }
 
@@ -1471,6 +1651,9 @@ export async function checkoutDraft(
 
   const draft = await getDraftByIdForUser(userId, payload.draftId);
   if (!draft?.id) throw new Error("Draft not found");
+  if (!['Draft', 'InProgress'].includes(String(draft.status))) {
+    throw new Error("BOOKING_DRAFT_NOT_EDITABLE");
+  }
 
   const totals = await recalculateDraftTotals(draft.id);
 
@@ -1478,10 +1661,12 @@ export async function checkoutDraft(
     select d.provider_id as "providerId",
            d.service_id as "providerServiceId",
            ps.service_definition_id as "serviceDefinitionId",
-           sp.provider_type_id as "providerTypeId"
+           sp.provider_type_id as "providerTypeId",
+           coalesce(sd.booking_ui_mode, d.metadata ->> 'bookingUiMode', 'default_slot') as "bookingUiMode"
     from booking.booking_drafts d
     left join category.provider_services ps on ps.id = d.service_id
     left join category.service_providers sp on sp.id = d.provider_id
+    left join category.service_definitions sd on sd.id = ps.service_definition_id
     where d.id = ${draft.id}
     limit 1
   `;
@@ -1522,160 +1707,117 @@ export async function checkoutDraft(
       throw new Error("Draft not found");
     }
 
-    const [existingPending] = await tx`
-      select b.id
-      from booking.bookings b
-      where b.user_id = ${userId}
-        and b.booking_status = 'Pending'
-      order by b.create_date desc
-      limit 1
-      for update
+    // Each draft is a separate purchase. Never overwrite another pending booking
+    // or remove its payments when the customer books an additional service.
+    if (!['Draft', 'InProgress'].includes(String(lockedDraft.status))) {
+      throw new Error("BOOKING_DRAFT_NOT_EDITABLE");
+    }
+
+    const [booking] = await tx`
+      insert into booking.bookings (
+        id, provider_id, service_id, specialist_id,
+        selected_date, selected_date_from, selected_date_to,
+        selected_time, selected_time_from, selected_time_to,
+        payment_method, add_ons, upload_files, additional_services,
+        payment_status, booking_status, user_id,
+        currency_code, total_amount, paid_amount,
+        applied_coupon_id, applied_discount_type, applied_discount_value, applied_discount_amount,
+        booking_ui_mode, form_submission_id, adults, children, infants, rooms, metadata,
+        source_currency_code, display_currency_code, payment_currency_code, settlement_currency_code,
+        source_subtotal_amount, source_addons_amount, source_total_amount,
+        display_subtotal_amount, display_addons_amount, display_total_amount,
+        exchange_rate, exchange_rate_ids, fx_quote_id, pricing_snapshot
+      )
+      select public.uuid_generate_v4(),
+             d.provider_id,
+             d.service_id,
+             d.specialist_id,
+             d.selected_date,
+             d.selected_date_from,
+             d.selected_date_to,
+             d.selected_time,
+             d.selected_time_from,
+             d.selected_time_to,
+             ${payload.paymentMethod},
+             '[]'::jsonb,
+             coalesce((select jsonb_agg(jsonb_build_object('title', x.title,'fileUrl', x.file_url,'requirementId', x.requirement_id)) from booking.booking_draft_documents x where x.draft_id = d.id),'[]'::jsonb),
+             '[]'::jsonb,
+             case when ${paymentTerms.dueNowAmount} <= 0 then 'NotRequired' else 'Pending' end,
+             'Pending',
+             d.user_id,
+             ${totals.currency},
+             ${totals.totalAmount},
+             0,
+             ${totals.appliedCouponId ?? null},
+             ${totals.appliedDiscountType ?? null},
+             ${totals.appliedDiscountValue ?? null},
+             ${totals.discountAmount ?? 0},
+             coalesce(sd.booking_ui_mode, 'default_slot'),
+             (d.metadata ->> 'formSubmissionId')::uuid,
+             (d.metadata ->> 'adults')::integer,
+             (d.metadata ->> 'children')::integer,
+             (d.metadata ->> 'infants')::integer,
+             (d.metadata ->> 'rooms')::integer,
+             d.metadata,
+             coalesce(d.source_currency_code, ${totals.currency}),
+             coalesce(d.display_currency_code, ${totals.currency}),
+             coalesce(d.payment_currency_code, ${totals.currency}),
+             coalesce(d.settlement_currency_code, d.source_currency_code, ${totals.currency}),
+             coalesce(d.source_subtotal_amount, d.subtotal_amount, ${totals.subtotalAmount}),
+             coalesce(d.source_addons_amount, d.addons_amount, ${totals.addonsAmount}),
+             coalesce(d.source_total_amount, d.total_amount, ${totals.totalAmount}),
+             coalesce(d.display_subtotal_amount, d.subtotal_amount, ${totals.subtotalAmount}),
+             coalesce(d.display_addons_amount, d.addons_amount, ${totals.addonsAmount}),
+             coalesce(d.display_total_amount, d.total_amount, ${totals.totalAmount}),
+             d.exchange_rate,
+             coalesce(d.exchange_rate_ids, array[]::uuid[]),
+             d.fx_quote_id,
+             coalesce(d.pricing_snapshot, '{}'::jsonb)
+      from booking.booking_drafts d
+      left join category.provider_services ps on ps.id = d.service_id
+      left join category.service_definitions sd on sd.id = ps.service_definition_id
+      where d.id = ${draft.id}
+      returning id
     `;
 
-    let bookingId: string;
-
-    if (existingPending?.id) {
-      bookingId = existingPending.id;
-
-      await tx`
-        update booking.bookings b
-        set provider_id = d.provider_id,
-            service_id = d.service_id,
-            specialist_id = d.specialist_id,
-            selected_date = d.selected_date,
-            selected_date_from = d.selected_date_from,
-            selected_date_to = d.selected_date_to,
-            selected_time = d.selected_time,
-            selected_time_from = d.selected_time_from,
-            selected_time_to = d.selected_time_to,
-            payment_method = ${payload.paymentMethod},
-            add_ons = '[]'::jsonb,
-            upload_files = coalesce((select jsonb_agg(jsonb_build_object('title', x.title,'fileUrl', x.file_url,'requirementId', x.requirement_id)) from booking.booking_draft_documents x where x.draft_id = d.id),'[]'::jsonb),
-            additional_services = '[]'::jsonb,
-            payment_status = case when ${paymentTerms.dueNowAmount} <= 0 then 'NotRequired' else 'Pending' end,
-            booking_status = 'Pending',
-            currency_code = ${totals.currency},
-            total_amount = ${totals.totalAmount},
-            paid_amount = 0,
-            applied_coupon_id = ${totals.appliedCouponId ?? null},
-            applied_discount_type = ${totals.appliedDiscountType ?? null},
-            applied_discount_value = ${totals.appliedDiscountValue ?? null},
-            applied_discount_amount = ${totals.discountAmount ?? 0},
-            booking_ui_mode = coalesce(sd.booking_ui_mode, 'default_slot'),
-            form_submission_id = (d.metadata ->> 'formSubmissionId')::uuid,
-            adults = (d.metadata ->> 'adults')::integer,
-            children = (d.metadata ->> 'children')::integer,
-            infants = (d.metadata ->> 'infants')::integer,
-            rooms = (d.metadata ->> 'rooms')::integer,
-            metadata = d.metadata,
-            source_currency_code = coalesce(d.source_currency_code, ${totals.currency}),
-            display_currency_code = coalesce(d.display_currency_code, ${totals.currency}),
-            payment_currency_code = coalesce(d.payment_currency_code, ${totals.currency}),
-            settlement_currency_code = coalesce(d.settlement_currency_code, d.source_currency_code, ${totals.currency}),
-            source_subtotal_amount = coalesce(d.source_subtotal_amount, d.subtotal_amount, ${totals.subtotalAmount}),
-            source_addons_amount = coalesce(d.source_addons_amount, d.addons_amount, ${totals.addonsAmount}),
-            source_total_amount = coalesce(d.source_total_amount, d.total_amount, ${totals.totalAmount}),
-            display_subtotal_amount = coalesce(d.display_subtotal_amount, d.subtotal_amount, ${totals.subtotalAmount}),
-            display_addons_amount = coalesce(d.display_addons_amount, d.addons_amount, ${totals.addonsAmount}),
-            display_total_amount = coalesce(d.display_total_amount, d.total_amount, ${totals.totalAmount}),
-            exchange_rate = d.exchange_rate,
-            exchange_rate_ids = coalesce(d.exchange_rate_ids, array[]::uuid[]),
-            fx_quote_id = d.fx_quote_id,
-            pricing_snapshot = coalesce(d.pricing_snapshot, '{}'::jsonb)
-        from booking.booking_drafts d
-        left join category.provider_services ps on ps.id = d.service_id
-        left join category.service_definitions sd on sd.id = ps.service_definition_id
-        where b.id = ${bookingId}
-          and d.id = ${draft.id}
-      `;
-
-      await tx`delete from booking.booking_child_bookings where parent_booking_id = ${bookingId}`;
-      await tx`delete from booking.booking_documents where booking_id = ${bookingId}`;
-      await tx`delete from booking.booking_addons where booking_id = ${bookingId}`;
-      await tx`delete from booking.payments where booking_id = ${bookingId}`;
-      await tx`delete from commercial.booking_payment_schedule_lines where payment_terms_id in (select id from commercial.booking_payment_terms where booking_id = ${bookingId})`;
-      await tx`delete from commercial.booking_payment_terms where booking_id = ${bookingId}`;
-    } else {
-      const [booking] = await tx`
-        insert into booking.bookings (
-          id, provider_id, service_id, specialist_id,
-          selected_date, selected_date_from, selected_date_to,
-          selected_time, selected_time_from, selected_time_to,
-          payment_method, add_ons, upload_files, additional_services,
-          payment_status, booking_status, user_id,
-          currency_code, total_amount, paid_amount,
-          applied_coupon_id, applied_discount_type, applied_discount_value, applied_discount_amount,
-          booking_ui_mode, form_submission_id, adults, children, infants, rooms, metadata,
-          source_currency_code, display_currency_code, payment_currency_code, settlement_currency_code,
-          source_subtotal_amount, source_addons_amount, source_total_amount,
-          display_subtotal_amount, display_addons_amount, display_total_amount,
-          exchange_rate, exchange_rate_ids, fx_quote_id, pricing_snapshot
-        )
-        select public.uuid_generate_v4(),
-               d.provider_id,
-               d.service_id,
-               d.specialist_id,
-               d.selected_date,
-               d.selected_date_from,
-               d.selected_date_to,
-               d.selected_time,
-               d.selected_time_from,
-               d.selected_time_to,
-               ${payload.paymentMethod},
-               '[]'::jsonb,
-               coalesce((select jsonb_agg(jsonb_build_object('title', x.title,'fileUrl', x.file_url,'requirementId', x.requirement_id)) from booking.booking_draft_documents x where x.draft_id = d.id),'[]'::jsonb),
-               '[]'::jsonb,
-               case when ${paymentTerms.dueNowAmount} <= 0 then 'NotRequired' else 'Pending' end,
-               'Pending',
-               d.user_id,
-               ${totals.currency},
-               ${totals.totalAmount},
-               0,
-               ${totals.appliedCouponId ?? null},
-               ${totals.appliedDiscountType ?? null},
-               ${totals.appliedDiscountValue ?? null},
-               ${totals.discountAmount ?? 0},
-               coalesce(sd.booking_ui_mode, 'default_slot'),
-               (d.metadata ->> 'formSubmissionId')::uuid,
-               (d.metadata ->> 'adults')::integer,
-               (d.metadata ->> 'children')::integer,
-               (d.metadata ->> 'infants')::integer,
-               (d.metadata ->> 'rooms')::integer,
-               d.metadata,
-               coalesce(d.source_currency_code, ${totals.currency}),
-               coalesce(d.display_currency_code, ${totals.currency}),
-               coalesce(d.payment_currency_code, ${totals.currency}),
-               coalesce(d.settlement_currency_code, d.source_currency_code, ${totals.currency}),
-               coalesce(d.source_subtotal_amount, d.subtotal_amount, ${totals.subtotalAmount}),
-               coalesce(d.source_addons_amount, d.addons_amount, ${totals.addonsAmount}),
-               coalesce(d.source_total_amount, d.total_amount, ${totals.totalAmount}),
-               coalesce(d.display_subtotal_amount, d.subtotal_amount, ${totals.subtotalAmount}),
-               coalesce(d.display_addons_amount, d.addons_amount, ${totals.addonsAmount}),
-               coalesce(d.display_total_amount, d.total_amount, ${totals.totalAmount}),
-               d.exchange_rate,
-               coalesce(d.exchange_rate_ids, array[]::uuid[]),
-               d.fx_quote_id,
-               coalesce(d.pricing_snapshot, '{}'::jsonb)
-        from booking.booking_drafts d
-        left join category.provider_services ps on ps.id = d.service_id
-        left join category.service_definitions sd on sd.id = ps.service_definition_id
-        where d.id = ${draft.id}
-        returning id
-      `;
-
-      bookingId = booking.id;
-    }
+    const bookingId = booking.id;
 
     // A date-range service is a hotel stay, and a hotel takes one booking per night.
     // Held in the same transaction as the booking itself, so a clash raises on the
     // unique index and the whole checkout rolls back rather than double-selling.
-    if (draft.bookingUiMode === 'date_range' && scope?.providerId && draft.selectedDateFrom && draft.selectedDateTo) {
+    //
+    // Bug fix: `draft` is getDraftByIdForUser()'s raw `select *` row, so
+    // draft.bookingUiMode/draft.selectedDateFrom were always undefined (multi-word
+    // snake_case columns don't equal their camelCase name the way `id`/`status`
+    // accidentally do) -- this guard never actually fired, silently disabling the
+    // reservation the comment above and 0020_hotel_date_availability.sql's own
+    // comment describe. booking_ui_mode comes from `scope` (joined against
+    // service_definitions, the authoritative source); selected_date_from/to are
+    // genuinely `time without time zone` columns on this table (not date), so the
+    // real check-in/check-out values live in metadata as date strings instead --
+    // see repository.ts's own note by SAFE_DRAFT_METADATA_KEYS for why, and
+    // booking-availability.repository.ts's identical coalesce(metadata->>...) reads
+    // for existing precedent.
+    const draftMetadata = (draft as any).metadata ?? {};
+    const checkIn = draftMetadata.selectedDateFrom as string | undefined;
+    const checkOut = draftMetadata.selectedDateTo as string | undefined;
+    if (scope?.bookingUiMode === 'date_range' && scope?.providerId && checkIn && checkOut) {
       await reserveHotelDates(tx as any, {
         serviceProviderId: String(scope.providerId),
         bookingId: String(bookingId),
-        checkIn: String(draft.selectedDateFrom),
-        checkOut: String(draft.selectedDateTo),
+        checkIn,
+        checkOut,
       });
+    }
+
+    // A tour departure is shared capacity (many bookings, one headcount), the
+    // opposite of a hotel night's exclusive reservation above -- see
+    // db/migrations/0042's own comment for why these can't share a mechanism.
+    // Held in the same transaction so a departure that just sold out rolls the
+    // whole checkout back instead of confirming an overbooked seat.
+    const tourDepartureId = draftMetadata.tourDepartureId as string | undefined;
+    if (tourDepartureId) {
+      await reserveTourDeparture(tx as any, tourDepartureId);
     }
 
     await tx`

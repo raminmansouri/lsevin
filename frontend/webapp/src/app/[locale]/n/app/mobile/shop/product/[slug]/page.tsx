@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { alternatesFor } from "@/lib/seo/alternates";
 import { Link } from "@/i18n/navigation";
 import { getProductBySlugCached } from "@/features/shop/api/catalog.repository.cached";
 import { listActiveProductSlugs } from "@/features/shop/api/catalog.repository";
@@ -34,6 +35,33 @@ export async function generateStaticParams() {
   } catch {
     return [];
   }
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}) {
+  const { locale, slug } = await params;
+  const product = await getProductBySlugCached(slug, locale).catch(() => null);
+
+  if (!product) {
+    return { title: "Product", alternates: alternatesFor(locale, `/n/app/mobile/shop/product/${slug}`) };
+  }
+
+  const description = (product.shortDescription || product.description || "").slice(0, 300);
+
+  return {
+    title: product.name,
+    description: description || undefined,
+    alternates: alternatesFor(locale, `/n/app/mobile/shop/product/${slug}`),
+    openGraph: {
+      title: product.name,
+      description: description || undefined,
+      type: "website",
+      images: product.imageUrl ? [{ url: product.imageUrl }] : undefined,
+    },
+  };
 }
 
 export default async function ProductDetailPage({

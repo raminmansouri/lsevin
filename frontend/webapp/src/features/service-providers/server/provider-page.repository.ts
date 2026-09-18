@@ -5,6 +5,8 @@ import {
   convertMoney,
   resolvePreferredCurrencyCode,
 } from "@/features/finance/lib/server/currency-queries";
+import { resolveIsIranianVisitor } from "@/features/finance/lib/server/iranian-visitor";
+import { resolveDisplayPrice } from "@/features/finance/lib/server/toman-price";
 import type { ConvertedMoney } from "@/features/finance/types";
 import type {
   ProviderAttribute,
@@ -91,6 +93,7 @@ type ServiceRow = {
   description: string | null;
   price: number | string | null;
   currency: string | null;
+  valueToman: number | string | null;
   durationMinutes: number | null;
   recovery: string | null;
   rating: number | string | null;
@@ -114,6 +117,7 @@ type RecommendationRow = {
   link: string;
   priceFrom: number | string | null;
   currency: string | null;
+  valueToman: number | string | null;
 };
 
 type CustomerIdentity = {
@@ -146,6 +150,12 @@ function toNumber(value: unknown, fallback = 0): number {
   if (value === null || value === undefined || value === "") return fallback;
   const n = Number(value);
   return Number.isFinite(n) ? n : fallback;
+}
+
+function toNullableNumber(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
 }
 
 function toStringArray(value: unknown): string[] {
@@ -434,7 +444,10 @@ export async function getProviderPageDataFromDb(
     const row = providerRows[0];
     if (!row) return fail("Provider was not found or is not active.", 404);
 
-    const displayCurrencyCode = await resolveDisplayCurrency(input);
+    const [displayCurrencyCode, isIranianVisitor] = await Promise.all([
+      resolveDisplayCurrency(input),
+      resolveIsIranianVisitor().catch(() => false),
+    ]);
     const [
       serviceRows,
       specialistRows,
@@ -461,16 +474,17 @@ export async function getProviderPageDataFromDb(
 
     const services = await Promise.all(
       serviceRows.map((service) =>
-        mapService(service, displayCurrencyCode, input.marginProfile),
+        mapService(service, displayCurrencyCode, input.marginProfile, isIranianVisitor),
       ),
     );
     const [localRecommendations, internationalRecommendations] =
       await Promise.all([
-        mapRecommendations(localRows, displayCurrencyCode, input.marginProfile),
+        mapRecommendations(localRows, displayCurrencyCode, input.marginProfile, isIranianVisitor),
         mapRecommendations(
           internationalRows,
           displayCurrencyCode,
           input.marginProfile,
+          isIranianVisitor,
         ),
       ]);
 
@@ -544,6 +558,7 @@ async function mapService(
   service: ServiceRow,
   displayCurrencyCode: string,
   marginProfile?: string | null,
+  isIranianVisitor?: boolean,
 ): Promise<Service> {
   const sourcePrice = toNumber(service.price);
   const sourceCurrency = (service.currency || "USD").trim().toUpperCase();
@@ -553,13 +568,18 @@ async function mapService(
     targetCurrencyCode: displayCurrencyCode,
     marginProfile,
   });
+  const tomanOverride = resolveDisplayPrice(
+    { value: converted.targetAmount, currency: converted.targetCurrencyCode },
+    toNullableNumber(service.valueToman),
+    Boolean(isIranianVisitor),
+  );
 
   return {
     id: service.id,
     name: service.name,
     description: service.description,
-    price: converted.targetAmount,
-    currency: converted.targetCurrencyCode,
+    price: tomanOverride.value,
+    currency: tomanOverride.currency,
     sourcePrice: converted.sourceAmount,
     sourceCurrency: converted.sourceCurrencyCode,
     exchangeRate: converted.appliedRate,
@@ -590,6 +610,7 @@ async function getServiceRows(
       ) as description,
       coalesce(ps.value, sd.value, 0)::float8 as price,
       upper(coalesce(nullif(ps.currency, ''), nullif(sd.currency, ''), 'USD')) as currency,
+      ps.value_toman as "valueToman",
       coalesce(nullif(ps.duration_minutes, 0), sd.duration_minutes, 0)::int as "durationMinutes",
       ps.recovery,
       coalesce(ps.rating, 0)::float8 as rating,
@@ -936,7 +957,8 @@ async function getRecommendationRows(
       coalesce(sp.accredited, false) as verified,
       concat('/n/app/mobile/provider/', sp.id::text) as link,
       min_service.price::float8 as "priceFrom",
-      min_service.currency
+      min_service.currency,
+      min_service.value_toman as "valueToman"
     from category.service_providers sp
     cross join src
     left join category.provider_recommendations pr
@@ -954,7 +976,7 @@ async function getRecommendationRows(
       limit 1
     ) gallery on true
     left join lateral (
-      select ps.value as price, ps.currency
+      select ps.value as price, ps.currency, ps.value_toman
       from category.provider_services ps
       where ps.service_provider_id = sp.id and ps.is_active = true
       order by ps.value asc nulls last
@@ -995,6 +1017,7 @@ async function mapRecommendations(
   rows: RecommendationRow[],
   displayCurrencyCode: string,
   marginProfile?: string | null,
+  isIranianVisitor?: boolean,
 ): Promise<Recommendation[]> {
   return Promise.all(
     rows.map(async (row) => {
@@ -1012,6 +1035,14 @@ async function mapRecommendations(
               targetCurrencyCode: displayCurrencyCode,
               marginProfile,
             });
+      const tomanOverride =
+        converted === null
+          ? null
+          : resolveDisplayPrice(
+              { value: converted.targetAmount, currency: converted.targetCurrencyCode },
+              toNullableNumber(row.valueToman),
+              Boolean(isIranianVisitor),
+            );
 
       return {
         id: row.id,
@@ -1023,8 +1054,8 @@ async function mapRecommendations(
         country: row.country || "",
         verified: Boolean(row.verified),
         link: row.link,
-        priceFrom: converted?.targetAmount ?? null,
-        currency: converted?.targetCurrencyCode ?? null,
+        priceFrom: tomanOverride?.value ?? null,
+        currency: tomanOverride?.currency ?? null,
         sourcePrice,
         sourceCurrency,
       };

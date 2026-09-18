@@ -2,6 +2,8 @@ import 'server-only';
 
 import sql from '@/config/database/db';
 import { convertProviderPrice, resolvePreferredCurrencyCode } from '@/features/finance/lib/server/currency-queries';
+import { resolveIsIranianVisitor } from '@/features/finance/lib/server/iranian-visitor';
+import { resolveDisplayPrice } from '@/features/finance/lib/server/toman-price';
 import { getCurrencySymbol, normalizeCurrencyCode } from '@/features/finance/lib/money';
 import type { ConvertedMoney } from '@/features/finance/types';
 import { getIsFavorite, resolveFavoritesCustomerId } from '@/features/favorites/server/favorites.repository';
@@ -244,6 +246,7 @@ type PrimaryServiceRow = {
   service_definition_description: string;
   currency: string;
   value: number | string;
+  value_toman: number | string | null;
   international_price_multiplier: number | string | null;
   duration_minutes: number | string | null;
   rating: number | string | null;
@@ -288,6 +291,7 @@ type ProviderOfferingRow = {
   response_time: string | null;
   price: number | string;
   currency: string;
+  value_toman: number | string | null;
   international_price_multiplier: number | string | null;
   rating: number | string | null;
   review_count: number | string | null;
@@ -416,7 +420,7 @@ type SpecialistRow = {
   can_provide_this_service: boolean | null;
 };
 
-async function mapOffering(row: ProviderOfferingRow, options: { preferredCurrencyCode: string; customerId?: string | null }): Promise<ServiceProviderOffering> {
+async function mapOffering(row: ProviderOfferingRow, options: { preferredCurrencyCode: string; customerId?: string | null; isIranianVisitor?: boolean }): Promise<ServiceProviderOffering> {
   const rating = asNumber(row.rating ?? row.provider_rating, 0);
   const reviewCount = asNumber(row.review_count ?? row.provider_review_count, 0);
   const image = normalizeStoredMediaUrl(row.service_image_url || row.provider_image_url);
@@ -428,7 +432,10 @@ async function mapOffering(row: ProviderOfferingRow, options: { preferredCurrenc
     targetCurrencyCodes: [options.preferredCurrencyCode, currency],
     providerMultiplier: asNullableNumber(row.international_price_multiplier),
   });
-  const displayPrice = pickConvertedPrice(priceOptions, options.preferredCurrencyCode);
+  const tomanOverride = resolveDisplayPrice({ value: price, currency }, asNullableNumber(row.value_toman), Boolean(options.isIranianVisitor));
+  const displayPrice = tomanOverride.isNativeToman
+    ? { code: tomanOverride.currency, amount: tomanOverride.value, symbol: getCurrencySymbol(tomanOverride.currency) }
+    : pickConvertedPrice(priceOptions, options.preferredCurrencyCode);
   const isFavorite = await getIsFavorite({
     customerId: options.customerId,
     favoriteType: 'service',
@@ -581,6 +588,7 @@ async function getPrimaryServiceRow(serviceId: string, locale: string) {
       common.get_translation_t(sd.description_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as service_definition_description,
       ps.currency,
       ps.value,
+      ps.value_toman,
       sp.international_price_multiplier as international_price_multiplier,
       coalesce(nullif(ps.duration_minutes, 0), sd.duration_minutes) as duration_minutes,
       coalesce(ps.rating, sp.rating, 0) as rating,
@@ -833,7 +841,7 @@ async function getProviderGalleryItems(providerId: string, locale: string): Prom
   return rows.map(mapGalleryRow);
 }
 
-async function getProvidersForService(serviceDefinitionId: string, locale: string, options: { preferredCurrencyCode: string; customerId?: string | null }) {
+async function getProvidersForService(serviceDefinitionId: string, locale: string, options: { preferredCurrencyCode: string; customerId?: string | null; isIranianVisitor?: boolean }) {
   const rows = await sql<ProviderOfferingRow[]>`
     select
       ps.id::text as provider_service_id,
@@ -854,6 +862,7 @@ async function getProvidersForService(serviceDefinitionId: string, locale: strin
       sp.response_time,
       ps.value as price,
       ps.currency,
+      ps.value_toman,
       sp.international_price_multiplier as international_price_multiplier,
       ps.rating,
       ps.review_count,
@@ -1364,13 +1373,16 @@ export async function getServicePageByIdFromDb({
   const providerMultiplier = asNullableNumber(row.international_price_multiplier);
 
   const sourceCurrencyCode = normalizeCurrencyCode(row.currency);
-  const resolvedDisplayCurrencyCode = await safeResolvePreferredCurrencyCode({
-    userId,
-    explicitCurrencyCode: preferredCurrencyCode,
-    selectedCountryCode,
-    browserCountryCode,
-    fallbackCurrencyCode: sourceCurrencyCode,
-  });
+  const [resolvedDisplayCurrencyCode, isIranianVisitor] = await Promise.all([
+    safeResolvePreferredCurrencyCode({
+      userId,
+      explicitCurrencyCode: preferredCurrencyCode,
+      selectedCountryCode,
+      browserCountryCode,
+      fallbackCurrencyCode: sourceCurrencyCode,
+    }),
+    resolveIsIranianVisitor().catch(() => false),
+  ]);
 
   const fallbackImages = uniqueNonEmpty([row.image_url, row.provider_image_url]);
 
@@ -1395,7 +1407,7 @@ export async function getServicePageByIdFromDb({
     getIncludedItems(row.service_definition_id, row.provider_service_id),
     getProcessItems(row.service_definition_id, row.provider_service_id),
     getFaqs(row.service_definition_id, row.provider_service_id),
-    getProvidersForService(row.service_definition_id, normalizedLocale, { preferredCurrencyCode: resolvedDisplayCurrencyCode, customerId: favoritesCustomerId }),
+    getProvidersForService(row.service_definition_id, normalizedLocale, { preferredCurrencyCode: resolvedDisplayCurrencyCode, customerId: favoritesCustomerId, isIranianVisitor }),
     getTopReviews(row.provider_id, row.provider_service_id),
     getGalleryItems(row.service_definition_id, row.provider_service_id, normalizedLocale, fallbackImages, row.featured_image_url),
     getProviderGalleryItems(row.provider_id, normalizedLocale),
@@ -1423,7 +1435,19 @@ export async function getServicePageByIdFromDb({
     safeGetConvertedPriceOptions({ amount: price, sourceCurrencyCode, targetCurrencyCodes: allowedDisplayCurrencies, providerMultiplier }),
   ]);
 
-  const displayPrice = pickConvertedPrice(priceOptions, resolvedDisplayCurrencyCode);
+  // Additive override, not a change to the conversion pipeline above: when the
+  // provider has an admin-set Toman price and the visitor is Iranian, that
+  // exact amount is the headline price instead of a live-converted one. Falls
+  // straight through to the existing displayPrice when either condition
+  // isn't met -- see finance/lib/server/toman-price.ts.
+  const tomanOverride = resolveDisplayPrice(
+    { value: price, currency: sourceCurrencyCode },
+    asNullableNumber(row.value_toman),
+    isIranianVisitor,
+  );
+  const displayPrice = tomanOverride.isNativeToman
+    ? { code: tomanOverride.currency, amount: tomanOverride.value, symbol: getCurrencySymbol(tomanOverride.currency) }
+    : pickConvertedPrice(priceOptions, resolvedDisplayCurrencyCode);
   const displayOriginalPrice = pickConvertedPrice(originalPriceOptions, resolvedDisplayCurrencyCode);
   const otherCurrencies = priceOptions.map(convertedMoneyToOtherCurrency).filter((item) => item.code !== sourceCurrencyCode);
 

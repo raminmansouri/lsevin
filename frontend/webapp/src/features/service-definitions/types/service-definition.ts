@@ -41,6 +41,7 @@ export interface ServiceDefinitionDetails {
   basePrice: number;
   pricingModel: string;
   isActive: boolean;
+  requiresCustomerAddress: boolean;
   attributeDefinitions: ServiceAttributeDefinition[];
   requirements: ServiceRequirement[];
   uploadRequirements: ServiceDefinitionUploadRequirement[];

@@ -1,7 +1,8 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { alternatesFor } from "@/lib/seo/alternates";
 import {
   getShopBrandsCached,
   getShopCategoriesCached,
@@ -25,6 +26,34 @@ export async function generateStaticParams() {
   } catch {
     return [];
   }
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}) {
+  const { locale, slug } = await params;
+  const [categories, t] = await Promise.all([
+    getShopCategoriesCached(locale).catch(() => []),
+    getTranslations({ locale, namespace: "Shop" }),
+  ]);
+  const category = categories.find((c) => c.slug === slug);
+
+  if (!category) {
+    return { title: "Category", alternates: alternatesFor(locale, `/n/app/mobile/shop/category/${slug}`) };
+  }
+
+  return {
+    title: category.name,
+    description: t("categoryMetaDescription", { count: category.productCount, name: category.name }),
+    alternates: alternatesFor(locale, `/n/app/mobile/shop/category/${slug}`),
+    openGraph: {
+      title: category.name,
+      type: "website",
+      images: category.imageUrl ? [{ url: category.imageUrl }] : undefined,
+    },
+  };
 }
 
 export default async function ShopCategoryPage({
