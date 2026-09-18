@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import localFont from "next/font/local";
 import Script from "next/script";
 
@@ -33,6 +34,17 @@ const vazirmatn = localFont({
   display: "swap",
   preload: false,
 });
+
+// Enamad (Iran's e-commerce trust-seal authority) verifies domain ownership by
+// looking for this exact meta tag in the served HTML — it has to be site-wide
+// and present on every response, which is exactly what the root layout's
+// `metadata` export gives for free (Next renders it into every page's <head>,
+// no manual <head> JSX needed/possible this deep in the App Router).
+export const metadata: Metadata = {
+  other: {
+    enamad: "51635800",
+  },
+};
 
 // The single <html>/<body> for the whole app — it also wraps the (financial)
 // tree and the root not-found, so it stays a plain root layout.
