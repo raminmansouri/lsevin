@@ -201,3 +201,94 @@ export async function setAccountActive(input: {
     `;
   });
 }
+
+/**
+ * Removes a detail account that was never used.
+ *
+ * Deactivating hides an account from the entry form but leaves it in the coding
+ * tree forever, which is no help to someone who has just mistyped a code and wants
+ * it gone. A delete is safe only while the account is genuinely inert, so all four
+ * ways it can already be depended on are checked here — and each refusal says which
+ * one it was, because "cannot delete" on its own leaves the accountant guessing:
+ *
+ *   * a seeded system account, which the posting rules reach by system_key;
+ *   * an account with children, whose codes would be orphaned;
+ *   * an account that has been posted to, which would break a document;
+ *   * an account a wallet or a document template points at.
+ *
+ * Anything that fails one of these is corrected by deactivating it instead.
+ */
+export async function deleteAccount(input: {
+  accountId: string;
+  actorUserId: string;
+}): Promise<{ code: string }> {
+  return db.begin(async (tx) => {
+    const [account] = await tx<
+      {
+        id: string;
+        code: string;
+        level: number;
+        is_system: boolean;
+        name_translations: unknown;
+      }[]
+    >`
+      select id::text as id, code, level, is_system, name_translations
+      from accounting.accounts where id = ${input.accountId} limit 1 for update
+    `;
+    if (!account) throw new AccountValidationError("The account was not found.");
+
+    if (account.is_system) {
+      throw new AccountValidationError(
+        `Account ${account.code} is a system account that the posting rules depend on and cannot be deleted. Deactivate it instead.`
+      );
+    }
+
+    const [children] = await tx<{ count: number }[]>`
+      select count(*)::int as count from accounting.accounts where parent_id = ${account.id}
+    `;
+    if (children.count > 0) {
+      throw new AccountValidationError(
+        `Account ${account.code} has ${children.count} child account(s). Delete those first.`
+      );
+    }
+
+    const [postings] = await tx<{ count: number }[]>`
+      select count(*)::int as count from accounting.journal_lines where account_id = ${account.id}
+    `;
+    if (postings.count > 0) {
+      throw new AccountValidationError(
+        `Account ${account.code} has ${postings.count} posting(s) and cannot be deleted. Deactivate it instead.`
+      );
+    }
+
+    const [wallets] = await tx<{ count: number }[]>`
+      select count(*)::int as count from accounting.wallets where account_id = ${account.id}
+    `;
+    if (wallets.count > 0) {
+      throw new AccountValidationError(
+        `Account ${account.code} is the ledger account of ${wallets.count} wallet(s) and cannot be deleted.`
+      );
+    }
+
+    const [templates] = await tx<{ count: number }[]>`
+      select count(*)::int as count
+        from accounting.entry_template_lines where account_id = ${account.id}
+    `;
+    if (templates.count > 0) {
+      throw new AccountValidationError(
+        `Account ${account.code} is used by ${templates.count} document template line(s). Change those first.`
+      );
+    }
+
+    // Written before the row goes, so the log keeps what was deleted.
+    await tx`
+      insert into accounting.audit_log (actor_user_id, action, entity_type, entity_id, entity_key, before_state)
+      values (${input.actorUserId}, 'account.delete', 'accounting_account', ${account.id}, ${account.code},
+              ${tx.json({ code: account.code, level: account.level, name: account.name_translations } as never)})
+    `;
+
+    await tx`delete from accounting.accounts where id = ${account.id}`;
+
+    return { code: account.code };
+  });
+}
