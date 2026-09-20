@@ -45,6 +45,36 @@ export default async function middleware(request: NextRequest) {
   const intlResponse = intlMiddleware(request);
 
   if (intlResponse && !intlResponse.ok) {
+    // Domain-verification tools (Enamad et al.) and plenty of crawlers check the
+    // exact bare root URL and do not follow redirects. Next-intl's default
+    // behavior here is a 307 to "/fa" with an empty body — nothing at the literal
+    // root was ever checkable, regardless of what's in the page's own <head>. For
+    // a visitor with no explicit locale cookie (this is exactly that case: a
+    // fresh visitor or a bot, neither of which carries our locale cookie), serve
+    // the default locale's content directly via a rewrite instead of a redirect —
+    // same page, same visible URL, 200 instead of 307. A visitor who already has
+    // an explicit locale cookie still gets redirected to their chosen locale
+    // exactly as before; this only changes the no-cookie bare-root case.
+    if (request.nextUrl.pathname === "/") {
+      const cookieLocale = request.cookies.get("LSEVIN_LOCALE")?.value || request.cookies.get("NEXT_LOCALE")?.value;
+      const hasExplicitLocaleCookie = cookieLocale && routing.locales.includes(cookieLocale as Locale);
+      if (!hasExplicitLocaleCookie) {
+        const rewriteUrl = request.nextUrl.clone();
+        rewriteUrl.pathname = `/${routing.defaultLocale}`;
+        return NextResponse.rewrite(rewriteUrl);
+      }
+    }
+    // Every other un-prefixed path (e.g. "/explore" -> "/fa/explore") hits this
+    // same branch. next-intl issues a 307 (Temporary Redirect) by default, but
+    // this rule is permanent and never changes at runtime -- a search engine
+    // that treats it as temporary keeps the un-prefixed URL as canonical and
+    // re-checks it indefinitely instead of consolidating ranking signals onto
+    // the locale-prefixed URL it always redirects to. Reissue as 308 (Permanent
+    // Redirect, method-preserving) instead.
+    const location = intlResponse.headers.get("location");
+    if (location) {
+      return NextResponse.redirect(new URL(location, request.url), 308);
+    }
     return intlResponse;
   }
 
