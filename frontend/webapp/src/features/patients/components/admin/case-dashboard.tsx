@@ -25,6 +25,7 @@ import type {
   MedicalCaseStatusHistoryRow,
   MedicalCaseTreatmentProposalRow,
 } from "../../cases-types";
+import type { CaseReadinessAlert } from "../../ai-types";
 import { isValidCaseTransition } from "../../cases-transitions";
 import {
   generateCasePackageAction,
@@ -73,11 +74,15 @@ export function CaseDashboard({
   secondOpinions,
   followUps,
   packages,
+  readinessAlerts,
+  suggestedRecords,
 }: {
   patient: PatientRow;
   medicalCase: MedicalCaseRow;
   statusHistory: MedicalCaseStatusHistoryRow[];
   encounters: ClinicalEncounterRow[];
+  readinessAlerts: CaseReadinessAlert[];
+  suggestedRecords: { conditions: { id: string; displayName: string }[]; documents: { id: string; title: string }[] };
   requirements: MedicalCaseRequirementRow[];
   readiness: CaseReadiness;
   submissions: MedicalCaseProviderSubmissionRow[];
@@ -112,7 +117,14 @@ export function CaseDashboard({
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4 pt-4">
-          <OverviewTab medicalCase={medicalCase} statusHistory={statusHistory} requirements={requirements} readiness={readiness} />
+          <OverviewTab
+            medicalCase={medicalCase}
+            statusHistory={statusHistory}
+            requirements={requirements}
+            readiness={readiness}
+            readinessAlerts={readinessAlerts}
+            suggestedRecords={suggestedRecords}
+          />
         </TabsContent>
 
         <TabsContent value="encounters" className="pt-4">
@@ -140,11 +152,15 @@ function OverviewTab({
   statusHistory,
   requirements,
   readiness,
+  readinessAlerts,
+  suggestedRecords,
 }: {
   medicalCase: MedicalCaseRow;
   statusHistory: MedicalCaseStatusHistoryRow[];
   requirements: MedicalCaseRequirementRow[];
   readiness: CaseReadiness;
+  readinessAlerts: CaseReadinessAlert[];
+  suggestedRecords: { conditions: { id: string; displayName: string }[]; documents: { id: string; title: string }[] };
 }) {
   const t = useTranslations(PATIENTS_TRANSLATION_KEY);
   const router = useRouter();
@@ -236,6 +252,40 @@ function OverviewTab({
           ))}
         </CardContent>
       </Card>
+
+      {(readinessAlerts.length > 0 || suggestedRecords.conditions.length > 0 || suggestedRecords.documents.length > 0) && (
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-base">{t("admin.ai.readinessAssistant")}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-muted-foreground text-xs">{t("admin.ai.readinessDisclaimer")}</p>
+            {readinessAlerts.map((alert) => (
+              <div key={`${alert.alertType}-${alert.recordId}`} className="flex items-center gap-2 text-sm">
+                <Badge variant={alert.severity === "warning" ? "destructive" : "secondary"}>
+                  {t(`admin.ai.alertTypes.${alert.alertType}`)}
+                </Badge>
+                <span>{alert.label}</span>
+              </div>
+            ))}
+            {(suggestedRecords.conditions.length > 0 || suggestedRecords.documents.length > 0) && (
+              <div className="border-t pt-2">
+                <p className="text-muted-foreground text-xs">{t("admin.ai.suggestedRecords")}</p>
+                {suggestedRecords.conditions.map((c) => (
+                  <p key={c.id} className="text-sm">
+                    {c.displayName}
+                  </p>
+                ))}
+                {suggestedRecords.documents.map((d) => (
+                  <p key={d.id} className="text-sm">
+                    {d.title}
+                  </p>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <AddRequirementDialog medicalCaseId={medicalCase.id} open={addRequirementOpen} onOpenChange={setAddRequirementOpen} />
     </div>

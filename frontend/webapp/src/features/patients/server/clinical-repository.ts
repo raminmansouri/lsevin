@@ -143,16 +143,23 @@ export async function addPatientCondition(input: {
   resolvedDate?: string;
   notes?: string;
   verificationStatus?: string;
+  /** V8.3: an AI-extraction-approved record passes 'ai_extraction' + the
+   * source document/candidate id here so provenance survives past the
+   * review queue -- every other caller omits these and gets the existing
+   * default ('lsevin_coordinator', no source_id). */
+  sourceType?: string;
+  sourceId?: string;
   createdBy?: string | null;
 }): Promise<PatientConditionRow> {
   const rows = await db<any[]>`
     insert into patient.patient_conditions (
       patient_id, display_name, clinical_status, severity, body_site, onset_date, resolved_date, notes,
-      verification_status, created_by, last_modified_by
+      verification_status, source_type, source_id, created_by, last_modified_by
     ) values (
       ${input.patientId}, ${input.displayName}, ${input.clinicalStatus ?? "active"}, ${input.severity ?? null},
       ${input.bodySite ?? null}, ${input.onsetDate ?? null}, ${input.resolvedDate ?? null}, ${input.notes ?? null},
-      ${input.verificationStatus ?? "unverified"}, ${input.createdBy ?? null}, ${input.createdBy ?? null}
+      ${input.verificationStatus ?? "unverified"}, ${input.sourceType ?? "lsevin_coordinator"}, ${input.sourceId ?? null},
+      ${input.createdBy ?? null}, ${input.createdBy ?? null}
     )
     returning *
   `;
@@ -189,16 +196,19 @@ export async function addPatientProcedure(input: {
   countryCode?: string;
   city?: string;
   notes?: string;
+  sourceType?: string;
+  sourceId?: string;
   createdBy?: string | null;
 }): Promise<PatientProcedureRow> {
   const rows = await db<any[]>`
     insert into patient.patient_procedures (
       patient_id, procedure_name, category, procedure_status, performed_from, performed_until,
-      body_site, outcome, country_code, city, notes, created_by, last_modified_by
+      body_site, outcome, country_code, city, notes, source_type, source_id, created_by, last_modified_by
     ) values (
       ${input.patientId}, ${input.procedureName}, ${input.category ?? null}, ${input.procedureStatus ?? "completed"},
       ${input.performedFrom}, ${input.performedUntil ?? null}, ${input.bodySite ?? null}, ${input.outcome ?? null},
-      ${input.countryCode ?? null}, ${input.city ?? null}, ${input.notes ?? null}, ${input.createdBy ?? null}, ${input.createdBy ?? null}
+      ${input.countryCode ?? null}, ${input.city ?? null}, ${input.notes ?? null},
+      ${input.sourceType ?? "lsevin_coordinator"}, ${input.sourceId ?? null}, ${input.createdBy ?? null}, ${input.createdBy ?? null}
     )
     returning *
   `;
@@ -279,17 +289,20 @@ export async function addPatientMedication(input: {
   reportedOrPrescribed?: string;
   reason?: string;
   notes?: string;
+  sourceType?: string;
+  sourceId?: string;
   createdBy?: string | null;
 }): Promise<PatientMedicationRow> {
   const rows = await db<any[]>`
     insert into patient.patient_medications (
       patient_id, name, dose, dose_unit, route, frequency, start_date, end_date,
-      medication_status, reported_or_prescribed, reason, notes, created_by, last_modified_by
+      medication_status, reported_or_prescribed, reason, notes, source_type, source_id, created_by, last_modified_by
     ) values (
       ${input.patientId}, ${input.name}, ${input.dose ?? null}, ${input.doseUnit ?? null}, ${input.route ?? null},
       ${input.frequency ?? null}, ${input.startDate ?? null}, ${input.endDate ?? null},
       ${input.medicationStatus ?? "active"}, ${input.reportedOrPrescribed ?? "patient_reported"}, ${input.reason ?? null},
-      ${input.notes ?? null}, ${input.createdBy ?? null}, ${input.createdBy ?? null}
+      ${input.notes ?? null}, ${input.sourceType ?? "lsevin_coordinator"}, ${input.sourceId ?? null},
+      ${input.createdBy ?? null}, ${input.createdBy ?? null}
     )
     returning *
   `;

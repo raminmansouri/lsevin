@@ -15677,6 +15677,7 @@
         "access": "Access & Sharing",
         "identity": "Identity",
         "passport": "Passport",
+        "ai": "AI Assist",
         "timeline": "Timeline",
         "notes": "Notes"
       },
@@ -15760,7 +15761,12 @@
           "patient_merged": "Patient merged",
           "patient_unmerged": "Patient merge reversed",
           "reconciliation_resolved": "Record reconciled",
-          "passport_generated": "Patient passport generated"
+          "passport_generated": "Patient passport generated",
+          "document_classification_run": "Document classification run",
+          "ai_extraction_run": "AI extraction run",
+          "ai_extraction_reviewed": "AI extraction reviewed",
+          "ai_summary_generated": "AI summary generated",
+          "ai_translation_requested": "AI translation requested"
         }
       },
       "notes": {
@@ -16214,6 +16220,40 @@
           "diagnostic_results": "Recent diagnostic results",
           "imaging": "Imaging references",
           "emergency_contact": "Emergency contact"
+        }
+      },
+      "ai": {
+        "providerNotice": "No AI provider is configured for this deployment. Review queues below will stay empty and generation actions will report \"not configured\" until one is set up.",
+        "documentClassification": "Document classification",
+        "extractionQueue": "Extraction review queue",
+        "approve": "Approve",
+        "reject": "Reject",
+        "defer": "Defer",
+        "reviewed": "Reviewed",
+        "summary": "AI summary",
+        "generateSummary": "Generate summary",
+        "summaryGenerated": "Summary generated",
+        "translation": "AI-assisted translation",
+        "selectDocument": "Select a document",
+        "requestTranslation": "Request translation",
+        "translationRequested": "Translation requested",
+        "readinessAssistant": "Case readiness assistant",
+        "readinessDisclaimer": "Operational assistance only — not a medical eligibility decision.",
+        "suggestedRecords": "Records you might want to attach to this case",
+        "candidateTypes": {
+          "condition": "Condition",
+          "medication": "Medication",
+          "lab_observation": "Lab observation",
+          "procedure": "Procedure",
+          "provider_facility": "Provider/facility"
+        },
+        "alertTypes": {
+          "missing_requirement": "Missing",
+          "expired_requirement": "Expired",
+          "duplicate_document": "Possible duplicate"
+        },
+        "errors": {
+          "notConfigured": "No AI provider is configured for this deployment yet."
         }
       },
       "errors": {

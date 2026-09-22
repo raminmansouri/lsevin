@@ -68,7 +68,13 @@ export type PatientAuditAction =
   | "reconciliation_resolved"
   | "fhir_resource_exported"
   | "fhir_bundle_exported"
-  | "passport_generated";
+  | "passport_generated"
+  | "document_classification_run"
+  | "document_classification_reviewed"
+  | "ai_extraction_run"
+  | "ai_extraction_reviewed"
+  | "ai_summary_generated"
+  | "ai_translation_requested";
 
 /**
  * `purpose`/`result`/`ipAddress`/`userAgent` were added in V5.6

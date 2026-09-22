@@ -15677,6 +15677,7 @@
         "access": "دسترسی و اشتراک‌گذاری",
         "identity": "هویت",
         "passport": "پاسپورت سلامت",
+        "ai": "دستیار هوش مصنوعی",
         "timeline": "جدول زمانی",
         "notes": "یادداشت‌ها"
       },
@@ -15760,7 +15761,12 @@
           "patient_merged": "بیمار ادغام شد",
           "patient_unmerged": "ادغام بیمار بازگردانده شد",
           "reconciliation_resolved": "رکورد آشتی‌داده شد",
-          "passport_generated": "پاسپورت بیمار ساخته شد"
+          "passport_generated": "پاسپورت بیمار ساخته شد",
+          "document_classification_run": "دسته‌بندی مدرک انجام شد",
+          "ai_extraction_run": "استخراج هوش مصنوعی انجام شد",
+          "ai_extraction_reviewed": "استخراج هوش مصنوعی بررسی شد",
+          "ai_summary_generated": "خلاصه هوش مصنوعی ساخته شد",
+          "ai_translation_requested": "ترجمه هوش مصنوعی درخواست شد"
         }
       },
       "notes": {
@@ -16214,6 +16220,40 @@
           "diagnostic_results": "نتایج تشخیصی اخیر",
           "imaging": "مراجع تصویربرداری",
           "emergency_contact": "تماس اضطراری"
+        }
+      },
+      "ai": {
+        "providerNotice": "هیچ ارائه‌دهنده هوش مصنوعی برای این استقرار پیکربندی نشده است. صف‌های بررسی زیر خالی می‌مانند و اقدامات تولید تا زمان پیکربندی، «پیکربندی‌نشده» گزارش می‌دهند.",
+        "documentClassification": "دسته‌بندی مدرک",
+        "extractionQueue": "صف بررسی استخراج",
+        "approve": "تأیید",
+        "reject": "رد",
+        "defer": "به‌تعویق‌انداختن",
+        "reviewed": "بررسی شد",
+        "summary": "خلاصه هوش مصنوعی",
+        "generateSummary": "ساخت خلاصه",
+        "summaryGenerated": "خلاصه ساخته شد",
+        "translation": "ترجمه با کمک هوش مصنوعی",
+        "selectDocument": "انتخاب مدرک",
+        "requestTranslation": "درخواست ترجمه",
+        "translationRequested": "ترجمه درخواست شد",
+        "readinessAssistant": "دستیار آمادگی پرونده",
+        "readinessDisclaimer": "فقط کمک عملیاتی — نه تصمیم واجدشرایط بودن پزشکی.",
+        "suggestedRecords": "رکوردهایی که ممکن است بخواهید به این پرونده پیوست کنید",
+        "candidateTypes": {
+          "condition": "بیماری",
+          "medication": "دارو",
+          "lab_observation": "یافته آزمایشگاهی",
+          "procedure": "اقدام درمانی",
+          "provider_facility": "ارائه‌دهنده/مرکز"
+        },
+        "alertTypes": {
+          "missing_requirement": "موجود نیست",
+          "expired_requirement": "منقضی‌شده",
+          "duplicate_document": "احتمال تکراری بودن"
+        },
+        "errors": {
+          "notConfigured": "هنوز هیچ ارائه‌دهنده هوش مصنوعی برای این استقرار پیکربندی نشده است."
         }
       },
       "errors": {

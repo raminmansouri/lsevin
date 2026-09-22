@@ -18,6 +18,7 @@ import {
   listSubmissionsForCase,
 } from "@/features/patients/server/cases-repository";
 import { getPatientById } from "@/features/patients/server/repository";
+import { getCaseReadinessAlerts, suggestRelevantRecordsForCase } from "@/features/patients/server/readiness-repository";
 import { PATIENTS_TRANSLATION_KEY } from "@/features/patients/types";
 import { assertAdmin } from "@/lib/auth/admin-guard";
 import type { LocaleParams } from "@/types/next";
@@ -61,16 +62,19 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
   const patient = await getPatientById(patientId);
   if (!patient) notFound();
 
-  const [statusHistory, encounters, requirements, submissions, proposals, secondOpinions, followUps, packages] = await Promise.all([
-    listCaseStatusHistory(caseId),
-    listEncountersForCase(caseId),
-    listRequirementsForCase(caseId),
-    listSubmissionsForCase(caseId),
-    listProposalsForCase(caseId),
-    listSecondOpinionsForCase(caseId),
-    listFollowUpsForCase(caseId),
-    listPackagesForCase(caseId),
-  ]);
+  const [statusHistory, encounters, requirements, submissions, proposals, secondOpinions, followUps, packages, readinessAlerts, suggestedRecords] =
+    await Promise.all([
+      listCaseStatusHistory(caseId),
+      listEncountersForCase(caseId),
+      listRequirementsForCase(caseId),
+      listSubmissionsForCase(caseId),
+      listProposalsForCase(caseId),
+      listSecondOpinionsForCase(caseId),
+      listFollowUpsForCase(caseId),
+      listPackagesForCase(caseId),
+      getCaseReadinessAlerts(caseId, patientId),
+      suggestRelevantRecordsForCase(patientId),
+    ]);
 
   return (
     <CaseDashboard
@@ -85,6 +89,8 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
       secondOpinions={secondOpinions}
       followUps={followUps}
       packages={packages}
+      readinessAlerts={readinessAlerts}
+      suggestedRecords={suggestedRecords}
     />
   );
 }

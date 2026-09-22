@@ -38,6 +38,11 @@ import {
   listMergesForPatient,
 } from "@/features/patients/server/identity-repository";
 import { listPassportsForPatient } from "@/features/patients/server/passport-repository";
+import {
+  getCurrentSummary,
+  listClassificationsRequiringReview,
+  listExtractionCandidatesForPatient,
+} from "@/features/patients/server/ai-repository";
 import { PATIENTS_TRANSLATION_KEY } from "@/features/patients/types";
 import { assertAdmin } from "@/lib/auth/admin-guard";
 import type { LocaleParams } from "@/types/next";
@@ -107,6 +112,9 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
     patientMerges,
     reconciliationConflicts,
     passports,
+    classificationsToReview,
+    pendingExtractionCandidates,
+    currentAiSummary,
   ] = await Promise.all([
     listIdentifiersForPatient(patientId),
     listContactsForPatient(patientId),
@@ -133,6 +141,9 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
     listMergesForPatient(patientId),
     findReconciliationConflicts(patientId),
     listPassportsForPatient(patientId),
+    listClassificationsRequiringReview(patientId),
+    listExtractionCandidatesForPatient(patientId, "pending"),
+    getCurrentSummary(patientId),
   ]);
 
   const candidatesWithOther = await Promise.all(
@@ -178,6 +189,9 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
       patientMerges={mergesWithOther}
       reconciliationConflicts={reconciliationConflicts}
       passports={passports}
+      classificationsToReview={classificationsToReview}
+      pendingExtractionCandidates={pendingExtractionCandidates}
+      currentAiSummary={currentAiSummary}
     />
   );
 }

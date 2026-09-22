@@ -14007,6 +14007,7 @@
         "access": "الوصول والمشاركة",
         "identity": "الهوية",
         "passport": "جواز السفر الصحي",
+        "ai": "المساعد الذكي",
         "timeline": "الجدول الزمني",
         "notes": "الملاحظات"
       },
@@ -14090,7 +14091,12 @@
           "patient_merged": "تم دمج المريض",
           "patient_unmerged": "تم التراجع عن دمج المريض",
           "reconciliation_resolved": "تمت تسوية السجل",
-          "passport_generated": "تم إنشاء جواز المريض الصحي"
+          "passport_generated": "تم إنشاء جواز المريض الصحي",
+          "document_classification_run": "تم تشغيل تصنيف المستند",
+          "ai_extraction_run": "تم تشغيل الاستخراج الذكي",
+          "ai_extraction_reviewed": "تمت مراجعة الاستخراج الذكي",
+          "ai_summary_generated": "تم إنشاء الملخص الذكي",
+          "ai_translation_requested": "تم طلب الترجمة الذكية"
         }
       },
       "notes": {
@@ -14544,6 +14550,40 @@
           "diagnostic_results": "نتائج التشخيص الأخيرة",
           "imaging": "مراجع التصوير",
           "emergency_contact": "جهة اتصال الطوارئ"
+        }
+      },
+      "ai": {
+        "providerNotice": "لم يتم تكوين أي مزود ذكاء اصطناعي لهذا النظام. ستبقى قوائم المراجعة أدناه فارغة وستُبلّغ إجراءات التوليد بحالة \"غير مُهيّأ\" حتى يتم إعداد مزود.",
+        "documentClassification": "تصنيف المستند",
+        "extractionQueue": "قائمة مراجعة الاستخراج",
+        "approve": "قبول",
+        "reject": "رفض",
+        "defer": "تأجيل",
+        "reviewed": "تمت المراجعة",
+        "summary": "الملخص الذكي",
+        "generateSummary": "إنشاء ملخص",
+        "summaryGenerated": "تم إنشاء الملخص",
+        "translation": "الترجمة بمساعدة الذكاء الاصطناعي",
+        "selectDocument": "اختر مستندًا",
+        "requestTranslation": "طلب الترجمة",
+        "translationRequested": "تم طلب الترجمة",
+        "readinessAssistant": "مساعد جاهزية الحالة",
+        "readinessDisclaimer": "مساعدة تشغيلية فقط — ليست قرارًا بالأهلية الطبية.",
+        "suggestedRecords": "سجلات قد ترغب في إرفاقها بهذه الحالة",
+        "candidateTypes": {
+          "condition": "حالة",
+          "medication": "دواء",
+          "lab_observation": "نتيجة مختبر",
+          "procedure": "إجراء",
+          "provider_facility": "مقدم الخدمة/المنشأة"
+        },
+        "alertTypes": {
+          "missing_requirement": "مفقود",
+          "expired_requirement": "منتهي الصلاحية",
+          "duplicate_document": "تكرار محتمل"
+        },
+        "errors": {
+          "notConfigured": "لم يتم تكوين أي مزود ذكاء اصطناعي لهذا النظام بعد."
         }
       },
       "errors": {

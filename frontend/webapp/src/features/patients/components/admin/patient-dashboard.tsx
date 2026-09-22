@@ -34,6 +34,7 @@ import type {
 import type { PatientConsentRow, ShareGrantRow } from "../../sharing-types";
 import type { PatientMatchCandidateRow, PatientMergeRow, ReconciliationConflict } from "../../identity-types";
 import type { PatientPassportRow } from "../../passport-types";
+import type { AiExtractionCandidateRow, AiSummaryRow, DocumentClassificationRow } from "../../ai-types";
 import type {
   AccountPatientLinkRow,
   PatientAddressRow,
@@ -45,6 +46,7 @@ import type {
 } from "../../types";
 import { PATIENTS_TRANSLATION_KEY } from "../../types";
 import { AccessTab } from "./patient-access-tab";
+import { AiTab } from "./patient-ai-tab";
 import { CasesTab } from "./patient-cases-tab";
 import { ClinicalTab } from "./patient-clinical-tab";
 import { DocumentsTab } from "./patient-documents-tab";
@@ -103,6 +105,9 @@ export function PatientDashboard({
   patientMerges,
   reconciliationConflicts,
   passports,
+  classificationsToReview,
+  pendingExtractionCandidates,
+  currentAiSummary,
 }: {
   patient: PatientRow;
   identifiers: PatientIdentifierRow[];
@@ -131,6 +136,9 @@ export function PatientDashboard({
   patientMerges: { merge: PatientMergeRow; otherPatient: PatientRow | null; isSurvivor: boolean }[];
   reconciliationConflicts: ReconciliationConflict[];
   passports: PatientPassportRow[];
+  classificationsToReview: DocumentClassificationRow[];
+  pendingExtractionCandidates: AiExtractionCandidateRow[];
+  currentAiSummary: AiSummaryRow | null;
 }) {
   const t = useTranslations(PATIENTS_TRANSLATION_KEY);
 
@@ -193,6 +201,7 @@ export function PatientDashboard({
           <TabsTrigger value="access">{t("admin.tabs.access")}</TabsTrigger>
           <TabsTrigger value="identity">{t("admin.tabs.identity")}</TabsTrigger>
           <TabsTrigger value="passport">{t("admin.tabs.passport")}</TabsTrigger>
+          <TabsTrigger value="ai">{t("admin.tabs.ai")}</TabsTrigger>
           <TabsTrigger value="timeline">{t("admin.tabs.timeline")}</TabsTrigger>
           <TabsTrigger value="notes">{t("admin.tabs.notes")}</TabsTrigger>
         </TabsList>
@@ -250,6 +259,16 @@ export function PatientDashboard({
 
         <TabsContent value="passport" className="pt-4">
           <PassportTab patientId={patient.id} passports={passports} />
+        </TabsContent>
+
+        <TabsContent value="ai" className="pt-4">
+          <AiTab
+            patientId={patient.id}
+            classificationsToReview={classificationsToReview}
+            pendingCandidates={pendingExtractionCandidates}
+            currentSummary={currentAiSummary}
+            documents={documents}
+          />
         </TabsContent>
 
         <TabsContent value="timeline" className="pt-4">
@@ -432,6 +451,11 @@ const TIMELINE_EVENT_TYPES = [
   "patient_unmerged",
   "reconciliation_resolved",
   "passport_generated",
+  "document_classification_run",
+  "ai_extraction_run",
+  "ai_extraction_reviewed",
+  "ai_summary_generated",
+  "ai_translation_requested",
 ] as const;
 
 function TimelineTab({ patientId, initialEvents }: { patientId: string; initialEvents: PatientTimelineEventRow[] }) {

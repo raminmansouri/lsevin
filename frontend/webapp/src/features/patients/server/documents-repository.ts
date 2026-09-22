@@ -4,6 +4,7 @@ import db from "@/config/database/db";
 
 import type {
   ClinicalDocumentRow,
+  ClinicalDocumentTranslationRow,
   ClinicalObservationRow,
   DiagnosticReportRow,
   ImagingStudyRow,
@@ -315,17 +316,18 @@ export async function addClinicalObservation(input: {
   referenceHigh?: number;
   interpretation?: string;
   effectiveAt: string;
+  sourceDocumentId?: string;
   createdBy?: string | null;
 }): Promise<ClinicalObservationRow> {
   const rows = await db<any[]>`
     insert into patient.clinical_observations (
       patient_id, diagnostic_report_id, code, display_name, value_number, value_text, unit,
-      reference_low, reference_high, interpretation, effective_at, created_by
+      reference_low, reference_high, interpretation, effective_at, source_document_id, created_by
     ) values (
       ${input.patientId}, ${input.diagnosticReportId ?? null}, ${input.code ?? null}, ${input.displayName},
       ${input.valueNumber ?? null}, ${input.valueText ?? null}, ${input.unit ?? null},
       ${input.referenceLow ?? null}, ${input.referenceHigh ?? null}, ${input.interpretation ?? null},
-      ${input.effectiveAt}, ${input.createdBy ?? null}
+      ${input.effectiveAt}, ${input.sourceDocumentId ?? null}, ${input.createdBy ?? null}
     )
     returning *
   `;
@@ -395,4 +397,66 @@ export async function archiveImagingStudy(id: string): Promise<ImagingStudyRow |
     update patient.imaging_studies set status = 'archived', last_modified_date = now() where id = ${id} and status != 'archived' returning *
   `;
   return rows[0] ? mapImagingStudy(rows[0]) : null;
+}
+
+// --- Document translations (V3.3 table, CRUD closed out here for V8.6) ----
+
+function mapDocumentTranslation(row: any): ClinicalDocumentTranslationRow {
+  return {
+    id: row.id,
+    documentId: row.document_id,
+    sourceLanguage: row.source_language,
+    targetLanguage: row.target_language,
+    translationType: row.translation_type,
+    translatedText: row.translated_text,
+    translatedFileUrl: row.translated_file_url,
+    translationStatus: row.translation_status,
+    translatedBy: row.translated_by,
+    verifiedBy: row.verified_by,
+    verifiedAt: row.verified_at,
+    createdAt: row.create_date,
+  };
+}
+
+export async function addDocumentTranslation(input: {
+  documentId: string;
+  sourceLanguage: string;
+  targetLanguage: string;
+  translationType: "human" | "ai" | "provider";
+  translatedText?: string;
+  translationStatus?: string;
+  translatedBy?: string | null;
+}): Promise<ClinicalDocumentTranslationRow> {
+  const rows = await db<any[]>`
+    insert into patient.clinical_document_translations (
+      document_id, source_language, target_language, translation_type, translated_text, translation_status, translated_by
+    ) values (
+      ${input.documentId}, ${input.sourceLanguage}, ${input.targetLanguage}, ${input.translationType},
+      ${input.translatedText ?? null}, ${input.translationStatus ?? "pending"}, ${input.translatedBy ?? null}
+    )
+    returning *
+  `;
+  return mapDocumentTranslation(rows[0]);
+}
+
+export async function listTranslationsForDocument(documentId: string): Promise<ClinicalDocumentTranslationRow[]> {
+  const rows = await db<any[]>`
+    select * from patient.clinical_document_translations where document_id = ${documentId} order by create_date desc
+  `;
+  return rows.map(mapDocumentTranslation);
+}
+
+/** Human verification never edits a machine translation in place -- it
+ * marks it verified, preserving that the text originated from a model
+ * (spec V8.6: "label machine translated output... support human
+ * verification"). A corrected translation is a new row, same as document
+ * versioning's own "never overwrite" rule. */
+export async function verifyDocumentTranslation(id: string, verifierId: string): Promise<ClinicalDocumentTranslationRow | null> {
+  const rows = await db<any[]>`
+    update patient.clinical_document_translations
+    set translation_status = 'completed', verified_by = ${verifierId}, verified_at = now()
+    where id = ${id}
+    returning *
+  `;
+  return rows[0] ? mapDocumentTranslation(rows[0]) : null;
 }
