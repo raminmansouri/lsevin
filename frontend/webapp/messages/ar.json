@@ -14006,6 +14006,7 @@
         "documents": "المستندات",
         "access": "الوصول والمشاركة",
         "identity": "الهوية",
+        "passport": "جواز السفر الصحي",
         "timeline": "الجدول الزمني",
         "notes": "الملاحظات"
       },
@@ -14088,7 +14089,8 @@
           "match_candidate_reviewed": "تمت مراجعة تطابق محتمل",
           "patient_merged": "تم دمج المريض",
           "patient_unmerged": "تم التراجع عن دمج المريض",
-          "reconciliation_resolved": "تمت تسوية السجل"
+          "reconciliation_resolved": "تمت تسوية السجل",
+          "passport_generated": "تم إنشاء جواز المريض الصحي"
         }
       },
       "notes": {
@@ -14519,6 +14521,29 @@
         "errors": {
           "alreadyMerged": "تم دمج أحد هذين المريضين بالفعل.",
           "alreadyReversed": "تم التراجع عن هذا الدمج بالفعل."
+        }
+      },
+      "passport": {
+        "generate": "إنشاء جواز السفر الصحي",
+        "generated": "تم إنشاء الجواز",
+        "history": "الجوازات المُنشأة",
+        "missingSectionsNotice": "الأجهزة/الغرسات والتطعيمات غير مسجلة في هذا النظام بعد، لذا لا تُعرض كأقسام قابلة للاختيار.",
+        "viewFhirBundle": "عرض حزمة FHIR",
+        "languages": {
+          "fa": "الفارسية",
+          "ar": "العربية",
+          "en": "الإنجليزية",
+          "tr": "التركية"
+        },
+        "sections": {
+          "demographics": "البيانات الشخصية",
+          "allergies": "الحساسيات",
+          "medications": "الأدوية الحالية",
+          "conditions": "الحالات النشطة",
+          "procedures": "الإجراءات السابقة",
+          "diagnostic_results": "نتائج التشخيص الأخيرة",
+          "imaging": "مراجع التصوير",
+          "emergency_contact": "جهة اتصال الطوارئ"
         }
       },
       "errors": {

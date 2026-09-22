@@ -37,6 +37,7 @@ import {
   listMatchCandidatesForPatient,
   listMergesForPatient,
 } from "@/features/patients/server/identity-repository";
+import { listPassportsForPatient } from "@/features/patients/server/passport-repository";
 import { PATIENTS_TRANSLATION_KEY } from "@/features/patients/types";
 import { assertAdmin } from "@/lib/auth/admin-guard";
 import type { LocaleParams } from "@/types/next";
@@ -105,6 +106,7 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
     matchCandidates,
     patientMerges,
     reconciliationConflicts,
+    passports,
   ] = await Promise.all([
     listIdentifiersForPatient(patientId),
     listContactsForPatient(patientId),
@@ -130,6 +132,7 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
     listMatchCandidatesForPatient(patientId),
     listMergesForPatient(patientId),
     findReconciliationConflicts(patientId),
+    listPassportsForPatient(patientId),
   ]);
 
   const candidatesWithOther = await Promise.all(
@@ -174,6 +177,7 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
       matchCandidates={candidatesWithOther}
       patientMerges={mergesWithOther}
       reconciliationConflicts={reconciliationConflicts}
+      passports={passports}
     />
   );
 }

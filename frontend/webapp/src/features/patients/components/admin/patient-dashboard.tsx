@@ -33,6 +33,7 @@ import type {
 } from "../../documents-types";
 import type { PatientConsentRow, ShareGrantRow } from "../../sharing-types";
 import type { PatientMatchCandidateRow, PatientMergeRow, ReconciliationConflict } from "../../identity-types";
+import type { PatientPassportRow } from "../../passport-types";
 import type {
   AccountPatientLinkRow,
   PatientAddressRow,
@@ -48,6 +49,7 @@ import { CasesTab } from "./patient-cases-tab";
 import { ClinicalTab } from "./patient-clinical-tab";
 import { DocumentsTab } from "./patient-documents-tab";
 import { IdentityTab } from "./patient-identity-tab";
+import { PassportTab } from "./patient-passport-tab";
 import {
   AddContactDialog,
   AddIdentifierDialog,
@@ -100,6 +102,7 @@ export function PatientDashboard({
   matchCandidates,
   patientMerges,
   reconciliationConflicts,
+  passports,
 }: {
   patient: PatientRow;
   identifiers: PatientIdentifierRow[];
@@ -127,6 +130,7 @@ export function PatientDashboard({
   matchCandidates: { candidate: PatientMatchCandidateRow; otherPatient: PatientRow | null }[];
   patientMerges: { merge: PatientMergeRow; otherPatient: PatientRow | null; isSurvivor: boolean }[];
   reconciliationConflicts: ReconciliationConflict[];
+  passports: PatientPassportRow[];
 }) {
   const t = useTranslations(PATIENTS_TRANSLATION_KEY);
 
@@ -188,6 +192,7 @@ export function PatientDashboard({
           <TabsTrigger value="documents">{t("admin.tabs.documents")}</TabsTrigger>
           <TabsTrigger value="access">{t("admin.tabs.access")}</TabsTrigger>
           <TabsTrigger value="identity">{t("admin.tabs.identity")}</TabsTrigger>
+          <TabsTrigger value="passport">{t("admin.tabs.passport")}</TabsTrigger>
           <TabsTrigger value="timeline">{t("admin.tabs.timeline")}</TabsTrigger>
           <TabsTrigger value="notes">{t("admin.tabs.notes")}</TabsTrigger>
         </TabsList>
@@ -241,6 +246,10 @@ export function PatientDashboard({
             merges={patientMerges}
             conflicts={reconciliationConflicts}
           />
+        </TabsContent>
+
+        <TabsContent value="passport" className="pt-4">
+          <PassportTab patientId={patient.id} passports={passports} />
         </TabsContent>
 
         <TabsContent value="timeline" className="pt-4">
@@ -422,6 +431,7 @@ const TIMELINE_EVENT_TYPES = [
   "patient_merged",
   "patient_unmerged",
   "reconciliation_resolved",
+  "passport_generated",
 ] as const;
 
 function TimelineTab({ patientId, initialEvents }: { patientId: string; initialEvents: PatientTimelineEventRow[] }) {

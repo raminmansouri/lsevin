@@ -65,7 +65,10 @@ export type PatientAuditAction =
   | "match_candidate_reviewed"
   | "patient_merged"
   | "patient_unmerged"
-  | "reconciliation_resolved";
+  | "reconciliation_resolved"
+  | "fhir_resource_exported"
+  | "fhir_bundle_exported"
+  | "passport_generated";
 
 /**
  * `purpose`/`result`/`ipAddress`/`userAgent` were added in V5.6

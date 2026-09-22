@@ -15676,6 +15676,7 @@
         "documents": "Documents",
         "access": "Access & Sharing",
         "identity": "Identity",
+        "passport": "Passport",
         "timeline": "Timeline",
         "notes": "Notes"
       },
@@ -15758,7 +15759,8 @@
           "match_candidate_reviewed": "Duplicate match reviewed",
           "patient_merged": "Patient merged",
           "patient_unmerged": "Patient merge reversed",
-          "reconciliation_resolved": "Record reconciled"
+          "reconciliation_resolved": "Record reconciled",
+          "passport_generated": "Patient passport generated"
         }
       },
       "notes": {
@@ -16189,6 +16191,29 @@
         "errors": {
           "alreadyMerged": "One of these patients has already been merged.",
           "alreadyReversed": "This merge has already been reversed."
+        }
+      },
+      "passport": {
+        "generate": "Generate passport",
+        "generated": "Passport generated",
+        "history": "Generated passports",
+        "missingSectionsNotice": "Devices/implants and immunizations aren't tracked in this system yet, so they aren't offered as sections.",
+        "viewFhirBundle": "View FHIR bundle",
+        "languages": {
+          "fa": "Persian",
+          "ar": "Arabic",
+          "en": "English",
+          "tr": "Turkish"
+        },
+        "sections": {
+          "demographics": "Demographics",
+          "allergies": "Allergies",
+          "medications": "Current medications",
+          "conditions": "Active conditions",
+          "procedures": "Previous procedures",
+          "diagnostic_results": "Recent diagnostic results",
+          "imaging": "Imaging references",
+          "emergency_contact": "Emergency contact"
         }
       },
       "errors": {

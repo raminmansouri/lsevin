@@ -15676,6 +15676,7 @@
         "documents": "مستندات",
         "access": "دسترسی و اشتراک‌گذاری",
         "identity": "هویت",
+        "passport": "پاسپورت سلامت",
         "timeline": "جدول زمانی",
         "notes": "یادداشت‌ها"
       },
@@ -15758,7 +15759,8 @@
           "match_candidate_reviewed": "مورد تکراری بررسی شد",
           "patient_merged": "بیمار ادغام شد",
           "patient_unmerged": "ادغام بیمار بازگردانده شد",
-          "reconciliation_resolved": "رکورد آشتی‌داده شد"
+          "reconciliation_resolved": "رکورد آشتی‌داده شد",
+          "passport_generated": "پاسپورت بیمار ساخته شد"
         }
       },
       "notes": {
@@ -16189,6 +16191,29 @@
         "errors": {
           "alreadyMerged": "یکی از این بیماران قبلاً ادغام شده است.",
           "alreadyReversed": "این ادغام قبلاً بازگردانده شده است."
+        }
+      },
+      "passport": {
+        "generate": "ساخت پاسپورت سلامت",
+        "generated": "پاسپورت ساخته شد",
+        "history": "پاسپورت‌های ساخته‌شده",
+        "missingSectionsNotice": "تجهیزات/ایمپلنت‌ها و واکسیناسیون هنوز در این سیستم ثبت نمی‌شوند، بنابراین به‌عنوان بخش قابل انتخاب ارائه نمی‌شوند.",
+        "viewFhirBundle": "مشاهده بسته FHIR",
+        "languages": {
+          "fa": "فارسی",
+          "ar": "عربی",
+          "en": "انگلیسی",
+          "tr": "ترکی"
+        },
+        "sections": {
+          "demographics": "اطلاعات فردی",
+          "allergies": "حساسیت‌ها",
+          "medications": "داروهای فعلی",
+          "conditions": "بیماری‌های فعال",
+          "procedures": "اقدامات درمانی قبلی",
+          "diagnostic_results": "نتایج تشخیصی اخیر",
+          "imaging": "مراجع تصویربرداری",
+          "emergency_contact": "تماس اضطراری"
         }
       },
       "errors": {
