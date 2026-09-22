@@ -14,7 +14,10 @@ import type {
   PatientAddressRow,
   PatientContactRow,
   PatientIdentifierRow,
+  PatientNoteRow,
   PatientRow,
+  PatientSearchResultRow,
+  PatientTimelineEventRow,
 } from "../types";
 
 export async function patientSchemaExists(): Promise<boolean> {
@@ -89,6 +92,31 @@ function mapContactRow(row: any): PatientContactRow {
     isPrimary: row.is_primary,
     isVerified: row.is_verified,
     createdAt: row.create_date,
+  };
+}
+
+function mapTimelineRow(row: any): PatientTimelineEventRow {
+  return {
+    id: String(row.id),
+    action: row.action,
+    entityType: row.entity_type,
+    entityId: row.entity_id,
+    actorUserId: row.actor_user_id,
+    occurredAt: row.occurred_at,
+    metadata: row.metadata ?? {},
+  };
+}
+
+function mapNoteRow(row: any): PatientNoteRow {
+  return {
+    id: row.id,
+    patientId: row.patient_id,
+    body: row.body,
+    visibility: row.visibility,
+    status: row.status,
+    authorId: row.author_id,
+    createdAt: row.create_date,
+    archivedAt: row.archived_at,
   };
 }
 
@@ -383,4 +411,155 @@ export async function listAddressesForPatient(patientId: string): Promise<Patien
     order by is_primary desc, create_date asc
   `;
   return rows.map(mapAddressRow);
+}
+
+export async function listAccountLinksForPatient(patientId: string): Promise<AccountPatientLinkRow[]> {
+  const rows = await db<any[]>`
+    select * from patient.account_patient_links
+    where patient_id = ${patientId} and valid_until is null
+    order by is_primary_profile desc, create_date asc
+  `;
+  return rows.map(mapAccountLinkRow);
+}
+
+/**
+ * V1.2 Timeline. Reads patient.audit_log directly rather than a separate
+ * timeline table -- "Timeline MUST aggregate events rather than duplicate
+ * source data" (spec V1.2). Every V0 write action already records here (see
+ * server/audit.ts), tagging entity-owned events with `metadata.patientId`
+ * for the ones where entity_id is the child row's own id, not the patient's.
+ */
+export async function getPatientTimeline(
+  patientId: string,
+  filters?: {
+    eventType?: string;
+    from?: string;
+    to?: string;
+    order?: "newest_first" | "oldest_first";
+    limit?: number;
+  }
+): Promise<PatientTimelineEventRow[]> {
+  const limit = Math.min(Math.max(filters?.limit ?? 50, 1), 200);
+  const direction = filters?.order === "oldest_first" ? db`asc` : db`desc`;
+  const eventType = filters?.eventType ?? null;
+  const from = filters?.from ?? null;
+  const to = filters?.to ?? null;
+
+  const rows = await db<any[]>`
+    select id, action, entity_type, entity_id, actor_user_id, occurred_at, metadata
+    from patient.audit_log
+    where (
+      (entity_type = 'patient' and entity_id = ${patientId})
+      or (entity_type in ('patient_identifier', 'account_patient_link', 'patient_contact', 'patient_address', 'patient_internal_note')
+          and metadata ->> 'patientId' = ${patientId})
+    )
+    and (${eventType}::text is null or action = ${eventType})
+    and (${from}::date is null or occurred_at >= ${from}::date)
+    and (${to}::date is null or occurred_at < (${to}::date + interval '1 day'))
+    order by occurred_at ${direction}
+    limit ${limit}
+  `;
+  return rows.map(mapTimelineRow);
+}
+
+/**
+ * V1.4 search. Exact identifier/public-id/contact matches rank above weak
+ * name matches (spec V1.4: "exact identifiers MUST rank higher than weak
+ * demographic matching"), implemented as four separate lookups run in
+ * priority order rather than one scored query -- small per-patient/result
+ * volumes here don't justify a ranking function, and this way each match
+ * reason is explicit rather than inferred from a score.
+ */
+export async function searchPatients(query: string, limit = 20): Promise<PatientSearchResultRow[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  const results: PatientSearchResultRow[] = [];
+  const seen = new Set<string>();
+  const take = (rows: any[], matchType: PatientSearchResultRow["matchType"]) => {
+    for (const row of rows) {
+      if (seen.has(row.id) || results.length >= limit) continue;
+      seen.add(row.id);
+      results.push({ ...mapPatientRow(row), matchType });
+    }
+  };
+
+  const byPublicId = await db<any[]>`
+    select * from patient.patients where upper(public_id) = upper(${trimmed})
+  `;
+  take(byPublicId, "public_id");
+
+  if (results.length < limit) {
+    const normalizedHash = hashIdentifierValue(normalizeIdentifierValue(trimmed));
+    const byIdentifier = await db<any[]>`
+      select distinct p.* from patient.patients p
+      join patient.patient_identifiers i on i.patient_id = p.id
+      where i.status = 'active' and i.normalized_value_hash = ${normalizedHash}
+      limit ${limit}
+    `;
+    take(byIdentifier, "identifier");
+  }
+
+  if (results.length < limit) {
+    const byContact = await db<any[]>`
+      select distinct p.* from patient.patients p
+      join patient.patient_contacts c on c.patient_id = p.id
+      where c.valid_until is null and lower(c.value) = lower(${trimmed})
+      limit ${limit}
+    `;
+    take(byContact, "contact");
+  }
+
+  if (results.length < limit) {
+    const byName = await db<any[]>`
+      select * from patient.patients
+      where first_name ilike ${"%" + trimmed + "%"}
+         or last_name ilike ${"%" + trimmed + "%"}
+         or coalesce(preferred_name, '') ilike ${"%" + trimmed + "%"}
+      order by last_name, first_name
+      limit ${limit - results.length}
+    `;
+    take(byName, "name");
+  }
+
+  return results;
+}
+
+export async function addPatientNote(input: {
+  patientId: string;
+  body: string;
+  visibility?: string;
+  authorId?: string | null;
+}): Promise<PatientNoteRow> {
+  const rows = await db<any[]>`
+    insert into patient.patient_internal_notes (patient_id, body, visibility, author_id)
+    values (${input.patientId}, ${input.body}, ${input.visibility ?? "admin"}, ${input.authorId ?? null})
+    returning *
+  `;
+  return mapNoteRow(rows[0]);
+}
+
+export async function listNotesForPatient(patientId: string, viewerCanSeeSuperadminNotes: boolean): Promise<PatientNoteRow[]> {
+  const rows = viewerCanSeeSuperadminNotes
+    ? await db<any[]>`
+        select * from patient.patient_internal_notes
+        where patient_id = ${patientId} and status = 'active'
+        order by create_date desc
+      `
+    : await db<any[]>`
+        select * from patient.patient_internal_notes
+        where patient_id = ${patientId} and status = 'active' and visibility = 'admin'
+        order by create_date desc
+      `;
+  return rows.map(mapNoteRow);
+}
+
+export async function archivePatientNote(noteId: string, archivedBy: string): Promise<PatientNoteRow | null> {
+  const rows = await db<any[]>`
+    update patient.patient_internal_notes
+    set status = 'archived', archived_at = now(), archived_by = ${archivedBy}, last_modified_date = now()
+    where id = ${noteId} and status = 'active'
+    returning *
+  `;
+  return rows[0] ? mapNoteRow(rows[0]) : null;
 }

@@ -28,6 +28,7 @@ import {
   GalleryHorizontal,
   Gift,
   Handshake,
+  HeartPulse,
   Images,
   Inbox,
   KeyRound,
@@ -179,6 +180,7 @@ export const ADMIN_NAV: AdminNavEntry[] = [
     items: [
       { titleKey: "customersList", href: "/admin/customers", icon: Users },
       { titleKey: "identityUsers", href: "/admin/identity-users", icon: UserCog },
+      { titleKey: "patients", href: "/admin/patients", icon: HeartPulse },
       { titleKey: "pickedLocations", href: "/admin/picked-locations", icon: MapPin },
     ],
   },

@@ -88,3 +88,36 @@ export type PatientAddressRow = {
   isPrimary: boolean;
   createdAt: string;
 };
+
+/** V1.2: read directly off patient.audit_log -- "Timeline MUST aggregate
+ * events rather than duplicate source data" (spec V1.2). */
+export type PatientTimelineEventRow = {
+  id: string;
+  action: string;
+  entityType: string;
+  entityId: string | null;
+  actorUserId: string | null;
+  occurredAt: string;
+  metadata: Record<string, unknown>;
+};
+
+export type PatientNoteRow = {
+  id: string;
+  patientId: string;
+  body: string;
+  visibility: "admin" | "superadmin";
+  status: "active" | "archived";
+  authorId: string | null;
+  createdAt: string;
+  archivedAt: string | null;
+};
+
+/** V1.4 search: matchType tells the UI/caller how the result was found, and
+ * ranks exact identifier/public-id matches above weak name matches -- per
+ * spec V1.4, "exact identifiers MUST rank higher than weak demographic
+ * matching." */
+export type PatientSearchMatchType = "public_id" | "identifier" | "contact" | "name";
+
+export type PatientSearchResultRow = PatientRow & {
+  matchType: PatientSearchMatchType;
+};

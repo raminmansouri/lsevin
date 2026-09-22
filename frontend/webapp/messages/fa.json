@@ -4372,6 +4372,7 @@
       "customers": "مشتریان",
       "customersList": "همه مشتریان",
       "identityUsers": "کاربران",
+      "patients": "بیماران",
       "pickedLocations": "مکان‌ها",
       "marketing": "بازاریابی",
       "loyaltyOverview": "نمای کلی وفاداری",
@@ -15589,6 +15590,143 @@
       "notFound": "بیمار یافت نشد.",
       "versionConflict": "این پرونده بیمار توسط شخص دیگری تغییر کرده است. صفحه را دوباره بارگذاری کرده و تلاش کنید.",
       "duplicateIdentifier": "این شناسه قبلاً به یک بیمار متصل شده است."
+    },
+    "admin": {
+      "title": "بیماران",
+      "description": "بیمار را جستجو کنید یا پرونده ۳۶۰ او را باز کنید.",
+      "detail": { "title": "پرونده ۳۶۰ بیمار" },
+      "schemaMissing": {
+        "title": "مایگریشن پایگاه‌داده اجرا نشده است",
+        "body": "برای فعال‌سازی این بخش، مایگریشن 0048_patient_foundation.sql را اجرا کنید."
+      },
+      "search": {
+        "title": "جستجوی بیماران",
+        "placeholder": "شناسه عمومی، کد ملی، پاسپورت، موبایل، ایمیل یا نام",
+        "submit": "جستجو",
+        "prompt": "برای یافتن بیمار عبارتی وارد کنید.",
+        "empty": "بیماری یافت نشد.",
+        "matchType": "یافت‌شده بر اساس",
+        "open": "باز کردن",
+        "matchTypes": {
+          "public_id": "شناسه عمومی",
+          "identifier": "شناسه",
+          "contact": "اطلاعات تماس",
+          "name": "نام"
+        }
+      },
+      "create": {
+        "trigger": "بیمار جدید",
+        "title": "بیمار جدید",
+        "cancel": "انصراف",
+        "save": "ذخیره",
+        "saving": "در حال ذخیره…",
+        "saved": "بیمار ایجاد شد"
+      },
+      "fields": {
+        "name": "نام",
+        "publicId": "شناسه عمومی",
+        "birthDate": "تاریخ تولد",
+        "status": "وضعیت",
+        "firstName": "نام",
+        "lastName": "نام خانوادگی",
+        "preferredName": "نام ترجیحی",
+        "age": "سن",
+        "nationality": "ملیت",
+        "primaryLanguage": "زبان اصلی",
+        "identifierType": "نوع شناسه",
+        "identifierValue": "مقدار شناسه",
+        "contactType": "نوع تماس",
+        "contactValue": "مقدار تماس",
+        "addressLine1": "آدرس",
+        "city": "شهر",
+        "countryCode": "کد کشور",
+        "accountId": "شناسه حساب",
+        "relationshipType": "نسبت"
+      },
+      "status": {
+        "active": "فعال",
+        "inactive": "غیرفعال",
+        "deceased": "فوت‌شده",
+        "merged": "ادغام‌شده",
+        "archived": "بایگانی‌شده"
+      },
+      "tabs": {
+        "overview": "نمای کلی",
+        "timeline": "جدول زمانی",
+        "notes": "یادداشت‌ها"
+      },
+      "overview": {
+        "identifiers": "شناسه‌ها",
+        "contacts": "راه‌های تماس",
+        "addresses": "آدرس‌ها",
+        "accounts": "حساب‌های متصل",
+        "add": "افزودن",
+        "empty": "هنوز چیزی ثبت نشده است.",
+        "primary": "اصلی",
+        "verified": "تأییدشده",
+        "unverified": "تأییدنشده",
+        "saved": "ذخیره شد",
+        "addIdentifier": "افزودن شناسه",
+        "addContact": "افزودن راه تماس",
+        "addAddress": "افزودن آدرس",
+        "linkAccount": "اتصال حساب"
+      },
+      "identifierTypes": {
+        "ir_national_id": "کد ملی ایران",
+        "national_id": "کد ملی",
+        "passport": "پاسپورت",
+        "foreigner_id": "شناسه اتباع خارجی",
+        "residence_permit": "اجازه اقامت",
+        "insurance_id": "شماره بیمه",
+        "hospital_mrn": "شماره پرونده بیمارستانی",
+        "lsevin_patient_number": "شماره بیمار السوین",
+        "temporary_id": "شناسه موقت",
+        "other": "سایر"
+      },
+      "contactTypes": {
+        "mobile": "موبایل",
+        "phone": "تلفن",
+        "whatsapp": "واتس‌اپ",
+        "email": "ایمیل",
+        "emergency": "تماس اضطراری"
+      },
+      "relationshipTypes": {
+        "self": "خود شخص",
+        "parent": "والد",
+        "child": "فرزند",
+        "guardian": "سرپرست قانونی",
+        "caregiver": "مراقب",
+        "authorized_person": "فرد مجاز",
+        "other": "سایر"
+      },
+      "timeline": {
+        "allEvents": "همه رویدادها",
+        "newestFirst": "جدیدترین ابتدا",
+        "oldestFirst": "قدیمی‌ترین ابتدا",
+        "empty": "هنوز فعالیتی ثبت نشده است.",
+        "events": {
+          "patient_created": "بیمار ایجاد شد",
+          "patient_updated": "پروفایل به‌روزرسانی شد",
+          "identifier_added": "شناسه اضافه شد",
+          "account_linked": "حساب متصل شد",
+          "contact_added": "راه تماس اضافه شد",
+          "address_added": "آدرس اضافه شد",
+          "note_added": "یادداشت اضافه شد"
+        }
+      },
+      "notes": {
+        "placeholder": "یادداشت داخلی درباره این بیمار بنویسید…",
+        "add": "افزودن یادداشت",
+        "saved": "یادداشت اضافه شد",
+        "archive": "بایگانی",
+        "archived": "یادداشت بایگانی شد",
+        "empty": "هنوز یادداشتی ثبت نشده است.",
+        "visibilityAdmin": "قابل مشاهده برای مدیران",
+        "visibilitySuperadmin": "فقط قابل مشاهده برای مدیران ارشد"
+      },
+      "errors": {
+        "generic": "خطایی رخ داد. لطفاً دوباره تلاش کنید."
+      }
     }
   }
 }

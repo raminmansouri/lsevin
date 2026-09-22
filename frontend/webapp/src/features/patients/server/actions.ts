@@ -10,6 +10,8 @@ import {
   AddPatientAddressSchema,
   AddPatientContactSchema,
   AddPatientIdentifierSchema,
+  AddPatientNoteSchema,
+  ArchivePatientNoteSchema,
   CreatePatientSchema,
   FindPatientByIdentifierSchema,
   LinkAccountToPatientSchema,
@@ -17,6 +19,8 @@ import {
   type AddPatientAddressInput,
   type AddPatientContactInput,
   type AddPatientIdentifierInput,
+  type AddPatientNoteInput,
+  type ArchivePatientNoteInput,
   type CreatePatientInput,
   type FindPatientByIdentifierInput,
   type LinkAccountToPatientInput,
@@ -28,6 +32,8 @@ import {
   addPatientAddress,
   addPatientContact,
   addPatientIdentifier,
+  addPatientNote,
+  archivePatientNote,
   createPatient,
   findActiveAccountPatientLink,
   findPatientIdByIdentifier,
@@ -37,7 +43,14 @@ import {
   updatePatient,
 } from "./repository";
 
-import type { AccountPatientLinkRow, PatientAddressRow, PatientContactRow, PatientIdentifierRow, PatientRow } from "../types";
+import type {
+  AccountPatientLinkRow,
+  PatientAddressRow,
+  PatientContactRow,
+  PatientIdentifierRow,
+  PatientNoteRow,
+  PatientRow,
+} from "../types";
 
 const ADMIN_PATIENTS_PATH = "/admin/patients";
 
@@ -215,6 +228,7 @@ export async function linkAccountToPatientAction(
     entityType: "account_patient_link",
     entityId: link.id,
     afterState: link,
+    metadata: { patientId: values.patientId },
   });
   revalidatePath(ADMIN_PATIENTS_PATH);
   return { ok: true, data: link };
@@ -284,4 +298,69 @@ export async function addPatientAddressAction(
   });
   revalidatePath(ADMIN_PATIENTS_PATH);
   return { ok: true, data: address };
+}
+
+export async function addPatientNoteAction(input: AddPatientNoteInput): Promise<PatientActionResult<PatientNoteRow>> {
+  const ctx = await assertAdmin();
+  const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
+  let values;
+  try {
+    values = AddPatientNoteSchema.parse(input);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return { ok: false, error: t("errors.invalidForm"), fieldErrors: fieldErrorsFrom(error) };
+    }
+    throw error;
+  }
+
+  // A non-superadmin cannot author a superadmin-only note -- otherwise any
+  // admin could write a note they themselves are then unable to read back.
+  const visibility = values.visibility === "superadmin" && !ctx.isSuperAdmin ? "admin" : values.visibility;
+
+  const patient = await getPatientById(values.patientId);
+  if (!patient) {
+    return { ok: false, error: t("errors.notFound") };
+  }
+
+  const note = await addPatientNote({ ...values, visibility, authorId: ctx.userId ?? null });
+  await recordPatientAuditEvent({
+    actorUserId: ctx.userId,
+    actorRoles: ctx.roles,
+    action: "note_added",
+    entityType: "patient_internal_note",
+    entityId: note.id,
+    metadata: { patientId: values.patientId },
+  });
+  revalidatePath(`${ADMIN_PATIENTS_PATH}/${values.patientId}`);
+  return { ok: true, data: note };
+}
+
+export async function archivePatientNoteAction(input: ArchivePatientNoteInput): Promise<PatientActionResult<PatientNoteRow>> {
+  const ctx = await assertAdmin();
+  const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
+  let values;
+  try {
+    values = ArchivePatientNoteSchema.parse(input);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return { ok: false, error: t("errors.invalidForm"), fieldErrors: fieldErrorsFrom(error) };
+    }
+    throw error;
+  }
+
+  const note = await archivePatientNote(values.noteId, ctx.userId ?? "");
+  if (!note) {
+    return { ok: false, error: t("errors.notFound") };
+  }
+
+  await recordPatientAuditEvent({
+    actorUserId: ctx.userId,
+    actorRoles: ctx.roles,
+    action: "note_archived",
+    entityType: "patient_internal_note",
+    entityId: note.id,
+    metadata: { patientId: note.patientId },
+  });
+  revalidatePath(`${ADMIN_PATIENTS_PATH}/${note.patientId}`);
+  return { ok: true, data: note };
 }

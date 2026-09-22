@@ -15,7 +15,9 @@ export type PatientAuditAction =
   | "account_linked"
   | "account_unlinked"
   | "contact_added"
-  | "address_added";
+  | "address_added"
+  | "note_added"
+  | "note_archived";
 
 export async function recordPatientAuditEvent(event: {
   actorUserId?: string | null;

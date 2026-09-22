@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 
 // Set before importing the module under test: the encryption/hash keys are
 // read lazily on first use (not at import time), but setting them up front
@@ -51,10 +51,12 @@ describe("patient identifier crypto (V0.2)", () => {
     try {
       // Force a fresh module instance so the lazily-cached key from earlier
       // tests in this file doesn't mask the missing-env-var path.
-      const { encryptIdentifierValue } = await import(`./crypto?missing-key-test`);
+      vi.resetModules();
+      const { encryptIdentifierValue } = await import("./crypto");
       expect(() => encryptIdentifierValue("x")).toThrow(/PATIENT_IDENTIFIER_ENCRYPTION_KEY/);
     } finally {
       process.env.PATIENT_IDENTIFIER_ENCRYPTION_KEY = originalKey;
+      vi.resetModules();
     }
   });
 });

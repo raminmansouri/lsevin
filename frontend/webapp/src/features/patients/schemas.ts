@@ -118,3 +118,31 @@ export const AddPatientAddressSchema = z.object({
   isPrimary: z.boolean().optional(),
 });
 export type AddPatientAddressInput = z.input<typeof AddPatientAddressSchema>;
+
+export const SearchPatientsSchema = z.object({
+  q: z.string().trim().min(1).max(200),
+  limit: z.number().int().min(1).max(100).optional(),
+});
+export type SearchPatientsInput = z.input<typeof SearchPatientsSchema>;
+
+export const AddPatientNoteSchema = z.object({
+  patientId: z.uuid(),
+  body: z.string().trim().min(1).max(5000),
+  visibility: z.enum(["admin", "superadmin"]).optional(),
+});
+export type AddPatientNoteInput = z.input<typeof AddPatientNoteSchema>;
+
+export const ArchivePatientNoteSchema = z.object({
+  noteId: z.uuid(),
+});
+export type ArchivePatientNoteInput = z.input<typeof ArchivePatientNoteSchema>;
+
+export const GetPatientTimelineSchema = z.object({
+  patientId: z.uuid(),
+  eventType: z.string().trim().max(50).optional(),
+  from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  order: z.enum(["newest_first", "oldest_first"]).optional(),
+  limit: z.number().int().min(1).max(200).optional(),
+});
+export type GetPatientTimelineInput = z.input<typeof GetPatientTimelineSchema>;

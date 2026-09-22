@@ -52,7 +52,7 @@ export async function POST(request: NextRequest, context: Context) {
     entityType: "account_patient_link",
     entityId: link.id,
     afterState: link,
-    metadata: { via: "api" },
+    metadata: { patientId, via: "api" },
   });
 
   return NextResponse.json({ item: link }, { status: 201 });

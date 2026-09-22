@@ -13920,6 +13920,143 @@
       "notFound": "لم يتم العثور على المريض.",
       "versionConflict": "تم تعديل هذا المريض من قبل شخص آخر. أعد تحميل الصفحة وحاول مرة أخرى.",
       "duplicateIdentifier": "هذا المعرف مرتبط بالفعل بمريض آخر."
+    },
+    "admin": {
+      "title": "المرضى",
+      "description": "ابحث عن مريض أو افتح سجله الشامل (360).",
+      "detail": { "title": "السجل الشامل للمريض" },
+      "schemaMissing": {
+        "title": "لم يتم تشغيل ترحيل قاعدة البيانات بعد",
+        "body": "لتفعيل هذا القسم، نفّذ الترحيل 0048_patient_foundation.sql."
+      },
+      "search": {
+        "title": "بحث عن المرضى",
+        "placeholder": "المعرف العام، الرقم الوطني، جواز السفر، الجوال، البريد الإلكتروني أو الاسم",
+        "submit": "بحث",
+        "prompt": "أدخل كلمة بحث للعثور على مريض.",
+        "empty": "لا يوجد مرضى مطابقون.",
+        "matchType": "تم العثور عبر",
+        "open": "فتح",
+        "matchTypes": {
+          "public_id": "المعرف العام",
+          "identifier": "المعرف",
+          "contact": "بيانات التواصل",
+          "name": "الاسم"
+        }
+      },
+      "create": {
+        "trigger": "مريض جديد",
+        "title": "مريض جديد",
+        "cancel": "إلغاء",
+        "save": "حفظ",
+        "saving": "جارٍ الحفظ…",
+        "saved": "تم إنشاء المريض"
+      },
+      "fields": {
+        "name": "الاسم",
+        "publicId": "المعرف العام",
+        "birthDate": "تاريخ الميلاد",
+        "status": "الحالة",
+        "firstName": "الاسم الأول",
+        "lastName": "اسم العائلة",
+        "preferredName": "الاسم المفضل",
+        "age": "العمر",
+        "nationality": "الجنسية",
+        "primaryLanguage": "اللغة الأساسية",
+        "identifierType": "نوع المعرف",
+        "identifierValue": "قيمة المعرف",
+        "contactType": "نوع التواصل",
+        "contactValue": "قيمة التواصل",
+        "addressLine1": "العنوان",
+        "city": "المدينة",
+        "countryCode": "رمز الدولة",
+        "accountId": "معرف الحساب",
+        "relationshipType": "العلاقة"
+      },
+      "status": {
+        "active": "نشط",
+        "inactive": "غير نشط",
+        "deceased": "متوفى",
+        "merged": "مدمج",
+        "archived": "مؤرشف"
+      },
+      "tabs": {
+        "overview": "نظرة عامة",
+        "timeline": "الجدول الزمني",
+        "notes": "الملاحظات"
+      },
+      "overview": {
+        "identifiers": "المعرفات",
+        "contacts": "وسائل التواصل",
+        "addresses": "العناوين",
+        "accounts": "الحسابات المرتبطة",
+        "add": "إضافة",
+        "empty": "لا يوجد شيء هنا بعد.",
+        "primary": "أساسي",
+        "verified": "موثّق",
+        "unverified": "غير موثّق",
+        "saved": "تم الحفظ",
+        "addIdentifier": "إضافة معرف",
+        "addContact": "إضافة وسيلة تواصل",
+        "addAddress": "إضافة عنوان",
+        "linkAccount": "ربط حساب"
+      },
+      "identifierTypes": {
+        "ir_national_id": "الرقم الوطني الإيراني",
+        "national_id": "الرقم الوطني",
+        "passport": "جواز السفر",
+        "foreigner_id": "معرف الأجانب",
+        "residence_permit": "تصريح الإقامة",
+        "insurance_id": "رقم التأمين",
+        "hospital_mrn": "رقم الملف الطبي بالمستشفى",
+        "lsevin_patient_number": "رقم مريض LSevin",
+        "temporary_id": "معرف مؤقت",
+        "other": "أخرى"
+      },
+      "contactTypes": {
+        "mobile": "الجوال",
+        "phone": "الهاتف",
+        "whatsapp": "واتساب",
+        "email": "البريد الإلكتروني",
+        "emergency": "جهة اتصال للطوارئ"
+      },
+      "relationshipTypes": {
+        "self": "الشخص نفسه",
+        "parent": "الوالد",
+        "child": "الطفل",
+        "guardian": "الوصي",
+        "caregiver": "مقدم الرعاية",
+        "authorized_person": "شخص مخوّل",
+        "other": "أخرى"
+      },
+      "timeline": {
+        "allEvents": "جميع الأحداث",
+        "newestFirst": "الأحدث أولاً",
+        "oldestFirst": "الأقدم أولاً",
+        "empty": "لا يوجد نشاط مسجل بعد.",
+        "events": {
+          "patient_created": "تم إنشاء المريض",
+          "patient_updated": "تم تحديث الملف الشخصي",
+          "identifier_added": "تمت إضافة معرف",
+          "account_linked": "تم ربط الحساب",
+          "contact_added": "تمت إضافة وسيلة تواصل",
+          "address_added": "تمت إضافة عنوان",
+          "note_added": "تمت إضافة ملاحظة"
+        }
+      },
+      "notes": {
+        "placeholder": "اكتب ملاحظة داخلية حول هذا المريض…",
+        "add": "إضافة ملاحظة",
+        "saved": "تمت إضافة الملاحظة",
+        "archive": "أرشفة",
+        "archived": "تمت أرشفة الملاحظة",
+        "empty": "لا توجد ملاحظات بعد.",
+        "visibilityAdmin": "مرئي للمسؤولين",
+        "visibilitySuperadmin": "مرئي فقط للمسؤولين الرئيسيين"
+      },
+      "errors": {
+        "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+      }
     }
   }
 }

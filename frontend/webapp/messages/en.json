@@ -5152,6 +5152,7 @@
       "customers": "Customers",
       "customersList": "All customers",
       "identityUsers": "Users",
+      "patients": "Patients",
       "pickedLocations": "Locations",
       "marketing": "Marketing",
       "loyaltyOverview": "Loyalty overview",
@@ -15589,6 +15590,143 @@
       "notFound": "Patient not found.",
       "versionConflict": "This patient was modified by someone else. Reload and try again.",
       "duplicateIdentifier": "This identifier is already attached to a patient."
+    },
+    "admin": {
+      "title": "Patients",
+      "description": "Search for a patient or open their Patient 360 record.",
+      "detail": { "title": "Patient 360" },
+      "schemaMissing": {
+        "title": "Database migration pending",
+        "body": "Apply migration 0048_patient_foundation.sql to enable this section."
+      },
+      "search": {
+        "title": "Search patients",
+        "placeholder": "Public ID, national ID, passport, mobile, email or name",
+        "submit": "Search",
+        "prompt": "Enter a search term to find a patient.",
+        "empty": "No matching patients.",
+        "matchType": "Matched by",
+        "open": "Open",
+        "matchTypes": {
+          "public_id": "Public ID",
+          "identifier": "Identifier",
+          "contact": "Contact",
+          "name": "Name"
+        }
+      },
+      "create": {
+        "trigger": "New patient",
+        "title": "New patient",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving…",
+        "saved": "Patient created"
+      },
+      "fields": {
+        "name": "Name",
+        "publicId": "Public ID",
+        "birthDate": "Date of birth",
+        "status": "Status",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "preferredName": "Preferred name",
+        "age": "Age",
+        "nationality": "Nationality",
+        "primaryLanguage": "Primary language",
+        "identifierType": "Identifier type",
+        "identifierValue": "Identifier value",
+        "contactType": "Contact type",
+        "contactValue": "Contact value",
+        "addressLine1": "Address",
+        "city": "City",
+        "countryCode": "Country code",
+        "accountId": "Account ID",
+        "relationshipType": "Relationship"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "deceased": "Deceased",
+        "merged": "Merged",
+        "archived": "Archived"
+      },
+      "tabs": {
+        "overview": "Overview",
+        "timeline": "Timeline",
+        "notes": "Notes"
+      },
+      "overview": {
+        "identifiers": "Identifiers",
+        "contacts": "Contact methods",
+        "addresses": "Addresses",
+        "accounts": "Linked accounts",
+        "add": "Add",
+        "empty": "Nothing here yet.",
+        "primary": "Primary",
+        "verified": "Verified",
+        "unverified": "Unverified",
+        "saved": "Saved",
+        "addIdentifier": "Add identifier",
+        "addContact": "Add contact",
+        "addAddress": "Add address",
+        "linkAccount": "Link account"
+      },
+      "identifierTypes": {
+        "ir_national_id": "Iranian national ID",
+        "national_id": "National ID",
+        "passport": "Passport",
+        "foreigner_id": "Foreigner ID",
+        "residence_permit": "Residence permit",
+        "insurance_id": "Insurance ID",
+        "hospital_mrn": "Hospital MRN",
+        "lsevin_patient_number": "LSevin patient number",
+        "temporary_id": "Temporary ID",
+        "other": "Other"
+      },
+      "contactTypes": {
+        "mobile": "Mobile",
+        "phone": "Phone",
+        "whatsapp": "WhatsApp",
+        "email": "Email",
+        "emergency": "Emergency contact"
+      },
+      "relationshipTypes": {
+        "self": "Self",
+        "parent": "Parent",
+        "child": "Child",
+        "guardian": "Guardian",
+        "caregiver": "Caregiver",
+        "authorized_person": "Authorized person",
+        "other": "Other"
+      },
+      "timeline": {
+        "allEvents": "All events",
+        "newestFirst": "Newest first",
+        "oldestFirst": "Oldest first",
+        "empty": "No activity recorded yet.",
+        "events": {
+          "patient_created": "Patient created",
+          "patient_updated": "Profile updated",
+          "identifier_added": "Identifier added",
+          "account_linked": "Account linked",
+          "contact_added": "Contact added",
+          "address_added": "Address added",
+          "note_added": "Note added"
+        }
+      },
+      "notes": {
+        "placeholder": "Write an internal note about this patient…",
+        "add": "Add note",
+        "saved": "Note added",
+        "archive": "Archive",
+        "archived": "Note archived",
+        "empty": "No notes yet.",
+        "visibilityAdmin": "Visible to admins",
+        "visibilitySuperadmin": "Visible to super admins only"
+      },
+      "errors": {
+        "generic": "Something went wrong. Please try again."
+      }
     }
   }
 }
