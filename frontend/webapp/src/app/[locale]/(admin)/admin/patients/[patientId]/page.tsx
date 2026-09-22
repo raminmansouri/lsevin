@@ -14,6 +14,15 @@ import {
   listIdentifiersForPatient,
   listNotesForPatient,
 } from "@/features/patients/server/repository";
+import {
+  getPatientClinicalSummary,
+  listAllergiesForPatient,
+  listConditionsForPatient,
+  listMedicationsForPatient,
+  listProceduresForPatient,
+  listProductUsageForPatient,
+  listSymptomsForPatient,
+} from "@/features/patients/server/clinical-repository";
 import { PATIENTS_TRANSLATION_KEY } from "@/features/patients/types";
 import { assertAdmin } from "@/lib/auth/admin-guard";
 import type { LocaleParams } from "@/types/next";
@@ -57,13 +66,34 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
   const patient = await getPatientById(patientId);
   if (!patient) notFound();
 
-  const [identifiers, contacts, addresses, accountLinks, timeline, notes] = await Promise.all([
+  const [
+    identifiers,
+    contacts,
+    addresses,
+    accountLinks,
+    timeline,
+    notes,
+    clinicalSummary,
+    conditions,
+    procedures,
+    allergies,
+    medications,
+    productUsage,
+    symptoms,
+  ] = await Promise.all([
     listIdentifiersForPatient(patientId),
     listContactsForPatient(patientId),
     listAddressesForPatient(patientId),
     listAccountLinksForPatient(patientId),
     getPatientTimeline(patientId, { order: "newest_first", limit: 50 }),
     listNotesForPatient(patientId, ctx.isSuperAdmin),
+    getPatientClinicalSummary(patientId),
+    listConditionsForPatient(patientId),
+    listProceduresForPatient(patientId),
+    listAllergiesForPatient(patientId),
+    listMedicationsForPatient(patientId),
+    listProductUsageForPatient(patientId),
+    listSymptomsForPatient(patientId),
   ]);
 
   return (
@@ -76,6 +106,13 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
       timeline={timeline}
       notes={notes}
       canSeeSuperadminNotes={ctx.isSuperAdmin}
+      clinicalSummary={clinicalSummary}
+      conditions={conditions}
+      procedures={procedures}
+      allergies={allergies}
+      medications={medications}
+      productUsage={productUsage}
+      symptoms={symptoms}
     />
   );
 }

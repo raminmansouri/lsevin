@@ -14,6 +14,15 @@ import { useRouter } from "@/i18n/navigation";
 
 import { archivePatientNoteAction, addPatientNoteAction } from "../../server/actions";
 import type {
+  PatientAllergyRow,
+  PatientClinicalSummary,
+  PatientConditionRow,
+  PatientMedicationRow,
+  PatientProcedureRow,
+  PatientProductUsageRow,
+  PatientSymptomRow,
+} from "../../clinical-types";
+import type {
   AccountPatientLinkRow,
   PatientAddressRow,
   PatientContactRow,
@@ -23,6 +32,7 @@ import type {
   PatientTimelineEventRow,
 } from "../../types";
 import { PATIENTS_TRANSLATION_KEY } from "../../types";
+import { ClinicalTab } from "./patient-clinical-tab";
 import {
   AddContactDialog,
   AddIdentifierDialog,
@@ -57,6 +67,13 @@ export function PatientDashboard({
   timeline,
   notes,
   canSeeSuperadminNotes,
+  clinicalSummary,
+  conditions,
+  procedures,
+  allergies,
+  medications,
+  productUsage,
+  symptoms,
 }: {
   patient: PatientRow;
   identifiers: PatientIdentifierRow[];
@@ -66,12 +83,23 @@ export function PatientDashboard({
   timeline: PatientTimelineEventRow[];
   notes: PatientNoteRow[];
   canSeeSuperadminNotes: boolean;
+  clinicalSummary: PatientClinicalSummary;
+  conditions: PatientConditionRow[];
+  procedures: PatientProcedureRow[];
+  allergies: PatientAllergyRow[];
+  medications: PatientMedicationRow[];
+  productUsage: PatientProductUsageRow[];
+  symptoms: PatientSymptomRow[];
 }) {
   const t = useTranslations(PATIENTS_TRANSLATION_KEY);
 
   const age = patient.birthDate
     ? Math.floor((Date.now() - new Date(patient.birthDate).getTime()) / (365.25 * 24 * 3600 * 1000))
     : null;
+
+  // Critical allergies must stay visible near the top regardless of which
+  // tab is open (spec section 8 UX principles).
+  const criticalAllergyNames = clinicalSummary.criticalAllergies.map((a) => a.substance).filter(Boolean);
 
   return (
     <div className="space-y-5">
@@ -85,6 +113,11 @@ export function PatientDashboard({
               <Badge variant={patient.status === "active" ? "outline" : "secondary"}>
                 {t(`admin.status.${patient.status}`)}
               </Badge>
+              {criticalAllergyNames.length > 0 && (
+                <Badge variant="destructive">
+                  {t("admin.clinical.criticalAllergiesTitle")}: {criticalAllergyNames.join("، ")}
+                </Badge>
+              )}
             </div>
             <p dir="ltr" className="text-muted-foreground text-sm">
               {patient.publicId}
@@ -113,6 +146,7 @@ export function PatientDashboard({
       <Tabs defaultValue="overview" className="w-full">
         <TabsList>
           <TabsTrigger value="overview">{t("admin.tabs.overview")}</TabsTrigger>
+          <TabsTrigger value="clinical">{t("admin.tabs.clinical")}</TabsTrigger>
           <TabsTrigger value="timeline">{t("admin.tabs.timeline")}</TabsTrigger>
           <TabsTrigger value="notes">{t("admin.tabs.notes")}</TabsTrigger>
         </TabsList>
@@ -124,6 +158,19 @@ export function PatientDashboard({
             contacts={contacts}
             addresses={addresses}
             accountLinks={accountLinks}
+          />
+        </TabsContent>
+
+        <TabsContent value="clinical" className="pt-4">
+          <ClinicalTab
+            patientId={patient.id}
+            summary={clinicalSummary}
+            conditions={conditions}
+            procedures={procedures}
+            allergies={allergies}
+            medications={medications}
+            productUsage={productUsage}
+            symptoms={symptoms}
           />
         </TabsContent>
 
@@ -264,6 +311,12 @@ const TIMELINE_EVENT_TYPES = [
   "contact_added",
   "address_added",
   "note_added",
+  "condition_added",
+  "procedure_added",
+  "allergy_added",
+  "medication_added",
+  "product_usage_added",
+  "symptom_added",
 ] as const;
 
 function TimelineTab({ patientId, initialEvents }: { patientId: string; initialEvents: PatientTimelineEventRow[] }) {

@@ -15652,6 +15652,7 @@
       },
       "tabs": {
         "overview": "نمای کلی",
+        "clinical": "بالینی",
         "timeline": "جدول زمانی",
         "notes": "یادداشت‌ها"
       },
@@ -15711,7 +15712,13 @@
           "account_linked": "حساب متصل شد",
           "contact_added": "راه تماس اضافه شد",
           "address_added": "آدرس اضافه شد",
-          "note_added": "یادداشت اضافه شد"
+          "note_added": "یادداشت اضافه شد",
+          "condition_added": "بیماری اضافه شد",
+          "procedure_added": "اقدام درمانی اضافه شد",
+          "allergy_added": "حساسیت اضافه شد",
+          "medication_added": "دارو اضافه شد",
+          "product_usage_added": "مصرف محصول اضافه شد",
+          "symptom_added": "علامت اضافه شد"
         }
       },
       "notes": {
@@ -15723,6 +15730,97 @@
         "empty": "هنوز یادداشتی ثبت نشده است.",
         "visibilityAdmin": "قابل مشاهده برای مدیران",
         "visibilitySuperadmin": "فقط قابل مشاهده برای مدیران ارشد"
+      },
+      "clinical": {
+        "addAllergy": "افزودن حساسیت",
+        "addCondition": "افزودن بیماری",
+        "addMedication": "افزودن دارو",
+        "addProcedure": "افزودن اقدام درمانی",
+        "addProductUsage": "افزودن مصرف محصول",
+        "addSymptom": "افزودن علامت",
+        "allergies": "حساسیت‌ها",
+        "allergyCategories": {
+          "food": "غذایی",
+          "medication": "دارویی",
+          "environmental": "محیطی",
+          "biologic": "بیولوژیک",
+          "no_known_allergies": "بدون حساسیت شناخته‌شده",
+          "other": "سایر"
+        },
+        "archive": "بایگانی",
+        "archived": "بایگانی شد",
+        "conditions": "بیماری‌ها",
+        "conditionStatuses": {
+          "active": "فعال",
+          "inactive": "غیرفعال",
+          "resolved": "بهبودیافته",
+          "remission": "فروکش‌کرده",
+          "recurrence": "عودکرده",
+          "unknown": "نامشخص"
+        },
+        "criticalAllergiesTitle": "حساسیت‌های خطرناک",
+        "fields": {
+          "allergyCategory": "دسته",
+          "clinicalStatus": "وضعیت",
+          "displayName": "بیماری",
+          "dose": "دوز",
+          "frequency": "دفعات مصرف",
+          "medicationName": "دارو",
+          "medicationStatus": "وضعیت",
+          "notes": "یادداشت",
+          "onsetDate": "تاریخ شروع",
+          "patientDescription": "توضیح بیمار",
+          "performedFrom": "تاریخ انجام",
+          "procedureName": "اقدام درمانی",
+          "procedureStatus": "وضعیت",
+          "productCategory": "دسته",
+          "productName": "محصول",
+          "reaction": "واکنش",
+          "severity": "شدت",
+          "startDate": "تاریخ شروع",
+          "startedAt": "تاریخ شروع",
+          "substance": "ماده حساسیت‌زا",
+          "symptomName": "علامت"
+        },
+        "medications": "داروها",
+        "medicationStatuses": {
+          "planned": "برنامه‌ریزی‌شده",
+          "active": "فعال",
+          "completed": "تکمیل‌شده",
+          "stopped": "متوقف‌شده",
+          "unknown": "نامشخص"
+        },
+        "procedures": "اقدامات درمانی",
+        "procedureStatuses": {
+          "planned": "برنامه‌ریزی‌شده",
+          "in_progress": "در حال انجام",
+          "completed": "تکمیل‌شده",
+          "cancelled": "لغوشده",
+          "entered_in_error": "ثبت اشتباه"
+        },
+        "productUsage": "مصرف محصولات",
+        "productCategories": {
+          "supplement": "مکمل",
+          "cosmetic": "آرایشی-بهداشتی",
+          "medical_device": "تجهیزات پزشکی",
+          "nutrition": "تغذیه",
+          "other": "سایر"
+        },
+        "reportedOrPrescribed": {
+          "patient_reported": "گزارش بیمار",
+          "prescribed": "تجویزشده"
+        },
+        "symptoms": "علائم",
+        "verified": "تأییدشده",
+        "verificationStatuses": {
+          "patient_reported": "گزارش بیمار",
+          "imported": "وارد‌شده",
+          "unverified": "تأییدنشده",
+          "provisional": "موقت",
+          "verified": "تأییدشده",
+          "refuted": "ردشده",
+          "entered_in_error": "ثبت اشتباه"
+        }
       },
       "errors": {
         "generic": "خطایی رخ داد. لطفاً دوباره تلاش کنید."

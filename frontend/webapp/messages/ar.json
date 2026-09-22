@@ -13982,6 +13982,7 @@
       },
       "tabs": {
         "overview": "نظرة عامة",
+        "clinical": "السجل السريري",
         "timeline": "الجدول الزمني",
         "notes": "الملاحظات"
       },
@@ -14041,7 +14042,13 @@
           "account_linked": "تم ربط الحساب",
           "contact_added": "تمت إضافة وسيلة تواصل",
           "address_added": "تمت إضافة عنوان",
-          "note_added": "تمت إضافة ملاحظة"
+          "note_added": "تمت إضافة ملاحظة",
+          "condition_added": "تمت إضافة حالة",
+          "procedure_added": "تمت إضافة إجراء",
+          "allergy_added": "تمت إضافة حساسية",
+          "medication_added": "تمت إضافة دواء",
+          "product_usage_added": "تمت إضافة استخدام منتج",
+          "symptom_added": "تمت إضافة عرض"
         }
       },
       "notes": {
@@ -14053,6 +14060,97 @@
         "empty": "لا توجد ملاحظات بعد.",
         "visibilityAdmin": "مرئي للمسؤولين",
         "visibilitySuperadmin": "مرئي فقط للمسؤولين الرئيسيين"
+      },
+      "clinical": {
+        "addAllergy": "إضافة حساسية",
+        "addCondition": "إضافة حالة",
+        "addMedication": "إضافة دواء",
+        "addProcedure": "إضافة إجراء",
+        "addProductUsage": "إضافة استخدام منتج",
+        "addSymptom": "إضافة عرض",
+        "allergies": "الحساسيات",
+        "allergyCategories": {
+          "food": "غذائية",
+          "medication": "دوائية",
+          "environmental": "بيئية",
+          "biologic": "بيولوجية",
+          "no_known_allergies": "لا توجد حساسية معروفة",
+          "other": "أخرى"
+        },
+        "archive": "أرشفة",
+        "archived": "تمت الأرشفة",
+        "conditions": "الحالات",
+        "conditionStatuses": {
+          "active": "نشطة",
+          "inactive": "غير نشطة",
+          "resolved": "مُتعافى منها",
+          "remission": "في هدأة",
+          "recurrence": "ناكسة",
+          "unknown": "غير معروفة"
+        },
+        "criticalAllergiesTitle": "حساسيات خطيرة",
+        "fields": {
+          "allergyCategory": "الفئة",
+          "clinicalStatus": "الحالة",
+          "displayName": "الحالة المرضية",
+          "dose": "الجرعة",
+          "frequency": "التكرار",
+          "medicationName": "الدواء",
+          "medicationStatus": "الحالة",
+          "notes": "ملاحظات",
+          "onsetDate": "تاريخ البدء",
+          "patientDescription": "وصف المريض",
+          "performedFrom": "تاريخ الإجراء",
+          "procedureName": "الإجراء",
+          "procedureStatus": "الحالة",
+          "productCategory": "الفئة",
+          "productName": "المنتج",
+          "reaction": "التفاعل",
+          "severity": "الشدة",
+          "startDate": "تاريخ البدء",
+          "startedAt": "تاريخ البدء",
+          "substance": "المادة المسببة",
+          "symptomName": "العرض"
+        },
+        "medications": "الأدوية",
+        "medicationStatuses": {
+          "planned": "مخطط له",
+          "active": "نشط",
+          "completed": "مكتمل",
+          "stopped": "متوقف",
+          "unknown": "غير معروف"
+        },
+        "procedures": "الإجراءات",
+        "procedureStatuses": {
+          "planned": "مخطط له",
+          "in_progress": "قيد التنفيذ",
+          "completed": "مكتمل",
+          "cancelled": "ملغى",
+          "entered_in_error": "أُدخل بالخطأ"
+        },
+        "productUsage": "استخدام المنتجات",
+        "productCategories": {
+          "supplement": "مكمل غذائي",
+          "cosmetic": "تجميلي",
+          "medical_device": "جهاز طبي",
+          "nutrition": "تغذية",
+          "other": "أخرى"
+        },
+        "reportedOrPrescribed": {
+          "patient_reported": "أبلغ عنه المريض",
+          "prescribed": "موصوف"
+        },
+        "symptoms": "الأعراض",
+        "verified": "موثّق",
+        "verificationStatuses": {
+          "patient_reported": "أبلغ عنه المريض",
+          "imported": "مستورد",
+          "unverified": "غير موثّق",
+          "provisional": "مؤقت",
+          "verified": "موثّق",
+          "refuted": "مرفوض",
+          "entered_in_error": "أُدخل بالخطأ"
+        }
       },
       "errors": {
         "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."

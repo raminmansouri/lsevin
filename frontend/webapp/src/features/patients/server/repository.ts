@@ -450,7 +450,11 @@ export async function getPatientTimeline(
     from patient.audit_log
     where (
       (entity_type = 'patient' and entity_id = ${patientId})
-      or (entity_type in ('patient_identifier', 'account_patient_link', 'patient_contact', 'patient_address', 'patient_internal_note')
+      or (entity_type in (
+            'patient_identifier', 'account_patient_link', 'patient_contact', 'patient_address', 'patient_internal_note',
+            'patient_condition', 'patient_procedure', 'patient_allergy', 'patient_medication',
+            'patient_product_usage', 'patient_symptom'
+          )
           and metadata ->> 'patientId' = ${patientId})
     )
     and (${eventType}::text is null or action = ${eventType})

@@ -15652,6 +15652,7 @@
       },
       "tabs": {
         "overview": "Overview",
+        "clinical": "Clinical",
         "timeline": "Timeline",
         "notes": "Notes"
       },
@@ -15711,7 +15712,13 @@
           "account_linked": "Account linked",
           "contact_added": "Contact added",
           "address_added": "Address added",
-          "note_added": "Note added"
+          "note_added": "Note added",
+          "condition_added": "Condition added",
+          "procedure_added": "Procedure added",
+          "allergy_added": "Allergy added",
+          "medication_added": "Medication added",
+          "product_usage_added": "Product usage added",
+          "symptom_added": "Symptom added"
         }
       },
       "notes": {
@@ -15723,6 +15730,97 @@
         "empty": "No notes yet.",
         "visibilityAdmin": "Visible to admins",
         "visibilitySuperadmin": "Visible to super admins only"
+      },
+      "clinical": {
+        "addAllergy": "Add allergy",
+        "addCondition": "Add condition",
+        "addMedication": "Add medication",
+        "addProcedure": "Add procedure",
+        "addProductUsage": "Add product usage",
+        "addSymptom": "Add symptom",
+        "allergies": "Allergies",
+        "allergyCategories": {
+          "food": "Food",
+          "medication": "Medication",
+          "environmental": "Environmental",
+          "biologic": "Biologic",
+          "no_known_allergies": "No known allergies",
+          "other": "Other"
+        },
+        "archive": "Archive",
+        "archived": "Archived",
+        "conditions": "Conditions",
+        "conditionStatuses": {
+          "active": "Active",
+          "inactive": "Inactive",
+          "resolved": "Resolved",
+          "remission": "Remission",
+          "recurrence": "Recurrence",
+          "unknown": "Unknown"
+        },
+        "criticalAllergiesTitle": "Critical allergies",
+        "fields": {
+          "allergyCategory": "Category",
+          "clinicalStatus": "Status",
+          "displayName": "Condition",
+          "dose": "Dose",
+          "frequency": "Frequency",
+          "medicationName": "Medication",
+          "medicationStatus": "Status",
+          "notes": "Notes",
+          "onsetDate": "Onset date",
+          "patientDescription": "Patient description",
+          "performedFrom": "Date performed",
+          "procedureName": "Procedure",
+          "procedureStatus": "Status",
+          "productCategory": "Category",
+          "productName": "Product",
+          "reaction": "Reaction",
+          "severity": "Severity",
+          "startDate": "Start date",
+          "startedAt": "Started",
+          "substance": "Substance",
+          "symptomName": "Symptom"
+        },
+        "medications": "Medications",
+        "medicationStatuses": {
+          "planned": "Planned",
+          "active": "Active",
+          "completed": "Completed",
+          "stopped": "Stopped",
+          "unknown": "Unknown"
+        },
+        "procedures": "Procedures",
+        "procedureStatuses": {
+          "planned": "Planned",
+          "in_progress": "In progress",
+          "completed": "Completed",
+          "cancelled": "Cancelled",
+          "entered_in_error": "Entered in error"
+        },
+        "productUsage": "Product usage",
+        "productCategories": {
+          "supplement": "Supplement",
+          "cosmetic": "Cosmetic",
+          "medical_device": "Medical device",
+          "nutrition": "Nutrition",
+          "other": "Other"
+        },
+        "reportedOrPrescribed": {
+          "patient_reported": "Patient reported",
+          "prescribed": "Prescribed"
+        },
+        "symptoms": "Symptoms",
+        "verified": "Verified",
+        "verificationStatuses": {
+          "patient_reported": "Patient reported",
+          "imported": "Imported",
+          "unverified": "Unverified",
+          "provisional": "Provisional",
+          "verified": "Verified",
+          "refuted": "Refuted",
+          "entered_in_error": "Entered in error"
+        }
       },
       "errors": {
         "generic": "Something went wrong. Please try again."

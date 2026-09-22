@@ -4,11 +4,11 @@ import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
+import DatePicker from "@/components/form/date-picker";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PersianDateTimePicker } from "@/components/date-time/PersianDateTimePicker";
 import { useRouter } from "@/i18n/navigation";
 
 import { createPatientAction } from "../../server/actions";
@@ -81,11 +81,10 @@ export function PatientCreateDialog({ open, onOpenChange }: { open: boolean; onO
           </div>
           <div className="space-y-2">
             <Label htmlFor="patient-birth-date">{t("admin.fields.birthDate")}</Label>
-            <PersianDateTimePicker
-              id="patient-birth-date"
-              mode="date"
-              value={form.birthDate || null}
+            <DatePicker
+              value={form.birthDate || undefined}
               onChange={(value) => setForm((prev) => ({ ...prev, birthDate: value }))}
+              disableFuture
             />
           </div>
         </div>
