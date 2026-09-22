@@ -15652,6 +15652,7 @@
       },
       "tabs": {
         "overview": "نمای کلی",
+        "cases": "پرونده‌ها",
         "clinical": "بالینی",
         "documents": "مستندات",
         "timeline": "جدول زمانی",
@@ -15725,7 +15726,9 @@
           "lab_order_added": "درخواست آزمایش اضافه شد",
           "diagnostic_report_added": "گزارش تشخیصی اضافه شد",
           "observation_added": "یافته آزمایشگاهی اضافه شد",
-          "imaging_study_added": "تصویربرداری اضافه شد"
+          "imaging_study_added": "تصویربرداری اضافه شد",
+          "case_created": "پرونده ایجاد شد",
+          "case_status_changed": "وضعیت پرونده تغییر کرد"
         }
       },
       "notes": {
@@ -15918,6 +15921,133 @@
           "cancelled": "لغوشده"
         },
         "version": "نسخه"
+      },
+      "cases": {
+        "title": "پرونده‌های درمانی",
+        "new": "پرونده جدید",
+        "detailTitle": "پرونده",
+        "status": "وضعیت",
+        "statusChanged": "وضعیت به‌روزرسانی شد",
+        "requirements": "الزامات",
+        "submissions": "ارسال به ارائه‌دهندگان",
+        "proposals": "پیشنهادهای درمان",
+        "secondOpinions": "نظرات دوم پزشکی",
+        "providerId": "شناسه ارائه‌دهنده",
+        "generatePackage": "ساخت بسته مدارک",
+        "packageGenerated": "بسته مدارک ساخته شد",
+        "addEncounter": "افزودن ویزیت",
+        "addRequirement": "افزودن الزام",
+        "addSubmission": "افزودن ارسال",
+        "addProposal": "افزودن پیشنهاد",
+        "addSecondOpinion": "افزودن نظر دوم",
+        "addFollowUp": "افزودن پیگیری",
+        "tabs": {
+          "encounters": "ویزیت‌ها",
+          "providers": "ارائه‌دهندگان",
+          "package": "بسته مدارک",
+          "followUps": "پیگیری‌ها"
+        },
+        "fields": {
+          "title": "عنوان",
+          "caseType": "نوع پرونده",
+          "caseTypePlaceholder": "مثلاً جراحی ارتوپدی، درمان ناباروری",
+          "priority": "اولویت",
+          "encounterType": "نوع ویزیت",
+          "startedAt": "تاریخ",
+          "reason": "دلیل",
+          "requirementType": "نوع الزام",
+          "notes": "یادداشت",
+          "diagnosis": "تشخیص",
+          "treatmentPlan": "برنامه درمان",
+          "estimatedStayDays": "مدت اقامت تخمینی (روز)",
+          "opinionDate": "تاریخ نظر",
+          "conclusion": "نتیجه‌گیری",
+          "scheduledDate": "تاریخ برنامه‌ریزی‌شده",
+          "requiredItems": "مدارک/آزمایش‌های لازم"
+        },
+        "statuses": {
+          "draft": "پیش‌نویس",
+          "intake": "پذیرش اولیه",
+          "awaiting_documents": "در انتظار مدارک",
+          "ready_for_review": "آماده بررسی",
+          "under_medical_review": "در حال بررسی پزشکی",
+          "awaiting_provider": "در انتظار ارائه‌دهنده",
+          "treatment_proposed": "درمان پیشنهاد شد",
+          "quote_received": "پیش‌فاکتور دریافت شد",
+          "patient_decision": "تصمیم بیمار",
+          "booked": "رزرو شد",
+          "travel_preparation": "آماده‌سازی سفر",
+          "in_treatment": "در حال درمان",
+          "post_treatment": "پس از درمان",
+          "follow_up": "پیگیری",
+          "completed": "تکمیل‌شده",
+          "cancelled": "لغوشده"
+        },
+        "priorities": {
+          "low": "کم",
+          "normal": "معمولی",
+          "high": "بالا",
+          "urgent": "فوری"
+        },
+        "encounterTypes": {
+          "video_consultation": "مشاوره ویدیویی",
+          "clinic_visit": "ویزیت کلینیک",
+          "hospital_admission": "بستری بیمارستانی",
+          "emergency_visit": "ویزیت اورژانسی",
+          "diagnostic_visit": "ویزیت تشخیصی",
+          "treatment_session": "جلسه درمانی",
+          "follow_up": "پیگیری",
+          "other": "سایر"
+        },
+        "requirementTypes": {
+          "document": "مدرک",
+          "lab_test": "آزمایش",
+          "imaging": "تصویربرداری",
+          "questionnaire": "پرسش‌نامه",
+          "medical_clearance": "تأییدیه پزشکی",
+          "passport": "پاسپورت",
+          "other": "سایر"
+        },
+        "requirementStatuses": {
+          "missing": "موجود نیست",
+          "requested": "درخواست‌شده",
+          "received": "دریافت‌شده",
+          "expired": "منقضی‌شده",
+          "rejected": "ردشده",
+          "accepted": "پذیرفته‌شده"
+        },
+        "submissionStatuses": {
+          "pending": "در انتظار",
+          "accepted": "پذیرفته‌شده",
+          "declined": "ردشده",
+          "needs_more_info": "نیاز به اطلاعات بیشتر"
+        },
+        "proposalStatuses": {
+          "proposed": "پیشنهادشده",
+          "accepted": "پذیرفته‌شده",
+          "rejected": "ردشده",
+          "expired": "منقضی‌شده",
+          "superseded": "جایگزین‌شده"
+        },
+        "followupStatuses": {
+          "scheduled": "برنامه‌ریزی‌شده",
+          "completed": "انجام‌شده",
+          "missed": "ازدست‌رفته",
+          "cancelled": "لغوشده"
+        },
+        "packageScopes": {
+          "demographics": "اطلاعات فردی",
+          "allergies": "حساسیت‌ها",
+          "conditions": "بیماری‌ها",
+          "medications": "داروها",
+          "procedures": "اقدامات درمانی",
+          "lab_results": "نتایج آزمایش",
+          "imaging": "تصویربرداری",
+          "clinical_documents": "مدارک بالینی"
+        },
+        "errors": {
+          "invalidTransition": "این تغییر وضعیت از وضعیت فعلی پرونده مجاز نیست."
+        }
       },
       "errors": {
         "generic": "خطایی رخ داد. لطفاً دوباره تلاش کنید."

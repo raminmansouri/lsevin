@@ -22,6 +22,7 @@ import type {
   PatientProductUsageRow,
   PatientSymptomRow,
 } from "../../clinical-types";
+import type { MedicalCaseRow } from "../../cases-types";
 import type {
   ClinicalDocumentRow,
   ClinicalObservationRow,
@@ -39,6 +40,7 @@ import type {
   PatientTimelineEventRow,
 } from "../../types";
 import { PATIENTS_TRANSLATION_KEY } from "../../types";
+import { CasesTab } from "./patient-cases-tab";
 import { ClinicalTab } from "./patient-clinical-tab";
 import { DocumentsTab } from "./patient-documents-tab";
 import {
@@ -87,6 +89,7 @@ export function PatientDashboard({
   diagnosticReports,
   observations,
   imagingStudies,
+  cases,
 }: {
   patient: PatientRow;
   identifiers: PatientIdentifierRow[];
@@ -108,6 +111,7 @@ export function PatientDashboard({
   diagnosticReports: DiagnosticReportRow[];
   observations: ClinicalObservationRow[];
   imagingStudies: ImagingStudyRow[];
+  cases: MedicalCaseRow[];
 }) {
   const t = useTranslations(PATIENTS_TRANSLATION_KEY);
 
@@ -164,6 +168,7 @@ export function PatientDashboard({
       <Tabs defaultValue="overview" className="w-full">
         <TabsList>
           <TabsTrigger value="overview">{t("admin.tabs.overview")}</TabsTrigger>
+          <TabsTrigger value="cases">{t("admin.tabs.cases")}</TabsTrigger>
           <TabsTrigger value="clinical">{t("admin.tabs.clinical")}</TabsTrigger>
           <TabsTrigger value="documents">{t("admin.tabs.documents")}</TabsTrigger>
           <TabsTrigger value="timeline">{t("admin.tabs.timeline")}</TabsTrigger>
@@ -178,6 +183,10 @@ export function PatientDashboard({
             addresses={addresses}
             accountLinks={accountLinks}
           />
+        </TabsContent>
+
+        <TabsContent value="cases" className="pt-4">
+          <CasesTab patientId={patient.id} cases={cases} />
         </TabsContent>
 
         <TabsContent value="clinical" className="pt-4">
@@ -353,6 +362,8 @@ const TIMELINE_EVENT_TYPES = [
   "diagnostic_report_added",
   "observation_added",
   "imaging_study_added",
+  "case_created",
+  "case_status_changed",
 ] as const;
 
 function TimelineTab({ patientId, initialEvents }: { patientId: string; initialEvents: PatientTimelineEventRow[] }) {

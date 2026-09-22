@@ -454,7 +454,9 @@ export async function getPatientTimeline(
             'patient_identifier', 'account_patient_link', 'patient_contact', 'patient_address', 'patient_internal_note',
             'patient_condition', 'patient_procedure', 'patient_allergy', 'patient_medication',
             'patient_product_usage', 'patient_symptom', 'clinical_document', 'lab_order', 'diagnostic_report',
-            'clinical_observation', 'imaging_study'
+            'clinical_observation', 'imaging_study', 'medical_case', 'clinical_encounter', 'medical_case_requirement',
+            'medical_case_package', 'medical_case_provider_submission', 'medical_case_treatment_proposal',
+            'medical_case_second_opinion', 'medical_case_follow_up'
           )
           and metadata ->> 'patientId' = ${patientId})
     )

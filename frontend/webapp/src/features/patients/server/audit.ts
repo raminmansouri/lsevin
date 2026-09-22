@@ -42,7 +42,19 @@ export type PatientAuditAction =
   | "observation_added"
   | "observation_archived"
   | "imaging_study_added"
-  | "imaging_study_archived";
+  | "imaging_study_archived"
+  | "case_created"
+  | "case_status_changed"
+  | "encounter_added"
+  | "case_requirement_added"
+  | "case_requirement_updated"
+  | "case_package_generated"
+  | "case_submission_added"
+  | "case_submission_updated"
+  | "case_proposal_added"
+  | "case_second_opinion_added"
+  | "case_followup_added"
+  | "case_followup_updated";
 
 export async function recordPatientAuditEvent(event: {
   actorUserId?: string | null;

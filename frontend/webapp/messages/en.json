@@ -15652,6 +15652,7 @@
       },
       "tabs": {
         "overview": "Overview",
+        "cases": "Cases",
         "clinical": "Clinical",
         "documents": "Documents",
         "timeline": "Timeline",
@@ -15725,7 +15726,9 @@
           "lab_order_added": "Lab order added",
           "diagnostic_report_added": "Diagnostic report added",
           "observation_added": "Observation added",
-          "imaging_study_added": "Imaging study added"
+          "imaging_study_added": "Imaging study added",
+          "case_created": "Case created",
+          "case_status_changed": "Case status changed"
         }
       },
       "notes": {
@@ -15918,6 +15921,133 @@
           "cancelled": "Cancelled"
         },
         "version": "v"
+      },
+      "cases": {
+        "title": "Medical cases",
+        "new": "New case",
+        "detailTitle": "Case",
+        "status": "Status",
+        "statusChanged": "Status updated",
+        "requirements": "Requirements",
+        "submissions": "Provider submissions",
+        "proposals": "Treatment proposals",
+        "secondOpinions": "Second opinions",
+        "providerId": "Provider ID",
+        "generatePackage": "Generate package",
+        "packageGenerated": "Package generated",
+        "addEncounter": "Add encounter",
+        "addRequirement": "Add requirement",
+        "addSubmission": "Add submission",
+        "addProposal": "Add proposal",
+        "addSecondOpinion": "Add second opinion",
+        "addFollowUp": "Add follow-up",
+        "tabs": {
+          "encounters": "Encounters",
+          "providers": "Providers",
+          "package": "Package",
+          "followUps": "Follow-ups"
+        },
+        "fields": {
+          "title": "Title",
+          "caseType": "Case type",
+          "caseTypePlaceholder": "e.g. Orthopedic surgery, Fertility treatment",
+          "priority": "Priority",
+          "encounterType": "Encounter type",
+          "startedAt": "Date",
+          "reason": "Reason",
+          "requirementType": "Requirement type",
+          "notes": "Notes",
+          "diagnosis": "Diagnosis",
+          "treatmentPlan": "Treatment plan",
+          "estimatedStayDays": "Estimated stay (days)",
+          "opinionDate": "Opinion date",
+          "conclusion": "Conclusion",
+          "scheduledDate": "Scheduled date",
+          "requiredItems": "Required documents/tests"
+        },
+        "statuses": {
+          "draft": "Draft",
+          "intake": "Intake",
+          "awaiting_documents": "Awaiting documents",
+          "ready_for_review": "Ready for review",
+          "under_medical_review": "Under medical review",
+          "awaiting_provider": "Awaiting provider",
+          "treatment_proposed": "Treatment proposed",
+          "quote_received": "Quote received",
+          "patient_decision": "Patient decision",
+          "booked": "Booked",
+          "travel_preparation": "Travel preparation",
+          "in_treatment": "In treatment",
+          "post_treatment": "Post-treatment",
+          "follow_up": "Follow-up",
+          "completed": "Completed",
+          "cancelled": "Cancelled"
+        },
+        "priorities": {
+          "low": "Low",
+          "normal": "Normal",
+          "high": "High",
+          "urgent": "Urgent"
+        },
+        "encounterTypes": {
+          "video_consultation": "Video consultation",
+          "clinic_visit": "Clinic visit",
+          "hospital_admission": "Hospital admission",
+          "emergency_visit": "Emergency visit",
+          "diagnostic_visit": "Diagnostic visit",
+          "treatment_session": "Treatment session",
+          "follow_up": "Follow-up",
+          "other": "Other"
+        },
+        "requirementTypes": {
+          "document": "Document",
+          "lab_test": "Lab test",
+          "imaging": "Imaging",
+          "questionnaire": "Questionnaire",
+          "medical_clearance": "Medical clearance",
+          "passport": "Passport",
+          "other": "Other"
+        },
+        "requirementStatuses": {
+          "missing": "Missing",
+          "requested": "Requested",
+          "received": "Received",
+          "expired": "Expired",
+          "rejected": "Rejected",
+          "accepted": "Accepted"
+        },
+        "submissionStatuses": {
+          "pending": "Pending",
+          "accepted": "Accepted",
+          "declined": "Declined",
+          "needs_more_info": "Needs more info"
+        },
+        "proposalStatuses": {
+          "proposed": "Proposed",
+          "accepted": "Accepted",
+          "rejected": "Rejected",
+          "expired": "Expired",
+          "superseded": "Superseded"
+        },
+        "followupStatuses": {
+          "scheduled": "Scheduled",
+          "completed": "Completed",
+          "missed": "Missed",
+          "cancelled": "Cancelled"
+        },
+        "packageScopes": {
+          "demographics": "Demographics",
+          "allergies": "Allergies",
+          "conditions": "Conditions",
+          "medications": "Medications",
+          "procedures": "Procedures",
+          "lab_results": "Lab results",
+          "imaging": "Imaging",
+          "clinical_documents": "Clinical documents"
+        },
+        "errors": {
+          "invalidTransition": "This status change isn't allowed from the case's current status."
+        }
       },
       "errors": {
         "generic": "Something went wrong. Please try again."

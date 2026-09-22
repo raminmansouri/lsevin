@@ -13982,6 +13982,7 @@
       },
       "tabs": {
         "overview": "نظرة عامة",
+        "cases": "الحالات",
         "clinical": "السجل السريري",
         "documents": "المستندات",
         "timeline": "الجدول الزمني",
@@ -14055,7 +14056,9 @@
           "lab_order_added": "تمت إضافة طلب فحص",
           "diagnostic_report_added": "تمت إضافة تقرير تشخيصي",
           "observation_added": "تمت إضافة نتيجة فحص",
-          "imaging_study_added": "تمت إضافة تصوير"
+          "imaging_study_added": "تمت إضافة تصوير",
+          "case_created": "تم إنشاء الحالة",
+          "case_status_changed": "تم تغيير حالة الحالة"
         }
       },
       "notes": {
@@ -14248,6 +14251,133 @@
           "cancelled": "ملغى"
         },
         "version": "الإصدار"
+      },
+      "cases": {
+        "title": "الحالات الطبية",
+        "new": "حالة جديدة",
+        "detailTitle": "الحالة",
+        "status": "الحالة",
+        "statusChanged": "تم تحديث الحالة",
+        "requirements": "المتطلبات",
+        "submissions": "الإرسال لمقدمي الخدمة",
+        "proposals": "مقترحات العلاج",
+        "secondOpinions": "الآراء الطبية الثانية",
+        "providerId": "معرف مقدم الخدمة",
+        "generatePackage": "إنشاء حزمة المستندات",
+        "packageGenerated": "تم إنشاء الحزمة",
+        "addEncounter": "إضافة زيارة",
+        "addRequirement": "إضافة متطلب",
+        "addSubmission": "إضافة إرسال",
+        "addProposal": "إضافة مقترح",
+        "addSecondOpinion": "إضافة رأي ثانٍ",
+        "addFollowUp": "إضافة متابعة",
+        "tabs": {
+          "encounters": "الزيارات",
+          "providers": "مقدمو الخدمة",
+          "package": "حزمة المستندات",
+          "followUps": "المتابعات"
+        },
+        "fields": {
+          "title": "العنوان",
+          "caseType": "نوع الحالة",
+          "caseTypePlaceholder": "مثال: جراحة العظام، علاج الخصوبة",
+          "priority": "الأولوية",
+          "encounterType": "نوع الزيارة",
+          "startedAt": "التاريخ",
+          "reason": "السبب",
+          "requirementType": "نوع المتطلب",
+          "notes": "ملاحظات",
+          "diagnosis": "التشخيص",
+          "treatmentPlan": "خطة العلاج",
+          "estimatedStayDays": "مدة الإقامة المقدرة (أيام)",
+          "opinionDate": "تاريخ الرأي",
+          "conclusion": "الاستنتاج",
+          "scheduledDate": "التاريخ المجدول",
+          "requiredItems": "المستندات/الفحوصات المطلوبة"
+        },
+        "statuses": {
+          "draft": "مسودة",
+          "intake": "استقبال أولي",
+          "awaiting_documents": "بانتظار المستندات",
+          "ready_for_review": "جاهز للمراجعة",
+          "under_medical_review": "قيد المراجعة الطبية",
+          "awaiting_provider": "بانتظار مقدم الخدمة",
+          "treatment_proposed": "تم اقتراح العلاج",
+          "quote_received": "تم استلام عرض السعر",
+          "patient_decision": "قرار المريض",
+          "booked": "محجوز",
+          "travel_preparation": "التحضير للسفر",
+          "in_treatment": "قيد العلاج",
+          "post_treatment": "بعد العلاج",
+          "follow_up": "متابعة",
+          "completed": "مكتمل",
+          "cancelled": "ملغى"
+        },
+        "priorities": {
+          "low": "منخفضة",
+          "normal": "عادية",
+          "high": "مرتفعة",
+          "urgent": "عاجلة"
+        },
+        "encounterTypes": {
+          "video_consultation": "استشارة عبر الفيديو",
+          "clinic_visit": "زيارة عيادة",
+          "hospital_admission": "دخول المستشفى",
+          "emergency_visit": "زيارة طارئة",
+          "diagnostic_visit": "زيارة تشخيصية",
+          "treatment_session": "جلسة علاج",
+          "follow_up": "متابعة",
+          "other": "أخرى"
+        },
+        "requirementTypes": {
+          "document": "مستند",
+          "lab_test": "فحص مختبر",
+          "imaging": "تصوير",
+          "questionnaire": "استبيان",
+          "medical_clearance": "تصريح طبي",
+          "passport": "جواز سفر",
+          "other": "أخرى"
+        },
+        "requirementStatuses": {
+          "missing": "غير موجود",
+          "requested": "مطلوب",
+          "received": "مستلم",
+          "expired": "منتهي الصلاحية",
+          "rejected": "مرفوض",
+          "accepted": "مقبول"
+        },
+        "submissionStatuses": {
+          "pending": "قيد الانتظار",
+          "accepted": "مقبول",
+          "declined": "مرفوض",
+          "needs_more_info": "يحتاج معلومات إضافية"
+        },
+        "proposalStatuses": {
+          "proposed": "مقترح",
+          "accepted": "مقبول",
+          "rejected": "مرفوض",
+          "expired": "منتهي الصلاحية",
+          "superseded": "استُبدل"
+        },
+        "followupStatuses": {
+          "scheduled": "مجدولة",
+          "completed": "مكتملة",
+          "missed": "فائتة",
+          "cancelled": "ملغاة"
+        },
+        "packageScopes": {
+          "demographics": "البيانات الشخصية",
+          "allergies": "الحساسيات",
+          "conditions": "الحالات",
+          "medications": "الأدوية",
+          "procedures": "الإجراءات",
+          "lab_results": "نتائج الفحوصات",
+          "imaging": "التصوير",
+          "clinical_documents": "المستندات السريرية"
+        },
+        "errors": {
+          "invalidTransition": "لا يُسمح بهذا التغيير في الحالة من الوضع الحالي للحالة."
+        }
       },
       "errors": {
         "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
