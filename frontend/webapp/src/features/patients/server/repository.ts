@@ -456,14 +456,15 @@ export async function getPatientTimeline(
             'patient_product_usage', 'patient_symptom', 'clinical_document', 'lab_order', 'diagnostic_report',
             'clinical_observation', 'imaging_study', 'medical_case', 'clinical_encounter', 'medical_case_requirement',
             'medical_case_package', 'medical_case_provider_submission', 'medical_case_treatment_proposal',
-            'medical_case_second_opinion', 'medical_case_follow_up'
+            'medical_case_second_opinion', 'medical_case_follow_up', 'patient_consent', 'share_grant'
           )
           and metadata ->> 'patientId' = ${patientId})
     )
-    -- View/download events are still recorded in patient.audit_log (spec
-    -- V3.1's logging requirement) but are access-log noise, not the kind of
-    -- operational event the patient timeline (spec V1.2) is meant to show.
-    and action not in ('document_viewed', 'document_downloaded')
+    -- View/download/access events are still recorded in patient.audit_log
+    -- (spec V3.1/V5.6's logging requirements) but are access-log noise, not
+    -- the kind of operational event the patient timeline (spec V1.2) is
+    -- meant to show.
+    and action not in ('document_viewed', 'document_downloaded', 'share_grant_viewed', 'share_grant_denied')
     and (${eventType}::text is null or action = ${eventType})
     and (${from}::date is null or occurred_at >= ${from}::date)
     and (${to}::date is null or occurred_at < (${to}::date + interval '1 day'))

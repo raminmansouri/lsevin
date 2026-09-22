@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "@/i18n/navigation";
 
 import { archivePatientNoteAction, addPatientNoteAction } from "../../server/actions";
+import { revokeAccountLinkAction } from "../../server/sharing-actions";
 import type {
   PatientAllergyRow,
   PatientClinicalSummary,
@@ -30,6 +31,7 @@ import type {
   ImagingStudyRow,
   LabOrderRow,
 } from "../../documents-types";
+import type { PatientConsentRow, ShareGrantRow } from "../../sharing-types";
 import type {
   AccountPatientLinkRow,
   PatientAddressRow,
@@ -40,6 +42,7 @@ import type {
   PatientTimelineEventRow,
 } from "../../types";
 import { PATIENTS_TRANSLATION_KEY } from "../../types";
+import { AccessTab } from "./patient-access-tab";
 import { CasesTab } from "./patient-cases-tab";
 import { ClinicalTab } from "./patient-clinical-tab";
 import { DocumentsTab } from "./patient-documents-tab";
@@ -90,6 +93,8 @@ export function PatientDashboard({
   observations,
   imagingStudies,
   cases,
+  consents,
+  shareGrants,
 }: {
   patient: PatientRow;
   identifiers: PatientIdentifierRow[];
@@ -112,6 +117,8 @@ export function PatientDashboard({
   observations: ClinicalObservationRow[];
   imagingStudies: ImagingStudyRow[];
   cases: MedicalCaseRow[];
+  consents: PatientConsentRow[];
+  shareGrants: ShareGrantRow[];
 }) {
   const t = useTranslations(PATIENTS_TRANSLATION_KEY);
 
@@ -171,6 +178,7 @@ export function PatientDashboard({
           <TabsTrigger value="cases">{t("admin.tabs.cases")}</TabsTrigger>
           <TabsTrigger value="clinical">{t("admin.tabs.clinical")}</TabsTrigger>
           <TabsTrigger value="documents">{t("admin.tabs.documents")}</TabsTrigger>
+          <TabsTrigger value="access">{t("admin.tabs.access")}</TabsTrigger>
           <TabsTrigger value="timeline">{t("admin.tabs.timeline")}</TabsTrigger>
           <TabsTrigger value="notes">{t("admin.tabs.notes")}</TabsTrigger>
         </TabsList>
@@ -213,6 +221,10 @@ export function PatientDashboard({
           />
         </TabsContent>
 
+        <TabsContent value="access" className="pt-4">
+          <AccessTab patientId={patient.id} consents={consents} shareGrants={shareGrants} />
+        </TabsContent>
+
         <TabsContent value="timeline" className="pt-4">
           <TimelineTab patientId={patient.id} initialEvents={timeline} />
         </TabsContent>
@@ -239,10 +251,24 @@ function OverviewTab({
   accountLinks: AccountPatientLinkRow[];
 }) {
   const t = useTranslations(PATIENTS_TRANSLATION_KEY);
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [addIdentifierOpen, setAddIdentifierOpen] = useState(false);
   const [addContactOpen, setAddContactOpen] = useState(false);
   const [addAddressOpen, setAddAddressOpen] = useState(false);
   const [linkAccountOpen, setLinkAccountOpen] = useState(false);
+
+  const revokeLink = (accountId: string) => {
+    startTransition(async () => {
+      const result = await revokeAccountLinkAction({ accountId, patientId: patient.id });
+      if (result.ok) {
+        toast.success(t("admin.access.linkRevoked"));
+        router.refresh();
+        return;
+      }
+      toast.error(result.error || t("admin.errors.generic"));
+    });
+  };
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
@@ -328,7 +354,12 @@ function OverviewTab({
               <p dir="ltr" className="text-muted-foreground text-sm">
                 {link.accountId}
               </p>
-              <Badge variant="outline">{t(`admin.relationshipTypes.${link.relationshipType}`)}</Badge>
+              <div className="flex items-center gap-1.5">
+                <Badge variant="outline">{t(`admin.relationshipTypes.${link.relationshipType}`)}</Badge>
+                <Button type="button" size="sm" variant="ghost" disabled={isPending} onClick={() => revokeLink(link.accountId)}>
+                  {t("admin.access.revoke")}
+                </Button>
+              </div>
             </div>
           ))}
         </CardContent>
@@ -364,6 +395,10 @@ const TIMELINE_EVENT_TYPES = [
   "imaging_study_added",
   "case_created",
   "case_status_changed",
+  "consent_granted",
+  "consent_withdrawn",
+  "share_grant_created",
+  "share_grant_revoked",
 ] as const;
 
 function TimelineTab({ patientId, initialEvents }: { patientId: string; initialEvents: PatientTimelineEventRow[] }) {

@@ -13985,6 +13985,7 @@
         "cases": "الحالات",
         "clinical": "السجل السريري",
         "documents": "المستندات",
+        "access": "الوصول والمشاركة",
         "timeline": "الجدول الزمني",
         "notes": "الملاحظات"
       },
@@ -14058,7 +14059,11 @@
           "observation_added": "تمت إضافة نتيجة فحص",
           "imaging_study_added": "تمت إضافة تصوير",
           "case_created": "تم إنشاء الحالة",
-          "case_status_changed": "تم تغيير حالة الحالة"
+          "case_status_changed": "تم تغيير حالة الحالة",
+          "consent_granted": "تم منح الموافقة",
+          "consent_withdrawn": "تم سحب الموافقة",
+          "share_grant_created": "تم إنشاء رابط مشاركة",
+          "share_grant_revoked": "تم إلغاء رابط المشاركة"
         }
       },
       "notes": {
@@ -14379,8 +14384,99 @@
           "invalidTransition": "لا يُسمح بهذا التغيير في الحالة من الوضع الحالي للحالة."
         }
       },
+      "access": {
+        "consents": "الموافقات",
+        "createShareLink": "إنشاء رابط مشاركة",
+        "done": "تم",
+        "expires": "تنتهي الصلاحية",
+        "generateLink": "إنشاء الرابط",
+        "grantConsent": "منح موافقة",
+        "linkIssuedOnce": "يُعرض هذا الرابط مرة واحدة فقط. انسخه الآن — لا يمكن استرجاعه لاحقًا.",
+        "linkRevoked": "تم إلغاء الرابط",
+        "revoke": "إلغاء",
+        "shareLinks": "روابط المشاركة",
+        "unnamedRecipient": "مستلم بدون اسم",
+        "views": "المشاهدات",
+        "withdraw": "سحب",
+        "fields": {
+          "consentType": "نوع الموافقة",
+          "expiresInHours": "تنتهي خلال (ساعات)",
+          "pinOptional": "الرمز السري (اختياري)",
+          "purpose": "الغرض",
+          "recipientName": "اسم المستلم",
+          "recipientType": "نوع المستلم",
+          "scope": "نطاق البيانات"
+        },
+        "consentTypes": {
+          "data_sharing": "مشاركة البيانات",
+          "marketing": "التسويق",
+          "treatment": "العلاج",
+          "research": "البحث",
+          "family_access": "وصول العائلة",
+          "other": "أخرى"
+        },
+        "consentStatuses": {
+          "active": "نشطة",
+          "withdrawn": "مسحوبة",
+          "expired": "منتهية الصلاحية"
+        },
+        "recipientTypes": {
+          "family_member": "فرد من العائلة",
+          "coordinator": "منسق",
+          "provider": "مقدم خدمة",
+          "organization": "منظمة",
+          "external_party": "جهة خارجية",
+          "other": "أخرى"
+        },
+        "grantStatuses": {
+          "active": "نشط",
+          "expired": "منتهي الصلاحية",
+          "revoked": "ملغى"
+        },
+        "dataScopes": {
+          "demographics": "البيانات الشخصية",
+          "identifiers": "المعرفات",
+          "conditions": "الحالات",
+          "allergies": "الحساسيات",
+          "medications": "الأدوية",
+          "procedures": "الإجراءات",
+          "labs": "الفحوصات",
+          "imaging": "التصوير",
+          "documents": "المستندات",
+          "reproductive_history": "التاريخ الإنجابي",
+          "cosmetic_history": "تاريخ التجميل",
+          "case_data": "بيانات الحالة",
+          "travel_information": "معلومات السفر",
+          "billing_information": "معلومات الفوترة"
+        }
+      },
       "errors": {
         "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+      }
+    },
+    "share": {
+      "title": "السجل الطبي المشارك",
+      "loading": "جارٍ التحميل…",
+      "expiresAt": "تنتهي الصلاحية",
+      "disclaimer": "هذه نظرة محدودة ومؤقتة شاركها فريق رعاية المريض. لا تُعِد توجيه هذا الرابط.",
+      "pinTitle": "أدخل الرمز السري",
+      "pinLabel": "الرمز السري",
+      "pinSubmit": "عرض السجل",
+      "sections": {
+        "demographics": "المريض",
+        "conditions": "الحالات",
+        "allergies": "الحساسيات",
+        "noKnownAllergies": "لا توجد حساسية معروفة",
+        "medications": "الأدوية",
+        "procedures": "الإجراءات",
+        "documents": "المستندات"
+      },
+      "errors": {
+        "not_found": "هذا الرابط غير صالح.",
+        "expired": "انتهت صلاحية هذا الرابط.",
+        "revoked": "تم إلغاء هذا الرابط.",
+        "max_reached": "وصل هذا الرابط إلى الحد الأقصى للمشاهدات.",
+        "pin_invalid": "الرمز السري غير صحيح."
       }
     }
   }

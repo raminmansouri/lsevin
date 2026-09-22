@@ -16,9 +16,7 @@ import type {
   MedicalCaseTreatmentProposalRow,
 } from "../cases-types";
 import { isValidCaseTransition } from "../cases-transitions";
-import { getPatientById } from "./repository";
-import { listAllergiesForPatient, listConditionsForPatient, listMedicationsForPatient, listProceduresForPatient } from "./clinical-repository";
-import { listDocumentsForPatient } from "./documents-repository";
+import { buildPatientRecordSnapshot } from "./snapshot";
 
 function mapCase(row: any): MedicalCaseRow {
   return {
@@ -336,24 +334,7 @@ export async function generateCasePackage(input: {
   includedScopes: string[];
   generatedBy?: string | null;
 }): Promise<MedicalCasePackageRow> {
-  const patient = await getPatientById(input.patientId);
-  const snapshot: Record<string, unknown> = { generatedAt: new Date().toISOString(), patient };
-
-  if (input.includedScopes.includes("conditions")) snapshot.conditions = await listConditionsForPatient(input.patientId);
-  if (input.includedScopes.includes("allergies")) snapshot.allergies = await listAllergiesForPatient(input.patientId);
-  if (input.includedScopes.includes("medications")) snapshot.medications = await listMedicationsForPatient(input.patientId);
-  if (input.includedScopes.includes("procedures")) snapshot.procedures = await listProceduresForPatient(input.patientId);
-  if (input.includedScopes.includes("clinical_documents")) {
-    // Metadata only -- a package snapshot must never inline file bytes or
-    // leak a bare downloadable URL into a JSON blob handed to a provider.
-    snapshot.documents = (await listDocumentsForPatient(input.patientId)).map((d) => ({
-      id: d.id,
-      title: d.title,
-      documentType: d.documentType,
-      documentDate: d.documentDate,
-      version: d.version,
-    }));
-  }
+  const snapshot = await buildPatientRecordSnapshot(input.patientId, input.includedScopes);
 
   const rows = await db<any[]>`
     insert into patient.medical_case_packages (medical_case_id, patient_id, included_scopes, snapshot, generated_by)

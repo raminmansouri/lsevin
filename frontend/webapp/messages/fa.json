@@ -15655,6 +15655,7 @@
         "cases": "پرونده‌ها",
         "clinical": "بالینی",
         "documents": "مستندات",
+        "access": "دسترسی و اشتراک‌گذاری",
         "timeline": "جدول زمانی",
         "notes": "یادداشت‌ها"
       },
@@ -15728,7 +15729,11 @@
           "observation_added": "یافته آزمایشگاهی اضافه شد",
           "imaging_study_added": "تصویربرداری اضافه شد",
           "case_created": "پرونده ایجاد شد",
-          "case_status_changed": "وضعیت پرونده تغییر کرد"
+          "case_status_changed": "وضعیت پرونده تغییر کرد",
+          "consent_granted": "رضایت ثبت شد",
+          "consent_withdrawn": "رضایت پس گرفته شد",
+          "share_grant_created": "لینک اشتراک‌گذاری ساخته شد",
+          "share_grant_revoked": "لینک اشتراک‌گذاری باطل شد"
         }
       },
       "notes": {
@@ -16049,8 +16054,99 @@
           "invalidTransition": "این تغییر وضعیت از وضعیت فعلی پرونده مجاز نیست."
         }
       },
+      "access": {
+        "consents": "رضایت‌نامه‌ها",
+        "createShareLink": "ساخت لینک اشتراک‌گذاری",
+        "done": "انجام شد",
+        "expires": "انقضا",
+        "generateLink": "ساخت لینک",
+        "grantConsent": "ثبت رضایت",
+        "linkIssuedOnce": "این لینک فقط یک‌بار نمایش داده می‌شود. همین الان آن را کپی کنید — دیگر قابل بازیابی نیست.",
+        "linkRevoked": "لینک باطل شد",
+        "revoke": "باطل کردن",
+        "shareLinks": "لینک‌های اشتراک‌گذاری",
+        "unnamedRecipient": "گیرنده بدون نام",
+        "views": "بازدیدها",
+        "withdraw": "پس گرفتن",
+        "fields": {
+          "consentType": "نوع رضایت",
+          "expiresInHours": "انقضا (ساعت)",
+          "pinOptional": "پین (اختیاری)",
+          "purpose": "هدف",
+          "recipientName": "نام گیرنده",
+          "recipientType": "نوع گیرنده",
+          "scope": "دامنه داده"
+        },
+        "consentTypes": {
+          "data_sharing": "اشتراک‌گذاری داده",
+          "marketing": "بازاریابی",
+          "treatment": "درمان",
+          "research": "پژوهش",
+          "family_access": "دسترسی خانواده",
+          "other": "سایر"
+        },
+        "consentStatuses": {
+          "active": "فعال",
+          "withdrawn": "پس‌گرفته‌شده",
+          "expired": "منقضی‌شده"
+        },
+        "recipientTypes": {
+          "family_member": "عضو خانواده",
+          "coordinator": "هماهنگ‌کننده",
+          "provider": "ارائه‌دهنده",
+          "organization": "سازمان",
+          "external_party": "طرف خارجی",
+          "other": "سایر"
+        },
+        "grantStatuses": {
+          "active": "فعال",
+          "expired": "منقضی‌شده",
+          "revoked": "باطل‌شده"
+        },
+        "dataScopes": {
+          "demographics": "اطلاعات فردی",
+          "identifiers": "شناسه‌ها",
+          "conditions": "بیماری‌ها",
+          "allergies": "حساسیت‌ها",
+          "medications": "داروها",
+          "procedures": "اقدامات درمانی",
+          "labs": "آزمایش‌ها",
+          "imaging": "تصویربرداری",
+          "documents": "مدارک",
+          "reproductive_history": "سابقه باروری",
+          "cosmetic_history": "سابقه زیبایی",
+          "case_data": "اطلاعات پرونده",
+          "travel_information": "اطلاعات سفر",
+          "billing_information": "اطلاعات مالی"
+        }
+      },
       "errors": {
         "generic": "خطایی رخ داد. لطفاً دوباره تلاش کنید."
+      }
+    },
+    "share": {
+      "title": "پرونده پزشکی به‌اشتراک‌گذاشته‌شده",
+      "loading": "در حال بارگذاری…",
+      "expiresAt": "انقضا",
+      "disclaimer": "این یک نمای محدود و زمان‌دار است که توسط تیم درمانی بیمار به اشتراک گذاشته شده. این لینک را فوروارد نکنید.",
+      "pinTitle": "وارد کردن پین",
+      "pinLabel": "پین",
+      "pinSubmit": "مشاهده پرونده",
+      "sections": {
+        "demographics": "بیمار",
+        "conditions": "بیماری‌ها",
+        "allergies": "حساسیت‌ها",
+        "noKnownAllergies": "بدون حساسیت شناخته‌شده",
+        "medications": "داروها",
+        "procedures": "اقدامات درمانی",
+        "documents": "مدارک"
+      },
+      "errors": {
+        "not_found": "این لینک نامعتبر است.",
+        "expired": "این لینک منقضی شده است.",
+        "revoked": "این لینک باطل شده است.",
+        "max_reached": "این لینک به سقف تعداد بازدید رسیده است.",
+        "pin_invalid": "پین نادرست است."
       }
     }
   }

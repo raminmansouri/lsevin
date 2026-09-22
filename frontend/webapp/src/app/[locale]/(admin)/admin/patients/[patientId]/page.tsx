@@ -31,6 +31,7 @@ import {
   listObservationsForPatient,
 } from "@/features/patients/server/documents-repository";
 import { listCasesForPatient } from "@/features/patients/server/cases-repository";
+import { listConsentsForPatient, listShareGrantsForPatient } from "@/features/patients/server/sharing-repository";
 import { PATIENTS_TRANSLATION_KEY } from "@/features/patients/types";
 import { assertAdmin } from "@/lib/auth/admin-guard";
 import type { LocaleParams } from "@/types/next";
@@ -94,6 +95,8 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
     observations,
     imagingStudies,
     cases,
+    consents,
+    shareGrants,
   ] = await Promise.all([
     listIdentifiersForPatient(patientId),
     listContactsForPatient(patientId),
@@ -114,6 +117,8 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
     listObservationsForPatient(patientId),
     listImagingStudiesForPatient(patientId),
     listCasesForPatient(patientId),
+    listConsentsForPatient(patientId),
+    listShareGrantsForPatient(patientId),
   ]);
 
   return (
@@ -139,6 +144,8 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
       observations={observations}
       imagingStudies={imagingStudies}
       cases={cases}
+      consents={consents}
+      shareGrants={shareGrants}
     />
   );
 }

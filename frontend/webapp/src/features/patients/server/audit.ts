@@ -54,8 +54,22 @@ export type PatientAuditAction =
   | "case_proposal_added"
   | "case_second_opinion_added"
   | "case_followup_added"
-  | "case_followup_updated";
+  | "case_followup_updated"
+  | "consent_granted"
+  | "consent_withdrawn"
+  | "share_grant_created"
+  | "share_grant_revoked"
+  | "share_grant_viewed"
+  | "share_grant_denied";
 
+/**
+ * `purpose`/`result`/`ipAddress`/`userAgent` were added in V5.6
+ * (0054_patient_sharing_consent_security.sql extends the V0.8 table rather
+ * than replacing it). They're optional so the ~40 existing call sites from
+ * V0-V4 keep compiling and behaving exactly as before; new call sites
+ * (share-grant access in particular, since that's the one truly
+ * unauthenticated read path in this feature) pass them explicitly.
+ */
 export async function recordPatientAuditEvent(event: {
   actorUserId?: string | null;
   actorRoles?: string[];
@@ -65,16 +79,22 @@ export async function recordPatientAuditEvent(event: {
   beforeState?: unknown;
   afterState?: unknown;
   metadata?: Record<string, unknown>;
+  purpose?: string;
+  result?: "success" | "failure" | "denied";
+  ipAddress?: string | null;
+  userAgent?: string | null;
 }): Promise<void> {
   await db`
     insert into patient.audit_log (
-      actor_user_id, actor_roles, action, entity_type, entity_id, before_state, after_state, metadata
+      actor_user_id, actor_roles, action, entity_type, entity_id, before_state, after_state, metadata,
+      purpose, result, ip_address, user_agent
     ) values (
       ${event.actorUserId ?? null}, ${event.actorRoles ?? []}, ${event.action}, ${event.entityType},
       ${event.entityId ?? null},
       ${event.beforeState !== undefined ? JSON.stringify(event.beforeState) : null}::jsonb,
       ${event.afterState !== undefined ? JSON.stringify(event.afterState) : null}::jsonb,
-      ${JSON.stringify(event.metadata ?? {})}::jsonb
+      ${JSON.stringify(event.metadata ?? {})}::jsonb,
+      ${event.purpose ?? null}, ${event.result ?? "success"}, ${event.ipAddress ?? null}, ${event.userAgent ?? null}
     )
   `;
 }

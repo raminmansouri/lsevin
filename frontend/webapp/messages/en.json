@@ -15655,6 +15655,7 @@
         "cases": "Cases",
         "clinical": "Clinical",
         "documents": "Documents",
+        "access": "Access & Sharing",
         "timeline": "Timeline",
         "notes": "Notes"
       },
@@ -15728,7 +15729,11 @@
           "observation_added": "Observation added",
           "imaging_study_added": "Imaging study added",
           "case_created": "Case created",
-          "case_status_changed": "Case status changed"
+          "case_status_changed": "Case status changed",
+          "consent_granted": "Consent granted",
+          "consent_withdrawn": "Consent withdrawn",
+          "share_grant_created": "Share link created",
+          "share_grant_revoked": "Share link revoked"
         }
       },
       "notes": {
@@ -16049,8 +16054,99 @@
           "invalidTransition": "This status change isn't allowed from the case's current status."
         }
       },
+      "access": {
+        "consents": "Consents",
+        "createShareLink": "Create share link",
+        "done": "Done",
+        "expires": "Expires",
+        "generateLink": "Generate link",
+        "grantConsent": "Grant consent",
+        "linkIssuedOnce": "This link is shown only once. Copy it now — it can't be retrieved again.",
+        "linkRevoked": "Link revoked",
+        "revoke": "Revoke",
+        "shareLinks": "Share links",
+        "unnamedRecipient": "Unnamed recipient",
+        "views": "Views",
+        "withdraw": "Withdraw",
+        "fields": {
+          "consentType": "Consent type",
+          "expiresInHours": "Expires in (hours)",
+          "pinOptional": "PIN (optional)",
+          "purpose": "Purpose",
+          "recipientName": "Recipient name",
+          "recipientType": "Recipient type",
+          "scope": "Data scope"
+        },
+        "consentTypes": {
+          "data_sharing": "Data sharing",
+          "marketing": "Marketing",
+          "treatment": "Treatment",
+          "research": "Research",
+          "family_access": "Family access",
+          "other": "Other"
+        },
+        "consentStatuses": {
+          "active": "Active",
+          "withdrawn": "Withdrawn",
+          "expired": "Expired"
+        },
+        "recipientTypes": {
+          "family_member": "Family member",
+          "coordinator": "Coordinator",
+          "provider": "Provider",
+          "organization": "Organization",
+          "external_party": "External party",
+          "other": "Other"
+        },
+        "grantStatuses": {
+          "active": "Active",
+          "expired": "Expired",
+          "revoked": "Revoked"
+        },
+        "dataScopes": {
+          "demographics": "Demographics",
+          "identifiers": "Identifiers",
+          "conditions": "Conditions",
+          "allergies": "Allergies",
+          "medications": "Medications",
+          "procedures": "Procedures",
+          "labs": "Labs",
+          "imaging": "Imaging",
+          "documents": "Documents",
+          "reproductive_history": "Reproductive history",
+          "cosmetic_history": "Cosmetic history",
+          "case_data": "Case data",
+          "travel_information": "Travel information",
+          "billing_information": "Billing information"
+        }
+      },
       "errors": {
         "generic": "Something went wrong. Please try again."
+      }
+    },
+    "share": {
+      "title": "Shared medical record",
+      "loading": "Loading…",
+      "expiresAt": "Expires",
+      "disclaimer": "This is a limited, time-restricted view shared by the patient's care team. Do not forward this link.",
+      "pinTitle": "Enter PIN",
+      "pinLabel": "PIN",
+      "pinSubmit": "View record",
+      "sections": {
+        "demographics": "Patient",
+        "conditions": "Conditions",
+        "allergies": "Allergies",
+        "noKnownAllergies": "No known allergies",
+        "medications": "Medications",
+        "procedures": "Procedures",
+        "documents": "Documents"
+      },
+      "errors": {
+        "not_found": "This link is invalid.",
+        "expired": "This link has expired.",
+        "revoked": "This link has been revoked.",
+        "max_reached": "This link has reached its view limit.",
+        "pin_invalid": "Incorrect PIN."
       }
     }
   }

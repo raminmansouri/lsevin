@@ -44,7 +44,27 @@ describe("patient identifier crypto (V0.2)", () => {
     expect(maskIdentifierValue("0123456789")).toBe("******6789");
     expect(maskIdentifierValue("12")).toBe("**");
   });
+});
 
+describe("share-link token crypto (V5.3)", () => {
+  it("generates a non-guessable, URL-safe token each time", async () => {
+    const { generateShareToken } = await import("./crypto");
+    const a = generateShareToken();
+    const b = generateShareToken();
+    expect(a).not.toBe(b);
+    expect(a).toMatch(/^[A-Za-z0-9_-]+$/);
+    expect(a.length).toBeGreaterThanOrEqual(40);
+  });
+
+  it("hashes a token deterministically so the stored hash can be matched on lookup", async () => {
+    const { generateShareToken, hashShareSecret } = await import("./crypto");
+    const token = generateShareToken();
+    expect(hashShareSecret(token)).toBe(hashShareSecret(token));
+    expect(hashShareSecret(token)).not.toBe(hashShareSecret(generateShareToken()));
+  });
+});
+
+describe("patient identifier crypto (V0.2) error paths", () => {
   it("throws a clear error instead of silently using an insecure default when a key env var is missing", async () => {
     const originalKey = process.env.PATIENT_IDENTIFIER_ENCRYPTION_KEY;
     delete process.env.PATIENT_IDENTIFIER_ENCRYPTION_KEY;

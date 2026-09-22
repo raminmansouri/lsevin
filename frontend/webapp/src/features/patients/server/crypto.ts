@@ -81,3 +81,20 @@ export function maskIdentifierValue(value: string): string {
   if (trimmed.length <= 4) return "*".repeat(trimmed.length);
   return "*".repeat(trimmed.length - 4) + trimmed.slice(-4);
 }
+
+/**
+ * V5.3 temporary share links. A share token/PIN is a different kind of
+ * secret than a patient identifier (an ephemeral bearer credential, not a
+ * piece of the patient's own data), but the same deterministic-HMAC-lookup
+ * shape applies -- reusing the identifier hash key here rather than adding
+ * a second env var: HMAC key reuse across purposes is standard practice as
+ * long as inputs don't collide, and a 32-byte random token or a short PIN
+ * never collides with a real identifier's normalized form in practice.
+ */
+export function generateShareToken(): string {
+  return randomBytes(32).toString("base64url");
+}
+
+export function hashShareSecret(value: string): string {
+  return createHmac("sha256", getHashSecret()).update(value).digest("hex");
+}
