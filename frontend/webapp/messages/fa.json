@@ -15653,6 +15653,7 @@
       "tabs": {
         "overview": "نمای کلی",
         "clinical": "بالینی",
+        "documents": "مستندات",
         "timeline": "جدول زمانی",
         "notes": "یادداشت‌ها"
       },
@@ -15718,7 +15719,13 @@
           "allergy_added": "حساسیت اضافه شد",
           "medication_added": "دارو اضافه شد",
           "product_usage_added": "مصرف محصول اضافه شد",
-          "symptom_added": "علامت اضافه شد"
+          "symptom_added": "علامت اضافه شد",
+          "document_added": "مدرک اضافه شد",
+          "document_replaced": "مدرک جایگزین شد",
+          "lab_order_added": "درخواست آزمایش اضافه شد",
+          "diagnostic_report_added": "گزارش تشخیصی اضافه شد",
+          "observation_added": "یافته آزمایشگاهی اضافه شد",
+          "imaging_study_added": "تصویربرداری اضافه شد"
         }
       },
       "notes": {
@@ -15821,6 +15828,96 @@
           "refuted": "ردشده",
           "entered_in_error": "ثبت اشتباه"
         }
+      },
+      "documents": {
+        "addDiagnosticReport": "افزودن گزارش تشخیصی",
+        "addDocument": "افزودن مدرک",
+        "addImagingStudy": "افزودن تصویربرداری",
+        "addLabOrder": "افزودن درخواست آزمایش",
+        "addObservation": "افزودن یافته آزمایشگاهی",
+        "confidential": "محرمانه",
+        "diagnosticReports": "گزارش‌های تشخیصی",
+        "documents": "مدارک",
+        "documentTypes": {
+          "lab_report": "گزارش آزمایش",
+          "imaging_report": "گزارش تصویربرداری",
+          "mri_image": "تصویر MRI",
+          "ct_image": "تصویر CT",
+          "x_ray": "رادیوگرافی",
+          "ultrasound": "سونوگرافی",
+          "prescription": "نسخه",
+          "discharge_summary": "خلاصه ترخیص",
+          "pathology": "پاتولوژی",
+          "referral": "ارجاع",
+          "doctor_note": "یادداشت پزشک",
+          "operative_report": "گزارش عمل",
+          "medical_history": "سابقه پزشکی",
+          "insurance": "بیمه",
+          "consent": "رضایت‌نامه",
+          "treatment_plan": "برنامه درمان",
+          "second_opinion": "نظر دوم پزشکی",
+          "passport": "پاسپورت",
+          "other": "سایر"
+        },
+        "fields": {
+          "bodyPart": "عضو مورد بررسی",
+          "documentDate": "تاریخ مدرک",
+          "documentType": "نوع مدرک",
+          "externalLab": "آزمایشگاه خارجی",
+          "file": "فایل",
+          "filePlaceholder": "انتخاب فایل",
+          "interpretation": "تفسیر",
+          "interpretationNone": "بدون تفسیر",
+          "isConfidential": "محرمانه — محدود به کارکنان مجاز",
+          "modality": "روش تصویربرداری",
+          "observationName": "نام یافته",
+          "referenceHigh": "سقف محدوده طبیعی",
+          "referenceLow": "کف محدوده طبیعی",
+          "reportStatus": "وضعیت",
+          "reportType": "نوع گزارش",
+          "requestedTests": "آزمایش‌های درخواستی",
+          "requestedTestsPlaceholder": "با کاما جدا کنید، مثلاً CBC، پروفایل چربی",
+          "studyDate": "تاریخ تصویربرداری",
+          "summary": "خلاصه",
+          "title": "عنوان",
+          "unit": "واحد",
+          "value": "مقدار"
+        },
+        "imaging": "تصویربرداری",
+        "interpretations": {
+          "normal": "طبیعی",
+          "high": "بالا",
+          "low": "پایین",
+          "critical_high": "بحرانی بالا",
+          "critical_low": "بحرانی پایین",
+          "abnormal": "غیرطبیعی"
+        },
+        "labOrders": "درخواست‌های آزمایش",
+        "labOrderStatuses": {
+          "ordered": "ثبت‌شده",
+          "in_progress": "در حال انجام",
+          "completed": "تکمیل‌شده",
+          "cancelled": "لغوشده"
+        },
+        "modalities": {
+          "mri": "ام‌آرآی",
+          "ct": "سی‌تی‌اسکن",
+          "pet": "پت‌اسکن",
+          "x_ray": "رادیوگرافی",
+          "ultrasound": "سونوگرافی",
+          "mammography": "ماموگرافی",
+          "other": "سایر"
+        },
+        "observations": "یافته‌های آزمایشگاهی",
+        "possibleDuplicate": "این فایل شبیه فایلی است که قبلاً بارگذاری شده — پیش از نگه‌داشتن هر دو بررسی کنید.",
+        "reportStatuses": {
+          "registered": "ثبت‌شده",
+          "preliminary": "اولیه",
+          "final": "نهایی",
+          "amended": "اصلاح‌شده",
+          "cancelled": "لغوشده"
+        },
+        "version": "نسخه"
       },
       "errors": {
         "generic": "خطایی رخ داد. لطفاً دوباره تلاش کنید."

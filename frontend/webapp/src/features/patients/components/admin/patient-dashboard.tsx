@@ -23,6 +23,13 @@ import type {
   PatientSymptomRow,
 } from "../../clinical-types";
 import type {
+  ClinicalDocumentRow,
+  ClinicalObservationRow,
+  DiagnosticReportRow,
+  ImagingStudyRow,
+  LabOrderRow,
+} from "../../documents-types";
+import type {
   AccountPatientLinkRow,
   PatientAddressRow,
   PatientContactRow,
@@ -33,6 +40,7 @@ import type {
 } from "../../types";
 import { PATIENTS_TRANSLATION_KEY } from "../../types";
 import { ClinicalTab } from "./patient-clinical-tab";
+import { DocumentsTab } from "./patient-documents-tab";
 import {
   AddContactDialog,
   AddIdentifierDialog,
@@ -74,6 +82,11 @@ export function PatientDashboard({
   medications,
   productUsage,
   symptoms,
+  documents,
+  labOrders,
+  diagnosticReports,
+  observations,
+  imagingStudies,
 }: {
   patient: PatientRow;
   identifiers: PatientIdentifierRow[];
@@ -90,6 +103,11 @@ export function PatientDashboard({
   medications: PatientMedicationRow[];
   productUsage: PatientProductUsageRow[];
   symptoms: PatientSymptomRow[];
+  documents: ClinicalDocumentRow[];
+  labOrders: LabOrderRow[];
+  diagnosticReports: DiagnosticReportRow[];
+  observations: ClinicalObservationRow[];
+  imagingStudies: ImagingStudyRow[];
 }) {
   const t = useTranslations(PATIENTS_TRANSLATION_KEY);
 
@@ -147,6 +165,7 @@ export function PatientDashboard({
         <TabsList>
           <TabsTrigger value="overview">{t("admin.tabs.overview")}</TabsTrigger>
           <TabsTrigger value="clinical">{t("admin.tabs.clinical")}</TabsTrigger>
+          <TabsTrigger value="documents">{t("admin.tabs.documents")}</TabsTrigger>
           <TabsTrigger value="timeline">{t("admin.tabs.timeline")}</TabsTrigger>
           <TabsTrigger value="notes">{t("admin.tabs.notes")}</TabsTrigger>
         </TabsList>
@@ -171,6 +190,17 @@ export function PatientDashboard({
             medications={medications}
             productUsage={productUsage}
             symptoms={symptoms}
+          />
+        </TabsContent>
+
+        <TabsContent value="documents" className="pt-4">
+          <DocumentsTab
+            patientId={patient.id}
+            documents={documents}
+            labOrders={labOrders}
+            diagnosticReports={diagnosticReports}
+            observations={observations}
+            imagingStudies={imagingStudies}
           />
         </TabsContent>
 
@@ -317,6 +347,12 @@ const TIMELINE_EVENT_TYPES = [
   "medication_added",
   "product_usage_added",
   "symptom_added",
+  "document_added",
+  "document_replaced",
+  "lab_order_added",
+  "diagnostic_report_added",
+  "observation_added",
+  "imaging_study_added",
 ] as const;
 
 function TimelineTab({ patientId, initialEvents }: { patientId: string; initialEvents: PatientTimelineEventRow[] }) {

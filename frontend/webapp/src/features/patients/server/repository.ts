@@ -453,10 +453,15 @@ export async function getPatientTimeline(
       or (entity_type in (
             'patient_identifier', 'account_patient_link', 'patient_contact', 'patient_address', 'patient_internal_note',
             'patient_condition', 'patient_procedure', 'patient_allergy', 'patient_medication',
-            'patient_product_usage', 'patient_symptom'
+            'patient_product_usage', 'patient_symptom', 'clinical_document', 'lab_order', 'diagnostic_report',
+            'clinical_observation', 'imaging_study'
           )
           and metadata ->> 'patientId' = ${patientId})
     )
+    -- View/download events are still recorded in patient.audit_log (spec
+    -- V3.1's logging requirement) but are access-log noise, not the kind of
+    -- operational event the patient timeline (spec V1.2) is meant to show.
+    and action not in ('document_viewed', 'document_downloaded')
     and (${eventType}::text is null or action = ${eventType})
     and (${from}::date is null or occurred_at >= ${from}::date)
     and (${to}::date is null or occurred_at < (${to}::date + interval '1 day'))

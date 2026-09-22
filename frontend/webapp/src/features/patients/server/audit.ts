@@ -29,7 +29,20 @@ export type PatientAuditAction =
   | "product_usage_added"
   | "product_usage_archived"
   | "symptom_added"
-  | "symptom_archived";
+  | "symptom_archived"
+  | "document_added"
+  | "document_replaced"
+  | "document_archived"
+  | "document_viewed"
+  | "document_downloaded"
+  | "lab_order_added"
+  | "lab_order_archived"
+  | "diagnostic_report_added"
+  | "diagnostic_report_archived"
+  | "observation_added"
+  | "observation_archived"
+  | "imaging_study_added"
+  | "imaging_study_archived";
 
 export async function recordPatientAuditEvent(event: {
   actorUserId?: string | null;

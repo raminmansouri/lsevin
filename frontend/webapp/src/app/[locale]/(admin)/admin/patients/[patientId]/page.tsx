@@ -23,6 +23,13 @@ import {
   listProductUsageForPatient,
   listSymptomsForPatient,
 } from "@/features/patients/server/clinical-repository";
+import {
+  listDiagnosticReportsForPatient,
+  listDocumentsForPatient,
+  listImagingStudiesForPatient,
+  listLabOrdersForPatient,
+  listObservationsForPatient,
+} from "@/features/patients/server/documents-repository";
 import { PATIENTS_TRANSLATION_KEY } from "@/features/patients/types";
 import { assertAdmin } from "@/lib/auth/admin-guard";
 import type { LocaleParams } from "@/types/next";
@@ -80,6 +87,11 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
     medications,
     productUsage,
     symptoms,
+    documents,
+    labOrders,
+    diagnosticReports,
+    observations,
+    imagingStudies,
   ] = await Promise.all([
     listIdentifiersForPatient(patientId),
     listContactsForPatient(patientId),
@@ -94,6 +106,11 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
     listMedicationsForPatient(patientId),
     listProductUsageForPatient(patientId),
     listSymptomsForPatient(patientId),
+    listDocumentsForPatient(patientId),
+    listLabOrdersForPatient(patientId),
+    listDiagnosticReportsForPatient(patientId),
+    listObservationsForPatient(patientId),
+    listImagingStudiesForPatient(patientId),
   ]);
 
   return (
@@ -113,6 +130,11 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
       medications={medications}
       productUsage={productUsage}
       symptoms={symptoms}
+      documents={documents}
+      labOrders={labOrders}
+      diagnosticReports={diagnosticReports}
+      observations={observations}
+      imagingStudies={imagingStudies}
     />
   );
 }

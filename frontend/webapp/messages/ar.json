@@ -13983,6 +13983,7 @@
       "tabs": {
         "overview": "نظرة عامة",
         "clinical": "السجل السريري",
+        "documents": "المستندات",
         "timeline": "الجدول الزمني",
         "notes": "الملاحظات"
       },
@@ -14048,7 +14049,13 @@
           "allergy_added": "تمت إضافة حساسية",
           "medication_added": "تمت إضافة دواء",
           "product_usage_added": "تمت إضافة استخدام منتج",
-          "symptom_added": "تمت إضافة عرض"
+          "symptom_added": "تمت إضافة عرض",
+          "document_added": "تمت إضافة مستند",
+          "document_replaced": "تم استبدال المستند",
+          "lab_order_added": "تمت إضافة طلب فحص",
+          "diagnostic_report_added": "تمت إضافة تقرير تشخيصي",
+          "observation_added": "تمت إضافة نتيجة فحص",
+          "imaging_study_added": "تمت إضافة تصوير"
         }
       },
       "notes": {
@@ -14151,6 +14158,96 @@
           "refuted": "مرفوض",
           "entered_in_error": "أُدخل بالخطأ"
         }
+      },
+      "documents": {
+        "addDiagnosticReport": "إضافة تقرير تشخيصي",
+        "addDocument": "إضافة مستند",
+        "addImagingStudy": "إضافة تصوير",
+        "addLabOrder": "إضافة طلب فحص",
+        "addObservation": "إضافة نتيجة فحص",
+        "confidential": "سري",
+        "diagnosticReports": "التقارير التشخيصية",
+        "documents": "المستندات",
+        "documentTypes": {
+          "lab_report": "تقرير مختبر",
+          "imaging_report": "تقرير تصوير",
+          "mri_image": "صورة رنين مغناطيسي",
+          "ct_image": "صورة أشعة مقطعية",
+          "x_ray": "أشعة سينية",
+          "ultrasound": "موجات فوق صوتية",
+          "prescription": "وصفة طبية",
+          "discharge_summary": "ملخص الخروج",
+          "pathology": "تقرير علم الأمراض",
+          "referral": "إحالة",
+          "doctor_note": "ملاحظة الطبيب",
+          "operative_report": "تقرير العملية",
+          "medical_history": "التاريخ المرضي",
+          "insurance": "التأمين",
+          "consent": "موافقة",
+          "treatment_plan": "خطة العلاج",
+          "second_opinion": "رأي طبي ثانٍ",
+          "passport": "جواز السفر",
+          "other": "أخرى"
+        },
+        "fields": {
+          "bodyPart": "العضو المعني",
+          "documentDate": "تاريخ المستند",
+          "documentType": "نوع المستند",
+          "externalLab": "مختبر خارجي",
+          "file": "الملف",
+          "filePlaceholder": "اختر ملفًا",
+          "interpretation": "التفسير",
+          "interpretationNone": "بدون تفسير",
+          "isConfidential": "سري — يقتصر على الموظفين المخوّلين",
+          "modality": "طريقة التصوير",
+          "observationName": "اسم النتيجة",
+          "referenceHigh": "الحد الأعلى الطبيعي",
+          "referenceLow": "الحد الأدنى الطبيعي",
+          "reportStatus": "الحالة",
+          "reportType": "نوع التقرير",
+          "requestedTests": "الفحوصات المطلوبة",
+          "requestedTestsPlaceholder": "افصل بينها بفاصلة، مثال: CBC، صورة دهنية",
+          "studyDate": "تاريخ التصوير",
+          "summary": "الملخص",
+          "title": "العنوان",
+          "unit": "الوحدة",
+          "value": "القيمة"
+        },
+        "imaging": "التصوير",
+        "interpretations": {
+          "normal": "طبيعي",
+          "high": "مرتفع",
+          "low": "منخفض",
+          "critical_high": "مرتفع حرج",
+          "critical_low": "منخفض حرج",
+          "abnormal": "غير طبيعي"
+        },
+        "labOrders": "طلبات الفحص",
+        "labOrderStatuses": {
+          "ordered": "مطلوب",
+          "in_progress": "قيد التنفيذ",
+          "completed": "مكتمل",
+          "cancelled": "ملغى"
+        },
+        "modalities": {
+          "mri": "رنين مغناطيسي",
+          "ct": "أشعة مقطعية",
+          "pet": "تصوير مقطعي بالإصدار البوزيتروني",
+          "x_ray": "أشعة سينية",
+          "ultrasound": "موجات فوق صوتية",
+          "mammography": "تصوير الثدي الشعاعي",
+          "other": "أخرى"
+        },
+        "observations": "نتائج الفحوصات",
+        "possibleDuplicate": "يشبه هذا الملف ملفًا تم رفعه مسبقًا — تحقق قبل الاحتفاظ بالاثنين.",
+        "reportStatuses": {
+          "registered": "مسجّل",
+          "preliminary": "أولي",
+          "final": "نهائي",
+          "amended": "معدّل",
+          "cancelled": "ملغى"
+        },
+        "version": "الإصدار"
       },
       "errors": {
         "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."

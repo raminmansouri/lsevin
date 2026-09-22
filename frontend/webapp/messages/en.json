@@ -15653,6 +15653,7 @@
       "tabs": {
         "overview": "Overview",
         "clinical": "Clinical",
+        "documents": "Documents",
         "timeline": "Timeline",
         "notes": "Notes"
       },
@@ -15718,7 +15719,13 @@
           "allergy_added": "Allergy added",
           "medication_added": "Medication added",
           "product_usage_added": "Product usage added",
-          "symptom_added": "Symptom added"
+          "symptom_added": "Symptom added",
+          "document_added": "Document added",
+          "document_replaced": "Document replaced",
+          "lab_order_added": "Lab order added",
+          "diagnostic_report_added": "Diagnostic report added",
+          "observation_added": "Observation added",
+          "imaging_study_added": "Imaging study added"
         }
       },
       "notes": {
@@ -15821,6 +15828,96 @@
           "refuted": "Refuted",
           "entered_in_error": "Entered in error"
         }
+      },
+      "documents": {
+        "addDiagnosticReport": "Add diagnostic report",
+        "addDocument": "Add document",
+        "addImagingStudy": "Add imaging study",
+        "addLabOrder": "Add lab order",
+        "addObservation": "Add observation",
+        "confidential": "Confidential",
+        "diagnosticReports": "Diagnostic reports",
+        "documents": "Documents",
+        "documentTypes": {
+          "lab_report": "Lab report",
+          "imaging_report": "Imaging report",
+          "mri_image": "MRI image",
+          "ct_image": "CT image",
+          "x_ray": "X-ray",
+          "ultrasound": "Ultrasound",
+          "prescription": "Prescription",
+          "discharge_summary": "Discharge summary",
+          "pathology": "Pathology",
+          "referral": "Referral",
+          "doctor_note": "Doctor note",
+          "operative_report": "Operative report",
+          "medical_history": "Medical history",
+          "insurance": "Insurance",
+          "consent": "Consent",
+          "treatment_plan": "Treatment plan",
+          "second_opinion": "Second opinion",
+          "passport": "Passport",
+          "other": "Other"
+        },
+        "fields": {
+          "bodyPart": "Body part",
+          "documentDate": "Document date",
+          "documentType": "Document type",
+          "externalLab": "External lab",
+          "file": "File",
+          "filePlaceholder": "Choose file",
+          "interpretation": "Interpretation",
+          "interpretationNone": "None",
+          "isConfidential": "Confidential — restrict to authorized staff",
+          "modality": "Modality",
+          "observationName": "Observation",
+          "referenceHigh": "Reference high",
+          "referenceLow": "Reference low",
+          "reportStatus": "Status",
+          "reportType": "Report type",
+          "requestedTests": "Requested tests",
+          "requestedTestsPlaceholder": "Comma-separated, e.g. CBC, Lipid panel",
+          "studyDate": "Study date",
+          "summary": "Summary",
+          "title": "Title",
+          "unit": "Unit",
+          "value": "Value"
+        },
+        "imaging": "Imaging",
+        "interpretations": {
+          "normal": "Normal",
+          "high": "High",
+          "low": "Low",
+          "critical_high": "Critical high",
+          "critical_low": "Critical low",
+          "abnormal": "Abnormal"
+        },
+        "labOrders": "Lab orders",
+        "labOrderStatuses": {
+          "ordered": "Ordered",
+          "in_progress": "In progress",
+          "completed": "Completed",
+          "cancelled": "Cancelled"
+        },
+        "modalities": {
+          "mri": "MRI",
+          "ct": "CT",
+          "pet": "PET",
+          "x_ray": "X-ray",
+          "ultrasound": "Ultrasound",
+          "mammography": "Mammography",
+          "other": "Other"
+        },
+        "observations": "Observations",
+        "possibleDuplicate": "This file looks similar to one already uploaded — check before keeping both.",
+        "reportStatuses": {
+          "registered": "Registered",
+          "preliminary": "Preliminary",
+          "final": "Final",
+          "amended": "Amended",
+          "cancelled": "Cancelled"
+        },
+        "version": "v"
       },
       "errors": {
         "generic": "Something went wrong. Please try again."
