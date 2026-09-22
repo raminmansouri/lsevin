@@ -60,7 +60,12 @@ export type PatientAuditAction =
   | "share_grant_created"
   | "share_grant_revoked"
   | "share_grant_viewed"
-  | "share_grant_denied";
+  | "share_grant_denied"
+  | "duplicate_scan_run"
+  | "match_candidate_reviewed"
+  | "patient_merged"
+  | "patient_unmerged"
+  | "reconciliation_resolved";
 
 /**
  * `purpose`/`result`/`ipAddress`/`userAgent` were added in V5.6

@@ -32,6 +32,7 @@ import type {
   LabOrderRow,
 } from "../../documents-types";
 import type { PatientConsentRow, ShareGrantRow } from "../../sharing-types";
+import type { PatientMatchCandidateRow, PatientMergeRow, ReconciliationConflict } from "../../identity-types";
 import type {
   AccountPatientLinkRow,
   PatientAddressRow,
@@ -46,6 +47,7 @@ import { AccessTab } from "./patient-access-tab";
 import { CasesTab } from "./patient-cases-tab";
 import { ClinicalTab } from "./patient-clinical-tab";
 import { DocumentsTab } from "./patient-documents-tab";
+import { IdentityTab } from "./patient-identity-tab";
 import {
   AddContactDialog,
   AddIdentifierDialog,
@@ -95,6 +97,9 @@ export function PatientDashboard({
   cases,
   consents,
   shareGrants,
+  matchCandidates,
+  patientMerges,
+  reconciliationConflicts,
 }: {
   patient: PatientRow;
   identifiers: PatientIdentifierRow[];
@@ -119,6 +124,9 @@ export function PatientDashboard({
   cases: MedicalCaseRow[];
   consents: PatientConsentRow[];
   shareGrants: ShareGrantRow[];
+  matchCandidates: { candidate: PatientMatchCandidateRow; otherPatient: PatientRow | null }[];
+  patientMerges: { merge: PatientMergeRow; otherPatient: PatientRow | null; isSurvivor: boolean }[];
+  reconciliationConflicts: ReconciliationConflict[];
 }) {
   const t = useTranslations(PATIENTS_TRANSLATION_KEY);
 
@@ -179,6 +187,7 @@ export function PatientDashboard({
           <TabsTrigger value="clinical">{t("admin.tabs.clinical")}</TabsTrigger>
           <TabsTrigger value="documents">{t("admin.tabs.documents")}</TabsTrigger>
           <TabsTrigger value="access">{t("admin.tabs.access")}</TabsTrigger>
+          <TabsTrigger value="identity">{t("admin.tabs.identity")}</TabsTrigger>
           <TabsTrigger value="timeline">{t("admin.tabs.timeline")}</TabsTrigger>
           <TabsTrigger value="notes">{t("admin.tabs.notes")}</TabsTrigger>
         </TabsList>
@@ -223,6 +232,15 @@ export function PatientDashboard({
 
         <TabsContent value="access" className="pt-4">
           <AccessTab patientId={patient.id} consents={consents} shareGrants={shareGrants} />
+        </TabsContent>
+
+        <TabsContent value="identity" className="pt-4">
+          <IdentityTab
+            patientId={patient.id}
+            candidates={matchCandidates}
+            merges={patientMerges}
+            conflicts={reconciliationConflicts}
+          />
         </TabsContent>
 
         <TabsContent value="timeline" className="pt-4">
@@ -399,6 +417,11 @@ const TIMELINE_EVENT_TYPES = [
   "consent_withdrawn",
   "share_grant_created",
   "share_grant_revoked",
+  "duplicate_scan_run",
+  "match_candidate_reviewed",
+  "patient_merged",
+  "patient_unmerged",
+  "reconciliation_resolved",
 ] as const;
 
 function TimelineTab({ patientId, initialEvents }: { patientId: string; initialEvents: PatientTimelineEventRow[] }) {

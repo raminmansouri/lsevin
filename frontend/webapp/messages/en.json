@@ -15675,6 +15675,7 @@
         "clinical": "Clinical",
         "documents": "Documents",
         "access": "Access & Sharing",
+        "identity": "Identity",
         "timeline": "Timeline",
         "notes": "Notes"
       },
@@ -15752,7 +15753,12 @@
           "consent_granted": "Consent granted",
           "consent_withdrawn": "Consent withdrawn",
           "share_grant_created": "Share link created",
-          "share_grant_revoked": "Share link revoked"
+          "share_grant_revoked": "Share link revoked",
+          "duplicate_scan_run": "Duplicate scan run",
+          "match_candidate_reviewed": "Duplicate match reviewed",
+          "patient_merged": "Patient merged",
+          "patient_unmerged": "Patient merge reversed",
+          "reconciliation_resolved": "Record reconciled"
         }
       },
       "notes": {
@@ -16137,6 +16143,52 @@
           "case_data": "Case data",
           "travel_information": "Travel information",
           "billing_information": "Billing information"
+        }
+      },
+      "identity": {
+        "candidates": "Possible duplicates",
+        "mergeHistory": "Merge history",
+        "reconciliation": "Conflicting records",
+        "scan": "Scan for duplicates",
+        "scanComplete": "{count, plural, =0 {No new possible duplicates found} one {# possible duplicate found} other {# possible duplicates found}}",
+        "unknownPatient": "Unknown patient",
+        "notSamePerson": "Not the same person",
+        "ignore": "Ignore",
+        "samePersonMerge": "Same person — merge",
+        "absorbedLabel": "Absorbed",
+        "mergedIntoLabel": "Merged into",
+        "unmerge": "Reverse merge",
+        "unmerged": "Merge reversed",
+        "reversed": "Reversed",
+        "mergeWith": "Merge with {name}",
+        "mergeWarning": "Merging moves every record from the other patient onto this one. The other patient is never deleted -- this can be reversed.",
+        "recordsToMove": "Records to move",
+        "identifierConflicts": "{count, plural, one {# identifier already exists on this patient and will be marked superseded} other {# identifiers already exist on this patient and will be marked superseded}}",
+        "accountLinkConflicts": "{count, plural, one {# linked account is already linked to this patient and will be deactivated on the other side} other {# linked accounts are already linked to this patient and will be deactivated on the other side}}",
+        "loadingPreview": "Calculating…",
+        "mergeReason": "Reason for merging",
+        "confirmMerge": "Merge",
+        "merged": "Patients merged",
+        "duplicateActiveEntries": "Two active entries with the same name were found.",
+        "keepBoth": "Keep both",
+        "markOutdated": "Mark outdated",
+        "markEnteredInError": "Entered in error",
+        "reconciled": "Resolved",
+        "noConflicts": "No conflicting records found.",
+        "matchReasons": {
+          "name_match": "Same name",
+          "dob_match": "Same date of birth",
+          "contact_match": "Same contact info"
+        },
+        "recordTypes": {
+          "condition": "Condition",
+          "allergy": "Allergy",
+          "medication": "Medication",
+          "procedure": "Procedure"
+        },
+        "errors": {
+          "alreadyMerged": "One of these patients has already been merged.",
+          "alreadyReversed": "This merge has already been reversed."
         }
       },
       "errors": {

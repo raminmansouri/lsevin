@@ -15675,6 +15675,7 @@
         "clinical": "بالینی",
         "documents": "مستندات",
         "access": "دسترسی و اشتراک‌گذاری",
+        "identity": "هویت",
         "timeline": "جدول زمانی",
         "notes": "یادداشت‌ها"
       },
@@ -15752,7 +15753,12 @@
           "consent_granted": "رضایت ثبت شد",
           "consent_withdrawn": "رضایت پس گرفته شد",
           "share_grant_created": "لینک اشتراک‌گذاری ساخته شد",
-          "share_grant_revoked": "لینک اشتراک‌گذاری باطل شد"
+          "share_grant_revoked": "لینک اشتراک‌گذاری باطل شد",
+          "duplicate_scan_run": "بررسی تکراری بودن انجام شد",
+          "match_candidate_reviewed": "مورد تکراری بررسی شد",
+          "patient_merged": "بیمار ادغام شد",
+          "patient_unmerged": "ادغام بیمار بازگردانده شد",
+          "reconciliation_resolved": "رکورد آشتی‌داده شد"
         }
       },
       "notes": {
@@ -16137,6 +16143,52 @@
           "case_data": "اطلاعات پرونده",
           "travel_information": "اطلاعات سفر",
           "billing_information": "اطلاعات مالی"
+        }
+      },
+      "identity": {
+        "candidates": "موارد تکراری احتمالی",
+        "mergeHistory": "تاریخچه ادغام",
+        "reconciliation": "رکوردهای متناقض",
+        "scan": "بررسی موارد تکراری",
+        "scanComplete": "{count, plural, =0 {مورد تکراری جدیدی یافت نشد} one {# مورد تکراری احتمالی یافت شد} other {# مورد تکراری احتمالی یافت شد}}",
+        "unknownPatient": "بیمار ناشناس",
+        "notSamePerson": "شخص یکسانی نیست",
+        "ignore": "نادیده گرفتن",
+        "samePersonMerge": "همان شخص است — ادغام",
+        "absorbedLabel": "ادغام‌شده از",
+        "mergedIntoLabel": "ادغام‌شده در",
+        "unmerge": "بازگردانی ادغام",
+        "unmerged": "ادغام بازگردانده شد",
+        "reversed": "بازگردانده‌شده",
+        "mergeWith": "ادغام با {name}",
+        "mergeWarning": "ادغام تمام رکوردهای بیمار دیگر را به این بیمار منتقل می‌کند. بیمار دیگر هرگز حذف نمی‌شود — این عمل قابل بازگشت است.",
+        "recordsToMove": "رکوردهایی که منتقل می‌شوند",
+        "identifierConflicts": "{count, plural, one {# شناسه از قبل روی این بیمار وجود دارد و به‌عنوان جایگزین‌شده علامت‌گذاری می‌شود} other {# شناسه از قبل روی این بیمار وجود دارند و به‌عنوان جایگزین‌شده علامت‌گذاری می‌شوند}}",
+        "accountLinkConflicts": "{count, plural, one {# حساب متصل از قبل به این بیمار متصل است و در سمت دیگر غیرفعال می‌شود} other {# حساب متصل از قبل به این بیمار متصل هستند و در سمت دیگر غیرفعال می‌شوند}}",
+        "loadingPreview": "در حال محاسبه…",
+        "mergeReason": "دلیل ادغام",
+        "confirmMerge": "ادغام",
+        "merged": "بیماران ادغام شدند",
+        "duplicateActiveEntries": "دو رکورد فعال با نام یکسان یافت شد.",
+        "keepBoth": "نگه‌داشتن هر دو",
+        "markOutdated": "علامت‌گذاری به‌عنوان منسوخ",
+        "markEnteredInError": "ثبت اشتباه",
+        "reconciled": "حل شد",
+        "noConflicts": "رکورد متناقضی یافت نشد.",
+        "matchReasons": {
+          "name_match": "نام یکسان",
+          "dob_match": "تاریخ تولد یکسان",
+          "contact_match": "اطلاعات تماس یکسان"
+        },
+        "recordTypes": {
+          "condition": "بیماری",
+          "allergy": "حساسیت",
+          "medication": "دارو",
+          "procedure": "اقدام درمانی"
+        },
+        "errors": {
+          "alreadyMerged": "یکی از این بیماران قبلاً ادغام شده است.",
+          "alreadyReversed": "این ادغام قبلاً بازگردانده شده است."
         }
       },
       "errors": {

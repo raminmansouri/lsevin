@@ -32,6 +32,11 @@ import {
 } from "@/features/patients/server/documents-repository";
 import { listCasesForPatient } from "@/features/patients/server/cases-repository";
 import { listConsentsForPatient, listShareGrantsForPatient } from "@/features/patients/server/sharing-repository";
+import {
+  findReconciliationConflicts,
+  listMatchCandidatesForPatient,
+  listMergesForPatient,
+} from "@/features/patients/server/identity-repository";
 import { PATIENTS_TRANSLATION_KEY } from "@/features/patients/types";
 import { assertAdmin } from "@/lib/auth/admin-guard";
 import type { LocaleParams } from "@/types/next";
@@ -97,6 +102,9 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
     cases,
     consents,
     shareGrants,
+    matchCandidates,
+    patientMerges,
+    reconciliationConflicts,
   ] = await Promise.all([
     listIdentifiersForPatient(patientId),
     listContactsForPatient(patientId),
@@ -119,7 +127,24 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
     listCasesForPatient(patientId),
     listConsentsForPatient(patientId),
     listShareGrantsForPatient(patientId),
+    listMatchCandidatesForPatient(patientId),
+    listMergesForPatient(patientId),
+    findReconciliationConflicts(patientId),
   ]);
+
+  const candidatesWithOther = await Promise.all(
+    matchCandidates.map(async (candidate) => {
+      const otherId = candidate.patientAId === patientId ? candidate.patientBId : candidate.patientAId;
+      return { candidate, otherPatient: await getPatientById(otherId) };
+    })
+  );
+  const mergesWithOther = await Promise.all(
+    patientMerges.map(async (merge) => {
+      const isSurvivor = merge.survivingPatientId === patientId;
+      const otherId = isSurvivor ? merge.mergedPatientId : merge.survivingPatientId;
+      return { merge, otherPatient: await getPatientById(otherId), isSurvivor };
+    })
+  );
 
   return (
     <PatientDashboard
@@ -146,6 +171,9 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
       cases={cases}
       consents={consents}
       shareGrants={shareGrants}
+      matchCandidates={candidatesWithOther}
+      patientMerges={mergesWithOther}
+      reconciliationConflicts={reconciliationConflicts}
     />
   );
 }

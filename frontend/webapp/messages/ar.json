@@ -14005,6 +14005,7 @@
         "clinical": "السجل السريري",
         "documents": "المستندات",
         "access": "الوصول والمشاركة",
+        "identity": "الهوية",
         "timeline": "الجدول الزمني",
         "notes": "الملاحظات"
       },
@@ -14082,7 +14083,12 @@
           "consent_granted": "تم منح الموافقة",
           "consent_withdrawn": "تم سحب الموافقة",
           "share_grant_created": "تم إنشاء رابط مشاركة",
-          "share_grant_revoked": "تم إلغاء رابط المشاركة"
+          "share_grant_revoked": "تم إلغاء رابط المشاركة",
+          "duplicate_scan_run": "تم تشغيل فحص التكرار",
+          "match_candidate_reviewed": "تمت مراجعة تطابق محتمل",
+          "patient_merged": "تم دمج المريض",
+          "patient_unmerged": "تم التراجع عن دمج المريض",
+          "reconciliation_resolved": "تمت تسوية السجل"
         }
       },
       "notes": {
@@ -14467,6 +14473,52 @@
           "case_data": "بيانات الحالة",
           "travel_information": "معلومات السفر",
           "billing_information": "معلومات الفوترة"
+        }
+      },
+      "identity": {
+        "candidates": "تكرارات محتملة",
+        "mergeHistory": "سجل الدمج",
+        "reconciliation": "سجلات متعارضة",
+        "scan": "فحص التكرارات",
+        "scanComplete": "{count, plural, =0 {لم يتم العثور على تكرارات محتملة جديدة} one {تم العثور على تكرار محتمل واحد} other {تم العثور على # تكرارات محتملة}}",
+        "unknownPatient": "مريض غير معروف",
+        "notSamePerson": "ليس نفس الشخص",
+        "ignore": "تجاهل",
+        "samePersonMerge": "نفس الشخص — دمج",
+        "absorbedLabel": "تم استيعابه من",
+        "mergedIntoLabel": "تم الدمج في",
+        "unmerge": "التراجع عن الدمج",
+        "unmerged": "تم التراجع عن الدمج",
+        "reversed": "تم التراجع",
+        "mergeWith": "دمج مع {name}",
+        "mergeWarning": "يؤدي الدمج إلى نقل كل سجل من المريض الآخر إلى هذا المريض. لا يُحذف المريض الآخر أبدًا — يمكن التراجع عن هذا الإجراء.",
+        "recordsToMove": "السجلات المراد نقلها",
+        "identifierConflicts": "{count, plural, one {يوجد بالفعل معرف واحد على هذا المريض وسيُعلَّم كمُستبدَل} other {توجد بالفعل # معرفات على هذا المريض وستُعلَّم كمُستبدَلة}}",
+        "accountLinkConflicts": "{count, plural, one {هناك حساب واحد مرتبط بالفعل بهذا المريض وسيُلغى تفعيله على الجانب الآخر} other {هناك # حسابات مرتبطة بالفعل بهذا المريض وستُلغى تفعيلها على الجانب الآخر}}",
+        "loadingPreview": "جارٍ الحساب…",
+        "mergeReason": "سبب الدمج",
+        "confirmMerge": "دمج",
+        "merged": "تم دمج المريضين",
+        "duplicateActiveEntries": "تم العثور على سجلين نشطين بنفس الاسم.",
+        "keepBoth": "الاحتفاظ بكليهما",
+        "markOutdated": "تعليم كقديم",
+        "markEnteredInError": "أُدخل بالخطأ",
+        "reconciled": "تمت التسوية",
+        "noConflicts": "لم يتم العثور على سجلات متعارضة.",
+        "matchReasons": {
+          "name_match": "نفس الاسم",
+          "dob_match": "نفس تاريخ الميلاد",
+          "contact_match": "نفس بيانات التواصل"
+        },
+        "recordTypes": {
+          "condition": "حالة",
+          "allergy": "حساسية",
+          "medication": "دواء",
+          "procedure": "إجراء"
+        },
+        "errors": {
+          "alreadyMerged": "تم دمج أحد هذين المريضين بالفعل.",
+          "alreadyReversed": "تم التراجع عن هذا الدمج بالفعل."
         }
       },
       "errors": {
