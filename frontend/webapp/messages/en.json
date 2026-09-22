@@ -7689,6 +7689,7 @@
         "shareWithFriends": "Share with Friends",
         "savedFavorites": "Saved Favorites",
         "medicalProfile": "Medical Profile",
+        "myHealthRecord": "My Health Record",
         "notifications": "Notifications",
         "privacySecurity": "Privacy & Security"
       }
@@ -8099,6 +8100,24 @@
         "addCondition": "Could not add condition.",
         "uploadDocument": "Could not upload document.",
         "saveEmergencyContact": "Could not save emergency contact."
+      }
+    },
+    "myHealthRecord": {
+      "title": "My Health Record",
+      "subtitle": "A read-only summary shared by your care team.",
+      "empty": "No health record is linked to your account yet.",
+      "limitedAccessNotice": "Your access to this record is limited to basic details.",
+      "criticalAllergies": "Critical allergies",
+      "conditions": "Conditions",
+      "medications": "Current medications",
+      "documents": "Documents",
+      "relationshipTypes": {
+        "parent": "Parent",
+        "child": "Child",
+        "guardian": "Guardian",
+        "caregiver": "Caregiver",
+        "authorized_person": "Authorized person",
+        "other": "Other"
       }
     },
     "privacySecurity": {

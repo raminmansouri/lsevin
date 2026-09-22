@@ -3,7 +3,7 @@ import { getProfileForEdit } from '@/features/profile/actions/profile.actions';
 import FetchDisplayProfileInfo from '@/features/profile/components/fetch-display-profile-info';
 import { useNavigate } from '@/hooks/use-navigate';
 // FileText went with the deactivated medical-profile row below; restore it there too.
-import { Settings, Wallet as WalletIcon, Gift, Heart, Bell, Globe, Shield, LogOut, Share2 } from 'lucide-react';
+import { Settings, Wallet as WalletIcon, Gift, Heart, HeartPulse, Bell, Globe, Shield, LogOut, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import SignOutButton from './components/sign-out-button';
 import { getSession } from '@/lib/auth/session';
@@ -24,6 +24,7 @@ export default async function Profile() {
     { icon: Gift, label: t('menu.rewardsLoyalty'), path: '/n/app/mobile/profile/rewards', color: 'text-orange-600' },
     { icon: Share2, label: t('menu.shareWithFriends'), path: '/n/app/mobile/profile/share', color: 'text-blue-600' },
     { icon: Heart, label: t('menu.savedFavorites'), path: '/n/app/mobile/profile/favorites', color: 'text-red-600' },
+    { icon: HeartPulse, label: t('menu.myHealthRecord'), path: '/n/app/mobile/profile/my-health-record', color: 'text-blue-600' },
     // Medical profile is deactivated. The route itself 404s as well, so removing it here
     // is the visible half of that — leaving the row would hand every visitor a dead link.
     // Re-enable by restoring this line and the page body in medical-profile/page.tsx.

@@ -6853,6 +6853,7 @@
         "shareWithFriends": "المشاركة مع الأصدقاء",
         "savedFavorites": "المفضلة المحفوظة",
         "medicalProfile": "الملف الطبي",
+        "myHealthRecord": "سجلي الصحي",
         "notifications": "الإشعارات",
         "privacySecurity": "الخصوصية والأمان"
       }
@@ -7263,6 +7264,24 @@
         "addCondition": "تعذرت إضافة الحالة.",
         "uploadDocument": "تعذر رفع المستند.",
         "saveEmergencyContact": "تعذر حفظ جهة اتصال الطوارئ."
+      }
+    },
+    "myHealthRecord": {
+      "title": "سجلي الصحي",
+      "subtitle": "ملخص للقراءة فقط شاركه فريق رعايتك الصحية.",
+      "empty": "لا يوجد سجل صحي مرتبط بحسابك حتى الآن.",
+      "limitedAccessNotice": "وصولك إلى هذا السجل محدود بالتفاصيل الأساسية.",
+      "criticalAllergies": "حساسيات خطيرة",
+      "conditions": "الحالات",
+      "medications": "الأدوية الحالية",
+      "documents": "المستندات",
+      "relationshipTypes": {
+        "parent": "الوالد",
+        "child": "الطفل",
+        "guardian": "الوصي",
+        "caregiver": "مقدم الرعاية",
+        "authorized_person": "شخص مخوّل",
+        "other": "أخرى"
       }
     },
     "privacySecurity": {

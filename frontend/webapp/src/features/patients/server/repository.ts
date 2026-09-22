@@ -318,6 +318,28 @@ export async function listPatientsForAccount(
   return rows.map(mapPatientRow);
 }
 
+/**
+ * Same join as listPatientsForAccount, but also returns each link's
+ * relationshipType/accessRole -- the customer self-service view (V5.5) uses
+ * accessRole to decide whether to show clinical detail for a given linked
+ * patient (e.g. a "limited" guardian link sees identity/contact only).
+ */
+export async function listPatientAccessForAccount(
+  accountId: string
+): Promise<{ patient: PatientRow; relationshipType: string; accessRole: string }[]> {
+  const rows = await db<any[]>`
+    select p.*, l.relationship_type, l.access_role from patient.patients p
+    join patient.account_patient_links l on l.patient_id = p.id
+    where l.account_id = ${accountId} and l.valid_until is null
+    order by l.is_primary_profile desc, l.create_date asc
+  `;
+  return rows.map((row) => ({
+    patient: mapPatientRow(row),
+    relationshipType: row.relationship_type,
+    accessRole: row.access_role,
+  }));
+}
+
 export async function findActiveAccountPatientLink(
   accountId: string,
   patientId: string
