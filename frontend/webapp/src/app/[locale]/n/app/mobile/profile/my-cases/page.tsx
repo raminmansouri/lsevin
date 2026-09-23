@@ -1,5 +1,5 @@
 import { CalendarClock, ClipboardCheck, Stethoscope } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import {
   computeCaseReadiness,
@@ -16,10 +16,13 @@ import type {
   MedicalCaseSecondOpinionRow,
   MedicalCaseTreatmentProposalRow,
 } from "@/features/patients/cases-types";
+import { listBookedProvidersForAccount, listGrantsForCaseWithProviderNames } from "@/features/patients/server/case-provider-repository";
+import type { BookedProviderOption } from "@/features/patients/case-provider-types";
 import { listPatientAccessForAccount } from "@/features/patients/server/repository";
 import type { TranslationType } from "@/types/next";
 
 import { requireAuthenticatedUserId } from "./auth";
+import { ShareCaseSection } from "./share-case-section";
 
 export const dynamic = "force-dynamic";
 
@@ -50,8 +53,10 @@ function formatDate(value?: string | null) {
 export default async function MyCasesPage() {
   const t = await getTranslations("MobileProfile.myCases");
   const tCases = await getTranslations("Patients.admin.cases");
+  const locale = await getLocale();
   const accountId = await requireAuthenticatedUserId();
   const links = accountId ? await listPatientAccessForAccount(accountId) : [];
+  const bookedProviders = accountId ? await listBookedProvidersForAccount(accountId, locale) : [];
 
   const patientsWithCases = await Promise.all(
     links
@@ -86,7 +91,15 @@ export default async function MyCasesPage() {
                 </p>
               )}
               {cases.map((medicalCase) => (
-                <CaseCard key={medicalCase.id} medicalCase={medicalCase} t={t} tCases={tCases} />
+                <CaseCard
+                  key={medicalCase.id}
+                  medicalCase={medicalCase}
+                  patientId={patient.id}
+                  locale={locale}
+                  bookedProviders={bookedProviders}
+                  t={t}
+                  tCases={tCases}
+                />
               ))}
             </div>
           )
@@ -98,18 +111,25 @@ export default async function MyCasesPage() {
 
 async function CaseCard({
   medicalCase,
+  patientId,
+  locale,
+  bookedProviders,
   t,
   tCases,
 }: {
   medicalCase: MedicalCaseRow;
+  patientId: string;
+  locale: string;
+  bookedProviders: BookedProviderOption[];
   t: TranslationType;
   tCases: TranslationType;
 }) {
-  const [requirements, proposals, secondOpinions, followUps] = await Promise.all([
+  const [requirements, proposals, secondOpinions, followUps, grants] = await Promise.all([
     listRequirementsForCase(medicalCase.id),
     listProposalsForCase(medicalCase.id),
     listSecondOpinionsForCase(medicalCase.id),
     listFollowUpsForCase(medicalCase.id),
+    listGrantsForCaseWithProviderNames(medicalCase.id, locale),
   ]);
   const readiness = computeCaseReadiness(requirements);
 
@@ -179,6 +199,13 @@ async function CaseCard({
           ))}
         </div>
       )}
+
+      <ShareCaseSection
+        patientId={patientId}
+        medicalCaseId={medicalCase.id}
+        grants={grants}
+        bookedProviders={bookedProviders}
+      />
     </div>
   );
 }

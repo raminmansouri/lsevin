@@ -80,7 +80,10 @@ export type PatientAuditAction =
   | "followup_automation_applied"
   | "followup_notification_would_send"
   | "followup_notification_skipped"
-  | "followup_status_updated";
+  | "followup_status_updated"
+  | "case_provider_grant_created"
+  | "case_provider_grant_revoked"
+  | "case_provider_lab_order_fulfilled";
 
 /**
  * `purpose`/`result`/`ipAddress`/`userAgent` were added in V5.6

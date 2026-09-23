@@ -8143,6 +8143,22 @@
         "caregiver": "Caregiver",
         "authorized_person": "Authorized person",
         "other": "Other"
+      },
+      "shareCase": {
+        "title": "Shared with providers",
+        "empty": "Not shared with any provider yet.",
+        "share": "Share with a provider",
+        "cancel": "Cancel",
+        "provider": "Provider",
+        "permission": "What can they do",
+        "permissions": {
+          "view": "View only",
+          "contribute": "View & add results"
+        },
+        "revoke": "Revoke",
+        "shared": "Case shared",
+        "revoked": "Access revoked",
+        "errorGeneric": "Something went wrong. Please try again."
       }
     },
     "mySharing": {
