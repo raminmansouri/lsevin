@@ -288,3 +288,22 @@
 
 	reverse_proxy lsevin-jenkins:8080
 }
+
+# Grafana provides its own authenticated login page.
+{$GRAFANA_DOMAIN:grafana.lsevin.com} {
+	import common_headers
+
+	reverse_proxy {$K3S_NODE_ADDRESS:172.18.0.1}:{$GRAFANA_NODE_PORT:30084}
+}
+
+# Kibana is protected at the TLS edge because Elasticsearch application
+# security is not enabled in the current single-node migration topology.
+{$KIBANA_DOMAIN:kibana.lsevin.com} {
+	import common_headers
+
+	basic_auth {
+		admin $2a$14$xg5bHB9RxcIJBjCskvlLf.a7ZEpbkvSRfGRxmE32JaALnOCSAqM.y
+	}
+
+	reverse_proxy {$K3S_NODE_ADDRESS:172.18.0.1}:{$KIBANA_NODE_PORT:30085}
+}

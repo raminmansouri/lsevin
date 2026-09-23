@@ -109,22 +109,12 @@ kind: Service
 metadata: {name: kibana}
 spec: {selector: {app.kubernetes.io/name: kibana}, ports: [{name: http, port: 5601}]}
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: observability
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-production
-    nginx.ingress.kubernetes.io/auth-type: basic
-    nginx.ingress.kubernetes.io/auth-secret: observability-basic-auth
+# Kibana has no application login while Elasticsearch security is disabled.
+# Only the authenticated Caddy edge may publish this NodePort.
+apiVersion: v1
+kind: Service
+metadata: {name: kibana-edge}
 spec:
-  ingressClassName: nginx
-  tls:
-    - hosts: [grafana.lsevin.com, kibana.lsevin.com]
-      secretName: observability-tls
-  rules:
-    - host: grafana.lsevin.com
-      http: {paths: [{path: /, pathType: Prefix, backend: {service: {name: grafana, port: {number: 3000}}}}]}
-    - host: kibana.lsevin.com
-      http: {paths: [{path: /, pathType: Prefix, backend: {service: {name: kibana, port: {number: 5601}}}}]}
-
+  type: NodePort
+  selector: {app.kubernetes.io/name: kibana}
+  ports: [{name: http, port: 5601, targetPort: http, nodePort: 30085}]

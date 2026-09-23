@@ -295,18 +295,18 @@ public async Task<GetSearchResultsResponse> Search(
         [
             new()
             {
-                Id = ""verified"",
-                Label = ""Verified""
+                Id = "verified",
+                Label = "Verified"
             },
             new()
             {
-                Id = ""top_rated"",
-                Label = ""Top Rated""
+                Id = "top_rated",
+                Label = "Top Rated"
             },
             new()
             {
-                Id = ""low_price"",
-                Label = ""Lowest Price""
+                Id = "low_price",
+                Label = "Lowest Price"
             }
         ],
         RecentSearches = recent
