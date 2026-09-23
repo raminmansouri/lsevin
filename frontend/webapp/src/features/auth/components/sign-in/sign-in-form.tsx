@@ -32,7 +32,7 @@ import AuthFormContainer from "../shared/auth-form-container";
 
 const SignInForm = () => {
   const [isPending, startTransition] = useTransition();
-  const [shouldRedirect, setShouldRedirect] = useState(false);
+  const [redirectHref, setRedirectHref] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const locale = useLocale();
 
@@ -56,22 +56,29 @@ const SignInForm = () => {
 
   const { execute } = useAction(authenticate, {
     startTransition,
-    onSuccess: async () => {
+    onSuccess: async (otpUrl) => {
       const DELAY = 1000;
       toast.success(t("messages.loginSuccess"), {
         duration: DELAY,
       });
       await new Promise((resolve) => setTimeout(resolve, DELAY));
-      setShouldRedirect(true);
+      // otpUrl is the /otp destination the action computed (see
+      // actions/sign-in/index.ts) -- it carries the original redirectTo
+      // along as its own query param, so it is used as-is rather than
+      // falling back to redirectTo here.
+      setRedirectHref(otpUrl || redirectTo);
     },
   });
 
   useEffect(() => {
-    if (shouldRedirect) {
-      // Force page refresh to trigger NextAuth redirect
-      window.location.href = redirectTo;
+    if (redirectHref) {
+      // Force a real page load: this is a fresh httpOnly cookie (the OTP
+      // challenge) that a soft client-side transition can outrace, and it
+      // also matches how NextAuth's own session redirect needs to be
+      // triggered.
+      window.location.href = redirectHref;
     }
-  }, [shouldRedirect, redirectTo]);
+  }, [redirectHref]);
 
   function onSubmit(values: InputType) {
     startTransition(async () => {

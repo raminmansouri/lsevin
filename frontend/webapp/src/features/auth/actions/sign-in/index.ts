@@ -1,7 +1,6 @@
 "use server";
 
 import { getLocale, getTranslations } from "next-intl/server";
-import { redirect } from "next/navigation";
 
 import { env } from "@/config/env/client";
 import { setOtpChallengePhone } from "@/features/auth/lib/otp-challenge";
@@ -56,11 +55,21 @@ const handler = async (
       // reaches a proxy log or the visitor's history — see otp-challenge.ts.
       await setOtpChallengePhone(data.phoneNumber);
 
-      // Redirect to OTP page, carrying the post-login destination so the user
-      // lands back on the page that sent them to sign in.
+      // Return the OTP destination instead of calling next/navigation's
+      // redirect(): this action is invoked directly (not via <form action> or
+      // useActionState), several async layers deep inside a custom hook, so
+      // the thrown NEXT_REDIRECT never reliably reached Next's router --
+      // the form appeared to do nothing until the user refreshed. The client
+      // now performs a hard navigation itself once it sees this value (same
+      // "force a real page load" fix already used below for the post-OTP
+      // redirect, needed here too since the OTP page reads the cookie just
+      // set above and a soft client transition can outrace it).
       const otpUrl = "/otp";
       const target = input.redirectTo?.trim();
-      redirect(target ? `${otpUrl}?redirectTo=${encodeURIComponent(target)}` : otpUrl);
+      return {
+        data: target ? `${otpUrl}?redirectTo=${encodeURIComponent(target)}` : otpUrl,
+        payload: input,
+      };
     }
 
     // If OTP not required (shouldn't happen), return error
@@ -71,16 +80,7 @@ const handler = async (
       },
       payload: input,
     };
-  } catch (exception) {
-    // Handle redirect exception (thrown by Next.js redirect)
-    if (
-      exception instanceof Error &&
-      exception.message === "NEXT_REDIRECT" &&
-      "digest" in exception
-    ) {
-      throw exception;
-    }
-
+  } catch {
     return {
       error: {
         title: t("errors.authError"),
