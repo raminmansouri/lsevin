@@ -4374,6 +4374,7 @@
       "identityUsers": "کاربران",
       "patients": "بیماران",
       "patientsOperations": "عملیات بیماران",
+      "patientsLinkRequests": "درخواست‌های اتصال خانواده",
       "pickedLocations": "مکان‌ها",
       "marketing": "بازاریابی",
       "loyaltyOverview": "نمای کلی وفاداری",
@@ -8123,6 +8124,39 @@
         "caregiver": "مراقب",
         "authorized_person": "فرد مجاز",
         "other": "سایر"
+      },
+      "linkRequest": {
+        "title": "افزودن یکی از اعضای خانواده",
+        "subtitle": "درخواست دسترسی به پرونده سلامت یکی از اعضای خانواده.",
+        "request": "درخواست دسترسی",
+        "cancel": "انصراف",
+        "firstName": "نام",
+        "lastName": "نام خانوادگی",
+        "relationship": "نسبت",
+        "identifierType": "نوع مدرک شناسایی",
+        "identifierValue": "شماره مدرک",
+        "birthDate": "تاریخ تولد (اختیاری)",
+        "reviewNotice": "درخواست شما پیش از اعطای دسترسی بررسی خواهد شد.",
+        "submit": "ارسال درخواست",
+        "submitted": "درخواست ارسال شد",
+        "errorGeneric": "خطایی رخ داد. لطفاً دوباره تلاش کنید.",
+        "statuses": {
+          "pending": "در حال بررسی",
+          "approved": "تایید شده",
+          "rejected": "تایید نشده"
+        },
+        "identifierTypes": {
+          "ir_national_id": "کد ملی ایران",
+          "national_id": "کد ملی",
+          "passport": "گذرنامه",
+          "foreigner_id": "شناسه اتباع خارجی",
+          "residence_permit": "مجوز اقامت",
+          "insurance_id": "شماره بیمه",
+          "hospital_mrn": "شماره پرونده بیمارستانی",
+          "lsevin_patient_number": "شماره بیمار السوین",
+          "temporary_id": "شناسه موقت",
+          "other": "سایر"
+        }
       }
     },
     "myCases": {
@@ -16476,6 +16510,23 @@
           "saving": "در حال ذخیره…",
           "added": "قانون افزوده شد",
           "deactivated": "قانون غیرفعال شد"
+        }
+      },
+      "linkRequests": {
+        "title": "درخواست‌های اتصال خانواده",
+        "description": "درخواست‌های ارسال‌شده توسط مشتریان برای اتصال پرونده یکی از اعضای خانواده به حساب کاربری‌شان.",
+        "pending": "درخواست‌های در انتظار",
+        "empty": "درخواست در انتظاری وجود ندارد.",
+        "matched": "بیمار مطابقت‌یافته",
+        "noMatch": "مطابقت خودکاری یافت نشد — به‌صورت دستی در پرونده بیمار بررسی کنید",
+        "approve": "تایید",
+        "reject": "رد",
+        "approved": "درخواست تایید شد",
+        "rejected": "درخواست رد شد",
+        "accessRoles": {
+          "full": "کامل",
+          "limited": "محدود",
+          "view_only": "فقط مشاهده"
         }
       }
     },

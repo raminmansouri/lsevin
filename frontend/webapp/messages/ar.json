@@ -7286,6 +7286,39 @@
         "caregiver": "مقدم الرعاية",
         "authorized_person": "شخص مخوّل",
         "other": "أخرى"
+      },
+      "linkRequest": {
+        "title": "إضافة فرد من العائلة",
+        "subtitle": "طلب الوصول إلى السجل الصحي لأحد أفراد العائلة.",
+        "request": "طلب الوصول",
+        "cancel": "إلغاء",
+        "firstName": "الاسم الأول",
+        "lastName": "اسم العائلة",
+        "relationship": "صلة القرابة",
+        "identifierType": "نوع الهوية",
+        "identifierValue": "رقم الهوية",
+        "birthDate": "تاريخ الميلاد (اختياري)",
+        "reviewNotice": "سيتم مراجعة طلبك قبل منح الوصول.",
+        "submit": "إرسال الطلب",
+        "submitted": "تم إرسال الطلب",
+        "errorGeneric": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+        "statuses": {
+          "pending": "قيد المراجعة",
+          "approved": "تمت الموافقة",
+          "rejected": "لم تتم الموافقة"
+        },
+        "identifierTypes": {
+          "ir_national_id": "الهوية الوطنية الإيرانية",
+          "national_id": "الهوية الوطنية",
+          "passport": "جواز السفر",
+          "foreigner_id": "هوية الأجانب",
+          "residence_permit": "تصريح الإقامة",
+          "insurance_id": "رقم التأمين",
+          "hospital_mrn": "رقم السجل الطبي",
+          "lsevin_patient_number": "رقم مريض LSevin",
+          "temporary_id": "هوية مؤقتة",
+          "other": "أخرى"
+        }
       }
     },
     "myCases": {
@@ -14805,6 +14838,23 @@
           "saving": "جارٍ الحفظ…",
           "added": "تمت إضافة القاعدة",
           "deactivated": "تم تعطيل القاعدة"
+        }
+      },
+      "linkRequests": {
+        "title": "طلبات ربط أفراد العائلة",
+        "description": "طلبات قدّمها العملاء لربط سجل أحد أفراد العائلة بحسابهم.",
+        "pending": "الطلبات المعلّقة",
+        "empty": "لا توجد طلبات معلّقة.",
+        "matched": "المريض المطابق",
+        "noMatch": "لا توجد مطابقة تلقائية — يُرجى الحل يدويًا من سجل المريض",
+        "approve": "موافقة",
+        "reject": "رفض",
+        "approved": "تمت الموافقة على الطلب",
+        "rejected": "تم رفض الطلب",
+        "accessRoles": {
+          "full": "كامل",
+          "limited": "محدود",
+          "view_only": "عرض فقط"
         }
       }
     },

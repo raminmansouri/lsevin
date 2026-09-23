@@ -182,6 +182,7 @@ export const ADMIN_NAV: AdminNavEntry[] = [
       { titleKey: "identityUsers", href: "/admin/identity-users", icon: UserCog },
       { titleKey: "patients", href: "/admin/patients", icon: HeartPulse },
       { titleKey: "patientsOperations", href: "/admin/patients/operations", icon: TrendingUp },
+      { titleKey: "patientsLinkRequests", href: "/admin/patients/link-requests", icon: UserPlus },
       { titleKey: "pickedLocations", href: "/admin/picked-locations", icon: MapPin },
     ],
   },

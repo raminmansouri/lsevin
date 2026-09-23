@@ -5154,6 +5154,7 @@
       "identityUsers": "Users",
       "patients": "Patients",
       "patientsOperations": "Patient operations",
+      "patientsLinkRequests": "Family link requests",
       "pickedLocations": "Locations",
       "marketing": "Marketing",
       "loyaltyOverview": "Loyalty overview",
@@ -16509,6 +16510,23 @@
           "saving": "Saving…",
           "added": "Rule added",
           "deactivated": "Rule deactivated"
+        }
+      },
+      "linkRequests": {
+        "title": "Family link requests",
+        "description": "Customer-submitted requests to link a family member's record to their account.",
+        "pending": "Pending requests",
+        "empty": "No pending requests.",
+        "matched": "Matched patient",
+        "noMatch": "No automatic match — resolve manually on the patient record",
+        "approve": "Approve",
+        "reject": "Reject",
+        "approved": "Request approved",
+        "rejected": "Request rejected",
+        "accessRoles": {
+          "full": "Full",
+          "limited": "Limited",
+          "view_only": "View only"
         }
       }
     },
