@@ -6854,6 +6854,7 @@
         "savedFavorites": "المفضلة المحفوظة",
         "medicalProfile": "الملف الطبي",
         "myHealthRecord": "سجلي الصحي",
+        "myCases": "حالاتي العلاجية",
         "notifications": "الإشعارات",
         "privacySecurity": "الخصوصية والأمان"
       }
@@ -7275,6 +7276,26 @@
       "conditions": "الحالات",
       "medications": "الأدوية الحالية",
       "documents": "المستندات",
+      "relationshipTypes": {
+        "parent": "الوالد",
+        "child": "الطفل",
+        "guardian": "الوصي",
+        "caregiver": "مقدم الرعاية",
+        "authorized_person": "شخص مخوّل",
+        "other": "أخرى"
+      }
+    },
+    "myCases": {
+      "title": "حالاتي العلاجية",
+      "subtitle": "حالة رحلاتك العلاجية.",
+      "empty": "لا توجد حالة علاجية مرتبطة بحسابك حتى الآن.",
+      "requirements": "المتطلبات",
+      "treatmentProposals": "المقترحات العلاجية",
+      "secondOpinions": "الآراء الطبية الثانية",
+      "followUps": "المتابعات",
+      "estimatedStay": "مدة الإقامة المقدرة",
+      "days": "أيام",
+      "validUntil": "صالح حتى",
       "relationshipTypes": {
         "parent": "الوالد",
         "child": "الطفل",

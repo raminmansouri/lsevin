@@ -7691,6 +7691,7 @@
         "savedFavorites": "Saved Favorites",
         "medicalProfile": "Medical Profile",
         "myHealthRecord": "My Health Record",
+        "myCases": "My Cases",
         "notifications": "Notifications",
         "privacySecurity": "Privacy & Security"
       }
@@ -8112,6 +8113,26 @@
       "conditions": "Conditions",
       "medications": "Current medications",
       "documents": "Documents",
+      "relationshipTypes": {
+        "parent": "Parent",
+        "child": "Child",
+        "guardian": "Guardian",
+        "caregiver": "Caregiver",
+        "authorized_person": "Authorized person",
+        "other": "Other"
+      }
+    },
+    "myCases": {
+      "title": "My Cases",
+      "subtitle": "The status of your treatment journeys.",
+      "empty": "No case is linked to your account yet.",
+      "requirements": "Requirements",
+      "treatmentProposals": "Treatment proposals",
+      "secondOpinions": "Second opinions",
+      "followUps": "Follow-ups",
+      "estimatedStay": "Estimated stay",
+      "days": "days",
+      "validUntil": "Valid until",
       "relationshipTypes": {
         "parent": "Parent",
         "child": "Child",

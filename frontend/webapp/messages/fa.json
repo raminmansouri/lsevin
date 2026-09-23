@@ -7691,6 +7691,7 @@
         "savedFavorites": "علاقه‌مندی‌های ذخیره‌شده",
         "medicalProfile": "پروفایل پزشکی",
         "myHealthRecord": "پرونده سلامت من",
+        "myCases": "پرونده‌های درمانی من",
         "notifications": "اعلان‌ها",
         "privacySecurity": "حریم خصوصی و امنیت"
       }
@@ -8112,6 +8113,26 @@
       "conditions": "بیماری‌ها",
       "medications": "داروهای فعلی",
       "documents": "مدارک",
+      "relationshipTypes": {
+        "parent": "والد",
+        "child": "فرزند",
+        "guardian": "سرپرست قانونی",
+        "caregiver": "مراقب",
+        "authorized_person": "فرد مجاز",
+        "other": "سایر"
+      }
+    },
+    "myCases": {
+      "title": "پرونده‌های درمانی من",
+      "subtitle": "وضعیت مسیرهای درمانی شما.",
+      "empty": "هنوز هیچ پرونده درمانی به حساب شما متصل نشده است.",
+      "requirements": "الزامات",
+      "treatmentProposals": "پیشنهادهای درمانی",
+      "secondOpinions": "نظرات پزشکی دوم",
+      "followUps": "پیگیری‌ها",
+      "estimatedStay": "مدت اقامت تخمینی",
+      "days": "روز",
+      "validUntil": "اعتبار تا",
       "relationshipTypes": {
         "parent": "والد",
         "child": "فرزند",
