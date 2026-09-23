@@ -4375,6 +4375,8 @@ declare const messages: {
       "customers": "مشتریان",
       "customersList": "همه مشتریان",
       "identityUsers": "کاربران",
+      "patients": "بیماران",
+      "patientsOperations": "عملیات بیماران",
       "pickedLocations": "مکان‌ها",
       "marketing": "بازاریابی",
       "loyaltyOverview": "نمای کلی وفاداری",
@@ -7691,6 +7693,11 @@ declare const messages: {
         "shareWithFriends": "اشتراک‌گذاری با دوستان",
         "savedFavorites": "علاقه‌مندی‌های ذخیره‌شده",
         "medicalProfile": "پروفایل پزشکی",
+        "myHealthRecord": "پرونده سلامت من",
+        "myCases": "پرونده‌های درمانی من",
+        "mySharing": "دسترسی و اشتراک‌گذاری",
+        "myPassport": "خلاصه بین‌المللی بیمار",
+        "myResults": "نتایج آزمایش و تصویربرداری",
         "notifications": "اعلان‌ها",
         "privacySecurity": "حریم خصوصی و امنیت"
       }
@@ -8101,6 +8108,163 @@ declare const messages: {
         "addCondition": "افزودن وضعیت پزشکی انجام نشد.",
         "uploadDocument": "آپلود مدرک انجام نشد.",
         "saveEmergencyContact": "ذخیره تماس اضطراری انجام نشد."
+      }
+    },
+    "myHealthRecord": {
+      "title": "پرونده سلامت من",
+      "subtitle": "خلاصه‌ای فقط‌خواندنی که تیم درمانی شما به اشتراک گذاشته است.",
+      "empty": "هنوز هیچ پرونده سلامتی به حساب شما متصل نشده است.",
+      "limitedAccessNotice": "دسترسی شما به این پرونده به جزئیات پایه محدود است.",
+      "criticalAllergies": "حساسیت‌های خطرناک",
+      "conditions": "بیماری‌ها",
+      "medications": "داروهای فعلی",
+      "documents": "مدارک",
+      "relationshipTypes": {
+        "parent": "والد",
+        "child": "فرزند",
+        "guardian": "سرپرست قانونی",
+        "caregiver": "مراقب",
+        "authorized_person": "فرد مجاز",
+        "other": "سایر"
+      }
+    },
+    "myCases": {
+      "title": "پرونده‌های درمانی من",
+      "subtitle": "وضعیت مسیرهای درمانی شما.",
+      "empty": "هنوز هیچ پرونده درمانی به حساب شما متصل نشده است.",
+      "requirements": "الزامات",
+      "treatmentProposals": "پیشنهادهای درمانی",
+      "secondOpinions": "نظرات پزشکی دوم",
+      "followUps": "پیگیری‌ها",
+      "estimatedStay": "مدت اقامت تخمینی",
+      "days": "روز",
+      "validUntil": "اعتبار تا",
+      "relationshipTypes": {
+        "parent": "والد",
+        "child": "فرزند",
+        "guardian": "سرپرست قانونی",
+        "caregiver": "مراقب",
+        "authorized_person": "فرد مجاز",
+        "other": "سایر"
+      },
+      "shareCase": {
+        "title": "اشتراک‌گذاری‌شده با ارائه‌دهندگان",
+        "empty": "هنوز با هیچ ارائه‌دهنده‌ای به اشتراک گذاشته نشده است.",
+        "share": "اشتراک‌گذاری با ارائه‌دهنده",
+        "cancel": "انصراف",
+        "provider": "ارائه‌دهنده",
+        "permission": "چه کاری می‌تواند انجام دهد",
+        "permissions": {
+          "view": "فقط مشاهده",
+          "contribute": "مشاهده و افزودن نتایج"
+        },
+        "revoke": "لغو دسترسی",
+        "shared": "پرونده به اشتراک گذاشته شد",
+        "revoked": "دسترسی لغو شد",
+        "errorGeneric": "خطایی رخ داد. لطفاً دوباره تلاش کنید."
+      }
+    },
+    "mySharing": {
+      "title": "دسترسی و اشتراک‌گذاری",
+      "subtitle": "چه کسی می‌تواند پرونده سلامت شما را ببیند، و تا چه زمانی.",
+      "empty": "هنوز هیچ پرونده‌ای به حساب شما متصل نشده است.",
+      "consents": "رضایت‌نامه‌ها",
+      "noConsents": "هنوز هیچ رضایتی ثبت نشده است.",
+      "withdraw": "پس گرفتن",
+      "shareLinks": "لینک‌های اشتراک‌گذاری",
+      "newShareLink": "لینک اشتراک‌گذاری جدید",
+      "cancel": "انصراف",
+      "noShareLinks": "هنوز هیچ لینک اشتراک‌گذاری ایجاد نشده است.",
+      "unnamedRecipient": "گیرنده بدون نام",
+      "expires": "انقضا",
+      "views": "بازدیدها",
+      "revoke": "باطل کردن",
+      "recipientName": "نام گیرنده (اختیاری)",
+      "dataToShare": "داده‌هایی که به اشتراک گذاشته می‌شود",
+      "expiresInHours": "انقضا (ساعت)",
+      "pinOptional": "پین (اختیاری)",
+      "generateLink": "ایجاد لینک",
+      "linkIssuedOnce": "این لینک فقط یک‌بار نمایش داده می‌شود. آن را همین حالا ذخیره کنید — دیگر قابل بازیابی نیست.",
+      "copy": "کپی",
+      "copied": "کپی شد",
+      "done": "تمام",
+      "linkRevoked": "لینک اشتراک‌گذاری باطل شد",
+      "errors": {
+        "generic": "خطایی رخ داد. لطفاً دوباره تلاش کنید."
+      },
+      "relationshipTypes": {
+        "parent": "والد",
+        "child": "فرزند",
+        "guardian": "سرپرست قانونی",
+        "caregiver": "مراقب",
+        "authorized_person": "فرد مجاز",
+        "other": "سایر"
+      },
+      "consentTypes": {
+        "data_sharing": "اشتراک‌گذاری داده",
+        "marketing": "بازاریابی",
+        "treatment": "درمان",
+        "research": "پژوهش",
+        "family_access": "دسترسی خانواده",
+        "other": "سایر"
+      },
+      "consentStatuses": {
+        "active": "فعال",
+        "withdrawn": "پس‌گرفته‌شده",
+        "expired": "منقضی‌شده"
+      },
+      "grantStatuses": {
+        "active": "فعال",
+        "expired": "منقضی‌شده",
+        "revoked": "باطل‌شده"
+      },
+      "dataScopes": {
+        "demographics": "اطلاعات فردی",
+        "identifiers": "شناسه‌ها",
+        "conditions": "بیماری‌ها",
+        "allergies": "حساسیت‌ها",
+        "medications": "داروها",
+        "procedures": "اقدامات درمانی",
+        "labs": "آزمایش‌ها",
+        "imaging": "تصویربرداری",
+        "documents": "مدارک",
+        "reproductive_history": "سابقه باروری",
+        "cosmetic_history": "سابقه زیبایی",
+        "case_data": "اطلاعات پرونده",
+        "travel_information": "اطلاعات سفر",
+        "billing_information": "اطلاعات مالی"
+      }
+    },
+    "myPassport": {
+      "title": "خلاصه بین‌المللی بیمار",
+      "subtitle": "خلاصه‌ای از پرونده شما که برای درمان بین‌المللی توسط تیم درمانی‌تان تهیه شده است.",
+      "empty": "هنوز هیچ خلاصه‌ای برای شما تهیه نشده است.",
+      "view": "مشاهده",
+      "relationshipTypes": {
+        "parent": "والد",
+        "child": "فرزند",
+        "guardian": "سرپرست قانونی",
+        "caregiver": "مراقب",
+        "authorized_person": "فرد مجاز",
+        "other": "سایر"
+      }
+    },
+    "myResults": {
+      "title": "نتایج آزمایش و تصویربرداری",
+      "subtitle": "دقیقاً همان چیزی که تیم درمانی شما در پرونده ثبت کرده است.",
+      "disclaimer": "این نسخه خام پرونده شماست، نه توصیه پزشکی. لطفاً پیش از هر اقدامی درباره نتایج با تیم درمانی خود مشورت کنید.",
+      "empty": "هنوز هیچ نتیجه‌ای برای شما ثبت نشده است.",
+      "diagnosticReports": "گزارش‌های تشخیصی",
+      "observations": "مقادیر آزمایشگاهی",
+      "labOrders": "آزمایش‌های درخواستی",
+      "imaging": "تصویربرداری",
+      "relationshipTypes": {
+        "parent": "والد",
+        "child": "فرزند",
+        "guardian": "سرپرست قانونی",
+        "caregiver": "مراقب",
+        "authorized_person": "فرد مجاز",
+        "other": "سایر"
       }
     },
     "privacySecurity": {
@@ -15583,6 +15747,764 @@ declare const messages: {
         "answered": "پاسخ‌داده‌شده",
         "hidden": "پنهان",
         "all": "همه"
+      }
+    }
+  },
+  "Patients": {
+    "errors": {
+      "invalidForm": "برخی از فیلدها نامعتبر است. لطفاً بررسی کرده و دوباره تلاش کنید.",
+      "notFound": "بیمار یافت نشد.",
+      "versionConflict": "این پرونده بیمار توسط شخص دیگری تغییر کرده است. صفحه را دوباره بارگذاری کرده و تلاش کنید.",
+      "duplicateIdentifier": "این شناسه قبلاً به یک بیمار متصل شده است."
+    },
+    "admin": {
+      "title": "بیماران",
+      "description": "بیمار را جستجو کنید یا پرونده ۳۶۰ او را باز کنید.",
+      "detail": { "title": "پرونده ۳۶۰ بیمار" },
+      "schemaMissing": {
+        "title": "مایگریشن پایگاه‌داده اجرا نشده است",
+        "body": "برای فعال‌سازی این بخش، مایگریشن 0048_patient_foundation.sql را اجرا کنید."
+      },
+      "search": {
+        "title": "جستجوی بیماران",
+        "placeholder": "شناسه عمومی، کد ملی، پاسپورت، موبایل، ایمیل یا نام",
+        "submit": "جستجو",
+        "prompt": "برای یافتن بیمار عبارتی وارد کنید.",
+        "empty": "بیماری یافت نشد.",
+        "matchType": "یافت‌شده بر اساس",
+        "open": "باز کردن",
+        "matchTypes": {
+          "public_id": "شناسه عمومی",
+          "identifier": "شناسه",
+          "contact": "اطلاعات تماس",
+          "name": "نام"
+        }
+      },
+      "create": {
+        "trigger": "بیمار جدید",
+        "title": "بیمار جدید",
+        "cancel": "انصراف",
+        "save": "ذخیره",
+        "saving": "در حال ذخیره…",
+        "saved": "بیمار ایجاد شد"
+      },
+      "fields": {
+        "name": "نام",
+        "publicId": "شناسه عمومی",
+        "birthDate": "تاریخ تولد",
+        "status": "وضعیت",
+        "firstName": "نام",
+        "lastName": "نام خانوادگی",
+        "preferredName": "نام ترجیحی",
+        "age": "سن",
+        "nationality": "ملیت",
+        "primaryLanguage": "زبان اصلی",
+        "identifierType": "نوع شناسه",
+        "identifierValue": "مقدار شناسه",
+        "contactType": "نوع تماس",
+        "contactValue": "مقدار تماس",
+        "addressLine1": "آدرس",
+        "city": "شهر",
+        "countryCode": "کد کشور",
+        "accountId": "شناسه حساب",
+        "relationshipType": "نسبت"
+      },
+      "status": {
+        "active": "فعال",
+        "inactive": "غیرفعال",
+        "deceased": "فوت‌شده",
+        "merged": "ادغام‌شده",
+        "archived": "بایگانی‌شده"
+      },
+      "tabs": {
+        "overview": "نمای کلی",
+        "cases": "پرونده‌ها",
+        "clinical": "بالینی",
+        "documents": "مستندات",
+        "access": "دسترسی و اشتراک‌گذاری",
+        "identity": "هویت",
+        "passport": "پاسپورت سلامت",
+        "ai": "دستیار هوش مصنوعی",
+        "timeline": "جدول زمانی",
+        "notes": "یادداشت‌ها"
+      },
+      "overview": {
+        "identifiers": "شناسه‌ها",
+        "contacts": "راه‌های تماس",
+        "addresses": "آدرس‌ها",
+        "accounts": "حساب‌های متصل",
+        "add": "افزودن",
+        "empty": "هنوز چیزی ثبت نشده است.",
+        "primary": "اصلی",
+        "verified": "تأییدشده",
+        "unverified": "تأییدنشده",
+        "saved": "ذخیره شد",
+        "addIdentifier": "افزودن شناسه",
+        "addContact": "افزودن راه تماس",
+        "addAddress": "افزودن آدرس",
+        "linkAccount": "اتصال حساب"
+      },
+      "identifierTypes": {
+        "ir_national_id": "کد ملی ایران",
+        "national_id": "کد ملی",
+        "passport": "پاسپورت",
+        "foreigner_id": "شناسه اتباع خارجی",
+        "residence_permit": "اجازه اقامت",
+        "insurance_id": "شماره بیمه",
+        "hospital_mrn": "شماره پرونده بیمارستانی",
+        "lsevin_patient_number": "شماره بیمار السوین",
+        "temporary_id": "شناسه موقت",
+        "other": "سایر"
+      },
+      "contactTypes": {
+        "mobile": "موبایل",
+        "phone": "تلفن",
+        "whatsapp": "واتس‌اپ",
+        "email": "ایمیل",
+        "emergency": "تماس اضطراری"
+      },
+      "relationshipTypes": {
+        "self": "خود شخص",
+        "parent": "والد",
+        "child": "فرزند",
+        "guardian": "سرپرست قانونی",
+        "caregiver": "مراقب",
+        "authorized_person": "فرد مجاز",
+        "other": "سایر"
+      },
+      "timeline": {
+        "allEvents": "همه رویدادها",
+        "newestFirst": "جدیدترین ابتدا",
+        "oldestFirst": "قدیمی‌ترین ابتدا",
+        "empty": "هنوز فعالیتی ثبت نشده است.",
+        "events": {
+          "patient_created": "بیمار ایجاد شد",
+          "patient_updated": "پروفایل به‌روزرسانی شد",
+          "identifier_added": "شناسه اضافه شد",
+          "account_linked": "حساب متصل شد",
+          "contact_added": "راه تماس اضافه شد",
+          "address_added": "آدرس اضافه شد",
+          "note_added": "یادداشت اضافه شد",
+          "condition_added": "بیماری اضافه شد",
+          "procedure_added": "اقدام درمانی اضافه شد",
+          "allergy_added": "حساسیت اضافه شد",
+          "medication_added": "دارو اضافه شد",
+          "product_usage_added": "مصرف محصول اضافه شد",
+          "symptom_added": "علامت اضافه شد",
+          "document_added": "مدرک اضافه شد",
+          "document_replaced": "مدرک جایگزین شد",
+          "lab_order_added": "درخواست آزمایش اضافه شد",
+          "diagnostic_report_added": "گزارش تشخیصی اضافه شد",
+          "observation_added": "یافته آزمایشگاهی اضافه شد",
+          "imaging_study_added": "تصویربرداری اضافه شد",
+          "case_created": "پرونده ایجاد شد",
+          "case_status_changed": "وضعیت پرونده تغییر کرد",
+          "consent_granted": "رضایت ثبت شد",
+          "consent_withdrawn": "رضایت پس گرفته شد",
+          "share_grant_created": "لینک اشتراک‌گذاری ساخته شد",
+          "share_grant_revoked": "لینک اشتراک‌گذاری باطل شد",
+          "duplicate_scan_run": "بررسی تکراری بودن انجام شد",
+          "match_candidate_reviewed": "مورد تکراری بررسی شد",
+          "patient_merged": "بیمار ادغام شد",
+          "patient_unmerged": "ادغام بیمار بازگردانده شد",
+          "reconciliation_resolved": "رکورد آشتی‌داده شد",
+          "passport_generated": "پاسپورت بیمار ساخته شد",
+          "document_classification_run": "دسته‌بندی مدرک انجام شد",
+          "ai_extraction_run": "استخراج هوش مصنوعی انجام شد",
+          "ai_extraction_reviewed": "استخراج هوش مصنوعی بررسی شد",
+          "ai_summary_generated": "خلاصه هوش مصنوعی ساخته شد",
+          "ai_translation_requested": "ترجمه هوش مصنوعی درخواست شد"
+        }
+      },
+      "healthTimelineIntelligence": {
+        "title": "هوشمندی خط زمانی سلامت",
+        "kinds": {
+          "medication_start": "شروع دارو",
+          "medication_stop": "قطع دارو",
+          "procedure": "اقدام درمانی",
+          "case_status": "وضعیت پرونده",
+          "lab_trend_point": "روند نتیجه آزمایشگاهی"
+        }
+      },
+      "notes": {
+        "placeholder": "یادداشت داخلی درباره این بیمار بنویسید…",
+        "add": "افزودن یادداشت",
+        "saved": "یادداشت اضافه شد",
+        "archive": "بایگانی",
+        "archived": "یادداشت بایگانی شد",
+        "empty": "هنوز یادداشتی ثبت نشده است.",
+        "visibilityAdmin": "قابل مشاهده برای مدیران",
+        "visibilitySuperadmin": "فقط قابل مشاهده برای مدیران ارشد"
+      },
+      "clinical": {
+        "addAllergy": "افزودن حساسیت",
+        "addCondition": "افزودن بیماری",
+        "addMedication": "افزودن دارو",
+        "addProcedure": "افزودن اقدام درمانی",
+        "addProductUsage": "افزودن مصرف محصول",
+        "addSymptom": "افزودن علامت",
+        "allergies": "حساسیت‌ها",
+        "allergyCategories": {
+          "food": "غذایی",
+          "medication": "دارویی",
+          "environmental": "محیطی",
+          "biologic": "بیولوژیک",
+          "no_known_allergies": "بدون حساسیت شناخته‌شده",
+          "other": "سایر"
+        },
+        "archive": "بایگانی",
+        "archived": "بایگانی شد",
+        "conditions": "بیماری‌ها",
+        "conditionStatuses": {
+          "active": "فعال",
+          "inactive": "غیرفعال",
+          "resolved": "بهبودیافته",
+          "remission": "فروکش‌کرده",
+          "recurrence": "عودکرده",
+          "unknown": "نامشخص"
+        },
+        "criticalAllergiesTitle": "حساسیت‌های خطرناک",
+        "fields": {
+          "allergyCategory": "دسته",
+          "clinicalStatus": "وضعیت",
+          "displayName": "بیماری",
+          "dose": "دوز",
+          "frequency": "دفعات مصرف",
+          "medicationName": "دارو",
+          "medicationStatus": "وضعیت",
+          "notes": "یادداشت",
+          "onsetDate": "تاریخ شروع",
+          "patientDescription": "توضیح بیمار",
+          "performedFrom": "تاریخ انجام",
+          "procedureName": "اقدام درمانی",
+          "procedureStatus": "وضعیت",
+          "productCategory": "دسته",
+          "productName": "محصول",
+          "reaction": "واکنش",
+          "severity": "شدت",
+          "startDate": "تاریخ شروع",
+          "startedAt": "تاریخ شروع",
+          "substance": "ماده حساسیت‌زا",
+          "symptomName": "علامت"
+        },
+        "medications": "داروها",
+        "medicationStatuses": {
+          "planned": "برنامه‌ریزی‌شده",
+          "active": "فعال",
+          "completed": "تکمیل‌شده",
+          "stopped": "متوقف‌شده",
+          "unknown": "نامشخص"
+        },
+        "procedures": "اقدامات درمانی",
+        "procedureStatuses": {
+          "planned": "برنامه‌ریزی‌شده",
+          "in_progress": "در حال انجام",
+          "completed": "تکمیل‌شده",
+          "cancelled": "لغوشده",
+          "entered_in_error": "ثبت اشتباه"
+        },
+        "productUsage": "مصرف محصولات",
+        "productCategories": {
+          "supplement": "مکمل",
+          "cosmetic": "آرایشی-بهداشتی",
+          "medical_device": "تجهیزات پزشکی",
+          "nutrition": "تغذیه",
+          "other": "سایر"
+        },
+        "reportedOrPrescribed": {
+          "patient_reported": "گزارش بیمار",
+          "prescribed": "تجویزشده"
+        },
+        "symptoms": "علائم",
+        "verified": "تأییدشده",
+        "verificationStatuses": {
+          "patient_reported": "گزارش بیمار",
+          "imported": "وارد‌شده",
+          "unverified": "تأییدنشده",
+          "provisional": "موقت",
+          "verified": "تأییدشده",
+          "refuted": "ردشده",
+          "entered_in_error": "ثبت اشتباه"
+        }
+      },
+      "documents": {
+        "addDiagnosticReport": "افزودن گزارش تشخیصی",
+        "addDocument": "افزودن مدرک",
+        "addImagingStudy": "افزودن تصویربرداری",
+        "addLabOrder": "افزودن درخواست آزمایش",
+        "addObservation": "افزودن یافته آزمایشگاهی",
+        "confidential": "محرمانه",
+        "diagnosticReports": "گزارش‌های تشخیصی",
+        "documents": "مدارک",
+        "documentTypes": {
+          "lab_report": "گزارش آزمایش",
+          "imaging_report": "گزارش تصویربرداری",
+          "mri_image": "تصویر MRI",
+          "ct_image": "تصویر CT",
+          "x_ray": "رادیوگرافی",
+          "ultrasound": "سونوگرافی",
+          "prescription": "نسخه",
+          "discharge_summary": "خلاصه ترخیص",
+          "pathology": "پاتولوژی",
+          "referral": "ارجاع",
+          "doctor_note": "یادداشت پزشک",
+          "operative_report": "گزارش عمل",
+          "medical_history": "سابقه پزشکی",
+          "insurance": "بیمه",
+          "consent": "رضایت‌نامه",
+          "treatment_plan": "برنامه درمان",
+          "second_opinion": "نظر دوم پزشکی",
+          "passport": "پاسپورت",
+          "other": "سایر"
+        },
+        "fields": {
+          "bodyPart": "عضو مورد بررسی",
+          "documentDate": "تاریخ مدرک",
+          "documentType": "نوع مدرک",
+          "externalLab": "آزمایشگاه خارجی",
+          "file": "فایل",
+          "filePlaceholder": "انتخاب فایل",
+          "interpretation": "تفسیر",
+          "interpretationNone": "بدون تفسیر",
+          "isConfidential": "محرمانه — محدود به کارکنان مجاز",
+          "modality": "روش تصویربرداری",
+          "observationName": "نام یافته",
+          "referenceHigh": "سقف محدوده طبیعی",
+          "referenceLow": "کف محدوده طبیعی",
+          "reportStatus": "وضعیت",
+          "reportType": "نوع گزارش",
+          "requestedTests": "آزمایش‌های درخواستی",
+          "requestedTestsPlaceholder": "با کاما جدا کنید، مثلاً CBC، پروفایل چربی",
+          "studyDate": "تاریخ تصویربرداری",
+          "summary": "خلاصه",
+          "title": "عنوان",
+          "unit": "واحد",
+          "value": "مقدار"
+        },
+        "imaging": "تصویربرداری",
+        "interpretations": {
+          "normal": "طبیعی",
+          "high": "بالا",
+          "low": "پایین",
+          "critical_high": "بحرانی بالا",
+          "critical_low": "بحرانی پایین",
+          "abnormal": "غیرطبیعی"
+        },
+        "labOrders": "درخواست‌های آزمایش",
+        "labOrderStatuses": {
+          "ordered": "ثبت‌شده",
+          "in_progress": "در حال انجام",
+          "completed": "تکمیل‌شده",
+          "cancelled": "لغوشده"
+        },
+        "modalities": {
+          "mri": "ام‌آرآی",
+          "ct": "سی‌تی‌اسکن",
+          "pet": "پت‌اسکن",
+          "x_ray": "رادیوگرافی",
+          "ultrasound": "سونوگرافی",
+          "mammography": "ماموگرافی",
+          "other": "سایر"
+        },
+        "observations": "یافته‌های آزمایشگاهی",
+        "possibleDuplicate": "این فایل شبیه فایلی است که قبلاً بارگذاری شده — پیش از نگه‌داشتن هر دو بررسی کنید.",
+        "reportStatuses": {
+          "registered": "ثبت‌شده",
+          "preliminary": "اولیه",
+          "final": "نهایی",
+          "amended": "اصلاح‌شده",
+          "cancelled": "لغوشده"
+        },
+        "version": "نسخه"
+      },
+      "cases": {
+        "title": "پرونده‌های درمانی",
+        "new": "پرونده جدید",
+        "detailTitle": "پرونده",
+        "status": "وضعیت",
+        "statusChanged": "وضعیت به‌روزرسانی شد",
+        "requirements": "الزامات",
+        "submissions": "ارسال به ارائه‌دهندگان",
+        "proposals": "پیشنهادهای درمان",
+        "secondOpinions": "نظرات دوم پزشکی",
+        "providerId": "شناسه ارائه‌دهنده",
+        "generatePackage": "ساخت بسته مدارک",
+        "packageGenerated": "بسته مدارک ساخته شد",
+        "addEncounter": "افزودن ویزیت",
+        "addRequirement": "افزودن الزام",
+        "addSubmission": "افزودن ارسال",
+        "addProposal": "افزودن پیشنهاد",
+        "addSecondOpinion": "افزودن نظر دوم",
+        "addFollowUp": "افزودن پیگیری",
+        "tabs": {
+          "encounters": "ویزیت‌ها",
+          "providers": "ارائه‌دهندگان",
+          "package": "بسته مدارک",
+          "followUps": "پیگیری‌ها"
+        },
+        "fields": {
+          "title": "عنوان",
+          "caseType": "نوع پرونده",
+          "caseTypePlaceholder": "مثلاً جراحی ارتوپدی، درمان ناباروری",
+          "priority": "اولویت",
+          "encounterType": "نوع ویزیت",
+          "startedAt": "تاریخ",
+          "reason": "دلیل",
+          "requirementType": "نوع الزام",
+          "notes": "یادداشت",
+          "diagnosis": "تشخیص",
+          "treatmentPlan": "برنامه درمان",
+          "estimatedStayDays": "مدت اقامت تخمینی (روز)",
+          "opinionDate": "تاریخ نظر",
+          "conclusion": "نتیجه‌گیری",
+          "scheduledDate": "تاریخ برنامه‌ریزی‌شده",
+          "requiredItems": "مدارک/آزمایش‌های لازم"
+        },
+        "statuses": {
+          "draft": "پیش‌نویس",
+          "intake": "پذیرش اولیه",
+          "awaiting_documents": "در انتظار مدارک",
+          "ready_for_review": "آماده بررسی",
+          "under_medical_review": "در حال بررسی پزشکی",
+          "awaiting_provider": "در انتظار ارائه‌دهنده",
+          "treatment_proposed": "درمان پیشنهاد شد",
+          "quote_received": "پیش‌فاکتور دریافت شد",
+          "patient_decision": "تصمیم بیمار",
+          "booked": "رزرو شد",
+          "travel_preparation": "آماده‌سازی سفر",
+          "in_treatment": "در حال درمان",
+          "post_treatment": "پس از درمان",
+          "follow_up": "پیگیری",
+          "completed": "تکمیل‌شده",
+          "cancelled": "لغوشده"
+        },
+        "priorities": {
+          "low": "کم",
+          "normal": "معمولی",
+          "high": "بالا",
+          "urgent": "فوری"
+        },
+        "encounterTypes": {
+          "video_consultation": "مشاوره ویدیویی",
+          "clinic_visit": "ویزیت کلینیک",
+          "hospital_admission": "بستری بیمارستانی",
+          "emergency_visit": "ویزیت اورژانسی",
+          "diagnostic_visit": "ویزیت تشخیصی",
+          "treatment_session": "جلسه درمانی",
+          "follow_up": "پیگیری",
+          "other": "سایر"
+        },
+        "requirementTypes": {
+          "document": "مدرک",
+          "lab_test": "آزمایش",
+          "imaging": "تصویربرداری",
+          "questionnaire": "پرسش‌نامه",
+          "medical_clearance": "تأییدیه پزشکی",
+          "passport": "پاسپورت",
+          "other": "سایر"
+        },
+        "requirementStatuses": {
+          "missing": "موجود نیست",
+          "requested": "درخواست‌شده",
+          "received": "دریافت‌شده",
+          "expired": "منقضی‌شده",
+          "rejected": "ردشده",
+          "accepted": "پذیرفته‌شده"
+        },
+        "submissionStatuses": {
+          "pending": "در انتظار",
+          "accepted": "پذیرفته‌شده",
+          "declined": "ردشده",
+          "needs_more_info": "نیاز به اطلاعات بیشتر"
+        },
+        "proposalStatuses": {
+          "proposed": "پیشنهادشده",
+          "accepted": "پذیرفته‌شده",
+          "rejected": "ردشده",
+          "expired": "منقضی‌شده",
+          "superseded": "جایگزین‌شده"
+        },
+        "followupStatuses": {
+          "scheduled": "برنامه‌ریزی‌شده",
+          "completed": "انجام‌شده",
+          "missed": "ازدست‌رفته",
+          "cancelled": "لغوشده"
+        },
+        "packageScopes": {
+          "demographics": "اطلاعات فردی",
+          "allergies": "حساسیت‌ها",
+          "conditions": "بیماری‌ها",
+          "medications": "داروها",
+          "procedures": "اقدامات درمانی",
+          "lab_results": "نتایج آزمایش",
+          "imaging": "تصویربرداری",
+          "clinical_documents": "مدارک بالینی"
+        },
+        "errors": {
+          "invalidTransition": "این تغییر وضعیت از وضعیت فعلی پرونده مجاز نیست."
+        }
+      },
+      "access": {
+        "consents": "رضایت‌نامه‌ها",
+        "createShareLink": "ساخت لینک اشتراک‌گذاری",
+        "done": "انجام شد",
+        "expires": "انقضا",
+        "generateLink": "ساخت لینک",
+        "grantConsent": "ثبت رضایت",
+        "linkIssuedOnce": "این لینک فقط یک‌بار نمایش داده می‌شود. همین الان آن را کپی کنید — دیگر قابل بازیابی نیست.",
+        "linkRevoked": "لینک باطل شد",
+        "revoke": "باطل کردن",
+        "shareLinks": "لینک‌های اشتراک‌گذاری",
+        "unnamedRecipient": "گیرنده بدون نام",
+        "views": "بازدیدها",
+        "withdraw": "پس گرفتن",
+        "fields": {
+          "consentType": "نوع رضایت",
+          "expiresInHours": "انقضا (ساعت)",
+          "pinOptional": "پین (اختیاری)",
+          "purpose": "هدف",
+          "recipientName": "نام گیرنده",
+          "recipientType": "نوع گیرنده",
+          "scope": "دامنه داده"
+        },
+        "consentTypes": {
+          "data_sharing": "اشتراک‌گذاری داده",
+          "marketing": "بازاریابی",
+          "treatment": "درمان",
+          "research": "پژوهش",
+          "family_access": "دسترسی خانواده",
+          "other": "سایر"
+        },
+        "consentStatuses": {
+          "active": "فعال",
+          "withdrawn": "پس‌گرفته‌شده",
+          "expired": "منقضی‌شده"
+        },
+        "recipientTypes": {
+          "family_member": "عضو خانواده",
+          "coordinator": "هماهنگ‌کننده",
+          "provider": "ارائه‌دهنده",
+          "organization": "سازمان",
+          "external_party": "طرف خارجی",
+          "other": "سایر"
+        },
+        "grantStatuses": {
+          "active": "فعال",
+          "expired": "منقضی‌شده",
+          "revoked": "باطل‌شده"
+        },
+        "dataScopes": {
+          "demographics": "اطلاعات فردی",
+          "identifiers": "شناسه‌ها",
+          "conditions": "بیماری‌ها",
+          "allergies": "حساسیت‌ها",
+          "medications": "داروها",
+          "procedures": "اقدامات درمانی",
+          "labs": "آزمایش‌ها",
+          "imaging": "تصویربرداری",
+          "documents": "مدارک",
+          "reproductive_history": "سابقه باروری",
+          "cosmetic_history": "سابقه زیبایی",
+          "case_data": "اطلاعات پرونده",
+          "travel_information": "اطلاعات سفر",
+          "billing_information": "اطلاعات مالی"
+        }
+      },
+      "identity": {
+        "candidates": "موارد تکراری احتمالی",
+        "mergeHistory": "تاریخچه ادغام",
+        "reconciliation": "رکوردهای متناقض",
+        "scan": "بررسی موارد تکراری",
+        "scanComplete": "{count, plural, =0 {مورد تکراری جدیدی یافت نشد} one {# مورد تکراری احتمالی یافت شد} other {# مورد تکراری احتمالی یافت شد}}",
+        "unknownPatient": "بیمار ناشناس",
+        "notSamePerson": "شخص یکسانی نیست",
+        "ignore": "نادیده گرفتن",
+        "samePersonMerge": "همان شخص است — ادغام",
+        "absorbedLabel": "ادغام‌شده از",
+        "mergedIntoLabel": "ادغام‌شده در",
+        "unmerge": "بازگردانی ادغام",
+        "unmerged": "ادغام بازگردانده شد",
+        "reversed": "بازگردانده‌شده",
+        "mergeWith": "ادغام با {name}",
+        "mergeWarning": "ادغام تمام رکوردهای بیمار دیگر را به این بیمار منتقل می‌کند. بیمار دیگر هرگز حذف نمی‌شود — این عمل قابل بازگشت است.",
+        "recordsToMove": "رکوردهایی که منتقل می‌شوند",
+        "identifierConflicts": "{count, plural, one {# شناسه از قبل روی این بیمار وجود دارد و به‌عنوان جایگزین‌شده علامت‌گذاری می‌شود} other {# شناسه از قبل روی این بیمار وجود دارند و به‌عنوان جایگزین‌شده علامت‌گذاری می‌شوند}}",
+        "accountLinkConflicts": "{count, plural, one {# حساب متصل از قبل به این بیمار متصل است و در سمت دیگر غیرفعال می‌شود} other {# حساب متصل از قبل به این بیمار متصل هستند و در سمت دیگر غیرفعال می‌شوند}}",
+        "loadingPreview": "در حال محاسبه…",
+        "mergeReason": "دلیل ادغام",
+        "confirmMerge": "ادغام",
+        "merged": "بیماران ادغام شدند",
+        "duplicateActiveEntries": "دو رکورد فعال با نام یکسان یافت شد.",
+        "keepBoth": "نگه‌داشتن هر دو",
+        "markOutdated": "علامت‌گذاری به‌عنوان منسوخ",
+        "markEnteredInError": "ثبت اشتباه",
+        "reconciled": "حل شد",
+        "noConflicts": "رکورد متناقضی یافت نشد.",
+        "matchReasons": {
+          "name_match": "نام یکسان",
+          "dob_match": "تاریخ تولد یکسان",
+          "contact_match": "اطلاعات تماس یکسان"
+        },
+        "recordTypes": {
+          "condition": "بیماری",
+          "allergy": "حساسیت",
+          "medication": "دارو",
+          "procedure": "اقدام درمانی"
+        },
+        "errors": {
+          "alreadyMerged": "یکی از این بیماران قبلاً ادغام شده است.",
+          "alreadyReversed": "این ادغام قبلاً بازگردانده شده است."
+        }
+      },
+      "passport": {
+        "generate": "ساخت پاسپورت سلامت",
+        "generated": "پاسپورت ساخته شد",
+        "history": "پاسپورت‌های ساخته‌شده",
+        "missingSectionsNotice": "تجهیزات/ایمپلنت‌ها و واکسیناسیون هنوز در این سیستم ثبت نمی‌شوند، بنابراین به‌عنوان بخش قابل انتخاب ارائه نمی‌شوند.",
+        "viewFhirBundle": "مشاهده بسته FHIR",
+        "languages": {
+          "fa": "فارسی",
+          "ar": "عربی",
+          "en": "انگلیسی",
+          "tr": "ترکی"
+        },
+        "sections": {
+          "demographics": "اطلاعات فردی",
+          "allergies": "حساسیت‌ها",
+          "medications": "داروهای فعلی",
+          "conditions": "بیماری‌های فعال",
+          "procedures": "اقدامات درمانی قبلی",
+          "diagnostic_results": "نتایج تشخیصی اخیر",
+          "imaging": "مراجع تصویربرداری",
+          "emergency_contact": "تماس اضطراری"
+        }
+      },
+      "ai": {
+        "providerNotice": "هیچ ارائه‌دهنده هوش مصنوعی برای این استقرار پیکربندی نشده است. صف‌های بررسی زیر خالی می‌مانند و اقدامات تولید تا زمان پیکربندی، «پیکربندی‌نشده» گزارش می‌دهند.",
+        "documentClassification": "دسته‌بندی مدرک",
+        "extractionQueue": "صف بررسی استخراج",
+        "approve": "تأیید",
+        "reject": "رد",
+        "defer": "به‌تعویق‌انداختن",
+        "reviewed": "بررسی شد",
+        "summary": "خلاصه هوش مصنوعی",
+        "generateSummary": "ساخت خلاصه",
+        "summaryGenerated": "خلاصه ساخته شد",
+        "translation": "ترجمه با کمک هوش مصنوعی",
+        "selectDocument": "انتخاب مدرک",
+        "requestTranslation": "درخواست ترجمه",
+        "translationRequested": "ترجمه درخواست شد",
+        "readinessAssistant": "دستیار آمادگی پرونده",
+        "readinessDisclaimer": "فقط کمک عملیاتی — نه تصمیم واجدشرایط بودن پزشکی.",
+        "suggestedRecords": "رکوردهایی که ممکن است بخواهید به این پرونده پیوست کنید",
+        "candidateTypes": {
+          "condition": "بیماری",
+          "medication": "دارو",
+          "lab_observation": "یافته آزمایشگاهی",
+          "procedure": "اقدام درمانی",
+          "provider_facility": "ارائه‌دهنده/مرکز"
+        },
+        "alertTypes": {
+          "missing_requirement": "موجود نیست",
+          "expired_requirement": "منقضی‌شده",
+          "duplicate_document": "احتمال تکراری بودن"
+        },
+        "errors": {
+          "notConfigured": "هنوز هیچ ارائه‌دهنده هوش مصنوعی برای این استقرار پیکربندی نشده است."
+        }
+      },
+      "errors": {
+        "generic": "خطایی رخ داد. لطفاً دوباره تلاش کنید."
+      },
+      "operations": {
+        "title": "عملیات بیماران",
+        "description": "تحلیل پرونده‌های بین‌بیماران، خودکارسازی پیگیری‌ها و کیفیت داده — فقط تجمیعی، بدون فهرست رکورد تک‌بیمار.",
+        "schemaMissing": {
+          "title": "مایگریشن دیتابیس در انتظار اجرا",
+          "body": "برای فعال‌سازی این بخش، مایگریشن 0058_patient_analytics_automation.sql را اجرا کنید."
+        },
+        "funnel": {
+          "title": "قیف پرونده‌ها"
+        },
+        "timing": {
+          "title": "زمان‌بندی پرونده‌ها",
+          "avgIntakeToReadyDays": "میانگین پذیرش تا آمادگی بررسی",
+          "medianIntakeToReadyDays": "میانه پذیرش تا آمادگی بررسی",
+          "avgProviderResponseDays": "میانگین زمان پاسخ ارائه‌دهنده",
+          "casesMeasured": "پرونده‌های اندازه‌گیری‌شده",
+          "days": "{value} روز",
+          "noData": "هنوز داده کافی موجود نیست."
+        },
+        "segmentation": {
+          "title": "بخش‌بندی",
+          "byOriginCountry": "بر اساس کشور مبدا",
+          "byCaseType": "بر اساس نوع پرونده",
+          "unknown": "نامشخص"
+        },
+        "followUpCompletion": {
+          "title": "تکمیل پیگیری‌ها",
+          "total": "کل",
+          "completed": "تکمیل‌شده",
+          "missed": "ازدست‌رفته",
+          "completionRate": "نرخ تکمیل"
+        },
+        "overdueFollowUps": {
+          "title": "پیگیری‌های عقب‌افتاده",
+          "empty": "پیگیری عقب‌افتاده‌ای وجود ندارد.",
+          "patient": "بیمار",
+          "scheduledDate": "زمان برنامه‌ریزی‌شده",
+          "daysOverdue": "{value} روز عقب‌افتاده"
+        },
+        "dataQuality": {
+          "title": "کیفیت داده",
+          "totalPatients": "کل بیماران",
+          "pendingDuplicateCandidates": "کاندیدهای تکراری در انتظار بررسی",
+          "duplicateRate": "نرخ کاندیدهای تکراری",
+          "unverifiedClinicalRecordRate": "نرخ رکوردهای بالینی تاییدنشده",
+          "recordsMissingCodeRate": "رکوردهای بدون کد",
+          "staleContactCount": "اطلاعات تماس قدیمی و تاییدنشده"
+        },
+        "scheduleRules": {
+          "title": "قوانین خودکارسازی پیگیری",
+          "add": "قانون جدید",
+          "empty": "هنوز قانون خودکارسازی‌ای وجود ندارد.",
+          "caseType": "نوع پرونده",
+          "daysAfterCompletion": "روز پس از تکمیل پرونده",
+          "ruleTitle": "عنوان پیگیری",
+          "requiredItems": "موارد لازم (اختیاری)",
+          "active": "فعال",
+          "inactive": "غیرفعال",
+          "deactivate": "غیرفعال کردن",
+          "save": "ذخیره",
+          "saving": "در حال ذخیره…",
+          "added": "قانون افزوده شد",
+          "deactivated": "قانون غیرفعال شد"
+        }
+      }
+    },
+    "share": {
+      "title": "پرونده پزشکی به‌اشتراک‌گذاشته‌شده",
+      "loading": "در حال بارگذاری…",
+      "expiresAt": "انقضا",
+      "disclaimer": "این یک نمای محدود و زمان‌دار است که توسط تیم درمانی بیمار به اشتراک گذاشته شده. این لینک را فوروارد نکنید.",
+      "pinTitle": "وارد کردن پین",
+      "pinLabel": "پین",
+      "pinSubmit": "مشاهده پرونده",
+      "sections": {
+        "demographics": "بیمار",
+        "conditions": "بیماری‌ها",
+        "allergies": "حساسیت‌ها",
+        "noKnownAllergies": "بدون حساسیت شناخته‌شده",
+        "medications": "داروها",
+        "procedures": "اقدامات درمانی",
+        "documents": "مدارک"
+      },
+      "errors": {
+        "not_found": "این لینک نامعتبر است.",
+        "expired": "این لینک منقضی شده است.",
+        "revoked": "این لینک باطل شده است.",
+        "max_reached": "این لینک به سقف تعداد بازدید رسیده است.",
+        "pin_invalid": "پین نادرست است."
       }
     }
   }

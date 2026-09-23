@@ -5155,6 +5155,8 @@ declare const messages: {
       "customers": "Customers",
       "customersList": "All customers",
       "identityUsers": "Users",
+      "patients": "Patients",
+      "patientsOperations": "Patient operations",
       "pickedLocations": "Locations",
       "marketing": "Marketing",
       "loyaltyOverview": "Loyalty overview",
@@ -7691,6 +7693,11 @@ declare const messages: {
         "shareWithFriends": "Share with Friends",
         "savedFavorites": "Saved Favorites",
         "medicalProfile": "Medical Profile",
+        "myHealthRecord": "My Health Record",
+        "myCases": "My Cases",
+        "mySharing": "Access & Sharing",
+        "myPassport": "International Patient Summary",
+        "myResults": "Lab & Imaging Results",
         "notifications": "Notifications",
         "privacySecurity": "Privacy & Security"
       }
@@ -8101,6 +8108,163 @@ declare const messages: {
         "addCondition": "Could not add condition.",
         "uploadDocument": "Could not upload document.",
         "saveEmergencyContact": "Could not save emergency contact."
+      }
+    },
+    "myHealthRecord": {
+      "title": "My Health Record",
+      "subtitle": "A read-only summary shared by your care team.",
+      "empty": "No health record is linked to your account yet.",
+      "limitedAccessNotice": "Your access to this record is limited to basic details.",
+      "criticalAllergies": "Critical allergies",
+      "conditions": "Conditions",
+      "medications": "Current medications",
+      "documents": "Documents",
+      "relationshipTypes": {
+        "parent": "Parent",
+        "child": "Child",
+        "guardian": "Guardian",
+        "caregiver": "Caregiver",
+        "authorized_person": "Authorized person",
+        "other": "Other"
+      }
+    },
+    "myCases": {
+      "title": "My Cases",
+      "subtitle": "The status of your treatment journeys.",
+      "empty": "No case is linked to your account yet.",
+      "requirements": "Requirements",
+      "treatmentProposals": "Treatment proposals",
+      "secondOpinions": "Second opinions",
+      "followUps": "Follow-ups",
+      "estimatedStay": "Estimated stay",
+      "days": "days",
+      "validUntil": "Valid until",
+      "relationshipTypes": {
+        "parent": "Parent",
+        "child": "Child",
+        "guardian": "Guardian",
+        "caregiver": "Caregiver",
+        "authorized_person": "Authorized person",
+        "other": "Other"
+      },
+      "shareCase": {
+        "title": "Shared with providers",
+        "empty": "Not shared with any provider yet.",
+        "share": "Share with a provider",
+        "cancel": "Cancel",
+        "provider": "Provider",
+        "permission": "What can they do",
+        "permissions": {
+          "view": "View only",
+          "contribute": "View & add results"
+        },
+        "revoke": "Revoke",
+        "shared": "Case shared",
+        "revoked": "Access revoked",
+        "errorGeneric": "Something went wrong. Please try again."
+      }
+    },
+    "mySharing": {
+      "title": "Access & Sharing",
+      "subtitle": "Who can see your health record, and for how long.",
+      "empty": "No record is linked to your account yet.",
+      "consents": "Consents",
+      "noConsents": "No consent has been recorded yet.",
+      "withdraw": "Withdraw",
+      "shareLinks": "Share links",
+      "newShareLink": "New share link",
+      "cancel": "Cancel",
+      "noShareLinks": "No share link has been created yet.",
+      "unnamedRecipient": "Unnamed recipient",
+      "expires": "Expires",
+      "views": "Views",
+      "revoke": "Revoke",
+      "recipientName": "Recipient name (optional)",
+      "dataToShare": "Data to share",
+      "expiresInHours": "Expires in (hours)",
+      "pinOptional": "PIN (optional)",
+      "generateLink": "Generate link",
+      "linkIssuedOnce": "This link is shown only once. Save it now — it can't be retrieved again.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "done": "Done",
+      "linkRevoked": "Share link revoked",
+      "errors": {
+        "generic": "Something went wrong. Please try again."
+      },
+      "relationshipTypes": {
+        "parent": "Parent",
+        "child": "Child",
+        "guardian": "Guardian",
+        "caregiver": "Caregiver",
+        "authorized_person": "Authorized person",
+        "other": "Other"
+      },
+      "consentTypes": {
+        "data_sharing": "Data sharing",
+        "marketing": "Marketing",
+        "treatment": "Treatment",
+        "research": "Research",
+        "family_access": "Family access",
+        "other": "Other"
+      },
+      "consentStatuses": {
+        "active": "Active",
+        "withdrawn": "Withdrawn",
+        "expired": "Expired"
+      },
+      "grantStatuses": {
+        "active": "Active",
+        "expired": "Expired",
+        "revoked": "Revoked"
+      },
+      "dataScopes": {
+        "demographics": "Demographics",
+        "identifiers": "Identifiers",
+        "conditions": "Conditions",
+        "allergies": "Allergies",
+        "medications": "Medications",
+        "procedures": "Procedures",
+        "labs": "Labs",
+        "imaging": "Imaging",
+        "documents": "Documents",
+        "reproductive_history": "Reproductive history",
+        "cosmetic_history": "Cosmetic history",
+        "case_data": "Case data",
+        "travel_information": "Travel information",
+        "billing_information": "Billing information"
+      }
+    },
+    "myPassport": {
+      "title": "International Patient Summary",
+      "subtitle": "A summary of your record prepared for international care, generated by your care team.",
+      "empty": "No summary has been generated for you yet.",
+      "view": "View",
+      "relationshipTypes": {
+        "parent": "Parent",
+        "child": "Child",
+        "guardian": "Guardian",
+        "caregiver": "Caregiver",
+        "authorized_person": "Authorized person",
+        "other": "Other"
+      }
+    },
+    "myResults": {
+      "title": "Lab & Imaging Results",
+      "subtitle": "Exactly what's in your record, as reported by your care team.",
+      "disclaimer": "This is your raw record, not medical advice. Please discuss any result with your care team before acting on it.",
+      "empty": "No result has been recorded for you yet.",
+      "diagnosticReports": "Diagnostic reports",
+      "observations": "Lab values",
+      "labOrders": "Lab orders",
+      "imaging": "Imaging",
+      "relationshipTypes": {
+        "parent": "Parent",
+        "child": "Child",
+        "guardian": "Guardian",
+        "caregiver": "Caregiver",
+        "authorized_person": "Authorized person",
+        "other": "Other"
       }
     },
     "privacySecurity": {
@@ -15583,6 +15747,764 @@ declare const messages: {
         "answered": "Answered",
         "hidden": "Hidden",
         "all": "All"
+      }
+    }
+  },
+  "Patients": {
+    "errors": {
+      "invalidForm": "Some fields are invalid. Please check and try again.",
+      "notFound": "Patient not found.",
+      "versionConflict": "This patient was modified by someone else. Reload and try again.",
+      "duplicateIdentifier": "This identifier is already attached to a patient."
+    },
+    "admin": {
+      "title": "Patients",
+      "description": "Search for a patient or open their Patient 360 record.",
+      "detail": { "title": "Patient 360" },
+      "schemaMissing": {
+        "title": "Database migration pending",
+        "body": "Apply migration 0048_patient_foundation.sql to enable this section."
+      },
+      "search": {
+        "title": "Search patients",
+        "placeholder": "Public ID, national ID, passport, mobile, email or name",
+        "submit": "Search",
+        "prompt": "Enter a search term to find a patient.",
+        "empty": "No matching patients.",
+        "matchType": "Matched by",
+        "open": "Open",
+        "matchTypes": {
+          "public_id": "Public ID",
+          "identifier": "Identifier",
+          "contact": "Contact",
+          "name": "Name"
+        }
+      },
+      "create": {
+        "trigger": "New patient",
+        "title": "New patient",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving…",
+        "saved": "Patient created"
+      },
+      "fields": {
+        "name": "Name",
+        "publicId": "Public ID",
+        "birthDate": "Date of birth",
+        "status": "Status",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "preferredName": "Preferred name",
+        "age": "Age",
+        "nationality": "Nationality",
+        "primaryLanguage": "Primary language",
+        "identifierType": "Identifier type",
+        "identifierValue": "Identifier value",
+        "contactType": "Contact type",
+        "contactValue": "Contact value",
+        "addressLine1": "Address",
+        "city": "City",
+        "countryCode": "Country code",
+        "accountId": "Account ID",
+        "relationshipType": "Relationship"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "deceased": "Deceased",
+        "merged": "Merged",
+        "archived": "Archived"
+      },
+      "tabs": {
+        "overview": "Overview",
+        "cases": "Cases",
+        "clinical": "Clinical",
+        "documents": "Documents",
+        "access": "Access & Sharing",
+        "identity": "Identity",
+        "passport": "Passport",
+        "ai": "AI Assist",
+        "timeline": "Timeline",
+        "notes": "Notes"
+      },
+      "overview": {
+        "identifiers": "Identifiers",
+        "contacts": "Contact methods",
+        "addresses": "Addresses",
+        "accounts": "Linked accounts",
+        "add": "Add",
+        "empty": "Nothing here yet.",
+        "primary": "Primary",
+        "verified": "Verified",
+        "unverified": "Unverified",
+        "saved": "Saved",
+        "addIdentifier": "Add identifier",
+        "addContact": "Add contact",
+        "addAddress": "Add address",
+        "linkAccount": "Link account"
+      },
+      "identifierTypes": {
+        "ir_national_id": "Iranian national ID",
+        "national_id": "National ID",
+        "passport": "Passport",
+        "foreigner_id": "Foreigner ID",
+        "residence_permit": "Residence permit",
+        "insurance_id": "Insurance ID",
+        "hospital_mrn": "Hospital MRN",
+        "lsevin_patient_number": "LSevin patient number",
+        "temporary_id": "Temporary ID",
+        "other": "Other"
+      },
+      "contactTypes": {
+        "mobile": "Mobile",
+        "phone": "Phone",
+        "whatsapp": "WhatsApp",
+        "email": "Email",
+        "emergency": "Emergency contact"
+      },
+      "relationshipTypes": {
+        "self": "Self",
+        "parent": "Parent",
+        "child": "Child",
+        "guardian": "Guardian",
+        "caregiver": "Caregiver",
+        "authorized_person": "Authorized person",
+        "other": "Other"
+      },
+      "timeline": {
+        "allEvents": "All events",
+        "newestFirst": "Newest first",
+        "oldestFirst": "Oldest first",
+        "empty": "No activity recorded yet.",
+        "events": {
+          "patient_created": "Patient created",
+          "patient_updated": "Profile updated",
+          "identifier_added": "Identifier added",
+          "account_linked": "Account linked",
+          "contact_added": "Contact added",
+          "address_added": "Address added",
+          "note_added": "Note added",
+          "condition_added": "Condition added",
+          "procedure_added": "Procedure added",
+          "allergy_added": "Allergy added",
+          "medication_added": "Medication added",
+          "product_usage_added": "Product usage added",
+          "symptom_added": "Symptom added",
+          "document_added": "Document added",
+          "document_replaced": "Document replaced",
+          "lab_order_added": "Lab order added",
+          "diagnostic_report_added": "Diagnostic report added",
+          "observation_added": "Observation added",
+          "imaging_study_added": "Imaging study added",
+          "case_created": "Case created",
+          "case_status_changed": "Case status changed",
+          "consent_granted": "Consent granted",
+          "consent_withdrawn": "Consent withdrawn",
+          "share_grant_created": "Share link created",
+          "share_grant_revoked": "Share link revoked",
+          "duplicate_scan_run": "Duplicate scan run",
+          "match_candidate_reviewed": "Duplicate match reviewed",
+          "patient_merged": "Patient merged",
+          "patient_unmerged": "Patient merge reversed",
+          "reconciliation_resolved": "Record reconciled",
+          "passport_generated": "Patient passport generated",
+          "document_classification_run": "Document classification run",
+          "ai_extraction_run": "AI extraction run",
+          "ai_extraction_reviewed": "AI extraction reviewed",
+          "ai_summary_generated": "AI summary generated",
+          "ai_translation_requested": "AI translation requested"
+        }
+      },
+      "healthTimelineIntelligence": {
+        "title": "Health timeline intelligence",
+        "kinds": {
+          "medication_start": "Medication started",
+          "medication_stop": "Medication stopped",
+          "procedure": "Procedure",
+          "case_status": "Case status",
+          "lab_trend_point": "Lab trend point"
+        }
+      },
+      "notes": {
+        "placeholder": "Write an internal note about this patient…",
+        "add": "Add note",
+        "saved": "Note added",
+        "archive": "Archive",
+        "archived": "Note archived",
+        "empty": "No notes yet.",
+        "visibilityAdmin": "Visible to admins",
+        "visibilitySuperadmin": "Visible to super admins only"
+      },
+      "clinical": {
+        "addAllergy": "Add allergy",
+        "addCondition": "Add condition",
+        "addMedication": "Add medication",
+        "addProcedure": "Add procedure",
+        "addProductUsage": "Add product usage",
+        "addSymptom": "Add symptom",
+        "allergies": "Allergies",
+        "allergyCategories": {
+          "food": "Food",
+          "medication": "Medication",
+          "environmental": "Environmental",
+          "biologic": "Biologic",
+          "no_known_allergies": "No known allergies",
+          "other": "Other"
+        },
+        "archive": "Archive",
+        "archived": "Archived",
+        "conditions": "Conditions",
+        "conditionStatuses": {
+          "active": "Active",
+          "inactive": "Inactive",
+          "resolved": "Resolved",
+          "remission": "Remission",
+          "recurrence": "Recurrence",
+          "unknown": "Unknown"
+        },
+        "criticalAllergiesTitle": "Critical allergies",
+        "fields": {
+          "allergyCategory": "Category",
+          "clinicalStatus": "Status",
+          "displayName": "Condition",
+          "dose": "Dose",
+          "frequency": "Frequency",
+          "medicationName": "Medication",
+          "medicationStatus": "Status",
+          "notes": "Notes",
+          "onsetDate": "Onset date",
+          "patientDescription": "Patient description",
+          "performedFrom": "Date performed",
+          "procedureName": "Procedure",
+          "procedureStatus": "Status",
+          "productCategory": "Category",
+          "productName": "Product",
+          "reaction": "Reaction",
+          "severity": "Severity",
+          "startDate": "Start date",
+          "startedAt": "Started",
+          "substance": "Substance",
+          "symptomName": "Symptom"
+        },
+        "medications": "Medications",
+        "medicationStatuses": {
+          "planned": "Planned",
+          "active": "Active",
+          "completed": "Completed",
+          "stopped": "Stopped",
+          "unknown": "Unknown"
+        },
+        "procedures": "Procedures",
+        "procedureStatuses": {
+          "planned": "Planned",
+          "in_progress": "In progress",
+          "completed": "Completed",
+          "cancelled": "Cancelled",
+          "entered_in_error": "Entered in error"
+        },
+        "productUsage": "Product usage",
+        "productCategories": {
+          "supplement": "Supplement",
+          "cosmetic": "Cosmetic",
+          "medical_device": "Medical device",
+          "nutrition": "Nutrition",
+          "other": "Other"
+        },
+        "reportedOrPrescribed": {
+          "patient_reported": "Patient reported",
+          "prescribed": "Prescribed"
+        },
+        "symptoms": "Symptoms",
+        "verified": "Verified",
+        "verificationStatuses": {
+          "patient_reported": "Patient reported",
+          "imported": "Imported",
+          "unverified": "Unverified",
+          "provisional": "Provisional",
+          "verified": "Verified",
+          "refuted": "Refuted",
+          "entered_in_error": "Entered in error"
+        }
+      },
+      "documents": {
+        "addDiagnosticReport": "Add diagnostic report",
+        "addDocument": "Add document",
+        "addImagingStudy": "Add imaging study",
+        "addLabOrder": "Add lab order",
+        "addObservation": "Add observation",
+        "confidential": "Confidential",
+        "diagnosticReports": "Diagnostic reports",
+        "documents": "Documents",
+        "documentTypes": {
+          "lab_report": "Lab report",
+          "imaging_report": "Imaging report",
+          "mri_image": "MRI image",
+          "ct_image": "CT image",
+          "x_ray": "X-ray",
+          "ultrasound": "Ultrasound",
+          "prescription": "Prescription",
+          "discharge_summary": "Discharge summary",
+          "pathology": "Pathology",
+          "referral": "Referral",
+          "doctor_note": "Doctor note",
+          "operative_report": "Operative report",
+          "medical_history": "Medical history",
+          "insurance": "Insurance",
+          "consent": "Consent",
+          "treatment_plan": "Treatment plan",
+          "second_opinion": "Second opinion",
+          "passport": "Passport",
+          "other": "Other"
+        },
+        "fields": {
+          "bodyPart": "Body part",
+          "documentDate": "Document date",
+          "documentType": "Document type",
+          "externalLab": "External lab",
+          "file": "File",
+          "filePlaceholder": "Choose file",
+          "interpretation": "Interpretation",
+          "interpretationNone": "None",
+          "isConfidential": "Confidential — restrict to authorized staff",
+          "modality": "Modality",
+          "observationName": "Observation",
+          "referenceHigh": "Reference high",
+          "referenceLow": "Reference low",
+          "reportStatus": "Status",
+          "reportType": "Report type",
+          "requestedTests": "Requested tests",
+          "requestedTestsPlaceholder": "Comma-separated, e.g. CBC, Lipid panel",
+          "studyDate": "Study date",
+          "summary": "Summary",
+          "title": "Title",
+          "unit": "Unit",
+          "value": "Value"
+        },
+        "imaging": "Imaging",
+        "interpretations": {
+          "normal": "Normal",
+          "high": "High",
+          "low": "Low",
+          "critical_high": "Critical high",
+          "critical_low": "Critical low",
+          "abnormal": "Abnormal"
+        },
+        "labOrders": "Lab orders",
+        "labOrderStatuses": {
+          "ordered": "Ordered",
+          "in_progress": "In progress",
+          "completed": "Completed",
+          "cancelled": "Cancelled"
+        },
+        "modalities": {
+          "mri": "MRI",
+          "ct": "CT",
+          "pet": "PET",
+          "x_ray": "X-ray",
+          "ultrasound": "Ultrasound",
+          "mammography": "Mammography",
+          "other": "Other"
+        },
+        "observations": "Observations",
+        "possibleDuplicate": "This file looks similar to one already uploaded — check before keeping both.",
+        "reportStatuses": {
+          "registered": "Registered",
+          "preliminary": "Preliminary",
+          "final": "Final",
+          "amended": "Amended",
+          "cancelled": "Cancelled"
+        },
+        "version": "v"
+      },
+      "cases": {
+        "title": "Medical cases",
+        "new": "New case",
+        "detailTitle": "Case",
+        "status": "Status",
+        "statusChanged": "Status updated",
+        "requirements": "Requirements",
+        "submissions": "Provider submissions",
+        "proposals": "Treatment proposals",
+        "secondOpinions": "Second opinions",
+        "providerId": "Provider ID",
+        "generatePackage": "Generate package",
+        "packageGenerated": "Package generated",
+        "addEncounter": "Add encounter",
+        "addRequirement": "Add requirement",
+        "addSubmission": "Add submission",
+        "addProposal": "Add proposal",
+        "addSecondOpinion": "Add second opinion",
+        "addFollowUp": "Add follow-up",
+        "tabs": {
+          "encounters": "Encounters",
+          "providers": "Providers",
+          "package": "Package",
+          "followUps": "Follow-ups"
+        },
+        "fields": {
+          "title": "Title",
+          "caseType": "Case type",
+          "caseTypePlaceholder": "e.g. Orthopedic surgery, Fertility treatment",
+          "priority": "Priority",
+          "encounterType": "Encounter type",
+          "startedAt": "Date",
+          "reason": "Reason",
+          "requirementType": "Requirement type",
+          "notes": "Notes",
+          "diagnosis": "Diagnosis",
+          "treatmentPlan": "Treatment plan",
+          "estimatedStayDays": "Estimated stay (days)",
+          "opinionDate": "Opinion date",
+          "conclusion": "Conclusion",
+          "scheduledDate": "Scheduled date",
+          "requiredItems": "Required documents/tests"
+        },
+        "statuses": {
+          "draft": "Draft",
+          "intake": "Intake",
+          "awaiting_documents": "Awaiting documents",
+          "ready_for_review": "Ready for review",
+          "under_medical_review": "Under medical review",
+          "awaiting_provider": "Awaiting provider",
+          "treatment_proposed": "Treatment proposed",
+          "quote_received": "Quote received",
+          "patient_decision": "Patient decision",
+          "booked": "Booked",
+          "travel_preparation": "Travel preparation",
+          "in_treatment": "In treatment",
+          "post_treatment": "Post-treatment",
+          "follow_up": "Follow-up",
+          "completed": "Completed",
+          "cancelled": "Cancelled"
+        },
+        "priorities": {
+          "low": "Low",
+          "normal": "Normal",
+          "high": "High",
+          "urgent": "Urgent"
+        },
+        "encounterTypes": {
+          "video_consultation": "Video consultation",
+          "clinic_visit": "Clinic visit",
+          "hospital_admission": "Hospital admission",
+          "emergency_visit": "Emergency visit",
+          "diagnostic_visit": "Diagnostic visit",
+          "treatment_session": "Treatment session",
+          "follow_up": "Follow-up",
+          "other": "Other"
+        },
+        "requirementTypes": {
+          "document": "Document",
+          "lab_test": "Lab test",
+          "imaging": "Imaging",
+          "questionnaire": "Questionnaire",
+          "medical_clearance": "Medical clearance",
+          "passport": "Passport",
+          "other": "Other"
+        },
+        "requirementStatuses": {
+          "missing": "Missing",
+          "requested": "Requested",
+          "received": "Received",
+          "expired": "Expired",
+          "rejected": "Rejected",
+          "accepted": "Accepted"
+        },
+        "submissionStatuses": {
+          "pending": "Pending",
+          "accepted": "Accepted",
+          "declined": "Declined",
+          "needs_more_info": "Needs more info"
+        },
+        "proposalStatuses": {
+          "proposed": "Proposed",
+          "accepted": "Accepted",
+          "rejected": "Rejected",
+          "expired": "Expired",
+          "superseded": "Superseded"
+        },
+        "followupStatuses": {
+          "scheduled": "Scheduled",
+          "completed": "Completed",
+          "missed": "Missed",
+          "cancelled": "Cancelled"
+        },
+        "packageScopes": {
+          "demographics": "Demographics",
+          "allergies": "Allergies",
+          "conditions": "Conditions",
+          "medications": "Medications",
+          "procedures": "Procedures",
+          "lab_results": "Lab results",
+          "imaging": "Imaging",
+          "clinical_documents": "Clinical documents"
+        },
+        "errors": {
+          "invalidTransition": "This status change isn't allowed from the case's current status."
+        }
+      },
+      "access": {
+        "consents": "Consents",
+        "createShareLink": "Create share link",
+        "done": "Done",
+        "expires": "Expires",
+        "generateLink": "Generate link",
+        "grantConsent": "Grant consent",
+        "linkIssuedOnce": "This link is shown only once. Copy it now — it can't be retrieved again.",
+        "linkRevoked": "Link revoked",
+        "revoke": "Revoke",
+        "shareLinks": "Share links",
+        "unnamedRecipient": "Unnamed recipient",
+        "views": "Views",
+        "withdraw": "Withdraw",
+        "fields": {
+          "consentType": "Consent type",
+          "expiresInHours": "Expires in (hours)",
+          "pinOptional": "PIN (optional)",
+          "purpose": "Purpose",
+          "recipientName": "Recipient name",
+          "recipientType": "Recipient type",
+          "scope": "Data scope"
+        },
+        "consentTypes": {
+          "data_sharing": "Data sharing",
+          "marketing": "Marketing",
+          "treatment": "Treatment",
+          "research": "Research",
+          "family_access": "Family access",
+          "other": "Other"
+        },
+        "consentStatuses": {
+          "active": "Active",
+          "withdrawn": "Withdrawn",
+          "expired": "Expired"
+        },
+        "recipientTypes": {
+          "family_member": "Family member",
+          "coordinator": "Coordinator",
+          "provider": "Provider",
+          "organization": "Organization",
+          "external_party": "External party",
+          "other": "Other"
+        },
+        "grantStatuses": {
+          "active": "Active",
+          "expired": "Expired",
+          "revoked": "Revoked"
+        },
+        "dataScopes": {
+          "demographics": "Demographics",
+          "identifiers": "Identifiers",
+          "conditions": "Conditions",
+          "allergies": "Allergies",
+          "medications": "Medications",
+          "procedures": "Procedures",
+          "labs": "Labs",
+          "imaging": "Imaging",
+          "documents": "Documents",
+          "reproductive_history": "Reproductive history",
+          "cosmetic_history": "Cosmetic history",
+          "case_data": "Case data",
+          "travel_information": "Travel information",
+          "billing_information": "Billing information"
+        }
+      },
+      "identity": {
+        "candidates": "Possible duplicates",
+        "mergeHistory": "Merge history",
+        "reconciliation": "Conflicting records",
+        "scan": "Scan for duplicates",
+        "scanComplete": "{count, plural, =0 {No new possible duplicates found} one {# possible duplicate found} other {# possible duplicates found}}",
+        "unknownPatient": "Unknown patient",
+        "notSamePerson": "Not the same person",
+        "ignore": "Ignore",
+        "samePersonMerge": "Same person — merge",
+        "absorbedLabel": "Absorbed",
+        "mergedIntoLabel": "Merged into",
+        "unmerge": "Reverse merge",
+        "unmerged": "Merge reversed",
+        "reversed": "Reversed",
+        "mergeWith": "Merge with {name}",
+        "mergeWarning": "Merging moves every record from the other patient onto this one. The other patient is never deleted -- this can be reversed.",
+        "recordsToMove": "Records to move",
+        "identifierConflicts": "{count, plural, one {# identifier already exists on this patient and will be marked superseded} other {# identifiers already exist on this patient and will be marked superseded}}",
+        "accountLinkConflicts": "{count, plural, one {# linked account is already linked to this patient and will be deactivated on the other side} other {# linked accounts are already linked to this patient and will be deactivated on the other side}}",
+        "loadingPreview": "Calculating…",
+        "mergeReason": "Reason for merging",
+        "confirmMerge": "Merge",
+        "merged": "Patients merged",
+        "duplicateActiveEntries": "Two active entries with the same name were found.",
+        "keepBoth": "Keep both",
+        "markOutdated": "Mark outdated",
+        "markEnteredInError": "Entered in error",
+        "reconciled": "Resolved",
+        "noConflicts": "No conflicting records found.",
+        "matchReasons": {
+          "name_match": "Same name",
+          "dob_match": "Same date of birth",
+          "contact_match": "Same contact info"
+        },
+        "recordTypes": {
+          "condition": "Condition",
+          "allergy": "Allergy",
+          "medication": "Medication",
+          "procedure": "Procedure"
+        },
+        "errors": {
+          "alreadyMerged": "One of these patients has already been merged.",
+          "alreadyReversed": "This merge has already been reversed."
+        }
+      },
+      "passport": {
+        "generate": "Generate passport",
+        "generated": "Passport generated",
+        "history": "Generated passports",
+        "missingSectionsNotice": "Devices/implants and immunizations aren't tracked in this system yet, so they aren't offered as sections.",
+        "viewFhirBundle": "View FHIR bundle",
+        "languages": {
+          "fa": "Persian",
+          "ar": "Arabic",
+          "en": "English",
+          "tr": "Turkish"
+        },
+        "sections": {
+          "demographics": "Demographics",
+          "allergies": "Allergies",
+          "medications": "Current medications",
+          "conditions": "Active conditions",
+          "procedures": "Previous procedures",
+          "diagnostic_results": "Recent diagnostic results",
+          "imaging": "Imaging references",
+          "emergency_contact": "Emergency contact"
+        }
+      },
+      "ai": {
+        "providerNotice": "No AI provider is configured for this deployment. Review queues below will stay empty and generation actions will report \"not configured\" until one is set up.",
+        "documentClassification": "Document classification",
+        "extractionQueue": "Extraction review queue",
+        "approve": "Approve",
+        "reject": "Reject",
+        "defer": "Defer",
+        "reviewed": "Reviewed",
+        "summary": "AI summary",
+        "generateSummary": "Generate summary",
+        "summaryGenerated": "Summary generated",
+        "translation": "AI-assisted translation",
+        "selectDocument": "Select a document",
+        "requestTranslation": "Request translation",
+        "translationRequested": "Translation requested",
+        "readinessAssistant": "Case readiness assistant",
+        "readinessDisclaimer": "Operational assistance only — not a medical eligibility decision.",
+        "suggestedRecords": "Records you might want to attach to this case",
+        "candidateTypes": {
+          "condition": "Condition",
+          "medication": "Medication",
+          "lab_observation": "Lab observation",
+          "procedure": "Procedure",
+          "provider_facility": "Provider/facility"
+        },
+        "alertTypes": {
+          "missing_requirement": "Missing",
+          "expired_requirement": "Expired",
+          "duplicate_document": "Possible duplicate"
+        },
+        "errors": {
+          "notConfigured": "No AI provider is configured for this deployment yet."
+        }
+      },
+      "errors": {
+        "generic": "Something went wrong. Please try again."
+      },
+      "operations": {
+        "title": "Patient operations",
+        "description": "Cross-patient case analytics, follow-up automation and data quality — aggregated, no per-patient record listings.",
+        "schemaMissing": {
+          "title": "Database migration pending",
+          "body": "Apply migration 0058_patient_analytics_automation.sql to enable this section."
+        },
+        "funnel": {
+          "title": "Case funnel"
+        },
+        "timing": {
+          "title": "Case timing",
+          "avgIntakeToReadyDays": "Avg. intake → ready for review",
+          "medianIntakeToReadyDays": "Median intake → ready for review",
+          "avgProviderResponseDays": "Avg. provider response time",
+          "casesMeasured": "Cases measured",
+          "days": "{value} days",
+          "noData": "Not enough data yet."
+        },
+        "segmentation": {
+          "title": "Segmentation",
+          "byOriginCountry": "By origin country",
+          "byCaseType": "By case type",
+          "unknown": "Unknown"
+        },
+        "followUpCompletion": {
+          "title": "Follow-up completion",
+          "total": "Total",
+          "completed": "Completed",
+          "missed": "Missed",
+          "completionRate": "Completion rate"
+        },
+        "overdueFollowUps": {
+          "title": "Overdue follow-ups",
+          "empty": "No overdue follow-ups.",
+          "patient": "Patient",
+          "scheduledDate": "Scheduled",
+          "daysOverdue": "{value} days overdue"
+        },
+        "dataQuality": {
+          "title": "Data quality",
+          "totalPatients": "Total patients",
+          "pendingDuplicateCandidates": "Pending duplicate candidates",
+          "duplicateRate": "Duplicate candidate rate",
+          "unverifiedClinicalRecordRate": "Unverified clinical record rate",
+          "recordsMissingCodeRate": "Records missing a code",
+          "staleContactCount": "Stale, unverified contacts"
+        },
+        "scheduleRules": {
+          "title": "Follow-up automation rules",
+          "add": "New rule",
+          "empty": "No automation rules yet.",
+          "caseType": "Case type",
+          "daysAfterCompletion": "Days after case completion",
+          "ruleTitle": "Follow-up title",
+          "requiredItems": "Required items (optional)",
+          "active": "Active",
+          "inactive": "Inactive",
+          "deactivate": "Deactivate",
+          "save": "Save",
+          "saving": "Saving…",
+          "added": "Rule added",
+          "deactivated": "Rule deactivated"
+        }
+      }
+    },
+    "share": {
+      "title": "Shared medical record",
+      "loading": "Loading…",
+      "expiresAt": "Expires",
+      "disclaimer": "This is a limited, time-restricted view shared by the patient's care team. Do not forward this link.",
+      "pinTitle": "Enter PIN",
+      "pinLabel": "PIN",
+      "pinSubmit": "View record",
+      "sections": {
+        "demographics": "Patient",
+        "conditions": "Conditions",
+        "allergies": "Allergies",
+        "noKnownAllergies": "No known allergies",
+        "medications": "Medications",
+        "procedures": "Procedures",
+        "documents": "Documents"
+      },
+      "errors": {
+        "not_found": "This link is invalid.",
+        "expired": "This link has expired.",
+        "revoked": "This link has been revoked.",
+        "max_reached": "This link has reached its view limit.",
+        "pin_invalid": "Incorrect PIN."
       }
     }
   }

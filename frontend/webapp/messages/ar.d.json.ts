@@ -6856,6 +6856,11 @@ declare const messages: {
         "shareWithFriends": "المشاركة مع الأصدقاء",
         "savedFavorites": "المفضلة المحفوظة",
         "medicalProfile": "الملف الطبي",
+        "myHealthRecord": "سجلي الصحي",
+        "myCases": "حالاتي العلاجية",
+        "mySharing": "الوصول والمشاركة",
+        "myPassport": "ملخص المريض الدولي",
+        "myResults": "نتائج المختبر والتصوير",
         "notifications": "الإشعارات",
         "privacySecurity": "الخصوصية والأمان"
       }
@@ -7266,6 +7271,163 @@ declare const messages: {
         "addCondition": "تعذرت إضافة الحالة.",
         "uploadDocument": "تعذر رفع المستند.",
         "saveEmergencyContact": "تعذر حفظ جهة اتصال الطوارئ."
+      }
+    },
+    "myHealthRecord": {
+      "title": "سجلي الصحي",
+      "subtitle": "ملخص للقراءة فقط شاركه فريق رعايتك الصحية.",
+      "empty": "لا يوجد سجل صحي مرتبط بحسابك حتى الآن.",
+      "limitedAccessNotice": "وصولك إلى هذا السجل محدود بالتفاصيل الأساسية.",
+      "criticalAllergies": "حساسيات خطيرة",
+      "conditions": "الحالات",
+      "medications": "الأدوية الحالية",
+      "documents": "المستندات",
+      "relationshipTypes": {
+        "parent": "الوالد",
+        "child": "الطفل",
+        "guardian": "الوصي",
+        "caregiver": "مقدم الرعاية",
+        "authorized_person": "شخص مخوّل",
+        "other": "أخرى"
+      }
+    },
+    "myCases": {
+      "title": "حالاتي العلاجية",
+      "subtitle": "حالة رحلاتك العلاجية.",
+      "empty": "لا توجد حالة علاجية مرتبطة بحسابك حتى الآن.",
+      "requirements": "المتطلبات",
+      "treatmentProposals": "المقترحات العلاجية",
+      "secondOpinions": "الآراء الطبية الثانية",
+      "followUps": "المتابعات",
+      "estimatedStay": "مدة الإقامة المقدرة",
+      "days": "أيام",
+      "validUntil": "صالح حتى",
+      "relationshipTypes": {
+        "parent": "الوالد",
+        "child": "الطفل",
+        "guardian": "الوصي",
+        "caregiver": "مقدم الرعاية",
+        "authorized_person": "شخص مخوّل",
+        "other": "أخرى"
+      },
+      "shareCase": {
+        "title": "تمت مشاركتها مع مقدمي الخدمة",
+        "empty": "لم تتم مشاركتها مع أي مقدم خدمة حتى الآن.",
+        "share": "مشاركة مع مقدم خدمة",
+        "cancel": "إلغاء",
+        "provider": "مقدم الخدمة",
+        "permission": "ماذا يمكنه أن يفعل",
+        "permissions": {
+          "view": "عرض فقط",
+          "contribute": "عرض وإضافة نتائج"
+        },
+        "revoke": "إلغاء الوصول",
+        "shared": "تمت مشاركة الحالة",
+        "revoked": "تم إلغاء الوصول",
+        "errorGeneric": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+      }
+    },
+    "mySharing": {
+      "title": "الوصول والمشاركة",
+      "subtitle": "من يمكنه رؤية سجلك الصحي، ولأي مدة.",
+      "empty": "لا يوجد سجل مرتبط بحسابك حتى الآن.",
+      "consents": "الموافقات",
+      "noConsents": "لم يتم تسجيل أي موافقة حتى الآن.",
+      "withdraw": "سحب",
+      "shareLinks": "روابط المشاركة",
+      "newShareLink": "رابط مشاركة جديد",
+      "cancel": "إلغاء",
+      "noShareLinks": "لم يتم إنشاء أي رابط مشاركة حتى الآن.",
+      "unnamedRecipient": "مستلم بدون اسم",
+      "expires": "تنتهي الصلاحية",
+      "views": "المشاهدات",
+      "revoke": "إلغاء",
+      "recipientName": "اسم المستلم (اختياري)",
+      "dataToShare": "البيانات المراد مشاركتها",
+      "expiresInHours": "تنتهي خلال (ساعات)",
+      "pinOptional": "الرمز السري (اختياري)",
+      "generateLink": "إنشاء رابط",
+      "linkIssuedOnce": "يظهر هذا الرابط مرة واحدة فقط. احفظه الآن — لا يمكن استرجاعه لاحقًا.",
+      "copy": "نسخ",
+      "copied": "تم النسخ",
+      "done": "تم",
+      "linkRevoked": "تم إلغاء رابط المشاركة",
+      "errors": {
+        "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+      },
+      "relationshipTypes": {
+        "parent": "الوالد",
+        "child": "الطفل",
+        "guardian": "الوصي",
+        "caregiver": "مقدم الرعاية",
+        "authorized_person": "شخص مخوّل",
+        "other": "أخرى"
+      },
+      "consentTypes": {
+        "data_sharing": "مشاركة البيانات",
+        "marketing": "التسويق",
+        "treatment": "العلاج",
+        "research": "البحث",
+        "family_access": "وصول العائلة",
+        "other": "أخرى"
+      },
+      "consentStatuses": {
+        "active": "نشطة",
+        "withdrawn": "مسحوبة",
+        "expired": "منتهية الصلاحية"
+      },
+      "grantStatuses": {
+        "active": "نشط",
+        "expired": "منتهي الصلاحية",
+        "revoked": "ملغى"
+      },
+      "dataScopes": {
+        "demographics": "البيانات الشخصية",
+        "identifiers": "المعرفات",
+        "conditions": "الحالات",
+        "allergies": "الحساسيات",
+        "medications": "الأدوية",
+        "procedures": "الإجراءات",
+        "labs": "الفحوصات",
+        "imaging": "التصوير",
+        "documents": "المستندات",
+        "reproductive_history": "التاريخ الإنجابي",
+        "cosmetic_history": "تاريخ التجميل",
+        "case_data": "بيانات الحالة",
+        "travel_information": "معلومات السفر",
+        "billing_information": "معلومات الفوترة"
+      }
+    },
+    "myPassport": {
+      "title": "ملخص المريض الدولي",
+      "subtitle": "ملخص لسجلك أعده فريق الرعاية الخاص بك للرعاية الدولية.",
+      "empty": "لم يتم إعداد أي ملخص لك حتى الآن.",
+      "view": "عرض",
+      "relationshipTypes": {
+        "parent": "الوالد",
+        "child": "الطفل",
+        "guardian": "الوصي",
+        "caregiver": "مقدم الرعاية",
+        "authorized_person": "شخص مخوّل",
+        "other": "أخرى"
+      }
+    },
+    "myResults": {
+      "title": "نتائج المختبر والتصوير",
+      "subtitle": "بالضبط ما هو مسجل في سجلك، كما أبلغ عنه فريق رعايتك.",
+      "disclaimer": "هذا سجلك الخام، وليس نصيحة طبية. يرجى مناقشة أي نتيجة مع فريق رعايتك قبل اتخاذ أي إجراء بشأنها.",
+      "empty": "لم يتم تسجيل أي نتيجة لك حتى الآن.",
+      "diagnosticReports": "التقارير التشخيصية",
+      "observations": "القيم المخبرية",
+      "labOrders": "الفحوصات المطلوبة",
+      "imaging": "التصوير",
+      "relationshipTypes": {
+        "parent": "الوالد",
+        "child": "الطفل",
+        "guardian": "الوصي",
+        "caregiver": "مقدم الرعاية",
+        "authorized_person": "شخص مخوّل",
+        "other": "أخرى"
       }
     },
     "privacySecurity": {
@@ -13914,6 +14076,764 @@ declare const messages: {
         "answered": "مُجاب",
         "hidden": "مخفي",
         "all": "الكل"
+      }
+    }
+  },
+  "Patients": {
+    "errors": {
+      "invalidForm": "بعض الحقول غير صالحة. يرجى التحقق والمحاولة مرة أخرى.",
+      "notFound": "لم يتم العثور على المريض.",
+      "versionConflict": "تم تعديل هذا المريض من قبل شخص آخر. أعد تحميل الصفحة وحاول مرة أخرى.",
+      "duplicateIdentifier": "هذا المعرف مرتبط بالفعل بمريض آخر."
+    },
+    "admin": {
+      "title": "المرضى",
+      "description": "ابحث عن مريض أو افتح سجله الشامل (360).",
+      "detail": { "title": "السجل الشامل للمريض" },
+      "schemaMissing": {
+        "title": "لم يتم تشغيل ترحيل قاعدة البيانات بعد",
+        "body": "لتفعيل هذا القسم، نفّذ الترحيل 0048_patient_foundation.sql."
+      },
+      "search": {
+        "title": "بحث عن المرضى",
+        "placeholder": "المعرف العام، الرقم الوطني، جواز السفر، الجوال، البريد الإلكتروني أو الاسم",
+        "submit": "بحث",
+        "prompt": "أدخل كلمة بحث للعثور على مريض.",
+        "empty": "لا يوجد مرضى مطابقون.",
+        "matchType": "تم العثور عبر",
+        "open": "فتح",
+        "matchTypes": {
+          "public_id": "المعرف العام",
+          "identifier": "المعرف",
+          "contact": "بيانات التواصل",
+          "name": "الاسم"
+        }
+      },
+      "create": {
+        "trigger": "مريض جديد",
+        "title": "مريض جديد",
+        "cancel": "إلغاء",
+        "save": "حفظ",
+        "saving": "جارٍ الحفظ…",
+        "saved": "تم إنشاء المريض"
+      },
+      "fields": {
+        "name": "الاسم",
+        "publicId": "المعرف العام",
+        "birthDate": "تاريخ الميلاد",
+        "status": "الحالة",
+        "firstName": "الاسم الأول",
+        "lastName": "اسم العائلة",
+        "preferredName": "الاسم المفضل",
+        "age": "العمر",
+        "nationality": "الجنسية",
+        "primaryLanguage": "اللغة الأساسية",
+        "identifierType": "نوع المعرف",
+        "identifierValue": "قيمة المعرف",
+        "contactType": "نوع التواصل",
+        "contactValue": "قيمة التواصل",
+        "addressLine1": "العنوان",
+        "city": "المدينة",
+        "countryCode": "رمز الدولة",
+        "accountId": "معرف الحساب",
+        "relationshipType": "العلاقة"
+      },
+      "status": {
+        "active": "نشط",
+        "inactive": "غير نشط",
+        "deceased": "متوفى",
+        "merged": "مدمج",
+        "archived": "مؤرشف"
+      },
+      "tabs": {
+        "overview": "نظرة عامة",
+        "cases": "الحالات",
+        "clinical": "السجل السريري",
+        "documents": "المستندات",
+        "access": "الوصول والمشاركة",
+        "identity": "الهوية",
+        "passport": "جواز السفر الصحي",
+        "ai": "المساعد الذكي",
+        "timeline": "الجدول الزمني",
+        "notes": "الملاحظات"
+      },
+      "overview": {
+        "identifiers": "المعرفات",
+        "contacts": "وسائل التواصل",
+        "addresses": "العناوين",
+        "accounts": "الحسابات المرتبطة",
+        "add": "إضافة",
+        "empty": "لا يوجد شيء هنا بعد.",
+        "primary": "أساسي",
+        "verified": "موثّق",
+        "unverified": "غير موثّق",
+        "saved": "تم الحفظ",
+        "addIdentifier": "إضافة معرف",
+        "addContact": "إضافة وسيلة تواصل",
+        "addAddress": "إضافة عنوان",
+        "linkAccount": "ربط حساب"
+      },
+      "identifierTypes": {
+        "ir_national_id": "الرقم الوطني الإيراني",
+        "national_id": "الرقم الوطني",
+        "passport": "جواز السفر",
+        "foreigner_id": "معرف الأجانب",
+        "residence_permit": "تصريح الإقامة",
+        "insurance_id": "رقم التأمين",
+        "hospital_mrn": "رقم الملف الطبي بالمستشفى",
+        "lsevin_patient_number": "رقم مريض LSevin",
+        "temporary_id": "معرف مؤقت",
+        "other": "أخرى"
+      },
+      "contactTypes": {
+        "mobile": "الجوال",
+        "phone": "الهاتف",
+        "whatsapp": "واتساب",
+        "email": "البريد الإلكتروني",
+        "emergency": "جهة اتصال للطوارئ"
+      },
+      "relationshipTypes": {
+        "self": "الشخص نفسه",
+        "parent": "الوالد",
+        "child": "الطفل",
+        "guardian": "الوصي",
+        "caregiver": "مقدم الرعاية",
+        "authorized_person": "شخص مخوّل",
+        "other": "أخرى"
+      },
+      "timeline": {
+        "allEvents": "جميع الأحداث",
+        "newestFirst": "الأحدث أولاً",
+        "oldestFirst": "الأقدم أولاً",
+        "empty": "لا يوجد نشاط مسجل بعد.",
+        "events": {
+          "patient_created": "تم إنشاء المريض",
+          "patient_updated": "تم تحديث الملف الشخصي",
+          "identifier_added": "تمت إضافة معرف",
+          "account_linked": "تم ربط الحساب",
+          "contact_added": "تمت إضافة وسيلة تواصل",
+          "address_added": "تمت إضافة عنوان",
+          "note_added": "تمت إضافة ملاحظة",
+          "condition_added": "تمت إضافة حالة",
+          "procedure_added": "تمت إضافة إجراء",
+          "allergy_added": "تمت إضافة حساسية",
+          "medication_added": "تمت إضافة دواء",
+          "product_usage_added": "تمت إضافة استخدام منتج",
+          "symptom_added": "تمت إضافة عرض",
+          "document_added": "تمت إضافة مستند",
+          "document_replaced": "تم استبدال المستند",
+          "lab_order_added": "تمت إضافة طلب فحص",
+          "diagnostic_report_added": "تمت إضافة تقرير تشخيصي",
+          "observation_added": "تمت إضافة نتيجة فحص",
+          "imaging_study_added": "تمت إضافة تصوير",
+          "case_created": "تم إنشاء الحالة",
+          "case_status_changed": "تم تغيير حالة الحالة",
+          "consent_granted": "تم منح الموافقة",
+          "consent_withdrawn": "تم سحب الموافقة",
+          "share_grant_created": "تم إنشاء رابط مشاركة",
+          "share_grant_revoked": "تم إلغاء رابط المشاركة",
+          "duplicate_scan_run": "تم تشغيل فحص التكرار",
+          "match_candidate_reviewed": "تمت مراجعة تطابق محتمل",
+          "patient_merged": "تم دمج المريض",
+          "patient_unmerged": "تم التراجع عن دمج المريض",
+          "reconciliation_resolved": "تمت تسوية السجل",
+          "passport_generated": "تم إنشاء جواز المريض الصحي",
+          "document_classification_run": "تم تشغيل تصنيف المستند",
+          "ai_extraction_run": "تم تشغيل الاستخراج الذكي",
+          "ai_extraction_reviewed": "تمت مراجعة الاستخراج الذكي",
+          "ai_summary_generated": "تم إنشاء الملخص الذكي",
+          "ai_translation_requested": "تم طلب الترجمة الذكية"
+        }
+      },
+      "healthTimelineIntelligence": {
+        "title": "ذكاء الخط الزمني الصحي",
+        "kinds": {
+          "medication_start": "بدء دواء",
+          "medication_stop": "إيقاف دواء",
+          "procedure": "إجراء",
+          "case_status": "حالة الملف",
+          "lab_trend_point": "نقطة اتجاه مخبرية"
+        }
+      },
+      "notes": {
+        "placeholder": "اكتب ملاحظة داخلية حول هذا المريض…",
+        "add": "إضافة ملاحظة",
+        "saved": "تمت إضافة الملاحظة",
+        "archive": "أرشفة",
+        "archived": "تمت أرشفة الملاحظة",
+        "empty": "لا توجد ملاحظات بعد.",
+        "visibilityAdmin": "مرئي للمسؤولين",
+        "visibilitySuperadmin": "مرئي فقط للمسؤولين الرئيسيين"
+      },
+      "clinical": {
+        "addAllergy": "إضافة حساسية",
+        "addCondition": "إضافة حالة",
+        "addMedication": "إضافة دواء",
+        "addProcedure": "إضافة إجراء",
+        "addProductUsage": "إضافة استخدام منتج",
+        "addSymptom": "إضافة عرض",
+        "allergies": "الحساسيات",
+        "allergyCategories": {
+          "food": "غذائية",
+          "medication": "دوائية",
+          "environmental": "بيئية",
+          "biologic": "بيولوجية",
+          "no_known_allergies": "لا توجد حساسية معروفة",
+          "other": "أخرى"
+        },
+        "archive": "أرشفة",
+        "archived": "تمت الأرشفة",
+        "conditions": "الحالات",
+        "conditionStatuses": {
+          "active": "نشطة",
+          "inactive": "غير نشطة",
+          "resolved": "مُتعافى منها",
+          "remission": "في هدأة",
+          "recurrence": "ناكسة",
+          "unknown": "غير معروفة"
+        },
+        "criticalAllergiesTitle": "حساسيات خطيرة",
+        "fields": {
+          "allergyCategory": "الفئة",
+          "clinicalStatus": "الحالة",
+          "displayName": "الحالة المرضية",
+          "dose": "الجرعة",
+          "frequency": "التكرار",
+          "medicationName": "الدواء",
+          "medicationStatus": "الحالة",
+          "notes": "ملاحظات",
+          "onsetDate": "تاريخ البدء",
+          "patientDescription": "وصف المريض",
+          "performedFrom": "تاريخ الإجراء",
+          "procedureName": "الإجراء",
+          "procedureStatus": "الحالة",
+          "productCategory": "الفئة",
+          "productName": "المنتج",
+          "reaction": "التفاعل",
+          "severity": "الشدة",
+          "startDate": "تاريخ البدء",
+          "startedAt": "تاريخ البدء",
+          "substance": "المادة المسببة",
+          "symptomName": "العرض"
+        },
+        "medications": "الأدوية",
+        "medicationStatuses": {
+          "planned": "مخطط له",
+          "active": "نشط",
+          "completed": "مكتمل",
+          "stopped": "متوقف",
+          "unknown": "غير معروف"
+        },
+        "procedures": "الإجراءات",
+        "procedureStatuses": {
+          "planned": "مخطط له",
+          "in_progress": "قيد التنفيذ",
+          "completed": "مكتمل",
+          "cancelled": "ملغى",
+          "entered_in_error": "أُدخل بالخطأ"
+        },
+        "productUsage": "استخدام المنتجات",
+        "productCategories": {
+          "supplement": "مكمل غذائي",
+          "cosmetic": "تجميلي",
+          "medical_device": "جهاز طبي",
+          "nutrition": "تغذية",
+          "other": "أخرى"
+        },
+        "reportedOrPrescribed": {
+          "patient_reported": "أبلغ عنه المريض",
+          "prescribed": "موصوف"
+        },
+        "symptoms": "الأعراض",
+        "verified": "موثّق",
+        "verificationStatuses": {
+          "patient_reported": "أبلغ عنه المريض",
+          "imported": "مستورد",
+          "unverified": "غير موثّق",
+          "provisional": "مؤقت",
+          "verified": "موثّق",
+          "refuted": "مرفوض",
+          "entered_in_error": "أُدخل بالخطأ"
+        }
+      },
+      "documents": {
+        "addDiagnosticReport": "إضافة تقرير تشخيصي",
+        "addDocument": "إضافة مستند",
+        "addImagingStudy": "إضافة تصوير",
+        "addLabOrder": "إضافة طلب فحص",
+        "addObservation": "إضافة نتيجة فحص",
+        "confidential": "سري",
+        "diagnosticReports": "التقارير التشخيصية",
+        "documents": "المستندات",
+        "documentTypes": {
+          "lab_report": "تقرير مختبر",
+          "imaging_report": "تقرير تصوير",
+          "mri_image": "صورة رنين مغناطيسي",
+          "ct_image": "صورة أشعة مقطعية",
+          "x_ray": "أشعة سينية",
+          "ultrasound": "موجات فوق صوتية",
+          "prescription": "وصفة طبية",
+          "discharge_summary": "ملخص الخروج",
+          "pathology": "تقرير علم الأمراض",
+          "referral": "إحالة",
+          "doctor_note": "ملاحظة الطبيب",
+          "operative_report": "تقرير العملية",
+          "medical_history": "التاريخ المرضي",
+          "insurance": "التأمين",
+          "consent": "موافقة",
+          "treatment_plan": "خطة العلاج",
+          "second_opinion": "رأي طبي ثانٍ",
+          "passport": "جواز السفر",
+          "other": "أخرى"
+        },
+        "fields": {
+          "bodyPart": "العضو المعني",
+          "documentDate": "تاريخ المستند",
+          "documentType": "نوع المستند",
+          "externalLab": "مختبر خارجي",
+          "file": "الملف",
+          "filePlaceholder": "اختر ملفًا",
+          "interpretation": "التفسير",
+          "interpretationNone": "بدون تفسير",
+          "isConfidential": "سري — يقتصر على الموظفين المخوّلين",
+          "modality": "طريقة التصوير",
+          "observationName": "اسم النتيجة",
+          "referenceHigh": "الحد الأعلى الطبيعي",
+          "referenceLow": "الحد الأدنى الطبيعي",
+          "reportStatus": "الحالة",
+          "reportType": "نوع التقرير",
+          "requestedTests": "الفحوصات المطلوبة",
+          "requestedTestsPlaceholder": "افصل بينها بفاصلة، مثال: CBC، صورة دهنية",
+          "studyDate": "تاريخ التصوير",
+          "summary": "الملخص",
+          "title": "العنوان",
+          "unit": "الوحدة",
+          "value": "القيمة"
+        },
+        "imaging": "التصوير",
+        "interpretations": {
+          "normal": "طبيعي",
+          "high": "مرتفع",
+          "low": "منخفض",
+          "critical_high": "مرتفع حرج",
+          "critical_low": "منخفض حرج",
+          "abnormal": "غير طبيعي"
+        },
+        "labOrders": "طلبات الفحص",
+        "labOrderStatuses": {
+          "ordered": "مطلوب",
+          "in_progress": "قيد التنفيذ",
+          "completed": "مكتمل",
+          "cancelled": "ملغى"
+        },
+        "modalities": {
+          "mri": "رنين مغناطيسي",
+          "ct": "أشعة مقطعية",
+          "pet": "تصوير مقطعي بالإصدار البوزيتروني",
+          "x_ray": "أشعة سينية",
+          "ultrasound": "موجات فوق صوتية",
+          "mammography": "تصوير الثدي الشعاعي",
+          "other": "أخرى"
+        },
+        "observations": "نتائج الفحوصات",
+        "possibleDuplicate": "يشبه هذا الملف ملفًا تم رفعه مسبقًا — تحقق قبل الاحتفاظ بالاثنين.",
+        "reportStatuses": {
+          "registered": "مسجّل",
+          "preliminary": "أولي",
+          "final": "نهائي",
+          "amended": "معدّل",
+          "cancelled": "ملغى"
+        },
+        "version": "الإصدار"
+      },
+      "cases": {
+        "title": "الحالات الطبية",
+        "new": "حالة جديدة",
+        "detailTitle": "الحالة",
+        "status": "الحالة",
+        "statusChanged": "تم تحديث الحالة",
+        "requirements": "المتطلبات",
+        "submissions": "الإرسال لمقدمي الخدمة",
+        "proposals": "مقترحات العلاج",
+        "secondOpinions": "الآراء الطبية الثانية",
+        "providerId": "معرف مقدم الخدمة",
+        "generatePackage": "إنشاء حزمة المستندات",
+        "packageGenerated": "تم إنشاء الحزمة",
+        "addEncounter": "إضافة زيارة",
+        "addRequirement": "إضافة متطلب",
+        "addSubmission": "إضافة إرسال",
+        "addProposal": "إضافة مقترح",
+        "addSecondOpinion": "إضافة رأي ثانٍ",
+        "addFollowUp": "إضافة متابعة",
+        "tabs": {
+          "encounters": "الزيارات",
+          "providers": "مقدمو الخدمة",
+          "package": "حزمة المستندات",
+          "followUps": "المتابعات"
+        },
+        "fields": {
+          "title": "العنوان",
+          "caseType": "نوع الحالة",
+          "caseTypePlaceholder": "مثال: جراحة العظام، علاج الخصوبة",
+          "priority": "الأولوية",
+          "encounterType": "نوع الزيارة",
+          "startedAt": "التاريخ",
+          "reason": "السبب",
+          "requirementType": "نوع المتطلب",
+          "notes": "ملاحظات",
+          "diagnosis": "التشخيص",
+          "treatmentPlan": "خطة العلاج",
+          "estimatedStayDays": "مدة الإقامة المقدرة (أيام)",
+          "opinionDate": "تاريخ الرأي",
+          "conclusion": "الاستنتاج",
+          "scheduledDate": "التاريخ المجدول",
+          "requiredItems": "المستندات/الفحوصات المطلوبة"
+        },
+        "statuses": {
+          "draft": "مسودة",
+          "intake": "استقبال أولي",
+          "awaiting_documents": "بانتظار المستندات",
+          "ready_for_review": "جاهز للمراجعة",
+          "under_medical_review": "قيد المراجعة الطبية",
+          "awaiting_provider": "بانتظار مقدم الخدمة",
+          "treatment_proposed": "تم اقتراح العلاج",
+          "quote_received": "تم استلام عرض السعر",
+          "patient_decision": "قرار المريض",
+          "booked": "محجوز",
+          "travel_preparation": "التحضير للسفر",
+          "in_treatment": "قيد العلاج",
+          "post_treatment": "بعد العلاج",
+          "follow_up": "متابعة",
+          "completed": "مكتمل",
+          "cancelled": "ملغى"
+        },
+        "priorities": {
+          "low": "منخفضة",
+          "normal": "عادية",
+          "high": "مرتفعة",
+          "urgent": "عاجلة"
+        },
+        "encounterTypes": {
+          "video_consultation": "استشارة عبر الفيديو",
+          "clinic_visit": "زيارة عيادة",
+          "hospital_admission": "دخول المستشفى",
+          "emergency_visit": "زيارة طارئة",
+          "diagnostic_visit": "زيارة تشخيصية",
+          "treatment_session": "جلسة علاج",
+          "follow_up": "متابعة",
+          "other": "أخرى"
+        },
+        "requirementTypes": {
+          "document": "مستند",
+          "lab_test": "فحص مختبر",
+          "imaging": "تصوير",
+          "questionnaire": "استبيان",
+          "medical_clearance": "تصريح طبي",
+          "passport": "جواز سفر",
+          "other": "أخرى"
+        },
+        "requirementStatuses": {
+          "missing": "غير موجود",
+          "requested": "مطلوب",
+          "received": "مستلم",
+          "expired": "منتهي الصلاحية",
+          "rejected": "مرفوض",
+          "accepted": "مقبول"
+        },
+        "submissionStatuses": {
+          "pending": "قيد الانتظار",
+          "accepted": "مقبول",
+          "declined": "مرفوض",
+          "needs_more_info": "يحتاج معلومات إضافية"
+        },
+        "proposalStatuses": {
+          "proposed": "مقترح",
+          "accepted": "مقبول",
+          "rejected": "مرفوض",
+          "expired": "منتهي الصلاحية",
+          "superseded": "استُبدل"
+        },
+        "followupStatuses": {
+          "scheduled": "مجدولة",
+          "completed": "مكتملة",
+          "missed": "فائتة",
+          "cancelled": "ملغاة"
+        },
+        "packageScopes": {
+          "demographics": "البيانات الشخصية",
+          "allergies": "الحساسيات",
+          "conditions": "الحالات",
+          "medications": "الأدوية",
+          "procedures": "الإجراءات",
+          "lab_results": "نتائج الفحوصات",
+          "imaging": "التصوير",
+          "clinical_documents": "المستندات السريرية"
+        },
+        "errors": {
+          "invalidTransition": "لا يُسمح بهذا التغيير في الحالة من الوضع الحالي للحالة."
+        }
+      },
+      "access": {
+        "consents": "الموافقات",
+        "createShareLink": "إنشاء رابط مشاركة",
+        "done": "تم",
+        "expires": "تنتهي الصلاحية",
+        "generateLink": "إنشاء الرابط",
+        "grantConsent": "منح موافقة",
+        "linkIssuedOnce": "يُعرض هذا الرابط مرة واحدة فقط. انسخه الآن — لا يمكن استرجاعه لاحقًا.",
+        "linkRevoked": "تم إلغاء الرابط",
+        "revoke": "إلغاء",
+        "shareLinks": "روابط المشاركة",
+        "unnamedRecipient": "مستلم بدون اسم",
+        "views": "المشاهدات",
+        "withdraw": "سحب",
+        "fields": {
+          "consentType": "نوع الموافقة",
+          "expiresInHours": "تنتهي خلال (ساعات)",
+          "pinOptional": "الرمز السري (اختياري)",
+          "purpose": "الغرض",
+          "recipientName": "اسم المستلم",
+          "recipientType": "نوع المستلم",
+          "scope": "نطاق البيانات"
+        },
+        "consentTypes": {
+          "data_sharing": "مشاركة البيانات",
+          "marketing": "التسويق",
+          "treatment": "العلاج",
+          "research": "البحث",
+          "family_access": "وصول العائلة",
+          "other": "أخرى"
+        },
+        "consentStatuses": {
+          "active": "نشطة",
+          "withdrawn": "مسحوبة",
+          "expired": "منتهية الصلاحية"
+        },
+        "recipientTypes": {
+          "family_member": "فرد من العائلة",
+          "coordinator": "منسق",
+          "provider": "مقدم خدمة",
+          "organization": "منظمة",
+          "external_party": "جهة خارجية",
+          "other": "أخرى"
+        },
+        "grantStatuses": {
+          "active": "نشط",
+          "expired": "منتهي الصلاحية",
+          "revoked": "ملغى"
+        },
+        "dataScopes": {
+          "demographics": "البيانات الشخصية",
+          "identifiers": "المعرفات",
+          "conditions": "الحالات",
+          "allergies": "الحساسيات",
+          "medications": "الأدوية",
+          "procedures": "الإجراءات",
+          "labs": "الفحوصات",
+          "imaging": "التصوير",
+          "documents": "المستندات",
+          "reproductive_history": "التاريخ الإنجابي",
+          "cosmetic_history": "تاريخ التجميل",
+          "case_data": "بيانات الحالة",
+          "travel_information": "معلومات السفر",
+          "billing_information": "معلومات الفوترة"
+        }
+      },
+      "identity": {
+        "candidates": "تكرارات محتملة",
+        "mergeHistory": "سجل الدمج",
+        "reconciliation": "سجلات متعارضة",
+        "scan": "فحص التكرارات",
+        "scanComplete": "{count, plural, =0 {لم يتم العثور على تكرارات محتملة جديدة} one {تم العثور على تكرار محتمل واحد} other {تم العثور على # تكرارات محتملة}}",
+        "unknownPatient": "مريض غير معروف",
+        "notSamePerson": "ليس نفس الشخص",
+        "ignore": "تجاهل",
+        "samePersonMerge": "نفس الشخص — دمج",
+        "absorbedLabel": "تم استيعابه من",
+        "mergedIntoLabel": "تم الدمج في",
+        "unmerge": "التراجع عن الدمج",
+        "unmerged": "تم التراجع عن الدمج",
+        "reversed": "تم التراجع",
+        "mergeWith": "دمج مع {name}",
+        "mergeWarning": "يؤدي الدمج إلى نقل كل سجل من المريض الآخر إلى هذا المريض. لا يُحذف المريض الآخر أبدًا — يمكن التراجع عن هذا الإجراء.",
+        "recordsToMove": "السجلات المراد نقلها",
+        "identifierConflicts": "{count, plural, one {يوجد بالفعل معرف واحد على هذا المريض وسيُعلَّم كمُستبدَل} other {توجد بالفعل # معرفات على هذا المريض وستُعلَّم كمُستبدَلة}}",
+        "accountLinkConflicts": "{count, plural, one {هناك حساب واحد مرتبط بالفعل بهذا المريض وسيُلغى تفعيله على الجانب الآخر} other {هناك # حسابات مرتبطة بالفعل بهذا المريض وستُلغى تفعيلها على الجانب الآخر}}",
+        "loadingPreview": "جارٍ الحساب…",
+        "mergeReason": "سبب الدمج",
+        "confirmMerge": "دمج",
+        "merged": "تم دمج المريضين",
+        "duplicateActiveEntries": "تم العثور على سجلين نشطين بنفس الاسم.",
+        "keepBoth": "الاحتفاظ بكليهما",
+        "markOutdated": "تعليم كقديم",
+        "markEnteredInError": "أُدخل بالخطأ",
+        "reconciled": "تمت التسوية",
+        "noConflicts": "لم يتم العثور على سجلات متعارضة.",
+        "matchReasons": {
+          "name_match": "نفس الاسم",
+          "dob_match": "نفس تاريخ الميلاد",
+          "contact_match": "نفس بيانات التواصل"
+        },
+        "recordTypes": {
+          "condition": "حالة",
+          "allergy": "حساسية",
+          "medication": "دواء",
+          "procedure": "إجراء"
+        },
+        "errors": {
+          "alreadyMerged": "تم دمج أحد هذين المريضين بالفعل.",
+          "alreadyReversed": "تم التراجع عن هذا الدمج بالفعل."
+        }
+      },
+      "passport": {
+        "generate": "إنشاء جواز السفر الصحي",
+        "generated": "تم إنشاء الجواز",
+        "history": "الجوازات المُنشأة",
+        "missingSectionsNotice": "الأجهزة/الغرسات والتطعيمات غير مسجلة في هذا النظام بعد، لذا لا تُعرض كأقسام قابلة للاختيار.",
+        "viewFhirBundle": "عرض حزمة FHIR",
+        "languages": {
+          "fa": "الفارسية",
+          "ar": "العربية",
+          "en": "الإنجليزية",
+          "tr": "التركية"
+        },
+        "sections": {
+          "demographics": "البيانات الشخصية",
+          "allergies": "الحساسيات",
+          "medications": "الأدوية الحالية",
+          "conditions": "الحالات النشطة",
+          "procedures": "الإجراءات السابقة",
+          "diagnostic_results": "نتائج التشخيص الأخيرة",
+          "imaging": "مراجع التصوير",
+          "emergency_contact": "جهة اتصال الطوارئ"
+        }
+      },
+      "ai": {
+        "providerNotice": "لم يتم تكوين أي مزود ذكاء اصطناعي لهذا النظام. ستبقى قوائم المراجعة أدناه فارغة وستُبلّغ إجراءات التوليد بحالة \"غير مُهيّأ\" حتى يتم إعداد مزود.",
+        "documentClassification": "تصنيف المستند",
+        "extractionQueue": "قائمة مراجعة الاستخراج",
+        "approve": "قبول",
+        "reject": "رفض",
+        "defer": "تأجيل",
+        "reviewed": "تمت المراجعة",
+        "summary": "الملخص الذكي",
+        "generateSummary": "إنشاء ملخص",
+        "summaryGenerated": "تم إنشاء الملخص",
+        "translation": "الترجمة بمساعدة الذكاء الاصطناعي",
+        "selectDocument": "اختر مستندًا",
+        "requestTranslation": "طلب الترجمة",
+        "translationRequested": "تم طلب الترجمة",
+        "readinessAssistant": "مساعد جاهزية الحالة",
+        "readinessDisclaimer": "مساعدة تشغيلية فقط — ليست قرارًا بالأهلية الطبية.",
+        "suggestedRecords": "سجلات قد ترغب في إرفاقها بهذه الحالة",
+        "candidateTypes": {
+          "condition": "حالة",
+          "medication": "دواء",
+          "lab_observation": "نتيجة مختبر",
+          "procedure": "إجراء",
+          "provider_facility": "مقدم الخدمة/المنشأة"
+        },
+        "alertTypes": {
+          "missing_requirement": "مفقود",
+          "expired_requirement": "منتهي الصلاحية",
+          "duplicate_document": "تكرار محتمل"
+        },
+        "errors": {
+          "notConfigured": "لم يتم تكوين أي مزود ذكاء اصطناعي لهذا النظام بعد."
+        }
+      },
+      "errors": {
+        "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+      },
+      "operations": {
+        "title": "عمليات المرضى",
+        "description": "تحليلات الحالات عبر المرضى، أتمتة المتابعة وجودة البيانات — تجميعية فقط، بدون سرد سجلات فردية.",
+        "schemaMissing": {
+          "title": "ترحيل قاعدة البيانات معلّق",
+          "body": "طبّق ترحيل 0058_patient_analytics_automation.sql لتفعيل هذا القسم."
+        },
+        "funnel": {
+          "title": "قمع الحالات"
+        },
+        "timing": {
+          "title": "توقيت الحالات",
+          "avgIntakeToReadyDays": "متوسط الاستقبال حتى جاهزية المراجعة",
+          "medianIntakeToReadyDays": "الوسيط الاستقبال حتى جاهزية المراجعة",
+          "avgProviderResponseDays": "متوسط زمن استجابة مقدم الخدمة",
+          "casesMeasured": "الحالات المقاسة",
+          "days": "{value} يوم",
+          "noData": "لا توجد بيانات كافية بعد."
+        },
+        "segmentation": {
+          "title": "التقسيم",
+          "byOriginCountry": "حسب بلد المنشأ",
+          "byCaseType": "حسب نوع الحالة",
+          "unknown": "غير معروف"
+        },
+        "followUpCompletion": {
+          "title": "إتمام المتابعات",
+          "total": "الإجمالي",
+          "completed": "مكتملة",
+          "missed": "فائتة",
+          "completionRate": "نسبة الإتمام"
+        },
+        "overdueFollowUps": {
+          "title": "المتابعات المتأخرة",
+          "empty": "لا توجد متابعات متأخرة.",
+          "patient": "المريض",
+          "scheduledDate": "الموعد المجدول",
+          "daysOverdue": "متأخرة {value} يوم"
+        },
+        "dataQuality": {
+          "title": "جودة البيانات",
+          "totalPatients": "إجمالي المرضى",
+          "pendingDuplicateCandidates": "مرشحو التكرار المعلّقون",
+          "duplicateRate": "نسبة مرشحي التكرار",
+          "unverifiedClinicalRecordRate": "نسبة السجلات السريرية غير المتحقق منها",
+          "recordsMissingCodeRate": "السجلات بدون رمز",
+          "staleContactCount": "بيانات تواصل قديمة وغير موثقة"
+        },
+        "scheduleRules": {
+          "title": "قواعد أتمتة المتابعة",
+          "add": "قاعدة جديدة",
+          "empty": "لا توجد قواعد أتمتة بعد.",
+          "caseType": "نوع الحالة",
+          "daysAfterCompletion": "أيام بعد اكتمال الحالة",
+          "ruleTitle": "عنوان المتابعة",
+          "requiredItems": "العناصر المطلوبة (اختياري)",
+          "active": "نشطة",
+          "inactive": "غير نشطة",
+          "deactivate": "تعطيل",
+          "save": "حفظ",
+          "saving": "جارٍ الحفظ…",
+          "added": "تمت إضافة القاعدة",
+          "deactivated": "تم تعطيل القاعدة"
+        }
+      }
+    },
+    "share": {
+      "title": "السجل الطبي المشارك",
+      "loading": "جارٍ التحميل…",
+      "expiresAt": "تنتهي الصلاحية",
+      "disclaimer": "هذه نظرة محدودة ومؤقتة شاركها فريق رعاية المريض. لا تُعِد توجيه هذا الرابط.",
+      "pinTitle": "أدخل الرمز السري",
+      "pinLabel": "الرمز السري",
+      "pinSubmit": "عرض السجل",
+      "sections": {
+        "demographics": "المريض",
+        "conditions": "الحالات",
+        "allergies": "الحساسيات",
+        "noKnownAllergies": "لا توجد حساسية معروفة",
+        "medications": "الأدوية",
+        "procedures": "الإجراءات",
+        "documents": "المستندات"
+      },
+      "errors": {
+        "not_found": "هذا الرابط غير صالح.",
+        "expired": "انتهت صلاحية هذا الرابط.",
+        "revoked": "تم إلغاء هذا الرابط.",
+        "max_reached": "وصل هذا الرابط إلى الحد الأقصى للمشاهدات.",
+        "pin_invalid": "الرمز السري غير صحيح."
       }
     }
   }

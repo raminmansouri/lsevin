@@ -1,0 +1,157 @@
+apiVersion: v1
+kind: Secret
+metadata: {name: dev-data}
+type: Opaque
+stringData:
+  POSTGRES_DB: lsevin
+  POSTGRES_USER: lsevin
+  POSTGRES_PASSWORD: lsevin
+  MINIO_ROOT_USER: minioadmin
+  MINIO_ROOT_PASSWORD: minioadmin
+---
+apiVersion: v1
+kind: Service
+metadata: {name: postgres}
+spec:
+  type: NodePort
+  selector: {app.kubernetes.io/name: postgres}
+  ports: [{name: postgres, port: 5432, targetPort: postgres, nodePort: 30432}]
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: {name: postgres}
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector: {matchLabels: {app.kubernetes.io/name: postgres}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: postgres}}
+    spec:
+      containers:
+        - name: postgres
+          image: lsevin-dev-postgres:local
+          imagePullPolicy: Never
+          ports: [{name: postgres, containerPort: 5432}]
+          envFrom: [{secretRef: {name: dev-data}}]
+          args: [postgres, -c, shared_buffers=128MB, -c, max_connections=200, -c, jit=off, -c, fsync=off, -c, synchronous_commit=off, -c, full_page_writes=off]
+          volumeMounts: [{name: data, mountPath: /var/lib/postgresql/data}]
+          readinessProbe: {exec: {command: [sh, -c, "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]}, periodSeconds: 5, failureThreshold: 60}
+          livenessProbe: {exec: {command: [sh, -c, "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]}, periodSeconds: 20}
+          resources: {requests: {cpu: 100m, memory: 256Mi}, limits: {cpu: "2", memory: 1Gi}}
+  volumeClaimTemplates:
+    - metadata: {name: data}
+      spec: {accessModes: [ReadWriteOnce], resources: {requests: {storage: 5Gi}}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: redis}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app.kubernetes.io/name: redis}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: redis}}
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          args: [redis-server, --save, "", --appendonly, "no"]
+          ports: [{name: redis, containerPort: 6379}]
+          readinessProbe: {exec: {command: [redis-cli, ping]}, periodSeconds: 5}
+          resources: {requests: {cpu: 25m, memory: 32Mi}, limits: {cpu: 500m, memory: 256Mi}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: redis}
+spec:
+  type: NodePort
+  selector: {app.kubernetes.io/name: redis}
+  ports: [{name: redis, port: 6379, targetPort: redis, nodePort: 30379}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: eventstore}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app.kubernetes.io/name: eventstore}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: eventstore}}
+    spec:
+      containers:
+        - name: eventstore
+          image: eventstore/eventstore:24.10.0-bookworm-slim
+          ports: [{name: http, containerPort: 2113}]
+          env:
+            - {name: EVENTSTORE_CLUSTER_SIZE, value: "1"}
+            - {name: EVENTSTORE_RUN_PROJECTIONS, value: All}
+            - {name: EVENTSTORE_START_STANDARD_PROJECTIONS, value: "true"}
+            - {name: EVENTSTORE_INSECURE, value: "true"}
+            - {name: EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP, value: "true"}
+            - {name: EVENTSTORE_MEM_DB, value: "true"}
+          readinessProbe: {httpGet: {path: /health/live, port: http}, initialDelaySeconds: 10, periodSeconds: 5}
+          resources: {requests: {cpu: 50m, memory: 128Mi}, limits: {cpu: "1", memory: 512Mi}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: eventstore}
+spec:
+  type: NodePort
+  selector: {app.kubernetes.io/name: eventstore}
+  ports: [{name: http, port: 2113, targetPort: http, nodePort: 30113}]
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: {name: minio}
+spec:
+  serviceName: minio
+  replicas: 1
+  selector: {matchLabels: {app.kubernetes.io/name: minio}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: minio}}
+    spec:
+      containers:
+        - name: minio
+          image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+          args: [server, /data, --console-address, ":9001"]
+          ports: [{name: api, containerPort: 9000}, {name: console, containerPort: 9001}]
+          envFrom: [{secretRef: {name: dev-data}}]
+          volumeMounts: [{name: data, mountPath: /data}]
+          readinessProbe: {httpGet: {path: /minio/health/ready, port: api}, periodSeconds: 5, failureThreshold: 30}
+          resources: {requests: {cpu: 50m, memory: 128Mi}, limits: {cpu: "1", memory: 512Mi}}
+  volumeClaimTemplates:
+    - metadata: {name: data}
+      spec: {accessModes: [ReadWriteOnce], resources: {requests: {storage: 5Gi}}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: minio}
+spec:
+  type: NodePort
+  selector: {app.kubernetes.io/name: minio}
+  ports:
+    - {name: api, port: 9000, targetPort: api, nodePort: 30900}
+    - {name: console, port: 9001, targetPort: console, nodePort: 30901}
+---
+apiVersion: batch/v1
+kind: Job
+metadata: {name: minio-init}
+spec:
+  backoffLimit: 10
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: init
+          image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+          command: [/bin/sh, -c]
+          args:
+            - |
+              set -eu
+              until mc alias set local http://minio:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD"; do sleep 2; done
+              mc ready local
+              mc mb --ignore-existing local/lsevin-media
+              printf '%s' '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["s3:GetObject"],"Resource":["arn:aws:s3:::lsevin-media/*"]}]}' >/tmp/anon.json
+              mc anonymous set-json /tmp/anon.json local/lsevin-media
+              if ! mc admin user svcacct info local lsevin-dev-media >/dev/null 2>&1; then
+                mc admin user svcacct add local "$MINIO_ROOT_USER" --access-key lsevin-dev-media --secret-key lsevin-dev-media-secret
+              fi
+          envFrom: [{secretRef: {name: dev-data}}]

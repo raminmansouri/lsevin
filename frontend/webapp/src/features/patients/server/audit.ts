@@ -83,7 +83,10 @@ export type PatientAuditAction =
   | "followup_status_updated"
   | "case_provider_grant_created"
   | "case_provider_grant_revoked"
-  | "case_provider_lab_order_fulfilled";
+  | "case_provider_lab_order_fulfilled"
+  | "account_link_request_submitted"
+  | "account_link_request_approved"
+  | "account_link_request_rejected";
 
 /**
  * `purpose`/`result`/`ipAddress`/`userAgent` were added in V5.6

@@ -33,7 +33,10 @@ name: lsevin-dev
 
 services:
   postgres:
-    image: postgres:${POSTGRES_IMAGE_TAG:-17.10-alpine}
+    image: lsevin-dev-postgres:local
+    build:
+      context: ../..
+      dockerfile: deployments/docker/postgres.dev.Dockerfile
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-lsevin}
@@ -47,8 +50,6 @@ services:
     # the dump works). `down -v` wipes the volume and re-triggers them.
     volumes:
       - lsevin_dev_pg:/var/lib/postgresql/data
-      - ../../auto_backups/schema_backup.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
-      - ./dev-seed/10_dev_seed.sql:/docker-entrypoint-initdb.d/10_dev_seed.sql:ro
     ports:
       - "127.0.0.1:${POSTGRES_HOST_PORT:-5432}:5432"
     shm_size: ${POSTGRES_SHM_SIZE:-256m}

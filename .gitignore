@@ -47,8 +47,14 @@ dynamic-admin-dashboard-scaffold/*
 **/.zip
 **/*.sql
 
+# Development bootstrap SQL is schema/fixture source, not a production dump.
+!auto_backups/schema_backup.sql
+!deployments/docker/dev-seed/*.sql
+
 **/*.md
 !/CLAUDE.md
+!deployments/docker/DEV.md
+!deployments/kubernetes/**/README.md
 **/*.txt
 
 # Secrets — never publish real env files (keep .env.example templates)

@@ -4,9 +4,11 @@ import { getTranslations } from "next-intl/server";
 import { getPatientClinicalSummary } from "@/features/patients/server/clinical-repository";
 import { listDocumentsForPatient } from "@/features/patients/server/documents-repository";
 import { listPatientAccessForAccount } from "@/features/patients/server/repository";
+import { listRequestsForAccount } from "@/features/patients/server/link-request-repository";
 import type { TranslationType } from "@/types/next";
 
 import { requireAuthenticatedUserId } from "./auth";
+import { LinkFamilySection } from "./link-family-section";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +27,7 @@ export default async function MyHealthRecordPage() {
   const t = await getTranslations("MobileProfile.myHealthRecord");
   const accountId = await requireAuthenticatedUserId();
   const links = accountId ? await listPatientAccessForAccount(accountId) : [];
+  const linkRequests = accountId ? await listRequestsForAccount(accountId) : [];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -47,6 +50,8 @@ export default async function MyHealthRecordPage() {
             t={t}
           />
         ))}
+
+        <LinkFamilySection requests={linkRequests} />
       </div>
     </div>
   );

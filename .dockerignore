@@ -14,5 +14,17 @@ deployments
 **/.next
 **/UploadFiles
 *.sql
+
+# The local PostgreSQL bootstrap image needs exactly these schema/fixture files.
+!auto_backups/
+auto_backups/*
+!auto_backups/schema_backup.sql
+!deployments/
+deployments/*
+!deployments/docker/
+deployments/docker/*
+!deployments/docker/dev-seed/
+deployments/docker/dev-seed/*
+!deployments/docker/dev-seed/10_dev_seed.sql
 **/.DS_Store
 **/*.user
