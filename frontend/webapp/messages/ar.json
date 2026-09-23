@@ -6856,6 +6856,7 @@
         "myHealthRecord": "سجلي الصحي",
         "myCases": "حالاتي العلاجية",
         "mySharing": "الوصول والمشاركة",
+        "myPassport": "ملخص المريض الدولي",
         "notifications": "الإشعارات",
         "privacySecurity": "الخصوصية والأمان"
       }
@@ -7375,6 +7376,20 @@
         "case_data": "بيانات الحالة",
         "travel_information": "معلومات السفر",
         "billing_information": "معلومات الفوترة"
+      }
+    },
+    "myPassport": {
+      "title": "ملخص المريض الدولي",
+      "subtitle": "ملخص لسجلك أعده فريق الرعاية الخاص بك للرعاية الدولية.",
+      "empty": "لم يتم إعداد أي ملخص لك حتى الآن.",
+      "view": "عرض",
+      "relationshipTypes": {
+        "parent": "الوالد",
+        "child": "الطفل",
+        "guardian": "الوصي",
+        "caregiver": "مقدم الرعاية",
+        "authorized_person": "شخص مخوّل",
+        "other": "أخرى"
       }
     },
     "privacySecurity": {
