@@ -38,5 +38,7 @@ public sealed record SearchResultItem
     public bool Verified { get; internal set; }
     public object Tags { get; internal set; }
     public string[] Specialties { get; internal set; }
+    public string CategoryId { get; internal set; }
+    public string CategoryLabel { get; internal set; }
 }
 
