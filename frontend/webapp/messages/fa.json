@@ -7692,6 +7692,7 @@
         "medicalProfile": "پروفایل پزشکی",
         "myHealthRecord": "پرونده سلامت من",
         "myCases": "پرونده‌های درمانی من",
+        "mySharing": "دسترسی و اشتراک‌گذاری",
         "notifications": "اعلان‌ها",
         "privacySecurity": "حریم خصوصی و امنیت"
       }
@@ -8140,6 +8141,77 @@
         "caregiver": "مراقب",
         "authorized_person": "فرد مجاز",
         "other": "سایر"
+      }
+    },
+    "mySharing": {
+      "title": "دسترسی و اشتراک‌گذاری",
+      "subtitle": "چه کسی می‌تواند پرونده سلامت شما را ببیند، و تا چه زمانی.",
+      "empty": "هنوز هیچ پرونده‌ای به حساب شما متصل نشده است.",
+      "consents": "رضایت‌نامه‌ها",
+      "noConsents": "هنوز هیچ رضایتی ثبت نشده است.",
+      "withdraw": "پس گرفتن",
+      "shareLinks": "لینک‌های اشتراک‌گذاری",
+      "newShareLink": "لینک اشتراک‌گذاری جدید",
+      "cancel": "انصراف",
+      "noShareLinks": "هنوز هیچ لینک اشتراک‌گذاری ایجاد نشده است.",
+      "unnamedRecipient": "گیرنده بدون نام",
+      "expires": "انقضا",
+      "views": "بازدیدها",
+      "revoke": "باطل کردن",
+      "recipientName": "نام گیرنده (اختیاری)",
+      "dataToShare": "داده‌هایی که به اشتراک گذاشته می‌شود",
+      "expiresInHours": "انقضا (ساعت)",
+      "pinOptional": "پین (اختیاری)",
+      "generateLink": "ایجاد لینک",
+      "linkIssuedOnce": "این لینک فقط یک‌بار نمایش داده می‌شود. آن را همین حالا ذخیره کنید — دیگر قابل بازیابی نیست.",
+      "copy": "کپی",
+      "copied": "کپی شد",
+      "done": "تمام",
+      "linkRevoked": "لینک اشتراک‌گذاری باطل شد",
+      "errors": {
+        "generic": "خطایی رخ داد. لطفاً دوباره تلاش کنید."
+      },
+      "relationshipTypes": {
+        "parent": "والد",
+        "child": "فرزند",
+        "guardian": "سرپرست قانونی",
+        "caregiver": "مراقب",
+        "authorized_person": "فرد مجاز",
+        "other": "سایر"
+      },
+      "consentTypes": {
+        "data_sharing": "اشتراک‌گذاری داده",
+        "marketing": "بازاریابی",
+        "treatment": "درمان",
+        "research": "پژوهش",
+        "family_access": "دسترسی خانواده",
+        "other": "سایر"
+      },
+      "consentStatuses": {
+        "active": "فعال",
+        "withdrawn": "پس‌گرفته‌شده",
+        "expired": "منقضی‌شده"
+      },
+      "grantStatuses": {
+        "active": "فعال",
+        "expired": "منقضی‌شده",
+        "revoked": "باطل‌شده"
+      },
+      "dataScopes": {
+        "demographics": "اطلاعات فردی",
+        "identifiers": "شناسه‌ها",
+        "conditions": "بیماری‌ها",
+        "allergies": "حساسیت‌ها",
+        "medications": "داروها",
+        "procedures": "اقدامات درمانی",
+        "labs": "آزمایش‌ها",
+        "imaging": "تصویربرداری",
+        "documents": "مدارک",
+        "reproductive_history": "سابقه باروری",
+        "cosmetic_history": "سابقه زیبایی",
+        "case_data": "اطلاعات پرونده",
+        "travel_information": "اطلاعات سفر",
+        "billing_information": "اطلاعات مالی"
       }
     },
     "privacySecurity": {

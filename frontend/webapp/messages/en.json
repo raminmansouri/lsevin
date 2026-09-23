@@ -7692,6 +7692,7 @@
         "medicalProfile": "Medical Profile",
         "myHealthRecord": "My Health Record",
         "myCases": "My Cases",
+        "mySharing": "Access & Sharing",
         "notifications": "Notifications",
         "privacySecurity": "Privacy & Security"
       }
@@ -8140,6 +8141,77 @@
         "caregiver": "Caregiver",
         "authorized_person": "Authorized person",
         "other": "Other"
+      }
+    },
+    "mySharing": {
+      "title": "Access & Sharing",
+      "subtitle": "Who can see your health record, and for how long.",
+      "empty": "No record is linked to your account yet.",
+      "consents": "Consents",
+      "noConsents": "No consent has been recorded yet.",
+      "withdraw": "Withdraw",
+      "shareLinks": "Share links",
+      "newShareLink": "New share link",
+      "cancel": "Cancel",
+      "noShareLinks": "No share link has been created yet.",
+      "unnamedRecipient": "Unnamed recipient",
+      "expires": "Expires",
+      "views": "Views",
+      "revoke": "Revoke",
+      "recipientName": "Recipient name (optional)",
+      "dataToShare": "Data to share",
+      "expiresInHours": "Expires in (hours)",
+      "pinOptional": "PIN (optional)",
+      "generateLink": "Generate link",
+      "linkIssuedOnce": "This link is shown only once. Save it now — it can't be retrieved again.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "done": "Done",
+      "linkRevoked": "Share link revoked",
+      "errors": {
+        "generic": "Something went wrong. Please try again."
+      },
+      "relationshipTypes": {
+        "parent": "Parent",
+        "child": "Child",
+        "guardian": "Guardian",
+        "caregiver": "Caregiver",
+        "authorized_person": "Authorized person",
+        "other": "Other"
+      },
+      "consentTypes": {
+        "data_sharing": "Data sharing",
+        "marketing": "Marketing",
+        "treatment": "Treatment",
+        "research": "Research",
+        "family_access": "Family access",
+        "other": "Other"
+      },
+      "consentStatuses": {
+        "active": "Active",
+        "withdrawn": "Withdrawn",
+        "expired": "Expired"
+      },
+      "grantStatuses": {
+        "active": "Active",
+        "expired": "Expired",
+        "revoked": "Revoked"
+      },
+      "dataScopes": {
+        "demographics": "Demographics",
+        "identifiers": "Identifiers",
+        "conditions": "Conditions",
+        "allergies": "Allergies",
+        "medications": "Medications",
+        "procedures": "Procedures",
+        "labs": "Labs",
+        "imaging": "Imaging",
+        "documents": "Documents",
+        "reproductive_history": "Reproductive history",
+        "cosmetic_history": "Cosmetic history",
+        "case_data": "Case data",
+        "travel_information": "Travel information",
+        "billing_information": "Billing information"
       }
     },
     "privacySecurity": {

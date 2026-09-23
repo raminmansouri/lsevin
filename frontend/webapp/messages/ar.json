@@ -6855,6 +6855,7 @@
         "medicalProfile": "الملف الطبي",
         "myHealthRecord": "سجلي الصحي",
         "myCases": "حالاتي العلاجية",
+        "mySharing": "الوصول والمشاركة",
         "notifications": "الإشعارات",
         "privacySecurity": "الخصوصية والأمان"
       }
@@ -7303,6 +7304,77 @@
         "caregiver": "مقدم الرعاية",
         "authorized_person": "شخص مخوّل",
         "other": "أخرى"
+      }
+    },
+    "mySharing": {
+      "title": "الوصول والمشاركة",
+      "subtitle": "من يمكنه رؤية سجلك الصحي، ولأي مدة.",
+      "empty": "لا يوجد سجل مرتبط بحسابك حتى الآن.",
+      "consents": "الموافقات",
+      "noConsents": "لم يتم تسجيل أي موافقة حتى الآن.",
+      "withdraw": "سحب",
+      "shareLinks": "روابط المشاركة",
+      "newShareLink": "رابط مشاركة جديد",
+      "cancel": "إلغاء",
+      "noShareLinks": "لم يتم إنشاء أي رابط مشاركة حتى الآن.",
+      "unnamedRecipient": "مستلم بدون اسم",
+      "expires": "تنتهي الصلاحية",
+      "views": "المشاهدات",
+      "revoke": "إلغاء",
+      "recipientName": "اسم المستلم (اختياري)",
+      "dataToShare": "البيانات المراد مشاركتها",
+      "expiresInHours": "تنتهي خلال (ساعات)",
+      "pinOptional": "الرمز السري (اختياري)",
+      "generateLink": "إنشاء رابط",
+      "linkIssuedOnce": "يظهر هذا الرابط مرة واحدة فقط. احفظه الآن — لا يمكن استرجاعه لاحقًا.",
+      "copy": "نسخ",
+      "copied": "تم النسخ",
+      "done": "تم",
+      "linkRevoked": "تم إلغاء رابط المشاركة",
+      "errors": {
+        "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+      },
+      "relationshipTypes": {
+        "parent": "الوالد",
+        "child": "الطفل",
+        "guardian": "الوصي",
+        "caregiver": "مقدم الرعاية",
+        "authorized_person": "شخص مخوّل",
+        "other": "أخرى"
+      },
+      "consentTypes": {
+        "data_sharing": "مشاركة البيانات",
+        "marketing": "التسويق",
+        "treatment": "العلاج",
+        "research": "البحث",
+        "family_access": "وصول العائلة",
+        "other": "أخرى"
+      },
+      "consentStatuses": {
+        "active": "نشطة",
+        "withdrawn": "مسحوبة",
+        "expired": "منتهية الصلاحية"
+      },
+      "grantStatuses": {
+        "active": "نشط",
+        "expired": "منتهي الصلاحية",
+        "revoked": "ملغى"
+      },
+      "dataScopes": {
+        "demographics": "البيانات الشخصية",
+        "identifiers": "المعرفات",
+        "conditions": "الحالات",
+        "allergies": "الحساسيات",
+        "medications": "الأدوية",
+        "procedures": "الإجراءات",
+        "labs": "الفحوصات",
+        "imaging": "التصوير",
+        "documents": "المستندات",
+        "reproductive_history": "التاريخ الإنجابي",
+        "cosmetic_history": "تاريخ التجميل",
+        "case_data": "بيانات الحالة",
+        "travel_information": "معلومات السفر",
+        "billing_information": "معلومات الفوترة"
       }
     },
     "privacySecurity": {
