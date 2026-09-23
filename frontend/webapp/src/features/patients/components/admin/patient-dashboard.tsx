@@ -35,6 +35,7 @@ import type { PatientConsentRow, ShareGrantRow } from "../../sharing-types";
 import type { PatientMatchCandidateRow, PatientMergeRow, ReconciliationConflict } from "../../identity-types";
 import type { PatientPassportRow } from "../../passport-types";
 import type { AiExtractionCandidateRow, AiSummaryRow, DocumentClassificationRow } from "../../ai-types";
+import type { HealthTimelineEntry } from "../../analytics-types";
 import type {
   AccountPatientLinkRow,
   PatientAddressRow,
@@ -84,6 +85,7 @@ export function PatientDashboard({
   addresses,
   accountLinks,
   timeline,
+  healthTimeline,
   notes,
   canSeeSuperadminNotes,
   clinicalSummary,
@@ -115,6 +117,7 @@ export function PatientDashboard({
   addresses: PatientAddressRow[];
   accountLinks: AccountPatientLinkRow[];
   timeline: PatientTimelineEventRow[];
+  healthTimeline: HealthTimelineEntry[];
   notes: PatientNoteRow[];
   canSeeSuperadminNotes: boolean;
   clinicalSummary: PatientClinicalSummary;
@@ -271,8 +274,9 @@ export function PatientDashboard({
           />
         </TabsContent>
 
-        <TabsContent value="timeline" className="pt-4">
+        <TabsContent value="timeline" className="space-y-4 pt-4">
           <TimelineTab patientId={patient.id} initialEvents={timeline} />
+          <HealthTimelineIntelligenceCard entries={healthTimeline} />
         </TabsContent>
 
         <TabsContent value="notes" className="pt-4">
@@ -511,6 +515,34 @@ function TimelineTab({ patientId, initialEvents }: { patientId: string; initialE
               <span className="text-sm">{t(`admin.timeline.events.${event.action}`)}</span>
               <span dir="ltr" className="text-muted-foreground shrink-0 text-xs">
                 {formatDateTime(event.occurredAt)}
+              </span>
+            </li>
+          ))}
+        </ol>
+      </CardContent>
+    </Card>
+  );
+}
+
+function HealthTimelineIntelligenceCard({ entries }: { entries: HealthTimelineEntry[] }) {
+  const t = useTranslations(PATIENTS_TRANSLATION_KEY);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">{t("admin.healthTimelineIntelligence.title")}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {entries.length === 0 && <p className="text-muted-foreground py-6 text-center text-sm">{t("admin.timeline.empty")}</p>}
+        <ol className="space-y-3">
+          {entries.map((entry) => (
+            <li key={`${entry.kind}-${entry.recordId}-${entry.date}`} className="flex items-start justify-between gap-2 border-b pb-3 last:border-0">
+              <div>
+                <Badge variant="outline">{t(`admin.healthTimelineIntelligence.kinds.${entry.kind}`)}</Badge>
+                <p className="mt-1 text-sm">{entry.label}</p>
+              </div>
+              <span dir="ltr" className="text-muted-foreground shrink-0 text-xs">
+                {formatDate(entry.date)}
               </span>
             </li>
           ))}

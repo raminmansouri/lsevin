@@ -74,7 +74,13 @@ export type PatientAuditAction =
   | "ai_extraction_run"
   | "ai_extraction_reviewed"
   | "ai_summary_generated"
-  | "ai_translation_requested";
+  | "ai_translation_requested"
+  | "followup_schedule_rule_added"
+  | "followup_schedule_rule_deactivated"
+  | "followup_automation_applied"
+  | "followup_notification_would_send"
+  | "followup_notification_skipped"
+  | "followup_status_updated";
 
 /**
  * `purpose`/`result`/`ipAddress`/`userAgent` were added in V5.6

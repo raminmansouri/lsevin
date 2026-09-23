@@ -5153,6 +5153,7 @@
       "customersList": "All customers",
       "identityUsers": "Users",
       "patients": "Patients",
+      "patientsOperations": "Patient operations",
       "pickedLocations": "Locations",
       "marketing": "Marketing",
       "loyaltyOverview": "Loyalty overview",
@@ -15769,6 +15770,16 @@
           "ai_translation_requested": "AI translation requested"
         }
       },
+      "healthTimelineIntelligence": {
+        "title": "Health timeline intelligence",
+        "kinds": {
+          "medication_start": "Medication started",
+          "medication_stop": "Medication stopped",
+          "procedure": "Procedure",
+          "case_status": "Case status",
+          "lab_trend_point": "Lab trend point"
+        }
+      },
       "notes": {
         "placeholder": "Write an internal note about this patient…",
         "add": "Add note",
@@ -16258,6 +16269,71 @@
       },
       "errors": {
         "generic": "Something went wrong. Please try again."
+      },
+      "operations": {
+        "title": "Patient operations",
+        "description": "Cross-patient case analytics, follow-up automation and data quality — aggregated, no per-patient record listings.",
+        "schemaMissing": {
+          "title": "Database migration pending",
+          "body": "Apply migration 0058_patient_analytics_automation.sql to enable this section."
+        },
+        "funnel": {
+          "title": "Case funnel"
+        },
+        "timing": {
+          "title": "Case timing",
+          "avgIntakeToReadyDays": "Avg. intake → ready for review",
+          "medianIntakeToReadyDays": "Median intake → ready for review",
+          "avgProviderResponseDays": "Avg. provider response time",
+          "casesMeasured": "Cases measured",
+          "days": "{value} days",
+          "noData": "Not enough data yet."
+        },
+        "segmentation": {
+          "title": "Segmentation",
+          "byOriginCountry": "By origin country",
+          "byCaseType": "By case type",
+          "unknown": "Unknown"
+        },
+        "followUpCompletion": {
+          "title": "Follow-up completion",
+          "total": "Total",
+          "completed": "Completed",
+          "missed": "Missed",
+          "completionRate": "Completion rate"
+        },
+        "overdueFollowUps": {
+          "title": "Overdue follow-ups",
+          "empty": "No overdue follow-ups.",
+          "patient": "Patient",
+          "scheduledDate": "Scheduled",
+          "daysOverdue": "{value} days overdue"
+        },
+        "dataQuality": {
+          "title": "Data quality",
+          "totalPatients": "Total patients",
+          "pendingDuplicateCandidates": "Pending duplicate candidates",
+          "duplicateRate": "Duplicate candidate rate",
+          "unverifiedClinicalRecordRate": "Unverified clinical record rate",
+          "recordsMissingCodeRate": "Records missing a code",
+          "staleContactCount": "Stale, unverified contacts"
+        },
+        "scheduleRules": {
+          "title": "Follow-up automation rules",
+          "add": "New rule",
+          "empty": "No automation rules yet.",
+          "caseType": "Case type",
+          "daysAfterCompletion": "Days after case completion",
+          "ruleTitle": "Follow-up title",
+          "requiredItems": "Required items (optional)",
+          "active": "Active",
+          "inactive": "Inactive",
+          "deactivate": "Deactivate",
+          "save": "Save",
+          "saving": "Saving…",
+          "added": "Rule added",
+          "deactivated": "Rule deactivated"
+        }
       }
     },
     "share": {

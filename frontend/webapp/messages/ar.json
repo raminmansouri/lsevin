@@ -14099,6 +14099,16 @@
           "ai_translation_requested": "تم طلب الترجمة الذكية"
         }
       },
+      "healthTimelineIntelligence": {
+        "title": "ذكاء الخط الزمني الصحي",
+        "kinds": {
+          "medication_start": "بدء دواء",
+          "medication_stop": "إيقاف دواء",
+          "procedure": "إجراء",
+          "case_status": "حالة الملف",
+          "lab_trend_point": "نقطة اتجاه مخبرية"
+        }
+      },
       "notes": {
         "placeholder": "اكتب ملاحظة داخلية حول هذا المريض…",
         "add": "إضافة ملاحظة",
@@ -14588,6 +14598,71 @@
       },
       "errors": {
         "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+      },
+      "operations": {
+        "title": "عمليات المرضى",
+        "description": "تحليلات الحالات عبر المرضى، أتمتة المتابعة وجودة البيانات — تجميعية فقط، بدون سرد سجلات فردية.",
+        "schemaMissing": {
+          "title": "ترحيل قاعدة البيانات معلّق",
+          "body": "طبّق ترحيل 0058_patient_analytics_automation.sql لتفعيل هذا القسم."
+        },
+        "funnel": {
+          "title": "قمع الحالات"
+        },
+        "timing": {
+          "title": "توقيت الحالات",
+          "avgIntakeToReadyDays": "متوسط الاستقبال حتى جاهزية المراجعة",
+          "medianIntakeToReadyDays": "الوسيط الاستقبال حتى جاهزية المراجعة",
+          "avgProviderResponseDays": "متوسط زمن استجابة مقدم الخدمة",
+          "casesMeasured": "الحالات المقاسة",
+          "days": "{value} يوم",
+          "noData": "لا توجد بيانات كافية بعد."
+        },
+        "segmentation": {
+          "title": "التقسيم",
+          "byOriginCountry": "حسب بلد المنشأ",
+          "byCaseType": "حسب نوع الحالة",
+          "unknown": "غير معروف"
+        },
+        "followUpCompletion": {
+          "title": "إتمام المتابعات",
+          "total": "الإجمالي",
+          "completed": "مكتملة",
+          "missed": "فائتة",
+          "completionRate": "نسبة الإتمام"
+        },
+        "overdueFollowUps": {
+          "title": "المتابعات المتأخرة",
+          "empty": "لا توجد متابعات متأخرة.",
+          "patient": "المريض",
+          "scheduledDate": "الموعد المجدول",
+          "daysOverdue": "متأخرة {value} يوم"
+        },
+        "dataQuality": {
+          "title": "جودة البيانات",
+          "totalPatients": "إجمالي المرضى",
+          "pendingDuplicateCandidates": "مرشحو التكرار المعلّقون",
+          "duplicateRate": "نسبة مرشحي التكرار",
+          "unverifiedClinicalRecordRate": "نسبة السجلات السريرية غير المتحقق منها",
+          "recordsMissingCodeRate": "السجلات بدون رمز",
+          "staleContactCount": "بيانات تواصل قديمة وغير موثقة"
+        },
+        "scheduleRules": {
+          "title": "قواعد أتمتة المتابعة",
+          "add": "قاعدة جديدة",
+          "empty": "لا توجد قواعد أتمتة بعد.",
+          "caseType": "نوع الحالة",
+          "daysAfterCompletion": "أيام بعد اكتمال الحالة",
+          "ruleTitle": "عنوان المتابعة",
+          "requiredItems": "العناصر المطلوبة (اختياري)",
+          "active": "نشطة",
+          "inactive": "غير نشطة",
+          "deactivate": "تعطيل",
+          "save": "حفظ",
+          "saving": "جارٍ الحفظ…",
+          "added": "تمت إضافة القاعدة",
+          "deactivated": "تم تعطيل القاعدة"
+        }
       }
     },
     "share": {

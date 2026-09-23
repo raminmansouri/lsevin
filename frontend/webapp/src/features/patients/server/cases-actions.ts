@@ -30,6 +30,7 @@ import {
   type UpdateCaseRequirementStatusInput,
   type UpdateSubmissionResponseInput,
 } from "../cases-schemas";
+import { UpdateFollowUpStatusSchema, type UpdateFollowUpStatusInput } from "../analytics-schemas";
 import type {
   ClinicalEncounterRow,
   MedicalCaseFollowUpRow,
@@ -42,6 +43,7 @@ import type {
 } from "../cases-types";
 import { PATIENTS_TRANSLATION_KEY, type PatientActionResult } from "../types";
 import { recordPatientAuditEvent } from "./audit";
+import { applyFollowupAutomation } from "./followup-automation-repository";
 import { getPatientById } from "./repository";
 import {
   addCaseRequirement,
@@ -53,6 +55,7 @@ import {
   createMedicalCase,
   generateCasePackage,
   getMedicalCase,
+  updateFollowUpStatus,
   transitionCaseStatus,
   updateRequirementStatus,
   updateSubmissionResponse,
@@ -120,6 +123,25 @@ export async function transitionCaseStatusAction(
     entityId: result.id,
     metadata: { patientId: result.patientId, toStatus: values.toStatus },
   });
+
+  // V9.2 automation: reaching 'completed' schedules any matching follow-up
+  // rules. Called from the action layer, not cases-repository.ts itself --
+  // the automation module imports addFollowUp from that same repository, so
+  // hooking it in there would be a circular import.
+  if (values.toStatus === "completed") {
+    const rulesApplied = await applyFollowupAutomation(result.id, result.caseType, result.patientId, ctx.userId ?? null);
+    if (rulesApplied > 0) {
+      await recordPatientAuditEvent({
+        actorUserId: ctx.userId,
+        actorRoles: ctx.roles,
+        action: "followup_automation_applied",
+        entityType: "medical_case",
+        entityId: result.id,
+        metadata: { patientId: result.patientId, rulesApplied },
+      });
+    }
+  }
+
   revalidatePath(`${ADMIN_PATIENTS_PATH}/${result.patientId}/cases/${result.id}`);
   return { ok: true, data: result };
 }
@@ -372,5 +394,25 @@ export async function addFollowUpAction(input: AddFollowUpInput): Promise<Patien
     metadata: { patientId: medicalCase.patientId, medicalCaseId: values.medicalCaseId },
   });
   revalidatePath(`${ADMIN_PATIENTS_PATH}/${medicalCase.patientId}/cases/${values.medicalCaseId}`);
+  return { ok: true, data: followUp };
+}
+
+export async function updateFollowUpStatusAction(input: UpdateFollowUpStatusInput): Promise<PatientActionResult<MedicalCaseFollowUpRow>> {
+  const ctx = await assertAdmin();
+  const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
+  const values = UpdateFollowUpStatusSchema.parse(input);
+
+  const followUp = await updateFollowUpStatus(values.id, values.followupStatus);
+  if (!followUp) return { ok: false, error: t("errors.notFound") };
+
+  await recordPatientAuditEvent({
+    actorUserId: ctx.userId,
+    actorRoles: ctx.roles,
+    action: "followup_status_updated",
+    entityType: "medical_case_follow_up",
+    entityId: followUp.id,
+    metadata: { medicalCaseId: followUp.medicalCaseId, followupStatus: values.followupStatus },
+  });
+  revalidatePath(`${ADMIN_PATIENTS_PATH}`);
   return { ok: true, data: followUp };
 }

@@ -31,6 +31,7 @@ import {
   generateCasePackageAction,
   transitionCaseStatusAction,
   updateCaseRequirementStatusAction,
+  updateFollowUpStatusAction,
   updateSubmissionResponseAction,
 } from "../../server/cases-actions";
 import { PATIENTS_TRANSLATION_KEY } from "../../types";
@@ -503,7 +504,20 @@ function PackageTab({
 
 function FollowUpsTab({ medicalCaseId, followUps }: { medicalCaseId: string; followUps: MedicalCaseFollowUpRow[] }) {
   const t = useTranslations(PATIENTS_TRANSLATION_KEY);
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
+
+  const updateStatus = (id: string, followupStatus: string) => {
+    startTransition(async () => {
+      const result = await updateFollowUpStatusAction({ id, followupStatus: followupStatus as never });
+      if (result.ok) {
+        router.refresh();
+        return;
+      }
+      toast.error(result.error || t("admin.errors.generic"));
+    });
+  };
 
   return (
     <Card>
@@ -523,7 +537,22 @@ function FollowUpsTab({ medicalCaseId, followUps }: { medicalCaseId: string; fol
               </p>
               {followUp.requiredItems && <p className="text-muted-foreground text-xs">{followUp.requiredItems}</p>}
             </div>
-            <Badge variant="outline">{t(`admin.cases.followupStatuses.${followUp.followupStatus}`)}</Badge>
+            <Select
+              value={followUp.followupStatus}
+              disabled={isPending}
+              onValueChange={(value) => updateStatus(followUp.id, value)}
+            >
+              <SelectTrigger className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {["scheduled", "completed", "missed", "cancelled"].map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {t(`admin.cases.followupStatuses.${status}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         ))}
       </CardContent>

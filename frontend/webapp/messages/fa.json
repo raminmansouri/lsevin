@@ -4373,6 +4373,7 @@
       "customersList": "همه مشتریان",
       "identityUsers": "کاربران",
       "patients": "بیماران",
+      "patientsOperations": "عملیات بیماران",
       "pickedLocations": "مکان‌ها",
       "marketing": "بازاریابی",
       "loyaltyOverview": "نمای کلی وفاداری",
@@ -15769,6 +15770,16 @@
           "ai_translation_requested": "ترجمه هوش مصنوعی درخواست شد"
         }
       },
+      "healthTimelineIntelligence": {
+        "title": "هوشمندی خط زمانی سلامت",
+        "kinds": {
+          "medication_start": "شروع دارو",
+          "medication_stop": "قطع دارو",
+          "procedure": "اقدام درمانی",
+          "case_status": "وضعیت پرونده",
+          "lab_trend_point": "روند نتیجه آزمایشگاهی"
+        }
+      },
       "notes": {
         "placeholder": "یادداشت داخلی درباره این بیمار بنویسید…",
         "add": "افزودن یادداشت",
@@ -16258,6 +16269,71 @@
       },
       "errors": {
         "generic": "خطایی رخ داد. لطفاً دوباره تلاش کنید."
+      },
+      "operations": {
+        "title": "عملیات بیماران",
+        "description": "تحلیل پرونده‌های بین‌بیماران، خودکارسازی پیگیری‌ها و کیفیت داده — فقط تجمیعی، بدون فهرست رکورد تک‌بیمار.",
+        "schemaMissing": {
+          "title": "مایگریشن دیتابیس در انتظار اجرا",
+          "body": "برای فعال‌سازی این بخش، مایگریشن 0058_patient_analytics_automation.sql را اجرا کنید."
+        },
+        "funnel": {
+          "title": "قیف پرونده‌ها"
+        },
+        "timing": {
+          "title": "زمان‌بندی پرونده‌ها",
+          "avgIntakeToReadyDays": "میانگین پذیرش تا آمادگی بررسی",
+          "medianIntakeToReadyDays": "میانه پذیرش تا آمادگی بررسی",
+          "avgProviderResponseDays": "میانگین زمان پاسخ ارائه‌دهنده",
+          "casesMeasured": "پرونده‌های اندازه‌گیری‌شده",
+          "days": "{value} روز",
+          "noData": "هنوز داده کافی موجود نیست."
+        },
+        "segmentation": {
+          "title": "بخش‌بندی",
+          "byOriginCountry": "بر اساس کشور مبدا",
+          "byCaseType": "بر اساس نوع پرونده",
+          "unknown": "نامشخص"
+        },
+        "followUpCompletion": {
+          "title": "تکمیل پیگیری‌ها",
+          "total": "کل",
+          "completed": "تکمیل‌شده",
+          "missed": "ازدست‌رفته",
+          "completionRate": "نرخ تکمیل"
+        },
+        "overdueFollowUps": {
+          "title": "پیگیری‌های عقب‌افتاده",
+          "empty": "پیگیری عقب‌افتاده‌ای وجود ندارد.",
+          "patient": "بیمار",
+          "scheduledDate": "زمان برنامه‌ریزی‌شده",
+          "daysOverdue": "{value} روز عقب‌افتاده"
+        },
+        "dataQuality": {
+          "title": "کیفیت داده",
+          "totalPatients": "کل بیماران",
+          "pendingDuplicateCandidates": "کاندیدهای تکراری در انتظار بررسی",
+          "duplicateRate": "نرخ کاندیدهای تکراری",
+          "unverifiedClinicalRecordRate": "نرخ رکوردهای بالینی تاییدنشده",
+          "recordsMissingCodeRate": "رکوردهای بدون کد",
+          "staleContactCount": "اطلاعات تماس قدیمی و تاییدنشده"
+        },
+        "scheduleRules": {
+          "title": "قوانین خودکارسازی پیگیری",
+          "add": "قانون جدید",
+          "empty": "هنوز قانون خودکارسازی‌ای وجود ندارد.",
+          "caseType": "نوع پرونده",
+          "daysAfterCompletion": "روز پس از تکمیل پرونده",
+          "ruleTitle": "عنوان پیگیری",
+          "requiredItems": "موارد لازم (اختیاری)",
+          "active": "فعال",
+          "inactive": "غیرفعال",
+          "deactivate": "غیرفعال کردن",
+          "save": "ذخیره",
+          "saving": "در حال ذخیره…",
+          "added": "قانون افزوده شد",
+          "deactivated": "قانون غیرفعال شد"
+        }
       }
     },
     "share": {

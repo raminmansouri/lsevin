@@ -43,6 +43,7 @@ import {
   listClassificationsRequiringReview,
   listExtractionCandidatesForPatient,
 } from "@/features/patients/server/ai-repository";
+import { getHealthTimelineIntelligence } from "@/features/patients/server/analytics-repository";
 import { PATIENTS_TRANSLATION_KEY } from "@/features/patients/types";
 import { assertAdmin } from "@/lib/auth/admin-guard";
 import type { LocaleParams } from "@/types/next";
@@ -92,6 +93,7 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
     addresses,
     accountLinks,
     timeline,
+    healthTimeline,
     notes,
     clinicalSummary,
     conditions,
@@ -121,6 +123,7 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
     listAddressesForPatient(patientId),
     listAccountLinksForPatient(patientId),
     getPatientTimeline(patientId, { order: "newest_first", limit: 50 }),
+    getHealthTimelineIntelligence(patientId),
     listNotesForPatient(patientId, ctx.isSuperAdmin),
     getPatientClinicalSummary(patientId),
     listConditionsForPatient(patientId),
@@ -168,6 +171,7 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
       addresses={addresses}
       accountLinks={accountLinks}
       timeline={timeline}
+      healthTimeline={healthTimeline}
       notes={notes}
       canSeeSuperadminNotes={ctx.isSuperAdmin}
       clinicalSummary={clinicalSummary}
