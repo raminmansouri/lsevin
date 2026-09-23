@@ -6,9 +6,19 @@ FILE="$BACKUP_DIR/{{ vault_postgres_db }}-$TIMESTAMP.dump"
 mkdir -p "$BACKUP_DIR"
 exec 9>/run/lock/lsevin-database-backup.lock
 flock -w 7200 9 || { echo 'Timed out waiting for another database backup.' >&2; exit 1; }
-cd {{ lsevin_app_dir }}/deployments/docker
-docker compose --project-name {{ lsevin_compose_project }} --env-file .env -f docker-compose.server.yml   exec -T postgres pg_dump -U {{ vault_postgres_user | quote }} -d {{ vault_postgres_db | quote }}   --format=custom --compress=9 --no-owner --no-privileges > "$FILE"
+if command -v k3s >/dev/null && k3s kubectl -n lsevin get deployment/postgres >/dev/null 2>&1; then
+  k3s kubectl -n lsevin exec deployment/postgres -- \
+    gosu postgres pg_dump -U {{ vault_postgres_user | quote }} -d {{ vault_postgres_db | quote }} \
+    --format=custom --compress=9 --no-owner --no-privileges > "$FILE"
+  RESTORE_LIST=(k3s kubectl -n lsevin exec -i deployment/postgres -- gosu postgres pg_restore --list)
+else
+  cd {{ lsevin_app_dir }}/deployments/docker
+  docker compose --project-name {{ lsevin_compose_project }} --env-file .env -f docker-compose.server.yml \
+    exec -T postgres pg_dump -U {{ vault_postgres_user | quote }} -d {{ vault_postgres_db | quote }} \
+    --format=custom --compress=9 --no-owner --no-privileges > "$FILE"
+  RESTORE_LIST=(docker compose --project-name {{ lsevin_compose_project }} --env-file .env -f docker-compose.server.yml exec -T postgres pg_restore --list)
+fi
 test -s "$FILE"
-docker compose --project-name {{ lsevin_compose_project }} --env-file .env -f docker-compose.server.yml   exec -T postgres pg_restore --list < "$FILE" >/dev/null
+"${RESTORE_LIST[@]}" < "$FILE" >/dev/null
 find "$BACKUP_DIR" -maxdepth 1 -type f -name '{{ vault_postgres_db }}-*.dump'   -mtime +{{ logical_backup_retention_days }} -delete
 echo "Logical backup verified: $FILE"

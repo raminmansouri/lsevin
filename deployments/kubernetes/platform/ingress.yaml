@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lsevin
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    nginx.ingress.kubernetes.io/proxy-body-size: 64m
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: [appmain.lsevin.com, api.lsevin.com, crm.lsevin.com, providers.lsevin.com, financial.lsevin.com]
+      secretName: lsevin-tls
+  rules:
+    - host: appmain.lsevin.com
+      http: {paths: [{path: /, pathType: Prefix, backend: {service: {name: lsevin-webapp, port: {number: 80}}}}]}
+    - host: api.lsevin.com
+      http: {paths: [{path: /, pathType: Prefix, backend: {service: {name: lsevin-api, port: {number: 80}}}}]}
+    - host: crm.lsevin.com
+      http: {paths: [{path: /, pathType: Prefix, backend: {service: {name: crm, port: {number: 80}}}}]}
+    - host: providers.lsevin.com
+      http: {paths: [{path: /, pathType: Prefix, backend: {service: {name: lsevin-portal, port: {number: 80}}}}]}
+    - host: financial.lsevin.com
+      http: {paths: [{path: /, pathType: Prefix, backend: {service: {name: lsevin-webapp, port: {number: 80}}}}]}

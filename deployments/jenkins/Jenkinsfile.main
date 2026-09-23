@@ -1,550 +1,65 @@
 pipeline {
-  agent {
-    node {
-      // Required by Declarative Pipeline's `node` agent type. This is a
-      // single-controller Jenkins with no separate registered agents (see
-      // casc/jenkins.yaml: numExecutors: 1, no nodes: block), so the
-      // built-in node — reserved automatically, always present — is the
-      // only valid target.
-      label 'built-in'
-      customWorkspace '/opt/lsevin-platform'
-    }
-  }
-
-  options {
-    // Jenkins performs the checkout explicitly into /opt/lsevin-platform.
-    skipDefaultCheckout(true)
-
-    // A second commit waits until the current production deployment finishes.
-    disableConcurrentBuilds()
-
-    timestamps()
-    timeout(time: 60, unit: 'MINUTES')
-  }
-
+  agent { node { label 'built-in'; customWorkspace '/opt/lsevin-platform' } }
+  options { skipDefaultCheckout(true); disableConcurrentBuilds(); timestamps(); timeout(time: 60, unit: 'MINUTES') }
   environment {
-    // Dedicated checkout directory on the VPS.
-    SOURCE_DIR = '/opt/lsevin-platform'
-
-    // The Compose file that already defines API, webapp, PostgreSQL, Redis,
-    // EventStore, and Caddy.
-    COMPOSE_FILE = '/opt/lsevin-platform/deployments/docker/docker-compose.server.yml'
-
-    // The persistent production .env, deliberately outside this pipeline's own
-    // workspace (/opt/lsevin-platform) so stage 1's deleteDir() -- which wipes
-    // that workspace on every build -- can never touch it.
+    NAMESPACE = 'lsevin'
     ENV_FILE = '/opt/lsevin/app/deployments/docker/.env'
-
-    // Keep the existing Compose project name so Jenkins manages the current
-    // docker-lsevin-api-1, lsevin-webapp-1 and lsevin-webapp-2 containers
-    // (the webapp pair has an explicit container_name: in docker-compose.server.yml,
-    // so it isn't project-prefixed the way lsevin-api's auto-generated name is).
-    COMPOSE_PROJECT_NAME = 'docker'
-
-    // /readiness (not /hc -- that route only exists when ASPNETCORE_ENVIRONMENT
-    // is Development; see BuildingBlocks.Web/Extensions/HealthCheckExtensions.cs
-    // and WebConstants.cs. Polling /hc here 404s every single time in
-    // production, no matter how long you wait.
-    API_HEALTH_URL = 'https://api.lsevin.com/readiness'
-    WEBAPP_HEALTH_URL = 'https://appmain.lsevin.com/'
+    DEPLOY = '/opt/lsevin/app/deployments/jenkins/k3s-deploy.sh'
   }
-
   stages {
-    stage('1. Checkout') {
+    stage('Checkout') { steps { deleteDir(); checkout scm } }
+    stage('Prepare') {
       steps {
-        // /opt/lsevin-platform is dedicated to this repository, so cleaning it is
-        // safe and prevents deleted Git files from remaining on the server.
-        deleteDir()
-        checkout scm
+        script { env.IMAGE_TAG = sh(script: 'git rev-parse --short=12 HEAD', returnStdout: true).trim() }
+        sh 'test -r "$ENV_FILE"; chmod +x "$DEPLOY"; "$DEPLOY" kubectl get node'
       }
     }
-
-    stage('2. Prepare release') {
+    stage('Build') {
       steps {
-        script {
-          env.RELEASE_TAG = sh(
-            script: "git -C '${env.SOURCE_DIR}' rev-parse --short=12 HEAD",
-            returnStdout: true
-          ).trim()
-        }
-
-        sh '''
-          set -eu
-
-          if [ ! -f "$ENV_FILE" ]; then
-            echo "Missing $ENV_FILE" >&2
-            echo "" >&2
-            echo "If it's missing, this server was never bootstrapped yet. Follow" >&2
-            echo "deployments/FIRST-RUN.md section 5 (\"Create the production .env\")" >&2
-            echo "once, then re-run this job." >&2
-            exit 1
+        sh '''set -eu
+          set -a; . "$ENV_FILE"; set +a
+          docker build -f src/API/LSevin.Api/Dockerfile -t "lsevin-api:$IMAGE_TAG" .
+          DOCKER_BUILDKIT=1 docker build -f frontend/webapp/Dockerfile \
+            --build-arg NEXT_PUBLIC_URL --build-arg NEXT_PUBLIC_API_URL \
+            --build-arg NEXT_PUBLIC_FILES_URL --build-arg NEXT_PUBLIC_SOCKET_URL \
+            --build-arg NEXT_PUBLIC_MAPBOX_TOKEN --build-arg NEXT_PUBLIC_NESHAN_MAP_KEY \
+            --build-arg NEXT_PUBLIC_CRM_ANALYTICS_URL --build-arg NEXT_PUBLIC_CRM_ANALYTICS_SITE_KEY \
+            --secret id=database_url,env=DATABASE_URL --secret id=auth_secret,env=AUTH_SECRET \
+            --secret id=webhook_key,env=WEBHOOK_KEY \
+            -t "lsevin-webapp:$IMAGE_TAG" frontend/webapp
+          docker build -f frontend/webapp/Dockerfile.migrations \
+            -t "lsevin-webapp-migrations:$IMAGE_TAG" frontend/webapp
+          "$DEPLOY" import "core-$IMAGE_TAG.tar" \
+            "lsevin-api:$IMAGE_TAG" "lsevin-webapp:$IMAGE_TAG" "lsevin-webapp-migrations:$IMAGE_TAG"
+        '''
+      }
+    }
+    stage('Deploy API') {
+      steps {
+        sh '''set -eu
+          "$DEPLOY" kubectl -n "$NAMESPACE" set image deployment/lsevin-api api="lsevin-api:$IMAGE_TAG"
+          "$DEPLOY" kubectl -n "$NAMESPACE" rollout status deployment/lsevin-api --timeout=10m
+        '''
+      }
+    }
+    stage('Deploy webapp') {
+      steps {
+        sh '''set -eu
+          "$DEPLOY" kubectl -n "$NAMESPACE" set image deployment/lsevin-webapp web="lsevin-webapp:$IMAGE_TAG"
+          if "$DEPLOY" kubectl -n "$NAMESPACE" get deployment/lsevin-webapp \
+              -o jsonpath='{.spec.template.spec.initContainers[*].name}' | grep -qw migrate; then
+            "$DEPLOY" kubectl -n "$NAMESPACE" set image deployment/lsevin-webapp \
+              migrate="lsevin-webapp-migrations:$IMAGE_TAG"
           fi
-          test -f "$COMPOSE_FILE"
-
-          # Validate all environment substitutions and Compose syntax before any
-          # image is built or production container is changed.
-          docker compose \
-            --project-name "$COMPOSE_PROJECT_NAME" \
-            --env-file "$ENV_FILE" \
-            --file "$COMPOSE_FILE" \
-            config --quiet
-        '''
-      }
-    }
-
-    stage('3. Save rollback images') {
-      steps {
-        script {
-          // Tag the exact images used by the currently running containers.
-          // These tags make rollback independent of mutable image names.
-          env.OLD_API_TAG = "rollback-${env.BUILD_NUMBER}"
-          env.OLD_WEBAPP_TAG = "rollback-${env.BUILD_NUMBER}"
-        }
-
-        sh '''
-          set -eu
-
-          api_container="$(docker compose \
-            --project-name "$COMPOSE_PROJECT_NAME" \
-            --env-file "$ENV_FILE" \
-            --file "$COMPOSE_FILE" \
-            ps --quiet lsevin-api 2>/dev/null || true)"
-
-          webapp_container="$(docker compose \
-            --project-name "$COMPOSE_PROJECT_NAME" \
-            --env-file "$ENV_FILE" \
-            --file "$COMPOSE_FILE" \
-            ps --quiet lsevin-webapp-1 2>/dev/null || true)"
-
-          if [ -n "$api_container" ]; then
-            api_image_id="$(docker inspect --format '{{.Image}}' "$api_container")"
-            # A running container outlives its image entry being pruned from the
-            # local image list (e.g. docker image prune) -- it keeps running
-            # fine, but "docker image tag" on that now-delisted id fails with
-            # "No such image" even though the container plainly still exists.
-            # Fall back to snapshotting the live container directly, so
-            # rollback safety survives that case instead of silently vanishing
-            # for this one deploy.
-            if ! docker image tag "$api_image_id" "lsevin-api:$OLD_API_TAG" 2>/dev/null; then
-              echo "lsevin-api's running image ($api_image_id) is no longer in the local image list (likely pruned) -- committing a live snapshot instead." >&2
-              docker commit --pause=true "$api_container" "lsevin-api:$OLD_API_TAG"
-            fi
-          else
-            OLD_API_TAG=""
-          fi
-
-          if [ -n "$webapp_container" ]; then
-            webapp_image_id="$(docker inspect --format '{{.Image}}' "$webapp_container")"
-            if ! docker image tag "$webapp_image_id" "lsevin-webapp:$OLD_WEBAPP_TAG" 2>/dev/null; then
-              echo "lsevin-webapp's running image ($webapp_image_id) is no longer in the local image list (likely pruned) -- committing a live snapshot instead." >&2
-              docker commit --pause=true "$webapp_container" "lsevin-webapp:$OLD_WEBAPP_TAG"
-            fi
-          else
-            OLD_WEBAPP_TAG=""
-          fi
-
-          printf '%s' "$OLD_API_TAG" > "$SOURCE_DIR/.jenkins-old-api-tag"
-          printf '%s' "$OLD_WEBAPP_TAG" > "$SOURCE_DIR/.jenkins-old-webapp-tag"
-        '''
-      }
-    }
-
-    stage('4. Build API and webapp') {
-      steps {
-        dir(env.SOURCE_DIR) {
-          sh '''
-            set -eu
-
-            # Do not add --pull or --no-cache here. The host Docker daemon keeps
-            # dependency and compiler layers between Jenkins builds.
-            #
-            # lsevin-webapp-1 and lsevin-webapp-2 share one image (image:
-            # lsevin-webapp:${LSEVIN_WEBAPP_IMAGE_TAG}, via docker-compose.server.yml's
-            # x-lsevin-webapp anchor), so building the -1 service name is enough to
-            # produce the image both replicas run from.
-            DOCKER_BUILDKIT=1 \
-            LSEVIN_API_IMAGE_TAG="$RELEASE_TAG" \
-            LSEVIN_WEBAPP_IMAGE_TAG="$RELEASE_TAG" \
-            docker compose \
-              --project-name "$COMPOSE_PROJECT_NAME" \
-              --env-file "$ENV_FILE" \
-              --file "$COMPOSE_FILE" \
-              build lsevin-api lsevin-webapp-1
-          '''
-        }
-      }
-    }
-
-    /*
-     * Migrations run before any container is replaced, so a failure here leaves the
-     * release that is currently serving untouched.
-     *
-     * Why this stage exists: nothing applied them. This pipeline had no migration
-     * step at all -- so code depending on a new column shipped against a database
-     * without it, and every page using that column returned 500 until someone
-     * ran the runner by hand.
-     *
-     * It cannot call `pnpm migrate`: the webapp image is a Next standalone build
-     * holding only public/, package.json, .next/standalone and .next/static, so
-     * neither db/migrations nor scripts/migrate.mjs survive into it. This instead
-     * reproduces what that runner does, against the source Jenkins already checked
-     * out, writing the same public.schema_migrations registry so that
-     * `pnpm migrate:status` keeps telling the truth:
-     *   - apply files in filename order, once each
-     *   - stop if a file that was already applied has since been edited
-     *   - record name, checksum and duration after each success
-     */
-    stage('5. Apply database migrations') {
-      steps {
-        dir(env.SOURCE_DIR) {
-          sh '''
-            set -eu
-
-            MIGRATION_DIR="$SOURCE_DIR/frontend/webapp/db/migrations"
-
-            if ! ls "$MIGRATION_DIR"/*.sql >/dev/null 2>&1; then
-              echo "No migrations found in $MIGRATION_DIR; nothing to apply."
-              exit 0
-            fi
-
-            pg_container="$(docker compose \
-              --project-name "$COMPOSE_PROJECT_NAME" \
-              --env-file "$ENV_FILE" \
-              --file "$COMPOSE_FILE" \
-              ps -q postgres)"
-
-            [ -n "$pg_container" ] || { echo "Postgres container is not running." >&2; exit 1; }
-
-            run_sql() {
-              docker exec -i "$pg_container" sh -lc \
-                'psql -qtAX -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
-            }
-
-            printf '%s' "create table if not exists public.schema_migrations (
-                      name text primary key,
-                      checksum text not null,
-                      applied_at timestamptz not null default now(),
-                      duration_ms integer not null
-                    );" | run_sql >/dev/null
-
-            for migration in "$MIGRATION_DIR"/*.sql; do
-              name="$(basename "$migration")"
-              checksum="$(sha256sum "$migration" | cut -d' ' -f1)"
-
-              recorded="$(printf "select checksum from public.schema_migrations where name = '%s';" \
-                "$name" | run_sql)"
-
-              if [ -n "$recorded" ]; then
-                if [ "$recorded" != "$checksum" ]; then
-                  echo "ERROR: $name was already applied but its contents changed." >&2
-                  echo "Write a new migration instead of editing an applied one." >&2
-                  exit 1
-                fi
-                echo "already applied: $name"
-                continue
-              fi
-
-              echo "applying: $name"
-              started="$(date +%s)"
-              docker exec -i "$pg_container" sh -lc \
-                'psql -q -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < "$migration"
-              duration="$(( ($(date +%s) - started) * 1000 ))"
-
-              printf "insert into public.schema_migrations (name, checksum, duration_ms) values ('%s', '%s', %s);" \
-                "$name" "$checksum" "$duration" | run_sql >/dev/null
-
-              echo "applied: $name"
-            done
-          '''
-        }
-      }
-    }
-
-    stage('6. Ensure Elasticsearch is running') {
-      steps {
-        sh '''
-          set -eu
-
-          # Data store for the CRM's ANALYTICS module (crm/packages/modules/analytics).
-          # Defined in docker-compose.server.yml but never brought up by this pipeline
-          # before now -- postgres/redis/eventstore/minio are expected to already be
-          # running (started once outside Jenkins) and this pipeline only ever
-          # verifies/uses them, never starts them. Unlike those, elasticsearch holds no
-          # data any other service depends on directly, and the ANALYTICS module
-          # already degrades gracefully without it (dashboard shows "unavailable",
-          # ingestion just queues and retries), so it is safe for this pipeline to
-          # bring up or recreate on every deploy instead of only verifying it pre-exists.
-          docker compose \
-            --project-name "$COMPOSE_PROJECT_NAME" \
-            --env-file "$ENV_FILE" \
-            --file "$COMPOSE_FILE" \
-            up --detach --no-deps elasticsearch
-
-          container_id="$(docker compose \
-            --project-name "$COMPOSE_PROJECT_NAME" \
-            --env-file "$ENV_FILE" \
-            --file "$COMPOSE_FILE" \
-            ps -q elasticsearch)"
-
-          attempt=1
-          while true; do
-            status="$(docker inspect --format '{{.State.Status}}' "$container_id")"
-            health="$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "$container_id")"
-            echo "elasticsearch: status=$status health=$health"
-
-            if [ "$status" = "running" ] && { [ "$health" = "healthy" ] || [ "$health" = "none" ]; }; then
-              break
-            fi
-            if [ "$status" = "exited" ] || [ "$status" = "dead" ] || [ "$health" = "unhealthy" ]; then
-              docker logs --tail=100 "$container_id" || true
-              echo "elasticsearch did not become healthy" >&2
-              exit 1
-            fi
-            if [ "$attempt" -ge 30 ]; then
-              docker logs --tail=100 "$container_id" || true
-              echo "elasticsearch timed out waiting for health" >&2
-              exit 1
-            fi
-            attempt=$((attempt + 1))
-            sleep 2
-          done
-        '''
-      }
-    }
-
-    stage('7. Deploy API') {
-      steps {
-        sh '''
-          set -eu
-
-          old_webapp_tag="$(cat "$SOURCE_DIR/.jenkins-old-webapp-tag")"
-          [ -n "$old_webapp_tag" ] || old_webapp_tag="$RELEASE_TAG"
-
-          # Provision the media bucket, its anonymous-read policy and the scoped API
-          # service account before the API starts. Idempotent -- a no-op once done.
-          # --no-deps: minio already runs (restart: unless-stopped); don't touch
-          # Postgres/EventStore/etc. A non-zero exit here fails the deploy, which is
-          # what we want -- the API's MinioStartupCheck would abort anyway.
-          docker compose \
-            --project-name "$COMPOSE_PROJECT_NAME" \
-            --env-file "$ENV_FILE" \
-            --file "$COMPOSE_FILE" \
-            run --rm -T --no-deps minio-init
-
-          LSEVIN_API_IMAGE_TAG="$RELEASE_TAG" \
-          LSEVIN_WEBAPP_IMAGE_TAG="$old_webapp_tag" \
-          docker compose \
-            --project-name "$COMPOSE_PROJECT_NAME" \
-            --env-file "$ENV_FILE" \
-            --file "$COMPOSE_FILE" \
-            up --detach --no-deps lsevin-api
-
-          attempt=1
-          until curl --fail --silent --show-error --max-time 10 "$API_HEALTH_URL" >/dev/null; do
-            if [ "$attempt" -ge 30 ]; then
-              echo "API did not become healthy after 30 attempts" >&2
-              exit 1
-            fi
-            attempt=$((attempt + 1))
-            sleep 2
-          done
-        '''
-      }
-    }
-
-    stage('8. Deploy webapp') {
-      steps {
-        sh '''
-          set -eu
-
-          # Rolling restart: recreate one webapp replica at a time and wait for its
-          # own container health (docker-compose.server.yml's healthcheck, backed by
-          # src/app/api/health/route.ts) before touching the other, so
-          # Caddyfile.server's round_robin + health_uri always has a warm replica to
-          # route appmain.lsevin.com traffic to. Before this there was a single
-          # lsevin-webapp container, so every deploy tore down the only Next.js
-          # process in existence -- resetting its in-memory "use cache" data cache to
-          # empty and forcing force-static pages like home/shop to regenerate from
-          # scratch on whichever request happened to land first. That is the "all
-          # data missing for a few minutes after publish" symptom.
-          for replica in lsevin-webapp-1 lsevin-webapp-2; do
-            LSEVIN_API_IMAGE_TAG="$RELEASE_TAG" \
-            LSEVIN_WEBAPP_IMAGE_TAG="$RELEASE_TAG" \
-            docker compose \
-              --project-name "$COMPOSE_PROJECT_NAME" \
-              --env-file "$ENV_FILE" \
-              --file "$COMPOSE_FILE" \
-              up --detach --no-deps "$replica"
-
-            container_id="$(docker compose \
-              --project-name "$COMPOSE_PROJECT_NAME" \
-              --env-file "$ENV_FILE" \
-              --file "$COMPOSE_FILE" \
-              ps -q "$replica")"
-
-            attempt=1
-            while true; do
-              status="$(docker inspect --format '{{.State.Status}}' "$container_id")"
-              health="$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "$container_id")"
-              echo "$replica: status=$status health=$health"
-
-              if [ "$status" = "running" ] && { [ "$health" = "healthy" ] || [ "$health" = "none" ]; }; then
-                break
-              fi
-              if [ "$status" = "exited" ] || [ "$status" = "dead" ] || [ "$health" = "unhealthy" ]; then
-                docker logs --tail=100 "$container_id" || true
-                echo "$replica did not become healthy" >&2
-                exit 1
-              fi
-              if [ "$attempt" -ge 30 ]; then
-                docker logs --tail=100 "$container_id" || true
-                echo "$replica timed out waiting for health" >&2
-                exit 1
-              fi
-              attempt=$((attempt + 1))
-              sleep 2
-            done
-          done
-
-          attempt=1
-          until curl --fail --silent --show-error --location --max-time 15 "$WEBAPP_HEALTH_URL" >/dev/null; do
-            if [ "$attempt" -ge 30 ]; then
-              echo "Webapp did not become healthy after 30 attempts" >&2
-              exit 1
-            fi
-            attempt=$((attempt + 1))
-            sleep 2
-          done
-        '''
-      }
-    }
-
-    /*
-     * Why this stage exists.
-     *
-     * `next build` cannot reach the database. DATABASE_URL *is* mounted for the
-     * build (a BuildKit secret, frontend/webapp/Dockerfile), but it addresses the
-     * `pgbouncer` compose service and a BuildKit build does not join the compose
-     * network. Every rail query fails during prerender, so the force-static pages
-     * -- n/app/mobile/home and n/app/mobile/shop, both `revalidate = 120` -- are
-     * baked EMPTY for all 11 locales and shipped that way.
-     *
-     * The result reached users: the first visitor to a locale after each release
-     * got "No categories found". Shortening revalidate (3600 -> 120) narrowed
-     * that window without closing it, because the empty copy is still what the
-     * first request is served.
-     *
-     * Two passes, on purpose. ISR is stale-while-revalidate: the first request
-     * for a stale path is answered from the baked copy and only *starts* the
-     * regeneration. The second pass is what confirms the fresh page is in place
-     * before real traffic arrives.
-     *
-     * Each replica is warmed through its own container rather than through
-     * appmain.lsevin.com, because each Next process keeps its own in-memory
-     * "use cache" data cache (see the rolling-restart comment in stage 8) and
-     * Caddy would round-robin, leaving one replica cold.
-     *
-     * Never fails the deploy. The release is already healthy at this point; a
-     * warm miss costs one slow first visit, which is strictly better than
-     * failing a good release.
-     */
-    stage('9. Warm the static landing pages') {
-      steps {
-        sh '''
-          set -u
-
-          locales="en fa tr es ar ku de fr ru tg zh"
-          paths="/n/app/mobile/home /n/app/mobile/shop"
-
-          warmed=0
-          missed=0
-
-          for replica in lsevin-webapp-1 lsevin-webapp-2; do
-            container_id="$(docker compose \
-              --project-name "$COMPOSE_PROJECT_NAME" \
-              --env-file "$ENV_FILE" \
-              --file "$COMPOSE_FILE" \
-              ps -q "$replica" 2>/dev/null || true)"
-
-            if [ -z "$container_id" ]; then
-              echo "WARN: $replica has no container, skipping warm" >&2
-              continue
-            fi
-
-            for pass in 1 2; do
-              for locale in $locales; do
-                for path in $paths; do
-                  url="http://127.0.0.1:3000/${locale}${path}"
-                  if docker exec "$container_id" wget -q -O /dev/null -T 25 "$url"; then
-                    [ "$pass" = "2" ] && warmed=$((warmed + 1))
-                  else
-                    [ "$pass" = "2" ] && missed=$((missed + 1))
-                    echo "WARN: could not warm $replica $url" >&2
-                  fi
-                done
-              done
-            done
-          done
-
-          echo "warm complete: $warmed ok, $missed missed"
-        '''
-      }
-    }
-
-    stage('10. Mark stable release') {
-      steps {
-        sh '''
-          set -eu
-          docker image tag "lsevin-api:$RELEASE_TAG" lsevin-api:stable
-          docker image tag "lsevin-webapp:$RELEASE_TAG" lsevin-webapp:stable
+          "$DEPLOY" kubectl -n "$NAMESPACE" rollout status deployment/lsevin-webapp --timeout=10m
         '''
       }
     }
   }
-
   post {
     failure {
-      sh '''
-        set +e
-
-        old_api_tag="$(cat "$SOURCE_DIR/.jenkins-old-api-tag" 2>/dev/null)"
-        old_webapp_tag="$(cat "$SOURCE_DIR/.jenkins-old-webapp-tag" 2>/dev/null)"
-
-        if [ -n "$old_api_tag" ] && [ -n "$old_webapp_tag" ]; then
-          echo "Deployment failed; restoring the previous API and webapp images."
-
-          LSEVIN_API_IMAGE_TAG="$old_api_tag" \
-          LSEVIN_WEBAPP_IMAGE_TAG="$old_webapp_tag" \
-          docker compose \
-            --project-name "$COMPOSE_PROJECT_NAME" \
-            --env-file "$ENV_FILE" \
-            --file "$COMPOSE_FILE" \
-            up --detach --no-deps lsevin-api lsevin-webapp-1 lsevin-webapp-2
-        else
-          echo "No previous images were available for automatic rollback."
-        fi
-
-        # Cleanup happens here, in the same block, deliberately -- NOT in a
-        # separate `always` block. Jenkins runs post-condition blocks in a
-        # fixed order (always, ..., aborted, failure, success, ...)
-        # regardless of the order they're written in this file, so an
-        # `always` block unconditionally runs BEFORE `failure` every time.
-        # A prior version of this file deleted these two files in `always`,
-        # which silently deleted them before this block ever got to read
-        # them above -- old_api_tag/old_webapp_tag were empty on every
-        # single failure, so automatic rollback never actually triggered.
-        rm -f \
-          "$SOURCE_DIR/.jenkins-old-api-tag" \
-          "$SOURCE_DIR/.jenkins-old-webapp-tag"
-      '''
-    }
-
-    success {
-      sh '''
-        rm -f \
-          "$SOURCE_DIR/.jenkins-old-api-tag" \
-          "$SOURCE_DIR/.jenkins-old-webapp-tag"
-      '''
+      sh '''"$DEPLOY" kubectl -n "$NAMESPACE" rollout undo deployment/lsevin-api || true
+        "$DEPLOY" kubectl -n "$NAMESPACE" rollout undo deployment/lsevin-webapp || true'''
     }
   }
 }

@@ -39,6 +39,9 @@ export const CORE_NAMESPACES = [
   // rendered as the raw key path "FormErrors.*" wherever a zod error fired.
   "FormErrors",
   "LocaleSwitcher",
+  // The shared Logo client component is rendered by auth, marketing and admin
+  // chrome, so every client provider must receive this namespace.
+  "Logo",
   "NotFoundPage",
   "User",
   "components",
@@ -156,6 +159,10 @@ export const SEGMENT_NAMESPACES = {
     "List",
     "LocalizedInput",
     "MapShared",
+    // The public provider-details route builds these namespace names through
+    // constants, so the static literal scanner cannot discover them.
+    "ServiceProvider",
+    "ServiceProviderPage",
     "Tours",
   ],
   providerPanel: ["AdminGenerated"],

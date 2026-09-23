@@ -1,0 +1,8 @@
+FROM node:24-alpine
+WORKDIR /app
+RUN npm install --no-audit --no-fund --omit=dev postgres@3.4.9
+COPY scripts/migrate.mjs ./scripts/migrate.mjs
+COPY db/migrations/ ./db/migrations/
+USER node
+ENTRYPOINT ["node", "scripts/migrate.mjs"]
+

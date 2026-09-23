@@ -4,5 +4,12 @@ TYPE="${1:?backup type required: full, diff, or incr}"
 case "$TYPE" in full|diff|incr) ;; *) echo "Invalid backup type: $TYPE" >&2; exit 2 ;; esac
 exec 9>/run/lock/lsevin-database-backup.lock
 flock -w 7200 9 || { echo 'Timed out waiting for another database backup.' >&2; exit 1; }
-cd {{ lsevin_app_dir }}/deployments/docker
-docker compose --project-name {{ lsevin_compose_project }} --env-file .env -f docker-compose.server.yml   exec -T --user postgres postgres   pgbackrest --stanza=lsevin --type="$TYPE" backup
+if command -v k3s >/dev/null && k3s kubectl -n lsevin get deployment/postgres >/dev/null 2>&1; then
+  k3s kubectl -n lsevin exec deployment/postgres -- \
+    gosu postgres pgbackrest --stanza=lsevin --type="$TYPE" backup
+else
+  cd {{ lsevin_app_dir }}/deployments/docker
+  docker compose --project-name {{ lsevin_compose_project }} --env-file .env -f docker-compose.server.yml \
+    exec -T --user postgres postgres \
+    pgbackrest --stanza=lsevin --type="$TYPE" backup
+fi

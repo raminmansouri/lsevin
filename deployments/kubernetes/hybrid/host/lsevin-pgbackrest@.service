@@ -1,11 +1,12 @@
 [Unit]
-Description=LSevin portable PostgreSQL logical backup
+Description=LSevin pgBackRest %i backup
 Requires=k3s.service
 After=k3s.service
+
 [Service]
 Type=oneshot
 TimeoutStartSec=4h
-ExecStart=/usr/local/sbin/lsevin-logical-backup
+ExecStart=/usr/local/sbin/lsevin-pgbackrest-backup %i
 Nice=10
 IOSchedulingClass=best-effort
 IOSchedulingPriority=7

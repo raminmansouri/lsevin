@@ -68,12 +68,11 @@ public static class HealthCheckExtensions
                 ]
             )
             .AddPrivateMemoryHealthCheck(
-                512 * 1024 * 1024,
-                tags:
-                [
-                    WebConstants.HealthChecks.HealthCheckLiveTag,
-                    WebConstants.HealthChecks.HealthCheckReadyTag,
-                ]
+                // Keep this below the production 1 GiB container limit while allowing
+                // the API's normal managed-memory working set. Memory pressure should
+                // remove a pod from service, not make the liveness probe restart it.
+                900 * 1024 * 1024,
+                tags: [WebConstants.HealthChecks.HealthCheckReadyTag]
             )
             .AddDnsResolveHealthCheck(
                 _ => { },

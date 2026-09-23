@@ -1,0 +1,92 @@
+# Prepared target topology. Do not apply during the legacy PostgreSQL cutover:
+# bootstrap/import, external object storage, and three schedulable nodes must be
+# validated first.
+apiVersion: v1
+kind: Namespace
+metadata: {name: lsevin-database}
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: lsevin-postgres
+  namespace: lsevin-database
+spec:
+  instances: 3
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.10-standard-trixie
+  primaryUpdateStrategy: unsupervised
+  enableSuperuserAccess: false
+  failoverDelay: 0
+  switchoverDelay: 3600
+  startDelay: 3600
+  stopDelay: 1800
+  smartShutdownTimeout: 180
+  resources:
+    requests: {cpu: "1", memory: 2Gi}
+    limits: {cpu: "4", memory: 8Gi}
+  storage:
+    storageClass: local-path
+    size: 100Gi
+  walStorage:
+    storageClass: local-path
+    size: 20Gi
+  postgresql:
+    parameters:
+      max_connections: "300"
+      shared_buffers: 2GB
+      effective_cache_size: 6GB
+      maintenance_work_mem: 256MB
+      work_mem: 8MB
+      wal_compression: "on"
+      track_io_timing: "on"
+      log_min_duration_statement: 500ms
+    synchronous:
+      method: any
+      number: 1
+      dataDurability: required
+  affinity:
+    enablePodAntiAffinity: true
+    topologyKey: kubernetes.io/hostname
+  monitoring:
+    enablePodMonitor: false
+  inheritedMetadata:
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "9187"
+      prometheus.io/path: /metrics
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Pooler
+metadata:
+  name: lsevin-postgres-rw
+  namespace: lsevin-database
+spec:
+  cluster: {name: lsevin-postgres}
+  instances: 3
+  type: rw
+  pgbouncer:
+    poolMode: transaction
+    parameters:
+      max_client_conn: "2000"
+      default_pool_size: "40"
+      min_pool_size: "10"
+      reserve_pool_size: "10"
+      server_idle_timeout: "300"
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9127"
+        prometheus.io/path: /metrics
+    spec:
+      containers:
+        - name: pgbouncer
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: "1", memory: 512Mi}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - {key: cnpg.io/poolerName, operator: In, values: [lsevin-postgres-rw]}
+              topologyKey: kubernetes.io/hostname

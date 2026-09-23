@@ -57,7 +57,7 @@ public static class RateLimiterExtensions
                         {
                             PermitLimit = permitLimit,
                             Window = TimeSpan.FromMilliseconds(periodInMs),
-                            QueueLimit = rateLimitingOptions.Limit,
+                            QueueLimit = 0,
                         };
                     }
                 )
@@ -73,7 +73,7 @@ public static class RateLimiterExtensions
                             AutoReplenishment = true,
                             PermitLimit = rateLimitingOptions.Limit,
                             Window = TimeSpan.FromMilliseconds(rateLimitingOptions.PeriodInMs),
-                            QueueLimit = rateLimitingOptions.QueueLimit,
+                            QueueLimit = 0,
                         }
                     )
             );

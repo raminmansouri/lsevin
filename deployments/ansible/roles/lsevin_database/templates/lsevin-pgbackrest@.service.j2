@@ -1,7 +1,6 @@
 [Unit]
 Description=LSevin pgBackRest %i backup
-Requires=docker.service
-After=docker.service
+After=k3s.service docker.service
 
 [Service]
 Type=oneshot

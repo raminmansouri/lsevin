@@ -25,6 +25,8 @@ using Microsoft.Extensions.Options;
 using Npgsql;
 using Serilog;
 using Serilog.Events;
+using StackExchange.Redis;
+using LSevin.Api.Middleware;
 using CategoryModule = LSevin.Modules.Category.CategoryReference;
 using CustomerModule = LSevin.Modules.Customer.CustomerReference;
 using Environments = BuildingBlocks.Core.Web.Environments;
@@ -150,6 +152,9 @@ try
         )
         .AddCustomRateLimit(configuration);
 
+    builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
+        ConnectionMultiplexer.Connect(redisConnectionString));
+
     var app = builder.Build();
 
     if (isDev && isTest)
@@ -186,6 +191,7 @@ try
     app.UseHeaderPropagation();
 
     app.UseCustomRateLimit();
+    app.UseMiddleware<AnonymousReadLimitMiddleware>();
 
     app.UseLocalization().UseExceptionHandler().UseStatusCodePages().UseMiddleware<XssMiddleware>();
 

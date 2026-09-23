@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+BACKUP_DIR=/opt/lsevin/backups/logical
+TIMESTAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+mkdir -p "$BACKUP_DIR"
+exec 9>/run/lock/lsevin-database-backup.lock
+flock -w 7200 9 || { echo 'Timed out waiting for another database backup.' >&2; exit 1; }
+read -r DB_USER DB_NAME < <(k3s kubectl -n lsevin exec deployment/postgres -- \
+  sh -lc 'printf "%s %s" "$POSTGRES_USER" "$POSTGRES_DB"')
+FILE="$BACKUP_DIR/$DB_NAME-$TIMESTAMP.dump"
+k3s kubectl -n lsevin exec deployment/postgres -- \
+  gosu postgres pg_dump -U "$DB_USER" -d "$DB_NAME" --format=custom --compress=9 --no-owner --no-privileges > "$FILE"
+test -s "$FILE"
+k3s kubectl -n lsevin exec -i deployment/postgres -- gosu postgres pg_restore --list < "$FILE" >/dev/null
+find "$BACKUP_DIR" -maxdepth 1 -type f -name "$DB_NAME-*.dump" -mtime +14 -delete
+echo "Logical backup verified: $FILE"

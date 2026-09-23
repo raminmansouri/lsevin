@@ -35,7 +35,7 @@ appmain.lsevin.com {
 
   # --- everything else -> Next ---
   handle {
-    reverse_proxy lsevin-webapp:3000
+    reverse_proxy {$K3S_NODE_ADDRESS:172.18.0.1}:{$WEBAPP_NODE_PORT:30080}
   }
 }
 
@@ -57,5 +57,5 @@ financial.lsevin.com {
     Referrer-Policy "no-referrer"
   }
 
-  reverse_proxy lsevin-webapp:3000
+  reverse_proxy {$K3S_NODE_ADDRESS:172.18.0.1}:{$WEBAPP_NODE_PORT:30080}
 }

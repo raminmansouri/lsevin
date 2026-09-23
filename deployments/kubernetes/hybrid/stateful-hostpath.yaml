@@ -1,0 +1,248 @@
+apiVersion: v1
+kind: Service
+metadata: {name: postgres}
+spec: {selector: {app.kubernetes.io/name: postgres}, ports: [{name: postgres, port: 5432, targetPort: postgres}]}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: docker-postgres-1}
+spec: {selector: {app.kubernetes.io/name: postgres}, ports: [{name: postgres, port: 5432, targetPort: postgres}]}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: pgbouncer}
+spec: {selector: {app.kubernetes.io/name: pgbouncer}, ports: [{name: pgbouncer, port: 6432, targetPort: pgbouncer}]}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: redis}
+spec: {selector: {app.kubernetes.io/name: redis}, ports: [{name: redis, port: 6379, targetPort: redis}]}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: eventstore}
+spec: {selector: {app.kubernetes.io/name: eventstore}, ports: [{name: http, port: 2113, targetPort: http}]}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: minio}
+spec: {selector: {app.kubernetes.io/name: minio}, ports: [{name: api, port: 9000, targetPort: api}, {name: console, port: 9001, targetPort: console}]}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: minio-edge}
+spec:
+  type: NodePort
+  selector: {app.kubernetes.io/name: minio}
+  ports: [{name: api, port: 9000, targetPort: api, nodePort: 30900}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: elasticsearch}
+spec: {selector: {app.kubernetes.io/name: elasticsearch}, ports: [{name: http, port: 9200, targetPort: http}]}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: postgres}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector: {matchLabels: {app.kubernetes.io/name: postgres}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: postgres, app.kubernetes.io/part-of: lsevin}}
+    spec:
+      terminationGracePeriodSeconds: 120
+      containers:
+        - name: postgres
+          image: lsevin-postgres:17.10-alpine
+          imagePullPolicy: IfNotPresent
+          args: [postgres, -c, config_file=/etc/postgresql/postgresql.conf, -c, hba_file=/etc/postgresql/pg_hba.conf]
+          ports: [{name: postgres, containerPort: 5432}]
+          env:
+            - {name: POSTGRES_DB, valueFrom: {secretKeyRef: {name: data-secrets, key: POSTGRES_DB}}}
+            - {name: POSTGRES_USER, valueFrom: {secretKeyRef: {name: data-secrets, key: POSTGRES_USER}}}
+            - {name: POSTGRES_PASSWORD, valueFrom: {secretKeyRef: {name: data-secrets, key: POSTGRES_PASSWORD}}}
+          volumeMounts:
+            - {name: data, mountPath: /var/lib/postgresql/data}
+            - {name: postgresql-config, mountPath: /etc/postgresql/postgresql.conf, readOnly: true}
+            - {name: pg-hba, mountPath: /etc/postgresql/pg_hba.conf, readOnly: true}
+            - {name: pgbackrest-config, mountPath: /etc/pgbackrest/pgbackrest.conf, readOnly: true}
+            - {name: pgbackrest, mountPath: /var/lib/pgbackrest}
+            - {name: pgbackrest-spool, mountPath: /var/spool/pgbackrest}
+            - {name: dshm, mountPath: /dev/shm}
+          readinessProbe:
+            exec: {command: [sh, -c, "psql -U $POSTGRES_USER -d $POSTGRES_DB -tAc 'SELECT NOT pg_is_in_recovery()' | grep -qx t"]}
+            timeoutSeconds: 5
+            periodSeconds: 5
+            failureThreshold: 120
+          # Allow transient I/O pressure during backups without restarting the database.
+          livenessProbe: {exec: {command: [sh, -c, "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]}, timeoutSeconds: 5, periodSeconds: 20, failureThreshold: 6}
+      volumes:
+        - {name: data, hostPath: {path: /var/lib/docker/volumes/docker_postgres_data/_data, type: Directory}}
+        - {name: postgresql-config, hostPath: {path: /opt/lsevin/config/postgres/postgresql.conf, type: File}}
+        - {name: pg-hba, hostPath: {path: /opt/lsevin/config/postgres/pg_hba.conf, type: File}}
+        - {name: pgbackrest-config, hostPath: {path: /opt/lsevin/config/postgres/pgbackrest.conf, type: File}}
+        - {name: pgbackrest, hostPath: {path: /opt/lsevin/backups/pgbackrest, type: Directory}}
+        - {name: pgbackrest-spool, hostPath: {path: /opt/lsevin/backups/spool, type: Directory}}
+        - {name: dshm, emptyDir: {medium: Memory, sizeLimit: 512Mi}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: pgbouncer}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector: {matchLabels: {app.kubernetes.io/name: pgbouncer}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: pgbouncer, app.kubernetes.io/part-of: lsevin}}
+    spec:
+      containers:
+        - name: pgbouncer
+          image: lsevin-pgbouncer:1.25.2
+          imagePullPolicy: IfNotPresent
+          ports: [{name: pgbouncer, containerPort: 6432}]
+          env:
+            - {name: POSTGRES_DB, valueFrom: {secretKeyRef: {name: data-secrets, key: POSTGRES_DB}}}
+            - {name: PGBOUNCER_ADMIN_USER, valueFrom: {secretKeyRef: {name: data-secrets, key: POSTGRES_USER}}}
+            - {name: PGBOUNCER_ADMIN_PASSWORD, valueFrom: {secretKeyRef: {name: data-secrets, key: POSTGRES_PASSWORD}}}
+            - {name: PGBOUNCER_MONITOR_USER, valueFrom: {secretKeyRef: {name: data-secrets, key: POSTGRES_USER}}}
+            - {name: PGBOUNCER_MONITOR_PASSWORD, valueFrom: {secretKeyRef: {name: data-secrets, key: POSTGRES_PASSWORD}}}
+          readinessProbe:
+            exec: {command: [sh, -c, "PGPASSWORD=$PGBOUNCER_ADMIN_PASSWORD psql -h 127.0.0.1 -p 6432 -U $PGBOUNCER_ADMIN_USER -d pgbouncer -tAc 'SHOW LISTS' >/dev/null"]}
+            periodSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: redis}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector: {matchLabels: {app.kubernetes.io/name: redis}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: redis, app.kubernetes.io/part-of: lsevin}}
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          imagePullPolicy: IfNotPresent
+          args: [redis-server, --appendonly, "yes"]
+          ports: [{name: redis, containerPort: 6379}]
+          volumeMounts: [{name: data, mountPath: /data}]
+          readinessProbe: {exec: {command: [redis-cli, ping]}, periodSeconds: 5}
+      volumes: [{name: data, hostPath: {path: /var/lib/docker/volumes/docker_redis_data/_data, type: Directory}}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: eventstore}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector: {matchLabels: {app.kubernetes.io/name: eventstore}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: eventstore, app.kubernetes.io/part-of: lsevin}}
+    spec:
+      enableServiceLinks: false
+      terminationGracePeriodSeconds: 120
+      containers:
+        - name: eventstore
+          image: eventstore/eventstore:24.10.0-bookworm-slim
+          imagePullPolicy: IfNotPresent
+          ports: [{name: tcp, containerPort: 1113}, {name: http, containerPort: 2113}]
+          env:
+            - {name: EVENTSTORE_CLUSTER_SIZE, value: "1"}
+            - {name: EVENTSTORE_RUN_PROJECTIONS, value: All}
+            - {name: EVENTSTORE_START_STANDARD_PROJECTIONS, value: "True"}
+            - {name: EVENTSTORE_HTTP_PORT, value: "2113"}
+            - {name: EVENTSTORE_INSECURE, value: "True"}
+            - {name: EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP, value: "True"}
+          volumeMounts: [{name: data, mountPath: /var/lib/eventstore}]
+          readinessProbe: {tcpSocket: {port: http}, initialDelaySeconds: 10, periodSeconds: 5}
+      volumes: [{name: data, hostPath: {path: /var/lib/docker/volumes/docker_eventstore_data/_data, type: Directory}}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: minio}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector: {matchLabels: {app.kubernetes.io/name: minio}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: minio, app.kubernetes.io/part-of: lsevin}}
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: minio
+          image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+          imagePullPolicy: IfNotPresent
+          args: [server, /data, --console-address, ":9001"]
+          ports: [{name: api, containerPort: 9000}, {name: console, containerPort: 9001}]
+          env:
+            - {name: MINIO_ROOT_USER, valueFrom: {secretKeyRef: {name: data-secrets, key: MINIO_ROOT_USER}}}
+            - {name: MINIO_ROOT_PASSWORD, valueFrom: {secretKeyRef: {name: data-secrets, key: MINIO_ROOT_PASSWORD}}}
+          volumeMounts: [{name: data, mountPath: /data}]
+          readinessProbe: {httpGet: {path: /minio/health/ready, port: api}, periodSeconds: 5}
+      volumes: [{name: data, hostPath: {path: /var/lib/lsevin/minio, type: Directory}}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: elasticsearch}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector: {matchLabels: {app.kubernetes.io/name: elasticsearch}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: elasticsearch, app.kubernetes.io/part-of: lsevin}}
+    spec:
+      terminationGracePeriodSeconds: 120
+      initContainers:
+        - name: set-vm-max-map-count
+          image: busybox:1.37
+          securityContext: {privileged: true}
+          command: [sysctl, -w, vm.max_map_count=262144]
+      containers:
+        - name: elasticsearch
+          image: docker.elastic.co/elasticsearch/elasticsearch:9.0.3
+          imagePullPolicy: IfNotPresent
+          ports: [{name: http, containerPort: 9200}]
+          env:
+            - {name: discovery.type, value: single-node}
+            - {name: xpack.security.enabled, value: "false"}
+            - {name: xpack.security.http.ssl.enabled, value: "false"}
+            - {name: ES_JAVA_OPTS, value: -Xms512m -Xmx512m}
+          volumeMounts: [{name: data, mountPath: /usr/share/elasticsearch/data}]
+          readinessProbe: {httpGet: {path: /_cluster/health, port: http}, initialDelaySeconds: 20, periodSeconds: 10}
+          resources: {requests: {cpu: 500m, memory: 1Gi}, limits: {cpu: "2", memory: 2Gi}}
+      volumes: [{name: data, hostPath: {path: /var/lib/docker/volumes/docker_elasticsearch_data/_data, type: Directory}}]
+---
+apiVersion: batch/v1
+kind: Job
+metadata: {name: minio-init}
+spec:
+  backoffLimit: 0
+  template:
+    metadata: {labels: {app.kubernetes.io/name: minio-init, app.kubernetes.io/part-of: lsevin}}
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: init
+          image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+          imagePullPolicy: IfNotPresent
+          command: [/bin/sh, -c]
+          args:
+            - |
+              set -eu
+              mc alias set local http://minio:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD"
+              mc ready local
+              mc mb --ignore-existing "local/$MINIO_BUCKET"
+              printf '%s' '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":["s3:GetObject","s3:PutObject","s3:DeleteObject"],"Resource":["arn:aws:s3:::'"$MINIO_BUCKET"'/*"]},{"Effect":"Allow","Action":["s3:ListBucket","s3:GetBucketLocation"],"Resource":["arn:aws:s3:::'"$MINIO_BUCKET"'"]}]}' > /tmp/svc.json
+              mc admin user svcacct rm local "$MINIO_API_ACCESS_KEY" >/dev/null 2>&1 || true
+              mc admin user svcacct add local "$MINIO_ROOT_USER" --access-key "$MINIO_API_ACCESS_KEY" --secret-key "$MINIO_API_SECRET_KEY" --policy /tmp/svc.json >/dev/null
+              mc alias set apicheck http://minio:9000 "$MINIO_API_ACCESS_KEY" "$MINIO_API_SECRET_KEY"
+              mc ls "apicheck/$MINIO_BUCKET" >/dev/null
+          env:
+            - {name: MINIO_ROOT_USER, valueFrom: {secretKeyRef: {name: data-secrets, key: MINIO_ROOT_USER}}}
+            - {name: MINIO_ROOT_PASSWORD, valueFrom: {secretKeyRef: {name: data-secrets, key: MINIO_ROOT_PASSWORD}}}
+            - {name: MINIO_BUCKET, valueFrom: {secretKeyRef: {name: api-secrets, key: FileUploadOptions__S3__Bucket}}}
+            - {name: MINIO_API_ACCESS_KEY, valueFrom: {secretKeyRef: {name: api-secrets, key: FileUploadOptions__S3__AccessKey}}}
+            - {name: MINIO_API_SECRET_KEY, valueFrom: {secretKeyRef: {name: api-secrets, key: FileUploadOptions__S3__SecretKey}}}

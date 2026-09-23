@@ -1,0 +1,35 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: lsevin
+resources:
+  - namespace.yaml
+  - rbac.yaml
+  - data.yaml
+  - applications.yaml
+  - ingress.yaml
+  - monitoring.yaml
+  - logging.yaml
+configMapGenerator:
+  - name: platform-config
+    envs: [config/platform.env]
+generatorOptions:
+  disableNameSuffixHash: true
+images:
+  - name: lsevin-api
+    newName: registry.lsevin.com/lsevin/api
+    newTag: latest
+  - name: lsevin-webapp
+    newName: registry.lsevin.com/lsevin/webapp
+    newTag: latest
+  - name: lsevin-webapp-migrations
+    newName: registry.lsevin.com/lsevin/webapp-migrations
+    newTag: latest
+  - name: lsevin-crm
+    newName: registry.lsevin.com/lsevin/crm
+    newTag: latest
+  - name: lsevin-portal
+    newName: registry.lsevin.com/lsevin/portal
+    newTag: latest
+  - name: lsevin-portal-db
+    newName: registry.lsevin.com/lsevin/portal-db
+    newTag: latest

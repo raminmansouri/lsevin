@@ -71,7 +71,10 @@
 
 	@backend path /api/v1/* /hubs/* /hubs /hc /liveness /readiness
 	handle @backend {
-		reverse_proxy lsevin-api:8080
+		reverse_proxy {$K3S_NODE_ADDRESS:172.18.0.1}:{$API_NODE_PORT:30081} {
+			# Replace client-supplied forwarding chains before API rate limiting.
+			header_up X-Forwarded-For {remote_host}
+		}
 	}
 
 	# Media reads are served straight from object storage; the API is not in the read
@@ -90,7 +93,7 @@
 		header Cache-Control "public,max-age=31536000,immutable"
 		header -Server
 		rewrite * /lsevin-media{uri}
-		reverse_proxy minio:9000 {
+		reverse_proxy {$K3S_NODE_ADDRESS:172.18.0.1}:{$MINIO_NODE_PORT:30900} {
 			# Fall back to the .NET static handler when the object is not in the bucket.
 			# Without this there is a hole between Caddy reading from MinIO and the API
 			# still writing to disk: anything uploaded in between would 404 even though
@@ -106,7 +109,9 @@
 				# own directive order inside handle_response, where rewrite runs first and
 				# yields /files/lsevin-media/... instead of /files/...
 				uri replace /lsevin-media /files 1
-				reverse_proxy lsevin-api:8080
+				reverse_proxy {$K3S_NODE_ADDRESS:172.18.0.1}:{$API_NODE_PORT:30081} {
+					header_up X-Forwarded-For {remote_host}
+				}
 			}
 		}
 	}
@@ -117,10 +122,10 @@
 	# one being redeployed restarts. Same round_robin + health_uri pattern as
 	# crm/providers/shop below.
 	handle {
-		reverse_proxy lsevin-webapp-1:3000 lsevin-webapp-2:3000 {
+		reverse_proxy {$K3S_NODE_ADDRESS:172.18.0.1}:{$WEBAPP_NODE_PORT:30080} {
 			header_up X-Country {geoip2.country_code}
 			lb_policy round_robin
-			health_uri /api/health
+			health_uri /sw.js
 			health_interval 5s
 			health_timeout 3s
 			fail_duration 10s
@@ -150,7 +155,7 @@
 		header Cache-Control "public,max-age=31536000,immutable"
 		header -Server
 		rewrite * /lsevin-media{uri}
-		reverse_proxy minio:9000 {
+		reverse_proxy {$K3S_NODE_ADDRESS:172.18.0.1}:{$MINIO_NODE_PORT:30900} {
 			# Fall back to the .NET static handler when the object is not in the bucket.
 			# Without this there is a hole between Caddy reading from MinIO and the API
 			# still writing to disk: anything uploaded in between would 404 even though
@@ -166,13 +171,16 @@
 				# own directive order inside handle_response, where rewrite runs first and
 				# yields /files/lsevin-media/... instead of /files/...
 				uri replace /lsevin-media /files 1
-				reverse_proxy lsevin-api:8080
+				reverse_proxy {$K3S_NODE_ADDRESS:172.18.0.1}:{$API_NODE_PORT:30081} {
+					header_up X-Forwarded-For {remote_host}
+				}
 			}
 		}
 	}
 
 	handle {
-		reverse_proxy lsevin-api:8080 {
+		reverse_proxy {$K3S_NODE_ADDRESS:172.18.0.1}:{$API_NODE_PORT:30081} {
+			header_up X-Forwarded-For {remote_host}
 			lb_try_duration 5s
 			fail_duration 30s
 		}
@@ -183,7 +191,7 @@
 {$CRM_DOMAIN:crm.lsevin.com} {
     import common_headers
 
-    reverse_proxy lsevin-crm-1:3000 lsevin-crm-2:3000 {
+    reverse_proxy {$K3S_NODE_ADDRESS:172.18.0.1}:{$CRM_NODE_PORT:30082} {
         # Share requests across both healthy replicas.
         lb_policy round_robin
 
@@ -204,7 +212,7 @@
 {$PROVIDERS_DOMAIN:providers.lsevin.com} {
     import common_headers
 
-    reverse_proxy lsevin-providers-1:3000 lsevin-providers-2:3000 {
+    reverse_proxy {$K3S_NODE_ADDRESS:172.18.0.1}:{$PROVIDERS_NODE_PORT:30083} {
         lb_policy round_robin
         health_uri /api/health
         health_interval 5s
@@ -264,9 +272,9 @@
         Content-Security-Policy "default-src 'self' https: data: blob:; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; style-src 'self' https: 'unsafe-inline'; img-src 'self' https: data: blob:; font-src 'self' https: data:; connect-src 'self' https: wss:; frame-src 'self' https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
     }
 
-    reverse_proxy lsevin-webapp-1:3000 lsevin-webapp-2:3000 {
+    reverse_proxy {$K3S_NODE_ADDRESS:172.18.0.1}:{$WEBAPP_NODE_PORT:30080} {
         lb_policy round_robin
-        health_uri /api/health
+        health_uri /sw.js
         health_interval 5s
         health_timeout 3s
         fail_duration 10s

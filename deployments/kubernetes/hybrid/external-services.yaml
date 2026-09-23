@@ -1,0 +1,36 @@
+# EndpointSlices are generated on the server by prepare-hybrid.sh because
+# Docker bridge addresses are host-specific and can change after recreation.
+apiVersion: v1
+kind: Service
+metadata: {name: postgres}
+spec: {ports: [{name: postgres, port: 5432, targetPort: 5432}]}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: docker-postgres-1}
+spec: {ports: [{name: postgres, port: 5432, targetPort: 5432}]}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: pgbouncer}
+spec: {ports: [{name: pgbouncer, port: 6432, targetPort: 6432}]}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: redis}
+spec: {ports: [{name: redis, port: 6379, targetPort: 6379}]}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: eventstore}
+spec: {ports: [{name: http, port: 2113, targetPort: 2113}]}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: minio}
+spec: {ports: [{name: api, port: 9000, targetPort: 9000}]}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: elasticsearch}
+spec: {ports: [{name: http, port: 9200, targetPort: 9200}]}

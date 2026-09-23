@@ -1,0 +1,225 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lsevin-api
+spec:
+  replicas: 2
+  strategy: {type: RollingUpdate, rollingUpdate: {maxUnavailable: 0, maxSurge: 1}}
+  selector: {matchLabels: {app.kubernetes.io/name: lsevin-api}}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: lsevin-api, app.kubernetes.io/part-of: lsevin}
+    spec:
+      imagePullSecrets: [{name: registry-credentials}]
+      containers:
+        - name: api
+          image: lsevin-api
+          imagePullPolicy: IfNotPresent
+          ports: [{name: http, containerPort: 8080}]
+          envFrom: [{configMapRef: {name: platform-config}}, {secretRef: {name: api-secrets}}]
+          env:
+            - {name: ObservabilityOptions__MetricsEnabled, value: "true"}
+            - {name: ObservabilityOptions__UseAspireOTLPExporter, value: "false"}
+            - {name: ObservabilityOptions__UseJaegerExporter, value: "true"}
+            - {name: ObservabilityOptions__JaegerOptions__OTLPGrpcExporterEndpoint, value: "http://otel-collector:4317"}
+          # The application currently includes a 512 MiB private-memory policy in both
+          # HTTP health endpoints despite its 1 GiB container limit. Use process-level
+          # TCP probes so normal managed-memory growth cannot create a restart loop.
+          startupProbe: {httpGet: {path: /liveness, port: http}, periodSeconds: 5, failureThreshold: 30}
+          readinessProbe: {httpGet: {path: /readiness, port: http}, periodSeconds: 10}
+          livenessProbe: {httpGet: {path: /liveness, port: http}, periodSeconds: 20}
+          resources: {requests: {cpu: 250m, memory: 384Mi}, limits: {cpu: "2", memory: 1Gi}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: lsevin-api}
+spec:
+  selector: {app.kubernetes.io/name: lsevin-api}
+  ports:
+    - {name: http, port: 80, targetPort: http}
+    # Keep compatibility with the Docker-era INTERNAL_API_URL used by the webapp.
+    - {name: legacy-http, port: 8080, targetPort: http}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: lsevin-api-edge}
+spec: {type: NodePort, selector: {app.kubernetes.io/name: lsevin-api}, ports: [{name: http, port: 8080, targetPort: http, nodePort: 30081}]}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: lsevin-webapp}
+spec:
+  replicas: 2
+  strategy: {type: RollingUpdate, rollingUpdate: {maxUnavailable: 0, maxSurge: 1}}
+  selector: {matchLabels: {app.kubernetes.io/name: lsevin-webapp}}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: lsevin-webapp, app.kubernetes.io/part-of: lsevin}
+    spec:
+      imagePullSecrets: [{name: registry-credentials}]
+      initContainers:
+        - name: migrate
+          image: lsevin-webapp-migrations
+          envFrom: [{secretRef: {name: webapp-secrets}}]
+      containers:
+        - name: web
+          image: lsevin-webapp
+          ports: [{name: http, containerPort: 3000}]
+          envFrom: [{configMapRef: {name: platform-config}}, {secretRef: {name: webapp-secrets}}]
+          env: [{name: HOSTNAME, value: 0.0.0.0}, {name: PORT, value: "3000"}]
+          startupProbe: {httpGet: {path: /sw.js, port: http}, periodSeconds: 5, failureThreshold: 30}
+          readinessProbe: {httpGet: {path: /sw.js, port: http}, periodSeconds: 10}
+          livenessProbe: {httpGet: {path: /sw.js, port: http}, periodSeconds: 20}
+          resources: {requests: {cpu: 200m, memory: 384Mi}, limits: {cpu: "1", memory: 1Gi}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: lsevin-webapp}
+spec:
+  type: NodePort
+  selector: {app.kubernetes.io/name: lsevin-webapp}
+  ports: [{name: http, port: 80, targetPort: http, nodePort: 30080}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: crm}
+spec:
+  replicas: 2
+  strategy: {type: RollingUpdate, rollingUpdate: {maxUnavailable: 0, maxSurge: 1}}
+  selector: {matchLabels: {app.kubernetes.io/name: crm}}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: crm, app.kubernetes.io/part-of: lsevin}
+    spec:
+      imagePullSecrets: [{name: registry-credentials}]
+      initContainers:
+        - name: migrate
+          image: lsevin-crm
+          command: [pnpm, db:migrate]
+          envFrom: [{configMapRef: {name: platform-config}}, {secretRef: {name: crm-secrets}}]
+      containers:
+        - name: web
+          image: lsevin-crm
+          ports: [{name: http, containerPort: 3000}]
+          envFrom: [{configMapRef: {name: platform-config}}, {secretRef: {name: crm-secrets}}]
+          volumeMounts: [{name: work-attachments, mountPath: /data/work-attachments}]
+          startupProbe: {httpGet: {path: /api/health, port: http}, periodSeconds: 5, failureThreshold: 30}
+          readinessProbe: {httpGet: {path: /api/health, port: http}, periodSeconds: 10}
+          livenessProbe: {httpGet: {path: /api/health, port: http}, periodSeconds: 20}
+          resources: {requests: {cpu: 150m, memory: 256Mi}, limits: {cpu: "1", memory: 1Gi}}
+      volumes: [{name: work-attachments, persistentVolumeClaim: {claimName: crm-work-attachments}}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: crm}
+spec:
+  selector: {app.kubernetes.io/name: crm}
+  ports: [{name: http, port: 80, targetPort: http}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: crm-edge}
+spec: {type: NodePort, selector: {app.kubernetes.io/name: crm}, ports: [{name: http, port: 3000, targetPort: http, nodePort: 30082}]}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: crm-worker}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app.kubernetes.io/name: crm-worker}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: crm-worker, app.kubernetes.io/part-of: lsevin}}
+    spec:
+      imagePullSecrets: [{name: registry-credentials}]
+      containers:
+        - name: worker
+          image: lsevin-crm
+          command: [pnpm, worker]
+          envFrom: [{configMapRef: {name: platform-config}}, {secretRef: {name: crm-secrets}}]
+          volumeMounts: [{name: work-attachments, mountPath: /data/work-attachments}]
+          resources: {requests: {cpu: 50m, memory: 128Mi}, limits: {cpu: 500m, memory: 512Mi}}
+      volumes: [{name: work-attachments, persistentVolumeClaim: {claimName: crm-work-attachments}}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: crm-scheduler}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app.kubernetes.io/name: crm-scheduler}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: crm-scheduler, app.kubernetes.io/part-of: lsevin}}
+    spec:
+      imagePullSecrets: [{name: registry-credentials}]
+      containers:
+        - name: scheduler
+          image: lsevin-crm
+          command: [pnpm, scheduler]
+          envFrom: [{configMapRef: {name: platform-config}}, {secretRef: {name: crm-secrets}}]
+          resources: {requests: {cpu: 25m, memory: 96Mi}, limits: {cpu: 250m, memory: 384Mi}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: {name: crm-work-attachments}
+spec: {accessModes: [ReadWriteOnce], resources: {requests: {storage: 20Gi}}}
+---
+# The providers workload is the standalone providers portal repository.
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: lsevin-portal}
+spec:
+  replicas: 1
+  # Local media PVCs are ReadWriteOnce. Move them to RWX/object storage before scaling.
+  strategy: {type: Recreate}
+  selector: {matchLabels: {app.kubernetes.io/name: lsevin-portal}}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: lsevin-portal, app.kubernetes.io/part-of: lsevin}
+    spec:
+      imagePullSecrets: [{name: registry-credentials}]
+      initContainers:
+        - name: migrate
+          image: lsevin-portal-db
+          env:
+            - {name: PGHOST, value: postgres}
+            - {name: PGPORT, value: "5432"}
+            - {name: PGDATABASE, valueFrom: {configMapKeyRef: {name: platform-config, key: POSTGRES_DB}}}
+            - {name: PGUSER, valueFrom: {secretKeyRef: {name: data-secrets, key: POSTGRES_USER}}}
+            - {name: PGPASSWORD, valueFrom: {secretKeyRef: {name: data-secrets, key: POSTGRES_PASSWORD}}}
+      containers:
+        - name: web
+          image: lsevin-portal
+          ports: [{name: http, containerPort: 3000}]
+          envFrom: [{configMapRef: {name: platform-config}}, {secretRef: {name: providers-secrets}}]
+          env: [{name: HOSTNAME, value: 0.0.0.0}, {name: PORT, value: "3000"}]
+          volumeMounts:
+            - {name: private-files, mountPath: /var/lib/lsevin/private-files}
+            - {name: media-files, mountPath: /app/public/uploads}
+          startupProbe: {httpGet: {path: /api/health, port: http}, periodSeconds: 5, failureThreshold: 36}
+          readinessProbe: {httpGet: {path: /api/ready, port: http}, periodSeconds: 10}
+          livenessProbe: {httpGet: {path: /api/health, port: http}, periodSeconds: 20}
+          resources: {requests: {cpu: 250m, memory: 512Mi}, limits: {cpu: "1", memory: 1Gi}}
+      volumes:
+        - {name: private-files, persistentVolumeClaim: {claimName: portal-private-files}}
+        - {name: media-files, persistentVolumeClaim: {claimName: portal-media-files}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: lsevin-portal}
+spec:
+  selector: {app.kubernetes.io/name: lsevin-portal}
+  ports: [{name: http, port: 80, targetPort: http}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: lsevin-portal-edge}
+spec: {type: NodePort, selector: {app.kubernetes.io/name: lsevin-portal}, ports: [{name: http, port: 3000, targetPort: http, nodePort: 30083}]}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: {name: portal-private-files}
+spec: {accessModes: [ReadWriteOnce], resources: {requests: {storage: 20Gi}}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: {name: portal-media-files}
+spec: {accessModes: [ReadWriteOnce], resources: {requests: {storage: 50Gi}}}

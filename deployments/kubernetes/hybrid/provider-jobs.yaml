@@ -1,0 +1,37 @@
+# These jobs still run from the last production image that contains their
+# commands. The current providers portal image no longer contains worker or
+# scheduler scripts; keep this image pinned until those jobs are reconciled.
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: providers-worker}
+spec:
+  replicas: 0
+  selector: {matchLabels: {app.kubernetes.io/name: providers-worker}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: providers-worker, app.kubernetes.io/part-of: lsevin}}
+    spec:
+      containers:
+        - name: worker
+          image: lsevin-provider-jobs
+          imagePullPolicy: IfNotPresent
+          command: [pnpm, worker]
+          envFrom: [{secretRef: {name: providers-jobs-secrets}}]
+          resources: {requests: {cpu: 50m, memory: 128Mi}, limits: {cpu: 500m, memory: 512Mi}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: providers-scheduler}
+spec:
+  replicas: 0
+  selector: {matchLabels: {app.kubernetes.io/name: providers-scheduler}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: providers-scheduler, app.kubernetes.io/part-of: lsevin}}
+    spec:
+      containers:
+        - name: scheduler
+          image: lsevin-provider-jobs
+          imagePullPolicy: IfNotPresent
+          command: [pnpm, scheduler]
+          envFrom: [{secretRef: {name: providers-jobs-secrets}}]
+          resources: {requests: {cpu: 25m, memory: 96Mi}, limits: {cpu: 250m, memory: 384Mi}}
+

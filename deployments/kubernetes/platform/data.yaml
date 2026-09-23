@@ -1,0 +1,153 @@
+apiVersion: v1
+kind: Service
+metadata: {name: postgres}
+spec:
+  clusterIP: None
+  selector: {app.kubernetes.io/name: postgres}
+  ports: [{name: postgres, port: 5432}]
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: {name: postgres}
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector: {matchLabels: {app.kubernetes.io/name: postgres}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: postgres, app.kubernetes.io/part-of: lsevin}}
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: postgres
+          image: postgres:17.6-alpine
+          ports: [{name: postgres, containerPort: 5432}]
+          env:
+            - {name: POSTGRES_DB, valueFrom: {configMapKeyRef: {name: platform-config, key: POSTGRES_DB}}}
+            - {name: POSTGRES_USER, valueFrom: {secretKeyRef: {name: data-secrets, key: POSTGRES_USER}}}
+            - {name: POSTGRES_PASSWORD, valueFrom: {secretKeyRef: {name: data-secrets, key: POSTGRES_PASSWORD}}}
+          volumeMounts: [{name: data, mountPath: /var/lib/postgresql/data}]
+          readinessProbe: {exec: {command: [sh, -c, "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]}, periodSeconds: 10}
+          livenessProbe: {exec: {command: [sh, -c, "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]}, periodSeconds: 20}
+          resources: {requests: {cpu: 500m, memory: 1Gi}, limits: {cpu: "4", memory: 4Gi}}
+  volumeClaimTemplates:
+    - metadata: {name: data}
+      spec: {accessModes: [ReadWriteOnce], resources: {requests: {storage: 100Gi}}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: redis}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app.kubernetes.io/name: redis}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: redis}}
+    spec:
+      containers:
+        - name: redis
+          image: redis:7.4-alpine
+          args: [redis-server, --appendonly, "yes"]
+          ports: [{name: redis, containerPort: 6379}]
+          volumeMounts: [{name: data, mountPath: /data}]
+          readinessProbe: {exec: {command: [redis-cli, ping]}, periodSeconds: 10}
+      volumes: [{name: data, persistentVolumeClaim: {claimName: redis-data}}]
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: {name: redis-data}
+spec: {accessModes: [ReadWriteOnce], resources: {requests: {storage: 10Gi}}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: redis}
+spec: {selector: {app.kubernetes.io/name: redis}, ports: [{name: redis, port: 6379}]}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: {name: eventstore}
+spec:
+  serviceName: eventstore
+  replicas: 1
+  selector: {matchLabels: {app.kubernetes.io/name: eventstore}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: eventstore}}
+    spec:
+      containers:
+        - name: eventstore
+          image: eventstore/eventstore:24.10.0-bookworm-slim
+          ports: [{name: tcp, containerPort: 1113}, {name: http, containerPort: 2113}]
+          env:
+            - {name: EVENTSTORE_INSECURE, value: "true"}
+            - {name: EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP, value: "true"}
+          volumeMounts: [{name: data, mountPath: /var/lib/eventstore}]
+  volumeClaimTemplates:
+    - metadata: {name: data}
+      spec: {accessModes: [ReadWriteOnce], resources: {requests: {storage: 30Gi}}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: eventstore}
+spec: {selector: {app.kubernetes.io/name: eventstore}, ports: [{name: tcp, port: 1113}, {name: http, port: 2113}]}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: {name: minio}
+spec:
+  serviceName: minio
+  replicas: 1
+  selector: {matchLabels: {app.kubernetes.io/name: minio}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: minio}}
+    spec:
+      containers:
+        - name: minio
+          image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+          args: [server, /data, --console-address, ":9001"]
+          ports: [{name: api, containerPort: 9000}, {name: console, containerPort: 9001}]
+          env:
+            - {name: MINIO_ROOT_USER, valueFrom: {secretKeyRef: {name: data-secrets, key: MINIO_ROOT_USER}}}
+            - {name: MINIO_ROOT_PASSWORD, valueFrom: {secretKeyRef: {name: data-secrets, key: MINIO_ROOT_PASSWORD}}}
+          volumeMounts: [{name: data, mountPath: /data}]
+          readinessProbe: {httpGet: {path: /minio/health/ready, port: api}, periodSeconds: 10}
+  volumeClaimTemplates:
+    - metadata: {name: data}
+      spec: {accessModes: [ReadWriteOnce], resources: {requests: {storage: 100Gi}}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: minio}
+spec: {selector: {app.kubernetes.io/name: minio}, ports: [{name: api, port: 9000}, {name: console, port: 9001}]}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: {name: elasticsearch}
+spec:
+  serviceName: elasticsearch
+  replicas: 1
+  selector: {matchLabels: {app.kubernetes.io/name: elasticsearch}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: elasticsearch}}
+    spec:
+      initContainers:
+        - name: set-vm-max-map-count
+          image: busybox:1.37
+          securityContext: {privileged: true}
+          command: [sysctl, -w, vm.max_map_count=262144]
+      containers:
+        - name: elasticsearch
+          image: docker.elastic.co/elasticsearch/elasticsearch:9.0.3
+          ports: [{name: http, containerPort: 9200}]
+          env:
+            - {name: discovery.type, value: single-node}
+            - {name: xpack.security.enabled, value: "false"}
+            - {name: ES_JAVA_OPTS, value: -Xms1g -Xmx1g}
+          volumeMounts: [{name: data, mountPath: /usr/share/elasticsearch/data}]
+          readinessProbe: {httpGet: {path: /_cluster/health, port: http}, initialDelaySeconds: 20, periodSeconds: 10}
+          resources: {requests: {cpu: 500m, memory: 2Gi}, limits: {cpu: "2", memory: 3Gi}}
+  volumeClaimTemplates:
+    - metadata: {name: data}
+      spec: {accessModes: [ReadWriteOnce], resources: {requests: {storage: 100Gi}}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: elasticsearch}
+spec: {selector: {app.kubernetes.io/name: elasticsearch}, ports: [{name: http, port: 9200}]}
