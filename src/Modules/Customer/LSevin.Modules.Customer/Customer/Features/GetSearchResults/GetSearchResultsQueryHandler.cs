@@ -1,4 +1,4 @@
-﻿using Ardalis.GuardClauses;
+using Ardalis.GuardClauses;
 using BuildingBlocks.Core.ErrorHandling;
 using BuildingBlocks.Core.Messaging.Queries;
 using BuildingBlocks.Core.Models;
@@ -134,140 +134,141 @@ internal sealed class GetSearchResultsQueryHandler(
 
    */
 
-        using (var context = contextFactory.CreateDbContext())
-        {
-            if(!context.UserSearchHistories.Any(
-                s=>s.Term==request.term &&
-                s.UserId == userAccessor.GetUserIdentity.ToString()
-                ))
-            {
-                context.UserSearchHistories.Add(new UserSearchHistory
-                {
-                    Term = request.term,
-                    UserId = userAccessor.GetUserIdentity.ToString(),
-                    NormalizedTerm = request.term.Trim(),
-                });
-            }
-           
-        }
-
-
         var response = await Search(connection, request.term, userAccessor.GetUserIdentity.ToString());
 
         return response;
     }
 
 
-    public static string DapperSQL = @"
-SELECT 
-    ps.id::int                    AS ""Id"",
+public static string DapperSQL = @"
+(
+SELECT
+    ps.id::text                    AS ""Id"",
     'service'                     AS ""Type"",
     ps.display_name_translations->>'en' AS ""Name"",
     sp.name_translations->>'en'   AS ""Provider"",
 
-    ps.image_url                  AS ""Image"",
+    NULL                          AS ""Image"",
     sp.city || ', ' || sp.country AS ""Location"",
 
-    ps.rating::float              AS ""Rating"",
-    ps.review_count               AS ""Reviews"",
+    0::float                      AS ""Rating"",
+    0                             AS ""Reviews"",
 
     ps.value::int                 AS ""Price"",
     ps.value::int                 AS ""OriginalPrice"",
 
-    sp.is_verified                AS ""Verified"",
+    sp.is_active                  AS ""Verified"",
 
-    ps.tags                       AS ""Tags"",
-    sp.specialties                AS ""Specialties"",
+    NULL                          AS ""Tags"",
+    NULL                          AS ""Specialties"",
 
     c.id::text                    AS ""CategoryId"",
     c.name_translations->>'en'    AS ""CategoryLabel""
 
 FROM category.provider_services ps
 
-JOIN category.service_providers sp 
+JOIN category.service_providers sp
     ON sp.id = ps.service_provider_id
 
-LEFT JOIN category.service_definitions sd 
+LEFT JOIN category.service_definitions sd
     ON sd.id = ps.service_definition_id
 
-LEFT JOIN category.categories c 
+LEFT JOIN category.categories c
     ON c.id = sd.category_id
 
-WHERE 
-    ps.search_vector @@ plainto_tsquery('english', @Term)
+WHERE
+(
+    ps.display_name_translations->>'en' ILIKE '%' || @Term || '%'
+    OR
+    ps.description_translations->>'en' ILIKE '%' || @Term || '%'
+)
+
+LIMIT 20
+)
 
 UNION ALL
 
-SELECT 
-    sp.id::int                    AS ""Id"",
+(
+SELECT
+    sp.id::text                    AS ""Id"",
     'provider'                    AS ""Type"",
     sp.name_translations->>'en'   AS ""Name"",
     sp.name_translations->>'en'   AS ""Provider"",
 
-    (
-        SELECT url FROM category.provider_gallery_items g 
-        WHERE g.service_provider_id = sp.id LIMIT 1
-    )                             AS ""Image"",
+    gallery.url                   AS ""Image"",
 
     sp.city || ', ' || sp.country AS ""Location"",
 
-    sp.rating::float              AS ""Rating"",
-    sp.review_count               AS ""Reviews"",
+    0::float                      AS ""Rating"",
+    0                             AS ""Reviews"",
 
     0                             AS ""Price"",
     0                             AS ""OriginalPrice"",
 
-    sp.is_verified                AS ""Verified"",
+    sp.is_active                  AS ""Verified"",
 
     NULL                          AS ""Tags"",
-    sp.specialties                AS ""Specialties"",
+    NULL                          AS ""Specialties"",
 
     NULL                          AS ""CategoryId"",
     NULL                          AS ""CategoryLabel""
 
 FROM category.service_providers sp
 
-WHERE 
-    sp.search_vector @@ plainto_tsquery('english', @Term)
+LEFT JOIN LATERAL
+(
+    SELECT url
+    FROM category.provider_gallery_items g
+    WHERE g.service_provider_id = sp.id
+    ORDER BY g.display_order
+    LIMIT 1
+)
+gallery ON true
 
-LIMIT 30;";
+
+WHERE
+(
+    sp.name_translations->>'en' ILIKE '%' || @Term || '%'
+    OR
+    sp.description_translations->>'en' ILIKE '%' || @Term || '%'
+)
+
+LIMIT 10
+)
+
+LIMIT 30;
+";
 
 
-    public async Task<GetSearchResultsResponse> Search(
+public async Task<GetSearchResultsResponse> Search(
     IDbConnection db,
     string term,
     string userId)
-    {
-        var sql = DapperSQL;
-
-        var results = (await db.QueryAsync<SearchResultItem>(
-            sql,
-            new { Term = term }
-        )).ToList();
-
-        // 🧩 Categories (distinct from results)
-        var categories = results
-            .Where(x => x.Type == "service")
-            .Select(x => new SearchResultCategory
+{
+    var results = (
+        await db.QueryAsync<SearchResultItem>(
+            DapperSQL,
+            new
             {
-                Id = (x as dynamic).CategoryId,
-                Label = (x as dynamic).CategoryLabel
+                Term = term.Trim()
             })
-            .Where(x => x.Id != null)
-            .GroupBy(x => x.Id)
-            .Select(g => g.First())
-            .ToList();
+    ).ToList();
 
-        // 🎯 Filters (static for now, can be dynamic later)
-        var filters = new List<SearchResultFilters>
-    {
-        new() { Id = "verified", Label = "Verified" },
-        new() { Id = "top_rated", Label = "Top Rated" },
-        new() { Id = "low_price", Label = "Lowest Price" }
-    };
 
-        // 🕘 Recent Searches
-        var recentSql = @"
+    var categories = results
+        .Where(x => x.Type == "service")
+        .Select(x => new SearchResultCategory
+        {
+            Id = x.CategoryId,
+            Label = x.CategoryLabel
+        })
+        .Where(x => !string.IsNullOrWhiteSpace(x.Id))
+        .GroupBy(x => x.Id)
+        .Select(x => x.First())
+        .ToList();
+
+
+    var recentSql = @"
         SELECT term
         FROM search.user_search_history
         WHERE user_id = @UserId
@@ -275,18 +276,41 @@ LIMIT 30;";
         LIMIT 5;
     ";
 
-        var recent = (await db.QueryAsync<string>(
-            recentSql,
-            new { UserId = userId }
-        )).ToArray();
 
-        return new GetSearchResultsResponse
-        {
-            Results = results,
-            Categories = categories,
-            Filters = filters,
-            RecentSearches = recent
-        };
-    }
+    var recent = (
+        await db.QueryAsync<string>(
+            recentSql,
+            new
+            {
+                UserId = userId
+            })
+    ).ToArray();
+
+
+    return new GetSearchResultsResponse
+    {
+        Results = results,
+        Categories = categories,
+        Filters =
+        [
+            new()
+            {
+                Id = ""verified"",
+                Label = ""Verified""
+            },
+            new()
+            {
+                Id = ""top_rated"",
+                Label = ""Top Rated""
+            },
+            new()
+            {
+                Id = ""low_price"",
+                Label = ""Lowest Price""
+            }
+        ],
+        RecentSearches = recent
+    };
+}
 }
 
