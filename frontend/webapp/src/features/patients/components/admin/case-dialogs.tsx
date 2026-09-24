@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "@/i18n/navigation";
 
@@ -110,15 +111,25 @@ export function AddRequirementDialog({ medicalCaseId, open, onOpenChange }: Omit
   const [isPending, startTransition] = useTransition();
   const [requirementType, setRequirementType] = useState<(typeof REQUIREMENT_TYPES)[number]>("document");
   const [title, setTitle] = useState("");
+  const [maxAgeHours, setMaxAgeHours] = useState("");
+  const [isMandatory, setIsMandatory] = useState(true);
   const refresh = useRefreshOnSuccess();
 
   const save = () => {
     startTransition(async () => {
-      const result = await addCaseRequirementAction({ medicalCaseId, requirementType, title: title.trim() });
+      const result = await addCaseRequirementAction({
+        medicalCaseId,
+        requirementType,
+        title: title.trim(),
+        maxAgeHours: maxAgeHours.trim() ? Number(maxAgeHours) : undefined,
+        isMandatory,
+      });
       if (result.ok) {
         toast.success(t("admin.overview.saved"));
         onOpenChange(false);
         setTitle("");
+        setMaxAgeHours("");
+        setIsMandatory(true);
         refresh();
         return;
       }
@@ -151,6 +162,20 @@ export function AddRequirementDialog({ medicalCaseId, open, onOpenChange }: Omit
           <div className="space-y-2">
             <Label>{t("admin.cases.fields.title")}</Label>
             <Input value={title} onChange={(event) => setTitle(event.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label>{t("admin.cases.fields.maxAgeHours")}</Label>
+            <Input
+              dir="ltr"
+              inputMode="numeric"
+              placeholder={t("admin.cases.fields.maxAgeHoursPlaceholder")}
+              value={maxAgeHours}
+              onChange={(event) => setMaxAgeHours(event.target.value)}
+            />
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <Label>{t("admin.cases.fields.isMandatory")}</Label>
+            <Switch checked={isMandatory} onCheckedChange={setIsMandatory} />
           </div>
         </div>
         <DialogFooter className="gap-2 sm:justify-end">

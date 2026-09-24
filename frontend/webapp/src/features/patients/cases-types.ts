@@ -84,6 +84,11 @@ export type MedicalCaseRequirementRow = {
   requirementStatus: string;
   expiresAt: string | null;
   fulfilledDocumentId: string | null;
+  /** Informational only (project owner decision): staff/provider judges an
+   * uploaded file's own date against this themselves -- nothing here is
+   * auto-compared or auto-expired. Null means no freshness rule. */
+  maxAgeHours: number | null;
+  isMandatory: boolean;
   createdAt: string;
 };
 

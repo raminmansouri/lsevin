@@ -11,7 +11,6 @@ import {
 } from "@/features/patients/server/cases-repository";
 import type {
   MedicalCaseFollowUpRow,
-  MedicalCaseRequirementRow,
   MedicalCaseRow,
   MedicalCaseSecondOpinionRow,
   MedicalCaseTreatmentProposalRow,
@@ -22,6 +21,7 @@ import { listPatientAccessForAccount } from "@/features/patients/server/reposito
 import type { TranslationType } from "@/types/next";
 
 import { requireAuthenticatedUserId } from "./auth";
+import { RequirementUploadList } from "./requirement-upload-list";
 import { ShareCaseSection } from "./share-case-section";
 
 export const dynamic = "force-dynamic";
@@ -158,7 +158,15 @@ async function CaseCard({
               {readiness.satisfied}/{readiness.total} — {readiness.percent}%
             </span>
           </div>
-          <RequirementsList requirements={requirements} tCases={tCases} />
+          <RequirementUploadList
+            requirements={requirements.map((requirement) => ({
+              ...requirement,
+              statusLabel: tCases(`requirementStatuses.${requirement.requirementStatus}`),
+              typeLabel: tCases(`requirementTypes.${requirement.requirementType}`),
+            }))}
+            patientId={patientId}
+            medicalCaseId={medicalCase.id}
+          />
         </div>
       )}
 
@@ -206,25 +214,6 @@ async function CaseCard({
         grants={grants}
         bookedProviders={bookedProviders}
       />
-    </div>
-  );
-}
-
-function RequirementsList({
-  requirements,
-  tCases,
-}: {
-  requirements: MedicalCaseRequirementRow[];
-  tCases: TranslationType;
-}) {
-  return (
-    <div className="mt-1.5 space-y-1.5">
-      {requirements.map((requirement) => (
-        <div key={requirement.id} className="flex items-center justify-between gap-2 text-sm">
-          <span className="text-gray-800">{requirement.title}</span>
-          <span className="shrink-0 text-xs text-gray-400">{tCases(`requirementStatuses.${requirement.requirementStatus}`)}</span>
-        </div>
-      ))}
     </div>
   );
 }

@@ -234,8 +234,16 @@ function OverviewTab({
           {requirements.map((requirement) => (
             <div key={requirement.id} className="flex items-center justify-between gap-2 border-b pb-2 last:border-0 last:pb-0">
               <div>
-                <p className="text-sm font-medium">{requirement.title}</p>
-                <p className="text-muted-foreground text-xs">{t(`admin.cases.requirementTypes.${requirement.requirementType}`)}</p>
+                <p className="text-sm font-medium">
+                  {requirement.title}
+                  {!requirement.isMandatory && (
+                    <span className="text-muted-foreground ms-1 text-xs">({t("admin.cases.fields.optional")})</span>
+                  )}
+                </p>
+                <p className="text-muted-foreground text-xs">
+                  {t(`admin.cases.requirementTypes.${requirement.requirementType}`)}
+                  {requirement.maxAgeHours && ` · ${t("admin.cases.fields.maxAgeHoursNotice", { hours: requirement.maxAgeHours })}`}
+                </p>
               </div>
               <Select value={requirement.requirementStatus} onValueChange={(value) => updateRequirement(requirement.id, value)}>
                 <SelectTrigger className="w-40">

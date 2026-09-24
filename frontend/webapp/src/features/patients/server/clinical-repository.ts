@@ -242,14 +242,22 @@ export async function addPatientAllergy(input: {
   criticality?: string;
   onsetDate?: string;
   notes?: string;
+  /** Optional, additive -- same passthrough already used by
+   * addPatientCondition/addPatientProcedure/addPatientMedication. Omit for
+   * the existing default ('lsevin_coordinator' / 'unverified'). */
+  sourceType?: string;
+  verificationStatus?: string;
   createdBy?: string | null;
 }): Promise<PatientAllergyRow> {
   const rows = await db<any[]>`
     insert into patient.patient_allergies (
-      patient_id, substance, category, reaction, severity, criticality, onset_date, notes, created_by, last_modified_by
+      patient_id, substance, category, reaction, severity, criticality, onset_date, notes,
+      source_type, verification_status, created_by, last_modified_by
     ) values (
       ${input.patientId}, ${input.substance ?? null}, ${input.category}, ${input.reaction ?? null}, ${input.severity ?? null},
-      ${input.criticality ?? null}, ${input.onsetDate ?? null}, ${input.notes ?? null}, ${input.createdBy ?? null}, ${input.createdBy ?? null}
+      ${input.criticality ?? null}, ${input.onsetDate ?? null}, ${input.notes ?? null},
+      ${input.sourceType ?? "lsevin_coordinator"}, ${input.verificationStatus ?? "unverified"},
+      ${input.createdBy ?? null}, ${input.createdBy ?? null}
     )
     returning *
   `;

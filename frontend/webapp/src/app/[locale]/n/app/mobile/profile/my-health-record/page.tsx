@@ -9,6 +9,7 @@ import type { TranslationType } from "@/types/next";
 
 import { requireAuthenticatedUserId } from "./auth";
 import { LinkFamilySection } from "./link-family-section";
+import { SelfDeclareSection } from "./self-declare-section";
 
 export const dynamic = "force-dynamic";
 
@@ -145,6 +146,8 @@ async function PatientCard({
           </div>
         </div>
       )}
+
+      {showClinicalDetail && <SelfDeclareSection patientId={patient.id} />}
     </div>
   );
 }

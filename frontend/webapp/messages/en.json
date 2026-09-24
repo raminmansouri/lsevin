@@ -8157,6 +8157,56 @@
           "temporary_id": "Temporary ID",
           "other": "Other"
         }
+      },
+      "selfDeclare": {
+        "title": "Add to my record",
+        "notice": "Add your own conditions, allergies, medications or past procedures. These are marked as self-reported until your care team verifies them.",
+        "add": "Add",
+        "cancel": "Cancel",
+        "recordType": "Type",
+        "types": {
+          "condition": "Condition",
+          "allergy": "Allergy",
+          "medication": "Medication",
+          "procedure": "Procedure"
+        },
+        "nameLabels": {
+          "condition": "Condition name",
+          "allergy": "Substance",
+          "medication": "Medication name",
+          "procedure": "Procedure name"
+        },
+        "status": "Status",
+        "category": "Category",
+        "dose": "Dose (optional)",
+        "performedFrom": "Date performed",
+        "notes": "Notes (optional)",
+        "save": "Save",
+        "saved": "Added to your record",
+        "errorGeneric": "Something went wrong. Please try again.",
+        "conditionStatuses": {
+          "active": "Active",
+          "inactive": "Inactive",
+          "resolved": "Resolved",
+          "remission": "In remission",
+          "recurrence": "Recurrence",
+          "unknown": "Unknown"
+        },
+        "allergyCategories": {
+          "food": "Food",
+          "medication": "Medication",
+          "environmental": "Environmental",
+          "biologic": "Biologic",
+          "no_known_allergies": "No known allergies",
+          "other": "Other"
+        },
+        "medicationStatuses": {
+          "planned": "Planned",
+          "active": "Active",
+          "completed": "Completed",
+          "stopped": "Stopped",
+          "unknown": "Unknown"
+        }
       }
     },
     "myCases": {
@@ -8170,6 +8220,10 @@
       "estimatedStay": "Estimated stay",
       "days": "days",
       "validUntil": "Valid until",
+      "optional": "optional",
+      "maxAgeHoursNotice": "must be dated within {hours}h",
+      "uploadFile": "Upload file",
+      "requirementFulfilled": "Uploaded",
       "relationshipTypes": {
         "parent": "Parent",
         "child": "Child",
@@ -16189,7 +16243,12 @@
           "opinionDate": "Opinion date",
           "conclusion": "Conclusion",
           "scheduledDate": "Scheduled date",
-          "requiredItems": "Required documents/tests"
+          "requiredItems": "Required documents/tests",
+          "maxAgeHours": "Must be dated within (hours, optional)",
+          "maxAgeHoursPlaceholder": "e.g. 48",
+          "maxAgeHoursNotice": "must be within {hours}h",
+          "isMandatory": "Mandatory",
+          "optional": "optional"
         },
         "statuses": {
           "draft": "Draft",

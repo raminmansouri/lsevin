@@ -86,6 +86,10 @@ export const AddCaseRequirementSchema = z.object({
   title: z.string().trim().min(1).max(300),
   description: z.string().trim().max(1000).optional(),
   expiresAt: isoDate.optional(),
+  /** Informational freshness rule only ("must be dated within N hours") --
+   * never auto-compared against an uploaded file's own date. */
+  maxAgeHours: z.number().int().min(1).max(8760).optional(),
+  isMandatory: z.boolean().optional(),
 });
 export type AddCaseRequirementInput = z.input<typeof AddCaseRequirementSchema>;
 

@@ -7319,6 +7319,56 @@
           "temporary_id": "هوية مؤقتة",
           "other": "أخرى"
         }
+      },
+      "selfDeclare": {
+        "title": "إضافة إلى سجلي",
+        "notice": "أضف حالاتك أو حساسياتك أو أدويتك أو الإجراءات السابقة. تُعلَّم هذه العناصر كـ«مصرَّح بها من المريض» حتى يتحقق منها فريق رعايتك.",
+        "add": "إضافة",
+        "cancel": "إلغاء",
+        "recordType": "النوع",
+        "types": {
+          "condition": "حالة",
+          "allergy": "حساسية",
+          "medication": "دواء",
+          "procedure": "إجراء"
+        },
+        "nameLabels": {
+          "condition": "اسم الحالة",
+          "allergy": "المادة المسببة",
+          "medication": "اسم الدواء",
+          "procedure": "اسم الإجراء"
+        },
+        "status": "الحالة",
+        "category": "الفئة",
+        "dose": "الجرعة (اختياري)",
+        "performedFrom": "تاريخ الإجراء",
+        "notes": "ملاحظات (اختياري)",
+        "save": "حفظ",
+        "saved": "تمت الإضافة إلى سجلك",
+        "errorGeneric": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+        "conditionStatuses": {
+          "active": "نشطة",
+          "inactive": "غير نشطة",
+          "resolved": "تم الشفاء",
+          "remission": "في تحسن",
+          "recurrence": "متكررة",
+          "unknown": "غير معروف"
+        },
+        "allergyCategories": {
+          "food": "غذائية",
+          "medication": "دوائية",
+          "environmental": "بيئية",
+          "biologic": "بيولوجية",
+          "no_known_allergies": "لا توجد حساسية معروفة",
+          "other": "أخرى"
+        },
+        "medicationStatuses": {
+          "planned": "مخطط له",
+          "active": "نشط",
+          "completed": "مكتمل",
+          "stopped": "متوقف",
+          "unknown": "غير معروف"
+        }
       }
     },
     "myCases": {
@@ -7332,6 +7382,10 @@
       "estimatedStay": "مدة الإقامة المقدرة",
       "days": "أيام",
       "validUntil": "صالح حتى",
+      "optional": "اختياري",
+      "maxAgeHoursNotice": "يجب أن يكون تاريخه خلال آخر {hours} ساعة",
+      "uploadFile": "رفع ملف",
+      "requirementFulfilled": "تم الرفع",
       "relationshipTypes": {
         "parent": "الوالد",
         "child": "الطفل",
@@ -14517,7 +14571,12 @@
           "opinionDate": "تاريخ الرأي",
           "conclusion": "الاستنتاج",
           "scheduledDate": "التاريخ المجدول",
-          "requiredItems": "المستندات/الفحوصات المطلوبة"
+          "requiredItems": "المستندات/الفحوصات المطلوبة",
+          "maxAgeHours": "يجب أن يكون تاريخه ضمن (ساعات، اختياري)",
+          "maxAgeHoursPlaceholder": "مثال: 48",
+          "maxAgeHoursNotice": "يجب أن يكون خلال آخر {hours} ساعة",
+          "isMandatory": "إلزامي",
+          "optional": "اختياري"
         },
         "statuses": {
           "draft": "مسودة",

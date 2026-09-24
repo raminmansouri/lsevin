@@ -85,6 +85,8 @@ function mapRequirement(row: any): MedicalCaseRequirementRow {
     requirementStatus: row.requirement_status,
     expiresAt: row.expires_at,
     fulfilledDocumentId: row.fulfilled_document_id,
+    maxAgeHours: row.max_age_hours,
+    isMandatory: row.is_mandatory,
     createdAt: row.create_date,
   };
 }
@@ -278,11 +280,18 @@ export async function addCaseRequirement(input: {
   title: string;
   description?: string;
   expiresAt?: string;
+  maxAgeHours?: number;
+  isMandatory?: boolean;
   createdBy?: string | null;
 }): Promise<MedicalCaseRequirementRow> {
   const rows = await db<any[]>`
-    insert into patient.medical_case_requirements (medical_case_id, requirement_type, title, description, expires_at, created_by)
-    values (${input.medicalCaseId}, ${input.requirementType}, ${input.title}, ${input.description ?? null}, ${input.expiresAt ?? null}, ${input.createdBy ?? null})
+    insert into patient.medical_case_requirements (
+      medical_case_id, requirement_type, title, description, expires_at, max_age_hours, is_mandatory, created_by
+    )
+    values (
+      ${input.medicalCaseId}, ${input.requirementType}, ${input.title}, ${input.description ?? null}, ${input.expiresAt ?? null},
+      ${input.maxAgeHours ?? null}, ${input.isMandatory ?? true}, ${input.createdBy ?? null}
+    )
     returning *
   `;
   return mapRequirement(rows[0]);
