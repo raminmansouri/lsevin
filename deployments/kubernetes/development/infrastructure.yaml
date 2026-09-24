@@ -6,8 +6,8 @@ stringData:
   POSTGRES_DB: lsevin
   POSTGRES_USER: lsevin
   POSTGRES_PASSWORD: lsevin
-  MINIO_ROOT_USER: minioadmin
-  MINIO_ROOT_PASSWORD: minioadmin
+  SEAWEEDFS_S3_ACCESS_KEY: lsevin-dev-media
+  SEAWEEDFS_S3_SECRET_KEY: lsevin-dev-media-secret
 ---
 apiVersion: v1
 kind: Service
@@ -98,42 +98,53 @@ spec:
   selector: {app.kubernetes.io/name: eventstore}
   ports: [{name: http, port: 2113, targetPort: http, nodePort: 30113}]
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: seaweedfs-s3-config}
+data:
+  s3-config.json: |
+    {"identities":[{"name":"lsevin-api","credentials":[{"accessKey":"${SEAWEEDFS_S3_ACCESS_KEY}","secretKey":"${SEAWEEDFS_S3_SECRET_KEY}"}],"actions":["Read:lsevin-media","List:lsevin-media","Tagging:lsevin-media","Write:lsevin-media"]}]}
+---
 apiVersion: apps/v1
 kind: StatefulSet
-metadata: {name: minio}
+metadata: {name: seaweedfs}
 spec:
-  serviceName: minio
+  serviceName: seaweedfs
   replicas: 1
-  selector: {matchLabels: {app.kubernetes.io/name: minio}}
+  selector: {matchLabels: {app.kubernetes.io/name: seaweedfs}}
   template:
-    metadata: {labels: {app.kubernetes.io/name: minio}}
+    metadata: {labels: {app.kubernetes.io/name: seaweedfs}}
     spec:
       containers:
-        - name: minio
-          image: minio/minio:RELEASE.2025-09-07T16-13-09Z
-          args: [server, /data, --console-address, ":9001"]
-          ports: [{name: api, containerPort: 9000}, {name: console, containerPort: 9001}]
+        - name: seaweedfs
+          image: chrislusf/seaweedfs:4.47
+          args: [server, -dir=/data, -ip=seaweedfs, -ip.bind=0.0.0.0, -filer, -s3, -s3.port=8333, -s3.config=/etc/seaweedfs/s3-config.json, -master.telemetry=false]
+          ports: [{name: s3, containerPort: 8333}, {name: master, containerPort: 9333}, {name: filer, containerPort: 8888}]
           envFrom: [{secretRef: {name: dev-data}}]
-          volumeMounts: [{name: data, mountPath: /data}]
-          readinessProbe: {httpGet: {path: /minio/health/ready, port: api}, periodSeconds: 5, failureThreshold: 30}
+          volumeMounts:
+            - {name: data, mountPath: /data}
+            - {name: config, mountPath: /etc/seaweedfs, readOnly: true}
+          readinessProbe: {httpGet: {path: /cluster/status, port: master}, periodSeconds: 5, failureThreshold: 30}
           resources: {requests: {cpu: 50m, memory: 128Mi}, limits: {cpu: "1", memory: 512Mi}}
+      volumes: [{name: config, configMap: {name: seaweedfs-s3-config}}]
   volumeClaimTemplates:
     - metadata: {name: data}
       spec: {accessModes: [ReadWriteOnce], resources: {requests: {storage: 5Gi}}}
 ---
 apiVersion: v1
 kind: Service
-metadata: {name: minio}
+metadata: {name: seaweedfs}
 spec:
   type: NodePort
-  selector: {app.kubernetes.io/name: minio}
+  selector: {app.kubernetes.io/name: seaweedfs}
   ports:
-    - {name: api, port: 9000, targetPort: api, nodePort: 30900}
-    - {name: console, port: 9001, targetPort: console, nodePort: 30901}
+    - {name: s3, port: 8333, targetPort: s3, nodePort: 30900}
+    - {name: master, port: 9333, targetPort: master, nodePort: 30901}
+    - {name: filer, port: 8888, targetPort: filer}
 ---
 apiVersion: batch/v1
 kind: Job
-metadata: {name: minio-init}
+metadata: {name: seaweedfs-init}
 spec:
   backoffLimit: 10
   template:
@@ -141,17 +152,10 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: init
-          image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+          image: chrislusf/seaweedfs:4.47
           command: [/bin/sh, -c]
           args:
             - |
               set -eu
-              until mc alias set local http://minio:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD"; do sleep 2; done
-              mc ready local
-              mc mb --ignore-existing local/lsevin-media
-              printf '%s' '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["s3:GetObject"],"Resource":["arn:aws:s3:::lsevin-media/*"]}]}' >/tmp/anon.json
-              mc anonymous set-json /tmp/anon.json local/lsevin-media
-              if ! mc admin user svcacct info local lsevin-dev-media >/dev/null 2>&1; then
-                mc admin user svcacct add local "$MINIO_ROOT_USER" --access-key lsevin-dev-media --secret-key lsevin-dev-media-secret
-              fi
-          envFrom: [{secretRef: {name: dev-data}}]
+              until wget -q --spider http://seaweedfs:9333/cluster/status; do sleep 2; done
+              printf 's3.bucket.create -name=lsevin-media\n' | weed shell -master=seaweedfs:9333 -filer=seaweedfs:8888

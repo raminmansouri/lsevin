@@ -1,0 +1,19 @@
+{
+  "identities": [
+    {
+      "name": "lsevin-api",
+      "credentials": [
+        {
+          "accessKey": "${SEAWEEDFS_S3_ACCESS_KEY}",
+          "secretKey": "${SEAWEEDFS_S3_SECRET_KEY}"
+        }
+      ],
+      "actions": [
+        "Read:lsevin-media",
+        "List:lsevin-media",
+        "Tagging:lsevin-media",
+        "Write:lsevin-media"
+      ]
+    }
+  ]
+}

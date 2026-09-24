@@ -5,6 +5,7 @@ resources:
   - ../platform/namespace.yaml
   - ../platform/applications.yaml
   - stateful-hostpath.yaml
+  - seaweedfs.yaml
   - provider-jobs.yaml
 configMapGenerator:
   - name: platform-config

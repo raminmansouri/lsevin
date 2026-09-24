@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lsevin-api
+spec:
+  template:
+    spec:
+      containers:
+        - name: api
+          env:
+            - {name: FileUploadOptions__Backend, value: SeaweedFS}
+            - {name: FileUploadOptions__S3__ServiceUrl, value: http://seaweedfs:8333}

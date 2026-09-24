@@ -16,8 +16,8 @@ docker compose -f docker-compose.dev.yml --env-file .env.dev up -d
 | PostgreSQL   | `localhost:5432`            | `lsevin` / `lsevin` / db `lsevin` |
 | Redis        | `localhost:6379`            | cache / rate-limit |
 | EventStoreDB | `localhost:2113`            | in-memory (no persisted streams) |
-| MinIO (S3)   | `localhost:9000`            | bucket `lsevin-media`, anonymous read |
-| MinIO console| `localhost:9001`            | `minioadmin` / `minioadmin` |
+| SeaweedFS S3 | `localhost:9000`            | private bucket `lsevin-media` |
+| Seaweed master | `localhost:9333`          | local diagnostics only |
 
 **First boot only**, Postgres loads:
 
@@ -51,9 +51,8 @@ ConnectionStrings__eventstore="esdb://localhost:2113?tls=false" \
 dotnet watch
 ```
 
-The Development launch profiles explicitly use the local filesystem for uploads.
-If your shell previously exported MinIO settings, clear them before starting the
-API without a launch profile:
+The Development launch profiles use SeaweedFS for uploads. If your shell has old
+storage overrides, clear them before starting with the launch profile:
 
 ```bash
 unset FileUploadOptions__Backend FileUploadOptions__S3__ServiceUrl \
@@ -137,8 +136,8 @@ Docker Compose is running locally and verified healthy:
 - PostgreSQL: localhost:5432
 - Redis: localhost:6379
 - EventStoreDB: localhost:2113
-- MinIO: localhost:9000
-- MinIO console: localhost:9001
+- SeaweedFS S3: localhost:9000
+- SeaweedFS master: localhost:9333
 PostgreSQL contains 571 application tables.
 
 

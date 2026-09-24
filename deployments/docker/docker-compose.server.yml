@@ -166,7 +166,7 @@ services:
       # an unreachable bucket, so a misconfigured deploy fails loudly instead of losing
       # uploads. Flipping back to FileSystem is the rollback while disk files remain.
       FileUploadOptions__Backend: ${FILE_STORAGE_BACKEND:-FileSystem}
-      FileUploadOptions__S3__ServiceUrl: http://minio:9000
+      FileUploadOptions__S3__ServiceUrl: ${OBJECT_STORAGE_S3_ENDPOINT:-http://minio:9000}
       FileUploadOptions__S3__Bucket: ${MINIO_BUCKET:-lsevin-media}
       # A scoped service account, never the MinIO root user.
       FileUploadOptions__S3__AccessKey: ${MINIO_API_ACCESS_KEY}
@@ -190,6 +190,8 @@ services:
         condition: service_started
       # Bucket, anonymous policy and scoped API credentials must exist before the API
       # starts, or the MinioStartupCheck hosted service aborts startup by design.
+      seaweedfs-init:
+        condition: service_completed_successfully
       minio-init:
         condition: service_completed_successfully
 
@@ -379,6 +381,52 @@ services:
   # on-disk media is mirrored in with deployments/ansible/scripts/mirror-uploads-to-minio.sh.
   # Full procedure: deployments/docker/MEDIA_STORAGE_MIGRATION.md.
   # ---------------------------------------------------------------------------
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.47
+    restart: unless-stopped
+    command:
+      - server
+      - -dir=/data
+      - -ip=seaweedfs
+      - -ip.bind=0.0.0.0
+      - -filer
+      - -s3
+      - -s3.port=8333
+      - -s3.config=/etc/seaweedfs/s3-config.json
+      - -master.telemetry=false
+    environment:
+      SEAWEEDFS_S3_ACCESS_KEY: ${MINIO_API_ACCESS_KEY}
+      SEAWEEDFS_S3_SECRET_KEY: ${MINIO_API_SECRET_KEY}
+    volumes:
+      - ${LSEVIN_SEAWEEDFS_DIR:-/var/lib/lsevin/seaweedfs}:/data
+      - ./seaweedfs/s3-config.json:/etc/seaweedfs/s3-config.json:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9333/cluster/status"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - lsevin-network
+
+  seaweedfs-init:
+    image: chrislusf/seaweedfs:4.47
+    restart: "no"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -eu
+        until wget -q --spider http://seaweedfs:9333/cluster/status; do sleep 2; done
+        printf 's3.bucket.create -name=%s\n' "$$SEAWEEDFS_BUCKET" | weed shell -master=seaweedfs:9333 -filer=seaweedfs:8888
+    environment:
+      SEAWEEDFS_BUCKET: ${MINIO_BUCKET:-lsevin-media}
+    networks:
+      - lsevin-network
+    depends_on:
+      seaweedfs:
+        condition: service_healthy
+
+  # Retained as the rollback source during migration. Never delete its data directory.
   minio:
     image: minio/minio:RELEASE.2025-09-07T16-13-09Z
     restart: unless-stopped

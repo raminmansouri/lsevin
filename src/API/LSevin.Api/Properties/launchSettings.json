@@ -12,8 +12,12 @@
           "ConnectionStrings__database": "Host=localhost;Port=5432;Database=lsevin;Username=lsevin;Password=lsevin;Include Error Detail=true",
           "ConnectionStrings__cache": "localhost:6379",
           "ConnectionStrings__eventstore": "esdb://localhost:2113?tls=false",
-          "FileUploadOptions__Backend": "FileSystem",
-          "FileUploadOptions__UploadDirectory": "UploadFiles.Local"
+          "FileUploadOptions__Backend": "SeaweedFS",
+          "FileUploadOptions__UploadDirectory": "UploadFiles.Local",
+          "FileUploadOptions__S3__ServiceUrl": "http://localhost:9000",
+          "FileUploadOptions__S3__Bucket": "lsevin-media",
+          "FileUploadOptions__S3__AccessKey": "lsevin-dev-media",
+          "FileUploadOptions__S3__SecretKey": "lsevin-dev-media-secret"
         }
       },
       "Http": {
@@ -27,8 +31,12 @@
           "ConnectionStrings__database": "Host=localhost;Port=5432;Database=lsevin;Username=lsevin;Password=lsevin;Include Error Detail=true",
           "ConnectionStrings__cache": "localhost:6379",
           "ConnectionStrings__eventstore": "esdb://localhost:2113?tls=false",
-          "FileUploadOptions__Backend": "FileSystem",
-          "FileUploadOptions__UploadDirectory": "UploadFiles.Local"
+          "FileUploadOptions__Backend": "SeaweedFS",
+          "FileUploadOptions__UploadDirectory": "UploadFiles.Local",
+          "FileUploadOptions__S3__ServiceUrl": "http://localhost:9000",
+          "FileUploadOptions__S3__Bucket": "lsevin-media",
+          "FileUploadOptions__S3__AccessKey": "lsevin-dev-media",
+          "FileUploadOptions__S3__SecretKey": "lsevin-dev-media-secret"
         }
       }
     }

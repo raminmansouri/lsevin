@@ -34,13 +34,13 @@ try {
     # Create the namespace first so a clean cluster does not fail while removing
     # a completed init job from a namespace that does not exist yet.
     kubectl apply -f deployments/kubernetes/development/namespace.yaml | Out-Null
-    kubectl delete job minio-init -n lsevin-dev --ignore-not-found | Out-Null
+    kubectl delete job seaweedfs-init -n lsevin-dev --ignore-not-found | Out-Null
     kubectl apply -k deployments/kubernetes/development
     kubectl rollout status statefulset/postgres -n lsevin-dev --timeout=300s
     kubectl rollout status deployment/redis -n lsevin-dev --timeout=180s
     kubectl rollout status deployment/eventstore -n lsevin-dev --timeout=180s
-    kubectl rollout status statefulset/minio -n lsevin-dev --timeout=180s
-    kubectl wait --for=condition=complete job/minio-init -n lsevin-dev --timeout=180s
+    kubectl rollout status statefulset/seaweedfs -n lsevin-dev --timeout=180s
+    kubectl wait --for=condition=complete job/seaweedfs-init -n lsevin-dev --timeout=180s
 }
 finally {
     Pop-Location
@@ -50,5 +50,5 @@ Write-Host 'LSevin development infrastructure is ready:'
 Write-Host '  PostgreSQL:  localhost:5432 (lsevin / lsevin)'
 Write-Host '  Redis:       localhost:6379'
 Write-Host '  EventStore:  http://localhost:2113'
-Write-Host '  MinIO:       http://localhost:9000'
-Write-Host '  MinIO UI:    http://localhost:9001 (minioadmin / minioadmin)'
+Write-Host '  SeaweedFS S3:     http://localhost:9000'
+Write-Host '  SeaweedFS master: http://localhost:9333'

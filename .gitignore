@@ -55,6 +55,7 @@ dynamic-admin-dashboard-scaffold/*
 **/*.md
 !/CLAUDE.md
 !deployments/docker/DEV.md
+!deployments/docker/SEAWEEDFS_MIGRATION.md
 !deployments/kubernetes/**/README.md
 **/*.txt
 
@@ -72,6 +73,7 @@ deployments/docker/eventstore-data/
 **/postgres-data/
 **/redis-data/
 **/eventstore-data/
+deployments/docker/backups/
 
 # OS cruft
 **/.DS_Store

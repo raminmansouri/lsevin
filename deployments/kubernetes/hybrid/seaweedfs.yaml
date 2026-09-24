@@ -1,0 +1,122 @@
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: seaweedfs-s3-config}
+data:
+  s3-config.json: |
+    {
+      "identities": [
+        {
+          "name":"lsevin-api",
+          "credentials":[{"accessKey":"${SEAWEEDFS_S3_ACCESS_KEY}","secretKey":"${SEAWEEDFS_S3_SECRET_KEY}"}],
+          "actions":["Read:lsevin-media","List:lsevin-media","Tagging:lsevin-media","Write:lsevin-media"]
+        }
+      ]
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: seaweedfs}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector: {matchLabels: {app.kubernetes.io/name: seaweedfs}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: seaweedfs, app.kubernetes.io/part-of: lsevin}}
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: seaweedfs
+          image: chrislusf/seaweedfs:4.47
+          args: [server, -dir=/data, -ip=seaweedfs, -ip.bind=0.0.0.0, -filer, -s3, -s3.port=8333, -s3.config=/etc/seaweedfs/s3-config.json, -master.telemetry=false]
+          ports:
+            - {name: master, containerPort: 9333}
+            - {name: filer, containerPort: 8888}
+            - {name: s3, containerPort: 8333}
+          env:
+            - {name: SEAWEEDFS_S3_ACCESS_KEY, valueFrom: {secretKeyRef: {name: api-secrets, key: FileUploadOptions__S3__AccessKey}}}
+            - {name: SEAWEEDFS_S3_SECRET_KEY, valueFrom: {secretKeyRef: {name: api-secrets, key: FileUploadOptions__S3__SecretKey}}}
+          volumeMounts:
+            - {name: data, mountPath: /data}
+            - {name: config, mountPath: /etc/seaweedfs, readOnly: true}
+          readinessProbe: {httpGet: {path: /cluster/status, port: master}, initialDelaySeconds: 10, periodSeconds: 5}
+          resources: {requests: {cpu: 200m, memory: 256Mi}, limits: {cpu: "2", memory: 2Gi}}
+      volumes:
+        - {name: data, hostPath: {path: /var/lib/lsevin/seaweedfs, type: DirectoryOrCreate}}
+        - {name: config, configMap: {name: seaweedfs-s3-config}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: seaweedfs}
+spec:
+  selector: {app.kubernetes.io/name: seaweedfs}
+  ports:
+    - {name: master, port: 9333, targetPort: master}
+    - {name: filer, port: 8888, targetPort: filer}
+    - {name: s3, port: 8333, targetPort: s3}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: seaweedfs-edge}
+spec: {type: NodePort, selector: {app.kubernetes.io/name: seaweedfs}, ports: [{name: s3, port: 8333, targetPort: s3, nodePort: 30901}]}
+---
+apiVersion: batch/v1
+kind: Job
+metadata: {name: seaweedfs-init}
+spec:
+  backoffLimit: 3
+  template:
+    metadata: {labels: {app.kubernetes.io/name: seaweedfs-init, app.kubernetes.io/part-of: lsevin}}
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: init
+          image: chrislusf/seaweedfs:4.47
+          command: [/bin/sh, -c]
+          args:
+            - |
+              set -eu
+              until wget -q --spider http://seaweedfs:9333/cluster/status; do sleep 2; done
+              printf 's3.bucket.create -name=lsevin-media\n' | weed shell -master=seaweedfs:9333 -filer=seaweedfs:8888
+---
+# Manual, one-time migration job. Apply only after creating a filesystem backup
+# destination on the node. It leaves MinIO and its data untouched.
+apiVersion: batch/v1
+kind: Job
+metadata: {name: migrate-minio-to-seaweedfs}
+spec:
+  suspend: true
+  backoffLimit: 0
+  template:
+    metadata: {labels: {app.kubernetes.io/name: storage-migration, app.kubernetes.io/part-of: lsevin}}
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: rclone/rclone:1.71.2
+          command: [/bin/sh, -c]
+          args:
+            - |
+              set -eu
+              stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+              backup="/backup/$stamp"
+              mkdir -p "$backup/objects"
+              rclone sync minio:lsevin-media "$backup/objects" --checksum --metadata
+              rclone copy minio:lsevin-media seaweed:lsevin-media --checksum --metadata
+              rclone check minio:lsevin-media seaweed:lsevin-media --one-way --download
+              rclone size minio:lsevin-media --json > "$backup/source-size.json"
+              rclone size seaweed:lsevin-media --json > "$backup/destination-size.json"
+              sha256sum "$backup"/*-size.json > "$backup/MANIFEST.sha256"
+              echo "Verified backup and SeaweedFS copy: $backup"
+          env:
+            - {name: RCLONE_CONFIG_MINIO_TYPE, value: s3}
+            - {name: RCLONE_CONFIG_MINIO_PROVIDER, value: Minio}
+            - {name: RCLONE_CONFIG_MINIO_ENDPOINT, value: http://minio:9000}
+            - {name: RCLONE_CONFIG_MINIO_ACCESS_KEY_ID, valueFrom: {secretKeyRef: {name: data-secrets, key: MINIO_ROOT_USER}}}
+            - {name: RCLONE_CONFIG_MINIO_SECRET_ACCESS_KEY, valueFrom: {secretKeyRef: {name: data-secrets, key: MINIO_ROOT_PASSWORD}}}
+            - {name: RCLONE_CONFIG_SEAWEED_TYPE, value: s3}
+            - {name: RCLONE_CONFIG_SEAWEED_PROVIDER, value: Other}
+            - {name: RCLONE_CONFIG_SEAWEED_ENDPOINT, value: http://seaweedfs:8333}
+            - {name: RCLONE_CONFIG_SEAWEED_ACCESS_KEY_ID, valueFrom: {secretKeyRef: {name: api-secrets, key: FileUploadOptions__S3__AccessKey}}}
+            - {name: RCLONE_CONFIG_SEAWEED_SECRET_ACCESS_KEY, valueFrom: {secretKeyRef: {name: api-secrets, key: FileUploadOptions__S3__SecretKey}}}
+          volumeMounts: [{name: backup, mountPath: /backup}]
+      volumes: [{name: backup, hostPath: {path: /var/lib/lsevin/object-storage-backups, type: DirectoryOrCreate}}]

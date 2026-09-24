@@ -33,7 +33,7 @@ internal sealed class MinioStartupCheck(
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        if (_fileOptions.Backend != FileStorageBackend.Minio)
+        if (_fileOptions.Backend is not (FileStorageBackend.Minio or FileStorageBackend.SeaweedFS))
         {
             return;
         }
@@ -57,11 +57,11 @@ internal sealed class MinioStartupCheck(
         catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
         {
             throw new InvalidOperationException(
-                $"File storage backend is 'Minio' but the media bucket '{_options.Bucket}' at "
+                $"File storage backend is '{_fileOptions.Backend}' but the media bucket '{_options.Bucket}' at "
                     + $"'{_options.ServiceUrl}' could not be reached with the configured credentials. "
                     + "The API refuses to start rather than write uploads nowhere. Check "
                     + "FileUploadOptions:S3 (ServiceUrl/Bucket/AccessKey/SecretKey), that the bucket "
-                    + "exists, and that the minio-init service completed successfully.",
+                    + "exists, and that the storage initialization service completed successfully.",
                 ex
             );
         }

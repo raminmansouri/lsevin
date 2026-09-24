@@ -39,13 +39,13 @@ public static class FileStorageBackendGuard
         {
             throw new InvalidOperationException(
                 "FileUploadOptions:Backend is 'FileSystem' in Production. Uploads would be written to "
-                    + "the container filesystem and lost on the next rebuild. Set FILE_STORAGE_BACKEND=Minio "
+                    + "the container filesystem and lost on the next rebuild. Set FILE_STORAGE_BACKEND=SeaweedFS "
                     + "(and the FileUploadOptions:S3 credentials) before starting the API. See "
                     + "deployments/docker/MEDIA_STORAGE_MIGRATION.md."
             );
         }
 
-        if (options.Backend != FileStorageBackend.Minio)
+        if (options.Backend is not (FileStorageBackend.Minio or FileStorageBackend.SeaweedFS))
         {
             return;
         }
@@ -76,10 +76,9 @@ public static class FileStorageBackendGuard
         if (missing.Count > 0)
         {
             throw new InvalidOperationException(
-                "FileUploadOptions:Backend is 'Minio' but these FileUploadOptions:S3 settings are blank: "
+                $"FileUploadOptions:Backend is '{options.Backend}' but these FileUploadOptions:S3 settings are blank: "
                     + string.Join(", ", missing)
-                    + ". Fill them in (the minio-init service creates the scoped API account from "
-                    + "MINIO_API_ACCESS_KEY / MINIO_API_SECRET_KEY) before starting the API."
+                    + ". Configure the S3-compatible storage credentials before starting the API."
             );
         }
     }

@@ -8,8 +8,8 @@
 #                   auto_backups/schema_backup.sql on first boot, then dev seed
 #   - redis         cache / rate-limit store the API expects
 #   - eventstore    EventStoreDB the API connects to at startup
-#   - minio         S3-compatible object storage for uploaded media
-#   - minio-init    one-shot bucket / policy / service-account provisioning
+#   - seaweedfs     S3-compatible object storage for uploaded media
+#   - minio-legacy  rollback-only source used while migrating old local objects
 #
 # It deliberately does NOT build or run the `lsevin-api` or `lsevin-webapp`
 # containers — run those with `dotnet run` / `pnpm dev` for a fast feedback loop
@@ -100,58 +100,71 @@ services:
     networks:
       - lsevin-dev
 
-  minio:
-    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.47
     restart: unless-stopped
-    command: server /data --console-address ":9001"
+    command:
+      - server
+      - -dir=/data
+      - -ip=seaweedfs
+      - -ip.bind=0.0.0.0
+      - -filer
+      - -s3
+      - -s3.port=8333
+      - -s3.config=/etc/seaweedfs/s3-config.json
+      - -master.telemetry=false
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      SEAWEEDFS_S3_ACCESS_KEY: ${SEAWEEDFS_S3_ACCESS_KEY:-lsevin-dev-media}
+      SEAWEEDFS_S3_SECRET_KEY: ${SEAWEEDFS_S3_SECRET_KEY:-lsevin-dev-media-secret}
     volumes:
-      - lsevin_dev_minio:/data
+      - lsevin_dev_seaweedfs:/data
+      - ./seaweedfs/s3-config.json:/etc/seaweedfs/s3-config.json:ro
     ports:
-      - "127.0.0.1:${MINIO_API_HOST_PORT:-9000}:9000"
-      - "127.0.0.1:${MINIO_CONSOLE_HOST_PORT:-9001}:9001"
+      - "127.0.0.1:${SEAWEEDFS_S3_HOST_PORT:-9000}:8333"
+      - "127.0.0.1:${SEAWEEDFS_MASTER_HOST_PORT:-9333}:9333"
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
-      interval: 15s
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9333/cluster/status"]
+      interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 10s
+      retries: 20
     networks:
       - lsevin-dev
 
-  minio-init:
-    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+  seaweedfs-init:
+    image: chrislusf/seaweedfs:4.47
     restart: "no"
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
         set -eu
-        mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"
-        mc ready local
-        mc mb --ignore-existing "local/$$MINIO_BUCKET"
-        printf '%s' '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["s3:GetObject"],"Resource":["arn:aws:s3:::'"$$MINIO_BUCKET"'/*"]}]}' > /tmp/anon.json
-        mc anonymous set-json /tmp/anon.json "local/$$MINIO_BUCKET"
-        if ! mc admin user svcacct info local "$$MINIO_API_ACCESS_KEY" >/dev/null 2>&1; then
-          mc admin user svcacct add local "$$MINIO_ROOT_USER" --access-key "$$MINIO_API_ACCESS_KEY" --secret-key "$$MINIO_API_SECRET_KEY"
-        fi
-        echo "minio-init(dev): bucket $$MINIO_BUCKET ready, anonymous read enabled"
+        printf 's3.bucket.create -name=%s\n' "$$SEAWEEDFS_BUCKET" \
+          | weed shell -master=seaweedfs:9333 -filer=seaweedfs:8888
     environment:
-      MINIO_BUCKET: ${MINIO_BUCKET:-lsevin-media}
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
-      MINIO_API_ACCESS_KEY: ${MINIO_API_ACCESS_KEY:-lsevin-dev-media}
-      MINIO_API_SECRET_KEY: ${MINIO_API_SECRET_KEY:-lsevin-dev-media-secret}
+      SEAWEEDFS_BUCKET: ${SEAWEEDFS_BUCKET:-lsevin-media}
     networks:
       - lsevin-dev
     depends_on:
-      minio:
+      seaweedfs:
         condition: service_healthy
+
+  # Retained only for a reversible migration from the previous local volume.
+  minio-legacy:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    profiles: [legacy-storage]
+    restart: "no"
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    volumes:
+      - lsevin_dev_minio:/data
+    networks:
+      - lsevin-dev
 
 volumes:
   lsevin_dev_pg:
   lsevin_dev_minio:
+  lsevin_dev_seaweedfs:
 
 networks:
   lsevin-dev:

@@ -10,6 +10,9 @@ public enum FileStorageBackend
 
     /// <summary>An S3-compatible object store (MinIO in this deployment).</summary>
     Minio,
+
+    /// <summary>An S3-compatible SeaweedFS gateway.</summary>
+    SeaweedFS,
 }
 
 /// <summary>
