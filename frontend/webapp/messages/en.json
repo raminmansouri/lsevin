@@ -2942,6 +2942,43 @@
     "slidesPerPlacement": "Slides are shown only on the placement selected here.",
     "renderedOn": "Rendered on"
   },
+  "HomeHero": {
+    "title": "Your medical journey to Iran, arranged in one place",
+    "subtitle": "Compare clinics, book your stay, and find gyms and care centers nearby.",
+    "searchPlaceholder": "Search clinics, hotels, gyms",
+    "services": {
+      "surgery": "Surgery",
+      "beauty": "Beauty",
+      "hotels": "Hotels",
+      "gyms": "Gyms"
+    }
+  },
+  "Footer": {
+    "tagline": "Medical, beauty, stay and fitness services for visitors to Iran.",
+    "cta": "Find places near you",
+    "enamadAlt": "Enamad electronic trust seal",
+    "copyright": "© {year} Lsevin. All rights reserved.",
+    "columns": {
+      "explore": {
+        "title": "Explore",
+        "links": {
+          "categories": "Categories",
+          "map": "Map",
+          "packages": "Packages",
+          "providers": "Providers"
+        }
+      },
+      "company": {
+        "title": "Company",
+        "links": {
+          "about": "About us",
+          "contact": "Contact",
+          "terms": "Terms of service",
+          "privacy": "Privacy policy"
+        }
+      }
+    }
+  },
   "Home": {
     "common": {
       "noDescription": "No description available.",
