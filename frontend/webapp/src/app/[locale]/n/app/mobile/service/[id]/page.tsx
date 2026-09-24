@@ -34,28 +34,94 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Pick<ServicePageRouteProps, 'params'>) {
-  const { locale, id } = await params;
-  const data = await getServicePageByIdCached({ serviceId: id, locale }).catch(() => null);
-  const service = data?.service;
+    const { locale, id } = await params;
 
-  if (!service) {
-    return { title: 'Service', alternates: alternatesFor(locale, `/n/app/mobile/service/${id}`) };
-  }
+    const data = await getServicePageByIdCached({
+        serviceId: id,
+        locale,
+    }).catch(() => null);
 
-  const title = service.clinic ? `${service.name} — ${service.clinic}` : service.name;
-  const description = (service.subtitle || service.definitionDescription || service.providerDescription || '').slice(0, 300);
+    const service = data?.service;
 
-  return {
-    title,
-    description: description || undefined,
-    alternates: alternatesFor(locale, `/n/app/mobile/service/${id}`),
-    openGraph: {
-      title,
-      description: description || undefined,
-      type: 'website',
-      images: service.images?.[0] ? [{ url: service.images[0] }] : undefined,
-    },
-  };
+    if (!service) {
+        return {
+            title: "Service",
+            alternates: alternatesFor(locale, `/n/app/mobile/service/${id}`),
+        };
+    }
+
+    let title = service.clinic
+        ? `${service.name} | ${service.clinic} | LSevin`
+        : `${service.name} | Medical Service | LSevin`;
+
+    let description =
+        `Find information about ${service.name}. ` +
+        `View treatment details, providers, clinics and medical service information on LSevin.`;
+
+    switch (locale) {
+        case "fa":
+            title = service.clinic
+                ? `${service.name} | ${service.clinic} | LSevin`
+                : `${service.name} | خدمات پزشکی | LSevin`;
+
+            description =
+                `${service.name} در ${service.clinic || "LSevin"}. ` +
+                `اطلاعات خدمات، مراکز ارائه‌دهنده، جزئیات درمان و راه‌های ارتباطی را در LSevin مشاهده کنید.`;
+            break;
+
+        case "ar":
+            title = service.clinic
+                ? `${service.name} | ${service.clinic} | LSevin`
+                : `${service.name} | خدمة طبية | LSevin`;
+
+            description =
+                `تعرف على ${service.name}. ` +
+                `شاهد تفاصيل الخدمة الطبية، المراكز والأطباء ومعلومات التواصل عبر LSevin.`;
+            break;
+
+        case "tr":
+            title = service.clinic
+                ? `${service.name} | ${service.clinic} | LSevin`
+                : `${service.name} | Sağlık Hizmeti | LSevin`;
+
+            description =
+                `${service.name} hakkında bilgi alın. ` +
+                `Tedavi detayları, sağlık merkezleri ve hizmet bilgilerini LSevin üzerinden inceleyin.`;
+            break;
+
+        case "ru":
+            title = service.clinic
+                ? `${service.name} | ${service.clinic} | LSevin`
+                : `${service.name} | Медицинская услуга | LSevin`;
+
+            description =
+                `Узнайте больше о ${service.name}. ` +
+                `Просмотрите информацию об услуге, медицинских центрах и специалистах на LSevin.`;
+            break;
+
+        case "en":
+        default:
+            // English
+            break;
+    }
+    description = description.slice(0, 300);
+
+    return {
+        title,
+        description,
+        alternates: alternatesFor(
+            locale,
+            `/n/app/mobile/service/${id}`
+        ),
+        openGraph: {
+            title,
+            description,
+            type: "website",
+            images: service.images?.[0]
+                ? [{ url: service.images[0] }]
+                : undefined,
+        },
+    };
 }
 
 export default async function TreatmentDetailPage({ params }: ServicePageRouteProps) {

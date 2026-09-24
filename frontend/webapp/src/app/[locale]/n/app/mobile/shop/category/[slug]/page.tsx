@@ -29,31 +29,85 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string; slug: string }>;
+                                           params,
+                                       }: {
+    params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { locale, slug } = await params;
-  const [categories, t] = await Promise.all([
-    getShopCategoriesCached(locale).catch(() => []),
-    getTranslations({ locale, namespace: "Shop" }),
-  ]);
-  const category = categories.find((c) => c.slug === slug);
+    const { locale, slug } = await params;
 
-  if (!category) {
-    return { title: "Category", alternates: alternatesFor(locale, `/n/app/mobile/shop/category/${slug}`) };
-  }
+    const categories = await getShopCategoriesCached(locale).catch(() => []);
+    const category = categories.find((c) => c.slug === slug);
 
-  return {
-    title: category.name,
-    description: t("categoryMetaDescription", { count: category.productCount, name: category.name }),
-    alternates: alternatesFor(locale, `/n/app/mobile/shop/category/${slug}`),
-    openGraph: {
-      title: category.name,
-      type: "website",
-      images: category.imageUrl ? [{ url: category.imageUrl }] : undefined,
-    },
-  };
+    if (!category) {
+        return {
+            title: "Category",
+            alternates: alternatesFor(
+                locale,
+                `/n/app/mobile/shop/category/${slug}`
+            ),
+        };
+    }
+
+    // English default
+    let title = `${category.name} | LSevin`;
+
+    let description =
+        `Browse ${category.name} products on LSevin. ` +
+        `Find quality products, compare options and shop online.`;
+
+    switch (locale) {
+        case "fa":
+            title = `${category.name} | خرید آنلاین | LSevin`;
+            description =
+                `${category.name} را در LSevin مشاهده کنید. ` +
+                `محصولات، جزئیات، مقایسه و خرید آنلاین را بررسی کنید.`;
+            break;
+
+        case "ar":
+            title = `${category.name} | تسوق عبر الإنترنت | LSevin`;
+            description =
+                `اكتشف منتجات ${category.name} على LSevin. ` +
+                `قارن المنتجات واستعرض التفاصيل وتسوق بسهولة.`;
+            break;
+
+        case "tr":
+            title = `${category.name} | Online Alışveriş | LSevin`;
+            description =
+                `${category.name} ürünlerini LSevin üzerinden keşfedin. ` +
+                `Ürünleri karşılaştırın, detayları inceleyin ve kolayca alışveriş yapın.`;
+            break;
+
+        case "ru":
+            title = `${category.name} | Онлайн-покупки | LSevin`;
+            description =
+                `Изучите товары категории ${category.name} на LSevin. ` +
+                `Сравнивайте товары, смотрите детали и совершайте покупки онлайн.`;
+            break;
+
+        case "en":
+        default:
+            // English fallback is already set above
+            break;
+    }
+
+    description = description.slice(0, 300);
+
+    return {
+        title,
+        description,
+        alternates: alternatesFor(
+            locale,
+            `/n/app/mobile/shop/category/${slug}`
+        ),
+        openGraph: {
+            title,
+            description,
+            type: "website",
+            images: category.imageUrl
+                ? [{ url: category.imageUrl }]
+                : undefined,
+        },
+    };
 }
 
 export default async function ShopCategoryPage({

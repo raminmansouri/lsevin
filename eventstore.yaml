@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"eventstore","namespace":"lsevin-dev"},"spec":{"replicas":1,"selector":{"matchLabels":{"app.kubernetes.io/name":"eventstore"}},"template":{"metadata":{"labels":{"app.kubernetes.io/name":"eventstore"}},"spec":{"containers":[{"env":[{"name":"EVENTSTORE_CLUSTER_SIZE","value":"1"},{"name":"EVENTSTORE_RUN_PROJECTIONS","value":"All"},{"name":"EVENTSTORE_START_STANDARD_PROJECTIONS","value":"true"},{"name":"EVENTSTORE_INSECURE","value":"true"},{"name":"EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP","value":"true"},{"name":"EVENTSTORE_MEM_DB","value":"true"}],"image":"eventstore/eventstore:24.10.0-bookworm-slim","name":"eventstore","ports":[{"containerPort":2113,"name":"http"}],"readinessProbe":{"httpGet":{"path":"/health/live","port":"http"},"initialDelaySeconds":10,"periodSeconds":5},"resources":{"limits":{"cpu":"1","memory":"512Mi"},"requests":{"cpu":"50m","memory":"128Mi"}}}]}}}}
+  creationTimestamp: "2026-09-23T12:42:16Z"
+  generation: 1
+  name: eventstore
+  namespace: lsevin-dev
+  resourceVersion: "1670"
+  uid: e585e500-540d-4597-bb89-870063e650c3
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: eventstore
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: eventstore
+    spec:
+      containers:
+      - env:
+        - name: EVENTSTORE_CLUSTER_SIZE
+          value: "1"
+        - name: EVENTSTORE_RUN_PROJECTIONS
+          value: All
+        - name: EVENTSTORE_START_STANDARD_PROJECTIONS
+          value: "true"
+        - name: EVENTSTORE_INSECURE
+          value: "true"
+        - name: EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP
+          value: "true"
+        - name: EVENTSTORE_MEM_DB
+          value: "true"
+        image: eventstore/eventstore:24.10.0-bookworm-slim
+        imagePullPolicy: IfNotPresent
+        name: eventstore
+        ports:
+        - containerPort: 2113
+          name: http
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health/live
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: "1"
+            memory: 512Mi
+          requests:
+            cpu: 50m
+            memory: 128Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+  conditions:
+  - lastTransitionTime: "2026-09-23T12:42:18Z"
+    lastUpdateTime: "2026-09-23T12:42:18Z"
+    message: Deployment does not have minimum availability.
+    reason: MinimumReplicasUnavailable
+    status: "False"
+    type: Available
+  - lastTransitionTime: "2026-09-23T12:52:19Z"
+    lastUpdateTime: "2026-09-23T12:52:19Z"
+    message: ReplicaSet "eventstore-778db8c9fc" has timed out progressing.
+    reason: ProgressDeadlineExceeded
+    status: "False"
+    type: Progressing
+  observedGeneration: 1
+  replicas: 1
+  terminatingReplicas: 0
+  unavailableReplicas: 1
+  updatedReplicas: 1
