@@ -18,7 +18,7 @@ def pipelines = [
   ],
   [
     job: 'lsevin-providers-production',
-    file: '/opt/lsevin-providers/Jenkinsfile',
+    file: '/opt/lsevin/app/deployments/jenkins/repository-templates/lsevin-portal/Jenkinsfile.kubernetes',
     url: 'https://github.com/Mohammadjafariyan/lsevin-portal.git',
     credentials: 'github-lsevin',
     branch: '*/main'
@@ -37,7 +37,10 @@ pipelines.each { item ->
     throw new IllegalStateException("Refusing to install non-Kubernetes pipeline for ${item.job}")
   }
 
-  job.setDefinition(new CpsFlowDefinition(pipeline, false))
+  // Sandbox the generated pipeline. Passing false registers the entire script
+  // for administrator approval; every content change then blocks builds with
+  // UnapprovedUsageException before the first stage can run.
+  job.setDefinition(new CpsFlowDefinition(pipeline, true))
   job.save()
   println("Installed Kubernetes pipeline: ${item.job}")
 }

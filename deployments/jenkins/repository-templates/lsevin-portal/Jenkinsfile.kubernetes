@@ -1,0 +1,54 @@
+// Kubernetes production pipeline for https://github.com/Mohammadjafariyan/lsevin-portal.
+pipeline {
+  agent { node { label 'built-in'; customWorkspace '/opt/lsevin-providers' } }
+  options { skipDefaultCheckout(true); disableConcurrentBuilds(); timestamps(); timeout(time: 60, unit: 'MINUTES') }
+  environment {
+    NAMESPACE = 'lsevin'
+    DEPLOY = '/opt/lsevin/app/deployments/jenkins/k3s-deploy.sh'
+  }
+  stages {
+    stage('Checkout') { steps { deleteDir(); checkout scm } }
+    stage('Prepare') {
+      steps {
+        script {
+          env.IMAGE_TAG = sh(script: 'git rev-parse --short=12 HEAD', returnStdout: true).trim()
+          currentBuild.displayName = "#${BUILD_NUMBER} ${env.IMAGE_TAG}"
+        }
+        sh 'chmod +x "$DEPLOY"; "$DEPLOY" kubectl get node'
+      }
+    }
+    stage('Build') {
+      steps {
+        sh '''set -eu
+          DOCKER_BUILDKIT=1 docker build --target production \
+            --build-arg NEXT_PUBLIC_APP_URL=https://providers.lsevin.com \
+            --build-arg NEXT_PUBLIC_DEFAULT_LOCALE=fa-IR \
+            --build-arg NEXT_PUBLIC_DEFAULT_TIMEZONE=Asia/Tehran \
+            --build-arg NEXT_PUBLIC_LOCALE_COOKIE_DOMAIN=.lsevin.com \
+            -t "lsevin-portal:$IMAGE_TAG" .
+          docker build -f deployment/database/Dockerfile -t "lsevin-portal-db:$IMAGE_TAG" .
+          "$DEPLOY" import "providers-$IMAGE_TAG.tar" \
+            "lsevin-portal:$IMAGE_TAG" "lsevin-portal-db:$IMAGE_TAG"
+        '''
+      }
+    }
+    stage('Deploy') {
+      steps {
+        sh '''set -eu
+          "$DEPLOY" kubectl -n "$NAMESPACE" set image deployment/lsevin-portal \
+            web="lsevin-portal:$IMAGE_TAG" migrate="lsevin-portal-db:$IMAGE_TAG"
+          "$DEPLOY" kubectl -n "$NAMESPACE" rollout status deployment/lsevin-portal --timeout=10m
+        '''
+      }
+    }
+    stage('Verify') {
+      steps {
+        sh 'curl --fail --silent --show-error --location --connect-timeout 5 --max-time 20 https://providers.lsevin.com/api/health >/dev/null'
+        sh 'curl --fail --silent --show-error --location --connect-timeout 5 --max-time 20 https://providers.lsevin.com/api/ready >/dev/null'
+      }
+    }
+  }
+  post {
+    failure { sh '"$DEPLOY" kubectl -n "$NAMESPACE" rollout undo deployment/lsevin-portal || true' }
+  }
+}
