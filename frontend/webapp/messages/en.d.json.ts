@@ -5157,6 +5157,7 @@ declare const messages: {
       "identityUsers": "Users",
       "patients": "Patients",
       "patientsOperations": "Patient operations",
+      "patientsLinkRequests": "Family link requests",
       "pickedLocations": "Locations",
       "marketing": "Marketing",
       "loyaltyOverview": "Loyalty overview",
@@ -8126,6 +8127,39 @@ declare const messages: {
         "caregiver": "Caregiver",
         "authorized_person": "Authorized person",
         "other": "Other"
+      },
+      "linkRequest": {
+        "title": "Add a family member",
+        "subtitle": "Request access to a family member's health record.",
+        "request": "Request access",
+        "cancel": "Cancel",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "relationship": "Relationship",
+        "identifierType": "ID type",
+        "identifierValue": "ID number",
+        "birthDate": "Date of birth (optional)",
+        "reviewNotice": "Your request will be reviewed before access is granted.",
+        "submit": "Submit request",
+        "submitted": "Request submitted",
+        "errorGeneric": "Something went wrong. Please try again.",
+        "statuses": {
+          "pending": "Under review",
+          "approved": "Approved",
+          "rejected": "Not approved"
+        },
+        "identifierTypes": {
+          "ir_national_id": "Iranian national ID",
+          "national_id": "National ID",
+          "passport": "Passport",
+          "foreigner_id": "Foreigner ID",
+          "residence_permit": "Residence permit",
+          "insurance_id": "Insurance ID",
+          "hospital_mrn": "Hospital record number",
+          "lsevin_patient_number": "LSevin patient number",
+          "temporary_id": "Temporary ID",
+          "other": "Other"
+        }
       }
     },
     "myCases": {
@@ -16479,6 +16513,23 @@ declare const messages: {
           "saving": "Saving…",
           "added": "Rule added",
           "deactivated": "Rule deactivated"
+        }
+      },
+      "linkRequests": {
+        "title": "Family link requests",
+        "description": "Customer-submitted requests to link a family member's record to their account.",
+        "pending": "Pending requests",
+        "empty": "No pending requests.",
+        "matched": "Matched patient",
+        "noMatch": "No automatic match — resolve manually on the patient record",
+        "approve": "Approve",
+        "reject": "Reject",
+        "approved": "Request approved",
+        "rejected": "Request rejected",
+        "accessRoles": {
+          "full": "Full",
+          "limited": "Limited",
+          "view_only": "View only"
         }
       }
     },

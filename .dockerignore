@@ -25,6 +25,7 @@ deployments/*
 deployments/docker/*
 !deployments/docker/dev-seed/
 deployments/docker/dev-seed/*
+!deployments/docker/dev-seed/05_ef_migration_baseline.sql
 !deployments/docker/dev-seed/10_dev_seed.sql
 **/.DS_Store
 **/*.user

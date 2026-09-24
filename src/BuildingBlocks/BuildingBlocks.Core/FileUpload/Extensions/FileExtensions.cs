@@ -66,6 +66,13 @@ public static class FileExtensions
             {
                 config.ServiceURL = s3.ServiceUrl;
             }
+            else
+            {
+                // The client is resolved by the startup check even when filesystem
+                // storage is selected. Give the otherwise-unused client a valid AWS
+                // endpoint so local development does not require MinIO configuration.
+                config.RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName(s3.Region);
+            }
 
             return new AmazonS3Client(new BasicAWSCredentials(s3.AccessKey, s3.SecretKey), config);
         });

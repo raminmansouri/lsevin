@@ -12,6 +12,7 @@
 **/obj/
 
 **/UploadFiles/*
+**/UploadFiles.Local/*
 
 
 **/bin/*

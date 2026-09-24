@@ -51,6 +51,15 @@ ConnectionStrings__eventstore="esdb://localhost:2113?tls=false" \
 dotnet watch
 ```
 
+The Development launch profiles explicitly use the local filesystem for uploads.
+If your shell previously exported MinIO settings, clear them before starting the
+API without a launch profile:
+
+```bash
+unset FileUploadOptions__Backend FileUploadOptions__S3__ServiceUrl \
+  FileUploadOptions__S3__AccessKey FileUploadOptions__S3__SecretKey
+```
+
 The webapp's sign-in is a credentials provider that calls this API, so guest
 shopping works without it but anything authenticated (order history, admin) needs
 it up.
@@ -62,6 +71,18 @@ cd frontend/webapp
 pnpm install      # first time
 pnpm dev          # http://localhost:3000
 ```
+
+Apply pending webapp migrations before starting an existing development database:
+
+```bash
+cd frontend/webapp
+pnpm migrate
+```
+
+Migration `0061_notify_delivery_compatibility.sql` repairs older development
+volumes that do not contain `notify.notification_deliveries`. If all local data
+is disposable, `docker compose down -v` followed by the startup command in step
+1 recreates the database from the current schema snapshot instead.
 
 Copy `frontend/webapp/.env.local.example` to `.env.local` if the local file does
 not exist. It points at the dev infrastructure and API port `5003`.

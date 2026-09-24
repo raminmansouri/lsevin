@@ -8,7 +8,12 @@
         "hotReloadProfile": "aspnetcore",
         "applicationUrl": "https://localhost:5002;http://localhost:5003",
         "environmentVariables": {
-          "ASPNETCORE_ENVIRONMENT": "Development"
+          "ASPNETCORE_ENVIRONMENT": "Development",
+          "ConnectionStrings__database": "Host=localhost;Port=5432;Database=lsevin;Username=lsevin;Password=lsevin;Include Error Detail=true",
+          "ConnectionStrings__cache": "localhost:6379",
+          "ConnectionStrings__eventstore": "esdb://localhost:2113?tls=false",
+          "FileUploadOptions__Backend": "FileSystem",
+          "FileUploadOptions__UploadDirectory": "UploadFiles.Local"
         }
       },
       "Http": {
@@ -18,7 +23,12 @@
         "hotReloadProfile": "aspnetcore",
         "applicationUrl": "http://localhost:5003",
         "environmentVariables": {
-          "ASPNETCORE_ENVIRONMENT": "Development"
+          "ASPNETCORE_ENVIRONMENT": "Development",
+          "ConnectionStrings__database": "Host=localhost;Port=5432;Database=lsevin;Username=lsevin;Password=lsevin;Include Error Detail=true",
+          "ConnectionStrings__cache": "localhost:6379",
+          "ConnectionStrings__eventstore": "esdb://localhost:2113?tls=false",
+          "FileUploadOptions__Backend": "FileSystem",
+          "FileUploadOptions__UploadDirectory": "UploadFiles.Local"
         }
       }
     }
