@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+DOWNLOAD_USER="${1:-${LSEVIN_BACKUP_DOWNLOAD_USER:-agent}}"
+TARGETS=(/opt/lsevin/backups /var/backups/lsevin)
+
+[[ "${EUID}" -eq 0 ]] || { echo 'Run as root / با کاربر root اجرا کنید.' >&2; exit 1; }
+id "${DOWNLOAD_USER}" >/dev/null 2>&1 \
+  || { echo "Unknown user / کاربر ناشناخته: ${DOWNLOAD_USER}" >&2; exit 1; }
+command -v setfacl >/dev/null 2>&1 \
+  || { echo 'setfacl is required / ابزار setfacl لازم است.' >&2; exit 1; }
+
+for target in "${TARGETS[@]}"; do
+  [[ -d "${target}" ]] || continue
+  resolved="$(realpath "${target}")"
+  case "${resolved}" in
+    /opt/lsevin/backups|/var/backups/lsevin) ;;
+    *) echo "Unsafe backup path / مسیر پشتیبان ناامن: ${resolved}" >&2; exit 1 ;;
+  esac
+  setfacl -R -m "u:${DOWNLOAD_USER}:rX" "${resolved}"
+  find "${resolved}" -type d -exec setfacl -m "d:u:${DOWNLOAD_USER}:rX" {} +
+done
+
+echo "Read-only backup access granted / دسترسی فقط‌خواندنی پشتیبان اعطا شد: ${DOWNLOAD_USER}"

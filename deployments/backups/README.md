@@ -34,3 +34,9 @@ py deployments\backups\download_backups_gui.py
 The SSH account must have read permission for the selected directory. Use
 `/opt/lsevin/backups` for PostgreSQL backups and `/var/backups/lsevin` for
 configuration, Jenkins, uploads, and object-storage snapshots.
+
+Grant the downloader account read-only access (including future backup files):
+
+```bash
+sudo deployments/backups/grant-backup-download-access agent
+```
