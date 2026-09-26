@@ -1,6 +1,5 @@
-import { Award, ChevronRight, Gift, Map, Sparkles, Star, TrendingUp } from 'lucide-react';
+import { Award, ChevronRight, Gift, Map, Search, Sparkles, Star, TrendingUp } from 'lucide-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import type { Metadata } from "next";
 
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import { Skeleton } from '../../design-system/components';
@@ -26,10 +25,8 @@ import {
   type HomeManagedSection,
 } from '@/features/home/api/server/get-home-sections';
 import { getHomeManagedSectionsCached } from '@/features/home/api/server/get-home-managed-sections-cached';
-import { HomeHero } from './components/home-hero';
 import { HomeLexicalDescription } from '@/features/home/components/home-lexical-description';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
-import { SiteFooter } from './components/site-footer';
 import { SponsoredMediaCarouselSection } from '@/features/home/components/sponsored-media-carousel-section';
 import { countActiveSpecialPackages } from '@/features/special-packages/server/repository';
 
@@ -84,11 +81,6 @@ function normalizeLocale(locale?: string | null) {
   if (value.toLowerCase() === 'tr') return 'tr-TR';
   return value;
 }
-
-export const metadata: Metadata = {
-  title: 'Home',
-  description: 'Discover services, providers, and offers on LSevin.',
-};
 
 function metadataText(value: unknown, locale: string) {
   if (typeof value === 'string') return value;
@@ -332,158 +324,182 @@ async function Home({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Brand hero: one solid green surface. The greeting row and the location
-          picker are passed in as children so they sit at the top of that same
-          surface, directly under the app bar. The search field lives in the hero. */}
-      <HomeHero>
-        <UserInfoSubBar profile={profile} />
-        <LocationPicker locale={locale} />
-      </HomeHero>
+      {/* The canopy: greeting, destination and search live on one continuous pine
+          surface that runs up into the app bar, so the top of the app reads as a
+          single control area instead of two stacked website bars. The search field
+          straddles the canopy's lower edge — it is the seam between the app chrome
+          and the feed, and the first thing the eye lands on. */}
+      <div className="bg-gray-50">
+        <div className="rounded-b-[2rem] bg-gradient-to-b from-[#052a20] via-[#083f30] to-[#0f6b56] px-5 pb-12 pt-3">
+          <UserInfoSubBar profile={profile} />
 
-      {/* Content column: capped at 1200px so nothing stretches on desktop.
-          A <div>, not <main> — the app layout already provides the page landmark. */}
-      <div className="mx-auto w-full max-w-[1200px]">
-        <SponsoredMediaCarouselSection locale={locale} placement="home_top" />
-
-        <HomeHeroBanner offer={heroOffer} section={homeSections.hero_featured} labels={labels.hero} noDescription={labels.common.noDescription} />
-
-        <section className="px-5 pb-8 lg:px-8">
-          <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900">{labels.categories.title}</h2>
-            <Link
-              href="/n/app/mobile/categories"
-              className="flex items-center gap-1 text-sm font-semibold text-[#0C3B2E] hover:underline"
-            >
-              {labels.common.viewAll}
-              <ChevronRight size={16} />
-            </Link>
+          <div className="mt-4">
+            <LocationPicker locale={locale} />
           </div>
+        </div>
 
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
-            <ServiceProvidersCategoriesSuspenseBoundary
-              categories={categories}
-              locale={locale}
-              labels={{
-                emptyTitle: labels.categories.emptyTitle,
-                emptyDescription: labels.categories.emptyDescription,
-                providerCount: labels.categories.providerCount,
-                subcategoryCount: labels.categories.subcategoryCount,
-              }}
-            />
-          </div>
-        </section>
-
-        <section className="pb-8">
-          <div className="mb-5 flex items-center justify-between px-5 lg:px-8">
-            <div>
-              <h2 className="mb-1 text-xl font-bold text-gray-900">{labels.featured.title}</h2>
-              <p className="text-sm text-gray-600">{labels.featured.subtitle}</p>
-            </div>
-            <Link
-              href="/n/app/mobile/featured"
-              className="flex items-center gap-1 text-sm font-semibold text-[#0C3B2E] hover:underline"
-            >
-              {labels.common.seeAll}
-              <ChevronRight size={16} />
-            </Link>
-          </div>
-
-          <div className="hide-scrollbar flex gap-4 overflow-x-auto px-5 pb-2 lg:px-8">
-            <HomeFeaturedServicesSuspenseBoundary
-              services={featuredServices}
-              locale={locale}
-              selectedCountryCode={queryInput.countryCode}
-              labels={{
-                emptyTitle: labels.featured.emptyTitle,
-                emptyDescription: labels.featured.emptyDescription,
-                discountOff: labels.featured.discountOff,
-                availableDestination: labels.featured.availableDestination,
-                noDescription: labels.common.noDescription,
-              }}
-            />
-          </div>
-        </section>
-
-        <SponsoredMediaCarouselSection locale={locale} placement="home_native_ad" />
-
-        <section className="pb-8">
-          <div className="mb-5 px-5 lg:px-8">
-            <div className="mb-1 flex items-center gap-2">
-              <TrendingUp size={22} className="text-[#0C3B2E]" />
-              <h2 className="text-xl font-bold text-gray-900">{labels.trending.title}</h2>
-            </div>
-            <p className="text-sm text-gray-600">{labels.trending.subtitle}</p>
-          </div>
-
-          <div className="hide-scrollbar flex gap-3 overflow-x-auto px-5 pb-2 lg:px-8">
-            <HomeTrendingServicesSuspenseBoundary
-              services={trendingServices}
-              labels={{
-                emptyTitle: labels.trending.emptyTitle,
-                emptyDescription: labels.trending.emptyDescription,
-                bookings: labels.trending.bookings,
-              }}
-            />
-          </div>
-        </section>
-
-        <ExploreNearbySection
-          section={homeSections.explore_nearby}
-          nearbyProviderCount={nearbyProviderCount}
-          countryCode={queryInput.countryCode}
-          cityCode={queryInput.cityCode}
-          latitude={nearbyLat}
-          longitude={nearbyLng}
-          locale={locale}
-          labels={labels.exploreNearby}
-        />
-
-        <section className="pb-8">
-          <div className="mb-5 flex items-center justify-between px-5 lg:px-8">
-            <div>
-              <div className="mb-1 flex items-center gap-2">
-                <Award size={22} className="text-[#0C3B2E]" />
-                <h2 className="text-xl font-bold text-gray-900">{labels.trusted.title}</h2>
-              </div>
-              <p className="text-sm text-gray-600">{labels.trusted.subtitle}</p>
-            </div>
-            <Link
-              href={`/n/app/mobile/providers?${new URLSearchParams({
-                ...(queryInput.countryCode ? { countryCode: queryInput.countryCode } : {}),
-                ...(queryInput.cityCode ? { cityCode: queryInput.cityCode } : {}),
-              }).toString()}`}
-              className="flex flex-shrink-0 items-center gap-1 text-sm font-semibold text-[#0C3B2E] hover:underline"
-            >
-              {labels.common.seeAll}
-              <ChevronRight size={16} />
-            </Link>
-          </div>
-
-          <div className="hide-scrollbar flex gap-4 overflow-x-auto px-5 pb-2 lg:px-8">
-            <HomeTrustedProvidersSuspenseBoundary
-              providers={trustedProviders}
-              locale={locale}
-              labels={{
-                emptyTitle: labels.trusted.emptyTitle,
-                emptyDescription: labels.trusted.emptyDescription,
-                noDescription: labels.common.noDescription,
-              }}
-            />
-          </div>
-        </section>
-
-        <PremiumPackagesSection
-          section={homeSections.premium_packages}
-          labels={labels.premiumPackages}
-          activePackagesCount={specialPackagesCount}
-        />
-        <LoyaltyClubSection section={homeSections.loyalty_club} locale={locale} labels={labels.loyaltyClub} />
-
-        <SponsoredMediaCarouselSection locale={locale} placement="home_bottom" />
+        <div className="-mt-7 px-5 pb-5">
+          <Link
+            href="/n/app/mobile/search"
+            className="flex h-14 w-full items-center gap-3 rounded-2xl bg-white px-5 shadow-[0_10px_30px_rgba(8,63,48,0.16)] ring-1 ring-black/5 transition-shadow hover:shadow-[0_14px_36px_rgba(8,63,48,0.22)]"
+          >
+            <Search size={22} className="shrink-0 text-[#083f30]" />
+            <span className="truncate font-medium text-gray-500">{labels.search.placeholder}</span>
+          </Link>
+        </div>
       </div>
 
-      {/* Footer also carries the Enamad trust seal (moved out of this file). */}
-      <SiteFooter />
+      <SponsoredMediaCarouselSection locale={locale} placement="home_top" />
+
+      <HomeHeroBanner offer={heroOffer} section={homeSections.hero_featured} labels={labels.hero} noDescription={labels.common.noDescription} />
+
+      <section className="px-5 pb-8 lg:px-8">
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-900">{labels.categories.title}</h2>
+          <Link
+            href="/n/app/mobile/categories"
+            className="flex items-center gap-1 text-sm font-semibold text-[#083f30] hover:underline"
+          >
+            {labels.common.viewAll}
+            <ChevronRight size={16} />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+          <ServiceProvidersCategoriesSuspenseBoundary
+            categories={categories}
+            locale={locale}
+            labels={{
+              emptyTitle: labels.categories.emptyTitle,
+              emptyDescription: labels.categories.emptyDescription,
+              providerCount: labels.categories.providerCount,
+              subcategoryCount: labels.categories.subcategoryCount,
+            }}
+          />
+        </div>
+      </section>
+
+      <section className="pb-8">
+        <div className="mb-5 flex items-center justify-between px-5">
+          <div>
+            <h2 className="mb-1 text-xl font-bold text-gray-900">{labels.featured.title}</h2>
+            <p className="text-sm text-gray-600">{labels.featured.subtitle}</p>
+          </div>
+          <Link
+            href="/n/app/mobile/featured"
+            className="flex items-center gap-1 text-sm font-semibold text-[#083f30] hover:underline"
+          >
+            {labels.common.seeAll}
+            <ChevronRight size={16} />
+          </Link>
+        </div>
+
+        <div className="hide-scrollbar flex gap-4 overflow-x-auto px-5 pb-2">
+          <HomeFeaturedServicesSuspenseBoundary
+            services={featuredServices}
+            locale={locale}
+            selectedCountryCode={queryInput.countryCode}
+            labels={{
+              emptyTitle: labels.featured.emptyTitle,
+              emptyDescription: labels.featured.emptyDescription,
+              discountOff: labels.featured.discountOff,
+              availableDestination: labels.featured.availableDestination,
+              noDescription: labels.common.noDescription,
+            }}
+          />
+        </div>
+      </section>
+
+      <SponsoredMediaCarouselSection locale={locale} placement="home_native_ad" />
+
+      <section className="pb-8">
+        <div className="mb-5 px-5">
+          <div className="mb-1 flex items-center gap-2">
+            <TrendingUp size={22} className="text-orange-500" />
+            <h2 className="text-xl font-bold text-gray-900">{labels.trending.title}</h2>
+          </div>
+          <p className="text-sm text-gray-600">{labels.trending.subtitle}</p>
+        </div>
+
+        <div className="hide-scrollbar flex gap-3 overflow-x-auto px-5 pb-2">
+          <HomeTrendingServicesSuspenseBoundary
+            services={trendingServices}
+            labels={{
+              emptyTitle: labels.trending.emptyTitle,
+              emptyDescription: labels.trending.emptyDescription,
+              bookings: labels.trending.bookings,
+            }}
+          />
+        </div>
+      </section>
+
+      <ExploreNearbySection
+        section={homeSections.explore_nearby}
+        nearbyProviderCount={nearbyProviderCount}
+        countryCode={queryInput.countryCode}
+        cityCode={queryInput.cityCode}
+        latitude={nearbyLat}
+        longitude={nearbyLng}
+        locale={locale}
+        labels={labels.exploreNearby}
+      />
+
+      <section className="pb-8">
+        <div className="mb-5 flex items-center justify-between px-5">
+          <div>
+            <div className="mb-1 flex items-center gap-2">
+              <Award size={22} className="text-[#083f30]" />
+              <h2 className="text-xl font-bold text-gray-900">{labels.trusted.title}</h2>
+            </div>
+            <p className="text-sm text-gray-600">{labels.trusted.subtitle}</p>
+          </div>
+          <Link
+            href={`/n/app/mobile/providers?${new URLSearchParams({
+              ...(queryInput.countryCode ? { countryCode: queryInput.countryCode } : {}),
+              ...(queryInput.cityCode ? { cityCode: queryInput.cityCode } : {}),
+            }).toString()}`}
+            className="flex flex-shrink-0 items-center gap-1 text-sm font-semibold text-[#083f30] hover:underline"
+          >
+            {labels.common.seeAll}
+            <ChevronRight size={16} />
+          </Link>
+        </div>
+
+        <div className="hide-scrollbar flex gap-4 overflow-x-auto px-5 pb-2">
+          <HomeTrustedProvidersSuspenseBoundary
+            providers={trustedProviders}
+            locale={locale}
+            labels={{
+              emptyTitle: labels.trusted.emptyTitle,
+              emptyDescription: labels.trusted.emptyDescription,
+              noDescription: labels.common.noDescription,
+            }}
+          />
+        </div>
+      </section>
+
+      <PremiumPackagesSection
+        section={homeSections.premium_packages}
+        labels={labels.premiumPackages}
+        activePackagesCount={specialPackagesCount}
+      />
+      <LoyaltyClubSection section={homeSections.loyalty_club} locale={locale} labels={labels.loyaltyClub} />
+
+      <SponsoredMediaCarouselSection locale={locale} placement="home_bottom" />
+
+
+<div className="container" style={{  
+  display:'flex',
+  justifyContent:'center',
+  alignItems:'center',
+  marginBottom:'37px'}}>
+    
+      <a referrerPolicy='origin' target='_blank' 
+      href='https://trustseal.enamad.ir/?id=760932&Code=Q4tmSTcTQFTGWWFLYCxWTvO5hIsgD7Hr'>
+        <img referrerPolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=760932&Code=Q4tmSTcTQFTGWWFLYCxWTvO5hIsgD7Hr' 
+        alt='' style={{"cursor":"pointer"}} code='Q4tmSTcTQFTGWWFLYCxWTvO5hIsgD7Hr' />
+      </a>
+   </div>
     </div>
   );
 }
@@ -503,14 +519,14 @@ function HomeHeroBanner({
   const href = section.buttonHref || (offer?.serviceId ? `/n/app/mobile/service/${offer.serviceId}` : '/n/app/mobile/offers');
 
   return (
-    <section className="px-5 py-6 lg:px-8">
-      <div className="relative h-48 overflow-hidden rounded-3xl lg:h-64">
+    <section className="px-5 py-6">
+      <div className="relative h-48 overflow-hidden rounded-3xl shadow-lg">
         {mediaUrl ? (
           <ImageWithFallback
             fill
             src={mediaUrl}
             alt={section.title || offer?.title || labels.imageAlt}
-            sizes="(min-width: 1280px) 1200px, 100vw"
+            sizes="100vw"
             className="object-cover"
           />
         ) : (
@@ -520,13 +536,12 @@ function HomeHeroBanner({
             className="absolute inset-0 h-full w-full object-cover"
           />
         )}
-        {/* Flat scrim (no gradient) so the text stays readable over any photo. */}
-        <div className="absolute inset-0 bg-[#0C3B2E]/75" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#083f30]/95 via-[#083f30]/85 to-transparent" />
 
-        <div className="relative z-10 flex h-full flex-col justify-center px-6 lg:max-w-xl lg:px-12">
+        <div className="relative z-10 flex h-full flex-col justify-center px-6">
           <div className="mb-2 flex items-center gap-2">
-            <Sparkles size={18} className="text-white" />
-            <span className="text-xs font-semibold text-white/80">
+            <Sparkles size={18} className="text-[#eacb7f]" />
+            <span className="text-xs font-bold uppercase tracking-wide text-[#eacb7f]">
               {section.badge || (offer?.discountPercent ? labels.limitedTime : labels.featured)}
             </span>
           </div>
@@ -541,7 +556,7 @@ function HomeHeroBanner({
           <div>
             <Link
               href={href}
-              className="inline-flex rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#0C3B2E] transition-colors hover:bg-[#E8F1EC] active:scale-95"
+              className="inline-flex rounded-xl bg-[#eacb7f] px-6 py-3 text-sm font-bold text-[#083f30] shadow-lg transition-all hover:bg-[#e0b654] hover:shadow-xl active:scale-95"
             >
               {section.buttonLabel || labels.button}
             </Link>
@@ -585,13 +600,13 @@ function ExploreNearbySection({
       : baseHref;
 
   return (
-    <section className="px-5 pb-8 lg:px-8">
+    <section className="px-5 pb-8">
       <Link
         href={href}
-        className="relative block h-48 w-full overflow-hidden rounded-2xl transition-transform active:scale-[0.99] lg:h-56"
+        className="relative block h-48 w-full overflow-hidden rounded-2xl shadow-lg transition-all hover:shadow-xl active:scale-[0.98]"
       >
         {mediaUrl ? (
-          <ImageWithFallback fill src={mediaUrl} alt={section.title || labels.imageAlt} sizes="(min-width: 1280px) 1200px, 100vw" className="object-cover" />
+          <ImageWithFallback fill src={mediaUrl} alt={section.title || labels.imageAlt} sizes="100vw" className="object-cover" />
         ) : (
           <img
             src="/unsplash_images/photo-1524661135-423995f22d0b__w=1200&h=600&fit=crop.jpg"
@@ -638,23 +653,27 @@ function PremiumPackagesSection({
   }
 
   return (
-    <section className="px-5 pb-8 lg:px-8">
-      <div className="relative min-h-[210px] overflow-hidden rounded-2xl bg-[#0C3B2E] p-6 lg:p-10">
+    <section className="px-5 pb-8">
+      <div className="relative min-h-[210px] overflow-hidden rounded-2xl bg-gradient-to-br from-[#083f30] to-[#0a5a44] p-6 shadow-lg">
         {mediaUrl ? (
           <ImageWithFallback
             fill
             src={mediaUrl}
             alt={section.title || labels.imageAlt}
-            sizes="(min-width: 1280px) 1200px, 100vw"
+            sizes="100vw"
             className="object-cover"
           />
         ) : null}
-        {mediaUrl ? <div className="absolute inset-0 bg-[#0C3B2E]/85" /> : null}
+        {mediaUrl ? (
+          <div className="absolute inset-0 bg-gradient-to-br from-[#083f30]/90 via-[#083f30]/75 to-[#0a5a44]/45" />
+        ) : null}
+        <div className="absolute right-0 top-0 -mr-8 -mt-8 h-32 w-32 rounded-full bg-[#eacb7f]/10" />
+        <div className="absolute bottom-0 right-0 -mb-12 mr-6 h-24 w-24 rounded-full bg-[#eacb7f]/10" />
 
-        <div className="relative z-10 lg:max-w-xl">
-          <div className="mb-3 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10">
-              <Sparkles size={24} className="text-white" />
+        <div className="relative z-10">
+          <div className="mb-3 flex items-center gap-2">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#eacb7f]/20 backdrop-blur-sm">
+              <Sparkles size={24} className="text-[#eacb7f]" />
             </div>
             <div>
               <h3 className="text-lg font-bold text-white">{section.title || labels.title}</h3>
@@ -670,7 +689,7 @@ function PremiumPackagesSection({
 
           <Link
             href={section.buttonHref || '/n/app/mobile/packages'}
-            className="inline-flex rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#0C3B2E] transition-colors hover:bg-[#E8F1EC]"
+            className="inline-flex rounded-xl bg-[#eacb7f] px-6 py-3 text-sm font-bold text-[#083f30] shadow-lg transition-all hover:bg-[#e0b654]"
           >
             {section.buttonLabel || labels.button}
           </Link>
@@ -699,33 +718,36 @@ function LoyaltyClubSection({
   ];
 
   return (
-    <section className="px-5 pb-8 lg:px-8">
-      {/* Solid black card: the one high-contrast moment on the page. The managed
-          image (if any) now shows through a dark scrim instead of being covered. */}
-      <div className="relative overflow-hidden rounded-2xl bg-[#0A0A0A]">
+    <section className="px-5 pb-28">
+      <div className="relative overflow-hidden rounded-3xl shadow-xl">
+        {/* Optional managed image (shown on real server); brand gradient is the fallback */}
         {mediaUrl ? (
           <>
-            <ImageWithFallback fill src={mediaUrl} alt={section.title || labels.imageAlt} sizes="(min-width: 1280px) 1200px, 100vw" className="object-cover" />
-            <div className="absolute inset-0 bg-black/70" />
+            <ImageWithFallback fill src={mediaUrl} alt={section.title || labels.imageAlt} sizes="100vw" className="object-cover" />
+            <div className="absolute inset-0 bg-[#062a22]/60" />
           </>
         ) : null}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0a5a44] via-[#083f30] to-[#062a22]" />
+        {/* Soft gold glow for depth */}
+        <div className="pointer-events-none absolute -right-12 -top-14 h-44 w-44 rounded-full bg-[#eacb7f]/25 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-16 -left-10 h-44 w-44 rounded-full bg-[#e0b654]/15 blur-3xl" />
 
-        <div className="relative z-10 p-6 lg:p-10">
+        <div className="relative z-10 p-6">
           <div className="mb-3 flex items-center gap-3">
-            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/20">
-              <Gift size={24} className="text-white" />
+            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-[#eacb7f]/20 ring-1 ring-[#eacb7f]/40">
+              <Gift size={24} className="text-[#eacb7f]" />
             </div>
             <h3 className="text-xl font-bold text-white">{section.title || labels.title}</h3>
           </div>
 
           <HomeLexicalDescription
             content={section.description}
-            className="mb-5 text-sm leading-relaxed text-white/75 lg:max-w-xl [&_p]:text-white/75"
+            className="mb-5 text-sm leading-relaxed text-white/75 [&_p]:text-white/75"
             fallback={labels.description}
           />
 
           {/* Benefits — equal-width cards so labels never crowd or wrap awkwardly */}
-          <div className="mb-6 grid grid-cols-3 gap-2.5 lg:max-w-xl">
+          <div className="mb-6 grid grid-cols-3 gap-2.5">
             {(benefits.length ? benefits : fallbackBenefits).map((item, index) => {
               const benefit = item as Record<string, unknown>;
               const label = metadataText(benefit.label, locale) || formatLabel(labels.benefit, { index: index + 1 });
@@ -735,15 +757,15 @@ function LoyaltyClubSection({
               return (
                 <div
                   key={`${label}-${index}`}
-                  className="flex flex-col items-center gap-2 rounded-xl bg-white/10 px-2 py-3 text-center ring-1 ring-white/15"
+                  className="flex flex-col items-center gap-2 rounded-2xl bg-white/10 px-2 py-3 text-center ring-1 ring-white/15 backdrop-blur-sm"
                 >
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#eacb7f]/15">
                     {value ? (
-                      <span className="text-base font-extrabold text-white">{value}</span>
+                      <span className="text-base font-extrabold text-[#eacb7f]">{value}</span>
                     ) : icon === 'Star' ? (
-                      <Star size={18} className="text-white" />
+                      <Star size={18} className="text-[#eacb7f]" />
                     ) : (
-                      <Award size={18} className="text-white" />
+                      <Award size={18} className="text-[#eacb7f]" />
                     )}
                   </div>
                   <span className="text-[11px] font-semibold leading-tight text-white/90">{label}</span>
@@ -754,7 +776,7 @@ function LoyaltyClubSection({
 
           <Link
             href={section.buttonHref || '/n/app/mobile/profile/rewards'}
-            className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-white px-7 py-3 text-sm font-semibold text-[#0C3B2E] transition-colors hover:bg-[#E8F1EC] active:scale-[0.98] sm:w-auto"
+            className="flex w-full items-center justify-center gap-1.5 rounded-2xl bg-[#eacb7f] px-6 py-3.5 text-sm font-bold text-[#083f30] shadow-lg transition-all hover:bg-[#f0d18f] active:scale-[0.98]"
           >
             {section.buttonLabel || labels.button}
             <ChevronRight size={18} />
