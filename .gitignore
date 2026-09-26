@@ -78,6 +78,10 @@ deployments/docker/backups/
 # OS cruft
 **/.DS_Store
 
+# Python tooling artifacts
+**/__pycache__/
+**/*.py[cod]
+
 
 # Migrations are source code, not database dumps — the blanket *.sql rule above
 # would otherwise silently drop the entire accounting schema from every commit.
