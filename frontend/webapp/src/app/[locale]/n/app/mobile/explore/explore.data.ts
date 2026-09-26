@@ -1,4 +1,9 @@
 import sql from "@/config/database/db";
+
+import { getUserId } from "@/lib/auth/session";
+import { resolveFavoritesCustomerId } from "@/features/favorites/server/favorites.repository";
+
+
 import {
   unstable_cacheLife as cacheLife,
   unstable_cacheTag as cacheTag,
@@ -280,7 +285,16 @@ function normalizeNullableFilter(value: string): string | null {
 }
 
 async function resolveCurrentCustomerId(): Promise<string | null> {
-  return null;
+  let userId: string | null = null;
+  try {
+    userId = (await getUserId()) || null;
+  } catch {
+    userId = null;
+  }
+
+  if (!userId) return null;
+
+  return resolveFavoritesCustomerId(userId);
 }
 
 

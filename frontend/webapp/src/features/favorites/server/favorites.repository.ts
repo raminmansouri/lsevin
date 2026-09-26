@@ -4,7 +4,7 @@ import sql from '@/config/database/db';
 
 import type { FavoriteEntityType } from '../types';
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const FAVORITE_TYPES = new Set<FavoriteEntityType>(['provider', 'service', 'specialist']);
 
 export function isValidFavoriteEntityType(value: unknown): value is FavoriteEntityType {

@@ -2418,6 +2418,43 @@ declare const messages: {
     "internationalPriceMultiplierPlaceholder": "مثلاً ٣",
     "internationalPriceMultiplierHint": "السعر الدولي = السعر المحوّل × هذا المعامل. اتركه فارغًا لاستخدام القيمة الافتراضية."
   },
+  "HomeHero": {
+    "title": "رحلتك العلاجية إلى إيران، منظّمة في مكان واحد",
+    "subtitle": "قارن بين العيادات، واحجز إقامتك، واعثر على النوادي الرياضية ومراكز الرعاية القريبة.",
+    "searchPlaceholder": "ابحث عن عيادات وفنادق ونوادٍ رياضية",
+    "services": {
+      "surgery": "الجراحة",
+      "beauty": "التجميل",
+      "hotels": "الفنادق",
+      "gyms": "النوادي الرياضية"
+    }
+  },
+  "Footer": {
+    "tagline": "خدمات طبية وتجميلية وإقامة ولياقة بدنية لزوار إيران.",
+    "cta": "اعثر على أماكن قريبة منك",
+    "enamadAlt": "رمز الثقة الإلكتروني إينماد",
+    "copyright": "© {year} لسوين. جميع الحقوق محفوظة.",
+    "columns": {
+      "explore": {
+        "title": "استكشاف",
+        "links": {
+          "categories": "الفئات",
+          "map": "الخريطة",
+          "packages": "الباقات",
+          "providers": "مقدمو الخدمة"
+        }
+      },
+      "company": {
+        "title": "الشركة",
+        "links": {
+          "about": "من نحن",
+          "contact": "اتصل بنا",
+          "terms": "شروط الخدمة",
+          "privacy": "سياسة الخصوصية"
+        }
+      }
+    }
+  },
   "Home": {
     "common": {
       "noDescription": "لا يوجد وصف متاح.",

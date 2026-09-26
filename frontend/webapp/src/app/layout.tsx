@@ -41,6 +41,11 @@ const vazirmatn = localFont({
 // `metadata` export gives for free (Next renders it into every page's <head>,
 // no manual <head> JSX needed/possible this deep in the App Router).
 export const metadata: Metadata = {
+  title: {
+    default: "LSevin",
+    template: "%s | LSevin",
+  },
+  description: "LSevin",
   other: {
     enamad: "51635800",
   },

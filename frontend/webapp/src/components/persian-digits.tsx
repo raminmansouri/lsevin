@@ -42,6 +42,7 @@ const SKIP_TAGS = new Set([
   "PRE",
   "KBD",
   "SAMP",
+  "BUTTON",
 ]);
 
 function toPersian(text: string): string {

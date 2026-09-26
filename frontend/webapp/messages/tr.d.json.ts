@@ -2835,6 +2835,43 @@ declare const messages: {
     "loading": "Yükleniyor...",
     "loadMore": "Daha Fazla Yükle"
   },
+  "HomeHero": {
+    "title": "İran'a tıbbi yolculuğunuz, tek bir yerde",
+    "subtitle": "Klinikleri karşılaştırın, konaklamanızı ayırtın, yakındaki spor salonlarını ve bakım merkezlerini bulun.",
+    "searchPlaceholder": "Klinik, otel, spor salonu ara",
+    "services": {
+      "surgery": "Cerrahi",
+      "beauty": "Güzellik",
+      "hotels": "Oteller",
+      "gyms": "Spor salonları"
+    }
+  },
+  "Footer": {
+    "tagline": "İran'ı ziyaret edenler için tıbbi, güzellik, konaklama ve fitness hizmetleri.",
+    "cta": "Yakınınızdaki yerleri bulun",
+    "enamadAlt": "Enamad elektronik güven mührü",
+    "copyright": "© {year} Lsevin. Tüm hakları saklıdır.",
+    "columns": {
+      "explore": {
+        "title": "Keşfet",
+        "links": {
+          "categories": "Kategoriler",
+          "map": "Harita",
+          "packages": "Paketler",
+          "providers": "Hizmet sağlayıcılar"
+        }
+      },
+      "company": {
+        "title": "Şirket",
+        "links": {
+          "about": "Hakkımızda",
+          "contact": "İletişim",
+          "terms": "Kullanım koşulları",
+          "privacy": "Gizlilik politikası"
+        }
+      }
+    }
+  },
   "Home": {
     "location": {
       "currentDestination": "Hedef",

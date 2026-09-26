@@ -26,24 +26,16 @@ export async function generateMetadata(
   const t = await getTranslations({ locale, namespace: "LocaleLayout" });
 
   return {
-    // Without this every relative URL in an openGraph/twitter block resolves
-    // against localhost at build time and Next logs a warning per page. Pages
-    // that set `alternates` still supply their own absolute canonical.
     metadataBase: new URL(env.NEXT_PUBLIC_URL),
+
     title: {
-      // TEMPORARY: Enamad's title-based domain-verification check asks for
-      // "51635800" as the page title on appmain.lsevin.com. Only the
-      // `default` (used by pages with no title of their own, e.g. the
-      // homepage at n/app/mobile/home) is swapped -- `template` below still
-      // uses the real name, so pages that set their own title (shop,
-      // provider, etc.) are unaffected. Revert to `t("title")` once Enamad's
-      // "تایید عنوان" check has passed.
-      default: "51635800",
-      template: `${t("title")} | %s`,
+      default: t("title"),
+      template: `%s | ${t("title")}`,
     },
+
     description: {
       default: t("description"),
-      template: `${t("description")} | %s`,
+      template: `%s | ${t("description")}`,
     },
   };
 }

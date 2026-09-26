@@ -145,6 +145,7 @@
   --sidebar-ring: hsl(162 94% 24%);
 
   --spacing: 0.25rem;
+  --bottom-nav-h: 4.5rem;
 }
 
 .dark {
@@ -346,4 +347,12 @@ html[lang="fa"] * {
   @page {
     margin: 14mm;
   }
+}
+
+
+html {
+  scrollbar-width: none;
+}
+html::-webkit-scrollbar {
+  display: none;
 }

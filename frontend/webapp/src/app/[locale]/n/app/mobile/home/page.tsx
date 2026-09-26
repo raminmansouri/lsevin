@@ -494,9 +494,9 @@ async function Home({ params }: PageProps) {
   alignItems:'center',
   marginBottom:'37px'}}>
     
-      <a referrerpolicy='origin' target='_blank' 
+      <a referrerPolicy='origin' target='_blank' 
       href='https://trustseal.enamad.ir/?id=760932&Code=Q4tmSTcTQFTGWWFLYCxWTvO5hIsgD7Hr'>
-        <img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=760932&Code=Q4tmSTcTQFTGWWFLYCxWTvO5hIsgD7Hr' 
+        <img referrerPolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=760932&Code=Q4tmSTcTQFTGWWFLYCxWTvO5hIsgD7Hr' 
         alt='' style={{"cursor":"pointer"}} code='Q4tmSTcTQFTGWWFLYCxWTvO5hIsgD7Hr' />
       </a>
    </div>

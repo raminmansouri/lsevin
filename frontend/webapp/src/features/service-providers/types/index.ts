@@ -751,19 +751,21 @@ export interface SearchResultsCategory {
   label: string;
 }
 export interface SearchResultsItem {
-  specialties:string[],
-  id: number,
-  type: string,
+  specialties: string[],
+  id: string,
+  type: "service" | "provider" | "specialist",
   name: string,
   provider: string,
-  image: string
+  image: string,
   location: string,
   rating: number,
   reviews: number,
   price: number,
   originalPrice: number,
+  currency: string,
   verified: boolean,
-  tags: string[]
+  tags: string[],
+  href: string,
 }
 export interface SearchHistoryTrendingSearchVm {
   query: string;
