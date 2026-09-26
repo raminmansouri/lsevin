@@ -11,7 +11,7 @@ import type { ClinicalDocumentRow } from "../documents-types";
 import { PATIENTS_TRANSLATION_KEY, type PatientActionResult } from "../types";
 import { recordPatientAuditEvent } from "./audit";
 import { addClinicalDocument } from "./documents-repository";
-import { listRequirementsForCase, updateRequirementStatus } from "./cases-repository";
+import { getMedicalCase, listRequirementsForCase, updateRequirementStatus } from "./cases-repository";
 import { findActiveAccountPatientLink } from "./repository";
 
 const MY_CASES_PATH = "/n/app/mobile/profile/my-cases";
@@ -36,6 +36,9 @@ async function requireOwnedLink(patientId: string) {
 const UploadMyDocumentSchema = AddClinicalDocumentSchema.extend({
   medicalCaseId: z.uuid().optional(),
   requirementId: z.uuid().optional(),
+}).refine((values) => !values.requirementId || !!values.medicalCaseId, {
+  message: "medicalCaseId is required when requirementId is set",
+  path: ["medicalCaseId"],
 });
 export type UploadMyDocumentInput = z.input<typeof UploadMyDocumentSchema>;
 
@@ -53,7 +56,10 @@ export async function uploadMyDocumentAction(
   const owned = await requireOwnedLink(values.patientId);
   if (!owned) return { ok: false, error: t("errors.notFound") };
 
-  if (values.requirementId && values.medicalCaseId) {
+  if (values.requirementId) {
+    if (!values.medicalCaseId) return { ok: false, error: t("errors.notFound") };
+    const medicalCase = await getMedicalCase(values.medicalCaseId);
+    if (!medicalCase || medicalCase.patientId !== values.patientId) return { ok: false, error: t("errors.notFound") };
     const requirements = await listRequirementsForCase(values.medicalCaseId);
     if (!requirements.some((requirement) => requirement.id === values.requirementId)) {
       return { ok: false, error: t("errors.notFound") };

@@ -60,6 +60,7 @@ export type ReplaceClinicalDocumentInput = z.input<typeof ReplaceClinicalDocumen
 
 export const AddLabOrderSchema = z.object({
   patientId: z.uuid(),
+  medicalCaseId: z.uuid().optional(),
   requestedTests: z.array(z.string().trim().min(1).max(200)).min(1),
   orderStatus: z.enum(LAB_ORDER_STATUSES).optional(),
   externalLab: z.string().trim().max(200).optional(),

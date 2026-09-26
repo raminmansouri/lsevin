@@ -138,7 +138,12 @@ export function AddDocumentDialog({ patientId, open, onOpenChange }: DialogProps
   );
 }
 
-export function AddLabOrderDialog({ patientId, open, onOpenChange }: DialogProps) {
+export function AddLabOrderDialog({
+  patientId,
+  medicalCaseId,
+  open,
+  onOpenChange,
+}: DialogProps & { medicalCaseId?: string }) {
   const t = useTranslations(PATIENTS_TRANSLATION_KEY);
   const [isPending, startTransition] = useTransition();
   const [testsText, setTestsText] = useState("");
@@ -153,7 +158,7 @@ export function AddLabOrderDialog({ patientId, open, onOpenChange }: DialogProps
   const save = () => {
     if (requestedTests.length === 0) return;
     startTransition(async () => {
-      const result = await addLabOrderAction({ patientId, requestedTests, externalLab: externalLab.trim() || undefined });
+      const result = await addLabOrderAction({ patientId, medicalCaseId, requestedTests, externalLab: externalLab.trim() || undefined });
       if (result.ok) {
         toast.success(t("admin.overview.saved"));
         onOpenChange(false);

@@ -236,6 +236,7 @@ export async function archiveClinicalDocument(id: string): Promise<ClinicalDocum
 
 export async function addLabOrder(input: {
   patientId: string;
+  medicalCaseId?: string | null;
   requestedTests: string[];
   orderStatus?: string;
   externalLab?: string;
@@ -243,8 +244,8 @@ export async function addLabOrder(input: {
   createdBy?: string | null;
 }): Promise<LabOrderRow> {
   const rows = await db<any[]>`
-    insert into patient.lab_orders (patient_id, requested_tests, order_status, external_lab, notes, created_by)
-    values (${input.patientId}, ${input.requestedTests}, ${input.orderStatus ?? "ordered"}, ${input.externalLab ?? null}, ${input.notes ?? null}, ${input.createdBy ?? null})
+    insert into patient.lab_orders (patient_id, medical_case_id, requested_tests, order_status, external_lab, notes, created_by)
+    values (${input.patientId}, ${input.medicalCaseId ?? null}, ${input.requestedTests}, ${input.orderStatus ?? "ordered"}, ${input.externalLab ?? null}, ${input.notes ?? null}, ${input.createdBy ?? null})
     returning *
   `;
   return mapLabOrder(rows[0]);
@@ -253,6 +254,16 @@ export async function addLabOrder(input: {
 export async function listLabOrdersForPatient(patientId: string): Promise<LabOrderRow[]> {
   const rows = await db<any[]>`
     select * from patient.lab_orders where patient_id = ${patientId} and status != 'archived' order by create_date desc
+  `;
+  return rows.map(mapLabOrder);
+}
+
+/** Case-scoped lab orders -- this is the set a provider-portal grant can
+ * ever fulfil (fulfillLabOrder there matches strictly on medical_case_id),
+ * so this is what the case dashboard needs to show/manage. */
+export async function listLabOrdersForCase(medicalCaseId: string): Promise<LabOrderRow[]> {
+  const rows = await db<any[]>`
+    select * from patient.lab_orders where medical_case_id = ${medicalCaseId} and status != 'archived' order by create_date desc
   `;
   return rows.map(mapLabOrder);
 }

@@ -25,6 +25,7 @@ import type {
   MedicalCaseStatusHistoryRow,
   MedicalCaseTreatmentProposalRow,
 } from "../../cases-types";
+import type { LabOrderRow } from "../../documents-types";
 import type { CaseReadinessAlert } from "../../ai-types";
 import { isValidCaseTransition } from "../../cases-transitions";
 import {
@@ -44,6 +45,7 @@ import {
   AddSecondOpinionDialog,
   AddSubmissionDialog,
 } from "./case-dialogs";
+import { AddLabOrderDialog } from "./patient-documents-dialogs";
 
 function formatDate(value?: string | null) {
   if (!value) return "-";
@@ -69,6 +71,7 @@ export function CaseDashboard({
   statusHistory,
   encounters,
   requirements,
+  labOrders,
   readiness,
   submissions,
   proposals,
@@ -85,6 +88,7 @@ export function CaseDashboard({
   readinessAlerts: CaseReadinessAlert[];
   suggestedRecords: { conditions: { id: string; displayName: string }[]; documents: { id: string; title: string }[] };
   requirements: MedicalCaseRequirementRow[];
+  labOrders: LabOrderRow[];
   readiness: CaseReadiness;
   submissions: MedicalCaseProviderSubmissionRow[];
   proposals: MedicalCaseTreatmentProposalRow[];
@@ -119,9 +123,11 @@ export function CaseDashboard({
 
         <TabsContent value="overview" className="space-y-4 pt-4">
           <OverviewTab
+            patientId={patient.id}
             medicalCase={medicalCase}
             statusHistory={statusHistory}
             requirements={requirements}
+            labOrders={labOrders}
             readiness={readiness}
             readinessAlerts={readinessAlerts}
             suggestedRecords={suggestedRecords}
@@ -149,16 +155,20 @@ export function CaseDashboard({
 }
 
 function OverviewTab({
+  patientId,
   medicalCase,
   statusHistory,
   requirements,
+  labOrders,
   readiness,
   readinessAlerts,
   suggestedRecords,
 }: {
+  patientId: string;
   medicalCase: MedicalCaseRow;
   statusHistory: MedicalCaseStatusHistoryRow[];
   requirements: MedicalCaseRequirementRow[];
+  labOrders: LabOrderRow[];
   readiness: CaseReadiness;
   readinessAlerts: CaseReadinessAlert[];
   suggestedRecords: { conditions: { id: string; displayName: string }[]; documents: { id: string; title: string }[] };
@@ -167,6 +177,7 @@ function OverviewTab({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [addRequirementOpen, setAddRequirementOpen] = useState(false);
+  const [addLabOrderOpen, setAddLabOrderOpen] = useState(false);
 
   const nextStatuses = MEDICAL_CASE_STATUSES.filter((status) => isValidCaseTransition(medicalCase.caseStatus, status));
 
@@ -262,6 +273,26 @@ function OverviewTab({
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between gap-2">
+          <CardTitle className="text-base">{t("admin.documents.labOrders")}</CardTitle>
+          <Button type="button" size="sm" variant="outline" onClick={() => setAddLabOrderOpen(true)}>
+            {t("admin.overview.add")}
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {labOrders.length === 0 && <p className="text-muted-foreground text-sm">{t("admin.overview.empty")}</p>}
+          {labOrders.map((order) => (
+            <div key={order.id} className="flex items-start justify-between gap-2 border-b pb-2 last:border-0 last:pb-0">
+              <div>
+                <p className="text-sm font-medium">{order.requestedTests.join("، ")}</p>
+                <p className="text-muted-foreground text-xs">{t(`admin.documents.labOrderStatuses.${order.orderStatus}`)}</p>
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
       {(readinessAlerts.length > 0 || suggestedRecords.conditions.length > 0 || suggestedRecords.documents.length > 0) && (
         <Card className="lg:col-span-2">
           <CardHeader>
@@ -297,6 +328,7 @@ function OverviewTab({
       )}
 
       <AddRequirementDialog medicalCaseId={medicalCase.id} open={addRequirementOpen} onOpenChange={setAddRequirementOpen} />
+      <AddLabOrderDialog patientId={patientId} medicalCaseId={medicalCase.id} open={addLabOrderOpen} onOpenChange={setAddLabOrderOpen} />
     </div>
   );
 }

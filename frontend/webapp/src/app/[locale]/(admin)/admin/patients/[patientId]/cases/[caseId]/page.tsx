@@ -17,6 +17,7 @@ import {
   listSecondOpinionsForCase,
   listSubmissionsForCase,
 } from "@/features/patients/server/cases-repository";
+import { listLabOrdersForCase } from "@/features/patients/server/documents-repository";
 import { getPatientById } from "@/features/patients/server/repository";
 import { getCaseReadinessAlerts, suggestRelevantRecordsForCase } from "@/features/patients/server/readiness-repository";
 import { PATIENTS_TRANSLATION_KEY } from "@/features/patients/types";
@@ -62,11 +63,12 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
   const patient = await getPatientById(patientId);
   if (!patient) notFound();
 
-  const [statusHistory, encounters, requirements, submissions, proposals, secondOpinions, followUps, packages, readinessAlerts, suggestedRecords] =
+  const [statusHistory, encounters, requirements, labOrders, submissions, proposals, secondOpinions, followUps, packages, readinessAlerts, suggestedRecords] =
     await Promise.all([
       listCaseStatusHistory(caseId),
       listEncountersForCase(caseId),
       listRequirementsForCase(caseId),
+      listLabOrdersForCase(caseId),
       listSubmissionsForCase(caseId),
       listProposalsForCase(caseId),
       listSecondOpinionsForCase(caseId),
@@ -83,6 +85,7 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
       statusHistory={statusHistory}
       encounters={encounters}
       requirements={requirements}
+      labOrders={labOrders}
       readiness={computeCaseReadiness(requirements)}
       submissions={submissions}
       proposals={proposals}

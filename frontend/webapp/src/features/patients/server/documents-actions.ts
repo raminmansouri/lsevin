@@ -158,9 +158,12 @@ export async function addLabOrderAction(input: AddLabOrderInput): Promise<Patien
     action: "lab_order_added",
     entityType: "lab_order",
     entityId: order.id,
-    metadata: { patientId: values.patientId },
+    metadata: { patientId: values.patientId, medicalCaseId: values.medicalCaseId },
   });
   revalidatePath(`${ADMIN_PATIENTS_PATH}/${values.patientId}`);
+  if (values.medicalCaseId) {
+    revalidatePath(`${ADMIN_PATIENTS_PATH}/${values.patientId}/cases/${values.medicalCaseId}`);
+  }
   return { ok: true, data: order };
 }
 
