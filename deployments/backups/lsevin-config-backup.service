@@ -1,0 +1,9 @@
+[Unit]
+Description=Back up LSevin configuration and deployment definitions
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/lsevin-config-backup
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7

@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+umask 077
+
+BACKUP_ROOT="${LSEVIN_CONFIG_BACKUP_DIR:-/var/backups/lsevin/config}"
+RETENTION_DAYS="${LSEVIN_CONFIG_BACKUP_RETENTION_DAYS:-30}"
+STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+ARCHIVE="${BACKUP_ROOT}/lsevin-config-${STAMP}.tar.gz"
+LOCK=/run/lock/lsevin-config-backup.lock
+
+install -d -m 0700 "${BACKUP_ROOT}"
+exec 9>"${LOCK}"
+flock -n 9 || { echo 'Another configuration backup is running.' >&2; exit 1; }
+
+sources=()
+for path in /etc/lsevin /opt/lsevin/config /opt/lsevin/app/deployments /etc/systemd/system; do
+  [[ -e "${path}" ]] && sources+=("${path#/}")
+done
+[[ "${#sources[@]}" -gt 0 ]] || { echo 'No configuration sources were found.' >&2; exit 1; }
+
+tar --numeric-owner --xattrs --acls -C / -czf "${ARCHIVE}" "${sources[@]}"
+gzip -t "${ARCHIVE}"
+sha256sum "${ARCHIVE}" > "${ARCHIVE}.sha256"
+find "${BACKUP_ROOT}" -maxdepth 1 -type f -name 'lsevin-config-*.tar.gz' -mtime "+${RETENTION_DAYS}" -delete
+find "${BACKUP_ROOT}" -maxdepth 1 -type f -name 'lsevin-config-*.tar.gz.sha256' -mtime "+${RETENTION_DAYS}" -delete
+ln -sfn "$(basename "${ARCHIVE}")" "${BACKUP_ROOT}/latest.tar.gz"
+echo "Verified configuration backup: ${ARCHIVE}"

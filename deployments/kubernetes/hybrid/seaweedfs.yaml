@@ -1,18 +1,3 @@
-apiVersion: v1
-kind: ConfigMap
-metadata: {name: seaweedfs-s3-config}
-data:
-  s3-config.json: |
-    {
-      "identities": [
-        {
-          "name":"lsevin-api",
-          "credentials":[{"accessKey":"${SEAWEEDFS_S3_ACCESS_KEY}","secretKey":"${SEAWEEDFS_S3_SECRET_KEY}"}],
-          "actions":["Read:lsevin-media","List:lsevin-media","Tagging:lsevin-media","Write:lsevin-media"]
-        }
-      ]
-    }
----
 apiVersion: apps/v1
 kind: Deployment
 metadata: {name: seaweedfs}
@@ -24,15 +9,35 @@ spec:
     metadata: {labels: {app.kubernetes.io/name: seaweedfs, app.kubernetes.io/part-of: lsevin}}
     spec:
       terminationGracePeriodSeconds: 60
+      initContainers:
+        - name: render-s3-config
+          image: busybox:1.37.0
+          command: [/bin/sh, -c]
+          args:
+            - |
+              set -eu
+              umask 077
+              cat > /config/s3-config.json <<EOF
+              {"identities":[{"name":"lsevin-api","credentials":[{"accessKey":"${SEAWEEDFS_S3_ACCESS_KEY}","secretKey":"${SEAWEEDFS_S3_SECRET_KEY}"}],"actions":["Read:lsevin-media","List:lsevin-media","Tagging:lsevin-media","Write:lsevin-media"]}]}
+              EOF
+          env:
+            - {name: SEAWEEDFS_S3_ACCESS_KEY, valueFrom: {secretKeyRef: {name: api-secrets, key: FileUploadOptions__S3__AccessKey}}}
+            - {name: SEAWEEDFS_S3_SECRET_KEY, valueFrom: {secretKeyRef: {name: api-secrets, key: FileUploadOptions__S3__SecretKey}}}
+          volumeMounts: [{name: config, mountPath: /config}]
       containers:
         - name: seaweedfs
           image: chrislusf/seaweedfs:4.47
-          args: [server, -dir=/data, -ip=seaweedfs, -ip.bind=0.0.0.0, -filer, -s3, -s3.port=8333, -s3.config=/etc/seaweedfs/s3-config.json, -master.telemetry=false]
+          command: [/bin/sh, -c]
+          args:
+            - exec weed server -dir=/data -ip="$POD_IP" -ip.bind=0.0.0.0 -filer -s3 -s3.port=8333 -s3.config=/etc/seaweedfs/s3-config.json -master.telemetry=false
           ports:
             - {name: master, containerPort: 9333}
+            - {name: master-grpc, containerPort: 19333}
             - {name: filer, containerPort: 8888}
+            - {name: filer-grpc, containerPort: 18888}
             - {name: s3, containerPort: 8333}
           env:
+            - {name: POD_IP, valueFrom: {fieldRef: {fieldPath: status.podIP}}}
             - {name: SEAWEEDFS_S3_ACCESS_KEY, valueFrom: {secretKeyRef: {name: api-secrets, key: FileUploadOptions__S3__AccessKey}}}
             - {name: SEAWEEDFS_S3_SECRET_KEY, valueFrom: {secretKeyRef: {name: api-secrets, key: FileUploadOptions__S3__SecretKey}}}
           volumeMounts:
@@ -42,7 +47,7 @@ spec:
           resources: {requests: {cpu: 200m, memory: 256Mi}, limits: {cpu: "2", memory: 2Gi}}
       volumes:
         - {name: data, hostPath: {path: /var/lib/lsevin/seaweedfs, type: DirectoryOrCreate}}
-        - {name: config, configMap: {name: seaweedfs-s3-config}}
+        - {name: config, emptyDir: {medium: Memory}}
 ---
 apiVersion: v1
 kind: Service
@@ -51,7 +56,9 @@ spec:
   selector: {app.kubernetes.io/name: seaweedfs}
   ports:
     - {name: master, port: 9333, targetPort: master}
+    - {name: master-grpc, port: 19333, targetPort: master-grpc}
     - {name: filer, port: 8888, targetPort: filer}
+    - {name: filer-grpc, port: 18888, targetPort: filer-grpc}
     - {name: s3, port: 8333, targetPort: s3}
 ---
 apiVersion: v1
@@ -120,3 +127,43 @@ spec:
             - {name: RCLONE_CONFIG_SEAWEED_SECRET_ACCESS_KEY, valueFrom: {secretKeyRef: {name: api-secrets, key: FileUploadOptions__S3__SecretKey}}}
           volumeMounts: [{name: backup, mountPath: /backup}]
       volumes: [{name: backup, hostPath: {path: /var/lib/lsevin/object-storage-backups, type: DirectoryOrCreate}}]
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata: {name: seaweedfs-object-backup}
+spec:
+  schedule: "20 2 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        metadata: {labels: {app.kubernetes.io/name: seaweedfs-object-backup, app.kubernetes.io/part-of: lsevin}}
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: backup
+              image: rclone/rclone:1.71.2
+              command: [/bin/sh, -c]
+              args:
+                - |
+                  set -eu
+                  stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+                  target="/backup/$stamp"
+                  mkdir -p "$target/objects"
+                  rclone copy seaweed:lsevin-media "$target/objects" --checksum --metadata
+                  rclone check seaweed:lsevin-media "$target/objects" --one-way --download
+                  rclone size seaweed:lsevin-media --json > "$target/source-size.json"
+                  find "$target/objects" -type f -print0 | sort -z | xargs -0 -r sha256sum > "$target/sha256.txt"
+                  find /backup -mindepth 1 -maxdepth 1 -type d -mtime +30 -exec rm -rf -- {} +
+                  echo "Verified SeaweedFS object backup: $target"
+              env:
+                - {name: RCLONE_CONFIG_SEAWEED_TYPE, value: s3}
+                - {name: RCLONE_CONFIG_SEAWEED_PROVIDER, value: Other}
+                - {name: RCLONE_CONFIG_SEAWEED_ENDPOINT, value: http://seaweedfs:8333}
+                - {name: RCLONE_CONFIG_SEAWEED_ACCESS_KEY_ID, valueFrom: {secretKeyRef: {name: api-secrets, key: FileUploadOptions__S3__AccessKey}}}
+                - {name: RCLONE_CONFIG_SEAWEED_SECRET_ACCESS_KEY, valueFrom: {secretKeyRef: {name: api-secrets, key: FileUploadOptions__S3__SecretKey}}}
+              volumeMounts: [{name: backup, mountPath: /backup}]
+          volumes: [{name: backup, hostPath: {path: /var/backups/lsevin/object-storage, type: DirectoryOrCreate}}]

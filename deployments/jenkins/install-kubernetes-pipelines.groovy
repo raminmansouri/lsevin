@@ -20,7 +20,7 @@ def pipelines = [
     job: 'lsevin-providers-production',
     file: '/opt/lsevin/app/deployments/jenkins/repository-templates/lsevin-portal/Jenkinsfile.kubernetes',
     url: 'https://github.com/Mohammadjafariyan/lsevin-portal.git',
-    credentials: 'github-lsevin',
+    credentials: '2536234a-3b30-490b-9bb2-b36d512ec6cd',
     branch: '*/main'
   ]
 ]

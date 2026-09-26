@@ -1,6 +1,6 @@
 // Kubernetes production pipeline for https://github.com/Mohammadjafariyan/lsevin-portal.
 pipeline {
-  agent { node { label 'built-in'; customWorkspace '/opt/lsevin-providers' } }
+  agent { node { label 'built-in'; customWorkspace '/opt/lsevin-providers/source' } }
   options { skipDefaultCheckout(true); disableConcurrentBuilds(); timestamps(); timeout(time: 60, unit: 'MINUTES') }
   environment {
     NAMESPACE = 'lsevin'

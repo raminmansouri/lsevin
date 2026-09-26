@@ -7,18 +7,29 @@ mkdir -p "$BACKUP_DIR"
 exec 9>/run/lock/lsevin-database-backup.lock
 flock -w 7200 9 || { echo 'Timed out waiting for another database backup.' >&2; exit 1; }
 if command -v k3s >/dev/null && k3s kubectl -n lsevin get deployment/postgres >/dev/null 2>&1; then
-  k3s kubectl -n lsevin exec deployment/postgres -- \
-    gosu postgres pg_dump -U {{ vault_postgres_user | quote }} -d {{ vault_postgres_db | quote }} \
-    --format=custom --compress=9 --no-owner --no-privileges > "$FILE"
-  RESTORE_LIST=(k3s kubectl -n lsevin exec -i deployment/postgres -- gosu postgres pg_restore --list)
+  CONTAINER_ID="$(k3s crictl ps --label io.kubernetes.container.name=postgres -q | head -n 1)"
+  [[ -n "$CONTAINER_ID" ]] || { echo 'PostgreSQL container was not found.' >&2; exit 1; }
+  k3s ctr -n k8s.io tasks exec --exec-id "logical-backup-$TIMESTAMP" "$CONTAINER_ID" \
+    sh -lc 'exec pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --format=custom --compress=9 --no-owner --no-privileges' \
+    > "$FILE"
+  test -s "$FILE"
+  VERIFY_HOST_FILE="/var/lib/docker/volumes/docker_postgres_data/_data/.lsevin-backup-verify-$TIMESTAMP.dump"
+  VERIFY_CONTAINER_FILE="/var/lib/postgresql/data/$(basename "$VERIFY_HOST_FILE")"
+  trap 'rm -f -- "$VERIFY_HOST_FILE"' EXIT
+  cp --reflink=auto "$FILE" "$VERIFY_HOST_FILE"
+  chmod 0644 "$VERIFY_HOST_FILE"
+  k3s ctr -n k8s.io tasks exec --exec-id "logical-verify-$TIMESTAMP" "$CONTAINER_ID" \
+    pg_restore --list "$VERIFY_CONTAINER_FILE" >/dev/null
+  rm -f -- "$VERIFY_HOST_FILE"
+  trap - EXIT
 else
   cd {{ lsevin_app_dir }}/deployments/docker
   docker compose --project-name {{ lsevin_compose_project }} --env-file .env -f docker-compose.server.yml \
     exec -T postgres pg_dump -U {{ vault_postgres_user | quote }} -d {{ vault_postgres_db | quote }} \
     --format=custom --compress=9 --no-owner --no-privileges > "$FILE"
-  RESTORE_LIST=(docker compose --project-name {{ lsevin_compose_project }} --env-file .env -f docker-compose.server.yml exec -T postgres pg_restore --list)
+  test -s "$FILE"
+  docker compose --project-name {{ lsevin_compose_project }} --env-file .env -f docker-compose.server.yml \
+    exec -T postgres pg_restore --list < "$FILE" >/dev/null
 fi
-test -s "$FILE"
-"${RESTORE_LIST[@]}" < "$FILE" >/dev/null
 find "$BACKUP_DIR" -maxdepth 1 -type f -name '{{ vault_postgres_db }}-*.dump'   -mtime +{{ logical_backup_retention_days }} -delete
 echo "Logical backup verified: $FILE"
