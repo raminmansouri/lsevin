@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { abandonActiveDraft, getActiveDraft, getOrCreateActiveDraft, recalculateDraftTotals, saveDraftDocuments, upsertMainDraftSelection } from '@/features/booking-pro/server/repository';
+import { abandonActiveDraft, getActiveDraft, getOrCreateActiveDraft, recalculateDraftTotals, saveDraftCaseShare, saveDraftDocuments, upsertMainDraftSelection } from '@/features/booking-pro/server/repository';
 import { resolveCurrentUserId } from '@/features/booking-pro/utils/auth';
 import { z } from 'zod';
 
@@ -35,6 +35,11 @@ export async function PATCH(request: NextRequest) {
     await saveDraftDocuments(userId, body.draftId, body.documents ?? []);
     const totals = await recalculateDraftTotals(body.draftId);
     return NextResponse.json({ ok: true, totals });
+  }
+
+  if (body.action === 'caseShare') {
+    await saveDraftCaseShare(userId, body.draftId, body.caseShare ?? null);
+    return NextResponse.json({ ok: true });
   }
 
   const draft = await upsertMainDraftSelection(userId, body);

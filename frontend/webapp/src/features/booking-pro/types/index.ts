@@ -175,4 +175,8 @@ export interface BookingDraftState {
   formSubmissionId?: string;
   childBookings: ChildBookingDraft[];
   uploadFiles: Array<{ requirementId?: string; mediaIds?: string; fileUrl?: string; title?: string }>;
+  /** "Share this case with the provider I'm booking" -- an intent only.
+   * checkoutDraft turns this into a real patient.case_provider_grants row
+   * once the booking is actually confirmed; see migration 0062. */
+  caseShare?: { patientId: string; medicalCaseId: string; permission: 'view' | 'contribute'; scope: string[] } | null;
 }
