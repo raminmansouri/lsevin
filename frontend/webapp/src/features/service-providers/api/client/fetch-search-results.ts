@@ -90,16 +90,36 @@ export const prefetchSearchResults = (queryClient: QueryClient, term: string) =>
   return queryClient.prefetchQuery(searchResultsQueryOptions(normalizedTerm));
 };
 
-export const useFetchSearchResults = (term: string) => {
-  const { data, error, isFetching, isPending, refetch } = useQuery(
-    searchResultsQueryOptions(term)
-  );
+type UseFetchSearchResultsOptions = {
+    /**
+     * Lets a caller (e.g. inline search-as-you-type) skip firing the query
+     * entirely — for instance while the term is still empty. Defaults to true
+     * so existing callers (the full results page) keep behaving exactly as
+     * before. The query is always additionally gated on a non-empty term.
+     */
+    enabled?: boolean;
+};
 
-  return {
-    data,
-    error,
-    isFetching,
-    isPending,
-    refetch,
-  };
+export const useFetchSearchResults = (
+    term: string,
+    options?: UseFetchSearchResultsOptions
+) => {
+    const enabled = (options?.enabled ?? true) && term.trim().length > 0;
+
+    const { data, error, isFetching, isPending, refetch } = useQuery({
+        ...searchResultsQueryOptions(term),
+        enabled,
+    });
+
+    return {
+        data,
+        error,
+        isFetching,
+        // With the query disabled (no term yet), react-query still reports
+        // isPending: true forever since it has never run — callers that gate
+        // their own "loading" UI on isPending should also check `enabled`,
+        // which is why we surface it here.
+        isPending: enabled && isPending,
+        refetch,
+    };
 };
