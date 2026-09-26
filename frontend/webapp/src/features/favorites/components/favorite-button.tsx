@@ -45,7 +45,13 @@ export function FavoriteButton({
     setIsFavorite(initialIsFavorite);
   }, [initialIsFavorite]);
 
-  const handleClick = () => {
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    // The button usually sits inside a card that's itself a clickable <Link>
+    // (navigates to the detail page). Without these, clicking the heart would
+    // also trigger the card's own navigation.
+    event.stopPropagation();
+    event.preventDefault();
+
     if (disabled || isPending) return;
 
     const previousValue = isFavorite;
@@ -53,12 +59,21 @@ export function FavoriteButton({
     setIsFavorite(nextValue);
     onChange?.(nextValue);
 
+    // startTransition(async () => {
+    //   const result = await toggleFavoriteAction({
+    //     entityId,
+    //     entityType,
+    //     revalidatePathname: pathname,
+    //   });
+
     startTransition(async () => {
+      console.log('[FavoriteButton] calling toggle with:', { entityId, entityType, entityIdLength: entityId?.length });
       const result = await toggleFavoriteAction({
         entityId,
         entityType,
         revalidatePathname: pathname,
       });
+      console.log('[FavoriteButton] result:', result);
 
       if (result.requiresAuth) {
         setIsFavorite(previousValue);

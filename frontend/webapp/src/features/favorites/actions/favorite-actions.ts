@@ -26,19 +26,38 @@ async function getFavoritesCustomerId(): Promise<ResolvedFavoritesCustomer> {
   let userId: string | null = null;
   try {
     userId = (await getUserId()) || null;
-  } catch {
+  } catch (err) {
+    console.log('🔍 getUserId() threw:', err);
     userId = null;
   }
+
+  console.log('🔍 raw userId from session:', JSON.stringify(userId));
 
   if (!userId) return { customerId: null, requiresAuth: true };
 
   const customerId = await resolveFavoritesCustomerId(userId);
+  console.log('🔍 resolved customerId:', JSON.stringify(customerId));
+
   if (!customerId) return { customerId: null, requiresAuth: false };
 
   return { customerId, requiresAuth: false };
 }
 
+// function validateFavoriteInput(input: { entityType: FavoriteEntityType; entityId: string }) {
+//   if (!isValidFavoriteEntityType(input.entityType)) {
+//     throw new Error('Unsupported favorite type.');
+//   }
+
+//   if (!isValidFavoriteEntityId(input.entityId)) {
+//     throw new Error('Invalid favorite entity id.');
+//   }
+// }
+
 function validateFavoriteInput(input: { entityType: FavoriteEntityType; entityId: string }) {
+  console.log('[validateFavoriteInput] entityId:', JSON.stringify(input.entityId), 'entityType:', input.entityType);
+  console.log('[validateFavoriteInput] isValidFavoriteEntityType:', isValidFavoriteEntityType(input.entityType));
+  console.log('[validateFavoriteInput] isValidFavoriteEntityId:', isValidFavoriteEntityId(input.entityId));
+
   if (!isValidFavoriteEntityType(input.entityType)) {
     throw new Error('Unsupported favorite type.');
   }

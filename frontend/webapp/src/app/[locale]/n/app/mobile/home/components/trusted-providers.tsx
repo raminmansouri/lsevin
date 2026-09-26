@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { BadgeCheck, Star } from 'lucide-react';
+import { FavoriteButton } from '@/features/favorites/components/favorite-button';
 
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 
@@ -93,6 +94,15 @@ function TrustedProviderCard({
             {t("lsevin")}
           </div>
         )}
+
+        <FavoriteButton
+          entityId={provider.id}
+          entityType="provider"
+          initialIsFavorite={false}
+          className="absolute end-2 top-2 !h-7 !w-7 bg-white/90 text-gray-700 shadow-sm backdrop-blur-sm"
+          iconClassName="h-3.5 w-3.5"
+        />
+
 
         {provider.verified ? (
           <div className="absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#083f30] shadow-lg">

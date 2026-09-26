@@ -6,7 +6,6 @@ import {
   BadgeCheck,
   ChevronLeft,
   Filter,
-  Heart,
   MapPin,
   SlidersHorizontal,
   Star,
@@ -19,11 +18,13 @@ import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { env } from "@/config/env/client";
 import { useFetchSearchResults } from "@/features/service-providers/api/client/fetch-search-results";
 import { useNavigate } from "@/hooks/use-navigate";
+import { FavoriteButton } from "@/features/favorites/components/favorite-button";
 
 // Client view. useSearchParams() here has no <Suspense> of its own, so the
 // server `page.tsx` wraps <SearchResultsView /> in one and is force-dynamic.
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 
 function resolveMediaUrl(value?: string | null) {
   const cleaned = value?.trim();
@@ -67,74 +68,6 @@ export function SearchResultsView() {
     { value: "price-high", label: t("sort.priceHighToLow") },
     { value: "popular", label: t("sort.mostPopular") },
   ];
-
-  /* const results = [
-    {
-      id: 1,
-      type: 'treatment',
-      name: 'Premium Hair Transplant Package',
-      provider: 'Istanbul Medical Center',
-      image: '/unsplash_images/photo-1622296089863-eb7fc530daa8__w=600&h=400&fit=crop.jpg',
-      location: 'Istanbul, Turkey',
-      rating: 4.9,
-      reviews: 2847,
-      price: 2499,
-      originalPrice: 3200,
-      verified: true,
-      tags: ['All-Inclusive', 'Best Value']
-    },
-    {
-      id: 2,
-      type: 'clinic',
-      name: 'Dubai Smile Clinic',
-      provider: 'Dental Excellence',
-      image: '/unsplash_images/photo-1629909613654-28e377c37b09__w=600&h=400&fit=crop.jpg',
-      location: 'Dubai, UAE',
-      rating: 4.9,
-      reviews: 1523,
-      verified: true,
-      specialties: ['Veneers', 'Implants', 'Whitening']
-    },
-    {
-      id: 3,
-      type: 'treatment',
-      name: 'IVF Treatment Complete Cycle',
-      provider: 'Cyprus Fertility Center',
-      image: '/unsplash_images/photo-1584515979956-d9f6e5d09982__w=600&h=400&fit=crop.jpg',
-      location: 'Nicosia, Cyprus',
-      rating: 4.8,
-      reviews: 456,
-      price: 3800,
-      verified: true,
-      tags: ['Premium']
-    },
-    {
-      id: 4,
-      type: 'treatment',
-      name: 'Hollywood Smile Veneers',
-      provider: 'Bangkok Dental Studio',
-      image: '/unsplash_images/photo-1588776814546-1ffcf47267a5__w=600&h=400&fit=crop.jpg',
-      location: 'Bangkok, Thailand',
-      rating: 4.9,
-      reviews: 892,
-      price: 2800,
-      originalPrice: 3500,
-      verified: true,
-      tags: ['Top Rated']
-    },
-    {
-      id: 5,
-      type: 'clinic',
-      name: 'Bali Wellness Resort',
-      provider: 'Holistic Health',
-      image: '/unsplash_images/photo-1540555700478-4be289fbecef__w=600&h=400&fit=crop.jpg',
-      location: 'Ubud, Bali',
-      rating: 5.0,
-      reviews: 234,
-      verified: true,
-      specialties: ['Spa', 'Yoga', 'Detox']
-    },
-  ]; */
 
   return (
     <div className="min-h-screen bg-white">
@@ -213,29 +146,14 @@ export function SearchResultsView() {
         {/* Active Filters */}
         {showFilters && (
           <div className="flex flex-wrap gap-2 px-5 pb-3">
-
-            {filters?.map(filter=>{
-
-return  <div key={filter.id} className="flex items-center gap-1.5 rounded-full bg-[#083f30] px-3 py-1.5 text-xs font-medium text-white">
-              <span>{filter.label}</span>
-              <button className="rounded-full p-0.5 hover:bg-white/20">
-                <X size={12} />
-              </button>
-            </div>
-            })}
-
-          {/*   <div className="flex items-center gap-1.5 rounded-full bg-[#083f30] px-3 py-1.5 text-xs font-medium text-white">
-              <span>{t("verifiedOnly")}</span>
-              <button className="rounded-full p-0.5 hover:bg-white/20">
-                <X size={12} />
-              </button>
-            </div>
-            <div className="flex items-center gap-1.5 rounded-full bg-[#083f30] px-3 py-1.5 text-xs font-medium text-white">
-              <span>{t("n4Stars")}</span>
-              <button className="rounded-full p-0.5 hover:bg-white/20">
-                <X size={12} />
-              </button>
-            </div> */}
+            {filters?.map((filter) => (
+              <div key={filter.id} className="flex items-center gap-1.5 rounded-full bg-[#083f30] px-3 py-1.5 text-xs font-medium text-white">
+                <span>{filter.label}</span>
+                <button className="rounded-full p-0.5 hover:bg-white/20">
+                  <X size={12} />
+                </button>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -282,9 +200,19 @@ return  <div key={filter.id} className="flex items-center gap-1.5 rounded-full b
                   <h3 className="line-clamp-2 leading-tight font-bold text-gray-900">
                     {result.name}
                   </h3>
-                  <button className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-50 transition-colors hover:bg-gray-100">
-                    <Heart size={16} className="text-gray-600" />
-                  </button>
+
+                  {/* THE FIX: was a decorative, non-clickable <Heart> button with no
+                      onClick/logic. Replaced with the real FavoriteButton wired to
+                      the same auth-aware server action used on the service/provider
+                      detail pages. stopPropagation so tapping the heart doesn't also
+                      trigger the card's own onClick (which navigates away). */}
+                  <FavoriteButton
+                    entityId={result.id}
+                    entityType={result.type as "service" | "provider" | "specialist"}
+                    initialIsFavorite={false}
+                    className="!h-8 !w-8 flex-shrink-0 bg-gray-50 hover:bg-gray-100"
+                    iconClassName="h-4 w-4"
+                  />
                 </div>
 
                 <p className="mb-2 line-clamp-1 text-sm text-gray-600">
