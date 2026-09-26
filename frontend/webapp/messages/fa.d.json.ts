@@ -7280,6 +7280,32 @@ declare const messages: {
     "requiredAddOnProviderTypesMustBeCompletedBefore": "انواع ارائه‌دهنده افزودنی الزامی باید قبل از تسویه تکمیل شوند.",
     "requiredDocuments": "مدارک الزامی",
     "requiredFiles": "فایل‌های الزامی",
+    "shareMedicalCaseWithProvider": "به‌اشتراک‌گذاری پرونده پزشکی با این ارائه‌دهنده",
+    "shareMedicalCaseDescription": "به این ارائه‌دهنده اجازه دهید پیش از ویزیت شما به یکی از پرونده‌های درمانی شما دسترسی داشته باشد. این دسترسی را هر زمان از «پرونده‌های درمانی من» می‌توانید لغو کنید.",
+    "shareThisCase": "اشتراک‌گذاری یک پرونده درمانی",
+    "selectPatient": "پرونده کدام فرد",
+    "selectCase": "انتخاب پرونده",
+    "noCasesToShare": "هنوز پرونده درمانی‌ای برای اشتراک‌گذاری ندارید",
+    "accessLevel": "سطح دسترسی",
+    "viewOnlyAccess": "فقط مشاهده",
+    "viewAndAddResultsAccess": "مشاهده و افزودن نتایج",
+    "dataToShare": "اطلاعاتی که به اشتراک گذاشته می‌شود",
+    "demographics": "اطلاعات فردی",
+    "identifiers": "شناسه‌ها",
+    "conditions": "بیماری‌ها",
+    "allergies": "حساسیت‌ها",
+    "medications": "داروها",
+    "procedures": "اقدامات درمانی",
+    "labs": "آزمایش‌ها",
+    "imaging": "تصویربرداری",
+    "reproductive_history": "سابقه باروری",
+    "cosmetic_history": "سابقه زیبایی",
+    "case_data": "اطلاعات پرونده",
+    "travel_information": "اطلاعات سفر",
+    "billing_information": "اطلاعات مالی",
+    "shareCaseButton": "اشتراک‌گذاری پرونده",
+    "caseSharedSuccessfully": "پرونده با ارائه‌دهنده به اشتراک گذاشته شد",
+    "caseShareFailed": "اشتراک‌گذاری پرونده ناموفق بود. دوباره تلاش کنید.",
     "reschedule": "زمان‌بندی مجدد",
     "reservationSummary": "خلاصه رزرو",
     "resourceID": "شناسه منبع",
@@ -8160,6 +8186,56 @@ declare const messages: {
           "temporary_id": "شناسه موقت",
           "other": "سایر"
         }
+      },
+      "selfDeclare": {
+        "title": "افزودن به پرونده من",
+        "notice": "بیماری‌ها، حساسیت‌ها، داروها یا اقدامات درمانی گذشته خود را اضافه کنید. این موارد تا زمانی که تیم درمانی تایید کند، به‌عنوان «خوداظهاری» علامت‌گذاری می‌شوند.",
+        "add": "افزودن",
+        "cancel": "انصراف",
+        "recordType": "نوع",
+        "types": {
+          "condition": "بیماری",
+          "allergy": "حساسیت",
+          "medication": "دارو",
+          "procedure": "اقدام درمانی"
+        },
+        "nameLabels": {
+          "condition": "نام بیماری",
+          "allergy": "ماده حساسیت‌زا",
+          "medication": "نام دارو",
+          "procedure": "نام اقدام درمانی"
+        },
+        "status": "وضعیت",
+        "category": "دسته‌بندی",
+        "dose": "مقدار مصرف (اختیاری)",
+        "performedFrom": "تاریخ انجام",
+        "notes": "یادداشت (اختیاری)",
+        "save": "ذخیره",
+        "saved": "به پرونده شما اضافه شد",
+        "errorGeneric": "خطایی رخ داد. لطفاً دوباره تلاش کنید.",
+        "conditionStatuses": {
+          "active": "فعال",
+          "inactive": "غیرفعال",
+          "resolved": "برطرف‌شده",
+          "remission": "در حال بهبودی",
+          "recurrence": "عود کرده",
+          "unknown": "نامشخص"
+        },
+        "allergyCategories": {
+          "food": "غذایی",
+          "medication": "دارویی",
+          "environmental": "محیطی",
+          "biologic": "بیولوژیک",
+          "no_known_allergies": "بدون حساسیت شناخته‌شده",
+          "other": "سایر"
+        },
+        "medicationStatuses": {
+          "planned": "برنامه‌ریزی‌شده",
+          "active": "فعال",
+          "completed": "تکمیل‌شده",
+          "stopped": "قطع‌شده",
+          "unknown": "نامشخص"
+        }
       }
     },
     "myCases": {
@@ -8173,6 +8249,10 @@ declare const messages: {
       "estimatedStay": "مدت اقامت تخمینی",
       "days": "روز",
       "validUntil": "اعتبار تا",
+      "optional": "اختیاری",
+      "maxAgeHoursNotice": "باید طی {hours} ساعت اخیر تاریخ‌گذاری شده باشد",
+      "uploadFile": "آپلود فایل",
+      "requirementFulfilled": "آپلود شد",
       "relationshipTypes": {
         "parent": "والد",
         "child": "فرزند",
@@ -16192,7 +16272,12 @@ declare const messages: {
           "opinionDate": "تاریخ نظر",
           "conclusion": "نتیجه‌گیری",
           "scheduledDate": "تاریخ برنامه‌ریزی‌شده",
-          "requiredItems": "مدارک/آزمایش‌های لازم"
+          "requiredItems": "مدارک/آزمایش‌های لازم",
+          "maxAgeHours": "باید طی این بازه انجام شده باشد (ساعت، اختیاری)",
+          "maxAgeHoursPlaceholder": "مثلاً ۴۸",
+          "maxAgeHoursNotice": "باید طی {hours} ساعت اخیر باشد",
+          "isMandatory": "الزامی",
+          "optional": "اختیاری"
         },
         "statuses": {
           "draft": "پیش‌نویس",

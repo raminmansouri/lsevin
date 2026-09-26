@@ -733,6 +733,32 @@ declare const messages: {
     "requiredAddOnProviderTypesMustBeCompletedBefore": "Required add-on provider types must be completed before checkout.",
     "requiredDocuments": "Required Documents",
     "requiredFiles": "Required files",
+    "shareMedicalCaseWithProvider": "Share your medical case with this provider",
+    "shareMedicalCaseDescription": "Give this provider access to a case from your medical record so they can review it ahead of your appointment. You can revoke this anytime from My Cases.",
+    "shareThisCase": "Share a medical case",
+    "selectPatient": "Whose record",
+    "selectCase": "Select a case",
+    "noCasesToShare": "You don't have a medical case to share yet",
+    "accessLevel": "Access level",
+    "viewOnlyAccess": "View only",
+    "viewAndAddResultsAccess": "View and add results",
+    "dataToShare": "Data to share",
+    "demographics": "Demographics",
+    "identifiers": "Identifiers",
+    "conditions": "Conditions",
+    "allergies": "Allergies",
+    "medications": "Medications",
+    "procedures": "Procedures",
+    "labs": "Labs",
+    "imaging": "Imaging",
+    "reproductive_history": "Reproductive history",
+    "cosmetic_history": "Cosmetic history",
+    "case_data": "Case data",
+    "travel_information": "Travel information",
+    "billing_information": "Billing information",
+    "shareCaseButton": "Share case",
+    "caseSharedSuccessfully": "Case shared with the provider",
+    "caseShareFailed": "Could not share the case. Please try again.",
     "reschedule": "Reschedule",
     "reservationSummary": "Reservation Summary",
     "resourceID": "Resource ID",
@@ -8160,6 +8186,56 @@ declare const messages: {
           "temporary_id": "Temporary ID",
           "other": "Other"
         }
+      },
+      "selfDeclare": {
+        "title": "Add to my record",
+        "notice": "Add your own conditions, allergies, medications or past procedures. These are marked as self-reported until your care team verifies them.",
+        "add": "Add",
+        "cancel": "Cancel",
+        "recordType": "Type",
+        "types": {
+          "condition": "Condition",
+          "allergy": "Allergy",
+          "medication": "Medication",
+          "procedure": "Procedure"
+        },
+        "nameLabels": {
+          "condition": "Condition name",
+          "allergy": "Substance",
+          "medication": "Medication name",
+          "procedure": "Procedure name"
+        },
+        "status": "Status",
+        "category": "Category",
+        "dose": "Dose (optional)",
+        "performedFrom": "Date performed",
+        "notes": "Notes (optional)",
+        "save": "Save",
+        "saved": "Added to your record",
+        "errorGeneric": "Something went wrong. Please try again.",
+        "conditionStatuses": {
+          "active": "Active",
+          "inactive": "Inactive",
+          "resolved": "Resolved",
+          "remission": "In remission",
+          "recurrence": "Recurrence",
+          "unknown": "Unknown"
+        },
+        "allergyCategories": {
+          "food": "Food",
+          "medication": "Medication",
+          "environmental": "Environmental",
+          "biologic": "Biologic",
+          "no_known_allergies": "No known allergies",
+          "other": "Other"
+        },
+        "medicationStatuses": {
+          "planned": "Planned",
+          "active": "Active",
+          "completed": "Completed",
+          "stopped": "Stopped",
+          "unknown": "Unknown"
+        }
       }
     },
     "myCases": {
@@ -8173,6 +8249,10 @@ declare const messages: {
       "estimatedStay": "Estimated stay",
       "days": "days",
       "validUntil": "Valid until",
+      "optional": "optional",
+      "maxAgeHoursNotice": "must be dated within {hours}h",
+      "uploadFile": "Upload file",
+      "requirementFulfilled": "Uploaded",
       "relationshipTypes": {
         "parent": "Parent",
         "child": "Child",
@@ -16192,7 +16272,12 @@ declare const messages: {
           "opinionDate": "Opinion date",
           "conclusion": "Conclusion",
           "scheduledDate": "Scheduled date",
-          "requiredItems": "Required documents/tests"
+          "requiredItems": "Required documents/tests",
+          "maxAgeHours": "Must be dated within (hours, optional)",
+          "maxAgeHoursPlaceholder": "e.g. 48",
+          "maxAgeHoursNotice": "must be within {hours}h",
+          "isMandatory": "Mandatory",
+          "optional": "optional"
         },
         "statuses": {
           "draft": "Draft",

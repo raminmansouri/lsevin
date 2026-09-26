@@ -10,10 +10,46 @@ import { CreateCaseProviderGrantSchema, RevokeCaseProviderGrantSchema, type Crea
 import type { CaseProviderGrantRow } from "../case-provider-types";
 import { PATIENTS_TRANSLATION_KEY, type PatientActionResult } from "../types";
 import { recordPatientAuditEvent } from "./audit";
-import { findActiveAccountPatientLink } from "./repository";
+import { findActiveAccountPatientLink, listPatientAccessForAccount } from "./repository";
+import { listCasesForPatient } from "./cases-repository";
 import { createCaseProviderGrant, revokeCaseProviderGrant } from "./case-provider-repository";
 
 const MY_CASES_PATH = "/n/app/mobile/profile/my-cases";
+
+export type ShareableCaseGroup = {
+  patientId: string;
+  patientName: string;
+  cases: { id: string; title: string; caseNumber: string; caseStatus: string }[];
+};
+
+/**
+ * Booking wizard's "share this case with my provider" step needs to offer a
+ * case picker before the customer has navigated to My Cases at all -- same
+ * account-ownership rule as every other customer action here (non-"limited"
+ * links only, since sharing is a write), just grouped by patient instead of
+ * requiring the caller to already know a patientId.
+ */
+export async function listMyShareableCasesAction(): Promise<PatientActionResult<ShareableCaseGroup[]>> {
+  const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
+  const session = await getSession();
+  const accountId = session?.user?.id;
+  if (!accountId) return { ok: false, error: t("errors.notFound") };
+
+  const access = await listPatientAccessForAccount(accountId);
+  const groups = await Promise.all(
+    access
+      .filter((entry) => entry.accessRole !== "limited")
+      .map(async (entry) => {
+        const cases = await listCasesForPatient(entry.patient.id);
+        return {
+          patientId: entry.patient.id,
+          patientName: `${entry.patient.firstName} ${entry.patient.lastName}`.trim(),
+          cases: cases.map((c) => ({ id: c.id, title: c.title, caseNumber: c.caseNumber, caseStatus: c.caseStatus })),
+        };
+      })
+  );
+  return { ok: true, data: groups.filter((group) => group.cases.length > 0) };
+}
 
 /**
  * Customer-side counterpart to a would-be admin equivalent (none exists --

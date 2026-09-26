@@ -450,6 +450,32 @@ declare const messages: {
     "requiredAddOnProviderTypesMustBeCompletedBefore": "مطلوب إضافة أنواع المزوّدين must be مكتمل قبل checkout.",
     "requiredDocuments": "المستندات المطلوبة",
     "requiredFiles": "مطلوب الملفات",
+    "shareMedicalCaseWithProvider": "مشاركة ملفك الطبي مع مقدم الخدمة هذا",
+    "shareMedicalCaseDescription": "امنح مقدم الخدمة هذا صلاحية الوصول إلى حالة من ملفك الطبي قبل موعدك. يمكنك إلغاء هذه الصلاحية في أي وقت من «حالاتي الطبية».",
+    "shareThisCase": "مشاركة حالة طبية",
+    "selectPatient": "لحساب من",
+    "selectCase": "اختر الحالة",
+    "noCasesToShare": "لا توجد لديك حالة طبية لمشاركتها حتى الآن",
+    "accessLevel": "مستوى الصلاحية",
+    "viewOnlyAccess": "عرض فقط",
+    "viewAndAddResultsAccess": "عرض وإضافة نتائج",
+    "dataToShare": "البيانات المطلوب مشاركتها",
+    "demographics": "البيانات الشخصية",
+    "identifiers": "المعرفات",
+    "conditions": "الحالات",
+    "allergies": "الحساسيات",
+    "medications": "الأدوية",
+    "procedures": "الإجراءات",
+    "labs": "الفحوصات",
+    "imaging": "التصوير",
+    "reproductive_history": "التاريخ الإنجابي",
+    "cosmetic_history": "تاريخ التجميل",
+    "case_data": "بيانات الحالة",
+    "travel_information": "معلومات السفر",
+    "billing_information": "معلومات الفوترة",
+    "shareCaseButton": "مشاركة الحالة",
+    "caseSharedSuccessfully": "تمت مشاركة الحالة مع مقدم الخدمة",
+    "caseShareFailed": "تعذّرت مشاركة الحالة. يرجى المحاولة مرة أخرى.",
     "reschedule": "إعادة الجدولة",
     "reservationSummary": "ملخص الحجز",
     "resourceID": "مورد ID",
@@ -7322,6 +7348,56 @@ declare const messages: {
           "temporary_id": "هوية مؤقتة",
           "other": "أخرى"
         }
+      },
+      "selfDeclare": {
+        "title": "إضافة إلى سجلي",
+        "notice": "أضف حالاتك أو حساسياتك أو أدويتك أو الإجراءات السابقة. تُعلَّم هذه العناصر كـ«مصرَّح بها من المريض» حتى يتحقق منها فريق رعايتك.",
+        "add": "إضافة",
+        "cancel": "إلغاء",
+        "recordType": "النوع",
+        "types": {
+          "condition": "حالة",
+          "allergy": "حساسية",
+          "medication": "دواء",
+          "procedure": "إجراء"
+        },
+        "nameLabels": {
+          "condition": "اسم الحالة",
+          "allergy": "المادة المسببة",
+          "medication": "اسم الدواء",
+          "procedure": "اسم الإجراء"
+        },
+        "status": "الحالة",
+        "category": "الفئة",
+        "dose": "الجرعة (اختياري)",
+        "performedFrom": "تاريخ الإجراء",
+        "notes": "ملاحظات (اختياري)",
+        "save": "حفظ",
+        "saved": "تمت الإضافة إلى سجلك",
+        "errorGeneric": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+        "conditionStatuses": {
+          "active": "نشطة",
+          "inactive": "غير نشطة",
+          "resolved": "تم الشفاء",
+          "remission": "في تحسن",
+          "recurrence": "متكررة",
+          "unknown": "غير معروف"
+        },
+        "allergyCategories": {
+          "food": "غذائية",
+          "medication": "دوائية",
+          "environmental": "بيئية",
+          "biologic": "بيولوجية",
+          "no_known_allergies": "لا توجد حساسية معروفة",
+          "other": "أخرى"
+        },
+        "medicationStatuses": {
+          "planned": "مخطط له",
+          "active": "نشط",
+          "completed": "مكتمل",
+          "stopped": "متوقف",
+          "unknown": "غير معروف"
+        }
       }
     },
     "myCases": {
@@ -7335,6 +7411,10 @@ declare const messages: {
       "estimatedStay": "مدة الإقامة المقدرة",
       "days": "أيام",
       "validUntil": "صالح حتى",
+      "optional": "اختياري",
+      "maxAgeHoursNotice": "يجب أن يكون تاريخه خلال آخر {hours} ساعة",
+      "uploadFile": "رفع ملف",
+      "requirementFulfilled": "تم الرفع",
       "relationshipTypes": {
         "parent": "الوالد",
         "child": "الطفل",
@@ -14520,7 +14600,12 @@ declare const messages: {
           "opinionDate": "تاريخ الرأي",
           "conclusion": "الاستنتاج",
           "scheduledDate": "التاريخ المجدول",
-          "requiredItems": "المستندات/الفحوصات المطلوبة"
+          "requiredItems": "المستندات/الفحوصات المطلوبة",
+          "maxAgeHours": "يجب أن يكون تاريخه ضمن (ساعات، اختياري)",
+          "maxAgeHoursPlaceholder": "مثال: 48",
+          "maxAgeHoursNotice": "يجب أن يكون خلال آخر {hours} ساعة",
+          "isMandatory": "إلزامي",
+          "optional": "اختياري"
         },
         "statuses": {
           "draft": "مسودة",

@@ -19,6 +19,7 @@ import { cascadeFor } from '../lib/cascade';
 import { BookingDatePicker } from './BookingDatePicker';
 import { formatBookingDateTime, isBookingTimeZone, BOOKING_CALENDARS, bookingCalendarLabel, type BookingCalendar, formatBookingDate, isReasonableBookingIsoDate, normalizeBookingCalendar, toIsoDate } from '../lib/calendar';
 import { RichTextPreview } from '@/features/booking/components/rich-text-preview';
+import { ShareMedicalCaseStep } from './ShareMedicalCaseStep';
 async function getJson<T>(url: string, init?: RequestInit): Promise<T> {
     const response = await fetch(url, {
         ...init,
@@ -1404,6 +1405,7 @@ export function BookingWizard() {
             })}
               </div>
               <button type="button" onClick={() => getJson('/api/booking-pro/draft', { method: 'PATCH', body: JSON.stringify({ action: 'documents', draftId: draft.id, documents: draft.uploadFiles }) }).then(() => { }).catch((e) => setError(e.message))} className="mt-5 rounded-2xl bg-[#083f30] px-5 py-3 text-sm font-bold text-white shadow-lg">{tBooking("saveFileSelections")}</button>
+              <ShareMedicalCaseStep providerId={draft.providerId}/>
             </div>) : null}
 
           {/* Optional: shop products an admin linked to this service. Never gates
