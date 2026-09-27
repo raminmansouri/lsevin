@@ -40,5 +40,11 @@ export async function getProviderPageDataFromDbCached(
   // within a session but frees combinations nobody revisits in a day.
   cacheLife("hours");
 
-  return getProviderPageDataFromDb(input);
+  const result = await getProviderPageDataFromDb(input);
+  // A transient failure is not a cacheable entity result. Reject so ISR can
+  // retain a previous good render and a later request can retry.
+  if (result.error && result.error.status >= 500) {
+    throw new Error("Could not load provider page.");
+  }
+  return result;
 }

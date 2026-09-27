@@ -33,11 +33,14 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps) {
   const { locale, id } = await params;
-  const result = await getProviderPageDataFromDbCached({ providerId: id, locale }).catch(() => null);
+  const result = await getProviderPageDataFromDbCached({ providerId: id, locale });
   const provider = result?.data?.provider;
 
   if (!provider) {
-    return { title: "Provider", alternates: alternatesFor(locale, `/n/app/mobile/provider/${id}`) };
+    if (result?.error && result.error.status !== 400 && result.error.status !== 404) {
+      throw new Error("Could not load provider page.");
+    }
+    notFound();
   }
 
   const title = provider.city ? `${provider.name} — ${provider.city}` : provider.name;
@@ -69,7 +72,7 @@ export default async function ProviderDetailPage({ params }: PageProps) {
     if (!result?.error || result.error.status === 400 || result.error.status === 404) {
       notFound();
     }
-    throw new Error(result.error.detail || result.error.title || "Could not load provider page.");
+    throw new Error("Could not load provider page.");
   }
 
   return (

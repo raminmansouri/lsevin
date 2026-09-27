@@ -1,0 +1,157 @@
+{
+  "results": [
+    {
+      "locale": "en",
+      "tag": "<html lang=\"en\" dir=\"ltr\">"
+    },
+    {
+      "locale": "fa",
+      "tag": "<html lang=\"fa\" dir=\"rtl\">"
+    },
+    {
+      "locale": "tr",
+      "tag": "<html lang=\"tr\" dir=\"ltr\">"
+    },
+    {
+      "locale": "es",
+      "tag": "<html lang=\"es\" dir=\"ltr\">"
+    },
+    {
+      "locale": "ar",
+      "tag": "<html lang=\"ar\" dir=\"rtl\">"
+    },
+    {
+      "locale": "ku",
+      "tag": "<html lang=\"ku\" dir=\"rtl\">"
+    },
+    {
+      "locale": "de",
+      "tag": "<html lang=\"de\" dir=\"ltr\">"
+    },
+    {
+      "locale": "fr",
+      "tag": "<html lang=\"fr\" dir=\"ltr\">"
+    },
+    {
+      "locale": "ru",
+      "tag": "<html lang=\"ru\" dir=\"ltr\">"
+    },
+    {
+      "locale": "tg",
+      "tag": "<html lang=\"tg\" dir=\"ltr\">"
+    },
+    {
+      "locale": "zh",
+      "tag": "<html lang=\"zh\" dir=\"ltr\">"
+    },
+    {
+      "route": "/en",
+      "status": 200,
+      "tag": "<html lang=\"en\" dir=\"ltr\">"
+    },
+    {
+      "route": "/fa",
+      "status": 200,
+      "tag": "<html lang=\"fa\" dir=\"rtl\">"
+    },
+    {
+      "route": "/ar",
+      "status": 200,
+      "tag": "<html lang=\"ar\" dir=\"rtl\">"
+    },
+    {
+      "route": "/financial",
+      "status": 200,
+      "tag": "<html lang=\"fa\" dir=\"rtl\">"
+    },
+    {
+      "route": "/unsupported",
+      "status": 404,
+      "tag": "<html id=\"__next_error__\">"
+    },
+    {
+      "route": "/missing/path",
+      "status": 404,
+      "tag": "<html id=\"__next_error__\">"
+    },
+    {
+      "route": "/en/missing/path",
+      "status": 404,
+      "tag": "<html id=\"__next_error__\">"
+    },
+    {
+      "route": "/fa/missing/path",
+      "status": 404,
+      "tag": "<html id=\"__next_error__\">"
+    },
+    {
+      "route": "/ar/missing/path",
+      "status": 404,
+      "tag": "<html id=\"__next_error__\">"
+    },
+    {
+      "route": "/",
+      "status": 404,
+      "tag": "<html lang=\"fa\" dir=\"rtl\">"
+    },
+    {
+      "locale": "fa",
+      "suffix": "",
+      "hydration": "passed"
+    },
+    {
+      "locale": "fa",
+      "suffix": "/search",
+      "hydration": "passed"
+    },
+    {
+      "locale": "fa",
+      "suffix": "/private",
+      "hydration": "passed"
+    },
+    {
+      "locale": "en",
+      "suffix": "",
+      "hydration": "passed"
+    },
+    {
+      "locale": "en",
+      "suffix": "/search",
+      "hydration": "passed"
+    },
+    {
+      "locale": "en",
+      "suffix": "/private",
+      "hydration": "passed"
+    },
+    {
+      "locale": "ar",
+      "suffix": "",
+      "hydration": "passed"
+    },
+    {
+      "locale": "ar",
+      "suffix": "/search",
+      "hydration": "passed"
+    },
+    {
+      "locale": "ar",
+      "suffix": "/private",
+      "hydration": "passed"
+    }
+  ],
+  "failures": [
+    {
+      "route": "/en/missing/path",
+      "tag": "<html id=\"__next_error__\">"
+    },
+    {
+      "route": "/fa/missing/path",
+      "tag": "<html id=\"__next_error__\">"
+    },
+    {
+      "route": "/ar/missing/path",
+      "tag": "<html id=\"__next_error__\">"
+    }
+  ]
+}

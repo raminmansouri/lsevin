@@ -262,9 +262,9 @@ export async function getProductBySlug(
   // never touches `getShopContext()` and its result becomes safely cacheable.
   opts?: { displayCurrency?: string; skipWishlist?: boolean; noFx?: boolean },
 ): Promise<ProductDetail | null> {
-  const ctx = locale && opts?.displayCurrency ? null : await getShopContext();
+  const ctx = locale && (opts?.displayCurrency || opts?.noFx) ? null : await getShopContext();
   const lang = normalizeLocale(locale ?? ctx!.locale);
-  const displayCurrency = opts?.displayCurrency ?? (await resolveDisplayCurrency(ctx!)).currency;
+  const displayCurrency = opts?.displayCurrency ?? (opts?.noFx ? "USD" : (await resolveDisplayCurrency(ctx!)).currency);
 
   const baseRows = await sql<any[]>`
     with review_summary as (

@@ -44,10 +44,10 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const product = await getProductBySlugCached(slug, locale).catch(() => null);
+  const product = await getProductBySlugCached(slug, locale);
 
   if (!product) {
-    return { title: "Product", alternates: alternatesFor(locale, `/n/app/mobile/shop/product/${slug}`) };
+    notFound();
   }
 
   const description = firstSeoPlainText([product.shortDescription, product.description]);
@@ -75,7 +75,7 @@ export default async function ProductDetailPage({
   setRequestLocale(locale);
   const t = await getTranslations("Shop");
 
-  const product = await getProductBySlugCached(slug, locale).catch(() => null);
+  const product = await getProductBySlugCached(slug, locale);
   if (!product) notFound();
 
   const primaryServiceId = product.relatedServices[0]?.serviceDefinitionId ?? null;
