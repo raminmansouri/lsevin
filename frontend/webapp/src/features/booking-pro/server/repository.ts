@@ -11,6 +11,7 @@ import { assertDraftAvailabilityBeforeCheckout } from './booking-availability.re
 import { notifyBookingCreated, notifyBookingStarted } from '@/features/notification/server/booking-notifications';
 import { listTransferRouteSummaries } from '@/features/transfers/server/repository';
 import { listServicesWithOpenDepartures, reserveTourDeparture } from '@/features/tours/server/repository';
+import { createCaseProviderGrant } from '@/features/patients/server/case-provider-repository';
 import { pickTranslation } from '../utils/translation';
 import type {
   BookingDraftState,
@@ -373,6 +374,15 @@ function mapDraftRow(row: any): BookingDraftState {
     tourDepartureId: metadata.tourDepartureId as string | undefined,
     childBookings,
     uploadFiles,
+    caseShare:
+      row.case_share_patient_id && row.case_share_medical_case_id
+        ? {
+            patientId: row.case_share_patient_id,
+            medicalCaseId: row.case_share_medical_case_id,
+            permission: row.case_share_permission,
+            scope: row.case_share_scope ?? [],
+          }
+        : null,
   };
 }
 
@@ -656,6 +666,38 @@ export async function saveDraftDocuments(userId: string, draftId: string, docume
     }
     await tx`update booking.booking_drafts set status = 'InProgress' where id = ${draftId} and user_id = ${userId}`;
   });
+}
+
+export type DraftCaseShareInput = {
+  patientId: string;
+  medicalCaseId: string;
+  permission: 'view' | 'contribute';
+  scope: string[];
+} | null;
+
+/**
+ * Persists the customer's "share this case with the provider I'm booking"
+ * choice on the draft itself -- an intent, not a grant. checkoutDraft reads
+ * these same columns once the booking is actually confirmed and creates the
+ * real patient.case_provider_grants row at that point, inside the same
+ * transaction. Passing null clears a previously saved intent (the customer
+ * changed their mind before confirming).
+ */
+export async function saveDraftCaseShare(userId: string, draftId: string, caseShare: DraftCaseShareInput) {
+  const [editableDraft] = await db`
+    select id from booking.booking_drafts
+    where id = ${draftId} and user_id = ${userId}
+      and status in ('Draft', 'InProgress')
+  `;
+  if (!editableDraft) throw new Error('BOOKING_DRAFT_NOT_EDITABLE');
+  await db`
+    update booking.booking_drafts
+    set case_share_patient_id = ${caseShare?.patientId ?? null},
+        case_share_medical_case_id = ${caseShare?.medicalCaseId ?? null},
+        case_share_permission = ${caseShare?.permission ?? null},
+        case_share_scope = ${caseShare?.scope ?? null}
+    where id = ${draftId} and user_id = ${userId}
+  `;
 }
 
 export async function saveChildDraft(userId: string, draftId: string, child: ChildBookingDraft) {
@@ -1966,6 +2008,32 @@ export async function checkoutDraft(
     customerUserId: userId,
     providerId: scope?.providerId,
   }).catch((error) => console.error('notifyBookingCreated failed for booking', txResult.bookingId, error));
+
+  // "Share this case with the provider I'm booking" only ever takes effect
+  // here, once the booking is actually confirmed -- never at the moment the
+  // customer picked it in the wizard (see migration 0062). Same
+  // never-fail-the-booking treatment as notifyBookingCreated above: a stale
+  // or since-deleted case reference must not roll back an otherwise
+  // successful, already-paid booking.
+  const caseShare = (draft as any).case_share_patient_id && (draft as any).case_share_medical_case_id
+    ? {
+        patientId: (draft as any).case_share_patient_id as string,
+        medicalCaseId: (draft as any).case_share_medical_case_id as string,
+        permission: (draft as any).case_share_permission as 'view' | 'contribute',
+        scope: ((draft as any).case_share_scope ?? []) as string[],
+      }
+    : null;
+  if (caseShare && scope?.providerId) {
+    createCaseProviderGrant({
+      patientId: caseShare.patientId,
+      medicalCaseId: caseShare.medicalCaseId,
+      providerId: scope.providerId,
+      bookingId: txResult.bookingId,
+      permission: caseShare.permission,
+      scope: caseShare.scope,
+      grantedBy: userId,
+    }).catch((error) => console.error('createCaseProviderGrant failed for booking', txResult.bookingId, error));
+  }
 
   return {
     bookingId: txResult.bookingId,

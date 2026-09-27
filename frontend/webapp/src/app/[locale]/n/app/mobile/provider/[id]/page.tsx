@@ -30,27 +30,100 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const { locale, id } = await params;
-  const result = await getProviderPageDataFromDbCached({ providerId: id, locale }).catch(() => null);
-  const provider = result?.data?.provider;
+    const { locale, id } = await params;
 
-  if (!provider) {
-    return { title: "Provider", alternates: alternatesFor(locale, `/n/app/mobile/provider/${id}`) };
-  }
+    const result = await getProviderPageDataFromDbCached({
+        providerId: id,
+        locale,
+    }).catch(() => null);
 
-  const title = provider.city ? `${provider.name} — ${provider.city}` : provider.name;
-  const description = (provider.about || provider.tagline || provider.description || "").slice(0, 300);
+    const provider = result?.data?.provider;
 
-  return {
-    title,
-    description: description || undefined,
-    alternates: alternatesFor(locale, `/n/app/mobile/provider/${id}`),
-    openGraph: {
-      title,
-      description: description || undefined,
-      type: "website",
-    },
-  };
+    if (!provider) {
+        return {
+            title: "Provider",
+            alternates: alternatesFor(locale, `/n/app/mobile/provider/${id}`),
+        };
+    }
+
+    // English default / fallback
+    let title = provider.city
+        ? `${provider.name} | ${provider.city} | LSevin`
+        : `${provider.name} | Medical Provider | LSevin`;
+
+    let description =
+        `Find information about ${provider.name}. ` +
+        `View medical services, specialists, location and contact information on LSevin.`;
+
+
+    switch (locale) {
+        case "fa":
+            title = provider.city
+                ? `${provider.name} | ${provider.city} | LSevin`
+                : `${provider.name} | خدمات پزشکی | LSevin`;
+
+            description =
+                `${provider.name} در ${provider.city || "LSevin"}. ` +
+                `اطلاعات خدمات، پزشکان، موقعیت مکانی و راه‌های ارتباطی را در LSevin مشاهده کنید.`;
+            break;
+
+
+        case "ar":
+            title = provider.city
+                ? `${provider.name} | ${provider.city} | LSevin`
+                : `${provider.name} | خدمات طبية | LSevin`;
+
+            description =
+                `تعرف على ${provider.name} في ${provider.city || ""}. ` +
+                `شاهد الخدمات الطبية، الأطباء، الموقع ومعلومات التواصل عبر LSevin.`;
+            break;
+
+
+        case "tr":
+            title = provider.city
+                ? `${provider.name} | ${provider.city} | LSevin`
+                : `${provider.name} | Sağlık Hizmetleri | LSevin`;
+
+            description =
+                `${provider.name} hakkında bilgi alın. ` +
+                `Sağlık hizmetleri, uzmanlar, konum ve iletişim bilgilerini LSevin üzerinden keşfedin.`;
+            break;
+
+
+        case "ru":
+            title = provider.city
+                ? `${provider.name} | ${provider.city} | LSevin`
+                : `${provider.name} | Медицинские услуги | LSevin`;
+
+            description =
+                `Узнайте больше о ${provider.name}. ` +
+                `Просмотрите медицинские услуги, специалистов, расположение и контакты на LSevin.`;
+            break;
+
+
+        case "en":
+        default:
+            // English fallback is already set above
+            break;
+    }
+
+    description = description.slice(0, 300);
+
+    return {
+        title,
+        description,
+
+        alternates: alternatesFor(
+            locale,
+            `/n/app/mobile/provider/${id}`
+        ),
+
+        openGraph: {
+            title,
+            description,
+            type: "website",
+        },
+    };
 }
 
 export default async function ProviderDetailPage({ params }: PageProps) {

@@ -269,6 +269,10 @@ namespace LSevin.Modules.Category.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(250)")
                         .HasColumnName("icon_url");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("text")
+                        .HasColumnName("image_url");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
@@ -297,7 +301,7 @@ namespace LSevin.Modules.Category.Infrastructure.Data.Migrations
                     b.ToTable("categories", "category");
                 });
 
-            modelBuilder.Entity("LSevin.Modules.Category.Category.Entities.Currency", b =>
+            modelBuilder.Entity("LSevin.Modules.Category.Currency.Entities.Currency", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
@@ -418,6 +422,11 @@ namespace LSevin.Modules.Category.Infrastructure.Data.Migrations
                         {
                             Id = 2,
                             Name = "City"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Province"
                         });
                 });
 
@@ -642,6 +651,115 @@ namespace LSevin.Modules.Category.Infrastructure.Data.Migrations
                         .HasDatabaseName("ix_service_definitions_category_id");
 
                     b.ToTable("service_definitions", "category");
+                });
+
+            modelBuilder.Entity("LSevin.Modules.Category.ServiceProvider.Entities.BookingDomain", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AddOns")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("add_ons");
+
+                    b.Property<string>("AdditionalServices")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("additional_services");
+
+                    b.Property<string>("BookingStatus")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("booking_status");
+
+                    b.Property<short>("CheckoutStep")
+                        .HasColumnType("smallint")
+                        .HasColumnName("checkout_step");
+
+                    b.Property<string>("ConfirmationCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("confirmation_code");
+
+                    b.Property<DateTimeOffset>("CreateDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_date")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<DateTimeOffset>("LastModifiedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_modified_date")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("PaymentMethod")
+                        .HasColumnType("text")
+                        .HasColumnName("payment_method");
+
+                    b.Property<string>("PaymentStatus")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("payment_status");
+
+                    b.Property<Guid?>("ProviderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("provider_id");
+
+                    b.Property<DateOnly?>("SelectedDate")
+                        .HasColumnType("date")
+                        .HasColumnName("selected_date");
+
+                    b.Property<TimeOnly?>("SelectedDateFrom")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("selected_date_from");
+
+                    b.Property<TimeOnly?>("SelectedDateTo")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("selected_date_to");
+
+                    b.Property<TimeOnly?>("SelectedTime")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("selected_time");
+
+                    b.Property<TimeOnly?>("SelectedTimeFrom")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("selected_time_from");
+
+                    b.Property<TimeOnly?>("SelectedTimeTo")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("selected_time_to");
+
+                    b.Property<Guid?>("ServiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("service_id");
+
+                    b.Property<Guid?>("SpecialistId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("specialist_id");
+
+                    b.Property<string>("UploadFiles")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("upload_files");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_bookings");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_bookings_one_pending_checkout_per_user")
+                        .HasFilter("booking_status = 'Pending'");
+
+                    b.ToTable("bookings", "booking");
                 });
 
             modelBuilder.Entity("LSevin.Modules.Category.ServiceProvider.Entities.ProviderAttribute", b =>
