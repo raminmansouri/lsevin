@@ -1,3 +1,7 @@
+import { privateMetadata } from "@/lib/seo/robots-policy";
+
+export const metadata = privateMetadata;
+
 import { Suspense } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";

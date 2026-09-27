@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+import { routing } from "./src/i18n/routing";
+import { facetHeaders } from "./src/lib/seo/facet-headers";
 
 // pull from env
 const filesUrl = new URL(
@@ -22,6 +24,9 @@ const withNextIntl = createNextIntlPlugin({
 });
 
 const nextConfig: NextConfig = {
+  async headers() {
+    return facetHeaders(routing.locales);
+  },
   
    typescript: {
     ignoreBuildErrors: true,

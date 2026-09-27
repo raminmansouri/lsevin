@@ -1,3 +1,7 @@
+import { searchMetadata } from "@/lib/seo/robots-policy";
+
+export const metadata = searchMetadata;
+
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
 
 /**

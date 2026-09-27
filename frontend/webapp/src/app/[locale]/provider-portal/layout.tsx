@@ -1,3 +1,7 @@
+import { privateMetadata } from "@/lib/seo/robots-policy";
+
+export const metadata = privateMetadata;
+
 import { NextIntlClientProvider } from "next-intl";
 
 import { getClientMessages } from "@/i18n/client-messages";
