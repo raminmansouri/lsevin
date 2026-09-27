@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { alternatesFor } from "@/lib/seo/alternates";
+import { firstSeoPlainText } from "@/lib/seo/plain-text";
 import { Link } from "@/i18n/navigation";
 import { getProductBySlugCached } from "@/features/shop/api/catalog.repository.cached";
 import { listActiveProductSlugs } from "@/features/shop/api/catalog.repository";
@@ -49,7 +50,7 @@ export async function generateMetadata({
     return { title: "Product", alternates: alternatesFor(locale, `/n/app/mobile/shop/product/${slug}`) };
   }
 
-  const description = (product.shortDescription || product.description || "").slice(0, 300);
+  const description = firstSeoPlainText([product.shortDescription, product.description]);
 
   return {
     title: product.name,
@@ -61,6 +62,7 @@ export async function generateMetadata({
       type: "website",
       images: product.imageUrl ? [{ url: product.imageUrl }] : undefined,
     },
+    twitter: { title: product.name, description: description || undefined },
   };
 }
 

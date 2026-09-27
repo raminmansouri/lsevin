@@ -5,6 +5,7 @@ import { getSpecialistPageFromDbCached } from "@/features/service-providers/serv
 import { listActiveSpecialistPageIds } from "@/features/service-providers/server/specialist-page.repository";
 
 import { alternatesFor } from "@/lib/seo/alternates";
+import { firstSeoPlainText } from "@/lib/seo/plain-text";
 import SpecialistProfileClient from "./specialist-page";
 
 type Awaitable<T> = T | Promise<T>;
@@ -38,7 +39,7 @@ export async function generateMetadata({ params }: Pick<PageProps, "params">) {
   }
 
   const title = specialist.title ? `${specialist.name} — ${specialist.title}` : specialist.name;
-  const description = (specialist.biography || specialist.specialty || "").slice(0, 300);
+  const description = firstSeoPlainText([specialist.biography, specialist.specialty]);
 
   return {
     title,
@@ -50,6 +51,7 @@ export async function generateMetadata({ params }: Pick<PageProps, "params">) {
       type: "profile",
       images: specialist.image ? [{ url: specialist.image }] : undefined,
     },
+    twitter: { title, description: description || undefined },
   };
 }
 

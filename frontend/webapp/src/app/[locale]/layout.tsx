@@ -31,20 +31,12 @@ export async function generateMetadata(
     // that set `alternates` still supply their own absolute canonical.
     metadataBase: new URL(env.NEXT_PUBLIC_URL),
     title: {
-      // TEMPORARY: Enamad's title-based domain-verification check asks for
-      // "51635800" as the page title on appmain.lsevin.com. Only the
-      // `default` (used by pages with no title of their own, e.g. the
-      // homepage at n/app/mobile/home) is swapped -- `template` below still
-      // uses the real name, so pages that set their own title (shop,
-      // provider, etc.) are unaffected. Revert to `t("title")` once Enamad's
-      // "تایید عنوان" check has passed.
-      default: "51635800",
+      // Domain verification belongs in root metadata.other; crawler-facing
+      // page titles must always remain human-readable and localized.
+      default: t("title"),
       template: `${t("title")} | %s`,
     },
-    description: {
-      default: t("description"),
-      template: `${t("description")} | %s`,
-    },
+    description: t("description"),
   };
 }
 

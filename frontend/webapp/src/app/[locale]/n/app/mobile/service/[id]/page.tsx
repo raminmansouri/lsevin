@@ -5,6 +5,7 @@ import { getServicePageByIdCached } from '@/features/service-providers/server/se
 import { listActiveServicePageIds } from '@/features/service-providers/server/service-page.repository';
 
 import { alternatesFor } from '@/lib/seo/alternates';
+import { firstSeoPlainText } from '@/lib/seo/plain-text';
 import { SponsoredPlacementSlot } from '@/features/sponsered-slider/components/sponsored-placement-slot';
 
 import ServicePage from './service-page';
@@ -43,7 +44,11 @@ export async function generateMetadata({ params }: Pick<ServicePageRouteProps, '
   }
 
   const title = service.clinic ? `${service.name} — ${service.clinic}` : service.name;
-  const description = (service.subtitle || service.definitionDescription || service.providerDescription || '').slice(0, 300);
+  const description = firstSeoPlainText([
+    service.subtitle,
+    service.definitionDescription,
+    service.providerDescription,
+  ]);
 
   return {
     title,
@@ -55,6 +60,7 @@ export async function generateMetadata({ params }: Pick<ServicePageRouteProps, '
       type: 'website',
       images: service.images?.[0] ? [{ url: service.images[0] }] : undefined,
     },
+    twitter: { title, description: description || undefined },
   };
 }
 

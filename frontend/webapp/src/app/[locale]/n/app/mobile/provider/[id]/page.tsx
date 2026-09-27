@@ -1,9 +1,11 @@
+import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 
 import { getProviderPageDataFromDbCached } from "@/features/service-providers/server/provider-page.repository.cached";
 import { listActiveProviderPageIds } from "@/features/service-providers/server/provider-page.repository";
 
 import { alternatesFor } from "@/lib/seo/alternates";
+import { firstSeoPlainText } from "@/lib/seo/plain-text";
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
 
 import { ProviderDetailView } from "./provider-detail-view";
@@ -39,7 +41,11 @@ export async function generateMetadata({ params }: PageProps) {
   }
 
   const title = provider.city ? `${provider.name} — ${provider.city}` : provider.name;
-  const description = (provider.about || provider.tagline || provider.description || "").slice(0, 300);
+  const description = firstSeoPlainText([
+    provider.about,
+    provider.tagline,
+    provider.description,
+  ]);
 
   return {
     title,
@@ -50,6 +56,7 @@ export async function generateMetadata({ params }: PageProps) {
       description: description || undefined,
       type: "website",
     },
+    twitter: { title, description: description || undefined },
   };
 }
 
@@ -57,13 +64,17 @@ export default async function ProviderDetailPage({ params }: PageProps) {
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const result = await getProviderPageDataFromDbCached({ providerId: id, locale }).catch(
-    () => ({ data: undefined, error: undefined }) as Awaited<ReturnType<typeof getProviderPageDataFromDbCached>>,
-  );
+  const result = await getProviderPageDataFromDbCached({ providerId: id, locale });
+  if (!result?.data) {
+    if (!result?.error || result.error.status === 400 || result.error.status === 404) {
+      notFound();
+    }
+    throw new Error(result.error.detail || result.error.title || "Could not load provider page.");
+  }
 
   return (
     <>
-      <ProviderDetailView initialData={result?.data ?? undefined} />
+      <ProviderDetailView initialData={result.data} />
       <SponsoredPlacementSlot locale={locale} placement="provider_detail" />
     </>
   );
