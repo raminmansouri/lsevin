@@ -137,7 +137,9 @@ export default async function TreatmentDetailPage({ params }: ServicePageRoutePr
   return (
     <>
       <ServicePage data={data} serviceId={id} locale={locale} />
-      <SponsoredPlacementSlot locale={locale} placement="service_detail" />
+      <div className="pb-36">
+        <SponsoredPlacementSlot locale={locale} placement="service_detail" />
+      </div>
     </>
   );
 }
