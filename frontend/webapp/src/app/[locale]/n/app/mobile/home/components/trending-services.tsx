@@ -1,4 +1,5 @@
 import { TrendingUp, Users } from 'lucide-react';
+import { FavoriteButton } from '@/features/favorites/components/favorite-button';
 
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 
@@ -73,7 +74,14 @@ function TrendingServiceCard({ service, labels }: { service: HomeTrendingService
             <span className="text-xs font-bold text-white">{service.growthLabel}</span>
           </div>
         ) : null}
-
+    
+        <FavoriteButton
+          entityId={service.id}
+          entityType="service"
+          initialIsFavorite={false}
+          className="absolute left-2 top-2 !h-7 !w-7 bg-white/90 text-gray-700 shadow-sm backdrop-blur-sm"
+          iconClassName="h-3.5 w-3.5"
+        />
         <div className="absolute bottom-0 left-0 right-0 p-3">
           <h3 className="mb-1 line-clamp-2 text-sm font-bold text-white">{service.displayName}</h3>
           <div className="flex items-center gap-1 text-white/80">

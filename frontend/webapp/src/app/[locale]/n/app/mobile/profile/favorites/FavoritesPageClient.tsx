@@ -110,10 +110,18 @@ export default function FavoritesPageClient({
         {filteredFavorites.length > 0 ? (
           <div className="space-y-4">
             {filteredFavorites.map((item) => (
-              <button
+              <div
                 key={item.favoriteId}
+                role="button"
+                tabIndex={0}
                 onClick={() => handleCardClick(item)}
-                className="w-full text-left bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-[#083f30] hover:shadow-md transition-all"
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    handleCardClick(item);
+                  }
+                }}
+                className="w-full cursor-pointer text-left bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-[#083f30] hover:shadow-md transition-all"
               >
                 <div className="flex">
                   <img
@@ -155,7 +163,7 @@ export default function FavoritesPageClient({
                     </div>
                   </div>
                 </div>
-              </button>
+              </div>
             ))}
           </div>
         ) : (

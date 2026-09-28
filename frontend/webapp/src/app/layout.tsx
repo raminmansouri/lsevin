@@ -43,6 +43,11 @@ const vazirmatn = localFont({
 // no manual <head> JSX needed/possible this deep in the App Router).
 export const metadata: Metadata = {
   metadataBase: new URL(seoOrigin()),
+  title: {
+    default: "LSevin",
+    template: "%s | LSevin",
+  },
+  description: "LSevin",
   other: {
     enamad: "51635800",
   },

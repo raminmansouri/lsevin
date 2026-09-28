@@ -29,16 +29,16 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string; slug: string }>;
+                                           params,
+                                       }: {
+    params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { locale, slug } = await params;
-  const [categories, t] = await Promise.all([
-    getShopCategoriesCached(locale).catch(() => []),
-    getTranslations({ locale, namespace: "Shop" }),
-  ]);
-  const category = categories.find((c) => c.slug === slug);
+    const { locale, slug } = await params;
+    const [categories, t] = await Promise.all([
+      getShopCategoriesCached(locale).catch(() => []),
+      getTranslations({ locale, namespace: "Shop" }),
+    ]);
+    const category = categories.find((c) => c.slug === slug);
 
   return buildPublicMetadata({
     locale,

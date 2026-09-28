@@ -34,7 +34,9 @@ export default async function MainLayout({
         {/* No gap: the app bar and each page's own header must meet without a seam. */}
         <div className="flex flex-col">
           <MobileAppBar />
-          {children}
+          <div className="pb-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom))]">
+            {children}
+          </div>
           <BottomTabBar />
         </div>
       </Shell>

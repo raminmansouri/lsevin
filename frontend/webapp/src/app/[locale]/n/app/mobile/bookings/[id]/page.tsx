@@ -416,6 +416,7 @@ export default function BookingDetail() {
     const [cancelReason, setCancelReason] = useState("");
     const [isPending, startTransition] = useTransition();
     const [isPaymentPending, startPaymentTransition] = useTransition();
+    const [, startLoadGatewaysTransition] = useTransition();
     const [enabledPaymentGateways, setEnabledPaymentGateways] = useState<AvailablePaymentGateway[]>([]);
     const { data, error, isFetching, refetch } = useFetchGetBookingById({ id });
     const booking = data?.booking;
@@ -433,6 +434,7 @@ export default function BookingDetail() {
         },
     });
     const { execute: executeLoadPaymentGateways } = useAction(getEnabledPaymentGatewaysAction, {
+        startTransition: startLoadGatewaysTransition,
         onSuccess: (gateways) => {
             setEnabledPaymentGateways(gateways || []);
         },
@@ -454,7 +456,7 @@ export default function BookingDetail() {
         },
     });
     useEffect(() => {
-        executeLoadPaymentGateways({});
+        executeLoadPaymentGateways({ context: "booking_online_card" });
     }, [executeLoadPaymentGateways]);
     useEffect(() => {
         const paymentStatus = searchParams.get("payment");
@@ -507,8 +509,8 @@ export default function BookingDetail() {
           <div className="h-32 animate-pulse rounded-2xl bg-white"/>
         </div>) : booking ? (<BookingDetailContent booking={booking} onCancel={() => setShowCancelModal(true)} onPay={(gateway) => executeInitiatePayment({ bookingId: booking.id, gateway: gateway.code })} isPaying={isPaymentPending} paymentGateway={enabledPaymentGateways[0] || null}/>) : null}
 
-      {showCancelModal && booking && (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-5 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-3xl bg-white shadow-xl">
+      {showCancelModal && booking && (<div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-5 pb-24 backdrop-blur-sm">
+          <div className="flex max-h-[80vh] w-full max-w-md flex-col overflow-y-auto rounded-3xl bg-white shadow-xl">
             <div className="border-b border-gray-200 p-6">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">

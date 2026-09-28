@@ -29,9 +29,9 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Pick<PageProps, "params">) {
-  const { locale, id } = await params;
-  const data = await getSpecialistPageFromDbCached({ specialistId: id, locale }).catch(() => null);
-  const specialist = data?.specialist;
+    const { locale, id } = await params;
+    const data = await getSpecialistPageFromDbCached({ specialistId: id, locale }).catch(() => null);
+    const specialist = data?.specialist;
 
   if (!specialist) {
     return buildPublicMetadata({ locale, path: `/n/app/mobile/specialist/${encodeURIComponent(id)}` });

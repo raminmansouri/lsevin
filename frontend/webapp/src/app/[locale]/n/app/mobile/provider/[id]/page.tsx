@@ -67,7 +67,9 @@ export default async function ProviderDetailPage({ params }: PageProps) {
   return (
     <>
       <ProviderDetailView initialData={result.data} />
-      <SponsoredPlacementSlot locale={locale} placement="provider_detail" />
+      <div className="pb-36">
+        <SponsoredPlacementSlot locale={locale} placement="provider_detail" />
+      </div>
     </>
   );
 }

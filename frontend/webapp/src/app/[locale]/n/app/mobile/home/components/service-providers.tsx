@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { BadgeCheck, Heart, Star } from 'lucide-react';
+import { FavoriteButton } from '@/features/favorites/components/favorite-button';
 
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 
@@ -153,10 +154,13 @@ function FeaturedServiceCard({
           </div>
         ) : null}
 
-        <span className="absolute end-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow-sm backdrop-blur-sm @min-[220px]:end-3 @min-[220px]:top-3 @min-[220px]:h-9 @min-[220px]:w-9">
-          <Heart className="h-3.5 w-3.5 @min-[220px]:h-[18px] @min-[220px]:w-[18px]" />
-        </span>
-
+        <FavoriteButton
+          entityId={service.id}
+          entityType="service"
+          initialIsFavorite={false}
+          className="absolute end-1.5 top-1.5 !h-7 !w-7 bg-white/90 text-gray-700 shadow-sm backdrop-blur-sm @min-[220px]:end-3 @min-[220px]:top-3 @min-[220px]:!h-9 @min-[220px]:!w-9"
+          iconClassName="h-3.5 w-3.5 @min-[220px]:h-[18px] @min-[220px]:w-[18px]"
+        />
         {/* Only the first badge survives a 165px column — three of them stacked in a
             two-up grid buried the image. The rest come back at full width. */}
         {service.badges.length ? (

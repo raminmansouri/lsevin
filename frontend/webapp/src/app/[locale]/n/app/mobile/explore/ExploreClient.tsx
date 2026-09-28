@@ -652,7 +652,7 @@ export default function ExploreClient({
                   )}
 
                   <div className="absolute top-2 start-2 px-2 py-0.5 bg-white/95 backdrop-blur-sm rounded-md">
-                    <span className="text-xs font-bold text-[#083f30]">{provider.badge}</span>
+                    <span className="text-xs font-bold text-[#083f30]" data-latin-digits>{provider.badge}</span>
                   </div>
                 </div>
 

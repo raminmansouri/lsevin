@@ -26,10 +26,8 @@ export async function generateMetadata(
   const t = await getTranslations({ locale, namespace: "LocaleLayout" });
 
   return {
-    // Without this every relative URL in an openGraph/twitter block resolves
-    // against localhost at build time and Next logs a warning per page. Pages
-    // that set `alternates` still supply their own absolute canonical.
     metadataBase: new URL(env.NEXT_PUBLIC_URL),
+
     title: {
       // Domain verification belongs in root metadata.other; crawler-facing
       // page titles must always remain human-readable and localized.
