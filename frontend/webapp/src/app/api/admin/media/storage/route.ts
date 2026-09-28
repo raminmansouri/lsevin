@@ -75,10 +75,21 @@ export async function POST(request: NextRequest) {
     );
 
     if (error) {
-      return NextResponse.json(
-        { error: typeof error === "string" ? error : "File storage upload failed." },
-        { status: 502 }
-      );
+      console.error("[media/storage] backend upload failed:", {
+        hasToken: Boolean(user?.accessToken),
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type,
+        error,
+      });
+
+      const e = error as { detail?: string; title?: string; message?: string; status?: number };
+      const detail =
+        typeof error === "string"
+          ? error
+          : e?.detail || e?.title || e?.message || "File storage upload failed.";
+
+      return NextResponse.json({ error: detail }, { status: 502 });
     }
 
     const fileUrl = firstString(data);

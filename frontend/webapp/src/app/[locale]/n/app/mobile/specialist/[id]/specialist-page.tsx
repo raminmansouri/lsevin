@@ -1,5 +1,6 @@
 "use client";
 
+import { BeforeAfterGallery } from "@/features/service-providers/components/before-after-gallery";
 import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import {
@@ -47,6 +48,8 @@ import { DigikalaReviewCard } from "../../../components/DigikalaReviewCard";
 import { useReviewEligibility } from "../../../components/useReviewEligibility";
 
 type ReviewSort = "newest" | "buyers" | "helpful";
+
+type SpecialistTab = "about" | "providers" | "services" | "beforeAfter" | "reviews" | "credentials";
 
 function reviewSortValue(review: SpecialistReview, sort: ReviewSort) {
   if (sort === "helpful") return Number(review.helpful || 0) - Number(review.notHelpful || 0);
@@ -555,7 +558,7 @@ export default function SpecialistProfileClient({
 }) {
   const t = useTranslations("SpecialistPage");
   const navigate = useNavigate();
-  const [selectedTab, setSelectedTab] = useState<"about" | "providers" | "services" | "reviews" | "credentials">("about");
+  const [selectedTab, setSelectedTab] = useState<SpecialistTab>("about");
   const [isFavorited, setIsFavorited] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -577,10 +580,14 @@ export default function SpecialistProfileClient({
       { id: "about" as const, label: t("tabs.about") },
       { id: "providers" as const, label: t("tabs.places", { count: data.providers.length }) },
       { id: "services" as const, label: t("tabs.services", { count: data.services.length }) },
+      // The before/after tab only exists when the admin has uploaded results.
+      ...(data.beforeAfter.length
+        ? [{ id: "beforeAfter" as const, label: t("gallery.beforeAfterTitle") }]
+        : []),
       { id: "reviews" as const, label: t("tabs.reviews", { count: data.recentReviews.length }) },
       { id: "credentials" as const, label: t("tabs.credentials") },
     ],
-    [data.providers.length, data.recentReviews.length, data.services.length, t]
+    [data.beforeAfter.length, data.providers.length, data.recentReviews.length, data.services.length, t]
   );
 
   const handleShare = async () => {
@@ -795,34 +802,23 @@ export default function SpecialistProfileClient({
               <div>
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <h3 className="text-lg font-bold text-gray-900">{t("gallery.resultsGallery")}</h3>
-                  <button type="button" onClick={() => setIsGalleryOpen(true)} className="text-sm font-bold text-[#083f30]">
+                  <button type="button" onClick={() => setSelectedTab("beforeAfter")} className="text-sm font-bold text-[#083f30]">
                     {t("actions.viewAll")}
                   </button>
                 </div>
-                <div className="space-y-4">
-                  {data.beforeAfter.slice(0, 2).map((item) => (
-                    <div key={item.id} className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
-                      <div className="grid grid-cols-2 gap-px bg-gray-200">
-                        <div className="relative aspect-[4/3]">
-                          <MediaImage src={item.before} alt={t("gallery.before")} className="object-cover" />
-                          <span className="absolute left-2 top-2 rounded-lg bg-red-500 px-2 py-1 text-xs font-bold text-white">{t("gallery.before")}</span>
-                        </div>
-                        <div className="relative aspect-[4/3]">
-                          <MediaImage src={item.after} alt={t("gallery.after")} className="object-cover" />
-                          <span className="absolute right-2 top-2 rounded-lg bg-green-500 px-2 py-1 text-xs font-bold text-white">{t("gallery.after")}</span>
-                        </div>
-                      </div>
-                      <div className="p-3">
-                        <p className="font-semibold text-gray-900">{item.procedure || t("gallery.resultFallback")}</p>
-                        {item.months ? <p className="text-sm text-gray-500">{t("gallery.afterMonths", { months: item.months })}</p> : null}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <BeforeAfterGallery
+                  items={data.beforeAfter.slice(0, 2).map((item) => ({
+                    id: item.id,
+                    before: item.before,
+                    after: item.after,
+                    procedure: item.procedure,
+                    months: item.months,
+                  }))}
+                />
 
                 <button
                   type="button"
-                  onClick={() => setIsGalleryOpen(true)}
+                  onClick={() => setSelectedTab("beforeAfter")}
                   className="mt-3 h-11 w-full rounded-xl bg-gray-100 font-semibold text-gray-900 transition-colors hover:bg-gray-200"
                 >
                   {t("gallery.viewFullGallery")}
@@ -849,6 +845,21 @@ export default function SpecialistProfileClient({
               {t("sections.servicesProvided")}
             </h2>
             <ServicesSection services={data.services} navigate={navigate} />
+          </div>
+        ) : null}
+
+        {selectedTab === "beforeAfter" ? (
+          <div>
+            <h2 className="mb-4 text-lg font-bold text-gray-900">{t("gallery.beforeAfterTitle")}</h2>
+            <BeforeAfterGallery
+              items={data.beforeAfter.map((item) => ({
+                id: item.id,
+                before: item.before,
+                after: item.after,
+                procedure: item.procedure,
+                months: item.months,
+              }))}
+            />
           </div>
         ) : null}
 
