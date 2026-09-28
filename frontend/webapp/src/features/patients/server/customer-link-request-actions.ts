@@ -36,7 +36,17 @@ export async function submitAccountLinkRequestAction(
     throw error;
   }
 
-  const request = await createAccountLinkRequest({ ...values, accountId });
+  let request: AccountLinkRequestRow;
+  try {
+    request = await createAccountLinkRequest({ ...values, accountId });
+  } catch (error) {
+    // An unexpected DB-layer failure (e.g. a check constraint the app-level
+    // schema doesn't mirror) must never present as "invalid form" -- that's
+    // actively misleading when the submitted values were already valid per
+    // SubmitAccountLinkRequestSchema. Log the real cause and say so honestly.
+    console.error("[ACCOUNT_LINK_REQUEST_SUBMIT]", error);
+    return { ok: false, error: t("errors.serverError") };
+  }
   await recordPatientAuditEvent({
     actorUserId: accountId,
     action: "account_link_request_submitted",

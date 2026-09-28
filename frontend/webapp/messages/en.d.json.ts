@@ -15910,7 +15910,8 @@ declare const messages: {
       "invalidForm": "Some fields are invalid. Please check and try again.",
       "notFound": "Patient not found.",
       "versionConflict": "This patient was modified by someone else. Reload and try again.",
-      "duplicateIdentifier": "This identifier is already attached to a patient."
+      "duplicateIdentifier": "This identifier is already attached to a patient.",
+      "serverError": "Something went wrong on our end. Please try again or contact support."
     },
     "admin": {
       "title": "Patients",
