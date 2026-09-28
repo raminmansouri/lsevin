@@ -1,24 +1,21 @@
 // src/features/specialist-page/types.ts
 
 export interface Specialist {
-    id: string;
-    name: string;
-    title: string;
-    specialty: string;
-    image: string;
-    rating: number;
-    reviews: number;
-    experience: number;
-    patients: string;
-    successRate: string;
-    verified: boolean;
-    languages: string[];
-    clinic: string;
-    clinicId: string;
-    location: string;
-    responseTime: string;
-    consultationFee: number;
-  }
+  id: string;
+  name: string;
+  title: string;
+  specialty: string;
+  image: string;
+  rating: number;
+  reviews: number;
+  // Display text such as "5 years" or "On request", not a number.
+  // The numeric value lives in `experienceYears` on SpecialistPageResponse.
+  experience: string;
+  patients: string;
+  successRate: string;
+  verified: boolean;
+  languages: string[];
+}
   
   export interface Education {
     degree: string;
@@ -192,9 +189,11 @@ export interface SpecialistBeforeAfter {
 export interface SpecialistAvailability {
   id: string;
   dayOfWeek: number;
+  status: string;
+  isRecurring: boolean;
+  specificDate: string | null;
   startTime: string;
   endTime: string;
-  status: string;
 }
 
 export interface SpecialistPageResponse {
