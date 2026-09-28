@@ -66,7 +66,10 @@ export function LocaleSync() {
         // A stale <Link> navigated to the wrong-locale copy of the page.
         // Re-issue the current (locale-stripped) path under the chosen locale;
         // converges in one hop once urlLocale === cookieLocale.
-        router.replace(pathname, { locale: cookieLocale });
+          router.replace(
+              `${pathname}${window.location.search}${window.location.hash}`,
+              { locale: cookieLocale }
+          );
       } else if (activeLocale !== cookieLocale) {
         // URL locale is right but the rendered [locale] provider tree is a
         // reused/cached segment still on the pre-switch value. Re-fetch this
