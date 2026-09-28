@@ -1,39 +1,41 @@
-import { env } from "@/config/env/client";
+import "server-only";
 import { routing } from "@/i18n/routing";
+import { seoOrigin } from "./origin";
 
-/**
- * The app serves the same page under eleven locale prefixes. Without a canonical
- * and an hreflang set, a crawler sees eleven unrelated URLs with near-identical
- * markup and has to guess which one to rank — the textbook duplicate-content
- * split. These helpers emit both from one place so every public page agrees.
- *
- * `path` is always the locale-less path with a leading slash ("" for the home
- * page), e.g. "/consulting" or `/service-providers/${id}`.
- */
+export type SeoLocale = (typeof routing.locales)[number];
 
-const base = env.NEXT_PUBLIC_URL.replace(/\/$/, "");
+function assertLocale(locale: string): asserts locale is SeoLocale {
+  if (!(routing.locales as readonly string[]).includes(locale)) throw new Error("Unsupported SEO locale");
+}
 
-export const absoluteUrl = (locale: string, path = "") => `${base}/${locale}${path}`;
-
-/**
- * hreflang map for one path across every locale, plus the x-default that tells a
- * crawler which URL to serve when no declared language matches the user.
- */
-export const languageAlternates = (path = ""): Record<string, string> => {
-  const languages: Record<string, string> = {};
-  for (const locale of routing.locales) {
-    languages[locale] = absoluteUrl(locale, path);
+/** Locale-less path; strips tracking and fragments and encodes each segment once. */
+export function normalizeSeoPath(path: string): string {
+  if (/^[a-z][a-z\d+.-]*:/i.test(path) || path.startsWith("//") || path.includes("\\")) {
+    throw new Error("SEO path must be a local locale-less path");
   }
-  languages["x-default"] = absoluteUrl(routing.defaultLocale, path);
-  return languages;
-};
+  const segments = path.split(/[?#]/, 1)[0].split("/").filter(Boolean);
+  return segments.map(segment => {
+    let decoded: string;
+    try { decoded = decodeURIComponent(segment); } catch { throw new Error("Invalid SEO path encoding"); }
+    if (decoded === "." || decoded === ".." || /[\u0000-\u001f\u007f]/u.test(decoded)) throw new Error("Invalid SEO path segment");
+    return `/${encodeURIComponent(decoded)}`;
+  }).join("");
+}
 
-/**
- * Drop into a page's `generateMetadata` return value. The canonical points at the
- * locale actually being rendered — self-referencing canonicals are what let each
- * translation rank in its own market instead of collapsing into one.
- */
-export const alternatesFor = (locale: string, path = "") => ({
+export function absoluteUrl(locale: string, path = ""): string {
+  assertLocale(locale);
+  return `${seoOrigin()}/${locale}${normalizeSeoPath(path)}`;
+}
+
+/** Existing callers retain routed locales; provenance-aware callers can narrow eligibility. */
+export function languageAlternates(path = "", eligibleLocales: readonly SeoLocale[] = routing.locales): Record<string, string> {
+  const languages: Record<string, string> = {};
+  for (const locale of eligibleLocales) languages[locale] = absoluteUrl(locale, path);
+  if (eligibleLocales.includes(routing.defaultLocale)) languages["x-default"] = absoluteUrl(routing.defaultLocale, path);
+  return languages;
+}
+
+export const alternatesFor = (locale: string, path = "", eligibleLocales?: readonly SeoLocale[]) => ({
   canonical: absoluteUrl(locale, path),
-  languages: languageAlternates(path),
+  languages: languageAlternates(path, eligibleLocales),
 });

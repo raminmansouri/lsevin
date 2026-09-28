@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { seoOrigin } from "@/lib/seo/origin";
 import localFont from "next/font/local";
 import Script from "next/script";
 
@@ -41,6 +42,7 @@ const vazirmatn = localFont({
 // `metadata` export gives for free (Next renders it into every page's <head>,
 // no manual <head> JSX needed/possible this deep in the App Router).
 export const metadata: Metadata = {
+  metadataBase: new URL(seoOrigin()),
   other: {
     enamad: "51635800",
   },

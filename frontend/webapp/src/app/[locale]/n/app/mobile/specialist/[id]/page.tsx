@@ -4,8 +4,7 @@ import { setRequestLocale } from "next-intl/server";
 import { getSpecialistPageFromDbCached } from "@/features/service-providers/server/specialist-page.repository.cached";
 import { listActiveSpecialistPageIds } from "@/features/service-providers/server/specialist-page.repository";
 
-import { alternatesFor } from "@/lib/seo/alternates";
-import { firstSeoPlainText } from "@/lib/seo/plain-text";
+import { buildPublicMetadata } from "@/lib/seo/metadata";
 import SpecialistProfileClient from "./specialist-page";
 
 type Awaitable<T> = T | Promise<T>;
@@ -35,24 +34,17 @@ export async function generateMetadata({ params }: Pick<PageProps, "params">) {
   const specialist = data?.specialist;
 
   if (!specialist) {
-    return { title: "Specialist", alternates: alternatesFor(locale, `/n/app/mobile/specialist/${id}`) };
+    return buildPublicMetadata({ locale, path: `/n/app/mobile/specialist/${encodeURIComponent(id)}` });
   }
 
-  const title = specialist.title ? `${specialist.name} — ${specialist.title}` : specialist.name;
-  const description = firstSeoPlainText([specialist.biography, specialist.specialty]);
-
-  return {
-    title,
-    description: description || undefined,
-    alternates: alternatesFor(locale, `/n/app/mobile/specialist/${id}`),
-    openGraph: {
-      title,
-      description: description || undefined,
-      type: "profile",
-      images: specialist.image ? [{ url: specialist.image }] : undefined,
-    },
-    twitter: { title, description: description || undefined },
-  };
+  return buildPublicMetadata({
+    locale,
+    path: `/n/app/mobile/specialist/${encodeURIComponent(id)}`,
+    title: specialist.title ? `${specialist.name} ? ${specialist.title}` : specialist.name,
+    descriptions: [specialist.biography, specialist.specialty],
+    image: specialist.image,
+    type: "profile",
+  });
 }
 
 export default async function SpecialistPage({ params }: PageProps) {

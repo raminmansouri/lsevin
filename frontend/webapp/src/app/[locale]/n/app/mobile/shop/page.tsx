@@ -1,6 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import { alternatesFor } from "@/lib/seo/alternates";
+import { buildPublicMetadata } from "@/lib/seo/metadata";
 import {
   getShopDefaultCurrencyCached,
 } from "@/features/shop/api/catalog.repository.cached";
@@ -46,11 +46,12 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Shop" });
 
-  return {
+  return buildPublicMetadata({
+    locale,
+    path: "/n/app/mobile/shop",
     title: t("title"),
-    description: t("metaDescription"),
-    alternates: alternatesFor(locale, "/n/app/mobile/shop"),
-  };
+    descriptions: [t("metaDescription")],
+  });
 }
 
 export default async function ShopHomePage({ params }: { params: Promise<{ locale: string }> }) {

@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import { alternatesFor } from "@/lib/seo/alternates";
-import { firstSeoPlainText } from "@/lib/seo/plain-text";
+import { buildPublicMetadata } from "@/lib/seo/metadata";
 import { Link } from "@/i18n/navigation";
 import { getProductBySlugCached } from "@/features/shop/api/catalog.repository.cached";
 import { listActiveProductSlugs } from "@/features/shop/api/catalog.repository";
@@ -50,20 +49,14 @@ export async function generateMetadata({
     notFound();
   }
 
-  const description = firstSeoPlainText([product.shortDescription, product.description]);
-
-  return {
+  return buildPublicMetadata({
+    locale,
+    path: `/n/app/mobile/shop/product/${encodeURIComponent(slug)}`,
     title: product.name,
-    description: description || undefined,
-    alternates: alternatesFor(locale, `/n/app/mobile/shop/product/${slug}`),
-    openGraph: {
-      title: product.name,
-      description: description || undefined,
-      type: "website",
-      images: product.imageUrl ? [{ url: product.imageUrl }] : undefined,
-    },
-    twitter: { title: product.name, description: description || undefined },
-  };
+    descriptions: [product.shortDescription, product.description],
+    image: product.imageUrl,
+    type: "website",
+  });
 }
 
 export default async function ProductDetailPage({

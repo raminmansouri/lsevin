@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import { alternatesFor } from "@/lib/seo/alternates";
+import { buildPublicMetadata } from "@/lib/seo/metadata";
 import {
   getShopBrandsCached,
   getShopCategoriesCached,
@@ -40,20 +40,13 @@ export async function generateMetadata({
   ]);
   const category = categories.find((c) => c.slug === slug);
 
-  if (!category) {
-    return { title: "Category", alternates: alternatesFor(locale, `/n/app/mobile/shop/category/${slug}`) };
-  }
-
-  return {
-    title: category.name,
-    description: t("categoryMetaDescription", { count: category.productCount, name: category.name }),
-    alternates: alternatesFor(locale, `/n/app/mobile/shop/category/${slug}`),
-    openGraph: {
-      title: category.name,
-      type: "website",
-      images: category.imageUrl ? [{ url: category.imageUrl }] : undefined,
-    },
-  };
+  return buildPublicMetadata({
+    locale,
+    path: `/n/app/mobile/shop/category/${encodeURIComponent(slug)}`,
+    title: category?.name,
+    descriptions: category ? [t("categoryMetaDescription", { count: category.productCount, name: category.name })] : [],
+    image: category?.imageUrl,
+  });
 }
 
 export default async function ShopCategoryPage({

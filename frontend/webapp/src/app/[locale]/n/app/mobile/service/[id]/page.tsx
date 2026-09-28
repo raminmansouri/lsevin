@@ -4,8 +4,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { getServicePageByIdCached } from '@/features/service-providers/server/service-page.repository.cached';
 import { listActiveServicePageIds } from '@/features/service-providers/server/service-page.repository';
 
-import { alternatesFor } from '@/lib/seo/alternates';
-import { firstSeoPlainText } from '@/lib/seo/plain-text';
+import { buildPublicMetadata } from "@/lib/seo/metadata";
 import { SponsoredPlacementSlot } from '@/features/sponsered-slider/components/sponsored-placement-slot';
 
 import ServicePage from './service-page';
@@ -40,28 +39,17 @@ export async function generateMetadata({ params }: Pick<ServicePageRouteProps, '
   const service = data?.service;
 
   if (!service) {
-    return { title: 'Service', alternates: alternatesFor(locale, `/n/app/mobile/service/${id}`) };
+    return buildPublicMetadata({ locale, path: `/n/app/mobile/service/${encodeURIComponent(id)}` });
   }
 
-  const title = service.clinic ? `${service.name} — ${service.clinic}` : service.name;
-  const description = firstSeoPlainText([
-    service.subtitle,
-    service.definitionDescription,
-    service.providerDescription,
-  ]);
-
-  return {
-    title,
-    description: description || undefined,
-    alternates: alternatesFor(locale, `/n/app/mobile/service/${id}`),
-    openGraph: {
-      title,
-      description: description || undefined,
-      type: 'website',
-      images: service.images?.[0] ? [{ url: service.images[0] }] : undefined,
-    },
-    twitter: { title, description: description || undefined },
-  };
+  return buildPublicMetadata({
+    locale,
+    path: `/n/app/mobile/service/${encodeURIComponent(id)}`,
+    title: service.clinic ? `${service.name} ? ${service.clinic}` : service.name,
+    descriptions: [service.subtitle, service.definitionDescription, service.providerDescription],
+    image: service.images?.[0],
+    type: "website",
+  });
 }
 
 export default async function TreatmentDetailPage({ params }: ServicePageRouteProps) {

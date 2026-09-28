@@ -4,8 +4,7 @@ import { setRequestLocale } from "next-intl/server";
 import { getProviderPageDataFromDbCached } from "@/features/service-providers/server/provider-page.repository.cached";
 import { listActiveProviderPageIds } from "@/features/service-providers/server/provider-page.repository";
 
-import { alternatesFor } from "@/lib/seo/alternates";
-import { firstSeoPlainText } from "@/lib/seo/plain-text";
+import { buildPublicMetadata } from "@/lib/seo/metadata";
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
 
 import { ProviderDetailView } from "./provider-detail-view";
@@ -43,24 +42,14 @@ export async function generateMetadata({ params }: PageProps) {
     notFound();
   }
 
-  const title = provider.city ? `${provider.name} — ${provider.city}` : provider.name;
-  const description = firstSeoPlainText([
-    provider.about,
-    provider.tagline,
-    provider.description,
-  ]);
-
-  return {
-    title,
-    description: description || undefined,
-    alternates: alternatesFor(locale, `/n/app/mobile/provider/${id}`),
-    openGraph: {
-      title,
-      description: description || undefined,
-      type: "website",
-    },
-    twitter: { title, description: description || undefined },
-  };
+  return buildPublicMetadata({
+    locale,
+    path: `/n/app/mobile/provider/${encodeURIComponent(id)}`,
+    title: provider.city ? `${provider.name} ? ${provider.city}` : provider.name,
+    descriptions: [provider.about, provider.tagline, provider.description],
+    image: undefined,
+    type: "website",
+  });
 }
 
 export default async function ProviderDetailPage({ params }: PageProps) {

@@ -22,7 +22,10 @@ data:
           - {source_labels: [__meta_kubernetes_pod_name], target_label: pod}
       - job_name: platform-exporters
         static_configs:
-          - targets: ["postgres-exporter:9187", "redis-exporter:9121", "elasticsearch-exporter:9114", "otel-collector:8889"]
+          - targets: ["postgres-exporter:9187", "redis-exporter:9121", "elasticsearch-exporter:9114", "otel-collector:8889", "node-exporter:9100", "kube-state-metrics:8080", "eventstore:2113"]
+      - job_name: fluent-bit
+        metrics_path: /api/v1/metrics/prometheus
+        static_configs: [{targets: ["fluent-bit-metrics:2020"]}]
       - job_name: crm
         metrics_path: /api/metrics
         authorization:
@@ -144,6 +147,78 @@ metadata: {name: blackbox-exporter}
 spec: {selector: {app.kubernetes.io/name: blackbox-exporter}, ports: [{name: http, port: 9115}]}
 ---
 apiVersion: apps/v1
+kind: DaemonSet
+metadata: {name: node-exporter}
+spec:
+  selector: {matchLabels: {app.kubernetes.io/name: node-exporter}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: node-exporter}}
+    spec:
+      hostPID: true
+      hostNetwork: true
+      containers:
+        - name: exporter
+          image: prom/node-exporter:v1.9.1
+          args: ["--path.rootfs=/host", "--collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)"]
+          ports: [{name: metrics, containerPort: 9100}]
+          securityContext: {readOnlyRootFilesystem: true, allowPrivilegeEscalation: false}
+          volumeMounts: [{name: root, mountPath: /host, readOnly: true, mountPropagation: HostToContainer}]
+      volumes: [{name: root, hostPath: {path: /}}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: node-exporter}
+spec: {selector: {app.kubernetes.io/name: node-exporter}, ports: [{name: metrics, port: 9100}]}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata: {name: kube-state-metrics}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: {name: lsevin-kube-state-metrics}
+rules:
+  - apiGroups: [""]
+    resources: [configmaps, secrets, nodes, pods, services, resourcequotas, replicationcontrollers, limitranges, persistentvolumeclaims, persistentvolumes, namespaces, endpoints]
+    verbs: [list, watch]
+  - apiGroups: [apps]
+    resources: [daemonsets, deployments, replicasets, statefulsets]
+    verbs: [list, watch]
+  - apiGroups: [batch]
+    resources: [cronjobs, jobs]
+    verbs: [list, watch]
+  - apiGroups: [autoscaling]
+    resources: [horizontalpodautoscalers]
+    verbs: [list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata: {name: lsevin-kube-state-metrics}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: lsevin-kube-state-metrics}
+subjects: [{kind: ServiceAccount, name: kube-state-metrics, namespace: lsevin}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: kube-state-metrics}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app.kubernetes.io/name: kube-state-metrics}}
+  template:
+    metadata: {labels: {app.kubernetes.io/name: kube-state-metrics}}
+    spec:
+      serviceAccountName: kube-state-metrics
+      containers:
+        - name: exporter
+          image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.15.0
+          ports: [{name: metrics, containerPort: 8080}, {name: telemetry, containerPort: 8081}]
+          readinessProbe: {httpGet: {path: /, port: telemetry}, periodSeconds: 10}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: kube-state-metrics}
+spec: {selector: {app.kubernetes.io/name: kube-state-metrics}, ports: [{name: metrics, port: 8080}]}
+---
+apiVersion: apps/v1
 kind: Deployment
 metadata: {name: postgres-exporter}
 spec:
@@ -201,19 +276,34 @@ metadata: {name: grafana-provisioning}
 data:
   datasource.yaml: |
     apiVersion: 1
+    deleteDatasources:
+      - {name: Prometheus, orgId: 1}
+      - {name: Elasticsearch Logs, orgId: 1}
     datasources:
       - name: Prometheus
+        uid: prometheus
         type: prometheus
         access: proxy
         url: http://prometheus:9090
         isDefault: true
         editable: false
       - name: Elasticsearch Logs
+        uid: elasticsearch-logs
         type: elasticsearch
         access: proxy
         url: http://elasticsearch:9200
         database: kubernetes-logs-*
         jsonData: {timeField: "@timestamp", esVersion: "9.0.0"}
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      - name: LSevin Platform
+        orgId: 1
+        folder: LSevin Platform
+        type: file
+        disableDeletion: true
+        updateIntervalSeconds: 30
+        options: {path: /var/lib/grafana/dashboards}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -232,11 +322,14 @@ spec:
           env:
             - {name: GF_SECURITY_ADMIN_USER, valueFrom: {secretKeyRef: {name: observability-secrets, key: GRAFANA_ADMIN_USER}}}
             - {name: GF_SECURITY_ADMIN_PASSWORD, valueFrom: {secretKeyRef: {name: observability-secrets, key: GRAFANA_ADMIN_PASSWORD}}}
+            - {name: GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH, value: /var/lib/grafana/dashboards/lsevin-platform-overview.json}
           volumeMounts:
             - {name: data, mountPath: /var/lib/grafana}
             - {name: provisioning, mountPath: /etc/grafana/provisioning/datasources}
+            - {name: provisioning, mountPath: /etc/grafana/provisioning/dashboards/dashboards.yaml, subPath: dashboards.yaml}
+            - {name: dashboards, mountPath: /var/lib/grafana/dashboards}
           readinessProbe: {httpGet: {path: /api/health, port: http}, periodSeconds: 10}
-      volumes: [{name: data, persistentVolumeClaim: {claimName: grafana-data}}, {name: provisioning, configMap: {name: grafana-provisioning}}]
+      volumes: [{name: data, persistentVolumeClaim: {claimName: grafana-data}}, {name: provisioning, configMap: {name: grafana-provisioning}}, {name: dashboards, configMap: {name: grafana-dashboards}}]
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

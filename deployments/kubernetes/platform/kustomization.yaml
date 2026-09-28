@@ -12,6 +12,10 @@ resources:
 configMapGenerator:
   - name: platform-config
     envs: [config/platform.env]
+  - name: grafana-dashboards
+    files:
+      - dashboards/lsevin-platform-overview.json
+      - dashboards/lsevin-logs.json
 generatorOptions:
   disableNameSuffixHash: true
 images:

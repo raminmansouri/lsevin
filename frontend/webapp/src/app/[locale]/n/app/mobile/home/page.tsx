@@ -1,3 +1,4 @@
+import { buildPublicMetadata } from "@/lib/seo/metadata";
 import { Award, ChevronRight, Gift, Map, Search, Sparkles, Star, TrendingUp } from 'lucide-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
@@ -60,6 +61,11 @@ import { countActiveSpecialPackages } from '@/features/special-packages/server/r
 // next.config.ts turns off on purpose.
 export const dynamic = 'force-static';
 export const revalidate = 120;
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return buildPublicMetadata({ locale, path: "/n/app/mobile/home" });
+}
 
 async function getLocaleFromParams(params: PageProps['params']) {
   const resolved = await params;

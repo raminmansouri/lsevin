@@ -4,7 +4,6 @@ const mocks = vi.hoisted(() => ({ product: vi.fn(), provider: vi.fn() }));
 vi.mock("server-only", () => ({}));
 vi.mock("next/navigation", () => ({ notFound: () => { throw new Error("NEXT_HTTP_ERROR_FALLBACK;404"); } }));
 vi.mock("next-intl/server", () => ({ setRequestLocale: vi.fn(), getTranslations: async () => (key: string) => key }));
-vi.mock("@/lib/seo/alternates", () => ({ alternatesFor: () => ({}) }));
 vi.mock("@/features/shop/api/catalog.repository.cached", () => ({ getProductBySlugCached: mocks.product }));
 vi.mock("@/features/shop/api/catalog.repository", () => ({ listActiveProductSlugs: async () => [] }));
 vi.mock("@/features/shop/api/service-relations.repository", () => ({ getProductsForService: async () => null }));
@@ -42,7 +41,7 @@ describe("entity page status contract", () => {
   it("active product renders and supplies metadata", async () => {
     mocks.product.mockResolvedValue({name: "Product fixture", relatedServices: [], gallery: [], relatedProducts: []});
     expect(await ProductPage(productParams)).toBeTruthy();
-    expect(await productMetadata(productParams)).toMatchObject({title: "Product fixture"});
+    expect(await productMetadata(productParams)).toMatchObject({title: { absolute: "Product fixture" }});
   });
   it.each([400,404])("provider %s maps to not-found", async status => {
     mocks.provider.mockResolvedValue({error: {status}, data: null});
@@ -57,6 +56,6 @@ describe("entity page status contract", () => {
   it("active provider renders and supplies metadata", async () => {
     mocks.provider.mockResolvedValue({data: {provider: {name: "Provider fixture"}}});
     expect(await ProviderPage(providerParams)).toBeTruthy();
-    expect(await providerMetadata(providerParams)).toMatchObject({title: "Provider fixture"});
+    expect(await providerMetadata(providerParams)).toMatchObject({title: { absolute: "Provider fixture" }});
   });
 });
