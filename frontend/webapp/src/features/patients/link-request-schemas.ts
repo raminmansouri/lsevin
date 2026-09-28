@@ -2,10 +2,8 @@ import { z } from "zod/v4";
 
 import { PATIENT_IDENTIFIER_TYPES, PATIENT_RELATIONSHIP_TYPES } from "./schemas";
 
-const FAMILY_RELATIONSHIP_TYPES = PATIENT_RELATIONSHIP_TYPES.filter((type) => type !== "self");
-
 export const SubmitAccountLinkRequestSchema = z.object({
-  relationshipType: z.enum(FAMILY_RELATIONSHIP_TYPES as [string, ...string[]]),
+  relationshipType: z.enum(PATIENT_RELATIONSHIP_TYPES),
   identifierType: z.enum(PATIENT_IDENTIFIER_TYPES),
   identifierValue: z.string().trim().min(1).max(100),
   firstName: z.string().trim().min(1).max(100),

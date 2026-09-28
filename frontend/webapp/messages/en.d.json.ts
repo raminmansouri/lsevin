@@ -8187,6 +8187,7 @@ declare const messages: {
       "medications": "Current medications",
       "documents": "Documents",
       "relationshipTypes": {
+        "self": "Myself",
         "parent": "Parent",
         "child": "Child",
         "guardian": "Guardian",
@@ -8195,8 +8196,8 @@ declare const messages: {
         "other": "Other"
       },
       "linkRequest": {
-        "title": "Add a family member",
-        "subtitle": "Request access to a family member's health record.",
+        "title": "Link a health record",
+        "subtitle": "Request to link your own health record, or a family member's, to this account.",
         "request": "Request access",
         "cancel": "Cancel",
         "firstName": "First name",
@@ -16641,12 +16642,15 @@ declare const messages: {
         }
       },
       "linkRequests": {
-        "title": "Family link requests",
-        "description": "Customer-submitted requests to link a family member's record to their account.",
+        "title": "Account link requests",
+        "description": "Customer-submitted requests to link their own record, or a family member's, to their account.",
         "pending": "Pending requests",
         "empty": "No pending requests.",
         "matched": "Matched patient",
-        "noMatch": "No automatic match — resolve manually on the patient record",
+        "noMatch": "No automatic match — search for the patient below",
+        "searchPatientPlaceholder": "Search by name or ID…",
+        "noSearchResults": "No patient found. Create one on the patient list first if needed.",
+        "changePatient": "Change",
         "approve": "Approve",
         "reject": "Reject",
         "approved": "Request approved",

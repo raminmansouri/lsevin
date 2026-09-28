@@ -15,6 +15,7 @@ import {
   CreatePatientSchema,
   FindPatientByIdentifierSchema,
   LinkAccountToPatientSchema,
+  SearchPatientsSchema,
   UpdatePatientSchema,
   type AddPatientAddressInput,
   type AddPatientContactInput,
@@ -24,6 +25,7 @@ import {
   type CreatePatientInput,
   type FindPatientByIdentifierInput,
   type LinkAccountToPatientInput,
+  type SearchPatientsInput,
   type UpdatePatientInput,
 } from "../schemas";
 import { PATIENTS_TRANSLATION_KEY, type PatientActionResult } from "../types";
@@ -40,6 +42,7 @@ import {
   getPatientById,
   isUniqueViolation,
   linkAccountToPatient,
+  searchPatients,
   updatePatient,
 } from "./repository";
 
@@ -50,6 +53,7 @@ import type {
   PatientIdentifierRow,
   PatientNoteRow,
   PatientRow,
+  PatientSearchResultRow,
 } from "../types";
 
 const ADMIN_PATIENTS_PATH = "/admin/patients";
@@ -86,6 +90,30 @@ export async function findPatientByIdentifierAction(
   }
   const patientId = await findPatientIdByIdentifier(values);
   return { ok: true, data: { patientId } };
+}
+
+/**
+ * Free-text version of the same lookup, for pickers where the caller
+ * doesn't have a single exact identifier to search by -- e.g. resolving a
+ * link request with no auto-match (link-requests-panel.tsx) to a real
+ * patient by name. Reuses the existing searchPatients() query as-is.
+ */
+export async function searchPatientsAction(
+  input: SearchPatientsInput
+): Promise<PatientActionResult<PatientSearchResultRow[]>> {
+  await assertAdmin();
+  const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
+  let values;
+  try {
+    values = SearchPatientsSchema.parse(input);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return { ok: false, error: t("errors.invalidForm"), fieldErrors: fieldErrorsFrom(error) };
+    }
+    throw error;
+  }
+  const results = await searchPatients(values.q, values.limit);
+  return { ok: true, data: results };
 }
 
 export async function createPatientAction(input: CreatePatientInput): Promise<PatientActionResult<PatientRow>> {

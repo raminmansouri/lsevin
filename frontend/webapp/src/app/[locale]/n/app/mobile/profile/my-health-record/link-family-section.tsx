@@ -10,14 +10,17 @@ import type { AccountLinkRequestRow } from "@/features/patients/link-request-typ
 import { submitAccountLinkRequestAction } from "@/features/patients/server/customer-link-request-actions";
 import type { TranslationType } from "@/types/next";
 
-const FAMILY_RELATIONSHIP_TYPES = PATIENT_RELATIONSHIP_TYPES.filter((type) => type !== "self");
-
 /**
  * "MobileProfile" is the only namespace this route's client bundle ships
  * (src/i18n/client-messages.ts), same reasoning as my-sharing/
  * share-case-section -- every label here is self-contained under
  * MobileProfile.myHealthRecord.linkRequest.*, reusing relationshipTypes
  * from the same namespace's existing entry rather than a third copy.
+ *
+ * Includes "self" (previously filtered out): a first-time customer with
+ * zero account_patient_links has no patient record at all yet, and this is
+ * the only self-service path to request one -- reviewed by an admin exactly
+ * like a family-member request, never auto-approved.
  *
  * Submitting a request never grants access by itself -- see 0060's
  * migration header and customer-link-request-actions.ts. An admin has to
@@ -28,7 +31,7 @@ export function LinkFamilySection({ requests }: { requests: AccountLinkRequestRo
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [formOpen, setFormOpen] = useState(false);
-  const [relationshipType, setRelationshipType] = useState<(typeof FAMILY_RELATIONSHIP_TYPES)[number]>("child");
+  const [relationshipType, setRelationshipType] = useState<(typeof PATIENT_RELATIONSHIP_TYPES)[number]>("self");
   const [identifierType, setIdentifierType] = useState<(typeof PATIENT_IDENTIFIER_TYPES)[number]>("ir_national_id");
   const [identifierValue, setIdentifierValue] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -113,7 +116,7 @@ export function LinkFamilySection({ requests }: { requests: AccountLinkRequestRo
               onChange={(event) => setRelationshipType(event.target.value as typeof relationshipType)}
               className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-sm"
             >
-              {FAMILY_RELATIONSHIP_TYPES.map((type) => (
+              {PATIENT_RELATIONSHIP_TYPES.map((type) => (
                 <option key={type} value={type}>
                   {t(`relationshipTypes.${type}`)}
                 </option>

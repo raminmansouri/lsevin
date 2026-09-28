@@ -13,6 +13,8 @@ import { useRouter } from "@/i18n/navigation";
 import type { AccountLinkRequestWithMatch } from "../../link-request-types";
 import { reviewAccountLinkRequestAction } from "../../server/link-request-actions";
 import { PATIENTS_TRANSLATION_KEY } from "../../types";
+import type { PatientSearchResultRow } from "../../types";
+import { PatientSearchPicker } from "./patient-search-picker";
 
 function formatDate(value?: string | null) {
   if (!value) return "-";
@@ -28,14 +30,18 @@ export function LinkRequestsPanel({ requests }: { requests: AccountLinkRequestWi
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [accessRole, setAccessRole] = useState<Record<string, string>>({});
+  // Manual override when a request has no automatic match (findVerifiedPatientIdByIdentifier
+  // found nothing) -- previously a dead end (Approve stayed disabled forever).
+  const [manualPatient, setManualPatient] = useState<Record<string, PatientSearchResultRow>>({});
 
   const approve = (request: AccountLinkRequestWithMatch) => {
-    if (!request.matchedPatientId) return;
+    const patientId = request.matchedPatientId ?? manualPatient[request.id]?.id;
+    if (!patientId) return;
     startTransition(async () => {
       const result = await reviewAccountLinkRequestAction({
         id: request.id,
         decision: "approved",
-        patientId: request.matchedPatientId ?? undefined,
+        patientId,
         accessRole: (accessRole[request.id] as never) ?? "full",
       });
       if (result.ok) {
@@ -85,14 +91,28 @@ export function LinkRequestsPanel({ requests }: { requests: AccountLinkRequestWi
                 <Badge variant="outline" className="mt-1">
                   {t("admin.linkRequests.matched")}: {request.matchedPatientName}
                 </Badge>
-              ) : (
-                <Badge variant="secondary" className="mt-1">
-                  {t("admin.linkRequests.noMatch")}
+              ) : manualPatient[request.id] ? (
+                <Badge variant="outline" className="mt-1">
+                  {t("admin.linkRequests.matched")}: {manualPatient[request.id].firstName} {manualPatient[request.id].lastName}
+                  <button
+                    type="button"
+                    onClick={() => setManualPatient((prev) => { const next = { ...prev }; delete next[request.id]; return next; })}
+                    className="ms-1.5 text-red-600"
+                  >
+                    {t("admin.linkRequests.changePatient")}
+                  </button>
                 </Badge>
+              ) : (
+                <div className="mt-1 flex flex-col gap-1">
+                  <Badge variant="secondary" className="w-fit">
+                    {t("admin.linkRequests.noMatch")}
+                  </Badge>
+                  <PatientSearchPicker onSelect={(patient) => setManualPatient((prev) => ({ ...prev, [request.id]: patient }))} />
+                </div>
               )}
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              {request.matchedPatientId && (
+              {(request.matchedPatientId || manualPatient[request.id]) && (
                 <Select
                   value={accessRole[request.id] ?? "full"}
                   onValueChange={(value) => setAccessRole((prev) => ({ ...prev, [request.id]: value }))}
@@ -110,7 +130,7 @@ export function LinkRequestsPanel({ requests }: { requests: AccountLinkRequestWi
               <Button
                 type="button"
                 size="sm"
-                disabled={isPending || !request.matchedPatientId}
+                disabled={isPending || !(request.matchedPatientId || manualPatient[request.id])}
                 onClick={() => approve(request)}
               >
                 {t("admin.linkRequests.approve")}
