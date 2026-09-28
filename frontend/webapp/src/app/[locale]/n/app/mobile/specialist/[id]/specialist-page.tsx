@@ -798,33 +798,7 @@ export default function SpecialistProfileClient({
 
             <AvailabilitySection items={data.availability} />
 
-            {data.beforeAfter.length ? (
-              <div>
-                <div className="mb-4 flex items-center justify-between gap-3">
-                  <h3 className="text-lg font-bold text-gray-900">{t("gallery.resultsGallery")}</h3>
-                  <button type="button" onClick={() => setSelectedTab("beforeAfter")} className="text-sm font-bold text-[#083f30]">
-                    {t("actions.viewAll")}
-                  </button>
-                </div>
-                <BeforeAfterGallery
-                  items={data.beforeAfter.slice(0, 2).map((item) => ({
-                    id: item.id,
-                    before: item.before,
-                    after: item.after,
-                    procedure: item.procedure,
-                    months: item.months,
-                  }))}
-                />
 
-                <button
-                  type="button"
-                  onClick={() => setSelectedTab("beforeAfter")}
-                  className="mt-3 h-11 w-full rounded-xl bg-gray-100 font-semibold text-gray-900 transition-colors hover:bg-gray-200"
-                >
-                  {t("gallery.viewFullGallery")}
-                </button>
-              </div>
-            ) : null}
           </div>
         ) : null}
 
