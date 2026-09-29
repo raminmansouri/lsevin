@@ -2099,6 +2099,40 @@ declare const messages: {
       "high": "زیاد",
       "urgent": "فوری"
     },
+    "supportContextType": {
+      "all": "همه",
+      "general": "عمومی",
+      "booking": "نوبت",
+      "consultation": "مشاوره"
+    },
+    "supportRequirementType": {
+      "document": "مدرک",
+      "lab_test": "آزمایش",
+      "imaging": "تصویربرداری",
+      "questionnaire": "پرسشنامه",
+      "medical_clearance": "تاییدیه پزشکی",
+      "other": "سایر"
+    },
+    "supportRecordType": {
+      "condition": "بیماری",
+      "allergy": "حساسیت",
+      "medication": "دارو",
+      "procedure": "اقدام درمانی"
+    },
+    "requestFile": "درخواست فایل",
+    "addToMedicalRecord": "افزودن به پرونده سلامتی",
+    "requirementTitlePlaceholder": "چه چیزی نیاز دارید؟ (مثلاً آزمایش خون اخیر)",
+    "descriptionOptional": "توضیحات (اختیاری)",
+    "maxAgeHoursOptional": "حداکثر قدمت به ساعت (اختیاری)",
+    "mandatory": "الزامی",
+    "conditionNamePlaceholder": "نام بیماری",
+    "allergyCategoryPlaceholder": "دسته حساسیت",
+    "allergySubstancePlaceholder": "ماده حساسیت‌زا",
+    "medicationNamePlaceholder": "نام دارو",
+    "doseOptional": "دوز (اختیاری)",
+    "procedureNamePlaceholder": "نام اقدام درمانی",
+    "notesOptional": "یادداشت (اختیاری)",
+    "send": "ارسال",
     "supportEvent": {
       "conversationCreated": "گفتگو ایجاد شد",
       "messageSent": "پیام ارسال شد",
@@ -12338,7 +12372,15 @@ declare const messages: {
       "supportUnavailableDescription": "کانال پشتیبانی موقتاً در دسترس نیست. لطفاً بعداً دوباره تلاش کنید.",
       "writeMessageFallback": "پیام خود را بنویسید...",
       "internalNote": "یادداشت داخلی",
-      "noMessagesYet": "هنوز پیامی وجود ندارد."
+      "noMessagesYet": "هنوز پیامی وجود ندارد.",
+      "requirementRequested": "درخواست مدرک",
+      "clinicalRecordAdded": "به پرونده پزشکی اضافه شد",
+      "optionalLabel": "اختیاری",
+      "attachFile": "پیوست فایل",
+      "removeAttachment": "حذف",
+      "conversationTitle": "گفتگو",
+      "conversationSubtitle": "با ارائه‌دهنده خود پیام بدهید، سوال بپرسید و فایل به اشتراک بگذارید -- هرچه اینجا بفرستید در پرونده پزشکی شما ذخیره می‌شود.",
+      "startingConversation": "در حال شروع گفتگو…"
     },
     "providerPortalStatus": {
       "status": "وضعیت",
@@ -13972,7 +14014,8 @@ declare const messages: {
       "title": "درخواست شما ثبت شد",
       "body": "کارشناسان ما با شماره {phone} با شما تماس می‌گیرند.",
       "continue": "ادامه رزرو",
-      "sendAnother": "ثبت درخواست دیگر"
+      "sendAnother": "ثبت درخواست دیگر",
+      "viewConversation": "مشاهده گفتگو"
     },
     "errors": {
       "signInRequired": "برای ثبت درخواست مشاوره ابتدا وارد حساب کاربری شوید.",
@@ -14042,6 +14085,10 @@ declare const messages: {
         "bookingDraft": "پیش‌نویس رزرو",
         "notifications": "اطلاع‌رسانی‌ها",
         "noNotifications": "برای این درخواست چیزی ارسال نشده است.",
+        "conversation": "گفتگو",
+        "conversationGuestNotice": "این درخواست بدون ورود به حساب کاربری ثبت شده است، بنابراین هنوز گفتگویی در دسترس نیست.",
+        "conversationPlaceholder": "پیام خود را بنویسید…",
+        "conversationSend": "ارسال",
         "adminNote": "یادداشت داخلی",
         "adminNotePlaceholder": "یادداشت برای تیم…",
         "save": "ذخیره تغییرات",

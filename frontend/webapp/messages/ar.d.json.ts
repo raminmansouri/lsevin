@@ -2397,6 +2397,40 @@ declare const messages: {
       "high": "عالية",
       "urgent": "عاجلة"
     },
+    "supportContextType": {
+      "all": "الكل",
+      "general": "عام",
+      "booking": "حجز",
+      "consultation": "استشارة"
+    },
+    "supportRequirementType": {
+      "document": "مستند",
+      "lab_test": "فحص مخبري",
+      "imaging": "تصوير",
+      "questionnaire": "استبيان",
+      "medical_clearance": "إخلاء طبي",
+      "other": "أخرى"
+    },
+    "supportRecordType": {
+      "condition": "حالة مرضية",
+      "allergy": "حساسية",
+      "medication": "دواء",
+      "procedure": "إجراء طبي"
+    },
+    "requestFile": "طلب ملف",
+    "addToMedicalRecord": "إضافة إلى السجل الطبي",
+    "requirementTitlePlaceholder": "ما الذي تحتاجه؟ (مثلاً تحليل دم حديث)",
+    "descriptionOptional": "الوصف (اختياري)",
+    "maxAgeHoursOptional": "الحد الأقصى للعمر بالساعات (اختياري)",
+    "mandatory": "إلزامي",
+    "conditionNamePlaceholder": "اسم الحالة",
+    "allergyCategoryPlaceholder": "فئة الحساسية",
+    "allergySubstancePlaceholder": "مادة الحساسية",
+    "medicationNamePlaceholder": "اسم الدواء",
+    "doseOptional": "الجرعة (اختياري)",
+    "procedureNamePlaceholder": "اسم الإجراء",
+    "notesOptional": "ملاحظات (اختياري)",
+    "send": "إرسال",
     "supportEvent": {
       "conversationCreated": "تم إنشاء المحادثة",
       "messageSent": "تم إرسال الرسالة",
@@ -11455,7 +11489,15 @@ declare const messages: {
       "supportUnavailableDescription": "قناة الدعم غير متاحة مؤقتًا. يرجى المحاولة لاحقًا.",
       "writeMessageFallback": "اكتب رسالتك...",
       "internalNote": "ملاحظة داخلية",
-      "noMessagesYet": "لا توجد رسائل بعد."
+      "noMessagesYet": "لا توجد رسائل بعد.",
+      "requirementRequested": "طلب مستند",
+      "clinicalRecordAdded": "تمت الإضافة إلى السجل الطبي",
+      "optionalLabel": "اختياري",
+      "attachFile": "إرفاق ملف",
+      "removeAttachment": "إزالة",
+      "conversationTitle": "المحادثة",
+      "conversationSubtitle": "راسل مقدم الخدمة، اطرح الأسئلة، وشارك الملفات -- كل ما ترسله هنا يُحفظ في سجلك الطبي.",
+      "startingConversation": "جارٍ بدء المحادثة…"
     },
     "providerPortalStatus": {
       "status": "الحالة",
@@ -13088,7 +13130,8 @@ declare const messages: {
       "title": "تم استلام طلبك",
       "body": "سيتواصل معك مستشارونا على الرقم {phone}.",
       "continue": "متابعة الحجز",
-      "sendAnother": "إرسال طلب آخر"
+      "sendAnother": "إرسال طلب آخر",
+      "viewConversation": "عرض المحادثة"
     },
     "errors": {
       "signInRequired": "يرجى تسجيل الدخول قبل طلب الاستشارة.",
@@ -13158,6 +13201,10 @@ declare const messages: {
         "bookingDraft": "مسودة الحجز",
         "notifications": "الإشعارات",
         "noNotifications": "لم يُرسل أي شيء لهذا الطلب.",
+        "conversation": "المحادثة",
+        "conversationGuestNotice": "تم تقديم هذا الطلب دون تسجيل الدخول، لذا لا تتوفر محادثة بعد.",
+        "conversationPlaceholder": "اكتب رسالة…",
+        "conversationSend": "إرسال",
         "adminNote": "ملاحظة داخلية",
         "adminNotePlaceholder": "ملاحظات للفريق…",
         "save": "حفظ التغييرات",
