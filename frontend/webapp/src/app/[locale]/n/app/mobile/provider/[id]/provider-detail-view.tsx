@@ -23,6 +23,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useParams, useSearchParams } from "next/navigation";
 import { BeforeAfterGallery } from "@/features/service-providers/components/before-after-gallery";
+import { FavoriteButton } from "@/features/favorites/components/favorite-button";
+
+import { getFavoriteStatusAction } from "@/features/favorites/actions/favorite-actions";
 
 import ReviewForm, { type ReviewFormSubmitValue } from "../../../components/ReviewForm";
 import { DigikalaReviewCard } from "../../../components/DigikalaReviewCard";
@@ -89,6 +92,50 @@ function LexicalDescription({ content, className }: { content?: string | null; c
  * new review) and only re-hits the network in the background when its key
  * changes.
  */
+
+
+function ProviderFavoriteButton({ providerId }: { providerId: string }) {
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  useEffect(() => {
+    getFavoriteStatusAction({ entityType: "provider", entityId: providerId })
+      .then((result) => setIsFavorite(result.isFavorite))
+      .catch(() => undefined);
+  }, [providerId]);
+
+  return (
+    <FavoriteButton
+      entityId={providerId}
+      entityType="provider"
+      initialIsFavorite={isFavorite}
+      className="!h-10 !w-10 bg-white/95 shadow-lg backdrop-blur-sm"
+      iconClassName="h-5 w-5"
+    />
+  );
+}
+
+
+function TreatmentFavoriteButton({ entityId }: { entityId: string }) {
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  useEffect(() => {
+    getFavoriteStatusAction({ entityType: "service", entityId })
+      .then((result) => setIsFavorite(result.isFavorite))
+      .catch(() => undefined);
+  }, [entityId]);
+
+  return (
+    <FavoriteButton
+      entityId={entityId}
+      entityType="service"
+      initialIsFavorite={isFavorite}
+      className="!h-8 !w-8 flex-shrink-0 bg-gray-50 text-gray-700 shadow-sm"
+      iconClassName="h-3.5 w-3.5"
+    />
+  );
+}
+
+
 export function ProviderDetailView({ initialData }: { initialData?: ProviderPageDataResponse }) {
   const navigate = useNavigate();
   const params = useParams();
@@ -102,8 +149,7 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
   const [selectedTab, setSelectedTab] = useState<
     "overview" | "services" | "beforeAfter" | "specialists" | "reviews"
   >("overview");
-  const [isFavorited, setIsFavorited] = useState(false);
-  const [isFavoriteSaving, setIsFavoriteSaving] = useState(false);
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [visibleReviews, setVisibleReviews] = useState<Review[]>([]);
@@ -134,14 +180,10 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
   useEffect(() => {
     if (!data?.provider) return;
 
-    const guestFavoriteKey = `lsevin:favorites:provider:${data.provider.id}`;
-    const guestFavorite = typeof window !== "undefined" && window.localStorage.getItem(guestFavoriteKey) === "1";
-
-    setIsFavorited(Boolean(data.provider.isFavorite || (!user?.id && guestFavorite)));
     setVisibleReviews(data.recentReviews || []);
     setHasMoreReviews(Boolean(data.reviewsHasMore));
     setCurrentImageIndex(0);
-  }, [data?.provider?.id, data?.provider?.isFavorite, data?.recentReviews, data?.reviewsHasMore, user?.id]);
+  }, [data?.provider?.id, data?.recentReviews, data?.reviewsHasMore]);
 
   if (!data && isFetching) return <ProviderPageSkeleton />;
 
@@ -192,38 +234,7 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
     await navigator.clipboard.writeText(window.location.href);
   };
 
-  const handleFavorite = async () => {
-    if (isFavoriteSaving) return;
 
-    const nextValue = !isFavorited;
-    setIsFavorited(nextValue);
-
-    if (!user?.id) {
-      window.localStorage.setItem(`lsevin:favorites:provider:${provider.id}`, nextValue ? "1" : "0");
-      return;
-    }
-
-    setIsFavoriteSaving(true);
-    try {
-      const response = await fetch(`/api/service-providers/${provider.id}/favorite`, {
-        method: nextValue ? "POST" : "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id }),
-      });
-
-      if (!response.ok) {
-        const problem = await response.json().catch(() => null);
-        throw new Error(problem?.title || t("errors.couldNotUpdateFavorite"));
-      }
-
-      const payload = await response.json();
-      setIsFavorited(Boolean(payload.isFavorite));
-    } catch {
-      setIsFavorited(!nextValue);
-    } finally {
-      setIsFavoriteSaving(false);
-    }
-  };
 
   const handleReviewSubmit = async (review: ReviewFormSubmitValue) => {
     if (!user?.id) {
@@ -320,15 +331,7 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
               >
                 <Share2 size={20} className="text-gray-900" />
               </button>
-              <button
-                onClick={handleFavorite}
-                disabled={isFavoriteSaving}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow-lg backdrop-blur-sm transition-transform active:scale-95 disabled:opacity-60"
-                type="button"
-                aria-label={isFavorited ? t("actions.removeFavorite") : t("actions.addFavorite")}
-              >
-                <Heart size={20} className={isFavorited ? "fill-[#083f30] text-[#083f30]" : "text-gray-900"} />
-              </button>
+              <ProviderFavoriteButton providerId={provider.id} />
             </div>
           </div>
 
@@ -462,11 +465,18 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
         {selectedTab === "services" ? (
           <div className="space-y-4">
             {services.length ? services.map((treatment) => (
-              <button
+              <div
                 key={treatment.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => navigate(`/n/app/mobile/service/${treatment.id}`)}
-                className="w-full overflow-hidden rounded-2xl border border-gray-200 bg-white text-start transition-all hover:shadow-lg"
-                type="button"
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    navigate(`/n/app/mobile/service/${treatment.id}`);
+                  }
+                }}
+                className="w-full cursor-pointer overflow-hidden rounded-2xl border border-gray-200 bg-white text-start transition-all hover:shadow-lg"
               >
                 <div className="flex gap-4 p-4 lg:gap-5 lg:p-5">
                   <span className="relative block h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100 lg:h-32 lg:w-40 lg:rounded-2xl">
@@ -474,13 +484,18 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
                   </span>
 
                   <div className="min-w-0 flex-1">
-                    {treatment.popular ? (
-                      <span className="mb-2 inline-block rounded-md bg-orange-100 px-2 py-0.5 text-xs font-bold text-orange-700">
-                        {t("services.popular")}
-                      </span>
-                    ) : null}
-                    <h3 className="mb-1 line-clamp-1 font-bold text-gray-900">{treatment.name}</h3>
-                    <LexicalDescription content={treatment.description} className="mb-2 line-clamp-2 text-xs leading-5 text-gray-600" />
+                    <div className="mb-1 flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        {treatment.popular ? (
+                          <span className="mb-2 inline-block rounded-md bg-orange-100 px-2 py-0.5 text-xs font-bold text-orange-700">
+                            {t("services.popular")}
+                          </span>
+                        ) : null}
+                        <h3 className="mb-1 line-clamp-1 font-bold text-gray-900">{treatment.name}</h3>
+                        <LexicalDescription content={treatment.description} className="mb-2 line-clamp-2 text-xs leading-5 text-gray-600" />
+                      </div>
+                      <TreatmentFavoriteButton entityId={treatment.id} />
+                    </div>
 
                     <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-gray-600">
                       <span>{treatment.duration}</span>
@@ -517,7 +532,7 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
                     </div>
                   </div>
                 </div>
-              </button>
+              </div>
             )) : <EmptyState title={t("empty.services.title")} text={t("empty.services.text")} />}
           </div>
         ) : null}

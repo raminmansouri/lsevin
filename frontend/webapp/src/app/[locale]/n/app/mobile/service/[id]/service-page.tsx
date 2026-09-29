@@ -28,6 +28,9 @@ import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { getFavoriteStatusAction } from "@/features/favorites/actions/favorite-actions";
+
+
 
 import RecommendationSection from "../../components/RecommendationSection";
 import ReviewForm, { type ReviewFormSubmitValue } from "../../../components/ReviewForm";
@@ -174,6 +177,30 @@ function ThumbImage({ src, alt, className }: { src?: string | null; alt: string;
     </div>
   );
 }
+
+
+function TreatmentFavoriteButton({ entityId }: { entityId: string }) {
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  useEffect(() => {
+    getFavoriteStatusAction({ entityType: "service", entityId })
+      .then((result) => setIsFavorite(result.isFavorite))
+      .catch(() => undefined);
+  }, [entityId]);
+
+  return (
+    <FavoriteButton
+      entityId={entityId}
+      entityType="service"
+      initialIsFavorite={isFavorite}
+      className="absolute start-2 top-2 z-10 !h-8 !w-8 bg-white/95 text-gray-700 shadow-sm backdrop-blur-sm"
+      iconClassName="h-3.5 w-3.5"
+    />
+  );
+}
+
+
+
 
 function ProviderOfferingCard({ provider, currentProviderServiceId, locale }: { provider: ServiceProviderOffering; currentProviderServiceId: string; locale: string }) {
   const t = useTranslations("ServicePage");
@@ -511,6 +538,15 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
   const [showAllFAQs, setShowAllFAQs] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState(service.displayCurrencyCode || service.currency);
   const [showReviewForm, setShowReviewForm] = useState(false);
+
+  const [realIsFavorite, setRealIsFavorite] = useState(service.isFavorite);
+
+  useEffect(() => {
+    getFavoriteStatusAction({ entityType: "service", entityId: service.providerServiceId })
+      .then((result) => setRealIsFavorite(result.isFavorite))
+      .catch(() => undefined);
+  }, [service.providerServiceId]);
+
   const [visibleReviews, setVisibleReviews] = useState<TopReview[]>(data.topReviews || []);
   const [reviewSort, setReviewSort] = useState<ReviewSort>("newest");
   const [hasMoreReviews, setHasMoreReviews] = useState((data.topReviews || []).length >= 3);
@@ -671,7 +707,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
               <FavoriteButton
                 entityId={service.providerServiceId}
                 entityType="service"
-                initialIsFavorite={service.isFavorite}
+                initialIsFavorite={realIsFavorite}
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow-lg backdrop-blur-sm transition-transform hover:scale-105 active:scale-95"
                 iconClassName="h-[18px] w-[18px]"
                 ariaLabel={t("actions.saveService")}

@@ -24,7 +24,8 @@ import {
 } from "lucide-react";
 
 
-import FavoriteButton from "./FavoriteButton";
+import { FavoriteButton } from "@/features/favorites/components/favorite-button";
+import { getFavoriteStatusAction } from "@/features/favorites/actions/favorite-actions";
 import LazySearchableSelect from "./LazySearchableSelect";
 import {
   getExploreCityOptionAction,
@@ -227,6 +228,35 @@ function ExplorePendingOverlay() {
     </div>
   );
 }
+
+
+function ExploreFavoriteButton({
+  entityId,
+  entityType,
+  className,
+}: {
+  entityId: string;
+  entityType: "provider" | "service";
+  className?: string;
+}) {
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  useEffect(() => {
+    getFavoriteStatusAction({ entityType, entityId })
+      .then((result) => setIsFavorite(result.isFavorite))
+      .catch(() => undefined);
+  }, [entityType, entityId]);
+
+  return (
+    <FavoriteButton
+      entityId={entityId}
+      entityType={entityType}
+      initialIsFavorite={isFavorite}
+      className={className}
+    />
+  );
+}
+
 
 export default function ExploreClient({
   customerId,
@@ -698,12 +728,10 @@ export default function ExploreClient({
                   </div>
                 </div>
 
-                <FavoriteButton
-                  customerId={customerId}
+                <ExploreFavoriteButton
                   entityId={provider.id}
-                  favoriteType="provider"
-                  active={provider.isFavorited}
-                  path="/n/app/mobile/explore"
+                  entityType="provider"
+                  className="!h-9 !w-9 flex-shrink-0 bg-gray-50 text-gray-700 shadow-sm"
                 />
               </div>
             </div>
@@ -800,13 +828,11 @@ export default function ExploreClient({
                   </div>
                 )}
 
-                <div className="absolute top-3 right-3" onClick={(e) => e.stopPropagation()}>
-                  <FavoriteButton
-                    customerId={customerId}
+                <div className="absolute top-3 right-3">
+                  <ExploreFavoriteButton
                     entityId={service.id}
-                    favoriteType="service"
-                    active={service.isFavorited}
-                    path="/n/app/mobile/explore"
+                    entityType="service"
+                    className="!h-9 !w-9 bg-white/90 text-gray-700 shadow-sm backdrop-blur-sm"
                   />
                 </div>
               </div>
