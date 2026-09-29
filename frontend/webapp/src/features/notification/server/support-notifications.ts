@@ -52,6 +52,7 @@ const SOURCE_LABEL_FA: Record<string, string> = {
   provider_page: "صفحه ارائه‌دهنده",
   service_page: "صفحه خدمت",
   admin_created: "ایجادشده توسط ادمین",
+  consultation: "مشاوره",
 };
 
 function sourceLabel(source: string) {
@@ -238,7 +239,7 @@ async function ensureSupportNotificationTemplates(): Promise<void> {
 
 export type SupportMessageNotificationInput = {
   conversationId: string;
-  senderType: "customer" | "agent";
+  senderType: "customer" | "agent" | "provider";
   body: string;
   createdAt?: string | null;
 };

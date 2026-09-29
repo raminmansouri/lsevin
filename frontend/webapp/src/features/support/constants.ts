@@ -44,4 +44,4 @@ export const DEFAULT_SUPPORT_LABELS = {
 
 export const SUPPORT_STATUS_OPTIONS = ["open", "pending", "resolved", "closed", "archived"] as const;
 export const SUPPORT_PRIORITY_OPTIONS = ["low", "normal", "high", "urgent"] as const;
-export const SUPPORT_SOURCE_OPTIONS = ["floating_widget", "support_page", "booking", "provider_page", "service_page", "admin_created"] as const;
+export const SUPPORT_SOURCE_OPTIONS = ["floating_widget", "support_page", "booking", "provider_page", "service_page", "admin_created", "consultation"] as const;

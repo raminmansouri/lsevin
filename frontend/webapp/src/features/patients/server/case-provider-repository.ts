@@ -91,6 +91,24 @@ export async function getActiveContributeGrant(medicalCaseId: string, providerId
   return rows[0] ? mapGrant(rows[0]) : null;
 }
 
+/** Resolves "which case, if any, did the customer share along this
+ * booking" -- the only place that link lives once checkoutDraft has turned
+ * a booking_draft's case_share_* fields into a real grant row. Used to
+ * backfill a booking-context support conversation's patient_id/
+ * medical_case_id at creation time, so attachment auto-archival and the
+ * admin's requirement/clinical-record actions activate whenever a case was
+ * actually shared -- without support/server/repository.ts needing to know
+ * anything about how case-sharing works. */
+export async function getActiveGrantForBooking(bookingId: string): Promise<CaseProviderGrantRow | null> {
+  const rows = await db<any[]>`
+    select * from patient.case_provider_grants
+    where booking_id = ${bookingId} and status = 'active'
+    order by create_date asc
+    limit 1
+  `;
+  return rows[0] ? mapGrant(rows[0]) : null;
+}
+
 export async function getActiveGrant(medicalCaseId: string, providerId: string): Promise<CaseProviderGrantRow | null> {
   const rows = await db<any[]>`
     select * from patient.case_provider_grants

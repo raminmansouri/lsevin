@@ -2,7 +2,7 @@
 
 
 import { useTranslations } from "next-intl";
-import { CheckCircle2, Clock3, Headphones, Loader2, MessageSquareText, NotebookPen, Plus, Search, SendHorizonal, Tag, UserRound } from "lucide-react";
+import { CheckCircle2, ClipboardList, Clock3, Headphones, Loader2, MessageSquareText, NotebookPen, Plus, Search, SendHorizonal, Stethoscope, Tag, UserRound } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  addClinicalRecordFromConversationAction,
   addInternalNoteAction,
   addTagToConversationAction,
   assignConversationAction,
@@ -20,6 +21,7 @@ import {
   listAdminConversationsAction,
   markConversationReadForAdminAction,
   removeTagFromConversationAction,
+  requestFileInConversationAction,
   sendAgentMessageAction,
   updateConversationPriorityAction,
   updateConversationStatusAction,
@@ -38,6 +40,16 @@ type Props = {
 
 const statuses: Array<SupportStatus | "all" | "unassigned" | "assigned_to_me"> = ["all", "open", "pending", "resolved", "closed", "unassigned", "assigned_to_me"];
 const priorities: Array<SupportPriority | "all"> = ["all", "low", "normal", "high", "urgent"];
+const contextTypes: Array<"all" | "general" | "booking" | "consultation"> = ["all", "general", "booking", "consultation"];
+const recordTypes = ["condition", "allergy", "medication", "procedure"] as const;
+// Mirrors structured-actions.ts's requireField() calls per recordType, so the submit
+// button doesn't go to the server just to bounce back with a validation error.
+const RECORD_REQUIRED_FIELDS: Record<(typeof recordTypes)[number], string[]> = {
+  condition: ["displayName"],
+  allergy: ["category"],
+  medication: ["name"],
+  procedure: ["procedureName", "performedFrom"],
+};
 
 const supportOptionKey = (value: string) => value.replaceAll("-", "_").replaceAll(" ", "_");
 
@@ -50,8 +62,18 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<(typeof statuses)[number]>("open");
   const [priority, setPriority] = useState<(typeof priorities)[number]>("all");
+  const [contextType, setContextType] = useState<(typeof contextTypes)[number]>("all");
   const [tagId, setTagId] = useState("");
   const [reply, setReply] = useState("");
+  const [requirementFormOpen, setRequirementFormOpen] = useState(false);
+  const [requirementType, setRequirementType] = useState("document");
+  const [requirementTitle, setRequirementTitle] = useState("");
+  const [requirementDescription, setRequirementDescription] = useState("");
+  const [requirementMandatory, setRequirementMandatory] = useState(true);
+  const [requirementMaxAgeHours, setRequirementMaxAgeHours] = useState("");
+  const [clinicalFormOpen, setClinicalFormOpen] = useState(false);
+  const [recordType, setRecordType] = useState<(typeof recordTypes)[number]>("condition");
+  const [recordFields, setRecordFields] = useState<Record<string, string>>({});
   const threadRef = useRef<HTMLDivElement | null>(null);
   // Whether the agent is parked at the newest message. A new message scrolls the
   // thread only when they are; if they scrolled up to read, their place is kept.
@@ -87,13 +109,13 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
     const interval = window.setInterval(() => refreshList(false), 8000);
     return () => window.clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, status, priority, tagId, user?.id, selected?.id]);
+  }, [search, status, priority, contextType, tagId, user?.id, selected?.id]);
 
   const selectedTagIds = useMemo(() => new Set(selected?.tags.map((tag) => tag.id) || []), [selected?.tags]);
 
   const refreshList = (showToast = true) => {
     startTransition(async () => {
-      const result = await listAdminConversationsAction({ search, status, priority, tagId: tagId || undefined, assignedToUserId: user?.id, pageNumber: 1, pageSize: 30 });
+      const result = await listAdminConversationsAction({ search, status, priority, contextType, tagId: tagId || undefined, assignedToUserId: user?.id, pageNumber: 1, pageSize: 30 });
       if (result.data) setList(result.data);
       if (result.error && showToast) toast.error(result.error.detail || result.error.title);
       if (selected?.id) {
@@ -131,6 +153,52 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
     startTransition(async () => {
       const result = await addInternalNoteAction({ conversationId: selected.id, agentUserId: user?.id, body });
       if (result.error) toast.error(result.error.detail || result.error.title);
+      const detail = await getAdminConversationDetailAction(selected.id);
+      if (detail.data) setSelected(detail.data);
+    });
+  };
+
+  const submitRequirementRequest = () => {
+    if (!selected?.id || !selected.medicalCaseId || !requirementTitle.trim()) return;
+    startTransition(async () => {
+      const result = await requestFileInConversationAction({
+        conversationId: selected.id,
+        medicalCaseId: selected.medicalCaseId!,
+        requirementType,
+        title: requirementTitle.trim(),
+        description: requirementDescription.trim() || undefined,
+        isMandatory: requirementMandatory,
+        maxAgeHours: requirementMaxAgeHours ? Number(requirementMaxAgeHours) : undefined,
+        actorUserId: user?.id,
+      });
+      if (result.error) toast.error(result.error.detail || result.error.title);
+      if (result.data) {
+        setRequirementFormOpen(false);
+        setRequirementTitle("");
+        setRequirementDescription("");
+        setRequirementMaxAgeHours("");
+      }
+      const detail = await getAdminConversationDetailAction(selected.id);
+      if (detail.data) setSelected(detail.data);
+    });
+  };
+
+  const submitClinicalRecord = () => {
+    if (!selected?.id || !selected.patientId) return;
+    startTransition(async () => {
+      const result = await addClinicalRecordFromConversationAction({
+        conversationId: selected.id,
+        medicalCaseId: selected.medicalCaseId || undefined,
+        patientId: selected.patientId!,
+        recordType,
+        payload: recordFields,
+        actorUserId: user?.id,
+      });
+      if (result.error) toast.error(result.error.detail || result.error.title);
+      if (result.data) {
+        setClinicalFormOpen(false);
+        setRecordFields({});
+      }
       const detail = await getAdminConversationDetailAction(selected.id);
       if (detail.data) setSelected(detail.data);
     });
@@ -215,6 +283,9 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
               <select value={priority} onChange={(event) => setPriority(event.target.value as any)} className="h-10 rounded-2xl border bg-white px-3 text-sm">
                 {priorities.map((option) => <option key={option} value={option}>{tAdmin(`supportPriority.${supportOptionKey(option)}`)}</option>)}
               </select>
+              <select value={contextType} onChange={(event) => setContextType(event.target.value as any)} className="col-span-2 h-10 rounded-2xl border bg-white px-3 text-sm">
+                {contextTypes.map((option) => <option key={option} value={option}>{tAdmin(`supportContextType.${option}`)}</option>)}
+              </select>
               <select value={tagId} onChange={(event) => setTagId(event.target.value)} className="col-span-2 h-10 rounded-2xl border bg-white px-3 text-sm">
                 <option value="">{tAdmin("allTags")}</option>
                 {tags.map((tag) => <option key={tag.id} value={tag.id}>{tag.name}</option>)}
@@ -238,6 +309,9 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
                     <div className="mt-2 flex flex-wrap items-center gap-1">
                       <Badge variant="outline" className="rounded-full text-[10px]">{tAdmin(`supportStatus.${supportOptionKey(item.status)}`)}</Badge>
                       <Badge variant="secondary" className="rounded-full text-[10px]">{tAdmin(`supportPriority.${supportOptionKey(item.priority)}`)}</Badge>
+                      {item.contextType !== "general" && (
+                        <Badge variant="outline" className="rounded-full border-[#083f30]/30 text-[10px] text-[#083f30]">{tAdmin(`supportContextType.${item.contextType}`)}</Badge>
+                      )}
                       {item.unreadForAdminCount > 0 && <Badge className="rounded-full bg-red-600 text-[10px]">{item.unreadForAdminCount}</Badge>}
                     </div>
                   </div>
@@ -342,6 +416,79 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
                   </select>
                 </CardContent>
               </Card>
+
+              {selected.medicalCaseId && (
+                <Card className="rounded-3xl">
+                  <CardContent className="space-y-3 p-4">
+                    <div className="flex items-center justify-between"><h3 className="font-semibold">{tAdmin("requestFile")}</h3><ClipboardList className="h-4 w-4 text-muted-foreground" /></div>
+                    {!requirementFormOpen ? (
+                      <Button type="button" variant="outline" onClick={() => setRequirementFormOpen(true)} className="w-full rounded-2xl">{tAdmin("requestFile")}</Button>
+                    ) : (
+                      <div className="space-y-2">
+                        <select value={requirementType} onChange={(event) => setRequirementType(event.target.value)} className="h-10 w-full rounded-2xl border bg-white px-3 text-sm">
+                          {["document", "lab_test", "imaging", "questionnaire", "medical_clearance", "other"].map((type) => (
+                            <option key={type} value={type}>{tAdmin(`supportRequirementType.${type}`)}</option>
+                          ))}
+                        </select>
+                        <Input value={requirementTitle} onChange={(event) => setRequirementTitle(event.target.value)} placeholder={tAdmin("requirementTitlePlaceholder")} className="rounded-2xl" />
+                        <Textarea value={requirementDescription} onChange={(event) => setRequirementDescription(event.target.value)} placeholder={tAdmin("descriptionOptional")} className="min-h-[60px] rounded-2xl" />
+                        <Input value={requirementMaxAgeHours} onChange={(event) => setRequirementMaxAgeHours(event.target.value)} type="number" min={1} placeholder={tAdmin("maxAgeHoursOptional")} className="rounded-2xl" />
+                        <label className="flex items-center gap-2 text-xs">
+                          <input type="checkbox" checked={requirementMandatory} onChange={(event) => setRequirementMandatory(event.target.checked)} />
+                          {tAdmin("mandatory")}
+                        </label>
+                        <div className="flex gap-2">
+                          <Button type="button" onClick={submitRequirementRequest} disabled={!requirementTitle.trim() || isPending} className="flex-1 rounded-2xl">{tAdmin("send")}</Button>
+                          <Button type="button" variant="outline" onClick={() => setRequirementFormOpen(false)} className="rounded-2xl">{tAdmin("cancel")}</Button>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {selected.patientId && (
+                <Card className="rounded-3xl">
+                  <CardContent className="space-y-3 p-4">
+                    <div className="flex items-center justify-between"><h3 className="font-semibold">{tAdmin("addToMedicalRecord")}</h3><Stethoscope className="h-4 w-4 text-muted-foreground" /></div>
+                    {!clinicalFormOpen ? (
+                      <Button type="button" variant="outline" onClick={() => setClinicalFormOpen(true)} className="w-full rounded-2xl">{tAdmin("addToMedicalRecord")}</Button>
+                    ) : (
+                      <div className="space-y-2">
+                        <select value={recordType} onChange={(event) => { setRecordType(event.target.value as (typeof recordTypes)[number]); setRecordFields({}); }} className="h-10 w-full rounded-2xl border bg-white px-3 text-sm">
+                          {recordTypes.map((type) => <option key={type} value={type}>{tAdmin(`supportRecordType.${type}`)}</option>)}
+                        </select>
+                        {recordType === "condition" && (
+                          <Input value={recordFields.displayName || ""} onChange={(event) => setRecordFields((f) => ({ ...f, displayName: event.target.value }))} placeholder={tAdmin("conditionNamePlaceholder")} className="rounded-2xl" />
+                        )}
+                        {recordType === "allergy" && (
+                          <>
+                            <Input value={recordFields.category || ""} onChange={(event) => setRecordFields((f) => ({ ...f, category: event.target.value }))} placeholder={tAdmin("allergyCategoryPlaceholder")} className="rounded-2xl" />
+                            <Input value={recordFields.substance || ""} onChange={(event) => setRecordFields((f) => ({ ...f, substance: event.target.value }))} placeholder={tAdmin("allergySubstancePlaceholder")} className="rounded-2xl" />
+                          </>
+                        )}
+                        {recordType === "medication" && (
+                          <>
+                            <Input value={recordFields.name || ""} onChange={(event) => setRecordFields((f) => ({ ...f, name: event.target.value }))} placeholder={tAdmin("medicationNamePlaceholder")} className="rounded-2xl" />
+                            <Input value={recordFields.dose || ""} onChange={(event) => setRecordFields((f) => ({ ...f, dose: event.target.value }))} placeholder={tAdmin("doseOptional")} className="rounded-2xl" />
+                          </>
+                        )}
+                        {recordType === "procedure" && (
+                          <>
+                            <Input value={recordFields.procedureName || ""} onChange={(event) => setRecordFields((f) => ({ ...f, procedureName: event.target.value }))} placeholder={tAdmin("procedureNamePlaceholder")} className="rounded-2xl" />
+                            <Input value={recordFields.performedFrom || ""} onChange={(event) => setRecordFields((f) => ({ ...f, performedFrom: event.target.value }))} type="date" className="rounded-2xl" />
+                          </>
+                        )}
+                        <Textarea value={recordFields.notes || ""} onChange={(event) => setRecordFields((f) => ({ ...f, notes: event.target.value }))} placeholder={tAdmin("notesOptional")} className="min-h-[60px] rounded-2xl" />
+                        <div className="flex gap-2">
+                          <Button type="button" onClick={submitClinicalRecord} disabled={isPending || RECORD_REQUIRED_FIELDS[recordType].some((field) => !recordFields[field]?.trim())} className="flex-1 rounded-2xl">{tAdmin("send")}</Button>
+                          <Button type="button" variant="outline" onClick={() => setClinicalFormOpen(false)} className="rounded-2xl">{tAdmin("cancel")}</Button>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
 
               <Card className="rounded-3xl">
                 <CardContent className="space-y-3 p-4">
