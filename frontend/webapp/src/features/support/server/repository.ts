@@ -23,14 +23,17 @@ import type {
   AddInternalNoteInput,
   AssignConversationInput,
   ConversationTagInput,
+  CreateContextConversationInput,
   CreateGuestConversationInput,
   GetOrCreateConversationInput,
   SendAgentMessageInput,
   SendCustomerMessageInput,
+  SendProviderMessageInput,
   SupportSettingsInput,
   UpsertCannedReplyInput,
   UpsertSupportTagInput,
 } from "../schemas";
+import { addClinicalDocument } from "@/features/patients/server/documents-repository";
 
 type QueryLike = typeof sql;
 type JsonRecord = Record<string, unknown>;
@@ -142,6 +145,11 @@ const CONVERSATION_SELECT = sql.unsafe(`
     c.create_date::text as "createDate",
     c.last_modified_date::text as "lastModifiedDate",
     c.closed_at::text as "closedAt",
+    c.context_type as "contextType",
+    c.booking_id::text as "bookingId",
+    c.consultation_request_id::text as "consultationRequestId",
+    c.patient_id::text as "patientId",
+    c.medical_case_id::text as "medicalCaseId",
     coalesce(
       jsonb_agg(
         distinct jsonb_build_object(
@@ -260,6 +268,7 @@ export async function listAdminConversations(params?: {
   search?: string;
   status?: SupportStatus | "all" | "unassigned" | "assigned_to_me";
   priority?: SupportPriority | "all";
+  contextType?: "all" | "general" | "booking" | "consultation";
   assignedToUserId?: string;
   tagId?: string;
   pageNumber?: number;
@@ -269,6 +278,7 @@ export async function listAdminConversations(params?: {
   const like = `%${search}%`;
   const status = params?.status || "all";
   const priority = params?.priority || "all";
+  const contextType = params?.contextType || "all";
   const assignedToUserId = clean(params?.assignedToUserId);
   const tagId = clean(params?.tagId);
   const pageNumber = Math.max(1, Number(params?.pageNumber || 1));
@@ -291,6 +301,7 @@ export async function listAdminConversations(params?: {
       )
       and (${status}::text = 'all' or (${status}::text = 'unassigned' and c.assigned_to_user_id is null) or (${status}::text = 'assigned_to_me' and ${assignedToUserId}::uuid is not null and c.assigned_to_user_id = ${assignedToUserId}::uuid) or c.status::text = ${status}::text)
       and (${priority}::text = 'all' or c.priority::text = ${priority}::text)
+      and (${contextType}::text = 'all' or c.context_type = ${contextType}::text)
       and (${tagId}::uuid is null or exists (select 1 from support.conversation_tags ctf where ctf.conversation_id = c.id and ctf.tag_id = ${tagId}::uuid))
     group by c.id, u.id, au.id
     order by c.last_message_at desc nulls last, c.create_date desc
@@ -315,6 +326,7 @@ export async function listAdminConversations(params?: {
       )
       and (${status}::text = 'all' or (${status}::text = 'unassigned' and c.assigned_to_user_id is null) or (${status}::text = 'assigned_to_me' and ${assignedToUserId}::uuid is not null and c.assigned_to_user_id = ${assignedToUserId}::uuid) or c.status::text = ${status}::text)
       and (${priority}::text = 'all' or c.priority::text = ${priority}::text)
+      and (${contextType}::text = 'all' or c.context_type = ${contextType}::text)
       and (${tagId}::uuid is null or exists (select 1 from support.conversation_tags ctf where ctf.conversation_id = c.id and ctf.tag_id = ${tagId}::uuid))
   `;
 
@@ -327,26 +339,29 @@ export async function listAdminConversations(params?: {
 async function listMessages(conversationId: string, includeInternalNotes: boolean, db: QueryLike = sql): Promise<SupportMessage[]> {
   return await db<SupportMessage[]>`
     select
-      id::text as id,
-      conversation_id::text as "conversationId",
-      sender_type as "senderType",
-      sender_user_id::text as "senderUserId",
-      body,
-      body_json as "bodyJson",
-      message_type as "messageType",
-      is_internal_note as "isInternalNote",
-      attachments,
-      read_at::text as "readAt",
-      delivered_at::text as "deliveredAt",
-      metadata,
-      create_date::text as "createDate",
-      edited_at::text as "editedAt",
-      deleted_at::text as "deletedAt"
-    from support.messages
-    where conversation_id = ${conversationId}::uuid
-      and deleted_at is null
-      and (${includeInternalNotes} = true or is_internal_note = false)
-    order by create_date asc
+      m.id::text as id,
+      m.conversation_id::text as "conversationId",
+      m.sender_type as "senderType",
+      m.sender_user_id::text as "senderUserId",
+      m.sender_provider_id::text as "senderProviderId",
+      coalesce(common.get_translation_t(sp.name_translations, 'fa-IR', 'en-US'), null) as "senderProviderName",
+      m.body,
+      m.body_json as "bodyJson",
+      m.message_type as "messageType",
+      m.is_internal_note as "isInternalNote",
+      m.attachments,
+      m.read_at::text as "readAt",
+      m.delivered_at::text as "deliveredAt",
+      m.metadata,
+      m.create_date::text as "createDate",
+      m.edited_at::text as "editedAt",
+      m.deleted_at::text as "deletedAt"
+    from support.messages m
+    left join category.service_providers sp on sp.id = m.sender_provider_id
+    where m.conversation_id = ${conversationId}::uuid
+      and m.deleted_at is null
+      and (${includeInternalNotes} = true or m.is_internal_note = false)
+    order by m.create_date asc
   `;
 }
 
@@ -437,6 +452,106 @@ export async function getOrCreateConversationForUser(input: GetOrCreateConversat
   });
 }
 
+/** Migration 0064: get-or-create for a conversation attached to a specific
+ * booking or مشاوره/consultation request, instead of the generic
+ * customer_user_id-scoped thread getOrCreateConversationForUser resolves.
+ * A booking/consultation can accumulate more than one conversation over
+ * its lifetime (e.g. one gets archived); this always resolves to the most
+ * recent open/pending one, same as the generic path. */
+export async function getOrCreateConversationForContext(input: CreateContextConversationInput): Promise<SupportConversationDetail> {
+  const anchorValue = input.contextType === "booking" ? input.bookingId : input.consultationRequestId;
+  if (!anchorValue) throw new Error("An anchor id is required for a context conversation.");
+
+  return await sql.begin(async (db) => {
+    const existing = await db<{ id: string }[]>`
+      select id::text as id
+      from support.conversations
+      where context_type = ${input.contextType}
+        and (
+          (${input.contextType} = 'booking' and booking_id = ${input.bookingId ?? null}::uuid)
+          or (${input.contextType} = 'consultation' and consultation_request_id = ${input.consultationRequestId ?? null}::uuid)
+        )
+        and status in ('open', 'pending')
+      order by last_message_at desc nulls last, create_date desc
+      limit 1
+    `;
+    if (existing[0]?.id) {
+      const detail = await getConversationDetail(existing[0].id, false, db);
+      if (detail) return detail;
+    }
+
+    const rows = await db<{ id: string }[]>`
+      insert into support.conversations (
+        customer_user_id,
+        guest_name,
+        source,
+        locale,
+        context_type,
+        booking_id,
+        consultation_request_id,
+        patient_id,
+        medical_case_id
+      ) values (
+        ${input.customerUserId}::uuid,
+        ${clean(input.displayName)},
+        ${input.contextType},
+        ${input.locale || "fa-IR"},
+        ${input.contextType},
+        ${input.bookingId || null}::uuid,
+        ${input.consultationRequestId || null}::uuid,
+        ${input.patientId || null}::uuid,
+        ${input.medicalCaseId || null}::uuid
+      ) returning id::text
+    `;
+
+    await insertSystemEvent(db, rows[0].id, "conversation_created", null, "open", {});
+    const detail = await getConversationDetail(rows[0].id, false, db);
+    if (!detail) throw new Error("Conversation was created but could not be loaded.");
+    return detail;
+  });
+}
+
+export async function listConversationsForBooking(bookingId: string): Promise<SupportConversationListItem[]> {
+  const rows = await sql<ConversationRow[]>`
+    ${CONVERSATION_SELECT}
+    where c.booking_id = ${bookingId}::uuid
+    group by c.id, u.id, au.id
+    order by c.last_message_at desc nulls last, c.create_date desc
+  `;
+  return rows.map(normalizeConversation);
+}
+
+export async function listConversationsForConsultation(consultationRequestId: string): Promise<SupportConversationListItem[]> {
+  const rows = await sql<ConversationRow[]>`
+    ${CONVERSATION_SELECT}
+    where c.consultation_request_id = ${consultationRequestId}::uuid
+    group by c.id, u.id, au.id
+    order by c.last_message_at desc nulls last, c.create_date desc
+  `;
+  return rows.map(normalizeConversation);
+}
+
+/**
+ * Provider-portal read path. The caller (lsevin-portal's own repository,
+ * cross-app direct SQL against this same DB) is responsible for checking
+ * hasActiveContributeGrant/getGrantedCase first -- same two-layer pattern
+ * already used everywhere else a provider grant gates a write, this is
+ * just the read side.
+ */
+export async function listConversationsForPatientAndProvider(patientId: string, providerId: string): Promise<SupportConversationListItem[]> {
+  const rows = await sql<ConversationRow[]>`
+    ${CONVERSATION_SELECT}
+    where c.patient_id = ${patientId}::uuid
+      and exists (
+        select 1 from patient.case_provider_grants g
+        where g.medical_case_id = c.medical_case_id and g.provider_id = ${providerId}::uuid and g.status = 'active'
+      )
+    group by c.id, u.id, au.id
+    order by c.last_message_at desc nulls last, c.create_date desc
+  `;
+  return rows.map(normalizeConversation);
+}
+
 export async function createGuestConversation(input: CreateGuestConversationInput): Promise<SupportConversationDetail> {
   const settings = await getSupportSettings();
   if (!settings.allowGuestConversation) throw new Error("Guest conversations are disabled.");
@@ -489,10 +604,11 @@ export async function createGuestConversation(input: CreateGuestConversationInpu
 
 async function insertMessage(db: QueryLike, input: {
   conversationId: string;
-  senderType: "customer" | "agent" | "system";
+  senderType: "customer" | "agent" | "provider" | "system";
   senderUserId?: string | null;
+  senderProviderId?: string | null;
   body?: string | null;
-  messageType?: "text" | "note" | "system";
+  messageType?: "text" | "note" | "system" | "requirement_request" | "clinical_record";
   isInternalNote?: boolean;
   attachments?: unknown[];
   metadata?: JsonRecord;
@@ -502,6 +618,7 @@ async function insertMessage(db: QueryLike, input: {
       conversation_id,
       sender_type,
       sender_user_id,
+      sender_provider_id,
       body,
       message_type,
       is_internal_note,
@@ -511,6 +628,7 @@ async function insertMessage(db: QueryLike, input: {
       ${input.conversationId}::uuid,
       ${input.senderType},
       ${input.senderUserId || null}::uuid,
+      ${input.senderProviderId || null}::uuid,
       ${clean(input.body)},
       ${input.messageType || "text"},
       ${input.isInternalNote || false},
@@ -521,6 +639,7 @@ async function insertMessage(db: QueryLike, input: {
       conversation_id::text as "conversationId",
       sender_type as "senderType",
       sender_user_id::text as "senderUserId",
+      sender_provider_id::text as "senderProviderId",
       body,
       body_json as "bodyJson",
       message_type as "messageType",
@@ -534,6 +653,66 @@ async function insertMessage(db: QueryLike, input: {
       deleted_at::text as "deletedAt"
   `;
   return rows[0];
+}
+
+/**
+ * Auto-archival: every attachment sent in a conversation that's resolved to
+ * a patient (context_type booking/consultation, once linked) becomes a real
+ * patient.clinical_documents row through the existing addClinicalDocument()
+ * -- the same sink admin/customer document uploads already use. A general
+ * support ticket (patient_id null) never archives. documentType defaults to
+ * "other" -- a safe, lossless classification an admin/provider can refine
+ * later via the existing document management UI; never gated on mime type.
+ * Never allowed to fail the message send -- caller wraps this in .catch().
+ */
+async function archiveMessageAttachments(conversationId: string, message: SupportMessage, actorUserId?: string | null): Promise<void> {
+  if (!message.attachments?.length) return;
+  const rows = await sql<{ patientId: string | null }[]>`
+    select patient_id::text as "patientId" from support.conversations where id = ${conversationId}::uuid limit 1
+  `;
+  const patientId = rows[0]?.patientId;
+  if (!patientId) return;
+  for (const attachment of message.attachments) {
+    await addClinicalDocument({
+      patientId,
+      documentType: "other",
+      title: attachment.name || "Conversation attachment",
+      mediaLibraryId: attachment.id,
+      fileUrl: attachment.url,
+      mimeType: attachment.mimeType,
+      fileSize: attachment.sizeBytes,
+      originalName: attachment.name,
+      createdBy: actorUserId ?? null,
+    });
+  }
+}
+
+/**
+ * Exported entry point for structured-actions.ts (requestFileInConversation/
+ * addClinicalRecordFromConversation) -- those wrap an existing domain write
+ * (addCaseRequirement/addPatient*) with a matching conversation message. The
+ * domain write and this message insert are two separate statements, not one
+ * transaction: addCaseRequirement/addPatient* don't accept a transaction
+ * handle (same as every other caller of them in this codebase), so full
+ * atomicity isn't available without changing those shared functions' shape.
+ */
+export async function insertStructuredMessage(input: {
+  conversationId: string;
+  senderType: "agent" | "provider";
+  senderUserId?: string | null;
+  senderProviderId?: string | null;
+  messageType: "requirement_request" | "clinical_record";
+  body: string;
+  metadata: JsonRecord;
+}): Promise<SupportMessage> {
+  const message = await sql.begin(async (db) => insertMessage(db, input));
+  notifySupportMessage({
+    conversationId: input.conversationId,
+    senderType: input.senderType,
+    body: message.body || "",
+    createdAt: message.createDate,
+  }).catch((error) => console.error("insertStructuredMessage: notification failed", error));
+  return message;
 }
 
 export async function sendCustomerMessage(input: SendCustomerMessageInput): Promise<SupportMessage> {
@@ -555,6 +734,9 @@ export async function sendCustomerMessage(input: SendCustomerMessageInput): Prom
     createdAt: message.createDate,
   }).catch((error) => console.error("sendCustomerMessage: notification failed", error));
 
+  archiveMessageAttachments(input.conversationId, message, input.senderUserId)
+    .catch((error) => console.error("sendCustomerMessage: archival failed", error));
+
   return message;
 }
 
@@ -575,6 +757,38 @@ export async function sendAgentMessage(input: SendAgentMessageInput): Promise<Su
     body: message.body || "",
     createdAt: message.createDate,
   }).catch((error) => console.error("sendAgentMessage: notification failed", error));
+
+  archiveMessageAttachments(input.conversationId, message, input.agentUserId)
+    .catch((error) => console.error("sendAgentMessage: archival failed", error));
+
+  return message;
+}
+
+/** A provider-portal user replying inside a booking/case conversation --
+ * distinct from an agent (LSevin admin/support staff), per project owner
+ * decision. Access control (does this provider actually hold a grant, or is
+ * assigned to this booking) is the caller's job -- see authorization.ts. */
+export async function sendProviderMessage(input: SendProviderMessageInput): Promise<SupportMessage> {
+  const message = await sql.begin(async (db) => {
+    return await insertMessage(db, {
+      conversationId: input.conversationId,
+      senderType: "provider",
+      senderUserId: input.providerUserId,
+      senderProviderId: input.providerId,
+      body: input.body,
+      attachments: input.attachments,
+    });
+  });
+
+  notifySupportMessage({
+    conversationId: input.conversationId,
+    senderType: "provider",
+    body: message.body || "",
+    createdAt: message.createDate,
+  }).catch((error) => console.error("sendProviderMessage: notification failed", error));
+
+  archiveMessageAttachments(input.conversationId, message, input.providerUserId)
+    .catch((error) => console.error("sendProviderMessage: archival failed", error));
 
   return message;
 }

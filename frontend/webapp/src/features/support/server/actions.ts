@@ -4,29 +4,37 @@ import { revalidatePath } from "next/cache";
 import { ZodError } from "zod";
 
 import {
+  AddClinicalRecordFromConversationSchema,
   AddInternalNoteSchema,
   AssignConversationSchema,
   ConversationTagSchema,
+  CreateContextConversationSchema,
   CreateGuestConversationSchema,
   DeleteCannedReplySchema,
   DeleteSupportTagSchema,
   GetOrCreateConversationSchema,
   SendAgentMessageSchema,
   SendCustomerMessageSchema,
+  SendProviderMessageSchema,
+  SendRequirementRequestSchema,
   SupportSettingsInputSchema,
   UpdateConversationPrioritySchema,
   UpdateConversationStatusSchema,
   UpsertCannedReplySchema,
   UpsertSupportTagSchema,
+  type AddClinicalRecordFromConversationInput,
   type AddInternalNoteInput,
   type AssignConversationInput,
   type ConversationTagInput,
+  type CreateContextConversationInput,
   type CreateGuestConversationInput,
   type DeleteCannedReplyInput,
   type DeleteSupportTagInput,
   type GetOrCreateConversationInput,
   type SendAgentMessageInput,
   type SendCustomerMessageInput,
+  type SendProviderMessageInput,
+  type SendRequirementRequestInput,
   type SupportSettingsInput,
   type UpdateConversationPriorityInput,
   type UpdateConversationStatusInput,
@@ -53,6 +61,7 @@ import {
   getAdminConversationDetail,
   getCustomerConversationDetail,
   getFloatingWidgetBootstrapData,
+  getOrCreateConversationForContext,
   getOrCreateConversationForUser,
   getSupportSettings,
   listAdminConversations,
@@ -63,6 +72,7 @@ import {
   removeTagFromConversation,
   sendAgentMessage,
   sendCustomerMessage,
+  sendProviderMessage,
   supportError,
   updateConversationPriority,
   updateConversationStatus,
@@ -71,6 +81,7 @@ import {
   upsertCannedReply,
   upsertSupportTag,
 } from "./repository";
+import { requestFileInConversation, addClinicalRecordFromConversation } from "./structured-actions";
 
 function toFieldErrors(error: ZodError): Record<string, string[]> {
   const flattened = error.flatten().fieldErrors;
@@ -115,6 +126,7 @@ export async function listAdminConversationsAction(input?: {
   search?: string;
   status?: string;
   priority?: string;
+  contextType?: string;
   assignedToUserId?: string;
   tagId?: string;
   pageNumber?: number;
@@ -188,6 +200,56 @@ export async function sendAgentMessageAction(input: SendAgentMessageInput): Prom
   try {
     const parsed = SendAgentMessageSchema.parse(input);
     const data = await sendAgentMessage(parsed);
+    revalidateSupport();
+    return { data };
+  } catch (error) {
+    return actionFailure(error);
+  }
+}
+
+/** Customer-side: get-or-create the thread attached to a specific booking
+ * or مشاوره/consultation request, instead of the generic per-account one. */
+export async function getOrCreateContextConversationAction(input: CreateContextConversationInput): Promise<SupportActionResult<SupportConversationDetail>> {
+  try {
+    const parsed = CreateContextConversationSchema.parse(input);
+    const data = await getOrCreateConversationForContext(parsed);
+    revalidateSupport();
+    return { data };
+  } catch (error) {
+    return actionFailure(error);
+  }
+}
+
+/** A provider-portal user replying inside a booking/case conversation. The
+ * caller (either the admin composer, gated by admin auth, or a bridge
+ * called from the portal) is responsible for confirming the provider
+ * actually has standing on this conversation -- see authorization.ts. */
+export async function sendProviderMessageAction(input: SendProviderMessageInput): Promise<SupportActionResult<SupportMessage>> {
+  try {
+    const parsed = SendProviderMessageSchema.parse(input);
+    const data = await sendProviderMessage(parsed);
+    revalidateSupport();
+    return { data };
+  } catch (error) {
+    return actionFailure(error);
+  }
+}
+
+export async function requestFileInConversationAction(input: SendRequirementRequestInput): Promise<SupportActionResult<SupportMessage>> {
+  try {
+    const parsed = SendRequirementRequestSchema.parse(input);
+    const data = await requestFileInConversation(parsed);
+    revalidateSupport();
+    return { data };
+  } catch (error) {
+    return actionFailure(error);
+  }
+}
+
+export async function addClinicalRecordFromConversationAction(input: AddClinicalRecordFromConversationInput): Promise<SupportActionResult<SupportMessage>> {
+  try {
+    const parsed = AddClinicalRecordFromConversationSchema.parse(input);
+    const data = await addClinicalRecordFromConversation(parsed);
     revalidateSupport();
     return { data };
   } catch (error) {

@@ -16,6 +16,7 @@ import { useRouter } from "@/i18n/navigation";
 import useAction from "@/hooks/use-action";
 import { useNavigate } from "@/hooks/use-navigate";
 import { useLocale, useTranslations } from "next-intl";
+import { ContextConversationPanel } from "@/features/support/components/context-conversation-panel";
 function normalizeStatus(value?: string | null) {
     return String(value || "pending").trim().toLowerCase();
 }
@@ -386,6 +387,8 @@ function BookingDetailContent({ booking, onCancel, onPay, isPaying, paymentGatew
           <DetailRow label={tBooking("status")} value={booking.status}/>
         </div>
       </div>
+
+      <ContextConversationPanel contextType="booking" bookingId={booking.id} locale={locale}/>
 
       <div className="space-y-2">
         {canPay && (<button type="button" disabled={isPaying} onClick={() => paymentGateway && onPay(paymentGateway)} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#083f30] font-semibold text-white transition-colors hover:bg-[#0a5a44] disabled:cursor-not-allowed disabled:opacity-70">

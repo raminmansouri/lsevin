@@ -3,8 +3,9 @@ import type { SUPPORT_PRIORITY_OPTIONS, SUPPORT_SOURCE_OPTIONS, SUPPORT_STATUS_O
 export type SupportStatus = (typeof SUPPORT_STATUS_OPTIONS)[number];
 export type SupportPriority = (typeof SUPPORT_PRIORITY_OPTIONS)[number];
 export type SupportSource = (typeof SUPPORT_SOURCE_OPTIONS)[number];
-export type SupportSenderType = "customer" | "agent" | "system";
-export type SupportMessageType = "text" | "image" | "file" | "system" | "note";
+export type SupportSenderType = "customer" | "agent" | "provider" | "system";
+export type SupportMessageType = "text" | "image" | "file" | "system" | "note" | "requirement_request" | "clinical_record";
+export type SupportConversationContextType = "general" | "booking" | "consultation";
 export type SupportAgentStatus = "online" | "away" | "offline";
 export type SupportThemeMode = "system" | "light" | "dark";
 
@@ -57,6 +58,9 @@ export type SupportMessage = {
   conversationId: string;
   senderType: SupportSenderType;
   senderUserId?: string | null;
+  /** Which provider org a "provider" sender was acting as (migration 0064). */
+  senderProviderId?: string | null;
+  senderProviderName?: string | null;
   body?: string | null;
   bodyJson: Record<string, unknown>;
   messageType: SupportMessageType;
@@ -92,6 +96,13 @@ export type SupportConversationListItem = {
   displayContact?: string | null;
   source: SupportSource;
   sourceUrl?: string | null;
+  /** Migration 0064: what this conversation is attached to, if anything
+   * beyond a generic support ticket. */
+  contextType: SupportConversationContextType;
+  bookingId?: string | null;
+  consultationRequestId?: string | null;
+  patientId?: string | null;
+  medicalCaseId?: string | null;
   locale?: string | null;
   status: SupportStatus;
   priority: SupportPriority;

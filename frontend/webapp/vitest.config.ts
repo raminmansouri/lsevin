@@ -43,6 +43,7 @@ export default defineConfig({
       "src/features/booking-pro/**/*.test.ts",
       "src/features/gym-memberships/**/*.test.ts",
       "src/features/patients/**/*.test.ts",
+      "src/features/support/**/*.test.ts",
       "src/lib/seo/**/*.test.ts",
     ],
     // Postgres row locks are the point of several tests; running files in parallel

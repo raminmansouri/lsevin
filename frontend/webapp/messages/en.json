@@ -2905,6 +2905,40 @@
       "high": "High",
       "urgent": "Urgent"
     },
+    "supportContextType": {
+      "all": "All",
+      "general": "General",
+      "booking": "Booking",
+      "consultation": "Consultation"
+    },
+    "supportRequirementType": {
+      "document": "Document",
+      "lab_test": "Lab test",
+      "imaging": "Imaging",
+      "questionnaire": "Questionnaire",
+      "medical_clearance": "Medical clearance",
+      "other": "Other"
+    },
+    "supportRecordType": {
+      "condition": "Condition",
+      "allergy": "Allergy",
+      "medication": "Medication",
+      "procedure": "Procedure"
+    },
+    "requestFile": "Request file",
+    "addToMedicalRecord": "Add to medical record",
+    "requirementTitlePlaceholder": "What do you need? (e.g. Recent blood test)",
+    "descriptionOptional": "Description (optional)",
+    "maxAgeHoursOptional": "Max age in hours (optional)",
+    "mandatory": "Mandatory",
+    "conditionNamePlaceholder": "Condition name",
+    "allergyCategoryPlaceholder": "Allergy category",
+    "allergySubstancePlaceholder": "Substance",
+    "medicationNamePlaceholder": "Medication name",
+    "doseOptional": "Dose (optional)",
+    "procedureNamePlaceholder": "Procedure name",
+    "notesOptional": "Notes (optional)",
+    "send": "Send",
     "supportEvent": {
       "conversationCreated": "Conversation created",
       "messageSent": "Message sent",
@@ -12334,7 +12368,15 @@
       "supportUnavailableDescription": "The support channel is temporarily unavailable. Please try again later.",
       "writeMessageFallback": "Write your message...",
       "internalNote": "Internal note",
-      "noMessagesYet": "No messages yet."
+      "noMessagesYet": "No messages yet.",
+      "requirementRequested": "File requested",
+      "clinicalRecordAdded": "Added to medical record",
+      "optionalLabel": "optional",
+      "attachFile": "Attach file",
+      "removeAttachment": "Remove",
+      "conversationTitle": "Conversation",
+      "conversationSubtitle": "Message your provider, ask questions, and share files -- everything you send here is saved to your medical record.",
+      "startingConversation": "Starting conversation…"
     },
     "providerPortalStatus": {
       "status": "Status",
