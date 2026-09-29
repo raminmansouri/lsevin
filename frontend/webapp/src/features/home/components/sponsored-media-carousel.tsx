@@ -230,7 +230,10 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
           ended up 24px below the clipping edge, which is why the ad could not be
           tapped. Wider screens keep a wider frame; `lg:h-80` is unchanged.
         */}
-        <div className="relative aspect-[4/3] w-full sm:aspect-[3/2] sm:max-h-[380px] lg:aspect-auto lg:h-80">
+        <div
+  style={{ outline: '6px solid lime' }}
+  className="relative aspect-[6/5] w-full sm:aspect-[4/3] sm:max-h-[440px] lg:aspect-auto lg:h-96"
+>
           {safeSlides.map((slide, index) => {
             const active = index === activeIndex;
             const mediaSrc = resolveHomeMediaUrl(slide.url);
@@ -259,7 +262,7 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
                     // consumed the slide's full height and pushed the title,
                     // subtitle and call-to-action below it, where overflow-hidden
                     // clipped them — so video slides rendered no text at all.
-                    className="absolute inset-0 h-full w-full object-cover"
+                    className="absolute inset-0 h-full w-full object-contain"
                     // No `src` until the slide is cleared to load. Setting it with
                     // preload="none" still lets a browser start buffering once
                     // play() is called, and an unplayable format (a .mov on
@@ -276,7 +279,7 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
                     src={mediaSrc}
                     alt={title ?? t('sponsored')}
                     sizes="100vw"
-                    className="object-cover"
+                    className="object-contain"
                     priority={active}
                   />
                 )}

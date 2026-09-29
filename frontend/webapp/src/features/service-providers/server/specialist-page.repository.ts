@@ -587,15 +587,17 @@ async function getGallery(specialistId: string, locale: string): Promise<Special
 async function getBeforeAfter(specialistId: string): Promise<SpecialistBeforeAfter[]> {
   const rows = await sql<SpecialistBeforeAfter[]>`
     select
-      id::text as id,
-      before_image as before,
-      after_image as after,
-      procedure,
-      months,
-      display_order as "displayOrder"
-    from category.staff_before_after
-    where staff_id = ${specialistId}::uuid
-    order by display_order asc, create_date desc
+      ba.id::text as id,
+      coalesce(before_media.file_url, ba.before_image) as before,
+      coalesce(after_media.file_url, ba.after_image) as after,
+      ba.procedure,
+      ba.months,
+      ba.display_order as "displayOrder"
+    from category.staff_before_after ba
+    left join media.media_library before_media on before_media.id::text = nullif(btrim(ba.before_image), '')
+    left join media.media_library after_media on after_media.id::text = nullif(btrim(ba.after_image), '')
+    where ba.staff_id = ${specialistId}::uuid
+    order by ba.display_order asc, ba.create_date desc
   `;
 
   return rows.map((row, index) => ({

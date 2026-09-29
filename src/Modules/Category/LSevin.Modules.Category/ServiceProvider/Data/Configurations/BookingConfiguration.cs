@@ -99,11 +99,6 @@ namespace LSevin.Modules.Category.ServiceProvider.Data.Configurations
                     v => JsonSerializer.Serialize(v, JsonOptions),
                     v => JsonSerializer.Deserialize<List<BookingAdditionalServiceItem>>(v, JsonOptions) ?? new List<BookingAdditionalServiceItem>()
                 );
-
-            builder.HasIndex(x => x.UserId)
-                .HasDatabaseName("ux_bookings_one_pending_checkout_per_user")
-                .IsUnique()
-                .HasFilter("booking_status = 'Pending'");
         }
     }
 }

@@ -30,7 +30,7 @@ function Media({ item }: { item: SponseredSliderPublicItem }) {
   if (item.mediaType === "video") {
     return (
       <video
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full bg-black object-contain"
         src={item.mediaUrl}
         muted
         loop
