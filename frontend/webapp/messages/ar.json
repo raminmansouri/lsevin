@@ -13127,7 +13127,8 @@
       "title": "تم استلام طلبك",
       "body": "سيتواصل معك مستشارونا على الرقم {phone}.",
       "continue": "متابعة الحجز",
-      "sendAnother": "إرسال طلب آخر"
+      "sendAnother": "إرسال طلب آخر",
+      "viewConversation": "عرض المحادثة"
     },
     "errors": {
       "signInRequired": "يرجى تسجيل الدخول قبل طلب الاستشارة.",
@@ -13197,6 +13198,10 @@
         "bookingDraft": "مسودة الحجز",
         "notifications": "الإشعارات",
         "noNotifications": "لم يُرسل أي شيء لهذا الطلب.",
+        "conversation": "المحادثة",
+        "conversationGuestNotice": "تم تقديم هذا الطلب دون تسجيل الدخول، لذا لا تتوفر محادثة بعد.",
+        "conversationPlaceholder": "اكتب رسالة…",
+        "conversationSend": "إرسال",
         "adminNote": "ملاحظة داخلية",
         "adminNotePlaceholder": "ملاحظات للفريق…",
         "save": "حفظ التغييرات",

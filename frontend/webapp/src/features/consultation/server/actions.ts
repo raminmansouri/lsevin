@@ -22,6 +22,7 @@ import {
   CONSULTATION_TRANSLATION_KEY,
   type ConsultationActionResult,
   type ConsultationRecipient,
+  type ConsultationRequest,
 } from "../types";
 import { dispatchConsultationNotifications } from "./notifications";
 import {
@@ -31,6 +32,7 @@ import {
   consumeConsultationRateLimit,
   createConsultationRequest,
   deleteConsultationRecipient,
+  getConsultationRequestDetail,
   getConsultationSmsSettings,
   saveConsultationSmsSettings,
   updateConsultationRequest,
@@ -145,6 +147,29 @@ export async function submitConsultationRequest(
   revalidatePath(ADMIN_PATH);
 
   return { ok: true, data: { id: created.id } };
+}
+
+/** Customer-facing, ownership-checked lookup for the مشاوره conversation page
+ * -- deliberately not the admin getConsultationRequestDetailAction (which
+ * only checks assertAdmin(), not "is this the requester's own record"). */
+export async function getMyConsultationRequestAction(
+  id: string
+): Promise<ConsultationActionResult<ConsultationRequest>> {
+  const t = await getTranslations(CONSULTATION_TRANSLATION_KEY);
+
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+    return { ok: false, error: t("errors.notFound") };
+  }
+
+  const session = await getSession().catch(() => null);
+  const userId = session?.user?.id ?? null;
+  if (!userId) return { ok: false, error: t("errors.signInRequired") };
+
+  const detail = await getConsultationRequestDetail(id);
+  if (!detail || detail.userId !== userId) return { ok: false, error: t("errors.notFound") };
+
+  const { notifications: _notifications, ...request } = detail;
+  return { ok: true, data: request };
 }
 
 // ---------------------------------------------------------------------------

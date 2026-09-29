@@ -8,11 +8,12 @@
  */
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { CheckCircle2, PhoneCall } from "lucide-react";
+import { CheckCircle2, MessageCircle, PhoneCall } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
+import { Link } from "@/i18n/navigation";
 import useDirection from "@/hooks/use-direction";
 
 import { composeE164, normalizePhone } from "../schemas";
@@ -122,6 +123,7 @@ export function ConsultationStep({
   const [phoneTouched, setPhoneTouched] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submittedPhone, setSubmittedPhone] = useState<string | null>(null);
+  const [submittedRequestId, setSubmittedRequestId] = useState<string | null>(null);
   // The wizard mounts this step before the session hook has resolved, so the
   // prefill runs from an effect — but only once, or it would overwrite edits on
   // every session refresh.
@@ -179,6 +181,7 @@ export function ConsultationStep({
     setFieldErrors({});
     setPhoneTouched(false);
     setSubmittedPhone(null);
+    setSubmittedRequestId(null);
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -223,6 +226,7 @@ export function ConsultationStep({
 
       setFieldErrors({});
       setSubmittedPhone(normalizedPhone ?? form.phone.trim());
+      setSubmittedRequestId(result.data?.id ?? null);
     } catch {
       toast.error(t("errors.generic"));
     } finally {
@@ -255,6 +259,15 @@ export function ConsultationStep({
             >
               {t("success.continue")}
             </button>
+          ) : null}
+          {submittedRequestId ? (
+            <Link
+              href={`/n/app/mobile/consultation/${submittedRequestId}`}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#083f30]/30 bg-white px-5 py-3 text-sm font-bold text-[#083f30]"
+            >
+              <MessageCircle className="h-4 w-4" />
+              {t("success.viewConversation")}
+            </Link>
           ) : null}
           <button
             type="button"

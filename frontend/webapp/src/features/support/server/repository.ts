@@ -34,6 +34,7 @@ import type {
   UpsertSupportTagInput,
 } from "../schemas";
 import { addClinicalDocument } from "@/features/patients/server/documents-repository";
+import { getActiveGrantForBooking } from "@/features/patients/server/case-provider-repository";
 
 type QueryLike = typeof sql;
 type JsonRecord = Record<string, unknown>;
@@ -480,6 +481,22 @@ export async function getOrCreateConversationForContext(input: CreateContextConv
       if (detail) return detail;
     }
 
+    // The caller (context-conversation-panel.tsx) never knows the shared
+    // case's id -- it only knows the booking. Resolve it here from the real
+    // grant checkoutDraft created, so auto-archival and the admin's
+    // requirement/clinical-record actions activate whenever a case was
+    // actually shared along this booking, without every caller having to
+    // duplicate this lookup.
+    let patientId = input.patientId || null;
+    let medicalCaseId = input.medicalCaseId || null;
+    if (input.contextType === "booking" && !patientId && !medicalCaseId && input.bookingId) {
+      const grant = await getActiveGrantForBooking(input.bookingId);
+      if (grant) {
+        patientId = grant.patientId;
+        medicalCaseId = grant.medicalCaseId;
+      }
+    }
+
     const rows = await db<{ id: string }[]>`
       insert into support.conversations (
         customer_user_id,
@@ -499,8 +516,8 @@ export async function getOrCreateConversationForContext(input: CreateContextConv
         ${input.contextType},
         ${input.bookingId || null}::uuid,
         ${input.consultationRequestId || null}::uuid,
-        ${input.patientId || null}::uuid,
-        ${input.medicalCaseId || null}::uuid
+        ${patientId}::uuid,
+        ${medicalCaseId}::uuid
       ) returning id::text
     `;
 

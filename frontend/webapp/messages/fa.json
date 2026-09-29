@@ -14010,7 +14010,8 @@
       "title": "درخواست شما ثبت شد",
       "body": "کارشناسان ما با شماره {phone} با شما تماس می‌گیرند.",
       "continue": "ادامه رزرو",
-      "sendAnother": "ثبت درخواست دیگر"
+      "sendAnother": "ثبت درخواست دیگر",
+      "viewConversation": "مشاهده گفتگو"
     },
     "errors": {
       "signInRequired": "برای ثبت درخواست مشاوره ابتدا وارد حساب کاربری شوید.",
@@ -14080,6 +14081,10 @@
         "bookingDraft": "پیش‌نویس رزرو",
         "notifications": "اطلاع‌رسانی‌ها",
         "noNotifications": "برای این درخواست چیزی ارسال نشده است.",
+        "conversation": "گفتگو",
+        "conversationGuestNotice": "این درخواست بدون ورود به حساب کاربری ثبت شده است، بنابراین هنوز گفتگویی در دسترس نیست.",
+        "conversationPlaceholder": "پیام خود را بنویسید…",
+        "conversationSend": "ارسال",
         "adminNote": "یادداشت داخلی",
         "adminNotePlaceholder": "یادداشت برای تیم…",
         "save": "ذخیره تغییرات",

@@ -38,6 +38,7 @@ import {
   type ConsultationRequestListItem,
   type ConsultationStatus,
 } from "../../types";
+import { ConsultationConversationPanel } from "./consultation-conversation-panel";
 import { ConsultationStatusBadge } from "./consultation-status-badge";
 import { getConsultationRequestDetailAction } from "./get-detail.action";
 
@@ -266,6 +267,13 @@ export function ConsultationDetailDialog({
                 {current.description || t("admin.detail.noMessage")}
               </p>
             </section>
+
+            <ConsultationConversationPanel
+              consultationRequestId={current.id}
+              customerUserId={current.userId}
+              displayName={current.fullName}
+              locale={current.locale}
+            />
 
             <section className="space-y-3">
               <h3 className="text-sm font-semibold">{t("admin.detail.meta")}</h3>

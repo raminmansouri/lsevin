@@ -14010,7 +14010,8 @@
       "title": "Request received",
       "body": "Our advisors will contact you on {phone}.",
       "continue": "Continue booking",
-      "sendAnother": "Send another request"
+      "sendAnother": "Send another request",
+      "viewConversation": "View conversation"
     },
     "errors": {
       "signInRequired": "Please sign in before requesting a consultation.",
@@ -14080,6 +14081,10 @@
         "bookingDraft": "Booking draft",
         "notifications": "Notifications",
         "noNotifications": "Nothing was sent for this request.",
+        "conversation": "Conversation",
+        "conversationGuestNotice": "This request was raised without a logged-in account, so no conversation is available yet.",
+        "conversationPlaceholder": "Write a message…",
+        "conversationSend": "Send",
         "adminNote": "Internal note",
         "adminNotePlaceholder": "Notes for the team…",
         "save": "Save changes",
