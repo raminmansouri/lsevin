@@ -8961,6 +8961,7 @@
     "closeSearch": "بستن جستجو",
     "searchPlaceholder": "جستجوی خدمات، کلینیک‌ها، متخصص‌ها...",
     "clearSearchText": "پاک کردن متن جستجو",
+    "resultsFound": "{count, plural, =0 {نتیجه‌ای پیدا نشد} one {# نتیجه پیدا شد} other {# نتیجه پیدا شد}}",
     "search": "جستجو",
     "recentSearches": "جستجوهای اخیر",
     "clearAll": "پاک کردن همه",
