@@ -22,6 +22,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useParams, useSearchParams } from "next/navigation";
+import { BeforeAfterGallery } from "@/features/service-providers/components/before-after-gallery";
 
 import ReviewForm, { type ReviewFormSubmitValue } from "../../../components/ReviewForm";
 import { DigikalaReviewCard } from "../../../components/DigikalaReviewCard";
@@ -43,6 +44,7 @@ import { ServiceProductsRail } from "@/features/shop/components/ServiceProductsR
 const FALLBACK_IMAGE = "/placeholder-provider.svg";
 
 type ReviewSort = "newest" | "buyers" | "helpful";
+
 
 function firstParam(value: string | string[] | undefined): string {
   return Array.isArray(value) ? value[0] || "" : value || "";
@@ -93,10 +95,13 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
   const searchParams = useSearchParams();
   const locale = useLocale();
   const t = useTranslations("ProviderPage");
+  const tGallery = useTranslations("SpecialistPage");
   const { user } = useCurrentSession(false);
   const providerId = firstParam(params.id as string | string[] | undefined);
 
-  const [selectedTab, setSelectedTab] = useState<"overview" | "services" | "specialists" | "reviews">("overview");
+  const [selectedTab, setSelectedTab] = useState<
+    "overview" | "services" | "beforeAfter" | "specialists" | "reviews"
+  >("overview");
   const [isFavorited, setIsFavorited] = useState(false);
   const [isFavoriteSaving, setIsFavoriteSaving] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -164,6 +169,7 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
   const provider = data.provider;
   const services = data.services || [];
   const specialists = data.specialists || [];
+  const beforeAfterItems = data.beforeAfter || [];
   const images = provider.images.length ? provider.images : provider.image ? [provider.image] : [FALLBACK_IMAGE];
   const heroImage = mediaUrl(images[Math.min(currentImageIndex, images.length - 1)]);
 
@@ -432,6 +438,9 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
             {[
               { id: "overview", label: t("tabs.overview") },
               { id: "services", label: t("tabs.services") },
+              ...(beforeAfterItems.length
+                ? [{ id: "beforeAfter", label: tGallery("gallery.beforeAfterTitle") }]
+                : []),
               { id: "specialists", label: t("tabs.specialists") },
               { id: "reviews", label: t("tabs.reviews") },
             ].map((tab) => (
@@ -513,6 +522,13 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
           </div>
         ) : null}
 
+        {selectedTab === "beforeAfter" ? (
+          <div>
+            <h2 className="mb-4 text-lg font-bold text-gray-900">{tGallery("gallery.beforeAfterTitle")}</h2>
+            <BeforeAfterGallery items={beforeAfterItems} />
+          </div>
+        ) : null}
+        
         {selectedTab === "specialists" ? (
           <div className="space-y-4">
             {specialists.length ? specialists.map((doctor) => (
