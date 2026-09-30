@@ -63,6 +63,11 @@ export const useFetchProviderPageData = (
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     initialData,
+    // initialData is server-rendered with no visitor context (isFavorite is
+    // always baked in as false). Marking it as already-stale (updated "at the
+    // epoch") makes React Query refetch with the real userId right after
+    // mount instead of trusting the static payload for staleTime (5 min).
+    initialDataUpdatedAt: 0,
   });
 
   const { data, error, isFetching, refetch } = useQuery(options);

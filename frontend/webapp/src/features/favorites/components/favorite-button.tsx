@@ -71,7 +71,6 @@ export function FavoriteButton({
       const result = await toggleFavoriteAction({
         entityId,
         entityType,
-        revalidatePathname: pathname,
       });
       console.log('[FavoriteButton] result:', result);
 

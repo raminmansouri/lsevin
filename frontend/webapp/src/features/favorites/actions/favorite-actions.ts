@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 
 import { getUserId } from '@/lib/auth/session';
+import { getIsFavorite } from '../server/favorites.repository';
 
 import {
   isValidFavoriteEntityId,
@@ -104,6 +105,28 @@ export async function toggleFavoriteAction(input: {
     };
   }
 }
+
+
+export async function getFavoriteStatusAction(input: {
+  entityType: FavoriteEntityType;
+  entityId: string;
+}): Promise<{ isFavorite: boolean }> {
+  try {
+    validateFavoriteInput(input);
+    const resolved = await getFavoritesCustomerId();
+    if (!resolved.customerId) return { isFavorite: false };
+
+    const isFavorite = await getIsFavorite({
+      customerId: resolved.customerId,
+      favoriteType: input.entityType,
+      entityId: input.entityId,
+    });
+    return { isFavorite };
+  } catch {
+    return { isFavorite: false };
+  }
+}
+
 
 export async function setFavoriteAction(input: {
   entityType: FavoriteEntityType;
