@@ -203,6 +203,15 @@ export const updateBookingProviderSchema = z.object({
   status: z.enum(["Pending", "Confirmed", "Cancelled", "Completed"]).optional(),
 });
 
+export const updateBookingCaseStepSchema = z.object({
+  providerId: uuid,
+  bookingId: uuid,
+  caseStepId: uuid,
+  status: z.enum(["pending", "ready", "in_progress", "completed", "skipped", "blocked", "cancelled"]),
+  lockVersion: z.coerce.number().int().positive(),
+  note: optionalText,
+});
+
 export const saveGalleryItemSchema = z.object({
   providerId: uuid,
   galleryItemId: uuid.optional().nullable(),

@@ -187,6 +187,22 @@ export type BookingRow = {
   customerEmail: string | null;
   providerNotes: string | null;
   createdAt: string;
+  caseTimeline: ProviderBookingCaseTimeline | null;
+};
+
+export type ProviderBookingCaseStep = {
+  id: string;
+  title: string;
+  status: "pending" | "ready" | "in_progress" | "completed" | "skipped" | "blocked" | "cancelled";
+  displayOrder: number;
+  lockVersion: number;
+};
+
+export type ProviderBookingCaseTimeline = {
+  id: string;
+  status: "scheduled" | "active" | "on_hold" | "completed" | "cancelled";
+  currentStepId: string | null;
+  steps: ProviderBookingCaseStep[];
 };
 
 export type GalleryRow = {
