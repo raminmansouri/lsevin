@@ -3213,7 +3213,8 @@ declare const messages: {
       "subtitle": "Curated deals and bundles",
       "backAria": "Back to home",
       "emptyTitle": "No packages yet",
-      "emptyDescription": "Special packages will appear here as soon as they are published."
+      "emptyDescription": "Special packages will appear here as soon as they are published.",
+      "reserveButton": "Reserve"
     },
     "appBar": {
       "notifications": "Notifications"
@@ -12077,7 +12078,7 @@ declare const messages: {
     },
     "sections": {
       "languages": "Languages",
-      "about": "About",
+      "about": "Address",
       "gallery": "Gallery",
       "providerDetails": "Provider details",
       "certifications": "Certifications",
