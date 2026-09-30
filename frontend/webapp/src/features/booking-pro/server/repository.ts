@@ -13,6 +13,7 @@ import { listTransferRouteSummaries } from '@/features/transfers/server/reposito
 import { listServicesWithOpenDepartures, reserveTourDeparture } from '@/features/tours/server/repository';
 import { createCaseProviderGrant } from '@/features/patients/server/case-provider-repository';
 import { pickTranslation } from '../utils/translation';
+import { payFirstBookingReferralBonus } from '@/features/marketing-loyalty/server/referral-commission.repository';
 import type {
   BookingDraftState,
   BookingUiMode,
@@ -2008,7 +2009,15 @@ export async function checkoutDraft(
     customerUserId: userId,
     providerId: scope?.providerId,
   }).catch((error) => console.error('notifyBookingCreated failed for booking', txResult.bookingId, error));
-
+    // Referral bonus: fires on ANY completed reservation, regardless of price,
+    // payment method, or payment status — this is the "book anything and get
+    // 100k" reward, not tied to payment confirmation. Same never-fail pattern
+    // as notifyBookingCreated above, and internally gated so a user's second,
+    // third, etc. booking never pays out again.
+    payFirstBookingReferralBonus({
+        refereeCustomerId: userId,
+        bookingId: txResult.bookingId,
+    }).catch((error) => console.error('payFirstBookingReferralBonus failed for booking', txResult.bookingId, error));
   // "Share this case with the provider I'm booking" only ever takes effect
   // here, once the booking is actually confirmed -- never at the moment the
   // customer picked it in the wizard (see migration 0062). Same

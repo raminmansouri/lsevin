@@ -143,7 +143,7 @@ export function ShareFriendsPageClient({
             <div className="flex items-center gap-3">
               <div className="flex-1 h-14 bg-gray-50 border-2 border-gray-200 rounded-xl px-4 flex items-center">
                 <span className="text-2xl font-bold text-[#083f30] tracking-wider">
-                  {initialData.referralCode}
+                    <span lang="en" dir="ltr">{initialData.referralCode}</span>
                 </span>
               </div>
               <button

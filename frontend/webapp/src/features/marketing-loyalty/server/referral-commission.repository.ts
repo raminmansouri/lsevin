@@ -27,16 +27,15 @@ export type ReferralStanding = {
   referralsToNextTier: number | null;
 };
 
-/** How many people this customer has brought in who actually qualified. */
 export async function countQualifiedReferrals(referrerCustomerId: string): Promise<number> {
-  const [row] = await sql<{ total: number }[]>`
-    select count(*)::int as total
-    from marketing.referral_invitations ri
-    where ri.referrer_customer_id = ${referrerCustomerId}::uuid
+    const [row] = await sql<{ total: number }[]>`
+        select count(*)::int as total
+        from marketing.referral_invitations ri
+        where ri.referrer_customer_id = ${referrerCustomerId}::uuid
       and ri.referee_customer_id is not null
-      and ri.qualified_at is not null
-  `;
-  return Number(row?.total ?? 0);
+      and (ri.qualified_at is not null or ri.first_booking_completed_at is not null)
+    `;
+    return Number(row?.total ?? 0);
 }
 
 export async function listReferralTiers(): Promise<ReferralTier[]> {
@@ -90,25 +89,23 @@ export async function getReferralStanding(referrerCustomerId: string): Promise<R
  * before money moves.
  */
 export async function findCommissionableReferrer(
-  refereeCustomerId: string,
+    refereeCustomerId: string,
 ): Promise<{ referrerCustomerId: string } | null> {
-  const [row] = await sql<{ referrerCustomerId: string }[]>`
-    select ri.referrer_customer_id::text as "referrerCustomerId"
-    from marketing.referral_invitations ri
-    where ri.referee_customer_id = ${refereeCustomerId}::uuid
-      and ri.qualified_at is not null
+    const [row] = await sql<{ referrerCustomerId: string }[]>`
+        select ri.referrer_customer_id::text as "referrerCustomerId"
+        from marketing.referral_invitations ri
+        where ri.referee_customer_id = ${refereeCustomerId}::uuid
       and ri.referrer_customer_id <> ri.referee_customer_id
-      -- Two accounts naming each other pay nobody.
       and not exists (
         select 1
         from marketing.referral_invitations back
         where back.referrer_customer_id = ri.referee_customer_id
           and back.referee_customer_id = ri.referrer_customer_id
       )
-    order by ri.qualified_at asc
-    limit 1
-  `;
-  return row ?? null;
+        order by ri.invited_at asc
+            limit 1
+    `;
+    return row ?? null;
 }
 
 /**
@@ -190,4 +187,57 @@ export async function listReferralCommissions(referrerCustomerId: string, limit 
     order by created_at desc
     limit ${limit}
   `;
+}
+
+const FIRST_BOOKING_BONUS_AMOUNT = 100_000; // toman, each side
+
+/**
+ * Flat one-time reward: the first time a referred customer's booking is marked
+ * Completed, both the referrer and the referee get 100,000 toman in their wallet.
+ * Gated by referral_invitations.first_booking_completed_at, so a second (or
+ * edited/re-saved) booking can never pay out twice.
+ */
+export async function payFirstBookingReferralBonus(input: {
+    refereeCustomerId: string;
+    bookingId: string;
+}): Promise<{ referrerCustomerId: string } | null> {
+    const referrer = await findCommissionableReferrer(input.refereeCustomerId);
+    if (!referrer) return null;
+
+    return await sql.begin(async (tx) => {
+        const [invitation] = await tx<{ id: string }[]>`
+      update marketing.referral_invitations
+      set first_booking_completed_at = now()
+      where referrer_customer_id = ${referrer.referrerCustomerId}::uuid
+        and referee_customer_id = ${input.refereeCustomerId}::uuid
+        and first_booking_completed_at is null
+      returning id
+    `;
+        if (!invitation) return null;
+
+        for (const [customerId, role] of [
+            [referrer.referrerCustomerId, 'referrer_bonus'],
+            [input.refereeCustomerId, 'referee_bonus'],
+        ] as const) {
+            const [wallet] = await tx<{ id: string }[]>`
+        select id from customer.wallet_accounts where user_id = ${customerId}::uuid limit 1
+      `;
+            if (!wallet) continue;
+
+            await tx`
+        insert into customer.wallet_transactions (
+          wallet_account_id, user_id, booking_id,
+          transaction_type, direction, status, payment_method,
+          title, subtitle, currency_code, amount, metadata
+        ) values (
+          ${wallet.id}, ${customerId}, ${input.bookingId},
+          'referral_bonus', 'credit', 'completed', 'internal',
+          'پاداش معرفی', 'اولین رزرو تکمیل‌شده', 'IRT', ${FIRST_BOOKING_BONUS_AMOUNT},
+          ${JSON.stringify({ role, referrerCustomerId: referrer.referrerCustomerId, refereeCustomerId: input.refereeCustomerId })}
+        )
+      `;
+        }
+
+        return { referrerCustomerId: referrer.referrerCustomerId };
+    });
 }

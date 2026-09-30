@@ -1,6 +1,6 @@
 
 import 'server-only';
-
+import { payFirstBookingReferralBonus } from '@/features/marketing-loyalty/server/referral-commission.repository';
 import { mirrorBookingWalletPayment } from '@/accounting/server/legacy-bridge';
 import db from '@/config/database/db';
 import { filterGatewaysForRegion, resolveUserPaymentRegion } from '@/payment/server/gateway-eligibility';
@@ -399,6 +399,11 @@ export async function createBookingPaymentIntent(params: {
         where id = ${params.bookingId}
       `;
 
+        if (lsevinPaid) {
+            payFirstBookingReferralBonus({ refereeCustomerId: params.userId, bookingId: params.bookingId })
+                .catch((error) => console.error('payFirstBookingReferralBonus failed for booking', params.bookingId, error));
+        }
+
       await tx`
         update booking.payments
         set payment_method = 'wallet', gateway = 'internal_wallet', status = 'Succeeded',
@@ -541,6 +546,11 @@ export async function confirmBookingPayment(params: {
             payment_reference = coalesce(${params.externalReference ?? null}, payment_reference)
         where id = ${params.bookingId}
       `;
+
+        if (lsevinPaid) {
+            payFirstBookingReferralBonus({ refereeCustomerId: params.userId, bookingId: params.bookingId })
+                .catch((error) => console.error('payFirstBookingReferralBonus failed for booking', params.bookingId, error));
+        }
 
       await tx`
         update marketing.user_discount_coupons udc

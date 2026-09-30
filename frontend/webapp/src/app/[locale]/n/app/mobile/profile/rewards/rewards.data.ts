@@ -1,4 +1,5 @@
 import sql from "@/config/database/db";
+import { countQualifiedReferrals } from "@/features/marketing-loyalty/server/referral-commission.repository";
 import {
   computeEarnedPoints,
   getPointsEarnDivisor,
@@ -147,9 +148,41 @@ function formatDiscount(discountPercent: number | null, maybeFixed: number | nul
   return "Deal";
 }
 
-function deriveReferralCode(userId: string | null) {
-  const suffix = (userId ?? "guest").replace(/-/g, "").slice(0, 8).toUpperCase() || "GUEST";
-  return `LSEVIN-${suffix}`;
+async function getRealReferralCode(userId: string | null): Promise<string | null> {
+    if (!userId) return null;
+
+    const [row] = await sql<{ code: string }[]>`
+    select rc.code
+    from marketing.referral_codes rc
+    join marketing.referral_programs rp on rp.id = rc.program_id
+    where rc.customer_id = ${userId}::uuid
+      and rc.is_active = true
+      and rp.status = 'active'
+    order by rp.is_default desc, rc.created_at desc
+    limit 1
+  `;
+
+    return row?.code ?? null;
+}
+
+/**
+ * Total money this user has actually earned from referrals -- both the flat
+ * first-booking bonus (payFirstBookingReferralBonus) and the ongoing tiered
+ * commission (recordReferralCommission), read from the one place both
+ * ultimately land: the user's own wallet transactions.
+ */
+async function getReferralEarnings(userId: string | null): Promise<number> {
+    if (!userId) return 0;
+
+    const [row] = await sql<{ total: string | null }[]>`
+    select coalesce(sum(amount), 0) as total
+    from customer.wallet_transactions
+    where user_id = ${userId}::uuid
+      and transaction_type in ('referral_bonus', 'referral_commission')
+      and status = 'completed'
+  `;
+
+    return Number(row?.total ?? 0);
 }
 
 export async function getRewardsPageData(locale: string): Promise<RewardsPageData> {
@@ -206,6 +239,11 @@ const capabilities: RewardsCapabilities = {
   // rescales displayed balances at the new rate without touching stored data.
   const earnRateDivisor = await getPointsEarnDivisor();
   const points = computeEarnedPoints(totalSpent, earnRateDivisor);
+    const [qualifiedReferrals, referralEarnings, referralCode] = await Promise.all([
+        countQualifiedReferrals(userId ?? ""),
+        getReferralEarnings(userId),
+        getRealReferralCode(userId),
+    ]);
   const tierState = getTier(points);
 
   const tiers: RewardsTier[] = TIER_DEFS.map((tier) => ({
@@ -276,16 +314,16 @@ const capabilities: RewardsCapabilities = {
     });
   }
 
-  const user: RewardUserSummary = {
-    points,
-    tier: tierState.current.name,
-    tierProgress: tierState.progress,
-    nextTier: tierState.next?.name ?? null,
-    pointsToNext: tierState.pointsToNext,
-    totalSpent,
-    referrals: 0,
-    referralEarnings: 0,
-  };
+    const user: RewardUserSummary = {
+        points,
+        tier: tierState.current.name,
+        tierProgress: tierState.progress,
+        nextTier: tierState.next?.name ?? null,
+        pointsToNext: tierState.pointsToNext,
+        totalSpent,
+        referrals: qualifiedReferrals,
+        referralEarnings,
+    };
 
   return {
     user,
@@ -293,11 +331,11 @@ const capabilities: RewardsCapabilities = {
     coupons,
     usedCoupons,
     recentActivity,
-    referral: {
-      code: deriveReferralCode(userId),
-      referrals: 0,
-      referralEarnings: 0,
-    },
+      referral: {
+          code: referralCode ?? "",
+          referrals: qualifiedReferrals,
+          referralEarnings,
+      },
     capabilities,
   };
 }
