@@ -20,7 +20,7 @@ export default async function UpdateBookingPage({ params }: { params: Promise<{ 
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader className="flex-between border-b"><CardTitle><PageHeader title={tAdmin("updateBookingId", { id: booking.id })} /></CardTitle></CardHeader>
+        <CardHeader className="flex-between border-b"><CardTitle><PageHeader title={tAdmin("updateBookingTitle", { service: booking.serviceName || booking.id, customer: booking.customerName || "-" })} /></CardTitle></CardHeader>
         <BookingForm booking={booking} locale={locale} lookups={lookups} />
       </Card>
       <BookingDetailCard booking={booking} />

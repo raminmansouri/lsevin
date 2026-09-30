@@ -2686,7 +2686,8 @@ declare const messages: {
       "subtitle": "عروض وباقات مختارة",
       "backAria": "العودة إلى الرئيسية",
       "emptyTitle": "لا توجد باقات بعد",
-      "emptyDescription": "ستظهر الباقات المميزة هنا فور نشرها."
+      "emptyDescription": "ستظهر الباقات المميزة هنا فور نشرها.",
+      "reserveButton": "احجز الآن"
     },
     "appBar": {
       "notifications": "الإشعارات"
@@ -11195,7 +11196,7 @@ declare const messages: {
     },
     "sections": {
       "languages": "اللغات",
-      "about": "نبذة",
+      "about": "العنوان",
       "gallery": "المعرض",
       "providerDetails": "تفاصيل مقدم الخدمة",
       "certifications": "الشهادات",

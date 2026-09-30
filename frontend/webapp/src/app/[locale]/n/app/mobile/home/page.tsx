@@ -748,7 +748,7 @@ function LoyaltyClubSection({
 
           <HomeLexicalDescription
             content={section.description}
-            className="mb-5 text-sm leading-relaxed text-white/75 [&_p]:text-white/75"
+            className="mb-5 text-end text-sm leading-relaxed text-white/75 [&_p]:text-end [&_p]:text-white/75"
             fallback={labels.description}
           />
 
@@ -785,7 +785,7 @@ function LoyaltyClubSection({
             className="flex w-full items-center justify-center gap-1.5 rounded-2xl bg-[#eacb7f] px-6 py-3.5 text-sm font-bold text-[#083f30] shadow-lg transition-all hover:bg-[#f0d18f] active:scale-[0.98]"
           >
             {section.buttonLabel || labels.button}
-            <ChevronRight size={18} />
+            <ChevronRight size={18} className="rtl:rotate-180" />
           </Link>
         </div>
       </div>

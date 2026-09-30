@@ -3001,6 +3001,7 @@ declare const messages: {
       "backAria": "Ana sayfaya dön",
       "emptyDescription": "Özel paketler yayınlanır yayınlanmaz burada görünecek.",
       "emptyTitle": "Henüz paket yok",
+      "reserveButton": "Rezervasyon Yap",
       "subtitle": "Seçkin fırsatlar ve paketler",
       "title": "Özel Paketler"
     },
@@ -8705,7 +8706,7 @@ declare const messages: {
       "writeReview": "Değerlendirme yaz"
     },
     "sections": {
-      "about": "Hakkında",
+      "about": "Adres",
       "certifications": "Sertifikalar",
       "contact": "İletişim",
       "gallery": "Galeri",

@@ -132,6 +132,45 @@ export function LazyAdminLookupSelect({
     });
   }, [initialOptions, items, selectedValue, valueField]);
 
+
+  const [resolvedSelectedLabel, setResolvedSelectedLabel] = useState<string | null>(null);
+
+  // The dropdown's own list only ever holds a page (or a search match) of
+  // options. A booking's stored provider/service/specialist id is very often
+  // outside that first page — e.g. sorted alphabetically past letter M — so
+  // `selectedOption` above comes back undefined and the UI fell back to
+  // printing the raw uuid. Fetch that one id directly instead of hoping it's
+  // already loaded.
+  useEffect(() => {
+    console.log('🔍 lookup effect fired:', { lookupType, selectedValue, hasSelectedOption: Boolean(selectedOption) });
+    setResolvedSelectedLabel(null);
+
+    if (!selectedValue || selectedOption) return;
+
+    const controller = new AbortController();
+    const params = new URLSearchParams();
+    params.set("type", lookupType);
+    params.set("locale", locale || "fa-IR");
+    params.set("ids", selectedValue);
+
+    fetch(`/api/admin/service-provider-lookups?${params.toString()}`, {
+      signal: controller.signal,
+      cache: "no-store",
+    })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload: LookupResponse | null) => {
+        const match = payload?.items.find(
+          (item) => optionValue(item, valueField) === selectedValue || String(item.id) === selectedValue
+        );
+        if (match) setResolvedSelectedLabel(match.label);
+      })
+      .catch(() => undefined);
+
+    return () => controller.abort();
+  }, [locale, lookupType, selectedOption, selectedValue, valueField]);
+
+
+
   useEffect(() => {
     setItems(uniqueByOptionValue(initialOptions, valueField));
     setPage(1);
@@ -238,7 +277,7 @@ export function LazyAdminLookupSelect({
           className={cn("w-full justify-between", className)}
         >
           <span className="min-w-0 flex-1 truncate text-left">
-            {selectedOption?.label || selectedValue || placeholder}
+            {selectedOption?.label || resolvedSelectedLabel || selectedValue || placeholder}
           </span>
           <span className="ml-2 flex shrink-0 items-center gap-1">
             {clearable && selectedValue ? (

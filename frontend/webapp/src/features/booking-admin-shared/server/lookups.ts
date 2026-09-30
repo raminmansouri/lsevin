@@ -11,9 +11,15 @@ export async function getBookingAdminLookups(locale = "fa-IR") {
       limit 200
     `,
     db<LookupOption[]>`
-      select common.get_translation_t(display_name_translations, ${locale}, 'en-US') as label, id::text as value
-      from category.provider_services
-      order by common.get_translation_t(display_name_translations, ${locale}, 'en-US') asc
+      select
+        coalesce(
+          nullif(common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US'), ''),
+          common.get_translation_t(sd.name_translations, ${locale}, 'en-US')
+        ) as label,
+        ps.id::text as value
+      from category.provider_services ps
+      join category.service_definitions sd on sd.id = ps.service_definition_id
+      order by label asc
       limit 300
     `,
     db<LookupOption[]>`

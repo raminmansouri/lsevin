@@ -2404,7 +2404,8 @@ declare const messages: {
       "subtitle": "پیشنهادها و بسته‌های منتخب",
       "backAria": "بازگشت به خانه",
       "emptyTitle": "هنوز پکیجی وجود ندارد",
-      "emptyDescription": "پکیج‌های ویژه به‌محض انتشار در اینجا نمایش داده می‌شوند."
+      "emptyDescription": "پکیج‌های ویژه به‌محض انتشار در اینجا نمایش داده می‌شوند.",
+      "reserveButton": "رزرو کنید"
     },
     "appBar": {
       "notifications": "اعلان‌ها"
@@ -12083,7 +12084,7 @@ declare const messages: {
     },
     "sections": {
       "languages": "زبان‌ها",
-      "about": "درباره",
+      "about": "آدرس",
       "gallery": "گالری",
       "providerDetails": "جزئیات ارائه‌دهنده",
       "certifications": "گواهی‌ها",

@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import type { JSX } from "react";
 
 import type { RewardsPageData, RewardsTier } from "./rewards.data";
 
@@ -139,17 +140,17 @@ export default function RewardsClient({ data }: { data: RewardsPageData }) {
           </div>
 
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-white rounded-2xl p-4 border border-gray-200 text-center">
-              <div className="text-2xl font-bold text-gray-900 mb-1">${data.user.totalSpent.toLocaleString(locale)}</div>
-              <div className="text-xs text-gray-600">{t("overview.totalSpent")}</div>
+            <div className="min-w-0 rounded-2xl border border-gray-200 bg-white px-2 py-4 text-center">
+              <div className="truncate text-base font-bold text-gray-900 mb-1 sm:text-2xl">${data.user.totalSpent.toLocaleString(locale)}</div>
+              <div className="truncate text-xs text-gray-600">{t("overview.totalSpent")}</div>
             </div>
-            <div className="bg-white rounded-2xl p-4 border border-gray-200 text-center">
-              <div className="text-2xl font-bold text-gray-900 mb-1">{data.user.referrals}</div>
-              <div className="text-xs text-gray-600">{t("overview.referrals")}</div>
+            <div className="min-w-0 rounded-2xl border border-gray-200 bg-white px-2 py-4 text-center">
+              <div className="truncate text-base font-bold text-gray-900 mb-1 sm:text-2xl">{data.user.referrals.toLocaleString(locale)}</div>
+              <div className="truncate text-xs text-gray-600">{t("overview.referrals")}</div>
             </div>
-            <div className="bg-white rounded-2xl p-4 border border-gray-200 text-center">
-              <div className="text-2xl font-bold text-gray-900 mb-1">${data.user.referralEarnings}</div>
-              <div className="text-xs text-gray-600">{t("overview.earned")}</div>
+            <div className="min-w-0 rounded-2xl border border-gray-200 bg-white px-2 py-4 text-center">
+              <div className="truncate text-base font-bold text-gray-900 mb-1 sm:text-2xl">${data.user.referralEarnings.toLocaleString(locale)}</div>
+              <div className="truncate text-xs text-gray-600">{t("overview.earned")}</div>
             </div>
           </div>
 

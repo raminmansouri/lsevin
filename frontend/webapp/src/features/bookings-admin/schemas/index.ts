@@ -24,4 +24,4 @@ export const BookingFormSchema = z.object({
   rooms: z.coerce.number().int().min(0).optional().nullable(),
 });
 
-export type BookingFormInput = z.infer<typeof BookingFormSchema>;
+export type BookingFormInput = z.input<typeof BookingFormSchema>;
