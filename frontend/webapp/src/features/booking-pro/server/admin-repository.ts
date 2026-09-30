@@ -2,7 +2,7 @@
 import 'server-only';
 import db from '@/config/database/db';
 import { pickTranslation } from '@/features/booking-pro/utils/translation';
-
+import { payFirstBookingReferralBonus } from '@/features/marketing-loyalty/server/referral-commission.repository';
 export async function listAdminBookings(params: { locale?: string; search?: string; status?: string; take?: number; offset?: number }) {
   const locale = params.locale ?? 'fa-IR';
   const search = params.search ?? '';
@@ -168,8 +168,21 @@ export async function reviewAdminBooking(input: {
     bookingId: string;
     bookingStatus: string;
     providerNotes?: string | null;
-    childReviews?: Array<{ id: string; status: string; providerNotes?: string | null }>;
+    childReviews?: Array<{
+        id: string;
+        status: string;
+        providerNotes?: string | null;
+    }>;
 }) {
+    const [before] = await db`
+    select
+      booking_status as "bookingStatus",
+      user_id as "userId"
+    from booking.bookings
+    where id = ${input.bookingId}
+    limit 1
+  `;
+
     await db.begin(async (tx) => {
         await tx`
             update booking.bookings
@@ -185,23 +198,31 @@ export async function reviewAdminBooking(input: {
                 set status = ${child.status},
                     provider_notes = coalesce(${child.providerNotes ?? null}, provider_notes),
                     provider_updated_at = now()
-                where id = ${child.id} and parent_booking_id = ${input.bookingId}
+                where id = ${child.id}
+                  and parent_booking_id = ${input.bookingId}
             `;
         }
     });
-
-    return { ok: true };
-}
 
     // Never allowed to fail the review action itself -- same pattern as
     // notifyBookingCreated elsewhere in booking-pro. The referral reward is a
     // side effect, not something that should be able to undo an otherwise
     // successful admin action if it errors.
-    if (input.bookingStatus === 'Completed' && before?.bookingStatus !== 'Completed' && before?.userId) {
+    if (
+        input.bookingStatus === 'Completed' &&
+        before?.bookingStatus !== 'Completed' &&
+        before?.userId
+    ) {
         payFirstBookingReferralBonus({
             refereeCustomerId: before.userId,
             bookingId: input.bookingId,
-        }).catch((error) => console.error('payFirstBookingReferralBonus failed for booking', input.bookingId, error));
+        }).catch((error) =>
+            console.error(
+                'payFirstBookingReferralBonus failed for booking',
+                input.bookingId,
+                error
+            )
+        );
     }
 
     return { ok: true };
