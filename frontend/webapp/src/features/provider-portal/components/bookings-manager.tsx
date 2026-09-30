@@ -5,7 +5,7 @@ import { CalendarCheck, Edit } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { updateProviderBookingAction } from "@/features/provider-portal/actions";
+import { updateProviderBookingAction, updateProviderBookingCaseStepAction } from "@/features/provider-portal/actions";
 import { updateBookingProviderSchema } from "@/features/provider-portal/schemas";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -49,6 +49,7 @@ export function BookingsManager({ workspace, bookings }: {
                   <p className="mt-1 text-sm text-slate-600">{tBooking("total2")}{booking.currencyCode || ""} {booking.totalAmount.toLocaleString()}
                   </p>
                   {booking.providerNotes ? <p className="mt-2 rounded-xl bg-slate-50 p-3 text-sm text-slate-600">{booking.providerNotes}</p> : null}
+                  {booking.caseTimeline ? <ProviderCaseTimeline providerId={workspace.provider.id} booking={booking}/> : null}
                 </div>
                 {workspace.permissions.manageBookings ? (<Button variant="outline" size="sm" onClick={() => setEditing(booking)}>
                     <Edit className="mr-2 h-4 w-4"/>{tBooking("update")}</Button>) : null}
@@ -56,6 +57,48 @@ export function BookingsManager({ workspace, bookings }: {
             </div>)) : (<div className="rounded-2xl border border-dashed p-8 text-center text-sm text-slate-500">{tBooking("noBookingsYet")}</div>)}
         </CardContent>
       </Card>
+    </div>);
+}
+
+function ProviderCaseTimeline({ providerId, booking }: { providerId: string; booking: BookingRow }) {
+    const tBooking = useTranslations("Booking");
+    const router = useRouter();
+    const [isPending, startTransition] = useTransition();
+    const timeline = booking.caseTimeline;
+    if (!timeline)
+        return null;
+    const changeStatus = (caseStepId: string, lockVersion: number, status: "ready" | "in_progress" | "completed") => {
+        startTransition(async () => {
+            const response = await updateProviderBookingCaseStepAction({
+                providerId,
+                bookingId: booking.id,
+                caseStepId,
+                lockVersion,
+                status,
+            });
+            if (!response.ok) {
+                toast.error(tBooking("bookingCouldNotBeUpdated"));
+                return;
+            }
+            toast.success(tBooking("bookingUpdated"));
+            router.refresh();
+        });
+    };
+    return (<div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+      <p className="mb-3 text-sm font-semibold text-slate-800">{tBooking("bookingSteps")}</p>
+      <div className="space-y-2">
+        {timeline.steps.map((step) => (<div key={step.id} className="flex flex-col gap-2 rounded-xl bg-white p-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium text-slate-900">{step.title}</p>
+            <p className="text-xs text-slate-500">{step.status === "completed" ? tBooking("completed") : step.status === "in_progress" ? tBooking("inProgress") : tBooking("pending")}</p>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {step.status !== "ready" && step.status !== "completed" ? <Button type="button" size="sm" variant="outline" disabled={isPending} onClick={() => changeStatus(step.id, step.lockVersion, "ready")}>{tBooking("confirmed")}</Button> : null}
+            {step.status !== "in_progress" && step.status !== "completed" ? <Button type="button" size="sm" variant="outline" disabled={isPending} onClick={() => changeStatus(step.id, step.lockVersion, "in_progress")}>{tBooking("inProgress")}</Button> : null}
+            {step.status === "in_progress" ? <Button type="button" size="sm" disabled={isPending} onClick={() => changeStatus(step.id, step.lockVersion, "completed")}>{tBooking("completed")}</Button> : null}
+          </div>
+        </div>))}
+      </div>
     </div>);
 }
 function BookingUpdateForm({ providerId, booking, onDone }: {

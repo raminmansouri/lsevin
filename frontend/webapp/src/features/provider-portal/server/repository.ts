@@ -9,6 +9,7 @@ import {
   hasPortalPermission,
   type ProviderPortalPermission,
 } from "../lib/permissions";
+import { canTransitionCaseStep } from "../lib/case-transitions";
 import { emptyTranslations, splitCsv, translationFromFlat } from "../lib/normalizers";
 import type {
   BlockedHoursDay,
@@ -1239,6 +1240,15 @@ export async function listProviderBookings(
   await requireProviderPermission(userId, providerId, "manageBookings");
   const lang = safeLocale(locale);
 
+  // Idempotently snapshot journeys for bookings created before migration 0065.
+  await sql`
+    select case_management.ensure_case_for_booking(b.id)
+    from booking.bookings b
+    where b.provider_id = ${providerId}::uuid
+    order by b.create_date desc
+    limit 200
+  `;
+
   const rows = await sql<BookingRow[]>`
     with main_bookings as (
       select
@@ -1295,7 +1305,30 @@ export async function listProviderBookings(
       concat_ws(' ', u.first_name, u.last_name) as "customerName",
       u.email as "customerEmail",
       ar.provider_notes as "providerNotes",
-      ar.create_date::text as "createdAt"
+      ar.create_date::text as "createdAt",
+      case when ar.booking_source = 'main' then (
+        select jsonb_build_object(
+          'id', c.id::text,
+          'status', c.status,
+          'currentStepId', c.current_step_id::text,
+          'steps', coalesce((
+            select jsonb_agg(jsonb_build_object(
+              'id', cs.id::text,
+              'title', coalesce(
+                nullif(common.get_translation_t(cs.title_translations, ${lang}, 'en-US'), ''),
+                cs.legacy_title,
+                cs.step_key
+              ),
+              'status', cs.status,
+              'displayOrder', cs.display_order,
+              'lockVersion', cs.lock_version
+            ) order by cs.display_order, cs.id)
+            from case_management.case_steps cs
+            where cs.case_id = c.id and cs.provider_visible
+          ), '[]'::jsonb)
+        )
+        from case_management.cases c where c.booking_id = ar.id
+      ) else null end as "caseTimeline"
     from all_rows ar
     left join category.provider_services ps on ps.id = ar.service_id
     left join category.service_definitions sd on sd.id = ps.service_definition_id
@@ -1305,6 +1338,75 @@ export async function listProviderBookings(
     limit 200
   `;
   return rows;
+}
+
+export async function updateProviderBookingCaseStep(userId: string, input: {
+  providerId: string;
+  bookingId: string;
+  caseStepId: string;
+  status: string;
+  lockVersion: number;
+  note?: string | null;
+}) {
+  await requireProviderPermission(userId, input.providerId, "manageBookings");
+
+  return sql.begin(async (tx) => {
+    const [step] = await tx<{ caseId: string; status: string; lockVersion: number }[]>`
+      select cs.case_id::text as "caseId", cs.status, cs.lock_version as "lockVersion"
+      from case_management.case_steps cs
+      join case_management.cases c on c.id = cs.case_id
+      where cs.id = ${input.caseStepId}::uuid
+        and c.booking_id = ${input.bookingId}::uuid
+        and c.provider_id = ${input.providerId}::uuid
+        and cs.provider_visible
+      for update
+    `;
+    if (!step) throw new Error("case_step_not_found");
+    if (step.lockVersion !== input.lockVersion) throw new Error("case_step_changed_reload");
+    if (!canTransitionCaseStep(step.status, input.status)) {
+      throw new Error("case_step_transition_not_allowed");
+    }
+
+    await tx`
+      update case_management.case_steps
+      set status = ${input.status},
+          started_at = case when ${input.status} = 'in_progress' then coalesce(started_at, now()) else started_at end,
+          completed_at = case when ${input.status} = 'completed' then now() else null end,
+          completed_by = case when ${input.status} = 'completed' then ${userId}::uuid else null end,
+          completion_note = nullif(${input.note ?? ""}, ''),
+          lock_version = lock_version + 1,
+          last_modified_date = now()
+      where id = ${input.caseStepId}::uuid
+    `;
+    await tx`
+      insert into case_management.case_events(
+        case_id, case_step_id, event_type, actor_user_id, actor_role,
+        from_status, to_status, note
+      ) values (
+        ${step.caseId}::uuid, ${input.caseStepId}::uuid, 'step.status_changed',
+        ${userId}::uuid, 'provider', ${step.status}, ${input.status}, nullif(${input.note ?? ""}, '')
+      )
+    `;
+    const [progress] = await tx<{ nextStepId: string | null; incomplete: number; active: number }[]>`
+      select
+        (array_agg(id::text order by display_order) filter (where status not in ('completed', 'skipped', 'cancelled')))[1] as "nextStepId",
+        count(*) filter (where status not in ('completed', 'skipped', 'cancelled'))::int as incomplete,
+        count(*) filter (where status = 'in_progress')::int as active
+      from case_management.case_steps where case_id = ${step.caseId}::uuid
+    `;
+    const caseStatus = progress.incomplete === 0 ? "completed" : progress.active > 0 ? "active" : "scheduled";
+    await tx`
+      update case_management.cases
+      set current_step_id = ${progress.nextStepId}::uuid,
+          status = ${caseStatus},
+          started_at = case when ${caseStatus} = 'active' then coalesce(started_at, now()) else started_at end,
+          completed_at = case when ${caseStatus} = 'completed' then now() else null end,
+          lock_version = lock_version + 1,
+          last_modified_date = now()
+      where id = ${step.caseId}::uuid
+    `;
+    return true;
+  });
 }
 
 export async function updateProviderBooking(userId: string, input: any) {
