@@ -99,6 +99,7 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
       pricingModel: serviceDefinition?.pricingModel ?? "Fixed",
       isActive: serviceDefinition?.isActive ?? true,
       requiresCustomerAddress: serviceDefinition?.requiresCustomerAddress ?? false,
+      requiresSpecialist: serviceDefinition?.requiresSpecialist ?? true,
     },
     resolver: zodResolver(ServiceDefinitionFormSchema),
   });
@@ -245,31 +246,23 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
                       )}
                     />
 
-                    <FormField
-                      control={form.control}
-                      name="mediaType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{t("mediaType")}</FormLabel>
-                          <FormControl>
-                            <select
-                              value={field.value || "image"}
-                              onChange={field.onChange}
-                              disabled={isPending}
-                              className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm shadow-sm outline-none transition focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                              {SERVICE_MEDIA_TYPE_OPTIONS.map((option) => (
-                                <option key={option.value} value={option.value}>
-                                  {option.label}
-                                </option>
-                              ))}
-                            </select>
-                          </FormControl>
-                          <p className="text-xs text-muted-foreground">{t("overrideAutoDetectionForLegacyUrlsWhenNeeded")}</p>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                      <FormField
+                          control={form.control}
+                          name="requiresSpecialist"
+                          render={({ field }) => (
+                              <FormItem className="flex items-center justify-between rounded-xl border bg-background p-4">
+                                  <div>
+                                      <FormLabel>{t("form.requiresSpecialist.label")}</FormLabel>
+                                      <p className="text-muted-foreground text-xs">
+                                          {t("form.requiresSpecialist.hint")}
+                                      </p>
+                                  </div>
+                                  <FormControl>
+                                      <Switch checked={field.value} onCheckedChange={field.onChange} disabled={isPending} />
+                                  </FormControl>
+                              </FormItem>
+                          )}
+                      />
                   </div>
                 </div>
               </div>

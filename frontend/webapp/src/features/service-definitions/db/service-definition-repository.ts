@@ -42,6 +42,7 @@ type ServiceDefinitionMutationInput = {
   currency: string;
   value: number;
   requiresCustomerAddress: boolean;
+  requiresSpecialist: boolean;
 };
 
 type AttributeMutationInput = {
@@ -1023,6 +1024,7 @@ export async function createServiceDefinitionInDb(input: ServiceDefinitionMutati
       ${input.currency},
       ${input.value},
       ${input.requiresCustomerAddress},
+      ${input.requiresSpecialist},
       now(),
       now()
     )
@@ -1049,6 +1051,7 @@ export async function updateServiceDefinitionInDb(input: ServiceDefinitionMutati
       currency = ${input.currency},
       value = ${input.value},
       requires_customer_address = ${input.requiresCustomerAddress},
+      requires_specialist = ${input.requiresSpecialist},
       last_modified_date = now()
     where id = ${input.serviceDefinitionId}
     returning id
