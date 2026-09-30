@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { SHOP_PERMISSIONS, assertShopPermission } from "../lib/permissions";
+import { parseFormBoolean } from "../lib/form-values";
 import { setShopPricingMode } from "../lib/pricing";
 import { shopId } from "../schemas/id";
 import {
@@ -17,6 +18,7 @@ import {
 } from "../server/admin-order.service";
 import {
   removeProductServiceLink,
+  softDeleteProduct,
   setProductServiceLink,
   updateProductCore,
 } from "../server/admin-catalog.service";
@@ -92,7 +94,11 @@ export async function markDeliveredAction(input: unknown) {
   return { ok: true as const };
 }
 
-const publishSchema = z.object({ productId: z.string().uuid(), published: z.coerce.boolean() });
+const formBoolean = z.preprocess(
+  parseFormBoolean,
+  z.boolean(),
+);
+const publishSchema = z.object({ productId: z.string().uuid(), published: formBoolean });
 export async function setProductPublishedAction(input: unknown) {
   const p = publishSchema.parse(input);
   await setProductPublished(p);
@@ -169,6 +175,13 @@ export async function unlinkProductServiceAction(input: unknown) {
   const p = z.object({ linkId: shopId, productId: shopId }).parse(input);
   await removeProductServiceLink({ linkId: p.linkId });
   revalidatePath(`/admin/shop/products/${p.productId}`);
+  return { ok: true as const };
+}
+
+export async function deleteProductAction(input: unknown) {
+  const p = z.object({ productId: shopId }).parse(input);
+  await softDeleteProduct({ productId: p.productId });
+  revalidatePath("/admin/shop/products");
   return { ok: true as const };
 }
 

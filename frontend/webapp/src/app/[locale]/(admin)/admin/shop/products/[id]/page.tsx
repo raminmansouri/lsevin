@@ -11,6 +11,7 @@ import {
   listServiceDefinitionsForPicker,
 } from "@/features/shop/api/admin.repository";
 import {
+  deleteProductAction,
   linkProductServiceForm,
   unlinkProductServiceForm,
 } from "@/features/shop/actions/admin.actions";
@@ -22,6 +23,7 @@ import {
 } from "@/features/shop/actions/admin-catalog.actions";
 import { ProductCoreForm } from "@/features/shop/components/admin/ProductCoreForm";
 import { ProductGalleryEditor } from "@/features/shop/components/admin/ProductGalleryEditor";
+import { ShopDeleteButton } from "@/features/shop/components/admin/ShopDeleteButton";
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +51,15 @@ export default async function AdminProductEditPage({ params }: { params: Promise
     <div className="min-h-screen bg-gray-50 px-6 py-6">
       <div className="mb-4 flex items-center gap-3">
         <Link href="/admin/shop/products" className="text-sm font-medium text-[#083f30]">{t("nav.backToProducts")}</Link>
-        <h1 className="text-xl font-bold text-gray-900">{nt.en || product.slug}</h1>
+        <h1 className="text-xl font-bold text-gray-900">{nt.en || nt.fa || nt.ar || product.slug}</h1>
+        <ShopDeleteButton
+          action={deleteProductAction.bind(null, { productId: product.id })}
+          title={`${t("common.delete")} — ${nt.en || nt.fa || nt.ar || product.slug}`}
+          description={t("products.footnote")}
+          label={t("common.delete")}
+          variant="destructive"
+          redirectTo="/admin/shop/products"
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.3fr,1fr]">

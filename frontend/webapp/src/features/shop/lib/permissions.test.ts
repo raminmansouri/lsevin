@@ -62,6 +62,11 @@ describe("hasShopPermission", () => {
     }
   });
 
+  it("normalizes role casing and whitespace from identity", async () => {
+    actor([" Admin "]);
+    await expect(hasShopPermission(SHOP_PERMISSIONS.catalogManage)).resolves.toBe(true);
+  });
+
   it("no roles => nothing", async () => {
     actor([]);
     for (const p of Object.values(SHOP_PERMISSIONS)) {

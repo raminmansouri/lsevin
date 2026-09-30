@@ -45,7 +45,8 @@ export type ShopAdminActor = { userId?: string; roles: string[] };
 
 export async function getShopActor(): Promise<ShopAdminActor & { isAdmin: boolean }> {
   const ctx = await getAdminContext().catch(() => ({ userId: undefined, roles: [], isAdmin: false }));
-  return { userId: ctx.userId, roles: ctx.roles ?? [], isAdmin: Boolean(ctx.isAdmin) };
+  const roles = (ctx.roles ?? []).map((role) => String(role).trim().toLowerCase()).filter(Boolean);
+  return { userId: ctx.userId, roles, isAdmin: Boolean(ctx.isAdmin) };
 }
 
 export async function hasShopPermission(permission: ShopPermission): Promise<boolean> {

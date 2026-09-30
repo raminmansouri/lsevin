@@ -134,7 +134,7 @@ export type HomeSectionFormInput = z.infer<typeof homeSectionFormSchema>;
 // -- Product core ----------------------------------------------------------
 export const productCoreFormSchema = z.object({
   productId: shopId,
-  nameEn: str.min(1).max(180),
+  nameEn: str.max(180),
   nameFa: str.max(180).default(""),
   nameAr: str.max(180).default(""),
   descEn: str.default(""),
@@ -154,6 +154,9 @@ export const productCoreFormSchema = z.object({
   preorderLimit: str.default(""),
   preorderPaymentPolicy: z.enum(["full", "deposit", "proforma"]).default("full"),
   preorderDepositPercent: str.default(""),
+}).refine((value) => Boolean(value.nameEn || value.nameFa || value.nameAr), {
+  path: ["nameEn"],
+  message: "product_name_required",
 });
 export type ProductCoreFormInput = z.infer<typeof productCoreFormSchema>;
 
