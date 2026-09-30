@@ -349,6 +349,28 @@ export interface BookingRecord {
     childBookings?: BookingChildSummary[];
     contact?: ContactType;
     agent?: Agent;
+    caseTimeline?: BookingCaseTimeline;
+}
+
+export interface BookingCaseStep {
+    id: string;
+    key: string;
+    order: number;
+    title: string;
+    description?: string;
+    status: "pending" | "ready" | "in_progress" | "completed" | "skipped" | "blocked" | "cancelled";
+    responsibleRole: "customer" | "provider" | "staff" | "admin" | "system";
+    plannedStartAt?: string;
+    plannedEndAt?: string;
+    startedAt?: string;
+    completedAt?: string;
+}
+
+export interface BookingCaseTimeline {
+    id: string;
+    status: "scheduled" | "active" | "on_hold" | "completed" | "cancelled";
+    currentStepId?: string;
+    steps: BookingCaseStep[];
 }
 
 export interface IncludedServicesType {

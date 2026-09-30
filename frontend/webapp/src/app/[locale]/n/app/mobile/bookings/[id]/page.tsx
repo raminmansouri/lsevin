@@ -112,6 +112,58 @@ function DescriptionBlock({ title, content }: {
       {hasLexicalContent(content) ? (<LexicalRenderer content={content} className="text-sm leading-6 text-gray-700"/>) : (<p className="text-sm leading-6 text-gray-700">{content || "-"}</p>)}
     </div>);
 }
+
+function BookingCaseTimeline({ booking }: { booking: BookingRecord }) {
+    const tBooking = useTranslations("Booking");
+    const locale = useLocale();
+    const timeline = booking.caseTimeline;
+    if (!timeline?.steps.length)
+        return null;
+    const dateTime = (value?: string) => {
+        if (!value)
+            return "";
+        try {
+            return new Intl.DateTimeFormat(resolveIntlLocale(locale), {
+                dateStyle: "medium",
+                timeStyle: "short",
+            }).format(new Date(value));
+        }
+        catch {
+            return "";
+        }
+    };
+    const statusLabel = (status: string) => {
+        if (status === "completed") return tBooking("completed");
+        if (status === "in_progress") return tBooking("inProgress");
+        if (status === "cancelled") return tBooking("cancelled");
+        if (status === "ready") return tBooking("confirmed");
+        return tBooking("pending");
+    };
+    return (<section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+      <h3 className="mb-4 font-bold text-gray-900">{tBooking("bookingSteps")}</h3>
+      <ol className="space-y-0">
+        {timeline.steps.map((step, index) => {
+            const complete = step.status === "completed";
+            const current = timeline.currentStepId === step.id || step.status === "in_progress";
+            const planned = dateTime(step.plannedStartAt);
+            return (<li key={step.id} className="relative flex gap-3 pb-5 last:pb-0">
+              {index < timeline.steps.length - 1 && (<span className={`absolute start-[11px] top-6 h-[calc(100%-8px)] w-0.5 ${complete ? "bg-emerald-500" : "bg-gray-200"}`}/>)}
+              <span className={`relative z-10 mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 ${complete ? "border-emerald-500 bg-emerald-500 text-white" : current ? "border-[#083f30] bg-[#083f30] text-white" : "border-gray-300 bg-white text-gray-400"}`}>
+                {complete ? <CheckCircle size={14}/> : <span className="text-[10px] font-bold">{index + 1}</span>}
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className={`font-semibold ${current ? "text-[#083f30]" : "text-gray-900"}`}>{step.title}</p>
+                  <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${complete ? "bg-emerald-50 text-emerald-700" : current ? "bg-teal-50 text-[#083f30]" : "bg-gray-100 text-gray-600"}`}>{statusLabel(step.status)}</span>
+                </div>
+                {step.description ? <p className="mt-1 text-sm text-gray-600">{step.description}</p> : null}
+                {planned ? <p className="mt-1 text-xs text-gray-500"><Clock size={12} className="me-1 inline"/>{planned}</p> : null}
+              </div>
+            </li>);
+        })}
+      </ol>
+    </section>);
+}
 function DetailRow({ label, value }: {
     label: string;
     value?: string | null;
@@ -308,6 +360,7 @@ function BookingDetailContent({ booking, onCancel, onPay, isPaying, paymentGatew
 
       <DescriptionBlock title={tBooking("serviceDescription")} content={booking.serviceDescription}/>
       <DescriptionBlock title={tBooking("providerDescription")} content={booking.providerDescription}/>
+      <BookingCaseTimeline booking={booking}/>
 
       {booking.included && booking.included.length > 0 && (<div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
           <h3 className="mb-3 font-bold text-gray-900">{tBooking("packageIncludes")}</h3>
