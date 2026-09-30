@@ -5,8 +5,8 @@ import { cookies } from "next/headers";
 import sql from "@/config/database/db";
 
 import {
-  SIGNUP_REFERRAL_COOKIE,
-  SIGNUP_REFERRAL_TTL_SECONDS,
+    SIGNUP_REFERRAL_COOKIE,
+    SIGNUP_REFERRAL_TTL_SECONDS,
 } from "./referral-signup.constants";
 
 /**
@@ -23,34 +23,34 @@ import {
  * whoever registers on this browser next.
  */
 export const setPendingReferralCode = async (code: string) => {
-  const store = await cookies();
-  store.set(SIGNUP_REFERRAL_COOKIE, code, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: SIGNUP_REFERRAL_TTL_SECONDS,
-  });
+    const store = await cookies();
+    store.set(SIGNUP_REFERRAL_COOKIE, code, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        maxAge: SIGNUP_REFERRAL_TTL_SECONDS,
+    });
 };
 
 export const readPendingReferralCode = async (): Promise<string | null> => {
-  const store = await cookies();
-  return store.get(SIGNUP_REFERRAL_COOKIE)?.value?.trim() || null;
+    const store = await cookies();
+    return store.get(SIGNUP_REFERRAL_COOKIE)?.value?.trim() || null;
 };
 
 export const clearPendingReferralCode = async () => {
-  const store = await cookies();
-  store.delete(SIGNUP_REFERRAL_COOKIE);
+    const store = await cookies();
+    store.delete(SIGNUP_REFERRAL_COOKIE);
 };
 
 function randomCouponSuffix(length: number) {
-  // No O/0/I/1 — these codes get read off a screen and typed at checkout.
-  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let output = "";
-  for (let index = 0; index < length; index += 1) {
-    output += alphabet[Math.floor(Math.random() * alphabet.length)];
-  }
-  return output;
+    // No O/0/I/1 — these codes get read off a screen and typed at checkout.
+    const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let output = "";
+    for (let index = 0; index < length; index += 1) {
+        output += alphabet[Math.floor(Math.random() * alphabet.length)];
+    }
+    return output;
 }
 
 /**
@@ -64,20 +64,21 @@ function randomCouponSuffix(length: number) {
  * Never throws. A sign-in must not fail because a referral code did not resolve.
  */
 export async function redeemPendingSignupReferral(args: {
-  phoneNumber: string;
-  phoneNumberCountryCode: string;
+    phoneNumber: string;
+    phoneNumberCountryCode: string;
 }): Promise<void> {
-  const code = await readPendingReferralCode();
-  if (!code) return;
+    const code = await readPendingReferralCode();
+    if (!code) {
+        console.log('[referral] no pending code cookie found — code was never entered/saved at signup');
+        return;
+    }
 
-  // One shot. Whatever happens below, this code is spent for this browser.
-  await clearPendingReferralCode();
+    // One shot. Whatever happens below, this code is spent for this browser.
+    await clearPendingReferralCode();
 
-  try {
-    await sql.begin(async (tx) => {
-      // customer.customers.id is the identity user id, so the phone number that
-      // just passed OTP identifies the referee outright.
-      const [referee] = await tx<{ id: string }[]>`
+    try {
+        await sql.begin(async (tx) => {
+            const [identityUser] = await tx<{ id: string }[]>`
         select id
         from identity.asp_net_users
         where phone_number = ${args.phoneNumber}
@@ -89,51 +90,93 @@ export async function redeemPendingSignupReferral(args: {
         order by (phone_number_country_code = ${args.phoneNumberCountryCode}) desc
         limit 1
       `;
-      if (!referee) return;
+            if (!identityUser) {
+                console.log('[referral] no matching asp_net_users row for phone', args.phoneNumber);
+                return;
+            }
 
-      const [program] = await tx<{ id: string }[]>`
+            // customer.customers is provisioned lazily elsewhere (see
+            // features/shop/lib/context.ts), keyed by the same id as the identity
+            // user. At OTP-verification time — this exact moment — that row does
+            // not exist yet for a brand-new signup, so referral_invitations'
+            // foreign key to customer.customers has nothing to point at. Create it
+            // here too, same shape, so the referral doesn't depend on the visitor
+            // having touched the shop/cart first.
+            await tx`
+        insert into customer.customers (
+          id, phone_number, phone_number_country_code, email, first_name, last_name, is_active
+        )
+        select u.id,
+          left(coalesce(nullif(u.phone_number, ''), '-'), 15),
+          left(coalesce(nullif(u.phone_number_country_code, ''), '-'), 3),
+          coalesce(nullif(u.email, ''), u.id::text || '@lsevin.local'),
+          coalesce(nullif(u.first_name, ''), '-'),
+          coalesce(nullif(u.last_name, ''), '-'),
+          true
+        from identity.asp_net_users u
+        where u.id = ${identityUser.id}::uuid
+        on conflict (id) do nothing
+      `;
+
+            const referee = { id: identityUser.id };
+
+            const [program] = await tx<{ id: string }[]>`
         select id
         from marketing.referral_programs
         where status = 'active'
         order by is_default desc, create_date desc
         limit 1
       `;
-      if (!program) return;
+            if (!program) {
+                console.log('[referral] no active referral program found');
+                return;
+            }
 
-      const [referralCode] = await tx<{ customer_id: string }[]>`
-        select customer_id
+            const [referralCode] = await tx<{ id: string; customer_id: string }[]>`
+        select id, customer_id
         from marketing.referral_codes
         where lower(code) = lower(${code})
           and program_id = ${program.id}
           and is_active = true
         limit 1
       `;
-      // An unknown code is not an error the visitor needs to see at this point —
-      // they are already registered. It simply earns nothing.
-      if (!referralCode) return;
+            // An unknown code is not an error the visitor needs to see at this point —
+            // they are already registered. It simply earns nothing.
+            if (!referralCode) {
+                console.log('[referral] code not found or inactive:', code);
+                return;
+            }
 
-      // Nobody invites themselves.
-      if (referralCode.customer_id === referee.id) return;
+            // Nobody invites themselves.
+            if (referralCode.customer_id === referee.id) {
+                console.log('[referral] self-referral blocked');
+                return;
+            }
 
-      // A second sign-up cannot re-use the reward; one invitation per referee.
-      const [existing] = await tx<{ id: string }[]>`
+            // A second sign-up cannot re-use the reward; one invitation per referee.
+            const [existing] = await tx<{ id: string }[]>`
         select id
         from marketing.referral_invitations
         where referee_customer_id = ${referee.id}::uuid
           and program_id = ${program.id}
         limit 1
       `;
-      if (existing) return;
+            if (existing) {
+                console.log('[referral] referee already has an invitation, skipping');
+                return;
+            }
 
-      const [invitation] = await tx<{ id: string }[]>`
+            const [invitation] = await tx<{ id: string }[]>`
         insert into marketing.referral_invitations (
           program_id,
+          referral_code_id,
           referrer_customer_id,
           referee_customer_id,
           invited_at,
           signed_up_at
         ) values (
           ${program.id},
+          ${referralCode.id}::uuid,
           ${referralCode.customer_id}::uuid,
           ${referee.id}::uuid,
           now(),
@@ -141,14 +184,15 @@ export async function redeemPendingSignupReferral(args: {
         )
         returning id
       `;
+            console.log('[referral] invitation created:', invitation.id);
 
-      // What the admin configured for "someone signed up with my code". No rule
-      // means the programme grants nothing at sign-up, which is a valid setup.
-      const [rule] = await tx<{
-        discount_type: string;
-        discount_value: string;
-        title: string;
-      }[]>`
+            // What the admin configured for "someone signed up with my code". No rule
+            // means the programme grants nothing at sign-up, which is a valid setup.
+            const [rule] = await tx<{
+                discount_type: string;
+                discount_value: string;
+                title: string;
+            }[]>`
         select discount_type, discount_value, title
         from marketing.referral_reward_rules
         where program_id = ${program.id}
@@ -159,15 +203,15 @@ export async function redeemPendingSignupReferral(args: {
         order by sort_order asc
         limit 1
       `;
-      if (!rule) return;
+            if (!rule) return;
 
-      const [queue] = await tx<{ next_position: number }[]>`
+            const [queue] = await tx<{ next_position: number }[]>`
         select coalesce(max(queue_position), 0) + 1 as next_position
         from marketing.user_discount_coupons
         where customer_id = ${referee.id}::uuid
       `;
 
-      await tx`
+            await tx`
         insert into marketing.user_discount_coupons (
           program_id,
           customer_id,
@@ -192,10 +236,10 @@ export async function redeemPendingSignupReferral(args: {
           now()
         )
       `;
-    });
-  } catch (error) {
-    // The account is created and the visitor is signed in; the reward is the only
-    // thing lost, and it is recoverable by hand from the code in the log.
-    console.error("Sign-up referral redemption failed", { code, error });
-  }
+        });
+    } catch (error) {
+        // The account is created and the visitor is signed in; the reward is the only
+        // thing lost, and it is recoverable by hand from the code in the log.
+        console.error("Sign-up referral redemption failed", { code, error });
+    }
 }

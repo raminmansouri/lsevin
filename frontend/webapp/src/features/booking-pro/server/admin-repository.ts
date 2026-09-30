@@ -1,6 +1,5 @@
 
 import 'server-only';
-
 import db from '@/config/database/db';
 import { pickTranslation } from '@/features/booking-pro/utils/translation';
 
@@ -166,30 +165,44 @@ export async function getAdminBookingDetail(
 }
 
 export async function reviewAdminBooking(input: {
-  bookingId: string;
-  bookingStatus: string;
-  providerNotes?: string | null;
-  childReviews?: Array<{ id: string; status: string; providerNotes?: string | null }>;
+    bookingId: string;
+    bookingStatus: string;
+    providerNotes?: string | null;
+    childReviews?: Array<{ id: string; status: string; providerNotes?: string | null }>;
 }) {
-  await db.begin(async (tx) => {
-    await tx`
-      update booking.bookings
-      set booking_status = ${input.bookingStatus},
-          provider_notes = coalesce(${input.providerNotes ?? null}, provider_notes),
-          provider_updated_at = now()
-      where id = ${input.bookingId}
-    `;
+    await db.begin(async (tx) => {
+        await tx`
+            update booking.bookings
+            set booking_status = ${input.bookingStatus},
+                provider_notes = coalesce(${input.providerNotes ?? null}, provider_notes),
+                provider_updated_at = now()
+            where id = ${input.bookingId}
+        `;
 
-    for (const child of input.childReviews ?? []) {
-      await tx`
-        update booking.booking_child_bookings
-        set status = ${child.status},
-            provider_notes = coalesce(${child.providerNotes ?? null}, provider_notes),
-            provider_updated_at = now()
-        where id = ${child.id} and parent_booking_id = ${input.bookingId}
-      `;
+        for (const child of input.childReviews ?? []) {
+            await tx`
+                update booking.booking_child_bookings
+                set status = ${child.status},
+                    provider_notes = coalesce(${child.providerNotes ?? null}, provider_notes),
+                    provider_updated_at = now()
+                where id = ${child.id} and parent_booking_id = ${input.bookingId}
+            `;
+        }
+    });
+
+    return { ok: true };
+}
+
+    // Never allowed to fail the review action itself -- same pattern as
+    // notifyBookingCreated elsewhere in booking-pro. The referral reward is a
+    // side effect, not something that should be able to undo an otherwise
+    // successful admin action if it errors.
+    if (input.bookingStatus === 'Completed' && before?.bookingStatus !== 'Completed' && before?.userId) {
+        payFirstBookingReferralBonus({
+            refereeCustomerId: before.userId,
+            bookingId: input.bookingId,
+        }).catch((error) => console.error('payFirstBookingReferralBonus failed for booking', input.bookingId, error));
     }
-  });
 
-  return { ok: true };
+    return { ok: true };
 }
