@@ -318,29 +318,38 @@ export async function listMyProviders(
 }
 
 export async function getMembershipRole(
-  _userId: string,
-  _providerId: string,
+  userId: string,
+  providerId: string,
 ): Promise<ProviderPortalRole | null> {
-  // Temporary development mode: bypass provider_portal.provider_members checks.
-  // This makes all menu items/forms visible while the portal is being reviewed locally.
-  return "owner";
+  const [membership] = await sql<{ role: string }[]>`
+    select role::text as role
+    from provider_portal.provider_members
+    where user_id = ${userId}::uuid
+      and service_provider_id = ${providerId}::uuid
+      and status = 'active'
+    limit 1
+  `;
+  return membership ? roleFromDb(membership.role) : null;
 }
 
 export async function requireProviderPermission(
-  _userId: string,
-  _providerId: string,
-  _permission: ProviderPortalPermission,
+  userId: string,
+  providerId: string,
+  permission: ProviderPortalPermission,
 ): Promise<ProviderPortalRole> {
-  // Temporary development mode: bypass role/permission checks.
-  return "owner";
+  const role = await getMembershipRole(userId, providerId);
+  if (!role || !hasPortalPermission(role, permission)) {
+    throw new Error("provider_portal_access_denied");
+  }
+  return role;
 }
 
 export async function getProviderWorkspace(
-  _userId: string,
+  userId: string,
   providerId: string,
   locale: string,
 ): Promise<ProviderWorkspace> {
-  const role: ProviderPortalRole = "owner";
+  const role = await requireProviderPermission(userId, providerId, "viewDashboard");
   const lang = safeLocale(locale);
 
   const rows = await sql<any[]>`
