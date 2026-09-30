@@ -7,6 +7,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+
+import type { LookupOption } from "@/features/booking-admin-shared/types";
+
+function toAdminLookupOptions(options: LookupOption[]) {
+  return options.map((option) => ({ id: option.value, label: option.label }));
+}
+
+
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -86,12 +94,12 @@ export function BookingForm({ booking, locale, lookups }: Props) {
                   <FormLabel>{tAdmin("provider")}</FormLabel>
                   <FormControl>
                     <LazyAdminLookupSelect
-                      lookupType="serviceProviders"
+                      lookupType="providers"
                       locale={locale}
                       value={field.value}
                       onValueChange={field.onChange}
                       placeholder={tAdmin("selectProvider")}
-                      initialOptions={lookups.providers}
+                      initialOptions={toAdminLookupOptions(lookups.providers)}
                       disabled={isPending}
                     />
                   </FormControl>
@@ -112,7 +120,7 @@ export function BookingForm({ booking, locale, lookups }: Props) {
                       value={field.value}
                       onValueChange={field.onChange}
                       placeholder={tAdmin("selectService")}
-                      initialOptions={lookups.services}
+                      initialOptions={toAdminLookupOptions(lookups.services)}
                       disabled={isPending}
                     />
                   </FormControl>
@@ -133,7 +141,7 @@ export function BookingForm({ booking, locale, lookups }: Props) {
                       value={field.value}
                       onValueChange={field.onChange}
                       placeholder={tAdmin("selectSpecialist")}
-                      initialOptions={lookups.specialists}
+                      initialOptions={toAdminLookupOptions(lookups.specialists)}
                       disabled={isPending}
                     />
                   </FormControl>
@@ -154,7 +162,7 @@ export function BookingForm({ booking, locale, lookups }: Props) {
                       value={field.value}
                       onValueChange={field.onChange}
                       placeholder={tAdmin("selectPaymentMethod")}
-                      initialOptions={lookups.paymentMethods}
+                      initialOptions={toAdminLookupOptions(lookups.paymentMethods)}
                       disabled={isPending}
                     />
                   </FormControl>
@@ -208,11 +216,11 @@ export function BookingForm({ booking, locale, lookups }: Props) {
           </div>
 
           <div className="grid gap-4 md:grid-cols-5">
-            <FormField control={form.control} name="totalAmount" render={({ field }) => <FormItem><FormLabel>{tAdmin("total")}</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={field.value ?? 0} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
-            <FormField control={form.control} name="paidAmount" render={({ field }) => <FormItem><FormLabel>{tAdmin("paid")}</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={field.value ?? 0} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
-            <FormField control={form.control} name="adults" render={({ field }) => <FormItem><FormLabel>{tAdmin("adults")}</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? 0} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
-            <FormField control={form.control} name="children" render={({ field }) => <FormItem><FormLabel>{tAdmin("children")}</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? 0} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
-            <FormField control={form.control} name="rooms" render={({ field }) => <FormItem><FormLabel>{tAdmin("rooms")}</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? 0} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="totalAmount" render={({ field }) => <FormItem><FormLabel>{tAdmin("total")}</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={Number(field.value ?? 0)} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="paidAmount" render={({ field }) => <FormItem><FormLabel>{tAdmin("paid")}</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={Number(field.value ?? 0)} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="adults" render={({ field }) => <FormItem><FormLabel>{tAdmin("adults")}</FormLabel><FormControl><Input type="number" {...field} value={Number(field.value ?? 0)} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="children" render={({ field }) => <FormItem><FormLabel>{tAdmin("children")}</FormLabel><FormControl><Input type="number" {...field} value={Number(field.value ?? 0)} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="rooms" render={({ field }) => <FormItem><FormLabel>{tAdmin("rooms")}</FormLabel><FormControl><Input type="number" {...field} value={Number(field.value ?? 0)} disabled={isPending} /></FormControl><FormMessage /></FormItem>} />
           </div>
 
           <FormField

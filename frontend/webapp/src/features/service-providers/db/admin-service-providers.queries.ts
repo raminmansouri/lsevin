@@ -40,7 +40,8 @@ export type AdminLookupType =
   | "requestStatuses"
   | "policyTypes"
   | "currencies"
-  | "addons";
+  | "addons"
+  | "paymentMethods";
 
 export type AdminLookupSearchResult = {
   items: AdminLookupOption[];
@@ -59,6 +60,7 @@ export type SearchAdminLookupOptionsParams = {
   providerTypeId?: string | null;
   categoryId?: string | null;
   excludeProviderId?: string | null;
+  ids?: string[];
 };
 
 export type AdminProviderLookupData = {
@@ -714,8 +716,10 @@ export async function getAdminServiceProviders(
       pageSize,
       totalCount,
       totalPages: Math.ceil(totalCount / pageSize),
-      hasPreviousPage: pageNumber > 1,
-      hasNextPage: pageNumber * pageSize < totalCount,
+      hasPrevious: pageNumber > 1,
+      hasNext: pageNumber * pageSize < totalCount,
+      currentStartIndex: totalCount === 0 ? 0 : offset + 1,
+      currentEndIndex: Math.min(offset + pageSize, totalCount),
     } as PaginatedResult<AdminServiceProviderListItem>);
   } catch (error) {
     console.error("getAdminServiceProviders failed", error);
@@ -1302,9 +1306,73 @@ export async function searchAdminProviderLookupOptions(
     params.page,
     params.pageSize,
   );
+  const requestedIds = (params.ids || []).map((id) => id.trim()).filter(Boolean);
 
   try {
     let rows: AdminLookupOption[] = [];
+
+    if (requestedIds.length > 0) {
+      // Resolve exact ids directly, bypassing pagination/search entirely.
+      // The dropdown's normal page (or a search match) may never contain the
+      // id a booking already stores — sorted alphabetically past letter M,
+      // for example — which is why a saved booking's provider/service/staff
+      // showed as a raw uuid instead of its name.
+      if (params.type === "providers") {
+        const providerLabel = translated(sql`sp.name_translations`, locale);
+        rows = await sql<AdminLookupOption[]>`
+          select sp.id::text, ${providerLabel} as label
+          from category.service_providers sp
+          where sp.id::text = any(${requestedIds})
+        `;
+      } else if (params.type === "providerServices") {
+        const rawRows = await sql<{
+          id: string;
+          providerName: string | null;
+          serviceName: string | null;
+          serviceNameRaw: unknown;
+          definitionName: string | null;
+        }[]>`
+          select
+            ps.id::text as "id",
+            ${translated(sql`sp.name_translations`, locale)} as "providerName",
+            ${translated(sql`ps.display_name_translations`, locale)} as "serviceName",
+            ps.display_name_translations as "serviceNameRaw",
+            ${translated(sql`sd.name_translations`, locale)} as "definitionName"
+          from category.provider_services ps
+          join category.service_providers sp on sp.id = ps.service_provider_id
+          join category.service_definitions sd on sd.id = ps.service_definition_id
+          where ps.id::text = any(${requestedIds})
+        `;
+
+        rows = rawRows.map((row) => {
+          const scalarServiceName =
+            typeof row.serviceNameRaw === "string" || typeof row.serviceNameRaw === "number"
+              ? String(row.serviceNameRaw).trim()
+              : "";
+          const serviceName = row.serviceName?.trim() || scalarServiceName || row.definitionName?.trim() || "";
+          return {
+            id: row.id,
+            label: `${row.providerName || ""} / ${serviceName}`,
+          };
+        });
+      } else if (params.type === "staff") {
+        const staffLabel = translated(sql`s.name_translations`, locale);
+        rows = await sql<AdminLookupOption[]>`
+          select s.id::text, ${staffLabel} as label
+          from category.staff s
+          where s.id::text = any(${requestedIds})
+        `;
+      } else if (params.type === "paymentMethods") {
+        const label = translated(sql`name_translations`, locale);
+        rows = await sql<AdminLookupOption[]>`
+          select code as id, code, ${label} as label
+          from shop.payment_methods
+          where code = any(${requestedIds})
+        `;
+      }
+
+      return ok({ items: rows, hasMore: false, page: 1, pageSize: rows.length || 1 });
+    }
 
     if (params.type === "providerTypes") {
       const label = translated(sql`name_translations`, locale);
@@ -1426,13 +1494,24 @@ export async function searchAdminProviderLookupOptions(
       // name_translations is not always an object here - some rows hold a bare JSON
       // string - and translated() only reads objects. Fall back to the scalar so those
       // rows keep a label instead of rendering as a bare " / " separator.
+      //
+      // ps.display_name_translations is also frequently a real but EMPTY object
+      // ({}) rather than a string — admins rarely fill in a per-provider display
+      // name override, so most rows rely on the service definition's own name.
+      // Without falling through to sd.name_translations, every such row
+      // produced a blank "Provider / " label, which is why this dropdown looked
+      // empty even though it had matching rows.
       const scalarText = (columnSql: any) => sql`case
         when jsonb_typeof(${columnSql}) in ('string', 'number', 'boolean')
           then coalesce(nullif(btrim(${columnSql} #>> '{}'), ''), '')
         else ''
       end`;
       const providerLabel = sql`coalesce(nullif(${translated(sql`sp.name_translations`, locale)}, ''), ${scalarText(sql`sp.name_translations`)})`;
-      const serviceLabel = sql`coalesce(nullif(${translated(sql`ps.display_name_translations`, locale)}, ''), ${scalarText(sql`ps.display_name_translations`)})`;
+      const serviceLabel = sql`coalesce(
+        nullif(${translated(sql`ps.display_name_translations`, locale)}, ''),
+        ${scalarText(sql`ps.display_name_translations`)},
+        nullif(${translated(sql`sd.name_translations`, locale)}, '')
+      )`;
 
       rows = await sql<AdminLookupOption[]>`
         select
@@ -1441,6 +1520,7 @@ export async function searchAdminProviderLookupOptions(
           concat(ps.currency, ' ', ps.value::text) as code
         from category.provider_services ps
         join category.service_providers sp on sp.id = ps.service_provider_id
+        join category.service_definitions sd on sd.id = ps.service_definition_id
         where ps.is_active = true
           and ${hasQuery ? sql`(${providerLabel} ilike ${like} or ${serviceLabel} ilike ${like})` : sql`true`}
         order by label
@@ -1498,6 +1578,16 @@ export async function searchAdminProviderLookupOptions(
         where is_active = true
           and ${hasQuery ? sql`(name ilike ${like} or description ilike ${like} or source_type ilike ${like} or addon_kind ilike ${like})` : sql`true`}
         order by source_type, name
+        limit ${limit} offset ${offset}
+      `;
+    } else if (params.type === "paymentMethods") {
+      const label = translated(sql`name_translations`, locale);
+      rows = await sql<AdminLookupOption[]>`
+        select code as id, code, ${label} as label
+        from shop.payment_methods
+        where is_active = true
+          and ${hasQuery ? sql`(${label} ilike ${like} or code ilike ${like})` : sql`true`}
+        order by sort_order asc, code asc
         limit ${limit} offset ${offset}
       `;
     }
