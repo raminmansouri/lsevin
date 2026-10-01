@@ -2908,6 +2908,40 @@ declare const messages: {
       "high": "High",
       "urgent": "Urgent"
     },
+    "supportContextType": {
+      "all": "All",
+      "general": "General",
+      "booking": "Booking",
+      "consultation": "Consultation"
+    },
+    "supportRequirementType": {
+      "document": "Document",
+      "lab_test": "Lab test",
+      "imaging": "Imaging",
+      "questionnaire": "Questionnaire",
+      "medical_clearance": "Medical clearance",
+      "other": "Other"
+    },
+    "supportRecordType": {
+      "condition": "Condition",
+      "allergy": "Allergy",
+      "medication": "Medication",
+      "procedure": "Procedure"
+    },
+    "requestFile": "Request file",
+    "addToMedicalRecord": "Add to medical record",
+    "requirementTitlePlaceholder": "What do you need? (e.g. Recent blood test)",
+    "descriptionOptional": "Description (optional)",
+    "maxAgeHoursOptional": "Max age in hours (optional)",
+    "mandatory": "Mandatory",
+    "conditionNamePlaceholder": "Condition name",
+    "allergyCategoryPlaceholder": "Allergy category",
+    "allergySubstancePlaceholder": "Substance",
+    "medicationNamePlaceholder": "Medication name",
+    "doseOptional": "Dose (optional)",
+    "procedureNamePlaceholder": "Procedure name",
+    "notesOptional": "Notes (optional)",
+    "send": "Send",
     "supportEvent": {
       "conversationCreated": "Conversation created",
       "messageSent": "Message sent",
@@ -5184,7 +5218,10 @@ declare const messages: {
     "nav": {
       "dashboard": "Dashboard",
       "bookings": "Bookings",
+      "cases": "Care cases",
       "bookingsList": "All bookings",
+      "caseManagement": "Case management",
+      "caseTemplates": "Case process templates",
       "bookingDrafts": "Booking drafts",
       "bookingCalendar": "Booking calendar",
       "availability": "Availability",
@@ -10663,6 +10700,7 @@ declare const messages: {
     }
   },
   "ProviderPortal": {
+    "cases": "Care cases",
     "providerCommercialOperations": "Provider commercial operations",
     "openAmount": "Open amount",
     "paidAmount": "Paid amount",
@@ -12337,7 +12375,15 @@ declare const messages: {
       "supportUnavailableDescription": "The support channel is temporarily unavailable. Please try again later.",
       "writeMessageFallback": "Write your message...",
       "internalNote": "Internal note",
-      "noMessagesYet": "No messages yet."
+      "noMessagesYet": "No messages yet.",
+      "requirementRequested": "File requested",
+      "clinicalRecordAdded": "Added to medical record",
+      "optionalLabel": "optional",
+      "attachFile": "Attach file",
+      "removeAttachment": "Remove",
+      "conversationTitle": "Conversation",
+      "conversationSubtitle": "Message your provider, ask questions, and share files -- everything you send here is saved to your medical record.",
+      "startingConversation": "Starting conversation…"
     },
     "providerPortalStatus": {
       "status": "Status",
@@ -13971,7 +14017,8 @@ declare const messages: {
       "title": "Request received",
       "body": "Our advisors will contact you on {phone}.",
       "continue": "Continue booking",
-      "sendAnother": "Send another request"
+      "sendAnother": "Send another request",
+      "viewConversation": "View conversation"
     },
     "errors": {
       "signInRequired": "Please sign in before requesting a consultation.",
@@ -14041,6 +14088,10 @@ declare const messages: {
         "bookingDraft": "Booking draft",
         "notifications": "Notifications",
         "noNotifications": "Nothing was sent for this request.",
+        "conversation": "Conversation",
+        "conversationGuestNotice": "This request was raised without a logged-in account, so no conversation is available yet.",
+        "conversationPlaceholder": "Write a message…",
+        "conversationSend": "Send",
         "adminNote": "Internal note",
         "adminNotePlaceholder": "Notes for the team…",
         "save": "Save changes",
@@ -16688,6 +16739,34 @@ declare const messages: {
         "pin_invalid": "Incorrect PIN."
       }
     }
+  },
+  "CaseManagement": {
+    "cases": "Care cases",
+    "caseManagement": "Case management",
+    "description": "Monitor every patient's treatment and service journey from booking through follow-up.",
+    "templates": "Process templates",
+    "total": "Total cases",
+    "active": "Active",
+    "scheduled": "Scheduled",
+    "completed": "Completed",
+    "onHold": "On hold",
+    "cancelled": "Cancelled",
+    "customer": "Customer",
+    "provider": "Provider",
+    "service": "Service",
+    "staff": "Assigned staff",
+    "currentStep": "Current step",
+    "progress": "Progress",
+    "createdAt": "Created",
+    "noCases": "No care cases found.",
+    "openBooking": "Open booking",
+    "allCases": "All cases",
+    "myCases": "My assigned cases",
+    "providerCases": "Provider cases",
+    "staffCases": "Staff cases",
+    "steps": "Journey steps",
+    "activity": "Case activity",
+    "unassigned": "Unassigned"
   }
 };
 export default messages;

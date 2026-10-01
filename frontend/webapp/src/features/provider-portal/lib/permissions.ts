@@ -33,7 +33,8 @@ export function hasPortalPermission(
   role: ProviderPortalRole,
   permission: ProviderPortalPermission,
 ) {
-  return PROVIDER_PORTAL_PERMISSIONS[permission].includes(role);
+  const allowed: readonly ProviderPortalRole[] = PROVIDER_PORTAL_PERMISSIONS[permission];
+  return allowed.includes(role);
 }
 
 export function buildPermissionMap(role: ProviderPortalRole) {

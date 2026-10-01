@@ -9840,6 +9840,7 @@
     }
   },
   "ProviderPortal": {
+    "cases": "ملفات الرعاية",
     "common": {
       "accredited": "معتمد",
       "actions": "الإجراءات",
@@ -15060,5 +15061,33 @@
         "pin_invalid": "الرمز السري غير صحيح."
       }
     }
+  },
+  "CaseManagement": {
+    "cases": "ملفات الرعاية",
+    "caseManagement": "إدارة الحالات",
+    "description": "متابعة رحلة علاج وخدمة المريض من الحجز حتى المتابعة.",
+    "templates": "قوالب العملية",
+    "total": "إجمالي الحالا",
+    "active": "نشط",
+    "scheduled": "مجدول",
+    "completed": "مكتمل",
+    "onHold": "معلق",
+    "cancelled": "ملغى",
+    "customer": "المريض / العميل",
+    "provider": "مقدم الخدمة",
+    "service": "الخدمة",
+    "staff": "الموظف المسؤول",
+    "currentStep": "المرحلة الحالية",
+    "progress": "التقدم",
+    "createdAt": "تاريخ الإنشاء",
+    "noCases": "لم يتم العثور على حالات.",
+    "openBooking": "فتح الحجز",
+    "allCases": "جميع الحالا",
+    "myCases": "الحالا المسندة إليّ",
+    "providerCases": "حالات مقدم الخدمة",
+    "staffCases": "حالات الموظفين",
+    "steps": "مراحل الرحلة",
+    "activity": "نشاط الحالة",
+    "unassigned": "غير مسند"
   }
 }

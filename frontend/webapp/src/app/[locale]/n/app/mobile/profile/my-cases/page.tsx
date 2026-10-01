@@ -18,6 +18,9 @@ import type {
 import { listBookedProvidersForAccount, listGrantsForCaseWithProviderNames } from "@/features/patients/server/case-provider-repository";
 import type { BookedProviderOption } from "@/features/patients/case-provider-types";
 import { listPatientAccessForAccount } from "@/features/patients/server/repository";
+import { listCustomerJourneys } from "@/features/case-management/server/customer-repository";
+import type { CustomerJourney } from "@/features/case-management/server/customer-repository";
+import { Link } from "@/i18n/navigation";
 import type { TranslationType } from "@/types/next";
 
 import { requireAuthenticatedUserId } from "./auth";
@@ -57,6 +60,8 @@ export default async function MyCasesPage() {
   const accountId = await requireAuthenticatedUserId();
   const links = accountId ? await listPatientAccessForAccount(accountId) : [];
   const bookedProviders = accountId ? await listBookedProvidersForAccount(accountId, locale) : [];
+  const journeys = accountId ? await listCustomerJourneys(accountId, locale) : [];
+  const tJourney = await getTranslations("CaseManagement");
 
   const patientsWithCases = await Promise.all(
     links
@@ -78,8 +83,12 @@ export default async function MyCasesPage() {
       </div>
 
       <div className="space-y-6 p-6">
+        {journeys.length > 0 && <section className="space-y-3">
+          <h2 className="text-base font-bold text-gray-900">{tJourney("cases")}</h2>
+          {journeys.map((journey) => <JourneyCard key={journey.id} journey={journey} locale={locale} t={tJourney} />)}
+        </section>}
         {!hasAnyCase && (
-          <div className="rounded-2xl bg-white p-6 text-center text-sm text-gray-500">{t("empty")}</div>
+          journeys.length === 0 && <div className="rounded-2xl bg-white p-6 text-center text-sm text-gray-500">{t("empty")}</div>
         )}
 
         {patientsWithCases.map(({ patient, relationshipType, cases }) =>
@@ -107,6 +116,19 @@ export default async function MyCasesPage() {
       </div>
     </div>
   );
+}
+
+function JourneyCard({ journey, locale, t }: { journey: CustomerJourney; locale: string; t: TranslationType }) {
+  const progress = journey.totalSteps ? Math.round(journey.completedSteps * 100 / journey.totalSteps) : 0;
+  const statusKey = journey.status === "on_hold" ? "onHold" : journey.status;
+  return <Link href={`/n/app/mobile/bookings/${journey.bookingId}`} className="block rounded-2xl bg-white p-4 shadow-sm transition hover:shadow-md">
+    <div className="flex items-start justify-between gap-3">
+      <div><p className="font-semibold text-gray-900">{journey.serviceName}</p><p className="text-sm text-gray-500">{journey.providerName}</p></div>
+      <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">{t(statusKey)}</span>
+    </div>
+    <div className="mt-4"><div className="mb-1 flex justify-between text-xs text-gray-500"><span>{journey.currentStep || t("scheduled")}</span><span>{progress}%</span></div><div className="h-2 overflow-hidden rounded-full bg-gray-100"><div className="h-full rounded-full bg-emerald-600" style={{ width: `${progress}%` }} /></div></div>
+    {journey.plannedStartAt && <p className="mt-2 text-xs text-gray-400">{new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(journey.plannedStartAt))}</p>}
+  </Link>;
 }
 
 async function CaseCard({
