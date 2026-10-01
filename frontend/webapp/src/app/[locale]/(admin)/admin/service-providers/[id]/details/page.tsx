@@ -17,6 +17,11 @@ import {
 import { TRANSLATION_KEY } from "@/features/service-providers/types/constants";
 import { PageProps } from "@/types/next";
 
+
+export const dynamic = 'force-dynamic';
+
+
+
 export async function generateMetadata(
   props: Omit<PageProps, "children">
 ): Promise<Metadata> {
@@ -45,11 +50,14 @@ const SuspenseBoundary = async ({ params }: { params: Promise<{ locale: string; 
   const { id, locale } = await params;
   if (!id) notFound();
 
+
   const t = await getTranslations({ locale, namespace: TRANSLATION_KEY });
   const [providerResult, lookupsResult] = await Promise.all([
     getAdminServiceProviderById(locale, id),
     getAdminProviderLookupData(locale),
   ]);
+
+
 
   return (
     <div className="space-y-6">
