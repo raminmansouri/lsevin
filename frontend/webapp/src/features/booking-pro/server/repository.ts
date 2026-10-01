@@ -14,6 +14,7 @@ import { listServicesWithOpenDepartures, reserveTourDeparture } from '@/features
 import { createCaseProviderGrant } from '@/features/patients/server/case-provider-repository';
 import { pickTranslation } from '../utils/translation';
 import { payFirstBookingReferralBonus } from '@/features/marketing-loyalty/server/referral-commission.repository';
+import { convertProviderPrice, resolvePreferredCurrencyCode } from '@/features/finance/lib/server/currency-queries';
 import type {
   BookingDraftState,
   BookingUiMode,
@@ -1079,6 +1080,7 @@ export async function listServices(params: { providerId?: string; serviceId?: st
              ps.currency,
              ps.value,
              ps.value_toman,
+             sp.international_price_multiplier,
              ps.duration_minutes,
              ps.slot_interval_minutes,
              ps.rating,
@@ -1116,7 +1118,8 @@ export async function listServices(params: { providerId?: string; serviceId?: st
                'g'
              ) as normalized_search_blob
       from category.provider_services ps
-      join category.service_definitions sd on sd.id = ps.service_definition_id
+               join category.service_definitions sd on sd.id = ps.service_definition_id
+               join category.service_providers sp on sp.id = ps.service_provider_id
       where ps.is_active = true
         and (${providerId ?? null}::uuid is null or ps.service_provider_id = ${providerId ?? null}::uuid)
         and (${serviceId ?? null}::uuid is null or ps.id = ${serviceId ?? null}::uuid)
@@ -1143,6 +1146,7 @@ export async function listServices(params: { providerId?: string; serviceId?: st
            currency,
            value,
            value_toman,
+           international_price_multiplier,
            duration_minutes,
            slot_interval_minutes,
            rating,
@@ -1201,15 +1205,25 @@ export async function listServices(params: { providerId?: string; serviceId?: st
   const routeByService = await listTransferRouteSummaries(rows.map((row: any) => row.id), locale);
   const addressRequiredDefIds = await listAddressRequiredServiceDefinitions(rows.map((row: any) => row.service_definition_id));
   const servicesWithDepartures = await listServicesWithOpenDepartures(rows.map((row: any) => row.id));
-  const isIranianVisitor = await resolveIsIranianVisitor().catch(() => false);
+    const isIranianVisitor = await resolveIsIranianVisitor().catch(() => false);
+    const targetCurrencyCode = await resolvePreferredCurrencyCode({
+        fallbackCurrencyCode: 'USD',
+    }).catch(() => 'USD');
 
-  const items: ServiceCardItem[] = rows.map((row: any) => {
-    const displayPrice = resolveDisplayPrice(
-      { value: Number(row.value ?? 0), currency: row.currency },
-      row.value_toman == null ? null : Number(row.value_toman),
-      isIranianVisitor,
-    );
-    return {
+    const items: ServiceCardItem[] = await Promise.all(rows.map(async (row: any) => {
+        const converted = await convertProviderPrice({
+            amount: Number(row.value ?? 0),
+            sourceCurrencyCode: row.currency,
+            targetCurrencyCode,
+            providerMultiplier: row.international_price_multiplier ?? null,
+        }).catch(() => ({ targetAmount: Number(row.value ?? 0), targetCurrencyCode: row.currency }));
+
+        const displayPrice = resolveDisplayPrice(
+            { value: converted.targetAmount, currency: converted.targetCurrencyCode },
+            row.value_toman == null ? null : Number(row.value_toman),
+            isIranianVisitor,
+        );
+        return {
     id: row.id,
     serviceDefinitionId: row.service_definition_id,
     name: row.service_name || '',
@@ -1232,8 +1246,8 @@ export async function listServices(params: { providerId?: string; serviceId?: st
     route: routeByService.get(row.id),
     requiresCustomerAddress: addressRequiredDefIds.has(row.service_definition_id),
     hasTourDepartures: servicesWithDepartures.has(row.id),
-    };
-  });
+        };
+    }));
 
   const total = Number(rows[0]?.total_count ?? 0);
   return { items, total, hasMore: offset + items.length < total };

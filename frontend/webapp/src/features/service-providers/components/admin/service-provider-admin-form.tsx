@@ -641,11 +641,12 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
                       <FormItem>
                         <FormLabel>{tAdmin("internationalPriceMultiplier")}</FormLabel>
                         <FormControl>
-                          <Input
-                            type="number"
-                            step="0.1"
-                            min="0"
-                            inputMode="decimal"
+                            <Input
+                                type="number"
+                                step="0.5"
+                                min="1"
+                                max="4"
+                                inputMode="decimal"
                             placeholder={tAdmin("internationalPriceMultiplierPlaceholder")}
                             disabled={isPending}
                             value={field.value ?? ""}

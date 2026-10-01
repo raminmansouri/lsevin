@@ -61,8 +61,7 @@ export const saveServiceProviderProfileSchema = z.object({
   featuredScore: z.coerce.number().min(0).default(0),
   // International price coefficient (Prompt 2). Free positive number; null/empty =>
   // the provider uses the global finance.settings default.
-  internationalPriceMultiplier: z.coerce.number().positive().optional().nullable(),
-  imageUrl: adminNullableMediaValueSchema,
+  internationalPriceMultiplier: z.coerce.number().positive().max(4, "ضریب قیمت بین‌المللی حداکثر ۴ است.").optional().nullable(),  imageUrl: adminNullableMediaValueSchema,
   timezoneId: z.string().min(1).default("UTC"),
 });
 
