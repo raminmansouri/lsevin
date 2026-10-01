@@ -39,6 +39,12 @@ pgbackrest_retention_diff: 14
 pgbackrest_process_max: 2
 logical_backup_retention_days: 14
 
+# Use fixed trusted CIDRs where possible. These values allow authenticated
+# PostgreSQL access from roaming IPv4 and IPv6 clients.
+postgres_remote_access_cidrs:
+  - "0.0.0.0/0"
+  - "::/0"
+
 # Host hardening. SSH is allowed before UFW is enabled.
 lsevin_enable_ufw: true
 lsevin_enable_unattended_upgrades: true
