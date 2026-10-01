@@ -1009,6 +1009,7 @@ export async function createServiceDefinitionInDb(input: ServiceDefinitionMutati
       currency,
       value,
       requires_customer_address,
+      requires_specialist,
       create_date,
       last_modified_date
     ) values (
