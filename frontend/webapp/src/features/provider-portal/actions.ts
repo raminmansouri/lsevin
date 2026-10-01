@@ -121,6 +121,7 @@ function revalidateProviderPortal(providerId?: string) {
     revalidatePath(`/provider-portal/providers/${providerId}/offers`);
     revalidatePath(`/provider-portal/providers/${providerId}/billing`);
     revalidatePath(`/provider-portal/providers/${providerId}/support`);
+    revalidatePath(`/provider-portal/providers/${providerId}/cases`);
   }
 }
 

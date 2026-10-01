@@ -5219,7 +5219,10 @@ declare const messages: {
     "nav": {
       "dashboard": "Dashboard",
       "bookings": "Bookings",
+      "cases": "Care cases",
       "bookingsList": "All bookings",
+      "caseManagement": "Case management",
+      "caseTemplates": "Case process templates",
       "bookingDrafts": "Booking drafts",
       "bookingCalendar": "Booking calendar",
       "availability": "Availability",
@@ -10694,6 +10697,7 @@ declare const messages: {
     }
   },
   "ProviderPortal": {
+    "cases": "Care cases",
     "providerCommercialOperations": "Provider commercial operations",
     "openAmount": "Open amount",
     "paidAmount": "Paid amount",
@@ -16732,6 +16736,34 @@ declare const messages: {
         "pin_invalid": "Incorrect PIN."
       }
     }
+  },
+  "CaseManagement": {
+    "cases": "Care cases",
+    "caseManagement": "Case management",
+    "description": "Monitor every patient's treatment and service journey from booking through follow-up.",
+    "templates": "Process templates",
+    "total": "Total cases",
+    "active": "Active",
+    "scheduled": "Scheduled",
+    "completed": "Completed",
+    "onHold": "On hold",
+    "cancelled": "Cancelled",
+    "customer": "Customer",
+    "provider": "Provider",
+    "service": "Service",
+    "staff": "Assigned staff",
+    "currentStep": "Current step",
+    "progress": "Progress",
+    "createdAt": "Created",
+    "noCases": "No care cases found.",
+    "openBooking": "Open booking",
+    "allCases": "All cases",
+    "myCases": "My assigned cases",
+    "providerCases": "Provider cases",
+    "staffCases": "Staff cases",
+    "steps": "Journey steps",
+    "activity": "Case activity",
+    "unassigned": "Unassigned"
   }
 };
 export default messages;
