@@ -27,6 +27,7 @@ type Props = {
   fullName: string;
   isLocked: boolean;
   bottomBarHeight?: number;
+  onChange?: (imageUrl: string | null) => void;
 };
 
 type PersistedMediaLike = {
@@ -59,6 +60,7 @@ export default function ProfileImagePicker({
   fullName,
   isLocked,
   bottomBarHeight = 76,
+  onChange,
 }: Props) {
   const t = useTranslations("User.Profile.profileImage");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -106,6 +108,7 @@ export default function ProfileImagePicker({
 
       setCurrentImageUrl(null);
       setCurrentMediaId(null);
+      onChange?.(null);
       setIsSheetOpen(false);
       toast.success(result.message);
     });
@@ -165,6 +168,7 @@ export default function ProfileImagePicker({
 
       setCurrentImageUrl(result.imageUrl);
       setCurrentMediaId(result.mediaId);
+      onChange?.(result.imageUrl);
       setIsSheetOpen(false);
       toast.success(result.message);
     } catch (error) {

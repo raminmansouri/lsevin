@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useForm, type FieldError } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -57,6 +57,7 @@ export default function EditProfileForm({ initialData }: Props) {
     const navigate = useNavigate();
     const t = useTranslations(TRANSLATION_KEY);
     const [isPending, startTransition] = useTransition();
+    const [photoChanged, setPhotoChanged] = useState(false);
 
     const isLocked = initialData.isProfileConfirmed;
     const { isConfirmDialogOpen, closeConfirmDialog } =
@@ -96,6 +97,7 @@ export default function EditProfileForm({ initialData }: Props) {
             }
 
             toast.success(result.message);
+            setPhotoChanged(false);
         });
     });
 
@@ -168,6 +170,7 @@ export default function EditProfileForm({ initialData }: Props) {
                             fullName={`${initialData.firstName} ${initialData.lastName}`}
                             isLocked={isLocked}
                             bottomBarHeight={80}
+                            onChange={() => setPhotoChanged(true)}
                         />
                     </div>
                 </div>
@@ -294,7 +297,7 @@ export default function EditProfileForm({ initialData }: Props) {
                         <button
                             type="button"
                             onClick={handleSave}
-                            disabled={isPending || !isDirty}
+                            disabled={isPending || (!isDirty && !photoChanged)}
                             className="w-full h-14 bg-[#083f30] text-white rounded-xl font-bold hover:bg-[#0a5a44] transition-all active:scale-95 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                             {isPending ? (
