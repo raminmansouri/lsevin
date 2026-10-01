@@ -5,7 +5,7 @@ lsevin_backup_dir: /opt/lsevin/backups
 # Uploaded files are persistent application state and must stay outside Git releases.
 lsevin_uploads_dir: /var/lib/lsevin/uploads
 lsevin_upload_backup_dir: /var/backups/lsevin/uploads
-lsevin_upload_backup_retention_days: 30
+lsevin_upload_backup_retention_days: 14
 lsevin_upload_backup_calendar: "*-*-* 02:30:00"
 lsevin_compose_project: docker
 lsevin_ssh_port: 22
