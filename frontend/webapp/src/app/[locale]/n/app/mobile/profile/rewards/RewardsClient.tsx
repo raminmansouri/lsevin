@@ -314,6 +314,19 @@ export default function RewardsClient({ data }: { data: RewardsPageData }) {
 
       {selectedTab === "referrals" && (
         <div className="px-5 py-6 space-y-6">
+          <div className="bg-white rounded-2xl border border-gray-200 p-6">
+            <h3 className="font-bold text-gray-900 mb-4">{t("referrals.yourStats")}</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-green-50 rounded-xl p-4 text-center">
+                <div className="text-3xl font-bold text-green-600 mb-1">{data.referral.referrals}</div>
+                <div className="text-sm text-green-700">{t("referrals.successful")}</div>
+              </div>
+              <div className="bg-blue-50 rounded-xl p-4 text-center">
+                <div className="text-3xl font-bold text-blue-600 mb-1">${data.referral.referralEarnings}</div>
+                <div className="text-sm text-blue-700">{t("referrals.totalEarned")}</div>
+              </div>
+            </div>
+          </div>
           <div className="bg-gradient-to-br from-[#083f30] to-[#0a5a44] rounded-3xl p-6 text-white shadow-xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
@@ -369,19 +382,7 @@ export default function RewardsClient({ data }: { data: RewardsPageData }) {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-200 p-6">
-            <h3 className="font-bold text-gray-900 mb-4">{t("referrals.yourStats")}</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-green-50 rounded-xl p-4 text-center">
-                <div className="text-3xl font-bold text-green-600 mb-1">{data.referral.referrals}</div>
-                <div className="text-sm text-green-700">{t("referrals.successful")}</div>
-              </div>
-              <div className="bg-blue-50 rounded-xl p-4 text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-1">${data.referral.referralEarnings}</div>
-                <div className="text-sm text-blue-700">{t("referrals.totalEarned")}</div>
-              </div>
-            </div>
-          </div>
+
         </div>
       )}
     </div>

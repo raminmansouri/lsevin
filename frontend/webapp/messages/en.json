@@ -8692,16 +8692,12 @@
       "dynamicHeroSubtitle": "Current rewards unlock in sequence: {rewards}.",
       "dynamicShareMessage": "Join LSevin with my referral code {code}. {subtitle} Sign up here: {link}",
       "dynamicTerms": {
-        "stackingAllowed": "This program currently allows combinable discounts.",
-        "stackingNotAllowed": "Discounts cannot be combined in the same checkout.",
-        "previousRedeemedRequired": "A newly earned discount unlocks only after the previous discount is redeemed.",
-        "referrerSequence": "Referrer reward sequence: {values}.",
-        "refereeRewards": "Invitee onboarding rewards: {values}.",
-        "maxReferrals": "Each referrer can qualify for up to {count} referral rewards under the active program.",
-        "policyMayChange": "LSevin can update the active referral policy at any time from admin."
+        "flatReward": "You earn 100,000 Toman in your wallet for every friend you invite.",
+        "creditedAfterBooking": "The reward is credited once your friend completes their first booking.",
+        "policyMayChange": "LSEVIN may update active referral rules at any time from the admin panel."
       },
-      "heroSubtitle": "Share LSevin with friends and unlock referral benefits.",
-      "heroTitle": "Invite friends, earn rewards",
+      "heroSubtitle": "You earn 100,000 Toman in your wallet for every successful referral.",
+      "heroTitle": "Invite friends, earn 100,000 Toman",
       "howItWorks": "How it works",
       "methods": {
         "email": "Email",
