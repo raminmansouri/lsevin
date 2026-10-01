@@ -5,6 +5,7 @@ After=docker.service
 
 [Service]
 Type=oneshot
+Environment=JENKINS_BACKUP_RETENTION_DAYS=14
 ExecStart=/usr/local/sbin/lsevin-jenkins-backup
 Nice=10
 IOSchedulingClass=best-effort
