@@ -41,6 +41,7 @@ export default defineConfig({
       "src/features/consultation/**/*.test.ts",
       "src/features/shop/**/*.test.ts",
       "src/features/booking-pro/**/*.test.ts",
+      "src/features/booking/**/*.test.ts",
       "src/features/gym-memberships/**/*.test.ts",
       "src/features/patients/**/*.test.ts",
       "src/features/provider-portal/**/*.test.ts",

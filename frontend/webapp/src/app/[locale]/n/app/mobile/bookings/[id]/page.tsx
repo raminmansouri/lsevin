@@ -3,8 +3,8 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { AlertCircle, BadgeCheck, Calendar, CheckCircle, ChevronLeft, Clock, CreditCard, Download, FileText, Loader2, Mail, MapPin, MessageCircle, Navigation, PackageCheck, Phone, RefreshCw, ReceiptText, UserRound, XCircle, } from "lucide-react";
 import { toast } from "sonner";
-import { hasLexicalContent, LexicalRenderer } from "@/components/editor/lexical-renderer";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { getRichTextPlainText, RichTextPreview } from "@/features/booking/components/rich-text-preview";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import { cancelBookingAction } from "@/booking/actions/cancel-booking";
 import { getEnabledPaymentGatewaysAction } from "@/payment/actions/get-enabled-payment-gateways";
@@ -105,11 +105,11 @@ function DescriptionBlock({ title, content }: {
     title: string;
     content?: string | null;
 }) {
-    if (!content)
+    if (!getRichTextPlainText(content))
         return null;
     return (<div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
       <h3 className="mb-3 font-bold text-gray-900">{title}</h3>
-      {hasLexicalContent(content) ? (<LexicalRenderer content={content} className="text-sm leading-6 text-gray-700"/>) : (<p className="text-sm leading-6 text-gray-700">{content || "-"}</p>)}
+      <RichTextPreview content={content} className="text-sm leading-6 text-gray-700"/>
     </div>);
 }
 
@@ -156,7 +156,7 @@ function BookingCaseTimeline({ booking }: { booking: BookingRecord }) {
                   <p className={`font-semibold ${current ? "text-[#083f30]" : "text-gray-900"}`}>{step.title}</p>
                   <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${complete ? "bg-emerald-50 text-emerald-700" : current ? "bg-teal-50 text-[#083f30]" : "bg-gray-100 text-gray-600"}`}>{statusLabel(step.status)}</span>
                 </div>
-                {step.description ? <p className="mt-1 text-sm text-gray-600">{step.description}</p> : null}
+                <RichTextPreview content={step.description} className="mt-1 text-sm leading-6 text-gray-600"/>
                 {planned ? <p className="mt-1 text-xs text-gray-500"><Clock size={12} className="me-1 inline"/>{planned}</p> : null}
               </div>
             </li>);
