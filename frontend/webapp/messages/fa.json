@@ -4407,7 +4407,10 @@
     "nav": {
       "dashboard": "داشبورد",
       "bookings": "رزروها",
+      "cases": "پرونده‌های درمانی",
       "bookingsList": "همه رزروها",
+      "caseManagement": "مدیریت پرونده",
+      "caseTemplates": "الگوهای فرآیند پرونده",
       "bookingDrafts": "پیش‌نویس رزروها",
       "bookingCalendar": "تقویم رزرو",
       "availability": "ظرفیت و زمان‌ها",
@@ -10698,6 +10701,7 @@
     }
   },
   "ProviderPortal": {
+    "cases": "پرونده‌های درمانی",
     "providerCommercialOperations": "عملیات تجاری ارائه‌دهنده",
     "openAmount": "مبلغ باز",
     "paidAmount": "مبلغ پرداخت‌شده",
@@ -16736,5 +16740,33 @@
         "pin_invalid": "پین نادرست است."
       }
     }
+  },
+  "CaseManagement": {
+    "cases": "پرونده‌های درمانی",
+    "caseManagement": "مدیریت پرونده",
+    "description": "پایش یکپارچه مسیر درمان و خدمت بیمار از رزرو تا پیگیری.",
+    "templates": "الگوهای فرآیند",
+    "total": "کل پرونده‌ها",
+    "active": "فعال",
+    "scheduled": "برنامه‌ریزی‌شده",
+    "completed": "تکمیل‌شده",
+    "onHold": "متوقف",
+    "cancelled": "لغوشده",
+    "customer": "بیمار / مشتری",
+    "provider": "ارائه‌دهنده",
+    "service": "خدمت",
+    "staff": "کارشناس مسئول",
+    "currentStep": "مرحله فعلی",
+    "progress": "پیشرفت",
+    "createdAt": "تاریخ ایجاد",
+    "noCases": "پرونده‌ای یافت نشد.",
+    "openBooking": "مشاهده رزرو",
+    "allCases": "همه پرونده‌ها",
+    "myCases": "پرونده‌های من",
+    "providerCases": "پرونده‌های مرکز",
+    "staffCases": "پرونده‌های کارشناسان",
+    "steps": "مراحل مسیر",
+    "activity": "فعالیت‌های پرونده",
+    "unassigned": "تخصیص‌نیافته"
   }
 }

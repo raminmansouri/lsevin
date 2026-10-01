@@ -26,13 +26,21 @@ import { getSession } from "@/lib/auth/session";
  * (e.g. the mobile home rails) would undo that page's ISR.
  */
 export async function resolveIsIranianVisitor(): Promise<boolean> {
-  const fromPhone = await isIranianFromSessionPhone();
-  if (fromPhone !== null) return fromPhone;
+    const fromPhone = await isIranianFromSessionPhone();
+    if (fromPhone !== null) {
+        console.log('[iranian-visitor] decided by PHONE:', fromPhone);
+        return fromPhone;
+    }
 
-  const fromIp = await isIranianFromClientIp();
-  if (fromIp !== null) return fromIp;
+    const fromIp = await isIranianFromClientIp();
+    if (fromIp !== null) {
+        console.log('[iranian-visitor] decided by IP:', fromIp);
+        return fromIp;
+    }
 
-  return isIranianFromLocale();
+    const fromLocale = await isIranianFromLocale();
+    console.log('[iranian-visitor] decided by LOCALE fallback:', fromLocale);
+    return fromLocale;
 }
 
 async function isIranianFromSessionPhone(): Promise<boolean | null> {

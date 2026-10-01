@@ -118,6 +118,25 @@ export async function removeProductServiceLink(input: { linkId: string }): Promi
   await sql`delete from shop.product_service_links where id = ${input.linkId}::uuid`;
 }
 
+/** Soft-removes a catalog product while retaining order lines and audit history. */
+export async function softDeleteProduct(input: { productId: string }): Promise<void> {
+  await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
+  await sql.begin(async (tx) => {
+    await tx`
+      update shop.products
+      set status = 'archived'::shop.product_status,
+          deleted_at = now(),
+          last_modified_date = now()
+      where id = ${input.productId}::uuid and deleted_at is null
+    `;
+    await tx`
+      update shop.product_service_links
+      set is_active = false, last_modified_date = now()
+      where product_id = ${input.productId}::uuid and is_active = true
+    `;
+  });
+}
+
 export async function setCategoryServiceLink(input: {
   shopCategoryId: string;
   serviceDefinitionId: string;

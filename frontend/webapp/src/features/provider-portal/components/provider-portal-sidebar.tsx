@@ -9,6 +9,7 @@ import {
   Briefcase,
   Building2,
   CalendarDays,
+  HeartPulse,
   ClipboardList,
   CreditCard,
   FileText,
@@ -72,6 +73,12 @@ const topLinks = [
     href: "bookings",
     label: "Bookings",
     icon: FileText,
+    permission: "manageBookings" as const,
+  },
+  {
+    href: "cases",
+    label: "Cases",
+    icon: HeartPulse,
     permission: "manageBookings" as const,
   },
   {
@@ -214,7 +221,7 @@ export function ProviderPortalSidebar({
 
         <nav className="min-h-0 flex-1 overflow-y-auto p-4">
           <div className="space-y-1">
-            {topLinks.map((item) => {
+            {topLinks.filter((item) => workspace.permissions[item.permission]).map((item) => {
               const Icon = item.icon;
               const active =
                 currentPath === item.href ||
@@ -231,7 +238,7 @@ export function ProviderPortalSidebar({
                   )}
                 >
                   <Icon className="h-4 w-4" />
-                  <span>{tCommon(t, `nav.${item.href}`, item.label)}</span>
+                  <span>{tCommon(t, item.href, item.label)}</span>
                 </Link>
               );
             })}

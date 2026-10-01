@@ -11,25 +11,18 @@ const ROLE_WEIGHT: Record<ProviderPortalRole, number> = {
 
 export const PROVIDER_PORTAL_PERMISSIONS = {
   viewDashboard: ["owner", "admin", "manager", "editor", "viewer", "staff"],
-  manageProfile: ["owner", "admin", "manager", "editor", "viewer", "staff"],
-  manageServices: ["owner", "admin", "manager", "editor", "viewer", "staff"],
-  manageStaff: ["owner", "admin", "manager", "editor", "viewer", "staff"],
-  manageAvailability: [
-    "owner",
-    "admin",
-    "manager",
-    "editor",
-    "viewer",
-    "staff",
-  ],
-  manageBookings: ["owner", "admin", "manager", "editor", "viewer", "staff"],
-  manageMedia: ["owner", "admin", "manager", "editor", "viewer", "staff"],
+  manageProfile: ["owner", "admin", "manager", "editor"],
+  manageServices: ["owner", "admin", "manager", "editor"],
+  manageStaff: ["owner", "admin", "manager"],
+  manageAvailability: ["owner", "admin", "manager", "staff"],
+  manageBookings: ["owner", "admin", "manager", "staff"],
+  manageMedia: ["owner", "admin", "manager", "editor"],
   viewReviews: ["owner", "admin", "manager", "editor", "viewer", "staff"],
-  manageOffers: ["owner", "admin", "manager", "editor", "viewer", "staff"],
-  viewBilling: ["owner", "admin", "manager", "editor", "viewer", "staff"],
-  managePayouts: ["owner", "admin", "manager", "editor", "viewer", "staff"],
-  manageSupport: ["owner", "admin", "manager", "editor", "viewer", "staff"],
-  manageSettings: ["owner", "admin", "manager", "editor", "viewer", "staff"],
+  manageOffers: ["owner", "admin", "manager", "editor"],
+  viewBilling: ["owner", "admin", "manager"],
+  managePayouts: ["owner", "admin"],
+  manageSupport: ["owner", "admin", "manager", "staff"],
+  manageSettings: ["owner", "admin"],
 } as const satisfies Record<string, ProviderPortalRole[]>;
 
 export type ProviderPortalPermission = keyof typeof PROVIDER_PORTAL_PERMISSIONS;
@@ -37,15 +30,17 @@ export type ProviderPortalPermission = keyof typeof PROVIDER_PORTAL_PERMISSIONS;
 // Temporary development mode: all portal permissions are open so the provider
 // back office can be reviewed without membership/role configuration blocking UI.
 export function hasPortalPermission(
-  _role: ProviderPortalRole,
-  _permission: ProviderPortalPermission,
+  role: ProviderPortalRole,
+  permission: ProviderPortalPermission,
 ) {
-  return true;
+  const allowed: readonly ProviderPortalRole[] = PROVIDER_PORTAL_PERMISSIONS[permission];
+  return allowed.includes(role);
 }
 
-export function buildPermissionMap(_role: ProviderPortalRole) {
+export function buildPermissionMap(role: ProviderPortalRole) {
   return Object.fromEntries(
-    Object.keys(PROVIDER_PORTAL_PERMISSIONS).map((key) => [key, true]),
+    (Object.keys(PROVIDER_PORTAL_PERMISSIONS) as ProviderPortalPermission[])
+      .map((key) => [key, hasPortalPermission(role, key)]),
   );
 }
 

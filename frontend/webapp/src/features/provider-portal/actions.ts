@@ -45,6 +45,7 @@ import {
   saveStaffSchema,
   saveStaffServiceSchema,
   updateBookingProviderSchema,
+  updateBookingCaseStepSchema,
   updateProviderProfileSchema,
   updateSupportTicketSchema,
 } from "./schemas";
@@ -91,6 +92,7 @@ import {
   saveStaffGalleryItem,
   saveStaffService,
   updateProviderBooking,
+  updateProviderBookingCaseStep,
   updateProviderProfile,
   updateSupportTicketStatus,
 } from "./server/repository";
@@ -119,6 +121,7 @@ function revalidateProviderPortal(providerId?: string) {
     revalidatePath(`/provider-portal/providers/${providerId}/offers`);
     revalidatePath(`/provider-portal/providers/${providerId}/billing`);
     revalidatePath(`/provider-portal/providers/${providerId}/support`);
+    revalidatePath(`/provider-portal/providers/${providerId}/cases`);
   }
 }
 
@@ -659,6 +662,20 @@ export async function updateProviderBookingAction(
     const userId = await requireCurrentUserId();
     const parsed = updateBookingProviderSchema.parse(input);
     await updateProviderBooking(userId, parsed);
+    revalidateProviderPortal(parsed.providerId);
+    return result(true);
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+export async function updateProviderBookingCaseStepAction(
+  input: unknown,
+): Promise<ActionResult<boolean>> {
+  try {
+    const userId = await requireCurrentUserId();
+    const parsed = updateBookingCaseStepSchema.parse(input);
+    await updateProviderBookingCaseStep(userId, parsed);
     revalidateProviderPortal(parsed.providerId);
     return result(true);
   } catch (error) {

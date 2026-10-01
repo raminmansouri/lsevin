@@ -157,7 +157,10 @@ spec:
                   rclone check seaweed:lsevin-media "$target/objects" --one-way --download
                   rclone size seaweed:lsevin-media --json > "$target/source-size.json"
                   find "$target/objects" -type f -print0 | sort -z | xargs -0 -r sha256sum > "$target/sha256.txt"
-                  find /backup -mindepth 1 -maxdepth 1 -type d -mtime +30 -exec rm -rf -- {} +
+                  # Retain two weeks of verified daily snapshots. The current
+                  # copy is verified before expiry runs, so pruning can never
+                  # remove the last usable object backup after a failed copy.
+                  find /backup -mindepth 1 -maxdepth 1 -type d -mtime +14 -exec rm -rf -- {} +
                   echo "Verified SeaweedFS object backup: $target"
               env:
                 - {name: RCLONE_CONFIG_SEAWEED_TYPE, value: s3}

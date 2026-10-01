@@ -31,6 +31,7 @@ export function ShopDeleteButton({
   label,
   disabled,
   variant = "outline",
+  redirectTo,
 }: {
   action: () => Promise<{ ok?: boolean; message?: string } | void>;
   title: string;
@@ -38,6 +39,7 @@ export function ShopDeleteButton({
   label?: string;
   disabled?: boolean;
   variant?: "outline" | "ghost" | "destructive";
+  redirectTo?: string;
 }) {
   const t = useTranslations("ShopAdmin");
   const router = useRouter();
@@ -54,7 +56,8 @@ export function ShopDeleteButton({
         }
         toast.success(t("common.saved"));
         setOpen(false);
-        router.refresh();
+        if (redirectTo) router.replace(redirectTo);
+        else router.refresh();
       } catch (error) {
         toast.error(error instanceof Error ? error.message : t("error.unknownError"));
       }

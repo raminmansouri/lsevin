@@ -3,7 +3,7 @@ set -Eeuo pipefail
 umask 077
 
 BACKUP_ROOT="${LSEVIN_CONFIG_BACKUP_DIR:-/var/backups/lsevin/config}"
-RETENTION_DAYS="${LSEVIN_CONFIG_BACKUP_RETENTION_DAYS:-30}"
+RETENTION_DAYS="${LSEVIN_CONFIG_BACKUP_RETENTION_DAYS:-14}"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 ARCHIVE="${BACKUP_ROOT}/lsevin-config-${STAMP}.tar.gz"
 LOCK=/run/lock/lsevin-config-backup.lock
