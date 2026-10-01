@@ -6,6 +6,11 @@ import {
 } from "@/features/marketing-loyalty/server/loyalty-settings.repository";
 import { getSession } from "@/lib/auth/session";
 import { unstable_noStore as noStore } from "next/cache";
+import {
+  resolveCustomerFromIdentityUser,
+  getActiveReferralProgram,
+  ensureReferralCode,
+} from "@/app/[locale]/n/app/mobile/profile/share/queries";
 
 export type RewardsTab = "overview" | "coupons" | "referrals";
 
@@ -148,21 +153,19 @@ function formatDiscount(discountPercent: number | null, maybeFixed: number | nul
   return "Deal";
 }
 
-async function getRealReferralCode(userId: string | null): Promise<string | null> {
-    if (!userId) return null;
+async function getRealReferralCode(identityUserId: string | null): Promise<string | null> {
+  if (!identityUserId) return null;
 
-    const [row] = await sql<{ code: string }[]>`
-    select rc.code
-    from marketing.referral_codes rc
-    join marketing.referral_programs rp on rp.id = rc.program_id
-    where rc.customer_id = ${userId}::uuid
-      and rc.is_active = true
-      and rp.status = 'active'
-    order by rp.is_default desc, rc.created_at desc
-    limit 1
-  `;
-
-    return row?.code ?? null;
+  try {
+    const customer = await resolveCustomerFromIdentityUser(sql, identityUserId);
+    const program = await getActiveReferralProgram(sql);
+    return await ensureReferralCode(sql, { customer, programId: program.id });
+  } catch (error) {
+    // No active referral program configured, or the customer could not be
+    // resolved — keep behaving like "no code" instead of breaking the page.
+    console.warn("[rewards] Could not resolve/create referral code.", error);
+    return null;
+  }
 }
 
 /**

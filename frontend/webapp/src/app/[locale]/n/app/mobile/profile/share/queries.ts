@@ -460,7 +460,7 @@ export async function resolveCustomerFromIdentityUser(
   };
 }
 
-async function getActiveReferralProgram(
+export async function getActiveReferralProgram(
   sql: Sql
 ): Promise<ReferralProgramRow> {
   const rows = await sql<ReferralProgramRow[]>`
@@ -509,7 +509,7 @@ async function getProgramRules(
   `;
 }
 
-async function ensureReferralCode(
+export async function ensureReferralCode(
   sql: Sql,
   args: {
     customer: ResolvedCustomer;
