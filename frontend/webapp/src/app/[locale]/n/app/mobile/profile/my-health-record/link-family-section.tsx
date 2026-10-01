@@ -64,7 +64,7 @@ export function LinkFamilySection({ requests }: { requests: AccountLinkRequestRo
   };
 
   return (
-    <div className="rounded-2xl bg-white p-4">
+    <div id="link-health-record" className="scroll-mt-24 rounded-2xl bg-white p-4">
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium text-gray-900">{t("linkRequest.title")}</p>
         <button type="button" onClick={() => setFormOpen((v) => !v)} className="text-xs font-medium text-blue-600">

@@ -8219,6 +8219,26 @@ declare const messages: {
       "title": "My Health Record",
       "subtitle": "A read-only summary shared by your care team.",
       "empty": "No health record is linked to your account yet.",
+      "onboarding": {
+        "title": "Start your health record",
+        "body": "Your health record keeps your medical information in one secure place. Treatment cases then organize the documents, requirements and progress for each service you receive.",
+        "steps": {
+          "create": {
+            "title": "Create or link a record",
+            "body": "Request access to your own record or a family member's record using an identity document. The request is reviewed before access is granted."
+          },
+          "complete": {
+            "title": "Add important health information",
+            "body": "After approval, add conditions, allergies, medicines and previous procedures. Patient-entered information stays marked as self-reported until verified."
+          },
+          "follow": {
+            "title": "Follow treatment cases and documents",
+            "body": "Each booking can have a treatment case that groups its steps, required documents, proposals and follow-ups."
+          }
+        },
+        "start": "Create or link my record",
+        "viewCases": "View treatment cases"
+      },
       "limitedAccessNotice": "Your access to this record is limited to basic details.",
       "criticalAllergies": "Critical allergies",
       "conditions": "Conditions",
