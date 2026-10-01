@@ -56,6 +56,7 @@ x-lsevin-webapp: &lsevin-webapp
     LSEVIN_SSO_SECRET: ${LSEVIN_SSO_SECRET}
     LSEVIN_SSO_DEBUG: ${LSEVIN_SSO_DEBUG:-false}
     LSEVIN_PROVIDER_PORTAL_URL: ${LSEVIN_PROVIDER_PORTAL_URL:-https://providers.lsevin.com}
+    ZARINPAL_MERCHANT_ID: ${ZARINPAL_MERCHANT_ID:-}
     DATABASE_URL: ${DATABASE_URL}
     POSTGRES_PREPARE: "false"
   restart: unless-stopped
