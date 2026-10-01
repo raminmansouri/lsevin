@@ -22,33 +22,35 @@ function toNumberOrNull(value: unknown): number | null {
 }
 
 export type SpecialPackageAdminRow = {
-  id: string;
-  titleTranslations: Record<string, string>;
-  subtitleTranslations: Record<string, string>;
-  descriptionTranslations: Record<string, string>;
-  providerId: string | null;
-  priceAmount: number | null;
-  currencyCode: string | null;
-  originalPriceAmount: number | null;
-  imageUrl: string | null;
-  isActive: boolean;
-  displayOrder: number;
-  metadata: Record<string, unknown>;
-  createDate: string | null;
-  lastModifiedDate: string | null;
+    id: string;
+    titleTranslations: Record<string, string>;
+    subtitleTranslations: Record<string, string>;
+    descriptionTranslations: Record<string, string>;
+    providerId: string | null;
+    providerServiceId: string | null;
+    priceAmount: number | null;
+    currencyCode: string | null;
+    originalPriceAmount: number | null;
+    imageUrl: string | null;
+    isActive: boolean;
+    displayOrder: number;
+    metadata: Record<string, unknown>;
+    createDate: string | null;
+    lastModifiedDate: string | null;
 };
 
 export type SpecialPackagePublicItem = {
-  id: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  providerId: string | null;
-  priceAmount: number | null;
-  currencyCode: string | null;
-  originalPriceAmount: number | null;
-  imageUrl: string | null;
-  displayOrder: number;
+    id: string;
+    title: string;
+    subtitle: string;
+    description: string;
+    providerId: string | null;
+    providerServiceId: string | null;
+    priceAmount: number | null;
+    currencyCode: string | null;
+    originalPriceAmount: number | null;
+    imageUrl: string | null;
+    displayOrder: number;
 };
 
 function mapAdminRow(row: any): SpecialPackageAdminRow {
@@ -58,6 +60,7 @@ function mapAdminRow(row: any): SpecialPackageAdminRow {
     subtitleTranslations: row.subtitle_translations ?? {},
     descriptionTranslations: row.description_translations ?? {},
     providerId: row.provider_id ? String(row.provider_id) : null,
+    providerServiceId: row.provider_service_id ? String(row.provider_service_id) : null,
     priceAmount: toNumberOrNull(row.price_amount),
     currencyCode: row.currency_code ?? null,
     originalPriceAmount: toNumberOrNull(row.original_price_amount),
@@ -77,6 +80,7 @@ function mapPublicRow(row: any): SpecialPackagePublicItem {
     subtitle: row.subtitle || "",
     description: row.description || "",
     providerId: row.provider_id ? String(row.provider_id) : null,
+    providerServiceId: row.provider_service_id ? String(row.provider_service_id) : null,
     priceAmount: toNumberOrNull(row.price_amount),
     currencyCode: row.currency_code ?? null,
     originalPriceAmount: toNumberOrNull(row.original_price_amount),
@@ -113,6 +117,7 @@ export async function createSpecialPackage(input: SpecialPackageInput) {
       subtitle_translations,
       description_translations,
       provider_id,
+      provider_service_id,
       price_amount,
       currency_code,
       original_price_amount,
@@ -125,6 +130,7 @@ export async function createSpecialPackage(input: SpecialPackageInput) {
       ${sql.json(input.subtitleTranslations || {})}::jsonb,
       ${sql.json(input.descriptionTranslations || {})}::jsonb,
       ${input.providerId}::uuid,
+      ${input.providerServiceId}::uuid,
       ${input.priceAmount},
       ${input.currencyCode},
       ${input.originalPriceAmount},
@@ -147,6 +153,7 @@ export async function updateSpecialPackage(id: string, input: SpecialPackageInpu
       subtitle_translations = ${sql.json(input.subtitleTranslations || {})}::jsonb,
       description_translations = ${sql.json(input.descriptionTranslations || {})}::jsonb,
       provider_id = ${input.providerId}::uuid,
+      provider_service_id = ${input.providerServiceId}::uuid,
       price_amount = ${input.priceAmount},
       currency_code = ${input.currencyCode},
       original_price_amount = ${input.originalPriceAmount},
@@ -174,6 +181,7 @@ export async function getActiveSpecialPackages(locale?: string | null): Promise<
     const rows = await sql<any[]>`
       select
         sp.id::text,
+        sp.provider_service_id::text as provider_service_id,
         coalesce(
           nullif(common.get_translation_t(sp.title_translations, ${normalizedLocale}, ${FALLBACK_LOCALE}), ''),
           ''
@@ -217,6 +225,7 @@ export async function getSpecialPackageById(
     const rows = await sql<any[]>`
       select
         sp.id::text,
+        sp.provider_service_id::text as provider_service_id,
         coalesce(
           nullif(common.get_translation_t(sp.title_translations, ${normalizedLocale}, ${FALLBACK_LOCALE}), ''),
           ''
