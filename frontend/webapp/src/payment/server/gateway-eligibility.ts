@@ -10,10 +10,9 @@ import type { PaymentGatewayCode } from "../types";
  * Which payment rails a customer may use, decided by the country of the phone
  * number they registered with.
  *
- * The rule is absolute, not a preference: Zarinpal only settles Iranian bank
- * cards, and BTCPay exists to serve the customers those rails cannot reach.
- * Offering the wrong one is a dead end for the customer either way, so there is
- * no fallback between them in either direction.
+ * The region is the preferred rail. An administrator can intentionally disable
+ * one rail, however; when only one gateway is enabled, it must remain usable
+ * instead of routing customers into a disabled/unconfigured provider.
  *
  * Phone country is used rather than GeoIP on purpose. VPN use is close to
  * universal in Iran, so the Caddy `X-Country` header routinely reports a
@@ -126,5 +125,19 @@ export function filterGatewaysForRegion<T extends { code: PaymentGatewayCode | s
   region: PaymentRegion
 ): T[] {
   const allowed = gatewayForRegion(region);
-  return gateways.filter((gateway) => String(gateway.code).trim().toLowerCase() === allowed);
+  const regional = gateways.filter((gateway) => String(gateway.code).trim().toLowerCase() === allowed);
+  if (regional.length > 0) return regional;
+  return gateways.length === 1 ? gateways : [];
+}
+
+export function selectEnabledGatewayForRegion(
+  enabledGateways: Array<{ code: PaymentGatewayCode | string }>,
+  region: PaymentRegion
+): PaymentGatewayCode {
+  const eligible = filterGatewaysForRegion(enabledGateways, region);
+  const selected = String(eligible[0]?.code ?? "").trim().toLowerCase();
+  if (selected !== "zarinpal" && selected !== "btcpay") {
+    throw new Error("No enabled payment gateway is available for this account.");
+  }
+  return selected;
 }
