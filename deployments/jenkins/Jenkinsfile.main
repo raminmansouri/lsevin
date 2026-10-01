@@ -1,6 +1,11 @@
 pipeline {
   agent { node { label 'built-in'; customWorkspace '/opt/lsevin-platform' } }
-  options { skipDefaultCheckout(true); disableConcurrentBuilds(); timestamps(); timeout(time: 60, unit: 'MINUTES') }
+  options {
+    skipDefaultCheckout(true)
+    disableConcurrentBuilds(abortPrevious: true)
+    timestamps()
+    timeout(time: 90, unit: 'MINUTES')
+  }
   environment {
     NAMESPACE = 'lsevin'
     ENV_FILE = '/opt/lsevin/app/deployments/docker/.env'
@@ -8,17 +13,73 @@ pipeline {
   }
   stages {
     stage('Checkout') { steps { deleteDir(); checkout scm } }
-    stage('Prepare') {
+    stage('Preflight') {
       steps {
-        script { env.IMAGE_TAG = sh(script: 'git rev-parse --short=12 HEAD', returnStdout: true).trim() }
-        sh 'test -r "$ENV_FILE"; chmod +x "$DEPLOY"; "$DEPLOY" kubectl get node'
+        script {
+          sh 'test -r "$ENV_FILE"; chmod +x "$DEPLOY"'
+          def commit = sh(script: 'git rev-parse --short=12 HEAD', returnStdout: true).trim()
+          env.IMAGE_TAG = "${commit}-${env.BUILD_NUMBER}"
+          def deployedCommit = { String image ->
+            def match = image =~ /:([0-9a-f]{7,40})-[0-9]+$/
+            match.find() ? match.group(1) : ''
+          }
+          def changedSince = { String base, String paths ->
+            if (!base || sh(script: "git cat-file -e ${base}^{commit}", returnStatus: true) != 0) {
+              return true
+            }
+            sh(script: "git diff --quiet ${base} HEAD -- ${paths}", returnStatus: true) != 0
+          }
+          def apiImage = sh(
+            script: '"$DEPLOY" kubectl -n "$NAMESPACE" get deployment/lsevin-api -o jsonpath=\'{.spec.template.spec.containers[?(@.name=="api")].image}\'',
+            returnStdout: true
+          ).trim()
+          def webImage = sh(
+            script: '"$DEPLOY" kubectl -n "$NAMESPACE" get deployment/lsevin-webapp -o jsonpath=\'{.spec.template.spec.containers[?(@.name=="web")].image}\'',
+            returnStdout: true
+          ).trim()
+          def migrationImage = sh(
+            script: '"$DEPLOY" kubectl -n "$NAMESPACE" get deployment/lsevin-webapp -o jsonpath=\'{.spec.template.spec.initContainers[?(@.name=="migrate")].image}\'',
+            returnStdout: true
+          ).trim()
+          env.BUILD_API = changedSince(
+            deployedCommit(apiImage),
+            'src global.json nuget.config .editorconfig'
+          ).toString()
+          env.BUILD_WEB = changedSince(
+            deployedCommit(webImage),
+            'frontend/webapp'
+          ).toString()
+          env.BUILD_MIGRATIONS = changedSince(
+            deployedCommit(migrationImage),
+            'frontend/webapp/db/migrations frontend/webapp/scripts/migrate.mjs frontend/webapp/Dockerfile.migrations'
+          ).toString()
+          echo "Build plan: api=${env.BUILD_API}, web=${env.BUILD_WEB}, migrations=${env.BUILD_MIGRATIONS}"
+        }
+        sh '''set -eu
+          if [ "$BUILD_API" = true ] || [ "$BUILD_WEB" = true ] || [ "$BUILD_MIGRATIONS" = true ]; then
+            "$DEPLOY" preflight
+          else
+            echo "Preflight skipped because no application images need to be built."
+          fi
+        '''
       }
     }
-    stage('Build') {
+    stage('Build and stage API') {
+      when { expression { env.BUILD_API == 'true' } }
       steps {
         sh '''set -eu
-          set -a; . "$ENV_FILE"; set +a
+          set +x
           docker build -f src/API/LSevin.Api/Dockerfile -t "lsevin-api:$IMAGE_TAG" .
+          "$DEPLOY" import "api-$IMAGE_TAG.tar" "lsevin-api:$IMAGE_TAG"
+        '''
+      }
+    }
+    stage('Build and stage web') {
+      when { expression { env.BUILD_WEB == 'true' } }
+      steps {
+        sh '''set -eu
+          set +x
+          set -a; . "$ENV_FILE"; set +a
           DOCKER_BUILDKIT=1 docker build -f frontend/webapp/Dockerfile \
             --build-arg NEXT_PUBLIC_URL --build-arg NEXT_PUBLIC_API_URL \
             --build-arg NEXT_PUBLIC_FILES_URL --build-arg NEXT_PUBLIC_SOCKET_URL \
@@ -27,39 +88,61 @@ pipeline {
             --secret id=database_url,env=DATABASE_URL --secret id=auth_secret,env=AUTH_SECRET \
             --secret id=webhook_key,env=WEBHOOK_KEY \
             -t "lsevin-webapp:$IMAGE_TAG" frontend/webapp
+          "$DEPLOY" import "web-$IMAGE_TAG.tar" "lsevin-webapp:$IMAGE_TAG"
+        '''
+      }
+    }
+    stage('Build and stage migrations') {
+      when { expression { env.BUILD_MIGRATIONS == 'true' } }
+      steps {
+        sh '''set -eu
           docker build -f frontend/webapp/Dockerfile.migrations \
             -t "lsevin-webapp-migrations:$IMAGE_TAG" frontend/webapp
-          "$DEPLOY" import "core-$IMAGE_TAG.tar" \
-            "lsevin-api:$IMAGE_TAG" "lsevin-webapp:$IMAGE_TAG" "lsevin-webapp-migrations:$IMAGE_TAG"
+          "$DEPLOY" import "migrations-$IMAGE_TAG.tar" "lsevin-webapp-migrations:$IMAGE_TAG"
         '''
       }
     }
     stage('Deploy API') {
+      when { expression { env.BUILD_API == 'true' } }
+      steps { sh '''set -eu
+        "$DEPLOY" deploy-api "$NAMESPACE" "$IMAGE_TAG"
+      ''' }
+    }
+    stage('Deploy web') {
+      when { expression { env.BUILD_WEB == 'true' } }
       steps {
-        sh '''set -eu
-          "$DEPLOY" kubectl -n "$NAMESPACE" set image deployment/lsevin-api api="lsevin-api:$IMAGE_TAG"
-          "$DEPLOY" kubectl -n "$NAMESPACE" rollout status deployment/lsevin-api --timeout=10m
-        '''
+        script {
+          if (env.BUILD_MIGRATIONS == 'true') {
+            sh '"$DEPLOY" deploy-web "$NAMESPACE" "$IMAGE_TAG" "$IMAGE_TAG"'
+          } else {
+            sh '"$DEPLOY" deploy-web "$NAMESPACE" "$IMAGE_TAG"'
+          }
+        }
       }
     }
-    stage('Deploy webapp') {
-      steps {
-        sh '''set -eu
-          "$DEPLOY" kubectl -n "$NAMESPACE" set image deployment/lsevin-webapp web="lsevin-webapp:$IMAGE_TAG"
-          if "$DEPLOY" kubectl -n "$NAMESPACE" get deployment/lsevin-webapp \
-              -o jsonpath='{.spec.template.spec.initContainers[*].name}' | grep -qw migrate; then
-            "$DEPLOY" kubectl -n "$NAMESPACE" set image deployment/lsevin-webapp \
-              migrate="lsevin-webapp-migrations:$IMAGE_TAG"
-          fi
-          "$DEPLOY" kubectl -n "$NAMESPACE" rollout status deployment/lsevin-webapp --timeout=10m
-        '''
+    stage('No application changes') {
+      when {
+        expression {
+          env.BUILD_API != 'true' && env.BUILD_WEB != 'true' && env.BUILD_MIGRATIONS != 'true'
+        }
       }
+      steps { echo 'No API, web, or migration changes; image build and deployment skipped.' }
     }
   }
   post {
-    failure {
-      sh '''"$DEPLOY" kubectl -n "$NAMESPACE" rollout undo deployment/lsevin-api || true
-        "$DEPLOY" kubectl -n "$NAMESPACE" rollout undo deployment/lsevin-webapp || true'''
+    unsuccessful {
+      sh '''set +e
+        test -n "${IMAGE_TAG:-}" || exit 0
+        rm -f "/opt/lsevin/releases/api-$IMAGE_TAG.tar" \
+          "/opt/lsevin/releases/web-$IMAGE_TAG.tar" \
+          "/opt/lsevin/releases/migrations-$IMAGE_TAG.tar"
+        images=""
+        [ "${BUILD_API:-false}" = true ] && images="$images lsevin-api:$IMAGE_TAG"
+        [ "${BUILD_WEB:-false}" = true ] && images="$images lsevin-webapp:$IMAGE_TAG"
+        [ "${BUILD_MIGRATIONS:-false}" = true ] && images="$images lsevin-webapp-migrations:$IMAGE_TAG"
+        [ -z "$images" ] || "$DEPLOY" discard-images $images
+        [ -z "$images" ] || docker image rm $images >/dev/null 2>&1
+        exit 0'''
     }
   }
 }
