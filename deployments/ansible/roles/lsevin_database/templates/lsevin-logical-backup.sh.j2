@@ -31,5 +31,9 @@ else
   docker compose --project-name {{ lsevin_compose_project }} --env-file .env -f docker-compose.server.yml \
     exec -T postgres pg_restore --list < "$FILE" >/dev/null
 fi
-find "$BACKUP_DIR" -maxdepth 1 -type f -name '{{ vault_postgres_db }}-*.dump'   -mtime +{{ logical_backup_retention_days }} -delete
+# Rotate every verified logical dump, including manually named pre-deployment
+# dumps. Keep checksum sidecars in lockstep so they cannot accumulate forever.
+find "$BACKUP_DIR" -maxdepth 1 -type f \
+  \( -name '*.dump' -o -name '*.dump.sha256' \) \
+  -mtime +{{ logical_backup_retention_days }} -delete
 echo "Logical backup verified: $FILE"

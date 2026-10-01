@@ -10,6 +10,11 @@ The production host keeps verified, rotating backups under `/var/backups/lsevin`
 PostgreSQL logical and pgBackRest backups are under `/opt/lsevin/backups` for the
 current installation. Restore instructions live with the database Ansible role.
 
+Automated config, Jenkins, uploaded-file, object-storage, and logical database
+backups are retained for 14 days. PostgreSQL physical backups and WAL are
+expired by pgBackRest according to its configured full/differential retention;
+do not delete files inside the pgBackRest repository with `find`.
+
 Run `sudo deployments/backups/install.sh` on a fresh server after the repository
 and `/etc/lsevin` secrets have been restored. The Jenkins, media, and database
 timers are installed by their existing Ansible roles.
