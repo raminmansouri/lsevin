@@ -27,7 +27,9 @@ export async function getAdminContext(): Promise<AdminContext> {
   // auth() throws rather than returning null on a malformed or key-rotated session
   // cookie, so a bare call would surface a NextAuth internal error to the caller.
   const session = await getSession().catch(() => null);
-  const roles = session?.user?.roles ?? [];
+  const roles = (session?.user?.roles ?? [])
+    .map((role) => String(role).trim().toLowerCase())
+    .filter(Boolean);
   const isSuperAdmin = roles.includes(UserRole.SuperAdmin);
   const isAdmin = isSuperAdmin || roles.includes(UserRole.Admin);
   return { userId: session?.user?.id, roles, isAdmin, isSuperAdmin };

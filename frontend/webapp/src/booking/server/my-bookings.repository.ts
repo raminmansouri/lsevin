@@ -75,6 +75,23 @@ type BookingDetailRow = BookingListRow & {
   childBookings: unknown;
 };
 
+type CaseStepRow = {
+  caseId: string;
+  caseStatus: "scheduled" | "active" | "on_hold" | "completed" | "cancelled";
+  currentStepId: string | null;
+  id: string;
+  stepKey: string;
+  displayOrder: number;
+  title: string | null;
+  description: string | null;
+  status: "pending" | "ready" | "in_progress" | "completed" | "skipped" | "blocked" | "cancelled";
+  responsibleRole: "customer" | "provider" | "staff" | "admin" | "system";
+  plannedStartAt: string | null;
+  plannedEndAt: string | null;
+  startedAt: string | null;
+  completedAt: string | null;
+};
+
 function isUuid(value?: string | null): value is string {
   return typeof value === "string" && UUID_RE.test(value.trim());
 }
@@ -458,7 +475,62 @@ export async function getMyBookingByIdFromDb(input: GetMyBookingByIdInput): Prom
     from base
   `;
 
-  return rows[0] ? toBookingRecord(rows[0], locale) : null;
+  if (!rows[0]) return null;
+
+  // The ownership-filtered booking above is the authorization boundary. Lazy
+  // creation backfills pre-migration bookings without a risky all-row deploy job.
+  await sql`select case_management.ensure_case_for_booking(${input.bookingId}::uuid)`;
+  const caseRows = await sql<CaseStepRow[]>`
+    select
+      c.id::text as "caseId",
+      c.status as "caseStatus",
+      c.current_step_id::text as "currentStepId",
+      cs.id::text as id,
+      cs.step_key as "stepKey",
+      cs.display_order as "displayOrder",
+      coalesce(
+        nullif(common.get_translation_t(cs.title_translations, ${locale}, 'en-US'), ''),
+        cs.legacy_title,
+        cs.step_key
+      ) as title,
+      coalesce(
+        nullif(common.get_translation_t(cs.description_translations, ${locale}, 'en-US'), ''),
+        cs.legacy_description
+      ) as description,
+      cs.status,
+      cs.responsible_role as "responsibleRole",
+      cs.planned_start_at::text as "plannedStartAt",
+      cs.planned_end_at::text as "plannedEndAt",
+      cs.started_at::text as "startedAt",
+      cs.completed_at::text as "completedAt"
+    from case_management.cases c
+    left join case_management.case_steps cs on cs.case_id = c.id and cs.customer_visible
+    where c.booking_id = ${input.bookingId}::uuid
+    order by cs.display_order, cs.id
+  `;
+
+  const booking = toBookingRecord(rows[0], locale);
+  if (caseRows[0]?.caseId) {
+    booking.caseTimeline = {
+      id: caseRows[0].caseId,
+      status: caseRows[0].caseStatus,
+      currentStepId: caseRows[0].currentStepId || undefined,
+      steps: caseRows.filter((step) => step.id).map((step) => ({
+        id: step.id,
+        key: step.stepKey,
+        order: Number(step.displayOrder),
+        title: step.title || step.stepKey,
+        description: step.description || undefined,
+        status: step.status,
+        responsibleRole: step.responsibleRole,
+        plannedStartAt: step.plannedStartAt || undefined,
+        plannedEndAt: step.plannedEndAt || undefined,
+        startedAt: step.startedAt || undefined,
+        completedAt: step.completedAt || undefined,
+      })),
+    };
+  }
+  return booking;
 }
 
 export async function cancelMyBookingInDb(input: CancelMyBookingInput): Promise<boolean> {

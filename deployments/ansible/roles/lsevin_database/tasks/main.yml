@@ -104,6 +104,28 @@
     group: "70"
     mode: "0640"
 
+- name: Allow authenticated PostgreSQL access from configured client networks
+  ansible.builtin.command:
+    argv:
+      - ufw
+      - allow
+      - from
+      - "{{ item }}"
+      - to
+      - any
+      - port
+      - "5432"
+      - proto
+      - tcp
+  loop: "{{ postgres_remote_access_cidrs }}"
+  register: postgres_remote_ufw_rules
+  changed_when: >-
+    'Rule added' in postgres_remote_ufw_rules.stdout or
+    'Rules updated' in postgres_remote_ufw_rules.stdout
+  when:
+    - lsevin_enable_ufw | bool
+    - postgres_remote_access_cidrs | length > 0
+
 - name: Validate S3 backup settings when selected
   ansible.builtin.assert:
     that:

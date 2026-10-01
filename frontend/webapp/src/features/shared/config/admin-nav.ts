@@ -120,6 +120,8 @@ export const ADMIN_NAV: AdminNavEntry[] = [
     icon: CalendarCheck,
     items: [
       { titleKey: "bookingsList", href: "/admin/bookings", icon: CalendarCheck },
+      { titleKey: "caseManagement", href: "/admin/cases", icon: HeartPulse },
+      { titleKey: "caseTemplates", href: "/admin/case-templates", icon: ClipboardList },
       { titleKey: "bookingDrafts", href: "/admin/booking-drafts", icon: FileClock },
       { titleKey: "bookingCalendar", href: "/admin/booking-calendar", icon: CalendarDays },
       { titleKey: "availability", href: "/admin/availability", icon: Clock },
