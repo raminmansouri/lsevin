@@ -6989,6 +6989,7 @@
     "availableRuleUncheckToCreateABlockException": "قانون دسترسی. برای ایجاد مسدودی/استثنا، تیک را بردارید.",
     "availableTimeSlots": "زمان‌های آزاد",
     "availableTimeSlotsFor": "زمان‌های آزاد برای",
+    "timezoneMismatchWarning": "توجه: زمان‌بندی ارائه‌دهنده به وقت {providerZone} است، در حالی که وقت شما {viewerZone} است. زمان‌های نمایش داده‌شده بر اساس وقت شما تبدیل شده‌اند.",
     "awaitingConfirmation": "در انتظار تأیید",
     "bESTSELLER": "پرفروش",
     "bESTVALUE": "بهترین ارزش",

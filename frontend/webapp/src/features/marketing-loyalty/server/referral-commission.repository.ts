@@ -220,9 +220,15 @@ export async function payFirstBookingReferralBonus(input: {
             [input.refereeCustomerId, 'referee_bonus'],
         ] as const) {
             const [wallet] = await tx<{ id: string }[]>`
-        select id from customer.wallet_accounts where user_id = ${customerId}::uuid limit 1
-      `;
-            if (!wallet) continue;
+                insert into customer.wallet_accounts (user_id)
+                values (${customerId}::uuid)
+                    on conflict (user_id) do nothing
+        returning id
+            `;
+            const walletId = wallet?.id ?? (
+                await tx<{ id: string }[]>`select id from customer.wallet_accounts where user_id = ${customerId}::uuid limit 1`
+            )[0]?.id;
+            if (!walletId) continue;
 
             await tx`
         insert into customer.wallet_transactions (
@@ -230,7 +236,7 @@ export async function payFirstBookingReferralBonus(input: {
           transaction_type, direction, status, payment_method,
           title, subtitle, currency_code, amount, metadata
         ) values (
-          ${wallet.id}, ${customerId}, ${input.bookingId},
+          ${walletId}, ${customerId}, ${input.bookingId},
           'referral_bonus', 'credit', 'completed', 'internal',
           'پاداش معرفی', 'اولین رزرو تکمیل‌شده', 'IRT', ${FIRST_BOOKING_BONUS_AMOUNT},
           ${JSON.stringify({ role, referrerCustomerId: referrer.referrerCustomerId, refereeCustomerId: input.refereeCustomerId })}

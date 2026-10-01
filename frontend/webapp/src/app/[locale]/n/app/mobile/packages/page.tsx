@@ -139,8 +139,8 @@ function SpecialPackageCard({
         ) : null}
 
         <ReserveButton
-          href={pkg.providerId ? `/n/app/mobile/provider/${pkg.providerId}` : '/n/app/mobile/explore'}
-          label={t('packagesPage.reserveButton')}
+            href={pkg.providerServiceId ? `/n/app/mobile/packages/${pkg.id}/checkout` : undefined}
+            label={t('packagesPage.reserveButton')}
           className="mt-3 flex h-10 w-full items-center justify-center rounded-xl bg-[#083f30] text-sm font-bold text-white transition-colors hover:bg-[#0a5a44]"
         />
       </div>

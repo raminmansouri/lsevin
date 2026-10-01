@@ -63,3 +63,25 @@ export async function deleteSpecialPackageAction(id: string) {
   revalidateSpecialPackages();
   redirect("/admin/special-packages");
 }
+
+import { getSession } from "@/lib/auth/session";
+import { reserveSpecialPackage } from "./checkout";
+
+export async function reservePackageAction(input: { packageId: string }) {
+    const session = await getSession();
+    const userId = session?.user?.id;
+    if (!userId) return { ok: false as const, error: "Please sign in first." };
+
+    try {
+        const result = await reserveSpecialPackage({
+            packageId: input.packageId,
+            userId,
+        });
+        return { ok: true as const, ...result };
+    } catch (error) {
+        return {
+            ok: false as const,
+            error: error instanceof Error ? error.message : "Could not reserve this package.",
+        };
+    }
+}
