@@ -40,7 +40,8 @@ export type AdminServiceDefinitionCategoryOption = {
 type CountRow = { total_count: number | string };
 
 export type AdminServiceDefinitionFilterParams = FilterParams & {
-  categoryId?: string | null;
+    categoryId?: string | null;
+    hasImage?: "true" | "false" | null;
 };
 
 const EMPTY_TRANSLATIONS_SQL = sql`'{}'::jsonb`;
@@ -132,16 +133,40 @@ function resolveSearchText(params: AdminServiceDefinitionFilterParams | undefine
   return typeof value === "string" ? value.trim() : "";
 }
 
-function buildWhere(params: AdminServiceDefinitionFilterParams | undefined, locale: string) {
-  const parts: any[] = [];
-  const search = resolveSearchText(params);
-  const categoryId = typeof params?.categoryId === "string" ? params.categoryId.trim() : "";
+function buildWhere(
+    params: AdminServiceDefinitionFilterParams | undefined,
+    locale: string
+) {
+    const parts: any[] = [];
+    const search = resolveSearchText(params);
 
-  if (categoryId) {
-    parts.push(sql`sd.category_id::text = ${categoryId}`);
-  }
+    const categoryId =
+        typeof params?.categoryId === "string"
+            ? params.categoryId.trim()
+            : "";
 
-  if (search) {
+    const hasImage =
+        params?.hasImage === "true" || params?.hasImage === "false"
+            ? params.hasImage
+            : null;
+
+    if (categoryId) {
+        parts.push(sql`sd.category_id::text = ${categoryId}`);
+    }
+
+    if (hasImage === "true") {
+        parts.push(
+            sql`nullif(btrim(coalesce(sd.image_url, '')), '') is not null`
+        );
+    }
+
+    if (hasImage === "false") {
+        parts.push(
+            sql`nullif(btrim(coalesce(sd.image_url, '')), '') is null`
+        );
+    }
+
+    if (search) {
     const like = `%${search}%`;
     parts.push(sql`(
       ${translated(sql`sd.name_translations`, locale)} ilike ${like}

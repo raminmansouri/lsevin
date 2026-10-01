@@ -254,17 +254,19 @@ function parsePageParams(params?: FilterParams) {
       ""
   ).trim();
 
-  const categoryId = String(raw.CategoryId ?? raw.categoryId ?? "").trim();
-  const status = String(raw.Status ?? raw.status ?? "").trim();
+    const categoryId = String(raw.CategoryId ?? raw.categoryId ?? "").trim();
+    const status = String(raw.Status ?? raw.status ?? "").trim();
+    const hasImage = String(raw.HasImage ?? raw.hasImage ?? "").trim();
 
-  return {
-    pageNumber,
-    pageSize,
-    offset: (pageNumber - 1) * pageSize,
-    search,
-    categoryId,
-    status,
-  };
+    return {
+        pageNumber,
+        pageSize,
+        offset: (pageNumber - 1) * pageSize,
+        search,
+        categoryId,
+        status,
+        hasImage,
+    };
 }
 
 function toPaginatedResult<T>(items: T[], totalCount: number, pageNumber: number, pageSize: number): PaginatedResult<T> {
@@ -539,14 +541,21 @@ export async function getServiceDefinitionsFromDb(
   params?: FilterParams
 ): Promise<ApiReturnType<PaginatedResult<ServiceDefinition>>> {
   try {
-    const { pageNumber, pageSize, offset, search, categoryId, status } = parsePageParams(params);
-    const normalizedLocale = normalizeLocale(locale);
-    const activeFilter: boolean | null = status === "active" ? true : status === "inactive" ? false : null;
-    const searchPattern = toIlikePattern(search);
+      const { pageNumber, pageSize, offset, search, categoryId, status, hasImage } = parsePageParams(params);
+      const normalizedLocale = normalizeLocale(locale);
+      const activeFilter: boolean | null = status === "active" ? true : status === "inactive" ? false : null;
+      const searchPattern = toIlikePattern(search);
 
-    const categoryFilterSql = categoryId
-      ? sql`and sd.category_id = ${categoryId}::uuid`
-      : sql``;
+      const categoryFilterSql = categoryId
+          ? sql`and sd.category_id = ${categoryId}::uuid`
+          : sql``;
+
+      const hasImageFilterSql =
+          hasImage === "true"
+              ? sql`and nullif(sd.image_url, '') is not null`
+              : hasImage === "false"
+                  ? sql`and nullif(sd.image_url, '') is null`
+                  : sql``;
 
     const activeFilterSql = activeFilter === null
       ? sql``
@@ -650,9 +659,10 @@ export async function getServiceDefinitionsFromDb(
             coalesce(sd.duration_minutes::text, '')
           ) as combined_search_text
         from category.service_definitions sd
-        join category.categories c on c.id = sd.category_id
+                 join category.categories c on c.id = sd.category_id
         where true
           ${categoryFilterSql}
+          ${hasImageFilterSql}
           ${activeFilterSql}
       ), filtered as (
         select

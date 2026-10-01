@@ -105,10 +105,25 @@ export function ServiceDefinitionsListToolbar({ categories }: Props) {
     setCategoryOpen(false);
   };
 
-  const handleClearCategory = () => {
-    replaceQuery((params) => params.delete("categoryId"));
-    setCategoryOpen(false);
-  };
+
+    const hasImageFilter = searchParams.get("hasImage") || "";
+
+    const handleHasImageCycle = () => {
+        replaceQuery((params) => {
+            // Three-state cycle: off -> only with image -> only without image -> off.
+            if (hasImageFilter === "") params.set("hasImage", "true");
+            else if (hasImageFilter === "true") params.set("hasImage", "false");
+            else params.delete("hasImage");
+        });
+    };
+
+    const hasImageLabel =
+        hasImageFilter === "true"
+            ? "دارای تصویر"
+            : hasImageFilter === "false"
+                ? "بدون تصویر"
+                : "فیلتر تصویر";
+
 
   return (
     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -189,8 +204,22 @@ export function ServiceDefinitionsListToolbar({ categories }: Props) {
               </CommandList>
             </Command>
           </PopoverContent>
-        </Popover>
+      </Popover>
+
+        <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleHasImageCycle}
+            className={cn(
+                "h-8 justify-between border-dashed sm:min-w-[140px]",
+                hasImageFilter ? "border-solid bg-muted" : "",
+            )}
+        >
+            {hasImageLabel}
+        </Button>
       </div>
+
 
       <Button onClick={() => i18nRouter.push("/admin/service-definitions/add")}>
         <PlusCircle className="mr-2 h-4 w-4" />
