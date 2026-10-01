@@ -58,7 +58,13 @@ const nextConfig: NextConfig = {
     },
   },
 
-  reactCompiler: true,
+  // The React Compiler is a Babel-based optimization and is intentionally
+  // opt-in for production builds. On the shared 4-core production node it
+  // makes this application's build spend roughly an hour in Babel workers,
+  // exhaust available RAM and swap, while the default Rust-based compiler
+  // completes the same source much faster. Enable it only on a dedicated
+  // build worker after benchmarking with NEXT_ENABLE_REACT_COMPILER=true.
+  reactCompiler: process.env.NEXT_ENABLE_REACT_COMPILER === "true",
 
   turbopack: {
     root: process.cwd(),
