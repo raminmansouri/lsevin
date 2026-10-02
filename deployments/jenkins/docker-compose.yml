@@ -7,6 +7,12 @@ services:
     image: lsevin-jenkins:lts-jdk21
     container_name: lsevin-jenkins
     restart: unless-stopped
+    # Jenkins runs beside the production Kubernetes node. These controller
+    # limits leave capacity for application probes and request handling; image
+    # build containers are bounded separately in Jenkinsfile.main.
+    cpus: "1.0"
+    mem_limit: 1536m
+    memswap_limit: 2560m
 
     # Jenkins controls the host Docker daemon and writes deployment files.
     # docker.sock already grants host-level privileges, so run explicitly as root.
