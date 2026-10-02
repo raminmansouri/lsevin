@@ -98,6 +98,10 @@ export const SEGMENT_NAMESPACES = {
     "AsyncSelect",
     "AvailabilityAdmin",
     "Category",
+    // Admin case detail has interactive step controls. The server-rendered
+    // timeline already had access to this namespace, but its client controls
+    // need the same messages in the browser for labels, errors and toasts.
+    "CaseManagement",
     "Consultation",
     // form-builder, shop and old-bookings used to live in a second `/admin` tree
     // outside the (admin) group, with their own provider carrying this namespace.
