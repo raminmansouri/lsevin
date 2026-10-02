@@ -111,6 +111,10 @@ export const SEGMENT_NAMESPACES = {
     "FormBuilder",
     "List",
     "LocalizedInput",
+    // Patient 360 admin screens (including account-link requests) are client
+    // components. Without this namespace they render literal keys such as
+    // `Patients.admin.linkRequests.noMatch` instead of localized copy.
+    "Patients",
     // Reached through the service-provider and staff detail screens, all behind
     // `"use client"` boundaries and all previously rendering their labels as
     // literal "ProviderType.xxx" / "ServiceDefinition.xxx" key paths because the
