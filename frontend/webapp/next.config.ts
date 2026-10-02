@@ -43,6 +43,10 @@ const nextConfig: NextConfig = {
 
   experimental: {
     authInterrupts: true,
+    // This app is built on the same four-core host that serves production.
+    // Limit Next's worker pool so compilation cannot starve Kubernetes health
+    // probes or force the database and web pods into swap.
+    cpus: 1,
     // NOTE: switched from `cacheComponents` to `useCache` for the production build.
     // cacheComponents (PPR) makes static prerender strict — any request-data access
     // without a Suspense boundary is a fatal build error (e.g. next-intl getLocale in
