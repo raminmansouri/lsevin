@@ -1,0 +1,19 @@
+[Unit]
+Description=LSevin safe Docker build-cache cleanup
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/lsevin-docker-cleanup
+Environment=LSEVIN_DOCKER_IMAGE_MAX_AGE=72h
+Environment=LSEVIN_DOCKER_CACHE_RESERVE=5GB
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+ReadWritePaths=/var/lib/docker /run /var/run
