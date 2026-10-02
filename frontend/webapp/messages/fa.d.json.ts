@@ -16728,6 +16728,8 @@ declare const messages: {
         "noSearchResults": "بیماری یافت نشد. در صورت نیاز ابتدا آن را در فهرست بیماران بسازید.",
         "changePatient": "تغییر",
         "approve": "تایید",
+        "createAndApprove": "ایجاد پرونده بیمار و تأیید اتصال",
+        "createdAndApproved": "پرونده بیمار ایجاد و به حساب کاربری متصل شد.",
         "reject": "رد",
         "approved": "درخواست تایید شد",
         "rejected": "درخواست رد شد",

@@ -15046,6 +15046,8 @@ declare const messages: {
         "noSearchResults": "لم يتم العثور على مريض. أنشئه أولاً في قائمة المرضى إذا لزم الأمر.",
         "changePatient": "تغيير",
         "approve": "موافقة",
+        "createAndApprove": "إنشاء ملف المريض والموافقة على الربط",
+        "createdAndApproved": "تم إنشاء ملف المريض وربطه بالحساب.",
         "reject": "رفض",
         "approved": "تمت الموافقة على الطلب",
         "rejected": "تم رفض الطلب",

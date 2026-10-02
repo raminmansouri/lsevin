@@ -193,9 +193,12 @@ export type MessageSegment = keyof typeof SEGMENT_NAMESPACES;
  * why `force-static` pages like home/shop used to bake the Persian bottom nav
  * and greetings onto every /tr and /en page.
  */
-export async function getClientMessages(segment?: MessageSegment, locale?: string) {
+export async function getClientMessages(
+  segment?: MessageSegment,
+  locale?: string
+) {
   const messages = (await getMessages(
-    locale ? { locale } : undefined,
+    locale ? { locale } : undefined
   )) as Messages;
 
   const wanted = new Set<string>([

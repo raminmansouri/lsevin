@@ -14381,6 +14381,8 @@ declare const messages: {
         "note": "Note",
         "notePlaceholder": "Reason (required to reject)…",
         "approve": "Approve",
+        "createAndApprove": "Create my patient profile and approve",
+        "createdAndApproved": "The patient profile was created and linked to the account.",
         "reject": "Reject",
         "saving": "Saving…",
         "reviewSaved": "Saved",
