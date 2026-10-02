@@ -8,6 +8,8 @@ Type=oneshot
 ExecStart=/usr/local/sbin/lsevin-docker-cleanup
 Environment=LSEVIN_DOCKER_IMAGE_MAX_AGE=72h
 Environment=LSEVIN_DOCKER_CACHE_RESERVE=5GB
+Environment=DOCKER_CONFIG=/run/lsevin-docker-cleanup
+RuntimeDirectory=lsevin-docker-cleanup
 Nice=10
 IOSchedulingClass=best-effort
 IOSchedulingPriority=7
