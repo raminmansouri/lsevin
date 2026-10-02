@@ -37,6 +37,16 @@ export type AdminCaseDetail = AdminCaseRow & {
     plannedEndAt: string | null;
     completedAt: string | null;
     completionNote: string | null;
+    lockVersion: number;
+  }>;
+  events: Array<{
+    id: string;
+    eventType: string;
+    actorRole: string | null;
+    fromStatus: string | null;
+    toStatus: string | null;
+    note: string | null;
+    createdAt: string;
   }>;
 };
 
@@ -50,7 +60,9 @@ export type ProcessTemplateRow = {
   stepCount: number;
 };
 
-export async function listProcessTemplates(locale: string): Promise<ProcessTemplateRow[]> {
+export async function listProcessTemplates(
+  locale: string
+): Promise<ProcessTemplateRow[]> {
   return db<ProcessTemplateRow[]>`
     select pt.id::text,
       coalesce(nullif(common.get_translation_t(pt.name_translations, ${locale}, 'fa-IR'), ''), '-') as name,
@@ -71,8 +83,11 @@ export async function listProcessTemplates(locale: string): Promise<ProcessTempl
   `;
 }
 
-export async function getAdminCase(caseId: string, locale: string): Promise<AdminCaseDetail | null> {
-  const rows = await db<Array<AdminCaseRow & { steps: AdminCaseDetail["steps"] }>>`
+export async function getAdminCase(
+  caseId: string,
+  locale: string
+): Promise<AdminCaseDetail | null> {
+  const rows = await db<AdminCaseDetail[]>`
     select
       c.id::text, c.booking_id::text as "bookingId", c.status,
       nullif(trim(concat(coalesce(u.first_name, ''), ' ', coalesce(u.last_name, ''))), '') as "customerName",
@@ -92,8 +107,22 @@ export async function getAdminCase(caseId: string, locale: string): Promise<Admi
         'plannedStartAt', cs.planned_start_at,
         'plannedEndAt', cs.planned_end_at,
         'completedAt', cs.completed_at,
-        'completionNote', cs.completion_note
+        'completionNote', cs.completion_note,
+        'lockVersion', cs.lock_version
       ) order by cs.display_order) filter (where cs.id is not null), '[]'::jsonb) as steps
+      , coalesce((
+        select jsonb_agg(jsonb_build_object(
+          'id', event_rows.id::text,
+          'eventType', event_rows.event_type,
+          'actorRole', event_rows.actor_role,
+          'fromStatus', event_rows.from_status,
+          'toStatus', event_rows.to_status,
+          'note', event_rows.note,
+          'createdAt', event_rows.create_date
+        ) order by event_rows.create_date desc)
+        from case_management.case_events event_rows
+        where event_rows.case_id = c.id
+      ), '[]'::jsonb) as events
     from case_management.cases c
     left join identity.asp_net_users u on u.id = c.customer_user_id
     left join category.service_providers p on p.id = c.provider_id
@@ -161,6 +190,13 @@ export async function listAdminCases(locale: string): Promise<{
 
   return {
     cases,
-    summary: summary ?? { total: 0, active: 0, scheduled: 0, completed: 0, onHold: 0, cancelled: 0 },
+    summary: summary ?? {
+      total: 0,
+      active: 0,
+      scheduled: 0,
+      completed: 0,
+      onHold: 0,
+      cancelled: 0,
+    },
   };
 }

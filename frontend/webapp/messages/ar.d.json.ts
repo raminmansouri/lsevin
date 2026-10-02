@@ -11670,7 +11670,7 @@ declare const messages: {
         "prescriptionInbox": "صندوق الوصفات",
         "orders": "الطلبات",
         "inventory": "المخزون",
-      "warehouses": "المستودعات",
+        "warehouses": "المستودعات",
         "medicineRequests": "طلبات الدواء",
         "deliveryTracking": "تتبع التوصيل",
         "operatingHours": "ساعات العمل",
@@ -15108,7 +15108,35 @@ declare const messages: {
     "staffCases": "حالات الموظفين",
     "steps": "مراحل الرحلة",
     "activity": "نشاط الحالة",
-    "unassigned": "غير مسند"
+    "unassigned": "غير مسند",
+    "responsibleRole": "المسؤول عن المرحلة",
+    "completionNote": "ملاحظة التقدم",
+    "completionNotePlaceholder": "أضف ملاحظة علاجية أو تشغيلية (اختياري)",
+    "stepUpdated": "تم تحديث مرحلة الحالة بنجاح.",
+    "stepStatusChanged": "تم تغيير حالة المرحلة",
+    "noActivity": "لم يتم تسجيل أي نشاط لهذه الحالة بعد.",
+    "stepStatuses": {
+      "pending": "قيد الانتظار",
+      "ready": "جاهز",
+      "in_progress": "قيد التنفيذ",
+      "completed": "مكتمل",
+      "skipped": "تم التخطي",
+      "blocked": "متعذر",
+      "cancelled": "ملغى"
+    },
+    "actorRoles": {
+      "customer": "المريض / العميل",
+      "provider": "مقدم الخدمة",
+      "staff": "الموظف",
+      "admin": "مدير النظام",
+      "system": "النظام"
+    },
+    "errors": {
+      "not_found": "لم تعد هذه المرحلة موجودة.",
+      "stale": "تم تعديل هذه المرحلة بواسطة مستخدم آخر. تم تحميل أحدث البيانات.",
+      "invalid_transition": "لا يُسمح بهذا التغيير من الحالة الحالية.",
+      "unknown": "تعذر تحديث المرحلة. يرجى المحاولة مرة أخرى."
+    }
   }
 };
 export default messages;

@@ -12562,7 +12562,7 @@ declare const messages: {
         "prescriptionInbox": "صندوق نسخه‌ها",
         "orders": "سفارش‌ها",
         "inventory": "موجودی",
-      "warehouses": "انبارها",
+        "warehouses": "انبارها",
         "medicineRequests": "درخواست دارو",
         "deliveryTracking": "پیگیری ارسال",
         "operatingHours": "ساعات کاری",
@@ -16790,7 +16790,35 @@ declare const messages: {
     "staffCases": "پرونده‌های کارشناسان",
     "steps": "مراحل مسیر",
     "activity": "فعالیت‌های پرونده",
-    "unassigned": "تخصیص‌نیافته"
+    "unassigned": "تخصیص‌نیافته",
+    "responsibleRole": "مسئول مرحله",
+    "completionNote": "یادداشت پیشرفت",
+    "completionNotePlaceholder": "یادداشت درمانی یا اجرایی را وارد کنید (اختیاری)",
+    "stepUpdated": "مرحله پرونده با موفقیت به‌روزرسانی شد.",
+    "stepStatusChanged": "وضعیت مرحله تغییر کرد",
+    "noActivity": "هنوز فعالیتی برای این پرونده ثبت نشده است.",
+    "stepStatuses": {
+      "pending": "در انتظار",
+      "ready": "آماده انجام",
+      "in_progress": "در حال انجام",
+      "completed": "تکمیل‌شده",
+      "skipped": "ردشده",
+      "blocked": "مسدود",
+      "cancelled": "لغوشده"
+    },
+    "actorRoles": {
+      "customer": "بیمار / مشتری",
+      "provider": "ارائه‌دهنده",
+      "staff": "کارشناس",
+      "admin": "مدیر سامانه",
+      "system": "سامانه"
+    },
+    "errors": {
+      "not_found": "این مرحله دیگر وجود ندارد.",
+      "stale": "این مرحله هم‌زمان توسط شخص دیگری تغییر کرده است. آخرین اطلاعات بارگذاری شد.",
+      "invalid_transition": "تغییر به این وضعیت از وضعیت فعلی مجاز نیست.",
+      "unknown": "به‌روزرسانی مرحله انجام نشد. لطفاً دوباره تلاش کنید."
+    }
   }
 };
 export default messages;

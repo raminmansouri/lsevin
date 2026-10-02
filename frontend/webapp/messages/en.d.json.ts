@@ -12555,7 +12555,7 @@ declare const messages: {
         "prescriptionInbox": "Prescription Inbox",
         "orders": "Orders",
         "inventory": "Inventory",
-      "warehouses": "Warehouses",
+        "warehouses": "Warehouses",
         "medicineRequests": "Medicine Requests",
         "deliveryTracking": "Delivery Tracking",
         "operatingHours": "Operating Hours",
@@ -16783,7 +16783,35 @@ declare const messages: {
     "staffCases": "Staff cases",
     "steps": "Journey steps",
     "activity": "Case activity",
-    "unassigned": "Unassigned"
+    "unassigned": "Unassigned",
+    "responsibleRole": "Responsible role",
+    "completionNote": "Progress note",
+    "completionNotePlaceholder": "Add a clinical or operational note (optional)",
+    "stepUpdated": "The case step was updated.",
+    "stepStatusChanged": "Step status changed",
+    "noActivity": "No case activity has been recorded yet.",
+    "stepStatuses": {
+      "pending": "Pending",
+      "ready": "Ready",
+      "in_progress": "In progress",
+      "completed": "Completed",
+      "skipped": "Skipped",
+      "blocked": "Blocked",
+      "cancelled": "Cancelled"
+    },
+    "actorRoles": {
+      "customer": "Customer",
+      "provider": "Provider",
+      "staff": "Staff",
+      "admin": "Administrator",
+      "system": "System"
+    },
+    "errors": {
+      "not_found": "This case step no longer exists.",
+      "stale": "This step was changed by someone else. The latest data has been loaded.",
+      "invalid_transition": "This status change is not allowed from the current state.",
+      "unknown": "The case step could not be updated. Please try again."
+    }
   }
 };
 export default messages;
