@@ -60,6 +60,26 @@ export type ProcessTemplateRow = {
   stepCount: number;
 };
 
+export type ProcessTemplateDetail = ProcessTemplateRow & {
+  nameTranslations: Record<string, string>;
+  descriptionTranslations: Record<string, string>;
+  steps: Array<{
+    id: string;
+    stepKey: string;
+    displayOrder: number;
+    titleTranslations: Record<string, string>;
+    descriptionTranslations: Record<string, string>;
+    timingAnchor: string;
+    offsetMinutes: number;
+    estimatedDurationMinutes: number | null;
+    responsibleRole: string;
+    customerVisible: boolean;
+    providerVisible: boolean;
+    adminVisible: boolean;
+    requiresManualCompletion: boolean;
+  }>;
+};
+
 export async function listProcessTemplates(
   locale: string
 ): Promise<ProcessTemplateRow[]> {
@@ -81,6 +101,48 @@ export async function listProcessTemplates(
     group by pt.id, ps.id, sd.id, cat.id
     order by pt.is_active desc, pt.last_modified_date desc
   `;
+}
+
+export async function getProcessTemplate(
+  templateId: string,
+  locale: string
+): Promise<ProcessTemplateDetail | null> {
+  const rows = await db<ProcessTemplateDetail[]>`
+    select pt.id::text,
+      coalesce(nullif(common.get_translation_t(pt.name_translations, ${locale}, 'fa-IR'), ''), '-') as name,
+      pt.name_translations as "nameTranslations",
+      pt.description_translations as "descriptionTranslations",
+      pt.scope_type as "scopeType",
+      coalesce(
+        nullif(common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR'), ''),
+        nullif(common.get_translation_t(sd.name_translations, ${locale}, 'fa-IR'), ''),
+        nullif(common.get_translation_t(cat.name_translations, ${locale}, 'fa-IR'), ''), '-'
+      ) as "scopeName",
+      pt.version, pt.is_active as "isActive", count(pts.id)::int as "stepCount",
+      coalesce(jsonb_agg(jsonb_build_object(
+        'id', pts.id::text,
+        'stepKey', pts.step_key,
+        'displayOrder', pts.display_order,
+        'titleTranslations', pts.title_translations,
+        'descriptionTranslations', pts.description_translations,
+        'timingAnchor', pts.timing_anchor,
+        'offsetMinutes', pts.offset_minutes,
+        'estimatedDurationMinutes', pts.estimated_duration_minutes,
+        'responsibleRole', pts.responsible_role,
+        'customerVisible', pts.customer_visible,
+        'providerVisible', pts.provider_visible,
+        'adminVisible', pts.admin_visible,
+        'requiresManualCompletion', pts.requires_manual_completion
+      ) order by pts.display_order) filter (where pts.id is not null), '[]'::jsonb) as steps
+    from case_management.process_templates pt
+    left join category.provider_services ps on ps.id = pt.provider_service_id
+    left join category.service_definitions sd on sd.id = pt.service_definition_id
+    left join category.categories cat on cat.id = pt.category_id
+    left join case_management.process_template_steps pts on pts.template_id = pt.id
+    where pt.id = ${templateId}::uuid
+    group by pt.id, ps.id, sd.id, cat.id
+  `;
+  return rows[0] ?? null;
 }
 
 export async function getAdminCase(

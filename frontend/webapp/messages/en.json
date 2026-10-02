@@ -16789,6 +16789,64 @@
     "stepUpdated": "The case step was updated.",
     "stepStatusChanged": "Step status changed",
     "noActivity": "No case activity has been recorded yet.",
+    "templateEditor": {
+      "identity": "Template identity",
+      "archivedVersion": "This is an archived version. Open the active version to publish changes.",
+      "name": {
+        "fa": "Persian name",
+        "en": "English name",
+        "ar": "Arabic name"
+      },
+      "description": {
+        "fa": "Persian description",
+        "en": "English description",
+        "ar": "Arabic description"
+      },
+      "title": {
+        "fa": "Persian step title",
+        "en": "English step title",
+        "ar": "Arabic step title"
+      },
+      "stepDescription": {
+        "fa": "Persian step guidance",
+        "en": "English step guidance",
+        "ar": "Arabic step guidance"
+      },
+      "stepNumber": "Step {number}",
+      "stepKey": "Stable step key",
+      "responsibleRole": "Responsible role",
+      "timingAnchor": "Timing anchor",
+      "offsetMinutes": "Offset (minutes)",
+      "durationMinutes": "Expected duration (minutes)",
+      "customerVisible": "Visible to customer",
+      "providerVisible": "Visible to provider",
+      "adminVisible": "Visible to admin",
+      "requiresManualCompletion": "Manual completion required",
+      "addStep": "Add step",
+      "removeStep": "Remove step",
+      "moveUp": "Move step up",
+      "moveDown": "Move step down",
+      "publishVersion": "Publish version {version}",
+      "saved": "A new active template version was published.",
+      "roles": {
+        "customer": "Customer",
+        "provider": "Provider",
+        "staff": "Staff",
+        "admin": "Administrator",
+        "system": "System"
+      },
+      "anchors": {
+        "booking_created": "Booking created",
+        "appointment_start": "Appointment starts",
+        "appointment_end": "Appointment ends",
+        "previous_step": "Previous step"
+      },
+      "errors": {
+        "invalid": "Complete all required fields and use unique step keys.",
+        "stale": "Another administrator published a version first. The latest template was loaded.",
+        "unknown": "The template version could not be published."
+      }
+    },
     "stepStatuses": {
       "pending": "Pending",
       "ready": "Ready",
