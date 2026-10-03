@@ -11148,6 +11148,7 @@ declare const messages: {
     "openRecommendation": "فتح {title}"
   },
   "ProviderPage": {
+    "locationMap": { "title": "الموقع على الخريطة", "getDirections": "احصل على الاتجاهات" },
     "actions": {
       "back": "رجوع",
       "share": "مشاركة مقدم الخدمة",

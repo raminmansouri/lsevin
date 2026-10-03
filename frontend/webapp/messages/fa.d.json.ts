@@ -12023,6 +12023,7 @@ declare const messages: {
     "openRecommendation": "مشاهده {title}"
   },
   "ProviderPage": {
+    "locationMap": { "title": "موقعیت روی نقشه", "getDirections": "مسیریابی" },
     "reviewSubmitted": "نظر شما ثبت شد!",
     "thankYouForSharingYourExperienceYourReview": "ممنون که تجربه‌تان را به اشتراک گذاشتید. نظر شما پس از بررسی منتشر می‌شود.",
     "writeAReview": "ثبت نظر",

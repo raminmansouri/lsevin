@@ -12016,6 +12016,7 @@ declare const messages: {
     "openRecommendation": "Open {title}"
   },
   "ProviderPage": {
+    "locationMap": { "title": "Location on map", "getDirections": "Get directions" },
     "reviewSubmitted": "Review Submitted!",
     "thankYouForSharingYourExperienceYourReview": "Thank you for sharing your experience. Your review is pending admin approval before it becomes public.",
     "writeAReview": "Write a Review",

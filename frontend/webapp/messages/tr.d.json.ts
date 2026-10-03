@@ -8635,6 +8635,7 @@ declare const messages: {
     }
   },
   "ProviderPage": {
+    "locationMap": { "title": "Haritada konum", "getDirections": "Yol tarifi al" },
     "actions": {
       "addFavorite": "Sağlayıcıyı favorilere ekle",
       "back": "Geri dön",

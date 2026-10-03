@@ -71,6 +71,8 @@ type ProviderRow = {
   city: string;
   country: string;
   street: string | null;
+  latitude: number | null;
+  longitude: number | null;
   email: string | null;
   phoneNumberCountryCode: string | null;
   phoneNumber: string | null;
@@ -378,6 +380,8 @@ export async function getProviderPageDataFromDb(
         sp.city,
         sp.country,
         nullif(common.get_translation_t(coalesce(sp.street_translations, '{}'::jsonb), ${locale}, 'en-US'), '') as street,
+        sp.latitude::float8 as latitude,
+        sp.longitude::float8 as longitude,
         sp.email,
         sp.phone_number_country_code as "phoneNumberCountryCode",
         sp.phone_number as "phoneNumber",
@@ -523,6 +527,8 @@ export async function getProviderPageDataFromDb(
         city: row.city,
         country: row.country,
         street: row.street,
+        latitude: row.latitude,
+        longitude: row.longitude,
         email: row.email || null,
         phone: normalizePhone(row.phoneNumberCountryCode, row.phoneNumber),
         rating: toNumber(row.rating),
