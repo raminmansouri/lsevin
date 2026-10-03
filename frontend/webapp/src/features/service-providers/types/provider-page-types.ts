@@ -44,6 +44,8 @@ export interface Provider {
   city?: string;
   country: string;
   street?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   email?: string | null;
   phone?: string | null;
   rating: number;

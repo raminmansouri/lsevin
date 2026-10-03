@@ -67,12 +67,12 @@ export function ProductCard({
         )}
 
         {product.discountPercent != null && product.discountPercent > 0 ? (
-          <span className="absolute start-2 top-2 rounded-md bg-[#e02e2a] px-1.5 py-0.5 text-[11px] font-bold text-white shadow">
+          <span suppressHydrationWarning className="absolute start-2 top-2 rounded-md bg-[#e02e2a] px-1.5 py-0.5 text-[11px] font-bold text-white shadow">
             −{product.discountPercent}%
           </span>
         ) : null}
 
-        <WishlistHeart productId={product.id} initialActive={product.wishlistActive} className="absolute end-1.5 top-1.5 h-7 w-7" size={16} />
+        <WishlistHeart productId={product.id} initialActive={product.wishlistActive} resolveOnMount className="absolute end-1.5 top-1.5 h-7 w-7" size={16} />
 
         {product.isPreorder ? (
           <span className="absolute end-2 top-10 rounded-md bg-[#083f30] px-1.5 py-0.5 text-[10px] font-semibold text-white">

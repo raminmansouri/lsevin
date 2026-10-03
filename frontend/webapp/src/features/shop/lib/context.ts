@@ -20,7 +20,7 @@ export const SHOP_GUEST_COOKIE = "lsevin_shop_gid";
 export const SHOP_CURRENCY_COOKIE = "lsevin_shop_ccy";
 const GUEST_COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export type ShopContext = {
   /** identity.asp_net_users.id — what the session stores. null for guests. */

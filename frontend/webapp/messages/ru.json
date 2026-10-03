@@ -7100,6 +7100,7 @@
     }
   },
   "ProviderPage": {
+    "locationMap": { "title": "Расположение на карте", "getDirections": "Проложить маршрут" },
     "actions": {
       "addFavorite": "Добавить поставщика в избранное",
       "back": "Назад",

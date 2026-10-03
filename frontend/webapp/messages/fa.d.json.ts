@@ -12050,6 +12050,7 @@ declare const messages: {
     "openRecommendation": "مشاهده {title}"
   },
   "ProviderPage": {
+    "locationMap": { "title": "موقعیت روی نقشه", "getDirections": "مسیریابی" },
     "reviewSubmitted": "نظر شما ثبت شد!",
     "thankYouForSharingYourExperienceYourReview": "ممنون که تجربه‌تان را به اشتراک گذاشتید. نظر شما پس از بررسی منتشر می‌شود.",
     "writeAReview": "ثبت نظر",
@@ -16883,6 +16884,7 @@ declare const messages: {
       "invalid_transition": "تغییر به این وضعیت از وضعیت فعلی مجاز نیست.",
       "unknown": "به‌روزرسانی مرحله انجام نشد. لطفاً دوباره تلاش کنید."
     }
+<<<<<<< HEAD
   },
   "ShopMedia": {
     "hint": "تصویر اول تصویر اصلی است. برای اعمال تغییرات ذخیره کنید.",
@@ -16932,6 +16934,8 @@ declare const messages: {
     "previous": "قبلی",
     "next": "بعدی",
     "confirm": "استفاده از فایل‌های انتخاب‌شده"
+=======
+>>>>>>> 423a3f2f4521079b5e4c2bfe46f9ac7d76c2bf82
   }
 };
 export default messages;
