@@ -156,11 +156,7 @@ function BookingCaseTimeline({ booking }: { booking: BookingRecord }) {
                   <p className={`font-semibold ${current ? "text-[#083f30]" : "text-gray-900"}`}>{step.title}</p>
                   <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${complete ? "bg-emerald-50 text-emerald-700" : current ? "bg-teal-50 text-[#083f30]" : "bg-gray-100 text-gray-600"}`}>{statusLabel(step.status)}</span>
                 </div>
-<<<<<<< HEAD
-                {step.description ? <p className="mt-1 text-sm text-gray-600">{step.description}</p> : null}
-=======
                 <RichTextPreview content={step.description} className="mt-1 text-sm leading-6 text-gray-600"/>
->>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
                 {planned ? <p className="mt-1 text-xs text-gray-500"><Clock size={12} className="me-1 inline"/>{planned}</p> : null}
               </div>
             </li>);

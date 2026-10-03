@@ -29,11 +29,12 @@ COPY ["src/Modules/Common/LSevin.Modules.Common/LSevin.Modules.Common.csproj", "
 RUN dotnet restore "src/API/LSevin.Api/LSevin.Api.csproj"
 COPY . .
 WORKDIR "/src/src/API/LSevin.Api"
-RUN dotnet build "./LSevin.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./LSevin.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+# Restore is cached in the build stage. Publishing also compiles the project, so
+# a separate `dotnet build` here would compile the complete API twice.
+RUN dotnet publish "./LSevin.Api.csproj" -c $BUILD_CONFIGURATION --no-restore -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app

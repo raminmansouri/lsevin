@@ -16881,7 +16881,6 @@ declare const messages: {
       "invalid_transition": "This status change is not allowed from the current state.",
       "unknown": "The case step could not be updated. Please try again."
     }
-<<<<<<< HEAD
   },
   "ShopMedia": {
     "hint": "The first image is the primary image. Save to apply changes.",
@@ -16931,8 +16930,6 @@ declare const messages: {
     "previous": "Previous",
     "next": "Next",
     "confirm": "Use selected files"
-=======
->>>>>>> 423a3f2f4521079b5e4c2bfe46f9ac7d76c2bf82
   }
 };
 export default messages;

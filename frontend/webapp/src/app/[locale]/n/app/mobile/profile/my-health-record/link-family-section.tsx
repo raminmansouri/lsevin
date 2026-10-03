@@ -76,18 +76,8 @@ export function LinkFamilySection({ requests }: { requests: AccountLinkRequestRo
   };
 
   return (
-<<<<<<< HEAD
     <div className="rounded-2xl bg-white p-4">
       <p className="text-sm font-medium text-gray-900">{t("linkRequest.title")}</p>
-=======
-    <div id="link-health-record" className="scroll-mt-24 rounded-2xl bg-white p-4">
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-gray-900">{t("linkRequest.title")}</p>
-        <button type="button" onClick={() => setFormOpen((v) => !v)} className="text-xs font-medium text-blue-600">
-          {formOpen ? t("linkRequest.cancel") : t("linkRequest.request")}
-        </button>
-      </div>
->>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
       <p className="mt-1 text-xs text-gray-400">{t("linkRequest.subtitle")}</p>
 
       {requests.length > 0 && (

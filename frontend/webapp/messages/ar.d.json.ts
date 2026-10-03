@@ -15206,7 +15206,6 @@ declare const messages: {
       "invalid_transition": "لا يُسمح بهذا التغيير من الحالة الحالية.",
       "unknown": "تعذر تحديث المرحلة. يرجى المحاولة مرة أخرى."
     }
-<<<<<<< HEAD
   },
   "ShopMedia": {
     "hint": "الصورة الأولى هي الصورة الرئيسية. احفظ لتطبيق التغييرات.",
@@ -15256,8 +15255,6 @@ declare const messages: {
     "previous": "السابق",
     "next": "التالي",
     "confirm": "استخدام الملفات المحددة"
-=======
->>>>>>> 423a3f2f4521079b5e4c2bfe46f9ac7d76c2bf82
   }
 };
 export default messages;
