@@ -12,6 +12,8 @@ import {
   ensureReferralCode,
 } from "@/app/[locale]/n/app/mobile/profile/share/queries";
 
+import { convertMoney } from "@/features/finance/lib/server/currency-queries";
+
 export type RewardsTab = "overview" | "coupons" | "referrals";
 
 export type RewardsTier = {
@@ -47,6 +49,7 @@ export type RewardReferralSummary = {
   code: string;
   referrals: number;
   referralEarnings: number;
+  referralCurrency: string;
 };
 
 export type RewardUserSummary = {
@@ -56,8 +59,10 @@ export type RewardUserSummary = {
   nextTier: string | null;
   pointsToNext: number;
   totalSpent: number;
+  totalSpentCurrency: string;
   referrals: number;
   referralEarnings: number;
+  referralCurrency: string;
 };
 
 export type RewardsCapabilities = {
@@ -168,24 +173,93 @@ async function getRealReferralCode(identityUserId: string | null): Promise<strin
   }
 }
 
-/**
- * Total money this user has actually earned from referrals -- both the flat
- * first-booking bonus (payFirstBookingReferralBonus) and the ongoing tiered
- * commission (recordReferralCommission), read from the one place both
- * ultimately land: the user's own wallet transactions.
- */
-async function getReferralEarnings(userId: string | null): Promise<number> {
-    if (!userId) return 0;
 
-    const [row] = await sql<{ total: string | null }[]>`
-    select coalesce(sum(amount), 0) as total
+const LOCALE_CURRENCY: Record<string, string> = {
+  fa: "IRT",
+  en: "USD",
+  ar: "AED", // no SAR rates yet
+  tr: "TRY",
+  ru: "USD", // no RUB rates yet
+  de: "EUR",
+  es: "EUR",
+  fr: "EUR",
+  ku: "USD", // no IQD rates yet
+  tg: "USD", // no TJS rates yet
+  zh: "USD", // no CNY rates yet
+};
+
+function currencyForLocale(locale: string): string {
+  return LOCALE_CURRENCY[locale.slice(0, 2).toLowerCase()] ?? "USD";
+}
+
+// Converts per-currency totals into one amount in the target currency.
+async function convertTotals(
+  rows: { currency_code: string; total: string | number }[],
+  targetCurrency: string,
+): Promise<{ amount: number; currency: string }> {
+  if (!rows.length) return { amount: 0, currency: targetCurrency };
+
+  try {
+    let total = 0;
+    for (const row of rows) {
+      let amount = Number(row.total);
+      let source = row.currency_code.trim().toUpperCase();
+      // No rates start from IRT; 1 Toman = 10 Rial exactly, so go through IRR.
+      if (source === "IRT" && targetCurrency !== "IRT") {
+        amount *= 10;
+        source = "IRR";
+      }
+      const converted = await convertMoney({
+        amount,
+        sourceCurrencyCode: source,
+        targetCurrencyCode: targetCurrency,
+      });
+      total += Number(converted.targetAmount);
+    }
+    return { amount: total, currency: targetCurrency };
+  } catch {
+    // No exchange rate: show the stored amount in its own currency instead of a wrong number.
+    const first = rows[0].currency_code;
+    const amount = rows
+      .filter((r) => r.currency_code === first)
+      .reduce((sum, r) => sum + Number(r.total), 0);
+    return { amount, currency: first };
+  }
+}
+
+async function getReferralEarnings(
+  userId: string | null,
+  targetCurrency: string,
+): Promise<{ amount: number; currency: string }> {
+  if (!userId) return { amount: 0, currency: targetCurrency };
+
+  const rows = await sql<{ currency_code: string; total: string }[]>`
+    select currency_code, coalesce(sum(amount), 0) as total
     from customer.wallet_transactions
     where user_id = ${userId}::uuid
       and transaction_type in ('referral_bonus', 'referral_commission')
       and status = 'completed'
+    group by currency_code
   `;
+  return convertTotals(rows, targetCurrency);
+}
 
-    return Number(row?.total ?? 0);
+// Display-only: points still use the raw total in getRewardsPageData.
+async function getTotalSpentDisplay(
+  userId: string | null,
+  targetCurrency: string,
+): Promise<{ amount: number; currency: string }> {
+  if (!userId) return { amount: 0, currency: targetCurrency };
+
+  const rows = await sql<{ currency_code: string; total: string }[]>`
+    select ps.currency as currency_code, coalesce(sum(ps.value), 0) as total
+    from booking.bookings b
+    join category.provider_services ps on ps.id = b.service_id
+    where b.user_id = ${userId}::uuid
+      and coalesce(b.booking_status, '') <> 'Cancelled'
+    group by ps.currency
+  `;
+  return convertTotals(rows, targetCurrency);
 }
 
 export async function getRewardsPageData(locale: string): Promise<RewardsPageData> {
@@ -242,11 +316,14 @@ const capabilities: RewardsCapabilities = {
   // rescales displayed balances at the new rate without touching stored data.
   const earnRateDivisor = await getPointsEarnDivisor();
   const points = computeEarnedPoints(totalSpent, earnRateDivisor);
-    const [qualifiedReferrals, referralEarnings, referralCode] = await Promise.all([
+    const [qualifiedReferrals, referralMoney, referralCode] = await Promise.all([
         countQualifiedReferrals(userId ?? ""),
-        getReferralEarnings(userId),
+        getReferralEarnings(userId, currencyForLocale(locale)),
         getRealReferralCode(userId),
     ]);
+    const referralEarnings = referralMoney.amount;
+    const referralCurrency = referralMoney.currency;
+    const spentMoney = await getTotalSpentDisplay(userId, currencyForLocale(locale));
   const tierState = getTier(points);
 
   const tiers: RewardsTier[] = TIER_DEFS.map((tier) => ({
@@ -323,9 +400,11 @@ const capabilities: RewardsCapabilities = {
         tierProgress: tierState.progress,
         nextTier: tierState.next?.name ?? null,
         pointsToNext: tierState.pointsToNext,
-        totalSpent,
+        totalSpent: spentMoney.amount,
+        totalSpentCurrency: spentMoney.currency,
         referrals: qualifiedReferrals,
         referralEarnings,
+        referralCurrency,
     };
 
   return {
@@ -338,6 +417,7 @@ const capabilities: RewardsCapabilities = {
           code: referralCode ?? "",
           referrals: qualifiedReferrals,
           referralEarnings,
+          referralCurrency,
       },
     capabilities,
   };

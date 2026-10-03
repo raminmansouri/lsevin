@@ -26,6 +26,39 @@ import type { JSX } from "react";
 
 import type { RewardsPageData, RewardsTier } from "./rewards.data";
 
+
+// Toman isn't an ISO currency, so Intl can't label it. Name it per language.
+const TOMAN_LABEL: Record<string, string> = {
+  fa: "تومان",
+  en: "Toman",
+  ar: "تومان",
+  tr: "Toman",
+  ru: "туман",
+  de: "Toman",
+  es: "tomán",
+  fr: "toman",
+  ku: "تمەن",
+  tg: "томан",
+  zh: "土曼",
+};
+
+
+function formatReferralMoney(amount: number, currency: string, locale: string) {
+  if (currency === "IRT") {
+    const label = TOMAN_LABEL[locale.slice(0, 2)] ?? "Toman";
+    return `${new Intl.NumberFormat(locale).format(Math.round(amount))} ${label}`;
+  }
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency,
+      maximumFractionDigits: amount % 1 === 0 ? 0 : 2,
+    }).format(amount);
+  } catch {
+    return `${amount.toLocaleString(locale)} ${currency}`;
+  }
+}
+
 const ICONS: Record<RewardsTier["icon"], JSX.Element> = {
   Award: <Award size={24} />,
   Star: <Star size={24} />,
@@ -141,7 +174,7 @@ export default function RewardsClient({ data }: { data: RewardsPageData }) {
 
           <div className="grid grid-cols-3 gap-3">
             <div className="min-w-0 rounded-2xl border border-gray-200 bg-white px-2 py-4 text-center">
-              <div className="truncate text-base font-bold text-gray-900 mb-1 sm:text-2xl">${data.user.totalSpent.toLocaleString(locale)}</div>
+              <div className="truncate text-base font-bold text-gray-900 mb-1 sm:text-2xl">{formatReferralMoney(data.user.totalSpent, data.user.totalSpentCurrency, locale)}</div>
               <div className="truncate text-xs text-gray-600">{t("overview.totalSpent")}</div>
             </div>
             <div className="min-w-0 rounded-2xl border border-gray-200 bg-white px-2 py-4 text-center">
@@ -149,7 +182,7 @@ export default function RewardsClient({ data }: { data: RewardsPageData }) {
               <div className="truncate text-xs text-gray-600">{t("overview.referrals")}</div>
             </div>
             <div className="min-w-0 rounded-2xl border border-gray-200 bg-white px-2 py-4 text-center">
-              <div className="truncate text-base font-bold text-gray-900 mb-1 sm:text-2xl">${data.user.referralEarnings.toLocaleString(locale)}</div>
+              <div className="truncate text-base font-bold text-gray-900 mb-1 sm:text-2xl">{formatReferralMoney(data.user.referralEarnings, data.user.referralCurrency, locale)}</div>
               <div className="truncate text-xs text-gray-600">{t("overview.earned")}</div>
             </div>
           </div>
@@ -322,7 +355,7 @@ export default function RewardsClient({ data }: { data: RewardsPageData }) {
                 <div className="text-sm text-green-700">{t("referrals.successful")}</div>
               </div>
               <div className="bg-blue-50 rounded-xl p-4 text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-1">${data.referral.referralEarnings}</div>
+                <div className="text-3xl font-bold text-blue-600 mb-1">{formatReferralMoney(data.referral.referralEarnings, data.referral.referralCurrency, locale)}</div>
                 <div className="text-sm text-blue-700">{t("referrals.totalEarned")}</div>
               </div>
             </div>
