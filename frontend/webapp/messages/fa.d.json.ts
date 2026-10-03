@@ -16801,9 +16801,6 @@ declare const messages: {
     "staffCases": "پرونده‌های کارشناسان",
     "steps": "مراحل مسیر",
     "activity": "فعالیت‌های پرونده",
-<<<<<<< HEAD
-    "unassigned": "تخصیص‌نیافته"
-=======
     "unassigned": "تخصیص‌نیافته",
     "responsibleRole": "مسئول مرحله",
     "completionNote": "یادداشت پیشرفت",
@@ -16887,7 +16884,6 @@ declare const messages: {
       "invalid_transition": "تغییر به این وضعیت از وضعیت فعلی مجاز نیست.",
       "unknown": "به‌روزرسانی مرحله انجام نشد. لطفاً دوباره تلاش کنید."
     }
->>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
   }
 };
 export default messages;

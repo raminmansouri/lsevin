@@ -16794,9 +16794,6 @@ declare const messages: {
     "staffCases": "Staff cases",
     "steps": "Journey steps",
     "activity": "Case activity",
-<<<<<<< HEAD
-    "unassigned": "Unassigned"
-=======
     "unassigned": "Unassigned",
     "responsibleRole": "Responsible role",
     "completionNote": "Progress note",
@@ -16884,7 +16881,6 @@ declare const messages: {
       "invalid_transition": "This status change is not allowed from the current state.",
       "unknown": "The case step could not be updated. Please try again."
     }
->>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
   }
 };
 export default messages;

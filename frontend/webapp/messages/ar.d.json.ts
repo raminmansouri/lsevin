@@ -15119,9 +15119,6 @@ declare const messages: {
     "staffCases": "حالات الموظفين",
     "steps": "مراحل الرحلة",
     "activity": "نشاط الحالة",
-<<<<<<< HEAD
-    "unassigned": "غير مسند"
-=======
     "unassigned": "غير مسند",
     "responsibleRole": "المسؤول عن المرحلة",
     "completionNote": "ملاحظة التقدم",
@@ -15209,7 +15206,6 @@ declare const messages: {
       "invalid_transition": "لا يُسمح بهذا التغيير من الحالة الحالية.",
       "unknown": "تعذر تحديث المرحلة. يرجى المحاولة مرة أخرى."
     }
->>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
   }
 };
 export default messages;
