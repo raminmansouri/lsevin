@@ -16,7 +16,9 @@ export function toCommaSeparatedIds(
   valueField: "id" | "fileUrl" = "fileUrl"
 ): string {
   return items
-    .map((item) => (valueField === "id" ? item.id || item.fileUrl : item.fileUrl || item.id))
+    .map((item) =>
+      valueField === "id" ? item.id || item.fileUrl : item.fileUrl || item.id
+    )
     .filter(Boolean)
     .join(",");
 }
@@ -27,12 +29,15 @@ export function isLikelyUuid(value: string): boolean {
   );
 }
 
-export function formatBytes(bytes?: number | null): string {
-  const safe = bytes ?? 0;
-  if (safe < 1024) return `${safe} B`;
-  if (safe < 1024 * 1024) return `${(safe / 1024).toFixed(1)} KB`;
-  if (safe < 1024 * 1024 * 1024) return `${(safe / (1024 * 1024)).toFixed(1)} MB`;
-  return `${(safe / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+export function formatBytes(bytes?: number | null, locale = "en"): string {
+  const safe = Math.max(0, bytes ?? 0);
+  const index =
+    safe < 1024 ? 0 : safe < 1024 ** 2 ? 1 : safe < 1024 ** 3 ? 2 : 3;
+  return new Intl.NumberFormat(locale, {
+    style: "unit",
+    unit: ["byte", "kilobyte", "megabyte", "gigabyte"][index],
+    maximumFractionDigits: 1,
+  }).format(safe / 1024 ** index);
 }
 
 export function truncateMiddle(value: string, keep = 12): string {

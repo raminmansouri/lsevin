@@ -4,7 +4,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
 import { Link } from "@/i18n/navigation";
 import { getProductBySlugCached } from "@/features/shop/api/catalog.repository.cached";
-import { listActiveProductSlugs } from "@/features/shop/api/catalog.repository";
 import { ShopHeader } from "@/features/shop/components/ShopHeader";
 import { ProductDetailClient } from "@/features/shop/components/ProductDetailClient";
 import { ProductGrid } from "@/features/shop/components/home-sections";
@@ -16,26 +15,8 @@ import { ServiceRelatedRail } from "@/features/shop/components/ServiceRelatedRai
 import { ProductPersonalSections } from "@/features/shop/components/ProductPersonalSections";
 import { shopImageSrc } from "@/features/shop/lib/image";
 
-/**
- * Static / ISR. Rendered in the shop default currency; every visitor-specific
- * block (cart badge, wishlist, compare, review eligibility, recently viewed)
- * hydrates as a client island. Admin mutations bust the `shop-product:<slug>`
- * cache tag. `generateStaticParams` prewarms the active catalogue; unknown
- * slugs are ISR'd on first hit (`dynamicParams` defaults to true).
- */
-export const dynamic = "force-static";
-export const revalidate = 3600;
-
-export async function generateStaticParams() {
-  // Bounded + resilient: a DB-less build just yields an empty list and every
-  // slug becomes ISR-on-demand.
-  try {
-    const slugs = await listActiveProductSlugs(500);
-    return slugs.map((slug) => ({ slug }));
-  } catch {
-    return [];
-  }
-}
+// Customer currency is resolved per request; product data remains cached.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

@@ -8,6 +8,7 @@ using BuildingBlocks.Security.Password.Extensions;
 using BuildingBlocks.Web.Extensions;
 using BuildingBlocks.Web.Modules;
 using LSevin.Modules.Common;
+using LSevin.Modules.Identity.Identity.Services;
 using LSevin.Modules.Identity.Infrastructure.Data.Context;
 using LSevin.Modules.Identity.Infrastructure.Extensions;
 using LSevin.Modules.Identity.Infrastructure.Middlewares;
@@ -58,6 +59,10 @@ internal sealed class IdentityModule : IModuleDefinition
                             configuration,
                             optionSection: $"{IdentityReference.ModuleName}:{nameof(IdentityOptions)}"
                         );
+
+                    services.Configure<OtpBypassOptions>(
+                        configuration.GetSection($"{IdentityReference.ModuleName}:{nameof(OtpBypassOptions)}")
+                    );
 
                     if (!environment.IsEnvironment(Environments.Test))
                     {

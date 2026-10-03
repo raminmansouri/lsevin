@@ -22,3 +22,13 @@ export async function getWishlistStateAction(input: { productId: string }) {
     return { active: false };
   }
 }
+
+/** All product ids in the visitor's wishlist — fetched once and shared by every
+ *  heart on a page (cards on static/cached pages can't know this server-side). */
+export async function getWishlistIdsAction(): Promise<string[]> {
+  try {
+    return Array.from(await getWishlistProductIds());
+  } catch {
+    return [];
+  }
+}

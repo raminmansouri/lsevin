@@ -29,6 +29,7 @@ export async function setDisplayCurrencyAction(input: unknown) {
   await setSelectedCurrencyCookie(code);
   await emitCommerceEvent("shop_currency_changed", { currency: code, surface: "currency_switcher" });
 
+  revalidatePath("/[locale]/n/app/mobile/shop", "layout");
   for (const p of [
     "/n/app/mobile/shop",
     "/n/app/mobile/shop/cart",

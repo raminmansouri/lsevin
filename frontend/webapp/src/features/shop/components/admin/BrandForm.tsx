@@ -122,7 +122,7 @@ export function BrandForm({ brand }: { brand?: BrandRow }) {
               <FormItem>
                 <FormLabel>{t("brands.logo")}</FormLabel>
                 <FormControl>
-                  <MediaUrlField defaultValue={field.value} onValueChange={field.onChange} />
+                  <MediaUrlField disabled={isPending} defaultValue={field.value} onValueChange={field.onChange} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

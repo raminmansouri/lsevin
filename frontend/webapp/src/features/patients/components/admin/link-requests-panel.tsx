@@ -7,7 +7,13 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useRouter } from "@/i18n/navigation";
 
 import type { AccountLinkRequestWithMatch } from "../../link-request-types";
@@ -19,20 +25,28 @@ import { PatientSearchPicker } from "./patient-search-picker";
 function formatDate(value?: string | null) {
   if (!value) return "-";
   try {
-    return new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(new Date(value));
+    return new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(
+      new Date(value)
+    );
   } catch {
     return value;
   }
 }
 
-export function LinkRequestsPanel({ requests }: { requests: AccountLinkRequestWithMatch[] }) {
+export function LinkRequestsPanel({
+  requests,
+}: {
+  requests: AccountLinkRequestWithMatch[];
+}) {
   const t = useTranslations(PATIENTS_TRANSLATION_KEY);
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [accessRole, setAccessRole] = useState<Record<string, string>>({});
   // Manual override when a request has no automatic match (findVerifiedPatientIdByIdentifier
   // found nothing) -- previously a dead end (Approve stayed disabled forever).
-  const [manualPatient, setManualPatient] = useState<Record<string, PatientSearchResultRow>>({});
+  const [manualPatient, setManualPatient] = useState<
+    Record<string, PatientSearchResultRow>
+  >({});
 
   const approve = (request: AccountLinkRequestWithMatch) => {
     const patientId = request.matchedPatientId ?? manualPatient[request.id]?.id;
@@ -55,9 +69,29 @@ export function LinkRequestsPanel({ requests }: { requests: AccountLinkRequestWi
 
   const reject = (id: string) => {
     startTransition(async () => {
-      const result = await reviewAccountLinkRequestAction({ id, decision: "rejected" });
+      const result = await reviewAccountLinkRequestAction({
+        id,
+        decision: "rejected",
+      });
       if (result.ok) {
         toast.success(t("admin.linkRequests.rejected"));
+        router.refresh();
+        return;
+      }
+      toast.error(result.error || t("admin.errors.generic"));
+    });
+  };
+
+  const createAndApprove = (request: AccountLinkRequestWithMatch) => {
+    startTransition(async () => {
+      const result = await reviewAccountLinkRequestAction({
+        id: request.id,
+        decision: "approved",
+        createPatientIfMissing: true,
+        accessRole: (accessRole[request.id] as never) ?? "full",
+      });
+      if (result.ok) {
+        toast.success(t("admin.linkRequests.createdAndApproved"));
         router.refresh();
         return;
       }
@@ -68,12 +102,21 @@ export function LinkRequestsPanel({ requests }: { requests: AccountLinkRequestWi
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{t("admin.linkRequests.pending")}</CardTitle>
+        <CardTitle className="text-base">
+          {t("admin.linkRequests.pending")}
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {requests.length === 0 && <p className="text-muted-foreground text-sm">{t("admin.linkRequests.empty")}</p>}
+        {requests.length === 0 && (
+          <p className="text-muted-foreground text-sm">
+            {t("admin.linkRequests.empty")}
+          </p>
+        )}
         {requests.map((request) => (
-          <div key={request.id} className="flex flex-col gap-2 border-b pb-3 last:border-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
+          <div
+            key={request.id}
+            className="flex flex-col gap-2 border-b pb-3 last:border-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
+          >
             <div>
               <p className="text-sm font-medium">
                 {request.firstName} {request.lastName}
@@ -89,14 +132,23 @@ export function LinkRequestsPanel({ requests }: { requests: AccountLinkRequestWi
               </p>
               {request.matchedPatientId ? (
                 <Badge variant="outline" className="mt-1">
-                  {t("admin.linkRequests.matched")}: {request.matchedPatientName}
+                  {t("admin.linkRequests.matched")}:{" "}
+                  {request.matchedPatientName}
                 </Badge>
               ) : manualPatient[request.id] ? (
                 <Badge variant="outline" className="mt-1">
-                  {t("admin.linkRequests.matched")}: {manualPatient[request.id].firstName} {manualPatient[request.id].lastName}
+                  {t("admin.linkRequests.matched")}:{" "}
+                  {manualPatient[request.id].firstName}{" "}
+                  {manualPatient[request.id].lastName}
                   <button
                     type="button"
-                    onClick={() => setManualPatient((prev) => { const next = { ...prev }; delete next[request.id]; return next; })}
+                    onClick={() =>
+                      setManualPatient((prev) => {
+                        const next = { ...prev };
+                        delete next[request.id];
+                        return next;
+                      })
+                    }
                     className="ms-1.5 text-red-600"
                   >
                     {t("admin.linkRequests.changePatient")}
@@ -107,7 +159,14 @@ export function LinkRequestsPanel({ requests }: { requests: AccountLinkRequestWi
                   <Badge variant="secondary" className="w-fit">
                     {t("admin.linkRequests.noMatch")}
                   </Badge>
-                  <PatientSearchPicker onSelect={(patient) => setManualPatient((prev) => ({ ...prev, [request.id]: patient }))} />
+                  <PatientSearchPicker
+                    onSelect={(patient) =>
+                      setManualPatient((prev) => ({
+                        ...prev,
+                        [request.id]: patient,
+                      }))
+                    }
+                  />
                 </div>
               )}
             </div>
@@ -115,27 +174,56 @@ export function LinkRequestsPanel({ requests }: { requests: AccountLinkRequestWi
               {(request.matchedPatientId || manualPatient[request.id]) && (
                 <Select
                   value={accessRole[request.id] ?? "full"}
-                  onValueChange={(value) => setAccessRole((prev) => ({ ...prev, [request.id]: value }))}
+                  onValueChange={(value) =>
+                    setAccessRole((prev) => ({ ...prev, [request.id]: value }))
+                  }
                 >
                   <SelectTrigger className="w-32">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="full">{t("admin.linkRequests.accessRoles.full")}</SelectItem>
-                    <SelectItem value="limited">{t("admin.linkRequests.accessRoles.limited")}</SelectItem>
-                    <SelectItem value="view_only">{t("admin.linkRequests.accessRoles.view_only")}</SelectItem>
+                    <SelectItem value="full">
+                      {t("admin.linkRequests.accessRoles.full")}
+                    </SelectItem>
+                    <SelectItem value="limited">
+                      {t("admin.linkRequests.accessRoles.limited")}
+                    </SelectItem>
+                    <SelectItem value="view_only">
+                      {t("admin.linkRequests.accessRoles.view_only")}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               )}
               <Button
                 type="button"
                 size="sm"
-                disabled={isPending || !(request.matchedPatientId || manualPatient[request.id])}
+                disabled={
+                  isPending ||
+                  !(request.matchedPatientId || manualPatient[request.id])
+                }
                 onClick={() => approve(request)}
               >
                 {t("admin.linkRequests.approve")}
               </Button>
-              <Button type="button" size="sm" variant="outline" disabled={isPending} onClick={() => reject(request.id)}>
+              {request.relationshipType === "self" &&
+                !request.matchedPatientId &&
+                !manualPatient[request.id] && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    disabled={isPending}
+                    onClick={() => createAndApprove(request)}
+                  >
+                    {t("admin.linkRequests.createAndApprove")}
+                  </Button>
+                )}
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={isPending}
+                onClick={() => reject(request.id)}
+              >
                 {t("admin.linkRequests.reject")}
               </Button>
             </div>

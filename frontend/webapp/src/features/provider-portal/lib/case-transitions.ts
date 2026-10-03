@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 export const CASE_STEP_TRANSITIONS: Readonly<Record<string, readonly string[]>> = {
   pending: ["ready", "in_progress", "skipped", "cancelled"],
   ready: ["pending", "in_progress", "skipped", "blocked", "cancelled"],
@@ -11,3 +12,9 @@ export const CASE_STEP_TRANSITIONS: Readonly<Record<string, readonly string[]>> 
 export function canTransitionCaseStep(from: string, to: string): boolean {
   return (CASE_STEP_TRANSITIONS[from] ?? []).includes(to);
 }
+=======
+export {
+  CASE_STEP_TRANSITIONS,
+  canTransitionCaseStep,
+} from "@/features/case-management/lib/case-step-transitions";
+>>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664

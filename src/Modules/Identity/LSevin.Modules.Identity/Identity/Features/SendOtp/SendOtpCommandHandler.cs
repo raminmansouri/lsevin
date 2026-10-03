@@ -18,7 +18,8 @@ internal sealed class SendOtpCommandHandler(
     IUserAccessor userAccessor,
     IOtpCodeGeneratorService otpGenerator,
     IOtpSenderService otpSender,
-    IOtpCodeValidatorService otpValidator
+    IOtpCodeValidatorService otpValidator,
+    IOtpBypassService otpBypass
 ) : CommandHandler<SendOtpCommand, SendOtpResponse>
 {
     public override async Task<Result<SendOtpResponse>> Handle(
@@ -53,13 +54,14 @@ internal sealed class SendOtpCommandHandler(
         if (!canResend.IsSuccess)
             return canResend.Errors!.First();
 
-        // 5. Generate OTP code
-        var code = otpGenerator.GenerateCode();
+        // 5. Create PhoneNumber value object
+        var phoneNumber = PhoneNumber.Create(user.PhoneNumber, user.PhoneNumberCountryCode);
+
+        // 6. Generate OTP code (fixed code for configured review/test phone numbers)
+        var isBypass = otpBypass.TryGetFixedCode(phoneNumber, out var bypassCode);
+        var code = isBypass ? bypassCode! : otpGenerator.GenerateCode();
         var sentAt = SystemClock.Now;
         var expiresAt = otpGenerator.CalculateExpiration(sentAt);
-
-        // 6. Create PhoneNumber value object
-        var phoneNumber = PhoneNumber.Create(user.PhoneNumber, user.PhoneNumberCountryCode);
 
         // 7. Save to database
         var phoneLoginCode = new PhoneLoginCode
@@ -77,10 +79,13 @@ internal sealed class SendOtpCommandHandler(
         await context.PhoneLoginCodes.AddAsync(phoneLoginCode, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // 8. Send via SMS/WhatsApp
-        var sendResult = await otpSender.SendOtpCodeAsync(phoneNumber, code, cancellationToken);
-        if (!sendResult.IsSuccess)
-            return sendResult.Errors!.First();
+        // 8. Send via SMS/WhatsApp (skipped for the fixed-code review/test bypass)
+        if (!isBypass)
+        {
+            var sendResult = await otpSender.SendOtpCodeAsync(phoneNumber, code, cancellationToken);
+            if (!sendResult.IsSuccess)
+                return sendResult.Errors!.First();
+        }
 
         // 9. Format phone number to E.164 format for response
         var formattedPhoneNumber = phoneNumber.ToE164Format();

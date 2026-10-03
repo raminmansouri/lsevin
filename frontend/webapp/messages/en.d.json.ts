@@ -8219,6 +8219,26 @@ declare const messages: {
       "title": "My Health Record",
       "subtitle": "A read-only summary shared by your care team.",
       "empty": "No health record is linked to your account yet.",
+      "onboarding": {
+        "title": "Start your health record",
+        "body": "Your health record keeps your medical information in one secure place. Treatment cases then organize the documents, requirements and progress for each service you receive.",
+        "steps": {
+          "create": {
+            "title": "Create or link a record",
+            "body": "Request access to your own record or a family member's record using an identity document. The request is reviewed before access is granted."
+          },
+          "complete": {
+            "title": "Add important health information",
+            "body": "After approval, add conditions, allergies, medicines and previous procedures. Patient-entered information stays marked as self-reported until verified."
+          },
+          "follow": {
+            "title": "Follow treatment cases and documents",
+            "body": "Each booking can have a treatment case that groups its steps, required documents, proposals and follow-ups."
+          }
+        },
+        "start": "Create or link my record",
+        "viewCases": "View treatment cases"
+      },
       "limitedAccessNotice": "Your access to this record is limited to basic details.",
       "criticalAllergies": "Critical allergies",
       "conditions": "Conditions",
@@ -8235,9 +8255,16 @@ declare const messages: {
       },
       "linkRequest": {
         "title": "Link a health record",
-        "subtitle": "Request to link your own health record, or a family member's, to this account.",
+        "subtitle": "Complete your own health record, or link a family member's to this account.",
         "request": "Request access",
         "cancel": "Cancel",
+        "selfCta": "Complete my health record",
+        "selfCtaHint": "First time here? Enter your basic details and your record is created right away.",
+        "familyCta": "Link a family member's record",
+        "familyCtaHint": "Your request is reviewed by our support team before the link is made.",
+        "selfNotice": "This information is connected to your account immediately — no review needed.",
+        "selfSubmit": "Save and start",
+        "selfConnected": "Your health record was created and connected.",
         "firstName": "First name",
         "lastName": "Last name",
         "relationship": "Relationship",
@@ -12016,6 +12043,7 @@ declare const messages: {
     "openRecommendation": "Open {title}"
   },
   "ProviderPage": {
+    "locationMap": { "title": "Location on map", "getDirections": "Get directions" },
     "reviewSubmitted": "Review Submitted!",
     "thankYouForSharingYourExperienceYourReview": "Thank you for sharing your experience. Your review is pending admin approval before it becomes public.",
     "writeAReview": "Write a Review",
@@ -12535,7 +12563,7 @@ declare const messages: {
         "prescriptionInbox": "Prescription Inbox",
         "orders": "Orders",
         "inventory": "Inventory",
-      "warehouses": "Warehouses",
+        "warehouses": "Warehouses",
         "medicineRequests": "Medicine Requests",
         "deliveryTracking": "Delivery Tracking",
         "operatingHours": "Operating Hours",
@@ -14361,6 +14389,8 @@ declare const messages: {
         "note": "Note",
         "notePlaceholder": "Reason (required to reject)…",
         "approve": "Approve",
+        "createAndApprove": "Create my patient profile and approve",
+        "createdAndApproved": "The patient profile was created and linked to the account.",
         "reject": "Reject",
         "saving": "Saving…",
         "reviewSaved": "Saved",
@@ -15282,6 +15312,7 @@ declare const messages: {
     "payInCurrency": "Paid in {currency}",
     "currency": "Currency",
     "changeCurrency": "Change display currency",
+    "currencyChangeFailed": "Could not change currency. Please try again.",
     "orderPlaced": "Order placed",
     "orderNumber": "Order #{number}",
     "orderConfirmedTitle": "Thank you! Your order is confirmed",
@@ -16763,7 +16794,145 @@ declare const messages: {
     "staffCases": "Staff cases",
     "steps": "Journey steps",
     "activity": "Case activity",
-    "unassigned": "Unassigned"
+    "unassigned": "Unassigned",
+    "responsibleRole": "Responsible role",
+    "completionNote": "Progress note",
+    "completionNotePlaceholder": "Add a clinical or operational note (optional)",
+    "stepUpdated": "The case step was updated.",
+    "stepStatusChanged": "Step status changed",
+    "noActivity": "No case activity has been recorded yet.",
+    "templateEditor": {
+      "identity": "Template identity",
+      "archivedVersion": "This is an archived version. Open the active version to publish changes.",
+      "name": {
+        "fa": "Persian name",
+        "en": "English name",
+        "ar": "Arabic name"
+      },
+      "description": {
+        "fa": "Persian description",
+        "en": "English description",
+        "ar": "Arabic description"
+      },
+      "title": {
+        "fa": "Persian step title",
+        "en": "English step title",
+        "ar": "Arabic step title"
+      },
+      "stepDescription": {
+        "fa": "Persian step guidance",
+        "en": "English step guidance",
+        "ar": "Arabic step guidance"
+      },
+      "stepNumber": "Step {number}",
+      "stepKey": "Stable step key",
+      "responsibleRole": "Responsible role",
+      "timingAnchor": "Timing anchor",
+      "offsetMinutes": "Offset (minutes)",
+      "durationMinutes": "Expected duration (minutes)",
+      "customerVisible": "Visible to customer",
+      "providerVisible": "Visible to provider",
+      "adminVisible": "Visible to admin",
+      "requiresManualCompletion": "Manual completion required",
+      "addStep": "Add step",
+      "removeStep": "Remove step",
+      "moveUp": "Move step up",
+      "moveDown": "Move step down",
+      "publishVersion": "Publish version {version}",
+      "saved": "A new active template version was published.",
+      "roles": {
+        "customer": "Customer",
+        "provider": "Provider",
+        "staff": "Staff",
+        "admin": "Administrator",
+        "system": "System"
+      },
+      "anchors": {
+        "booking_created": "Booking created",
+        "appointment_start": "Appointment starts",
+        "appointment_end": "Appointment ends",
+        "previous_step": "Previous step"
+      },
+      "errors": {
+        "invalid": "Complete all required fields and use unique step keys.",
+        "stale": "Another administrator published a version first. The latest template was loaded.",
+        "unknown": "The template version could not be published."
+      }
+    },
+    "stepStatuses": {
+      "pending": "Pending",
+      "ready": "Ready",
+      "in_progress": "In progress",
+      "completed": "Completed",
+      "skipped": "Skipped",
+      "blocked": "Blocked",
+      "cancelled": "Cancelled"
+    },
+    "actorRoles": {
+      "customer": "Customer",
+      "provider": "Provider",
+      "staff": "Staff",
+      "admin": "Administrator",
+      "system": "System"
+    },
+    "errors": {
+      "not_found": "This case step no longer exists.",
+      "stale": "This step was changed by someone else. The latest data has been loaded.",
+      "invalid_transition": "This status change is not allowed from the current state.",
+      "unknown": "The case step could not be updated. Please try again."
+    }
+<<<<<<< HEAD
+  },
+  "ShopMedia": {
+    "hint": "The first image is the primary image. Save to apply changes.",
+    "empty": "No product images yet.",
+    "imageNumber": "Image {number, number}",
+    "primary": "Primary image",
+    "makePrimary": "Make primary",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "replace": "Replace",
+    "remove": "Remove",
+    "addImages": "Add images",
+    "imageUrl": "Image URL",
+    "addUrl": "Add URL",
+    "invalidUrl": "Enter a valid image URL or storage path.",
+    "limit": "The selection limit has been reached.",
+    "saveFailed": "Images could not be saved. Please try again.",
+    "saving": "Saving…",
+    "save": "Save images",
+    "saved": "Images saved.",
+    "image": "Image",
+    "video": "Video",
+    "file": "File",
+    "deleteFile": "Delete {name}",
+    "deleteLibrary": "Delete from library",
+    "deleteConfirm": "Delete “{name}” from the media library?",
+    "deleteFailed": "The file could not be deleted.",
+    "loadFailed": "Media could not be loaded. Please try again.",
+    "wrongType": "Choose a file of the required type.",
+    "uploadFailed": "Upload failed. Please try again.",
+    "pickFiles": "Choose media",
+    "singleHint": "Choose one file.",
+    "multipleHint": "Choose files, then confirm.",
+    "close": "Close",
+    "search": "Search files",
+    "all": "All",
+    "images": "Images",
+    "videos": "Videos",
+    "files": "Files",
+    "upload": "Upload",
+    "uploading": "Uploading…",
+    "loading": "Loading…",
+    "emptyLibrary": "No media found.",
+    "emptyLibraryHint": "Upload a file or change your search.",
+    "page": "Page {page, number} of {total, number}",
+    "selected": "Selected",
+    "previous": "Previous",
+    "next": "Next",
+    "confirm": "Use selected files"
+=======
+>>>>>>> 423a3f2f4521079b5e4c2bfe46f9ac7d76c2bf82
   }
 };
 export default messages;

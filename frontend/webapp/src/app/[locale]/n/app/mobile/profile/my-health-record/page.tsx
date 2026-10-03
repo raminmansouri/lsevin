@@ -1,4 +1,4 @@
-import { HeartPulse, FileText, ShieldAlert } from "lucide-react";
+import { BookOpenCheck, FileText, FolderHeart, HeartPulse, ListChecks, ShieldAlert } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 import { getPatientClinicalSummary } from "@/features/patients/server/clinical-repository";
@@ -6,6 +6,7 @@ import { listDocumentsForPatient } from "@/features/patients/server/documents-re
 import { listPatientAccessForAccount } from "@/features/patients/server/repository";
 import { listRequestsForAccount } from "@/features/patients/server/link-request-repository";
 import type { TranslationType } from "@/types/next";
+import { Link } from "@/i18n/navigation";
 
 import { requireAuthenticatedUserId } from "./auth";
 import { LinkFamilySection } from "./link-family-section";
@@ -38,9 +39,7 @@ export default async function MyHealthRecordPage() {
       </div>
 
       <div className="space-y-4 p-6">
-        {links.length === 0 && (
-          <div className="rounded-2xl bg-white p-6 text-center text-sm text-gray-500">{t("empty")}</div>
-        )}
+        {links.length === 0 && <HealthRecordOnboarding t={t} />}
 
         {links.map(({ patient, relationshipType, accessRole }) => (
           <PatientCard
@@ -55,6 +54,53 @@ export default async function MyHealthRecordPage() {
         <LinkFamilySection requests={linkRequests} />
       </div>
     </div>
+  );
+}
+
+function HealthRecordOnboarding({ t }: { t: TranslationType }) {
+  const steps = [
+    { icon: BookOpenCheck, title: t("onboarding.steps.create.title"), body: t("onboarding.steps.create.body") },
+    { icon: ListChecks, title: t("onboarding.steps.complete.title"), body: t("onboarding.steps.complete.body") },
+    { icon: FolderHeart, title: t("onboarding.steps.follow.title"), body: t("onboarding.steps.follow.body") },
+  ];
+
+  return (
+    <section className="rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-50 to-white p-5 shadow-sm">
+      <div className="flex items-start gap-3">
+        <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-blue-600 text-white">
+          <HeartPulse size={22} />
+        </div>
+        <div>
+          <h2 className="font-bold text-gray-900">{t("onboarding.title")}</h2>
+          <p className="mt-1 text-sm leading-6 text-gray-600">{t("onboarding.body")}</p>
+        </div>
+      </div>
+
+      <ol className="mt-5 space-y-3">
+        {steps.map(({ icon: Icon, title, body }, index) => (
+          <li key={title} className="flex gap-3 rounded-xl bg-white p-3 ring-1 ring-blue-100">
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-700">
+              <Icon size={16} aria-hidden="true" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-900">
+                {index + 1}. {title}
+              </p>
+              <p className="mt-0.5 text-xs leading-5 text-gray-500">{body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <a href="#link-health-record" className="rounded-xl bg-blue-600 px-4 py-2.5 text-center text-sm font-semibold text-white">
+          {t("onboarding.start")}
+        </a>
+        <Link href="/n/app/mobile/profile/my-cases" className="rounded-xl border border-blue-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-blue-700">
+          {t("onboarding.viewCases")}
+        </Link>
+      </div>
+    </section>
   );
 }
 

@@ -1,27 +1,28 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
 
-import { SHOP_PERMISSIONS, assertShopPermission } from "../lib/permissions";
+import { revalidateShopCatalog as revalidateCatalog } from "../lib/cache";
 import { parseFormBoolean } from "../lib/form-values";
+import { assertShopPermission, SHOP_PERMISSIONS } from "../lib/permissions";
 import { setShopPricingMode } from "../lib/pricing";
 import { shopId } from "../schemas/id";
 import {
-  advanceOrderStatus,
+  removeProductServiceLink,
+  setProductServiceLink,
+  softDeleteProduct,
+  updateProductCore,
+} from "../server/admin-catalog.service";
+import {
   adjustInventory,
+  advanceOrderStatus,
   markOrderPaidManually,
   markShipmentDelivered,
   recordShipment,
   reviewOrder,
   setProductPublished,
 } from "../server/admin-order.service";
-import {
-  removeProductServiceLink,
-  softDeleteProduct,
-  setProductServiceLink,
-  updateProductCore,
-} from "../server/admin-catalog.service";
 import { recordManualRefund } from "../server/shop-refund.service";
 
 function rv(orderId?: string) {
@@ -64,7 +65,10 @@ export async function advanceOrderAction(input: unknown) {
   return { ok: true as const };
 }
 
-const markPaidSchema = z.object({ orderId: z.string().uuid(), reference: z.string().trim().max(120).optional() });
+const markPaidSchema = z.object({
+  orderId: z.string().uuid(),
+  reference: z.string().trim().max(120).optional(),
+});
 export async function markOrderPaidAction(input: unknown) {
   const p = markPaidSchema.parse(input);
   await markOrderPaidManually(p);
@@ -77,7 +81,14 @@ const shipmentSchema = z.object({
   carrier: z.string().trim().max(80).optional(),
   trackingNumber: z.string().trim().max(120).optional(),
   markShipped: z.coerce.boolean().optional(),
-  items: z.array(z.object({ orderItemId: shopId, quantity: z.coerce.number().int().min(0) })).optional(),
+  items: z
+    .array(
+      z.object({
+        orderItemId: shopId,
+        quantity: z.coerce.number().int().min(0),
+      })
+    )
+    .optional(),
 });
 export async function recordShipmentAction(input: unknown) {
   const p = shipmentSchema.parse(input);
@@ -86,7 +97,10 @@ export async function recordShipmentAction(input: unknown) {
   return { ok: true as const };
 }
 
-const deliverSchema = z.object({ orderId: z.string().uuid(), shipmentId: z.string().uuid() });
+const deliverSchema = z.object({
+  orderId: z.string().uuid(),
+  shipmentId: z.string().uuid(),
+});
 export async function markDeliveredAction(input: unknown) {
   const p = deliverSchema.parse(input);
   await markShipmentDelivered(p);
@@ -94,15 +108,15 @@ export async function markDeliveredAction(input: unknown) {
   return { ok: true as const };
 }
 
-const formBoolean = z.preprocess(
-  parseFormBoolean,
-  z.boolean(),
-);
-const publishSchema = z.object({ productId: z.string().uuid(), published: formBoolean });
+const formBoolean = z.preprocess(parseFormBoolean, z.boolean());
+const publishSchema = z.object({ productId: shopId, published: formBoolean });
 export async function setProductPublishedAction(input: unknown) {
   const p = publishSchema.parse(input);
-  await setProductPublished(p);
-  revalidatePath("/admin/shop/products");
+  await setProductPublished({
+    productId: p.productId,
+    published: p.published === true,
+  });
+  revalidateCatalog();
   return { ok: true as const };
 }
 
@@ -118,11 +132,15 @@ export async function adjustInventoryAction(input: unknown) {
   return { ok: true as const };
 }
 
-const pricingModeSchema = z.object({ mode: z.enum(["market_default", "market_default_with_selector"]) });
+const pricingModeSchema = z.object({
+  mode: z.enum(["market_default", "market_default_with_selector"]),
+});
 export async function setPricingModeAction(input: unknown) {
   await assertShopPermission(SHOP_PERMISSIONS.pricingManage);
   const p = pricingModeSchema.parse(input);
   await setShopPricingMode(p.mode);
+  revalidateTag("shop-settings");
+  revalidatePath("/[locale]/n/app/mobile/shop", "layout");
   revalidatePath("/admin/shop/settings");
   revalidatePath("/n/app/mobile/shop");
   return { ok: true as const };
@@ -130,7 +148,15 @@ export async function setPricingModeAction(input: unknown) {
 
 // --- product edit + service links -----------------------------------------
 
-const RELATION = ["general", "recommended_before", "recommended_during", "recommended_after", "compatible", "required", "optional_addon"] as const;
+const RELATION = [
+  "general",
+  "recommended_before",
+  "recommended_during",
+  "recommended_after",
+  "compatible",
+  "required",
+  "optional_addon",
+] as const;
 
 const productCoreSchema = z.object({
   productId: shopId,
@@ -148,12 +174,20 @@ const productCoreSchema = z.object({
   isPreorder: z.coerce.boolean().default(false),
   preorderReleaseAt: z.string().trim().optional().nullable(),
   preorderLimit: z.coerce.number().int().min(0).optional().nullable(),
-  preorderPaymentPolicy: z.enum(["full", "deposit", "proforma"]).default("full"),
-  preorderDepositPercent: z.coerce.number().min(0).max(100).optional().nullable(),
+  preorderPaymentPolicy: z
+    .enum(["full", "deposit", "proforma"])
+    .default("full"),
+  preorderDepositPercent: z.coerce
+    .number()
+    .min(0)
+    .max(100)
+    .optional()
+    .nullable(),
 });
 export async function updateProductCoreAction(input: unknown) {
   const p = productCoreSchema.parse(input);
   await updateProductCore(p);
+  revalidateCatalog();
   revalidatePath(`/admin/shop/products/${p.productId}`);
   revalidatePath("/admin/shop/products");
   return { ok: true as const };
@@ -181,6 +215,7 @@ export async function unlinkProductServiceAction(input: unknown) {
 export async function deleteProductAction(input: unknown) {
   const p = z.object({ productId: shopId }).parse(input);
   await softDeleteProduct({ productId: p.productId });
+  revalidateCatalog();
   revalidatePath("/admin/shop/products");
   return { ok: true as const };
 }
@@ -219,7 +254,10 @@ export async function linkProductServiceForm(formData: FormData) {
   });
 }
 export async function unlinkProductServiceForm(formData: FormData) {
-  await unlinkProductServiceAction({ linkId: formData.get("linkId"), productId: formData.get("productId") });
+  await unlinkProductServiceAction({
+    linkId: formData.get("linkId"),
+    productId: formData.get("productId"),
+  });
 }
 
 // --- FormData wrappers so the admin pages can use plain <form action> --------
@@ -239,7 +277,10 @@ export async function advanceOrderForm(formData: FormData) {
   });
 }
 export async function markOrderPaidForm(formData: FormData) {
-  await markOrderPaidAction({ orderId: formData.get("orderId"), reference: formData.get("reference") || undefined });
+  await markOrderPaidAction({
+    orderId: formData.get("orderId"),
+    reference: formData.get("reference") || undefined,
+  });
 }
 export async function recordShipmentForm(formData: FormData) {
   // partial shipment: fields named "qty:<orderItemId>" carry the quantity to ship now
@@ -254,12 +295,17 @@ export async function recordShipmentForm(formData: FormData) {
     orderId: formData.get("orderId"),
     carrier: formData.get("carrier") || undefined,
     trackingNumber: formData.get("trackingNumber") || undefined,
-    markShipped: formData.get("markShipped") === "on" || formData.get("markShipped") === "true",
+    markShipped:
+      formData.get("markShipped") === "on" ||
+      formData.get("markShipped") === "true",
     items: items.length ? items : undefined,
   });
 }
 export async function markDeliveredForm(formData: FormData) {
-  await markDeliveredAction({ orderId: formData.get("orderId"), shipmentId: formData.get("shipmentId") });
+  await markDeliveredAction({
+    orderId: formData.get("orderId"),
+    shipmentId: formData.get("shipmentId"),
+  });
 }
 
 const refundSchema = z.object({
@@ -283,7 +329,10 @@ export async function recordRefundForm(formData: FormData) {
   });
 }
 export async function setProductPublishedForm(formData: FormData) {
-  await setProductPublishedAction({ productId: formData.get("productId"), published: formData.get("published") });
+  await setProductPublishedAction({
+    productId: formData.get("productId"),
+    published: formData.get("published"),
+  });
 }
 export async function adjustInventoryForm(formData: FormData) {
   await adjustInventoryAction({

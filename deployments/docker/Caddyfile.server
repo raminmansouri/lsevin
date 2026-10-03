@@ -65,7 +65,7 @@
 }
 
 # Main Next.js application. API/file/hub traffic on the same host is sent to .NET.
-{$APP_DOMAIN:appmain.lsevin.com} {
+{$APP_DOMAIN:appmain.lsevin.com}, {$APP_ALIAS_DOMAIN:lsevincare.com} {
 	import common_headers
 	geoip2_vars strict
 

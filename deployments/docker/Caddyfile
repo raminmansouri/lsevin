@@ -2,7 +2,7 @@
   email raminmansouripouya@gmail.com
 }
 
-appmain.lsevin.com {
+appmain.lsevin.com, lsevincare.com {
   encode zstd gzip
 
   # --- redirect exact paths to trailing slash (done at the edge, never leaks port) ---

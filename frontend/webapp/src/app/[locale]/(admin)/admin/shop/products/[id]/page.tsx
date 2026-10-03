@@ -89,7 +89,7 @@ export default async function AdminProductEditPage({ params }: { params: Promise
         <div className="space-y-4">
           <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
             <h2 className="mb-2 text-sm font-bold text-gray-900">{e("imagesTitle")}</h2>
-            <ProductGalleryEditor productId={product.id} initialUrls={product.galleryUrls} />
+            <ProductGalleryEditor key={JSON.stringify(product.galleryUrls)} productId={product.id} initialUrls={product.galleryUrls} />
           </section>
           <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
             <h2 className="mb-2 text-sm font-bold text-gray-900">{e("servicesTitle")}</h2>

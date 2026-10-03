@@ -3,6 +3,7 @@ import { CalendarCheck2, Coins, PiggyBank } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 import sql from "@/config/database/db";
+import { Link } from "@/i18n/navigation";
 
 type CustomerStatsRow = {
   bookings_count: number;
@@ -133,6 +134,7 @@ export async function CustomerStats({
       label: t("bookings"),
       value: formatNumber(stats.bookingsCount, locale),
       icon: CalendarCheck2,
+      href: "/n/app/mobile/bookings",
     },
     {
       label: t("points"),
@@ -150,12 +152,11 @@ export async function CustomerStats({
     <div className={`grid grid-cols-3 gap-4 mt-6 ${className}`}>
       {items.map((item) => {
         const Icon = item.icon;
+        const cardClass =
+          "rounded-2xl border border-gray-100 bg-white/80 px-3 py-4 text-center shadow-sm";
 
-        return (
-          <div
-            key={item.label}
-            className="rounded-2xl border border-gray-100 bg-white/80 px-3 py-4 text-center shadow-sm"
-          >
+        const content = (
+          <>
             <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-gray-50">
               <Icon size={18} className="text-gray-700" />
             </div>
@@ -167,6 +168,20 @@ export async function CustomerStats({
             <div className="mt-1 text-xs font-medium text-gray-500">
               {item.label}
             </div>
+          </>
+        );
+
+        return "href" in item && item.href ? (
+          <Link
+            key={item.label}
+            href={item.href}
+            className={`${cardClass} block transition active:scale-95 hover:border-[#083f30]/30`}
+          >
+            {content}
+          </Link>
+        ) : (
+          <div key={item.label} className={cardClass}>
+            {content}
           </div>
         );
       })}

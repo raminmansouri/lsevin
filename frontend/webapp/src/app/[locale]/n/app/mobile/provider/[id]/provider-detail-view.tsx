@@ -44,6 +44,9 @@ import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { VideoGallery } from "@/components/media/video-gallery";
 import { ServiceProductsRail } from "@/features/shop/components/ServiceProductsRail";
 
+import { MapViewer } from "@/components/map/map-viewer";
+import { isProviderConfigured, resolveMapProvider } from "@/components/map/map-provider";
+
 const FALLBACK_IMAGE = "/placeholder-provider.svg";
 
 type ReviewSort = "newest" | "buyers" | "helpful";
@@ -643,6 +646,37 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
               <h3 className="mb-3 text-lg font-bold text-gray-900">{t("sections.about")}</h3>
               <LexicalDescription content={provider.about || provider.description || provider.tagline} className="text-sm leading-relaxed text-gray-700" />
             </div>
+
+            {provider.latitude != null && provider.longitude != null ? (
+              <div>
+                <h3 className="mb-3 text-lg font-bold text-gray-900">{t("locationMap.title")}</h3>
+                {isProviderConfigured(
+                  resolveMapProvider({ coordinates: { latitude: provider.latitude, longitude: provider.longitude } }),
+                ) ? (
+                  <div className="overflow-hidden rounded-2xl border border-gray-200">
+                    <MapViewer
+                      coordinates={{ latitude: provider.latitude, longitude: provider.longitude }}
+                      height="220px"
+                    />
+                  </div>
+                ) : null}
+                {provider.street ? (
+                  <p className="mt-3 flex items-start gap-2 text-sm text-gray-700">
+                    <MapPin size={18} className="mt-0.5 shrink-0 text-[#083f30]" />
+                    <span>{provider.street}</span>
+                  </p>
+                ) : null}
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${provider.latitude},${provider.longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex items-center gap-2 rounded-xl bg-[#083f30] px-4 py-2.5 text-sm font-semibold text-white"
+                >
+                  <MapPin size={16} className="text-[#eacb7f]" />
+                  {t("locationMap.getDirections")}
+                </a>
+              </div>
+            ) : null}
 
             {provider.videos && provider.videos.length ? (
               <div>
