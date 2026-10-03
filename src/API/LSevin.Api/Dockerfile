@@ -32,9 +32,11 @@ WORKDIR "/src/src/API/LSevin.Api"
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-# Restore is cached in the build stage. Publishing also compiles the project, so
-# a separate `dotnet build` here would compile the complete API twice.
-RUN dotnet publish "./LSevin.Api.csproj" -c $BUILD_CONFIGURATION --no-restore -o /app/publish /p:UseAppHost=false
+# Publishing compiles the project, so a separate `dotnet build` here would
+# compile the complete API twice. Publish also completes restore after the full
+# source tree is copied because the API references modules outside the early
+# project-file cache layer.
+RUN dotnet publish "./LSevin.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
