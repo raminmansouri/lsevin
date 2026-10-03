@@ -62,6 +62,7 @@ export interface MediaPickerModalProps {
   onConfirm: (items: MediaItem[]) => void;
   uploadWith?: UploadWithProgress;
   title?: string;
+  allowDelete?: boolean;
 }
 
 export interface BaseMediaPickerInputProps {
@@ -75,4 +76,5 @@ export interface BaseMediaPickerInputProps {
   className?: string;
   helperText?: string;
   modalTitle?: string;
+  allowDelete?: boolean;
 }

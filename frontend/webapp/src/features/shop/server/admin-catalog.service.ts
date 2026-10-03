@@ -2,7 +2,8 @@ import "server-only";
 
 import sql from "@/config/database/db";
 
-import { SHOP_PERMISSIONS, assertShopPermission } from "../lib/permissions";
+import { assertShopPermission, SHOP_PERMISSIONS } from "../lib/permissions";
+import { galleryUrlsSchema } from "../schemas/gallery";
 
 // postgres.js `sql.json` has a strict JSONValue signature; admin payloads are
 // plain translation/config objects. One narrow cast, in one place.
@@ -48,7 +49,9 @@ export async function updateProductCore(input: {
 }): Promise<void> {
   await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
   const isPreorder = Boolean(input.isPreorder);
-  const policy = ["full", "deposit", "proforma"].includes(input.preorderPaymentPolicy ?? "")
+  const policy = ["full", "deposit", "proforma"].includes(
+    input.preorderPaymentPolicy ?? ""
+  )
     ? input.preorderPaymentPolicy
     : "full";
   await sql.begin(async (tx) => {
@@ -65,7 +68,7 @@ export async function updateProductCore(input: {
         is_best_seller = ${input.isBestSeller},
         is_new_arrival = ${input.isNewArrival},
         is_preorder = ${isPreorder},
-        preorder_release_at = ${isPreorder ? (input.preorderReleaseAt || null) : null},
+        preorder_release_at = ${isPreorder ? input.preorderReleaseAt || null : null},
         preorder_limit = ${isPreorder && input.preorderLimit != null ? Math.trunc(input.preorderLimit) : null},
         preorder_payment_policy = ${policy}::shop.preorder_payment_policy,
         preorder_deposit_percent = ${isPreorder && policy === "deposit" && input.preorderDepositPercent != null ? input.preorderDepositPercent : null},
@@ -74,7 +77,10 @@ export async function updateProductCore(input: {
       where id = ${input.productId}::uuid and deleted_at is null
     `;
     await tx`delete from shop.product_categories where product_id = ${input.productId}::uuid`;
-    for (const cid of new Set([...(input.categoryIds ?? []), ...(input.primaryCategoryId ? [input.primaryCategoryId] : [])])) {
+    for (const cid of new Set([
+      ...(input.categoryIds ?? []),
+      ...(input.primaryCategoryId ? [input.primaryCategoryId] : []),
+    ])) {
       await tx`
         insert into shop.product_categories (product_id, category_id, is_primary)
         values (${input.productId}::uuid, ${cid}::uuid, ${cid === input.primaryCategoryId})
@@ -99,7 +105,8 @@ export async function setProductServiceLink(input: {
   displayOrder?: number;
 }): Promise<void> {
   await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
-  if (!RELATION_TYPES.includes(input.relationType)) throw new Error("Invalid relation type.");
+  if (!RELATION_TYPES.includes(input.relationType))
+    throw new Error("Invalid relation type.");
   // validate the external reference at the boundary (soft FK, §3.3 / SHP-REL-006)
   const [exists] = await sql<{ ok: boolean }[]>`
     select exists(select 1 from category.service_definitions where id = ${input.serviceDefinitionId}::uuid) as ok
@@ -113,13 +120,17 @@ export async function setProductServiceLink(input: {
   `;
 }
 
-export async function removeProductServiceLink(input: { linkId: string }): Promise<void> {
+export async function removeProductServiceLink(input: {
+  linkId: string;
+}): Promise<void> {
   await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
   await sql`delete from shop.product_service_links where id = ${input.linkId}::uuid`;
 }
 
 /** Soft-removes a catalog product while retaining order lines and audit history. */
-export async function softDeleteProduct(input: { productId: string }): Promise<void> {
+export async function softDeleteProduct(input: {
+  productId: string;
+}): Promise<void> {
   await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
   await sql.begin(async (tx) => {
     await tx`
@@ -155,7 +166,9 @@ export async function setCategoryServiceLink(input: {
   `;
 }
 
-export async function removeCategoryServiceLink(input: { linkId: string }): Promise<void> {
+export async function removeCategoryServiceLink(input: {
+  linkId: string;
+}): Promise<void> {
   await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
   await sql`delete from shop.category_service_links where id = ${input.linkId}::uuid`;
 }
@@ -187,7 +200,10 @@ export async function createProduct(input: {
       )
       returning id::text as id
     `;
-    for (const cid of new Set([...(input.categoryIds ?? []), ...(input.primaryCategoryId ? [input.primaryCategoryId] : [])])) {
+    for (const cid of new Set([
+      ...(input.categoryIds ?? []),
+      ...(input.primaryCategoryId ? [input.primaryCategoryId] : []),
+    ])) {
       await tx`
         insert into shop.product_categories (product_id, category_id, is_primary)
         values (${row.id}::uuid, ${cid}::uuid, ${cid === input.primaryCategoryId})
@@ -201,36 +217,28 @@ export async function createProduct(input: {
 // ======================================================================
 // Product media (SHP-ADM-005, SHP-CAT-007)
 // ======================================================================
-export async function setProductGallery(input: { productId: string; urls: string[] }): Promise<void> {
+export async function setProductGallery(input: {
+  productId: string;
+  urls: string[];
+}): Promise<void> {
   await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
-  const urls = Array.from(new Set(input.urls.filter(Boolean)));
+  const urls = galleryUrlsSchema.parse(input.urls);
   await sql.begin(async (tx) => {
-    // keep it simple and idempotent: replace the gallery, first url is primary
-    const existingPrimary = await tx<{ url: string }[]>`
-      select url from shop.product_media where product_id = ${input.productId}::uuid and is_primary limit 1
+    // Serialize full-gallery replacements for this product and reject deleted products.
+    const [product] = await tx<{ id: string }[]>`
+      select id from shop.products where id = ${input.productId}::uuid and deleted_at is null for update
     `;
+    if (!product) throw new Error("Product not found");
     await tx`delete from shop.product_media where product_id = ${input.productId}::uuid and variant_id is null`;
     let order = 0;
     for (const url of urls) {
-      const isPrimary = existingPrimary[0]?.url ? url === existingPrimary[0].url : order === 0;
+      const isPrimary = order === 0;
       await tx`
         insert into shop.product_media (product_id, url, media_type, display_order, is_primary)
         values (${input.productId}::uuid, ${url}, 'image', ${order}, ${isPrimary})
       `;
       order += 1;
     }
-    // if no existing primary matched (e.g. it was removed), force the first row primary
-    await tx`
-      update shop.product_media m
-      set is_primary = (m.id = sub.first_id)
-      from (
-        select id as first_id from shop.product_media
-        where product_id = ${input.productId}::uuid and variant_id is null
-        order by display_order asc limit 1
-      ) sub
-      where m.product_id = ${input.productId}::uuid and m.variant_id is null
-        and not exists (select 1 from shop.product_media where product_id = ${input.productId}::uuid and variant_id is null and is_primary)
-    `;
   });
 }
 
@@ -251,7 +259,8 @@ export async function upsertCategory(input: {
   isActive: boolean;
 }): Promise<string> {
   await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
-  if (input.id && input.parentId === input.id) throw new Error("A category cannot be its own parent.");
+  if (input.id && input.parentId === input.id)
+    throw new Error("A category cannot be its own parent.");
   if (input.id) {
     await sql`
       update shop.categories set
@@ -281,8 +290,14 @@ export async function deleteCategory(input: { id: string }): Promise<void> {
   const [{ childCount }] = await sql<{ childCount: number }[]>`
     select count(*)::int as "childCount" from shop.categories where parent_id = ${input.id}::uuid and deleted_at is null
   `;
-  if (productCount > 0) throw new Error(`Category still has ${productCount} product(s) assigned; reassign them first.`);
-  if (childCount > 0) throw new Error(`Category still has ${childCount} subcategory(ies); move or delete them first.`);
+  if (productCount > 0)
+    throw new Error(
+      `Category still has ${productCount} product(s) assigned; reassign them first.`
+    );
+  if (childCount > 0)
+    throw new Error(
+      `Category still has ${childCount} subcategory(ies); move or delete them first.`
+    );
   // soft-delete: historical order snapshots never reference categories directly, but
   // keep the pattern consistent with products (SHP-CAT-009)
   await sql`update shop.categories set deleted_at = now(), is_active = false where id = ${input.id}::uuid`;
@@ -326,8 +341,22 @@ export async function deleteBrand(input: { id: string }): Promise<void> {
 // ======================================================================
 // Home merchandising (SHP-ADM-018, SHP-API-028, SHP-DB-003)
 // ======================================================================
-const SECTION_TYPES = ["shortcut_rail", "promo_cards", "product_rail", "category_rail", "service_related_rail"] as const;
-const QUERY_SOURCES = ["manual", "featured", "best_seller", "new_arrival", "discounted", "category", "service_related"] as const;
+const SECTION_TYPES = [
+  "shortcut_rail",
+  "promo_cards",
+  "product_rail",
+  "category_rail",
+  "service_related_rail",
+] as const;
+const QUERY_SOURCES = [
+  "manual",
+  "featured",
+  "best_seller",
+  "new_arrival",
+  "discounted",
+  "category",
+  "service_related",
+] as const;
 
 export async function upsertHomeSection(input: {
   id?: string;
@@ -341,8 +370,10 @@ export async function upsertHomeSection(input: {
   isActive: boolean;
 }): Promise<string> {
   await assertShopPermission(SHOP_PERMISSIONS.merchandisingManage);
-  if (!SECTION_TYPES.includes(input.sectionType)) throw new Error("Invalid section type.");
-  if (!QUERY_SOURCES.includes(input.querySource)) throw new Error("Invalid query source.");
+  if (!SECTION_TYPES.includes(input.sectionType))
+    throw new Error("Invalid section type.");
+  if (!QUERY_SOURCES.includes(input.querySource))
+    throw new Error("Invalid query source.");
   if (input.id) {
     await sql`
       update shop.home_sections set key = ${input.key}, section_type = ${input.sectionType},
@@ -369,7 +400,12 @@ export async function deleteHomeSection(input: { id: string }): Promise<void> {
 // ======================================================================
 // Attributes & attribute values (SHP-ADM-007, SHP-CAT-006)
 // ======================================================================
-const ATTRIBUTE_DISPLAY_TYPES = ["select", "swatch", "text", "boolean"] as const;
+const ATTRIBUTE_DISPLAY_TYPES = [
+  "select",
+  "swatch",
+  "text",
+  "boolean",
+] as const;
 
 export async function upsertAttribute(input: {
   id?: string;
@@ -380,8 +416,11 @@ export async function upsertAttribute(input: {
 }): Promise<string> {
   await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
   const slug = input.slug.trim().toLowerCase();
-  if (!/^[a-z0-9][a-z0-9-]{1,60}$/.test(slug)) throw new Error("Slug must be kebab-case.");
-  const displayType = ATTRIBUTE_DISPLAY_TYPES.includes(input.displayType as never)
+  if (!/^[a-z0-9][a-z0-9-]{1,60}$/.test(slug))
+    throw new Error("Slug must be kebab-case.");
+  const displayType = ATTRIBUTE_DISPLAY_TYPES.includes(
+    input.displayType as never
+  )
     ? input.displayType
     : "select";
   if (input.id) {
@@ -406,7 +445,10 @@ export async function deleteAttribute(input: { id: string }): Promise<void> {
   const [inUse] = await sql<{ n: number }[]>`
     select count(*)::int as n from shop.product_attributes where attribute_id = ${input.id}::uuid
   `;
-  if (inUse.n > 0) throw new Error(`Attribute is attached to ${inUse.n} product(s) — detach it first.`);
+  if (inUse.n > 0)
+    throw new Error(
+      `Attribute is attached to ${inUse.n} product(s) — detach it first.`
+    );
   await sql`delete from shop.attribute_values where attribute_id = ${input.id}::uuid`;
   await sql`delete from shop.attributes where id = ${input.id}::uuid`;
 }
@@ -430,7 +472,9 @@ export async function addAttributeValue(input: {
   return row.id;
 }
 
-export async function deleteAttributeValue(input: { id: string }): Promise<void> {
+export async function deleteAttributeValue(input: {
+  id: string;
+}): Promise<void> {
   await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
   await sql`delete from shop.attribute_values where id = ${input.id}::uuid`;
 }
@@ -450,7 +494,10 @@ export async function setProductAttribute(input: {
   `;
 }
 
-export async function removeProductAttribute(input: { productId: string; attributeId: string }): Promise<void> {
+export async function removeProductAttribute(input: {
+  productId: string;
+  attributeId: string;
+}): Promise<void> {
   await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
   await sql`
     delete from shop.product_attributes
@@ -469,7 +516,9 @@ export async function updateWarehouse(input: {
   isDefault: boolean;
 }): Promise<void> {
   await assertShopPermission(SHOP_PERMISSIONS.inventoryManage);
-  const priority = Number.isFinite(input.priority) ? Math.trunc(input.priority) : 100;
+  const priority = Number.isFinite(input.priority)
+    ? Math.trunc(input.priority)
+    : 100;
   await sql.begin(async (tx) => {
     if (input.isDefault) {
       await tx`update shop.warehouses set is_default = false where is_default and id <> ${input.id}::uuid`;
@@ -499,9 +548,14 @@ export async function updateDeliveryMethod(input: {
 }): Promise<void> {
   await assertShopPermission(SHOP_PERMISSIONS.ordersManage);
   const fee = Number(input.baseFee);
-  if (!Number.isFinite(fee) || fee < 0) throw new Error("Base fee must be a non-negative number.");
+  if (!Number.isFinite(fee) || fee < 0)
+    throw new Error("Base fee must be a non-negative number.");
   const rules =
-    input.rules && typeof input.rules === "object" && !Array.isArray(input.rules) ? input.rules : {};
+    input.rules &&
+    typeof input.rules === "object" &&
+    !Array.isArray(input.rules)
+      ? input.rules
+      : {};
   await sql`
     update shop.delivery_methods set
       base_fee = ${fee},
@@ -533,7 +587,9 @@ export async function addHomeSectionItem(input: {
   `;
 }
 
-export async function removeHomeSectionItem(input: { itemId: string }): Promise<void> {
+export async function removeHomeSectionItem(input: {
+  itemId: string;
+}): Promise<void> {
   await assertShopPermission(SHOP_PERMISSIONS.merchandisingManage);
   await sql`delete from shop.home_section_items where id = ${input.itemId}::uuid`;
 }
@@ -609,7 +665,13 @@ export async function deleteVariant(input: { id: string }): Promise<void> {
 // Coupons (SHP-V02-004, admin side). Evaluation lives in coupon.service.ts.
 // ======================================================================
 const COUPON_TYPES = ["fixed", "percentage", "free_shipping"] as const;
-const DISCOUNT_SCOPES = ["cart", "product", "category", "brand", "shipping"] as const;
+const DISCOUNT_SCOPES = [
+  "cart",
+  "product",
+  "category",
+  "brand",
+  "shipping",
+] as const;
 
 export async function upsertCoupon(input: {
   id?: string;
@@ -629,11 +691,13 @@ export async function upsertCoupon(input: {
   titleTranslations: Record<string, string>;
 }): Promise<string> {
   await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
-  if (!COUPON_TYPES.includes(input.couponType)) throw new Error("Invalid coupon type.");
+  if (!COUPON_TYPES.includes(input.couponType))
+    throw new Error("Invalid coupon type.");
   if (!DISCOUNT_SCOPES.includes(input.scope)) throw new Error("Invalid scope.");
   const code = input.code.trim().toUpperCase();
   if (!code) throw new Error("Coupon code is required.");
-  if (input.couponType === "fixed" && !input.currency) throw new Error("A fixed coupon needs a currency.");
+  if (input.couponType === "fixed" && !input.currency)
+    throw new Error("A fixed coupon needs a currency.");
 
   if (input.id) {
     await sql`

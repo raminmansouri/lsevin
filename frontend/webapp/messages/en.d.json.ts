@@ -16881,6 +16881,58 @@ declare const messages: {
       "invalid_transition": "This status change is not allowed from the current state.",
       "unknown": "The case step could not be updated. Please try again."
     }
+<<<<<<< HEAD
+  },
+  "ShopMedia": {
+    "hint": "The first image is the primary image. Save to apply changes.",
+    "empty": "No product images yet.",
+    "imageNumber": "Image {number, number}",
+    "primary": "Primary image",
+    "makePrimary": "Make primary",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "replace": "Replace",
+    "remove": "Remove",
+    "addImages": "Add images",
+    "imageUrl": "Image URL",
+    "addUrl": "Add URL",
+    "invalidUrl": "Enter a valid image URL or storage path.",
+    "limit": "The selection limit has been reached.",
+    "saveFailed": "Images could not be saved. Please try again.",
+    "saving": "Saving…",
+    "save": "Save images",
+    "saved": "Images saved.",
+    "image": "Image",
+    "video": "Video",
+    "file": "File",
+    "deleteFile": "Delete {name}",
+    "deleteLibrary": "Delete from library",
+    "deleteConfirm": "Delete “{name}” from the media library?",
+    "deleteFailed": "The file could not be deleted.",
+    "loadFailed": "Media could not be loaded. Please try again.",
+    "wrongType": "Choose a file of the required type.",
+    "uploadFailed": "Upload failed. Please try again.",
+    "pickFiles": "Choose media",
+    "singleHint": "Choose one file.",
+    "multipleHint": "Choose files, then confirm.",
+    "close": "Close",
+    "search": "Search files",
+    "all": "All",
+    "images": "Images",
+    "videos": "Videos",
+    "files": "Files",
+    "upload": "Upload",
+    "uploading": "Uploading…",
+    "loading": "Loading…",
+    "emptyLibrary": "No media found.",
+    "emptyLibraryHint": "Upload a file or change your search.",
+    "page": "Page {page, number} of {total, number}",
+    "selected": "Selected",
+    "previous": "Previous",
+    "next": "Next",
+    "confirm": "Use selected files"
+=======
+>>>>>>> 423a3f2f4521079b5e4c2bfe46f9ac7d76c2bf82
   }
 };
 export default messages;

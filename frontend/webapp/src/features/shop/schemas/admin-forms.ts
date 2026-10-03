@@ -86,6 +86,7 @@ export const attributeValueFormSchema = z.object({
   labelEn: str.default(""),
   labelFa: str.default(""),
   colorHex: str.default(""),
+  imageUrl: str.default(""),
 });
 export type AttributeValueFormInput = z.infer<typeof attributeValueFormSchema>;
 
@@ -120,8 +121,22 @@ export type WarehouseFormInput = z.infer<typeof warehouseFormSchema>;
 export const homeSectionFormSchema = z.object({
   id: shopId.optional(),
   key: str.min(1).max(60),
-  sectionType: z.enum(["shortcut_rail", "promo_cards", "product_rail", "category_rail", "service_related_rail"]),
-  querySource: z.enum(["manual", "featured", "best_seller", "new_arrival", "discounted", "category", "service_related"]),
+  sectionType: z.enum([
+    "shortcut_rail",
+    "promo_cards",
+    "product_rail",
+    "category_rail",
+    "service_related_rail",
+  ]),
+  querySource: z.enum([
+    "manual",
+    "featured",
+    "best_seller",
+    "new_arrival",
+    "discounted",
+    "category",
+    "service_related",
+  ]),
   categorySlug: str.default(""),
   displayOrder: num.int().min(0).default(0),
   isActive: z.coerce.boolean().default(true),
@@ -132,32 +147,36 @@ export const homeSectionFormSchema = z.object({
 export type HomeSectionFormInput = z.infer<typeof homeSectionFormSchema>;
 
 // -- Product core ----------------------------------------------------------
-export const productCoreFormSchema = z.object({
-  productId: shopId,
-  nameEn: str.max(180),
-  nameFa: str.max(180).default(""),
-  nameAr: str.max(180).default(""),
-  descEn: str.default(""),
-  descFa: str.default(""),
-  descAr: str.default(""),
-  slug: str.min(2).max(180).regex(kebabRe, "kebab-case only"),
-  status: z.enum(["draft", "active", "archived"]),
-  basePrice: num.min(0).default(0),
-  baseCurrency: str.min(3).max(15).default("USD"),
-  primaryCategoryId: str.default(""),
-  categoryIds: z.array(z.string()).default([]),
-  isFeatured: z.coerce.boolean().default(false),
-  isBestSeller: z.coerce.boolean().default(false),
-  isNewArrival: z.coerce.boolean().default(false),
-  isPreorder: z.coerce.boolean().default(false),
-  preorderReleaseAt: str.default(""),
-  preorderLimit: str.default(""),
-  preorderPaymentPolicy: z.enum(["full", "deposit", "proforma"]).default("full"),
-  preorderDepositPercent: str.default(""),
-}).refine((value) => Boolean(value.nameEn || value.nameFa || value.nameAr), {
-  path: ["nameEn"],
-  message: "product_name_required",
-});
+export const productCoreFormSchema = z
+  .object({
+    productId: shopId,
+    nameEn: str.max(180),
+    nameFa: str.max(180).default(""),
+    nameAr: str.max(180).default(""),
+    descEn: str.default(""),
+    descFa: str.default(""),
+    descAr: str.default(""),
+    slug: str.min(2).max(180).regex(kebabRe, "kebab-case only"),
+    status: z.enum(["draft", "active", "archived"]),
+    basePrice: num.min(0).default(0),
+    baseCurrency: str.min(3).max(15).default("USD"),
+    primaryCategoryId: str.default(""),
+    categoryIds: z.array(z.string()).default([]),
+    isFeatured: z.coerce.boolean().default(false),
+    isBestSeller: z.coerce.boolean().default(false),
+    isNewArrival: z.coerce.boolean().default(false),
+    isPreorder: z.coerce.boolean().default(false),
+    preorderReleaseAt: str.default(""),
+    preorderLimit: str.default(""),
+    preorderPaymentPolicy: z
+      .enum(["full", "deposit", "proforma"])
+      .default("full"),
+    preorderDepositPercent: str.default(""),
+  })
+  .refine((value) => Boolean(value.nameEn || value.nameFa || value.nameAr), {
+    path: ["nameEn"],
+    message: "product_name_required",
+  });
 export type ProductCoreFormInput = z.infer<typeof productCoreFormSchema>;
 
 export const productCreateFormSchema = z.object({

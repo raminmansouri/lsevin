@@ -43,6 +43,8 @@ export const CORE_NAMESPACES = [
   // chrome, so every client provider must receive this namespace.
   "Logo",
   "NotFoundPage",
+  // Shared media pickers are used by admin, provider and mobile upload flows.
+  "ShopMedia",
   "User",
   "components",
   "shared",

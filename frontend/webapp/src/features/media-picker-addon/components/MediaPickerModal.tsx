@@ -1,7 +1,13 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import {
   AlertCircle,
   Check,
@@ -14,9 +20,29 @@ import {
   Upload,
   X,
 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 
-import { deleteMediaById, getMediaByReferences, listMedia, uploadViaStorageRoute } from "../api";
-import { formatBytes, isImage, isVideo, truncateMiddle } from "../utils";
+import {
+  createEmptyLocalizedContent,
+  DEFAULT_MEDIA_LOCALES,
+} from "@/components/media";
+import { persistUploadedMedia } from "@/components/media/adapters/upload-handler";
+import {
+  Dialog,
+  DialogDescription,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { env } from "@/config/env/client";
+
+import {
+  deleteMediaById,
+  getMediaByReferences,
+  listMedia,
+  uploadViaStorageRoute,
+} from "../api";
 import type {
   MediaItem,
   MediaPickerModalProps,
@@ -24,17 +50,20 @@ import type {
   UploadMediaResult,
   UploadWithProgress,
 } from "../types";
-import { env } from "@/config/env/client";
-import { ImageWithFallback } from "@/components/ui/image-with-fallback";
-import { persistUploadedMedia } from "@/components/media/adapters/upload-handler";
-import { createEmptyLocalizedContent, DEFAULT_MEDIA_LOCALES } from "@/components/media";
+import { formatBytes, isImage, isVideo, truncateMiddle } from "../utils";
 
 type FilterType = "all" | MediaType;
 
 function mediaSrc(fileUrl: string) {
   const src = String(fileUrl || "").trim();
   if (!src) return "";
-  if (/^(https?:)?\/\//i.test(src) || src.startsWith("/") || src.startsWith("blob:") || src.startsWith("data:")) return src;
+  if (
+    /^(https?:)?\/\//i.test(src) ||
+    src.startsWith("/") ||
+    src.startsWith("blob:") ||
+    src.startsWith("data:")
+  )
+    return src;
   return `${String(env.NEXT_PUBLIC_FILES_URL || "").replace(/\/+$/, "")}/${src.replace(/^\/+/, "")}`;
 }
 
@@ -101,21 +130,27 @@ function MediaCard({
   selected: boolean;
   deleting?: boolean;
   onClick: () => void;
-  onDelete: () => void;
+  onDelete?: () => void;
 }) {
+  const mt = useTranslations("ShopMedia");
+  const locale = useLocale();
   return (
     <div
       className={[
-        "group relative overflow-hidden rounded-2xl border text-left transition",
+        "group relative overflow-hidden rounded-2xl border text-start transition",
         selected
           ? "border-slate-900 ring-2 ring-slate-900/10"
           : "border-slate-200 hover:border-slate-300",
       ].join(" ")}
     >
-      <button type="button" onClick={onClick} className="block w-full text-left">
+      <button
+        type="button"
+        onClick={onClick}
+        className="block w-full text-start"
+      >
         <div className="relative aspect-square overflow-hidden bg-slate-50">
           <MediaThumb item={item} />
-          <div className="absolute left-2 top-2">
+          <div className="absolute top-2 left-2">
             <div
               className={[
                 "rounded-full border p-1.5 shadow-sm",
@@ -134,27 +169,33 @@ function MediaCard({
             {truncateMiddle(item.originalName, 10)}
           </div>
           <div className="flex items-center gap-2 text-xs text-slate-500">
-            <span>{item.mediaType}</span>
+            <span>{mt(item.mediaType)}</span>
             <span>•</span>
-            <span>{formatBytes(item.fileSize)}</span>
+            <span>{formatBytes(item.fileSize, locale)}</span>
           </div>
         </div>
       </button>
 
-      <button
-        type="button"
-        disabled={deleting}
-        onClick={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          onDelete();
-        }}
-        className="absolute bottom-2 right-2 rounded-xl bg-white/95 p-2 text-slate-500 opacity-100 shadow-sm ring-1 ring-slate-200 transition hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60 md:opacity-0 md:group-hover:opacity-100"
-        aria-label={`Delete ${item.originalName}`}
-        title="Delete from media library"
-      >
-        {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-      </button>
+      {onDelete && (
+        <button
+          type="button"
+          disabled={deleting}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onDelete();
+          }}
+          className="absolute right-2 bottom-2 rounded-xl bg-white/95 p-2 text-slate-500 opacity-100 shadow-sm ring-1 ring-slate-200 transition hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60 md:opacity-0 md:group-hover:opacity-100"
+          aria-label={mt("deleteFile", { name: item.originalName })}
+          title={mt("deleteLibrary")}
+        >
+          {deleting ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Trash2 className="h-4 w-4" />
+          )}
+        </button>
+      )}
     </div>
   );
 }
@@ -167,7 +208,9 @@ function normalizeCreatedMedia(
   const id = created?.id ?? uploaded.id;
 
   if (!id) {
-    throw new Error("Media record was uploaded, but no database id was returned.");
+    throw new Error(
+      "Media record was uploaded, but no database id was returned."
+    );
   }
 
   return {
@@ -179,12 +222,17 @@ function normalizeCreatedMedia(
     storedName: created?.storedName ?? uploaded.storedName ?? file.name,
     fileUrl: created?.fileUrl ?? uploaded.fileUrl,
     storagePath: created?.storagePath ?? null,
-    mimeType: created?.mimeType ?? uploaded.mimeType ?? file.type ?? "application/octet-stream",
+    mimeType:
+      created?.mimeType ??
+      uploaded.mimeType ??
+      file.type ??
+      "application/octet-stream",
     mediaType: created?.mediaType ?? uploaded.mediaType,
     fileSize: created?.fileSize ?? uploaded.fileSize ?? file.size,
     width: created?.width ?? uploaded.width ?? null,
     height: created?.height ?? uploaded.height ?? null,
-    durationSeconds: created?.durationSeconds ?? uploaded.durationSeconds ?? null,
+    durationSeconds:
+      created?.durationSeconds ?? uploaded.durationSeconds ?? null,
     createDate: created?.createDate ?? null,
     lastModifiedDate: created?.lastModifiedDate ?? null,
     isPublic: created?.isPublic ?? true,
@@ -201,12 +249,16 @@ export default function MediaPickerModal({
   onConfirm,
   uploadWith,
   title,
+  allowDelete = true,
 }: MediaPickerModalProps) {
-  const t = useTranslations("Common");
+  const t = useTranslations("ShopMedia");
+  const locale = useLocale();
   const [items, setItems] = useState<MediaItem[]>([]);
   const [selectedMap, setSelectedMap] = useState<Record<string, MediaItem>>({});
   const [query, setQuery] = useState("");
-  const [filterType, setFilterType] = useState<FilterType>(mediaType === "all" ? "all" : mediaType);
+  const [filterType, setFilterType] = useState<FilterType>(
+    mediaType === "all" ? "all" : mediaType
+  );
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(24);
@@ -216,9 +268,13 @@ export default function MediaPickerModal({
   const [deletingIds, setDeletingIds] = useState<Record<string, boolean>>({});
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const currentUploadHandler: UploadWithProgress = uploadWith ?? uploadViaStorageRoute;
+  const currentUploadHandler: UploadWithProgress =
+    uploadWith ?? uploadViaStorageRoute;
 
-  const selectedItems = useMemo(() => Object.values(selectedMap), [selectedMap]);
+  const selectedItems = useMemo(
+    () => Object.values(selectedMap),
+    [selectedMap]
+  );
 
   const loadItems = useCallback(async () => {
     setLoading(true);
@@ -234,11 +290,11 @@ export default function MediaPickerModal({
       setItems(listResponse.items);
       setTotal(listResponse.total);
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Failed to load media.");
+      setErrorMessage(t("loadFailed"));
     } finally {
       setLoading(false);
     }
-  }, [filterType, page, pageSize, query]);
+  }, [filterType, page, pageSize, query, t]);
 
   useEffect(() => {
     if (!open) return;
@@ -248,17 +304,25 @@ export default function MediaPickerModal({
   useEffect(() => {
     if (!open) return;
 
+    let cancelled = false;
     const run = async () => {
-      const initialItems = await getMediaByReferences(selectedIds);
-      const nextMap: Record<string, MediaItem> = {};
-      initialItems.forEach((item) => {
-        nextMap[item.id] = item;
-      });
-      setSelectedMap(nextMap);
+      try {
+        const initialItems = selectedIds.length
+          ? await getMediaByReferences(selectedIds)
+          : [];
+        if (!cancelled)
+          setSelectedMap(
+            Object.fromEntries(initialItems.map((item) => [item.id, item]))
+          );
+      } catch {
+        if (!cancelled) setErrorMessage(t("loadFailed"));
+      }
     };
-
     void run();
-  }, [open, selectedIds.join(",")]);
+    return () => {
+      cancelled = true;
+    };
+  }, [open, selectedIds.join(","), t]);
 
   useEffect(() => {
     if (!open) {
@@ -298,6 +362,11 @@ export default function MediaPickerModal({
   }
 
   function handlePick(item: MediaItem) {
+    if (
+      uploadProgress !== null ||
+      (mediaType !== "all" && item.mediaType !== mediaType)
+    )
+      return;
     if (mode === "single") {
       commitSingle(item);
       return;
@@ -309,6 +378,26 @@ export default function MediaPickerModal({
   const emptyTranslations = createEmptyLocalizedContent(DEFAULT_MEDIA_LOCALES);
 
   async function handleUpload(file: File) {
+    if (uploadProgress !== null) return;
+    if (
+      mediaType !== "all" &&
+      (mediaType === "image"
+        ? !file.type.startsWith("image/")
+        : mediaType === "video"
+          ? !file.type.startsWith("video/")
+          : false)
+    ) {
+      setErrorMessage(t("wrongType"));
+      return;
+    }
+    if (
+      mode === "multiple" &&
+      maxSelection &&
+      selectedItems.length >= maxSelection
+    ) {
+      setErrorMessage(t("limit"));
+      return;
+    }
     try {
       setErrorMessage(null);
       setUploadProgress(0);
@@ -323,12 +412,21 @@ export default function MediaPickerModal({
         altTranslations: emptyTranslations,
       })) as Partial<MediaItem> | null | undefined;
 
-      const existingAfterUpload = created?.id ? null : (await getMediaByReferences([uploaded.fileUrl]))[0];
+      const existingAfterUpload = created?.id
+        ? null
+        : (await getMediaByReferences([uploaded.fileUrl]))[0];
 
-      const normalized = existingAfterUpload ?? normalizeCreatedMedia(created, uploaded, file);
+      const normalized =
+        existingAfterUpload ?? normalizeCreatedMedia(created, uploaded, file);
 
-      setItems((current) => [normalized, ...current.filter((item) => item.id !== normalized.id)]);
-      setTotal((current) => current + (items.some((item) => item.id === normalized.id) ? 0 : 1));
+      setItems((current) => [
+        normalized,
+        ...current.filter((item) => item.id !== normalized.id),
+      ]);
+      setTotal(
+        (current) =>
+          current + (items.some((item) => item.id === normalized.id) ? 0 : 1)
+      );
 
       if (mode === "single") {
         commitSingle(normalized);
@@ -340,14 +438,16 @@ export default function MediaPickerModal({
         [normalized.id]: normalized,
       }));
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Upload failed.");
+      setErrorMessage(t("uploadFailed"));
     } finally {
-      setTimeout(() => setUploadProgress(null), 400);
+      setUploadProgress(null);
     }
   }
 
   async function handleDelete(item: MediaItem) {
-    const confirmed = window.confirm(`Delete “${item.originalName}” from the media library?`);
+    const confirmed = window.confirm(
+      t("deleteConfirm", { name: item.originalName })
+    );
     if (!confirmed) return;
 
     setDeletingIds((current) => ({ ...current, [item.id]: true }));
@@ -355,7 +455,9 @@ export default function MediaPickerModal({
 
     try {
       await deleteMediaById(item.id);
-      setItems((current) => current.filter((candidate) => candidate.id !== item.id));
+      setItems((current) =>
+        current.filter((candidate) => candidate.id !== item.id)
+      );
       setTotal((current) => Math.max(0, current - 1));
       setSelectedMap((current) => {
         if (!current[item.id]) return current;
@@ -364,7 +466,7 @@ export default function MediaPickerModal({
         return next;
       });
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Failed to delete media.");
+      setErrorMessage(t("deleteFailed"));
     } finally {
       setDeletingIds((current) => {
         const next = { ...current };
@@ -384,208 +486,251 @@ export default function MediaPickerModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[100]">
-      <div className="absolute inset-0 bg-slate-950/50" onClick={onClose} />
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!next && uploadProgress === null) onClose();
+      }}
+    >
+      <DialogPortal>
+        <DialogOverlay className="z-[100]" />
+        <DialogPrimitive.Content className="fixed inset-4 z-[101] mx-auto flex max-w-6xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
+          <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+            <div>
+              <DialogTitle className="text-lg font-semibold text-slate-900">
+                {title ?? t("pickFiles")}
+              </DialogTitle>
+              <DialogDescription className="text-sm text-slate-500">
+                {t(mode === "single" ? "singleHint" : "multipleHint")}
+              </DialogDescription>
+            </div>
 
-      <div className="absolute inset-x-4 bottom-4 top-4 mx-auto flex max-w-6xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
-        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">
-              {title ?? (mode === "single" ? "Pick media" : "Pick media files")}
-            </h2>
-            <p className="text-sm text-slate-500">
-              {mode === "single"
-                ? "Select one file and the dialog will close automatically."
-                : "Select one or more files, then confirm selection."}
-            </p>
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={uploadProgress !== null}
+              aria-label={t("close")}
+              className="rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+          <div className="border-b border-slate-200 px-5 py-4">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex flex-1 items-center gap-3">
+                <div className="relative w-full max-w-md">
+                  <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    value={query}
+                    onChange={(event) => {
+                      setPage(1);
+                      setQuery(event.target.value);
+                    }}
+                    placeholder={t("search")}
+                    className="h-11 w-full rounded-2xl border border-slate-200 bg-white ps-10 pe-4 text-sm text-slate-900 transition outline-none focus:border-slate-400"
+                  />
+                </div>
 
-        <div className="border-b border-slate-200 px-5 py-4">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-1 items-center gap-3">
-              <div className="relative w-full max-w-md">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  value={query}
-                  onChange={(event) => {
-                    setPage(1);
-                    setQuery(event.target.value);
-                  }}
-                  placeholder={t("searchFilenameTitleOrDescription")}
-                  className="h-11 w-full rounded-2xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                />
+                {mediaType === "all" && (
+                  <div className="hidden items-center gap-2 md:flex">
+                    <ChipButton
+                      active={filterType === "all"}
+                      onClick={() => {
+                        setPage(1);
+                        setFilterType("all");
+                      }}
+                    >
+                      {t("all")}
+                    </ChipButton>
+                    <ChipButton
+                      active={filterType === "image"}
+                      onClick={() => {
+                        setPage(1);
+                        setFilterType("image");
+                      }}
+                    >
+                      {t("images")}
+                    </ChipButton>
+                    <ChipButton
+                      active={filterType === "video"}
+                      onClick={() => {
+                        setPage(1);
+                        setFilterType("video");
+                      }}
+                    >
+                      {t("videos")}
+                    </ChipButton>
+                    <ChipButton
+                      active={filterType === "file"}
+                      onClick={() => {
+                        setPage(1);
+                        setFilterType("file");
+                      }}
+                    >
+                      {t("files")}
+                    </ChipButton>
+                  </div>
+                )}
               </div>
 
-              <div className="hidden items-center gap-2 md:flex">
-                <ChipButton
-                  active={filterType === "all"}
-                  onClick={() => {
-                    setPage(1);
-                    setFilterType("all");
-                  }}
-                >
-                  {t("all")}
-                </ChipButton>
-                <ChipButton
-                  active={filterType === "image"}
-                  onClick={() => {
-                    setPage(1);
-                    setFilterType("image");
-                  }}
-                >
-                  {t("images")}
-                </ChipButton>
-                <ChipButton
-                  active={filterType === "video"}
-                  onClick={() => {
-                    setPage(1);
-                    setFilterType("video");
-                  }}
-                >
-                  {t("videos")}
-                </ChipButton>
-                <ChipButton
-                  active={filterType === "file"}
-                  onClick={() => {
-                    setPage(1);
-                    setFilterType("file");
-                  }}
-                >
-                  {t("files")}
-                </ChipButton>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                ref={inputRef}
-                type="file"
-                className="hidden"
-                onChange={onFileInputChange}
-                accept={
-                  mediaType === "image" ? "image/*" : mediaType === "video" ? "video/*" : undefined
-                }
-              />
-              <button
-                type="button"
-                onClick={() => inputRef.current?.click()}
-                className="inline-flex h-11 items-center gap-2 rounded-2xl bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-800"
-              >
-                <Upload className="h-4 w-4" />
-                {t("upload")}
-              </button>
-            </div>
-          </div>
-
-          {uploadProgress !== null && (
-            <div className="mt-3">
-              <div className="mb-1 flex items-center justify-between text-xs text-slate-500">
-                <span>{t("uploading")}</span>
-                <span>{uploadProgress}%</span>
-              </div>
-              <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                <div
-                  className="h-full rounded-full bg-slate-900 transition-all"
-                  style={{ width: `${uploadProgress}%` }}
-                />
-              </div>
-            </div>
-          )}
-
-          {errorMessage && (
-            <div className="mt-3 flex items-start gap-2 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>{errorMessage}</span>
-            </div>
-          )}
-        </div>
-
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
-          {loading ? (
-            <div className="flex h-full items-center justify-center py-24 text-slate-500">
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              {t("loadingMedia")}
-            </div>
-          ) : items.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-slate-50 py-24 text-center">
-              <FileImage className="mb-3 h-10 w-10 text-slate-400" />
-              <div className="text-base font-medium text-slate-900">{t("noMediaFound")}</div>
-              <div className="mt-1 text-sm text-slate-500">
-                {t("uploadANewFileOrChangeYourSearch")}
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
-              {items.map((item) => (
-                <MediaCard
-                  key={item.id}
-                  item={item}
-                  selected={Boolean(selectedMap[item.id])}
-                  deleting={Boolean(deletingIds[item.id])}
-                  onClick={() => handlePick(item)}
-                  onDelete={() => void handleDelete(item)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="border-t border-slate-200 px-5 py-4">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div className="text-sm text-slate-500">
-              Page {page} of {totalPages}
-              {mode === "multiple" && (
-                <span className="ml-3">
-                  {t("selected")} <span className="font-medium text-slate-900">{selectedItems.length}</span>
-                </span>
-              )}
-            </div>
-
-            <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
+                <input
+                  ref={inputRef}
+                  type="file"
+                  className="hidden"
+                  onChange={onFileInputChange}
+                  accept={
+                    mediaType === "image"
+                      ? "image/*"
+                      : mediaType === "video"
+                        ? "video/*"
+                        : undefined
+                  }
+                />
                 <button
                   type="button"
-                  disabled={page <= 1}
-                  onClick={() => setPage((current) => Math.max(1, current - 1))}
-                  className="rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  disabled={
+                    uploadProgress !== null ||
+                    Boolean(
+                      mode === "multiple" &&
+                        maxSelection &&
+                        selectedItems.length >= maxSelection
+                    )
+                  }
+                  onClick={() => inputRef.current?.click()}
+                  className="inline-flex h-11 items-center gap-2 rounded-2xl bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-800"
                 >
-                  {t("previous")}
-                </button>
-                <button
-                  type="button"
-                  disabled={page >= totalPages}
-                  onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
-                  className="rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {t("next")}
+                  <Upload className="h-4 w-4" />
+                  {t("upload")}
                 </button>
               </div>
+            </div>
 
-              {mode === "multiple" && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    onConfirm(selectedItems);
-                    onClose();
-                  }}
-                  className="rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800"
-                >
-                  {t("useSelectedFiles")}
-                </button>
-              )}
+            {uploadProgress !== null && (
+              <div className="mt-3">
+                <div className="mb-1 flex items-center justify-between text-xs text-slate-500">
+                  <span>{t("uploading")}</span>
+                  <span>
+                    {new Intl.NumberFormat(locale, { style: "percent" }).format(
+                      uploadProgress / 100
+                    )}
+                  </span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+                  <div
+                    className="h-full rounded-full bg-slate-900 transition-all"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {errorMessage && (
+              <div
+                role="alert"
+                className="mt-3 flex items-start gap-2 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+              >
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
+          </div>
+
+          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
+            {loading ? (
+              <div className="flex h-full items-center justify-center py-24 text-slate-500">
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                {t("loading")}
+              </div>
+            ) : items.length === 0 ? (
+              <div className="flex h-full flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-slate-50 py-24 text-center">
+                <FileImage className="mb-3 h-10 w-10 text-slate-400" />
+                <div className="text-base font-medium text-slate-900">
+                  {t("emptyLibrary")}
+                </div>
+                <div className="mt-1 text-sm text-slate-500">
+                  {t("emptyLibraryHint")}
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+                {items.map((item) => (
+                  <MediaCard
+                    key={item.id}
+                    item={item}
+                    selected={Boolean(selectedMap[item.id])}
+                    deleting={Boolean(deletingIds[item.id])}
+                    onClick={() => handlePick(item)}
+                    onDelete={
+                      allowDelete ? () => void handleDelete(item) : undefined
+                    }
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="border-t border-slate-200 px-5 py-4">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div className="text-sm text-slate-500">
+                {t("page", { page, total: totalPages })}
+                {mode === "multiple" && (
+                  <span className="ms-3">
+                    {t("selected")}{" "}
+                    <span className="font-medium text-slate-900">
+                      {new Intl.NumberFormat(locale).format(
+                        selectedItems.length
+                      )}
+                    </span>
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={page <= 1}
+                    onClick={() =>
+                      setPage((current) => Math.max(1, current - 1))
+                    }
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {t("previous")}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={page >= totalPages}
+                    onClick={() =>
+                      setPage((current) => Math.min(totalPages, current + 1))
+                    }
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {t("next")}
+                  </button>
+                </div>
+
+                {mode === "multiple" && (
+                  <button
+                    type="button"
+                    disabled={
+                      uploadProgress !== null || selectedItems.length === 0
+                    }
+                    onClick={() => {
+                      onConfirm(selectedItems);
+                      onClose();
+                    }}
+                    className="rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800"
+                  >
+                    {t("confirm")}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </DialogPrimitive.Content>
+      </DialogPortal>
+    </Dialog>
   );
 }
