@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import type { JSX } from "react";
 
 import type { RewardsPageData, RewardsTier } from "./rewards.data";
 
@@ -139,17 +140,17 @@ export default function RewardsClient({ data }: { data: RewardsPageData }) {
           </div>
 
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-white rounded-2xl p-4 border border-gray-200 text-center">
-              <div className="text-2xl font-bold text-gray-900 mb-1">${data.user.totalSpent.toLocaleString(locale)}</div>
-              <div className="text-xs text-gray-600">{t("overview.totalSpent")}</div>
+            <div className="min-w-0 rounded-2xl border border-gray-200 bg-white px-2 py-4 text-center">
+              <div className="truncate text-base font-bold text-gray-900 mb-1 sm:text-2xl">${data.user.totalSpent.toLocaleString(locale)}</div>
+              <div className="truncate text-xs text-gray-600">{t("overview.totalSpent")}</div>
             </div>
-            <div className="bg-white rounded-2xl p-4 border border-gray-200 text-center">
-              <div className="text-2xl font-bold text-gray-900 mb-1">{data.user.referrals}</div>
-              <div className="text-xs text-gray-600">{t("overview.referrals")}</div>
+            <div className="min-w-0 rounded-2xl border border-gray-200 bg-white px-2 py-4 text-center">
+              <div className="truncate text-base font-bold text-gray-900 mb-1 sm:text-2xl">{data.user.referrals.toLocaleString(locale)}</div>
+              <div className="truncate text-xs text-gray-600">{t("overview.referrals")}</div>
             </div>
-            <div className="bg-white rounded-2xl p-4 border border-gray-200 text-center">
-              <div className="text-2xl font-bold text-gray-900 mb-1">${data.user.referralEarnings}</div>
-              <div className="text-xs text-gray-600">{t("overview.earned")}</div>
+            <div className="min-w-0 rounded-2xl border border-gray-200 bg-white px-2 py-4 text-center">
+              <div className="truncate text-base font-bold text-gray-900 mb-1 sm:text-2xl">${data.user.referralEarnings.toLocaleString(locale)}</div>
+              <div className="truncate text-xs text-gray-600">{t("overview.earned")}</div>
             </div>
           </div>
 
@@ -313,6 +314,19 @@ export default function RewardsClient({ data }: { data: RewardsPageData }) {
 
       {selectedTab === "referrals" && (
         <div className="px-5 py-6 space-y-6">
+          <div className="bg-white rounded-2xl border border-gray-200 p-6">
+            <h3 className="font-bold text-gray-900 mb-4">{t("referrals.yourStats")}</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-green-50 rounded-xl p-4 text-center">
+                <div className="text-3xl font-bold text-green-600 mb-1">{data.referral.referrals}</div>
+                <div className="text-sm text-green-700">{t("referrals.successful")}</div>
+              </div>
+              <div className="bg-blue-50 rounded-xl p-4 text-center">
+                <div className="text-3xl font-bold text-blue-600 mb-1">${data.referral.referralEarnings}</div>
+                <div className="text-sm text-blue-700">{t("referrals.totalEarned")}</div>
+              </div>
+            </div>
+          </div>
           <div className="bg-gradient-to-br from-[#083f30] to-[#0a5a44] rounded-3xl p-6 text-white shadow-xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
@@ -368,19 +382,7 @@ export default function RewardsClient({ data }: { data: RewardsPageData }) {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-200 p-6">
-            <h3 className="font-bold text-gray-900 mb-4">{t("referrals.yourStats")}</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-green-50 rounded-xl p-4 text-center">
-                <div className="text-3xl font-bold text-green-600 mb-1">{data.referral.referrals}</div>
-                <div className="text-sm text-green-700">{t("referrals.successful")}</div>
-              </div>
-              <div className="bg-blue-50 rounded-xl p-4 text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-1">${data.referral.referralEarnings}</div>
-                <div className="text-sm text-blue-700">{t("referrals.totalEarned")}</div>
-              </div>
-            </div>
-          </div>
+
         </div>
       )}
     </div>

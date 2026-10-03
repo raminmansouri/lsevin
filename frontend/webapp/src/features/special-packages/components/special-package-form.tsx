@@ -66,6 +66,7 @@ function toFormValues(row?: SpecialPackageAdminRow | null): FormValues {
     subtitleTranslations: withTranslationDefaults(row?.subtitleTranslations),
     descriptionTranslations: withTranslationDefaults(row?.descriptionTranslations),
     providerId: row?.providerId ?? null,
+    providerServiceId: row?.providerServiceId ?? null,
     priceAmount: row?.priceAmount ?? null,
     currencyCode: row?.currencyCode ?? "",
     originalPriceAmount: row?.originalPriceAmount ?? null,
@@ -256,7 +257,27 @@ export function SpecialPackageForm({ pkg }: { pkg?: SpecialPackageAdminRow | nul
                   </FormItem>
                 )}
               />
-
+                <FormField
+                    control={form.control}
+                    name="providerServiceId"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>شناسه خدمت قابل رزرو</FormLabel>
+                            <FormControl>
+                                <Input
+                                    value={field.value ?? ""}
+                                    onChange={(event) => field.onChange(event.target.value)}
+                                    disabled={isPending}
+                                    placeholder="UUID از جدول provider_services"
+                                />
+                            </FormControl>
+                            <FormDescription>
+                                این خدمت دقیقی است که با رزرو این پکیج ثبت می‌شود — بدون نیاز به انتخاب پزشک یا زمان.
+                            </FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
               <FormField
                 control={form.control}
                 name="currencyCode"

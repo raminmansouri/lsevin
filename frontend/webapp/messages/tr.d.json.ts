@@ -3001,6 +3001,7 @@ declare const messages: {
       "backAria": "Ana sayfaya dön",
       "emptyDescription": "Özel paketler yayınlanır yayınlanmaz burada görünecek.",
       "emptyTitle": "Henüz paket yok",
+      "reserveButton": "Rezervasyon Yap",
       "subtitle": "Seçkin fırsatlar ve paketler",
       "title": "Özel Paketler"
     },
@@ -8110,16 +8111,12 @@ declare const messages: {
       "dynamicHeroSubtitle": "Mevcut ödüller şu sırayla açılır: {rewards}.",
       "dynamicShareMessage": "{code} davet kodumla LSevin'e katıl. {subtitle} Buradan kaydol: {link}",
       "dynamicTerms": {
-        "stackingAllowed": "Bu program şu anda birleştirilebilir indirimlere izin veriyor.",
-        "stackingNotAllowed": "İndirimler aynı ödemede birleştirilemez.",
-        "previousRedeemedRequired": "Yeni kazanılan bir indirim yalnızca önceki indirim kullanıldıktan sonra açılır.",
-        "referrerSequence": "Davet eden ödül sırası: {values}.",
-        "refereeRewards": "Davet edilen için hoş geldin ödülleri: {values}.",
-        "maxReferrals": "Her davet eden, aktif program kapsamında en fazla {count} davet ödülü kazanabilir.",
-        "policyMayChange": "LSevin, aktif davet politikasını yönetim panelinden istediği zaman güncelleyebilir."
+        "flatReward": "Davet ettiğiniz her arkadaşınız için cüzdanınıza 100.000 Toman eklenir.",
+        "creditedAfterBooking": "Ödül, arkadaşınız ilk rezervasyonunu tamamladığında cüzdanınıza yatırılır.",
+        "policyMayChange": "LSEVIN, aktif davet kurallarını yönetim panelinden istediği zaman güncelleyebilir."
       },
-      "heroSubtitle": "LSevin'i arkadaşlarınla paylaş, davet avantajlarının kilidini aç.",
-      "heroTitle": "Arkadaşlarını davet et, ödül kazan",
+      "heroSubtitle": "Her başarılı davet için cüzdanınıza 100.000 Toman eklenir.",
+      "heroTitle": "Arkadaşlarını davet et, 100.000 Toman kazan",
       "howItWorks": "Nasıl çalışır",
       "methods": {
         "email": "E-posta",
@@ -8706,7 +8703,7 @@ declare const messages: {
       "writeReview": "Değerlendirme yaz"
     },
     "sections": {
-      "about": "Hakkında",
+      "about": "Adres",
       "certifications": "Sertifikalar",
       "contact": "İletişim",
       "gallery": "Galeri",

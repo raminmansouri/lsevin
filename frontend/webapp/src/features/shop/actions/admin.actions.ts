@@ -98,6 +98,7 @@ const formBoolean = z.preprocess(
   parseFormBoolean,
   z.boolean(),
 );
+<<<<<<< HEAD
 function revalidateCatalog() {
   for (const tag of ["shop-product", "shop-home", "shop-categories"]) revalidateTag(tag);
   revalidatePath("/[locale]/admin/shop/products", "page");
@@ -106,6 +107,9 @@ function revalidateCatalog() {
 }
 
 const publishSchema = z.object({ productId: shopId, published: formBoolean });
+=======
+const publishSchema = z.object({ productId: z.string().uuid(), published: formBoolean });
+>>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
 export async function setProductPublishedAction(input: unknown) {
   const p = publishSchema.parse(input);
   await setProductPublished({ productId: p.productId, published: p.published === true });
@@ -191,7 +195,10 @@ export async function unlinkProductServiceAction(input: unknown) {
 export async function deleteProductAction(input: unknown) {
   const p = z.object({ productId: shopId }).parse(input);
   await softDeleteProduct({ productId: p.productId });
+<<<<<<< HEAD
   revalidateCatalog();
+=======
+>>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
   revalidatePath("/admin/shop/products");
   return { ok: true as const };
 }

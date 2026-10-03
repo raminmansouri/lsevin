@@ -1280,6 +1280,11 @@ export function BookingWizard() {
 
                   {draft.selectedDate ? (<div>
                       <div className="mb-3 text-sm font-bold text-slate-900">{tBooking("availableTimeSlotsFor")}{formatBookingDate(draft.selectedDate, { locale, calendar })} <span className="text-xs font-normal">({providerTimeZone})</span></div>
+                      {viewerTimeZone !== providerTimeZone && (
+                          <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                              {tBooking("timezoneMismatchWarning", { providerZone: providerTimeZone, viewerZone: viewerTimeZone })}
+                          </div>
+                      )}
                       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                         {timeSlots.map((slot) => {
                         const selected = draft.selectedTimeFrom === slot.time && draft.selectedTimeTo === slot.endTime;

@@ -69,16 +69,6 @@ function toSearchTerm(value: string) {
     return normalizeTerm(value).slice(0, SEARCH_TERM_MAX_LENGTH);
 }
 
-// `SearchResultsItem` (from the backend) has no `href` field — only `type`
-// ("service" | "provider") and a numeric `id`. This mirrors the two route
-// shapes the app already uses elsewhere. If either route differs from what's
-// actually registered, update the two paths below — nothing else reads them.
-function buildResultHref(result: SearchResultsItem) {
-    return result.type === "provider"
-        ? `/n/app/mobile/provider/${result.id}`
-        : `/n/app/mobile/service/${result.id}`;
-}
-
 // How long to wait after the visitor stops typing before firing the live,
 // inline search. Kept short — this is meant to feel instant — but long
 // enough that every keystroke doesn't open its own request.
@@ -153,7 +143,7 @@ export function MobileSearchPageClient({ initialData }: MobileSearchPageClientPr
     // result twice.
     const liveResults = useMemo(() => {
         const rows = liveData?.results ?? [];
-        const seen = new Set<number>();
+        const seen = new Set<string>();
         return rows.filter((row) => {
             if (seen.has(row.id)) return false;
             seen.add(row.id);
@@ -355,7 +345,7 @@ function InlineResultsSection({
                         <button
                             type="button"
                             key={result.id}
-                            onClick={() => navigate(buildResultHref(result))}
+                            onClick={() => navigate(result.href)}
                             className="group flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-gray-50 rtl:text-right"
                         >
                             <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100">

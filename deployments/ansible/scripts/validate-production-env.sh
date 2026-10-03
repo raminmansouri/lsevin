@@ -48,7 +48,8 @@ required_nonempty = [
     'CADDY_ACME_EMAIL', 'APP_DOMAIN', 'APP_ALIAS_DOMAIN', 'API_DOMAIN', 'PROVIDERS_DOMAIN',
     'SHOP_DOMAIN', 'CRM_DOMAIN', 'JENKINS_DOMAIN', 'NEXT_PUBLIC_URL',
     'NEXT_PUBLIC_API_URL', 'NEXT_PUBLIC_FILES_URL', 'NEXT_PUBLIC_SOCKET_URL',
-    'AUTH_URL', 'AUTH_SECRET', 'INTERNAL_API_URL', 'WEBHOOK_KEY',
+    'AUTH_URL', 'AUTH_SECRET', 'PATIENT_IDENTIFIER_HASH_SECRET',
+    'PATIENT_IDENTIFIER_ENCRYPTION_KEY', 'INTERNAL_API_URL', 'WEBHOOK_KEY',
     'WEBAPP_API_KEY', 'DATABASE_URL', 'DATABASE_URL_DIRECT', 'POSTGRES_DB',
     'POSTGRES_USER', 'POSTGRES_PASSWORD', 'POSTGRES_MONITOR_USER',
     'POSTGRES_MONITOR_PASSWORD', 'JWT_ISSUER', 'JWT_AUDIENCE', 'JWT_SECRET',
@@ -89,10 +90,19 @@ for key, minimum in (('POSTGRES_PASSWORD', 12), ('POSTGRES_MONITOR_PASSWORD', 24
         )
 
 for key, minimum in (
-    ('AUTH_SECRET', 32), ('WEBHOOK_KEY', 32), ('WEBAPP_API_KEY', 32), ('JWT_SECRET', 32)
+    ('AUTH_SECRET', 32), ('PATIENT_IDENTIFIER_HASH_SECRET', 64),
+    ('PATIENT_IDENTIFIER_ENCRYPTION_KEY', 64), ('WEBHOOK_KEY', 32),
+    ('WEBAPP_API_KEY', 32), ('JWT_SECRET', 32)
 ):
     if len(values[key]) < minimum:
         raise SystemExit(f'ERROR: {key} must contain at least {minimum} characters')
+
+if not re.fullmatch(r'[0-9a-fA-F]{64}', values['PATIENT_IDENTIFIER_HASH_SECRET']):
+    raise SystemExit('ERROR: PATIENT_IDENTIFIER_HASH_SECRET must be exactly 64 hexadecimal characters')
+if not re.fullmatch(r'[0-9a-fA-F]{64}', values['PATIENT_IDENTIFIER_ENCRYPTION_KEY']):
+    raise SystemExit('ERROR: PATIENT_IDENTIFIER_ENCRYPTION_KEY must be exactly 64 hexadecimal characters')
+if values['PATIENT_IDENTIFIER_ENCRYPTION_KEY'] == values['PATIENT_IDENTIFIER_HASH_SECRET']:
+    raise SystemExit('ERROR: patient identifier encryption and hash keys must be different')
 
 if values['WEBAPP_API_KEY'] != values['WEBHOOK_KEY']:
     raise SystemExit('ERROR: WEBAPP_API_KEY must equal WEBHOOK_KEY for API-to-webapp webhook authentication')

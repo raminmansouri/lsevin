@@ -370,7 +370,12 @@ async function getSpecialistServiceRows(specialistId: string, locale: string): P
         nullif(common.get_translation_t(ps.description_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}), ''),
         common.get_translation_t(sd.description_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE})
       ) as description,
-      coalesce(nullif(ps.image_url, ''), service_gallery.url, nullif(sp.image_url, ''), provider_gallery.url) as image,
+      coalesce(
+        nullif(ps.image_url, ''),
+        service_gallery.url,
+        sd_image_media.file_url,
+        nullif(sd.image_url, '')
+      ) as image,
       sp.city,
       sp.country,
       ps.value,
@@ -399,14 +404,8 @@ async function getSpecialistServiceRows(specialistId: string, locale: string): P
       order by psgi.is_primary desc, psgi.display_order asc, psgi.create_date asc
       limit 1
     ) service_gallery on true
-    left join lateral (
-      select pgi.url
-      from category.provider_gallery_items pgi
-      where pgi.service_provider_id = sp.id
-        and nullif(pgi.url, '') is not null
-      order by pgi.display_order asc, pgi.create_date asc
-      limit 1
-    ) provider_gallery on true
+    left join media.media_library sd_image_media
+      on sd_image_media.id = case when sd.image_url ~* ${UUID_RE.source} then sd.image_url::uuid else null end
     where ps.service_provider_id in (select service_provider_id from linked_providers)
       and ps.is_active = true
       and sd.is_active = true

@@ -746,45 +746,7 @@ async function getGalleryItems(serviceDefinitionId: string, providerServiceId: s
     limit 36
   `;
 
-  const providerGallery = await sql<GalleryRow[]>`
-    with active_provider_services as (
-      select distinct
-        ps.service_provider_id,
-        ps.id as provider_service_id,
-        ps.is_popular,
-        ps.rating,
-        ps.review_count,
-        ps.create_date,
-        sp.is_sponsored,
-        sp.featured_score
-      from category.provider_services ps
-      join category.service_providers sp on sp.id = ps.service_provider_id
-      where ps.service_definition_id = ${serviceDefinitionId}::uuid
-        and ps.is_active = true
-        and sp.is_active = true
-    )
-    select
-      pgi.id::text as id,
-      common.get_translation_t(pgi.title_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as title,
-      common.get_translation_t(pgi.description_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as description,
-      coalesce(m.file_url, pgi.url) as url,
-      coalesce(m.media_type, pgi.media_type, 'image') as media_type,
-      pgi.display_order,
-      false as is_primary,
-      'provider_gallery'::text as source
-    from category.provider_gallery_items pgi
-    join active_provider_services aps on aps.service_provider_id = pgi.service_provider_id
-    left join media.media_library m on m.id::text = nullif(pgi.url, '')
-    order by
-      case when aps.provider_service_id = ${providerServiceId}::uuid then 0 else 1 end,
-      coalesce(aps.is_popular, false) desc,
-      coalesce(aps.is_sponsored, false) desc,
-      coalesce(aps.rating, 0) desc,
-      coalesce(aps.review_count, 0) desc,
-      pgi.display_order asc,
-      pgi.create_date desc
-    limit 24
-  `;
+
 
   // The image an admin picked for this service leads the gallery, so the hero on the
   // service page is the same picture every card shows. It used to be appended after
@@ -804,7 +766,7 @@ async function getGalleryItems(serviceDefinitionId: string, providerServiceId: s
     : [];
   // dedupeGalleryItems keeps the first occurrence of a url, so a featured image that is
   // also a gallery row stays at the front instead of being listed twice.
-  const dbGallery = dedupeGalleryItems([...featured, ...[...serviceGallery, ...providerGallery].map(mapGalleryRow)]);
+  const dbGallery = dedupeGalleryItems([...featured, ...serviceGallery.map(mapGalleryRow)]);
   const existingUrls = new Set(dbGallery.map((item) => item.url.trim().toLowerCase()));
   const fallbackGallery = fallbackImages
     .filter((url) => !existingUrls.has(url.trim().toLowerCase()))
@@ -1384,7 +1346,7 @@ export async function getServicePageByIdFromDb({
     resolveIsIranianVisitor().catch(() => false),
   ]);
 
-  const fallbackImages = uniqueNonEmpty([row.image_url, row.provider_image_url]);
+  const fallbackImages = uniqueNonEmpty([row.image_url]);
 
   const [
     included,

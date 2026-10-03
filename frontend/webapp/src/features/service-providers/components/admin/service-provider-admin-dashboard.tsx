@@ -139,10 +139,15 @@ function hasLocalizedMeaningfulContent(value: Record<string, string>) {
 function translationText(
   value?: Record<string, string> | null,
   fallback = "-",
+  preferredLocale?: string,
 ) {
   if (!value || typeof value !== "object") return fallback;
 
-  const preferredLocales = ["en-US", "en", "fa-IR", "fa"];
+  const localeMap: Record<string, string> = { fa: "fa-IR", en: "en-US", ar: "ar-SA", tr: "tr-TR", ru: "ru-RU" };
+  const normalizedPreferred = preferredLocale ? (localeMap[preferredLocale] || preferredLocale) : null;
+  const preferredLocales = normalizedPreferred
+    ? [normalizedPreferred, preferredLocale as string, "en-US", "en", "fa-IR", "fa"]
+    : ["en-US", "en", "fa-IR", "fa"];
   for (const key of preferredLocales) {
     const exact = value[key]?.trim();
     if (exact) return exact;
@@ -176,12 +181,14 @@ function RichTranslation({
   value,
   fallback = "No description.",
   className = "text-sm text-muted-foreground leading-relaxed",
+  preferredLocale,
 }: {
   value?: Record<string, string> | null;
   fallback?: string;
   className?: string;
+  preferredLocale?: string;
 }) {
-  const content = translationText(value, "");
+  const content = translationText(value, "", preferredLocale);
 
   if (content && hasLexicalContent(content)) {
     return <LexicalRenderer content={content} className={className} />;
@@ -214,6 +221,7 @@ function LocalizedInputBridge({
     () => toLocalizedInputValue(value, locale, SUPPORTED_LOCALE_HEADERS),
     [value, locale],
   );
+  console.log('🔧 bridge got value', value, '-> normalized', normalizedValue);
 
   return (
     <LocalizedInput
@@ -843,8 +851,8 @@ function CertificationsManager({
 }
 
 type ProviderGalleryDraftForm = {
-  title: Record<string, unknown>;
-  description: Record<string, unknown>;
+  title: AdminLocalizedInputValue;
+  description: AdminLocalizedInputValue;
   url: unknown;
   mediaType: string;
   displayOrder: number;
@@ -1070,10 +1078,11 @@ function GalleryManager({
 
 type ProviderPolicyDraftForm = {
   policyTypeId: string;
-  description: Record<string, unknown>;
+  description: AdminLocalizedInputValue;
 };
 
 function PoliciesManager({ provider, lookups, locale }: Props) {
+  console.log('🌐 PoliciesManager locale prop:', locale);
   const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
@@ -1084,6 +1093,10 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
       description: createEmptyLocalizedContent(),
     },
   });
+
+  const [editingPolicyId, setEditingPolicyId] = useState<string | null>(null);
+
+
   const save = useAction(saveProviderPolicyAction, {
     startTransition,
     onSuccess: () => {
@@ -1092,6 +1105,7 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
         policyTypeId: "",
         description: createEmptyLocalizedContent(),
       });
+      setEditingPolicyId(null);
       router.refresh();
     },
     onError: ActionErrorToast,
@@ -1128,6 +1142,7 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
       // provider_policy_type_id is nullable in the database. Do not block saving
       // if the lookup is empty or the admin wants a generic/custom policy.
       policyTypeId: policyTypeId || null,
+      id: editingPolicyId || undefined,
       type: selectedPolicyType?.label
         ? normalizeLocalizedContentForDatabase(
             { [locale || "fa-IR"]: selectedPolicyType.label },
@@ -1148,13 +1163,16 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
       title={tAdmin("policies")}
       description="Cancellation, refund, admission, age, document, and house rules."
     >
+
+
+
       <Form {...policyForm}>
-        <div className="grid gap-4 md:grid-cols-[320px_1fr_auto]">
+        <div className="w-full min-w-0 max-w-full space-y-4">
           <FormField
             control={policyForm.control}
             name="policyTypeId"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-full min-w-0 max-w-full">
                 <FormControl>
                   <LazyAdminLookupSelect
                     lookupType="policyTypes"
@@ -1171,46 +1189,72 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
                     placeholder={tAdmin("selectPolicyType")}
                     initialOptions={lookups.policyTypes}
                     disabled={isPending}
-                    contentClassName="w-[420px]"
+                    contentClassName="w-[420px] max-w-[calc(100vw-2rem)]"
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+
           <FormField
             control={policyForm.control}
             name="description"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-full min-w-0 max-w-full">
                 <FormControl>
-                  <LocalizedInputBridge
-                    label={tAdmin("description")}
-                    value={field.value}
-                    onChange={(value) => {
-                      field.onChange(value);
-                      policyForm.clearErrors("description");
-                    }}
-                    locale={locale}
-                    richText
-                    rows={4}
-                    maxLength={2000}
-                  />
+                  <div className="w-full min-w-0 max-w-full overflow-x-auto">
+                    <LocalizedInputBridge
+                      key={editingPolicyId || "new"}
+                      label={tAdmin("description")}
+                      value={field.value}
+                      onChange={(value) => {
+                        field.onChange(value);
+                        policyForm.clearErrors("description");
+                      }}
+                      locale={locale}
+                      richText
+                      rows={4}
+                      maxLength={2000}
+                    />
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button
-            type="button"
-            onClick={() => onAddPolicy()}
-            disabled={isPending}
-            className="self-start"
-          >
-            <Plus className="me-2 h-4 w-4" /> {t("add")}
-          </Button>
+
+          <div className="flex flex-wrap items-center justify-end gap-2 border-t pt-4">
+            {editingPolicyId ? (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setEditingPolicyId(null);
+                  policyForm.reset({
+                    policyTypeId: "",
+                    description: createEmptyLocalizedContent(),
+                  });
+                }}
+                disabled={isPending}
+              >
+                {t("cancel")}
+              </Button>
+            ) : null}
+            <Button
+              type="button"
+              onClick={() => onAddPolicy()}
+              disabled={isPending}
+            >
+              <Plus className="me-2 h-4 w-4" />{" "}
+              {editingPolicyId ? t("save") : t("add")}
+            </Button>
+          </div>
         </div>
       </Form>
+
+
+
       <div className="space-y-2">
         {provider.policies.length ? (
           provider.policies.map((item) => (
@@ -1220,8 +1264,8 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
             >
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <div className="font-medium">
-                    {translationText(item.type)}
+                   <div className="font-medium">
+                    {translationText(item.type, "-", locale)}
                   </div>
                   {item.policyTypeCode ? (
                     <Badge variant="outline">{item.policyTypeCode}</Badge>
@@ -1230,17 +1274,37 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
                 <RichTranslation
                   value={item.description}
                   fallback="No policy description."
+                  preferredLocale={locale}
                 />
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() =>
-                  del.execute({ serviceProviderId: provider.id, id: item.id })
-                }
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              <div className="flex gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    console.log('🔧 raw item.description', item.description);
+                    setEditingPolicyId(item.id);
+                    policyForm.reset({
+                      policyTypeId: item.policyTypeId || "",
+                      description: item.description as unknown as AdminLocalizedInputValue,
+                    });
+                    console.log('🔧 policyForm after reset', policyForm.getValues());
+                  }}
+                  disabled={isPending}
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() =>
+                    del.execute({ serviceProviderId: provider.id, id: item.id })
+                  }
+                  disabled={isPending}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           ))
         ) : (
@@ -1250,6 +1314,7 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
     </RelationCard>
   );
 }
+
 
 function AttributesManager({ provider, lookups, locale }: Props) {
   const t = useTranslations("AdminGenerated");
@@ -1343,8 +1408,8 @@ function AttributesManager({ provider, lookups, locale }: Props) {
 
 type ServiceManagerFormValues = {
   serviceDefinitionId: string;
-  displayName: Record<string, unknown>;
-  description: Record<string, unknown>;
+  displayName: AdminLocalizedInputValue;
+  description: AdminLocalizedInputValue;
   currency: string;
   priceText: string;
   priceTomanText: string;

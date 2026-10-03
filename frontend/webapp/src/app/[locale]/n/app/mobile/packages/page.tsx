@@ -1,6 +1,8 @@
 import { getTranslations } from 'next-intl/server';
 import { ChevronLeft, Sparkles } from 'lucide-react';
 
+import { ReserveButton } from './reserve-button'; 
+
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import { Link } from '@/i18n/navigation';
 import type { PageProps } from '@/types/next';
@@ -62,6 +64,7 @@ export default async function SpecialPackagesPage({ params }: PageProps) {
                 pkg={pkg}
                 locale={locale}
                 selectedCountryCode={null}
+                t={t}
               />
             ))}
           </div>
@@ -77,10 +80,12 @@ function SpecialPackageCard({
   pkg,
   locale,
   selectedCountryCode,
+  t,
 }: {
   pkg: SpecialPackagePublicItem;
   locale: string;
   selectedCountryCode?: string | null;
+  t: Awaited<ReturnType<typeof getTranslations>>;
 }) {
   const mediaUrl = resolveHomeMediaUrl(pkg.imageUrl);
 
@@ -132,6 +137,12 @@ function SpecialPackageCard({
             />
           </div>
         ) : null}
+
+        <ReserveButton
+            href={pkg.providerServiceId ? `/n/app/mobile/packages/${pkg.id}/checkout` : undefined}
+            label={t('packagesPage.reserveButton')}
+          className="mt-3 flex h-10 w-full items-center justify-center rounded-xl bg-[#083f30] text-sm font-bold text-white transition-colors hover:bg-[#0a5a44]"
+        />
       </div>
     </Link>
   );

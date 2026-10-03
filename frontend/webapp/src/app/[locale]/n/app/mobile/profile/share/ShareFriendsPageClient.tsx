@@ -17,6 +17,7 @@ import {
   Users,
 } from "lucide-react";
 
+
 import type { ShareFriendsPageData } from "./types";
 import { encodeShareText, formatDateLabel } from "./utils";
 
@@ -29,11 +30,12 @@ export function ShareFriendsPageClient({
 }: ShareFriendsPageClientProps) {
   const router = useRouter();
   const t = useTranslations("MobileProfile.shareFriends");
+  const tRewards = useTranslations("MobileProfile.rewards");
   const [copied, setCopied] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  const pendingLabel = useMemo(() => `${initialData.stats.pendingRewards}%`, [initialData.stats.pendingRewards]);
-  const earnedLabel = useMemo(() => `${initialData.stats.earnedRewards}%`, [initialData.stats.earnedRewards]);
+  const pendingLabel = useMemo(() => initialData.stats.pendingRewards.toLocaleString(), [initialData.stats.pendingRewards]);
+  const earnedLabel = useMemo(() => initialData.stats.earnedRewards.toLocaleString(), [initialData.stats.earnedRewards]);
 
   const copyCode = async () => {
     await navigator.clipboard.writeText(initialData.referralCode);
@@ -113,12 +115,7 @@ export function ShareFriendsPageClient({
             <Gift size={32} className="text-white" />
           </div>
           <h2 className="text-2xl font-bold mb-2">{t("heroTitle")}</h2>
-          <p className="text-white/90 mb-2">{initialData.heroSubtitle}</p>
-          {initialData.programDescription ? (
-            <p className="text-white/75 text-sm mb-6">{initialData.programDescription}</p>
-          ) : (
-            <div className="mb-6" />
-          )}
+          <p className="text-white/90 mb-6">{initialData.heroSubtitle}</p>
 
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
@@ -143,7 +140,7 @@ export function ShareFriendsPageClient({
             <div className="flex items-center gap-3">
               <div className="flex-1 h-14 bg-gray-50 border-2 border-gray-200 rounded-xl px-4 flex items-center">
                 <span className="text-2xl font-bold text-[#083f30] tracking-wider">
-                  {initialData.referralCode}
+                    <span lang="en" dir="ltr">{initialData.referralCode}</span>
                 </span>
               </div>
               <button
@@ -168,33 +165,6 @@ export function ShareFriendsPageClient({
               </button>
             </div>
 
-            <div className="text-center text-sm text-gray-600">{t("shareReferralLink")}</div>
-
-            <div className="flex items-center gap-3">
-              <div className="flex-1 h-12 bg-gray-50 border border-gray-200 rounded-xl px-4 flex items-center overflow-hidden">
-                <span className="text-sm text-gray-600 truncate">{initialData.referralLink}</span>
-              </div>
-              <button
-                onClick={copyLink}
-                className={`h-12 px-5 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 ${
-                  copiedLink
-                    ? "bg-green-600 text-white"
-                    : "bg-gray-200 text-gray-900 hover:bg-gray-300"
-                }`}
-              >
-                {copiedLink ? (
-                  <>
-                    <Check size={16} />
-                    {t("copied")}
-                  </>
-                ) : (
-                  <>
-                    <Copy size={16} />
-                    {t("copy")}
-                  </>
-                )}
-              </button>
-            </div>
           </div>
         </div>
 
@@ -263,44 +233,25 @@ export function ShareFriendsPageClient({
         </div>
 
         <div className="bg-white rounded-2xl p-5">
-          <h3 className="font-bold text-gray-900 mb-4">{t("howItWorks")}</h3>
+          <h3 className="font-bold text-gray-900 mb-4">{tRewards("referrals.howItWorks")}</h3>
 
           <div className="space-y-4">
-            <div className="flex gap-4">
-              <div className="w-10 h-10 bg-[#083f30] text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">
-                1
+            {[
+              { step: 1, title: tRewards("referrals.steps.share.title"), description: tRewards("referrals.steps.share.description") },
+              { step: 2, title: tRewards("referrals.steps.signup.title"), description: tRewards("referrals.steps.signup.description") },
+              { step: 3, title: tRewards("referrals.steps.book.title"), description: tRewards("referrals.steps.book.description") },
+              { step: 4, title: tRewards("referrals.steps.earn.title"), description: tRewards("referrals.steps.earn.description") },
+            ].map((item) => (
+              <div key={item.step} className="flex gap-4">
+                <div className="w-10 h-10 bg-[#083f30] text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">
+                  {item.step}
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-1">{item.title}</h4>
+                  <p className="text-sm text-gray-600">{item.description}</p>
+                </div>
               </div>
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-1">{t("steps.shareCode.title")}</h4>
-                <p className="text-sm text-gray-600">
-                  {t("steps.shareCode.descriptionLink")}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="w-10 h-10 bg-[#083f30] text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">
-                2
-              </div>
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-1">{t("steps.activeProgram.title")}</h4>
-                <p className="text-sm text-gray-600">
-                  {t("steps.activeProgram.description")}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="w-10 h-10 bg-[#083f30] text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">
-                3
-              </div>
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-1">{t("steps.unlock.title")}</h4>
-                <p className="text-sm text-gray-600">
-                  {t("steps.unlock.description")}
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 

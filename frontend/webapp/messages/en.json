@@ -3210,7 +3210,8 @@
       "subtitle": "Curated deals and bundles",
       "backAria": "Back to home",
       "emptyTitle": "No packages yet",
-      "emptyDescription": "Special packages will appear here as soon as they are published."
+      "emptyDescription": "Special packages will appear here as soon as they are published.",
+      "reserveButton": "Reserve"
     },
     "appBar": {
       "notifications": "Notifications"
@@ -8215,6 +8216,26 @@
       "title": "My Health Record",
       "subtitle": "A read-only summary shared by your care team.",
       "empty": "No health record is linked to your account yet.",
+      "onboarding": {
+        "title": "Start your health record",
+        "body": "Your health record keeps your medical information in one secure place. Treatment cases then organize the documents, requirements and progress for each service you receive.",
+        "steps": {
+          "create": {
+            "title": "Create or link a record",
+            "body": "Request access to your own record or a family member's record using an identity document. The request is reviewed before access is granted."
+          },
+          "complete": {
+            "title": "Add important health information",
+            "body": "After approval, add conditions, allergies, medicines and previous procedures. Patient-entered information stays marked as self-reported until verified."
+          },
+          "follow": {
+            "title": "Follow treatment cases and documents",
+            "body": "Each booking can have a treatment case that groups its steps, required documents, proposals and follow-ups."
+          }
+        },
+        "start": "Create or link my record",
+        "viewCases": "View treatment cases"
+      },
       "limitedAccessNotice": "Your access to this record is limited to basic details.",
       "criticalAllergies": "Critical allergies",
       "conditions": "Conditions",
@@ -8701,16 +8722,12 @@
       "dynamicHeroSubtitle": "Current rewards unlock in sequence: {rewards}.",
       "dynamicShareMessage": "Join LSevin with my referral code {code}. {subtitle} Sign up here: {link}",
       "dynamicTerms": {
-        "stackingAllowed": "This program currently allows combinable discounts.",
-        "stackingNotAllowed": "Discounts cannot be combined in the same checkout.",
-        "previousRedeemedRequired": "A newly earned discount unlocks only after the previous discount is redeemed.",
-        "referrerSequence": "Referrer reward sequence: {values}.",
-        "refereeRewards": "Invitee onboarding rewards: {values}.",
-        "maxReferrals": "Each referrer can qualify for up to {count} referral rewards under the active program.",
-        "policyMayChange": "LSevin can update the active referral policy at any time from admin."
+        "flatReward": "You earn 100,000 Toman in your wallet for every friend you invite.",
+        "creditedAfterBooking": "The reward is credited once your friend completes their first booking.",
+        "policyMayChange": "LSEVIN may update active referral rules at any time from the admin panel."
       },
-      "heroSubtitle": "Share LSevin with friends and unlock referral benefits.",
-      "heroTitle": "Invite friends, earn rewards",
+      "heroSubtitle": "You earn 100,000 Toman in your wallet for every successful referral.",
+      "heroTitle": "Invite friends, earn 100,000 Toman",
       "howItWorks": "How it works",
       "methods": {
         "email": "Email",
@@ -12085,7 +12102,7 @@
     },
     "sections": {
       "languages": "Languages",
-      "about": "About",
+      "about": "Address",
       "gallery": "Gallery",
       "providerDetails": "Provider details",
       "certifications": "Certifications",
@@ -12542,7 +12559,7 @@
         "prescriptionInbox": "Prescription Inbox",
         "orders": "Orders",
         "inventory": "Inventory",
-      "warehouses": "Warehouses",
+        "warehouses": "Warehouses",
         "medicineRequests": "Medicine Requests",
         "deliveryTracking": "Delivery Tracking",
         "operatingHours": "Operating Hours",
@@ -14368,6 +14385,8 @@
         "note": "Note",
         "notePlaceholder": "Reason (required to reject)…",
         "approve": "Approve",
+        "createAndApprove": "Create my patient profile and approve",
+        "createdAndApproved": "The patient profile was created and linked to the account.",
         "reject": "Reject",
         "saving": "Saving…",
         "reviewSaved": "Saved",
@@ -16771,6 +16790,96 @@
     "staffCases": "Staff cases",
     "steps": "Journey steps",
     "activity": "Case activity",
+<<<<<<< HEAD
     "unassigned": "Unassigned"
+=======
+    "unassigned": "Unassigned",
+    "responsibleRole": "Responsible role",
+    "completionNote": "Progress note",
+    "completionNotePlaceholder": "Add a clinical or operational note (optional)",
+    "stepUpdated": "The case step was updated.",
+    "stepStatusChanged": "Step status changed",
+    "noActivity": "No case activity has been recorded yet.",
+    "templateEditor": {
+      "identity": "Template identity",
+      "archivedVersion": "This is an archived version. Open the active version to publish changes.",
+      "name": {
+        "fa": "Persian name",
+        "en": "English name",
+        "ar": "Arabic name"
+      },
+      "description": {
+        "fa": "Persian description",
+        "en": "English description",
+        "ar": "Arabic description"
+      },
+      "title": {
+        "fa": "Persian step title",
+        "en": "English step title",
+        "ar": "Arabic step title"
+      },
+      "stepDescription": {
+        "fa": "Persian step guidance",
+        "en": "English step guidance",
+        "ar": "Arabic step guidance"
+      },
+      "stepNumber": "Step {number}",
+      "stepKey": "Stable step key",
+      "responsibleRole": "Responsible role",
+      "timingAnchor": "Timing anchor",
+      "offsetMinutes": "Offset (minutes)",
+      "durationMinutes": "Expected duration (minutes)",
+      "customerVisible": "Visible to customer",
+      "providerVisible": "Visible to provider",
+      "adminVisible": "Visible to admin",
+      "requiresManualCompletion": "Manual completion required",
+      "addStep": "Add step",
+      "removeStep": "Remove step",
+      "moveUp": "Move step up",
+      "moveDown": "Move step down",
+      "publishVersion": "Publish version {version}",
+      "saved": "A new active template version was published.",
+      "roles": {
+        "customer": "Customer",
+        "provider": "Provider",
+        "staff": "Staff",
+        "admin": "Administrator",
+        "system": "System"
+      },
+      "anchors": {
+        "booking_created": "Booking created",
+        "appointment_start": "Appointment starts",
+        "appointment_end": "Appointment ends",
+        "previous_step": "Previous step"
+      },
+      "errors": {
+        "invalid": "Complete all required fields and use unique step keys.",
+        "stale": "Another administrator published a version first. The latest template was loaded.",
+        "unknown": "The template version could not be published."
+      }
+    },
+    "stepStatuses": {
+      "pending": "Pending",
+      "ready": "Ready",
+      "in_progress": "In progress",
+      "completed": "Completed",
+      "skipped": "Skipped",
+      "blocked": "Blocked",
+      "cancelled": "Cancelled"
+    },
+    "actorRoles": {
+      "customer": "Customer",
+      "provider": "Provider",
+      "staff": "Staff",
+      "admin": "Administrator",
+      "system": "System"
+    },
+    "errors": {
+      "not_found": "This case step no longer exists.",
+      "stale": "This step was changed by someone else. The latest data has been loaded.",
+      "invalid_transition": "This status change is not allowed from the current state.",
+      "unknown": "The case step could not be updated. Please try again."
+    }
+>>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
   }
 }

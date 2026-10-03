@@ -213,9 +213,7 @@ export async function getShareFriendsPageData(
     .sort((a, b) => a.title.localeCompare(b.title))
     .map((rule) => `${rule.title}: ${formatDiscountValue(rule.discount_type, Number(rule.discount_value), "USD")}`);
 
-  const heroSubtitle = referrerRuleValues.length > 0
-    ? t("dynamicHeroSubtitle", { rewards: referrerRuleValues.join(", ") })
-    : t("heroSubtitle");
+  const heroSubtitle = t("heroSubtitle");
 
   const referralLink = `${appBaseUrl.replace(/\/$/, "")}/ref/${referralCode}`;
 
@@ -462,7 +460,7 @@ export async function resolveCustomerFromIdentityUser(
   };
 }
 
-async function getActiveReferralProgram(
+export async function getActiveReferralProgram(
   sql: Sql
 ): Promise<ReferralProgramRow> {
   const rows = await sql<ReferralProgramRow[]>`
@@ -511,7 +509,7 @@ async function getProgramRules(
   `;
 }
 
-async function ensureReferralCode(
+export async function ensureReferralCode(
   sql: Sql,
   args: {
     customer: ResolvedCustomer;
@@ -569,7 +567,7 @@ async function ensureReferralCode(
 
 function buildTerms(
   t: Awaited<ReturnType<typeof getTranslations>>,
-  args: {
+  _args: {
     allowStacking: boolean;
     requirePreviousCouponRedeemed: boolean;
     maxReferralsPerReferrer: number | null;
@@ -577,33 +575,14 @@ function buildTerms(
     refereeRuleValues: string[];
   }
 ): string[] {
-  const terms: string[] = [];
-
-  terms.push(
-    args.allowStacking
-      ? t("dynamicTerms.stackingAllowed")
-      : t("dynamicTerms.stackingNotAllowed")
-  );
-
-  if (args.requirePreviousCouponRedeemed) {
-    terms.push(t("dynamicTerms.previousRedeemedRequired"));
-  }
-
-  if (args.referrerRuleValues.length > 0) {
-    terms.push(t("dynamicTerms.referrerSequence", { values: args.referrerRuleValues.join(", ") }));
-  }
-
-  if (args.refereeRuleValues.length > 0) {
-    terms.push(t("dynamicTerms.refereeRewards", { values: args.refereeRuleValues.join(" • ") }));
-  }
-
-  if (args.maxReferralsPerReferrer !== null) {
-    terms.push(t("dynamicTerms.maxReferrals", { count: args.maxReferralsPerReferrer }));
-  }
-
-  terms.push(t("dynamicTerms.policyMayChange"));
-
-  return terms;
+  // The old coupon-queue system (stacking rules, referee percentage rewards,
+  // max-referral caps) no longer applies now that every successful referral
+  // simply credits a fixed amount to the referrer's wallet.
+  return [
+    t("dynamicTerms.flatReward"),
+    t("dynamicTerms.creditedAfterBooking"),
+    t("dynamicTerms.policyMayChange"),
+  ];
 }
 
 function normalizeHistoryStatus(value: string): "invited" | "pending" | "completed" {

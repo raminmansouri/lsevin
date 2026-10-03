@@ -22,6 +22,7 @@ const VALID_TYPES = new Set<AdminLookupType>([
   "policyTypes",
   "currencies",
   "addons",
+  "paymentMethods",
 ]);
 
 function toPositiveInt(value: string | null, fallback: number) {
@@ -43,6 +44,8 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  const idsParam = searchParams.get("ids");
+
   const result = await searchAdminProviderLookupOptions({
     type,
     locale: searchParams.get("locale") || "fa-IR",
@@ -53,6 +56,7 @@ export async function GET(request: NextRequest) {
     providerTypeId: searchParams.get("providerTypeId"),
     categoryId: searchParams.get("categoryId"),
     excludeProviderId: searchParams.get("excludeProviderId"),
+    ids: idsParam ? idsParam.split(",").map((id) => id.trim()).filter(Boolean) : undefined,
   });
 
   if (result.error) {

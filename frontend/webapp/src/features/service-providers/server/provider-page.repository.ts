@@ -10,6 +10,7 @@ import { resolveDisplayPrice } from "@/features/finance/lib/server/toman-price";
 import type { ConvertedMoney } from "@/features/finance/types";
 import type {
   ProviderAttribute,
+  ProviderBeforeAfter,
   ProviderPageDataResponse,
   ProviderPolicy,
   Recommendation,
@@ -80,7 +81,14 @@ type ProviderRow = {
   responseTime: string | null;
   images: string[] | null;
   videos: { id: string; url: string; title: string | null }[] | null;
-  certifications: { name: string; verified: boolean }[] | null;
+    certifications:
+    | {
+        name: string;
+        verified: boolean;
+        imageUrl?: string | null;
+        secondaryImageUrl?: string | null;
+      }[]
+    | null;
   languages: string[] | null;
   established: number | null;
   totalPatients: string | null;
@@ -427,8 +435,19 @@ export async function getProviderPageDataFromDb(
           and coalesce(nullif(btrim(pgi.media_type), ''), 'image') = 'video'
       ) videos_g on true
       left join lateral (
-        select jsonb_agg(jsonb_build_object('name', pc.name, 'verified', coalesce(pc.is_verified, false)) order by pc.name) as certifications
+        select jsonb_agg(
+          jsonb_build_object(
+            'name', pc.name,
+            'verified', coalesce(pc.is_verified, false),
+            'imageUrl', coalesce(cert_img.file_url, nullif(btrim(pc.image_url), '')),
+            'secondaryImageUrl', coalesce(cert_img2.file_url, nullif(btrim(pc.secondary_image_url), ''))
+          ) order by pc.name
+        ) as certifications
         from category.provider_certifications pc
+        left join media.media_library cert_img
+          on cert_img.id = case when pc.image_url ~* ${UUID_PATTERN} then pc.image_url::uuid else null end
+        left join media.media_library cert_img2
+          on cert_img2.id = case when pc.secondary_image_url ~* ${UUID_PATTERN} then pc.secondary_image_url::uuid else null end
         where pc.service_provider_id = sp.id
       ) cert on true
       left join lateral (
@@ -457,6 +476,7 @@ export async function getProviderPageDataFromDb(
       attributes,
       policies,
       isFavorite,
+      beforeAfter,
     ] = await Promise.all([
       getServiceRows(locale, providerId),
       getSpecialistRows(locale, providerId),
@@ -470,6 +490,7 @@ export async function getProviderPageDataFromDb(
       getProviderAttributes(locale, providerId),
       getProviderPolicies(locale, providerId),
       isProviderFavorite(providerId, input.userId),
+      getProviderBeforeAfter(locale, providerId),
     ]);
 
     const services = await Promise.all(
@@ -514,9 +535,12 @@ export async function getProviderPageDataFromDb(
         videos: toObjectArray<{ id: string; url: string; title: string | null }>(
           row.videos,
         ),
-        certifications: toObjectArray<{ name: string; verified: boolean }>(
-          row.certifications,
-        ),
+        certifications: toObjectArray<{
+          name: string;
+          verified: boolean;
+          imageUrl?: string | null;
+          secondaryImageUrl?: string | null;
+        }>(row.certifications),
         languages: toStringArray(row.languages),
         attributes,
         policies,
@@ -539,6 +563,7 @@ export async function getProviderPageDataFromDb(
         image: specialist.image || "",
         verified: Boolean(specialist.verified),
       })),
+      beforeAfter,
       recentReviews: reviewsPage.reviews,
       reviewsTotal: reviewsPage.total,
       reviewsHasMore: reviewsPage.hasMore,
@@ -684,6 +709,44 @@ async function getServiceRows(
     order by ps.is_popular desc nulls last, ps.trending_score desc nulls last, name asc
   `;
 }
+
+
+
+async function getProviderBeforeAfter(
+  locale: string,
+  providerId: string,
+): Promise<ProviderBeforeAfter[]> {
+  try {
+    return await sql<ProviderBeforeAfter[]>`
+      select
+        ba.id::text as id,
+        coalesce(before_media.file_url, nullif(btrim(ba.before_image), '')) as "before",
+        coalesce(after_media.file_url, nullif(btrim(ba.after_image), '')) as "after",
+        ba.procedure,
+        ba.months,
+        coalesce(
+          nullif(common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US'), ''),
+          common.get_translation_t(sd.name_translations, ${locale}, 'en-US')
+        ) as "serviceName"
+      from category.service_before_after ba
+      join category.provider_services ps on ps.id = ba.provider_service_id
+      join category.service_definitions sd on sd.id = ps.service_definition_id
+      left join media.media_library before_media
+        on before_media.id = case when ba.before_image ~* ${UUID_PATTERN} then ba.before_image::uuid else null end
+      left join media.media_library after_media
+        on after_media.id = case when ba.after_image ~* ${UUID_PATTERN} then ba.after_image::uuid else null end
+      where ps.service_provider_id = ${providerId}::uuid
+        and ps.is_active = true
+        and sd.is_active = true
+      order by ba.display_order asc, ba.create_date desc
+    `;
+  } catch (error) {
+    console.warn("Could not load provider before/after photos.", error);
+    return [];
+  }
+}
+
+
 
 async function getSpecialistRows(locale: string, providerId: string) {
   return sql<any[]>`

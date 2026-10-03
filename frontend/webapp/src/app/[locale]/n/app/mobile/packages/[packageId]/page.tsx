@@ -100,6 +100,20 @@ export default async function SpecialPackageDetailPage({ params }: PageProps) {
           ) : null}
         </div>
       </div>
+
+      <div className="safe-area-bottom fixed bottom-20 left-0 right-0 z-40 border-t border-gray-200 bg-white px-5 py-4 shadow-2xl">
+          <Link
+              href={pkg.providerServiceId ? `/n/app/mobile/packages/${pkg.id}/checkout` : '#'}
+              aria-disabled={!pkg.providerServiceId}
+              className={`flex h-14 w-full items-center justify-center rounded-2xl font-bold text-white transition-all ${
+                  pkg.providerServiceId
+                      ? 'bg-gradient-to-r from-[#083f30] to-[#0a5a44] hover:shadow-xl active:scale-95'
+                      : 'cursor-not-allowed bg-gray-300'
+              }`}
+          >
+              {pkg.providerServiceId ? t('packagesPage.reserveButton') : 'به‌زودی'}
+          </Link>
+      </div>
     </div>
   );
 }

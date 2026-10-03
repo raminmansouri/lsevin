@@ -28,6 +28,11 @@ export const ServiceDefinitionSchema = z.object({
   // service address first (e.g. a nurse visiting their home)? See
   // db/migrations/0041_service_definitions_requires_address.sql.
   requiresCustomerAddress: z.boolean().default(false),
+    // Does booking this service require picking a specialist (doctor, trainer,
+    // etc.)? Defaults to true to match the existing database column default —
+    // most service types (clinics, hospitals) do need one. Provider types with
+    // no specialists (hotels, etc.) should explicitly uncheck this.
+    requiresSpecialist: z.boolean().default(false),
 });
 
 export const ServiceDefinitionFormSchema = ServiceDefinitionSchema;

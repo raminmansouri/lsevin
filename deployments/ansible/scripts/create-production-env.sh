@@ -119,6 +119,13 @@ def keep_or_generate(key: str, length: int = 64) -> str:
         return generated(length)
     return value
 
+
+def keep_or_generate_patient_key(key: str) -> str:
+    value = old.get(key, '')
+    if re.fullmatch(r'[0-9a-fA-F]{64}', value):
+        return value
+    return secrets.token_hex(32)
+
 app_domain = old.get('APP_DOMAIN') or 'appmain.lsevin.com'
 app_alias_domain = old.get('APP_ALIAS_DOMAIN') or 'lsevincare.com'
 api_domain = old.get('API_DOMAIN') or 'api.lsevin.com'
@@ -148,6 +155,8 @@ values = {
     'NEXT_PUBLIC_NESHAN_MAP_KEY': old.get('NEXT_PUBLIC_NESHAN_MAP_KEY', ''),
     'AUTH_URL': f'https://{app_domain}',
     'AUTH_SECRET': keep_or_generate('AUTH_SECRET'),
+    'PATIENT_IDENTIFIER_HASH_SECRET': keep_or_generate_patient_key('PATIENT_IDENTIFIER_HASH_SECRET'),
+    'PATIENT_IDENTIFIER_ENCRYPTION_KEY': keep_or_generate_patient_key('PATIENT_IDENTIFIER_ENCRYPTION_KEY'),
     'INTERNAL_API_URL': 'http://lsevin-api:8080/api/v1',
     'WEBHOOK_KEY': webhook_key,
     'WEBAPP_API_KEY': webapp_api_key,

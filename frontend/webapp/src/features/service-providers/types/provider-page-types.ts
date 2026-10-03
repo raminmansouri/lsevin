@@ -1,6 +1,8 @@
 export interface Certification {
   name: string;
   verified: boolean;
+  imageUrl?: string | null;
+  secondaryImageUrl?: string | null;
 }
 
 export interface ProviderAttribute {
@@ -20,6 +22,16 @@ export interface ServiceAttribute {
   name: string;
   value: string;
 }
+
+export interface ProviderBeforeAfter {
+  id: string;
+  before: string | null;
+  after: string | null;
+  procedure?: string | null;
+  months?: number | null;
+  serviceName?: string | null;
+}
+
 
 export interface Provider {
   id: string;
@@ -111,6 +123,7 @@ export interface Review {
   cons?: string[];
   images?: string[];
   createdByAdmin?: boolean;
+  replies?: ReviewReply[];
 }
 
 export interface ReviewsPage {
@@ -140,6 +153,7 @@ export interface ProviderPageDataResponse {
   provider: Provider;
   services: Service[];
   specialists: Specialist[];
+  beforeAfter?: ProviderBeforeAfter[];
   recentReviews: Review[];
   reviewsTotal: number;
   reviewsHasMore: boolean;

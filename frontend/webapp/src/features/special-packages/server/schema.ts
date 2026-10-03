@@ -60,6 +60,7 @@ export const SpecialPackageInputSchema = z.object({
   subtitleTranslations: localizedTextSchema,
   descriptionTranslations: localizedTextSchema,
   providerId: optionalUuidSchema,
+  providerServiceId: optionalUuidSchema,
   priceAmount: optionalPositiveNumberSchema,
   currencyCode: optionalTextSchema,
   originalPriceAmount: optionalPositiveNumberSchema,
