@@ -67,7 +67,7 @@ export function ProductCard({
         )}
 
         {product.discountPercent != null && product.discountPercent > 0 ? (
-          <span className="absolute start-2 top-2 rounded-md bg-[#e02e2a] px-1.5 py-0.5 text-[11px] font-bold text-white shadow">
+          <span suppressHydrationWarning className="absolute start-2 top-2 rounded-md bg-[#e02e2a] px-1.5 py-0.5 text-[11px] font-bold text-white shadow">
             −{product.discountPercent}%
           </span>
         ) : null}
