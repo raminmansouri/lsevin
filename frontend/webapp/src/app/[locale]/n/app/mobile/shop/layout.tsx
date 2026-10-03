@@ -1,23 +1,24 @@
-import { getShopDefaultCurrencyCached } from "@/features/shop/api/catalog.repository.cached";
 import { ShopCurrencyProvider } from "@/features/shop/components/ShopCurrencyProvider";
+import { getShopContext } from "@/features/shop/lib/context";
+import { resolveDisplayCurrency } from "@/features/shop/lib/pricing";
 
-/**
- * Shop route wrapper. `overflow-x-hidden` is a hard guarantee that no Shop
- * surface — dense product grids, comparison tables, horizontal rails — can make
- * the page scroll sideways on a phone (SHP-UX-010). Wide content that genuinely
- * needs to scroll (the compare table) does so inside its own `overflow-x-auto`
- * container.
- *
- * It also mounts `ShopCurrencyProvider` so every `<ShopPrice>` on a statically
- * rendered storefront page can convert to the visitor's chosen currency on the
- * client.
- */
-export default async function ShopLayout({ children }: { children: React.ReactNode }) {
-  const defaultCurrency = await getShopDefaultCurrencyCached().catch(() => "USD");
+/** Resolves customer currency per request while catalog queries remain cached. */
+export default async function ShopLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { currency: defaultCurrency, selectable } =
+    await resolveDisplayCurrency(await getShopContext());
 
   return (
     <div className="w-full max-w-full overflow-x-hidden">
-      <ShopCurrencyProvider defaultCurrency={defaultCurrency}>{children}</ShopCurrencyProvider>
+      <ShopCurrencyProvider
+        defaultCurrency={defaultCurrency}
+        options={selectable}
+      >
+        {children}
+      </ShopCurrencyProvider>
     </div>
   );
 }

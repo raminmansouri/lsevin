@@ -8,8 +8,8 @@ import type {
   VerifyGatewayPaymentInput,
   VerifyGatewayPaymentOutput,
 } from "../types";
-import { gatewayForRegion, isGatewayAllowedForRegion, resolveUserPaymentRegion } from "./gateway-eligibility";
-import { getEnabledPaymentGatewayConfig, getPaymentGatewayConfig } from "./payment-gateway.repository";
+import { resolveUserPaymentRegion, selectEnabledGatewayForRegion } from "./gateway-eligibility";
+import { getEnabledPaymentGatewayConfig, getPaymentGatewayConfig, listEnabledPaymentGatewayOptions } from "./payment-gateway.repository";
 import {
   getGatewayPaymentByAuthority,
   markGatewayPaymentVerified,
@@ -70,17 +70,11 @@ export async function initiateBookingPayment(input: InitiateBookingPaymentInput 
   // crafted request from routing an Iranian customer to crypto (or the reverse).
   const region = await resolveUserPaymentRegion(input.userId);
 
-  // An omitted gateway is not an error — the region decides. Only an explicit
-  // request for the wrong rail is rejected.
-  if (input.gateway && !isGatewayAllowedForRegion(normalizeGateway(input.gateway), region)) {
-    throw new Error(
-      region === "iran"
-        ? "Crypto payment is not available for Iranian accounts. Please pay with Zarinpal."
-        : "Zarinpal is only available for Iranian accounts. Please pay with crypto."
-    );
+  const enabledGateways = await listEnabledPaymentGatewayOptions({ context: "booking_online_card" });
+  const gateway = selectEnabledGatewayForRegion(enabledGateways, region);
+  if (input.gateway && normalizeGateway(input.gateway) !== gateway) {
+    throw new Error(`Payment gateway ${input.gateway} is not available for this payment.`);
   }
-
-  const gateway = gatewayForRegion(region);
   const gatewayConfig = await getEnabledPaymentGatewayConfig({ code: gateway });
   const provider = getPaymentProvider(gateway);
 

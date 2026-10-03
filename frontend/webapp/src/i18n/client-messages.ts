@@ -98,6 +98,10 @@ export const SEGMENT_NAMESPACES = {
     "AsyncSelect",
     "AvailabilityAdmin",
     "Category",
+    // Admin case detail has interactive step controls. The server-rendered
+    // timeline already had access to this namespace, but its client controls
+    // need the same messages in the browser for labels, errors and toasts.
+    "CaseManagement",
     "Consultation",
     // form-builder, shop and old-bookings used to live in a second `/admin` tree
     // outside the (admin) group, with their own provider carrying this namespace.
@@ -107,6 +111,10 @@ export const SEGMENT_NAMESPACES = {
     "FormBuilder",
     "List",
     "LocalizedInput",
+    // Patient 360 admin screens (including account-link requests) are client
+    // components. Without this namespace they render literal keys such as
+    // `Patients.admin.linkRequests.noMatch` instead of localized copy.
+    "Patients",
     // Reached through the service-provider and staff detail screens, all behind
     // `"use client"` boundaries and all previously rendering their labels as
     // literal "ProviderType.xxx" / "ServiceDefinition.xxx" key paths because the
@@ -185,9 +193,12 @@ export type MessageSegment = keyof typeof SEGMENT_NAMESPACES;
  * why `force-static` pages like home/shop used to bake the Persian bottom nav
  * and greetings onto every /tr and /en page.
  */
-export async function getClientMessages(segment?: MessageSegment, locale?: string) {
+export async function getClientMessages(
+  segment?: MessageSegment,
+  locale?: string
+) {
   const messages = (await getMessages(
-    locale ? { locale } : undefined,
+    locale ? { locale } : undefined
   )) as Messages;
 
   const wanted = new Set<string>([

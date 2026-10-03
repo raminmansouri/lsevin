@@ -1,0 +1,11 @@
+[Unit]
+Description=Run LSevin Docker cleanup every day
+
+[Timer]
+OnCalendar=*-*-* 04:45:00
+Persistent=true
+RandomizedDelaySec=20m
+Unit=lsevin-docker-cleanup.service
+
+[Install]
+WantedBy=timers.target

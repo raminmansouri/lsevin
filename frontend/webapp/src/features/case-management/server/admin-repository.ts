@@ -37,6 +37,19 @@ export type AdminCaseDetail = AdminCaseRow & {
     plannedEndAt: string | null;
     completedAt: string | null;
     completionNote: string | null;
+<<<<<<< HEAD
+=======
+    lockVersion: number;
+  }>;
+  events: Array<{
+    id: string;
+    eventType: string;
+    actorRole: string | null;
+    fromStatus: string | null;
+    toStatus: string | null;
+    note: string | null;
+    createdAt: string;
+>>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
   }>;
 };
 
@@ -50,7 +63,33 @@ export type ProcessTemplateRow = {
   stepCount: number;
 };
 
+<<<<<<< HEAD
 export async function listProcessTemplates(locale: string): Promise<ProcessTemplateRow[]> {
+=======
+export type ProcessTemplateDetail = ProcessTemplateRow & {
+  nameTranslations: Record<string, string>;
+  descriptionTranslations: Record<string, string>;
+  steps: Array<{
+    id: string;
+    stepKey: string;
+    displayOrder: number;
+    titleTranslations: Record<string, string>;
+    descriptionTranslations: Record<string, string>;
+    timingAnchor: string;
+    offsetMinutes: number;
+    estimatedDurationMinutes: number | null;
+    responsibleRole: string;
+    customerVisible: boolean;
+    providerVisible: boolean;
+    adminVisible: boolean;
+    requiresManualCompletion: boolean;
+  }>;
+};
+
+export async function listProcessTemplates(
+  locale: string
+): Promise<ProcessTemplateRow[]> {
+>>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
   return db<ProcessTemplateRow[]>`
     select pt.id::text,
       coalesce(nullif(common.get_translation_t(pt.name_translations, ${locale}, 'fa-IR'), ''), '-') as name,
@@ -71,8 +110,58 @@ export async function listProcessTemplates(locale: string): Promise<ProcessTempl
   `;
 }
 
+<<<<<<< HEAD
 export async function getAdminCase(caseId: string, locale: string): Promise<AdminCaseDetail | null> {
   const rows = await db<Array<AdminCaseRow & { steps: AdminCaseDetail["steps"] }>>`
+=======
+export async function getProcessTemplate(
+  templateId: string,
+  locale: string
+): Promise<ProcessTemplateDetail | null> {
+  const rows = await db<ProcessTemplateDetail[]>`
+    select pt.id::text,
+      coalesce(nullif(common.get_translation_t(pt.name_translations, ${locale}, 'fa-IR'), ''), '-') as name,
+      pt.name_translations as "nameTranslations",
+      pt.description_translations as "descriptionTranslations",
+      pt.scope_type as "scopeType",
+      coalesce(
+        nullif(common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR'), ''),
+        nullif(common.get_translation_t(sd.name_translations, ${locale}, 'fa-IR'), ''),
+        nullif(common.get_translation_t(cat.name_translations, ${locale}, 'fa-IR'), ''), '-'
+      ) as "scopeName",
+      pt.version, pt.is_active as "isActive", count(pts.id)::int as "stepCount",
+      coalesce(jsonb_agg(jsonb_build_object(
+        'id', pts.id::text,
+        'stepKey', pts.step_key,
+        'displayOrder', pts.display_order,
+        'titleTranslations', pts.title_translations,
+        'descriptionTranslations', pts.description_translations,
+        'timingAnchor', pts.timing_anchor,
+        'offsetMinutes', pts.offset_minutes,
+        'estimatedDurationMinutes', pts.estimated_duration_minutes,
+        'responsibleRole', pts.responsible_role,
+        'customerVisible', pts.customer_visible,
+        'providerVisible', pts.provider_visible,
+        'adminVisible', pts.admin_visible,
+        'requiresManualCompletion', pts.requires_manual_completion
+      ) order by pts.display_order) filter (where pts.id is not null), '[]'::jsonb) as steps
+    from case_management.process_templates pt
+    left join category.provider_services ps on ps.id = pt.provider_service_id
+    left join category.service_definitions sd on sd.id = pt.service_definition_id
+    left join category.categories cat on cat.id = pt.category_id
+    left join case_management.process_template_steps pts on pts.template_id = pt.id
+    where pt.id = ${templateId}::uuid
+    group by pt.id, ps.id, sd.id, cat.id
+  `;
+  return rows[0] ?? null;
+}
+
+export async function getAdminCase(
+  caseId: string,
+  locale: string
+): Promise<AdminCaseDetail | null> {
+  const rows = await db<AdminCaseDetail[]>`
+>>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
     select
       c.id::text, c.booking_id::text as "bookingId", c.status,
       nullif(trim(concat(coalesce(u.first_name, ''), ' ', coalesce(u.last_name, ''))), '') as "customerName",
@@ -92,8 +181,27 @@ export async function getAdminCase(caseId: string, locale: string): Promise<Admi
         'plannedStartAt', cs.planned_start_at,
         'plannedEndAt', cs.planned_end_at,
         'completedAt', cs.completed_at,
+<<<<<<< HEAD
         'completionNote', cs.completion_note
       ) order by cs.display_order) filter (where cs.id is not null), '[]'::jsonb) as steps
+=======
+        'completionNote', cs.completion_note,
+        'lockVersion', cs.lock_version
+      ) order by cs.display_order) filter (where cs.id is not null), '[]'::jsonb) as steps
+      , coalesce((
+        select jsonb_agg(jsonb_build_object(
+          'id', event_rows.id::text,
+          'eventType', event_rows.event_type,
+          'actorRole', event_rows.actor_role,
+          'fromStatus', event_rows.from_status,
+          'toStatus', event_rows.to_status,
+          'note', event_rows.note,
+          'createdAt', event_rows.create_date
+        ) order by event_rows.create_date desc)
+        from case_management.case_events event_rows
+        where event_rows.case_id = c.id
+      ), '[]'::jsonb) as events
+>>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
     from case_management.cases c
     left join identity.asp_net_users u on u.id = c.customer_user_id
     left join category.service_providers p on p.id = c.provider_id
@@ -161,6 +269,17 @@ export async function listAdminCases(locale: string): Promise<{
 
   return {
     cases,
+<<<<<<< HEAD
     summary: summary ?? { total: 0, active: 0, scheduled: 0, completed: 0, onHold: 0, cancelled: 0 },
+=======
+    summary: summary ?? {
+      total: 0,
+      active: 0,
+      scheduled: 0,
+      completed: 0,
+      onHold: 0,
+      cancelled: 0,
+    },
+>>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
   };
 }

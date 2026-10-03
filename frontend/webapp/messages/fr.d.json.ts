@@ -13082,6 +13082,10 @@ declare const messages: {
       "offer": "Offres",
       "system": "Système"
     }
+  },
+  "Shop": {
+    "changeCurrency": "Changer la devise affichée",
+    "currencyChangeFailed": "Impossible de changer de devise. Veuillez réessayer."
   }
 };
 export default messages;

@@ -1,6 +1,9 @@
 import { z } from "zod/v4";
 
-import { PATIENT_IDENTIFIER_TYPES, PATIENT_RELATIONSHIP_TYPES } from "./schemas";
+import {
+  PATIENT_IDENTIFIER_TYPES,
+  PATIENT_RELATIONSHIP_TYPES,
+} from "./schemas";
 
 export const SubmitAccountLinkRequestSchema = z.object({
   relationshipType: z.enum(PATIENT_RELATIONSHIP_TYPES),
@@ -10,13 +13,18 @@ export const SubmitAccountLinkRequestSchema = z.object({
   lastName: z.string().trim().min(1).max(100),
   birthDate: z.string().trim().min(1).optional(),
 });
-export type SubmitAccountLinkRequestInput = z.input<typeof SubmitAccountLinkRequestSchema>;
+export type SubmitAccountLinkRequestInput = z.input<
+  typeof SubmitAccountLinkRequestSchema
+>;
 
 export const ReviewAccountLinkRequestSchema = z.object({
   id: z.uuid(),
   decision: z.enum(["approved", "rejected"]),
   patientId: z.uuid().optional(),
+  createPatientIfMissing: z.boolean().optional(),
   accessRole: z.enum(["full", "limited", "view_only"]).optional(),
   reviewNotes: z.string().trim().max(500).optional(),
 });
-export type ReviewAccountLinkRequestInput = z.input<typeof ReviewAccountLinkRequestSchema>;
+export type ReviewAccountLinkRequestInput = z.input<
+  typeof ReviewAccountLinkRequestSchema
+>;

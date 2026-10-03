@@ -5817,6 +5817,7 @@ declare const messages: {
     "payInCurrency": "{currency} olarak ödenir",
     "currency": "Para birimi",
     "changeCurrency": "Görüntüleme para birimini değiştir",
+    "currencyChangeFailed": "Para birimi değiştirilemedi. Lütfen tekrar deneyin.",
     "orderPlaced": "Sipariş verildi",
     "orderNumber": "Sipariş #{number}",
     "orderConfirmedTitle": "Teşekkürler! Siparişiniz onaylandı",

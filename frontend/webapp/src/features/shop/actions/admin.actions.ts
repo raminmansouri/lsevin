@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
 
 import { SHOP_PERMISSIONS, assertShopPermission } from "../lib/permissions";
@@ -98,11 +98,22 @@ const formBoolean = z.preprocess(
   parseFormBoolean,
   z.boolean(),
 );
+<<<<<<< HEAD
+function revalidateCatalog() {
+  for (const tag of ["shop-product", "shop-home", "shop-categories"]) revalidateTag(tag);
+  revalidatePath("/[locale]/admin/shop/products", "page");
+  revalidatePath("/[locale]/admin/shop/products/[id]", "page");
+  revalidatePath("/[locale]/n/app/mobile/shop", "layout");
+}
+
+const publishSchema = z.object({ productId: shopId, published: formBoolean });
+=======
 const publishSchema = z.object({ productId: z.string().uuid(), published: formBoolean });
+>>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
 export async function setProductPublishedAction(input: unknown) {
   const p = publishSchema.parse(input);
-  await setProductPublished(p);
-  revalidatePath("/admin/shop/products");
+  await setProductPublished({ productId: p.productId, published: p.published === true });
+  revalidateCatalog();
   return { ok: true as const };
 }
 
@@ -123,6 +134,8 @@ export async function setPricingModeAction(input: unknown) {
   await assertShopPermission(SHOP_PERMISSIONS.pricingManage);
   const p = pricingModeSchema.parse(input);
   await setShopPricingMode(p.mode);
+  revalidateTag("shop-settings");
+  revalidatePath("/[locale]/n/app/mobile/shop", "layout");
   revalidatePath("/admin/shop/settings");
   revalidatePath("/n/app/mobile/shop");
   return { ok: true as const };
@@ -154,6 +167,7 @@ const productCoreSchema = z.object({
 export async function updateProductCoreAction(input: unknown) {
   const p = productCoreSchema.parse(input);
   await updateProductCore(p);
+  revalidateCatalog();
   revalidatePath(`/admin/shop/products/${p.productId}`);
   revalidatePath("/admin/shop/products");
   return { ok: true as const };
@@ -181,6 +195,10 @@ export async function unlinkProductServiceAction(input: unknown) {
 export async function deleteProductAction(input: unknown) {
   const p = z.object({ productId: shopId }).parse(input);
   await softDeleteProduct({ productId: p.productId });
+<<<<<<< HEAD
+  revalidateCatalog();
+=======
+>>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
   revalidatePath("/admin/shop/products");
   return { ok: true as const };
 }

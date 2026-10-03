@@ -119,7 +119,15 @@ def keep_or_generate(key: str, length: int = 64) -> str:
         return generated(length)
     return value
 
+
+def keep_or_generate_patient_key(key: str) -> str:
+    value = old.get(key, '')
+    if re.fullmatch(r'[0-9a-fA-F]{64}', value):
+        return value
+    return secrets.token_hex(32)
+
 app_domain = old.get('APP_DOMAIN') or 'appmain.lsevin.com'
+app_alias_domain = old.get('APP_ALIAS_DOMAIN') or 'lsevincare.com'
 api_domain = old.get('API_DOMAIN') or 'api.lsevin.com'
 providers_domain = old.get('PROVIDERS_DOMAIN') or 'providers.lsevin.com'
 shop_domain = old.get('SHOP_DOMAIN') or 'shop.lsevin.com'
@@ -133,6 +141,7 @@ encoded_db = quote(postgres_db, safe='')
 values = {
     'CADDY_ACME_EMAIL': old.get('CADDY_ACME_EMAIL') or 'admin@lsevin.com',
     'APP_DOMAIN': app_domain,
+    'APP_ALIAS_DOMAIN': app_alias_domain,
     'API_DOMAIN': api_domain,
     'PROVIDERS_DOMAIN': providers_domain,
     'SHOP_DOMAIN': shop_domain,
@@ -146,6 +155,8 @@ values = {
     'NEXT_PUBLIC_NESHAN_MAP_KEY': old.get('NEXT_PUBLIC_NESHAN_MAP_KEY', ''),
     'AUTH_URL': f'https://{app_domain}',
     'AUTH_SECRET': keep_or_generate('AUTH_SECRET'),
+    'PATIENT_IDENTIFIER_HASH_SECRET': keep_or_generate_patient_key('PATIENT_IDENTIFIER_HASH_SECRET'),
+    'PATIENT_IDENTIFIER_ENCRYPTION_KEY': keep_or_generate_patient_key('PATIENT_IDENTIFIER_ENCRYPTION_KEY'),
     'INTERNAL_API_URL': 'http://lsevin-api:8080/api/v1',
     'WEBHOOK_KEY': webhook_key,
     'WEBAPP_API_KEY': webapp_api_key,
@@ -176,16 +187,17 @@ values = {
     'CORS_ORIGIN_2': f'https://{providers_domain}',
     'CORS_ORIGIN_3': f'https://{shop_domain}',
     'CORS_ORIGIN_4': f'https://{crm_domain}',
+    'CORS_ORIGIN_5': f'https://{app_alias_domain}',
     'WHATSIPLUS_API_KEY': old.get('WHATSIPLUS_API_KEY', ''),
     'SEQ_URL': old.get('SEQ_URL', ''),
 }
 
 sections = [
-    ('Public domains', ['CADDY_ACME_EMAIL', 'APP_DOMAIN', 'API_DOMAIN', 'PROVIDERS_DOMAIN', 'SHOP_DOMAIN', 'CRM_DOMAIN', 'JENKINS_DOMAIN']),
+    ('Public domains', ['CADDY_ACME_EMAIL', 'APP_DOMAIN', 'APP_ALIAS_DOMAIN', 'API_DOMAIN', 'PROVIDERS_DOMAIN', 'SHOP_DOMAIN', 'CRM_DOMAIN', 'JENKINS_DOMAIN']),
     ('Frontend public configuration', ['NEXT_PUBLIC_URL', 'NEXT_PUBLIC_API_URL', 'NEXT_PUBLIC_FILES_URL', 'NEXT_PUBLIC_SOCKET_URL', 'NEXT_PUBLIC_MAPBOX_TOKEN', 'NEXT_PUBLIC_NESHAN_MAP_KEY']),
     ('Frontend/server authentication', ['AUTH_URL', 'AUTH_SECRET', 'INTERNAL_API_URL', 'WEBHOOK_KEY', 'WEBAPP_API_KEY']),
     ('PostgreSQL and PgBouncer', ['DATABASE_URL', 'DATABASE_URL_DIRECT', 'POSTGRES_DB', 'POSTGRES_USER', 'POSTGRES_PASSWORD', 'POSTGRES_MONITOR_USER', 'POSTGRES_MONITOR_PASSWORD', 'POSTGRES_IMAGE_TAG', 'POSTGRES_SHM_SIZE', 'PGBOUNCER_VERSION', 'PGBOUNCER_MAX_CLIENT_CONN', 'PGBOUNCER_DEFAULT_POOL_SIZE', 'PGBOUNCER_MIN_POOL_SIZE', 'PGBOUNCER_RESERVE_POOL_SIZE', 'PGBOUNCER_MAX_DB_CONNECTIONS', 'PGBOUNCER_MAX_USER_CONNECTIONS', 'PGBOUNCER_MAX_PREPARED_STATEMENTS', 'LSEVIN_CONFIG_DIR', 'LSEVIN_BACKUP_DIR', 'LSEVIN_UPLOADS_DIR']),
-    ('API security and CORS', ['JWT_ISSUER', 'JWT_AUDIENCE', 'JWT_SECRET', 'CORS_ORIGIN_1', 'CORS_ORIGIN_2', 'CORS_ORIGIN_3', 'CORS_ORIGIN_4']),
+    ('API security and CORS', ['JWT_ISSUER', 'JWT_AUDIENCE', 'JWT_SECRET', 'CORS_ORIGIN_1', 'CORS_ORIGIN_2', 'CORS_ORIGIN_3', 'CORS_ORIGIN_4', 'CORS_ORIGIN_5']),
     ('Optional integrations', ['WHATSIPLUS_API_KEY', 'SEQ_URL']),
 ]
 

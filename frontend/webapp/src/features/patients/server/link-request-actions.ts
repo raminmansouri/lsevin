@@ -1,15 +1,22 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
+import { revalidatePath } from "next/cache";
 
 import { assertAdmin } from "@/lib/auth/admin-guard";
 
-import { ReviewAccountLinkRequestSchema, type ReviewAccountLinkRequestInput } from "../link-request-schemas";
+import {
+  ReviewAccountLinkRequestSchema,
+  type ReviewAccountLinkRequestInput,
+} from "../link-request-schemas";
 import type { AccountLinkRequestRow } from "../link-request-types";
 import { PATIENTS_TRANSLATION_KEY, type PatientActionResult } from "../types";
 import { recordPatientAuditEvent } from "./audit";
-import { getAccountLinkRequest, resolveAccountLinkRequest } from "./link-request-repository";
+import {
+  createPatientForSelfLinkRequest,
+  getAccountLinkRequest,
+  resolveAccountLinkRequest,
+} from "./link-request-repository";
 import { linkAccountToPatient } from "./repository";
 
 const ADMIN_PATIENTS_PATH = "/admin/patients";
@@ -25,18 +32,51 @@ export async function reviewAccountLinkRequestAction(
 ): Promise<PatientActionResult<AccountLinkRequestRow>> {
   const ctx = await assertAdmin();
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
+  if (!ctx.userId) return { ok: false, error: t("errors.notFound") };
   const values = ReviewAccountLinkRequestSchema.parse(input);
 
   const existing = await getAccountLinkRequest(values.id);
-  if (!existing || existing.requestStatus !== "pending") return { ok: false, error: t("errors.notFound") };
+  if (!existing || existing.requestStatus !== "pending")
+    return { ok: false, error: t("errors.notFound") };
 
-  const patientId = values.decision === "approved" ? (values.patientId ?? existing.matchedPatientId) : null;
-  if (values.decision === "approved" && !patientId) return { ok: false, error: t("errors.invalidForm") };
+  const patientId =
+    values.decision === "approved"
+      ? (values.patientId ?? existing.matchedPatientId)
+      : null;
+  if (
+    values.decision === "approved" &&
+    !patientId &&
+    values.createPatientIfMissing &&
+    existing.relationshipType === "self"
+  ) {
+    const created = await createPatientForSelfLinkRequest({
+      id: existing.id,
+      reviewedBy: ctx.userId,
+      accessRole: values.accessRole ?? "full",
+    });
+    if (!created) return { ok: false, error: t("errors.notFound") };
+    await recordPatientAuditEvent({
+      actorUserId: ctx.userId,
+      actorRoles: ctx.roles,
+      action: "account_link_request_approved",
+      entityType: "account_link_request",
+      entityId: created.request.id,
+      metadata: {
+        patientId: created.patientId,
+        accountId: existing.accountId,
+        selfProfileCreated: true,
+      },
+    });
+    revalidatePath(`${ADMIN_PATIENTS_PATH}/${created.patientId}`);
+    return { ok: true, data: created.request };
+  }
+  if (values.decision === "approved" && !patientId)
+    return { ok: false, error: t("errors.invalidForm") };
 
   const request = await resolveAccountLinkRequest({
     id: values.id,
     status: values.decision,
-    reviewedBy: ctx.userId ?? "",
+    reviewedBy: ctx.userId,
     reviewNotes: values.reviewNotes,
   });
   if (!request) return { ok: false, error: t("errors.notFound") };
@@ -47,7 +87,7 @@ export async function reviewAccountLinkRequestAction(
       patientId,
       relationshipType: existing.relationshipType,
       accessRole: values.accessRole ?? "full",
-      createdBy: ctx.userId ?? null,
+      createdBy: ctx.userId,
     });
     await recordPatientAuditEvent({
       actorUserId: ctx.userId,

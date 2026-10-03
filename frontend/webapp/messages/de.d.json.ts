@@ -13082,6 +13082,10 @@ declare const messages: {
       "offer": "Angebote",
       "system": "System"
     }
+  },
+  "Shop": {
+    "changeCurrency": "Anzeigewährung ändern",
+    "currencyChangeFailed": "Die Währung konnte nicht geändert werden. Bitte versuche es erneut."
   }
 };
 export default messages;

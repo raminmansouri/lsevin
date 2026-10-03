@@ -43,6 +43,10 @@ const nextConfig: NextConfig = {
 
   experimental: {
     authInterrupts: true,
+    // This app is built on the same four-core host that serves production.
+    // Limit Next's worker pool so compilation cannot starve Kubernetes health
+    // probes or force the database and web pods into swap.
+    cpus: 1,
     // NOTE: switched from `cacheComponents` to `useCache` for the production build.
     // cacheComponents (PPR) makes static prerender strict — any request-data access
     // without a Suspense boundary is a fatal build error (e.g. next-intl getLocale in
@@ -58,7 +62,13 @@ const nextConfig: NextConfig = {
     },
   },
 
-  reactCompiler: true,
+  // The React Compiler is a Babel-based optimization and is intentionally
+  // opt-in for production builds. On the shared 4-core production node it
+  // makes this application's build spend roughly an hour in Babel workers,
+  // exhaust available RAM and swap, while the default Rust-based compiler
+  // completes the same source much faster. Enable it only on a dedicated
+  // build worker after benchmarking with NEXT_ENABLE_REACT_COMPILER=true.
+  reactCompiler: process.env.NEXT_ENABLE_REACT_COMPILER === "true",
 
   turbopack: {
     root: process.cwd(),
