@@ -72,7 +72,7 @@ export function ProductCard({
           </span>
         ) : null}
 
-        <WishlistHeart productId={product.id} initialActive={product.wishlistActive} className="absolute end-1.5 top-1.5 h-7 w-7" size={16} />
+        <WishlistHeart productId={product.id} initialActive={product.wishlistActive} resolveOnMount className="absolute end-1.5 top-1.5 h-7 w-7" size={16} />
 
         {product.isPreorder ? (
           <span className="absolute end-2 top-10 rounded-md bg-[#083f30] px-1.5 py-0.5 text-[10px] font-semibold text-white">

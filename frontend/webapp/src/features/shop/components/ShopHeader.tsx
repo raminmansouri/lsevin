@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { SearchBar } from "./SearchBar";
 import { CurrencySwitcher } from "./CurrencySwitcher";
 import { ShopCartCountBadge } from "./ShopCartCountBadge";
+import { Heart } from "lucide-react";
 
 /**
  * Compact Shop top bar following the AliExpress reference (SHP-UX-011, §18):
@@ -48,9 +49,7 @@ export async function ShopHeader({
         </div>
 
         <Link href="/n/app/mobile/shop/wishlist" aria-label={t("wishlistTitle")} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-white">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-            <path d="M12 21s-6.7-4.35-9.33-8.03C.9 10.28 1.63 6.6 4.6 5.4c2-.8 4.1.05 5.4 1.7 1.3-1.65 3.4-2.5 5.4-1.7 2.97 1.2 3.7 4.88 1.93 7.57C18.7 16.65 12 21 12 21z" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" />
-          </svg>
+          <Heart size={20} strokeWidth={1.9} aria-hidden />
         </Link>
 
         <Link

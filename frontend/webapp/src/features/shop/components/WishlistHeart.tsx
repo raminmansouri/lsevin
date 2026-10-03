@@ -3,8 +3,22 @@
 import { useEffect, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 
+import { Heart } from "lucide-react";
+
 import { cn } from "@/lib/utils";
-import { getWishlistStateAction, toggleWishlistAction } from "../actions/wishlist.actions";
+import { getWishlistIdsAction, toggleWishlistAction } from "../actions/wishlist.actions";
+
+// One request per page for all hearts; reset after any toggle so navigating
+// to another page re-reads the fresh wishlist.
+let wishlistIdsPromise: Promise<Set<string>> | null = null;
+function loadWishlistIds() {
+  if (!wishlistIdsPromise) {
+    wishlistIdsPromise = getWishlistIdsAction()
+      .then((ids) => new Set(ids))
+      .catch(() => new Set<string>());
+  }
+  return wishlistIdsPromise;
+}
 
 export function WishlistHeart({
   productId,
@@ -29,11 +43,9 @@ export function WishlistHeart({
   useEffect(() => {
     if (!resolveOnMount) return;
     let alive = true;
-    getWishlistStateAction({ productId })
-      .then((res) => {
-        if (alive && typeof res?.active === "boolean") setActive(res.active);
-      })
-      .catch(() => {});
+    loadWishlistIds().then((ids) => {
+      if (alive) setActive(ids.has(productId));
+    });
     return () => {
       alive = false;
     };
@@ -52,6 +64,7 @@ export function WishlistHeart({
         startTransition(async () => {
           try {
             const res = await toggleWishlistAction({ productId });
+            wishlistIdsPromise = null;
             setActive(res.active);
           } catch {
             setActive(!next); // revert (e.g. not signed in)
@@ -64,14 +77,13 @@ export function WishlistHeart({
         className
       )}
     >
-      <svg width={size} height={size} viewBox="0 0 24 24" fill={active ? "#e02e2a" : "none"} aria-hidden>
-        <path
-          d="M12 21s-6.7-4.35-9.33-8.03C.9 10.28 1.63 6.6 4.6 5.4c2-.8 4.1.05 5.4 1.7 1.3-1.65 3.4-2.5 5.4-1.7 2.97 1.2 3.7 4.88 1.93 7.57C18.7 16.65 12 21 12 21z"
-          stroke={active ? "#e02e2a" : "#6b7280"}
-          strokeWidth="1.8"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <Heart
+        size={size}
+        strokeWidth={1.8}
+        color={active ? "#e02e2a" : "#6b7280"}
+        fill={active ? "#e02e2a" : "none"}
+        aria-hidden
+      />
     </button>
   );
 }
