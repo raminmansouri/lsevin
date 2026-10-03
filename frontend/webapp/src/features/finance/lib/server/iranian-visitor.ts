@@ -46,9 +46,13 @@ export async function resolveIsIranianVisitor(): Promise<boolean> {
 async function isIranianFromSessionPhone(): Promise<boolean | null> {
   try {
     const session = await getSession();
-    const dialCode = session?.user?.phoneNumberCountryCode?.replace(/\D/g, "");
-    if (!dialCode) return null;
-    return dialCode === "98";
+      const raw = session?.user?.phoneNumberCountryCode?.trim();
+      if (!raw) return null;
+      // Sign-up stores an ISO country ("IR", "DE"); older rows may hold a dial code ("98").
+      if (/^[A-Za-z]{2}$/.test(raw)) return raw.toUpperCase() === "IR";
+      const dialCode = raw.replace(/\D/g, "");
+      if (!dialCode) return null;
+      return dialCode === "98";
   } catch {
     return null;
   }
