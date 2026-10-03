@@ -1,13 +1,18 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import { revalidateShopCatalog } from "../lib/cache";
+import { productGallerySchema } from "../schemas/gallery";
 import { shopId } from "../schemas/id";
 import {
+  addAttributeValue,
   addHomeSectionItem,
   createProduct,
+  deleteAttribute,
+  deleteAttributeValue,
   deleteBrand,
   deleteCategory,
   deleteCoupon,
@@ -15,13 +20,10 @@ import {
   deleteVariant,
   removeCategoryServiceLink,
   removeHomeSectionItem,
-  setCategoryServiceLink,
-  setProductGallery,
-  addAttributeValue,
-  deleteAttribute,
-  deleteAttributeValue,
   removeProductAttribute,
+  setCategoryServiceLink,
   setProductAttribute,
+  setProductGallery,
   updateDeliveryMethod,
   updateWarehouse,
   upsertAttribute,
@@ -32,7 +34,15 @@ import {
   upsertVariant,
 } from "../server/admin-catalog.service";
 
-const RELATION = ["general", "recommended_before", "recommended_during", "recommended_after", "compatible", "required", "optional_addon"] as const;
+const RELATION = [
+  "general",
+  "recommended_before",
+  "recommended_during",
+  "recommended_after",
+  "compatible",
+  "required",
+  "optional_addon",
+] as const;
 const localized = z.record(z.string(), z.string()).default({});
 
 function fromForm3(formData: FormData, prefix: string) {
@@ -59,7 +69,8 @@ const createProductSchema = z.object({
 export async function createProductAction(input: unknown) {
   const p = createProductSchema.parse(input);
   const id = await createProduct(p);
-  revalidatePath("/admin/shop/products");
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/products", "page");
   return { ok: true as const, id };
 }
 export async function createProductForm(formData: FormData) {
@@ -95,7 +106,8 @@ const variantSchema = z.object({
 export async function upsertVariantAction(input: unknown) {
   const p = variantSchema.parse(input);
   const id = await upsertVariant(p);
-  revalidatePath(`/admin/shop/products/${p.productId}`);
+  revalidateShopCatalog();
+  revalidatePath(`/[locale]/admin/shop/products/${p.productId}`, "page");
   return { ok: true as const, id };
 }
 export async function upsertVariantForm(formData: FormData) {
@@ -117,7 +129,8 @@ export async function deleteVariantForm(formData: FormData) {
   const id = z.string().parse(formData.get("id"));
   const productId = z.string().parse(formData.get("productId"));
   await deleteVariant({ id });
-  revalidatePath(`/admin/shop/products/${productId}`);
+  revalidateShopCatalog();
+  revalidatePath(`/[locale]/admin/shop/products/${productId}`, "page");
 }
 
 // ======================================================================
@@ -143,7 +156,7 @@ const couponSchema = z.object({
 export async function upsertCouponAction(input: unknown) {
   const p = couponSchema.parse(input);
   const id = await upsertCoupon(p);
-  revalidatePath("/admin/shop/coupons");
+  revalidatePath("/[locale]/admin/shop/coupons", "page");
   return { ok: true as const, id };
 }
 export async function upsertCouponForm(formData: FormData) {
@@ -168,11 +181,11 @@ export async function upsertCouponForm(formData: FormData) {
 export async function deleteCouponForm(formData: FormData) {
   const id = z.string().parse(formData.get("id"));
   await deleteCoupon({ id });
-  revalidatePath("/admin/shop/coupons");
+  revalidatePath("/[locale]/admin/shop/coupons", "page");
 }
 export async function deleteCouponAction(input: { id: string }) {
   await deleteCoupon({ id: shopId.parse(input.id) });
-  revalidatePath("/admin/shop/coupons");
+  revalidatePath("/[locale]/admin/shop/coupons", "page");
   return { ok: true as const };
 }
 
@@ -187,7 +200,7 @@ export async function upsertAttributeForm(formData: FormData) {
     displayType: String(formData.get("displayType") || "select"),
     isVariantDefining: formData.get("isVariantDefining") === "on",
   });
-  revalidatePath("/admin/shop/attributes");
+  revalidatePath("/[locale]/admin/shop/attributes", "page");
 }
 export async function upsertAttributeAction(input: {
   id?: string;
@@ -197,17 +210,17 @@ export async function upsertAttributeAction(input: {
   isVariantDefining: boolean;
 }) {
   const id = await upsertAttribute(input);
-  revalidatePath("/admin/shop/attributes");
+  revalidatePath("/[locale]/admin/shop/attributes", "page");
   return { ok: true as const, id };
 }
 
 export async function deleteAttributeForm(formData: FormData) {
   await deleteAttribute({ id: shopId.parse(formData.get("id")) });
-  revalidatePath("/admin/shop/attributes");
+  revalidatePath("/[locale]/admin/shop/attributes", "page");
 }
 export async function deleteAttributeAction(input: { id: string }) {
   await deleteAttribute({ id: shopId.parse(input.id) });
-  revalidatePath("/admin/shop/attributes");
+  revalidatePath("/[locale]/admin/shop/attributes", "page");
   return { ok: true as const };
 }
 
@@ -216,35 +229,44 @@ export async function addAttributeValueForm(formData: FormData) {
     attributeId: shopId.parse(formData.get("attributeId")),
     value: String(formData.get("value") || ""),
     displayNameTranslations: fromForm3(formData, "label"),
-    colorHex: formData.get("colorHex") ? String(formData.get("colorHex")) : null,
-    imageUrl: formData.get("imageUrl") ? String(formData.get("imageUrl")) : null,
+    colorHex: formData.get("colorHex")
+      ? String(formData.get("colorHex"))
+      : null,
+    imageUrl: formData.get("imageUrl")
+      ? String(formData.get("imageUrl"))
+      : null,
   });
-  revalidatePath("/admin/shop/attributes");
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/attributes", "page");
 }
 export async function addAttributeValueAction(input: {
   attributeId: string;
   value: string;
   displayNameTranslations: Record<string, string>;
   colorHex?: string | null;
+  imageUrl?: string | null;
 }) {
   await addAttributeValue({
     attributeId: shopId.parse(input.attributeId),
     value: input.value,
     displayNameTranslations: input.displayNameTranslations,
     colorHex: input.colorHex ?? null,
-    imageUrl: null,
+    imageUrl: input.imageUrl ?? null,
   });
-  revalidatePath("/admin/shop/attributes");
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/attributes", "page");
   return { ok: true as const };
 }
 
 export async function deleteAttributeValueForm(formData: FormData) {
   await deleteAttributeValue({ id: shopId.parse(formData.get("id")) });
-  revalidatePath("/admin/shop/attributes");
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/attributes", "page");
 }
 export async function deleteAttributeValueAction(input: { id: string }) {
   await deleteAttributeValue({ id: shopId.parse(input.id) });
-  revalidatePath("/admin/shop/attributes");
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/attributes", "page");
   return { ok: true as const };
 }
 
@@ -256,13 +278,16 @@ export async function setProductAttributeForm(formData: FormData) {
     isRequired: formData.get("isRequired") === "on",
     displayOrder: Number(formData.get("displayOrder") || 0),
   });
-  revalidatePath(`/admin/shop/products/${productId}`);
+  revalidatePath(`/[locale]/admin/shop/products/${productId}`, "page");
 }
 
 export async function removeProductAttributeForm(formData: FormData) {
   const productId = shopId.parse(formData.get("productId"));
-  await removeProductAttribute({ productId, attributeId: shopId.parse(formData.get("attributeId")) });
-  revalidatePath(`/admin/shop/products/${productId}`);
+  await removeProductAttribute({
+    productId,
+    attributeId: shopId.parse(formData.get("attributeId")),
+  });
+  revalidatePath(`/[locale]/admin/shop/products/${productId}`, "page");
 }
 
 // ======================================================================
@@ -288,7 +313,7 @@ export async function updateDeliveryMethodForm(formData: FormData) {
     estimatedDaysMax: num(formData.get("estimatedDaysMax")),
     rules: parsedRules,
   });
-  revalidatePath("/admin/shop/delivery");
+  revalidatePath("/[locale]/admin/shop/delivery", "page");
   revalidatePath("/n/app/mobile/shop/checkout");
 }
 export async function updateWarehouseAction(input: {
@@ -298,7 +323,7 @@ export async function updateWarehouseAction(input: {
   isDefault: boolean;
 }) {
   await updateWarehouse({ ...input, id: shopId.parse(input.id) });
-  revalidatePath("/admin/shop/warehouses");
+  revalidatePath("/[locale]/admin/shop/warehouses", "page");
   return { ok: true as const };
 }
 
@@ -318,7 +343,7 @@ export async function updateDeliveryMethodAction(input: {
     estimatedDaysMax: input.estimatedDaysMax,
     rules: input.rules,
   });
-  revalidatePath("/admin/shop/delivery");
+  revalidatePath("/[locale]/admin/shop/delivery", "page");
   revalidatePath("/n/app/mobile/shop/checkout");
   return { ok: true as const };
 }
@@ -326,11 +351,11 @@ export async function updateDeliveryMethodAction(input: {
 // ======================================================================
 // Product gallery
 // ======================================================================
-const gallerySchema = z.object({ productId: shopId, urls: z.array(z.string().trim().min(1)).default([]) });
 export async function setProductGalleryAction(input: unknown) {
-  const p = gallerySchema.parse(input);
+  const p = productGallerySchema.parse(input);
   await setProductGallery(p);
-  revalidatePath(`/admin/shop/products/${p.productId}`);
+  revalidateShopCatalog();
+  revalidatePath(`/[locale]/admin/shop/products/${p.productId}`, "page");
   return { ok: true as const };
 }
 
@@ -353,8 +378,9 @@ const categorySchema = z.object({
 export async function upsertCategoryAction(input: unknown) {
   const p = categorySchema.parse(input);
   const id = await upsertCategory(p);
-  revalidatePath("/admin/shop/categories");
-  if (p.id) revalidatePath(`/admin/shop/categories/${p.id}`);
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/categories", "page");
+  if (p.id) revalidatePath(`/[locale]/admin/shop/categories/${p.id}`, "page");
   revalidatePath("/n/app/mobile/shop");
   return { ok: true as const, id };
 }
@@ -377,7 +403,8 @@ export async function upsertCategoryForm(formData: FormData) {
 export async function deleteCategoryAction(input: unknown) {
   const p = z.object({ id: shopId }).parse(input);
   await deleteCategory(p);
-  revalidatePath("/admin/shop/categories");
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/categories", "page");
   return { ok: true as const };
 }
 export async function deleteCategoryForm(formData: FormData) {
@@ -385,7 +412,11 @@ export async function deleteCategoryForm(formData: FormData) {
   redirect("/admin/shop/categories");
 }
 
-const categoryLinkSchema = z.object({ shopCategoryId: shopId, serviceDefinitionId: shopId, relationType: z.enum(RELATION) });
+const categoryLinkSchema = z.object({
+  shopCategoryId: shopId,
+  serviceDefinitionId: shopId,
+  relationType: z.enum(RELATION),
+});
 export async function linkCategoryServiceForm(formData: FormData) {
   const p = categoryLinkSchema.parse({
     shopCategoryId: formData.get("shopCategoryId"),
@@ -393,13 +424,13 @@ export async function linkCategoryServiceForm(formData: FormData) {
     relationType: formData.get("relationType"),
   });
   await setCategoryServiceLink(p);
-  revalidatePath(`/admin/shop/categories/${p.shopCategoryId}`);
+  revalidatePath(`/[locale]/admin/shop/categories/${p.shopCategoryId}`, "page");
 }
 export async function unlinkCategoryServiceForm(formData: FormData) {
   const linkId = z.string().parse(formData.get("linkId"));
   const shopCategoryId = z.string().parse(formData.get("shopCategoryId"));
   await removeCategoryServiceLink({ linkId });
-  revalidatePath(`/admin/shop/categories/${shopCategoryId}`);
+  revalidatePath(`/[locale]/admin/shop/categories/${shopCategoryId}`, "page");
 }
 
 // ======================================================================
@@ -417,7 +448,8 @@ const brandSchema = z.object({
 export async function upsertBrandAction(input: unknown) {
   const p = brandSchema.parse(input);
   const id = await upsertBrand(p);
-  revalidatePath("/admin/shop/brands");
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/brands", "page");
   return { ok: true as const, id };
 }
 export async function upsertBrandForm(formData: FormData) {
@@ -434,19 +466,35 @@ export async function upsertBrandForm(formData: FormData) {
 export async function deleteBrandForm(formData: FormData) {
   const id = z.string().parse(formData.get("id"));
   await deleteBrand({ id });
-  revalidatePath("/admin/shop/brands");
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/brands", "page");
 }
 export async function deleteBrandAction(input: { id: string }) {
   await deleteBrand({ id: shopId.parse(input.id) });
-  revalidatePath("/admin/shop/brands");
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/brands", "page");
   return { ok: true as const };
 }
 
 // ======================================================================
 // Home merchandising
 // ======================================================================
-const SECTION_TYPES = ["shortcut_rail", "promo_cards", "product_rail", "category_rail", "service_related_rail"] as const;
-const QUERY_SOURCES = ["manual", "featured", "best_seller", "new_arrival", "discounted", "category", "service_related"] as const;
+const SECTION_TYPES = [
+  "shortcut_rail",
+  "promo_cards",
+  "product_rail",
+  "category_rail",
+  "service_related_rail",
+] as const;
+const QUERY_SOURCES = [
+  "manual",
+  "featured",
+  "best_seller",
+  "new_arrival",
+  "discounted",
+  "category",
+  "service_related",
+] as const;
 
 const sectionSchema = z.object({
   id: shopId.optional(),
@@ -462,7 +510,8 @@ const sectionSchema = z.object({
 export async function upsertHomeSectionAction(input: unknown) {
   const p = sectionSchema.parse(input);
   const id = await upsertHomeSection(p);
-  revalidatePath("/admin/shop/merchandising");
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/merchandising", "page");
   revalidatePath("/n/app/mobile/shop");
   return { ok: true as const, id };
 }
@@ -483,12 +532,14 @@ export async function upsertHomeSectionForm(formData: FormData) {
 export async function deleteHomeSectionForm(formData: FormData) {
   const id = z.string().parse(formData.get("id"));
   await deleteHomeSection({ id });
-  revalidatePath("/admin/shop/merchandising");
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/merchandising", "page");
   revalidatePath("/n/app/mobile/shop");
 }
 export async function deleteHomeSectionAction(input: { id: string }) {
   await deleteHomeSection({ id: shopId.parse(input.id) });
-  revalidatePath("/admin/shop/merchandising");
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/merchandising", "page");
   revalidatePath("/n/app/mobile/shop");
   return { ok: true as const };
 }
@@ -513,12 +564,14 @@ export async function addHomeSectionItemForm(formData: FormData) {
     displayOrder: formData.get("displayOrder") || 0,
   });
   await addHomeSectionItem(p);
-  revalidatePath("/admin/shop/merchandising");
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/merchandising", "page");
   revalidatePath("/n/app/mobile/shop");
 }
 export async function removeHomeSectionItemForm(formData: FormData) {
   const itemId = z.string().parse(formData.get("itemId"));
   await removeHomeSectionItem({ itemId });
-  revalidatePath("/admin/shop/merchandising");
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/merchandising", "page");
   revalidatePath("/n/app/mobile/shop");
 }

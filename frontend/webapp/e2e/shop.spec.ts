@@ -88,4 +88,40 @@ test.describe("admin publication", () => {
       page.getByRole("combobox", { name: "Change display currency" })
     ).toBeVisible();
   });
+
+  test("product gallery supports URL add, primary selection, persistence and removal", async ({
+    page,
+  }) => {
+    const productId = process.env.SHOP_E2E_PRODUCT_ID;
+    test.skip(!productId, "Requires a disposable product fixture");
+    const testImage = `https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&shop-e2e=${Date.now()}`;
+
+    await page.goto(`/en/admin/shop/products/${productId}`);
+    const gallery = page.getByTestId("product-gallery");
+    await expect(gallery).toBeVisible();
+
+    await gallery.getByRole("textbox", { name: "Image URL" }).fill(testImage);
+    await gallery.getByRole("button", { name: "Add URL" }).click();
+    const testRow = gallery
+      .getByTestId("gallery-image")
+      .filter({ hasText: testImage });
+    await expect(testRow).toBeVisible();
+    await testRow.getByRole("button", { name: "Make primary" }).click();
+    await gallery.getByRole("button", { name: "Save images" }).click();
+    await expect(gallery.getByRole("status")).toHaveText("Images saved.");
+
+    await page.reload();
+    await expect(gallery.getByTestId("gallery-image").first()).toContainText(
+      testImage
+    );
+    await gallery
+      .getByTestId("gallery-image")
+      .filter({ hasText: testImage })
+      .getByRole("button", { name: "Remove" })
+      .click();
+    await gallery.getByRole("button", { name: "Save images" }).click();
+    await expect(gallery.getByRole("status")).toHaveText("Images saved.");
+    await page.reload();
+    await expect(gallery.getByText(testImage, { exact: true })).toHaveCount(0);
+  });
 });

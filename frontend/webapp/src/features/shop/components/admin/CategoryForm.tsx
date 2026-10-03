@@ -161,13 +161,13 @@ export function CategoryForm({
               <FormField control={form.control} name="imageUrl" render={({ field }) => (
                 <FormItem>
                   <FormLabel>{tf("image")}</FormLabel>
-                  <FormControl><MediaUrlField defaultValue={(field.value as string) ?? ""} onValueChange={field.onChange} /></FormControl>
+                  <FormControl><MediaUrlField disabled={isPending} defaultValue={(field.value as string) ?? ""} onValueChange={field.onChange} /></FormControl>
                 </FormItem>
               )} />
               <FormField control={form.control} name="bannerUrl" render={({ field }) => (
                 <FormItem>
                   <FormLabel>{tf("banner")}</FormLabel>
-                  <FormControl><MediaUrlField defaultValue={(field.value as string) ?? ""} onValueChange={field.onChange} /></FormControl>
+                  <FormControl><MediaUrlField disabled={isPending} defaultValue={(field.value as string) ?? ""} onValueChange={field.onChange} /></FormControl>
                 </FormItem>
               )} />
             </div>
