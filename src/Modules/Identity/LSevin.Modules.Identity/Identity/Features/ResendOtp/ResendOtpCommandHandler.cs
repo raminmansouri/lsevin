@@ -19,7 +19,8 @@ internal sealed class ResendOtpCommandHandler(
     UserManager<ApplicationUser> userManager,
     IOtpCodeGeneratorService otpGenerator,
     IOtpSenderService otpSender,
-    IOtpCodeValidatorService otpValidator
+    IOtpCodeValidatorService otpValidator,
+    IOtpBypassService otpBypass
 ) : CommandHandler<ResendOtpCommand, ResendOtpResponse>
 {
     public override async Task<Result<ResendOtpResponse>> Handle(
@@ -67,8 +68,9 @@ internal sealed class ResendOtpCommandHandler(
             return AppError.ApplicationErrorMessage("Too many resend attempts. Please try again later.");
         }
 
-        // 7. Generate OTP code
-        var code = otpGenerator.GenerateCode();
+        // 7. Generate OTP code (fixed code for configured review/test phone numbers)
+        var isBypass = otpBypass.TryGetFixedCode(phoneNumber, out var bypassCode);
+        var code = isBypass ? bypassCode! : otpGenerator.GenerateCode();
         var sentAt = SystemClock.Now;
         var expiresAt = otpGenerator.CalculateExpiration(sentAt);
 
@@ -88,10 +90,13 @@ internal sealed class ResendOtpCommandHandler(
         await context.PhoneLoginCodes.AddAsync(phoneLoginCode, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // 9. Send via SMS/WhatsApp
-        var sendResult = await otpSender.SendOtpCodeAsync(phoneNumber, code, cancellationToken);
-        if (!sendResult.IsSuccess)
-            return sendResult.Errors!.First();
+        // 9. Send via SMS/WhatsApp (skipped for the fixed-code review/test bypass)
+        if (!isBypass)
+        {
+            var sendResult = await otpSender.SendOtpCodeAsync(phoneNumber, code, cancellationToken);
+            if (!sendResult.IsSuccess)
+                return sendResult.Errors!.First();
+        }
 
         // 10. Format phone number to E.164 format for response
         var formattedPhoneNumber = phoneNumber.ToE164Format();

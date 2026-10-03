@@ -45,14 +45,14 @@ if duplicates:
     raise SystemExit('ERROR: duplicate .env keys: ' + ', '.join(sorted(set(duplicates))))
 
 required_nonempty = [
-    'CADDY_ACME_EMAIL', 'APP_DOMAIN', 'API_DOMAIN', 'PROVIDERS_DOMAIN',
+    'CADDY_ACME_EMAIL', 'APP_DOMAIN', 'APP_ALIAS_DOMAIN', 'API_DOMAIN', 'PROVIDERS_DOMAIN',
     'SHOP_DOMAIN', 'CRM_DOMAIN', 'JENKINS_DOMAIN', 'NEXT_PUBLIC_URL',
     'NEXT_PUBLIC_API_URL', 'NEXT_PUBLIC_FILES_URL', 'NEXT_PUBLIC_SOCKET_URL',
     'AUTH_URL', 'AUTH_SECRET', 'INTERNAL_API_URL', 'WEBHOOK_KEY',
     'WEBAPP_API_KEY', 'DATABASE_URL', 'DATABASE_URL_DIRECT', 'POSTGRES_DB',
     'POSTGRES_USER', 'POSTGRES_PASSWORD', 'POSTGRES_MONITOR_USER',
     'POSTGRES_MONITOR_PASSWORD', 'JWT_ISSUER', 'JWT_AUDIENCE', 'JWT_SECRET',
-    'CORS_ORIGIN_1', 'CORS_ORIGIN_2', 'CORS_ORIGIN_3', 'CORS_ORIGIN_4',
+    'CORS_ORIGIN_1', 'CORS_ORIGIN_2', 'CORS_ORIGIN_3', 'CORS_ORIGIN_4', 'CORS_ORIGIN_5',
     'LSEVIN_UPLOADS_DIR',
 ]
 missing = [key for key in required_nonempty if not values.get(key)]
@@ -108,6 +108,7 @@ expected = {
     'CORS_ORIGIN_2': f"https://{values['PROVIDERS_DOMAIN']}",
     'CORS_ORIGIN_3': f"https://{values['SHOP_DOMAIN']}",
     'CORS_ORIGIN_4': f"https://{values['CRM_DOMAIN']}",
+    'CORS_ORIGIN_5': f"https://{values['APP_ALIAS_DOMAIN']}",
 }
 for key, expected_value in expected.items():
     if values[key] != expected_value:

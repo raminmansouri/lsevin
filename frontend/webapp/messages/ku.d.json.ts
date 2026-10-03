@@ -13082,6 +13082,10 @@ declare const messages: {
       "offer": "پێشنیارەکان",
       "system": "سیستەم"
     }
+  },
+  "Shop": {
+    "changeCurrency": "گۆڕینی دراوی پیشاندان",
+    "currencyChangeFailed": "گۆڕینی دراو سەرکەوتوو نەبوو. تکایە دووبارە هەوڵ بدەوە."
   }
 };
 export default messages;

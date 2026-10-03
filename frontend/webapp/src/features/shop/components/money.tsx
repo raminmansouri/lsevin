@@ -6,7 +6,7 @@ import type { MoneyView } from "../types/domain";
 const RTL_LOCALES = new Set(["fa", "ar", "ku", "he", "ur"]);
 
 function bcp47(locale: string): string {
-  return locale === "fa" ? "fa-IR" : locale === "ar" ? "ar" : locale === "tr" ? "tr-TR" : locale === "ru" ? "ru-RU" : "en-US";
+  return locale.replace(/_/g, "-");
 }
 
 /**

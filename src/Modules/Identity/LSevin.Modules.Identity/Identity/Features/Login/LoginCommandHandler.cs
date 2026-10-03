@@ -24,6 +24,7 @@ internal sealed class LoginCommandHandler(
     SignInManager<ApplicationUser> signInManager,
     IOtpCodeGeneratorService otpGenerator,
     IOtpSenderService otpSender,
+    IOtpBypassService otpBypass,
     ILogger<LoginCommandHandler> logger
 ) : CommandHandler<LoginCommand, LoginResponse>
 {
@@ -96,13 +97,14 @@ internal sealed class LoginCommandHandler(
             code.Invalidate();
         }
 
-        // 3. Generate new OTP code
-        var otpCode = otpGenerator.GenerateCode();
-        var sentAt = SystemClock.Now;
-        var expiresAt = otpGenerator.CalculateExpiration(sentAt);
-
         // 3a. Create PhoneNumber value object
         var phoneNumber = PhoneNumber.Create(identityUser.PhoneNumber, identityUser.PhoneNumberCountryCode);
+
+        // 3. Generate new OTP code (fixed code for configured review/test phone numbers)
+        var isBypass = otpBypass.TryGetFixedCode(phoneNumber, out var bypassCode);
+        var otpCode = isBypass ? bypassCode! : otpGenerator.GenerateCode();
+        var sentAt = SystemClock.Now;
+        var expiresAt = otpGenerator.CalculateExpiration(sentAt);
 
         // 4. Save OTP to database
         var phoneLoginCode = new PhoneLoginCode
@@ -120,16 +122,23 @@ internal sealed class LoginCommandHandler(
         await context.PhoneLoginCodes.AddAsync(phoneLoginCode, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // 5. Send OTP via SMS/WhatsApp
-        var sendResult = await otpSender.SendOtpCodeAsync(phoneNumber, otpCode, cancellationToken);
-
-        if (!sendResult.IsSuccess)
+        // 5. Send OTP via SMS/WhatsApp (skipped for the fixed-code review/test bypass)
+        if (isBypass)
         {
-            logger.LogError("Failed to send OTP to user {UserId}", identityUser.Id);
-            return AppError.ApplicationErrorMessage("Failed to send verification code. Please try again.");
+            logger.LogInformation("OTP bypass used for review/test user {UserId}", identityUser.Id);
         }
+        else
+        {
+            var sendResult = await otpSender.SendOtpCodeAsync(phoneNumber, otpCode, cancellationToken);
 
-        logger.LogInformation("OTP sent to user {UserId}", identityUser.Id);
+            if (!sendResult.IsSuccess)
+            {
+                logger.LogError("Failed to send OTP to user {UserId}", identityUser.Id);
+                return AppError.ApplicationErrorMessage("Failed to send verification code. Please try again.");
+            }
+
+            logger.LogInformation("OTP sent to user {UserId}", identityUser.Id);
+        }
 
         // 6. Format phone number to E.164 format for response
         var formattedPhoneNumber = phoneNumber.ToE164Format();

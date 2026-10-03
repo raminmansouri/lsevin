@@ -8,10 +8,12 @@ metadata:
 spec:
   ingressClassName: nginx
   tls:
-    - hosts: [appmain.lsevin.com, api.lsevin.com, crm.lsevin.com, providers.lsevin.com, financial.lsevin.com]
+    - hosts: [appmain.lsevin.com, lsevincare.com, api.lsevin.com, crm.lsevin.com, providers.lsevin.com, financial.lsevin.com]
       secretName: lsevin-tls
   rules:
     - host: appmain.lsevin.com
+      http: {paths: [{path: /, pathType: Prefix, backend: {service: {name: lsevin-webapp, port: {number: 80}}}}]}
+    - host: lsevincare.com
       http: {paths: [{path: /, pathType: Prefix, backend: {service: {name: lsevin-webapp, port: {number: 80}}}}]}
     - host: api.lsevin.com
       http: {paths: [{path: /, pathType: Prefix, backend: {service: {name: lsevin-api, port: {number: 80}}}}]}

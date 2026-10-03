@@ -11,21 +11,9 @@ import { searchProducts } from "@/features/shop/api/catalog.repository";
 import { RecentlyViewedRail } from "@/features/shop/components/RecentlyViewedRail";
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
 
-/**
- * Fully static / ISR. Prices come off the server in their own stored currency
- * (`noFx`); `<ShopPrice>` inside every card converts to the visitor's chosen
- * currency on the client (`ShopCurrencyProvider` in `shop/layout`). Cart badge
- * and recently-viewed are client islands. Every read is cookie-free and cached.
- */
-export const dynamic = "force-static";
-// 120s, not an hour: `next build` bakes this empty (no DB on the build network),
-// so a long revalidate leaves a locale's storefront near-empty until traffic
-// triggers a regen. See the identical note in n/app/mobile/home/page.tsx.
-export const revalidate = 120;
+/** Request-specific currency comes from the layout; catalog data remains cached. */
+export const dynamic = "force-dynamic";
 
-// `force-static` bakes whatever this render produces into the page for the
-// full `revalidate` window (1 hour) — see the identical helper in
-// n/app/mobile/home/page.tsx, including why `next build` skips the retries.
 async function withShopRetry<T>(fn: () => Promise<T>, fallback: T, retries = 5, delayMs = 500): Promise<T> {
   const maxAttempts = process.env.NEXT_PHASE === 'phase-production-build' ? 0 : retries;
   for (let attempt = 0; attempt <= maxAttempts; attempt++) {

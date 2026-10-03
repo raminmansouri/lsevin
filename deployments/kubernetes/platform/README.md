@@ -53,6 +53,10 @@ the corresponding Jenkinsfiles are committed to their upstream repositories.
 
 Grafana and Kibana retain internal ClusterIP services. Dedicated edge services
 use NodePorts `30084` and `30085` only for the Docker-hosted Caddy bridge.
+The main application is served from both `appmain.lsevin.com` and
+`lsevincare.com`. Both DNS names must have an A record pointing to the public
+server before Caddy/cert-manager can issue the TLS certificate for the alias.
+
 Public access is available at `grafana.lsevin.com` (Grafana's native login) and
 `kibana.lsevin.com` (Caddy basic authentication). Only the Kibana bcrypt hash is
 stored in `Caddyfile.server`; keep its plaintext password in the deployment

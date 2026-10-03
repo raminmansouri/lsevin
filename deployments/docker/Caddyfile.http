@@ -13,7 +13,7 @@
 	}
 }
 
-appmain.lsevin.com {
+appmain.lsevin.com, lsevincare.com {
 	encode zstd gzip
 
 	# Resolve the visitor's country from their real IP. `strict` ignores

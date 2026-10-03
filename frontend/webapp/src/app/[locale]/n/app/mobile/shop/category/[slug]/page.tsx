@@ -13,20 +13,8 @@ import { ProductListViewClient } from "@/features/shop/components/ProductListVie
 import { ShopViewTracker } from "@/features/shop/components/ShopViewTracker";
 import { shopImageSrc } from "@/features/shop/lib/image";
 
-// Static / ISR. The shell + the first page of results are prerendered per
-// (slug, locale); filtering / sorting / pagination and the visitor's currency
-// are all client-side. `generateStaticParams` prewarms the active categories.
-export const dynamic = "force-static";
-export const revalidate = 3600;
-
-export async function generateStaticParams() {
-  try {
-    const cats = await getShopCategoriesCached("en");
-    return cats.filter((c) => c.slug).map((c) => ({ slug: c.slug }));
-  } catch {
-    return [];
-  }
-}
+// Customer currency is resolved per request; category data remains cached.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
                                            params,

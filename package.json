@@ -30,6 +30,7 @@
     "devDependencies": {
         "@commitlint/cli": "^20.1.0",
         "@commitlint/config-conventional": "^20.0.0",
+        "@playwright/test": "^1.63.0",
         "cspell": "^9.2.1",
         "cz-customizable": "^7.5.1",
         "husky": "^9.1.7"
