@@ -2,6 +2,7 @@
 import 'server-only';
 import { payFirstBookingReferralBonus } from '@/features/marketing-loyalty/server/referral-commission.repository';
 import { mirrorBookingWalletPayment } from '@/accounting/server/legacy-bridge';
+import { notifyBookingPaymentResult } from '@/features/notification/server/booking-notifications';
 import db from '@/config/database/db';
 import { filterGatewaysForRegion, resolveUserPaymentRegion } from '@/payment/server/gateway-eligibility';
 import { listEnabledPaymentGatewayOptions } from '@/payment/server/payment-gateway.repository';
@@ -402,6 +403,8 @@ export async function createBookingPaymentIntent(params: {
         if (lsevinPaid) {
             payFirstBookingReferralBonus({ refereeCustomerId: params.userId, bookingId: params.bookingId })
                 .catch((error) => console.error('payFirstBookingReferralBonus failed for booking', params.bookingId, error));
+            notifyBookingPaymentResult({ bookingId: params.bookingId, customerUserId: params.userId, status: 'succeeded' })
+                .catch((error) => console.error('notifyBookingPaymentResult failed for booking', params.bookingId, error));
         }
 
       await tx`
@@ -550,6 +553,8 @@ export async function confirmBookingPayment(params: {
         if (lsevinPaid) {
             payFirstBookingReferralBonus({ refereeCustomerId: params.userId, bookingId: params.bookingId })
                 .catch((error) => console.error('payFirstBookingReferralBonus failed for booking', params.bookingId, error));
+            notifyBookingPaymentResult({ bookingId: params.bookingId, customerUserId: params.userId, status: 'succeeded' })
+                .catch((error) => console.error('notifyBookingPaymentResult failed for booking', params.bookingId, error));
         }
 
       await tx`

@@ -3,6 +3,7 @@ import 'server-only';
 import db from '@/config/database/db';
 import { pickTranslation } from '@/features/booking-pro/utils/translation';
 import { payFirstBookingReferralBonus } from '@/features/marketing-loyalty/server/referral-commission.repository';
+import { notifyBookingStatusChanged } from '@/features/notification/server/booking-notifications';
 export async function listAdminBookings(params: { locale?: string; search?: string; status?: string; take?: number; offset?: number }) {
   const locale = params.locale ?? 'fa-IR';
   const search = params.search ?? '';
@@ -219,6 +220,22 @@ export async function reviewAdminBooking(input: {
         }).catch((error) =>
             console.error(
                 'payFirstBookingReferralBonus failed for booking',
+                input.bookingId,
+                error
+            )
+        );
+    }
+
+    // Same "never fail the review action, only the real transition notifies"
+    // posture as the referral bonus above.
+    if (before?.bookingStatus !== input.bookingStatus && before?.userId) {
+        notifyBookingStatusChanged({
+            bookingId: input.bookingId,
+            customerUserId: before.userId,
+            newStatus: input.bookingStatus,
+        }).catch((error) =>
+            console.error(
+                'notifyBookingStatusChanged failed for booking',
                 input.bookingId,
                 error
             )

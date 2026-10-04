@@ -1,6 +1,7 @@
 import "server-only";
 
 import { seoOrigin } from "@/lib/seo/origin";
+import { notifyBookingPaymentResult } from "@/features/notification/server/booking-notifications";
 import { getPaymentProvider } from "../providers";
 import type {
   InitiateBookingPaymentInput,
@@ -143,11 +144,17 @@ export async function verifyGatewayPayment(input: VerifyGatewayPaymentInput): Pr
   }
 
   if (String(input.status || "").toUpperCase() !== "OK") {
-    await markPaymentFailed({
+    const { transitioned } = await markPaymentFailed({
       paymentId: payment.paymentId,
       reason: "Gateway returned a cancelled or failed status.",
       payload: { status: input.status, authority },
     });
+
+    if (transitioned && payment.userId) {
+      notifyBookingPaymentResult({ bookingId: payment.bookingId, customerUserId: payment.userId, status: "failed" }).catch((error) =>
+        console.error("verifyGatewayPayment: failure notification failed", error)
+      );
+    }
 
     return {
       bookingId: payment.bookingId,
@@ -179,11 +186,17 @@ export async function verifyGatewayPayment(input: VerifyGatewayPaymentInput): Pr
   );
 
   if (!verification.success) {
-    await markPaymentFailed({
+    const { transitioned } = await markPaymentFailed({
       paymentId: payment.paymentId,
       reason: verification.message || `Payment verification failed with code ${verification.code ?? "unknown"}.`,
       payload: verification.raw,
     });
+
+    if (transitioned && payment.userId) {
+      notifyBookingPaymentResult({ bookingId: payment.bookingId, customerUserId: payment.userId, status: "failed" }).catch((error) =>
+        console.error("verifyGatewayPayment: failure notification failed", error)
+      );
+    }
 
     return {
       bookingId: payment.bookingId,
@@ -193,7 +206,13 @@ export async function verifyGatewayPayment(input: VerifyGatewayPaymentInput): Pr
     };
   }
 
-  await markGatewayPaymentVerified({ payment, verification });
+  const { credited } = await markGatewayPaymentVerified({ payment, verification });
+
+  if (credited && payment.userId) {
+    notifyBookingPaymentResult({ bookingId: payment.bookingId, customerUserId: payment.userId, status: "succeeded" }).catch((error) =>
+      console.error("verifyGatewayPayment: success notification failed", error)
+    );
+  }
 
   return {
     bookingId: payment.bookingId,
