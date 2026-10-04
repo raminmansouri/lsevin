@@ -603,9 +603,9 @@ export async function upsertMainDraftSelection(
         current_step = case when ${hasInput(input, 'currentStep')} then coalesce(${input.currentStep ?? null}, current_step) else current_step end,
         payment_method = case when ${hasInput(input, 'paymentMethod')} then ${input.paymentMethod ?? null} else payment_method end,
         currency = case when ${hasInput(input, 'currency')} then coalesce(${input.currency ?? null}, currency) else currency end,
-        subtotal_amount = case when ${hasInput(input, 'subtotalAmount')} then coalesce(${input.subtotalAmount ?? null}, 0) else subtotal_amount end,
-        addons_amount = case when ${hasInput(input, 'addonsAmount')} then coalesce(${input.addonsAmount ?? null}, 0) else addons_amount end,
-        total_amount = case when ${hasInput(input, 'totalAmount')} then coalesce(${input.totalAmount ?? null}, 0) else total_amount end,
+        subtotal_amount = case when ${hasInput(input, 'subtotalAmount')} then coalesce(${input.subtotalAmount ?? null}::numeric, 0) else subtotal_amount end,
+        addons_amount = case when ${hasInput(input, 'addonsAmount')} then coalesce(${input.addonsAmount ?? null}::numeric, 0) else addons_amount end,
+        total_amount = case when ${hasInput(input, 'totalAmount')} then coalesce(${input.totalAmount ?? null}::numeric, 0) else total_amount end,
         notes = case when ${hasInput(input, 'notes')} then ${input.notes ?? null} else notes end,
         metadata = coalesce(metadata, '{}'::jsonb) || ${db.json(metadataPatch as Record<string, never>)}
     where id = ${draft.id} and user_id = ${userId} and status in ('Draft', 'InProgress')
@@ -1807,7 +1807,7 @@ export async function checkoutDraft(
              '[]'::jsonb,
              coalesce((select jsonb_agg(jsonb_build_object('title', x.title,'fileUrl', x.file_url,'requirementId', x.requirement_id)) from booking.booking_draft_documents x where x.draft_id = d.id),'[]'::jsonb),
              '[]'::jsonb,
-             case when ${paymentTerms.dueNowAmount} <= 0 then 'NotRequired' else 'Pending' end,
+             case when ${paymentTerms.dueNowAmount}::numeric <= 0 then 'NotRequired' else 'Pending' end,
              'Pending',
              d.user_id,
              ${totals.currency},
