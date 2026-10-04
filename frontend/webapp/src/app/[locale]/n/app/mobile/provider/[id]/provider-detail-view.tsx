@@ -24,9 +24,9 @@ import { useLocale, useTranslations } from "next-intl";
 import { useParams, useSearchParams } from "next/navigation";
 import { BeforeAfterGallery } from "@/features/service-providers/components/before-after-gallery";
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
-
+import { ViewerPrice } from "@/features/finance/components/viewer-price";
 import { getFavoriteStatusAction } from "@/features/favorites/actions/favorite-actions";
-
+import { ConsultationCtaButton } from "@/features/consultation/components/consultation-cta-button";
 import ReviewForm, { type ReviewFormSubmitValue } from "../../../components/ReviewForm";
 import { DigikalaReviewCard } from "../../../components/DigikalaReviewCard";
 import { useReviewEligibility } from "../../../components/useReviewEligibility";
@@ -146,6 +146,7 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
   const locale = useLocale();
   const t = useTranslations("ProviderPage");
   const tGallery = useTranslations("SpecialistPage");
+  const tConsultation = useTranslations("Consultation");
   const { user } = useCurrentSession(false);
   const providerId = firstParam(params.id as string | string[] | undefined);
 
@@ -518,20 +519,16 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
                         <span className="text-xs text-gray-500">({treatment.reviews})</span>
                       </div>
 
-                      <div className="text-end">
-                        <PriceTextClient
-                          amount={treatment.price}
-                          currencyCode={treatment.currency}
-                          locale={locale}
-                          showCode
-                          className="text-lg font-bold text-[#083f30]"
-                        />
-                        {treatment.sourceCurrency && treatment.sourceCurrency !== treatment.currency ? (
-                          <div className="text-[11px] text-gray-500">
-                            {t("services.from")} <PriceTextClient amount={treatment.sourcePrice || 0} currencyCode={treatment.sourceCurrency} locale={locale} showCode />
-                          </div>
-                        ) : null}
-                      </div>
+                        <div className="text-end">
+                            <ViewerPrice
+                                amount={treatment.sourcePrice ?? treatment.price}
+                                sourceCurrencyCode={treatment.sourceCurrency ?? treatment.currency}
+                                providerId={provider.id}
+                                locale={locale}
+                                showCode
+                                className="text-lg font-bold text-[#083f30]"
+                            />
+                        </div>
                     </div>
                   </div>
                 </div>
@@ -791,14 +788,20 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
       </div>
 
       <div className="safe-area-bottom fixed bottom-20 left-0 right-0 z-40 rounded-t-3xl border-t border-gray-200 bg-white px-5 py-4 shadow-2xl">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => navigate("/n/app/mobile/support")}
-            className="flex h-14 flex-1 items-center justify-center gap-2 rounded-2xl bg-gray-100 font-bold text-gray-900 transition-all hover:bg-gray-200 active:scale-95"
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gray-100 font-bold text-gray-900 transition-all hover:bg-gray-200 active:scale-95"
             type="button"
+            aria-label={t("actions.contact")}
           >
-            <Phone size={18} /> {t("actions.contact")}
+            <Phone size={18} />
           </button>
+          <ConsultationCtaButton
+            categoryName={provider.name}
+            label={tConsultation("cta.beforeBooking")}
+            className="flex h-14 flex-1 items-center justify-center gap-2 rounded-2xl border border-[#083f30]/20 bg-[#083f30]/5 text-xs font-bold text-[#083f30] transition-all hover:bg-[#083f30]/10 active:scale-95 sm:text-sm"
+          />
           <button
             onClick={() => setSelectedTab("services")}
             className="h-14 flex-[2] rounded-2xl bg-gradient-to-r from-[#083f30] to-[#0a5a44] font-bold text-white transition-all hover:shadow-xl active:scale-95"

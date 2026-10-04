@@ -2,12 +2,17 @@
 
 import { revalidatePath } from "next/cache";
 import { db } from "@/features/booking-admin-shared/server/db";
+import { notifyBookingStatusChanged } from "@/features/notification/server/booking-notifications";
 import { BookingFormSchema } from "../schemas";
 
 export async function saveBookingAction(input: unknown) {
   const values = BookingFormSchema.parse(input);
 
   if (values.bookingId) {
+    const [before] = await db<{ bookingStatus: string | null }[]>`
+      select booking_status as "bookingStatus" from booking.bookings where id = ${values.bookingId} limit 1
+    `;
+
     await db`
       update booking.bookings
       set provider_id = ${values.providerId},
@@ -34,6 +39,16 @@ export async function saveBookingAction(input: unknown) {
           last_modified_date = now()
       where id = ${values.bookingId}
     `;
+
+    // Never allowed to fail the save itself -- same posture as every other
+    // fire-and-forget notifier in this codebase (notifyBookingCreated etc.).
+    if (before && before.bookingStatus !== values.bookingStatus && values.userId) {
+      notifyBookingStatusChanged({
+        bookingId: values.bookingId,
+        customerUserId: values.userId,
+        newStatus: values.bookingStatus,
+      }).catch((error) => console.error("saveBookingAction: status-change notification failed", error));
+    }
   } else {
     await db`
       insert into booking.bookings (

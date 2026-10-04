@@ -247,8 +247,8 @@ export async function markPaymentFailed(input: {
   paymentId: string;
   reason: string;
   payload?: unknown;
-}): Promise<void> {
-  if (!isUuid(input.paymentId)) return;
+}): Promise<{ transitioned: boolean }> {
+  if (!isUuid(input.paymentId)) return { transitioned: false };
 
   // A settled attempt is never re-opened. The gateway callback is a plain GET the
   // customer can replay with any Status they like, and without this qualifier a
@@ -256,7 +256,7 @@ export async function markPaymentFailed(input: {
   // ?Status=OK replay passes the settled-state check in markGatewayPaymentVerified
   // and credits paid_amount a second time. Zarinpal answers 101 ("already
   // verified") on the second verify, so the gateway does not block it either.
-  await sql`
+  const rows = await sql<{ id: string }[]>`
     update booking.payments
        set status = 'Failed',
            gateway_payload = coalesce(gateway_payload, '{}'::jsonb) || ${jsonb({
@@ -266,8 +266,10 @@ export async function markPaymentFailed(input: {
            })}::jsonb,
            updated_at = now()
      where id = ${input.paymentId}::uuid
-       and lower(coalesce(status, '')) not in ('succeeded', 'paid', 'captured', 'completed')
+       and lower(coalesce(status, '')) not in ('succeeded', 'paid', 'captured', 'completed', 'failed')
+    returning id
   `;
+  return { transitioned: rows.length > 0 };
 }
 
 export async function getGatewayPaymentByAuthority(input: {
@@ -327,12 +329,13 @@ export async function getGatewayPaymentById(paymentId: string): Promise<GatewayP
 export async function markGatewayPaymentVerified(input: {
   payment: GatewayPaymentRow;
   verification: PaymentVerificationResult;
-}): Promise<void> {
-  if (!isUuid(input.payment.paymentId) || !isUuid(input.payment.bookingId)) return;
+}): Promise<{ credited: boolean }> {
+  if (!isUuid(input.payment.paymentId) || !isUuid(input.payment.bookingId)) return { credited: false };
 
   const referenceId = input.verification.referenceId ? String(input.verification.referenceId) : null;
   const paymentAmount = toNumber(input.payment.amount);
   const sourcePaidAmount = toNumber(input.payment.sourceAmount, paymentAmount);
+  let credited = false;
 
   // BTCPay settles from two directions at once — the InvoiceSettled webhook and
   // the customer's browser return — so this can run twice within milliseconds
@@ -380,6 +383,8 @@ export async function markGatewayPaymentVerified(input: {
       return;
     }
 
+    credited = true;
+
     await tx`
       update booking.bookings
          set payment_status = 'Paid',
@@ -413,4 +418,6 @@ export async function markGatewayPaymentVerified(input: {
          and udc.status = 'reserved'
     `;
   });
+
+  return { credited };
 }

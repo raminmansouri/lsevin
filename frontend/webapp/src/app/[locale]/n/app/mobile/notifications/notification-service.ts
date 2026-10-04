@@ -9,7 +9,7 @@ export type NotificationChannel =
   | "whatsapp"
   | "bale";
 
-export type NotificationType = "booking" | "offer" | "system";
+export type NotificationType = "booking" | "offer" | "system" | "consultation";
 
 export type SendNotificationInput = {
   /**

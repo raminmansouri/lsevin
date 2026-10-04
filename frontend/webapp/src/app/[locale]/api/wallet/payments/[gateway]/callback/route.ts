@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { seoOrigin } from "@/lib/seo/origin";
 import { verifyWalletTopUpPayment } from "@/features/wallet/payment-callback";
 
 /**
@@ -13,20 +14,16 @@ import { verifyWalletTopUpPayment } from "@/features/wallet/payment-callback";
  * `walletPaymentStatus` here. Anyone reading this file to learn what Zarinpal
  * does was reading dead code. One handler now, one contract.
  *
- * `getAppBaseUrl` is the Zarinpal version's, kept deliberately: behind Caddy the
- * request origin is the internal one, so redirecting to `request.nextUrl.origin`
- * could send a paying customer to an unreachable host.
+ * Delegates to seoOrigin() (NEXT_PUBLIC_URL) rather than keeping its own env-var
+ * fallback chain: that old chain (NEXT_PUBLIC_APP_URL/NEXT_PUBLIC_SITE_URL/
+ * APP_URL/NEXTAUTH_URL) checked none of the vars actually set in production, so
+ * `configured` was always empty and this fell back to request.nextUrl -- behind
+ * Caddy that's the internal origin, exactly the unreachable-host redirect this
+ * function's own original comment was written to avoid. See zarinpal.ts/
+ * payment.service.ts for the matching callback_url fix.
  */
-function getAppBaseUrl(request: NextRequest) {
-  const configured =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.APP_URL ||
-    process.env.NEXTAUTH_URL;
-
-  if (configured) return configured.replace(/\/$/, "");
-
-  return `${request.nextUrl.protocol}//${request.nextUrl.host}`;
+function getAppBaseUrl() {
+  return seoOrigin();
 }
 
 export async function GET(
@@ -47,7 +44,7 @@ export async function GET(
 
   const url = new URL(
     `/${locale || "fa"}/n/app/mobile/profile/wallet`,
-    getAppBaseUrl(request)
+    getAppBaseUrl()
   );
   url.searchParams.set("walletPaymentStatus", result.status);
   // `payment` is what the Zarinpal handler set before the merge. No wallet screen

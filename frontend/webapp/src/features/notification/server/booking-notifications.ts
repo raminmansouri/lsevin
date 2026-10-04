@@ -388,6 +388,36 @@ async function ensureBookingNotificationTemplates(): Promise<void> {
         "Customer: {{customerName}} ({{customerContact}})\nInterested in: {{serviceName}}\nSelected date/time: {{scheduledDate}} {{scheduledTime}}\nStarted at: {{submittedAt}}"
       ),
     },
+    {
+      key: "booking.payment.succeeded.customer",
+      name: "Booking payment succeeded (customer)",
+      channels: ["in_app", "sms", "email"],
+      title: translations("پرداخت شما با موفقیت انجام شد", "Your payment was successful"),
+      body: translations(
+        "پرداخت {{amountFormatted}} برای رزرو {{serviceName}} نزد {{providerName}} با موفقیت ثبت شد. کد پیگیری: {{confirmationCode}}",
+        "Your payment of {{amountFormatted}} for {{serviceName}} with {{providerName}} was successful. Tracking code: {{confirmationCode}}"
+      ),
+    },
+    {
+      key: "booking.payment.failed.customer",
+      name: "Booking payment failed (customer)",
+      channels: ["in_app", "sms", "email"],
+      title: translations("پرداخت شما انجام نشد", "Your payment did not go through"),
+      body: translations(
+        "پرداخت برای رزرو {{serviceName}} نزد {{providerName}} انجام نشد. می‌توانید دوباره تلاش کنید یا روش پرداخت دیگری را انتخاب کنید.",
+        "Your payment for {{serviceName}} with {{providerName}} did not go through. You can try again or choose another payment method."
+      ),
+    },
+    {
+      key: "booking.status_changed.customer",
+      name: "Booking status changed (customer)",
+      channels: ["in_app", "sms", "email"],
+      title: translations("وضعیت رزرو شما تغییر کرد", "Your booking status changed"),
+      body: translations(
+        "وضعیت رزرو {{serviceName}} نزد {{providerName}} به «{{bookingStatus}}» تغییر کرد. کد پیگیری: {{confirmationCode}}",
+        "Your booking for {{serviceName}} with {{providerName}} is now {{bookingStatus}}. Tracking code: {{confirmationCode}}"
+      ),
+    },
   ];
 
   for (const template of templates) {
@@ -580,5 +610,122 @@ export async function notifyBookingStarted(input: BookingStartedNotificationInpu
     });
   } catch (error) {
     console.error("notifyBookingStarted: recipient lookup failed", error);
+  }
+}
+
+async function getCustomerContact(customerUserId: string) {
+  const [customer] = await sql<{ email: string | null; phoneCountryCode: string | null; phoneNumber: string | null }[]>`
+    select email, phone_number_country_code as "phoneCountryCode", phone_number as "phoneNumber"
+    from identity.asp_net_users
+    where id = ${customerUserId}::uuid
+    limit 1
+  `;
+  return {
+    email: customer?.email ?? null,
+    phone: normalizePhone(customer?.phoneCountryCode, customer?.phoneNumber),
+  };
+}
+
+export type BookingPaymentResultNotificationInput = {
+  bookingId: string;
+  customerUserId: string;
+  status: "succeeded" | "failed";
+  locale?: string | null;
+};
+
+/**
+ * Fires once per genuinely-new payment outcome -- callers are responsible for
+ * only invoking this when the underlying write actually transitioned the
+ * payment's status (markGatewayPaymentVerified's `credited` / markPaymentFailed's
+ * `transitioned`), so a replayed gateway callback never sends a duplicate
+ * "payment succeeded"/"payment failed" message.
+ */
+export async function notifyBookingPaymentResult(input: BookingPaymentResultNotificationInput): Promise<void> {
+  if (!(await notifyTablesExist())) return;
+  await ensureBookingNotificationTemplates();
+
+  const summary = await getBookingSummaryForNotification(input.bookingId).catch((error) => {
+    console.error("notifyBookingPaymentResult: booking summary lookup failed", error);
+    return null;
+  });
+  const contact = await getCustomerContact(input.customerUserId).catch(() => ({ email: null, phone: null }));
+
+  const variables = {
+    bookingId: input.bookingId,
+    serviceName: summary?.serviceName || "",
+    providerName: summary?.providerName || "",
+    amountFormatted: summary?.amountFormatted || "",
+    confirmationCode: summary?.confirmationCode || input.bookingId,
+    ...localizeDateFields(summary, input.locale),
+  };
+
+  try {
+    await createNotificationFromTemplate({
+      templateKey: input.status === "succeeded" ? "booking.payment.succeeded.customer" : "booking.payment.failed.customer",
+      locale: input.locale,
+      customerId: input.customerUserId,
+      entityType: "booking",
+      entityId: input.bookingId,
+      channels: eligibleChannels(contact),
+      emailTo: contact.email,
+      phoneTo: contact.phone,
+      fallbackTitle: input.status === "succeeded" ? "Your payment was successful" : "Your payment did not go through",
+      fallbackBody: input.status === "succeeded" ? "Your booking payment was received." : "Your booking payment failed.",
+      variables,
+      data: { audience: "customer" },
+    });
+  } catch (error) {
+    console.error("notifyBookingPaymentResult: customer notification failed", error);
+  }
+}
+
+export type BookingStatusChangedNotificationInput = {
+  bookingId: string;
+  customerUserId: string;
+  newStatus: string;
+  locale?: string | null;
+};
+
+/**
+ * Fires when an admin/provider review actually changes booking_status (callers
+ * compare old vs. new and only call this on a real transition -- see
+ * reviewAdminBooking in booking-pro/server/admin-repository.ts).
+ */
+export async function notifyBookingStatusChanged(input: BookingStatusChangedNotificationInput): Promise<void> {
+  if (!(await notifyTablesExist())) return;
+  await ensureBookingNotificationTemplates();
+
+  const summary = await getBookingSummaryForNotification(input.bookingId).catch((error) => {
+    console.error("notifyBookingStatusChanged: booking summary lookup failed", error);
+    return null;
+  });
+  const contact = await getCustomerContact(input.customerUserId).catch(() => ({ email: null, phone: null }));
+
+  const variables = {
+    bookingId: input.bookingId,
+    serviceName: summary?.serviceName || "",
+    providerName: summary?.providerName || "",
+    confirmationCode: summary?.confirmationCode || input.bookingId,
+    bookingStatus: translateStatus(BOOKING_STATUS_FA, input.newStatus),
+    ...localizeDateFields(summary, input.locale),
+  };
+
+  try {
+    await createNotificationFromTemplate({
+      templateKey: "booking.status_changed.customer",
+      locale: input.locale,
+      customerId: input.customerUserId,
+      entityType: "booking",
+      entityId: input.bookingId,
+      channels: eligibleChannels(contact),
+      emailTo: contact.email,
+      phoneTo: contact.phone,
+      fallbackTitle: "Your booking status changed",
+      fallbackBody: `Your booking is now ${input.newStatus}.`,
+      variables,
+      data: { audience: "customer" },
+    });
+  } catch (error) {
+    console.error("notifyBookingStatusChanged: customer notification failed", error);
   }
 }

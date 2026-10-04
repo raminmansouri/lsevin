@@ -52,6 +52,13 @@ type SessionUserLike = {
 type ConsultationStepProps = {
   /** Links the lead to the draft it was raised from. Optional — the form works without one. */
   bookingDraftId?: string | null;
+  /**
+   * Prefills the (optional, freeform) "what is this about" field -- e.g. the
+   * provider/staff/service/product name a standalone "request a consultation"
+   * button was opened from, so the lead keeps that context even without a
+   * booking draft to attach it to.
+   */
+  defaultCategoryName?: string;
   /** Rendered as "continue booking" on the success card; usually the wizard's goNext. */
   onContinue?: () => void;
   className?: string;
@@ -110,6 +117,7 @@ function fieldClass(hasError: boolean) {
 
 export function ConsultationStep({
   bookingDraftId,
+  defaultCategoryName,
   onContinue,
   className,
 }: ConsultationStepProps) {
@@ -118,7 +126,10 @@ export function ConsultationStep({
   const { data: session } = useSession();
   const fieldId = useId();
 
-  const [form, setForm] = useState<ConsultationFormState>(EMPTY_FORM);
+  const [form, setForm] = useState<ConsultationFormState>({
+    ...EMPTY_FORM,
+    categoryName: defaultCategoryName?.trim() || "",
+  });
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [phoneTouched, setPhoneTouched] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -177,7 +188,10 @@ export function ConsultationStep({
     phoneTouched && form.phone.trim().length > 0 && normalizedPhone === null;
 
   function resetForm() {
-    setForm(formFromSession(session?.user as SessionUserLike | undefined));
+    setForm({
+      ...formFromSession(session?.user as SessionUserLike | undefined),
+      categoryName: defaultCategoryName?.trim() || "",
+    });
     setFieldErrors({});
     setPhoneTouched(false);
     setSubmittedPhone(null);

@@ -32,6 +32,7 @@ import { VideoGallery } from "@/components/media/video-gallery";
 import { env } from "@/config/env/client";
 import { PriceTextClient } from "@/features/finance/components/price-text-client";
 import { ServiceProductsRail } from "@/features/shop/components/ServiceProductsRail";
+import { ConsultationCtaButton } from "@/features/consultation/components/consultation-cta-button";
 import type {
   SpecialistAchievement,
   SpecialistAvailability,
@@ -557,6 +558,7 @@ export default function SpecialistProfileClient({
   locale: string;
 }) {
   const t = useTranslations("SpecialistPage");
+  const tConsultation = useTranslations("Consultation");
   const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState<SpecialistTab>("about");
   const [isFavorited, setIsFavorited] = useState(false);
@@ -908,6 +910,12 @@ export default function SpecialistProfileClient({
               </div>
             )}
           </div>
+
+          <ConsultationCtaButton
+            categoryName={specialist.name}
+            label={tConsultation("cta.beforeBooking")}
+            className="flex h-14 w-20 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-[#083f30]/20 bg-[#083f30]/5 px-1 text-center text-[10px] font-bold leading-tight text-[#083f30] transition-all hover:bg-[#083f30]/10 active:scale-95"
+          />
 
           <button
             type="button"
