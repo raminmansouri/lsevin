@@ -1,5 +1,6 @@
 import sharedSql from "@/config/database/db";
 
+import { seoOrigin } from "@/lib/seo/origin";
 import { getPaymentProvider } from "@/payment/providers";
 import { getEnabledPaymentGatewayConfig } from "@/payment/server/payment-gateway.repository";
 import type { PaymentGatewayCode } from "@/payment/types";
@@ -39,15 +40,12 @@ function normalizeCurrency(value: string): string {
   return String(value || "USD").trim().toUpperCase();
 }
 
+// See payment.service.ts's getAppBaseUrl for why this delegates to seoOrigin()
+// instead of its own env-var fallback chain: the old chain never checked
+// NEXT_PUBLIC_URL/AUTH_URL (the vars actually set in production), so it silently
+// built Zarinpal callback URLs pointed at http://localhost:3000.
 function getAppBaseUrl(): string {
-  const configured =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.APP_URL ||
-    process.env.NEXTAUTH_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "");
-
-  return String(configured || "http://localhost:3000").replace(/\/$/, "");
+  return seoOrigin();
 }
 
 function buildWalletCallbackUrl(gateway: PaymentGatewayCode, locale?: string | null) {

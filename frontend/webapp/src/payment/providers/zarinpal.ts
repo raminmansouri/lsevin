@@ -1,3 +1,4 @@
+import { seoOrigin } from "@/lib/seo/origin";
 import type {
   PaymentGatewayRuntimeConfig,
   PaymentInitiationRequest,
@@ -155,6 +156,14 @@ async function postZarinpal(
       "Content-Type": "application/json",
       Accept: "application/json",
       "User-Agent": "LSevin-Zarinpal-Direct/1.0",
+      // Shaparak's domain check (the "مغایرت callback_url و Referrer" error)
+      // requires this request to carry a Referer matching the domain
+      // registered for this merchant id, in addition to callback_url itself.
+      // A server-to-server fetch sends no Referer on its own, so it must be
+      // set explicitly -- and from the same canonical origin as callback_url
+      // (seoOrigin/NEXT_PUBLIC_URL), never a per-request Host header, so the
+      // two can never drift apart again.
+      Referer: `${seoOrigin()}/`,
     },
     body: JSON.stringify(payload),
     cache: "no-store",
