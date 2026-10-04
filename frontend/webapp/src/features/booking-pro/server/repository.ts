@@ -15,6 +15,7 @@ import { createCaseProviderGrant } from '@/features/patients/server/case-provide
 import { pickTranslation } from '../utils/translation';
 import { payFirstBookingReferralBonus } from '@/features/marketing-loyalty/server/referral-commission.repository';
 import { convertProviderPrice, resolvePreferredCurrencyCode } from '@/features/finance/lib/server/currency-queries';
+import { resolveCurrentUserId } from '../utils/auth';
 import type {
   BookingDraftState,
   BookingUiMode,
@@ -1206,9 +1207,15 @@ export async function listServices(params: { providerId?: string; serviceId?: st
   const addressRequiredDefIds = await listAddressRequiredServiceDefinitions(rows.map((row: any) => row.service_definition_id));
   const servicesWithDepartures = await listServicesWithOpenDepartures(rows.map((row: any) => row.id));
     const isIranianVisitor = await resolveIsIranianVisitor().catch(() => false);
-    const targetCurrencyCode = await resolvePreferredCurrencyCode({
-        fallbackCurrencyCode: 'USD',
-    }).catch(() => 'USD');
+    const viewerUserId = await resolveCurrentUserId().catch(() => null);
+    // Iranian visitors (phone +98, or IP/locale for guests) always see Rial at x1.
+    // Everyone else gets their phone-number currency, or USD for guests.
+    const targetCurrencyCode = isIranianVisitor
+        ? 'IRR'
+        : await resolvePreferredCurrencyCode({
+            userId: viewerUserId,
+            fallbackCurrencyCode: 'USD',
+        }).catch(() => 'USD');
 
     const items: ServiceCardItem[] = await Promise.all(rows.map(async (row: any) => {
         const converted = await convertProviderPrice({

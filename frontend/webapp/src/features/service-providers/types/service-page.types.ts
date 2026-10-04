@@ -167,6 +167,10 @@ export interface OtherCurrency {
   code: string;
   amount: number;
   symbol?: string;
+  sourceAmount?: number;
+  sourceCurrencyCode?: string;
+  providerId?: string | null;
+  valueToman?: number | null;
 }
 
 export interface ServiceAttribute {

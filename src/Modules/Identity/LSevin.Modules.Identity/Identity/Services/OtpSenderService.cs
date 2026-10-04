@@ -27,6 +27,17 @@ internal sealed class OtpSenderService(
         // Format phone number to E.164 format (e.g., +989123456789 or +12345678901)
         var formattedPhoneNumber = phoneNumber.ToE164Format();
 
+        // Dev-only shortcut: skip WhatsApp for international numbers and print the code instead.
+//         if (!phoneNumber.CountryCode.Equals("IR", StringComparison.OrdinalIgnoreCase)
+//             && string.Equals(
+//                 Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
+//                 "Development",
+//                 StringComparison.OrdinalIgnoreCase))
+//         {
+//             logger.LogWarning("[OtpSender][DEV] OTP for {Phone} is {Code}", formattedPhoneNumber, otpCode);
+//             return Task.FromResult(Result.Success());
+//         }
+
         // Route based on country code.
         // Iranian numbers keep using MeliPayamak (do not change this path);
         // all international numbers use Whatsiplus (WhatsApp).

@@ -21,7 +21,20 @@ import sql from "@/config/database/db";
 export const POINTS_EARN_RATE_KEY = "points_earn_rate";
 export const DEFAULT_EARN_RATE_DIVISOR = 1_000_000;
 
-export async function ensureLoyaltySettingsTable(): Promise<void> {
+// Run the setup once per server process instead of on every request.
+let ensurePromise: Promise<void> | null = null;
+
+export function ensureLoyaltySettingsTable(): Promise<void> {
+  if (!ensurePromise) {
+    ensurePromise = runEnsureLoyaltySettingsTable().catch((err) => {
+      ensurePromise = null; // retry on the next request
+      throw err;
+    });
+  }
+  return ensurePromise;
+}
+
+async function runEnsureLoyaltySettingsTable(): Promise<void> {
   await sql`create schema if not exists loyalty`;
 
   await sql`

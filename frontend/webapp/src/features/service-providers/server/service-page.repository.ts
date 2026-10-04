@@ -114,11 +114,13 @@ function uniqueCurrencyCodes(values: Array<string | null | undefined>) {
 }
 
 function convertedMoneyToOtherCurrency(value: ConvertedMoney): OtherCurrency {
-  return {
-    code: value.targetCurrencyCode,
-    amount: value.targetAmount,
-    symbol: getCurrencySymbol(value.targetCurrencyCode),
-  };
+    return {
+        code: value.targetCurrencyCode,
+        amount: value.targetAmount,
+        symbol: getCurrencySymbol(value.targetCurrencyCode),
+        sourceAmount: value.sourceAmount,
+        sourceCurrencyCode: value.sourceCurrencyCode,
+    };
 }
 
 async function safeResolvePreferredCurrencyCode(input: {
@@ -433,9 +435,15 @@ async function mapOffering(row: ProviderOfferingRow, options: { preferredCurrenc
     providerMultiplier: asNullableNumber(row.international_price_multiplier),
   });
   const tomanOverride = resolveDisplayPrice({ value: price, currency }, asNullableNumber(row.value_toman), Boolean(options.isIranianVisitor));
-  const displayPrice = tomanOverride.isNativeToman
-    ? { code: tomanOverride.currency, amount: tomanOverride.value, symbol: getCurrencySymbol(tomanOverride.currency) }
-    : pickConvertedPrice(priceOptions, options.preferredCurrencyCode);
+    const displayPrice = {
+        ...(tomanOverride.isNativeToman
+            ? { code: tomanOverride.currency, amount: tomanOverride.value, symbol: getCurrencySymbol(tomanOverride.currency) }
+            : pickConvertedPrice(priceOptions, options.preferredCurrencyCode)),
+        sourceAmount: price,
+        sourceCurrencyCode: currency,
+        providerId: row.provider_id,
+        valueToman: asNullableNumber(row.value_toman),
+    };
   const isFavorite = await getIsFavorite({
     customerId: options.customerId,
     favoriteType: 'service',
@@ -1407,9 +1415,15 @@ export async function getServicePageByIdFromDb({
     asNullableNumber(row.value_toman),
     isIranianVisitor,
   );
-  const displayPrice = tomanOverride.isNativeToman
-    ? { code: tomanOverride.currency, amount: tomanOverride.value, symbol: getCurrencySymbol(tomanOverride.currency) }
-    : pickConvertedPrice(priceOptions, resolvedDisplayCurrencyCode);
+    const displayPrice = {
+        ...(tomanOverride.isNativeToman
+            ? { code: tomanOverride.currency, amount: tomanOverride.value, symbol: getCurrencySymbol(tomanOverride.currency) }
+            : pickConvertedPrice(priceOptions, resolvedDisplayCurrencyCode)),
+        sourceAmount: price,
+        sourceCurrencyCode,
+        providerId: row.provider_id,
+        valueToman: asNullableNumber(row.value_toman),
+    };
   const displayOriginalPrice = pickConvertedPrice(originalPriceOptions, resolvedDisplayCurrencyCode);
   const otherCurrencies = priceOptions.map(convertedMoneyToOtherCurrency).filter((item) => item.code !== sourceCurrencyCode);
 
