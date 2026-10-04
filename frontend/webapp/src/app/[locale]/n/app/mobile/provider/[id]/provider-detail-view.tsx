@@ -26,7 +26,7 @@ import { BeforeAfterGallery } from "@/features/service-providers/components/befo
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
 import { ViewerPrice } from "@/features/finance/components/viewer-price";
 import { getFavoriteStatusAction } from "@/features/favorites/actions/favorite-actions";
-
+import { ConsultationCtaButton } from "@/features/consultation/components/consultation-cta-button";
 import ReviewForm, { type ReviewFormSubmitValue } from "../../../components/ReviewForm";
 import { DigikalaReviewCard } from "../../../components/DigikalaReviewCard";
 import { useReviewEligibility } from "../../../components/useReviewEligibility";
