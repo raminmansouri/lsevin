@@ -16800,6 +16800,8 @@ declare const messages: {
     "completionNotePlaceholder": "Add a clinical or operational note (optional)",
     "stepUpdated": "The case step was updated.",
     "stepStatusChanged": "Step status changed",
+    "referralCreated": "Clinical referral created",
+    "referralStatusChanged": "Clinical referral status changed",
     "noActivity": "No case activity has been recorded yet.",
     "templateEditor": {
       "identity": "Template identity",

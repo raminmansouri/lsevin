@@ -16807,6 +16807,8 @@ declare const messages: {
     "completionNotePlaceholder": "یادداشت درمانی یا اجرایی را وارد کنید (اختیاری)",
     "stepUpdated": "مرحله پرونده با موفقیت به‌روزرسانی شد.",
     "stepStatusChanged": "وضعیت مرحله تغییر کرد",
+    "referralCreated": "ارجاع بالینی ثبت شد",
+    "referralStatusChanged": "وضعیت ارجاع بالینی تغییر کرد",
     "noActivity": "هنوز فعالیتی برای این پرونده ثبت نشده است.",
     "templateEditor": {
       "identity": "مشخصات الگوی فرآیند",

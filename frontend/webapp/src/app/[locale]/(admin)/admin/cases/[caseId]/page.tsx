@@ -137,7 +137,11 @@ export default async function AdminCaseDetailPage({
               <div key={event.id} className="rounded-xl border p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="text-sm font-medium">
-                    {t("stepStatusChanged")}
+                    {event.eventType === "referral.created"
+                      ? t("referralCreated")
+                      : event.eventType === "referral.status_changed"
+                        ? t("referralStatusChanged")
+                        : t("stepStatusChanged")}
                   </p>
                   <time className="text-muted-foreground text-xs">
                     {format(event.createdAt)}
