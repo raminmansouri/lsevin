@@ -5,12 +5,14 @@ import { notFound } from "next/navigation";
 import { Providers } from "@/components/providers";
 import { routing } from "@/i18n/routing";
 import { LocalePageProps } from "@/types/next";
+import { isFastBuild } from "@/lib/build-mode";
 import { getDirection } from "@/config/locales";
 import { LocaleTypes } from "@/types/common";
 
 import "../globals.css";
 
 export function generateStaticParams() {
+  if (isFastBuild()) return [];
   return routing.locales.map((locale) => ({ locale }));
 }
 

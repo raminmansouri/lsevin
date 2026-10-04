@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "pnpm build:fast",
+    "build:production": "node scripts/build.mjs production",
+    "build:fast": "node scripts/build.mjs fast",
     "start": "next start",
     "outdated": "pnpm outdated",
     "prettier": "prettier --write --ignore-unknown .",

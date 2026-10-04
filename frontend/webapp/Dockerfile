@@ -29,17 +29,19 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Declare ARGs to receive values from docker compose build.args
-ARG NEXT_PUBLIC_URL
+ARG NEXT_PUBLIC_URL=https://dev.lsevin.com
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_FILES_URL
 ARG NEXT_PUBLIC_SOCKET_URL
 ARG NEXT_PUBLIC_MAPBOX_TOKEN
 ARG AUTH_SECRET
 ARG WEBHOOK_KEY
+ARG BUILD_MODE=fast
 
 # Convert ARGs to ENVs so Next.js can inline them at build time
 ENV NODE_ENV=production \
     SKIP_ENV_VALIDATION=true \
+    BUILD_MODE=${BUILD_MODE} \
     NEXT_PUBLIC_URL=${NEXT_PUBLIC_URL} \
     NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \
     NEXT_PUBLIC_FILES_URL=${NEXT_PUBLIC_FILES_URL} \
