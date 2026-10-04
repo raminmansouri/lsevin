@@ -15206,58 +15206,6 @@ declare const messages: {
       "invalid_transition": "لا يُسمح بهذا التغيير من الحالة الحالية.",
       "unknown": "تعذر تحديث المرحلة. يرجى المحاولة مرة أخرى."
     }
-<<<<<<< HEAD
-  },
-  "ShopMedia": {
-    "hint": "الصورة الأولى هي الصورة الرئيسية. احفظ لتطبيق التغييرات.",
-    "empty": "لا توجد صور للمنتج بعد.",
-    "imageNumber": "الصورة {number, number}",
-    "primary": "الصورة الرئيسية",
-    "makePrimary": "تعيين كرئيسية",
-    "moveUp": "نقل لأعلى",
-    "moveDown": "نقل لأسفل",
-    "replace": "استبدال",
-    "remove": "إزالة",
-    "addImages": "إضافة صور",
-    "imageUrl": "رابط الصورة",
-    "addUrl": "إضافة رابط",
-    "invalidUrl": "أدخل رابط صورة أو مسار ملف صالحًا.",
-    "limit": "تم بلوغ الحد الأقصى للاختيار.",
-    "saveFailed": "تعذر حفظ الصور. حاول مرة أخرى.",
-    "saving": "جارٍ الحفظ…",
-    "save": "حفظ الصور",
-    "saved": "تم حفظ الصور.",
-    "image": "صورة",
-    "video": "فيديو",
-    "file": "ملف",
-    "deleteFile": "حذف {name}",
-    "deleteLibrary": "حذف من المكتبة",
-    "deleteConfirm": "حذف «{name}» من مكتبة الوسائط؟",
-    "deleteFailed": "تعذر حذف الملف.",
-    "loadFailed": "تعذر تحميل الوسائط. حاول مرة أخرى.",
-    "wrongType": "اختر ملفًا من النوع المطلوب.",
-    "uploadFailed": "فشل رفع الملف. حاول مرة أخرى.",
-    "pickFiles": "اختيار وسائط",
-    "singleHint": "اختر ملفًا واحدًا.",
-    "multipleHint": "اختر الملفات ثم أكد الاختيار.",
-    "close": "إغلاق",
-    "search": "البحث عن ملفات",
-    "all": "الكل",
-    "images": "الصور",
-    "videos": "الفيديوهات",
-    "files": "الملفات",
-    "upload": "رفع",
-    "uploading": "جارٍ الرفع…",
-    "loading": "جارٍ التحميل…",
-    "emptyLibrary": "لم يتم العثور على وسائط.",
-    "emptyLibraryHint": "ارفع ملفًا أو غيّر البحث.",
-    "page": "الصفحة {page, number} من {total, number}",
-    "selected": "المحدد",
-    "previous": "السابق",
-    "next": "التالي",
-    "confirm": "استخدام الملفات المحددة"
-=======
->>>>>>> 423a3f2f4521079b5e4c2bfe46f9ac7d76c2bf82
   }
 };
 export default messages;

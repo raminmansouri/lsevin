@@ -178,7 +178,12 @@ export async function getUserPhoneCountryCode(userId: string | null | undefined)
     limit 1
   `;
 
-    const dialCode = rows[0]?.dialCode?.replace(/\D/g, '') || '';
+    const raw = rows[0]?.dialCode?.trim() || '';
+    if (!raw) return null;
+    // Sign-up stores the ISO country ("DE", "IR"); older rows may hold a dial code ("49").
+    if (/^[A-Za-z]{2}$/.test(raw)) return raw.toUpperCase();
+
+    const dialCode = raw.replace(/\D/g, '');
     const national = rows[0]?.phoneNumber?.replace(/\D/g, '') || '';
     if (!dialCode) return null;
 
