@@ -847,7 +847,12 @@ export default function BookingDetail() {
   );
   useEffect(() => {
     executeLoadPaymentGateways({ context: "booking_online_card" });
-  }, [executeLoadPaymentGateways]);
+    // useAction's `execute` is a fresh closure every render (not memoized), so
+    // depending on it here reran this action -> setEnabledPaymentGateways ->
+    // re-render -> new execute -> effect again, an infinite loop of calls to
+    // getEnabledPaymentGatewaysAction. This only needs to run once per mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   useEffect(() => {
     const paymentStatus = searchParams.get("payment");
     if (paymentStatus === "succeeded") {
