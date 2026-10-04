@@ -76,14 +76,6 @@ try
     builder.Services.AddAuthentication(); // whatever you us
 
     builder.Services.AddHttpContextAccessor();
-<<<<<<< HEAD
-
-    builder.Services.AddDbContextFactory<LsevinContext>((sp, options) =>
-    {
-        options.UseNpgsql(databaseConnectionString);
-    });
-=======
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
 
 
 

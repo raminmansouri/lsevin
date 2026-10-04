@@ -30,7 +30,6 @@ httpService.interceptors.request.use(
       });
     } catch {}
     return config;
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   },
   (error) => {
     logAxiosError(error);

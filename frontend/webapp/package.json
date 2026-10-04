@@ -150,7 +150,6 @@
     "tailwindcss": "4.1.14",
     "typescript": "5.9.3",
     "vite": "6.3.5"
->>>>>>> d8568000f5551fc8b98d4ef0d4dbce5c6f700965
   },
   "peerDependencies": {
     "react": "18.3.1",
