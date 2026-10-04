@@ -30,6 +30,9 @@ const nextConfig: NextConfig = {
 
   experimental: {
     authInterrupts: true,
+    // Jenkins shares this host with production services. A single compiler
+    // worker prevents development builds from exhausting the server.
+    cpus: 1,
     cacheComponents: true,
     staleTimes: {
       dynamic: 30,

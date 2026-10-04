@@ -9,7 +9,7 @@ RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@11.5.1 --activate
 
 COPY package.json pnpm-lock.yaml* ./
 
@@ -22,7 +22,7 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@11.5.1 --activate
 
 COPY --from=deps /app/node_modules ./node_modules
 
@@ -40,6 +40,8 @@ ARG BUILD_MODE=fast
 
 # Convert ARGs to ENVs so Next.js can inline them at build time
 ENV NODE_ENV=production \
+    NODE_OPTIONS=--max-old-space-size=1536 \
+    NEXT_TELEMETRY_DISABLED=1 \
     SKIP_ENV_VALIDATION=true \
     BUILD_MODE=${BUILD_MODE} \
     NEXT_PUBLIC_URL=${NEXT_PUBLIC_URL} \
