@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, Image as ImageIcon, PlayCircle } from "lucide-re
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { LexicalDescription } from "@/features/service-providers/components/lexical-description";
 import { env } from "@/config/env/server";
+import { isFastBuild } from "@/lib/build-mode";
 import {
   getServicePageByIdFromDb,
   listActiveServicePageIds,
@@ -16,6 +17,7 @@ export const dynamic = "force-static";
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
+  if (isFastBuild()) return [];
   try {
     const ids = await listActiveServicePageIds(400);
     return ids.map((id) => ({ id }));

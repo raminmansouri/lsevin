@@ -8,12 +8,14 @@ import type { PageProps } from '@/types/next';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { SafePriceText } from '@/features/home/components/safe-price-text';
 import { getSpecialPackageById, listActiveSpecialPackageIds } from '@/features/special-packages/server/repository';
+import { isFastBuild } from '@/lib/build-mode';
 
 // Static / ISR.
 export const dynamic = 'force-static';
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
+  if (isFastBuild()) return [];
   // The DB (pgbouncer) is not reachable from the Docker build network, so a
   // build-time query throws ENOTFOUND. Every sibling route (provider, service,
   // specialist, shop/*) already swallows that and returns no prewarmed params;

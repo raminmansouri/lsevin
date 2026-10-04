@@ -5,6 +5,7 @@ import { getSpecialistPageFromDbCached } from "@/features/service-providers/serv
 import { listActiveSpecialistPageIds } from "@/features/service-providers/server/specialist-page.repository";
 
 import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { isFastBuild } from "@/lib/build-mode";
 import SpecialistProfileClient from "./specialist-page";
 
 type Awaitable<T> = T | Promise<T>;
@@ -20,6 +21,7 @@ export const dynamic = "force-static";
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
+  if (isFastBuild()) return [];
   try {
     const ids = await listActiveSpecialistPageIds(400);
     return ids.map((id) => ({ id }));

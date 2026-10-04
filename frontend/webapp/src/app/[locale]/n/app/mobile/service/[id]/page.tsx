@@ -5,6 +5,7 @@ import { getServicePageByIdCached } from '@/features/service-providers/server/se
 import { listActiveServicePageIds } from '@/features/service-providers/server/service-page.repository';
 
 import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { isFastBuild } from "@/lib/build-mode";
 import { SponsoredPlacementSlot } from '@/features/sponsered-slider/components/sponsored-placement-slot';
 
 import ServicePage from './service-page';
@@ -25,6 +26,7 @@ export const dynamic = 'force-static';
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
+  if (isFastBuild()) return [];
   try {
     const ids = await listActiveServicePageIds(400);
     return ids.map((id) => ({ id }));

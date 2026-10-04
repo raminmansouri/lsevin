@@ -31,6 +31,7 @@ services:
 
       JENKINS_MAIN_REPOSITORY_URL: ${JENKINS_MAIN_REPOSITORY_URL:-https://github.com/raminmansouri/lsevin.git}
       JENKINS_MAIN_BRANCH: ${JENKINS_MAIN_BRANCH:-Lsevin-New}
+      JENKINS_MAIN_DEVELOP_BRANCH: ${JENKINS_MAIN_DEVELOP_BRANCH:-develop}
 
       JENKINS_CRM_REPOSITORY_URL: ${JENKINS_CRM_REPOSITORY_URL:-https://github.com/Mohammadjafariyan/CRM_New.git}
       JENKINS_CRM_BRANCH: ${JENKINS_CRM_BRANCH:-master}
@@ -64,6 +65,7 @@ services:
 
       # Independent workspace for the lsevin-main-production pipeline.
       - /opt/lsevin-platform:/opt/lsevin-platform:rw
+      - /opt/lsevin-platform-development:/opt/lsevin-platform-development:rw
 
       # Reference-only checkout used to rebuild the Jenkins controller itself
       # and as the seed source for the stable .env above (lsevin_jenkins_docker_env).

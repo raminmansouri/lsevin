@@ -37,8 +37,6 @@ export type AdminCaseDetail = AdminCaseRow & {
     plannedEndAt: string | null;
     completedAt: string | null;
     completionNote: string | null;
-<<<<<<< HEAD
-=======
     lockVersion: number;
   }>;
   events: Array<{
@@ -49,7 +47,6 @@ export type AdminCaseDetail = AdminCaseRow & {
     toStatus: string | null;
     note: string | null;
     createdAt: string;
->>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
   }>;
 };
 
@@ -63,9 +60,6 @@ export type ProcessTemplateRow = {
   stepCount: number;
 };
 
-<<<<<<< HEAD
-export async function listProcessTemplates(locale: string): Promise<ProcessTemplateRow[]> {
-=======
 export type ProcessTemplateDetail = ProcessTemplateRow & {
   nameTranslations: Record<string, string>;
   descriptionTranslations: Record<string, string>;
@@ -89,7 +83,6 @@ export type ProcessTemplateDetail = ProcessTemplateRow & {
 export async function listProcessTemplates(
   locale: string
 ): Promise<ProcessTemplateRow[]> {
->>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
   return db<ProcessTemplateRow[]>`
     select pt.id::text,
       coalesce(nullif(common.get_translation_t(pt.name_translations, ${locale}, 'fa-IR'), ''), '-') as name,
@@ -110,10 +103,6 @@ export async function listProcessTemplates(
   `;
 }
 
-<<<<<<< HEAD
-export async function getAdminCase(caseId: string, locale: string): Promise<AdminCaseDetail | null> {
-  const rows = await db<Array<AdminCaseRow & { steps: AdminCaseDetail["steps"] }>>`
-=======
 export async function getProcessTemplate(
   templateId: string,
   locale: string
@@ -161,7 +150,6 @@ export async function getAdminCase(
   locale: string
 ): Promise<AdminCaseDetail | null> {
   const rows = await db<AdminCaseDetail[]>`
->>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
     select
       c.id::text, c.booking_id::text as "bookingId", c.status,
       nullif(trim(concat(coalesce(u.first_name, ''), ' ', coalesce(u.last_name, ''))), '') as "customerName",
@@ -181,10 +169,6 @@ export async function getAdminCase(
         'plannedStartAt', cs.planned_start_at,
         'plannedEndAt', cs.planned_end_at,
         'completedAt', cs.completed_at,
-<<<<<<< HEAD
-        'completionNote', cs.completion_note
-      ) order by cs.display_order) filter (where cs.id is not null), '[]'::jsonb) as steps
-=======
         'completionNote', cs.completion_note,
         'lockVersion', cs.lock_version
       ) order by cs.display_order) filter (where cs.id is not null), '[]'::jsonb) as steps
@@ -201,7 +185,6 @@ export async function getAdminCase(
         from case_management.case_events event_rows
         where event_rows.case_id = c.id
       ), '[]'::jsonb) as events
->>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
     from case_management.cases c
     left join identity.asp_net_users u on u.id = c.customer_user_id
     left join category.service_providers p on p.id = c.provider_id
@@ -269,9 +252,6 @@ export async function listAdminCases(locale: string): Promise<{
 
   return {
     cases,
-<<<<<<< HEAD
-    summary: summary ?? { total: 0, active: 0, scheduled: 0, completed: 0, onHold: 0, cancelled: 0 },
-=======
     summary: summary ?? {
       total: 0,
       active: 0,
@@ -280,6 +260,5 @@ export async function listAdminCases(locale: string): Promise<{
       onHold: 0,
       cancelled: 0,
     },
->>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
   };
 }

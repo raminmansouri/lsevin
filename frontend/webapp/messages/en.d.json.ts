@@ -7804,7 +7804,8 @@ declare const messages: {
         "myPassport": "International Patient Summary",
         "myResults": "Lab & Imaging Results",
         "notifications": "Notifications",
-        "privacySecurity": "Privacy & Security"
+        "privacySecurity": "Privacy & Security",
+        "privacyPolicy": "Privacy Policy"
       }
     },
     "stats": {
@@ -8486,6 +8487,40 @@ declare const messages: {
         "authorized_person": "Authorized person",
         "other": "Other"
       }
+    },
+    "privacyPolicy": {
+      "title": "Privacy Policy",
+      "intro": "Lsevin (\"Lsevin\", \"we\", \"us\", or \"our\") operates the Lsevin mobile application and website (the \"Service\"), a marketplace that helps users research, compare, and book medical tourism services with independent clinics and providers, and communicate with them through in-app chat. This Privacy Policy explains what information we collect, how we use it, and the choices you have.",
+      "section1Title": "1. Information We Collect",
+      "section1aTitle": "a. Information you provide",
+      "section1aItems": "Account information: your phone number, which is used to sign you in via a one-time password (OTP). We do not require a traditional username/password.\nProfile details: name and, optionally, other contact details you choose to add to your profile.\nMessages: content you send through the in-app chat feature to communicate with clinics/providers or our support team.\nBooking and inquiry details: information you submit when requesting information about, or booking, a medical tourism service (for example, the procedure you are interested in and your preferred dates). Lsevin acts as a marketplace/booking intermediary — we do not collect or store medical records, diagnoses, or other clinical health information on our servers. Any medical details you choose to share are exchanged directly between you and the clinic/provider through chat, at your own discretion.",
+      "section1bTitle": "b. Information collected automatically",
+      "section1bItems": "Device and app data: device identifiers, app version, and crash/diagnostic logs, used to keep the Service secure and working correctly.\nPush notification tokens: used to deliver booking updates and chat notifications.\nApproximate location: if you grant permission, used to show you relevant providers and improve local search results. You can decline or revoke this permission at any time in your device settings.\nUsage data: pages viewed and actions taken within the app, used to improve the Service.",
+      "section2Title": "2. How We Use Information",
+      "section2Items": "To create and secure your account and authenticate you via OTP.\nTo connect you with clinics/providers and facilitate bookings and in-app communication.\nTo send you booking confirmations, updates, and support messages.\nTo maintain, secure, and improve the Service, and to detect and prevent fraud or abuse.\nTo comply with legal obligations.",
+      "section2Note": "We do not sell your personal data. We do not currently offer, and this version of the app does not include, any cryptocurrency wallet, top-up, or other financial/payment-processing feature.",
+      "section3Title": "3. How We Share Information",
+      "section3Items": "With clinics/providers: the information necessary to process your inquiry or booking (e.g., your name, contact details, and the message/booking content you choose to send them).\nWith service providers: vendors who help us operate the Service (e.g., cloud hosting, push notification delivery, analytics), under confidentiality and data-protection obligations.\nFor legal reasons: if required by law, regulation, legal process, or governmental request.",
+      "section4Title": "4. Data Security",
+      "section4Body": "All data transmitted between the app and our servers is encrypted in transit (HTTPS/TLS). We apply reasonable administrative, technical, and physical safeguards to protect your information.",
+      "section5Title": "5. Data Retention",
+      "section5Body": "We retain personal information for as long as your account is active or as needed to provide the Service, comply with legal obligations, resolve disputes, and enforce our agreements. You may request deletion at any time as described below.",
+      "section6Title": "6. Your Rights & Account/Data Deletion",
+      "section6HowToRequest": "How to request deletion: To request deletion of your Lsevin account and associated personal data, or deletion of specific personal data without deleting your account, email us at lsevin.turkiye@gmail.com from the email or phone number associated with your account, with the subject line \"Account deletion request\" (or \"Data deletion request\").",
+      "section6WhatHappensLabel": "What happens",
+      "section6WhatHappensValue": "We verify your request, then delete or anonymize your account profile, phone number, and chat history from our active systems.",
+      "section6WhatMayBeKeptLabel": "What may be kept",
+      "section6WhatMayBeKeptValue": "Records we are required to retain for legal, tax, security, or fraud-prevention purposes, kept only as long as necessary and then deleted.",
+      "section6TimeframeLabel": "Timeframe",
+      "section6TimeframeValue": "Requests are processed within 30 days.",
+      "section6RightsNote": "Depending on your location, you may also have rights to access, correct, or export your personal data. Contact us at the email above to exercise these rights.",
+      "section7Title": "7. Children's Privacy",
+      "section7Body": "Lsevin is intended for users 18 years of age and older and is not directed at children. We do not knowingly collect personal information from children.",
+      "section8Title": "8. Changes to This Policy",
+      "section8Body": "We may update this Privacy Policy from time to time. Material changes will be reflected by updating the \"Last updated\" date above.",
+      "section9Title": "9. Contact Us",
+      "section9Body": "If you have questions about this Privacy Policy or your data, contact us at lsevin.turkiye@gmail.com.",
+      "contact": "Lsevin · lsevin.turkiye@gmail.com"
     },
     "privacySecurity": {
       "title": "Privacy & Security",
@@ -16800,6 +16835,8 @@ declare const messages: {
     "completionNotePlaceholder": "Add a clinical or operational note (optional)",
     "stepUpdated": "The case step was updated.",
     "stepStatusChanged": "Step status changed",
+    "referralCreated": "Clinical referral created",
+    "referralStatusChanged": "Clinical referral status changed",
     "noActivity": "No case activity has been recorded yet.",
     "templateEditor": {
       "identity": "Template identity",

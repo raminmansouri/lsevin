@@ -5,7 +5,7 @@ K3S_HELPER_IMAGE="${K3S_HELPER_IMAGE:-rancher/k3s:v1.36.4-k3s1}"
 RELEASE_DIR="${K3S_RELEASE_DIR:-/opt/lsevin/releases}"
 
 kubectl_cmd() {
-  docker run --rm --user 0:0 --network host --entrypoint kubectl \
+  docker run --rm -i --user 0:0 --network host --entrypoint kubectl \
     -v /etc/rancher/k3s/k3s.yaml:/etc/rancher/k3s/k3s.yaml:ro \
     "$K3S_HELPER_IMAGE" "$@"
 }

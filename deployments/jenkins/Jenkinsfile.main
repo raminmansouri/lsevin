@@ -17,12 +17,25 @@ pipeline {
   }
   stages {
     stage('Checkout') { steps { deleteDir(); checkout scm } }
+    stage('Source integrity') {
+      steps {
+        sh '''set -eu
+          if git grep -n -E '^(<<<<<<<|=======|>>>>>>>)' -- . ':!*.md'; then
+            echo 'Unresolved Git conflict markers found; refusing to start an expensive image build.' >&2
+            exit 1
+          fi
+        '''
+      }
+    }
     stage('Preflight') {
       steps {
         script {
           sh 'test -r "$ENV_FILE"; chmod +x "$DEPLOY"'
           def commit = sh(script: 'git rev-parse --short=12 HEAD', returnStdout: true).trim()
           env.IMAGE_TAG = "${commit}-${env.BUILD_NUMBER}"
+          def sourceBranch = (env.BRANCH_NAME ?: sh(script: 'git branch --show-current', returnStdout: true).trim()).replaceFirst(/^origin\//, '')
+          env.WEB_BUILD_MODE = sourceBranch == 'develop' ? 'fast' : 'production'
+          env.WEB_PUBLIC_URL = sourceBranch == 'develop' ? 'https://dev.lsevin.com' : 'https://appmain.lsevin.com'
           def deployedCommit = { String image ->
             def match = image =~ /:([0-9a-f]{7,40})-[0-9]+$/
             match.find() ? match.group(1) : ''
@@ -57,7 +70,7 @@ pipeline {
             deployedCommit(migrationImage),
             'frontend/webapp/db/migrations frontend/webapp/scripts/migrate.mjs frontend/webapp/Dockerfile.migrations'
           ).toString()
-          echo "Build plan: api=${env.BUILD_API}, web=${env.BUILD_WEB}, migrations=${env.BUILD_MIGRATIONS}"
+          echo "Build plan: branch=${sourceBranch}, api=${env.BUILD_API}, web=${env.BUILD_WEB}, migrations=${env.BUILD_MIGRATIONS}, webMode=${env.WEB_BUILD_MODE}, publicUrl=${env.WEB_PUBLIC_URL}"
         }
         sh '''set -eu
           if [ "$BUILD_API" = true ] || [ "$BUILD_WEB" = true ] || [ "$BUILD_MIGRATIONS" = true ]; then
@@ -73,11 +86,7 @@ pipeline {
       steps {
         sh '''set -eu
           set +x
-<<<<<<< HEAD
-          docker build -f src/API/LSevin.Api/Dockerfile -t "lsevin-api:$IMAGE_TAG" .
-=======
           docker build $DOCKER_BUILD_LIMITS -f src/API/LSevin.Api/Dockerfile -t "lsevin-api:$IMAGE_TAG" .
->>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
           "$DEPLOY" import "api-$IMAGE_TAG.tar" "lsevin-api:$IMAGE_TAG"
         '''
       }
@@ -88,11 +97,9 @@ pipeline {
         sh '''set -eu
           set +x
           set -a; . "$ENV_FILE"; set +a
-<<<<<<< HEAD
-          DOCKER_BUILDKIT=1 docker build -f frontend/webapp/Dockerfile \
-=======
+          NEXT_PUBLIC_URL="$WEB_PUBLIC_URL"
           DOCKER_BUILDKIT=1 docker build $DOCKER_BUILD_LIMITS -f frontend/webapp/Dockerfile \
->>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
+            --build-arg BUILD_MODE="$WEB_BUILD_MODE" \
             --build-arg NEXT_PUBLIC_URL --build-arg NEXT_PUBLIC_API_URL \
             --build-arg NEXT_PUBLIC_FILES_URL --build-arg NEXT_PUBLIC_SOCKET_URL \
             --build-arg NEXT_PUBLIC_MAPBOX_TOKEN --build-arg NEXT_PUBLIC_NESHAN_MAP_KEY \
@@ -108,11 +115,7 @@ pipeline {
       when { expression { env.BUILD_MIGRATIONS == 'true' } }
       steps {
         sh '''set -eu
-<<<<<<< HEAD
-          docker build -f frontend/webapp/Dockerfile.migrations \
-=======
           docker build $DOCKER_BUILD_LIMITS -f frontend/webapp/Dockerfile.migrations \
->>>>>>> 592473c7b3918fca6d7445ad3b93a7e8a1e69664
             -t "lsevin-webapp-migrations:$IMAGE_TAG" frontend/webapp
           "$DEPLOY" import "migrations-$IMAGE_TAG.tar" "lsevin-webapp-migrations:$IMAGE_TAG"
         '''
