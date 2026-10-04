@@ -44,6 +44,7 @@ import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { Skeleton } from "@/components/ui/skeleton";
 import { env } from "@/config/env/client";
 import { ServiceProductsRail } from "@/features/shop/components/ServiceProductsRail";
+import { ConsultationCtaButton } from "@/features/consultation/components/consultation-cta-button";
 import { useNavigate } from "@/hooks/use-navigate";
 import { ViewerPrice } from "@/features/finance/components/viewer-price";
 import type {
@@ -532,6 +533,7 @@ function PoliciesSection({ policies }: { policies: ProviderPolicy[] }) {
 
 export default function ServicePage({ data, serviceId, locale }: ServicePageProps) {
   const t = useTranslations("ServicePage");
+  const tConsultation = useTranslations("Consultation");
   const navigate = useNavigate();
   const service = data.service;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -889,6 +891,11 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
           <div className="min-w-0 flex-1">
             <div className="mb-0.5 text-xs text-gray-600">{t("price.totalPackagePrice")}</div>
               <div className="flex items-baseline gap-2"><ViewerPrice amount={service.displayPrice.sourceAmount ?? displayPrice} sourceCurrencyCode={service.displayPrice.sourceCurrencyCode ?? displayCurrencyCode} providerId={service.displayPrice.providerId ?? service.clinicId} valueToman={service.displayPrice.valueToman ?? null} locale={locale} className="text-2xl font-bold text-[#083f30]" />{hasDiscount && <ViewerPrice amount={service.displayOriginalPrice.sourceAmount ?? displayOriginalPrice} sourceCurrencyCode={service.displayOriginalPrice.sourceCurrencyCode ?? displayCurrencyCode} providerId={service.displayPrice.providerId ?? service.clinicId} locale={locale} className="text-sm text-gray-500 line-through" />}</div>          </div>
+          <ConsultationCtaButton
+            categoryName={service.name}
+            label={tConsultation("cta.beforeBooking")}
+            className="flex h-14 w-20 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-[#083f30]/20 bg-[#083f30]/5 px-1 text-center text-[10px] font-bold leading-tight text-[#083f30] transition-all hover:bg-[#083f30]/10 active:scale-95"
+          />
           <button type="button" onClick={() => navigate(`/n/app/mobile/booking?serviceId=${service.providerServiceId}`)} className="flex h-14 items-center gap-2 rounded-2xl bg-gradient-to-r from-[#083f30] to-[#0a5a44] px-8 font-bold text-white transition-all hover:shadow-xl active:scale-95">{t("actions.bookNow")}</button>
         </div>
       </div>

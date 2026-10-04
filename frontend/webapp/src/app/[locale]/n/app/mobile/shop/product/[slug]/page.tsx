@@ -14,6 +14,7 @@ import { CompareButton } from "@/features/shop/components/CompareButton";
 import { ServiceRelatedRail } from "@/features/shop/components/ServiceRelatedRail";
 import { ProductPersonalSections } from "@/features/shop/components/ProductPersonalSections";
 import { shopImageSrc } from "@/features/shop/lib/image";
+import { ConsultationCtaButton } from "@/features/consultation/components/consultation-cta-button";
 
 // Customer currency is resolved per request; product data remains cached.
 export const dynamic = "force-dynamic";
@@ -48,6 +49,7 @@ export default async function ProductDetailPage({
   const { locale, slug } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("Shop");
+  const tConsultation = await getTranslations("Consultation");
 
   const product = await getProductBySlugCached(slug, locale);
   if (!product) notFound();
@@ -167,6 +169,12 @@ export default async function ProductDetailPage({
           <CompareButton productId={product.id} initialInList={false} initialCount={0} resolveOnMount />
 
           <ProductDetailClient product={product} locale={locale} />
+
+          <ConsultationCtaButton
+            categoryName={product.name}
+            label={tConsultation("cta.beforePurchase")}
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-[#083f30]/20 bg-[#083f30]/5 text-sm font-bold text-[#083f30] transition-all hover:bg-[#083f30]/10 active:scale-95"
+          />
         </div>
       </div>
 
