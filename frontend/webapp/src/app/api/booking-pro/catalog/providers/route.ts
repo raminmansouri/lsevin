@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
     serviceId: s.get('serviceId') ?? undefined,
     serviceDefinitionId: s.get('serviceDefinitionId') ?? undefined,
     specialistId: s.get('specialistId') ?? undefined,
+    city: s.get('city') ?? undefined,
     take: Number(s.get('take') ?? 8),
     offset: Number(s.get('offset') ?? 0),
   });
