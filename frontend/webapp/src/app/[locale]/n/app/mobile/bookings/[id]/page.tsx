@@ -244,7 +244,6 @@ function BookingCaseTimeline({ booking }: { booking: BookingRecord }) {
                     {statusLabel(step.status)}
                   </span>
                 </div>
-<<<<<<< HEAD
                 <RichTextPreview
                   content={step.description}
                   className="mt-1 text-sm leading-6 text-gray-600"
@@ -255,10 +254,6 @@ function BookingCaseTimeline({ booking }: { booking: BookingRecord }) {
                     {planned}
                   </p>
                 ) : null}
-=======
-                <RichTextPreview content={step.description} className="mt-1 text-sm leading-6 text-gray-600"/>
-                {planned ? <p className="mt-1 text-xs text-gray-500"><Clock size={12} className="me-1 inline"/>{planned}</p> : null}
->>>>>>> fb4e447cae37ac6a649e129d035ec5c4cfb356f8
               </div>
             </li>
           );

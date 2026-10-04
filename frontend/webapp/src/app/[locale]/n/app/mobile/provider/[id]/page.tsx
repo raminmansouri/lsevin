@@ -5,6 +5,7 @@ import { getProviderPageDataFromDbCached } from "@/features/service-providers/se
 import { listActiveProviderPageIds } from "@/features/service-providers/server/provider-page.repository";
 
 import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { isFastBuild } from "@/lib/build-mode";
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
 
 import { ProviderDetailView } from "./provider-detail-view";
@@ -22,6 +23,7 @@ export const dynamic = "force-static";
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
+  if (isFastBuild()) return [];
   try {
     const ids = await listActiveProviderPageIds(400);
     return ids.map((id) => ({ id }));
