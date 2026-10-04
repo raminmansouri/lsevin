@@ -1,4 +1,5 @@
 import 'server-only';
+import { getCountries, getCountryCallingCode, parsePhoneNumberFromString, type CountryCode } from 'libphonenumber-js';
 
 import sql from '@/config/database/db';
 
@@ -129,9 +130,15 @@ export async function getDefaultCurrencyForCountry(countryCode: string | null | 
 }
 
 export async function resolvePreferredCurrencyCode(input: PreferredCurrencyInput): Promise<string> {
-  const fallback = normalizeCurrencyCode(input.fallbackCurrencyCode || 'USD');
+    const fallback = normalizeCurrencyCode(input.fallbackCurrencyCode || 'USD');
 
-  if (input.explicitCurrencyCode) return normalizeCurrencyCode(input.explicitCurrencyCode);
+    // Logged-in customers are locked to the currency of their phone number's
+    // country: no explicit override, no saved preference. Guests fall through to
+    // the old chain below.
+    const phoneCurrency = await getPhoneDerivedCurrencyCode(input.userId).catch(() => null);
+    if (phoneCurrency) return phoneCurrency;
+
+    if (input.explicitCurrencyCode) return normalizeCurrencyCode(input.explicitCurrencyCode);
 
   const userCurrency = await getUserPreferredCurrencyCode(input.userId);
   if (userCurrency) return userCurrency;
@@ -143,6 +150,60 @@ export async function resolvePreferredCurrencyCode(input: PreferredCurrencyInput
   if (browserCountryCurrency) return browserCountryCurrency;
 
   return fallback;
+}
+
+const EUROZONE_COUNTRIES = new Set([
+    'AT', 'BE', 'BG', 'HR', 'CY', 'EE', 'FI', 'FR', 'DE', 'GR',
+    'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PT', 'SK', 'SI', 'ES',
+]);
+
+// Several countries share a dial code (+1, +7, +44...). When the full number can't
+// settle it, pick the main one.
+const PREFERRED_COUNTRY_FOR_DIAL_CODE: Record<string, CountryCode> = { '1': 'US', '7': 'RU', '44': 'GB' };
+
+function countryFromDialCode(dialCode: string): CountryCode | null {
+    const preferred = PREFERRED_COUNTRY_FOR_DIAL_CODE[dialCode];
+    if (preferred) return preferred;
+    return getCountries().find((country) => getCountryCallingCode(country) === dialCode) ?? null;
+}
+
+/** ISO country of the phone number this customer registered with (e.g. 'IR', 'DE'). */
+export async function getUserPhoneCountryCode(userId: string | null | undefined): Promise<string | null> {
+    if (!userId) return null;
+
+    const rows = await sql<{ phoneNumber: string | null; dialCode: string | null }[]>`
+    select phone_number as "phoneNumber", phone_number_country_code as "dialCode"
+    from identity.asp_net_users
+    where id = ${userId}::uuid
+    limit 1
+  `;
+
+    const raw = rows[0]?.dialCode?.trim() || '';
+    if (!raw) return null;
+    // Sign-up stores the ISO country ("DE", "IR"); older rows may hold a dial code ("49").
+    if (/^[A-Za-z]{2}$/.test(raw)) return raw.toUpperCase();
+
+    const dialCode = raw.replace(/\D/g, '');
+    const national = rows[0]?.phoneNumber?.replace(/\D/g, '') || '';
+    if (!dialCode) return null;
+
+    const parsed = national ? parsePhoneNumberFromString(`+${dialCode}${national}`) : undefined;
+    return parsed?.country ?? countryFromDialCode(dialCode);
+}
+
+/**
+ * The one currency a logged-in customer sees, decided by their phone number:
+ * the country's row in finance.country_currency_defaults, then EUR for
+ * eurozone countries, then USD. Null only for guests / numbers we can't read.
+ */
+export async function getPhoneDerivedCurrencyCode(userId: string | null | undefined): Promise<string | null> {
+    const country = await getUserPhoneCountryCode(userId).catch(() => null);
+    if (!country) return null;
+
+    const fromTable = await getDefaultCurrencyForCountry(country);
+    if (fromTable) return fromTable;
+    if (EUROZONE_COUNTRIES.has(country)) return 'EUR';
+    return 'USD';
 }
 
 export async function convertMoney(input: {
@@ -304,7 +365,7 @@ export async function createFxQuote(input: {
 
   const expiresInMinutes = input.expiresInMinutes ?? 15;
 
-  const rows = await sql<{
+  const rows = sql<{
     id: string;
     userId: string | null;
     status: 'active' | 'used' | 'expired' | 'cancelled';
@@ -336,8 +397,8 @@ export async function createFxQuote(input: {
       ${converted.ratePath},
       ${converted.exchangeRateIds},
       now() + (${expiresInMinutes} || ' minutes')::interval,
-      ${input.metadata || {}}
-    )
+      ${sql.json((input.metadata || {}) as never)}
+           )
     returning
       id,
       user_id as "userId",

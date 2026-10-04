@@ -1,5 +1,6 @@
 import "server-only";
 
+import { seoOrigin } from "@/lib/seo/origin";
 import { getPaymentProvider } from "../providers";
 import type {
   InitiateBookingPaymentInput,
@@ -26,15 +27,18 @@ function normalizeGateway(value?: string | null): PaymentGatewayCode {
   return gateway as PaymentGatewayCode;
 }
 
+/**
+ * This used to read NEXT_PUBLIC_APP_URL/NEXT_PUBLIC_SITE_URL/APP_URL/NEXTAUTH_URL,
+ * none of which are actually set in production (only NEXT_PUBLIC_URL and AUTH_URL
+ * are) -- so it silently fell back to http://localhost:3000 and sent that as
+ * Zarinpal's callback_url, mismatching the domain registered in the gateway and
+ * triggering Shaparak's callback/Referrer domain check. seoOrigin() is the
+ * project's single canonical app-origin source (already used by layout.tsx,
+ * robots.ts, shop-payment.service.ts) and reads NEXT_PUBLIC_URL, which is set in
+ * every environment this app runs in.
+ */
 function getAppBaseUrl(): string {
-  const configured =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.APP_URL ||
-    process.env.NEXTAUTH_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "");
-
-  return String(configured || "http://localhost:3000").replace(/\/$/, "");
+  return seoOrigin();
 }
 
 function getGatewayCurrency(settings?: { currency?: string | null }): "IRR" | "IRT" {

@@ -13,6 +13,13 @@ def applications = [
     scriptPath: 'deployments/jenkins/Jenkinsfile.main'
   ],
   [
+    job: 'lsevin-main-development',
+    description: 'Runs the fast web build from develop for dev.lsevin.com without deploying into production.',
+    repository: System.getenv('JENKINS_MAIN_REPOSITORY_URL') ?: 'https://github.com/raminmansouri/lsevin.git',
+    branch: System.getenv('JENKINS_MAIN_DEVELOP_BRANCH') ?: 'develop',
+    scriptPath: 'deployments/jenkins/Jenkinsfile.develop'
+  ],
+  [
     job: 'lsevin-crm-production',
     description: 'Deploys the CRM application.',
     repository: System.getenv('JENKINS_CRM_REPOSITORY_URL') ?: 'https://github.com/Mohammadjafariyan/CRM_New.git',

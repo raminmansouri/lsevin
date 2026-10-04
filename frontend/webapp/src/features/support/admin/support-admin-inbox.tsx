@@ -1,8 +1,8 @@
 "use client";
 
 
-import { useTranslations } from "next-intl";
-import { CheckCircle2, ClipboardList, Clock3, Headphones, Loader2, MessageSquareText, NotebookPen, Plus, Search, SendHorizonal, Stethoscope, Tag, UserRound } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { CalendarClock, CheckCircle2, ClipboardList, Clock3, ExternalLink, Headphones, Loader2, MessageSquareText, NotebookPen, Plus, Search, SendHorizonal, Stethoscope, Tag, UserRound } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Link } from "@/i18n/navigation";
 import {
   addClinicalRecordFromConversationAction,
   addInternalNoteAction,
@@ -52,6 +53,29 @@ const RECORD_REQUIRED_FIELDS: Record<(typeof recordTypes)[number], string[]> = {
 };
 
 const supportOptionKey = (value: string) => value.replaceAll("-", "_").replaceAll(" ", "_");
+
+// getAdminBookingDetail (features/booking-pro/server/admin-repository.ts) returns
+// name columns as raw {locale: text} translation JSON, not a picked string --
+// mirrors that feature's own pickTranslation() rather than importing across features.
+function pickTranslation(value: unknown, locale: string): string {
+  if (!value || typeof value !== "object") return "";
+  const record = value as Record<string, string>;
+  const base = locale.split("-")[0];
+  return record[locale] || record[base] || record.fa || record.en || Object.values(record)[0] || "";
+}
+
+type AdminBookingSummary = {
+  id: string;
+  booking_status?: string | null;
+  payment_status?: string | null;
+  total_amount?: number | string | null;
+  currency_code?: string | null;
+  selected_date?: string | null;
+  selected_time?: string | null;
+  provider_name_translations?: unknown;
+  service_name_translations?: unknown;
+  specialist_name_translations?: unknown;
+};
 
 export function SupportAdminInbox({ initialConversations, initialSelectedConversation, tags, cannedReplies }: Props) {
   const tAdmin = useTranslations("AdminGenerated");
@@ -94,6 +118,18 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
   }, [messageCount]);
   const [note, setNote] = useState("");
   const [isPending, startTransition] = useTransition();
+  const locale = useLocale();
+  const [bookingSummary, setBookingSummary] = useState<AdminBookingSummary | null>(null);
+
+  useEffect(() => {
+    setBookingSummary(null);
+    if (!selected?.bookingId) return;
+    const bookingId = selected.bookingId;
+    fetch(`/api/admin/bookings/${bookingId}?locale=${locale}`, { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setBookingSummary(data?.item ?? null))
+      .catch(() => setBookingSummary(null));
+  }, [selected?.bookingId, locale]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -407,6 +443,44 @@ export function SupportAdminInbox({ initialConversations, initialSelectedConvers
                   </div>
                 </CardContent>
               </Card>
+
+              {selected.bookingId && (
+                <Card className="rounded-3xl">
+                  <CardContent className="space-y-3 p-4">
+                    <div className="flex items-center justify-between"><h3 className="font-semibold">{tAdmin("bookingInfo")}</h3><CalendarClock className="h-4 w-4 text-muted-foreground" /></div>
+                    {bookingSummary ? (
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="rounded-2xl bg-slate-50 p-3"><p className="text-muted-foreground">{tAdmin("service")}</p><p className="font-semibold">{pickTranslation(bookingSummary.service_name_translations, locale) || "-"}</p></div>
+                        <div className="rounded-2xl bg-slate-50 p-3"><p className="text-muted-foreground">{tAdmin("provider")}</p><p className="font-semibold">{pickTranslation(bookingSummary.provider_name_translations, locale) || "-"}</p></div>
+                        <div className="rounded-2xl bg-slate-50 p-3"><p className="text-muted-foreground">{tAdmin("bookingStatus")}</p><p className="font-semibold">{bookingSummary.booking_status || "-"}</p></div>
+                        <div className="rounded-2xl bg-slate-50 p-3"><p className="text-muted-foreground">{tAdmin("paymentStatus")}</p><p className="font-semibold">{bookingSummary.payment_status || "-"}</p></div>
+                      </div>
+                    ) : (
+                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    )}
+                    <Link href={`/admin/bookings/${selected.bookingId}/update`} className="flex items-center justify-center gap-2 rounded-2xl border px-3 py-2 text-sm font-medium hover:bg-slate-50">
+                      {tAdmin("viewBooking")}<ExternalLink className="h-3.5 w-3.5" />
+                    </Link>
+                  </CardContent>
+                </Card>
+              )}
+
+              {(selected.patientId || selected.medicalCaseId) && (
+                <Card className="rounded-3xl">
+                  <CardContent className="space-y-2 p-4">
+                    {selected.patientId && (
+                      <Link href={`/admin/patients/${selected.patientId}`} className="flex items-center justify-center gap-2 rounded-2xl border px-3 py-2 text-sm font-medium hover:bg-slate-50">
+                        {tAdmin("viewPatient360")}<ExternalLink className="h-3.5 w-3.5" />
+                      </Link>
+                    )}
+                    {selected.patientId && selected.medicalCaseId && (
+                      <Link href={`/admin/patients/${selected.patientId}/cases/${selected.medicalCaseId}`} className="flex items-center justify-center gap-2 rounded-2xl border px-3 py-2 text-sm font-medium hover:bg-slate-50">
+                        {tAdmin("viewMedicalCase")}<ExternalLink className="h-3.5 w-3.5" />
+                      </Link>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
 
               <Card className="rounded-3xl">
                 <CardContent className="space-y-3 p-4">

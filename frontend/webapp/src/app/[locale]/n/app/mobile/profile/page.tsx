@@ -3,7 +3,7 @@ import { getProfileForEdit } from '@/features/profile/actions/profile.actions';
 import FetchDisplayProfileInfo from '@/features/profile/components/fetch-display-profile-info';
 import { useNavigate } from '@/hooks/use-navigate';
 // FileText went with the deactivated medical-profile row below; restore it there too.
-import { Settings, Wallet as WalletIcon, Gift, Heart, HeartPulse, ClipboardList, Link2, Stamp, FlaskConical, Bell, Globe, Shield, LogOut, Share2 } from 'lucide-react';
+import { Settings, Wallet as WalletIcon, Gift, Heart, HeartPulse, ClipboardList, Link2, Stamp, FlaskConical, Bell, Globe, Shield, ScrollText, LogOut, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import SignOutButton from './components/sign-out-button';
 import { getSession } from '@/lib/auth/session';
@@ -36,6 +36,7 @@ export default async function Profile() {
     { icon: Bell, label: t('menu.notifications'), path: '/n/app/mobile/notifications', color: 'text-purple-600' },
     // { icon: Globe, label: 'Language & Currency', path: '/n/app/mobile/profile/settings', color: 'text-teal-600' },
     { icon: Shield, label: t('menu.privacySecurity'), path: '/n/app/mobile/profile/privacy-security', color: 'text-indigo-600' },
+    { icon: ScrollText, label: t('menu.privacyPolicy'), path: '/n/app/mobile/profile/privacy-policy', color: 'text-slate-600' },
   ];
   
   const session=await getSession();

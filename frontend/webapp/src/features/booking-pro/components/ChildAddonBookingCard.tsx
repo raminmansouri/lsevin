@@ -11,6 +11,7 @@ interface Props {
     locale: string;
     draftId: string;
     addon: ProviderTypeAddonItem;
+    city?: string | null;
     value?: ChildBookingDraft;
     onChange: (next: ChildBookingDraft) => void;
     onSaved: (next: ChildBookingDraft, totals?: {
@@ -25,7 +26,7 @@ async function getJson<T>(url: string): Promise<T> {
         throw new Error(`Failed request: ${url}`);
     return res.json();
 }
-export function ChildAddonBookingCard({ locale, draftId, addon, value, onChange, onSaved }: Props) {
+export function ChildAddonBookingCard({ locale, draftId, addon, city, value, onChange, onSaved }: Props) {
     const tBooking = useTranslations("Booking");
     const [expanded, setExpanded] = useState(Boolean(addon.isRequired || value?.providerId));
     const [providerSearch, setProviderSearch] = useState('');
@@ -53,13 +54,13 @@ export function ChildAddonBookingCard({ locale, draftId, addon, value, onChange,
         getJson<{
             items: ProviderCardItem[];
             hasMore: boolean;
-        }>(`/api/booking-pro/catalog/providers?locale=${locale}&providerTypeId=${addon.providerTypeId}&search=${encodeURIComponent(providerSearch)}&offset=${providerOffset}&take=3`)
+        }>(`/api/booking-pro/catalog/providers?locale=${encodeURIComponent(locale)}&providerTypeId=${encodeURIComponent(addon.providerTypeId)}&city=${encodeURIComponent(city ?? '')}&search=${encodeURIComponent(providerSearch)}&offset=${providerOffset}&take=3`)
             .then((data) => {
             setProviders((prev) => (providerOffset === 0 ? data.items : [...prev, ...data.items]));
             setHasMoreProviders(data.hasMore);
         })
             .catch(console.error);
-    }, [expanded, locale, addon.providerTypeId, providerSearch, providerOffset]);
+    }, [expanded, locale, addon.providerTypeId, city, providerSearch, providerOffset]);
     useEffect(() => {
         if (!expanded || !model.providerId)
             return;

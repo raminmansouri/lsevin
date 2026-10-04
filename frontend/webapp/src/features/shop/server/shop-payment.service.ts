@@ -1,5 +1,6 @@
 import "server-only";
 
+import { seoOrigin } from "@/lib/seo/origin";
 import { getPaymentProvider } from "@/payment/providers";
 import { getEnabledPaymentGatewayConfig, getPaymentGatewayConfig } from "@/payment/server/payment-gateway.repository";
 import type { PaymentGatewayCode } from "@/payment/types";
@@ -26,14 +27,12 @@ import {
  * `shop.payment_transactions`.
  */
 
+// Delegates to the project's single canonical app-origin source (NEXT_PUBLIC_URL)
+// instead of its own fallback chain, so this can't drift from payment.service.ts
+// and features/wallet/payment-gateway.ts the way it already had (see their
+// getAppBaseUrl comments for the Zarinpal callback/Referrer bug that caused).
 function getAppBaseUrl(): string {
-  const configured =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.NEXT_PUBLIC_URL ||
-    process.env.APP_URL ||
-    process.env.AUTH_URL ||
-    "http://localhost:3000";
-  return String(configured).replace(/\/$/, "");
+  return seoOrigin();
 }
 
 function callbackUrl(gateway: string, locale: string): string {

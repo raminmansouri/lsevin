@@ -7,6 +7,7 @@ import { env } from "@/config/env/client";
 import { getClientMessages } from "@/i18n/client-messages";
 import { routing } from "@/i18n/routing";
 import { LocalePageProps } from "@/types/next";
+import { isFastBuild } from "@/lib/build-mode";
 
 // The dynamic floor used to live here (`export const dynamic = "force-dynamic"`),
 // which forced *every* localized route to render per request. It has moved down
@@ -16,6 +17,7 @@ import { LocalePageProps } from "@/types/next";
 // pages (`n/app/mobile/{home,shop,categories,search,explore,provider,specialist,
 // service}` and `shop/product`) be statically generated / ISR'd.
 export function generateStaticParams() {
+  if (isFastBuild()) return [];
   return routing.locales.map((locale) => ({ locale }));
 }
 
