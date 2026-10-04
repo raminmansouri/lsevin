@@ -18,7 +18,8 @@ pipeline {
     stage('Checkout develop') { steps { deleteDir(); checkout scm } }
     stage('Source integrity') {
       steps { sh '''set -eu
-        test "$(git branch --show-current)" = develop || { echo 'Development job must build the develop branch.' >&2; exit 1; }
+        expected_commit="$(git rev-parse refs/remotes/origin/develop)"
+        test "$(git rev-parse HEAD)" = "$expected_commit" || { echo 'Development job must build the current origin/develop commit.' >&2; exit 1; }
         chmod +x "$DEPLOY"
         if git grep -n -E '^(<<<<<<<|=======|>>>>>>>)' -- . ':!*.md'; then
           echo 'Unresolved Git conflict markers found.' >&2
