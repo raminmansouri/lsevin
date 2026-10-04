@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lsevin-webapp-development
+  namespace: lsevin
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector: {matchLabels: {app.kubernetes.io/name: lsevin-webapp-development}}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: lsevin-webapp-development, app.kubernetes.io/part-of: lsevin, app.kubernetes.io/environment: development}
+    spec:
+      containers:
+        - name: web
+          image: lsevin-webapp-development
+          imagePullPolicy: IfNotPresent
+          ports: [{name: http, containerPort: 3000}]
+          # Reuse the existing platform services and secrets. Development has
+          # no API, database, Redis, EventStore, media, or migration workload.
+          envFrom: [{configMapRef: {name: platform-config}}, {secretRef: {name: webapp-secrets}}]
+          env:
+            - {name: HOSTNAME, value: 0.0.0.0}
+            - {name: PORT, value: "3000"}
+            - {name: NEXT_PUBLIC_URL, value: "https://dev.lsevin.com"}
+            - {name: AUTH_URL, value: "https://dev.lsevin.com"}
+          startupProbe: {httpGet: {path: /sw.js, port: http}, periodSeconds: 5, failureThreshold: 36}
+          readinessProbe: {httpGet: {path: /sw.js, port: http}, periodSeconds: 10}
+          livenessProbe: {httpGet: {path: /sw.js, port: http}, periodSeconds: 20}
+          resources: {requests: {cpu: 50m, memory: 192Mi}, limits: {cpu: 500m, memory: 512Mi}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lsevin-webapp-development
+  namespace: lsevin
+spec:
+  selector: {app.kubernetes.io/name: lsevin-webapp-development}
+  ports: [{name: http, port: 80, targetPort: http}]
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lsevin-development
+  namespace: lsevin
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    nginx.ingress.kubernetes.io/proxy-body-size: 64m
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: [dev.lsevin.com]
+      secretName: lsevin-development-tls
+  rules:
+    - host: dev.lsevin.com
+      http: {paths: [{path: /, pathType: Prefix, backend: {service: {name: lsevin-webapp-development, port: {number: 80}}}}]}
