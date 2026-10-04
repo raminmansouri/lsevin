@@ -24,7 +24,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useParams, useSearchParams } from "next/navigation";
 import { BeforeAfterGallery } from "@/features/service-providers/components/before-after-gallery";
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
-
+import { ViewerPrice } from "@/features/finance/components/viewer-price";
 import { getFavoriteStatusAction } from "@/features/favorites/actions/favorite-actions";
 
 import ReviewForm, { type ReviewFormSubmitValue } from "../../../components/ReviewForm";
@@ -518,20 +518,16 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
                         <span className="text-xs text-gray-500">({treatment.reviews})</span>
                       </div>
 
-                      <div className="text-end">
-                        <PriceTextClient
-                          amount={treatment.price}
-                          currencyCode={treatment.currency}
-                          locale={locale}
-                          showCode
-                          className="text-lg font-bold text-[#083f30]"
-                        />
-                        {treatment.sourceCurrency && treatment.sourceCurrency !== treatment.currency ? (
-                          <div className="text-[11px] text-gray-500">
-                            {t("services.from")} <PriceTextClient amount={treatment.sourcePrice || 0} currencyCode={treatment.sourceCurrency} locale={locale} showCode />
-                          </div>
-                        ) : null}
-                      </div>
+                        <div className="text-end">
+                            <ViewerPrice
+                                amount={treatment.sourcePrice ?? treatment.price}
+                                sourceCurrencyCode={treatment.sourceCurrency ?? treatment.currency}
+                                providerId={provider.id}
+                                locale={locale}
+                                showCode
+                                className="text-lg font-bold text-[#083f30]"
+                            />
+                        </div>
                     </div>
                   </div>
                 </div>

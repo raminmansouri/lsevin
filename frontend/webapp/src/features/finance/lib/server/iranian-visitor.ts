@@ -6,7 +6,8 @@ import {
   unstable_cacheTag as cacheTag,
 } from "next/cache";
 import { getLocale } from "next-intl/server";
-
+import { resolveCurrentUserId } from "@/features/booking-pro/utils/auth";
+import { getUserPhoneCountryCode } from "./currency-queries";
 import { getSession } from "@/lib/auth/session";
 
 /**
@@ -47,7 +48,12 @@ async function isIranianFromSessionPhone(): Promise<boolean | null> {
   try {
     const session = await getSession();
       const raw = session?.user?.phoneNumberCountryCode?.trim();
-      if (!raw) return null;
+      if (!raw) {
+          // The session doesn't carry the country: read it from the account itself.
+          const userId = await resolveCurrentUserId().catch(() => null);
+          const country = await getUserPhoneCountryCode(userId).catch(() => null);
+          return country ? country === "IR" : null;
+      }
       // Sign-up stores an ISO country ("IR", "DE"); older rows may hold a dial code ("98").
       if (/^[A-Za-z]{2}$/.test(raw)) return raw.toUpperCase() === "IR";
       const dialCode = raw.replace(/\D/g, "");

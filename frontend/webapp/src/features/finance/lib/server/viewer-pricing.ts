@@ -1,8 +1,7 @@
 import 'server-only';
 
 import sql from '@/config/database/db';
-import { getSession } from '@/lib/auth/session';
-
+import { resolveCurrentUserId } from '@/features/booking-pro/utils/auth';
 import { roundMoney } from '../money';
 import { convertMoney, convertProviderPrice, resolvePreferredCurrencyCode } from './currency-queries';
 import { resolveIsIranianVisitor } from './iranian-visitor';
@@ -27,8 +26,7 @@ export type ViewerPrice = { amount: number; currencyCode: string };
  * The visitor is resolved once per batch, not once per price.
  */
 export async function priceItemsForViewer(items: ViewerPriceRequest[]): Promise<(ViewerPrice | null)[]> {
-    const session = await getSession().catch(() => null);
-    const userId = session?.user?.id ?? null;
+    const userId = await resolveCurrentUserId().catch(() => null);
     const isIranian = await resolveIsIranianVisitor().catch(() => false);
 
     const targetCurrencyCode = isIranian
@@ -66,17 +64,25 @@ export async function priceItemsForViewer(items: ViewerPriceRequest[]): Promise<
                     };
                 }
 
-                const converted = await convertProviderPrice({
-                    amount: item.amount,
-                    sourceCurrencyCode: item.sourceCurrencyCode,
-                    targetCurrencyCode,
-                    providerMultiplier: item.providerId ? (multipliers.get(item.providerId) ?? null) : null,
+                const convertTo = (code: string) =>
+                    convertProviderPrice({
+                        amount: item.amount,
+                        sourceCurrencyCode: item.sourceCurrencyCode,
+                        targetCurrencyCode: code,
+                        providerMultiplier: item.providerId ? (multipliers.get(item.providerId) ?? null) : null,
+                    });
+                // No rate for the visitor's currency: show USD (with the multiplier), never Rial.
+                const converted = await convertTo(targetCurrencyCode).catch((error) => {
+                    if (targetCurrencyCode === 'USD') throw error;
+                    console.warn('[viewer-pricing] no rate for', targetCurrencyCode, '- falling back to USD');
+                    return convertTo('USD');
                 });
                 return {
                     amount: roundMoney(converted.targetAmount, converted.targetCurrencyCode),
                     currencyCode: converted.targetCurrencyCode,
                 };
-            } catch {
+            } catch (error) {
+                console.error('[viewer-pricing] conversion failed', item.sourceCurrencyCode, '->', targetCurrencyCode, error);
                 return null;
             }
         }),
