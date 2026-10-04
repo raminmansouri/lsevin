@@ -98,9 +98,7 @@ export function LinkFamilySection({
 
   return (
     <div className="rounded-2xl bg-white p-4">
-      <p className="text-sm font-medium text-gray-900">
-        {t("linkRequest.title")}
-      </p>
+      <p className="text-sm font-medium text-gray-900">{t("linkRequest.title")}</p>
       <p className="mt-1 text-xs text-gray-400">{t("linkRequest.subtitle")}</p>
 
       {requests.length > 0 && (

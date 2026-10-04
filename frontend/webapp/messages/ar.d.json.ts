@@ -15125,6 +15125,8 @@ declare const messages: {
     "completionNotePlaceholder": "أضف ملاحظة علاجية أو تشغيلية (اختياري)",
     "stepUpdated": "تم تحديث مرحلة الحالة بنجاح.",
     "stepStatusChanged": "تم تغيير حالة المرحلة",
+    "referralCreated": "تم إنشاء إحالة سريرية",
+    "referralStatusChanged": "تم تغيير حالة الإحالة السريرية",
     "noActivity": "لم يتم تسجيل أي نشاط لهذه الحالة بعد.",
     "templateEditor": {
       "identity": "بيانات قالب العملية",
