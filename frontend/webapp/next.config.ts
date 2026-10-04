@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
+const isFastBuild = process.env.BUILD_MODE === "fast";
+
 // pull from env
 const filesUrl = new URL(
   process.env.NEXT_PUBLIC_FILES_URL || "http://localhost:5000"
@@ -33,7 +35,9 @@ const nextConfig: NextConfig = {
     // Jenkins shares this host with production services. A single compiler
     // worker prevents development builds from exhausting the server.
     cpus: 1,
-    cacheComponents: true,
+    // Fast CI builds avoid strict PPR validation and route prerendering.
+    // Production keeps the existing cache-components behavior.
+    cacheComponents: !isFastBuild,
     staleTimes: {
       dynamic: 30,
       static: 180,
