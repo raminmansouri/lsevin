@@ -2927,6 +2927,10 @@
     },
     "requestFile": "Request file",
     "addToMedicalRecord": "Add to medical record",
+    "bookingInfo": "Booking info",
+    "viewBooking": "View booking",
+    "viewPatient360": "View patient 360",
+    "viewMedicalCase": "View medical case",
     "requirementTitlePlaceholder": "What do you need? (e.g. Recent blood test)",
     "descriptionOptional": "Description (optional)",
     "maxAgeHoursOptional": "Max age in hours (optional)",
@@ -14022,6 +14026,10 @@
       "subtitle": "Leave your details and one of our advisors will call you back. It is free and it does not change your booking.",
       "optional": "Optional",
       "skipNote": "You can skip this step and carry on booking."
+    },
+    "cta": {
+      "beforeBooking": "Free consultation before booking",
+      "beforePurchase": "Free consultation before buying"
     },
     "form": {
       "firstName": {

@@ -801,8 +801,8 @@ function normalizeCatalogSearch(search?: string) {
     .trim();
 }
 
-export async function listProviders(params: { locale?: Locale; search?: string; providerTypeId?: string; providerId?: string; serviceId?: string; serviceDefinitionId?: string; specialistId?: string; take?: number; offset?: number; }) {
-  const { locale = 'fa-IR', search = '', providerTypeId, providerId, serviceId, serviceDefinitionId, specialistId, take = 8, offset = 0 } = params;
+export async function listProviders(params: { locale?: Locale; search?: string; providerTypeId?: string; providerId?: string; serviceId?: string; serviceDefinitionId?: string; specialistId?: string; city?: string; take?: number; offset?: number; }) {
+  const { locale = 'fa-IR', search = '', providerTypeId, providerId, serviceId, serviceDefinitionId, specialistId, city, take = 8, offset = 0 } = params;
   const searchText = normalizeCatalogSearch(search);
   const normalizedSearchText = searchText.replace(/[يى]/g, 'ی').replace(/ك/g, 'ک');
   const like = `%${searchText}%`;
@@ -864,6 +864,7 @@ export async function listProviders(params: { locale?: Locale; search?: string; 
              ) as normalized_search_blob
       from category.service_providers sp
       where sp.is_active = true
+        and (${city ?? null}::text is null or lower(btrim(sp.city)) = lower(btrim(${city ?? null}::text)))
         and (${providerId ?? null}::uuid is null or sp.id = ${providerId ?? null}::uuid)
         and (${providerTypeId ?? null}::uuid is null or sp.provider_type_id = ${providerTypeId ?? null}::uuid)
         and (

@@ -8,6 +8,7 @@ import {
   useQuery,
 } from "@tanstack/react-query";
 import axios, { AxiosRequestConfig } from "axios";
+import { useLocale } from "next-intl";
 
 import { SearchResultsResponse } from "../../types";
 
@@ -17,6 +18,7 @@ interface SearchResultsFilterParams extends FilterParams {
   providerTypeId?: string;
   country?: string;
   city?: string;
+  locale?: string;
 }
 
 const fetchSearchResults = async (
@@ -33,6 +35,7 @@ const fetchSearchResults = async (
     if (params.providerTypeId) searchParams.set("providerTypeId", params.providerTypeId);
     if (params.country) searchParams.set("country", params.country);
     if (params.city) searchParams.set("city", params.city);
+    if (params.locale) searchParams.set("locale", params.locale);
   }
 
   const path = `/customer/search-results?${searchParams.toString()}`;
@@ -53,16 +56,17 @@ const fetchSearchResults = async (
 };
 
 const SEARCH_RESULTS_CACHE_TAG = "search-results";
-const queryKey = (term: string) => [SEARCH_RESULTS_CACHE_TAG, term] as const;
+const queryKey = (term: string, locale: string) => [SEARCH_RESULTS_CACHE_TAG, locale, term] as const;
 
-export const searchResultsQueryOptions = (term: string) => {
+export const searchResultsQueryOptions = (term: string, locale: string) => {
   const normalizedTerm = term.trim();
 
   return queryOptions<SearchResultsResponse, IProblem>({
-    queryKey: queryKey(normalizedTerm),
+    queryKey: queryKey(normalizedTerm, locale),
     queryFn: () =>
       fetchSearchResults({
         q: normalizedTerm,
+        locale,
         filters: normalizedTerm,
         startDate: "",
         endDate: "",
@@ -83,11 +87,11 @@ export const searchResultsQueryOptions = (term: string) => {
 /** Warm the cache for a term the visitor has typed but not submitted yet, so
  *  the results screen renders from cache instead of opening its own round trip
  *  after it mounts. */
-export const prefetchSearchResults = (queryClient: QueryClient, term: string) => {
+export const prefetchSearchResults = (queryClient: QueryClient, term: string, locale = "en") => {
   const normalizedTerm = term.trim();
   if (!normalizedTerm) return Promise.resolve();
 
-  return queryClient.prefetchQuery(searchResultsQueryOptions(normalizedTerm));
+  return queryClient.prefetchQuery(searchResultsQueryOptions(normalizedTerm, locale));
 };
 
 type UseFetchSearchResultsOptions = {
@@ -104,10 +108,11 @@ export const useFetchSearchResults = (
     term: string,
     options?: UseFetchSearchResultsOptions
 ) => {
+    const locale = useLocale();
     const enabled = (options?.enabled ?? true) && term.trim().length > 0;
 
     const { data, error, isFetching, isPending, refetch } = useQuery({
-        ...searchResultsQueryOptions(term),
+        ...searchResultsQueryOptions(term, locale),
         enabled,
     });
 

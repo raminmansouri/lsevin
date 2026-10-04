@@ -146,6 +146,7 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
   const locale = useLocale();
   const t = useTranslations("ProviderPage");
   const tGallery = useTranslations("SpecialistPage");
+  const tConsultation = useTranslations("Consultation");
   const { user } = useCurrentSession(false);
   const providerId = firstParam(params.id as string | string[] | undefined);
 
@@ -787,14 +788,20 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
       </div>
 
       <div className="safe-area-bottom fixed bottom-20 left-0 right-0 z-40 rounded-t-3xl border-t border-gray-200 bg-white px-5 py-4 shadow-2xl">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => navigate("/n/app/mobile/support")}
-            className="flex h-14 flex-1 items-center justify-center gap-2 rounded-2xl bg-gray-100 font-bold text-gray-900 transition-all hover:bg-gray-200 active:scale-95"
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gray-100 font-bold text-gray-900 transition-all hover:bg-gray-200 active:scale-95"
             type="button"
+            aria-label={t("actions.contact")}
           >
-            <Phone size={18} /> {t("actions.contact")}
+            <Phone size={18} />
           </button>
+          <ConsultationCtaButton
+            categoryName={provider.name}
+            label={tConsultation("cta.beforeBooking")}
+            className="flex h-14 flex-1 items-center justify-center gap-2 rounded-2xl border border-[#083f30]/20 bg-[#083f30]/5 text-xs font-bold text-[#083f30] transition-all hover:bg-[#083f30]/10 active:scale-95 sm:text-sm"
+          />
           <button
             onClick={() => setSelectedTab("services")}
             className="h-14 flex-[2] rounded-2xl bg-gradient-to-r from-[#083f30] to-[#0a5a44] font-bold text-white transition-all hover:shadow-xl active:scale-95"

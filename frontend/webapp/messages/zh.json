@@ -12655,6 +12655,10 @@
       "optional": "选填",
       "skipNote": "您可以跳过此步骤，继续预约。"
     },
+    "cta": {
+      "beforeBooking": "预约前免费咨询",
+      "beforePurchase": "购买前免费咨询"
+    },
     "form": {
       "firstName": {
         "label": "名字",
