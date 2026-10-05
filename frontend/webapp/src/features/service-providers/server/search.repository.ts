@@ -605,57 +605,15 @@ export async function getSearchResults(params?: {
             params.q IS NULL
             OR COALESCE(ps.search_vector, to_tsvector('simple', '')) @@ params.tsq
             OR COALESCE(sp.search_vector, to_tsvector('simple', '')) @@ params.tsq
-            OR common.get_translation_t(ps.display_name_translations, params.locale, 'en-US') ILIKE params.like_q
-            OR common.get_translation_t(ps.description_translations, params.locale, 'en-US') ILIKE params.like_q
-            OR common.get_translation_t(sd.name_translations, params.locale, 'en-US') ILIKE params.like_q
-            OR common.get_translation_t(sd.description_translations, params.locale, 'en-US') ILIKE params.like_q
-            OR common.get_translation_t(c.name_translations, params.locale, 'en-US') ILIKE params.like_q
-            OR common.get_translation_t(c.description_translations, params.locale, 'en-US') ILIKE params.like_q
-            OR common.get_translation_t(sp.name_translations, params.locale, 'en-US') ILIKE params.like_q
-            OR common.get_translation_t(sp.description_translations, params.locale, 'en-US') ILIKE params.like_q
+            OR ps.search_text ILIKE params.like_q
+            OR sp.search_text ILIKE params.like_q
+            OR sd.name_translations::text ILIKE params.like_q
+            OR sd.description_translations::text ILIKE params.like_q
+            OR c.name_translations::text ILIKE params.like_q
+            OR c.description_translations::text ILIKE params.like_q
             OR EXISTS (
               SELECT 1 FROM unnest(COALESCE(ps.tags, sp.specialties, ARRAY[]::text[])) AS tag
               WHERE tag ILIKE params.like_q
-            )
-            OR EXISTS (
-              SELECT 1
-              FROM jsonb_each_text(CASE WHEN jsonb_typeof(ps.display_name_translations) = 'object' THEN ps.display_name_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
-              WHERE translated.translated_value ILIKE params.like_q
-            )
-            OR EXISTS (
-              SELECT 1
-              FROM jsonb_each_text(CASE WHEN jsonb_typeof(ps.description_translations) = 'object' THEN ps.description_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
-              WHERE translated.translated_value ILIKE params.like_q
-            )
-            OR EXISTS (
-              SELECT 1
-              FROM jsonb_each_text(CASE WHEN jsonb_typeof(sd.name_translations) = 'object' THEN sd.name_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
-              WHERE translated.translated_value ILIKE params.like_q
-            )
-            OR EXISTS (
-              SELECT 1
-              FROM jsonb_each_text(CASE WHEN jsonb_typeof(sd.description_translations) = 'object' THEN sd.description_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
-              WHERE translated.translated_value ILIKE params.like_q
-            )
-            OR EXISTS (
-              SELECT 1
-              FROM jsonb_each_text(CASE WHEN jsonb_typeof(c.name_translations) = 'object' THEN c.name_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
-              WHERE translated.translated_value ILIKE params.like_q
-            )
-            OR EXISTS (
-              SELECT 1
-              FROM jsonb_each_text(CASE WHEN jsonb_typeof(c.description_translations) = 'object' THEN c.description_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
-              WHERE translated.translated_value ILIKE params.like_q
-            )
-            OR EXISTS (
-              SELECT 1
-              FROM jsonb_each_text(CASE WHEN jsonb_typeof(sp.name_translations) = 'object' THEN sp.name_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
-              WHERE translated.translated_value ILIKE params.like_q
-            )
-            OR EXISTS (
-              SELECT 1
-              FROM jsonb_each_text(CASE WHEN jsonb_typeof(sp.description_translations) = 'object' THEN sp.description_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
-              WHERE translated.translated_value ILIKE params.like_q
             )
           )
       ),
@@ -717,33 +675,12 @@ export async function getSearchResults(params?: {
           AND (
             params.q IS NULL
             OR COALESCE(sp.search_vector, to_tsvector('simple', '')) @@ params.tsq
-            OR common.get_translation_t(sp.name_translations, params.locale, 'en-US') ILIKE params.like_q
-            OR common.get_translation_t(sp.description_translations, params.locale, 'en-US') ILIKE params.like_q
-            OR common.get_translation_t(pt.name_translations, params.locale, 'en-US') ILIKE params.like_q
-            OR common.get_translation_t(pt.description_translations, params.locale, 'en-US') ILIKE params.like_q
+            OR sp.search_text ILIKE params.like_q
+            OR pt.name_translations::text ILIKE params.like_q
+            OR pt.description_translations::text ILIKE params.like_q
             OR EXISTS (
               SELECT 1 FROM unnest(COALESCE(sp.specialties, ARRAY[]::text[])) AS specialty
               WHERE specialty ILIKE params.like_q
-            )
-            OR EXISTS (
-              SELECT 1
-              FROM jsonb_each_text(CASE WHEN jsonb_typeof(sp.name_translations) = 'object' THEN sp.name_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
-              WHERE translated.translated_value ILIKE params.like_q
-            )
-            OR EXISTS (
-              SELECT 1
-              FROM jsonb_each_text(CASE WHEN jsonb_typeof(sp.description_translations) = 'object' THEN sp.description_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
-              WHERE translated.translated_value ILIKE params.like_q
-            )
-            OR EXISTS (
-              SELECT 1
-              FROM jsonb_each_text(CASE WHEN jsonb_typeof(pt.name_translations) = 'object' THEN pt.name_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
-              WHERE translated.translated_value ILIKE params.like_q
-            )
-            OR EXISTS (
-              SELECT 1
-              FROM jsonb_each_text(CASE WHEN jsonb_typeof(pt.description_translations) = 'object' THEN pt.description_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
-              WHERE translated.translated_value ILIKE params.like_q
             )
           )
       ),
@@ -785,36 +722,11 @@ export async function getSearchResults(params?: {
           AND (
             params.q IS NULL
             OR staff.specialty ILIKE params.like_q
-            OR common.get_translation_t(staff.name_translations, params.locale, 'en-US') ILIKE params.like_q
-            OR common.get_translation_t(staff.title_translations, params.locale, 'en-US') ILIKE params.like_q
-            OR common.get_translation_t(staff.biography_translations, params.locale, 'en-US') ILIKE params.like_q
-            OR common.get_translation_t(staff.specialty_translations, params.locale, 'en-US') ILIKE params.like_q
-            OR common.get_translation_t(sp.name_translations, params.locale, 'en-US') ILIKE params.like_q
-            OR EXISTS (
-              SELECT 1
-              FROM jsonb_each_text(CASE WHEN jsonb_typeof(staff.name_translations) = 'object' THEN staff.name_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
-              WHERE translated.translated_value ILIKE params.like_q
-            )
-            OR EXISTS (
-              SELECT 1
-              FROM jsonb_each_text(CASE WHEN jsonb_typeof(staff.title_translations) = 'object' THEN staff.title_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
-              WHERE translated.translated_value ILIKE params.like_q
-            )
-            OR EXISTS (
-              SELECT 1
-              FROM jsonb_each_text(CASE WHEN jsonb_typeof(staff.biography_translations) = 'object' THEN staff.biography_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
-              WHERE translated.translated_value ILIKE params.like_q
-            )
-            OR EXISTS (
-              SELECT 1
-              FROM jsonb_each_text(CASE WHEN jsonb_typeof(staff.specialty_translations) = 'object' THEN staff.specialty_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
-              WHERE translated.translated_value ILIKE params.like_q
-            )
-            OR EXISTS (
-              SELECT 1
-              FROM jsonb_each_text(CASE WHEN jsonb_typeof(sp.name_translations) = 'object' THEN sp.name_translations ELSE '{}'::jsonb END) AS translated(locale_key, translated_value)
-              WHERE translated.translated_value ILIKE params.like_q
-            )
+            OR staff.name_translations::text ILIKE params.like_q
+            OR staff.title_translations::text ILIKE params.like_q
+            OR staff.biography_translations::text ILIKE params.like_q
+            OR staff.specialty_translations::text ILIKE params.like_q
+            OR sp.search_text ILIKE params.like_q
           )
       ),
       ranked AS (
