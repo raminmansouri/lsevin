@@ -13,6 +13,7 @@ export function PriceConverterCardClient({
   convertedPrices,
   convertedOriginalPrices = [],
   initialCurrencyCode,
+  primaryCurrencyCode,
   selectedCurrencyCode,
   onCurrencyChange,
   locale,
@@ -25,6 +26,8 @@ export function PriceConverterCardClient({
   convertedPrices: ConvertedMoney[];
   convertedOriginalPrices?: ConvertedMoney[];
   initialCurrencyCode?: string;
+  /** The viewer's main currency: always shown first in the currency buttons. */
+  primaryCurrencyCode?: string;
   /** When provided, the card is controlled by the parent (keeps it in sync with the reservation bar). */
   selectedCurrencyCode?: string;
   onCurrencyChange?: (currencyCode: string) => void;
@@ -37,10 +40,12 @@ export function PriceConverterCardClient({
   badgeText?: string;
   className?: string;
 }) {
-  const currencyCodes = useMemo(
-    () => convertedPrices.map((price) => price.targetCurrencyCode),
-    [convertedPrices]
-  );
+  const currencyCodes = useMemo(() => {
+    const codes = convertedPrices.map((price) => price.targetCurrencyCode);
+    const primary = primaryCurrencyCode ?? initialCurrencyCode;
+    if (!primary || !codes.includes(primary)) return codes;
+    return [primary, ...codes.filter((code) => code !== primary)];
+  }, [convertedPrices, primaryCurrencyCode, initialCurrencyCode]);
   const [internalCurrency, setInternalCurrency] = useState(initialCurrencyCode || currencyCodes[0] || 'USD');
   // Controlled when the parent passes selectedCurrencyCode; otherwise uses local state.
   const selectedCurrency = selectedCurrencyCode ?? internalCurrency;
@@ -84,7 +89,7 @@ export function PriceConverterCardClient({
               {(() => {
                 const value = formatMoney(
                   { amount: price.sourceAmount, currencyCode: price.sourceCurrencyCode },
-                  { showCode: true, locale }
+                  { locale }
                 );
                 return convertedFromLabel ? convertedFromLabel(value) : `Converted from ${value}`;
               })()}

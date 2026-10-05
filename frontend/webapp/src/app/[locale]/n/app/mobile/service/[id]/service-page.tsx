@@ -62,6 +62,9 @@ import type {
   TopReview,
 } from "@/features/service-providers/types/service-page.types";
 
+
+import { getViewerMainCurrencyAction } from "@/features/finance/actions/viewer-currency.actions";
+
 type ServicePageProps = {
   data: GetServicePageByIdResponse;
   serviceId: string;
@@ -539,6 +542,19 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showAllFAQs, setShowAllFAQs] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState(service.displayCurrencyCode || service.currency);
+  const [primaryCurrency, setPrimaryCurrency] = useState(service.displayCurrencyCode || service.currency);
+  useEffect(() => {
+    let alive = true;
+    getViewerMainCurrencyAction().then((code) => {
+      if (!alive || !code) return;
+      if (!service.priceOptions.some((p) => p.targetCurrencyCode === code)) return;
+      setPrimaryCurrency(code);
+      setSelectedCurrency(code);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [service.priceOptions]);
   const [showReviewForm, setShowReviewForm] = useState(false);
 
   const [realIsFavorite, setRealIsFavorite] = useState(service.isFavorite);
@@ -764,7 +780,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
           {service.providerCount > 1 && <span className="text-sm font-semibold text-[#083f30]">{t("providers.available", { count: service.providerCount })}</span>}
         </div>
 
-        <PriceConverterCardClient label={t("price.packagePrice")} convertedPrices={service.priceOptions} convertedOriginalPrices={service.originalPriceOptions} selectedCurrencyCode={selectedCurrency} onCurrencyChange={setSelectedCurrency} saveLabel={(percent) => t("price.save", { percent })} convertedFromLabel={(value) => t("price.convertedFrom", { value })} badgeText={t("price.providerPackagePrice")} locale={locale} />
+        <PriceConverterCardClient label={t("price.packagePrice")} convertedPrices={service.priceOptions} convertedOriginalPrices={service.originalPriceOptions} primaryCurrencyCode={primaryCurrency} selectedCurrencyCode={selectedCurrency} onCurrencyChange={setSelectedCurrency} saveLabel={(percent) => t("price.save", { percent })} convertedFromLabel={(value) => t("price.convertedFrom", { value })} badgeText={t("price.providerPackagePrice")} locale={locale} />
 
         <div className="mb-6 grid grid-cols-2 gap-3">
           <div className="rounded-xl bg-gray-50 p-4"><Clock size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">{t("stats.duration")}</div><div className="font-bold text-gray-900">{service.duration || t("providerProfile.onRequest")}</div></div>
