@@ -2272,6 +2272,7 @@ declare const messages: {
     }
   },
   "ServiceProvider": {
+    "searchProvidersServicesStaffCityCountry": "Sağlayıcı, hizmet, personel, şehir veya ülke ara...",
     "name": "Hizmet Sağlayıcı",
     "contactProvider": "Sağlayıcıyla İletişim",
     "aboutProvider": "Bu Sağlayıcı Hakkında",

@@ -6362,6 +6362,7 @@ declare const messages: {
     }
   },
   "ServiceProvider": {
+    "searchProvidersServicesStaffCityCountry": "ابحث عن مقدمي الخدمة أو الخدمات أو الموظفين أو المدينة أو الدولة...",
     "name": "الخدمة المزوّد",
     "contactProvider": "التواصل المزوّد",
     "aboutProvider": "About هذا المزوّد",

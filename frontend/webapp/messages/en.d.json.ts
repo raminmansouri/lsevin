@@ -7181,6 +7181,7 @@ declare const messages: {
     }
   },
   "ServiceProvider": {
+    "searchProvidersServicesStaffCityCountry": "Search providers, services, staff, city or country...",
     "name": "Service Provider",
     "contactProvider": "Contact Provider",
     "aboutProvider": "About This Provider",

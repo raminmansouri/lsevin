@@ -6377,6 +6377,7 @@ declare const messages: {
     }
   },
   "ServiceProvider": {
+    "searchProvidersServicesStaffCityCountry": "جستجوی ارائه‌دهنده، خدمت، کارکنان، شهر یا کشور...",
     "name": "ارائه‌دهنده خدمات",
     "contactProvider": "تماس با ارائه دهنده",
     "aboutProvider": "درباره این ارائه دهنده",

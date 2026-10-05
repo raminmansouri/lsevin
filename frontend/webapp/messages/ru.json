@@ -9397,6 +9397,7 @@
     }
   },
   "ServiceProvider": {
+    "searchProvidersServicesStaffCityCountry": "Поиск поставщиков, услуг, персонала, города или страны...",
     "aboutProvider": "О поставщике",
     "actions": {
       "add": "Добавить",
