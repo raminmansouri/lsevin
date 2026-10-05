@@ -1,13 +1,14 @@
 "use client";
 
-import { Loader2, MessageCircle } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import { Loader2, MessageCircle } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import SingleMediaPickerInput from "@/features/media-picker-addon/components/SingleMediaPickerInput";
 import type { MediaItem } from "@/features/media-picker-addon/types";
+
 import {
   getCustomerConversationDetailAction,
   getOrCreateContextConversationAction,
@@ -45,13 +46,20 @@ function mediaItemToAttachment(item: MediaItem): SupportAttachment {
  * (see repository.ts's archiveMessageAttachments) -- nothing extra to wire
  * on this component's side for that.
  */
-export function ContextConversationPanel({ contextType, bookingId, consultationRequestId, locale }: Props) {
+export function ContextConversationPanel({
+  contextType,
+  bookingId,
+  consultationRequestId,
+  locale,
+}: Props) {
   const t = useTranslations("SupportPages.customer");
   const { data: session } = useSession();
   const user = session?.user;
-  const [conversation, setConversation] = useState<SupportConversationDetail | null>(null);
+  const [conversation, setConversation] =
+    useState<SupportConversationDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const [pendingAttachment, setPendingAttachment] = useState<SupportAttachment | null>(null);
+  const [pendingAttachment, setPendingAttachment] =
+    useState<SupportAttachment | null>(null);
   // Bumped after every send to force SingleMediaPickerInput (uncontrolled by
   // default) to remount and drop its own internal selection/preview state.
   const [pickerResetKey, setPickerResetKey] = useState(0);
@@ -67,7 +75,8 @@ export function ContextConversationPanel({ contextType, bookingId, consultationR
       bookingId,
       consultationRequestId,
       customerUserId: user.id,
-      displayName: `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email,
+      displayName:
+        `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email,
       locale,
     }).then((result) => {
       if (cancelled) return;
@@ -93,17 +102,26 @@ export function ContextConversationPanel({ contextType, bookingId, consultationR
 
   useEffect(() => {
     if (!conversation?.id || conversation.unreadForCustomerCount <= 0) return;
-    markConversationReadForCustomerAction(conversation.id).catch(() => undefined);
+    markConversationReadForCustomerAction(conversation.id).catch(
+      () => undefined
+    );
   }, [conversation?.id, conversation?.unreadForCustomerCount]);
 
   const sendMessage = async (body: string) => {
     if (!conversation?.id) return;
     const attachments = pendingAttachment ? [pendingAttachment] : [];
-    const result = await sendCustomerMessageAction({ conversationId: conversation.id, senderUserId: user?.id, body, attachments });
+    const result = await sendCustomerMessageAction({
+      conversationId: conversation.id,
+      senderUserId: user?.id,
+      body,
+      attachments,
+    });
     if (result.data) {
       setPendingAttachment(null);
       setPickerResetKey((n) => n + 1);
-      const refreshed = await getCustomerConversationDetailAction(conversation.id);
+      const refreshed = await getCustomerConversationDetailAction(
+        conversation.id
+      );
       if (refreshed.data) setConversation(refreshed.data);
     }
     if (result.error) toast.error(result.error.detail || result.error.title);
@@ -118,21 +136,31 @@ export function ContextConversationPanel({ contextType, bookingId, consultationR
           <MessageCircle className="h-5 w-5" />
         </div>
         <div>
-          <h3 className="text-sm font-bold text-slate-950">{t("conversationTitle")}</h3>
-          <p className="text-xs text-muted-foreground">{t("conversationSubtitle")}</p>
+          <h3 className="text-sm font-bold text-slate-950">
+            {t("conversationTitle")}
+          </h3>
+          <p className="text-muted-foreground text-xs">
+            {t("conversationSubtitle")}
+          </p>
         </div>
       </div>
 
       <div className="space-y-3 bg-slate-50 p-4">
         {loading || !conversation ? (
-          <div className="flex min-h-[160px] items-center justify-center text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex min-h-[160px] items-center justify-center text-sm">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             {t("startingConversation")}
           </div>
         ) : (
           <>
             <div className="max-h-[50vh] overflow-y-auto rounded-3xl bg-slate-50 p-1">
-              <SupportThread messages={conversation.messages} />
+              {conversation.messages.length > 0 ? (
+                <SupportThread messages={conversation.messages} />
+              ) : (
+                <div className="text-muted-foreground flex min-h-24 items-center justify-center px-4 text-center text-sm">
+                  {t("conversationSubtitle")}
+                </div>
+              )}
             </div>
 
             <SingleMediaPickerInput
@@ -141,7 +169,11 @@ export function ContextConversationPanel({ contextType, bookingId, consultationR
               mediaType="all"
               placeholder={t("attachFile")}
               className="w-fit"
-              onItemsChange={(items) => setPendingAttachment(items[0] ? mediaItemToAttachment(items[0]) : null)}
+              onItemsChange={(items) =>
+                setPendingAttachment(
+                  items[0] ? mediaItemToAttachment(items[0]) : null
+                )
+              }
             />
 
             <SupportMessageComposer

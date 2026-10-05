@@ -107,10 +107,14 @@ export async function listConsultationRequests(
   const search = filters.search?.trim() ?? "";
   // Wrapped here rather than interpolated into the SQL so the value stays a bound
   // parameter and the % characters cannot alter the pattern's meaning.
-  const searchPattern = search ? `%${search.replace(/[%_\\]/g, "\\$&")}%` : null;
+  const searchPattern = search
+    ? `%${search.replace(/[%_\\]/g, "\\$&")}%`
+    : null;
 
-  const statusFilter = filters.status && filters.status !== "all" ? filters.status : null;
-  const urgencyFilter = filters.urgency && filters.urgency !== "all" ? filters.urgency : null;
+  const statusFilter =
+    filters.status && filters.status !== "all" ? filters.status : null;
+  const urgencyFilter =
+    filters.urgency && filters.urgency !== "all" ? filters.urgency : null;
 
   const where = db`
     where (${statusFilter}::text is null or r.status = ${statusFilter}::text)
@@ -199,6 +203,22 @@ export async function getConsultationRequestDetail(
   return { ...request, notifications };
 }
 
+export async function listConsultationRequestsForUser(
+  userId: string
+): Promise<ConsultationRequestListItem[]> {
+  return db<ConsultationRequestListItem[]>`
+    select
+      ${REQUEST_COLUMNS},
+      0::int as "notificationsSent",
+      0::int as "notificationsFailed",
+      0::int as "notificationsSkipped"
+    from consultation.consultation_requests r
+    where r.user_id = ${userId}::uuid
+    order by r.created_at desc
+    limit 100
+  `;
+}
+
 export async function updateConsultationRequest(args: {
   id: string;
   status: string;
@@ -265,7 +285,9 @@ export async function getConsultationStats(): Promise<ConsultationStats> {
 // Recipients — the admin phone numbers an incoming request is announced to.
 // ---------------------------------------------------------------------------
 
-export async function listConsultationRecipients(): Promise<ConsultationRecipient[]> {
+export async function listConsultationRecipients(): Promise<
+  ConsultationRecipient[]
+> {
   return db<ConsultationRecipient[]>`
     select
       id::text          as "id",
@@ -348,7 +370,9 @@ export async function upsertConsultationRecipient(args: {
   return { recipient: rows[0] };
 }
 
-export async function deleteConsultationRecipient(id: string): Promise<boolean> {
+export async function deleteConsultationRecipient(
+  id: string
+): Promise<boolean> {
   const rows = await db<{ id: string }[]>`
     delete from consultation.notification_recipients
     where id = ${id}::uuid
@@ -516,5 +540,12 @@ export async function getConsultationAdminPageData(
     getConsultationSmsSettings(),
   ]);
 
-  return { list, stats, recipients, smsSettings, filters, schemaMissing: false };
+  return {
+    list,
+    stats,
+    recipients,
+    smsSettings,
+    filters,
+    schemaMissing: false,
+  };
 }
