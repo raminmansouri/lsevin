@@ -15,7 +15,11 @@ import { toast } from "sonner";
 import useDirection from "@/hooks/use-direction";
 import { Link } from "@/i18n/navigation";
 
-import { composeE164, normalizePhone } from "../schemas";
+import {
+  consultationContactFromAccount,
+  type ConsultationAccountContact,
+} from "../consultation-contact";
+import { normalizePhone } from "../schemas";
 import { submitConsultationRequest } from "../server/actions";
 import {
   CONSULTATION_CONTACT_TIMES,
@@ -35,18 +39,7 @@ type ConsultationFormState = {
   urgency: ConsultationUrgency;
 };
 
-type SessionUserLike = {
-  firstName?: string | null;
-  lastName?: string | null;
-  /**
-   * A bare national number — the account stores the country separately, so this is
-   * "9107826538", not "09107826538" and not "+989107826538".
-   */
-  phoneNumber?: string | null;
-  /** ISO-2, e.g. "IR" / "TR" / "IQ". */
-  phoneNumberCountryCode?: string | null;
-  email?: string | null;
-};
+type SessionUserLike = ConsultationAccountContact;
 
 type ConsultationStepProps = {
   /** Links the lead to the draft it was raised from. Optional — the form works without one. */
@@ -94,7 +87,7 @@ const EMPTY_FORM: ConsultationFormState = {
  * E.164 first and the number stays unambiguous wherever it goes next.
  */
 function phoneFromSession(user?: SessionUserLike | null): string {
-  return composeE164(user?.phoneNumber, user?.phoneNumberCountryCode);
+  return consultationContactFromAccount(user).phone;
 }
 
 function formFromSession(user?: SessionUserLike | null): ConsultationFormState {
@@ -190,10 +183,11 @@ export function ConsultationStep({
   const phoneLooksInvalid =
     phoneTouched && form.phone.trim().length > 0 && normalizedPhone === null;
   const accountUser = session?.user as SessionUserLike | undefined;
-  const hasAccountFirstName = Boolean(accountUser?.firstName?.trim());
-  const hasAccountLastName = Boolean(accountUser?.lastName?.trim());
-  const hasAccountPhone = Boolean(phoneFromSession(accountUser));
-  const hasAccountEmail = Boolean(accountUser?.email?.trim());
+  const accountContact = consultationContactFromAccount(accountUser);
+  const hasAccountFirstName = !accountContact.needsFirstName;
+  const hasAccountLastName = !accountContact.needsLastName;
+  const hasAccountPhone = !accountContact.needsPhone;
+  const hasAccountEmail = !accountContact.needsEmail;
 
   function resetForm() {
     setForm({
