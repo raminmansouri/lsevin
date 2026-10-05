@@ -286,7 +286,7 @@ export async function listAdminConversations(params?: {
   const pageSize = Math.max(1, Math.min(100, Number(params?.pageSize || 20)));
   const offset = (pageNumber - 1) * pageSize;
 
-  const rows = await sql<ConversationRow[]>`
+  const rowsPromise = sql<ConversationRow[]>`
     ${CONVERSATION_SELECT}
     where
       (${search}::text = ''
@@ -310,7 +310,7 @@ export async function listAdminConversations(params?: {
     offset ${offset}::int
   `;
 
-  const countRows = await sql<{ count: number }[]>`
+  const countRowsPromise = sql<{ count: number }[]>`
     select count(distinct c.id)::int as count
     from support.conversations c
     where
@@ -330,6 +330,8 @@ export async function listAdminConversations(params?: {
       and (${contextType}::text = 'all' or c.context_type = ${contextType}::text)
       and (${tagId}::uuid is null or exists (select 1 from support.conversation_tags ctf where ctf.conversation_id = c.id and ctf.tag_id = ${tagId}::uuid))
   `;
+
+  const [rows, countRows] = await Promise.all([rowsPromise, countRowsPromise]);
 
   return {
     items: rows.map(normalizeConversation),

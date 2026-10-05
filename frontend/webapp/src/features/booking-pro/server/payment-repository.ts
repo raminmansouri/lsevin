@@ -20,7 +20,7 @@ export interface PaymentMethodItem {
   isWallet?: boolean;
 }
 
-function pickJsonTranslation(value: any, fallback: string) {
+function pickJsonTranslation(value: any, fallback: string, locale = 'fa-IR') {
   if (!value) return fallback;
   // fa-IR first: this call site has no access to the request locale, and the
   // platform's primary market is Persian (see booking-admin-shared/server/lookups.ts,
@@ -28,7 +28,10 @@ function pickJsonTranslation(value: any, fallback: string) {
   // unconditionally meant every admin-configured payment method name -- including the
   // pay-on-delivery/bank-receipt Persian labels seeded for this feature -- silently
   // rendered in English for every customer regardless of the site's locale.
-  return value['fa-IR'] ?? value['en-US'] ?? value.en ?? Object.values(value)[0] ?? fallback;
+  const normalized = locale.replace('_', '-');
+  const base = normalized.split('-')[0];
+  return value[normalized] ?? value[locale] ?? value[base] ?? value[`${base}-${base.toUpperCase()}`]
+    ?? value['fa-IR'] ?? value['en-US'] ?? value.en ?? Object.values(value)[0] ?? fallback;
 }
 
 function normalizePaymentStatus(status?: string | null) {
@@ -40,7 +43,7 @@ function normalizePaymentStatus(status?: string | null) {
   return 'Pending';
 }
 
-export async function listPaymentMethodsForUser(userId: string): Promise<PaymentMethodItem[]> {
+export async function listPaymentMethodsForUser(userId: string, locale = 'fa-IR'): Promise<PaymentMethodItem[]> {
   const rows = await db`
     select code, provider, description_translations, name_translations,
            supports_authorize, supports_capture, supports_refund, configuration
@@ -51,8 +54,8 @@ export async function listPaymentMethodsForUser(userId: string): Promise<Payment
 
   const methods: PaymentMethodItem[] = rows.map((row: any) => ({
     code: row.code,
-    name: pickJsonTranslation(row.name_translations, row.code),
-    description: pickJsonTranslation(row.description_translations, row.code),
+    name: pickJsonTranslation(row.name_translations, row.code, locale),
+    description: pickJsonTranslation(row.description_translations, row.code, locale),
     provider: row.provider,
     supportsAuthorize: row.supports_authorize,
     supportsCapture: row.supports_capture,
@@ -70,8 +73,8 @@ export async function listPaymentMethodsForUser(userId: string): Promise<Payment
   if (walletRows.length && !methods.some((x) => x.code === 'wallet')) {
     methods.unshift({
       code: 'wallet',
-      name: 'Wallet',
-      description: 'Pay instantly from available wallet balance',
+      name: locale.startsWith('fa') ? 'کیف پول' : 'Wallet',
+      description: locale.startsWith('fa') ? 'پرداخت فوری از موجودی کیف پول' : 'Pay instantly from available wallet balance',
       provider: 'internal_wallet',
       supportsAuthorize: false,
       supportsCapture: true,

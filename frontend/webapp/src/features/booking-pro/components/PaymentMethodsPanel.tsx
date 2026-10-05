@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 type BankAccount = {
     id: string;
@@ -56,11 +56,12 @@ export function PaymentMethodsPanel(props: {
     onReceiptFileChange?: (file: File | null) => void;
 }) {
     const tBooking = useTranslations("Booking");
+    const locale = useLocale();
     const [items, setItems] = useState<PaymentMethod[]>([]);
     const [gateways, setGateways] = useState<GatewayOption[]>([]);
     const [receiptError, setReceiptError] = useState<string | null>(null);
     useEffect(() => {
-        fetch('/api/booking-pro/payments/methods', { cache: 'no-store' })
+        fetch(`/api/booking-pro/payments/methods?locale=${encodeURIComponent(locale)}`, { cache: 'no-store' })
             .then((res) => res.json())
             .then((data) => setItems(data.items ?? []))
             .catch(() => { });
@@ -68,7 +69,7 @@ export function PaymentMethodsPanel(props: {
             .then((res) => res.json())
             .then((data) => setGateways(data.items ?? []))
             .catch(() => { });
-    }, []);
+    }, [locale]);
     // Fallback only when the methods fetch fails. Mirrors what the server now offers —
     // the online card gateway (Zarinpal) plus wallet. No 'bank': it was a placeholder
     // method that no longer exists server-side.
@@ -112,7 +113,7 @@ export function PaymentMethodsPanel(props: {
             );
             return (<div key={item.code} className="space-y-2">
             <button type="button" onClick={() => props.onChange(isOnlineCard ? (gateways[0]?.code ?? 'gateway_card') : item.code)} className={`w-full rounded-2xl border px-4 py-3 text-left ${selected ? 'border-[#083f30] bg-[#083f30]/5' : 'border-slate-200 bg-white'}`}>
-              <div className="font-semibold text-slate-900">{isOnlineCard ? tBooking('onlineCardPayment') : item.name}</div>
+              <div className="font-semibold text-slate-900">{isOnlineCard ? tBooking('onlineCardPayment') : item.code === 'wallet' ? tBooking('wallet') : item.name}</div>
               {item.description ? <div className="mt-1 text-xs text-slate-500">{item.description}</div> : null}
               {isOnlineCard && !gateways.length ? <div className="mt-1 text-xs text-amber-700">{tBooking("noOnlineGatewayIsEnabledFromAdmin")}</div> : null}
               {isBankReceipt && bankAccounts.length === 0 ? <div className="mt-1 text-xs text-amber-700">{tBooking("noBankAccountConfigured")}</div> : null}

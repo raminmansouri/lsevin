@@ -315,8 +315,8 @@ export default function WalletPageClient({
 
       closeTopUpModal();
 
-      if (result.redirectUrl) {
-        router.push(result.redirectUrl);
+      if ("redirectUrl" in result && result.redirectUrl) {
+        window.location.assign(result.redirectUrl);
         return;
       }
 
