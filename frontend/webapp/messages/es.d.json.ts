@@ -12684,6 +12684,10 @@ declare const messages: {
       "optional": "Opcional",
       "skipNote": "Puedes omitir este paso y seguir con la reserva."
     },
+    "cta": {
+      "beforeBooking": "Consulta gratuita antes de reservar",
+      "beforePurchase": "Consulta gratuita antes de comprar"
+    },
     "form": {
       "firstName": {
         "label": "Nombre",

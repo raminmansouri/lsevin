@@ -13031,6 +13031,10 @@ declare const messages: {
       "optional": "İsteğe bağlı",
       "skipNote": "Bu adımı atlayıp rezervasyona devam edebilirsiniz."
     },
+    "cta": {
+      "beforeBooking": "Randevudan önce ücretsiz danışmanlık",
+      "beforePurchase": "Satın almadan önce ücretsiz danışmanlık"
+    },
     "form": {
       "firstName": {
         "label": "Ad",

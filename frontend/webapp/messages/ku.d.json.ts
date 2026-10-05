@@ -12681,6 +12681,10 @@ declare const messages: {
       "optional": "ئارەزوومەندانە",
       "skipNote": "دەتوانیت ئەم هەنگاوە تێپەڕێنیت و بەردەوام بیت لە حجزکردن."
     },
+    "cta": {
+      "beforeBooking": "ڕاوێژکاریی بەخۆڕایی پێش کاتبەندی",
+      "beforePurchase": "ڕاوێژکاریی بەخۆڕایی پێش کڕین"
+    },
     "form": {
       "firstName": {
         "label": "ناو",

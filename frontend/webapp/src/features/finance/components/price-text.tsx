@@ -52,7 +52,7 @@ export async function PriceText({
 
   const sourceText = formatMoney(
     { amount: converted.sourceAmount, currencyCode: converted.sourceCurrencyCode },
-    { locale, showCode: true, compact }
+    { locale, compact }
   );
 
   return (

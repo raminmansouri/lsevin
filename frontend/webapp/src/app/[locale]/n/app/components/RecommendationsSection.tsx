@@ -91,7 +91,6 @@ export default function RecommendationsSection({
                 amount={provider.priceFrom}
                 currencyCode={provider.currency}
                 locale={locale}
-                showCode
                 className="text-sm font-bold text-[#083f30]"
               />
             </div>

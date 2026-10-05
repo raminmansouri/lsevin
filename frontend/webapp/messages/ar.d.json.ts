@@ -13144,6 +13144,10 @@ declare const messages: {
       "optional": "اختياري",
       "skipNote": "يمكنك تخطي هذه الخطوة ومتابعة الحجز."
     },
+    "cta": {
+      "beforeBooking": "استشارة مجانية قبل الحجز",
+      "beforePurchase": "استشارة مجانية قبل الشراء"
+    },
     "form": {
       "firstName": {
         "label": "الاسم الأول",

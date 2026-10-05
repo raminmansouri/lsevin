@@ -14030,6 +14030,10 @@ declare const messages: {
       "optional": "Optional",
       "skipNote": "You can skip this step and carry on booking."
     },
+    "cta": {
+      "beforeBooking": "Free consultation before booking",
+      "beforePurchase": "Free consultation before buying"
+    },
     "form": {
       "firstName": {
         "label": "First name",

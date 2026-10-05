@@ -525,7 +525,6 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
                                 sourceCurrencyCode={treatment.sourceCurrency ?? treatment.currency}
                                 providerId={provider.id}
                                 locale={locale}
-                                showCode
                                 className="text-lg font-bold text-[#083f30]"
                             />
                         </div>
