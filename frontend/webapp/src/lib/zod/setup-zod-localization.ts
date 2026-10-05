@@ -88,6 +88,21 @@ function createGlobalErrorMap(): z.core.$ZodErrorMap {
   };
 }
 
+// next-intl doesn't throw for a missing key: it logs MISSING_MESSAGE and returns
+// the key path itself. So check with has() first instead of relying on try/catch.
+function tryComponentLabel(key: string): string | undefined {
+  if (!globalComponentT) return undefined;
+  const t = globalComponentT as typeof globalComponentT & { has?: (key: string) => boolean };
+  if (typeof t.has === "function" && !t.has(key)) {
+    return undefined;
+  }
+  try {
+    return globalComponentT(key);
+  } catch {
+    return undefined;
+  }
+}
+
 function getFieldLabel(
   fieldName?: string,
   nestedProp?: string
@@ -96,30 +111,18 @@ function getFieldLabel(
 
   // For localized content fields, try label first (both for top-level and nested errors)
   if (!nestedProp || nestedProp === "translations") {
-    try {
-      return globalComponentT(`form.${fieldName}.label`);
-    } catch {
-      // Fall through to other attempts
-    }
+    const label = tryComponentLabel(`form.${fieldName}.label`);
+    if (label) return label;
   }
 
   // Try nested label for other cases
   if (nestedProp) {
-    try {
-      return globalComponentT(`form.${fieldName}.${nestedProp}`);
-    } catch {
-      // Fall through to top-level label
-    }
+    const label = tryComponentLabel(`form.${fieldName}.${nestedProp}`);
+    if (label) return label;
   }
 
   // Try legacy flat structure as fallback
-  try {
-    return globalComponentT(`form.${fieldName}`);
-  } catch {
-    // Return undefined if no label found
-  }
-
-  return undefined;
+  return tryComponentLabel(`form.${fieldName}`);
 }
 
 function tryCustomErrorMessage(
