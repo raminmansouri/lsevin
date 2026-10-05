@@ -94,6 +94,7 @@ export async function initiateBookingPayment(input: InitiateBookingPaymentInput 
     gateway,
     locale: input.locale,
     targetCurrency,
+    maximumAmount: gateway === "zarinpal" ? (targetCurrency === "IRT" ? 100_000_000 : 1_000_000_000) : null,
   });
 
   payment.description = renderDescription(gatewayConfig.settings.descriptionTemplate, {
