@@ -15,6 +15,9 @@ type ZarinPalRuntimeConfig = {
   minimumAmount: number;
 };
 
+const ZARINPAL_MAX_API_AMOUNT_IRR = 1_000_000_000;
+const ZARINPAL_REQUEST_TIMEOUT_MS = 20_000;
+
 type ZarinpalApiResponse = {
   data?: Record<string, unknown> | null;
   errors?: Record<string, unknown> | unknown[] | string | null;
@@ -167,6 +170,7 @@ async function postZarinpal(
     },
     body: JSON.stringify(payload),
     cache: "no-store",
+    signal: AbortSignal.timeout(ZARINPAL_REQUEST_TIMEOUT_MS),
   });
 
   const body = await readZarinpalResponse(response);
@@ -224,6 +228,9 @@ export const zarinpalPaymentProvider: PaymentProvider = {
 
     if (apiAmount < minimumApiAmount) {
       throw new Error(`Zarinpal minimum payment amount is ${config.minimumAmount} ${config.currency}.`);
+    }
+    if (apiAmount > ZARINPAL_MAX_API_AMOUNT_IRR) {
+      throw new Error("ZARINPAL_AMOUNT_LIMIT_EXCEEDED");
     }
 
     const requestPayload = compactPayload({

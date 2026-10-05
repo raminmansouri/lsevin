@@ -185,7 +185,7 @@ export default function WalletPageClient({
       setTopUpMethod(null);
 
       if (result.redirectUrl) {
-        router.push(result.redirectUrl);
+        window.location.assign(result.redirectUrl);
         return;
       }
 

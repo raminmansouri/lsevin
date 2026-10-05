@@ -1104,7 +1104,7 @@ export function BookingWizard() {
             }
         }
         catch (e: any) {
-            setError(e.message || tBooking('checkoutFailed'));
+            setError(e.message === 'ZARINPAL_AMOUNT_LIMIT_EXCEEDED' ? tBooking('failedToStartPayment') : (e.message || tBooking('checkoutFailed')));
         }
         finally {
             setSubmitting(false);
@@ -1119,7 +1119,7 @@ export function BookingWizard() {
             await startPaymentForBooking(checkoutResult.bookingId);
         }
         catch (e: any) {
-            setError(e.message || tBooking('failedToStartPayment'));
+            setError(e.message === 'ZARINPAL_AMOUNT_LIMIT_EXCEEDED' ? tBooking('failedToStartPayment') : (e.message || tBooking('failedToStartPayment')));
         }
         finally {
             setSubmitting(false);
