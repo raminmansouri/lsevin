@@ -63,7 +63,25 @@ import type {
 } from "@/features/service-providers/types/service-page.types";
 
 
-import { getViewerMainCurrencyAction } from "@/features/finance/actions/viewer-currency.actions";
+import { getViewerPricingAction } from "@/features/finance/actions/viewer-currency.actions";
+
+const DOMESTIC_CURRENCIES = new Set(["IRR", "IRT"]);
+
+/** International viewers pay the provider multiplier in every currency, Rial/Toman included. */
+function applyInternationalMultiplier<
+  T extends { sourceAmount: number; targetAmount: number; targetCurrencyCode: string },
+>(options: T[], multiplier: number | undefined, isIranianViewer: boolean): T[] {
+  const m = multiplier ?? 1;
+  if (isIranianViewer || m === 1) return options;
+  return options.map((option) => ({
+    ...option,
+    sourceAmount: Math.round(option.sourceAmount * m * 100) / 100,
+    // The server already multiplied foreign currencies; only Rial/Toman need it here.
+    targetAmount: DOMESTIC_CURRENCIES.has(option.targetCurrencyCode.toUpperCase())
+      ? Math.round(option.targetAmount * m)
+      : option.targetAmount,
+  }));
+}
 
 type ServicePageProps = {
   data: GetServicePageByIdResponse;
@@ -543,18 +561,30 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
   const [showAllFAQs, setShowAllFAQs] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState(service.displayCurrencyCode || service.currency);
   const [primaryCurrency, setPrimaryCurrency] = useState(service.displayCurrencyCode || service.currency);
+  const [isIranianViewer, setIsIranianViewer] = useState(true);
   useEffect(() => {
     let alive = true;
-    getViewerMainCurrencyAction().then((code) => {
-      if (!alive || !code) return;
-      if (!service.priceOptions.some((p) => p.targetCurrencyCode === code)) return;
-      setPrimaryCurrency(code);
-      setSelectedCurrency(code);
+    getViewerPricingAction().then(({ currencyCode, isIranian }) => {
+      if (!alive) return;
+      setIsIranianViewer(isIranian);
+      if (!currencyCode) return;
+      if (!service.priceOptions.some((p) => p.targetCurrencyCode === currencyCode)) return;
+      setPrimaryCurrency(currencyCode);
+      setSelectedCurrency(currencyCode);
     });
     return () => {
       alive = false;
     };
   }, [service.priceOptions]);
+
+  const viewerPriceOptions = useMemo(
+    () => applyInternationalMultiplier(service.priceOptions, service.internationalPriceMultiplier, isIranianViewer),
+    [service.priceOptions, service.internationalPriceMultiplier, isIranianViewer]
+  );
+  const viewerOriginalPriceOptions = useMemo(
+    () => applyInternationalMultiplier(service.originalPriceOptions, service.internationalPriceMultiplier, isIranianViewer),
+    [service.originalPriceOptions, service.internationalPriceMultiplier, isIranianViewer]
+  );
   const [showReviewForm, setShowReviewForm] = useState(false);
 
   const [realIsFavorite, setRealIsFavorite] = useState(service.isFavorite);
@@ -592,8 +622,8 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
 
   const galleryItems = service.galleryItems || [];
   const currentGalleryItem = galleryItems[currentImageIndex];
-  const selectedPrice = service.priceOptions.find((price) => price.targetCurrencyCode === selectedCurrency) || service.priceOptions[0];
-  const selectedOriginalPrice = service.originalPriceOptions.find((price) => price.targetCurrencyCode === selectedCurrency) || service.originalPriceOptions[0];
+  const selectedPrice = viewerPriceOptions.find((price) => price.targetCurrencyCode === selectedCurrency) || viewerPriceOptions[0];
+  const selectedOriginalPrice = viewerOriginalPriceOptions.find((price) => price.targetCurrencyCode === selectedCurrency) || viewerOriginalPriceOptions[0];
   const displayPrice = selectedPrice?.targetAmount ?? service.displayPrice.amount;
   const displayCurrencyCode = selectedPrice?.targetCurrencyCode ?? service.displayPrice.code;
   const displayOriginalPrice = selectedOriginalPrice?.targetAmount ?? service.displayOriginalPrice.amount;
@@ -780,7 +810,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
           {service.providerCount > 1 && <span className="text-sm font-semibold text-[#083f30]">{t("providers.available", { count: service.providerCount })}</span>}
         </div>
 
-        <PriceConverterCardClient label={t("price.packagePrice")} convertedPrices={service.priceOptions} convertedOriginalPrices={service.originalPriceOptions} primaryCurrencyCode={primaryCurrency} selectedCurrencyCode={selectedCurrency} onCurrencyChange={setSelectedCurrency} saveLabel={(percent) => t("price.save", { percent })} convertedFromLabel={(value) => t("price.convertedFrom", { value })} badgeText={t("price.providerPackagePrice")} locale={locale} />
+        <PriceConverterCardClient label={t("price.packagePrice")} convertedPrices={viewerPriceOptions} convertedOriginalPrices={viewerOriginalPriceOptions} primaryCurrencyCode={primaryCurrency} selectedCurrencyCode={selectedCurrency} onCurrencyChange={setSelectedCurrency} saveLabel={(percent) => t("price.save", { percent })} convertedFromLabel={(value) => t("price.convertedFrom", { value })} badgeText={t("price.providerPackagePrice")} locale={locale} />
 
         <div className="mb-6 grid grid-cols-2 gap-3">
           <div className="rounded-xl bg-gray-50 p-4"><Clock size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">{t("stats.duration")}</div><div className="font-bold text-gray-900">{service.duration || t("providerProfile.onRequest")}</div></div>

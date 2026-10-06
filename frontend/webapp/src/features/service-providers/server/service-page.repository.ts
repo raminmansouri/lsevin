@@ -8,6 +8,8 @@ import { getCurrencySymbol, normalizeCurrencyCode } from '@/features/finance/lib
 import type { ConvertedMoney } from '@/features/finance/types';
 import { getIsFavorite, resolveFavoritesCustomerId } from '@/features/favorites/server/favorites.repository';
 
+import { resolveProviderMultiplier } from "@/features/finance/lib/server/currency-queries";
+
 import type {
   GetServicePageByIdResponse,
   OtherCurrency,
@@ -135,6 +137,7 @@ async function safeResolvePreferredCurrencyCode(input: {
   try {
     return await resolvePreferredCurrencyCode(input);
   } catch {
+    
     return normalizeCurrencyCode(input.explicitCurrencyCode || input.fallbackCurrencyCode);
   }
 }
@@ -1343,6 +1346,9 @@ export async function getServicePageByIdFromDb({
   // path on the page (main service, addons, specialists) so the markup is consistent;
   // null => the shared utility falls back to the global finance.settings default.
   const providerMultiplier = asNullableNumber(row.international_price_multiplier);
+  // Multiplier for international viewers (provider's own, else the global default).
+  // The page is static, so the client applies it to Rial/Toman for non-Iranian viewers.
+  const effectiveInternationalMultiplier = await resolveProviderMultiplier(providerMultiplier).catch(() => 1);
 
   const sourceCurrencyCode = normalizeCurrencyCode(row.currency);
   // The viewer's main currency follows the country of the phone number they logged in with.
@@ -1489,6 +1495,7 @@ export async function getServicePageByIdFromDb({
     currency: sourceCurrencyCode,
     currencySymbol: getCurrencySymbol(sourceCurrencyCode),
     displayCurrencyCode: resolvedDisplayCurrencyCode,
+    internationalPriceMultiplier: effectiveInternationalMultiplier,
     displayPrice,
     displayOriginalPrice,
     priceOptions,
