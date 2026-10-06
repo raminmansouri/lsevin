@@ -59,15 +59,18 @@ export function PaymentMethodsPanel(props: {
     const [items, setItems] = useState<PaymentMethod[]>([]);
     const [gateways, setGateways] = useState<GatewayOption[]>([]);
     const [receiptError, setReceiptError] = useState<string | null>(null);
+    const [methodsLoaded, setMethodsLoaded] = useState(false);
+    const [gatewaysLoaded, setGatewaysLoaded] = useState(false);
     useEffect(() => {
         fetch('/api/booking-pro/payments/methods', { cache: 'no-store' })
             .then((res) => res.json())
-            .then((data) => setItems(data.items ?? []))
+            .then((data) => { setItems(data.items ?? []); setMethodsLoaded(true); })
             .catch(() => { });
         fetch('/api/payment-gateways?context=booking_online_card', { cache: 'no-store' })
             .then((res) => res.json())
             .then((data) => setGateways(data.items ?? []))
-            .catch(() => { });
+            .catch(() => { })
+            .finally(() => setGatewaysLoaded(true));
     }, []);
     // Fallback only when the methods fetch fails. Mirrors what the server now offers —
     // the online card gateway (Zarinpal) plus wallet. No 'bank': it was a placeholder
@@ -79,6 +82,20 @@ export function PaymentMethodsPanel(props: {
     const selectedIsGateway = gateways.some((gateway) => gateway.code === props.selected);
     const onlineCardSelected = props.selected === 'card' || props.selected === 'gateway_card' || selectedIsGateway;
 
+    // The wizard starts on 'gateway_card'. If this visitor isn't offered the selected
+    // method (a foreign visitor has no Zarinpal), move to the first one they are offered.
+    useEffect(() => {
+        if (!methodsLoaded || !gatewaysLoaded || !items.length) return;
+        const stillValid = items.some((item) => {
+            const online = item.code === 'card' || item.code === 'gateway_card';
+            return online ? onlineCardSelected : props.selected === item.code;
+        });
+        if (stillValid) return;
+        const first = items[0];
+        const firstIsOnline = first.code === 'card' || first.code === 'gateway_card';
+        props.onChange(firstIsOnline ? (gateways[0]?.code ?? 'gateway_card') : first.code);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [methodsLoaded, gatewaysLoaded, items, gateways, props.selected]);
     const handleReceiptChange = (file: File | null) => {
         setReceiptError(null);
         if (!file) {

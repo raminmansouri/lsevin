@@ -1,6 +1,7 @@
 import "server-only";
 
 import sql from "@/config/database/db";
+import { isInternationalDisplayCurrency, resolveProviderMultiplier } from "@/features/finance/lib/server/currency-queries";
 import type { PaymentAttempt, PaymentGatewayCode, PaymentVerificationResult } from "../types";
 import { COUNTRY_CODES } from "@/app/[locale]/n/app/components/CountryCodeSelector";
 
@@ -151,6 +152,25 @@ export async function prepareBookingPaymentAttempt(input: {
   }
 
   const roundedGatewayAmount = roundAmountForCurrency(targetAmount, targetCurrency);
+    // International customers (BTCPay, billed in USD/EUR) pay the provider's international
+    // multiplier on top of the converted price: the same maths convertProviderPrice applies to
+    // the price they were shown while browsing. Zarinpal (IRR/IRT) is never marked up.
+    // source_amount stays the provider's own price, so booking totals and paid-amount
+    // tracking are unchanged; only what the gateway actually charges includes the markup.
+    let internationalMultiplier = 1;
+    if (isInternationalDisplayCurrency(targetCurrency)) {
+        const [providerRow] = await sql<{ multiplier: string | null }[]>`
+      select sp.international_price_multiplier::text as multiplier
+      from booking.bookings b
+      join category.service_providers sp on sp.id = b.provider_id
+      where b.id = ${input.bookingId}::uuid
+      limit 1
+    `;
+        internationalMultiplier = await resolveProviderMultiplier(
+            providerRow?.multiplier == null ? null : Number(providerRow.multiplier),
+        );
+        targetAmount = targetAmount * internationalMultiplier;
+    }
   if (roundedGatewayAmount <= 0) {
     throw new Error("Converted payment amount is not valid.");
   }
@@ -183,7 +203,7 @@ export async function prepareBookingPaymentAttempt(input: {
       ${sourceAmount},
       ${roundedGatewayAmount},
       ${appliedRate},
-      ${jsonb({ stage: "created", sourceCurrency, sourceAmount, targetCurrency, targetAmount: roundedGatewayAmount })}::jsonb
+      ${jsonb({ stage: "created", sourceCurrency, sourceAmount, targetCurrency, targetAmount: roundedGatewayAmount, internationalMultiplier })}::jsonb
     )
     returning id::text
   `;

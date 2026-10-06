@@ -1,91 +1,187 @@
-import "server-only";
+'use client';
 
-import sql from "@/config/database/db";
+import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { ChevronLeft, Loader2 } from 'lucide-react';
 
-export type ReserveSpecialPackageInput = {
-    packageId: string;
-    userId: string;
+import { Link, useRouter } from '@/i18n/navigation';
+import { reservePackageAction } from '@/features/special-packages/server/actions';
+
+type PaymentMethod = {
+    code: string;
+    name: string;
+    description: string;
+    provider: string | null;
 };
 
-/**
- * Books a special package directly — no provider/service/time/specialist
- * picker, because the package itself already fixes all of that. Mirrors
- * checkoutDraft's booking.bookings insert shape (see booking-pro/server/
- * repository.ts) but every scheduling column is left out entirely: a package
- * has no slot to conflict over, so ex_bookings_no_overlap_per_specialist
- * never applies here (that constraint only fires when specialist_id/date/
- * time are all set).
- *
- * Deliberately does NOT create a booking.payments row or touch payment terms
- * — that's exactly what createBookingPaymentIntent (called via
- * /api/booking-pro/payments/create-intent) already does for every other
- * booking in the app. Reusing it here means package checkout gets the same
- * tested wallet/gateway logic for free instead of a second, divergent copy.
- */
-export async function reserveSpecialPackage(
-    input: ReserveSpecialPackageInput
-): Promise<{ bookingId: string; currency: string; amount: number }> {
-    const [pkg] = await sql<{
-        id: string;
-        providerId: string | null;
-        providerServiceId: string | null;
-        priceAmount: number | null;
-        currencyCode: string | null;
-        title: string;
-    }[]>`
-    select
-      sp.id::text,
-      sp.provider_id::text as "providerId",
-      sp.provider_service_id::text as "providerServiceId",
-      sp.price_amount as "priceAmount",
-      sp.currency_code as "currencyCode",
-      coalesce(sp.title_translations->>'fa-IR', sp.title_translations->>'en-US', 'Package') as title
-    from marketing.special_packages sp
-    where sp.id = ${input.packageId}::uuid
-      and sp.is_active = true
-    limit 1
-  `;
+export default function PackageCheckoutPage() {
+    const params = useParams();
+    const router = useRouter();
+    const packageId = String(params?.packageId || '');
 
-    if (!pkg) throw new Error("Package not found.");
-    if (!pkg.providerServiceId) throw new Error("PACKAGE_NOT_BOOKABLE_YET");
-    if (!pkg.priceAmount || !pkg.currencyCode) throw new Error("Package has no price configured.");
+    const [bookingId, setBookingId] = useState<string | null>(null);
+    const [amount, setAmount] = useState<number | null>(null);
+    const [currency, setCurrency] = useState<string | null>(null);
+    const [methods, setMethods] = useState<PaymentMethod[]>([]);
+    const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
+    const [step, setStep] = useState<'creating' | 'choosing' | 'paying' | 'error'>('creating');
+    const [error, setError] = useState<string | null>(null);
 
-    const [service] = await sql<{ serviceProviderId: string }[]>`
-    select service_provider_id::text as "serviceProviderId"
-    from category.provider_services
-    where id = ${pkg.providerServiceId}::uuid
-      and is_active = true
-    limit 1
-  `;
-    if (!service) throw new Error("The service linked to this package is no longer available.");
+    // Step 1: create the booking the instant this page loads — the customer
+    // chose nothing, so there is nothing to wait on before reserving it.
+    useEffect(() => {
+        let alive = true;
 
-    const [booking] = await sql<{ id: string }[]>`
-    insert into booking.bookings (
-      id, provider_id, service_id,
-      add_ons, upload_files, additional_services,
-      payment_status, booking_status, user_id,
-      currency_code, total_amount, paid_amount,
-      booking_ui_mode, metadata,
-      source_currency_code, display_currency_code, payment_currency_code, settlement_currency_code,
-      source_subtotal_amount, source_addons_amount, source_total_amount,
-      display_subtotal_amount, display_addons_amount, display_total_amount
-    ) values (
-      public.uuid_generate_v4(),
-      ${service.serviceProviderId}::uuid,
-      ${pkg.providerServiceId}::uuid,
-      '[]'::jsonb, '[]'::jsonb, '[]'::jsonb,
-      'Pending',
-      'Pending',
-      ${input.userId}::uuid,
-      ${pkg.currencyCode}, ${pkg.priceAmount}, 0,
-      'package',
-      ${sql.json({ specialPackageId: pkg.id, specialPackageTitle: pkg.title })},
-      ${pkg.currencyCode}, ${pkg.currencyCode}, ${pkg.currencyCode}, ${pkg.currencyCode},
-      ${pkg.priceAmount}, 0, ${pkg.priceAmount},
-      ${pkg.priceAmount}, 0, ${pkg.priceAmount}
-    )
-    returning id
-  `;
+        (async () => {
+            const result = await reservePackageAction({ packageId });
+            if (!alive) return;
 
-    return { bookingId: booking.id, currency: pkg.currencyCode, amount: pkg.priceAmount };
+            if (!result.ok) {
+                setError(
+                    result.error === 'PACKAGE_NOT_BOOKABLE_YET'
+                        ? 'این پکیج هنوز برای رزرو آماده نشده است.'
+                        : result.error
+                );
+                setStep('error');
+                return;
+            }
+
+            setBookingId(result.bookingId);
+            setAmount(result.amount);
+            setCurrency(result.currency);
+
+            try {
+                const res = await fetch('/api/booking-pro/payments/methods');
+                const data = await res.json();
+                if (!alive) return;
+                setMethods(data.items ?? []);
+                setStep('choosing');
+            } catch {
+                if (!alive) return;
+                setError('بارگذاری روش‌های پرداخت با خطا مواجه شد.');
+                setStep('error');
+            }
+        })();
+
+        return () => {
+            alive = false;
+        };
+        // packageId is stable for the life of this page.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    async function pay() {
+        if (!bookingId || !selectedMethod) return;
+        setStep('paying');
+        setError(null);
+
+        try {
+            const res = await fetch('/api/booking-pro/payments/create-intent', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ bookingId, paymentMethodCode: selectedMethod }),
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error || 'پرداخت با خطا مواجه شد.');
+                setStep('choosing');
+                return;
+            }
+
+            if (data.redirectUrl) {
+                window.location.href = data.redirectUrl;
+                return;
+            }
+
+            // Wallet (and any other instantly-settled method) returns no redirect —
+            // the booking is already paid, so go straight to its invoice.
+            router.push(`/n/app/mobile/bookings/${bookingId}/invoice`);
+        } catch {
+            setError('پرداخت با خطا مواجه شد.');
+            setStep('choosing');
+        }
+    }
+
+    return (
+        <div className="min-h-screen bg-white pb-24">
+            <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-gray-100 bg-white px-5 pb-4 pt-3">
+                <Link
+                    href={`/n/app/mobile/packages/${packageId}`}
+                    className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-gray-100"
+                >
+                    <ChevronLeft size={24} className="text-gray-700 rtl:rotate-180" />
+                </Link>
+                <h1 className="text-xl font-bold text-gray-900">پرداخت پکیج</h1>
+            </div>
+
+            <div className="px-5 py-6">
+                {step === 'creating' && (
+                    <div className="flex flex-col items-center gap-3 py-16 text-gray-500">
+                        <Loader2 size={28} className="animate-spin" />
+                        <p className="text-sm">در حال ثبت رزرو...</p>
+                    </div>
+                )}
+
+                {step === 'error' && (
+                    <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-6 text-center">
+                        <p className="text-sm text-red-700">{error}</p>
+                        <Link
+                            href={`/n/app/mobile/packages/${packageId}`}
+                            className="mt-4 inline-block rounded-xl bg-[#083f30] px-5 py-2 text-sm font-semibold text-white"
+                        >
+                            بازگشت
+                        </Link>
+                    </div>
+                )}
+
+                {(step === 'choosing' || step === 'paying') && (
+                    <>
+                        {amount != null && currency ? (
+                            <div className="mb-6 rounded-2xl bg-gray-50 px-4 py-4">
+                                <div className="text-sm text-gray-500">مبلغ قابل پرداخت</div>
+                                <div className="mt-1 text-2xl font-bold text-[#083f30]">
+                                    {amount.toLocaleString()} {currency}
+                                </div>
+                            </div>
+                        ) : null}
+
+                        <div className="mb-3 text-sm font-bold text-gray-900">روش پرداخت</div>
+                        <div className="space-y-2">
+                            {methods.map((method) => (
+                                <button
+                                    key={method.code}
+                                    type="button"
+                                    disabled={step === 'paying'}
+                                    onClick={() => setSelectedMethod(method.code)}
+                                    className={`flex w-full flex-col items-start rounded-xl border px-4 py-3 text-right transition-colors ${
+                                        selectedMethod === method.code
+                                            ? 'border-[#083f30] bg-[#083f30]/5'
+                                            : 'border-gray-200 bg-white'
+                                    }`}
+                                >
+                                    <span className="font-semibold text-gray-900">{method.name}</span>
+                                    {method.description ? (
+                                        <span className="mt-0.5 text-xs text-gray-500">{method.description}</span>
+                                    ) : null}
+                                </button>
+                            ))}
+                        </div>
+
+                        {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
+
+                        <button
+                            type="button"
+                            disabled={!selectedMethod || step === 'paying'}
+                            onClick={pay}
+                            className="mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#083f30] to-[#0a5a44] font-bold text-white transition-all hover:shadow-xl active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            {step === 'paying' ? <Loader2 size={18} className="animate-spin" /> : null}
+                            پرداخت و تکمیل رزرو
+                        </button>
+                    </>
+                )}
+            </div>
+        </div>
+    );
 }
