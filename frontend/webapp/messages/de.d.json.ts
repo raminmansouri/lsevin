@@ -7478,6 +7478,7 @@ declare const messages: {
         "medicalProfile": "Medizinisches Profil",
         "notifications": "Benachrichtigungen",
         "privacySecurity": "Datenschutz & Sicherheit",
+        "privacyPolicy": "Datenschutzerklärung",
         "rewardsLoyalty": "Prämien & Treue",
         "savedFavorites": "Gespeicherte Favoriten",
         "shareWithFriends": "Mit Freunden teilen",
@@ -7617,6 +7618,40 @@ declare const messages: {
         "successTitle": "Upload abgeschlossen",
         "uploadingTitle": "Wird hochgeladen …"
       }
+    },
+    "privacyPolicy": {
+      "title": "Datenschutzerklärung",
+      "intro": "LSevin („LSevin“, „wir“) betreibt die LSevin-App und -Website (den „Dienst“), einen Marktplatz, der Nutzern hilft, medizinische Reisedienstleistungen bei unabhängigen Kliniken und Anbietern zu recherchieren, zu vergleichen und zu buchen und über den In-App-Chat mit ihnen zu kommunizieren. Diese Datenschutzerklärung erläutert, welche Informationen wir erfassen, wie wir sie verwenden und welche Wahlmöglichkeiten Sie haben.",
+      "section1Title": "1. Informationen, die wir erfassen",
+      "section1aTitle": "a. Von Ihnen bereitgestellte Informationen",
+      "section1aItems": "Kontoinformationen: Ihre Telefonnummer, mit der Sie sich über ein Einmalpasswort (OTP) anmelden. Wir benötigen keinen herkömmlichen Benutzernamen/Passwort.\nProfildetails: Name und optional weitere Kontaktdaten, die Sie Ihrem Profil hinzufügen möchten.\nNachrichten: Inhalte, die Sie über die In-App-Chat-Funktion senden, um mit Kliniken/Anbietern oder unserem Support-Team zu kommunizieren.\nBuchungs- und Anfragedetails: Informationen, die Sie bei der Anfrage von Informationen zu einer medizinischen Reisedienstleistung oder bei deren Buchung angeben (z. B. der gewünschte Eingriff und Ihre bevorzugten Termine). LSevin fungiert als Marktplatz/Buchungsvermittler — wir erfassen oder speichern keine Krankenakten, Diagnosen oder andere klinische Gesundheitsinformationen auf unseren Servern. Alle medizinischen Details, die Sie teilen möchten, werden direkt zwischen Ihnen und der Klinik/dem Anbieter über den Chat nach Ihrem eigenen Ermessen ausgetauscht.",
+      "section1bTitle": "b. Automatisch erfasste Informationen",
+      "section1bItems": "Geräte- und App-Daten: Geräte-Kennungen, App-Version und Absturz-/Diagnoseprotokolle, die verwendet werden, um den Dienst sicher und funktionsfähig zu halten.\nPush-Benachrichtigungs-Token: werden verwendet, um Buchungsaktualisierungen und Chat-Benachrichtigungen zuzustellen.\nUngefährer Standort: wenn Sie die Berechtigung erteilen, verwendet, um Ihnen relevante Anbieter anzuzeigen und lokale Suchergebnisse zu verbessern. Sie können diese Berechtigung jederzeit in Ihren Geräteeinstellungen ablehnen oder widerrufen.\nNutzungsdaten: in der App angesehene Seiten und ausgeführte Aktionen, die zur Verbesserung des Dienstes verwendet werden.",
+      "section2Title": "2. Wie wir Informationen verwenden",
+      "section2Items": "Um Ihr Konto zu erstellen und zu sichern und Sie per OTP zu authentifizieren.\nUm Sie mit Kliniken/Anbietern zu verbinden und Buchungen sowie die In-App-Kommunikation zu erleichtern.\nUm Ihnen Buchungsbestätigungen, Aktualisierungen und Support-Nachrichten zu senden.\nUm den Dienst zu betreiben, zu sichern und zu verbessern sowie Betrug oder Missbrauch zu erkennen und zu verhindern.\nUm unseren gesetzlichen Verpflichtungen nachzukommen.",
+      "section2Note": "Wir verkaufen Ihre personenbezogenen Daten nicht. Wir bieten derzeit keine Kryptowährungs-Wallet, kein Aufladen von Guthaben oder andere Finanz-/Zahlungsfunktionen an, und diese Version der App enthält dies nicht.",
+      "section3Title": "3. Wie wir Informationen weitergeben",
+      "section3Items": "An Kliniken/Anbieter: die Informationen, die zur Bearbeitung Ihrer Anfrage oder Buchung erforderlich sind (z. B. Ihr Name, Ihre Kontaktdaten und der Inhalt der Nachricht/Buchung, die Sie ihnen senden möchten).\nAn Dienstleister: Anbieter, die uns beim Betrieb des Dienstes unterstützen (z. B. Cloud-Hosting, Zustellung von Push-Benachrichtigungen, Analysen), unter Vertraulichkeits- und Datenschutzverpflichtungen.\nAus rechtlichen Gründen: wenn dies durch Gesetz, Vorschrift, Gerichtsverfahren oder behördliche Anfrage erforderlich ist.",
+      "section4Title": "4. Datensicherheit",
+      "section4Body": "Alle zwischen der App und unseren Servern übertragenen Daten werden bei der Übertragung verschlüsselt (HTTPS/TLS). Wir wenden angemessene administrative, technische und physische Schutzmaßnahmen an, um Ihre Informationen zu schützen.",
+      "section5Title": "5. Datenspeicherung",
+      "section5Body": "Wir speichern personenbezogene Daten, solange Ihr Konto aktiv ist oder soweit dies erforderlich ist, um den Dienst bereitzustellen, gesetzlichen Verpflichtungen nachzukommen, Streitigkeiten zu lösen und unsere Vereinbarungen durchzusetzen. Sie können jederzeit wie unten beschrieben die Löschung beantragen.",
+      "section6Title": "6. Ihre Rechte und die Löschung von Konto/Daten",
+      "section6HowToRequest": "So beantragen Sie die Löschung: Um die Löschung Ihres LSevin-Kontos und der zugehörigen personenbezogenen Daten oder die Löschung bestimmter personenbezogener Daten ohne Löschung Ihres Kontos zu beantragen, senden Sie uns eine E-Mail an lsevin.turkiye@gmail.com von der mit Ihrem Konto verknüpften E-Mail-Adresse oder Telefonnummer, mit dem Betreff „Antrag auf Kontolöschung“ (oder „Antrag auf Datenlöschung“).",
+      "section6WhatHappensLabel": "Was passiert",
+      "section6WhatHappensValue": "Wir überprüfen Ihre Anfrage und löschen oder anonymisieren dann Ihr Kontoprofil, Ihre Telefonnummer und Ihren Chat-Verlauf aus unseren aktiven Systemen.",
+      "section6WhatMayBeKeptLabel": "Was aufbewahrt werden kann",
+      "section6WhatMayBeKeptValue": "Aufzeichnungen, die wir aus rechtlichen, steuerlichen, sicherheitsbezogenen oder betrugspräventiven Gründen aufbewahren müssen, werden nur so lange wie nötig aufbewahrt und dann gelöscht.",
+      "section6TimeframeLabel": "Zeitrahmen",
+      "section6TimeframeValue": "Anfragen werden innerhalb von 30 Tagen bearbeitet.",
+      "section6RightsNote": "Abhängig von Ihrem Standort haben Sie möglicherweise auch das Recht, auf Ihre personenbezogenen Daten zuzugreifen, sie zu korrigieren oder zu exportieren. Kontaktieren Sie uns unter der obigen E-Mail-Adresse, um diese Rechte auszuüben.",
+      "section7Title": "7. Datenschutz für Kinder",
+      "section7Body": "LSevin ist für Nutzer ab 18 Jahren vorgesehen und richtet sich nicht an Kinder. Wir erfassen wissentlich keine personenbezogenen Daten von Kindern.",
+      "section8Title": "8. Änderungen dieser Richtlinie",
+      "section8Body": "Wir können diese Datenschutzerklärung von Zeit zu Zeit aktualisieren. Wesentliche Änderungen werden durch die Aktualisierung des oben genannten Datums „Zuletzt aktualisiert“ widergespiegelt.",
+      "section9Title": "9. Kontaktieren Sie uns",
+      "section9Body": "Wenn Sie Fragen zu dieser Datenschutzerklärung oder Ihren Daten haben, kontaktieren Sie uns unter lsevin.turkiye@gmail.com.",
+      "contact": "LSevin · lsevin.turkiye@gmail.com"
     },
     "privacySecurity": {
       "activeSessions": "Aktive Sitzungen",
@@ -12645,6 +12680,10 @@ declare const messages: {
       "subtitle": "Hinterlassen Sie Ihre Kontaktdaten – wir rufen Sie zurück. Das ist kostenlos und ändert nichts an Ihrer Buchung.",
       "optional": "Optional",
       "skipNote": "Sie können diesen Schritt überspringen und einfach weiterbuchen."
+    },
+    "cta": {
+      "beforeBooking": "Kostenlose Beratung vor der Buchung",
+      "beforePurchase": "Kostenlose Beratung vor dem Kauf"
     },
     "form": {
       "firstName": {

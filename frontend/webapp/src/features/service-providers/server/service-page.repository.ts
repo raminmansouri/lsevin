@@ -28,6 +28,8 @@ import type {
   TopReview,
 } from '../types/service-page.types';
 
+import { getDefaultCurrencyForCountry, getUserPhoneCountryCode } from "@/features/finance/lib/server/currency-queries";
+
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i;
 const DEFAULT_FALLBACK_LOCALE = 'en-US';
 const DEFAULT_DISPLAY_CURRENCIES = ['USD', 'EUR', 'GBP', 'AED', 'TRY', 'IRT', 'IRR', 'OMR', 'IQD', 'KWD', 'QAR', 'SAR', 'RUB', 'CNY'];
@@ -1343,16 +1345,24 @@ export async function getServicePageByIdFromDb({
   const providerMultiplier = asNullableNumber(row.international_price_multiplier);
 
   const sourceCurrencyCode = normalizeCurrencyCode(row.currency);
+  // The viewer's main currency follows the country of the phone number they logged in with.
+  const phoneCurrencyCode = await getUserPhoneCountryCode(userId)
+    .then((country) => getDefaultCurrencyForCountry(country))
+    .catch(() => null);
+
+  console.log("💰 service currency", { userId, preferredCurrencyCode, phoneCurrencyCode });
   const [resolvedDisplayCurrencyCode, isIranianVisitor] = await Promise.all([
     safeResolvePreferredCurrencyCode({
       userId,
-      explicitCurrencyCode: preferredCurrencyCode,
+      explicitCurrencyCode:
       selectedCountryCode,
       browserCountryCode,
       fallbackCurrencyCode: sourceCurrencyCode,
     }),
     resolveIsIranianVisitor().catch(() => false),
   ]);
+
+  console.log("💰 resolved", resolvedDisplayCurrencyCode);
 
   const fallbackImages = uniqueNonEmpty([row.image_url]);
 

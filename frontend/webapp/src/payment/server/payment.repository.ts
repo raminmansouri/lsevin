@@ -76,6 +76,7 @@ export async function prepareBookingPaymentAttempt(input: {
   gateway: PaymentGatewayCode;
   locale?: string | null;
   targetCurrency: string;
+  maximumAmount?: number | null;
 }): Promise<PaymentAttempt> {
   if (!isUuid(input.bookingId) || !isUuid(input.userId)) {
     throw new Error("Invalid booking or user id.");
@@ -173,6 +174,9 @@ export async function prepareBookingPaymentAttempt(input: {
     }
   if (roundedGatewayAmount <= 0) {
     throw new Error("Converted payment amount is not valid.");
+  }
+  if (input.maximumAmount && roundedGatewayAmount > input.maximumAmount) {
+    throw new Error("ZARINPAL_AMOUNT_LIMIT_EXCEEDED");
   }
 
   const pendingRows = await sql<{ id: string }[]>`

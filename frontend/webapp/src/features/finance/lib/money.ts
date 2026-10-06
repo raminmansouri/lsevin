@@ -63,7 +63,10 @@ export function formatMoney(
 
     const symbol = getCurrencySymbol(currencyCode, options?.currencies);
     const suffixCurrencies = new Set(['AED', 'OMR', 'IQD', 'KWD', 'QAR', 'SAR', 'IRR', 'IRT']);
-    const text = suffixCurrencies.has(currencyCode) ? `${formatted} ${symbol}` : `${symbol}${formatted}`;
+    const symbolIsCode = symbol === currencyCode;
+    const text = suffixCurrencies.has(currencyCode) || symbolIsCode
+      ? `${formatted} ${symbol}`
+      : `${symbol}${formatted}`;
     return options?.showCode ? `${text} ${currencyCode}` : text;
   } catch {
     return `${getCurrencySymbol(currencyCode, options?.currencies)} ${money.amount.toLocaleString()}${options?.showCode ? ` ${currencyCode}` : ''}`;

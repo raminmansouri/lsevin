@@ -2,6 +2,57 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+  "ShopMedia": {
+    "hint": "The first image is the main image. Save to apply changes.",
+    "empty": "No product images yet.",
+    "imageNumber": "Image {number, number}",
+    "primary": "Main image",
+    "makePrimary": "Make main image",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "replace": "Replace",
+    "remove": "Remove",
+    "addImages": "Add images",
+    "imageUrl": "Image URL",
+    "addUrl": "Add URL",
+    "invalidUrl": "Enter a valid image URL or file path.",
+    "limit": "Selection limit reached.",
+    "saveFailed": "Couldn't save images. Try again.",
+    "saving": "Saving…",
+    "save": "Save images",
+    "saved": "Images saved.",
+    "image": "Image",
+    "video": "Video",
+    "file": "File",
+    "deleteFile": "Delete {name}",
+    "deleteLibrary": "Delete from library",
+    "deleteConfirm": "Delete “{name}” from the media library?",
+    "deleteFailed": "Couldn't delete the file.",
+    "loadFailed": "Couldn't load media. Try again.",
+    "wrongType": "Choose a file of the required type.",
+    "uploadFailed": "Upload failed. Try again.",
+    "pickFiles": "Pick media",
+    "singleHint": "Choose one file.",
+    "multipleHint": "Select files and confirm.",
+    "close": "Close",
+    "search": "Search files",
+    "all": "All",
+    "images": "Images",
+    "videos": "Videos",
+    "files": "Files",
+    "upload": "Upload",
+    "uploading": "Uploading…",
+    "loading": "Loading…",
+    "emptyLibrary": "No media found.",
+    "emptyLibraryHint": "Upload files or change your search.",
+    "page": "Page {page, number} of {total, number}",
+    "selected": "Selected",
+    "previous": "Previous",
+    "next": "Next",
+    "confirm": "Use selected files"
+  },
+
+  
   "BookingCart": {
     "title": "Saved bookings",
     "hint": "Saved estimates are not confirmed reservations. Review each booking to check availability and pay. Products are currently paid for separately.",
@@ -2930,6 +2981,10 @@ declare const messages: {
     },
     "requestFile": "Request file",
     "addToMedicalRecord": "Add to medical record",
+    "bookingInfo": "Booking info",
+    "viewBooking": "View booking",
+    "viewPatient360": "View patient 360",
+    "viewMedicalCase": "View medical case",
     "requirementTitlePlaceholder": "What do you need? (e.g. Recent blood test)",
     "descriptionOptional": "Description (optional)",
     "maxAgeHoursOptional": "Max age in hours (optional)",
@@ -7177,6 +7232,7 @@ declare const messages: {
     }
   },
   "ServiceProvider": {
+    "searchProvidersServicesStaffCityCountry": "Search providers, services, staff, city or country...",
     "name": "Service Provider",
     "contactProvider": "Contact Provider",
     "aboutProvider": "About This Provider",
@@ -14025,6 +14081,10 @@ declare const messages: {
       "subtitle": "Leave your details and one of our advisors will call you back. It is free and it does not change your booking.",
       "optional": "Optional",
       "skipNote": "You can skip this step and carry on booking."
+    },
+    "cta": {
+      "beforeBooking": "Free consultation before booking",
+      "beforePurchase": "Free consultation before buying"
     },
     "form": {
       "firstName": {

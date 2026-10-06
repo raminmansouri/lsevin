@@ -6,17 +6,20 @@
  * Nothing here blocks the booking: the customer can leave every field untouched and
  * carry on, which is why the wizard never puts this step behind `continueDisabled`.
  */
-
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { CheckCircle2, MessageCircle, PhoneCall } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { Link } from "@/i18n/navigation";
 import useDirection from "@/hooks/use-direction";
+import { Link } from "@/i18n/navigation";
 
-import { composeE164, normalizePhone } from "../schemas";
+import {
+  consultationContactFromAccount,
+  type ConsultationAccountContact,
+} from "../consultation-contact";
+import { normalizePhone } from "../schemas";
 import { submitConsultationRequest } from "../server/actions";
 import {
   CONSULTATION_CONTACT_TIMES,
@@ -36,18 +39,7 @@ type ConsultationFormState = {
   urgency: ConsultationUrgency;
 };
 
-type SessionUserLike = {
-  firstName?: string | null;
-  lastName?: string | null;
-  /**
-   * A bare national number — the account stores the country separately, so this is
-   * "9107826538", not "09107826538" and not "+989107826538".
-   */
-  phoneNumber?: string | null;
-  /** ISO-2, e.g. "IR" / "TR" / "IQ". */
-  phoneNumberCountryCode?: string | null;
-  email?: string | null;
-};
+type SessionUserLike = ConsultationAccountContact;
 
 type ConsultationStepProps = {
   /** Links the lead to the draft it was raised from. Optional — the form works without one. */
@@ -95,7 +87,7 @@ const EMPTY_FORM: ConsultationFormState = {
  * E.164 first and the number stays unambiguous wherever it goes next.
  */
 function phoneFromSession(user?: SessionUserLike | null): string {
-  return composeE164(user?.phoneNumber, user?.phoneNumberCountryCode);
+  return consultationContactFromAccount(user).phone;
 }
 
 function formFromSession(user?: SessionUserLike | null): ConsultationFormState {
@@ -134,7 +126,9 @@ export function ConsultationStep({
   const [phoneTouched, setPhoneTouched] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submittedPhone, setSubmittedPhone] = useState<string | null>(null);
-  const [submittedRequestId, setSubmittedRequestId] = useState<string | null>(null);
+  const [submittedRequestId, setSubmittedRequestId] = useState<string | null>(
+    null
+  );
   // The wizard mounts this step before the session hook has resolved, so the
   // prefill runs from an effect — but only once, or it would overwrite edits on
   // every session refresh.
@@ -178,14 +172,22 @@ export function ConsultationStep({
   // ASCII, so the hint must be driven by the folded value or every number typed on
   // a Persian phone would read as invalid.
   const sessionCountry =
-    (session?.user as SessionUserLike | undefined)?.phoneNumberCountryCode ?? null;
+    (session?.user as SessionUserLike | undefined)?.phoneNumberCountryCode ??
+    null;
 
   const normalizedPhone = useMemo(
-    () => (form.phone.trim() ? normalizePhone(form.phone, sessionCountry) : null),
+    () =>
+      form.phone.trim() ? normalizePhone(form.phone, sessionCountry) : null,
     [form.phone, sessionCountry]
   );
   const phoneLooksInvalid =
     phoneTouched && form.phone.trim().length > 0 && normalizedPhone === null;
+  const accountUser = session?.user as SessionUserLike | undefined;
+  const accountContact = consultationContactFromAccount(accountUser);
+  const hasAccountFirstName = !accountContact.needsFirstName;
+  const hasAccountLastName = !accountContact.needsLastName;
+  const hasAccountPhone = !accountContact.needsPhone;
+  const hasAccountEmail = !accountContact.needsEmail;
 
   function resetForm() {
     setForm({
@@ -258,7 +260,9 @@ export function ConsultationStep({
             <CheckCircle2 className="h-6 w-6" />
           </div>
           <div className="min-w-0">
-            <h2 className="text-xl font-bold text-slate-900">{t("success.title")}</h2>
+            <h2 className="text-xl font-bold text-slate-900">
+              {t("success.title")}
+            </h2>
             <p className="mt-2 text-sm leading-6 text-slate-600">
               {t("success.body", { phone: submittedPhone })}
             </p>
@@ -307,12 +311,16 @@ export function ConsultationStep({
         </div>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-xl font-bold text-slate-900">{t("step.title")}</h2>
-            <span className="rounded-full bg-[#eacb7f]/30 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-[#083f30]">
+            <h2 className="text-xl font-bold text-slate-900">
+              {t("step.title")}
+            </h2>
+            <span className="rounded-full bg-[#eacb7f]/30 px-3 py-1 text-[11px] font-bold tracking-wide text-[#083f30] uppercase">
               {t("step.optional")}
             </span>
           </div>
-          <p className="mt-2 text-sm leading-6 text-slate-600">{t("step.subtitle")}</p>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            {t("step.subtitle")}
+          </p>
         </div>
       </div>
 
@@ -321,92 +329,163 @@ export function ConsultationStep({
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        <label className="block" htmlFor={`${fieldId}-firstName`}>
-          <span className="mb-2 block text-sm font-semibold text-slate-700">
-            {t("form.firstName.label")} <span className="text-red-500">*</span>
-          </span>
-          <input
-            id={`${fieldId}-firstName`}
-            name="firstName"
-            value={form.firstName}
-            onChange={(event) => setField("firstName", event.target.value)}
-            placeholder={t("form.firstName.placeholder")}
-            autoComplete="given-name"
-            className={`${fieldClass(Boolean(errorFor("firstName")))} text-start`}
-          />
-          {errorFor("firstName") ? (
-            <span className="mt-1 block text-xs text-red-600">{errorFor("firstName")}</span>
-          ) : null}
-        </label>
+        {hasAccountFirstName ||
+        hasAccountLastName ||
+        hasAccountPhone ||
+        hasAccountEmail ? (
+          <div className="grid gap-3 rounded-3xl border border-slate-200 bg-slate-50 p-4 sm:col-span-2 sm:grid-cols-2">
+            {hasAccountFirstName ? (
+              <div>
+                <div className="text-xs text-slate-500">
+                  {t("form.firstName.label")}
+                </div>
+                <div className="mt-1 text-sm font-semibold text-slate-900">
+                  {form.firstName}
+                </div>
+              </div>
+            ) : null}
+            {hasAccountLastName ? (
+              <div>
+                <div className="text-xs text-slate-500">
+                  {t("form.lastName.label")}
+                </div>
+                <div className="mt-1 text-sm font-semibold text-slate-900">
+                  {form.lastName}
+                </div>
+              </div>
+            ) : null}
+            {hasAccountPhone ? (
+              <div>
+                <div className="text-xs text-slate-500">
+                  {t("form.phone.label")}
+                </div>
+                <div
+                  dir="ltr"
+                  className="mt-1 text-start text-sm font-semibold text-slate-900"
+                >
+                  {form.phone}
+                </div>
+              </div>
+            ) : null}
+            {hasAccountEmail ? (
+              <div>
+                <div className="text-xs text-slate-500">
+                  {t("form.email.label")}
+                </div>
+                <div
+                  dir="ltr"
+                  className="mt-1 truncate text-start text-sm font-semibold text-slate-900"
+                >
+                  {form.email}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
 
-        <label className="block" htmlFor={`${fieldId}-lastName`}>
-          <span className="mb-2 block text-sm font-semibold text-slate-700">
-            {t("form.lastName.label")} <span className="text-red-500">*</span>
-          </span>
-          <input
-            id={`${fieldId}-lastName`}
-            name="lastName"
-            value={form.lastName}
-            onChange={(event) => setField("lastName", event.target.value)}
-            placeholder={t("form.lastName.placeholder")}
-            autoComplete="family-name"
-            className={`${fieldClass(Boolean(errorFor("lastName")))} text-start`}
-          />
-          {errorFor("lastName") ? (
-            <span className="mt-1 block text-xs text-red-600">{errorFor("lastName")}</span>
-          ) : null}
-        </label>
-
-        <label className="block" htmlFor={`${fieldId}-phone`}>
-          <span className="mb-2 block text-sm font-semibold text-slate-700">
-            {t("form.phone.label")} <span className="text-red-500">*</span>
-          </span>
-          <input
-            id={`${fieldId}-phone`}
-            name="phone"
-            type="tel"
-            inputMode="tel"
-            // The value can be Persian digits, so the box itself stays LTR even in
-            // an RTL page — a phone number reads left-to-right in every locale.
-            dir="ltr"
-            value={form.phone}
-            onChange={(event) => setField("phone", event.target.value)}
-            onBlur={() => setPhoneTouched(true)}
-            placeholder={t("form.phone.placeholder")}
-            autoComplete="tel"
-            className={`${fieldClass(Boolean(errorFor("phone")) || phoneLooksInvalid)} ${isRtl ? "text-end" : "text-start"}`}
-          />
-          {errorFor("phone") || phoneLooksInvalid ? (
-            <span className="mt-1 block text-xs text-red-600">
-              {errorFor("phone") ?? t("errors.invalidPhone")}
+        {!hasAccountFirstName ? (
+          <label className="block" htmlFor={`${fieldId}-firstName`}>
+            <span className="mb-2 block text-sm font-semibold text-slate-700">
+              {t("form.firstName.label")}{" "}
+              <span className="text-red-500">*</span>
             </span>
-          ) : (
-            <span className="mt-1 block text-xs text-slate-500">{t("form.phone.hint")}</span>
-          )}
-        </label>
+            <input
+              id={`${fieldId}-firstName`}
+              name="firstName"
+              value={form.firstName}
+              onChange={(event) => setField("firstName", event.target.value)}
+              placeholder={t("form.firstName.placeholder")}
+              autoComplete="given-name"
+              className={`${fieldClass(Boolean(errorFor("firstName")))} text-start`}
+            />
+            {errorFor("firstName") ? (
+              <span className="mt-1 block text-xs text-red-600">
+                {errorFor("firstName")}
+              </span>
+            ) : null}
+          </label>
+        ) : null}
 
-        <label className="block" htmlFor={`${fieldId}-email`}>
-          <span className="mb-2 block text-sm font-semibold text-slate-700">
-            {t("form.email.label")}{" "}
-            <span className="text-xs font-normal text-slate-400">
-              ({t("form.optionalTag")})
+        {!hasAccountLastName ? (
+          <label className="block" htmlFor={`${fieldId}-lastName`}>
+            <span className="mb-2 block text-sm font-semibold text-slate-700">
+              {t("form.lastName.label")} <span className="text-red-500">*</span>
             </span>
-          </span>
-          <input
-            id={`${fieldId}-email`}
-            name="email"
-            type="email"
-            dir="ltr"
-            value={form.email}
-            onChange={(event) => setField("email", event.target.value)}
-            placeholder={t("form.email.placeholder")}
-            autoComplete="email"
-            className={`${fieldClass(Boolean(errorFor("email")))} ${isRtl ? "text-end" : "text-start"}`}
-          />
-          {errorFor("email") ? (
-            <span className="mt-1 block text-xs text-red-600">{errorFor("email")}</span>
-          ) : null}
-        </label>
+            <input
+              id={`${fieldId}-lastName`}
+              name="lastName"
+              value={form.lastName}
+              onChange={(event) => setField("lastName", event.target.value)}
+              placeholder={t("form.lastName.placeholder")}
+              autoComplete="family-name"
+              className={`${fieldClass(Boolean(errorFor("lastName")))} text-start`}
+            />
+            {errorFor("lastName") ? (
+              <span className="mt-1 block text-xs text-red-600">
+                {errorFor("lastName")}
+              </span>
+            ) : null}
+          </label>
+        ) : null}
+
+        {!hasAccountPhone ? (
+          <label className="block" htmlFor={`${fieldId}-phone`}>
+            <span className="mb-2 block text-sm font-semibold text-slate-700">
+              {t("form.phone.label")} <span className="text-red-500">*</span>
+            </span>
+            <input
+              id={`${fieldId}-phone`}
+              name="phone"
+              type="tel"
+              inputMode="tel"
+              // The value can be Persian digits, so the box itself stays LTR even in
+              // an RTL page — a phone number reads left-to-right in every locale.
+              dir="ltr"
+              value={form.phone}
+              onChange={(event) => setField("phone", event.target.value)}
+              onBlur={() => setPhoneTouched(true)}
+              placeholder={t("form.phone.placeholder")}
+              autoComplete="tel"
+              className={`${fieldClass(Boolean(errorFor("phone")) || phoneLooksInvalid)} ${isRtl ? "text-end" : "text-start"}`}
+            />
+            {errorFor("phone") || phoneLooksInvalid ? (
+              <span className="mt-1 block text-xs text-red-600">
+                {errorFor("phone") ?? t("errors.invalidPhone")}
+              </span>
+            ) : (
+              <span className="mt-1 block text-xs text-slate-500">
+                {t("form.phone.hint")}
+              </span>
+            )}
+          </label>
+        ) : null}
+
+        {!hasAccountEmail ? (
+          <label className="block" htmlFor={`${fieldId}-email`}>
+            <span className="mb-2 block text-sm font-semibold text-slate-700">
+              {t("form.email.label")}{" "}
+              <span className="text-xs font-normal text-slate-400">
+                ({t("form.optionalTag")})
+              </span>
+            </span>
+            <input
+              id={`${fieldId}-email`}
+              name="email"
+              type="email"
+              dir="ltr"
+              value={form.email}
+              onChange={(event) => setField("email", event.target.value)}
+              placeholder={t("form.email.placeholder")}
+              autoComplete="email"
+              className={`${fieldClass(Boolean(errorFor("email")))} ${isRtl ? "text-end" : "text-start"}`}
+            />
+            {errorFor("email") ? (
+              <span className="mt-1 block text-xs text-red-600">
+                {errorFor("email")}
+              </span>
+            ) : null}
+          </label>
+        ) : null}
 
         <label className="block sm:col-span-2" htmlFor={`${fieldId}-category`}>
           <span className="mb-2 block text-sm font-semibold text-slate-700">
@@ -424,11 +503,16 @@ export function ConsultationStep({
             className={`${fieldClass(Boolean(errorFor("categoryName")))} text-start`}
           />
           {errorFor("categoryName") ? (
-            <span className="mt-1 block text-xs text-red-600">{errorFor("categoryName")}</span>
+            <span className="mt-1 block text-xs text-red-600">
+              {errorFor("categoryName")}
+            </span>
           ) : null}
         </label>
 
-        <label className="block sm:col-span-2" htmlFor={`${fieldId}-description`}>
+        <label
+          className="block sm:col-span-2"
+          htmlFor={`${fieldId}-description`}
+        >
           <span className="mb-2 block text-sm font-semibold text-slate-700">
             {t("form.description.label")}{" "}
             <span className="text-xs font-normal text-slate-400">
@@ -442,12 +526,16 @@ export function ConsultationStep({
             value={form.description}
             onChange={(event) => setField("description", event.target.value)}
             placeholder={t("form.description.placeholder")}
-            className={`w-full rounded-2xl border bg-white px-4 py-3 text-start text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#155e75] ${
-              errorFor("description") ? "border-red-300 bg-red-50/40" : "border-slate-200"
+            className={`w-full rounded-2xl border bg-white px-4 py-3 text-start text-sm text-slate-900 transition outline-none placeholder:text-slate-400 focus:border-[#155e75] ${
+              errorFor("description")
+                ? "border-red-300 bg-red-50/40"
+                : "border-slate-200"
             }`}
           />
           {errorFor("description") ? (
-            <span className="mt-1 block text-xs text-red-600">{errorFor("description")}</span>
+            <span className="mt-1 block text-xs text-red-600">
+              {errorFor("description")}
+            </span>
           ) : null}
         </label>
 
@@ -505,7 +593,9 @@ export function ConsultationStep({
           type="submit"
           disabled={submitting}
           className={`inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold shadow-lg transition ${
-            submitting ? "bg-slate-200 text-slate-500 shadow-none" : "bg-[#083f30] text-white"
+            submitting
+              ? "bg-slate-200 text-slate-500 shadow-none"
+              : "bg-[#083f30] text-white"
           }`}
         >
           <PhoneCall className="h-4 w-4" />

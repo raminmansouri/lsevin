@@ -168,12 +168,11 @@ function PriceLine({ service }: { service: SpecialistService }) {
       <PriceTextClient
         amount={price.displayAmount}
         currencyCode={price.displayCurrencyCode}
-        showCode
         className="text-lg font-extrabold text-[#083f30]"
       />
       {price.converted ? (
         <div className="mt-0.5 text-xs text-gray-500">
-          ≈ <PriceTextClient amount={price.sourceAmount} currencyCode={price.sourceCurrencyCode} showCode />
+          ≈ <PriceTextClient amount={price.sourceAmount} currencyCode={price.sourceCurrencyCode} />
         </div>
       ) : null}
     </div>
@@ -899,12 +898,11 @@ export default function SpecialistProfileClient({
                 <PriceTextClient
                   amount={specialist.consultationPrice.displayAmount}
                   currencyCode={specialist.consultationPrice.displayCurrencyCode}
-                  showCode
                   className="text-lg font-bold text-[#083f30]"
                 />
                 {specialist.consultationPrice.converted ? (
                   <div className="text-xs text-gray-500">
-                    ≈ <PriceTextClient amount={specialist.consultationPrice.sourceAmount} currencyCode={specialist.consultationPrice.sourceCurrencyCode} showCode />
+                    ≈ <PriceTextClient amount={specialist.consultationPrice.sourceAmount} currencyCode={specialist.consultationPrice.sourceCurrencyCode} />
                   </div>
                 ) : null}
               </div>

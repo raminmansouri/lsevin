@@ -2,6 +2,57 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+  "ShopMedia": {
+    "hint": "اولین تصویر، تصویر اصلی است. برای اعمال تغییرات ذخیره کنید.",
+    "empty": "هنوز تصویری برای محصول وجود ندارد.",
+    "imageNumber": "تصویر {number, number}",
+    "primary": "تصویر اصلی",
+    "makePrimary": "تنظیم به‌عنوان تصویر اصلی",
+    "moveUp": "انتقال به بالا",
+    "moveDown": "انتقال به پایین",
+    "replace": "جایگزینی",
+    "remove": "حذف",
+    "addImages": "افزودن تصویر",
+    "imageUrl": "آدرس تصویر",
+    "addUrl": "افزودن آدرس",
+    "invalidUrl": "یک آدرس تصویر یا مسیر فایل معتبر وارد کنید.",
+    "limit": "به سقف انتخاب رسیده‌اید.",
+    "saveFailed": "ذخیرهٔ تصاویر انجام نشد. دوباره تلاش کنید.",
+    "saving": "در حال ذخیره…",
+    "save": "ذخیرهٔ تصاویر",
+    "saved": "تصاویر ذخیره شد.",
+    "image": "تصویر",
+    "video": "ویدیو",
+    "file": "فایل",
+    "deleteFile": "حذف {name}",
+    "deleteLibrary": "حذف از کتابخانه",
+    "deleteConfirm": "«{name}» از کتابخانهٔ رسانه حذف شود؟",
+    "deleteFailed": "حذف فایل انجام نشد.",
+    "loadFailed": "بارگذاری رسانه‌ها انجام نشد. دوباره تلاش کنید.",
+    "wrongType": "فایلی از نوع مورد نیاز انتخاب کنید.",
+    "uploadFailed": "آپلود انجام نشد. دوباره تلاش کنید.",
+    "pickFiles": "انتخاب رسانه",
+    "singleHint": "یک فایل انتخاب کنید.",
+    "multipleHint": "فایل‌ها را انتخاب و تأیید کنید.",
+    "close": "بستن",
+    "search": "جستجوی فایل",
+    "all": "همه",
+    "images": "تصاویر",
+    "videos": "ویدیوها",
+    "files": "فایل‌ها",
+    "upload": "آپلود",
+    "uploading": "در حال آپلود…",
+    "loading": "در حال بارگذاری…",
+    "emptyLibrary": "رسانه‌ای پیدا نشد.",
+    "emptyLibraryHint": "فایل آپلود کنید یا جستجو را تغییر دهید.",
+    "page": "صفحهٔ {page, number} از {total, number}",
+    "selected": "انتخاب‌شده",
+    "previous": "قبلی",
+    "next": "بعدی",
+    "confirm": "استفاده از فایل‌های انتخاب‌شده"
+  },
+
+  
   "BookingCart": {
     "title": "رزروهای ذخیره‌شده",
     "hint": "این موارد برآورد هستند و رزرو قطعی نیستند. برای بررسی ظرفیت و پرداخت، هر رزرو را باز کنید. پرداخت محصولات فعلاً جداگانه است.",
@@ -2121,6 +2172,10 @@ declare const messages: {
     },
     "requestFile": "درخواست فایل",
     "addToMedicalRecord": "افزودن به پرونده سلامتی",
+    "bookingInfo": "اطلاعات نوبت",
+    "viewBooking": "مشاهده نوبت",
+    "viewPatient360": "مشاهده پرونده ۳۶۰ بیمار",
+    "viewMedicalCase": "مشاهده پرونده درمانی",
     "requirementTitlePlaceholder": "چه چیزی نیاز دارید؟ (مثلاً آزمایش خون اخیر)",
     "descriptionOptional": "توضیحات (اختیاری)",
     "maxAgeHoursOptional": "حداکثر قدمت به ساعت (اختیاری)",
@@ -6373,6 +6428,7 @@ declare const messages: {
     }
   },
   "ServiceProvider": {
+    "searchProvidersServicesStaffCityCountry": "جستجوی ارائه‌دهنده، خدمت، کارکنان، شهر یا کشور...",
     "name": "ارائه‌دهنده خدمات",
     "contactProvider": "تماس با ارائه دهنده",
     "aboutProvider": "درباره این ارائه دهنده",
@@ -14032,6 +14088,10 @@ declare const messages: {
       "subtitle": "اطلاعات تماس خود را بگذارید تا کارشناسان ما با شما تماس بگیرند. این مشاوره رایگان است و تأثیری بر روند رزرو شما ندارد.",
       "optional": "اختیاری",
       "skipNote": "می‌توانید از این مرحله بگذرید و رزرو را ادامه دهید."
+    },
+    "cta": {
+      "beforeBooking": "مشاوره قبل از رزرو",
+      "beforePurchase": "مشاوره قبل از خرید"
     },
     "form": {
       "firstName": {

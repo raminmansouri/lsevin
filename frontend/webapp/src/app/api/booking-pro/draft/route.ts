@@ -42,7 +42,12 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  const draft = await upsertMainDraftSelection(userId, body);
-  const totals = draft.id ? await recalculateDraftTotals(draft.id) : null;
-  return NextResponse.json({ draft, totals });
+  try {
+    const draft = await upsertMainDraftSelection(userId, body);
+    const totals = draft.id ? await recalculateDraftTotals(draft.id) : null;
+    return NextResponse.json({ draft, totals });
+  } catch (error) {
+    console.error("🧾 draft PATCH failed", error);
+    throw error;
+  }
 }

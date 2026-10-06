@@ -7456,6 +7456,7 @@ declare const messages: {
         "medicalProfile": "Perfil médico",
         "notifications": "Notificaciones",
         "privacySecurity": "Privacidad y seguridad",
+        "privacyPolicy": "Política de privacidad",
         "rewardsLoyalty": "Recompensas y fidelidad",
         "savedFavorites": "Favoritos guardados",
         "shareWithFriends": "Compartir con amigos",
@@ -7595,6 +7596,40 @@ declare const messages: {
         "successTitle": "Subida completada",
         "uploadingTitle": "Subiendo..."
       }
+    },
+    "privacyPolicy": {
+      "title": "Política de privacidad",
+      "intro": "LSevin («LSevin», «nosotros») opera la aplicación móvil y el sitio web de LSevin (el «Servicio»), un mercado que ayuda a los usuarios a investigar, comparar y reservar servicios de turismo médico con clínicas y proveedores independientes, y a comunicarse con ellos a través del chat dentro de la aplicación. Esta Política de Privacidad explica qué información recopilamos, cómo la usamos y las opciones que tiene.",
+      "section1Title": "1. Información que recopilamos",
+      "section1aTitle": "a. Información que usted proporciona",
+      "section1aItems": "Información de la cuenta: su número de teléfono, utilizado para iniciar sesión mediante una contraseña de un solo uso (OTP). No requerimos un nombre de usuario/contraseña tradicional.\nDetalles del perfil: su nombre y, opcionalmente, otros datos de contacto que elija agregar a su perfil.\nMensajes: el contenido que envía a través de la función de chat dentro de la aplicación para comunicarse con clínicas/proveedores o con nuestro equipo de soporte.\nDetalles de reserva y consulta: la información que envía al solicitar información sobre un servicio de turismo médico o al reservarlo (por ejemplo, el procedimiento que le interesa y sus fechas preferidas). LSevin actúa como un mercado/intermediario de reservas: no recopilamos ni almacenamos historiales médicos, diagnósticos ni otra información clínica de salud en nuestros servidores. Cualquier detalle médico que usted elija compartir se intercambia directamente entre usted y la clínica/proveedor a través del chat, a su propia discreción.",
+      "section1bTitle": "b. Información recopilada automáticamente",
+      "section1bItems": "Datos del dispositivo y la aplicación: identificadores del dispositivo, versión de la aplicación y registros de fallos/diagnóstico, utilizados para mantener el Servicio seguro y funcionando correctamente.\nTokens de notificaciones push: utilizados para enviar actualizaciones de reservas y notificaciones de chat.\nUbicación aproximada: si otorga permiso, se utiliza para mostrarle proveedores relevantes y mejorar los resultados de búsqueda locales. Puede rechazar o revocar este permiso en cualquier momento desde la configuración de su dispositivo.\nDatos de uso: páginas vistas y acciones realizadas dentro de la aplicación, utilizadas para mejorar el Servicio.",
+      "section2Title": "2. Cómo usamos la información",
+      "section2Items": "Para crear y proteger su cuenta y autenticarlo mediante OTP.\nPara conectarlo con clínicas/proveedores y facilitar las reservas y la comunicación dentro de la aplicación.\nPara enviarle confirmaciones de reserva, actualizaciones y mensajes de soporte.\nPara mantener, proteger y mejorar el Servicio, y detectar y prevenir fraude o abuso.\nPara cumplir con nuestras obligaciones legales.",
+      "section2Note": "No vendemos sus datos personales. Actualmente no ofrecemos, y esta versión de la aplicación no incluye, ninguna billetera de criptomonedas, recarga de saldo u otra función financiera/de pago.",
+      "section3Title": "3. Cómo compartimos la información",
+      "section3Items": "Con clínicas/proveedores: la información necesaria para procesar su consulta o reserva (por ejemplo, su nombre, datos de contacto y el contenido del mensaje/reserva que elija enviarles).\nCon proveedores de servicios: proveedores que nos ayudan a operar el Servicio (por ejemplo, alojamiento en la nube, envío de notificaciones push, análisis), bajo obligaciones de confidencialidad y protección de datos.\nPor razones legales: si lo exige la ley, una normativa, un proceso judicial o una solicitud gubernamental.",
+      "section4Title": "4. Seguridad de los datos",
+      "section4Body": "Todos los datos transmitidos entre la aplicación y nuestros servidores se cifran en tránsito (HTTPS/TLS). Aplicamos medidas de protección administrativas, técnicas y físicas razonables para proteger su información.",
+      "section5Title": "5. Retención de datos",
+      "section5Body": "Conservamos la información personal mientras su cuenta esté activa o según sea necesario para prestar el Servicio, cumplir con nuestras obligaciones legales, resolver disputas y hacer cumplir nuestros acuerdos. Puede solicitar la eliminación en cualquier momento según se describe a continuación.",
+      "section6Title": "6. Sus derechos y la eliminación de la cuenta/los datos",
+      "section6HowToRequest": "Cómo solicitar la eliminación: para solicitar la eliminación de su cuenta de LSevin y los datos personales asociados, o la eliminación de datos personales específicos sin eliminar su cuenta, envíenos un correo a lsevin.turkiye@gmail.com desde el correo electrónico o el número de teléfono asociado a su cuenta, con el asunto «Solicitud de eliminación de cuenta» (o «Solicitud de eliminación de datos»).",
+      "section6WhatHappensLabel": "Qué sucede",
+      "section6WhatHappensValue": "Verificamos su solicitud y luego eliminamos o anonimizamos el perfil de su cuenta, su número de teléfono y su historial de chat de nuestros sistemas activos.",
+      "section6WhatMayBeKeptLabel": "Qué se puede conservar",
+      "section6WhatMayBeKeptValue": "Los registros que debemos conservar por motivos legales, fiscales, de seguridad o de prevención de fraude, conservados solo durante el tiempo necesario y luego eliminados.",
+      "section6TimeframeLabel": "Plazo",
+      "section6TimeframeValue": "Las solicitudes se procesan dentro de 30 días.",
+      "section6RightsNote": "Según su ubicación, también puede tener derecho a acceder, corregir o exportar sus datos personales. Contáctenos en el correo electrónico anterior para ejercer estos derechos.",
+      "section7Title": "7. Privacidad de los menores",
+      "section7Body": "LSevin está destinado a usuarios de 18 años en adelante y no está dirigido a menores. No recopilamos conscientemente información personal de menores.",
+      "section8Title": "8. Cambios a esta política",
+      "section8Body": "Podemos actualizar esta Política de Privacidad de vez en cuando. Los cambios importantes se reflejarán actualizando la fecha de «Última actualización» indicada arriba.",
+      "section9Title": "9. Contáctenos",
+      "section9Body": "Si tiene preguntas sobre esta Política de Privacidad o sus datos, contáctenos en lsevin.turkiye@gmail.com.",
+      "contact": "LSevin · lsevin.turkiye@gmail.com"
     },
     "privacySecurity": {
       "activeSessions": "Sesiones activas",
@@ -12648,6 +12683,10 @@ declare const messages: {
       "subtitle": "Déjanos tus datos y uno de nuestros asesores te llamará. Es gratis y no afecta a tu reserva.",
       "optional": "Opcional",
       "skipNote": "Puedes omitir este paso y seguir con la reserva."
+    },
+    "cta": {
+      "beforeBooking": "Consulta gratuita antes de reservar",
+      "beforePurchase": "Consulta gratuita antes de comprar"
     },
     "form": {
       "firstName": {

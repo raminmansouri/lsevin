@@ -28,15 +28,15 @@ internal sealed class OtpSenderService(
         var formattedPhoneNumber = phoneNumber.ToE164Format();
 
         // Dev-only shortcut: skip WhatsApp for international numbers and print the code instead.
-//         if (!phoneNumber.CountryCode.Equals("IR", StringComparison.OrdinalIgnoreCase)
-//             && string.Equals(
-//                 Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
-//                 "Development",
-//                 StringComparison.OrdinalIgnoreCase))
-//         {
-//             logger.LogWarning("[OtpSender][DEV] OTP for {Phone} is {Code}", formattedPhoneNumber, otpCode);
-//             return Task.FromResult(Result.Success());
-//         }
+        if (!phoneNumber.CountryCode.Equals("IR", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(
+                Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
+                "Development",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            logger.LogWarning("[OtpSender][DEV] OTP for {Phone} is {Code}", formattedPhoneNumber, otpCode);
+            return Task.FromResult(Result.Success());
+        }
 
         // Route based on country code.
         // Iranian numbers keep using MeliPayamak (do not change this path);

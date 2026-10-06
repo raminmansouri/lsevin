@@ -7453,6 +7453,7 @@ declare const messages: {
         "medicalProfile": "Profil médical",
         "notifications": "Notifications",
         "privacySecurity": "Confidentialité et sécurité",
+        "privacyPolicy": "Politique de confidentialité",
         "rewardsLoyalty": "Récompenses et fidélité",
         "savedFavorites": "Favoris enregistrés",
         "shareWithFriends": "Partager avec des amis",
@@ -7592,6 +7593,40 @@ declare const messages: {
         "successTitle": "Import terminé",
         "uploadingTitle": "Import en cours..."
       }
+    },
+    "privacyPolicy": {
+      "title": "Politique de confidentialité",
+      "intro": "LSevin (« LSevin », « nous ») exploite l'application mobile et le site web LSevin (le « Service »), une place de marché qui aide les utilisateurs à rechercher, comparer et réserver des services de tourisme médical auprès de cliniques et de prestataires indépendants, et à communiquer avec eux via le chat intégré à l'application. Cette politique de confidentialité explique quelles informations nous collectons, comment nous les utilisons et les choix qui s'offrent à vous.",
+      "section1Title": "1. Informations que nous collectons",
+      "section1aTitle": "a. Informations que vous fournissez",
+      "section1aItems": "Informations de compte : votre numéro de téléphone, utilisé pour vous connecter via un mot de passe à usage unique (OTP). Nous n'exigeons pas de nom d'utilisateur/mot de passe traditionnel.\nDétails du profil : votre nom et, facultativement, d'autres coordonnées que vous choisissez d'ajouter à votre profil.\nMessages : le contenu que vous envoyez via la fonction de chat intégrée à l'application pour communiquer avec les cliniques/prestataires ou notre équipe d'assistance.\nDétails de réservation et de demande : les informations que vous soumettez lorsque vous demandez des informations sur un service de tourisme médical ou que vous le réservez (par exemple, l'intervention qui vous intéresse et vos dates préférées). LSevin agit comme une place de marché/un intermédiaire de réservation — nous ne collectons ni ne stockons de dossiers médicaux, de diagnostics ou d'autres informations de santé cliniques sur nos serveurs. Tout détail médical que vous choisissez de partager est échangé directement entre vous et la clinique/le prestataire via le chat, à votre discrétion.",
+      "section1bTitle": "b. Informations collectées automatiquement",
+      "section1bItems": "Données sur l'appareil et l'application : identifiants de l'appareil, version de l'application et journaux de plantage/diagnostic, utilisés pour assurer la sécurité et le bon fonctionnement du Service.\nJetons de notification push : utilisés pour envoyer les mises à jour de réservation et les notifications de chat.\nLocalisation approximative : si vous accordez l'autorisation, utilisée pour vous montrer des prestataires pertinents et améliorer les résultats de recherche locaux. Vous pouvez refuser ou révoquer cette autorisation à tout moment dans les paramètres de votre appareil.\nDonnées d'utilisation : pages consultées et actions effectuées dans l'application, utilisées pour améliorer le Service.",
+      "section2Title": "2. Comment nous utilisons les informations",
+      "section2Items": "Pour créer et sécuriser votre compte et vous authentifier via OTP.\nPour vous mettre en relation avec des cliniques/prestataires et faciliter les réservations et la communication au sein de l'application.\nPour vous envoyer des confirmations de réservation, des mises à jour et des messages d'assistance.\nPour maintenir, sécuriser et améliorer le Service, et détecter et prévenir la fraude ou les abus.\nPour respecter nos obligations légales.",
+      "section2Note": "Nous ne vendons pas vos données personnelles. Nous ne proposons pas actuellement, et cette version de l'application ne comprend pas, de portefeuille de cryptomonnaie, de rechargement de compte ou d'autre fonctionnalité financière/de paiement.",
+      "section3Title": "3. Comment nous partageons les informations",
+      "section3Items": "Avec les cliniques/prestataires : les informations nécessaires au traitement de votre demande ou réservation (par exemple, votre nom, vos coordonnées et le contenu du message/de la réservation que vous choisissez de leur envoyer).\nAvec des prestataires de services : des fournisseurs qui nous aident à exploiter le Service (par exemple, hébergement cloud, envoi de notifications push, analyses), sous des obligations de confidentialité et de protection des données.\nPour des raisons légales : si la loi, une réglementation, une procédure judiciaire ou une demande gouvernementale l'exige.",
+      "section4Title": "4. Sécurité des données",
+      "section4Body": "Toutes les données transmises entre l'application et nos serveurs sont chiffrées en transit (HTTPS/TLS). Nous appliquons des mesures de protection administratives, techniques et physiques raisonnables pour protéger vos informations.",
+      "section5Title": "5. Conservation des données",
+      "section5Body": "Nous conservons les informations personnelles aussi longtemps que votre compte est actif ou que cela est nécessaire pour fournir le Service, respecter nos obligations légales, résoudre les litiges et faire appliquer nos accords. Vous pouvez demander la suppression à tout moment comme décrit ci-dessous.",
+      "section6Title": "6. Vos droits et la suppression de compte/de données",
+      "section6HowToRequest": "Comment demander la suppression : pour demander la suppression de votre compte LSevin et des données personnelles associées, ou la suppression de données personnelles spécifiques sans supprimer votre compte, envoyez-nous un e-mail à lsevin.turkiye@gmail.com depuis l'adresse e-mail ou le numéro de téléphone associé à votre compte, avec pour objet « Demande de suppression de compte » (ou « Demande de suppression de données »).",
+      "section6WhatHappensLabel": "Ce qui se passe",
+      "section6WhatHappensValue": "Nous vérifions votre demande, puis supprimons ou anonymisons le profil de votre compte, votre numéro de téléphone et votre historique de chat de nos systèmes actifs.",
+      "section6WhatMayBeKeptLabel": "Ce qui peut être conservé",
+      "section6WhatMayBeKeptValue": "Les enregistrements que nous sommes tenus de conserver à des fins légales, fiscales, de sécurité ou de prévention de la fraude, conservés uniquement le temps nécessaire puis supprimés.",
+      "section6TimeframeLabel": "Délai",
+      "section6TimeframeValue": "Les demandes sont traitées dans un délai de 30 jours.",
+      "section6RightsNote": "Selon votre lieu de résidence, vous pouvez également avoir le droit d'accéder à vos données personnelles, de les corriger ou de les exporter. Contactez-nous à l'adresse e-mail ci-dessus pour exercer ces droits.",
+      "section7Title": "7. Confidentialité des enfants",
+      "section7Body": "LSevin est destiné aux utilisateurs âgés de 18 ans et plus et ne s'adresse pas aux enfants. Nous ne collectons pas sciemment d'informations personnelles auprès d'enfants.",
+      "section8Title": "8. Modifications de cette politique",
+      "section8Body": "Nous pouvons mettre à jour cette politique de confidentialité de temps à autre. Les modifications importantes seront reflétées par la mise à jour de la date « Dernière mise à jour » ci-dessus.",
+      "section9Title": "9. Nous contacter",
+      "section9Body": "Si vous avez des questions concernant cette politique de confidentialité ou vos données, contactez-nous à lsevin.turkiye@gmail.com.",
+      "contact": "LSevin · lsevin.turkiye@gmail.com"
     },
     "privacySecurity": {
       "activeSessions": "Sessions actives",
@@ -12645,6 +12680,10 @@ declare const messages: {
       "subtitle": "Laissez vos coordonnées et un conseiller vous rappellera. C'est gratuit et cela ne change rien à votre réservation.",
       "optional": "Facultatif",
       "skipNote": "Vous pouvez passer cette étape et poursuivre votre réservation."
+    },
+    "cta": {
+      "beforeBooking": "Consultation gratuite avant réservation",
+      "beforePurchase": "Consultation gratuite avant achat"
     },
     "form": {
       "firstName": {
