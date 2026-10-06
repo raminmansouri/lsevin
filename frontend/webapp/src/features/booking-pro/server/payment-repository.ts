@@ -157,7 +157,7 @@ export async function createBookingPaymentIntent(params: {
       order by p.created_at desc nulls last
       limit 1
     )
-    select b.id, b.user_id, b.total_amount, b.currency_code, b.payment_status, b.booking_status, b.paid_amount,
+    select b.id, b.user_id, b.total_amount, b.currency_code, b.payment_status, b.booking_status, b.paid_amount,b.metadata as booking_metadata,
            lp.id as payment_id, lp.amount as payment_amount, lp.currency as payment_currency, lp.gateway_payload,
            pt.id as payment_terms_id, pt.due_now_amount, pt.due_later_amount, pt.payment_currency_code, pt.collection_mode
     from booking.bookings b
@@ -168,7 +168,14 @@ export async function createBookingPaymentIntent(params: {
   `;
 
     if (!booking) throw new Error('Booking not found');
-
+    // A booking with a pay-in-place plan has a part due now that must really be paid, with
+    // the wallet or online payment. Pay in place and bank receipt move no money.
+    if (
+        (booking.booking_metadata as any)?.payInPlacePlan &&
+        ['pay_on_delivery', 'cash_on_delivery', 'bank_receipt', 'manual_card'].includes(requestedCode)
+    ) {
+        throw new Error('Pay the part due now with the wallet or online payment.');
+    }
     const amount = Number(booking.payment_amount ?? booking.due_now_amount ?? booking.total_amount ?? 0);
     const currency = booking.payment_currency ?? booking.payment_currency_code ?? booking.currency_code ?? 'USD';
     const normalizedMethodCode = String(params.paymentMethodCode || '').trim().toLowerCase();
