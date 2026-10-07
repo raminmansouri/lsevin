@@ -1994,6 +1994,11 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
+                        <Link href={`/admin/provider-services/${item.id}/meal-plans`}>
+                          <SlidersHorizontal className="me-2 h-4 w-4" /> Meal plans (rooms)
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
                         <Link href={`/admin/provider-services/${item.id}/addons`}>
                           <PackagePlus className="me-2 h-4 w-4" /> Add-ons
                         </Link>

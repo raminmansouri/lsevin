@@ -43,6 +43,7 @@ type ServiceDefinitionMutationInput = {
   value: number;
   requiresCustomerAddress: boolean;
   requiresSpecialist: boolean;
+  bookingUiMode?: string;
 };
 
 type AttributeMutationInput = {
@@ -1020,6 +1021,7 @@ export async function createServiceDefinitionInDb(input: ServiceDefinitionMutati
       value,
       requires_customer_address,
       requires_specialist,
+      booking_ui_mode,
       create_date,
       last_modified_date
     ) values (
@@ -1036,6 +1038,7 @@ export async function createServiceDefinitionInDb(input: ServiceDefinitionMutati
       ${input.value},
       ${input.requiresCustomerAddress},
       ${input.requiresSpecialist},
+      ${input.bookingUiMode ?? 'default_slot'},
       now(),
       now()
     )
@@ -1063,6 +1066,7 @@ export async function updateServiceDefinitionInDb(input: ServiceDefinitionMutati
       value = ${input.value},
       requires_customer_address = ${input.requiresCustomerAddress},
       requires_specialist = ${input.requiresSpecialist},
+      booking_ui_mode = coalesce(${input.bookingUiMode ?? null}, booking_ui_mode),
       last_modified_date = now()
     where id = ${input.serviceDefinitionId}
     returning id

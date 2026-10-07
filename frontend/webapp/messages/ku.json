@@ -4857,6 +4857,27 @@
     }
   },
   "Booking": {
+    "mealPlan": {
+      "label": "پلانی نان",
+      "chooseTitle": "پلانی نان هەڵبژێرە",
+      "room_only": {
+        "name": "تەنها ژوور",
+        "description": "نان تێیدا نییە"
+      },
+      "breakfast": {
+        "name": "لەگەڵ بەیانی",
+        "description": "نانی بەیانی تێدایە"
+      },
+      "full_board": {
+        "name": "پانسیۆنی تەواو",
+        "description": "نانی بەیانی، نیوەڕۆ و ئێوارە تێدایە"
+      }
+    },
+    "stay": {
+      "perNight": "بۆ هەر شەوێک",
+      "nightsLine": "ژمارەی شەوەکان: {nights} × {price} بۆ هەر شەوێک",
+      "checkoutAfterCheckin": "بەرواری دەرچوون دەبێت دوای بەرواری چوونەژوورەوە بێت."
+    },
     "addonScope": {
       "showAllInCountry": "هەموو لە {country} پیشان بدە",
       "showOnlyCity": "تەنها {city} پیشان بدە"

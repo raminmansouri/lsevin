@@ -13,6 +13,7 @@ import { TourDeparturePicker } from './TourDeparturePicker';
 import { BookingShopProductsStep, type BookingShopProductGroup } from './BookingShopProductsStep';
 import { PaymentMethodsPanel } from './PaymentMethodsPanel';
 import { PayInPlacePlanPicker } from './PayInPlacePlanPicker';
+import { MealPlanPicker } from './MealPlanPicker';
 import { isPayInPlacePlanId } from '../utils/pay-in-place-plans';
 import { SaveBookingCartButton } from './SaveBookingCartButton';
 import { DecisionStack } from './step-service/DecisionStack';
@@ -249,6 +250,7 @@ const DRAFT_METADATA_KEYS = new Set([
     'rooms',
     'payInPlacePlan',
     'depositMethod',
+    'mealPlan',
 ]);
 
 function compactDraftPatch(patch: Partial<BookingDraftState>): Partial<BookingDraftState> {
@@ -817,28 +819,7 @@ export function BookingWizard() {
             .catch((e) => { if (!cancelled && timeSlotsRequestSeq.current === requestId) setError(e.message); });
         return () => { cancelled = true; };
     }, [draft?.providerId, draft?.serviceId, draft?.specialistId, draft?.selectedDate, draft?.bookingUiMode, locale, resumeChoiceRequired]);
-    useEffect(() => {
-        if (!draft?.providerId || !draft?.serviceId || draft.bookingUiMode !== 'date_range' || !draft.selectedDateFrom || !draft.selectedDateTo || !isReasonableBookingIsoDate(draft.selectedDateFrom) || !isReasonableBookingIsoDate(draft.selectedDateTo) || resumeChoiceRequired) {
-            setDateRangeAvailability(null);
-            return;
-        }
-        let cancelled = false;
-        setRangeAvailabilityLoading(true);
-        const params = new URLSearchParams({
-            providerId: draft.providerId,
-            serviceId: draft.serviceId,
-            startDate: draft.selectedDateFrom,
-            endDate: draft.selectedDateTo,
-            requestedUnits: String(Math.max(1, Number(draft.rooms || 1))),
-        });
-        getJson<DateRangeAvailability>(`/api/booking-pro/availability/range?${params.toString()}`)
-            .then((data) => { if (!cancelled)
-                setDateRangeAvailability(data); })
-            .catch((e) => setError(e.message))
-            .finally(() => { if (!cancelled)
-                setRangeAvailabilityLoading(false); });
-        return () => { cancelled = true; };
-    }, [draft?.providerId, draft?.serviceId, draft?.bookingUiMode, draft?.selectedDateFrom, draft?.selectedDateTo, draft?.rooms, resumeChoiceRequired]);
+    // Day-based stays are requests: no availability is checked.
     async function patchDraft(patch: Partial<BookingDraftState>) {
         if (!draft)
             return;
@@ -976,7 +957,7 @@ export function BookingWizard() {
     const canContinueScheduleStep = Boolean(draft && (draft.bookingUiMode === 'custom_form'
         ? draft.formSubmissionId
         : draft.bookingUiMode === 'date_range'
-            ? draft.selectedDateFrom && draft.selectedDateTo && dateRangeAvailability?.available !== false
+            ? draft.selectedDateFrom && draft.selectedDateTo && draft.selectedDateTo > draft.selectedDateFrom
             : draft.selectedDate && draft.selectedTimeFrom && draft.selectedTimeTo));
     const canContinueAddonsStep = allChildBookingsCompleted;
     const canContinueFilesStep = allRequiredUploadsPresent;
@@ -1372,7 +1353,7 @@ export function BookingWizard() {
                         </div>) : null}
                     </div>) : null}
 
-                    {draft.bookingUiMode === 'date_range' ? (<div className="grid gap-4 md:grid-cols-4">
+                    {draft.bookingUiMode === 'date_range' ? (<div className="grid gap-4 md:grid-cols-3">
                         <div className="text-sm font-semibold text-slate-700"><span>{tBooking("fromDate")}</span><div className="mt-2"><BookingDatePicker calendar={calendar} label={tBooking("fromDate")} value={draft.selectedDateFrom} onChange={(iso) => {
                             const next = { ...draft, selectedDateFrom: iso }; setDraft(next); patchDraft(next).catch(er => setError(er.message));
                         }} /></div></div>
@@ -1380,15 +1361,16 @@ export function BookingWizard() {
                             const next = { ...draft, selectedDateTo: iso }; setDraft(next); patchDraft(next).catch(er => setError(er.message));
                         }} /></div></div>
                         <label className="text-sm font-semibold text-slate-700">{tBooking("adults")}<input type="number" min={1} value={draft.adults ?? 1} onChange={(e) => { const next = { ...draft, adults: Number(e.target.value || 1) }; setDraft(next); patchDraft(next).catch((er) => setError(er.message)); }} className="mt-2 h-12 w-full rounded-2xl border border-slate-200 px-4 outline-none focus:border-[#155e75]"/></label>
-                        <label className="text-sm font-semibold text-slate-700">{tBooking("rooms")}<input type="number" min={1} value={draft.rooms ?? 1} onChange={(e) => { const next = { ...draft, rooms: Number(e.target.value || 1) }; setDraft(next); patchDraft(next).catch((er) => setError(er.message)); }} className="mt-2 h-12 w-full rounded-2xl border border-slate-200 px-4 outline-none focus:border-[#155e75]"/></label>
-                        <div className="md:col-span-4">
-                            {rangeAvailabilityLoading ? (<div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">{tBooking("checkingServiceResourceAvailability")}</div>) : dateRangeAvailability ? (<div className={`rounded-2xl border p-4 text-sm ${dateRangeAvailability.available ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-red-200 bg-red-50 text-red-700'}`}>
-                                {dateRangeAvailability.available
-                                    ? tBooking('availableMinimumRemainingCapacity', { capacity: dateRangeAvailability.remainingCapacity })
-                                    : dateRangeAvailability.message || tBooking('thisDateRangeIsNotAvailable')}
-                                {!dateRangeAvailability.available && dateRangeAvailability.unavailableDates?.length ? (<div className="mt-2 text-xs">{tBooking("unavailableDates")}{dateRangeAvailability.unavailableDates.join(', ')}</div>) : null}
-                            </div>) : (<div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">{tBooking("selectDatesAndUnitsToCheckServiceResourceAvailability")}</div>)}
-                        </div>
+                        <div className="md:col-span-3">{(() => {
+                    const from = draft.selectedDateFrom;
+                    const to = draft.selectedDateTo;
+                    if (!from || !to) return null;
+                    if (to <= from) return <div className="text-xs text-red-600">{tBooking('stay.checkoutAfterCheckin')}</div>;
+                    const nights = Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86400000);
+                    return <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-700">{tBooking('stay.nightsLine', { nights, price: chosenService ? formatMoney(chosenService.value, chosenService.currency) : '' })}</div>;
+                  })()}</div>
+                  {draft.serviceId ? (<div className="md:col-span-3"><MealPlanPicker serviceId={draft.serviceId} value={(draft.metadata as any)?.mealPlan ?? null} disabled={submitting} onChange={(code) => { patchDraft({ metadata: { ...(draft.metadata ?? {}), mealPlan: code } }).then(() => refreshDraftAfterPriceChange()).catch((er) => setError(er.message)); }} /></div>) : null}
+                  
                     </div>) : null}
 
                     {chosenService?.requiresCustomerAddress ? (<AddressPicker selectedId={draft.customerAddressId} onSelect={(address) => {
@@ -1484,7 +1466,8 @@ export function BookingWizard() {
                         <h2 className="text-xl font-bold text-slate-900">{tBooking("reviewAndPay")}</h2>
                         <div className="mt-4 space-y-3 text-sm text-slate-700">
                             <div className="flex justify-between"><span>{tBooking("mainBooking")}</span><span>{chosenProvider?.name} / {chosenService?.name}{chosenSpecialist ? ` / ${chosenSpecialist.name}` : ''}</span></div>
-                            <div className="flex justify-between"><span>{tBooking("mainSubtotal")}</span><span>{draft.currency} {draft.subtotalAmount ?? 0}</span></div>
+                            {(draft.metadata as any)?.mealPlan && (draft.metadata as any).mealPlan !== 'room_only' ? (<div className="flex justify-between"><span>{tBooking('mealPlan.label')}</span><span>{tBooking(('mealPlan.' + (draft.metadata as any).mealPlan + '.name') as never)}</span></div>) : null}
+                  <div className="flex justify-between"><span>{tBooking("mainSubtotal")}</span><span>{draft.currency} {draft.subtotalAmount ?? 0}</span></div>
                             {draft.useLsevin ? <>
                                 <div className="flex justify-between"><span>{tBooking("addOnSubBookings2")}</span><span>{draft.childBookings.length}</span></div>
                                 <div className="flex justify-between"><span>{tBooking("addOnSubtotal")}</span><span>{draft.currency} {draft.addonsAmount ?? 0}</span></div>

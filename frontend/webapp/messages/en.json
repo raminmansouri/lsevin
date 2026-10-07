@@ -359,6 +359,27 @@
     "searchNow": "Search Now"
   },
   "Booking": {
+    "mealPlan": {
+      "label": "Meal plan",
+      "chooseTitle": "Choose a meal plan",
+      "room_only": {
+        "name": "Room only",
+        "description": "No meals included"
+      },
+      "breakfast": {
+        "name": "With breakfast",
+        "description": "Breakfast included"
+      },
+      "full_board": {
+        "name": "Full board",
+        "description": "Breakfast, lunch and dinner included"
+      }
+    },
+    "stay": {
+      "perNight": "per night",
+      "nightsLine": "Nights: {nights} × {price} per night",
+      "checkoutAfterCheckin": "Check-out must be after check-in."
+    },
     "addonScope": {
       "showAllInCountry": "Show all in {country}",
       "showOnlyCity": "Show only {city}"

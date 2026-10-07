@@ -55,6 +55,7 @@ const SAFE_DRAFT_METADATA_KEYS = new Set([
     'tourDepartureId',
     'payInPlacePlan',
     'depositMethod',
+    'mealPlan',
 ]);
 
 let draftProviderNotifiedColumnEnsured = false;
@@ -1531,19 +1532,31 @@ export async function listUploadRequirements(providerServiceId: string, locale =
     return { items };
 }
 
+// A stay is priced per night: nights = check-out day minus check-in day, never less than 1.
+// Dates are plain YYYY-MM-DD strings, compared in UTC so daylight-saving never shifts a night.
+function stayNights(from?: unknown, to?: unknown): number {
+  if (typeof from !== 'string' || typeof to !== 'string') return 1;
+  const a = Date.parse(`${from}T00:00:00Z`);
+  const b = Date.parse(`${to}T00:00:00Z`);
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return 1;
+  return Math.max(1, Math.round((b - a) / 86400000));
+}
+
 export async function recalculateDraftTotals(draftId: string, options?: { paymentMethod?: string | null }) {
     const mainRows = await db<any[]>`
         select d.user_id as user_id,
-               coalesce(ps.value, 0) as main_amount,
+               coalesce(case when sd.booking_ui_mode = 'date_range' then (select mp.price from category.provider_service_meal_plans mp where mp.provider_service_id = d.service_id and mp.plan_code = d.metadata->>'mealPlan') end, ps.value, 0) as main_amount,
                coalesce(ps.currency, d.currency) as currency,
                ps.value_toman as main_value_toman,
                sp.international_price_multiplier as provider_multiplier,
                coalesce(d.use_lsevin, false) as use_lsevin,
                d.payment_method as payment_method,
+           sd.booking_ui_mode as ui_mode,
                d.metadata
         from booking.booking_drafts d
                  left join category.provider_services ps on ps.id = d.service_id
                  left join category.service_providers sp on sp.id = d.provider_id
+             left join category.service_definitions sd on sd.id = ps.service_definition_id
         where d.id = ${draftId}
     `;
     const useLsevin = Boolean(mainRows[0]?.use_lsevin);
@@ -1561,11 +1574,13 @@ export async function recalculateDraftTotals(draftId: string, options?: { paymen
     const childRows = useLsevin
         ? await db<any[]>`
                 select coalesce(sum(
-                                        case
+          (case
                                             when ${isIranian} and ps.value_toman is not null then ps.value_toman
-                                            else coalesce(ps.value, c.subtotal_amount, 0)
-                                            end
-                                ), 0) as child_amount
+                                            else coalesce(case when c.booking_ui_mode = 'date_range' then (select mp.price from category.provider_service_meal_plans mp where mp.provider_service_id = c.service_id and mp.plan_code = c.metadata->>'mealPlan') end, ps.value, c.subtotal_amount, 0)
+                                            end)
+          * case when c.booking_ui_mode = 'date_range' and c.selected_date_from is not null and c.selected_date_to is not null
+                 then greatest(1, c.selected_date_to - c.selected_date_from) else 1 end
+        ), 0) as child_amount
                 from booking.booking_draft_child_bookings c
                          left join category.provider_services ps on ps.id = c.service_id
                 where c.parent_draft_id = ${draftId}
@@ -1574,7 +1589,11 @@ export async function recalculateDraftTotals(draftId: string, options?: { paymen
 
     const mainValueToman = mainRows[0]?.main_value_toman;
     const usesNativeTomanMain = isIranian && mainValueToman != null;
-    const providerMainAmount = usesNativeTomanMain ? Number(mainValueToman) : Number(mainRows[0]?.main_amount ?? 0);
+    // Hotels are priced per night; the number of rooms is deliberately not part of the price.
+    const mainNights = mainRows[0]?.ui_mode === 'date_range'
+        ? stayNights(mainRows[0]?.metadata?.selectedDateFrom, mainRows[0]?.metadata?.selectedDateTo)
+        : 1;
+    const providerMainAmount = (usesNativeTomanMain ? Number(mainValueToman) : Number(mainRows[0]?.main_amount ?? 0)) * mainNights;
     const providerCurrency: string = usesNativeTomanMain ? TOMAN_CURRENCY_CODE : (mainRows[0]?.currency ?? 'USD');
     const providerChildAmount = Number(childRows[0]?.child_amount ?? 0);
 
@@ -1848,7 +1867,11 @@ export async function checkoutDraft(
 
     // Final guard before converting a draft into a booking. This checks generic service/resource availability
     // (hotel rooms, seats, equipment, etc.) as well as the legacy provider/staff availability fallback.
+    // Day-based stays are requests too (see the note at the booking insert): no availability is
+  // enforced for them. Hourly services still go through the capacity check.
+  if (scope?.bookingUiMode !== 'date_range') {
     await assertDraftAvailabilityBeforeCheckout(draft.id);
+  }
 
     const txResult = await db.begin(async (tx) => {
         const [lockedDraft] = await tx`
@@ -1957,14 +1980,9 @@ export async function checkoutDraft(
         const draftMetadata = (draft as any).metadata ?? {};
         const checkIn = draftMetadata.selectedDateFrom as string | undefined;
         const checkOut = draftMetadata.selectedDateTo as string | undefined;
-        if (scope?.bookingUiMode === 'date_range' && scope?.providerId && checkIn && checkOut) {
-            await reserveHotelDates(tx as any, {
-                serviceProviderId: String(scope.providerId),
-                bookingId: String(bookingId),
-                checkIn,
-                checkOut,
-            });
-        }
+        // Stays are requests, not a counted resource: every room type can be booked on any dates and
+    // the provider confirms afterwards, so no nightly hold is taken here. (reserveHotelDates and its
+    // unique index stay in the repo, unused.)
 
         // A tour departure is shared capacity (many bookings, one headcount), the
         // opposite of a hotel night's exclusive reservation above -- see

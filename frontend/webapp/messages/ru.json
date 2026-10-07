@@ -2247,6 +2247,27 @@
     }
   },
   "Booking": {
+    "mealPlan": {
+      "label": "Тип питания",
+      "chooseTitle": "Выберите тип питания",
+      "room_only": {
+        "name": "Только номер",
+        "description": "Питание не включено"
+      },
+      "breakfast": {
+        "name": "С завтраком",
+        "description": "Завтрак включён"
+      },
+      "full_board": {
+        "name": "Полный пансион",
+        "description": "Завтрак, обед и ужин включены"
+      }
+    },
+    "stay": {
+      "perNight": "за ночь",
+      "nightsLine": "Ночей: {nights} × {price} за ночь",
+      "checkoutAfterCheckin": "Дата выезда должна быть позже даты заезда."
+    },
     "addonScope": {
       "showAllInCountry": "Показать все: {country}",
       "showOnlyCity": "Показать только: {city}"

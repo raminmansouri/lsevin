@@ -1849,6 +1849,27 @@
     "commercial": "Тиҷоратӣ"
   },
   "Booking": {
+    "mealPlan": {
+      "label": "Нақшаи ғизо",
+      "chooseTitle": "Нақшаи ғизоро интихоб кунед",
+      "room_only": {
+        "name": "Танҳо ҳуҷра",
+        "description": "Хӯрок дохил нест"
+      },
+      "breakfast": {
+        "name": "Бо субҳона",
+        "description": "Субҳона дохил аст"
+      },
+      "full_board": {
+        "name": "Пансиони пурра",
+        "description": "Субҳона, хӯроки нисфирӯзӣ ва хӯроки шом дохил аст"
+      }
+    },
+    "stay": {
+      "perNight": "барои як шаб",
+      "nightsLine": "Шабҳо: {nights} × {price} барои як шаб",
+      "checkoutAfterCheckin": "Санаи баромад бояд баъд аз санаи воридшавӣ бошад."
+    },
     "addonScope": {
       "showAllInCountry": "Ҳамаро дар {country} нишон диҳед",
       "showOnlyCity": "Танҳо {city}-ро нишон диҳед"

@@ -77,6 +77,27 @@
     "searchNow": "ابحث الآن"
   },
   "Booking": {
+    "mealPlan": {
+      "label": "خطة الوجبات",
+      "chooseTitle": "اختر خطة الوجبات",
+      "room_only": {
+        "name": "الغرفة فقط",
+        "description": "بدون وجبات"
+      },
+      "breakfast": {
+        "name": "مع الإفطار",
+        "description": "الإفطار مشمول"
+      },
+      "full_board": {
+        "name": "إقامة كاملة",
+        "description": "الإفطار والغداء والعشاء مشمولة"
+      }
+    },
+    "stay": {
+      "perNight": "لكل ليلة",
+      "nightsLine": "عدد الليالي: {nights} × {price} لكل ليلة",
+      "checkoutAfterCheckin": "يجب أن يكون تاريخ المغادرة بعد تاريخ الوصول."
+    },
     "addonScope": {
       "showAllInCountry": "عرض الكل في {country}",
       "showOnlyCity": "عرض {city} فقط"

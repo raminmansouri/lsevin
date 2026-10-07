@@ -5,6 +5,7 @@ import { DynamicServiceForm } from '@/features/form-builder/components/DynamicSe
 import type { ChildBookingDraft, ProviderCardItem, ProviderTypeAddonItem, ServiceCardItem, SpecialistCardItem, UploadRequirementItem } from '../types';
 import { EntityCard, providerMeta, serviceMeta } from './EntityCard';
 import { SearchLoadMoreList } from './SearchLoadMoreList';
+import { MealPlanPicker } from './MealPlanPicker';
 import { RichTextPreview } from '@/features/booking/components/rich-text-preview';
 import { useTranslations } from "next-intl";
 interface Props {
@@ -123,7 +124,7 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, country, v
         })
             .catch(console.error);
     }, [model.serviceId]);
-    const complete = Boolean(model.providerId && model.serviceId && (!model.requiresSpecialist || model.specialistId) && (model.bookingUiMode !== 'custom_form' || model.formSubmissionId));
+    const complete = Boolean(model.providerId && model.serviceId && (!model.requiresSpecialist || model.specialistId) && (model.bookingUiMode !== 'custom_form' || model.formSubmissionId) && (model.bookingUiMode !== 'date_range' || Boolean(model.selectedDateFrom && model.selectedDateTo && model.selectedDateTo > model.selectedDateFrom)));
     async function saveChild() {
         if (!complete)
             return;
@@ -171,7 +172,7 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, country, v
           {model.providerId ? (<SearchLoadMoreList title={tBooking("addonServicesTitle", { addon: addon.label })} search={serviceSearch} onSearchChange={(v) => {
                     setServiceOffset(0);
                     setServiceSearch(v);
-                }} items={services} hasMore={hasMoreServices} emptyText={tBooking("noServicesFound")} onLoadMore={() => setServiceOffset((x) => x + 3)} renderItem={(item) => (<EntityCard title={item.name} subtitle={`${item.currency} ${item.value}`} description={item.description} imageUrl={item.imageUrl} selected={model.serviceId === item.id} featured={Boolean(item.isPopular)} meta={serviceMeta(item, tBooking)} onClick={() => {
+                }} items={services} hasMore={hasMoreServices} emptyText={tBooking("noServicesFound")} onLoadMore={() => setServiceOffset((x) => x + 3)} renderItem={(item) => (<EntityCard title={item.name} subtitle={`${item.currency} ${item.value}${item.bookingUiMode === 'date_range' ? ` · ${tBooking('stay.perNight')}` : ''}`} description={item.description} imageUrl={item.imageUrl} selected={model.serviceId === item.id} featured={Boolean(item.isPopular)} meta={serviceMeta(item, tBooking)} onClick={() => {
                         setSpecialistOffset(0);
                         setSpecialists([]);
                         onChange({ ...model, serviceId: item.id, serviceDefinitionId: item.serviceDefinitionId, specialistId: undefined, requiresSpecialist: Boolean(item.requiresSpecialist), bookingUiMode: (item.bookingUiMode ?? 'default_slot') as any, subtotalAmount: item.value, currency: item.currency, selectedDate: undefined, selectedDateFrom: undefined, selectedDateTo: undefined, selectedTime: undefined, selectedTimeFrom: undefined, selectedTimeTo: undefined, formSubmissionId: undefined });
@@ -192,12 +193,17 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, country, v
                   </label>
                 </div>) : null}
 
-              {model.bookingUiMode === 'date_range' ? (<div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+              {model.bookingUiMode === 'date_range' ? (<div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                   <label className="text-sm font-medium text-slate-700">{tBooking("checkIn")}<input type="date" value={model.selectedDateFrom ?? ''} onChange={(e) => onChange({ ...model, selectedDateFrom: e.target.value })} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 outline-none focus:border-[#155e75]"/></label>
                   <label className="text-sm font-medium text-slate-700">{tBooking("checkOut")}<input type="date" value={model.selectedDateTo ?? ''} onChange={(e) => onChange({ ...model, selectedDateTo: e.target.value })} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 outline-none focus:border-[#155e75]"/></label>
                   <label className="text-sm font-medium text-slate-700">{tBooking("adults")}<input type="number" min={1} value={model.adults ?? 1} onChange={(e) => onChange({ ...model, adults: Number(e.target.value || 1) })} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 outline-none focus:border-[#155e75]"/></label>
-                  <label className="text-sm font-medium text-slate-700">{tBooking("rooms")}<input type="number" min={1} value={model.rooms ?? 1} onChange={(e) => onChange({ ...model, rooms: Number(e.target.value || 1) })} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 outline-none focus:border-[#155e75]"/></label>
                 </div>) : null}
+
+              {model.bookingUiMode === 'date_range' && model.selectedDateFrom && model.selectedDateTo ? (model.selectedDateTo <= model.selectedDateFrom
+                ? <div className="mt-3 text-xs text-red-600">{tBooking('stay.checkoutAfterCheckin')}</div>
+                : <div className="mt-3 text-sm text-slate-700">{tBooking('stay.nightsLine', { nights: Math.round((Date.parse(`${model.selectedDateTo}T00:00:00Z`) - Date.parse(`${model.selectedDateFrom}T00:00:00Z`)) / 86400000), price: `${model.currency ?? ''} ${model.subtotalAmount ?? ''}`.trim() })}</div>) : null}
+
+              {model.bookingUiMode === 'date_range' && model.serviceId ? (<div className="mt-3"><MealPlanPicker serviceId={model.serviceId} value={(model.metadata as any)?.mealPlan ?? null} onChange={(code) => onChange({ ...model, metadata: { ...(model.metadata ?? {}), mealPlan: code } })} /></div>) : null}
 
               {model.bookingUiMode === 'custom_form' && serviceForm ? (<DynamicServiceForm form={serviceForm} initialValues={{}} locales={[locale]} onSubmit={async (values) => {
                         const res = await fetch('/api/form-builder/submissions', {

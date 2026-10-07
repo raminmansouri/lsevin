@@ -4863,6 +4863,27 @@ declare const messages: {
     }
   },
   "Booking": {
+    "mealPlan": {
+      "label": "Régimen de comidas",
+      "chooseTitle": "Elige el régimen de comidas",
+      "room_only": {
+        "name": "Solo alojamiento",
+        "description": "Sin comidas incluidas"
+      },
+      "breakfast": {
+        "name": "Con desayuno",
+        "description": "Desayuno incluido"
+      },
+      "full_board": {
+        "name": "Pensión completa",
+        "description": "Desayuno, almuerzo y cena incluidos"
+      }
+    },
+    "stay": {
+      "perNight": "por noche",
+      "nightsLine": "Noches: {nights} × {price} por noche",
+      "checkoutAfterCheckin": "La salida debe ser posterior a la entrada."
+    },
     "addonScope": {
       "showAllInCountry": "Mostrar todo en {country}",
       "showOnlyCity": "Mostrar solo {city}"

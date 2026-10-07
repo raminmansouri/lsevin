@@ -4902,6 +4902,27 @@ declare const messages: {
     }
   },
   "Booking": {
+    "mealPlan": {
+      "label": "Yemek planı",
+      "chooseTitle": "Yemek planı seçin",
+      "room_only": {
+        "name": "Sadece oda",
+        "description": "Yemek dahil değil"
+      },
+      "breakfast": {
+        "name": "Kahvaltı dahil",
+        "description": "Kahvaltı dahildir"
+      },
+      "full_board": {
+        "name": "Tam pansiyon",
+        "description": "Kahvaltı, öğle ve akşam yemeği dahildir"
+      }
+    },
+    "stay": {
+      "perNight": "gecelik",
+      "nightsLine": "Gece sayısı: {nights} × gecelik {price}",
+      "checkoutAfterCheckin": "Çıkış tarihi giriş tarihinden sonra olmalıdır."
+    },
     "addonScope": {
       "showAllInCountry": "{country} genelindeki tümünü göster",
       "showOnlyCity": "Yalnızca {city} göster"

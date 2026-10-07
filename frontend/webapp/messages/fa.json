@@ -6991,6 +6991,27 @@
     "loadMore": "بارگذاری بیشتر"
   },
   "Booking": {
+    "mealPlan": {
+      "label": "طرح غذایی",
+      "chooseTitle": "طرح غذایی را انتخاب کنید",
+      "room_only": {
+        "name": "بدون صبحانه",
+        "description": "بدون وعده غذایی"
+      },
+      "breakfast": {
+        "name": "با صبحانه",
+        "description": "صبحانه همراه اقامت"
+      },
+      "full_board": {
+        "name": "فول‌برد",
+        "description": "صبحانه، ناهار و شام همراه اقامت"
+      }
+    },
+    "stay": {
+      "perNight": "هر شب",
+      "nightsLine": "تعداد شب: {nights} × {price} برای هر شب",
+      "checkoutAfterCheckin": "تاریخ خروج باید بعد از تاریخ ورود باشد."
+    },
     "addonScope": {
       "showAllInCountry": "نمایش همه در {country}",
       "showOnlyCity": "فقط {city}"

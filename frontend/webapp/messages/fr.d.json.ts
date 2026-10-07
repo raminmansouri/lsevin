@@ -4860,6 +4860,27 @@ declare const messages: {
     }
   },
   "Booking": {
+    "mealPlan": {
+      "label": "Formule repas",
+      "chooseTitle": "Choisissez une formule repas",
+      "room_only": {
+        "name": "Chambre seule",
+        "description": "Aucun repas inclus"
+      },
+      "breakfast": {
+        "name": "Avec petit-déjeuner",
+        "description": "Petit-déjeuner inclus"
+      },
+      "full_board": {
+        "name": "Pension complète",
+        "description": "Petit-déjeuner, déjeuner et dîner inclus"
+      }
+    },
+    "stay": {
+      "perNight": "par nuit",
+      "nightsLine": "Nuits : {nights} × {price} par nuit",
+      "checkoutAfterCheckin": "Le départ doit être postérieur à l’arrivée."
+    },
     "addonScope": {
       "showAllInCountry": "Afficher tous les résultats : {country}",
       "showOnlyCity": "Afficher uniquement : {city}"

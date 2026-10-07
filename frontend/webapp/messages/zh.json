@@ -2247,6 +2247,27 @@
     }
   },
   "Booking": {
+    "mealPlan": {
+      "label": "餐食方案",
+      "chooseTitle": "请选择餐食方案",
+      "room_only": {
+        "name": "仅住宿",
+        "description": "不含餐"
+      },
+      "breakfast": {
+        "name": "含早餐",
+        "description": "含早餐"
+      },
+      "full_board": {
+        "name": "全膳",
+        "description": "含早餐、午餐和晚餐"
+      }
+    },
+    "stay": {
+      "perNight": "每晚",
+      "nightsLine": "晚数：{nights} × 每晚 {price}",
+      "checkoutAfterCheckin": "退房日期必须晚于入住日期。"
+    },
     "addonScope": {
       "showAllInCountry": "显示{country}全部",
       "showOnlyCity": "仅显示{city}"

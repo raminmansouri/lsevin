@@ -4857,6 +4857,27 @@
     }
   },
   "Booking": {
+    "mealPlan": {
+      "label": "Verpflegung",
+      "chooseTitle": "Verpflegung wählen",
+      "room_only": {
+        "name": "Nur Übernachtung",
+        "description": "Keine Mahlzeiten inbegriffen"
+      },
+      "breakfast": {
+        "name": "Mit Frühstück",
+        "description": "Frühstück inbegriffen"
+      },
+      "full_board": {
+        "name": "Vollpension",
+        "description": "Frühstück, Mittag- und Abendessen inbegriffen"
+      }
+    },
+    "stay": {
+      "perNight": "pro Nacht",
+      "nightsLine": "Nächte: {nights} × {price} pro Nacht",
+      "checkoutAfterCheckin": "Das Abreisedatum muss nach dem Anreisedatum liegen."
+    },
     "addonScope": {
       "showAllInCountry": "Alle in {country} anzeigen",
       "showOnlyCity": "Nur {city} anzeigen"
