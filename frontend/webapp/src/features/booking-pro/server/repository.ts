@@ -616,6 +616,10 @@ export async function upsertMainDraftSelection(
     `;
 
     const safeClientMetadataPatch = sanitizeDraftMetadataPatch(input.metadata);
+    // The client sends back its whole metadata copy, which can still hold old dates/guests.
+    // Values sent at the top level of this same request are the fresh ones, so they win;
+    // otherwise a stale selectedDateTo here would undo the new check-out and break the nights count.
+    for (const key of Object.keys(metadataPatch)) delete safeClientMetadataPatch[key];
     if (Object.keys(safeClientMetadataPatch).length > 0) {
         await db`
             update booking.booking_drafts

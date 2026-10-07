@@ -1421,6 +1421,9 @@ type ServiceManagerFormValues = {
   isFeatured: boolean;
   slotIntervalMinutes: string;
   tagsText: string;
+  // Meal plans for rooms: the full nightly price with that plan. Empty = not offered.
+  breakfastPriceText: string;
+  fullBoardPriceText: string;
 };
 
 function emptyServiceFormValues(
@@ -1441,6 +1444,8 @@ function emptyServiceFormValues(
     isFeatured: false,
     slotIntervalMinutes: "15",
     tagsText: "",
+    breakfastPriceText: "",
+    fullBoardPriceText: "",
   };
 }
 
@@ -1506,6 +1511,8 @@ function ServicesManager({ provider, lookups, locale }: Props) {
       isFeatured: item.isFeatured,
       slotIntervalMinutes: String(item.slotIntervalMinutes || 15),
       tagsText: item.tags.join(", "),
+      breakfastPriceText: item.breakfastPrice != null ? formatNumberInput(item.breakfastPrice, locale) : "",
+      fullBoardPriceText: item.fullBoardPrice != null ? formatNumberInput(item.fullBoardPrice, locale) : "",
     });
     setShowForm(true);
   };
@@ -1542,6 +1549,10 @@ function ServicesManager({ provider, lookups, locale }: Props) {
       addonIds:
         provider.services.find((item) => item.id === editingServiceId)
           ?.addonIds || [],
+      mealPlans: {
+        breakfast: values.breakfastPriceText.trim() ? parseFormattedNumber(values.breakfastPriceText) : null,
+        fullBoard: values.fullBoardPriceText.trim() ? parseFormattedNumber(values.fullBoardPriceText) : null,
+      },
     });
   });
 
@@ -1806,6 +1817,65 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                       </FormItem>
                     )}
                   />
+                </div>
+
+                <div className="space-y-2 rounded-lg border bg-background p-4">
+                  <div className="text-sm font-medium">Meal plans (rooms)</div>
+                  <p className="text-xs text-muted-foreground">
+                    Full nightly price of the room with each plan, in the currency above. Room only is the price above. Leave empty if the room doesn&apos;t offer that plan.
+                  </p>
+                  <div className="grid gap-4 md:grid-cols-2">
+                  <FormField
+                    control={serviceForm.control}
+                    name="breakfastPriceText"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Breakfast (per night)</FormLabel>
+                        <FormControl>
+                          <Input
+                            dir="ltr"
+                            inputMode="decimal"
+                            value={field.value}
+                            onChange={(event) => field.onChange(event.target.value)}
+                            onBlur={() =>
+                              field.onChange(
+                                field.value.trim() ? formatNumberInput(field.value, locale) : "",
+                              )
+                            }
+                            placeholder="—"
+                            disabled={isPending}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={serviceForm.control}
+                    name="fullBoardPriceText"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full board (per night)</FormLabel>
+                        <FormControl>
+                          <Input
+                            dir="ltr"
+                            inputMode="decimal"
+                            value={field.value}
+                            onChange={(event) => field.onChange(event.target.value)}
+                            onBlur={() =>
+                              field.onChange(
+                                field.value.trim() ? formatNumberInput(field.value, locale) : "",
+                              )
+                            }
+                            placeholder="—"
+                            disabled={isPending}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  </div>
                 </div>
 
                 <div className="grid gap-4 lg:grid-cols-[1fr_320px]">

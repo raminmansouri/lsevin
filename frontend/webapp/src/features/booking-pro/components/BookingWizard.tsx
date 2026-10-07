@@ -393,6 +393,8 @@ export function BookingWizard() {
     // The chosen entity, kept independently of whichever page the list happens to show —
     // a seeded provider outside the first page would otherwise render as "not selected".
     const [resolvedProvider, setResolvedProvider] = useState<ProviderCardItem | null>(null);
+    // Meal plans of the chosen room (nightly prices, already converted for this visitor).
+    const [mealPlans, setMealPlans] = useState<Array<{ code: string; amount: number; currencyCode: string }>>([]);
     const [resolvedService, setResolvedService] = useState<ServiceCardItem | null>(null);
     const [resolvedSpecialist, setResolvedSpecialist] = useState<SpecialistCardItem | null>(null);
     // Once a user opens a picker, that slot is theirs: never auto-select into it.
@@ -1355,10 +1357,10 @@ export function BookingWizard() {
 
                     {draft.bookingUiMode === 'date_range' ? (<div className="grid gap-4 md:grid-cols-3">
                         <div className="text-sm font-semibold text-slate-700"><span>{tBooking("fromDate")}</span><div className="mt-2"><BookingDatePicker calendar={calendar} label={tBooking("fromDate")} value={draft.selectedDateFrom} onChange={(iso) => {
-                            const next = { ...draft, selectedDateFrom: iso }; setDraft(next); patchDraft(next).catch(er => setError(er.message));
+                            const next = { ...draft, selectedDateFrom: iso, metadata: { ...(draft.metadata ?? {}), selectedDateFrom: iso } }; setDraft(next); patchDraft(next).catch(er => setError(er.message));
                         }} /></div></div>
                         <div className="text-sm font-semibold text-slate-700"><span>{tBooking("toDate")}</span><div className="mt-2"><BookingDatePicker calendar={calendar} label={tBooking("toDate")} value={draft.selectedDateTo} onChange={(iso) => {
-                            const next = { ...draft, selectedDateTo: iso }; setDraft(next); patchDraft(next).catch(er => setError(er.message));
+                            const next = { ...draft, selectedDateTo: iso, metadata: { ...(draft.metadata ?? {}), selectedDateTo: iso } }; setDraft(next); patchDraft(next).catch(er => setError(er.message));
                         }} /></div></div>
                         <label className="text-sm font-semibold text-slate-700">{tBooking("adults")}<input type="number" min={1} value={draft.adults ?? 1} onChange={(e) => { const next = { ...draft, adults: Number(e.target.value || 1) }; setDraft(next); patchDraft(next).catch((er) => setError(er.message)); }} className="mt-2 h-12 w-full rounded-2xl border border-slate-200 px-4 outline-none focus:border-[#155e75]"/></label>
                         <div className="md:col-span-3">{(() => {
@@ -1367,9 +1369,13 @@ export function BookingWizard() {
                     if (!from || !to) return null;
                     if (to <= from) return <div className="text-xs text-red-600">{tBooking('stay.checkoutAfterCheckin')}</div>;
                     const nights = Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86400000);
-                    return <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-700">{tBooking('stay.nightsLine', { nights, price: chosenService ? formatMoney(chosenService.value, chosenService.currency) : '' })}</div>;
+                    // Nightly price of the chosen meal plan (room only when none is chosen).
+                    const chosenPlanCode = (draft.metadata as any)?.mealPlan ?? 'room_only';
+                    const plan = mealPlans.find((p) => p.code === chosenPlanCode) ?? mealPlans.find((p) => p.code === 'room_only');
+                    const nightly = plan ? { amount: plan.amount, currency: plan.currencyCode } : chosenService ? { amount: Number(chosenService.value), currency: chosenService.currency } : null;
+                    return <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-700">{tBooking('stay.nightsLine', { nights, price: nightly ? formatMoney(nightly.amount, nightly.currency) : '' })}{nightly ? <span className="font-semibold text-slate-900"> = {formatMoney(Math.round(nightly.amount * nights * 100) / 100, nightly.currency)}</span> : null}</div>;
                   })()}</div>
-                  {draft.serviceId ? (<div className="md:col-span-3"><MealPlanPicker serviceId={draft.serviceId} value={(draft.metadata as any)?.mealPlan ?? null} disabled={submitting} onChange={(code) => { patchDraft({ metadata: { ...(draft.metadata ?? {}), mealPlan: code } }).then(() => refreshDraftAfterPriceChange()).catch((er) => setError(er.message)); }} /></div>) : null}
+                  {draft.serviceId ? (<div className="md:col-span-3"><MealPlanPicker serviceId={draft.serviceId} value={(draft.metadata as any)?.mealPlan ?? null} disabled={submitting} onPlansLoaded={setMealPlans} onChange={(code) => { patchDraft({ metadata: { ...(draft.metadata ?? {}), mealPlan: code } }).then(() => refreshDraftAfterPriceChange()).catch((er) => setError(er.message)); }} /></div>) : null}
                   
                     </div>) : null}
 

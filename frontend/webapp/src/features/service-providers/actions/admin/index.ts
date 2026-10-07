@@ -830,6 +830,17 @@ const providerServiceSchema = z.object({
   tagsText: z.string().optional().nullable(),
   slotIntervalMinutes: z.coerce.number().int().positive().default(15),
   addonIds: z.array(z.string()).default([]),
+  // Room meal plans, same rules as features/meal-plans/schemas.ts. Omitted = leave them as they are.
+  mealPlans: z
+    .object({
+      breakfast: z.coerce.number().min(0).nullable(),
+      fullBoard: z.coerce.number().min(0).nullable(),
+    })
+    .refine((v) => v.breakfast == null || v.fullBoard == null || v.fullBoard >= v.breakfast, {
+      message: "Full board must not cost less than breakfast",
+      path: ["fullBoard"],
+    })
+    .optional(),
 });
 
 export const saveProviderServiceAction = createAuthenticatedSafeAction(
@@ -882,6 +893,24 @@ export const saveProviderServiceAction = createAuthenticatedSafeAction(
         await tx`delete from category.provider_service_addons where provider_service_id = ${id}`;
         for (const addonId of input.addonIds) {
           await tx`insert into category.provider_service_addons (provider_service_id, addon_id) values (${id}, ${addonId}) on conflict do nothing`;
+        }
+        if (input.mealPlans) {
+          const plans: Array<[string, number | null]> = [
+            ["breakfast", input.mealPlans.breakfast],
+            ["full_board", input.mealPlans.fullBoard],
+          ];
+          for (const [code, price] of plans) {
+            if (price == null) {
+              await tx`delete from category.provider_service_meal_plans where provider_service_id = ${id}::uuid and plan_code = ${code}`;
+            } else {
+              await tx`
+                insert into category.provider_service_meal_plans (provider_service_id, plan_code, price)
+                values (${id}::uuid, ${code}, ${price})
+                on conflict (provider_service_id, plan_code)
+                do update set price = excluded.price, updated_at = now()
+              `;
+            }
+          }
         }
         return id;
       });

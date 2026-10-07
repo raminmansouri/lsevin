@@ -13,6 +13,8 @@ export function MealPlanPicker(props: {
   value?: string | null;
   disabled?: boolean;
   onChange: (code: PlanCode) => void;
+  // Lets the parent show the chosen plan's nightly price (e.g. in the nights line).
+  onPlansLoaded?: (plans: Plan[]) => void;
 }) {
   const locale = useLocale();
   const t = useTranslations('Booking');
@@ -35,10 +37,11 @@ export function MealPlanPicker(props: {
     fetch('/api/booking-pro/meal-plans?serviceId=' + encodeURIComponent(props.serviceId), { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : { plans: [] }))
       .then((data) => {
-        if (alive) setPlans(Array.isArray(data?.plans) ? data.plans : []);
+        const next = Array.isArray(data?.plans) ? data.plans : [];
+        if (alive) { setPlans(next); props.onPlansLoaded?.(next); }
       })
       .catch(() => {
-        if (alive) setPlans([]);
+        if (alive) { setPlans([]); props.onPlansLoaded?.([]); }
       });
     return () => {
       alive = false;

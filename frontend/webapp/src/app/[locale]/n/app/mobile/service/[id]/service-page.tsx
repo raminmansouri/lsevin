@@ -47,6 +47,7 @@ import { ServiceProductsRail } from "@/features/shop/components/ServiceProductsR
 import { ConsultationCtaButton } from "@/features/consultation/components/consultation-cta-button";
 import { useNavigate } from "@/hooks/use-navigate";
 import { ViewerPrice } from "@/features/finance/components/viewer-price";
+import { MealPlanPrices } from "@/features/meal-plans/components/meal-plan-prices";
 import type {
   GetServicePageByIdResponse,
   ProviderAttribute,
@@ -823,6 +824,8 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
         </div>
 
         <PriceConverterCardClient label={t("price.packagePrice")} convertedPrices={viewerPriceOptions} convertedOriginalPrices={viewerOriginalPriceOptions} primaryCurrencyCode={primaryCurrency} selectedCurrencyCode={selectedCurrency} onCurrencyChange={setSelectedCurrency} saveLabel={(percent) => t("price.save", { percent })} convertedFromLabel={(value) => t("price.convertedFrom", { value })} badgeText={t("price.providerPackagePrice")} locale={locale} />
+
+        {service.bookingUiMode === "date_range" ? <MealPlanPrices serviceId={service.providerServiceId} /> : null}
 
         <div className="mb-6 grid grid-cols-2 gap-3">
           <div className="rounded-xl bg-gray-50 p-4"><Clock size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">{t("stats.duration")}</div><div className="font-bold text-gray-900">{service.duration || t("providerProfile.onRequest")}</div></div>
