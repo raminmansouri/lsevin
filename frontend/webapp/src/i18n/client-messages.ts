@@ -84,6 +84,7 @@ export const SEGMENT_NAMESPACES = {
     "ProviderDoctorProfile",
     "ProviderOnboarding",
     "ProviderPage",
+    "Assistant",
     "MapShared",
     "AdminGenerated",
     "BookingCart",

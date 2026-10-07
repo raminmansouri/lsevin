@@ -2,6 +2,24 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+  "Assistant": {
+    "chat": {
+      "title": "دستیار Lsevin",
+      "welcome": "بگویید دنبال چه خدمتی هستید؛ گزینه‌های مناسب را برایتان پیدا می‌کنم.",
+      "placeholder": "مثلاً: کاشت مو در تهران",
+      "send": "ارسال",
+      "thinking": "در حال جستجو…",
+      "error": "مشکلی پیش آمد. دوباره تلاش کنید.",
+      "disclaimer": "دستیار پزشک نیست؛ برای تصمیم درمانی با متخصص مشورت کنید.",
+      "suggestions": { "hair": "کاشت مو", "dental": "دندانپزشکی", "nose": "جراحی بینی" }
+    },
+    "card": {
+      "priceOnRequest": "قیمت پس از مشاوره",
+      "viewService": "مشاهده"
+    }
+  },
+
+
   "ShopMedia": {
     "hint": "اولین تصویر، تصویر اصلی است. برای اعمال تغییرات ذخیره کنید.",
     "empty": "هنوز تصویری برای محصول وجود ندارد.",

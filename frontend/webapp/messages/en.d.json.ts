@@ -2,6 +2,24 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+  "Assistant": {
+    "chat": {
+      "title": "LSevin Assistant",
+      "welcome": "Tell me what service you're looking for and I'll find the best options for you.",
+      "placeholder": "e.g. hair transplant in Tehran",
+      "send": "Send",
+      "thinking": "Searching…",
+      "error": "Something went wrong. Please try again.",
+      "disclaimer": "The assistant is not a doctor; consult a specialist for treatment decisions.",
+      "suggestions": { "hair": "Hair transplant", "dental": "Dentistry", "nose": "Nose surgery" }
+    },
+    "card": {
+      "priceOnRequest": "Price after consultation",
+      "viewService": "View"
+    }
+  },
+
+
   "ShopMedia": {
     "hint": "The first image is the main image. Save to apply changes.",
     "empty": "No product images yet.",

@@ -2,6 +2,24 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+  "Assistant": {
+    "chat": {
+      "title": "مساعد LSevin",
+      "welcome": "أخبرني بالخدمة التي تبحث عنها وسأجد لك أفضل الخيارات.",
+      "placeholder": "مثال: زراعة الشعر في طهران",
+      "send": "إرسال",
+      "thinking": "جارٍ البحث…",
+      "error": "حدث خطأ ما. حاول مرة أخرى.",
+      "disclaimer": "المساعد ليس طبيبًا؛ استشر مختصًا لاتخاذ قرارات العلاج.",
+      "suggestions": { "hair": "زراعة الشعر", "dental": "طب الأسنان", "nose": "جراحة الأنف" }
+    },
+    "card": {
+      "priceOnRequest": "السعر بعد الاستشارة",
+      "viewService": "عرض"
+    }
+  },
+
+
   "ShopMedia": {
     "hint": "الصورة الأولى هي الصورة الرئيسية. احفظ لتطبيق التغييرات.",
     "empty": "لا توجد صور للمنتج بعد.",

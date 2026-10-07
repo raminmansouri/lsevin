@@ -2,6 +2,23 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+  "Assistant": {
+    "chat": {
+      "title": "LSevin Asistanı",
+      "welcome": "Aradığınız hizmeti söyleyin, sizin için en iyi seçenekleri bulayım.",
+      "placeholder": "örn. Tahran'da saç ekimi",
+      "send": "Gönder",
+      "thinking": "Aranıyor…",
+      "error": "Bir sorun oluştu. Tekrar deneyin.",
+      "disclaimer": "Asistan doktor değildir; tedavi kararları için bir uzmana danışın.",
+      "suggestions": { "hair": "Saç ekimi", "dental": "Diş tedavisi", "nose": "Burun estetiği" }
+    },
+    "card": {
+      "priceOnRequest": "Fiyat danışmadan sonra",
+      "viewService": "Görüntüle"
+    }
+  },
+
   "BookingCart": {
     "title": "Kaydedilen rezervasyonlar",
     "hint": "Bunlar tahminlerdir, kesin rezervasyon değildir. Uygunluğu doğrulamak ve ödeme yapmak için her rezervasyonu inceleyin. Ürünler şu anda ayrı ödenir.",
