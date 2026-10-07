@@ -4,13 +4,14 @@ export const metadata = privateMetadata;
 
 import { Suspense } from "react";
 import { NextIntlClientProvider } from "next-intl";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { AuthContentSkeleton } from "@/features/auth/components/shared/auth-content-skeleton";
 import AuthNav, {
   AuthNavSkeleton,
 } from "@/features/auth/components/shared/auth-nav";
 import { getClientMessages } from "@/i18n/client-messages";
+import { Link } from "@/i18n/navigation";
 import { LocalePageProps } from "@/types/next";
 
 // This whole segment renders per request (session-gated dashboards / forms /
@@ -36,11 +37,24 @@ export default async function AuthLayout({ children, params }: LocalePageProps) 
           <Suspense fallback={<AuthContentSkeleton />}>
             <SuspenseBoundary params={params}>{children}</SuspenseBoundary>
           </Suspense>
+          <PrivacyPolicyLink params={params} />
         </div>
       </div>
     </NextIntlClientProvider>
   );
 }
+
+// Signed-out visitors can only be here (sign-in / sign-up / OTP / reset), so this is the
+// place the public policy has to be reachable from.
+const PrivacyPolicyLink = async ({ params }: { params: LocalePageProps["params"] }) => {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "MobileProfile.privacyPolicy" });
+  return (
+    <Link href="/privacy-policy" className="text-muted-foreground mt-6 text-xs underline underline-offset-4">
+      {t("title")}
+    </Link>
+  );
+};
 
 const SuspenseBoundary = async ({ children, params }: LocalePageProps) => {
   const { locale } = await params;
