@@ -67,20 +67,32 @@ import { getViewerPricingAction } from "@/features/finance/actions/viewer-curren
 
 const DOMESTIC_CURRENCIES = new Set(["IRR", "IRT"]);
 
-/** International viewers pay the provider multiplier in every currency, Rial/Toman included. */
+/**
+ * The server applies the provider multiplier to foreign currencies for everyone
+ * (the page is static). Adjust per viewer:
+ * - Iranian viewer: no multiplier anywhere (undo it on foreign currencies).
+ * - International viewer: multiplier everywhere (add it to Rial/Toman too).
+ */
 function applyInternationalMultiplier<
   T extends { sourceAmount: number; targetAmount: number; targetCurrencyCode: string },
->(options: T[], multiplier: number | undefined, isIranianViewer: boolean): T[] {
+>(options: T[], multiplier: number | undefined, isIranianViewer: boolean | null): T[] {
   const m = multiplier ?? 1;
-  if (isIranianViewer || m === 1) return options;
-  return options.map((option) => ({
-    ...option,
-    sourceAmount: Math.round(option.sourceAmount * m * 100) / 100,
-    // The server already multiplied foreign currencies; only Rial/Toman need it here.
-    targetAmount: DOMESTIC_CURRENCIES.has(option.targetCurrencyCode.toUpperCase())
-      ? Math.round(option.targetAmount * m)
-      : option.targetAmount,
-  }));
+  // Viewer not known yet, or no multiplier: show the server's prices as they are.
+  if (isIranianViewer === null || !m || m === 1) return options;
+
+  return options.map((option) => {
+    const domestic = DOMESTIC_CURRENCIES.has(option.targetCurrencyCode.toUpperCase());
+    if (isIranianViewer) {
+      return domestic
+        ? option
+        : { ...option, targetAmount: Math.round((option.targetAmount / m) * 100) / 100 };
+    }
+    return {
+      ...option,
+      sourceAmount: Math.round(option.sourceAmount * m * 100) / 100,
+      targetAmount: domestic ? Math.round(option.targetAmount * m) : option.targetAmount,
+    };
+  });
 }
 
 type ServicePageProps = {
@@ -561,7 +573,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
   const [showAllFAQs, setShowAllFAQs] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState(service.displayCurrencyCode || service.currency);
   const [primaryCurrency, setPrimaryCurrency] = useState(service.displayCurrencyCode || service.currency);
-  const [isIranianViewer, setIsIranianViewer] = useState(true);
+  const [isIranianViewer, setIsIranianViewer] = useState<boolean | null>(null);
   useEffect(() => {
     let alive = true;
     getViewerPricingAction().then(({ currencyCode, isIranian }) => {
