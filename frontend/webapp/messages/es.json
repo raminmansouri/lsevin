@@ -4860,6 +4860,10 @@
     }
   },
   "Booking": {
+    "addonScope": {
+      "showAllInCountry": "Mostrar todo en {country}",
+      "showOnlyCity": "Mostrar solo {city}"
+    },
     "payInPlace": {
       "heading": "Pago en el lugar: elige un plan",
       "intro": "Pagas una parte de la factura ahora y el resto en el lugar. Cuanto menos pagues ahora, más se añade a la factura.",

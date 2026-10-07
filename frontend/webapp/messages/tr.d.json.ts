@@ -4902,6 +4902,10 @@ declare const messages: {
     }
   },
   "Booking": {
+    "addonScope": {
+      "showAllInCountry": "{country} genelindeki tümünü göster",
+      "showOnlyCity": "Yalnızca {city} göster"
+    },
     "payInPlace": {
       "heading": "Yerinde ödeme: bir plan seçin",
       "intro": "Faturanın bir kısmını şimdi, kalanını yerinde ödersiniz. Şimdi ne kadar az öderseniz faturaya o kadar fazla eklenir.",

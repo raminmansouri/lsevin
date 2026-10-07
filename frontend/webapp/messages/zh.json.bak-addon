@@ -2247,10 +2247,6 @@
     }
   },
   "Booking": {
-    "addonScope": {
-      "showAllInCountry": "显示{country}全部",
-      "showOnlyCity": "仅显示{city}"
-    },
     "payInPlace": {
       "heading": "现场付款：请选择方案",
       "intro": "您现在支付账单的一部分，其余部分在现场支付。现在支付得越少，加收到账单上的比例越高。",

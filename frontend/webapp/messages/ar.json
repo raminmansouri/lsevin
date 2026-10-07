@@ -77,6 +77,10 @@
     "searchNow": "ابحث الآن"
   },
   "Booking": {
+    "addonScope": {
+      "showAllInCountry": "عرض الكل في {country}",
+      "showOnlyCity": "عرض {city} فقط"
+    },
     "payInPlace": {
       "heading": "الدفع في المكان: اختر خطة",
       "intro": "تدفع جزءًا من الفاتورة الآن والباقي في المكان. كلما قلّ ما تدفعه الآن زادت النسبة المضافة إلى الفاتورة.",

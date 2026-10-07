@@ -12,7 +12,6 @@ interface Props {
     draftId: string;
     addon: ProviderTypeAddonItem;
     city?: string | null;
-    country?: string | null;
     value?: ChildBookingDraft;
     onChange: (next: ChildBookingDraft) => void;
     onSaved: (next: ChildBookingDraft, totals?: {
@@ -27,7 +26,7 @@ async function getJson<T>(url: string): Promise<T> {
         throw new Error(`Failed request: ${url}`);
     return res.json();
 }
-export function ChildAddonBookingCard({ locale, draftId, addon, city, country, value, onChange, onSaved }: Props) {
+export function ChildAddonBookingCard({ locale, draftId, addon, city, value, onChange, onSaved }: Props) {
     const tBooking = useTranslations("Booking");
     const [expanded, setExpanded] = useState(Boolean(addon.isRequired || value?.providerId));
     const [providerSearch, setProviderSearch] = useState('');
@@ -43,9 +42,6 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, country, v
     const [hasMoreServices, setHasMoreServices] = useState(false);
     const [hasMoreSpecialists, setHasMoreSpecialists] = useState(false);
     const [serviceForm, setServiceForm] = useState<any>(null);
-    // 'city' = only providers in the booked place's city (default); 'country' = everyone in its country.
-    const [scope, setScope] = useState<'city' | 'country'>('city');
-    useEffect(() => { setScope('city'); }, [city, country]);
     const model = useMemo<ChildBookingDraft>(() => ({
         providerTypeId: addon.providerTypeId,
         bookingUiMode: value?.bookingUiMode ?? 'default_slot',
@@ -58,13 +54,13 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, country, v
         getJson<{
             items: ProviderCardItem[];
             hasMore: boolean;
-        }>(`/api/booking-pro/catalog/providers?locale=${encodeURIComponent(locale)}&providerTypeId=${encodeURIComponent(addon.providerTypeId)}${scope === 'country' && country ? `&country=${encodeURIComponent(country)}` : `&city=${encodeURIComponent(city ?? '')}`}&search=${encodeURIComponent(providerSearch)}&offset=${providerOffset}&take=3`)
+        }>(`/api/booking-pro/catalog/providers?locale=${encodeURIComponent(locale)}&providerTypeId=${encodeURIComponent(addon.providerTypeId)}&city=${encodeURIComponent(city ?? '')}&search=${encodeURIComponent(providerSearch)}&offset=${providerOffset}&take=3`)
             .then((data) => {
             setProviders((prev) => (providerOffset === 0 ? data.items : [...prev, ...data.items]));
             setHasMoreProviders(data.hasMore);
         })
             .catch(console.error);
-    }, [expanded, locale, addon.providerTypeId, city, country, scope, providerSearch, providerOffset]);
+    }, [expanded, locale, addon.providerTypeId, city, providerSearch, providerOffset]);
     useEffect(() => {
         if (!expanded || !model.providerId)
             return;
@@ -152,11 +148,6 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, country, v
       </button>
 
       {expanded ? (<div className="space-y-5 border-t border-slate-100 p-5">
-          {city && country ? (<div className="flex justify-end">
-              <button type="button" onClick={() => { setProviderOffset(0); setProviders([]); setScope((x) => (x === 'city' ? 'country' : 'city')); }} className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:border-[#083f30]">
-                {scope === 'city' ? tBooking('addonScope.showAllInCountry', { country }) : tBooking('addonScope.showOnlyCity', { city })}
-              </button>
-            </div>) : null}
           <SearchLoadMoreList title={tBooking("addonProvidersTitle", { addon: addon.label })} search={providerSearch} onSearchChange={(v) => {
                 setProviderOffset(0);
                 setProviderSearch(v);

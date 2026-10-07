@@ -4857,6 +4857,10 @@
     }
   },
   "Booking": {
+    "addonScope": {
+      "showAllInCountry": "Afficher tous les résultats : {country}",
+      "showOnlyCity": "Afficher uniquement : {city}"
+    },
     "payInPlace": {
       "heading": "Paiement sur place : choisissez un plan",
       "intro": "Vous payez une partie de la facture maintenant et le reste sur place. Moins vous payez maintenant, plus la majoration sur la facture est élevée.",

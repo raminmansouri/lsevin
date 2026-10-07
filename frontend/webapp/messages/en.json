@@ -359,6 +359,10 @@
     "searchNow": "Search Now"
   },
   "Booking": {
+    "addonScope": {
+      "showAllInCountry": "Show all in {country}",
+      "showOnlyCity": "Show only {city}"
+    },
     "payInPlace": {
       "heading": "Pay in place: choose a plan",
       "intro": "You pay part of the bill now and the rest at the place. The less you pay now, the more is added to the bill.",

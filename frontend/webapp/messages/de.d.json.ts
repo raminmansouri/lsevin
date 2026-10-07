@@ -4860,6 +4860,10 @@ declare const messages: {
     }
   },
   "Booking": {
+    "addonScope": {
+      "showAllInCountry": "Alle in {country} anzeigen",
+      "showOnlyCity": "Nur {city} anzeigen"
+    },
     "payInPlace": {
       "heading": "Zahlung vor Ort: Plan wählen",
       "intro": "Sie zahlen einen Teil der Rechnung jetzt und den Rest vor Ort. Je weniger Sie jetzt zahlen, desto mehr wird auf die Rechnung aufgeschlagen.",
