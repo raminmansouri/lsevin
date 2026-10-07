@@ -75,6 +75,7 @@ export async function prepareBookingPaymentAttempt(input: {
     gateway: PaymentGatewayCode;
     locale?: string | null;
     targetCurrency: string;
+  passThroughCurrencies?: string[];
     maximumAmount?: number | null;
 }): Promise<PaymentAttempt> {
     if (!isUuid(input.bookingId) || !isUuid(input.userId)) {
@@ -132,7 +133,15 @@ export async function prepareBookingPaymentAttempt(input: {
     }
 
     const sourceCurrency = normalizeCurrency(booking.sourceCurrency);
-    const targetCurrency = normalizeCurrency(input.targetCurrency);
+    const requestedTargetCurrency = normalizeCurrency(input.targetCurrency);
+  // A gateway that can price the booking's own currency is billed in it directly: one fewer
+  // conversion, and the customer pays exactly the amount they were shown. Any other currency
+  // is converted to the gateway's own currency, as before.
+  const targetCurrency = (input.passThroughCurrencies ?? [])
+    .map((code) => normalizeCurrency(code))
+    .includes(sourceCurrency)
+    ? sourceCurrency
+    : requestedTargetCurrency;
 
     let targetAmount = sourceAmount;
     let appliedRate: number | null = sourceCurrency === targetCurrency ? 1 : null;

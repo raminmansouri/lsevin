@@ -4860,6 +4860,40 @@ declare const messages: {
     }
   },
   "Booking": {
+    "payInPlace": {
+      "heading": "Paiement sur place : choisissez un plan",
+      "intro": "Vous payez une partie de la facture maintenant et le reste sur place. Moins vous payez maintenant, plus la majoration sur la facture est élevée.",
+      "payNow": "Payer {percent} % maintenant",
+      "surcharge": "{percent} % sont ajoutés à la facture",
+      "bill": "Facture",
+      "dueNow": "À payer maintenant",
+      "dueLater": "À payer sur place",
+      "methodHeading": "Comment souhaitez-vous payer la partie due maintenant ?",
+      "noMethods": "Payer la partie due maintenant nécessite le portefeuille ou le paiement en ligne, et aucun n’est disponible pour vous actuellement.",
+      "loading": "Chargement des moyens de paiement...",
+      "addition": "Majoration du paiement sur place ({percent} %)",
+      "errors": {
+        "choosePlan": "Choisissez un plan de paiement sur place et le moyen de payer la partie due maintenant.",
+        "chooseDepositMethod": "Choisissez comment payer la partie due maintenant.",
+        "depositMethodNotAllowed": "La partie due maintenant doit être payée avec le portefeuille ou par paiement en ligne.",
+        "methodNotAvailable": "Ce moyen de paiement n’est pas disponible pour vous."
+      }
+    },
+    "builtinPaymentMethods": {
+      "pay_on_delivery": {
+        "name": "Paiement sur place",
+        "description": "Payez une partie du montant maintenant et le reste en espèces lors de la prestation du service."
+      },
+      "bank_receipt": {
+        "name": "Justificatif de virement bancaire",
+        "description": "Virez le montant sur l’un des comptes ci-dessous et téléversez l’image du justificatif."
+      },
+      "wallet": {
+        "name": "Portefeuille",
+        "description": "Payez instantanément avec le solde de votre portefeuille."
+      }
+    },
+    "timezoneMismatchWarning": "Remarque : le prestataire travaille dans le fuseau horaire {providerZone}, le vôtre est {viewerZone}. Les heures affichées ont été converties dans votre fuseau horaire.",
     "upcoming": "À venir",
     "past": "Passées",
     "abuDhabi": "Abou Dabi",

@@ -1050,6 +1050,18 @@ export function BookingWizard() {
             setCouponLoading(false);
         }
     }
+    // Server messages that reach the customer. Matched by their exact text and shown in the app
+    // language; anything else is shown as received.
+    function checkoutErrorText(message: string | undefined, fallback: string) {
+        const translated: Record<string, string> = {
+            ZARINPAL_AMOUNT_LIMIT_EXCEEDED: tBooking('failedToStartPayment'),
+            'Choose how to pay the part due now.': tBooking('payInPlace.errors.chooseDepositMethod'),
+            'Choose how to pay the part due now: wallet or online payment.': tBooking('payInPlace.errors.chooseDepositMethod'),
+            'Pay the part due now with the wallet or online payment.': tBooking('payInPlace.errors.depositMethodNotAllowed'),
+            'This payment method is not available for you.': tBooking('payInPlace.errors.methodNotAvailable'),
+        };
+        return (message && translated[message]) || message || fallback;
+    }
     async function startPaymentForBooking(bookingId: string) {
         // Pay in place with a plan: the part due now is paid with the wallet or online
         // payment the customer chose. The rest is collected at the place.
@@ -1111,7 +1123,7 @@ export function BookingWizard() {
             draft.paymentMethod === 'pay_on_delivery' &&
             !(isPayInPlacePlanId((draft.metadata as any)?.payInPlacePlan) && (draft.metadata as any)?.depositMethod)
         ) {
-            setError('یکی از طرح‌های پرداخت در محل و روش پرداخت بخش اکنون را انتخاب کنید. / Choose a pay-in-place plan and how to pay the part due now.');
+            setError(tBooking('payInPlace.errors.choosePlan'));
             return;
         }
         setSubmitting(true);
@@ -1133,7 +1145,7 @@ export function BookingWizard() {
             }
         }
         catch (e: any) {
-            setError(e.message === 'ZARINPAL_AMOUNT_LIMIT_EXCEEDED' ? tBooking('failedToStartPayment') : (e.message || tBooking('checkoutFailed')));
+            setError(checkoutErrorText(e.message, tBooking('checkoutFailed')));
         }
         finally {
             setSubmitting(false);
@@ -1148,12 +1160,31 @@ export function BookingWizard() {
             await startPaymentForBooking(checkoutResult.bookingId);
         }
         catch (e: any) {
-            setError(e.message === 'ZARINPAL_AMOUNT_LIMIT_EXCEEDED' ? tBooking('failedToStartPayment') : (e.message || tBooking('failedToStartPayment')));
+            setError(checkoutErrorText(e.message, tBooking('failedToStartPayment')));
         }
         finally {
             setSubmitting(false);
         }
     }
+    // Entering the review step always starts from the plain bill. A plan left on the draft by an
+    // earlier visit (pay in place, then back) would otherwise show the increased total before the
+    // customer has chosen anything this time; they pick pay in place again if they want it.
+    const reviewVisitHandledRef = useRef(false);
+    useEffect(() => {
+        if (currentStep !== CHECKOUT_STEP) {
+            reviewVisitHandledRef.current = false;
+            return;
+        }
+        if (reviewVisitHandledRef.current || !draft?.id) return;
+        reviewVisitHandledRef.current = true;
+        // Pay in place is the only method that raises the total: a draft left on it (with or without
+        // a plan) goes back to the default method, so the first thing shown is the plain bill.
+        if (draft.paymentMethod !== 'pay_on_delivery' && !(draft.metadata as any)?.payInPlacePlan) return;
+        patchDraft({ paymentMethod: null as any, metadata: { ...(draft.metadata ?? {}), payInPlacePlan: null, depositMethod: null } })
+            .then(() => refreshDraftAfterPriceChange())
+            .catch((er) => setError(er.message));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentStep, draft?.id]);
     const paymentIsDone = Boolean(paymentIntentResult) && PAYMENT_DONE_STATUSES.has(String(paymentIntentResult?.status || '').toLowerCase());
     // Step 6 (consultation) is deliberately absent: it is optional and must always be
     // skippable, so it never gates the primary action.
@@ -1483,7 +1514,7 @@ export function BookingWizard() {
                                                     ? { paymentMethod: code, metadata: { ...(draft.metadata ?? {}), payInPlacePlan: null, depositMethod: null } }
                                                     : { paymentMethod: code },
                                             ).catch((er) => setError(er.message));
-                                        }} receiptFile={receiptFile} onReceiptFileChange={setReceiptFile}/>
+                                        }} billingCurrency={draft.currency} receiptFile={receiptFile} onReceiptFileChange={setReceiptFile}/>
                                         {draft.paymentMethod === 'pay_on_delivery' ? (
                                             <PayInPlacePlanPicker
                                                 currency={draft.currency ?? 'USD'}

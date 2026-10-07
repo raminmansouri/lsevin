@@ -4902,6 +4902,40 @@ declare const messages: {
     }
   },
   "Booking": {
+    "payInPlace": {
+      "heading": "Yerinde ödeme: bir plan seçin",
+      "intro": "Faturanın bir kısmını şimdi, kalanını yerinde ödersiniz. Şimdi ne kadar az öderseniz faturaya o kadar fazla eklenir.",
+      "payNow": "Şimdi %{percent} öde",
+      "surcharge": "Faturaya %{percent} eklenir",
+      "bill": "Fatura",
+      "dueNow": "Şimdi ödenecek",
+      "dueLater": "Yerinde ödenecek",
+      "methodHeading": "Şimdi ödenecek kısmı nasıl ödemek istersiniz?",
+      "noMethods": "Şimdi ödenecek kısım için cüzdan veya çevrimiçi ödeme gerekir; şu anda ikisi de sizin için kullanılamıyor.",
+      "loading": "Ödeme yöntemleri yükleniyor...",
+      "addition": "Yerinde ödeme farkı (%{percent})",
+      "errors": {
+        "choosePlan": "Bir yerinde ödeme planı ve şimdi ödenecek kısmın ödeme yöntemini seçin.",
+        "chooseDepositMethod": "Şimdi ödenecek kısmı nasıl ödeyeceğinizi seçin.",
+        "depositMethodNotAllowed": "Şimdi ödenecek kısım cüzdan veya çevrimiçi ödeme ile ödenmelidir.",
+        "methodNotAvailable": "Bu ödeme yöntemi sizin için kullanılamıyor."
+      }
+    },
+    "builtinPaymentMethods": {
+      "pay_on_delivery": {
+        "name": "Yerinde ödeme",
+        "description": "Tutarın bir kısmını şimdi, kalanını hizmet verilirken nakit ödeyin."
+      },
+      "bank_receipt": {
+        "name": "Banka havalesi dekontu",
+        "description": "Tutarı aşağıdaki hesaplardan birine havale edin ve dekont görselini yükleyin."
+      },
+      "wallet": {
+        "name": "Cüzdan",
+        "description": "Cüzdan bakiyenizle anında ödeyin."
+      }
+    },
+    "timezoneMismatchWarning": "Not: Hizmet sağlayıcı {providerZone} saat diliminde çalışıyor, sizin saat diliminiz {viewerZone}. Gösterilen saatler saat diliminize çevrilmiştir.",
     "upcoming": "Yaklaşan",
     "past": "Geçmiş",
     "abuDhabi": "Abu Dabi",

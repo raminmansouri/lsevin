@@ -4860,6 +4860,40 @@
     }
   },
   "Booking": {
+    "payInPlace": {
+      "heading": "Pago en el lugar: elige un plan",
+      "intro": "Pagas una parte de la factura ahora y el resto en el lugar. Cuanto menos pagues ahora, más se añade a la factura.",
+      "payNow": "Pagar {percent} % ahora",
+      "surcharge": "Se añade un {percent} % a la factura",
+      "bill": "Factura",
+      "dueNow": "A pagar ahora",
+      "dueLater": "A pagar en el lugar",
+      "methodHeading": "¿Cómo quieres pagar la parte que vence ahora?",
+      "noMethods": "Pagar la parte que vence ahora requiere monedero o pago en línea, y ninguno está disponible para ti por ahora.",
+      "loading": "Cargando métodos de pago...",
+      "addition": "Recargo por pago en el lugar ({percent} %)",
+      "errors": {
+        "choosePlan": "Elige un plan de pago en el lugar y cómo pagar la parte que vence ahora.",
+        "chooseDepositMethod": "Elige cómo pagar la parte que vence ahora.",
+        "depositMethodNotAllowed": "La parte que vence ahora debe pagarse con el monedero o con pago en línea.",
+        "methodNotAvailable": "Este método de pago no está disponible para ti."
+      }
+    },
+    "builtinPaymentMethods": {
+      "pay_on_delivery": {
+        "name": "Pago en el lugar",
+        "description": "Paga una parte del importe ahora y el resto en efectivo cuando se preste el servicio."
+      },
+      "bank_receipt": {
+        "name": "Comprobante de transferencia bancaria",
+        "description": "Transfiere el importe a una de las cuentas siguientes y sube la imagen del comprobante."
+      },
+      "wallet": {
+        "name": "Monedero",
+        "description": "Paga al instante con el saldo de tu monedero."
+      }
+    },
+    "timezoneMismatchWarning": "Nota: el proveedor trabaja en la zona horaria {providerZone} y la tuya es {viewerZone}. Las horas mostradas se han convertido a tu zona horaria.",
     "upcoming": "Próximas",
     "past": "Pasadas",
     "abuDhabi": "Abu Dabi",

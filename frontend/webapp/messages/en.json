@@ -359,6 +359,40 @@
     "searchNow": "Search Now"
   },
   "Booking": {
+    "payInPlace": {
+      "heading": "Pay in place: choose a plan",
+      "intro": "You pay part of the bill now and the rest at the place. The less you pay now, the more is added to the bill.",
+      "payNow": "Pay {percent}% now",
+      "surcharge": "{percent}% is added to the bill",
+      "bill": "Bill",
+      "dueNow": "Due now",
+      "dueLater": "Due at the place",
+      "methodHeading": "How do you want to pay the part due now?",
+      "noMethods": "Paying the part due now needs a wallet or online payment, and neither is available for you right now.",
+      "loading": "Loading payment methods...",
+      "addition": "Pay-in-place addition ({percent}%)",
+      "errors": {
+        "choosePlan": "Choose a pay-in-place plan and how to pay the part due now.",
+        "chooseDepositMethod": "Choose how to pay the part due now.",
+        "depositMethodNotAllowed": "The part due now must be paid with the wallet or online payment.",
+        "methodNotAvailable": "This payment method is not available for you."
+      }
+    },
+    "builtinPaymentMethods": {
+      "pay_on_delivery": {
+        "name": "Pay in place",
+        "description": "Pay part of the amount now and the rest in cash when the service is provided."
+      },
+      "bank_receipt": {
+        "name": "Bank transfer receipt",
+        "description": "Transfer the amount to one of the accounts below and upload the receipt image."
+      },
+      "wallet": {
+        "name": "Wallet",
+        "description": "Pay instantly from your wallet balance."
+      }
+    },
+    "timezoneMismatchWarning": "Note: the provider works in the {providerZone} time zone, while yours is {viewerZone}. The times shown are converted to your time zone.",
     "lsevin": "LSevin",
     "upcoming": "Upcoming",
     "past": "Past",

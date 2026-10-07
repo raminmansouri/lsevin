@@ -77,6 +77,40 @@
     "searchNow": "ابحث الآن"
   },
   "Booking": {
+    "payInPlace": {
+      "heading": "الدفع في المكان: اختر خطة",
+      "intro": "تدفع جزءًا من الفاتورة الآن والباقي في المكان. كلما قلّ ما تدفعه الآن زادت النسبة المضافة إلى الفاتورة.",
+      "payNow": "ادفع {percent}٪ الآن",
+      "surcharge": "تُضاف {percent}٪ إلى الفاتورة",
+      "bill": "الفاتورة",
+      "dueNow": "المستحق الآن",
+      "dueLater": "المستحق في المكان",
+      "methodHeading": "كيف تريد دفع الجزء المستحق الآن؟",
+      "noMethods": "دفع الجزء المستحق الآن يتطلب المحفظة أو الدفع الإلكتروني، وكلاهما غير متاح لك حاليًا.",
+      "loading": "جارٍ تحميل طرق الدفع...",
+      "addition": "الزيادة على الدفع في المكان ({percent}٪)",
+      "errors": {
+        "choosePlan": "اختر خطة للدفع في المكان وطريقة دفع الجزء المستحق الآن.",
+        "chooseDepositMethod": "اختر طريقة دفع الجزء المستحق الآن.",
+        "depositMethodNotAllowed": "يجب دفع الجزء المستحق الآن عبر المحفظة أو الدفع الإلكتروني.",
+        "methodNotAvailable": "طريقة الدفع هذه غير متاحة لك."
+      }
+    },
+    "builtinPaymentMethods": {
+      "pay_on_delivery": {
+        "name": "الدفع في المكان",
+        "description": "ادفع جزءًا من المبلغ الآن والباقي نقدًا عند تقديم الخدمة."
+      },
+      "bank_receipt": {
+        "name": "إيصال تحويل مصرفي",
+        "description": "حوّل المبلغ إلى أحد الحسابات أدناه وارفع صورة الإيصال."
+      },
+      "wallet": {
+        "name": "المحفظة",
+        "description": "ادفع فورًا من رصيد محفظتك."
+      }
+    },
+    "timezoneMismatchWarning": "ملاحظة: يعمل مقدّم الخدمة بالمنطقة الزمنية {providerZone} بينما منطقتك الزمنية {viewerZone}. الأوقات المعروضة محوّلة إلى منطقتك الزمنية.",
     "upcoming": "القادمة",
     "past": "السابقة",
     "aDedicatedCoordinatorWillBeAssignedAfterBookingConfirmation": "dedicated منسق will be مُعيّن بعد تأكيد الحجز.",

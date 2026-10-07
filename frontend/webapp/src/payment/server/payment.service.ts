@@ -1,4 +1,5 @@
 import "server-only";
+import { BTCPAY_PASS_THROUGH_CURRENCIES } from "@/payment/gateway-currencies";
 
 import { seoOrigin } from "@/lib/seo/origin";
 import { notifyBookingPaymentResult } from "@/features/notification/server/booking-notifications";
@@ -89,6 +90,7 @@ export async function initiateBookingPayment(input: InitiateBookingPaymentInput 
       : getGatewayCurrency(gatewayConfig.settings);
 
   const payment = await prepareBookingPaymentAttempt({
+    passThroughCurrencies: gateway === "btcpay" ? [...BTCPAY_PASS_THROUGH_CURRENCIES] : undefined,
     bookingId: input.bookingId,
     userId: input.userId,
     gateway,

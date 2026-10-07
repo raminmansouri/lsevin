@@ -2247,6 +2247,40 @@
     }
   },
   "Booking": {
+    "payInPlace": {
+      "heading": "现场付款：请选择方案",
+      "intro": "您现在支付账单的一部分，其余部分在现场支付。现在支付得越少，加收到账单上的比例越高。",
+      "payNow": "现在支付 {percent}%",
+      "surcharge": "账单加收 {percent}%",
+      "bill": "账单",
+      "dueNow": "现在应付",
+      "dueLater": "现场应付",
+      "methodHeading": "您想如何支付现在应付的部分？",
+      "noMethods": "支付现在应付的部分需要钱包或在线支付，目前这两种方式您都无法使用。",
+      "loading": "正在加载支付方式...",
+      "addition": "现场付款加收（{percent}%）",
+      "errors": {
+        "choosePlan": "请选择现场付款方案以及支付现在应付部分的方式。",
+        "chooseDepositMethod": "请选择如何支付现在应付的部分。",
+        "depositMethodNotAllowed": "现在应付的部分必须使用钱包或在线支付。",
+        "methodNotAvailable": "此支付方式对您不可用。"
+      }
+    },
+    "builtinPaymentMethods": {
+      "pay_on_delivery": {
+        "name": "现场付款",
+        "description": "现在支付部分金额，其余部分在提供服务时以现金支付。"
+      },
+      "bank_receipt": {
+        "name": "银行转账凭证",
+        "description": "请将款项转入下列账户之一，并上传凭证图片。"
+      },
+      "wallet": {
+        "name": "钱包",
+        "description": "使用钱包余额即时支付。"
+      }
+    },
+    "timezoneMismatchWarning": "提示：服务提供方使用 {providerZone} 时区，您的时区为 {viewerZone}。所示时间已转换为您的时区。",
     "upcoming": "即将到来",
     "past": "已过去",
     "abuDhabi": "阿布扎比",

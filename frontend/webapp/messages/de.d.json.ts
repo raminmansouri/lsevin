@@ -4860,6 +4860,40 @@ declare const messages: {
     }
   },
   "Booking": {
+    "payInPlace": {
+      "heading": "Zahlung vor Ort: Plan wählen",
+      "intro": "Sie zahlen einen Teil der Rechnung jetzt und den Rest vor Ort. Je weniger Sie jetzt zahlen, desto mehr wird auf die Rechnung aufgeschlagen.",
+      "payNow": "{percent} % jetzt zahlen",
+      "surcharge": "{percent} % werden auf die Rechnung aufgeschlagen",
+      "bill": "Rechnung",
+      "dueNow": "Jetzt fällig",
+      "dueLater": "Vor Ort fällig",
+      "methodHeading": "Wie möchten Sie den jetzt fälligen Teil bezahlen?",
+      "noMethods": "Für den jetzt fälligen Teil sind Wallet-Guthaben oder Online-Zahlung nötig – beides ist für Sie derzeit nicht verfügbar.",
+      "loading": "Zahlungsarten werden geladen ...",
+      "addition": "Aufschlag für Zahlung vor Ort ({percent} %)",
+      "errors": {
+        "choosePlan": "Wählen Sie einen Plan für die Zahlung vor Ort und die Zahlungsart für den jetzt fälligen Teil.",
+        "chooseDepositMethod": "Wählen Sie, wie der jetzt fällige Teil bezahlt werden soll.",
+        "depositMethodNotAllowed": "Der jetzt fällige Teil muss mit dem Wallet oder per Online-Zahlung bezahlt werden.",
+        "methodNotAvailable": "Diese Zahlungsart ist für Sie nicht verfügbar."
+      }
+    },
+    "builtinPaymentMethods": {
+      "pay_on_delivery": {
+        "name": "Zahlung vor Ort",
+        "description": "Zahlen Sie einen Teil des Betrags jetzt und den Rest bar bei Erbringung der Leistung."
+      },
+      "bank_receipt": {
+        "name": "Überweisungsbeleg",
+        "description": "Überweisen Sie den Betrag auf eines der unten genannten Konten und laden Sie den Beleg hoch."
+      },
+      "wallet": {
+        "name": "Wallet",
+        "description": "Sofort mit dem Wallet-Guthaben bezahlen."
+      }
+    },
+    "timezoneMismatchWarning": "Hinweis: Der Anbieter arbeitet in der Zeitzone {providerZone}, Ihre Zeitzone ist {viewerZone}. Die angezeigten Zeiten wurden in Ihre Zeitzone umgerechnet.",
     "upcoming": "Anstehend",
     "past": "Vergangen",
     "abuDhabi": "Abu Dhabi",

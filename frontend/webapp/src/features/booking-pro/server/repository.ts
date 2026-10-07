@@ -15,7 +15,7 @@ import { listServicesWithOpenDepartures, reserveTourDeparture } from '@/features
 import { createCaseProviderGrant } from '@/features/patients/server/case-provider-repository';
 import { pickTranslation } from '../utils/translation';
 import { payFirstBookingReferralBonus } from '@/features/marketing-loyalty/server/referral-commission.repository';
-import { convertProviderPrice, resolvePreferredCurrencyCode } from '@/features/finance/lib/server/currency-queries';
+import { convertProviderPrice, getPhoneDerivedCurrencyCode, resolvePreferredCurrencyCode } from '@/features/finance/lib/server/currency-queries';
 import { resolveCurrentUserId } from '../utils/auth';
 import type {
     BookingDraftState,
@@ -1577,33 +1577,46 @@ export async function recalculateDraftTotals(draftId: string, options?: { paymen
     const providerCurrency: string = usesNativeTomanMain ? TOMAN_CURRENCY_CODE : (mainRows[0]?.currency ?? 'USD');
     const providerChildAmount = Number(childRows[0]?.child_amount ?? 0);
 
-    // International customers are billed in USD, with the provider's international
-    // multiplier already included, so every payment method (wallet, bank receipt, BTCPay,
-    // pay in place) charges the same number. Iranian customers are unchanged. A missing
-    // exchange rate throws on purpose: showing the provider's Rial figure as if it were
-    // dollars would charge the wrong amount.
-    const billInUsd = Boolean(userId) && !isIranian;
+    // International customers are billed in the currency of their phone number's country (the
+    // same one the catalogue showed them), with the provider's international multiplier already
+    // included, so every payment method charges the same number. A country with no currency of
+    // its own, or a currency we hold no exchange rate for, is billed in USD. Iranian customers
+    // are unchanged. If even USD can't be converted this throws on purpose: showing the
+    // provider's Rial figure as if it were another currency would charge the wrong amount.
+    const billInForeignCurrency = Boolean(userId) && !isIranian;
     let mainAmount = providerMainAmount;
     let childAmount = providerChildAmount;
     let mainCurrency: string = providerCurrency;
-    if (billInUsd) {
+    if (billInForeignCurrency) {
         const providerMultiplier =
             mainRows[0]?.provider_multiplier == null ? null : Number(mainRows[0].provider_multiplier);
-        const toUsd = async (amount: number) => {
-            if (amount <= 0) return 0;
-            const converted = await convertProviderPrice({
-                amount,
-                sourceCurrencyCode: providerCurrency,
-                targetCurrencyCode: 'USD',
-                providerMultiplier,
-            });
-            return Math.round(converted.targetAmount * 100) / 100;
+        const convertBoth = async (currencyCode: string) => {
+            const convert = async (amount: number) => {
+                if (amount <= 0) return 0;
+                const converted = await convertProviderPrice({
+                    amount,
+                    sourceCurrencyCode: providerCurrency,
+                    targetCurrencyCode: currencyCode,
+                    providerMultiplier,
+                });
+                return Math.round(converted.targetAmount * 100) / 100;
+            };
+            return { code: currencyCode, main: await convert(providerMainAmount), child: await convert(providerChildAmount) };
         };
-        mainAmount = await toUsd(providerMainAmount);
-        childAmount = await toUsd(providerChildAmount);
-        mainCurrency = 'USD';
+        const wantedCurrency = (await getPhoneDerivedCurrencyCode(userId).catch(() => null)) ?? 'USD';
+        let billed;
+        try {
+            billed = await convertBoth(wantedCurrency);
+        } catch (error) {
+            if (wantedCurrency === 'USD') throw error;
+            console.warn('[checkout] no exchange rate for', wantedCurrency, '- billing in USD instead');
+            billed = await convertBoth('USD');
+        }
+        mainAmount = billed.main;
+        childAmount = billed.child;
+        mainCurrency = billed.code;
     }
-    const draftCurrencyOverride: string | null = billInUsd ? 'USD' : null;
+    const draftCurrencyOverride: string | null = billInForeignCurrency ? mainCurrency : null;
     const grossTotal = Math.round((mainAmount + childAmount) * 100) / 100;
     const coupon = await resolveDraftCoupon(draftId, grossTotal);
     const discountAmount = coupon ? Math.min(grossTotal, coupon.discountAmount) : 0;

@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from "next-intl";
+import { btcpayBillsDirectlyIn } from '@/payment/gateway-currencies';
 
 type BankAccount = {
     id: string;
@@ -51,11 +52,19 @@ function BankAccountCard({ account, t }: { account: BankAccount; t: ReturnType<t
 
 export function PaymentMethodsPanel(props: {
     selected?: string;
+    billingCurrency?: string;
     onChange: (code: string) => void;
     receiptFile?: File | null;
     onReceiptFileChange?: (file: File | null) => void;
 }) {
     const tBooking = useTranslations("Booking");
+    // Built-in methods are labelled from the app's own translations, so every supported
+    // language shows them in its own words (the database row only holds fa/en text).
+    const BUILTIN_METHOD_CODES = ['pay_on_delivery', 'bank_receipt', 'wallet'];
+    const methodName = (item: { code: string; name?: string }) =>
+        BUILTIN_METHOD_CODES.includes(item.code) ? tBooking(`builtinPaymentMethods.${item.code}.name` as never) : item.name;
+    const methodDescription = (item: { code: string; description?: string | null }) =>
+        BUILTIN_METHOD_CODES.includes(item.code) ? tBooking(`builtinPaymentMethods.${item.code}.description` as never) : item.description;
     const locale = useLocale();
     const [items, setItems] = useState<PaymentMethod[]>([]);
     const [gateways, setGateways] = useState<GatewayOption[]>([]);
@@ -130,8 +139,8 @@ export function PaymentMethodsPanel(props: {
             );
             return (<div key={item.code} className="space-y-2">
             <button type="button" onClick={() => props.onChange(isOnlineCard ? (gateways[0]?.code ?? 'gateway_card') : item.code)} className={`w-full rounded-2xl border px-4 py-3 text-left ${selected ? 'border-[#083f30] bg-[#083f30]/5' : 'border-slate-200 bg-white'}`}>
-              <div className="font-semibold text-slate-900">{isOnlineCard ? tBooking('onlineCardPayment') : item.code === 'wallet' ? tBooking('wallet') : item.name}</div>
-              {item.description ? <div className="mt-1 text-xs text-slate-500">{item.description}</div> : null}
+              <div className="font-semibold text-slate-900">{isOnlineCard ? tBooking('onlineCardPayment') : item.code === 'wallet' ? tBooking('wallet') : methodName(item)}</div>
+              {methodDescription(item) ? <div className="mt-1 text-xs text-slate-500">{methodDescription(item)}</div> : null}
               {isOnlineCard && !gateways.length ? <div className="mt-1 text-xs text-amber-700">{tBooking("noOnlineGatewayIsEnabledFromAdmin")}</div> : null}
               {isBankReceipt && bankAccounts.length === 0 ? <div className="mt-1 text-xs text-amber-700">{tBooking("noBankAccountConfigured")}</div> : null}
             </button>
@@ -139,7 +148,7 @@ export function PaymentMethodsPanel(props: {
             {isOnlineCard && selected ? (<div className="ml-3 space-y-2 border-l border-slate-200 pl-3">
                 {gateways.map((gateway) => (<button key={gateway.code} type="button" onClick={() => props.onChange(gateway.code)} className={`w-full rounded-2xl border px-4 py-3 text-left ${props.selected === gateway.code ? 'border-[#083f30] bg-[#083f30]/10' : 'border-slate-200 bg-slate-50'}`}>
                     <div className="font-semibold text-slate-900">{gateway.displayName}</div>
-                    <div className="mt-1 text-xs text-slate-500">{tBooking("gatewayChargeCurrency")}{gateway.currency}</div>
+                    <div className="mt-1 text-xs text-slate-500">{tBooking("gatewayChargeCurrency")}{gateway.code === 'btcpay' && props.billingCurrency && btcpayBillsDirectlyIn(props.billingCurrency) ? props.billingCurrency.toUpperCase() : gateway.currency}</div>
                   </button>))}
               </div>) : null}
 
