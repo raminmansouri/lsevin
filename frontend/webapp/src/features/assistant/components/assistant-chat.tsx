@@ -9,6 +9,28 @@ import { useLocale, useTranslations } from "next-intl";
 import type { AssistantServiceResult } from "../types";
 import { AssistantServiceCard } from "./assistant-service-card";
 
+/** Pull results out of a search_services tool output (MCP text content or plain JSON). */
+function extractServices(output: unknown): AssistantServiceResult[] {
+  try {
+    let value: unknown = output;
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && "content" in value) {
+      value = (value as { content: unknown }).content;
+    }
+    if (Array.isArray(value)) {
+      const textBlock = value.find(
+        (block): block is { type: string; text: string } =>
+          typeof block === "object" && block !== null && (block as { type?: string }).type === "text"
+      );
+      value = textBlock?.text;
+    }
+    if (typeof value === "string") value = JSON.parse(value);
+    const results = (value as { results?: AssistantServiceResult[] } | null)?.results;
+    return Array.isArray(results) ? results : [];
+  } catch {
+    return [];
+  }
+}
+
 export function AssistantChat() {
   const t = useTranslations("Assistant.chat");
   const locale = useLocale();
@@ -59,6 +81,7 @@ export function AssistantChat() {
           <div key={message.id} className={message.role === "user" ? "flex justify-end" : "space-y-2"}>
             {message.parts.map((part, index) => {
               if (part.type === "text") {
+                if (!part.text.trim()) return null;
                 return (
                   <div
                     key={index}
@@ -72,16 +95,29 @@ export function AssistantChat() {
                   </div>
                 );
               }
-              if (part.type === "data-services") {
-                const services = part.data as AssistantServiceResult[];
+              // The MCP adapter prefixes tool names with the server name ("lsevin_search_services").
+              const toolName =
+                part.type === "dynamic-tool"
+                  ? (part as { toolName?: string }).toolName ?? ""
+                  : part.type.startsWith("tool-")
+                    ? part.type.slice("tool-".length)
+                    : "";
+              const isSearchTool = toolName.endsWith("search_services");
+
+              if (isSearchTool) {
+                const toolPart = part as { state?: string; output?: unknown };
+                if (toolPart.state !== "output-available") return null;
+                const services = extractServices(toolPart.output);
+                if (!services.length) return null;
                 return (
                   <div key={index} className="space-y-2">
                     {services.map((service) => (
-                      <AssistantServiceCard key={service.id} service={service} />
+                      <AssistantServiceCard key={`${service.type}-${service.id}`} service={service} />
                     ))}
                   </div>
                 );
               }
+
               return null;
             })}
           </div>

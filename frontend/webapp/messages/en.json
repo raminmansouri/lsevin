@@ -1,5 +1,9 @@
 {
-  "Assistant": {
+    "Assistant": {
+    "entry": {
+      "title": "LSevin smart assistant",
+      "subtitle": "Tell us what you need and we'll find the best options for you."
+    },
     "chat": {
       "title": "LSevin Assistant",
       "welcome": "Tell me what service you're looking for and I'll find the best options for you.",
@@ -12,7 +16,8 @@
     },
     "card": {
       "priceOnRequest": "Price after consultation",
-      "viewService": "View"
+      "viewService": "View",
+      "types": { "provider": "Clinic", "specialist": "Doctor" }
     }
   },
 

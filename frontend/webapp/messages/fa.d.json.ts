@@ -3,6 +3,10 @@
 
 declare const messages: {
   "Assistant": {
+    "entry": {
+      "title": "دستیار هوشمند Lsevin",
+      "subtitle": "بگویید دنبال چه هستید؛ بهترین گزینه‌ها را برایتان پیدا می‌کنیم."
+    },
     "chat": {
       "title": "دستیار Lsevin",
       "welcome": "بگویید دنبال چه خدمتی هستید؛ گزینه‌های مناسب را برایتان پیدا می‌کنم.",
@@ -15,7 +19,9 @@ declare const messages: {
     },
     "card": {
       "priceOnRequest": "قیمت پس از مشاوره",
-      "viewService": "مشاهده"
+      "viewService": "مشاهده",
+      "types": { "provider": "کلینیک", "specialist": "پزشک" }
+
     }
   },
 

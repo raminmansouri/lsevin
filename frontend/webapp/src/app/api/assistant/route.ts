@@ -1,55 +1,52 @@
-import { createUIMessageStream, createUIMessageStreamResponse, type UIMessage } from "ai";
+import { toBaseMessages, toUIMessageStream } from "@ai-sdk/langchain";
+import { MultiServerMCPClient } from "@langchain/mcp-adapters";
+import { ChatOpenAI } from "@langchain/openai";
+import { createUIMessageStreamResponse, type UIMessage } from "ai";
+import { createAgent } from "langchain";
 
-import { localeToHeader } from "@/config/locales";
-import { createSearchServicesTool } from "@/features/assistant/tools/search-services";
-import type { SearchServicesToolOutput } from "@/features/assistant/types";
-import type { LocaleTypes } from "@/types/common";
+import { buildSystemPrompt } from "@/features/assistant/agent/system-prompt";
 
 export const maxDuration = 60;
 
-function lastUserText(messages: UIMessage[]): string {
-  const last = [...messages].reverse().find((message) => message.role === "user");
-  if (!last) return "";
-  return last.parts
-    .map((part) => (part.type === "text" ? part.text : ""))
-    .join(" ")
-    .trim();
-}
+// Only send the last few messages to the model: keeps cost per message low.
+const MAX_HISTORY = 10;
 
 export async function POST(req: Request) {
-  const { messages, locale }: { messages: UIMessage[]; locale?: string } = await req.json();
-  const storedLocale = localeToHeader((locale ?? "fa") as LocaleTypes) || "fa-IR";
-  const query = lastUserText(messages);
+  const { messages, locale = "fa" }: { messages: UIMessage[]; locale?: string } = await req.json();
 
-  // TEMPORARY mock mode until the OpenAI key arrives:
-  // search with the raw user text and return the results as cards.
-  const searchTool = createSearchServicesTool(storedLocale);
-  const output = JSON.parse(
-    (await searchTool.invoke({ query, limit: 5 })) as string
-  ) as SearchServicesToolOutput;
+  const mcpUrl = process.env.MCP_SERVER_URL;
+  const mcpToken = process.env.MCP_INTERNAL_TOKEN;
+  if (!process.env.OPENAI_API_KEY || !mcpUrl || !mcpToken) {
+    return Response.json({ error: "Assistant is not configured." }, { status: 503 });
+  }
 
-  const stream = createUIMessageStream({
-    async execute({ writer }) {
-      writer.write({ type: "start" });
-
-      const textId = "mock-text";
-      writer.write({ type: "text-start", id: textId });
-      writer.write({
-        type: "text-delta",
-        id: textId,
-        delta: output.count
-          ? `[mock] ${output.count} results for "${query}":`
-          : `[mock] No results for "${query}".`,
-      });
-      writer.write({ type: "text-end", id: textId });
-
-      if (output.count) {
-        writer.write({ type: "data-services", id: "mock-services", data: output.results });
-      }
-
-      writer.write({ type: "finish" });
+  // Tools come from our MCP server; it learns the user's language from this header.
+  const mcpClient = new MultiServerMCPClient({
+    mcpServers: {
+      lsevin: {
+        transport: "http",
+        url: mcpUrl,
+        headers: {
+          Authorization: `Bearer ${mcpToken}`,
+          "x-lsevin-locale": locale,
+        },
+      },
     },
   });
+  const tools = await mcpClient.getTools();
 
-  return createUIMessageStreamResponse({ stream });
+  const agent = createAgent({
+    model: new ChatOpenAI({ model: process.env.OPENAI_MODEL ?? "gpt-5.6-luna" }),
+    tools,
+    systemPrompt: buildSystemPrompt(locale),
+  });
+
+  const history = await toBaseMessages(messages.slice(-MAX_HISTORY));
+  const stream = await agent.stream(
+    { messages: history },
+    // A small recursion limit stops runaway tool loops (and runaway cost).
+    { streamMode: ["values", "messages"], recursionLimit: 8 }
+  );
+
+  return createUIMessageStreamResponse({ stream: toUIMessageStream(stream) });
 }

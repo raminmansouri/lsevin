@@ -3,6 +3,10 @@
 
 declare const messages: {
   "Assistant": {
+    "entry": {
+      "title": "LSevin akıllı asistan",
+      "subtitle": "Ne aradığınızı söyleyin, sizin için en iyi seçenekleri bulalım."
+    },
     "chat": {
       "title": "LSevin Asistanı",
       "welcome": "Aradığınız hizmeti söyleyin, sizin için en iyi seçenekleri bulayım.",
@@ -15,7 +19,8 @@ declare const messages: {
     },
     "card": {
       "priceOnRequest": "Fiyat danışmadan sonra",
-      "viewService": "Görüntüle"
+      "viewService": "Görüntüle",
+      "types": { "provider": "Klinik", "specialist": "Doktor" }
     }
   },
 

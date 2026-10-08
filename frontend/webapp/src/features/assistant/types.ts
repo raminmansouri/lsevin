@@ -1,6 +1,9 @@
-/** A service returned by the assistant's search_services tool. */
+export type AssistantResultType = "service" | "provider" | "specialist";
+
+/** A result returned by the assistant's search_services tool. */
 export type AssistantServiceResult = {
   id: string;
+  type: AssistantResultType;
   name: string;
   provider: string;
   location: string;

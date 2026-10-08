@@ -15,6 +15,12 @@ export function AssistantServiceCard({ service }: { service: AssistantServiceRes
   const locale = useLocale();
   const hasPrice = service.price > 0;
   const hasRating = service.rating > 0;
+  const typeLabel =
+    service.type === "provider"
+      ? t("types.provider")
+      : service.type === "specialist"
+        ? t("types.specialist")
+        : null;
 
   return (
     <Link
@@ -33,7 +39,14 @@ export function AssistantServiceCard({ service }: { service: AssistantServiceRes
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-bold text-gray-900">{service.name}</p>
+        <div className="flex min-w-0 items-center gap-1.5">
+          <p className="truncate text-sm font-bold text-gray-900">{service.name}</p>
+          {typeLabel ? (
+            <span className="shrink-0 rounded-full bg-[#eacb7f]/30 px-1.5 py-0.5 text-[10px] font-semibold text-[#083f30]">
+              {typeLabel}
+            </span>
+          ) : null}
+        </div>
         <p className="truncate text-xs text-gray-600">{service.provider}</p>
 
         <div className="mt-1 flex items-center gap-2 text-[11px] text-gray-500">

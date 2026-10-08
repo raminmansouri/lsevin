@@ -2,7 +2,11 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
-  "Assistant": {
+    "Assistant": {
+    "entry": {
+      "title": "LSevin smart assistant",
+      "subtitle": "Tell us what you need and we'll find the best options for you."
+    },
     "chat": {
       "title": "LSevin Assistant",
       "welcome": "Tell me what service you're looking for and I'll find the best options for you.",
@@ -15,7 +19,8 @@ declare const messages: {
     },
     "card": {
       "priceOnRequest": "Price after consultation",
-      "viewService": "View"
+      "viewService": "View",
+      "types": { "provider": "Clinic", "specialist": "Doctor" }
     }
   },
 
