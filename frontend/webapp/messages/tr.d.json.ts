@@ -4919,6 +4919,7 @@ declare const messages: {
     }
   },
   "Booking": {
+    "dayParts": { "morning": "Sabah", "afternoon": "Öğleden sonra", "evening": "Akşam" },
     "mealPlan": {
       "label": "Yemek planı",
       "chooseTitle": "Yemek planı seçin",

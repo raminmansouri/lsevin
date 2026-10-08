@@ -7012,6 +7012,7 @@ declare const messages: {
     "loadMore": "بارگذاری بیشتر"
   },
   "Booking": {
+    "dayParts": { "morning": "صبح", "afternoon": "بعدازظهر", "evening": "عصر و شب" },
     "mealPlan": {
       "label": "طرح غذایی",
       "chooseTitle": "طرح غذایی را انتخاب کنید",

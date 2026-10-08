@@ -380,6 +380,7 @@ declare const messages: {
     "searchNow": "Search Now"
   },
   "Booking": {
+    "dayParts": { "morning": "Morning", "afternoon": "Afternoon", "evening": "Evening" },
     "mealPlan": {
       "label": "Meal plan",
       "chooseTitle": "Choose a meal plan",

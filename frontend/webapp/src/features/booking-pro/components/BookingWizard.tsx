@@ -1271,18 +1271,20 @@ export function BookingWizard() {
                     resolved: chosenSpecialist ?? null,
                 }}/>) : null}
 
-                {currentStep === 2 ? (<div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-lg">
+                {currentStep === 2 ? (<div className="rounded-[28px] border border-slate-200 bg-white p-4 shadow-lg sm:p-6">
                     <h2 className="mb-4 text-xl font-bold text-slate-900">{tBooking("scheduleAndBookingDetails")}</h2>
-                    <label className="mb-4 block text-sm font-semibold">{tBooking('calendar')}
-                        <select value={calendar} onChange={event => selectCalendar(event.target.value as BookingCalendar)} className="ms-3 min-h-11 rounded-xl border border-slate-200 bg-white px-3">
-                            {BOOKING_CALENDARS.map(item => <option key={item} value={item}>{bookingCalendarLabel(item, locale)}</option>)}
-                        </select>
-                    </label>
-                    {draft.bookingUiMode === 'default_slot' && <label className="mb-4 block text-sm font-semibold">{tCalendarAdmin('timezone')}
-                        <select value={viewerTimeZone} onChange={event => selectTimeZone(event.target.value)} className="ms-3 min-h-11 max-w-full rounded-xl border border-slate-200 bg-white px-3">
-                            {viewerTimeZones.map(zone => <option key={zone} value={zone}>{zone}</option>)}
-                        </select>
-                    </label>}
+                    <div className="mb-5 grid gap-3 sm:grid-cols-2">
+                        <label className="block text-xs font-semibold text-slate-600">{tBooking('calendar')}
+                            <select value={calendar} onChange={event => selectCalendar(event.target.value as BookingCalendar)} className="mt-1.5 block min-h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900">
+                                {BOOKING_CALENDARS.map(item => <option key={item} value={item}>{bookingCalendarLabel(item, locale)}</option>)}
+                            </select>
+                        </label>
+                        {draft.bookingUiMode === 'default_slot' && <label className="block text-xs font-semibold text-slate-600">{tCalendarAdmin('timezone')}
+                            <select value={viewerTimeZone} onChange={event => selectTimeZone(event.target.value)} className="mt-1.5 block min-h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900">
+                                {viewerTimeZones.map(zone => <option key={zone} value={zone}>{zone}</option>)}
+                            </select>
+                        </label>}
+                    </div>
                     {chosenService?.hasTourDepartures ? (<TourDeparturePicker serviceId={chosenService.id} selectedDepartureId={draft.tourDepartureId} onSelect={(departure) => {
                         const next = { ...draft, selectedDate: departure.startsOn, selectedDateFrom: departure.startsOn, selectedDateTo: departure.endsOn, selectedTime: undefined, selectedTimeFrom: undefined, selectedTimeTo: undefined, tourDepartureId: departure.id };
                         setDraft(next);
@@ -1291,7 +1293,7 @@ export function BookingWizard() {
 
                     {draft.bookingUiMode === 'default_slot' && !chosenService?.hasTourDepartures ? (<div className="space-y-6">
                         <div className="flex flex-wrap items-center justify-between gap-3">
-                            <div className="min-w-[260px] text-sm font-semibold text-slate-700">
+                            <div className="w-full text-sm font-semibold text-slate-700 sm:w-auto sm:min-w-[260px]">
                                 <span>{tBooking('date2')}</span>
                                 <div className="mt-2">
                                     <BookingDatePicker calendar={calendar} label={tBooking('date2')} value={draft.selectedDate} onChange={(iso) => {
@@ -1308,14 +1310,15 @@ export function BookingWizard() {
                                 <div className="text-sm font-bold text-slate-900">{tBooking("availableDates")}</div>
                                 {scheduleLoading ? <div className="text-xs text-slate-500">{tBooking("loadingAvailability")}</div> : null}
                             </div>
-                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                            <div className="-mx-1 flex snap-x gap-2.5 overflow-x-auto px-1 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 lg:grid-cols-4">
                                 {availableDates.filter((item) => item.available).slice(0, 18).map((item) => (<button key={item.date} type="button" onClick={() => {
                                     const next = { ...draft, selectedDate: item.date, selectedDateFrom: item.date, selectedDateTo: item.date, selectedTime: undefined, selectedTimeFrom: undefined, selectedTimeTo: undefined };
                                     setDraft(next);
                                     patchDraft(next).catch((er) => setError(er.message));
-                                }} className={`rounded-2xl border p-4 text-left transition ${draft.selectedDate === item.date ? 'border-[#083f30] bg-[#083f30]/5' : 'border-slate-200 bg-white hover:border-[#155e75]'}`}>
-                                    <div className="text-sm font-bold text-slate-900">{item.displayDate}</div>
-                                    <div className="mt-1 text-xs text-slate-500">{item.day} · {item.date}</div>
+                                }} className={`w-[96px] shrink-0 snap-start rounded-2xl border px-2 py-3 text-center transition sm:w-auto ${draft.selectedDate === item.date ? 'border-[#083f30] bg-[#083f30] text-white shadow-md shadow-[#083f30]/20' : 'border-slate-200 bg-white text-slate-900 hover:border-[#083f30]/40'}`}>
+                                    <div className={`text-[11px] font-medium ${draft.selectedDate === item.date ? 'text-white/75' : 'text-slate-500'}`}>{item.day}</div>
+                                    <div className="mt-1 text-sm font-bold leading-tight">{item.displayDate}</div>
+                                    <span className={`mx-auto mt-2 block h-0.5 w-6 rounded-full ${draft.selectedDate === item.date ? 'bg-[#eacb7f]' : 'bg-transparent'}`} />
                                 </button>))}
                             </div>
                             {!scheduleLoading && availableDates.filter((item) => item.available).length === 0 ? (<div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">{tBooking("noAvailableDatesFoundForThisProviderServiceSpecialist")}</div>) : null}
@@ -1328,8 +1331,8 @@ export function BookingWizard() {
                                     {tBooking("timezoneMismatchWarning", { providerZone: providerTimeZone, viewerZone: viewerTimeZone })}
                                 </div>
                             )}
-                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                                {timeSlots.map((slot) => {
+                            {(() => {
+                                const renderSlot = (slot: (typeof timeSlots)[number]) => {
                                     const selected = draft.selectedTimeFrom === slot.time && draft.selectedTimeTo === slot.endTime;
                                     let localStart = slot.label;
                                     let localEnd = slot.endLabel;
@@ -1339,19 +1342,49 @@ export function BookingWizard() {
                                         localStart = formatBookingDateTime(draft.selectedDate, slot.time, options);
                                         localEnd = formatBookingDateTime(draft.selectedDate, slot.endTime, options);
                                     } catch { validTime = false; }
+                                    const selectable = slot.available && validTime;
 
-                                    return (<button key={`${slot.time}-${slot.endTime}`} type="button" disabled={!slot.available || !validTime} onClick={() => {
+                                    return (<button key={`${slot.time}-${slot.endTime}`} type="button" disabled={!selectable} aria-pressed={selected} onClick={() => {
                                         const fallbackEnd = slot.endTime || addMinutes(slot.time, chosenService?.durationMinutes ?? 30);
                                         const next = { ...draft, selectedTime: slot.time, selectedTimeFrom: slot.time, selectedTimeTo: fallbackEnd };
                                         setDraft(next);
                                         patchDraft(next).catch((er) => setError(er.message));
-                                    }} className={`rounded-2xl border p-4 text-left transition ${selected ? 'border-[#083f30] bg-[#083f30]/5' : 'border-slate-200 bg-white'} ${slot.available ? 'hover:border-[#155e75]' : 'cursor-not-allowed opacity-40'}`}>
-                                        <div className="text-sm font-bold text-slate-900">{localStart}</div>
-                                        <div className="mt-1 text-xs text-slate-500">{tBooking("toTime", { time: localEnd })}</div>
-                                        {typeof slot.remainingCapacity === 'number' && !draft.specialistId ? (<div className="mt-2 text-[11px] font-semibold text-slate-500">{slot.remainingCapacity}{tBooking("capacityLeft")}</div>) : null}
+                                    }} className={`rounded-xl border px-2 py-2.5 text-center transition ${selected ? 'border-[#083f30] bg-[#083f30] text-white shadow-md shadow-[#083f30]/20' : 'border-slate-200 bg-white text-slate-900'} ${selectable ? (selected ? '' : 'hover:border-[#083f30]/40') : 'cursor-not-allowed opacity-35 line-through'}`}>
+                                        <div className="text-sm font-bold tabular-nums">{localStart}</div>
+                                        <div className={`mt-0.5 text-[10px] ${selected ? 'text-white/70' : 'text-slate-400'}`}>{tBooking("toTime", { time: localEnd })}</div>
+                                        {typeof slot.remainingCapacity === 'number' && !draft.specialistId ? (<div className={`mt-1 text-[10px] font-semibold ${selected ? 'text-[#eacb7f]' : 'text-slate-500'}`}>{slot.remainingCapacity}{tBooking("capacityLeft")}</div>) : null}
                                     </button>);
-                                })}
-                            </div>
+                                };
+
+                                const gridClass = "grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6";
+
+                                // Day-part groups use the provider's clock, so only group when the viewer shares it.
+                                if (viewerTimeZone !== providerTimeZone) {
+                                    return <div className={gridClass}>{timeSlots.map(renderSlot)}</div>;
+                                }
+
+                                const hourOf = (time: string) => Number(time.slice(0, 2));
+                                const dayPartLabels = {
+                                    morning: tBooking("dayParts.morning"),
+                                    afternoon: tBooking("dayParts.afternoon"),
+                                    evening: tBooking("dayParts.evening"),
+                                };
+                                const groups = [
+                                    { key: "morning" as const, slots: timeSlots.filter((s) => hourOf(s.time) < 12) },
+                                    { key: "afternoon" as const, slots: timeSlots.filter((s) => hourOf(s.time) >= 12 && hourOf(s.time) < 17) },
+                                    { key: "evening" as const, slots: timeSlots.filter((s) => hourOf(s.time) >= 17) },
+                                ].filter((group) => group.slots.length > 0);
+
+                                return (<div className="space-y-4">
+                                    {groups.map((group) => (<div key={group.key}>
+                                        <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-slate-500">
+                                            <span>{dayPartLabels[group.key]}</span>
+                                            <span className="h-px flex-1 bg-slate-100" />
+                                        </div>
+                                        <div className={gridClass}>{group.slots.map(renderSlot)}</div>
+                                    </div>))}
+                                </div>);
+                            })()}
                         </div>) : null}
                     </div>) : null}
 
