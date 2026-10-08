@@ -80,6 +80,7 @@ declare const messages: {
     "searchNow": "ابحث الآن"
   },
   "Booking": {
+    "dayParts": { "morning": "الصباح", "afternoon": "بعد الظهر", "evening": "المساء" },
     "mealPlan": {
       "label": "خطة الوجبات",
       "chooseTitle": "اختر خطة الوجبات",
