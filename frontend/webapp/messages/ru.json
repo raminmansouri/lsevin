@@ -2247,6 +2247,7 @@
     }
   },
   "Booking": {
+    "dayParts": { "morning": "Утро", "afternoon": "День", "evening": "Вечер" },
     "mealPlan": {
       "label": "Тип питания",
       "chooseTitle": "Выберите тип питания",
