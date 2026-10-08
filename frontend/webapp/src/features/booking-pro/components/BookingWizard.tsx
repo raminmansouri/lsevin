@@ -1349,18 +1349,21 @@ export function BookingWizard() {
                                         const next = { ...draft, selectedTime: slot.time, selectedTimeFrom: slot.time, selectedTimeTo: fallbackEnd };
                                         setDraft(next);
                                         patchDraft(next).catch((er) => setError(er.message));
-                                    }} className={`rounded-xl border px-2 py-2.5 text-center transition ${selected ? 'border-[#083f30] bg-[#083f30] text-white shadow-md shadow-[#083f30]/20' : 'border-slate-200 bg-white text-slate-900'} ${selectable ? (selected ? '' : 'hover:border-[#083f30]/40') : 'cursor-not-allowed opacity-35 line-through'}`}>
+                                    }} className={`w-full snap-start rounded-xl border px-2 py-2.5 text-center transition ${selected ? 'border-[#083f30] bg-[#083f30] text-white shadow-md shadow-[#083f30]/20' : 'border-slate-200 bg-white text-slate-900'} ${selectable ? (selected ? '' : 'hover:border-[#083f30]/40') : 'cursor-not-allowed opacity-35 line-through'}`}>
                                         <div className="text-sm font-bold tabular-nums">{localStart}</div>
                                         <div className={`mt-0.5 text-[10px] ${selected ? 'text-white/70' : 'text-slate-400'}`}>{tBooking("toTime", { time: localEnd })}</div>
                                         {typeof slot.remainingCapacity === 'number' && !draft.specialistId ? (<div className={`mt-1 text-[10px] font-semibold ${selected ? 'text-[#eacb7f]' : 'text-slate-500'}`}>{slot.remainingCapacity}{tBooking("capacityLeft")}</div>) : null}
                                     </button>);
                                 };
 
-                                const gridClass = "grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6";
+                                // Mobile: 3 rows, filled column by column, 3 columns visible (a 3×3 page), swipe for more.
+                                // sm and up: the regular multi-column grid.
+                                const gridClass = (count: number) =>
+                                    `-mx-1 grid grid-flow-col ${count >= 3 ? "grid-rows-3" : count === 2 ? "grid-rows-2" : "grid-rows-1"} auto-cols-[calc((100%-1rem)/3)] snap-x gap-2 overflow-x-auto px-1 pb-2 sm:mx-0 sm:grid-flow-row sm:grid-rows-none sm:auto-cols-auto sm:grid-cols-4 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-6`;
 
                                 // Day-part groups use the provider's clock, so only group when the viewer shares it.
                                 if (viewerTimeZone !== providerTimeZone) {
-                                    return <div className={gridClass}>{timeSlots.map(renderSlot)}</div>;
+                                    return <div className={gridClass(timeSlots.length)}>{timeSlots.map(renderSlot)}</div>;
                                 }
 
                                 const hourOf = (time: string) => Number(time.slice(0, 2));
@@ -1381,7 +1384,7 @@ export function BookingWizard() {
                                             <span>{dayPartLabels[group.key]}</span>
                                             <span className="h-px flex-1 bg-slate-100" />
                                         </div>
-                                        <div className={gridClass}>{group.slots.map(renderSlot)}</div>
+                                        <div className={gridClass(group.slots.length)}>{group.slots.map(renderSlot)}</div>
                                     </div>))}
                                 </div>);
                             })()}
