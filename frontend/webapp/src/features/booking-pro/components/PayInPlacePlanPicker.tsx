@@ -70,16 +70,19 @@ export function PayInPlacePlanPicker(props: {
     const selectedPlan = isPayInPlacePlanId(props.plan) ? props.plan : null;
     const selectedMethod = methods.some((m) => m.code === props.depositMethod) ? (props.depositMethod as string) : null;
 
-    // A plan is chosen but its payment method is missing or no longer offered: settle on the first usable one.
+    // Online card is the default for the part due now; the wallet only when card isn't offered.
+    const defaultMethod = methods.find((m) => m.code === 'gateway_card')?.code ?? methods[0]?.code;
+
+    // A plan is chosen but its payment method is missing or no longer offered: settle on the default one.
     useEffect(() => {
-        if (!selectedPlan || !loaded || methods.length === 0 || selectedMethod) return;
-        props.onChange({ plan: selectedPlan, depositMethod: methods[0].code });
+        if (!selectedPlan || !loaded || !defaultMethod || selectedMethod) return;
+        props.onChange({ plan: selectedPlan, depositMethod: defaultMethod });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedPlan, loaded, methods, selectedMethod]);
+    }, [selectedPlan, loaded, defaultMethod, selectedMethod]);
 
     const choosePlan = (plan: PayInPlacePlanId) => {
-        if (props.disabled || methods.length === 0) return;
-        props.onChange({ plan, depositMethod: selectedMethod ?? methods[0].code });
+        if (props.disabled || !defaultMethod) return;
+        props.onChange({ plan, depositMethod: selectedMethod ?? defaultMethod });
     };
 
     const chooseMethod = (code: string) => {
@@ -142,8 +145,10 @@ export function PayInPlacePlanPicker(props: {
                             type="button"
                             disabled={props.disabled}
                             onClick={() => chooseMethod(method.code)}
-                            className={`w-full rounded-xl border px-3 py-2 text-start text-sm ${
-                                selectedMethod === method.code ? 'border-[#083f30] bg-[#083f30]/5' : 'border-slate-200 bg-white'
+                            className={`w-full rounded-xl border px-3 py-2 text-center text-sm transition-colors ${
+                                selectedMethod === method.code
+                                    ? 'border-emerald-600 bg-emerald-600 font-semibold text-white'
+                                    : 'border-slate-200 bg-white text-slate-800'
                             }`}
                         >
                             {methodLabel(method)}
