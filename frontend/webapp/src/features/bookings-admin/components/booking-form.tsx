@@ -172,6 +172,27 @@ export function BookingForm({ booking, locale, lookups }: Props) {
             />
           </div>
 
+          {booking?.selectedDateFrom || booking?.selectedDateTo ? (
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{tAdmin("stayCheckIn")}</label>
+                <Input
+                  value={booking.selectedDateFrom ? formatBookingDate(booking.selectedDateFrom, { locale, calendar: adminCalendar }) : "-"}
+                  readOnly
+                  disabled
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{tAdmin("stayCheckOut")}</label>
+                <Input
+                  value={booking.selectedDateTo ? formatBookingDate(booking.selectedDateTo, { locale, calendar: adminCalendar }) : "-"}
+                  readOnly
+                  disabled
+                />
+              </div>
+            </div>
+          ) : null}
+
           <div className="grid gap-4 md:grid-cols-4">
             <FormField
               control={form.control}

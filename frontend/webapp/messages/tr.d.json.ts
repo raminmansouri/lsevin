@@ -3057,6 +3057,8 @@ declare const messages: {
     "clear": "Seçimi temizle"
   },
   "AdminGenerated": {
+    "updateBookingTitle": "Rezervasyonu düzenle: {service} – {customer}",
+    "stayCheckIn": "Giriş tarihi", "stayCheckOut": "Çıkış tarihi",
     "deleteCurrency": "Delete currency",
     "deleteCurrencyConfirm": "Delete this currency? It is removed from the lists while past records stay untouched.",
     "currencyDeleted": "Currency deleted.",

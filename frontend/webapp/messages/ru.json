@@ -228,6 +228,8 @@
     "consultationRequests": "Заявки на консультацию"
   },
   "AdminGenerated": {
+    "updateBookingTitle": "Изменить бронирование: {service} – {customer}",
+    "stayCheckIn": "Дата заезда", "stayCheckOut": "Дата выезда",
     "deleteCurrency": "Delete currency",
     "deleteCurrencyConfirm": "Delete this currency? It is removed from the lists while past records stay untouched.",
     "currencyDeleted": "Currency deleted.",

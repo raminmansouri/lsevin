@@ -1050,6 +1050,8 @@ declare const messages: {
     }
   },
   "AdminGenerated": {
+    "updateBookingTitle": "تعديل الحجز: {service} – {customer}",
+    "stayCheckIn": "تاريخ الوصول", "stayCheckOut": "تاريخ المغادرة",
     "deleteCurrency": "Delete currency",
     "deleteCurrencyConfirm": "Delete this currency? It is removed from the lists while past records stay untouched.",
     "currencyDeleted": "Currency deleted.",

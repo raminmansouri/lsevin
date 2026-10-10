@@ -466,6 +466,8 @@ declare const messages: {
     }
   },
   "AdminGenerated": {
+    "updateBookingTitle": "ویرایش رزرو: {service} – {customer}",
+    "stayCheckIn": "تاریخ ورود", "stayCheckOut": "تاریخ خروج",
     "configureSignInSignUpForgotPasswordOtp": "ورود، ثبت‌نام، فراموشی رمز و کد یک‌بارمصرف را تنظیم کنید.",
     "useItemKeysSignInSignUpForgot": "از کلیدهای sign-in، sign-up و forgot-password استفاده کنید.",
     "previousImage": "تصویر قبلی",

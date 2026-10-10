@@ -1339,6 +1339,8 @@ declare const messages: {
     }
   },
   "AdminGenerated": {
+    "updateBookingTitle": "Edit booking: {service} – {customer}",
+    "stayCheckIn": "Check-in date", "stayCheckOut": "Check-out date",
     "configureSignInSignUpForgotPasswordOtp": "Configure sign-in, sign-up, forgot-password, OTP, and onboarding content without code changes.",
     "useItemKeysSignInSignUpForgot": "Use item keys: sign-in, sign-up, forgot-password, otp, or step keys like step-1.",
     "previousImage": "Previous image",
