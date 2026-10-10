@@ -134,17 +134,34 @@ async function resolveCompensationPolicy(input: {
     }
   }
 
+  // No compensation policy matches: fall back to the platform commission set in the
+  // financial panel (accounting.settings 'platform_fee_percent'). This used to be a hard
+  // 0%, so without a policy every provider was owed 100% of the booking.
   return {
     id: null,
     applies_to: input.appliesTo,
     fee_mode: 'percent',
-    platform_percent: 0,
+    platform_percent: await defaultPlatformPercent(),
     platform_fixed_amount: 0,
     minimum_platform_amount: 0,
     provider_percent_override: null,
     gateway_fee_mode: 'platform_pays',
     currency_code: null,
   };
+}
+
+async function defaultPlatformPercent(): Promise<number> {
+  try {
+    const [row] = await sql<{ value: unknown }[]>`
+      select value from accounting.settings where key = 'platform_fee_percent'
+    `;
+    const percent = Number(row?.value);
+    return Number.isFinite(percent) && percent >= 0 && percent <= 100 ? percent : 0;
+  } catch (error) {
+    // Accounting schema not installed (local setups): keep the old behaviour.
+    console.error('defaultPlatformPercent: could not read accounting.settings', error);
+    return 0;
+  }
 }
 
 function applyPolicy(base: {

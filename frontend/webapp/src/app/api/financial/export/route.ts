@@ -9,6 +9,8 @@ import {
   listPendingDeposits,
   listPendingWithdrawals,
 } from "@/accounting/server/admin-queries";
+import { listBookingPaymentsForReview, listPartlyPaidBookings } from "@/accounting/server/booking-payments.queries";
+import { listProviderPayoutsDue } from "@/accounting/server/provider-payouts.queries";
 
 /**
  * CSV export for the accounting reports.
@@ -71,23 +73,163 @@ export async function GET(request: NextRequest) {
     }
 
     case "deposits": {
-      const rows = await listPendingDeposits(5000);
-      const columns: CsvColumn<(typeof rows)[number]>[] = [
+      // Same three lists as the page: reservation payments to review, partly paid
+      // reservations, and wallet top-ups, one row each with a `queue` column.
+      const [review, partlyPaid, wallet] = await Promise.all([
+        listBookingPaymentsForReview(5000),
+        listPartlyPaidBookings(5000),
+        listPendingDeposits(5000),
+      ]);
+      type DepositCsvRow = {
+        queue: string;
+        createdAt: string | null;
+        customerName: string | null;
+        customerEmail: string | null;
+        booking: string | null;
+        method: string | null;
+        status: string;
+        currencyCode: string;
+        amount: string | null;
+        totalAmount: string | null;
+        paidAmount: string | null;
+        remainingAmount: string | null;
+        reference: string | null;
+      };
+      const rows: DepositCsvRow[] = [
+        ...review.map((r) => ({
+          queue: "booking_review",
+          createdAt: r.createdAt,
+          customerName: r.customerName,
+          customerEmail: r.customerEmail,
+          booking: r.confirmationCode ?? r.bookingId,
+          method: r.method,
+          status: "pending_review",
+          currencyCode: r.paymentCurrencyCode,
+          amount: r.amount,
+          totalAmount: r.totalAmount,
+          paidAmount: r.paidAmount,
+          remainingAmount: r.remainingAmount,
+          reference: null,
+        })),
+        ...partlyPaid.map((r) => ({
+          queue: "booking_partly_paid",
+          createdAt: r.lastPaymentAt,
+          customerName: r.customerName,
+          customerEmail: r.customerEmail,
+          booking: r.confirmationCode ?? r.bookingId,
+          method: null,
+          status: r.kind,
+          currencyCode: r.currencyCode,
+          amount: null,
+          totalAmount: r.totalAmount,
+          paidAmount: r.paidAmount,
+          remainingAmount: r.remainingAmount,
+          reference: null,
+        })),
+        ...wallet.map((r) => ({
+          queue: "wallet_topup",
+          createdAt: r.createdAt,
+          customerName: r.customerName,
+          customerEmail: r.customerEmail,
+          booking: null,
+          method: r.method,
+          status: r.status,
+          currencyCode: r.currencyCode,
+          amount: r.amount,
+          totalAmount: null,
+          paidAmount: null,
+          remainingAmount: null,
+          reference: r.externalReference,
+        })),
+      ];
+      const columns: CsvColumn<DepositCsvRow>[] = [
+        { header: "queue", value: (r) => r.queue },
         { header: "created_at", value: (r) => r.createdAt },
         { header: "customer", value: (r) => r.customerName },
         { header: "email", value: (r) => r.customerEmail },
+        { header: "booking", value: (r) => r.booking },
         { header: "method", value: (r) => r.method },
         { header: "status", value: (r) => r.status },
         { header: "currency", value: (r) => r.currencyCode },
         { header: "amount", value: (r) => r.amount },
-        { header: "reference", value: (r) => r.externalReference },
+        { header: "total", value: (r) => r.totalAmount },
+        { header: "paid", value: (r) => r.paidAmount },
+        { header: "remaining", value: (r) => r.remainingAmount },
+        { header: "reference", value: (r) => r.reference },
       ];
       return csvResponse(`deposits-${stamp}.csv`, toCsv(rows, columns));
     }
 
     case "withdrawals": {
-      const rows = await listPendingWithdrawals(5000);
-      const columns: CsvColumn<(typeof rows)[number]>[] = [
+      // Provider payouts first (what doctors, hotels and others are owed), one row per
+      // ledger entry, then customer wallet withdrawals, with a `queue` column.
+      const [providers, wallet] = await Promise.all([listProviderPayoutsDue(), listPendingWithdrawals(5000)]);
+      type WithdrawalCsvRow = {
+        queue: string;
+        createdAt: string;
+        customerName: string | null;
+        customerEmail: string | null;
+        provider: string | null;
+        booking: string | null;
+        entryType: string | null;
+        status: string;
+        currencyCode: string;
+        amount: string;
+        feeAmount: string | null;
+        netAmount: string | null;
+        destinationType: string | null;
+        destinationIban: string | null;
+        destinationHolderName: string | null;
+        destinationAddress: string | null;
+        destinationNetwork: string | null;
+      };
+      const rows: WithdrawalCsvRow[] = [
+        ...providers.flatMap((g) =>
+          g.entries.map((e) => ({
+            queue: "provider_payout",
+            createdAt: e.createdAt,
+            customerName: e.customerName,
+            customerEmail: null,
+            provider: g.providerName,
+            booking: e.confirmationCode ?? e.bookingId,
+            entryType: e.entryType,
+            status: e.status,
+            currencyCode: e.currencyCode,
+            amount: e.amount,
+            feeAmount: null,
+            netAmount: e.amount,
+            destinationType: g.payoutAccount ? "bank_iban" : null,
+            destinationIban: g.payoutAccount?.iban ?? null,
+            destinationHolderName: g.payoutAccount?.holderName ?? null,
+            destinationAddress: null,
+            destinationNetwork: null,
+          }))
+        ),
+        ...wallet.map((r) => ({
+          queue: "wallet_withdrawal",
+          createdAt: r.createdAt,
+          customerName: r.customerName,
+          customerEmail: r.customerEmail,
+          provider: null,
+          booking: null,
+          entryType: null,
+          status: r.status,
+          currencyCode: r.currencyCode,
+          amount: r.amount,
+          feeAmount: r.feeAmount,
+          netAmount: r.netAmount,
+          destinationType: r.destinationType,
+          destinationIban: r.destinationIban,
+          destinationHolderName: r.destinationHolderName,
+          destinationAddress: r.destinationAddress,
+          destinationNetwork: r.destinationNetwork,
+        })),
+      ];
+      const columns: CsvColumn<WithdrawalCsvRow>[] = [
+        { header: "queue", value: (r) => r.queue },
+        { header: "provider", value: (r) => r.provider },
+        { header: "booking", value: (r) => r.booking },
+        { header: "entry_type", value: (r) => r.entryType },
         { header: "created_at", value: (r) => r.createdAt },
         { header: "customer", value: (r) => r.customerName },
         { header: "email", value: (r) => r.customerEmail },

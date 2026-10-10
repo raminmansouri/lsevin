@@ -574,6 +574,7 @@ export async function confirmBookingPayment(params: {
         if (normalized === 'Succeeded' && payment.status !== 'Succeeded') {
             const [booking] = await tx<any[]>`
                 select b.total_amount,
+                       b.user_id::text as user_id,
                        coalesce(b.paid_amount,0) as paid_amount,
                        coalesce(pt.due_now_amount, b.total_amount, 0) as lsevin_due_now_amount
                 from booking.bookings b
@@ -581,22 +582,31 @@ export async function confirmBookingPayment(params: {
                 where b.id = ${params.bookingId}
                     limit 1
             `;
+            // The customer, not the caller: when an admin or the financial panel approves,
+            // params.userId is the reviewer, and the referral bonus and the "payment
+            // received" notice must still go to the person who booked.
+            const customerUserId: string = booking?.user_id ?? params.userId;
             const newPaid = Number(booking?.paid_amount ?? 0) + Number(payment.amount ?? 0);
             const requiredByLsevin = Number(booking?.lsevin_due_now_amount ?? booking?.total_amount ?? 0);
             const lsevinPaid = newPaid >= requiredByLsevin;
+            // A balance recorded after the visit must not walk a Completed booking back to
+            // Confirmed, so finished and cancelled bookings keep their status.
             await tx`
                 update booking.bookings
                 set payment_status = ${lsevinPaid ? 'Paid' : 'PartiallyPaid'},
-                    booking_status = ${lsevinPaid ? 'Confirmed' : 'Pending'},
+                    booking_status = case
+                        when lower(coalesce(booking_status, '')) in ('completed', 'done', 'cancelled', 'canceled') then booking_status
+                        else ${lsevinPaid ? 'Confirmed' : 'Pending'}
+                    end,
                     paid_amount = ${newPaid},
                     payment_reference = coalesce(${params.externalReference ?? null}, payment_reference)
                 where id = ${params.bookingId}
             `;
 
             if (lsevinPaid) {
-                payFirstBookingReferralBonus({ refereeCustomerId: params.userId, bookingId: params.bookingId })
+                payFirstBookingReferralBonus({ refereeCustomerId: customerUserId, bookingId: params.bookingId })
                     .catch((error) => console.error('payFirstBookingReferralBonus failed for booking', params.bookingId, error));
-                notifyBookingPaymentResult({ bookingId: params.bookingId, customerUserId: params.userId, status: 'succeeded' })
+                notifyBookingPaymentResult({ bookingId: params.bookingId, customerUserId, status: 'succeeded' })
                     .catch((error) => console.error('notifyBookingPaymentResult failed for booking', params.bookingId, error));
             }
 
@@ -610,10 +620,13 @@ export async function confirmBookingPayment(params: {
                   and udc.status = 'reserved'
             `;
         } else if (normalized === 'Failed') {
+            // Rejecting a second receipt must not mark a booking whose first payment
+            // already went through as Failed: the money it holds stays recorded.
             await tx`
                 update booking.bookings
                 set payment_status = 'Failed'
                 where id = ${params.bookingId}
+                  and coalesce(paid_amount, 0) <= 0
             `;
         }
     });
