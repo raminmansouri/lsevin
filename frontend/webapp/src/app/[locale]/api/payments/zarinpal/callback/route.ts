@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { seoOrigin } from "@/lib/seo/origin";
 import { verifyGatewayPayment } from "@/payment/server/payment.service";
 
 type RouteContext = {
@@ -26,7 +27,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
     ? `/${locale}/n/app/mobile/bookings/${result.bookingId}`
     : `/${locale}/n/app/mobile/bookings`;
 
-  const redirectUrl = new URL(bookingPath, request.url);
+  // Public site origin (NEXT_PUBLIC_URL), not request.url: behind the proxy the server
+  // listens on 0.0.0.0:3000, so request.url would send the customer there after paying.
+  const redirectUrl = new URL(bookingPath, seoOrigin());
   redirectUrl.searchParams.set("payment", result.status);
   if (result.referenceId) redirectUrl.searchParams.set("ref", String(result.referenceId));
   if (result.message) redirectUrl.searchParams.set("message", result.message);

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { seoOrigin } from "@/lib/seo/origin";
 import { verifyGatewayCallback } from "@/features/shop/server/shop-payment.service";
 
 /**
@@ -32,11 +33,13 @@ async function handle(req: NextRequest, gateway: string, locale: string) {
   const result = await verifyGatewayCallback({ gateway, authority, status });
 
   const base = `/${locale || "fa"}/n/app/mobile/shop`;
+  // Public origin, not url.origin (the internal 0.0.0.0:3000 behind the proxy).
+  const origin = seoOrigin();
   if (!result.orderNumber) {
-    return NextResponse.redirect(new URL(`${base}/cart?payment=failed`, url.origin));
+    return NextResponse.redirect(new URL(`${base}/cart?payment=failed`, origin));
   }
   const q = result.status === "succeeded" ? "paid" : result.status;
-  return NextResponse.redirect(new URL(`${base}/order/${result.orderNumber}?payment=${q}`, url.origin));
+  return NextResponse.redirect(new URL(`${base}/order/${result.orderNumber}?payment=${q}`, origin));
 }
 
 export async function GET(req: NextRequest, ctx: { params: Promise<{ locale: string; gateway: string }> }) {

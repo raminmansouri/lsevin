@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { seoOrigin } from '@/lib/seo/origin';
 import { verifyGatewayPayment } from '@/payment/server/payment.service';
 
 export async function GET(
@@ -12,7 +13,7 @@ export async function GET(
   // invoice means "not confirmed yet" — it would kill payments still in flight.
   // BTCPay redirects to /api/payments/btcpay/return, which is settle-only.
   if (String(gateway).trim().toLowerCase() === 'btcpay') {
-    const returnUrl = new URL(`/${locale}/api/payments/btcpay/return`, request.nextUrl.origin);
+    const returnUrl = new URL(`/${locale}/api/payments/btcpay/return`, seoOrigin());
     returnUrl.search = request.nextUrl.search;
     return NextResponse.redirect(returnUrl);
   }
@@ -21,11 +22,14 @@ export async function GET(
   const status = request.nextUrl.searchParams.get('Status') ?? request.nextUrl.searchParams.get('status') ?? '';
 
   const result = await verifyGatewayPayment({ gateway: gateway as any, authority, status });
-  const url = new URL(`/${locale}/n/app/mobile/booking`, request.nextUrl.origin);
-  url.searchParams.set('paymentStatus', result.status);
-  if (result.bookingId) url.searchParams.set('bookingId', result.bookingId);
-  if (result.paymentId) url.searchParams.set('paymentId', result.paymentId);
-  if (result.referenceId) url.searchParams.set('referenceId', String(result.referenceId));
+  // Back to the customer's reservations (that booking's page when known), on the public
+  // origin: request.nextUrl.origin is the internal 0.0.0.0:3000 behind the proxy.
+  const bookingPath = result.bookingId
+    ? `/${locale}/n/app/mobile/bookings/${result.bookingId}`
+    : `/${locale}/n/app/mobile/bookings`;
+  const url = new URL(bookingPath, seoOrigin());
+  url.searchParams.set('payment', result.status);
+  if (result.referenceId) url.searchParams.set('ref', String(result.referenceId));
   if (result.message) url.searchParams.set('message', result.message);
 
   return NextResponse.redirect(url);
