@@ -1,5 +1,3 @@
-import { AssistantEntryCard } from "@/features/assistant/components/assistant-entry-card";
-
 import { buildPublicMetadata } from "@/lib/seo/metadata";
 import { Award, ChevronRight, Gift, Map, Search, Sparkles, Star, TrendingUp } from 'lucide-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -357,7 +355,6 @@ async function Home({ params }: PageProps) {
         </div>
       </div>
 
-      <AssistantEntryCard locale={locale} />
       <SponsoredMediaCarouselSection locale={locale} placement="home_top" />
 
       <HomeHeroBanner offer={heroOffer} section={homeSections.hero_featured} labels={labels.hero} noDescription={labels.common.noDescription} />

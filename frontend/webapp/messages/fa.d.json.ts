@@ -3,6 +3,7 @@
 
 declare const messages: {
   "Assistant": {
+    "launcher": { "open": "باز کردن دستیار", "close": "بستن", "expand": "تمام‌صفحه", "collapse": "کوچک کردن" },
     "entry": {
       "title": "دستیار هوشمند Lsevin",
       "subtitle": "بگویید دنبال چه هستید؛ بهترین گزینه‌ها را برایتان پیدا می‌کنیم."

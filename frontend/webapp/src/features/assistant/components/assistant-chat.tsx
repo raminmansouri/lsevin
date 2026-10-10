@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport } from "ai";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Chat, useChat } from "@ai-sdk/react";
+import { DefaultChatTransport, type UIMessage } from "ai";
 import { Send, Sparkles } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -31,17 +31,29 @@ function extractServices(output: unknown): AssistantServiceResult[] {
   }
 }
 
-export function AssistantChat() {
+export function AssistantChat({ chat }: { chat?: Chat<UIMessage> }) {
   const t = useTranslations("Assistant.chat");
   const locale = useLocale();
   const [input, setInput] = useState("");
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const transport = useMemo(
-    () => new DefaultChatTransport({ api: "/api/assistant", body: { locale } }),
-    [locale]
+  // Use the launcher's shared chat when given; otherwise (the standalone page) create one.
+  const ownChat = useMemo(
+    () =>
+      chat ??
+      new Chat<UIMessage>({
+        transport: new DefaultChatTransport({ api: "/api/assistant", body: { locale } }),
+      }),
+    [chat, locale]
   );
-  const { messages, sendMessage, status, error } = useChat({ transport });
+  const { messages, sendMessage, status, error } = useChat({ chat: ownChat });
   const busy = status === "submitted" || status === "streaming";
+
+  // Keep the newest message in view.
+  useEffect(() => {
+    const element = scrollRef.current;
+    if (element) element.scrollTo({ top: element.scrollHeight, behavior: "smooth" });
+  }, [messages, busy]);
 
   const send = (text: string) => {
     const value = text.trim();
@@ -53,8 +65,8 @@ export function AssistantChat() {
   const suggestions = [t("suggestions.hair"), t("suggestions.dental"), t("suggestions.nose")];
 
   return (
-    <div className="flex h-[calc(100dvh-8rem)] flex-col bg-gray-50">
-      <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+    <div className="flex h-full flex-col bg-gray-50">
+      <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
         {messages.length === 0 ? (
           <div className="rounded-2xl bg-gradient-to-br from-[#083f30] to-[#0a5a44] p-4 text-white">
             <div className="mb-2 flex items-center gap-2">
@@ -78,7 +90,14 @@ export function AssistantChat() {
         ) : null}
 
         {messages.map((message) => (
-          <div key={message.id} className={message.role === "user" ? "flex justify-end" : "space-y-2"}>
+          <div
+            key={message.id}
+            className={
+              message.role === "user"
+                ? "flex ltr:justify-end rtl:justify-start"
+                : "flex flex-col gap-2 ltr:items-start rtl:items-end"
+            }
+          >
             {message.parts.map((part, index) => {
               if (part.type === "text") {
                 if (!part.text.trim()) return null;
@@ -87,14 +106,15 @@ export function AssistantChat() {
                     key={index}
                     className={
                       message.role === "user"
-                        ? "max-w-[85%] rounded-2xl rounded-ee-sm bg-[#083f30] px-3.5 py-2 text-sm text-white"
-                        : "max-w-[90%] whitespace-pre-wrap rounded-2xl rounded-es-sm bg-white px-3.5 py-2 text-sm text-gray-800 shadow-sm"
+                        ? "max-w-[85%] rounded-2xl rounded-br-sm bg-[#083f30] px-3.5 py-2 text-sm text-white"
+                        : "max-w-[90%] whitespace-pre-wrap rounded-2xl rounded-bl-sm bg-white px-3.5 py-2 text-sm text-gray-800 shadow-sm"
                     }
                   >
                     {part.text}
                   </div>
                 );
               }
+
               // The MCP adapter prefixes tool names with the server name ("lsevin_search_services").
               const toolName =
                 part.type === "dynamic-tool"
@@ -102,17 +122,15 @@ export function AssistantChat() {
                   : part.type.startsWith("tool-")
                     ? part.type.slice("tool-".length)
                     : "";
-              const isSearchTool = toolName.endsWith("search_services");
-
-              if (isSearchTool) {
+              if (toolName.endsWith("search_services")) {
                 const toolPart = part as { state?: string; output?: unknown };
                 if (toolPart.state !== "output-available") return null;
                 const services = extractServices(toolPart.output);
                 if (!services.length) return null;
                 return (
-                  <div key={index} className="space-y-2">
-                    {services.map((service) => (
-                      <AssistantServiceCard key={`${service.type}-${service.id}`} service={service} />
+                  <div key={index} className="w-full space-y-2">
+                    {services.map((service, serviceIndex) => (
+                      <AssistantServiceCard key={`${service.type}-${service.id}-${serviceIndex}`} service={service} />
                     ))}
                   </div>
                 );

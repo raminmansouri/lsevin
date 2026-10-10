@@ -43,7 +43,16 @@ export async function searchServices(
     limit: max,
   });
 
-  const results = data.results.slice(0, max).map((item) => ({
+  // The site search can return the same doctor/clinic more than once (e.g. a doctor at two clinics).
+  const seen = new Set<string>();
+  const unique = data.results.filter((item) => {
+    const key = `${item.type}-${item.id}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  const results = unique.slice(0, max).map((item) => ({
     id: item.id,
     type: item.type,
     name: item.name,

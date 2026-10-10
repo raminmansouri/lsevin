@@ -2,7 +2,8 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
-    "Assistant": {
+  "Assistant": {
+    "launcher": { "open": "Open assistant", "close": "Close", "expand": "Full screen", "collapse": "Exit full screen" },
     "entry": {
       "title": "LSevin smart assistant",
       "subtitle": "Tell us what you need and we'll find the best options for you."

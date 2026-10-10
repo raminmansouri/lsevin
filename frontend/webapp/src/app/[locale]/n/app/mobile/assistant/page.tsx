@@ -12,5 +12,9 @@ export default async function AssistantPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  return <AssistantChat />;
+  return (
+    <div className="h-[calc(100dvh-8rem)]">
+      <AssistantChat />
+    </div>
+  );
 }

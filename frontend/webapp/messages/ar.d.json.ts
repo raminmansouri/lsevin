@@ -3,6 +3,7 @@
 
 declare const messages: {
   "Assistant": {
+    "launcher": { "open": "فتح المساعد", "close": "إغلاق", "expand": "ملء الشاشة", "collapse": "تصغير" },
     "entry": {
       "title": "مساعد LSevin الذكي",
       "subtitle": "أخبرنا بما تحتاجه وسنجد لك أفضل الخيارات."

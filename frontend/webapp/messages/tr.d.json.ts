@@ -3,6 +3,7 @@
 
 declare const messages: {
   "Assistant": {
+    "launcher": { "open": "Asistanı aç", "close": "Kapat", "expand": "Tam ekran", "collapse": "Küçült" },
     "entry": {
       "title": "LSevin akıllı asistan",
       "subtitle": "Ne aradığınızı söyleyin, sizin için en iyi seçenekleri bulalım."

@@ -5,6 +5,9 @@ import Shell from "@/components/shell";
 import { BottomTabBar } from "./app/design-system/mobile-components";
 import { getClientMessages } from "@/i18n/client-messages";
 
+import { AssistantLauncher } from "@/features/assistant/components/assistant-launcher";
+
+
 type LocalePageProps = {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
@@ -40,6 +43,7 @@ export default async function MainLayout({
           <BottomTabBar />
         </div>
       </Shell>
+      <AssistantLauncher />
     </NextIntlClientProvider>
   );
 }
