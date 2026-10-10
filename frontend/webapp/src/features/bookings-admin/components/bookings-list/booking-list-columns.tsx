@@ -6,6 +6,7 @@ import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
+import { formatDepositAmount, getDepositSplit } from "../../lib/deposit-split";
 import type { BookingListItem } from "../../types";
 
 type BookingColumnTranslator = (key: string) => string;
@@ -21,7 +22,23 @@ export const getBookingColumns = (
   { accessorKey: 'serviceName', header: tAdmin('service') },
   { accessorKey: 'customerName', header: tAdmin('customer') },
   { accessorKey: 'bookingStatus', header: tAdmin('bookingStatus') },
-  { accessorKey: 'paymentStatus', header: tAdmin('paymentStatus') },
+  {
+    accessorKey: 'paymentStatus',
+    header: tAdmin('paymentStatus'),
+    cell: ({ row }) => {
+      const item = row.original;
+      const split = getDepositSplit(item);
+      if (!split) return item.paymentStatus ?? '-';
+      return (
+        <div>
+          <div className="font-medium">{tAdmin('depositPaid')}</div>
+          <div className="text-xs text-muted-foreground">
+            {tAdmin('paidOnline')}: {formatDepositAmount(split.paid, item.payableCurrency)} · {tAdmin('dueAtPlace')}: {formatDepositAmount(split.dueAtPlace, item.payableCurrency)}
+          </div>
+        </div>
+      );
+    },
+  },
   { accessorKey: 'totalAmount', header: tAdmin('total') },
   {
     id: 'actions',

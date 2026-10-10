@@ -52,6 +52,10 @@ function getStatusBadge(status: string, tBooking: ReturnType<typeof useTranslati
 }
 function getPaymentBadge(status: string, tBooking: ReturnType<typeof useTranslations>) {
     const normalized = normalizeStatus(status);
+    if (normalized === "deposit_paid")
+        return { text: tBooking("depositPaid"), color: "bg-teal-600" };
+    if (normalized === "partiallypaid")
+        return { text: tBooking("partial"), color: "bg-orange-500" };
     if (normalized === "paid")
         return { text: tBooking("paid"), color: "bg-green-600" };
     if (normalized === "refunded")
@@ -123,6 +127,10 @@ function BookingCard({ booking, onOpen }: {
             <p className="text-lg font-bold text-[#083f30]">{formatMoney(booking.price, booking.currency)}</p>
           </div>
         </div>
+        {normalizeStatus(booking.paymentStatus) === "deposit_paid" && (<div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-xl bg-teal-50 px-3 py-2 text-xs">
+            <span className="text-teal-800">{tBooking("paidOnline")}: <span className="font-semibold">{formatMoney(booking.paidAmount ?? 0, booking.currency)}</span></span>
+            <span className="text-amber-800">{tBooking("payAtPlace")}: <span className="font-semibold">{formatMoney(Math.max(booking.price - (booking.paidAmount ?? 0), 0), booking.currency)}</span></span>
+          </div>)}
       </div>
     </button>);
 }

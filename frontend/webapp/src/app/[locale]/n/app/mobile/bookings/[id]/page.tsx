@@ -116,6 +116,7 @@ const BOOKING_PAYMENT_STATUS_LABEL_KEYS: Record<string, string> = {
   pending: "pending",
   paid: "paid",
   partiallypaid: "partial",
+  deposit_paid: "depositPaid",
   refunded: "refunded",
   failed: "failed",
   notrequired: "notRequired",
@@ -421,13 +422,15 @@ function BookingDetailContent({
   const StatusIcon = statusBadge.icon;
   const normalizedBookingStatus = normalizeStatus(booking.status);
   const normalizedPaymentStatus = normalizeStatus(booking.paymentStatus);
+  // Deposit paid online, the rest is paid at the place: nothing left to pay online.
+  const isDepositPaid = normalizedPaymentStatus === "deposit_paid";
   const canCancel = !["cancelled", "canceled", "completed", "done"].includes(
     normalizedBookingStatus
   );
   const canPay =
     Boolean(paymentGateway) &&
     Number(booking.remaining || 0) > 0 &&
-    !["paid", "succeeded", "captured", "completed", "refunded"].includes(
+    !["paid", "succeeded", "captured", "completed", "refunded", "deposit_paid"].includes(
       normalizedPaymentStatus
     ) &&
     !["cancelled", "canceled", "completed", "done"].includes(
@@ -632,7 +635,7 @@ function BookingDetailContent({
             </span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600">{tBooking("paidAmount")}</span>
+            <span className="text-gray-600">{tBooking(isDepositPaid ? "paidOnline" : "paidAmount")}</span>
             <span className="font-semibold text-green-600">
               -{formatMoney(booking.deposit || 0, booking.currency, locale)}
             </span>
@@ -640,7 +643,7 @@ function BookingDetailContent({
           <div className="my-2 h-px bg-gray-200" />
           <div className="flex items-center justify-between">
             <span className="font-semibold text-gray-900">
-              {tBooking("remaining")}
+              {tBooking(isDepositPaid ? "payAtPlace" : "remaining")}
             </span>
             <span className="text-xl font-bold text-[#083f30]">
               {formatMoney(booking.remaining || 0, booking.currency, locale)}
@@ -660,6 +663,14 @@ function BookingDetailContent({
               ? ` • ${translateWithFallback(tBooking, PAYMENT_METHOD_LABEL_KEYS, booking.paymentMethod)}`
               : ""}
           </p>
+          {isDepositPaid ? (
+            <p className="mt-1 text-xs text-green-700">
+              {tBooking("depositPaidHint", {
+                paid: formatMoney(booking.deposit || 0, booking.currency, locale),
+                due: formatMoney(booking.remaining || 0, booking.currency, locale),
+              })}
+            </p>
+          ) : null}
         </div>
       </div>
 

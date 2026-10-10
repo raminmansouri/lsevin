@@ -7,6 +7,11 @@ export interface BookingListItem {
   selectedTime: string | null;
   totalAmount: string | null;
   currencyCode: string | null;
+  /** Paid online so far, in payableCurrency. */
+  paidAmount?: string | null;
+  /** What the customer pays in total (deposit + the rest), in payableCurrency. */
+  payableTotal?: string | null;
+  payableCurrency?: string | null;
   providerName: string | null;
   serviceName: string | null;
   specialistName: string | null;

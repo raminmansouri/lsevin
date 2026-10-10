@@ -49,6 +49,15 @@ function InvoiceContent({ booking }: { booking: BookingRecord }) {
   const imageSrc = resolveHomeMediaUrl(booking.providerImage || booking.image);
   const normalizedPaymentStatus = normalizeStatus(booking.paymentStatus);
   const isPaid = ["paid", "succeeded", "captured", "completed"].includes(normalizedPaymentStatus);
+  // Deposit paid online, the rest is paid at the place.
+  const isDepositPaid = normalizedPaymentStatus === "deposit_paid";
+  const paymentStatusLabel = isDepositPaid
+    ? tBooking("depositPaid")
+    : isPaid
+      ? tBooking("paid")
+      : normalizedPaymentStatus === "partiallypaid"
+        ? tBooking("partial")
+        : booking.paymentStatus || tBooking("pending");
   const currency = booking.currency;
 
   return (
@@ -92,9 +101,9 @@ function InvoiceContent({ booking }: { booking: BookingRecord }) {
           </div>
         </div>
 
-        <div className={`px-6 py-3 text-sm font-semibold ${isPaid ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"}`}>
+        <div className={`px-6 py-3 text-sm font-semibold ${isPaid || isDepositPaid ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"}`}>
           {tBooking("paymentStatus")}
-          {booking.paymentStatus || tBooking("pending")}
+          {paymentStatusLabel}
           {booking.paymentMethod ? ` • ${booking.paymentMethod}` : ""}
         </div>
 
@@ -163,12 +172,12 @@ function InvoiceContent({ booking }: { booking: BookingRecord }) {
                 <span className="font-semibold text-gray-900" dir="ltr">{formatMoney(booking.price, currency, locale)}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">{tBooking("paidAmount")}</span>
+                <span className="text-gray-600">{tBooking(isDepositPaid ? "paidOnline" : "paidAmount")}</span>
                 <span className="font-semibold text-green-700" dir="ltr">-{formatMoney(booking.deposit || 0, currency, locale)}</span>
               </div>
               <div className="my-2 h-px bg-gray-200" />
               <div className="flex items-center justify-between">
-                <span className="text-base font-bold text-gray-900">{tBooking("remaining")}</span>
+                <span className="text-base font-bold text-gray-900">{tBooking(isDepositPaid ? "payAtPlace" : "remaining")}</span>
                 <span className="text-xl font-extrabold text-[#083f30]" dir="ltr">{formatMoney(booking.remaining || 0, currency, locale)}</span>
               </div>
             </div>

@@ -41,6 +41,7 @@ type BookingListRow = {
   status: string;
   paymentStatus: string;
   price: number | string | null;
+  paidAmount?: number | string | null;
   currency: string | null;
   verified: boolean | null;
   selectedDate: string | null;
@@ -155,6 +156,7 @@ function toBooking(row: BookingListRow, locale: string): Booking {
     status: row.status || "pending",
     paymentStatus: row.paymentStatus || "pending",
     price: toNumber(row.price),
+    paidAmount: row.paidAmount == null ? undefined : toNumber(row.paidAmount),
     currency: row.currency || "USD",
     verified: Boolean(row.verified),
   };
@@ -236,12 +238,19 @@ export async function getMyBookingsFromDb(input: GetMyBookingsInput): Promise<Bo
         coalesce(nullif(concat_ws(', ', nullif(sp.city, ''), nullif(sp.country, '')), ''), 'Location not specified') as location,
         lower(coalesce(nullif(b.booking_status, ''), 'pending')) as status,
         case
+          -- Only the online share (the deposit) was paid and the rest is paid at the place:
+          -- the booking is marked Paid once the online share is in, but it is not paid in full.
+          when lower(coalesce(nullif(b.payment_status, ''), nullif(lp.status, ''), '')) in ('paid', 'captured', 'succeeded', 'completed')
+            and coalesce(b.paid_amount, 0) > 0
+            and coalesce(b.paid_amount, 0) < coalesce(b.display_total_amount, b.total_amount, b.source_total_amount, 0) - 0.005 then 'deposit_paid'
+          when lower(coalesce(nullif(b.payment_status, ''), nullif(lp.status, ''), '')) in ('partiallypaid', 'partially_paid') then 'partiallypaid'
           when lower(coalesce(nullif(b.payment_status, ''), nullif(lp.status, ''), '')) in ('paid', 'captured', 'succeeded', 'completed') then 'paid'
           when lower(coalesce(nullif(b.payment_status, ''), nullif(lp.status, ''), '')) in ('refunded', 'partially_refunded') then 'refunded'
           when coalesce(b.paid_amount, 0) >= coalesce(b.display_total_amount, b.total_amount, b.source_total_amount, 0) and coalesce(b.display_total_amount, b.total_amount, b.source_total_amount, 0) > 0 then 'paid'
           else 'pending'
         end as "paymentStatus",
         coalesce(b.display_total_amount, b.total_amount, b.source_total_amount, ps.value, 0)::text as price,
+        coalesce(b.paid_amount, 0)::text as "paidAmount",
         upper(coalesce(nullif(b.display_currency_code, ''), nullif(b.currency_code, ''), nullif(b.payment_currency_code, ''), nullif(ps.currency, ''), 'USD')) as currency,
         coalesce(sp.accredited, false) as verified,
         b.selected_date::text as "selectedDate",
@@ -381,6 +390,12 @@ export async function getMyBookingByIdFromDb(input: GetMyBookingByIdInput): Prom
       ) as "fullAddress",
       lower(coalesce(nullif(base.booking_status, ''), 'pending')) as status,
       case
+        -- Only the online share (the deposit) was paid and the rest is paid at the place:
+        -- the booking is marked Paid once the online share is in, but it is not paid in full.
+        when lower(coalesce(nullif(base.payment_status, ''), nullif(base.latest_payment_status, ''), '')) in ('paid', 'captured', 'succeeded', 'completed')
+          and coalesce(base.paid_amount, 0) > 0
+          and coalesce(base.paid_amount, 0) < coalesce(base.display_total_amount, base.total_amount, base.source_total_amount, 0) - 0.005 then 'deposit_paid'
+        when lower(coalesce(nullif(base.payment_status, ''), nullif(base.latest_payment_status, ''), '')) in ('partiallypaid', 'partially_paid') then 'partiallypaid'
         when lower(coalesce(nullif(base.payment_status, ''), nullif(base.latest_payment_status, ''), '')) in ('paid', 'captured', 'succeeded', 'completed') then 'paid'
         when lower(coalesce(nullif(base.payment_status, ''), nullif(base.latest_payment_status, ''), '')) in ('refunded', 'partially_refunded') then 'refunded'
         when coalesce(base.paid_amount, 0) >= coalesce(base.display_total_amount, base.total_amount, base.source_total_amount, 0) and coalesce(base.display_total_amount, base.total_amount, base.source_total_amount, 0) > 0 then 'paid'
