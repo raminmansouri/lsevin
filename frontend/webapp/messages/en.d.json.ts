@@ -15813,6 +15813,7 @@ declare const messages: {
       "refundHistory": "Refund history"
     },
     "products": {
+      "edit": "Edit",
       "title": "Products",
       "new": "+ New product",
       "searchPlaceholder": "Search products…",
@@ -15853,6 +15854,11 @@ declare const messages: {
       "shortDescEn": "Short description (EN)",
       "shortDescFa": "Short description (FA)",
       "shortDescAr": "Short description (AR)",
+      "fullDescEn": "Full description (EN)",
+      "fullDescFa": "Full description (FA)",
+      "fullDescAr": "Full description (AR)",
+      "slugTaken": "This slug is already used by another product. Pick a different one.",
+      "fixErrors": "Some fields need fixing before saving",
       "slug": "Slug",
       "status": "Status",
       "sourcePrice": "Source price",

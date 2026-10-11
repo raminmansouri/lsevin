@@ -14054,6 +14054,7 @@ declare const messages: {
       "refundHistory": "سجل الاسترداد"
     },
     "products": {
+      "edit": "تعديل",
       "title": "المنتجات",
       "new": "+ منتج جديد",
       "searchPlaceholder": "بحث في المنتجات…",
@@ -14094,6 +14095,11 @@ declare const messages: {
       "shortDescEn": "وصف مختصر (EN)",
       "shortDescFa": "وصف مختصر (FA)",
       "shortDescAr": "وصف مختصر (AR)",
+      "fullDescEn": "الوصف الكامل (EN)",
+      "fullDescFa": "الوصف الكامل (FA)",
+      "fullDescAr": "الوصف الكامل (AR)",
+      "slugTaken": "هذا المُعرّف مستخدم لمنتج آخر. اختر مُعرّفاً مختلفاً.",
+      "fixErrors": "يجب تصحيح بعض الحقول قبل الحفظ",
       "slug": "المُعرّف",
       "status": "الحالة",
       "sourcePrice": "سعر المصدر",

@@ -15817,6 +15817,7 @@ declare const messages: {
       "refundHistory": "تاریخچهٔ بازپرداخت"
     },
     "products": {
+      "edit": "ویرایش",
       "title": "محصولات",
       "new": "+ محصول جدید",
       "searchPlaceholder": "جستجوی محصولات…",
@@ -15857,6 +15858,11 @@ declare const messages: {
       "shortDescEn": "توضیح کوتاه (EN)",
       "shortDescFa": "توضیح کوتاه (FA)",
       "shortDescAr": "توضیح کوتاه (AR)",
+      "fullDescEn": "توضیحات کامل (EN)",
+      "fullDescFa": "توضیحات کامل (FA)",
+      "fullDescAr": "توضیحات کامل (AR)",
+      "slugTaken": "این اسلاگ برای محصول دیگری استفاده شده است. اسلاگ دیگری انتخاب کنید.",
+      "fixErrors": "پیش از ذخیره، چند فیلد باید اصلاح شوند",
       "slug": "اسلاگ",
       "status": "وضعیت",
       "sourcePrice": "قیمت مبدأ",

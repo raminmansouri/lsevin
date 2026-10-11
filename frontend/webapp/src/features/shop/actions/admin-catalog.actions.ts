@@ -66,12 +66,28 @@ const createProductSchema = z.object({
   primaryCategoryId: shopId.optional().nullable(),
   categoryIds: z.array(shopId).default([]),
 });
-export async function createProductAction(input: unknown) {
-  const p = createProductSchema.parse(input);
-  const id = await createProduct(p);
-  revalidateShopCatalog();
-  revalidatePath("/[locale]/admin/shop/products", "page");
-  return { ok: true as const, id };
+// Returns the failure instead of throwing: production builds replace a thrown
+// server-action message with a generic "Server Components render" error, so the
+// admin never saw why a product could not be created.
+export async function createProductAction(
+  input: unknown
+): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  const parsed = createProductSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues.map((i) => `${i.path.join(".") || "form"}: ${i.message}`).join("; "),
+    };
+  }
+  try {
+    const id = await createProduct(parsed.data);
+    revalidateShopCatalog();
+    revalidatePath("/[locale]/admin/shop/products", "page");
+    return { ok: true, id };
+  } catch (error) {
+    console.error("[admin/shop] createProduct failed:", error);
+    return { ok: false, error: error instanceof Error ? error.message : "Could not create the product." };
+  }
 }
 export async function createProductForm(formData: FormData) {
   const res = await createProductAction({
@@ -84,6 +100,7 @@ export async function createProductForm(formData: FormData) {
     primaryCategoryId: formData.get("primaryCategoryId") || undefined,
     categoryIds: formData.getAll("categoryIds").map(String).filter(Boolean),
   });
+  if ("error" in res) throw new Error(res.error);
   redirect(`/admin/shop/products/${res.id}`);
 }
 

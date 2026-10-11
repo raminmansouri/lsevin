@@ -59,6 +59,18 @@ const nextConfig: NextConfig = {
     },
     serverActions: {
       bodySizeLimit: "5mb",
+      // The same app is served on several domains, some through a proxy that
+      // passes appmain.lsevin.com as the Host. Without this, Next rejects every
+      // server action sent from the other domains (e.g. lsevin.ir), so admin
+      // forms such as adding a product failed with "unexpected response".
+      allowedOrigins: [
+        "lsevin.ir",
+        "*.lsevin.ir",
+        "lsevin.com",
+        "*.lsevin.com",
+        "lsevincare.com",
+        "*.lsevincare.com",
+      ],
     },
   },
 

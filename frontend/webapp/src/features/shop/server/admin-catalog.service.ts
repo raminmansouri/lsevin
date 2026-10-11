@@ -36,6 +36,7 @@ export async function updateProductCore(input: {
   baseCurrency: string;
   nameTranslations: Record<string, string>;
   shortDescriptionTranslations: Record<string, string>;
+  descriptionTranslations?: Record<string, string>;
   primaryCategoryId?: string | null;
   categoryIds: string[];
   isFeatured: boolean;
@@ -54,15 +55,24 @@ export async function updateProductCore(input: {
   )
     ? input.preorderPaymentPolicy
     : "full";
+  const slug = input.slug.trim();
   await sql.begin(async (tx) => {
-    await tx`
+    // shop.products.slug is UNIQUE across every row (archived/deleted included), so
+    // a taken slug used to abort the save with a hidden database error.
+    const [clash] = await tx<{ id: string }[]>`
+      select id::text as id from shop.products
+      where slug = ${slug} and id <> ${input.productId}::uuid limit 1
+    `;
+    if (clash) throw new Error(`slug_taken: the slug "${slug}" is already used by another product.`);
+    const updated = await tx`
       update shop.products set
         status = ${input.status}::shop.product_status,
-        slug = ${input.slug},
+        slug = ${slug},
         base_price = ${input.basePrice},
         base_currency = ${input.baseCurrency.toUpperCase()},
         name_translations = ${j(input.nameTranslations)},
         short_description_translations = ${j(input.shortDescriptionTranslations)},
+        description_translations = coalesce(${input.descriptionTranslations ? j(input.descriptionTranslations) : null}::jsonb, description_translations),
         primary_category_id = ${input.primaryCategoryId ?? null}::uuid,
         is_featured = ${input.isFeatured},
         is_best_seller = ${input.isBestSeller},
@@ -76,6 +86,7 @@ export async function updateProductCore(input: {
         last_modified_date = now()
       where id = ${input.productId}::uuid and deleted_at is null
     `;
+    if (updated.count === 0) throw new Error("This product no longer exists (it may have been deleted).");
     await tx`delete from shop.product_categories where product_id = ${input.productId}::uuid`;
     for (const cid of new Set([
       ...(input.categoryIds ?? []),
@@ -188,13 +199,24 @@ export async function createProduct(input: {
 }): Promise<string> {
   await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
   return sql.begin(async (tx) => {
+    // shop.products.slug is UNIQUE across every row, archived ones included. A reused
+    // slug used to fail the insert, and production hides the database message, so
+    // creating a product just showed "An error occurred in the Server Components
+    // render". Take the next free slug instead (slug, slug-2, slug-3, ...).
+    const wanted = input.slug.trim();
+    const takenRows = await tx<{ slug: string }[]>`
+      select slug from shop.products where slug = ${wanted} or slug like ${`${wanted}-%`}
+    `;
+    const taken = new Set(takenRows.map((r) => r.slug));
+    let slug = wanted;
+    for (let n = 2; taken.has(slug); n += 1) slug = `${wanted}-${n}`;
     const [row] = await tx<{ id: string }[]>`
       insert into shop.products (
         product_type, status, slug, base_currency, base_price,
         name_translations, short_description_translations, description_translations,
         primary_category_id, tax_class, requires_shipping
       ) values (
-        ${input.productType}::shop.product_type, 'draft', ${input.slug}, ${input.baseCurrency.toUpperCase()}, ${input.basePrice},
+        ${input.productType}::shop.product_type, 'draft', ${slug}, ${input.baseCurrency.toUpperCase()}, ${input.basePrice},
         ${j(input.nameTranslations)}, ${j(input.shortDescriptionTranslations)}, ${j(input.shortDescriptionTranslations)},
         ${input.primaryCategoryId ?? null}::uuid, 'standard', ${input.productType !== "digital"}
       )

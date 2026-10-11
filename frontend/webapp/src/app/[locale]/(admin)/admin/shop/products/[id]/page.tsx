@@ -82,6 +82,7 @@ export default async function AdminProductEditPage({ params }: { params: Promise
             preorder_deposit_percent: product.preorder_deposit_percent,
             name_translations: nt,
             short_description_translations: dt,
+            description_translations: product.description_translations ?? {},
           }}
           categories={categories.map((c: any) => ({ id: c.id, name: c.name }))}
         />

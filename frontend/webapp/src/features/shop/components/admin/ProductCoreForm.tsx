@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useRouter } from "@/i18n/navigation";
@@ -36,6 +37,7 @@ type ProductForEdit = {
   preorder_deposit_percent?: number | null;
   name_translations: Record<string, string>;
   short_description_translations: Record<string, string>;
+  description_translations?: Record<string, string>;
 };
 
 const STATUS = ["draft", "active", "archived"] as const;
@@ -71,6 +73,9 @@ export function ProductCoreForm({
       descEn: product.short_description_translations?.en ?? "",
       descFa: product.short_description_translations?.fa ?? "",
       descAr: product.short_description_translations?.ar ?? "",
+      fullDescEn: product.description_translations?.en ?? "",
+      fullDescFa: product.description_translations?.fa ?? "",
+      fullDescAr: product.description_translations?.ar ?? "",
       slug: product.slug,
       status: product.status,
       basePrice: product.base_price,
@@ -91,7 +96,7 @@ export function ProductCoreForm({
   const onSubmit = form.handleSubmit((values) => {
     startTransition(async () => {
       try {
-        await updateProductCoreAction({
+        const res = await updateProductCoreAction({
           productId: values.productId,
           status: values.status,
           slug: values.slug,
@@ -99,6 +104,7 @@ export function ProductCoreForm({
           baseCurrency: values.baseCurrency,
           nameTranslations: { en: values.nameEn, fa: values.nameFa, ar: values.nameAr },
           shortDescriptionTranslations: { en: values.descEn, fa: values.descFa, ar: values.descAr },
+          descriptionTranslations: { en: values.fullDescEn, fa: values.fullDescFa, ar: values.fullDescAr },
           primaryCategoryId: values.primaryCategoryId || undefined,
           categoryIds: values.categoryIds,
           isFeatured: values.isFeatured,
@@ -110,12 +116,21 @@ export function ProductCoreForm({
           preorderPaymentPolicy: values.preorderPaymentPolicy,
           preorderDepositPercent: values.preorderDepositPercent === "" ? null : Number(values.preorderDepositPercent),
         });
+        if ("error" in res) {
+          toast.error(res.error.startsWith("slug_taken") ? e("slugTaken") : res.error);
+          return;
+        }
         toast.success(t("common.saved"));
         router.refresh();
       } catch (error) {
         toast.error(error instanceof Error ? error.message : t("error.unknownError"));
       }
     });
+  }, (errors) => {
+    // Without this a failing field (e.g. a slug that is not kebab-case) blocked the
+    // save with no feedback unless the admin scrolled to the field.
+    const first = Object.keys(errors)[0];
+    toast.error(`${e("fixErrors")}${first ? ` (${first})` : ""}`);
   });
 
   const e = (k: string) => t(`productEdit.${k}` as never);
@@ -124,6 +139,15 @@ export function ProductCoreForm({
       <FormItem>
         <FormLabel>{label}</FormLabel>
         <FormControl><Input {...f} value={(f.value as string) ?? ""} disabled={isPending} {...extra} /></FormControl>
+        <FormMessage />
+      </FormItem>
+    )} />
+  );
+  const area = (name: any, label: string, extra: Record<string, unknown> = {}) => (
+    <FormField control={form.control} name={name} render={({ field: f }) => (
+      <FormItem>
+        <FormLabel>{label}</FormLabel>
+        <FormControl><Textarea {...f} rows={5} value={(f.value as string) ?? ""} disabled={isPending} {...extra} /></FormControl>
         <FormMessage />
       </FormItem>
     )} />
@@ -152,6 +176,12 @@ export function ProductCoreForm({
               {field("descEn", e("shortDescEn"), { dir: "ltr" })}
               {field("descFa", e("shortDescFa"), { dir: "rtl" })}
               {field("descAr", e("shortDescAr"), { dir: "rtl" })}
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-3">
+              {area("fullDescEn", e("fullDescEn"), { dir: "ltr" })}
+              {area("fullDescFa", e("fullDescFa"), { dir: "rtl" })}
+              {area("fullDescAr", e("fullDescAr"), { dir: "rtl" })}
             </div>
 
             <div className="grid gap-3 md:grid-cols-4">
