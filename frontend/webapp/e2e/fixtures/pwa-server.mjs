@@ -10,6 +10,7 @@ const appRoot = fileURLToPath(new URL("../../", import.meta.url));
 const publicRoot = resolve(appRoot, "public");
 let version = 1;
 let networkDisabled = false;
+let shellFailures = 0;
 const mime = {
   ".js": "application/javascript",
   ".css": "text/css",
@@ -19,6 +20,14 @@ const mime = {
 const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url, "http://127.0.0.1:4177");
+    if (url.pathname === "/__fixture/shell-failures") {
+      shellFailures = Math.max(
+        0,
+        Math.min(3, Number(url.searchParams.get("count")) || 0)
+      );
+      res.end("OK");
+      return;
+    }
     if (url.pathname.endsWith("/specialist/http-cached"))
       res.setHeader("Cache-Control", "public, max-age=3600");
     if (
@@ -31,6 +40,26 @@ const server = createServer(async (req, res) => {
     }
     if (networkDisabled) {
       req.socket.destroy();
+      return;
+    }
+    if (url.pathname === "/offline.html" && shellFailures > 0) {
+      shellFailures -= 1;
+      res.statusCode = 503;
+      res.end();
+      return;
+    }
+    const documentStatus = new Map([
+      ["/en/n/app/mobile/provider/server-error", 500],
+      ["/en/n/app/mobile/provider/gateway-error", 503],
+      ["/en/n/app/mobile/provider/forbidden", 403],
+      ["/en/n/app/mobile/provider/not-found", 404],
+    ]).get(url.pathname);
+    if (documentStatus) {
+      res.statusCode = documentStatus;
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.end(
+        `<html><title>Origin failure</title><h1>Origin status ${documentStatus}</h1></html>`
+      );
       return;
     }
     if (url.pathname.endsWith("-prefix")) {

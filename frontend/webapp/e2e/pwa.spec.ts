@@ -7,7 +7,38 @@ async function installed(page: Page) {
 
 test.beforeEach(async ({ request }) => {
   await request.get("/__fixture/offline-off");
+  await request.get("/__fixture/shell-failures?count=0");
   await request.get("/__test/version?value=1");
+});
+
+test("transient setup failure retries the atomic offline shell installation", async ({
+  page,
+  request,
+}) => {
+  await request.get("/__fixture/shell-failures?count=1");
+  await installed(page);
+  expect(
+    await page.evaluate(async () => {
+      const names = await caches.keys();
+      const shell = await caches.open(
+        names.find((name) => name.startsWith("lsevin-pwa-shell-"))!
+      );
+      return (
+        !!(await shell.match("/offline.html")) &&
+        !!(await shell.match("/pwa/offline.js")) &&
+        !!(await shell.match("/pwa/profile-crypto.js"))
+      );
+    })
+  ).toBe(true);
+  await request.get("/__fixture/offline-on");
+  try {
+    await page.reload();
+    await expect(
+      page.getByRole("heading", { name: "Saved pages", exact: true })
+    ).toBeVisible();
+  } finally {
+    await request.get("/__fixture/offline-off");
+  }
 });
 
 test("a disconnected origin serves saved text without browser offline emulation", async ({
@@ -56,6 +87,49 @@ test("HTTP-cached document cannot replace the offline reader", async ({
     ).toBeVisible();
   } finally {
     await request.get("/__fixture/offline-off");
+  }
+});
+
+test("document 5xx responses use the reader without changing origin API status", async ({
+  page,
+  request,
+}) => {
+  await installed(page);
+  for (const [path, status] of [
+    ["/en/n/app/mobile/provider/server-error", 500],
+    ["/en/n/app/mobile/provider/gateway-error", 503],
+  ] as const) {
+    expect((await request.get(path)).status()).toBe(status);
+    await page.goto(path);
+    await expect(
+      page.getByRole("heading", { name: "Saved pages", exact: true })
+    ).toBeVisible();
+    expect(await page.evaluate(() => navigator.onLine)).toBe(true);
+    await page.reload();
+    await expect(page.locator("#retry")).toBeVisible();
+  }
+  expect(
+    (await request.get("/api/booking-pro/catalog/providers?fail=1")).status()
+  ).toBe(500);
+});
+
+test("document permission and not-found failures keep their real status", async ({
+  page,
+}) => {
+  await installed(page);
+  for (const [path, status] of [
+    ["/en/n/app/mobile/provider/forbidden", 403],
+    ["/en/n/app/mobile/provider/not-found", 404],
+  ] as const) {
+    const response = await page.goto(path);
+    expect(response?.status()).toBe(status);
+    await expect(
+      page.getByRole("heading", {
+        name: `Origin status ${status}`,
+        exact: true,
+      })
+    ).toBeVisible();
+    await expect(page.locator("#retry")).toHaveCount(0);
   }
 });
 

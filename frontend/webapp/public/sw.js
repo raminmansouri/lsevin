@@ -1,6 +1,6 @@
 // Only public assets and a deliberately reduced public directory are persisted.
 // Never cache HTML/RSC, account APIs, uploads, prices, slots, or mutations.
-const VERSION = "v1-77085887d96494fc";
+const VERSION = "v1-24edfa4e2c88eb13";
 const SHELL_CACHE = `lsevin-pwa-shell-${VERSION}`;
 const ASSET_CACHE = `lsevin-pwa-assets-${VERSION}`;
 const DIRECTORY_CACHE = "lsevin-pwa-directory-v1";
@@ -29,6 +29,20 @@ const LOCALES = new Set([
 const DIRECTORY_TTL = 7 * 24 * 60 * 60 * 1000;
 let directoryWrites = Promise.resolve();
 
+async function installShell() {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      await (await caches.open(SHELL_CACHE)).addAll(SHELL);
+      return;
+    } catch (error) {
+      if (attempt === 2) throw error;
+      // Critical static GETs are safe to retry. Cache.addAll remains atomic;
+      // never activate a partially installed reader after a transient outage.
+      await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
+    }
+  }
+}
+
 self.addEventListener("install", (event) => {
   event.waitUntil(
     (async () => {
@@ -43,7 +57,7 @@ self.addEventListener("install", (event) => {
         )
           previousPwa = true;
       }
-      await (await caches.open(SHELL_CACHE)).addAll(SHELL);
+      await installShell();
       // The first PWA can replace the old push-only worker without reloading any
       // client. Subsequent PWA revisions retain the user's update choice.
       if (!previousPwa) await self.skipWaiting();
@@ -108,15 +122,31 @@ function storageUnavailable(request) {
 }
 
 async function offlineNavigation(request) {
+  const pathname = new URL(request.url).pathname;
+  const segments = pathname.split("/");
+  const isReadingPage =
+    pathname === "/" ||
+    (LOCALES.has(segments[1]) &&
+      /^\/(?:service-providers\/[a-zA-Z0-9-]+|type\/[a-zA-Z0-9-]+|n\/app\/mobile\/(?:home|providers|explore|categories|featured|search|search-results|profile|provider\/[a-zA-Z0-9-]+|specialist\/[a-zA-Z0-9-]+|service\/[a-zA-Z0-9-]+))?\/?$/.test(
+        "/" + segments.slice(2).join("/")
+      ));
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 8000);
   try {
     // An HTTP-cached SSR page can otherwise look live while disconnected.
     // Always test the network, then serve the independent saved reading view.
-    return await fetch(request, {
+    const response = await fetch(request, {
       signal: controller.signal,
       cache: "no-store",
     });
+    // Gateways can return an empty 5xx page even when the device reports online.
+    // Preserve permission/not-found responses; document server failures can use
+    // the saved reader. APIs and payment callbacks remain network-only.
+    if (response.status >= 500 && isReadingPage) {
+      controller.abort();
+      throw new Error("NavigationServerUnavailable");
+    }
+    return response;
   } catch {
     try {
       const cached = await (
