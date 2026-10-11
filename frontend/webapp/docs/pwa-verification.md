@@ -112,17 +112,26 @@ offline writes and replay them after reconnecting.
   classifications showed no corresponding errors. The later public suite passed;
   repeated CDN resilience and physical-device behavior remain unverified.
 
+- Follow-up `b692d990` pushed to `Lsevin-New`: atomic shell installation now
+  retries transient failures; supported public reading pages use the reader
+  when document requests return HTTP 500/503. HTTP 403/404 and network-only
+  APIs retain their original semantics. Fixture suite: 40/40 PASS, desktop
+  and mobile Chromium; scoped PWA TypeScript: PASS. Previous HTTP 5xx behavior
+  was reproduced as a failing regression before the correction. Jenkins global
+  308 and Iran 9 are building; this follow-up is not yet verified deployed.
+
 ## NOT VERIFIED
 
 Live push delivery, payments returning to the updated wrappers, staging,
-Iranian production deployment, repeated CDN resilience and installation/update
+Latest follow-up production deployment, repeated CDN resilience and installation/update
 on real devices.
 No macOS/Xcode is available: iOS compilation and runtime remain unverified.
 Android airplane-mode process cold startup, OS storage eviction and
 instrumentation remain unverified on physical devices.
 The tested Chromium Pixel 7 emulation is not an Android WebView or iOS test.
 The global Linux containers were built and deployed by Jenkins 303/304;
-Iran-site release verification remains pending.
+Iran build 7 deployed successfully; latest follow-up deployment and its
+both-domain verification remain pending.
 
 ## DATABASE / MIGRATIONS
 
@@ -147,14 +156,16 @@ boundary from inside Jenkins and cleans up only its own temporary image tag.
 
 ## DEPLOYMENT REQUIRED
 
-Complete the Iranian site deployment; keep
+Complete global build 308 and Iranian build 9, then verify the exact new
+worker and repeat the real authenticated/public suites on both hosts; keep
 public/static files in the standalone runtime.
 Use valid HTTPS build origins and preserve worker no-store/CSP/scope headers.
 Build, device-test and publish updated Android/iOS apps through the existing
 release process. No new secrets, queues, schema or external services required.
 Run actual-app tests with a representative test database and authenticated test
 state, then staging and both-domain/device smoke checks. Global initial deployment
-and follow-up completed; Iranian deployment is pending.
+and previous follow-up completed; Iran build 7 deployed. The latest follow-up
+is still building on both servers.
 Native sources were pushed to private repositories
 [Android](https://github.com/Mohammadjafariyan/Lsevinandroid) (`712e9b9`) and
 [iOS](https://github.com/Mohammadjafariyan/lseviniosapp) (`8c84274`).
