@@ -11,7 +11,8 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
 
   return {
     name: t("name"),
-    short_name: t("name"),
+    short_name: "LSevin",
+    id: "/",
     start_url: "/",
     scope: "/",
     // `standalone` is what gives the installed PWA its full-screen, no-browser-
@@ -20,7 +21,25 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     orientation: "portrait",
     theme_color: "#101E33",
     background_color: "#101E33",
-    // NOTE: add 192x192 + 512x512 (incl. a `maskable`) PNG icons here to make the
-    // app installable with a proper home-screen icon — no icon assets exist yet.
+    icons: [
+      {
+        src: "/pwa/icon-192.png",
+        sizes: "192x192",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
+        src: "/pwa/icon-512.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
+        src: "/pwa/icon-512.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "maskable",
+      },
+    ],
   };
 }
