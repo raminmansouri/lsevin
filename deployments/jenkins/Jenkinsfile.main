@@ -65,7 +65,7 @@ pipeline {
           ).toString()
           env.BUILD_WEB = changedSince(
             deployedCommit(webImage),
-            'frontend/webapp'
+            'frontend/webapp ":(exclude)frontend/webapp/e2e" ":(exclude)frontend/webapp/tests" ":(exclude)frontend/webapp/docs" ":(exclude)frontend/webapp/playwright.*.config.ts"'
           ).toString()
           env.BUILD_MIGRATIONS = changedSince(
             deployedCommit(migrationImage),

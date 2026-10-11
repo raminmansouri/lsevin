@@ -1,4 +1,17 @@
 import { expect, test } from "@playwright/test";
+import type { Page } from "@playwright/test";
+
+async function openOnlinePage(page: Page, path: string) {
+  const response = await page.goto(path, { waitUntil: "domcontentloaded" });
+  expect(response?.status()).toBeLessThan(400);
+  if (await page.locator("#retry").count()) {
+    // A cold/slow origin may reach the worker's bounded network deadline.
+    // Exercise the reader's real recovery control, without disabling fallback.
+    await expect(page.locator("#status")).toHaveText(/\S/);
+    await page.locator("#retry").click();
+    await expect(page.locator("#retry")).toHaveCount(0);
+  }
+}
 
 test("manifest, worker, offline shell and guest authentication are served correctly", async ({
   request,
@@ -36,18 +49,34 @@ test("offline support starts while page images are still loading", async ({
     releaseImages = resolve;
   });
   let heldImages = 0;
-  await page.route("**/*", async (route) => {
-    if (route.request().resourceType() !== "image") return route.continue();
+  await page.route("**/__pwa-e2e-held-image.png", async (route) => {
     heldImages += 1;
     await gate;
     await route.abort();
   });
+  await page.addInitScript(() => {
+    document.addEventListener(
+      "DOMContentLoaded",
+      () => {
+        const image = document.createElement("img");
+        image.src = "/__pwa-e2e-held-image.png";
+        image.alt = "Nonessential loading fixture";
+        document.body.append(image);
+      },
+      { once: true }
+    );
+  });
   try {
-    await page.goto("/en/n/app/mobile/home", {
+    const response = await page.goto("/en/n/app/mobile/home", {
       waitUntil: "domcontentloaded",
     });
+    expect(response?.status()).toBeLessThan(400);
     await expect.poll(() => heldImages).toBeGreaterThan(0);
-    await page.waitForFunction(() => !!navigator.serviceWorker.controller);
+    await page.waitForFunction(
+      () => !!navigator.serviceWorker?.controller,
+      undefined,
+      { timeout: 30000 }
+    );
     expect(await page.evaluate(() => document.readyState)).toBe("interactive");
     await expect
       .poll(() =>
@@ -61,7 +90,7 @@ test("offline support starts while page images are still loading", async ({
       .toBe(true);
   } finally {
     releaseImages();
-    await page.unrouteAll({ behavior: "wait" });
+    await page.unrouteAll({ behavior: "ignoreErrors" });
   }
 });
 
@@ -69,8 +98,7 @@ test("real landing page installs offline support and saves a reading view", asyn
   page,
   context,
 }) => {
-  const response = await page.goto("/en/n/app/mobile/home");
-  expect(response?.status()).toBeLessThan(400);
+  await openOnlinePage(page, "/en/n/app/mobile/home");
   await page.waitForFunction(() => !!navigator.serviceWorker.controller);
   await expect
     .poll(() =>
@@ -136,8 +164,7 @@ test("real public catalogue pages save automatically and survive offline navigat
       failures.push(`${response.status()} ${new URL(response.url()).pathname}`);
   });
   for (const path of paths) {
-    const response = await page.goto(path);
-    expect(response?.status()).toBeLessThan(400);
+    await openOnlinePage(page, path);
     await page.waitForFunction(() => !!navigator.serviceWorker.controller);
     await expect
       .poll(

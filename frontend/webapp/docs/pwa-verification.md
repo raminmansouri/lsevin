@@ -1,4 +1,4 @@
-# PWA implementation and release verification — 2026-10-11
+# PWA implementation and release verification — 2026-10-12
 
 ## IMPLEMENTED
 
@@ -72,35 +72,52 @@ offline writes and replay them after reconnecting.
   with authentication/network errors. Connector access does not validate the
   application's connection or its user workflow. Docker daemon was unavailable.
 - Merged PWA source into `Lsevin-New`: `6937d50309dc4e11501011acb50c4d68422bb276`.
-  Global Jenkins build 303: SUCCESS. Running image `lsevin-webapp:6937d50309dc-303`,
+  Initial global Jenkins build 303: SUCCESS. Follow-up build 304: SUCCESS,
+  running image `lsevin-webapp:c72add8aa572-304`,
   ready 1/1; deployed worker and offline reader verified inside the pod and over
   HTTPS. Chrome upgraded its previous push-only worker, then disconnected
   Providers link navigation and refresh opened the offline reader.
-- Live global manifest/worker/header/guest-auth and landing snapshot tests: PASS.
+- Live global production public browser suite: 4/4 PASS, including
+  manifest/worker/header/guest-auth, startup while a nonessential image remains
+  pending, landing snapshots, and real provider/service/staff offline direct
+  navigation and refresh. Cold/slow document recovery uses the actual reader's
+  Try again control. Authenticated profile workflow: 1/1 PASS separately.
   Authenticated profile save, offline unlock, hydration-aware sign-out and
   ciphertext clearing: PASS with the real backend/test user.
 - Live catalogue QA exposed browser HTTP-cache reuse of SSR staff HTML while
   disconnected. Follow-up document fetches use `cache: no-store`. The new
   regression fails with previous behavior and passes with the correction;
   fixture browser suite now 34/34 PASS. Registration now starts at DOM readiness,
-  without waiting for slow images. Follow-up production verification is pending.
+  without waiting for slow images. Follow-up production navigation/refresh and
+  real worker update preserving saved pages: PASS. Linux build worker revision
+  `v1-020c71f0b9e258e6`, SHA-256
+  `83bbef58b2bdfb643eca57314bbf8a1a67f797ec1e74860afdca698eb286eb49`.
+  Global build 305: SUCCESS for Jenkinsfile-only commit `489fa806`; it correctly
+  retained build 304's image because application source did not change.
 - Server B SSH connectivity succeeds when bound to the Ethernet source address,
   bypassing the local TUN without changing routes. Its first full-history checkout
   was slow; Jenkins config was backed up and changed to a single-branch shallow
-  checkout. Iran still runs its previous image; deployment remains pending.
+  checkout plus a verified Git reference cache transferred over SSH. Its initial
+  Jenkinsfile attempted to delete a bind mount; the workspace now uses a child
+  directory and its existing Iran site-variant script runs before image import.
+  Iran build 4 passed checkout, source integrity and preflight, and is compiling.
+  Iran still runs its previous image; deployment remains pending.
+- Intermittent public Cloudflare HTTP 503 responses were observed during the
+  earlier live run. Direct origin offline-reader HTTP 200 and application log
+  classifications showed no corresponding errors. The later public suite passed;
+  repeated CDN resilience and physical-device behavior remain unverified.
 
 ## NOT VERIFIED
 
-Follow-up production provider/staff/service offline workflow, stalled-image
-startup regression, live push delivery, payments returning to the updated
-wrappers, staging, Iranian production deployment and installation/update on
-real devices.
+Live push delivery, payments returning to the updated wrappers, staging,
+Iranian production deployment, repeated CDN resilience and installation/update
+on real devices.
 No macOS/Xcode is available: iOS compilation and runtime remain unverified.
 Android airplane-mode process cold startup, OS storage eviction and
 instrumentation remain unverified on physical devices.
 The tested Chromium Pixel 7 emulation is not an Android WebView or iOS test.
-The global Linux container was built and deployed by Jenkins 303; follow-up
-container and Iran-site release verification remain pending.
+The global Linux containers were built and deployed by Jenkins 303/304;
+Iran-site release verification remains pending.
 
 ## DATABASE / MIGRATIONS
 
@@ -108,7 +125,9 @@ No schema changes or migrations added/executed for this feature. Connector
 queries were read-only. Real test login/OTP verification used the existing
 backend and its normal authentication persistence; no manual database changes
 were made. Previous production migration state
-was not inspected; no migration upgrade is required by these PWA changes.
+was read on server B: migrations 0070/0071 are already applied, and 0071's
+checksum matches the current Git blob. Its meal-plan table exists. No migration
+upgrade is required by these PWA changes.
 Other pre-existing repository migrations and user changes were left intact.
 
 ## REGRESSION TESTS
@@ -121,14 +140,14 @@ cache eviction/storage errors, RTL, and network-only APIs/payment/downloads.
 
 ## DEPLOYMENT REQUIRED
 
-Deploy the offline HTTP-cache/startup follow-up and Iranian site; keep
+Complete the Iranian site deployment; keep
 public/static files in the standalone runtime.
 Use valid HTTPS build origins and preserve worker no-store/CSP/scope headers.
 Build, device-test and publish updated Android/iOS apps through the existing
 release process. No new secrets, queues, schema or external services required.
 Run actual-app tests with a representative test database and authenticated test
 state, then staging and both-domain/device smoke checks. Global initial deployment
-completed; follow-up and Iranian deployment are pending.
+and follow-up completed; Iranian deployment is pending.
 Native sources were pushed to private repositories
 [Android](https://github.com/Mohammadjafariyan/Lsevinandroid) (`712e9b9`) and
 [iOS](https://github.com/Mohammadjafariyan/lseviniosapp) (`8c84274`).
