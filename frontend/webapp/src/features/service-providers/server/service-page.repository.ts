@@ -931,8 +931,6 @@ async function getTopReviews(providerId: string, providerServiceId: string): Pro
     group by spc.id
     order by
       case when spc.provider_service_id = ${providerServiceId}::uuid then 0 else 1 end,
-      spc.rating desc nulls last,
-      spc.helpful_count desc,
       spc.create_date desc
     limit 3
   `;

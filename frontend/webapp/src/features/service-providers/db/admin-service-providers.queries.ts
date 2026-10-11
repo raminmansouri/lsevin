@@ -13,6 +13,7 @@ import { ApiReturnType, PaginatedResult } from "@/types/network";
 
 import {
   getCpCategoryGroupsTag,
+  getProviderPageDataTag,
   getServiceProviderGlobalTag,
   getServiceProviderIdTag,
 } from "./cache";
@@ -1752,6 +1753,13 @@ export function revalidateAdminServiceProvider(serviceProviderId?: string) {
   // provider under a category in the admin panel leaves the app showing the old
   // count — including "0 providers" on the subcategory the admin just filled.
   revalidateTag(getCpCategoryGroupsTag());
-  if (serviceProviderId)
+  // The public provider/service/specialist pages are cached for hours under their own
+  // tags. Without these, approving or editing a review (or anything else here) left the
+  // old page up, so approved comments never seemed to appear.
+  revalidateTag("service-page");
+  revalidateTag("specialist-page");
+  if (serviceProviderId) {
     revalidateTag(getServiceProviderIdTag(serviceProviderId));
+    revalidateTag(getProviderPageDataTag(serviceProviderId));
+  }
 }

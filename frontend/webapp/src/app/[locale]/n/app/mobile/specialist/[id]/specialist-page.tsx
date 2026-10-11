@@ -638,6 +638,9 @@ export default function SpecialistProfileClient({
       const problem = await response.json().catch(() => null);
       throw new Error(problem?.title || t("errors.submitReview"));
     }
+
+    const payload = await response.json().catch(() => null);
+    return { requiresModeration: Boolean(payload?.requiresModeration) };
   };
 
   return (

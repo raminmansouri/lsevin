@@ -696,16 +696,18 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
       throw new Error(problem?.title || t("errors.submitReview"));
     }
 
-    // The review is stored as pending and stays hidden from the public list until an
-    // admin approves it. Optimistically show it to its author so the submission feels real.
+    // Reviews from people who booked are published at once. Anyone else's stays hidden
+    // until an admin approves it; show it to its author marked as pending.
     const payload = await response.json().catch(() => null);
+    const requiresModeration = Boolean(payload?.requiresModeration);
     const created = payload?.review as TopReview | undefined;
     if (created?.id) {
       setVisibleReviews((current) => [
-        { ...created, date: "", pending: true },
+        { ...created, date: requiresModeration ? "" : created.date, pending: requiresModeration },
         ...current.filter((item) => String(item.id) !== String(created.id)),
       ]);
     }
+    return { requiresModeration };
   };
 
 

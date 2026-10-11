@@ -1,7 +1,9 @@
 import { createHash } from "crypto";
+import { revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 import sql from "@/config/database/db";
+import { getProviderPageDataTag } from "@/features/service-providers/db/cache";
 import { getUserId } from "@/lib/auth/session";
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -49,6 +51,12 @@ export async function POST(request: NextRequest, context: RouteContext) {
     `;
     const row = rows[0];
     if (!row) return NextResponse.json({ title: "Review was not found or is not public." }, { status: 404 });
+    // Like/dislike counts are part of the cached pages; refresh them so they stick.
+    revalidateTag(getProviderPageDataTag(providerId));
+    revalidateTag("service-page");
+    revalidateTag("specialist-page");
+    // Like/dislike counts are part of the cached provider page; refresh it so they stick.
+    revalidateTag(getProviderPageDataTag(providerId));
     return NextResponse.json({ helpfulCount: Number(row.helpfulCount || 0), notHelpfulCount: Number(row.notHelpfulCount || 0), userVote: Number(row.userVote || 0) === -1 ? "dislike" : "like" });
   } catch (error) {
     return NextResponse.json({ title: "Could not save review vote.", detail: error instanceof Error ? error.message : undefined }, { status: 500 });

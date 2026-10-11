@@ -267,10 +267,17 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
     }
 
     const payload = await response.json();
-    if (payload.review && !payload.requiresModeration) {
-      setVisibleReviews((current) => [payload.review, ...current.filter((item) => item.id !== payload.review.id)]);
+    const requiresModeration = Boolean(payload.requiresModeration);
+    if (payload.review) {
+      // Published reviews (author has a booking) show at once; others show only to their
+      // author, marked as waiting for approval.
+      setVisibleReviews((current) => [
+        { ...payload.review, pending: requiresModeration },
+        ...current.filter((item) => item.id !== payload.review.id),
+      ]);
     }
-    await refetch();
+    if (!requiresModeration) await refetch();
+    return { requiresModeration };
   };
 
   const fetchReviewsPage = async (options: { offset: number; sort: ReviewSort }) => {
